@@ -88,9 +88,9 @@ public class DeliverableSwapFutureNodeConverter extends CurveNodeVisitorAdapter<
 
   @Override
   public InstrumentDefinition<?> visitDeliverableSwapFutureNode(final DeliverableSwapFutureNode swapFuture) {
-    Double rate = _marketData.getDataPoint(_dataId);
-    if (rate == null) {
-      rate = 0.99;
+    Double price = _marketData.getDataPoint(_dataId);
+    if (price == null) {
+      price = 0.99;
 //      throw new OpenGammaRuntimeException("Could not get market data for " + _dataId);
     }
     final DeliverablePriceQuotedSwapFutureConvention futureConvention =
@@ -139,9 +139,9 @@ public class DeliverableSwapFutureNodeConverter extends CurveNodeVisitorAdapter<
     final int spotLagIndex = indexConvention.getSettlementDays();
     final IborIndex iborIndex = new IborIndex(currency, indexTenor, spotLagIndex, dayCount, businessDayConvention, eom, indexConvention.getName());
     final GeneratorSwapFixedIbor generator = new GeneratorSwapFixedIbor("", fixedLegConvention.getPaymentTenor().getPeriod(), fixedLegConvention.getDayCount(), iborIndex, calendar);
-    final SwapFixedIborDefinition underlying = SwapFixedIborDefinition.from(deliveryDate, maturityTenor.getPeriod(), generator, notional, rate, false);
+    final SwapFixedIborDefinition underlying = SwapFixedIborDefinition.from(deliveryDate, maturityTenor.getPeriod(), generator, notional, 0.0, false); //FIXME: rate of underlying?
     final SwapFuturesPriceDeliverableSecurityDefinition securityDefinition = new SwapFuturesPriceDeliverableSecurityDefinition(lastTradeDate, underlying, notional);
-    return new SwapFuturesPriceDeliverableTransactionDefinition(securityDefinition, _valuationTime, rate, 1);
+    return new SwapFuturesPriceDeliverableTransactionDefinition(securityDefinition, _valuationTime, price, 1);
   }
 
 }
