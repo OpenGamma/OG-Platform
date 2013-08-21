@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.derivative;
@@ -28,7 +28,7 @@ public class BondFutureOptionPremiumTransactionTest {
   private static final boolean IS_CALL = true;
   private static final ZonedDateTime EXPIRATION_DATE = DateUtils.getUTCDate(2011, 8, 26);
   private static final BondFutureOptionPremiumSecurityDefinition FVU1_C120_SEC_DEFINITION = new BondFutureOptionPremiumSecurityDefinition(FVU1_DEFINITION, EXPIRATION_DATE, STRIKE, IS_CALL);
-  private static final String[] CURVE_NAMES = FutureInstrumentsDescriptionDataSet.curveNames();
+  private static final String[] CURVE_NAMES = new String[] {"A", "B"};
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 6, 16);
   private static final BondFutureOptionPremiumSecurity FVU1_C120_SEC = FVU1_C120_SEC_DEFINITION.toDerivative(REFERENCE_DATE, CURVE_NAMES);
   // Option transaction
@@ -66,11 +66,11 @@ public class BondFutureOptionPremiumTransactionTest {
    */
   public void equalHash() {
     assertTrue(FVU1_C120_TRA.equals(FVU1_C120_TRA));
-    BondFutureOptionPremiumTransaction other = new BondFutureOptionPremiumTransaction(FVU1_C120_SEC, QUANTITY, PREMIUM);
+    final BondFutureOptionPremiumTransaction other = new BondFutureOptionPremiumTransaction(FVU1_C120_SEC, QUANTITY, PREMIUM);
     assertTrue(FVU1_C120_TRA.equals(other));
     assertTrue(FVU1_C120_TRA.hashCode() == other.hashCode());
     BondFutureOptionPremiumTransaction modified;
-    BondFutureOptionPremiumSecurity modifiedSec = FVU1_C120_SEC_DEFINITION.toDerivative(REFERENCE_DATE.plusDays(1), CURVE_NAMES);
+    final BondFutureOptionPremiumSecurity modifiedSec = FVU1_C120_SEC_DEFINITION.toDerivative(REFERENCE_DATE.plusDays(1), CURVE_NAMES);
     modified = new BondFutureOptionPremiumTransaction(modifiedSec, QUANTITY, PREMIUM);
     assertFalse(FVU1_C120_TRA.equals(modified));
     modified = new BondFutureOptionPremiumTransaction(FVU1_C120_SEC, QUANTITY + 1, PREMIUM);

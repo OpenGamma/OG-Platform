@@ -1,16 +1,16 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.derivative;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.instrument.payment.CapFloor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -40,6 +40,33 @@ public class CapFloorCMS extends CouponFloating implements CapFloor {
    * @param currency The payment currency.
    * @param paymentTime Time (in years) up to the payment.
    * @param paymentYearFraction The year fraction (or accrual factor) for the coupon payment.
+   * @param fundingCurveName The funding curve name, not null
+   * @param notional Coupon notional.
+   * @param fixingTime Time (in years) up to fixing.
+   * @param underlyingSwap A swap describing the CMS underlying. The rate and notional are not used. The swap should be of vanilla type.
+   * @param settlementTime The time (in years) to underlying swap settlement.
+   * @param strike The strike.
+   * @param isCap The cap (true) /floor (false) flag.
+   * @deprecated Use the constructor that does not take a yield curve name
+   */
+  @Deprecated
+  public CapFloorCMS(final Currency currency, final double paymentTime, final String fundingCurveName, final double paymentYearFraction, final double notional,
+      final double fixingTime, final SwapFixedCoupon<? extends Payment> underlyingSwap, final double settlementTime,
+      final double strike, final boolean isCap) {
+    super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional, fixingTime);
+    ArgumentChecker.notNull(underlyingSwap, "underlying swap");
+    ArgumentChecker.isTrue(underlyingSwap.isIborOrFixed(), "underlying swap not of vanilla type");
+    _underlyingSwap = underlyingSwap;
+    _settlementTime = settlementTime;
+    _strike = strike;
+    _isCap = isCap;
+  }
+
+  /**
+   * Constructor from floating coupon details and underlying swap.
+   * @param currency The payment currency.
+   * @param paymentTime Time (in years) up to the payment.
+   * @param paymentYearFraction The year fraction (or accrual factor) for the coupon payment.
    * @param notional Coupon notional.
    * @param fixingTime Time (in years) up to fixing.
    * @param underlyingSwap A swap describing the CMS underlying. The rate and notional are not used. The swap should be of vanilla type.
@@ -47,11 +74,12 @@ public class CapFloorCMS extends CouponFloating implements CapFloor {
    * @param strike The strike.
    * @param isCap The cap (true) /floor (false) flag.
    */
-  public CapFloorCMS(Currency currency, double paymentTime, double paymentYearFraction, double notional, double fixingTime, SwapFixedCoupon<? extends Payment> underlyingSwap, double settlementTime,
-      double strike, boolean isCap) {
-    super(currency, paymentTime, underlyingSwap.getFixedLeg().getNthPayment(0).getFundingCurveName(), paymentYearFraction, notional, fixingTime);
-    Validate.notNull(underlyingSwap, "underlying swap");
-    Validate.isTrue(underlyingSwap.isIborOrFixed(), "underlying swap not of vanilla type");
+  public CapFloorCMS(final Currency currency, final double paymentTime, final double paymentYearFraction, final double notional,
+      final double fixingTime, final SwapFixedCoupon<? extends Payment> underlyingSwap, final double settlementTime,
+      final double strike, final boolean isCap) {
+    super(currency, paymentTime, paymentYearFraction, notional, fixingTime);
+    ArgumentChecker.notNull(underlyingSwap, "underlying swap");
+    ArgumentChecker.isTrue(underlyingSwap.isIborOrFixed(), "underlying swap not of vanilla type");
     _underlyingSwap = underlyingSwap;
     _settlementTime = settlementTime;
     _strike = strike;
@@ -65,9 +93,14 @@ public class CapFloorCMS extends CouponFloating implements CapFloor {
    * @param isCap The cap (true) /floor (false) flag.
    * @return The CMS cap/floor.
    */
-  public static CapFloorCMS from(CouponCMS coupon, double strike, boolean isCap) {
-    return new CapFloorCMS(coupon.getCurrency(), coupon.getPaymentTime(), coupon.getPaymentYearFraction(), coupon.getNotional(), coupon.getFixingTime(), coupon.getUnderlyingSwap(),
-        coupon.getSettlementTime(), strike, isCap);
+  public static CapFloorCMS from(final CouponCMS coupon, final double strike, final boolean isCap) {
+    try {
+      return new CapFloorCMS(coupon.getCurrency(), coupon.getPaymentTime(), coupon.getUnderlyingSwap().getFixedLeg().getNthPayment(0).getFundingCurveName(),
+          coupon.getPaymentYearFraction(), coupon.getNotional(), coupon.getFixingTime(), coupon.getUnderlyingSwap(), coupon.getSettlementTime(), strike, isCap);
+    } catch (final IllegalStateException e) {
+      return new CapFloorCMS(coupon.getCurrency(), coupon.getPaymentTime(), coupon.getPaymentYearFraction(), coupon.getNotional(),
+          coupon.getFixingTime(), coupon.getUnderlyingSwap(), coupon.getSettlementTime(), strike, isCap);
+    }
   }
 
   /**
@@ -97,13 +130,13 @@ public class CapFloorCMS extends CouponFloating implements CapFloor {
   }
 
   @Override
-  public double payOff(double fixing) {
-    double omega = (_isCap) ? 1.0 : -1.0;
+  public double payOff(final double fixing) {
+    final double omega = (_isCap) ? 1.0 : -1.0;
     return Math.max(omega * (fixing - _strike), 0);
   }
 
   @Override
-  public Coupon withNotional(double notional) {
+  public Coupon withNotional(final double notional) {
     return null;
   }
 
@@ -122,7 +155,7 @@ public class CapFloorCMS extends CouponFloating implements CapFloor {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -132,7 +165,7 @@ public class CapFloorCMS extends CouponFloating implements CapFloor {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    CapFloorCMS other = (CapFloorCMS) obj;
+    final CapFloorCMS other = (CapFloorCMS) obj;
     if (_isCap != other._isCap) {
       return false;
     }

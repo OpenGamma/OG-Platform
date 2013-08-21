@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.derivative;
@@ -27,7 +27,7 @@ public class BondFutureOptionPremiumSecurityTest {
   private static final ZonedDateTime EXPIRATION_DATE = DateUtils.getUTCDate(2011, 8, 26);
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 6, 17);
-  private static final String[] CURVE_NAMES = FutureInstrumentsDescriptionDataSet.curveNames();
+  private static final String[] CURVE_NAMES = new String[] {"A", "B"};
 
   private static final BondFuture FVU1 = FVU1_DEFINITION.toDerivative(REFERENCE_DATE, 0.0, CURVE_NAMES);
   private static final double EXPIRATION_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, EXPIRATION_DATE);
@@ -55,11 +55,11 @@ public class BondFutureOptionPremiumSecurityTest {
    */
   public void equalHash() {
     assertTrue(FVU1_C125.equals(FVU1_C125));
-    BondFutureOptionPremiumSecurity other = new BondFutureOptionPremiumSecurity(FVU1, EXPIRATION_TIME, STRIKE, IS_CALL);
+    final BondFutureOptionPremiumSecurity other = new BondFutureOptionPremiumSecurity(FVU1, EXPIRATION_TIME, STRIKE, IS_CALL);
     assertTrue(FVU1_C125.equals(other));
     assertTrue(FVU1_C125.hashCode() == other.hashCode());
     BondFutureOptionPremiumSecurity modified;
-    BondFuture modifiedFuture = FVU1_DEFINITION.toDerivative(REFERENCE_DATE.plusDays(1), 0.0, CURVE_NAMES);
+    final BondFuture modifiedFuture = FVU1_DEFINITION.toDerivative(REFERENCE_DATE.plusDays(1), 0.0, CURVE_NAMES);
     modified = new BondFutureOptionPremiumSecurity(modifiedFuture, EXPIRATION_TIME, STRIKE, IS_CALL);
     assertFalse(FVU1_C125.equals(modified));
     modified = new BondFutureOptionPremiumSecurity(FVU1, EXPIRATION_TIME + 0.01, STRIKE, IS_CALL);

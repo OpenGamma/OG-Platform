@@ -1,15 +1,15 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.derivative;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -30,16 +30,39 @@ public class CouponCMS extends CouponFloating {
    * Constructor from floating coupon details and underlying swap.
    * @param currency The payment currency.
    * @param paymentTime Time (in years) up to the payment.
+   * @param fundingCurveName The funding curve name
+   * @param paymentYearFraction The year fraction (or accrual factor) for the coupon payment.
+   * @param notional Coupon notional.
+   * @param fixingTime Time (in years) up to fixing.
+   * @param underlyingSwap A swap describing the CMS underlying. The rate and notional are not used. The swap should be of vanilla type.
+   * @param settlementTime The time (in years) to underlying swap settlement.
+   * @deprecated Use the constructor that does not take a curve name
+   */
+  @Deprecated
+  public CouponCMS(final Currency currency, final double paymentTime, final String fundingCurveName, final double paymentYearFraction, final double notional,
+      final double fixingTime, final SwapFixedCoupon<? extends Payment> underlyingSwap, final double settlementTime) {
+    super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional, fixingTime);
+    ArgumentChecker.notNull(underlyingSwap, "underlying swap");
+    ArgumentChecker.isTrue(underlyingSwap.isIborOrFixed(), "underlying swap not of vanilla type");
+    _underlyingSwap = underlyingSwap;
+    _settlementTime = settlementTime;
+  }
+
+  /**
+   * Constructor from floating coupon details and underlying swap.
+   * @param currency The payment currency.
+   * @param paymentTime Time (in years) up to the payment.
    * @param paymentYearFraction The year fraction (or accrual factor) for the coupon payment.
    * @param notional Coupon notional.
    * @param fixingTime Time (in years) up to fixing.
    * @param underlyingSwap A swap describing the CMS underlying. The rate and notional are not used. The swap should be of vanilla type.
    * @param settlementTime The time (in years) to underlying swap settlement.
    */
-  public CouponCMS(Currency currency, double paymentTime, double paymentYearFraction, double notional, double fixingTime, SwapFixedCoupon<? extends Payment> underlyingSwap, double settlementTime) {
-    super(currency, paymentTime, underlyingSwap.getFixedLeg().getNthPayment(0).getFundingCurveName(), paymentYearFraction, notional, fixingTime);
-    Validate.notNull(underlyingSwap, "underlying swap");
-    Validate.isTrue(underlyingSwap.isIborOrFixed(), "underlying swap not of vanilla type");
+  public CouponCMS(final Currency currency, final double paymentTime, final double paymentYearFraction, final double notional,
+      final double fixingTime, final SwapFixedCoupon<? extends Payment> underlyingSwap, final double settlementTime) {
+    super(currency, paymentTime, paymentYearFraction, notional, fixingTime);
+    ArgumentChecker.notNull(underlyingSwap, "underlying swap");
+    ArgumentChecker.isTrue(underlyingSwap.isIborOrFixed(), "underlying swap not of vanilla type");
     _underlyingSwap = underlyingSwap;
     _settlementTime = settlementTime;
   }
@@ -51,10 +74,16 @@ public class CouponCMS extends CouponFloating {
    * @param settlementTime  The time (in years) to swap settlement.
    * @return The CMS coupon.
    */
-  public static CouponCMS from(CouponFloating coupon, SwapFixedCoupon<? extends Payment> underlyingSwap, double settlementTime) {
-    Validate.notNull(coupon, "floating coupon");
-    Validate.notNull(underlyingSwap, "underlying swap");
-    return new CouponCMS(coupon.getCurrency(), coupon.getPaymentTime(), coupon.getPaymentYearFraction(), coupon.getNotional(), coupon.getFixingTime(), underlyingSwap, settlementTime);
+  public static CouponCMS from(final CouponFloating coupon, final SwapFixedCoupon<? extends Payment> underlyingSwap, final double settlementTime) {
+    ArgumentChecker.notNull(coupon, "floating coupon");
+    ArgumentChecker.notNull(underlyingSwap, "underlying swap");
+    try {
+      return new CouponCMS(coupon.getCurrency(), coupon.getPaymentTime(), underlyingSwap.getFixedLeg().getNthPayment(0).getFundingCurveName(),
+          coupon.getPaymentYearFraction(), coupon.getNotional(), coupon.getFixingTime(), underlyingSwap, settlementTime);
+    } catch (final IllegalStateException e) {
+      return new CouponCMS(coupon.getCurrency(), coupon.getPaymentTime(), coupon.getPaymentYearFraction(), coupon.getNotional(),
+          coupon.getFixingTime(), underlyingSwap, settlementTime);
+    }
   }
 
   /**
@@ -74,8 +103,13 @@ public class CouponCMS extends CouponFloating {
   }
 
   @Override
-  public CouponCMS withNotional(double notional) {
-    return new CouponCMS(getCurrency(), getPaymentTime(), getPaymentYearFraction(), notional, getFixingTime(), _underlyingSwap, _settlementTime);
+  public CouponCMS withNotional(final double notional) {
+    try {
+      return new CouponCMS(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), notional,
+          getFixingTime(), _underlyingSwap, _settlementTime);
+    } catch (final IllegalStateException e) {
+      return new CouponCMS(getCurrency(), getPaymentTime(), getPaymentYearFraction(), notional, getFixingTime(), _underlyingSwap, _settlementTime);
+    }
   }
 
   @Override
@@ -87,7 +121,7 @@ public class CouponCMS extends CouponFloating {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -97,7 +131,7 @@ public class CouponCMS extends CouponFloating {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    CouponCMS other = (CouponCMS) obj;
+    final CouponCMS other = (CouponCMS) obj;
     if (!ObjectUtils.equals(_underlyingSwap, other._underlyingSwap)) {
       return false;
     }

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.payment;
@@ -47,7 +47,7 @@ public class CapFloorCMSSpreadDefinitionTest {
   private static final Period INDEX_TENOR = Period.ofMonths(3);
   private static final int SETTLEMENT_DAYS = 2;
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-  private static final IborIndex IBOR_INDEX = new IborIndex(CUR, INDEX_TENOR, SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, IS_EOM);
+  private static final IborIndex IBOR_INDEX = new IborIndex(CUR, INDEX_TENOR, SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, IS_EOM, "Ibor");
   // Swap 10Y
   private static final Period ANNUITY_TENOR_1 = Period.ofYears(10);
   private static final IndexSwap CMS_INDEX_1 = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, ANNUITY_TENOR_1, CALENDAR);
@@ -76,8 +76,6 @@ public class CapFloorCMSSpreadDefinitionTest {
   //  private static final String FORWARD_CURVE_2_NAME = "Forward 2";
   private static final String[] CURVES_2_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_1_NAME };
   //  private static final String[] CURVES_3_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_1_NAME, FORWARD_CURVE_2_NAME};
-  private static final SwapFixedCoupon<? extends Payment> SWAP_1 = SWAP_DEFINITION_1.toDerivative(REFERENCE_DATE, CURVES_2_NAME);
-  private static final SwapFixedCoupon<? extends Payment> SWAP_2 = SWAP_DEFINITION_2.toDerivative(REFERENCE_DATE, CURVES_2_NAME);
   private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
   private static final ZonedDateTime REFERENCE_DATE_ZONED = ZonedDateTime.of(LocalDateTime.of(REFERENCE_DATE.toLocalDate(), LocalTime.MIDNIGHT), ZoneOffset.UTC);
   private static final double PAYMENT_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_ZONED, PAYMENT_DATE);
@@ -179,15 +177,28 @@ public class CapFloorCMSSpreadDefinitionTest {
     assertEquals(cmsSpreadModified.equals(CMS_SPREAD_DEFINITION), false);
   }
 
+  @SuppressWarnings("deprecation")
   @Test
-  public void testToDerivative() {
+  public void testToDerivativeDeprecated() {
+    final SwapFixedCoupon<? extends Payment> swap1 = SWAP_DEFINITION_1.toDerivative(REFERENCE_DATE, CURVES_2_NAME);
+    final SwapFixedCoupon<? extends Payment> swap2 = SWAP_DEFINITION_2.toDerivative(REFERENCE_DATE, CURVES_2_NAME);
     final CapFloorCMSSpread cmsSpread = (CapFloorCMSSpread) CMS_SPREAD_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_2_NAME);
-    assertEquals(SWAP_1, cmsSpread.getUnderlyingSwap1());
-    assertEquals(SWAP_2, cmsSpread.getUnderlyingSwap2());
-    final CapFloorCMSSpread cmsSpreadExpected = new CapFloorCMSSpread(CUR, PAYMENT_TIME, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, SWAP_1, CMS_INDEX_1, SWAP_2, CMS_INDEX_2, SETTLEMENT_TIME,
+    assertEquals(swap1, cmsSpread.getUnderlyingSwap1());
+    assertEquals(swap2, cmsSpread.getUnderlyingSwap2());
+    final CapFloorCMSSpread cmsSpreadExpected = new CapFloorCMSSpread(CUR, PAYMENT_TIME, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, swap1, CMS_INDEX_1, swap2, CMS_INDEX_2, SETTLEMENT_TIME,
         STRIKE, IS_CAP, FUNDING_CURVE_NAME);
     assertEquals("CMS Spread to derivatives", cmsSpreadExpected, cmsSpread);
-
   }
 
+  @Test
+  public void testToDerivative() {
+    final SwapFixedCoupon<? extends Payment> swap1 = SWAP_DEFINITION_1.toDerivative(REFERENCE_DATE);
+    final SwapFixedCoupon<? extends Payment> swap2 = SWAP_DEFINITION_2.toDerivative(REFERENCE_DATE);
+    final CapFloorCMSSpread cmsSpread = (CapFloorCMSSpread) CMS_SPREAD_DEFINITION.toDerivative(REFERENCE_DATE);
+    assertEquals(swap1, cmsSpread.getUnderlyingSwap1());
+    assertEquals(swap2, cmsSpread.getUnderlyingSwap2());
+    final CapFloorCMSSpread cmsSpreadExpected = new CapFloorCMSSpread(CUR, PAYMENT_TIME, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, swap1, CMS_INDEX_1, swap2, CMS_INDEX_2, SETTLEMENT_TIME,
+        STRIKE, IS_CAP);
+    assertEquals("CMS Spread to derivatives", cmsSpreadExpected, cmsSpread);
+  }
 }

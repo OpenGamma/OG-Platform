@@ -30,7 +30,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
 /**
- * 
+ *
  */
 public class CouponIborDefinitionTest {
 
@@ -41,7 +41,7 @@ public class CouponIborDefinitionTest {
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
   private static final Currency CUR = Currency.EUR;
-  private static final IborIndex INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
+  private static final IborIndex INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM, "Ibor");
 
   private static final ZonedDateTime FIXING_DATE = DateUtils.getUTCDate(2011, 1, 3);
   private static final ZonedDateTime ACCRUAL_START_DATE = DateUtils.getUTCDate(2011, 1, 6);
@@ -114,14 +114,26 @@ public class CouponIborDefinitionTest {
     CouponIborDefinition.from(FIXING_DATE.minusDays(1), ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, INDEX, CALENDAR);
   }
 
+  @SuppressWarnings("deprecation")
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testConversionAfterFixingNoDataDeprecated() {
+    IBOR_COUPON_DEFINITION.toDerivative(FIXING_DATE.plusDays(3), new String[] {"A", "B" });
+  }
+
+  @SuppressWarnings("deprecation")
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testConversionNullFixingDataDeprecated() {
+    IBOR_COUPON_DEFINITION.toDerivative(FIXING_DATE, null, new String[] {"A", "S" });
+  }
+
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testConversionAfterFixingNoData() {
-    IBOR_COUPON_DEFINITION.toDerivative(FIXING_DATE.plusDays(3), new String[] {"A", "B" });
+    IBOR_COUPON_DEFINITION.toDerivative(FIXING_DATE.plusDays(3));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testConversionNullFixingData() {
-    IBOR_COUPON_DEFINITION.toDerivative(FIXING_DATE, null, new String[] {"A", "S" });
+    IBOR_COUPON_DEFINITION.toDerivative(FIXING_DATE, (DoubleTimeSeries<ZonedDateTime>) null);
   }
 
   @Test
@@ -152,7 +164,7 @@ public class CouponIborDefinitionTest {
     assertEquals(IBOR_COUPON_DEFINITION, other);
     assertEquals(IBOR_COUPON_DEFINITION.hashCode(), other.hashCode());
     other = new CouponIborDefinition(Currency.AUD, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, new IborIndex(Currency.AUD, TENOR, SETTLEMENT_DAYS,
-        DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM), CALENDAR);
+        DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM, "Ibor"), CALENDAR);
     assertFalse(IBOR_COUPON_DEFINITION.equals(other));
     other = new CouponIborDefinition(CUR, PAYMENT_DATE.plusDays(1), ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, INDEX, CALENDAR);
     assertFalse(IBOR_COUPON_DEFINITION.equals(other));
@@ -167,7 +179,7 @@ public class CouponIborDefinitionTest {
     other = new CouponIborDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE.plusDays(1), INDEX, CALENDAR);
     assertFalse(IBOR_COUPON_DEFINITION.equals(other));
     other = new CouponIborDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL, FIXING_DATE, new IborIndex(CUR, TENOR, SETTLEMENT_DAYS + 1,
-        DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM), CALENDAR);
+        DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM, "Ibor"), CALENDAR);
     assertFalse(IBOR_COUPON_DEFINITION.equals(other));
     other = new CouponIborDefinition(CUR, FIXING_END_DATE, FIXING_START_DATE, FIXING_END_DATE, ACCRUAL_FACTOR_FIXING, NOTIONAL, FIXING_DATE, INDEX, CALENDAR);
     assertEquals(IBOR_COUPON_DEFINITION_2, other);
@@ -176,6 +188,58 @@ public class CouponIborDefinitionTest {
 
   @Test
   public void testToDerivativeBeforeFixing() {
+    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+    final double paymentTime = actAct.getDayCountFraction(REFERENCE_DATE, PAYMENT_DATE);
+    final double fixingTime = actAct.getDayCountFraction(REFERENCE_DATE, FIXING_DATE);
+    final double fixingPeriodStartTime = actAct.getDayCountFraction(REFERENCE_DATE, IBOR_COUPON_DEFINITION.getFixingPeriodStartDate());
+    final double fixingPeriodEndTime = actAct.getDayCountFraction(REFERENCE_DATE, IBOR_COUPON_DEFINITION.getFixingPeriodEndDate());
+    final CouponIbor couponIbor = new CouponIbor(CUR, paymentTime, ACCRUAL_FACTOR, NOTIONAL, fixingTime, INDEX, fixingPeriodStartTime, fixingPeriodEndTime, ACCRUAL_FACTOR_FIXING);
+    CouponIbor convertedDefinition = (CouponIbor) IBOR_COUPON_DEFINITION.toDerivative(REFERENCE_DATE);
+    assertEquals(couponIbor, convertedDefinition);
+    convertedDefinition = (CouponIbor) IBOR_COUPON_DEFINITION.toDerivative(REFERENCE_DATE, FIXING_TS);
+    assertEquals(couponIbor, convertedDefinition);
+  }
+
+  @Test
+  /**
+   * Tests the toDerivative method where the fixing date before the current date.
+   */
+  public void testToDerivativeAfterFixing() {
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 1, 10, 12, 0);
+    final double paymentTime = TimeCalculator.getTimeBetween(referenceDate, IBOR_COUPON_DEFINITION.getPaymentDate());
+    final CouponFixed coupon = new CouponFixed(CUR, paymentTime, ACCRUAL_FACTOR, NOTIONAL, FIXING_RATE);
+    final Payment couponConverted = IBOR_COUPON_DEFINITION.toDerivative(referenceDate, FIXING_TS);
+    assertEquals("CouponIborDefinition: toDerivative", coupon, couponConverted);
+  }
+
+  @Test
+  /**
+   * Tests the toDerivative method where the fixing date is equal to the current date.
+   */
+  public void testToDerivativeOnFixing() {
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 1, 3, 11, 11);
+    final double paymentTime = TimeCalculator.getTimeBetween(referenceDate, IBOR_COUPON_DEFINITION.getPaymentDate());
+    final double fixingTime = TimeCalculator.getTimeBetween(referenceDate, FIXING_DATE);
+    final double fixingPeriodStartTime = TimeCalculator.getTimeBetween(referenceDate, IBOR_COUPON_DEFINITION.getFixingPeriodStartDate());
+    final double fixingPeriodEndTime = TimeCalculator.getTimeBetween(referenceDate, IBOR_COUPON_DEFINITION.getFixingPeriodEndDate());
+    // The fixing is known
+    final CouponFixed coupon = new CouponFixed(CUR, paymentTime, ACCRUAL_FACTOR, NOTIONAL, FIXING_RATE);
+    final Payment couponConverted = IBOR_COUPON_DEFINITION.toDerivative(referenceDate, FIXING_TS);
+    assertEquals(coupon, couponConverted);
+    // The fixing is not known
+    final DoubleTimeSeries<ZonedDateTime> fixingTS2 = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {ScheduleCalculator.getAdjustedDate(FIXING_DATE, -1, CALENDAR) },
+        new double[] {FIXING_RATE });
+    final CouponIbor coupon2 = new CouponIbor(CUR, paymentTime, ACCRUAL_FACTOR, NOTIONAL, fixingTime, INDEX, fixingPeriodStartTime, fixingPeriodEndTime,
+        IBOR_COUPON_DEFINITION.getFixingPeriodAccrualFactor());
+    final Payment couponConverted2 = IBOR_COUPON_DEFINITION.toDerivative(referenceDate, fixingTS2);
+    assertEquals("CouponIborDefinition: toDerivative", coupon2, couponConverted2);
+    final Payment couponConverted3 = IBOR_COUPON_DEFINITION.toDerivative(referenceDate);
+    assertEquals("CouponIborDefinition: toDerivative", coupon2, couponConverted3);
+  }
+
+  @SuppressWarnings("deprecation")
+  @Test
+  public void testToDerivativeBeforeFixingDeprecated() {
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     final double paymentTime = actAct.getDayCountFraction(REFERENCE_DATE, PAYMENT_DATE);
     final double fixingTime = actAct.getDayCountFraction(REFERENCE_DATE, FIXING_DATE);
@@ -192,11 +256,12 @@ public class CouponIborDefinitionTest {
     assertEquals(couponIbor, convertedDefinition);
   }
 
+  @SuppressWarnings("deprecation")
   @Test
   /**
    * Tests the toDerivative method where the fixing date before the current date.
    */
-  public void testToDerivativeAfterFixing() {
+  public void testToDerivativeAfterFixingDeprecated() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 1, 10, 12, 0);
     final double paymentTime = TimeCalculator.getTimeBetween(referenceDate, IBOR_COUPON_DEFINITION.getPaymentDate());
     final String fundingCurve = "Funding";
@@ -207,11 +272,12 @@ public class CouponIborDefinitionTest {
     assertEquals("CouponIborDefinition: toDerivative", coupon, couponConverted);
   }
 
+  @SuppressWarnings("deprecation")
   @Test
   /**
    * Tests the toDerivative method where the fixing date is equal to the current date.
    */
-  public void testToDerivativeOnFixing() {
+  public void testToDerivativeOnFixingDeprecated() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 1, 3, 11, 11);
     final double paymentTime = TimeCalculator.getTimeBetween(referenceDate, IBOR_COUPON_DEFINITION.getPaymentDate());
     final double fixingTime = TimeCalculator.getTimeBetween(referenceDate, FIXING_DATE);
@@ -234,5 +300,4 @@ public class CouponIborDefinitionTest {
     final Payment couponConverted3 = IBOR_COUPON_DEFINITION.toDerivative(referenceDate, curves);
     assertEquals("CouponIborDefinition: toDerivative", coupon2, couponConverted3);
   }
-
 }

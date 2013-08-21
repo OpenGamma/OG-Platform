@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.payment;
@@ -38,7 +38,7 @@ public class CouponIborRatchetDefinitionTest {
   private static final DayCount DAY_COUNT_INDEX = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
-  private static final IborIndex INDEX_IBOR = new IborIndex(CUR, TENOR_IBOR, SETTLEMENT_DAYS, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
+  private static final IborIndex INDEX_IBOR = new IborIndex(CUR, TENOR_IBOR, SETTLEMENT_DAYS, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM, "Ibor");
 
   private static final ZonedDateTime FIXING_DATE = DateUtils.getUTCDate(2014, 9, 5);
   private static final ZonedDateTime ACCRUAL_START_DATE = ScheduleCalculator.getAdjustedDate(FIXING_DATE, SETTLEMENT_DAYS, CALENDAR);
@@ -111,11 +111,12 @@ public class CouponIborRatchetDefinitionTest {
     assertFalse("Ratchet Ibor Coupon: equal/hash", RATCHET_IBOR_DEFINITION.equals(modified));
   }
 
+  @SuppressWarnings("deprecation")
   @Test
   /**
    * Test the toDerivative of Ratchet coupon with no fixing rate available.
    */
-  public void toDerivativesNoFixing() {
+  public void toDerivativesNoFixingDeprecated() {
     final CouponIborRatchet cpnConverted = RATCHET_IBOR_DEFINITION.toDerivative(REFERENCE_DATE, CURVES);
     final double paymentTime = TimeCalculator.getTimeBetween(REFERENCE_DATE, PAYMENT_DATE);
     final double fixingTime = TimeCalculator.getTimeBetween(REFERENCE_DATE, RATCHET_IBOR_DEFINITION.getFixingDate());
@@ -123,6 +124,21 @@ public class CouponIborRatchetDefinitionTest {
     final double fixingPeriodEndTime = TimeCalculator.getTimeBetween(REFERENCE_DATE, RATCHET_IBOR_DEFINITION.getFixingPeriodEndDate());
     final CouponIborRatchet cpnExpected = new CouponIborRatchet(CUR, paymentTime, DISCOUNTING_CURVE_NAME, ACCRUAL_FACTOR, NOTIONAL, fixingTime, fixingPeriodStartTime, fixingPeriodEndTime,
         RATCHET_IBOR_DEFINITION.getFixingPeriodAccrualFactor(), FORWARD_CURVE_NAME, INDEX_IBOR, MAIN_COEF, FLOOR_COEF, CAP_COEF);
+    assertEquals("Ratchet Ibor Coupon: toDerivatives", cpnExpected, cpnConverted);
+  }
+
+  @Test
+  /**
+   * Test the toDerivative of Ratchet coupon with no fixing rate available.
+   */
+  public void toDerivativesNoFixing() {
+    final CouponIborRatchet cpnConverted = RATCHET_IBOR_DEFINITION.toDerivative(REFERENCE_DATE);
+    final double paymentTime = TimeCalculator.getTimeBetween(REFERENCE_DATE, PAYMENT_DATE);
+    final double fixingTime = TimeCalculator.getTimeBetween(REFERENCE_DATE, RATCHET_IBOR_DEFINITION.getFixingDate());
+    final double fixingPeriodStartTime = TimeCalculator.getTimeBetween(REFERENCE_DATE, RATCHET_IBOR_DEFINITION.getFixingPeriodStartDate());
+    final double fixingPeriodEndTime = TimeCalculator.getTimeBetween(REFERENCE_DATE, RATCHET_IBOR_DEFINITION.getFixingPeriodEndDate());
+    final CouponIborRatchet cpnExpected = new CouponIborRatchet(CUR, paymentTime, ACCRUAL_FACTOR, NOTIONAL, fixingTime, fixingPeriodStartTime, fixingPeriodEndTime,
+        RATCHET_IBOR_DEFINITION.getFixingPeriodAccrualFactor(), INDEX_IBOR, MAIN_COEF, FLOOR_COEF, CAP_COEF);
     assertEquals("Ratchet Ibor Coupon: toDerivatives", cpnExpected, cpnConverted);
   }
 
