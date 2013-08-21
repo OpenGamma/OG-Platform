@@ -96,6 +96,7 @@ public class ISDACDXAsSingleNameBucketedCS01Function extends ISDACDXAsSingleName
     final LocalDate[] dates = new LocalDate[n];
     for (int i = 0; i < n; i++) {
       dates[i] = times[i].toLocalDate();
+      cs01Values[i] /= 1000;
     }
     final LocalDateLabelledMatrix1D cs01Matrix = new LocalDateLabelledMatrix1D(dates, cs01Values);
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.BUCKETED_CS01, target.toSpecification(), properties);
