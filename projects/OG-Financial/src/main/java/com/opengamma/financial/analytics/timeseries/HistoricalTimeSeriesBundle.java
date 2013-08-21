@@ -51,8 +51,11 @@ public final class HistoricalTimeSeriesBundle {
         addImpl(id, hts);
       }
     }
-
-    private void lookup() {
+    
+    /*
+     * Added synchronized here because the hashmap was getting corrupted by concurrent access. 
+     */
+    private synchronized void lookup() {
       if (_lookup != null) {
         return;
       }
