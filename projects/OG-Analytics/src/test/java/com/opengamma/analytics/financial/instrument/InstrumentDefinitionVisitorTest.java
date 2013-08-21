@@ -1,11 +1,11 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument;
@@ -129,7 +129,7 @@ public class InstrumentDefinitionVisitorTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDelegate() {
-    new InstrumentDefinitionVisitorDelegate(null);
+    new InstrumentDefinitionVisitorDelegate<>(null);
   }
 
   @Test
