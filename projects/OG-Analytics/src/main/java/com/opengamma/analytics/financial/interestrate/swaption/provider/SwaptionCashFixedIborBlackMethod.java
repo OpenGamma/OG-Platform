@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.opengamma.analytics.financial.interestrate.PresentValueBlackSwaptionSensitivity;
-import com.opengamma.analytics.financial.interestrate.swap.method.SwapFixedCouponDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.swap.provider.SwapFixedCouponDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;

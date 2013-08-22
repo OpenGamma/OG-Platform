@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.swaption.provider;
@@ -47,9 +47,6 @@ public class SwaptionCashFixedIborLinearTSRMethodTest {
   private static final GeneratorSwapFixedIbor EUR1YEURIBOR6M = GeneratorSwapFixedIborMaster.getInstance().getGenerator("EUR1YEURIBOR6M", CALENDAR);
   private static final SABRSwaptionProviderDiscount SABR_MULTICURVES = new SABRSwaptionProviderDiscount(MULTICURVES, SABR_PARAMETER, EUR1YEURIBOR6M);
 
-  private static final String NOT_USED = "Not used";
-  private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
-
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 7, 7);
 
   private static final int SWAP_TENOR_YEAR = 5;
@@ -69,9 +66,9 @@ public class SwaptionCashFixedIborLinearTSRMethodTest {
   private static final SwaptionCashFixedIborDefinition SWAPTION_RECEIVER_LONG_DEFINITION = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP_RECEIVER_DEFINITION, IS_LONG);
   private static final SwaptionCashFixedIborDefinition SWAPTION_PAYER_SHORT_DEFINITION = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP_PAYER_DEFINITION, !IS_LONG);
   //to derivatives
-  private static final SwaptionCashFixedIbor SWAPTION_PAYER_LONG = SWAPTION_PAYER_LONG_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
-  private static final SwaptionCashFixedIbor SWAPTION_RECEIVER_LONG = SWAPTION_RECEIVER_LONG_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
-  private static final SwaptionCashFixedIbor SWAPTION_PAYER_SHORT = SWAPTION_PAYER_SHORT_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
+  private static final SwaptionCashFixedIbor SWAPTION_PAYER_LONG = SWAPTION_PAYER_LONG_DEFINITION.toDerivative(REFERENCE_DATE);
+  private static final SwaptionCashFixedIbor SWAPTION_RECEIVER_LONG = SWAPTION_RECEIVER_LONG_DEFINITION.toDerivative(REFERENCE_DATE);
+  private static final SwaptionCashFixedIbor SWAPTION_PAYER_SHORT = SWAPTION_PAYER_SHORT_DEFINITION.toDerivative(REFERENCE_DATE);
   private static final SwaptionCashFixedIborLinearTSRMethod METHOD_CASH_TSR = new SwaptionCashFixedIborLinearTSRMethod();
   private static final SwaptionCashFixedIborSABRMethod METHOD_CASH_SABR = SwaptionCashFixedIborSABRMethod.getInstance();
   private static final SwaptionPhysicalFixedIborSABRMethod METHOD_PHYS_SABR = SwaptionPhysicalFixedIborSABRMethod.getInstance();
@@ -113,9 +110,9 @@ public class SwaptionCashFixedIborLinearTSRMethodTest {
       strike[loopstrike] = strikeMin + loopstrike * (strikeMax - strikeMin) / nbStrike;
       swapDefinition[loopstrike] = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, strike[loopstrike], FIXED_IS_PAYER, CALENDAR);
       swaptionCashDefinition[loopstrike] = SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, swapDefinition[loopstrike], IS_LONG);
-      swaptionCash[loopstrike] = swaptionCashDefinition[loopstrike].toDerivative(REFERENCE_DATE, NOT_USED_A);
+      swaptionCash[loopstrike] = swaptionCashDefinition[loopstrike].toDerivative(REFERENCE_DATE);
       swaptionPhysDefinition[loopstrike] = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, swapDefinition[loopstrike], IS_LONG);
-      swaptionPhys[loopstrike] = swaptionPhysDefinition[loopstrike].toDerivative(REFERENCE_DATE, NOT_USED_A);
+      swaptionPhys[loopstrike] = swaptionPhysDefinition[loopstrike].toDerivative(REFERENCE_DATE);
     }
     final double[] pvCashStandard = new double[nbStrike + 1];
     final double[] pvCashTSR = new double[nbStrike + 1];

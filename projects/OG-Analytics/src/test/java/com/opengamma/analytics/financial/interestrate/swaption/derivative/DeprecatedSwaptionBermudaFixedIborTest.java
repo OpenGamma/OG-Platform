@@ -30,8 +30,10 @@ import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests the Bermuda swaption constructor.
+ * @deprecated This class tests deprecated functionality.
  */
-public class SwaptionBermudaFixedIborTest {
+@Deprecated
+public class DeprecatedSwaptionBermudaFixedIborTest {
   // General
   private static final Currency CUR = Currency.EUR;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
@@ -66,6 +68,9 @@ public class SwaptionBermudaFixedIborTest {
   }
   // to derivatives
   private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+  private static final String FUNDING_CURVE_NAME = "Funding";
+  private static final String FORWARD_CURVE_NAME = "Forward";
+  private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME};
   private static final double[] EXPIRY_TIME = new double[NB_EXPIRY];
   private static final double[] SETTLE_TIME = new double[NB_EXPIRY];
   @SuppressWarnings("unchecked")
@@ -74,7 +79,7 @@ public class SwaptionBermudaFixedIborTest {
   static {
     for (int loopexp = 0; loopexp < NB_EXPIRY; loopexp++) {
       EXPIRY_TIME[loopexp] = ACT_ACT.getDayCountFraction(REFERENCE_DATE, EXPIRY_DATE[loopexp]);
-      EXPIRY_SWAP[loopexp] = EXPIRY_SWAP_DEFINITION[loopexp].toDerivative(REFERENCE_DATE);
+      EXPIRY_SWAP[loopexp] = EXPIRY_SWAP_DEFINITION[loopexp].toDerivative(REFERENCE_DATE, CURVES_NAME);
       SETTLE_TIME[loopexp] = ACT_ACT.getDayCountFraction(REFERENCE_DATE, EXPIRY_SWAP_DEFINITION[loopexp].getFixedLeg().getNthPayment(0).getAccrualStartDate());
     }
   }

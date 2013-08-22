@@ -74,7 +74,9 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Tests related to the pricing of physical delivery swaption in LMM displaced diffusion.
+ * @deprecated This class tests deprecated functionality.
  */
+@Deprecated
 public class SwaptionPhysicalFixedIborLMMDDMethodTest {
 
   private static final Calendar TARGET = new MondayToFridayCalendar("TARGET");

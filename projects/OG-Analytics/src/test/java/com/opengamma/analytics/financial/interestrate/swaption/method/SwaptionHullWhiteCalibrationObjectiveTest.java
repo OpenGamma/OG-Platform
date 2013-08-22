@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.swaption.method;
@@ -35,7 +35,9 @@ import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the calibration engine for Hull-White one factor calibration to European swaptions.
+ * @deprecated This class tests deprecated functionality.
  */
+@Deprecated
 public class SwaptionHullWhiteCalibrationObjectiveTest {
   // Swaption description
   private static final boolean IS_LONG = true;
