@@ -5,6 +5,9 @@
  */
 package com.opengamma.analytics.financial.model.option.pricing.tree;
 
+import com.google.common.primitives.Doubles;
+import com.opengamma.util.ArgumentChecker;
+
 /**
  * Provides payoff function and option price function for one-dimensional tree model
  */
@@ -21,6 +24,10 @@ public abstract class OptionFunctionProvider1D {
    * @param isCall True if call, false if put
    */
   public OptionFunctionProvider1D(final double strike, final int steps, final boolean isCall) {
+    ArgumentChecker.isTrue(strike > 0., "strike should be positive");
+    ArgumentChecker.isTrue(Doubles.isFinite(strike), "strike should be finite");
+    ArgumentChecker.isTrue(steps > 2, "The number of steps should be greater than 2");
+
     _strike = strike;
     _steps = steps;
     _sign = isCall ? 1. : -1.;
