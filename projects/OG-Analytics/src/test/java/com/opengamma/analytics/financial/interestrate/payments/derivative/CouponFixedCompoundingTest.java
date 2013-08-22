@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.derivative;
@@ -54,7 +54,6 @@ public class CouponFixedCompoundingTest {
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 8, 17);
 
-  //  private static final double[] ACCRUAL_START_TIMES = TimeCalculator.getTimeBetween(REFERENCE_DATE, ACCRUAL_START_DATES);
   private static final double[] ACCRUAL_END_TIMES = TimeCalculator.getTimeBetween(REFERENCE_DATE, ACCRUAL_END_DATES);
   private static final double PAYMENT_TIME = ACCRUAL_END_TIMES[NB_SUB_PERIOD - 1];
   private static final double FIXED_RATE = .02;
@@ -92,6 +91,14 @@ public class CouponFixedCompoundingTest {
     assertEquals("CouponFixedCompounding: getter", PAYMENT_TIME, CPN.getPaymentTime());
     assertEquals("CouponFixedCompounding: getter", PAYMENT_ACCRUAL_FACTOR, CPN.getPaymentYearFraction());
     assertEquals("CouponFixedCompounding: getter", FIXED_RATE, CPN.getRate());
+  }
+
+  @Test
+  public void testWithNotional() {
+    final double notional = NOTIONAL + 10000;
+    final CouponFixedCompounding expected = new CouponFixedCompounding(USDLIBOR1M.getCurrency(), PAYMENT_TIME, PAYMENT_ACCRUAL_FACTOR, notional,
+        PAYMENT_ACCRUAL_FACTORS, FIXED_RATE);
+    assertEquals(expected, CPN.withNotional(notional));
   }
 
   @Test

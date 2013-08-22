@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 
@@ -47,8 +47,6 @@ public class CouponIborAverageTest {
   private static final ZonedDateTime FIXING_END_DATE_2 = ScheduleCalculator.getAdjustedDate(FIXING_START_DATE_2, INDEX_EURIBOR3M, TARGET);
 
   private static final double PAYMENT_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, PAYMENT_DATE);
-  //  private static final double ACCRUAL_START_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, ACCRUAL_END_DATE);
-  //  private static final double ACCRUAL_END_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, ACCRUAL_START_DATE);
   private static final double FIXING_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, FIXING_DATE);
   private static final double FIXING_START_TIME_1 = TimeCalculator.getTimeBetween(REFERENCE_DATE, FIXING_START_DATE_1);
   private static final double FIXING_END_TIME_1 = TimeCalculator.getTimeBetween(REFERENCE_DATE, FIXING_END_DATE_1);
@@ -102,6 +100,14 @@ public class CouponIborAverageTest {
     assertEquals("CouponIbor: getter", FIXING_START_TIME_2, CPN_IBOR_AVERAGE.getFixingPeriodStartTime2());
     assertEquals("CouponIbor: getter", FIXING_END_TIME_2, CPN_IBOR_AVERAGE.getFixingPeriodEndTime2());
     assertEquals("CouponIbor: getter", FIXING_ACCRUAL_FACTOR_2, CPN_IBOR_AVERAGE.getFixingAccrualFactor2());
+  }
+
+  @Test
+  public void testWithNotional() {
+    final double notional = NOTIONAL + 1000;
+    final CouponIborAverage expected = new CouponIborAverage(EUR, PAYMENT_TIME, ACCRUAL_FACTOR, notional, FIXING_TIME, INDEX_EURIBOR3M, FIXING_START_TIME_1, FIXING_END_TIME_1,
+        FIXING_ACCRUAL_FACTOR_1, INDEX_EURIBOR6M, FIXING_START_TIME_2, FIXING_END_TIME_2, FIXING_ACCRUAL_FACTOR_2, WEIGHT_1, WEIGHT_2);
+    assertEquals(expected, CPN_IBOR_AVERAGE.withNotional(notional));
   }
 
   @Test

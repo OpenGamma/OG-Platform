@@ -24,8 +24,10 @@ import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the construction of Ibor coupon.
+ * @deprecated This class tests deprecated functionality.
  */
-public class CouponIborTest {
+@Deprecated
+public class DeprecatedCouponIborTest {
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 12, 27);
   private static final Calendar TARGET = new MondayToFridayCalendar("TARGET");
@@ -48,23 +50,26 @@ public class CouponIborTest {
   private static final double FIXING_START_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, FIXING_START_DATE);
   private static final double FIXING_END_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, FIXING_END_DATE);
   private static final double FIXING_ACCRUAL_FACTOR = INDEX_EURIBOR3M.getDayCount().getDayCountFraction(FIXING_START_DATE, FIXING_END_DATE);
+  private static final String DISCOUNTING_CURVE_NAME = "Discounting";
+  private static final String FORWARD_CURVE_NAME = "Forward";
 
-  private static final CouponIbor CPN_IBOR = new CouponIbor(EUR, PAYMENT_TIME, ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, INDEX_EURIBOR3M, FIXING_START_TIME, FIXING_END_TIME,
-      FIXING_ACCRUAL_FACTOR);
+  private static final CouponIbor CPN_IBOR = new CouponIbor(EUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, INDEX_EURIBOR3M, FIXING_START_TIME, FIXING_END_TIME,
+      FIXING_ACCRUAL_FACTOR, FORWARD_CURVE_NAME);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullCurrency() {
-    new CouponIbor(null, PAYMENT_TIME, ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, INDEX_EURIBOR3M, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL_FACTOR);
+    new CouponIbor(null, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, INDEX_EURIBOR3M, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL_FACTOR, FORWARD_CURVE_NAME);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullIndex() {
-    new CouponIbor(EUR, PAYMENT_TIME, ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, null, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL_FACTOR);
+    new CouponIbor(EUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, null, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL_FACTOR, FORWARD_CURVE_NAME);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void incompatibleCurrency() {
-    new CouponIbor(Currency.USD, PAYMENT_TIME, ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, INDEX_EURIBOR3M, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL_FACTOR);
+    new CouponIbor(Currency.USD, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, INDEX_EURIBOR3M, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL_FACTOR,
+        FORWARD_CURVE_NAME);
   }
 
   @Test
@@ -77,13 +82,14 @@ public class CouponIborTest {
     assertEquals("CouponIbor: getter", FIXING_START_TIME, CPN_IBOR.getFixingPeriodStartTime());
     assertEquals("CouponIbor: getter", FIXING_END_TIME, CPN_IBOR.getFixingPeriodEndTime());
     assertEquals("CouponIbor: getter", FIXING_ACCRUAL_FACTOR, CPN_IBOR.getFixingAccrualFactor());
+    assertEquals("CouponIbor: getter", FORWARD_CURVE_NAME, CPN_IBOR.getForwardCurveName());
   }
 
   @Test
   public void testWithNotional() {
     final double notional = NOTIONAL + 1000;
-    final CouponIbor expected = new CouponIbor(EUR, PAYMENT_TIME, ACCRUAL_FACTOR, notional, FIXING_TIME, INDEX_EURIBOR3M, FIXING_START_TIME, FIXING_END_TIME,
-        FIXING_ACCRUAL_FACTOR);
+    final CouponIbor expected = new CouponIbor(EUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, ACCRUAL_FACTOR, notional, FIXING_TIME, INDEX_EURIBOR3M, FIXING_START_TIME, FIXING_END_TIME,
+        FIXING_ACCRUAL_FACTOR, FORWARD_CURVE_NAME);
     assertEquals(expected, CPN_IBOR.withNotional(notional));
   }
 
@@ -93,26 +99,38 @@ public class CouponIborTest {
    */
   public void testEqualHash() {
     assertEquals("CouponIbor: equal-hash", CPN_IBOR, CPN_IBOR);
-    final CouponIbor other = new CouponIbor(EUR, PAYMENT_TIME, ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, INDEX_EURIBOR3M, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL_FACTOR);
+    final CouponIbor other = new CouponIbor(EUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, INDEX_EURIBOR3M, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL_FACTOR,
+        FORWARD_CURVE_NAME);
     assertEquals("CouponIbor: equal-hash", other, CPN_IBOR);
     assertEquals("CouponIbor: equal-hash", other.hashCode(), CPN_IBOR.hashCode());
     CouponIbor modified;
-    modified = new CouponIbor(EUR, PAYMENT_TIME + 0.1, ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, INDEX_EURIBOR3M, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL_FACTOR);
+    modified = new CouponIbor(EUR, PAYMENT_TIME + 0.1, DISCOUNTING_CURVE_NAME, ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, INDEX_EURIBOR3M, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL_FACTOR,
+        FORWARD_CURVE_NAME);
     assertFalse("CouponIbor: equal-hash", CPN_IBOR.equals(modified));
-    modified = new CouponIbor(EUR, PAYMENT_TIME, ACCRUAL_FACTOR + 0.1, NOTIONAL, FIXING_TIME, INDEX_EURIBOR3M, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL_FACTOR);
+    modified = new CouponIbor(EUR, PAYMENT_TIME, "wrong", ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, INDEX_EURIBOR3M, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL_FACTOR, FORWARD_CURVE_NAME);
     assertFalse("CouponIbor: equal-hash", CPN_IBOR.equals(modified));
-    modified = new CouponIbor(EUR, PAYMENT_TIME, ACCRUAL_FACTOR, NOTIONAL + 1.0, FIXING_TIME, INDEX_EURIBOR3M, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL_FACTOR);
+    modified = new CouponIbor(EUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, ACCRUAL_FACTOR + 0.1, NOTIONAL, FIXING_TIME, INDEX_EURIBOR3M, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL_FACTOR,
+        FORWARD_CURVE_NAME);
     assertFalse("CouponIbor: equal-hash", CPN_IBOR.equals(modified));
-    modified = new CouponIbor(EUR, PAYMENT_TIME, ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME - 0.1, INDEX_EURIBOR3M, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL_FACTOR);
+    modified = new CouponIbor(EUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, ACCRUAL_FACTOR, NOTIONAL + 1.0, FIXING_TIME, INDEX_EURIBOR3M, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL_FACTOR,
+        FORWARD_CURVE_NAME);
     assertFalse("CouponIbor: equal-hash", CPN_IBOR.equals(modified));
-    modified = new CouponIbor(Currency.USD, PAYMENT_TIME, ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, INDEX_IBOR_MASTER.getIndex("USDLIBOR3M"), FIXING_START_TIME,
-        FIXING_END_TIME, FIXING_ACCRUAL_FACTOR);
+    modified = new CouponIbor(EUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME - 0.1, INDEX_EURIBOR3M, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL_FACTOR,
+        FORWARD_CURVE_NAME);
     assertFalse("CouponIbor: equal-hash", CPN_IBOR.equals(modified));
-    modified = new CouponIbor(EUR, PAYMENT_TIME, ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, INDEX_EURIBOR3M, FIXING_START_TIME + 0.1, FIXING_END_TIME, FIXING_ACCRUAL_FACTOR);
+    modified = new CouponIbor(Currency.USD, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, INDEX_IBOR_MASTER.getIndex("USDLIBOR3M"), FIXING_START_TIME,
+        FIXING_END_TIME, FIXING_ACCRUAL_FACTOR, FORWARD_CURVE_NAME);
     assertFalse("CouponIbor: equal-hash", CPN_IBOR.equals(modified));
-    modified = new CouponIbor(EUR, PAYMENT_TIME, ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, INDEX_EURIBOR3M, FIXING_START_TIME, FIXING_END_TIME + 0.1, FIXING_ACCRUAL_FACTOR);
+    modified = new CouponIbor(EUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, INDEX_EURIBOR3M, FIXING_START_TIME + 0.1, FIXING_END_TIME, FIXING_ACCRUAL_FACTOR,
+        FORWARD_CURVE_NAME);
     assertFalse("CouponIbor: equal-hash", CPN_IBOR.equals(modified));
-    modified = new CouponIbor(EUR, PAYMENT_TIME, ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, INDEX_EURIBOR3M, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL_FACTOR + 0.1);
+    modified = new CouponIbor(EUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, INDEX_EURIBOR3M, FIXING_START_TIME, FIXING_END_TIME + 0.1, FIXING_ACCRUAL_FACTOR,
+        FORWARD_CURVE_NAME);
+    assertFalse("CouponIbor: equal-hash", CPN_IBOR.equals(modified));
+    modified = new CouponIbor(EUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, INDEX_EURIBOR3M, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL_FACTOR + 0.1,
+        FORWARD_CURVE_NAME);
+    assertFalse("CouponIbor: equal-hash", CPN_IBOR.equals(modified));
+    modified = new CouponIbor(EUR, PAYMENT_TIME, DISCOUNTING_CURVE_NAME, ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, INDEX_EURIBOR3M, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL_FACTOR, "wrong");
     assertFalse("CouponIbor: equal-hash", CPN_IBOR.equals(modified));
   }
 

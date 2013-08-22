@@ -202,8 +202,13 @@ public class CapFloorCMSSpread extends CouponFloating implements CapFloor {
 
   @Override
   public CapFloorCMSSpread withNotional(final double notional) {
-    return new CapFloorCMSSpread(getCurrency(), getPaymentTime(), getPaymentYearFraction(), notional, getFixingTime(), _underlyingSwap1, _cmsIndex1, _underlyingSwap2, _cmsIndex2, _settlementTime,
-        _strike, _isCap, getFundingCurveName());
+    try {
+      return new CapFloorCMSSpread(getCurrency(), getPaymentTime(), getPaymentYearFraction(), notional, getFixingTime(), _underlyingSwap1, _cmsIndex1, _underlyingSwap2, _cmsIndex2, _settlementTime,
+          _strike, _isCap, getFundingCurveName());
+    } catch (final IllegalStateException e) {
+      return new CapFloorCMSSpread(getCurrency(), getPaymentTime(), getPaymentYearFraction(), notional, getFixingTime(), _underlyingSwap1, _cmsIndex1, _underlyingSwap2, _cmsIndex2, _settlementTime,
+          _strike, _isCap);
+    }
   }
 
   @Override

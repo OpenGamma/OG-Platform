@@ -15,41 +15,51 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.util.money.Currency;
 
 /**
- *
+ * @deprecated This class tests deprecated functionality.
  */
-public class PaymentTest {
+@Deprecated
+public class DeprecatedPaymentTest {
   private static final Currency CCY = Currency.CAD;
   private static final double PAYMENT_TIME = 0.5;
-  private static final MyPayment PAYMENT = new MyPayment(CCY, PAYMENT_TIME);
+  private static final String NAME = "A";
+  private static final MyPayment PAYMENT = new MyPayment(CCY, PAYMENT_TIME, NAME);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurrency() {
-    new MyPayment(null, PAYMENT_TIME);
+    new MyPayment(null, PAYMENT_TIME, NAME);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativePaymentTime() {
-    new MyPayment(CCY, -PAYMENT_TIME);
+    new MyPayment(CCY, -PAYMENT_TIME, NAME);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullCurveName() {
+    new MyPayment(CCY, PAYMENT_TIME, null);
   }
 
   @Test
   public void testObject() {
     assertEquals(CCY, PAYMENT.getCurrency());
+    assertEquals(NAME, PAYMENT.getFundingCurveName());
     assertEquals(PAYMENT_TIME, PAYMENT.getPaymentTime(), 0);
-    MyPayment other = new MyPayment(CCY, PAYMENT_TIME);
+    MyPayment other = new MyPayment(CCY, PAYMENT_TIME, NAME);
     assertEquals(PAYMENT, other);
     assertEquals(PAYMENT.hashCode(), other.hashCode());
-    assertEquals("Currency=CAD, payment time=0.5", PAYMENT.toString());
-    other = new MyPayment(Currency.AUD, PAYMENT_TIME);
+    assertEquals("Currency=CAD, payment time=0.5, funding curve=A", PAYMENT.toString());
+    other = new MyPayment(Currency.AUD, PAYMENT_TIME, NAME);
     assertFalse(other.equals(PAYMENT));
-    other = new MyPayment(CCY, PAYMENT_TIME + 1);
+    other = new MyPayment(CCY, PAYMENT_TIME + 1, NAME);
+    assertFalse(other.equals(PAYMENT));
+    other = new MyPayment(CCY, PAYMENT_TIME, NAME + "_");
     assertFalse(other.equals(PAYMENT));
   }
 
   private static class MyPayment extends Payment {
 
-    public MyPayment(final Currency currency, final double paymentTime) {
-      super(currency, paymentTime);
+    public MyPayment(final Currency currency, final double paymentTime, final String fundingCurveName) {
+      super(currency, paymentTime, fundingCurveName);
     }
 
     @Override

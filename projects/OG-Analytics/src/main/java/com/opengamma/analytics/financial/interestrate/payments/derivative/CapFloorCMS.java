@@ -137,7 +137,13 @@ public class CapFloorCMS extends CouponFloating implements CapFloor {
 
   @Override
   public Coupon withNotional(final double notional) {
-    return null;
+    try {
+      return new CapFloorCMS(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(),
+          notional, getFixingTime(), _underlyingSwap, _settlementTime, _strike, _isCap);
+    } catch (final IllegalStateException e) {
+      return new CapFloorCMS(getCurrency(), getPaymentTime(), getPaymentYearFraction(),
+          notional, getFixingTime(), _underlyingSwap, _settlementTime, _strike, _isCap);
+    }
   }
 
   @Override

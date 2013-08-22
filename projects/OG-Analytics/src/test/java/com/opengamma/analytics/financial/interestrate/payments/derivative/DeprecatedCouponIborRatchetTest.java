@@ -26,8 +26,10 @@ import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests the CouponIborRatchet constructor.
+ * @deprecated This class tests deprecated functionality.
  */
-public class CouponIborRatchetTest {
+@Deprecated
+public class DeprecatedCouponIborRatchetTest {
 
   private static final Currency CUR = Currency.EUR;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
@@ -52,48 +54,51 @@ public class CouponIborRatchetTest {
   private static final CouponIborRatchetDefinition RATCHET_IBOR_DEFINITION = new CouponIborRatchetDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL,
       FIXING_DATE, INDEX_IBOR, MAIN_COEF, FLOOR_COEF, CAP_COEF, CALENDAR);
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 9, 5);
-  private static final CouponIborRatchet RATCHET_IBOR = RATCHET_IBOR_DEFINITION.toDerivative(REFERENCE_DATE);
+  private static final String DISCOUNTING_CURVE_NAME = "Discounting";
+  private static final String FORWARD_CURVE_NAME = "Forward";
+  private static final String[] CURVES = {DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME };
+  private static final CouponIborRatchet RATCHET_IBOR = RATCHET_IBOR_DEFINITION.toDerivative(REFERENCE_DATE, CURVES);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullIndex() {
-    new CouponIborRatchet(CUR, RATCHET_IBOR.getPaymentTime(), RATCHET_IBOR.getPaymentYearFraction(), NOTIONAL, RATCHET_IBOR.getFixingTime(),
-        RATCHET_IBOR.getFixingPeriodStartTime(), RATCHET_IBOR.getFixingPeriodEndTime(), RATCHET_IBOR.getFixingAccrualFactor(), null, MAIN_COEF, FLOOR_COEF, CAP_COEF);
+    new CouponIborRatchet(CUR, RATCHET_IBOR.getPaymentTime(), DISCOUNTING_CURVE_NAME, RATCHET_IBOR.getPaymentYearFraction(), NOTIONAL, RATCHET_IBOR.getFixingTime(),
+        RATCHET_IBOR.getFixingPeriodStartTime(), RATCHET_IBOR.getFixingPeriodEndTime(), RATCHET_IBOR.getFixingAccrualFactor(), FORWARD_CURVE_NAME, null, MAIN_COEF, FLOOR_COEF, CAP_COEF);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullMain() {
-    new CouponIborRatchet(CUR, RATCHET_IBOR.getPaymentTime(), RATCHET_IBOR.getPaymentYearFraction(), NOTIONAL, RATCHET_IBOR.getFixingTime(),
-        RATCHET_IBOR.getFixingPeriodStartTime(), RATCHET_IBOR.getFixingPeriodEndTime(), RATCHET_IBOR.getFixingAccrualFactor(), INDEX_IBOR, null, FLOOR_COEF, CAP_COEF);
+    new CouponIborRatchet(CUR, RATCHET_IBOR.getPaymentTime(), DISCOUNTING_CURVE_NAME, RATCHET_IBOR.getPaymentYearFraction(), NOTIONAL, RATCHET_IBOR.getFixingTime(),
+        RATCHET_IBOR.getFixingPeriodStartTime(), RATCHET_IBOR.getFixingPeriodEndTime(), RATCHET_IBOR.getFixingAccrualFactor(), FORWARD_CURVE_NAME, INDEX_IBOR, null, FLOOR_COEF, CAP_COEF);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullFloor() {
-    new CouponIborRatchet(CUR, RATCHET_IBOR.getPaymentTime(), RATCHET_IBOR.getPaymentYearFraction(), NOTIONAL, RATCHET_IBOR.getFixingTime(),
-        RATCHET_IBOR.getFixingPeriodStartTime(), RATCHET_IBOR.getFixingPeriodEndTime(), RATCHET_IBOR.getFixingAccrualFactor(), INDEX_IBOR, MAIN_COEF, null, CAP_COEF);
+    new CouponIborRatchet(CUR, RATCHET_IBOR.getPaymentTime(), DISCOUNTING_CURVE_NAME, RATCHET_IBOR.getPaymentYearFraction(), NOTIONAL, RATCHET_IBOR.getFixingTime(),
+        RATCHET_IBOR.getFixingPeriodStartTime(), RATCHET_IBOR.getFixingPeriodEndTime(), RATCHET_IBOR.getFixingAccrualFactor(), FORWARD_CURVE_NAME, INDEX_IBOR, MAIN_COEF, null, CAP_COEF);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullCap() {
-    new CouponIborRatchet(CUR, RATCHET_IBOR.getPaymentTime(), RATCHET_IBOR.getPaymentYearFraction(), NOTIONAL, RATCHET_IBOR.getFixingTime(),
-        RATCHET_IBOR.getFixingPeriodStartTime(), RATCHET_IBOR.getFixingPeriodEndTime(), RATCHET_IBOR.getFixingAccrualFactor(), INDEX_IBOR, MAIN_COEF, FLOOR_COEF, null);
+    new CouponIborRatchet(CUR, RATCHET_IBOR.getPaymentTime(), DISCOUNTING_CURVE_NAME, RATCHET_IBOR.getPaymentYearFraction(), NOTIONAL, RATCHET_IBOR.getFixingTime(),
+        RATCHET_IBOR.getFixingPeriodStartTime(), RATCHET_IBOR.getFixingPeriodEndTime(), RATCHET_IBOR.getFixingAccrualFactor(), FORWARD_CURVE_NAME, INDEX_IBOR, MAIN_COEF, FLOOR_COEF, null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void numberMain() {
-    new CouponIborRatchet(CUR, RATCHET_IBOR.getPaymentTime(), RATCHET_IBOR.getPaymentYearFraction(), NOTIONAL, RATCHET_IBOR.getFixingTime(),
-        RATCHET_IBOR.getFixingPeriodStartTime(), RATCHET_IBOR.getFixingPeriodEndTime(), RATCHET_IBOR.getFixingAccrualFactor(), INDEX_IBOR, new double[2], FLOOR_COEF, CAP_COEF);
+    new CouponIborRatchet(CUR, RATCHET_IBOR.getPaymentTime(), DISCOUNTING_CURVE_NAME, RATCHET_IBOR.getPaymentYearFraction(), NOTIONAL, RATCHET_IBOR.getFixingTime(),
+        RATCHET_IBOR.getFixingPeriodStartTime(), RATCHET_IBOR.getFixingPeriodEndTime(), RATCHET_IBOR.getFixingAccrualFactor(), FORWARD_CURVE_NAME, INDEX_IBOR, new double[2], FLOOR_COEF, CAP_COEF);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void numberFloor() {
-    new CouponIborRatchet(CUR, RATCHET_IBOR.getPaymentTime(), RATCHET_IBOR.getPaymentYearFraction(), NOTIONAL, RATCHET_IBOR.getFixingTime(),
-        RATCHET_IBOR.getFixingPeriodStartTime(), RATCHET_IBOR.getFixingPeriodEndTime(), RATCHET_IBOR.getFixingAccrualFactor(), INDEX_IBOR, MAIN_COEF, new double[2], CAP_COEF);
+    new CouponIborRatchet(CUR, RATCHET_IBOR.getPaymentTime(), DISCOUNTING_CURVE_NAME, RATCHET_IBOR.getPaymentYearFraction(), NOTIONAL, RATCHET_IBOR.getFixingTime(),
+        RATCHET_IBOR.getFixingPeriodStartTime(), RATCHET_IBOR.getFixingPeriodEndTime(), RATCHET_IBOR.getFixingAccrualFactor(), FORWARD_CURVE_NAME, INDEX_IBOR, MAIN_COEF, new double[2], CAP_COEF);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void numberCap() {
-    new CouponIborRatchet(CUR, RATCHET_IBOR.getPaymentTime(), RATCHET_IBOR.getPaymentYearFraction(), NOTIONAL, RATCHET_IBOR.getFixingTime(),
-        RATCHET_IBOR.getFixingPeriodStartTime(), RATCHET_IBOR.getFixingPeriodEndTime(), RATCHET_IBOR.getFixingAccrualFactor(), INDEX_IBOR, MAIN_COEF, FLOOR_COEF, new double[2]);
+    new CouponIborRatchet(CUR, RATCHET_IBOR.getPaymentTime(), DISCOUNTING_CURVE_NAME, RATCHET_IBOR.getPaymentYearFraction(), NOTIONAL, RATCHET_IBOR.getFixingTime(),
+        RATCHET_IBOR.getFixingPeriodStartTime(), RATCHET_IBOR.getFixingPeriodEndTime(), RATCHET_IBOR.getFixingAccrualFactor(), FORWARD_CURVE_NAME, INDEX_IBOR, MAIN_COEF, FLOOR_COEF, new double[2]);
   }
 
   @Test
@@ -106,8 +111,8 @@ public class CouponIborRatchetTest {
   @Test
   public void testWithNotional() {
     final double notional = NOTIONAL + 100;
-    final CouponIborRatchet expected = new CouponIborRatchet(CUR, 0.25, 0.25, notional, 0.1, 0.1, 0.2, 0.25, INDEX_IBOR, MAIN_COEF, FLOOR_COEF, CAP_COEF);
-    final CouponIborRatchet coupon = new CouponIborRatchet(CUR, 0.25, 0.25, NOTIONAL, 0.1, 0.1, 0.2, 0.25, INDEX_IBOR, MAIN_COEF, FLOOR_COEF, CAP_COEF);
+    final CouponIborRatchet expected = new CouponIborRatchet(CUR, 0.25, DISCOUNTING_CURVE_NAME, 0.25, notional, 0.1, 0.1, 0.2, 0.25, FORWARD_CURVE_NAME, INDEX_IBOR, MAIN_COEF, FLOOR_COEF, CAP_COEF);
+    final CouponIborRatchet coupon = new CouponIborRatchet(CUR, 0.25, DISCOUNTING_CURVE_NAME, 0.25, NOTIONAL, 0.1, 0.1, 0.2, 0.25, FORWARD_CURVE_NAME, INDEX_IBOR, MAIN_COEF, FLOOR_COEF, CAP_COEF);
     assertEquals(expected, coupon.withNotional(notional));
   }
 
@@ -116,19 +121,19 @@ public class CouponIborRatchetTest {
   @Test
   public void testEqualHash() {
     assertEquals("Ratchet Ibor Coupon: equal/hash", RATCHET_IBOR, RATCHET_IBOR);
-    final CouponIborRatchet other = new CouponIborRatchet(CUR, RATCHET_IBOR.getPaymentTime(), RATCHET_IBOR.getPaymentYearFraction(), NOTIONAL, RATCHET_IBOR.getFixingTime(),
-        RATCHET_IBOR.getFixingPeriodStartTime(), RATCHET_IBOR.getFixingPeriodEndTime(), RATCHET_IBOR.getFixingAccrualFactor(), INDEX_IBOR, MAIN_COEF, FLOOR_COEF, CAP_COEF);
+    final CouponIborRatchet other = new CouponIborRatchet(CUR, RATCHET_IBOR.getPaymentTime(), DISCOUNTING_CURVE_NAME, RATCHET_IBOR.getPaymentYearFraction(), NOTIONAL, RATCHET_IBOR.getFixingTime(),
+        RATCHET_IBOR.getFixingPeriodStartTime(), RATCHET_IBOR.getFixingPeriodEndTime(), RATCHET_IBOR.getFixingAccrualFactor(), FORWARD_CURVE_NAME, INDEX_IBOR, MAIN_COEF, FLOOR_COEF, CAP_COEF);
     assertEquals("Ratchet Ibor Coupon: equal/hash", RATCHET_IBOR, other);
     assertEquals("Ratchet Ibor Coupon: equal/hash", RATCHET_IBOR.hashCode(), other.hashCode());
     CouponIborRatchet modified;
-    modified = new CouponIborRatchet(CUR, RATCHET_IBOR.getPaymentTime(), RATCHET_IBOR.getPaymentYearFraction(), NOTIONAL, RATCHET_IBOR.getFixingTime(),
-        RATCHET_IBOR.getFixingPeriodStartTime(), RATCHET_IBOR.getFixingPeriodEndTime(), RATCHET_IBOR.getFixingAccrualFactor(), INDEX_IBOR, new double[3], FLOOR_COEF, CAP_COEF);
+    modified = new CouponIborRatchet(CUR, RATCHET_IBOR.getPaymentTime(), DISCOUNTING_CURVE_NAME, RATCHET_IBOR.getPaymentYearFraction(), NOTIONAL, RATCHET_IBOR.getFixingTime(),
+        RATCHET_IBOR.getFixingPeriodStartTime(), RATCHET_IBOR.getFixingPeriodEndTime(), RATCHET_IBOR.getFixingAccrualFactor(), FORWARD_CURVE_NAME, INDEX_IBOR, new double[3], FLOOR_COEF, CAP_COEF);
     assertFalse("Ratchet Ibor Coupon: equal/hash", RATCHET_IBOR_DEFINITION.equals(modified));
-    modified = new CouponIborRatchet(CUR, RATCHET_IBOR.getPaymentTime(), RATCHET_IBOR.getPaymentYearFraction(), NOTIONAL, RATCHET_IBOR.getFixingTime(),
-        RATCHET_IBOR.getFixingPeriodStartTime(), RATCHET_IBOR.getFixingPeriodEndTime(), RATCHET_IBOR.getFixingAccrualFactor(), INDEX_IBOR, MAIN_COEF, new double[3], CAP_COEF);
+    modified = new CouponIborRatchet(CUR, RATCHET_IBOR.getPaymentTime(), DISCOUNTING_CURVE_NAME, RATCHET_IBOR.getPaymentYearFraction(), NOTIONAL, RATCHET_IBOR.getFixingTime(),
+        RATCHET_IBOR.getFixingPeriodStartTime(), RATCHET_IBOR.getFixingPeriodEndTime(), RATCHET_IBOR.getFixingAccrualFactor(), FORWARD_CURVE_NAME, INDEX_IBOR, MAIN_COEF, new double[3], CAP_COEF);
     assertFalse("Ratchet Ibor Coupon: equal/hash", RATCHET_IBOR_DEFINITION.equals(modified));
-    modified = new CouponIborRatchet(CUR, RATCHET_IBOR.getPaymentTime(), RATCHET_IBOR.getPaymentYearFraction(), NOTIONAL, RATCHET_IBOR.getFixingTime(),
-        RATCHET_IBOR.getFixingPeriodStartTime(), RATCHET_IBOR.getFixingPeriodEndTime(), RATCHET_IBOR.getFixingAccrualFactor(), INDEX_IBOR, MAIN_COEF, FLOOR_COEF, new double[3]);
+    modified = new CouponIborRatchet(CUR, RATCHET_IBOR.getPaymentTime(), DISCOUNTING_CURVE_NAME, RATCHET_IBOR.getPaymentYearFraction(), NOTIONAL, RATCHET_IBOR.getFixingTime(),
+        RATCHET_IBOR.getFixingPeriodStartTime(), RATCHET_IBOR.getFixingPeriodEndTime(), RATCHET_IBOR.getFixingAccrualFactor(), FORWARD_CURVE_NAME, INDEX_IBOR, MAIN_COEF, FLOOR_COEF, new double[3]);
     assertFalse("Ratchet Ibor Coupon: equal/hash", RATCHET_IBOR_DEFINITION.equals(modified));
   }
 

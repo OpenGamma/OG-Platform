@@ -113,10 +113,23 @@ public class CouponCMS extends CouponFloating {
   }
 
   @Override
+  public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
+    return visitor.visitCouponCMS(this, data);
+  }
+
+  @Override
+  public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
+    return visitor.visitCouponCMS(this);
+  }
+
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
-    result = prime * result + _underlyingSwap.hashCode();
+    long temp;
+    temp = Double.doubleToLongBits(_settlementTime);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + ((_underlyingSwap == null) ? 0 : _underlyingSwap.hashCode());
     return result;
   }
 
@@ -128,24 +141,17 @@ public class CouponCMS extends CouponFloating {
     if (!super.equals(obj)) {
       return false;
     }
-    if (getClass() != obj.getClass()) {
+    if (!(obj instanceof CouponCMS)) {
       return false;
     }
     final CouponCMS other = (CouponCMS) obj;
+    if (Double.compare(_settlementTime, other._settlementTime) != 0) {
+      return false;
+    }
     if (!ObjectUtils.equals(_underlyingSwap, other._underlyingSwap)) {
       return false;
     }
     return true;
-  }
-
-  @Override
-  public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
-    return visitor.visitCouponCMS(this, data);
-  }
-
-  @Override
-  public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
-    return visitor.visitCouponCMS(this);
   }
 
 }

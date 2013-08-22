@@ -28,7 +28,11 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
-public class CapFloorCMSTest {
+/**
+ * @deprecated This class tests deprecated functionality.
+ */
+@Deprecated
+public class DeprecatedCapFloorCMSTest {
   //Swap 5Y
   private static final Currency CUR = Currency.EUR;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
@@ -67,8 +71,11 @@ public class CapFloorCMSTest {
   private static final CapFloorCMSDefinition CMS_CAP_DEFINITION = CapFloorCMSDefinition.from(CMS_COUPON_DEFINITION, STRIKE, IS_CAP);
   // to derivatives
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 8, 18);
+  private static final String FUNDING_CURVE_NAME = "Funding";
+  private static final String FORWARD_CURVE_NAME = "Forward";
+  private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME };
 
-  private static final CapFloorCMS CMS_CAP = (CapFloorCMS) CMS_CAP_DEFINITION.toDerivative(REFERENCE_DATE);
+  private static final CapFloorCMS CMS_CAP = (CapFloorCMS) CMS_CAP_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testCMSCoupon() {
@@ -92,34 +99,36 @@ public class CapFloorCMSTest {
   @Test
   public void testWithNotional() {
     final double notional = NOTIONAL + 1000;
-    final CapFloorCMS capFloorCMS = new CapFloorCMS(CUR, ACCRUAL_FACTOR, RATE, NOTIONAL, ACCRUAL_FACTOR, CMS_CAP.getUnderlyingSwap(), SETTLEMENT_DAYS, STRIKE, IS_CAP);
-    final CapFloorCMS expected = new CapFloorCMS(CUR, ACCRUAL_FACTOR, RATE, notional, ACCRUAL_FACTOR, CMS_CAP.getUnderlyingSwap(), SETTLEMENT_DAYS, STRIKE, IS_CAP);
-    assertEquals(expected, capFloorCMS.withNotional(notional));
+    final CapFloorCMS capFloorCMS = new CapFloorCMS(CUR, ACCRUAL_FACTOR, FUNDING_CURVE_NAME, RATE, NOTIONAL, ACCRUAL_FACTOR, CMS_CAP.getUnderlyingSwap(), SETTLEMENT_DAYS, STRIKE, IS_CAP);
+    final CapFloorCMS other = new CapFloorCMS(CUR, ACCRUAL_FACTOR, FUNDING_CURVE_NAME, RATE, notional, ACCRUAL_FACTOR, CMS_CAP.getUnderlyingSwap(), SETTLEMENT_DAYS, STRIKE, IS_CAP);
+    assertEquals(other, capFloorCMS.withNotional(notional));
   }
 
   @Test
   public void testHashCodeEquals() {
-    final CapFloorCMS capFloorCMS = new CapFloorCMS(CUR, ACCRUAL_FACTOR, RATE, NOTIONAL, ACCRUAL_FACTOR, CMS_CAP.getUnderlyingSwap(), SETTLEMENT_DAYS, STRIKE, IS_CAP);
-    CapFloorCMS other = new CapFloorCMS(CUR, ACCRUAL_FACTOR, RATE, NOTIONAL, ACCRUAL_FACTOR, CMS_CAP.getUnderlyingSwap(), SETTLEMENT_DAYS, STRIKE, IS_CAP);
+    final CapFloorCMS capFloorCMS = new CapFloorCMS(CUR, ACCRUAL_FACTOR, FUNDING_CURVE_NAME, RATE, NOTIONAL, ACCRUAL_FACTOR, CMS_CAP.getUnderlyingSwap(), SETTLEMENT_DAYS, STRIKE, IS_CAP);
+    CapFloorCMS other = new CapFloorCMS(CUR, ACCRUAL_FACTOR, FUNDING_CURVE_NAME, RATE, NOTIONAL, ACCRUAL_FACTOR, CMS_CAP.getUnderlyingSwap(), SETTLEMENT_DAYS, STRIKE, IS_CAP);
     assertEquals(capFloorCMS, other);
     assertEquals(capFloorCMS.hashCode(), other.hashCode());
-    other = new CapFloorCMS(Currency.AUD, ACCRUAL_FACTOR, RATE, NOTIONAL, ACCRUAL_FACTOR, CMS_CAP.getUnderlyingSwap(), SETTLEMENT_DAYS, STRIKE, IS_CAP);
+    other = new CapFloorCMS(Currency.AUD, ACCRUAL_FACTOR, FUNDING_CURVE_NAME, RATE, NOTIONAL, ACCRUAL_FACTOR, CMS_CAP.getUnderlyingSwap(), SETTLEMENT_DAYS, STRIKE, IS_CAP);
     assertFalse(other.equals(capFloorCMS));
-    other = new CapFloorCMS(CUR, ACCRUAL_FACTOR + 1, RATE, NOTIONAL, ACCRUAL_FACTOR, CMS_CAP.getUnderlyingSwap(), SETTLEMENT_DAYS, STRIKE, IS_CAP);
+    other = new CapFloorCMS(CUR, ACCRUAL_FACTOR + 1, FUNDING_CURVE_NAME, RATE, NOTIONAL, ACCRUAL_FACTOR, CMS_CAP.getUnderlyingSwap(), SETTLEMENT_DAYS, STRIKE, IS_CAP);
     assertFalse(other.equals(capFloorCMS));
-    other = new CapFloorCMS(CUR, ACCRUAL_FACTOR, RATE + 0.01, NOTIONAL, ACCRUAL_FACTOR, CMS_CAP.getUnderlyingSwap(), SETTLEMENT_DAYS, STRIKE, IS_CAP);
+    other = new CapFloorCMS(CUR, ACCRUAL_FACTOR, FORWARD_CURVE_NAME, RATE, NOTIONAL, ACCRUAL_FACTOR, CMS_CAP.getUnderlyingSwap(), SETTLEMENT_DAYS, STRIKE, IS_CAP);
     assertFalse(other.equals(capFloorCMS));
-    other = new CapFloorCMS(CUR, ACCRUAL_FACTOR, RATE, NOTIONAL + 1, ACCRUAL_FACTOR, CMS_CAP.getUnderlyingSwap(), SETTLEMENT_DAYS, STRIKE, IS_CAP);
+    other = new CapFloorCMS(CUR, ACCRUAL_FACTOR, FUNDING_CURVE_NAME, RATE + 0.01, NOTIONAL, ACCRUAL_FACTOR, CMS_CAP.getUnderlyingSwap(), SETTLEMENT_DAYS, STRIKE, IS_CAP);
     assertFalse(other.equals(capFloorCMS));
-    other = new CapFloorCMS(CUR, ACCRUAL_FACTOR, RATE, NOTIONAL, ACCRUAL_FACTOR + 1, CMS_CAP.getUnderlyingSwap(), SETTLEMENT_DAYS, STRIKE, IS_CAP);
+    other = new CapFloorCMS(CUR, ACCRUAL_FACTOR, FUNDING_CURVE_NAME, RATE, NOTIONAL + 1, ACCRUAL_FACTOR, CMS_CAP.getUnderlyingSwap(), SETTLEMENT_DAYS, STRIKE, IS_CAP);
     assertFalse(other.equals(capFloorCMS));
-    other = new CapFloorCMS(CUR, ACCRUAL_FACTOR, RATE, NOTIONAL, ACCRUAL_FACTOR, CMS_CAP.getUnderlyingSwap().withNotional(NOTIONAL + 1), SETTLEMENT_DAYS, STRIKE, IS_CAP);
+    other = new CapFloorCMS(CUR, ACCRUAL_FACTOR, FUNDING_CURVE_NAME, RATE, NOTIONAL, ACCRUAL_FACTOR + 1, CMS_CAP.getUnderlyingSwap(), SETTLEMENT_DAYS, STRIKE, IS_CAP);
     assertFalse(other.equals(capFloorCMS));
-    other = new CapFloorCMS(CUR, ACCRUAL_FACTOR, RATE, NOTIONAL, ACCRUAL_FACTOR, CMS_CAP.getUnderlyingSwap(), SETTLEMENT_DAYS + 1, STRIKE, IS_CAP);
+    other = new CapFloorCMS(CUR, ACCRUAL_FACTOR, FUNDING_CURVE_NAME, RATE, NOTIONAL, ACCRUAL_FACTOR, CMS_CAP.getUnderlyingSwap().withNotional(NOTIONAL + 1), SETTLEMENT_DAYS, STRIKE, IS_CAP);
     assertFalse(other.equals(capFloorCMS));
-    other = new CapFloorCMS(CUR, ACCRUAL_FACTOR, RATE, NOTIONAL, ACCRUAL_FACTOR, CMS_CAP.getUnderlyingSwap(), SETTLEMENT_DAYS, STRIKE + 0.01, IS_CAP);
+    other = new CapFloorCMS(CUR, ACCRUAL_FACTOR, FUNDING_CURVE_NAME, RATE, NOTIONAL, ACCRUAL_FACTOR, CMS_CAP.getUnderlyingSwap(), SETTLEMENT_DAYS + 1, STRIKE, IS_CAP);
     assertFalse(other.equals(capFloorCMS));
-    other = new CapFloorCMS(CUR, ACCRUAL_FACTOR, RATE, NOTIONAL, ACCRUAL_FACTOR, CMS_CAP.getUnderlyingSwap(), SETTLEMENT_DAYS, STRIKE, !IS_CAP);
+    other = new CapFloorCMS(CUR, ACCRUAL_FACTOR, FUNDING_CURVE_NAME, RATE, NOTIONAL, ACCRUAL_FACTOR, CMS_CAP.getUnderlyingSwap(), SETTLEMENT_DAYS, STRIKE + 0.01, IS_CAP);
+    assertFalse(other.equals(capFloorCMS));
+    other = new CapFloorCMS(CUR, ACCRUAL_FACTOR, FUNDING_CURVE_NAME, RATE, NOTIONAL, ACCRUAL_FACTOR, CMS_CAP.getUnderlyingSwap(), SETTLEMENT_DAYS, STRIKE, !IS_CAP);
     assertFalse(other.equals(capFloorCMS));
   }
 }
