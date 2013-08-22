@@ -131,4 +131,14 @@ public interface MarketDataRequirementNames {
    * Low value. Sometimes sent as part of a candle or EOD message.
    */
   String LOW = "Market_Low";
+
+  /**
+   * Previous day's closing bid price.
+   */
+  String CLOSING_BID = "Market_ClosingBid";
+
+  /**
+   * Previous day's closing ask price.
+   */
+  String CLOSING_ASK = "Market_ClosingAsk";
 }
