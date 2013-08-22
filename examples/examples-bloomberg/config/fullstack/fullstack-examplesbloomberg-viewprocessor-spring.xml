@@ -112,7 +112,7 @@
   </bean>
 
   <bean id="viewResultListenerFactory" class="com.opengamma.masterdb.batch.BatchDbViewResultListenerFactory">
-    <property name="batchRunMaster" ref="sharedDbBatchMaster" />
+    <property name="batchRunMaster" ref="sharedBatchMaster" />
   </bean>
   
   <bean id="mainViewProcessor" class="com.opengamma.engine.view.ViewProcessorFactoryBean">
