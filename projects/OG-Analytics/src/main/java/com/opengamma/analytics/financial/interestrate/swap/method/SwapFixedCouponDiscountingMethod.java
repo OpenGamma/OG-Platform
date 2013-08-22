@@ -24,7 +24,9 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Class to compute the quantities related to swaps (annuity, PVBP, coupon equivalent).
+ * @deprecated Use {@link com.opengamma.analytics.financial.interestrate.swap.provider.SwapFixedCouponDiscountingMethod}
  */
+@Deprecated
 public class SwapFixedCouponDiscountingMethod {
 
   /**

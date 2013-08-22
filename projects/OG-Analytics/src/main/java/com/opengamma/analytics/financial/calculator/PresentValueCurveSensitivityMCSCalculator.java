@@ -40,7 +40,9 @@ import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedC
 
 /**
  * Calculator of the present value curve sensitivity as multiple currency interest rate curve sensitivity.
+ * @deprecated This class uses deprecated pricing methods.
  */
+@Deprecated
 public class PresentValueCurveSensitivityMCSCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, MultipleCurrencyInterestRateCurveSensitivity> {
 
   /**
