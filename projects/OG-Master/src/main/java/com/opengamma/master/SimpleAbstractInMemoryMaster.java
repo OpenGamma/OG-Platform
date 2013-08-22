@@ -46,15 +46,15 @@ public abstract class SimpleAbstractInMemoryMaster<D extends AbstractDocument>
   /**
    * A cache of documents by identifier.
    */
-  protected final ConcurrentMap<ObjectId, D> _store = new ConcurrentHashMap<ObjectId, D>();
+  protected final ConcurrentMap<ObjectId, D> _store = new ConcurrentHashMap<ObjectId, D>();  // CSIGNORE
   /**
    * The supplied of identifiers.
    */
-  protected final Supplier<ObjectId> _objectIdSupplier;
+  protected final Supplier<ObjectId> _objectIdSupplier;  // CSIGNORE
   /**
    * The change manager.
    */
-  protected final ChangeManager _changeManager;
+  protected final ChangeManager _changeManager;  // CSIGNORE
 
   /**
    * Creates an instance.

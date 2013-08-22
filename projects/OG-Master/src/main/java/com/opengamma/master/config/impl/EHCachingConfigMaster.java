@@ -56,6 +56,7 @@ public class EHCachingConfigMaster extends AbstractEHCachingMaster<ConfigDocumen
    * @param underlying    the underlying config master, not null
    * @param cacheManager  the cache manager, not null
    */
+  @SuppressWarnings("rawtypes")
   public EHCachingConfigMaster(final String name, final ConfigMaster underlying, final CacheManager cacheManager) {
     super(name + "Config", underlying, cacheManager);
 
@@ -80,6 +81,7 @@ public class EHCachingConfigMaster extends AbstractEHCachingMaster<ConfigDocumen
 
     // Create the history search cache and register a security master searcher
     _historySearchCache = new EHCachingSearchCache(name + "ConfigHistory", cacheManager, new EHCachingSearchCache.Searcher() {
+      @SuppressWarnings("unchecked")
       @Override
       public ObjectsPair<Integer, List<UniqueId>> search(Bean request, PagingRequest pagingRequest) {
         // Fetch search results from underlying master
@@ -130,8 +132,7 @@ public class EHCachingConfigMaster extends AbstractEHCachingMaster<ConfigDocumen
         s_logger.error(_documentSearchCache.getCache().getName() + " returned documents:\n" + result.getDocuments() +
                            "\nbut the underlying master returned documents:\n" + check.getDocuments());
       }
-     }
-
+    }
     return result;
   }
 

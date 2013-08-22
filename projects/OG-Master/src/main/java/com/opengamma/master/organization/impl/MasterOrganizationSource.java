@@ -22,6 +22,9 @@ import com.opengamma.master.orgs.OrganizationDocument;
 import com.opengamma.master.orgs.OrganizationMaster;
 import com.opengamma.master.orgs.OrganizationSearchRequest;
 
+/**
+ * Organization source based on the master.
+ */
 public class MasterOrganizationSource
     extends AbstractMasterSource<Organization, OrganizationDocument, OrganizationMaster>
     implements OrganizationSource {

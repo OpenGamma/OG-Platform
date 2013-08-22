@@ -53,7 +53,7 @@ public class MasterExchangeSource
   }
 
   //-------------------------------------------------------------------------
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes" })
   @Override
   public Collection<Exchange> get(ExternalIdBundle bundle, VersionCorrection versionCorrection) {
     ExchangeSearchRequest searchRequest = new ExchangeSearchRequest(bundle);

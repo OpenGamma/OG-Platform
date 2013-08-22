@@ -6,6 +6,7 @@
 package com.opengamma.master.config.impl;
 
 import static com.google.common.collect.Maps.newHashMap;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -34,6 +35,7 @@ import com.opengamma.util.PublicSPI;
  * specify their own version requirements, which are respected.
  */
 @PublicSPI
+@SuppressWarnings("deprecation")
 public class MasterConfigSource extends AbstractSource<ConfigItem<?>> implements ConfigSource, VersionedSource {
 
   /**
