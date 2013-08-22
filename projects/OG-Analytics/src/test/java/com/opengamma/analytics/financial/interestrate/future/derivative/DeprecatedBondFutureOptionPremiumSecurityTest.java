@@ -17,7 +17,10 @@ import com.opengamma.analytics.financial.instrument.future.FutureInstrumentsDesc
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.util.time.DateUtils;
 
-@SuppressWarnings("deprecation")
+/**
+ * @deprecated This class tests deprecated functionality.
+ */
+@Deprecated
 public class DeprecatedBondFutureOptionPremiumSecurityTest {
 
   // 5-Year U.S. Treasury Note Futures: FVU1

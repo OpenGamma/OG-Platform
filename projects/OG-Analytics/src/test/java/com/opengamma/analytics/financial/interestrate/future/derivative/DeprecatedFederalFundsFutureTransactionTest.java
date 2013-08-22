@@ -21,8 +21,9 @@ import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the construction of Federal Funds Futures transactions.
+ * @deprecated This class tests deprecated functionality.
  */
-@SuppressWarnings("deprecation")
+@Deprecated
 public class DeprecatedFederalFundsFutureTransactionTest {
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 1, 30);

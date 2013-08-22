@@ -27,8 +27,9 @@ import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests on the construction of interest rate future option with up-front payment.
+ * @deprecated This class tests deprecated functionality.
  */
-@SuppressWarnings("deprecation")
+@Deprecated
 public class DeprecatedInterestRateFutureOptionPremiumSecurityTest {
   //EURIBOR 3M Index
   private static final Period TENOR = Period.ofMonths(3);

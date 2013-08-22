@@ -30,8 +30,9 @@ import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the construction of interest rate future security.
+ * @deprecated This class tests deprecated functionality.
  */
-@SuppressWarnings("deprecation")
+@Deprecated
 public class DeprecatedInterestRateFutureTransactionTest {
   //EURIBOR 3M Index
   private static final Period TENOR = Period.ofMonths(3);

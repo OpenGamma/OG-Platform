@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.provider;
@@ -48,8 +48,6 @@ public class BondFutureOptionPremiumTransactionBlackSurfaceMethodTest {
 
   private final static IssuerProviderDiscount ISSUER_MULTICURVES = IssuerProviderDiscountDataSets.createIssuerProvider();
   private final static String ISSUER_NAME = IssuerProviderDiscountDataSets.getIssuerNames()[0]; // US GOVT
-  private static final String NOT_USED = "Not used";
-  private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
 
   private static final InterpolatedDoublesSurface BLACK_PARAMETERS = TestsDataSetsBlack.createBlackSurfaceExpiryTenor();
 
@@ -95,11 +93,10 @@ public class BondFutureOptionPremiumTransactionBlackSurfaceMethodTest {
   private static final BondFutureOptionPremiumTransactionDefinition BOND_FUTURE_OPTION_TRA_PUT_DEFINITION = new BondFutureOptionPremiumTransactionDefinition(BOND_FUTURE_OPTION_SEC_PUT_DEFINITION,
       QUANTITY, PREMIUM_DATE, -QUANTITY * PREMIUM_UNIT_PUT);
 
-  private static final BondFuture BOND_FUT = BOND_FUT_DEFINITION.toDerivative(REFERENCE_DATE, 0.0, NOT_USED_A);
-  private static final BondFutureOptionPremiumSecurity BOND_FUTURE_OPTION_SEC_CALL = BOND_FUTURE_OPTION_SEC_CALL_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
-  //  private static final BondFutureOptionPremiumSecurity BOND_FUTURE_OPTION_SEC_PUT = BOND_FUTURE_OPTION_SEC_PUT_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
-  private static final BondFutureOptionPremiumTransaction BOND_FUTURE_OPTION_TRA_CALL = BOND_FUTURE_OPTION_TRA_CALL_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
-  private static final BondFutureOptionPremiumTransaction BOND_FUTURE_OPTION_TRA_PUT = BOND_FUTURE_OPTION_TRA_PUT_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
+  private static final BondFuture BOND_FUT = BOND_FUT_DEFINITION.toDerivative(REFERENCE_DATE, 0.0);
+  private static final BondFutureOptionPremiumSecurity BOND_FUTURE_OPTION_SEC_CALL = BOND_FUTURE_OPTION_SEC_CALL_DEFINITION.toDerivative(REFERENCE_DATE);
+  private static final BondFutureOptionPremiumTransaction BOND_FUTURE_OPTION_TRA_CALL = BOND_FUTURE_OPTION_TRA_CALL_DEFINITION.toDerivative(REFERENCE_DATE);
+  private static final BondFutureOptionPremiumTransaction BOND_FUTURE_OPTION_TRA_PUT = BOND_FUTURE_OPTION_TRA_PUT_DEFINITION.toDerivative(REFERENCE_DATE);
 
   private static final double PRICE_FUTURES = 1.0325;
   private static final BlackBondFuturesSmileProvider BLACK_MULTICURVES = new BlackBondFuturesSmileProvider(ISSUER_MULTICURVES, BLACK_PARAMETERS);

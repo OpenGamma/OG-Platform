@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.method;
@@ -37,7 +37,9 @@ import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the bond future figures computed with the Hull-White one factor model for the delivery option.
+ * @deprecated This class tests deprecated functionality.
  */
+@Deprecated
 public class BondFutureHullWhiteMethodTest {
   // 5-Year U.S. Treasury Note Futures: FVU1
   private static final Currency CUR = Currency.EUR;

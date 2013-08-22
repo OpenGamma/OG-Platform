@@ -19,7 +19,10 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Paymen
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.util.time.DateUtils;
 
-@SuppressWarnings("deprecation")
+/**
+ * @deprecated This class tests deprecated functionality.
+ */
+@Deprecated
 public class DeprecatedBondFutureOptionPremiumTransactionTest {
 
   // 5-Year U.S. Treasury Note Futures: FVU1

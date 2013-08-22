@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.method;
@@ -41,7 +41,9 @@ import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the pricing methods for bond future options transaction with up-front premium payment.
+ * @deprecated This class tests deprecated functionality.
  */
+@Deprecated
 public class BondFutureOptionPremiumTransactionBlackSurfaceMethodTest {
 
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
@@ -93,7 +95,6 @@ public class BondFutureOptionPremiumTransactionBlackSurfaceMethodTest {
 
   private static final BondFuture BOND_FUT = BOND_FUT_DEFINITION.toDerivative(REFERENCE_DATE, 0.0, CURVES_NAME);
   private static final BondFutureOptionPremiumSecurity BOND_FUTURE_OPTION_SEC_CALL = BOND_FUTURE_OPTION_SEC_CALL_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
-  //  private static final BondFutureOptionPremiumSecurity BOND_FUTURE_OPTION_SEC_PUT = BOND_FUTURE_OPTION_SEC_PUT_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
   private static final BondFutureOptionPremiumTransaction BOND_FUTURE_OPTION_TRA_CALL = BOND_FUTURE_OPTION_TRA_CALL_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
   private static final BondFutureOptionPremiumTransaction BOND_FUTURE_OPTION_TRA_PUT = BOND_FUTURE_OPTION_TRA_PUT_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
 

@@ -29,8 +29,9 @@ import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to bond futures transaction Derivative construction.
+ * @deprecated This class tests deprecated functionality.
  */
-@SuppressWarnings("deprecation")
+@Deprecated
 public class DeprecatedBondFutureTransactionTest {
   // 5-Year U.S. Treasury Note Futures: FVU1
   private static final Currency CUR = Currency.USD;

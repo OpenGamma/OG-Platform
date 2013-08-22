@@ -152,9 +152,6 @@ public abstract class BondSecurity<N extends Payment, C extends Coupon> implemen
    */
   @Deprecated
   public String getDiscountingCurveName() {
-    if (getNominal().getDiscountCurve() == null) {
-      throw new IllegalStateException("Discounting curve name not set");
-    }
     return getNominal().getDiscountCurve();
   }
 

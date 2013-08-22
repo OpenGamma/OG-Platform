@@ -27,8 +27,9 @@ import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the construction of Federal Fund future.
+ * @deprecated This class tests deprecated functionality.
  */
-@SuppressWarnings("deprecation")
+@Deprecated
 public class DeprecatedFederalFundsFutureSecurityTest {
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 1, 30);
