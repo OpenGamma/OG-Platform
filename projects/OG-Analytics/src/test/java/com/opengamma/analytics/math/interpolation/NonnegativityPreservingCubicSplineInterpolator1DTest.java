@@ -19,7 +19,7 @@ import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 public class NonnegativityPreservingCubicSplineInterpolator1DTest {
 
   private static final NonnegativityPreservingCubicSplineInterpolator INTERP_NAT = new NonnegativityPreservingCubicSplineInterpolator(new NaturalSplineInterpolator());
-  private static final NonnegativityPreservingCubicSplineInterpolator1D INTERP1D_NAT = new NonnegativityPreservingCubicSplineInterpolator1D(new NaturalSplineInterpolator());
+  private static final NonnegativityPreservingCubicSplineInterpolator1D INTERP1D_NAT = new NonnegativityPreservingCubicSplineInterpolator1D();
   private static final NonnegativityPreservingCubicSplineInterpolator INTERP_NAK = new NonnegativityPreservingCubicSplineInterpolator(new CubicSplineInterpolator());
   private static final NonnegativityPreservingCubicSplineInterpolator1D INTERP1D_NAK = new NonnegativityPreservingCubicSplineInterpolator1D(new CubicSplineInterpolator());
   private static final NonnegativityPreservingCubicSplineInterpolator INTERP_AKIMA = new NonnegativityPreservingCubicSplineInterpolator(new SemiLocalCubicSplineInterpolator());
