@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.interestrate.payments.method;
+package com.opengamma.analytics.financial.interestrate.payments.provider;
 
 import static org.testng.AssertJUnit.assertEquals;
 
@@ -44,7 +44,7 @@ public class CouponFixedCompoundingDiscountingMethodTest {
   private final static CouponFixedCompoundingDefinition COUPON_DEFINITION = CouponFixedCompoundingDefinition.from(CURRENCY, ACCRUAL_START_DATE, ACCRUAL_END_DATE, NOTIONAL, Y1, RATE);
 
   private static final ZonedDateTime REFERENCE_DATE_BEFORE = DateUtils.getUTCDate(2012, 8, 7);
-  private static final CouponFixedCompounding COUPON = COUPON_DEFINITION.toDerivative(REFERENCE_DATE_BEFORE, "");
+  private static final CouponFixedCompounding COUPON = COUPON_DEFINITION.toDerivative(REFERENCE_DATE_BEFORE);
   private static final CouponFixedCompoundingDiscountingMethod METHOD_COUPON = CouponFixedCompoundingDiscountingMethod.getInstance();
 
   private static final double TOLERANCE_PV = 1.0E-2;

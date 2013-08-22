@@ -55,9 +55,8 @@ public class CouponIborAverageDiscountingMethodTest {
       EURIBOR6M, CALENDAR);
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 12, 27);
-  private static final String[] NOT_USED = new String[] {"Not used 1", "not used 2" };
-  private static final CouponIbor CPN_IBOR_1 = (CouponIbor) CPN_IBOR_DEFINITION_1.toDerivative(REFERENCE_DATE, NOT_USED);
-  private static final CouponIbor CPN_IBOR_2 = (CouponIbor) CPN_IBOR_DEFINITION_2.toDerivative(REFERENCE_DATE, NOT_USED);
+  private static final CouponIbor CPN_IBOR_1 = (CouponIbor) CPN_IBOR_DEFINITION_1.toDerivative(REFERENCE_DATE);
+  private static final CouponIbor CPN_IBOR_2 = (CouponIbor) CPN_IBOR_DEFINITION_2.toDerivative(REFERENCE_DATE);
 
   private static final CouponIborDiscountingMethod METHOD_CPN_IBOR = CouponIborDiscountingMethod.getInstance();
   private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
@@ -71,7 +70,7 @@ public class CouponIborAverageDiscountingMethodTest {
   private static final double WEIGHT_2 = -0.06;
   private static final CouponIborAverageDefinition CPN_IBOR__AVERAGE_DEFINITION = CouponIborAverageDefinition.from(PAYMENT_DATE, ACCRUAL_START_DATE_2, ACCRUAL_END_DATE_2, ACCRUAL_FACTOR_2, NOTIONAL,
       FIXING_DATE, EURIBOR3M, EURIBOR6M, WEIGHT_1, WEIGHT_2, CALENDAR, CALENDAR);
-  private static final CouponIborAverage CPN_IBOR__AVERAGE = (CouponIborAverage) CPN_IBOR__AVERAGE_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED);
+  private static final CouponIborAverage CPN_IBOR__AVERAGE = (CouponIborAverage) CPN_IBOR__AVERAGE_DEFINITION.toDerivative(REFERENCE_DATE);
   private static final CouponIborAverageDiscountingMethod METHOD_CPN_IBOR__AVERAGE = CouponIborAverageDiscountingMethod.getInstance();
 
   private static final double TOLERANCE_PV = 1.0E-2;

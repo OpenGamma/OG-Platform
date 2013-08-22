@@ -135,8 +135,13 @@ public class CapFloorIbor extends CouponFloating implements CapFloor {
    * @return The cap/floor.
    */
   public static CapFloorIbor from(final CouponIbor coupon, final double strike, final boolean isCap) {
-    return new CapFloorIbor(coupon.getCurrency(), coupon.getPaymentTime(), coupon.getFundingCurveName(), coupon.getPaymentYearFraction(), coupon.getNotional(), coupon.getFixingTime(),
-        coupon.getIndex(), coupon.getFixingPeriodStartTime(), coupon.getFixingPeriodEndTime(), coupon.getFixingAccrualFactor(), coupon.getForwardCurveName(), strike, isCap);
+    try {
+      return new CapFloorIbor(coupon.getCurrency(), coupon.getPaymentTime(), coupon.getFundingCurveName(), coupon.getPaymentYearFraction(), coupon.getNotional(), coupon.getFixingTime(),
+          coupon.getIndex(), coupon.getFixingPeriodStartTime(), coupon.getFixingPeriodEndTime(), coupon.getFixingAccrualFactor(), coupon.getForwardCurveName(), strike, isCap);
+    } catch (final IllegalStateException e) {
+      return new CapFloorIbor(coupon.getCurrency(), coupon.getPaymentTime(), coupon.getPaymentYearFraction(), coupon.getNotional(), coupon.getFixingTime(),
+          coupon.getIndex(), coupon.getFixingPeriodStartTime(), coupon.getFixingPeriodEndTime(), coupon.getFixingAccrualFactor(), strike, isCap);
+    }
   }
 
   /**

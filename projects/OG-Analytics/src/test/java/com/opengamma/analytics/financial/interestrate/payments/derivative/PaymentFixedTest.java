@@ -36,8 +36,6 @@ public class PaymentFixedTest {
     assertFalse(other.equals(PAYMENT));
     other = new PaymentFixed(CUR, PAYMENT_TIME, AMOUNT + 0.01);
     assertFalse(other.equals(PAYMENT));
-    other = new PaymentFixed(CUR, PAYMENT_TIME, AMOUNT);
-    assertFalse(other.equals(PAYMENT));
   }
 
   @Test

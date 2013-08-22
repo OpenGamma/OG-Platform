@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.provider;
@@ -62,8 +62,6 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
   private static final GeneratorSwapFixedIbor EUR1YEURIBOR6M = GeneratorSwapFixedIborMaster.getInstance().getGenerator("EUR1YEURIBOR6M", CALENDAR);
   private static final SABRSwaptionProviderDiscount SABR_MULTICURVES = new SABRSwaptionProviderDiscount(MULTICURVES, SABR_PARAMETER, EUR1YEURIBOR6M);
 
-  private static final String NOT_USED = "Not used";
-  private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
   //Swap 5Y
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
@@ -101,10 +99,10 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
   // to derivatives
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 8, 18);
 
-  private static final CouponCMS CMS_COUPON = (CouponCMS) CMS_COUPON_RECEIVER_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
-  private static final CapFloorCMS CMS_CAP_0 = (CapFloorCMS) CMS_CAP_0_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
-  private static final CapFloorCMS CMS_CAP_LONG = (CapFloorCMS) CMS_CAP_LONG_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
-  private static final CapFloorCMS CMS_CAP_SHORT = (CapFloorCMS) CMS_CAP_SHORT_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
+  private static final CouponCMS CMS_COUPON = (CouponCMS) CMS_COUPON_RECEIVER_DEFINITION.toDerivative(REFERENCE_DATE);
+  private static final CapFloorCMS CMS_CAP_0 = (CapFloorCMS) CMS_CAP_0_DEFINITION.toDerivative(REFERENCE_DATE);
+  private static final CapFloorCMS CMS_CAP_LONG = (CapFloorCMS) CMS_CAP_LONG_DEFINITION.toDerivative(REFERENCE_DATE);
+  private static final CapFloorCMS CMS_CAP_SHORT = (CapFloorCMS) CMS_CAP_SHORT_DEFINITION.toDerivative(REFERENCE_DATE);
   // Calculators & methods
   private static final CapFloorCMSSABRReplicationMethod METHOD_STANDARD_CAP = CapFloorCMSSABRReplicationMethod.getDefaultInstance();
   private static final CouponCMSSABRReplicationMethod METHOD_STANDARD_CPN = CouponCMSSABRReplicationMethod.getInstance();
@@ -307,9 +305,9 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
       final CapFloorCMSDefinition cmsCapDefinition = CapFloorCMSDefinition.from(CMS_COUPON_RECEIVER_DEFINITION, strikes[loopstrike], IS_CAP);
       final CapFloorCMSDefinition cmsCapShiftUpDefinition = CapFloorCMSDefinition.from(CMS_COUPON_RECEIVER_DEFINITION, strikes[loopstrike] + shift, IS_CAP);
       final CapFloorCMSDefinition cmsCapShiftDoDefinition = CapFloorCMSDefinition.from(CMS_COUPON_RECEIVER_DEFINITION, strikes[loopstrike] - shift, IS_CAP);
-      final CapFloorCMS cmsCap = (CapFloorCMS) cmsCapDefinition.toDerivative(REFERENCE_DATE, NOT_USED_A);
-      final CapFloorCMS cmsCapShiftUp = (CapFloorCMS) cmsCapShiftUpDefinition.toDerivative(REFERENCE_DATE, NOT_USED_A);
-      final CapFloorCMS cmsCapShiftDo = (CapFloorCMS) cmsCapShiftDoDefinition.toDerivative(REFERENCE_DATE, NOT_USED_A);
+      final CapFloorCMS cmsCap = (CapFloorCMS) cmsCapDefinition.toDerivative(REFERENCE_DATE);
+      final CapFloorCMS cmsCapShiftUp = (CapFloorCMS) cmsCapShiftUpDefinition.toDerivative(REFERENCE_DATE);
+      final CapFloorCMS cmsCapShiftDo = (CapFloorCMS) cmsCapShiftDoDefinition.toDerivative(REFERENCE_DATE);
       final double pvShiftUp = METHOD_EXTRAPOLATION_CAP.presentValue(cmsCapShiftUp, SABR_MULTICURVES).getAmount(EUR);
       final double pvShiftDo = METHOD_EXTRAPOLATION_CAP.presentValue(cmsCapShiftDo, SABR_MULTICURVES).getAmount(EUR);
       final double sensiExpected = (pvShiftUp - pvShiftDo) / (2 * shift);

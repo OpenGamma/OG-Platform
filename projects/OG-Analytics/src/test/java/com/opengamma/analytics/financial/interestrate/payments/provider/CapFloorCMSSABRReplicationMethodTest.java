@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.provider;
@@ -65,9 +65,6 @@ public class CapFloorCMSSABRReplicationMethodTest {
   private static final GeneratorSwapFixedIbor EUR1YEURIBOR6M = GeneratorSwapFixedIborMaster.getInstance().getGenerator("EUR1YEURIBOR6M", CALENDAR);
   private static final SABRSwaptionProviderDiscount SABR_MULTICURVES = new SABRSwaptionProviderDiscount(MULTICURVES, SABR_PARAMETER, EUR1YEURIBOR6M);
 
-  private static final String NOT_USED = "Not used";
-  private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
-
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2008, 8, 18);
 
   private static final ZonedDateTime SPOT_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, EURIBOR6M.getSpotLag(), CALENDAR);
@@ -96,11 +93,11 @@ public class CapFloorCMSSABRReplicationMethodTest {
   private static final CapFloorCMSDefinition CMS_FLOOR_DEFINITION = CapFloorCMSDefinition.from(CMS_COUPON_DEFINITION, STRIKE, !IS_CAP);
   private static final CouponFixedDefinition COUPON_STRIKE_DEFINITION = new CouponFixedDefinition(CMS_COUPON_DEFINITION, STRIKE);
 
-  private static final CouponCMS CMS_COUPON = (CouponCMS) CMS_COUPON_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
-  private static final CapFloorCMS CMS_CAP_0 = (CapFloorCMS) CMS_CAP_0_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
-  private static final CapFloorCMS CMS_CAP = (CapFloorCMS) CMS_CAP_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
-  private static final CapFloorCMS CMS_FLOOR = (CapFloorCMS) CMS_FLOOR_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
-  private static final CouponFixed COUPON_STRIKE = COUPON_STRIKE_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
+  private static final CouponCMS CMS_COUPON = (CouponCMS) CMS_COUPON_DEFINITION.toDerivative(REFERENCE_DATE);
+  private static final CapFloorCMS CMS_CAP_0 = (CapFloorCMS) CMS_CAP_0_DEFINITION.toDerivative(REFERENCE_DATE);
+  private static final CapFloorCMS CMS_CAP = (CapFloorCMS) CMS_CAP_DEFINITION.toDerivative(REFERENCE_DATE);
+  private static final CapFloorCMS CMS_FLOOR = (CapFloorCMS) CMS_FLOOR_DEFINITION.toDerivative(REFERENCE_DATE);
+  private static final CouponFixed COUPON_STRIKE = COUPON_STRIKE_DEFINITION.toDerivative(REFERENCE_DATE);
 
   private static final CapFloorCMSSABRReplicationMethod METHOD_CAP_CMS_SABR = CapFloorCMSSABRReplicationMethod.getDefaultInstance();
 
@@ -225,9 +222,9 @@ public class CapFloorCMSSABRReplicationMethodTest {
       final CapFloorCMSDefinition cmsCapDefinition = CapFloorCMSDefinition.from(CMS_COUPON_DEFINITION, strikes[loopstrike], IS_CAP);
       final CapFloorCMSDefinition cmsCapShiftUpDefinition = CapFloorCMSDefinition.from(CMS_COUPON_DEFINITION, strikes[loopstrike] + shift, IS_CAP);
       final CapFloorCMSDefinition cmsCapShiftDoDefinition = CapFloorCMSDefinition.from(CMS_COUPON_DEFINITION, strikes[loopstrike] - shift, IS_CAP);
-      final CapFloorCMS cmsCap = (CapFloorCMS) cmsCapDefinition.toDerivative(REFERENCE_DATE, NOT_USED_A);
-      final CapFloorCMS cmsCapShiftUp = (CapFloorCMS) cmsCapShiftUpDefinition.toDerivative(REFERENCE_DATE, NOT_USED_A);
-      final CapFloorCMS cmsCapShiftDo = (CapFloorCMS) cmsCapShiftDoDefinition.toDerivative(REFERENCE_DATE, NOT_USED_A);
+      final CapFloorCMS cmsCap = (CapFloorCMS) cmsCapDefinition.toDerivative(REFERENCE_DATE);
+      final CapFloorCMS cmsCapShiftUp = (CapFloorCMS) cmsCapShiftUpDefinition.toDerivative(REFERENCE_DATE);
+      final CapFloorCMS cmsCapShiftDo = (CapFloorCMS) cmsCapShiftDoDefinition.toDerivative(REFERENCE_DATE);
       final double pvShiftUp = METHOD_CAP_CMS_SABR.presentValue(cmsCapShiftUp, SABR_MULTICURVES).getAmount(EUR);
       final double pvShiftDo = METHOD_CAP_CMS_SABR.presentValue(cmsCapShiftDo, SABR_MULTICURVES).getAmount(EUR);
       final double sensiExpected = (pvShiftUp - pvShiftDo) / (2 * shift);
@@ -250,9 +247,9 @@ public class CapFloorCMSSABRReplicationMethodTest {
       final CapFloorCMSDefinition cmsFloorDefinition = CapFloorCMSDefinition.from(CMS_COUPON_DEFINITION, strikes[loopstrike], !IS_CAP);
       final CapFloorCMSDefinition cmsFloorShiftUpDefinition = CapFloorCMSDefinition.from(CMS_COUPON_DEFINITION, strikes[loopstrike] + shift, !IS_CAP);
       final CapFloorCMSDefinition cmsFloorShiftDoDefinition = CapFloorCMSDefinition.from(CMS_COUPON_DEFINITION, strikes[loopstrike] - shift, !IS_CAP);
-      final CapFloorCMS cmsFloor = (CapFloorCMS) cmsFloorDefinition.toDerivative(REFERENCE_DATE, NOT_USED_A);
-      final CapFloorCMS cmsFloorShiftUp = (CapFloorCMS) cmsFloorShiftUpDefinition.toDerivative(REFERENCE_DATE, NOT_USED_A);
-      final CapFloorCMS cmsFloorShiftDo = (CapFloorCMS) cmsFloorShiftDoDefinition.toDerivative(REFERENCE_DATE, NOT_USED_A);
+      final CapFloorCMS cmsFloor = (CapFloorCMS) cmsFloorDefinition.toDerivative(REFERENCE_DATE);
+      final CapFloorCMS cmsFloorShiftUp = (CapFloorCMS) cmsFloorShiftUpDefinition.toDerivative(REFERENCE_DATE);
+      final CapFloorCMS cmsFloorShiftDo = (CapFloorCMS) cmsFloorShiftDoDefinition.toDerivative(REFERENCE_DATE);
       final double pvShiftUp = METHOD_CAP_CMS_SABR.presentValue(cmsFloorShiftUp, SABR_MULTICURVES).getAmount(EUR);
       final double pvShiftDo = METHOD_CAP_CMS_SABR.presentValue(cmsFloorShiftDo, SABR_MULTICURVES).getAmount(EUR);
       final double sensiExpected = (pvShiftUp - pvShiftDo) / (2 * shift);
@@ -275,7 +272,7 @@ public class CapFloorCMSSABRReplicationMethodTest {
     final Period capPeriod = Period.ofMonths(6);
     final DayCount capDayCount = DayCountFactory.INSTANCE.getDayCount("ACT/360");
     final AnnuityCapFloorCMSDefinition capDefinition = AnnuityCapFloorCMSDefinition.from(START_DATE, END_DATE, NOTIONAL, INDEX_SWAP_5Y, capPeriod, capDayCount, false, STRIKE, IS_CAP, CALENDAR);
-    final Annuity<? extends Payment> cap = capDefinition.toDerivative(REFERENCE_DATE, NOT_USED_A);
+    final Annuity<? extends Payment> cap = capDefinition.toDerivative(REFERENCE_DATE);
     final double pvCalculator = PVSSC.visit(cap, SABR_MULTICURVES).getAmount(EUR);
     double pvExpected = 0.0;
     for (int loopcpn = 0; loopcpn < cap.getNumberOfPayments(); loopcpn++) {
@@ -297,7 +294,7 @@ public class CapFloorCMSSABRReplicationMethodTest {
     final Period capPeriod = Period.ofMonths(6);
     final DayCount capDayCount = DayCountFactory.INSTANCE.getDayCount("ACT/360");
     final AnnuityCapFloorCMSDefinition capDefinition = AnnuityCapFloorCMSDefinition.from(START_DATE, END_DATE, NOTIONAL, INDEX_SWAP_5Y, capPeriod, capDayCount, false, STRIKE, IS_CAP, CALENDAR);
-    final Annuity<? extends Payment> cap = capDefinition.toDerivative(REFERENCE_DATE, NOT_USED_A);
+    final Annuity<? extends Payment> cap = capDefinition.toDerivative(REFERENCE_DATE);
     MultipleCurrencyMulticurveSensitivity pvcsCalculator = PVCSSSC.visit(cap, SABR_MULTICURVES);
     pvcsCalculator = pvcsCalculator.cleaned();
     MultipleCurrencyMulticurveSensitivity pvcsExpected = new MultipleCurrencyMulticurveSensitivity();

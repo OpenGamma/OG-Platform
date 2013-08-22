@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.method;
@@ -49,7 +49,9 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Tests related to the pricing of OIS coupon by discounting.
+ * @deprecated This class tests deprecated functionality.
  */
+@Deprecated
 public class CouponOISDiscountingMethodTest {
   private static final int EUR_SETTLEMENT_DAYS = 2;
   private static final BusinessDayConvention EUR_BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
@@ -443,7 +445,7 @@ public class CouponOISDiscountingMethodTest {
     for (int looptest = 0; looptest < nbTest; looptest++) {
       totalValue += pv[looptest];
     }
-
+    System.out.println(totalValue);
   }
 
 }

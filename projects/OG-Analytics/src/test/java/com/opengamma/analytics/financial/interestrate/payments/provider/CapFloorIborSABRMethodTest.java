@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.provider;
@@ -57,8 +57,6 @@ public class CapFloorIborSABRMethodTest {
   private static final SABRInterestRateParameters SABR_PARAMETER = TestsDataSetsSABR.createSABR1();
   private static final SABRCapProviderDiscount SABR_MULTICURVES = new SABRCapProviderDiscount(MULTICURVES, SABR_PARAMETER, EURIBOR3M);
 
-  private static final String NOT_USED = "Not used";
-  private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED };
   // Details
   private static final ZonedDateTime FIXING_DATE = DateUtils.getUTCDate(2011, 1, 3);
   private static final double NOTIONAL = 1000000; //1m
@@ -73,7 +71,6 @@ public class CapFloorIborSABRMethodTest {
   // Methods and calculator
   private static final CapFloorIborSABRCapMethod METHOD_CAP_SABR = CapFloorIborSABRCapMethod.getInstance();
   private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
-  //private static final ParRateCalculator PRC = ParRateCalculator.getInstance();
   private static final PresentValueDiscountingCalculator PVC = PresentValueDiscountingCalculator.getInstance();
   private static final PresentValueSABRCapCalculator PVSCC = PresentValueSABRCapCalculator.getInstance();
   private static final PresentValueSABRSensitivitySABRCapCalculator PVSSSCC = PresentValueSABRSensitivitySABRCapCalculator.getInstance();

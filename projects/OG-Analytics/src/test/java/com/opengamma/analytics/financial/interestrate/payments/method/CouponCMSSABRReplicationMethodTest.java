@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.method;
@@ -53,7 +53,9 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Tests for the pricing of CMS coupon in the SABR model and pricing by replication.
+ * @deprecated This class tests deprecated functionality.
  */
+@Deprecated
 public class CouponCMSSABRReplicationMethodTest {
   //Swap 5Y
   private static final Currency CUR = Currency.EUR;
@@ -74,7 +76,7 @@ public class CouponCMSSABRReplicationMethodTest {
   private static final Period INDEX_TENOR = Period.ofMonths(3);
   private static final int SETTLEMENT_DAYS = 2;
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-  private static final IborIndex IBOR_INDEX = new IborIndex(CUR, INDEX_TENOR, SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, IS_EOM);
+  private static final IborIndex IBOR_INDEX = new IborIndex(CUR, INDEX_TENOR, SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, IS_EOM, "Ibor");
   private static final AnnuityCouponIborDefinition IBOR_ANNUITY = AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, 1.0, IBOR_INDEX, !FIXED_IS_PAYER, CALENDAR);
   // CMS coupon construction
   private static final IndexSwap CMS_INDEX = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, ANNUITY_TENOR, CALENDAR);
@@ -171,14 +173,14 @@ public class CouponCMSSABRReplicationMethodTest {
     final String[] bumpedCurvesForwardName = {FUNDING_CURVE_NAME, bumpedCurveName };
     final CouponCMS cmsBumpedForward = (CouponCMS) CMS_COUPON_RECEIVER_DEFINITION.toDerivative(REFERENCE_DATE, bumpedCurvesForwardName);
     final YieldAndDiscountCurve curveForward = curves.getCurve(FORWARD_CURVE_NAME);
-    final Set<Double> timeForwardSet = new TreeSet<Double>();
+    final Set<Double> timeForwardSet = new TreeSet<>();
     for (final Payment pay : CMS_COUPON_RECEIVER.getUnderlyingSwap().getSecondLeg().getPayments()) {
       final CouponIbor coupon = (CouponIbor) pay;
       timeForwardSet.add(coupon.getFixingPeriodStartTime());
       timeForwardSet.add(coupon.getFixingPeriodEndTime());
     }
     final int nbForwardDate = timeForwardSet.size();
-    final List<Double> timeForwardList = new ArrayList<Double>(timeForwardSet);
+    final List<Double> timeForwardList = new ArrayList<>(timeForwardSet);
     Double[] timeForwardArray = new Double[nbForwardDate];
     timeForwardArray = timeForwardList.toArray(timeForwardArray);
     final double[] yieldsForward = new double[nbForwardDate + 1];

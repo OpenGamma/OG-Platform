@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.provider;
@@ -54,8 +54,7 @@ public class CouponONDiscountingMethodTest {
       GENERATOR_SWAP_EONIA.isEndOfMonth(), CALENDAR);
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 12, 27);
-  private static final String[] NOT_USED = new String[] {"Not used 1", "not used 2" };
-  private static final CouponON CPN_OIS = CPN_OIS_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED);
+  private static final CouponON CPN_OIS = CPN_OIS_DEFINITION.toDerivative(REFERENCE_DATE);
 
   private static final CouponOISDiscountingMethod METHOD_CPN_OIS = CouponOISDiscountingMethod.getInstance();
   private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
@@ -83,7 +82,7 @@ public class CouponONDiscountingMethodTest {
     final ZonedDateTimeDoubleTimeSeries TS_ON = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 5, 20), DateUtils.getUTCDate(2011, 5, 23) }, new double[] {
         0.0010, fixing });
     final ZonedDateTime referenceDate = ScheduleCalculator.getAdjustedDate(EFFECTIVE_DATE, 1, TARGET);
-    final CouponON cpnOISStarted = (CouponON) CPN_OIS_DEFINITION.toDerivative(referenceDate, TS_ON, NOT_USED);
+    final CouponON cpnOISStarted = (CouponON) CPN_OIS_DEFINITION.toDerivative(referenceDate, TS_ON);
     final double notionalAccrued = NOTIONAL * (1 + fixing * EONIA.getDayCount().getDayCountFraction(EFFECTIVE_DATE, referenceDate));
     assertEquals("CouponOISDiscountingMarketMethod: present value", notionalAccrued, cpnOISStarted.getNotionalAccrued(), TOLERANCE_PV);
     final MultipleCurrencyAmount pvComputed = METHOD_CPN_OIS.presentValue(cpnOISStarted, MULTICURVES);

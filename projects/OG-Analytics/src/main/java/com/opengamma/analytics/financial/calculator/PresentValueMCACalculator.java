@@ -47,7 +47,9 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
  * Calculator of the present value as a multiple currency amount.
+ * @deprecated The methods used in this calculator are deprecated.
  */
+@Deprecated
 public class PresentValueMCACalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, MultipleCurrencyAmount> {
 
   /**

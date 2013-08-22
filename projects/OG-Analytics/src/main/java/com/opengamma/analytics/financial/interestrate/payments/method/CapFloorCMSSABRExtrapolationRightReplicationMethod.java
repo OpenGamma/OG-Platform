@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.method;
@@ -36,7 +36,9 @@ import com.opengamma.util.tuple.DoublesPair;
  *  Reference: Hagan, P. S. (2003). Convexity conundrums: Pricing CMS swaps, caps, and floors. Wilmott Magazine, March, pages 38--44.
  *  OpenGamma implementation note: Replication pricing for linear and TEC format CMS, Version 1.2, March 2011.
  *  OpenGamma implementation note for the extrapolation: Smile extrapolation, version 1.2, May 2011.
+ *  @deprecated Use classes descended from {@link CapFloorCMSSABRReplicationAbstractMethod}
  */
+@Deprecated
 public class CapFloorCMSSABRExtrapolationRightReplicationMethod extends CapFloorCMSSABRReplicationAbstractMethod {
 
   /**
@@ -57,7 +59,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod extends CapFloor
    */
   private static final ParRateCurveSensitivityCalculator PRSC = ParRateCurveSensitivityCalculator.getInstance();
 
-  /** 
+  /**
    * Default constructor of the CMS cap/floor replication method. The default integration interval is 1.00 (100%).
    * @param cutOffStrike The cut-off strike.
    * @param mu The tail thickness parameter.
@@ -68,7 +70,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod extends CapFloor
     _cutOffStrike = cutOffStrike;
   }
 
-  /** 
+  /**
    * Default constructor of the CMS cap/floor replication method. The default integration interval is 1.00 (100%).
    * @param cutOffStrike The cut-off strike.
    * @param mu The tail thickness parameter.
@@ -81,7 +83,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod extends CapFloor
   }
 
   /**
-   * Compute the present value of a CMS cap/floor by replication in SABR framework with extrapolation on the right. 
+   * Compute the present value of a CMS cap/floor by replication in SABR framework with extrapolation on the right.
    * @param cmsCapFloor The CMS cap/floor.
    * @param sabrData The SABR data bundle.
    * @return The present value.
@@ -132,7 +134,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod extends CapFloor
   }
 
   /**
-   * Computes the present value sensitivity to the yield curves of a CMS cap/floor by replication in the SABR framework with extrapolation on the right. 
+   * Computes the present value sensitivity to the yield curves of a CMS cap/floor by replication in the SABR framework with extrapolation on the right.
    * @param cmsCapFloor The CMS cap/floor.
    * @param sabrData The SABR data bundle. The SABR function need to be the Hagan function.
    * @return The present value sensitivity to curves.
@@ -192,9 +194,9 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod extends CapFloor
     final double deltaS0 = (strikePart + integralPart) * cmsCapFloor.getNotional() * cmsCapFloor.getPaymentYearFraction();
     final double deltaPD = price / discountFactor;
     final double sensiDF = -cmsCapFloor.getPaymentTime() * discountFactor * deltaPD;
-    final List<DoublesPair> list = new ArrayList<DoublesPair>();
+    final List<DoublesPair> list = new ArrayList<>();
     list.add(new DoublesPair(cmsCapFloor.getPaymentTime(), sensiDF));
-    final Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> resultMap = new HashMap<>();
     resultMap.put(cmsCapFloor.getUnderlyingSwap().getFixedLeg().getNthPayment(0).getFundingCurveName(), list);
     InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultMap);
     final InterestRateCurveSensitivity forwardDr = new InterestRateCurveSensitivity(cmsCapFloor.getUnderlyingSwap().accept(PRSC, sabrData));
@@ -203,7 +205,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod extends CapFloor
   }
 
   /**
-   * Computes the present value sensitivity to the SABR parameters of a CMS cap/floor by replication in SABR framework with extrapolation on the right. 
+   * Computes the present value sensitivity to the SABR parameters of a CMS cap/floor by replication in SABR framework with extrapolation on the right.
    * @param cmsCapFloor The CMS cap/floor.
    * @param sabrData The SABR data bundle. The SABR function need to be the Hagan function.
    * @return The present value sensitivity to SABR parameters.
@@ -409,7 +411,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod extends CapFloor
     @Override
     public Double evaluate(final Double x) {
       final double[] kD = kpkpp(x);
-      // Implementation note: kD[0] contains the first derivative of k; kD[1] the second derivative of k. 
+      // Implementation note: kD[0] contains the first derivative of k; kD[1] the second derivative of k.
       return _factor * (kD[1] * (x - _strike) + 2.0 * kD[0]) * bs(x);
     }
 
@@ -438,7 +440,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod extends CapFloor
 
     /**
      * The factor used in the strike part and in the integration of the replication.
-     * @param x The swap rate. 
+     * @param x The swap rate.
      * @return The factor.
      */
     double k(final double x) {
@@ -510,7 +512,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod extends CapFloor
     @Override
     public Double evaluate(final Double x) {
       final double[] kD = kpkpp(x);
-      // Implementation note: kD[0] contains the first derivative of k; kD[1] the second derivative of k. 
+      // Implementation note: kD[0] contains the first derivative of k; kD[1] the second derivative of k.
       final double[] bs = bsbsp(x);
       return (kD[1] * (x - getStrike()) + 2.0 * kD[0]) * (_nnp[1] * bs[0] + _nnp[0] * bs[1]);
     }
@@ -591,7 +593,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod extends CapFloor
     @Override
     public Double evaluate(final Double x) {
       final double[] kD = super.kpkpp(x);
-      // Implementation note: kD[0] contains the first derivative of k; kD[1] the second derivative of k. 
+      // Implementation note: kD[0] contains the first derivative of k; kD[1] the second derivative of k.
       final EuropeanVanillaOption option = new EuropeanVanillaOption(x, super._timeToExpiry, super._isCall);
       final double[] priceDerivativeSABR = new double[4];
       getSabrExtrapolation().priceAdjointSABR(option, priceDerivativeSABR);
@@ -614,7 +616,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod extends CapFloor
     @Override
     public Double evaluate(final Double x) {
       final double[] kD = super.kpkpp(x);
-      // Implementation note: kD[0] contains the first derivative of k; kD[1] the second derivative of k. 
+      // Implementation note: kD[0] contains the first derivative of k; kD[1] the second derivative of k.
       return -kD[1] * bs(x);
     }
 

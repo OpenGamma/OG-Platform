@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.provider;
@@ -56,8 +56,8 @@ public class CapFloorIborInArrearsSABRCapGenericReplicationMethod {
     ArgumentChecker.notNull(sabr, "SABR cap provider");
     final Currency ccy = cap.getCurrency();
     final MulticurveProviderInterface multicurves = sabr.getMulticurveProvider();
-    final CapFloorIbor capStandard = new CapFloorIbor(cap.getCurrency(), cap.getFixingPeriodEndTime(), cap.getFundingCurveName(), cap.getPaymentYearFraction(), cap.getNotional(), cap.getFixingTime(),
-        cap.getIndex(), cap.getFixingPeriodStartTime(), cap.getFixingPeriodEndTime(), cap.getFixingAccrualFactor(), cap.getForwardCurveName(), cap.getStrike(), cap.isCap());
+    final CapFloorIbor capStandard = new CapFloorIbor(cap.getCurrency(), cap.getFixingPeriodEndTime(), cap.getPaymentYearFraction(), cap.getNotional(), cap.getFixingTime(),
+        cap.getIndex(), cap.getFixingPeriodStartTime(), cap.getFixingPeriodEndTime(), cap.getFixingAccrualFactor(), cap.getStrike(), cap.isCap());
     final double forward = multicurves.getForwardRate(cap.getIndex(), cap.getFixingPeriodStartTime(), cap.getFixingPeriodEndTime(), cap.getFixingAccrualFactor());
     final double beta = (1.0 + cap.getFixingAccrualFactor() * forward) * multicurves.getDiscountFactor(ccy, cap.getFixingPeriodEndTime())
         / multicurves.getDiscountFactor(ccy, cap.getFixingPeriodStartTime());

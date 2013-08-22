@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.method;
@@ -24,7 +24,9 @@ import com.opengamma.util.money.CurrencyAmount;
 
 /**
  * Pricing method of a CMS coupon in the Hull-White (extended Vasicek) model by numerical integration.
+ * @deprecated {@link HullWhiteOneFactorPiecewiseConstantDataBundle} is deprecated
  */
+@Deprecated
 public final class CouponCMSHullWhiteNumericalIntegrationMethod implements PricingMethod {
 
   /**

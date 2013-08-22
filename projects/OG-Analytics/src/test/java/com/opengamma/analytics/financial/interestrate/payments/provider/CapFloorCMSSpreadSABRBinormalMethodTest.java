@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.provider;
@@ -80,9 +80,6 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
   private static final SABRInterestRateCorrelationParameters SABR_CORRELATION = SABRInterestRateCorrelationParameters.from(SABR_PARAMETER, CORRELATION_FUNCTION);
   private static final SABRSwaptionProviderDiscount SABR_MULTICURVES = new SABRSwaptionProviderDiscount(MULTICURVES, SABR_CORRELATION, EUR1YEURIBOR6M);
 
-  private static final String NOT_USED = "Not used";
-  private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
-
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2008, 8, 18);
 
   //Swaps
@@ -110,23 +107,18 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
   private static final double STRIKE = 0.0010; // 10 bps
   private static final boolean IS_CAP = true;
   // to derivatives
-  private static final SwapFixedCoupon<? extends Payment> SWAP_1 = SWAP_DEFINITION_1.toDerivative(REFERENCE_DATE, NOT_USED_A);
-  private static final SwapFixedCoupon<? extends Payment> SWAP_2 = SWAP_DEFINITION_2.toDerivative(REFERENCE_DATE, NOT_USED_A);
+  private static final SwapFixedCoupon<? extends Payment> SWAP_1 = SWAP_DEFINITION_1.toDerivative(REFERENCE_DATE);
+  private static final SwapFixedCoupon<? extends Payment> SWAP_2 = SWAP_DEFINITION_2.toDerivative(REFERENCE_DATE);
   private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
   private static final ZonedDateTime REFERENCE_DATE_ZONED = ZonedDateTime.of(LocalDateTime.of(REFERENCE_DATE.toLocalDate(), LocalTime.of(0, 0)), ZoneOffset.UTC);
   private static final double PAYMENT_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_ZONED, PAYMENT_DATE);
   private static final double FIXING_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_ZONED, FIXING_DATE);
   private static final double SETTLEMENT_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_ZONED, SWAP_DEFINITION_1.getFixedLeg().getNthPayment(0).getAccrualStartDate());
 
-  //  private static final CapFloorCMSSpreadDefinition CMS_CAP_SPREAD_DEFINITION = new CapFloorCMSSpreadDefinition(EUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, PAYMENT_ACCRUAL_FACTOR,
-  //      NOTIONAL, FIXING_DATE, SWAP_DEFINITION_1, CMS_INDEX_1, SWAP_DEFINITION_2, CMS_INDEX_2, STRIKE, IS_CAP);
-  //  private static final CapFloorCMSSpreadDefinition CMS_FLOOR_SPREAD_DEFINITION = new CapFloorCMSSpreadDefinition(EUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, PAYMENT_ACCRUAL_FACTOR,
-  //      NOTIONAL, FIXING_DATE, SWAP_DEFINITION_1, CMS_INDEX_1, SWAP_DEFINITION_2, CMS_INDEX_2, STRIKE, !IS_CAP);
-
   private static final CapFloorCMSSpread CMS_CAP_SPREAD = new CapFloorCMSSpread(EUR, PAYMENT_TIME, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, SWAP_1, CMS_INDEX_1, SWAP_2, CMS_INDEX_2,
-      SETTLEMENT_TIME, STRIKE, IS_CAP, NOT_USED);
+      SETTLEMENT_TIME, STRIKE, IS_CAP);
   private static final CapFloorCMSSpread CMS_FLOOR_SPREAD = new CapFloorCMSSpread(EUR, PAYMENT_TIME, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, SWAP_1, CMS_INDEX_1, SWAP_2, CMS_INDEX_2,
-      SETTLEMENT_TIME, STRIKE, !IS_CAP, NOT_USED);
+      SETTLEMENT_TIME, STRIKE, !IS_CAP);
 
   private static final CouponCMSSABRReplicationMethod METHOD_CMS_COUPON = CouponCMSSABRReplicationMethod.getInstance();
   private static final CapFloorCMSSABRReplicationMethod METHOD_CMS_CAP = CapFloorCMSSABRReplicationMethod.getDefaultInstance();
@@ -242,7 +234,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
    */
   public void presentValueLongShortParity() {
     final CapFloorCMSSpread cmsCapSpreadShort = new CapFloorCMSSpread(EUR, PAYMENT_TIME, PAYMENT_ACCRUAL_FACTOR, -NOTIONAL, FIXING_TIME, SWAP_1, CMS_INDEX_1, SWAP_2, CMS_INDEX_2, SETTLEMENT_TIME,
-        STRIKE, IS_CAP, NOT_USED);
+        STRIKE, IS_CAP);
     final MultipleCurrencyAmount pvCapLong = METHOD_CMS_SPREAD.presentValue(CMS_CAP_SPREAD, SABR_MULTICURVES);
     final MultipleCurrencyAmount pvCapShort = METHOD_CMS_SPREAD.presentValue(cmsCapSpreadShort, SABR_MULTICURVES);
     assertEquals("CMS spread: Long/Short parity", pvCapLong.getAmount(EUR), -pvCapShort.getAmount(EUR), TOLERANCE_PV);
@@ -251,7 +243,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
     assertEquals("CMS spread: Long/Short parity", pvCapLongExtra.getAmount(EUR), -pvCapShortExtra.getAmount(EUR), TOLERANCE_PV);
 
     final CapFloorCMSSpread cmsFloorSpreadShort = new CapFloorCMSSpread(EUR, PAYMENT_TIME, PAYMENT_ACCRUAL_FACTOR, -NOTIONAL, FIXING_TIME, SWAP_1, CMS_INDEX_1, SWAP_2, CMS_INDEX_2, SETTLEMENT_TIME,
-        STRIKE, !IS_CAP, NOT_USED);
+        STRIKE, !IS_CAP);
     final MultipleCurrencyAmount pvFloorLong = METHOD_CMS_SPREAD.presentValue(CMS_FLOOR_SPREAD, SABR_MULTICURVES);
     final MultipleCurrencyAmount pvFloorShort = METHOD_CMS_SPREAD.presentValue(cmsFloorSpreadShort, SABR_MULTICURVES);
     assertEquals("CMS spread: Long/Short parity", pvFloorLong.getAmount(EUR), -pvFloorShort.getAmount(EUR), TOLERANCE_PV);
@@ -267,7 +259,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
   public void presentValueCapFloorParity() {
     final CouponCMS cms1 = new CouponCMS(EUR, PAYMENT_TIME, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, SWAP_1, SETTLEMENT_TIME);
     final CouponCMS cms2 = new CouponCMS(EUR, PAYMENT_TIME, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, SWAP_2, SETTLEMENT_TIME);
-    final CouponFixed cpnStrike = new CouponFixed(EUR, PAYMENT_TIME, NOT_USED, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, STRIKE);
+    final CouponFixed cpnStrike = new CouponFixed(EUR, PAYMENT_TIME, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, STRIKE);
     // No extrapolation
     final MultipleCurrencyAmount pvCapLong = METHOD_CMS_SPREAD.presentValue(CMS_CAP_SPREAD, SABR_MULTICURVES);
     final MultipleCurrencyAmount pvFloorLong = METHOD_CMS_SPREAD.presentValue(CMS_FLOOR_SPREAD, SABR_MULTICURVES);
@@ -365,7 +357,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
    */
   public void presentValueCurveSensitivityCapLongShortParity() {
     final CapFloorCMSSpread cmsCapSpreadShort = new CapFloorCMSSpread(EUR, PAYMENT_TIME, PAYMENT_ACCRUAL_FACTOR, -NOTIONAL, FIXING_TIME, SWAP_1, CMS_INDEX_1, SWAP_2, CMS_INDEX_2, SETTLEMENT_TIME,
-        STRIKE, IS_CAP, NOT_USED);
+        STRIKE, IS_CAP);
     MultipleCurrencyMulticurveSensitivity pvcsLong = METHOD_CMS_SPREAD.presentValueCurveSensitivity(CMS_CAP_SPREAD, SABR_MULTICURVES);
     pvcsLong = pvcsLong.cleaned();
     MultipleCurrencyMulticurveSensitivity pvcsShort = METHOD_CMS_SPREAD.presentValueCurveSensitivity(cmsCapSpreadShort, SABR_MULTICURVES);
@@ -380,7 +372,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
    */
   public void presentValueCurveSensitivityFloorLongShortParity() {
     final CapFloorCMSSpread cmsCapSpreadShort = new CapFloorCMSSpread(EUR, PAYMENT_TIME, PAYMENT_ACCRUAL_FACTOR, -NOTIONAL, FIXING_TIME, SWAP_1, CMS_INDEX_1, SWAP_2, CMS_INDEX_2, SETTLEMENT_TIME,
-        STRIKE, !IS_CAP, NOT_USED);
+        STRIKE, !IS_CAP);
     MultipleCurrencyMulticurveSensitivity pvcsLong = METHOD_CMS_SPREAD.presentValueCurveSensitivity(CMS_FLOOR_SPREAD, SABR_MULTICURVES);
     pvcsLong = pvcsLong.cleaned();
     MultipleCurrencyMulticurveSensitivity pvcsShort = METHOD_CMS_SPREAD.presentValueCurveSensitivity(cmsCapSpreadShort, SABR_MULTICURVES);
@@ -400,7 +392,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
     pvcsFloorLong = pvcsFloorLong.cleaned();
     final CouponCMS cms1 = new CouponCMS(EUR, PAYMENT_TIME, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, SWAP_1, SETTLEMENT_TIME);
     final CouponCMS cms2 = new CouponCMS(EUR, PAYMENT_TIME, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, SWAP_2, SETTLEMENT_TIME);
-    final CouponFixed cpnStrike = new CouponFixed(EUR, PAYMENT_TIME, NOT_USED, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, STRIKE);
+    final CouponFixed cpnStrike = new CouponFixed(EUR, PAYMENT_TIME, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, STRIKE);
     MultipleCurrencyMulticurveSensitivity pvcsCMS1 = METHOD_CMS_COUPON.presentValueCurveSensitivity(cms1, SABR_MULTICURVES);
     pvcsCMS1 = pvcsCMS1.cleaned();
     MultipleCurrencyMulticurveSensitivity pvcsCMS2 = METHOD_CMS_COUPON.presentValueCurveSensitivity(cms2, SABR_MULTICURVES);
@@ -523,7 +515,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
    */
   public void presentValueSABRSensitivityLongShortParity() {
     final CapFloorCMSSpread cmsSpreadShort = new CapFloorCMSSpread(EUR, PAYMENT_TIME, PAYMENT_ACCRUAL_FACTOR, -NOTIONAL, FIXING_TIME, SWAP_1, CMS_INDEX_1, SWAP_2, CMS_INDEX_2, SETTLEMENT_TIME,
-        STRIKE, IS_CAP, NOT_USED);
+        STRIKE, IS_CAP);
     final PresentValueSABRSensitivityDataBundle pvssLong = METHOD_CMS_SPREAD.presentValueSABRSensitivity(CMS_CAP_SPREAD, SABR_MULTICURVES);
     PresentValueSABRSensitivityDataBundle pvssShort = METHOD_CMS_SPREAD.presentValueSABRSensitivity(cmsSpreadShort, SABR_MULTICURVES);
     pvssShort = pvssShort.multiplyBy(-1);
