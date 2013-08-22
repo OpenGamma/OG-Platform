@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.provider;
@@ -52,9 +52,6 @@ public class InterestRateFutureOptionMarginTransactionSABRMethodTest {
   private static final SABRInterestRateParameters SABR_PARAMETERS = TestsDataSetsSABR.createSABR1();
   private static final SABRSTIRFuturesProviderDiscount SABR_MULTICURVES = new SABRSTIRFuturesProviderDiscount(MULTICURVES, SABR_PARAMETERS, EURIBOR3M);
 
-  private static final String NOT_USED = "Not used";
-  private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
-
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 8, 18);
   // Future
   private static final ZonedDateTime SPOT_LAST_TRADING_DATE = DateUtils.getUTCDate(2012, 9, 19);
@@ -64,20 +61,16 @@ public class InterestRateFutureOptionMarginTransactionSABRMethodTest {
   private static final String NAME = "EDU2";
   private static final double STRIKE = 0.9850;
   private static final InterestRateFutureSecurityDefinition EDU2_DEFINITION = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, EURIBOR3M, NOTIONAL, FUTURE_FACTOR, NAME, TARGET);
-  private static final InterestRateFutureSecurity EDU2 = EDU2_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
+  private static final InterestRateFutureSecurity EDU2 = EDU2_DEFINITION.toDerivative(REFERENCE_DATE);
   // Option
   private static final ZonedDateTime EXPIRATION_DATE = DateUtils.getUTCDate(2011, 9, 16);
   private static final double EXPIRATION_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, EXPIRATION_DATE);
   private static final boolean IS_CALL = true;
-  //  private static final InterestRateFutureOptionMarginSecurityDefinition OPTION_EDU2_DEFINITION = new InterestRateFutureOptionMarginSecurityDefinition(EDU2_DEFINITION, EXPIRATION_DATE, STRIKE, IS_CALL);
   private static final InterestRateFutureOptionMarginSecurity OPTION_EDU2 = new InterestRateFutureOptionMarginSecurity(EDU2, EXPIRATION_TIME, STRIKE, IS_CALL);
   // Transaction
   private static final int QUANTITY = -123;
   private static final double TRADE_PRICE = 0.0050;
-  //  private static final ZonedDateTime TRADE_DATE = DateUtils.getUTCDate(2010, 8, 18);
   private static final InterestRateFutureOptionMarginTransaction TRANSACTION = new InterestRateFutureOptionMarginTransaction(OPTION_EDU2, QUANTITY, TRADE_PRICE);
-  //  private static final InterestRateFutureOptionMarginTransactionDefinition TRANSACTION_DEFINITION = new InterestRateFutureOptionMarginTransactionDefinition(OPTION_EDU2_DEFINITION, QUANTITY,
-  //      TRADE_DATE, TRADE_PRICE);
 
   private static final InterestRateFutureOptionMarginTransactionSABRMethod METHOD_SABR_TRA = InterestRateFutureOptionMarginTransactionSABRMethod.getInstance();
   private static final InterestRateFutureOptionMarginSecuritySABRMethod METHOD_SABR_SEC = InterestRateFutureOptionMarginSecuritySABRMethod.getInstance();
