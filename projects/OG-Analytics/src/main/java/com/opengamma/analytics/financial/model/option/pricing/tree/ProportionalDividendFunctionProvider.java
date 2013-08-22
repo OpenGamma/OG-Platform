@@ -10,6 +10,10 @@ package com.opengamma.analytics.financial.model.option.pricing.tree;
  */
 public class ProportionalDividendFunctionProvider extends DividendFunctionProvider {
 
+  /**
+   * @param dividendTimes The dividend times
+   * @param dividends Decrease ratios of asset price because of proportional dividends
+   */
   public ProportionalDividendFunctionProvider(final double[] dividendTimes, final double[] dividends) {
     super(dividendTimes, dividends);
   }

@@ -10,6 +10,10 @@ package com.opengamma.analytics.financial.model.option.pricing.tree;
  */
 public class CashDividendFunctionProvider extends DividendFunctionProvider {
 
+  /**
+   * @param dividendTimes The dividend times 
+   * @param dividends The cash dividends
+   */
   public CashDividendFunctionProvider(final double[] dividendTimes, final double[] dividends) {
     super(dividendTimes, dividends);
   }
