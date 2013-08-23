@@ -3,9 +3,8 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.integration.copier.snapshot;
+package com.opengamma.integration.copier.snapshot.copier;
 
-import com.opengamma.integration.copier.snapshot.SnapshotCopierVisitor;
 import com.opengamma.integration.copier.snapshot.reader.SnapshotReader;
 import com.opengamma.integration.copier.snapshot.writer.SnapshotWriter;
 
