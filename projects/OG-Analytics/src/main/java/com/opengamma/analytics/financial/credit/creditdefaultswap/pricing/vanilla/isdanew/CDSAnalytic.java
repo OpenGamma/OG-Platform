@@ -52,7 +52,7 @@ public class CDSAnalytic {
    * Generates an analytic description of a CDS trade on a particular date. This can then be passed to a analytic CDS pricer.<br>
    * This using a weekend only calendar with a following convention. ACT/360 is used for accrual and  ACT/365 to convert
    * payment dates to year-fractions (doubles)
-   * @param today The 'current' date
+   * @param tradeDate The trade date 
    * @param stepinDate Date when party assumes ownership. This is normally today + 1 (T+1). Aka assignment date or effective date.
    * @param valueDate The valuation date. The date that values are PVed to. Is is normally today + 3 business days.  Aka cash-settle date.
    * @param startDate The protection start date. If protectStart = true, then protections starts at the beginning of the day, otherwise it
@@ -65,9 +65,9 @@ public class CDSAnalytic {
    * @param protectStart Does protection start at the beginning of the day
    * @param recoveryRate The recovery rate
    */
-  public CDSAnalytic(final LocalDate today, final LocalDate stepinDate, final LocalDate valueDate, final LocalDate startDate, final LocalDate endDate, final boolean payAccOnDefault,
+  public CDSAnalytic(final LocalDate tradeDate, final LocalDate stepinDate, final LocalDate valueDate, final LocalDate startDate, final LocalDate endDate, final boolean payAccOnDefault,
       final Period tenor, final StubType stubType, final boolean protectStart, final double recoveryRate) {
-    this(today, stepinDate, valueDate, startDate, endDate, payAccOnDefault, tenor, stubType, protectStart, recoveryRate, FOLLOWING, DEFAULT_CALENDAR, ACT_360, ACT_365);
+    this(tradeDate, stepinDate, valueDate, startDate, endDate, payAccOnDefault, tenor, stubType, protectStart, recoveryRate, FOLLOWING, DEFAULT_CALENDAR, ACT_360, ACT_365);
   }
 
   /**
@@ -77,7 +77,7 @@ public class CDSAnalytic {
    *
    * Note this uses a curve daycount of ACT/365 to match the ISDA methodology.
    *
-   * @param today The 'current' date
+   * @param tradeDate The trade date
    * @param stepinDate Date when party assumes ownership. This is normally today + 1 (T+1). Aka assignment date or effective date.
    * @param valueDate The valuation date. The date that values are PVed to. Is is normally today + 3 business days.  Aka cash-settle date.
    * @param startDate The protection start date. If protectStart = true, then protections starts at the beginning of the day, otherwise it
@@ -93,15 +93,15 @@ public class CDSAnalytic {
    * @param calendar Calendar defining what is a non-business day
    * @param accrualDayCount Day count used for accrual
    */
-  public CDSAnalytic(final LocalDate today, final LocalDate stepinDate, final LocalDate valueDate, final LocalDate startDate, final LocalDate endDate, final boolean payAccOnDefault,
+  public CDSAnalytic(final LocalDate tradeDate, final LocalDate stepinDate, final LocalDate valueDate, final LocalDate startDate, final LocalDate endDate, final boolean payAccOnDefault,
       final Period tenor, final StubType stubType, final boolean protectStart, final double recoveryRate, final BusinessDayConvention businessdayAdjustmentConvention, final Calendar calendar,
       final DayCount accrualDayCount) {
-    this(today, stepinDate, valueDate, startDate, endDate, payAccOnDefault, tenor, stubType, protectStart, recoveryRate, businessdayAdjustmentConvention, calendar, accrualDayCount, ACT_365);
+    this(tradeDate, stepinDate, valueDate, startDate, endDate, payAccOnDefault, tenor, stubType, protectStart, recoveryRate, businessdayAdjustmentConvention, calendar, accrualDayCount, ACT_365);
   }
 
   /**
    * Generates an analytic description of a CDS trade on a particular date. This can then be passed to a analytic CDS pricer
-   * @param today The 'current' date
+   * @param tradeDate The trade date
    * @param stepinDate Date when party assumes ownership. This is normally today + 1 (T+1). Aka assignment date or effective date.
    * @param valueDate The valuation date. The date that values are PVed to. Is is normally today + 3 business days.  Aka cash-settle date.
    * @param startDate The protection start date. If protectStart = true, then protections starts at the beginning of the day, otherwise it
@@ -118,10 +118,10 @@ public class CDSAnalytic {
    * @param accrualDayCount Day count used for accrual
    * @param curveDayCount Day count used on curve (NOTE ISDA uses ACT/365 and it is not recommended to change this)
    */
-  public CDSAnalytic(final LocalDate today, final LocalDate stepinDate, final LocalDate valueDate, final LocalDate startDate, final LocalDate endDate, final boolean payAccOnDefault,
+  public CDSAnalytic(final LocalDate tradeDate, final LocalDate stepinDate, final LocalDate valueDate, final LocalDate startDate, final LocalDate endDate, final boolean payAccOnDefault,
       final Period tenor, final StubType stubType, final boolean protectStart, final double recoveryRate, final BusinessDayConvention businessdayAdjustmentConvention, final Calendar calendar,
       final DayCount accrualDayCount, final DayCount curveDayCount) {
-    ArgumentChecker.notNull(today, "today");
+    ArgumentChecker.notNull(tradeDate, "tradeDate");
     ArgumentChecker.notNull(stepinDate, "stepinDate");
     ArgumentChecker.notNull(valueDate, "valueDate");
     ArgumentChecker.notNull(startDate, "startDate");
@@ -131,9 +131,9 @@ public class CDSAnalytic {
     ArgumentChecker.notNull(businessdayAdjustmentConvention, "businessdayAdjustmentConvention");
     ArgumentChecker.notNull(accrualDayCount, "accuralDayCount");
     ArgumentChecker.notNull(curveDayCount, "curveDayCount");
-    ArgumentChecker.isFalse(valueDate.isBefore(today), "Require valueDate >= today");
-    ArgumentChecker.isFalse(stepinDate.isBefore(today), "Require stepin >= today");
-    ArgumentChecker.isFalse(today.isAfter(endDate), "CDS has expired");
+    ArgumentChecker.isFalse(valueDate.isBefore(tradeDate), "Require valueDate >= today");
+    ArgumentChecker.isFalse(stepinDate.isBefore(tradeDate), "Require stepin >= today");
+    ArgumentChecker.isFalse(tradeDate.isAfter(endDate), "CDS has expired");
 
     _payAccOnDefault = payAccOnDefault;
     _protectionFromStartOfDay = protectStart;
@@ -141,10 +141,10 @@ public class CDSAnalytic {
     final LocalDate temp = stepinDate.isAfter(startDate) ? stepinDate : startDate;
     final LocalDate effectiveStartDate = protectStart ? temp.minusDays(1) : temp;
 
-    _stepin = curveDayCount.getDayCountFraction(today, stepinDate, calendar);
-    _valuationTime = curveDayCount.getDayCountFraction(today, valueDate, calendar);
-    _protectionStart = curveDayCount.getDayCountFraction(today, effectiveStartDate, calendar);
-    _protectionEnd = curveDayCount.getDayCountFraction(today, endDate, calendar);
+    _stepin = curveDayCount.getDayCountFraction(tradeDate, stepinDate, calendar);
+    _valuationTime = curveDayCount.getDayCountFraction(tradeDate, valueDate, calendar);
+    _protectionStart = curveDayCount.getDayCountFraction(tradeDate, effectiveStartDate, calendar);
+    _protectionEnd = curveDayCount.getDayCountFraction(tradeDate, endDate, calendar);
 
     _lgd = 1 - recoveryRate;
 
@@ -160,14 +160,14 @@ public class CDSAnalytic {
 
     for (int i = 0; i < _nPayments; i++) {
       final LocalDate paymentDate = paymentSchedule.getPaymentDate(i);
-      _paymentTimes[i] = curveDayCount.getDayCountFraction(today, paymentDate, calendar);
+      _paymentTimes[i] = curveDayCount.getDayCountFraction(tradeDate, paymentDate, calendar);
       final LocalDate accStart = paymentSchedule.getAccStartDate(i);
       final LocalDate accEnd = paymentSchedule.getAccEndDate(i);
       final LocalDate obsEnd = protectStart ? accEnd.minusDays(1) : accEnd;
-      _accFractions[i] = accrualDayCount.getDayCountFraction(accStart, accEnd, calendar);
-      _accStart[i] = accStart.isBefore(today) ? -curveDayCount.getDayCountFraction(accStart, today, calendar) : curveDayCount.getDayCountFraction(today, accStart, calendar);
-      _accEnd[i] = curveDayCount.getDayCountFraction(today, accEnd, calendar);
-      _creditObsTimes[i] = curveDayCount.getDayCountFraction(today, obsEnd, calendar); // TODO this looks odd - check again with ISDA c code
+      _accFractions[i] = accrualDayCount.getDayCountFraction(accStart,  , calendar);
+      _accStart[i] = accStart.isBefore(tradeDate) ? -curveDayCount.getDayCountFraction(accStart, tradeDate, calendar) : curveDayCount.getDayCountFraction(tradeDate, accStart, calendar);
+      _accEnd[i] = curveDayCount.getDayCountFraction(tradeDate, accEnd, calendar);
+      _creditObsTimes[i] = curveDayCount.getDayCountFraction(tradeDate, obsEnd, calendar); // TODO this looks odd - check again with ISDA c code
     }
     final LocalDate accStart = paymentSchedule.getAccStartDate(0);
 
