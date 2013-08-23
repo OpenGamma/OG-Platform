@@ -18,3 +18,8 @@ v2.1.0-M1p02
 v2.1.0-M1p03
 ------------
 - PLAT-4231 - Add currency conversion for YIELD_CURVE_PNL_SERIES
+
+
+v2.1.0-M1p04
+------------
+- PLAT-4373 - Fix for FX forward maturity being computed without spot date and holiday adjustments
