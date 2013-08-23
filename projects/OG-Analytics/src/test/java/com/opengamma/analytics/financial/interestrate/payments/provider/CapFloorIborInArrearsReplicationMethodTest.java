@@ -16,7 +16,6 @@ import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.payment.CapFloorIborDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition;
-import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
@@ -24,6 +23,7 @@ import com.opengamma.analytics.financial.model.option.definition.SABRInterestRat
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.sabrcap.PresentValueSABRCapCalculator;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
+import com.opengamma.analytics.financial.provider.description.SABRDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.SABRCapProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.SABRCapProviderInterface;
@@ -47,7 +47,7 @@ public class CapFloorIborInArrearsReplicationMethodTest {
   private static final Currency EUR = EURIBOR6M.getCurrency();
   private static final Calendar CALENDAR = MulticurveProviderDiscountDataSets.getEURCalendar();
 
-  private static final SABRInterestRateParameters SABR_PARAMETER = TestsDataSetsSABR.createSABR1();
+  private static final SABRInterestRateParameters SABR_PARAMETER = SABRDataSets.createSABR1();
   private static final SABRCapProviderDiscount SABR_MULTICURVES = new SABRCapProviderDiscount(MULTICURVES, SABR_PARAMETER, EURIBOR6M);
 
   // Dates

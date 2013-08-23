@@ -18,7 +18,6 @@ import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborSpreadDefinition;
-import com.opengamma.analytics.financial.interestrate.TestsDataSetsBlack;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.interestrate.swap.provider.SwapFixedIborSpreadDiscountingMethod;
@@ -27,6 +26,7 @@ import com.opengamma.analytics.financial.model.option.parameters.BlackFlatSwapti
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
+import com.opengamma.analytics.financial.provider.description.BlackDataSets;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackSwaptionFlatProvider;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
@@ -47,7 +47,7 @@ public class SwaptionPhysicalFixedIborSpreadBlackMethodTest {
   private static final Calendar TARGET = MulticurveProviderDiscountDataSets.getEURCalendar();
   private static final Currency EUR = EURIBOR3M.getCurrency();
 
-  private static final BlackFlatSwaptionParameters BLACK = TestsDataSetsBlack.createBlackSwaptionEUR3();
+  private static final BlackFlatSwaptionParameters BLACK = BlackDataSets.createBlackSwaptionEUR3();
   private static final BlackSwaptionFlatProvider BLACK_MULTICURVES = new BlackSwaptionFlatProvider(MULTICURVES, BLACK);
   private static final GeneratorSwapFixedIbor EUR1YEURIBOR3M = GeneratorSwapFixedIborMaster.getInstance().getGenerator("EUR1YEURIBOR3M", TARGET);
 

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -117,15 +117,16 @@ import com.opengamma.analytics.financial.interestrate.swaption.derivative.Swapti
 import com.opengamma.analytics.financial.varianceswap.VarianceSwap;
 
 /**
- * 
+ *
  */
+@SuppressWarnings("deprecation")
 public class InstrumentDerivativeVisitorTest {
   private static final Set<InstrumentDerivative> ALL_DERIVATIVES = TestInstrumentDefinitionsAndDerivatives.getAllDerivatives();
   private static final MyVisitor<Object> VISITOR = new MyVisitor<>();
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDerivative() {
-    new InstrumentDerivativeVisitorDelegate(null);
+    new InstrumentDerivativeVisitorDelegate<>(null);
   }
 
   @Test

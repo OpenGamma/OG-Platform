@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -31,6 +31,10 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
+/**
+ * @deprecated This class tests deprecated functionality.
+ */
+@Deprecated
 public class CashFlowEquivalentCalculatorTest {
   private static final Currency CUR = Currency.EUR;
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");

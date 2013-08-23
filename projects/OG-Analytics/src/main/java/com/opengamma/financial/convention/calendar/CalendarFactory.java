@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.convention.calendar;
@@ -23,9 +23,11 @@ import com.opengamma.OpenGammaRuntimeException;
  * The holidays and country details are read from a properties file.
  */
 public final class CalendarFactory {
-  // TODO: This is really quite a bad implementation. Bank Holiday dates need to be pulled
+  // REVIEW: This is really quite a bad implementation. Bank Holiday dates need to be pulled
   // from a database or a more easily updated source. It should probably be possible
   // to update the data with the system running instead of at initialization.
+  // emcleod 20-8-2013 This factory is only used in testing, so can probably be safely
+  // deleted
 
   /**
    * Singleton instance.
@@ -35,21 +37,21 @@ public final class CalendarFactory {
   /**
    * Map of convention name to convention.
    */
-  private final Map<String, Calendar> _calendarMap = new HashMap<String, Calendar>();
-  private final Map<String, Calendar> _countryMap = new HashMap<String, Calendar>();
+  private final Map<String, Calendar> _calendarMap = new HashMap<>();
+  private final Map<String, Calendar> _countryMap = new HashMap<>();
 
   //-------------------------------------------------------------------------
   /**
    * Gets a convention by name.
    * Matching is case insensitive.
-   * 
+   *
    * @param name  the name, not null
    * @return the convention, not null
    * @throws IllegalArgumentException if not found
    */
   @FromString
   public static Calendar of(final String name) {
-    Calendar result = CalendarFactory.INSTANCE.getCalendar(name);
+    final Calendar result = CalendarFactory.INSTANCE.getCalendar(name);
     if (result == null) {
       throw new IllegalArgumentException("Unknown Calendar: " + name);
     }
@@ -139,7 +141,7 @@ public final class CalendarFactory {
   /**
    * Gets a working day calendar by name.
    * Matching is case insensitive.
-   * 
+   *
    * @param name  the name, not null
    * @return the convention, null if not found
    */
@@ -150,7 +152,7 @@ public final class CalendarFactory {
 
   /**
    * Gets a working day calendar by 3-letter country code.
-   * 
+   *
    * @param country  the country code, not null
    * @return the convention, null if not found
    */

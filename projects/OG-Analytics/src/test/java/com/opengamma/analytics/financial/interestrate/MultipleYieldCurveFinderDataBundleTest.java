@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -28,8 +28,9 @@ import com.opengamma.analytics.math.interpolation.LogLinearInterpolator1D;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ * @deprecated This class tests deprecated functionality.
  */
+@Deprecated
 public class MultipleYieldCurveFinderDataBundleTest {
   private static final Currency CUR = Currency.AUD;
   private static final String CURVE_NAME1 = "Test1";
@@ -38,8 +39,8 @@ public class MultipleYieldCurveFinderDataBundleTest {
   private static final double[] TIMES1;
   private static final double[] TIMES2;
   private static final double[] PAR_RATES;
-  private static final LinkedHashMap<String, double[]> NODES = new LinkedHashMap<String, double[]>();
-  private static final LinkedHashMap<String, Interpolator1D> INTERPOLATORS = new LinkedHashMap<String, Interpolator1D>();
+  private static final LinkedHashMap<String, double[]> NODES = new LinkedHashMap<>();
+  private static final LinkedHashMap<String, Interpolator1D> INTERPOLATORS = new LinkedHashMap<>();
   private static final Interpolator1D INTERPOLATOR1 = new LinearInterpolator1D();
   private static final Interpolator1D INTERPOLATOR2 = new LogLinearInterpolator1D();
   private static final MultipleYieldCurveFinderDataBundle DATA;
@@ -47,7 +48,7 @@ public class MultipleYieldCurveFinderDataBundleTest {
 
   static {
     final int n = 10;
-    DERIVATIVES = new ArrayList<InstrumentDerivative>();
+    DERIVATIVES = new ArrayList<>();
     TIMES1 = new double[n];
     TIMES2 = new double[n];
     PAR_RATES = new double[2 * n];
@@ -114,14 +115,14 @@ public class MultipleYieldCurveFinderDataBundleTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongSize1() {
-    final LinkedHashMap<String, Interpolator1D> interpolators = new LinkedHashMap<String, Interpolator1D>();
+    final LinkedHashMap<String, Interpolator1D> interpolators = new LinkedHashMap<>();
     interpolators.put(CURVE_NAME2, INTERPOLATOR1);
     new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, NODES, interpolators, false, FX_MATRIX);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongNames1() {
-    final LinkedHashMap<String, Interpolator1D> interpolators = new LinkedHashMap<String, Interpolator1D>();
+    final LinkedHashMap<String, Interpolator1D> interpolators = new LinkedHashMap<>();
     interpolators.put(CURVE_NAME2, INTERPOLATOR1);
     interpolators.put(CURVE_NAME1, INTERPOLATOR2);
     new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, NODES, interpolators, false, FX_MATRIX);
@@ -129,7 +130,7 @@ public class MultipleYieldCurveFinderDataBundleTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullValue1() {
-    final LinkedHashMap<String, double[]> nodes = new LinkedHashMap<String, double[]>();
+    final LinkedHashMap<String, double[]> nodes = new LinkedHashMap<>();
     nodes.put(CURVE_NAME1, TIMES1);
     nodes.put(CURVE_NAME2, null);
     new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, nodes, INTERPOLATORS, false, FX_MATRIX);
@@ -138,7 +139,7 @@ public class MultipleYieldCurveFinderDataBundleTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullValue2() {
-    final LinkedHashMap<String, Interpolator1D> interpolators = new LinkedHashMap<String, Interpolator1D>();
+    final LinkedHashMap<String, Interpolator1D> interpolators = new LinkedHashMap<>();
     interpolators.put(CURVE_NAME2, INTERPOLATOR1);
     interpolators.put(CURVE_NAME1, null);
     new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, NODES, interpolators, false, FX_MATRIX);
@@ -166,7 +167,7 @@ public class MultipleYieldCurveFinderDataBundleTest {
 
   @Test
   public void testGetters() {
-    final List<String> names = new ArrayList<String>();
+    final List<String> names = new ArrayList<>();
     for (final String name : NODES.keySet()) {
       names.add(name);
     }
@@ -190,7 +191,7 @@ public class MultipleYieldCurveFinderDataBundleTest {
     MultipleYieldCurveFinderDataBundle other = new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, NODES, INTERPOLATORS, false, FX_MATRIX);
     assertEquals(DATA, other);
     assertEquals(DATA.hashCode(), other.hashCode());
-    final List<InstrumentDerivative> derivatives = new ArrayList<InstrumentDerivative>(DERIVATIVES);
+    final List<InstrumentDerivative> derivatives = new ArrayList<>(DERIVATIVES);
     derivatives.set(0, new Cash(CUR, 0, 1000, 1, 0.05, 1000, CURVE_NAME1));
     other = new MultipleYieldCurveFinderDataBundle(derivatives, PAR_RATES, null, NODES, INTERPOLATORS, false, FX_MATRIX);
     assertFalse(other.equals(DATA));
@@ -199,12 +200,12 @@ public class MultipleYieldCurveFinderDataBundleTest {
     final YieldCurveBundle knownCurves = new YieldCurveBundle();
     other = new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, knownCurves, NODES, INTERPOLATORS, false, FX_MATRIX);
     assertFalse(other.equals(DATA));
-    final LinkedHashMap<String, double[]> nodes = new LinkedHashMap<String, double[]>();
+    final LinkedHashMap<String, double[]> nodes = new LinkedHashMap<>();
     nodes.put(CURVE_NAME1, TIMES1);
     nodes.put(CURVE_NAME2, TIMES1);
     other = new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, nodes, INTERPOLATORS, false, FX_MATRIX);
     assertFalse(other.equals(DATA));
-    final LinkedHashMap<String, Interpolator1D> interpolators = new LinkedHashMap<String, Interpolator1D>();
+    final LinkedHashMap<String, Interpolator1D> interpolators = new LinkedHashMap<>();
     interpolators.put(CURVE_NAME1, INTERPOLATOR1);
     interpolators.put(CURVE_NAME2, INTERPOLATOR1);
     other = new MultipleYieldCurveFinderDataBundle(DERIVATIVES, PAR_RATES, null, NODES, interpolators, false, FX_MATRIX);

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.provider;
@@ -27,7 +27,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- *  Class used to compute the price and sensitivity of a Ibor cap/floor with SABR model. 
+ *  Class used to compute the price and sensitivity of a Ibor cap/floor with SABR model.
  *  No convexity adjustment is done for payment at non-standard dates.
  */
 public final class CapFloorIborSABRCapMethod implements CapFloorIborSABRCapMethodInterface {
@@ -59,7 +59,7 @@ public final class CapFloorIborSABRCapMethod implements CapFloorIborSABRCapMetho
   /**
    * Computes the present value of a cap/floor in the SABR model.
    * @param cap The cap/floor.
-   * @param sabr The SABR cap and multi-curves provider. 
+   * @param sabr The SABR cap and multi-curves provider.
    * @return The present value.
    */
   @Override
@@ -81,7 +81,7 @@ public final class CapFloorIborSABRCapMethod implements CapFloorIborSABRCapMetho
   /**
    * Computes the present value rate sensitivity to rates of a cap/floor in the SABR model.
    * @param cap The cap/floor.
-   * @param sabr The SABR cap and multi-curves provider. 
+   * @param sabr The SABR cap and multi-curves provider.
    * @return The present value curve sensitivity.
    */
   public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final CapFloorIbor cap, final SABRCapProviderInterface sabr) {
@@ -98,9 +98,9 @@ public final class CapFloorIborSABRCapMethod implements CapFloorIborSABRCapMetho
     final double[] volatilityAdjoint = sabr.getSABRParameter().getVolatilityAdjoint(cap.getFixingTime(), maturity, cap.getStrike(), forward);
     final BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volatilityAdjoint[0]);
     final double[] bsAdjoint = BLACK_FUNCTION.getPriceAdjoint(option, dataBlack);
-    final List<DoublesPair> list = new ArrayList<DoublesPair>();
+    final List<DoublesPair> list = new ArrayList<>();
     list.add(new DoublesPair(cap.getPaymentTime(), dfDr));
-    final Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> resultMap = new HashMap<>();
     resultMap.put(multicurve.getName(cap.getCurrency()), list);
     MulticurveSensitivity result = MulticurveSensitivity.ofYieldDiscounting(resultMap);
     result = result.multipliedBy(bsAdjoint[0]);
@@ -112,7 +112,7 @@ public final class CapFloorIborSABRCapMethod implements CapFloorIborSABRCapMetho
   /**
    * Computes the present value SABR sensitivity of a cap/floor in the SABR model.
    * @param cap The cap/floor.
-   * @param sabr The SABR cap and multi-curves provider. 
+   * @param sabr The SABR cap and multi-curves provider.
    * @return The present value SABR sensitivity.
    */
   public PresentValueSABRSensitivityDataBundle presentValueSABRSensitivity(final CapFloorIbor cap, final SABRCapProviderInterface sabr) {

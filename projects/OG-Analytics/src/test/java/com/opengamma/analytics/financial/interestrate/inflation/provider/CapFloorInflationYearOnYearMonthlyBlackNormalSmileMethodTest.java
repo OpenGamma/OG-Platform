@@ -14,7 +14,6 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.instrument.inflation.CapFloorInflationYearOnYearMonthlyDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationYearOnYearMonthlyDefinition;
-import com.opengamma.analytics.financial.interestrate.TestsDataSetsBlack;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationYearOnYearMonthly;
 import com.opengamma.analytics.financial.model.option.parameters.BlackSmileCapInflationYearOnYearParameters;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
@@ -22,6 +21,7 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.N
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.NormalPriceFunction;
 import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueBlackSmileInflationYearOnYearCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflation.PresentValueCurveSensitivityBlackSmileInflationYearOnYearCalculator;
+import com.opengamma.analytics.financial.provider.description.BlackDataSets;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.inflation.BlackSmileCapInflationYearOnYearProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.inflation.BlackSmileCapInflationYearOnYearProviderInterface;
@@ -60,7 +60,7 @@ public class CapFloorInflationYearOnYearMonthlyBlackNormalSmileMethodTest {
   private static final boolean IS_CAP = true;
   private static final ZonedDateTime LAST_KNOWN_FIXING_DATE = DateUtils.getUTCDate(2008, 7, 01);
 
-  private static final InterpolatedDoublesSurface BLACK_SURF = TestsDataSetsBlack.createBlackSurfaceExpiryStrike();
+  private static final InterpolatedDoublesSurface BLACK_SURF = BlackDataSets.createBlackSurfaceExpiryStrike();
   private static final BlackSmileCapInflationYearOnYearParameters BLACK_PARAM = new BlackSmileCapInflationYearOnYearParameters(BLACK_SURF, PRICE_INDEX_EUR);
   private static final BlackSmileCapInflationYearOnYearProviderDiscount BLACK_INFLATION = new BlackSmileCapInflationYearOnYearProviderDiscount(MARKET.getInflationProvider(), BLACK_PARAM);
 

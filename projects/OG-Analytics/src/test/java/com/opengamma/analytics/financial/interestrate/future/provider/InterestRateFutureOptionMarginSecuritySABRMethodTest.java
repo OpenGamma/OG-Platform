@@ -12,7 +12,6 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
-import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateParameters;
@@ -20,6 +19,7 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.B
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
+import com.opengamma.analytics.financial.provider.description.SABRDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.SABRSTIRFuturesProviderDiscount;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
@@ -38,7 +38,7 @@ public class InterestRateFutureOptionMarginSecuritySABRMethodTest {
   private static final IborIndex EURIBOR3M = IBOR_INDEXES[0];
   private static final Calendar TARGET = MulticurveProviderDiscountDataSets.getEURCalendar();
 
-  private static final SABRInterestRateParameters SABR_PARAMETERS = TestsDataSetsSABR.createSABR1();
+  private static final SABRInterestRateParameters SABR_PARAMETERS = SABRDataSets.createSABR1();
   private static final SABRSTIRFuturesProviderDiscount SABR_MULTICURVES = new SABRSTIRFuturesProviderDiscount(MULTICURVES, SABR_PARAMETERS, EURIBOR3M);
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 8, 18);

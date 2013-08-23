@@ -21,7 +21,6 @@ import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexSwap;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.interestrate.PresentValueSABRSensitivityDataBundle;
-import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMSSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
@@ -43,6 +42,7 @@ import com.opengamma.analytics.financial.provider.calculator.sabrswaption.Presen
 import com.opengamma.analytics.financial.provider.calculator.sabrswaption.PresentValueSABRSwaptionCalculator;
 import com.opengamma.analytics.financial.provider.calculator.sabrswaption.PresentValueSABRSwaptionRightExtrapolationCalculator;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
+import com.opengamma.analytics.financial.provider.description.SABRDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.SABRSwaptionProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.SABRSwaptionProviderInterface;
@@ -73,7 +73,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
   private static final Currency EUR = EURIBOR6M.getCurrency();
   private static final Calendar CALENDAR = MulticurveProviderDiscountDataSets.getEURCalendar();
 
-  private static final SABRInterestRateParameters SABR_PARAMETER = TestsDataSetsSABR.createSABR1();
+  private static final SABRInterestRateParameters SABR_PARAMETER = SABRDataSets.createSABR1();
   private static final GeneratorSwapFixedIbor EUR1YEURIBOR6M = GeneratorSwapFixedIborMaster.getInstance().getGenerator("EUR1YEURIBOR6M", CALENDAR);
   private static final double CORRELATION = 0.80;
   private static final DoubleFunction1D CORRELATION_FUNCTION = new RealPolynomialFunction1D(new double[] {CORRELATION}); // Constant function
@@ -422,7 +422,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
         - CMS_CAP_SPREAD.getSettlementTime();
     final DoublesPair expectedExpiryTenor2 = new DoublesPair(CMS_CAP_SPREAD.getFixingTime(), maturity2);
     // Alpha sensitivity vs finite difference computation
-    final SABRInterestRateParameters sabrParameterAlphaBumped = TestsDataSetsSABR.createSABR1AlphaBumped(shiftAlpha);
+    final SABRInterestRateParameters sabrParameterAlphaBumped = SABRDataSets.createSABR1AlphaBumped(shiftAlpha);
     final SABRSwaptionProviderDiscount sabrBundleAlphaBumped = new SABRSwaptionProviderDiscount(MULTICURVES, sabrParameterAlphaBumped, EUR1YEURIBOR6M);
     final double pvLongPayerAlphaBumped = METHOD_CMS_SPREAD.presentValue(CMS_CAP_SPREAD, sabrBundleAlphaBumped).getAmount(EUR);
     final double expectedAlphaSensi = (pvLongPayerAlphaBumped - pv) / shiftAlpha;
@@ -431,7 +431,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
     assertEquals("Alpha sensitivity expiry/tenor", pvsCapLong.getAlpha().getMap().keySet().contains(expectedExpiryTenor2), true);
     assertEquals("Alpha sensitivity value", expectedAlphaSensi, pvsCapLong.getAlpha().getMap().get(expectedExpiryTenor1) + pvsCapLong.getAlpha().getMap().get(expectedExpiryTenor2), 5.0E+3);
     // Rho sensitivity vs finite difference computation
-    final SABRInterestRateParameters sabrParameterRhoBumped = TestsDataSetsSABR.createSABR1RhoBumped();
+    final SABRInterestRateParameters sabrParameterRhoBumped = SABRDataSets.createSABR1RhoBumped();
     final SABRSwaptionProviderDiscount sabrBundleRhoBumped = new SABRSwaptionProviderDiscount(MULTICURVES, sabrParameterRhoBumped, EUR1YEURIBOR6M);
     final double pvLongPayerRhoBumped = METHOD_CMS_SPREAD.presentValue(CMS_CAP_SPREAD, sabrBundleRhoBumped).getAmount(EUR);
     final double expectedRhoSensi = (pvLongPayerRhoBumped - pv) / shift;
@@ -440,7 +440,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
     assertEquals("Rho sensitivity expiry/tenor", pvsCapLong.getRho().getMap().keySet().contains(expectedExpiryTenor2), true);
     assertEquals("Rho sensitivity value", expectedRhoSensi, pvsCapLong.getRho().getMap().get(expectedExpiryTenor1) + pvsCapLong.getRho().getMap().get(expectedExpiryTenor2), 5.0E+1);
     // Alpha sensitivity vs finite difference computation
-    final SABRInterestRateParameters sabrParameterNuBumped = TestsDataSetsSABR.createSABR1NuBumped();
+    final SABRInterestRateParameters sabrParameterNuBumped = SABRDataSets.createSABR1NuBumped();
     final SABRSwaptionProviderDiscount sabrBundleNuBumped = new SABRSwaptionProviderDiscount(MULTICURVES, sabrParameterNuBumped, EUR1YEURIBOR6M);
     final double pvLongPayerNuBumped = METHOD_CMS_SPREAD.presentValue(CMS_CAP_SPREAD, sabrBundleNuBumped).getAmount(EUR);
     final double expectedNuSensi = (pvLongPayerNuBumped - pv) / shift;
@@ -467,7 +467,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
         - CMS_CAP_SPREAD.getSettlementTime();
     final DoublesPair expectedExpiryTenor2 = new DoublesPair(CMS_CAP_SPREAD.getFixingTime(), maturity2);
     // Alpha sensitivity vs finite difference computation
-    final SABRInterestRateParameters sabrParameterAlphaBumped = TestsDataSetsSABR.createSABR1AlphaBumped(shiftAlpha);
+    final SABRInterestRateParameters sabrParameterAlphaBumped = SABRDataSets.createSABR1AlphaBumped(shiftAlpha);
     final SABRSwaptionProviderDiscount sabrBundleAlphaBumped = new SABRSwaptionProviderDiscount(MULTICURVES, sabrParameterAlphaBumped, EUR1YEURIBOR6M);
     final double pvLongPayerAlphaBumped = METHOD_CMS_SPREAD_EXTRAPOLATION.presentValue(CMS_CAP_SPREAD, sabrBundleAlphaBumped).getAmount(EUR);
     final double expectedAlphaSensi = (pvLongPayerAlphaBumped - pv) / shiftAlpha;
@@ -476,7 +476,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
     assertEquals("Alpha sensitivity expiry/tenor", pvsCapLong.getAlpha().getMap().keySet().contains(expectedExpiryTenor2), true);
     assertEquals("Alpha sensitivity value", expectedAlphaSensi, pvsCapLong.getAlpha().getMap().get(expectedExpiryTenor1) + pvsCapLong.getAlpha().getMap().get(expectedExpiryTenor2), 5.0E+3);
     // Rho sensitivity vs finite difference computation
-    final SABRInterestRateParameters sabrParameterRhoBumped = TestsDataSetsSABR.createSABR1RhoBumped();
+    final SABRInterestRateParameters sabrParameterRhoBumped = SABRDataSets.createSABR1RhoBumped();
     final SABRSwaptionProviderDiscount sabrBundleRhoBumped = new SABRSwaptionProviderDiscount(MULTICURVES, sabrParameterRhoBumped, EUR1YEURIBOR6M);
     final double pvLongPayerRhoBumped = METHOD_CMS_SPREAD_EXTRAPOLATION.presentValue(CMS_CAP_SPREAD, sabrBundleRhoBumped).getAmount(EUR);
     final double expectedRhoSensi = (pvLongPayerRhoBumped - pv) / shift;
@@ -485,7 +485,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
     assertEquals("Rho sensitivity expiry/tenor", pvsCapLong.getRho().getMap().keySet().contains(expectedExpiryTenor2), true);
     assertEquals("Rho sensitivity value", expectedRhoSensi, pvsCapLong.getRho().getMap().get(expectedExpiryTenor1) + pvsCapLong.getRho().getMap().get(expectedExpiryTenor2), 5.0E+1);
     // Alpha sensitivity vs finite difference computation
-    final SABRInterestRateParameters sabrParameterNuBumped = TestsDataSetsSABR.createSABR1NuBumped();
+    final SABRInterestRateParameters sabrParameterNuBumped = SABRDataSets.createSABR1NuBumped();
     final SABRSwaptionProviderDiscount sabrBundleNuBumped = new SABRSwaptionProviderDiscount(MULTICURVES, sabrParameterNuBumped, EUR1YEURIBOR6M);
     final double pvLongPayerNuBumped = METHOD_CMS_SPREAD_EXTRAPOLATION.presentValue(CMS_CAP_SPREAD, sabrBundleNuBumped).getAmount(EUR);
     final double expectedNuSensi = (pvLongPayerNuBumped - pv) / shift;

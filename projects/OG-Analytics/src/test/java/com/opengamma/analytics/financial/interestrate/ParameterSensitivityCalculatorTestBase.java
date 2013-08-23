@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -8,7 +8,6 @@ package com.opengamma.analytics.financial.interestrate;
 import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.FLAT_EXTRAPOLATOR;
 import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
 import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
-import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -46,7 +45,12 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
-public abstract class ParameterSensitivityCalculatorTest {
+
+/**
+ * @deprecated This class tests deprecated functionality.
+ */
+@Deprecated
+public abstract class ParameterSensitivityCalculatorTestBase {
 
   static final String DISCOUNTING_CURVE_NAME = "USD Discounting";
   static final String FORWARD_CURVE_NAME = "USD Forward 3M";
@@ -65,7 +69,7 @@ public abstract class ParameterSensitivityCalculatorTest {
   private static final IborIndex USDLIBOR6M = USD6MLIBOR3M.getIborIndex();
   private static final Currency USD = USDLIBOR6M.getCurrency();
   private static final FXMatrix FX_MATRIX = new FXMatrix(USD);
-  private static final HashMap<String, Currency> CCY_MAP = new HashMap<String, Currency>();
+  private static final HashMap<String, Currency> CCY_MAP = new HashMap<>();
   private static final Period SWAP_TENOR = Period.ofYears(5);
   private static final double SWAP_RATE = 0.05;
   private static final double SWAP_NOTIONAL = 1.0;
@@ -93,7 +97,7 @@ public abstract class ParameterSensitivityCalculatorTest {
 
     DISCOUNTING_CURVE_YIELD = YieldCurve.from(InterpolatedDoublesCurve.fromSorted(dscCurveNodes, dscCurveYields, INTERPOLATOR_DQ));
     FORWARD_CURVE_YIELD = YieldCurve.from(InterpolatedDoublesCurve.fromSorted(fwdCurveNodes, fwdCurveYields, INTERPOLATOR_CS));
-    final LinkedHashMap<String, YieldAndDiscountCurve> curvesY = new LinkedHashMap<String, YieldAndDiscountCurve>();
+    final LinkedHashMap<String, YieldAndDiscountCurve> curvesY = new LinkedHashMap<>();
     curvesY.put(DISCOUNTING_CURVE_NAME, DISCOUNTING_CURVE_YIELD);
     curvesY.put(FORWARD_CURVE_NAME, FORWARD_CURVE_YIELD);
     CURVE_BUNDLE_YIELD = new YieldCurveBundle(curvesY, FX_MATRIX, CCY_MAP);
@@ -102,7 +106,7 @@ public abstract class ParameterSensitivityCalculatorTest {
     final YieldAndDiscountCurve spreadCurve = YieldCurve.from(new ConstantDoublesCurve(spread));
     DISCOUNTING_CURVE_SPREAD = new YieldAndDiscountAddZeroSpreadCurve("Dsc+Spread", false, DISCOUNTING_CURVE_YIELD, spreadCurve);
     FORWARD_CURVE_SPREAD = new YieldAndDiscountAddZeroSpreadCurve("Fwd+Spread", false, FORWARD_CURVE_YIELD, spreadCurve);
-    final LinkedHashMap<String, YieldAndDiscountCurve> curvesDF = new LinkedHashMap<String, YieldAndDiscountCurve>();
+    final LinkedHashMap<String, YieldAndDiscountCurve> curvesDF = new LinkedHashMap<>();
     curvesDF.put(DISCOUNTING_CURVE_NAME, DISCOUNTING_CURVE_SPREAD);
     curvesDF.put(FORWARD_CURVE_NAME, FORWARD_CURVE_SPREAD);
     CURVE_BUNDLE_SPREAD = new YieldCurveBundle(curvesDF, FX_MATRIX, CCY_MAP);
@@ -122,20 +126,15 @@ public abstract class ParameterSensitivityCalculatorTest {
     getCalculator().calculateSensitivity(SWAP, null, (YieldCurveBundle) null);
   }
 
-  //  @Test(expectedExceptions = IllegalArgumentException.class)
-  //  public void testWrongNames() {
-  //    getCalculator().calculateSensitivity(SWAP, new YieldCurveBundle(CURVE_BUNDLE_YIELD), CURVE_BUNDLE_YIELD);
-  //  }
-
   @Test
   public void testWithKnownYieldCurve() {
     final YieldCurveBundle fixedCurve = new YieldCurveBundle();
     fixedCurve.setCurve(DISCOUNTING_CURVE_NAME, DISCOUNTING_CURVE_YIELD);
-    final LinkedHashMap<String, YieldAndDiscountCurve> fittingCurveMap = new LinkedHashMap<String, YieldAndDiscountCurve>();
+    final LinkedHashMap<String, YieldAndDiscountCurve> fittingCurveMap = new LinkedHashMap<>();
     fittingCurveMap.put(FORWARD_CURVE_NAME, FORWARD_CURVE_YIELD);
     final YieldCurveBundle fittingCurve = new YieldCurveBundle(fittingCurveMap, FX_MATRIX, CCY_MAP);
 
-    final Set<String> fixedCurveSet = new HashSet<String>();
+    final Set<String> fixedCurveSet = new HashSet<>();
     fixedCurveSet.add(DISCOUNTING_CURVE_NAME);
     final InstrumentDerivativeVisitor<YieldCurveBundle, Double> valueCalculator = getValueCalculator();
     final DoubleMatrix1D result = getCalculator().calculateSensitivity(SWAP, fixedCurveSet, CURVE_BUNDLE_YIELD);
@@ -147,11 +146,11 @@ public abstract class ParameterSensitivityCalculatorTest {
   public void testWithKnownSpreadCurve() {
     final YieldCurveBundle fixedCurve = new YieldCurveBundle();
     fixedCurve.setCurve(DISCOUNTING_CURVE_NAME, DISCOUNTING_CURVE_SPREAD);
-    final LinkedHashMap<String, YieldAndDiscountCurve> fittingCurveMap = new LinkedHashMap<String, YieldAndDiscountCurve>();
+    final LinkedHashMap<String, YieldAndDiscountCurve> fittingCurveMap = new LinkedHashMap<>();
     fittingCurveMap.put(FORWARD_CURVE_NAME, FORWARD_CURVE_SPREAD);
     final YieldCurveBundle fittingCurve = new YieldCurveBundle(fittingCurveMap, FX_MATRIX, CCY_MAP);
 
-    final Set<String> fixedCurveSet = new HashSet<String>();
+    final Set<String> fixedCurveSet = new HashSet<>();
     fixedCurveSet.add(DISCOUNTING_CURVE_NAME);
     final InstrumentDerivativeVisitor<YieldCurveBundle, Double> valueCalculator = getValueCalculator();
     final DoubleMatrix1D result = getCalculator().calculateSensitivity(SWAP, fixedCurveSet, CURVE_BUNDLE_SPREAD);

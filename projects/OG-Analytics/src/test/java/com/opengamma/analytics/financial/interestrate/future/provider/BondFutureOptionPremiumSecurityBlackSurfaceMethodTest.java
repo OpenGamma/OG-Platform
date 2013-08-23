@@ -12,11 +12,11 @@ import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefinition;
-import com.opengamma.analytics.financial.interestrate.TestsDataSetsBlack;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumSecurity;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
+import com.opengamma.analytics.financial.provider.description.BlackDataSets;
 import com.opengamma.analytics.financial.provider.description.IssuerProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackBondFuturesSmilePriceProvider;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackBondFuturesSmilePriceProviderInterface;
@@ -47,7 +47,7 @@ public class BondFutureOptionPremiumSecurityBlackSurfaceMethodTest {
   private final static IssuerProviderDiscount ISSUER_MULTICURVES = IssuerProviderDiscountDataSets.createIssuerProvider();
   private final static String ISSUER_NAME = IssuerProviderDiscountDataSets.getIssuerNames()[0]; // US GOVT
 
-  private static final InterpolatedDoublesSurface BLACK_PARAMETERS = TestsDataSetsBlack.createBlackSurfaceExpiryTenor();
+  private static final InterpolatedDoublesSurface BLACK_PARAMETERS = BlackDataSets.createBlackSurfaceExpiryTenor();
 
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final int SETTLEMENT_DAYS = 1;

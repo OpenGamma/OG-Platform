@@ -14,7 +14,6 @@ import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.payment.CapFloorIborDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition;
-import com.opengamma.analytics.financial.interestrate.TestsDataSetsBlack;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
@@ -25,6 +24,7 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.E
 import com.opengamma.analytics.financial.provider.calculator.blackcap.PresentValueBlackSmileCapCalculator;
 import com.opengamma.analytics.financial.provider.calculator.blackcap.PresentValueCurveSensitivityBlackSmileCapCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
+import com.opengamma.analytics.financial.provider.description.BlackDataSets;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackSmileCapProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackSmileCapProviderInterface;
@@ -51,7 +51,7 @@ public class CapFloorIborBlackSmileMethodTest {
   private static final Currency EUR = EURIBOR3M.getCurrency();
   private static final Calendar CALENDAR = MulticurveProviderDiscountDataSets.getEURCalendar();
 
-  private static final InterpolatedDoublesSurface BLACK_SURF = TestsDataSetsBlack.createBlackSurfaceExpiryStrike();
+  private static final InterpolatedDoublesSurface BLACK_SURF = BlackDataSets.createBlackSurfaceExpiryStrike();
   private static final BlackSmileCapParameters BLACK_PARAM = new BlackSmileCapParameters(BLACK_SURF, EURIBOR3M);
   private static final BlackSmileCapProviderDiscount BLACK_MULTICURVES = new BlackSmileCapProviderDiscount(MULTICURVES, BLACK_PARAM);
 

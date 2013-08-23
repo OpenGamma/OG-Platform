@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.provider;
@@ -20,7 +20,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * 
+ *
  */
 public final class CouponONCompoundedDiscountingMethod {
 
@@ -86,12 +86,12 @@ public final class CouponONCompoundedDiscountingMethod {
       forwardBar[i] = ratioBar * ratio * coupon.getFixingPeriodAccrualFactors()[i] / (1 + forward[i]);
     }
     final double dfBar = coupon.getNotionalAccrued() * ratio * pvBar;
-    final Map<String, List<DoublesPair>> mapDsc = new HashMap<String, List<DoublesPair>>();
-    final List<DoublesPair> listDiscounting = new ArrayList<DoublesPair>();
+    final Map<String, List<DoublesPair>> mapDsc = new HashMap<>();
+    final List<DoublesPair> listDiscounting = new ArrayList<>();
     listDiscounting.add(new DoublesPair(coupon.getPaymentTime(), -coupon.getPaymentTime() * df * dfBar));
     mapDsc.put(multicurve.getName(coupon.getCurrency()), listDiscounting);
-    final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<String, List<ForwardSensitivity>>();
-    final List<ForwardSensitivity> listForward = new ArrayList<ForwardSensitivity>();
+    final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<>();
+    final List<ForwardSensitivity> listForward = new ArrayList<>();
     for (int i = 0; i < coupon.getFixingPeriodAccrualFactors().length; i++) {
       listForward.add(new ForwardSensitivity(coupon.getFixingPeriodStartTimes()[i], coupon.getFixingPeriodEndTimes()[i], coupon.getFixingPeriodAccrualFactorsActAct()[i], forwardBar[i]));
     }

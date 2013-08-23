@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -33,8 +33,9 @@ import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ * @deprecated This class tests deprecated functionality.
  */
+@Deprecated
 public class ParRateParallelSensitivityCalculatorTest {
 
   private final static ParRateParallelSensitivityCalculator PRPSC = ParRateParallelSensitivityCalculator.getInstance();
@@ -182,7 +183,7 @@ public class ParRateParallelSensitivityCalculatorTest {
   }
 
   private Map<String, Double> finiteDifferanceSense(final InstrumentDerivative ird, final YieldCurveBundle curves) {
-    final Map<String, Double> result = new HashMap<String, Double>();
+    final Map<String, Double> result = new HashMap<>();
     final Set<String> names = curves.getAllNames();
     for (final String name : names) {
       final YieldAndDiscountCurve curve = curves.getCurve(name);

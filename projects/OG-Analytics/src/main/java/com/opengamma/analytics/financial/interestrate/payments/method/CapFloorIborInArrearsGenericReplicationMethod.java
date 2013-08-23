@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.method;
@@ -17,7 +17,7 @@ import com.opengamma.analytics.math.integration.RungeKuttaIntegrator1D;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**
- *  Class used to compute the price and sensitivity of a Ibor cap/floor in arrears. 
+ *  Class used to compute the price and sensitivity of a Ibor cap/floor in arrears.
  *  The cap/floor are supposed to be exactly in arrears. The payment date is ignored and the start fixing period date is used instead.
  */
 //TODO: Add a reference to Libor-with-delay pricing method when available.
@@ -42,8 +42,7 @@ public class CapFloorIborInArrearsGenericReplicationMethod implements PricingMet
    * @param baseMethod The base method for the pricing of standard cap/floors.
    */
   public CapFloorIborInArrearsGenericReplicationMethod(final PricingMethod baseMethod) {
-    super();
-    this._baseMethod = baseMethod;
+    _baseMethod = baseMethod;
   }
 
   /**

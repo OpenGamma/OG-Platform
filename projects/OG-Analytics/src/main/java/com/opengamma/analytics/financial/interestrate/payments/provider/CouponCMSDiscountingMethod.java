@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.provider;
@@ -78,15 +78,15 @@ public final class CouponCMSDiscountingMethod {
   public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final CouponCMS coupon, final MulticurveProviderInterface multicurves) {
     ArgumentChecker.notNull(coupon, "Coupon");
     ArgumentChecker.notNull(multicurves, "Multi-curves provider");
-    Currency ccy = coupon.getCurrency();
+    final Currency ccy = coupon.getCurrency();
     final double swapRate = PRDC.visitFixedCouponSwap(coupon.getUnderlyingSwap(), multicurves);
     final double paymentTime = coupon.getPaymentTime();
     final double paymentDiscountFactor = multicurves.getDiscountFactor(coupon.getCurrency(), paymentTime);
-    double paymentDiscountFactorBar = swapRate * coupon.getPaymentYearFraction() * coupon.getNotional();
+    final double paymentDiscountFactorBar = swapRate * coupon.getPaymentYearFraction() * coupon.getNotional();
     final MulticurveSensitivity swapRateDp = coupon.getUnderlyingSwap().accept(PRCSDC, multicurves);
-    final List<DoublesPair> list = new ArrayList<DoublesPair>();
+    final List<DoublesPair> list = new ArrayList<>();
     list.add(new DoublesPair(paymentTime, -paymentTime * paymentDiscountFactor * paymentDiscountFactorBar));
-    final Map<String, List<DoublesPair>> resultMapDsc = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> resultMapDsc = new HashMap<>();
     resultMapDsc.put(multicurves.getName(coupon.getCurrency()), list);
     final MulticurveSensitivity dfDp = MulticurveSensitivity.ofYieldDiscounting(resultMapDsc);
     return MultipleCurrencyMulticurveSensitivity.of(

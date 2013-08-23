@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -18,12 +18,13 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 
 /**
- * 
+ * @deprecated This class tests deprecated functionality.
  */
+@Deprecated
 public class YieldCurveBundleTest {
   private static final String[] NAMES = new String[] {"A", "B", "C"};
   private static final YieldAndDiscountCurve[] CURVES = new YieldAndDiscountCurve[3];
-  private static final Map<String, YieldAndDiscountCurve> MAP = new HashMap<String, YieldAndDiscountCurve>();
+  private static final Map<String, YieldAndDiscountCurve> MAP = new HashMap<>();
   private static final YieldCurveBundle BUNDLE;
 
   static {
@@ -68,7 +69,7 @@ public class YieldCurveBundleTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullNameInMap() {
-    final Map<String, YieldAndDiscountCurve> map = new HashMap<String, YieldAndDiscountCurve>();
+    final Map<String, YieldAndDiscountCurve> map = new HashMap<>();
     for (int i = 0; i < 2; i++) {
       map.put(NAMES[i], CURVES[i]);
     }
@@ -78,7 +79,7 @@ public class YieldCurveBundleTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCurveInMap() {
-    final Map<String, YieldAndDiscountCurve> map = new HashMap<String, YieldAndDiscountCurve>();
+    final Map<String, YieldAndDiscountCurve> map = new HashMap<>();
     for (int i = 0; i < 2; i++) {
       map.put(NAMES[i], CURVES[i]);
     }

@@ -10,7 +10,6 @@ import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOpt
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOptionMarginTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
-import com.opengamma.analytics.financial.interestrate.TestsDataSetsBlack;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
@@ -19,6 +18,7 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.B
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.financial.provider.calculator.blackstirfutures.PresentValueBlackSTIRFuturesCalculator;
 import com.opengamma.analytics.financial.provider.calculator.blackstirfutures.PresentValueCurveSensitivityBlackSTIRFuturesCalculator;
+import com.opengamma.analytics.financial.provider.description.BlackDataSets;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackSTIRFuturesSmileProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackSTIRFuturesSmileProviderInterface;
@@ -36,7 +36,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
-public class InterestRateFutureOptionMarginXXBlackSmileMethodTest {
+public class InterestRateFutureOptionMarginBlackSmileMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
   private static final IborIndex[] IBOR_INDEXES = MulticurveProviderDiscountDataSets.getIndexesIborMulticurveEurUsd();
@@ -44,7 +44,7 @@ public class InterestRateFutureOptionMarginXXBlackSmileMethodTest {
   private static final Currency EUR = EURIBOR3M.getCurrency();
   private static final Calendar TARGET = MulticurveProviderDiscountDataSets.getEURCalendar();
 
-  private static final InterpolatedDoublesSurface BLACK_PARAMETERS = TestsDataSetsBlack.createBlackSurfaceExpiryTenor();
+  private static final InterpolatedDoublesSurface BLACK_PARAMETERS = BlackDataSets.createBlackSurfaceExpiryTenor();
   private static final BlackSTIRFuturesSmileProviderDiscount BLACK_MULTICURVES = new BlackSTIRFuturesSmileProviderDiscount(MULTICURVES, BLACK_PARAMETERS, EURIBOR3M);
 
   // Future
@@ -145,8 +145,8 @@ public class InterestRateFutureOptionMarginXXBlackSmileMethodTest {
    * Test the option price Black sensitivity
    */
   public void priceBlackSensitivity() {
-    final InterpolatedDoublesSurface blackParameterPlus = TestsDataSetsBlack.createBlackSurfaceExpiryTenorShift(VOL_SHIFT);
-    final InterpolatedDoublesSurface blackParameterMinus = TestsDataSetsBlack.createBlackSurfaceExpiryTenorShift(-VOL_SHIFT);
+    final InterpolatedDoublesSurface blackParameterPlus = BlackDataSets.createBlackSurfaceExpiryTenorShift(VOL_SHIFT);
+    final InterpolatedDoublesSurface blackParameterMinus = BlackDataSets.createBlackSurfaceExpiryTenorShift(-VOL_SHIFT);
     final BlackSTIRFuturesSmileProviderDiscount blackPlus = new BlackSTIRFuturesSmileProviderDiscount(MULTICURVES, blackParameterPlus, EURIBOR3M);
     final BlackSTIRFuturesSmileProviderDiscount blackMinus = new BlackSTIRFuturesSmileProviderDiscount(MULTICURVES, blackParameterMinus, EURIBOR3M);
     final double pricePlus = METHOD_SECURITY_OPTION_BLACK.price(OPTION_ERU2, blackPlus);

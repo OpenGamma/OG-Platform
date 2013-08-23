@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -23,7 +23,9 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 
 /**
  * Sets of market data used in tests.
+ * @deprecated {@link YieldCurveBundle} is deprecated, as are the calculators that use it.
  */
+@Deprecated
 public class TestsDataSetsBlack {
 
   private static final Interpolator1D LINEAR_FLAT = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
@@ -60,7 +62,7 @@ public class TestsDataSetsBlack {
     return InterpolatedDoublesSurface.from(new double[] {0.5, 1.0, 5.0, 0.5, 1.0, 5.0 }, new double[] {2, 2, 2, 10, 10, 10 }, new double[] {0.35 + shift, 0.34 + shift, 0.25 + shift, 0.30 + shift,
         0.25 + shift, 0.20 + shift }, INTERPOLATOR_LINEAR_2D);
   }
-  
+
   public static InterpolatedDoublesSurface createBlackSurfaceExpiryStrikeShift(final double shift) {
     return InterpolatedDoublesSurface.from(new double[] {0.5, 1.0, 5.0, 0.5, 1.0, 5.0, 0.5, 1.0, 5.0 },
         new double[] {0.01, 0.01, 0.01, 0.02, 0.02, 0.02, 0.03, 0.03, 0.03 },
@@ -140,7 +142,7 @@ public class TestsDataSetsBlack {
   }
 
   /**
-   * Create a yield curve bundle with three curves. One called "Credit" with a constant rate of 5%, one called "Discounting" with a constant rate of 4%, 
+   * Create a yield curve bundle with three curves. One called "Credit" with a constant rate of 5%, one called "Discounting" with a constant rate of 4%,
    * and one called "Forward" with a constant rate of 4.5%.
    * @return The yield curve bundle.
    */

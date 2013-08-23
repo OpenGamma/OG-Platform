@@ -42,6 +42,7 @@ public class InterestRateFutureOptionPremiumTransaction implements InstrumentDer
   * @param premiumTime The transaction date.
   * @param tradePrice The transaction price.
   */
+  @SuppressWarnings("deprecation")
   public InterestRateFutureOptionPremiumTransaction(final InterestRateFutureOptionPremiumSecurity underlyingOption, final int quantity, final double premiumTime, final double tradePrice) {
     ArgumentChecker.notNull(underlyingOption, "underlying option");
     _underlyingOption = underlyingOption;

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.simpleinstruments.pricing;
@@ -30,7 +30,7 @@ public class SimpleFutureDataBundleDeprecated {
     _marketPrice = null;
   }
 
-  public SimpleFutureDataBundleDeprecated(YieldAndDiscountCurve fundingCurve, Double marketPrice, Double spotValue, Double dividendYield, Double costOfCarry) {
+  public SimpleFutureDataBundleDeprecated(final YieldAndDiscountCurve fundingCurve, final Double marketPrice, final Double spotValue, final Double dividendYield, final Double costOfCarry) {
     _fundingCurve = fundingCurve;
     _marketPrice = marketPrice;
     _spotValue = spotValue;
@@ -54,12 +54,11 @@ public class SimpleFutureDataBundleDeprecated {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    long temp;
-    temp = Double.doubleToLongBits(_costOfCarry);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(_spotValue);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + ((_costOfCarry == null) ? 0 : _costOfCarry.hashCode());
+    result = prime * result + ((_dividendYield == null) ? 0 : _dividendYield.hashCode());
     result = prime * result + _fundingCurve.hashCode();
+    result = prime * result + ((_marketPrice == null) ? 0 : _marketPrice.hashCode());
+    result = prime * result + ((_spotValue == null) ? 0 : _spotValue.hashCode());
     return result;
   }
 
@@ -71,14 +70,20 @@ public class SimpleFutureDataBundleDeprecated {
     if (obj == null) {
       return false;
     }
-    if (getClass() != obj.getClass()) {
+    if (!(obj instanceof SimpleFutureDataBundleDeprecated)) {
       return false;
     }
     final SimpleFutureDataBundleDeprecated other = (SimpleFutureDataBundleDeprecated) obj;
-    if (Double.doubleToLongBits(_costOfCarry) != Double.doubleToLongBits(other._costOfCarry)) {
+    if (Double.compare(_marketPrice, other._marketPrice) != 0) {
       return false;
     }
-    if (Double.doubleToLongBits(_spotValue) != Double.doubleToLongBits(other._spotValue)) {
+    if (Double.compare(_spotValue, other._spotValue) != 0) {
+      return false;
+    }
+    if (Double.compare(_dividendYield, other._dividendYield) != 0) {
+      return false;
+    }
+    if (Double.compare(_costOfCarry, other._costOfCarry) != 0) {
       return false;
     }
     if (!ObjectUtils.equals(_fundingCurve, other._fundingCurve)) {

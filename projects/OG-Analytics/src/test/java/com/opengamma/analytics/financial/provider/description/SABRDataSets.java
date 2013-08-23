@@ -3,19 +3,12 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.interestrate;
+package com.opengamma.analytics.financial.provider.description;
 
-import java.util.HashMap;
-
-import com.opengamma.analytics.financial.forex.method.FXMatrix;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateParameters;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.analytics.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
 import com.opengamma.analytics.financial.model.volatility.smile.function.VolatilityFunctionProvider;
-import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
-import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
@@ -23,14 +16,11 @@ import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.util.money.Currency;
 
 /**
  * Sets of market data used in tests.
- * @deprecated {@link YieldCurveBundle} is deprecated, as are the classes that use it.
  */
-@Deprecated
-public class TestsDataSetsSABR {
+public class SABRDataSets {
 
   /**
    * The linear interpolator/ flat extrapolator.  Used for SABR parameters interpolation.
@@ -296,127 +286,6 @@ public class TestsDataSetsSABR {
         10.0, 20.0, 20.0, 20.0}, new double[] {1.0, 2.0, 5.0, 1.0, 2.0, 5.0, 10.0, 1.0, 2.0, 5.0, 10.0, 20, 2.0, 5.0, 10.0, 20.0, 2.0, 5.0, 10.0, 20.0, 5.0, 10.0, 20.0}, new double[] {0.50, 0.50,
         0.50, 0.40, 0.40, 0.40, 0.40, 0.40, 0.40, 0.40, 0.40, 0.40, 0.45, 0.25, 0.25, 0.40, 0.35, 0.35, 0.35, 0.35, 0.35, 0.35, 0.35}, INTERPOLATOR_2D);
     return new SABRInterestRateParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, DAY_COUNT, new SABRHaganVolatilityFunction());
-  }
-
-  /**
-   * Create a yield curve bundle with two curves. One called "Funding" with a constant rate of 5% and one called "Forward" with a constant rate of 4%;
-   * @return The yield curve bundle.
-   */
-  public static YieldCurveBundle createCurves1() {
-    final String FUNDING_CURVE_NAME = "Funding";
-    final String FORWARD_CURVE_NAME = "Forward";
-    final YieldAndDiscountCurve CURVE_5 = YieldCurve.from(ConstantDoublesCurve.from(0.05));
-    final YieldAndDiscountCurve CURVE_4 = YieldCurve.from(ConstantDoublesCurve.from(0.04));
-    final YieldCurveBundle curves = new YieldCurveBundle();
-    curves.setCurve(FUNDING_CURVE_NAME, CURVE_5);
-    curves.setCurve(FORWARD_CURVE_NAME, CURVE_4);
-    return curves;
-  }
-
-  public static String[] curves1Names() {
-    final String FUNDING_CURVE_NAME = "Funding";
-    final String FORWARD_CURVE_NAME = "Forward";
-    return new String[] {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME};
-  }
-
-  /**
-   * Creates a yield curve bundle with 3 interpolated curves: Discounting, Forward 3M, and Forward 6M.
-   * @return The bundle.
-   */
-  public static YieldCurveBundle createCurves2() {
-    return createCurves2(Currency.EUR);
-  }
-
-  /**
-   * Creates a yield curve bundle with 3 interpolated curves: Discounting, Forward 3M, and Forward 6M.
-   * @return The bundle.
-   */
-  public static YieldCurveBundle createCurves2(final Currency ccy) {
-    final String discountingCurvename = "Discounting";
-    final String forward3MCurveName = "Forward 3M";
-    final String forward6MCurveName = "Forward 6M";
-    final HashMap<String, Currency> ccyMap = new HashMap<>();
-    ccyMap.put(discountingCurvename, ccy);
-    ccyMap.put(forward3MCurveName, ccy);
-    ccyMap.put(forward6MCurveName, ccy);
-    final FXMatrix fx = new FXMatrix(ccy);
-    final InterpolatedDoublesCurve dscC = new InterpolatedDoublesCurve(new double[] {0.05, 1.0, 2.0, 5.0, 10.0, 20.0}, new double[] {0.0050, 0.0100, 0.0150, 0.0200, 0.0200, 0.0300},
-        CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.LINEAR_EXTRAPOLATOR), true, "Curve dsc");
-    final InterpolatedDoublesCurve fwd3C = new InterpolatedDoublesCurve(new double[] {0.05, 1.0, 2.0, 5.0, 10.0, 25.0}, new double[] {0.0070, 0.0120, 0.0165, 0.0215, 0.0210, 0.0310},
-        CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.LINEAR_EXTRAPOLATOR), true, "Curve fwd3");
-    final InterpolatedDoublesCurve fwd6C = new InterpolatedDoublesCurve(new double[] {0.05, 1.0, 2.0, 5.0, 10.0, 30.0}, new double[] {0.0075, 0.0125, 0.0170, 0.0220, 0.0212, 0.0312},
-        CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.LINEAR_EXTRAPOLATOR), true, "Curve fwd6");
-    final YieldCurveBundle curves = new YieldCurveBundle(fx, ccyMap);
-    curves.setCurve(discountingCurvename, YieldCurve.from(dscC));
-    curves.setCurve(forward3MCurveName, YieldCurve.from(fwd3C));
-    curves.setCurve(forward6MCurveName, YieldCurve.from(fwd6C));
-    return curves;
-  }
-
-  public static String[] curves2Names() {
-    final String discountingCurvename = "Discounting";
-    final String forward3MCurveName = "Forward 3M";
-    final String forward6MCurveName = "Forward 6M";
-    return new String[] {discountingCurvename, forward3MCurveName, forward6MCurveName};
-  }
-
-  /**
-   * Create a yield curve bundle with three curves. One called "Credit" with a constant rate of 5%, one called "Discounting" with a constant rate of 4%,
-   * and one called "Forward" with a constant rate of 4.5%.
-   * @return The yield curve bundle.
-   */
-  public static YieldCurveBundle createCurvesBond1() {
-    final String CREDIT_CURVE_NAME = "Credit";
-    final String DISCOUNTING_CURVE_NAME = "Repo";
-    final String FORWARD_CURVE_NAME = "Forward";
-    final YieldAndDiscountCurve CURVE_5 = YieldCurve.from(ConstantDoublesCurve.from(0.05));
-    final YieldAndDiscountCurve CURVE_4 = YieldCurve.from(ConstantDoublesCurve.from(0.04));
-    final YieldAndDiscountCurve CURVE_45 = YieldCurve.from(ConstantDoublesCurve.from(0.045));
-    final YieldCurveBundle curves = new YieldCurveBundle();
-    curves.setCurve(CREDIT_CURVE_NAME, CURVE_5);
-    curves.setCurve(DISCOUNTING_CURVE_NAME, CURVE_4);
-    curves.setCurve(FORWARD_CURVE_NAME, CURVE_45);
-    return curves;
-  }
-
-  /**
-   * Create a yield curve bundle with three curves. One called "Credit" with a constant rate of 6%, one called "Discounting" with a constant rate of 5%,
-   * and one called "Forward" with a constant rate of 5.5%.
-   * @return The yield curve bundle.
-   */
-  public static YieldCurveBundle createCurvesBond2() {
-    final String CREDIT_CURVE_NAME = "Credit";
-    final String DISCOUNTING_CURVE_NAME = "Repo";
-    final String FORWARD_CURVE_NAME = "Forward";
-    final YieldAndDiscountCurve CURVE_6 = YieldCurve.from(ConstantDoublesCurve.from(0.06));
-    final YieldAndDiscountCurve CURVE_5 = YieldCurve.from(ConstantDoublesCurve.from(0.05));
-    final YieldAndDiscountCurve CURVE_55 = YieldCurve.from(ConstantDoublesCurve.from(0.0550));
-    final YieldCurveBundle curves = new YieldCurveBundle();
-    curves.setCurve(CREDIT_CURVE_NAME, CURVE_6);
-    curves.setCurve(DISCOUNTING_CURVE_NAME, CURVE_5);
-    curves.setCurve(FORWARD_CURVE_NAME, CURVE_55);
-    return curves;
-  }
-
-  /**
-   * Create a yield curve bundle with three curves. One called "EUR Credit" with a constant rate of 5%, one called "EUR Discounting" with a constant rate of 4%.
-   * @return The yield curve bundle.
-   */
-  public static YieldCurveBundle createCurvesBond3() {
-    final String DISCOUNTING_CURVE_NAME = "EUR Discounting";
-    final String CREDIT_CURVE_NAME = "EUR Credit";
-    final YieldAndDiscountCurve CURVE_5 = YieldCurve.from(ConstantDoublesCurve.from(0.05));
-    final YieldAndDiscountCurve CURVE_4 = YieldCurve.from(ConstantDoublesCurve.from(0.04));
-    final YieldCurveBundle curves = new YieldCurveBundle();
-    curves.setCurve(CREDIT_CURVE_NAME, CURVE_5);
-    curves.setCurve(DISCOUNTING_CURVE_NAME, CURVE_4);
-    return curves;
-  }
-
-  public static String[] nameCurvesBond3() {
-    final String DISCOUNTING_CURVE_NAME = "EUR Discounting";
-    final String CREDIT_CURVE_NAME = "EUR Credit";
-    return new String[] {DISCOUNTING_CURVE_NAME, CREDIT_CURVE_NAME};
   }
 
 }

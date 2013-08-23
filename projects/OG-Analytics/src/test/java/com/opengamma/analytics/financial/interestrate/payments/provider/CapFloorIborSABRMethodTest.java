@@ -16,7 +16,6 @@ import com.opengamma.analytics.financial.instrument.payment.CapFloorIborDefiniti
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition;
 import com.opengamma.analytics.financial.interestrate.PresentValueSABRSensitivityDataBundle;
-import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
@@ -29,6 +28,7 @@ import com.opengamma.analytics.financial.provider.calculator.sabrcap.PresentValu
 import com.opengamma.analytics.financial.provider.calculator.sabrcap.PresentValueSABRCapCalculator;
 import com.opengamma.analytics.financial.provider.calculator.sabrcap.PresentValueSABRSensitivitySABRCapCalculator;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
+import com.opengamma.analytics.financial.provider.description.SABRDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.SABRCapProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.SABRCapProviderInterface;
@@ -54,7 +54,7 @@ public class CapFloorIborSABRMethodTest {
   private static final Currency EUR = EURIBOR3M.getCurrency();
   private static final Calendar CALENDAR = MulticurveProviderDiscountDataSets.getEURCalendar();
 
-  private static final SABRInterestRateParameters SABR_PARAMETER = TestsDataSetsSABR.createSABR1();
+  private static final SABRInterestRateParameters SABR_PARAMETER = SABRDataSets.createSABR1();
   private static final SABRCapProviderDiscount SABR_MULTICURVES = new SABRCapProviderDiscount(MULTICURVES, SABR_PARAMETER, EURIBOR3M);
 
   // Details
@@ -167,7 +167,7 @@ public class CapFloorIborSABRMethodTest {
     final double shiftAlpha = 0.00001;
     final DoublesPair expectedExpiryTenor = new DoublesPair(CAP_LONG.getFixingTime(), CAP_LONG.getFixingPeriodEndTime() - CAP_LONG.getFixingPeriodStartTime());
     // Alpha sensitivity vs finite difference computation
-    final SABRInterestRateParameters sabrParameterAlphaBumped = TestsDataSetsSABR.createSABR1AlphaBumped(shiftAlpha);
+    final SABRInterestRateParameters sabrParameterAlphaBumped = SABRDataSets.createSABR1AlphaBumped(shiftAlpha);
     final SABRCapProviderDiscount sabrBundleAlphaBumped = new SABRCapProviderDiscount(MULTICURVES, sabrParameterAlphaBumped, EURIBOR3M);
     final double pvLongPayerAlphaBumped = METHOD_CAP_SABR.presentValue(CAP_LONG, sabrBundleAlphaBumped).getAmount(EUR);
     final double expectedAlphaSensi = (pvLongPayerAlphaBumped - pv) / shiftAlpha;
@@ -175,7 +175,7 @@ public class CapFloorIborSABRMethodTest {
     assertEquals("Alpha sensitivity expiry/tenor", pvsCapLong.getAlpha().getMap().keySet().contains(expectedExpiryTenor), true);
     assertEquals("Alpha sensitivity value", expectedAlphaSensi, pvsCapLong.getAlpha().getMap().get(expectedExpiryTenor), 2.0E+0);
     // Rho sensitivity vs finite difference computation
-    final SABRInterestRateParameters sabrParameterRhoBumped = TestsDataSetsSABR.createSABR1RhoBumped();
+    final SABRInterestRateParameters sabrParameterRhoBumped = SABRDataSets.createSABR1RhoBumped();
     final SABRCapProviderDiscount sabrBundleRhoBumped = new SABRCapProviderDiscount(MULTICURVES, sabrParameterRhoBumped, EURIBOR3M);
     final double pvLongPayerRhoBumped = METHOD_CAP_SABR.presentValue(CAP_LONG, sabrBundleRhoBumped).getAmount(EUR);
     final double expectedRhoSensi = (pvLongPayerRhoBumped - pv) / shift;
@@ -183,7 +183,7 @@ public class CapFloorIborSABRMethodTest {
     assertEquals("Rho sensitivity expiry/tenor", pvsCapLong.getRho().getMap().keySet().contains(expectedExpiryTenor), true);
     assertEquals("Rho sensitivity value", pvsCapLong.getRho().getMap().get(expectedExpiryTenor), expectedRhoSensi, 1.0E-2);
     // Alpha sensitivity vs finite difference computation
-    final SABRInterestRateParameters sabrParameterNuBumped = TestsDataSetsSABR.createSABR1NuBumped();
+    final SABRInterestRateParameters sabrParameterNuBumped = SABRDataSets.createSABR1NuBumped();
     final SABRCapProviderDiscount sabrBundleNuBumped = new SABRCapProviderDiscount(MULTICURVES, sabrParameterNuBumped, EURIBOR3M);
     final double pvLongPayerNuBumped = METHOD_CAP_SABR.presentValue(CAP_LONG, sabrBundleNuBumped).getAmount(EUR);
     final double expectedNuSensi = (pvLongPayerNuBumped - pv) / shift;

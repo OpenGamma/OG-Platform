@@ -49,6 +49,7 @@ public class InterestRateFutureOptionMarginSecurity implements InstrumentDerivat
    * @param strike The option strike.
    * @param isCall The cap (true) / floor (false) flag.
    */
+  @SuppressWarnings("deprecation")
   public InterestRateFutureOptionMarginSecurity(final InterestRateFutureSecurity underlyingFuture, final double expirationTime, final double strike, final boolean isCall) {
     ArgumentChecker.notNull(underlyingFuture, "underlying future");
     _underlyingFuture = underlyingFuture;

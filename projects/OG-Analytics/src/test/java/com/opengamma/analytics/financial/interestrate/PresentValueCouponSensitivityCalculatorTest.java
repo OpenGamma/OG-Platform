@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -27,8 +27,9 @@ import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ * @deprecated This class tests deprecated functionality.
  */
+@Deprecated
 public class PresentValueCouponSensitivityCalculatorTest {
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
   private static final PresentValueCouponSensitivityCalculator PVCSC = PresentValueCouponSensitivityCalculator.getInstance();

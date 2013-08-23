@@ -12,10 +12,10 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationYearOnYearMonthlyDefinition;
-import com.opengamma.analytics.financial.interestrate.TestsDataSetsBlack;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationYearOnYearMonthly;
 import com.opengamma.analytics.financial.model.option.parameters.BlackFlatCapFloorParameters;
 import com.opengamma.analytics.financial.model.option.parameters.InflationConvexityAdjustmentParameters;
+import com.opengamma.analytics.financial.provider.description.BlackDataSets;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationConvexityAdjustmentProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationIssuerProviderDiscount;
@@ -65,7 +65,7 @@ public class InflationMarketModelConvexityAdjustmentForCoupontest {
   private static final BlackFlatCapFloorParameters BLACK_PARAM = new BlackFlatCapFloorParameters(BLACK_SURF, EURIBOR6M);
   private static final double[] INFLATION_TIME = new double[] {1.0, 1.0 };
   private static final double[] ATM_VOLATILITY = new double[] {1.0, 1.0 };
-  private static final InterpolatedDoublesSurface SURFACE = TestsDataSetsBlack.createBlackSurfaceExpiryStrike();
+  private static final InterpolatedDoublesSurface SURFACE = BlackDataSets.createBlackSurfaceExpiryStrike();
   private static final Surface<Double, Double, Double> PRICE_INDEX_CORRELATION = SURFACE;
   private static final Surface<Double, Double, Double> LIBOR_CORRELATION = SURFACE;
 

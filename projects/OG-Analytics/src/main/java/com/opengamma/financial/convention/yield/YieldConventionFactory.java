@@ -26,20 +26,20 @@ public final class YieldConventionFactory {
   /**
    * Map of convention name to convention.
    */
-  private final Map<String, YieldConvention> _conventionMap = new HashMap<String, YieldConvention>();
+  private final Map<String, YieldConvention> _conventionMap = new HashMap<>();
 
   //-------------------------------------------------------------------------
   /**
    * Gets a convention by name.
    * Matching is case insensitive.
-   * 
+   *
    * @param name  the name, not null
    * @return the convention, not null
    * @throws IllegalArgumentException if not found
    */
   @FromString
   public static YieldConvention of(final String name) {
-    YieldConvention result = YieldConventionFactory.INSTANCE.getYieldConvention(name);
+    final YieldConvention result = YieldConventionFactory.INSTANCE.getYieldConvention(name);
     if (result == null) {
       throw new IllegalArgumentException("Unknown YieldConvention: " + name);
     }
@@ -87,7 +87,7 @@ public final class YieldConventionFactory {
 
   /**
    * Stores the convention.
-   * 
+   *
    * @param convention  the convention to store, not null
    */
   private void store(final YieldConvention convention) {
@@ -97,7 +97,7 @@ public final class YieldConventionFactory {
 
   /**
    * Stores the convention with an alternative string name.
-   * 
+   *
    * @param convention  the convention to store, not null
    * @param name the alternative name for the convention, not null
    */
@@ -110,7 +110,7 @@ public final class YieldConventionFactory {
   /**
    * Gets a convention by name.
    * Matching is case insensitive.
-   * 
+   *
    * @param name  the name, not null
    * @return the convention, null if not found
    */

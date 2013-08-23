@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -23,7 +23,9 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 
 /**
  * Sets of market data used in tests.
+ * @deprecated {@link YieldCurveBundle} is deprecated, as are the classes that use it.
  */
+@Deprecated
 public class TestsDataSetsInflation {
 
   private static final Interpolator1D LINEAR_FLAT = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
@@ -134,7 +136,7 @@ public class TestsDataSetsInflation {
   }
 
   /**
-   * Create a yield curve bundle with three curves. One called "Credit" with a constant rate of 5%, one called "Discounting" with a constant rate of 4%, 
+   * Create a yield curve bundle with three curves. One called "Credit" with a constant rate of 5%, one called "Discounting" with a constant rate of 4%,
    * and one called "Forward" with a constant rate of 4.5%.
    * @return The yield curve bundle.
    */

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.provider;
@@ -25,7 +25,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- *  Class used to compute the price and sensitivity of a Ibor cap/floor with Black model. 
+ *  Class used to compute the price and sensitivity of a Ibor cap/floor with Black model.
  *  No convexity adjustment is done for payment at non-standard dates.
  */
 public final class CapFloorIborBlackSmileShiftMethod {
@@ -84,7 +84,7 @@ public final class CapFloorIborBlackSmileShiftMethod {
   public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final CapFloorIbor cap, final BlackSmileShiftCapProviderInterface black) {
     ArgumentChecker.notNull(cap, "The cap/floor shoud not be null");
     ArgumentChecker.notNull(black, "Black provider");
-    MulticurveProviderInterface multicurve = black.getMulticurveProvider();
+    final MulticurveProviderInterface multicurve = black.getMulticurveProvider();
     final double forward = multicurve.getForwardRate(cap.getIndex(), cap.getFixingPeriodStartTime(), cap.getFixingPeriodEndTime(), cap.getFixingAccrualFactor());
     final double df = multicurve.getDiscountFactor(cap.getCurrency(), cap.getPaymentTime());
     final MulticurveSensitivity forwardDr = MulticurveSensitivity.ofForward(multicurve.getName(cap.getIndex()),
@@ -95,9 +95,9 @@ public final class CapFloorIborBlackSmileShiftMethod {
     final EuropeanVanillaOption option = new EuropeanVanillaOption(cap.getStrike() + shift, cap.getFixingTime(), cap.isCap());
     final BlackFunctionData dataBlack = new BlackFunctionData(forward + shift, 1.0, volatility);
     final double[] bsAdjoint = BLACK_FUNCTION.getPriceAdjoint(option, dataBlack);
-    final List<DoublesPair> list = new ArrayList<DoublesPair>();
+    final List<DoublesPair> list = new ArrayList<>();
     list.add(new DoublesPair(cap.getPaymentTime(), dfDr));
-    final Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> resultMap = new HashMap<>();
     resultMap.put(multicurve.getName(cap.getCurrency()), list);
     MulticurveSensitivity result = MulticurveSensitivity.ofYieldDiscounting(resultMap);
     result = result.multipliedBy(bsAdjoint[0]);

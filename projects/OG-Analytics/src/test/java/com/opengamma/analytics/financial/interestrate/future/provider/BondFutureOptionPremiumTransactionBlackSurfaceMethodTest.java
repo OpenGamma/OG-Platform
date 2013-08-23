@@ -15,11 +15,11 @@ import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefini
 import com.opengamma.analytics.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.future.BondFutureOptionPremiumTransactionDefinition;
-import com.opengamma.analytics.financial.interestrate.TestsDataSetsBlack;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumTransaction;
 import com.opengamma.analytics.financial.interestrate.payments.provider.PaymentFixedDiscountingMethod;
+import com.opengamma.analytics.financial.provider.description.BlackDataSets;
 import com.opengamma.analytics.financial.provider.description.IssuerProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackBondFuturesSmilePriceProvider;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackBondFuturesSmileProvider;
@@ -49,7 +49,7 @@ public class BondFutureOptionPremiumTransactionBlackSurfaceMethodTest {
   private final static IssuerProviderDiscount ISSUER_MULTICURVES = IssuerProviderDiscountDataSets.createIssuerProvider();
   private final static String ISSUER_NAME = IssuerProviderDiscountDataSets.getIssuerNames()[0]; // US GOVT
 
-  private static final InterpolatedDoublesSurface BLACK_PARAMETERS = TestsDataSetsBlack.createBlackSurfaceExpiryTenor();
+  private static final InterpolatedDoublesSurface BLACK_PARAMETERS = BlackDataSets.createBlackSurfaceExpiryTenor();
 
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final int SETTLEMENT_DAYS = 1;

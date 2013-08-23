@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -34,8 +34,9 @@ import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ * @deprecated This class tests deprecated functionality.
  */
+@Deprecated
 public class PV01CalculatorTest {
   private final static YieldAndDiscountCurve FUNDING_CURVE = YieldCurve.from(FunctionalDoublesCurve.from(new MyFunction(-0.04, 0.006, 0.1, 0.05)));
   private final static YieldAndDiscountCurve LIBOR_CURVE = YieldCurve.from(FunctionalDoublesCurve.from(new MyFunction(-0.04, 0.005, 0.11, 0.055)));

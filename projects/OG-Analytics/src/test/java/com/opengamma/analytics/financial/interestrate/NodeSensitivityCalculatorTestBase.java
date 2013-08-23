@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -43,9 +43,10 @@ import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * 
+ * @deprecated This class tests deprecated functionality.
  */
-public abstract class NodeSensitivityCalculatorTest {
+@Deprecated
+public abstract class NodeSensitivityCalculatorTestBase {
 
   private static final String DISCOUNTING_CURVE_NAME = "USD Discounting";
   private static final String FORWARD_CURVE_NAME = "USD Forward 3M";
