@@ -41,7 +41,7 @@ public class InterestRateFunctions extends AbstractFunctionConfigurationBean {
     private int _maxIterations = 1000;
     private String _decomposition = DecompositionFactory.SV_COLT_NAME;
     private boolean _useFiniteDifference; /* = false;*/
-    private String _interpolatorName = Interpolator1DFactory.DOUBLE_QUADRATIC;
+    private String _interpolatorName = Interpolator1DFactory.LINEAR;
     private String _leftExtrapolatorName = Interpolator1DFactory.FLAT_EXTRAPOLATOR;
     private String _rightExtrapolatorName = Interpolator1DFactory.FLAT_EXTRAPOLATOR;
 

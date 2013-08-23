@@ -108,7 +108,7 @@ public class FXForwardYCNSFunction extends FXForwardSingleValuedFunction {
     final Map<String, List<DoublesPair>> sensitivitiesForCurrency = curveSensitivities.getSensitivity(Currency.of(curveCurrency)).getSensitivities();
     final YieldCurveBundle dataForCurrency = new YieldCurveBundle();
     dataForCurrency.setCurve(fullCurveName, data.getCurve(fullCurveName));
-    return getResult(inputs, resultCurveConfigName, calculationMethod, dataForCurrency, curveSpec, sensitivitiesForCurrency, spec);
+    return getResult(inputs, calculationMethod, fullCurveName, dataForCurrency, curveSpec, sensitivitiesForCurrency, spec);
   }
 
   @Override
@@ -329,7 +329,7 @@ public class FXForwardYCNSFunction extends FXForwardSingleValuedFunction {
       throw new OpenGammaRuntimeException("Could not get " + ValueRequirementNames.YIELD_CURVE_JACOBIAN);
     }
     final double[][] array = FunctionUtils.decodeJacobian(jacobianObject);
-    final DoubleMatrix2D jacobian = new DoubleMatrix2D(array);
+    final DoubleMatrix2D jacobian = new DoubleMatrix2D(array); 
     if (calculationMethod.equals(MultiYieldCurvePropertiesAndDefaults.PAR_RATE_STRING)) {
       final DoubleMatrix1D result = CALCULATOR.calculateFromParRate(sensitivitiesForCurrency, interpolatedCurveForCurrency, jacobian);
       return YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(fullCurveName, interpolatedCurveForCurrency, result, curveSpec, spec);
