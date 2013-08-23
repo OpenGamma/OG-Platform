@@ -48,6 +48,9 @@ import com.opengamma.analytics.math.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.analytics.math.rootfinding.newton.NewtonVectorRootFinder;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.core.region.RegionSource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
@@ -64,6 +67,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
+import com.opengamma.financial.analytics.conversion.CalendarUtils;
 import com.opengamma.financial.analytics.fxforwardcurve.ConfigDBFXForwardCurveDefinitionSource;
 import com.opengamma.financial.analytics.fxforwardcurve.ConfigDBFXForwardCurveSpecificationSource;
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveDefinition;
@@ -73,6 +77,9 @@ import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalcula
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.analytics.model.FunctionUtils;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
+import com.opengamma.financial.convention.Convention;
+import com.opengamma.financial.convention.ConventionSource;
+import com.opengamma.financial.convention.FXSpotConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -187,8 +194,11 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
     final String fullForeignCurveName = foreignCurveName + "_" + foreignCurrency.getCode();
     final List<InstrumentDerivative> derivatives = new ArrayList<>();
     int nInstruments = 0;
-    final Calendar calendar = new MondayToFridayCalendar("FX"); //FIXME: Calendar should be currency adapted [PLAT-4373]
-    final int spotLag = 2;
+    HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
+    final Calendar calendar = CalendarUtils.getCalendar(holidaySource, domesticCurrency, foreignCurrency);
+    final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(executionContext);
+    final FXSpotConvention fxSpotConvention = (FXSpotConvention) conventionSource.getConvention(ExternalId.of("CONVENTION", "FX Spot"));
+    final int spotLag = fxSpotConvention.getSettlementDays();
     final ZonedDateTime spotDate = ScheduleCalculator.getAdjustedDate(now, spotLag, calendar);
     for (final Tenor tenor : definition.getTenors()) {
       final ExternalId identifier = provider.getInstrument(now.toLocalDate(), tenor);
