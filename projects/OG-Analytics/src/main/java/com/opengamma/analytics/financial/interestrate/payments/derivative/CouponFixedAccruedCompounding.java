@@ -42,7 +42,7 @@ public class CouponFixedAccruedCompounding extends Coupon {
   private final ZonedDateTime _accrualEndDate;
 
   /**
-   * Constructor from all details but accrual dates.
+   * Constructor from all details but accrual dates. deprecated version.
    * @param currency The payment currency.
    * @param paymentTime Time (in years) up to the payment.
    * * @param fundingCurveName Name of the funding curve.
@@ -60,7 +60,7 @@ public class CouponFixedAccruedCompounding extends Coupon {
   }
 
   /**
-   * Constructor from all details but accrual dates.
+   * Constructor from all details but accrual dates. not deprecated version.
    * @param currency The payment currency.
    * @param paymentTime Time (in years) up to the payment.
    * @param paymentYearFraction The year fraction (or accrual factor) for the coupon payment.
@@ -76,7 +76,7 @@ public class CouponFixedAccruedCompounding extends Coupon {
   }
 
   /**
-   * Constructor from all details.
+   * Constructor from all details. deprecated version.
    * @param currency The payment currency.
    * @param paymentTime Time (in years) up to the payment.
    * @param fundingCurveName Name of the funding curve.
@@ -98,7 +98,7 @@ public class CouponFixedAccruedCompounding extends Coupon {
   }
 
   /**
-   * Constructor from all details.
+   * Constructor from all details. not deprecated version.
    * @param currency The payment currency.
    * @param paymentTime Time (in years) up to the payment.
    * @param paymentYearFraction The year fraction (or accrual factor) for the coupon payment.

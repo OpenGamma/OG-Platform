@@ -83,7 +83,7 @@ public final class CouponONCompoundedDiscountingMethod {
     final double ratioBar = coupon.getNotionalAccrued() * df * pvBar;
     final double[] forwardBar = new double[coupon.getFixingPeriodAccrualFactors().length];
     for (int i = 0; i < coupon.getFixingPeriodAccrualFactors().length; i++) {
-      forwardBar[i] = ratioBar * ratioBar * coupon.getFixingPeriodAccrualFactors()[i] / (1 + forward[i]);
+      forwardBar[i] = ratioBar * ratio * coupon.getFixingPeriodAccrualFactors()[i] / (1 + forward[i]);
     }
     final double dfBar = coupon.getNotionalAccrued() * ratio * pvBar;
     final Map<String, List<DoublesPair>> mapDsc = new HashMap<String, List<DoublesPair>>();

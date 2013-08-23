@@ -42,6 +42,7 @@ public final class IndexONMaster {
   private IndexONMaster() {
     final DayCount act360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
     final DayCount act365 = DayCountFactory.INSTANCE.getDayCount("Actual/365");
+    final DayCount Bus252 = DayCountFactory.INSTANCE.getDayCount("Business/252");
     _on = new HashMap<>();
     _on.put("EONIA", new IndexON("EONIA", Currency.EUR, act360, 0));
     _on.put("FED FUND", new IndexON("FED FUND", Currency.USD, act360, 1));
@@ -49,6 +50,7 @@ public final class IndexONMaster {
     _on.put("RBA ON", new IndexON("RBA ON", Currency.AUD, act365, 0));
     _on.put("DKK TN", new IndexON("DKK TN", Currency.DKK, act360, 1));
     _on.put("TONAR", new IndexON("TONAR", Currency.JPY, act365, 0));
+    _on.put("CDI", new IndexON("CDI", Currency.BRL, Bus252, 0));
   }
 
   public IndexON getIndex(final String name) {

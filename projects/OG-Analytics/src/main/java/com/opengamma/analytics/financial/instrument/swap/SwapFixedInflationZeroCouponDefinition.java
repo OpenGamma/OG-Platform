@@ -23,7 +23,7 @@ import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Class describing a zero-coupon inflation (with interpolated index) swap.
+ * Class describing a zero-coupon inflation swap.
  */
 public class SwapFixedInflationZeroCouponDefinition extends SwapDefinition {
 
@@ -35,8 +35,8 @@ public class SwapFixedInflationZeroCouponDefinition extends SwapDefinition {
    */
   public SwapFixedInflationZeroCouponDefinition(final CouponFixedCompoundingDefinition fixedCpn, final CouponInflationDefinition inflationCpn,
       final Calendar calendar) {
-    super(new AnnuityDefinition<PaymentDefinition>(new CouponFixedCompoundingDefinition[] {fixedCpn}, calendar),
-        new AnnuityDefinition<PaymentDefinition>(new CouponInflationDefinition[] {inflationCpn}, calendar));
+    super(new AnnuityDefinition<PaymentDefinition>(new CouponFixedCompoundingDefinition[] {fixedCpn }, calendar),
+        new AnnuityDefinition<PaymentDefinition>(new CouponInflationDefinition[] {inflationCpn }, calendar));
   }
 
   /**

@@ -67,7 +67,7 @@ public final class CouponFixedAccruedCompoundingDiscountingMethod {
   public CurrencyAmount presentValuePositiveNotional(final CouponFixedAccruedCompounding coupon, final MulticurveProviderInterface multicurves) {
     Validate.notNull(coupon, "Coupon");
     Validate.notNull(multicurves, "multicurve");
-    return CurrencyAmount.of(coupon.getCurrency(), Math.signum(coupon.getNotional() * presentValue(coupon, multicurves).getAmount(coupon.getCurrency())));
+    return CurrencyAmount.of(coupon.getCurrency(), Math.signum(coupon.getNotional()) * presentValue(coupon, multicurves).getAmount(coupon.getCurrency()));
   }
 
   /**

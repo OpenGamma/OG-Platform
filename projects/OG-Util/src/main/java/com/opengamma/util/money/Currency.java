@@ -119,6 +119,10 @@ public final class Currency implements ObjectIdentifiable, UniqueIdentifiable, C
    * The currency 'HKD' - Hong Kong Dollar
    */
   public static final Currency HKD = of("HKD");
+  /**
+   * The currency 'HKD' - Brazil Dollar
+   */
+  public static final Currency BRL = of("BRL");
 
   /**
    * The currency code, not null.

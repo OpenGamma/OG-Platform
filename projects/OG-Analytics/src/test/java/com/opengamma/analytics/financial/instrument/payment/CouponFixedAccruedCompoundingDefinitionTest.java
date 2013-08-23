@@ -7,7 +7,6 @@ package com.opengamma.analytics.financial.instrument.payment;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
-import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
@@ -16,16 +15,15 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexIborMaster;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
 /**
- *  Test class for the coupon fixed compounding.
+ * Test class for the coupon fixed accrued compounding.
  */
-public class CouponFixedCompoundingDefinitionTest {
+public class CouponFixedAccruedCompoundingDefinitionTest {
 
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
   private static final IndexIborMaster MASTER_IBOR = IndexIborMaster.getInstance();
@@ -55,7 +53,6 @@ public class CouponFixedCompoundingDefinitionTest {
     }
     PAYMENT_ACCRUAL_FACTOR = af;
   }
-  private static final ZonedDateTime[] FIXING_DATES = ScheduleCalculator.getAdjustedDate(ACCRUAL_START_DATES, -USDLIBOR1M.getSpotLag(), NYC);
   private static final ZonedDateTime[] FIXING_PERIOD_END_DATES = ScheduleCalculator.getAdjustedDate(ACCRUAL_START_DATES, USDLIBOR1M, NYC);
   private static final double[] FIXING_ACCRUAL_FACTORS = new double[NB_SUB_PERIOD];
   static {
@@ -64,18 +61,9 @@ public class CouponFixedCompoundingDefinitionTest {
     }
   }
   private static final ZonedDateTime PAYMENT_DATE = ACCRUAL_END_DATES[NB_SUB_PERIOD - 1];
-  private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 8, 17);
-  private static final double[] FIXING_TIMES = TimeCalculator.getTimeBetween(REFERENCE_DATE, FIXING_DATES);
-  private static final double[] FIXING_PERIOD_END_TIMES = TimeCalculator.getTimeBetween(REFERENCE_DATE, FIXING_PERIOD_END_DATES);
-  private static final double[] ACCRUAL_START_TIMES = TimeCalculator.getTimeBetween(REFERENCE_DATE, ACCRUAL_START_DATES);
-  private static final double[] ACCRUAL_END_TIMES = TimeCalculator.getTimeBetween(REFERENCE_DATE, ACCRUAL_END_DATES);
-  private static final double PAYMENT_TIME = ACCRUAL_END_TIMES[NB_SUB_PERIOD - 1];
-  private static final String DSC_NAME = "Dsc_USD";
-  private static final String FWD_NAME = "Forward1M_USD";
 
-  private static final CouponFixedCompoundingDefinition COUPON = CouponFixedCompoundingDefinition.from(CURRENCY, PAYMENT_DATE, ACCRUAL_START_DATES[0], ACCRUAL_END_DATES[NB_SUB_PERIOD - 1],
-      PAYMENT_ACCRUAL_FACTOR,
-      NOTIONAL, FIXED_RATE, ACCRUAL_START_DATES, ACCRUAL_END_DATES, PAYMENT_ACCRUAL_FACTORS);
+  private static final CouponFixedAccruedCompoundingDefinition COUPON = CouponFixedAccruedCompoundingDefinition.from(CURRENCY, PAYMENT_DATE, ACCRUAL_START_DATES[0],
+      ACCRUAL_END_DATES[NB_SUB_PERIOD - 1], PAYMENT_ACCRUAL_FACTOR, NOTIONAL, FIXED_RATE);
 
   @Test
   /**
@@ -88,27 +76,25 @@ public class CouponFixedCompoundingDefinitionTest {
     assertEquals(COUPON.getPaymentYearFraction(), PAYMENT_ACCRUAL_FACTOR, 1E-10);
     assertEquals(COUPON.getNotional(), NOTIONAL, 1E-2);
     assertEquals(COUPON.getRate(), FIXED_RATE, 1E-10);
-    assertArrayEquals(COUPON.getAccrualStartDates(), ACCRUAL_START_DATES);
-    assertArrayEquals(COUPON.getAccrualEndDates(), ACCRUAL_END_DATES);
-    assertArrayEquals(COUPON.getPaymentAccrualFactors(), PAYMENT_ACCRUAL_FACTORS, 0);
+    assertEquals(COUPON.getAmount(), NOTIONAL * Math.pow(1 + FIXED_RATE, PAYMENT_ACCRUAL_FACTOR));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullCurrency() {
-    CouponFixedCompoundingDefinition.from(null, PAYMENT_DATE, ACCRUAL_START_DATES[0], ACCRUAL_END_DATES[NB_SUB_PERIOD - 1],
-        PAYMENT_ACCRUAL_FACTOR, NOTIONAL, FIXED_RATE, ACCRUAL_START_DATES, ACCRUAL_END_DATES, PAYMENT_ACCRUAL_FACTORS);
+    CouponFixedAccruedCompoundingDefinition.from(null, PAYMENT_DATE, ACCRUAL_START_DATES[0],
+        ACCRUAL_END_DATES[NB_SUB_PERIOD - 1], PAYMENT_ACCRUAL_FACTOR, NOTIONAL, FIXED_RATE);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPaymentDate() {
-    CouponFixedCompoundingDefinition.from(CURRENCY, null, ACCRUAL_START_DATES[0], ACCRUAL_END_DATES[NB_SUB_PERIOD - 1],
-        PAYMENT_ACCRUAL_FACTOR, NOTIONAL, FIXED_RATE, ACCRUAL_START_DATES, ACCRUAL_END_DATES, PAYMENT_ACCRUAL_FACTORS);
+    CouponFixedAccruedCompoundingDefinition.from(CURRENCY, null, ACCRUAL_START_DATES[0],
+        ACCRUAL_END_DATES[NB_SUB_PERIOD - 1], PAYMENT_ACCRUAL_FACTOR, NOTIONAL, FIXED_RATE);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativePaymentAccrualFactor() {
-    CouponFixedCompoundingDefinition.from(CURRENCY, PAYMENT_DATE, ACCRUAL_START_DATES[0], ACCRUAL_END_DATES[NB_SUB_PERIOD - 1],
-        -PAYMENT_ACCRUAL_FACTOR, NOTIONAL, FIXED_RATE, ACCRUAL_START_DATES, ACCRUAL_END_DATES, PAYMENT_ACCRUAL_FACTORS);
+    CouponFixedAccruedCompoundingDefinition.from(CURRENCY, PAYMENT_DATE, ACCRUAL_START_DATES[0],
+        ACCRUAL_END_DATES[NB_SUB_PERIOD - 1], -PAYMENT_ACCRUAL_FACTOR, NOTIONAL, FIXED_RATE);
   }
 
   @Test
@@ -117,28 +103,28 @@ public class CouponFixedCompoundingDefinitionTest {
    */
   public void testEqualHash() {
     assertEquals("CouponIbor: equal-hash", COUPON, COUPON);
-    final CouponFixedCompoundingDefinition other = CouponFixedCompoundingDefinition.from(CURRENCY, PAYMENT_DATE, ACCRUAL_START_DATES[0], ACCRUAL_END_DATES[NB_SUB_PERIOD - 1],
-        PAYMENT_ACCRUAL_FACTOR, NOTIONAL, FIXED_RATE, ACCRUAL_START_DATES, ACCRUAL_END_DATES, PAYMENT_ACCRUAL_FACTORS);
+    final CouponFixedAccruedCompoundingDefinition other = CouponFixedAccruedCompoundingDefinition.from(CURRENCY, PAYMENT_DATE, ACCRUAL_START_DATES[0],
+        ACCRUAL_END_DATES[NB_SUB_PERIOD - 1], PAYMENT_ACCRUAL_FACTOR, NOTIONAL, FIXED_RATE);
     assertEquals("CouponFixedCompoundingDefinition: equal-hash", other, COUPON);
     assertEquals("CouponFixedCompoundingDefinition: equal-hash", other.hashCode(), COUPON.hashCode());
-    CouponFixedCompoundingDefinition modified;
-    modified = CouponFixedCompoundingDefinition.from(CURRENCY, PAYMENT_DATE.plusDays(1), ACCRUAL_START_DATES[0], ACCRUAL_END_DATES[NB_SUB_PERIOD - 1],
-        PAYMENT_ACCRUAL_FACTOR, NOTIONAL, FIXED_RATE, ACCRUAL_START_DATES, ACCRUAL_END_DATES, PAYMENT_ACCRUAL_FACTORS);
+    CouponFixedAccruedCompoundingDefinition modified;
+    modified = CouponFixedAccruedCompoundingDefinition.from(CURRENCY, PAYMENT_DATE.plusDays(1), ACCRUAL_START_DATES[0],
+        ACCRUAL_END_DATES[NB_SUB_PERIOD - 1], PAYMENT_ACCRUAL_FACTOR, NOTIONAL, FIXED_RATE);
     assertFalse("CouponIbor: equal-hash", COUPON.equals(modified));
-    modified = CouponFixedCompoundingDefinition.from(CURRENCY, PAYMENT_DATE, ACCRUAL_START_DATES[0].plusDays(1), ACCRUAL_END_DATES[NB_SUB_PERIOD - 1],
-        PAYMENT_ACCRUAL_FACTOR, NOTIONAL, FIXED_RATE, ACCRUAL_START_DATES, ACCRUAL_END_DATES, PAYMENT_ACCRUAL_FACTORS);
+    modified = CouponFixedAccruedCompoundingDefinition.from(CURRENCY, PAYMENT_DATE, ACCRUAL_START_DATES[0].plusDays(1),
+        ACCRUAL_END_DATES[NB_SUB_PERIOD - 1], PAYMENT_ACCRUAL_FACTOR, NOTIONAL, FIXED_RATE);
     assertFalse("CouponIbor: equal-hash", COUPON.equals(modified));
-    modified = CouponFixedCompoundingDefinition.from(CURRENCY, PAYMENT_DATE, ACCRUAL_START_DATES[0], ACCRUAL_END_DATES[NB_SUB_PERIOD - 1].plusDays(1),
-        PAYMENT_ACCRUAL_FACTOR, NOTIONAL, FIXED_RATE, ACCRUAL_START_DATES, ACCRUAL_END_DATES, PAYMENT_ACCRUAL_FACTORS);
+    modified = CouponFixedAccruedCompoundingDefinition.from(CURRENCY, PAYMENT_DATE, ACCRUAL_START_DATES[0],
+        ACCRUAL_END_DATES[NB_SUB_PERIOD - 1].plusDays(1), PAYMENT_ACCRUAL_FACTOR, NOTIONAL, FIXED_RATE);
     assertFalse("CouponIbor: equal-hash", COUPON.equals(modified));
-    modified = CouponFixedCompoundingDefinition.from(CURRENCY, PAYMENT_DATE, ACCRUAL_START_DATES[0], ACCRUAL_END_DATES[NB_SUB_PERIOD - 1],
-        PAYMENT_ACCRUAL_FACTOR + 1, NOTIONAL, FIXED_RATE, ACCRUAL_START_DATES, ACCRUAL_END_DATES, PAYMENT_ACCRUAL_FACTORS);
+    modified = CouponFixedAccruedCompoundingDefinition.from(CURRENCY, PAYMENT_DATE, ACCRUAL_START_DATES[0],
+        ACCRUAL_END_DATES[NB_SUB_PERIOD - 1], PAYMENT_ACCRUAL_FACTOR + 1, NOTIONAL, FIXED_RATE);
     assertFalse("CouponIbor: equal-hash", COUPON.equals(modified));
-    modified = CouponFixedCompoundingDefinition.from(CURRENCY, PAYMENT_DATE, ACCRUAL_START_DATES[0], ACCRUAL_END_DATES[NB_SUB_PERIOD - 1],
-        PAYMENT_ACCRUAL_FACTOR, NOTIONAL + 1, FIXED_RATE, ACCRUAL_START_DATES, ACCRUAL_END_DATES, PAYMENT_ACCRUAL_FACTORS);
+    modified = CouponFixedAccruedCompoundingDefinition.from(CURRENCY, PAYMENT_DATE, ACCRUAL_START_DATES[0],
+        ACCRUAL_END_DATES[NB_SUB_PERIOD - 1], PAYMENT_ACCRUAL_FACTOR, NOTIONAL + 1, FIXED_RATE);
     assertFalse("CouponIbor: equal-hash", COUPON.equals(modified));
-    modified = CouponFixedCompoundingDefinition.from(CURRENCY, PAYMENT_DATE, ACCRUAL_START_DATES[0], ACCRUAL_END_DATES[NB_SUB_PERIOD - 1],
-        PAYMENT_ACCRUAL_FACTOR, NOTIONAL, FIXED_RATE + 1, ACCRUAL_START_DATES, ACCRUAL_END_DATES, PAYMENT_ACCRUAL_FACTORS);
+    modified = CouponFixedAccruedCompoundingDefinition.from(CURRENCY, PAYMENT_DATE, ACCRUAL_START_DATES[0],
+        ACCRUAL_END_DATES[NB_SUB_PERIOD - 1], PAYMENT_ACCRUAL_FACTOR, NOTIONAL, FIXED_RATE + 1);
     assertFalse("CouponIbor: equal-hash", COUPON.equals(modified));
   }
 

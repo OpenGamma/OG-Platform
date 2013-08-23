@@ -20,6 +20,8 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.FederalF
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.provider.FederalFundsFutureSecurityDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureSecurityDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedAccruedCompounding;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONCompounded;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
@@ -93,6 +95,26 @@ public final class ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator ext
   public MulticurveSensitivity visitSwap(final Swap<?, ?> swap, final MulticurveProviderInterface multicurves) {
     ArgumentChecker.notNull(multicurves, "multicurve");
     ArgumentChecker.notNull(swap, "Swap");
+    // if the swap is an On compounded (ie Brazilian like), the parspread formula is not the same.
+    if (swap.getSecondLeg().getNthPayment(0) instanceof CouponONCompounded && swap.getFirstLeg().getNthPayment(0) instanceof CouponFixedAccruedCompounding &&
+        swap.getFirstLeg().getNumberOfPayments() == 1) {
+      // Implementation note: check if the swap is a Brazilian swap.
+
+      final MulticurveSensitivity pvcsFirstLeg = swap.getFirstLeg().accept(PVCSMC, multicurves).getSensitivity(swap.getFirstLeg().getCurrency());
+      final MulticurveSensitivity pvcsSecondLeg = swap.getSecondLeg().accept(PVCSMC, multicurves).getSensitivity(swap.getSecondLeg().getCurrency());
+
+      final CouponFixedAccruedCompounding cpnFixed = (CouponFixedAccruedCompounding) swap.getFirstLeg().getNthPayment(0);
+      final double pvONCompoundedLeg = swap.getSecondLeg().accept(PVMC, multicurves).getAmount(swap.getSecondLeg().getCurrency());
+      final double discountFactor = multicurves.getDiscountFactor(swap.getFirstLeg().getCurrency(), cpnFixed.getPaymentTime());
+      final double paymentYearFraction = cpnFixed.getPaymentYearFraction();
+
+      final double notional = ((CouponONCompounded) swap.getSecondLeg().getNthPayment(0)).getNotional();
+      final double intermediateVariable = (1 / paymentYearFraction) * Math.pow(pvONCompoundedLeg / discountFactor / notional, 1 / paymentYearFraction - 1) / (discountFactor * notional);
+      final MulticurveSensitivity modifiedpvcsFirstLeg = pvcsFirstLeg.multipliedBy(pvONCompoundedLeg * intermediateVariable / discountFactor);
+      final MulticurveSensitivity modifiedpvcsSecondLeg = pvcsSecondLeg.multipliedBy(-intermediateVariable);
+
+      return modifiedpvcsFirstLeg.plus(modifiedpvcsSecondLeg);
+    }
     final Currency ccy1 = swap.getFirstLeg().getCurrency();
     final MultipleCurrencyMulticurveSensitivity pvcs = swap.accept(PVCSMC, multicurves);
     final MulticurveSensitivity pvcs1 = pvcs.converted(ccy1, multicurves.getFxRates()).getSensitivity(ccy1);

@@ -51,7 +51,7 @@ public class CouponONCompounded extends Coupon {
   private final String _forwardCurveName;
 
   /**
-   * Constructor of a generic coupon from details.
+   * Constructor of a generic coupon from details. Deprecated version using the funding curve name.
    * @param currency The payment currency.
    * @param paymentTime Time (in years) up to the payment.
    * @param fundingCurveName Name of the funding curve.
@@ -82,7 +82,7 @@ public class CouponONCompounded extends Coupon {
   }
 
   /**
-   * Constructor of a generic coupon from details.
+   * Constructor of a generic coupon from details. Same as the previous constructor but not using the funding curve name.
    * @param currency The payment currency.
    * @param paymentTime Time (in years) up to the payment.
    * @param paymentYearFraction The year fraction (or accrual factor) for the coupon payment.
@@ -98,7 +98,7 @@ public class CouponONCompounded extends Coupon {
       final double[] fixingPeriodStartTimes, final double[] fixingPeriodEndTimes, final double[] fixingPeriodAccrualFactors, final double[] fixingPeriodAccrualFactorsActAct,
       final double notionalAccrued) {
     super(currency, paymentTime, paymentYearFraction, notional);
-    ArgumentChecker.notNull(index, "Coupon OIS: index");
+    ArgumentChecker.notNull(index, "Coupon ON conpounded : index");
     _index = index;
     _fixingPeriodStartTimes = fixingPeriodStartTimes;
     _fixingPeriodEndTimes = fixingPeriodEndTimes;
@@ -198,6 +198,9 @@ public class CouponONCompounded extends Coupon {
     result = prime * result + Arrays.hashCode(_fixingPeriodStartTimes);
     result = prime * result + ((_forwardCurveName == null) ? 0 : _forwardCurveName.hashCode());
     result = prime * result + ((_index == null) ? 0 : _index.hashCode());
+    long temp;
+    temp = Double.doubleToLongBits(_notionalAccrued);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
     return result;
   }
 
@@ -237,6 +240,9 @@ public class CouponONCompounded extends Coupon {
         return false;
       }
     } else if (!_index.equals(other._index)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_notionalAccrued) != Double.doubleToLongBits(other._notionalAccrued)) {
       return false;
     }
     return true;

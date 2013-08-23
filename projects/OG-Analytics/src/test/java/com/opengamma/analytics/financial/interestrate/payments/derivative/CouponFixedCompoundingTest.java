@@ -21,7 +21,7 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.time.DateUtils;
 
 /**
- * Test of fixed coupon class.
+ * Test of fixed compounding coupon class.
  */
 public class CouponFixedCompoundingTest {
 

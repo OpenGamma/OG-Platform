@@ -11,7 +11,6 @@ import java.util.List;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedAccruedCompoundingDefinition;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -176,25 +175,6 @@ public class AnnuityCouponFixedAccruedCompoundingDefinition extends AnnuityDefin
   }
 
   /**
-   * Annuity builder from a swap generator (only the fixed leg part is used).
-   * @param settlementDate The settlement date.
-   * @param tenor The annuity tenor.
-   * @param generator The swap generator.
-   * @param notional The annuity notional.
-   * @param fixedRate The annuity fixed rate.
-   * @param isPayer The payer flag.
-   * @return The annuity.
-   */
-  public static AnnuityCouponFixedAccruedCompoundingDefinition from(final ZonedDateTime settlementDate, final Period tenor, final GeneratorSwapFixedIbor generator, final double notional,
-      final double fixedRate,
-      final boolean isPayer) {
-    ArgumentChecker.notNull(generator, "Swap generator");
-    return AnnuityCouponFixedAccruedCompoundingDefinition.from(generator.getCurrency(), settlementDate, tenor, generator.getFixedLegPeriod(), generator.getCalendar(), generator.getFixedLegDayCount(),
-        generator
-            .getIborIndex().getBusinessDayConvention(), generator.getIborIndex().isEndOfMonth(), notional, fixedRate, isPayer);
-  }
-
-  /**
    * Annuity builder from the conventions and common characteristics. The accrual dates are unadjusted. Often used for bonds.
    * @param currency The annuity currency.
    * @param settlementDate The settlement date.
@@ -212,9 +192,8 @@ public class AnnuityCouponFixedAccruedCompoundingDefinition extends AnnuityDefin
    * @return The fixed annuity.
    */
   public static AnnuityCouponFixedAccruedCompoundingDefinition fromAccrualUnadjusted(final Currency currency, final ZonedDateTime settlementDate, final ZonedDateTime maturityDate,
-      final Period period,
-      final boolean stubShort, final boolean fromEnd, final Calendar calendar, final DayCount dayCount, final BusinessDayConvention businessDay, final boolean isEOM, final double notional,
-      final double fixedRate, final boolean isPayer) {
+      final Period period, final boolean stubShort, final boolean fromEnd, final Calendar calendar, final DayCount dayCount, final BusinessDayConvention businessDay, final boolean isEOM,
+      final double notional, final double fixedRate, final boolean isPayer) {
     ArgumentChecker.notNull(currency, "currency");
     ArgumentChecker.notNull(settlementDate, "settlement date");
     ArgumentChecker.notNull(maturityDate, "maturity date");
@@ -257,9 +236,8 @@ public class AnnuityCouponFixedAccruedCompoundingDefinition extends AnnuityDefin
    * @return The fixed annuity.
    */
   public static AnnuityCouponFixedAccruedCompoundingDefinition fromAccrualUnadjusted(final Currency currency, final ZonedDateTime settlementDate, final ZonedDateTime maturityDate,
-      final Period period,
-      final int nbPaymentPerYear, final boolean stubShort, final boolean fromEnd, final Calendar calendar, final DayCount dayCount, final BusinessDayConvention businessDay, final boolean isEOM,
-      final double notional, final double fixedRate, final boolean isPayer) {
+      final Period period, final int nbPaymentPerYear, final boolean stubShort, final boolean fromEnd, final Calendar calendar, final DayCount dayCount, final BusinessDayConvention businessDay,
+      final boolean isEOM, final double notional, final double fixedRate, final boolean isPayer) {
     ArgumentChecker.notNull(currency, "currency");
     ArgumentChecker.notNull(settlementDate, "settlement date");
     ArgumentChecker.notNull(maturityDate, "maturity date");
