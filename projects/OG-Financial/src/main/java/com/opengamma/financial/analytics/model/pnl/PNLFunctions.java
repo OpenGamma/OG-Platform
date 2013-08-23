@@ -116,7 +116,7 @@ public class PNLFunctions extends AbstractFunctionConfigurationBean {
       functions.add(functionConfiguration(SimpleFuturePnLFunction.class, getHtsResolutionKey()));
       functions.add(functionConfiguration(SimpleFXFuturePnLFunction.class, getHtsResolutionKey()));
       functions.add(functionConfiguration(ValueGreekSensitivityPnLFunction.class, getHtsResolutionKey()));
-      functions.add(functionConfiguration(MarkToMarketPnLFunction.class, getHtsResolutionKey(), getValueFieldName(), getCostOfCarryField()));
+      functions.add(functionConfiguration(MarkToMarketPnLFunction.class, getValueFieldName(), getCostOfCarryField()));
       functions.add(functionConfiguration(HistoricalValuationPnLFunction.class));
       functions.add(functionConfiguration(VolatilityWeightedHistoricalValuationPnLFunction.class));
     }
