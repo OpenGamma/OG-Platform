@@ -60,14 +60,11 @@ public class MasterSnapshotWriter implements SnapshotWriter {
 
   /**
    * Create a master snapshot writer
-   * @param snapshotName             The name of the snapshot to create/write to
-   * @param snapshotMaster           The snapshot master to which to write the snapshot
+   * @param snapshotMaster The snapshot master to which to write the snapshot
    */
 
-  public MasterSnapshotWriter(String snapshotName, MarketDataSnapshotMaster snapshotMaster) {
+  public MasterSnapshotWriter(MarketDataSnapshotMaster snapshotMaster) {
     _snapshotMaster = snapshotMaster;
-
-
   }
 
 
