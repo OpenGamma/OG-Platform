@@ -62,9 +62,17 @@ public class LiveDataMetaData extends DirectBean {
   private URI _jmsBrokerUri;
   /**
    * The name of the subscription topic, null if not used.
+   * 
+   * @deprecated replaced by jmsSubscriptionQueue, kept in place until clients have been migrated
    */
   @PropertyDefinition
+  @Deprecated
   private String _jmsSubscriptionTopic;
+  /**
+   * The name of the subscription queue, null if not used.
+   */
+  @PropertyDefinition
+  private String _jmsSubscriptionQueue;
   /**
    * The name of the entitlement topic, null if not used.
    */
@@ -129,6 +137,8 @@ public class LiveDataMetaData extends DirectBean {
         return getJmsBrokerUri();
       case -102439838:  // jmsSubscriptionTopic
         return getJmsSubscriptionTopic();
+      case -105041852:  // jmsSubscriptionQueue
+        return getJmsSubscriptionQueue();
       case -59808846:  // jmsEntitlementTopic
         return getJmsEntitlementTopic();
       case -326199997:  // jmsHeartbeatTopic
@@ -158,6 +168,9 @@ public class LiveDataMetaData extends DirectBean {
         return;
       case -102439838:  // jmsSubscriptionTopic
         setJmsSubscriptionTopic((String) newValue);
+        return;
+      case -105041852:  // jmsSubscriptionQueue
+        setJmsSubscriptionQueue((String) newValue);
         return;
       case -59808846:  // jmsEntitlementTopic
         setJmsEntitlementTopic((String) newValue);
@@ -189,6 +202,7 @@ public class LiveDataMetaData extends DirectBean {
           JodaBeanUtils.equal(getConnectionUri(), other.getConnectionUri()) &&
           JodaBeanUtils.equal(getJmsBrokerUri(), other.getJmsBrokerUri()) &&
           JodaBeanUtils.equal(getJmsSubscriptionTopic(), other.getJmsSubscriptionTopic()) &&
+          JodaBeanUtils.equal(getJmsSubscriptionQueue(), other.getJmsSubscriptionQueue()) &&
           JodaBeanUtils.equal(getJmsEntitlementTopic(), other.getJmsEntitlementTopic()) &&
           JodaBeanUtils.equal(getJmsHeartbeatTopic(), other.getJmsHeartbeatTopic());
     }
@@ -204,6 +218,7 @@ public class LiveDataMetaData extends DirectBean {
     hash += hash * 31 + JodaBeanUtils.hashCode(getConnectionUri());
     hash += hash * 31 + JodaBeanUtils.hashCode(getJmsBrokerUri());
     hash += hash * 31 + JodaBeanUtils.hashCode(getJmsSubscriptionTopic());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsSubscriptionQueue());
     hash += hash * 31 + JodaBeanUtils.hashCode(getJmsEntitlementTopic());
     hash += hash * 31 + JodaBeanUtils.hashCode(getJmsHeartbeatTopic());
     return hash;
@@ -343,26 +358,60 @@ public class LiveDataMetaData extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the name of the subscription topic, null if not used.
+   * 
+   * @deprecated replaced by jmsSubscriptionQueue, kept in place until clients have been migrated
    * @return the value of the property
    */
+  @Deprecated
   public String getJmsSubscriptionTopic() {
     return _jmsSubscriptionTopic;
   }
 
   /**
    * Sets the name of the subscription topic, null if not used.
+   * 
+   * @deprecated replaced by jmsSubscriptionQueue, kept in place until clients have been migrated
    * @param jmsSubscriptionTopic  the new value of the property
    */
+  @Deprecated
   public void setJmsSubscriptionTopic(String jmsSubscriptionTopic) {
     this._jmsSubscriptionTopic = jmsSubscriptionTopic;
   }
 
   /**
    * Gets the the {@code jmsSubscriptionTopic} property.
+   * 
+   * @deprecated replaced by jmsSubscriptionQueue, kept in place until clients have been migrated
    * @return the property, not null
    */
+  @Deprecated
   public final Property<String> jmsSubscriptionTopic() {
     return metaBean().jmsSubscriptionTopic().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the name of the subscription queue, null if not used.
+   * @return the value of the property
+   */
+  public String getJmsSubscriptionQueue() {
+    return _jmsSubscriptionQueue;
+  }
+
+  /**
+   * Sets the name of the subscription queue, null if not used.
+   * @param jmsSubscriptionQueue  the new value of the property
+   */
+  public void setJmsSubscriptionQueue(String jmsSubscriptionQueue) {
+    this._jmsSubscriptionQueue = jmsSubscriptionQueue;
+  }
+
+  /**
+   * Gets the the {@code jmsSubscriptionQueue} property.
+   * @return the property, not null
+   */
+  public final Property<String> jmsSubscriptionQueue() {
+    return metaBean().jmsSubscriptionQueue().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -457,6 +506,11 @@ public class LiveDataMetaData extends DirectBean {
     private final MetaProperty<String> _jmsSubscriptionTopic = DirectMetaProperty.ofReadWrite(
         this, "jmsSubscriptionTopic", LiveDataMetaData.class, String.class);
     /**
+     * The meta-property for the {@code jmsSubscriptionQueue} property.
+     */
+    private final MetaProperty<String> _jmsSubscriptionQueue = DirectMetaProperty.ofReadWrite(
+        this, "jmsSubscriptionQueue", LiveDataMetaData.class, String.class);
+    /**
      * The meta-property for the {@code jmsEntitlementTopic} property.
      */
     private final MetaProperty<String> _jmsEntitlementTopic = DirectMetaProperty.ofReadWrite(
@@ -477,6 +531,7 @@ public class LiveDataMetaData extends DirectBean {
         "connectionUri",
         "jmsBrokerUri",
         "jmsSubscriptionTopic",
+        "jmsSubscriptionQueue",
         "jmsEntitlementTopic",
         "jmsHeartbeatTopic");
 
@@ -501,6 +556,8 @@ public class LiveDataMetaData extends DirectBean {
           return _jmsBrokerUri;
         case -102439838:  // jmsSubscriptionTopic
           return _jmsSubscriptionTopic;
+        case -105041852:  // jmsSubscriptionQueue
+          return _jmsSubscriptionQueue;
         case -59808846:  // jmsEntitlementTopic
           return _jmsEntitlementTopic;
         case -326199997:  // jmsHeartbeatTopic
@@ -569,8 +626,17 @@ public class LiveDataMetaData extends DirectBean {
      * The meta-property for the {@code jmsSubscriptionTopic} property.
      * @return the meta-property, not null
      */
+    @Deprecated
     public final MetaProperty<String> jmsSubscriptionTopic() {
       return _jmsSubscriptionTopic;
+    }
+
+    /**
+     * The meta-property for the {@code jmsSubscriptionQueue} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> jmsSubscriptionQueue() {
+      return _jmsSubscriptionQueue;
     }
 
     /**

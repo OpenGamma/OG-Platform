@@ -67,9 +67,10 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
   /**
    * The name of the subscription topic, null if not used.
    *
-   * @deprecated replaced by _jmsSubscriptionQueue, kept in place until clients have been migrated
+   * @deprecated replaced by jmsSubscriptionQueue, kept in place until clients have been migrated
    */
   @PropertyDefinition
+  @Deprecated
   private String _jmsSubscriptionTopic;
   /**
    * The name of the entitlement topic, null if not used.
@@ -204,10 +205,12 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
    * @param repo the repository, not null
    * @param server the server being produced, not null
    */
+  @SuppressWarnings("deprecation")
   protected void publishRest(ComponentRepository repo, StandardLiveDataServer server) {
     final LiveDataMetaData metaData = createMetaData(repo);
     metaData.setJmsBrokerUri(getJmsConnector().getClientBrokerUri());
     metaData.setJmsSubscriptionTopic(getJmsSubscriptionTopic());
+    metaData.setJmsSubscriptionQueue(getJmsSubscriptionQueue());
     metaData.setJmsEntitlementTopic(getJmsEntitlementTopic());
     metaData.setJmsHeartbeatTopic(getJmsHeartbeatTopic());
     final LiveDataMetaDataProvider provider = new SimpleLiveDataMetaDataProvider(metaData);
@@ -463,6 +466,7 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
    * @deprecated replaced by _jmsSubscriptionQueue, kept in place until clients have been migrated
    * @return the value of the property
    */
+  @Deprecated
   public String getJmsSubscriptionTopic() {
     return _jmsSubscriptionTopic;
   }
@@ -473,6 +477,7 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
    * @deprecated replaced by _jmsSubscriptionQueue, kept in place until clients have been migrated
    * @param jmsSubscriptionTopic  the new value of the property
    */
+  @Deprecated
   public void setJmsSubscriptionTopic(String jmsSubscriptionTopic) {
     this._jmsSubscriptionTopic = jmsSubscriptionTopic;
   }

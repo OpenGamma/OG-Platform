@@ -73,6 +73,7 @@ import com.opengamma.financial.analytics.curve.RateFutureNodeConverter;
 import com.opengamma.financial.analytics.curve.SwapNodeConverter;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeVisitor;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
+import com.opengamma.financial.analytics.ircurve.strips.DeliverableSwapFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.convention.Convention;
@@ -174,7 +175,11 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
             if (node.getCurveNode() instanceof RateFutureNode) {
               parameterGuessForCurves.add(1 - marketData);
             } else {
-              parameterGuessForCurves.add(marketData);
+              if (node.getCurveNode() instanceof DeliverableSwapFutureNode) {
+                parameterGuessForCurves.add(0.01d); // Implementation note: The relation between price, coupon and rate is complex. There is no good initial guess.
+              } else {
+                parameterGuessForCurves.add(marketData);
+              }
             }
             final InstrumentDefinition<?> definitionForNode = node.getCurveNode().accept(getCurveNodeConverter(conventionSource, holidaySource, regionSource, snapshot,
                 node.getIdentifier(), timeSeries, now));
