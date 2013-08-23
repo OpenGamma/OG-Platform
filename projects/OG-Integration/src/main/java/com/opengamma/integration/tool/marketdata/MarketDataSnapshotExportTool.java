@@ -5,23 +5,30 @@
  */
 package com.opengamma.integration.tool.marketdata;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.component.tool.AbstractComponentTool;
+import com.opengamma.component.tool.AbstractTool;
+import com.opengamma.core.marketdatasnapshot.CurveKey;
+import com.opengamma.core.marketdatasnapshot.CurveSnapshot;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
+import com.opengamma.core.marketdatasnapshot.UnstructuredMarketDataSnapshot;
+import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceKey;
+import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceSnapshot;
+import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
+import com.opengamma.core.marketdatasnapshot.YieldCurveSnapshot;
+import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.scripts.Scriptable;
 
 /** The entry point for running OpenGamma batches. */
 @Scriptable
-public class MarketDataSnapshotExportTool extends AbstractComponentTool {
+public class MarketDataSnapshotExportTool extends AbstractTool<ToolContext> {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(MarketDataSnapshotExportTool.class);
@@ -31,49 +38,44 @@ public class MarketDataSnapshotExportTool extends AbstractComponentTool {
   /** Snapshot uid option flag */
   private static final String SNAPSHOT_UID_OPTION = "uid";
 
-  private static final List<String> DEFAULT_PREFERRED_CLASSIFIERS = Arrays.asList("central",
-                                                                                  "main",
-                                                                                  "default",
-                                                                                  "shared",
-                                                                                  "combined");
-
   //-------------------------------------------------------------------------
 
   /**
    * Main method to run the tool. No arguments are needed.
    *
-   * @param args the arguments, unused
+   * @param args the arguments, no null
    */
   public static void main(final String[] args) { // CSIGNORE
-    final boolean success = new MarketDataSnapshotExportTool().initAndRun(args);
+    final boolean success = new MarketDataSnapshotExportTool().initAndRun(args, ToolContext.class);
     System.exit(success ? 0 : 1);
   }
 
   @Override
   protected void doRun() throws Exception {
-    final MarketDataSnapshotMaster marketDataSnapshotMaster = getRemoteComponentFactory().getMarketDataSnapshotMaster(
-        DEFAULT_PREFERRED_CLASSIFIERS);
+    final MarketDataSnapshotMaster marketDataSnapshotMaster = getToolContext().getMarketDataSnapshotMaster();
     if (marketDataSnapshotMaster == null) {
-      s_logger.warn("No market data snapshot masters found at {}", getRemoteComponentFactory().getBaseUri());
+      s_logger.warn("No market data snapshot masters found at {}", getToolContext());
       return;
     }
 
-    StructuredMarketDataSnapshot snapshot = marketDataSnapshotMaster.get(UniqueId.of("bla", "bla")).getSnapshot();
+    StructuredMarketDataSnapshot snapshot;
+    snapshot = marketDataSnapshotMaster.get(UniqueId.parse(getCommandLine().getOptionValue(SNAPSHOT_UID_OPTION))).getSnapshot();
 
-    snapshot.getBasisViewName();
-    snapshot.getCurves();
-    snapshot.getGlobalValues();
-    snapshot.getName();
-    snapshot.getVolatilitySurfaces();
-    snapshot.getYieldCurves();
+
+    String name= snapshot.getName();
+    String basisViewName  = snapshot.getBasisViewName();
+    UnstructuredMarketDataSnapshot globalValues = snapshot.getGlobalValues();;
+    Map<YieldCurveKey, YieldCurveSnapshot> yieldCurves = snapshot.getYieldCurves();;
+    Map<CurveKey, CurveSnapshot> curves = snapshot.getCurves();;
+    Map<VolatilitySurfaceKey, VolatilitySurfaceSnapshot> volatilitySurfaces = snapshot.getVolatilitySurfaces();;
 
 
   }
 
   //-------------------------------------------------------------------------
   @Override
-  protected Options createOptions() {
-    final Options options = super.createOptions();
+  protected Options createOptions(boolean mandatoryConfig) {
+    final Options options = super.createOptions(mandatoryConfig);
     options.addOption(createSnapshotUidOption());
     options.addOption(createFilenameOption());
     return options;
