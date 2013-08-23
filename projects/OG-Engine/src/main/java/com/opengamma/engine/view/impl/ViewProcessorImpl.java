@@ -170,6 +170,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   }
 
   @Override
+  @SuppressWarnings("deprecation")
   public NamedMarketDataSpecificationRepository getNamedMarketDataSpecificationRepository() {
     return _namedMarketDataSpecificationRepository;
   }
@@ -392,8 +393,8 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
           final MarketDataSpecification specification = specifications.get(i);
           if (specification instanceof LiveMarketDataSpecification) {
             final String dataSource = ((LiveMarketDataSpecification) specification).getDataSource();
-            if (dataSource != null) {
-              final MarketDataSpecification namedSpec = _namedMarketDataSpecificationRepository.getSpecification(dataSource);
+            if (dataSource != null && getNamedMarketDataSpecificationRepository() != null) {
+              final MarketDataSpecification namedSpec = getNamedMarketDataSpecificationRepository().getSpecification(dataSource);
               if (namedSpec != null && !namedSpec.equals(specification)) {
                 s_logger.info("Replacing live data {} with named spec {}", dataSource, namedSpec);
                 specifications.set(i, namedSpec);

@@ -80,7 +80,6 @@ public class AnalyticsViewManager {
     ArgumentChecker.notNull(viewProcessor, "viewProcessor");
     ArgumentChecker.notNull(aggregatedViewDefManager, "aggregatedViewDefManager");
     ArgumentChecker.notNull(targetResolver, "targetResolver");
-    ArgumentChecker.notNull(marketDataSpecificationRepository, "marketDataSpecificationRepository");
     ArgumentChecker.notNull(blotterColumnMapper, "blotterColumnMapper");
     ArgumentChecker.notNull(positionSource, "positionSource");
     ArgumentChecker.notNull(configSource, "configMaster");

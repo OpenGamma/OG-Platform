@@ -16,14 +16,14 @@ import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * REST endpoint returning a JSON array containing the names of available live data sources.
+ * REST endpoint returning a JSON array containing the names of available live market data specifications.
  */
 @Path("livedatasources")
-public class LiveDataSourcesResource {
+public class LiveMarketDataSpecificationNamesResource {
 
   private final NamedMarketDataSpecificationRepository _marketDataSpecRepo;
 
-  public LiveDataSourcesResource(NamedMarketDataSpecificationRepository marketDataSpecRepo) {
+  public LiveMarketDataSpecificationNamesResource(NamedMarketDataSpecificationRepository marketDataSpecRepo) {
     ArgumentChecker.notNull(marketDataSpecRepo, "marketDataSpecRepo");
     _marketDataSpecRepo = marketDataSpecRepo;
   }
@@ -36,4 +36,5 @@ public class LiveDataSourcesResource {
   public String getLiveDataSourceNames() {
     return new JSONArray(_marketDataSpecRepo.getNames()).toString();
   }
+  
 }

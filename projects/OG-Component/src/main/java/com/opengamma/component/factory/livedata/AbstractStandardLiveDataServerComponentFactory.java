@@ -463,7 +463,7 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
   /**
    * Gets the name of the subscription topic, null if not used.
    * 
-   * @deprecated replaced by _jmsSubscriptionQueue, kept in place until clients have been migrated
+   * @deprecated replaced by jmsSubscriptionQueue, kept in place until clients have been migrated
    * @return the value of the property
    */
   @Deprecated
@@ -474,7 +474,7 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
   /**
    * Sets the name of the subscription topic, null if not used.
    * 
-   * @deprecated replaced by _jmsSubscriptionQueue, kept in place until clients have been migrated
+   * @deprecated replaced by jmsSubscriptionQueue, kept in place until clients have been migrated
    * @param jmsSubscriptionTopic  the new value of the property
    */
   @Deprecated
@@ -485,9 +485,10 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
   /**
    * Gets the the {@code jmsSubscriptionTopic} property.
    * 
-   * @deprecated replaced by _jmsSubscriptionQueue, kept in place until clients have been migrated
+   * @deprecated replaced by jmsSubscriptionQueue, kept in place until clients have been migrated
    * @return the property, not null
    */
+  @Deprecated
   public final Property<String> jmsSubscriptionTopic() {
     return metaBean().jmsSubscriptionTopic().createProperty(this);
   }
@@ -796,6 +797,7 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
      * The meta-property for the {@code jmsSubscriptionTopic} property.
      * @return the meta-property, not null
      */
+    @Deprecated
     public final MetaProperty<String> jmsSubscriptionTopic() {
       return _jmsSubscriptionTopic;
     }

@@ -17,7 +17,10 @@ import com.opengamma.util.tuple.Pair;
 
 /**
  * A repository of fixed, existing market data providers for given specifications.
+ * 
+ * @deprecated  This is only required for the legacy analytics UI.
  */
+@Deprecated
 public class InMemoryNamedMarketDataSpecificationRepository implements NamedMarketDataSpecificationRepository {
   
   private final Map<String, MarketDataSpecification> _nameToSpec = new LinkedHashMap<String, MarketDataSpecification>();

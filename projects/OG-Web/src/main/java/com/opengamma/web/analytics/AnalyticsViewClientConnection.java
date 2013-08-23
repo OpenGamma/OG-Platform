@@ -126,6 +126,9 @@ import com.opengamma.util.ArgumentChecker;
    * @return The specs needed to look up the sources the user requested
    */
   private List<MarketDataSpecification> fixMarketDataSpecs(List<MarketDataSpecification> requestedMarketDataSpecs) {
+    if (_marketDataSpecRepo == null) {
+      return requestedMarketDataSpecs;
+    }
     List<MarketDataSpecification> specs = Lists.newArrayListWithCapacity(requestedMarketDataSpecs.size());
     for (MarketDataSpecification spec : requestedMarketDataSpecs) {
       if (spec instanceof LiveMarketDataSpecification) {
