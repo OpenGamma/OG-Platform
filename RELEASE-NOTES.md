@@ -22,4 +22,5 @@ v2.1.0-M1p03
 
 v2.1.0-M1p04
 ------------
+- PLAT-4165 - Fix PositionGreekContractMultiplier to use unit amount from security
 - PLAT-4373 - Fix for FX forward maturity being computed without spot date and holiday adjustments
