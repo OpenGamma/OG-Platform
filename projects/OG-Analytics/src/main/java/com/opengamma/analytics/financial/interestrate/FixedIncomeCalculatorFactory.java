@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -9,8 +9,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 
+ * @deprecated The that are used by this factory are deprecated.
  */
+@Deprecated
 public final class FixedIncomeCalculatorFactory {
   /** Present value */
   public static final String PRESENT_VALUE = "PresentValue";
@@ -41,8 +42,8 @@ public final class FixedIncomeCalculatorFactory {
   /** Par rate parallel sensitivity calculator*/
   public static final ParRateParallelSensitivityCalculator PAR_RATE_PARALLEL_SENSITIVITY_CALCULATOR = ParRateParallelSensitivityCalculator.getInstance();
 
-  private static final Map<String, InstrumentDerivativeVisitor<?, ?>> s_instances = new HashMap<String, InstrumentDerivativeVisitor<?, ?>>();
-  private static final Map<Class<?>, String> s_instanceNames = new HashMap<Class<?>, String>();
+  private static final Map<String, InstrumentDerivativeVisitor<?, ?>> s_instances = new HashMap<>();
+  private static final Map<Class<?>, String> s_instanceNames = new HashMap<>();
 
   static {
     s_instances.put(PAR_RATE, PAR_RATE_CALCULATOR);

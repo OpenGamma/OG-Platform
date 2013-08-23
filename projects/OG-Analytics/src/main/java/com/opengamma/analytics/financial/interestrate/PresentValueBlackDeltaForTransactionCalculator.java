@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -15,7 +15,9 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * InstrumentDerivativeVisitor that calculates {@link ValueRequirementNames#POSITION_DELTA}, the delta of a Transaction, Trade or Position.<p>
  * See also {@link PresentValueBlackDeltaForSecurityCalculator}
+ * @deprecated {@link YieldCurveBundle} is deprecated
  */
+@Deprecated
 public class PresentValueBlackDeltaForTransactionCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> {
   private static final PresentValueBlackDeltaForTransactionCalculator INSTANCE = new PresentValueBlackDeltaForTransactionCalculator();
   private static final BondFutureOptionPremiumTransactionBlackSurfaceMethod PREMIUM_BOND_FUTURE_OPTION = BondFutureOptionPremiumTransactionBlackSurfaceMethod.getInstance();
@@ -31,7 +33,7 @@ public class PresentValueBlackDeltaForTransactionCalculator extends InstrumentDe
     ArgumentChecker.isTrue(curves instanceof YieldCurveWithBlackCubeBundle, "Yield curve bundle should contain Black cube");
     return PREMIUM_BOND_FUTURE_OPTION.presentValueDelta(transaction, (YieldCurveWithBlackCubeBundle) curves);
   }
-  
+
   @Override
   public Double visitInterestRateFutureOptionMarginTransaction(final InterestRateFutureOptionMarginTransaction transaction, final YieldCurveBundle curves) {
     ArgumentChecker.notNull(transaction, "transaction");
@@ -39,5 +41,5 @@ public class PresentValueBlackDeltaForTransactionCalculator extends InstrumentDe
     ArgumentChecker.isTrue(curves instanceof YieldCurveWithBlackCubeBundle, "Yield curve bundle should contain Black cube");
     return IR_FUTURE_OPTION.deltaWrtFuturesPrice(transaction, (YieldCurveWithBlackCubeBundle) curves);
   }
-  
+
 }

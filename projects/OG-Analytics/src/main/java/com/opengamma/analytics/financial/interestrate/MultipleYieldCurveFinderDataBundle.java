@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -19,8 +19,9 @@ import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * @deprecated {@link YieldCurveBundle} is deprecated
  */
+@Deprecated
 public class MultipleYieldCurveFinderDataBundle {
 
   private final List<InstrumentDerivative> _derivatives;
@@ -89,7 +90,7 @@ public class MultipleYieldCurveFinderDataBundle {
     }
     final Iterator<Entry<String, double[]>> nodePointsIterator = unknownCurveNodePoints.entrySet().iterator();
     final Iterator<Entry<String, Interpolator1D>> unknownCurvesIterator = unknownCurveInterpolators.entrySet().iterator();
-    _names = new ArrayList<String>();
+    _names = new ArrayList<>();
     while (nodePointsIterator.hasNext()) {
       final Entry<String, double[]> entry1 = nodePointsIterator.next();
       final Entry<String, Interpolator1D> entry2 = unknownCurvesIterator.next();
@@ -153,14 +154,18 @@ public class MultipleYieldCurveFinderDataBundle {
     }
     // Argument checker: end
     int nbNodes = 0;
-    for (final String name : knownCurves.getAllNames()) {
-      nbNodes += knownCurves.getCurve(name).getNumberOfParameters();
+    if (knownCurves != null) {
+      for (final String name : knownCurves.getAllNames()) {
+        nbNodes += knownCurves.getCurve(name).getNumberOfParameters();
+      }
     }
     for (final double[] nodes : unknownCurveNodePoints.values()) { // Nodes from new curves
       nbNodes += nodes.length;
     }
-    final List<String> names = new ArrayList<String>();
-    names.addAll(knownCurves.getAllNames()); // Names from existing curves
+    final List<String> names = new ArrayList<>();
+    if (knownCurves != null) {
+      names.addAll(knownCurves.getAllNames()); // Names from existing curves
+    }
     final Iterator<Entry<String, double[]>> nodePointsIterator = unknownCurveNodePoints.entrySet().iterator();
     final Iterator<Entry<String, Interpolator1D>> unknownCurvesIterator = unknownCurveInterpolators.entrySet().iterator();
     while (nodePointsIterator.hasNext()) { // Names from new curves

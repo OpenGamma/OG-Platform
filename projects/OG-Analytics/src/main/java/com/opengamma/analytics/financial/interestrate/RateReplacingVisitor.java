@@ -15,23 +15,21 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 
 /**
- * @deprecated This calculator uses {@link InstrumentDerivatives} that refer to curve names.
- * Use {@link RateReplacingVisitor}.
+ * Replaces fixed rates in {@link InstrumentDerivatives}.
  */
-@Deprecated
-public final class RateReplacingInterestRateDerivativeVisitor extends InstrumentDerivativeVisitorAdapter<Double, InstrumentDerivative> {
-  private static final RateReplacingInterestRateDerivativeVisitor INSTANCE = new RateReplacingInterestRateDerivativeVisitor();
+public final class RateReplacingVisitor extends InstrumentDerivativeVisitorAdapter<Double, InstrumentDerivative> {
+  private static final RateReplacingVisitor INSTANCE = new RateReplacingVisitor();
 
-  public static RateReplacingInterestRateDerivativeVisitor getInstance() {
+  public static RateReplacingVisitor getInstance() {
     return INSTANCE;
   }
 
-  private RateReplacingInterestRateDerivativeVisitor() {
+  private RateReplacingVisitor() {
   }
 
   @Override
   public Cash visitCash(final Cash cash, final Double rate) {
-    return new Cash(cash.getCurrency(), cash.getStartTime(), cash.getEndTime(), cash.getNotional(), rate, cash.getAccrualFactor(), cash.getYieldCurveName());
+    return new Cash(cash.getCurrency(), cash.getStartTime(), cash.getEndTime(), cash.getNotional(), rate, cash.getAccrualFactor());
   }
 
   @Override
@@ -47,14 +45,14 @@ public final class RateReplacingInterestRateDerivativeVisitor extends Instrument
 
   @Override
   public CouponFixed visitCouponFixed(final CouponFixed payment, final Double rate) {
-    return new CouponFixed(payment.getCurrency(), payment.getPaymentTime(), payment.getFundingCurveName(), payment.getPaymentYearFraction(), payment.getNotional(), rate,
+    return new CouponFixed(payment.getCurrency(), payment.getPaymentTime(), payment.getPaymentYearFraction(), payment.getNotional(), rate,
         payment.getAccrualStartDate(), payment.getAccrualEndDate());
   }
 
   @Override
   public ForwardRateAgreement visitForwardRateAgreement(final ForwardRateAgreement fra, final Double rate) {
-    return new ForwardRateAgreement(fra.getCurrency(), fra.getPaymentTime(), fra.getFundingCurveName(), fra.getPaymentYearFraction(), fra.getNotional(), fra.getIndex(), fra.getFixingTime(),
-        fra.getFixingPeriodStartTime(), fra.getFixingPeriodEndTime(), fra.getFixingYearFraction(), rate, fra.getForwardCurveName());
+    return new ForwardRateAgreement(fra.getCurrency(), fra.getPaymentTime(), fra.getPaymentYearFraction(), fra.getNotional(), fra.getIndex(), fra.getFixingTime(),
+        fra.getFixingPeriodStartTime(), fra.getFixingPeriodEndTime(), fra.getFixingYearFraction(), rate);
   }
 
   @Override
@@ -65,8 +63,7 @@ public final class RateReplacingInterestRateDerivativeVisitor extends Instrument
   @Override
   public InterestRateFutureTransaction visitInterestRateFutureTransaction(final InterestRateFutureTransaction security, final Double rate) {
     return new InterestRateFutureTransaction(security.getLastTradingTime(), security.getIborIndex(), security.getFixingPeriodStartTime(), security.getFixingPeriodEndTime(),
-        security.getFixingPeriodAccrualFactor(), 1 - rate, security.getNotional(), security.getPaymentAccrualFactor(), security.getQuantity(), security.getName(), security.getDiscountingCurveName(),
-        security.getForwardCurveName());
+        security.getFixingPeriodAccrualFactor(), 1 - rate, security.getNotional(), security.getPaymentAccrualFactor(), security.getQuantity(), security.getName());
   }
 
   @Override
@@ -76,6 +73,6 @@ public final class RateReplacingInterestRateDerivativeVisitor extends Instrument
     final AnnuityCouponFixed originalCoupons = (AnnuityCouponFixed) bond.getCoupon();
     final AnnuityCouponFixed coupons = visitFixedCouponAnnuity(originalCoupons, rate);
     return new BondFixedSecurity((AnnuityPaymentFixed) bond.getNominal(), coupons, bond.getSettlementTime(), accruedInterest, bond.getAccrualFactorToNextCoupon(), bond.getYieldConvention(),
-        bond.getCouponPerYear(), bond.getRepoCurveName(), bond.getIssuer());
+        bond.getCouponPerYear(), bond.getIssuer());
   }
 }

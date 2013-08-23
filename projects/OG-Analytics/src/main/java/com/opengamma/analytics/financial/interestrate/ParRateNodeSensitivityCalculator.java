@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -15,8 +15,9 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * 
+ * @deprecated {@link YieldCurveBundle} is deprecated
  */
+@Deprecated
 public class ParRateNodeSensitivityCalculator extends NodeYieldSensitivityCalculator {
 
   private static final ParRateNodeSensitivityCalculator DEFAULT_INSTANCE = new ParRateNodeSensitivityCalculator();

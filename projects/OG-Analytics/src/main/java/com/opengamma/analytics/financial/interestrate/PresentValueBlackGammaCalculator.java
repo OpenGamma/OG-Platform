@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -19,7 +19,9 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Calculator of the value gamma, second order derivative of present value with respect to the futures rate,
  * for InterestRateFutureOptions in the Black world.
+ * @deprecated {@link YieldCurveBundle} is deprecated
  */
+@Deprecated
 public class PresentValueBlackGammaCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> {
 
   /**
@@ -55,7 +57,7 @@ public class PresentValueBlackGammaCalculator extends InstrumentDerivativeVisito
     ArgumentChecker.isTrue(curves instanceof YieldCurveWithBlackCubeBundle, "Yield curve bundle should contain Black cube");
     return MARGINED_IR_FUTURE_OPTION_TXN.presentValueGamma(transaction, (YieldCurveWithBlackCubeBundle) curves);
   }
-  
+
   @Override
   public Double visitInterestRateFutureOptionMarginSecurity(final InterestRateFutureOptionMarginSecurity security, final YieldCurveBundle curves) {
     ArgumentChecker.notNull(security, "security");
