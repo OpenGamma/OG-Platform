@@ -24,6 +24,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.jms.core.JmsTemplate;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -43,10 +44,15 @@ import com.opengamma.engine.marketdata.live.LiveMarketDataProviderFactory;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.livedata.LiveDataClient;
 import com.opengamma.livedata.client.DistributedLiveDataClient;
+import com.opengamma.livedata.client.JmsLiveDataClient;
 import com.opengamma.livedata.client.RemoteLiveDataClientFactoryBean;
 import com.opengamma.provider.livedata.LiveDataMetaData;
 import com.opengamma.provider.livedata.LiveDataMetaDataProvider;
 import com.opengamma.provider.livedata.LiveDataServerTypes;
+import com.opengamma.transport.ByteArrayFudgeRequestSender;
+import com.opengamma.transport.jms.JmsByteArrayMessageSender;
+import com.opengamma.transport.jms.JmsByteArrayRequestSender;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.jms.JmsConnector;
 import com.opengamma.util.jms.JmsConnectorFactoryBean;
 import com.opengamma.util.metric.OpenGammaMetricRegistry;
@@ -116,7 +122,7 @@ public class LiveMarketDataProviderFactoryComponentFactory extends AbstractCompo
     ComponentInfo info = new ComponentInfo(LiveMarketDataProviderFactory.class, getClassifier());
     repo.registerComponent(info, liveMarketDataProviderFactory);
     
-    // REVIEW jonathan 2013-08-23 -- Didn't want to break backwards should the repository take care of supertypes?
+    // REVIEW jonathan 2013-08-23 -- Didn't want to break backwards compatibility, but shouldn't the repository take care of supertypes?
     info = new ComponentInfo(MarketDataProviderFactory.class, getClassifier());
     repo.registerComponent(info, liveMarketDataProviderFactory);
 
@@ -143,16 +149,31 @@ public class LiveMarketDataProviderFactoryComponentFactory extends AbstractCompo
       jmsFactory.setClientBrokerUri(jmsUri);
       jmsConnector = jmsFactory.getObjectCreating();
     }
-
-    RemoteLiveDataClientFactoryBean ldcFb = new RemoteLiveDataClientFactoryBean();
-    ldcFb.setJmsConnector(jmsConnector);
-    // TODO [PLAT-4408] -- support for subscription queues
-    ldcFb.setSubscriptionTopic(metaData.getJmsSubscriptionTopic());
-    ldcFb.setEntitlementTopic(metaData.getJmsEntitlementTopic());
-    ldcFb.setHeartbeatTopic(metaData.getJmsHeartbeatTopic());
-    final DistributedLiveDataClient ldcDistributed = ldcFb.getObjectCreating();
-    ldcDistributed.registerMetrics(OpenGammaMetricRegistry.getSummaryInstance(), OpenGammaMetricRegistry.getDetailedInstance(), "LiveDataClient - " + provider.metaData().getDescription());
-    return ldcDistributed;
+    
+    JmsTemplate jmsTemplate = getJmsConnector().getJmsTemplateTopic();
+    
+    JmsByteArrayRequestSender jmsSubscriptionRequestSender;
+    if (metaData.getJmsSubscriptionQueue() != null) {
+      JmsTemplate subscriptionRequestTemplate = getJmsConnector().getJmsTemplateQueue();
+      jmsSubscriptionRequestSender = new JmsByteArrayRequestSender(metaData.getJmsSubscriptionQueue(), subscriptionRequestTemplate);
+    } else {
+      jmsSubscriptionRequestSender = new JmsByteArrayRequestSender(metaData.getJmsSubscriptionTopic(), jmsTemplate);
+    }
+    ByteArrayFudgeRequestSender fudgeSubscriptionRequestSender = new ByteArrayFudgeRequestSender(jmsSubscriptionRequestSender);
+    
+    JmsByteArrayRequestSender jmsEntitlementRequestSender = new JmsByteArrayRequestSender(metaData.getJmsEntitlementTopic(), jmsTemplate);
+    ByteArrayFudgeRequestSender fudgeEntitlementRequestSender = new ByteArrayFudgeRequestSender(jmsEntitlementRequestSender);
+    
+    final JmsLiveDataClient liveDataClient = new JmsLiveDataClient(fudgeSubscriptionRequestSender,
+        fudgeEntitlementRequestSender, getJmsConnector(), OpenGammaFudgeContext.getInstance(), JmsLiveDataClient.DEFAULT_NUM_SESSIONS);
+    liveDataClient.setFudgeContext(OpenGammaFudgeContext.getInstance());
+    if (metaData.getJmsHeartbeatTopic() != null) {
+      JmsByteArrayMessageSender jmsHeartbeatSender = new JmsByteArrayMessageSender(metaData.getJmsHeartbeatTopic(), jmsTemplate);
+      liveDataClient.setHeartbeatMessageSender(jmsHeartbeatSender);
+    }
+    liveDataClient.start();
+    liveDataClient.registerMetrics(OpenGammaMetricRegistry.getSummaryInstance(), OpenGammaMetricRegistry.getDetailedInstance(), "LiveDataClient - " + provider.metaData().getDescription());
+    return liveDataClient;
   }
   
   /**
