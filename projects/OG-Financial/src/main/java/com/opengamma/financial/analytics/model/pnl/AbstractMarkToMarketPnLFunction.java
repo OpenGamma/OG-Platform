@@ -144,11 +144,6 @@ public abstract class AbstractMarkToMarketPnLFunction extends AbstractFunction.N
         }
       }
       referencePrice = calculateReferencePrice(inputs, target);
-      if (security.getName().startsWith("Eurodollar") &&  security instanceof InterestRateFutureSecurity) {
-        referencePrice /= 100.0; // TODO CASE Remove when properly normalised [PLAT-4420]
-      }
-      
-      // TODO: Replace
     }
     // 3. Compute the PNL
     // Move in the marked prices: Live - Previous Close
