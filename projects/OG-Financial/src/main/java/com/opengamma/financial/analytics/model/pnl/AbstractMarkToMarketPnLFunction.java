@@ -38,6 +38,7 @@ import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunction
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
+import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
@@ -143,6 +144,11 @@ public abstract class AbstractMarkToMarketPnLFunction extends AbstractFunction.N
         }
       }
       referencePrice = calculateReferencePrice(inputs, target);
+      if (security.getName().startsWith("Eurodollar") &&  security instanceof InterestRateFutureSecurity) {
+        referencePrice /= 100.0; // TODO CASE Remove when properly normalised [PLAT-4420]
+      }
+      
+      // TODO: Replace
     }
     // 3. Compute the PNL
     // Move in the marked prices: Live - Previous Close
