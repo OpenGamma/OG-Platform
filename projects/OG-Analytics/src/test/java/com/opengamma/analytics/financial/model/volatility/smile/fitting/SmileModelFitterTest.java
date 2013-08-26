@@ -107,7 +107,7 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
   /**
    * Convert the fitted parameters to standard form - useful if there is degeneracy in the solution
    * @param from
-   * @return
+   * @return The matrix in standard form
    */
   protected DoubleMatrix1D toStandardForm(final DoubleMatrix1D from) {
     return from;
