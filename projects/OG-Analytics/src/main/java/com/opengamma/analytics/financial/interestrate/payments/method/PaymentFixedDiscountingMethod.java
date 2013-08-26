@@ -80,9 +80,9 @@ public final class PaymentFixedDiscountingMethod implements PricingMethod {
     final YieldAndDiscountCurve discountingCurve = curves.getCurve(curveName);
     final double time = pay.getPaymentTime();
     final DoublesPair s = new DoublesPair(time, -time * pay.getAmount() * discountingCurve.getDiscountFactor(time));
-    final List<DoublesPair> list = new ArrayList<DoublesPair>();
+    final List<DoublesPair> list = new ArrayList<>();
     list.add(s);
-    final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> result = new HashMap<>();
     result.put(curveName, list);
     return new InterestRateCurveSensitivity(result);
   }

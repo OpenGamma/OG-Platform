@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.irfutureoption;
@@ -32,7 +32,7 @@ public class MarginPriceFunctionDeprecated extends InterestRateFutureOptionBlack
 
   @Override
   protected Set<ComputedValue> getResult(final InstrumentDerivative irFutureOption, final YieldCurveWithBlackCubeBundle data, final ValueSpecification spec) {
-    final Double price = irFutureOption.accept(s_priceVisitor, data);
+    final Double price = irFutureOption.accept(s_priceVisitor);
     return Collections.singleton(new ComputedValue(spec, price));
   }
 

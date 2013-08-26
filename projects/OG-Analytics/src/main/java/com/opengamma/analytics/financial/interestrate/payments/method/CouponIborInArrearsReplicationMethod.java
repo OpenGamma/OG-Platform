@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.method;
@@ -16,10 +16,12 @@ import com.opengamma.analytics.financial.model.option.definition.SABRInterestRat
 import com.opengamma.util.money.CurrencyAmount;
 
 /**
- *  Class used to compute the price and sensitivity of a Ibor coupon in arrears. 
+ *  Class used to compute the price and sensitivity of a Ibor coupon in arrears.
  *  The coupon are supposed to be exactly in arrears. The payment date is ignored and the start fixing period date is used instead.
+ *  @deprecated Use {@link com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborInArrearsReplicationMethod}
  */
 //TODO: Add a reference to Libor-with-delay pricing method when available.
+@Deprecated
 public class CouponIborInArrearsReplicationMethod implements PricingMethod {
 
   /**
@@ -31,7 +33,7 @@ public class CouponIborInArrearsReplicationMethod implements PricingMethod {
    * Constructor of the in-arrears pricing method.
    * @param baseMethod The base method for the pricing of standard cap/floors.
    */
-  public CouponIborInArrearsReplicationMethod(PricingMethod baseMethod) {
+  public CouponIborInArrearsReplicationMethod(final PricingMethod baseMethod) {
     this._baseMethod = baseMethod;
   }
 
@@ -44,13 +46,13 @@ public class CouponIborInArrearsReplicationMethod implements PricingMethod {
   public CurrencyAmount presentValue(final CouponIbor coupon, final SABRInterestRateDataBundle sabrData) {
     Validate.notNull(coupon);
     Validate.notNull(sabrData);
-    CapFloorIbor cap0 = CapFloorIbor.from(coupon, 0.0, true);
-    CapFloorIborInArrearsGenericReplicationMethod method = new CapFloorIborInArrearsGenericReplicationMethod(_baseMethod);
+    final CapFloorIbor cap0 = CapFloorIbor.from(coupon, 0.0, true);
+    final CapFloorIborInArrearsGenericReplicationMethod method = new CapFloorIborInArrearsGenericReplicationMethod(_baseMethod);
     return method.presentValue(cap0, sabrData);
   }
 
   @Override
-  public CurrencyAmount presentValue(InstrumentDerivative instrument, YieldCurveBundle curves) {
+  public CurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof CouponIbor, "Coupon Ibor");
     Validate.isTrue(curves instanceof SABRInterestRateDataBundle, "SABR interest rate data bundle required");
     return presentValue((CouponIbor) instrument, (SABRInterestRateDataBundle) curves);

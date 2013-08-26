@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.sensitivity.multicurve;
@@ -42,10 +42,9 @@ public class MulticurveSensitivity {
   }
 
   /**
-   * Constructor from a yield discounting map, a forward map and a price index curve of sensitivity. The maps are used directly.
+   * Constructor from a yield discounting map and a forward map. The maps are used directly.
    * @param sensitivityYieldDiscounting The map.
    * @param sensitivityForward The map.
-   * @param sensitivityPriceCurve The map.
    */
   private MulticurveSensitivity(final Map<String, List<DoublesPair>> sensitivityYieldDiscounting, final Map<String, List<ForwardSensitivity>> sensitivityForward) {
     _sensitivityYieldDiscounting = sensitivityYieldDiscounting;

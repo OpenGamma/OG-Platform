@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.method;
@@ -22,7 +22,9 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Methods related to fixed accrued compounding coupons.
+ * @deprecated Use {@link com.opengamma.analytics.financial.interestrate.payments.provider.CouponFixedAccruedCompoundingDiscountingMethod}
  */
+@Deprecated
 public final class CouponFixedAccruedCompoundingDiscountingMethod {
 
   /**
@@ -81,9 +83,9 @@ public final class CouponFixedAccruedCompoundingDiscountingMethod {
     final YieldAndDiscountCurve discountingCurve = curves.getCurve(curveName);
     final double time = cpn.getPaymentTime();
     final DoublesPair s = new DoublesPair(time, -time * cpn.getAmount() * discountingCurve.getDiscountFactor(time));
-    final List<DoublesPair> list = new ArrayList<DoublesPair>();
+    final List<DoublesPair> list = new ArrayList<>();
     list.add(s);
-    final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> result = new HashMap<>();
     result.put(curveName, list);
     return new InterestRateCurveSensitivity(result);
   }

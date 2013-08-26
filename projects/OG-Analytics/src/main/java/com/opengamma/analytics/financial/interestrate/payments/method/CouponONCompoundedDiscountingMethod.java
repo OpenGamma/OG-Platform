@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.method;
@@ -22,8 +22,9 @@ import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * 
+ * @deprecated Use {@link com.opengamma.analytics.financial.interestrate.payments.provider.CouponONCompoundedDiscountingMethod}
  */
+@Deprecated
 public final class CouponONCompoundedDiscountingMethod implements PricingMethod {
 
   /**
@@ -77,7 +78,7 @@ public final class CouponONCompoundedDiscountingMethod implements PricingMethod 
   /**
    * Compute the present value sensitivity to rates of a OIS coupon by discounting.
    * @param coupon The coupon.
-   * @param curves The yield curves. Should contain the discounting and forward curves associated. 
+   * @param curves The yield curves. Should contain the discounting and forward curves associated.
    * @return The present value curve sensitivities.
    */
   public InterestRateCurveSensitivity presentValueCurveSensitivity(final CouponONCompounded coupon, final YieldCurveBundle curves) {
@@ -110,13 +111,13 @@ public final class CouponONCompoundedDiscountingMethod implements PricingMethod 
       discountFactorEndBar[i] = forwardBar[i] / (discountFactorStart[i] * coupon.getFixingPeriodAccrualFactorsActAct()[i]);
     }
     final double dfBar = coupon.getNotionalAccrued() * ratio * pvBar;
-    final Map<String, List<DoublesPair>> mapDsc = new HashMap<String, List<DoublesPair>>();
-    final List<DoublesPair> listDiscounting = new ArrayList<DoublesPair>();
+    final Map<String, List<DoublesPair>> mapDsc = new HashMap<>();
+    final List<DoublesPair> listDiscounting = new ArrayList<>();
     listDiscounting.add(new DoublesPair(coupon.getPaymentTime(), -coupon.getPaymentTime() * df * dfBar));
     mapDsc.put(coupon.getFundingCurveName(), listDiscounting);
     InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(mapDsc);
-    final Map<String, List<DoublesPair>> mapFwd = new HashMap<String, List<DoublesPair>>();
-    final List<DoublesPair> listForward = new ArrayList<DoublesPair>();
+    final Map<String, List<DoublesPair>> mapFwd = new HashMap<>();
+    final List<DoublesPair> listForward = new ArrayList<>();
     for (int i = 0; i < coupon.getFixingPeriodAccrualFactors().length; i++) {
       listForward.add(new DoublesPair(coupon.getFixingPeriodStartTimes()[i], -coupon.getFixingPeriodStartTimes()[i] * discountFactorStart[i] * discountFactorStartBar[i]));
       listForward.add(new DoublesPair(coupon.getFixingPeriodEndTimes()[i], -coupon.getFixingPeriodEndTimes()[i] * discountFactorEnd[i] * discountFactorEndBar[i]));

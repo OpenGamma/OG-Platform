@@ -36,11 +36,11 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
-import com.opengamma.analytics.financial.interestrate.payments.method.CouponIborAverageDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponArithmeticAverageONDiscountingApproxMethod;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponFixedAccruedCompoundingDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponFixedCompoundingDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponFixedDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborAverageDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborCompoundedDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborGearingDiscountingMethod;

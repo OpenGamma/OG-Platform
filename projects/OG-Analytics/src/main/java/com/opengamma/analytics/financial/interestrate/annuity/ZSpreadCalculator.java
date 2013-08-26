@@ -96,7 +96,7 @@ public final class ZSpreadCalculator {
       return temp;
     }
     final Map<String, List<DoublesPair>> result = new HashMap<>();
-    for (final Map.Entry<String, List<DoublesPair>> entry : result.entrySet()) {
+    for (final Map.Entry<String, List<DoublesPair>> entry : temp.entrySet()) {
       final List<DoublesPair> unadjusted = entry.getValue();
       final ArrayList<DoublesPair> adjusted = new ArrayList<>(unadjusted.size());
       for (final DoublesPair pair : unadjusted) {
@@ -115,8 +115,9 @@ public final class ZSpreadCalculator {
     final double dPricedZ = calculatePriceSensitivityToZSpread(annuity, curves, zSpread);
     ArgumentChecker.isTrue(Double.doubleToLongBits(dPricedZ) != 0, "Price Sensitivity To ZSpread is zero");
 
+    final Map<String, List<DoublesPair>> temp = annuity.accept(PV_SENSITIVITY_CALCULATOR, curves);
     final Map<String, List<DoublesPair>> result = new HashMap<>();
-    for (final Map.Entry<String, List<DoublesPair>> entry : result.entrySet()) {
+    for (final Map.Entry<String, List<DoublesPair>> entry : temp.entrySet()) {
       final List<DoublesPair> unadjusted = entry.getValue();
       final ArrayList<DoublesPair> adjusted = new ArrayList<>(unadjusted.size());
       for (final DoublesPair pair : unadjusted) {

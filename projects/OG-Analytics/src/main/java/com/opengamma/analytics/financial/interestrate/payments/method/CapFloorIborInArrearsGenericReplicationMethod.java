@@ -19,8 +19,9 @@ import com.opengamma.util.money.CurrencyAmount;
 /**
  *  Class used to compute the price and sensitivity of a Ibor cap/floor in arrears.
  *  The cap/floor are supposed to be exactly in arrears. The payment date is ignored and the start fixing period date is used instead.
+ *  @deprecated {@link PricingMethod} is deprecated
  */
-//TODO: Add a reference to Libor-with-delay pricing method when available.
+@Deprecated
 public class CapFloorIborInArrearsGenericReplicationMethod implements PricingMethod {
 
   /**
