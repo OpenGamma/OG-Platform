@@ -131,6 +131,21 @@ public class NonVersionedRedisHistoricalTimeSeriesSourceTest extends AbstractRed
     assertEquals(hts.getTimeSeries(), storedHts.getTimeSeries());
   }
   
+  @Test(enabled = false)
+  public void largePerformanceTestRead() {
+    NonVersionedRedisHistoricalTimeSeriesSource source = new NonVersionedRedisHistoricalTimeSeriesSource(getJedisPool(), getRedisPrefix());
+    HistoricalTimeSeries hts = createSampleHts();
+    source.setTimeSeries(hts.getUniqueId(), hts.getTimeSeries());
+    long start = System.nanoTime();
+    HistoricalTimeSeries storedHts = source.getHistoricalTimeSeries(hts.getUniqueId());
+    long end = System.nanoTime();
+    double durationInSec = ((double) (end - start)) / 1e9;
+    System.out.println("Reading " + hts.getTimeSeries().size() + " datapoints took " + durationInSec + " sec");
+    assertNotNull(storedHts);
+    assertEquals(hts.getUniqueId(), storedHts.getUniqueId());
+    assertEquals(hts.getTimeSeries(), storedHts.getTimeSeries());
+  }
+  
   private HistoricalTimeSeries createSampleHts() {
     UniqueId id = UniqueId.of("Test", UUID.randomUUID().toString());
     LocalDateDoubleTimeSeriesBuilder builder = ImmutableLocalDateDoubleTimeSeries.builder();
