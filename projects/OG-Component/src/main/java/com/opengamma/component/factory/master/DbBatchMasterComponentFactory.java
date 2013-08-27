@@ -49,7 +49,7 @@ public class DbBatchMasterComponentFactory extends AbstractDbMasterComponentFact
   @PropertyDefinition
   private String _uniqueIdScheme;
 
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private ComputationTargetResolver _computationTargetResolver;
 
   //-------------------------------------------------------------------------
