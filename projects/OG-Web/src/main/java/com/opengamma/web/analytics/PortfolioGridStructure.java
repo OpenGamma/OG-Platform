@@ -157,7 +157,7 @@ public class PortfolioGridStructure extends MainGridStructure {
   }
 
   /* package */ PortfolioGridStructure withNode(AnalyticsNode node) {
-    return new PortfolioGridStructure(_rows, buildFixedColumns(_rows), getColumnStructure(), node, getTargetLookup(), _valueMappings, _viewDef);
+    return new PortfolioGridStructure(_rows, getFixedColumns(), getNonFixedColumns(), node, getTargetLookup(), _valueMappings, _viewDef);
   }
 
   /* package */ static GridColumnGroup buildFixedColumns(List<PortfolioGridRow> rows) {
