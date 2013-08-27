@@ -18,6 +18,7 @@ import com.opengamma.core.marketdatasnapshot.YieldCurveSnapshot;
 public class FileSnapshotReader implements SnapshotReader{
 
   public FileSnapshotReader(String filename) {
+    //To change body of created methods use File | Settings | File Templates.
   }
 
   @Override
