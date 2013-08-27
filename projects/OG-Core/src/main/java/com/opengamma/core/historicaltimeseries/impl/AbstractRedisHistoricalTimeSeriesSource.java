@@ -164,10 +164,10 @@ public abstract class AbstractRedisHistoricalTimeSeriesSource implements Histori
         if (timesText == null || timesText.isEmpty() || valuesText == null || valuesText.isEmpty()) {
           return null;
         }
-        List<LocalDate> times = Lists.newArrayList();
-        List<Double> values = Lists.newArrayList();
+        List<LocalDate> times = Lists.newArrayListWithCapacity(timesText.size());
+        List<Double> values = Lists.newArrayListWithCapacity(valuesText.size());
         for (String date : timesText) {
-          times.add(LocalDate.parse(date));
+          times.add(LocalDateToIntConverter.convertToLocalDate(Integer.parseInt(date)));
         }
         for (String value : valuesText) {
           values.add(Double.parseDouble(value));

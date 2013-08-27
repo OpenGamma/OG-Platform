@@ -20,16 +20,15 @@ import redis.clients.jedis.JedisPool;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
-import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
-import com.opengamma.timeseries.date.localdate.LocalDateDoubleEntryIterator;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeriesBuilder;
+import com.opengamma.timeseries.date.localdate.LocalDateToIntConverter;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.metric.MetricProducer;
 import com.opengamma.util.tuple.Pair;
@@ -90,12 +89,12 @@ public class NonVersionedRedisHistoricalTimeSeriesSource extends AbstractRedisHi
       Jedis jedis = getJedisPool().getResource();
       try {
         String redisKey = toRedisKey(uniqueId);  
-        HistoricalTimeSeries historicalTimeSeries = getHistoricalTimeSeries(uniqueId);
+        HistoricalTimeSeries previousHts = getHistoricalTimeSeries(uniqueId);
         List<LocalDate> times = null;
         List<Double> values = null;
-        if (historicalTimeSeries != null) {
+        if (previousHts != null) {
           LocalDateDoubleTimeSeriesBuilder builder = ImmutableLocalDateDoubleTimeSeries.builder();
-          for (Entry<LocalDate, Double> entry : historicalTimeSeries.getTimeSeries()) {
+          for (Entry<LocalDate, Double> entry : previousHts.getTimeSeries()) {
             builder.put(entry.getKey(), entry.getValue());
           }
           for (Entry<LocalDate, Double> entry : timeseries) {
@@ -109,19 +108,8 @@ public class NonVersionedRedisHistoricalTimeSeriesSource extends AbstractRedisHi
           times = timeseries.times();
           values = timeseries.values();
         }
-        String[] timesArray = new String[times.size()];
-        int index = 0;
-        for (LocalDate date : times) {
-          timesArray[index++] = date.toString();
-        }
-        jedis.rpush(redisKey + "-TIMES", timesArray);
-        
-        String[] valuesArray = new String[values.size()];
-        index = 0;
-        for (Double value : values) {
-          valuesArray[index++] = Double.toString(value);
-        }
-        jedis.rpush(redisKey + "-VALUES", valuesArray);
+        jedis.rpush(redisKey + "-TIMES", convertTimes(times));
+        jedis.rpush(redisKey + "-VALUES", convertValues(values));
         
         getJedisPool().returnResource(jedis);
       } catch (Exception e) {
@@ -130,6 +118,24 @@ public class NonVersionedRedisHistoricalTimeSeriesSource extends AbstractRedisHi
         throw new OpenGammaRuntimeException("Unable to put timeseries with id: " + uniqueId, e);
       }
     }
+  }
+
+  private String[] convertValues(List<Double> values) {
+    String[] valuesArray = new String[values.size()];
+    int index = 0;
+    for (Double value : values) {
+      valuesArray[index++] = Double.toString(value);
+    }
+    return valuesArray;
+  }
+
+  private String[] convertTimes(List<LocalDate> times) {
+    String[] timesArray = new String[times.size()];
+    int index = 0;
+    for (LocalDate date : times) {
+      timesArray[index++] = Integer.toString(LocalDateToIntConverter.convertToInt(date));
+    }
+    return timesArray;
   }
 
   @Override
