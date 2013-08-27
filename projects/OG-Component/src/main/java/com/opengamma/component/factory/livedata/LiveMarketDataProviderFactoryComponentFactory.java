@@ -153,12 +153,14 @@ public class LiveMarketDataProviderFactoryComponentFactory extends AbstractCompo
     JmsTemplate jmsTemplate = getJmsConnector().getJmsTemplateTopic();
     
     JmsByteArrayRequestSender jmsSubscriptionRequestSender;
+    /*
     if (metaData.getJmsSubscriptionQueue() != null) {
       JmsTemplate subscriptionRequestTemplate = getJmsConnector().getJmsTemplateQueue();
       jmsSubscriptionRequestSender = new JmsByteArrayRequestSender(metaData.getJmsSubscriptionQueue(), subscriptionRequestTemplate);
     } else {
+    */
       jmsSubscriptionRequestSender = new JmsByteArrayRequestSender(metaData.getJmsSubscriptionTopic(), jmsTemplate);
-    }
+    //}
     ByteArrayFudgeRequestSender fudgeSubscriptionRequestSender = new ByteArrayFudgeRequestSender(jmsSubscriptionRequestSender);
     
     JmsByteArrayRequestSender jmsEntitlementRequestSender = new JmsByteArrayRequestSender(metaData.getJmsEntitlementTopic(), jmsTemplate);
