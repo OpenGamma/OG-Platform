@@ -153,31 +153,34 @@ public abstract class AbstractRedisHistoricalTimeSeriesSource implements Histori
   
   protected LocalDateDoubleTimeSeries loadTimeSeriesFromRedis(UniqueId uniqueId) {
     // This is the only method that needs implementation.
-    
+    s_logger.debug("Loading TimeSeriesFromRedis for id {}", uniqueId);
     try (Timer.Context context = getSeriesLoadTimer().time()) {
       String redisKey = toRedisKey(uniqueId);
       Jedis jedis = getJedisPool().getResource();
       LocalDateDoubleTimeSeries ts = null;
       try {
-        List<String> timesText = jedis.lrange(redisKey + "-TIMES", 0, -1);
-        List<String> valuesText = jedis.lrange(redisKey + "-VALUES", 0, -1);
-        if (timesText == null || timesText.isEmpty() || valuesText == null || valuesText.isEmpty()) {
-          return null;
+        List<String> htsDataPoints = jedis.lrange(redisKey, 0, -1);
+        s_logger.debug("{} datapoints returned from redis for id: {}", htsDataPoints.size(), redisKey);
+        if (!htsDataPoints.isEmpty()) {
+          List<LocalDate> times = Lists.newArrayListWithCapacity(htsDataPoints.size() / 2);
+          List<Double> values = Lists.newArrayListWithCapacity(htsDataPoints.size() / 2);
+          
+          int counter = 0;
+          for (String dataPoint : htsDataPoints) {
+            if ((counter % 2) == 0) {
+              times.add(LocalDateToIntConverter.convertToLocalDate(Integer.parseInt(dataPoint)));
+            } else {
+              values.add(Double.parseDouble(dataPoint));
+            }
+            counter++;
+          }
+          ts = ImmutableLocalDateDoubleTimeSeries.of(times, values);
         }
-        List<LocalDate> times = Lists.newArrayListWithCapacity(timesText.size());
-        List<Double> values = Lists.newArrayListWithCapacity(valuesText.size());
-        for (String date : timesText) {
-          times.add(LocalDateToIntConverter.convertToLocalDate(Integer.parseInt(date)));
-        }
-        for (String value : valuesText) {
-          values.add(Double.parseDouble(value));
-        }
-        ts = ImmutableLocalDateDoubleTimeSeries.of(times, values);
-        getJedisPool().returnResource(jedis);
       } catch (Exception e) {
         s_logger.error("Unable to load points from redis for " + uniqueId, e);
-        getJedisPool().returnBrokenResource(jedis);
         throw new OpenGammaRuntimeException("Unable to load points from redis for " + uniqueId, e);
+      } finally {
+        getJedisPool().returnBrokenResource(jedis);
       }
       return ts;
     }
@@ -207,6 +210,7 @@ public abstract class AbstractRedisHistoricalTimeSeriesSource implements Histori
   }
 
   public HistoricalTimeSeries getHistoricalTimeSeries(UniqueId uniqueId) {
+    s_logger.debug("getHistoricalTimeSeries for {}", uniqueId);
     LocalDateDoubleTimeSeries ts = loadTimeSeriesFromRedis(uniqueId);
     if (ts == null) {
       return null;
