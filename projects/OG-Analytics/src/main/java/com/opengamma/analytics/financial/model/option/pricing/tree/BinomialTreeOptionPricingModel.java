@@ -37,12 +37,11 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
   /*
    * TODO Test Greeks for barriers with discrete/continuous dividends
    * TODO time-varying vol may not be compatible to discrete dividends due to limited control of dt
-   * TODO barrier American needs more tests (PLAT-4297)
-   *       Test barrier option with nonzero dividend against analytic formula
-   *       
    *       
    * TODO Other types, such as Binary-type payoff, can be done with OptionDefinition
    * TODO spread options need more tests
+   * 
+   * TODO check convergence of theta
    * 
    * 
    * <<Slight modification of American>>
