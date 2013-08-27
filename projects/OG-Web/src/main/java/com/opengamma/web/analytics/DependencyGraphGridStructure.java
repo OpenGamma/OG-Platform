@@ -99,7 +99,7 @@ public class DependencyGraphGridStructure implements GridStructure {
         column("Properties", ValueProperties.class, 5)),
       false);
     _nonFixedColumnGroups = new GridColumnGroups(nonFixedColumnGroup);
-    _columnGroups = new GridColumnGroups(ImmutableList.of(_fixedColumnGroup,nonFixedColumnGroup));
+    _columnGroups = new GridColumnGroups(ImmutableList.of(_fixedColumnGroup, nonFixedColumnGroup));
 
   }
 
