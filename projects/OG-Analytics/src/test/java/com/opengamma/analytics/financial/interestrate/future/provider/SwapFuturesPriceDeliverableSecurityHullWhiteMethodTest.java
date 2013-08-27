@@ -23,6 +23,8 @@ import com.opengamma.analytics.financial.model.interestrate.HullWhiteOneFactorPi
 import com.opengamma.analytics.financial.model.interestrate.TestsDataSetHullWhite;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
 import com.opengamma.analytics.financial.provider.calculator.discounting.CashFlowEquivalentCalculator;
+import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
+import com.opengamma.analytics.financial.provider.calculator.hullwhite.ConvexityAdjustmentHullWhiteCalculator;
 import com.opengamma.analytics.financial.provider.calculator.hullwhite.MarketQuoteCurveSensitivityHullWhiteCalculator;
 import com.opengamma.analytics.financial.provider.calculator.hullwhite.MarketQuoteHullWhiteCalculator;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
@@ -67,8 +69,10 @@ public class SwapFuturesPriceDeliverableSecurityHullWhiteMethodTest {
   private static final CashFlowEquivalentCalculator CFEC = CashFlowEquivalentCalculator.getInstance();
   private static final SwapFuturesPriceDeliverableSecurityHullWhiteMethod METHOD_SWAP_FUT_HW = SwapFuturesPriceDeliverableSecurityHullWhiteMethod.getInstance();
 
+  private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
   private static final MarketQuoteHullWhiteCalculator MQHWC = MarketQuoteHullWhiteCalculator.getInstance();
   private static final MarketQuoteCurveSensitivityHullWhiteCalculator MQCSHWC = MarketQuoteCurveSensitivityHullWhiteCalculator.getInstance();
+  private static final ConvexityAdjustmentHullWhiteCalculator CAHWC = ConvexityAdjustmentHullWhiteCalculator.getInstance();
 
   private static final double SHIFT_FD = 1.0E-6;
 
@@ -96,6 +100,16 @@ public class SwapFuturesPriceDeliverableSecurityHullWhiteMethodTest {
     }
     final double priceComputed = METHOD_SWAP_FUT_HW.price(SWAP_FUTURES_SECURITY, HW_MULTICURVES);
     assertEquals("DeliverableSwapFuturesSecurityDefinition: price", priceExpected, priceComputed, TOLERANCE_PRICE);
+  }
+
+  @Test
+  public void convexityAdjustment() {
+    final double convexityAdjustment = METHOD_SWAP_FUT_HW.convexityAdjustment(SWAP_FUTURES_SECURITY, HW_MULTICURVES);
+    final double price = METHOD_SWAP_FUT_HW.price(SWAP_FUTURES_SECURITY, HW_MULTICURVES);
+    final double pvSwap = SWAP_FUTURES_SECURITY.getUnderlyingSwap().accept(PVDC, MULTICURVES).getAmount(USD);
+    assertEquals("DeliverableSwapFuturesSecurityDefinition: convexity adjustment", price - (1.0d + pvSwap), convexityAdjustment, TOLERANCE_PRICE);
+    final double caCalculator = SWAP_FUTURES_SECURITY.accept(CAHWC, HW_MULTICURVES);
+    assertEquals("DeliverableSwapFuturesSecurityDefinition: convexity adjustment", caCalculator, convexityAdjustment, TOLERANCE_PRICE);
   }
 
   @Test(enabled = false)

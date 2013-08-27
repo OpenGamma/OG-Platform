@@ -16,11 +16,13 @@ import com.opengamma.analytics.financial.model.interestrate.HullWhiteOneFactorPi
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
 import com.opengamma.analytics.financial.provider.calculator.discounting.CashFlowEquivalentCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.CashFlowEquivalentCurveSensitivityCalculator;
+import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.HullWhiteOneFactorProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -60,6 +62,10 @@ public final class SwapFuturesPriceDeliverableSecurityHullWhiteMethod {
    * The cash flow equivalent curve sensitivity calculator used in computations.
    */
   private static final CashFlowEquivalentCurveSensitivityCalculator CFECSC = CashFlowEquivalentCurveSensitivityCalculator.getInstance();
+  /**
+   * The present value calculator by discounting.
+   */
+  private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
 
   /**
    * Computes the futures price.
@@ -87,6 +93,20 @@ public final class SwapFuturesPriceDeliverableSecurityHullWhiteMethod {
       price += (cfe.getNthPayment(loopcf).getAmount() * df[loopcf] * adjustments[loopcf]) / df[0];
     }
     return price;
+  }
+
+  /**
+   * Returns the convexity adjustment, i.e. the difference between the adjusted price and the present value of the underlying swap.
+   * @param futures The swap futures.
+   * @param hwMulticurves The multi-curve and parameters provider.
+   * @return The adjustment.
+   */
+  public double convexityAdjustment(final SwapFuturesPriceDeliverableSecurity futures, final HullWhiteOneFactorProviderInterface hwMulticurves) {
+    ArgumentChecker.notNull(futures, "swap futures");
+    ArgumentChecker.notNull(hwMulticurves, "parameter provider");
+    MultipleCurrencyAmount pv = futures.getUnderlyingSwap().accept(PVDC, hwMulticurves.getMulticurveProvider());
+    double price = price(futures, hwMulticurves);
+    return price - (1.0d + pv.getAmount(futures.getCurrency()));
   }
 
   /**

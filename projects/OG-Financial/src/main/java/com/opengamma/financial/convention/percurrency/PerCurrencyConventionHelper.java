@@ -57,6 +57,14 @@ public class PerCurrencyConventionHelper {
   public static final String INFLATION_LEG = "Inflation Swap Leg";
   /** Price index string */
   public static final String PRICE_INDEX = "Price Index";
+  
+
+  /** Tenor string: 3M **/
+  public static final String TENOR_STR_3M = "3M";
+  /** Tenor string: 6M **/
+  public static final String TENOR_STR_6M = "6M";
+  /** Tenor string: 1Y **/
+  public static final String TENOR_STR_1Y = "1Y";
 
   public static ExternalIdBundle getIds(final Currency currency, final String instrumentName) {
     final String idName = getConventionName(currency, instrumentName);
