@@ -34,9 +34,9 @@ import com.opengamma.util.money.CurrencyAmount;
 public class NotionalFunction extends AbstractFunction.NonCompiledInvoker {
   /** Property indicating whether this security has been bought or sold. */
   public static final String PROPERTY_BUY = "Buy";
-  /** Indicates whether the notional should be negated i.e. the security has been sold */
+  /** Indicates whether the notional should be negated */
   public static final String NEGATIVE = "Negative";
-  /** Indicates whether the security has been bought */
+  /** Indicates whether the notional is of the correct sign */
   public static final String POSITIVE = "Positive";
 
   @Override
@@ -45,7 +45,7 @@ public class NotionalFunction extends AbstractFunction.NonCompiledInvoker {
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final CurrencyPairs currencyPairs = (CurrencyPairs) inputs.getValue(CURRENCY_PAIRS);
     final CurrencyAmount ca = FinancialSecurityUtils.getNotional(target.getSecurity(), currencyPairs);
-    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.NOTIONAL, target.toSpecification(), desiredValue.getConstraints());
+    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.NOTIONAL, target.toSpecification(), desiredValue.getConstraints().copy().get());
     if (desiredValue.getConstraint(PROPERTY_BUY).equals(NEGATIVE)) {
       return Collections.singleton(new ComputedValue(spec, ca.multipliedBy(-1)));
     }
@@ -61,13 +61,16 @@ public class NotionalFunction extends AbstractFunction.NonCompiledInvoker {
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final Set<String> buy = context.getViewCalculationConfiguration().getDefaultProperties().getValues(PROPERTY_BUY);
     final String buyProperty = ((buy == null) || !buy.contains(NEGATIVE)) ? POSITIVE : NEGATIVE;
-    ValueProperties properties = createValueProperties().with(PROPERTY_BUY, buyProperty).get();
+    final ValueProperties properties = createValueProperties().with(PROPERTY_BUY, buyProperty).get();
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.NOTIONAL, target.toSpecification(), properties));
   }
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    return Collections.singleton(new ValueRequirement(CURRENCY_PAIRS, ComputationTargetSpecification.NULL, ValueProperties.none()));
+    final ValueProperties properties = ValueProperties.builder()
+        .with(CurrencyPairsFunction.CURRENCY_PAIRS_NAME, CurrencyPairs.DEFAULT_CURRENCY_PAIRS)
+        .get();
+    return Collections.singleton(new ValueRequirement(CURRENCY_PAIRS, ComputationTargetSpecification.NULL, properties));
   }
 
 }
