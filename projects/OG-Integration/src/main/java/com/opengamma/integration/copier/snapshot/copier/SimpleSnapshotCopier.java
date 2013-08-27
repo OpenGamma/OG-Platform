@@ -42,6 +42,8 @@ public class SimpleSnapshotCopier implements SnapshotCopier {
 
     ArgumentChecker.notNull(snapshotWriter, "snapshotWriter");
     ArgumentChecker.notNull(snapshotReader, "snapshotReader");
+
+    snapshotWriter.writeName(snapshotReader.getName());
     
     ObjectsPair<ManageablePosition, ManageableSecurity[]> next;
 

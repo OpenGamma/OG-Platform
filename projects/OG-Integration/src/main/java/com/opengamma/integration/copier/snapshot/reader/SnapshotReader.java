@@ -10,7 +10,7 @@ import java.util.Map;
 
 import com.opengamma.core.marketdatasnapshot.CurveKey;
 import com.opengamma.core.marketdatasnapshot.CurveSnapshot;
-import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
+import com.opengamma.core.marketdatasnapshot.UnstructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceKey;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceSnapshot;
 import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
@@ -25,7 +25,7 @@ public abstract interface SnapshotReader {
 
   Map<CurveKey, CurveSnapshot> readCurves();
 
-  StructuredMarketDataSnapshot readGlobalValues();
+  UnstructuredMarketDataSnapshot readGlobalValues();
 
   Map<VolatilitySurfaceKey, VolatilitySurfaceSnapshot> readVolatilitySurfaces();
 

@@ -9,13 +9,16 @@ import java.util.Map;
 
 import com.opengamma.core.marketdatasnapshot.CurveKey;
 import com.opengamma.core.marketdatasnapshot.CurveSnapshot;
-import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
+import com.opengamma.core.marketdatasnapshot.UnstructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceKey;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceSnapshot;
 import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
 import com.opengamma.core.marketdatasnapshot.YieldCurveSnapshot;
 
-public class FileSnapshotReader implements SnapshotReader{
+/**
+ * Reads a snapshot from an imported file
+ */
+public class FileSnapshotReader implements SnapshotReader {
 
   public FileSnapshotReader(String filename) {
     //To change body of created methods use File | Settings | File Templates.
@@ -27,7 +30,7 @@ public class FileSnapshotReader implements SnapshotReader{
   }
 
   @Override
-  public StructuredMarketDataSnapshot readGlobalValues() {
+  public UnstructuredMarketDataSnapshot readGlobalValues() {
     return null;  //To change body of implemented methods use File | Settings | File Templates.
   }
 

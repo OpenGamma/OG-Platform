@@ -13,10 +13,12 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.core.marketdatasnapshot.CurveKey;
 import com.opengamma.core.marketdatasnapshot.CurveSnapshot;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
+import com.opengamma.core.marketdatasnapshot.UnstructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceKey;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceSnapshot;
 import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
 import com.opengamma.core.marketdatasnapshot.YieldCurveSnapshot;
+import com.opengamma.core.marketdatasnapshot.impl.ManageableUnstructuredMarketDataSnapshot;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
@@ -43,26 +45,22 @@ public class MasterSnapshotReader implements SnapshotReader {
 
   @Override
   public Map<CurveKey, CurveSnapshot> readCurves() {
-    _snapshot.getCurves();
-    return null;  //To change body of implemented methods use File | Settings | File Templates.
+    return _snapshot.getCurves();
   }
 
   @Override
-  public StructuredMarketDataSnapshot readGlobalValues() {
-    _snapshot.getGlobalValues();
-    return null;  //To change body of implemented methods use File | Settings | File Templates.
+  public UnstructuredMarketDataSnapshot readGlobalValues() {
+    return _snapshot.getGlobalValues();
   }
 
   @Override
   public Map<VolatilitySurfaceKey, VolatilitySurfaceSnapshot> readVolatilitySurfaces() {
-    _snapshot.getVolatilitySurfaces();
-    return null;  //To change body of implemented methods use File | Settings | File Templates.
+    return _snapshot.getVolatilitySurfaces();
   }
 
   @Override
   public Map<YieldCurveKey, YieldCurveSnapshot> readYieldCurves() {
-    _snapshot.getYieldCurves();
-    return null;  //To change body of implemented methods use File | Settings | File Templates.
+    return _snapshot.getYieldCurves();
   }
 
   @Override
@@ -77,13 +75,11 @@ public class MasterSnapshotReader implements SnapshotReader {
 
   @Override
   public String getName() {
-    _snapshot.getName();
-    return null;  //To change body of implemented methods use File | Settings | File Templates.
+    return _snapshot.getName();
   }
 
   @Override
   public String getBasisViewName() {
-    _snapshot.getBasisViewName();
-    return null;  //To change body of implemented methods use File | Settings | File Templates.
+    return _snapshot.getBasisViewName();
   }
 }
