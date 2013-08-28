@@ -19,9 +19,13 @@ import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunction
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Function that computes the profit or loss since previous close.<p>
+ * Function that computes the profit or loss since previous close, 
+ * as defined by {@link ValueRequirementNames#HISTORICAL_TIME_SERIES_LATEST}. This will get most recent closing price before today.
+ * By intention, this will not be today's close even if it's available. Note that this may be stale, if time series aren't updated nightly, as we take latest value.
+ * Illiquid securities do not trade each day..
  * As the name MarkToMarket implies, this simple Function applies to Trades on Exchange-Traded Securities.
  */
+// For a method which computes a Closing 'Mid' price, see {@link ClosingMidMarkToMarketPnLFunction}. <p>
 public class MarkToMarketPnLFunction extends AbstractMarkToMarketPnLFunction {
 
   private final String _closingPriceField;
@@ -46,10 +50,6 @@ public class MarkToMarketPnLFunction extends AbstractMarkToMarketPnLFunction {
       if (input.getSpecification().getValueName().equals(ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST)) {
         String field = input.getSpecification().getProperty(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY);
         if (field.equals(_closingPriceField)) {
-          // Get most recent closing price before today
-          // By intention, this will not be today's close even if it's available
-          // TODO Review - Note that this may be stale, if time series aren't updated nightly, as we take latest value.
-          // Illiquid securities do not trade each day..
           Object value = input.getValue();
           if (value == null) {
             throw new NullPointerException("Did not satisfy time series latest requirement," + _closingPriceField +
