@@ -35,12 +35,20 @@ public class CurrenciesAggregationFunction implements AggregationFunction<String
     _secSource = secSource;
   }
 
+  /**
+   * Gets the security source.
+   * @return The security source
+   */
+  protected SecuritySource getSecuritySource() {
+    return _secSource;
+  }
+
   @Override
   public String classifyPosition(final Position position) {
     return classifyBasedOnSecurity(position.getSecurity(), _secSource);
   }
 
-  public static String classifyBasedOnSecurity(final Security security, SecuritySource securitySource) {
+  public static String classifyBasedOnSecurity(final Security security, final SecuritySource securitySource) {
     try {
       final Collection<Currency> currencies = FinancialSecurityUtils.getCurrencies(security, securitySource);
       if (currencies == null || currencies.size() == 0) {
