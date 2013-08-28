@@ -132,6 +132,7 @@ public class DbBatchMasterComponentFactory extends AbstractDbMasterComponentFact
   @Override
   protected void validate() {
     JodaBeanUtils.notNull(_classifier, "classifier");
+    JodaBeanUtils.notNull(_computationTargetResolver, "computationTargetResolver");
     super.validate();
   }
 
@@ -240,7 +241,7 @@ public class DbBatchMasterComponentFactory extends AbstractDbMasterComponentFact
   //-----------------------------------------------------------------------
   /**
    * Gets the computationTargetResolver.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public ComputationTargetResolver getComputationTargetResolver() {
     return _computationTargetResolver;
@@ -248,9 +249,10 @@ public class DbBatchMasterComponentFactory extends AbstractDbMasterComponentFact
 
   /**
    * Sets the computationTargetResolver.
-   * @param computationTargetResolver  the new value of the property
+   * @param computationTargetResolver  the new value of the property, not null
    */
   public void setComputationTargetResolver(ComputationTargetResolver computationTargetResolver) {
+    JodaBeanUtils.notNull(computationTargetResolver, "computationTargetResolver");
     this._computationTargetResolver = computationTargetResolver;
   }
 
