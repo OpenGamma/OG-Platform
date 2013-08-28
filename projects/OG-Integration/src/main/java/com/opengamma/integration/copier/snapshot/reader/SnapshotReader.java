@@ -17,9 +17,8 @@ import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
 import com.opengamma.core.marketdatasnapshot.YieldCurveSnapshot;
 
 /**
- * Abstract snapshot loader class that merely specifies the ability to write imported trades/positions to a
- * SnapshotWriter
- * (This tight linkage between reader and writer might have to change)
+ * Abstract snapshot reader with methods that provide getters for the specific elements a snapshot
+ * note that VolatilityCubes are not present.
  */
 public abstract interface SnapshotReader {
 
@@ -31,20 +30,8 @@ public abstract interface SnapshotReader {
 
   Map<YieldCurveKey, YieldCurveSnapshot> readYieldCurves();
 
-  /**
-   * Get the current snapshot path.
-   *
-   * @return the current node
-   */
-  String[] getCurrentPath();
-
   void close();
 
-  /**
-   * Read the name of the snapshot from the source.
-   *
-   * @return the snapshot name.
-   */
   String getName();
 
   String getBasisViewName();
