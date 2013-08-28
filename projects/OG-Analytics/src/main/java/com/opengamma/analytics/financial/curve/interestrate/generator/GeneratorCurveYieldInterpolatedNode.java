@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.financial.curve.interestrate.generator;
 
+import java.util.Arrays;
+
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
@@ -40,6 +42,10 @@ public class GeneratorCurveYieldInterpolatedNode extends GeneratorYDCurve {
     ArgumentChecker.notNull(nodePoints, "Node points");
     ArgumentChecker.notNull(interpolator, "Interpolator");
     _nodePoints = nodePoints;
+    // Check that node points are sorted
+    double[] nodePointsSorted = nodePoints.clone();
+    Arrays.sort(nodePointsSorted);
+    ArgumentChecker.isTrue(Arrays.equals(nodePoints, nodePointsSorted), "Node points not sorted");
     _nbPoints = _nodePoints.length;
     _interpolator = interpolator;
   }
