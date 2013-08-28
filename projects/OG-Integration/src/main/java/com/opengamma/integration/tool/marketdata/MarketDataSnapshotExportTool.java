@@ -82,7 +82,7 @@ public class MarketDataSnapshotExportTool extends AbstractTool<ToolContext> {
       s_logger.warn("No market data snapshot masters found at {}", s_context);
 
     }
-    return new FileSnapshotWriter(filename, marketDataSnapshotMaster);
+    return new FileSnapshotWriter(filename);
   }
 
   //-------------------------------------------------------------------------

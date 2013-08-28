@@ -24,18 +24,17 @@ import com.opengamma.core.marketdatasnapshot.YieldCurveSnapshot;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.integration.copier.sheet.SheetFormat;
 import com.opengamma.integration.copier.sheet.writer.CsvSheetWriter;
-import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Writes a snapshot from an to exported file
+ * Writes a snapshot to exported file
  */
 public class FileSnapshotWriter implements SnapshotWriter {
 
   private CsvSheetWriter _sheetWriter;
-
   private static final Logger s_logger = LoggerFactory.getLogger(FileSnapshotWriter.class);
 
+  /** Columns */
   private static final String TYPE = "Type";
   private static final String NAME = "Name";
   private static final String INSTANT = "Instant";
@@ -46,13 +45,16 @@ public class FileSnapshotWriter implements SnapshotWriter {
   private static final String ID_BUNDLE = "External ID Bundle";
   private static final String SURFACE_X = "Surface X";
   private static final String SURFACE_Y = "Surface Y";
-
   private static final String VALUE_NAME = "Value Name";
   private static final String MARKET_VALUE = "Market Value";
   private static final String OVERRIDE_VALUE = "Override Value";
-  private static final String[] COLUMNS =
-      {TYPE, NAME, INSTANT, SURFACE_TARGET, SURFACE_INSTRUMENT_TYPE, SURFACE_QUOTE_TYPE, SURFACE_QUOTE_UNITS, ID_BUNDLE, VALUE_NAME, MARKET_VALUE, OVERRIDE_VALUE, SURFACE_X, SURFACE_Y};
+  private static final String[] COLUMNS;
+  static {
+    COLUMNS = new String[] {TYPE, NAME, INSTANT, SURFACE_TARGET, SURFACE_INSTRUMENT_TYPE, SURFACE_QUOTE_TYPE,
+      SURFACE_QUOTE_UNITS, ID_BUNDLE, VALUE_NAME, MARKET_VALUE, OVERRIDE_VALUE, SURFACE_X, SURFACE_Y };
+  }
 
+  /** Types of snapshots */
   private static final String TYPE_NAME = "name";
   private static final String TYPE_BASIS_NAME = "basis name";
   private static final String TYPE_CURVE = "curve";
@@ -60,9 +62,7 @@ public class FileSnapshotWriter implements SnapshotWriter {
   private static final String TYPE_GOBAL_VALUES = "global values";
   private static final String TYPE_VOL_SURFACE = "volatility surface";
 
-
-
-  public FileSnapshotWriter(String filename, MarketDataSnapshotMaster marketDataSnapshotMaster) {
+  public FileSnapshotWriter(String filename) {
 
     if (filename == null) {
       throw new OpenGammaRuntimeException("File name omitted, cannot export to file");
@@ -75,6 +75,7 @@ public class FileSnapshotWriter implements SnapshotWriter {
     }
   }
 
+  /** Ordinated ValueSnapshots, needed for Volatility Surfaces */
   private void writeOrdinatedValueSnapshot(Map<String, String> prefixes,
                                            Map<Pair<Object, Object>, ValueSnapshot> valueSnapshots) {
 
@@ -94,6 +95,7 @@ public class FileSnapshotWriter implements SnapshotWriter {
     }
   }
 
+  /** Named ValueSnapshots, needed for Unstructured Market */
   private void writeValueSnapshot(Map<String, String> prefixes, Map<String, ValueSnapshot> valueSnapshots) {
 
     for (Map.Entry<String, ValueSnapshot> entry : valueSnapshots.entrySet()) {
@@ -118,6 +120,7 @@ public class FileSnapshotWriter implements SnapshotWriter {
       Map<String, String> tempRow = new HashMap<>();
       tempRow.putAll(prefixes);
       tempRow.put(ID_BUNDLE, StringUtils.join(eib.getExternalIds(), '|'));
+      //Row written by writeValueSnapshot
       writeValueSnapshot(tempRow, snapshot.getTargetValues(eib));
     }
   }
@@ -141,10 +144,9 @@ public class FileSnapshotWriter implements SnapshotWriter {
       tempRow.put(TYPE, TYPE_CURVE);
       tempRow.put(NAME, entry.getKey().getName());
       tempRow.put(INSTANT, curve.getValuationTime().toString());
+      //Row written via writeUnstructuredMarketDataSnapshot
       writeUnstructuredMarketDataSnapshot(tempRow, curve.getValues());
-      //TODO
     }
-
   }
 
   @Override
@@ -157,6 +159,7 @@ public class FileSnapshotWriter implements SnapshotWriter {
 
     Map<String, String> tempRow = new HashMap<>();
     tempRow.put(TYPE, TYPE_GOBAL_VALUES);
+    //Row written via writeUnstructuredMarketDataSnapshot
     writeUnstructuredMarketDataSnapshot(tempRow, globalValues);
   }
 
@@ -177,6 +180,7 @@ public class FileSnapshotWriter implements SnapshotWriter {
       tempRow.put(SURFACE_INSTRUMENT_TYPE, entry.getKey().getInstrumentType());
       tempRow.put(SURFACE_QUOTE_TYPE, entry.getKey().getQuoteType());
       tempRow.put(SURFACE_QUOTE_UNITS, entry.getKey().getQuoteUnits());
+      //Row written by writeOrdinatedValueSnapshot
       writeOrdinatedValueSnapshot(tempRow, surface.getValues());
     }
   }
@@ -195,6 +199,7 @@ public class FileSnapshotWriter implements SnapshotWriter {
       tempRow.put(TYPE, TYPE_YIELD_CURVE);
       tempRow.put(NAME, entry.getKey().getName());
       tempRow.put(INSTANT, curve.getValuationTime().toString());
+      //Row written via writeUnstructuredMarketDataSnapshot
       writeUnstructuredMarketDataSnapshot(tempRow, curve.getValues());
     }
   }
