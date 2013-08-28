@@ -31,6 +31,8 @@ import com.opengamma.util.tuple.Pair;
 @Test(enabled=true)
 public class NonVersionedRedisHistoricalTimeSeriesSourceTest extends AbstractRedisTestCase {
   
+  private static final int ITER_SIZE = 50;
+  
   public void basicOperation() {
     NonVersionedRedisHistoricalTimeSeriesSource source = new NonVersionedRedisHistoricalTimeSeriesSource(getJedisPool(), getRedisPrefix());
     
@@ -38,23 +40,29 @@ public class NonVersionedRedisHistoricalTimeSeriesSourceTest extends AbstractRed
     UniqueId id2 = UniqueId.of("Test", "2");
     UniqueId id3 = UniqueId.of("Test", "3");
     
-    source.setTimeSeriesPoint(id1, LocalDate.parse("2013-06-04"), 14.0);
-    source.setTimeSeriesPoint(id1, LocalDate.parse("2013-06-05"), 15.0);
-    source.setTimeSeriesPoint(id1, LocalDate.parse("2013-06-06"), 16.0);
-    source.setTimeSeriesPoint(id1, LocalDate.parse("2013-06-07"), 17.0);
-    source.setTimeSeriesPoint(id1, LocalDate.parse("2013-06-08"), 18.0);
+    LocalDateDoubleTimeSeriesBuilder tsBuilder = ImmutableLocalDateDoubleTimeSeries.builder();
+    tsBuilder.put(LocalDate.parse("2013-06-04"), 14.0);
+    tsBuilder.put(LocalDate.parse("2013-06-05"), 15.0);
+    tsBuilder.put(LocalDate.parse("2013-06-06"), 16.0);
+    tsBuilder.put(LocalDate.parse("2013-06-07"), 17.0);
+    tsBuilder.put(LocalDate.parse("2013-06-08"), 18.0);
+    source.updateTimeSeries(id1, tsBuilder.build());
+    
+    tsBuilder = ImmutableLocalDateDoubleTimeSeries.builder();
+    tsBuilder.put(LocalDate.parse("2013-06-04"), 24.0);
+    tsBuilder.put(LocalDate.parse("2013-06-05"), 25.0);
+    tsBuilder.put(LocalDate.parse("2013-06-06"), 26.0);
+    tsBuilder.put(LocalDate.parse("2013-06-07"), 27.0);
+    tsBuilder.put(LocalDate.parse("2013-06-08"), 28.0);
+    source.updateTimeSeries(id2, tsBuilder.build());
 
-    source.setTimeSeriesPoint(id2, LocalDate.parse("2013-06-04"), 24.0);
-    source.setTimeSeriesPoint(id2, LocalDate.parse("2013-06-05"), 25.0);
-    source.setTimeSeriesPoint(id2, LocalDate.parse("2013-06-06"), 26.0);
-    source.setTimeSeriesPoint(id2, LocalDate.parse("2013-06-07"), 27.0);
-    source.setTimeSeriesPoint(id2, LocalDate.parse("2013-06-08"), 28.0);
-
-    source.setTimeSeriesPoint(id3, LocalDate.parse("2013-06-04"), 34.0);
-    source.setTimeSeriesPoint(id3, LocalDate.parse("2013-06-05"), 35.0);
-    source.setTimeSeriesPoint(id3, LocalDate.parse("2013-06-06"), 36.0);
-    source.setTimeSeriesPoint(id3, LocalDate.parse("2013-06-07"), 37.0);
-    source.setTimeSeriesPoint(id3, LocalDate.parse("2013-06-08"), 38.0);
+    tsBuilder = ImmutableLocalDateDoubleTimeSeries.builder();
+    tsBuilder.put(LocalDate.parse("2013-06-04"), 34.0);
+    tsBuilder.put(LocalDate.parse("2013-06-05"), 35.0);
+    tsBuilder.put(LocalDate.parse("2013-06-06"), 36.0);
+    tsBuilder.put(LocalDate.parse("2013-06-07"), 37.0);
+    tsBuilder.put(LocalDate.parse("2013-06-08"), 38.0);
+    source.updateTimeSeries(id3, tsBuilder.build());
     
     Pair<LocalDate, Double> pair = null;
     HistoricalTimeSeries hts = null;
@@ -92,6 +100,97 @@ public class NonVersionedRedisHistoricalTimeSeriesSourceTest extends AbstractRed
     assertEquals(18.0, ts.getValue(LocalDate.parse("2013-06-08")), 0.00001);
   }
   
+  public void updateDataPoint() {
+    NonVersionedRedisHistoricalTimeSeriesSource source = new NonVersionedRedisHistoricalTimeSeriesSource(getJedisPool(), getRedisPrefix());
+    
+    UniqueId id = UniqueId.of("Test", "1");
+    HistoricalTimeSeries hts = source.getHistoricalTimeSeries(id);
+    assertNull(hts);
+    
+    LocalDateDoubleTimeSeriesBuilder tsBuilder = ImmutableLocalDateDoubleTimeSeries.builder();
+    tsBuilder.put(LocalDate.parse("2013-06-04"), 14.0);
+    tsBuilder.put(LocalDate.parse("2013-06-05"), 15.0);
+    tsBuilder.put(LocalDate.parse("2013-06-06"), 16.0);
+    tsBuilder.put(LocalDate.parse("2013-06-07"), 17.0);
+    tsBuilder.put(LocalDate.parse("2013-06-08"), 18.0);
+    source.updateTimeSeries(id, tsBuilder.build());
+    
+    hts = source.getHistoricalTimeSeries(id);
+    assertNotNull(hts);
+    assertEquals(id, hts.getUniqueId());
+    LocalDateDoubleTimeSeries ts = hts.getTimeSeries();
+    assertNotNull(ts);
+    assertEquals(5, ts.size());
+    
+    assertEquals(14.0, ts.getValue(LocalDate.parse("2013-06-04")), 0.00001);
+    source.updateTimeSeriesPoint(id, LocalDate.parse("2013-06-04"), 13.0);
+    hts = source.getHistoricalTimeSeries(id);
+    assertNotNull(hts);
+    assertEquals(id, hts.getUniqueId());
+    ts = hts.getTimeSeries();
+    assertNotNull(ts);
+    assertEquals(5, ts.size());
+    assertEquals(13.0, ts.getValue(LocalDate.parse("2013-06-04")), 0.00001);
+    
+    assertEquals(16.0, ts.getValue(LocalDate.parse("2013-06-06")), 0.00001);
+    source.updateTimeSeriesPoint(id, LocalDate.parse("2013-06-06"), 12.0);
+    hts = source.getHistoricalTimeSeries(id);
+    assertNotNull(hts);
+    assertEquals(id, hts.getUniqueId());
+    ts = hts.getTimeSeries();
+    assertNotNull(ts);
+    assertEquals(5, ts.size());
+    assertEquals(12.0, ts.getValue(LocalDate.parse("2013-06-06")), 0.00001);
+    
+    assertEquals(18.0, ts.getValue(LocalDate.parse("2013-06-08")), 0.00001);
+    source.updateTimeSeriesPoint(id, LocalDate.parse("2013-06-08"), 11.0);
+    hts = source.getHistoricalTimeSeries(id);
+    assertNotNull(hts);
+    assertEquals(id, hts.getUniqueId());
+    ts = hts.getTimeSeries();
+    assertNotNull(ts);
+    assertEquals(5, ts.size());
+    assertEquals(11.0, ts.getValue(LocalDate.parse("2013-06-08")), 0.00001);
+  }
+  
+  public void appendTimeSeries() {
+    NonVersionedRedisHistoricalTimeSeriesSource source = new NonVersionedRedisHistoricalTimeSeriesSource(getJedisPool(), getRedisPrefix());
+    
+    UniqueId id = UniqueId.of("Test", "1");
+    HistoricalTimeSeries hts = source.getHistoricalTimeSeries(id);
+    assertNull(hts);
+    
+    LocalDateDoubleTimeSeriesBuilder tsBuilder = ImmutableLocalDateDoubleTimeSeries.builder();
+    tsBuilder.put(LocalDate.parse("2013-06-04"), 14.0);
+    tsBuilder.put(LocalDate.parse("2013-06-05"), 15.0);
+    tsBuilder.put(LocalDate.parse("2013-06-06"), 16.0);
+    tsBuilder.put(LocalDate.parse("2013-06-07"), 17.0);
+    tsBuilder.put(LocalDate.parse("2013-06-08"), 18.0);
+    source.updateTimeSeries(id, tsBuilder.build());
+    
+    hts = source.getHistoricalTimeSeries(id);
+    assertNotNull(hts);
+    assertEquals(id, hts.getUniqueId());
+    LocalDateDoubleTimeSeries ts = hts.getTimeSeries();
+    assertNotNull(ts);
+    assertEquals(5, ts.size());
+    
+    tsBuilder = ImmutableLocalDateDoubleTimeSeries.builder();
+    tsBuilder.put(LocalDate.parse("2013-06-09"), 19.0);
+    tsBuilder.put(LocalDate.parse("2013-06-10"), 20.0);
+    tsBuilder.put(LocalDate.parse("2013-06-11"), 21.0);
+    tsBuilder.put(LocalDate.parse("2013-06-12"), 22.0);
+    tsBuilder.put(LocalDate.parse("2013-06-13"), 23.0);
+    source.updateTimeSeries(id, tsBuilder.build());
+    
+    hts = source.getHistoricalTimeSeries(id);
+    assertNotNull(hts);
+    assertEquals(id, hts.getUniqueId());
+    ts = hts.getTimeSeries();
+    assertNotNull(ts);
+    assertEquals(10, ts.size());
+  }
+  
   /**
    * Test how fast we can add large historical timeseries adding one data point at a time.
    */
@@ -102,7 +201,7 @@ public class NonVersionedRedisHistoricalTimeSeriesSourceTest extends AbstractRed
     long start = System.nanoTime();
     LocalDateDoubleTimeSeries timeSeries = hts.getTimeSeries();
     for (Entry<LocalDate, Double> entry : timeSeries) {
-      source.setTimeSeriesPoint(hts.getUniqueId(), entry.getKey(), entry.getValue());
+      source.updateTimeSeriesPoint(hts.getUniqueId(), entry.getKey(), entry.getValue());
     }
     long end = System.nanoTime();
     double durationInSec = ((double) (end - start)) / 1e9;
@@ -116,38 +215,44 @@ public class NonVersionedRedisHistoricalTimeSeriesSourceTest extends AbstractRed
   /**
    * Test how fast we can add large historical timeseries using bulk insert.
    */
-  @Test(enabled = true)
+  @Test(enabled = false)
   public void largePerformanceTestBulkInsert() {
     NonVersionedRedisHistoricalTimeSeriesSource source = new NonVersionedRedisHistoricalTimeSeriesSource(getJedisPool(), getRedisPrefix());
-    HistoricalTimeSeries hts = createSampleHts();
-    long start = System.nanoTime();
-    source.setTimeSeries(hts.getUniqueId(), hts.getTimeSeries());
-    long end = System.nanoTime();
-    double durationInSec = ((double) (end - start)) / 1e9;
-    System.out.println("Adding " + hts.getTimeSeries().size() + " datapoints took " + durationInSec + " sec");
-    HistoricalTimeSeries storedHts = source.getHistoricalTimeSeries(hts.getUniqueId());
-    assertNotNull(storedHts);
-    assertEquals(hts.getUniqueId(), storedHts.getUniqueId());
-    assertEquals(hts.getTimeSeries(), storedHts.getTimeSeries());
+    double totalDurationInSec = 0.0;
+    HistoricalTimeSeries hts = null;
+    for (int i = 0; i < ITER_SIZE; i++) {
+      hts = createSampleHts();
+      long start = System.nanoTime();
+      source.updateTimeSeries(hts.getUniqueId(), hts.getTimeSeries());
+      totalDurationInSec  += ((double) (System.nanoTime() - start)) / 1e9;
+      HistoricalTimeSeries storedHts = source.getHistoricalTimeSeries(hts.getUniqueId());
+      assertNotNull(storedHts);
+      assertEquals(hts.getUniqueId(), storedHts.getUniqueId());
+      assertEquals(hts.getTimeSeries(), storedHts.getTimeSeries());
+    }
+    System.out.println("Adding " + hts.getTimeSeries().size() + " datapoints took " + totalDurationInSec/ITER_SIZE + " sec");
   }
   
   @Test(enabled = false)
   public void largePerformanceTestRead() {
     NonVersionedRedisHistoricalTimeSeriesSource source = new NonVersionedRedisHistoricalTimeSeriesSource(getJedisPool(), getRedisPrefix());
-    HistoricalTimeSeries hts = createSampleHts();
-    source.setTimeSeries(hts.getUniqueId(), hts.getTimeSeries());
-    long start = System.nanoTime();
-    HistoricalTimeSeries storedHts = source.getHistoricalTimeSeries(hts.getUniqueId());
-    long end = System.nanoTime();
-    double durationInSec = ((double) (end - start)) / 1e9;
-    System.out.println("Reading " + hts.getTimeSeries().size() + " datapoints took " + durationInSec + " sec");
-    assertNotNull(storedHts);
-    assertEquals(hts.getUniqueId(), storedHts.getUniqueId());
-    assertEquals(hts.getTimeSeries(), storedHts.getTimeSeries());
+    HistoricalTimeSeries hts = null;
+    double totalDurationInSec = 0.0;
+    for (int i = 0; i < ITER_SIZE; i++) {
+      hts = createSampleHts();
+      source.updateTimeSeries(hts.getUniqueId(), hts.getTimeSeries());
+      long start = System.nanoTime();
+      HistoricalTimeSeries storedHts = source.getHistoricalTimeSeries(hts.getUniqueId());
+      totalDurationInSec += ((double) (System.nanoTime() - start)) / 1e9;
+      assertNotNull(storedHts);
+      assertEquals(hts.getUniqueId(), storedHts.getUniqueId());
+      assertEquals(hts.getTimeSeries(), storedHts.getTimeSeries());
+    }
+    System.out.println("Reading " + hts.getTimeSeries().size() + " datapoints took " + totalDurationInSec/ITER_SIZE + " sec");
   }
   
   private HistoricalTimeSeries createSampleHts() {
-    UniqueId id = UniqueId.of("Test", UUID.randomUUID().toString());
+    UniqueId id = UniqueId.of("HTS", UUID.randomUUID().toString());
     LocalDateDoubleTimeSeriesBuilder builder = ImmutableLocalDateDoubleTimeSeries.builder();
     LocalDate start = LocalDate.now();
     for (int i = 0; i < 50000; i++) {
@@ -155,5 +260,5 @@ public class NonVersionedRedisHistoricalTimeSeriesSourceTest extends AbstractRed
     }
     return new SimpleHistoricalTimeSeries(id, builder.build());
   }
-
+  
 }
