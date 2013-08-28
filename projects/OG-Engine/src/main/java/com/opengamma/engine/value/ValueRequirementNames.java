@@ -558,7 +558,11 @@ public final class ValueRequirementNames {
    * Fair value for an option position (used for options - equal to the FAIR_VALUE multiplied by the number of trades and the point value).
    */
   public static final String VALUE_FAIR_VALUE = "ValueFairValue";
-
+  /**
+   * The convexity adjustment - the difference between the price and the par rate of an instrument
+   */
+  public static final String CONVEXITY_ADJUSTMENT = "Convexity Adjustment";
+  
   ///// Greeks
 
   /**

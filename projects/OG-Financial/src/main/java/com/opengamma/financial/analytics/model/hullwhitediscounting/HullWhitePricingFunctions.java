@@ -28,5 +28,6 @@ public class HullWhitePricingFunctions extends AbstractFunctionConfigurationBean
     functions.add(functionConfiguration(HullWhiteMonteCarloDiscountingPVFunction.class));
     functions.add(functionConfiguration(HullWhiteDiscountingPV01Function.class));
     functions.add(functionConfiguration(HullWhiteDiscountingYCNSFunction.class));
+    functions.add(functionConfiguration(HullWhiteConvexityAdjustmentFunction.class));
   }
 }
