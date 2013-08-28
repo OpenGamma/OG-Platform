@@ -41,6 +41,28 @@ public class MasterSnapshotReader implements SnapshotReader {
     _snapshotMaster = marketDataSnapshotMaster;
     _snapshot = _snapshotMaster.get(uniqueId).getSnapshot();
 
+/*
+
+    StructuredMarketDataSnapshot snapshot02 = _snapshotMaster.get(UniqueId.parse("DbSnp~34668~0")).getSnapshot();
+    StructuredMarketDataSnapshot snapshot10 = _snapshotMaster.get(UniqueId.parse("DbSnp~35404~0")).getSnapshot();
+    StructuredMarketDataSnapshot snapshot11 = _snapshotMaster.get(UniqueId.parse("DbSnp~35403~0")).getSnapshot();
+    StructuredMarketDataSnapshot snapshot12 = _snapshotMaster.get(UniqueId.parse("DbSnp~35402~0")).getSnapshot();
+    StructuredMarketDataSnapshot snapshot13 = _snapshotMaster.get(UniqueId.parse("DbSnp~35393~0")).getSnapshot();
+    StructuredMarketDataSnapshot snapshot14 = _snapshotMaster.get(UniqueId.parse("DbSnp~35394~0")).getSnapshot();
+    StructuredMarketDataSnapshot snapshot15 = _snapshotMaster.get(UniqueId.parse("DbSnp~35395~0")).getSnapshot();
+    StructuredMarketDataSnapshot snapshot16 = _snapshotMaster.get(UniqueId.parse("DbSnp~35396~0")).getSnapshot();
+    StructuredMarketDataSnapshot snapshot17 = _snapshotMaster.get(UniqueId.parse("DbSnp~35397~0")).getSnapshot();
+    StructuredMarketDataSnapshot snapshot18 = _snapshotMaster.get(UniqueId.parse("DbSnp~35398~0")).getSnapshot();
+    StructuredMarketDataSnapshot snapshot19 = _snapshotMaster.get(UniqueId.parse("DbSnp~35399~0")).getSnapshot();
+    StructuredMarketDataSnapshot snapshot20 = _snapshotMaster.get(UniqueId.parse("DbSnp~35400~0")).getSnapshot();
+    StructuredMarketDataSnapshot snapshot21 = _snapshotMaster.get(UniqueId.parse("DbSnp~35401~0")).getSnapshot();
+
+
+    _snapshot = snapshot02;
+*/
+
+
+
   }
 
   @Override
