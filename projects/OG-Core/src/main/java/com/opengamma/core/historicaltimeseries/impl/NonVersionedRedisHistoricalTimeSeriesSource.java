@@ -7,8 +7,8 @@ package com.opengamma.core.historicaltimeseries.impl;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +16,7 @@ import org.threeten.bp.LocalDate;
 
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.Pipeline;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
@@ -102,17 +103,23 @@ public class NonVersionedRedisHistoricalTimeSeriesSource implements HistoricalTi
     updateTimeSeries(toRedisKey(uniqueId), timeseries);
   }
   
-  protected void updateTimeSeries(String redisKey, LocalDateDoubleTimeSeries timeseries) {    
+  protected synchronized void updateTimeSeries(String redisKey, LocalDateDoubleTimeSeries timeseries) {    
     try (Timer.Context context = _updateSeriesTimer.time()) {
       LocalDateDoubleTimeSeries previousHts = loadTimeSeriesFromRedis(redisKey);
       Jedis jedis = getJedisPool().getResource();
       try {
         LocalDateDoubleTimeSeries mergedHts = timeseries;
+        Pipeline pipeline = jedis.pipelined();
+        pipeline.multi();
         if (previousHts != null) {
           mergedHts = mergeTimeseries(previousHts, timeseries);
-          jedis.del(redisKey);
+          pipeline.del(redisKey);
         }
-        jedis.rpush(redisKey, encodeTimeseries(mergedHts));
+        for (String dateOrValue : encodeTimeseries(mergedHts)) {
+          pipeline.rpush(redisKey, dateOrValue);
+        }
+        pipeline.exec();
+        pipeline.sync();
         getJedisPool().returnResource(jedis);
       } catch (Exception e) {
         s_logger.error("Unable to put timeseries with id: " + redisKey, e);
