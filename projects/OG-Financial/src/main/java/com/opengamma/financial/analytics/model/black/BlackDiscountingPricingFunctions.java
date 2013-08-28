@@ -26,6 +26,7 @@ public class BlackDiscountingPricingFunctions extends AbstractFunctionConfigurat
 
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
+    functions.add(functionConfiguration(BlackDiscountingCurrencyExposureFXOptionFunction.class));
     functions.add(functionConfiguration(BlackDiscountingFXPVFXOptionFunction.class));
     functions.add(functionConfiguration(BlackDiscountingPVFXOptionFunction.class));
 
