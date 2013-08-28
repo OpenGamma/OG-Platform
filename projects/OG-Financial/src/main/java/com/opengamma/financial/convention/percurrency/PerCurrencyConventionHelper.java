@@ -65,6 +65,16 @@ public class PerCurrencyConventionHelper {
   public static final String TENOR_STR_6M = "6M";
   /** Tenor string: 1Y **/
   public static final String TENOR_STR_1Y = "1Y";
+  /** Tenor string: short period instruments (usually for 1w or 2w) **/
+  public static final String TENOR_STR_SHORT = "Short";
+  /** STIR Futures (i.e. futures on Ibor) **/
+  public static final String STIR_FUTURES = "STIR Futures ";
+  /** Serial (i.e. monthly) futures **/
+  public static final String SERIAL = " Serial";
+  /** Quarterly (i.e. March, June, September, December) futures **/
+  public static final String QUARTERLY = " Quarterly";
+  /** Government (Simplified bond description) **/
+  public static final String GOVT = "Govt ";
 
   public static ExternalIdBundle getIds(final Currency currency, final String instrumentName) {
     final String idName = getConventionName(currency, instrumentName);
