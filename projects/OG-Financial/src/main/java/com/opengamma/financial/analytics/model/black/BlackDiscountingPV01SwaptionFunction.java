@@ -88,8 +88,8 @@ public class BlackDiscountingPV01SwaptionFunction extends BlackDiscountingSwapti
       }
 
       @Override
-      protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
-        final ValueProperties.Builder properties = super.getResultProperties(target);
+      protected ValueProperties.Builder getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
+        final ValueProperties.Builder properties = super.getResultProperties(compilationContext, target);
         return properties.withAny(CURVE);
       }
 
@@ -108,7 +108,7 @@ public class BlackDiscountingPV01SwaptionFunction extends BlackDiscountingSwapti
       @Override
       public Set<ValueSpecification> getResults(final FunctionCompilationContext compilationContext, final ComputationTarget target,
           final Map<ValueSpecification, ValueRequirement> inputs) {
-        final ValueProperties.Builder commonProperties = super.getResultProperties(target).withoutAny(CURVE);
+        final ValueProperties.Builder commonProperties = super.getResultProperties(compilationContext, target).withoutAny(CURVE);
         Set<String> curveNames = null;
         for (final Map.Entry<ValueSpecification, ValueRequirement> entry : inputs.entrySet()) {
           final ValueSpecification key = entry.getKey();

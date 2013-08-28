@@ -128,8 +128,8 @@ public class ConstantBlackDiscountingYCNSSwaptionFunction extends ConstantBlackD
       }
 
       @Override
-      protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
-        final ValueProperties.Builder properties = super.getResultProperties(target);
+      protected ValueProperties.Builder getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
+        final ValueProperties.Builder properties = super.getResultProperties(compilationContext, target);
         return properties.withAny(CURVE);
       }
 
@@ -147,7 +147,7 @@ public class ConstantBlackDiscountingYCNSSwaptionFunction extends ConstantBlackD
         if (curveName == null) {
           return null;
         }
-        final ValueProperties.Builder properties = getResultProperties(target)
+        final ValueProperties.Builder properties = getResultProperties(compilationContext, target)
             .withoutAny(CURVE)
             .with(CURVE, curveName);
         return Collections.singleton(new ValueSpecification(YIELD_CURVE_NODE_SENSITIVITIES, target.toSpecification(), properties.get()));

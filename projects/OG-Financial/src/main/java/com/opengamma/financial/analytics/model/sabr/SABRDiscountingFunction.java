@@ -110,7 +110,7 @@ public abstract class SABRDiscountingFunction extends DiscountingFunction {
     }
 
     @Override
-    protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
+    protected ValueProperties.Builder getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
       final ValueProperties.Builder properties = createValueProperties()
           .with(PROPERTY_CURVE_TYPE, DISCOUNTING)
           .with(PROPERTY_VOLATILITY_MODEL, SABR)

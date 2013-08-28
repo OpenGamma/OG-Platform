@@ -139,7 +139,7 @@ public abstract class G2ppDiscountingFunction extends MultiCurvePricingFunction 
     }
 
     @Override
-    protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
+    protected ValueProperties.Builder getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
       final ValueProperties.Builder properties =  createValueProperties()
           .with(PROPERTY_CURVE_TYPE, HULL_WHITE_DISCOUNTING)
           .withAny(CURVE_EXPOSURES)

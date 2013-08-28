@@ -22,6 +22,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.analytics.financial.provider.description.interestrate.ProviderUtils;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
@@ -73,7 +74,7 @@ public abstract class DiscountingFunction extends MultiCurvePricingFunction {
     }
 
     @Override
-    protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
+    protected ValueProperties.Builder getResultProperties(final FunctionCompilationContext context, final ComputationTarget target) {
       final ValueProperties.Builder properties = createValueProperties()
           .with(PROPERTY_CURVE_TYPE, DISCOUNTING)
           .withAny(CURVE_EXPOSURES);

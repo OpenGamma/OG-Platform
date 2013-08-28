@@ -9,6 +9,8 @@ import static com.opengamma.engine.value.ValuePropertyNames.CURRENCY;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_EXPOSURES;
 import static com.opengamma.engine.value.ValuePropertyNames.SURFACE;
 import static com.opengamma.engine.value.ValueRequirementNames.INTERPOLATED_VOLATILITY_SURFACE;
+import static com.opengamma.financial.analytics.model.InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE;
+import static com.opengamma.financial.analytics.model.InstrumentTypeProperties.SWAPTION_ATM;
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.DISCOUNTING;
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.PROPERTY_CURVE_TYPE;
 import static com.opengamma.financial.analytics.model.volatility.SmileFittingPropertyNamesAndValues.BLACK;
@@ -34,7 +36,6 @@ import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
@@ -42,7 +43,6 @@ import com.opengamma.financial.analytics.conversion.FutureTradeConverter;
 import com.opengamma.financial.analytics.conversion.SwapSecurityConverter;
 import com.opengamma.financial.analytics.conversion.SwaptionSecurityConverter;
 import com.opengamma.financial.analytics.conversion.TradeConverter;
-import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.discounting.DiscountingFunction;
 import com.opengamma.financial.analytics.model.swaption.SwaptionUtils;
 import com.opengamma.financial.convention.ConventionBundleSource;
@@ -106,7 +106,7 @@ public abstract class BlackDiscountingSwaptionFunction extends DiscountingFuncti
     }
 
     @Override
-    protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
+    protected ValueProperties.Builder getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
       final ValueProperties.Builder properties = createValueProperties()
           .with(PROPERTY_CURVE_TYPE, DISCOUNTING)
           .with(PROPERTY_VOLATILITY_MODEL, BLACK)
@@ -131,9 +131,9 @@ public abstract class BlackDiscountingSwaptionFunction extends DiscountingFuncti
       final Currency currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
       final Set<String> surface = constraints.getValues(SURFACE);
       final ValueProperties properties = ValueProperties.builder()
-          .with(ValuePropertyNames.SURFACE, surface)
-          .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.SWAPTION_ATM).get();
-      final ValueRequirement surfaceRequirement = new ValueRequirement(ValueRequirementNames.INTERPOLATED_VOLATILITY_SURFACE,
+          .with(SURFACE, surface)
+          .with(PROPERTY_SURFACE_INSTRUMENT_TYPE, SWAPTION_ATM).get();
+      final ValueRequirement surfaceRequirement = new ValueRequirement(INTERPOLATED_VOLATILITY_SURFACE,
           ComputationTargetSpecification.of(currency), properties);
       requirements.add(surfaceRequirement);
       return requirements;

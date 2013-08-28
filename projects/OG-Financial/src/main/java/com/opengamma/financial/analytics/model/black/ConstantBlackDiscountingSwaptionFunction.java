@@ -102,7 +102,7 @@ public abstract class ConstantBlackDiscountingSwaptionFunction extends Discounti
     }
 
     @Override
-    protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
+    protected ValueProperties.Builder getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
       final ValueProperties.Builder properties = createValueProperties()
           .with(PROPERTY_CURVE_TYPE, DISCOUNTING)
           .with(PROPERTY_VOLATILITY_MODEL, CONSTANT_BLACK)
