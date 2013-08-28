@@ -32,7 +32,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
- * Calculates the present value of FX options using a Black surface and
+ * Calculates the currency exposure of FX options using a Black surface and
  * curves constructed using the discounting method.
  */
 public class BlackDiscountingCurrencyExposureFXOptionFunction extends BlackDiscountingFXOptionFunction {
