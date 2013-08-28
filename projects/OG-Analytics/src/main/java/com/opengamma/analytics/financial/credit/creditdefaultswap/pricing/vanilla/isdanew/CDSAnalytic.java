@@ -164,7 +164,7 @@ public class CDSAnalytic {
       final LocalDate accStart = paymentSchedule.getAccStartDate(i);
       final LocalDate accEnd = paymentSchedule.getAccEndDate(i);
       final LocalDate obsEnd = protectStart ? accEnd.minusDays(1) : accEnd;
-      _accFractions[i] = accrualDayCount.getDayCountFraction(accStart,  , calendar);
+      _accFractions[i] = accrualDayCount.getDayCountFraction(accStart, accEnd, calendar);
       _accStart[i] = accStart.isBefore(tradeDate) ? -curveDayCount.getDayCountFraction(accStart, tradeDate, calendar) : curveDayCount.getDayCountFraction(tradeDate, accStart, calendar);
       _accEnd[i] = curveDayCount.getDayCountFraction(tradeDate, accEnd, calendar);
       _creditObsTimes[i] = curveDayCount.getDayCountFraction(tradeDate, obsEnd, calendar); // TODO this looks odd - check again with ISDA c code
