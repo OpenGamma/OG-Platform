@@ -14,11 +14,10 @@ import org.threeten.bp.LocalDate;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 
-import com.codahale.metrics.MetricRegistry;
-import com.codahale.metrics.Timer;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.metric.MetricProducer;
 
@@ -57,10 +56,9 @@ import com.opengamma.util.metric.MetricProducer;
  * See <a href="http://jira.opengamma.com/browse/PLAT-3385">PLAT-3385</a> for the original
  * requirement.
  */
-public class RedisSimulationSeriesSource extends AbstractRedisHistoricalTimeSeriesSource implements MetricProducer {
+public class RedisSimulationSeriesSource extends NonVersionedRedisHistoricalTimeSeriesSource implements MetricProducer {
   private static final Logger s_logger = LoggerFactory.getLogger(RedisSimulationSeriesSource.class);
   private LocalDate _currentSimulationExecutionDate = LocalDate.now();
-  private Timer _getSeriesTimer = new Timer();
   
   public RedisSimulationSeriesSource(JedisPool jedisPool) {
     this(jedisPool, "");
@@ -88,25 +86,25 @@ public class RedisSimulationSeriesSource extends AbstractRedisHistoricalTimeSeri
   }
 
   // ------------------------------------------------------------------------
-  // METRICS:
-  // ------------------------------------------------------------------------
-  
-  @Override
-  public void registerMetrics(MetricRegistry summaryRegistry, MetricRegistry detailRegistry, String namePrefix) {
-    _getSeriesTimer = summaryRegistry.timer(namePrefix + ".get");
-  }
-
-  // ------------------------------------------------------------------------
   // REDIS MANIPULATION OPERATIONS:
   // ------------------------------------------------------------------------
   
-  public void setTimeSeriesPoint(UniqueId uniqueId, LocalDate simulationExecutionDate, LocalDate valueDate, double value) {
+  public void updateTimeSeriesPoint(UniqueId uniqueId, LocalDate simulationExecutionDate, LocalDate valueDate, double value) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     ArgumentChecker.notNull(simulationExecutionDate, "simulationExecutionDate");
     ArgumentChecker.notNull(valueDate, "valueDate");
-    String redisKey = toRedisKey(uniqueId, simulationExecutionDate);
     
-    setTimeSeriesPoint(redisKey, valueDate, value);
+    String redisKey = toRedisKey(uniqueId, simulationExecutionDate);
+    updateTimeSeriesPoint(redisKey, valueDate, value);
+  }
+  
+  public void updateTimeSeries(UniqueId uniqueId, LocalDate simulationExecutionDate, LocalDateDoubleTimeSeries timeseries) {
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
+    ArgumentChecker.notNull(simulationExecutionDate, "simulationExecutionDate");
+    ArgumentChecker.notNull(timeseries, "timeseries");
+    
+    String redisKey = toRedisKey(uniqueId, simulationExecutionDate);
+    updateTimeSeries(redisKey, timeseries);
   }
   
   public void clearExecutionDate(LocalDate simulationExecutionDate) {
@@ -128,11 +126,6 @@ public class RedisSimulationSeriesSource extends AbstractRedisHistoricalTimeSeri
   @Override
   protected String toRedisKey(UniqueId uniqueId) {
     return toRedisKey(uniqueId, getCurrentSimulationExecutionDate());
-  }
-
-  @Override
-  protected Timer getSeriesLoadTimer() {
-    return _getSeriesTimer;
   }
   
 }
