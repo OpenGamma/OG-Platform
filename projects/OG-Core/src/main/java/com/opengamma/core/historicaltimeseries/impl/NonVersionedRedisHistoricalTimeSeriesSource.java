@@ -5,10 +5,10 @@
  */
 package com.opengamma.core.historicaltimeseries.impl;
 
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,8 +19,11 @@ import redis.clients.jedis.JedisPool;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
+import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
@@ -51,60 +54,87 @@ import com.opengamma.util.tuple.Pair;
  * will be thrown. Where use indicates that this class may be being used incorrectly,
  * a log message will be written at {@code WARN} level.
  */
-public class NonVersionedRedisHistoricalTimeSeriesSource extends AbstractRedisHistoricalTimeSeriesSource implements MetricProducer {
+public class NonVersionedRedisHistoricalTimeSeriesSource implements HistoricalTimeSeriesSource, MetricProducer {
   private static final Logger s_logger = LoggerFactory.getLogger(NonVersionedRedisHistoricalTimeSeriesSource.class);
+  private final JedisPool _jedisPool;
+  private final String _redisPrefix;
+  
   private Timer _getSeriesTimer = new Timer();
-  private Timer _getPointTimer = new Timer();
-  private Timer _putTimer = new Timer();
+  private Timer _updateSeriesTimer = new Timer();
   
   public NonVersionedRedisHistoricalTimeSeriesSource(JedisPool jedisPool) {
     this(jedisPool, "");
   }
-  
+    
   public NonVersionedRedisHistoricalTimeSeriesSource(JedisPool jedisPool, String redisPrefix) {
-    super(jedisPool, redisPrefix);
+    ArgumentChecker.notNull(jedisPool, "jedisPool");
+    ArgumentChecker.notNull(redisPrefix, "redisPrefix");
+    _jedisPool = jedisPool;
+    _redisPrefix = redisPrefix;
   }
 
+  /**
+   * Gets the jedisPool.
+   * @return the jedisPool
+   */
+  protected JedisPool getJedisPool() {
+    return _jedisPool;
+  }
+
+  /**
+   * Gets the redisPrefix.
+   * @return the redisPrefix
+   */
+  protected String getRedisPrefix() {
+    return _redisPrefix;
+  }
+  
   @Override
   public void registerMetrics(MetricRegistry summaryRegistry, MetricRegistry detailRegistry, String namePrefix) {
     _getSeriesTimer = summaryRegistry.timer(namePrefix + ".get");
-    _getPointTimer = summaryRegistry.timer(namePrefix + ".getPoint");
-    _putTimer = summaryRegistry.timer(namePrefix + ".put");
-  }
-
-  public void setTimeSeriesPoint(UniqueId uniqueId, LocalDate valueDate, double value) {
-    ArgumentChecker.notNull(uniqueId, "uniqueId");
-    ArgumentChecker.notNull(valueDate, "valueDate");
-    String redisKey = toRedisKey(uniqueId);
-    
-    setTimeSeriesPoint(redisKey, valueDate, value);
+    _updateSeriesTimer = summaryRegistry.timer(namePrefix + ".update");
   }
   
-  public void setTimeSeries(UniqueId uniqueId, LocalDateDoubleTimeSeries timeseries) {
+  public void updateTimeSeries(UniqueId uniqueId, LocalDateDoubleTimeSeries timeseries) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     ArgumentChecker.notNull(timeseries, "timeseries");
     
-    s_logger.debug("setTimeSeries for {}", uniqueId);
-    try (Timer.Context context = _putTimer.time()) {
-      HistoricalTimeSeries previousHts = getHistoricalTimeSeries(uniqueId);
+    updateTimeSeries(toRedisKey(uniqueId), timeseries);
+  }
+  
+  protected void updateTimeSeries(String redisKey, LocalDateDoubleTimeSeries timeseries) {    
+    try (Timer.Context context = _updateSeriesTimer.time()) {
+      LocalDateDoubleTimeSeries previousHts = loadTimeSeriesFromRedis(redisKey);
       Jedis jedis = getJedisPool().getResource();
       try {
-        String redisKey = toRedisKey(uniqueId);  
         LocalDateDoubleTimeSeries mergedHts = timeseries;
-        if (previousHts != null && previousHts.getTimeSeries() != null) {
-          mergedHts = mergeTimeseries(previousHts.getTimeSeries(), timeseries);
+        if (previousHts != null) {
+          mergedHts = mergeTimeseries(previousHts, timeseries);
+          jedis.del(redisKey);
         }
         jedis.rpush(redisKey, encodeTimeseries(mergedHts));
-        s_logger.debug("Timeseries {} written to redis", uniqueId);
+        getJedisPool().returnResource(jedis);
       } catch (Exception e) {
-        s_logger.error("Unable to put timeseries with id: " + uniqueId, e);
-        throw new OpenGammaRuntimeException("Unable to put timeseries with id: " + uniqueId, e);
-      } finally {
+        s_logger.error("Unable to put timeseries with id: " + redisKey, e);
         getJedisPool().returnBrokenResource(jedis);
+        throw new OpenGammaRuntimeException("Unable to put timeseries with id: " + redisKey, e);
       }
     }
   }
-
+  
+  public void updateTimeSeriesPoint(UniqueId uniqueId, LocalDate valueDate, double value) {
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
+    ArgumentChecker.notNull(valueDate, "valueDate");
+    
+    updateTimeSeriesPoint(toRedisKey(uniqueId), valueDate, value);
+  }
+  
+  protected void updateTimeSeriesPoint(String redisKey, LocalDate valueDate, double value) {
+    LocalDateDoubleTimeSeriesBuilder builder = ImmutableLocalDateDoubleTimeSeries.builder();
+    builder.put(valueDate, value);
+    updateTimeSeries(redisKey, builder.build());
+  }
+  
   private String[] encodeTimeseries(LocalDateDoubleTimeSeries timeseries) {
     String[] tsArray = new String[timeseries.size() * 2];
     int index = 0;
@@ -127,10 +157,43 @@ public class NonVersionedRedisHistoricalTimeSeriesSource extends AbstractRedisHi
     }
     return builder.build();
   }
-
-  @Override
-  protected Timer getSeriesLoadTimer() {
-    return _getSeriesTimer;
+  
+  /**
+   * Completely empty the underlying Redis server.
+   * You should only call this if you really know what you're doing.
+   */
+  public void completelyClearRedis() {
+    Jedis jedis = getJedisPool().getResource();
+    try {
+      jedis.flushDB();
+      getJedisPool().returnResource(jedis);
+    } catch (Exception e) {
+      s_logger.error("Unable to clear database", e);
+      getJedisPool().returnBrokenResource(jedis);
+      throw new OpenGammaRuntimeException("Unable to clear database", e);
+    }
+  }
+  
+  protected String toRedisKey(UniqueId uniqueId) {
+    return toRedisKey(uniqueId, null);
+  }
+  
+  protected String toRedisKey(ExternalIdBundle identifierBundle) {
+    return toRedisKey(toUniqueId(identifierBundle));
+  }
+  
+  protected String toRedisKey(UniqueId uniqueId, LocalDate simulationExecutionDate) {
+    StringBuilder sb = new StringBuilder();
+    
+    sb.append(getRedisPrefix());
+    sb.append('_');
+    sb.append(uniqueId);
+    if (simulationExecutionDate != null) {
+      sb.append('_');
+      sb.append(simulationExecutionDate.toString());
+    }
+    
+    return sb.toString();
   }
   
   protected UniqueId toUniqueId(ExternalIdBundle identifierBundle) {
@@ -141,30 +204,95 @@ public class NonVersionedRedisHistoricalTimeSeriesSource extends AbstractRedisHi
     UniqueId uniqueId = UniqueId.of(id.getScheme().getName(), id.getValue());
     return uniqueId;
   }
-  
+    
   // ------------------------------------------------------------------------
   // SUPPORTED HISTORICAL TIME SERIES SOURCE OPERATIONS:
   // ------------------------------------------------------------------------
+    
+  protected LocalDateDoubleTimeSeries loadTimeSeriesFromRedis(String redisKey) {
+    // This is the only method that needs implementation.
+    try (Timer.Context context = _getSeriesTimer.time()) {
+      Jedis jedis = getJedisPool().getResource();
+      LocalDateDoubleTimeSeries ts = null;
+      try {
+        List<String> htsDataPoints = jedis.lrange(redisKey, 0, -1);
+        if (!htsDataPoints.isEmpty()) {
+          List<LocalDate> times = Lists.newArrayListWithCapacity(htsDataPoints.size() / 2);
+          List<Double> values = Lists.newArrayListWithCapacity(htsDataPoints.size() / 2);
+          
+          int counter = 0;
+          for (String dataPoint : htsDataPoints) {
+            if ((counter % 2) == 0) {
+              times.add(LocalDateToIntConverter.convertToLocalDate(Integer.parseInt(dataPoint)));
+            } else {
+              values.add(Double.parseDouble(dataPoint));
+            }
+            counter++;
+          }
+          ts = ImmutableLocalDateDoubleTimeSeries.of(times, values);
+        }
+        getJedisPool().returnResource(jedis);
+      } catch (Exception e) {
+        s_logger.error("Unable to load points from redis for " + redisKey, e);
+        getJedisPool().returnBrokenResource(jedis);
+        throw new OpenGammaRuntimeException("Unable to load points from redis for " + redisKey, e);
+      }
+      return ts;
+    }
+  }
+
+  public HistoricalTimeSeries getHistoricalTimeSeries(UniqueId uniqueId, LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
+    LocalDateDoubleTimeSeries ts = loadTimeSeriesFromRedis(toRedisKey(uniqueId));
+    if (ts == null) {
+      return null;
+    }
+    
+    if (start != null) {
+      ArgumentChecker.notNull(end, "end");
+      ts = ts.subSeries(start, includeStart, end, includeEnd);
+    }
+    return new SimpleHistoricalTimeSeries(uniqueId, ts);
+  }
+
+  public HistoricalTimeSeries getHistoricalTimeSeries(String dataField, ExternalIdBundle identifierBundle, String resolutionKey, LocalDate start, boolean includeStart, LocalDate end,
+                                                      boolean includeEnd, int maxPoints) {
+    if (identifierBundle.isEmpty()) {
+      return null;
+    }
+    final ExternalId id = identifierBundle.iterator().next();
+    final UniqueId uniqueId = UniqueId.of(id.getScheme().getName(), id.getValue());
+    return getHistoricalTimeSeries(uniqueId, start, includeStart, end, includeEnd);
+  }
+
+  public HistoricalTimeSeries getHistoricalTimeSeries(UniqueId uniqueId) {
+    s_logger.debug("getHistoricalTimeSeries for {}", uniqueId);
+    LocalDateDoubleTimeSeries ts = loadTimeSeriesFromRedis(toRedisKey(uniqueId));
+    if (ts == null) {
+      return null;
+    } else {
+      return new SimpleHistoricalTimeSeries(uniqueId, ts);
+    }
+  }
+  
+  public ExternalIdBundle getExternalIdBundle(UniqueId uniqueId) {
+    return ExternalId.of(uniqueId.getScheme(), uniqueId.getValue()).toBundle();
+  }
+  
   @Override
   public Pair<LocalDate, Double> getLatestDataPoint(UniqueId uniqueId) {
-    try (Timer.Context context = _getPointTimer.time()) {
-      
-      Map<String, String> valuesFromRedis = loadValuesFromRedis(uniqueId);
-      
-      if ((valuesFromRedis == null) || valuesFromRedis.isEmpty()) {
-        return null;
+    try (Timer.Context context = _getSeriesTimer.time()) {
+      Pair<LocalDate, Double> latestPoint = null;
+      LocalDateDoubleTimeSeries ts = loadTimeSeriesFromRedis(toRedisKey(uniqueId));
+      if (ts != null) {
+        latestPoint = Pair.of(ts.getLatestTime(), ts.getLatestValue());
       }
-      
-      SortedMap<String, String> sortedValues = new TreeMap<String, String>(valuesFromRedis);
-      return Pair.of(
-          LocalDate.parse(sortedValues.lastKey()),
-          Double.parseDouble(sortedValues.get(sortedValues.lastKey())));
+      return latestPoint;
     }
   }
 
   @Override
   public Pair<LocalDate, Double> getLatestDataPoint(UniqueId uniqueId, LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
-    LocalDateDoubleTimeSeries ts = loadTimeSeriesFromRedis(uniqueId);
+    LocalDateDoubleTimeSeries ts = loadTimeSeriesFromRedis(toRedisKey(uniqueId));
     if (ts == null) {
       return null;
     }
@@ -177,10 +305,7 @@ public class NonVersionedRedisHistoricalTimeSeriesSource extends AbstractRedisHi
   }
   
   protected LocalDateDoubleTimeSeries getLocalDateDoubleTimeSeries(ExternalIdBundle identifierBundle) {
-    UniqueId uniqueId = toUniqueId(identifierBundle);
-    
-    LocalDateDoubleTimeSeries ts = loadTimeSeriesFromRedis(uniqueId);
-    return ts;
+    return loadTimeSeriesFromRedis(toRedisKey(identifierBundle));
   }
   
   protected HistoricalTimeSeries getHistoricalTimeSeries(ExternalIdBundle identifierBundle) {
@@ -235,6 +360,78 @@ public class NonVersionedRedisHistoricalTimeSeriesSource extends AbstractRedisHi
   public Pair<LocalDate, Double> getLatestDataPoint(String dataField, ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey) {
     UniqueId uniqueId = toUniqueId(identifierBundle);
     return getLatestDataPoint(uniqueId);
+  }
+
+  // ------------------------------------------------------------------------
+  // UNSUPPORTED OPERATIONS:
+  // ------------------------------------------------------------------------
+  public ChangeManager changeManager() {
+    throw new UnsupportedOperationException("Unsupported operation.");
+  }
+
+  public HistoricalTimeSeries getHistoricalTimeSeries(UniqueId uniqueId, LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd, int maxPoints) {
+    throw new UnsupportedOperationException("Unsupported operation.");
+  }
+
+  public HistoricalTimeSeries getHistoricalTimeSeries(ExternalIdBundle identifierBundle, String dataSource, String dataProvider, String dataField, LocalDate start, boolean includeStart,
+      LocalDate end, boolean includeEnd) {
+    throw new UnsupportedOperationException("Unsupported operation.");
+  }
+
+  public HistoricalTimeSeries getHistoricalTimeSeries(ExternalIdBundle identifierBundle, String dataSource, String dataProvider, String dataField, LocalDate start, boolean includeStart,
+      LocalDate end, boolean includeEnd, int maxPoints) {
+    throw new UnsupportedOperationException("Unsupported operation.");
+  }
+
+  public HistoricalTimeSeries getHistoricalTimeSeries(ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField, LocalDate start,
+      boolean includeStart, LocalDate end, boolean includeEnd) {
+    throw new UnsupportedOperationException("Unsupported operation.");
+  }
+
+  public HistoricalTimeSeries getHistoricalTimeSeries(ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField, LocalDate start,
+      boolean includeStart, LocalDate end, boolean includeEnd, int maxPoints) {
+    throw new UnsupportedOperationException("Unsupported operation.");
+  }
+
+  public Pair<LocalDate, Double> getLatestDataPoint(ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField, LocalDate start,
+      boolean includeStart, LocalDate end, boolean includeEnd) {
+    throw new UnsupportedOperationException("Unsupported operation.");
+  }
+
+  public Pair<LocalDate, Double> getLatestDataPoint(ExternalIdBundle identifierBundle, String dataSource, String dataProvider, String dataField, LocalDate start, boolean includeStart, LocalDate end,
+      boolean includeEnd) {
+    throw new UnsupportedOperationException("Unsupported operation.");
+  }
+
+  public HistoricalTimeSeries getHistoricalTimeSeries(String dataField, ExternalIdBundle identifierBundle, String resolutionKey, LocalDate start, boolean includeStart, LocalDate end,
+      boolean includeEnd) {
+    throw new UnsupportedOperationException("Unsupported operation.");
+  }
+
+  public HistoricalTimeSeries getHistoricalTimeSeries(String dataField, ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey, LocalDate start,
+      boolean includeStart, LocalDate end, boolean includeEnd) {
+    throw new UnsupportedOperationException("Unsupported operation.");
+  }
+
+  public HistoricalTimeSeries getHistoricalTimeSeries(String dataField, ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey, LocalDate start,
+      boolean includeStart, LocalDate end, boolean includeEnd, int maxPoints) {
+    throw new UnsupportedOperationException("Unsupported operation.");
+  }
+
+  public Pair<LocalDate, Double> getLatestDataPoint(
+      String dataField, ExternalIdBundle identifierBundle, String resolutionKey,
+      LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
+    throw new UnsupportedOperationException("Unsupported operation.");
+  }
+
+  public Pair<LocalDate, Double> getLatestDataPoint(String dataField, ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey, LocalDate start, boolean includeStart,
+      LocalDate end, boolean includeEnd) {
+    throw new UnsupportedOperationException("Unsupported operation.");
+  }
+
+  public Map<ExternalIdBundle, HistoricalTimeSeries> getHistoricalTimeSeries(Set<ExternalIdBundle> identifierSet, String dataSource, String dataProvider, String dataField, LocalDate start,
+      boolean includeStart, LocalDate end, boolean includeEnd) {
+    throw new UnsupportedOperationException("Unsupported operation.");
   }
 
 }
