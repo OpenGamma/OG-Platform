@@ -49,7 +49,7 @@ import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculatio
 import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
-import com.opengamma.financial.analytics.model.black.BlackDiscountingFunction;
+import com.opengamma.financial.analytics.model.black.BlackDiscountingSwaptionFunction;
 import com.opengamma.financial.analytics.model.swaption.SwaptionUtils;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.FinancialSecurityTypes;
@@ -60,7 +60,7 @@ import com.opengamma.util.money.Currency;
 
 /**
  * Base class for curve-specific risks of swaptions priced with the Black method.
- * @deprecated Use descendants of {@link BlackDiscountingFunction}
+ * @deprecated Use descendants of {@link BlackDiscountingSwaptionFunction}
  */
 @Deprecated
 public abstract class SwaptionBlackCurveSpecificFunction extends AbstractFunction.NonCompiledInvoker {

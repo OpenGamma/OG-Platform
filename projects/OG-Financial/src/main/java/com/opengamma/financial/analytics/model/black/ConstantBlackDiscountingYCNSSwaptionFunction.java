@@ -13,7 +13,7 @@ import static com.opengamma.engine.value.ValueRequirementNames.CURVE_DEFINITION;
 import static com.opengamma.engine.value.ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES;
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.DISCOUNTING;
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.PROPERTY_CURVE_TYPE;
-import static com.opengamma.financial.analytics.model.volatility.SmileFittingPropertyNamesAndValues.BLACK;
+import static com.opengamma.financial.analytics.model.volatility.SmileFittingPropertyNamesAndValues.CONSTANT_BLACK;
 import static com.opengamma.financial.analytics.model.volatility.SmileFittingPropertyNamesAndValues.PROPERTY_VOLATILITY_MODEL;
 
 import java.util.Collections;
@@ -21,11 +21,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
 
 import com.google.common.collect.Iterables;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
@@ -51,17 +50,15 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Calculates the yield curve node sensitivities of instruments using
+ * Calculates the yield curve node sensitivities of swaptions using
  * curves constructed using the discounting method.
  */
-public class BlackDiscountingYCNSFunction extends BlackDiscountingFunction {
-  /** The logger */
-  private static final Logger s_logger = LoggerFactory.getLogger(BlackDiscountingYCNSFunction.class);
+public class ConstantBlackDiscountingYCNSSwaptionFunction extends ConstantBlackDiscountingSwaptionFunction {
 
   /**
    * Sets the value requirements to {@link ValueRequirementNames#YIELD_CURVE_NODE_SENSITIVITIES}
    */
-  public BlackDiscountingYCNSFunction() {
+  public ConstantBlackDiscountingYCNSSwaptionFunction() {
     super(YIELD_CURVE_NODE_SENSITIVITIES);
   }
 
@@ -89,8 +86,7 @@ public class BlackDiscountingYCNSFunction extends BlackDiscountingFunction {
             return Collections.singleton(new ComputedValue(spec, ycns));
           }
         }
-        s_logger.info("Could not get sensitivities to " + curveName + " for " + target.getName());
-        return Collections.emptySet();
+        throw new OpenGammaRuntimeException("Could not get sensitivities to " + curveName + " for " + target.getName());
       }
 
       @Override
@@ -112,7 +108,7 @@ public class BlackDiscountingYCNSFunction extends BlackDiscountingFunction {
             .with(PROPERTY_CURVE_TYPE, DISCOUNTING)
             .with(CURVE_EXPOSURES, curveExposureConfigs)
             .with(SURFACE, surfaces)
-            .with(PROPERTY_VOLATILITY_MODEL, BLACK)
+            .with(PROPERTY_VOLATILITY_MODEL, CONSTANT_BLACK)
             .get();
         final ValueProperties curveProperties = ValueProperties
             .with(CURVE, curveNames)
@@ -137,6 +133,25 @@ public class BlackDiscountingYCNSFunction extends BlackDiscountingFunction {
         return properties.withAny(CURVE);
       }
 
+      @Override
+      public Set<ValueSpecification> getResults(final FunctionCompilationContext compilationContext, final ComputationTarget target,
+          final Map<ValueSpecification, ValueRequirement> inputs) {
+        String curveName = null;
+        for (final Map.Entry<ValueSpecification, ValueRequirement> entry : inputs.entrySet()) {
+          final ValueRequirement requirement = entry.getValue();
+          if (requirement.getValueName().equals(CURVE_DEFINITION)) {
+            curveName = requirement.getConstraint(CURVE);
+            break;
+          }
+        }
+        if (curveName == null) {
+          return null;
+        }
+        final ValueProperties.Builder properties = getResultProperties(target)
+            .withoutAny(CURVE)
+            .with(CURVE, curveName);
+        return Collections.singleton(new ValueSpecification(YIELD_CURVE_NODE_SENSITIVITIES, target.toSpecification(), properties.get()));
+      }
     };
   }
 }

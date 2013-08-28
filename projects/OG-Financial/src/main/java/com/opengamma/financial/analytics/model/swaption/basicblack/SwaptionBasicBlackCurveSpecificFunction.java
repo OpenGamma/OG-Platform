@@ -49,6 +49,7 @@ import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalcula
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
+import com.opengamma.financial.analytics.model.black.ConstantBlackDiscountingSwaptionFunction;
 import com.opengamma.financial.analytics.model.swaption.SwaptionUtils;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.FinancialSecurityTypes;
@@ -60,7 +61,9 @@ import com.opengamma.util.money.Currency;
 /**
  * Base class for functions that return curve-specific values for swaptions using the basic Black model
  * (i.e. using a security-specific volatility and not interpolating volatilities).
+ * @deprecated Use descendants of {@link ConstantBlackDiscountingSwaptionFunction}
  */
+@Deprecated
 public abstract class SwaptionBasicBlackCurveSpecificFunction extends AbstractFunction.NonCompiledInvoker {
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(SwaptionBasicBlackCurveSpecificFunction.class);
@@ -230,7 +233,7 @@ public abstract class SwaptionBasicBlackCurveSpecificFunction extends AbstractFu
         .with(ValuePropertyNames.CURVE, curveName).get();
   }
 
-  private ValueRequirement getVolatilityRequirement(final ComputationTargetSpecification target) {
+  private static ValueRequirement getVolatilityRequirement(final ComputationTargetSpecification target) {
     return new ValueRequirement(MarketDataRequirementNames.IMPLIED_VOLATILITY, target, ValueProperties.builder().get());
   }
 }

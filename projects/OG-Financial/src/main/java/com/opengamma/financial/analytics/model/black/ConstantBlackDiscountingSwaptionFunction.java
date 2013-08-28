@@ -8,10 +8,9 @@ package com.opengamma.financial.analytics.model.black;
 import static com.opengamma.engine.value.ValuePropertyNames.CURRENCY;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_EXPOSURES;
 import static com.opengamma.engine.value.ValuePropertyNames.SURFACE;
-import static com.opengamma.engine.value.ValueRequirementNames.INTERPOLATED_VOLATILITY_SURFACE;
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.DISCOUNTING;
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.PROPERTY_CURVE_TYPE;
-import static com.opengamma.financial.analytics.model.volatility.SmileFittingPropertyNamesAndValues.BLACK;
+import static com.opengamma.financial.analytics.model.volatility.SmileFittingPropertyNamesAndValues.CONSTANT_BLACK;
 import static com.opengamma.financial.analytics.model.volatility.SmileFittingPropertyNamesAndValues.PROPERTY_VOLATILITY_MODEL;
 
 import java.util.Set;
@@ -19,22 +18,21 @@ import java.util.Set;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.model.option.parameters.BlackFlatSwaptionParameters;
-import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackSwaptionFlatProvider;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
@@ -42,7 +40,6 @@ import com.opengamma.financial.analytics.conversion.FutureTradeConverter;
 import com.opengamma.financial.analytics.conversion.SwapSecurityConverter;
 import com.opengamma.financial.analytics.conversion.SwaptionSecurityConverter;
 import com.opengamma.financial.analytics.conversion.TradeConverter;
-import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.discounting.DiscountingFunction;
 import com.opengamma.financial.analytics.model.swaption.SwaptionUtils;
 import com.opengamma.financial.convention.ConventionBundleSource;
@@ -51,18 +48,17 @@ import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.option.SwaptionSecurity;
-import com.opengamma.util.money.Currency;
 
 /**
- * Base function for all pricing and risk functions that use a Black surface
+ * Base function for all swaption pricing and risk functions that use a constant Black surface
  * and curves constructed using the discounting method.
  */
-public abstract class BlackDiscountingFunction extends DiscountingFunction {
+public abstract class ConstantBlackDiscountingSwaptionFunction extends DiscountingFunction {
 
   /**
    * @param valueRequirements The value requirements, not null
    */
-  public BlackDiscountingFunction(final String... valueRequirements) {
+  public ConstantBlackDiscountingSwaptionFunction(final String... valueRequirements) {
     super(valueRequirements);
   }
 
@@ -109,7 +105,7 @@ public abstract class BlackDiscountingFunction extends DiscountingFunction {
     protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
       final ValueProperties.Builder properties = createValueProperties()
           .with(PROPERTY_CURVE_TYPE, DISCOUNTING)
-          .with(PROPERTY_VOLATILITY_MODEL, BLACK)
+          .with(PROPERTY_VOLATILITY_MODEL, CONSTANT_BLACK)
           .withAny(SURFACE)
           .withAny(CURVE_EXPOSURES);
       if (isWithCurrency()) {
@@ -127,25 +123,8 @@ public abstract class BlackDiscountingFunction extends DiscountingFunction {
       if (requirements == null) {
         return null;
       }
-      final ValueProperties constraints = desiredValue.getConstraints();
-      final Currency currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
-      final Set<String> surface = constraints.getValues(SURFACE);
-      final ValueProperties properties = ValueProperties.builder()
-          .with(ValuePropertyNames.SURFACE, surface)
-          .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.SWAPTION_ATM).get();
-      final ValueRequirement surfaceRequirement = new ValueRequirement(ValueRequirementNames.INTERPOLATED_VOLATILITY_SURFACE,
-          ComputationTargetSpecification.of(currency), properties);
-      requirements.add(surfaceRequirement);
+      requirements.add(new ValueRequirement(MarketDataRequirementNames.IMPLIED_VOLATILITY, target.toSpecification(), ValueProperties.builder().get()));
       return requirements;
-    }
-
-    @Override
-    protected boolean requirementsSet(final ValueProperties constraints) {
-      final Set<String> surfaceNames = constraints.getValues(SURFACE);
-      if (surfaceNames == null) {
-        return false;
-      }
-      return super.requirementsSet(constraints);
     }
 
     /**
@@ -161,8 +140,8 @@ public abstract class BlackDiscountingFunction extends DiscountingFunction {
       final SwaptionSecurity security = (SwaptionSecurity) target.getTrade().getSecurity();
       final InstrumentDefinition<?> definition = getDefinitionFromTarget(target);
       final MulticurveProviderInterface data = getMergedProviders(inputs, fxMatrix);
-      final VolatilitySurface volatilitySurface = (VolatilitySurface) inputs.getValue(INTERPOLATED_VOLATILITY_SURFACE);
-      final BlackFlatSwaptionParameters parameters = new BlackFlatSwaptionParameters(volatilitySurface.getSurface(),
+      final double volatility = (Double) inputs.getValue(MarketDataRequirementNames.IMPLIED_VOLATILITY);
+      final BlackFlatSwaptionParameters parameters = new BlackFlatSwaptionParameters(ConstantDoublesSurface.from(volatility),
           SwaptionUtils.getSwapGenerator(security, definition, securitySource));
       final BlackSwaptionFlatProvider blackData = new BlackSwaptionFlatProvider(data, parameters);
       return blackData;

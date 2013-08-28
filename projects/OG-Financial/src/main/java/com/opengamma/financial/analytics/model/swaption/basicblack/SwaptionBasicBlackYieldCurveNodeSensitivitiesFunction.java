@@ -53,6 +53,7 @@ import com.opengamma.financial.analytics.model.FunctionUtils;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
+import com.opengamma.financial.analytics.model.black.ConstantBlackDiscountingYCNSSwaptionFunction;
 import com.opengamma.financial.analytics.model.curve.interestrate.FXImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults;
 import com.opengamma.financial.analytics.model.swaption.SwaptionUtils;
@@ -68,7 +69,9 @@ import com.opengamma.util.money.Currency;
  * <p>
  * Produces a result for {@link ValueRequirementNames#YIELD_CURVE_NODE_SENSITIVITIES} using {@link InstrumentSensitivityCalculator}
  * with {@link PresentValueCurveSensitivityBlackCalculator}
+ * @deprecated Use {@link ConstantBlackDiscountingYCNSSwaptionFunction}
  */
+@Deprecated
 public class SwaptionBasicBlackYieldCurveNodeSensitivitiesFunction extends SwaptionBasicBlackCurveSpecificFunction {
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(SwaptionBasicBlackYieldCurveNodeSensitivitiesFunction.class);
@@ -212,25 +215,25 @@ public class SwaptionBasicBlackYieldCurveNodeSensitivitiesFunction extends Swapt
     return requirements;
   }
 
-  private ValueRequirement getVolatilityRequirement(final ComputationTargetSpecification target) {
+  private static ValueRequirement getVolatilityRequirement(final ComputationTargetSpecification target) {
     return new ValueRequirement(MarketDataRequirementNames.IMPLIED_VOLATILITY, target, ValueProperties.builder().get());
   }
 
-  private ValueRequirement getJacobianRequirement(final Currency currency, final String curveCalculationConfigName, final String curveCalculationMethod) {
+  private static ValueRequirement getJacobianRequirement(final Currency currency, final String curveCalculationConfigName, final String curveCalculationMethod) {
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod).get();
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_JACOBIAN, ComputationTargetSpecification.of(currency), properties);
   }
 
-  private ValueRequirement getCouponSensitivitiesRequirement(final Currency currency, final String curveCalculationConfigName) {
+  private static ValueRequirement getCouponSensitivitiesRequirement(final Currency currency, final String curveCalculationConfigName) {
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfigName)
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, MultiYieldCurvePropertiesAndDefaults.PRESENT_VALUE_STRING).get();
     return new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_COUPON_SENSITIVITY, ComputationTargetSpecification.of(currency), properties);
   }
 
-  private ValueRequirement getCurveSpecRequirement(final Currency currency, final String curveName) {
+  private static ValueRequirement getCurveSpecRequirement(final Currency currency, final String curveName) {
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.CURVE, curveName).get();
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetSpecification.of(currency), properties);

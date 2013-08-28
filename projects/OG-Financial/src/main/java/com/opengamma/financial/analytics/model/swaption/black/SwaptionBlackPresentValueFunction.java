@@ -14,11 +14,11 @@ import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithB
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.model.black.BlackDiscountingPVFunction;
+import com.opengamma.financial.analytics.model.black.BlackDiscountingPVSwaptionFunction;
 
 /**
  * Calculates the present value of swaptions using the Black method.
- * @deprecated Use {@link BlackDiscountingPVFunction}
+ * @deprecated Use {@link BlackDiscountingPVSwaptionFunction}
  */
 @Deprecated
 public class SwaptionBlackPresentValueFunction extends SwaptionBlackFunction {

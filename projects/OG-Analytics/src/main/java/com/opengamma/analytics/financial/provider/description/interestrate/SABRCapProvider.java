@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.description.interestrate;
@@ -9,7 +9,7 @@ import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateParameters;
 
 /**
- * Implementation for swaption SABR parameters provider for one underlying when multi-curves are described by a MulticurveProviderDiscount.
+ * Implementation for cap-floor SABR parameters provider for one underlying when multi-curves are described by a MulticurveProviderDiscount.
  */
 public class SABRCapProvider implements SABRCapProviderInterface {
 
@@ -22,7 +22,7 @@ public class SABRCapProvider implements SABRCapProviderInterface {
    */
   private final SABRInterestRateParameters _parameters;
   /**
-   * The underlying swaps generators.
+   * The underlying ibor index.
    */
   private final IborIndex _index;
 
@@ -31,7 +31,7 @@ public class SABRCapProvider implements SABRCapProviderInterface {
    * @param parameters The SABR parameters.
    * @param index The cap/floor index.
    */
-  public SABRCapProvider(MulticurveProviderInterface multicurveProvider, SABRInterestRateParameters parameters, final IborIndex index) {
+  public SABRCapProvider(final MulticurveProviderInterface multicurveProvider, final SABRInterestRateParameters parameters, final IborIndex index) {
     _multicurveProvider = multicurveProvider;
     _parameters = parameters;
     _index = index;
@@ -39,7 +39,7 @@ public class SABRCapProvider implements SABRCapProviderInterface {
 
   @Override
   public SABRCapProviderInterface copy() {
-    MulticurveProviderInterface multicurveProvider = _multicurveProvider.copy();
+    final MulticurveProviderInterface multicurveProvider = _multicurveProvider.copy();
     return new SABRCapProvider(multicurveProvider, _parameters, _index);
   }
 

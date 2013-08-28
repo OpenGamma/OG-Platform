@@ -26,6 +26,11 @@ public class SmileFittingPropertyNamesAndValues {
   public static final String BLACK = "Black";
 
   /**
+   * Constant Black surface
+   */
+  public static final String CONSTANT_BLACK = "ConstantBlack";
+
+  /**
    * Property representing the method used to fit a cube or surface
    */
   public static final String PROPERTY_FITTING_METHOD = "FittingMethod";

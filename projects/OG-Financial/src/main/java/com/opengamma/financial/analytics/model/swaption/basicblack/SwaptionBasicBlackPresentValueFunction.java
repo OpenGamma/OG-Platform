@@ -14,13 +14,16 @@ import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithB
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.model.black.ConstantBlackDiscountingPVSwaptionFunction;
 
 /**
  * Calculates the present value of a swaption using the Black method with no volatility modelling assumptions.
  * The implied volatility is read directly from the market data system.
  * <p>
  * Produces a result for {@link ValueRequirementNames#PRESENT_VALUE} using {@link PresentValueBlackCalculator}.
+ * @deprecated Use {@link ConstantBlackDiscountingPVSwaptionFunction}
  */
+@Deprecated
 public class SwaptionBasicBlackPresentValueFunction extends SwaptionBasicBlackFunction {
   /** The calculator */
   private static final PresentValueBlackCalculator CALCULATOR = PresentValueBlackCalculator.getInstance();

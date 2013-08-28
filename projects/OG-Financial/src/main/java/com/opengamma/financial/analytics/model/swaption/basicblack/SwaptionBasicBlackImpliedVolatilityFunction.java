@@ -13,6 +13,7 @@ import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithB
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.model.black.ConstantBlackDiscountingImpliedVolatilitySwaptionFunction;
 
 /**
  * Function that returns the implied volatility of a swaption. There are no volatility modelling
@@ -20,7 +21,9 @@ import com.opengamma.engine.value.ValueSpecification;
  * market data system.
  * <p>
  * Produces a result for {@link ValueRequirementNames#SECURITY_IMPLIED_VOLATILITY}.
+ * @deprecated Use {@link ConstantBlackDiscountingImpliedVolatilitySwaptionFunction}
  */
+@Deprecated
 public class SwaptionBasicBlackImpliedVolatilityFunction extends SwaptionBasicBlackFunction {
 
   /**

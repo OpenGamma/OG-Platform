@@ -58,10 +58,11 @@ public class ZSpreadCalculator<T extends ParameterProviderInterface> {
   }
 
   /**
-   * @param annuity
-   * @param curves
-   * @param price
-   * @return
+   * Calculates the z-spread of an annuity given curves and a price.
+   * @param annuity The annuity, not null
+   * @param curves The curves, not null
+   * @param price The price of the annuity
+   * @return The z-spread
    */
   public double calculateZSpread(final Annuity<? extends Payment> annuity, final T curves, final double price) {
     ArgumentChecker.notNull(annuity, "annuity");
@@ -79,10 +80,11 @@ public class ZSpreadCalculator<T extends ParameterProviderInterface> {
   }
 
   /**
-   * @param annuity
-   * @param curves
-   * @param zSpread
-   * @return
+   * Calculates the price of an annuity given curves and a z-spread.
+   * @param annuity The annuity, not null
+   * @param curves The curves, not null
+   * @param zSpread The z-spread of the annuity
+   * @return The price of the annuity
    */
   public double calculatePriceForZSpread(final Annuity<? extends Payment> annuity, final T curves, final double zSpread) {
     ArgumentChecker.notNull(annuity, "annuity");
@@ -104,10 +106,11 @@ public class ZSpreadCalculator<T extends ParameterProviderInterface> {
   }
 
   /**
-   * @param annuity
-   * @param curves
-   * @param zSpread
-   * @return
+   * Calculates the sensitivity of the price of an annuity to the z-spread.
+   * @param annuity The annuity, not null
+   * @param curves The curves, not null
+   * @param zSpread The z-spread
+   * @return The sensitivity of the price to the z-spread
    */
   public double calculatePriceSensitivityToZSpread(final Annuity<? extends Payment> annuity, final T curves, final double zSpread) {
     ArgumentChecker.notNull(annuity, "annuity");
@@ -131,10 +134,11 @@ public class ZSpreadCalculator<T extends ParameterProviderInterface> {
   }
 
   /**
-   * @param annuity
-   * @param curves
-   * @param zSpread
-   * @return
+   * Calculates the sensitivity of the price of an annuity to the curve.
+   * @param annuity The annuity, not null
+   * @param curves The curves, not null
+   * @param zSpread The z-spread
+   * @return The sensitivity of the price to the z-spread
    */
   public Map<String, List<DoublesPair>> calculatePriceSensitivityToCurve(final Annuity<? extends Payment> annuity, final T curves, final double zSpread) {
     ArgumentChecker.notNull(annuity, "annuity");
@@ -163,10 +167,11 @@ public class ZSpreadCalculator<T extends ParameterProviderInterface> {
   }
 
   /**
-   * @param annuity
-   * @param curves
-   * @param zSpread
-   * @return
+   * Calculates the sensitivity of the z-spread of an annuity to the curves.
+   * @param annuity The annuity, not null
+   * @param curves The curves, not null
+   * @param zSpread The z-spread
+   * @return The sensitivity of the price to the z-spread
    */
   public Map<String, List<DoublesPair>> calculateZSpreadSensitivityToCurve(final Annuity<? extends Payment> annuity, final T curves, final double zSpread) {
     ArgumentChecker.notNull(annuity, "annuity");

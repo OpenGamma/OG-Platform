@@ -35,9 +35,11 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
- *
+ * Calculates the sensitivities of a swaption to the bundle of curves used
+ * in pricing. The Black formula with no volatility modeling assumptions is
+ * used.
  */
-public class BlackDiscountingBCSFunction extends BlackDiscountingFunction {
+public class ConstantBlackDiscountingBCSSwaptionFunction extends ConstantBlackDiscountingSwaptionFunction {
   /** The curve sensitivity calculator */
   private static final InstrumentDerivativeVisitor<BlackSwaptionFlatProviderInterface, MultipleCurrencyMulticurveSensitivity> PVCSDC =
       PresentValueCurveSensitivityBlackSwaptionCalculator.getInstance();
@@ -51,7 +53,7 @@ public class BlackDiscountingBCSFunction extends BlackDiscountingFunction {
   /**
    * Sets the value requirements to {@link ValueRequirementNames#BLOCK_CURVE_SENSITIVITIES}
    */
-  public BlackDiscountingBCSFunction() {
+  public ConstantBlackDiscountingBCSSwaptionFunction() {
     super(BLOCK_CURVE_SENSITIVITIES);
   }
 

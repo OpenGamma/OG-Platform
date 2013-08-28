@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.option.pricing.tree;
@@ -18,7 +18,7 @@ import com.opengamma.analytics.math.statistics.descriptive.SampleMomentCalculato
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ *
  */
 public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
 
@@ -37,13 +37,13 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
   /*
    * TODO Test Greeks for barriers with discrete/continuous dividends
    * TODO time-varying vol may not be compatible to discrete dividends due to limited control of dt
-   *       
+   *
    * TODO Other types, such as Binary-type payoff, can be done with OptionDefinition
    * TODO spread options need more tests
-   * 
+   *
    * TODO check convergence of theta
-   * 
-   * 
+   *
+   *
    * <<Slight modification of American>>
    * TODO Bermudan option
    * <<Full tree information may be needed>>
@@ -70,6 +70,7 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
     }
   }
 
+  @Override
   public double getPrice(final LatticeSpecification lattice, final OptionFunctionProvider1D function, final double spot, final double timeToExpiry, final double volatility,
       final double interestRate, final double dividend) {
     ArgumentChecker.notNull(lattice, "lattice");
@@ -105,7 +106,7 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
     ArgumentChecker.isTrue(upProbability > 0., "upProbability should be greater than 0.");
     ArgumentChecker.isTrue(upProbability < 1., "upProbability should be smaller than 1.");
 
-    double assetPrice = spot * Math.pow(downFactor, nSteps);
+    final double assetPrice = spot * Math.pow(downFactor, nSteps);
     double[] values = function.getPayoffAtExpiry(assetPrice, upOverDown);
     for (int i = nSteps - 1; i > -1; --i) {
       values = function.getNextOptionValues(discount, upProbability, downProbability, values, spot, 0., downFactor, upOverDown, i);
@@ -167,7 +168,7 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
       ArgumentChecker.isTrue(upProbability[i] < 1., "upProbability should be smaller than 1.");
     }
 
-    double assetPrice = spot * Math.pow(downFactor, nSteps);
+    final double assetPrice = spot * Math.pow(downFactor, nSteps);
     double[] values = function.getPayoffAtExpiry(assetPrice, upOverDown);
     for (int i = nSteps - 1; i > -1; --i) {
       values = function.getNextOptionValues(df[i], upProbability[i], downProbability[i], values, spot, 0., downFactor, upOverDown, i);
@@ -218,7 +219,7 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
     final int[] divSteps = dividend.getDividendSteps(dt);
 
     double assetPriceBase = dividend.spotModifier(spot, interestRate);
-    double assetPriceTerminal = assetPriceBase * Math.pow(downFactor, nSteps);
+    final double assetPriceTerminal = assetPriceBase * Math.pow(downFactor, nSteps);
     double[] values = function.getPayoffAtExpiry(assetPriceTerminal, upOverDown);
 
     int counter = 0;
@@ -282,12 +283,12 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
     ArgumentChecker.isTrue(upProbability > 0., "upProbability should be greater than 0.");
     ArgumentChecker.isTrue(upProbability < 1., "upProbability should be smaller than 1.");
 
-    double assetPrice = spot * Math.pow(downFactor, nSteps);
+    final double assetPrice = spot * Math.pow(downFactor, nSteps);
     double[] values = function.getPayoffAtExpiry(assetPrice, upOverDown);
     final double[] res = new double[4];
 
-    double[] pForDelta = new double[] {spot * downFactor, spot * upFactor };
-    double[] pForGamma = new double[] {pForDelta[0] * downFactor, pForDelta[0] * upFactor, pForDelta[1] * upFactor };
+    final double[] pForDelta = new double[] {spot * downFactor, spot * upFactor };
+    final double[] pForGamma = new double[] {pForDelta[0] * downFactor, pForDelta[0] * upFactor, pForDelta[1] * upFactor };
 
     for (int i = nSteps - 1; i > -1; --i) {
       values = function.getNextOptionValues(discount, upProbability, downProbability, values, spot, 0., downFactor, upOverDown, i);
@@ -367,12 +368,12 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
       ArgumentChecker.isTrue(upProbability[i] < 1., "upProbability should be smaller than 1.");
     }
 
-    double assetPrice = spot * Math.pow(downFactor, nSteps);
+    final double assetPrice = spot * Math.pow(downFactor, nSteps);
     double[] values = function.getPayoffAtExpiry(assetPrice, upOverDown);
     final double[] res = new double[4];
 
-    double[] pForDelta = new double[] {spot * downFactor, spot * upFactor };
-    double[] pForGamma = new double[] {pForDelta[0] * downFactor, pForDelta[0] * upFactor, pForDelta[1] * upFactor };
+    final double[] pForDelta = new double[] {spot * downFactor, spot * upFactor };
+    final double[] pForGamma = new double[] {pForDelta[0] * downFactor, pForDelta[0] * upFactor, pForDelta[1] * upFactor };
 
     for (int i = nSteps - 1; i > -1; --i) {
       values = function.getNextOptionValues(df[i], upProbability[i], downProbability[i], values, spot, 0., downFactor, upOverDown, i);
@@ -432,7 +433,7 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
     final int[] divSteps = dividend.getDividendSteps(dt);
 
     double assetPriceBase = dividend.spotModifier(spot, interestRate);
-    double assetPriceTerminal = assetPriceBase * Math.pow(downFactor, nSteps);
+    final double assetPriceTerminal = assetPriceBase * Math.pow(downFactor, nSteps);
     double[] values = function.getPayoffAtExpiry(assetPriceTerminal, upOverDown);
 
     int counter = 0;
@@ -449,12 +450,12 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
         }
         values = function.getNextOptionValues(discount, upProbability, downProbability, values, assetPriceBase, 0., downFactor, upOverDown, i);
         if (i == 2) {
-          double[] pForGamma = dividend.getAssetPricesForGamma(spot, interestRate, divSteps, upFactor, downFactor, 0.);
+          final double[] pForGamma = dividend.getAssetPricesForGamma(spot, interestRate, divSteps, upFactor, downFactor, 0.);
           res[2] = 2. * ((values[2] - values[1]) / (pForGamma[2] - pForGamma[1]) - (values[1] - values[0]) / (pForGamma[1] - pForGamma[0])) / (pForGamma[2] - pForGamma[0]);
           res[3] = values[1];
         }
         if (i == 1) {
-          double[] pForDelta = dividend.getAssetPricesForDelta(spot, interestRate, divSteps, upFactor, downFactor, 0.);
+          final double[] pForDelta = dividend.getAssetPricesForDelta(spot, interestRate, divSteps, upFactor, downFactor, 0.);
           res[1] = (values[1] - values[0]) / (pForDelta[1] - pForDelta[0]);
         }
       }
@@ -470,12 +471,12 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
         }
         values = function.getNextOptionValues(discount, upProbability, downProbability, values, assetPriceBase, sumDiscountDiv, downFactor, upOverDown, i);
         if (i == 2) {
-          double[] pForGamma = dividend.getAssetPricesForGamma(assetPriceBase, interestRate, divSteps, upFactor, downFactor, sumDiscountDiv);
+          final double[] pForGamma = dividend.getAssetPricesForGamma(assetPriceBase, interestRate, divSteps, upFactor, downFactor, sumDiscountDiv);
           res[2] = 2. * ((values[2] - values[1]) / (pForGamma[2] - pForGamma[1]) - (values[1] - values[0]) / (pForGamma[1] - pForGamma[0])) / (pForGamma[2] - pForGamma[0]);
           res[3] = values[1];
         }
         if (i == 1) {
-          double[] pForDelta = dividend.getAssetPricesForDelta(assetPriceBase, interestRate, divSteps, upFactor, downFactor, sumDiscountDiv);
+          final double[] pForDelta = dividend.getAssetPricesForDelta(assetPriceBase, interestRate, divSteps, upFactor, downFactor, sumDiscountDiv);
           res[1] = (values[1] - values[0]) / (pForDelta[1] - pForDelta[0]);
         }
       }
@@ -492,13 +493,13 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
   }
 
   /*
-   * 
-   * 
+   *
+   *
    * *********************************
    * Old methods below, removed later
    * *********************************
-   * 
-   * 
+   *
+   *
    */
 
   public double getEuropeanPrice(final LatticeSpecification lattice, final double spot, final double strike, final double timeToExpiry, final double volatility, final double interestRate,
@@ -520,7 +521,7 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
     final double upOverDown = upFactor / downFactor;
     final double sig = isCall ? 1. : -1.;
 
-    double assetPrice = spot * Math.pow(downFactor, nSteps);
+    final double assetPrice = spot * Math.pow(downFactor, nSteps);
     double[] values = _function.getPayoffAtExpiry(assetPrice, strike, nSteps, sig, upOverDown);
     for (int i = nSteps - 1; i > -1; --i) {
       //      for (int j = 0; j < i + 1; ++j) {
@@ -616,7 +617,7 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
     }
     final double sig = isCall ? 1. : -1.;
 
-    double assetPrice = spot * Math.pow(downFactor, nSteps);
+    final double assetPrice = spot * Math.pow(downFactor, nSteps);
     double[] values = _function.getPayoffAtExpiry(assetPrice, strike, nSteps, sig, upOverDown);
     for (int i = nSteps - 1; i > -1; --i) {
       //      for (int j = 0; j < i + 1; ++j) {
@@ -647,12 +648,12 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
     final double upOverDown = upFactor / downFactor;
     final double sig = isCall ? 1. : -1.;
 
-    double assetPrice = spot * Math.pow(downFactor, nSteps);
+    final double assetPrice = spot * Math.pow(downFactor, nSteps);
     double[] values = _function.getPayoffAtExpiry(assetPrice, strike, nSteps, sig, upOverDown);
     final double[] res = new double[4];
 
-    double[] pForDelta = new double[] {spot * downFactor, spot * upFactor };
-    double[] pForGamma = new double[] {pForDelta[0] * downFactor, pForDelta[0] * upFactor, pForDelta[1] * upFactor };
+    final double[] pForDelta = new double[] {spot * downFactor, spot * upFactor };
+    final double[] pForGamma = new double[] {pForDelta[0] * downFactor, pForDelta[0] * upFactor, pForDelta[1] * upFactor };
 
     for (int i = nSteps - 1; i > -1; --i) {
       //      for (int j = 0; j < i + 1; ++j) {
@@ -694,7 +695,7 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
     final double upOverDown = upFactor / downFactor;
     final double sig = isCall ? 1. : -1.;
 
-    double assetPrice = spot * Math.pow(downFactor, nSteps);
+    final double assetPrice = spot * Math.pow(downFactor, nSteps);
     double[] values = _function.getPayoffAtExpiry(assetPrice, strike, nSteps, sig, upOverDown);
 
     for (int i = nSteps - 1; i > -1; --i) {
@@ -737,7 +738,7 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
       }
       final double sig = isCall ? 1. : -1.;
 
-      double assetPrice = spot * Math.pow(downFactor, nSteps);
+      final double assetPrice = spot * Math.pow(downFactor, nSteps);
       double[] values = _function.getPayoffAtExpiry(assetPrice, strike, nSteps, sig, upOverDown);
       for (int i = nSteps - 1; i > -1; --i) {
         //        assetPrice = spot * Math.pow(downFactor, i);
@@ -870,11 +871,11 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
     final double upOverDown = upFactor / downFactor;
     final double sig = isCall ? 1. : -1.;
 
-    double assetPrice = spot * Math.pow(downFactor, nSteps);
+    final double assetPrice = spot * Math.pow(downFactor, nSteps);
     double[] values = _function.getPayoffAtExpiry(assetPrice, strike, nSteps, sig, upOverDown);
 
-    double[] pForDelta = new double[] {spot * downFactor, spot * upFactor };
-    double[] pForGamma = new double[] {pForDelta[0] * downFactor, pForDelta[0] * upFactor, pForDelta[1] * upFactor };
+    final double[] pForDelta = new double[] {spot * downFactor, spot * upFactor };
+    final double[] pForGamma = new double[] {pForDelta[0] * downFactor, pForDelta[0] * upFactor, pForDelta[1] * upFactor };
 
     for (int i = nSteps - 1; i > -1; --i) {
       //      assetPrice = spot * Math.pow(downFactor, i);
@@ -929,8 +930,8 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
 
     final double sign = isCall ? 1. : -1.;
 
-    double assetPrice1 = spot1 * Math.pow(downFactor1, nSteps);
-    double assetPrice2 = spot2 * Math.pow(downFactor2, nSteps);
+    final double assetPrice1 = spot1 * Math.pow(downFactor1, nSteps);
+    final double assetPrice2 = spot2 * Math.pow(downFactor2, nSteps);
     double[][] values = function.getPayoffAtExpiry(assetPrice1, assetPrice2, strike, nSteps, sign, upOverDown1, upOverDown2);
     for (int i = nSteps - 1; i > -1; --i) {
       values = function.getNextOptionValues(discount, uuProbability, udProbability, duProbability, ddProbability, values, i);
@@ -971,8 +972,8 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
 
     final double sign = isCall ? 1. : -1.;
 
-    double assetPrice1 = spot1 * Math.pow(downFactor1, nSteps);
-    double assetPrice2 = spot2 * Math.pow(downFactor2, nSteps);
+    final double assetPrice1 = spot1 * Math.pow(downFactor1, nSteps);
+    final double assetPrice2 = spot2 * Math.pow(downFactor2, nSteps);
     double[][] values = function.getPayoffAtExpiry(assetPrice1, assetPrice2, strike, nSteps, sign, upOverDown1, upOverDown2);
     for (int i = nSteps - 1; i > -1; --i) {
       values = function.getNextOptionValues(discount, strike, uuProbability, udProbability, duProbability, ddProbability, values, spot1, spot2, sign, downFactor1, downFactor2, upOverDown1,
@@ -1014,7 +1015,7 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
       final double[] values = new double[nSteps + 1];
       double priceTmp = assetPrice;
       for (int i = 0; i < nSteps + 1; ++i) {
-        StandardOptionDataBundle dataAtExpiry = data.withSpot(priceTmp);
+        final StandardOptionDataBundle dataAtExpiry = data.withSpot(priceTmp);
         values[i] = payoffFunction.getPayoff(dataAtExpiry, 0.);
         priceTmp *= upOverDown;
       }

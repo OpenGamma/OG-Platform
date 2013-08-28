@@ -5,7 +5,8 @@
  */
 package com.opengamma.financial.analytics.model.black;
 
-import static com.opengamma.engine.value.ValueRequirementNames.VALUE_VEGA;
+import static com.opengamma.engine.value.ValueRequirementNames.IMPLIED_VOLATILITY;
+import static com.opengamma.engine.value.ValueRequirementNames.SECURITY_IMPLIED_VOLATILITY;
 
 import java.util.Collections;
 import java.util.Set;
@@ -15,11 +16,7 @@ import org.threeten.bp.Instant;
 import com.google.common.collect.Iterables;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.interestrate.PresentValueBlackSwaptionSensitivity;
-import com.opengamma.analytics.financial.provider.calculator.blackswaption.PresentValueBlackSwaptionSensitivityBlackSwaptionCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackSwaptionFlatProvider;
-import com.opengamma.analytics.financial.provider.description.interestrate.BlackSwaptionFlatProviderInterface;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -32,39 +29,34 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
- * Calculates the present value of instruments using a Black surface and
- * curves constructed using the discounting method.
+ * Function that returns the implied volatility of a swaption. There are no volatility modelling
+ * assumptions made; the implied volatility is read directly from the market data system.
  */
-public class BlackDiscountingValueVegaFunction extends BlackDiscountingFunction {
-  /** The present value calculator */
-  private static final InstrumentDerivativeVisitor<BlackSwaptionFlatProviderInterface, PresentValueBlackSwaptionSensitivity> CALCULATOR =
-      PresentValueBlackSwaptionSensitivityBlackSwaptionCalculator.getInstance();
+public class ConstantBlackDiscountingImpliedVolatilitySwaptionFunction extends ConstantBlackDiscountingSwaptionFunction {
 
   /**
-   * Sets the value requirement to {@link ValueRequirementNames#VALUE_VEGA}
+   * Sets the value requirement to {@link ValueRequirementNames#SECURITY_IMPLIED_VOLATILITY}
    */
-  public BlackDiscountingValueVegaFunction() {
-    super(VALUE_VEGA);
+  public ConstantBlackDiscountingImpliedVolatilitySwaptionFunction() {
+    super(SECURITY_IMPLIED_VOLATILITY);
   }
 
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
-    return new BlackDiscountingCompiledFunction(getTargetToDefinitionConverter(context), getDefinitionToDerivativeConverter(context), true) {
+    return new BlackDiscountingCompiledFunction(getTargetToDefinitionConverter(context), getDefinitionToDerivativeConverter(context), false) {
 
       @Override
       protected Set<ComputedValue> getValues(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
           final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative,
           final FXMatrix fxMatrix) {
         final BlackSwaptionFlatProvider blackData = getSwaptionBlackSurface(executionContext, inputs, target, fxMatrix);
-        final PresentValueBlackSwaptionSensitivity sensitivities = derivative.accept(CALCULATOR, blackData);
-        final double vega = sensitivities.getSensitivity().toSingleValue();
         final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
         final ValueProperties properties = desiredValue.getConstraints().copy().get();
-        final ValueSpecification spec = new ValueSpecification(VALUE_VEGA, target.toSpecification(), properties);
-        return Collections.singleton(new ComputedValue(spec, vega));
+        final ValueSpecification spec = new ValueSpecification(IMPLIED_VOLATILITY, target.toSpecification(), properties);
+        final Double impliedVolatility = blackData.getBlackParameters().getVolatility(0, 0);
+        return Collections.singleton(new ComputedValue(spec, impliedVolatility));
       }
 
     };
   }
-
 }

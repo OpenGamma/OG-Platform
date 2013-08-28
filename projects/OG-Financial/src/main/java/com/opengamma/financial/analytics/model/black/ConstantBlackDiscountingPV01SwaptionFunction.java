@@ -6,18 +6,17 @@
 package com.opengamma.financial.analytics.model.black;
 
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
+import static com.opengamma.engine.value.ValueRequirementNames.CURVE_BUNDLE;
 import static com.opengamma.engine.value.ValueRequirementNames.PV01;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
 
 import com.google.common.collect.Iterables;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
@@ -36,25 +35,22 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.model.discounting.DiscountingPV01Function;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Calculates the PV01 of instruments using a Black surfce and curves constructed
- * using the discounting method.
+ * Calculates the PV01 of a swaption using the Black formula with no volatility modeling
+ * assumptions. The implied volatility is read directly from the market data system.
  */
-public class BlackDiscountingPV01Function extends BlackDiscountingFunction {
-  /** The logger */
-  private static final Logger s_logger = LoggerFactory.getLogger(DiscountingPV01Function.class);
+public class ConstantBlackDiscountingPV01SwaptionFunction extends ConstantBlackDiscountingSwaptionFunction {
   /** The PV01 calculator */
   private static final InstrumentDerivativeVisitor<BlackSwaptionFlatProviderInterface, ReferenceAmount<Pair<String, Currency>>> CALCULATOR =
       new PV01CurveParametersCalculator<>(PresentValueCurveSensitivityBlackSwaptionCalculator.getInstance());
 
   /**
-   * Sets the value requirements to {@link ValueRequirementNames#PV01}
+   * Sets the value requirement to {@link ValueRequirementNames#PV01}
    */
-  public BlackDiscountingPV01Function() {
+  public ConstantBlackDiscountingPV01SwaptionFunction() {
     super(PV01);
   }
 
@@ -86,8 +82,7 @@ public class BlackDiscountingPV01Function extends BlackDiscountingFunction {
           results.add(new ComputedValue(spec, entry.getValue()));
         }
         if (!curveNameFound) {
-          s_logger.info("Could not get sensitivities to " + desiredCurveName + " for " + target.getName());
-          return Collections.emptySet();
+          throw new OpenGammaRuntimeException("Could not get sensitivities to " + desiredCurveName + " for " + target.getName());
         }
         return results;
       }
@@ -109,6 +104,30 @@ public class BlackDiscountingPV01Function extends BlackDiscountingFunction {
         }
         return false;
       }
+
+      @Override
+      public Set<ValueSpecification> getResults(final FunctionCompilationContext compilationContext, final ComputationTarget target,
+          final Map<ValueSpecification, ValueRequirement> inputs) {
+        final ValueProperties.Builder commonProperties = super.getResultProperties(target).withoutAny(CURVE);
+        Set<String> curveNames = null;
+        for (final Map.Entry<ValueSpecification, ValueRequirement> entry : inputs.entrySet()) {
+          final ValueSpecification key = entry.getKey();
+          if (key.getValueName().equals(CURVE_BUNDLE)) {
+            curveNames = key.getProperties().getValues(CURVE);
+            break;
+          }
+        }
+        if (curveNames == null) {
+          return null;
+        }
+        final Set<ValueSpecification> results = new HashSet<>();
+        for (final String curveName : curveNames) {
+          final ValueProperties properties = commonProperties.get().copy().with(CURVE, curveName).get();
+          results.add(new ValueSpecification(PV01, target.toSpecification(), properties));
+        }
+        return results;
+      }
     };
   }
+
 }

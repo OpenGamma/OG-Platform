@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.option.pricing.tree;
 
 /**
- * 
+ *
  */
 public class ProportionalDividendFunctionProvider extends DividendFunctionProvider {
 
@@ -18,6 +18,7 @@ public class ProportionalDividendFunctionProvider extends DividendFunctionProvid
     super(dividendTimes, dividends);
   }
 
+  @Override
   public double spotModifier(final double spot, final double interestRate) {
     double res = spot;
     final double[] dividends = getDividends();
@@ -28,12 +29,14 @@ public class ProportionalDividendFunctionProvider extends DividendFunctionProvid
     return res;
   }
 
+  @Override
   public double dividendCorrections(final double assetPrice, final double interestRate, final double offset, final int k) {
     final double dividend = getDividends()[k];
     final double res = assetPrice / (1. - dividend);
     return res;
   }
 
+  @Override
   public double[] getAssetPricesForDelta(final double spot, final double interestRate, final int[] divSteps, final double upFactor, final double downFactor, final double sumDiscountDiv) {
     final double[] res = new double[2];
     final double[] dividends = getDividends();
@@ -48,6 +51,7 @@ public class ProportionalDividendFunctionProvider extends DividendFunctionProvid
     return res;
   }
 
+  @Override
   public double[] getAssetPricesForGamma(final double spot, final double interestRate, final int[] divSteps, final double upFactor, final double downFactor, final double sumDiscountDiv) {
     final double[] res = new double[3];
     final double[] dividends = getDividends();

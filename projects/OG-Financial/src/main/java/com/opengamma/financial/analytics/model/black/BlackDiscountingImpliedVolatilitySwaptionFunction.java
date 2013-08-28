@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.analytics.model.black;
 
-import static com.opengamma.engine.value.ValueRequirementNames.PRESENT_VALUE;
+import static com.opengamma.engine.value.ValueRequirementNames.SECURITY_IMPLIED_VOLATILITY;
 
 import java.util.Collections;
 import java.util.Set;
@@ -16,7 +16,7 @@ import com.google.common.collect.Iterables;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.provider.calculator.blackswaption.PresentValueBlackSwaptionCalculator;
+import com.opengamma.analytics.financial.interestrate.SwaptionBlackImpliedVolatilityCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackSwaptionFlatProvider;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackSwaptionFlatProviderInterface;
 import com.opengamma.engine.ComputationTarget;
@@ -29,41 +29,37 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.security.FinancialSecurityUtils;
-import com.opengamma.util.money.Currency;
-import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
- * Calculates the present value of instruments using a Black surface and
+ * Calculates the implied volatility of swaptions using a Black surface and
  * curves constructed using the discounting method.
  */
-public class BlackDiscountingPVFunction extends BlackDiscountingFunction {
+public class BlackDiscountingImpliedVolatilitySwaptionFunction extends BlackDiscountingSwaptionFunction {
   /** The present value calculator */
-  private static final InstrumentDerivativeVisitor<BlackSwaptionFlatProviderInterface, MultipleCurrencyAmount> CALCULATOR =
-      PresentValueBlackSwaptionCalculator.getInstance();
+  private static final InstrumentDerivativeVisitor<BlackSwaptionFlatProviderInterface, Double> CALCULATOR =
+      SwaptionBlackImpliedVolatilityCalculator.getInstance();
 
   /**
-   * Sets the value requirement to {@link ValueRequirementNames#PRESENT_VALUE}
+   * Sets the value requirement to {@link ValueRequirementNames#SECURITY_IMPLIED_VOLATILITY}
    */
-  public BlackDiscountingPVFunction() {
-    super(PRESENT_VALUE);
+  public BlackDiscountingImpliedVolatilitySwaptionFunction() {
+    super(SECURITY_IMPLIED_VOLATILITY);
   }
 
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
-    return new BlackDiscountingCompiledFunction(getTargetToDefinitionConverter(context), getDefinitionToDerivativeConverter(context), true) {
+    return new BlackDiscountingCompiledFunction(getTargetToDefinitionConverter(context), getDefinitionToDerivativeConverter(context), false) {
 
       @Override
       protected Set<ComputedValue> getValues(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
           final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative,
           final FXMatrix fxMatrix) {
         final BlackSwaptionFlatProvider blackData = getSwaptionBlackSurface(executionContext, inputs, target, fxMatrix);
-        final MultipleCurrencyAmount mca = derivative.accept(CALCULATOR, blackData);
+        final double impliedVol = derivative.accept(CALCULATOR, blackData);
         final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
         final ValueProperties properties = desiredValue.getConstraints().copy().get();
-        final Currency currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
-        final ValueSpecification spec = new ValueSpecification(PRESENT_VALUE, target.toSpecification(), properties);
-        return Collections.singleton(new ComputedValue(spec, mca.getAmount(currency)));
+        final ValueSpecification spec = new ValueSpecification(SECURITY_IMPLIED_VOLATILITY, target.toSpecification(), properties);
+        return Collections.singleton(new ComputedValue(spec, impliedVol));
       }
 
     };
