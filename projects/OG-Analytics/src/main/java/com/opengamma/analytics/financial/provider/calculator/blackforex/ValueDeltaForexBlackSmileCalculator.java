@@ -11,7 +11,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.analytics.financial.provider.description.forex.BlackForexSmileProviderInterface;
 
 /**
- * Calculates the value gamma (second order derivative with respect to the spot rate) for Forex derivatives in the Black (Garman-Kohlhagen) world.
+ * Calculates the value delta (first order derivative with respect to the spot rate) for Forex derivatives in the Black (Garman-Kohlhagen) world.
  */
 public class ValueDeltaForexBlackSmileCalculator extends InstrumentDerivativeVisitorAdapter<BlackForexSmileProviderInterface, Double> {
 
@@ -40,13 +40,13 @@ public class ValueDeltaForexBlackSmileCalculator extends InstrumentDerivativeVis
   private static final ForexOptionVanillaBlackSmileMethod METHOD_FXOPTIONVANILLA = ForexOptionVanillaBlackSmileMethod.getInstance();
 
   /**
-   * The value gamma is provided with "direct quote", i.e. (1 foreign = x domestic) and not the reverse quote (1 domestic = x foreign).
+   * The value delta is provided with "direct quote", i.e. (1 foreign = x domestic) and not the reverse quote (1 domestic = x foreign).
    * @param optionForex The Forex option.
    * @param smileMulticurves The curve and smile data.
    * @return The value gamma.
    */
   @Override
   public Double visitForexOptionVanilla(final ForexOptionVanilla optionForex, final BlackForexSmileProviderInterface smileMulticurves) {
-    return METHOD_FXOPTIONVANILLA.gammaRelative(optionForex, smileMulticurves, true);
+    return METHOD_FXOPTIONVANILLA.deltaRelative(optionForex, smileMulticurves, true);
   }
 }
