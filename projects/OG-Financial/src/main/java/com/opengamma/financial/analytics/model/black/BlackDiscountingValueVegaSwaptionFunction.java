@@ -55,7 +55,7 @@ public class BlackDiscountingValueVegaSwaptionFunction extends BlackDiscountingS
       protected Set<ComputedValue> getValues(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
           final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative,
           final FXMatrix fxMatrix) {
-        final BlackSwaptionFlatProvider blackData = getSwaptionBlackSurface(executionContext, inputs, target, fxMatrix);
+        final BlackSwaptionFlatProvider blackData = getBlackSurface(executionContext, inputs, target, fxMatrix);
         final PresentValueBlackSwaptionSensitivity sensitivities = derivative.accept(CALCULATOR, blackData);
         final double vega = sensitivities.getSensitivity().toSingleValue();
         final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);

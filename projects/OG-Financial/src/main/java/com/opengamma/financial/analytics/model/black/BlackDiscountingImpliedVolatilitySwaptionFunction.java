@@ -54,7 +54,7 @@ public class BlackDiscountingImpliedVolatilitySwaptionFunction extends BlackDisc
       protected Set<ComputedValue> getValues(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
           final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative,
           final FXMatrix fxMatrix) {
-        final BlackSwaptionFlatProvider blackData = getSwaptionBlackSurface(executionContext, inputs, target, fxMatrix);
+        final BlackSwaptionFlatProvider blackData = getBlackSurface(executionContext, inputs, target, fxMatrix);
         final double impliedVol = derivative.accept(CALCULATOR, blackData);
         final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
         final ValueProperties properties = desiredValue.getConstraints().copy().get();

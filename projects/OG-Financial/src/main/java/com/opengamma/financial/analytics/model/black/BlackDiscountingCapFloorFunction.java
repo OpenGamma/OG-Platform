@@ -9,20 +9,28 @@ import static com.opengamma.engine.value.ValuePropertyNames.CURRENCY;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_EXPOSURES;
 import static com.opengamma.engine.value.ValuePropertyNames.SURFACE;
 import static com.opengamma.engine.value.ValueRequirementNames.INTERPOLATED_VOLATILITY_SURFACE;
+import static com.opengamma.financial.analytics.model.InstrumentTypeProperties.CAP_FLOOR;
 import static com.opengamma.financial.analytics.model.InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE;
-import static com.opengamma.financial.analytics.model.InstrumentTypeProperties.SWAPTION_ATM;
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.DISCOUNTING;
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.PROPERTY_CURVE_TYPE;
 import static com.opengamma.financial.analytics.model.volatility.SmileFittingPropertyNamesAndValues.BLACK;
 import static com.opengamma.financial.analytics.model.volatility.SmileFittingPropertyNamesAndValues.PROPERTY_VOLATILITY_MODEL;
+import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.IBOR;
+import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.SCHEME_NAME;
+import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.getConventionName;
 
 import java.util.Set;
 
+import org.threeten.bp.Period;
+
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
-import com.opengamma.analytics.financial.model.option.parameters.BlackFlatSwaptionParameters;
+import com.opengamma.analytics.financial.instrument.index.IborIndex;
+import com.opengamma.analytics.financial.model.option.parameters.BlackSmileCapParameters;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
-import com.opengamma.analytics.financial.provider.description.interestrate.BlackSwaptionFlatProvider;
+import com.opengamma.analytics.financial.provider.description.interestrate.BlackSmileCapProvider;
+import com.opengamma.analytics.financial.provider.description.interestrate.BlackSmileCapProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
@@ -44,25 +52,29 @@ import com.opengamma.financial.analytics.conversion.SwapSecurityConverter;
 import com.opengamma.financial.analytics.conversion.SwaptionSecurityConverter;
 import com.opengamma.financial.analytics.conversion.TradeConverter;
 import com.opengamma.financial.analytics.model.discounting.DiscountingFunction;
-import com.opengamma.financial.analytics.model.swaption.SwaptionUtils;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.ConventionSource;
+import com.opengamma.financial.convention.IborIndexConvention;
+import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.financial.convention.frequency.PeriodFrequency;
+import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
-import com.opengamma.financial.security.option.SwaptionSecurity;
+import com.opengamma.financial.security.capfloor.CapFloorSecurity;
+import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
 
 /**
  * Base function for all swaption pricing and risk functions that use a Black surface
  * and curves constructed using the discounting method.
  */
-public abstract class BlackDiscountingSwaptionFunction extends DiscountingFunction {
+public abstract class BlackDiscountingCapFloorFunction extends DiscountingFunction {
 
   /**
    * @param valueRequirements The value requirements, not null
    */
-  public BlackDiscountingSwaptionFunction(final String... valueRequirements) {
+  public BlackDiscountingCapFloorFunction(final String... valueRequirements) {
     super(valueRequirements);
   }
 
@@ -102,7 +114,7 @@ public abstract class BlackDiscountingSwaptionFunction extends DiscountingFuncti
     @Override
     public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
       final Security security = target.getTrade().getSecurity();
-      return security instanceof SwaptionSecurity;
+      return security instanceof CapFloorSecurity;
     }
 
     @Override
@@ -132,7 +144,7 @@ public abstract class BlackDiscountingSwaptionFunction extends DiscountingFuncti
       final Set<String> surface = constraints.getValues(SURFACE);
       final ValueProperties properties = ValueProperties.builder()
           .with(SURFACE, surface)
-          .with(PROPERTY_SURFACE_INSTRUMENT_TYPE, SWAPTION_ATM).get();
+          .with(PROPERTY_SURFACE_INSTRUMENT_TYPE, CAP_FLOOR).get();
       final ValueRequirement surfaceRequirement = new ValueRequirement(INTERPOLATED_VOLATILITY_SURFACE,
           ComputationTargetSpecification.of(currency), properties);
       requirements.add(surfaceRequirement);
@@ -156,16 +168,40 @@ public abstract class BlackDiscountingSwaptionFunction extends DiscountingFuncti
      * @param fxMatrix The FX matrix, not null
      * @return The Black surface and curve data
      */
-    protected BlackSwaptionFlatProvider getBlackSurface(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final FXMatrix fxMatrix) {
-      final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(executionContext);
-      final SwaptionSecurity security = (SwaptionSecurity) target.getTrade().getSecurity();
-      final InstrumentDefinition<?> definition = getDefinitionFromTarget(target);
+    protected BlackSmileCapProviderInterface getBlackSurface(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final FXMatrix fxMatrix) {
+      final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(executionContext);
+      final CapFloorSecurity security = (CapFloorSecurity) target.getTrade().getSecurity();
+      final Currency currency = FinancialSecurityUtils.getCurrency(security);
+      final String iborConventionName = getConventionName(currency, IBOR);
+      final IborIndexConvention iborIndexConvention = conventionSource.getConvention(IborIndexConvention.class, ExternalId.of(SCHEME_NAME, iborConventionName));
+      if (iborIndexConvention == null) {
+        throw new OpenGammaRuntimeException("Could not get ibor index convention with the identifier " + ExternalId.of(SCHEME_NAME, iborConventionName));
+      }
+      final Frequency freqIbor = security.getFrequency();
+      final Period tenorIbor = getTenor(freqIbor);
+      final int spotLag = iborIndexConvention.getSettlementDays();
+      final IborIndex iborIndex = new IborIndex(currency, tenorIbor, spotLag, iborIndexConvention.getDayCount(),
+          iborIndexConvention.getBusinessDayConvention(), iborIndexConvention.isIsEOM(), iborIndexConvention.getName());
       final MulticurveProviderInterface data = getMergedProviders(inputs, fxMatrix);
       final VolatilitySurface volatilitySurface = (VolatilitySurface) inputs.getValue(INTERPOLATED_VOLATILITY_SURFACE);
-      final BlackFlatSwaptionParameters parameters = new BlackFlatSwaptionParameters(volatilitySurface.getSurface(),
-          SwaptionUtils.getSwapGenerator(security, definition, securitySource));
-      final BlackSwaptionFlatProvider blackData = new BlackSwaptionFlatProvider(data, parameters);
+      final BlackSmileCapParameters parameters = new BlackSmileCapParameters(volatilitySurface.getSurface(), iborIndex);
+      final BlackSmileCapProvider blackData = new BlackSmileCapProvider(data, parameters);
       return blackData;
     }
+
+    /**
+     * Gets a tenor from a frequency.
+     * @param freq The frequency
+     * @return The tenor, not null
+     */
+    private Period getTenor(final Frequency freq) {
+      if (freq instanceof PeriodFrequency) {
+        return ((PeriodFrequency) freq).getPeriod();
+      } else if (freq instanceof SimpleFrequency) {
+        return ((SimpleFrequency) freq).toPeriodFrequency().getPeriod();
+      }
+      throw new OpenGammaRuntimeException("Can only PeriodFrequency or SimpleFrequency; have " + freq.getClass());
+    }
+
   }
 }

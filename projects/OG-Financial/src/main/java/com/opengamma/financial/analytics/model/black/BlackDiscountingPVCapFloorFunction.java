@@ -16,9 +16,8 @@ import com.google.common.collect.Iterables;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.provider.calculator.blackswaption.PresentValueBlackSwaptionCalculator;
-import com.opengamma.analytics.financial.provider.description.interestrate.BlackSwaptionFlatProvider;
-import com.opengamma.analytics.financial.provider.description.interestrate.BlackSwaptionFlatProviderInterface;
+import com.opengamma.analytics.financial.provider.calculator.blackcap.PresentValueBlackSmileCapCalculator;
+import com.opengamma.analytics.financial.provider.description.interestrate.BlackSmileCapProviderInterface;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -34,18 +33,18 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
- * Calculates the present value of swaptions using a Black surface and
+ * Calculates the present value of cap/floors using a Black surface and
  * curves constructed using the discounting method.
  */
-public class BlackDiscountingPVSwaptionFunction extends BlackDiscountingSwaptionFunction {
+public class BlackDiscountingPVCapFloorFunction extends BlackDiscountingCapFloorFunction {
   /** The present value calculator */
-  private static final InstrumentDerivativeVisitor<BlackSwaptionFlatProviderInterface, MultipleCurrencyAmount> CALCULATOR =
-      PresentValueBlackSwaptionCalculator.getInstance();
+  private static final InstrumentDerivativeVisitor<BlackSmileCapProviderInterface, MultipleCurrencyAmount> CALCULATOR =
+      PresentValueBlackSmileCapCalculator.getInstance();
 
   /**
    * Sets the value requirement to {@link ValueRequirementNames#PRESENT_VALUE}
    */
-  public BlackDiscountingPVSwaptionFunction() {
+  public BlackDiscountingPVCapFloorFunction() {
     super(PRESENT_VALUE);
   }
 
@@ -57,7 +56,7 @@ public class BlackDiscountingPVSwaptionFunction extends BlackDiscountingSwaption
       protected Set<ComputedValue> getValues(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
           final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative,
           final FXMatrix fxMatrix) {
-        final BlackSwaptionFlatProvider blackData = getBlackSurface(executionContext, inputs, target, fxMatrix);
+        final BlackSmileCapProviderInterface blackData = getBlackSurface(executionContext, inputs, target, fxMatrix);
         final MultipleCurrencyAmount mca = derivative.accept(CALCULATOR, blackData);
         final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
         final ValueProperties properties = desiredValue.getConstraints().copy().get();

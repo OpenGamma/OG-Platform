@@ -20,10 +20,9 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.provider.calculator.blackswaption.PresentValueCurveSensitivityBlackSwaptionCalculator;
+import com.opengamma.analytics.financial.provider.calculator.blackcap.PresentValueCurveSensitivityBlackSmileCapCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PV01CurveParametersCalculator;
-import com.opengamma.analytics.financial.provider.description.interestrate.BlackSwaptionFlatProvider;
-import com.opengamma.analytics.financial.provider.description.interestrate.BlackSwaptionFlatProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.BlackSmileCapProviderInterface;
 import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
@@ -39,18 +38,18 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Calculates the PV01 of swaptions using a Black surface and curves constructed
+ * Calculates the PV01 of cap/floors using a Black surface and curves constructed
  * using the discounting method.
  */
-public class BlackDiscountingPV01SwaptionFunction extends BlackDiscountingSwaptionFunction {
+public class BlackDiscountingPV01CapFloorFunction extends BlackDiscountingCapFloorFunction {
   /** The PV01 calculator */
-  private static final InstrumentDerivativeVisitor<BlackSwaptionFlatProviderInterface, ReferenceAmount<Pair<String, Currency>>> CALCULATOR =
-      new PV01CurveParametersCalculator<>(PresentValueCurveSensitivityBlackSwaptionCalculator.getInstance());
+  private static final InstrumentDerivativeVisitor<BlackSmileCapProviderInterface, ReferenceAmount<Pair<String, Currency>>> CALCULATOR =
+      new PV01CurveParametersCalculator<>(PresentValueCurveSensitivityBlackSmileCapCalculator.getInstance());
 
   /**
    * Sets the value requirements to {@link ValueRequirementNames#PV01}
    */
-  public BlackDiscountingPV01SwaptionFunction() {
+  public BlackDiscountingPV01CapFloorFunction() {
     super(PV01);
   }
 
@@ -62,7 +61,7 @@ public class BlackDiscountingPV01SwaptionFunction extends BlackDiscountingSwapti
       protected Set<ComputedValue> getValues(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
           final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative,
           final FXMatrix fxMatrix) {
-        final BlackSwaptionFlatProvider blackData = getBlackSurface(executionContext, inputs, target, fxMatrix);
+        final BlackSmileCapProviderInterface blackData = getBlackSurface(executionContext, inputs, target, fxMatrix);
         final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
         final String desiredCurveName = desiredValue.getConstraint(CURVE);
         final ValueProperties properties = desiredValue.getConstraints();

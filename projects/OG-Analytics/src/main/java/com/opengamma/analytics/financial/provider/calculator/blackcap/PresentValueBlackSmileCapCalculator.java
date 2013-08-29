@@ -40,8 +40,6 @@ public final class PresentValueBlackSmileCapCalculator extends InstrumentDerivat
    */
   private static final CapFloorIborBlackSmileMethod METHOD_CAP = CapFloorIborBlackSmileMethod.getInstance();
 
-  // -----     Payments     ------
-
   @Override
   public MultipleCurrencyAmount visitCapFloorIbor(final CapFloorIbor cap, final BlackSmileCapProviderInterface black) {
     return METHOD_CAP.presentValue(cap, black);

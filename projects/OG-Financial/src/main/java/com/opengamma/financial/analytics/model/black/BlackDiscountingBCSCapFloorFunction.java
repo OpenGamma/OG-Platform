@@ -16,11 +16,10 @@ import com.google.common.collect.Iterables;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.provider.calculator.blackswaption.PresentValueCurveSensitivityBlackSwaptionCalculator;
+import com.opengamma.analytics.financial.provider.calculator.blackcap.PresentValueCurveSensitivityBlackSmileCapCalculator;
 import com.opengamma.analytics.financial.provider.calculator.generic.MarketQuoteSensitivityBlockCalculator;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
-import com.opengamma.analytics.financial.provider.description.interestrate.BlackSwaptionFlatProvider;
-import com.opengamma.analytics.financial.provider.description.interestrate.BlackSwaptionFlatProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.BlackSmileCapProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
@@ -35,24 +34,24 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
- * Calculates the sensitivities of a swaption to the bundle of curves used
+ * Calculates the sensitivities of a cap/floor to the bundle of curves used
  * in pricing. The Black method is used.
  */
-public class BlackDiscountingBCSSwaptionFunction extends BlackDiscountingSwaptionFunction {
+public class BlackDiscountingBCSCapFloorFunction extends BlackDiscountingCapFloorFunction {
   /** The curve sensitivity calculator */
-  private static final InstrumentDerivativeVisitor<BlackSwaptionFlatProviderInterface, MultipleCurrencyMulticurveSensitivity> PVCSDC =
-      PresentValueCurveSensitivityBlackSwaptionCalculator.getInstance();
+  private static final InstrumentDerivativeVisitor<BlackSmileCapProviderInterface, MultipleCurrencyMulticurveSensitivity> PVCSDC =
+      PresentValueCurveSensitivityBlackSmileCapCalculator.getInstance();
   /** The parameter sensitivity calculator */
-  private static final ParameterSensitivityParameterCalculator<BlackSwaptionFlatProviderInterface> PSC =
+  private static final ParameterSensitivityParameterCalculator<BlackSmileCapProviderInterface> PSC =
       new ParameterSensitivityParameterCalculator<>(PVCSDC);
   /** The market quote sensitivity calculator */
-  private static final MarketQuoteSensitivityBlockCalculator<BlackSwaptionFlatProviderInterface> CALCULATOR =
+  private static final MarketQuoteSensitivityBlockCalculator<BlackSmileCapProviderInterface> CALCULATOR =
       new MarketQuoteSensitivityBlockCalculator<>(PSC);
 
   /**
    * Sets the value requirements to {@link ValueRequirementNames#BLOCK_CURVE_SENSITIVITIES}
    */
-  public BlackDiscountingBCSSwaptionFunction() {
+  public BlackDiscountingBCSCapFloorFunction() {
     super(BLOCK_CURVE_SENSITIVITIES);
   }
 
@@ -65,7 +64,7 @@ public class BlackDiscountingBCSSwaptionFunction extends BlackDiscountingSwaptio
           final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative,
           final FXMatrix fxMatrix) {
         final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
-        final BlackSwaptionFlatProvider blackData = getBlackSurface(executionContext, inputs, target, fxMatrix);
+        final BlackSmileCapProviderInterface blackData = getBlackSurface(executionContext, inputs, target, fxMatrix);
         final CurveBuildingBlockBundle blocks = getMergedCurveBuildingBlocks(inputs);
         final MultipleCurrencyParameterSensitivity sensitivities = CALCULATOR.fromInstrument(derivative, blackData, blocks);
         final ValueSpecification spec = new ValueSpecification(BLOCK_CURVE_SENSITIVITIES, target.toSpecification(), desiredValue.getConstraints().copy().get());
