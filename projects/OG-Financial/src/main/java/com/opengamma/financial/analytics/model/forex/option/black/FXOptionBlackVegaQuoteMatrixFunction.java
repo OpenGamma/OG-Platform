@@ -23,7 +23,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
-import com.opengamma.financial.analytics.model.VegaMatrixHelper;
+import com.opengamma.financial.analytics.model.VegaMatrixUtils;
 import com.opengamma.financial.currency.CurrencyPair;
 
 /**
@@ -41,7 +41,7 @@ public class FXOptionBlackVegaQuoteMatrixFunction extends FXOptionBlackSingleVal
       final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final ValueSpecification spec, final FunctionExecutionContext executionContext) {
     if (data instanceof SmileDeltaTermStructureDataBundle) {
       final PresentValueForexBlackVolatilityQuoteSensitivityDataBundle result = CALCULATOR.visit(forex, (SmileDeltaTermStructureDataBundle) data);
-      return Collections.singleton(new ComputedValue(spec, VegaMatrixHelper.getVegaFXQuoteMatrixInStandardForm(result)));
+      return Collections.singleton(new ComputedValue(spec, VegaMatrixUtils.getVegaFXQuoteMatrix(result)));
     }
     throw new OpenGammaRuntimeException("Can only calculate vega quote matrix for surfaces with smiles");
   }

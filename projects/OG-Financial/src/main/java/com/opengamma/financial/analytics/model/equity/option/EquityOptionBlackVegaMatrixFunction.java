@@ -33,7 +33,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
-import com.opengamma.financial.analytics.model.VegaMatrixHelper;
+import com.opengamma.financial.analytics.model.VegaMatrixUtils;
 import com.opengamma.financial.analytics.model.equity.EquitySecurityUtils;
 import com.opengamma.financial.security.FinancialSecurity;
 
@@ -85,7 +85,7 @@ public class EquityOptionBlackVegaMatrixFunction extends EquityOptionBlackFuncti
     // Format the expiries for display
     for (int i = 0; i < uniqueX.length; i++) {
       uniqueX[i] = roundTwoDecimals(uniqueX[i]);
-      expLabels[i] = VegaMatrixHelper.getFXVolatilityFormattedExpiry(uniqueX[i]);
+      expLabels[i] = VegaMatrixUtils.getFXVolatilityFormattedExpiry(uniqueX[i]);
     }
     final Double[] uniqueY = ySet.toArray(new Double[0]);
     final double[][] values = new double[ySet.size()][xSet.size()];

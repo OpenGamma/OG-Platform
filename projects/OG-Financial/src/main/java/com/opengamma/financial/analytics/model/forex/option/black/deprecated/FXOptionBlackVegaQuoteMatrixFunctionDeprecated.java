@@ -18,7 +18,7 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
-import com.opengamma.financial.analytics.model.VegaMatrixHelper;
+import com.opengamma.financial.analytics.model.VegaMatrixUtils;
 import com.opengamma.financial.analytics.model.forex.option.black.FXOptionBlackVegaQuoteMatrixFunction;
 
 /**
@@ -36,7 +36,7 @@ public class FXOptionBlackVegaQuoteMatrixFunctionDeprecated extends FXOptionBlac
   @Override
   protected Set<ComputedValue> getResult(final InstrumentDerivative fxOption, final SmileDeltaTermStructureDataBundle data, final ValueSpecification spec) {
     final PresentValueForexBlackVolatilityQuoteSensitivityDataBundle result = CALCULATOR.visit(fxOption, data);
-    return Collections.singleton(new ComputedValue(spec, VegaMatrixHelper.getVegaFXQuoteMatrixInStandardForm(result)));
+    return Collections.singleton(new ComputedValue(spec, VegaMatrixUtils.getVegaFXQuoteMatrix(result)));
   }
 
   @Override

@@ -14,28 +14,35 @@ import java.util.Map.Entry;
 import org.apache.commons.lang.ArrayUtils;
 import org.threeten.bp.Period;
 
-import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.forex.method.PresentValueForexBlackVolatilityNodeSensitivityDataBundle;
 import com.opengamma.analytics.financial.forex.method.PresentValueForexBlackVolatilityQuoteSensitivityDataBundle;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix3D;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceDefinition;
-import com.opengamma.util.time.DateUtils;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 
 /**
- *
+ * Contains utility methods that vega output from the analytics libraries into objects that
+ * can be transported and displayed by the engine.
  */
-public class VegaMatrixHelper {
-  private static final Tenor[] EMPTY_TENOR_ARRAY = new Tenor[0];
+public class VegaMatrixUtils {
   private static final DecimalFormat FX_OPTION_FORMATTER = new DecimalFormat("##");
   private static final DecimalFormat IR_FUTURE_OPTION_FORMATTER = new DecimalFormat("##.###");
+  private static final DecimalFormat DELTA_FORMATTER = new DecimalFormat("##");
 
-  public static DoubleLabelledMatrix2D getVegaFXQuoteMatrixInStandardForm(final PresentValueForexBlackVolatilityQuoteSensitivityDataBundle data) {
-    final double[] expiries = data.getExpiries();
-    final double[] delta = data.getDelta();
-    final double[][] vega = data.getVega();
+  /**
+   * Returns a bucketed FX option vega matrix with delta / expiry axes.
+   * @param vegas The vegas, not null
+   * @return A labelled vega matrix.
+   */
+  public static DoubleLabelledMatrix2D getVegaFXMatrix(final PresentValueForexBlackVolatilityNodeSensitivityDataBundle vegas) {
+    ArgumentChecker.notNull(vegas, "vegas");
+    final double[] expiries = vegas.getExpiries().getData();
+    final double[] delta = vegas.getDelta().getData();
+    final double[][] vega = vegas.getVega().getData();
     final int nDelta = delta.length;
     final int nExpiries = expiries.length;
     final Double[] rowValues = new Double[nExpiries];
@@ -43,13 +50,44 @@ public class VegaMatrixHelper {
     final Double[] columnValues = new Double[nDelta];
     final String[] columnLabels = new String[nDelta];
     final double[][] values = new double[nDelta][nExpiries];
-    columnLabels[0] = "ATM " + " " + data.getCurrencyPair().getFirst() + "/" + data.getCurrencyPair().getSecond();
+    for (int i = 0; i < nDelta; i++) {
+      columnValues[i] = delta[i];
+      columnLabels[i] = "P" + DELTA_FORMATTER.format(delta[i] * 100) + " " + vegas.getCurrencyPair().getFirst() + "/" + vegas.getCurrencyPair().getSecond();
+      for (int j = 0; j < nExpiries; j++) {
+        if (i == 0) {
+          rowValues[j] = expiries[j];
+          rowLabels[j] = VegaMatrixUtils.getFXVolatilityFormattedExpiry(expiries[j]);
+        }
+        values[i][j] = vega[j][i];
+      }
+    }
+    return new DoubleLabelledMatrix2D(rowValues, rowLabels, columnValues, columnLabels, values);
+  }
+
+  /**
+   * Returns a bucketed FX option vega matrix with the same axes as the volatility quotes (i.e. ATM, risk-reversal and butterfly quotes)
+   * @param vegas The vegas, not null
+   * @return A labelled vega matrix
+   */
+  public static DoubleLabelledMatrix2D getVegaFXQuoteMatrix(final PresentValueForexBlackVolatilityQuoteSensitivityDataBundle vegas) {
+    ArgumentChecker.notNull(vegas, "vegas");
+    final double[] expiries = vegas.getExpiries();
+    final double[] delta = vegas.getDelta();
+    final double[][] vega = vegas.getVega();
+    final int nDelta = delta.length;
+    final int nExpiries = expiries.length;
+    final Double[] rowValues = new Double[nExpiries];
+    final String[] rowLabels = new String[nExpiries];
+    final Double[] columnValues = new Double[nDelta];
+    final String[] columnLabels = new String[nDelta];
+    final double[][] values = new double[nDelta][nExpiries];
+    columnLabels[0] = "ATM " + " " + vegas.getCurrencyPair().getFirst() + "/" + vegas.getCurrencyPair().getSecond();
     columnValues[0] = 0.;
     final int n = (nDelta - 1) / 2;
     for (int i = 0; i < n; i++) {
-      columnLabels[1 + i] = "RR " + FX_OPTION_FORMATTER.format(delta[i] * 100) + " " + data.getCurrencyPair().getFirst() + "/" + data.getCurrencyPair().getSecond();
+      columnLabels[1 + i] = "RR " + FX_OPTION_FORMATTER.format(delta[i] * 100) + " " + vegas.getCurrencyPair().getFirst() + "/" + vegas.getCurrencyPair().getSecond();
       columnValues[1 + i] = 1. + i;
-      columnLabels[n + 1 + i] = "B " + FX_OPTION_FORMATTER.format(delta[i] * 100) + " " + data.getCurrencyPair().getFirst() + "/" + data.getCurrencyPair().getSecond();
+      columnLabels[n + 1 + i] = "B " + FX_OPTION_FORMATTER.format(delta[i] * 100) + " " + vegas.getCurrencyPair().getFirst() + "/" + vegas.getCurrencyPair().getSecond();
       columnValues[n + 1 + i] = n + 1. + i;
     }
     for (int j = 0; j < nExpiries; j++) {
@@ -64,11 +102,20 @@ public class VegaMatrixHelper {
     return new DoubleLabelledMatrix2D(rowValues, rowLabels, columnValues, columnLabels, values);
   }
 
-  public static DoubleLabelledMatrix2D getVegaIRFutureOptionQuoteMatrixInStandardForm(final VolatilitySurfaceDefinition<?, ?> definition, final DoubleMatrix2D matrix, final double[] expiryValues) {
+  /**
+   * Returns a bucketed interest rate future option vega matrix with strike / expiry axes.
+   * @param definition The volatility surface, not null
+   * @param matrix The vega matrix, not null
+   * @param expiryValues The expiries, not null
+   * @return A labelled vega matrix.
+   */
+  public static DoubleLabelledMatrix2D getVegaIRFutureOptionQuoteMatrix(final VolatilitySurfaceDefinition<?, ?> definition, final DoubleMatrix2D matrix,
+      final double[] expiryValues) {
+    ArgumentChecker.notNull(definition, "definition");
+    ArgumentChecker.notNull(matrix, "matrix");
+    ArgumentChecker.notNull(expiryValues, "expiry values");
     final int columns = matrix.getNumberOfRows();
-    if (columns != expiryValues.length) {
-      throw new OpenGammaRuntimeException("Should never happen");
-    }
+    ArgumentChecker.isTrue(columns == expiryValues.length, "Did not have same number of columns as expiries");
     final int rows = matrix.getNumberOfColumns();
     final Double[] rowValues = new Double[rows];
     final Double[] columnValues = new Double[columns];
@@ -93,13 +140,21 @@ public class VegaMatrixHelper {
     return new DoubleLabelledMatrix2D(columnValues, columnLabels, rowValues, rowLabels, values);
   }
 
-  public static DoubleLabelledMatrix3D getVegaSwaptionCubeQuoteMatrixInStandardForm(final Map<Pair<Tenor, Tenor>, Double[]> fittedPoints, final Map<Double, DoubleMatrix2D> matrices) {
-    final List<Double> xKeysList = new ArrayList<Double>();
-    final List<Double> xLabelsList = new ArrayList<Double>();
-    final List<Double> yKeysList = new ArrayList<Double>();
-    final List<Tenor> yLabelsList = new ArrayList<Tenor>();
-    final List<Double> zKeysList = new ArrayList<Double>();
-    final List<Tenor> zLabelsList = new ArrayList<Tenor>();
+  /**
+   * Returns a bucketed swaption vega cube with swaption expiry / swap maturity / distance from ATM axes.
+   * @param fittedPoints The points in the swaption volatility cube, not null
+   * @param matrices a map from swaption expiry to vega matrix, not null
+   * @return A labelled vega cube
+   */
+  public static DoubleLabelledMatrix3D getVegaSwaptionCubeQuoteMatrix(final Map<Pair<Tenor, Tenor>, Double[]> fittedPoints, final Map<Double, DoubleMatrix2D> matrices) {
+    ArgumentChecker.notNull(fittedPoints, "fitted points");
+    ArgumentChecker.notNull(matrices, "matrices");
+    final List<Double> xKeysList = new ArrayList<>();
+    final List<Double> xLabelsList = new ArrayList<>();
+    final List<Double> yKeysList = new ArrayList<>();
+    final List<Tenor> yLabelsList = new ArrayList<>();
+    final List<Double> zKeysList = new ArrayList<>();
+    final List<Tenor> zLabelsList = new ArrayList<>();
     for (final Entry<Pair<Tenor, Tenor>, Double[]> entry : fittedPoints.entrySet()) {
       final double swapMaturity = getTime(entry.getKey().getFirst());
       if (!zKeysList.contains(swapMaturity)) {
@@ -122,9 +177,9 @@ public class VegaMatrixHelper {
     final Double[] xKeys = xKeysList.toArray(ArrayUtils.EMPTY_DOUBLE_OBJECT_ARRAY);
     final Double[] xLabels = xLabelsList.toArray(ArrayUtils.EMPTY_DOUBLE_OBJECT_ARRAY);
     final Double[] yKeys = yKeysList.toArray(ArrayUtils.EMPTY_DOUBLE_OBJECT_ARRAY);
-    final Tenor[] yLabels = yLabelsList.toArray(EMPTY_TENOR_ARRAY);
+    final Tenor[] yLabels = yLabelsList.toArray(new Tenor[yLabelsList.size()]);
     final Double[] zKeys = zKeysList.toArray(ArrayUtils.EMPTY_DOUBLE_OBJECT_ARRAY);
-    final Tenor[] zLabels = zLabelsList.toArray(EMPTY_TENOR_ARRAY);
+    final Tenor[] zLabels = zLabelsList.toArray(new Tenor[zLabelsList.size()]);
     final double[][][] values = new double[zKeys.length][xKeys.length][yKeys.length];
     for (int i = 0; i < zKeys.length; i++) {
       values[i] = matrices.get(zKeys[i]).toArray();

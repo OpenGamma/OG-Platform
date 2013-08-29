@@ -25,7 +25,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
-import com.opengamma.financial.analytics.model.VegaMatrixHelper;
+import com.opengamma.financial.analytics.model.VegaMatrixUtils;
 import com.opengamma.financial.currency.CurrencyPair;
 
 /**
@@ -60,7 +60,7 @@ public class FXOptionBlackVegaMatrixFunction extends FXOptionBlackSingleValuedFu
         for (int j = 0; j < nExpiries; j++) {
           if (i == 0) {
             rowValues[j] = expiries[j];
-            rowLabels[j] = VegaMatrixHelper.getFXVolatilityFormattedExpiry(expiries[j]);
+            rowLabels[j] = VegaMatrixUtils.getFXVolatilityFormattedExpiry(expiries[j]);
           }
           values[i][j] = vega[j][i];
         }

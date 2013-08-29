@@ -44,6 +44,8 @@ public class BlackDiscountingPricingFunctions extends AbstractFunctionConfigurat
     functions.add(functionConfiguration(BlackDiscountingValueThetaFXOptionFunction.class));
     functions.add(functionConfiguration(BlackDiscountingValueVannaFXOptionFunction.class));
     functions.add(functionConfiguration(BlackDiscountingValueVommaFXOptionFunction.class));
+    functions.add(functionConfiguration(BlackDiscountingVegaMatrixFXOptionFunction.class));
+    functions.add(functionConfiguration(BlackDiscountingVegaQuoteMatrixFXOptionFunction.class));
     functions.add(functionConfiguration(BlackDiscountingYCNSFXOptionFunction.class));
 
     functions.add(functionConfiguration(BlackDiscountingBCSSwaptionFunction.class));
