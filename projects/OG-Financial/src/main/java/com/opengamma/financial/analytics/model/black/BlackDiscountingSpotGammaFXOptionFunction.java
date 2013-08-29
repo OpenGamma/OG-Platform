@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.analytics.model.black;
 
-import static com.opengamma.engine.value.ValueRequirementNames.DELTA;
+import static com.opengamma.engine.value.ValueRequirementNames.GAMMA;
 
 import java.util.Collections;
 import java.util.Set;
@@ -16,7 +16,7 @@ import com.google.common.collect.Iterables;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.provider.calculator.blackforex.SpotDeltaForexBlackSmileCalculator;
+import com.opengamma.analytics.financial.provider.calculator.blackforex.SpotGammaForexBlackSmileCalculator;
 import com.opengamma.analytics.financial.provider.description.forex.BlackForexSmileProvider;
 import com.opengamma.analytics.financial.provider.description.forex.BlackForexSmileProviderInterface;
 import com.opengamma.engine.ComputationTarget;
@@ -31,19 +31,19 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
- * Calculates the spot delta of FX options using a Black surface and
+ * Calculates the spot gamma of FX options using a Black surface and
  * curves constructed using the discounting method.
  */
-public class BlackDiscountingSpotDeltaFXOptionFunction extends BlackDiscountingFXOptionFunction {
-  /** The spot delta calculator */
+public class BlackDiscountingSpotGammaFXOptionFunction extends BlackDiscountingFXOptionFunction {
+  /** The spot gamma calculator */
   private static final InstrumentDerivativeVisitor<BlackForexSmileProviderInterface, Double> CALCULATOR =
-      SpotDeltaForexBlackSmileCalculator.getInstance();
+      SpotGammaForexBlackSmileCalculator.getInstance();
 
   /**
-   * Sets the value requirement to {@link ValueRequirementNames#DELTA}
+   * Sets the value requirement to {@link ValueRequirementNames#GAMMA}
    */
-  public BlackDiscountingSpotDeltaFXOptionFunction() {
-    super(DELTA);
+  public BlackDiscountingSpotGammaFXOptionFunction() {
+    super(GAMMA);
   }
 
   @Override
@@ -55,11 +55,11 @@ public class BlackDiscountingSpotDeltaFXOptionFunction extends BlackDiscountingF
           final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative,
           final FXMatrix fxMatrix) {
         final BlackForexSmileProvider blackData = getBlackSurface(executionContext, inputs, target, fxMatrix);
-        final double delta = derivative.accept(CALCULATOR, blackData);
+        final double gamma = derivative.accept(CALCULATOR, blackData);
         final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
         final ValueProperties properties = desiredValue.getConstraints().copy().get();
-        final ValueSpecification spec = new ValueSpecification(DELTA, target.toSpecification(), properties);
-        return Collections.singleton(new ComputedValue(spec, delta));
+        final ValueSpecification spec = new ValueSpecification(GAMMA, target.toSpecification(), properties);
+        return Collections.singleton(new ComputedValue(spec, gamma));
       }
 
     };

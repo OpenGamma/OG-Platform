@@ -14,25 +14,25 @@ import com.opengamma.util.money.CurrencyAmount;
 /**
  * Calculator of the gamma (second order derivative with respect to the spot rate) for Forex derivatives in the Black (Garman-Kohlhagen) world.
  */
-public class GammaSpotForexBlackSmileCalculator extends InstrumentDerivativeVisitorAdapter<BlackForexSmileProviderInterface, CurrencyAmount> {
+public class PercentageGammaForexBlackSmileCalculator extends InstrumentDerivativeVisitorAdapter<BlackForexSmileProviderInterface, CurrencyAmount> {
 
   /**
    * The unique instance of the calculator.
    */
-  private static final GammaSpotForexBlackSmileCalculator INSTANCE = new GammaSpotForexBlackSmileCalculator();
+  private static final PercentageGammaForexBlackSmileCalculator INSTANCE = new PercentageGammaForexBlackSmileCalculator();
 
   /**
    * Gets the calculator instance.
    * @return The calculator.
    */
-  public static GammaSpotForexBlackSmileCalculator getInstance() {
+  public static PercentageGammaForexBlackSmileCalculator getInstance() {
     return INSTANCE;
   }
 
   /**
    * Constructor.
    */
-  GammaSpotForexBlackSmileCalculator() {
+  PercentageGammaForexBlackSmileCalculator() {
   }
 
   /**

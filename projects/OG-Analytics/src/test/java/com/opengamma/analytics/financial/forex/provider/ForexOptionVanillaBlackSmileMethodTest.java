@@ -24,7 +24,7 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.B
 import com.opengamma.analytics.financial.model.volatility.VolatilityAndBucketedSensitivities;
 import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParametersStrikeInterpolation;
 import com.opengamma.analytics.financial.provider.calculator.blackforex.CurrencyExposureForexBlackSmileCalculator;
-import com.opengamma.analytics.financial.provider.calculator.blackforex.GammaSpotForexBlackSmileCalculator;
+import com.opengamma.analytics.financial.provider.calculator.blackforex.PercentageGammaForexBlackSmileCalculator;
 import com.opengamma.analytics.financial.provider.calculator.blackforex.PresentValueCurveSensitivityForexBlackSmileCalculator;
 import com.opengamma.analytics.financial.provider.calculator.blackforex.PresentValueForexBlackSmileCalculator;
 import com.opengamma.analytics.financial.provider.calculator.blackforex.PresentValueForexVolatilitySensitivityForexBlackSmileCalculator;
@@ -614,7 +614,7 @@ public class ForexOptionVanillaBlackSmileMethodTest {
   //      assertEquals("Forex: relative gamma", 1.0, gammaCalculator.getAmount() / gammaMethod.getAmount(), TOLERANCE_PV);
   //    }
 
-  private static final GammaSpotForexBlackSmileCalculator GSFBSC = GammaSpotForexBlackSmileCalculator.getInstance();
+  private static final PercentageGammaForexBlackSmileCalculator GSFBSC = PercentageGammaForexBlackSmileCalculator.getInstance();
 
   @Test
   /**
