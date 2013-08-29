@@ -26,9 +26,25 @@ public class BlackDiscountingPricingFunctions extends AbstractFunctionConfigurat
 
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
+    functions.add(functionConfiguration(BlackDiscountingBCSFXOptionFunction.class));
     functions.add(functionConfiguration(BlackDiscountingCurrencyExposureFXOptionFunction.class));
+    functions.add(functionConfiguration(BlackDiscountingForwardDeltaFXOptionFunction.class));
+    functions.add(functionConfiguration(BlackDiscountingForwardDriftlessThetaFXOptionFunction.class));
+    functions.add(functionConfiguration(BlackDiscountingForwardGammaFXOptionFunction.class));
+    functions.add(functionConfiguration(BlackDiscountingForwardVegaFXOptionFunction.class));
+    functions.add(functionConfiguration(BlackDiscountingImpliedVolatilityFXOptionFunction.class));
+    functions.add(functionConfiguration(BlackDiscountingPV01FXOptionFunction.class));
     functions.add(functionConfiguration(BlackDiscountingPVFXOptionFunction.class));
     functions.add(functionConfiguration(BlackDiscountingFXPVFXOptionFunction.class));
+    functions.add(functionConfiguration(BlackDiscountingSpotDeltaFXOptionFunction.class));
+    functions.add(functionConfiguration(BlackDiscountingSpotGammaFXOptionFunction.class));
+    functions.add(functionConfiguration(BlackDiscountingValueDeltaFXOptionFunction.class));
+    functions.add(functionConfiguration(BlackDiscountingValueGammaFXOptionFunction.class));
+    functions.add(functionConfiguration(BlackDiscountingValueGammaSpotFXOptionFunction.class));
+    functions.add(functionConfiguration(BlackDiscountingValueThetaFXOptionFunction.class));
+    functions.add(functionConfiguration(BlackDiscountingValueVannaFXOptionFunction.class));
+    functions.add(functionConfiguration(BlackDiscountingValueVommaFXOptionFunction.class));
+    functions.add(functionConfiguration(BlackDiscountingYCNSFXOptionFunction.class));
 
     functions.add(functionConfiguration(BlackDiscountingBCSSwaptionFunction.class));
     functions.add(functionConfiguration(BlackDiscountingImpliedVolatilitySwaptionFunction.class));

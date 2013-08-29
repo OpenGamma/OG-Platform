@@ -50,15 +50,15 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Calculates the yield curve node sensitivities of swaptions using
- * curves constructed using the discounting method and a Black surface.
+ * Calculates the yield curve node sensitivities of FX options using
+ * curves constructed using the discounting method and a Black surface
  */
-public class BlackDiscountingYCNSSwaptionFunction extends BlackDiscountingFXOptionFunction {
+public class BlackDiscountingYCNSFXOptionFunction extends BlackDiscountingFXOptionFunction {
 
   /**
    * Sets the value requirements to {@link ValueRequirementNames#YIELD_CURVE_NODE_SENSITIVITIES}
    */
-  public BlackDiscountingYCNSSwaptionFunction() {
+  public BlackDiscountingYCNSFXOptionFunction() {
     super(YIELD_CURVE_NODE_SENSITIVITIES);
   }
 

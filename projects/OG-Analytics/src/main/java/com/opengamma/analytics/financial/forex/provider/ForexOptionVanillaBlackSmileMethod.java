@@ -433,8 +433,8 @@ public final class ForexOptionVanillaBlackSmileMethod {
 
   /**
    * Computes the Vomma (aka Volga) (2nd order sensitivity of the option present value to the implied vol)
-   * @param optionForex The Forex option.
-   * @param smileMulticurves The curve and smile data.
+   * @param optionForex The Forex option, not null
+   * @param smileMulticurves The curve and smile data, not null
    * @return The Volga. In the same currency as present value.
    */
   public CurrencyAmount vomma(final ForexOptionVanilla optionForex, final BlackForexSmileProviderInterface smileMulticurves) {
