@@ -139,7 +139,7 @@ public class FileSnapshotWriter implements SnapshotWriter {
   }
 
   @Override
-  public void writeVoliatilitySurface(Map<VolatilitySurfaceKey, VolatilitySurfaceSnapshot> volatilitySurface) {
+  public void writeVolatilitySurface(Map<VolatilitySurfaceKey, VolatilitySurfaceSnapshot> volatilitySurface) {
 
     if (volatilitySurface == null || volatilitySurface.isEmpty()) {
       s_logger.warn("Snapshot does not contain any Volatility Surfaces.");
@@ -173,6 +173,7 @@ public class FileSnapshotWriter implements SnapshotWriter {
       Map<String, String> tempRow = new HashMap<>();
       tempRow.put(SnapshotColumns.TYPE.get(), SnapshotType.YIELD_CURVE.get());
       tempRow.put(SnapshotColumns.NAME.get(), entry.getKey().getName());
+      tempRow.put(SnapshotColumns.YIELD_CURVE_CURRENCY.get(), entry.getKey().getCurrency().toString());
       tempRow.put(SnapshotColumns.INSTANT.get(), curve.getValuationTime().toString());
       //Row written via writeUnstructuredMarketDataSnapshot
       writeUnstructuredMarketDataSnapshot(tempRow, curve.getValues());
