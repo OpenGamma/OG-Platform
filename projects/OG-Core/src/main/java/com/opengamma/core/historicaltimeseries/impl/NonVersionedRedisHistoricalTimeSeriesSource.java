@@ -166,30 +166,7 @@ public class NonVersionedRedisHistoricalTimeSeriesSource implements HistoricalTi
     builder.put(valueDate, value);
     updateTimeSeries(redisKey, builder.build());
   }
-  
-  private String[] encodeTimeseries(LocalDateDoubleTimeSeries timeseries) {
-    String[] tsArray = new String[timeseries.size() * 2];
-    int index = 0;
-    for (Entry<LocalDate, Double> entry : timeseries) {
-      final LocalDate date = entry.getKey();
-      final Double value = entry.getValue();
-      tsArray[index++] = Integer.toString(LocalDateToIntConverter.convertToInt(date));
-      tsArray[index++] = Double.toString(value);
-    }
-    return tsArray;
-  }
-
-  private LocalDateDoubleTimeSeries mergeTimeseries(final LocalDateDoubleTimeSeries previousHts, final LocalDateDoubleTimeSeries currentHts) {
-    LocalDateDoubleTimeSeriesBuilder builder = ImmutableLocalDateDoubleTimeSeries.builder();
-    for (Entry<LocalDate, Double> entry : previousHts) {
-      builder.put(entry.getKey(), entry.getValue());
-    }
-    for (Entry<LocalDate, Double> entry : currentHts) {
-      builder.put(entry.getKey(), entry.getValue());
-    }
-    return builder.build();
-  }
-  
+    
   /**
    * Completely empty the underlying Redis server.
    * You should only call this if you really know what you're doing.
@@ -252,27 +229,35 @@ public class NonVersionedRedisHistoricalTimeSeriesSource implements HistoricalTi
       LocalDateDoubleTimeSeries ts = null;
       try {
         String redisHtsDaysKey = toRedisHtsDaysKey(redisKey);
-        Set<String> dateTexts = jedis.zrangeByScore(redisHtsDaysKey, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
-        
-        String redisHtsDatapointKey = toRedisHtsDatapointKey(redisKey);
-        List<String> valueTexts = jedis.hmget(redisHtsDatapointKey, dateTexts.toArray(new String[dateTexts.size()]));
-        
-        List<Integer> times = Lists.newArrayListWithCapacity(dateTexts.size());
-        List<Double> values = Lists.newArrayListWithCapacity(valueTexts.size());
-        
-        Iterator<String> dateItr = dateTexts.iterator();
-        Iterator<String> valueItr = valueTexts.iterator();
-        
-        while (dateItr.hasNext()) {
-          String dateAsIntText = dateItr.next();
-          String valueText = StringUtils.trimToNull(valueItr.next());
-          if (valueText != null) {
-            times.add(Integer.parseInt(dateAsIntText));
-            values.add(Double.parseDouble(valueText));
-          }
+        double min = Double.NEGATIVE_INFINITY;
+        double max = Double.POSITIVE_INFINITY;
+        if (start != null) {
+          min = localDateToDouble(start);
         }
-        
-        ts = ImmutableLocalDateDoubleTimeSeries.of(ArrayUtils.toPrimitive(times.toArray(new Integer[times.size()])), ArrayUtils.toPrimitive(values.toArray(new Double[values.size()])));
+        if (end != null) {
+          max = localDateToDouble(end);
+        }
+        Set<String> dateTexts = jedis.zrangeByScore(redisHtsDaysKey, min, max);
+        if (!dateTexts.isEmpty()) {
+          String redisHtsDatapointKey = toRedisHtsDatapointKey(redisKey);
+          List<String> valueTexts = jedis.hmget(redisHtsDatapointKey, dateTexts.toArray(new String[dateTexts.size()]));
+          
+          List<Integer> times = Lists.newArrayListWithCapacity(dateTexts.size());
+          List<Double> values = Lists.newArrayListWithCapacity(valueTexts.size());
+          
+          Iterator<String> dateItr = dateTexts.iterator();
+          Iterator<String> valueItr = valueTexts.iterator();
+          
+          while (dateItr.hasNext()) {
+            String dateAsIntText = dateItr.next();
+            String valueText = StringUtils.trimToNull(valueItr.next());
+            if (valueText != null) {
+              times.add(Integer.parseInt(dateAsIntText));
+              values.add(Double.parseDouble(valueText));
+            }
+          }
+          ts = ImmutableLocalDateDoubleTimeSeries.of(ArrayUtils.toPrimitive(times.toArray(new Integer[times.size()])), ArrayUtils.toPrimitive(values.toArray(new Double[values.size()])));
+        }
         getJedisPool().returnResource(jedis);
       } catch (Exception e) {
         s_logger.error("Unable to load points from redis for " + redisKey, e);
@@ -283,17 +268,37 @@ public class NonVersionedRedisHistoricalTimeSeriesSource implements HistoricalTi
     }
   }
 
+  private double localDateToDouble(final LocalDate date) {
+    String dateAsIntText = Integer.toString(LocalDateToIntConverter.convertToInt(date));
+    return Double.parseDouble(dateAsIntText);
+  }
+
   public HistoricalTimeSeries getHistoricalTimeSeries(UniqueId uniqueId, LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
-    LocalDateDoubleTimeSeries ts = loadTimeSeriesFromRedis(toRedisKey(uniqueId), null, null);
-    if (ts == null) {
-      return null;
-    }
+    LocalDate actualStart = null;
+    LocalDate actualEnd = null;
     
     if (start != null) {
-      ArgumentChecker.notNull(end, "end");
-      ts = ts.subSeries(start, includeStart, end, includeEnd);
+      if (includeStart) {
+        actualStart = start;
+      } else {
+        actualStart = start.plusDays(1);
+      }
     }
-    return new SimpleHistoricalTimeSeries(uniqueId, ts);
+    
+    if (end != null) {
+      if (includeEnd) {
+        actualEnd = end;
+      } else {
+        actualEnd = end.minusDays(1);
+      }
+    }
+    
+    LocalDateDoubleTimeSeries ts = loadTimeSeriesFromRedis(toRedisKey(uniqueId), actualStart, actualEnd);
+    SimpleHistoricalTimeSeries result = null;
+    if (ts != null) {
+      result = new SimpleHistoricalTimeSeries(uniqueId, ts);
+    }
+    return result;
   }
 
   public HistoricalTimeSeries getHistoricalTimeSeries(String dataField, ExternalIdBundle identifierBundle, String resolutionKey, LocalDate start, boolean includeStart, LocalDate end,
