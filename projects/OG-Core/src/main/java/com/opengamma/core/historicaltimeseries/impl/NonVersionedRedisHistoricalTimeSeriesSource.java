@@ -5,11 +5,13 @@
  */
 package com.opengamma.core.historicaltimeseries.impl;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,7 +23,10 @@ import redis.clients.jedis.Pipeline;
 
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
@@ -104,21 +109,32 @@ public class NonVersionedRedisHistoricalTimeSeriesSource implements HistoricalTi
     updateTimeSeries(toRedisKey(uniqueId), timeseries);
   }
   
-  protected synchronized void updateTimeSeries(String redisKey, LocalDateDoubleTimeSeries timeseries) {    
+  protected void updateTimeSeries(String redisKey, LocalDateDoubleTimeSeries timeseries) {    
     try (Timer.Context context = _updateSeriesTimer.time()) {
-      LocalDateDoubleTimeSeries previousHts = loadTimeSeriesFromRedis(redisKey);
       Jedis jedis = getJedisPool().getResource();
       try {
-        LocalDateDoubleTimeSeries mergedHts = timeseries;
+        Map<String, String> htsMap = Maps.newHashMap();
+        BiMap<Double, String> dates = HashBiMap.create();
+        for (Entry<LocalDate, Double> entry : timeseries) {
+          String dateAsIntText = Integer.toString(LocalDateToIntConverter.convertToInt(entry.getKey()));
+          htsMap.put(dateAsIntText, Double.toString(entry.getValue()));
+          dates.put(Double.valueOf(dateAsIntText), dateAsIntText);
+        }
+        
         Pipeline pipeline = jedis.pipelined();
         pipeline.multi();
-        if (previousHts != null) {
-          mergedHts = mergeTimeseries(previousHts, timeseries);
-          pipeline.del(redisKey);
+        String redisHtsDatapointKey = toRedisHtsDatapointKey(redisKey);
+        pipeline.hmset(redisHtsDatapointKey, htsMap);
+        
+        String redisHtsDaysKey = toRedisHtsDaysKey(redisKey);
+        for (String dateAsIntText : dates.inverse().keySet()) {
+          pipeline.zrem(redisHtsDaysKey, dateAsIntText);
         }
-        for (String dateOrValue : encodeTimeseries(mergedHts)) {
-          pipeline.rpush(redisKey, dateOrValue);
+        
+        for (Entry<Double, String> entry : dates.entrySet()) {
+          pipeline.zadd(redisHtsDaysKey, entry.getKey(), entry.getValue());
         }
+             
         pipeline.exec();
         pipeline.sync();
         getJedisPool().returnResource(jedis);
@@ -130,6 +146,14 @@ public class NonVersionedRedisHistoricalTimeSeriesSource implements HistoricalTi
     }
   }
   
+  private String toRedisHtsDaysKey(String redisKey) {
+    return redisKey + ":hts.days";
+  }
+
+  private String toRedisHtsDatapointKey(String redisKey) {
+    return redisKey + ":hts.datapoint";
+  }
+
   public void updateTimeSeriesPoint(UniqueId uniqueId, LocalDate valueDate, double value) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     ArgumentChecker.notNull(valueDate, "valueDate");
@@ -221,28 +245,34 @@ public class NonVersionedRedisHistoricalTimeSeriesSource implements HistoricalTi
   // SUPPORTED HISTORICAL TIME SERIES SOURCE OPERATIONS:
   // ------------------------------------------------------------------------
     
-  protected LocalDateDoubleTimeSeries loadTimeSeriesFromRedis(String redisKey) {
+  protected LocalDateDoubleTimeSeries loadTimeSeriesFromRedis(String redisKey, LocalDate start, LocalDate end) {
     // This is the only method that needs implementation.
     try (Timer.Context context = _getSeriesTimer.time()) {
       Jedis jedis = getJedisPool().getResource();
       LocalDateDoubleTimeSeries ts = null;
       try {
-        List<String> htsDataPoints = jedis.lrange(redisKey, 0, -1);
-        if (!htsDataPoints.isEmpty()) {
-          List<LocalDate> times = Lists.newArrayListWithCapacity(htsDataPoints.size() / 2);
-          List<Double> values = Lists.newArrayListWithCapacity(htsDataPoints.size() / 2);
-          
-          int counter = 0;
-          for (String dataPoint : htsDataPoints) {
-            if ((counter % 2) == 0) {
-              times.add(LocalDateToIntConverter.convertToLocalDate(Integer.parseInt(dataPoint)));
-            } else {
-              values.add(Double.parseDouble(dataPoint));
-            }
-            counter++;
+        String redisHtsDaysKey = toRedisHtsDaysKey(redisKey);
+        Set<String> dateTexts = jedis.zrangeByScore(redisHtsDaysKey, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+        
+        String redisHtsDatapointKey = toRedisHtsDatapointKey(redisKey);
+        List<String> valueTexts = jedis.hmget(redisHtsDatapointKey, dateTexts.toArray(new String[dateTexts.size()]));
+        
+        List<Integer> times = Lists.newArrayListWithCapacity(dateTexts.size());
+        List<Double> values = Lists.newArrayListWithCapacity(valueTexts.size());
+        
+        Iterator<String> dateItr = dateTexts.iterator();
+        Iterator<String> valueItr = valueTexts.iterator();
+        
+        while (dateItr.hasNext()) {
+          String dateAsIntText = dateItr.next();
+          String valueText = StringUtils.trimToNull(valueItr.next());
+          if (valueText != null) {
+            times.add(Integer.parseInt(dateAsIntText));
+            values.add(Double.parseDouble(valueText));
           }
-          ts = ImmutableLocalDateDoubleTimeSeries.of(times, values);
         }
+        
+        ts = ImmutableLocalDateDoubleTimeSeries.of(ArrayUtils.toPrimitive(times.toArray(new Integer[times.size()])), ArrayUtils.toPrimitive(values.toArray(new Double[values.size()])));
         getJedisPool().returnResource(jedis);
       } catch (Exception e) {
         s_logger.error("Unable to load points from redis for " + redisKey, e);
@@ -254,7 +284,7 @@ public class NonVersionedRedisHistoricalTimeSeriesSource implements HistoricalTi
   }
 
   public HistoricalTimeSeries getHistoricalTimeSeries(UniqueId uniqueId, LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
-    LocalDateDoubleTimeSeries ts = loadTimeSeriesFromRedis(toRedisKey(uniqueId));
+    LocalDateDoubleTimeSeries ts = loadTimeSeriesFromRedis(toRedisKey(uniqueId), null, null);
     if (ts == null) {
       return null;
     }
@@ -278,7 +308,7 @@ public class NonVersionedRedisHistoricalTimeSeriesSource implements HistoricalTi
 
   public HistoricalTimeSeries getHistoricalTimeSeries(UniqueId uniqueId) {
     s_logger.debug("getHistoricalTimeSeries for {}", uniqueId);
-    LocalDateDoubleTimeSeries ts = loadTimeSeriesFromRedis(toRedisKey(uniqueId));
+    LocalDateDoubleTimeSeries ts = loadTimeSeriesFromRedis(toRedisKey(uniqueId), null, null);
     if (ts == null) {
       return null;
     } else {
@@ -294,7 +324,7 @@ public class NonVersionedRedisHistoricalTimeSeriesSource implements HistoricalTi
   public Pair<LocalDate, Double> getLatestDataPoint(UniqueId uniqueId) {
     try (Timer.Context context = _getSeriesTimer.time()) {
       Pair<LocalDate, Double> latestPoint = null;
-      LocalDateDoubleTimeSeries ts = loadTimeSeriesFromRedis(toRedisKey(uniqueId));
+      LocalDateDoubleTimeSeries ts = loadTimeSeriesFromRedis(toRedisKey(uniqueId), null, null);
       if (ts != null) {
         latestPoint = Pair.of(ts.getLatestTime(), ts.getLatestValue());
       }
@@ -304,7 +334,7 @@ public class NonVersionedRedisHistoricalTimeSeriesSource implements HistoricalTi
 
   @Override
   public Pair<LocalDate, Double> getLatestDataPoint(UniqueId uniqueId, LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
-    LocalDateDoubleTimeSeries ts = loadTimeSeriesFromRedis(toRedisKey(uniqueId));
+    LocalDateDoubleTimeSeries ts = loadTimeSeriesFromRedis(toRedisKey(uniqueId), null, null);
     if (ts == null) {
       return null;
     }
@@ -317,7 +347,7 @@ public class NonVersionedRedisHistoricalTimeSeriesSource implements HistoricalTi
   }
   
   protected LocalDateDoubleTimeSeries getLocalDateDoubleTimeSeries(ExternalIdBundle identifierBundle) {
-    return loadTimeSeriesFromRedis(toRedisKey(identifierBundle));
+    return loadTimeSeriesFromRedis(toRedisKey(identifierBundle), null, null);
   }
   
   protected HistoricalTimeSeries getHistoricalTimeSeries(ExternalIdBundle identifierBundle) {
