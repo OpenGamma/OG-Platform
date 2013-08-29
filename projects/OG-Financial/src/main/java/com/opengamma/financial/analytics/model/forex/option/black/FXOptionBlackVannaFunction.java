@@ -20,13 +20,16 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.model.black.BlackDiscountingValueVannaFXOptionFunction;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**
  * Produces Vanna for FXOption's in the Black (Garman-Kohlhagen) world.
  * This is the spot vanna, ie the 2nd order cross-sensitivity of the present value to the spot and implied vol,
  *          $\frac{\partial^2 (PV)}{\partial spot \partial \sigma}$
+ * @deprecated Use {@link BlackDiscountingValueVannaFXOptionFunction}
  */
+@Deprecated
 public class FXOptionBlackVannaFunction extends FXOptionBlackSingleValuedFunction {
 
   public FXOptionBlackVannaFunction() {

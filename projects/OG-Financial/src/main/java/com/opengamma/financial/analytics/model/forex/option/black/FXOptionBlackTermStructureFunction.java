@@ -59,8 +59,9 @@ import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
- *
+ * @deprecated This function uses deprecated functions from the analytics library.
  */
+@Deprecated
 public abstract class FXOptionBlackTermStructureFunction extends AbstractFunction.NonCompiledInvoker {
   /** The name of the calculation method */
   public static final String BLACK_TERM_STRUCTURE_METHOD = "BlackTermStructure";

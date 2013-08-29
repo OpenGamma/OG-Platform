@@ -29,7 +29,9 @@ import com.opengamma.util.money.CurrencyAmount;
 
 /**
  * The function calculating the total Black volatility sensitivity.
+ * @deprecated Use {@link BlackDiscountingValueVegaFXOptionFunction}
  */
+@Deprecated
 public class FXOptionBlackVegaFunction extends FXOptionBlackSingleValuedFunction {
 
   /**

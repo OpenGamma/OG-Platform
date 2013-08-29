@@ -39,6 +39,7 @@ import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalcula
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
+import com.opengamma.financial.analytics.model.black.BlackDiscountingPV01FXOptionFunction;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
@@ -47,8 +48,10 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- *
+ * Calculates the PV01 for FX options using the Black method
+ * @deprecated Use {@link BlackDiscountingPV01FXOptionFunction}
  */
+@Deprecated
 public class FXOptionBlackPV01Function extends FXOptionBlackSingleValuedFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(FXOptionBlackPV01Function.class);
   private static final PV01ForexCalculator CALCULATOR = PV01ForexCalculator.getInstance();
@@ -129,7 +132,7 @@ public class FXOptionBlackPV01Function extends FXOptionBlackSingleValuedFunction
       return null;
     }
     requirements.add(getCurveSensitivitiesRequirement(putCurveName, putCurveCalculationConfigName, callCurveName, callCurveCalculationConfigName, surfaceName,
-        interpolatorName, leftExtrapolatorName, rightExtrapolatorName, currency, resultCurrency, target));
+        interpolatorName, leftExtrapolatorName, rightExtrapolatorName, resultCurrency, target));
     return requirements;
   }
 
@@ -217,7 +220,7 @@ public class FXOptionBlackPV01Function extends FXOptionBlackSingleValuedFunction
 
   private static ValueRequirement getCurveSensitivitiesRequirement(final String putCurveName, final String putCurveCalculationConfig, final String callCurveName,
       final String callCurveCalculationConfig, final String surfaceName, final String interpolatorName, final String leftExtrapolatorName,
-      final String rightExtrapolatorName, final String currency, final String resultCurrency, final ComputationTarget target) {
+      final String rightExtrapolatorName, final String resultCurrency, final ComputationTarget target) {
     final ValueProperties properties = ValueProperties.builder()
         .with(PUT_CURVE, putCurveName)
         .with(CALL_CURVE, callCurveName)

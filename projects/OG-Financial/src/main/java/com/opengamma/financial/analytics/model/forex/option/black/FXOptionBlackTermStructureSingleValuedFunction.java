@@ -22,8 +22,11 @@ import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.util.money.Currency;
 
 /**
- *
+ * Base class for FX option functions that use the Black method. The results
+ * set the {@link ValuePropertyNames#CURRENCY} property.
+ * @deprecated The parent class is deprecated
  */
+@Deprecated
 public abstract class FXOptionBlackTermStructureSingleValuedFunction extends FXOptionBlackTermStructureFunction {
 
   public FXOptionBlackTermStructureSingleValuedFunction(final String valueRequirementName) {

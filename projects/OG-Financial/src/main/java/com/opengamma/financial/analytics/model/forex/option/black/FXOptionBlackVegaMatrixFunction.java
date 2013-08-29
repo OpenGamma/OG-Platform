@@ -26,11 +26,14 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.VegaMatrixUtils;
+import com.opengamma.financial.analytics.model.black.BlackDiscountingVegaMatrixFXOptionFunction;
 import com.opengamma.financial.currency.CurrencyPair;
 
 /**
- *
+ * Calculates the bucketed vega matrix for FX options.
+ * @deprecated Use {@link BlackDiscountingVegaMatrixFXOptionFunction}
  */
+@Deprecated
 public class FXOptionBlackVegaMatrixFunction extends FXOptionBlackSingleValuedFunction {
   private static final PresentValueBlackVolatilityNodeSensitivityBlackForexCalculator CALCULATOR = PresentValueBlackVolatilityNodeSensitivityBlackForexCalculator.getInstance();
   private static final DecimalFormat DELTA_FORMATTER = new DecimalFormat("##");

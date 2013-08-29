@@ -24,11 +24,14 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.VegaMatrixUtils;
+import com.opengamma.financial.analytics.model.black.BlackDiscountingVegaQuoteMatrixFXOptionFunction;
 import com.opengamma.financial.currency.CurrencyPair;
 
 /**
- *
+ * Calculates the vega quote matrix for FX options
+ * @deprecated Use {@link BlackDiscountingVegaQuoteMatrixFXOptionFunction}
  */
+@Deprecated
 public class FXOptionBlackVegaQuoteMatrixFunction extends FXOptionBlackSingleValuedFunction {
   private static final PresentValueBlackVolatilityQuoteSensitivityForexCalculator CALCULATOR = PresentValueBlackVolatilityQuoteSensitivityForexCalculator.getInstance();
 

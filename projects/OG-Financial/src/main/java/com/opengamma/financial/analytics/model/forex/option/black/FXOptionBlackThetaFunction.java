@@ -22,13 +22,16 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
+import com.opengamma.financial.analytics.model.black.BlackDiscountingValueThetaFXOptionFunction;
 import com.opengamma.financial.analytics.model.horizon.ThetaPropertyNamesAndValues;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**
  * The function to compute the theoretical theta of Forex options in the Black model.
+ * @deprecated Use {@link BlackDiscountingValueThetaFXOptionFunction}
  */
+@Deprecated
 public class FXOptionBlackThetaFunction extends FXOptionBlackSingleValuedFunction {
   private static final String OPTION_THETA = "OptionTheta";
   /**
