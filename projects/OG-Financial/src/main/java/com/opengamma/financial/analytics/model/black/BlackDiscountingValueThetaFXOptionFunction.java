@@ -67,18 +67,22 @@ public class BlackDiscountingValueThetaFXOptionFunction extends BlackDiscounting
         final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
         final ValueProperties properties = desiredValue.getConstraints().copy().get();
         double daysPerYear;
+        final ValueProperties.Builder propertiesWithDaysPerYear = properties.copy()
+            .withoutAny(PROPERTY_DAYS_PER_YEAR);
         final Set<String> daysPerYearProperty = properties.getValues(PROPERTY_DAYS_PER_YEAR);
         if (daysPerYearProperty.isEmpty() || daysPerYearProperty.size() != 1) {
           daysPerYear = DEFAULT_DAYS_PER_YEAR;
+          propertiesWithDaysPerYear.with(PROPERTY_DAYS_PER_YEAR, Double.toString(DEFAULT_DAYS_PER_YEAR));
         } else {
           daysPerYear = Double.parseDouble(Iterables.getOnlyElement(daysPerYearProperty));
+          propertiesWithDaysPerYear.with(PROPERTY_DAYS_PER_YEAR, daysPerYearProperty);
         }
         final String currency = Iterables.getOnlyElement(properties.getValues(CURRENCY));
         if (!currency.equals(valueTheta.getCurrency().getCode())) {
           throw new OpenGammaRuntimeException("Currency of result " + valueTheta.getCurrency() + " did not match" +
               " the expected currency " + currency);
         }
-        final ValueSpecification spec = new ValueSpecification(VALUE_THETA, target.toSpecification(), properties);
+        final ValueSpecification spec = new ValueSpecification(VALUE_THETA, target.toSpecification(), propertiesWithDaysPerYear.get());
         return Collections.singleton(new ComputedValue(spec, valueTheta.getAmount() / daysPerYear));
       }
 
