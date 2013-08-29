@@ -36,7 +36,7 @@ import com.opengamma.engine.value.ValueSpecification;
  * curves constructed using the discounting method.
  */
 public class BlackDiscountingValueVegaSwaptionFunction extends BlackDiscountingSwaptionFunction {
-  /** The present value calculator */
+  /** The value vega calculator */
   private static final InstrumentDerivativeVisitor<BlackSwaptionFlatProviderInterface, PresentValueBlackSwaptionSensitivity> CALCULATOR =
       PresentValueBlackSwaptionSensitivityBlackSwaptionCalculator.getInstance();
 

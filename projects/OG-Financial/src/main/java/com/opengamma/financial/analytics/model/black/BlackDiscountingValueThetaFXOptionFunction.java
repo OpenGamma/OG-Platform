@@ -43,7 +43,7 @@ import com.opengamma.util.money.CurrencyAmount;
  * days in a year, with the default being 365.25.
  */
 public class BlackDiscountingValueThetaFXOptionFunction extends BlackDiscountingFXOptionFunction {
-  /** The value delta calculator */
+  /** The value theta calculator */
   private static final InstrumentDerivativeVisitor<BlackForexSmileProviderInterface, CurrencyAmount> CALCULATOR =
       ValueThetaForexBlackSmileCalculator.getInstance();
 

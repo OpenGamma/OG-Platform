@@ -6,7 +6,7 @@
 package com.opengamma.financial.analytics.model.black;
 
 import static com.opengamma.engine.value.ValuePropertyNames.CURRENCY;
-import static com.opengamma.engine.value.ValueRequirementNames.VALUE_GAMMA_P;
+import static com.opengamma.engine.value.ValueRequirementNames.VALUE_VOMMA;
 
 import java.util.Collections;
 import java.util.Set;
@@ -18,7 +18,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.analytics.financial.provider.calculator.blackforex.ValueGammaSpotForexBlackSmileCalculator;
+import com.opengamma.analytics.financial.provider.calculator.blackforex.ValueVommaForexBlackSmileCalculator;
 import com.opengamma.analytics.financial.provider.description.forex.BlackForexSmileProvider;
 import com.opengamma.analytics.financial.provider.description.forex.BlackForexSmileProviderInterface;
 import com.opengamma.engine.ComputationTarget;
@@ -34,19 +34,19 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**
- * Calculates the value gamma multiplied by the spot (which produces the change of delta for a relative increase of e of the spot rate (from X to X(1+e)))
+ * Calculates the value vomma (second order derivative with respect to implied volatility)
  * of FX options using a Black surface and curves constructed using the discounting method.
  */
-public class BlackDiscountingValueGammaSpotFXOptionFunction extends BlackDiscountingFXOptionFunction {
-  /** The value gamma spot calculator */
+public class BlackDiscountingValueVommaFXOptionFunction extends BlackDiscountingFXOptionFunction {
+  /** The value vomma calculator */
   private static final InstrumentDerivativeVisitor<BlackForexSmileProviderInterface, CurrencyAmount> CALCULATOR =
-      ValueGammaSpotForexBlackSmileCalculator.getInstance();
+      ValueVommaForexBlackSmileCalculator.getInstance();
 
   /**
-   * Sets the value requirement to {@link ValueRequirementNames#VALUE_GAMMA_P}
+   * Sets the value requirement to {@link ValueRequirementNames#VALUE_VOMMA}
    */
-  public BlackDiscountingValueGammaSpotFXOptionFunction() {
-    super(VALUE_GAMMA_P);
+  public BlackDiscountingValueVommaFXOptionFunction() {
+    super(VALUE_VOMMA);
   }
 
   @Override
@@ -58,16 +58,16 @@ public class BlackDiscountingValueGammaSpotFXOptionFunction extends BlackDiscoun
           final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative,
           final FXMatrix fxMatrix) {
         final BlackForexSmileProvider blackData = getBlackSurface(executionContext, inputs, target, fxMatrix);
-        final CurrencyAmount valueGamma = derivative.accept(CALCULATOR, blackData);
+        final CurrencyAmount valueVomma = derivative.accept(CALCULATOR, blackData);
         final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
         final ValueProperties properties = desiredValue.getConstraints().copy().get();
         final String currency = Iterables.getOnlyElement(properties.getValues(CURRENCY));
-        if (!currency.equals(valueGamma.getCurrency().getCode())) {
-          throw new OpenGammaRuntimeException("Currency of result " + valueGamma.getCurrency() + " did not match" +
+        if (!currency.equals(valueVomma.getCurrency().getCode())) {
+          throw new OpenGammaRuntimeException("Currency of result " + valueVomma.getCurrency() + " did not match" +
               " the expected currency " + currency);
         }
-        final ValueSpecification spec = new ValueSpecification(VALUE_GAMMA_P, target.toSpecification(), properties);
-        return Collections.singleton(new ComputedValue(spec, valueGamma.getAmount()));
+        final ValueSpecification spec = new ValueSpecification(VALUE_VOMMA, target.toSpecification(), properties);
+        return Collections.singleton(new ComputedValue(spec, valueVomma.getAmount()));
       }
 
     };

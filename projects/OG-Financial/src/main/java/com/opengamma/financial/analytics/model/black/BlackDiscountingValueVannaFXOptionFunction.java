@@ -38,7 +38,7 @@ import com.opengamma.util.money.CurrencyAmount;
  * of FX options using a Black surface and curves constructed using the discounting method.
  */
 public class BlackDiscountingValueVannaFXOptionFunction extends BlackDiscountingFXOptionFunction {
-  /** The value gamma calculator */
+  /** The value vanna calculator */
   private static final InstrumentDerivativeVisitor<BlackForexSmileProviderInterface, CurrencyAmount> CALCULATOR =
       ValueVannaForexBlackSmileCalculator.getInstance();
 
