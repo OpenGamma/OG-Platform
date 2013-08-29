@@ -40,7 +40,7 @@ public class MasterSnapshotReader implements SnapshotReader {
     _snapshotMaster = marketDataSnapshotMaster;
     _snapshot = _snapshotMaster.get(uniqueId).getSnapshot();
 
-/*
+
 
     StructuredMarketDataSnapshot snapshot02 = _snapshotMaster.get(UniqueId.parse("DbSnp~34668~0")).getSnapshot();
     StructuredMarketDataSnapshot snapshot10 = _snapshotMaster.get(UniqueId.parse("DbSnp~35404~0")).getSnapshot();
@@ -58,7 +58,6 @@ public class MasterSnapshotReader implements SnapshotReader {
 
 
     _snapshot = snapshot02;
-*/
 
 
 

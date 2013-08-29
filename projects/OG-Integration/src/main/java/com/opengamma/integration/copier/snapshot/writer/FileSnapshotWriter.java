@@ -26,6 +26,7 @@ import com.opengamma.integration.copier.sheet.SheetFormat;
 import com.opengamma.integration.copier.sheet.writer.CsvSheetWriter;
 import com.opengamma.integration.copier.snapshot.SnapshotColumns;
 import com.opengamma.integration.copier.snapshot.SnapshotType;
+import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -58,8 +59,22 @@ public class FileSnapshotWriter implements SnapshotWriter {
       ValueSnapshot valueSnapshot = entry.getValue();
       tempRow.putAll(prefixes);
 
-      tempRow.put(SnapshotColumns.TYPE.get(), entry.getKey().getFirst().toString());
-      tempRow.put(SnapshotColumns.SURFACE_Y.get(), entry.getKey().getSecond().toString());
+      String surfaceX;
+      if (entry.getKey().getFirst() instanceof Tenor) {
+        surfaceX = ((Tenor) entry.getKey().getFirst()).toFormattedString();
+      } else {
+        surfaceX = entry.getKey().getFirst().toString();
+      }
+
+      String surfaceY;
+      if (entry.getKey().getSecond() instanceof Pair) {
+        surfaceY = ((Pair) entry.getKey().getSecond()).getFirst() + "|" + ((Pair) entry.getKey().getSecond()).getSecond();
+      } else {
+        surfaceY = entry.getKey().getSecond().toString();
+      }
+
+      tempRow.put(SnapshotColumns.SURFACE_X.get(), surfaceX);
+      tempRow.put(SnapshotColumns.SURFACE_Y.get(), surfaceY);
       if (valueSnapshot.getMarketValue() != null) {
         tempRow.put(SnapshotColumns.MARKET_VALUE.get(), valueSnapshot.getMarketValue().toString());
       }

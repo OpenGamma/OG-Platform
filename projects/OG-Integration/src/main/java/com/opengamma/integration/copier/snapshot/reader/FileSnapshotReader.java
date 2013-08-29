@@ -27,11 +27,14 @@ import com.opengamma.core.marketdatasnapshot.impl.ManageableCurveSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableUnstructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableVolatilitySurfaceSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableYieldCurveSnapshot;
+import com.opengamma.financial.analytics.volatility.surface.BloombergFXOptionVolatilitySurfaceInstrumentProvider;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.UniqueId;
 import com.opengamma.integration.copier.sheet.reader.CsvSheetReader;
 import com.opengamma.integration.copier.snapshot.SnapshotColumns;
 import com.opengamma.integration.copier.snapshot.SnapshotType;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -57,12 +60,14 @@ public class FileSnapshotReader implements SnapshotReader {
   private void iterateSheetRows() {
 
     _curves = new HashMap<>();
+    _surface = new HashMap<>();
+    _yieldCurve = new HashMap<>();
 
     //Temporary maps for data structures
     HashMap<String, ManageableCurveSnapshot> curvesBuilder = new HashMap<>();
     HashMap<String, Pair<YieldCurveKey, ManageableYieldCurveSnapshot>> yieldCurveBuilder = new HashMap<>();
-    HashMap<String, ManageableVolatilitySurfaceSnapshot> surfaceBuilder = new HashMap<>();
-
+    HashMap<String, Pair<VolatilitySurfaceKey, ManageableVolatilitySurfaceSnapshot>> surfaceBuilder = new HashMap<>();
+    ManageableUnstructuredMarketDataSnapshot globalBuilder = new ManageableUnstructuredMarketDataSnapshot();
 
     while (true) {
       Map<String, String> currentRow = _sheetReader.loadNextRow();
@@ -75,10 +80,10 @@ public class FileSnapshotReader implements SnapshotReader {
         for (Map.Entry<String, Pair<YieldCurveKey, ManageableYieldCurveSnapshot>> entry : yieldCurveBuilder.entrySet()) {
           _yieldCurve.put(entry.getValue().getFirst(), entry.getValue().getSecond());
         }
-        for (Map.Entry<String, ManageableVolatilitySurfaceSnapshot> entry : surfaceBuilder.entrySet()) {
-          //TODO create key
-          _surface.put(null, entry.getValue());
+        for (Map.Entry<String, Pair<VolatilitySurfaceKey, ManageableVolatilitySurfaceSnapshot>> entry : surfaceBuilder.entrySet()) {
+          _surface.put(entry.getValue().getFirst(), entry.getValue().getSecond());
         }
+        _global = globalBuilder;
         return;
       }
 
@@ -98,7 +103,7 @@ public class FileSnapshotReader implements SnapshotReader {
           buildYieldCurves(yieldCurveBuilder, currentRow);
           break;
         case GOBAL_VALUES:
-          //TODO
+          buildGlobalValues(globalBuilder, currentRow);
           break;
         case VOL_SURFACE:
           buildSurface(surfaceBuilder, currentRow);
@@ -110,14 +115,40 @@ public class FileSnapshotReader implements SnapshotReader {
     }
   }
 
-  private void buildSurface(HashMap<String, ManageableVolatilitySurfaceSnapshot> surfaceBuilder,
+  private void buildGlobalValues(ManageableUnstructuredMarketDataSnapshot globalBuilder , Map<String, String> currentRow) {
+    globalBuilder.putValue(createExternalIdBundle(currentRow),
+                           currentRow.get(SnapshotColumns.VALUE_NAME.get()),
+                           createValueSnapshot(currentRow));
+  }
+
+  private void buildSurface(HashMap<String, Pair<VolatilitySurfaceKey, ManageableVolatilitySurfaceSnapshot>> surfaceBuilder,
                             Map<String, String> currentRow) {
     String name = currentRow.get(SnapshotColumns.NAME.get());
+
+    if (!surfaceBuilder.containsKey(name)) {
+      ManageableVolatilitySurfaceSnapshot surface = new ManageableVolatilitySurfaceSnapshot();
+      VolatilitySurfaceKey key = new VolatilitySurfaceKey(UniqueId.parse(currentRow.get(SnapshotColumns.SURFACE_TARGET.get())),
+                                                          currentRow.get(SnapshotColumns.NAME.get()),
+                                                          currentRow.get(SnapshotColumns.SURFACE_INSTRUMENT_TYPE.get()),
+                                                          currentRow.get(SnapshotColumns.SURFACE_QUOTE_TYPE.get()),
+                                                          currentRow.get(SnapshotColumns.SURFACE_QUOTE_UNITS.get()));
+      HashMap values = new HashMap<Pair<Object, Object>, ValueSnapshot>();
+
+      values.put(Pair.of(currentRow.get(SnapshotColumns.SURFACE_X.get()),
+                         currentRow.get(SnapshotColumns.SURFACE_Y.get())), createValueSnapshot(currentRow));
+      surface.setValues(values);
+      surfaceBuilder.put(name, Pair.of(key, surface));
+    } else {
+      surfaceBuilder.get(name).getSecond().getValues().put(createOrdinatePair(currentRow),
+                                                           createValueSnapshot(currentRow));
+    }
+
   }
 
   private void buildYieldCurves(HashMap<String, Pair<YieldCurveKey, ManageableYieldCurveSnapshot>> yieldCurveBuilder,
                                 Map<String, String> currentRow) {
     String name = currentRow.get(SnapshotColumns.NAME.get());
+
     if (!yieldCurveBuilder.containsKey(name)) {
       ManageableYieldCurveSnapshot curve = new ManageableYieldCurveSnapshot();
       ManageableUnstructuredMarketDataSnapshot snapshot = new ManageableUnstructuredMarketDataSnapshot();
@@ -139,6 +170,7 @@ public class FileSnapshotReader implements SnapshotReader {
 
   private void buildCurves(HashMap<String, ManageableCurveSnapshot> curvesBuilder, Map<String, String> currentRow) {
     String name = currentRow.get(SnapshotColumns.NAME.get());
+
     if (!curvesBuilder.containsKey(name)) {
       ManageableCurveSnapshot curve = new ManageableCurveSnapshot();
       ManageableUnstructuredMarketDataSnapshot snapshot = new ManageableUnstructuredMarketDataSnapshot();
@@ -155,6 +187,60 @@ public class FileSnapshotReader implements SnapshotReader {
                                                    createValueSnapshot(currentRow));
     }
 
+  }
+
+  private Pair<Object, Object> createOrdinatePair(Map<String, String> currentRow) {
+    String x = currentRow.get(SnapshotColumns.SURFACE_X.get());
+    String[] y = currentRow.get(SnapshotColumns.SURFACE_Y.get()).split("\\|");
+    Object surfaceX = null;
+    Object surfaceY = null;
+
+    if (x != null) {
+      if (NumberUtils.isNumber(x)) {
+        surfaceX = NumberUtils.createDouble(x);
+      } else {
+        try {
+          surfaceX = Tenor.parse(x);
+        } catch (IllegalArgumentException e)  {
+          s_logger.error("Volatility surface X ordinate {} should be a Double, Tenor or empty.", x);
+        }
+      }
+    }
+
+    if (y != null) {
+      if (y.length == 1 && NumberUtils.isNumber(y[0])) {
+        surfaceY = NumberUtils.createDouble(y[0]);
+      } else {
+        try {
+          surfaceY = createYOrdinatePair(y);
+        } catch (IllegalArgumentException e)  {
+          s_logger.error("Volatility surface Y ordinate {} should be a Double, Pair<Number, FXVolQuoteType> or empty.", x);
+        }
+      }
+    }
+
+    return Pair.of(surfaceX, surfaceY);
+  }
+
+  // Bloomberg FX option volatility surface codes given a tenor, quote type (ATM, butterfly, risk reversal) and distance from ATM.
+  private Pair<Number, BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType> createYOrdinatePair(String[] yPair) {
+    Number firstElement = null;
+    BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType secondElement = null;
+    if (NumberUtils.isNumber(yPair[0])) {
+      firstElement = NumberUtils.createDouble(yPair[0]);
+    }
+    switch (yPair[1]) {
+      case "ATM":
+        secondElement = BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType.ATM;
+        break;
+      case "RISK_REVERSAL":
+        secondElement = BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType.RISK_REVERSAL;
+        break;
+      case "BUTTERFLY":
+        secondElement = BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType.BUTTERFLY;
+        break;
+    }
+    return Pair.of(firstElement, secondElement);
   }
 
   private ValueSnapshot createValueSnapshot(Map<String, String> currentRow) {
