@@ -6,14 +6,14 @@
 package com.opengamma.integration.copier.snapshot.reader;
 
 import java.util.Arrays;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.zip.ZipEntry;
 
+import org.apache.commons.lang.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
 
 import com.opengamma.core.marketdatasnapshot.CurveKey;
 import com.opengamma.core.marketdatasnapshot.CurveSnapshot;
@@ -25,10 +25,14 @@ import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
 import com.opengamma.core.marketdatasnapshot.YieldCurveSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableCurveSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableUnstructuredMarketDataSnapshot;
+import com.opengamma.core.marketdatasnapshot.impl.ManageableVolatilitySurfaceSnapshot;
+import com.opengamma.core.marketdatasnapshot.impl.ManageableYieldCurveSnapshot;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.integration.copier.sheet.reader.CsvSheetReader;
 import com.opengamma.integration.copier.snapshot.SnapshotColumns;
 import com.opengamma.integration.copier.snapshot.SnapshotType;
+import com.opengamma.util.money.Currency;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Reads a snapshot from an imported file
@@ -38,7 +42,6 @@ public class FileSnapshotReader implements SnapshotReader {
   private static final Logger s_logger = LoggerFactory.getLogger(FileSnapshotReader.class);
 
   private CsvSheetReader _sheetReader;
-  private Enumeration<ZipEntry> _sheetEntries;
   private Map<CurveKey, CurveSnapshot> _curves;
   private UnstructuredMarketDataSnapshot _global;
   private Map<VolatilitySurfaceKey, VolatilitySurfaceSnapshot> _surface;
@@ -57,6 +60,9 @@ public class FileSnapshotReader implements SnapshotReader {
 
     //Temporary maps for data structures
     HashMap<String, ManageableCurveSnapshot> curvesBuilder = new HashMap<>();
+    HashMap<String, Pair<YieldCurveKey, ManageableYieldCurveSnapshot>> yieldCurveBuilder = new HashMap<>();
+    HashMap<String, ManageableVolatilitySurfaceSnapshot> surfaceBuilder = new HashMap<>();
+
 
     while (true) {
       Map<String, String> currentRow = _sheetReader.loadNextRow();
@@ -65,6 +71,13 @@ public class FileSnapshotReader implements SnapshotReader {
       if (currentRow == null) {
         for (Map.Entry<String, ManageableCurveSnapshot> entry : curvesBuilder.entrySet()) {
           _curves.put(new CurveKey(entry.getKey()), entry.getValue());
+        }
+        for (Map.Entry<String, Pair<YieldCurveKey, ManageableYieldCurveSnapshot>> entry : yieldCurveBuilder.entrySet()) {
+          _yieldCurve.put(entry.getValue().getFirst(), entry.getValue().getSecond());
+        }
+        for (Map.Entry<String, ManageableVolatilitySurfaceSnapshot> entry : surfaceBuilder.entrySet()) {
+          //TODO create key
+          _surface.put(null, entry.getValue());
         }
         return;
       }
@@ -82,15 +95,45 @@ public class FileSnapshotReader implements SnapshotReader {
           buildCurves(curvesBuilder, currentRow);
           break;
         case YIELD_CURVE:
+          buildYieldCurves(yieldCurveBuilder, currentRow);
           break;
         case GOBAL_VALUES:
+          //TODO
           break;
         case VOL_SURFACE:
+          buildSurface(surfaceBuilder, currentRow);
           break;
         default:
           s_logger.error("Unknown snapshot element of type {}", type);
           break;
       }
+    }
+  }
+
+  private void buildSurface(HashMap<String, ManageableVolatilitySurfaceSnapshot> surfaceBuilder,
+                            Map<String, String> currentRow) {
+    String name = currentRow.get(SnapshotColumns.NAME.get());
+  }
+
+  private void buildYieldCurves(HashMap<String, Pair<YieldCurveKey, ManageableYieldCurveSnapshot>> yieldCurveBuilder,
+                                Map<String, String> currentRow) {
+    String name = currentRow.get(SnapshotColumns.NAME.get());
+    if (!yieldCurveBuilder.containsKey(name)) {
+      ManageableYieldCurveSnapshot curve = new ManageableYieldCurveSnapshot();
+      ManageableUnstructuredMarketDataSnapshot snapshot = new ManageableUnstructuredMarketDataSnapshot();
+      YieldCurveKey key = new YieldCurveKey(Currency.of(currentRow.get(SnapshotColumns.YIELD_CURVE_CURRENCY.get())),
+                                            currentRow.get(SnapshotColumns.NAME.get()));
+
+      curve.setValuationTime(Instant.parse(currentRow.get(SnapshotColumns.INSTANT.get())));
+      snapshot.putValue(createExternalIdBundle(currentRow),
+                        currentRow.get(SnapshotColumns.VALUE_NAME.get()),
+                        createValueSnapshot(currentRow));
+      curve.setValues(snapshot);
+      yieldCurveBuilder.put(name, Pair.of(key, curve));
+    } else {
+      yieldCurveBuilder.get(name).getSecond().getValues().putValue(createExternalIdBundle(currentRow),
+                                                   currentRow.get(SnapshotColumns.VALUE_NAME.get()),
+                                                   createValueSnapshot(currentRow));
     }
   }
 
@@ -115,8 +158,37 @@ public class FileSnapshotReader implements SnapshotReader {
   }
 
   private ValueSnapshot createValueSnapshot(Map<String, String> currentRow) {
-    String marketValue = currentRow.get(SnapshotColumns.MARKET_VALUE.get());
-    String overrideValue = currentRow.get(SnapshotColumns.OVERRIDE_VALUE.get());
+    String market = currentRow.get(SnapshotColumns.MARKET_VALUE.get());
+    String override = currentRow.get(SnapshotColumns.OVERRIDE_VALUE.get());
+    Object marketValue = null;
+    Object overrideValue = null;
+
+    // marketValue can only be Double, LocalDate or empty
+    if (market != null) {
+      if (NumberUtils.isNumber(market)) {
+        marketValue = NumberUtils.createDouble(market);
+      } else {
+        try {
+          marketValue = LocalDate.parse(market);
+        } catch (IllegalArgumentException e)  {
+          s_logger.error("Market value {} should be a Double, LocalDate or empty.", market);
+        }
+      }
+    }
+
+    //overrideValue can only be Double, LocalDate or empty
+    if (override != null) {
+      if (NumberUtils.isNumber(override)) {
+        overrideValue = NumberUtils.createDouble(override);
+      } else {
+        try {
+          overrideValue = LocalDate.parse(override);
+        } catch (IllegalArgumentException e)  {
+          s_logger.error("Override value {} should be a Double, LocalDate or empty.", override);
+        }
+      }
+    }
+
     return new ValueSnapshot(marketValue, overrideValue);
   }
 

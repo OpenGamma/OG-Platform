@@ -54,7 +54,7 @@ public class MasterSnapshotWriter implements SnapshotWriter {
   }
 
   @Override
-  public void writeVoliatilitySurface(Map<VolatilitySurfaceKey, VolatilitySurfaceSnapshot> volatilitySurface) {
+  public void writeVolatilitySurface(Map<VolatilitySurfaceKey, VolatilitySurfaceSnapshot> volatilitySurface) {
     //To change body of implemented methods use File | Settings | File Templates.
   }
 

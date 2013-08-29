@@ -28,7 +28,7 @@ public interface SnapshotWriter {
 
   void writeGlobalValues(UnstructuredMarketDataSnapshot globalValues);
 
-  void writeVoliatilitySurface(Map<VolatilitySurfaceKey, VolatilitySurfaceSnapshot> volatilitySurface);
+  void writeVolatilitySurface(Map<VolatilitySurfaceKey, VolatilitySurfaceSnapshot> volatilitySurface);
 
   void writeYieldCurves(Map<YieldCurveKey, YieldCurveSnapshot> yieldCurves);
 

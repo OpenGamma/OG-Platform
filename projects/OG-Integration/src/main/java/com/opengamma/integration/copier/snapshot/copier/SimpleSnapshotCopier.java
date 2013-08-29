@@ -27,6 +27,6 @@ public class SimpleSnapshotCopier implements SnapshotCopier {
     snapshotWriter.writeCurves(snapshotReader.readCurves());
     snapshotWriter.writeYieldCurves(snapshotReader.readYieldCurves());
     snapshotWriter.writeGlobalValues(snapshotReader.readGlobalValues());
-    snapshotWriter.writeVoliatilitySurface(snapshotReader.readVolatilitySurfaces());
+    snapshotWriter.writeVolatilitySurface(snapshotReader.readVolatilitySurfaces());
   }
 }
