@@ -12,11 +12,9 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.financial.tool.ToolContext;
-import com.opengamma.id.UniqueId;
 import com.opengamma.integration.copier.snapshot.copier.SimpleSnapshotCopier;
 import com.opengamma.integration.copier.snapshot.copier.SnapshotCopier;
 import com.opengamma.integration.copier.snapshot.reader.FileSnapshotReader;
-import com.opengamma.integration.copier.snapshot.reader.MasterSnapshotReader;
 import com.opengamma.integration.copier.snapshot.reader.SnapshotReader;
 import com.opengamma.integration.copier.snapshot.writer.MasterSnapshotWriter;
 import com.opengamma.integration.copier.snapshot.writer.SnapshotWriter;
@@ -32,8 +30,6 @@ public class MarketDataSnapshotImportTool extends AbstractTool<ToolContext> {
 
   /** File name option flag */
   private static final String FILE_NAME_OPTION = "f";
-  /** Snapshot name option flag */
-  private static final String SNAPSHOT_NAME_OPTION = "n";
 
   private static ToolContext s_context;
 
@@ -83,7 +79,6 @@ public class MarketDataSnapshotImportTool extends AbstractTool<ToolContext> {
   protected Options createOptions(boolean mandatoryConfig) {
     final Options options = super.createOptions(mandatoryConfig);
     options.addOption(createFilenameOption());
-    options.addOption(createSnapshotNameOption());
     return options;
   }
 
@@ -93,11 +88,5 @@ public class MarketDataSnapshotImportTool extends AbstractTool<ToolContext> {
     return option;
   }
 
-  private static Option createSnapshotNameOption() {
-    final Option option = new Option(SNAPSHOT_NAME_OPTION, "snapshotName", true, "The snapshot name to create");
-    option.setArgName("snapshot uid");
-    option.setRequired(true);
-    return option;
-  }
 
 }
