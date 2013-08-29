@@ -5,7 +5,6 @@
  */
 package com.opengamma.integration.copier.snapshot.writer;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -18,6 +17,9 @@ import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceKey;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceSnapshot;
 import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
 import com.opengamma.core.marketdatasnapshot.YieldCurveSnapshot;
+import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
+import com.opengamma.core.marketdatasnapshot.impl.ManageableUnstructuredMarketDataSnapshot;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 
 /**
@@ -28,6 +30,8 @@ public class MasterSnapshotWriter implements SnapshotWriter {
   private static final Logger s_logger = LoggerFactory.getLogger(MasterSnapshotWriter.class);
 
   private final MarketDataSnapshotMaster _snapshotMaster;
+  private ManageableMarketDataSnapshot _snapshot;
+
 
   /**
    * Create a master snapshot writer
@@ -36,6 +40,7 @@ public class MasterSnapshotWriter implements SnapshotWriter {
 
   public MasterSnapshotWriter(MarketDataSnapshotMaster snapshotMaster) {
     _snapshotMaster = snapshotMaster;
+    _snapshot = new ManageableMarketDataSnapshot();
   }
 
   @Override
@@ -45,36 +50,48 @@ public class MasterSnapshotWriter implements SnapshotWriter {
 
   @Override
   public void writeCurves(Map<CurveKey, CurveSnapshot> curves) {
-    //To change body of implemented methods use File | Settings | File Templates.
+    if (curves != null) {
+      _snapshot.setCurves(curves);
+    }
   }
 
   @Override
   public void writeGlobalValues(UnstructuredMarketDataSnapshot globalValues) {
-    //To change body of implemented methods use File | Settings | File Templates.
+    if (globalValues != null) {
+      _snapshot.setGlobalValues((ManageableUnstructuredMarketDataSnapshot) globalValues);
+    }
   }
 
   @Override
   public void writeVolatilitySurface(Map<VolatilitySurfaceKey, VolatilitySurfaceSnapshot> volatilitySurface) {
-    //To change body of implemented methods use File | Settings | File Templates.
+    if (volatilitySurface != null) {
+      _snapshot.setVolatilitySurfaces(volatilitySurface);
+    }
   }
 
   @Override
   public void writeYieldCurves(Map<YieldCurveKey, YieldCurveSnapshot> yieldCurves) {
-    //To change body of implemented methods use File | Settings | File Templates.
+    if (yieldCurves != null) {
+      _snapshot.setYieldCurves(yieldCurves);
+    }
   }
 
   @Override
   public void writeName(String name) {
-    //To change body of implemented methods use File | Settings | File Templates.
+    if (name != null) {
+      _snapshot.setName(name);
+    }
   }
 
   @Override
   public void writeBasisViewName(String basisName) {
-    //To change body of implemented methods use File | Settings | File Templates.
+    if (basisName != null) {
+      _snapshot.setBasisViewName(basisName);
+    }
   }
 
   @Override
   public void close() {
-    //To change body of implemented methods use File | Settings | File Templates.
+    _snapshotMaster.add(new MarketDataSnapshotDocument(_snapshot));
   }
 }
