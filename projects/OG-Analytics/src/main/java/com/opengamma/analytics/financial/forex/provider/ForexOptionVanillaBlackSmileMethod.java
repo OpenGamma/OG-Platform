@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.forex.provider;
@@ -28,6 +28,7 @@ import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.util.amount.SurfaceValue;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
@@ -193,6 +194,38 @@ public final class ForexOptionVanillaBlackSmileMethod {
   }
 
   /**
+   * Computes the spot delta (first derivative with respect to spot).
+   * @param optionForex The Forex option.
+   * @param smileMulticurves The curve and smile data, not null
+   * @return The spot delta
+   */
+  public double spotDeltaTheoretical(final ForexOptionVanilla optionForex, final BlackForexSmileProviderInterface smileMulticurves) {
+    ArgumentChecker.notNull(optionForex, "FX option");
+    ArgumentChecker.notNull(smileMulticurves, "Smile");
+    final MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
+    final double dfForeign = multicurves.getDiscountFactor(optionForex.getCurrency1(), optionForex.getUnderlyingForex().getPaymentTime());
+    return forwardDeltaTheoretical(optionForex, smileMulticurves) * dfForeign;
+  }
+
+  /**
+   * Computes the forward delta (first derivative with respect to forward).
+   * @param optionForex The Forex option, not null
+   * @param smileMulticurves The curve and smile data, not null
+   * @return The forward delta
+   */
+  public double forwardDeltaTheoretical(final ForexOptionVanilla optionForex, final BlackForexSmileProviderInterface smileMulticurves) {
+    ArgumentChecker.notNull(optionForex, "FX option");
+    ArgumentChecker.notNull(smileMulticurves, "Smile");
+    final MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
+    final double dfDomestic = multicurves.getDiscountFactor(optionForex.getCurrency2(), optionForex.getUnderlyingForex().getPaymentTime());
+    final double dfForeign = multicurves.getDiscountFactor(optionForex.getCurrency1(), optionForex.getUnderlyingForex().getPaymentTime());
+    final double spot = multicurves.getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
+    final double forward = spot * dfForeign / dfDomestic;
+    final double volatility = smileMulticurves.getVolatility(optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry(), optionForex.getStrike(), forward);
+    return BlackFormulaRepository.delta(forward, optionForex.getStrike(), optionForex.getTimeToExpiry(), volatility, optionForex.isCall());
+  }
+
+  /**
    * Computes the relative gamma of the Forex option.
    * The relative gamma is the second order derivative of the pv divided by the option notional.
    * @param optionForex The Forex option.
@@ -305,7 +338,7 @@ public final class ForexOptionVanillaBlackSmileMethod {
 
   /**
    * Computes the Vanna (2nd order cross-sensitivity of the option present value to the spot fx and implied vol),
-   * 
+   *
    * $\frac{\partial^2 (PV)}{\partial FX \partial \sigma}$
    * @param optionForex The Forex option.
    * @param smileMulticurves The curve and smile data.
