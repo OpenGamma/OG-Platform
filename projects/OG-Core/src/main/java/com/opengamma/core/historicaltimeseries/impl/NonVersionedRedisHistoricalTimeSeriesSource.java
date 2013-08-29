@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.LocalDate;
@@ -191,12 +192,16 @@ public class NonVersionedRedisHistoricalTimeSeriesSource implements HistoricalTi
   
   protected String toRedisKey(UniqueId uniqueId, LocalDate simulationExecutionDate) {
     StringBuilder sb = new StringBuilder();
-    
-    sb.append(getRedisPrefix());
-    sb.append('_');
+    String redisPrefix = StringUtils.trimToNull(getRedisPrefix());
+    if (redisPrefix != null) {
+      sb.append(getRedisPrefix());
+      sb.append(':');
+    }
+    sb.append(LocalDateDoubleTimeSeries.class.getSimpleName());
+    sb.append(':');
     sb.append(uniqueId);
     if (simulationExecutionDate != null) {
-      sb.append('_');
+      sb.append(':');
       sb.append(simulationExecutionDate.toString());
     }
     
