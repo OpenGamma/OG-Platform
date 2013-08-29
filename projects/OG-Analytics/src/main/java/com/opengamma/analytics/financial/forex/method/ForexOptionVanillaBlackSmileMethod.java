@@ -342,8 +342,6 @@ public final class ForexOptionVanillaBlackSmileMethod implements ForexPricingMet
     return BlackFormulaRepository.driftlessTheta(forward, optionForex.getStrike(), optionForex.getTimeToExpiry(), volatility);
   }
 
-  //TODO theta
-
   /**
    * Computes the forward vega (first derivative with respect to spot).
    * @param optionForex The Forex option.

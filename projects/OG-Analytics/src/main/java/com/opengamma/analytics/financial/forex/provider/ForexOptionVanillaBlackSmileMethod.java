@@ -347,8 +347,8 @@ public final class ForexOptionVanillaBlackSmileMethod {
   /**
    * Computes the Theta (derivative with respect to the time) using the forward driftless theta in the Black formula. The theta is not scaled.
    * Reference on driftless theta: The complete guide to Option Pricing Formula (2007), E. G. Haug, Mc Graw Hill, p. 67, equation (2.43)
-   * @param optionForex The Forex option.
-   * @param smileMulticurves The curve and smile data.
+   * @param optionForex The Forex option, not null
+   * @param smileMulticurves The curve and smile data, not null
    * @return The theta. In the same currency as present value.
    */
   public CurrencyAmount thetaTheoretical(final ForexOptionVanilla optionForex, final BlackForexSmileProviderInterface smileMulticurves) {
@@ -365,6 +365,44 @@ public final class ForexOptionVanillaBlackSmileMethod {
     final double theta = BlackFormulaRepository.driftlessTheta(forward, optionForex.getStrike(), optionForex.getTimeToExpiry(), volatility) * sign
         * Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount());
     return CurrencyAmount.of(optionForex.getUnderlyingForex().getCurrency2(), theta);
+  }
+
+  /**
+   * Computes the forward driftless theta (derivative with respect to the time). The theta is not scaled.
+   * Reference on driftless theta: The complete guide to Option Pricing Formula (2007), E. G. Haug, Mc Graw Hill, p. 67, equation (2.43)
+   * @param optionForex The Forex option, not null
+   * @param smileMulticurves The curve and smile data, not null
+   * @return The forward driftless theta
+   */
+  public double forwardDriftlessThetaTheoretical(final ForexOptionVanilla optionForex, final BlackForexSmileProviderInterface smileMulticurves) {
+    ArgumentChecker.notNull(optionForex, "Forex option");
+    ArgumentChecker.notNull(smileMulticurves, "Smile");
+    ArgumentChecker.isTrue(smileMulticurves.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
+    final MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
+    final double dfDomestic = multicurves.getDiscountFactor(optionForex.getCurrency2(), optionForex.getUnderlyingForex().getPaymentTime());
+    final double dfForeign = multicurves.getDiscountFactor(optionForex.getCurrency1(), optionForex.getUnderlyingForex().getPaymentTime());
+    final double spot = multicurves.getFxRates().getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
+    final double forward = spot * dfForeign / dfDomestic;
+    final double volatility = smileMulticurves.getVolatility(optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry(), optionForex.getStrike(), forward);
+    return BlackFormulaRepository.driftlessTheta(forward, optionForex.getStrike(), optionForex.getTimeToExpiry(), volatility);
+  }
+
+  /**
+   * Computes the forward vega (first derivative with respect to spot).
+   * @param optionForex The Forex option, not null
+   * @param smileMulticurves The curve and smile data, not null
+   * @return The forward vega
+   */
+  public double forwardVegaTheoretical(final ForexOptionVanilla optionForex, final BlackForexSmileProviderInterface smileMulticurves) {
+    ArgumentChecker.notNull(optionForex, "Forex option");
+    ArgumentChecker.notNull(smileMulticurves, "Smile");
+    final MulticurveProviderInterface multicurves = smileMulticurves.getMulticurveProvider();
+    final double dfDomestic = multicurves.getDiscountFactor(optionForex.getCurrency2(), optionForex.getUnderlyingForex().getPaymentTime());
+    final double dfForeign = multicurves.getDiscountFactor(optionForex.getCurrency1(), optionForex.getUnderlyingForex().getPaymentTime());
+    final double spot = multicurves.getFxRates().getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
+    final double forward = spot * dfForeign / dfDomestic;
+    final double volatility = smileMulticurves.getVolatility(optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry(), optionForex.getStrike(), forward);
+    return BlackFormulaRepository.vega(forward, optionForex.getStrike(), optionForex.getTimeToExpiry(), volatility);
   }
 
   /**
