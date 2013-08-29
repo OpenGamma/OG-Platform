@@ -79,11 +79,13 @@ public enum SnapshotColumns {
    *    SURFACE_QUOTE_UNITS, ID_BUNDLE, VALUE_NAME, MARKET_VALUE, OVERRIDE_VALUE, SURFACE_X, SURFACE_Y }
    */
 
-  public static ArrayList<String> columns() {
-    ArrayList<String> columns = new ArrayList<>();
+  public static String[] columns() {
+    ArrayList<String> list = new ArrayList<>();
     for (SnapshotColumns column : SnapshotColumns.values()) {
-      columns.add(column._text);
+      list.add(column._text);
     }
+    String[] columns = new String[list.size()];
+    columns = list.toArray(columns);
     return columns;
   }
 }
