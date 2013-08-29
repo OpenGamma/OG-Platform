@@ -274,6 +274,8 @@ public class NonVersionedRedisHistoricalTimeSeriesSource implements HistoricalTi
   }
 
   public HistoricalTimeSeries getHistoricalTimeSeries(UniqueId uniqueId, LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
+    
     LocalDate actualStart = null;
     LocalDate actualEnd = null;
     
@@ -303,6 +305,8 @@ public class NonVersionedRedisHistoricalTimeSeriesSource implements HistoricalTi
 
   public HistoricalTimeSeries getHistoricalTimeSeries(String dataField, ExternalIdBundle identifierBundle, String resolutionKey, LocalDate start, boolean includeStart, LocalDate end,
                                                       boolean includeEnd, int maxPoints) {
+    ArgumentChecker.notNull(identifierBundle, "identifierBundle");
+    
     if (identifierBundle.isEmpty()) {
       return null;
     }
@@ -312,7 +316,8 @@ public class NonVersionedRedisHistoricalTimeSeriesSource implements HistoricalTi
   }
 
   public HistoricalTimeSeries getHistoricalTimeSeries(UniqueId uniqueId) {
-    s_logger.debug("getHistoricalTimeSeries for {}", uniqueId);
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
+    
     LocalDateDoubleTimeSeries ts = loadTimeSeriesFromRedis(toRedisKey(uniqueId), null, null);
     if (ts == null) {
       return null;
@@ -327,28 +332,26 @@ public class NonVersionedRedisHistoricalTimeSeriesSource implements HistoricalTi
   
   @Override
   public Pair<LocalDate, Double> getLatestDataPoint(UniqueId uniqueId) {
-    try (Timer.Context context = _getSeriesTimer.time()) {
-      Pair<LocalDate, Double> latestPoint = null;
-      LocalDateDoubleTimeSeries ts = loadTimeSeriesFromRedis(toRedisKey(uniqueId), null, null);
-      if (ts != null) {
-        latestPoint = Pair.of(ts.getLatestTime(), ts.getLatestValue());
-      }
-      return latestPoint;
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
+    
+    Pair<LocalDate, Double> latestPoint = null;
+    LocalDateDoubleTimeSeries ts = loadTimeSeriesFromRedis(toRedisKey(uniqueId), null, null);
+    if (ts != null) {
+      latestPoint = Pair.of(ts.getLatestTime(), ts.getLatestValue());
     }
+    return latestPoint;
   }
 
   @Override
   public Pair<LocalDate, Double> getLatestDataPoint(UniqueId uniqueId, LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
-    LocalDateDoubleTimeSeries ts = loadTimeSeriesFromRedis(toRedisKey(uniqueId), null, null);
-    if (ts == null) {
-      return null;
-    }
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
     
-    if (start != null) {
-      ArgumentChecker.notNull(end, "end");
-      ts = ts.subSeries(start, includeStart, end, includeEnd);
+    HistoricalTimeSeries hts = getHistoricalTimeSeries(uniqueId, start, includeStart, end, includeEnd);
+    Pair<LocalDate, Double> latestPoint = null;
+    if (hts != null && hts.getTimeSeries() != null) {
+      latestPoint = Pair.of(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
     }
-    return Pair.of(ts.getLatestTime(), ts.getLatestValue());
+    return latestPoint;
   }
   
   protected LocalDateDoubleTimeSeries getLocalDateDoubleTimeSeries(ExternalIdBundle identifierBundle) {
