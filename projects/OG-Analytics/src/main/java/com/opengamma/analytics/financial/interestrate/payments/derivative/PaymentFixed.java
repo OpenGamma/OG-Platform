@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.derivative;
@@ -50,7 +50,11 @@ public class PaymentFixed extends Payment {
    * @return The fixed payment.
    */
   public PaymentFixed withAmount(final double paymentAmount) {
-    return new PaymentFixed(getCurrency(), getPaymentTime(), paymentAmount, getFundingCurveName());
+    try {
+      return new PaymentFixed(getCurrency(), getPaymentTime(), paymentAmount, getFundingCurveName());
+    } catch (final IllegalStateException e) {
+      return new PaymentFixed(getCurrency(), getPaymentTime(), paymentAmount);
+    }
   }
 
   /**

@@ -6,7 +6,6 @@
 package com.opengamma.analytics.financial.instrument.index;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.threeten.bp.temporal.ChronoUnit.DAYS;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
@@ -69,16 +68,16 @@ public class GeneratorDepositONCounterpartTest {
 
   @Test
   public void generateInstrument() {
-    ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 7, 17);
-    Period tenor = Period.ofDays(2);
-    double rate = 0.01;
-    double notional = 12345;
-    GeneratorAttributeIR attribute = new GeneratorAttributeIR(tenor, tenor);
-    DepositCounterpartDefinition insGenerated = GENERATOR_DEPOSIT_ON_USD.generateInstrument(referenceDate, rate, notional, attribute);
-    ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(referenceDate, tenor, CALENDAR);
-    ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, 1, CALENDAR);
-    double accrualFactor = DAY_COUNT.getDayCountFraction(startDate, endDate);
-    DepositCounterpartDefinition insExpected = new DepositCounterpartDefinition(CUR, startDate, endDate, notional, rate, accrualFactor, NAME_COUNTERPART);
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 7, 17);
+    final Period tenor = Period.ofDays(2);
+    final double rate = 0.01;
+    final double notional = 12345;
+    final GeneratorAttributeIR attribute = new GeneratorAttributeIR(tenor, tenor);
+    final DepositCounterpartDefinition insGenerated = GENERATOR_DEPOSIT_ON_USD.generateInstrument(referenceDate, rate, notional, attribute);
+    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(referenceDate, tenor, CALENDAR);
+    final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, 1, CALENDAR);
+    final double accrualFactor = DAY_COUNT.getDayCountFraction(startDate, endDate);
+    final DepositCounterpartDefinition insExpected = new DepositCounterpartDefinition(CUR, startDate, endDate, notional, rate, accrualFactor, NAME_COUNTERPART);
     assertEquals("Generator Deposit Counterpart: generate instrument", insExpected, insGenerated);
   }
 

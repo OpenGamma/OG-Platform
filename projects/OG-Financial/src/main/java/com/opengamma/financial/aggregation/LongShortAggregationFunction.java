@@ -18,6 +18,7 @@ import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
+import com.opengamma.financial.security.bond.InflationBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
@@ -180,6 +181,11 @@ public class LongShortAggregationFunction implements AggregationFunction<String>
 
     @Override
     public String visitMunicipalBondSecurity(final MunicipalBondSecurity security) {
+      return _position.getQuantity().longValue() < 0 ? SHORT : LONG;
+    }
+    
+    @Override
+    public String visitInflationBondSecurity(final InflationBondSecurity security) {
       return _position.getQuantity().longValue() < 0 ? SHORT : LONG;
     }
 

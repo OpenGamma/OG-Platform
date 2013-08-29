@@ -30,7 +30,9 @@ import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the valuation of non-deliverable forward by discounting.
+ * @deprecated This class tests deprecated code
  */
+@Deprecated
 public class ForexNonDeliverableForwardDiscountingMethodTest {
 
   private static final Currency KRW = Currency.of("KRW");

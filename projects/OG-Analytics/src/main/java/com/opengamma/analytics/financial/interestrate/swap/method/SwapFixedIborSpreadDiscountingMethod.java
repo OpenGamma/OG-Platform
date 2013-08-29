@@ -18,7 +18,9 @@ import com.opengamma.util.money.CurrencyAmount;
  * Class to compute the quantities related to swaps fixed / Ibor with spread (annuity, PVBP, coupon equivalent).
  * Both legs should be in the same currency.
  * The methods check that the coupons on the non-fixed leg are of the type CouponIborSpread.
+ * @deprecated Use {@link com.opengamma.analytics.financial.interestrate.swap.provider.SwapFixedIborSpreadDiscountingMethod}
  */
+@Deprecated
 public final class SwapFixedIborSpreadDiscountingMethod extends SwapFixedCouponDiscountingMethod {
 
   /**
@@ -73,7 +75,7 @@ public final class SwapFixedIborSpreadDiscountingMethod extends SwapFixedCouponD
   }
 
   /**
-   * Computes the present value of the spreads in a leg made of CouponIborSpread. The absolute value of the notional is used. 
+   * Computes the present value of the spreads in a leg made of CouponIborSpread. The absolute value of the notional is used.
    * @param leg The leg (or annuity).
    * @param curves The curves.
    * @return The present value.
@@ -90,7 +92,7 @@ public final class SwapFixedIborSpreadDiscountingMethod extends SwapFixedCouponD
   }
 
   /**
-   * Computes the present value of the Ibor leg made of CouponIborSpread without the spread (only the Ibor is valued). The absolute value of the notional is used. 
+   * Computes the present value of the Ibor leg made of CouponIborSpread without the spread (only the Ibor is valued). The absolute value of the notional is used.
    * @param leg The leg (or annuity).
    * @param curves The curves.
    * @return The present value.

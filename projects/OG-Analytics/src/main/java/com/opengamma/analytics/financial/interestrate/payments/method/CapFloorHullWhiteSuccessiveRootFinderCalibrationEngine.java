@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.method;
@@ -21,19 +21,21 @@ import com.opengamma.analytics.math.rootfinding.RidderSingleRootFinder;
 
 /**
  * Specific calibration engine for the Hull-White one factor model with cap/floor.
+ * @deprecated {@link PricingMethod} is deprecated.
  */
+@Deprecated
 public class CapFloorHullWhiteSuccessiveRootFinderCalibrationEngine extends SuccessiveRootFinderCalibrationEngine {
 
   /**
    * The list of calibration times.
    */
-  private final List<Double> _calibrationTimes = new ArrayList<Double>();
+  private final List<Double> _calibrationTimes = new ArrayList<>();
 
   /**
    * Constructor of the calibration engine.
    * @param calibrationObjective The calibration objective.
    */
-  public CapFloorHullWhiteSuccessiveRootFinderCalibrationEngine(SuccessiveRootFinderCalibrationObjective calibrationObjective) {
+  public CapFloorHullWhiteSuccessiveRootFinderCalibrationEngine(final SuccessiveRootFinderCalibrationObjective calibrationObjective) {
     super(calibrationObjective);
   }
 
@@ -58,24 +60,24 @@ public class CapFloorHullWhiteSuccessiveRootFinderCalibrationEngine extends Succ
    */
   @Override
   public void addInstrument(final InstrumentDerivative[] instrument, final PricingMethod method) {
-    for (int loopinstrument = 0; loopinstrument < instrument.length; loopinstrument++) {
-      Validate.isTrue(instrument[loopinstrument] instanceof CapFloorIbor, "Calibration instruments should be cap/floor");
-      getBasket().add(instrument[loopinstrument]);
+    for (final InstrumentDerivative element : instrument) {
+      Validate.isTrue(element instanceof CapFloorIbor, "Calibration instruments should be cap/floor");
+      getBasket().add(element);
       getMethod().add(method);
       getCalibrationPrice().add(0.0);
-      _calibrationTimes.add(((CapFloorIbor) instrument[loopinstrument]).getFixingTime());
+      _calibrationTimes.add(((CapFloorIbor) element).getFixingTime());
     }
   }
 
   @Override
-  public void calibrate(YieldCurveBundle curves) {
+  public void calibrate(final YieldCurveBundle curves) {
     computeCalibrationPrice(curves);
     getCalibrationObjective().setCurves(curves);
-    int nbInstruments = getBasket().size();
+    final int nbInstruments = getBasket().size();
     final RidderSingleRootFinder rootFinder = new RidderSingleRootFinder(getCalibrationObjective().getFunctionValueAccuracy(), getCalibrationObjective().getVariableAbsoluteAccuracy());
     final BracketRoot bracketer = new BracketRoot();
     for (int loopins = 0; loopins < nbInstruments; loopins++) {
-      InstrumentDerivative instrument = getBasket().get(loopins);
+      final InstrumentDerivative instrument = getBasket().get(loopins);
       getCalibrationObjective().setInstrument(instrument);
       getCalibrationObjective().setPrice(getCalibrationPrice().get(loopins));
       final double[] range = bracketer.getBracketedPoints(getCalibrationObjective(), getCalibrationObjective().getMinimumParameter(), getCalibrationObjective().getMaximumParameter());

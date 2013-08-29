@@ -146,7 +146,7 @@ public class SwapFuturesPriceDeliverableTransactionDefinition implements Instrum
 
   @Override
   public InstrumentDerivative toDerivative(final ZonedDateTime date) {
-    throw new UnsupportedOperationException("The method toDerivative of " + this.getClass().getSimpleName() + " does not support the two argument method (without margin price data).");
+    throw new UnsupportedOperationException("The method toDerivative of " + this.getClass().getSimpleName() + " does not support the one argument method (without margin price data).");
   }
 
   @Override

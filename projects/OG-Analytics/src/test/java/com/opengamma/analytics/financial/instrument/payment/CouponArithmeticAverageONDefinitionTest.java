@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.payment;
@@ -44,7 +44,6 @@ public class CouponArithmeticAverageONDefinitionTest {
   private static final CouponArithmeticAverageONDefinition FEDFUND_CPN_3M_2_DEF = CouponArithmeticAverageONDefinition.from(FEDFUND, EFFECTIVE_DATE, ACCRUAL_END_DATE, NOTIONAL, PAYMENT_LAG, NYC);
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2013, 4, 16);
-  private static final String[] NOT_USED = new String[] {"Not used 1", "not used 2" };
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullIndex() {
@@ -110,7 +109,7 @@ public class CouponArithmeticAverageONDefinitionTest {
 
   @Test
   public void toDerivativesNoData() {
-    final CouponArithmeticAverageON cpnConverted = FEDFUND_CPN_3M_DEF.toDerivative(REFERENCE_DATE, NOT_USED);
+    final CouponArithmeticAverageON cpnConverted = FEDFUND_CPN_3M_DEF.toDerivative(REFERENCE_DATE);
     final double payTime = TimeCalculator.getTimeBetween(REFERENCE_DATE, FEDFUND_CPN_3M_DEF.getPaymentDate());
     final double[] fixingTime = TimeCalculator.getTimeBetween(REFERENCE_DATE, FEDFUND_CPN_3M_DEF.getFixingPeriodDate());
     final CouponArithmeticAverageON cpnExpected = CouponArithmeticAverageON.from(payTime, FEDFUND_CPN_3M_DEF.getPaymentYearFraction(), NOTIONAL, FEDFUND, fixingTime,

@@ -182,7 +182,8 @@ public class CapFloorCMSDefinition extends CouponFloatingDefinition implements C
     final double fixingTime = TimeCalculator.getTimeBetween(date, getFixingDate());
     final double settlementTime = TimeCalculator.getTimeBetween(date, _underlyingSwap.getFixedLeg().getNthPayment(0).getAccrualStartDate());
     final SwapFixedCoupon<Coupon> swap = _underlyingSwap.toDerivative(date, yieldCurveNames);
-    return new CapFloorCMS(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), fixingTime, swap, settlementTime, _strike, _isCap);
+    final String fundingCurveName = yieldCurveNames[0];
+    return new CapFloorCMS(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), fixingTime, swap, settlementTime, _strike, _isCap);
   }
 
   /**
@@ -218,7 +219,7 @@ public class CapFloorCMSDefinition extends CouponFloatingDefinition implements C
     final double fixingTime = TimeCalculator.getTimeBetween(dateTime, getFixingDate());
     final double settlementTime = TimeCalculator.getTimeBetween(dateTime, _underlyingSwap.getFixedLeg().getNthPayment(0).getAccrualStartDate());
     final SwapFixedCoupon<Coupon> swap = _underlyingSwap.toDerivative(dateTime, yieldCurveNames);
-    return new CapFloorCMS(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), fixingTime, swap, settlementTime, _strike, _isCap);
+    return new CapFloorCMS(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), fixingTime, swap, settlementTime, _strike, _isCap);
   }
 
   @Override

@@ -115,6 +115,11 @@ public class ISDACDSPremiumDefinition extends AnnuityCouponFixedDefinition {
     return new ISDACDSPremiumDefinition(coupons, calendar);
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not use yield curve names
+   */
+  @Deprecated
   @Override
   public ISDACDSPremium toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     final List<ISDACDSCoupon> resultList = new ArrayList<>();

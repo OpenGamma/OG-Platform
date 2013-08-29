@@ -25,7 +25,7 @@ import com.opengamma.master.AbstractDocument;
 class CacheTestDocument extends AbstractDocument {
 
   @PropertyDefinition
-  UniqueId _uniqueId;
+  private UniqueId _uniqueId;
 
   CacheTestDocument() {
   }

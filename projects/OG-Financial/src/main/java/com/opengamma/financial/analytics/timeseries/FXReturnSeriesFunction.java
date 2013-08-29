@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.timeseries;
@@ -40,21 +40,21 @@ import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 
 /**
- * Calculates an absolute return series from a time-series of FX spot rates. 
+ * Calculates an absolute return series from a time-series of FX spot rates.
  */
 public class FXReturnSeriesFunction extends AbstractFunction.NonCompiledInvoker {
 
   private static final HolidayDateRemovalFunction HOLIDAY_REMOVER = HolidayDateRemovalFunction.getInstance();
   private static final Calendar WEEKEND_CALENDAR = new MondayToFridayCalendar("Weekend");
   private static final TimeSeriesDifferenceOperator DIFFERENCE = new TimeSeriesDifferenceOperator();
-  
+
   @Override
   public ComputationTargetType getTargetType() {
     return ComputationTargetType.UNORDERED_CURRENCY_PAIR;
   }
-  
+
   protected ValueProperties getResultProperties() {
-    ValueProperties properties = createValueProperties()
+    final ValueProperties properties = createValueProperties()
         .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
         .withAny(ValuePropertyNames.SCHEDULE_CALCULATOR)
         .withAny(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY)
@@ -67,33 +67,33 @@ public class FXReturnSeriesFunction extends AbstractFunction.NonCompiledInvoker 
   }
 
   @Override
-  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     return ImmutableSet.of(new ValueSpecification(ValueRequirementNames.RETURN_SERIES, target.toSpecification(), ValueProperties.all()));
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
-    ValueProperties constraints = desiredValue.getConstraints();
-    String spotSeriesStart = getSpotSeriesStart(constraints);
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+    final ValueProperties constraints = desiredValue.getConstraints();
+    final String spotSeriesStart = getSpotSeriesStart(constraints);
     if (spotSeriesStart == null) {
       return null;
     }
-    DateConstraint start = DateConstraint.parse(spotSeriesStart);
-    String returnSeriesEnd = getReturnSeriesEnd(constraints);
+    final DateConstraint start = DateConstraint.parse(spotSeriesStart);
+    final String returnSeriesEnd = getReturnSeriesEnd(constraints);
     if (returnSeriesEnd == null) {
       return null;
     }
-    DateConstraint end = DateConstraint.parse(returnSeriesEnd);
-    Set<String> includeStarts = constraints.getValues(HistoricalTimeSeriesFunctionUtils.INCLUDE_START_PROPERTY);
+    final DateConstraint end = DateConstraint.parse(returnSeriesEnd);
+    final Set<String> includeStarts = constraints.getValues(HistoricalTimeSeriesFunctionUtils.INCLUDE_START_PROPERTY);
     if (includeStarts != null && includeStarts.size() != 1) {
       return null;
     }
-    boolean includeStart = includeStarts == null ? true : HistoricalTimeSeriesFunctionUtils.YES_VALUE.equals(Iterables.getOnlyElement(includeStarts));
-    Set<String> includeEnds = constraints.getValues(HistoricalTimeSeriesFunctionUtils.INCLUDE_END_PROPERTY);
+    final boolean includeStart = includeStarts == null ? true : HistoricalTimeSeriesFunctionUtils.YES_VALUE.equals(Iterables.getOnlyElement(includeStarts));
+    final Set<String> includeEnds = constraints.getValues(HistoricalTimeSeriesFunctionUtils.INCLUDE_END_PROPERTY);
     if (includeEnds != null && includeEnds.size() != 1) {
       return null;
     }
-    boolean includeEnd = includeEnds == null ? false : HistoricalTimeSeriesFunctionUtils.YES_VALUE.equals(Iterables.getOnlyElement(includeEnds));
+    final boolean includeEnd = includeEnds == null ? false : HistoricalTimeSeriesFunctionUtils.YES_VALUE.equals(Iterables.getOnlyElement(includeEnds));
     final Set<String> samplingMethod = constraints.getValues(ValuePropertyNames.SAMPLING_FUNCTION);
     if (samplingMethod == null || samplingMethod.size() != 1) {
       return null;
@@ -102,17 +102,17 @@ public class FXReturnSeriesFunction extends AbstractFunction.NonCompiledInvoker 
     if (scheduleMethod == null || scheduleMethod.size() != 1) {
       return null;
     }
-    
     return ImmutableSet.of(ConventionBasedFXRateFunction.getHistoricalTimeSeriesRequirement((UnorderedCurrencyPair) target.getValue(), start, includeStart, end, includeEnd));
   }
-  
+
   @Override
-  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Map<ValueSpecification, ValueRequirement> inputs) {
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
     return ImmutableSet.of(new ValueSpecification(ValueRequirementNames.RETURN_SERIES, target.toSpecification(), getResultProperties()));
   }
 
   @Override
-  public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
+      final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final ComputedValue timeSeriesValue = inputs.getComputedValue(ValueRequirementNames.HISTORICAL_FX_TIME_SERIES);
     final DateDoubleTimeSeries<?> timeSeries = (DateDoubleTimeSeries<?>) timeSeriesValue.getValue();
@@ -122,7 +122,7 @@ public class FXReturnSeriesFunction extends AbstractFunction.NonCompiledInvoker 
     if (spotSeriesStart.isAfter(returnSeriesStart)) {
       throw new OpenGammaRuntimeException("Return series start date cannot be before spot series start date");
     }
-    LocalDate returnSeriesEnd = DateConstraint.evaluate(executionContext, getReturnSeriesEnd(desiredValue.getConstraints()));
+    final LocalDate returnSeriesEnd = DateConstraint.evaluate(executionContext, getReturnSeriesEnd(desiredValue.getConstraints()));
     final String scheduleCalculatorName = desiredValue.getConstraint(ValuePropertyNames.SCHEDULE_CALCULATOR);
     final String samplingFunctionName = desiredValue.getConstraint(ValuePropertyNames.SAMPLING_FUNCTION);
     final Schedule scheduleCalculator = ScheduleCalculatorFactory.getScheduleCalculator(scheduleCalculatorName);
@@ -131,35 +131,34 @@ public class FXReturnSeriesFunction extends AbstractFunction.NonCompiledInvoker 
     LocalDateDoubleTimeSeries sampledTimeSeries = samplingFunction.getSampledTimeSeries(timeSeries, dates);
     sampledTimeSeries = sampledTimeSeries.reciprocal(); // Implementation note: to obtain the series for one unit of non-base currency expressed in base currency.
     LocalDateDoubleTimeSeries returnSeries = getReturnSeries(sampledTimeSeries, desiredValue);
-    
+
     // Clip the time-series to the range originally asked for
     returnSeries = returnSeries.subSeries(returnSeriesStart, includeStart, returnSeries.getLatestTime(), true);
-    
+
     return ImmutableSet.of(new ComputedValue(new ValueSpecification(ValueRequirementNames.RETURN_SERIES, target.toSpecification(), desiredValue.getConstraints()), returnSeries));
   }
-  
-  protected String getSpotSeriesStart(ValueProperties constraints) {
+
+  protected String getSpotSeriesStart(final ValueProperties constraints) {
     return getReturnSeriesStart(constraints);
   }
-  
-  protected String getReturnSeriesStart(ValueProperties constraints) {
-    Set<String> startDates = constraints.getValues(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY);
+
+  protected String getReturnSeriesStart(final ValueProperties constraints) {
+    final Set<String> startDates = constraints.getValues(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY);
     if (startDates == null || startDates.size() != 1) {
       return null;
     }
     return Iterables.getOnlyElement(startDates);
   }
-  
-  protected String getReturnSeriesEnd(ValueProperties constraints) {
-    Set<String> endDates = constraints.getValues(HistoricalTimeSeriesFunctionUtils.END_DATE_PROPERTY);
+
+  protected String getReturnSeriesEnd(final ValueProperties constraints) {
+    final Set<String> endDates = constraints.getValues(HistoricalTimeSeriesFunctionUtils.END_DATE_PROPERTY);
     if (endDates == null || endDates.size() != 1) {
       return null;
     }
     return Iterables.getOnlyElement(endDates);
   }
 
-  protected LocalDateDoubleTimeSeries getReturnSeries(LocalDateDoubleTimeSeries spotSeries, ValueRequirement desiredValue) {
+  protected LocalDateDoubleTimeSeries getReturnSeries(final LocalDateDoubleTimeSeries spotSeries, final ValueRequirement desiredValue) {
     return (LocalDateDoubleTimeSeries) DIFFERENCE.evaluate(spotSeries);
   }
-
 }

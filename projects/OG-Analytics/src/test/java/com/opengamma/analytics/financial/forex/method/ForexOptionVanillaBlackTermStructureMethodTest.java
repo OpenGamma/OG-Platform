@@ -1,13 +1,11 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.forex.method;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
-import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
 import java.util.Map;
 
@@ -48,6 +46,10 @@ import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
+/**
+ * @deprecated The class tests deprecated code
+ */
+@Deprecated
 public class ForexOptionVanillaBlackTermStructureMethodTest {
   // General
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
@@ -83,7 +85,7 @@ public class ForexOptionVanillaBlackTermStructureMethodTest {
   private static final Map<String, Currency> CURVE_CURRENCY = TestsDataSetsForex.curveCurrency();
   private static final YieldCurveBundle CURVES_FX = new YieldCurveBundle(CURVES.getCurvesMap(), FX_MATRIX, CURVE_CURRENCY);
   private static final String[] CURVES_NAME = TestsDataSetsForex.curveNames();
-  private static final ObjectsPair<Currency, Currency> CCY = new ObjectsPair<Currency, Currency>(EUR, USD);
+  private static final ObjectsPair<Currency, Currency> CCY = new ObjectsPair<>(EUR, USD);
   private static final BlackForexTermStructureParameters BLACK_TS_VOL = new BlackForexTermStructureParameters(TERM_STRUCTURE_VOL);
   private static final YieldCurveWithBlackForexTermStructureBundle BUNDLE_BLACK_TS = new YieldCurveWithBlackForexTermStructureBundle(CURVES, BLACK_TS_VOL, CURRENCY_PAIR);
   private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();

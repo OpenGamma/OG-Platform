@@ -11,6 +11,7 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Viewport containing an arbitrary collection of cells.
@@ -47,6 +48,11 @@ public class ArbitraryViewportDefinition extends ViewportDefinition {
       }
     }
     return true;
+  }
+
+  @Override
+  Pair<Integer, Boolean> getChangedNode(ViewportDefinition viewportDefinition) {
+    return null;
   }
 
   @Override

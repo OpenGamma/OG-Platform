@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -26,15 +26,16 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Paymen
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.FunctionalDoublesCurve;
-import com.opengamma.analytics.math.function.Function;
+import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ * @deprecated This class tests deprecated functionality.
  */
+@Deprecated
 public class ParRateParallelSensitivityCalculatorTest {
 
   private final static ParRateParallelSensitivityCalculator PRPSC = ParRateParallelSensitivityCalculator.getInstance();
@@ -67,8 +68,8 @@ public class ParRateParallelSensitivityCalculatorTest {
 
   @Test
   public void testFRA() {
-    final IborIndex index = new IborIndex(CUR, Period.ofMonths(1), 2, DayCountFactory.INSTANCE.getDayCount("Actual/365"),
-        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), true);
+    final IborIndex index = new IborIndex(CUR, Period.ofMonths(1), 2, DayCountFactory.INSTANCE.getDayCount("Actual/365"), BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"),
+        true);
     final double paymentTime = 0.5;
     final double fixingTime = paymentTime - 2.0 / 365.0;
     final double fixingPeriodEnd = 7.0 / 12.0;
@@ -108,7 +109,7 @@ public class ParRateParallelSensitivityCalculatorTest {
     for (int i = 0; i < n; i++) {
       coupons[i] = new CouponFixed(CUR, tau * (i + 1), FUNDING_CURVE_NAME, yearFrac, initialCoupon + i * ramp);
     }
-    final AnnuityPaymentFixed nominal = new AnnuityPaymentFixed(new PaymentFixed[] {new PaymentFixed(CUR, tau * n, 1, FUNDING_CURVE_NAME)});
+    final AnnuityPaymentFixed nominal = new AnnuityPaymentFixed(new PaymentFixed[] {new PaymentFixed(CUR, tau * n, 1, FUNDING_CURVE_NAME) });
     final BondFixedSecurity bond = new BondFixedSecurity(nominal, new AnnuityCouponFixed(coupons), 0, 0, 0.5, SimpleYieldConvention.TRUE, 2, FUNDING_CURVE_NAME, "S");
     doTest(bond, CURVES);
   }
@@ -182,7 +183,7 @@ public class ParRateParallelSensitivityCalculatorTest {
   }
 
   private Map<String, Double> finiteDifferanceSense(final InstrumentDerivative ird, final YieldCurveBundle curves) {
-    final Map<String, Double> result = new HashMap<String, Double>();
+    final Map<String, Double> result = new HashMap<>();
     final Set<String> names = curves.getAllNames();
     for (final String name : names) {
       final YieldAndDiscountCurve curve = curves.getCurve(name);
@@ -201,7 +202,7 @@ public class ParRateParallelSensitivityCalculatorTest {
     return result;
   }
 
-  private static class MyFunction implements Function<Double, Double> {
+  private static class MyFunction extends Function1D<Double, Double> {
     private final double _a;
     private final double _b;
     private final double _c;
@@ -218,9 +219,10 @@ public class ParRateParallelSensitivityCalculatorTest {
     }
 
     @Override
-    public Double evaluate(final Double... x) {
-      final double t = x[0];
+    public Double evaluate(final Double t) {
+
       return (_a + _b * t) * Math.exp(-_c * t) + _d;
     }
+
   }
 }

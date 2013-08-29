@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.swaption;
@@ -50,7 +50,7 @@ public class SwaptionBermudaFixedIborDefinitionTest {
   private static final Period IBOR_TENOR = Period.ofMonths(3);
   private static final int IBOR_SETTLEMENT_DAYS = 2;
   private static final DayCount IBOR_DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-  private static final IborIndex IBOR_INDEX = new IborIndex(CUR, IBOR_TENOR, IBOR_SETTLEMENT_DAYS, IBOR_DAY_COUNT, BUSINESS_DAY, IS_EOM);
+  private static final IborIndex IBOR_INDEX = new IborIndex(CUR, IBOR_TENOR, IBOR_SETTLEMENT_DAYS, IBOR_DAY_COUNT, BUSINESS_DAY, IS_EOM, "Ibor");
   private static final IndexSwap CMS_INDEX = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, SWAP_TENOR, CALENDAR);
   private static final double RATE = 0.0325;
   private static final SwapFixedIborDefinition TOTAL_SWAP_DEFINITION = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, RATE, FIXED_IS_PAYER, CALENDAR);
@@ -120,6 +120,26 @@ public class SwaptionBermudaFixedIborDefinitionTest {
    */
   public void toDerivatives() {
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+    final double[] expiryTime = new double[NB_EXPIRY];
+    final double[] settleTime = new double[NB_EXPIRY];
+    @SuppressWarnings("unchecked")
+    final SwapFixedCoupon<Coupon>[] underlyingSwap = new SwapFixedCoupon[NB_EXPIRY];
+    for (int loopexp = 0; loopexp < NB_EXPIRY; loopexp++) {
+      expiryTime[loopexp] = actAct.getDayCountFraction(REFERENCE_DATE, EXPIRY_DATE[loopexp]);
+      underlyingSwap[loopexp] = EXPIRY_SWAP_DEFINITION[loopexp].toDerivative(REFERENCE_DATE);
+      settleTime[loopexp] = actAct.getDayCountFraction(REFERENCE_DATE, EXPIRY_SWAP_DEFINITION[loopexp].getFixedLeg().getNthPayment(0).getAccrualStartDate());
+    }
+    final SwaptionBermudaFixedIbor swaptionBermuda = new SwaptionBermudaFixedIbor(underlyingSwap, IS_LONG, expiryTime, settleTime);
+    assertEquals("Swaption Bermuda: to derivatives", swaptionBermuda, BERMUDA_SWAPTION_DEFINITION.toDerivative(REFERENCE_DATE));
+  }
+
+  @SuppressWarnings("deprecation")
+  @Test
+  /**
+   * Tests the toDerivative method.
+   */
+  public void toDerivativesDeprecated() {
+    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     final String FUNDING_CURVE_NAME = "Funding";
     final String FORWARD_CURVE_NAME = "Forward";
     final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME};
@@ -135,5 +155,4 @@ public class SwaptionBermudaFixedIborDefinitionTest {
     final SwaptionBermudaFixedIbor swaptionBermuda = new SwaptionBermudaFixedIbor(underlyingSwap, IS_LONG, expiryTime, settleTime);
     assertEquals("Swaption Bermuda: to derivatives", swaptionBermuda, BERMUDA_SWAPTION_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME));
   }
-
 }

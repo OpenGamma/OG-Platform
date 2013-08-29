@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.provider;
@@ -55,7 +55,7 @@ public final class CouponIborCompoundedDiscountingMethod {
     final int nbSubPeriod = coupon.getFixingTimes().length;
     double notionalAccrued = coupon.getNotionalAccrued();
     for (int loopsub = 0; loopsub < nbSubPeriod; loopsub++) {
-      double ratioForward = (1.0 + coupon.getPaymentAccrualFactors()[loopsub]
+      final double ratioForward = (1.0 + coupon.getPaymentAccrualFactors()[loopsub]
           * multicurve.getForwardRate(coupon.getIndex(), coupon.getFixingPeriodStartTimes()[loopsub], coupon.getFixingPeriodEndTimes()[loopsub], coupon.getFixingPeriodAccrualFactors()[loopsub]));
       //forwardCurve.getDiscountFactor(coupon.getFixingPeriodStartTimes()[loopsub]) / forwardCurve.getDiscountFactor(coupon.getFixingPeriodEndTimes()[loopsub]);
       notionalAccrued *= ratioForward;
@@ -76,8 +76,8 @@ public final class CouponIborCompoundedDiscountingMethod {
     ArgumentChecker.notNull(multicurve, "Multi-curves provider");
     final int nbSubPeriod = coupon.getFixingTimes().length;
     double notionalAccrued = coupon.getNotionalAccrued();
-    double[] forward = new double[nbSubPeriod];
-    double[] ratioForward = new double[nbSubPeriod];
+    final double[] forward = new double[nbSubPeriod];
+    final double[] ratioForward = new double[nbSubPeriod];
     for (int loopsub = 0; loopsub < nbSubPeriod; loopsub++) {
       forward[loopsub] = multicurve.getForwardRate(coupon.getIndex(), coupon.getFixingPeriodStartTimes()[loopsub], coupon.getFixingPeriodEndTimes()[loopsub],
           coupon.getFixingPeriodAccrualFactors()[loopsub]);
@@ -89,18 +89,18 @@ public final class CouponIborCompoundedDiscountingMethod {
     final double pvBar = 1.0;
     final double dfPaymentBar = (notionalAccrued - coupon.getNotional()) * pvBar;
     final double notionalAccruedBar = dfPayment * pvBar;
-    double[] ratioForwardBar = new double[nbSubPeriod];
-    double[] forwardBar = new double[nbSubPeriod];
+    final double[] ratioForwardBar = new double[nbSubPeriod];
+    final double[] forwardBar = new double[nbSubPeriod];
     for (int loopsub = 0; loopsub < nbSubPeriod; loopsub++) {
       ratioForwardBar[loopsub] = notionalAccrued / ratioForward[loopsub] * notionalAccruedBar;
       forwardBar[loopsub] = coupon.getPaymentAccrualFactors()[loopsub] * ratioForwardBar[loopsub];
     }
-    final Map<String, List<DoublesPair>> mapDsc = new HashMap<String, List<DoublesPair>>();
-    final List<DoublesPair> listDiscounting = new ArrayList<DoublesPair>();
+    final Map<String, List<DoublesPair>> mapDsc = new HashMap<>();
+    final List<DoublesPair> listDiscounting = new ArrayList<>();
     listDiscounting.add(new DoublesPair(coupon.getPaymentTime(), -coupon.getPaymentTime() * dfPayment * dfPaymentBar));
     mapDsc.put(multicurve.getName(coupon.getCurrency()), listDiscounting);
-    final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<String, List<ForwardSensitivity>>();
-    final List<ForwardSensitivity> listForward = new ArrayList<ForwardSensitivity>();
+    final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<>();
+    final List<ForwardSensitivity> listForward = new ArrayList<>();
     for (int loopsub = 0; loopsub < nbSubPeriod; loopsub++) {
       listForward.add(new ForwardSensitivity(coupon.getFixingPeriodStartTimes()[loopsub], coupon.getFixingPeriodEndTimes()[loopsub], coupon.getFixingPeriodAccrualFactors()[loopsub],
           forwardBar[loopsub]));

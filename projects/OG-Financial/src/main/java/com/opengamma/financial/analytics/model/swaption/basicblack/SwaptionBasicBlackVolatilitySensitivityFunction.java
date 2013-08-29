@@ -17,6 +17,7 @@ import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithB
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.model.black.ConstantBlackDiscountingValueVegaSwaptionFunction;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -24,7 +25,9 @@ import com.opengamma.util.tuple.DoublesPair;
  * The implied volatility is read directly from the market data system.
  * <p>
  * Produces a result for {@link ValueRequirementNames#VALUE_VEGA} using {@link PresentValueBlackSwaptionSensitivityBlackCalculator}.
+ * @deprecated Use {@link ConstantBlackDiscountingValueVegaSwaptionFunction}
  */
+@Deprecated
 public class SwaptionBasicBlackVolatilitySensitivityFunction extends SwaptionBasicBlackFunction {
   /** The calculator */
   private static final PresentValueBlackSwaptionSensitivityBlackCalculator CALCULATOR = PresentValueBlackSwaptionSensitivityBlackCalculator.getInstance();

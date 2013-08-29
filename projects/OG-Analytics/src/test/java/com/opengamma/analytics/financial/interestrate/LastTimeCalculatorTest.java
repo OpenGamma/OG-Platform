@@ -36,7 +36,7 @@ public class LastTimeCalculatorTest {
   @Test
   public void testCash() {
     final double t = 7 / 365.0;
-    final Cash cash = new Cash(CUR, 1 / 365.0, t, 100, 0.0445, 5.0 / 365, "t");
+    final Cash cash = new Cash(CUR, 1 / 365.0, t, 100, 0.0445, 5.0 / 365);
     assertEquals(t, cash.accept(LDC), 1e-12);
   }
 
@@ -49,9 +49,9 @@ public class LastTimeCalculatorTest {
     final double fixingPeriodEndTime = 7. / 12;
     final double fixingYearFraction = 31. / 365;
     final IborIndex index = new IborIndex(CUR, Period.ofMonths(1), 2, DayCountFactory.INSTANCE.getDayCount("Actual/365"),
-        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), true);
-    final ForwardRateAgreement fra = new ForwardRateAgreement(CUR, paymentTime, "Funding", paymentYearFraction, 1, index, fixingTime, fixingPeriodStartTime, fixingPeriodEndTime, fixingYearFraction,
-        0.05, "Forward");
+        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), true, "Ibor");
+    final ForwardRateAgreement fra = new ForwardRateAgreement(CUR, paymentTime, paymentYearFraction, 1, index, fixingTime, fixingPeriodStartTime, fixingPeriodEndTime, fixingYearFraction,
+        0.05);
 
     assertEquals(fixingPeriodEndTime, fra.accept(LDC), 1e-12);
   }
@@ -59,7 +59,7 @@ public class LastTimeCalculatorTest {
   @Test
   public void testFutures() {
     final IborIndex iborIndex = new IborIndex(CUR, Period.ofMonths(3), 2, DayCountFactory.INSTANCE.getDayCount("Actual/365"),
-        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), true);
+        BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), true, "Ibor");
     final double lastTradingTime = 1.473;
     final double fixingPeriodStartTime = 1.467;
     final double fixingPeriodEndTime = 1.75;
@@ -67,37 +67,36 @@ public class LastTimeCalculatorTest {
     final double paymentAccrualFactor = 0.25;
     final double refrencePrice = 0.0;
     final InterestRateFutureTransaction ir = new InterestRateFutureTransaction(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, refrencePrice, 1,
-        paymentAccrualFactor, 1,
-        "S", "Funding", "Forward");
+        paymentAccrualFactor, 1, "S");
     assertEquals(fixingPeriodEndTime, ir.accept(LDC), 1e-12);
   }
 
   @Test
   public void testFixedCouponAnnuity() {
-    final AnnuityCouponFixed annuity = new AnnuityCouponFixed(CUR, new double[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }, 1.0, 1.0, "", true);
+    final AnnuityCouponFixed annuity = new AnnuityCouponFixed(CUR, new double[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }, 1.0, 1.0, true);
     assertEquals(10, annuity.accept(LDC), 1e-12);
   }
 
   @Test
   public void testBond() {
     final double mat = 1.0;
-    final AnnuityPaymentFixed nominal = new AnnuityPaymentFixed(new PaymentFixed[] {new PaymentFixed(CUR, mat, 1.0, "a") });
-    final AnnuityCouponFixed coupon = new AnnuityCouponFixed(CUR, new double[] {0.5, mat }, 0.03, "a", false);
-    final BondFixedSecurity bond = new BondFixedSecurity(nominal, coupon, 0, 0, 0.5, SimpleYieldConvention.TRUE, 2, "a", "b");
+    final AnnuityPaymentFixed nominal = new AnnuityPaymentFixed(new PaymentFixed[] {new PaymentFixed(CUR, mat, 1.0) });
+    final AnnuityCouponFixed coupon = new AnnuityCouponFixed(CUR, new double[] {0.5, mat }, 0.03, false);
+    final BondFixedSecurity bond = new BondFixedSecurity(nominal, coupon, 0, 0, 0.5, SimpleYieldConvention.TRUE, 2, "Issuer");
     assertEquals(mat, bond.accept(LDC), 1e-12);
   }
 
   @Test
   public void testDepositZero() {
     final double endTime = 0.03;
-    final DepositZero deposit = new DepositZero(Currency.USD, 0, endTime, 100, 100, 0.25, new ContinuousInterestRate(0.03), 2, "FUNDING");
+    final DepositZero deposit = new DepositZero(Currency.USD, 0, endTime, 100, 100, 0.25, new ContinuousInterestRate(0.03), 2);
     assertEquals(deposit.accept(LDC), endTime, 0);
   }
 
   @Test
   public void testForex() {
     final double t = 0.124;
-    final Forex fx = new Forex(new PaymentFixed(Currency.AUD, t, -100, "X"), new PaymentFixed(Currency.USD, t, 100, "X"));
+    final Forex fx = new Forex(new PaymentFixed(Currency.AUD, t, -100), new PaymentFixed(Currency.USD, t, 100));
     assertEquals(fx.accept(LDC), t, 0);
   }
 }

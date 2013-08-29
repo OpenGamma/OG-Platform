@@ -22,3 +22,4 @@ tests/output/
 .DS_Store
 build.number
 *.iml
+/target

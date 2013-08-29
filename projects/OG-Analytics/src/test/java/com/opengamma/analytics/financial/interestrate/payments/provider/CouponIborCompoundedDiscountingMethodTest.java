@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.provider;
@@ -49,17 +49,14 @@ public class CouponIborCompoundedDiscountingMethodTest {
 
   private static final CouponIborCompoundedDiscountingMethod METHOD_COMPOUNDED = CouponIborCompoundedDiscountingMethod.getInstance();
 
-  private static final String NOT_USED = "Not used";
-  private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
-
   private static final ZonedDateTime REFERENCE_DATE_BEFORE = DateUtils.getUTCDate(2012, 8, 7);
-  private static final CouponIborCompounding CPN_BEFORE = CPN_DEFINITION.toDerivative(REFERENCE_DATE_BEFORE, NOT_USED_A);
+  private static final CouponIborCompounding CPN_BEFORE = CPN_DEFINITION.toDerivative(REFERENCE_DATE_BEFORE);
 
   private static final double[] FIXING_RATES = new double[] {0.0010, 0.0011, 0.0012};
   private static final DoubleTimeSeries<ZonedDateTime> FIXING_TS = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2012, 8, 23), DateUtils.getUTCDate(2012, 8, 24),
       DateUtils.getUTCDate(2012, 9, 20)}, FIXING_RATES);
   private static final ZonedDateTime REFERENCE_DATE_1 = DateUtils.getUTCDate(2012, 8, 28);
-  private static final CouponIborCompounding CPN_1 = (CouponIborCompounding) CPN_DEFINITION.toDerivative(REFERENCE_DATE_1, FIXING_TS, NOT_USED_A);
+  private static final CouponIborCompounding CPN_1 = (CouponIborCompounding) CPN_DEFINITION.toDerivative(REFERENCE_DATE_1, FIXING_TS);
 
   private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
   private static final PresentValueCurveSensitivityDiscountingCalculator PVCSDC = PresentValueCurveSensitivityDiscountingCalculator.getInstance();

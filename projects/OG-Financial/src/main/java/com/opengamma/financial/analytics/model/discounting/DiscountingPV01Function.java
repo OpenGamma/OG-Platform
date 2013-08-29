@@ -8,10 +8,13 @@ package com.opengamma.financial.analytics.model.discounting;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
 import static com.opengamma.engine.value.ValueRequirementNames.PV01;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
 
 import com.google.common.collect.Iterables;
@@ -25,6 +28,7 @@ import com.opengamma.analytics.util.amount.ReferenceAmount;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
@@ -39,6 +43,8 @@ import com.opengamma.util.tuple.Pair;
  * the discounting method.
  */
 public class DiscountingPV01Function extends DiscountingFunction {
+  /** The logger */
+  private static final Logger s_logger = LoggerFactory.getLogger(DiscountingPV01Function.class);
   /** The PV01 calculator */
   private static final InstrumentDerivativeVisitor<MulticurveProviderInterface, ReferenceAmount<Pair<String, Currency>>> CALCULATOR =
       new PV01CurveParametersCalculator<>(PresentValueCurveSensitivityDiscountingCalculator.getInstance());
@@ -55,7 +61,8 @@ public class DiscountingPV01Function extends DiscountingFunction {
     return new DiscountingCompiledFunction(getTargetToDefinitionConverter(context), getDefinitionToDerivativeConverter(context), true) {
 
       @Override
-      protected Set<ComputedValue> getValues(final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative,
+      protected Set<ComputedValue> getValues(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
+          final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative,
           final FXMatrix fxMatrix) {
         final MulticurveProviderInterface data = getMergedProviders(inputs, fxMatrix);
         final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
@@ -77,19 +84,15 @@ public class DiscountingPV01Function extends DiscountingFunction {
           results.add(new ComputedValue(spec, entry.getValue()));
         }
         if (!curveNameFound) {
-          final ValueProperties curveSpecificProperties = properties.copy()
-              .withoutAny(CURVE)
-              .with(CURVE, desiredCurveName)
-              .get();
-          final ValueSpecification spec = new ValueSpecification(PV01, target.toSpecification(), curveSpecificProperties);
-          results.add(new ComputedValue(spec, Double.NaN));
+          s_logger.info("Could not get sensitivities to " + desiredCurveName + " for " + target.getName());
+          return Collections.emptySet();
         }
         return results;
       }
 
       @Override
-      protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
-        final ValueProperties.Builder properties = super.getResultProperties(target);
+      protected ValueProperties.Builder getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
+        final ValueProperties.Builder properties = super.getResultProperties(compilationContext, target);
         return properties.withAny(CURVE);
       }
 

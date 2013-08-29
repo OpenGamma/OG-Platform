@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.method;
@@ -36,7 +36,9 @@ import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the pricing methods for bond future options with up-front premium payment.
+ * @deprecated This class tests deprecated functionality.
  */
+@Deprecated
 public class BondFutureOptionPremiumSecurityBlackSurfaceMethodTest {
 
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");

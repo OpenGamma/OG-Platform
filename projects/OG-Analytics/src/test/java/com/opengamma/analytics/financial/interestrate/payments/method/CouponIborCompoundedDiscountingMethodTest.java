@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.method;
@@ -41,7 +41,9 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Tests related to the pricing and sensitivities of Ibor compounded coupon in the discounting method.
+ * @deprecated This class tests deprecated functionality.
  */
+@Deprecated
 public class CouponIborCompoundedDiscountingMethodTest {
 
   private static final Calendar TOR = new MondayToFridayCalendar("TOR");

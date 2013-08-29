@@ -27,39 +27,88 @@ public abstract class TreeOptionPricingModel {
   //    }
   //  }
 
+  /**
+   * Compute option price with constant volatility, interest rate and dividend
+   * @param lattice {@link LatticeSpecification}
+   * @param function [@link OptionFunctionProvider1D}
+   * @param spot Spot price of underlying
+   * @param timeToExpiry Time to expiry
+   * @param volatility Volatility 
+   * @param interestRate Interest rate
+   * @param dividend Dividend
+   * @return Option price
+   */
   public abstract double getPrice(final LatticeSpecification lattice, final OptionFunctionProvider1D function, final double spot, final double timeToExpiry, final double volatility,
       final double interestRate, final double dividend);
 
-  /*
-   * TODO this time-varying vol model is NOT yet tested PLAT-4289
+  /**
+   * Compute option price with time-varying volatility, interest rate and dividend
+   * The condition (number of steps) = (volatility length) = (interest rate length) = (dividend length) Should hold
+   * @param function [@link OptionFunctionProvider1D}
+   * @param spot Spot price of underlying
+   * @param timeToExpiry Time to expiry
+   * @param volatility Volatility 
+   * @param interestRate Interest rate
+   * @param dividend Dividend
+   * @return Option price
    */
   public abstract double getPrice(final OptionFunctionProvider1D function, final double spot, final double timeToExpiry, final double[] volatility, final double[] interestRate,
       final double[] dividend);
 
+  /**
+   * Compute option price with volatility, interest rate and discrete dividends 
+   * @param lattice {@link LatticeSpecification}
+   * @param function [@link OptionFunctionProvider1D}
+   * @param spot Spot price of underlying
+   * @param timeToExpiry Time to expiry
+   * @param volatility Volatility 
+   * @param interestRate Interest rate
+   * @param dividend {@link DividendFunctionProvider}
+   * @return Option price
+   */
+  public abstract double getPrice(final LatticeSpecification lattice, final OptionFunctionProvider1D function, final double spot, final double timeToExpiry,
+      final double volatility, final double interestRate, final DividendFunctionProvider dividend);
+
+  /**
+   * Compute option Greeks with constant volatility, interest rate and dividend
+   * @param lattice {@link LatticeSpecification}
+   * @param function [@link OptionFunctionProvider1D}
+   * @param spot Spot price of underlying
+   * @param timeToExpiry Time to expiry
+   * @param volatility Volatility 
+   * @param interestRate Interest rate
+   * @param dividend Dividend
+   * @return Option Greeks as {@link GreekResultCollection}
+   */
   public abstract GreekResultCollection getGreeks(final LatticeSpecification lattice, final OptionFunctionProvider1D function, final double spot, final double timeToExpiry, final double volatility,
       final double interestRate, final double dividend);
 
+  /**
+   * Compute option Greeks with time-varying volatility, interest rate and dividend
+   * The condition (number of steps) = (volatility length) = (interest rate length) = (dividend length) Should hold
+   * @param function [@link OptionFunctionProvider1D}
+   * @param spot Spot price of underlying
+   * @param timeToExpiry Time to expiry
+   * @param volatility Volatility 
+   * @param interestRate Interest rate
+   * @param dividend Dividend
+   * @return Option Greeks as {@link GreekResultCollection}
+   */
   public abstract GreekResultCollection getGreeks(final OptionFunctionProvider1D function, final double spot, final double timeToExpiry, final double[] volatility, final double[] interestRate,
       final double[] dividend);
 
-  /*
-   * TODO Following options are NOT yet supported
-   * ComplexChooserOptionDefinition
-   * EuropeanOptionOnEuropeanVanillaOptionDefinition
-   * EuropeanStandardBarrierOptionDefinition
-   * ExtremeSpreadOptionDefinition
-   * FadeInOptionDefinition
-   * FixedStrikeLookbackOptionDefinition
-   * FloatingStrikeLookbackOptionDefinition
-   * ForwardStartOptionDefinition
-   * SimpleChooserOptionDefinition
+  /**
+   * Compute option Greeks with volatility, interest rate and discrete dividends 
+   * @param lattice {@link LatticeSpecification}
+   * @param function [@link OptionFunctionProvider1D}
+   * @param spot Spot price of underlying
+   * @param timeToExpiry Time to expiry
+   * @param volatility Volatility 
+   * @param interestRate Interest rate
+   * @param dividend {@link DividendFunctionProvider}
+   * @return Option Greeks as {@link GreekResultCollection}
    */
-
-  //  protected abstract double getPrice(final LatticeSpecification lattice, final OptionPayoffFunction<StandardOptionDataBundle> payoffFunction, 
-  //  final StandardOptionDataBundle data, final double strike,      final double timeToExpiry, final int nSteps,
-  //      final boolean isCall);
-  //
-  //  protected abstract double getPrice(final LatticeSpecification lattice, final StandardOptionDataBundle data, final double strike, final double timeToExpiry, final int nSteps,
-  //      final boolean isCall);
+  public abstract GreekResultCollection getGreeks(final LatticeSpecification lattice, final OptionFunctionProvider1D function, final double spot, final double timeToExpiry,
+      final double volatility, final double interestRate, final DividendFunctionProvider dividend);
 
 }

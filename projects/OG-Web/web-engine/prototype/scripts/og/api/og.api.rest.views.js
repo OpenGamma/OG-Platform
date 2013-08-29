@@ -115,7 +115,11 @@ $.register_module({
                         data['clientId'] = api.id;
                         method[1] = config.view_id;
                         method[2] = config.grid_type;
-                        fields.forEach(function (val, idx) {if (val = str(config[val])) data[fields[idx]] = val;});
+                        fields.forEach(function (val, idx) {
+                            if (val = str(config[val])) {
+                                data[fields[idx]] = val;
+                            }
+                        });
                         return api.request(method, {data: data, meta: meta}, promise);
                     },
                     viewports: {
@@ -192,6 +196,23 @@ $.register_module({
                     del: common.not_available_del
                 },
                 viewports: {
+                    structure: {
+                        root: 'views/{{view_id}}/{{grid_type}}/viewports/{{viewport_id}}/structure',
+                        get: function (config) {
+                            config = config || {};
+                            var root = this.root, method = root.split('/'), data = {}, meta;
+                            meta = check({
+                                 bundle: {method: root + '#get', config: config},
+                                 required: [{all_of: ['view_id', 'grid_type', 'viewport_id']}]
+                             });
+                            method[1] = config.view_id;
+                            method[2] = config.grid_type;
+                            method[4] = config.viewport_id;
+                            return api.request(method, {data: data, meta: meta});
+                        },
+                        put: common.not_available_put,
+                        del: common.not_available_del
+                    },
                     root: 'views/{{view_id}}/{{grid_type}}/viewports',
                     get: function (config) {
                         config = config || {};
@@ -224,10 +245,14 @@ $.register_module({
                         data.version = promise.id;
                         method[1] = config.view_id;
                         method[2] = config.grid_type;
-                        if (config.viewport_id) // use the promise id as viewport_version
-                            (meta.type = 'PUT'), method.push(config.viewport_id);
-                        else // the response will come back in fire_updates
-                            (promise.ignore = true), (data['requestId'] = promise.id);
+                        if (config.viewport_id) {// use the promise id as viewport_version
+                            meta.type = 'PUT';
+                            method.push(config.viewport_id);
+                        }
+                        else {// the response will come back in fire_updates
+                            promise.ignore = true;
+                            data['requestId'] = promise.id;
+                        }
                         return api.request(method, {data: data, meta: meta}, promise);
                     },
                     del: function (config) {

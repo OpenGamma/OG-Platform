@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.curve.interestrate.generator;
@@ -48,6 +48,11 @@ public class GeneratorCurveDiscountFactorInterpolated extends GeneratorYDCurve {
     throw new UnsupportedOperationException("Cannot generate curves for a GeneratorCurveYieldInterpolated");
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Curve builders that use and populate {@link YieldCurveBundle}s are deprecated.
+   */
+  @Deprecated
   @Override
   public YieldAndDiscountCurve generateCurve(final String name, final YieldCurveBundle bundle, final double[] parameters) {
     throw new UnsupportedOperationException("Cannot generate curves for a GeneratorCurveYieldInterpolated");

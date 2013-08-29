@@ -34,6 +34,10 @@ import com.opengamma.util.db.tool.DbToolContext;
 @BeanDefinition
 public class DbToolContextComponentFactory extends AbstractComponentFactory {
 
+  private static final String MSSQL_MARKER = "jdbc:sqlserver";
+  private static final String MSSQL_DB_PROP = "databaseName=";
+  private static final String MSSQL_DELIMITER = ";";
+
   /**
    * The classifier under which to publish.
    */
@@ -65,10 +69,6 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
   @PropertyDefinition
   private String _schemaNamesList;
 
-  public static final String MSSQL_MARKER = "jdbc:sqlserver";
-  public static final String MSSQL_DB_PROP = "databaseName=";
-  public static final String MSSQL_DELIMITER = ";";
-
   //-------------------------------------------------------------------------
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
@@ -76,7 +76,7 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
     Map<String, MetaProperty<?>> mapTarget = new HashMap<String, MetaProperty<?>>(dbToolContext.metaBean().metaPropertyMap());
     mapTarget.keySet().retainAll(this.metaBean().metaPropertyMap().keySet());
     for (MetaProperty<?> mp : mapTarget.values()) {
-      mp.set(dbToolContext, property(mp.name()).get());
+      mp.set(dbToolContext, mp.get(this));
     }
     final String catalog = getCatalog(getJdbcUrl());
     if (catalog != null) {

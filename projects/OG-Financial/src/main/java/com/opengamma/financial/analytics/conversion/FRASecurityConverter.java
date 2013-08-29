@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.analytics.conversion;
 
-import static com.opengamma.financial.convention.percurrency.EUConventions.IRS_EURIBOR_LEG;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.IRS_IBOR_LEG;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.SCHEME_NAME;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.getConventionName;
@@ -76,7 +75,7 @@ public class FRASecurityConverter extends FinancialSecurityVisitorAdapter<Instru
   }
 
   private VanillaIborLegConvention getIborLegConvention(final Currency currency, final String tenorString) {
-    String vanillaIborLegConventionName = getConventionName(currency, tenorString, IRS_EURIBOR_LEG);
+    String vanillaIborLegConventionName = getConventionName(currency, tenorString, IRS_IBOR_LEG);
     VanillaIborLegConvention vanillaIborLegConvention = _conventionSource.getConvention(VanillaIborLegConvention.class, ExternalId.of(SCHEME_NAME, vanillaIborLegConventionName));
     if (vanillaIborLegConvention != null) {
       return vanillaIborLegConvention;

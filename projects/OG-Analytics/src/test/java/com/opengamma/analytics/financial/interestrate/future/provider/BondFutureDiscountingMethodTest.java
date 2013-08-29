@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.provider;
@@ -43,8 +43,6 @@ public class BondFutureDiscountingMethodTest {
 
   private final static IssuerProviderDiscount ISSUER_MULTICURVES = IssuerProviderDiscountDataSets.createIssuerProvider();
   private final static String[] ISSUER_NAMES = IssuerProviderDiscountDataSets.getIssuerNames();
-  private static final String NOT_USED = "Not used";
-  private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
 
   // 5-Year U.S. Treasury Note Futures: FVU1
   private static final Currency USD = Currency.USD;
@@ -88,8 +86,8 @@ public class BondFutureDiscountingMethodTest {
   private static final BondFixedSecurity[] STANDARD = new BondFixedSecurity[NB_BOND];
   static {
     for (int loopbasket = 0; loopbasket < NB_BOND; loopbasket++) {
-      BASKET[loopbasket] = BASKET_DEFINITION[loopbasket].toDerivative(REFERENCE_DATE, LAST_DELIVERY_DATE, NOT_USED_A);
-      STANDARD[loopbasket] = BASKET_DEFINITION[loopbasket].toDerivative(REFERENCE_DATE, NOT_USED_A);
+      BASKET[loopbasket] = BASKET_DEFINITION[loopbasket].toDerivative(REFERENCE_DATE, LAST_DELIVERY_DATE);
+      STANDARD[loopbasket] = BASKET_DEFINITION[loopbasket].toDerivative(REFERENCE_DATE);
     }
   }
   private static final BondFuture BOND_FUTURE = new BondFuture(LAST_TRADING_TIME, FIRST_NOTICE_TIME, LAST_NOTICE_TIME, FIRST_DELIVERY_TIME, LAST_DELIVERY_TIME, NOTIONAL, BASKET, CONVERSION_FACTOR,
@@ -97,9 +95,6 @@ public class BondFutureDiscountingMethodTest {
   private static final BondFutureDiscountingMethod METHOD_FUT_DSC = BondFutureDiscountingMethod.getInstance();
   private static final BondSecurityDiscountingMethod METHOD_BOND = BondSecurityDiscountingMethod.getInstance();
   private static final PresentValueIssuerCalculator PVIC = PresentValueIssuerCalculator.getInstance();
-
-  //  private static final PriceFromCurvesDiscountingCalculator PRICE_CALCULATOR = PriceFromCurvesDiscountingCalculator.getInstance();
-  //  private static final PriceCurveSensitivityDiscountingCalculator PRICE_SENSI_CALCULATOR = PriceCurveSensitivityDiscountingCalculator.getInstance();
 
   private static final Min MIN_FUNCTION = new Min();
   private static final double TOLERANCE_PRICE = 1.0E-8;

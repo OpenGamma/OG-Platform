@@ -49,7 +49,7 @@ public class BondIborSecurityDefinitionTest {
   private static final int IBOR_SPOT_LAG = 2;
   private static final BusinessDayConvention IBOR_BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IBOR_IS_EOM = false;
-  private static final IborIndex IBOR_INDEX = new IborIndex(CUR, IBOR_TENOR, IBOR_SPOT_LAG, IBOR_DAY_COUNT, IBOR_BUSINESS_DAY, IBOR_IS_EOM);
+  private static final IborIndex IBOR_INDEX = new IborIndex(CUR, IBOR_TENOR, IBOR_SPOT_LAG, IBOR_DAY_COUNT, IBOR_BUSINESS_DAY, IBOR_IS_EOM, "Ibor");
   private static final Period BOND_TENOR = Period.ofYears(2);
   private static final int SETTLEMENT_DAYS = 3; // Standard for euro-bonds.
   private static final ZonedDateTime START_ACCRUAL_DATE = DateUtils.getUTCDate(2011, 7, 13);
@@ -109,7 +109,7 @@ public class BondIborSecurityDefinitionTest {
     assertEquals(0, FRN_DEFINITION.getExCouponDays()); //Default
     final AnnuityCouponIborDefinition coupon = AnnuityCouponIborDefinition.fromAccrualUnadjusted(START_ACCRUAL_DATE, MATURITY_DATE, 1.0, IBOR_INDEX, false, CALENDAR);
     assertEquals(coupon, FRN_DEFINITION.getCoupons());
-    final AnnuityDefinition<PaymentFixedDefinition> nominal = new AnnuityDefinition<PaymentFixedDefinition>(new PaymentFixedDefinition[] {new PaymentFixedDefinition(CUR,
+    final AnnuityDefinition<PaymentFixedDefinition> nominal = new AnnuityDefinition<>(new PaymentFixedDefinition[] {new PaymentFixedDefinition(CUR,
         BUSINESS_DAY.adjustDate(CALENDAR, MATURITY_DATE), 1.0) }, CALENDAR);
     assertEquals(nominal.getCurrency(), FRN_DEFINITION.getNominal().getCurrency());
     assertEquals(nominal.getNthPayment(0).getPaymentDate(), FRN_DEFINITION.getNominal().getNthPayment(0).getPaymentDate());
@@ -129,16 +129,45 @@ public class BondIborSecurityDefinitionTest {
     }
   }
 
+  @SuppressWarnings("deprecation")
   @Test
-  public void toDerivativeSettleBeforeFirstFixing() {
+  public void toDerivativeSettleBeforeFirstFixingDeprecated() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 7, 7);
     final ZonedDateTime settlementDate = ScheduleCalculator.getAdjustedDate(referenceDate, SETTLEMENT_DAYS, CALENDAR);
     final BondIborSecurity frn = FRN_DEFINITION.toDerivative(referenceDate, CURVES_NAME);
     final AnnuityPaymentFixed nominal = ((AnnuityPaymentFixedDefinition) FRN_DEFINITION.getNominal()).toDerivative(referenceDate, CURVES_NAME[0]);
-    @SuppressWarnings("unchecked")
     final Annuity<Coupon> coupon = (Annuity<Coupon>) FRN_DEFINITION.getCoupons().toDerivative(referenceDate, CURVES_NAME);
     final double settlementTime = TimeCalculator.getTimeBetween(referenceDate, settlementDate);
     final BondIborSecurity frnExpected = new BondIborSecurity(nominal, coupon, settlementTime, DSC_CURVE_NAME);
+    assertEquals("FRN: toDerivative", frnExpected, frn);
+  }
+
+  @SuppressWarnings("deprecation")
+  @Test
+  public void toDerivativeSettleMiddleFirstCouponDeprecated() {
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 8, 16);
+    final ZonedDateTime settlementDate = ScheduleCalculator.getAdjustedDate(referenceDate, SETTLEMENT_DAYS, CALENDAR);
+    final DoubleTimeSeries<ZonedDateTime> fixingUSDLibor3M = ImmutableZonedDateTimeDoubleTimeSeries.of(
+        new ZonedDateTime[] {DateUtils.getUTCDate(2011, 7, 11),
+            DateUtils.getUTCDate(2011, 7, 12), DateUtils.getUTCDate(2011, 7, 13), DateUtils.getUTCDate(2011, 8, 16) },
+            new double[] {0.01, 0.05, 0.05, 0.05 }, ZoneOffset.UTC);
+    final BondIborSecurity frn = FRN_DEFINITION.toDerivative(referenceDate, fixingUSDLibor3M, CURVES_NAME);
+    final AnnuityPaymentFixed nominal = ((AnnuityPaymentFixedDefinition) FRN_DEFINITION.getNominal()).toDerivative(referenceDate, CURVES_NAME[0]);
+    final Annuity<Coupon> coupon = (Annuity<Coupon>) FRN_DEFINITION.getCoupons().toDerivative(referenceDate, fixingUSDLibor3M, CURVES_NAME);
+    final double settlementTime = TimeCalculator.getTimeBetween(referenceDate, settlementDate);
+    final BondIborSecurity frnExpected = new BondIborSecurity(nominal, coupon, settlementTime, DSC_CURVE_NAME);
+    assertEquals("FRN: toDerivative", frnExpected, frn);
+  }
+
+  @Test
+  public void toDerivativeSettleBeforeFirstFixing() {
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 7, 7);
+    final ZonedDateTime settlementDate = ScheduleCalculator.getAdjustedDate(referenceDate, SETTLEMENT_DAYS, CALENDAR);
+    final BondIborSecurity frn = FRN_DEFINITION.toDerivative(referenceDate);
+    final AnnuityPaymentFixed nominal = ((AnnuityPaymentFixedDefinition) FRN_DEFINITION.getNominal()).toDerivative(referenceDate);
+    final Annuity<Coupon> coupon = (Annuity<Coupon>) FRN_DEFINITION.getCoupons().toDerivative(referenceDate);
+    final double settlementTime = TimeCalculator.getTimeBetween(referenceDate, settlementDate);
+    final BondIborSecurity frnExpected = new BondIborSecurity(nominal, coupon, settlementTime);
     assertEquals("FRN: toDerivative", frnExpected, frn);
   }
 
@@ -150,13 +179,11 @@ public class BondIborSecurityDefinitionTest {
         new ZonedDateTime[] {DateUtils.getUTCDate(2011, 7, 11),
             DateUtils.getUTCDate(2011, 7, 12), DateUtils.getUTCDate(2011, 7, 13), DateUtils.getUTCDate(2011, 8, 16) },
             new double[] {0.01, 0.05, 0.05, 0.05 }, ZoneOffset.UTC);
-    final BondIborSecurity frn = FRN_DEFINITION.toDerivative(referenceDate, fixingUSDLibor3M, CURVES_NAME);
-    final AnnuityPaymentFixed nominal = ((AnnuityPaymentFixedDefinition) FRN_DEFINITION.getNominal()).toDerivative(referenceDate, CURVES_NAME[0]);
-    @SuppressWarnings("unchecked")
-    final Annuity<Coupon> coupon = (Annuity<Coupon>) FRN_DEFINITION.getCoupons().toDerivative(referenceDate, fixingUSDLibor3M, CURVES_NAME);
+    final BondIborSecurity frn = FRN_DEFINITION.toDerivative(referenceDate, fixingUSDLibor3M);
+    final AnnuityPaymentFixed nominal = ((AnnuityPaymentFixedDefinition) FRN_DEFINITION.getNominal()).toDerivative(referenceDate);
+    final Annuity<Coupon> coupon = (Annuity<Coupon>) FRN_DEFINITION.getCoupons().toDerivative(referenceDate, fixingUSDLibor3M);
     final double settlementTime = TimeCalculator.getTimeBetween(referenceDate, settlementDate);
-    final BondIborSecurity frnExpected = new BondIborSecurity(nominal, coupon, settlementTime, DSC_CURVE_NAME);
+    final BondIborSecurity frnExpected = new BondIborSecurity(nominal, coupon, settlementTime);
     assertEquals("FRN: toDerivative", frnExpected, frn);
   }
-
 }

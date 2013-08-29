@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.method;
@@ -43,7 +43,9 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Tests on the Hull-White one factor method to price Cap/Floor on Ibor.
+ * @deprecated This class tests deprecated functionality.
  */
+@Deprecated
 public class CapFloorIborHullWhiteMethodTest {
   // Cap/floor description
   private static final Period TENOR = Period.ofMonths(3);
@@ -76,8 +78,6 @@ public class CapFloorIborHullWhiteMethodTest {
   private static final int NB_PATH = 12500;
   private static final double TOLERANCE_PV = 1.0E-2;
   private static final double TOLERANCE_DELTA = 1.0E+2; // 0.01 currency unit for 1bp
-
-  //  private static final HullWhiteMonteCarloMethod METHOD_HW_MONTECARLO = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0), NB_PATH);
 
   @Test
   public void presentValueStandard() {

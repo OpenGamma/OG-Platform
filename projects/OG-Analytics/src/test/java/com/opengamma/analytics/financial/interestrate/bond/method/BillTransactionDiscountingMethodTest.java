@@ -42,7 +42,9 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Tests related to the pricing of bills transactions by discounting.
+ * @deprecated This class tests deprecated functionality
  */
+@Deprecated
 public class BillTransactionDiscountingMethodTest {
 
   private final static Currency EUR = Currency.EUR;

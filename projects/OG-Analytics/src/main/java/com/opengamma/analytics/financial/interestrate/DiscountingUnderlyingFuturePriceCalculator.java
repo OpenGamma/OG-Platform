@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -12,7 +12,9 @@ import com.opengamma.analytics.financial.interestrate.future.method.InterestRate
 
 /**
  * Returns the underlying future price of the security, given a yield curve bundle
+ * @deprecated {@link YieldCurveBundle} is deprecated
  */
+@Deprecated
 public class DiscountingUnderlyingFuturePriceCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> {
 
   /** The method unique instance.*/

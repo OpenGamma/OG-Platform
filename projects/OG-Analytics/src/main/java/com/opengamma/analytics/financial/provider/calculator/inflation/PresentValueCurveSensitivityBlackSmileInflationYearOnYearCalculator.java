@@ -8,8 +8,8 @@ package com.opengamma.analytics.financial.provider.calculator.inflation;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationYearOnYearInterpolation;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationYearOnYearMonthly;
-import com.opengamma.analytics.financial.interestrate.inflation.method.CapFloorInflationYearOnYearMonthlyBlackNormalSmileMethod;
-import com.opengamma.analytics.financial.interestrate.inflation.method.CapFloorInflationYearOnYearInterpolationBlackNormalSmileMethod;
+import com.opengamma.analytics.financial.interestrate.inflation.provider.CapFloorInflationYearOnYearInterpolationBlackNormalSmileMethod;
+import com.opengamma.analytics.financial.interestrate.inflation.provider.CapFloorInflationYearOnYearMonthlyBlackNormalSmileMethod;
 import com.opengamma.analytics.financial.provider.description.inflation.BlackSmileCapInflationYearOnYearProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.MultipleCurrencyInflationSensitivity;
 

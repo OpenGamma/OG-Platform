@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.analytics.model.fx;
 
-import static com.opengamma.engine.value.ValuePropertyNames.CURRENCY;
 import static com.opengamma.engine.value.ValuePropertyNames.FORWARD_CURVE_NAME;
+import static com.opengamma.engine.value.ValueRequirementNames.CURRENCY_PAIRS;
 import static com.opengamma.engine.value.ValueRequirementNames.PRESENT_VALUE;
 
 import java.util.Collections;
@@ -20,7 +20,6 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.derivative.Forex;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.forex.provider.ForexForwardPointsMethod;
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.engine.ComputationTarget;
@@ -31,10 +30,10 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -53,23 +52,26 @@ public class FXForwardPointsPVFunction extends FXForwardPointsFunction {
 
       @Override
       protected Set<ComputedValue> getValues(final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues,
-          final InstrumentDerivative derivative, final FXMatrix fxMatrix, final ZonedDateTime now) {
+          final Forex forex, final FXMatrix fxMatrix, final ZonedDateTime now) {
         final MulticurveProviderInterface data = getMergedProviders(inputs, fxMatrix);
         final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
         final ValueProperties properties = desiredValue.getConstraints().copy().get();
         final String fxForwardCurveName = desiredValue.getConstraint(FORWARD_CURVE_NAME);
-        final DoublesCurve forwardPoints = getForwardPoints(inputs, target, fxForwardCurveName, now);
-        //TODO: Review this line
-        final Pair<Currency, Currency> ccyPair = new ObjectsPair<>(Currency.USD, Currency.JPY);
-        final MultipleCurrencyAmount mca = CALCULATOR.presentValue((Forex) derivative, data, forwardPoints, ccyPair);
+        final DoublesCurve forwardPoints = getForwardPoints(inputs, fxForwardCurveName, now);
+        final CurrencyPairs pairs = (CurrencyPairs) inputs.getValue(CURRENCY_PAIRS);
+        final Pair<Currency, Currency> ccyPair;
+        final Currency currency1 = forex.getCurrency1();
+        final Currency currency2 = forex.getCurrency2();
+        if (currency1.equals(pairs.getCurrencyPair(currency1, currency2).getBase())) {
+          ccyPair = Pair.of(currency1, currency2);
+        } else {
+          ccyPair = Pair.of(currency2, currency1);
+        }
+        final MultipleCurrencyAmount mca = CALCULATOR.presentValue(forex, data, forwardPoints, ccyPair);
         if (mca.size() != 1) {
           throw new OpenGammaRuntimeException("Expecting a single value for present value");
         }
         final CurrencyAmount ca = mca.getCurrencyAmounts()[0];
-        final String currency = desiredValue.getConstraint(CURRENCY);
-        if (!ca.getCurrency().getCode().equals(currency)) {
-          throw new OpenGammaRuntimeException("Property currency did not match result currency");
-        }
         final ValueSpecification spec = new ValueSpecification(PRESENT_VALUE, target.toSpecification(), properties);
         return Collections.singleton(new ComputedValue(spec, ca.getAmount()));
       }

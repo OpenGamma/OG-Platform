@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.method;
@@ -24,7 +24,9 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Methods related to fixed payments.
+ * @deprecated {@link PricingMethod} is deprecated.
  */
+@Deprecated
 public final class PaymentFixedDiscountingMethod implements PricingMethod {
 
   /**
@@ -52,16 +54,16 @@ public final class PaymentFixedDiscountingMethod implements PricingMethod {
    * @param curves The curve bundle.
    * @return The present value.
    */
-  public CurrencyAmount presentValue(PaymentFixed payment, YieldCurveBundle curves) {
+  public CurrencyAmount presentValue(final PaymentFixed payment, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(payment);
     final YieldAndDiscountCurve fundingCurve = curves.getCurve(payment.getFundingCurveName());
-    double pv = payment.getAmount() * fundingCurve.getDiscountFactor(payment.getPaymentTime());
+    final double pv = payment.getAmount() * fundingCurve.getDiscountFactor(payment.getPaymentTime());
     return CurrencyAmount.of(payment.getCurrency(), pv);
   }
 
   @Override
-  public CurrencyAmount presentValue(InstrumentDerivative instrument, YieldCurveBundle curves) {
+  public CurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
     Validate.notNull(instrument);
     Validate.isTrue(instrument instanceof PaymentFixed, "Payment Fixed");
     return presentValue((PaymentFixed) instrument, curves);
@@ -73,14 +75,14 @@ public final class PaymentFixedDiscountingMethod implements PricingMethod {
    * @param curves The curve bundle.
    * @return The sensitivity.
    */
-  public InterestRateCurveSensitivity presentValueCurveSensitivity(PaymentFixed pay, YieldCurveBundle curves) {
+  public InterestRateCurveSensitivity presentValueCurveSensitivity(final PaymentFixed pay, final YieldCurveBundle curves) {
     final String curveName = pay.getFundingCurveName();
     final YieldAndDiscountCurve discountingCurve = curves.getCurve(curveName);
     final double time = pay.getPaymentTime();
     final DoublesPair s = new DoublesPair(time, -time * pay.getAmount() * discountingCurve.getDiscountFactor(time));
-    final List<DoublesPair> list = new ArrayList<DoublesPair>();
+    final List<DoublesPair> list = new ArrayList<>();
     list.add(s);
-    final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> result = new HashMap<>();
     result.put(curveName, list);
     return new InterestRateCurveSensitivity(result);
   }
@@ -91,11 +93,11 @@ public final class PaymentFixedDiscountingMethod implements PricingMethod {
    * @param curves The curve bundle.
    * @return The sensitivity.
    */
-  public StringAmount presentValueParallelCurveSensitivity(PaymentFixed payment, YieldCurveBundle curves) {
+  public StringAmount presentValueParallelCurveSensitivity(final PaymentFixed payment, final YieldCurveBundle curves) {
     final String curveName = payment.getFundingCurveName();
     final YieldAndDiscountCurve discountingCurve = curves.getCurve(curveName);
     final double time = payment.getPaymentTime();
-    double sensitivity = -time * payment.getAmount() * discountingCurve.getDiscountFactor(time);
+    final double sensitivity = -time * payment.getAmount() * discountingCurve.getDiscountFactor(time);
     return StringAmount.from(curveName, sensitivity);
   }
 

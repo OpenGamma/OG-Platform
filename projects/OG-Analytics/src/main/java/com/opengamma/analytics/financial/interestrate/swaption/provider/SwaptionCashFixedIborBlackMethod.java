@@ -11,8 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.opengamma.analytics.financial.interestrate.PresentValueBlackSwaptionSensitivity;
-import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
-import com.opengamma.analytics.financial.interestrate.swap.method.SwapFixedCouponDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.swap.provider.SwapFixedCouponDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
@@ -27,7 +26,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- *  Class used to compute the price and sensitivity of a physical delivery swaption with SABR model.
+ *  Class used to compute the price and sensitivity of a cash-settled swaption using the Black method.
  */
 public final class SwaptionCashFixedIborBlackMethod {
 
@@ -87,6 +86,20 @@ public final class SwaptionCashFixedIborBlackMethod {
   }
 
   /**
+   * Computes the implied Black volatility of the vanilla swaption.
+   * @param swaption The swaption.
+   * @param blackMulticurves Black volatility for swaption and multi-curves provider.
+   * @return The implied volatility.
+   */
+  public double impliedVolatility(final SwaptionCashFixedIbor swaption, final BlackSwaptionFlatProviderInterface blackMulticurves) {
+    ArgumentChecker.notNull(swaption, "Swaption");
+    ArgumentChecker.notNull(blackMulticurves, "Black volatility for swaption and multicurve");
+    final double tenor = swaption.getMaturityTime();
+    final double volatility = blackMulticurves.getBlackParameters().getVolatility(swaption.getTimeToExpiry(), tenor);
+    return volatility;
+  }
+
+  /**
    * Computes the present value rate sensitivity to rates of a cash-settled European swaption in the Black model.
    * @param swaption The swaption.
    * @param curveBlack The curves with Black volatility data.
@@ -96,7 +109,6 @@ public final class SwaptionCashFixedIborBlackMethod {
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(curveBlack, "Curves with Black volatility");
     ArgumentChecker.isTrue(curveBlack.getBlackParameters().getGeneratorSwap().getCurrency().equals(swaption.getCurrency()), "Black data currency should be equal to swaption currency");
-    final AnnuityCouponFixed annuityFixed = swaption.getUnderlyingSwap().getFixedLeg();
     final double tenor = swaption.getMaturityTime();
     final double forward = swaption.getUnderlyingSwap().accept(PRDC, curveBlack.getMulticurveProvider());
     // Derivative of the forward with respect to the rates.
@@ -113,8 +125,6 @@ public final class SwaptionCashFixedIborBlackMethod {
     final double sensiDF = -swaption.getSettlementTime() * discountFactorSettle * pvbp * bsAdjoint[0];
     final List<DoublesPair> list = new ArrayList<>();
     list.add(new DoublesPair(swaption.getSettlementTime(), sensiDF));
-    final Map<String, List<DoublesPair>> resultMap = new HashMap<>();
-    resultMap.put(annuityFixed.getNthPayment(0).getFundingCurveName(), list);
     MulticurveSensitivity result = forwardDr.multipliedBy(discountFactorSettle * (pvbpDf * bsAdjoint[0] + pvbp * bsAdjoint[1]));
     if (!swaption.isLong()) {
       result = result.multipliedBy(-1);

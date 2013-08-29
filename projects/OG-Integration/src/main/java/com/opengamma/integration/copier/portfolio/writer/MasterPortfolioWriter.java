@@ -43,6 +43,7 @@ import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.position.PositionSearchRequest;
 import com.opengamma.master.position.PositionSearchResult;
 import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.master.security.ManageableSecurityLink;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.SecuritySearchRequest;
@@ -245,6 +246,11 @@ public class MasterPortfolioWriter implements PortfolioWriter {
         return new ObjectsPair<>(existingPosition,
             writtenSecurities.toArray(new ManageableSecurity[writtenSecurities.size()]));
       }
+    }
+
+    // If security has no ExternalId, link position to security ObjectId now
+    if (position.getSecurityLink().getExternalId().isEmpty() && position.getSecurityLink().getObjectId() == null) {
+      position.setSecurityLink(ManageableSecurityLink.of(writtenSecurities.get(0)));
     }
 
     // No existing position could be reused/updated: just Add the new position to the position master as a new document

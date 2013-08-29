@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.provider;
@@ -184,9 +184,9 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod extends CapFloor
     final double deltaS0 = (strikePart + integralPart) * cmsCapFloor.getNotional() * cmsCapFloor.getPaymentYearFraction();
     final double deltaPD = price / discountFactor;
     final double sensiDF = -cmsCapFloor.getPaymentTime() * discountFactor * deltaPD;
-    final List<DoublesPair> list = new ArrayList<DoublesPair>();
+    final List<DoublesPair> list = new ArrayList<>();
     list.add(new DoublesPair(cmsCapFloor.getPaymentTime(), sensiDF));
-    final Map<String, List<DoublesPair>> resultMapDsc = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> resultMapDsc = new HashMap<>();
     resultMapDsc.put(sabrData.getMulticurveProvider().getName(ccy), list);
     final MulticurveSensitivity dscDp = MulticurveSensitivity.ofYieldDiscounting(resultMapDsc);
     final MulticurveSensitivity forwardDp = cmsCapFloor.getUnderlyingSwap().accept(PRCSDC, sabrData.getMulticurveProvider());

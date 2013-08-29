@@ -60,13 +60,11 @@ public class SwapFixedIborDiscountingMethodTest {
   private static final AnnuityCouponFixedDefinition ANNUITY_FIXED_DEFINITION = AnnuityCouponFixedDefinition.from(START_DATE, TOTAL_TENOR, EUR1YEURIBOR6M, NOTIONAL, RATE, true);
   private static final SwapDefinition SWAP_DEFINITION = new SwapDefinition(ANNUITY_FIXED_DEFINITION, ANNUITY_IBOR_DEFINITION);
   // Derivatives
-  private static final String NOT_USED = "Not used";
-  private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
-  private static final CouponIbor CPN_IBOR_3 = (CouponIbor) CPN_IBOR_3_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
-  private static final CouponIbor CPN_IBOR_6 = (CouponIbor) CPN_IBOR_6_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
-  private static final Annuity<? extends Payment> ANNUITY_IBOR = ANNUITY_IBOR_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
-  private static final Annuity<? extends Payment> ANNUITY_FIXED = ANNUITY_FIXED_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
-  private static final Swap<? extends Payment, ? extends Payment> SWAP = SWAP_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
+  private static final CouponIbor CPN_IBOR_3 = (CouponIbor) CPN_IBOR_3_DEFINITION.toDerivative(REFERENCE_DATE);
+  private static final CouponIbor CPN_IBOR_6 = (CouponIbor) CPN_IBOR_6_DEFINITION.toDerivative(REFERENCE_DATE);
+  private static final Annuity<? extends Payment> ANNUITY_IBOR = ANNUITY_IBOR_DEFINITION.toDerivative(REFERENCE_DATE);
+  private static final Annuity<? extends Payment> ANNUITY_FIXED = ANNUITY_FIXED_DEFINITION.toDerivative(REFERENCE_DATE);
+  private static final Swap<? extends Payment, ? extends Payment> SWAP = SWAP_DEFINITION.toDerivative(REFERENCE_DATE);
 
   private static final CouponIborDiscountingMethod METHOD_CPN_IBOR = CouponIborDiscountingMethod.getInstance();
 

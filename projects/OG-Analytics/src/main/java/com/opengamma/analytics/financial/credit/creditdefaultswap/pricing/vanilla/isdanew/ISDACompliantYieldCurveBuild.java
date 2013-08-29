@@ -197,11 +197,10 @@ public class ISDACompliantYieldCurveBuild {
 
       final List<LocalDate> list = new ArrayList<>();
       LocalDate tDate = mat;
-      list.add(tDate);
       int step = 1;
       while (tDate.isAfter(spotDate)) {
-        tDate = mat.minus(swapInterval.multipliedBy(step++));
         list.add(tDate);
+        tDate = mat.minus(swapInterval.multipliedBy(step++));
       }
 
       // remove spotDate from list, if it ends up there

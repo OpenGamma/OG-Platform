@@ -28,7 +28,7 @@ public class CMSIndexTest {
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
   private static final Currency CUR = Currency.EUR;
-  private static final IborIndex IBOR_INDEX = new IborIndex(CUR, IBOR_TENOR, SETTLEMENT_DAYS, DAY_COUNT_IBOR, BUSINESS_DAY, IS_EOM);
+  private static final IborIndex IBOR_INDEX = new IborIndex(CUR, IBOR_TENOR, SETTLEMENT_DAYS, DAY_COUNT_IBOR, BUSINESS_DAY, IS_EOM, "Ibor");
   //CMS index: CMS2YUSD3M6M - Semi-bond/Quarterly-money
   private static final Period FIXED_LEG_PERIOD = Period.ofMonths(6);
   private static final DayCount DAY_COUNT_FIXED = DayCountFactory.INSTANCE.getDayCount("30/360");
@@ -82,7 +82,7 @@ public class CMSIndexTest {
     assertFalse(CMS_INDEX.equals(indexModified));
     indexModified = new IndexSwap(FIXED_LEG_PERIOD, DAY_COUNT_IBOR, IBOR_INDEX, CMS_TENOR, CALENDAR);
     assertFalse(CMS_INDEX.equals(indexModified));
-    final IborIndex otherIborIndex = new IborIndex(CUR, IBOR_TENOR, SETTLEMENT_DAYS, DAY_COUNT_IBOR, BUSINESS_DAY, !IS_EOM);
+    final IborIndex otherIborIndex = new IborIndex(CUR, IBOR_TENOR, SETTLEMENT_DAYS, DAY_COUNT_IBOR, BUSINESS_DAY, !IS_EOM, "Ibor");
     indexModified = new IndexSwap(FIXED_LEG_PERIOD, DAY_COUNT_FIXED, otherIborIndex, CMS_TENOR, CALENDAR);
     assertFalse(CMS_INDEX.equals(indexModified));
     assertFalse(CMS_INDEX.equals(null));

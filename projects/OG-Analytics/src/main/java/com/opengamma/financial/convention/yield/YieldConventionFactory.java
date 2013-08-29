@@ -9,7 +9,9 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import org.apache.commons.lang.Validate;
+import org.joda.convert.FromString;
+
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Factory to obtain instances of {@code YieldConvention}.
@@ -24,8 +26,27 @@ public final class YieldConventionFactory {
   /**
    * Map of convention name to convention.
    */
-  private final Map<String, YieldConvention> _conventionMap = new HashMap<String, YieldConvention>();
+  private final Map<String, YieldConvention> _conventionMap = new HashMap<>();
 
+  //-------------------------------------------------------------------------
+  /**
+   * Gets a convention by name.
+   * Matching is case insensitive.
+   *
+   * @param name  the name, not null
+   * @return the convention, not null
+   * @throws IllegalArgumentException if not found
+   */
+  @FromString
+  public static YieldConvention of(final String name) {
+    final YieldConvention result = YieldConventionFactory.INSTANCE.getYieldConvention(name);
+    if (result == null) {
+      throw new IllegalArgumentException("Unknown YieldConvention: " + name);
+    }
+    return result;
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Creates the factory.
    */
@@ -66,20 +87,22 @@ public final class YieldConventionFactory {
 
   /**
    * Stores the convention.
+   *
    * @param convention  the convention to store, not null
    */
   private void store(final YieldConvention convention) {
-    Validate.notNull(convention, "YieldConvention");
+    ArgumentChecker.notNull(convention, "YieldConvention");
     _conventionMap.put(convention.getConventionName().toLowerCase(Locale.ENGLISH), convention);
   }
 
   /**
-   * Stores the convention with an alternative string name
+   * Stores the convention with an alternative string name.
+   *
    * @param convention  the convention to store, not null
    * @param name the alternative name for the convention, not null
    */
   private void store(final YieldConvention convention, final String name) {
-    Validate.notNull(convention, "YieldConvention");
+    ArgumentChecker.notNull(convention, "YieldConvention");
     _conventionMap.put(name.toLowerCase(Locale.ENGLISH), convention);
   }
 
@@ -87,11 +110,12 @@ public final class YieldConventionFactory {
   /**
    * Gets a convention by name.
    * Matching is case insensitive.
+   *
    * @param name  the name, not null
    * @return the convention, null if not found
    */
   public YieldConvention getYieldConvention(final String name) {
-    Validate.notNull(name, "name");
+    ArgumentChecker.notNull(name, "name");
     return _conventionMap.get(name.toLowerCase(Locale.ENGLISH));
   }
 

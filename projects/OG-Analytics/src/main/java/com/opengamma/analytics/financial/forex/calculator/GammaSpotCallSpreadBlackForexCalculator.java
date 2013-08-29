@@ -13,7 +13,9 @@ import com.opengamma.util.money.CurrencyAmount;
 
 /**
  * Calculator of the gamma (second order derivative with respect to the spot rate) for Forex derivatives using a call spread approach.
+ * @deprecated Curve builders that use and populate {@link YieldCurveBundle}s are deprecated.
  */
+@Deprecated
 public class GammaSpotCallSpreadBlackForexCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, CurrencyAmount> {
 
   /**

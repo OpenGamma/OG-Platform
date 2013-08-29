@@ -65,7 +65,7 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
 
   /**
    * @param viewId client ID of the view
-   * @param portoflioCallbackId ID that is passed to the listener when the structure of the portfolio grid changes.
+   * @param portfolioCallbackId ID that is passed to the listener when the structure of the portfolio grid changes.
    * This class makes no assumptions about its value
    * @param primitivesCallbackId ID that is passed to the listener when the structure of the primitives grid changes.
  * This class makes no assumptions about its value
@@ -79,7 +79,7 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
                                     boolean primitivesOnly,
                                     VersionCorrection versionCorrection,
                                     String viewId,
-                                    String portoflioCallbackId,
+                                    String portfolioCallbackId,
                                     String primitivesCallbackId,
                                     ComputationTargetResolver targetResolver,
                                     ViewportListener viewportListener,
@@ -89,7 +89,7 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
                                     boolean showBlotterColumns) {
     ArgumentChecker.notNull(viewDefinitionId, "viewDefinitionId");
     ArgumentChecker.notEmpty(viewId, "viewId");
-    ArgumentChecker.notEmpty(portoflioCallbackId, "portoflioGridId");
+    ArgumentChecker.notEmpty(portfolioCallbackId, "portfolioCallbackId");
     ArgumentChecker.notEmpty(primitivesCallbackId, "primitivesGridId");
     ArgumentChecker.notNull(targetResolver, "targetResolver");
     ArgumentChecker.notNull(viewportListener, "viewportListener");
@@ -111,13 +111,13 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
       portfolio = EMPTY_PORTFOLIO;
     }
     if (showBlotterColumns) {
-      _portfolioGrid = PortfolioAnalyticsGrid.forBlotter(portoflioCallbackId,
+      _portfolioGrid = PortfolioAnalyticsGrid.forBlotter(portfolioCallbackId,
                                                          portfolio,
                                                          targetResolver,
                                                          viewportListener,
                                                          blotterColumnMapper);
     } else {
-      _portfolioGrid = PortfolioAnalyticsGrid.forAnalytics(portoflioCallbackId,
+      _portfolioGrid = PortfolioAnalyticsGrid.forAnalytics(portfolioCallbackId,
                                                            portfolio,
                                                            targetResolver,
                                                            viewportListener);
@@ -154,6 +154,10 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
 
   private List<String> getGridIds() {
     List<String> gridIds = Lists.newArrayList();
+    for (PortfolioGridViewport viewport : _portfolioGrid.getViewports().values()) {
+      gridIds.add(viewport.getStructureCallbackId());
+      gridIds.add(viewport.getCallbackId());
+    }
     gridIds.add(_portfolioGrid.getCallbackId());
     gridIds.add(_primitivesGrid.getCallbackId());
     gridIds.addAll(_portfolioGrid.getDependencyGraphCallbackIds());
@@ -165,6 +169,7 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
   public List<String> updateResults(ViewResultModel results, ViewCycle viewCycle) {
     List<String> updatedIds = Lists.newArrayList();
     boolean structureUpdated;
+    _cache.put(results);
     if (_pendingStructureChange != null) {
       doUpdateStructure(_pendingStructureChange, _pendingPortfolio);
       structureUpdated = true;
@@ -173,10 +178,9 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
     } else {
       structureUpdated = false;
     }
-    _cache.put(results);    
     if (!structureUpdated) {
       // Individual cell updates
-      PortfolioAnalyticsGrid updatedPortfolioGrid = _portfolioGrid.withUpdatedStructure(_cache);
+      PortfolioAnalyticsGrid updatedPortfolioGrid = _portfolioGrid.withUpdatedTickAndPossiblyStructure(_cache);
       if (updatedPortfolioGrid == _portfolioGrid) {
         // no change to the grid structure, notify the data has changed
         updatedIds.addAll(_portfolioGrid.updateResults(_cache, viewCycle));
@@ -193,7 +197,7 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
 
   private MainAnalyticsGrid getGrid(GridType gridType) {
     switch (gridType) {
-      case PORTFORLIO:
+      case PORTFOLIO:
         return _portfolioGrid;
       case PRIMITIVES:
         return _primitivesGrid;
@@ -203,7 +207,15 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
   }
 
   @Override
-  public GridStructure getGridStructure(GridType gridType) {
+  public GridStructure getGridStructure(GridType gridType, int viewportId) {
+    GridStructure gridStructure = getGrid(gridType).getViewport(viewportId).getGridStructure();
+    s_logger.debug("Viewport {} and view {} returning grid structure for the {} grid: {}",
+                   viewportId, _viewId, gridType, gridStructure);
+    return gridStructure;
+  }
+
+  @Override
+  public GridStructure getInitialGridStructure(GridType gridType) {
     GridStructure gridStructure = getGrid(gridType).getGridStructure();
     s_logger.debug("View {} returning grid structure for the {} grid: {}", _viewId, gridType, gridStructure);
     return gridStructure;
@@ -214,8 +226,9 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
                                 GridType gridType,
                                 int viewportId,
                                 String callbackId,
+                                String structureCallbackId,
                                 ViewportDefinition viewportDefinition) {
-    boolean hasData = getGrid(gridType).createViewport(viewportId, callbackId, viewportDefinition, _cache);
+    boolean hasData = getGrid(gridType).createViewport(viewportId, callbackId, structureCallbackId, viewportDefinition, _cache);
     s_logger.debug("View {} created viewport ID {} for the {} grid from {}",
                    _viewId, viewportId, gridType, viewportDefinition);
     return hasData;
@@ -253,7 +266,15 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
   }
 
   @Override
-  public GridStructure getGridStructure(GridType gridType, int graphId) {
+  public GridStructure getGridStructure(GridType gridType, int graphId, int viewportId) {
+    DependencyGraphGridStructure gridStructure = getGrid(gridType).getGridStructure(graphId);
+    s_logger.debug("Viewport {} and view {} returning grid structure for dependency graph {} of the {} grid: {}",
+                   viewportId, _viewId, graphId, gridType, gridStructure);
+    return gridStructure;
+  }
+
+  @Override
+  public GridStructure getInitialGridStructure(GridType gridType, int graphId) {
     DependencyGraphGridStructure gridStructure = getGrid(gridType).getGridStructure(graphId);
     s_logger.debug("View {} returning grid structure for dependency graph {} of the {} grid: {}",
                    _viewId, graphId, gridType, gridStructure);
@@ -266,8 +287,9 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
                                 int graphId,
                                 int viewportId,
                                 String callbackId,
+                                String structureCallbackId,
                                 ViewportDefinition viewportDefinition) {
-    boolean hasData = getGrid(gridType).createViewport(graphId, viewportId, callbackId, viewportDefinition, _cache);
+    boolean hasData = getGrid(gridType).createViewport(graphId, viewportId, callbackId, structureCallbackId, viewportDefinition, _cache);
     s_logger.debug("View {} created viewport ID {} for dependency graph {} of the {} grid using {}",
                    _viewId, viewportId, graphId, gridType, viewportDefinition);
     return hasData;
@@ -396,7 +418,8 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
     ViewportDefinition viewportDefinition = ViewportDefinition.create(Integer.MIN_VALUE, rows, cols, Lists.<GridCell>newArrayList(), format, false);
     
     String callbackId = GUIDGenerator.generate().toString();
-    MainGridViewport viewport = getGrid(gridType).createViewport(viewportDefinition, callbackId, _cache);
+    String structureCallbackId = GUIDGenerator.generate().toString();
+    MainGridViewport viewport = getGrid(gridType).createViewport(viewportDefinition, callbackId, structureCallbackId, _cache);
     return viewport.getData();
   }
 

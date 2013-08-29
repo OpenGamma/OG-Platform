@@ -175,6 +175,7 @@ public class RegionFileReader {
       Map<UniqueId, Set<String>> subRegions = new HashMap<UniqueId, Set<String>>();
       
       // open CSV file
+      @SuppressWarnings("resource")
       CSVReader reader = new CSVReader(in);
       List<String> columns = Arrays.asList(reader.readNext());
       

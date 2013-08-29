@@ -9,8 +9,8 @@ import org.apache.commons.lang.ObjectUtils;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
+import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesPriceDeliverableSecurity;
@@ -23,7 +23,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Description of Deliverable Interest Rate Swap Futures as traded on CME.
  */
-public class SwapFuturesPriceDeliverableSecurityDefinition implements InstrumentDefinition<SwapFuturesPriceDeliverableSecurity> {
+public class SwapFuturesPriceDeliverableSecurityDefinition implements InstrumentDefinitionWithData<SwapFuturesPriceDeliverableSecurity, Double> {
 
   /**
    * The futures last trading date. The date for which the delivery date is the spot date.
@@ -129,6 +129,21 @@ public class SwapFuturesPriceDeliverableSecurityDefinition implements Instrument
     return new SwapFuturesPriceDeliverableSecurity(lastTradingTime, deliveryTime, underlyingSwap, _notional);
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
+  @Override
+  public SwapFuturesPriceDeliverableSecurity toDerivative(final ZonedDateTime date, final Double data, final String... yieldCurveNames) {
+    return toDerivative(date, data);
+  }
+
+  @Override
+  public SwapFuturesPriceDeliverableSecurity toDerivative(final ZonedDateTime date, final Double data) {
+    return toDerivative(date);
+  }
+
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     ArgumentChecker.notNull(visitor, "visitor");
@@ -139,6 +154,14 @@ public class SwapFuturesPriceDeliverableSecurityDefinition implements Instrument
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
     ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitDeliverableSwapFuturesSecurityDefinition(this);
+  }
+
+  @Override
+  public String toString() {
+    String result = "Swap : \n";
+    result += "First leg: \n" + _underlyingSwap.getFirstLeg().toString();
+    result += "\nSecond leg: \n" + _underlyingSwap.getSecondLeg().toString();
+    return result;
   }
 
   @Override

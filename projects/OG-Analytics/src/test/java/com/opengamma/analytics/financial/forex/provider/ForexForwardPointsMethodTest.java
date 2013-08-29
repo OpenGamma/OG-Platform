@@ -45,10 +45,6 @@ import com.opengamma.util.tuple.Pair;
 public class ForexForwardPointsMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountForexDataSets.createMulticurvesEURUSD();
-
-  private static final String NOT_USED = "Not used";
-  private static final String[] NOT_USED_2 = {NOT_USED, NOT_USED };
-
   private static final Currency CUR_1 = Currency.EUR;
   private static final Currency CUR_2 = Currency.USD;
   private static final Pair<Currency, Currency> PAIR = new ObjectsPair<>(CUR_1, CUR_2);
@@ -61,7 +57,7 @@ public class ForexForwardPointsMethodTest {
   private static final ZonedDateTime SPOT_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, 2, CALENDAR);
   private static final IborIndex USDLIBOR3M = IndexIborMaster.getInstance().getIndex("USDLIBOR3M");
 
-  private static final Forex FX = FX_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_2);
+  private static final Forex FX = FX_DEFINITION.toDerivative(REFERENCE_DATE);
 
   private static final ForexDefinition FX_INDIRECT_DEFINITION = new ForexDefinition(CUR_2, CUR_1, PAYMENT_DATE, -NOMINAL_1 * FX_RATE, 1.0d / FX_RATE);
   private static final Forex FX_INDIRECT = FX_INDIRECT_DEFINITION.toDerivative(REFERENCE_DATE);

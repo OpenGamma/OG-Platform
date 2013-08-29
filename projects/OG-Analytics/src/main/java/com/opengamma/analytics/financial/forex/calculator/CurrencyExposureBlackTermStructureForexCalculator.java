@@ -13,7 +13,9 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * Calculator of the currency exposure for Forex derivatives in the Black (Garman-Kohlhagen) world. A term structure of implied volatility is provided.
  * To compute the currency exposure, the Black volatility is kept constant; the volatility is not recomputed for spot and forward changes.
+ * @deprecated Curve builders that use and populate {@link YieldCurveBundle}s are deprecated.
  */
+@Deprecated
 public final class CurrencyExposureBlackTermStructureForexCalculator extends CurrencyExposureForexCalculator {
 
   /**

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.swaption.method;
@@ -20,11 +20,14 @@ import com.opengamma.analytics.financial.model.interestrate.definition.G2ppPiece
 import com.opengamma.analytics.math.function.Function2D;
 import com.opengamma.analytics.math.integration.IntegratorRepeated2D;
 import com.opengamma.analytics.math.integration.RungeKuttaIntegrator1D;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**
  * Method to compute the present value of cash-settled European swaptions with the G2++ model by numerical integration.
+ * @deprecated Use {@link com.opengamma.analytics.financial.interestrate.swaption.provider.SwaptionCashFixedIborG2ppNumericalIntegrationMethod}
  */
+@Deprecated
 public class SwaptionCashFixedIborG2ppNumericalIntegrationMethod implements PricingMethod {
 
   /**
@@ -46,6 +49,8 @@ public class SwaptionCashFixedIborG2ppNumericalIntegrationMethod implements Pric
   private static final SwapFixedCouponDiscountingMethod METHOD_SWAP = SwapFixedCouponDiscountingMethod.getInstance();
 
   public CurrencyAmount presentValue(final SwaptionCashFixedIbor swaption, final G2ppPiecewiseConstantDataBundle g2Data) {
+    ArgumentChecker.notNull(swaption, "swaption");
+    ArgumentChecker.notNull(g2Data, "G2++ data");
     final YieldAndDiscountCurve dsc = g2Data.getCurve(swaption.getUnderlyingSwap().getFixedLeg().getDiscountCurve());
     final double notional = swaption.getUnderlyingSwap().getFixedLeg().getNthPayment(0).getNotional();
     final double strike = swaption.getUnderlyingSwap().getFixedLeg().getNthPayment(0).getFixedRate();

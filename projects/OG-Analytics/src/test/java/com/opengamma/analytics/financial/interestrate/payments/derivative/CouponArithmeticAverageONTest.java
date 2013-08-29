@@ -1,12 +1,13 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.derivative;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertNull;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
@@ -70,6 +71,11 @@ public class CouponArithmeticAverageONTest {
     assertEquals("CouponArithmeticAverageON: getter", CPN_AA_ON.getFixingPeriodTimes(), FIXING_TIMES);
     assertEquals("CouponArithmeticAverageON: getter", CPN_AA_ON.getFixingPeriodAccrualFactors(), FEDFUND_CPN_3M_2_DEF.getFixingPeriodAccrualFactor());
     assertEquals("CouponArithmeticAverageON: getter", CPN_AA_ON.getRateAccrued(), ACCRUED_RATE);
+  }
+
+  @Test
+  public void testWithNotional() {
+    assertNull(CPN_AA_ON.withNotional(NOTIONAL));
   }
 
   @Test

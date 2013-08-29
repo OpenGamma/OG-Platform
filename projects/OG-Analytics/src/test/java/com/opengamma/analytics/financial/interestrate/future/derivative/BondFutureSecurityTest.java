@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.derivative;
@@ -70,13 +70,10 @@ public class BondFutureSecurityTest {
   private static final double LAST_NOTICE_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE, LAST_NOTICE_DATE);
   private static final double FIRST_DELIVERY_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE, FIRST_DELIVERY_DATE);
   private static final double LAST_DELIVERY_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE, LAST_DELIVERY_DATE);
-  private static final String CREDIT_CURVE_NAME = "Credit";
-  private static final String REPO_CURVE_NAME = "Repo";
-  private static final String[] CURVES_NAME = {CREDIT_CURVE_NAME, REPO_CURVE_NAME };
   private static final BondFixedSecurity[] BASKET = new BondFixedSecurity[NB_BOND];
   static {
     for (int loopbasket = 0; loopbasket < NB_BOND; loopbasket++) {
-      BASKET[loopbasket] = BASKET_DEFINITION[loopbasket].toDerivative(REFERENCE_DATE, LAST_DELIVERY_DATE, CURVES_NAME);
+      BASKET[loopbasket] = BASKET_DEFINITION[loopbasket].toDerivative(REFERENCE_DATE, LAST_DELIVERY_DATE);
     }
   }
 
@@ -123,7 +120,7 @@ public class BondFutureSecurityTest {
    */
   public void equalHash() {
     assertTrue(BOND_FUTURE_SECURITY.equals(BOND_FUTURE_SECURITY));
-    BondFuturesSecurity other = new BondFuturesSecurity(LAST_TRADING_TIME, FIRST_NOTICE_TIME, LAST_NOTICE_TIME, FIRST_DELIVERY_TIME, LAST_DELIVERY_TIME, NOTIONAL, BASKET, CONVERSION_FACTOR);
+    final BondFuturesSecurity other = new BondFuturesSecurity(LAST_TRADING_TIME, FIRST_NOTICE_TIME, LAST_NOTICE_TIME, FIRST_DELIVERY_TIME, LAST_DELIVERY_TIME, NOTIONAL, BASKET, CONVERSION_FACTOR);
     assertTrue(BOND_FUTURE_SECURITY.equals(other));
     assertTrue(BOND_FUTURE_SECURITY.hashCode() == other.hashCode());
     BondFuturesSecurity modifiedFuture;
@@ -139,13 +136,13 @@ public class BondFutureSecurityTest {
     assertFalse(BOND_FUTURE_SECURITY.equals(modifiedFuture));
     modifiedFuture = new BondFuturesSecurity(LAST_TRADING_TIME, FIRST_NOTICE_TIME, LAST_NOTICE_TIME, FIRST_DELIVERY_TIME, LAST_DELIVERY_TIME, NOTIONAL + 100000, BASKET, CONVERSION_FACTOR);
     assertFalse(BOND_FUTURE_SECURITY.equals(modifiedFuture));
-    BondFixedSecurity[] otherBasket = new BondFixedSecurity[NB_BOND];
+    final BondFixedSecurity[] otherBasket = new BondFixedSecurity[NB_BOND];
     for (int loopbasket = 0; loopbasket < NB_BOND; loopbasket++) {
-      otherBasket[loopbasket] = BASKET_DEFINITION[loopbasket].toDerivative(REFERENCE_DATE, LAST_NOTICE_DATE, CURVES_NAME);
+      otherBasket[loopbasket] = BASKET_DEFINITION[loopbasket].toDerivative(REFERENCE_DATE, LAST_NOTICE_DATE);
     }
     modifiedFuture = new BondFuturesSecurity(LAST_TRADING_TIME, FIRST_NOTICE_TIME, LAST_NOTICE_TIME, FIRST_DELIVERY_TIME, LAST_DELIVERY_TIME, NOTIONAL, otherBasket, CONVERSION_FACTOR);
     assertFalse(BOND_FUTURE_SECURITY.equals(modifiedFuture));
-    double[] otherConversionFactor = new double[] {.9000, .8565, .8493, .8516, .8540, .8417, .8292 };
+    final double[] otherConversionFactor = new double[] {.9000, .8565, .8493, .8516, .8540, .8417, .8292 };
     modifiedFuture = new BondFuturesSecurity(LAST_TRADING_TIME, FIRST_NOTICE_TIME, LAST_NOTICE_TIME, FIRST_DELIVERY_TIME, LAST_DELIVERY_TIME, NOTIONAL, BASKET, otherConversionFactor);
     assertFalse(BOND_FUTURE_SECURITY.equals(modifiedFuture));
     assertFalse(BOND_FUTURE_SECURITY.equals(LAST_TRADING_DATE));

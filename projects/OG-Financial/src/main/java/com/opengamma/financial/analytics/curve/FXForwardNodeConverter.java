@@ -28,7 +28,7 @@ import com.opengamma.util.time.Tenor;
 
 /**
  * Convert a Forex Forward node into an Instrument definition.
- * The dates of the forward are computed in the following way: 
+ * The dates of the forward are computed in the following way:
  * - The spot date is computed from the valuation date adding the "Settlement Days" (i.e. the number of business days) of the convention.
  * - The exchange date is computed from the spot date adding the "MaturityTenor" of the node and using the business-day-convention, calendar and EOM of the convention.
  * The forward amount in the pay currency is 1 and -quote in the receive currency.
@@ -71,7 +71,6 @@ public class FXForwardNodeConverter extends CurveNodeVisitorAdapter<InstrumentDe
     _valuationTime = valuationTime;
   }
 
-  @SuppressWarnings("synthetic-access")
   @Override
   public InstrumentDefinition<?> visitFXForwardNode(final FXForwardNode fxForward) {
     final ExternalId conventionId = fxForward.getFxForwardConvention();

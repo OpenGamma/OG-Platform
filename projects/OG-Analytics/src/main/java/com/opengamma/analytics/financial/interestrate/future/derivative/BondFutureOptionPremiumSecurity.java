@@ -45,6 +45,7 @@ public class BondFutureOptionPremiumSecurity implements InstrumentDerivative {
    * @param strike The option strike.
    * @param isCall The cap (true) / floor (false) flag.
    */
+  @SuppressWarnings("deprecation")
   public BondFutureOptionPremiumSecurity(final BondFuture underlyingFuture, final double expirationTime, final double strike, final boolean isCall) {
     ArgumentChecker.notNull(underlyingFuture, "underlying future");
     _underlyingFuture = underlyingFuture;
@@ -122,7 +123,7 @@ public class BondFutureOptionPremiumSecurity implements InstrumentDerivative {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + _discountingCurveName.hashCode();
+    result = prime * result + (_discountingCurveName == null ? 0 : _discountingCurveName.hashCode());
     long temp;
     temp = Double.doubleToLongBits(_expirationTime);
     result = prime * result + (int) (temp ^ (temp >>> 32));

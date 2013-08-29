@@ -28,7 +28,6 @@ import com.opengamma.analytics.financial.model.volatility.local.LocalVolatilityS
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.curve.Curve;
 import com.opengamma.analytics.math.curve.FunctionalDoublesCurve;
-import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.integration.Integrator1D;
 import com.opengamma.analytics.math.integration.RungeKuttaIntegrator1D;
@@ -52,17 +51,17 @@ public class TermStructureRatesTest {
 
   static {
 
-    final Function1D<Double,Double> r = new Function1D<Double, Double>() {
+    final Function1D<Double, Double> r = new Function1D<Double, Double>() {
       @Override
       public Double evaluate(final Double t) {
-        return (-0.04 + 0.1*t)*Math.exp(-0.5*t) + 0.08;
+        return (-0.04 + 0.1 * t) * Math.exp(-0.5 * t) + 0.08;
       }
     };
 
-    final Function<Double,Double> b = new Function1D<Double, Double>() {
+    final Function1D<Double, Double> b = new Function1D<Double, Double>() {
       @Override
       public Double evaluate(final Double t) {
-        return (-0.04 + 0.1*t)*Math.exp(-0.5*t) - 0.08*Math.exp(-0.3*t) - 0.05 ;
+        return (-0.04 + 0.1 * t) * Math.exp(-0.5 * t) - 0.08 * Math.exp(-0.3 * t) - 0.05;
       }
     };
 
@@ -71,7 +70,7 @@ public class TermStructureRatesTest {
     LOCAL_VOL_SUR = new LocalVolatilitySurfaceStrike(ConstantDoublesSurface.from(SIGMA));
 
     final Integrator1D<Double, Double> integrator = new RungeKuttaIntegrator1D();
-    DF  = Math.exp(-integrator.integrate(r, 0.0, T));
+    DF = Math.exp(-integrator.integrate(r, 0.0, T));
   }
 
   /**
@@ -84,15 +83,15 @@ public class TermStructureRatesTest {
 
     final int tNodes = 100;
     final int nu = 10;
-    final int xNodes = nu*tNodes;
+    final int xNodes = nu * tNodes;
 
-    final double pvFwd = DF*FWD_CURVE.getForward(T);
+    final double pvFwd = DF * FWD_CURVE.getForward(T);
 
     final double pdePrice = PRICER.price(FWD_CURVE, RISK_FREE_CURVE, option, LOCAL_VOL_SUR, false, xNodes, tNodes);
     //System.out.println(pdePrice);
 
     //can recover accurate forward price with moderate grid
-    assertEquals(pvFwd,pdePrice,pvFwd*5e-6);
+    assertEquals(pvFwd, pdePrice, pvFwd * 5e-6);
   }
 
   /**
@@ -101,7 +100,7 @@ public class TermStructureRatesTest {
    */
   @Test
   public void zeroCouponBondTest() {
-    final ConvectionDiffusionPDE1DStandardCoefficients coef = PDE.getBackwardsLocalVol(RISK_FREE_CURVE,FWD_CURVE.getDriftCurve(),T,LOCAL_VOL_SUR);
+    final ConvectionDiffusionPDE1DStandardCoefficients coef = PDE.getBackwardsLocalVol(RISK_FREE_CURVE, FWD_CURVE.getDriftCurve(), T, LOCAL_VOL_SUR);
     final Function1D<Double, Double> payoff = new Function1D<Double, Double>() {
       @Override
       public Double evaluate(final Double x) {
@@ -111,10 +110,10 @@ public class TermStructureRatesTest {
 
     final int tNodes = 100;
     final int nu = 5;
-    final int xNodes = nu*tNodes;
-    final double sMin = S0/5.0;
-    final double sMax = 5*S0;
-    final MeshingFunction xMesh = new ExponentialMeshing(sMin, sMax, xNodes, 0.0, new double[] {S0});
+    final int xNodes = nu * tNodes;
+    final double sMin = S0 / 5.0;
+    final double sMax = 5 * S0;
+    final MeshingFunction xMesh = new ExponentialMeshing(sMin, sMax, xNodes, 0.0, new double[] {S0 });
     final MeshingFunction tMesh = new ExponentialMeshing(0, T, tNodes, 0.0);
     final PDEGrid1D grid = new PDEGrid1D(tMesh, xMesh);
 
@@ -127,7 +126,7 @@ public class TermStructureRatesTest {
     final double pdePrice = res.getFunctionValue(index);
 
     //System.out.println(DF+"\t"+pdePrice);
-    assertEquals(DF,pdePrice,DF*5e-5);
+    assertEquals(DF, pdePrice, DF * 5e-5);
   }
 
   @Test
@@ -139,26 +138,24 @@ public class TermStructureRatesTest {
 
     final int tNodes = 120;
     final int nu = 10;
-    final int xNodes = nu*tNodes;
+    final int xNodes = nu * tNodes;
 
-    final double  bsPrice = DF*BlackFormulaRepository.price(FWD_CURVE.getForward(T), k, T, SIGMA, isCall);
+    final double bsPrice = DF * BlackFormulaRepository.price(FWD_CURVE.getForward(T), k, T, SIGMA, isCall);
 
-    double pdePrice = PRICER.price(FWD_CURVE, RISK_FREE_CURVE, option, LOCAL_VOL_SUR, false, xNodes, tNodes,0.1,0.0,5.0);
+    double pdePrice = PRICER.price(FWD_CURVE, RISK_FREE_CURVE, option, LOCAL_VOL_SUR, false, xNodes, tNodes, 0.1, 0.0, 5.0);
     //   double resErr = Math.abs((pdePrice-bsPrice)/bsPrice);
     //  System.out.println(bsPrice +"\t"+pdePrice+"\t"+resErr);
 
-    assertEquals(bsPrice,pdePrice,bsPrice*1e-4);
-
+    assertEquals(bsPrice, pdePrice, bsPrice * 1e-4);
 
     //now price in terms of the forward - gives around 3 times improvement in accuracy
     final ForwardCurve fc = new ForwardCurve(FWD_CURVE.getForward(T));
     final ConstantDoublesCurve r = ConstantDoublesCurve.from(0.0);
-    pdePrice = DF*PRICER.price(fc, r, option, LOCAL_VOL_SUR, false, xNodes, tNodes,0.1,0.0,5.0);
+    pdePrice = DF * PRICER.price(fc, r, option, LOCAL_VOL_SUR, false, xNodes, tNodes, 0.1, 0.0, 5.0);
 
     // resErr = Math.abs((pdePrice-bsPrice)/bsPrice);
     // System.out.println(bsPrice +"\t"+pdePrice+"\t"+resErr);
-    assertEquals(bsPrice,pdePrice,bsPrice*3e-5);
+    assertEquals(bsPrice, pdePrice, bsPrice * 3e-5);
   }
-
 
 }

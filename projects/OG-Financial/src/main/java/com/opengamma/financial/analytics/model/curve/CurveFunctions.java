@@ -13,6 +13,7 @@ import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfigurationFunction;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
+import com.opengamma.financial.analytics.model.curve.forward.InstantaneousForwardCurveFunction;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
@@ -114,7 +115,7 @@ public class CurveFunctions extends AbstractFunctionConfigurationBean {
       functions.add(functionConfiguration(MultiCurveDiscountingFunction.class, curveConfigName));
       functions.add(functionConfiguration(InflationProviderDiscountingFunction.class, curveConfigName));
       functions.add(functionConfiguration(HullWhiteOneFactorDiscountingCurveFunction.class, curveConfigName));
-      functions.add(functionConfiguration(IssuerProviderDiscountingFunction.class, curveConfigName));
+//      functions.add(functionConfiguration(IssuerProviderDiscountingFunction.class, curveConfigName));
     }
 
     protected void addCurveBuildingFunctions(final List<FunctionConfiguration> functions,
@@ -147,5 +148,6 @@ public class CurveFunctions extends AbstractFunctionConfigurationBean {
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
     functions.add(functionConfiguration(HullWhiteOneFactorParametersFunction.class));
     functions.add(functionConfiguration(G2ppParametersFunction.class));
+    functions.add(functionConfiguration(InstantaneousForwardCurveFunction.class));
   }
 }

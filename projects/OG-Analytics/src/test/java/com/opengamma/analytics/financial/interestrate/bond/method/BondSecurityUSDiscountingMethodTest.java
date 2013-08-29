@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.bond.method;
@@ -40,7 +40,9 @@ import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the discounting method for bond security.
+ * @deprecated This class tests deprecated functionality
  */
+@Deprecated
 public class BondSecurityUSDiscountingMethodTest {
 
   // Calculators
@@ -473,12 +475,12 @@ public class BondSecurityUSDiscountingMethodTest {
 
     final double modDur = METHOD.modifiedDurationFromYield(BOND_FIXED_SECURITY_1, yield);
     final double convexity = METHOD.convexityFromYield(BOND_FIXED_SECURITY_1, yield);
-    for (int loopshift = 0; loopshift < shift.length; loopshift++) {
-      final double price = METHOD.dirtyPriceFromYield(BOND_FIXED_SECURITY_1, yield + shift[loopshift]);
-      final double price1 = price0 * (1 - shift[loopshift] * modDur);
-      final double price2 = price0 * (1 - shift[loopshift] * modDur + 0.5 * shift[loopshift] * shift[loopshift] * convexity);
-      assertEquals("Fixed coupon bond security: expansion US Street - shift " + shift[loopshift], price, price1, 2.0E-1 * Math.abs(shift[loopshift]));
-      assertEquals("Fixed coupon bond security: expansion US Street - shift " + shift[loopshift], price, price2, 3.0E-3 * Math.abs(shift[loopshift]));
+    for (final double element : shift) {
+      final double price = METHOD.dirtyPriceFromYield(BOND_FIXED_SECURITY_1, yield + element);
+      final double price1 = price0 * (1 - element * modDur);
+      final double price2 = price0 * (1 - element * modDur + 0.5 * element * element * convexity);
+      assertEquals("Fixed coupon bond security: expansion US Street - shift " + element, price, price1, 2.0E-1 * Math.abs(element));
+      assertEquals("Fixed coupon bond security: expansion US Street - shift " + element, price, price2, 3.0E-3 * Math.abs(element));
     }
 
   }
@@ -518,7 +520,7 @@ public class BondSecurityUSDiscountingMethodTest {
       cleanPriceForward[loopdate] = METHOD.cleanPriceFromCurves(bondForward, CURVES);
     }
     //Test note: 0.005 is roughly the difference between the coupon and the repo rate. The clean price is decreasing naturally by this amount divided by (roughly) 365 every day.
-    //Test note: On the coupon date there is a jump in the clean price: If the coupon is included the clean price due to coupon is 0.04625/2*exp(-t*0.05)*exp(t*0.04) - 0.04625/2 = 7.94738E-05; 
+    //Test note: On the coupon date there is a jump in the clean price: If the coupon is included the clean price due to coupon is 0.04625/2*exp(-t*0.05)*exp(t*0.04) - 0.04625/2 = 7.94738E-05;
     //           if the coupon is not included the impact is 0. The clean price is thus expected to jump by the above amount when the settlement is on the coupon date 15-May-2012.
     final double couponJump = 7.94738E-05;
     for (int loopdate = 1; loopdate < nbDateForward; loopdate++) {

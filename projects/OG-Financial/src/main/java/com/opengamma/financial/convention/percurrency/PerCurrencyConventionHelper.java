@@ -31,18 +31,50 @@ public class PerCurrencyConventionHelper {
   public static final String FRA = "FRA";
   /** OIS fixed leg convention string **/
   public static final String OIS_FIXED_LEG = "OIS Fixed Leg";
-  /** OIS float leg convention string **/
-  public static final String OIS_ON_LEG = "OIS Overnight Leg";
   /** IRS fixed leg convention string **/
   public static final String IRS_FIXED_LEG = "IRS Fixed Leg";
+  /** IRS fixed leg convention string **/
+  public static final String FIXED_LEG = "Fixed Leg";
+  /** OIS float leg convention string **/
+  public static final String OIS_ON_LEG = "OIS Overnight Leg";
+  /** Overnight with composition, i.e. OIS-like **/
+  public static final String ON_CMP_LEG = "ON Comp Leg";
+  /** Overnight with arithmetic average, i.e. FF-like **/
+  public static final String ON_AA_LEG = "ON AA Leg";
+  /** Suffix to indicate that a leg as a unnatural payment lag to match the other leg. **/
+  public static final String PAY_LAG = "Pay Lag ";
   /** IRS Ibor leg convention string **/
   public static final String IRS_IBOR_LEG = "IRS Ibor Leg";
+  /** Ibor leg convention string **/
+  public static final String IBOR_LEG = "Ibor Leg";
   /** Quarterly Eurodollar futures string */
   public static final String EURODOLLAR_FUTURE = "Quarterly ED, 3M Libor";
+  /** Fed fund futures string */
+  public static final String FED_FUNDS_FUTURE = "Fed Funds Future";
+  /** CME deliverable swap future string */
+  public static final String CME_DELIVERABLE_SWAP_FUTURE = "CME Deliverable Swap Future";
   /** Inflation swap leg string */
   public static final String INFLATION_LEG = "Inflation Swap Leg";
   /** Price index string */
   public static final String PRICE_INDEX = "Price Index";
+  
+
+  /** Tenor string: 3M **/
+  public static final String TENOR_STR_3M = "3M";
+  /** Tenor string: 6M **/
+  public static final String TENOR_STR_6M = "6M";
+  /** Tenor string: 1Y **/
+  public static final String TENOR_STR_1Y = "1Y";
+  /** Tenor string: short period instruments (usually for 1w or 2w) **/
+  public static final String TENOR_STR_SHORT = "Short";
+  /** STIR Futures (i.e. futures on Ibor) **/
+  public static final String STIR_FUTURES = "STIR Futures ";
+  /** Serial (i.e. monthly) futures **/
+  public static final String SERIAL = " Serial";
+  /** Quarterly (i.e. March, June, September, December) futures **/
+  public static final String QUARTERLY = " Quarterly";
+  /** Government (Simplified bond description) **/
+  public static final String GOVT = "Govt ";
 
   public static ExternalIdBundle getIds(final Currency currency, final String instrumentName) {
     final String idName = getConventionName(currency, instrumentName);

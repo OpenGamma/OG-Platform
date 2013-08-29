@@ -335,7 +335,7 @@ public class InMemoryConfigMaster implements ConfigMaster {
                   @Override
                   public Boolean execute(final ConfigDocument configDocument) {
                     return
-                    (oid == null || (configDocument.getObjectId().equals(oid)))
+                        (oid == null || (configDocument.getObjectId().equals(oid)))
                         &&
                         (type == null || (type.isAssignableFrom(configDocument.getType())));
                   }

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.forex.forward;
@@ -18,11 +18,14 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.model.discounting.DiscountingCurrencyExposureFunction;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
- * 
+ * Calculates the currency exposure for a FX forward
+ * @deprecated Use {@link DiscountingCurrencyExposureFunction}
  */
+@Deprecated
 public class FXForwardCurrencyExposureFunction extends FXForwardMultiValuedFunction {
   private static final CurrencyExposureForexCalculator CALCULATOR = CurrencyExposureForexCalculator.getInstance();
 

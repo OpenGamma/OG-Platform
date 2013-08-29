@@ -1,11 +1,12 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.derivative;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
@@ -37,10 +38,7 @@ public class SwapFuturesPriceDeliverableSecurityTest {
   private static final SwapFixedIborDefinition SWAP_DEFINITION = SwapFixedIborDefinition.from(EFFECTIVE_DATE, TENOR, USD6MLIBOR3M, 1.0, RATE, false);
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 9, 21);
-  private static final String DSC_CURVE_NAME = "USD Discounting";
-  private static final String FWD3_CURVE_NAME = "USD Forward 3M";
-  private static final String[] CURVE_NAMES = {DSC_CURVE_NAME, FWD3_CURVE_NAME };
-  private static final SwapFixedCoupon<? extends Coupon> SWAP = SWAP_DEFINITION.toDerivative(REFERENCE_DATE, CURVE_NAMES);
+  private static final SwapFixedCoupon<? extends Coupon> SWAP = SWAP_DEFINITION.toDerivative(REFERENCE_DATE);
   private static final double LAST_TRADING_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, LAST_TRADING_DATE);
   private static final double EFFECTIVE_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, EFFECTIVE_DATE);
 
@@ -62,4 +60,18 @@ public class SwapFuturesPriceDeliverableSecurityTest {
     assertEquals("DeliverableSwapFuturesSecurity: getter", NOTIONAL, SWAP_FUTURES_SECURITY.getNotional());
   }
 
+  @Test
+  public void testHashCodeEquals() {
+    SwapFuturesPriceDeliverableSecurity other = new SwapFuturesPriceDeliverableSecurity(LAST_TRADING_TIME, EFFECTIVE_TIME, SWAP, NOTIONAL);
+    assertEquals(SWAP_FUTURES_SECURITY, other);
+    assertEquals(SWAP_FUTURES_SECURITY.hashCode(), other.hashCode());
+    other = new SwapFuturesPriceDeliverableSecurity(LAST_TRADING_TIME + 1, EFFECTIVE_TIME, SWAP, NOTIONAL);
+    assertFalse(other.equals(SWAP_FUTURES_SECURITY));
+    other = new SwapFuturesPriceDeliverableSecurity(LAST_TRADING_TIME, EFFECTIVE_TIME, SWAP.withNotional(NOTIONAL + 1), NOTIONAL);
+    assertFalse(other.equals(SWAP_FUTURES_SECURITY));
+    other = new SwapFuturesPriceDeliverableSecurity(LAST_TRADING_TIME, EFFECTIVE_TIME + 1, SWAP, NOTIONAL);
+    assertFalse(other.equals(SWAP_FUTURES_SECURITY));
+    other = new SwapFuturesPriceDeliverableSecurity(LAST_TRADING_TIME, EFFECTIVE_TIME, SWAP, NOTIONAL + 1);
+    assertFalse(other.equals(SWAP_FUTURES_SECURITY));
+  }
 }

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.capletstripping;
@@ -16,9 +16,6 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.financial.model.finitedifference.ThetaMethodFiniteDifferenceTest;
-import com.opengamma.analytics.financial.model.volatility.SimpleOptionData;
-import com.opengamma.analytics.financial.model.volatility.VolatilityModel1D;
 import com.opengamma.analytics.financial.model.volatility.VolatilityTermStructure;
 import com.opengamma.analytics.financial.model.volatility.curve.VolatilityCurve;
 import com.opengamma.analytics.math.curve.FunctionalDoublesCurve;
@@ -26,7 +23,7 @@ import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.util.monitor.OperationTimer;
 
 /**
- * 
+ *
  */
 public class MultiCapFloorPricerTest extends CapletStrippingSetup {
   private static final Logger LOGGER = LoggerFactory.getLogger(MultiCapFloorPricerTest.class);
@@ -37,7 +34,7 @@ public class MultiCapFloorPricerTest extends CapletStrippingSetup {
 
     final Function1D<Double, Double> vol = new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(Double t) {
+      public Double evaluate(final Double t) {
         return 0.3 + 0.8 * Math.exp(-0.3 * t);
       }
     };
@@ -51,14 +48,14 @@ public class MultiCapFloorPricerTest extends CapletStrippingSetup {
     // for each strike make a set of caps at that strike
     final int nStrikes = getNumberOfStrikes();
     for (int i = 0; i < nStrikes; i++) {
-      List<CapFloor> caps = getCaps(i);
+      final List<CapFloor> caps = getCaps(i);
       final int n = caps.size();
-      MultiCapFloorPricer multiPricer = new MultiCapFloorPricer(caps, yieldCurve);
-      double[] prices = multiPricer.price(VOL);
+      final MultiCapFloorPricer multiPricer = new MultiCapFloorPricer(caps, yieldCurve);
+      final double[] prices = multiPricer.price(VOL);
       assertEquals("wrong number of prices", n, prices.length);
       for (int j = 0; j < n; j++) {
-        CapFloorPricer pricer = new CapFloorPricer(caps.get(j), yieldCurve);
-        double p = pricer.price(VOL);
+        final CapFloorPricer pricer = new CapFloorPricer(caps.get(j), yieldCurve);
+        final double p = pricer.price(VOL);
         assertEquals(p, prices[j], 1e-13);
       }
     }
@@ -71,14 +68,14 @@ public class MultiCapFloorPricerTest extends CapletStrippingSetup {
     // for each strike make a set of caps at that strike
     final int nStrikes = getNumberOfStrikes();
     for (int i = 0; i < nStrikes; i++) {
-      List<CapFloor> caps = getCaps(i);
+      final List<CapFloor> caps = getCaps(i);
       final int n = caps.size();
-      MultiCapFloorPricer multiPricer = new MultiCapFloorPricer(caps, yieldCurve);
-      double[] vols = multiPricer.impliedVols(VOL);
+      final MultiCapFloorPricer multiPricer = new MultiCapFloorPricer(caps, yieldCurve);
+      final double[] vols = multiPricer.impliedVols(VOL);
       assertEquals("wrong number of prices", n, vols.length);
       for (int j = 0; j < n; j++) {
-        CapFloorPricer pricer = new CapFloorPricer(caps.get(j), yieldCurve);
-        double v = pricer.impliedVol(VOL);
+        final CapFloorPricer pricer = new CapFloorPricer(caps.get(j), yieldCurve);
+        final double v = pricer.impliedVol(VOL);
         assertEquals(v, vols[j], 1e-9);
       }
     }
@@ -92,29 +89,29 @@ public class MultiCapFloorPricerTest extends CapletStrippingSetup {
     final YieldCurveBundle yieldCurve = getYieldCurves();
     final int nStrikes = getNumberOfStrikes();
     for (int strikeIndex = 0; strikeIndex < nStrikes; strikeIndex++) {
-      List<CapFloor> caps = getCaps(strikeIndex);
+      final List<CapFloor> caps = getCaps(strikeIndex);
       final int n = caps.size();
-      MultiCapFloorPricer multiPricer = new MultiCapFloorPricer(caps, yieldCurve);
+      final MultiCapFloorPricer multiPricer = new MultiCapFloorPricer(caps, yieldCurve);
       final int m = multiPricer.getTotalNumberOfCaplets();
       final double[] capletVols = new double[m];
       Arrays.fill(capletVols, 0.5);
 
-      double[] capletPrices = multiPricer.priceFromCapletVols(capletVols);
+      final double[] capletPrices = multiPricer.priceFromCapletVols(capletVols);
       // calculate vega by finite difference
-      double[][] fdVega = new double[n][m];
+      final double[][] fdVega = new double[n][m];
       for (int j = 0; j < m; j++) {
-        double temp = capletVols[j];
+        final double temp = capletVols[j];
         capletVols[j] += eps;
-        double[] up = multiPricer.priceFromCapletVols(capletVols);
+        final double[] up = multiPricer.priceFromCapletVols(capletVols);
         capletVols[j] -= 2 * eps;
-        double[] down = multiPricer.priceFromCapletVols(capletVols);
+        final double[] down = multiPricer.priceFromCapletVols(capletVols);
         capletVols[j] = temp;
         for (int i = 0; i < n; i++) {
           fdVega[i][j] = (up[i] - down[i]) / 2 / eps;
         }
       }
 
-      double[][] vega = multiPricer.vegaFromCapletVols(capletVols).getData();
+      final double[][] vega = multiPricer.vegaFromCapletVols(capletVols).getData();
       for (int i = 0; i < n; i++) {
         for (int j = 0; j < m; j++) {
           assertEquals(i + "\t" + j, fdVega[i][j], vega[i][j], Math.max(1e-12, 1e-8 * capletPrices[i]));
@@ -134,11 +131,11 @@ public class MultiCapFloorPricerTest extends CapletStrippingSetup {
     final YieldCurveBundle yieldCurve = getYieldCurves();
 
     final int nStrikes = getNumberOfStrikes();
-    MultiCapFloorPricer[] multiPricers = new MultiCapFloorPricer[nStrikes];
-    CapFloorPricer[][] pricers = new CapFloorPricer[nStrikes][];
-    List<List<CapFloor>> allCaps = new ArrayList<>(nStrikes);
+    final MultiCapFloorPricer[] multiPricers = new MultiCapFloorPricer[nStrikes];
+    final CapFloorPricer[][] pricers = new CapFloorPricer[nStrikes][];
+    final List<List<CapFloor>> allCaps = new ArrayList<>(nStrikes);
     for (int i = 0; i < nStrikes; i++) {
-      List<CapFloor> caps = getCaps(i);
+      final List<CapFloor> caps = getCaps(i);
       multiPricers[i] = new MultiCapFloorPricer(caps, yieldCurve);
       final int n = caps.size();
       pricers[i] = new CapFloorPricer[n];
@@ -149,7 +146,7 @@ public class MultiCapFloorPricerTest extends CapletStrippingSetup {
 
     for (int count = 0; count < warmup; count++) {
       for (int i = 0; i < nStrikes; i++) {
-        double[] prices = multiPricers[i].price(VOL);
+        final double[] prices = multiPricers[i].price(VOL);
       }
     }
 
@@ -157,7 +154,7 @@ public class MultiCapFloorPricerTest extends CapletStrippingSetup {
       final OperationTimer timer = new OperationTimer(LOGGER, "processing {} cycles on timeTest - multiPricer", benchmarkCycles);
       for (int count = 0; count < benchmarkCycles; count++) {
         for (int i = 0; i < nStrikes; i++) {
-          double[] prices = multiPricers[i].price(VOL);
+          final double[] prices = multiPricers[i].price(VOL);
         }
       }
       timer.finished();
@@ -167,7 +164,7 @@ public class MultiCapFloorPricerTest extends CapletStrippingSetup {
       for (int i = 0; i < nStrikes; i++) {
         final int n = pricers[i].length;
         for (int j = 0; j < n; j++) {
-          double p = pricers[i][j].price(VOL);
+          final double p = pricers[i][j].price(VOL);
         }
       }
     }
@@ -178,7 +175,7 @@ public class MultiCapFloorPricerTest extends CapletStrippingSetup {
         for (int i = 0; i < nStrikes; i++) {
           final int n = pricers[i].length;
           for (int j = 0; j < n; j++) {
-            double p = pricers[i][j].price(VOL);
+            final double p = pricers[i][j].price(VOL);
           }
         }
       }
@@ -198,11 +195,11 @@ public class MultiCapFloorPricerTest extends CapletStrippingSetup {
     final YieldCurveBundle yieldCurve = getYieldCurves();
 
     final int nStrikes = getNumberOfStrikes();
-    MultiCapFloorPricer[] multiPricers = new MultiCapFloorPricer[nStrikes];
-    CapFloorPricer[][] pricers = new CapFloorPricer[nStrikes][];
-    List<List<CapFloor>> allCaps = new ArrayList<>(nStrikes);
+    final MultiCapFloorPricer[] multiPricers = new MultiCapFloorPricer[nStrikes];
+    final CapFloorPricer[][] pricers = new CapFloorPricer[nStrikes][];
+    final List<List<CapFloor>> allCaps = new ArrayList<>(nStrikes);
     for (int i = 0; i < nStrikes; i++) {
-      List<CapFloor> caps = getCaps(i);
+      final List<CapFloor> caps = getCaps(i);
       multiPricers[i] = new MultiCapFloorPricer(caps, yieldCurve);
       final int n = caps.size();
       pricers[i] = new CapFloorPricer[n];
@@ -213,7 +210,7 @@ public class MultiCapFloorPricerTest extends CapletStrippingSetup {
 
     for (int count = 0; count < warmup; count++) {
       for (int i = 0; i < nStrikes; i++) {
-        double[] vols = multiPricers[i].impliedVols(VOL);
+        final double[] vols = multiPricers[i].impliedVols(VOL);
       }
     }
 
@@ -221,7 +218,7 @@ public class MultiCapFloorPricerTest extends CapletStrippingSetup {
       final OperationTimer timer = new OperationTimer(LOGGER, "processing {} cycles on timeTest - multiPricer", benchmarkCycles);
       for (int count = 0; count < benchmarkCycles; count++) {
         for (int i = 0; i < nStrikes; i++) {
-          double[] vols = multiPricers[i].impliedVols(VOL);
+          final double[] vols = multiPricers[i].impliedVols(VOL);
         }
       }
       timer.finished();
@@ -231,7 +228,7 @@ public class MultiCapFloorPricerTest extends CapletStrippingSetup {
       for (int i = 0; i < nStrikes; i++) {
         final int n = pricers[i].length;
         for (int j = 0; j < n; j++) {
-          double v = pricers[i][j].impliedVol(VOL);
+          final double v = pricers[i][j].impliedVol(VOL);
         }
       }
     }
@@ -242,7 +239,7 @@ public class MultiCapFloorPricerTest extends CapletStrippingSetup {
         for (int i = 0; i < nStrikes; i++) {
           final int n = pricers[i].length;
           for (int j = 0; j < n; j++) {
-            double v = pricers[i][j].impliedVol(VOL);
+            final double v = pricers[i][j].impliedVol(VOL);
           }
         }
       }

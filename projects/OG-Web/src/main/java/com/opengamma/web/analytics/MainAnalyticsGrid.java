@@ -32,31 +32,38 @@ import com.opengamma.util.tuple.Pair;
  * portfolio
  * (primitives). This class isn't thread safe.
  */
-/* package */abstract class MainAnalyticsGrid extends AnalyticsGrid<MainGridViewport> {
+/* package */abstract class MainAnalyticsGrid<T extends MainGridViewport> extends AnalyticsGrid<T> {
 
-  /** Row and column structure of the grid. */
-  private final MainGridStructure _gridStructure;
   /** Type of data in the grid, portfolio or primitives. */
   private final AnalyticsView.GridType _gridType;
   /** Dependency graph grids for cells in this grid, keyed by grid ID. */
   private final Map<Integer, DependencyGraphGrid> _depGraphs = Maps.newHashMap();
   /** For looking up calculation targets using their specifications. */
   private final ComputationTargetResolver _targetResolver;
-
   /** The calculation cycle used to calculate the most recent set of results. */
   private ViewCycle _cycle = EmptyViewCycle.INSTANCE;
 
   /* package */MainAnalyticsGrid(AnalyticsView.GridType gridType,
-                                 MainGridStructure gridStructure,
                                  String gridId,
                                  ComputationTargetResolver targetResolver,
                                  ViewportListener viewportListener) {
     super(viewportListener, gridId);
     ArgumentChecker.notNull(gridType, "gridType");
-    ArgumentChecker.notNull(gridStructure, "gridStructure");
     ArgumentChecker.notNull(targetResolver, "targetResolver");
     _gridType = gridType;
-    _gridStructure = gridStructure;
+    _targetResolver = targetResolver;
+  }
+
+  /* package */MainAnalyticsGrid(AnalyticsView.GridType gridType,
+                                 String gridId,
+                                 ComputationTargetResolver targetResolver,
+                                 ViewportListener viewportListener,
+                                 Map<Integer, T> viewports) {
+    super(viewportListener, gridId, viewports);
+    ArgumentChecker.notNull(gridType, "gridType");
+    ArgumentChecker.notNull(targetResolver, "targetResolver");
+    ArgumentChecker.notNull(viewports, "viewports");
+    _gridType = gridType;
     _targetResolver = targetResolver;
   }
 
@@ -65,7 +72,7 @@ import com.opengamma.util.tuple.Pair;
    *
    * @param cache Cache of calculation results
    * @param cycle Calculation cycle that calculated the latest results
-   * @return List of IDs specifiying the viewports whose data has changed as a result of the new update
+   * @return List of IDs specifying the viewports whose data has changed as a result of the new update
    */
   /* package */List<String> updateResults(ResultsCache cache, ViewCycle cycle) {
     _cycle = cycle;
@@ -85,7 +92,7 @@ import com.opengamma.util.tuple.Pair;
   // -------- dependency graph grids --------
 
   /**
-   * Opens a depdency graph grid showing the steps used to calculate a cell's value.
+   * Opens a dependency graph grid showing the steps used to calculate a cell's value.
    *
    * @param graphId Unique ID of the dependency graph
    * @param gridId ID passed to listeners when the grid's row and column structure changes, this can be any unique value
@@ -103,13 +110,13 @@ import com.opengamma.util.tuple.Pair;
     if (_depGraphs.containsKey(graphId)) {
       throw new IllegalArgumentException("Dependency graph ID " + graphId + " is already in use");
     }
-    Pair<String, ValueSpecification> targetForCell = _gridStructure.getTargetForCell(row, col);
+    Pair<String, ValueSpecification> targetForCell = getGridStructure().getTargetForCell(row, col);
     if (targetForCell == null) {
       throw new DataNotFoundException("No dependency graph is available for row " + row + ", col " + col);
     }
     String calcConfigName = targetForCell.getFirst();
     ValueSpecification valueSpec = targetForCell.getSecond();
-    MainGridStructure.Row gridRow = _gridStructure.getTargetLookup().getRow(row);
+    MainGridStructure.Row gridRow = getGridStructure().getTargetLookup().getRow(row);
     DependencyGraphGrid grid = DependencyGraphGrid.create(compiledViewDef, valueSpec, calcConfigName, _cycle, gridId,
                                                           _targetResolver, viewportListener, gridRow.getName());
     _depGraphs.put(graphId, grid);
@@ -160,6 +167,7 @@ import com.opengamma.util.tuple.Pair;
    * @param graphId  the ID of the dependency graph
    * @param viewportId  the ID of the viewport, can be any unique value
    * @param callbackId  the ID passed to listeners when the viewport's data changes, can be any unique value
+   * @param structureCallbackId  the ID passed to listeners when the viewport's structure changes, can be any unique value
    * @param viewportDefinition  the definition of the viewport
    * @param cache  the cache
    * @return true if there is data available for the new viewport
@@ -167,15 +175,14 @@ import com.opengamma.util.tuple.Pair;
   /* package */boolean createViewport(int graphId,
                                       int viewportId,
                                       String callbackId,
+                                      String structureCallbackId,
                                       ViewportDefinition viewportDefinition,
                                       ResultsCache cache) {
-    return getDependencyGraph(graphId).createViewport(viewportId, callbackId, viewportDefinition, cache);
+    return getDependencyGraph(graphId).createViewport(viewportId, callbackId, structureCallbackId, viewportDefinition, cache);
   }
 
-  @Override
-  MainGridViewport createViewport(ViewportDefinition viewportDefinition, String callbackId, ResultsCache cache) {
-    return new MainGridViewport(_gridStructure, callbackId, viewportDefinition, _cycle, cache);
-  }
+   @Override
+  abstract T createViewport(ViewportDefinition viewportDefinition, String callbackId, String structureCallbackId, ResultsCache cache);
 
   /**
    * Updates an existing viewport on a dependency graph grid
@@ -218,7 +225,7 @@ import com.opengamma.util.tuple.Pair;
   }
 
   /**
-   * @return The IDs for all depdendency graph grids that are sent to listeners when the grid structure changes
+   * @return The IDs for all dependency graph grids that are sent to listeners when the grid structure changes
    */
   /* package */List<String> getDependencyGraphCallbackIds() {
     List<String> gridIds = Lists.newArrayList();
@@ -232,9 +239,7 @@ import com.opengamma.util.tuple.Pair;
    * @return The row and column structure of the main grid
    */
   @Override
-  public GridStructure getGridStructure() {
-    return _gridStructure;
-  }
+  abstract MainGridStructure getGridStructure();
 
   @Override
   protected ViewCycle getViewCycle() {

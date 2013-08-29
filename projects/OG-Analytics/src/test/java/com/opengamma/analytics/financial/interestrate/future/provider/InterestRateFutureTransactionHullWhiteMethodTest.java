@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.provider;
@@ -50,9 +50,6 @@ public class InterestRateFutureTransactionHullWhiteMethodTest {
   private static final String NAME = "ERU2";
   private static final int QUANTITY = 400;
 
-  private static final String NOT_USED = "Not used";
-  private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
-
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 5, 12);
   private static final ZonedDateTime TRADE_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, -1, CALENDAR);
   private static final double TRADE_PRICE = 0.99;
@@ -60,8 +57,8 @@ public class InterestRateFutureTransactionHullWhiteMethodTest {
   private static final InterestRateFutureTransactionDefinition ERU2_TRA_DEFINITION = new InterestRateFutureTransactionDefinition(ERU2_SEC_DEFINITION, TRADE_DATE, TRADE_PRICE, QUANTITY);
 
   private static final double REFERENCE_PRICE = 0.98;
-  private static final InterestRateFutureSecurity ERU2_SEC = ERU2_SEC_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
-  private static final InterestRateFutureTransaction ERU2_TRA = ERU2_TRA_DEFINITION.toDerivative(REFERENCE_DATE, REFERENCE_PRICE, NOT_USED_A);
+  private static final InterestRateFutureSecurity ERU2_SEC = ERU2_SEC_DEFINITION.toDerivative(REFERENCE_DATE);
+  private static final InterestRateFutureTransaction ERU2_TRA = ERU2_TRA_DEFINITION.toDerivative(REFERENCE_DATE, REFERENCE_PRICE);
 
   private static final double MEAN_REVERSION = 0.01;
   private static final double[] VOLATILITY = new double[] {0.01, 0.011, 0.012, 0.013, 0.014};

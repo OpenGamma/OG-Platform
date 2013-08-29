@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.derivative;
@@ -63,10 +63,7 @@ public class BondFutureTransactionTest {
   private static final BondFuturesSecurityDefinition BOND_FUTURE_SECURITY_DEFINITION = new BondFuturesSecurityDefinition(LAST_TRADING_DATE, FIRST_NOTICE_DATE, LAST_NOTICE_DATE, NOTIONAL,
       BASKET_DEFINITION, CONVERSION_FACTOR);
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 6, 20);
-  private static final String CREDIT_CURVE_NAME = "Credit";
-  private static final String REPO_CURVE_NAME = "Repo";
-  private static final String[] CURVES_NAME = {CREDIT_CURVE_NAME, REPO_CURVE_NAME };
-  private static final BondFuturesSecurity BOND_FUTURE_SECURITY = BOND_FUTURE_SECURITY_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
+  private static final BondFuturesSecurity BOND_FUTURE_SECURITY = BOND_FUTURE_SECURITY_DEFINITION.toDerivative(REFERENCE_DATE);
   // Transaction
   private static final int QUANTITY = 4321;
   private static final double REFERENCE_PRICE = 1.0987;
@@ -93,7 +90,7 @@ public class BondFutureTransactionTest {
    */
   public void equalHash() {
     assertTrue(FUTURE_TRANSACTION.equals(FUTURE_TRANSACTION));
-    BondFuturesTransaction other = new BondFuturesTransaction(BOND_FUTURE_SECURITY, QUANTITY, REFERENCE_PRICE);
+    final BondFuturesTransaction other = new BondFuturesTransaction(BOND_FUTURE_SECURITY, QUANTITY, REFERENCE_PRICE);
     assertTrue(FUTURE_TRANSACTION.equals(other));
     assertTrue(FUTURE_TRANSACTION.hashCode() == other.hashCode());
     BondFuturesTransaction modifiedFuture;
@@ -101,7 +98,7 @@ public class BondFutureTransactionTest {
     assertFalse(FUTURE_TRANSACTION.equals(modifiedFuture));
     modifiedFuture = new BondFuturesTransaction(BOND_FUTURE_SECURITY, QUANTITY, REFERENCE_PRICE + 0.001);
     assertFalse(FUTURE_TRANSACTION.equals(modifiedFuture));
-    BondFuturesSecurity otherUnderlying = BOND_FUTURE_SECURITY_DEFINITION.toDerivative(ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, 1, CALENDAR), CURVES_NAME);
+    final BondFuturesSecurity otherUnderlying = BOND_FUTURE_SECURITY_DEFINITION.toDerivative(ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, 1, CALENDAR));
     modifiedFuture = new BondFuturesTransaction(otherUnderlying, QUANTITY, REFERENCE_PRICE);
     assertFalse(FUTURE_TRANSACTION.equals(modifiedFuture));
     assertFalse(FUTURE_TRANSACTION.equals(CUR));

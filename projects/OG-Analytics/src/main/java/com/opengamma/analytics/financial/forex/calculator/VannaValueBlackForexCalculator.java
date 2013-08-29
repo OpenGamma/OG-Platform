@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.forex.calculator;
@@ -15,7 +15,9 @@ import com.opengamma.util.money.CurrencyAmount;
 
 /**
  * Calculator of the vanna (2nd order cross sensitivity to spot and implied volatility for Forex derivatives in the Black (Garman-Kohlhagen) world.
+ * @deprecated Curve builders that use and populate {@link YieldCurveBundle}s are deprecated.
  */
+@Deprecated
 public class VannaValueBlackForexCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, CurrencyAmount> {
 
   /**

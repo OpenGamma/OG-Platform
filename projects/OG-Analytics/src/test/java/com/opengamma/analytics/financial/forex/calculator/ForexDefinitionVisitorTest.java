@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.forex.calculator;
@@ -34,7 +34,7 @@ public class ForexDefinitionVisitorTest {
   private static final ForexOptionDigitalDefinition FX_OPTION_DIGITAL_DEFINITION = ForexInstrumentsDescriptionDataSet.createForexOptionDigitalDefinition();
 
   @SuppressWarnings("synthetic-access")
-  private static final MyVisitor<Object, String> VISITOR = new MyVisitor<Object, String>();
+  private static final MyVisitor<Object> VISITOR = new MyVisitor<>();
 
   @Test
   public void testVisitor() {
@@ -55,7 +55,7 @@ public class ForexDefinitionVisitorTest {
     assertEquals(FX_OPTION_DIGITAL_DEFINITION.accept(VISITOR, o), "ForexOptionDigital2");
   }
 
-  private static class MyVisitor<T, U> extends InstrumentDefinitionVisitorAdapter<T, String> {
+  private static class MyVisitor<T> extends InstrumentDefinitionVisitorAdapter<T, String> {
 
     @Override
     public String visitForexDefinition(final ForexDefinition fx, final T data) {
@@ -128,12 +128,12 @@ public class ForexDefinitionVisitorTest {
     }
 
     @Override
-    public String visitCDSDefinition(ISDACDSDefinition cds, T data) {
+    public String visitCDSDefinition(final ISDACDSDefinition cds, final T data) {
       return null;
     }
 
     @Override
-    public String visitCDSDefinition(ISDACDSDefinition cds) {
+    public String visitCDSDefinition(final ISDACDSDefinition cds) {
       return null;
     }
   }

@@ -12,6 +12,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Iterables;
@@ -19,7 +21,8 @@ import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantCreditCurve;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantYieldCurve;
 import com.opengamma.analytics.math.curve.NodalObjectsCurve;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.organization.OrganizationSource;
@@ -68,6 +71,7 @@ import com.opengamma.util.time.Tenor;
 public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCompiledInvoker {
   private static final BusinessDayConvention FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   private final String[] _valueRequirements;
+  private static final Logger s_logger = LoggerFactory.getLogger(StandardVanillaCDSFunction.class);
 
   public StandardVanillaCDSFunction(final String... valueRequirements) {
     ArgumentChecker.notNull(valueRequirements, "value requirements");
@@ -86,9 +90,11 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
     final CreditDefaultSwapSecurity security = (CreditDefaultSwapSecurity) target.getSecurity();
     final Calendar calendar = new HolidaySourceCalendarAdapter(holidaySource, FinancialSecurityUtils.getCurrency(security));
     final CdsRecoveryRateIdentifier recoveryRateIdentifier = security.accept(new CreditSecurityToRecoveryRateVisitor(securitySource));
-    final Object recoveryRateObject = inputs.getValue(new ValueRequirement("PX_LAST", ComputationTargetType.PRIMITIVE, recoveryRateIdentifier.getExternalId()));
+    Object recoveryRateObject = inputs.getValue(new ValueRequirement("PX_LAST", ComputationTargetType.PRIMITIVE, recoveryRateIdentifier.getExternalId()));
     if (recoveryRateObject == null) {
-      throw new OpenGammaRuntimeException("Could not get recovery rate");
+      //throw new OpenGammaRuntimeException("Could not get recovery rate");
+      s_logger.warn("Could not get recovery rate, defaulting to 0.4: " + recoveryRateIdentifier);
+      recoveryRateObject = 0.4;
     }
     final double recoveryRate = (Double) recoveryRateObject;
     LegacyVanillaCreditDefaultSwapDefinition definition = (LegacyVanillaCreditDefaultSwapDefinition) security.accept(converter);
@@ -102,7 +108,7 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
     if (spreadCurveObject == null) {
       throw new OpenGammaRuntimeException("Could not get credit spread curve");
     }
-    final ISDADateCurve yieldCurve = (ISDADateCurve) yieldCurveObject;
+    final ISDACompliantYieldCurve yieldCurve = (ISDACompliantYieldCurve) yieldCurveObject;
     final NodalObjectsCurve<?, ?> spreadCurve = (NodalObjectsCurve<?, ?>) spreadCurveObject;
     final Tenor[] tenors = CreditFunctionUtils.getTenors(spreadCurve.getXData());
     final Double[] marketSpreadObjects = CreditFunctionUtils.getSpreads(spreadCurve.getYData());
@@ -112,12 +118,13 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
     final double[] marketSpreads = new double[n];
     for (int i = 0; i < n; i++) {
       times[i] = IMMDateGenerator.getNextIMMDate(valuationTime, tenors[i]).withHour(0).withMinute(0).withSecond(0).withNano(0);
-      marketSpreads[i] = marketSpreadObjects[i];
+      marketSpreads[i] = marketSpreadObjects[i] * 1e-4;
     }
+    ISDACompliantCreditCurve hazardCurve = (ISDACompliantCreditCurve) inputs.getValue(ValueRequirementNames.HAZARD_RATE_CURVE);
     final ValueProperties properties = desiredValues.iterator().next().getConstraints().copy()
         .with(ValuePropertyNames.FUNCTION, getUniqueId())
         .get();
-    return getComputedValue(definition, yieldCurve, times, marketSpreads, valuationTime, target, properties, inputs);
+    return getComputedValue(definition, yieldCurve, times, marketSpreads, valuationTime, target, properties, inputs, hazardCurve);
   }
 
   @Override
@@ -218,11 +225,28 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
     return results;
   }
 
-  protected abstract Set<ComputedValue> getComputedValue(CreditDefaultSwapDefinition definition, ISDADateCurve yieldCurve, ZonedDateTime[] times, double[] marketSpreads,
-      ZonedDateTime valuationTime, ComputationTarget target, ValueProperties properties, FunctionInputs inputs);
+  protected abstract Set<ComputedValue> getComputedValue(CreditDefaultSwapDefinition definition,
+                                                         ISDACompliantYieldCurve yieldCurve,
+                                                         ZonedDateTime[] times,
+                                                         double[] marketSpreads,
+                                                         ZonedDateTime valuationTime,
+                                                         ComputationTarget target,
+                                                         ValueProperties properties,
+                                                         FunctionInputs inputs,
+                                                         ISDACompliantCreditCurve hazardCurve);
 
   protected abstract ValueProperties.Builder getCommonResultProperties();
 
   protected abstract boolean labelResultWithCurrency();
+
+  @Override
+  public boolean canHandleMissingInputs() {
+    return true;
+  }
+
+  @Override
+  public boolean canHandleMissingRequirements() {
+    return true;
+  }
 
 }

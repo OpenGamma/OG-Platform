@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.swaption.method;
@@ -38,7 +38,9 @@ import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the pricing and sensitivities of Swaption physical delivary on swaps with spread. The option is priced with a Black implied volatility.
+ * @deprecated This class tests deprecated functionality.
  */
+@Deprecated
 public class SwaptionPhysicalFixedIborSpreadBlackMethodTest {
 
   private static final Calendar TARGET = new MondayToFridayCalendar("TARGET");

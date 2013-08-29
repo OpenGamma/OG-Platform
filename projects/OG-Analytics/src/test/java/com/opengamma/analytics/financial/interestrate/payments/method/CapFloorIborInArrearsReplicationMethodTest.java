@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.method;
@@ -41,7 +41,9 @@ import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests regarding the pricing of in-arrears Ibor products by replication.
+ * @deprecated This class tests deprecated functionality.
  */
+@Deprecated
 public class CapFloorIborInArrearsReplicationMethodTest {
 
   // Euribor 6m
@@ -52,7 +54,7 @@ public class CapFloorIborInArrearsReplicationMethodTest {
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
   private static final Currency CUR = Currency.EUR;
-  private static final IborIndex INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
+  private static final IborIndex INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM, "Ibor");
   // Dates
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 6, 7);
   private static final ZonedDateTime START_ACCRUAL_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofYears(9), BUSINESS_DAY, CALENDAR, IS_EOM);
@@ -160,13 +162,11 @@ public class CapFloorIborInArrearsReplicationMethodTest {
     long startTime, endTime;
     final int nbTest = 100;
     final double[] prices = new double[nbTest];
-    double sum = 0.0;
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
       final CapFloorIborSABRExtrapolationRightMethod methodSABRExtraStd = new CapFloorIborSABRExtrapolationRightMethod(CUT_OFF_STRIKE, MU); //To start with a "clean" method
       final CapFloorIborInArrearsGenericReplicationMethod methodSABRExtraIA = new CapFloorIborInArrearsGenericReplicationMethod(methodSABRExtraStd);
       prices[looptest] = methodSABRExtraIA.presentValue(CAP_LONG, SABR_BUNDLE).getAmount();
-      sum += prices[looptest];
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " IA cap by replication (price): " + (endTime - startTime) + " ms");

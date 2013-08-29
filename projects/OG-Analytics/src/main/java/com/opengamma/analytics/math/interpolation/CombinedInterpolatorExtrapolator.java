@@ -82,6 +82,22 @@ public class CombinedInterpolatorExtrapolator extends Interpolator1D {
   }
 
   @Override
+  public double firstDerivative(final Interpolator1DDataBundle data, final Double value) {
+    Validate.notNull(data, "data");
+    Validate.notNull(value, "value");
+    if (value < data.firstKey()) {
+      if (_leftExtrapolator != null) {
+        return _leftExtrapolator.firstDerivative(data, value);
+      }
+    } else if (value > data.lastKey()) {
+      if (_rightExtrapolator != null) {
+        return _rightExtrapolator.firstDerivative(data, value);
+      }
+    }
+    return _interpolator.firstDerivative(data, value);
+  }
+
+  @Override
   public double[] getNodeSensitivitiesForValue(final Interpolator1DDataBundle data, final Double value) {
     Validate.notNull(data, "data");
     Validate.notNull(value, "value");

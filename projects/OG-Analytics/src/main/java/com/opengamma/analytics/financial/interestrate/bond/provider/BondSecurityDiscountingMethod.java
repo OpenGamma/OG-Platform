@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.bond.provider;
@@ -121,7 +121,7 @@ public final class BondSecurityDiscountingMethod {
   }
 
   /**
-   * 
+   *
    * @param bond The bond security.
    * @param issuerMulticurves The issuer and multi-curves provider.
    * @param zSpread The z-spread.
@@ -344,6 +344,17 @@ public final class BondSecurityDiscountingMethod {
    */
   public double modifiedDurationFromDirtyPrice(final BondFixedSecurity bond, final double dirtyPrice) {
     final double yield = yieldFromDirtyPrice(bond, dirtyPrice);
+    return modifiedDurationFromYield(bond, yield);
+  }
+
+  /**
+   * Computes the modified duration of a bond from the clean price.
+   * @param bond  The bond security.
+   * @param cleanPrice The bond clean price.
+   * @return The modified duration.
+   */
+  public double modifiedDurationFromCleanPrice(final BondFixedSecurity bond, final double cleanPrice) {
+    final double yield = yieldFromCleanPrice(bond, cleanPrice);
     return modifiedDurationFromYield(bond, yield);
   }
 

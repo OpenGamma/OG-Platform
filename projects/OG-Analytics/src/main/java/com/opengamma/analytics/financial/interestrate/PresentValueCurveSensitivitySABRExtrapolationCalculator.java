@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -28,7 +28,9 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Present value curve sensitivity calculator for interest rate instruments using SABR with extrapolation for high strike methods.
+ * @deprecated {@link PresentValueCurveSensitivityCalculator} is deprecated.
  */
+@Deprecated
 public final class PresentValueCurveSensitivitySABRExtrapolationCalculator extends PresentValueCurveSensitivityCalculator {
 
   /**

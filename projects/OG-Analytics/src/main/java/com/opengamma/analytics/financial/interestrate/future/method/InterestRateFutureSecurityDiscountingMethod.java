@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.method;
@@ -23,7 +23,9 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * Method to compute the price for an interest rate future with discounting (like a forward).
  * No convexity adjustment is done.
+ * @deprecated Use {@link com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureSecurityDiscountingMethod}
  */
+@Deprecated
 public final class InterestRateFutureSecurityDiscountingMethod extends InterestRateFutureSecurityMethod {
 
   /**
@@ -121,10 +123,10 @@ public final class InterestRateFutureSecurityDiscountingMethod extends InterestR
     final double ratio = curve.getDiscountFactor(ta) / curve.getDiscountFactor(tb) / future.getFixingPeriodAccrualFactor();
     final DoublesPair s1 = new DoublesPair(ta, -ta * ratio);
     final DoublesPair s2 = new DoublesPair(tb, tb * ratio);
-    final List<DoublesPair> temp = new ArrayList<DoublesPair>();
+    final List<DoublesPair> temp = new ArrayList<>();
     temp.add(s1);
     temp.add(s2);
-    final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> result = new HashMap<>();
     result.put(curveName, temp);
     return new InterestRateCurveSensitivity(result);
   }

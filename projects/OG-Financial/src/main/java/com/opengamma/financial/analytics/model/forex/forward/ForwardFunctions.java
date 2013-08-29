@@ -13,7 +13,9 @@ import com.opengamma.engine.function.config.FunctionConfigurationSource;
 
 /**
  * Function repository configuration source for the functions contained in this package.
+ * @deprecated The functions that are added to the repository are deprecated.
  */
+@Deprecated
 public class ForwardFunctions extends AbstractFunctionConfigurationBean {
 
   /**

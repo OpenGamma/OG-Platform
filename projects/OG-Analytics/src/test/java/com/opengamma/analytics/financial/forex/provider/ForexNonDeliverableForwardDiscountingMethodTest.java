@@ -31,9 +31,6 @@ public class ForexNonDeliverableForwardDiscountingMethodTest {
 
   private static final MulticurveProviderInterface MULTICURVES = MulticurveProviderDiscountForexDataSets.createMulticurvesForex();
 
-  private static final String NOT_USED = "Not used";
-  private static final String[] NOT_USED_2 = {NOT_USED, NOT_USED};
-
   private static final Currency KRW = Currency.of("KRW");
   private static final Currency USD = Currency.USD;
   private static final ZonedDateTime FIXING_DATE = DateUtils.getUTCDate(2012, 5, 2);
@@ -49,8 +46,8 @@ public class ForexNonDeliverableForwardDiscountingMethodTest {
   //  private static final double USD_KRW = 1111.11;
   private static final FXMatrix FX_MATRIX = MulticurveProviderDiscountForexDataSets.fxMatrix();
 
-  private static final ForexNonDeliverableForward NDF = NDF_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_2);
-  private static final Forex FOREX = FOREX_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_2);
+  private static final ForexNonDeliverableForward NDF = NDF_DEFINITION.toDerivative(REFERENCE_DATE);
+  private static final Forex FOREX = FOREX_DEFINITION.toDerivative(REFERENCE_DATE);
 
   private static final ForexNonDeliverableForwardDiscountingMethod METHOD_NDF = ForexNonDeliverableForwardDiscountingMethod.getInstance();
   private static final ForexDiscountingMethod METHOD_FX = ForexDiscountingMethod.getInstance();

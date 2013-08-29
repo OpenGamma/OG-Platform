@@ -182,7 +182,6 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
   protected void checkInjectedInputs() {
     s_logger.debug("Checking injected inputs.");
     ArgumentChecker.notNullInjected(_name, "id");
-    ArgumentChecker.notNullInjected(getNamedMarketDataSpecificationRepository(), "namedMarketDataSpecificationRepository");
     ArgumentChecker.notNullInjected(getFunctionCompilationService(), "functionCompilationService");
     if (getFunctionResolver() == null) {
       setFunctionResolver(new DefaultFunctionResolver(getFunctionCompilationService()));

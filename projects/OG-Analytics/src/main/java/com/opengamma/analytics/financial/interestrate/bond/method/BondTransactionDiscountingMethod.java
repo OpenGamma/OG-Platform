@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.bond.method;
@@ -23,7 +23,9 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Class with methods related to bond transaction valued by discounting.
+ * @deprecated Use {@link com.opengamma.analytics.financial.interestrate.bond.provider.BondTransactionDiscountingMethod}
  */
+@Deprecated
 public final class BondTransactionDiscountingMethod {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(BondTransactionDiscountingMethod.class);
@@ -124,7 +126,7 @@ public final class BondTransactionDiscountingMethod {
     ArgumentChecker.notNull(bond, "Bond");
     ArgumentChecker.isTrue(bond instanceof BondFixedTransaction, "Present value from clean price only for fixed coupon bond");
     final BondFixedTransaction bondFixed = (BondFixedTransaction) bond;
-    double cleanPrice = METHOD_SECURITY.cleanPriceFromYield(bondFixed.getBondStandard(), yield);
+    final double cleanPrice = METHOD_SECURITY.cleanPriceFromYield(bondFixed.getBondStandard(), yield);
     return presentValueFromCleanPrice(bond, curves, cleanPrice);
   }
 

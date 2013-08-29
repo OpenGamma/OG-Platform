@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.provider;
@@ -36,8 +36,6 @@ public class FederalFundsFutureTransactionDiscountingMethodTest {
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
   private static final IndexON INDEX_FEDFUND = MulticurveProviderDiscountDataSets.getIndexesON()[0];
   private static final Currency USD = INDEX_FEDFUND.getCurrency();
-  private static final String NOT_USED = "Not used";
-  private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
   private static final Calendar NYC = MulticurveProviderDiscountDataSets.getUSDCalendar();
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 1, 30);
@@ -50,16 +48,16 @@ public class FederalFundsFutureTransactionDiscountingMethodTest {
   private static final FederalFundsFutureTransactionDefinition FUTURE_TRANSACTION_DEFINITION = new FederalFundsFutureTransactionDefinition(FUTURE_SECURITY_DEFINITION, QUANTITY, REFERENCE_DATE,
       TRADE_PRICE);
 
-  private static final ZonedDateTime[] CLOSING_DATE = new ZonedDateTime[] {REFERENCE_DATE.minusDays(2), REFERENCE_DATE.minusDays(1), REFERENCE_DATE};
-  private static final double[] CLOSING_PRICE = new double[] {0.99895, 0.99905, 0.99915};
+  private static final ZonedDateTime[] CLOSING_DATE = new ZonedDateTime[] {REFERENCE_DATE.minusDays(2), REFERENCE_DATE.minusDays(1), REFERENCE_DATE };
+  private static final double[] CLOSING_PRICE = new double[] {0.99895, 0.99905, 0.99915 };
   private static final ZonedDateTimeDoubleTimeSeries CLOSING_TS = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(CLOSING_DATE, CLOSING_PRICE);
-  private static final ZonedDateTime[] FIXING_DATE = new ZonedDateTime[] {REFERENCE_DATE.minusDays(2), REFERENCE_DATE.minusDays(1), REFERENCE_DATE};
-  private static final double[] FIXING_RATE = new double[] {0.0010, 0.0011, 0.0009};
+  private static final ZonedDateTime[] FIXING_DATE = new ZonedDateTime[] {REFERENCE_DATE.minusDays(2), REFERENCE_DATE.minusDays(1), REFERENCE_DATE };
+  private static final double[] FIXING_RATE = new double[] {0.0010, 0.0011, 0.0009 };
   private static final ZonedDateTimeDoubleTimeSeries FIXING_TS = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(FIXING_DATE, FIXING_RATE);
-  private static final ZonedDateTimeDoubleTimeSeries[] DATA = new ZonedDateTimeDoubleTimeSeries[] {FIXING_TS, CLOSING_TS};
+  private static final ZonedDateTimeDoubleTimeSeries[] DATA = new ZonedDateTimeDoubleTimeSeries[] {FIXING_TS, CLOSING_TS };
 
-  private static final FederalFundsFutureSecurity FUTURE_SECURITY = FUTURE_SECURITY_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
-  private static final FederalFundsFutureTransaction FUTURE_TRANSACTION = FUTURE_TRANSACTION_DEFINITION.toDerivative(REFERENCE_DATE, DATA, NOT_USED_A);
+  private static final FederalFundsFutureSecurity FUTURE_SECURITY = FUTURE_SECURITY_DEFINITION.toDerivative(REFERENCE_DATE);
+  private static final FederalFundsFutureTransaction FUTURE_TRANSACTION = FUTURE_TRANSACTION_DEFINITION.toDerivative(REFERENCE_DATE, DATA);
 
   private static final FederalFundsFutureSecurityDiscountingMethod METHOD_SECURITY = FederalFundsFutureSecurityDiscountingMethod.getInstance();
   private static final FederalFundsFutureTransactionDiscountingMethod METHOD_TRANSACTION = FederalFundsFutureTransactionDiscountingMethod.getInstance();

@@ -12,7 +12,9 @@ import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 
 /**
  * Calculator of the implied volatility for Forex derivatives in the Black (Garman-Kohlhagen) world.
+ * @deprecated Curve builders that use and populate {@link YieldCurveBundle}s are deprecated.
  */
+@Deprecated
 public class ImpliedVolatilityBlackForexCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> {
 
   /**

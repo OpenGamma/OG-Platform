@@ -12,10 +12,12 @@ import com.opengamma.analytics.financial.model.option.definition.SABRInterestRat
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
+import com.opengamma.financial.analytics.model.sabr.SABRDiscountingFunction;
 
 /**
- *
+ * @deprecated Use descendants of {@link SABRDiscountingFunction}
  */
+@Deprecated
 public abstract class SABRCMSSpreadNoExtrapolationPVSABRSensitivityFunction extends SABRCMSSpreadNoExtrapolationFunction {
   private static final PresentValueSABRSensitivitySABRCalculator CALCULATOR = PresentValueSABRSensitivitySABRCalculator.getInstance();
 
@@ -38,7 +40,7 @@ public abstract class SABRCMSSpreadNoExtrapolationPVSABRSensitivityFunction exte
 
     @Override
     protected DoubleLabelledMatrix2D getResultAsMatrix(final PresentValueSABRSensitivityDataBundle sensitivities) {
-      return SABRCubeUtil.toDoubleLabelledMatrix2D(sensitivities.getAlpha());
+      return SABRCubeUtils.toDoubleLabelledMatrix2D(sensitivities.getAlpha());
     }
 
   }
@@ -55,7 +57,7 @@ public abstract class SABRCMSSpreadNoExtrapolationPVSABRSensitivityFunction exte
 
     @Override
     protected DoubleLabelledMatrix2D getResultAsMatrix(final PresentValueSABRSensitivityDataBundle sensitivities) {
-      return SABRCubeUtil.toDoubleLabelledMatrix2D(sensitivities.getRho());
+      return SABRCubeUtils.toDoubleLabelledMatrix2D(sensitivities.getRho());
     }
 
   }
@@ -72,7 +74,7 @@ public abstract class SABRCMSSpreadNoExtrapolationPVSABRSensitivityFunction exte
 
     @Override
     protected DoubleLabelledMatrix2D getResultAsMatrix(final PresentValueSABRSensitivityDataBundle sensitivities) {
-      return SABRCubeUtil.toDoubleLabelledMatrix2D(sensitivities.getNu());
+      return SABRCubeUtils.toDoubleLabelledMatrix2D(sensitivities.getNu());
     }
 
   }

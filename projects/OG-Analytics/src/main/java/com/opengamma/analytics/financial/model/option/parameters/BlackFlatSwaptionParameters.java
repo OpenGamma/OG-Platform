@@ -1,16 +1,16 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.option.parameters;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
 import com.opengamma.analytics.financial.model.volatility.VolatilityModel;
 import com.opengamma.analytics.math.surface.Surface;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -33,8 +33,8 @@ public class BlackFlatSwaptionParameters implements VolatilityModel<double[]> {
    * @param generatorSwap The standard swap generator for which the volatility surface is valid.
    */
   public BlackFlatSwaptionParameters(final Surface<Double, Double, Double> volatility, final GeneratorSwapFixedIbor generatorSwap) {
-    Validate.notNull(volatility, "volatility surface");
-    Validate.notNull(generatorSwap, "Swap generator");
+    ArgumentChecker.notNull(volatility, "volatility surface");
+    ArgumentChecker.notNull(generatorSwap, "Swap generator");
     _volatility = volatility;
     _generatorSwap = generatorSwap;
   }
@@ -65,8 +65,8 @@ public class BlackFlatSwaptionParameters implements VolatilityModel<double[]> {
    * @return The volatility.
    */
   public Double getVolatility(final double[] data) {
-    Validate.notNull(data, "data");
-    Validate.isTrue(data.length == 2, "data should have two components (expiration, instrument tenor)");
+    ArgumentChecker.notNull(data, "data");
+    ArgumentChecker.isTrue(data.length == 2, "data should have two components (expiration, instrument tenor)");
     return getVolatility(data[0], data[1]);
   }
 

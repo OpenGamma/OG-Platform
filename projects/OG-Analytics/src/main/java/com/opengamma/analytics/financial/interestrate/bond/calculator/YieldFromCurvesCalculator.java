@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.bond.calculator;
@@ -13,8 +13,10 @@ import com.opengamma.analytics.financial.interestrate.bond.method.BillSecurityDi
 import com.opengamma.analytics.financial.interestrate.bond.method.BondSecurityDiscountingMethod;
 
 /**
- * Calculate dirty price for bonds.
+ * Calculate bond yield from curves.
+ * @deprecated Use {@link com.opengamma.analytics.financial.provider.calculator.issuer.YieldFromCurvesCalculator}
  */
+@Deprecated
 public final class YieldFromCurvesCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> {
 
   /**

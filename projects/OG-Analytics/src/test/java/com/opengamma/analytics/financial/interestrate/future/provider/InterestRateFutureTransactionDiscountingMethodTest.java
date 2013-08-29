@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.provider;
@@ -35,8 +35,6 @@ public class InterestRateFutureTransactionDiscountingMethodTest {
   private static final Currency EUR = EURIBOR3M.getCurrency();
   private static final Calendar CALENDAR = MulticurveProviderDiscountDataSets.getEURCalendar();
 
-  private static final String NOT_USED = "Not used";
-  private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
   // Future
   private static final ZonedDateTime SPOT_LAST_TRADING_DATE = DateUtils.getUTCDate(2012, 9, 19);
   private static final ZonedDateTime LAST_TRADING_DATE = ScheduleCalculator.getAdjustedDate(SPOT_LAST_TRADING_DATE, -EURIBOR3M.getSpotLag(), CALENDAR);
@@ -52,10 +50,9 @@ public class InterestRateFutureTransactionDiscountingMethodTest {
   private static final InterestRateFutureTransactionDefinition ERU2_TRA_DEFINITION = new InterestRateFutureTransactionDefinition(ERU2_SEC_DEFINITION, TRADE_DATE, TRADE_PRICE, QUANTITY);
 
   private static final double REFERENCE_PRICE = 0.98;
-  private static final InterestRateFutureSecurity ERU2_SEC = ERU2_SEC_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
-  private static final InterestRateFutureTransaction ERU2_TRA = ERU2_TRA_DEFINITION.toDerivative(REFERENCE_DATE, REFERENCE_PRICE, NOT_USED_A);
+  private static final InterestRateFutureSecurity ERU2_SEC = ERU2_SEC_DEFINITION.toDerivative(REFERENCE_DATE);
+  private static final InterestRateFutureTransaction ERU2_TRA = ERU2_TRA_DEFINITION.toDerivative(REFERENCE_DATE, REFERENCE_PRICE);
 
-  //  private static final InterestRateFutureSecurityDiscountingMethod METHOD_IRFUT_SEC_DSC = InterestRateFutureSecurityDiscountingMethod.getInstance();
   private static final InterestRateFutureTransactionDiscountingMethod METHOD_IRFUT_TRA_DSC = InterestRateFutureTransactionDiscountingMethod.getInstance();
 
   private static final ParSpreadMarketQuoteDiscountingCalculator PSMQDC = ParSpreadMarketQuoteDiscountingCalculator.getInstance();

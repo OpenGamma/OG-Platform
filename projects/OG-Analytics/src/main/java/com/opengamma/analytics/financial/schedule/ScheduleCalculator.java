@@ -370,8 +370,8 @@ public final class ScheduleCalculator {
   public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime startDate, final Period tenorTotal, final Period tenorPeriod, final boolean stubShort,
       final boolean fromEnd, final BusinessDayConvention convention, final Calendar calendar, final boolean eomRule) {
     final ZonedDateTime[] unadjustedDateSchedule = getUnadjustedDateSchedule(startDate, startDate.plus(tenorTotal), tenorPeriod, stubShort, fromEnd);
-    final boolean eomApply = (eomRule && (getAdjustedDate(startDate, 1, calendar).getMonth() != startDate.getMonth()) && (tenorTotal.getMonths() >= 1));
-    // Implementation note: the "tenorTotal.getMonths()>=1" condition is required as the rule does not apply for period of less than 1 month (like 1 week).
+    final boolean eomApply = (eomRule && (getAdjustedDate(startDate, 1, calendar).getMonth() != startDate.getMonth()) && (tenorTotal.getDays() == 0));
+    // Implementation note: the "tenorTotal.getDays() == 0" condition is required as the rule does not apply for period of less than 1 month (like 1 week).
     return getAdjustedDateSchedule(unadjustedDateSchedule, convention, calendar, eomApply);
   }
 

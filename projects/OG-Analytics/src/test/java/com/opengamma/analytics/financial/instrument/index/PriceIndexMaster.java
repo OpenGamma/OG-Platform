@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.index;
@@ -12,7 +12,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ *
  */
 public final class PriceIndexMaster {
 
@@ -39,7 +39,7 @@ public final class PriceIndexMaster {
    */
   private PriceIndexMaster() {
 
-    _priceIndex = new HashMap<String, IndexPrice>();
+    _priceIndex = new HashMap<>();
     _priceIndex.put(
         "EURHICP",
         new IndexPrice("EUR HICP", Currency.EUR));

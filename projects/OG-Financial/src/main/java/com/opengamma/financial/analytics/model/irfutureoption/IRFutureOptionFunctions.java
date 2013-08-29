@@ -15,7 +15,7 @@ import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.financial.analytics.model.horizon.InterestRateFutureOptionBlackThetaDefaults;
-import com.opengamma.financial.analytics.model.volatility.SmileFittingProperties;
+import com.opengamma.financial.analytics.model.volatility.SmileFittingPropertyNamesAndValues;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -61,7 +61,7 @@ public class IRFutureOptionFunctions extends AbstractFunctionConfigurationBean {
       private String _curveName;
       private String _curveConfiguration;
       private String _surfaceName;
-      private String _smileFittingMethod = SmileFittingProperties.NON_LINEAR_LEAST_SQUARES;
+      private String _smileFittingMethod = SmileFittingPropertyNamesAndValues.NON_LINEAR_LEAST_SQUARES;
    
       public String getCurveName() {
         return _curveName;

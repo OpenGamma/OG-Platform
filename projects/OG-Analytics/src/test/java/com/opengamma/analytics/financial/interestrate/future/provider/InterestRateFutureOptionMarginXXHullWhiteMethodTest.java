@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.provider;
@@ -56,9 +56,6 @@ public class InterestRateFutureOptionMarginXXHullWhiteMethodTest {
   private static final HullWhiteOneFactorPiecewiseConstantParameters HW_PARAMETERS = TestsDataSetHullWhite.createHullWhiteParameters();
   private static final HullWhiteOneFactorProviderDiscount HW_MULTICURVES = new HullWhiteOneFactorProviderDiscount(MULTICURVES, HW_PARAMETERS, EUR);
 
-  private static final String NOT_USED = "Not used";
-  private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
-
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 12, 18);
   // Dates and names
   private static final ZonedDateTime FUT_SPOT_MAR13 = DateUtils.getUTCDate(2013, 3, 20);
@@ -74,8 +71,8 @@ public class InterestRateFutureOptionMarginXXHullWhiteMethodTest {
   // Futures
   private static final InterestRateFutureSecurityDefinition ERH3_DEFINITION = new InterestRateFutureSecurityDefinition(FUT_LAST_MAR13, EURIBOR3M, NOTIONAL, FUTURE_FACTOR, NAME_MAR13, TARGET);
   private static final InterestRateFutureSecurityDefinition ERM4_DEFINITION = new InterestRateFutureSecurityDefinition(FUT_LAST_JUN14, EURIBOR3M, NOTIONAL, FUTURE_FACTOR, NAME_JUN14, TARGET);
-  private static final InterestRateFutureSecurity ERH3 = ERH3_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
-  private static final InterestRateFutureSecurity ERM4 = ERM4_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
+  private static final InterestRateFutureSecurity ERH3 = ERH3_DEFINITION.toDerivative(REFERENCE_DATE);
+  private static final InterestRateFutureSecurity ERM4 = ERM4_DEFINITION.toDerivative(REFERENCE_DATE);
   // Options on futures - securities
   private static final double STRIKE_1 = 0.9900;
   private static final double STRIKE_2 = 0.9875;
@@ -88,10 +85,10 @@ public class InterestRateFutureOptionMarginXXHullWhiteMethodTest {
       STRIKE_2, true);
   private static final InterestRateFutureOptionMarginSecurityDefinition OPT_ERM4_MID_PUT_9875_DEFINITION = new InterestRateFutureOptionMarginSecurityDefinition(ERM4_DEFINITION, OPT_MID_EXP_JUN13,
       STRIKE_2, false);
-  private static final InterestRateFutureOptionMarginSecurity OPT_ERH3_CALL_9900 = OPT_ERH3_CALL_9900_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
-  private static final InterestRateFutureOptionMarginSecurity OPT_ERH3_PUT_9900 = OPT_ERH3_PUT_9900_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
-  private static final InterestRateFutureOptionMarginSecurity OPT_ERM4_MID_CALL_9875 = OPT_ERM4_MID_CALL_9875_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
-  private static final InterestRateFutureOptionMarginSecurity OPT_ERM4_MID_PUT_9875 = OPT_ERM4_MID_PUT_9875_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
+  private static final InterestRateFutureOptionMarginSecurity OPT_ERH3_CALL_9900 = OPT_ERH3_CALL_9900_DEFINITION.toDerivative(REFERENCE_DATE);
+  private static final InterestRateFutureOptionMarginSecurity OPT_ERH3_PUT_9900 = OPT_ERH3_PUT_9900_DEFINITION.toDerivative(REFERENCE_DATE);
+  private static final InterestRateFutureOptionMarginSecurity OPT_ERM4_MID_CALL_9875 = OPT_ERM4_MID_CALL_9875_DEFINITION.toDerivative(REFERENCE_DATE);
+  private static final InterestRateFutureOptionMarginSecurity OPT_ERM4_MID_PUT_9875 = OPT_ERM4_MID_PUT_9875_DEFINITION.toDerivative(REFERENCE_DATE);
   //Options on futures - transactions
   private static final int QUANTITY_1 = -1234;
   private static final int QUANTITY_2 = 4321;
@@ -107,18 +104,18 @@ public class InterestRateFutureOptionMarginXXHullWhiteMethodTest {
       -QUANTITY_1, TRADE_DATE_1, TRADE_PRICE_1);
   private static final InterestRateFutureOptionMarginTransactionDefinition OPT_ERH3_PUT_9900_TRA_1_DEFINITION = new InterestRateFutureOptionMarginTransactionDefinition(OPT_ERH3_PUT_9900_DEFINITION,
       QUANTITY_1, TRADE_DATE_1, TRADE_PRICE_1);
-  private static final InterestRateFutureOptionMarginTransaction OPT_ERH3_CALL_9900_TRA_1 = OPT_ERH3_CALL_9900_TRA_1_DEFINITION.toDerivative(REFERENCE_DATE, LAST_MARGIN_1, NOT_USED_A);
-  private static final InterestRateFutureOptionMarginTransaction OPT_ERH3_CALL_9900_TRA_2 = OPT_ERH3_CALL_9900_TRA_2_DEFINITION.toDerivative(REFERENCE_DATE, LAST_MARGIN_1, NOT_USED_A);
-  private static final InterestRateFutureOptionMarginTransaction OPT_ERH3_PUT_9900_TRA_1 = OPT_ERH3_PUT_9900_TRA_1_DEFINITION.toDerivative(REFERENCE_DATE, LAST_MARGIN_1, NOT_USED_A);
+  private static final InterestRateFutureOptionMarginTransaction OPT_ERH3_CALL_9900_TRA_1 = OPT_ERH3_CALL_9900_TRA_1_DEFINITION.toDerivative(REFERENCE_DATE, LAST_MARGIN_1);
+  private static final InterestRateFutureOptionMarginTransaction OPT_ERH3_CALL_9900_TRA_2 = OPT_ERH3_CALL_9900_TRA_2_DEFINITION.toDerivative(REFERENCE_DATE, LAST_MARGIN_1);
+  private static final InterestRateFutureOptionMarginTransaction OPT_ERH3_PUT_9900_TRA_1 = OPT_ERH3_PUT_9900_TRA_1_DEFINITION.toDerivative(REFERENCE_DATE, LAST_MARGIN_1);
   private static final InterestRateFutureOptionMarginTransactionDefinition OPT_ERM4_MID_CALL_9875_TRA_1_DEFINITION = new InterestRateFutureOptionMarginTransactionDefinition(
       OPT_ERM4_MID_CALL_9875_DEFINITION, QUANTITY_2, TRADE_DATE_2, TRADE_PRICE_2);
   private static final InterestRateFutureOptionMarginTransactionDefinition OPT_ERM4_MID_CALL_9875_TRA_2_DEFINITION = new InterestRateFutureOptionMarginTransactionDefinition(
       OPT_ERM4_MID_CALL_9875_DEFINITION, -QUANTITY_2, TRADE_DATE_2, TRADE_PRICE_2);
   private static final InterestRateFutureOptionMarginTransactionDefinition OPT_ERM4_MID_PUT_9875_TRA_1_DEFINITION = new InterestRateFutureOptionMarginTransactionDefinition(
       OPT_ERM4_MID_PUT_9875_DEFINITION, QUANTITY_2, TRADE_DATE_2, TRADE_PRICE_2);
-  private static final InterestRateFutureOptionMarginTransaction OPT_ERM4_MID_CALL_9875_TRA_1 = OPT_ERM4_MID_CALL_9875_TRA_1_DEFINITION.toDerivative(REFERENCE_DATE, LAST_MARGIN_1, NOT_USED_A);
-  private static final InterestRateFutureOptionMarginTransaction OPT_ERM4_MID_CALL_9875_TRA_2 = OPT_ERM4_MID_CALL_9875_TRA_2_DEFINITION.toDerivative(REFERENCE_DATE, LAST_MARGIN_1, NOT_USED_A);
-  private static final InterestRateFutureOptionMarginTransaction OPT_ERM4_MID_PUT_9875_TRA_1 = OPT_ERM4_MID_PUT_9875_TRA_1_DEFINITION.toDerivative(REFERENCE_DATE, LAST_MARGIN_1, NOT_USED_A);
+  private static final InterestRateFutureOptionMarginTransaction OPT_ERM4_MID_CALL_9875_TRA_1 = OPT_ERM4_MID_CALL_9875_TRA_1_DEFINITION.toDerivative(REFERENCE_DATE, LAST_MARGIN_1);
+  private static final InterestRateFutureOptionMarginTransaction OPT_ERM4_MID_CALL_9875_TRA_2 = OPT_ERM4_MID_CALL_9875_TRA_2_DEFINITION.toDerivative(REFERENCE_DATE, LAST_MARGIN_1);
+  private static final InterestRateFutureOptionMarginTransaction OPT_ERM4_MID_PUT_9875_TRA_1 = OPT_ERM4_MID_PUT_9875_TRA_1_DEFINITION.toDerivative(REFERENCE_DATE, LAST_MARGIN_1);
 
   private static final HullWhiteOneFactorPiecewiseConstantInterestRateModel MODEL_HW = new HullWhiteOneFactorPiecewiseConstantInterestRateModel();
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
@@ -176,11 +173,11 @@ public class InterestRateFutureOptionMarginXXHullWhiteMethodTest {
    */
   public void priceDeepOTM() {
     final InterestRateFutureOptionMarginSecurityDefinition callDefinition = new InterestRateFutureOptionMarginSecurityDefinition(ERH3_DEFINITION, OPT_EXP_MAR13, 1.25, true);
-    final InterestRateFutureOptionMarginSecurity call = callDefinition.toDerivative(REFERENCE_DATE, NOT_USED_A);
+    final InterestRateFutureOptionMarginSecurity call = callDefinition.toDerivative(REFERENCE_DATE);
     final double priceCallDeep = METHOD_OPT_SEC.price(call, HW_MULTICURVES);
     assertEquals("InterestRateFutureOptionMarginSecurityHullWhiteMethod: price", 0.0, priceCallDeep, TOLERANCE_PRICE);
     final InterestRateFutureOptionMarginSecurityDefinition putDefinition = new InterestRateFutureOptionMarginSecurityDefinition(ERH3_DEFINITION, OPT_EXP_MAR13, 0.75, false);
-    final InterestRateFutureOptionMarginSecurity put = putDefinition.toDerivative(REFERENCE_DATE, NOT_USED_A);
+    final InterestRateFutureOptionMarginSecurity put = putDefinition.toDerivative(REFERENCE_DATE);
     final double pricePutDeep = METHOD_OPT_SEC.price(put, HW_MULTICURVES);
     assertEquals("InterestRateFutureOptionMarginSecurityHullWhiteMethod: price", 0.0, pricePutDeep, TOLERANCE_PRICE);
   }
@@ -196,11 +193,11 @@ public class InterestRateFutureOptionMarginXXHullWhiteMethodTest {
     for (int loopstrike = 0; loopstrike <= nbStrikes; loopstrike++) {
       final double strike = minStrike + loopstrike * (maxStrike - minStrike) / nbStrikes;
       final InterestRateFutureOptionMarginSecurityDefinition callDefinition = new InterestRateFutureOptionMarginSecurityDefinition(ERH3_DEFINITION, OPT_EXP_MAR13, strike, true);
-      final InterestRateFutureOptionMarginSecurity call = callDefinition.toDerivative(REFERENCE_DATE, NOT_USED_A);
+      final InterestRateFutureOptionMarginSecurity call = callDefinition.toDerivative(REFERENCE_DATE);
       final double priceCall = METHOD_OPT_SEC.price(call, HW_MULTICURVES);
       assertTrue("InterestRateFutureOptionMarginSecurityHullWhiteMethod: price", priceCall > 0);
       final InterestRateFutureOptionMarginSecurityDefinition putDefinition = new InterestRateFutureOptionMarginSecurityDefinition(ERH3_DEFINITION, OPT_EXP_MAR13, strike, false);
-      final InterestRateFutureOptionMarginSecurity put = putDefinition.toDerivative(REFERENCE_DATE, NOT_USED_A);
+      final InterestRateFutureOptionMarginSecurity put = putDefinition.toDerivative(REFERENCE_DATE);
       final double pricePut = METHOD_OPT_SEC.price(put, HW_MULTICURVES);
       assertTrue("InterestRateFutureOptionMarginSecurityHullWhiteMethod: price", pricePut > 0);
     }

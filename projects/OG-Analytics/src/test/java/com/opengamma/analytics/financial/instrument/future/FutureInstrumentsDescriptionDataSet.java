@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.future;
@@ -37,26 +37,20 @@ public class FutureInstrumentsDescriptionDataSet {
   private static final DayCount DAY_COUNT_INDEX = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
-  private static final IborIndex IBOR_INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
+  private static final IborIndex IBOR_INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM, "Ibor");
   // Future
   private static final ZonedDateTime SPOT_LAST_TRADING_DATE = DateUtils.getUTCDate(2012, 9, 19);
   private static final ZonedDateTime LAST_TRADING_DATE = ScheduleCalculator.getAdjustedDate(SPOT_LAST_TRADING_DATE, -SETTLEMENT_DAYS, CALENDAR);
   private static final double NOTIONAL = 1000000.0; // 1m
   private static final double FUTURE_FACTOR = 0.25;
-  private static final double REFERENCE_PRICE = 0.0; // TODO - CASE - Future refactor - 0.0 Reference Price here
   private static final String NAME = "ERU2";
-  private static final int QUANTITY = 123;
   private static final ZonedDateTime TRADE_DATE = DateUtils.getUTCDate(2012, 2, 29);
-  private static final double TRADE_PRICE = 0.9925;
   // Future option
   private static final ZonedDateTime OPTION_EXPIRY = DateUtils.getUTCDate(2012, 6, 19);
   private static final double OPTION_STRIKE = 0.97;
   private static final boolean IS_CALL = false;
   // Derivatives
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 5, 13);
-  private static final String DISCOUNTING_CURVE_NAME = "Funding";
-  private static final String FORWARD_CURVE_NAME = "Forward";
-  private static final String[] CURVES = {DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME};
 
   public static InterestRateFutureSecurityDefinition createInterestRateFutureSecurityDefinition() {
     final InterestRateFutureSecurityDefinition sec = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, IBOR_INDEX, NOTIONAL, FUTURE_FACTOR, NAME, CALENDAR);
@@ -64,7 +58,7 @@ public class FutureInstrumentsDescriptionDataSet {
   }
 
   public static InterestRateFutureSecurity createInterestRateFutureSecurity() {
-    return createInterestRateFutureSecurityDefinition().toDerivative(REFERENCE_DATE, CURVES);
+    return createInterestRateFutureSecurityDefinition().toDerivative(REFERENCE_DATE);
   }
 
   public static InterestRateFutureOptionMarginSecurityDefinition createInterestRateFutureOptionMarginSecurityDefinition() {
@@ -120,26 +114,17 @@ public class FutureInstrumentsDescriptionDataSet {
   private static final double BNDFUT_NOTIONAL = 100000;
   private static final double BNDFUT_REFERENCE_PRICE = 0.0; // FIXME CASE Confirm BNDFUT_REFERENCE_PRICE. Was 1.23
   private static final ZonedDateTime BNDFUT_REFERENCE_DATE = DateUtils.getUTCDate(2011, 6, 21);
-  private static final String CREDIT_CURVE_NAME = "Credit";
-  private static final String DISC_CURVE_NAME = "Discounting";
-  private static final String[] CURVES_NAME = {CREDIT_CURVE_NAME, DISC_CURVE_NAME};
 
   public static BondFutureDefinition createBondFutureSecurityDefinition() {
     return new BondFutureDefinition(BNDFUT_LAST_TRADING_DATE, BNDFUT_FIRST_NOTICE_DATE, BNDFUT_LAST_NOTICE_DATE, BNDFUT_NOTIONAL, BASKET_DEFINITION, CONVERSION_FACTOR);
   }
 
   public static BondFuture createBondFutureSecurity() {
-    return createBondFutureSecurityDefinition().toDerivative(BNDFUT_REFERENCE_DATE, BNDFUT_REFERENCE_PRICE, CURVES_NAME);
+    return createBondFutureSecurityDefinition().toDerivative(BNDFUT_REFERENCE_DATE, BNDFUT_REFERENCE_PRICE);
   }
 
   public static BondFutureOptionPremiumSecurityDefinition createBondFutureOptionPremiumSecurityDefinition() {
     return new BondFutureOptionPremiumSecurityDefinition(createBondFutureSecurityDefinition(), OPTION_EXPIRY, OPTION_STRIKE, IS_CALL);
-  }
-
-  public static String[] curveNames() {
-    final String[] names = new String[CURVES_NAME.length];
-    System.arraycopy(CURVES_NAME, 0, names, 0, CURVES_NAME.length);
-    return names;
   }
 
 }

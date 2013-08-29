@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.volatility.smile.fitting;
@@ -24,7 +24,7 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResultsWithTransform;
 
 /**
- * 
+ *
  */
 public class MixedLogNormalModelFitterTest extends SmileModelFitterTest<MixedLogNormalModelData> {
   private static RandomEngine RANDOM = new MersenneTwister();
@@ -177,7 +177,7 @@ public class MixedLogNormalModelFitterTest extends SmileModelFitterTest<MixedLog
   }
 
   @Override
-  public DoubleMatrix1D toStandardForm(final DoubleMatrix1D from) {
+  protected DoubleMatrix1D toStandardForm(final DoubleMatrix1D from) {
     final int n = from.getNumberOfElements();
     final double[] temp = new double[n];
     final double[] f = from.getData();

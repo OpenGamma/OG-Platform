@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.provider;
@@ -67,26 +67,26 @@ public final class InterestRateFutureOptionMarginSecurityHullWhiteMethod extends
     ArgumentChecker.notNull(security, "Option security");
     ArgumentChecker.notNull(hwMulticurves, "Hull-White and multi-curves data");
     ArgumentChecker.isTrue(security.getCurrency().equals(hwMulticurves.getHullWhiteCurrency()), "Model currency incompatible with security currency");
-    MulticurveProviderInterface multicurves = hwMulticurves.getMulticurveProvider();
-    HullWhiteOneFactorPiecewiseConstantParameters parameters = hwMulticurves.getHullWhiteParameters();
-    double k = security.getStrike();
-    double ktilde = 1.0 - k;
-    double theta = security.getExpirationTime();
-    double delta = security.getUnderlyingFuture().getFixingPeriodAccrualFactor();
-    double t0 = security.getUnderlyingFuture().getLastTradingTime();
-    double t1 = security.getUnderlyingFuture().getFixingPeriodStartTime();
-    double t2 = security.getUnderlyingFuture().getFixingPeriodEndTime();
-    double alpha = MODEL.alpha(parameters, 0.0, theta, t1, t2);
-    double gamma = MODEL.futuresConvexityFactor(parameters, t0, t1, t2);
-    double forward = multicurves.getForwardRate(security.getUnderlyingFuture().getIborIndex(), t1, t2, delta);
-    double kappa = -Math.log((1 + delta * ktilde) / (1 + delta * forward) / gamma) / alpha - 0.5 * alpha;
+    final MulticurveProviderInterface multicurves = hwMulticurves.getMulticurveProvider();
+    final HullWhiteOneFactorPiecewiseConstantParameters parameters = hwMulticurves.getHullWhiteParameters();
+    final double k = security.getStrike();
+    final double ktilde = 1.0 - k;
+    final double theta = security.getExpirationTime();
+    final double delta = security.getUnderlyingFuture().getFixingPeriodAccrualFactor();
+    final double t0 = security.getUnderlyingFuture().getLastTradingTime();
+    final double t1 = security.getUnderlyingFuture().getFixingPeriodStartTime();
+    final double t2 = security.getUnderlyingFuture().getFixingPeriodEndTime();
+    final double alpha = MODEL.alpha(parameters, 0.0, theta, t1, t2);
+    final double gamma = MODEL.futuresConvexityFactor(parameters, t0, t1, t2);
+    final double forward = multicurves.getForwardRate(security.getUnderlyingFuture().getIborIndex(), t1, t2, delta);
+    final double kappa = -Math.log((1 + delta * ktilde) / (1 + delta * forward) / gamma) / alpha - 0.5 * alpha;
     if (security.isCall()) {
-      double normalKappa = NORMAL.getCDF(-kappa);
-      double normalAlphaKappa = NORMAL.getCDF(-kappa - alpha);
+      final double normalKappa = NORMAL.getCDF(-kappa);
+      final double normalAlphaKappa = NORMAL.getCDF(-kappa - alpha);
       return (1 - k + 1.0 / delta) * normalKappa - (1.0 / delta + forward) * gamma * normalAlphaKappa;
     }
-    double normalKappa = NORMAL.getCDF(kappa);
-    double normalAlphaKappa = NORMAL.getCDF(kappa + alpha);
+    final double normalKappa = NORMAL.getCDF(kappa);
+    final double normalAlphaKappa = NORMAL.getCDF(kappa + alpha);
     return (1.0 / delta + forward) * gamma * normalAlphaKappa - (1 - k + 1.0 / delta) * normalKappa;
   }
 
@@ -101,32 +101,32 @@ public final class InterestRateFutureOptionMarginSecurityHullWhiteMethod extends
     ArgumentChecker.notNull(security, "Option security");
     ArgumentChecker.notNull(hwMulticurves, "Hull-White and multi-curves data");
     ArgumentChecker.isTrue(security.getCurrency().equals(hwMulticurves.getHullWhiteCurrency()), "Model currency incompatible with security currency");
-    MulticurveProviderInterface multicurves = hwMulticurves.getMulticurveProvider();
-    HullWhiteOneFactorPiecewiseConstantParameters parameters = hwMulticurves.getHullWhiteParameters();
-    double k = security.getStrike();
-    double ktilde = 1.0 - k;
-    double theta = security.getExpirationTime();
-    double delta = security.getUnderlyingFuture().getFixingPeriodAccrualFactor();
-    double t0 = security.getUnderlyingFuture().getLastTradingTime();
-    double t1 = security.getUnderlyingFuture().getFixingPeriodStartTime();
-    double t2 = security.getUnderlyingFuture().getFixingPeriodEndTime();
+    final MulticurveProviderInterface multicurves = hwMulticurves.getMulticurveProvider();
+    final HullWhiteOneFactorPiecewiseConstantParameters parameters = hwMulticurves.getHullWhiteParameters();
+    final double k = security.getStrike();
+    final double ktilde = 1.0 - k;
+    final double theta = security.getExpirationTime();
+    final double delta = security.getUnderlyingFuture().getFixingPeriodAccrualFactor();
+    final double t0 = security.getUnderlyingFuture().getLastTradingTime();
+    final double t1 = security.getUnderlyingFuture().getFixingPeriodStartTime();
+    final double t2 = security.getUnderlyingFuture().getFixingPeriodEndTime();
     // forward sweep
-    double alpha = MODEL.alpha(parameters, 0.0, theta, t1, t2);
-    double gamma = MODEL.futuresConvexityFactor(parameters, t0, t1, t2);
-    double forward = multicurves.getForwardRate(security.getUnderlyingFuture().getIborIndex(), t1, t2, delta);
-    double kappa = -Math.log((1 + delta * ktilde) / (1 + delta * forward) / gamma) / alpha - 0.5 * alpha;
+    final double alpha = MODEL.alpha(parameters, 0.0, theta, t1, t2);
+    final double gamma = MODEL.futuresConvexityFactor(parameters, t0, t1, t2);
+    final double forward = multicurves.getForwardRate(security.getUnderlyingFuture().getIborIndex(), t1, t2, delta);
+    final double kappa = -Math.log((1 + delta * ktilde) / (1 + delta * forward) / gamma) / alpha - 0.5 * alpha;
     // Bakcward sweep
-    double priceBar = 1.0;
+    final double priceBar = 1.0;
     double forwardBar;
     if (security.isCall()) {
-      double normalAlphaKappa = NORMAL.getCDF(-kappa - alpha);
+      final double normalAlphaKappa = NORMAL.getCDF(-kappa - alpha);
       forwardBar = -gamma * normalAlphaKappa * priceBar;
     } else {
-      double normalAlphaKappa = NORMAL.getCDF(kappa + alpha);
+      final double normalAlphaKappa = NORMAL.getCDF(kappa + alpha);
       forwardBar = gamma * normalAlphaKappa * priceBar;
     }
-    final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<String, List<ForwardSensitivity>>();
-    final List<ForwardSensitivity> listForward = new ArrayList<ForwardSensitivity>();
+    final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<>();
+    final List<ForwardSensitivity> listForward = new ArrayList<>();
     listForward.add(new ForwardSensitivity(t1, t2, delta, forwardBar));
     mapFwd.put(hwMulticurves.getMulticurveProvider().getName(security.getUnderlyingFuture().getIborIndex()), listForward);
     return MulticurveSensitivity.ofForward(mapFwd);

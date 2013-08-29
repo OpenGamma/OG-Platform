@@ -328,8 +328,8 @@ public final class BondFuturesSecurityHullWhiteMethod {
       dfBar[loopbnd] = new double[nbCf];
     }
     double dfdeliveryBar = 0.0;
-    final Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
-    final List<DoublesPair> listCredit = new ArrayList<DoublesPair>();
+    final Map<String, List<DoublesPair>> resultMap = new HashMap<>();
+    final List<DoublesPair> listCredit = new ArrayList<>();
     if (nbInt == 1) {
       for (int loopcf = 0; loopcf < cfaAdjusted[ctd.get(0)].length; loopcf++) {
         cfaAdjustedBar[ctd.get(0)][loopcf] = priceBar;

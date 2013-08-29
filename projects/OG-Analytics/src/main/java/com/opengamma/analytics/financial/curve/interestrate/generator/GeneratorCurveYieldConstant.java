@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.curve.interestrate.generator;
@@ -23,18 +23,23 @@ public class GeneratorCurveYieldConstant extends GeneratorYDCurve {
   }
 
   @Override
-  public YieldAndDiscountCurve generateCurve(String name, double[] x) {
+  public YieldAndDiscountCurve generateCurve(final String name, final double[] x) {
     ArgumentChecker.isTrue(x.length == 1, "Constant curve should have one parameter");
     return new YieldCurve(name, new ConstantDoublesCurve(x[0], name));
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Curve builders that use and populate {@link YieldCurveBundle}s are deprecated.
+   */
+  @Deprecated
   @Override
-  public YieldAndDiscountCurve generateCurve(String name, YieldCurveBundle bundle, double[] parameters) {
+  public YieldAndDiscountCurve generateCurve(final String name, final YieldCurveBundle bundle, final double[] parameters) {
     return generateCurve(name, parameters);
   }
 
   @Override
-  public YieldAndDiscountCurve generateCurve(String name, MulticurveProviderInterface multicurve, double[] parameters) {
+  public YieldAndDiscountCurve generateCurve(final String name, final MulticurveProviderInterface multicurve, final double[] parameters) {
     return generateCurve(name, parameters);
   }
 

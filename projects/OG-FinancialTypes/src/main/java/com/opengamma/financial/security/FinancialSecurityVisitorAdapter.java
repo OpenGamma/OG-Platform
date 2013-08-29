@@ -7,6 +7,7 @@ package com.opengamma.financial.security;
 
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
+import com.opengamma.financial.security.bond.InflationBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
@@ -105,6 +106,11 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
 
   @Override
   public T visitMunicipalBondSecurity(final MunicipalBondSecurity security) {
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
+  }
+  
+  @Override
+  public T visitInflationBondSecurity(final InflationBondSecurity security) {
     throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), security));
   }
 
@@ -410,6 +416,16 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
         @Override
         public T visitCashFlowSecurity(final CashFlowSecurity security) {
           return visitor.visitCashFlowSecurity(security);
+        }
+      };
+      return this;
+    }
+    
+    public Builder<T> deliverableSwapFutureSecurityVisitor(final FinancialSecurityVisitor<T> visitor) {
+      _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
+        @Override
+        public T visitDeliverableSwapFutureSecurity(DeliverableSwapFutureSecurity security) {
+          return visitor.visitDeliverableSwapFutureSecurity(security);
         }
       };
       return this;

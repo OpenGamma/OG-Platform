@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.swaption.method;
@@ -44,7 +44,9 @@ import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the pricing of physical delivery swaption in G2++ model.
+ * @deprecated This class tests deprecated functionality.
  */
+@Deprecated
 public class SwaptionPhysicalFixedIborG2ppMethodTest {
   // Swaption 5Yx5Y
   private static final Currency CUR = Currency.EUR;

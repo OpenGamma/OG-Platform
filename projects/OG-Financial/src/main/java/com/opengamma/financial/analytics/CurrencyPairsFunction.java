@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.google.common.collect.Iterables;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
@@ -22,6 +23,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.currency.CurrencyPairs;
+import com.opengamma.financial.currency.CurrencyPairsSource;
 import com.opengamma.util.async.AsynchronousExecution;
 
 /**
@@ -37,7 +39,12 @@ public class CurrencyPairsFunction extends AbstractFunction.NonCompiledInvoker {
       final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
     final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
     final String name = desiredValue.getConstraint(CURRENCY_PAIRS_NAME);
-    final CurrencyPairs currencyPairs = OpenGammaExecutionContext.getCurrencyPairsSource(executionContext).getCurrencyPairs(name);
+    @SuppressWarnings("deprecation")
+    final CurrencyPairsSource ccyPairsSource = OpenGammaExecutionContext.getCurrencyPairsSource(executionContext);
+    final CurrencyPairs currencyPairs = ccyPairsSource.getCurrencyPairs(name);
+    if (currencyPairs == null) {
+      throw new OpenGammaRuntimeException("Could not get CurrencyPairs called " + CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
+    }
     return Collections.singleton(new ComputedValue(new ValueSpecification(ValueRequirementNames.CURRENCY_PAIRS, ComputationTargetSpecification.NULL,
         createValueProperties().with(CURRENCY_PAIRS_NAME, name).get()), currencyPairs));
   }

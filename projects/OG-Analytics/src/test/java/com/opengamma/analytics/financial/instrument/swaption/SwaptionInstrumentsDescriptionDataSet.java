@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.swaption;
@@ -44,21 +44,18 @@ public class SwaptionInstrumentsDescriptionDataSet {
   private static final Period INDEX_TENOR = Period.ofMonths(3);
   private static final int SETTLEMENT_DAYS = 2;
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-  private static final IborIndex INDEX = new IborIndex(CUR, INDEX_TENOR, SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, IS_EOM);
+  private static final IborIndex INDEX = new IborIndex(CUR, INDEX_TENOR, SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, IS_EOM, "Ibor");
   private static final IndexSwap CMS_INDEX = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, INDEX, SWAP_TENOR, CALENDAR);
   private static final SwapFixedIborDefinition SWAP = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, RATE, FIXED_IS_PAYER, CALENDAR);
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 8, 18);
-  private static final String FUNDING_CURVE_NAME = "Funding";
-  private static final String FORWARD_CURVE_NAME = "Forward";
-  private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME};
 
   public static SwaptionCashFixedIborDefinition createSwaptionCashFixedIborDefinition() {
     return SwaptionCashFixedIborDefinition.from(EXPIRY_DATE, SWAP, IS_LONG);
   }
 
   public static SwaptionCashFixedIbor createSwaptionCashFixedIbor() {
-    return createSwaptionCashFixedIborDefinition().toDerivative(REFERENCE_DATE, CURVES_NAME);
+    return createSwaptionCashFixedIborDefinition().toDerivative(REFERENCE_DATE);
   }
 
   public static SwaptionPhysicalFixedIborDefinition createSwaptionPhysicalFixedIborDefinition() {
@@ -66,7 +63,7 @@ public class SwaptionInstrumentsDescriptionDataSet {
   }
 
   public static SwaptionPhysicalFixedIbor createSwaptionPhysicalFixedIbor() {
-    return createSwaptionPhysicalFixedIborDefinition().toDerivative(REFERENCE_DATE, CURVES_NAME);
+    return createSwaptionPhysicalFixedIborDefinition().toDerivative(REFERENCE_DATE);
   }
 
 }

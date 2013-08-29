@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.analytics.conversion;
 
-import org.apache.commons.lang.Validate;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -19,24 +18,29 @@ import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * Converts swaptions from {@link SwaptionSecurity} to the {@link InstrumentDefinition}s.
  */
 public class SwaptionSecurityConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {
   private final SecuritySource _securitySource;
-  private final SwapSecurityConverterDeprecated _swapConverter;
+  private final SwapSecurityConverter _swapConverter;
 
-  public SwaptionSecurityConverter(final SecuritySource securitySource, final SwapSecurityConverterDeprecated swapConverter) {
-    Validate.notNull(securitySource, "security source");
-    Validate.notNull(swapConverter, "swap converter");
+  /**
+   * @param securitySource The security source, not null
+   * @param swapConverter The underlying swap converter, not null
+   */
+  public SwaptionSecurityConverter(final SecuritySource securitySource, final SwapSecurityConverter swapConverter) {
+    ArgumentChecker.notNull(securitySource, "security source");
+    ArgumentChecker.notNull(swapConverter, "swap converter");
     _securitySource = securitySource;
     _swapConverter = swapConverter;
   }
 
   @Override
   public InstrumentDefinition<?> visitSwaptionSecurity(final SwaptionSecurity swaptionSecurity) {
-    Validate.notNull(swaptionSecurity, "swaption security");
+    ArgumentChecker.notNull(swaptionSecurity, "swaption security");
     final ExternalId underlyingIdentifier = swaptionSecurity.getUnderlyingId();
     final ZonedDateTime expiry = swaptionSecurity.getExpiry().getExpiry();
     final InstrumentDefinition<?> underlyingSwap = ((SwapSecurity) _securitySource.getSingle(ExternalIdBundle.of(underlyingIdentifier))).accept(_swapConverter);

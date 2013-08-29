@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -32,7 +32,7 @@ public class InterestRateCurveSensitivity {
    * Default constructor, creating an empty HashMap for the sensitivity.
    */
   public InterestRateCurveSensitivity() {
-    _sensitivity = new HashMap<String, List<DoublesPair>>();
+    _sensitivity = new HashMap<>();
   }
 
   /**
@@ -41,7 +41,7 @@ public class InterestRateCurveSensitivity {
    */
   public InterestRateCurveSensitivity(final Map<String, List<DoublesPair>> sensitivity) {
     ArgumentChecker.notNull(sensitivity, "sensitivity");
-    _sensitivity = new HashMap<String, List<DoublesPair>>(sensitivity);
+    _sensitivity = new HashMap<>(sensitivity);
   }
 
   /**
@@ -53,7 +53,7 @@ public class InterestRateCurveSensitivity {
   public static InterestRateCurveSensitivity of(final String name, final List<DoublesPair> sensitivityCurve) {
     ArgumentChecker.notNull(name, "Curve name");
     ArgumentChecker.notNull(sensitivityCurve, "sensitivity");
-    final HashMap<String, List<DoublesPair>> ircs = new HashMap<String, List<DoublesPair>>();
+    final HashMap<String, List<DoublesPair>> ircs = new HashMap<>();
     ircs.put(name, sensitivityCurve);
     return new InterestRateCurveSensitivity(ircs);
   }
@@ -131,7 +131,7 @@ public class InterestRateCurveSensitivity {
    * @return The map.
    */
   public Map<String, Double> totalSensitivityByCurve() {
-    final HashMap<String, Double> s = new HashMap<String, Double>();
+    final HashMap<String, Double> s = new HashMap<>();
     for (final Map.Entry<String, List<DoublesPair>> entry : _sensitivity.entrySet()) {
       double total = 0.0;
       for (final DoublesPair p : entry.getValue()) {

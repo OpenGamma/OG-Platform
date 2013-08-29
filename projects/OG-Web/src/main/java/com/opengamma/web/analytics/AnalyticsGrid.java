@@ -24,7 +24,7 @@ import com.opengamma.util.ArgumentChecker;
   private static final Logger s_logger = LoggerFactory.getLogger(AnalyticsGrid.class);
 
   /** Viewports keyed by ID. */
-  private final Map<Integer, V> _viewports = Maps.newHashMap();
+  private final Map<Integer, V> _viewports;
 
   private final ViewportListener _viewportListener;
 
@@ -42,6 +42,25 @@ import com.opengamma.util.ArgumentChecker;
     ArgumentChecker.notNull(callbackId, "callbackId");
     _viewportListener = viewportListener;
     _callbackId = callbackId;
+    _viewports = Maps.newHashMap();
+  }
+
+  /**
+   * Creates an instance.
+   *
+   * @param viewportListener  the listener for changes to this grid's viewports, not null
+   * @param callbackId  the ID that is passed to listeners when the grid structure changes, any unique value, not null
+   * @param viewports a map of the viewports to be associated with the grid
+   */
+  /* package */ AnalyticsGrid(ViewportListener viewportListener,
+                              String callbackId,
+                              Map<Integer, V> viewports) {
+    ArgumentChecker.notNull(viewportListener, "viewportListener");
+    ArgumentChecker.notNull(callbackId, "callbackId");
+    ArgumentChecker.notNull(viewports, "viewports");
+    _viewportListener = viewportListener;
+    _callbackId = callbackId;
+    _viewports = viewports;
   }
 
   /**
@@ -69,7 +88,7 @@ import com.opengamma.util.ArgumentChecker;
    * Returns a viewport that represents part of the grid that a user is viewing.
    * 
    * @param viewportId  the ID of the viewport
-   * @return the viewort, not null
+   * @return the viewport, not null
    * @throws DataNotFoundException If no viewport exists with the specified ID
    */
   /* package */ V getViewport(int viewportId) {
@@ -87,18 +106,21 @@ import com.opengamma.util.ArgumentChecker;
    * @param viewportId  the ID of the viewport, must be unique
    * @param callbackId  the ID that will be passed to listeners when the grid's data changes,
    *  can be any unique value, the grid makes no assumptions about its form
+   * @param structureCallbackId  the ID that will be passed to listeners when the grid's structure changes,
+   *  can be any unique value, the grid makes no assumptions about its form
    * @param viewportDefinition  defines the extent and properties of the viewport
    * @param cache  the result cache
    * @return true if the viewport has data
    */
   /* package */ boolean createViewport(int viewportId,
                                        String callbackId,
+                                       String structureCallbackId,
                                        ViewportDefinition viewportDefinition,
                                        ResultsCache cache) {
     if (_viewports.containsKey(viewportId)) {
       throw new IllegalArgumentException("Viewport ID " + viewportId + " is already in use");
     }
-    V viewport = createViewport(viewportDefinition, callbackId, cache);
+    V viewport = createViewport(viewportDefinition, callbackId, structureCallbackId, cache);
     _viewportListener.viewportCreated(viewportDefinition, getGridStructure());
     boolean hasData = (viewport.getState() != Viewport.State.EMPTY);
     _viewports.put(viewportId, viewport);
@@ -110,11 +132,14 @@ import com.opengamma.util.ArgumentChecker;
    *
    * @param viewportDefinition  defines the extent and properties of the viewport
    * @param callbackId  the ID that will be passed to listeners when the grid's data changes
+   * @param structureCallbackId  the ID that will be passed to listeners when the grid's structure changes
    * @param cache  the result cache
    * @return the new viewport and a flag indicating whether there is data available for it
    */
-  /* package */ abstract V createViewport(ViewportDefinition viewportDefinition, String callbackId, ResultsCache cache);
-
+  /* package */ abstract V createViewport(ViewportDefinition viewportDefinition,
+                                          String callbackId,
+                                          String structureCallbackId,
+                                          ResultsCache cache);
   /**
    * Deletes a viewport.
    * 

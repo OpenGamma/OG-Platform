@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.swaption.method;
@@ -8,20 +8,20 @@ package com.opengamma.analytics.financial.interestrate.swaption.method;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.PresentValueSABRSensitivityDataBundle;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.method.PricingMethod;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
+import com.opengamma.analytics.financial.interestrate.swaption.provider.SwaptionPhysicalFixedIborSABRLMMLeastSquareMethod;
 import com.opengamma.analytics.financial.model.interestrate.definition.LiborMarketModelDisplacedDiffusionDataBundle;
 import com.opengamma.analytics.financial.model.interestrate.definition.LiborMarketModelDisplacedDiffusionParameters;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.analytics.math.matrix.CommonsMatrixAlgebra;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Triple;
@@ -30,7 +30,9 @@ import com.opengamma.util.tuple.Triple;
  * Method to computes the present value and sensitivities of physical delivery European swaptions with a Libor Market Model calibrated exactly to SABR prices.
  * The LMM displacements and volatility weights are hard coded.
  * <p> Reference: M. Henrard, Algorithmic differentiation and calibration: optimization, September 2012.
+ * @deprecated Use {@link SwaptionPhysicalFixedIborSABRLMMLeastSquareMethod}
  */
+@Deprecated
 public class SwaptionPhysicalFixedIborSABRLMMAtBestMethod implements PricingMethod {
 
   /**
@@ -60,10 +62,12 @@ public class SwaptionPhysicalFixedIborSABRLMMAtBestMethod implements PricingMeth
 
   /**
    * Constructor.
-   * @param strikeMoneyness The noneyness of strikes used in the calibration basket. Difference between the swaption rate and the basket rates.
+   * @param strikeMoneyness The moneyness of strikes used in the calibration basket. Difference between the swaption rate and the basket rates.
    * @param parametersInit The initial value of the LMM parameters for calibration. The initial parameters are not modified by the calibration but a new copy is created for each calibration.
    */
   public SwaptionPhysicalFixedIborSABRLMMAtBestMethod(final double[] strikeMoneyness, final LiborMarketModelDisplacedDiffusionParameters parametersInit) {
+    ArgumentChecker.notNull(strikeMoneyness, "strike moneyness");
+    ArgumentChecker.notNull(parametersInit, "initial parameters");
     _strikeMoneyness = strikeMoneyness;
     _parametersInit = parametersInit;
   }
@@ -78,8 +82,8 @@ public class SwaptionPhysicalFixedIborSABRLMMAtBestMethod implements PricingMeth
    * @return The present value.
    */
   public CurrencyAmount presentValue(final SwaptionPhysicalFixedIbor swaption, final SABRInterestRateDataBundle curves) {
-    Validate.notNull(swaption);
-    Validate.notNull(curves);
+    ArgumentChecker.notNull(swaption, "swaption");
+    ArgumentChecker.notNull(curves, "curves");
     final int nbStrikes = _strikeMoneyness.length;
     final LiborMarketModelDisplacedDiffusionParameters lmmParameters = _parametersInit.copy();
     final SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationObjective objective = new SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationObjective(lmmParameters);
@@ -94,14 +98,14 @@ public class SwaptionPhysicalFixedIborSABRLMMAtBestMethod implements PricingMeth
 
   @Override
   public CurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
-    Validate.isTrue(instrument instanceof SwaptionPhysicalFixedIbor, "Physical delivery swaption");
-    Validate.isTrue(curves instanceof SABRInterestRateDataBundle, "Bundle should contain SABR data");
+    ArgumentChecker.isTrue(instrument instanceof SwaptionPhysicalFixedIbor, "Physical delivery swaption");
+    ArgumentChecker.isTrue(curves instanceof SABRInterestRateDataBundle, "Bundle should contain SABR data");
     return presentValue((SwaptionPhysicalFixedIbor) instrument, (SABRInterestRateDataBundle) curves);
   }
 
   public PresentValueSABRSensitivityDataBundle presentValueSABRSensitivity(final SwaptionPhysicalFixedIbor swaption, final SABRInterestRateDataBundle curves) {
-    Validate.notNull(swaption);
-    Validate.notNull(curves);
+    ArgumentChecker.notNull(swaption, "swaption");
+    ArgumentChecker.notNull(curves, "curves");
     final int nbStrikes = _strikeMoneyness.length;
     final LiborMarketModelDisplacedDiffusionParameters lmmParameters = _parametersInit.copy();
     final SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationObjective objective = new SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationObjective(lmmParameters);
@@ -203,8 +207,8 @@ public class SwaptionPhysicalFixedIborSABRLMMAtBestMethod implements PricingMeth
 
   public Triple<CurrencyAmount, PresentValueSABRSensitivityDataBundle, InterestRateCurveSensitivity> presentValueAndSensitivity(final SwaptionPhysicalFixedIbor swaption,
       final SABRInterestRateDataBundle curves) {
-    Validate.notNull(swaption);
-    Validate.notNull(curves);
+    ArgumentChecker.notNull(swaption, "swaption");
+    ArgumentChecker.notNull(curves, "curves");
     final int nbStrikes = _strikeMoneyness.length;
     final LiborMarketModelDisplacedDiffusionParameters lmmParameters = _parametersInit.copy();
     final SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationObjective objective = new SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationObjective(lmmParameters);
@@ -337,7 +341,7 @@ public class SwaptionPhysicalFixedIborSABRLMMAtBestMethod implements PricingMeth
     for (int loopp = 0; loopp < 2 * nbPeriods; loopp++) {
       dPvdC = dPvdC.plus(dPhidC[loopp].multipliedBy(dPvdPhi[loopp])).cleaned();
     }
-    return new Triple<CurrencyAmount, PresentValueSABRSensitivityDataBundle, InterestRateCurveSensitivity>(pv, sensiSABR, dPvdC);
+    return new Triple<>(pv, sensiSABR, dPvdC);
   }
 
 }

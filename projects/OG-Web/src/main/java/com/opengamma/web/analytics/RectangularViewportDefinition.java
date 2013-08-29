@@ -10,6 +10,7 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.analytics.formatting.TypeFormatter;
 
 /**
@@ -41,8 +42,6 @@ public class RectangularViewportDefinition extends ViewportDefinition {
                                               TypeFormatter.Format format,
                                               Boolean enableLogging) {
     super(version, enableLogging);
-    ArgumentChecker.notEmpty(rows, "rows");
-    ArgumentChecker.notEmpty(columns, "columns");
     ArgumentChecker.notNull(format, "format");
     _format = format;
     // TODO bounds checking
@@ -72,8 +71,53 @@ public class RectangularViewportDefinition extends ViewportDefinition {
     return true;
   }
 
+  @Override
+  Pair<Integer, Boolean> getChangedNode(ViewportDefinition viewportDefinition) {
+    if (!(viewportDefinition instanceof RectangularViewportDefinition)) {
+      throw new IllegalArgumentException("Unexpected viewport definition type " +
+                                             viewportDefinition.getClass().getSimpleName() + ", expected " +
+                                             RectangularViewportDefinition.class.getSimpleName());
+    }
+    List<Integer> newRows = ((RectangularViewportDefinition) viewportDefinition).getRows();
+
+    //if the first rows aren't equal the user has scrolled, of if there are no rows, return null
+    if (_rows.isEmpty() || (_rows.get(0) != newRows.get(0))) {
+      return null;
+    }
+    // if the first rows are equal and the viewport has changed then the user has either expanded or collapsed a node
+    // walk through the current and new list of rows
+    for (int i = 0; i < Math.max(_rows.size(), newRows.size()); i++) {
+      //if final node is expanded/collapsed then index will not be in list
+      if (i >= _rows.size()) {
+        return Pair.of(_rows.get(i - 1), true);
+      }
+      if (i >= newRows.size()) {
+        return Pair.of(newRows.get(i - 1), false);
+      }
+      // if this object's row index is greater then the node has collapsed
+      // the the other object's row index is greater then the node has expanded
+      // the expanded / collapsed node is the row before the unequal row
+      int oldRow = _rows.get(i);
+      int newRow = newRows.get(i);
+      if (oldRow == newRow) {
+        continue;
+      }
+      if (newRow < oldRow) {
+        return Pair.of(newRows.get(i - 1), true);
+      } else if (oldRow < newRow) {
+        return Pair.of(_rows.get(i - 1), false);
+      }
+    }
+    // or resized the window - if the window has resized the row lists will be different lengths
+    return null;
+  }
+
   /* package */ List<Integer> getColumns() {
     return _columns;
+  }
+
+  /* package */ List<Integer> getRows() {
+    return _rows;
   }
 
   /* package */ TypeFormatter.Format getFormat() {
@@ -100,7 +144,9 @@ public class RectangularViewportDefinition extends ViewportDefinition {
     }
 
     private void initRow() {
-      _rowIndex = _rowIterator.next();
+      if (_rowIterator.hasNext()) {
+        _rowIndex = _rowIterator.next();
+      }
       _colIterator = _columns.iterator();
     }
 

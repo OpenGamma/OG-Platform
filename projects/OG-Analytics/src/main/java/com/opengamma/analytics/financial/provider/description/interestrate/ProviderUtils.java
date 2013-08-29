@@ -23,11 +23,11 @@ import com.opengamma.util.money.Currency;
 public class ProviderUtils {
 
   /**
-   * Merges providers.
+   * Merges discounting curve providers.
    * @param providers The providers to merge, not null or empty
    * @return The merged providers
    */
-  public static MulticurveProviderDiscount merge(final Collection<MulticurveProviderDiscount> providers) {
+  public static MulticurveProviderDiscount mergeDiscountingProviders(final Collection<MulticurveProviderDiscount> providers) {
     ArgumentChecker.notNull(providers, "providers");
     ArgumentChecker.notEmpty(providers, "providers");
     final MulticurveProviderDiscount result = new MulticurveProviderDiscount();
@@ -56,12 +56,49 @@ public class ProviderUtils {
   }
 
   /**
-   * Merges a provider and an FX matrix
+   * Merges Hull-White one-factor providers.
+   * @param providers The providers to merge, not null or empty
+   * @return The merged providers
+   */
+  public static HullWhiteOneFactorProviderDiscount mergeHullWhiteProviders(final Collection<HullWhiteOneFactorProviderDiscount> providers) {
+    ArgumentChecker.notNull(providers, "providers");
+    ArgumentChecker.notEmpty(providers, "providers");
+    final Iterator<HullWhiteOneFactorProviderDiscount> iter = providers.iterator();
+    final HullWhiteOneFactorProviderDiscount result = iter.next().copy();
+    while (iter.hasNext()) {
+      final HullWhiteOneFactorProviderDiscount provider = iter.next().copy();
+      final MulticurveProviderDiscount underlying = provider.getMulticurveProvider().copy();
+      for (final Map.Entry<Currency, YieldAndDiscountCurve> entry : underlying.getDiscountingCurves().entrySet()) {
+        result.setCurve(entry.getKey(), entry.getValue());
+      }
+      for (final Map.Entry<IborIndex, YieldAndDiscountCurve> entry : underlying.getForwardIborCurves().entrySet()) {
+        result.setCurve(entry.getKey(), entry.getValue());
+      }
+      for (final Map.Entry<IndexON, YieldAndDiscountCurve> entry : underlying.getForwardONCurves().entrySet()) {
+        result.setCurve(entry.getKey(), entry.getValue());
+      }
+      final FXMatrix matrix = underlying.getFxRates();
+      final Collection<Currency> currencies = matrix.getCurrencies().keySet();
+      final Iterator<Currency> iterator = currencies.iterator();
+      if (currencies.size() > 0) {
+        final Currency initialCurrency = iterator.next();
+        while (iterator.hasNext()) {
+          final Currency otherCurrency = iterator.next();
+          underlying.getFxRates().addCurrency(initialCurrency, otherCurrency, matrix.getFxRate(initialCurrency, otherCurrency));
+        }
+      }
+      //TODO actually merge.
+    }
+    return result;
+  }
+
+  /**
+   * Merges a discounting curve provider and an FX matrix.
    * @param provider The provider, not null
    * @param matrix The FX matrix, not null
    * @return The merged provider
    */
-  public static MulticurveProviderDiscount merge(final MulticurveProviderDiscount provider, final FXMatrix matrix) {
+  public static MulticurveProviderDiscount mergeDiscountingProviders(final MulticurveProviderDiscount provider, final FXMatrix matrix) {
     ArgumentChecker.notNull(provider, "provider");
     ArgumentChecker.notNull(matrix, "matrix");
     final MulticurveProviderDiscount result = provider.copy();
@@ -72,6 +109,28 @@ public class ProviderUtils {
       while (iterator.hasNext()) {
         final Currency otherCurrency = iterator.next();
         result.getFxRates().addCurrency(initialCurrency, otherCurrency, matrix.getFxRate(initialCurrency, otherCurrency));
+      }
+    }
+    return result;
+  }
+
+  /**
+   * Merges a Hull-White curve provider and an FX matrix.
+   * @param provider The provider, not null
+   * @param matrix The FX matrix, not null
+   * @return The merged provider
+   */
+  public static HullWhiteOneFactorProviderDiscount mergeHullWhiteProviders(final HullWhiteOneFactorProviderDiscount provider, final FXMatrix matrix) {
+    ArgumentChecker.notNull(provider, "provider");
+    ArgumentChecker.notNull(matrix, "matrix");
+    final HullWhiteOneFactorProviderDiscount result = provider.copy();
+    final Collection<Currency> currencies = matrix.getCurrencies().keySet();
+    final Iterator<Currency> iterator = currencies.iterator();
+    if (currencies.size() > 0) {
+      final Currency initialCurrency = iterator.next();
+      while (iterator.hasNext()) {
+        final Currency otherCurrency = iterator.next();
+        result.getMulticurveProvider().getFxRates().addCurrency(initialCurrency, otherCurrency, matrix.getFxRate(initialCurrency, otherCurrency));
       }
     }
     return result;

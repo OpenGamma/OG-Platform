@@ -31,6 +31,7 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
+import org.joda.beans.Bean;
 import org.joda.beans.Property;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -976,12 +977,12 @@ public class DbBatchWriter extends AbstractDbMaster {
         // storing target data
         ComputationTarget computationTarget = _computationTargetResolver.resolve(targetSpec, VersionCorrection.LATEST);
         Object targetValue = computationTarget.getValue();
-        if(targetValue instanceof org.joda.beans.Bean){
-          org.joda.beans.Bean bean = (org.joda.beans.Bean) targetValue;
+        if (targetValue instanceof Bean) {
+          Bean bean = (Bean) targetValue;
           for (String propertyName : bean.propertyNames()) {
             Property<Object> property = bean.property(propertyName);
             final long targetPropertyId = nextId(RSK_SEQUENCE_NAME);
-            targetProperties.add(getTargetPropertyArgs(targetPropertyId, computationTargetId, propertyName, property.get()==null ? "NULL" : property.get().toString()));
+            targetProperties.add(getTargetPropertyArgs(targetPropertyId, computationTargetId, propertyName, property.get() == null ? "NULL" : property.get().toString()));
           }
         }
       }

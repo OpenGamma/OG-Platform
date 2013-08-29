@@ -53,7 +53,7 @@ public class YieldCurveNodePnLDefaults extends DefaultPropertyFunction {
     _samplingPeriod = samplingPeriod;
     _scheduleCalculator = scheduleCalculator;
     _samplingFunction = samplingFunction;
-    _currencyAndCurveConfigNames = new HashMap<String, String>();
+    _currencyAndCurveConfigNames = new HashMap<>();
     for (int i = 0; i < currencyAndCurveConfigNames.length; i += 2) {
       _currencyAndCurveConfigNames.put(currencyAndCurveConfigNames[i], currencyAndCurveConfigNames[i + 1]);
     }
@@ -73,7 +73,7 @@ public class YieldCurveNodePnLDefaults extends DefaultPropertyFunction {
     }
     final Currency currency = FinancialSecurityUtils.getCurrency(security);
     if (currency == null) {
-      s_logger.error("Could not get currency for security {}", security);
+      s_logger.info("Could not get currency for security {}", security);
       return false;
     }
     final String currencyName = currency.getCode();

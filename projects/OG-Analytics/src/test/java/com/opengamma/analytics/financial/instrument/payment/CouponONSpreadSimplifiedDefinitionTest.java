@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.payment;
@@ -13,8 +13,6 @@ import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.IndexON;
-import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
-import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONSpread;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
@@ -59,9 +57,6 @@ public class CouponONSpreadSimplifiedDefinitionTest {
   private static final CouponONSpreadSimplifiedDefinition EONIA_COUPON_DEFINITION = new CouponONSpreadSimplifiedDefinition(EUR_CUR, PAYMENT_DATE, START_ACCRUAL_DATE, END_ACCRUAL_DATE,
       PAYMENT_ACCRUAL_FACTOR,
       NOTIONAL, EUR_OIS, START_ACCRUAL_DATE, END_ACCRUAL_DATE, FIXING_YEAR_FRACTION, SPREAD);
-
-  private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves1();
-  private static final String[] CURVES_NAMES = CURVES.getAllNames().toArray(new String[CURVES.size()]);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullIndex() {
@@ -150,7 +145,7 @@ public class CouponONSpreadSimplifiedDefinitionTest {
    * Tests the toDerivative method.
    */
   public void toDerivative() {
-    final CouponONSpread cpnConverted = EONIA_COUPON_DEFINITION.toDerivative(TRADE_DATE, CURVES_NAMES);
+    final CouponONSpread cpnConverted = EONIA_COUPON_DEFINITION.toDerivative(TRADE_DATE);
     final double paymentTime = TimeCalculator.getTimeBetween(TRADE_DATE, PAYMENT_DATE);
     final double fixingStartTime = TimeCalculator.getTimeBetween(TRADE_DATE, START_ACCRUAL_DATE);
     final double fixingEndTime = TimeCalculator.getTimeBetween(TRADE_DATE, END_ACCRUAL_DATE);
@@ -160,4 +155,20 @@ public class CouponONSpreadSimplifiedDefinitionTest {
     assertEquals("CouponOISSimplified definition: toDerivative", cpnExpected, cpnConverted);
   }
 
+  @SuppressWarnings("deprecation")
+  @Test
+  /**
+   * Tests the toDerivative method.
+   */
+  public void toDerivativeDeprecated() {
+    final String[] curveNames = new String[] {"Funding", "Forward"};
+    final CouponONSpread cpnConverted = EONIA_COUPON_DEFINITION.toDerivative(TRADE_DATE, curveNames);
+    final double paymentTime = TimeCalculator.getTimeBetween(TRADE_DATE, PAYMENT_DATE);
+    final double fixingStartTime = TimeCalculator.getTimeBetween(TRADE_DATE, START_ACCRUAL_DATE);
+    final double fixingEndTime = TimeCalculator.getTimeBetween(TRADE_DATE, END_ACCRUAL_DATE);
+    final double spreadAmount = SPREAD * NOTIONAL * PAYMENT_ACCRUAL_FACTOR;
+    final CouponONSpread cpnExpected = new CouponONSpread(EUR_CUR, paymentTime, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, EUR_OIS, fixingStartTime, fixingEndTime, FIXING_YEAR_FRACTION,
+        NOTIONAL, spreadAmount);
+    assertEquals("CouponOISSimplified definition: toDerivative", cpnExpected, cpnConverted);
+  }
 }

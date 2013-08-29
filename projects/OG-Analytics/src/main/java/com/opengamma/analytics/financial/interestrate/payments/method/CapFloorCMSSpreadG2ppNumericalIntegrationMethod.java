@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.method;
@@ -8,6 +8,7 @@ package com.opengamma.analytics.financial.interestrate.payments.method;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.CashFlowEquivalentCalculator;
+import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityPaymentFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorCMSSpread;
 import com.opengamma.analytics.financial.model.interestrate.G2ppPiecewiseConstantModel;
@@ -21,7 +22,9 @@ import com.opengamma.util.money.CurrencyAmount;
 
 /**
  * Method to compute the present value of CMS spread cap/floor with the G2++ model by numerical integration.
+ * @deprecated {@link YieldCurveBundle} is deprecated
  */
+@Deprecated
 public class CapFloorCMSSpreadG2ppNumericalIntegrationMethod {
 
   /**

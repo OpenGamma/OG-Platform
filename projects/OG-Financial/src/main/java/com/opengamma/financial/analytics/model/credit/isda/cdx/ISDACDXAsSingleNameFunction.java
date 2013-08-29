@@ -21,7 +21,8 @@ import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantCreditCurve;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantYieldCurve;
 import com.opengamma.analytics.math.curve.NodalObjectsCurve;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.organization.OrganizationSource;
@@ -102,7 +103,7 @@ public abstract class ISDACDXAsSingleNameFunction extends AbstractFunction.NonCo
     if (spreadCurveObject == null) {
       throw new OpenGammaRuntimeException("Could not get credit spread curve");
     }
-    final ISDADateCurve yieldCurve = (ISDADateCurve) yieldCurveObject;
+    final ISDACompliantYieldCurve yieldCurve = (ISDACompliantYieldCurve) yieldCurveObject;
     final NodalObjectsCurve<?, ?> spreadCurve = (NodalObjectsCurve<?, ?>) spreadCurveObject;
     final Tenor[] tenors = CreditFunctionUtils.getTenors(spreadCurve.getXData());
     final Double[] marketSpreadObjects = CreditFunctionUtils.getSpreads(spreadCurve.getYData());
@@ -112,7 +113,7 @@ public abstract class ISDACDXAsSingleNameFunction extends AbstractFunction.NonCo
     final double[] marketSpreads = new double[n];
     for (int i = 0; i < n; i++) {
       times[i] = IMMDateGenerator.getNextIMMDate(valuationTime, tenors[i]).withHour(0).withMinute(0).withSecond(0).withNano(0);
-      marketSpreads[i] = marketSpreadObjects[i];
+      marketSpreads[i] = marketSpreadObjects[i] * 1e-4;
     }
     final ValueProperties properties = desiredValues.iterator().next().getConstraints().copy()
         .with(ValuePropertyNames.FUNCTION, getUniqueId())
@@ -216,8 +217,14 @@ public abstract class ISDACDXAsSingleNameFunction extends AbstractFunction.NonCo
     return results;
   }
 
-  protected abstract Set<ComputedValue> getComputedValue(CreditDefaultSwapDefinition definition, ISDADateCurve yieldCurve, ZonedDateTime[] times, double[] marketSpreads,
-      ZonedDateTime valuationTime, ComputationTarget target, ValueProperties properties, FunctionInputs inputs);
+  protected abstract Set<ComputedValue> getComputedValue(CreditDefaultSwapDefinition definition,
+                                                         ISDACompliantYieldCurve yieldCurve,
+                                                         ZonedDateTime[] times,
+                                                         double[] marketSpreads,
+                                                         ZonedDateTime valuationTime,
+                                                         ComputationTarget target,
+                                                         ValueProperties properties,
+                                                         FunctionInputs inputs);
 
   protected abstract ValueProperties.Builder getCommonResultProperties();
 

@@ -182,40 +182,40 @@ public class UnionMarketDataAvailabilityTest {
     assertFalse(availability.isAvailable(targetSpec, ExternalId.of("C", "Absent"), desiredValue));
   }
 
-  @Test(expectedExceptions = {MarketDataNotSatisfiableException.class }, dataProvider = "providers")
+  @Test(dataProvider = "providers")
   public void testGetAvailability_missing_a(final MarketDataAvailabilityProvider availability) {
     final ValueRequirement desiredValue = new ValueRequirement("Foo", ComputationTargetSpecification.NULL);
-    assertNull(availability.getAvailability(ComputationTargetSpecification.NULL, ExternalId.of("A", "Missing"), desiredValue));
+    assertNotNull(availability.getAvailability(ComputationTargetSpecification.NULL, ExternalId.of("A", "Missing"), desiredValue));
   }
 
-  @Test(expectedExceptions = {MarketDataNotSatisfiableException.class }, dataProvider = "filters")
+  @Test(dataProvider = "filters")
   public void testIsAvailable_missing_a(final MarketDataAvailabilityFilter availability) {
     final ValueRequirement desiredValue = new ValueRequirement("Foo", ComputationTargetSpecification.NULL);
-    assertFalse(availability.isAvailable(ComputationTargetSpecification.NULL, ExternalId.of("A", "Missing"), desiredValue));
+    assertTrue(availability.isAvailable(ComputationTargetSpecification.NULL, ExternalId.of("A", "Missing"), desiredValue));
   }
 
-  @Test(expectedExceptions = {MarketDataNotSatisfiableException.class }, dataProvider = "providers")
+  @Test(dataProvider = "providers")
   public void testGetAvailability_missing_b(final MarketDataAvailabilityProvider availability) {
     final ValueRequirement desiredValue = new ValueRequirement("Foo", ComputationTargetSpecification.NULL);
-    assertNull(availability.getAvailability(ComputationTargetSpecification.NULL, ExternalIdBundle.of(ExternalId.of("A", "Missing"), ExternalId.of("B", "Missing")), desiredValue));
+    assertNotNull(availability.getAvailability(ComputationTargetSpecification.NULL, ExternalIdBundle.of(ExternalId.of("A", "Missing"), ExternalId.of("B", "Missing")), desiredValue));
   }
 
-  @Test(expectedExceptions = {MarketDataNotSatisfiableException.class }, dataProvider = "filters")
+  @Test(dataProvider = "filters")
   public void testIsAvailable_missing_b(final MarketDataAvailabilityFilter availability) {
     final ValueRequirement desiredValue = new ValueRequirement("Foo", ComputationTargetSpecification.NULL);
-    assertFalse(availability.isAvailable(ComputationTargetSpecification.NULL, ExternalIdBundle.of(ExternalId.of("A", "Missing"), ExternalId.of("B", "Missing")), desiredValue));
+    assertTrue(availability.isAvailable(ComputationTargetSpecification.NULL, ExternalIdBundle.of(ExternalId.of("A", "Missing"), ExternalId.of("B", "Missing")), desiredValue));
   }
 
-  @Test(expectedExceptions = {MarketDataNotSatisfiableException.class }, dataProvider = "providers")
+  @Test(dataProvider = "providers")
   public void testGetAvailability_missing_c(final MarketDataAvailabilityProvider availability) {
     final ValueRequirement desiredValue = new ValueRequirement("Foo", ComputationTargetSpecification.NULL);
-    assertNull(availability.getAvailability(ComputationTargetSpecification.NULL, ExternalIdBundle.of(ExternalId.of("A", "Absent"), ExternalId.of("B", "Missing")), desiredValue));
+    assertNotNull(availability.getAvailability(ComputationTargetSpecification.NULL, ExternalIdBundle.of(ExternalId.of("A", "Absent"), ExternalId.of("B", "Missing")), desiredValue));
   }
 
-  @Test(expectedExceptions = {MarketDataNotSatisfiableException.class }, dataProvider = "filters")
+  @Test(dataProvider = "filters")
   public void testIsAvailable_missing_c(final MarketDataAvailabilityFilter availability) {
     final ValueRequirement desiredValue = new ValueRequirement("Foo", ComputationTargetSpecification.NULL);
-    assertFalse(availability.isAvailable(ComputationTargetSpecification.NULL, ExternalIdBundle.of(ExternalId.of("A", "Absent"), ExternalId.of("B", "Missing")), desiredValue));
+    assertTrue(availability.isAvailable(ComputationTargetSpecification.NULL, ExternalIdBundle.of(ExternalId.of("A", "Absent"), ExternalId.of("B", "Missing")), desiredValue));
   }
 
   @Test(expectedExceptions = {BlockingOperation.class }, dataProvider = "providers")

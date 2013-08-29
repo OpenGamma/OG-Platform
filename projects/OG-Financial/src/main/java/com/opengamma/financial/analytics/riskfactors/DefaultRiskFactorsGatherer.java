@@ -448,7 +448,6 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
     return builder.build();
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public Set<Pair<String, ValueProperties>> visitFXForwardSecurity(final FXForwardSecurity security) {
     return ImmutableSet.of(
@@ -459,7 +458,6 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
   }
 
   // REVIEW jim 23-Jan-2012 -- bit of a leap to copy fx forwards, but there you go.
-  @SuppressWarnings("unchecked")
   @Override
   public Set<Pair<String, ValueProperties>> visitNonDeliverableFXForwardSecurity(
     final NonDeliverableFXForwardSecurity security) {
@@ -496,20 +494,17 @@ public class DefaultRiskFactorsGatherer extends FinancialSecurityVisitorAdapter<
   public Set<Pair<String, ValueProperties>> visitEquityVarianceSwapSecurity(final EquityVarianceSwapSecurity security) {
     final String ticker = security.getSpotUnderlyingId().getValue();
     if (ticker != null) {
-      final String surfaceName = _configProvider.getEquityIndexOptionVolatilitySurfaceName(ticker);
       return ImmutableSet.<Pair<String, ValueProperties>>builder()
         .add(getPresentValue(ValueProperties.builder()))
         .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()))
         .add(getVegaQuoteMatrix(ValueProperties
           .with(ValuePropertyNames.SURFACE, "DEFAULT")
             .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, "EQUITY_OPTION"))).build();
-    } else {
-      s_logger.warn("Could not get underlying ticker for equity variance swap security, so excluding surface");
-      return ImmutableSet.<Pair<String, ValueProperties>>builder()
-          .add(getPresentValue(ValueProperties.builder()))
-          .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency())).build();
-
     }
+    s_logger.warn("Could not get underlying ticker for equity variance swap security, so excluding surface");
+    return ImmutableSet.<Pair<String, ValueProperties>>builder()
+        .add(getPresentValue(ValueProperties.builder()))
+        .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency())).build();
   }
 
   //-------------------------------------------------------------------------

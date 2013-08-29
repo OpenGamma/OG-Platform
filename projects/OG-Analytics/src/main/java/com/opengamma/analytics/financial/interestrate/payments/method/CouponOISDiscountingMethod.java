@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.method;
@@ -23,7 +23,9 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Method to compute present value and its sensitivities for OIS coupons.
+ * @deprecated {@link PricingMethod} is deprecated.
  */
+@Deprecated
 public final class CouponOISDiscountingMethod implements PricingMethod {
 
   /**
@@ -63,7 +65,7 @@ public final class CouponOISDiscountingMethod implements PricingMethod {
   }
 
   @Override
-  public CurrencyAmount presentValue(InstrumentDerivative instrument, YieldCurveBundle curves) {
+  public CurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof CouponON, "Coupon OIS");
     return presentValue((CouponON) instrument, curves);
   }
@@ -71,7 +73,7 @@ public final class CouponOISDiscountingMethod implements PricingMethod {
   /**
    * Compute the present value sensitivity to rates of a OIS coupon by discounting.
    * @param coupon The coupon.
-   * @param curves The yield curves. Should contain the discounting and forward curves associated. 
+   * @param curves The yield curves. Should contain the discounting and forward curves associated.
    * @return The present value curve sensitivities.
    */
   public InterestRateCurveSensitivity presentValueCurveSensitivity(final CouponON coupon, final YieldCurveBundle curves) {
@@ -89,13 +91,13 @@ public final class CouponOISDiscountingMethod implements PricingMethod {
     final double dfRatioEndBar = -dfRatioStart / (dfRatioEnd * dfRatioEnd) * ratioBar;
     final double dfRatioStartBar = 1.0 / dfRatioEnd * ratioBar;
     final double dfBar = (coupon.getNotionalAccrued() * ratio - coupon.getNotional()) * pvBar;
-    final Map<String, List<DoublesPair>> resultMapDsc = new HashMap<String, List<DoublesPair>>();
-    final List<DoublesPair> listDiscounting = new ArrayList<DoublesPair>();
+    final Map<String, List<DoublesPair>> resultMapDsc = new HashMap<>();
+    final List<DoublesPair> listDiscounting = new ArrayList<>();
     listDiscounting.add(new DoublesPair(coupon.getPaymentTime(), -coupon.getPaymentTime() * df * dfBar));
     resultMapDsc.put(coupon.getFundingCurveName(), listDiscounting);
     InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultMapDsc);
-    final Map<String, List<DoublesPair>> resultMapFwd = new HashMap<String, List<DoublesPair>>();
-    final List<DoublesPair> listForward = new ArrayList<DoublesPair>();
+    final Map<String, List<DoublesPair>> resultMapFwd = new HashMap<>();
+    final List<DoublesPair> listForward = new ArrayList<>();
     listForward.add(new DoublesPair(coupon.getFixingPeriodStartTime(), -coupon.getFixingPeriodStartTime() * dfRatioStart * dfRatioStartBar));
     listForward.add(new DoublesPair(coupon.getFixingPeriodEndTime(), -coupon.getFixingPeriodEndTime() * dfRatioEnd * dfRatioEndBar));
     resultMapFwd.put(coupon.getForwardCurveName(), listForward);
@@ -104,7 +106,7 @@ public final class CouponOISDiscountingMethod implements PricingMethod {
   }
 
   /**
-   * Computes the par rate, i.e. the fair rate for the remaining period. 
+   * Computes the par rate, i.e. the fair rate for the remaining period.
    * @param coupon The coupon.
    * @param curves The curves.
    * @return The par rate.
@@ -135,8 +137,8 @@ public final class CouponOISDiscountingMethod implements PricingMethod {
     final double forwardBar = 1.0;
     final double dfForwardEndBar = -dfForwardStart / (dfForwardEnd * dfForwardEnd) / coupon.getFixingPeriodAccrualFactor() * forwardBar;
     final double dfForwardStartBar = 1.0 / (coupon.getFixingPeriodAccrualFactor() * dfForwardEnd) * forwardBar;
-    final Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
-    final List<DoublesPair> listForward = new ArrayList<DoublesPair>();
+    final Map<String, List<DoublesPair>> resultMap = new HashMap<>();
+    final List<DoublesPair> listForward = new ArrayList<>();
     listForward.add(new DoublesPair(coupon.getFixingPeriodStartTime(), -coupon.getFixingPeriodStartTime() * dfForwardStart * dfForwardStartBar));
     listForward.add(new DoublesPair(coupon.getFixingPeriodEndTime(), -coupon.getFixingPeriodEndTime() * dfForwardEnd * dfForwardEndBar));
     resultMap.put(coupon.getForwardCurveName(), listForward);

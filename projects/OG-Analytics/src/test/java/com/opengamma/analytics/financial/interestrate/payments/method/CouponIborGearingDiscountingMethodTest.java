@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.method;
@@ -40,7 +40,9 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Tests related to the pricing and sensitivities of Ibor coupon with gearing factor and spread in the discounting method.
+ * @deprecated This class tests deprecated functionality.
  */
+@Deprecated
 public class CouponIborGearingDiscountingMethodTest {
   // The index: Libor 3m
   private static final Period TENOR = Period.ofMonths(3);

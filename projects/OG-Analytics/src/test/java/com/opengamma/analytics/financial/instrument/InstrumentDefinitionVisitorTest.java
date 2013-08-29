@@ -1,11 +1,11 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument;
@@ -93,6 +93,7 @@ import com.opengamma.analytics.financial.instrument.payment.CouponArithmeticAver
 import com.opengamma.analytics.financial.instrument.payment.CouponArithmeticAverageONSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponArithmeticAverageONSpreadSimplifiedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponCMSDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponFixedAccruedCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageDefinition;
@@ -102,6 +103,7 @@ import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition
 import com.opengamma.analytics.financial.instrument.payment.CouponIborGearingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborRatchetDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborSpreadDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponONCompoundedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponONDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponONSimplifiedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponONSpreadSimplifiedDefinition;
@@ -127,7 +129,7 @@ public class InstrumentDefinitionVisitorTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDelegate() {
-    new InstrumentDefinitionVisitorDelegate(null);
+    new InstrumentDefinitionVisitorDelegate<>(null);
   }
 
   @Test
@@ -254,12 +256,12 @@ public class InstrumentDefinitionVisitorTest {
     }
 
     @Override
-    public String visitCouponInflationYearOnYearInterpolationDefinition(CouponInflationYearOnYearInterpolationDefinition coupon, String data) {
+    public String visitCouponInflationYearOnYearInterpolationDefinition(final CouponInflationYearOnYearInterpolationDefinition coupon, final String data) {
       return null;
     }
 
     @Override
-    public String visitCouponInflationYearOnYearInterpolationDefinition(CouponInflationYearOnYearInterpolationDefinition coupon) {
+    public String visitCouponInflationYearOnYearInterpolationDefinition(final CouponInflationYearOnYearInterpolationDefinition coupon) {
       return null;
     }
 
@@ -1059,232 +1061,252 @@ public class InstrumentDefinitionVisitorTest {
     }
 
     @Override
-    public String visitCouponIborCompoundingSpreadDefinition(CouponIborCompoundingSpreadDefinition payment, T data) {
+    public String visitCouponIborCompoundingSpreadDefinition(final CouponIborCompoundingSpreadDefinition payment, final T data) {
       return getValue(payment, true);
     }
 
     @Override
-    public String visitCouponIborCompoundingSpreadDefinition(CouponIborCompoundingSpreadDefinition payment) {
+    public String visitCouponIborCompoundingSpreadDefinition(final CouponIborCompoundingSpreadDefinition payment) {
       return getValue(payment, true);
     }
 
     @Override
-    public String visitCouponIborAverageDefinition(CouponIborAverageDefinition payment, T data) {
+    public String visitCouponIborAverageDefinition(final CouponIborAverageDefinition payment, final T data) {
       return getValue(payment, true);
     }
 
     @Override
-    public String visitCouponIborAverageDefinition(CouponIborAverageDefinition payment) {
+    public String visitCouponIborAverageDefinition(final CouponIborAverageDefinition payment) {
       return getValue(payment, true);
     }
 
     @Override
-    public String visitCouponInflationYearOnYearFirstOfMonth(CouponInflationYearOnYearMonthlyDefinition coupon, T data) {
+    public String visitCouponInflationYearOnYearFirstOfMonth(final CouponInflationYearOnYearMonthlyDefinition coupon, final T data) {
       return getValue(coupon, true);
     }
 
     @Override
-    public String visitCouponInflationYearOnYearFirstOfMonth(CouponInflationYearOnYearMonthlyDefinition coupon) {
+    public String visitCouponInflationYearOnYearFirstOfMonth(final CouponInflationYearOnYearMonthlyDefinition coupon) {
       return getValue(coupon, false);
     }
 
     @Override
-    public String visitCouponInflationYearOnYearInterpolationDefinition(CouponInflationYearOnYearInterpolationDefinition coupon, T data) {
+    public String visitCouponInflationYearOnYearInterpolationDefinition(final CouponInflationYearOnYearInterpolationDefinition coupon, final T data) {
       return getValue(coupon, true);
     }
 
     @Override
-    public String visitCouponInflationYearOnYearInterpolationDefinition(CouponInflationYearOnYearInterpolationDefinition coupon) {
+    public String visitCouponInflationYearOnYearInterpolationDefinition(final CouponInflationYearOnYearInterpolationDefinition coupon) {
       return getValue(coupon, false);
     }
 
     @Override
-    public String visitCouponFixedCompoundingDefinition(CouponFixedCompoundingDefinition payment, T data) {
+    public String visitCouponFixedCompoundingDefinition(final CouponFixedCompoundingDefinition payment, final T data) {
       return getValue(payment, true);
     }
 
     @Override
-    public String visitCouponFixedCompoundingDefinition(CouponFixedCompoundingDefinition payment) {
+    public String visitCouponFixedCompoundingDefinition(final CouponFixedCompoundingDefinition payment) {
       return getValue(payment, false);
     }
 
     @Override
-    public String visitIndexFutureDefinition(IndexFutureDefinition future, T data) {
+    public String visitIndexFutureDefinition(final IndexFutureDefinition future, final T data) {
       return getValue(future, true);
     }
 
     @Override
-    public String visitIndexFutureDefinition(IndexFutureDefinition future) {
+    public String visitIndexFutureDefinition(final IndexFutureDefinition future) {
       return getValue(future, false);
     }
 
     @Override
-    public String visitEquityIndexFutureDefinition(EquityIndexFutureDefinition future, T data) {
+    public String visitEquityIndexFutureDefinition(final EquityIndexFutureDefinition future, final T data) {
       return getValue(future, true);
     }
 
     @Override
-    public String visitEquityIndexFutureDefinition(EquityIndexFutureDefinition future) {
+    public String visitEquityIndexFutureDefinition(final EquityIndexFutureDefinition future) {
       return getValue(future, false);
     }
 
     @Override
-    public String visitVolatilityIndexFutureDefinition(VolatilityIndexFutureDefinition future, T data) {
+    public String visitVolatilityIndexFutureDefinition(final VolatilityIndexFutureDefinition future, final T data) {
       return getValue(future, true);
     }
 
     @Override
-    public String visitVolatilityIndexFutureDefinition(VolatilityIndexFutureDefinition future) {
+    public String visitVolatilityIndexFutureDefinition(final VolatilityIndexFutureDefinition future) {
       return getValue(future, false);
     }
 
     @Override
-    public String visitDeliverableSwapFuturesTransactionDefinition(SwapFuturesPriceDeliverableTransactionDefinition futures, T data) {
+    public String visitDeliverableSwapFuturesTransactionDefinition(final SwapFuturesPriceDeliverableTransactionDefinition futures, final T data) {
       return null;
     }
 
     @Override
-    public String visitDeliverableSwapFuturesTransactionDefinition(SwapFuturesPriceDeliverableTransactionDefinition futures) {
+    public String visitDeliverableSwapFuturesTransactionDefinition(final SwapFuturesPriceDeliverableTransactionDefinition futures) {
       return null;
     }
 
     @Override
-    public String visitCapFloorInflationZeroCouponInterpolationDefinition(CapFloorInflationZeroCouponInterpolationDefinition coupon, T data) {
+    public String visitCapFloorInflationZeroCouponInterpolationDefinition(final CapFloorInflationZeroCouponInterpolationDefinition coupon, final T data) {
       return null;
     }
 
     @Override
-    public String visitCapFloorInflationZeroCouponInterpolationDefinition(CapFloorInflationZeroCouponInterpolationDefinition coupon) {
+    public String visitCapFloorInflationZeroCouponInterpolationDefinition(final CapFloorInflationZeroCouponInterpolationDefinition coupon) {
       return null;
     }
 
     @Override
-    public String visitCapFloorInflationZeroCouponMonthlyDefinition(CapFloorInflationZeroCouponMonthlyDefinition coupon, T data) {
+    public String visitCapFloorInflationZeroCouponMonthlyDefinition(final CapFloorInflationZeroCouponMonthlyDefinition coupon, final T data) {
       return null;
     }
 
     @Override
-    public String visitCapFloorInflationZeroCouponMonthlyDefinition(CapFloorInflationZeroCouponMonthlyDefinition coupon) {
+    public String visitCapFloorInflationZeroCouponMonthlyDefinition(final CapFloorInflationZeroCouponMonthlyDefinition coupon) {
       return null;
     }
 
     @Override
-    public String visitCapFloorInflationYearOnYearInterpolationDefinition(CapFloorInflationYearOnYearInterpolationDefinition coupon, T data) {
+    public String visitCapFloorInflationYearOnYearInterpolationDefinition(final CapFloorInflationYearOnYearInterpolationDefinition coupon, final T data) {
       return null;
     }
 
     @Override
-    public String visitCapFloorInflationYearOnYearInterpolationDefinition(CapFloorInflationYearOnYearInterpolationDefinition coupon) {
+    public String visitCapFloorInflationYearOnYearInterpolationDefinition(final CapFloorInflationYearOnYearInterpolationDefinition coupon) {
       return null;
     }
 
     @Override
-    public String visitCapFloorInflationYearOnYearMonthlyDefinition(CapFloorInflationYearOnYearMonthlyDefinition coupon, T data) {
+    public String visitCapFloorInflationYearOnYearMonthlyDefinition(final CapFloorInflationYearOnYearMonthlyDefinition coupon, final T data) {
       return null;
     }
 
     @Override
-    public String visitCapFloorInflationYearOnYearMonthlyDefinition(CapFloorInflationYearOnYearMonthlyDefinition coupon) {
+    public String visitCapFloorInflationYearOnYearMonthlyDefinition(final CapFloorInflationYearOnYearMonthlyDefinition coupon) {
       return null;
     }
 
     @Override
-    public String visitCouponArithmeticAverageONDefinition(CouponArithmeticAverageONDefinition payment, T data) {
+    public String visitCouponArithmeticAverageONDefinition(final CouponArithmeticAverageONDefinition payment, final T data) {
       return null;
     }
 
     @Override
-    public String visitCouponArithmeticAverageONDefinition(CouponArithmeticAverageONDefinition payment) {
+    public String visitCouponArithmeticAverageONDefinition(final CouponArithmeticAverageONDefinition payment) {
       return null;
     }
 
     @Override
-    public String visitCouponArithmeticAverageONSpreadDefinition(CouponArithmeticAverageONSpreadDefinition payment, T data) {
+    public String visitCouponArithmeticAverageONSpreadDefinition(final CouponArithmeticAverageONSpreadDefinition payment, final T data) {
       return null;
     }
 
     @Override
-    public String visitCouponArithmeticAverageONSpreadDefinition(CouponArithmeticAverageONSpreadDefinition payment) {
+    public String visitCouponArithmeticAverageONSpreadDefinition(final CouponArithmeticAverageONSpreadDefinition payment) {
       return null;
     }
 
     @Override
-    public String visitCouponArithmeticAverageONSpreadSimplifiedDefinition(CouponArithmeticAverageONSpreadSimplifiedDefinition payment, T data) {
+    public String visitCouponArithmeticAverageONSpreadSimplifiedDefinition(final CouponArithmeticAverageONSpreadSimplifiedDefinition payment, final T data) {
       return null;
     }
 
     @Override
-    public String visitCouponArithmeticAverageONSpreadSimplifiedDefinition(CouponArithmeticAverageONSpreadSimplifiedDefinition payment) {
+    public String visitCouponArithmeticAverageONSpreadSimplifiedDefinition(final CouponArithmeticAverageONSpreadSimplifiedDefinition payment) {
       return null;
     }
 
     @Override
-    public String visitBondFuturesSecurityDefinition(BondFuturesSecurityDefinition bond, T data) {
+    public String visitBondFuturesSecurityDefinition(final BondFuturesSecurityDefinition bond, final T data) {
       return null;
     }
 
     @Override
-    public String visitBondFuturesSecurityDefinition(BondFuturesSecurityDefinition bond) {
+    public String visitBondFuturesSecurityDefinition(final BondFuturesSecurityDefinition bond) {
       return null;
     }
 
     @Override
-    public String visitBondFuturesTransactionDefinition(BondFuturesTransactionDefinition bond, T data) {
+    public String visitBondFuturesTransactionDefinition(final BondFuturesTransactionDefinition bond, final T data) {
       return null;
     }
 
     @Override
-    public String visitBondFuturesTransactionDefinition(BondFuturesTransactionDefinition bond) {
+    public String visitBondFuturesTransactionDefinition(final BondFuturesTransactionDefinition bond) {
       return null;
     }
 
     @Override
-    public String visitCouponInflationYearOnYearMonthlyWithMargin(CouponInflationYearOnYearMonthlyWithMarginDefinition coupon, T data) {
+    public String visitCouponInflationYearOnYearMonthlyWithMargin(final CouponInflationYearOnYearMonthlyWithMarginDefinition coupon, final T data) {
       return null;
     }
 
     @Override
-    public String visitCouponInflationYearOnYearMonthlyWithMargin(CouponInflationYearOnYearMonthlyWithMarginDefinition coupon) {
+    public String visitCouponInflationYearOnYearMonthlyWithMargin(final CouponInflationYearOnYearMonthlyWithMarginDefinition coupon) {
       return null;
     }
 
     @Override
-    public String visitCouponInflationYearOnYearInterpolationWithMargin(CouponInflationYearOnYearInterpolationWithMarginDefinition coupon, T data) {
+    public String visitCouponInflationYearOnYearInterpolationWithMargin(final CouponInflationYearOnYearInterpolationWithMarginDefinition coupon, final T data) {
       return null;
     }
 
     @Override
-    public String visitCouponInflationYearOnYearInterpolationWithMargin(CouponInflationYearOnYearInterpolationWithMarginDefinition coupon) {
+    public String visitCouponInflationYearOnYearInterpolationWithMargin(final CouponInflationYearOnYearInterpolationWithMarginDefinition coupon) {
       return null;
     }
 
     @Override
-    public String visitBondInterestIndexedSecurity(BondInterestIndexedSecurityDefinition<?, ?> bond, T data) {
+    public String visitBondInterestIndexedSecurity(final BondInterestIndexedSecurityDefinition<?, ?> bond, final T data) {
       return null;
     }
 
     @Override
-    public String visitBondInterestIndexedSecurity(BondInterestIndexedSecurityDefinition<?, ?> bond) {
+    public String visitBondInterestIndexedSecurity(final BondInterestIndexedSecurityDefinition<?, ?> bond) {
       return null;
     }
 
     @Override
-    public String visitBondInterestIndexedTransaction(BondInterestIndexedTransactionDefinition<?, ?> bond, T data) {
+    public String visitBondInterestIndexedTransaction(final BondInterestIndexedTransactionDefinition<?, ?> bond, final T data) {
       return null;
     }
 
     @Override
-    public String visitBondInterestIndexedTransaction(BondInterestIndexedTransactionDefinition<?, ?> bond) {
+    public String visitBondInterestIndexedTransaction(final BondInterestIndexedTransactionDefinition<?, ?> bond) {
       return null;
     }
 
     @Override
-    public String visitCouponONSpreadSimplifiedDefinition(CouponONSpreadSimplifiedDefinition payment, T data) {
+    public String visitCouponONSpreadSimplifiedDefinition(final CouponONSpreadSimplifiedDefinition payment, final T data) {
       return null;
     }
 
     @Override
-    public String visitCouponONSpreadSimplifiedDefinition(CouponONSpreadSimplifiedDefinition payment) {
+    public String visitCouponONSpreadSimplifiedDefinition(final CouponONSpreadSimplifiedDefinition payment) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponFixedAccruedCompoundingDefinition(final CouponFixedAccruedCompoundingDefinition payment, final T data) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponFixedAccruedCompoundingDefinition(final CouponFixedAccruedCompoundingDefinition payment) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponONCompoundedDefinition(final CouponONCompoundedDefinition payment, final T data) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponONCompoundedDefinition(final CouponONCompoundedDefinition payment) {
       return null;
     }
 

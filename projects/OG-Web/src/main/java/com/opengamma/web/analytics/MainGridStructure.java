@@ -19,20 +19,49 @@ import com.opengamma.util.tuple.Pair;
  */
 /* package */ abstract class MainGridStructure implements GridStructure {
 
-  /** The column structure. */
+  /** The complete column structure. */
   private final GridColumnGroups _columnGroups;
+
+  /** The fixed column structure. */
+  private final GridColumnGroup _fixedColumnGroup;
+
+  /** The non fixed column structure. */
+  private final GridColumnGroups _nonFixedColumnGroups;
+
 
   /** For looking up the underlying target of a grid cell. */
   private final TargetLookup _targetLookup;
 
+  /** The root node of the portfolio structure. */
+  private final AnalyticsNode _rootNode;
+
   /* package */ MainGridStructure() {
     _columnGroups = GridColumnGroups.empty();
+    _fixedColumnGroup = GridColumnGroup.empty();
+    _nonFixedColumnGroups = GridColumnGroups.empty();
     _targetLookup = new TargetLookup(new ValueMappings(), Collections.<Row>emptyList());
+    _rootNode = null;
   }
 
   // TODO refactor this to pass in columns instead of column keys?
   // column would need to return its key (null for static and blotter columns)
   // could pass all columns in a single List<GridColumnGroup> or GridColumnGroups instance
+  /* package */ MainGridStructure(GridColumnGroup fixedColumns,
+                                  GridColumnGroups nonFixedColumns,
+                                  TargetLookup targetLookup,
+                                  AnalyticsNode rootNode) {
+    ArgumentChecker.notNull(targetLookup, "targetLookup");
+    ArgumentChecker.notNull(nonFixedColumns, "nonFixedColumns");
+    ArgumentChecker.notNull(fixedColumns, "fixedColumns");
+    List<GridColumnGroup> columnGroups = Lists.newArrayList(fixedColumns);
+    columnGroups.addAll(nonFixedColumns.getGroups());
+    _rootNode = rootNode;
+    _columnGroups = new GridColumnGroups(columnGroups);
+    _fixedColumnGroup = fixedColumns;
+    _nonFixedColumnGroups = nonFixedColumns;
+    _targetLookup = targetLookup;
+  }
+
   /* package */ MainGridStructure(GridColumnGroup fixedColumns,
                                   GridColumnGroups nonFixedColumns,
                                   TargetLookup targetLookup) {
@@ -43,7 +72,9 @@ import com.opengamma.util.tuple.Pair;
     columnGroups.addAll(nonFixedColumns.getGroups());
     _columnGroups = new GridColumnGroups(columnGroups);
     _targetLookup = targetLookup;
-
+    _fixedColumnGroup = fixedColumns;
+    _nonFixedColumnGroups = nonFixedColumns;
+    _rootNode = null;
   }
 
     /**
@@ -68,6 +99,16 @@ import com.opengamma.util.tuple.Pair;
   }
 
   @Override
+  public GridColumnGroup getFixedColumns() {
+    return _fixedColumnGroup;
+  }
+
+  @Override
+  public GridColumnGroups getNonFixedColumns() {
+    return _nonFixedColumnGroups;
+  }
+
+  @Override
   public int getRowCount() {
     return _targetLookup.getRowCount();
   }
@@ -77,8 +118,15 @@ import com.opengamma.util.tuple.Pair;
     return _columnGroups.getColumnCount();
   }
 
-  /* package */ TargetLookup getTargetLookup() {
+  public TargetLookup getTargetLookup() {
     return _targetLookup;
+  }
+
+  /**
+   * @return The root node of the portfolio structure.
+   */
+  public AnalyticsNode getRootNode() {
+    return _rootNode;
   }
 
   @Override
@@ -86,7 +134,7 @@ import com.opengamma.util.tuple.Pair;
     return "MainGridStructure [_columnGroups=" + _columnGroups + "]";
   }
 
-  /* package */ Pair<ViewportResults, Viewport.State> createResults(ViewportDefinition viewportDefinition,
+  public Pair<ViewportResults, Viewport.State> createResults(ViewportDefinition viewportDefinition,
                                                                     ResultsCache cache) {
     boolean updated = false;
     boolean hasData = false;

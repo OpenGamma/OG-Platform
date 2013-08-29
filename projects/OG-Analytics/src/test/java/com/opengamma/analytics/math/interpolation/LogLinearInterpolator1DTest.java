@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.math.interpolation;
@@ -16,7 +16,7 @@ import com.opengamma.analytics.math.interpolation.data.ArrayInterpolator1DDataBu
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 
 /**
- * 
+ *
  */
 public class LogLinearInterpolator1DTest {
   private static final Interpolator1D LINEAR = new LinearInterpolator1D();
@@ -33,8 +33,8 @@ public class LogLinearInterpolator1DTest {
   private static final double EPS = 1e-9;
 
   static {
-    final TreeMap<Double, Double> data = new TreeMap<Double, Double>();
-    final TreeMap<Double, Double> transformedData = new TreeMap<Double, Double>();
+    final TreeMap<Double, Double> data = new TreeMap<>();
+    final TreeMap<Double, Double> transformedData = new TreeMap<>();
     double x;
     for (int i = 0; i < 10; i++) {
       x = Double.valueOf(i);

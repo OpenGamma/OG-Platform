@@ -29,7 +29,7 @@ public class GeneratorSwapFixedIborTest {
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
   private static final Currency CUR = Currency.EUR;
-  private static final IborIndex IBOR_INDEX = new IborIndex(CUR, IBOR_TENOR, SPOT_LAG, DAY_COUNT_IBOR, BUSINESS_DAY, IS_EOM);
+  private static final IborIndex IBOR_INDEX = new IborIndex(CUR, IBOR_TENOR, SPOT_LAG, DAY_COUNT_IBOR, BUSINESS_DAY, IS_EOM, "Ibor");
   private static final Period FIXED_LEG_PERIOD = Period.ofMonths(6);
   private static final DayCount DAY_COUNT_FIXED = DayCountFactory.INSTANCE.getDayCount("30/360");
   private static final GeneratorSwapFixedIbor GENERATOR_FROM_INDEX = new GeneratorSwapFixedIbor("Swap Generator", FIXED_LEG_PERIOD, DAY_COUNT_FIXED, IBOR_INDEX, CALENDAR);
@@ -67,7 +67,7 @@ public class GeneratorSwapFixedIborTest {
     assertFalse(GENERATOR_FROM_INDEX.equals(generatorModified));
     generatorModified = new GeneratorSwapFixedIbor("Swap Generator", FIXED_LEG_PERIOD, DAY_COUNT_IBOR, IBOR_INDEX, CALENDAR);
     assertFalse(GENERATOR_FROM_INDEX.equals(generatorModified));
-    final IborIndex otherIborIndex = new IborIndex(CUR, IBOR_TENOR, SPOT_LAG, DAY_COUNT_IBOR, BUSINESS_DAY, !IS_EOM);
+    final IborIndex otherIborIndex = new IborIndex(CUR, IBOR_TENOR, SPOT_LAG, DAY_COUNT_IBOR, BUSINESS_DAY, !IS_EOM, "Ibor");
     generatorModified = new GeneratorSwapFixedIbor("Swap Generator", FIXED_LEG_PERIOD, DAY_COUNT_FIXED, otherIborIndex, CALENDAR);
     assertFalse(GENERATOR_FROM_INDEX.equals(generatorModified));
     assertFalse(GENERATOR_FROM_INDEX.equals(null));

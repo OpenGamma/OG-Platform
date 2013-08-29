@@ -26,6 +26,7 @@ public class SubtractCurveSpreadFunction implements CurveSpreadFunction {
    * @param curves An array of curves, not null or empty
    * @return A function that will find the value of each curve at the given input <i>x</i> and subtract each in turn
    */
+  @SuppressWarnings("unchecked")
   @Override
   public Function<Double, Double> evaluate(final Curve<Double, Double>... curves) {
     ArgumentChecker.notEmpty(curves, "curves");

@@ -147,6 +147,7 @@ public class RopemakerTest extends ISDABaseTest {
     final double[] parellelCS01 = new double[nMat];
     final double[][] bucketedCS01 = new double[nMat][];
 
+    final int accDays = pillarCDSs_nonIMM[0].getAccuredDays();
     for (int i = 0; i < nMat; i++) {
       if (isIMMDate(maturities[i])) {
         final CDSAnalytic pricingCDS = new CDSAnalytic(tradeDate, stepinDate, cashSettleDate, startDate, maturities[i], PAY_ACC_ON_DEFAULT, TENOR, STUB, PROCTECTION_START, RECOVERY);
@@ -168,7 +169,7 @@ public class RopemakerTest extends ISDABaseTest {
       }
     }
 
-    output(name, maturities, BUCKETS, puf, upfrontAmount, bucketedCS01, parellelCS01, scale);
+    output(name, maturities, BUCKETS, puf, upfrontAmount, bucketedCS01, parellelCS01, scale, accDays);
   }
 
   /**
@@ -210,7 +211,7 @@ public class RopemakerTest extends ISDABaseTest {
   }
 
   private void output(final String name, final LocalDate[] maturities, final Period[] buckets, final double[] puf, final double[] upfrontAmount, final double[][] bCS01, final double[] pCS01,
-      final double scale) {
+      final double scale, final int accDays) {
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.noNulls(maturities, "maturities");
     ArgumentChecker.noNulls(buckets, "pillars");
@@ -226,7 +227,7 @@ public class RopemakerTest extends ISDABaseTest {
     final int columns = buckets.length;
     ArgumentChecker.isTrue(columns == bCS01[0].length, "bCS01 width wrong");
 
-    System.out.println(name);
+    System.out.println(name + "\t Accured Days:\t" + accDays);
     System.out.print("Maturity");
     for (int j = 0; j < columns; j++) {
       System.out.print("\t" + buckets[j]);

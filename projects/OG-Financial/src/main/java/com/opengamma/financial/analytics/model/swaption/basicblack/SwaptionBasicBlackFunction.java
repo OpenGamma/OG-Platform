@@ -43,11 +43,12 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.SwapSecurityConverterDeprecated;
-import com.opengamma.financial.analytics.conversion.SwaptionSecurityConverter;
+import com.opengamma.financial.analytics.conversion.SwaptionSecurityConverterDeprecated;
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
+import com.opengamma.financial.analytics.model.black.ConstantBlackDiscountingSwaptionFunction;
 import com.opengamma.financial.analytics.model.swaption.SwaptionUtils;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.FinancialSecurityTypes;
@@ -59,14 +60,16 @@ import com.opengamma.util.money.Currency;
 /**
  * Base class for functions that return values for swaptions using the basic Black model
  * (i.e. using a security-specific volatility and not interpolating volatilities).
+ * @deprecated Use classes descended from {@link ConstantBlackDiscountingSwaptionFunction}
  */
+@Deprecated
 public abstract class SwaptionBasicBlackFunction extends AbstractFunction.NonCompiledInvoker {
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(SwaptionBasicBlackFunction.class);
   /** The value requirement that can be produced */
   private final String _valueRequirementName;
   /** Converter from {@link SwaptionSecurity} to an analytics object */
-  private SwaptionSecurityConverter _visitor;
+  private SwaptionSecurityConverterDeprecated _visitor;
 
   /**
    * @param valueRequirementName The value requirement name, not null
@@ -83,7 +86,7 @@ public abstract class SwaptionBasicBlackFunction extends AbstractFunction.NonCom
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final SwapSecurityConverterDeprecated swapConverter = new SwapSecurityConverterDeprecated(holidaySource, conventionSource, regionSource, false);
-    _visitor = new SwaptionSecurityConverter(securitySource, swapConverter);
+    _visitor = new SwaptionSecurityConverterDeprecated(securitySource, swapConverter);
   }
 
   @Override
@@ -188,7 +191,7 @@ public abstract class SwaptionBasicBlackFunction extends AbstractFunction.NonCom
 
   }
 
-  private ValueRequirement getVolatilityRequirement(final ComputationTargetSpecification target) {
+  private static ValueRequirement getVolatilityRequirement(final ComputationTargetSpecification target) {
     return new ValueRequirement(MarketDataRequirementNames.IMPLIED_VOLATILITY, target, ValueProperties.builder().get());
   }
 }

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -15,7 +15,11 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.financial.curve.interestrate.sensitivity.ParameterSensitivityCalculator;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 
-public class ParSpreadRateParameterSensitivityTest extends ParameterSensitivityCalculatorTest {
+/**
+ * @deprecated This class tests deprecated functionality.
+ */
+@Deprecated
+public class ParSpreadRateParameterSensitivityTest extends ParameterSensitivityCalculatorTestBase {
 
   private static ParSpreadRateCalculator VALUE_CALCULATOR = ParSpreadRateCalculator.getInstance();
   private static ParSpreadRateCurveSensitivityCalculator SENSITIVITY_IRS_CALCULATOR = ParSpreadRateCurveSensitivityCalculator.getInstance();
@@ -43,7 +47,7 @@ public class ParSpreadRateParameterSensitivityTest extends ParameterSensitivityC
 
   @Test
   public void testObject() {
-    ParameterSensitivityCalculator other = new ParameterSensitivityCalculator(SENSITIVITY_IRS_CALCULATOR);
+    final ParameterSensitivityCalculator other = new ParameterSensitivityCalculator(SENSITIVITY_IRS_CALCULATOR);
     assertEquals(NODE_CALCULATOR, other);
     assertEquals(NODE_CALCULATOR.hashCode(), other.hashCode());
   }

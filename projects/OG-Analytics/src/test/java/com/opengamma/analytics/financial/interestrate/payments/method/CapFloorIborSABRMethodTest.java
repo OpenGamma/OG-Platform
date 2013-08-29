@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.method;
@@ -54,7 +54,9 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Test related to the pricing and sensitivity of the Ibor cap/floor with the SABR model.
+ * @deprecated This class tests deprecated functionality.
  */
+@Deprecated
 public class CapFloorIborSABRMethodTest {
   // Details
   private static final Period TENOR = Period.ofMonths(3);

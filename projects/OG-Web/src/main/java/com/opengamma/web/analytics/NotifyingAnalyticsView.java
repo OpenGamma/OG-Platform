@@ -51,13 +51,18 @@ import com.opengamma.web.analytics.push.UpdateListener;
   }
 
   @Override
-  public GridStructure getGridStructure(GridType gridType) {
-    return _delegate.getGridStructure(gridType);
+  public GridStructure getGridStructure(GridType gridType, int viewportId) {
+    return _delegate.getGridStructure(gridType, viewportId);
   }
 
   @Override
-  public boolean createViewport(int requestId, GridType gridType, int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
-    boolean hasData = _delegate.createViewport(requestId, gridType, viewportId, callbackId, viewportDefinition);
+  public GridStructure getInitialGridStructure(GridType gridType) {
+    return _delegate.getInitialGridStructure(gridType);
+  }
+
+  @Override
+  public boolean createViewport(int requestId, GridType gridType, int viewportId, String callbackId, String structureCallbackId, ViewportDefinition viewportDefinition) {
+    boolean hasData = _delegate.createViewport(requestId, gridType, viewportId, callbackId, structureCallbackId, viewportDefinition);
     ImmutableMap<String, Object> callbackMap = ImmutableMap.<String, Object>of("id", requestId, "message", callbackId);
     // TODO is this logic correct? just because the viewport doesn't contain data updated in the previous cycle it
     // doesn't mean it doesn't have any data.
@@ -103,13 +108,18 @@ import com.opengamma.web.analytics.push.UpdateListener;
   }
 
   @Override
-  public GridStructure getGridStructure(GridType gridType, int graphId) {
-    return _delegate.getGridStructure(gridType, graphId);
+  public GridStructure getGridStructure(GridType gridType, int graphId, int viewportId) {
+    return _delegate.getGridStructure(gridType, graphId, viewportId);
   }
 
   @Override
-  public boolean createViewport(int requestId, GridType gridType, int graphId, int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
-    boolean hasData = _delegate.createViewport(requestId, gridType, graphId, viewportId, callbackId, viewportDefinition);
+  public GridStructure getInitialGridStructure(GridType gridType, int graphId) {
+    return _delegate.getInitialGridStructure(gridType, graphId);
+  }
+
+  @Override
+  public boolean createViewport(int requestId, GridType gridType, int graphId, int viewportId, String callbackId, String structureCallbackId, ViewportDefinition viewportDefinition) {
+    boolean hasData = _delegate.createViewport(requestId, gridType, graphId, viewportId, callbackId, structureCallbackId, viewportDefinition);
     ImmutableMap<String, Object> callbackMap = ImmutableMap.<String, Object>of("id", requestId, "message", callbackId);
     if (hasData) {
       _listener.itemsUpdated(ImmutableList.of(callbackMap, callbackId));

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -18,7 +18,9 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Present value sensitivity to SABR parameters calculator for interest rate instruments using SABR volatility formula.
+ * @deprecated {@link YieldCurveBundle} is deprecated
  */
+@Deprecated
 public final class PresentValueBlackSensitivityBlackCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, SurfaceValue> {
 
   /**

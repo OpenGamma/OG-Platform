@@ -26,7 +26,9 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  *  Class used to compute the price and sensitivity of a physical delivery swaption with SABR model.
+ *  @deprecated Use {@link SwaptionPhysicalFixedIborSABRMethod}
  */
+@Deprecated
 public final class SwaptionPhysicalFixedIborSABRMethod implements PricingMethod {
 
   /**

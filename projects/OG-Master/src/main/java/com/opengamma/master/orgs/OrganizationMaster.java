@@ -5,6 +5,7 @@
  */
 package com.opengamma.master.orgs;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.AbstractChangeProvidingMaster;
 import com.opengamma.util.PublicSPI;
@@ -51,4 +52,5 @@ public interface OrganizationMaster extends AbstractChangeProvidingMaster<Organi
    * @throws DataNotFoundException if there is no organization with that unique identifier
    */
   ManageableOrganization getOrganization(UniqueId uid);
+
 }

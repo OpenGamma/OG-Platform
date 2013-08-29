@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.swaption.method;
@@ -8,8 +8,6 @@ package com.opengamma.analytics.financial.interestrate.swaption.method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
@@ -25,7 +23,9 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Specific calibration engine for the LMM model with swaption.
+ * @deprecated {@link YieldCurveBundle} is deprecated
  */
+@Deprecated
 public class SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationEngine extends SuccessiveLeastSquareCalibrationEngine {
 
   /**
@@ -35,7 +35,7 @@ public class SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationEngine extends
   /**
    * The list of the last index in the Ibor date for each instrument.
    */
-  private final List<Integer> _instrumentIndex = new ArrayList<Integer>();
+  private final List<Integer> _instrumentIndex = new ArrayList<>();
   /**
    * The number of instruments in a calibration block. The total number of instruments should be a multiple of that number.
    */
@@ -46,7 +46,7 @@ public class SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationEngine extends
    * @param calibrationObjective The calibration objective.
    * @param nbInstrumentsBlock The number of instruments in a calibration block.
    */
-  public SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationEngine(SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationObjective calibrationObjective, final int nbInstrumentsBlock) {
+  public SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationEngine(final SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationObjective calibrationObjective, final int nbInstrumentsBlock) {
     super(calibrationObjective);
     _instrumentIndex.add(0);
     _nbInstrumentsBlock = nbInstrumentsBlock;
@@ -70,10 +70,10 @@ public class SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationEngine extends
 
   @Override
   public void addInstrument(final InstrumentDerivative instrument, final PricingMethod method) {
-    Validate.notNull(instrument, "Instrument");
-    Validate.notNull(method, "Method");
-    Validate.isTrue(instrument instanceof SwaptionPhysicalFixedIbor, "Calibration instruments should be swaptions");
-    SwaptionPhysicalFixedIbor swaption = (SwaptionPhysicalFixedIbor) instrument;
+    ArgumentChecker.notNull(instrument, "Instrument");
+    ArgumentChecker.notNull(method, "Method");
+    ArgumentChecker.isTrue(instrument instanceof SwaptionPhysicalFixedIbor, "Calibration instruments should be swaptions");
+    final SwaptionPhysicalFixedIbor swaption = (SwaptionPhysicalFixedIbor) instrument;
     getBasket().add(instrument);
     getMethod().add(method);
     getCalibrationPrice().add(0.0);
@@ -82,18 +82,18 @@ public class SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationEngine extends
   }
 
   @Override
-  public void calibrate(YieldCurveBundle curves) {
-    int nbInstruments = getBasket().size();
+  public void calibrate(final YieldCurveBundle curves) {
+    final int nbInstruments = getBasket().size();
     ArgumentChecker.isTrue(nbInstruments % _nbInstrumentsBlock == 0, "Number of instruments incompatible with block size");
-    int nbBlocks = nbInstruments / _nbInstrumentsBlock;
+    final int nbBlocks = nbInstruments / _nbInstrumentsBlock;
     computeCalibrationPrice(curves);
     getCalibrationObjective().setCurves(curves);
-    SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationObjective objective = (SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationObjective) getCalibrationObjective();
+    final SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationObjective objective = (SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationObjective) getCalibrationObjective();
     final NonLinearLeastSquare ls = new NonLinearLeastSquare(DecompositionFactory.SV_COMMONS, MatrixAlgebraFactory.OG_ALGEBRA, DEFAULT_PRECISION);
     //    final NonLinearLeastSquare ls = new NonLinearLeastSquare();
     for (int loopblock = 0; loopblock < nbBlocks; loopblock++) {
-      InstrumentDerivative[] instruments = new InstrumentDerivative[_nbInstrumentsBlock];
-      double[] prices = new double[_nbInstrumentsBlock];
+      final InstrumentDerivative[] instruments = new InstrumentDerivative[_nbInstrumentsBlock];
+      final double[] prices = new double[_nbInstrumentsBlock];
       for (int loopins = 0; loopins < _nbInstrumentsBlock; loopins++) {
         instruments[loopins] = getBasket().get(loopblock * _nbInstrumentsBlock + loopins);
         prices[loopins] = getCalibrationPrice().get(loopblock * _nbInstrumentsBlock + loopins);
@@ -103,10 +103,11 @@ public class SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationEngine extends
       objective.setStartIndex(_instrumentIndex.get(loopblock * _nbInstrumentsBlock));
       objective.setEndIndex(_instrumentIndex.get((loopblock + 1) * _nbInstrumentsBlock) - 1);
       // Implementation note: the index start is from the first instrument of the block and the index end is from the last instrument of the block.
-      DoubleMatrix1D observedValues = new DoubleMatrix1D(_nbInstrumentsBlock, 0.0);
+      final DoubleMatrix1D observedValues = new DoubleMatrix1D(_nbInstrumentsBlock, 0.0);
       @SuppressWarnings("unused")
+      final
       LeastSquareResults result = ls.solve(observedValues, getCalibrationObjective(), new DoubleMatrix1D(1.0, 0.0));
-      // Implementation note: the start value is a multiplicative factor of one and an additive term of 0 (parameters unchanged). 
+      // Implementation note: the start value is a multiplicative factor of one and an additive term of 0 (parameters unchanged).
       //   The observed values are 0 as the function returns the difference between the calculated prices and the targets.
     }
   }

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.bond.method;
@@ -25,7 +25,9 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * Class with methods related to bill security valued by discounting.
  * <P> Reference: Bill pricing, version 1.0. OpenGamma documentation, January 2012.
+ * @deprecated Use {@link com.opengamma.analytics.financial.interestrate.bond.provider.BillSecurityDiscountingMethod}
  */
+@Deprecated
 public final class BillSecurityDiscountingMethod implements PricingMethod {
 
   /**
@@ -73,7 +75,7 @@ public final class BillSecurityDiscountingMethod implements PricingMethod {
    * @return The price.
    */
   public double priceFromYield(final BillSecurity bill, final double yield) {
-    return priceFromYield(bill.getYieldConvention(), yield, bill.getAccralFactor());
+    return priceFromYield(bill.getYieldConvention(), yield, bill.getAccrualFactor());
   }
 
   /**
@@ -101,10 +103,10 @@ public final class BillSecurityDiscountingMethod implements PricingMethod {
    */
   public double yieldFromPrice(final BillSecurity bill, final double price) {
     if (bill.getYieldConvention() == SimpleYieldConvention.DISCOUNT) {
-      return (1.0 - price) / bill.getAccralFactor();
+      return (1.0 - price) / bill.getAccrualFactor();
     }
     if (bill.getYieldConvention() == SimpleYieldConvention.INTERESTATMTY) {
-      return (1.0 / price - 1) / bill.getAccralFactor();
+      return (1.0 / price - 1) / bill.getAccrualFactor();
     }
     throw new UnsupportedOperationException("The convention " + bill.getYieldConvention().getConventionName() + " is not supported.");
   }
@@ -117,10 +119,10 @@ public final class BillSecurityDiscountingMethod implements PricingMethod {
    */
   public double yieldFromPriceDerivative(final BillSecurity bill, final double price) {
     if (bill.getYieldConvention() == SimpleYieldConvention.DISCOUNT) {
-      return -1.0 / bill.getAccralFactor();
+      return -1.0 / bill.getAccrualFactor();
     }
     if (bill.getYieldConvention() == SimpleYieldConvention.INTERESTATMTY) {
-      return -1.0 / (price * price * bill.getAccralFactor());
+      return -1.0 / (price * price * bill.getAccrualFactor());
     }
     throw new UnsupportedOperationException("The convention " + bill.getYieldConvention().getConventionName() + " is not supported.");
   }

@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.option.pricing.tree;
 
 /**
- * 
+ *
  */
 public class EuropeanSpreadOptionFunctionProvider extends OptionFunctionProvider2D {
 
@@ -19,6 +19,7 @@ public class EuropeanSpreadOptionFunctionProvider extends OptionFunctionProvider
     super(strike, steps, isCall);
   }
 
+  @Override
   public double[][] getPayoffAtExpiry(final double assetPrice1, final double assetPrice2, final double upOverDown1, final double upOverDown2) {
     final double strike = getStrike();
     final int nStepsP = getNumberOfSteps() + 1;
@@ -37,6 +38,7 @@ public class EuropeanSpreadOptionFunctionProvider extends OptionFunctionProvider
     return values;
   }
 
+  @Override
   public double[][] getNextOptionValues(final double discount, final double uuProbability, final double udProbability, final double duProbability, final double ddProbability,
       final double[][] values, final double baseAssetPrice1, final double baseAssetPrice2, final double downFactor1, final double downFactor2,
       final double upOverDown1, final double upOverDown2, final int steps) {

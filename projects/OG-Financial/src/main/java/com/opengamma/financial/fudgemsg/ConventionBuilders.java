@@ -20,9 +20,11 @@ import com.opengamma.financial.convention.CMSLegConvention;
 import com.opengamma.financial.convention.CompoundingIborLegConvention;
 import com.opengamma.financial.convention.Convention;
 import com.opengamma.financial.convention.ConventionDocument;
+import com.opengamma.financial.convention.DeliverablePriceQuotedSwapFutureConvention;
 import com.opengamma.financial.convention.DepositConvention;
 import com.opengamma.financial.convention.FXForwardAndSwapConvention;
 import com.opengamma.financial.convention.FXSpotConvention;
+import com.opengamma.financial.convention.FederalFundsFutureConvention;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.InflationLegConvention;
 import com.opengamma.financial.convention.InterestRateFutureConvention;
@@ -383,6 +385,97 @@ public final class ConventionBuilders {
       final ExternalId exchangeCalendar = deserializer.fieldValueToObject(ExternalId.class, message.getByName(EXCHANGE_CALENDAR_FIELD));
       final ExternalId indexConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(INDEX_CONVENTION_FIELD));
       final InterestRateFutureConvention convention = new InterestRateFutureConvention(name, externalIdBundle, expiryConvention, exchangeCalendar, indexConvention);
+      final FudgeField uniqueIdMsg = message.getByName(UNIQUE_ID_FIELD);
+      if (uniqueIdMsg != null) {
+        convention.setUniqueId(deserializer.fieldValueToObject(UniqueId.class, uniqueIdMsg));
+      }
+      return convention;
+    }
+  }
+
+  /**
+   * Fudge builder for Federal fund futures.
+   */
+  @FudgeBuilderFor(FederalFundsFutureConvention.class)
+  public static class FederalFundsFutureConventionBuilder implements FudgeBuilder<FederalFundsFutureConvention> {
+    /** The expiry convention field */
+    private static final String EXPIRY_CONVENTION_FIELD = "expiryConvention";
+    /** The exchange calendar field */
+    private static final String EXCHANGE_CALENDAR_FIELD = "exchangeCalendar";
+    /** The index convention field */
+    private static final String INDEX_CONVENTION_FIELD = "indexConvention";
+    /** The notional */
+    private static final String NOTIONAL_FIELD = "notional";
+
+    @Override
+    public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final FederalFundsFutureConvention object) {
+      final MutableFudgeMsg message = serializer.newMessage();
+      FudgeSerializer.addClassHeader(message, FederalFundsFutureConvention.class);
+      serializer.addToMessage(message, EXPIRY_CONVENTION_FIELD, null, object.getExpiryConvention());
+      serializer.addToMessage(message, EXCHANGE_CALENDAR_FIELD, null, object.getExchangeCalendar());
+      serializer.addToMessage(message, INDEX_CONVENTION_FIELD, null, object.getIndexConvention());
+      serializer.addToMessage(message, NOTIONAL_FIELD, null, object.getNotional());
+      message.add(NAME_FIELD, object.getName());
+      serializer.addToMessage(message, EXTERNAL_ID_BUNDLE_FIELD, null, object.getExternalIdBundle());
+      serializer.addToMessage(message, UNIQUE_ID_FIELD, null, object.getUniqueId());
+      return message;
+    }
+
+    @Override
+    public FederalFundsFutureConvention buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final String name = message.getString(NAME_FIELD);
+      final ExternalIdBundle externalIdBundle = deserializer.fieldValueToObject(ExternalIdBundle.class, message.getByName(EXTERNAL_ID_BUNDLE_FIELD));
+      final ExternalId expiryConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(EXPIRY_CONVENTION_FIELD));
+      final ExternalId exchangeCalendar = deserializer.fieldValueToObject(ExternalId.class, message.getByName(EXCHANGE_CALENDAR_FIELD));
+      final ExternalId indexConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(INDEX_CONVENTION_FIELD));
+      final double notional = message.getDouble(NOTIONAL_FIELD);
+      final FederalFundsFutureConvention convention = new FederalFundsFutureConvention(name, externalIdBundle, expiryConvention, exchangeCalendar, indexConvention, notional);
+      final FudgeField uniqueIdMsg = message.getByName(UNIQUE_ID_FIELD);
+      if (uniqueIdMsg != null) {
+        convention.setUniqueId(deserializer.fieldValueToObject(UniqueId.class, uniqueIdMsg));
+      }
+      return convention;
+    }
+  }
+
+  /**
+   * Fudge builder for Federal fund futures.
+   */
+  @FudgeBuilderFor(DeliverablePriceQuotedSwapFutureConvention.class)
+  public static class DeliverablPriceQuotedSwapFutureConventionBuilder implements FudgeBuilder<DeliverablePriceQuotedSwapFutureConvention> {
+    /** The expiry convention field */
+    private static final String EXPIRY_CONVENTION_FIELD = "expiryConvention";
+    /** The exchange calendar field */
+    private static final String EXCHANGE_CALENDAR_FIELD = "exchangeCalendar";
+    /** The index convention field */
+    private static final String SWAP_CONVENTION_FIELD = "swapConvention";
+    /** The notional */
+    private static final String NOTIONAL_FIELD = "notional";
+
+    @Override
+    public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final DeliverablePriceQuotedSwapFutureConvention object) {
+      final MutableFudgeMsg message = serializer.newMessage();
+      FudgeSerializer.addClassHeader(message, DeliverablePriceQuotedSwapFutureConvention.class);
+      serializer.addToMessage(message, EXPIRY_CONVENTION_FIELD, null, object.getExpiryConvention());
+      serializer.addToMessage(message, EXCHANGE_CALENDAR_FIELD, null, object.getExchangeCalendar());
+      serializer.addToMessage(message, SWAP_CONVENTION_FIELD, null, object.getSwapConvention());
+      serializer.addToMessage(message, NOTIONAL_FIELD, null, object.getNotional());
+      message.add(NAME_FIELD, object.getName());
+      serializer.addToMessage(message, EXTERNAL_ID_BUNDLE_FIELD, null, object.getExternalIdBundle());
+      serializer.addToMessage(message, UNIQUE_ID_FIELD, null, object.getUniqueId());
+      return message;
+    }
+
+    @Override
+    public DeliverablePriceQuotedSwapFutureConvention buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final String name = message.getString(NAME_FIELD);
+      final ExternalIdBundle externalIdBundle = deserializer.fieldValueToObject(ExternalIdBundle.class, message.getByName(EXTERNAL_ID_BUNDLE_FIELD));
+      final ExternalId expiryConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(EXPIRY_CONVENTION_FIELD));
+      final ExternalId exchangeCalendar = deserializer.fieldValueToObject(ExternalId.class, message.getByName(EXCHANGE_CALENDAR_FIELD));
+      final ExternalId swapConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(SWAP_CONVENTION_FIELD));
+      final double notional = message.getDouble(NOTIONAL_FIELD);
+      final DeliverablePriceQuotedSwapFutureConvention convention = new DeliverablePriceQuotedSwapFutureConvention(name, externalIdBundle,
+          expiryConvention, exchangeCalendar, swapConvention, notional);
       final FudgeField uniqueIdMsg = message.getByName(UNIQUE_ID_FIELD);
       if (uniqueIdMsg != null) {
         convention.setUniqueId(deserializer.fieldValueToObject(UniqueId.class, uniqueIdMsg));

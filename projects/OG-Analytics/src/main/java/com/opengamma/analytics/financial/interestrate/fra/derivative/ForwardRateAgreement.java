@@ -158,6 +158,7 @@ public class ForwardRateAgreement extends CouponFloating {
     return _forwardCurveName;
   }
 
+  @SuppressWarnings("deprecation")
   @Override
   public ForwardRateAgreement withNotional(final double notional) {
     if (_forwardCurveName == null) {

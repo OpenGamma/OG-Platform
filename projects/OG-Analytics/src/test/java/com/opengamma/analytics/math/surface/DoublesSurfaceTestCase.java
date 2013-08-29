@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.math.surface;
@@ -21,7 +21,7 @@ import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Triple;
 
 /**
- * 
+ *
  */
 public class DoublesSurfaceTestCase {
   static final String NAME = "a";
@@ -47,19 +47,19 @@ public class DoublesSurfaceTestCase {
     X_OBJECT = new Double[n];
     Y_OBJECT = new Double[n];
     Z_OBJECT = new Double[n];
-    X_LIST = new ArrayList<Double>();
-    Y_LIST = new ArrayList<Double>();
-    Z_LIST = new ArrayList<Double>();
+    X_LIST = new ArrayList<>();
+    Y_LIST = new ArrayList<>();
+    Z_LIST = new ArrayList<>();
     XY_PAIR = new DoublesPair[n];
-    XY_PAIR_LIST = new ArrayList<DoublesPair>();
-    XYZ_MAP = new LinkedHashMap<DoublesPair, Double>();
-    XYZ_LIST = new ArrayList<Triple<Double, Double, Double>>();
+    XY_PAIR_LIST = new ArrayList<>();
+    XYZ_MAP = new LinkedHashMap<>();
+    XYZ_LIST = new ArrayList<>();
     for (int i = 0; i < n; i++) {
       final double x = i < 5 ? i : i - 5;
       final double y = i < 5 ? 0 : 1;
       final double z = 4 * x;
       final DoublesPair xy = DoublesPair.of(x, y);
-      final Triple<Double, Double, Double> xyz = new Triple<Double, Double, Double>(x, y, z);
+      final Triple<Double, Double, Double> xyz = new Triple<>(x, y, z);
       X_PRIMITIVE[i] = x;
       Y_PRIMITIVE[i] = y;
       Z_PRIMITIVE[i] = z;
@@ -197,7 +197,7 @@ public class DoublesSurfaceTestCase {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull22() {
-    final Map<DoublesPair, Double> m = new HashMap<DoublesPair, Double>();
+    final Map<DoublesPair, Double> m = new HashMap<>();
     m.put(DoublesPair.of(1., 2.), 3.);
     m.put(null, 3.);
     new DummySurface(m, NAME);
@@ -205,7 +205,7 @@ public class DoublesSurfaceTestCase {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull23() {
-    final Map<DoublesPair, Double> m = new HashMap<DoublesPair, Double>();
+    final Map<DoublesPair, Double> m = new HashMap<>();
     m.put(DoublesPair.of(1., 2.), 3.);
     m.put(DoublesPair.of(1., 3.), null);
     new DummySurface(m, NAME);
@@ -218,8 +218,7 @@ public class DoublesSurfaceTestCase {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull25() {
-    @SuppressWarnings("unchecked")
-    final List<Triple<Double, Double, Double>> l = Arrays.asList(new Triple<Double, Double, Double>(1., 2., 3.), null);
+    final List<Triple<Double, Double, Double>> l = Arrays.asList(new Triple<>(1., 2., 3.), null);
     new DummySurface(l, NAME);
   }
 
@@ -333,7 +332,7 @@ public class DoublesSurfaceTestCase {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull47() {
-    final Map<DoublesPair, Double> m = new HashMap<DoublesPair, Double>();
+    final Map<DoublesPair, Double> m = new HashMap<>();
     m.put(DoublesPair.of(1., 2.), 3.);
     m.put(null, 3.);
     new DummySurface(m);
@@ -341,7 +340,7 @@ public class DoublesSurfaceTestCase {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull48() {
-    final Map<DoublesPair, Double> m = new HashMap<DoublesPair, Double>();
+    final Map<DoublesPair, Double> m = new HashMap<>();
     m.put(DoublesPair.of(1., 2.), 3.);
     m.put(DoublesPair.of(1., 3.), null);
     new DummySurface(m);
@@ -354,8 +353,7 @@ public class DoublesSurfaceTestCase {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull50() {
-    @SuppressWarnings("unchecked")
-    final List<Triple<Double, Double, Double>> l = Arrays.asList(new Triple<Double, Double, Double>(1., 2., 3.), null);
+    final List<Triple<Double, Double, Double>> l = Arrays.asList(new Triple<>(1., 2., 3.), null);
     new DummySurface(l);
   }
 

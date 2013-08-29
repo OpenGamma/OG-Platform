@@ -116,7 +116,7 @@ public class MulticurveDiscountBuildingRepository {
    * @param forwardONMap The forward curves names map.
    * @param generatorsMap The generators map.
    * @param sensitivityCalculator The parameter sensitivity calculator for the value on which the calibration is done
-  (usually ParSpreadMarketQuoteDiscountingProviderCalculator (recommended) or converted present value).
+   * (usually ParSpreadMarketQuoteDiscountingProviderCalculator (recommended) or converted present value).
    * @return The part of the inverse Jacobian matrix associated to each curve.
    * The Jacobian matrix is the transition matrix between the curve parameters and the par spread.
    */

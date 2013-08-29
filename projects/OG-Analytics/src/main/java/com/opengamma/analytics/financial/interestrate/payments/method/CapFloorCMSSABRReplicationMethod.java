@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.method;
@@ -40,7 +40,9 @@ import com.opengamma.util.tuple.DoublesPair;
  *  Class used to compute the price of a CMS cap/floor by swaption replication on a SABR formula.
  *  Reference: Hagan, P. S. (2003). Convexity conundrums: Pricing CMS swaps, caps, and floors. Wilmott Magazine, March, pages 38--44.
  *  OpenGamma implementation note: Replication pricing for linear and TEC format CMS, Version 1.2, March 2011.
+ *  @deprecated {@link SABRInterestRateDataBundle} is deprecated
  */
+@Deprecated
 public class CapFloorCMSSABRReplicationMethod extends CapFloorCMSSABRReplicationAbstractMethod {
 
   /**
@@ -174,9 +176,9 @@ public class CapFloorCMSSABRReplicationMethod extends CapFloorCMSSABRReplication
     final double deltaS0 = (strikePart + integralPart) * cmsCapFloor.getNotional() * cmsCapFloor.getPaymentYearFraction();
     final double deltaPD = price / discountFactor;
     final double sensiDF = -cmsCapFloor.getPaymentTime() * discountFactor * deltaPD;
-    final List<DoublesPair> list = new ArrayList<DoublesPair>();
+    final List<DoublesPair> list = new ArrayList<>();
     list.add(new DoublesPair(cmsCapFloor.getPaymentTime(), sensiDF));
-    final Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> resultMap = new HashMap<>();
     resultMap.put(cmsCapFloor.getUnderlyingSwap().getFixedLeg().getNthPayment(0).getFundingCurveName(), list);
     InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultMap);
     final InterestRateCurveSensitivity forwardDr = new InterestRateCurveSensitivity(cmsCapFloor.getUnderlyingSwap().accept(PRSC, sabrData));

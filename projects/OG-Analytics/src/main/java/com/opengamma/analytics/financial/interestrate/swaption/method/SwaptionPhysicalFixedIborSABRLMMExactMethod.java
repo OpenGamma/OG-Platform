@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.swaption.method;
@@ -8,8 +8,6 @@ package com.opengamma.analytics.financial.interestrate.swaption.method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
@@ -25,13 +23,16 @@ import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.matrix.CommonsMatrixAlgebra;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Method to computes the present value and sensitivities of physical delivery European swaptions with a Libor Market Model calibrated exactly to SABR prices.
  * The LMM displacements and volatility weights are hard coded.
+ * @deprecated Use {@link com.opengamma.analytics.financial.interestrate.swaption.provider.SwaptionPhysicalFixedIborSABRLMMExactMethod}
  */
+@Deprecated
 public class SwaptionPhysicalFixedIborSABRLMMExactMethod implements PricingMethod {
 
   /**
@@ -70,8 +71,8 @@ public class SwaptionPhysicalFixedIborSABRLMMExactMethod implements PricingMetho
    * @return The present value.
    */
   public CurrencyAmount presentValue(final SwaptionPhysicalFixedIbor swaption, final SABRInterestRateDataBundle curves) {
-    Validate.notNull(swaption);
-    Validate.notNull(curves);
+    ArgumentChecker.notNull(swaption, "swaption");
+    ArgumentChecker.notNull(curves, "curves");
     //TODO: Create a way to chose the LMM base parameters (displacement, mean reversion, volatility).
     final LiborMarketModelDisplacedDiffusionParameters lmmParameters = LiborMarketModelDisplacedDiffusionParameters.from(swaption, DEFAULT_DISPLACEMENT, DEFAULT_MEAN_REVERSION, new VolatilityLMMAngle(
         DEFAULT_ANGLE, DEFAULT_DISPLACEMENT));
@@ -87,8 +88,8 @@ public class SwaptionPhysicalFixedIborSABRLMMExactMethod implements PricingMetho
 
   @Override
   public CurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
-    Validate.isTrue(instrument instanceof SwaptionPhysicalFixedIbor, "Physical delivery swaption");
-    Validate.isTrue(curves instanceof SABRInterestRateDataBundle, "Bundle should contain SABR data");
+    ArgumentChecker.isTrue(instrument instanceof SwaptionPhysicalFixedIbor, "Physical delivery swaption");
+    ArgumentChecker.isTrue(curves instanceof SABRInterestRateDataBundle, "Bundle should contain SABR data");
     return presentValue((SwaptionPhysicalFixedIbor) instrument, (SABRInterestRateDataBundle) curves);
   }
 
@@ -100,8 +101,8 @@ public class SwaptionPhysicalFixedIborSABRLMMExactMethod implements PricingMetho
    * @return The present value SABR parameters sensitivity.
    */
   public PresentValueSABRSensitivityDataBundle presentValueSABRSensitivity(final SwaptionPhysicalFixedIbor swaption, final SABRInterestRateDataBundle curves) {
-    Validate.notNull(swaption);
-    Validate.notNull(curves);
+    ArgumentChecker.notNull(swaption, "swaption");
+    ArgumentChecker.notNull(curves, "curves");
     //TODO: Create a way to chose the LMM base parameters (displacement, mean reversion, volatility).
     final LiborMarketModelDisplacedDiffusionParameters lmmParameters = LiborMarketModelDisplacedDiffusionParameters.from(swaption, DEFAULT_DISPLACEMENT, DEFAULT_MEAN_REVERSION, new VolatilityLMMAngle(
         DEFAULT_ANGLE, DEFAULT_DISPLACEMENT));
@@ -188,8 +189,8 @@ public class SwaptionPhysicalFixedIborSABRLMMExactMethod implements PricingMetho
    * @return The present value curve sensitivities.
    */
   public InterestRateCurveSensitivity presentValueCurveSensitivity(final SwaptionPhysicalFixedIbor swaption, final SABRInterestRateDataBundle curves) {
-    Validate.notNull(swaption);
-    Validate.notNull(curves);
+    ArgumentChecker.notNull(swaption, "swaption");
+    ArgumentChecker.notNull(curves, "curves");
     //TODO: Create a way to chose the LMM base parameters (displacement, mean reversion, volatility).
     final LiborMarketModelDisplacedDiffusionParameters lmmParameters = LiborMarketModelDisplacedDiffusionParameters.from(swaption, DEFAULT_DISPLACEMENT, DEFAULT_MEAN_REVERSION, new VolatilityLMMAngle(
         DEFAULT_ANGLE, DEFAULT_DISPLACEMENT));
@@ -293,8 +294,8 @@ public class SwaptionPhysicalFixedIborSABRLMMExactMethod implements PricingMetho
    * @return The results (returned as a list of objects) [0] the present value, [1] the present curve sensitivity, [2] the present value SABR sensitivity.
    */
   public List<Object> presentValueCurveSABRSensitivity(final SwaptionPhysicalFixedIbor swaption, final SABRInterestRateDataBundle curves) {
-    Validate.notNull(swaption);
-    Validate.notNull(curves);
+    ArgumentChecker.notNull(swaption, "swaption");
+    ArgumentChecker.notNull(curves, "curves");
     //TODO: Create a way to chose the LMM base parameters (displacement, mean reversion, volatility).
     final LiborMarketModelDisplacedDiffusionParameters lmmParameters = LiborMarketModelDisplacedDiffusionParameters.from(swaption, DEFAULT_DISPLACEMENT, DEFAULT_MEAN_REVERSION, new VolatilityLMMAngle(
         DEFAULT_ANGLE, DEFAULT_DISPLACEMENT));
@@ -396,7 +397,7 @@ public class SwaptionPhysicalFixedIborSABRLMMExactMethod implements PricingMetho
     }
     pvcs = pvcs.plus(pvcsCal);
     pvcs = pvcs.cleaned();
-    final List<Object> results = new ArrayList<Object>();
+    final List<Object> results = new ArrayList<>();
     results.add(CurrencyAmount.of(swaption.getCurrency(), METHOD_SWAPTION_LMM.presentValue(swaption, lmmBundle).getAmount()));
     results.add(pvcs);
     results.add(pvss);

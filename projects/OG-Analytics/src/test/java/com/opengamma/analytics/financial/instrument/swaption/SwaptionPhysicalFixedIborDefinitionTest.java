@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.swaption;
@@ -57,7 +57,7 @@ public class SwaptionPhysicalFixedIborDefinitionTest {
   private static final Period INDEX_TENOR = Period.ofMonths(3);
   private static final int SETTLEMENT_DAYS = 2;
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-  private static final IborIndex INDEX = new IborIndex(CUR, INDEX_TENOR, SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, IS_EOM);
+  private static final IborIndex INDEX = new IborIndex(CUR, INDEX_TENOR, SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, IS_EOM, "Ibor");
   private static final AnnuityCouponIborDefinition IBOR_ANNUITY = AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, INDEX, !FIXED_IS_PAYER, CALENDAR);
   // Swaption construction
   private static final SwapFixedIborDefinition SWAP = new SwapFixedIborDefinition(FIXED_ANNUITY, IBOR_ANNUITY);
@@ -80,11 +80,11 @@ public class SwaptionPhysicalFixedIborDefinitionTest {
     assertEquals(SWAPTION.getExpiry().getExpiry(), EXPIRY_DATE);
     assertEquals(SWAPTION.getUnderlyingSwap(), SWAP);
     assertEquals(SWAPTION.isLong(), IS_LONG);
-    //assertEquals(SWAPTION.isCall(), (Boolean) SWAP.getFixedLeg().isPayer());
   }
 
+  @SuppressWarnings("deprecation")
   @Test
-  public void testToDerivative() {
+  public void testToDerivativeDeprecated() {
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.of(REFERENCE_DATE.toLocalDate(), LocalTime.MIDNIGHT), ZoneOffset.UTC);
     final double expiryTime = actAct.getDayCountFraction(zonedDate, EXPIRY_DATE);
@@ -96,6 +96,15 @@ public class SwaptionPhysicalFixedIborDefinitionTest {
     assertEquals(SWAPTION.getUnderlyingSwap().toDerivative(REFERENCE_DATE, curves), convertedSwaption.getUnderlyingSwap());
   }
 
+  @Test
+  public void testToDerivative() {
+    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+    final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.of(REFERENCE_DATE.toLocalDate(), LocalTime.MIDNIGHT), ZoneOffset.UTC);
+    final double expiryTime = actAct.getDayCountFraction(zonedDate, EXPIRY_DATE);
+    final SwaptionPhysicalFixedIbor convertedSwaption = SWAPTION.toDerivative(REFERENCE_DATE);
+    assertEquals(expiryTime, convertedSwaption.getTimeToExpiry(), 1E-10);
+    assertEquals(SWAPTION.getUnderlyingSwap().toDerivative(REFERENCE_DATE), convertedSwaption.getUnderlyingSwap());
+  }
   @Test
   /**
    * Tests the equal and hashCode methods.

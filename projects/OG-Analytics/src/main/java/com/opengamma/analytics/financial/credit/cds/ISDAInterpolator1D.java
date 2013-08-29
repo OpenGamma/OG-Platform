@@ -53,6 +53,35 @@ public class ISDAInterpolator1D extends Interpolator1D {
   }
 
   @Override
+  public double firstDerivative(final Interpolator1DDataBundle data, final Double value) {
+
+    Validate.notNull(value, "Value to be interpolated must not be null");
+    Validate.notNull(data, "Data bundle must not be null");
+    try {
+      final InterpolationBoundedValues boundedValues = data.getBoundedValues(value);
+
+      final double offset = value == 0.0 ? 1.0 : 0.0;
+
+      final double x1 = boundedValues.getLowerBoundKey();
+      final double y1 = boundedValues.getLowerBoundValue();
+      final double y1x1 = y1 * (x1 + offset);
+
+      if (data.getLowerBoundIndex(value) == data.size() - 1) {
+        return 0.;
+      }
+
+      final double x2 = boundedValues.getHigherBoundKey();
+      final double y2 = boundedValues.getHigherBoundValue();
+      final double y2x2 = y2 * (x2 + offset);
+
+      final double valueWithOffset = value + offset;
+      return (y2x2 - y1x1) / (x2 - x1) / valueWithOffset - (y1x1 + (value - x1) / (x2 - x1) * (y2x2 - y1x1)) / valueWithOffset / valueWithOffset;
+    } catch (final ArrayIndexOutOfBoundsException e) {
+      throw e;
+    }
+  }
+
+  @Override
   public double[] getNodeSensitivitiesForValue(final Interpolator1DDataBundle data, final Double value) {
     throw new UnsupportedOperationException("Nodal sensitivities are not supported for the ISDA interpolation method");
   }

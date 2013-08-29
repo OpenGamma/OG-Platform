@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.math.interpolation;
@@ -21,7 +21,7 @@ import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ *
  */
 //FIXME this test does nothing - either delete or add some real tests
 public class SmoothSurfaceTest {
@@ -29,10 +29,10 @@ public class SmoothSurfaceTest {
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1, RANDOM);
   //private static final double EPS = 1e-5;
   private static final RadialBasisFunction SMOOTHER = new RadialBasisFunction();
-  protected static final List<Pair<double[], Double>> FLAT_DATA = new ArrayList<Pair<double[], Double>>();
-  protected static final List<Pair<double[], Double>> NOISY_DATA = new ArrayList<Pair<double[], Double>>();
+  protected static final List<Pair<double[], Double>> FLAT_DATA = new ArrayList<>();
+  protected static final List<Pair<double[], Double>> NOISY_DATA = new ArrayList<>();
 
-  protected static final List<double[]> NODE_POS = new ArrayList<double[]>();
+  protected static final List<double[]> NODE_POS = new ArrayList<>();
   protected static final double VALUE = 0.3;
 
   static {
@@ -42,8 +42,8 @@ public class SmoothSurfaceTest {
       x = 10 * RANDOM.nextDouble();
       y = 10 * RANDOM.nextDouble();
       NODE_POS.add(new double[] {x, y});
-      FLAT_DATA.add(new ObjectsPair<double[], Double>(new double[] {x, y}, VALUE));
-      NOISY_DATA.add(new ObjectsPair<double[], Double>(new double[] {x, y}, VALUE + 0.1 * NORMAL.nextRandom()));
+      FLAT_DATA.add(new ObjectsPair<>(new double[] {x, y}, VALUE));
+      NOISY_DATA.add(new ObjectsPair<>(new double[] {x, y}, VALUE + 0.1 * NORMAL.nextRandom()));
     }
   }
 

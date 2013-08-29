@@ -21,7 +21,7 @@ public class InterestRateFutureTransaction implements InstrumentDerivative {
   /**
    * The underlying STIR futures security.
    */
-  private InterestRateFutureSecurity _underlying;
+  private final InterestRateFutureSecurity _underlying;
   /**
    * The reference price is used to express present value with respect to some level, for example, the transaction price on the transaction date or the last close price afterward.
    * The price is in relative number and not in percent. A standard price will be 0.985 and not 98.5.
@@ -55,7 +55,9 @@ public class InterestRateFutureTransaction implements InstrumentDerivative {
    * @param name Future name.
    * @param discountingCurveName The discounting curve name.
    * @param forwardCurveName The forward curve name.
+   * @deprecated Use the constructor that does not that curve names
    */
+  @Deprecated
   public InterestRateFutureTransaction(final double lastTradingTime, final IborIndex iborIndex, final double fixingPeriodStartTime, final double fixingPeriodEndTime,
       final double fixingPeriodAccrualFactor, final double referencePrice, final double notional, final double paymentAccrualFactor, final int quantity, final String name,
       final String discountingCurveName, final String forwardCurveName) {
@@ -65,12 +67,30 @@ public class InterestRateFutureTransaction implements InstrumentDerivative {
     ArgumentChecker.notNull(forwardCurveName, "Forward curve name");
     _quantity = quantity;
     _referencePrice = referencePrice;
-    try {
-      _underlying = new InterestRateFutureSecurity(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, notional, paymentAccrualFactor, name,
-          discountingCurveName, forwardCurveName);
-    } catch (final IllegalStateException e) {
-      _underlying = new InterestRateFutureSecurity(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, notional, paymentAccrualFactor, name);
-    }
+    _underlying = new InterestRateFutureSecurity(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, notional, paymentAccrualFactor, name,
+        discountingCurveName, forwardCurveName);
+  }
+
+  /**
+   * Constructor from all the details.
+   * @param lastTradingTime Future last trading time.
+   * @param iborIndex Ibor index associated to the future.
+   * @param fixingPeriodStartTime Fixing period of the reference Ibor starting time.
+   * @param fixingPeriodEndTime Fixing period of the reference Ibor end time.
+   * @param fixingPeriodAccrualFactor Fixing period of the reference Ibor accrual factor.
+   * @param referencePrice The reference price.
+   * @param notional Future notional.
+   * @param paymentAccrualFactor Future payment accrual factor.
+   * @param quantity The quantity.
+   * @param name Future name.
+   */
+  public InterestRateFutureTransaction(final double lastTradingTime, final IborIndex iborIndex, final double fixingPeriodStartTime, final double fixingPeriodEndTime,
+      final double fixingPeriodAccrualFactor, final double referencePrice, final double notional, final double paymentAccrualFactor, final int quantity, final String name) {
+    ArgumentChecker.notNull(iborIndex, "Ibor index");
+    ArgumentChecker.notNull(name, "Name");
+    _quantity = quantity;
+    _referencePrice = referencePrice;
+    _underlying = new InterestRateFutureSecurity(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, notional, paymentAccrualFactor, name);
   }
 
   /**

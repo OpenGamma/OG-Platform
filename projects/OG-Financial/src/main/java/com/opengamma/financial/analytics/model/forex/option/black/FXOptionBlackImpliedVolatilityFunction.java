@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.forex.option.black;
@@ -20,10 +20,13 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.model.black.BlackDiscountingImpliedVolatilityFXOptionFunction;
 
 /**
- * Function to compute the implied volatility for Forex options in the Black model.
+ * Calculates the implied volatility for FX options using the Black method.
+ * @deprecated Use {@link BlackDiscountingImpliedVolatilityFXOptionFunction}
  */
+@Deprecated
 public class FXOptionBlackImpliedVolatilityFunction extends FXOptionBlackMultiValuedFunction {
 
   /**

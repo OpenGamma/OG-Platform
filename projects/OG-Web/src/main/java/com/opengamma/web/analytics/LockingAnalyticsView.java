@@ -56,20 +56,30 @@ import com.opengamma.web.analytics.formatting.TypeFormatter.Format;
   }
 
   @Override
-  public GridStructure getGridStructure(GridType gridType) {
+  public GridStructure getGridStructure(GridType gridType, int viewportId) {
     try {
       _lock.readLock().lock();
-      return _delegate.getGridStructure(gridType);
+      return _delegate.getGridStructure(gridType, viewportId);
     } finally {
       _lock.readLock().unlock();
     }
   }
 
   @Override
-  public boolean createViewport(int requestId, GridType gridType, int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
+  public GridStructure getInitialGridStructure(GridType gridType) {
+    try {
+      _lock.readLock().lock();
+      return _delegate.getInitialGridStructure(gridType);
+    } finally {
+      _lock.readLock().unlock();
+    }
+  }
+
+  @Override
+  public boolean createViewport(int requestId, GridType gridType, int viewportId, String callbackId, String structureCallbackId, ViewportDefinition viewportDefinition) {
     try {
       _lock.writeLock().lock();
-      return _delegate.createViewport(requestId, gridType, viewportId, callbackId, viewportDefinition);
+      return _delegate.createViewport(requestId, gridType, viewportId, callbackId, structureCallbackId, viewportDefinition);
     } finally {
       _lock.writeLock().unlock();
     }
@@ -126,20 +136,30 @@ import com.opengamma.web.analytics.formatting.TypeFormatter.Format;
   }
 
   @Override
-  public GridStructure getGridStructure(GridType gridType, int graphId) {
+  public GridStructure getGridStructure(GridType gridType, int graphId, int viewportId) {
     try {
       _lock.readLock().lock();
-      return _delegate.getGridStructure(gridType, graphId);
+      return _delegate.getGridStructure(gridType, graphId, viewportId);
     } finally {
       _lock.readLock().unlock();
     }
   }
 
   @Override
-  public boolean createViewport(int requestId, GridType gridType, int graphId, int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
+  public GridStructure getInitialGridStructure(GridType gridType, int graphId) {
+    try {
+      _lock.readLock().lock();
+      return _delegate.getInitialGridStructure(gridType, graphId);
+    } finally {
+      _lock.readLock().unlock();
+    }
+  }
+
+  @Override
+  public boolean createViewport(int requestId, GridType gridType, int graphId, int viewportId, String callbackId, String structureCallbackId, ViewportDefinition viewportDefinition) {
     try {
       _lock.writeLock().lock();
-      return _delegate.createViewport(requestId, gridType, graphId, viewportId, callbackId, viewportDefinition);
+      return _delegate.createViewport(requestId, gridType, graphId, viewportId, callbackId, structureCallbackId, viewportDefinition);
     } finally {
       _lock.writeLock().unlock();
     }

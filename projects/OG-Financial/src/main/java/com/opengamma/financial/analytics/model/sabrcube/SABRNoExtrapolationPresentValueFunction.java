@@ -11,10 +11,13 @@ import com.opengamma.analytics.financial.interestrate.PresentValueSABRCalculator
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.analytics.model.sabr.NoExtrapolationSABRDiscountingPVFunction;
 
 /**
- *
+ * Calculates the present value using the SABR with no right extrapolation model.
+ * @deprecated Use {@link NoExtrapolationSABRDiscountingPVFunction}
  */
+@Deprecated
 public class SABRNoExtrapolationPresentValueFunction extends SABRNoExtrapolationFunction {
   private static final PresentValueCalculator CALCULATOR = PresentValueSABRCalculator.getInstance();
 

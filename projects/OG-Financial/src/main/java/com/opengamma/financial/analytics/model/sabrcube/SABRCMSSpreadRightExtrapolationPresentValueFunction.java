@@ -11,10 +11,12 @@ import com.opengamma.analytics.financial.interestrate.PresentValueSABRExtrapolat
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.analytics.model.sabr.SABRDiscountingFunction;
 
 /**
- *
+ * @deprecated Use descendants of {@link SABRDiscountingFunction}
  */
+@Deprecated
 public class SABRCMSSpreadRightExtrapolationPresentValueFunction extends SABRCMSSpreadRightExtrapolationFunction {
 
   @Override

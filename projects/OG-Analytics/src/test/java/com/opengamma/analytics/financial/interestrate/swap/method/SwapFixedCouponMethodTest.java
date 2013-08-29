@@ -33,6 +33,10 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
+/**
+ * @deprecated This class tests deprecated functionality.
+ */
+@Deprecated
 public class SwapFixedCouponMethodTest {
 
   // Swap 2Y description

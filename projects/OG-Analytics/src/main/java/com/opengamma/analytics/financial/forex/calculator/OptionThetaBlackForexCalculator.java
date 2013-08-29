@@ -12,8 +12,12 @@ import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**
- * Calculator of the gamma (second order derivative with respect to the spot rate) for Forex derivatives in the Black (Garman-Kohlhagen) world.
+ * Calculator of the theta (first order derivative with respect to time) using the forward driftless theta
+ * for Forex derivatives in the Black (Garman-Kohlhagen) world. The theta is not scaled and so is an annual
+ * value.
+ * @deprecated Curve builders that use and populate {@link YieldCurveBundle}s are deprecated.
  */
+@Deprecated
 public class OptionThetaBlackForexCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, CurrencyAmount> {
 
   /**

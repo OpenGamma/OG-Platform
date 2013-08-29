@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -25,7 +25,9 @@ import com.opengamma.analytics.financial.model.option.definition.SABRInterestRat
 /**
  * Present value calculator for interest rate instruments using SABR volatility formula with extrapolation for high strikes.
  * OpenGamma implementation note for the extrapolation: Smile extrapolation, version 1.2, May 2011.
+ * @deprecated {@link PresentValueCalculator} is deprecated
  */
+@Deprecated
 public final class PresentValueSABRExtrapolationCalculator extends PresentValueCalculator {
 
   /**

@@ -238,6 +238,7 @@ public final class BondFutureHullWhiteMethod extends BondFutureMethod {
   public MulticurveSensitivity priceCurveSensitivity(final BondFuture future, final HullWhiteIssuerProviderInterface data, final int nbPoint) {
     ArgumentChecker.notNull(future, "Future");
     ArgumentChecker.notNull(data, "Hull-White data bundle");
+    final Currency ccy = future.getCurrency();
     final Pair<String, Currency> issuerCcy = future.getDeliveryBasket()[0].getIssuerCcy();
     ArgumentChecker.isTrue(data.getHullWhiteIssuerCurrency().equals(issuerCcy), "Incompatible data and futures");
     final int nbBond = future.getDeliveryBasket().length;
@@ -379,7 +380,7 @@ public final class BondFutureHullWhiteMethod extends BondFutureMethod {
       }
       listCredit.add(new DoublesPair(delivery, -delivery * dfdelivery * dfdeliveryBar));
     }
-    resultMap.put(future.getDeliveryBasket()[0].getDiscountingCurveName(), listCredit);
+    resultMap.put(multicurvesDecorated.getName(ccy), listCredit);
     return MulticurveSensitivity.ofYieldDiscounting(resultMap);
   }
 

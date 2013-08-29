@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -63,9 +63,10 @@ import com.opengamma.util.tuple.DoublesPair;
  * For an instrument, this calculates the sensitivity of the present value (PV) to points on the yield curve(s) (i.e. dPV/dR at every point the instrument has sensitivity). The return
  * format is a map with curve names (String) as keys and List of DoublesPair as the values; each list holds set of time (corresponding to point of the yield curve) and sensitivity pairs
  * (i.e. dPV/dR at that time). <b>Note:</b> The length of the list is instrument dependent and may have repeated times (with the understanding the sensitivities should be summed).
+ * @deprecated {@link YieldCurveBundle} is deprecated
  */
+@Deprecated
 public class PresentValueCurveSensitivityCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Map<String, List<DoublesPair>>> {
-  //TODO: Change the output format from Map to InterestRateCurveSensitivity, which wraps the map and adds common functionality.
 
   /**
    * The method unique instance.
@@ -226,7 +227,7 @@ public class PresentValueCurveSensitivityCalculator extends InstrumentDerivative
 
   @Override
   public Map<String, List<DoublesPair>> visitGenericAnnuity(final Annuity<? extends Payment> annuity, final YieldCurveBundle data) {
-    final Map<String, List<DoublesPair>> map = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> map = new HashMap<>();
     for (final Payment p : annuity.getPayments()) {
       final Map<String, List<DoublesPair>> tempMap = p.accept(this, data);
       for (final Map.Entry<String, List<DoublesPair>> entry : tempMap.entrySet()) {
@@ -263,9 +264,9 @@ public class PresentValueCurveSensitivityCalculator extends InstrumentDerivative
    */
   public static Map<String, List<DoublesPair>> discountFactorSensitivity(final String curveName, final YieldAndDiscountCurve curve, final double time) {
     final DoublesPair s = new DoublesPair(time, -time * curve.getDiscountFactor(time));
-    final List<DoublesPair> list = new ArrayList<DoublesPair>();
+    final List<DoublesPair> list = new ArrayList<>();
     list.add(s);
-    final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> result = new HashMap<>();
     result.put(curveName, list);
     return result;
   }

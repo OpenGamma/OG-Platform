@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.bond;
@@ -75,8 +75,9 @@ public class BondFixedTransactionDefinitionTest {
     assertEquals(DateUtils.getUTCDate(2012, 1, 13), BOND_TRANSACTION_DEFINITION.getNextAccrualDate());
   }
 
+  @SuppressWarnings("deprecation")
   @Test
-  public void toDerivatives() {
+  public void toDerivativesDeprecated() {
     final BondFixedSecurity bondSecurityStandard = BOND_SECURITY_DEFINITION.toDerivative(REFERENCE_DATE_1, CURVES_NAME);
     final BondFixedTransaction bondTransaction = BOND_TRANSACTION_DEFINITION.toDerivative(REFERENCE_DATE_1, CURVES_NAME);
     assertEquals("Bond transaction: toDerivative", bondSecurityStandard, bondTransaction.getBondStandard());
@@ -86,4 +87,14 @@ public class BondFixedTransactionDefinitionTest {
     assertEquals("Bond transaction: toDerivative", bondSecurityPurchase.getYieldConvention(), bondTransaction.getBondTransaction().getYieldConvention());
   }
 
+  @Test
+  public void toDerivatives() {
+    final BondFixedSecurity bondSecurityStandard = BOND_SECURITY_DEFINITION.toDerivative(REFERENCE_DATE_1);
+    final BondFixedTransaction bondTransaction = BOND_TRANSACTION_DEFINITION.toDerivative(REFERENCE_DATE_1);
+    assertEquals("Bond transaction: toDerivative", bondSecurityStandard, bondTransaction.getBondStandard());
+    final BondFixedSecurity bondSecurityPurchase = BOND_SECURITY_DEFINITION.toDerivative(REFERENCE_DATE_1, SETTLEMENT_DATE);
+    assertEquals("Bond transaction: toDerivative", bondSecurityPurchase.getAccruedInterest(), bondTransaction.getBondTransaction().getAccruedInterest());
+    assertEquals("Bond transaction: toDerivative", bondSecurityPurchase.getCouponPerYear(), bondTransaction.getBondTransaction().getCouponPerYear());
+    assertEquals("Bond transaction: toDerivative", bondSecurityPurchase.getYieldConvention(), bondTransaction.getBondTransaction().getYieldConvention());
+  }
 }

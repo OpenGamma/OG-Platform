@@ -39,7 +39,9 @@ import com.opengamma.util.time.DateUtils;
 /**
  * Tests related to the calibration engine for LMM DD calibration at best to European swaptions. The calibration is obtained
  * by changing volatility parameters with a common multiplicative factor and displacement with a common additive term.
+ * @deprecated This class tests deprecated functionality.
  */
+@Deprecated
 public class SwaptionPhysicalLMMDDSuccessiveLeastSquareCalibrationObjectiveTest {
 
   private static final Calendar TARGET = new MondayToFridayCalendar("TARGET");

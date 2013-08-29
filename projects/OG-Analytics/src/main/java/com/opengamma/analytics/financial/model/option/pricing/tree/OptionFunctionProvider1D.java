@@ -5,6 +5,9 @@
  */
 package com.opengamma.analytics.financial.model.option.pricing.tree;
 
+import com.google.common.primitives.Doubles;
+import com.opengamma.util.ArgumentChecker;
+
 /**
  * Provides payoff function and option price function for one-dimensional tree model
  */
@@ -21,6 +24,10 @@ public abstract class OptionFunctionProvider1D {
    * @param isCall True if call, false if put
    */
   public OptionFunctionProvider1D(final double strike, final int steps, final boolean isCall) {
+    ArgumentChecker.isTrue(strike > 0., "strike should be positive");
+    ArgumentChecker.isTrue(Doubles.isFinite(strike), "strike should be finite");
+    ArgumentChecker.isTrue(steps > 2, "The number of steps should be greater than 2");
+
     _strike = strike;
     _steps = steps;
     _sign = isCall ? 1. : -1.;
@@ -39,13 +46,14 @@ public abstract class OptionFunctionProvider1D {
    * @param downProbability Down probability
    * @param values Option values in the (steps)-th layer
    * @param baseAssetPrice Asset price at (0,0), i.e., the starting point
+   * @param sumCashDiv Sum of discounted discrete cash dividends payed after i-th layer
    * @param downFactor Down factor 
    * @param upOverDown  (up factor)/(down factor)
    * @param steps  
    * @return Given a set of option values in the (steps)-th layer, derive option values in the (steps-1)-th layer
    */
   public abstract double[] getNextOptionValues(final double discount, final double upProbability, final double downProbability, final double[] values, final double baseAssetPrice,
-      final double downFactor, final double upOverDown, final int steps);
+      final double sumCashDiv, final double downFactor, final double upOverDown, final int steps);
 
   /**
    * Access strike price

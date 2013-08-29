@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.payment;
@@ -54,7 +54,7 @@ public class CouponCMSDefinitionTest {
   private static final Period INDEX_TENOR = Period.ofMonths(3);
   private static final int SETTLEMENT_DAYS = 2;
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-  private static final IborIndex IBOR_INDEX = new IborIndex(CUR, INDEX_TENOR, SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, IS_EOM);
+  private static final IborIndex IBOR_INDEX = new IborIndex(CUR, INDEX_TENOR, SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, IS_EOM, "Ibor");
   private static final AnnuityCouponIborDefinition IBOR_ANNUITY = AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, 1.0, IBOR_INDEX, !FIXED_IS_PAYER, CALENDAR);
   // CMS coupon construction
   private static final IndexSwap CMS_INDEX = new IndexSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX, ANNUITY_TENOR, CALENDAR);
@@ -130,9 +130,15 @@ public class CouponCMSDefinitionTest {
     CouponCMSDefinition.from(FLOAT_COUPON, null, CALENDAR);
   }
 
+  @SuppressWarnings("deprecation")
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testConversionNullFixingDataDeprecated() {
+    CMS_COUPON_DEFINITION.toDerivative(FIXING_DATE, null, new String[] {"A", "S" });
+  }
+
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testConversionNullFixingData() {
-    CMS_COUPON_DEFINITION.toDerivative(FIXING_DATE, null, new String[] {"A", "S" });
+    CMS_COUPON_DEFINITION.toDerivative(FIXING_DATE, (DoubleTimeSeries<ZonedDateTime>) null);
   }
 
   @Test
@@ -153,20 +159,22 @@ public class CouponCMSDefinitionTest {
     assertEquals(CMS_COUPON_2.getUnderlyingSwap(), SWAP_DEFINITION);
   }
 
+  @SuppressWarnings("deprecation")
   @Test
-  public void testToDerivativeBeforeFixing() {
+  public void testToDerivativeBeforeFixingDeprecated() {
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     final double paymentTime = actAct.getDayCountFraction(REFERENCE_DATE, PAYMENT_DATE);
     final double fixingTime = actAct.getDayCountFraction(REFERENCE_DATE, FIXING_DATE);
     final double settlementTime = actAct.getDayCountFraction(REFERENCE_DATE, SWAP_DEFINITION.getFixedLeg().getNthPayment(0).getAccrualStartDate());
     final SwapFixedCoupon<? extends Payment> convertedSwap = SWAP_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
-    final CouponCMS couponCMS = new CouponCMS(CUR, paymentTime, ACCRUAL_FACTOR, NOTIONAL, fixingTime, convertedSwap, settlementTime);
+    final CouponCMS couponCMS = new CouponCMS(CUR, paymentTime, CURVES_NAME[0], ACCRUAL_FACTOR, NOTIONAL, fixingTime, convertedSwap, settlementTime);
     assertEquals(couponCMS, CMS_COUPON_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME));
     assertEquals(couponCMS, CMS_COUPON_DEFINITION.toDerivative(REFERENCE_DATE, FIXING_TS, CURVES_NAME));
   }
 
+  @SuppressWarnings("deprecation")
   @Test
-  public void testToDerivativeAfterFixing() {
+  public void testToDerivativeAfterFixingDeprecated() {
     final ZonedDateTime date = FIXING_DATE.plusDays(2);
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     double paymentTime = actAct.getDayCountFraction(date, PAYMENT_DATE);
@@ -175,5 +183,29 @@ public class CouponCMSDefinitionTest {
     paymentTime = actAct.getDayCountFraction(FIXING_DATE, PAYMENT_DATE);
     couponFixed = new CouponFixed(CUR, paymentTime, CURVES_NAME[0], ACCRUAL_FACTOR, NOTIONAL, FIXING_RATE);
     assertEquals(couponFixed, CMS_COUPON_DEFINITION.toDerivative(FIXING_DATE, FIXING_TS, CURVES_NAME));
+  }
+
+  @Test
+  public void testToDerivativeBeforeFixing() {
+    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+    final double paymentTime = actAct.getDayCountFraction(REFERENCE_DATE, PAYMENT_DATE);
+    final double fixingTime = actAct.getDayCountFraction(REFERENCE_DATE, FIXING_DATE);
+    final double settlementTime = actAct.getDayCountFraction(REFERENCE_DATE, SWAP_DEFINITION.getFixedLeg().getNthPayment(0).getAccrualStartDate());
+    final SwapFixedCoupon<? extends Payment> convertedSwap = SWAP_DEFINITION.toDerivative(REFERENCE_DATE);
+    final CouponCMS couponCMS = new CouponCMS(CUR, paymentTime, ACCRUAL_FACTOR, NOTIONAL, fixingTime, convertedSwap, settlementTime);
+    assertEquals(couponCMS, CMS_COUPON_DEFINITION.toDerivative(REFERENCE_DATE));
+    assertEquals(couponCMS, CMS_COUPON_DEFINITION.toDerivative(REFERENCE_DATE, FIXING_TS));
+  }
+
+  @Test
+  public void testToDerivativeAfterFixing() {
+    final ZonedDateTime date = FIXING_DATE.plusDays(2);
+    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+    double paymentTime = actAct.getDayCountFraction(date, PAYMENT_DATE);
+    CouponFixed couponFixed = new CouponFixed(CUR, paymentTime, ACCRUAL_FACTOR, NOTIONAL, FIXING_RATE);
+    assertEquals(couponFixed, CMS_COUPON_DEFINITION.toDerivative(date, FIXING_TS));
+    paymentTime = actAct.getDayCountFraction(FIXING_DATE, PAYMENT_DATE);
+    couponFixed = new CouponFixed(CUR, paymentTime, ACCRUAL_FACTOR, NOTIONAL, FIXING_RATE);
+    assertEquals(couponFixed, CMS_COUPON_DEFINITION.toDerivative(FIXING_DATE, FIXING_TS));
   }
 }

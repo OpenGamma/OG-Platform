@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.model.curve;
 
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CONSTRUCTION_CONFIG;
+import static com.opengamma.engine.value.ValueRequirementNames.CURRENCY_PAIRS;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -43,6 +44,7 @@ import com.opengamma.financial.analytics.curve.CurveUtils;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeVisitor;
 import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.currency.CurrencyPair;
+import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
@@ -118,11 +120,18 @@ public class FXMatrixFunction extends AbstractFunction {
       final FXMatrix matrix = new FXMatrix();
       final Iterator<Currency> iter = _currencies.iterator();
       final Currency initialCurrency = iter.next();
+      final CurrencyPairs pairs = (CurrencyPairs) inputs.getValue(CURRENCY_PAIRS);
       while (iter.hasNext()) {
         final Currency otherCurrency = iter.next();
-        final double spotRate = (Double) inputs.getValue(new ValueRequirement(ValueRequirementNames.SPOT_RATE,
-            CurrencyPair.TYPE.specification(CurrencyPair.of(otherCurrency, initialCurrency))));
-        matrix.addCurrency(otherCurrency, initialCurrency, spotRate);
+        if (pairs.getCurrencyPair(initialCurrency, otherCurrency).getBase().equals(initialCurrency)) {
+          final double spotRate = (Double) inputs.getValue(new ValueRequirement(ValueRequirementNames.SPOT_RATE,
+              CurrencyPair.TYPE.specification(CurrencyPair.of(otherCurrency, initialCurrency))));
+          matrix.addCurrency(initialCurrency, otherCurrency, spotRate);
+        } else {
+          final double spotRate = (Double) inputs.getValue(new ValueRequirement(ValueRequirementNames.SPOT_RATE,
+              CurrencyPair.TYPE.specification(CurrencyPair.of(otherCurrency, initialCurrency))));
+          matrix.addCurrency(otherCurrency, initialCurrency, 1 / spotRate);
+        }
       }
       return Collections.singleton(new ComputedValue(_spec, matrix));
     }
@@ -148,6 +157,7 @@ public class FXMatrixFunction extends AbstractFunction {
       while (iter.hasNext()) {
         requirements.add(new ValueRequirement(ValueRequirementNames.SPOT_RATE, CurrencyPair.TYPE.specification(CurrencyPair.of(iter.next(), initialCurrency))));
       }
+      requirements.add(new ValueRequirement(CURRENCY_PAIRS, ComputationTargetSpecification.NULL, ValueProperties.none()));
       return requirements;
     }
   };

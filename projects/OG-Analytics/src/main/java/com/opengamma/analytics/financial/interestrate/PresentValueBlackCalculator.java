@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -18,11 +18,16 @@ import com.opengamma.analytics.financial.interestrate.swaption.method.SwaptionCa
 import com.opengamma.analytics.financial.interestrate.swaption.method.SwaptionPhysicalFixedIborBlackMethod;
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackCubeBundle;
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackSwaptionBundle;
+import com.opengamma.analytics.financial.provider.calculator.blackswaption.PresentValueBlackSwaptionCalculator;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Present value calculator for interest rate instruments using Black model with implied volatilities.
+ * @deprecated Use the present values calculators that reference {@link ParameterProviderInterface}
+ * e.g. {@link PresentValueBlackSwaptionCalculator}
  */
+@Deprecated
 public final class PresentValueBlackCalculator extends PresentValueCalculator {
 
   /**
@@ -103,13 +108,6 @@ public final class PresentValueBlackCalculator extends PresentValueCalculator {
     ArgumentChecker.notNull(curves, "curves");
     ArgumentChecker.notNull(option, "option");
     return PREMIUM_BOND_FUTURE_OPTION.presentValue(option, curves).getAmount();
-    //    if (curves instanceof YieldCurveWithBlackCubeBundle) {
-    //      return PREMIUM_BOND_FUTURE_OPTION.presentValue(option, curves).getAmount();
-    //    } else if (curves instanceof YieldCurveWithBlackCubeAndForwardBundle) {
-    //      return PREMIUM_BOND_FUTURE_OPTION.presentValueFromPrice(option, curves, ((YieldCurveWithBlackCubeAndForwardBundle) curves).getForward()).getAmount();
-    //    }
-    //    throw new UnsupportedOperationException(
-    //        "The PresentValueBlackCalculator visitor visitBondFutureOptionPremiumTransaction requires a YieldCurveWithBlackCubeBundle as data.");
   }
 
 }

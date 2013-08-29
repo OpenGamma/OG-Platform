@@ -25,6 +25,7 @@ import org.springframework.web.context.ServletContextAware;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.core.change.AggregatingChangeManager;
@@ -35,6 +36,7 @@ import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
+import com.opengamma.engine.marketdata.live.LiveMarketDataProviderFactory;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.execution.ExecutionFlags;
 import com.opengamma.financial.aggregation.PortfolioAggregationFunctions;
@@ -69,7 +71,8 @@ import com.opengamma.web.analytics.push.LongPollingConnectionManager;
 import com.opengamma.web.analytics.push.MasterChangeManager;
 import com.opengamma.web.analytics.push.WebPushServletContextUtils;
 import com.opengamma.web.analytics.rest.AggregatorNamesResource;
-import com.opengamma.web.analytics.rest.LiveDataSourcesResource;
+import com.opengamma.web.analytics.rest.LiveMarketDataProviderNamesResource;
+import com.opengamma.web.analytics.rest.LiveMarketDataSpecificationNamesResource;
 import com.opengamma.web.analytics.rest.LogResource;
 import com.opengamma.web.analytics.rest.MarketDataSnapshotListResource;
 import com.opengamma.web.analytics.rest.MasterType;
@@ -180,9 +183,17 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   @PropertyDefinition(validate = "notNull")
   private FudgeContext _fudgeContext = OpenGammaFudgeContext.getInstance();
   /**
-   * For looking up market data provider specifications by name
+   * For obtaining the live market data provider names. Either this or marketDataSpecificationRepository must be set.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
+  private LiveMarketDataProviderFactory _liveMarketDataProviderFactory;
+  /**
+   * For looking up market data provider specifications by name. Either this or liveMarketDataProviderFactory must be set.
+   * 
+   * @deprecated  use liveMarketDataProviderFactory
+   */
+  @PropertyDefinition
+  @Deprecated
   private NamedMarketDataSpecificationRepository _marketDataSpecificationRepository;
 
   //-------------------------------------------------------------------------
@@ -225,7 +236,13 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
     repo.getRestComponents().publishResource(aggregatorsResource);
     repo.getRestComponents().publishResource(snapshotResource);
-    repo.getRestComponents().publishResource(new LiveDataSourcesResource(getMarketDataSpecificationRepository()));
+    if (getLiveMarketDataProviderFactory() != null) {
+      repo.getRestComponents().publishResource(new LiveMarketDataProviderNamesResource(getLiveMarketDataProviderFactory()));
+    } else if (getMarketDataSpecificationRepository() != null) {
+      repo.getRestComponents().publishResource(new LiveMarketDataSpecificationNamesResource(getMarketDataSpecificationRepository()));
+    } else {
+      throw new OpenGammaRuntimeException("Neither " + marketDataSpecificationRepository().name() + " nor " + liveMarketDataProviderFactory().name() + " were specified");
+    }
     repo.getRestComponents().publishResource(new ViewsResource(analyticsViewManager, connectionMgr));
     repo.getRestComponents().publishResource(new Compressor());
     repo.getRestComponents().publishResource(new LogResource());
@@ -334,6 +351,8 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
         return getUser();
       case -917704420:  // fudgeContext
         return getFudgeContext();
+      case -301472921:  // liveMarketDataProviderFactory
+        return getLiveMarketDataProviderFactory();
       case 1743800263:  // marketDataSpecificationRepository
         return getMarketDataSpecificationRepository();
     }
@@ -400,6 +419,9 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
       case -917704420:  // fudgeContext
         setFudgeContext((FudgeContext) newValue);
         return;
+      case -301472921:  // liveMarketDataProviderFactory
+        setLiveMarketDataProviderFactory((LiveMarketDataProviderFactory) newValue);
+        return;
       case 1743800263:  // marketDataSpecificationRepository
         setMarketDataSpecificationRepository((NamedMarketDataSpecificationRepository) newValue);
         return;
@@ -427,7 +449,6 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     JodaBeanUtils.notNull(_marketDataSnapshotMaster, "marketDataSnapshotMaster");
     JodaBeanUtils.notNull(_user, "user");
     JodaBeanUtils.notNull(_fudgeContext, "fudgeContext");
-    JodaBeanUtils.notNull(_marketDataSpecificationRepository, "marketDataSpecificationRepository");
     super.validate();
   }
 
@@ -457,6 +478,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
           JodaBeanUtils.equal(getMarketDataSnapshotMaster(), other.getMarketDataSnapshotMaster()) &&
           JodaBeanUtils.equal(getUser(), other.getUser()) &&
           JodaBeanUtils.equal(getFudgeContext(), other.getFudgeContext()) &&
+          JodaBeanUtils.equal(getLiveMarketDataProviderFactory(), other.getLiveMarketDataProviderFactory()) &&
           JodaBeanUtils.equal(getMarketDataSpecificationRepository(), other.getMarketDataSpecificationRepository()) &&
           super.equals(obj);
     }
@@ -485,6 +507,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSnapshotMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUser());
     hash += hash * 31 + JodaBeanUtils.hashCode(getFudgeContext());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getLiveMarketDataProviderFactory());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSpecificationRepository());
     return hash ^ super.hashCode();
   }
@@ -984,26 +1007,59 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets for looking up market data provider specifications by name
-   * @return the value of the property, not null
+   * Gets for obtaining the live market data provider names. Either this or marketDataSpecificationRepository must be set.
+   * @return the value of the property
    */
+  public LiveMarketDataProviderFactory getLiveMarketDataProviderFactory() {
+    return _liveMarketDataProviderFactory;
+  }
+
+  /**
+   * Sets for obtaining the live market data provider names. Either this or marketDataSpecificationRepository must be set.
+   * @param liveMarketDataProviderFactory  the new value of the property
+   */
+  public void setLiveMarketDataProviderFactory(LiveMarketDataProviderFactory liveMarketDataProviderFactory) {
+    this._liveMarketDataProviderFactory = liveMarketDataProviderFactory;
+  }
+
+  /**
+   * Gets the the {@code liveMarketDataProviderFactory} property.
+   * @return the property, not null
+   */
+  public final Property<LiveMarketDataProviderFactory> liveMarketDataProviderFactory() {
+    return metaBean().liveMarketDataProviderFactory().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets for looking up market data provider specifications by name. Either this or liveMarketDataProviderFactory must be set.
+   * 
+   * @deprecated  use liveMarketDataProviderFactory
+   * @return the value of the property
+   */
+  @Deprecated
   public NamedMarketDataSpecificationRepository getMarketDataSpecificationRepository() {
     return _marketDataSpecificationRepository;
   }
 
   /**
-   * Sets for looking up market data provider specifications by name
-   * @param marketDataSpecificationRepository  the new value of the property, not null
+   * Sets for looking up market data provider specifications by name. Either this or liveMarketDataProviderFactory must be set.
+   * 
+   * @deprecated  use liveMarketDataProviderFactory
+   * @param marketDataSpecificationRepository  the new value of the property
    */
+  @Deprecated
   public void setMarketDataSpecificationRepository(NamedMarketDataSpecificationRepository marketDataSpecificationRepository) {
-    JodaBeanUtils.notNull(marketDataSpecificationRepository, "marketDataSpecificationRepository");
     this._marketDataSpecificationRepository = marketDataSpecificationRepository;
   }
 
   /**
    * Gets the the {@code marketDataSpecificationRepository} property.
+   * 
+   * @deprecated  use liveMarketDataProviderFactory
    * @return the property, not null
    */
+  @Deprecated
   public final Property<NamedMarketDataSpecificationRepository> marketDataSpecificationRepository() {
     return metaBean().marketDataSpecificationRepository().createProperty(this);
   }
@@ -1114,6 +1170,11 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<FudgeContext> _fudgeContext = DirectMetaProperty.ofReadWrite(
         this, "fudgeContext", WebsiteViewportsComponentFactory.class, FudgeContext.class);
     /**
+     * The meta-property for the {@code liveMarketDataProviderFactory} property.
+     */
+    private final MetaProperty<LiveMarketDataProviderFactory> _liveMarketDataProviderFactory = DirectMetaProperty.ofReadWrite(
+        this, "liveMarketDataProviderFactory", WebsiteViewportsComponentFactory.class, LiveMarketDataProviderFactory.class);
+    /**
      * The meta-property for the {@code marketDataSpecificationRepository} property.
      */
     private final MetaProperty<NamedMarketDataSpecificationRepository> _marketDataSpecificationRepository = DirectMetaProperty.ofReadWrite(
@@ -1142,6 +1203,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
         "marketDataSnapshotMaster",
         "user",
         "fudgeContext",
+        "liveMarketDataProviderFactory",
         "marketDataSpecificationRepository");
 
     /**
@@ -1191,6 +1253,8 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
           return _user;
         case -917704420:  // fudgeContext
           return _fudgeContext;
+        case -301472921:  // liveMarketDataProviderFactory
+          return _liveMarketDataProviderFactory;
         case 1743800263:  // marketDataSpecificationRepository
           return _marketDataSpecificationRepository;
       }
@@ -1366,9 +1430,18 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     }
 
     /**
+     * The meta-property for the {@code liveMarketDataProviderFactory} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<LiveMarketDataProviderFactory> liveMarketDataProviderFactory() {
+      return _liveMarketDataProviderFactory;
+    }
+
+    /**
      * The meta-property for the {@code marketDataSpecificationRepository} property.
      * @return the meta-property, not null
      */
+    @Deprecated
     public final MetaProperty<NamedMarketDataSpecificationRepository> marketDataSpecificationRepository() {
       return _marketDataSpecificationRepository;
     }

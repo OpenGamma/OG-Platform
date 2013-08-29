@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.bond.method;
@@ -33,7 +33,9 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Class with methods related to bond security valued by discounting.
+ * @deprecated Use {@link com.opengamma.analytics.financial.interestrate.bond.provider.BondSecurityDiscountingMethod}
  */
+@Deprecated
 public final class BondSecurityDiscountingMethod {
   /**
    * The unique instance of the class.

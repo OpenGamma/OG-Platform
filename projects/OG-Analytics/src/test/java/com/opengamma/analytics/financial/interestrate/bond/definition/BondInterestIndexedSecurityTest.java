@@ -1,11 +1,12 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.bond.definition;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
@@ -29,6 +30,7 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.timeseries.DoubleTimeSeries;
@@ -52,7 +54,6 @@ public class BondInterestIndexedSecurityTest {
   private static final ZonedDateTime MATURITY_DATE = DateUtils.getUTCDate(2035, 1, 26);
   private static final YieldConvention YIELD_CONVENTION = YieldConventionFactory.INSTANCE.getYieldConvention("UK:BUMP/DMO METHOD"); // To check
   private static final int MONTH_LAG = 8;
-  private static final double INDEX_START = 173.60; // November 2001 
   private static final double REAL_RATE = 0.02;
   private static final double NOTIONAL = 1.00;
   private static final Period COUPON_PERIOD = Period.ofMonths(6);
@@ -66,57 +67,54 @@ public class BondInterestIndexedSecurityTest {
           YIELD_CONVENTION, IS_EOM, ISSUER_UK);
   private static final double SETTLEMENT_TIME = TimeCalculator.getTimeBetween(PRICING_DATE, SPOT_DATE);
   private static final DoubleTimeSeries<ZonedDateTime> UK_RPI = MulticurveProviderDiscountDataSets.ukRpiFrom2010();
-  @SuppressWarnings("unchecked")
-  private static final Annuity<PaymentFixed> NOMINAL = (Annuity<PaymentFixed>) BOND_SECURITY_DEFINITION.getNominal().toDerivative(PRICING_DATE, "Not used");
-  @SuppressWarnings("unchecked")
-  private static final Annuity<Coupon> COUPON = (Annuity<Coupon>) BOND_SECURITY_DEFINITION.getCoupons().toDerivative(PRICING_DATE, UK_RPI, "Not used");
+  private static final Annuity<PaymentFixed> NOMINAL = (Annuity<PaymentFixed>) BOND_SECURITY_DEFINITION.getNominal().toDerivative(PRICING_DATE);
+  private static final Annuity<Coupon> COUPON = (Annuity<Coupon>) BOND_SECURITY_DEFINITION.getCoupons().toDerivative(PRICING_DATE, UK_RPI);
   private static final double ACCRUED_INTEREST = BOND_SECURITY_DEFINITION.accruedInterest(SPOT_DATE);
-  @SuppressWarnings("unchecked")
   private static final AnnuityDefinition<CouponDefinition> COUPON_DEFINITION = (AnnuityDefinition<CouponDefinition>) BOND_SECURITY_DEFINITION.getCoupons().trimBefore(SPOT_DATE);
-  private static final double factorSpot = DAY_COUNT.getAccruedInterest(COUPON_DEFINITION.getNthPayment(0).getAccrualStartDate(), SPOT_DATE, COUPON_DEFINITION.getNthPayment(0)
+  private static final double FACTOR_SPOT = DAY_COUNT.getAccruedInterest(COUPON_DEFINITION.getNthPayment(0).getAccrualStartDate(), SPOT_DATE, COUPON_DEFINITION.getNthPayment(0)
       .getAccrualEndDate(), 1.0, COUPON_PER_YEAR);
-  private static final double factorPeriod = DAY_COUNT.getAccruedInterest(COUPON_DEFINITION.getNthPayment(0).getAccrualStartDate(), COUPON_DEFINITION.getNthPayment(0).getAccrualEndDate(),
+  private static final double FACTOR_PERIOD = DAY_COUNT.getAccruedInterest(COUPON_DEFINITION.getNthPayment(0).getAccrualStartDate(), COUPON_DEFINITION.getNthPayment(0).getAccrualEndDate(),
       COUPON_DEFINITION.getNthPayment(0).getAccrualEndDate(), 1.0, COUPON_PER_YEAR);
-  private static final double FACTOR_TO_NEXT = (factorPeriod - factorSpot) / factorPeriod;
+  private static final double FACTOR_TO_NEXT = (FACTOR_PERIOD - FACTOR_SPOT) / FACTOR_PERIOD;
 
   private static final PaymentFixedDefinition NOMINAL_LAST = BOND_SECURITY_DEFINITION.getNominal().getNthPayment(BOND_SECURITY_DEFINITION.getNominal().getNumberOfPayments() - 1);
   final ZonedDateTime SETTLEMENT_DATE = SPOT_DATE.isBefore(PRICING_DATE) ? PRICING_DATE : SPOT_DATE;
   private static final PaymentFixedDefinition SETTLEMENT_DEFINITION = new PaymentFixedDefinition(NOMINAL_LAST.getCurrency(), NOMINAL_LAST.getPaymentDate(), NOMINAL_LAST.getReferenceAmount());
-  private static final PaymentFixed SETTLEMENT = SETTLEMENT_DEFINITION.toDerivative(PRICING_DATE, "Not used");
+  private static final PaymentFixed SETTLEMENT = SETTLEMENT_DEFINITION.toDerivative(PRICING_DATE);
 
-  private static final BondInterestIndexedSecurity<PaymentFixed, Coupon> BOND_SECURITY = new BondInterestIndexedSecurity<PaymentFixed, Coupon>(NOMINAL, COUPON, SETTLEMENT_TIME, ACCRUED_INTEREST,
+  private static final BondInterestIndexedSecurity<PaymentFixed, Coupon> BOND_SECURITY = new BondInterestIndexedSecurity<>(NOMINAL, COUPON, SETTLEMENT_TIME, ACCRUED_INTEREST,
       FACTOR_TO_NEXT,
       YIELD_CONVENTION, COUPON_PER_YEAR, SETTLEMENT, ISSUER_UK, PRICE_INDEX);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullNominal() {
-    new BondInterestIndexedSecurity<PaymentFixed, Coupon>(null, COUPON, SETTLEMENT_TIME, ACCRUED_INTEREST, FACTOR_TO_NEXT, YIELD_CONVENTION, COUPON_PER_YEAR, SETTLEMENT, ISSUER_UK, PRICE_INDEX);
+    new BondInterestIndexedSecurity<>(null, COUPON, SETTLEMENT_TIME, ACCRUED_INTEREST, FACTOR_TO_NEXT, YIELD_CONVENTION, COUPON_PER_YEAR, SETTLEMENT, ISSUER_UK, PRICE_INDEX);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCoupon() {
-    new BondInterestIndexedSecurity<PaymentFixed, Coupon>(NOMINAL, null, SETTLEMENT_TIME, ACCRUED_INTEREST, FACTOR_TO_NEXT, YIELD_CONVENTION, COUPON_PER_YEAR, SETTLEMENT, ISSUER_UK,
+    new BondInterestIndexedSecurity<>(NOMINAL, null, SETTLEMENT_TIME, ACCRUED_INTEREST, FACTOR_TO_NEXT, YIELD_CONVENTION, COUPON_PER_YEAR, SETTLEMENT, ISSUER_UK,
         PRICE_INDEX);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullYield() {
-    new BondInterestIndexedSecurity<PaymentFixed, Coupon>(NOMINAL, COUPON, SETTLEMENT_TIME, ACCRUED_INTEREST, FACTOR_TO_NEXT, null, COUPON_PER_YEAR, SETTLEMENT, ISSUER_UK, PRICE_INDEX);
+    new BondInterestIndexedSecurity<>(NOMINAL, COUPON, SETTLEMENT_TIME, ACCRUED_INTEREST, FACTOR_TO_NEXT, null, COUPON_PER_YEAR, SETTLEMENT, ISSUER_UK, PRICE_INDEX);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullSettle() {
-    new BondInterestIndexedSecurity<PaymentFixed, Coupon>(NOMINAL, COUPON, SETTLEMENT_TIME, ACCRUED_INTEREST, FACTOR_TO_NEXT, YIELD_CONVENTION, COUPON_PER_YEAR, null, ISSUER_UK, PRICE_INDEX);
+    new BondInterestIndexedSecurity<>(NOMINAL, COUPON, SETTLEMENT_TIME, ACCRUED_INTEREST, FACTOR_TO_NEXT, YIELD_CONVENTION, COUPON_PER_YEAR, null, ISSUER_UK, PRICE_INDEX);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullIssuer() {
-    new BondInterestIndexedSecurity<PaymentFixed, Coupon>(NOMINAL, COUPON, SETTLEMENT_TIME, ACCRUED_INTEREST, FACTOR_TO_NEXT, YIELD_CONVENTION, COUPON_PER_YEAR, SETTLEMENT, null, PRICE_INDEX);
+    new BondInterestIndexedSecurity<>(NOMINAL, COUPON, SETTLEMENT_TIME, ACCRUED_INTEREST, FACTOR_TO_NEXT, YIELD_CONVENTION, COUPON_PER_YEAR, SETTLEMENT, null, PRICE_INDEX);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPriceIndex() {
-    new BondInterestIndexedSecurity<PaymentFixed, Coupon>(NOMINAL, COUPON, SETTLEMENT_TIME, ACCRUED_INTEREST, FACTOR_TO_NEXT, YIELD_CONVENTION, COUPON_PER_YEAR, SETTLEMENT, ISSUER_UK, null);
+    new BondInterestIndexedSecurity<>(NOMINAL, COUPON, SETTLEMENT_TIME, ACCRUED_INTEREST, FACTOR_TO_NEXT, YIELD_CONVENTION, COUPON_PER_YEAR, SETTLEMENT, ISSUER_UK, null);
   }
 
   @Test
@@ -132,4 +130,34 @@ public class BondInterestIndexedSecurityTest {
     assertEquals("Inflation Interest Indexed bond: getter", ISSUER_UK, BOND_SECURITY.getIssuer());
   }
 
+  @Test
+  public void testHashCodeEquals() {
+    final BondInterestIndexedSecurity<PaymentFixed, Coupon> bond = new BondInterestIndexedSecurity<>(NOMINAL, COUPON, SETTLEMENT_TIME, ACCRUED_INTEREST,
+        FACTOR_TO_NEXT, YIELD_CONVENTION, COUPON_PER_YEAR, SETTLEMENT, ISSUER_UK, PRICE_INDEX);
+    BondInterestIndexedSecurity<PaymentFixed, Coupon> other = new BondInterestIndexedSecurity<>(NOMINAL, COUPON, SETTLEMENT_TIME, ACCRUED_INTEREST,
+        FACTOR_TO_NEXT, YIELD_CONVENTION, COUPON_PER_YEAR, SETTLEMENT, ISSUER_UK, PRICE_INDEX);
+    assertEquals(bond, other);
+    assertEquals(bond.hashCode(), other.hashCode());
+    other = new BondInterestIndexedSecurity<>((Annuity<PaymentFixed>) BOND_SECURITY_DEFINITION.getNominal().toDerivative(PRICING_DATE.minusDays(1)), COUPON, SETTLEMENT_TIME, ACCRUED_INTEREST,
+        FACTOR_TO_NEXT, YIELD_CONVENTION, COUPON_PER_YEAR, SETTLEMENT, ISSUER_UK, PRICE_INDEX);
+    assertFalse(other.equals(bond));
+    other = new BondInterestIndexedSecurity<>(NOMINAL, (Annuity<Coupon>) BOND_SECURITY_DEFINITION.getCoupons().toDerivative(PRICING_DATE.minusDays(1), UK_RPI), SETTLEMENT_TIME, ACCRUED_INTEREST,
+        FACTOR_TO_NEXT, YIELD_CONVENTION, COUPON_PER_YEAR, SETTLEMENT, ISSUER_UK, PRICE_INDEX);
+    assertFalse(other.equals(bond));
+    other = new BondInterestIndexedSecurity<>(NOMINAL, COUPON, SETTLEMENT_TIME, ACCRUED_INTEREST + 1,
+        FACTOR_TO_NEXT, YIELD_CONVENTION, COUPON_PER_YEAR, SETTLEMENT, ISSUER_UK, PRICE_INDEX);
+    assertFalse(other.equals(bond));
+    other = new BondInterestIndexedSecurity<>(NOMINAL, COUPON, SETTLEMENT_TIME, ACCRUED_INTEREST,
+        FACTOR_TO_NEXT + 1, YIELD_CONVENTION, COUPON_PER_YEAR, SETTLEMENT, ISSUER_UK, PRICE_INDEX);
+    assertFalse(other.equals(bond));
+    other = new BondInterestIndexedSecurity<>(NOMINAL, COUPON, SETTLEMENT_TIME, ACCRUED_INTEREST,
+        FACTOR_TO_NEXT, SimpleYieldConvention.AUSTRIA_ISMA_METHOD, COUPON_PER_YEAR, SETTLEMENT, ISSUER_UK, PRICE_INDEX);
+    assertFalse(other.equals(bond));
+    other = new BondInterestIndexedSecurity<>(NOMINAL, COUPON, SETTLEMENT_TIME, ACCRUED_INTEREST,
+        FACTOR_TO_NEXT, YIELD_CONVENTION, COUPON_PER_YEAR + 1, SETTLEMENT, ISSUER_UK, PRICE_INDEX);
+    assertFalse(other.equals(bond));
+    other = new BondInterestIndexedSecurity<>(NOMINAL, COUPON, SETTLEMENT_TIME, ACCRUED_INTEREST,
+        FACTOR_TO_NEXT, YIELD_CONVENTION, COUPON_PER_YEAR, SETTLEMENT_DEFINITION.toDerivative(PRICING_DATE.plusDays(1)), ISSUER_UK, PRICE_INDEX);
+    assertFalse(other.equals(bond));
+  }
 }

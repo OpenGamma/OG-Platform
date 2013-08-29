@@ -46,8 +46,9 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- *
+ * @deprecated This class uses deprecated functionality in the analytics library.
  */
+@Deprecated
 public class FXOptionBlackValuePhiFunction extends AbstractFunction.NonCompiledInvoker {
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(FXOptionBlackValueRhoFunction.class);

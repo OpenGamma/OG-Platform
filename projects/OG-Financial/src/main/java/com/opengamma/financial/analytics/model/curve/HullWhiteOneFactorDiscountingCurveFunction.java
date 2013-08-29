@@ -62,6 +62,7 @@ import com.opengamma.financial.analytics.curve.CurveGroupConfiguration;
 import com.opengamma.financial.analytics.curve.CurveNodeVisitorAdapter;
 import com.opengamma.financial.analytics.curve.CurveSpecification;
 import com.opengamma.financial.analytics.curve.CurveTypeConfiguration;
+import com.opengamma.financial.analytics.curve.DeliverableSwapFutureNodeConverter;
 import com.opengamma.financial.analytics.curve.DiscountingCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.FRANodeConverter;
 import com.opengamma.financial.analytics.curve.FXForwardNodeConverter;
@@ -72,6 +73,7 @@ import com.opengamma.financial.analytics.curve.RateFutureNodeConverter;
 import com.opengamma.financial.analytics.curve.SwapNodeConverter;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeVisitor;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
+import com.opengamma.financial.analytics.ircurve.strips.DeliverableSwapFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.convention.Convention;
@@ -164,15 +166,20 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
           final double[] marketDataForCurve = new double[nNodes];
           int k = 0;
           for (final CurveNodeWithIdentifier node : specification.getNodes()) { // Node points - start
-            final Double marketData = snapshot.getDataPoint(node.getIdentifier());
+            Double marketData = snapshot.getDataPoint(node.getIdentifier());
             if (marketData == null) {
-              throw new OpenGammaRuntimeException("Could not get market data for " + node.getIdentifier());
+              marketData = 0.99;
+//              throw new OpenGammaRuntimeException("Could not get market data for " + node.getIdentifier());
             }
             marketDataForCurve[k] = marketData;
             if (node.getCurveNode() instanceof RateFutureNode) {
-              parameterGuessForCurves.add(1.0 - marketData);
+              parameterGuessForCurves.add(1 - marketData);
             } else {
-              parameterGuessForCurves.add(marketData);
+              if (node.getCurveNode() instanceof DeliverableSwapFutureNode) {
+                parameterGuessForCurves.add(0.01d); // Implementation note: The relation between price, coupon and rate is complex. There is no good initial guess.
+              } else {
+                parameterGuessForCurves.add(marketData);
+              }
             }
             final InstrumentDefinition<?> definitionForNode = node.getCurveNode().accept(getCurveNodeConverter(conventionSource, holidaySource, regionSource, snapshot,
                 node.getIdentifier(), timeSeries, now));
@@ -284,8 +291,8 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
     }
 
     @Override
-    protected ValueProperties getBundleProperties() {
-      return super.getBundleProperties().copy()
+    protected ValueProperties getBundleProperties(final String[] curveNames) {
+      return super.getBundleProperties(curveNames).copy()
           .withAny(PROPERTY_HULL_WHITE_PARAMETERS)
           .withAny(PROPERTY_HULL_WHITE_CURRENCY)
           .get();
@@ -341,6 +348,7 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
         final SnapshotDataBundle marketData, final ExternalId dataId, final HistoricalTimeSeriesBundle historicalData, final ZonedDateTime valuationTime) {
       return CurveNodeVisitorAdapter.<InstrumentDefinition<?>>builder()
           .cashNodeVisitor(new CashNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
+          .deliverableSwapFutureNode(new DeliverableSwapFutureNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .fraNode(new FRANodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .fxForwardNode(new FXForwardNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .rateFutureNode(new RateFutureNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))

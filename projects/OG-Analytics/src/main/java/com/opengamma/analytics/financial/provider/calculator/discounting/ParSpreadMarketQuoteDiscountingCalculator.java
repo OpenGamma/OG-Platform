@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.calculator.discounting;
@@ -16,8 +16,12 @@ import com.opengamma.analytics.financial.interestrate.cash.provider.CashDiscount
 import com.opengamma.analytics.financial.interestrate.cash.provider.DepositIborDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.fra.provider.ForwardRateAgreementDiscountingProviderMethod;
+import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
+import com.opengamma.analytics.financial.interestrate.future.provider.FederalFundsFutureSecurityDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureSecurityDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedAccruedCompounding;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONCompounded;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
@@ -26,7 +30,6 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Compute the spread to be added to the market standard quote of the instrument for which the present value of the instrument is zero.
  * The notion of "market quote" will depend of each instrument.
- * @author marc
  */
 public final class ParSpreadMarketQuoteDiscountingCalculator extends InstrumentDerivativeVisitorAdapter<MulticurveProviderInterface, Double> {
 
@@ -60,6 +63,7 @@ public final class ParSpreadMarketQuoteDiscountingCalculator extends InstrumentD
   private static final InterestRateFutureSecurityDiscountingMethod METHOD_STIR_FUT = InterestRateFutureSecurityDiscountingMethod.getInstance();
   private static final ForexSwapDiscountingMethod METHOD_FOREX_SWAP = ForexSwapDiscountingMethod.getInstance();
   private static final ForexDiscountingMethod METHOD_FOREX = ForexDiscountingMethod.getInstance();
+  private static final FederalFundsFutureSecurityDiscountingMethod METHOD_FED_FUNDS = FederalFundsFutureSecurityDiscountingMethod.getInstance();
 
   //     -----     Deposit     -----
 
@@ -94,6 +98,18 @@ public final class ParSpreadMarketQuoteDiscountingCalculator extends InstrumentD
   public Double visitSwap(final Swap<?, ?> swap, final MulticurveProviderInterface multicurves) {
     ArgumentChecker.notNull(multicurves, "Market");
     ArgumentChecker.notNull(swap, "Swap");
+
+    // Implementation note: if the swap is an On compounded (ie Brazilian like), the parspread formula is not the same.
+    if (swap.getSecondLeg().getNthPayment(0) instanceof CouponONCompounded && swap.getFirstLeg().getNthPayment(0) instanceof CouponFixedAccruedCompounding &&
+        swap.getFirstLeg().getNumberOfPayments() == 1) {
+      // Implementation note: check if the swap is a Brazilian swap. 
+      final CouponFixedAccruedCompounding cpnFixed = (CouponFixedAccruedCompounding) swap.getFirstLeg().getNthPayment(0);
+      final double pvONLeg = swap.getSecondLeg().accept(PVMC, multicurves).getAmount(swap.getSecondLeg().getCurrency());
+      final double discountFactor = multicurves.getDiscountFactor(swap.getFirstLeg().getCurrency(), cpnFixed.getPaymentTime());
+      final double paymentYearFraction = cpnFixed.getPaymentYearFraction();
+      final double notional = ((CouponONCompounded) swap.getSecondLeg().getNthPayment(0)).getNotional();
+      return Math.pow(pvONLeg / discountFactor / notional, 1 / paymentYearFraction) - 1 - cpnFixed.getFixedRate();
+    }
     return -multicurves.getFxRates().convert(swap.accept(PVMC, multicurves), swap.getFirstLeg().getCurrency()).getAmount() / swap.getFirstLeg().accept(PVMQSC, multicurves);
   }
 
@@ -107,6 +123,11 @@ public final class ParSpreadMarketQuoteDiscountingCalculator extends InstrumentD
   @Override
   public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction futures, final MulticurveProviderInterface multicurves) {
     return METHOD_STIR_FUT.price(futures.getUnderlying(), multicurves) - futures.getReferencePrice();
+  }
+
+  @Override
+  public Double visitFederalFundsFutureTransaction(final FederalFundsFutureTransaction future, final MulticurveProviderInterface multicurve) {
+    return METHOD_FED_FUNDS.price(future.getUnderlyingFuture(), multicurve) - future.getReferencePrice();
   }
 
   //     -----     Forex     -----

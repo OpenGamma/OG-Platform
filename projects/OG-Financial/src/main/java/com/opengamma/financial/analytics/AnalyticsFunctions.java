@@ -121,6 +121,7 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
     addSummingFunction(functions, ValueRequirementNames.CREDIT_SENSITIVITIES);
     addUnitScalingFunction(functions, ValueRequirementNames.CLEAN_PRICE);
     addUnitScalingFunction(functions, ValueRequirementNames.CONVEXITY);
+    addUnitScalingFunction(functions, ValueRequirementNames.CONVEXITY_ADJUSTMENT);
     addLastHistoricalValueFunction(functions, ValueRequirementNames.DAILY_APPLIED_BETA);
     addLastHistoricalValueFunction(functions, ValueRequirementNames.DAILY_MARKET_CAP);
     addLastHistoricalValueFunction(functions, ValueRequirementNames.DAILY_PRICE);

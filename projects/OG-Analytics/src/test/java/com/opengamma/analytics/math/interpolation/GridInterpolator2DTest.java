@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.math.interpolation;
@@ -23,11 +23,11 @@ import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ *
  */
 public class GridInterpolator2DTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);
-  private static final Map<DoublesPair, Double> FLAT_DATA = new HashMap<DoublesPair, Double>();
+  private static final Map<DoublesPair, Double> FLAT_DATA = new HashMap<>();
   private static final Function2D<Double, Double> F = new Function2D<Double, Double>() {
 
     @Override
@@ -79,7 +79,7 @@ public class GridInterpolator2DTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPair() {
-    final Map<DoublesPair, Double> map = new HashMap<DoublesPair, Double>();
+    final Map<DoublesPair, Double> map = new HashMap<>();
     map.put(Pair.of(1., 0.), null);
     INTERPOLATOR_2D.interpolate(INTERPOLATOR_2D.getDataBundle(map), DoublesPair.of(0.5, 0.5));
   }
@@ -100,7 +100,7 @@ public class GridInterpolator2DTest {
   @Test
   public void test() {
     assertEquals(INTERPOLATOR_2D.interpolate(FLAT_DATA_BUNDLE, Pair.of(2.5, 5.4)), 0., EPS);
-    final Map<DoublesPair, Double> nonTrivial = new HashMap<DoublesPair, Double>();
+    final Map<DoublesPair, Double> nonTrivial = new HashMap<>();
     for (final DoublesPair pair : FLAT_DATA.keySet()) {
       nonTrivial.put(pair, F.evaluate(pair.getFirst(), pair.getSecond()));
     }

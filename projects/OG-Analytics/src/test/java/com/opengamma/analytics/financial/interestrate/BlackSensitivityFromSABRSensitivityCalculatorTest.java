@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -50,7 +50,9 @@ import com.opengamma.util.tuple.Pair;
 
 /**
  * Tests related to the sensitivity of swaptions to the Black volatility when SABR fitting and interpolation is used.
+ * @deprecated This class tests deprecated functionality.
  */
+@Deprecated
 public class BlackSensitivityFromSABRSensitivityCalculatorTest {
 
   protected Logger _logger = LoggerFactory.getLogger(SABRModelFitterTest.class);
@@ -131,7 +133,7 @@ public class BlackSensitivityFromSABRSensitivityCalculatorTest {
     final double[] rhoVector = new double[NB_EXPIRY * NB_MATURITY];
     final double[] nuVector = new double[NB_EXPIRY * NB_MATURITY];
     int vect = 0;
-    final HashMap<DoublesPair, DoubleMatrix2D> inverseJacobianMap = new HashMap<DoublesPair, DoubleMatrix2D>();
+    final HashMap<DoublesPair, DoubleMatrix2D> inverseJacobianMap = new HashMap<>();
     for (int loopexpiry = 0; loopexpiry < NB_EXPIRY; loopexpiry++) {
       final ZonedDateTime settleDate = ScheduleCalculator.getAdjustedDate(EXPIRY_DATE[loopexpiry], USD6MLIBOR3M.getSpotLag(), NYC);
       for (int loopmat = 0; loopmat < NB_MATURITY; loopmat++) {

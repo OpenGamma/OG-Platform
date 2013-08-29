@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.capletstripping;
@@ -14,19 +14,25 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscou
 import com.opengamma.analytics.financial.model.volatility.SimpleOptionData;
 
 /**
- * 
+ * Decomposes a {@link CapFloor} into an array of {@link SimpleOptionData}
  */
-public abstract class CapFloorDecomposer {
+public final class CapFloorDecomposer {
   private static final ParRateCalculator PRC = ParRateCalculator.getInstance();
 
   /**
-   * Express a cap or floor as a strip of European call or put options 
+   * Private constructor
+   */
+  private CapFloorDecomposer() {
+  }
+
+  /**
+   * Express a cap or floor as a strip of European call or put options
    * @param cap The cap or floor
    * @param ycb yield curves (i.e. discount and Ibor-projection curves)
    * @return strip of European call or put options
    */
   public static SimpleOptionData[] toOptions(final CapFloor cap, final YieldCurveBundle ycb) {
-    Validate.notNull(cap, "null cap"); 
+    Validate.notNull(cap, "null cap");
     return toOptions(cap.getPayments(), ycb);
   }
 
@@ -35,13 +41,13 @@ public abstract class CapFloorDecomposer {
     Validate.notNull(ycb, "null yield curves");
     final int n = caplets.length;
 
-    SimpleOptionData[] options = new SimpleOptionData[n];
+    final SimpleOptionData[] options = new SimpleOptionData[n];
     for (int i = 0; i < n; i++) {
       final YieldAndDiscountCurve discountCurve = ycb.getCurve(caplets[i].getFundingCurveName());
-      double fwd = caplets[i].accept(PRC, ycb);
-      double t = caplets[i].getFixingTime();
+      final double fwd = caplets[i].accept(PRC, ycb);
+      final double t = caplets[i].getFixingTime();
       // Vol is at fixing time, discounting from payment. This included the year fraction
-      double df = discountCurve.getDiscountFactor(caplets[i].getPaymentTime()) * caplets[i].getPaymentYearFraction();
+      final double df = discountCurve.getDiscountFactor(caplets[i].getPaymentTime()) * caplets[i].getPaymentYearFraction();
       options[i] = new SimpleOptionData(fwd, caplets[i].getStrike(), t, df, caplets[i].isCap());
     }
     return options;

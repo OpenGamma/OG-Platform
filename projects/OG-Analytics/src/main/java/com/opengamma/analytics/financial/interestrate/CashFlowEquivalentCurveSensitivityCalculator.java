@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -28,7 +28,9 @@ import com.opengamma.util.tuple.DoublesPair;
  * Calculator of the cash flow equivalent sensitivity to the curve. The result is a map of <Double, PresentValueSensitivity>.
  * The cash flow equivalent sensitivity is represented by the double which is the time of the cash flow and the PresentValueSensitivity which is the sensitivity of the
  * cash flow at that date.
+ * @deprecated {@link YieldCurveBundle} is deprecated
  */
+@Deprecated
 public class CashFlowEquivalentCurveSensitivityCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Map<Double, InterestRateCurveSensitivity>> {
 
   /**
@@ -54,14 +56,14 @@ public class CashFlowEquivalentCurveSensitivityCalculator extends InstrumentDeri
   public Map<Double, InterestRateCurveSensitivity> visitFixedPayment(final PaymentFixed payment, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(payment);
-    return new HashMap<Double, InterestRateCurveSensitivity>();
+    return new HashMap<>();
   }
 
   @Override
   public Map<Double, InterestRateCurveSensitivity> visitCouponFixed(final CouponFixed coupon, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(coupon);
-    return new HashMap<Double, InterestRateCurveSensitivity>();
+    return new HashMap<>();
   }
 
   @Override
@@ -77,16 +79,16 @@ public class CashFlowEquivalentCurveSensitivityCalculator extends InstrumentDeri
         / discountingCurve.getDiscountFactor(fixingStartTime);
     final double betaBar = payment.getNotional() * payment.getPaymentYearFraction() / payment.getFixingAccrualFactor();
 
-    final Map<Double, InterestRateCurveSensitivity> result = new HashMap<Double, InterestRateCurveSensitivity>();
-    final Map<String, List<DoublesPair>> resultPVS = new HashMap<String, List<DoublesPair>>();
-    final List<DoublesPair> listForward = new ArrayList<DoublesPair>();
+    final Map<Double, InterestRateCurveSensitivity> result = new HashMap<>();
+    final Map<String, List<DoublesPair>> resultPVS = new HashMap<>();
+    final List<DoublesPair> listForward = new ArrayList<>();
     final DoublesPair forwardStart = new DoublesPair(fixingStartTime, -fixingStartTime * beta * betaBar);
     listForward.add(forwardStart);
     final DoublesPair forwardEnd = new DoublesPair(fixingEndTime, beta * fixingEndTime * betaBar);
     listForward.add(forwardEnd);
     resultPVS.put(payment.getForwardCurveName(), listForward);
 
-    final List<DoublesPair> listDisc = new ArrayList<DoublesPair>();
+    final List<DoublesPair> listDisc = new ArrayList<>();
     final DoublesPair discStart = new DoublesPair(fixingStartTime, beta * fixingStartTime * betaBar);
     listDisc.add(discStart);
     final DoublesPair discPay = new DoublesPair(paymentTime, -paymentTime * beta * betaBar);
@@ -109,16 +111,16 @@ public class CashFlowEquivalentCurveSensitivityCalculator extends InstrumentDeri
     final double beta = forwardCurve.getDiscountFactor(fixingStartTime) / forwardCurve.getDiscountFactor(fixingEndTime) * discountingCurve.getDiscountFactor(paymentTime)
         / discountingCurve.getDiscountFactor(fixingStartTime);
     final double betaBar = payment.getNotional() * payment.getPaymentYearFraction() / payment.getFixingAccrualFactor();
-    final Map<Double, InterestRateCurveSensitivity> result = new HashMap<Double, InterestRateCurveSensitivity>();
-    final Map<String, List<DoublesPair>> resultPVS = new HashMap<String, List<DoublesPair>>();
-    final List<DoublesPair> listForward = new ArrayList<DoublesPair>();
+    final Map<Double, InterestRateCurveSensitivity> result = new HashMap<>();
+    final Map<String, List<DoublesPair>> resultPVS = new HashMap<>();
+    final List<DoublesPair> listForward = new ArrayList<>();
     final DoublesPair forwardStart = new DoublesPair(fixingStartTime, -fixingStartTime * beta * betaBar);
     listForward.add(forwardStart);
     final DoublesPair forwardEnd = new DoublesPair(fixingEndTime, beta * fixingEndTime * betaBar);
     listForward.add(forwardEnd);
     resultPVS.put(payment.getForwardCurveName(), listForward);
 
-    final List<DoublesPair> listDisc = new ArrayList<DoublesPair>();
+    final List<DoublesPair> listDisc = new ArrayList<>();
     final DoublesPair discStart = new DoublesPair(fixingStartTime, beta * fixingStartTime * betaBar);
     listDisc.add(discStart);
     final DoublesPair discPay = new DoublesPair(paymentTime, -paymentTime * beta * betaBar);
@@ -133,7 +135,7 @@ public class CashFlowEquivalentCurveSensitivityCalculator extends InstrumentDeri
   public Map<Double, InterestRateCurveSensitivity> visitGenericAnnuity(final Annuity<? extends Payment> annuity, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(annuity);
-    final Map<Double, InterestRateCurveSensitivity> result = new HashMap<Double, InterestRateCurveSensitivity>();
+    final Map<Double, InterestRateCurveSensitivity> result = new HashMap<>();
     for (final Payment p : annuity.getPayments()) {
       final Map<Double, InterestRateCurveSensitivity> paymentSensi = p.accept(this, curves);
       result.putAll(paymentSensi);
@@ -151,7 +153,7 @@ public class CashFlowEquivalentCurveSensitivityCalculator extends InstrumentDeri
   public Map<Double, InterestRateCurveSensitivity> visitSwap(final Swap<?, ?> swap, final YieldCurveBundle curves) {
     Validate.notNull(curves);
     Validate.notNull(swap);
-    final Map<Double, InterestRateCurveSensitivity> result = new HashMap<Double, InterestRateCurveSensitivity>();
+    final Map<Double, InterestRateCurveSensitivity> result = new HashMap<>();
     final Map<Double, InterestRateCurveSensitivity> legSensi1 = swap.getFirstLeg().accept(this, curves);
     result.putAll(legSensi1);
     final Map<Double, InterestRateCurveSensitivity> legSensi2 = swap.getSecondLeg().accept(this, curves);

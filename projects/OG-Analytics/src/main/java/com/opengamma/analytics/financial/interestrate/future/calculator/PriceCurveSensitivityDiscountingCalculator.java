@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.calculator;
@@ -15,7 +15,9 @@ import com.opengamma.analytics.financial.interestrate.future.method.BondFutureDi
 
 /**
  * Calculate security prices curve sensitivity for futures (bond and interest rate).
+ * @deprecated {@link YieldCurveBundle} is deprecated
  */
+@Deprecated
 public final class PriceCurveSensitivityDiscountingCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, InterestRateCurveSensitivity> {
 
   /**

@@ -153,6 +153,10 @@ public final class ValueRequirementNames {
    */
   public static final String YIELD_CURVE = "YieldCurve";
   /**
+   * Curve containing (time, rate) pairs.
+   */
+  public static final String INSTANTANEOUS_FORWARD_CURVE = "InstantaneousForwardCurve";
+  /**
    * Curve containing (time, price index) pairs.
    */
   public static final String PRICE_INDEX_CURVE = "PriceIndexCurve";
@@ -243,9 +247,17 @@ public final class ValueRequirementNames {
    */
   public static final String YIELD_CURVE_PNL_SERIES = "Yield Curve P&L Series";
   /**
+   * A vector of P&L series for the nodal points of a curve. 
+   */
+  public static final String CURVE_PNL_SERIES = "Curve P&L Series";
+  /**
    * A vector of return series for the nodal points of a yield curve.
    */
   public static final String YIELD_CURVE_RETURN_SERIES = "Yield Curve Return Series";
+  /**
+   * A vector of return series for the nodal points of a curve.
+   */
+  public static final String CURVE_RETURN_SERIES = "Curve Return Series";
   /**
    * A vector of return series for the nodal points of an FX forward curve.
    */
@@ -546,7 +558,11 @@ public final class ValueRequirementNames {
    * Fair value for an option position (used for options - equal to the FAIR_VALUE multiplied by the number of trades and the point value).
    */
   public static final String VALUE_FAIR_VALUE = "ValueFairValue";
-
+  /**
+   * The convexity adjustment - the difference between the price and the par rate of an instrument
+   */
+  public static final String CONVEXITY_ADJUSTMENT = "Convexity Adjustment";
+  
   ///// Greeks
 
   /**

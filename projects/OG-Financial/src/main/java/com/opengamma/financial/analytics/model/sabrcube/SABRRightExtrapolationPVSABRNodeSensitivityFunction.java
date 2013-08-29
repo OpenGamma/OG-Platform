@@ -23,8 +23,10 @@ import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 
 /**
- *
+ * Calculates sensitivities with respect to the SABR parameters.
+ * @deprecated Use {@link RightExtrapolationSABRDiscountingSABRSensitivityFunction}
  */
+@Deprecated
 public abstract class SABRRightExtrapolationPVSABRNodeSensitivityFunction extends SABRRightExtrapolationFunction {
 
   @Override
@@ -57,7 +59,7 @@ public abstract class SABRRightExtrapolationPVSABRNodeSensitivityFunction extend
 
     @Override
     protected DoubleLabelledMatrix2D getResultAsMatrix(final PresentValueSABRSensitivityDataBundle sensitivities) {
-      return SABRCubeUtil.toDoubleLabelledMatrix2D(sensitivities.getAlpha());
+      return SABRCubeUtils.toDoubleLabelledMatrix2D(sensitivities.getAlpha());
     }
 
   }
@@ -74,7 +76,7 @@ public abstract class SABRRightExtrapolationPVSABRNodeSensitivityFunction extend
 
     @Override
     protected DoubleLabelledMatrix2D getResultAsMatrix(final PresentValueSABRSensitivityDataBundle sensitivities) {
-      return SABRCubeUtil.toDoubleLabelledMatrix2D(sensitivities.getRho());
+      return SABRCubeUtils.toDoubleLabelledMatrix2D(sensitivities.getRho());
     }
 
   }
@@ -91,7 +93,7 @@ public abstract class SABRRightExtrapolationPVSABRNodeSensitivityFunction extend
 
     @Override
     protected DoubleLabelledMatrix2D getResultAsMatrix(final PresentValueSABRSensitivityDataBundle sensitivities) {
-      return SABRCubeUtil.toDoubleLabelledMatrix2D(sensitivities.getNu());
+      return SABRCubeUtils.toDoubleLabelledMatrix2D(sensitivities.getNu());
     }
 
   }

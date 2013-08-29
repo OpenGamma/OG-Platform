@@ -30,7 +30,9 @@ import com.opengamma.util.time.DateUtils;
 
 /**
  * Test related to the method for Forex transaction by discounting on each payment.
+ * @deprecated This class tests deprecated code
  */
+@Deprecated
 public class ForexForwardPointsMethodTest {
 
   private static final YieldCurveBundle CURVES = TestsDataSetsForex.createCurvesForex();

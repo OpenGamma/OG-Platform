@@ -30,7 +30,9 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * Method to compute the present value of cash-settled European swaptions with the Hull-White one factor model by a third order approximation.
  * Reference: Henrard, M., Cash-Settled Swaptions: How Wrong are We? (November 2010). Available at SSRN: http://ssrn.com/abstract=1703846
+ * @deprecated Use {@link com.opengamma.analytics.financial.interestrate.swaption.provider.SwaptionCashFixedIborHullWhiteApproximationMethod}
  */
+@Deprecated
 public class SwaptionCashFixedIborHullWhiteApproximationMethod implements PricingMethod {
 
   /**

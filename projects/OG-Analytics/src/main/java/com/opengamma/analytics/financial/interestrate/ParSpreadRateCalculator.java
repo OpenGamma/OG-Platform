@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -22,7 +22,9 @@ import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedC
 /**
  * Compute the spread to be added to the rate of the instrument for which the present value of the instrument is zero.
  * The "rate" can be a "rate" or a "yield" and will depend of each instrument.
+ * @deprecated {@link YieldCurveBundle} is deprecated
  */
+@Deprecated
 public final class ParSpreadRateCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> {
 
   /**

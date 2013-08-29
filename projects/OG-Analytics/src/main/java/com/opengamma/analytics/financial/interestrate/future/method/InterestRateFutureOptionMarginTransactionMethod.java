@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.method;
@@ -15,7 +15,9 @@ import com.opengamma.util.money.CurrencyAmount;
 
 /**
  * Methods for the pricing of interest rate futures option with premium generic to all models.
+ * @deprecated {@link YieldCurveBundle} is deprecated
  */
+@Deprecated
 public abstract class InterestRateFutureOptionMarginTransactionMethod implements PricingMethod {
 
   /**
@@ -27,7 +29,7 @@ public abstract class InterestRateFutureOptionMarginTransactionMethod implements
    * Constructor.
    * @param securityMethod The method to price the underlying security.
    */
-  public InterestRateFutureOptionMarginTransactionMethod(InterestRateFutureOptionMarginSecurityMethod securityMethod) {
+  public InterestRateFutureOptionMarginTransactionMethod(final InterestRateFutureOptionMarginSecurityMethod securityMethod) {
     _securityMethod = securityMethod;
   }
 
@@ -46,8 +48,8 @@ public abstract class InterestRateFutureOptionMarginTransactionMethod implements
    * @return The present value.
    */
   public CurrencyAmount presentValueFromPrice(final InterestRateFutureOptionMarginTransaction option, final double price) {
-    double pv = (price - option.getReferencePrice()) * option.getUnderlyingOption().getUnderlyingFuture().getPaymentAccrualFactor() * option.getUnderlyingOption().getUnderlyingFuture().getNotional()
-        * option.getQuantity();
+    final double pv = (price - option.getReferencePrice()) * option.getUnderlyingOption().getUnderlyingFuture().getPaymentAccrualFactor() *
+        option.getUnderlyingOption().getUnderlyingFuture().getNotional() * option.getQuantity();
     return CurrencyAmount.of(option.getUnderlyingOption().getCurrency(), pv);
   }
 
@@ -59,8 +61,8 @@ public abstract class InterestRateFutureOptionMarginTransactionMethod implements
    * @return The present value.
    */
   public CurrencyAmount presentValueFromFuturePrice(final InterestRateFutureOptionMarginTransaction transaction, final YieldCurveBundle curves, final double priceFuture) {
-    double priceSecurity = _securityMethod.optionPriceFromFuturePrice(transaction.getUnderlyingOption(), curves, priceFuture);
-    CurrencyAmount priceTransaction = presentValueFromPrice(transaction, priceSecurity);
+    final double priceSecurity = _securityMethod.optionPriceFromFuturePrice(transaction.getUnderlyingOption(), curves, priceFuture);
+    final CurrencyAmount priceTransaction = presentValueFromPrice(transaction, priceSecurity);
     return priceTransaction;
   }
 
@@ -68,8 +70,8 @@ public abstract class InterestRateFutureOptionMarginTransactionMethod implements
   public CurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
     ArgumentChecker.isTrue(instrument instanceof InterestRateFutureOptionMarginTransaction, "The instrument should be a InterestRateFutureOptionMarginTransaction");
     final InterestRateFutureOptionMarginTransaction transaction = (InterestRateFutureOptionMarginTransaction) instrument;
-    double priceSecurity = _securityMethod.optionPrice(transaction.getUnderlyingOption(), curves);
-    CurrencyAmount pvTransaction = presentValueFromPrice(transaction, priceSecurity);
+    final double priceSecurity = _securityMethod.optionPrice(transaction.getUnderlyingOption(), curves);
+    final CurrencyAmount pvTransaction = presentValueFromPrice(transaction, priceSecurity);
     return pvTransaction;
   }
 
@@ -80,7 +82,7 @@ public abstract class InterestRateFutureOptionMarginTransactionMethod implements
    * @return The present value curve sensitivity.
    */
   public InterestRateCurveSensitivity presentValueCurveSensitivity(final InterestRateFutureOptionMarginTransaction transaction, final YieldCurveBundle curves) {
-    InterestRateCurveSensitivity securitySensitivity = _securityMethod.priceCurveSensitivity(transaction.getUnderlyingOption(), curves);
+    final InterestRateCurveSensitivity securitySensitivity = _securityMethod.priceCurveSensitivity(transaction.getUnderlyingOption(), curves);
     return securitySensitivity.multipliedBy(transaction.getQuantity() * transaction.getUnderlyingOption().getUnderlyingFuture().getNotional()
         * transaction.getUnderlyingOption().getUnderlyingFuture().getPaymentAccrualFactor());
   }

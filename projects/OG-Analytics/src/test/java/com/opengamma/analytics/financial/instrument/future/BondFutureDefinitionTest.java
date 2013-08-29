@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.future;
@@ -153,11 +153,12 @@ public class BondFutureDefinitionTest {
     assertFalse(FUTURE_DEFINITION.equals(null));
   }
 
-  @Test
   /**
    * Tests the toDerivative method.
    */
-  public void toDerivative() {
+  @SuppressWarnings("deprecation")
+  @Test
+  public void toDerivativeDeprecated() {
     final ZonedDateTime firstDeliveryDate = ScheduleCalculator.getAdjustedDate(FIRST_NOTICE_DATE, SETTLEMENT_DAYS, CALENDAR);
     final ZonedDateTime lastDeliveryDate = ScheduleCalculator.getAdjustedDate(LAST_NOTICE_DATE, SETTLEMENT_DAYS, CALENDAR);
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 6, 17);
@@ -180,4 +181,27 @@ public class BondFutureDefinitionTest {
     assertEquals("Bond future security definition: future conversion", futureExpected, futureConverted);
   }
 
+  /**
+   * Tests the toDerivative method.
+   */
+  @Test
+  public void toDerivative() {
+    final ZonedDateTime firstDeliveryDate = ScheduleCalculator.getAdjustedDate(FIRST_NOTICE_DATE, SETTLEMENT_DAYS, CALENDAR);
+    final ZonedDateTime lastDeliveryDate = ScheduleCalculator.getAdjustedDate(LAST_NOTICE_DATE, SETTLEMENT_DAYS, CALENDAR);
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 6, 17);
+    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+    final double lastTradingTime = actAct.getDayCountFraction(referenceDate, LAST_TRADING_DATE);
+    final double firstNoticeTime = actAct.getDayCountFraction(referenceDate, FIRST_NOTICE_DATE);
+    final double lastNoticeTime = actAct.getDayCountFraction(referenceDate, LAST_NOTICE_DATE);
+    final double firstDeliveryTime = actAct.getDayCountFraction(referenceDate, firstDeliveryDate);
+    final double lastDeliveryTime = actAct.getDayCountFraction(referenceDate, lastDeliveryDate);
+    final BondFixedSecurity[] basket = new BondFixedSecurity[NB_BOND];
+    for (int loopbasket = 0; loopbasket < NB_BOND; loopbasket++) {
+      basket[loopbasket] = BASKET_DEFINITION[loopbasket].toDerivative(referenceDate, lastDeliveryDate);
+    }
+    final BondFuture futureConverted = FUTURE_DEFINITION.toDerivative(referenceDate, REF_PRICE);
+    final BondFuture futureExpected = new BondFuture(lastTradingTime, firstNoticeTime, lastNoticeTime, firstDeliveryTime, lastDeliveryTime, NOTIONAL, basket,
+        CONVERSION_FACTOR, REF_PRICE);
+    assertEquals("Bond future security definition: future conversion", futureExpected, futureConverted);
+  }
 }

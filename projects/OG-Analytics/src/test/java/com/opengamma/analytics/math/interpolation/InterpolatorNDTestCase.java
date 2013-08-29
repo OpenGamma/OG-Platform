@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.math.interpolation;
@@ -20,12 +20,12 @@ import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ *
  */
 public abstract class InterpolatorNDTestCase {
-  protected static final List<Pair<double[], Double>> FLAT_DATA = new ArrayList<Pair<double[], Double>>();
-  protected static final List<Pair<double[], Double>> COS_EXP_DATA = new ArrayList<Pair<double[], Double>>();
-  protected static final List<Pair<double[], Double>> SWAPTION_ATM_VOL_DATA = new ArrayList<Pair<double[], Double>>();
+  protected static final List<Pair<double[], Double>> FLAT_DATA = new ArrayList<>();
+  protected static final List<Pair<double[], Double>> COS_EXP_DATA = new ArrayList<>();
+  protected static final List<Pair<double[], Double>> SWAPTION_ATM_VOL_DATA = new ArrayList<>();
   protected static final double VALUE = 0.3;
 
   protected static final Function1D<double[], Double> COS_EXP_FUNCTION = new Function1D<double[], Double>() {
@@ -44,17 +44,17 @@ public abstract class InterpolatorNDTestCase {
       x = 10 * random.nextDouble();
       y = 10 * random.nextDouble();
       z = 10 * random.nextDouble();
-      FLAT_DATA.add(new ObjectsPair<double[], Double>(new double[] {x, y, z}, VALUE));
+      FLAT_DATA.add(new ObjectsPair<>(new double[] {x, y, z}, VALUE));
       temp = new double[] {x, y};
-      COS_EXP_DATA.add(new ObjectsPair<double[], Double>(temp, COS_EXP_FUNCTION.evaluate(temp)));
+      COS_EXP_DATA.add(new ObjectsPair<>(temp, COS_EXP_FUNCTION.evaluate(temp)));
     }
 
-    SWAPTION_ATM_VOL_DATA.add(new ObjectsPair<double[], Double>(new double[] {1, 1}, 0.7332));
-    SWAPTION_ATM_VOL_DATA.add(new ObjectsPair<double[], Double>(new double[] {1, 5}, 0.36995));
-    SWAPTION_ATM_VOL_DATA.add(new ObjectsPair<double[], Double>(new double[] {5, 5}, 0.23845));
-    SWAPTION_ATM_VOL_DATA.add(new ObjectsPair<double[], Double>(new double[] {5, 10}, 0.2177));
-    SWAPTION_ATM_VOL_DATA.add(new ObjectsPair<double[], Double>(new double[] {10, 20}, 0.1697));
-    SWAPTION_ATM_VOL_DATA.add(new ObjectsPair<double[], Double>(new double[] {15, 15}, 0.162));
+    SWAPTION_ATM_VOL_DATA.add(new ObjectsPair<>(new double[] {1, 1}, 0.7332));
+    SWAPTION_ATM_VOL_DATA.add(new ObjectsPair<>(new double[] {1, 5}, 0.36995));
+    SWAPTION_ATM_VOL_DATA.add(new ObjectsPair<>(new double[] {5, 5}, 0.23845));
+    SWAPTION_ATM_VOL_DATA.add(new ObjectsPair<>(new double[] {5, 10}, 0.2177));
+    SWAPTION_ATM_VOL_DATA.add(new ObjectsPair<>(new double[] {10, 20}, 0.1697));
+    SWAPTION_ATM_VOL_DATA.add(new ObjectsPair<>(new double[] {15, 15}, 0.162));
   }
 
   protected void assertFlat(final InterpolatorND interpolator, final double tol) {

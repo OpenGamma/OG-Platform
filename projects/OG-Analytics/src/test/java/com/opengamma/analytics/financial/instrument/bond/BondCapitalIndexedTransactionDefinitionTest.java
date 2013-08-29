@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.bond;
@@ -43,7 +43,7 @@ public class BondCapitalIndexedTransactionDefinitionTest {
   private static final ZonedDateTime MATURITY_DATE_GILT_1 = DateUtils.getUTCDate(2035, 1, 26);
   private static final YieldConvention YIELD_CONVENTION_GILT_1 = YieldConventionFactory.INSTANCE.getYieldConvention("UK:BUMP/DMO METHOD"); // To check
   private static final int MONTH_LAG_GILT_1 = 8;
-  private static final double INDEX_START_GILT_1 = 173.60; // November 2001 
+  private static final double INDEX_START_GILT_1 = 173.60; // November 2001
   private static final double NOTIONAL_GILT_1 = 1.00;
   private static final double REAL_RATE_GILT_1 = 0.02;
   private static final Period COUPON_PERIOD_GILT_1 = Period.ofMonths(6);
@@ -55,7 +55,7 @@ public class BondCapitalIndexedTransactionDefinitionTest {
   private static final double QUANTITY = 654321;
   private static final ZonedDateTime SETTLE_DATE_GILT_1 = DateUtils.getUTCDate(2011, 8, 10);
   private static final double PRICE_GILT_1 = 1.80;
-  private static final BondCapitalIndexedTransactionDefinition<CouponInflationZeroCouponMonthlyGearingDefinition> BOND_GILT_1_TRANSACTION_DEFINITION = new BondCapitalIndexedTransactionDefinition<CouponInflationZeroCouponMonthlyGearingDefinition>(
+  private static final BondCapitalIndexedTransactionDefinition<CouponInflationZeroCouponMonthlyGearingDefinition> BOND_GILT_1_TRANSACTION_DEFINITION = new BondCapitalIndexedTransactionDefinition<>(
       BOND_GILT_1_SECURITY_DEFINITION, QUANTITY, SETTLE_DATE_GILT_1, PRICE_GILT_1);
 
   @Test
@@ -65,15 +65,15 @@ public class BondCapitalIndexedTransactionDefinitionTest {
 
   @Test
   public void toDerivative() {
-    DoubleTimeSeries<ZonedDateTime> ukRpi = MulticurveProviderDiscountDataSets.ukRpiFrom2010();
-    ZonedDateTime pricingDate = DateUtils.getUTCDate(2011, 8, 3); // One coupon fixed
-    BondCapitalIndexedTransaction<Coupon> bondTransactionConverted = BOND_GILT_1_TRANSACTION_DEFINITION.toDerivative(pricingDate, ukRpi, "Not used");
-    BondCapitalIndexedSecurity<Coupon> purchase = BOND_GILT_1_SECURITY_DEFINITION.toDerivative(pricingDate, SETTLE_DATE_GILT_1, ukRpi);
+    final DoubleTimeSeries<ZonedDateTime> ukRpi = MulticurveProviderDiscountDataSets.ukRpiFrom2010();
+    final ZonedDateTime pricingDate = DateUtils.getUTCDate(2011, 8, 3); // One coupon fixed
+    final BondCapitalIndexedTransaction<Coupon> bondTransactionConverted = BOND_GILT_1_TRANSACTION_DEFINITION.toDerivative(pricingDate, ukRpi);
+    final BondCapitalIndexedSecurity<Coupon> purchase = BOND_GILT_1_SECURITY_DEFINITION.toDerivative(pricingDate, SETTLE_DATE_GILT_1, ukRpi);
     assertEquals("Capital Index Bond: toDerivative", purchase, bondTransactionConverted.getBondTransaction());
-    ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(pricingDate, SETTLEMENT_DAYS_GILT_1, CALENDAR_GBP);
-    BondCapitalIndexedSecurity<Coupon> standard = BOND_GILT_1_SECURITY_DEFINITION.toDerivative(pricingDate, spot, ukRpi);
+    final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(pricingDate, SETTLEMENT_DAYS_GILT_1, CALENDAR_GBP);
+    final BondCapitalIndexedSecurity<Coupon> standard = BOND_GILT_1_SECURITY_DEFINITION.toDerivative(pricingDate, spot, ukRpi);
     assertEquals("Capital Index Bond: toDerivative", standard, bondTransactionConverted.getBondStandard());
-    BondCapitalIndexedTransaction<Coupon> expected = new BondCapitalIndexedTransaction<Coupon>(purchase, QUANTITY, PRICE_GILT_1, standard, NOTIONAL_GILT_1);
+    final BondCapitalIndexedTransaction<Coupon> expected = new BondCapitalIndexedTransaction<>(purchase, QUANTITY, PRICE_GILT_1, standard, NOTIONAL_GILT_1);
     assertEquals("Capital Index Bond: toDerivative", expected, bondTransactionConverted);
   }
 
@@ -89,7 +89,7 @@ public class BondCapitalIndexedTransactionDefinitionTest {
   //  private static final ZonedDateTime MATURITY_DATE_TIPS_1 = DateUtil.getUTCDate(2016, 1, 15);
   //  private static final YieldConvention YIELD_CONVENTION_TIPS_1 = YieldConventionFactory.INSTANCE.getYieldConvention("UK:BUMP/DMO METHOD"); // To check
   //  private static final int MONTH_LAG_TIPS_1 = 3;
-  //  private static final double INDEX_START_TIPS_1 = 198.47742; // Date: 
+  //  private static final double INDEX_START_TIPS_1 = 198.47742; // Date:
   //  private static final double NOTIONAL_TIPS_1 = 100.00;
   //  private static final double REAL_RATE_TIPS_1 = 0.02;
   //  private static final Period COUPON_PERIOD_TIPS_1 = Period.ofMonths(6);

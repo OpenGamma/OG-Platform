@@ -6,8 +6,6 @@
 package com.opengamma.analytics.financial.forex.method;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
-import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
@@ -40,7 +38,9 @@ import com.opengamma.util.tuple.Pair;
 
 /**
  * Tests related to the valuation of non-deliverable forward by discounting.
+ * @deprecated This class tests deprecated code
  */
+@Deprecated
 public class ForexNonDeliverableOptionBlackMethodTest {
 
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");

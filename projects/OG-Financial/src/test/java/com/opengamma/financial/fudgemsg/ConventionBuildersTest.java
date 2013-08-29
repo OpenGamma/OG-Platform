@@ -15,9 +15,11 @@ import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.financial.analytics.fudgemsg.AnalyticsTestBase;
 import com.opengamma.financial.convention.CMSLegConvention;
 import com.opengamma.financial.convention.CompoundingIborLegConvention;
+import com.opengamma.financial.convention.DeliverablePriceQuotedSwapFutureConvention;
 import com.opengamma.financial.convention.DepositConvention;
 import com.opengamma.financial.convention.FXForwardAndSwapConvention;
 import com.opengamma.financial.convention.FXSpotConvention;
+import com.opengamma.financial.convention.FederalFundsFutureConvention;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.convention.InflationLegConvention;
@@ -101,6 +103,22 @@ public class ConventionBuildersTest extends AnalyticsTestBase {
         ExternalId.of("Test", "3rd Wednesday"), ExternalId.of("Test", "EUX"), ExternalId.of("Test", "3m Euribor"));
     convention.setUniqueId(UniqueId.of("Test", "123456"));
     assertEquals(convention, cycleObject(InterestRateFutureConvention.class, convention));
+  }
+
+  @Test
+  public void testFederalFundsFutureConvention() {
+    final FederalFundsFutureConvention convention = new FederalFundsFutureConvention("FF", ExternalIdBundle.of(InMemoryConventionBundleMaster.simpleNameSecurityId("FF")),
+        ExternalId.of("Test", "EOM"), ExternalId.of("Test", "CME"), ExternalId.of("Test", "FF Rate"), 5000000);
+    convention.setUniqueId(UniqueId.of("Test", "123456"));
+    assertEquals(convention, cycleObject(FederalFundsFutureConvention.class, convention));
+  }
+
+  @Test
+  public void testDeliverablePriceQuotedSwapFutureConvention() {
+    final DeliverablePriceQuotedSwapFutureConvention convention = new DeliverablePriceQuotedSwapFutureConvention("T1U", ExternalIdBundle.of(InMemoryConventionBundleMaster.simpleNameSecurityId("T1U")),
+        ExternalId.of("Test", "3rd Wednesday"), ExternalId.of("Test", "CME"), ExternalId.of("Test", "Swap"), 100000);
+    convention.setUniqueId(UniqueId.of("Test", "123456"));
+    assertEquals(convention, cycleObject(DeliverablePriceQuotedSwapFutureConvention.class, convention));
   }
 
   @Test

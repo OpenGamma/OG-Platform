@@ -39,6 +39,11 @@ public class ISDACDSCouponDefinition extends CouponFixedDefinition {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentYearFraction, notional, rate);
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not refer to yield curve names
+   */
+  @Deprecated
   @Override
   public ISDACDSCoupon toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
 

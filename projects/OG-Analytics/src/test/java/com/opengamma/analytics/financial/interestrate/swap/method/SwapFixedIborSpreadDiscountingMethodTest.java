@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.swap.method;
@@ -32,7 +32,9 @@ import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the pricing and sensitivities of Swap Ibor with spread in the discounting method.
+ * @deprecated This class tests deprecated functionality.
  */
+@Deprecated
 public class SwapFixedIborSpreadDiscountingMethodTest {
 
   private static final Calendar TARGET = new MondayToFridayCalendar("TARGET");

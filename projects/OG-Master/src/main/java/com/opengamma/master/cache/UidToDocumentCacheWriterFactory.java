@@ -22,6 +22,10 @@ import net.sf.ehcache.writer.CacheWriter;
 import net.sf.ehcache.writer.CacheWriterFactory;
 import net.sf.ehcache.writer.writebehind.operations.SingleOperationType;
 
+/**
+ * Cache writer factory.
+ * @param <D> the document type
+ */
 public class UidToDocumentCacheWriterFactory<D extends AbstractDocument> extends CacheWriterFactory {
 
   private AbstractChangeProvidingMaster<D> _underlying;
@@ -36,6 +40,9 @@ public class UidToDocumentCacheWriterFactory<D extends AbstractDocument> extends
     return new UidToDocumentCacheWriter();
   }
 
+  /**
+   * Cache writer.
+   */
   public class UidToDocumentCacheWriter implements CacheWriter {
 
     @Override
@@ -53,6 +60,7 @@ public class UidToDocumentCacheWriterFactory<D extends AbstractDocument> extends
       // Empty
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void write(Element element) throws CacheException {
       try {

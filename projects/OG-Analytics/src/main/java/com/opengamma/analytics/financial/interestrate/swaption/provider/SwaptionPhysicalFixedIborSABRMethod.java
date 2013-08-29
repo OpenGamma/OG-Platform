@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.swaption.provider;
@@ -166,7 +166,7 @@ public final class SwaptionPhysicalFixedIborSABRMethod {
     final double[] volatilityAdjoint = sabrData.getSABRParameter().getVolatilityAdjoint(swaption.getTimeToExpiry(), maturity, strikeModified, forwardModified);
     final BlackFunctionData dataBlack = new BlackFunctionData(forwardModified, 1.0, volatilityAdjoint[0]);
     final Function1D<BlackFunctionData, Double> func = blackFunction.getPriceFunction(option);
-    MultipleCurrencyAmount pv = MultipleCurrencyAmount.of(swaption.getCurrency(), pvbpModified * func.evaluate(dataBlack) * (swaption.isLong() ? 1.0 : -1.0));
+    final MultipleCurrencyAmount pv = MultipleCurrencyAmount.of(swaption.getCurrency(), pvbpModified * func.evaluate(dataBlack) * (swaption.isLong() ? 1.0 : -1.0));
     // Curve sensitivity
     final MulticurveSensitivity pvbpModifiedDr = METHOD_SWAP.presentValueBasisPointCurveSensitivity(swaption.getUnderlyingSwap(), dayCountModification, sabrData.getMulticurveProvider());
     final MulticurveSensitivity forwardModifiedDr = PRCSDC.visitFixedCouponSwap(swaption.getUnderlyingSwap(), dayCountModification, sabrData.getMulticurveProvider());
@@ -176,7 +176,7 @@ public final class SwaptionPhysicalFixedIborSABRMethod {
     if (!swaption.isLong()) {
       result = result.multipliedBy(-1);
     }
-    MultipleCurrencyMulticurveSensitivity pvcs = MultipleCurrencyMulticurveSensitivity.of(swaption.getCurrency(), result);
+    final MultipleCurrencyMulticurveSensitivity pvcs = MultipleCurrencyMulticurveSensitivity.of(swaption.getCurrency(), result);
     // SABR sensitivity
     final PresentValueSABRSensitivityDataBundle pvss = new PresentValueSABRSensitivityDataBundle();
     final DoublesPair expiryMaturity = new DoublesPair(swaption.getTimeToExpiry(), maturity);
@@ -185,7 +185,7 @@ public final class SwaptionPhysicalFixedIborSABRMethod {
     pvss.addBeta(expiryMaturity, omega * pvbpModified * bsAdjoint[2] * volatilityAdjoint[4]);
     pvss.addRho(expiryMaturity, omega * pvbpModified * bsAdjoint[2] * volatilityAdjoint[5]);
     pvss.addNu(expiryMaturity, omega * pvbpModified * bsAdjoint[2] * volatilityAdjoint[6]);
-    return new Triple<MultipleCurrencyAmount, MultipleCurrencyMulticurveSensitivity, PresentValueSABRSensitivityDataBundle>(pv, pvcs, pvss);
+    return new Triple<>(pv, pvcs, pvss);
   }
 
 }

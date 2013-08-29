@@ -34,7 +34,7 @@ public interface AnalyticsView {
     /**
      * Portfolio grid.
      */
-    PORTFORLIO,
+    PORTFOLIO,
     /**
      * Primitives grid.
      */
@@ -42,7 +42,7 @@ public interface AnalyticsView {
   }
 
   /**
-   * Updates the grid structures when the view definition compliles and its struture is available.
+   * Updates the grid structures when the view definition compiles and its structure is available.
    * 
    * @param compiledViewDefinition  the compiled view definition whose data will be displayed in the grids
    * @param resolvedPortfolio  the view's portfolio with all securities resolved
@@ -65,9 +65,18 @@ public interface AnalyticsView {
    * Returns the row and column structure of one of the top level grids.
    * 
    * @param gridType  the required grid structure, not null
+   * @param viewportId  the ID of the viewport
    * @return the row and column structure of the specified grid
    */
-  GridStructure getGridStructure(GridType gridType);
+  GridStructure getGridStructure(GridType gridType, int viewportId);
+
+  /**
+   * Returns the initial row and column structure of one of the top level grids.
+   *
+   * @param gridType  the required grid structure, not null
+   * @return the row and column structure of the specified grid
+   */
+  GridStructure getInitialGridStructure(GridType gridType);
 
   /**
    * Creates a viewport for one of the top level grids. A viewport represents the visible portion of the grid. Any
@@ -82,11 +91,14 @@ public interface AnalyticsView {
    * @param callbackId  the value that is sent to the client with notification that new data is available for the
    *  viewport. The server makes no assumptions about its format other than the fact that it must be unique for each
    *  viewport in a view.
+   * @param structureCallbackId  the value that is sent to the client with notification that new structure is available
+   *  for the viewport. The server makes no assumptions about its format other than the fact that it must be unique for each
+   *  viewport in a view.
    * @param viewportDefinition  defines the rows and columns in the viewport and whether the viewport's data should be
    *  expanded or a summary for data types which can't fit in a cell, e.g. vectors, matrices, curves.
    * @return true if there is data available for the new viewport
    */
-  boolean createViewport(int requestId, GridType gridType, int viewportId, String callbackId, ViewportDefinition viewportDefinition);
+  boolean createViewport(int requestId, GridType gridType, int viewportId, String callbackId, String structureCallbackId, ViewportDefinition viewportDefinition);
 
   /**
    * Updates a viewport. A viewport will be updated when the user scrolls the grid.
@@ -127,6 +139,26 @@ public interface AnalyticsView {
   // structure and perform that logic on the server?
 
   /**
+   * Returns the grid structure for a dependency graph grid.
+   *
+   * @param gridType  the grid that the dependency graph grid belongs to
+   * @param graphId  the ID of the dependency graph
+   * @param viewportId  the ID of the viewport
+   * @return the row and column structure of the grid
+   */
+  GridStructure getGridStructure(GridType gridType, int graphId, int viewportId);
+
+  /**
+   * Returns the initial grid structure for a dependency graph grid.
+   *
+   * @param gridType  the grid that the dependency graph grid belongs to
+   * @param graphId  the ID of the dependency graph
+   * @return the row and column structure of the grid
+   */
+  GridStructure getInitialGridStructure(GridType gridType, int graphId);
+
+
+  /**
    * Opens a grid showing the dependency graph of calculations for a cell in one of the main grids.
    * 
    * @param requestId  the ID of the request
@@ -148,15 +180,6 @@ public interface AnalyticsView {
   void closeDependencyGraph(GridType gridType, int graphId);
 
   /**
-   * Returns the grid structure for a dependency graph grid.
-   * 
-   * @param gridType  the grid that the dependency graph grid belongs to
-   * @param graphId  the ID of the dependency graph
-   * @return the row and column structure of the grid
-   */
-  GridStructure getGridStructure(GridType gridType, int graphId);
-
-  /**
    * Creates a viewport for a dependency graph grid. A viewport represents the visible portion of the grid. Any
    * grid cells that are scrolled off the screen are not part of the viewport. The client only receives data for
    * cells in the viewport and only receives notification of new data if data in the viewport changes. If the only data
@@ -170,11 +193,14 @@ public interface AnalyticsView {
    * @param callbackId  the value that is sent to the client with notification that new data is available for the
    *  viewport. The server makes no assumptions about its format other than the fact that it must be unique for each
    *  viewport in a view.
+   * @param structureCallbackId  the value that is sent to the client with notification that new structure is available
+   *  for the viewport. The server makes no assumptions about its format other than the fact that it must be unique for
+   *  each viewport in a view.
    * @param viewportDefinition  defines the rows and columns in the viewport and whether the viewport's data should be
    *  expanded or a summary for data types which can't fit in a cell, e.g. vectors, matrices, curves.
    * @return true if there is data available for the new viewport
    */
-  boolean createViewport(int requestId, GridType gridType, int graphId, int viewportId, String callbackId, ViewportDefinition viewportDefinition);
+  boolean createViewport(int requestId, GridType gridType, int graphId, int viewportId, String callbackId, String structureCallbackId, ViewportDefinition viewportDefinition);
 
   /**
    * Updates a viewport of a dependency graph grid. A viewport will be updated when the user scrolls the grid.

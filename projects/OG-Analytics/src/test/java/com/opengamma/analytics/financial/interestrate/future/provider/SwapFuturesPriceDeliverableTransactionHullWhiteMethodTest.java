@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.provider;
@@ -36,9 +36,6 @@ import com.opengamma.util.time.DateUtils;
 
 public class SwapFuturesPriceDeliverableTransactionHullWhiteMethodTest {
 
-  private static final String NOT_USED = "Not used";
-  private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED };
-
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveEurUsd();
   private static final IborIndex[] INDEX_LIST = MulticurveProviderDiscountDataSets.getIndexesIborMulticurveEurUsd();
   private static final IborIndex USDLIBOR3M = INDEX_LIST[2];
@@ -60,7 +57,7 @@ public class SwapFuturesPriceDeliverableTransactionHullWhiteMethodTest {
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2013, 3, 28);
   private static final double LASTMARG_PRICE = 0.99 + 8.0 / 32.0 / 100.0; // price quoted in 32nd of 1%
-  private static final SwapFuturesPriceDeliverableTransaction SWAP_FUTURES_TRANSACTION = SWAP_FUTURES_TRANSACTION_DEFINITION.toDerivative(REFERENCE_DATE, LASTMARG_PRICE, NOT_USED_A);
+  private static final SwapFuturesPriceDeliverableTransaction SWAP_FUTURES_TRANSACTION = SWAP_FUTURES_TRANSACTION_DEFINITION.toDerivative(REFERENCE_DATE, LASTMARG_PRICE);
 
   private static final HullWhiteOneFactorPiecewiseConstantParameters PARAMETERS_HW = TestsDataSetHullWhite.createHullWhiteParameters();
   private static final HullWhiteOneFactorProviderDiscount MULTICURVES_HW = new HullWhiteOneFactorProviderDiscount(MULTICURVES, PARAMETERS_HW, USD);

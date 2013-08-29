@@ -21,7 +21,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
 /**
- * 
+ *
  */
 public class PaymentFixedDefinitionTest {
 
@@ -64,8 +64,9 @@ public class PaymentFixedDefinitionTest {
     assertFalse(FIXED_PAYMENT.equals(modifiedPayment));
   }
 
+  @SuppressWarnings("deprecation")
   @Test
-  public void testToDerivative() {
+  public void testToDerivativeDeprecated() {
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.of(REFERENCE_DATE.toLocalDate(), LocalTime.MIDNIGHT), ZoneOffset.UTC);
     final double paymentTime = actAct.getDayCountFraction(zonedDate, PAYMENT_DATE);
@@ -75,4 +76,13 @@ public class PaymentFixedDefinitionTest {
     assertEquals(paymentFixed, convertedDefinition);
   }
 
+  @Test
+  public void testToDerivative() {
+    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+    final ZonedDateTime zonedDate = ZonedDateTime.of(LocalDateTime.of(REFERENCE_DATE.toLocalDate(), LocalTime.MIDNIGHT), ZoneOffset.UTC);
+    final double paymentTime = actAct.getDayCountFraction(zonedDate, PAYMENT_DATE);
+    final PaymentFixed paymentFixed = new PaymentFixed(CUR, paymentTime, AMOUNT);
+    final PaymentFixed convertedDefinition = FIXED_PAYMENT.toDerivative(REFERENCE_DATE);
+    assertEquals(paymentFixed, convertedDefinition);
+  }
 }

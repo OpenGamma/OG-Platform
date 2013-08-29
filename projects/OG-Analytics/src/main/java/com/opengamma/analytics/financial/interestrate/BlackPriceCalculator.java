@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -10,7 +10,9 @@ import com.opengamma.analytics.financial.interestrate.swaption.method.SwaptionPh
 
 /**
  * Interpolates, for interest rate instruments using Black model, and returns the implied volatility required.
+ * @deprecated {@link YieldCurveBundle} is deprecated
  */
+@Deprecated
 public final class BlackPriceCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> {
 
   /** The method unique instance.*/
@@ -28,21 +30,10 @@ public final class BlackPriceCalculator extends InstrumentDerivativeVisitorAdapt
   /** The methods used in the calculator. */
   private static final SwaptionPhysicalFixedIborBlackMethod METHOD_SWAPTION_PHYSICAL = SwaptionPhysicalFixedIborBlackMethod.getInstance();
 
-  //  private static final InterestRateFutureOptionMarginSecurityBlackSurfaceMethod METHOD_MARGINED_FUTUREOPTION = InterestRateFutureOptionMarginSecurityBlackSurfaceMethod.getInstance();
-
   @Override
   public Double visitSwaptionPhysicalFixedIbor(final SwaptionPhysicalFixedIbor swaption, final YieldCurveBundle curves) {
     return METHOD_SWAPTION_PHYSICAL.presentValue(swaption, curves).getAmount(); // TODO Confirm this is the output the user would expect, wrt scaling of Annuity/PVBP
   }
 
-  //  @Override
-  //  public Double visitInterestRateFutureOptionMarginSecurity(final InterestRateFutureOptionMarginSecurity option, final YieldCurveBundle curves) {
-  //    return METHOD_MARGINED_FUTUREOPTION.optionPrice(option, curves);
-  //  }
-  //
-  //  @Override
-  //  public Double visitInterestRateFutureOptionMarginTransaction(final InterestRateFutureOptionMarginTransaction option, final YieldCurveBundle curves) {
-  //    return METHOD_MARGINED_FUTUREOPTION.optionPrice(option.getUnderlyingOption(), curves);
-  //  }
 
 }

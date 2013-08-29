@@ -24,6 +24,7 @@ import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
+import com.opengamma.financial.security.bond.InflationBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
@@ -342,7 +343,12 @@ public class FinancialSecurityUtils {
         public Currency visitMunicipalBondSecurity(final MunicipalBondSecurity security) {
           return security.getCurrency();
         }
-
+        
+        @Override
+        public Currency visitInflationBondSecurity(final InflationBondSecurity security) {
+          return security.getCurrency();
+        }
+        
         @Override
         public Currency visitCorporateBondSecurity(final CorporateBondSecurity security) {
           return security.getCurrency();
@@ -687,6 +693,11 @@ public class FinancialSecurityUtils {
 
         @Override
         public Collection<Currency> visitMunicipalBondSecurity(final MunicipalBondSecurity security) {
+          return Collections.singletonList(security.getCurrency());
+        }
+        
+        @Override
+        public Collection<Currency> visitInflationBondSecurity(final InflationBondSecurity security) {
           return Collections.singletonList(security.getCurrency());
         }
 

@@ -56,7 +56,7 @@ public class BlotterGridStructure extends PortfolioGridStructure {
                                     GridColumnGroup.empty(),
                                     GridColumnGroup.empty(),
                                     Collections.<GridColumnGroup>emptyList(),
-                                    AnalyticsNode.portoflioRoot(portfolio),
+                                    AnalyticsNode.portfolioRoot(portfolio),
                                     targetLookup,
                                     columnMapper,
                                     valueMappings,
@@ -90,7 +90,7 @@ public class BlotterGridStructure extends PortfolioGridStructure {
   // TODO combine with the method below
   @Override
   /* package */ BlotterGridStructure withUpdatedRows(Portfolio portfolio) {
-    AnalyticsNode rootNode = AnalyticsNode.portoflioRoot(portfolio);
+    AnalyticsNode rootNode = AnalyticsNode.portfolioRoot(portfolio);
     List<PortfolioGridRow> rows = buildRows(portfolio);
     TargetLookup targetLookup = new TargetLookup(getValueMappings(), rows);
     GridColumnGroup fixedColumns = buildFixedColumns(rows);
@@ -103,7 +103,7 @@ public class BlotterGridStructure extends PortfolioGridStructure {
 
   @Override
   /* package */ BlotterGridStructure withUpdatedStructure(CompiledViewDefinition compiledViewDef, Portfolio portfolio) {
-    AnalyticsNode rootNode = AnalyticsNode.portoflioRoot(portfolio);
+    AnalyticsNode rootNode = AnalyticsNode.portfolioRoot(portfolio);
     List<PortfolioGridRow> rows = buildRows(portfolio);
     ValueMappings valueMappings = new ValueMappings(compiledViewDef);
     TargetLookup targetLookup = new TargetLookup(valueMappings, rows);

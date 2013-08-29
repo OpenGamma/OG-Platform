@@ -62,6 +62,30 @@ public class GraphExecutionPlan implements Serializable {
     _meanJobIOCost = meanJobIOCost;
   }
 
+  protected GraphExecutionPlan(final String calculationConfiguration, final GraphExecutionPlan copyFrom) {
+    ArgumentChecker.notNull(calculationConfiguration, "calculationConfiguration");
+    _calculationConfiguration = calculationConfiguration;
+    _functionInitializationId = copyFrom._functionInitializationId;
+    _leafJobs = copyFrom._leafJobs;
+    _totalJobs = copyFrom._totalJobs;
+    _meanJobSize = copyFrom._meanJobSize;
+    _meanJobCycleCost = copyFrom._meanJobCycleCost;
+    _meanJobIOCost = copyFrom._meanJobIOCost;
+  }
+
+  /**
+   * Returns a copy with an altered calculation configuration name.
+   * 
+   * @param calculationConfiguration the new calculation configuration name
+   * @return this instance if the name matches, otherwise a new instance
+   */
+  public GraphExecutionPlan withCalculationConfiguration(final String calculationConfiguration) {
+    if (getCalculationConfiguration().equals(calculationConfiguration)) {
+      return this;
+    }
+    return new GraphExecutionPlan(calculationConfiguration, this);
+  }
+
   /**
    * Returns the calculation configuration name.
    * 

@@ -7,8 +7,8 @@ package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanil
 
 import static com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.DoublesScheduleGenerator.getIntegrationsPoints;
 import static com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.DoublesScheduleGenerator.truncateSetInclusive;
-import static com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.Epsilon.epsilon;
-import static com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.Epsilon.epsilonP;
+import static com.opengamma.analytics.math.utilities.Epsilon.epsilon;
+import static com.opengamma.analytics.math.utilities.Epsilon.epsilonP;
 
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;

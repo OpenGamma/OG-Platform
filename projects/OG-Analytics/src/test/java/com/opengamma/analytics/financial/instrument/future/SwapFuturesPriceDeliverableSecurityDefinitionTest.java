@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.future;
@@ -74,8 +74,26 @@ public class SwapFuturesPriceDeliverableSecurityDefinitionTest {
    * Tests the from builder.
    */
   public void from() {
-    SwapFuturesPriceDeliverableSecurityDefinition futuresDefinition = SwapFuturesPriceDeliverableSecurityDefinition.from(EFFECTIVE_DATE, USD6MLIBOR3M, TENOR, NOTIONAL, RATE);
+    final SwapFuturesPriceDeliverableSecurityDefinition futuresDefinition = SwapFuturesPriceDeliverableSecurityDefinition.from(EFFECTIVE_DATE, USD6MLIBOR3M, TENOR, NOTIONAL, RATE);
     assertEquals("DeliverableSwapFuturesSecurityDefinition: from", SWAP_FUTURES_SECURITY_DEFINITION, futuresDefinition);
+  }
+
+  @SuppressWarnings("deprecation")
+  @Test
+  /**
+   * Tests the toDerivative method.
+   */
+  public void toDerivativeDeprecated() {
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 9, 21);
+    final String dscName = "USD Discounting";
+    final String fwd3Name = "USD Forward 3M";
+    final String[] curveNames = {dscName, fwd3Name };
+    final SwapFixedCoupon<? extends Coupon> underlying = SWAP_DEFINITION.toDerivative(referenceDate, curveNames);
+    final double expiryTime = TimeCalculator.getTimeBetween(referenceDate, LAST_TRADING_DATE);
+    final double deliveryTime = TimeCalculator.getTimeBetween(referenceDate, EFFECTIVE_DATE);
+    final SwapFuturesPriceDeliverableSecurity futuresExpected = new SwapFuturesPriceDeliverableSecurity(expiryTime, deliveryTime, underlying, NOTIONAL);
+    final SwapFuturesPriceDeliverableSecurity futuresConverted = SWAP_FUTURES_SECURITY_DEFINITION.toDerivative(referenceDate, curveNames);
+    assertEquals("DeliverableSwapFuturesSecurityDefinition: toDerivative", futuresExpected, futuresConverted);
   }
 
   @Test
@@ -83,16 +101,12 @@ public class SwapFuturesPriceDeliverableSecurityDefinitionTest {
    * Tests the toDerivative method.
    */
   public void toDerivative() {
-    ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 9, 21);
-    final String dscName = "USD Discounting";
-    final String fwd3Name = "USD Forward 3M";
-    final String[] curveNames = {dscName, fwd3Name };
-    SwapFixedCoupon<? extends Coupon> underlying = SWAP_DEFINITION.toDerivative(referenceDate, curveNames);
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 9, 21);
+    final SwapFixedCoupon<? extends Coupon> underlying = SWAP_DEFINITION.toDerivative(referenceDate);
     final double expiryTime = TimeCalculator.getTimeBetween(referenceDate, LAST_TRADING_DATE);
     final double deliveryTime = TimeCalculator.getTimeBetween(referenceDate, EFFECTIVE_DATE);
-    SwapFuturesPriceDeliverableSecurity futuresExpected = new SwapFuturesPriceDeliverableSecurity(expiryTime, deliveryTime, underlying, NOTIONAL);
-    SwapFuturesPriceDeliverableSecurity futuresConverted = SWAP_FUTURES_SECURITY_DEFINITION.toDerivative(referenceDate, curveNames);
+    final SwapFuturesPriceDeliverableSecurity futuresExpected = new SwapFuturesPriceDeliverableSecurity(expiryTime, deliveryTime, underlying, NOTIONAL);
+    final SwapFuturesPriceDeliverableSecurity futuresConverted = SWAP_FUTURES_SECURITY_DEFINITION.toDerivative(referenceDate);
     assertEquals("DeliverableSwapFuturesSecurityDefinition: toDerivative", futuresExpected, futuresConverted);
   }
-
 }

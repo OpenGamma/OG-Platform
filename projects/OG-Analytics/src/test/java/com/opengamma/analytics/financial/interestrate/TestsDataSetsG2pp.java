@@ -14,16 +14,18 @@ import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 
 /**
  * Data sets used in some tests related to G2++ model.
+ * @deprecated {@link YieldCurveBundle} is deprecated, as are the classes that use it.
  */
+@Deprecated
 public class TestsDataSetsG2pp {
 
   private static final String DISCOUNTING = "Discounting";
   private static final String FORWARD3M = "Forward 3M";
 
   public static YieldCurveBundle createCurves1() {
-    InterpolatedDoublesCurve dscC = new InterpolatedDoublesCurve(new double[] {0.0, 50.0}, new double[] {0.0500, 0.0500}, CombinedInterpolatorExtrapolatorFactory.getInterpolator(
+    final InterpolatedDoublesCurve dscC = new InterpolatedDoublesCurve(new double[] {0.0, 50.0}, new double[] {0.0500, 0.0500}, CombinedInterpolatorExtrapolatorFactory.getInterpolator(
         Interpolator1DFactory.LINEAR, Interpolator1DFactory.LINEAR_EXTRAPOLATOR), true, "Curve dsc");
-    InterpolatedDoublesCurve fwd3C = new InterpolatedDoublesCurve(new double[] {0.0, 50.0}, new double[] {0.0500, 0.0500}, CombinedInterpolatorExtrapolatorFactory.getInterpolator(
+    final InterpolatedDoublesCurve fwd3C = new InterpolatedDoublesCurve(new double[] {0.0, 50.0}, new double[] {0.0500, 0.0500}, CombinedInterpolatorExtrapolatorFactory.getInterpolator(
         Interpolator1DFactory.LINEAR, Interpolator1DFactory.LINEAR_EXTRAPOLATOR), true, "Curve fwd3");
     final YieldCurveBundle curves = new YieldCurveBundle();
     curves.setCurve(DISCOUNTING, YieldCurve.from(dscC));
@@ -32,9 +34,9 @@ public class TestsDataSetsG2pp {
   }
 
   public static YieldCurveBundle createCurves2() {
-    InterpolatedDoublesCurve dscC = new InterpolatedDoublesCurve(new double[] {0.0, 1.0, 2.0, 5.0, 10.0, 20.0, 50.0}, new double[] {0.0100, 0.0150, 0.0200, 0.0250, 0.0300, 0.0350, 0.0400},
+    final InterpolatedDoublesCurve dscC = new InterpolatedDoublesCurve(new double[] {0.0, 1.0, 2.0, 5.0, 10.0, 20.0, 50.0}, new double[] {0.0100, 0.0150, 0.0200, 0.0250, 0.0300, 0.0350, 0.0400},
         CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.LINEAR_EXTRAPOLATOR), true, "Curve dsc");
-    InterpolatedDoublesCurve fwd3C = new InterpolatedDoublesCurve(new double[] {0.0, 1.0, 2.0, 5.0, 10.0, 20.0, 50.0}, new double[] {0.0120, 0.0170, 0.0220, 0.0270, 0.0320, 0.0370, 0.0420},
+    final InterpolatedDoublesCurve fwd3C = new InterpolatedDoublesCurve(new double[] {0.0, 1.0, 2.0, 5.0, 10.0, 20.0, 50.0}, new double[] {0.0120, 0.0170, 0.0220, 0.0270, 0.0320, 0.0370, 0.0420},
         CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.LINEAR_EXTRAPOLATOR), true, "Curve fwd3");
     final YieldCurveBundle curves = new YieldCurveBundle();
     curves.setCurve(DISCOUNTING, YieldCurve.from(dscC));

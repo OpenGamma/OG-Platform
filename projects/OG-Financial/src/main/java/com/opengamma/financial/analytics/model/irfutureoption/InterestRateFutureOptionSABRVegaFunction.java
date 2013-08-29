@@ -36,7 +36,7 @@ import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.SABRVegaCalculationUtils;
-import com.opengamma.financial.analytics.model.VegaMatrixHelper;
+import com.opengamma.financial.analytics.model.VegaMatrixUtils;
 import com.opengamma.financial.analytics.model.volatility.surface.fitted.SurfaceFittedSmileDataPoints;
 import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
 import com.opengamma.financial.analytics.volatility.surface.ConfigDBVolatilitySurfaceDefinitionSource;
@@ -116,7 +116,7 @@ public class InterestRateFutureOptionSABRVegaFunction extends InterestRateFuture
     final DoubleMatrix2D result = SABRVegaCalculationUtils.getVegaSurface(alpha, rho, nu, alphaDataBundle, rhoDataBundle, nuDataBundle, inverseJacobians, expiryMaturity, NODE_SENSITIVITY_CALCULATOR,
         fittedData.getData(), (VolatilitySurfaceDefinition<Object, Object>) definition);
     final ValueSpecification resultSpec = getResultSpec(target, forwardCurveName, fundingCurveName, surfaceName, curveCalculationMethodName);
-    return Collections.singleton(new ComputedValue(resultSpec, VegaMatrixHelper.getVegaIRFutureOptionQuoteMatrixInStandardForm(definition, result, expiryValues)));
+    return Collections.singleton(new ComputedValue(resultSpec, VegaMatrixUtils.getVegaIRFutureOptionQuoteMatrix(definition, result, expiryValues)));
   }
 
   @Override

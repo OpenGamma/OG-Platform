@@ -8,6 +8,7 @@ package com.opengamma.engine.view.impl;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -19,6 +20,7 @@ import org.threeten.bp.Instant;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.ChangeEvent;
 import com.opengamma.core.change.ChangeListener;
+import com.opengamma.engine.management.InternalViewResultListener;
 import com.opengamma.engine.marketdata.MarketDataInjector;
 import com.opengamma.engine.marketdata.MarketDataPermissionProvider;
 import com.opengamma.engine.value.ValueSpecification;
@@ -63,6 +65,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
   private final Semaphore _processLock = new Semaphore(1);
 
   private final Set<ViewResultListener> _listeners = new HashSet<ViewResultListener>();
+  private volatile int _internalListenerCount; // only safe if used within lock
 
   private volatile ViewDefinition _currentViewDefinition;
 
@@ -541,7 +544,12 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
     lock();
     try {
       if (_listeners.add(listener)) {
-        if (_listeners.size() == 1) {
+        // keep track of number of internal listeners
+        if (listener instanceof InternalViewResultListener) { 
+          _internalListenerCount++;
+        }
+        // exclude internal listeners from test
+        if ((_listeners.size() - _internalListenerCount) == 1) {
           try {
             startComputationJobIfRequired();
           } catch (final Exception e) {
@@ -587,6 +595,8 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
 
   /**
    * Removes a listener from the view process. Removal of the last listener generating execution demand will cause the process to stop.
+   * We allow instances extending InternalViewResultListener to be ignored for the purposes of reference counting.  This allows e.g. JMX MBeans
+   * to track view events without affecting execution.
    * <p>
    * The method operates with set semantics, so duplicate notifications for the same listener have no effect.
    * 
@@ -597,8 +607,15 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
     // Caller MUST NOT hold the semaphore
     lock();
     try {
-      if (_listeners.remove(listener) && _listeners.size() == 0) {
-        stopComputationJobIfRequired();
+      if (_listeners.remove(listener)) {
+        // keep track of internal listeners so they can be excluded from reference count
+        if (listener instanceof InternalViewResultListener) {
+          _internalListenerCount--;
+        }
+        // exclude internal listeners from the count
+        if ((_listeners.size() - _internalListenerCount) == 0) {
+          stopComputationJobIfRequired();
+        }
       }
     } finally {
       unlock();
@@ -609,7 +626,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
     // Caller MUST NOT hold the semaphore
     lock();
     try {
-      return !_listeners.isEmpty();
+      return (_listeners.size() - _internalListenerCount) > 0;
     } finally {
       unlock();
     }

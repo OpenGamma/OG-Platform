@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.provider;
@@ -53,8 +53,7 @@ public class CouponONSpreadDiscountingMethodTest {
   private static final double SPREAD_AMOUNT = SPREAD * NOTIONAL * CPN_OIS_DEFINITION.getPaymentYearFraction();
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 12, 27);
-  private static final String[] NOT_USED = new String[] {"Not used 1", "not used 2" };
-  private static final CouponONSpread CPN_OIS = CPN_OIS_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED);
+  private static final CouponONSpread CPN_OIS = CPN_OIS_DEFINITION.toDerivative(REFERENCE_DATE);
 
   private static final CouponONSpreadDiscountingMethod METHOD_CPN_ON = CouponONSpreadDiscountingMethod.getInstance();
   private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();

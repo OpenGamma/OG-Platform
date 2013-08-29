@@ -11,8 +11,9 @@ import static org.testng.AssertJUnit.assertNull;
 import org.testng.annotations.Test;
 
 /**
- * 
+ * @deprecated This class tests deprecated functionality.
  */
+@Deprecated
 public class FixedIncomeCalculatorFactoryTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)

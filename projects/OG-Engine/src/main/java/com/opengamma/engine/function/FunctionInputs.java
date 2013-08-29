@@ -21,7 +21,7 @@ import com.opengamma.util.PublicAPI;
 public interface FunctionInputs {
   /**
    * Obtain all values required by the function.
-   * This form is preferrable to {@link #getValue(String)} and {@link #getValue(ValueRequirement)}
+   * This form is preferable to {@link #getValue(String)} and {@link #getValue(ValueRequirement)}
    * where the metadata contained in the {@link ValueSpecification} is required, or where
    * the function is just going to iterate over all values.
    * 

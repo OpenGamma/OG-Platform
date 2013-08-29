@@ -501,7 +501,7 @@ public class InterpolatedDoublesCurve extends ArraysDoublesCurve {
 
   private void init(final Interpolator1D interpolator) {
     Validate.notNull(interpolator, "interpolator");
-  //  Validate.isTrue(size() >= 2);
+    //  Validate.isTrue(size() >= 2);
     _dataBundle = interpolator.getDataBundleFromSortedArrays(getXDataAsPrimitive(), getYDataAsPrimitive());
     _interpolator = interpolator;
   }
@@ -513,7 +513,7 @@ public class InterpolatedDoublesCurve extends ArraysDoublesCurve {
   }
 
   @Override
-  public Double[] getYValueParameterSensitivity(Double x) {
+  public Double[] getYValueParameterSensitivity(final Double x) {
     Validate.notNull(x, "x");
     return ArrayUtils.toObject(_interpolator.getNodeSensitivitiesForValue(_dataBundle, x));
   }
@@ -548,6 +548,11 @@ public class InterpolatedDoublesCurve extends ArraysDoublesCurve {
     }
     final InterpolatedDoublesCurve other = (InterpolatedDoublesCurve) obj;
     return ObjectUtils.equals(_dataBundle, other._dataBundle) && ObjectUtils.equals(_interpolator, other._interpolator);
+  }
+
+  @Override
+  public double getDyDx(final double x) {
+    return _interpolator.firstDerivative(_dataBundle, x);
   }
 
 }

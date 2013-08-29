@@ -157,7 +157,7 @@ public class ISDACompliantCreditCurveFunction extends AbstractFunction.NonCompil
         Tenor[] tenors = SpreadCurveFunctions.getBuckets(pillarString);
         modifiedSpreadCurve = new NodalTenorDoubleCurve(tenors, ArrayUtils.toObject(spreads), true);
         modifiedPillarCurve = modifiedSpreadCurve; // for IMM buckets and spreads are the same
-        final CDSQuoteConvention[] quotes = SpreadCurveFunctions.getQuotes(security.getMaturityDate(), spreads, security.getParSpread(), quoteConvention, false);
+        //final CDSQuoteConvention[] quotes = SpreadCurveFunctions.getQuotes(security.getMaturityDate(), spreads, security.getParSpread(), quoteConvention, false);
 
         // CDS analytics for credit curve
         final CDSAnalytic[] creditAnalytics = new CDSAnalytic[pillarDates.length];

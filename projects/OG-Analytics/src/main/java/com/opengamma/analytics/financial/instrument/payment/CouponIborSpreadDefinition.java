@@ -223,9 +223,6 @@ public class CouponIborSpreadDefinition extends CouponFloatingDefinition {
     if (Double.doubleToLongBits(_spreadAmount) != Double.doubleToLongBits(other._spreadAmount)) {
       return false;
     }
-    if (!ObjectUtils.equals(_calendar, other._calendar)) {
-      return false;
-    }
     return true;
   }
 
