@@ -13,43 +13,43 @@ import java.util.ArrayList;
 public enum SnapshotColumns {
 
   /** The Type of snapshot */
-  TYPE("Type"),
+  TYPE("type"),
 
   /** Name of the snapshot */
-  NAME("Name"),
+  NAME("name"),
 
   /** Instant */
-  INSTANT("Instant"),
+  INSTANT("instant"),
 
   /** Valitaility surface unique id */
-  SURFACE_TARGET("Surface Target"),
+  SURFACE_TARGET("surface target"),
 
   /** Volatility surface intrument type */
-  SURFACE_INSTRUMENT_TYPE("Surface Instrument Type"),
+  SURFACE_INSTRUMENT_TYPE("surface instrument type"),
 
   /** Volatility surface quote type */
-  SURFACE_QUOTE_TYPE("Surface Quote Type"),
+  SURFACE_QUOTE_TYPE("surface quote type"),
 
   /** Volatility surface quote unit */
-  SURFACE_QUOTE_UNITS("Surface Quote Units"),
+  SURFACE_QUOTE_UNITS("surface quote units"),
 
   /** ExternalId Bundle */
-  ID_BUNDLE("External ID Bundle"),
+  ID_BUNDLE("external id bundle"),
 
   /** ValueSnapshot name */
-  VALUE_NAME("Value Name"),
+  VALUE_NAME("value name"),
 
   /** ValueSnapshot market value */
-  MARKET_VALUE("Market Value"),
+  MARKET_VALUE("market value"),
 
   /** ValueSnapshot override value  */
-  OVERRIDE_VALUE("Override Value"),
+  OVERRIDE_VALUE("override value"),
 
   /** Volatility Surface x cdo-ordinate */
-  SURFACE_X("Surface X"),
+  SURFACE_X("surface x"),
 
   /** Surface y co-ordinate */
-  SURFACE_Y("Surface Y");
+  SURFACE_Y("surface y");
 
   private String _text;
 
