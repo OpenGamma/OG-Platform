@@ -18,7 +18,6 @@ import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceKey;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceSnapshot;
 import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
 import com.opengamma.core.marketdatasnapshot.YieldCurveSnapshot;
-import com.opengamma.core.marketdatasnapshot.impl.ManageableUnstructuredMarketDataSnapshot;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
@@ -83,11 +82,6 @@ public class MasterSnapshotReader implements SnapshotReader {
   @Override
   public Map<YieldCurveKey, YieldCurveSnapshot> readYieldCurves() {
     return _snapshot.getYieldCurves();
-  }
-
-  @Override
-  public String[] getCurrentPath() {
-    return new String[0];  //To change body of implemented methods use File | Settings | File Templates.
   }
 
   @Override
