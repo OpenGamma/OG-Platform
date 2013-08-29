@@ -33,9 +33,13 @@ import com.opengamma.util.async.AsynchronousExecution;
  * Simple scenario Function returns the difference in PresentValue between defined Scenario and current market conditions. <p>
  * Price shift is relative, hence the market value under shift, d = (1 + d ) * market_value, 
  * and pnl = scenario_value - market_value = d * market_value. <p>
- * Shift to option volatilities clearly have no effect.
- * @author casey
+ * Shift to option volatilities clearly have no effect. <p>
  *
+ *  For this function to resolve, at least one of the following properties must be set.
+ *  {@link ScenarioPnLPropertyNamesAndValues#PROPERTY_PRICE_SHIFT}
+ *  {@link ScenarioPnLPropertyNamesAndValues#PROPERTY_VOL_SHIFT}
+ *  {@link ScenarioPnLPropertyNamesAndValues#PROPERTY_PRICE_SHIFT_TYPE}
+ *  {@link ScenarioPnLPropertyNamesAndValues#PROPERTY_VOL_SHIFT_TYPE}
  */
 public class EquitySecurityScenarioPnLFunction extends AbstractFunction.NonCompiledInvoker {
 
@@ -129,10 +133,13 @@ public class EquitySecurityScenarioPnLFunction extends AbstractFunction.NonCompi
     // Test constraints are provided, else set to ""
     final ValueProperties constraints = desiredValue.getConstraints();
     ValueProperties.Builder scenarioDefaults = null;
+    boolean somethingConstrained = false;
 
     final Set<String> priceShiftSet = constraints.getValues(s_priceShift);
     if (priceShiftSet == null || priceShiftSet.isEmpty()) {
       scenarioDefaults = constraints.copy().withoutAny(s_priceShift).with(s_priceShift, ""); 
+    } else {
+      somethingConstrained = true;
     }
     final Set<String> priceShiftTypeSet = constraints.getValues(s_priceShiftType);
     if (priceShiftTypeSet == null || priceShiftTypeSet.isEmpty()) {
@@ -141,6 +148,8 @@ public class EquitySecurityScenarioPnLFunction extends AbstractFunction.NonCompi
       } else {
         scenarioDefaults = scenarioDefaults.withoutAny(s_priceShiftType).with(s_priceShiftType, "Multiplicative");
       }
+    } else {
+      somethingConstrained = true;
     }
     final Set<String> volShiftSet = constraints.getValues(s_volShift);
     if (volShiftSet == null || volShiftSet.isEmpty()) {
@@ -149,6 +158,8 @@ public class EquitySecurityScenarioPnLFunction extends AbstractFunction.NonCompi
       } else {
         scenarioDefaults = scenarioDefaults.withoutAny(s_volShift).with(s_volShift, "");
       }
+    } else {
+      somethingConstrained = true;
     }
     final Set<String> volShiftSetType = constraints.getValues(s_volShiftType);
     if (volShiftSetType == null || volShiftSetType.isEmpty()) {
@@ -157,8 +168,13 @@ public class EquitySecurityScenarioPnLFunction extends AbstractFunction.NonCompi
       } else {
         scenarioDefaults = scenarioDefaults.withoutAny(s_volShiftType).with(s_volShiftType, "Multiplicative");
       }
+    } else {
+      somethingConstrained = true;
     }
     
+    if (!somethingConstrained) {
+      return null;
+    }
     // If defaults have been added, this adds additional copy of the Function into dep graph with the adjusted constraints
     if (scenarioDefaults != null) {
       return Collections.singleton(new ValueRequirement(getValueRequirementName(), target.toSpecification(), scenarioDefaults.get()));
