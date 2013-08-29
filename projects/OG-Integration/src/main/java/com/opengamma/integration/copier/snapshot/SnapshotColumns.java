@@ -21,10 +21,13 @@ public enum SnapshotColumns {
   /** Instant */
   INSTANT("instant"),
 
-  /** Valitaility surface unique id */
+  /** Currency of the yield curve */
+  YIELD_CURVE_CURRENCY("yield curve currency"),
+
+  /** Volatility surface unique id */
   SURFACE_TARGET("surface target"),
 
-  /** Volatility surface intrument type */
+  /** Volatility surface instrument type */
   SURFACE_INSTRUMENT_TYPE("surface instrument type"),
 
   /** Volatility surface quote type */
@@ -75,7 +78,7 @@ public enum SnapshotColumns {
 
   /**
    * @return Snapshot columns
-   *   {TYPE, NAME, INSTANT, SURFACE_TARGET, SURFACE_INSTRUMENT_TYPE, SURFACE_QUOTE_TYPE,
+   *   {TYPE, NAME, INSTANT, YIELD_CURVE_CURRENCY, SURFACE_TARGET, SURFACE_INSTRUMENT_TYPE, SURFACE_QUOTE_TYPE,
    *    SURFACE_QUOTE_UNITS, ID_BUNDLE, VALUE_NAME, MARKET_VALUE, OVERRIDE_VALUE, SURFACE_X, SURFACE_Y }
    */
 
