@@ -241,7 +241,7 @@ public class CouponInflationYearOnYearInterpolationWithMarginDefinition extends 
     referenceEndDate[0] = refInterpolatedDate.withDayOfMonth(1);
     referenceEndDate[1] = referenceEndDate[0].plusMonths(1);
     return new CouponInflationYearOnYearInterpolationWithMarginDefinition(_factor, getCurrency(), paymentDate, accrualStartDate, accrualEndDate, getPaymentYearFraction(), getNotional(),
-        getPriceIndex(), _conventionalMonthLag, 3, getReferenceStartDate(), referenceEndDate, payNotional(), getWeightStart(), getWeightEnd());
+        getPriceIndex(), _conventionalMonthLag, _monthLag, getReferenceStartDate(), referenceEndDate, payNotional(), getWeightStart(), getWeightEnd());
   }
 
   /**

@@ -202,7 +202,7 @@ public class CouponInflationZeroCouponMonthlyDefinition extends CouponInflationD
     final ZonedDateTime refInterpolatedDate = accrualEndDate.minusMonths(_conventionalMonthLag);
     final ZonedDateTime referenceEndDate = refInterpolatedDate.withDayOfMonth(1);
     return new CouponInflationZeroCouponMonthlyDefinition(getCurrency(), paymentDate, accrualStartDate, accrualEndDate, getPaymentYearFraction(), getNotional(),
-        getPriceIndex(), _conventionalMonthLag, 3, getReferenceStartDate(), getIndexStartValue(), referenceEndDate, payNotional());
+        getPriceIndex(), _conventionalMonthLag, _monthLag, getReferenceStartDate(), getIndexStartValue(), referenceEndDate, payNotional());
   }
 
   /**

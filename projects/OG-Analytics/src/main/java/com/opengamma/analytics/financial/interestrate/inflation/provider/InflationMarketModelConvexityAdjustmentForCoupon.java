@@ -227,27 +227,42 @@ public class InflationMarketModelConvexityAdjustmentForCoupon {
    */
   public double getVolBondForward(final double startTime, final double endTime, final InflationConvexityAdjustmentProviderInterface inflationConvexity) {
     ArgumentChecker.isTrue(startTime <= endTime, null);
-    final IborIndex iborIndex = inflationConvexity.getBlackSmileIborCapParameters().getIndex();
-    final int liborTenorInMonth = iborIndex.getTenor().getMonths();
-    final int numberOfperiod = (int) Math.round((endTime - startTime) * 12 / liborTenorInMonth);
-
-    if (numberOfperiod == 0) {
+    if (startTime == endTime) {
       return 0.0;
     }
-    // generate the schedule
-    final double[] scheduleTimes = new double[numberOfperiod + 1];
-    scheduleTimes[numberOfperiod] = endTime;
-    for (int i = 0; i < numberOfperiod; i++) {
-      scheduleTimes[i] = startTime + i * liborTenorInMonth / 12;
+    final IborIndex iborIndex = inflationConvexity.getBlackSmileIborCapParameters().getIndex();
+    final int liborTenorInMonth = iborIndex.getTenor().getMonths();
+    final double lenghtOfInterval = liborTenorInMonth / 12.0;
+    final int numberOfInterval = (int) Math.round((endTime - startTime) / lenghtOfInterval);
+
+    if (numberOfInterval == 0) {
+      double volBondForward = ((endTime - startTime) / lenghtOfInterval) * inflationConvexity.getMulticurveProvider().getForwardRate(iborIndex, startTime, endTime, 1.0);
+      volBondForward = volBondForward / (1 + volBondForward) * inflationConvexity.getBlackSmileIborCapParameters().getVolatility(endTime);
+      return volBondForward;
     }
 
-    final double[] volatilityComponents = new double[numberOfperiod];
-    volatilityComponents[0] = inflationConvexity.getMulticurveProvider().getForwardRate(iborIndex, scheduleTimes[0], scheduleTimes[1], 1.0);
-    volatilityComponents[0] = volatilityComponents[0] / (1 + volatilityComponents[0]) * inflationConvexity.getBlackSmileIborCapParameters().getVolatility(scheduleTimes[1]);
-    double varBondForward = volatilityComponents[0] * volatilityComponents[0] * scheduleTimes[1];
+    // generate the schedule
+    final double[] scheduleTimes = new double[numberOfInterval + 2];
+    scheduleTimes[numberOfInterval + 1] = endTime;
+    for (int i = 0; i < numberOfInterval + 1; i++) {
+      scheduleTimes[i] = startTime + i * lenghtOfInterval;
+    }
 
-    for (int i = 1; i < numberOfperiod; i++) {
-      volatilityComponents[i] = inflationConvexity.getMulticurveProvider().getForwardRate(iborIndex, scheduleTimes[i], scheduleTimes[i + 1], 1.0);
+    final double[] volatilityComponents = new double[numberOfInterval + 1];
+
+    double varBondForward = 0.0;
+
+    // implementation note : double sum for the 
+    for (int i = 0; i < numberOfInterval + 1; i++) {
+
+      // Implementation note : breaktrough for the last period where the accrued calculation is different. 
+      if (i == numberOfInterval + 1) {
+        volatilityComponents[i] = (scheduleTimes[i + 1] - scheduleTimes[i]) / lenghtOfInterval *
+            inflationConvexity.getMulticurveProvider().getForwardRate(iborIndex, scheduleTimes[i], scheduleTimes[i + 1], 1.0);
+      } else {
+        volatilityComponents[i] = inflationConvexity.getMulticurveProvider().getForwardRate(iborIndex, scheduleTimes[i], scheduleTimes[i + 1], 1.0);
+      }
+
       volatilityComponents[i] = volatilityComponents[i] / (1 + volatilityComponents[i]) * inflationConvexity.getBlackSmileIborCapParameters().getVolatility(scheduleTimes[i + 1]);
       varBondForward = varBondForward + volatilityComponents[i] * volatilityComponents[i] * scheduleTimes[i + 1];
       for (int j = 0; j < i; j++) {
@@ -255,7 +270,6 @@ public class InflationMarketModelConvexityAdjustmentForCoupon {
             inflationConvexity.getInflationConvexityAdjustmentParameters().getLiborCorrelation().getZValue(scheduleTimes[i], scheduleTimes[j]);
       }
     }
-
     return Math.sqrt(varBondForward) / endTime;
   }
 }

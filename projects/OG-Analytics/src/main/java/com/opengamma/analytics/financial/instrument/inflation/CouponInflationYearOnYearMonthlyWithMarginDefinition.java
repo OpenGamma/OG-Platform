@@ -179,7 +179,7 @@ public class CouponInflationYearOnYearMonthlyWithMarginDefinition extends Coupon
     final ZonedDateTime refInterpolatedDate = accrualEndDate.minusMonths(_conventionalMonthLag);
     final ZonedDateTime referenceEndDate = refInterpolatedDate.withDayOfMonth(1);
     return new CouponInflationYearOnYearMonthlyWithMarginDefinition(_factor, getCurrency(), paymentDate, accrualStartDate, accrualEndDate, getPaymentYearFraction(), getNotional(),
-        getPriceIndex(), _conventionalMonthLag, 3, getReferenceStartDate(), referenceEndDate, payNotional());
+        getPriceIndex(), _conventionalMonthLag, _monthLag, getReferenceStartDate(), referenceEndDate, payNotional());
   }
 
   /**

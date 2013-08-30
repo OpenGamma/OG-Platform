@@ -167,7 +167,7 @@ public class CouponInflationYearOnYearMonthlyDefinition extends CouponInflationD
     final ZonedDateTime refInterpolatedDate = accrualEndDate.minusMonths(_conventionalMonthLag);
     final ZonedDateTime referenceEndDate = refInterpolatedDate.withDayOfMonth(1);
     return new CouponInflationYearOnYearMonthlyDefinition(getCurrency(), paymentDate, accrualStartDate, accrualEndDate, getPaymentYearFraction(), getNotional(),
-        getPriceIndex(), _conventionalMonthLag, 3, getReferenceStartDate(), referenceEndDate, payNotional());
+        getPriceIndex(), _conventionalMonthLag, _monthLag, getReferenceStartDate(), referenceEndDate, payNotional());
   }
 
   /**
@@ -270,6 +270,7 @@ public class CouponInflationYearOnYearMonthlyDefinition extends CouponInflationD
     return new CouponInflationYearOnYearMonthly(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getPriceIndex(), referenceStartTime, naturalPaymentStartTime,
         referenceEndTime, naturalPaymentEndTime, _payNotional);
   }
+
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     ArgumentChecker.notNull(visitor, "visitor");

@@ -47,6 +47,7 @@ public class TestsDataSetsBlack {
       new double[] {0.01, 0.01, 0.01, 0.02, 0.02, 0.02, 0.03, 0.03, 0.03 },
       new double[] {0.35, 0.34, 0.25, 0.30, 0.25, 0.20, 0.28, 0.23, 0.18 },
       INTERPOLATOR_LINEAR_2D);
+
   private static final BlackFlatSwaptionParameters BLACK_SWAPTION_EUR6 = new BlackFlatSwaptionParameters(BLACK_SURFACE_EXP_TEN, EUR1YEURIBOR6M);
   private static final BlackFlatSwaptionParameters BLACK_SWAPTION_EUR3 = new BlackFlatSwaptionParameters(BLACK_SURFACE_EXP_TEN, EUR1YEURIBOR3M);
 
@@ -60,15 +61,16 @@ public class TestsDataSetsBlack {
 
   public static InterpolatedDoublesSurface createBlackSurfaceExpiryTenorShift(final double shift) {
     return InterpolatedDoublesSurface.from(new double[] {0.5, 1.0, 5.0, 0.5, 1.0, 5.0 }, new double[] {2, 2, 2, 10, 10, 10 }, new double[] {0.35 + shift, 0.34 + shift, 0.25 + shift, 0.30 + shift,
-        0.25 + shift, 0.20 + shift }, INTERPOLATOR_LINEAR_2D);
+      0.25 + shift, 0.20 + shift }, INTERPOLATOR_LINEAR_2D);
   }
 
   public static InterpolatedDoublesSurface createBlackSurfaceExpiryStrikeShift(final double shift) {
     return InterpolatedDoublesSurface.from(new double[] {0.5, 1.0, 5.0, 0.5, 1.0, 5.0, 0.5, 1.0, 5.0 },
         new double[] {0.01, 0.01, 0.01, 0.02, 0.02, 0.02, 0.03, 0.03, 0.03 },
-        new double[] {0.35 + shift, 0.34 + shift, 0.25 + shift, 0.30 + shift, 0.25 + shift, 0.20 + shift, 0.28 + shift, 0.23 + shift, 0.18 + shift},
+        new double[] {0.35 + shift, 0.34 + shift, 0.25 + shift, 0.30 + shift, 0.25 + shift, 0.20 + shift, 0.28 + shift, 0.23 + shift, 0.18 + shift },
         INTERPOLATOR_LINEAR_2D);
   }
+
   public static BlackFlatSwaptionParameters createBlackSwaptionEUR6() {
     return BLACK_SWAPTION_EUR6;
   }

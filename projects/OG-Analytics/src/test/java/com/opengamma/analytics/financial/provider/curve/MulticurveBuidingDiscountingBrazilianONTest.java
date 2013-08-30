@@ -51,7 +51,7 @@ import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ *  this example provide an example of curve construction using Brazilian swap.
  */
 public class MulticurveBuidingDiscountingBrazilianONTest {
 

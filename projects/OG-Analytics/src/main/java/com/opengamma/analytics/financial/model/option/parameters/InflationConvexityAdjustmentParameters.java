@@ -46,13 +46,13 @@ public class InflationConvexityAdjustmentParameters {
   private final IndexPrice _index;
 
   /**
-   * Constructor from the parameter surfaces.
-   * @param inflationTime the inflation times, not null
-   * @param atmVolatility The atm Black volatility curve, not null
-   * @param priceIndexCorrelation The price index correlation surface, not null
-   * @param liborCorrelation The libor correlation surface, not null
-   * @param priceIndexRateCorrelation  The price index\rate volatility surface, not null
-   * @param index The index price for which the volatility is valid, not null
+   * Constructor from the parameter surfaces. 
+   * @param inflationTime the inflation times.
+   * @param atmVolatility The atm Black volatility curve.
+   * @param liborCorrelation the inter libor correlation
+   * @param priceIndexCorrelation The price index correlation surface.
+   * @param priceIndexRateCorrelation  The price index\rate volatility surface.
+   * @param index The index price for which the volatility is valid.
    */
   public InflationConvexityAdjustmentParameters(final double[] inflationTime, final double[] atmVolatility, final Surface<Double, Double, Double> priceIndexCorrelation,
       final Surface<Double, Double, Double> liborCorrelation, final Curve<Double, Double> priceIndexRateCorrelation, final IndexPrice index) {
