@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.model.option.pricing.tree;
 
 import static org.testng.Assert.assertEquals;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.greeks.Greek;
@@ -25,10 +26,8 @@ public class EuropeanSingleBarrierOptionFunctionProviderTest {
   private static final double SPOT = 105.;
   private static final double[] STRIKES = new double[] {81., 97., 105., 105.1, 114., 138. };
   private static final double TIME = 4.2;
-  private static final double[] INTERESTS = new double[] {-0.01, 0., 0.001, 0.005, 0.01 };
-  //  private static final double[] VOLS = new double[] {0.05, 0.1, 0.5 };
-
-  private static final double[] DIVIDENDS = new double[] {0., 0.005, 0.02 };
+  private static final double[] INTERESTS = new double[] {-0.01, 0.001, 0.005, 0.01 };
+  private static final double[] DIVIDENDS = new double[] {0.005, 0.02 };
 
   /**
    * 
@@ -53,7 +52,7 @@ public class EuropeanSingleBarrierOptionFunctionProviderTest {
               for (final double interest : INTERESTS) {
                 for (final double vol : vols) {
                   for (final double dividend : DIVIDENDS) {
-                    final int[] choicesSteps = new int[] {511 };
+                    final int[] choicesSteps = new int[] {597 };
                     for (final int nSteps : choicesSteps) {
                       final OptionFunctionProvider1D function = new EuropeanSingleBarrierOptionFunctionProvider(strike, nSteps, isCall, barrier,
                           EuropeanSingleBarrierOptionFunctionProvider.BarrierTypes.valueOf(type));
@@ -278,34 +277,38 @@ public class EuropeanSingleBarrierOptionFunctionProviderTest {
     }
   }
 
-  private double getA(final double spot, final double strike, final double time, final double vol, final double interest, final double dividend, final double barrier, final double phi) {
-    final boolean isCall = (phi == 1.);
-    return BlackScholesFormulaRepository.price(spot, strike, time, vol, interest, interest - dividend, isCall);
+  /**
+   * 
+   */
+  @Test
+  public void getBarrierTest() {
+    final EuropeanSingleBarrierOptionFunctionProvider function = new EuropeanSingleBarrierOptionFunctionProvider(STRIKES[2], 101, true, 90.,
+        EuropeanSingleBarrierOptionFunctionProvider.BarrierTypes.valueOf("DownAndOut"));
+    assertEquals(function.getBarrier(), 90.);
   }
 
-  private double getB(final double spot, final double strike, final double time, final double vol, final double interest, final double dividend, final double barrier, final double phi) {
-    final double sigmaRootT = vol * Math.sqrt(time);
-    final double x2 = (Math.log(spot / barrier) + interest * time - dividend * time) / sigmaRootT + 0.5 * sigmaRootT;
-    final double x2M = x2 - sigmaRootT;
-    return phi * (spot * Math.exp(-dividend * time) * NORMAL.getCDF(phi * x2) - strike * Math.exp(-interest * time) * NORMAL.getCDF(phi * x2M));
+  /**
+   * 
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void negativeBarrierTest() {
+    new EuropeanSingleBarrierOptionFunctionProvider(STRIKES[2], 101, true, -2., EuropeanSingleBarrierOptionFunctionProvider.BarrierTypes.valueOf("DownAndOut"));
   }
 
-  private double getC(final double spot, final double strike, final double time, final double vol, final double interest, final double dividend, final double barrier, final double phi,
-      final double eta) {
-    final boolean isCall = (eta == 1.);
-    final double mu = (interest - dividend) / vol / vol - 0.5;
-    return phi * eta * BlackScholesFormulaRepository.price(barrier * barrier / spot, strike, time, vol, interest, interest - dividend, isCall) * Math.pow(barrier / spot, 2. * mu);
+  /**
+   * 
+   */
+  @Test(expectedExceptions = NotImplementedException.class)
+  public void downInBarrierTest() {
+    new EuropeanSingleBarrierOptionFunctionProvider(STRIKES[2], 101, true, 90., EuropeanSingleBarrierOptionFunctionProvider.BarrierTypes.valueOf("DownAndIn"));
   }
 
-  private double getD(final double spot, final double strike, final double time, final double vol, final double interest, final double dividend, final double barrier, final double phi,
-      final double eta) {
-    final double sigmaRootT = vol * Math.sqrt(time);
-    final double y2 = (Math.log(barrier / spot) + interest * time - dividend * time) / sigmaRootT + 0.5 * sigmaRootT;
-    final double y2M = y2 - sigmaRootT;
-    final double mu = (interest - dividend) / vol / vol - 0.5;
-    return phi *
-        (spot * Math.exp(-dividend * time) * Math.pow(barrier / spot, 2. * mu + 2.) * NORMAL.getCDF(eta * y2) - strike * Math.exp(-interest * time) * Math.pow(barrier / spot, 2. * mu) *
-            NORMAL.getCDF(eta * y2M));
+  /**
+   * 
+   */
+  @Test(expectedExceptions = NotImplementedException.class)
+  public void upInBarrierTest() {
+    new EuropeanSingleBarrierOptionFunctionProvider(STRIKES[2], 101, true, 90., EuropeanSingleBarrierOptionFunctionProvider.BarrierTypes.valueOf("UpAndIn"));
   }
 
   /*
@@ -417,5 +420,35 @@ public class EuropeanSingleBarrierOptionFunctionProviderTest {
         }
       }
     }
+  }
+
+  private double getA(final double spot, final double strike, final double time, final double vol, final double interest, final double dividend, final double barrier, final double phi) {
+    final boolean isCall = (phi == 1.);
+    return BlackScholesFormulaRepository.price(spot, strike, time, vol, interest, interest - dividend, isCall);
+  }
+
+  private double getB(final double spot, final double strike, final double time, final double vol, final double interest, final double dividend, final double barrier, final double phi) {
+    final double sigmaRootT = vol * Math.sqrt(time);
+    final double x2 = (Math.log(spot / barrier) + interest * time - dividend * time) / sigmaRootT + 0.5 * sigmaRootT;
+    final double x2M = x2 - sigmaRootT;
+    return phi * (spot * Math.exp(-dividend * time) * NORMAL.getCDF(phi * x2) - strike * Math.exp(-interest * time) * NORMAL.getCDF(phi * x2M));
+  }
+
+  private double getC(final double spot, final double strike, final double time, final double vol, final double interest, final double dividend, final double barrier, final double phi,
+      final double eta) {
+    final boolean isCall = (eta == 1.);
+    final double mu = (interest - dividend) / vol / vol - 0.5;
+    return phi * eta * BlackScholesFormulaRepository.price(barrier * barrier / spot, strike, time, vol, interest, interest - dividend, isCall) * Math.pow(barrier / spot, 2. * mu);
+  }
+
+  private double getD(final double spot, final double strike, final double time, final double vol, final double interest, final double dividend, final double barrier, final double phi,
+      final double eta) {
+    final double sigmaRootT = vol * Math.sqrt(time);
+    final double y2 = (Math.log(barrier / spot) + interest * time - dividend * time) / sigmaRootT + 0.5 * sigmaRootT;
+    final double y2M = y2 - sigmaRootT;
+    final double mu = (interest - dividend) / vol / vol - 0.5;
+    return phi *
+        (spot * Math.exp(-dividend * time) * Math.pow(barrier / spot, 2. * mu + 2.) * NORMAL.getCDF(eta * y2) - strike * Math.exp(-interest * time) * Math.pow(barrier / spot, 2. * mu) *
+            NORMAL.getCDF(eta * y2M));
   }
 }

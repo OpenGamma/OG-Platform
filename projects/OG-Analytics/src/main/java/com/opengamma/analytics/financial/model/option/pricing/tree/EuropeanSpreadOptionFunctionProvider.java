@@ -30,7 +30,7 @@ public class EuropeanSpreadOptionFunctionProvider extends OptionFunctionProvider
     for (int i = 0; i < nStepsP; ++i) {
       double priceTmp2 = assetPrice2;
       for (int j = 0; j < nStepsP; ++j) {
-        values[i][j] = Math.max(sign * (priceTmp1 - priceTmp2 - strike), 0);
+        values[i][j] = Math.max(sign * (priceTmp1 - priceTmp2 - strike), 0.);
         priceTmp2 *= upOverDown2;
       }
       priceTmp1 *= upOverDown1;

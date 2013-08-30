@@ -28,7 +28,7 @@ public class AmericanVanillaOptionFunctionProvider extends OptionFunctionProvide
     final double[] values = new double[nStepsP];
     double priceTmp = assetPrice;
     for (int i = 0; i < nStepsP; ++i) {
-      values[i] = Math.max(sign * (priceTmp - strike), 0);
+      values[i] = Math.max(sign * (priceTmp - strike), 0.);
       priceTmp *= upOverDown;
     }
     return values;
