@@ -42,7 +42,7 @@ public class CreditBootstrapFailTest extends ISDABaseTest {
 
     final CDSAnalytic[] curveCDSs = new CDSAnalytic[m];
     for (int i = 0; i < m; i++) {
-      curveCDSs[i] = new CDSAnalytic(TRADE_DATE, EFFECTIVE_DATE, CASH_SETTLE_DATE, STARTDATE, PILLAR_DATES[i], PAY_ACC_ON_DEFAULT, TENOR, STUB, PROCTECTION_START, RECOVERY_RATE);
+      curveCDSs[i] = new CDSAnalytic(TRADE_DATE, EFFECTIVE_DATE, CASH_SETTLE_DATE, STARTDATE, PILLAR_DATES[i], PAY_ACC_ON_DEFAULT, PAYMENT_INTERVAL, STUB, PROCTECTION_START, RECOVERY_RATE);
     }
     final ISDACompliantCreditCurve creditCurve = creditCurveBuilder.calibrateCreditCurve(curveCDSs, PAR_SPREADS, YIELD_CURVE);
 

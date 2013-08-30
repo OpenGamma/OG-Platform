@@ -6,9 +6,8 @@
 package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew;
 
 import static com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.IMMDateLogic.getIMMDateSet;
-import static com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.IMMDateLogic.getIMMDateSet;
 import static com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.IMMDateLogic.getNextIMMDate;
-import static org.testng.AssertJUnit.assertEquals;
+import static com.opengamma.financial.convention.businessday.BusinessDayDateUtils.addWorkDays;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
@@ -21,15 +20,18 @@ import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanill
 /**
  * 
  */
-public class ISDAFixTest extends ISDABaseTest {
+public class DebugTest extends ISDABaseTest {
 
   private static final LocalDate TODAY = LocalDate.of(2011, Month.JUNE, 13);
-  private static final LocalDate EFFECTIVE_DATE = LocalDate.of(2011, Month.JUNE, 14); // AKA stepin date
-  private static final LocalDate CASH_SETTLE_DATE = LocalDate.of(2011, Month.JUNE, 16); // AKA valuation date
+  private static final LocalDate NEXT_IMM = getNextIMMDate(TODAY);
+
+  private static final LocalDate TRADE_DATE = LocalDate.of(2011, Month.JUNE, 14);
+  private static final LocalDate EFFECTIVE_DATE = TRADE_DATE.plusDays(1); // AKA stepin date
+  private static final LocalDate CASH_SETTLE_DATE = addWorkDays(TRADE_DATE, 3, DEFAULT_CALENDAR); // AKA valuation date
   private static final LocalDate STARTDATE = LocalDate.of(2011, Month.MARCH, 20);
 
   private static final Period[] TENORS = new Period[] {Period.ofMonths(6), Period.ofYears(1), Period.ofYears(3), Period.ofYears(5), Period.ofYears(7), Period.ofYears(10) };
-  private static final LocalDate NEXT_IMM = getNextIMMDate(TODAY);
+  //  private static final LocalDate NEXT_IMM = getNextIMMDate(EFFECTIVE_DATE);
   private static final LocalDate[] PILLAR_DATES = getIMMDateSet(NEXT_IMM, TENORS);
   private static final LocalDate[] MATURITIES = getIMMDateSet(NEXT_IMM, 41);
 
@@ -39,19 +41,12 @@ public class ISDAFixTest extends ISDABaseTest {
   private static final String[] YIELD_CURVE_INSTRUMENTS = new String[] {"M", "M", "M", "M", "M", "M", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S" };
   private static final double[] YIELD_CURVE_RATES = new double[] {0.00445, 0.009488, 0.012337, 0.017762, 0.01935, 0.020838, 0.01652, 0.02018, 0.023033, 0.02525, 0.02696, 0.02825, 0.02931, 0.03017,
     0.03092, 0.0316, 0.03231, 0.03367, 0.03419, 0.03411, 0.03412 };
-  private static final ISDACompliantYieldCurve YIELD_CURVE = makeYieldCurve(TODAY, SPOT_DATE, YIELD_CURVE_POINTS, YIELD_CURVE_INSTRUMENTS, YIELD_CURVE_RATES, ACT360, D30360, Period.ofYears(1));
+  private static final ISDACompliantYieldCurve YIELD_CURVE = makeYieldCurve(TRADE_DATE, SPOT_DATE, YIELD_CURVE_POINTS, YIELD_CURVE_INSTRUMENTS, YIELD_CURVE_RATES, ACT360, D30360, Period.ofYears(1));
 
   private static final double COUPON = 0.01;
-  private static final double[] SPREADS = new double[] {0.008863157, 0.008863157, 0.013304469, 0.017149007, 0.018390364, 0.019472189 };
+  private static final double[] SPREADS = new double[] {0.007926718, 0.007926718, 0.012239372, 0.016978579, 0.019270856, 0.02086048 };
 
-  //expected - from ISDA c with fix
-  private static final double[] EXPECTED_UPFRONT_CHARGE = new double[] {-0.00241075106526235, -0.00269899615991187, -0.00298238427878267, -0.00326282361599637, -0.00354331987012609,
-    -0.00214761317825186, -0.000780370416529379, 0.000559049539387898, 0.00191612369893203, 0.00326113246893948, 0.00457374473904669, 0.00585461493530264, 0.0071473732885757, 0.0102187194344682,
-    0.0132019892156819, 0.016100015995287, 0.0190120462912064, 0.0218700573302236, 0.0246447451707703, 0.0273685378129013, 0.0300724366917735, 0.0324352888163721, 0.0347298107220322,
-    0.0369581573599116, 0.0391958505369267, 0.0413914714774095, 0.0435234698837631, 0.0455936907497847, 0.0476723136393884, 0.0498368066543075, 0.0519373036905721, 0.0539758894867396,
-    0.0560213423936182, 0.0580273438957959, 0.0599740156744084, 0.0618839928096648, 0.0637794893777406, 0.0656377709642745, 0.0674405858573872, 0.0691898860799818, 0.0709445474586503 };
-
-  @Test
+  @Test(enabled = false)
   public void test() {
     final ISDACompliantCreditCurveBuilder curveBuilder = new FastCreditCurveBuilder(true, ArbitrageHandling.ZeroHazardRate);
     final AnalyticCDSPricer pricer = new AnalyticCDSPricer(true);
@@ -59,17 +54,32 @@ public class ISDAFixTest extends ISDABaseTest {
     final int nPillars = PILLAR_DATES.length;
     final CDSAnalytic[] pillarCDSS = new CDSAnalytic[nPillars];
     for (int i = 0; i < nPillars; i++) {
-      pillarCDSS[i] = new CDSAnalytic(TODAY, EFFECTIVE_DATE, CASH_SETTLE_DATE, STARTDATE, PILLAR_DATES[i], PAY_ACC_ON_DEFAULT, PAYMENT_INTERVAL, STUB, PROCTECTION_START, RECOVERY_RATE);
+      pillarCDSS[i] = new CDSAnalytic(TRADE_DATE, EFFECTIVE_DATE, CASH_SETTLE_DATE, STARTDATE, PILLAR_DATES[i], PAY_ACC_ON_DEFAULT, PAYMENT_INTERVAL, STUB, PROCTECTION_START, RECOVERY_RATE);
     }
 
     final ISDACompliantCreditCurve creditCurve = curveBuilder.calibrateCreditCurve(pillarCDSS, SPREADS, YIELD_CURVE);
 
     final int nMat = MATURITIES.length;
     for (int i = 0; i < nMat; i++) {
-      final CDSAnalytic cds = new CDSAnalytic(TODAY, EFFECTIVE_DATE, CASH_SETTLE_DATE, STARTDATE, MATURITIES[i], PAY_ACC_ON_DEFAULT, PAYMENT_INTERVAL, STUB, PROCTECTION_START, RECOVERY_RATE);
+      final CDSAnalytic cds = new CDSAnalytic(TRADE_DATE, EFFECTIVE_DATE, CASH_SETTLE_DATE, STARTDATE, MATURITIES[i], PAY_ACC_ON_DEFAULT, PAYMENT_INTERVAL, STUB, PROCTECTION_START, RECOVERY_RATE);
       final double dPV = pricer.pv(cds, YIELD_CURVE, creditCurve, COUPON, PriceType.DIRTY);
-      //  System.out.println(MATURITIES[i] + "\t" + dPV);
-      assertEquals(MATURITIES[i].toString(), EXPECTED_UPFRONT_CHARGE[i], dPV, 1e-15);
+      final double proLeg = pricer.protectionLeg(cds, YIELD_CURVE, creditCurve);
+
+      System.out.println(MATURITIES[i] + "\t" + dPV + "\t" + proLeg);
+      //   assertEquals(MATURITIES[i].toString(), EXPECTED_UPFRONT_CHARGE[i], dPV, 1e-15);
+    }
+
+  }
+
+  @Test(enabled = false)
+  public void funcTest() {
+    final CDSAnalyticFactory factory = new CDSAnalyticFactory(0.25);
+    final CDSAnalytic cds = factory.makeIMMCDS(TRADE_DATE, Period.ofYears(5));
+    for (int i = 0; i < 100; i++) {
+      final double lambda = 0.8 * i / 100.;
+      final ISDACompliantCreditCurve cc = new ISDACompliantCreditCurve(5.0, lambda);
+      final double price = PRICER_CORRECT.pv(cds, YIELD_CURVE, cc, 0.05);
+      System.out.println(lambda + "\t" + price);
     }
 
   }

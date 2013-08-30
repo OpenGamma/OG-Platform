@@ -150,7 +150,7 @@ public class RopemakerTest extends ISDABaseTest {
     final int accDays = pillarCDSs_nonIMM[0].getAccuredDays();
     for (int i = 0; i < nMat; i++) {
       if (isIMMDate(maturities[i])) {
-        final CDSAnalytic pricingCDS = new CDSAnalytic(tradeDate, stepinDate, cashSettleDate, startDate, maturities[i], PAY_ACC_ON_DEFAULT, TENOR, STUB, PROCTECTION_START, RECOVERY);
+        final CDSAnalytic pricingCDS = new CDSAnalytic(tradeDate, stepinDate, cashSettleDate, startDate, maturities[i], PAY_ACC_ON_DEFAULT, PAYMENT_INTERVAL, STUB, PROCTECTION_START, RECOVERY);
         final QuotedSpread quote = new QuotedSpread(COUPON, spreads[i]);
         puf[i] = PUF_CONVERTER.toPointsUpFront(pricingCDS, quote, yieldCurve).getPointsUpFront();
         upfrontAmount[i] = (puf[i] - pricingCDS.getAccruedPremium(COUPON)) * NOTIONAL;

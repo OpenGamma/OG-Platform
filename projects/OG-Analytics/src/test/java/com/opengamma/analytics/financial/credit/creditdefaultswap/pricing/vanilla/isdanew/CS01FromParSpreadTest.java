@@ -113,12 +113,12 @@ public class CS01FromParSpreadTest extends ISDABaseTest {
     final CDSAnalytic[] curveCDSs = new CDSAnalytic[m];
     for (int i = 0; i < m; i++) {
       parSpreads[i] = PAR_SPREADS_AT_BUCKET_DATES[i] * ONE_BP;
-      curveCDSs[i] = new CDSAnalytic(TODAY, EFFECTIVE_DATE, CASH_SETTLE_DATE, TODAY, BUCKET_DATES[i], PAY_ACC_ON_DEFAULT, TENOR, STUB, PROCTECTION_START, RECOVERY_RATE);
+      curveCDSs[i] = new CDSAnalytic(TODAY, EFFECTIVE_DATE, CASH_SETTLE_DATE, TODAY, BUCKET_DATES[i], PAY_ACC_ON_DEFAULT, PAYMENT_INTERVAL, STUB, PROCTECTION_START, RECOVERY_RATE);
     }
 
     final int n = MATURITIES.length;
     for (int i = 0; i < n; i++) {
-      final CDSAnalytic cds = new CDSAnalytic(TODAY, EFFECTIVE_DATE, CASH_SETTLE_DATE, STARTDATE, MATURITIES[i], PAY_ACC_ON_DEFAULT, TENOR, STUB, PROCTECTION_START, RECOVERY_RATE);
+      final CDSAnalytic cds = new CDSAnalytic(TODAY, EFFECTIVE_DATE, CASH_SETTLE_DATE, STARTDATE, MATURITIES[i], PAY_ACC_ON_DEFAULT, PAYMENT_INTERVAL, STUB, PROCTECTION_START, RECOVERY_RATE);
       final double cs01 = scale * CS01_CAL.parallelCS01FromParSpreads(cds, coupon, YIELD_CURVE, curveCDSs, parSpreads, ONE_BP, BumpType.ADDITIVE);
       // System.out.println(MATURITIES[i].toString() + "\t" + cs01);
       assertEquals(MATURITIES[i].toString(), PARELLEL_CS01[i], cs01, 1e-14 * NOTIONAL);
@@ -135,12 +135,12 @@ public class CS01FromParSpreadTest extends ISDABaseTest {
     final CDSAnalytic[] curveCDSs = new CDSAnalytic[m];
     for (int i = 0; i < m; i++) {
       parSpreads[i] = PAR_SPREADS_AT_BUCKET_DATES[i] * ONE_BP;
-      curveCDSs[i] = new CDSAnalytic(TODAY, EFFECTIVE_DATE, CASH_SETTLE_DATE, TODAY, BUCKET_DATES[i], PAY_ACC_ON_DEFAULT, TENOR, STUB, PROCTECTION_START, RECOVERY_RATE);
+      curveCDSs[i] = new CDSAnalytic(TODAY, EFFECTIVE_DATE, CASH_SETTLE_DATE, TODAY, BUCKET_DATES[i], PAY_ACC_ON_DEFAULT, PAYMENT_INTERVAL, STUB, PROCTECTION_START, RECOVERY_RATE);
     }
 
     final int n = MATURITIES.length;
     for (int i = 0; i < n; i++) {
-      final CDSAnalytic cds = new CDSAnalytic(TODAY, EFFECTIVE_DATE, CASH_SETTLE_DATE, STARTDATE, MATURITIES[i], PAY_ACC_ON_DEFAULT, TENOR, STUB, PROCTECTION_START, RECOVERY_RATE);
+      final CDSAnalytic cds = new CDSAnalytic(TODAY, EFFECTIVE_DATE, CASH_SETTLE_DATE, STARTDATE, MATURITIES[i], PAY_ACC_ON_DEFAULT, PAYMENT_INTERVAL, STUB, PROCTECTION_START, RECOVERY_RATE);
       final double[] cs01 = CS01_CAL.bucketedCS01FromParSpreads(cds, coupon, YIELD_CURVE, curveCDSs, parSpreads, ONE_BP, BumpType.ADDITIVE);
       for (int j = 0; j < m; j++) {
         cs01[j] *= scale;

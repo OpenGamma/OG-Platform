@@ -44,17 +44,17 @@ public abstract class DoublesScheduleGenerator {
    * @return Combined list between first and last value
    */
   public static double[] getIntegrationsPoints(final double start, final double end, final double[] setA, final double[] setB) {
-    double[] set1 = truncateSetExclusive(start, end, setA);
-    double[] set2 = truncateSetExclusive(start, end, setB);
+    final double[] set1 = truncateSetExclusive(start, end, setA);
+    final double[] set2 = truncateSetExclusive(start, end, setB);
     final int n1 = set1.length;
     final int n2 = set2.length;
     final int n = n1 + n2;
-    double[] set = new double[n];
+    final double[] set = new double[n];
     System.arraycopy(set1, 0, set, 0, n1);
     System.arraycopy(set2, 0, set, n1, n2);
     Arrays.sort(set);
 
-    double[] temp = new double[n + 2];
+    final double[] temp = new double[n + 2];
     temp[0] = start;
     int pos = 0;
     for (int i = 0; i < n; i++) {
@@ -72,7 +72,7 @@ public abstract class DoublesScheduleGenerator {
       return temp; // everything was unique
     }
 
-    double[] res = new double[resLength];
+    final double[] res = new double[resLength];
     System.arraycopy(temp, 0, res, 0, resLength);
     return res;
   }
@@ -92,21 +92,21 @@ public abstract class DoublesScheduleGenerator {
    */
   public static double[] truncateSetInclusive(final double lower, final double upper, final double[] set) {
     // this is private, so assume inputs are fine
-    double[] temp = truncateSetExclusive(lower, upper, set);
+    final double[] temp = truncateSetExclusive(lower, upper, set);
     final int n = temp.length;
     if (n == 0) {
-      return new double[] {lower, upper};
+      return new double[] {lower, upper };
     }
-    boolean addLower = different(lower, temp[0]);
-    boolean addUpper = different(upper, temp[n - 1]);
+    final boolean addLower = different(lower, temp[0]);
+    final boolean addUpper = different(upper, temp[n - 1]);
     if (!addLower && !addUpper) { // replace first and last entries of set
       temp[0] = lower;
       temp[n - 1] = upper;
       return temp;
     }
 
-    int m = n + (addLower ? 1 : 0) + (addUpper ? 1 : 0);
-    double[] res = new double[m];
+    final int m = n + (addLower ? 1 : 0) + (addUpper ? 1 : 0);
+    final double[] res = new double[m];
     System.arraycopy(temp, 0, res, (addLower ? 1 : 0), n);
     res[0] = lower;
     res[m - 1] = upper;
@@ -134,7 +134,7 @@ public abstract class DoublesScheduleGenerator {
     if (lower < set[0]) {
       lIndex = 0;
     } else {
-      int temp = Arrays.binarySearch(set, lower);
+      final int temp = Arrays.binarySearch(set, lower);
       lIndex = temp >= 0 ? temp + 1 : -(temp + 1);
     }
 
@@ -142,7 +142,7 @@ public abstract class DoublesScheduleGenerator {
     if (upper > set[n - 1]) {
       uIndex = n;
     } else {
-      int temp = Arrays.binarySearch(set, lIndex, n, upper);
+      final int temp = Arrays.binarySearch(set, lIndex, n, upper);
       uIndex = temp >= 0 ? temp : -(temp + 1);
     }
 
@@ -151,13 +151,13 @@ public abstract class DoublesScheduleGenerator {
       return set;
     }
 
-    double[] trunc = new double[m];
+    final double[] trunc = new double[m];
     System.arraycopy(set, lIndex, trunc, 0, m);
     return trunc;
   }
 
   public static double[] leftTruncate(final double lower, final double[] set) {
-    // this is private, so assume inputs are fine
+
     final int n = set.length;
     if (n == 0) {
       return set;
@@ -169,7 +169,7 @@ public abstract class DoublesScheduleGenerator {
       return new double[0];
     }
 
-    int index = Arrays.binarySearch(set, lower);
+    final int index = Arrays.binarySearch(set, lower);
     final int chop = index >= 0 ? index + 1 : -(index + 1);
     double[] res;
     if (chop == 0) {
