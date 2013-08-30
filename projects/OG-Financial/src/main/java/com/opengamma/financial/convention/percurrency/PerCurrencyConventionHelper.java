@@ -57,7 +57,8 @@ public class PerCurrencyConventionHelper {
   public static final String INFLATION_LEG = "Inflation Swap Leg";
   /** Price index string */
   public static final String PRICE_INDEX = "Price Index";
-  
+  /** Swap index string */
+  public static final String SWAP_INDEX = "Swap Index";
 
   /** Tenor string: 3M **/
   public static final String TENOR_STR_3M = "3M";

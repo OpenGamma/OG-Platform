@@ -43,7 +43,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.CapFloorCMSSpreadSecurityConverter;
-import com.opengamma.financial.analytics.conversion.CapFloorSecurityConverter;
+import com.opengamma.financial.analytics.conversion.CapFloorSecurityConverterDeprecated;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.conversion.SwapSecurityConverterDeprecated;
 import com.opengamma.financial.analytics.conversion.SwaptionSecurityConverterDeprecated;
@@ -95,7 +95,7 @@ public abstract class SABRYCNSFunction extends AbstractFunction.NonCompiledInvok
     _securitySource = OpenGammaCompilationContext.getSecuritySource(context);
     final SwapSecurityConverterDeprecated swapConverter = new SwapSecurityConverterDeprecated(holidaySource, conventionSource, regionSource, false);
     final SwaptionSecurityConverterDeprecated swaptionConverter = new SwaptionSecurityConverterDeprecated(_securitySource, swapConverter);
-    final CapFloorSecurityConverter capFloorVisitor = new CapFloorSecurityConverter(holidaySource, conventionSource, regionSource);
+    final CapFloorSecurityConverterDeprecated capFloorVisitor = new CapFloorSecurityConverterDeprecated(holidaySource, conventionSource, regionSource);
     final CapFloorCMSSpreadSecurityConverter capFloorCMSSpreadSecurityVisitor = new CapFloorCMSSpreadSecurityConverter(holidaySource, conventionSource, regionSource);
     _securityVisitor = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder().swapSecurityVisitor(swapConverter).swaptionVisitor(swaptionConverter).capFloorVisitor(capFloorVisitor)
         .capFloorCMSSpreadVisitor(capFloorCMSSpreadSecurityVisitor).create();

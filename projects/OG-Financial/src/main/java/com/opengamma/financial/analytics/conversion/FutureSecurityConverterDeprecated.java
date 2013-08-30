@@ -105,7 +105,6 @@ public class FutureSecurityConverterDeprecated extends FinancialSecurityVisitorA
       @Override
       public InstrumentDefinitionWithData<?, Double> visitIndexFutureSecurity(final IndexFutureSecurity security) {
         final ZonedDateTime expiry = security.getExpiry().getExpiry();
-        final String type = security.getSecurityType();
         return new IndexFutureDefinition(expiry, expiry, referencePrice, security.getCurrency(), security.getUnitAmount(), security.getUnderlyingId());
       }
 
@@ -114,9 +113,6 @@ public class FutureSecurityConverterDeprecated extends FinancialSecurityVisitorA
       public InstrumentDefinitionWithData<?, Double> visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
         final InterestRateFutureTransactionDefinition securityDefinition = (InterestRateFutureTransactionDefinition) security.accept(_irFutureConverter);
         return securityDefinition;
-        //      new InterestRateFutureTransactionDefinition(securityDefinition.getLastTradingDate(), referencePrice,
-        //      securityDefinition.getLastTradingDate(), securityDefinition.getIborIndex(),
-        //      securityDefinition.getNotional(), securityDefinition.getPaymentAccrualFactor(), 1, securityDefinition.getName());
       }
 
       @SuppressWarnings("synthetic-access")

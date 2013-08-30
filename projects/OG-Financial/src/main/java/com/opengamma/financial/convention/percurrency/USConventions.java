@@ -26,6 +26,7 @@ import static com.opengamma.financial.convention.percurrency.PerCurrencyConventi
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.SCHEME_NAME;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.SERIAL;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.STIR_FUTURES;
+import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.SWAP_INDEX;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.TENOR_STR_1Y;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.TENOR_STR_3M;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.TENOR_STR_6M;
@@ -55,6 +56,7 @@ import com.opengamma.financial.convention.PriceIndexConvention;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.SwapConvention;
 import com.opengamma.financial.convention.SwapFixedLegConvention;
+import com.opengamma.financial.convention.SwapIndexConvention;
 import com.opengamma.financial.convention.VanillaIborLegConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -88,6 +90,7 @@ public class USConventions {
     final String cmeDeliverableSwapFutureConventionName = CME_DELIVERABLE_SWAP_FUTURE;
     final String inflationConventionName = getConventionName(Currency.USD, INFLATION_LEG);
     final String priceIndexName = getConventionName(Currency.USD, PRICE_INDEX);
+    final String swapIndexConventionName = getConventionName(Currency.USD, SWAP_INDEX);
     final ExternalId libor3mConventionId = ExternalId.of(SCHEME_NAME, liborConventionName);
     final ExternalId overnightConventionId = ExternalId.of(SCHEME_NAME, overnightConventionName);
     final ExternalId priceIndexId = ExternalId.of(SCHEME_NAME, priceIndexName);
@@ -125,6 +128,10 @@ public class USConventions {
     final String liborLeg3MPayLagConventionName = getConventionName(Currency.USD, TENOR_STR_3M, PAY_LAG + IBOR_LEG);
     final Convention liborLeg3MPayLagConvention = new VanillaIborLegConvention(liborLeg3MPayLagConventionName, getIds(Currency.USD, TENOR_STR_3M, PAY_LAG + IBOR_LEG),
         libor3mConventionId, true, Interpolator1DFactory.LINEAR, Tenor.THREE_MONTHS, 2, true, StubType.NONE, false, 2);
+    final Convention swapConvention = new SwapConvention("USD Swap", ExternalIdBundle.of(ExternalId.of(SCHEME_NAME, "USD Swap")),
+        ExternalId.of(SCHEME_NAME, getConventionName(Currency.USD, IRS_FIXED_LEG)),
+        ExternalId.of(SCHEME_NAME, getConventionName(Currency.USD, TENOR_STR_3M, IRS_IBOR_LEG)));
+    final Convention swapIndexConvention = new SwapIndexConvention(swapIndexConventionName, getIds(Currency.USD, SWAP_INDEX), LocalTime.of(11, 0), ExternalId.of(SCHEME_NAME, "USD Swap"));
     // Futures
     final String eurodollarFutureConventionName = EURODOLLAR_FUTURE;
     final Convention edQuarterlySTIRFutureConvention = new InterestRateFutureConvention(eurodollarFutureConventionName, ExternalIdBundle.of(ExternalId.of(SCHEME_NAME, EURODOLLAR_FUTURE)),
@@ -149,16 +156,13 @@ public class USConventions {
     final String liborLegGovtConventionName = getConventionName(Currency.USD, TENOR_STR_3M, GOVT + IBOR_LEG);
     final Convention liborLegGovtConvention = new VanillaIborLegConvention(liborLegGovtConventionName, getIds(Currency.USD, TENOR_STR_3M, GOVT + IBOR_LEG),
         libor3mConventionId, true, Interpolator1DFactory.LINEAR, Tenor.THREE_MONTHS, 2, false, StubType.NONE, false, 0);
-    
+
     // X-Ccy OIS
     final Convention oisXCcyJPYLegConvention = new OISLegConvention(OIS_USD_JPY_ON_LEG, getIds(OIS_USD_JPY_ON_LEG), overnightConventionId,
         Tenor.THREE_MONTHS, MODIFIED_FOLLOWING, 2, true, StubType.NONE, false, 2);
     final String irsIbor6MLegConventionName = getConventionName(Currency.USD, "6M", IRS_IBOR_LEG);
     final Convention irsIbor6MLegConvention = new VanillaIborLegConvention(irsIbor6MLegConventionName, getIds(Currency.USD, "6M", IRS_IBOR_LEG),
         libor3mConventionId, true, Interpolator1DFactory.LINEAR, Tenor.SIX_MONTHS, 2, true, StubType.NONE, false, 2);
-    final Convention swapConvention = new SwapConvention("USD Swap", ExternalIdBundle.of(ExternalId.of(SCHEME_NAME, "USD Swap")),
-        ExternalId.of(SCHEME_NAME, getConventionName(Currency.USD, IRS_FIXED_LEG)),
-        ExternalId.of(SCHEME_NAME, getConventionName(Currency.USD, TENOR_STR_3M, IRS_IBOR_LEG)));
     // Convention add
     conventionMaster.add(depositConvention);
     conventionMaster.add(depositONConvention);
@@ -172,6 +176,7 @@ public class USConventions {
     conventionMaster.add(irsFixedLegConvention);
     conventionMaster.add(oisFixedLegConvention);
     conventionMaster.add(onCmp3MLegConvention);
+    conventionMaster.add(swapIndexConvention);
     conventionMaster.add(edQuarterlySTIRFutureConvention);
     conventionMaster.add(edSerialSTIRFutureConvention);
     conventionMaster.add(fedFundsConvention);

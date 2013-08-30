@@ -3,18 +3,19 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.black;
+package com.opengamma.financial.analytics.model.shiftedlognormal;
 
 import static com.opengamma.engine.value.ValuePropertyNames.CURRENCY;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_EXPOSURES;
 import static com.opengamma.engine.value.ValuePropertyNames.SURFACE;
 import static com.opengamma.engine.value.ValueRequirementNames.INTERPOLATED_VOLATILITY_SURFACE;
+import static com.opengamma.engine.value.ValueRequirementNames.LOGNORMAL_SURFACE_SHIFTS;
 import static com.opengamma.financial.analytics.model.InstrumentTypeProperties.CAP_FLOOR;
 import static com.opengamma.financial.analytics.model.InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE;
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.DISCOUNTING;
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.PROPERTY_CURVE_TYPE;
-import static com.opengamma.financial.analytics.model.volatility.SmileFittingPropertyNamesAndValues.BLACK;
 import static com.opengamma.financial.analytics.model.volatility.SmileFittingPropertyNamesAndValues.PROPERTY_VOLATILITY_MODEL;
+import static com.opengamma.financial.analytics.model.volatility.SmileFittingPropertyNamesAndValues.SHIFTED_LOGNORMAL;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.IBOR;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.SCHEME_NAME;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.getConventionName;
@@ -27,11 +28,12 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
-import com.opengamma.analytics.financial.model.option.parameters.BlackSmileCapParameters;
+import com.opengamma.analytics.financial.model.option.parameters.BlackSmileShiftCapParameters;
 import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
-import com.opengamma.analytics.financial.provider.description.interestrate.BlackSmileCapProvider;
-import com.opengamma.analytics.financial.provider.description.interestrate.BlackSmileCapProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.BlackSmileShiftCapProvider;
+import com.opengamma.analytics.financial.provider.description.interestrate.BlackSmileShiftCapProviderInterface;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
@@ -68,12 +70,12 @@ import com.opengamma.util.money.Currency;
  * Base function for all cap/floor pricing and risk functions that use a Black surface
  * and curves constructed using the discounting method.
  */
-public abstract class BlackDiscountingCapFloorFunction extends DiscountingFunction {
+public abstract class ShiftedLognormalDiscountingCapFloorFunction extends DiscountingFunction {
 
   /**
    * @param valueRequirements The value requirements, not null
    */
-  public BlackDiscountingCapFloorFunction(final String... valueRequirements) {
+  public ShiftedLognormalDiscountingCapFloorFunction(final String... valueRequirements) {
     super(valueRequirements);
   }
 
@@ -94,17 +96,17 @@ public abstract class BlackDiscountingCapFloorFunction extends DiscountingFuncti
   }
 
   /**
-   * Base compiled function for all pricing and risk functions that use a Black surface
+   * Base compiled function for all pricing and risk functions that use a shifted lognormal surface
    * and curves constructed using the discounting method.
    */
-  protected abstract class BlackDiscountingCompiledFunction extends DiscountingCompiledFunction {
+  protected abstract class ShiftedLognormalDiscountingCompiledFunction extends DiscountingCompiledFunction {
 
     /**
      * @param tradeToDefinitionConverter Converts targets to definitions, not null
      * @param definitionToDerivativeConverter Converts definitions to derivatives, not null
      * @param withCurrency True if the result properties set the {@link ValuePropertyNames#CURRENCY} property.
      */
-    protected BlackDiscountingCompiledFunction(final TradeConverter tradeToDefinitionConverter,
+    protected ShiftedLognormalDiscountingCompiledFunction(final TradeConverter tradeToDefinitionConverter,
         final FixedIncomeConverterDataProvider definitionToDerivativeConverter, final boolean withCurrency) {
       super(tradeToDefinitionConverter, definitionToDerivativeConverter, withCurrency);
     }
@@ -119,7 +121,8 @@ public abstract class BlackDiscountingCapFloorFunction extends DiscountingFuncti
     protected ValueProperties.Builder getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
       final ValueProperties.Builder properties = createValueProperties()
           .with(PROPERTY_CURVE_TYPE, DISCOUNTING)
-          .with(PROPERTY_VOLATILITY_MODEL, BLACK)
+          .with(PROPERTY_VOLATILITY_MODEL, SHIFTED_LOGNORMAL)
+          .with(LognormalVolatilityShiftFunction.SHIFT_CURVE, LognormalVolatilityShiftFunction.TEST)
           .withAny(SURFACE)
           .withAny(CURVE_EXPOSURES);
       if (isWithCurrency()) {
@@ -146,6 +149,13 @@ public abstract class BlackDiscountingCapFloorFunction extends DiscountingFuncti
       final ValueRequirement surfaceRequirement = new ValueRequirement(INTERPOLATED_VOLATILITY_SURFACE,
           ComputationTargetSpecification.of(currency), properties);
       requirements.add(surfaceRequirement);
+      final Set<String> shiftCurve = constraints.getValues(LognormalVolatilityShiftFunction.SHIFT_CURVE);
+      final ValueProperties shiftProperties = ValueProperties.builder()
+          .with(LognormalVolatilityShiftFunction.SHIFT_CURVE, shiftCurve)
+          .get();
+      final ValueRequirement lognormalShiftRequirement = new ValueRequirement(LOGNORMAL_SURFACE_SHIFTS,
+          ComputationTargetSpecification.NULL, shiftProperties);
+      requirements.add(lognormalShiftRequirement);
       return requirements;
     }
 
@@ -166,7 +176,8 @@ public abstract class BlackDiscountingCapFloorFunction extends DiscountingFuncti
      * @param fxMatrix The FX matrix, not null
      * @return The Black surface and curve data
      */
-    protected BlackSmileCapProviderInterface getBlackSurface(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final FXMatrix fxMatrix) {
+    protected BlackSmileShiftCapProviderInterface getBlackSurface(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
+        final ComputationTarget target, final FXMatrix fxMatrix) {
       final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(executionContext);
       final CapFloorSecurity security = (CapFloorSecurity) target.getTrade().getSecurity();
       final Currency currency = FinancialSecurityUtils.getCurrency(security);
@@ -182,8 +193,9 @@ public abstract class BlackDiscountingCapFloorFunction extends DiscountingFuncti
           iborIndexConvention.getBusinessDayConvention(), iborIndexConvention.isIsEOM(), iborIndexConvention.getName());
       final MulticurveProviderInterface data = getMergedProviders(inputs, fxMatrix);
       final VolatilitySurface volatilitySurface = (VolatilitySurface) inputs.getValue(INTERPOLATED_VOLATILITY_SURFACE);
-      final BlackSmileCapParameters parameters = new BlackSmileCapParameters(volatilitySurface.getSurface(), iborIndex);
-      final BlackSmileCapProvider blackData = new BlackSmileCapProvider(data, parameters);
+      final DoublesCurve shiftCurve = (DoublesCurve) inputs.getValue(LOGNORMAL_SURFACE_SHIFTS);
+      final BlackSmileShiftCapParameters parameters = new BlackSmileShiftCapParameters(volatilitySurface.getSurface(), shiftCurve, iborIndex);
+      final BlackSmileShiftCapProviderInterface blackData = new BlackSmileShiftCapProvider(data, parameters);
       return blackData;
     }
 

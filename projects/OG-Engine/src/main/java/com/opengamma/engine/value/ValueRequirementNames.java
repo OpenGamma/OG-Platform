@@ -401,6 +401,12 @@ public final class ValueRequirementNames {
    */
   public static final String VOLATILITY_CUBE_FITTED_POINTS = "VolatilityCubeFittedPoints";
 
+  ///// Volatility adjustments
+  /**
+   * The shifts to apply to a log-normal volatility surface
+   */
+  public static final String LOGNORMAL_SURFACE_SHIFTS = "LognormalSurfaceShifts";
+  
   ///// Pricing
 
   /**
