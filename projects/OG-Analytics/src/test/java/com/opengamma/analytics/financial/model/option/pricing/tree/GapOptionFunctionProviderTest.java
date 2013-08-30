@@ -26,72 +26,9 @@ public class GapOptionFunctionProviderTest {
   private static final double[] STRIKES = new double[] {97., 105., 105.1, 114. };
   private static final double[] PAYOFF_STRIKES = new double[] {101., 112. };
   private static final double TIME = 4.2;
-  private static final double[] INTERESTS = new double[] {-0.01, 0., 0.017, 0.05 };
+  private static final double[] INTERESTS = new double[] {-0.01, 0.017, 0.05 };
   private static final double[] VOLS = new double[] {0.05, 0.1, 0.5 };
-  private static final double[] DIVIDENDS = new double[] {0., 0.005, 0.014 };
-
-  private double price(final double spot, final double strike, final double payoffStrike, final double time, final double vol, final double interest, final double cost, final boolean isCall) {
-    final double d1 = (Math.log(spot / strike) + (cost + 0.5 * vol * vol) * time) / vol / Math.sqrt(time);
-    final double d2 = d1 - vol * Math.sqrt(time);
-    final double sign = isCall ? 1. : -1.;
-    return sign * (spot * Math.exp((cost - interest) * time) * NORMAL.getCDF(sign * d1) - payoffStrike * Math.exp((-interest) * time) * NORMAL.getCDF(sign * d2));
-  }
-
-  private double delta(final double spot, final double strike, final double payoffStrike, final double time, final double vol, final double interest, final double cost, final boolean isCall) {
-    final double d1 = (Math.log(spot / strike) + (cost + 0.5 * vol * vol) * time) / vol / Math.sqrt(time);
-    final double sign = isCall ? 1. : -1.;
-    return Math.exp((cost - interest) * time) * (sign * NORMAL.getCDF(sign * d1) + NORMAL.getPDF(d1) * (1. - payoffStrike / strike) / vol / Math.sqrt(time));
-  }
-
-  private double gamma(final double spot, final double strike, final double payoffStrike, final double time, final double vol, final double interest, final double cost, final boolean isCall) {
-    final double d1 = (Math.log(spot / strike) + (cost + 0.5 * vol * vol) * time) / vol / Math.sqrt(time);
-    return Math.exp((cost - interest) * time) * NORMAL.getPDF(d1) * (1. - (1. - payoffStrike / strike) * d1 / vol / Math.sqrt(time)) / spot / vol / Math.sqrt(time);
-  }
-
-  private double theta(final double spot, final double strike, final double payoffStrike, final double time, final double vol, final double interest, final double cost, final boolean isCall) {
-    final double d1 = (Math.log(spot / strike) + (cost + 0.5 * vol * vol) * time) / vol / Math.sqrt(time);
-    final double d2 = d1 - vol * Math.sqrt(time);
-    final double sign = isCall ? 1. : -1.;
-
-    final double firstTerm = sign *
-        (spot * (cost - interest) * Math.exp((cost - interest) * time) * NORMAL.getCDF(sign * d1) + interest * payoffStrike * Math.exp(-interest * time) * NORMAL.getCDF(sign * d2));
-    final double secondTerm = spot * Math.exp((cost - interest) * time) * NORMAL.getPDF(d1) *
-        (0.5 * (1. - payoffStrike / strike) * (-Math.log(spot / strike) / vol / Math.pow(time, 1.5) + cost / vol / Math.sqrt(time)) + 0.25 * (1. + payoffStrike / strike) * vol / Math.sqrt(time));
-    return -firstTerm - secondTerm;
-  }
-
-  //  /**
-  //   * 
-  //   */
-  //  @Test
-  //  public void functionTest() {
-  //    final boolean[] tfSet = new boolean[] {true, false };
-  //    final double eps = 1.e-6;
-  //    for (final boolean isCall : tfSet) {
-  //      for (final double strike : STRIKES) {
-  //        for (final double interest : INTERESTS) {
-  //          for (final double vol : VOLS) {
-  //            for (final double dividend : DIVIDENDS) {
-  //              for (final double payoffStrike : PAYOFF_STRIKES) {
-  //                final double delta = delta(SPOT, strike, payoffStrike, TIME, vol, interest, interest - dividend, isCall);
-  //                final double gamma = gamma(SPOT, strike, payoffStrike, TIME, vol, interest, interest - dividend, isCall);
-  //                final double theta = theta(SPOT, strike, payoffStrike, TIME, vol, interest, interest - dividend, isCall);
-  //                final double upSpot = price(SPOT + eps, strike, payoffStrike, TIME, vol, interest, interest - dividend, isCall);
-  //                final double downSpot = price(SPOT - eps, strike, payoffStrike, TIME, vol, interest, interest - dividend, isCall);
-  //                final double upSpotDelta = delta(SPOT + eps, strike, payoffStrike, TIME, vol, interest, interest - dividend, isCall);
-  //                final double downSpotDelta = delta(SPOT - eps, strike, payoffStrike, TIME, vol, interest, interest - dividend, isCall);
-  //                final double upTime = price(SPOT, strike, payoffStrike, TIME + eps, vol, interest, interest - dividend, isCall);
-  //                final double downTime = price(SPOT, strike, payoffStrike, TIME - eps, vol, interest, interest - dividend, isCall);
-  //                assertEquals(delta, 0.5 * (upSpot - downSpot) / eps, eps);
-  //                assertEquals(gamma, 0.5 * (upSpotDelta - downSpotDelta) / eps, eps);
-  //                assertEquals(theta, -0.5 * (upTime - downTime) / eps, eps);
-  //              }
-  //            }
-  //          }
-  //        }
-  //      }
-  //    }
-  //  }
+  private static final double[] DIVIDENDS = new double[] {0.005, 0.014 };
 
   /**
    * 
@@ -314,12 +251,12 @@ public class GapOptionFunctionProviderTest {
           final double volRef = Math.sqrt(constC * constC + 0.5 * constD * constD + 2. * constC * constD / time * (1. - Math.cos(time)) - constD * constD * 0.25 / time * Math.sin(2. * time));
           for (final double payoffStrike : PAYOFF_STRIKES) {
 
-            final OptionFunctionProvider1D functionVanilla = new GapOptionFunctionProvider(strike, steps, isCall, payoffStrike);
-            final double resPrice = _model.getPrice(functionVanilla, SPOT, time, vol, rate, dividend);
-            final GreekResultCollection resGreeks = _model.getGreeks(functionVanilla, SPOT, time, vol, rate, dividend);
+            final OptionFunctionProvider1D function = new GapOptionFunctionProvider(strike, steps, isCall, payoffStrike);
+            final double resPrice = _model.getPrice(function, SPOT, time, vol, rate, dividend);
+            final GreekResultCollection resGreeks = _model.getGreeks(function, SPOT, time, vol, rate, dividend);
 
-            final double resPriceConst = _model.getPrice(lattice1, functionVanilla, SPOT, time, volRef, rateRef, dividend[0]);
-            final GreekResultCollection resGreeksConst = _model.getGreeks(lattice1, functionVanilla, SPOT, time, volRef, rateRef, dividend[0]);
+            final double resPriceConst = _model.getPrice(lattice1, function, SPOT, time, volRef, rateRef, dividend[0]);
+            final GreekResultCollection resGreeksConst = _model.getGreeks(lattice1, function, SPOT, time, volRef, rateRef, dividend[0]);
             assertEquals(resPrice, resPriceConst, Math.max(Math.abs(resPriceConst), 1.) * 1.e-1);
             assertEquals(resGreeks.get(Greek.FAIR_PRICE), resGreeksConst.get(Greek.FAIR_PRICE), Math.max(Math.abs(resGreeksConst.get(Greek.FAIR_PRICE)), 1.) * 0.1);
             assertEquals(resGreeks.get(Greek.DELTA), resGreeksConst.get(Greek.DELTA), Math.max(Math.abs(resGreeksConst.get(Greek.DELTA)), 1.) * 0.1);
@@ -330,4 +267,84 @@ public class GapOptionFunctionProviderTest {
       }
     }
   }
+
+  /**
+   * 
+   */
+  @Test
+  public void getStrikePayoffTest() {
+    final GapOptionFunctionProvider function = new GapOptionFunctionProvider(103., 1003, true, 105.5);
+    assertEquals(function.getStrikePayoff(), 105.5);
+  }
+
+  /**
+   * 
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  void negativePayoffTest() {
+    new GapOptionFunctionProvider(103., 1003, true, -105.5);
+  }
+
+  private double price(final double spot, final double strike, final double payoffStrike, final double time, final double vol, final double interest, final double cost, final boolean isCall) {
+    final double d1 = (Math.log(spot / strike) + (cost + 0.5 * vol * vol) * time) / vol / Math.sqrt(time);
+    final double d2 = d1 - vol * Math.sqrt(time);
+    final double sign = isCall ? 1. : -1.;
+    return sign * (spot * Math.exp((cost - interest) * time) * NORMAL.getCDF(sign * d1) - payoffStrike * Math.exp((-interest) * time) * NORMAL.getCDF(sign * d2));
+  }
+
+  private double delta(final double spot, final double strike, final double payoffStrike, final double time, final double vol, final double interest, final double cost, final boolean isCall) {
+    final double d1 = (Math.log(spot / strike) + (cost + 0.5 * vol * vol) * time) / vol / Math.sqrt(time);
+    final double sign = isCall ? 1. : -1.;
+    return Math.exp((cost - interest) * time) * (sign * NORMAL.getCDF(sign * d1) + NORMAL.getPDF(d1) * (1. - payoffStrike / strike) / vol / Math.sqrt(time));
+  }
+
+  private double gamma(final double spot, final double strike, final double payoffStrike, final double time, final double vol, final double interest, final double cost, final boolean isCall) {
+    final double d1 = (Math.log(spot / strike) + (cost + 0.5 * vol * vol) * time) / vol / Math.sqrt(time);
+    return Math.exp((cost - interest) * time) * NORMAL.getPDF(d1) * (1. - (1. - payoffStrike / strike) * d1 / vol / Math.sqrt(time)) / spot / vol / Math.sqrt(time);
+  }
+
+  private double theta(final double spot, final double strike, final double payoffStrike, final double time, final double vol, final double interest, final double cost, final boolean isCall) {
+    final double d1 = (Math.log(spot / strike) + (cost + 0.5 * vol * vol) * time) / vol / Math.sqrt(time);
+    final double d2 = d1 - vol * Math.sqrt(time);
+    final double sign = isCall ? 1. : -1.;
+
+    final double firstTerm = sign *
+        (spot * (cost - interest) * Math.exp((cost - interest) * time) * NORMAL.getCDF(sign * d1) + interest * payoffStrike * Math.exp(-interest * time) * NORMAL.getCDF(sign * d2));
+    final double secondTerm = spot * Math.exp((cost - interest) * time) * NORMAL.getPDF(d1) *
+        (0.5 * (1. - payoffStrike / strike) * (-Math.log(spot / strike) / vol / Math.pow(time, 1.5) + cost / vol / Math.sqrt(time)) + 0.25 * (1. + payoffStrike / strike) * vol / Math.sqrt(time));
+    return -firstTerm - secondTerm;
+  }
+
+  //  /**
+  //   * 
+  //   */
+  //  @Test
+  //  public void functionTest() {
+  //    final boolean[] tfSet = new boolean[] {true, false };
+  //    final double eps = 1.e-6;
+  //    for (final boolean isCall : tfSet) {
+  //      for (final double strike : STRIKES) {
+  //        for (final double interest : INTERESTS) {
+  //          for (final double vol : VOLS) {
+  //            for (final double dividend : DIVIDENDS) {
+  //              for (final double payoffStrike : PAYOFF_STRIKES) {
+  //                final double delta = delta(SPOT, strike, payoffStrike, TIME, vol, interest, interest - dividend, isCall);
+  //                final double gamma = gamma(SPOT, strike, payoffStrike, TIME, vol, interest, interest - dividend, isCall);
+  //                final double theta = theta(SPOT, strike, payoffStrike, TIME, vol, interest, interest - dividend, isCall);
+  //                final double upSpot = price(SPOT + eps, strike, payoffStrike, TIME, vol, interest, interest - dividend, isCall);
+  //                final double downSpot = price(SPOT - eps, strike, payoffStrike, TIME, vol, interest, interest - dividend, isCall);
+  //                final double upSpotDelta = delta(SPOT + eps, strike, payoffStrike, TIME, vol, interest, interest - dividend, isCall);
+  //                final double downSpotDelta = delta(SPOT - eps, strike, payoffStrike, TIME, vol, interest, interest - dividend, isCall);
+  //                final double upTime = price(SPOT, strike, payoffStrike, TIME + eps, vol, interest, interest - dividend, isCall);
+  //                final double downTime = price(SPOT, strike, payoffStrike, TIME - eps, vol, interest, interest - dividend, isCall);
+  //                assertEquals(delta, 0.5 * (upSpot - downSpot) / eps, eps);
+  //                assertEquals(gamma, 0.5 * (upSpotDelta - downSpotDelta) / eps, eps);
+  //                assertEquals(theta, -0.5 * (upTime - downTime) / eps, eps);
+  //              }
+  //            }
+  //          }
+  //        }
+  //      }
+  //    }
+  //  }
 }

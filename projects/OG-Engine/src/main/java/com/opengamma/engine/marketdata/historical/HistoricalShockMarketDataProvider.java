@@ -86,7 +86,7 @@ public class HistoricalShockMarketDataProvider extends AbstractMarketDataProvide
 
   @Override
   public MarketDataAvailabilityProvider getAvailabilityProvider(MarketDataSpecification marketDataSpec) {
-    return new AvailabilityProvider(marketDataSpec);
+    return new AvailabilityProvider((HistoricalShockMarketDataSpecification) marketDataSpec);
   }
 
   @Override
@@ -152,9 +152,9 @@ public class HistoricalShockMarketDataProvider extends AbstractMarketDataProvide
 
   private final class AvailabilityProvider implements MarketDataAvailabilityProvider {
 
-    private final MarketDataSpecification _marketDataSpec;
+    private final HistoricalShockMarketDataSpecification _marketDataSpec;
 
-    private AvailabilityProvider(MarketDataSpecification marketDataSpec) {
+    private AvailabilityProvider(HistoricalShockMarketDataSpecification marketDataSpec) {
       ArgumentChecker.notNull(marketDataSpec, "marketDataSpecification");
       _marketDataSpec = marketDataSpec;
     }
@@ -164,11 +164,11 @@ public class HistoricalShockMarketDataProvider extends AbstractMarketDataProvide
                                               Object target,
                                               ValueRequirement desiredValue) throws MarketDataNotSatisfiableException {
       ValueSpecification spec1 =
-          _historicalProvider1.getAvailabilityProvider(_marketDataSpec).getAvailability(targetSpec, target, desiredValue);
+          _historicalProvider1.getAvailabilityProvider(_marketDataSpec.getHistoricalSpecification1()).getAvailability(targetSpec, target, desiredValue);
       ValueSpecification spec2 =
-          _historicalProvider2.getAvailabilityProvider(_marketDataSpec).getAvailability(targetSpec, target, desiredValue);
+          _historicalProvider2.getAvailabilityProvider(_marketDataSpec.getHistoricalSpecification2()).getAvailability(targetSpec, target, desiredValue);
       ValueSpecification spec3 =
-          _baseProvider.getAvailabilityProvider(_marketDataSpec).getAvailability(targetSpec, target, desiredValue);
+          _baseProvider.getAvailabilityProvider(_marketDataSpec.getBaseSpecification()).getAvailability(targetSpec, target, desiredValue);
       if (Objects.equals(spec1, spec2) && Objects.equals(spec2, spec3)) {
         return spec1;
       } else {
@@ -183,9 +183,9 @@ public class HistoricalShockMarketDataProvider extends AbstractMarketDataProvide
 
     @Override
     public Serializable getAvailabilityHintKey() {
-      return Triple.of(_historicalProvider1.getAvailabilityProvider(_marketDataSpec).getAvailabilityHintKey(),
-                       _historicalProvider1.getAvailabilityProvider(_marketDataSpec).getAvailabilityHintKey(),
-                       _baseProvider.getAvailabilityProvider(_marketDataSpec).getAvailabilityHintKey());
+      return Triple.of(_historicalProvider1.getAvailabilityProvider(_marketDataSpec.getHistoricalSpecification1()).getAvailabilityHintKey(),
+                       _historicalProvider2.getAvailabilityProvider(_marketDataSpec.getHistoricalSpecification2()).getAvailabilityHintKey(),
+                       _baseProvider.getAvailabilityProvider(_marketDataSpec.getBaseSpecification()).getAvailabilityHintKey());
     }
   }
 

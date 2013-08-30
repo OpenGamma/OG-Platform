@@ -17,6 +17,8 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class HistoricalShockMarketDataSpecification extends MarketDataSpecification implements Serializable {
 
+  private static final long serialVersionUID = 1L;
+  
   private final HistoricalShockMarketDataSnapshot.ShockType _shockType;
   private final MarketDataSpecification _historicalSpec1;
   private final MarketDataSpecification _historicalSpec2;
@@ -62,4 +64,34 @@ public class HistoricalShockMarketDataSpecification extends MarketDataSpecificat
   public HistoricalShockMarketDataSnapshot.ShockType getShockType() {
     return _shockType;
   }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result + _baseSpec.hashCode();
+    result = prime * result + _historicalSpec1.hashCode();
+    result = prime * result + _historicalSpec2.hashCode();
+    result = prime * result + _shockType.hashCode();
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    HistoricalShockMarketDataSpecification other = (HistoricalShockMarketDataSpecification) obj;
+    return _baseSpec.equals(other._baseSpec)
+        && _historicalSpec1.equals(other._historicalSpec1)
+        && _historicalSpec2.equals(other._historicalSpec2)
+        && _shockType != other._shockType;
+  }
+  
 }

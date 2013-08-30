@@ -6,31 +6,27 @@
 package com.opengamma.analytics.financial.model.option.pricing.tree;
 
 /**
- * 
+ * Log option pays Max( log(S/K), 0 ) at maturity
  */
-public class EuropeanSingleBarrierOptionFunctionProvider extends BarrierOptionFunctionProvider {
+public class LogOptionFunctionProvider extends OptionFunctionProvider1D {
 
   /**
-   * @param strike Strike price
+   * @param strike The strike
    * @param steps Number of steps
-   * @param isCall True if call, false if put
-   * @param barrier Barrier price
-   * @param typeName {@link BarrierTypes}, DownAndOut or UpAndOut
    */
-  public EuropeanSingleBarrierOptionFunctionProvider(final double strike, final int steps, final boolean isCall, final double barrier, final BarrierTypes typeName) {
-    super(strike, steps, isCall, barrier, typeName);
+  public LogOptionFunctionProvider(final double strike, final int steps) {
+    super(strike, steps, true);
   }
 
   @Override
   public double[] getPayoffAtExpiry(final double assetPrice, final double upOverDown) {
     final double strike = getStrike();
     final int nStepsP = getNumberOfSteps() + 1;
-    final double sign = getSign();
 
     final double[] values = new double[nStepsP];
     double priceTmp = assetPrice;
     for (int i = 0; i < nStepsP; ++i) {
-      values[i] = getChecker().checkOut(priceTmp) ? 0. : Math.max(sign * (priceTmp - strike), 0.);
+      values[i] = Math.max(Math.log(priceTmp / strike), 0.);
       priceTmp *= upOverDown;
     }
     return values;
@@ -42,11 +38,14 @@ public class EuropeanSingleBarrierOptionFunctionProvider extends BarrierOptionFu
     final int nStepsP = steps + 1;
 
     final double[] res = new double[nStepsP];
-    double assetPrice = baseAssetPrice * Math.pow(downFactor, steps);
     for (int j = 0; j < nStepsP; ++j) {
-      res[j] = getChecker().checkOut(assetPrice + sumCashDiv) ? 0. : discount * (upProbability * values[j + 1] + downProbability * values[j]);
-      assetPrice *= upOverDown;
+      res[j] = discount * (upProbability * values[j + 1] + downProbability * values[j]);
     }
     return res;
+  }
+
+  @Override
+  public double getSign() {
+    throw new IllegalArgumentException("Call/put is not relevant");
   }
 }

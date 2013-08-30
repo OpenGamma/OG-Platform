@@ -30,7 +30,7 @@ public class AmericanSingleBarrierOptionFunctionProvider extends BarrierOptionFu
     final double[] values = new double[nStepsP];
     double priceTmp = assetPrice;
     for (int i = 0; i < nStepsP; ++i) {
-      values[i] = getChecker().checkOut(priceTmp) ? 0. : Math.max(sign * (priceTmp - strike), 0);
+      values[i] = getChecker().checkOut(priceTmp) ? 0. : Math.max(sign * (priceTmp - strike), 0.);
       priceTmp *= upOverDown;
     }
     return values;

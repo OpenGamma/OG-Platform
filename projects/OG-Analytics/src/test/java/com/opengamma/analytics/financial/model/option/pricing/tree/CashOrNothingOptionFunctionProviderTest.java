@@ -25,65 +25,9 @@ public class CashOrNothingOptionFunctionProviderTest {
   private static final double SPOT = 105.;
   private static final double[] STRIKES = new double[] {97., 105., 105.1, 114. };
   private static final double TIME = 4.2;
-  private static final double[] INTERESTS = new double[] {-0.01, 0., 0.017, 0.05 };
+  private static final double[] INTERESTS = new double[] {-0.01, 0.017, 0.05 };
   private static final double[] VOLS = new double[] {0.05, 0.1, 0.5 };
-  private static final double[] DIVIDENDS = new double[] {0., 0.005, 0.014 };
-
-  private double price(final double spot, final double strike, final double time, final double vol, final double interest, final double cost, final boolean isCall) {
-    final double d = (Math.log(spot / strike) + (cost - 0.5 * vol * vol) * time) / vol / Math.sqrt(time);
-    final double sign = isCall ? 1. : -1.;
-    return strike * Math.exp((-interest) * time) * NORMAL.getCDF(sign * d);
-  }
-
-  private double delta(final double spot, final double strike, final double time, final double vol, final double interest, final double cost, final boolean isCall) {
-    final double d = (Math.log(spot / strike) + (cost - 0.5 * vol * vol) * time) / vol / Math.sqrt(time);
-    final double sign = isCall ? 1. : -1.;
-    return strike * Math.exp((-interest) * time) * (sign * NORMAL.getPDF(d) / spot / vol / Math.sqrt(time));
-  }
-
-  private double gamma(final double spot, final double strike, final double time, final double vol, final double interest, final double cost, final boolean isCall) {
-    final double d = (Math.log(spot / strike) + (cost - 0.5 * vol * vol) * time) / vol / Math.sqrt(time);
-    final double sign = isCall ? 1. : -1.;
-    return -sign * (Math.exp((-interest) * time) * strike * NORMAL.getPDF(d) * (1. + d / vol / Math.sqrt(time)) / spot / spot / vol / Math.sqrt(time));
-  }
-
-  private double theta(final double spot, final double strike, final double time, final double vol, final double interest, final double cost, final boolean isCall) {
-    final double d = (Math.log(spot / strike) + (cost - 0.5 * vol * vol) * time) / vol / Math.sqrt(time);
-    final double sign = isCall ? 1. : -1.;
-    final double div = 0.5 * (-Math.log(spot / strike) / Math.pow(time, 1.5) + (cost - 0.5 * vol * vol) / Math.pow(time, 0.5)) / vol;
-    return -strike * (-interest) * Math.exp((-interest) * time) * NORMAL.getCDF(sign * d) - sign * strike * Math.exp((-interest) * time) * NORMAL.getPDF(d) * div;
-  }
-
-  //  /**
-  //   * 
-  //   */
-  //  @Test
-  //  public void functionTest() {
-  //    final boolean[] tfSet = new boolean[] {true, false };
-  //    final double eps = 1.e-6;
-  //    for (final boolean isCall : tfSet) {
-  //      for (final double strike : STRIKES) {
-  //        for (final double interest : INTERESTS) {
-  //          for (final double vol : VOLS) {
-  //            for (final double dividend : DIVIDENDS) {
-  //              final double delta = delta(SPOT, strike, TIME, vol, interest, interest - dividend, isCall);
-  //              final double gamma = gamma(SPOT, strike, TIME, vol, interest, interest - dividend, isCall);
-  //              final double theta = theta(SPOT, strike, TIME, vol, interest, interest - dividend, isCall);
-  //              final double upSpot = price(SPOT + eps, strike, TIME, vol, interest, interest - dividend, isCall);
-  //              final double downSpot = price(SPOT - eps, strike, TIME, vol, interest, interest - dividend, isCall);
-  //              final double upSpotDelta = delta(SPOT + eps, strike, TIME, vol, interest, interest - dividend, isCall);
-  //              final double downSpotDelta = delta(SPOT - eps, strike, TIME, vol, interest, interest - dividend, isCall);
-  //              final double upTime = price(SPOT, strike, TIME + eps, vol, interest, interest - dividend, isCall);
-  //              final double downTime = price(SPOT, strike, TIME - eps, vol, interest, interest - dividend, isCall);
-  //              assertEquals(delta, 0.5 * (upSpot - downSpot) / eps, eps);
-  //              assertEquals(gamma, 0.5 * (upSpotDelta - downSpotDelta) / eps, eps);
-  //              assertEquals(theta, -0.5 * (upTime - downTime) / eps, eps);
-  //            }
-  //          }
-  //        }
-  //      }
-  //    }
-  //  }
+  private static final double[] DIVIDENDS = new double[] {0.005, 0.014 };
 
   /**
    * 
@@ -229,7 +173,7 @@ public class CashOrNothingOptionFunctionProviderTest {
       for (final double strike : STRIKES) {
         for (final double interest : INTERESTS) {
           for (final double vol : VOLS) {
-            final int nSteps = 1781;
+            final int nSteps = 631;
             for (final double dividend : DIVIDENDS) {
               final OptionFunctionProvider1D function = new CashOrNothingOptionFunctionProvider(strike, nSteps, isCall);
               final GreekResultCollection resDiv = _model.getGreeks(lattice, function, SPOT, TIME, vol, interest, dividend);
@@ -237,10 +181,10 @@ public class CashOrNothingOptionFunctionProviderTest {
               final double refPriceDiv = Math.max(Math.abs(priceDiv), 1.) * 1.e-6;
               assertEquals(resDiv.get(Greek.FAIR_PRICE), priceDiv, refPriceDiv);
               final double deltaDiv = delta(SPOT, strike, TIME, vol, interest, interest - dividend, isCall);
-              final double refDeltaDiv = Math.max(Math.abs(deltaDiv), 1.) * 1.e-3;
+              final double refDeltaDiv = Math.max(Math.abs(deltaDiv), 1.) * 1.e-2;
               assertEquals(resDiv.get(Greek.DELTA), deltaDiv, refDeltaDiv);
               final double gammaDiv = gamma(SPOT, strike, TIME, vol, interest, interest - dividend, isCall);
-              final double refGammaDiv = Math.max(Math.abs(gammaDiv), 1.) * 1.e-3;
+              final double refGammaDiv = Math.max(Math.abs(gammaDiv), 1.) * 1.e-2;
               assertEquals(resDiv.get(Greek.GAMMA), gammaDiv, refGammaDiv);
               final double thetaDiv = theta(SPOT, strike, TIME, vol, interest, interest - dividend, isCall);
               final double refThetaDiv = Math.max(Math.abs(thetaDiv), 1.) * 1.e-2;
@@ -340,12 +284,12 @@ public class CashOrNothingOptionFunctionProviderTest {
           final double rateRef = constA + 0.5 * constB * time;
           final double volRef = Math.sqrt(constC * constC + 0.5 * constD * constD + 2. * constC * constD / time * (1. - Math.cos(time)) - constD * constD * 0.25 / time * Math.sin(2. * time));
 
-          final OptionFunctionProvider1D functionVanilla = new CashOrNothingOptionFunctionProvider(strike, steps, isCall);
-          final double resPrice = _model.getPrice(functionVanilla, SPOT, time, vol, rate, dividend);
-          final GreekResultCollection resGreeks = _model.getGreeks(functionVanilla, SPOT, time, vol, rate, dividend);
+          final OptionFunctionProvider1D function = new CashOrNothingOptionFunctionProvider(strike, steps, isCall);
+          final double resPrice = _model.getPrice(function, SPOT, time, vol, rate, dividend);
+          final GreekResultCollection resGreeks = _model.getGreeks(function, SPOT, time, vol, rate, dividend);
 
-          final double resPriceConst = _model.getPrice(lattice1, functionVanilla, SPOT, time, volRef, rateRef, dividend[0]);
-          final GreekResultCollection resGreeksConst = _model.getGreeks(lattice1, functionVanilla, SPOT, time, volRef, rateRef, dividend[0]);
+          final double resPriceConst = _model.getPrice(lattice1, function, SPOT, time, volRef, rateRef, dividend[0]);
+          final GreekResultCollection resGreeksConst = _model.getGreeks(lattice1, function, SPOT, time, volRef, rateRef, dividend[0]);
           assertEquals(resPrice, resPriceConst, Math.abs(resPriceConst) * 1.e-1);
           assertEquals(resGreeks.get(Greek.FAIR_PRICE), resGreeksConst.get(Greek.FAIR_PRICE), Math.max(Math.abs(resGreeksConst.get(Greek.FAIR_PRICE)), 0.1) * 0.1);
           assertEquals(resGreeks.get(Greek.DELTA), resGreeksConst.get(Greek.DELTA), Math.max(Math.abs(resGreeksConst.get(Greek.DELTA)), 0.1) * 0.1);
@@ -356,4 +300,59 @@ public class CashOrNothingOptionFunctionProviderTest {
     }
   }
 
+  private double price(final double spot, final double strike, final double time, final double vol, final double interest, final double cost, final boolean isCall) {
+    final double d = (Math.log(spot / strike) + (cost - 0.5 * vol * vol) * time) / vol / Math.sqrt(time);
+    final double sign = isCall ? 1. : -1.;
+    return strike * Math.exp((-interest) * time) * NORMAL.getCDF(sign * d);
+  }
+
+  private double delta(final double spot, final double strike, final double time, final double vol, final double interest, final double cost, final boolean isCall) {
+    final double d = (Math.log(spot / strike) + (cost - 0.5 * vol * vol) * time) / vol / Math.sqrt(time);
+    final double sign = isCall ? 1. : -1.;
+    return strike * Math.exp((-interest) * time) * (sign * NORMAL.getPDF(d) / spot / vol / Math.sqrt(time));
+  }
+
+  private double gamma(final double spot, final double strike, final double time, final double vol, final double interest, final double cost, final boolean isCall) {
+    final double d = (Math.log(spot / strike) + (cost - 0.5 * vol * vol) * time) / vol / Math.sqrt(time);
+    final double sign = isCall ? 1. : -1.;
+    return -sign * (Math.exp((-interest) * time) * strike * NORMAL.getPDF(d) * (1. + d / vol / Math.sqrt(time)) / spot / spot / vol / Math.sqrt(time));
+  }
+
+  private double theta(final double spot, final double strike, final double time, final double vol, final double interest, final double cost, final boolean isCall) {
+    final double d = (Math.log(spot / strike) + (cost - 0.5 * vol * vol) * time) / vol / Math.sqrt(time);
+    final double sign = isCall ? 1. : -1.;
+    final double div = 0.5 * (-Math.log(spot / strike) / Math.pow(time, 1.5) + (cost - 0.5 * vol * vol) / Math.pow(time, 0.5)) / vol;
+    return -strike * (-interest) * Math.exp((-interest) * time) * NORMAL.getCDF(sign * d) - sign * strike * Math.exp((-interest) * time) * NORMAL.getPDF(d) * div;
+  }
+
+  //  /**
+  //   * 
+  //   */
+  //  @Test
+  //  public void functionTest() {
+  //    final boolean[] tfSet = new boolean[] {true, false };
+  //    final double eps = 1.e-6;
+  //    for (final boolean isCall : tfSet) {
+  //      for (final double strike : STRIKES) {
+  //        for (final double interest : INTERESTS) {
+  //          for (final double vol : VOLS) {
+  //            for (final double dividend : DIVIDENDS) {
+  //              final double delta = delta(SPOT, strike, TIME, vol, interest, interest - dividend, isCall);
+  //              final double gamma = gamma(SPOT, strike, TIME, vol, interest, interest - dividend, isCall);
+  //              final double theta = theta(SPOT, strike, TIME, vol, interest, interest - dividend, isCall);
+  //              final double upSpot = price(SPOT + eps, strike, TIME, vol, interest, interest - dividend, isCall);
+  //              final double downSpot = price(SPOT - eps, strike, TIME, vol, interest, interest - dividend, isCall);
+  //              final double upSpotDelta = delta(SPOT + eps, strike, TIME, vol, interest, interest - dividend, isCall);
+  //              final double downSpotDelta = delta(SPOT - eps, strike, TIME, vol, interest, interest - dividend, isCall);
+  //              final double upTime = price(SPOT, strike, TIME + eps, vol, interest, interest - dividend, isCall);
+  //              final double downTime = price(SPOT, strike, TIME - eps, vol, interest, interest - dividend, isCall);
+  //              assertEquals(delta, 0.5 * (upSpot - downSpot) / eps, eps);
+  //              assertEquals(gamma, 0.5 * (upSpotDelta - downSpotDelta) / eps, eps);
+  //              assertEquals(theta, -0.5 * (upTime - downTime) / eps, eps);
+  //            }
+  //          }
+  //        }
+  //      }
+  //    }
+  //  }
 }

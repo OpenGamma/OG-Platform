@@ -5,30 +5,38 @@
  */
 package com.opengamma.analytics.financial.model.option.pricing.tree;
 
+import com.google.common.primitives.Doubles;
+import com.opengamma.util.ArgumentChecker;
+
 /**
- * 
+ * Supershare option pays S/KL if KL <= S < KH at expiry. 
  */
-public class EuropeanVanillaOptionFunctionProvider extends OptionFunctionProvider1D {
+public class SupershareOptionFunctionProvider extends OptionFunctionProvider1D {
+
+  private double _upperBound;
 
   /**
-   * @param strike Strike price
+   * @param lowerBound Lower bound, KL
+   * @param upperBound Upper bound, KH
    * @param steps Number of steps
-   * @param isCall True if call, false if put
    */
-  public EuropeanVanillaOptionFunctionProvider(final double strike, final int steps, final boolean isCall) {
-    super(strike, steps, isCall);
+  public SupershareOptionFunctionProvider(final double lowerBound, final double upperBound, final int steps) {
+    super(lowerBound, steps, true);
+    ArgumentChecker.isTrue(upperBound > 0., "upperBound should be positive");
+    ArgumentChecker.isTrue(Doubles.isFinite(upperBound), "upperBound should be finite");
+    ArgumentChecker.isTrue(upperBound > lowerBound, "upperBound should be larger than lowerBound");
+    _upperBound = upperBound;
   }
 
   @Override
   public double[] getPayoffAtExpiry(final double assetPrice, final double upOverDown) {
-    final double strike = getStrike();
+    final double lowerBound = getStrike();
     final int nStepsP = getNumberOfSteps() + 1;
-    final double sign = getSign();
 
     final double[] values = new double[nStepsP];
     double priceTmp = assetPrice;
     for (int i = 0; i < nStepsP; ++i) {
-      values[i] = Math.max(sign * (priceTmp - strike), 0.);
+      values[i] = priceTmp >= lowerBound && priceTmp < _upperBound ? priceTmp / lowerBound : 0.;
       priceTmp *= upOverDown;
     }
     return values;
@@ -44,5 +52,10 @@ public class EuropeanVanillaOptionFunctionProvider extends OptionFunctionProvide
       res[j] = discount * (upProbability * values[j + 1] + downProbability * values[j]);
     }
     return res;
+  }
+
+  @Override
+  public double getSign() {
+    throw new IllegalArgumentException("Call/put is not relevant");
   }
 }

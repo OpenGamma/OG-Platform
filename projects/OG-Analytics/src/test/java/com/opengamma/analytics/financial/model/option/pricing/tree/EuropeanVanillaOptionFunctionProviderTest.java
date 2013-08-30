@@ -22,10 +22,10 @@ public class EuropeanVanillaOptionFunctionProviderTest {
   private static final double SPOT = 105.;
   private static final double[] STRIKES = new double[] {81., 97., 105., 105.1, 114., 138. };
   private static final double TIME = 4.2;
-  private static final double[] INTERESTS = new double[] {-0.01, 0., 0.001, 0.005, 0.01 };
+  private static final double[] INTERESTS = new double[] {-0.01, 0.001, 0.005, 0.01 };
   private static final double[] VOLS = new double[] {0.05, 0.1, 0.5 };
 
-  private static final double[] DIVIDENDS = new double[] {0., 0.005, 0.02 };
+  private static final double[] DIVIDENDS = new double[] {0.005, 0.02 };
 
   /**
    * 
@@ -276,5 +276,21 @@ public class EuropeanVanillaOptionFunctionProviderTest {
         }
       }
     }
+  }
+
+  /**
+   * 
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void negativeStrikeTest() {
+    new EuropeanVanillaOptionFunctionProvider(-100., 53, true);
+  }
+
+  /**
+   * 
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void smallNumberOfStepsTest() {
+    new EuropeanVanillaOptionFunctionProvider(100., 2, true);
   }
 }

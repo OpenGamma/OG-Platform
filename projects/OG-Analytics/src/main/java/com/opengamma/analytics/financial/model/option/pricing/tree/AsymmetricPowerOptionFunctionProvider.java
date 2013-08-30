@@ -5,20 +5,27 @@
  */
 package com.opengamma.analytics.financial.model.option.pricing.tree;
 
+import com.google.common.primitives.Doubles;
+import com.opengamma.util.ArgumentChecker;
+
 /**
- * 
+ * Payoff of asymmetric power option is max( S^i - K , 0 ) for call and max( K - S^i , 0 ) for put with i > 0
  */
-public class EuropeanSingleBarrierOptionFunctionProvider extends BarrierOptionFunctionProvider {
+public class AsymmetricPowerOptionFunctionProvider extends OptionFunctionProvider1D {
+
+  private double _power;
 
   /**
-   * @param strike Strike price
+   * @param strike Strike price, K
    * @param steps Number of steps
    * @param isCall True if call, false if put
-   * @param barrier Barrier price
-   * @param typeName {@link BarrierTypes}, DownAndOut or UpAndOut
+   * @param power Power, i
    */
-  public EuropeanSingleBarrierOptionFunctionProvider(final double strike, final int steps, final boolean isCall, final double barrier, final BarrierTypes typeName) {
-    super(strike, steps, isCall, barrier, typeName);
+  public AsymmetricPowerOptionFunctionProvider(final double strike, final int steps, final boolean isCall, final double power) {
+    super(strike, steps, isCall);
+    ArgumentChecker.isTrue(power > 0., "power should be positive");
+    ArgumentChecker.isTrue(Doubles.isFinite(power), "power should be finite");
+    _power = power;
   }
 
   @Override
@@ -30,7 +37,7 @@ public class EuropeanSingleBarrierOptionFunctionProvider extends BarrierOptionFu
     final double[] values = new double[nStepsP];
     double priceTmp = assetPrice;
     for (int i = 0; i < nStepsP; ++i) {
-      values[i] = getChecker().checkOut(priceTmp) ? 0. : Math.max(sign * (priceTmp - strike), 0.);
+      values[i] = Math.max(sign * (Math.pow(priceTmp, _power) - strike), 0.);
       priceTmp *= upOverDown;
     }
     return values;
@@ -42,11 +49,17 @@ public class EuropeanSingleBarrierOptionFunctionProvider extends BarrierOptionFu
     final int nStepsP = steps + 1;
 
     final double[] res = new double[nStepsP];
-    double assetPrice = baseAssetPrice * Math.pow(downFactor, steps);
     for (int j = 0; j < nStepsP; ++j) {
-      res[j] = getChecker().checkOut(assetPrice + sumCashDiv) ? 0. : discount * (upProbability * values[j + 1] + downProbability * values[j]);
-      assetPrice *= upOverDown;
+      res[j] = discount * (upProbability * values[j + 1] + downProbability * values[j]);
     }
     return res;
+  }
+
+  /**
+   * Access power
+   * @return _power
+   */
+  public double getPower() {
+    return _power;
   }
 }

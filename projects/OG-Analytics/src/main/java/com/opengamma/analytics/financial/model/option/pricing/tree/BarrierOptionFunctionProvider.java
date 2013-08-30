@@ -64,7 +64,7 @@ public abstract class BarrierOptionFunctionProvider extends OptionFunctionProvid
         break;
       case DownAndIn:
         throw new NotImplementedException();
-      case UpAndIn:
+      default: //i.e., UpAndIn
         throw new NotImplementedException();
     }
 
