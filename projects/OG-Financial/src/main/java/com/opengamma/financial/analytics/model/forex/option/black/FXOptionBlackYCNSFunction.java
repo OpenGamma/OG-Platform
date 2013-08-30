@@ -61,6 +61,7 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Calculates yield curve node sensitivities for FX options.
+ * 
  * @deprecated Use {@link BlackDiscountingYCNSFXOptionFunction}
  */
 @Deprecated
@@ -71,6 +72,11 @@ public class FXOptionBlackYCNSFunction extends FXOptionBlackSingleValuedFunction
 
   public FXOptionBlackYCNSFunction() {
     super(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
+  }
+
+  @Override
+  public void init(final FunctionCompilationContext context) {
+    ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
   }
 
   @Override

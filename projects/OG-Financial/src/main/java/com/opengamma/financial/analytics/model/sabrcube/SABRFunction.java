@@ -64,6 +64,7 @@ import com.opengamma.util.money.Currency;
 
 /**
  * Base class for functions that use a SABR model to price CMS, swaption, cap/floor and cap/floor CMS spread.
+ * 
  * @deprecated Use descendants of {@link SABRDiscountingFunction}
  */
 @Deprecated
@@ -95,6 +96,7 @@ public abstract class SABRFunction extends AbstractFunction.NonCompiledInvoker {
     _securityVisitor = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder().swapSecurityVisitor(swapConverter).swaptionVisitor(swaptionConverter).capFloorVisitor(capFloorVisitor)
         .capFloorCMSSpreadVisitor(capFloorCMSSpreadSecurityVisitor).create();
     _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
+    ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
   }
 
   @Override
@@ -194,12 +196,14 @@ public abstract class SABRFunction extends AbstractFunction.NonCompiledInvoker {
 
   /**
    * Gets the value requirement.
+   * 
    * @return The value requirement
    */
   protected abstract String getValueRequirement();
 
   /**
    * Gets the result.
+   * 
    * @param derivative The derivative
    * @param data The market data
    * @param desiredValue The desired value

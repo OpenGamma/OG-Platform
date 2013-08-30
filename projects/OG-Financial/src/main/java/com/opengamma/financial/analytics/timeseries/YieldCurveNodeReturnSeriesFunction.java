@@ -64,6 +64,11 @@ public class YieldCurveNodeReturnSeriesFunction extends AbstractFunction.NonComp
   private static final Calendar WEEKEND_CALENDAR = new MondayToFridayCalendar("Weekend");
 
   @Override
+  public void init(final FunctionCompilationContext context) {
+    ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
+  }
+
+  @Override
   public ComputationTargetType getTargetType() {
     // NOTE jonathan 2013-04-23 -- should be ComputationTargetType.NULL
     return ComputationTargetType.CURRENCY;

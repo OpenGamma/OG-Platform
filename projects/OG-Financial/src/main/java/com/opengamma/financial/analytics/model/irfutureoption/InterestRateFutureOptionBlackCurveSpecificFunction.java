@@ -83,6 +83,7 @@ public abstract class InterestRateFutureOptionBlackCurveSpecificFunction extends
     final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
     _converter = new InterestRateFutureOptionTradeConverter(new InterestRateFutureOptionSecurityConverter(holidaySource, conventionSource, regionSource, securitySource));
     _dataConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
+    ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
   }
 
   @Override

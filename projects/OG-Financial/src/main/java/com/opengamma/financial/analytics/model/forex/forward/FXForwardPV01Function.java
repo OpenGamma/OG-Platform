@@ -49,6 +49,7 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Calculates the PV01 of an FX forward
+ * 
  * @deprecated Use {@link DiscountingPV01Function}
  */
 @Deprecated
@@ -58,6 +59,11 @@ public class FXForwardPV01Function extends FXForwardSingleValuedFunction {
 
   public FXForwardPV01Function() {
     super(ValueRequirementNames.PV01);
+  }
+
+  @Override
+  public void init(final FunctionCompilationContext context) {
+    ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
   }
 
   @Override
@@ -113,7 +119,7 @@ public class FXForwardPV01Function extends FXForwardSingleValuedFunction {
     final Currency receiveCurrency = security.accept(ForexVisitors.getReceiveCurrencyVisitor());
     final String resultCurveConfigName;
     if (!(curveName.equals(payCurveName) || curveName.equals(receiveCurveName))) {
-      s_logger.info("Curve name {} did not match either pay curve name {} or receive curve name {}", new Object[] {curveName, payCurveName, receiveCurveName});
+      s_logger.info("Curve name {} did not match either pay curve name {} or receive curve name {}", new Object[] {curveName, payCurveName, receiveCurveName });
       return null;
     }
     if (currency.equals(payCurrency.getCode())) {

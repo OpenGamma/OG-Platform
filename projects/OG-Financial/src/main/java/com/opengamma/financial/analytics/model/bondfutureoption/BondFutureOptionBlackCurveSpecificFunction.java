@@ -27,6 +27,7 @@ import com.opengamma.financial.security.option.BondFutureOptionSecurity;
  * 
  */
 public abstract class BondFutureOptionBlackCurveSpecificFunction extends BondFutureOptionBlackFunction {
+
   private static final Logger s_logger = LoggerFactory.getLogger(BondFutureOptionBlackCurveSpecificFunction.class);
 
   public BondFutureOptionBlackCurveSpecificFunction(final String valueRequirementName) {

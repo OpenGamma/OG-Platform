@@ -63,12 +63,11 @@ import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.util.money.Currency;
 
 /**
- * Calculates the yield curve node sensitivities of a swaption using the Black method with no volatility modelling assumptions.
- * The implied volatility is read directly from the market data system. Note that this function produces the sensitivities with
- * respect to a single, named curve.
+ * Calculates the yield curve node sensitivities of a swaption using the Black method with no volatility modelling assumptions. The implied volatility is read directly from the market data system.
+ * Note that this function produces the sensitivities with respect to a single, named curve.
  * <p>
- * Produces a result for {@link ValueRequirementNames#YIELD_CURVE_NODE_SENSITIVITIES} using {@link InstrumentSensitivityCalculator}
- * with {@link PresentValueCurveSensitivityBlackCalculator}
+ * Produces a result for {@link ValueRequirementNames#YIELD_CURVE_NODE_SENSITIVITIES} using {@link InstrumentSensitivityCalculator} with {@link PresentValueCurveSensitivityBlackCalculator}
+ * 
  * @deprecated Use {@link ConstantBlackDiscountingYCNSSwaptionFunction}
  */
 @Deprecated

@@ -79,6 +79,7 @@ public class SwaptionConstantSpreadThetaFunction extends AbstractFunction.NonCom
     final SwapSecurityConverterDeprecated swapConverter = new SwapSecurityConverterDeprecated(holidaySource, conventionSource, regionSource, false);
     final SwaptionSecurityConverterDeprecated swaptionConverter = new SwaptionSecurityConverterDeprecated(securitySource, swapConverter);
     _visitor = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder().swaptionVisitor(swaptionConverter).create();
+    ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
   }
 
   @Override

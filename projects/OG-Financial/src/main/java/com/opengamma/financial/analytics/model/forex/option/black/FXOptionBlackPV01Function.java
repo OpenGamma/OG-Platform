@@ -49,6 +49,7 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Calculates the PV01 for FX options using the Black method
+ * 
  * @deprecated Use {@link BlackDiscountingPV01FXOptionFunction}
  */
 @Deprecated
@@ -58,6 +59,11 @@ public class FXOptionBlackPV01Function extends FXOptionBlackSingleValuedFunction
 
   public FXOptionBlackPV01Function() {
     super(ValueRequirementNames.PV01);
+  }
+
+  @Override
+  public void init(final FunctionCompilationContext context) {
+    ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
   }
 
   @Override

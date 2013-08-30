@@ -149,7 +149,6 @@ public class YieldCurveFunctionUtils {
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, target, allProperties);
   }
 
-
   public static ValueRequirement getCurveRequirementForFXForward(final ComputationTargetSpecification target, final String yieldCurveName, final String curveCalculationConfigName,
       final String curveCalculationMethod, final boolean isPay) {
     final ValueProperties properties;

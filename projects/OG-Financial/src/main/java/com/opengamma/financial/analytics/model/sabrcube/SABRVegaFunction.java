@@ -56,8 +56,8 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * Base class for functions that calculate vega for swaptions, CMS, cap/floors and cap/floor CMS spreads
- * using the SABR model.
+ * Base class for functions that calculate vega for swaptions, CMS, cap/floors and cap/floor CMS spreads using the SABR model.
+ * 
  * @deprecated Use descendants of {@link SABRDiscountingFunction}
  */
 @Deprecated

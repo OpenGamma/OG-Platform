@@ -72,8 +72,8 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.money.Currency;
 
 /**
- * Base class for the calculation of yield curve node sensitivities of instruments
- * priced using the SABR model.
+ * Base class for the calculation of yield curve node sensitivities of instruments priced using the SABR model.
+ * 
  * @deprecated Use descendants of {@link SABRDiscountingFunction}
  */
 @Deprecated
@@ -100,6 +100,7 @@ public abstract class SABRYCNSFunction extends AbstractFunction.NonCompiledInvok
     _securityVisitor = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder().swapSecurityVisitor(swapConverter).swaptionVisitor(swaptionConverter).capFloorVisitor(capFloorVisitor)
         .capFloorCMSSpreadVisitor(capFloorCMSSpreadSecurityVisitor).create();
     _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
+    ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
   }
 
   @Override

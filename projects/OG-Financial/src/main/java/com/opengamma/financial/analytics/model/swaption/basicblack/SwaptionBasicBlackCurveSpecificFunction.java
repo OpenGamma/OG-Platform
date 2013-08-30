@@ -59,8 +59,8 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * Base class for functions that return curve-specific values for swaptions using the basic Black model
- * (i.e. using a security-specific volatility and not interpolating volatilities).
+ * Base class for functions that return curve-specific values for swaptions using the basic Black model (i.e. using a security-specific volatility and not interpolating volatilities).
+ * 
  * @deprecated Use descendants of {@link ConstantBlackDiscountingSwaptionFunction}
  */
 @Deprecated
@@ -88,6 +88,7 @@ public abstract class SwaptionBasicBlackCurveSpecificFunction extends AbstractFu
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final SwapSecurityConverterDeprecated swapConverter = new SwapSecurityConverterDeprecated(holidaySource, conventionSource, regionSource, false);
     _visitor = new SwaptionSecurityConverterDeprecated(securitySource, swapConverter);
+    ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
   }
 
   @Override
@@ -181,6 +182,7 @@ public abstract class SwaptionBasicBlackCurveSpecificFunction extends AbstractFu
 
   /**
    * Calculates the results.
+   * 
    * @param swaption The swaption
    * @param data The market data bundle
    * @param curveName The name of the curve
@@ -197,6 +199,7 @@ public abstract class SwaptionBasicBlackCurveSpecificFunction extends AbstractFu
 
   /**
    * Returns the converter.
+   * 
    * @return The converter
    */
   protected SwaptionSecurityConverterDeprecated getVisitor() {
@@ -205,6 +208,7 @@ public abstract class SwaptionBasicBlackCurveSpecificFunction extends AbstractFu
 
   /**
    * Gets general result properties.
+   * 
    * @param currency The currency
    * @return The result properties
    */
@@ -219,6 +223,7 @@ public abstract class SwaptionBasicBlackCurveSpecificFunction extends AbstractFu
 
   /**
    * Gets specfic result properties.
+   * 
    * @param currency The currency
    * @param curveCalculationConfig The curve calculation configuration name
    * @param curveName The curve name

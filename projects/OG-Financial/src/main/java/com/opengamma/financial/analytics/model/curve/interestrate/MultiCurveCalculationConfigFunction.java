@@ -37,6 +37,11 @@ import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculatio
 public class MultiCurveCalculationConfigFunction extends AbstractFunction {
 
   @Override
+  public void init(final FunctionCompilationContext context) {
+    ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
+  }
+
+  @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
     final ZonedDateTime atZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
     return new AbstractInvokingCompiledFunction(atZDT.with(LocalTime.MIDNIGHT), atZDT.plusDays(1).with(LocalTime.MIDNIGHT).minusNanos(1000000)) {
@@ -70,6 +75,7 @@ public class MultiCurveCalculationConfigFunction extends AbstractFunction {
             .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveConfigName).get();
         return Collections.singleton(new ComputedValue(new ValueSpecification(ValueRequirementNames.CURVE_CALCULATION_CONFIG, target.toSpecification(), properties), config));
       }
+
     };
   }
 

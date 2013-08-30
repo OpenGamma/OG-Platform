@@ -62,6 +62,7 @@ import com.opengamma.util.money.Currency;
 
 /**
  * Calculates yield curve node sensitivities for swaptions using the Black method
+ * 
  * @deprecated Use {@link BlackDiscountingYCNSSwaptionFunction}
  */
 @Deprecated

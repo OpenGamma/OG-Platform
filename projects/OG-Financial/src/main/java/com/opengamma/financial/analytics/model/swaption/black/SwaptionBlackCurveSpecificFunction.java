@@ -60,6 +60,7 @@ import com.opengamma.util.money.Currency;
 
 /**
  * Base class for curve-specific risks of swaptions priced with the Black method.
+ * 
  * @deprecated Use descendants of {@link BlackDiscountingSwaptionFunction}
  */
 @Deprecated
@@ -81,6 +82,7 @@ public abstract class SwaptionBlackCurveSpecificFunction extends AbstractFunctio
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final SwapSecurityConverterDeprecated swapConverter = new SwapSecurityConverterDeprecated(holidaySource, conventionSource, regionSource, false);
     _visitor = new SwaptionSecurityConverterDeprecated(securitySource, swapConverter);
+    ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
   }
 
   @Override

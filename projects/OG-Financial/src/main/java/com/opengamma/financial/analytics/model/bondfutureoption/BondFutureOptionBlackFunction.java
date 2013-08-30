@@ -89,6 +89,7 @@ public abstract class BondFutureOptionBlackFunction extends AbstractFunction.Non
     final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
     _converter = new BondFutureOptionTradeConverter(new BondFutureOptionSecurityConverter(holidaySource, conventionSource, regionSource, securitySource));
     _dataConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
+    ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
   }
 
   @Override
@@ -106,7 +107,8 @@ public abstract class BondFutureOptionBlackFunction extends AbstractFunction.Non
     if (curveCalculationConfig == null) {
       throw new OpenGammaRuntimeException("Could not find curve calculation configuration named " + curveCalculationConfigName);
     }
-    final String currency = FinancialSecurityUtils.getCurrency(security).getCode();;
+    final String currency = FinancialSecurityUtils.getCurrency(security).getCode();
+    ;
     final String[] curveNames = curveCalculationConfig.getYieldCurveNames();
     final String[] fullCurveNames = new String[curveNames.length];
     for (int i = 0; i < curveNames.length; i++) {

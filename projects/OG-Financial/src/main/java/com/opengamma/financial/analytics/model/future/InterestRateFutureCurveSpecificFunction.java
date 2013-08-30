@@ -61,6 +61,7 @@ import com.opengamma.util.money.Currency;
 
 /**
  * Base function for calculating curve-specific risk factors for interest-rate futures.
+ * 
  * @deprecated Use descendants of {@link MultiCurvePricingFunction}
  */
 @Deprecated
@@ -83,6 +84,7 @@ public abstract class InterestRateFutureCurveSpecificFunction extends AbstractFu
     final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
     _converter = new InterestRateFutureTradeConverter(new InterestRateFutureSecurityConverterDeprecated(holidaySource, conventionSource, regionSource));
     _dataConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
+    ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
   }
 
   @Override

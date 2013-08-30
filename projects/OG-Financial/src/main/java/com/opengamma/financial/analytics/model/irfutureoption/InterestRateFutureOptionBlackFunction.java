@@ -88,6 +88,7 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
     final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
     _converter = new InterestRateFutureOptionTradeConverter(new InterestRateFutureOptionSecurityConverter(holidaySource, conventionSource, regionSource, securitySource));
     _dataConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
+    ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
   }
 
   @Override
@@ -193,6 +194,7 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
 
   /**
    * Calculates the result
+   * 
    * @param irFutureOption The IR future option
    * @param data The data used in pricing
    * @param spec The value specification of the result

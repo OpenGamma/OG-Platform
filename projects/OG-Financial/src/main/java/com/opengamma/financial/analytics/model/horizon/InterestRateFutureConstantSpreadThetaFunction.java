@@ -76,6 +76,7 @@ public class InterestRateFutureConstantSpreadThetaFunction extends AbstractFunct
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final InterestRateFutureSecurityConverterDeprecated securityConverter = new InterestRateFutureSecurityConverterDeprecated(holidaySource, conventionSource, regionSource);
     _converter = new InterestRateFutureTradeConverter(securityConverter);
+    ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
   }
 
   @Override

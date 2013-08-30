@@ -76,6 +76,7 @@ public class YieldCurveInstrumentConversionHistoricalTimeSeriesFunction extends 
     _securityConverter = new InterestRateInstrumentTradeOrSecurityConverter(holidaySource, conventionSource, regionSource, securitySource, true);
     _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
     _curveCalculationConfig = new ConfigDBCurveCalculationConfigSource(configSource);
+    ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
   }
 
   @Override
@@ -87,7 +88,7 @@ public class YieldCurveInstrumentConversionHistoricalTimeSeriesFunction extends 
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.YIELD_CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES, target.toSpecification(),
         createValueProperties()
-        .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG).get()));
+            .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG).get()));
   }
 
   @Override
