@@ -9,6 +9,9 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.Maps;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -22,14 +25,21 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
  */
 /* package */class ValueMappings {
 
+  private static final Logger s_logger = LoggerFactory.getLogger(ValueMappings.class);
+  
   private static final class ConfigurationData {
-
+    
     private final Map<ValueRequirement, ValueSpecification> _reqsToSpecs = Maps.newHashMap();
 
     public ConfigurationData(final CompiledViewCalculationConfiguration compiledConfig) {
       Map<ValueSpecification, Set<ValueRequirement>> terminalOutputs = compiledConfig.getTerminalOutputSpecifications();
       for (Map.Entry<ValueSpecification, Set<ValueRequirement>> entry : terminalOutputs.entrySet()) {
-        for (ValueRequirement valueRequirement : entry.getValue()) {
+        Set<ValueRequirement> requirements = entry.getValue();
+        if (requirements == null) {
+          s_logger.error("Unexpected set of null requirements in terminal outputs map from " + entry.getKey() + ". This is a bug in incremental dependency graph compilation.");
+          continue;
+        }
+        for (ValueRequirement valueRequirement : requirements) {
           _reqsToSpecs.put(valueRequirement, entry.getKey());
         }
       }
