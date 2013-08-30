@@ -19,6 +19,7 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.marketdata.spec.FixedHistoricalMarketDataSpecification;
+import com.opengamma.engine.marketdata.spec.HistoricalShockMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
@@ -129,10 +130,18 @@ public class HistoricalViewEvaluationFunction extends ViewEvaluationFunction<His
           marketDataSpecifications.size() + ": " + cycleExecutionOptions);
     }
     MarketDataSpecification marketDataSpec = marketDataSpecifications.get(0);
-    if (!(marketDataSpec instanceof FixedHistoricalMarketDataSpecification)) {
+    if (marketDataSpec instanceof FixedHistoricalMarketDataSpecification) {
+      return ((FixedHistoricalMarketDataSpecification) marketDataSpec).getSnapshotDate();
+    } else if (marketDataSpec instanceof HistoricalShockMarketDataSpecification) {
+      MarketDataSpecification spec2 = ((HistoricalShockMarketDataSpecification) marketDataSpec).getHistoricalSpecification2();
+      if (spec2 instanceof FixedHistoricalMarketDataSpecification) {
+        return ((FixedHistoricalMarketDataSpecification) spec2).getSnapshotDate();
+      } else {
+        throw new OpenGammaRuntimeException("Unsupported inner market data specification: " + spec2);
+      }
+    } else {
       throw new OpenGammaRuntimeException("Unsupported market data specification: " + marketDataSpec);
     }
-    return ((FixedHistoricalMarketDataSpecification) marketDataSpec).getSnapshotDate();
   }
 
 }

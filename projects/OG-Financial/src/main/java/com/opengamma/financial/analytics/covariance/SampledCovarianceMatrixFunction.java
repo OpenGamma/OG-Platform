@@ -35,6 +35,7 @@ import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
 import com.opengamma.financial.analytics.timeseries.DateConstraint;
 import com.opengamma.financial.temptarget.TempTarget;
 import com.opengamma.financial.temptarget.TempTargetRepository;
+import com.opengamma.financial.view.HistoricalViewEvaluationMarketDataMode;
 import com.opengamma.financial.view.HistoricalViewEvaluationTarget;
 import com.opengamma.financial.view.ViewEvaluationFunction;
 import com.opengamma.id.UniqueId;
@@ -235,7 +236,7 @@ public abstract class SampledCovarianceMatrixFunction extends AbstractFunction.N
     }
     final ViewDefinition viewDefinition = context.getViewCalculationConfiguration().getViewDefinition();
     final HistoricalViewEvaluationTarget tempTarget = new HistoricalViewEvaluationTarget(viewDefinition.getMarketDataUser(), startDate.toString(), true, DateConstraint.VALUATION_TIME.toString(),
-        false);
+        false, null, HistoricalViewEvaluationMarketDataMode.HISTORICAL);
     final ViewCalculationConfiguration calcConfig = createViewCalculationConfiguration(tempTarget.getViewDefinition(), context.getViewCalculationConfiguration().getName());
     addValueRequirements(context, target, calcConfig);
     tempTarget.getViewDefinition().addViewCalculationConfiguration(calcConfig);
