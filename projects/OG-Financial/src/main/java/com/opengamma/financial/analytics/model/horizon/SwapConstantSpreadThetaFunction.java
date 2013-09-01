@@ -101,7 +101,7 @@ public class SwapConstantSpreadThetaFunction extends AbstractFunction.NonCompile
       throw new OpenGammaRuntimeException("Definition for security " + security + " was null");
     }
     final ZonedDateTimeDoubleTimeSeries[] fixingSeries = new ZonedDateTimeDoubleTimeSeries[] {FixingTimeSeriesVisitor.convertTimeSeries(
-        (HistoricalTimeSeries) inputs.getValue(ValueRequirementNames.HISTORICAL_TIME_SERIES), now) };
+        (HistoricalTimeSeries) inputs.getValue(ValueRequirementNames.HISTORICAL_TIME_SERIES)) };
     final String[] curveNamesForSecurity = FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, curveNames[0], curveNames[1]);
     final String currency = FinancialSecurityUtils.getCurrency(security).getCode();
     final ConstantSpreadHorizonThetaCalculator calculator = ConstantSpreadHorizonThetaCalculator.getInstance();

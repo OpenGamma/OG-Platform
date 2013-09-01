@@ -157,7 +157,7 @@ public class CapFloorZeroCouponCalibrationObjectiveTest {
       }
     }
 
-    // Creation of the expiry vector used for the interpolation in the volatility matrix 
+    // Creation of the expiry vector used for the interpolation in the volatility matrix
     // expiry times = reference end time. (for inflation option)
     for (int loopexp = 0; loopexp < CAPS[0].length; loopexp++) {
       expiryTimes1[loopexp] = CAPS[0][loopexp].getReferenceEndTime();
@@ -165,10 +165,10 @@ public class CapFloorZeroCouponCalibrationObjectiveTest {
 
     // parameters bundle that we want to calibrate
     final InflationZeroCouponCapFloorParameters parameters = new InflationZeroCouponCapFloorParameters(expiryTimes1, strikes, volatilities, PRICE_INDEX_EUR);
-    // Objective function that we use in the calibration 
+    // Objective function that we use in the calibration
     final SuccessiveRootFinderInflationZeroCouponCapFloorCalibrationObjective objective = new SuccessiveRootFinderInflationZeroCouponCapFloorCalibrationObjective(parameters, CUR);
     // Calibration engine
-    final SuccessiveRootFinderInflationZeroCouponCapFloorCalibrationEngine calibrationEngine = new SuccessiveRootFinderInflationZeroCouponCapFloorCalibrationEngine(objective);
+    final SuccessiveRootFinderInflationZeroCouponCapFloorCalibrationEngine<InflationProviderInterface> calibrationEngine = new SuccessiveRootFinderInflationZeroCouponCapFloorCalibrationEngine<>(objective);
 
     // Creation of the market prices we will use in the calibration.
     //For this example we calculate the market prices using a matrix of volatility, but normally market prices should be linked to bloomberg tickers (for example or another data provider)

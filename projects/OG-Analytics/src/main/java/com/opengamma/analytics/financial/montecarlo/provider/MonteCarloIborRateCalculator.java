@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.montecarlo;
+package com.opengamma.analytics.financial.montecarlo.provider;
 
 import org.apache.commons.lang.Validate;
 
@@ -13,16 +13,15 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFlo
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborRatchet;
-import com.opengamma.analytics.financial.interestrate.swap.method.SwapFixedCouponDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.swap.provider.SwapFixedCouponDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
+import com.opengamma.analytics.financial.montecarlo.MonteCarloIborRateDataBundle;
 
 /**
  * Computes the total instrument price over different paths (the sum of prices over the different paths, not its average).
  * The data bundle contains the different Ibor rates paths and the instrument reference amounts. The numeraire is the last time in the LMM description.
- * @deprecated Use {@link com.opengamma.analytics.financial.montecarlo.provider.MonteCarloIborRateCalculator}
  */
-@Deprecated
 public class MonteCarloIborRateCalculator extends InstrumentDerivativeVisitorAdapter<MonteCarloIborRateDataBundle, Double> {
 
   /**

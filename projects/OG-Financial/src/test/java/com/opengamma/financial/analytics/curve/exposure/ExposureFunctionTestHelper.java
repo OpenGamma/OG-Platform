@@ -581,7 +581,7 @@ public class ExposureFunctionTestHelper {
 
   public static YearOnYearInflationSwapSecurity getPayYoYInflationSwapSecurity() {
     final FixedInflationSwapLeg fixedLeg = new FixedInflationSwapLeg(DC, PeriodFrequency.QUARTERLY, US, BDC, new InterestRateNotional(USD, 100000), false, 0.02);
-    final InflationIndexSwapLeg indexLeg = new InflationIndexSwapLeg(DC, PeriodFrequency.QUARTERLY, US, BDC, new InterestRateNotional(USD, 100000), true, ExternalSchemes.syntheticSecurityId("CPI"), 2, InterpolationMethod.MONTH_START_LINEAR);
+    final InflationIndexSwapLeg indexLeg = new InflationIndexSwapLeg(DC, PeriodFrequency.QUARTERLY, US, BDC, new InterestRateNotional(USD, 100000), true, ExternalSchemes.syntheticSecurityId("CPI"), 2, 3, InterpolationMethod.MONTH_START_LINEAR);
     final YearOnYearInflationSwapSecurity security = new YearOnYearInflationSwapSecurity(DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2023, 1, 1), "OG",
         fixedLeg, indexLeg, true, Tenor.TEN_YEARS);
     security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "36"));
@@ -590,7 +590,7 @@ public class ExposureFunctionTestHelper {
 
   public static YearOnYearInflationSwapSecurity getReceiveYoYInflationSwapSecurity() {
     final FixedInflationSwapLeg fixedLeg = new FixedInflationSwapLeg(DC, PeriodFrequency.QUARTERLY, US, BDC, new InterestRateNotional(USD, 100000), false, 0.02);
-    final InflationIndexSwapLeg indexLeg = new InflationIndexSwapLeg(DC, PeriodFrequency.QUARTERLY, US, BDC, new InterestRateNotional(USD, 100000), false, ExternalSchemes.syntheticSecurityId("CPI"), 2, InterpolationMethod.MONTH_START_LINEAR);
+    final InflationIndexSwapLeg indexLeg = new InflationIndexSwapLeg(DC, PeriodFrequency.QUARTERLY, US, BDC, new InterestRateNotional(USD, 100000), false, ExternalSchemes.syntheticSecurityId("CPI"), 2, 3, InterpolationMethod.MONTH_START_LINEAR);
     final YearOnYearInflationSwapSecurity security = new YearOnYearInflationSwapSecurity(DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2023, 1, 1), "OG",
         indexLeg, fixedLeg, true, Tenor.TEN_YEARS);
     security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "4562"));
@@ -599,7 +599,7 @@ public class ExposureFunctionTestHelper {
 
   public static ZeroCouponInflationSwapSecurity getPayZeroCouponInflationSwapSecurity() {
     final FixedInflationSwapLeg fixedLeg = new FixedInflationSwapLeg(DC, PeriodFrequency.QUARTERLY, US, BDC, new InterestRateNotional(USD, 100000), false, 0.02);
-    final InflationIndexSwapLeg indexLeg = new InflationIndexSwapLeg(DC, PeriodFrequency.QUARTERLY, US, BDC, new InterestRateNotional(USD, 100000), true, ExternalSchemes.syntheticSecurityId("CPI"), 2, InterpolationMethod.MONTH_START_LINEAR);
+    final InflationIndexSwapLeg indexLeg = new InflationIndexSwapLeg(DC, PeriodFrequency.QUARTERLY, US, BDC, new InterestRateNotional(USD, 100000), true, ExternalSchemes.syntheticSecurityId("CPI"), 2, 3, InterpolationMethod.MONTH_START_LINEAR);
     final ZeroCouponInflationSwapSecurity security = new ZeroCouponInflationSwapSecurity(DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2023, 1, 1), "OG",
         fixedLeg, indexLeg, false);
     security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "684"));
@@ -608,7 +608,7 @@ public class ExposureFunctionTestHelper {
 
   public static ZeroCouponInflationSwapSecurity getReceiveZeroCouponInflationSwapSecurity() {
     final FixedInflationSwapLeg fixedLeg = new FixedInflationSwapLeg(DC, PeriodFrequency.QUARTERLY, US, BDC, new InterestRateNotional(USD, 100000), false, 0.02);
-    final InflationIndexSwapLeg indexLeg = new InflationIndexSwapLeg(DC, PeriodFrequency.QUARTERLY, US, BDC, new InterestRateNotional(USD, 100000), false, ExternalSchemes.syntheticSecurityId("CPI"), 2, InterpolationMethod.MONTH_START_LINEAR);
+    final InflationIndexSwapLeg indexLeg = new InflationIndexSwapLeg(DC, PeriodFrequency.QUARTERLY, US, BDC, new InterestRateNotional(USD, 100000), false, ExternalSchemes.syntheticSecurityId("CPI"), 2, 3, InterpolationMethod.MONTH_START_LINEAR);
     final ZeroCouponInflationSwapSecurity security = new ZeroCouponInflationSwapSecurity(DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2023, 1, 1), "OG",
         fixedLeg, indexLeg, false);
     security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "3216"));

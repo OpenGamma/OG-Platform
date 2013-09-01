@@ -126,8 +126,7 @@ public class ConventionBundleMasterUtils {
   }
 
   /**
-   * Adds a convention for fixed / floating swaps. The payment and compounding frequencies of both legs
-   * are assumed to be the same.
+   * Adds a convention for fixed / floating swaps.
    * @param bundle The id bundle of this convention
    * @param name The convention name
    * @param swapFixedLegDayCount The fixed leg day count

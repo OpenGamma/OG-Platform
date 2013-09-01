@@ -40,7 +40,7 @@ public class SwapFixedInflationZeroCouponDefinition extends SwapDefinition {
   }
 
   /**
-   * Builder from financial details and the time series of exiting price index values.
+   * Builder from financial details and the time series of existing price index values.
    * @param index The price index.
    * @param settlementDate The swap settlement date.
    * @param tenor The swap tenor in years.
@@ -72,7 +72,7 @@ public class SwapFixedInflationZeroCouponDefinition extends SwapDefinition {
   }
 
   /**
-   * Builder from financial details and the time series of exiting price index values and a generator of swap.The month lag is the conventional one.
+   * Builder from financial details and the time series of existing price index values and a generator of swap.The month lag is the conventional one.
    * @param settlementDate The swap settlement date.
    * @param fixedRate The swap fixed rate (annual compounding). The fixed payment is (1+fixedRate)^tenor-1.
    * @param notional The swap notional.
@@ -99,7 +99,7 @@ public class SwapFixedInflationZeroCouponDefinition extends SwapDefinition {
   }
 
   /**
-   * Builder from financial details and the time series of exiting price index values.
+   * Builder from financial details and the time series of existing price index values.
    * @param index The price index.
    * @param settlementDate The swap settlement date.
    * @param tenor The swap tenor in years.
@@ -132,7 +132,7 @@ public class SwapFixedInflationZeroCouponDefinition extends SwapDefinition {
   }
 
   /**
-   * Builder from financial details and the time series of exiting price index values and a generator of swap.The month lag is the conventional one.
+   * Builder from financial details and the time series of existing price index values and a generator of swap.The month lag is the conventional one.
    * @param settlementDate The swap settlement date.
    * @param fixedRate The swap fixed rate (annual compounding). The fixed payment is (1+fixedRate)^tenor-1.
    * @param notional The swap notional.

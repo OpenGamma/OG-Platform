@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.swap;
@@ -16,8 +16,8 @@ import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.financial.convention.calendar.Calendar;
 
 /**
- *   Class describing a fixed Accrued Compoundin for ON compounded rate swap. Both legs are in the same currency.
- *   The payment dates on the fixed leg a slightly different from the FixedIbor swap due to the lag in payment at the end of each coupon.
+ *   Class describing a fixed Accrued Compounding for ON compounded rate swap. Both legs are in the same currency.
+ *   The payment dates on the fixed leg are slightly different from the FixedIbor swap due to the lag in payment at the end of each coupon.
  *   This class is specially developed for Brazilian-like swaps
  */
 public class SwapFixedCompoundedONCompoundedDefinition extends SwapDefinition {

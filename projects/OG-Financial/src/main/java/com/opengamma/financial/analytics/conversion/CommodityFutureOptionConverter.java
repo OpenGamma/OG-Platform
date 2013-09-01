@@ -43,7 +43,10 @@ public class CommodityFutureOptionConverter extends FinancialSecurityVisitorAdap
   private final FutureSecurityConverterDeprecated _futureSecurityConverter;
 
   /**
-   * @param securitySource security source
+   * @param securitySource The security source, not null
+   * @param holidaySource The holiday source, not null
+   * @param conventionSource The convention source, not null
+   * @param regionSource The region source, not null
    */
   public CommodityFutureOptionConverter(final SecuritySource securitySource, final HolidaySource holidaySource, final ConventionBundleSource conventionSource,
       final RegionSource regionSource) {

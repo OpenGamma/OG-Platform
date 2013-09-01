@@ -26,7 +26,6 @@ import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.analytics.conversion.CalendarUtils;
 import com.opengamma.financial.analytics.ircurve.strips.ZeroCouponInflationNode;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
-import com.opengamma.financial.convention.Convention;
 import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.convention.InflationLegConvention;
 import com.opengamma.financial.convention.PriceIndexConvention;
@@ -92,34 +91,22 @@ public class ZeroCouponInflationNodeConverter extends CurveNodeVisitorAdapter<In
   @SuppressWarnings({"synthetic-access" })
   @Override
   public InstrumentDefinition<?> visitZeroCouponInflationNode(final ZeroCouponInflationNode inflationNode) {
-    Convention convention = _conventionSource.getConvention(inflationNode.getFixedLegConvention());
     final Double rate = _marketData.getDataPoint(_dataId);
     if (rate == null) {
       throw new OpenGammaRuntimeException("Could not get market data for " + _dataId);
     }
-    if (convention == null) {
+    final SwapFixedLegConvention fixedLegConvention = _conventionSource.getConvention(SwapFixedLegConvention.class, inflationNode.getFixedLegConvention());
+    if (fixedLegConvention == null) {
       throw new OpenGammaRuntimeException("Convention with id " + inflationNode.getFixedLegConvention() + " was null");
     }
-    if (!(convention instanceof SwapFixedLegConvention)) {
-      throw new OpenGammaRuntimeException("Cannot handle convention type " + convention.getClass());
-    }
-    final SwapFixedLegConvention fixedLegConvention = (SwapFixedLegConvention) convention;
-    convention = _conventionSource.getConvention(inflationNode.getInflationLegConvention());
-    if (convention == null) {
+    final InflationLegConvention inflationLegConvention = _conventionSource.getConvention(InflationLegConvention.class, inflationNode.getInflationLegConvention());
+    if (inflationLegConvention == null) {
       throw new OpenGammaRuntimeException("Convention with id " + inflationNode.getInflationLegConvention() + " was null");
     }
-    if (!(convention instanceof InflationLegConvention)) {
-      throw new OpenGammaRuntimeException("Cannot handle convention type " + convention.getClass());
-    }
-    final InflationLegConvention inflationLegConvention = (InflationLegConvention) convention;
-    convention = _conventionSource.getConvention(inflationLegConvention.getPriceIndexConvention());
-    if (convention == null) {
+    final PriceIndexConvention priceIndexConvention = _conventionSource.getConvention(PriceIndexConvention.class, inflationLegConvention.getPriceIndexConvention());
+    if (priceIndexConvention == null) {
       throw new OpenGammaRuntimeException("Convention with id " + inflationLegConvention.getPriceIndexConvention() + " was null");
     }
-    if (!(convention instanceof PriceIndexConvention)) {
-      throw new OpenGammaRuntimeException("Cannot handle convention type " + convention.getClass());
-    }
-    final PriceIndexConvention priceIndexConvention = (PriceIndexConvention) convention;
     final int settlementDays = fixedLegConvention.getSettlementDays();
     final Period tenor = inflationNode.getTenor().getPeriod();
     final double notional = 1;

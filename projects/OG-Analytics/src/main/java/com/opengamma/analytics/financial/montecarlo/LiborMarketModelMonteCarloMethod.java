@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.montecarlo;
@@ -21,7 +21,9 @@ import com.opengamma.util.money.CurrencyAmount;
 
 /**
  * Monte Carlo pricing method in the Libor Market Model with Displaced Diffusion.
+ * @deprecated Use {@link com.opengamma.analytics.financial.montecarlo.provider.LiborMarketModelMonteCarloMethod}
  */
+@Deprecated
 public class LiborMarketModelMonteCarloMethod extends MonteCarloMethod {
 
   /**
@@ -215,7 +217,7 @@ public class LiborMarketModelMonteCarloMethod extends MonteCarloMethod {
   }
 
   /**
-   * 
+   *
    * @param jumpTime The time of the mandatory jumps.
    * @param initIbor The Ibor rates at the start. nbPeriodLMM x nbPath
    * @param lmm The LMM parameters.

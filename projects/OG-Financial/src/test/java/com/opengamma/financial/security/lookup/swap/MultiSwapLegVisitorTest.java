@@ -131,6 +131,7 @@ public class MultiSwapLegVisitorTest {
         true,
         ExternalId.of("Test", "AD"),
         2,
+        3,
         InterpolationMethod.MONTH_START_LINEAR);
   }
 

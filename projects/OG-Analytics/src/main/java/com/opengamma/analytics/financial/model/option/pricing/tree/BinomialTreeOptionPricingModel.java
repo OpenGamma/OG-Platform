@@ -12,9 +12,6 @@ import com.opengamma.analytics.financial.greeks.Greek;
 import com.opengamma.analytics.financial.greeks.GreekResultCollection;
 import com.opengamma.analytics.financial.model.option.definition.OptionPayoffFunction;
 import com.opengamma.analytics.financial.model.option.definition.StandardOptionDataBundle;
-import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.analytics.math.statistics.descriptive.MeanCalculator;
-import com.opengamma.analytics.math.statistics.descriptive.SampleMomentCalculator;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -30,9 +27,6 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
   private final double _barrier;
   private final BarrierTypes _typeName;
   private PayoffFunction _function;
-
-  private static final Function1D<double[], Double> MEAN_CALCULATOR = new MeanCalculator();
-  private static final Function1D<double[], Double> MOMENT_CALCULATOR = new SampleMomentCalculator(2);
 
   /*
    * TODO Test Greeks for barriers with discrete/continuous dividends
@@ -715,42 +709,41 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
       final double[] interestRate, final int nSteps, final boolean isCall) {
     if (isCall) {
       return getEuropeanPrice(lattice, spot, strike, timeToExpiry, volatility, interestRate, nSteps, true);
-    } else {
-      Validate.isTrue(lattice instanceof TimeVaryingLatticeSpecification);
-      final TimeVaryingLatticeSpecification vLattice = (TimeVaryingLatticeSpecification) lattice;
-
-      ArgumentChecker.isTrue(nSteps == interestRate.length, "Wrong interestRate length");
-      ArgumentChecker.isTrue(nSteps == volatility.length, "Wrong volatility length");
-
-      final double[] nu = vLattice.getShiftedDrift(volatility, interestRate);
-      final double spaceStep = vLattice.getSpaceStep(timeToExpiry, volatility, nSteps, nu);
-      final double downFactor = Math.exp(-spaceStep);
-      final double upOverDown = Math.exp(2. * spaceStep);
-
-      final double[] upProbability = new double[nSteps];
-      final double[] downProbability = new double[nSteps];
-      final double[] df = new double[nSteps];
-      for (int i = 0; i < nSteps; ++i) {
-        final double[] params = vLattice.getParameters(volatility[i], nu[i], spaceStep);
-        upProbability[i] = params[1];
-        downProbability[i] = 1. - params[1];
-        df[i] = Math.exp(-interestRate[i] * params[0]);
-      }
-      final double sig = isCall ? 1. : -1.;
-
-      final double assetPrice = spot * Math.pow(downFactor, nSteps);
-      double[] values = _function.getPayoffAtExpiry(assetPrice, strike, nSteps, sig, upOverDown);
-      for (int i = nSteps - 1; i > -1; --i) {
-        //        assetPrice = spot * Math.pow(downFactor, i);
-        //        for (int j = 0; j < i + 1; ++j) {
-        //          values[j] = Math.max(df[i] * (upProbability[i] * values[j + 1] + downProbability[i] * values[j]), sig * (assetPrice - strike));
-        //          assetPrice *= upOverDown;
-        //        }
-        values = _function.getNextOptionValues(df[i], upProbability[i], downProbability[i], values, spot, strike, sig, downFactor, upOverDown, i);
-      }
-
-      return values[0];
     }
+    Validate.isTrue(lattice instanceof TimeVaryingLatticeSpecification);
+    final TimeVaryingLatticeSpecification vLattice = (TimeVaryingLatticeSpecification) lattice;
+
+    ArgumentChecker.isTrue(nSteps == interestRate.length, "Wrong interestRate length");
+    ArgumentChecker.isTrue(nSteps == volatility.length, "Wrong volatility length");
+
+    final double[] nu = vLattice.getShiftedDrift(volatility, interestRate);
+    final double spaceStep = vLattice.getSpaceStep(timeToExpiry, volatility, nSteps, nu);
+    final double downFactor = Math.exp(-spaceStep);
+    final double upOverDown = Math.exp(2. * spaceStep);
+
+    final double[] upProbability = new double[nSteps];
+    final double[] downProbability = new double[nSteps];
+    final double[] df = new double[nSteps];
+    for (int i = 0; i < nSteps; ++i) {
+      final double[] params = vLattice.getParameters(volatility[i], nu[i], spaceStep);
+      upProbability[i] = params[1];
+      downProbability[i] = 1. - params[1];
+      df[i] = Math.exp(-interestRate[i] * params[0]);
+    }
+    final double sig = isCall ? 1. : -1.;
+
+    final double assetPrice = spot * Math.pow(downFactor, nSteps);
+    double[] values = _function.getPayoffAtExpiry(assetPrice, strike, nSteps, sig, upOverDown);
+    for (int i = nSteps - 1; i > -1; --i) {
+      //        assetPrice = spot * Math.pow(downFactor, i);
+      //        for (int j = 0; j < i + 1; ++j) {
+      //          values[j] = Math.max(df[i] * (upProbability[i] * values[j + 1] + downProbability[i] * values[j]), sig * (assetPrice - strike));
+      //          assetPrice *= upOverDown;
+      //        }
+      values = _function.getNextOptionValues(df[i], upProbability[i], downProbability[i], values, spot, strike, sig, downFactor, upOverDown, i);
+    }
+
+    return values[0];
   }
 
   public double getAmericanPriceProportionalDividends(final LatticeSpecification lattice, final double spot, final double strike, final double timeToExpiry, final double volatility,
@@ -851,9 +844,8 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
       final int nSteps, final boolean isCall) {
     if (isCall) {
       return getEuropeanGreeks(lattice, spot, strike, timeToExpiry, volatility, interestRate, nSteps, true);
-    } else {
-      return getAmericanGreeks(lattice, spot, strike, timeToExpiry, volatility, interestRate, 0., nSteps, false);
     }
+    return getAmericanGreeks(lattice, spot, strike, timeToExpiry, volatility, interestRate, 0., nSteps, false);
   }
 
   public double[] getAmericanGreeks(final LatticeSpecification lattice, final double spot, final double strike, final double timeToExpiry, final double volatility, final double interestRate,

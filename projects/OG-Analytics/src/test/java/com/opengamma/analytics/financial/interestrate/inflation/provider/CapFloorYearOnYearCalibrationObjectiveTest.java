@@ -296,7 +296,7 @@ public class CapFloorYearOnYearCalibrationObjectiveTest {
     }
     final InflationYearOnYearCapFloorParameters parameters = new InflationYearOnYearCapFloorParameters(expiryTimes_AVAILABLE, strikes_AVAILABLE, volatilities_AVAILABLE, PRICE_INDEX_EUR);
     final SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationObjective objective = new SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationObjective(parameters, CUR);
-    final SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationEngine<InflationProviderDiscount> calibrationEngine = new SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationEngine<InflationProviderDiscount>(
+    final SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationEngine<InflationProviderDiscount> calibrationEngine = new SuccessiveRootFinderInflationYearOnYearCapFloorCalibrationEngine<>(
         objective);
 
     for (int loop1 = 0; loop1 < strikes_AVAILABLE.length; loop1++) {

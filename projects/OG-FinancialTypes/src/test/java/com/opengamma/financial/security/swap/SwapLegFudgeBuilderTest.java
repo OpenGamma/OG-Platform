@@ -64,7 +64,7 @@ public class SwapLegFudgeBuilderTest extends AbstractFudgeBuilderTestCase {
   @Test
   public void testInflationIndexSwapLeg() {
     final InflationIndexSwapLeg leg = new InflationIndexSwapLeg(DC, FREQUENCY, REGION_ID, BDC, NOTIONAL, EOM, ExternalId.of("Test", "SDF"),
-        2, InterpolationMethod.MONTH_START_LINEAR);
+        2, 3, InterpolationMethod.MONTH_START_LINEAR);
     assertEncodeDecodeCycle(InflationIndexSwapLeg.class, leg);
   }
 }
