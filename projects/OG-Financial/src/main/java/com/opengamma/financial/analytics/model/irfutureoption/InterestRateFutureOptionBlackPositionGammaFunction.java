@@ -14,16 +14,19 @@ import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithB
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.model.black.BlackDiscountingPositionGammaIRFutureOptionFunction;
 
 /**
- * Function computes the {@link ValueRequirementNames#GAMMA}, second order derivative of position price with respect to the futures rate,
+ * Function computes the {@link ValueRequirementNames#POSITION_GAMMA}, second order derivative of position price with respect to the futures rate,
  * for interest rate future options in the Black world.
+ * @deprecated Use {@link BlackDiscountingPositionGammaIRFutureOptionFunction}
  */
+@Deprecated
 public class InterestRateFutureOptionBlackPositionGammaFunction extends InterestRateFutureOptionBlackFunction {
 
   /** The calculator to compute the gamma value. */
   private static final PresentValueBlackGammaCalculator CALCULATOR = PresentValueBlackGammaCalculator.getInstance();
-  
+
   public InterestRateFutureOptionBlackPositionGammaFunction() {
     super(ValueRequirementNames.POSITION_GAMMA);
   }

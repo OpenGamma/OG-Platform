@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.analytics.conversion;
 
-import org.apache.commons.lang.Validate;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -20,10 +19,12 @@ import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.fra.FRASecurity;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- *
+ * @deprecated Use {@link FRASecurityConverter}. {@link ConventionBundleSource} should not be used,
+ * as the conventions are not typed.
  */
 @Deprecated
 public class FRASecurityConverterDeprecated extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {
@@ -32,9 +33,9 @@ public class FRASecurityConverterDeprecated extends FinancialSecurityVisitorAdap
   private final ConventionBundleSource _conventionSource;
 
   public FRASecurityConverterDeprecated(final HolidaySource holidaySource, final RegionSource regionSource, final ConventionBundleSource conventionSource) {
-    Validate.notNull(holidaySource, "holiday source");
-    Validate.notNull(regionSource, "region source");
-    Validate.notNull(conventionSource, "convention source");
+    ArgumentChecker.notNull(holidaySource, "holiday source");
+    ArgumentChecker.notNull(regionSource, "region source");
+    ArgumentChecker.notNull(conventionSource, "convention source");
     _holidaySource = holidaySource;
     _regionSource = regionSource;
     _conventionSource = conventionSource;
@@ -42,7 +43,7 @@ public class FRASecurityConverterDeprecated extends FinancialSecurityVisitorAdap
 
   @Override
   public ForwardRateAgreementDefinition visitFRASecurity(final FRASecurity security) {
-    Validate.notNull(security, "security");
+    ArgumentChecker.notNull(security, "security");
     final Currency currency = security.getCurrency();
     final ConventionBundle fraConvention = _conventionSource.getConventionBundle(security.getUnderlyingId());
     if (fraConvention == null) {

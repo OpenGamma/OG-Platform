@@ -50,8 +50,8 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
-import com.opengamma.financial.analytics.conversion.InterestRateFutureOptionSecurityConverter;
-import com.opengamma.financial.analytics.conversion.InterestRateFutureOptionTradeConverter;
+import com.opengamma.financial.analytics.conversion.InterestRateFutureOptionSecurityConverterDeprecated;
+import com.opengamma.financial.analytics.conversion.InterestRateFutureOptionTradeConverterDeprecated;
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
@@ -76,7 +76,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 public class InterestRateFutureOptionConstantSpreadThetaFunction extends AbstractFunction.NonCompiledInvoker {
   private static final Logger s_logger = LoggerFactory.getLogger(InterestRateFutureOptionConstantSpreadThetaFunction.class);
 
-  private InterestRateFutureOptionTradeConverter _converter;
+  private InterestRateFutureOptionTradeConverterDeprecated _converter;
   private String _valueRequirement;
 
   public InterestRateFutureOptionConstantSpreadThetaFunction() {
@@ -87,7 +87,7 @@ public class InterestRateFutureOptionConstantSpreadThetaFunction extends Abstrac
     return _valueRequirement;
   }
 
-  protected void setValueRequirement(String valueRequiremnt) {
+  protected void setValueRequirement(final String valueRequiremnt) {
     _valueRequirement = valueRequiremnt;
   }
 
@@ -97,7 +97,8 @@ public class InterestRateFutureOptionConstantSpreadThetaFunction extends Abstrac
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
-    _converter = new InterestRateFutureOptionTradeConverter(new InterestRateFutureOptionSecurityConverter(holidaySource, conventionSource, regionSource, securitySource));
+    _converter = new InterestRateFutureOptionTradeConverterDeprecated(
+        new InterestRateFutureOptionSecurityConverterDeprecated(holidaySource, conventionSource, regionSource, securitySource));
     ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
   }
 
@@ -155,7 +156,7 @@ public class InterestRateFutureOptionConstantSpreadThetaFunction extends Abstrac
 
   /**
    * This aids child classes to return value in different format, eg Double
-   * 
+   *
    * @param theta ConstantSpreadHorizonThetaCalculator produced MultipleCurrencyAmount
    * @param currency Allows for function to pull out specified currency
    * @return theta in desired format

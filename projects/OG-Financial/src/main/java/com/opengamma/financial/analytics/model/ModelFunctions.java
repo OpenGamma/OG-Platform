@@ -58,7 +58,7 @@ public class ModelFunctions extends AbstractFunctionConfigurationBean {
 
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
-    // Nothing in this package, just the sub-packages
+    functions.add(functionConfiguration(MarginPriceFunction.class));
   }
 
   protected FunctionConfigurationSource bondFunctionConfiguration() {

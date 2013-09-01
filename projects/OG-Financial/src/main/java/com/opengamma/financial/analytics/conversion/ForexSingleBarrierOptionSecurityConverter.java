@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.conversion;
@@ -24,7 +24,7 @@ import com.opengamma.financial.security.option.MonitoringType;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ *
  */
 public class ForexSingleBarrierOptionSecurityConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {
 
@@ -52,7 +52,7 @@ public class ForexSingleBarrierOptionSecurityConverter extends FinancialSecurity
     return new ForexOptionSingleBarrierDefinition(new ForexOptionVanillaDefinition(underlying, expiry, true, isLong), barrier);
   }
 
-  private KnockType getKnockType(final BarrierDirection direction) {
+  private static KnockType getKnockType(final BarrierDirection direction) {
     switch (direction) {
       case KNOCK_IN:
         return KnockType.IN;
@@ -63,7 +63,7 @@ public class ForexSingleBarrierOptionSecurityConverter extends FinancialSecurity
     }
   }
 
-  private com.opengamma.analytics.financial.model.option.definition.Barrier.BarrierType getBarrierType(final BarrierType type) {
+  private static com.opengamma.analytics.financial.model.option.definition.Barrier.BarrierType getBarrierType(final BarrierType type) {
     switch (type) {
       case UP:
         return com.opengamma.analytics.financial.model.option.definition.Barrier.BarrierType.UP;
@@ -74,7 +74,7 @@ public class ForexSingleBarrierOptionSecurityConverter extends FinancialSecurity
     }
   }
 
-  private ObservationType getObservationType(final MonitoringType type) {
+  private static ObservationType getObservationType(final MonitoringType type) {
     switch (type) {
       case CONTINUOUS:
         return ObservationType.CONTINUOUS;

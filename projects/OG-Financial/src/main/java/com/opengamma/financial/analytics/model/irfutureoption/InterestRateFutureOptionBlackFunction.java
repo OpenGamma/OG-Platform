@@ -42,13 +42,14 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
-import com.opengamma.financial.analytics.conversion.InterestRateFutureOptionSecurityConverter;
-import com.opengamma.financial.analytics.conversion.InterestRateFutureOptionTradeConverter;
+import com.opengamma.financial.analytics.conversion.InterestRateFutureOptionSecurityConverterDeprecated;
+import com.opengamma.financial.analytics.conversion.InterestRateFutureOptionTradeConverterDeprecated;
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
+import com.opengamma.financial.analytics.model.black.BlackDiscountingIRFutureOptionFunction;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.convention.ConventionBundleSource;
@@ -60,14 +61,16 @@ import com.opengamma.util.money.Currency;
 
 /**
  * Base class for a range of functions computing values on an IRFuturesOption using the Black Model
+ * @deprecated Use classes that descend from {@link BlackDiscountingIRFutureOptionFunction}
  */
+@Deprecated
 public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunction.NonCompiledInvoker {
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(InterestRateFutureOptionBlackFunction.class);
   /** The name of the value that will be calculated */
   private final String _valueRequirementName;
   /** Converts a {@link Trade} to an {@link InstrumentDefinition} */
-  private InterestRateFutureOptionTradeConverter _converter;
+  private InterestRateFutureOptionTradeConverterDeprecated _converter;
   /** Converts an {@link InstrumentDefinition} to an {@link InstrumentDerivative} */
   private FixedIncomeConverterDataProvider _dataConverter;
 
@@ -86,7 +89,8 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
     final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
-    _converter = new InterestRateFutureOptionTradeConverter(new InterestRateFutureOptionSecurityConverter(holidaySource, conventionSource, regionSource, securitySource));
+    _converter = new InterestRateFutureOptionTradeConverterDeprecated(
+        new InterestRateFutureOptionSecurityConverterDeprecated(holidaySource, conventionSource, regionSource, securitySource));
     _dataConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
     ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
   }
@@ -176,7 +180,7 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
       s_logger.error("Security currency and curve calculation config id were not equal; have {} and {}", currency, curveCalculationConfig.getTarget());
       return null;
     }
-    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+    final Set<ValueRequirement> requirements = new HashSet<>();
     requirements.addAll(YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, curveCalculationConfigSource));
     requirements.add(getVolatilityRequirement(surfaceName, currency));
     try {
@@ -194,7 +198,7 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
 
   /**
    * Calculates the result
-   * 
+   *
    * @param irFutureOption The IR future option
    * @param data The data used in pricing
    * @param spec The value specification of the result

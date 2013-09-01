@@ -17,7 +17,7 @@ import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.PresentValueBlackSwaptionSensitivity;
-import com.opengamma.analytics.financial.provider.calculator.blackswaption.PresentValueBlackSwaptionSensitivityBlackSwaptionCalculator;
+import com.opengamma.analytics.financial.provider.calculator.blackswaption.PresentValueBlackSensitivityBlackSwaptionCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackSwaptionFlatProvider;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackSwaptionFlatProviderInterface;
 import com.opengamma.engine.ComputationTarget;
@@ -38,7 +38,7 @@ import com.opengamma.engine.value.ValueSpecification;
 public class BlackDiscountingValueVegaSwaptionFunction extends BlackDiscountingSwaptionFunction {
   /** The value vega calculator */
   private static final InstrumentDerivativeVisitor<BlackSwaptionFlatProviderInterface, PresentValueBlackSwaptionSensitivity> CALCULATOR =
-      PresentValueBlackSwaptionSensitivityBlackSwaptionCalculator.getInstance();
+      PresentValueBlackSensitivityBlackSwaptionCalculator.getInstance();
 
   /**
    * Sets the value requirement to {@link ValueRequirementNames#VALUE_VEGA}

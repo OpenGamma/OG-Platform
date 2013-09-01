@@ -29,7 +29,7 @@ public class BlackDiscountingPricingFunctions extends AbstractFunctionConfigurat
     functions.add(functionConfiguration(BlackDiscountingBCSCapFloorFunction.class));
     functions.add(functionConfiguration(BlackDiscountingPVCapFloorFunction.class));
     functions.add(functionConfiguration(BlackDiscountingPV01CapFloorFunction.class));
-    functions.add(functionConfiguration(BlackDiscountingYCNSSwaptionFunction.class));
+    functions.add(functionConfiguration(BlackDiscountingYCNSCapFloorFunction.class));
 
     functions.add(functionConfiguration(BlackDiscountingBCSFXOptionFunction.class));
     functions.add(functionConfiguration(BlackDiscountingCurrencyExposureFXOptionFunction.class));
@@ -52,6 +52,22 @@ public class BlackDiscountingPricingFunctions extends AbstractFunctionConfigurat
     functions.add(functionConfiguration(BlackDiscountingVegaMatrixFXOptionFunction.class));
     functions.add(functionConfiguration(BlackDiscountingVegaQuoteMatrixFXOptionFunction.class));
     functions.add(functionConfiguration(BlackDiscountingYCNSFXOptionFunction.class));
+
+    functions.add(functionConfiguration(BlackDiscountingBCSIRFutureOptionFunction.class));
+    functions.add(functionConfiguration(BlackDiscountingDeltaIRFutureOptionFunction.class));
+    functions.add(functionConfiguration(BlackDiscountingForwardIRFutureOptionFunction.class));
+    functions.add(functionConfiguration(BlackDiscountingGammaIRFutureOptionFunction.class));
+    functions.add(functionConfiguration(BlackDiscountingImpliedVolatilityIRFutureOptionFunction.class));
+    functions.add(functionConfiguration(BlackDiscountingPositionDeltaIRFutureOptionFunction.class));
+    functions.add(functionConfiguration(BlackDiscountingPositionGammaIRFutureOptionFunction.class));
+    functions.add(functionConfiguration(BlackDiscountingPositionVegaIRFutureOptionFunction.class));
+    functions.add(functionConfiguration(BlackDiscountingPV01IRFutureOptionFunction.class));
+    functions.add(functionConfiguration(BlackDiscountingPVIRFutureOptionFunction.class));
+    functions.add(functionConfiguration(BlackDiscountingValueDeltaIRFutureOptionFunction.class));
+    functions.add(functionConfiguration(BlackDiscountingValueGammaIRFutureOptionFunction.class));
+    functions.add(functionConfiguration(BlackDiscountingValueVegaIRFutureOptionFunction.class));
+    functions.add(functionConfiguration(BlackDiscountingWeightedVegaIRFutureOptionFunction.class));
+    functions.add(functionConfiguration(BlackDiscountingYCNSIRFutureOptionFunction.class));
 
     functions.add(functionConfiguration(BlackDiscountingBCSSwaptionFunction.class));
     functions.add(functionConfiguration(BlackDiscountingImpliedVolatilitySwaptionFunction.class));

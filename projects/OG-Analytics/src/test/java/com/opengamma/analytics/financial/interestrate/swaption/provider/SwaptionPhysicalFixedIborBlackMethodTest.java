@@ -25,7 +25,7 @@ import com.opengamma.analytics.financial.model.option.parameters.BlackFlatSwapti
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.analytics.financial.provider.calculator.blackswaption.PresentValueBlackSwaptionCalculator;
-import com.opengamma.analytics.financial.provider.calculator.blackswaption.PresentValueBlackSwaptionSensitivityBlackSwaptionCalculator;
+import com.opengamma.analytics.financial.provider.calculator.blackswaption.PresentValueBlackSensitivityBlackSwaptionCalculator;
 import com.opengamma.analytics.financial.provider.calculator.blackswaption.PresentValueCurveSensitivityBlackSwaptionCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParRateDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
@@ -87,7 +87,7 @@ public class SwaptionPhysicalFixedIborBlackMethodTest {
 
   private static final PresentValueBlackSwaptionCalculator PVBSC = PresentValueBlackSwaptionCalculator.getInstance();
   private static final PresentValueCurveSensitivityBlackSwaptionCalculator PVCSBSC = PresentValueCurveSensitivityBlackSwaptionCalculator.getInstance();
-  private static final PresentValueBlackSwaptionSensitivityBlackSwaptionCalculator PVBSSBSC = PresentValueBlackSwaptionSensitivityBlackSwaptionCalculator.getInstance();
+  private static final PresentValueBlackSensitivityBlackSwaptionCalculator PVBSSBSC = PresentValueBlackSensitivityBlackSwaptionCalculator.getInstance();
 
   private static final double SHIFT = 1.0E-6;
   private static final ParameterSensitivityParameterCalculator<BlackSwaptionFlatProviderInterface> PS_BS_C = new ParameterSensitivityParameterCalculator<>(PVCSBSC);

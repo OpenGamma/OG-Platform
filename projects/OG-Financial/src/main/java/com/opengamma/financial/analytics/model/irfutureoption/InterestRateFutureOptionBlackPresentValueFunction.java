@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.irfutureoption;
@@ -14,10 +14,13 @@ import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithB
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.model.black.BlackDiscountingPVIRFutureOptionFunction;
 
 /**
- * 
+ * Calculates the present value of interest rate future options using the Black formula.
+ * @deprecated Use {@link BlackDiscountingPVIRFutureOptionFunction}
  */
+@Deprecated
 public class InterestRateFutureOptionBlackPresentValueFunction extends InterestRateFutureOptionBlackFunction {
   private static final PresentValueBlackCalculator CALCULATOR = PresentValueBlackCalculator.getInstance();
 

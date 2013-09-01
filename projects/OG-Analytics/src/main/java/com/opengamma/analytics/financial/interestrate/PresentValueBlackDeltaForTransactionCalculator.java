@@ -13,7 +13,7 @@ import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithB
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * InstrumentDerivativeVisitor that calculates {@link ValueRequirementNames#POSITION_DELTA}, the delta of a Transaction, Trade or Position.<p>
+ * InstrumentDerivativeVisitor that calculates position delta, the delta of a Transaction, Trade or Position.<p>
  * See also {@link PresentValueBlackDeltaForSecurityCalculator}
  * @deprecated {@link YieldCurveBundle} is deprecated
  */

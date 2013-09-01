@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.financial.interestrate;
 
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
+import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureOptionMarginSecurityBlackSurfaceMethod;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.method.SwaptionPhysicalFixedIborBlackMethod;
 
@@ -27,13 +29,19 @@ public final class BlackPriceCalculator extends InstrumentDerivativeVisitorAdapt
   BlackPriceCalculator() {
   }
 
-  /** The methods used in the calculator. */
-  private static final SwaptionPhysicalFixedIborBlackMethod METHOD_SWAPTION_PHYSICAL = SwaptionPhysicalFixedIborBlackMethod.getInstance();
+  /** The physical swaption pricer */
+  private static final SwaptionPhysicalFixedIborBlackMethod SWAPTION_PHYSICAL = SwaptionPhysicalFixedIborBlackMethod.getInstance();
+  /** The margined interest rate future option pricer */
+  private static final InterestRateFutureOptionMarginSecurityBlackSurfaceMethod IR_FUTURE_OPTION_SECURITY = InterestRateFutureOptionMarginSecurityBlackSurfaceMethod.getInstance();
 
   @Override
   public Double visitSwaptionPhysicalFixedIbor(final SwaptionPhysicalFixedIbor swaption, final YieldCurveBundle curves) {
-    return METHOD_SWAPTION_PHYSICAL.presentValue(swaption, curves).getAmount(); // TODO Confirm this is the output the user would expect, wrt scaling of Annuity/PVBP
+    return SWAPTION_PHYSICAL.presentValue(swaption, curves).getAmount(); // TODO Confirm this is the output the user would expect, wrt scaling of Annuity/PVBP
   }
 
+  @Override
+  public Double visitInterestRateFutureOptionMarginSecurity(final InterestRateFutureOptionMarginSecurity irFutureOption, final YieldCurveBundle curves) {
+    return IR_FUTURE_OPTION_SECURITY.presentValue(irFutureOption, curves).getAmount();
+  }
 
 }

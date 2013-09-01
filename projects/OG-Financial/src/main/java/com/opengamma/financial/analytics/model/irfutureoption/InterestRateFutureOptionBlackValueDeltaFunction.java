@@ -21,6 +21,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.model.black.BlackDiscountingValueDeltaIRFutureOptionFunction;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.util.money.Currency;
@@ -28,13 +29,15 @@ import com.opengamma.util.money.Currency;
 /**
  * Calculates the value delta of an {@link IRFutureOptionSecurity} using the Black Delta as input. <p>
  * See {@link InterestRateFutureOptionBlackPositionDeltaFunction}
+ * @deprecated Use {@link BlackDiscountingValueDeltaIRFutureOptionFunction}
  */
+@Deprecated
 public class InterestRateFutureOptionBlackValueDeltaFunction extends InterestRateFutureOptionBlackFunction {
 
   public InterestRateFutureOptionBlackValueDeltaFunction() {
     super(ValueRequirementNames.VALUE_DELTA);
   }
-  
+
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final Set<ValueRequirement> requirements = super.getRequirements(context, target, desiredValue);
@@ -42,13 +45,13 @@ public class InterestRateFutureOptionBlackValueDeltaFunction extends InterestRat
       return null;
     }
     requirements.add(new ValueRequirement(ValueRequirementNames.POSITION_DELTA, target.toSpecification(), desiredValue.getConstraints()));
-    requirements.add(new ValueRequirement(ValueRequirementNames.FORWARD, target.toSpecification()));   
+    requirements.add(new ValueRequirement(ValueRequirementNames.FORWARD, target.toSpecification()));
     return requirements;
   }
-  
+
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    // Build output specification. 
+    // Build output specification.
     // TODO This is going to be a copy of the spec of the delta!!!
     final IRFutureOptionSecurity security = (IRFutureOptionSecurity) target.getTrade().getSecurity();
     final Currency currency = FinancialSecurityUtils.getCurrency(security);
@@ -57,28 +60,28 @@ public class InterestRateFutureOptionBlackValueDeltaFunction extends InterestRat
     final String surfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
     final ValueProperties properties = getResultProperties(currency.getCode(), curveCalculationConfigName, surfaceName);
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.VALUE_DELTA, target.toSpecification(), properties);
-    
+
     // Get inputs and compute output
-    Object deltaObject = inputs.getValue(ValueRequirementNames.POSITION_DELTA);
+    final Object deltaObject = inputs.getValue(ValueRequirementNames.POSITION_DELTA);
     if (deltaObject == null) {
       throw new OpenGammaRuntimeException("Could not get PositionDelta for " + security.getUnderlyingId());
     }
     final Double positionDelta = (Double) deltaObject;
 
-    Object futureObject = inputs.getValue(ValueRequirementNames.FORWARD);
+    final Object futureObject = inputs.getValue(ValueRequirementNames.FORWARD);
     if (futureObject == null) {
       throw new OpenGammaRuntimeException("Could not get Forward for " + security.getUnderlyingId());
     }
     final Double futurePrice = (Double) futureObject;
-      
+
     final Double valueDelta = futurePrice * positionDelta;
-    return Collections.singleton(new ComputedValue(spec, valueDelta)); 
+    return Collections.singleton(new ComputedValue(spec, valueDelta));
   }
 
   @Override
-  protected Set<ComputedValue> getResult(InstrumentDerivative irFutureOption, YieldCurveWithBlackCubeBundle data, ValueSpecification spec) {
-    return Collections.singleton(new ComputedValue(spec, "THIS WILL NOT GET CALLED"));
+  protected Set<ComputedValue> getResult(final InstrumentDerivative irFutureOption, final YieldCurveWithBlackCubeBundle data, final ValueSpecification spec) {
+    throw new OpenGammaRuntimeException("Should never get called");
   }
-  
+
 
 }

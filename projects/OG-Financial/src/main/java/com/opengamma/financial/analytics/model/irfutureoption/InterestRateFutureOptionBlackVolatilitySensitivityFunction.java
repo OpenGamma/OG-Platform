@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.irfutureoption;
@@ -17,11 +17,13 @@ import com.opengamma.analytics.util.amount.SurfaceValue;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.model.black.BlackDiscountingValueVegaIRFutureOptionFunction;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * 
+ * @deprecated Use {@link BlackDiscountingValueVegaIRFutureOptionFunction}
  */
+@Deprecated
 public class InterestRateFutureOptionBlackVolatilitySensitivityFunction extends InterestRateFutureOptionBlackFunction {
   private static final PresentValueBlackSensitivityBlackCalculator CALCULATOR = PresentValueBlackSensitivityBlackCalculator.getInstance();
 

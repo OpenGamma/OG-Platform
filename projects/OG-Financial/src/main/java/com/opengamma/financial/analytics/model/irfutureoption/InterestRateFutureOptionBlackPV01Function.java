@@ -18,11 +18,14 @@ import com.opengamma.core.security.Security;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.model.black.BlackDiscountingPV01IRFutureOptionFunction;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 
 /**
- *
+ * Calculates the PV01 for interest rate future options.
+ * @deprecated Use {@link BlackDiscountingPV01IRFutureOptionFunction}
  */
+@Deprecated
 public class InterestRateFutureOptionBlackPV01Function extends InterestRateFutureOptionBlackCurveSpecificFunction {
   private static final PV01Calculator CALCULATOR = new PV01Calculator(PresentValueCurveSensitivityBlackCalculator.getInstance());
 

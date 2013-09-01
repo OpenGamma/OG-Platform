@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.irfutureoption;
@@ -14,11 +14,15 @@ import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithB
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.value.ValueRenamingFunction;
 
 /**
  * Displays the Black price of the Security underlying the trade or position
- * 
+ * @deprecated This produces the same value as {@link InterestRateFutureOptionBlackPresentValueFunction}
+ * with a different label. Use {@link ValueRenamingFunction} instead of performing the same
+ * calculation twice.
  */
+@Deprecated
 public class InterestRateFutureOptionBlackPriceFunction extends InterestRateFutureOptionBlackFunction {
 
   private static final BlackPriceCalculator CALCULATOR = BlackPriceCalculator.getInstance();

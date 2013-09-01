@@ -21,13 +21,17 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.financial.value.ValueRenamingFunction;
 
 /**
- * Function computes the {@link ValueRequirementNames#POSITION_RHO}, 
+ * Function computes the {@link ValueRequirementNames#POSITION_RHO},
  * first order derivative of {@link Position} price with respect to the continuously compounded discount rates of the provided {@link ValuePropertyNames#CURVE},
  * for interest rate future options in the Black world.<p>
- * This is equivalent to {@link InterestRateFutureOptionBlackPV01Function}, though Rho is intended to have the curve set by default. 
+ * This is equivalent to {@link InterestRateFutureOptionBlackPV01Function}, though Rho is intended to have the curve set by default.
+ * @deprecated This function simply returns the PV01, which is calculated in {@link InterestRateFutureOptionBlackPV01Function}.
+ * Use {@link ValueRenamingFunction} to rename outputs rather than repeating the calculations.
  */
+@Deprecated
 public class InterestRateFutureOptionBlackPositionRhoFunction extends InterestRateFutureOptionBlackCurveSpecificFunction {
   private static final PV01Calculator CALCULATOR = new PV01Calculator(PresentValueCurveSensitivityBlackCalculator.getInstance());
 

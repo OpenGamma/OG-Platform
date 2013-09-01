@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.provider;
@@ -65,7 +65,7 @@ public final class InterestRateFutureOptionMarginSecurityBlackSmileMethod extend
     final EuropeanVanillaOption option = new EuropeanVanillaOption(rateStrike, security.getExpirationTime(), !security.isCall());
     final double forward = 1 - priceFuture;
     final double delay = security.getUnderlyingFuture().getLastTradingTime() - security.getExpirationTime();
-    final double volatility = blackData.getVolatility(security.getExpirationTime(), security.getStrike(), delay); // 
+    final double volatility = blackData.getVolatility(security.getExpirationTime(), security.getStrike(), delay); //
     final BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volatility);
     final double priceSecurity = BLACK_FUNCTION.getPriceFunction(option).evaluate(dataBlack);
     return priceSecurity;
@@ -141,7 +141,29 @@ public final class InterestRateFutureOptionMarginSecurityBlackSmileMethod extend
   }
 
   /**
-   * Computes the option's value gamma, the second derivative of the security price wrt underlying futures rate. 
+   * Computes the option security price delta, wrt the futures price dV/df. The futures price is computed without convexity adjustment.
+   * It is supposed that for a given strike the volatility does not change with the curves.
+   * @param security The future option security.
+   * @param blackData The curve and Black volatility data.
+   * @return The delta.
+   */
+  public double priceDelta(final InterestRateFutureOptionMarginSecurity security, final BlackSTIRFuturesSmileProviderInterface blackData) {
+    ArgumentChecker.notNull(security, "Option security");
+    ArgumentChecker.notNull(blackData, "Black data");
+    // Forward sweep
+    final double priceFuture = METHOD_FUTURE.price(security.getUnderlyingFuture(), blackData);
+    final double rateStrike = 1.0 - security.getStrike();
+    final EuropeanVanillaOption option = new EuropeanVanillaOption(rateStrike, security.getExpirationTime(), !security.isCall());
+    final double forward = 1 - priceFuture;
+    final double delay = security.getUnderlyingFuture().getLastTradingTime() - security.getExpirationTime();
+    final double volatility = blackData.getVolatility(security.getExpirationTime(), security.getStrike(), delay);
+    final BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volatility);
+    final double[] priceAdjoint = BLACK_FUNCTION.getPriceAdjoint(option, dataBlack);
+    return -priceAdjoint[1];
+  }
+
+  /**
+   * Computes the option's value gamma, the second derivative of the security price wrt underlying futures rate.
    * The future price is computed without convexity adjustment.
    * @param security The future option security.
    * @param blackData The curve and Black volatility data.
@@ -159,20 +181,40 @@ public final class InterestRateFutureOptionMarginSecurityBlackSmileMethod extend
     final double delay = security.getUnderlyingFuture().getLastTradingTime() - security.getExpirationTime();
     final double volatility = blackData.getVolatility(security.getExpirationTime(), security.getStrike(), delay);
     final BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volatility);
-    double[] firstDerivs = new double[3];
-    double[][] secondDerivs = new double[3][3];
+    final double[] firstDerivs = new double[3];
+    final double[][] secondDerivs = new double[3][3];
     BLACK_FUNCTION.getPriceAdjoint2(option, dataBlack, firstDerivs, secondDerivs);
     return secondDerivs[0][0];
   }
 
   /**
-   * Interpolates and returns the option's implied volatility 
+   * Computes the option security vega. The future price is computed without convexity adjustment.
+   * @param security The future option security.
+   * @param blackData The curve and Black volatility data.
+   * @return Black lognormal vega.
+   */
+  public double priceVega(final InterestRateFutureOptionMarginSecurity security, final BlackSTIRFuturesSmileProviderInterface blackData) {
+    // Forward sweep
+    final double priceFuture = METHOD_FUTURE.price(security.getUnderlyingFuture(), blackData);
+    final double strike = security.getStrike();
+    final double rateStrike = 1.0 - strike;
+    final EuropeanVanillaOption option = new EuropeanVanillaOption(rateStrike, security.getExpirationTime(), !security.isCall());
+    final double forward = 1 - priceFuture;
+    final double delay = security.getUnderlyingFuture().getLastTradingTime() - security.getExpirationTime();
+    final double volatility = blackData.getVolatility(security.getExpirationTime(), security.getStrike(), delay);
+    final BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volatility);
+    final double[] priceAdjoint = BLACK_FUNCTION.getPriceAdjoint(option, dataBlack);
+    return priceAdjoint[2];
+  }
+
+  /**
+   * Interpolates and returns the option's implied volatility
    * The future price is computed without convexity adjustment.
    * @param security The future option security.
    * @param blackData The curve and Black volatility data.
    * @return Lognormal Implied Volatility.
    */
-  public double impliedVolatility(InterestRateFutureOptionMarginSecurity security, BlackSTIRFuturesSmileProviderInterface blackData) {
+  public double impliedVolatility(final InterestRateFutureOptionMarginSecurity security, final BlackSTIRFuturesSmileProviderInterface blackData) {
     ArgumentChecker.notNull(security, "Option security");
     ArgumentChecker.notNull(blackData, "Black data");
     final double delay = security.getUnderlyingFuture().getLastTradingTime() - security.getExpirationTime();

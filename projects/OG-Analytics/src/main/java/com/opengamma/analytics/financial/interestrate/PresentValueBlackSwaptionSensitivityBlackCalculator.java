@@ -10,13 +10,13 @@ import com.opengamma.analytics.financial.interestrate.swaption.derivative.Swapti
 import com.opengamma.analytics.financial.interestrate.swaption.method.SwaptionCashFixedIborBlackMethod;
 import com.opengamma.analytics.financial.interestrate.swaption.method.SwaptionPhysicalFixedIborBlackMethod;
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackSwaptionBundle;
-import com.opengamma.analytics.financial.provider.calculator.blackswaption.PresentValueBlackSwaptionSensitivityBlackSwaptionCalculator;
+import com.opengamma.analytics.financial.provider.calculator.blackswaption.PresentValueBlackSensitivityBlackSwaptionCalculator;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Present value sensitivity to volatility for interest rate instruments using the Black formula.
  * @deprecated {@link YieldCurveBundle} is deprecated. Use classes like
- * {@link PresentValueBlackSwaptionSensitivityBlackSwaptionCalculator}
+ * {@link PresentValueBlackSensitivityBlackSwaptionCalculator}
  */
 @Deprecated
 public final class PresentValueBlackSwaptionSensitivityBlackCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, PresentValueBlackSwaptionSensitivity> {

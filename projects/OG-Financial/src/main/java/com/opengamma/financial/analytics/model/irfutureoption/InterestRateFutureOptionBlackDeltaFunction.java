@@ -16,12 +16,15 @@ import com.opengamma.core.security.Security;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.model.black.BlackDiscountingDeltaIRFutureOptionFunction;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Function computes the {@link ValueRequirementNames#DELTA}, first order derivative of {@link Security} price with respect to the futures price,
  * for interest rate future options in the Black world.
+ * @deprecated Use {@link BlackDiscountingDeltaIRFutureOptionFunction}
  */
+@Deprecated
 public class InterestRateFutureOptionBlackDeltaFunction extends InterestRateFutureOptionBlackFunction {
 
   /** The calculator to compute the delta value */
@@ -32,10 +35,10 @@ public class InterestRateFutureOptionBlackDeltaFunction extends InterestRateFutu
   }
 
   @Override
-  protected Set<ComputedValue> getResult(InstrumentDerivative irFutureOptionTransaction, YieldCurveWithBlackCubeBundle curveBundle, ValueSpecification spec) {
-    ArgumentChecker.isTrue(irFutureOptionTransaction instanceof InterestRateFutureOptionMarginTransaction, 
+  protected Set<ComputedValue> getResult(final InstrumentDerivative irFutureOptionTransaction, final YieldCurveWithBlackCubeBundle curveBundle, final ValueSpecification spec) {
+    ArgumentChecker.isTrue(irFutureOptionTransaction instanceof InterestRateFutureOptionMarginTransaction,
         "InterestRateFutureOptionMarginTransaction expected. " + irFutureOptionTransaction.getClass().toString() + " found.");
-    InstrumentDerivative irFutureOptionSecurity = ((InterestRateFutureOptionMarginTransaction) irFutureOptionTransaction).getUnderlyingOption();
+    final InstrumentDerivative irFutureOptionSecurity = ((InterestRateFutureOptionMarginTransaction) irFutureOptionTransaction).getUnderlyingOption();
     final double delta = irFutureOptionSecurity.accept(CALCULATOR, curveBundle);
     return Collections.singleton(new ComputedValue(spec, delta));
   }

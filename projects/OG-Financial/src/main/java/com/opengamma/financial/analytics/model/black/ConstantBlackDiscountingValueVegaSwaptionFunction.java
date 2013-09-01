@@ -18,7 +18,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.PresentValueBlackSwaptionSensitivity;
-import com.opengamma.analytics.financial.provider.calculator.blackswaption.PresentValueBlackSwaptionSensitivityBlackSwaptionCalculator;
+import com.opengamma.analytics.financial.provider.calculator.blackswaption.PresentValueBlackSensitivityBlackSwaptionCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackSwaptionFlatProvider;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
@@ -38,8 +38,8 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public class ConstantBlackDiscountingValueVegaSwaptionFunction extends ConstantBlackDiscountingSwaptionFunction {
   /** The calculator */
-  private static final PresentValueBlackSwaptionSensitivityBlackSwaptionCalculator CALCULATOR =
-      PresentValueBlackSwaptionSensitivityBlackSwaptionCalculator.getInstance();
+  private static final PresentValueBlackSensitivityBlackSwaptionCalculator CALCULATOR =
+      PresentValueBlackSensitivityBlackSwaptionCalculator.getInstance();
 
   /**
    * Sets {@link ValueRequirementNames#VALUE_VEGA} as the result.

@@ -150,7 +150,7 @@ public class ForexSecurityConverterDeprecated extends FinancialSecurityVisitorAd
     return new ForexNonDeliverableForwardDefinition(payCurrency, receiveCurrency, receiveAmount, exchangeRate, fixingDate, paymentDate);
   }
 
-  private KnockType getKnockType(final BarrierDirection direction) {
+  private static KnockType getKnockType(final BarrierDirection direction) {
     switch (direction) {
       case KNOCK_IN:
         return KnockType.IN;
@@ -161,7 +161,7 @@ public class ForexSecurityConverterDeprecated extends FinancialSecurityVisitorAd
     }
   }
 
-  private com.opengamma.analytics.financial.model.option.definition.Barrier.BarrierType getBarrierType(final BarrierType type) {
+  private static com.opengamma.analytics.financial.model.option.definition.Barrier.BarrierType getBarrierType(final BarrierType type) {
     switch (type) {
       case UP:
         return com.opengamma.analytics.financial.model.option.definition.Barrier.BarrierType.UP;
@@ -172,7 +172,7 @@ public class ForexSecurityConverterDeprecated extends FinancialSecurityVisitorAd
     }
   }
 
-  private ObservationType getObservationType(final MonitoringType type) {
+  private static ObservationType getObservationType(final MonitoringType type) {
     switch (type) {
       case CONTINUOUS:
         return ObservationType.CONTINUOUS;

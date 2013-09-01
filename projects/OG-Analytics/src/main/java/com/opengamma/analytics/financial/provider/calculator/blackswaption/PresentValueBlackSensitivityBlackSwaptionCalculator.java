@@ -16,25 +16,25 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Black
 /**
  * Calculator of the present value as a multiple currency amount.
  */
-public final class PresentValueBlackSwaptionSensitivityBlackSwaptionCalculator extends InstrumentDerivativeVisitorAdapter<BlackSwaptionFlatProviderInterface, PresentValueBlackSwaptionSensitivity> {
+public final class PresentValueBlackSensitivityBlackSwaptionCalculator extends InstrumentDerivativeVisitorAdapter<BlackSwaptionFlatProviderInterface, PresentValueBlackSwaptionSensitivity> {
 
   /**
    * The unique instance of the calculator.
    */
-  private static final PresentValueBlackSwaptionSensitivityBlackSwaptionCalculator INSTANCE = new PresentValueBlackSwaptionSensitivityBlackSwaptionCalculator();
+  private static final PresentValueBlackSensitivityBlackSwaptionCalculator INSTANCE = new PresentValueBlackSensitivityBlackSwaptionCalculator();
 
   /**
    * Gets the calculator instance.
    * @return The calculator.
    */
-  public static PresentValueBlackSwaptionSensitivityBlackSwaptionCalculator getInstance() {
+  public static PresentValueBlackSensitivityBlackSwaptionCalculator getInstance() {
     return INSTANCE;
   }
 
   /**
    * Constructor.
    */
-  private PresentValueBlackSwaptionSensitivityBlackSwaptionCalculator() {
+  private PresentValueBlackSensitivityBlackSwaptionCalculator() {
   }
 
   /** Pricing methods for physically-settled swaptions */

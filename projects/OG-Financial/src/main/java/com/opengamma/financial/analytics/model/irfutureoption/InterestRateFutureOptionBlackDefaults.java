@@ -28,7 +28,9 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Adds {@link ValuePropertyNames#SURFACE} and {@link ValuePropertyNames#CURVE_CALCULATION_CONFIG} to the available
  * {@link ValueRequirement}'s produced by {@link InterestRateFutureOptionBlackFunction}
+ * @deprecated The functions for which these defaults apply are deprecated
  */
+@Deprecated
 public class InterestRateFutureOptionBlackDefaults extends DefaultPropertyFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(InterestRateFutureOptionBlackDefaults.class);
   private static final String[] s_valueRequirements = new String[] {
@@ -55,9 +57,9 @@ public class InterestRateFutureOptionBlackDefaults extends DefaultPropertyFuncti
     ValueRequirementNames.DAILY_PRICE,
     ValueRequirementNames.FORWARD
   };
-  
-  /** 
-   * This map from currency to curve configuration and surface names 
+
+  /**
+   * This map from currency to curve configuration and surface names
    * may be accessed and set from child classes.
    */
   private HashMap<String, Pair<String, String>> _currencyCurveConfigAndSurfaceNames;
@@ -67,7 +69,7 @@ public class InterestRateFutureOptionBlackDefaults extends DefaultPropertyFuncti
     ArgumentChecker.notNull(currencyCurveConfigAndSurfaceNames, "currency, curve config and surface names");
     final int nPairs = currencyCurveConfigAndSurfaceNames.length;
     ArgumentChecker.isTrue(nPairs % 3 == 0, "Must have one curve config name per currency");
-    _currencyCurveConfigAndSurfaceNames = new HashMap<String, Pair<String, String>>();
+    _currencyCurveConfigAndSurfaceNames = new HashMap<>();
     for (int i = 0; i < currencyCurveConfigAndSurfaceNames.length; i += 3) {
       final Pair<String, String> pair = Pair.of(currencyCurveConfigAndSurfaceNames[i + 1], currencyCurveConfigAndSurfaceNames[i + 2]);
       _currencyCurveConfigAndSurfaceNames.put(currencyCurveConfigAndSurfaceNames[i], pair);
@@ -118,7 +120,7 @@ public class InterestRateFutureOptionBlackDefaults extends DefaultPropertyFuncti
     return _currencyCurveConfigAndSurfaceNames;
   }
 
-  protected void setCurrencyCurveConfigAndSurfaceNames(HashMap<String, Pair<String, String>> currencyCurveConfigAndSurfaceNames) {
+  protected void setCurrencyCurveConfigAndSurfaceNames(final HashMap<String, Pair<String, String>> currencyCurveConfigAndSurfaceNames) {
     _currencyCurveConfigAndSurfaceNames = currencyCurveConfigAndSurfaceNames;
   }
 

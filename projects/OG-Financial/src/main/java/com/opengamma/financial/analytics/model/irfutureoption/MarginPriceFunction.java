@@ -16,11 +16,12 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
- * Provides the reference margin price,
- * for futures, options and other exchange traded securities that are margined
+ * Provides the reference margin price for interest rate futures options.
+ * @deprecated Use {@link com.opengamma.financial.analytics.model.MarginPriceFunction}, which
+ * handles instruments other than interest rate future options.
  */
+@Deprecated
 public class MarginPriceFunction extends InterestRateFutureOptionBlackFunction {
-
   private static MarginPriceVisitor s_priceVisitor = MarginPriceVisitor.getInstance();
 
   public MarginPriceFunction() {
@@ -32,5 +33,4 @@ public class MarginPriceFunction extends InterestRateFutureOptionBlackFunction {
     final Double price = irFutureOption.accept(s_priceVisitor);
     return Collections.singleton(new ComputedValue(spec, price));
   }
-
 }

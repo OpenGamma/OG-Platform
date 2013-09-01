@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.irfutureoption;
@@ -14,11 +14,13 @@ import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithB
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.model.black.BlackDiscountingImpliedVolatilityIRFutureOptionFunction;
 
 /**
  * Interpolates, for InterestRateFutureOptions using Black model, and returns the implied volatility required.
- * 
+ * @deprecated Use {@link BlackDiscountingImpliedVolatilityIRFutureOptionFunction}
  */
+@Deprecated
 public class InterestRateFutureOptionBlackImpliedVolatilityFunction extends InterestRateFutureOptionBlackFunction {
 
   private static final ImpliedVolatilityBlackCalculator CALCULATOR = ImpliedVolatilityBlackCalculator.getInstance();

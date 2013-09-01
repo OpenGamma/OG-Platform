@@ -50,10 +50,10 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Calculates the yield curve node sensitivities of cap/floors using
+ * Calculates the yield curve node sensitivities of interest rate future options using
  * curves constructed using the discounting method and a Black surface.
  */
-public class BlackDiscountingYCNSCapFloorFunction extends BlackDiscountingCapFloorFunction {
+public class BlackDiscountingYCNSCapFloorFunction extends BlackDiscountingIRFutureOptionFunction {
 
   /**
    * Sets the value requirements to {@link ValueRequirementNames#YIELD_CURVE_NODE_SENSITIVITIES}

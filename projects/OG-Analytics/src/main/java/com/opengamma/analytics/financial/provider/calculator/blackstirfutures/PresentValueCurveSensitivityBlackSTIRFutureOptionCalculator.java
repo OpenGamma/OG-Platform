@@ -9,30 +9,31 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureOptionMarginTransactionBlackSmileMethod;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackSTIRFuturesSmileProviderInterface;
-import com.opengamma.util.money.MultipleCurrencyAmount;
+import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 
 /**
  * Calculator of the present value as a multiple currency amount.
  */
-public final class PresentValueBlackSTIRFuturesCalculator extends InstrumentDerivativeVisitorAdapter<BlackSTIRFuturesSmileProviderInterface, MultipleCurrencyAmount> {
+public final class PresentValueCurveSensitivityBlackSTIRFutureOptionCalculator extends
+  InstrumentDerivativeVisitorAdapter<BlackSTIRFuturesSmileProviderInterface, MultipleCurrencyMulticurveSensitivity> {
 
   /**
    * The unique instance of the calculator.
    */
-  private static final PresentValueBlackSTIRFuturesCalculator INSTANCE = new PresentValueBlackSTIRFuturesCalculator();
+  private static final PresentValueCurveSensitivityBlackSTIRFutureOptionCalculator INSTANCE = new PresentValueCurveSensitivityBlackSTIRFutureOptionCalculator();
 
   /**
    * Gets the calculator instance.
    * @return The calculator.
    */
-  public static PresentValueBlackSTIRFuturesCalculator getInstance() {
+  public static PresentValueCurveSensitivityBlackSTIRFutureOptionCalculator getInstance() {
     return INSTANCE;
   }
 
   /**
    * Constructor.
    */
-  private PresentValueBlackSTIRFuturesCalculator() {
+  private PresentValueCurveSensitivityBlackSTIRFutureOptionCalculator() {
   }
 
   /**
@@ -43,8 +44,9 @@ public final class PresentValueBlackSTIRFuturesCalculator extends InstrumentDeri
   // -----     Futures     ------
 
   @Override
-  public MultipleCurrencyAmount visitInterestRateFutureOptionMarginTransaction(final InterestRateFutureOptionMarginTransaction futures, final BlackSTIRFuturesSmileProviderInterface black) {
-    return METHOD_STRIRFUT_MARGIN.presentValue(futures, black);
+  public MultipleCurrencyMulticurveSensitivity visitInterestRateFutureOptionMarginTransaction(final InterestRateFutureOptionMarginTransaction futures,
+      final BlackSTIRFuturesSmileProviderInterface black) {
+    return METHOD_STRIRFUT_MARGIN.presentValueCurveSensitivity(futures, black);
   }
 
 }
