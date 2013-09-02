@@ -11,6 +11,7 @@ import java.util.Set;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantYieldCurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantYieldCurveBuild;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDAInstrumentTypes;
+import com.opengamma.core.security.Security;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import org.threeten.bp.Instant;
@@ -54,16 +55,19 @@ import com.opengamma.financial.analytics.model.cds.ISDAFunctionConstants;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.security.cash.CashSecurity;
+import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.Tenor;
 
 /**
  * Function to return a @{code ISDACompliantYieldCurve}
  */
 public class ISDACompliantYieldCurveFunction extends AbstractFunction {
-  private static final Period swapIvl = Period.ofMonths(6); //FIXME: hardcoded
   private static final BusinessDayConvention badDayConv = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final DateTimeFormatter dateFormatter = new DateTimeFormatterBuilder().appendPattern("yyyyMMdd").toFormatter();
   private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
@@ -113,6 +117,7 @@ public class ISDACompliantYieldCurveFunction extends AbstractFunction {
         final Period[] tenors = new Period[specificationWithSecurities.getStrips().size()];
         final double[] values = new double[specificationWithSecurities.getStrips().size()];
 
+        Period swapIvl = null;
         int i = 0;
         for (final FixedIncomeStripWithSecurity strip : specificationWithSecurities.getStrips()) {
           final String securityType = strip.getSecurity().getSecurityType();
@@ -123,8 +128,14 @@ public class ISDACompliantYieldCurveFunction extends AbstractFunction {
           if (rate == null) {
             throw new OpenGammaRuntimeException("Could not get rate for " + strip);
           }
-          final ISDAInstrumentTypes instrumentType = CashSecurity.SECURITY_TYPE.equals(strip.getSecurity().getSecurityType()) ? ISDAInstrumentTypes.MoneyMarket : ISDAInstrumentTypes.Swap;
-          instruments[i] = instrumentType;
+          if (CashSecurity.SECURITY_TYPE.equals(strip.getSecurity().getSecurityType())) {
+            instruments[i] = ISDAInstrumentTypes.MoneyMarket;
+          } else if (SwapSecurity.SECURITY_TYPE.equals(strip.getSecurity().getSecurityType())) {
+            instruments[i] = ISDAInstrumentTypes.Swap;
+            swapIvl = getFixedLegPaymentTenor((SwapSecurity) strip.getSecurity());
+          } else {
+            throw new OpenGammaRuntimeException("Unexpected curve instument type, can only handle cash and swaps, got: " + strip.getSecurity());
+          }
           tenors[i] = strip.getTenor().getPeriod();
           values[i] = rate;
           i++;
@@ -140,6 +151,19 @@ public class ISDACompliantYieldCurveFunction extends AbstractFunction {
             .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, ISDAFunctionConstants.ISDA_METHOD_NAME).get();
         final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.YIELD_CURVE, target.toSpecification(), properties);
         return Collections.singleton(new ComputedValue(spec, yieldCurve));
+      }
+
+      private Period getFixedLegPaymentTenor(final SwapSecurity swap) {
+        if (swap.getReceiveLeg() instanceof FixedInterestRateLeg) {
+          FixedInterestRateLeg fixLeg = (FixedInterestRateLeg) swap.getReceiveLeg();
+          return PeriodFrequency.convertToPeriodFrequency(fixLeg.getFrequency()).getPeriod();
+        } else if (swap.getPayLeg() instanceof FixedInterestRateLeg) {
+          FixedInterestRateLeg fixLeg = (FixedInterestRateLeg) swap.getPayLeg();
+          return PeriodFrequency.convertToPeriodFrequency(fixLeg.getFrequency()).getPeriod();
+        } else {
+          throw new OpenGammaRuntimeException("Got a swap without a fixed leg " + swap);
+        }
+
       }
 
       @Override
