@@ -34,12 +34,6 @@ public abstract class ExerciseType extends DirectBean implements Serializable {
    * Cache of known types.
    */
   private static final ConcurrentMap<String, ExerciseType> CACHE = new ConcurrentHashMap<>(8, 0.75f, 1);
-  static {
-    register(new AmericanExerciseType());
-    register(new AsianExerciseType());
-    register(new BermudanExerciseType());
-    register(new EuropeanExerciseType());
-  }
 
   /**
    * Gets an exercise type by name.

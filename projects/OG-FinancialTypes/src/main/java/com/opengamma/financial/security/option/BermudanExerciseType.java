@@ -23,6 +23,10 @@ public class BermudanExerciseType extends ExerciseType {
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
 
+  static {
+    ExerciseType.register(new BermudanExerciseType());
+  }
+
   /**
    * Creates an empty instance.
    */

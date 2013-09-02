@@ -23,6 +23,10 @@ public class EuropeanExerciseType extends ExerciseType {
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
 
+  static {
+    ExerciseType.register(new EuropeanExerciseType());
+  }
+
   /**
    * Creates an empty instance.
    */
