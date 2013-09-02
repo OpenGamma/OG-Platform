@@ -35,6 +35,8 @@ public class MarketDataSnapshotExportTool extends AbstractTool<ToolContext> {
   private static final String SNAPSHOT_UID_OPTION = "uid";
   /** Snapshot name option flag */
   private static final String SNAPSHOT_NAME_OPTION = "n";
+  /** Snapshot version date option flag */
+  private static final String SNAPSHOT_DATE_OPTION = "d";  
 
   private static ToolContext s_context;
 
@@ -53,18 +55,20 @@ public class MarketDataSnapshotExportTool extends AbstractTool<ToolContext> {
   @Override
   protected void doRun() throws Exception {
     s_context = getToolContext();
-
-    SnapshotReader snapshotReader = constructSnapshotReader(UniqueId.parse(getCommandLine().getOptionValue(
-        SNAPSHOT_UID_OPTION)));
-    SnapshotWriter snapshotWriter = constructSnapshotWriter(getCommandLine().getOptionValue(FILE_NAME_OPTION));
-    SnapshotCopier snapshotCopier = new SimpleSnapshotCopier();
-
-    snapshotCopier.copy(snapshotReader, snapshotWriter);
-
-    // close the reader and writer
-    snapshotReader.close();
-    snapshotWriter.close();
-
+    SnapshotUtils snapshotUtils = SnapshotUtils.of(s_context.getMarketDataSnapshotMaster());
+    if (!MarketDataSnapshotToolUtils.handleQueryOptions(snapshotUtils, getCommandLine())) {
+      SnapshotReader snapshotReader = constructSnapshotReader(UniqueId.parse(getCommandLine().getOptionValue(
+          SNAPSHOT_UID_OPTION)));
+      SnapshotWriter snapshotWriter = constructSnapshotWriter(getCommandLine().getOptionValue(FILE_NAME_OPTION));
+      SnapshotCopier snapshotCopier = new SimpleSnapshotCopier();
+  
+      snapshotCopier.copy(snapshotReader, snapshotWriter);
+  
+      // close the reader and writer
+      snapshotReader.close();
+      snapshotWriter.close();
+    }
+    System.exit(0);
   }
 
   private static SnapshotReader constructSnapshotReader(UniqueId uniqueId) {
@@ -92,12 +96,16 @@ public class MarketDataSnapshotExportTool extends AbstractTool<ToolContext> {
     options.addOption(createSnapshotUidOption());
     options.addOption(createFilenameOption());
     options.addOption(createSnapshotNameOption());
+    options.addOption(createSnapshotDateOption());
+    options.addOption(MarketDataSnapshotToolUtils.createSnapshotListOption());
+    options.addOption(MarketDataSnapshotToolUtils.createSnapshotQueryOption());
+    options.addOption(MarketDataSnapshotToolUtils.createSnapshotVersionListOption());
     return options;
   }
 
   private static Option createFilenameOption() {
     final Option option = new Option(FILE_NAME_OPTION, "filename", true, "The path to the file to create and export to");
-    option.setRequired(true);
+    //option.setRequired(true);
     return option;
   }
 
@@ -108,9 +116,14 @@ public class MarketDataSnapshotExportTool extends AbstractTool<ToolContext> {
   }
 
   private static Option createSnapshotNameOption() {
-    final Option option = new Option(SNAPSHOT_NAME_OPTION, "snapshotName", true, "The snapshot name to export");
+    final Option option = new Option(SNAPSHOT_NAME_OPTION, "snapshot-name", true, "The snapshot name to export");
     option.setArgName("snapshot uid");
     return option;
   }
-
+   
+  private static Option createSnapshotDateOption() {
+    final Option option = new Option(SNAPSHOT_DATE_OPTION, "snapshot-date", true, "Specify a version date for a named snapshot");
+    option.setArgName("snapshot name");
+    return option;    
+  }
 }
