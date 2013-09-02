@@ -33,16 +33,16 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * Class describing a OIS-like floating compounded coupon. The payoof of this coupon is :
+ * Class describing a OIS-like floating compounded coupon. The pay-off of this coupon is :
  * $$
  * \begin{equation*}
  * \left(\prod_{i=1}^n (1+ r_i)^\delta_i \right)
  * \end{equation*}
  * $$
  * r_i the overnight rate for the fixing date t_i (or between t_i and t_{i+1})
- * \delta_i is the accrued between t_i and t_{i+1} using the appropriate daycount, for exaple if we use business/252 as daycounter \delta_i=1/252.
+ * \delta_i is the accrued between t_i and t_{i+1} using the appropriate day-count, for example if we use business/252 as daycounter \delta_i=1/252.
  * 
- *  This coupon is especially used for Brazilian swaps with the dayconunt business/252.
+ *  This coupon is especially used for Brazilian swaps with the day count business/252.
  */
 public class CouponONCompoundedDefinition extends CouponDefinition implements InstrumentDefinitionWithData<Payment, DoubleTimeSeries<ZonedDateTime>> {
 

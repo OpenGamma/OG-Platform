@@ -28,7 +28,7 @@ import com.opengamma.util.time.DateUtils;
 /**
  * Tests related to the simplified version of the OIS coupon definition.
  */
-public class CouponOISSimplifiedDefinitionTest {
+public class CouponONSimplifiedDefinitionTest {
   private static final int EUR_SETTLEMENT_DAYS = 2;
   private static final BusinessDayConvention EUR_BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean EUR_IS_EOM = true;

@@ -28,7 +28,7 @@ import com.opengamma.util.time.DateUtils;
 /**
  * Tests related to the OIS coupon derivative.
  */
-public class CouponOISTest {
+public class CouponONTest {
   private static final int EUR_SETTLEMENT_DAYS = 2;
   private static final BusinessDayConvention EUR_BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean EUR_IS_EOM = true;
