@@ -102,6 +102,14 @@ public class NonVersionedRedisHistoricalTimeSeriesSource implements HistoricalTi
     _updateSeriesTimer = summaryRegistry.timer(namePrefix + ".update");
   }
   
+  /**
+   * Add a timeseries to Redis.
+   * 
+   * If the timerseries does not exist, it is created otherwise updated.
+   * 
+   * @param uniqueId the uniqueId, not null.
+   * @param timeseries the timeseries, not null.
+   */
   public void updateTimeSeries(UniqueId uniqueId, LocalDateDoubleTimeSeries timeseries) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     ArgumentChecker.notNull(timeseries, "timeseries");
@@ -154,6 +162,15 @@ public class NonVersionedRedisHistoricalTimeSeriesSource implements HistoricalTi
     return redisKey + ":hts.datapoint";
   }
 
+  /**
+   * Updates a datapoint in a timeseries.
+   * 
+   * If the timeseries does not exist, one is created with the single data point.
+   * 
+   * @param uniqueId the uniqueId of the timeseries, not null.
+   * @param valueDate the data point date, not null
+   * @param value the data point value
+   */
   public void updateTimeSeriesPoint(UniqueId uniqueId, LocalDate valueDate, double value) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     ArgumentChecker.notNull(valueDate, "valueDate");
