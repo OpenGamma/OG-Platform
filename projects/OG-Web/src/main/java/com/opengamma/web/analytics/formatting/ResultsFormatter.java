@@ -5,6 +5,8 @@
  */
 package com.opengamma.web.analytics.formatting;
 
+import static com.opengamma.web.analytics.formatting.ResultsFormatter.CurrencyDisplay.DISPLAY_CURRENCY;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,9 +51,13 @@ public class ResultsFormatter {
   private final UnknownTypeFormatter _unknownTypeFormatter = new UnknownTypeFormatter();
 
   public ResultsFormatter() {
-    BigDecimalFormatter bigDecimalFormatter = new BigDecimalFormatter();
+    this(DISPLAY_CURRENCY);
+  }
+
+  public ResultsFormatter(CurrencyDisplay currencyDisplay) {
+    BigDecimalFormatter bigDecimalFormatter = new BigDecimalFormatter(currencyDisplay);
     DoubleFormatter doubleFormatter = new DoubleFormatter(bigDecimalFormatter);
-    CurrencyAmountFormatter currencyAmountFormatter = new CurrencyAmountFormatter(bigDecimalFormatter);
+    CurrencyAmountFormatter currencyAmountFormatter = new CurrencyAmountFormatter(currencyDisplay, bigDecimalFormatter);
     ZonedDateTimeFormatter zonedDateTimeFormatter = new ZonedDateTimeFormatter();
     LocalDateDoubleTimeSeriesFormatter localDateDoubleTimeSeriesFormatter = new LocalDateDoubleTimeSeriesFormatter();
     addFormatters(doubleFormatter,
@@ -192,5 +198,16 @@ public class ResultsFormatter {
   @SuppressWarnings("unchecked")
   public DataType getDataTypeForValue(Object value, ValueSpecification valueSpec) {
     return getFormatter(value, valueSpec).getDataTypeForValue(value);
+  }
+
+  enum CurrencyDisplay {
+    /**
+     * Include the currency code in formatted outputs (if one is available).
+     */
+    DISPLAY_CURRENCY,
+    /**
+     * Do not include the currency code in formatted outputs.
+     */
+    SUPPRESS_CURRENCY
   }
 }

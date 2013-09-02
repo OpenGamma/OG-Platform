@@ -17,11 +17,15 @@ import com.opengamma.util.money.CurrencyAmount;
 /* package */ class CurrencyAmountFormatter extends AbstractFormatter<CurrencyAmount> {
 
   private final BigDecimalFormatter _bigDecimalFormatter;
+  private final ResultsFormatter.CurrencyDisplay _currencyDisplay;
 
-  /* package */ CurrencyAmountFormatter(BigDecimalFormatter bigDecimalFormatter) {
+  /* package */ CurrencyAmountFormatter(ResultsFormatter.CurrencyDisplay currencyDisplay,
+                                        BigDecimalFormatter bigDecimalFormatter) {
     super(CurrencyAmount.class);
-    ArgumentChecker.notNull(bigDecimalFormatter, "");
+    ArgumentChecker.notNull(bigDecimalFormatter, "bigDecimalFormatter");
+    ArgumentChecker.notNull(currencyDisplay, "currencyDisplay");
     _bigDecimalFormatter = bigDecimalFormatter;
+    _currencyDisplay = currencyDisplay;
     addFormatter(new Formatter<CurrencyAmount>(Format.EXPANDED) {
       @Override
       Object format(CurrencyAmount value, ValueSpecification valueSpec, Object inlineKey) {
@@ -40,11 +44,20 @@ import com.opengamma.util.money.CurrencyAmount;
   public String formatCell(CurrencyAmount value, ValueSpecification valueSpec, Object inlineKey) {
     double amount = value.getAmount();
     BigDecimal bigDecimal = convertToBigDecimal(amount);
-    if (bigDecimal == null) {
-      return Double.toString(amount);
-    } else {
-      return value.getCurrency().getCode() + " " + _bigDecimalFormatter.formatCell(bigDecimal, valueSpec, inlineKey);
-    }
+    return bigDecimal == null ?
+        Double.toString(amount) :
+        formatValue(value, valueSpec, inlineKey, bigDecimal);
+  }
+
+  private String formatValue(CurrencyAmount value,
+                             ValueSpecification valueSpec,
+                             Object inlineKey,
+                             BigDecimal bigDecimal) {
+
+    String prefix = _currencyDisplay == ResultsFormatter.CurrencyDisplay.DISPLAY_CURRENCY ?
+        value.getCurrency().getCode() + " " :
+        "";
+    return prefix + _bigDecimalFormatter.formatCell(bigDecimal, valueSpec, inlineKey);
   }
 
   private Object formatExpanded(CurrencyAmount value, ValueSpecification valueSpec) {
