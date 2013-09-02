@@ -149,7 +149,7 @@ import com.opengamma.util.tuple.Pair;
   /**
    * Store details of the position lookup in the resolution cache. Positions are referenced from portfolio nodes by object identifier.
    * 
-   * @param
+   * @param position the position to store
    */
   private void store(final Position position) {
     _resolutions.putIfAbsent(MemoryUtils.instance(new ComputationTargetSpecification(ComputationTargetType.POSITION, position.getUniqueId().toLatest())), position.getUniqueId());
@@ -217,7 +217,6 @@ import com.opengamma.util.tuple.Pair;
       }
       positionExcluded = nodeData.isExcluded();
     }
-
     // Get this position's security or return immediately if not available
     final Security security = position.getSecurity();
     if (security == null) {
@@ -227,18 +226,13 @@ import com.opengamma.util.tuple.Pair;
       store(position);
       store(position.getSecurityLink());
     }
-
     // Identify this position's security type
     final String securityType = security.getSecurityType();
-
     Set<Pair<String, ValueProperties>> requiredOutputs;
-
     // Are we interested in producing results for positions?
     if (_outputPositions || _outputAggregates) {
-
       // Get all known required outputs for this security type in the current calculation configuration
       requiredOutputs = _portfolioRequirementsBySecurityType.get(securityType);
-
       // Check that there's at least one required output to deal with
       if ((requiredOutputs != null) && !requiredOutputs.isEmpty()) {
         if (nodeData == null) {
@@ -264,15 +258,12 @@ import com.opengamma.util.tuple.Pair;
       final Collection<Trade> trades = position.getTrades();
       if (!trades.isEmpty()) {
         requiredOutputs = _portfolioRequirementsBySecurityType.get(securityType);
-
         // Check that there's at least one required output to deal with
         if ((requiredOutputs != null) && !requiredOutputs.isEmpty()) {
-
           // Add value requirements for each trade
           for (final Trade trade : trades) {
             // TODO: [PLAT-2286] Scope the trade underneath it's parent portfolio node and position
             final ComputationTargetSpecification tradeSpec = ComputationTargetSpecification.of(trade);
-
             // Add the value requirements for the current trade to the graph builder's set of value requirements,
             // building them using the retrieved required outputs icw trades for this security type and the newly
             // created computation target spec for this trade.
@@ -281,7 +272,7 @@ import com.opengamma.util.tuple.Pair;
             }
           }
         }
-        for (final Trade trade : position.getTrades()) {
+        for (final Trade trade : trades) {
           store(trade.getSecurityLink());
         }
       }

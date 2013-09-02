@@ -29,6 +29,7 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.Position;
@@ -189,6 +190,7 @@ public final class ViewDefinitionCompiler {
         graph.removeUnnecessaryValues();
         getContext().getGraphs().add(graph);
         builders.remove();
+        s_logger.debug("Built {}", graph);
       }
     }
 
@@ -376,24 +378,68 @@ public final class ViewDefinitionCompiler {
       _changedPositions = changedPositions;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected void compile(final DependencyGraphBuilder builder) {
-      final Pair<DependencyGraph, Set<ValueRequirement>> graph = _previousGraphs.remove(builder.getCalculationConfigurationName());
-      if (graph != null) {
-        builder.setDependencyGraph(graph.getFirst());
-        if (graph.getSecond().isEmpty()) {
-          s_logger.debug("No incremental work for {}", graph.getFirst());
+      final ViewCalculationConfiguration calcConfig = getContext().getViewDefinition().getCalculationConfiguration(builder.getCalculationConfigurationName());
+      final Pair<DependencyGraph, Set<ValueRequirement>> graphPair = _previousGraphs.remove(builder.getCalculationConfigurationName());
+      if (graphPair != null) {
+        final DependencyGraph graph = graphPair.getFirst();
+        // Remove any invalid terminal outputs from the graph
+        final PortfolioIdentifierGatherer gatherer = new PortfolioIdentifierGatherer();
+        PortfolioNodeTraverser.parallel(gatherer, getContext().getServices().getExecutorService()).traverse(builder.getCompilationContext().getPortfolio().getRootNode());
+        final Set<UniqueId> identifiers = gatherer.getIdentifiers();
+        final Set<ValueRequirement> specifics = calcConfig.getSpecificRequirements();
+        final Map<ValueSpecification, Set<ValueRequirement>> terminalOutputs = graph.getTerminalOutputs();
+        ValueSpecification[] removeValueSpec = null;
+        Set<ValueRequirement>[] removeValueReq = null;
+        int i = 0;
+        for (Map.Entry<ValueSpecification, Set<ValueRequirement>> terminal : terminalOutputs.entrySet()) {
+          if (!identifiers.contains(terminal.getKey().getTargetSpecification().getUniqueId())) {
+            // Can't be a portfolio requirement
+            Set<ValueRequirement> toRemove = null;
+            for (ValueRequirement requirement : terminal.getValue()) {
+              if (!specifics.contains(requirement)) {
+                // Not a specific requirement
+                if (toRemove == null) {
+                  toRemove = Sets.newHashSetWithExpectedSize(terminal.getValue().size());
+                }
+                toRemove.add(requirement);
+              }
+            }
+            if (toRemove != null) {
+              if (i == 0) {
+                removeValueSpec = new ValueSpecification[terminalOutputs.size()];
+                removeValueReq = new Set[terminalOutputs.size()];
+              }
+              removeValueSpec[i] = terminal.getKey();
+              removeValueReq[i++] = toRemove;
+            }
+          }
+        }
+        if (i > 0) {
+          s_logger.info("Removing {} unmatched terminal outputs from {}", i, graph);
+          do {
+            i--;
+            graph.removeTerminalOutputs(removeValueReq[i], removeValueSpec[i]);
+          } while (i > 0);
+        }
+        // Populate the builder with the graph
+        builder.setDependencyGraph(graph);
+        final Set<ValueRequirement> requirements = graphPair.getSecond();
+        if (requirements.isEmpty()) {
+          s_logger.debug("No incremental work for {}", graph);
         } else {
-          s_logger.info("{} incremental resolutions required for {}", graph.getSecond().size(), graph.getFirst());
-          builder.addTarget(graph.getSecond());
+          s_logger.info("{} incremental resolutions required for {}", requirements.size(), graph);
+          builder.addTarget(requirements);
         }
       }
       if (_unchangedNodes != null) {
         s_logger.info("Adding portfolio requirements with unchanged node set");
-        addPortfolioRequirements(builder, getContext(), getContext().getViewDefinition().getCalculationConfiguration(builder.getCalculationConfigurationName()), null, _unchangedNodes);
+        addPortfolioRequirements(builder, getContext(), calcConfig, null, _unchangedNodes);
       } else if (_changedPositions != null) {
         s_logger.info("Adding portfolio requirements with changed position set");
-        addPortfolioRequirements(builder, getContext(), getContext().getViewDefinition().getCalculationConfiguration(builder.getCalculationConfigurationName()), _changedPositions, null);
+        addPortfolioRequirements(builder, getContext(), calcConfig, _changedPositions, null);
       } else {
         s_logger.info("No additional portfolio requirements needed");
       }
@@ -514,7 +560,6 @@ public final class ViewDefinitionCompiler {
       // No portfolio requirements for this calculation configuration - avoid further processing.
       return;
     }
-    // Add portfolio requirements to the dependency graph
     final Portfolio portfolio = builder.getCompilationContext().getPortfolio();
     final PortfolioCompilerTraversalCallback traversalCallback = new PortfolioCompilerTraversalCallback(calcConfig, builder, context.getActiveResolutions(), includeEvents, excludeEvents);
     final PortfolioNodeTraverser traverser = PortfolioNodeTraverser.parallel(traversalCallback, context.getServices().getExecutorService());
@@ -553,7 +598,6 @@ public final class ViewDefinitionCompiler {
     for (DependencyGraph graph : graphs) {
       final String configName = graph.getCalculationConfigurationName();
       sb.append("DepGraph for ").append(configName);
-
       sb.append("\tProducing values ").append(graph.getOutputSpecifications());
       for (final DependencyNode depNode : graph.getDependencyNodes()) {
         sb.append("\t\tNode:\n").append(DependencyNodeFormatter.toString(depNode));
