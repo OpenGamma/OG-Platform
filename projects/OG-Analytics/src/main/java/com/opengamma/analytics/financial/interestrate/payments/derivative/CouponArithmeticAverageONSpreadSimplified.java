@@ -51,7 +51,7 @@ public final class CouponArithmeticAverageONSpreadSimplified extends Coupon {
    */
   private CouponArithmeticAverageONSpreadSimplified(Currency currency, double paymentTime, double paymentYearFraction, double notional, IndexON index, final double fixingPeriodStartTime,
       double fixingPeriodEndTime, final double spread) {
-    super(currency, paymentTime, "NOT USED", paymentYearFraction, notional);
+    super(currency, paymentTime, paymentYearFraction, notional);
     _index = index;
     _fixingPeriodStartTime = fixingPeriodStartTime;
     _fixingPeriodEndTime = fixingPeriodEndTime;
