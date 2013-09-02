@@ -206,7 +206,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
    * Default value is false, indicating that currencies will be displayed by default.
    */
   @PropertyDefinition
-  private boolean suppressCurrencyDisplay = false;
+  private boolean _suppressCurrencyDisplay;
 
   //-------------------------------------------------------------------------
   @Override
@@ -242,7 +242,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
                                                                          getSecuritySource(),
                                                                          getSecurityMaster(),
                                                                          getPositionMaster());
-    ResultsFormatter resultsFormatter = new ResultsFormatter(suppressCurrencyDisplay ? SUPPRESS_CURRENCY : DISPLAY_CURRENCY);
+    ResultsFormatter resultsFormatter = new ResultsFormatter(_suppressCurrencyDisplay ? SUPPRESS_CURRENCY : DISPLAY_CURRENCY);
     GridColumnsJsonWriter columnWriter = new GridColumnsJsonWriter(resultsFormatter);
     ViewportResultsJsonCsvWriter viewportResultsWriter = new ViewportResultsJsonCsvWriter(resultsFormatter);
 
@@ -1088,26 +1088,32 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
    * Gets indicates if currency amounts should be displayed in the UI without the currency code. Note that this will
    * affect all views and should only be used where all results for all views will always be in a single,
    * well-known currency.
+   * 
+   * Default value is false, indicating that currencies will be displayed by default.
    * @return the value of the property
    */
   public boolean isSuppressCurrencyDisplay() {
-    return suppressCurrencyDisplay;
+    return _suppressCurrencyDisplay;
   }
 
   /**
    * Sets indicates if currency amounts should be displayed in the UI without the currency code. Note that this will
    * affect all views and should only be used where all results for all views will always be in a single,
    * well-known currency.
+   * 
+   * Default value is false, indicating that currencies will be displayed by default.
    * @param suppressCurrencyDisplay  the new value of the property
    */
   public void setSuppressCurrencyDisplay(boolean suppressCurrencyDisplay) {
-    this.suppressCurrencyDisplay = suppressCurrencyDisplay;
+    this._suppressCurrencyDisplay = suppressCurrencyDisplay;
   }
 
   /**
    * Gets the the {@code suppressCurrencyDisplay} property.
    * affect all views and should only be used where all results for all views will always be in a single,
    * well-known currency.
+   * 
+   * Default value is false, indicating that currencies will be displayed by default.
    * @return the property, not null
    */
   public final Property<Boolean> suppressCurrencyDisplay() {
