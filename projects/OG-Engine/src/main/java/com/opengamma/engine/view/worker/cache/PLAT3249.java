@@ -16,8 +16,10 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphExplorer;
 import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.test.Profiler;
 
 /**
@@ -65,14 +67,9 @@ public final class PLAT3249 {
   }
 
   private CompiledViewDefinitionWithGraphs copy(final CompiledViewDefinitionWithGraphs copyFrom) {
-    return new CompiledViewDefinitionWithGraphsImpl(copyFrom.getResolverVersionCorrection(),
-                                                    copyFrom.getCompilationIdentifier(),
-                                                    copyFrom.getViewDefinition(),
-                                                    copyGraphs(copyFrom.getDependencyGraphExplorers()),
-                                                    copyFrom.getResolvedIdentifiers(),
-                                                    copyFrom.getPortfolio(),
-                                                    ((CompiledViewDefinitionWithGraphsImpl) copyFrom).getFunctionInitId(),
-                                                    copyFrom.getCompiledCalculationConfigurations());
+    return new CompiledViewDefinitionWithGraphsImpl(copyFrom.getResolverVersionCorrection(), copyFrom.getCompilationIdentifier(), copyFrom.getViewDefinition(),
+        copyGraphs(copyFrom.getDependencyGraphExplorers()), new HashMap<ComputationTargetReference, UniqueId>(copyFrom.getResolvedIdentifiers()), copyFrom.getPortfolio(),
+        ((CompiledViewDefinitionWithGraphsImpl) copyFrom).getFunctionInitId(), copyFrom.getCompiledCalculationConfigurations());
   }
 
   public static CompiledViewDefinitionWithGraphs deepClone(final CompiledViewDefinitionWithGraphs copyFrom) {

@@ -1193,8 +1193,7 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
     }
   }
 
-  private CompiledViewDefinitionWithGraphs getCompiledViewDefinition(final Instant valuationTime,
-      final VersionCorrection versionCorrection) {
+  private CompiledViewDefinitionWithGraphs getCompiledViewDefinition(final Instant valuationTime, final VersionCorrection versionCorrection) {
     final long functionInitId = getProcessContext().getFunctionCompilationService().getFunctionCompilationContext().getFunctionInitId();
     updateViewDefinitionIfRequired();
     CompiledViewDefinitionWithGraphs compiledViewDefinition = null;
@@ -1458,7 +1457,7 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
    */
   public void cacheCompiledViewDefinition(final CompiledViewDefinitionWithGraphs latestCompiledViewDefinition) {
     if (latestCompiledViewDefinition != null) {
-      getProcessContext().getExecutionCache().setCompiledViewDefinitionWithGraphs(_executionCacheKey, latestCompiledViewDefinition);
+      getProcessContext().getExecutionCache().setCompiledViewDefinitionWithGraphs(_executionCacheKey, PLAT3249.deepClone(latestCompiledViewDefinition));
     }
     _latestCompiledViewDefinition = latestCompiledViewDefinition;
   }
