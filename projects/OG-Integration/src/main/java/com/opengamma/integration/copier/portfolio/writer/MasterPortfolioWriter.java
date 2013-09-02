@@ -329,22 +329,54 @@ public class MasterPortfolioWriter implements PortfolioWriter {
     return null;
   }
 
-  /*
-   * writeSecurity searches for an existing security that matches an external id search, and attempts to
+  /**
+   * Searches for an existing security that matches an {@code ExternalId} search, and attempts to
    * reuse/update it wherever possible, instead of creating a new one.
+   * @param security  The security to be written to the master.
+   * @return The new security as added to the master or the existing security found in the master
    */
-  private ManageableSecurity writeSecurity(ManageableSecurity security) {
+  protected ManageableSecurity writeSecurity(ManageableSecurity security) {
     
     ArgumentChecker.notNull(security, "security");
     
-    SecuritySearchRequest searchReq = new SecuritySearchRequest();
-    ExternalIdSearch idSearch = new ExternalIdSearch(security.getExternalIdBundle());  // match any one of the IDs
-    searchReq.setVersionCorrection(VersionCorrection.ofVersionAsOf(Instant.now())); // valid now
-    searchReq.setExternalIdSearch(idSearch);
-    searchReq.setFullDetail(true);
-    searchReq.setSortOrder(SecuritySearchSortOrder.VERSION_FROM_INSTANT_DESC);
-    SecuritySearchResult searchResult = _securityMaster.search(searchReq);
+    SecuritySearchResult searchResult = lookupSecurity(security);
 
+    ManageableSecurity foundSecurity = updateSecurityVersionIfFound(security, searchResult);
+
+    if (foundSecurity != null) {
+      return foundSecurity;
+    } else {
+      return addSecurity(security);
+    }
+  }
+
+  /**
+   * Adds a security to master and returns the newly added security.  Returns null if 
+   * unable to add security
+   */
+  private ManageableSecurity addSecurity(ManageableSecurity security) {
+    SecurityDocument addDoc = new SecurityDocument(security);
+    try {
+      SecurityDocument result = _securityMaster.add(addDoc);
+      return result.getSecurity();
+    } catch (Exception e) {
+      s_logger.error("Failed to write security " + security + " to the security master", e);
+      return null;
+    }
+  }
+
+  /**
+   * If there is an existing {@code ManageableSecurity} in the searchResult that matches security, for the 1st match:
+   * <p><ul>
+   * <li>if the only difference is the {@link UniqueId} do nothing and return the existing 
+   * <li> If there are other differences, update the existing and return the new security
+   * <li> If there are no matches or any errors are encountered, return null
+   * @param security new security being searched for
+   * <ul><p>
+   * @param searchResult results from search of Master for security
+   * @return found or updated security, null if no matches
+   */
+  protected ManageableSecurity updateSecurityVersionIfFound(ManageableSecurity security, SecuritySearchResult searchResult) {
     for (ManageableSecurity foundSecurity : searchResult.getSecurities()) {
       List<BeanDifference<?>> differences = null;
       if (foundSecurity.getClass().equals(security.getClass())) {
@@ -374,16 +406,26 @@ public class MasterPortfolioWriter implements PortfolioWriter {
         }
       }
     }
+    // no matching security in searchResult, return null
+    return null;
+  }
 
-    // Not found, so add it
-    SecurityDocument addDoc = new SecurityDocument(security);
-    try {
-      SecurityDocument result = _securityMaster.add(addDoc);
-      return result.getSecurity();
-    } catch (Exception e) {
-      s_logger.error("Failed to write security " + security + " to the security master", e);
-      return null;
-    }
+  /**
+   * Attempts to find a security in the master by {@code ExternalId}.  If any of the {@code ExternalId}s on the security
+   * match any {@code ExternalId} on an existing security, the existing security will be added to the returned 
+   * {@link SecuritySearchResult}.  The current version of the existing securities are used.
+   * @param security new security to search for in Master
+   * @return search result
+   */
+  protected SecuritySearchResult lookupSecurity(ManageableSecurity security) {
+    SecuritySearchRequest searchReq = new SecuritySearchRequest();
+    ExternalIdSearch idSearch = new ExternalIdSearch(security.getExternalIdBundle());  // match any one of the IDs
+    searchReq.setVersionCorrection(VersionCorrection.ofVersionAsOf(Instant.now())); // valid now
+    searchReq.setExternalIdSearch(idSearch);
+    searchReq.setFullDetail(true);
+    searchReq.setSortOrder(SecuritySearchSortOrder.VERSION_FROM_INSTANT_DESC);
+    SecuritySearchResult searchResult = _securityMaster.search(searchReq);
+    return searchResult;
   }
 
   private void testQuantities(ManageablePosition position) {
