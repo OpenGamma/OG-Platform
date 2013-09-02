@@ -23,6 +23,21 @@ import com.opengamma.web.analytics.ValueTypes;
 public class ResultsFormatter {
 
   /**
+   * Enum indicating whether the currency code should be included in the output
+   * when values are formatted.
+   */
+  public enum CurrencyDisplay {
+    /**
+     * Include the currency code in formatted outputs (if one is available).
+     */
+    DISPLAY_CURRENCY,
+    /**
+     * Do not include the currency code in formatted outputs.
+     */
+    SUPPRESS_CURRENCY
+  }
+
+  /**
    * Marker value returned to indicate there is no formatted value available for a combination of value, formatter
    * and inline key. This can happen for cells displaying inline values where the underlying value has no entry
    * for the column's key. It is also possible for complex values (e.g. vectors) where the history is stored
@@ -179,7 +194,7 @@ public class ResultsFormatter {
     TypeFormatter formatter = getFormatter(value, valueSpec);
     return formatter.format(value, valueSpec, format, inlineKey);
   }
-  
+
   /**
    * Returns the format type for a value type.
    * @param type The value type
@@ -198,16 +213,5 @@ public class ResultsFormatter {
   @SuppressWarnings("unchecked")
   public DataType getDataTypeForValue(Object value, ValueSpecification valueSpec) {
     return getFormatter(value, valueSpec).getDataTypeForValue(value);
-  }
-
-  enum CurrencyDisplay {
-    /**
-     * Include the currency code in formatted outputs (if one is available).
-     */
-    DISPLAY_CURRENCY,
-    /**
-     * Do not include the currency code in formatted outputs.
-     */
-    SUPPRESS_CURRENCY
   }
 }

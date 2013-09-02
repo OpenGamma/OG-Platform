@@ -5,6 +5,9 @@
  */
 package com.opengamma.component.factory.web;
 
+import static com.opengamma.web.analytics.formatting.ResultsFormatter.CurrencyDisplay.DISPLAY_CURRENCY;
+import static com.opengamma.web.analytics.formatting.ResultsFormatter.CurrencyDisplay.SUPPRESS_CURRENCY;
+
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -195,6 +198,15 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   @PropertyDefinition
   @Deprecated
   private NamedMarketDataSpecificationRepository _marketDataSpecificationRepository;
+  /**
+   * Indicates if currency amounts should be displayed in the UI without the currency code. Note that this will
+   * affect all views and should only be used where all results for all views will always be in a single,
+   * well-known currency.
+   *
+   * Default value is false, indicating that currencies will be displayed by default.
+   */
+  @PropertyDefinition
+  private boolean suppressCurrencyDisplay = false;
 
   //-------------------------------------------------------------------------
   @Override
@@ -230,7 +242,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
                                                                          getSecuritySource(),
                                                                          getSecurityMaster(),
                                                                          getPositionMaster());
-    ResultsFormatter resultsFormatter = new ResultsFormatter();
+    ResultsFormatter resultsFormatter = new ResultsFormatter(suppressCurrencyDisplay ? SUPPRESS_CURRENCY : DISPLAY_CURRENCY);
     GridColumnsJsonWriter columnWriter = new GridColumnsJsonWriter(resultsFormatter);
     ViewportResultsJsonCsvWriter viewportResultsWriter = new ViewportResultsJsonCsvWriter(resultsFormatter);
 
@@ -355,6 +367,8 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
         return getLiveMarketDataProviderFactory();
       case 1743800263:  // marketDataSpecificationRepository
         return getMarketDataSpecificationRepository();
+      case -1406342148:  // suppressCurrencyDisplay
+        return isSuppressCurrencyDisplay();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -425,6 +439,9 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
       case 1743800263:  // marketDataSpecificationRepository
         setMarketDataSpecificationRepository((NamedMarketDataSpecificationRepository) newValue);
         return;
+      case -1406342148:  // suppressCurrencyDisplay
+        setSuppressCurrencyDisplay((Boolean) newValue);
+        return;
     }
     super.propertySet(propertyName, newValue, quiet);
   }
@@ -480,6 +497,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
           JodaBeanUtils.equal(getFudgeContext(), other.getFudgeContext()) &&
           JodaBeanUtils.equal(getLiveMarketDataProviderFactory(), other.getLiveMarketDataProviderFactory()) &&
           JodaBeanUtils.equal(getMarketDataSpecificationRepository(), other.getMarketDataSpecificationRepository()) &&
+          JodaBeanUtils.equal(isSuppressCurrencyDisplay(), other.isSuppressCurrencyDisplay()) &&
           super.equals(obj);
     }
     return false;
@@ -509,6 +527,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getFudgeContext());
     hash += hash * 31 + JodaBeanUtils.hashCode(getLiveMarketDataProviderFactory());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSpecificationRepository());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isSuppressCurrencyDisplay());
     return hash ^ super.hashCode();
   }
 
@@ -1066,6 +1085,37 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets indicates if currency amounts should be displayed in the UI without the currency code. Note that this will
+   * affect all views and should only be used where all results for all views will always be in a single,
+   * well-known currency.
+   * @return the value of the property
+   */
+  public boolean isSuppressCurrencyDisplay() {
+    return suppressCurrencyDisplay;
+  }
+
+  /**
+   * Sets indicates if currency amounts should be displayed in the UI without the currency code. Note that this will
+   * affect all views and should only be used where all results for all views will always be in a single,
+   * well-known currency.
+   * @param suppressCurrencyDisplay  the new value of the property
+   */
+  public void setSuppressCurrencyDisplay(boolean suppressCurrencyDisplay) {
+    this.suppressCurrencyDisplay = suppressCurrencyDisplay;
+  }
+
+  /**
+   * Gets the the {@code suppressCurrencyDisplay} property.
+   * affect all views and should only be used where all results for all views will always be in a single,
+   * well-known currency.
+   * @return the property, not null
+   */
+  public final Property<Boolean> suppressCurrencyDisplay() {
+    return metaBean().suppressCurrencyDisplay().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code WebsiteViewportsComponentFactory}.
    */
   public static class Meta extends AbstractComponentFactory.Meta {
@@ -1180,6 +1230,11 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<NamedMarketDataSpecificationRepository> _marketDataSpecificationRepository = DirectMetaProperty.ofReadWrite(
         this, "marketDataSpecificationRepository", WebsiteViewportsComponentFactory.class, NamedMarketDataSpecificationRepository.class);
     /**
+     * The meta-property for the {@code suppressCurrencyDisplay} property.
+     */
+    private final MetaProperty<Boolean> _suppressCurrencyDisplay = DirectMetaProperty.ofReadWrite(
+        this, "suppressCurrencyDisplay", WebsiteViewportsComponentFactory.class, Boolean.TYPE);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -1204,7 +1259,8 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
         "user",
         "fudgeContext",
         "liveMarketDataProviderFactory",
-        "marketDataSpecificationRepository");
+        "marketDataSpecificationRepository",
+        "suppressCurrencyDisplay");
 
     /**
      * Restricted constructor.
@@ -1257,6 +1313,8 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
           return _liveMarketDataProviderFactory;
         case 1743800263:  // marketDataSpecificationRepository
           return _marketDataSpecificationRepository;
+        case -1406342148:  // suppressCurrencyDisplay
+          return _suppressCurrencyDisplay;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -1444,6 +1502,14 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     @Deprecated
     public final MetaProperty<NamedMarketDataSpecificationRepository> marketDataSpecificationRepository() {
       return _marketDataSpecificationRepository;
+    }
+
+    /**
+     * The meta-property for the {@code suppressCurrencyDisplay} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> suppressCurrencyDisplay() {
+      return _suppressCurrencyDisplay;
     }
 
   }
