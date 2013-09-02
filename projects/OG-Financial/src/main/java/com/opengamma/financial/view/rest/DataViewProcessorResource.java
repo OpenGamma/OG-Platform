@@ -121,7 +121,7 @@ public class DataViewProcessorResource extends AbstractDataResource {
    * @param viewProcessor the view processor, not null
    * @param targetResolver the target resolver, not null
    * @param volatilityCubeDefinitionSource the volatility cube, not null
-   * @param jmsConnector the JMS connector, not null
+   * @param jmsConnector the JMS connector, may be null
    * @param fudgeContext the Fudge context, not null
    * @param scheduler the scheduler, not null
    * @param htsSource the hts source, may be null

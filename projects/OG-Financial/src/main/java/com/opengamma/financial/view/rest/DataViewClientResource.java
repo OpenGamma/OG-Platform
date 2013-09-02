@@ -74,9 +74,17 @@ public class DataViewClientResource extends AbstractRestfulJmsResultPublisher {
   private final DataEngineResourceManagerResource<ViewCycle> _viewCycleManagerResource;
 
   public DataViewClientResource(ViewClient viewClient, DataEngineResourceManagerResource<ViewCycle> viewCycleManagerResource, JmsConnector jmsConnector, ExecutorService executor) {
-    super(new ViewClientJmsResultPublisher(viewClient, OpenGammaFudgeContext.getInstance(), jmsConnector), executor);
+    super(createJmsResultPublisher(viewClient, jmsConnector), executor);
     _viewClient = viewClient;
     _viewCycleManagerResource = viewCycleManagerResource;
+  }
+
+  private static ViewClientJmsResultPublisher createJmsResultPublisher(ViewClient viewClient, JmsConnector jmsConnector) {
+    if (jmsConnector == null) {
+      return null;
+    } else {
+      return new ViewClientJmsResultPublisher(viewClient, OpenGammaFudgeContext.getInstance(), jmsConnector);
+    }
   }
   
   /*package*/ ViewClient getViewClient() {
