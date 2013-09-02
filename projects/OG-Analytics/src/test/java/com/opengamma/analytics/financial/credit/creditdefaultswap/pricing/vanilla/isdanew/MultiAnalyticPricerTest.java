@@ -111,5 +111,83 @@ public class MultiAnalyticPricerTest extends ISDABaseTest {
     for (int i = 0; i < nMat; i++) {
       assertEquals("pv " + i, pvS[i], pvM[i], 1e-16);
     }
+
+    //check to correct integral prices 
+    final double[] pvMC = MULTI_PRICER_CORRECT.pv(cdsM, YIELD_CURVE, CREDIT_CURVE);
+    final double[] pvSC = new double[nMat];
+    for (int i = 0; i < nMat; i++) {
+      pvSC[i] = PRICER_CORRECT.pv(cdsS[i], YIELD_CURVE, CREDIT_CURVE, coupons[i]);
+    }
+
+    //These take different paths, so the match will not be exact 
+    for (int i = 0; i < nMat; i++) {
+      assertEquals("pv " + i, pvSC[i], pvMC[i], 1e-16);
+    }
   }
+
+  @Test(enabled = false)
+  public void speedTest() {
+    final int warmups = 200;
+    final int hotspot = 1000;
+
+    final LocalDate tradeDate = LocalDate.of(2013, Month.AUGUST, 30);
+    final LocalDate effectiveDate = FOLLOWING.adjustDate(DEFAULT_CALENDAR, getPrevIMMDate(tradeDate));
+    final LocalDate stepinDate = tradeDate.plusDays(1);
+    final LocalDate valueDate = addWorkDays(tradeDate, 3, DEFAULT_CALENDAR);
+    final LocalDate nextIMM = getNextIMMDate(tradeDate);
+    final int[] matIndex = new int[41];
+    final int nMat = matIndex.length;
+    final double[] coupons = new double[nMat];
+    for (int i = 0; i < nMat; i++) {
+      matIndex[i] = i;
+      coupons[i] = 0.001 + i / 4000.;
+    }
+
+    final LocalDate[] maturities = new LocalDate[nMat];
+
+    LocalDate tMat = nextIMM;
+    for (int i = 0; i < nMat; i++) {
+      final int steps = i == 0 ? matIndex[0] : matIndex[i] - matIndex[i - 1];
+      for (int j = 0; j < steps; j++) {
+        tMat = tMat.plus(PAYMENT_INTERVAL);
+      }
+      maturities[i] = tMat;
+    }
+    final Tenor paymentInt = Tenor.of(PAYMENT_INTERVAL);
+
+    final CDSAnalytic[] cdsS = FACTORY.makeCDS(tradeDate, effectiveDate, maturities);
+    final MultiCDSAnalytic cdsM = new MultiCDSAnalytic(tradeDate, stepinDate, valueDate, effectiveDate, nextIMM, matIndex, coupons, PAY_ACC_ON_DEFAULT, paymentInt, STUB, PROCTECTION_START,
+        RECOVERY_RATE, FOLLOWING, DEFAULT_CALENDAR, ACT360, ACT365);
+
+    final double[] pvSC = new double[nMat];
+    double[] pvMC = null;
+
+    for (int w = 0; w < warmups; w++) {
+      for (int i = 0; i < nMat; i++) {
+        pvSC[i] = PRICER_CORRECT.pv(cdsS[i], YIELD_CURVE, CREDIT_CURVE, coupons[i]);
+      }
+      pvMC = MULTI_PRICER_CORRECT.pv(cdsM, YIELD_CURVE, CREDIT_CURVE);
+    }
+
+    //These take different paths, so the match will not be exact 
+    for (int i = 0; i < nMat; i++) {
+      assertEquals("pv " + i, pvSC[i], pvMC[i], 1e-16);
+    }
+
+    long time = System.nanoTime();
+    for (int h = 0; h < hotspot; h++) {
+      for (int i = 0; i < nMat; i++) {
+        pvSC[i] = PRICER_CORRECT.pv(cdsS[i], YIELD_CURVE, CREDIT_CURVE, coupons[i]);
+      }
+    }
+    long nextTime = System.nanoTime();
+    System.out.println("Time for " + hotspot + " single CDS prices " + (nextTime - time) / 1e6 + "ms");
+    time = nextTime;
+    for (int h = 0; h < hotspot; h++) {
+      pvMC = MULTI_PRICER_CORRECT.pv(cdsM, YIELD_CURVE, CREDIT_CURVE);
+    }
+    nextTime = System.nanoTime();
+    System.out.println("Time for " + hotspot + " multi CDS prices " + (nextTime - time) / 1e6 + "ms");
+  }
+
 }
