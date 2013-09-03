@@ -16,19 +16,17 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.value.ValueProperties;
-import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.black.BlackDiscountingValueDeltaIRFutureOptionFunction;
-import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
-import com.opengamma.util.money.Currency;
 
 /**
- * Calculates the value delta of an {@link IRFutureOptionSecurity} using the Black Delta as input. <p>
+ * Calculates the value delta of an {@link IRFutureOptionSecurity} using the Black Delta as input.
+ * <p>
  * See {@link InterestRateFutureOptionBlackPositionDeltaFunction}
+ * 
  * @deprecated Use {@link BlackDiscountingValueDeltaIRFutureOptionFunction}
  */
 @Deprecated
@@ -54,12 +52,8 @@ public class InterestRateFutureOptionBlackValueDeltaFunction extends InterestRat
     // Build output specification.
     // TODO This is going to be a copy of the spec of the delta!!!
     final IRFutureOptionSecurity security = (IRFutureOptionSecurity) target.getTrade().getSecurity();
-    final Currency currency = FinancialSecurityUtils.getCurrency(security);
     final ValueRequirement desiredValue = desiredValues.iterator().next();
-    final String curveCalculationConfigName = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
-    final String surfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
-    final ValueProperties properties = getResultProperties(currency.getCode(), curveCalculationConfigName, surfaceName);
-    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.VALUE_DELTA, target.toSpecification(), properties);
+    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.VALUE_DELTA, target.toSpecification(), desiredValue.getConstraints());
 
     // Get inputs and compute output
     final Object deltaObject = inputs.getValue(ValueRequirementNames.POSITION_DELTA);
@@ -79,9 +73,9 @@ public class InterestRateFutureOptionBlackValueDeltaFunction extends InterestRat
   }
 
   @Override
-  protected Set<ComputedValue> getResult(final InstrumentDerivative irFutureOption, final YieldCurveWithBlackCubeBundle data, final ValueSpecification spec, final Set<ValueRequirement> desiredValues) {
+  protected Set<ComputedValue> getResult(final InstrumentDerivative irFutureOption, final YieldCurveWithBlackCubeBundle data,
+      final ValueSpecification spec, final Set<ValueRequirement> desiredValues) {
     throw new OpenGammaRuntimeException("Should never get called");
   }
-
 
 }

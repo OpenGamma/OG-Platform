@@ -24,9 +24,9 @@ import com.opengamma.financial.analytics.model.black.BlackDiscountingForwardIRFu
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Calls into {@link InterestRateFutureSecurityDiscountingMethod} to compute forward used in BlackFunctions.
- * No convexity is applied, so this may be used to compare to {@link ValueRequirementNames#UNDERLYING_MARKET_PRICE}
- * computed in {@link InterestRateFutureOptionMarketUnderlyingPriceFunction}
+ * Calls into {@link InterestRateFutureSecurityDiscountingMethod} to compute forward used in BlackFunctions. No convexity is applied, so this may be used to compare to
+ * {@link ValueRequirementNames#UNDERLYING_MARKET_PRICE} computed in {@link InterestRateFutureOptionMarketUnderlyingPriceFunction}
+ * 
  * @deprecated Use {@link BlackDiscountingForwardIRFutureOptionFunction}
  */
 @Deprecated
@@ -40,7 +40,8 @@ public class InterestRateFutureOptionBlackForwardFunction extends InterestRateFu
   }
 
   @Override
-  protected Set<ComputedValue> getResult(final InstrumentDerivative irFutureOptionTransaction, final YieldCurveWithBlackCubeBundle curveBundle, final ValueSpecification spec, final Set<ValueRequirement> desiredValues) {
+  protected Set<ComputedValue> getResult(final InstrumentDerivative irFutureOptionTransaction, final YieldCurveWithBlackCubeBundle curveBundle, final ValueSpecification spec,
+      final Set<ValueRequirement> desiredValues) {
     ArgumentChecker.isTrue(irFutureOptionTransaction instanceof InterestRateFutureOptionMarginTransaction,
         "InterestRateFutureOptionMarginTransaction expected. " + irFutureOptionTransaction.getClass().toString() + " found.");
     final InstrumentDerivative irFutureOptionSecurity = ((InterestRateFutureOptionMarginTransaction) irFutureOptionTransaction).getUnderlyingOption();
@@ -55,16 +56,6 @@ public class InterestRateFutureOptionBlackForwardFunction extends InterestRateFu
         .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
         .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
         .withAny(ValuePropertyNames.SURFACE)
-        .get();
-  }
-
-  @Override
-  /** Removed CURRENCY from properties */
-  protected ValueProperties getResultProperties(final String currency, final String curveCalculationConfig, final String surfaceName) {
-    return createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
-        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig)
-        .with(ValuePropertyNames.SURFACE, surfaceName)
         .get();
   }
 

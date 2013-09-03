@@ -61,6 +61,7 @@ import com.opengamma.util.money.Currency;
 
 /**
  * Base class for a range of functions computing values on an IRFuturesOption using the Black Model
+ * 
  * @deprecated Use classes that descend from {@link BlackDiscountingIRFutureOptionFunction}
  */
 @Deprecated
@@ -132,8 +133,7 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
     }
     final InstrumentDefinition<?> irFutureOptionDefinition = _converter.convert(trade);
     final InstrumentDerivative irFutureOption = _dataConverter.convert(security, irFutureOptionDefinition, now, fullCurveNames, timeSeries);
-    final ValueProperties properties = getResultProperties(currency.getCode(), curveCalculationConfigName, surfaceName);
-    final ValueSpecification spec = new ValueSpecification(_valueRequirementName, target.toSpecification(), properties);
+    final ValueSpecification spec = new ValueSpecification(_valueRequirementName, target.toSpecification(), desiredValue.getConstraints());
     final YieldCurveWithBlackCubeBundle data = new YieldCurveWithBlackCubeBundle(volatilitySurface.getSurface(), curves);
     return getResult(irFutureOption, data, spec, desiredValues);
   }
@@ -198,14 +198,14 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
 
   /**
    * Calculates the result
-   *
+   * 
    * @param irFutureOption The IR future option
    * @param data The data used in pricing
    * @param spec The value specification of the result
    * @param desiredValues The constraints on the function
    * @return The result
    */
-  protected abstract Set<ComputedValue> getResult(final InstrumentDerivative irFutureOption, final YieldCurveWithBlackCubeBundle data, 
+  protected abstract Set<ComputedValue> getResult(final InstrumentDerivative irFutureOption, final YieldCurveWithBlackCubeBundle data,
       final ValueSpecification spec, Set<ValueRequirement> desiredValues);
 
   protected ValueProperties getResultProperties(final String currency) {
@@ -213,14 +213,6 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
         .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
         .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
         .withAny(ValuePropertyNames.SURFACE)
-        .with(ValuePropertyNames.CURRENCY, currency).get();
-  }
-
-  protected ValueProperties getResultProperties(final String currency, final String curveCalculationConfig, final String surfaceName) {
-    return createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
-        .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveCalculationConfig)
-        .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(ValuePropertyNames.CURRENCY, currency).get();
   }
 
