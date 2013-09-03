@@ -252,17 +252,6 @@ public class MarketDataManager implements MarketDataListener, Lifecycle {
     _marketDataChangeListener.onMarketDataValuesChanged(specifications);
   }
 
-  private void addMarketDataSubscriptions(final Set<ValueSpecification> requiredSubscriptions) {
-    final OperationTimer timer = new OperationTimer(s_logger, "Adding {} market data subscriptions", requiredSubscriptions.size());
-    // Lock has been obtained by calling method
-    _marketDataSubscriptions.addAll(requiredSubscriptions);
-    for (ValueSpecification subscription : requiredSubscriptions) {
-      _pendingSubscriptions.put(subscription, ZonedDateTime.now());
-    }
-    makeSubscriptionRequest(requiredSubscriptions);
-    timer.finished();
-  }
-
   private void makeSubscriptionRequest(Set<ValueSpecification> requiredSubscriptions) {
     for (Set<ValueSpecification> batch : partitionSet(requiredSubscriptions, MAX_SUBSCRIPTION_BATCH_SIZE)) {
       _marketDataProvider.subscribe(batch);
@@ -385,16 +374,41 @@ public class MarketDataManager implements MarketDataListener, Lifecycle {
   }
 
   /**
-   * Request subscriptions for required market data. The request is checked against current subscriptions ensuring subscriptions are only sent for new requests. Any previously requested subscriptions
-   * that are no longer required will be removed.
+   * Request subscriptions for required market data. The request is checked against current
+   * subscriptions ensuring subscriptions are only sent for new requests. Any previously
+   * requested subscriptions that are no longer required will be removed.
    * 
    * @param requiredSubscriptions the required subscriptions, not null
    */
   public void requestMarketDataSubscriptions(final Set<ValueSpecification> requiredSubscriptions) {
+
     ArgumentChecker.notNull(requiredSubscriptions, "requiredSubscriptions");
+    Set<ValueSpecification> newSubscriptions = manageOngoingSubscriptions(requiredSubscriptions);
+
+    // As the market data provider calls back to ALL listeners (i.e. potentially multiple
+    // views), we need to make the subscription request outside the scope of the subscriptions
+    // lock otherwise we can hit deadlocks when two similar views (e.g. same view, different
+    // valuation times) are launched.
+    if (!newSubscriptions.isEmpty()) {
+      OperationTimer timer = new OperationTimer(s_logger, "Adding {} market data subscriptions", newSubscriptions.size());
+      makeSubscriptionRequest(newSubscriptions);
+      timer.finished();
+    }
+  }
+
+  /**
+   * Checks the required subscriptions against the currently held subscriptions, removing ones that are
+   * no longer required and returning the set of new subscriptions that are required.
+   *
+   * @param requiredSubscriptions the current set of required subscriptions (some of
+   * which may already be subscribed)
+   * @return the set of new subscriptions required
+   */
+  private Set<ValueSpecification> manageOngoingSubscriptions(Set<ValueSpecification> requiredSubscriptions) {
     _subscriptionsLock.lock();
     try {
-      final Set<ValueSpecification> currentSubscriptions = Sets.difference(_marketDataSubscriptions, _pendingSubscriptions.keySet()).immutableCopy();
+      final Set<ValueSpecification> currentSubscriptions = Sets.difference(_marketDataSubscriptions,
+                                                                           _pendingSubscriptions.keySet()).immutableCopy();
       final Set<ValueSpecification> unusedMarketData = Sets.difference(currentSubscriptions, requiredSubscriptions).immutableCopy();
       if (!unusedMarketData.isEmpty()) {
         s_logger.info("{} unused market data subscriptions", unusedMarketData.size());
@@ -403,8 +417,12 @@ public class MarketDataManager implements MarketDataListener, Lifecycle {
       final Set<ValueSpecification> newMarketData = Sets.difference(requiredSubscriptions, currentSubscriptions).immutableCopy();
       if (!newMarketData.isEmpty()) {
         s_logger.info("{} new market data requirements", newMarketData.size());
-        addMarketDataSubscriptions(newMarketData);
+        _marketDataSubscriptions.addAll(newMarketData);
+        for (ValueSpecification subscription : newMarketData) {
+          _pendingSubscriptions.put(subscription, ZonedDateTime.now());
+        }
       }
+      return newMarketData;
     } finally {
       _subscriptionsLock.unlock();
     }
