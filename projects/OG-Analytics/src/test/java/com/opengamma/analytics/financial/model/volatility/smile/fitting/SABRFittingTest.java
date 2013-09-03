@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.volatility.smile.fitting;
@@ -27,8 +27,9 @@ import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResultsWit
 import com.opengamma.util.monitor.OperationTimer;
 
 /**
- * 
+ * @deprecated This class tests deprecated functionality
  */
+@Deprecated
 public class SABRFittingTest {
   protected Logger _logger = LoggerFactory.getLogger(SABRFittingTest.class);
   protected int _hotspotWarmupCycles = 0;

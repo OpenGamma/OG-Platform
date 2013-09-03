@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.option.pricing.tree;
@@ -15,13 +15,8 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.BaroneAde
 import com.opengamma.analytics.financial.model.option.pricing.analytic.BjerksundStenslandModel;
 import com.opengamma.analytics.financial.model.volatility.BlackScholesFormulaRepository;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
-import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
-import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 
 public class BinomialTreeOptionPricingModelTest {
-
-  private static final double EPS = 1.e-7;
-  private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
 
   private static final BinomialTreeOptionPricingModel _model = new BinomialTreeOptionPricingModel();
   private static final double SPOT = 105.;
@@ -711,8 +706,8 @@ public class BinomialTreeOptionPricingModelTest {
                 final double[] dividendTimes = dividendTimesMat[j];
                 final double[] cashDividends = cashDividendsMat[j];
                 final double[] propDividends = propDividendsMat[j];
-                double oldCash = _model.getEuropeanPriceCashDividends(model, SPOT, strike, TIME, vol, interest, dividendTimes, cashDividends, steps, isCall);
-                double oldProp = _model.getEuropeanPriceProportionalDividends(model, SPOT, strike, TIME, vol, interest, dividendTimes, propDividends, steps, isCall);
+                final double oldCash = _model.getEuropeanPriceCashDividends(model, SPOT, strike, TIME, vol, interest, dividendTimes, cashDividends, steps, isCall);
+                final double oldProp = _model.getEuropeanPriceProportionalDividends(model, SPOT, strike, TIME, vol, interest, dividendTimes, propDividends, steps, isCall);
                 final OptionFunctionProvider1D function = new EuropeanVanillaOptionFunctionProvider(strike, steps, isCall);
                 final DividendFunctionProvider cashDividend = new CashDividendFunctionProvider(dividendTimes, cashDividends);
                 final DividendFunctionProvider propDividend = new ProportionalDividendFunctionProvider(dividendTimes, propDividends);
@@ -750,8 +745,8 @@ public class BinomialTreeOptionPricingModelTest {
                 final double[] dividendTimes = dividendTimesMat[j];
                 final double[] cashDividends = cashDividendsMat[j];
                 final double[] propDividends = propDividendsMat[j];
-                double oldCash = _model.getAmericanPriceCashDividends(model, SPOT, strike, TIME, vol, interest, dividendTimes, cashDividends, steps, isCall);
-                double oldProp = _model.getAmericanPriceProportionalDividends(model, SPOT, strike, TIME, vol, interest, dividendTimes, propDividends, steps, isCall);
+                final double oldCash = _model.getAmericanPriceCashDividends(model, SPOT, strike, TIME, vol, interest, dividendTimes, cashDividends, steps, isCall);
+                final double oldProp = _model.getAmericanPriceProportionalDividends(model, SPOT, strike, TIME, vol, interest, dividendTimes, propDividends, steps, isCall);
                 final OptionFunctionProvider1D function = new AmericanVanillaOptionFunctionProvider(strike, steps, isCall);
                 final DividendFunctionProvider cashDividend = new CashDividendFunctionProvider(dividendTimes, cashDividends);
                 final DividendFunctionProvider propDividend = new ProportionalDividendFunctionProvider(dividendTimes, propDividends);
@@ -801,8 +796,8 @@ public class BinomialTreeOptionPricingModelTest {
   //              //              assertEquals(greeks[3], bsmTheta, Math.max(Math.abs(bsmTheta), 1.) / steps);
   //              //            } else {
   //              //              /*
-  //              //               * As the price by LogEqualProbabiliesLatticeSpecification tends to converge to the "true" value from above, 
-  //              //               * this lattice specification must be tested separately. 
+  //              //               * As the price by LogEqualProbabiliesLatticeSpecification tends to converge to the "true" value from above,
+  //              //               * this lattice specification must be tested separately.
   //              //               */
   //              //              if (lattice instanceof LogEqualProbabiliesLatticeSpecification) {
   //              //                final double refDelta = exDelta[j][k][l] * (steps + 1.) / (steps - 1.);
@@ -902,7 +897,7 @@ public class BinomialTreeOptionPricingModelTest {
         new JabbourKraminYoungLatticeSpecification(), new TianLatticeSpecification(), new LeisenReimerLatticeSpecification() };
 
     for (int i = 0; i < 500; ++i) {
-      int nSteps = 3 + 2 * i;
+      final int nSteps = 3 + 2 * i;
       final double[] res0 = _model.getAmericanGreeks(lattices[0], 120, 110, 1., 1., 1., nSteps, false);
       final double[] res1 = _model.getAmericanGreeks(lattices[1], 120, 110, 1., 1., 1., nSteps, false);
       final double[] res2 = _model.getAmericanGreeks(lattices[2], 120, 110, 1., 1., 1., nSteps, false);

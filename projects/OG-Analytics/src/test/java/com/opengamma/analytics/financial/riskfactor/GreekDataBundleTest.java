@@ -27,7 +27,7 @@ public class GreekDataBundleTest {
   private static final UnderlyingType UNDERLYING_TYPE = UnderlyingType.SPOT_PRICE;
   private static final double SPOT_VALUE = 10;
   private static final GreekResultCollection GREEK_RESULTS = new GreekResultCollection();
-  private static final Map<UnderlyingType, Double> UNDERLYING_DATA = new HashMap<UnderlyingType, Double>();
+  private static final Map<UnderlyingType, Double> UNDERLYING_DATA = new HashMap<>();
   private static final OptionTradeData OPTION_TRADE_DATA = new OptionTradeData(100, 10);
   private static final GreekDataBundle DATA;
 

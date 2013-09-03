@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.volatility.smile.function;
@@ -37,7 +37,6 @@ public class SABRHaganVolatilityFunctionTest extends SABRVolatilityFunctionTestC
   private static final double BETA = 0.50;
   private static final double RHO = -0.25;
   private static final double NU = 0.4;
-  private static final double FORWARD = 0.05;
   private static final SABRFormulaData DATA = new SABRFormulaData(ALPHA, BETA, RHO, NU);
   private static final double T = 4.5;
   private static final double STRIKE_ITM = 0.0450;
@@ -679,8 +678,8 @@ public class SABRHaganVolatilityFunctionTest extends SABRVolatilityFunctionTestC
         funcA = func;
         break;
     }
-    
-    if (fdType != null) {
+
+    if (fdType != null && funcA != null && funcB != null && funcC != null) {
       switch (fdType) {
         case FORWARD:
           return (-1.5 * funcA.evaluate(dataA) + 2.0 * funcB.evaluate(dataB) - 0.5 * funcC.evaluate(dataC)) / delta;

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.volatility;
@@ -16,7 +16,7 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.E
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 
-public class BlackFormulaRepositotyTest {
+public class BlackFormulaRepositoryTest {
 
   private static final double EPS = 1.e-10;
   private static final double DELTA = 1.e-6;
@@ -40,22 +40,22 @@ public class BlackFormulaRepositotyTest {
 
   @Test
   public void zeroVolTest() {
-    boolean isCall = true;
+    final boolean isCall = true;
     final int n = STRIKES_INPUT.length;
     for (int i = 0; i < n; i++) {
-      double intrinic = Math.max(0, FORWARD - STRIKES_INPUT[i]);
-      double price = BlackFormulaRepository.price(FORWARD, STRIKES_INPUT[i], TIME_TO_EXPIRY, 0.0, isCall);
+      final double intrinic = Math.max(0, FORWARD - STRIKES_INPUT[i]);
+      final double price = BlackFormulaRepository.price(FORWARD, STRIKES_INPUT[i], TIME_TO_EXPIRY, 0.0, isCall);
       assertEquals(intrinic, price, 1e-15);
     }
   }
 
   @Test
   public void zeroExpiryTest() {
-    boolean isCall = false;
+    final boolean isCall = false;
     final int n = STRIKES_INPUT.length;
     for (int i = 0; i < n; i++) {
-      double intrinic = Math.max(0, STRIKES_INPUT[i] - FORWARD);
-      double price = BlackFormulaRepository.price(FORWARD, STRIKES_INPUT[i], 0.0, 0.3, isCall);
+      final double intrinic = Math.max(0, STRIKES_INPUT[i] - FORWARD);
+      final double price = BlackFormulaRepository.price(FORWARD, STRIKES_INPUT[i], 0.0, 0.3, isCall);
       assertEquals(intrinic, price, 1e-15);
     }
   }
@@ -63,24 +63,24 @@ public class BlackFormulaRepositotyTest {
   @Test
   public void tinyVolTest() {
     final double vol = 1e-4;
-    boolean isCall = true;
+    final boolean isCall = true;
     final int n = STRIKES_INPUT.length;
     for (int i = 0; i < n; i++) {
-      double intrinic = Math.max(0, FORWARD - STRIKES_INPUT[i]);
-      double price = BlackFormulaRepository.price(FORWARD, STRIKES_INPUT[i], TIME_TO_EXPIRY, vol, isCall);
+      final double intrinic = Math.max(0, FORWARD - STRIKES_INPUT[i]);
+      final double price = BlackFormulaRepository.price(FORWARD, STRIKES_INPUT[i], TIME_TO_EXPIRY, vol, isCall);
       assertEquals(intrinic, price, 1e-15);
     }
   }
 
   @Test
   public void shortExpiryTest() {
-    double t = 1e-5;
-    double vol = 0.4;
-    boolean isCall = false;
+    final double t = 1e-5;
+    final double vol = 0.4;
+    final boolean isCall = false;
     final int n = STRIKES_INPUT.length;
     for (int i = 0; i < n; i++) {
-      double intrinic = Math.max(0, STRIKES_INPUT[i] - FORWARD);
-      double price = BlackFormulaRepository.price(FORWARD, STRIKES_INPUT[i], t, vol, isCall);
+      final double intrinic = Math.max(0, STRIKES_INPUT[i] - FORWARD);
+      final double price = BlackFormulaRepository.price(FORWARD, STRIKES_INPUT[i], t, vol, isCall);
       assertEquals(intrinic, price, 1e-15);
     }
   }
@@ -88,20 +88,20 @@ public class BlackFormulaRepositotyTest {
   @Test
   public void massiveVolTest() {
     final double vol = 8.0; // 800% vol
-    boolean isCall = true;
+    final boolean isCall = true;
     final int n = STRIKES_INPUT.length;
     for (int i = 0; i < n; i++) {
-      double price = BlackFormulaRepository.price(FORWARD, STRIKES_INPUT[i], TIME_TO_EXPIRY, vol, isCall);
+      final double price = BlackFormulaRepository.price(FORWARD, STRIKES_INPUT[i], TIME_TO_EXPIRY, vol, isCall);
       assertEquals(FORWARD, price, 1e-15);
     }
   }
 
   @Test
   public void zeroStikeTest() {
-    boolean isCall = true;
+    final boolean isCall = true;
     final int n = VOLS.length;
     for (int i = 0; i < n; i++) {
-      double price = BlackFormulaRepository.price(FORWARD, 0.0, TIME_TO_EXPIRY, VOLS[i], isCall);
+      final double price = BlackFormulaRepository.price(FORWARD, 0.0, TIME_TO_EXPIRY, VOLS[i], isCall);
       assertEquals(FORWARD, price, 1e-15);
     }
   }
@@ -111,10 +111,10 @@ public class BlackFormulaRepositotyTest {
     final int n = VOLS.length;
     final int m = STRIKES_INPUT.length;
     for (int i = 0; i < m; i++) {
-      double fk = FORWARD - STRIKES_INPUT[i];
+      final double fk = FORWARD - STRIKES_INPUT[i];
       for (int j = 0; j < n; j++) {
-        double call = BlackFormulaRepository.price(FORWARD, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j], true);
-        double put = BlackFormulaRepository.price(FORWARD, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j], false);
+        final double call = BlackFormulaRepository.price(FORWARD, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j], true);
+        final double put = BlackFormulaRepository.price(FORWARD, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j], false);
         assertEquals(fk, call - put, 1e-13);
       }
     }
@@ -131,7 +131,7 @@ public class BlackFormulaRepositotyTest {
     final int m = STRIKES_INPUT.length;
     for (int i = 0; i < m; i++) {
       for (int j = 0; j < n; j++) {
-        double price = BlackFormulaRepository.price(FORWARD, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j], isCall);
+        final double price = BlackFormulaRepository.price(FORWARD, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j], isCall);
         assertEquals(PRE_COMPUTER_PRICES[i][j], price, 1e-18 * price);
         if (print) {
           if (j == 0) {
@@ -152,7 +152,7 @@ public class BlackFormulaRepositotyTest {
    * Tests the strikes in a range of strikes, volatilities and call/put.
    */
   public void impliedStrike() {
-    BlackPriceFunction function = new BlackPriceFunction();
+    final BlackPriceFunction function = new BlackPriceFunction();
     final int nbStrike = STRIKES_INPUT.length;
     final int nbVols = VOLS.length;
     // double[][] delta = new double[2][nbStrike];
@@ -162,11 +162,11 @@ public class BlackFormulaRepositotyTest {
       callput = !callput;
       for (int loopstrike = 0; loopstrike < nbStrike; loopstrike++) {
         for (int loopVols = 0; loopVols < nbVols; loopVols++) {
-          EuropeanVanillaOption option = new EuropeanVanillaOption(STRIKES_INPUT[loopstrike], TIME_TO_EXPIRY, callput);
-          BlackFunctionData data = new BlackFunctionData(FORWARD, 1.0, VOLS[loopVols]);
-          double[] d = function.getPriceAdjoint(option, data);
-          double delta = d[1];
-          double strikeOutput = BlackFormulaRepository.impliedStrike(delta, callput, FORWARD, TIME_TO_EXPIRY, VOLS[loopVols]);
+          final EuropeanVanillaOption option = new EuropeanVanillaOption(STRIKES_INPUT[loopstrike], TIME_TO_EXPIRY, callput);
+          final BlackFunctionData data = new BlackFunctionData(FORWARD, 1.0, VOLS[loopVols]);
+          final double[] d = function.getPriceAdjoint(option, data);
+          final double delta = d[1];
+          final double strikeOutput = BlackFormulaRepository.impliedStrike(delta, callput, FORWARD, TIME_TO_EXPIRY, VOLS[loopVols]);
           assertEquals("Implied strike: (data " + loopstrike + " / " + callput + ")", STRIKES_INPUT[loopstrike], strikeOutput, 1.0E-8);
         }
       }
@@ -180,23 +180,23 @@ public class BlackFormulaRepositotyTest {
    * Tests the strikes in a range of strikes, volatilities and call/put.
    */
   public void impliedStrikeDerivatives() {
-    double[] delta = new double[] {0.25, -0.25, 0.49 };
-    boolean[] cap = new boolean[] {true, false, true };
-    double[] forward = new double[] {104, 100, 10 };
-    double[] time = new double[] {2.5, 5.0, 0.5 };
-    double[] vol = new double[] {0.25, 0.10, 0.50 };
-    double shift = 0.000001;
-    double shiftF = 0.001;
-    double[] derivatives = new double[4];
+    final double[] delta = new double[] {0.25, -0.25, 0.49 };
+    final boolean[] cap = new boolean[] {true, false, true };
+    final double[] forward = new double[] {104, 100, 10 };
+    final double[] time = new double[] {2.5, 5.0, 0.5 };
+    final double[] vol = new double[] {0.25, 0.10, 0.50 };
+    final double shift = 0.000001;
+    final double shiftF = 0.001;
+    final double[] derivatives = new double[4];
     for (int loop = 0; loop < delta.length; loop++) {
-      double strike = BlackFormulaRepository.impliedStrike(delta[loop], cap[loop], forward[loop], time[loop], vol[loop], derivatives);
-      double strikeD = BlackFormulaRepository.impliedStrike(delta[loop] + shift, cap[loop], forward[loop], time[loop], vol[loop]);
+      final double strike = BlackFormulaRepository.impliedStrike(delta[loop], cap[loop], forward[loop], time[loop], vol[loop], derivatives);
+      final double strikeD = BlackFormulaRepository.impliedStrike(delta[loop] + shift, cap[loop], forward[loop], time[loop], vol[loop]);
       assertEquals("Implied strike: derivative delta", (strikeD - strike) / shift, derivatives[0], 1.0E-3);
-      double strikeF = BlackFormulaRepository.impliedStrike(delta[loop], cap[loop], forward[loop] + shiftF, time[loop], vol[loop]);
+      final double strikeF = BlackFormulaRepository.impliedStrike(delta[loop], cap[loop], forward[loop] + shiftF, time[loop], vol[loop]);
       assertEquals("Implied strike: derivative forward", (strikeF - strike) / shiftF, derivatives[1], 1.0E-5);
-      double strikeT = BlackFormulaRepository.impliedStrike(delta[loop], cap[loop], forward[loop], time[loop] + shift, vol[loop]);
+      final double strikeT = BlackFormulaRepository.impliedStrike(delta[loop], cap[loop], forward[loop], time[loop] + shift, vol[loop]);
       assertEquals("Implied strike: derivative time", (strikeT - strike) / shift, derivatives[2], 1.0E-4);
-      double strikeV = BlackFormulaRepository.impliedStrike(delta[loop], cap[loop], forward[loop], time[loop], vol[loop] + shift);
+      final double strikeV = BlackFormulaRepository.impliedStrike(delta[loop], cap[loop], forward[loop], time[loop], vol[loop] + shift);
       assertEquals("Implied strike: derivative volatility", (strikeV - strike) / shift, derivatives[3], 1.0E-3);
     }
   }
@@ -206,15 +206,15 @@ public class BlackFormulaRepositotyTest {
    * Assess the performance of the derivatives computation.
    */
   public void impliedStrikePerformanceDerivatives() {
-    double[] delta = new double[] {0.25, -0.25, 0.49 };
-    boolean[] cap = new boolean[] {true, false, true };
-    double[] forward = new double[] {104, 100, 10 };
-    double[] time = new double[] {2.5, 5.0, 0.5 };
-    double[] vol = new double[] {0.25, 0.10, 0.50 };
-    double[] derivatives = new double[4];
+    final double[] delta = new double[] {0.25, -0.25, 0.49 };
+    final boolean[] cap = new boolean[] {true, false, true };
+    final double[] forward = new double[] {104, 100, 10 };
+    final double[] time = new double[] {2.5, 5.0, 0.5 };
+    final double[] vol = new double[] {0.25, 0.10, 0.50 };
+    final double[] derivatives = new double[4];
 
     long startTime, endTime;
-    int nbTest = 100000;
+    final int nbTest = 100000;
     @SuppressWarnings("unused")
     double strike;
 
@@ -261,8 +261,8 @@ public class BlackFormulaRepositotyTest {
   // }
 
   /*
-   * 
-   * 
+   *
+   *
    * New tests added
    *
    *
@@ -275,14 +275,14 @@ public class BlackFormulaRepositotyTest {
     final int nStrikes = STRIKES_INPUT.length;
     final int nVols = VOLS.length;
 
-    double[] upStrikes = new double[nStrikes];
-    double[] dwStrikes = new double[nStrikes];
+    final double[] upStrikes = new double[nStrikes];
+    final double[] dwStrikes = new double[nStrikes];
     final double upFwd = FORWARD * (1. + DELTA);
     final double dwFwd = FORWARD * (1. - DELTA);
     final double upTime = TIME_TO_EXPIRY * (1. + DELTA);
     final double dwTime = TIME_TO_EXPIRY * (1. - DELTA);
-    double[] upVOLS = new double[nVols];
-    double[] dwVOLS = new double[nVols];
+    final double[] upVOLS = new double[nVols];
+    final double[] dwVOLS = new double[nVols];
     for (int i = 0; i < nStrikes; ++i) {
       upStrikes[i] = STRIKES_INPUT[i] * (1. + DELTA);
       dwStrikes[i] = STRIKES_INPUT[i] * (1. - DELTA);
@@ -348,8 +348,8 @@ public class BlackFormulaRepositotyTest {
 
   /*
    *
-   * 
-   *Tests for "price" method 
+   *
+   *Tests for "price" method
    *
    *
    */
@@ -842,7 +842,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeVolErrorPriceTest() {
@@ -850,7 +850,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeFwdErrorPriceTest() {
@@ -858,7 +858,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeStrikeErrorPriceTest() {
@@ -866,7 +866,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeTimeErrorPriceTest() {
@@ -901,7 +901,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullSimpleOptionDataTest() {
@@ -911,7 +911,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullSimpleOptionDataArrayTest() {
@@ -922,11 +922,11 @@ public class BlackFormulaRepositotyTest {
   }
 
   /*
-   * 
-   * 
+   *
+   *
    * Tests for "delta"
-   * 
-   * 
+   *
+   *
    */
   /**
    * Large/small value for delta
@@ -1405,7 +1405,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test
   public void parityDeltaTest() {
@@ -1424,7 +1424,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeVolErrorDeltaTest() {
@@ -1432,7 +1432,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeFwdErrorDeltaTest() {
@@ -1440,7 +1440,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeStrikeErrorDeltaTest() {
@@ -1448,7 +1448,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeTimeErrorDeltaTest() {
@@ -1456,14 +1456,14 @@ public class BlackFormulaRepositotyTest {
   }
 
   /*
-   * 
-   * 
+   *
+   *
    * Tests for "strikeForDelta"
-   * 
-   * 
+   *
+   *
    */
   /**
-   * 
+   *
    */
   @Test
   public void strikeForDeltaRecoveryTest() {
@@ -1514,7 +1514,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test
   public void exFwdStrikeForDeltaTest() {
@@ -1540,7 +1540,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test
   public void exTimeStrikeForDeltaTest() {
@@ -1564,12 +1564,12 @@ public class BlackFormulaRepositotyTest {
 
         assertEquals(1. - 1.e-12, strRecovC1, EPS * red);
         /*
-         * This case is not correctly recovered because strike = infinity is obtained by strikeForDelta, coming from exp( 1.e12 ), which always results in delta = 0 
+         * This case is not correctly recovered because strike = infinity is obtained by strikeForDelta, coming from exp( 1.e12 ), which always results in delta = 0
          */
-        //        assertEquals(1. - 1.e-12, strRecovC2, EPS * red); 
+        //        assertEquals(1. - 1.e-12, strRecovC2, EPS * red);
         assertEquals(-0.5, strRecovP1, EPS * red);
         /*
-         * This case gives strike = infinity 
+         * This case gives strike = infinity
          */
         //        assertEquals(-1., strRecovP2, EPS * red);
       }
@@ -1577,7 +1577,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test
   public void exVolStrikeForDeltaTest() {
@@ -1607,7 +1607,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void outOfRangeStrikeForDeltaCall1Test() {
@@ -1615,7 +1615,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void outOfRangeStrikeForDeltaCall2Test() {
@@ -1623,7 +1623,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void outOfRangeStrikeForDeltaPut1Test() {
@@ -1631,7 +1631,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void outOfRangeStrikeForDeltaPut2Test() {
@@ -1639,7 +1639,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeFwdStrikeForDeltaCall2Test() {
@@ -1647,7 +1647,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeTimeStrikeForDeltaPut1Test() {
@@ -1655,7 +1655,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeVolStrikeForDeltaPut2Test() {
@@ -1663,11 +1663,11 @@ public class BlackFormulaRepositotyTest {
   }
 
   /*
-   * 
-   * 
+   *
+   *
    * Tests for "dualDelta"
-   * 
-   * 
+   *
+   *
    */
   /**
    * large/small values for dual delta
@@ -2145,7 +2145,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test
   public void parityDualDeltaTest() {
@@ -2164,7 +2164,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeVolErrorDualDeltaTest() {
@@ -2172,7 +2172,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeFwdErrorDualDeltaTest() {
@@ -2180,7 +2180,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeStrikeErrorDualDeltaTest() {
@@ -2188,7 +2188,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeTimeErrorDualDeltaTest() {
@@ -2196,11 +2196,11 @@ public class BlackFormulaRepositotyTest {
   }
 
   /*
-   * 
-   * 
+   *
+   *
    * Tests for "simpleDelta"
-   * 
-   * 
+   *
+   *
    */
   /**
    * large/small values
@@ -2681,7 +2681,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test
   public void paritySimpleDeltaTest() {
@@ -2700,7 +2700,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeVolErrorSimpleDeltaTest() {
@@ -2708,7 +2708,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeFwdErrorSimpleDeltaTest() {
@@ -2716,7 +2716,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeStrikeErrorSimpleDeltaTest() {
@@ -2724,7 +2724,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeTimeErrorSimpleDeltaTest() {
@@ -2732,11 +2732,11 @@ public class BlackFormulaRepositotyTest {
   }
 
   /*
-   * 
-   * 
+   *
+   *
    * Tests for "gamma"
-   * 
-   * 
+   *
+   *
    */
   /**
    * large/small values
@@ -3132,7 +3132,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeVolErrorGammaTest() {
@@ -3140,7 +3140,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeFwdErrorGammaTest() {
@@ -3148,7 +3148,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeStrikeErrorGammaTest() {
@@ -3156,7 +3156,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeTimeErrorGammaTest() {
@@ -3164,11 +3164,11 @@ public class BlackFormulaRepositotyTest {
   }
 
   /*
-   * 
-   * 
+   *
+   *
    * Tests for "dualGamma"
-   * 
-   * 
+   *
+   *
    */
   /**
    * large/small values
@@ -3564,7 +3564,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeVolErrorDualGammaTest() {
@@ -3572,7 +3572,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeFwdErrorDualGammaTest() {
@@ -3580,7 +3580,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeStrikeErrorDualGammaTest() {
@@ -3588,7 +3588,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeTimeErrorDualGammaTest() {
@@ -3598,8 +3598,8 @@ public class BlackFormulaRepositotyTest {
   /*
    *
    * crossGamma
-   * 
-   * 
+   *
+   *
    */
   /**
    * large/small value
@@ -3995,7 +3995,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeVolErrorCrossGammaTest() {
@@ -4003,7 +4003,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeFwdErrorCrossGammaTest() {
@@ -4011,7 +4011,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeStrikeErrorCrossGammaTest() {
@@ -4019,7 +4019,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeTimeErrorCrossGammaTest() {
@@ -4027,9 +4027,9 @@ public class BlackFormulaRepositotyTest {
   }
 
   /*
-   * 
-   * Theta tests 
-   * 
+   *
+   * Theta tests
+   *
    */
   /**
    * large/small input
@@ -4706,7 +4706,7 @@ public class BlackFormulaRepositotyTest {
     }
 
     /*******************************************************
-     * 
+     *
      */
     for (int j = 0; j < nVols; ++j) {
       final double vol = VOLS[j];
@@ -5069,7 +5069,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeVolErrorThetaTest() {
@@ -5077,7 +5077,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeFwdErrorThetaTest() {
@@ -5085,7 +5085,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeStrikeErrorThetaTest() {
@@ -5093,7 +5093,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeTimeErrorThetaTest() {
@@ -5101,13 +5101,13 @@ public class BlackFormulaRepositotyTest {
   }
 
   /*
-   * 
-   * 
-   * 
+   *
+   *
+   *
    * driftlessTheta
-   * 
-   * 
-   * 
+   *
+   *
+   *
    */
   /**
    * large/small input
@@ -5526,7 +5526,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeVolErrorDriftlessThetaTest() {
@@ -5534,7 +5534,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeFwdErrorDriftlessThetaTest() {
@@ -5542,7 +5542,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeStrikeErrorDriftlessThetaTest() {
@@ -5550,7 +5550,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeTimeErrorDriftlessThetaTest() {
@@ -5558,13 +5558,13 @@ public class BlackFormulaRepositotyTest {
   }
 
   /*
-   * 
-   * 
-   * 
+   *
+   *
+   *
    * vega
-   * 
-   * 
-   * 
+   *
+   *
+   *
    */
   /**
    * large/small input
@@ -6029,7 +6029,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeVolErrorVegaTest() {
@@ -6037,7 +6037,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeFwdErrorVegaTest() {
@@ -6045,7 +6045,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeStrikeErrorVegaTest() {
@@ -6053,7 +6053,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeTimeErrorVegaTest() {
@@ -6061,7 +6061,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test
   public void useSimpleOptionDataVegaTest() {
@@ -6085,7 +6085,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullSimpleOptionDataVegaTest() {
@@ -6095,16 +6095,16 @@ public class BlackFormulaRepositotyTest {
   }
 
   /*
-   * 
-   * 
-   * 
+   *
+   *
+   *
    * vanna
-   * 
-   * 
-   * 
+   *
+   *
+   *
    */
   /**
-   * 
+   *
    */
   @Test
   public void exVannaTest() {
@@ -6559,7 +6559,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeVolErrorVannaTest() {
@@ -6567,7 +6567,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeFwdErrorVannaTest() {
@@ -6575,7 +6575,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeStrikeErrorVannaTest() {
@@ -6583,7 +6583,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeTimeErrorVannaTest() {
@@ -6591,13 +6591,13 @@ public class BlackFormulaRepositotyTest {
   }
 
   /*
-   * 
-   * 
-   * 
+   *
+   *
+   *
    * dualVanna
-   * 
-   * 
-   * 
+   *
+   *
+   *
    */
   /**
    * large/small input
@@ -7052,7 +7052,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeVolErrorDualVannaTest() {
@@ -7060,7 +7060,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeFwdErrorDualVannaTest() {
@@ -7068,7 +7068,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeStrikeErrorDualVannaTest() {
@@ -7076,7 +7076,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeTimeErrorDualVannaTest() {
@@ -7084,13 +7084,13 @@ public class BlackFormulaRepositotyTest {
   }
 
   /*
-   * 
-   * 
-   * 
+   *
+   *
+   *
    * vomma
-   * 
-   * 
-   * 
+   *
+   *
+   *
    */
   /**
    * large/small input
@@ -7547,7 +7547,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeVolErrorVommaTest() {
@@ -7555,7 +7555,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeFwdErrorVommaTest() {
@@ -7563,7 +7563,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeStrikeErrorVommaTest() {
@@ -7571,7 +7571,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeTimeErrorVommaTest() {
@@ -7579,13 +7579,13 @@ public class BlackFormulaRepositotyTest {
   }
 
   /*
-   * 
+   *
    * Volga test
-   * 
-   * 
+   *
+   *
    */
   /**
-   * 
+   *
    */
   @Test
   public void volgaTest() {
@@ -7607,11 +7607,11 @@ public class BlackFormulaRepositotyTest {
   /*
    *
    * Implied vol tests
-   * 
-   * 
+   *
+   *
    */
   /**
-   * 
+   *
    */
   @Test
   public void volRecoveryTest() {
@@ -7634,7 +7634,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativePriceErrorImpliedVolatilityTest() {
@@ -7642,7 +7642,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeFwdErrorImpliedVolatilityTest() {
@@ -7650,7 +7650,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeStrikeErrorImpliedVolatilityTest() {
@@ -7658,7 +7658,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeTimeErrorImpliedVolatilityTest() {
@@ -7666,7 +7666,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test
   public void volInitialGuessTest() {
@@ -7687,7 +7687,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test
   public void volRecoveryFromDataTest() {
@@ -7718,11 +7718,11 @@ public class BlackFormulaRepositotyTest {
   /*
   *
   * Implied strike tests
-  * 
-  * 
+  *
+  *
   */
   /**
-   * 
+   *
    */
   @Test
   public void strikeRecoveryTest() {
@@ -7745,14 +7745,14 @@ public class BlackFormulaRepositotyTest {
   }
 
   /*
-   * 
+   *
    * Tests below are for debugging
-   * 
-   * 
+   *
+   *
    */
 
   /**
-   * 
+   *
    */
   @Test
       (enabled = false)
@@ -7818,7 +7818,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test
       (enabled = false)
@@ -7888,7 +7888,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test
       (enabled = false)
@@ -7962,7 +7962,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test
       (enabled = false)
@@ -8036,7 +8036,7 @@ public class BlackFormulaRepositotyTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(enabled = false)
   public void sTest() {
@@ -8046,9 +8046,8 @@ public class BlackFormulaRepositotyTest {
     double lognormalVol = 1.e-26;
     final double rootT = 2.;
 
-    final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
     double d1 = Math.log(forward / strike) / lognormalVol / rootT + 0.5 * lognormalVol * rootT;
-    double d2 = Math.log(forward / strike) / lognormalVol / rootT - 0.5 * lognormalVol * rootT;
+    final double d2 = Math.log(forward / strike) / lognormalVol / rootT - 0.5 * lognormalVol * rootT;
     System.out.println((-d2 * NORMAL.getPDF(d1) / lognormalVol));
 
     forward = 140.;

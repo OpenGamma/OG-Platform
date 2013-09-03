@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.option.pricing.analytic;
@@ -64,7 +64,7 @@ public abstract class AnalyticOptionModelTest {
 
   @Test
   public void testFiniteDifferenceAgainstBSM() {
-    final Set<Greek> greekTypes = new HashSet<Greek>(Greek.getAllGreeks());
+    final Set<Greek> greekTypes = new HashSet<>(Greek.getAllGreeks());
     greekTypes.remove(Greek.DRIFTLESS_THETA);
     greekTypes.remove(Greek.STRIKE_DELTA);
     greekTypes.remove(Greek.STRIKE_GAMMA);

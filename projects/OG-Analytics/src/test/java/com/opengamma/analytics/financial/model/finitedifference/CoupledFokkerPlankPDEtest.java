@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.finitedifference;
@@ -23,8 +23,9 @@ import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * 
+ * @deprecated This class tests deprecated functionality
  */
+@Deprecated
 @SuppressWarnings("unused")
 public class CoupledFokkerPlankPDEtest {
 
@@ -56,8 +57,8 @@ public class CoupledFokkerPlankPDEtest {
   static {
 
     FORWARD = new ForwardCurve(SPOT, RATE);
-    TwoStateMarkovChainDataBundle chainData = new TwoStateMarkovChainDataBundle(VOL1, VOL2, LAMBDA12, LAMBDA21, INITIAL_PROB_STATE1);
-    ExtendedCoupledPDEDataBundle[] pdeData = PDE_DATA_PROVIDER.getCoupledFokkerPlankPair(FORWARD, chainData);
+    final TwoStateMarkovChainDataBundle chainData = new TwoStateMarkovChainDataBundle(VOL1, VOL2, LAMBDA12, LAMBDA21, INITIAL_PROB_STATE1);
+    final ExtendedCoupledPDEDataBundle[] pdeData = PDE_DATA_PROVIDER.getCoupledFokkerPlankPair(FORWARD, chainData);
     DATA1 = pdeData[0];
     DATA2 = pdeData[1];
 

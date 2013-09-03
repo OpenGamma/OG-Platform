@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation;
@@ -16,7 +16,7 @@ import com.opengamma.analytics.math.interpolation.PSplineFitter;
 import com.opengamma.analytics.math.statistics.leastsquare.GeneralizedLeastSquareResults;
 
 /**
- * 
+ *
  */
 public class SmileInterpolatorSABRTest extends SmileInterpolatorTestCase {
 
@@ -93,9 +93,9 @@ public class SmileInterpolatorSABRTest extends SmileInterpolatorTestCase {
     final Function1D<Double, Double> func2 = inter.getVolatilityFunction(f, k, t, vols);
 
     final int n = k.length;
-    final List<Double> x = new ArrayList<Double>(n);
-    final List<Double> y = new ArrayList<Double>(n);
-    final List<Double> sigma = new ArrayList<Double>(n);
+    final List<Double> x = new ArrayList<>(n);
+    final List<Double> y = new ArrayList<>(n);
+    final List<Double> sigma = new ArrayList<>(n);
     for (int i = 0; i < n; i++) {
       x.add(k[i]);
       y.add(vols[i]);

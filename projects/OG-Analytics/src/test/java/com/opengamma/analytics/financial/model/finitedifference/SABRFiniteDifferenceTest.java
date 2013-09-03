@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.finitedifference;
@@ -35,7 +35,7 @@ import com.opengamma.analytics.math.interpolation.data.Interpolator1DDoubleQuadr
 import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 
 /**
- * 
+ *
  */
 @Test
 public class SABRFiniteDifferenceTest {
@@ -73,7 +73,7 @@ public class SABRFiniteDifferenceTest {
   private static final LocalVolatilitySurfaceMoneyness LV_M;
   private static final Function1D<Double, Double> PAYOFF;
   /**
-   * 
+   *
    */
   static {
     ATM_VOL = new Function1D<Double, Double>() {
@@ -193,7 +193,7 @@ public class SABRFiniteDifferenceTest {
 
     final PDEGrid1D grid = new PDEGrid1D(tNodes, xNodes, T, lower.getLevel(), upper.getLevel());
     final ConvectionDiffusionPDE1DCoefficients pde = PDE_PROVIDER.getBackwardsLocalVol(RATE, RATE - DRIFT, T, SABR_LOCAL_VOL);
-    final PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pde, PAYOFF, lower, upper, grid);
+    final PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db = new PDE1DDataBundle<>(pde, PAYOFF, lower, upper, grid);
     final PDEResults1D res = solver.solve(db);
 
     final double df = YIELD_CURVE.getDiscountFactor(T);
@@ -297,7 +297,7 @@ public class SABRFiniteDifferenceTest {
     final MeshingFunction spaceMesh = new HyperbolicMeshing(0.0, maxMoneyness, 1.0, xNodes, 0.05);
     final PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
 
-    final PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pde, initialCondition, lower, upper, grid);
+    final PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db = new PDE1DDataBundle<>(pde, initialCondition, lower, upper, grid);
     final PDEResults1D res = solver.solve(db);
     final double fwd = FORWARD_CURVE.getForward(T);
 
@@ -345,7 +345,7 @@ public class SABRFiniteDifferenceTest {
     final MeshingFunction timeMesh = new ExponentialMeshing(0.0, T, tNodes, 5.0);
     final MeshingFunction spaceMesh = new HyperbolicMeshing(0.0, maxStrike, SPOT, xNodes, 0.1);
     final PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
-    final PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pde, initialCondition, lower, upper, grid);
+    final PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db = new PDE1DDataBundle<>(pde, initialCondition, lower, upper, grid);
 
     final PDEResults1D res = solver.solve(db);
     final double df = Math.exp(-RATE * T);
@@ -426,11 +426,11 @@ public class SABRFiniteDifferenceTest {
     final PDEGrid1D gridCFwd = new PDEGrid1D(timeMesh, spaceMeshCFwd);
     final PDEGrid1D gridBwd = new PDEGrid1D(timeMesh, spaceMeshBwd);
 
-    final PDEResults1D res = solver.solve(new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pdeFwd, initialCondFwd, lowerFwd, upperFwd, gridFwd));
-    final PDEResults1D resUp = solver.solve(new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pdeFwdUp, initialCondFwd, lowerFwd, upperFwd, gridFwd));
-    final PDEResults1D resDown = solver.solve(new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pdeFwdDown, initialCondFwd, lowerFwd, upperFwd, gridFwd));
-    final PDEResults1D resCUp = solver.solve(new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pdeClasFwd, initialCondClasFwdUp, lowerUp, upperCFwd, gridCFwd));
-    final PDEResults1D resCDown = solver.solve(new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pdeClasFwd, initialCondClasFwdDown, lowerDown, upperCFwd,
+    final PDEResults1D res = solver.solve(new PDE1DDataBundle<>(pdeFwd, initialCondFwd, lowerFwd, upperFwd, gridFwd));
+    final PDEResults1D resUp = solver.solve(new PDE1DDataBundle<>(pdeFwdUp, initialCondFwd, lowerFwd, upperFwd, gridFwd));
+    final PDEResults1D resDown = solver.solve(new PDE1DDataBundle<>(pdeFwdDown, initialCondFwd, lowerFwd, upperFwd, gridFwd));
+    final PDEResults1D resCUp = solver.solve(new PDE1DDataBundle<>(pdeClasFwd, initialCondClasFwdUp, lowerUp, upperCFwd, gridCFwd));
+    final PDEResults1D resCDown = solver.solve(new PDE1DDataBundle<>(pdeClasFwd, initialCondClasFwdDown, lowerDown, upperCFwd,
         gridCFwd));
 
     final double q = Math.exp(-(RATE - DRIFT) * T);
@@ -516,9 +516,9 @@ public class SABRFiniteDifferenceTest {
     final PDEGrid1D gridFwd = new PDEGrid1D(timeMesh, spaceMeshFwd);
     final PDEGrid1D gridBwd = new PDEGrid1D(timeMesh, spaceMeshBwd);
 
-    final PDEResults1D res = solver.solve(new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pdeFwd, initialCondFwd, lowerFwd, upperFwd, gridFwd));
-    final PDEResults1D resUp = solver.solve(new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pdeFwdUp, initialCondFwd, lowerFwd, upperFwd, gridFwd));
-    final PDEResults1D resDown = solver.solve(new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pdeFwdDown, initialCondFwd, lowerFwd, upperFwd, gridFwd));
+    final PDEResults1D res = solver.solve(new PDE1DDataBundle<>(pdeFwd, initialCondFwd, lowerFwd, upperFwd, gridFwd));
+    final PDEResults1D resUp = solver.solve(new PDE1DDataBundle<>(pdeFwdUp, initialCondFwd, lowerFwd, upperFwd, gridFwd));
+    final PDEResults1D resDown = solver.solve(new PDE1DDataBundle<>(pdeFwdDown, initialCondFwd, lowerFwd, upperFwd, gridFwd));
 
     for (int i = 0; i < xNodes; i++) {
       final double x = res.getSpaceValue(i);
@@ -598,7 +598,7 @@ public class SABRFiniteDifferenceTest {
     final MeshingFunction spaceMeshFwd = new HyperbolicMeshing(0.0, maxMoneyness, 1.0, xNodes, 0.1);
 
     final PDEGrid1D gridFwd = new PDEGrid1D(timeMesh, spaceMeshFwd);
-    final PDEResults1D res = solver.solve(new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pde, initialCond, lowerFwd, upperFwd, gridFwd));
+    final PDEResults1D res = solver.solve(new PDE1DDataBundle<>(pde, initialCond, lowerFwd, upperFwd, gridFwd));
 
     for (int i = 1; i < xNodes - 1; i++) {
       final double x = res.getSpaceValue(i);

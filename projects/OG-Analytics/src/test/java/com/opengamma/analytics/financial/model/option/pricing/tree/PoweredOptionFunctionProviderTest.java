@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.option.pricing.tree;
@@ -15,7 +15,7 @@ import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 
 /**
- * 
+ *
  */
 public class PoweredOptionFunctionProviderTest {
 
@@ -31,7 +31,7 @@ public class PoweredOptionFunctionProviderTest {
   private static final double[] DIVIDENDS = new double[] {0.005, 0.014 };
 
   /**
-   * 
+   *
    */
   @Test
   public void priceLatticeTest() {
@@ -39,7 +39,7 @@ public class PoweredOptionFunctionProviderTest {
         new JabbourKraminYoungLatticeSpecification(), new TianLatticeSpecification() };
 
     /**
-     * Since d1, d2 in Black-Scholes formula are not relevant in the case of power option, Leisen-Reimer is poor approximation 
+     * Since d1, d2 in Black-Scholes formula are not relevant in the case of power option, Leisen-Reimer is poor approximation
      */
     //    final LatticeSpecification[] lattices = new LatticeSpecification[] {new LeisenReimerLatticeSpecification() };
 
@@ -107,7 +107,7 @@ public class PoweredOptionFunctionProviderTest {
   }
 
   /**
-   * 
+   *
    */
   @Test
   public void greekTest() {
@@ -247,7 +247,7 @@ public class PoweredOptionFunctionProviderTest {
   }
 
   /**
-   * 
+   *
    */
   @Test
   public void getPowerTest() {
@@ -256,7 +256,7 @@ public class PoweredOptionFunctionProviderTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativePowerTest() {
@@ -324,25 +324,22 @@ public class PoweredOptionFunctionProviderTest {
   private int getFactorial(final int n) {
     if (n < 2) {
       return 1;
-    } else {
-      return n * getFactorial(n - 1);
     }
+    return n * getFactorial(n - 1);
   }
 
   private double getPower(final double value, final int n) {
     if (n < 0) {
       return 0.;
-    } else {
-      if (n < 1) {
-        return 1.;
-      } else {
-        return value * getPower(value, n - 1);
-      }
     }
+    if (n < 1) {
+      return 1.;
+    }
+    return value * getPower(value, n - 1);
   }
 
   //  /**
-  //   * 
+  //   *
   //   */
   //  @Test
   //  public void functionTest() {

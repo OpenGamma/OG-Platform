@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.finitedifference.applications;
@@ -44,6 +44,7 @@ import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
  * and compares it to the theoretical value. In the second example a 'realistic' local volatility surface is generated from a mixed log-normal model
  * (which again has a know value for the log-contract).
  * TODO Move some of this code to a log-payoff local volatility calculator
+ *
  */
 public class LogPayoffTest {
 
@@ -85,7 +86,7 @@ public class LogPayoffTest {
     final MeshingFunction spaceMesh = new ExponentialMeshing(fL, fH, 101, 0.0);
 
     final PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
-    final PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(PDE, INITIAL_COND, lower, upper, grid);
+    final PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db = new PDE1DDataBundle<>(PDE, INITIAL_COND, lower, upper, grid);
     final PDEResults1D res = solver.solve(db);
 
     final int n = res.getNumberSpaceNodes();

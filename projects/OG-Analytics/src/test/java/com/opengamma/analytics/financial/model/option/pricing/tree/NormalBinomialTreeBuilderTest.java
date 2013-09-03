@@ -31,7 +31,7 @@ import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
- * 
+ *
  */
 public class NormalBinomialTreeBuilderTest {
 
@@ -44,7 +44,7 @@ public class NormalBinomialTreeBuilderTest {
   private static final double SIGMA_BETA;
   private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 7, 1);
   private static final OptionDefinition OPTION;
-  private static final BinomialTreeBuilder<GeneralNormalOptionDataBundle> BUILDER = new NormalBinomialTreeBuilder<GeneralNormalOptionDataBundle>();
+  private static final BinomialTreeBuilder<GeneralNormalOptionDataBundle> BUILDER = new NormalBinomialTreeBuilder<>();
   private static final DriftSurface DRIFTLESS;
   private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
   private static final CEVPriceFunction CEV_PRICE = new CEVPriceFunction();

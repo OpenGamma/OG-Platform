@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.option.pricing.montecarlo;
@@ -28,7 +28,7 @@ import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
- * 
+ *
  */
 public class EuropeanMonteCarloOptionModelTest {
   private static final RandomNumberGenerator GENERATOR = new NormalRandomNumberGenerator(0, 1, new MersenneTwister64(MersenneTwister.DEFAULT_SEED));
@@ -42,7 +42,7 @@ public class EuropeanMonteCarloOptionModelTest {
   private static final OptionDefinition PUT2 = new EuropeanVanillaOptionDefinition(90, EXPIRY, false);
   private static final int N = 10000;
   private static final double EPS = 0.05;
-  private static final EuropeanMonteCarloOptionModel MODEL = new EuropeanMonteCarloOptionModel(N, 1, new BlackScholesGeometricBrownianMotionProcess<OptionDefinition, StandardOptionDataBundle>(),
+  private static final EuropeanMonteCarloOptionModel MODEL = new EuropeanMonteCarloOptionModel(N, 1, new BlackScholesGeometricBrownianMotionProcess<>(),
       GENERATOR);
   private static final BlackScholesMertonModel BSM = new BlackScholesMertonModel();
 

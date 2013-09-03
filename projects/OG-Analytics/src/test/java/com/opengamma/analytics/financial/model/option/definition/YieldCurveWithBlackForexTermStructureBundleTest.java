@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.option.definition;
@@ -25,8 +25,9 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ * @deprecated This class tests deprecated functionality
  */
+@Deprecated
 public class YieldCurveWithBlackForexTermStructureBundleTest {
   private static final YieldCurveBundle CURVES = TestsDataSetsForex.createCurvesForex();
   private static final Interpolator1D LINEAR_FLAT = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
@@ -67,7 +68,7 @@ public class YieldCurveWithBlackForexTermStructureBundleTest {
     other = YieldCurveWithBlackForexTermStructureBundle.from(CURVES, VOLS, CCYS);
     assertEquals(FX_DATA, other);
     assertEquals(FX_DATA.hashCode(), other.hashCode());
-    final Map<String, YieldAndDiscountCurve> otherCurves = new HashMap<String, YieldAndDiscountCurve>();
+    final Map<String, YieldAndDiscountCurve> otherCurves = new HashMap<>();
     final YieldAndDiscountCurve curve = CURVES.getCurve(CURVES.getAllNames().iterator().next());
     for (final String name : CURVES.getAllNames()) {
       otherCurves.put(name, curve);

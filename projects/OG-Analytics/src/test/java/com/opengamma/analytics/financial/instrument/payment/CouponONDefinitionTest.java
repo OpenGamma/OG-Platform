@@ -43,6 +43,7 @@ import com.opengamma.util.time.DateUtils;
 /**
  * Tests related to the OIS coupon definition.
  */
+@SuppressWarnings("deprecation")
 public class CouponONDefinitionTest {
 
   private static final int EUR_SETTLEMENT_DAYS = 2;
@@ -117,7 +118,6 @@ public class CouponONDefinitionTest {
     assertEquals("CouponOISSimplified definition: from", cpnFrom, EONIA_COUPON_DEFINITION);
   }
 
-  @SuppressWarnings("deprecation")
   @Test
   /**
    * Tests the toDerivative method.
@@ -133,7 +133,6 @@ public class CouponONDefinitionTest {
     assertEquals("CouponOISSimplified definition: toDerivative", cpnExpected, cpnConverted);
   }
 
-  @SuppressWarnings("deprecation")
   @Test
   /**
    * Tests the toDerivative method.
@@ -152,7 +151,6 @@ public class CouponONDefinitionTest {
     assertEquals("CouponOISSimplified definition: toDerivative", cpnExpected, cpnConverted);
   }
 
-  @SuppressWarnings("deprecation")
   @Test
   /**
    * Tests the toDerivative method.
@@ -172,7 +170,6 @@ public class CouponONDefinitionTest {
     assertEquals("CouponOISSimplified definition: toDerivative", cpnExpected, cpnConverted);
   }
 
-  @SuppressWarnings("deprecation")
   @Test
   /**
    * Tests the toDerivative method.
@@ -198,7 +195,6 @@ public class CouponONDefinitionTest {
     assertEquals("CouponOISSimplified definition: toDerivative", cpnExpected, cpnConverted);
   }
 
-  @SuppressWarnings("deprecation")
   @Test
   /**
    * Tests the toDerivative method.
@@ -225,7 +221,6 @@ public class CouponONDefinitionTest {
     assertEquals("CouponOISSimplified definition: toDerivative", cpnExpected, cpnConverted);
   }
 
-  @SuppressWarnings("deprecation")
   @Test
   /**
    * Tests the toDerivative method.
@@ -396,7 +391,6 @@ public class CouponONDefinitionTest {
     assertEquals("CouponOISSimplified definition: toDerivative", cpnExpected, cpnConverted);
   }
 
-  @SuppressWarnings("deprecation")
   @Test
   /**
    * Tests the toDerivative method.
@@ -418,7 +412,6 @@ public class CouponONDefinitionTest {
     assertEquals("CouponOISSimplified definition: toDerivative", cpnExpected, cpnConverted);
   }
 
-  @SuppressWarnings("deprecation")
   @Test
   /**
    * Tests the toDerivative method.
@@ -440,7 +433,6 @@ public class CouponONDefinitionTest {
     assertEquals("CouponOISSimplified definition: toDerivative", cpnExpected, cpnConverted);
   }
 
-  @SuppressWarnings("deprecation")
   @Test
   /**
    * Tests the toDerivative method.
@@ -462,7 +454,6 @@ public class CouponONDefinitionTest {
     assertEquals("CouponOISSimplified definition: toDerivative", cpnExpected, cpnConverted);
   }
 
-  @SuppressWarnings("deprecation")
   @Test
   /**
    * Tests the toDerivative method on the payment date. valuation is at noon, payment set at midnight...
@@ -494,7 +485,6 @@ public class CouponONDefinitionTest {
 
   }
 
-  @SuppressWarnings("deprecation")
   @Test(expectedExceptions = IllegalArgumentException.class)
   /**
    * Tests the toDerivative method: after payment date
@@ -608,7 +598,6 @@ public class CouponONDefinitionTest {
   private static final CouponONDefinition OIS_COUPON_DEFINITION = new CouponONDefinition(USD_FEDFUND.getCurrency(), USD_PAYMENT_DATE, START_ACCRUAL_DATE, USD_END_ACCRUAL_DATE,
       USD_PAYMENT_YEAR_FRACTION, NOTIONAL, USD_FEDFUND, START_ACCRUAL_DATE, USD_END_ACCRUAL_DATE, EUR_CALENDAR);
 
-  @SuppressWarnings("deprecation")
   @Test
   /**
    * Tests the toDerivative method.
@@ -632,7 +621,6 @@ public class CouponONDefinitionTest {
     assertEquals("CouponOISSimplified definition: toDerivative", cpnExpected, cpnConverted);
   }
 
-  @SuppressWarnings("deprecation")
   @Test
   /**
    * Tests the toDerivative method.
