@@ -333,7 +333,6 @@ public class DependencyGraph {
    */
   public DependencyNode appendInput(final DependencyNode original, final CompiledFunctionDefinition function, final Map<String, String> discriminatorProperties) {
     ArgumentChecker.notNull(original, "node");
-    ArgumentChecker.isFalse(equals(original), "Proxy node must be different to the proxied node");
     ArgumentChecker.notNull(function, "function");
     ArgumentChecker.notEmpty(discriminatorProperties, "discriminatorProperties");
     // Create the new proxy node based on the original
