@@ -14,7 +14,10 @@ import static com.opengamma.financial.convention.percurrency.PerCurrencyConventi
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.OIS_ON_LEG;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.OVERNIGHT;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.PAY_LAG;
+import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.QUARTERLY;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.SCHEME_NAME;
+import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.STIR_FUTURES;
+import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.TENOR_STR_3M;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.getConventionName;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.getIds;
 
@@ -24,8 +27,11 @@ import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.Convention;
 import com.opengamma.financial.convention.DepositConvention;
+import com.opengamma.financial.convention.ExchangeTradedInstrumentExpiryCalculator;
+import com.opengamma.financial.convention.IMMFutureAndFutureOptionQuarterlyExpiryCalculator;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.InMemoryConventionMaster;
+import com.opengamma.financial.convention.InterestRateFutureConvention;
 import com.opengamma.financial.convention.OISLegConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
 import com.opengamma.financial.convention.StubType;
@@ -36,6 +42,7 @@ import com.opengamma.financial.convention.businessday.BusinessDayConventionFacto
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 
@@ -102,6 +109,11 @@ public class EUConventions {
     final String irsEuribor3MLegConventionName = getConventionName(Currency.EUR, tenorString3M, EURIBOR_LEG);
     final Convention irsEuribor3MLegConvention = new VanillaIborLegConvention(irsEuribor3MLegConventionName, getIds(Currency.EUR, tenorString3M, EURIBOR_LEG),
         euriborConventionId, true, Interpolator1DFactory.LINEAR, Tenor.THREE_MONTHS, 2, true, StubType.SHORT_START, false, 0);
+    // Futures
+    final String quarterlySTIRFutureConventionName = getConventionName(Currency.EUR, STIR_FUTURES + TENOR_STR_3M + QUARTERLY);    
+    final Convention quarterlySTIRFutureConvention = new InterestRateFutureConvention(quarterlySTIRFutureConventionName, 
+        ExternalIdBundle.of(ExternalId.of(SCHEME_NAME, quarterlySTIRFutureConventionName)),
+        ExternalId.of(ExchangeTradedInstrumentExpiryCalculator.SCHEME, IMMFutureAndFutureOptionQuarterlyExpiryCalculator.NAME), EU, euriborConventionId);
     // X-Ccy OIS
     final Convention oisXCcyUSDLegConvention = new OISLegConvention(OIS_USD_EUR_ON_LEG, getIds(OIS_USD_EUR_ON_LEG), onIndexId,
         Tenor.THREE_MONTHS, MODIFIED_FOLLOWING, 2, true, StubType.NONE, false, 2);
@@ -118,6 +130,7 @@ public class EUConventions {
     conventionMaster.add(irsLibor6MLegConvention);
     conventionMaster.add(irsEuribor6MLegConvention);
     conventionMaster.add(irsEuribor3MLegConvention);
+    conventionMaster.add(quarterlySTIRFutureConvention);
   }
 
 }
