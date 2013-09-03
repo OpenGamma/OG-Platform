@@ -135,7 +135,7 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
     final ValueProperties properties = getResultProperties(currency.getCode(), curveCalculationConfigName, surfaceName);
     final ValueSpecification spec = new ValueSpecification(_valueRequirementName, target.toSpecification(), properties);
     final YieldCurveWithBlackCubeBundle data = new YieldCurveWithBlackCubeBundle(volatilitySurface.getSurface(), curves);
-    return getResult(irFutureOption, data, spec);
+    return getResult(irFutureOption, data, spec, desiredValues);
   }
 
   @Override
@@ -202,9 +202,11 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
    * @param irFutureOption The IR future option
    * @param data The data used in pricing
    * @param spec The value specification of the result
+   * @param desiredValues The constraints on the function
    * @return The result
    */
-  protected abstract Set<ComputedValue> getResult(final InstrumentDerivative irFutureOption, final YieldCurveWithBlackCubeBundle data, final ValueSpecification spec);
+  protected abstract Set<ComputedValue> getResult(final InstrumentDerivative irFutureOption, final YieldCurveWithBlackCubeBundle data, 
+      final ValueSpecification spec, Set<ValueRequirement> desiredValues);
 
   protected ValueProperties getResultProperties(final String currency) {
     return createValueProperties()

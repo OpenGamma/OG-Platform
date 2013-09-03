@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.equity.option;
+package com.opengamma.financial.analytics.model.irfutureoption;
 
 import java.util.Collections;
 import java.util.Map;
@@ -12,16 +12,19 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.equity.EquityOptionBlackPresentValueCalculator;
-import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.PresentValueBlackCalculator;
+import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
-import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurface;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackCubeBundle;
+import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
+import com.opengamma.analytics.math.surface.Surface;
+import com.opengamma.analytics.math.surface.SurfaceShiftFunctionFactory;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionCompilationContext;
-import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
@@ -29,71 +32,76 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.value.ValueProperties.Builder;
 import com.opengamma.financial.analytics.model.equity.ScenarioPnLPropertyNamesAndValues;
+import com.opengamma.financial.analytics.model.equity.option.EquityOptionBAWScenarioPnLFunction;
 
 /**
- * Simple scenario Function returns the difference in PresentValue between defined Scenario and current market conditions.  
- * @author casey
+ * Simple scenario Function returns the difference in PresentValue between defined Scenario and current market conditions.
  */
-public class EquityOptionBlackScenarioPnLFunction extends EquityOptionBlackFunction {
+public class InterestRateFutureOptionBlackScenarioPnLFunction extends InterestRateFutureOptionBlackFunction {
 
-  /** The Black present value calculator */
-  private static final EquityOptionBlackPresentValueCalculator s_pvCalculator = EquityOptionBlackPresentValueCalculator.getInstance();
-  
-  /** Default constructor */
-  public EquityOptionBlackScenarioPnLFunction() {
+  public InterestRateFutureOptionBlackScenarioPnLFunction() {
     super(ValueRequirementNames.PNL);
   }
   
+  /** The Black present value calculator */
+  private static final PresentValueBlackCalculator s_pvCalculator = PresentValueBlackCalculator.getInstance();
+  
+  /** Properties to define the scenario / slide */
   private static final String s_priceShift = ScenarioPnLPropertyNamesAndValues.PROPERTY_PRICE_SHIFT;
   private static final String s_volShift = ScenarioPnLPropertyNamesAndValues.PROPERTY_VOL_SHIFT;
   private static final String s_priceShiftType = ScenarioPnLPropertyNamesAndValues.PROPERTY_PRICE_SHIFT_TYPE;
   private static final String s_volShiftType = ScenarioPnLPropertyNamesAndValues.PROPERTY_VOL_SHIFT_TYPE;
-  
-  private static final Logger s_logger = LoggerFactory.getLogger(EquityOptionBlackScenarioPnLFunction.class);
-  
-  private String getValueRequirementName() {
-    return ValueRequirementNames.PNL;
-  }
+
+  /** Logger */
+  private static final Logger s_logger = LoggerFactory.getLogger(InterestRateFutureOptionBlackScenarioPnLFunction.class);
   
   @Override
-  protected Set<ComputedValue> computeValues(InstrumentDerivative derivative, StaticReplicationDataBundle market, FunctionInputs inputs, Set<ValueRequirement> desiredValues,
-      ComputationTargetSpecification targetSpec, ValueProperties resultProperties) {
-
-    // Compute present value under current market
-    final double pvBase = derivative.accept(s_pvCalculator, market);
+  protected Set<ComputedValue> getResult(InstrumentDerivative irFutureOption, YieldCurveWithBlackCubeBundle market, 
+      ValueSpecification spec, Set<ValueRequirement> desiredValues) {
     
+    // Compute present value under current market
+    final double pvBase = irFutureOption.accept(s_pvCalculator, market);
     
     // Form market scenario
+    final YieldCurveWithBlackCubeBundle marketScen;
     ValueProperties constraints = desiredValues.iterator().next().getConstraints();
     
-    // Apply shift to forward price curve
-    final ForwardCurve fwdCurveScen;
+    // Apply shift to yield curve(s)
+    final YieldCurveBundle curvesScen = new YieldCurveBundle();
     String priceShiftTypeConstraint = constraints.getValues(s_priceShiftType).iterator().next();
-    String stockConstraint = constraints.getValues(s_priceShift).iterator().next();
+    String priceConstraint = constraints.getValues(s_priceShift).iterator().next();
     
-    if (stockConstraint.equals("")) { 
-      fwdCurveScen = market.getForwardCurve(); // use base market prices
+    if (priceConstraint.equals("")) { 
+      // use base market prices
+      curvesScen.addAll(market);
     } else {
-      final Double fractionalShift;
-      if (priceShiftTypeConstraint.equalsIgnoreCase("Additive")) {
-        final Double absShift = Double.valueOf(stockConstraint);
-        final double spotPrice = market.getForwardCurve().getSpot();
-        fractionalShift = absShift / spotPrice;
-      } else if (priceShiftTypeConstraint.equalsIgnoreCase("Multiplicative")) {
-        fractionalShift = Double.valueOf(stockConstraint);
-      } else {
-        fractionalShift = Double.valueOf(stockConstraint);
-        s_logger.debug("Valid PriceShiftType's: Additive and Multiplicative. Found: " + priceShiftTypeConstraint + " Defaulting to Multiplicative.");
+      final Double shift = Double.valueOf(priceConstraint);
+      // As curve may be functional, we can only apply a parallel shift.
+      Double parallelShift;
+      for (String crvName : market.getAllNames()) {
+        YieldAndDiscountCurve curve = market.getCurve(crvName);
+        if (priceShiftTypeConstraint.equalsIgnoreCase("Additive")) {
+          parallelShift = shift;
+        } else {
+          if (!(priceShiftTypeConstraint.equalsIgnoreCase("Multiplicative"))) {
+            s_logger.debug("Valid PriceShiftType's: Additive and Multiplicative. Found: " + priceShiftTypeConstraint + " Defaulting to Multiplicative."); 
+          }
+          // We (arbitrarily) choose to scale by the rate at the short end
+          double shortRate = curve.getInterestRate(0.0);
+          parallelShift = shift * shortRate;
+        }
+        YieldAndDiscountCurve curveShifted = curve.withParallelShift(parallelShift);
+        curvesScen.setCurve(crvName, curveShifted);
       }
-      fwdCurveScen = market.getForwardCurve().withFractionalShift(fractionalShift);
     }
     
-    // Apply shift to vol surface curve
-    final BlackVolatilitySurface<?> volSurfScen;
+    // Apply shift to vol surface
     String volConstraint = constraints.getValues(s_volShift).iterator().next();
-    if (volConstraint.equals("")) { // use base market vols
-      volSurfScen = market.getVolatilitySurface(); 
-    } else { // bump vol surface
+    if (volConstraint.equals("")) { 
+      // use base market vols
+      marketScen = market;
+    } else { 
+      // bump vol surface
       final Double shiftVol = Double.valueOf(volConstraint);
       String volShiftTypeConstraint = constraints.getValues(s_volShiftType).iterator().next();
       final boolean additiveShift;
@@ -105,29 +113,27 @@ public class EquityOptionBlackScenarioPnLFunction extends EquityOptionBlackFunct
         s_logger.debug("In ScenarioPnLFunctions, VolShiftType's are Additive and Multiplicative. Found: " + priceShiftTypeConstraint + " Defaulting to Multiplicative.");
         additiveShift = false;
       }
-      volSurfScen = market.getVolatilitySurface().withShift(shiftVol, additiveShift);
+      final Surface<Double, Double, Double> volSurfaceScen = SurfaceShiftFunctionFactory.getShiftedSurface(market.getBlackParameters(), shiftVol, additiveShift);
+      marketScen = new YieldCurveWithBlackCubeBundle(volSurfaceScen, curvesScen);
     }
     
-    final StaticReplicationDataBundle marketScen = new StaticReplicationDataBundle(volSurfScen, market.getDiscountCurve(), fwdCurveScen);
-    
     // Compute present value under scenario
-    final double pvScen = derivative.accept(s_pvCalculator, marketScen);
+    final double pvScen = irFutureOption.accept(s_pvCalculator, marketScen);
     
     // Return with spec
-    final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementNames()[0], targetSpec, resultProperties);
-    return Collections.singleton(new ComputedValue(resultSpec, pvScen - pvBase));
+    return Collections.singleton(new ComputedValue(spec, pvScen - pvBase));
   }
-  
+
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     Set<ValueRequirement> superReqs = super.getRequirements(context, target, desiredValue);
     if (superReqs == null) {
       return null;
     }
-    
+
     // Test constraints are provided, else set to ""
     final ValueProperties constraints = desiredValue.getConstraints();
     ValueProperties.Builder scenarioDefaults = null;
-
+    
     final Set<String> priceShiftSet = constraints.getValues(s_priceShift);
     if (priceShiftSet == null || priceShiftSet.isEmpty()) {
       scenarioDefaults = constraints.copy().withoutAny(s_priceShift).with(s_priceShift, ""); 
@@ -159,17 +165,17 @@ public class EquityOptionBlackScenarioPnLFunction extends EquityOptionBlackFunct
     
     // If defaults have been added, this adds additional copy of the Function into dep graph with the adjusted constraints
     if (scenarioDefaults != null) {
-      return Collections.singleton(new ValueRequirement(getValueRequirementName(), target.toSpecification(), scenarioDefaults.get()));
+      return Collections.singleton(new ValueRequirement(ValueRequirementNames.PNL, target.toSpecification(), scenarioDefaults.get()));
     } else {  // Scenarios are defined, so we're satisfied
       return superReqs;
     }
   }
-
+  
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
     if (inputs.size() == 1) {
       ValueSpecification input = inputs.keySet().iterator().next();
-      if (getValueRequirementName().equals(input.getValueName())) {
+      if ((ValueRequirementNames.PNL).equals(input.getValueName())) {
         return inputs.keySet();
       }
     }
@@ -180,6 +186,6 @@ public class EquityOptionBlackScenarioPnLFunction extends EquityOptionBlackFunct
         .withAny(s_priceShiftType)
         .withAny(s_volShiftType);
         
-    return Collections.singleton(new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties.get()));    
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.PNL, target.toSpecification(), properties.get()));    
   }
 }

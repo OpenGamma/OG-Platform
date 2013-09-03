@@ -55,6 +55,7 @@ public class InterestRateFutureOptionBlackDefaults extends DefaultPropertyFuncti
     ValueRequirementNames.SECURITY_MODEL_PRICE,
     ValueRequirementNames.UNDERLYING_MODEL_PRICE,
     ValueRequirementNames.DAILY_PRICE,
+    ValueRequirementNames.PNL,
     ValueRequirementNames.FORWARD
   };
 

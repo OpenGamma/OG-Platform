@@ -13,6 +13,7 @@ import com.opengamma.analytics.financial.interestrate.PresentValueBlackDeltaForT
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackCubeBundle;
 import com.opengamma.core.position.Position;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.black.BlackDiscountingPositionDeltaIRFutureOptionFunction;
@@ -33,7 +34,7 @@ public class InterestRateFutureOptionBlackPositionDeltaFunction extends Interest
   }
 
   @Override
-  protected Set<ComputedValue> getResult(final InstrumentDerivative irFutureOption, final YieldCurveWithBlackCubeBundle curveBundle, final ValueSpecification spec) {
+  protected Set<ComputedValue> getResult(final InstrumentDerivative irFutureOption, final YieldCurveWithBlackCubeBundle curveBundle, final ValueSpecification spec, final Set<ValueRequirement> desiredValues) {
     final double delta = irFutureOption.accept(CALCULATOR, curveBundle);
     return Collections.singleton(new ComputedValue(spec, delta));
   }

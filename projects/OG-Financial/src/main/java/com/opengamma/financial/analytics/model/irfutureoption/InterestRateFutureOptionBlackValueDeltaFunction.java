@@ -79,7 +79,7 @@ public class InterestRateFutureOptionBlackValueDeltaFunction extends InterestRat
   }
 
   @Override
-  protected Set<ComputedValue> getResult(final InstrumentDerivative irFutureOption, final YieldCurveWithBlackCubeBundle data, final ValueSpecification spec) {
+  protected Set<ComputedValue> getResult(final InstrumentDerivative irFutureOption, final YieldCurveWithBlackCubeBundle data, final ValueSpecification spec, final Set<ValueRequirement> desiredValues) {
     throw new OpenGammaRuntimeException("Should never get called");
   }
 

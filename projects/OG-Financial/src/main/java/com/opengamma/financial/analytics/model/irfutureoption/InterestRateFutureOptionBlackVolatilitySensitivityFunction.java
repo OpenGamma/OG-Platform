@@ -15,6 +15,7 @@ import com.opengamma.analytics.financial.interestrate.PresentValueBlackSensitivi
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackCubeBundle;
 import com.opengamma.analytics.util.amount.SurfaceValue;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.black.BlackDiscountingValueVegaIRFutureOptionFunction;
@@ -32,7 +33,7 @@ public class InterestRateFutureOptionBlackVolatilitySensitivityFunction extends 
   }
 
   @Override
-  protected Set<ComputedValue> getResult(final InstrumentDerivative irFutureOption, final YieldCurveWithBlackCubeBundle data, final ValueSpecification spec) {
+  protected Set<ComputedValue> getResult(final InstrumentDerivative irFutureOption, final YieldCurveWithBlackCubeBundle data, final ValueSpecification spec, Set<ValueRequirement> desiredValues) {
     final SurfaceValue sensitivities = irFutureOption.accept(CALCULATOR, data);
     final HashMap<DoublesPair, Double> result = sensitivities.getMap();
     if (result.size() != 1) {
