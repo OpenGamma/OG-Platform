@@ -26,7 +26,6 @@ import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedC
 import com.opengamma.analytics.financial.interestrate.swap.provider.SwapFixedCouponDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.analytics.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
-import com.opengamma.analytics.financial.model.interestrate.TestsDataSetHullWhite;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.NormalFunctionData;
@@ -39,6 +38,7 @@ import com.opengamma.analytics.financial.provider.calculator.discounting.Present
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.hullwhite.PresentValueCurveSensitivityHullWhiteCalculator;
 import com.opengamma.analytics.financial.provider.calculator.hullwhite.PresentValueHullWhiteCalculator;
+import com.opengamma.analytics.financial.provider.description.HullWhiteDataSets;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.HullWhiteOneFactorProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.HullWhiteOneFactorProviderInterface;
@@ -68,7 +68,7 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
   private static final Currency EUR = EURIBOR6M.getCurrency();
   private static final Calendar CALENDAR = MulticurveProviderDiscountDataSets.getEURCalendar();
 
-  private static final HullWhiteOneFactorPiecewiseConstantParameters HW_PARAMETERS = TestsDataSetHullWhite.createHullWhiteParameters();
+  private static final HullWhiteOneFactorPiecewiseConstantParameters HW_PARAMETERS = HullWhiteDataSets.createHullWhiteParameters();
   private static final HullWhiteOneFactorProviderDiscount HW_MULTICURVES = new HullWhiteOneFactorProviderDiscount(MULTICURVES, HW_PARAMETERS, EUR);
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 7, 7);

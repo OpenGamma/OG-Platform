@@ -76,8 +76,10 @@ public class CouponIborRatchet extends CouponIborSpread {
    * @deprecated Use the constructor that does not take yield curve names.
    */
   @Deprecated
-  public CouponIborRatchet(final Currency currency, final double paymentTime, final String discountingCurveName, final double paymentYearFraction, final double notional, final double fixingTime, final double fixingPeriodStartTime,
-      final double fixingPeriodEndTime, final double fixingYearFraction, final String forwardCurveName, final IborIndex index, final double[] mainCoefficients, final double[] floorCoefficients, final double[] capCoefficients) {
+  public CouponIborRatchet(final Currency currency, final double paymentTime, final String discountingCurveName, final double paymentYearFraction,
+      final double notional, final double fixingTime, final double fixingPeriodStartTime,
+      final double fixingPeriodEndTime, final double fixingYearFraction, final String forwardCurveName, final IborIndex index, final double[] mainCoefficients,
+      final double[] floorCoefficients, final double[] capCoefficients) {
     super(currency, paymentTime, discountingCurveName, paymentYearFraction, notional, fixingTime, index, fixingPeriodStartTime, fixingPeriodEndTime, fixingYearFraction, 0.0, forwardCurveName);
     ArgumentChecker.notNull(index, "Index");
     ArgumentChecker.notNull(mainCoefficients, "Main coefficients");
@@ -147,6 +149,7 @@ public class CouponIborRatchet extends CouponIborSpread {
     return _capCoefficients;
   }
 
+  @SuppressWarnings("deprecation")
   @Override
   public CouponIborRatchet withNotional(final double notional) {
     try {

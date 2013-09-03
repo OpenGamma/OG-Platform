@@ -25,8 +25,9 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- *
+ * @deprecated This class tests deprecated functionality
  */
+@Deprecated
 public class ZSpreadCalculatorTest {
   private static final ZSpreadCalculator CALCULATOR = ZSpreadCalculator.getInstance();
   private static final Annuity<CouponFixed> PAYMENTS;

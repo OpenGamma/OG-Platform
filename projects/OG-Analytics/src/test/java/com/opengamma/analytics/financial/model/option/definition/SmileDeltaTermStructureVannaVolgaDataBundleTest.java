@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.option.definition;
@@ -20,8 +20,9 @@ import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ * @deprecated This class tests deprecated functionality
  */
+@Deprecated
 public class SmileDeltaTermStructureVannaVolgaDataBundleTest {
 
   private static final YieldCurveBundle CURVES = TestsDataSetsForex.createCurvesForex();

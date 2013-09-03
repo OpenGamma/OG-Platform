@@ -13,8 +13,9 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- *
+ * @deprecated This class tests deprecated functionality
  */
+@Deprecated
 public class SimpleCapFloorMaker {
 
   /**

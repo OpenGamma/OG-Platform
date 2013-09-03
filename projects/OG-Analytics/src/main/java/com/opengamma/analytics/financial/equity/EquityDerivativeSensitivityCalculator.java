@@ -35,6 +35,7 @@ import com.opengamma.util.tuple.Triple;
 /**
  * This Calculator provides simple bump and reprice sensitivities for Derivatives
  */
+@SuppressWarnings("deprecation")
 public class EquityDerivativeSensitivityCalculator {
   /** The default value of the absolute shift */
   private static final double DEFAULT_ABS_SHIFT = 0.0001; // Shift used for vol, +/- 1bp == 0.01%
@@ -154,7 +155,6 @@ public class EquityDerivativeSensitivityCalculator {
    * @param market the EquityOptionDataBundle
    * @return A DoubleMatrix1D containing bucketed delta in order and length of market.getDiscountCurve(). Currency amount per unit amount change in discount rate
    */
-  @SuppressWarnings("deprecation")
   public DoubleMatrix1D calcDeltaBucketed(final InstrumentDerivative derivative, final StaticReplicationDataBundle market) {
     ArgumentChecker.notNull(derivative, "null EquityDerivative");
     ArgumentChecker.notNull(market, "null EquityOptionDataBundle");

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.volatility;
@@ -11,8 +11,9 @@ import static org.testng.AssertJUnit.assertTrue;
 import org.testng.annotations.Test;
 
 /**
- * 
+ * @deprecated This class tests deprecated functionality
  */
+@Deprecated
 public class BlackFormulaTest {
   private static final double FORWARD = 134.5;
   private static final double T = 4.5;
@@ -80,22 +81,22 @@ public class BlackFormulaTest {
   @Test
   public void testStrikeImpliedFromFwdDelta() {
 
-    double strike50Call = FORMULA.computeStrikeImpliedByForwardDelta(0.5, true);
+    final double strike50Call = FORMULA.computeStrikeImpliedByForwardDelta(0.5, true);
     assertEquals(FORWARD * Math.exp(0.5 * SIGMA * SIGMA * T), strike50Call);
 
-    double strike50Put = FORMULA.computeStrikeImpliedByForwardDelta(-0.5, false);
+    final double strike50Put = FORMULA.computeStrikeImpliedByForwardDelta(-0.5, false);
     assertEquals(strike50Call, strike50Put, EPS);
 
-    double strike10Call = FORMULA.computeStrikeImpliedByForwardDelta(0.10, true);
-    double strike25Call = FORMULA.computeStrikeImpliedByForwardDelta(0.25, true);
-    double strike75Call = FORMULA.computeStrikeImpliedByForwardDelta(0.75, true);
-    double strike90Call = FORMULA.computeStrikeImpliedByForwardDelta(0.90, true);
+    final double strike10Call = FORMULA.computeStrikeImpliedByForwardDelta(0.10, true);
+    final double strike25Call = FORMULA.computeStrikeImpliedByForwardDelta(0.25, true);
+    final double strike75Call = FORMULA.computeStrikeImpliedByForwardDelta(0.75, true);
+    final double strike90Call = FORMULA.computeStrikeImpliedByForwardDelta(0.90, true);
     // System.err.println("strike90Call = " + strike90Call);
 
-    double strike90Put = FORMULA.computeStrikeImpliedByForwardDelta(-0.90, false);
-    double strike75Put = FORMULA.computeStrikeImpliedByForwardDelta(-0.75, false);
-    double strike25Put = FORMULA.computeStrikeImpliedByForwardDelta(-0.25, false);
-    double strike10Put = FORMULA.computeStrikeImpliedByForwardDelta(-0.10, false);
+    final double strike90Put = FORMULA.computeStrikeImpliedByForwardDelta(-0.90, false);
+    final double strike75Put = FORMULA.computeStrikeImpliedByForwardDelta(-0.75, false);
+    final double strike25Put = FORMULA.computeStrikeImpliedByForwardDelta(-0.25, false);
+    final double strike10Put = FORMULA.computeStrikeImpliedByForwardDelta(-0.10, false);
 
     assertEquals(strike10Call, strike90Put, EPS);
     assertEquals(strike25Call, strike75Put, EPS);
@@ -108,12 +109,12 @@ public class BlackFormulaTest {
 
   @Test
   public void testStrikeImpliedFromFwdDeltaEasy() {
-    double strike25PutEasy = FORMULA.computeStrikeImpliedByForwardDelta(-0.25, false);
-    double strike25PutHard = FORMULA.computeStrikeImpliedByDeltaViaRootFinding(0.25, false);
+    final double strike25PutEasy = FORMULA.computeStrikeImpliedByForwardDelta(-0.25, false);
+    final double strike25PutHard = FORMULA.computeStrikeImpliedByDeltaViaRootFinding(0.25, false);
     assertEquals(strike25PutEasy, strike25PutHard, EPS);
 
-    double strike75PutEasy = FORMULA.computeStrikeImpliedByForwardDelta(-0.75, false);
-    double strike75PutHard = FORMULA.computeStrikeImpliedByDeltaViaRootFinding(0.75, false);
+    final double strike75PutEasy = FORMULA.computeStrikeImpliedByForwardDelta(-0.75, false);
+    final double strike75PutHard = FORMULA.computeStrikeImpliedByDeltaViaRootFinding(0.75, false);
     assertEquals(strike75PutEasy, strike75PutHard, EPS);
   }
 

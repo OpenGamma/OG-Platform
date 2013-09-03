@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.option.definition;
@@ -22,7 +22,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 
 /**
- * 
+ *
  */
 public class SABRInterestRateParametersTest {
   private static final LinearInterpolator1D LINEAR = new LinearInterpolator1D();
@@ -103,6 +103,7 @@ public class SABRInterestRateParametersTest {
     OBJECT.getVolatility(new double[] {1, 2, 3});
   }
 
+  @SuppressWarnings("deprecation")
   @Test
   public void testObject() {
     assertEquals(OBJECT.getAlphaSurface(), ALPHA_SURFACE);
@@ -137,9 +138,9 @@ public class SABRInterestRateParametersTest {
 
   @Test
   public void correlationGetter() {
-    double correlation = 0.50;
+    final double correlation = 0.50;
     final DoubleFunction1D correlationFunction = new RealPolynomialFunction1D(new double[] {correlation}); // Constant function
-    SABRInterestRateCorrelationParameters sabrCorrelation = new SABRInterestRateCorrelationParameters(ALPHA_SURFACE, BETA_SURFACE, RHO_SURFACE, NU_SURFACE, DAYCOUNT, correlationFunction);
+    final SABRInterestRateCorrelationParameters sabrCorrelation = new SABRInterestRateCorrelationParameters(ALPHA_SURFACE, BETA_SURFACE, RHO_SURFACE, NU_SURFACE, DAYCOUNT, correlationFunction);
     assertEquals("SABR with correlation: get correlation", correlationFunction, sabrCorrelation.getCorrelation());
   }
 }

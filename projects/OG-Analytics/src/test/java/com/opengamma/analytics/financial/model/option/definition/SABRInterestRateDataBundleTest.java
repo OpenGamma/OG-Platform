@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.option.definition;
@@ -23,8 +23,9 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 
 /**
- * 
+ * @deprecated This class tests deprecated functionality
  */
+@Deprecated
 public class SABRInterestRateDataBundleTest {
   private static final LinearInterpolator1D LINEAR = new LinearInterpolator1D();
   private static final YieldAndDiscountCurve CURVE = YieldCurve.from(ConstantDoublesCurve.from(0.03));

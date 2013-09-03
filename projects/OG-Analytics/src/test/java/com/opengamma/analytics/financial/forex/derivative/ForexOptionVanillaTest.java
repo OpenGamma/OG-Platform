@@ -39,7 +39,7 @@ public class ForexOptionVanillaTest {
   private static final String DISCOUNTING_CURVE_NAME_CUR_2 = "Discounting USD";
   private static final String[] CURVES_NAME = new String[] {DISCOUNTING_CURVE_NAME_CUR_1, DISCOUNTING_CURVE_NAME_CUR_2};
   private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
-  private static final Forex FX = FX_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
+  private static final Forex FX = FX_DEFINITION.toDerivative(REFERENCE_DATE);
   private static final double EXPIRATION_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE, EXPIRATION_DATE);
   private static final ForexOptionVanilla FX_OPTION = new ForexOptionVanilla(FX, EXPIRATION_TIME, IS_CALL, IS_LONG);
 

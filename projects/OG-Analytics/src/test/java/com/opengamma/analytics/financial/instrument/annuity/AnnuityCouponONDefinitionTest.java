@@ -46,6 +46,7 @@ import com.opengamma.util.time.DateUtils;
 /**
  *
  */
+@SuppressWarnings("deprecation")
 public class AnnuityCouponONDefinitionTest {
   private static final Currency CCY = Currency.EUR;
   private static final Period PAYMENT_PERIOD = Period.ofMonths(6);
@@ -84,7 +85,6 @@ public class AnnuityCouponONDefinitionTest {
 
   private static final DoubleTimeSeries<ZonedDateTime> FIXING_TS = createFixingSeries(SETTLEMENT_DATE, FINAL_PAYMENT_DATE);
 
-  @SuppressWarnings("deprecation")
   @Test
   /**
    * Tests the toDerivative method on the payment date. valuation is at noon, payment set at midnight...
@@ -151,7 +151,6 @@ public class AnnuityCouponONDefinitionTest {
     AnnuityCouponONDefinition.from(SETTLEMENT_DATE, MATURITY_DATE, NOTIONAL, (GeneratorSwapFixedON) null, IS_PAYER);
   }
 
-  @SuppressWarnings("deprecation")
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNoIndexTSDeprecated() {
     DEFINITION.toDerivative(DATE, "A", "B");
@@ -162,7 +161,6 @@ public class AnnuityCouponONDefinitionTest {
     DEFINITION.toDerivative(DATE);
   }
 
-  @SuppressWarnings("deprecation")
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDateDeprecated() {
     DEFINITION.toDerivative(null, FIXING_TS, "A", "B");
@@ -173,7 +171,6 @@ public class AnnuityCouponONDefinitionTest {
     DEFINITION.toDerivative(null, FIXING_TS);
   }
 
-  @SuppressWarnings("deprecation")
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullIndexTSDeprecated() {
     DEFINITION.toDerivative(DATE, (DoubleTimeSeries<ZonedDateTime>) null, "A", "B");
@@ -184,7 +181,6 @@ public class AnnuityCouponONDefinitionTest {
     DEFINITION.toDerivative(DATE, (DoubleTimeSeries<ZonedDateTime>) null);
   }
 
-  @SuppressWarnings("deprecation")
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullNames() {
     DEFINITION.toDerivative(DATE, FIXING_TS, (String[]) null);

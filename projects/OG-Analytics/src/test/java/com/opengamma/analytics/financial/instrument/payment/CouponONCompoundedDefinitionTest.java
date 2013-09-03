@@ -41,6 +41,7 @@ import com.opengamma.util.time.DateUtils;
 /**
  * Tests related to the ON compounded coupon definition.
  */
+@SuppressWarnings("deprecation")
 public class CouponONCompoundedDefinitionTest {
 
   private static final int EUR_SETTLEMENT_DAYS = 2;
@@ -118,7 +119,6 @@ public class CouponONCompoundedDefinitionTest {
     assertEquals("CouponONCompounded definition: from", cpnFrom, ON_COMPOUNDED_COUPON_DEFINITION);
   }
 
-  @SuppressWarnings("deprecation")
   @Test
   /**
    * Tests the toDerivative method.
@@ -166,7 +166,6 @@ public class CouponONCompoundedDefinitionTest {
     assertEquals("CouponONCompounded definition: toDerivative", cpnExpected, cpnConverted);
   }
 
-  @SuppressWarnings("deprecation")
   @Test
   /**
    * Tests the toDerivative method.
@@ -218,7 +217,6 @@ public class CouponONCompoundedDefinitionTest {
     assertEquals("CouponONCompounded definition: toDerivative", cpnExpected, cpnConverted);
   }
 
-  @SuppressWarnings("deprecation")
   @Test
   /**
    * Tests the toDerivative method.
@@ -276,7 +274,6 @@ public class CouponONCompoundedDefinitionTest {
     assertEquals("CouponONCompounded definition: toDerivative", cpnExpected, cpnConverted);
   }
 
-  @SuppressWarnings("deprecation")
   @Test
   /**
    * Tests the toDerivative method.
@@ -336,7 +333,6 @@ public class CouponONCompoundedDefinitionTest {
     assertEquals("CouponONCompounded definition: toDerivative", cpnExpected, cpnConverted);
   }
 
-  @SuppressWarnings("deprecation")
   @Test
   /**
    * Tests the toDerivative method.
@@ -398,7 +394,6 @@ public class CouponONCompoundedDefinitionTest {
     assertEquals("CouponONCompounded definition: toDerivative", cpnExpected, cpnConverted);
   }
 
-  @SuppressWarnings("deprecation")
   @Test
   /**
    * Tests the toDerivative method.
@@ -481,7 +476,6 @@ public class CouponONCompoundedDefinitionTest {
     assertEquals("CouponONCompounded definition: toDerivative", cpnExpected, cpnConverted);
   }
 
-  @SuppressWarnings("deprecation")
   @Test
   /**
    * Tests the toDerivative method.
@@ -502,7 +496,6 @@ public class CouponONCompoundedDefinitionTest {
     assertEquals("CouponONCompounded definition: toDerivative", cpnExpected, cpnConverted);
   }
 
-  @SuppressWarnings("deprecation")
   @Test
   /**
    * Tests the toDerivative method.
@@ -543,7 +536,6 @@ public class CouponONCompoundedDefinitionTest {
   }
 
 
-  @SuppressWarnings("deprecation")
   @Test
   /**
    * Tests the toDerivative method.
@@ -611,7 +603,6 @@ public class CouponONCompoundedDefinitionTest {
 
   }
 
-  @SuppressWarnings("deprecation")
   @Test
   /**
    * Tests the toDerivative method on the payment date. valuation is at noon, payment set at midnight...
@@ -654,7 +645,6 @@ public class CouponONCompoundedDefinitionTest {
     ON_COMPOUNDED_COUPON_DEFINITION.toDerivative(referenceDate, fixingTS);
   }
 
-  @SuppressWarnings("deprecation")
   @Test(expectedExceptions = IllegalArgumentException.class)
   /**
    * Tests the toDerivative method: after payment date

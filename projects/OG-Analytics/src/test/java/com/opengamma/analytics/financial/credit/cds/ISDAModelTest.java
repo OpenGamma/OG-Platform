@@ -78,6 +78,7 @@ public class ISDAModelTest {
   // -----------------------------------------------------------------------------------------------------------
 
   //@Test
+  @SuppressWarnings("deprecation")
   public void testISDAModel() {
 
     final DayCount s_act365 = new ActualThreeSixtyFive();

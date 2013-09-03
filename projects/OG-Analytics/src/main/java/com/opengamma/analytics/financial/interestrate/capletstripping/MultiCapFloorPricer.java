@@ -24,8 +24,9 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * @deprecated {@link YieldCurveBundle} is deprecated
  */
+@Deprecated
 public class MultiCapFloorPricer {
 
   private final int _nCaps;
@@ -34,6 +35,7 @@ public class MultiCapFloorPricer {
   private final SimpleOptionData[][] _capCaplets;
   private final int[][] _capletIndices;
 
+  @SuppressWarnings("synthetic-access")
   public MultiCapFloorPricer(final List<CapFloor> caps, final YieldCurveBundle yieldCurves) {
     ArgumentChecker.noNulls(caps, "null caps");
     ArgumentChecker.notNull(yieldCurves, "null yield curve");

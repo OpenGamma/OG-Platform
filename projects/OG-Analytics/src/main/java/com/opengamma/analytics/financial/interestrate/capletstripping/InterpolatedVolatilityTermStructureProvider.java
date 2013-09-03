@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.capletstripping;
@@ -9,13 +9,11 @@ import com.opengamma.analytics.financial.model.volatility.VolatilityTermStructur
 import com.opengamma.analytics.financial.model.volatility.VolatilityTermStructureProvider;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
-import com.opengamma.analytics.math.interpolation.TransformedInterpolator1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
-import com.opengamma.analytics.math.minimization.ParameterLimitsTransform;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ *
  */
 public class InterpolatedVolatilityTermStructureProvider implements VolatilityTermStructureProvider<DoubleMatrix1D> {
 
@@ -35,12 +33,12 @@ public class InterpolatedVolatilityTermStructureProvider implements VolatilityTe
   }
 
   @Override
-  public VolatilityTermStructure evaluate(DoubleMatrix1D data) {
+  public VolatilityTermStructure evaluate(final DoubleMatrix1D data) {
     final InterpolatedDoublesCurve curve = new InterpolatedDoublesCurve(_knots, data.getData(), _interpolator, true);
     return new VolatilityTermStructure() {
 
       @Override
-      public Double getVolatility(Double t) {
+      public Double getVolatility(final Double t) {
         return curve.getYValue(t);
       }
     };

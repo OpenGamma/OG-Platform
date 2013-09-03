@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.horizon;
@@ -34,7 +34,9 @@ import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests theta calculator on a swap
+ * @deprecated This class tests deprecated functionality
  */
+@Deprecated
 public class ConstantSpreadHorizonThetaCalculatorSwapTest {
 
   // The Calculator

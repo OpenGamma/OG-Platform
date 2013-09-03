@@ -74,6 +74,7 @@ public class CouponCMS extends CouponFloating {
    * @param settlementTime  The time (in years) to swap settlement.
    * @return The CMS coupon.
    */
+  @SuppressWarnings("deprecation")
   public static CouponCMS from(final CouponFloating coupon, final SwapFixedCoupon<? extends Payment> underlyingSwap, final double settlementTime) {
     ArgumentChecker.notNull(coupon, "floating coupon");
     ArgumentChecker.notNull(underlyingSwap, "underlying swap");
@@ -102,6 +103,7 @@ public class CouponCMS extends CouponFloating {
     return _settlementTime;
   }
 
+  @SuppressWarnings("deprecation")
   @Override
   public CouponCMS withNotional(final double notional) {
     try {

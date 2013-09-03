@@ -74,14 +74,14 @@ public class SensitivityAndReturnDataBundleTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullKey() {
-    final Map<UnderlyingType, DoubleTimeSeries<?>> m = new HashMap<UnderlyingType, DoubleTimeSeries<?>>();
+    final Map<UnderlyingType, DoubleTimeSeries<?>> m = new HashMap<>();
     m.put(null, TS1);
     new SensitivityAndReturnDataBundle(S1, VALUE_GAMMA, m);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullEntry() {
-    final Map<UnderlyingType, DoubleTimeSeries<?>> m = new HashMap<UnderlyingType, DoubleTimeSeries<?>>();
+    final Map<UnderlyingType, DoubleTimeSeries<?>> m = new HashMap<>();
     m.put(UnderlyingType.SPOT_PRICE, null);
     new SensitivityAndReturnDataBundle(S1, VALUE_GAMMA, m);
   }

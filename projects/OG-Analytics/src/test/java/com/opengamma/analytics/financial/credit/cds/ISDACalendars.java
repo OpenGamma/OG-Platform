@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.credit.cds;
@@ -17,7 +17,7 @@ import com.opengamma.util.money.Currency;
 
 /**
  * Loads the calendars for the ISDA CDS tests
- * 
+ *
  * @author Martin Traverse, Niels Stchedroff (Riskcare)
  */
 public class ISDACalendars {
@@ -26,13 +26,13 @@ public class ISDACalendars {
 
   private static final String[] CALENDAR_FILES = {"TYO" };
   private static final Currency[] CURRENCY = {Currency.JPY };
-  private static Map<Currency, ExceptionCalendar> s_calendars = new TreeMap<Currency, ExceptionCalendar>();
+  private static Map<Currency, ExceptionCalendar> s_calendars = new TreeMap<>();
 
   private static void loadData() throws IOException, URISyntaxException {
     for (int i = 0; i < CALENDAR_FILES.length; i++) {
       final String path = RESOURCE_DIR + "/" + CALENDER_DIR + "/" + CALENDAR_FILES[i] + ".xml";
-      URI uri = ISDACalendars.class.getClassLoader().getResource(path).toURI();
-      ExceptionCalendar cal = new MondayToFridayCalendar(CALENDAR_FILES[i], uri.toURL().toString());
+      final URI uri = ISDACalendars.class.getClassLoader().getResource(path).toURI();
+      final ExceptionCalendar cal = new MondayToFridayCalendar(CALENDAR_FILES[i], uri.toURL().toString());
       s_calendars.put(CURRENCY[i], cal);
     }
   }
@@ -40,8 +40,8 @@ public class ISDACalendars {
   /**
    * Gets the calendars.
    * @return the calendars
-   * @throws URISyntaxException 
-   * @throws IOException 
+   * @throws URISyntaxException
+   * @throws IOException
    */
   public static Map<Currency, ExceptionCalendar> getCalendars() throws IOException, URISyntaxException {
     if (s_calendars == null || s_calendars.values().isEmpty()) {

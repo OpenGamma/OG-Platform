@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.schedule;
@@ -34,7 +34,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
 /**
- * 
+ *
  */
 @SuppressWarnings("synthetic-access")
 public class ScheduleCalculatorTest {
@@ -347,7 +347,7 @@ public class ScheduleCalculatorTest {
     assertArrayEquals("Adjusted schedule", midMonthModFolExpected, midMonthModFolDate);
     final ZonedDateTime[] midMonthModFolTenor = ScheduleCalculator.getAdjustedDateSchedule(midMonth, y5, m6, false, false, MOD_FOL, CALENDAR, false);
     assertArrayEquals("Adjusted schedule", midMonthModFolExpected, midMonthModFolTenor);
-    final IborIndex ibor = new IborIndex(Currency.EUR, m6, 0, DayCountFactory.INSTANCE.getDayCount("Actual/360"), MOD_FOL, false);
+    final IborIndex ibor = new IborIndex(Currency.EUR, m6, 0, DayCountFactory.INSTANCE.getDayCount("Actual/360"), MOD_FOL, false, "Ibor");
     final ZonedDateTime[] midMonthModFolIbor = ScheduleCalculator.getAdjustedDateSchedule(midMonth, y5, false, false, ibor, CALENDAR);
     assertArrayEquals("Adjusted schedule", midMonthModFolExpected, midMonthModFolIbor);
     final ZonedDateTime[] midMonthModFolFreq = ScheduleCalculator.getAdjustedDateSchedule(midMonth, midMonth.plus(y5), semi, false, false, MOD_FOL, CALENDAR, false);

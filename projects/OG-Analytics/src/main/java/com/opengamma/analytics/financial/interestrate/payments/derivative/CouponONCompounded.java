@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.derivative;
@@ -13,8 +13,8 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- *  Class describing a OIS-like floating coupon. 
- * 
+ *  Class describing a OIS-like floating coupon.
+ *
  */
 public class CouponONCompounded extends Coupon {
 
@@ -23,7 +23,7 @@ public class CouponONCompounded extends Coupon {
    */
   private final IndexON _index;
   /**
-   * The fixing period start time (in years). The fixing period does take into account the already fixed period, 
+   * The fixing period start time (in years). The fixing period does take into account the already fixed period,
    * i.e. the fixing period start time is the first date for which the coupon is not fixed yet.
    */
   private final double[] _fixingPeriodStartTimes;
@@ -164,6 +164,7 @@ public class CouponONCompounded extends Coupon {
     return _forwardCurveName;
   }
 
+  @SuppressWarnings("deprecation")
   @Override
   public CouponONCompounded withNotional(final double notional) {
     return new CouponONCompounded(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), notional, _index, _fixingPeriodStartTimes, _fixingPeriodEndTimes,

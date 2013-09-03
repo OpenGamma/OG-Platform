@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.option.pricing.tree;
@@ -11,12 +11,12 @@ import com.google.common.primitives.Doubles;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ *
  */
 public abstract class BarrierOptionFunctionProvider extends OptionFunctionProvider1D {
 
   /**
-   * Use these strings to specify barrier option type. 
+   * Use these strings to specify barrier option type.
    * DownAndIn and UpAndIn MUST be computed via in-out parity if the option is European
    */
   public static enum BarrierTypes {
@@ -38,11 +38,11 @@ public abstract class BarrierOptionFunctionProvider extends OptionFunctionProvid
     UpAndIn
   }
 
-  private double _barrier;
+  private final double _barrier;
   private CrossBarrierChecker _checker;
 
   /**
-   * Constructor 
+   * Constructor
    * @param strike The strike price
    * @param steps The number of steps
    * @param isCall True if call option, false if put option
@@ -106,10 +106,11 @@ public abstract class BarrierOptionFunctionProvider extends OptionFunctionProvid
   /**
    * The inherited class checks lower barrier crossing for down-and-out option
    */
+  @SuppressWarnings("synthetic-access")
   protected class CrossLowerBarrier extends CrossBarrierChecker {
     @Override
     public boolean checkOut(final double priceTmp) {
-      return priceTmp <= _barrier;
+      return (priceTmp <= _barrier);
     }
 
     @Override
@@ -121,6 +122,7 @@ public abstract class BarrierOptionFunctionProvider extends OptionFunctionProvid
   /**
    * The inherited class checks lower barrier crossing for up-and-out option
    */
+  @SuppressWarnings("synthetic-access")
   protected class CrossUpperBarrier extends CrossBarrierChecker {
     @Override
     public boolean checkOut(final double priceTmp) {

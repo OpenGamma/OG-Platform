@@ -1,11 +1,9 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.volatility.smile.fitting;
-
-import java.io.PrintStream;
 
 import org.testng.annotations.Test;
 
@@ -57,7 +55,7 @@ public class FailingSABRInterpolatorTest {
   private final static YieldCurve div1 = new YieldCurve("test", div);
   private final static ForwardCurve fwd = new ForwardCurveYieldImplied(2791.0, TestKurve2, div1);
 
-  public static void SABRSurface(final PrintStream out) {
+  public static void SABRSurface() {
 
     final SmileSurfaceDataBundle surfdatabundle = new StandardSmileSurfaceDataBundle(fwd, datearray, strikematrix, volsmatrix);
 
@@ -76,7 +74,7 @@ public class FailingSABRInterpolatorTest {
   @Test(enabled = false)
   public void test() {
 
-    SABRSurface(System.out);
+    SABRSurface();
   }
 
 }

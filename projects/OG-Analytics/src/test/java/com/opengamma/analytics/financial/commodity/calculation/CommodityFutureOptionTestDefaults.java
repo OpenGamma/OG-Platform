@@ -11,11 +11,11 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.ExerciseDecisionType;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
-import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
-import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceStrike;
+import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
@@ -34,10 +34,7 @@ public abstract class CommodityFutureOptionTestDefaults {
   private static final ForwardCurve FORWARD_CURVE = new ForwardCurve(SPOT, DRIFT);
   // private static final double FORWARD = 100;
 
-  //@SuppressWarnings("unused")
-  //private static final double TEST_VOL = 0.25;
-  private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves1();
-  private static final YieldAndDiscountCurve DISCOUNT = CURVES.getCurve("Funding");
+  private static final YieldAndDiscountCurve DISCOUNT = YieldCurve.from(ConstantDoublesCurve.from(0.05));
 
   private static final double[] EXPIRIES = new double[] {0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0, 1.0, 5.0, 5.0, 5.0, 5.0, 10.0, 10.0, 10.0, 10.0 };
   private static final double[] STRIKES = new double[] {40, 80, 100, 120, 40, 80, 100, 120, 40, 80, 100, 120, 40, 80, 100, 120 };

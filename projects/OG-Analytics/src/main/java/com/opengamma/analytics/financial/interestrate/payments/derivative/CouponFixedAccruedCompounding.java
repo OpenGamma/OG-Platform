@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.derivative;
@@ -12,7 +12,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * Class describing a fixed compounded coupon. 
+ * Class describing a fixed compounded coupon.
  * The amount paid is equal to
  * $$
  * \begin{equation*}
@@ -45,10 +45,11 @@ public class CouponFixedAccruedCompounding extends Coupon {
    * Constructor from all details but accrual dates. deprecated version.
    * @param currency The payment currency.
    * @param paymentTime Time (in years) up to the payment.
-   * * @param fundingCurveName Name of the funding curve.
+   * @param fundingCurveName Name of the funding curve.
    * @param paymentYearFraction The year fraction (or accrual factor) for the coupon payment.
    * @param notional The coupon notional.
-   * @param rate the fixed rate. 
+   * @param rate the fixed rate.
+   * @deprecated Use the constructor that does not refer to curve names
    */
   @Deprecated
   public CouponFixedAccruedCompounding(final Currency currency, final double paymentTime, final String fundingCurveName, final double paymentYearFraction, final double notional, final double rate) {

@@ -17,20 +17,20 @@ import org.apache.poi.ss.usermodel.Workbook;
 
 /**
  * Manages the ISDA test grids
- * 
+ *
  * Martin Traverse, Niels Stchedroff (Riskcare)
  */
 public class ISDATestGridManager {
-  
+
   private static final String RESOURCE_DIR = "resources";
   private static final String TEST_GRID_DIR = "isda_test_grids";
   private static final String BENCHMARK_DIR = "benchmark";
   private static final String CORPORATE_DIR = "corporate";
   private static final String HOLIDAY_DIR = "holiday";
-  
+
   public Map<String,String[]> findAllTestGrids() throws Exception {
-    
-    Map<String,String[]> testGrids = new HashMap<String,String[]>();
+
+    final Map<String,String[]> testGrids = new HashMap<>();
     testGrids.put(BENCHMARK_DIR, findAllTestGridsForCategory(BENCHMARK_DIR));
     testGrids.put(CORPORATE_DIR, findAllTestGridsForCategory(CORPORATE_DIR));
     testGrids.put(HOLIDAY_DIR, findAllTestGridsForCategory(HOLIDAY_DIR));
@@ -58,12 +58,12 @@ public class ISDATestGridManager {
     InputStream is = null;
 
     try {
-      String path = RESOURCE_DIR + File.separator + TEST_GRID_DIR + File.separator + category + File.separator + fileName;
+      final String path = RESOURCE_DIR + File.separator + TEST_GRID_DIR + File.separator + category + File.separator + fileName;
       is = getClass().getClassLoader().getResourceAsStream(path);
-      Workbook wb = new HSSFWorkbook(is);
-      Sheet sheet = wb.getSheetAt(0);
+      final Workbook wb = new HSSFWorkbook(is);
+      final Sheet sheet = wb.getSheetAt(0);
 
-      ISDATestGrid testGrid = new ISDATestGrid();
+      final ISDATestGrid testGrid = new ISDATestGrid();
       testGrid.process(sheet);
       return testGrid;
     }
@@ -73,5 +73,5 @@ public class ISDATestGridManager {
       }
     }
   }
-  
+
 }

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.volatility.smile.fitting;
@@ -29,7 +29,7 @@ import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResultsWit
 import com.opengamma.util.monitor.OperationTimer;
 
 /**
- * 
+ *
  */
 public class SABRModelFitterTest {
 
@@ -167,6 +167,7 @@ public class SABRModelFitterTest {
   }
 
   //SABRModelFitterTest - 1555ms-processing 1000 cycles fitting SABR smile - old
+  @SuppressWarnings("deprecation")
   @Test
   public void testOldMethod() {
     //set to 1 and 0 before commit
@@ -195,6 +196,7 @@ public class SABRModelFitterTest {
 
   }
 
+  @SuppressWarnings("deprecation")
   private void doOldTest(final EuropeanVanillaOption[] options, final BlackFunctionData[] data, final double[] start, final BitSet fixed, final SABRNonLinearLeastSquareFitter fitter) {
     final LeastSquareResultsWithTransform lsRes = fitter.getFitResult(options, data, ERRORS, start, fixed);
     final double[] res = lsRes.getModelParameters().getData();

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.option.pricing.tree;
@@ -10,16 +10,12 @@ import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.model.option.pricing.analytic.BjerksundStenslandModel;
-import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
-import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ *
  */
 public class AmericanExchangeOptionFunctionProviderTest {
-  private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
-
   private static final BinomialTreeOptionPricingModel _model = new BinomialTreeOptionPricingModel();
   private static final BjerksundStenslandModel _bs = new BjerksundStenslandModel();
   private static final double SPOT = 105.;
@@ -29,7 +25,7 @@ public class AmericanExchangeOptionFunctionProviderTest {
   private static final double[] DIVIDENDS = new double[] {0.005, 0.014 };
 
   /**
-   * 
+   *
    */
   @Test
   public void priceTest() {
@@ -65,7 +61,7 @@ public class AmericanExchangeOptionFunctionProviderTest {
   }
 
   /**
-   * 
+   *
    */
   @Test
   public void greeksTest() {
@@ -117,7 +113,7 @@ public class AmericanExchangeOptionFunctionProviderTest {
   }
 
   /**
-   * 
+   *
    */
   @Test
   public void getQuantityTest() {
@@ -127,7 +123,7 @@ public class AmericanExchangeOptionFunctionProviderTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void getSignTest() {
@@ -136,7 +132,7 @@ public class AmericanExchangeOptionFunctionProviderTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void getStrikeTest() {
@@ -145,7 +141,7 @@ public class AmericanExchangeOptionFunctionProviderTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void minusQuant1Test() {
@@ -153,7 +149,7 @@ public class AmericanExchangeOptionFunctionProviderTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void minusQuant2Test() {

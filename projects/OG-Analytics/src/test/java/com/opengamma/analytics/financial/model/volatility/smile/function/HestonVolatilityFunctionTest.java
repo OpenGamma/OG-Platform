@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.volatility.smile.function;
@@ -16,7 +16,7 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.E
 import com.opengamma.analytics.math.function.Function1D;
 
 /**
- * 
+ *
  */
 public class HestonVolatilityFunctionTest {
 
@@ -45,7 +45,7 @@ public class HestonVolatilityFunctionTest {
 
   static {
     final int n = 11;
-    VOL_FUNC_LIST = new ArrayList<Function1D<HestonModelData, Double>>(n);
+    VOL_FUNC_LIST = new ArrayList<>(n);
     STRIKES = new double[n];
     for (int i = 0; i < n; i++) {
       final double m = -1 + 2.0 * i / (n - 1);

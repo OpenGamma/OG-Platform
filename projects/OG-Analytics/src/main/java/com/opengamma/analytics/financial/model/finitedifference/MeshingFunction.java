@@ -1,18 +1,16 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.finitedifference;
-
-import java.util.Arrays;
 
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.math.function.Function1D;
 
 /**
- * 
+ *
  */
 public abstract class MeshingFunction extends Function1D<Integer, Double> {
 
@@ -34,5 +32,5 @@ public abstract class MeshingFunction extends Function1D<Integer, Double> {
     }
     return res;
   }
-  
+
 }

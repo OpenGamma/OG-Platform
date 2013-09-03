@@ -5,17 +5,14 @@
  */
 package com.opengamma.analytics.financial.equity.variance;
 
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
-import com.google.common.collect.Lists;
 import com.opengamma.analytics.financial.equity.EquityDerivativeSensitivityCalculator;
 import com.opengamma.analytics.financial.equity.StaticReplicationDataBundle;
 import com.opengamma.analytics.financial.equity.variance.pricing.VarianceSwapStaticReplication;
 import com.opengamma.analytics.financial.interestrate.NodeYieldSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueNodeSensitivityCalculator;
-import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.varianceswap.VarianceSwap;
@@ -31,6 +28,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * Equity Spot contracts,<p>
  * Equity Forward contracts,<p>
  */
+@SuppressWarnings("deprecation")
 public final class VarianceSwapSensitivityCalculator extends EquityDerivativeSensitivityCalculator {
 
   private static final VarianceSwapSensitivityCalculator INSTANCE = new VarianceSwapSensitivityCalculator();
@@ -114,25 +112,17 @@ public final class VarianceSwapSensitivityCalculator extends EquityDerivativeSen
 
     // We know that the VarianceSwap only has true sensitivity to one maturity on one curve.
     // A function written for interestRate sensitivities spreads this sensitivity across yield nodes
-    // NodeSensitivityCalculator.curveToNodeSensitivities(curveSensitivities, interpolatedCurves)
 
-    // 2nd arg = LinkedHashMap<String, YieldAndDiscountCurve> interpolatedCurves
     final YieldAndDiscountCurve discCrv = market.getDiscountCurve();
     if (!(discCrv instanceof YieldCurve)) {
       throw new IllegalArgumentException("Can only handle YieldCurve");
     }
-    final String discCrvName = ((YieldCurve) discCrv).getCurve().getName();
-    final YieldCurveBundle interpolatedCurves = new YieldCurveBundle();
-    interpolatedCurves.setCurve(discCrvName, discCrv);
-
-    // 1st arg = Map<String, List<DoublesPair>> curveSensitivities = <curveName, List<(maturity,sensitivity)>>
     final double settlement = swap.getTimeToSettlement();
-    final Double sens = calcDiscountRateSensitivity(swap, market);
-    final Map<String, List<DoublesPair>> curveSensitivities = new HashMap<>();
-    curveSensitivities.put(discCrvName, Lists.newArrayList(new DoublesPair(settlement, sens)));
+    final double sens = calcDiscountRateSensitivity(swap, market);
 
     final NodeYieldSensitivityCalculator distributor = PresentValueNodeSensitivityCalculator.getDefaultInstance();
-    return distributor.curveToNodeSensitivities(curveSensitivities, interpolatedCurves);
+    final List<Double> result = distributor.curveToNodeSensitivity(Arrays.asList(DoublesPair.of(settlement, sens)), (YieldCurve) discCrv);
+    return new DoubleMatrix1D(result.toArray(new Double[result.size()]));
   }
 
   /**

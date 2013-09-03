@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.credit.calibratehazardratecurve;
@@ -27,8 +27,10 @@ import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests for the refactored hazard rate curve calculator, which calibrates to quoted par spreads of vanilla credit default swaps.
- * See also {@link CalibrateHazardRateTermStructureISDAMethodTest} and {@link CalibrateHazardRateCurveTest}  
+ * See also {@link CalibrateHazardRateTermStructureISDAMethodTest} and {@link CalibrateHazardRateCurveTest}
+ * @deprecated This class tests deprecated functionality
  */
+@Deprecated
 public class ISDAHazardRateCurveCalculatorTest {
 
   private static final CalibrateHazardRateTermStructureISDAMethod DEPRECATED_CALCULATOR = new CalibrateHazardRateTermStructureISDAMethod();
@@ -51,22 +53,20 @@ public class ISDAHazardRateCurveCalculatorTest {
   private static final ISDAYieldCurveAndSpreadsProvider CURVES_DATA;
   private static final LegacyVanillaCreditDefaultSwapDefinition CDS =
       CreditDefaultSwapDefinitionDataSets.getLegacyVanillaDefinition().withMaturityDate(VALUATION_DATE.plusYears(10));
-  private static final double BP = 10000;
-  private static final double EPS = 1e-15;
   private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
   static {
     MARKET_TIMES[0] = 0.0;
     for (int i = 0; i < MARKET_TENORS.length; i++) {
       MARKET_TIMES[i+1] = ACT_365.getDayCountFraction(VALUATION_DATE, MARKET_TENORS[i]);
     }
-    
+
     for (int i = 0; i < YIELD_TENORS.length; i++) {
       YIELD_TIMES[i] = TimeCalculator.getTimeBetween(VALUATION_DATE, YIELD_TENORS[i]);
     }
     YIELD_CURVE = new ISDADateCurve("ISDA", YIELD_TENORS, YIELD_TIMES, YIELDS, OFFSET);
     CURVES_DATA = new ISDAYieldCurveAndSpreadsProvider(MARKET_TENORS, MARKET_SPREADS, YIELD_CURVE);
   }
-  
+
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCDS() {
     CALCULATOR.calibrateHazardRateCurve(null, CURVES_DATA, VALUATION_DATE);

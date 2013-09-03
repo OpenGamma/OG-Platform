@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.volatility.smile.fitting;
@@ -17,8 +17,9 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResultsWithTransform;
 
 /**
- * 
+ * @deprecated This class tests deprecated functionality
  */
+@Deprecated
 public class SABRSurfaceFittingTest {
   private static final SABRNonLinearLeastSquareFitter FITTER = new SABRNonLinearLeastSquareFitter(new SABRHaganVolatilityFunction());
 

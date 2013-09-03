@@ -19,6 +19,7 @@ import com.opengamma.util.ArgumentChecker;
  * are added in a spread curve (two translations would create a singular system).
  * Only the lastTimeCalculator is stored. The node are computed from the instruments.
  */
+@SuppressWarnings("deprecation")
 public class GeneratorCurveYieldInterpolatedAnchor extends GeneratorYDCurve {
   // TODO Change to have the anchor point flexible.
 

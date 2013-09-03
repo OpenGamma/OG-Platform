@@ -25,12 +25,12 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFlo
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CapFloorIborHullWhiteMethod;
-import com.opengamma.analytics.financial.model.interestrate.TestsDataSetHullWhite;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
 import com.opengamma.analytics.financial.montecarlo.provider.HullWhiteMonteCarloMethod;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.hullwhite.PresentValueCurveSensitivityHullWhiteMonteCarloCalculator;
 import com.opengamma.analytics.financial.provider.calculator.hullwhite.PresentValueHullWhiteMonteCarloCalculator;
+import com.opengamma.analytics.financial.provider.description.HullWhiteDataSets;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.HullWhiteOneFactorProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.HullWhiteOneFactorProviderInterface;
@@ -80,7 +80,7 @@ public class AnnuityCouponIborRatchetHullWhiteMethodTest {
 
   private static final int NB_PATH = 12500;
 
-  private static final HullWhiteOneFactorPiecewiseConstantParameters HW_PARAMETERS = TestsDataSetHullWhite.createHullWhiteParameters();
+  private static final HullWhiteOneFactorPiecewiseConstantParameters HW_PARAMETERS = HullWhiteDataSets.createHullWhiteParameters();
   private static final HullWhiteOneFactorProviderDiscount HW_MULTICURVES = new HullWhiteOneFactorProviderDiscount(MULTICURVES, HW_PARAMETERS, CUR);
 
   private static final CapFloorIborHullWhiteMethod METHOD_HW_CAP = CapFloorIborHullWhiteMethod.getInstance();

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.derivative;
@@ -24,7 +24,7 @@ import com.opengamma.util.money.Currency;
  * \end{equation*}
  * $$
  * where the $\delta_i$ are the accrual factors of the sub periods and the $r_i$ the fixing for the same periods.
- * The fixing have their own start dates, end dates and accrual factors. In general they are close to the accrual 
+ * The fixing have their own start dates, end dates and accrual factors. In general they are close to the accrual
  * dates used to compute the coupon accrual factors.
  */
 public class CouponIborCompounding extends Coupon {
@@ -81,8 +81,9 @@ public class CouponIborCompounding extends Coupon {
    * @deprecated Use the constructor that does not take yield curve names
    */
   @Deprecated
-  public CouponIborCompounding(Currency currency, double paymentTime, String discountingCurveName, double paymentAccrualFactor, double notional, double notionalAccrued, IborIndex index,
-      double[] paymentAccrualFactors, double[] fixingTimes, double[] fixingPeriodStartTimes, double[] fixingPeriodEndTimes, double[] fixingPeriodAccrualFactors, final String forwardCurveName) {
+  public CouponIborCompounding(final Currency currency, final double paymentTime, final String discountingCurveName, final double paymentAccrualFactor,
+      final double notional, final double notionalAccrued, final IborIndex index, final double[] paymentAccrualFactors, final double[] fixingTimes,
+      final double[] fixingPeriodStartTimes, final double[] fixingPeriodEndTimes, final double[] fixingPeriodAccrualFactors, final String forwardCurveName) {
     super(currency, paymentTime, discountingCurveName, paymentAccrualFactor, notional);
     ArgumentChecker.isTrue(fixingTimes.length == fixingPeriodStartTimes.length, "Fixing times and fixing period should have same length");
     ArgumentChecker.isTrue(fixingTimes.length == fixingPeriodEndTimes.length, "Fixing times and fixing period should have same length");
@@ -99,7 +100,7 @@ public class CouponIborCompounding extends Coupon {
     _fixingPeriodAccrualFactors = fixingPeriodAccrualFactors;
     _forwardCurveName = forwardCurveName;
   }
-  
+
   /**
    * Constructor.
    * @param currency The payment currency.
@@ -114,8 +115,8 @@ public class CouponIborCompounding extends Coupon {
    * @param fixingPeriodEndTimes The end times of the fixing periods.
    * @param fixingPeriodAccrualFactors The accrual factors (or year fraction) associated with the fixing periods in the Index day count convention.
    */
-  public CouponIborCompounding(Currency currency, double paymentTime, double paymentAccrualFactor, double notional, double notionalAccrued, IborIndex index,
-      double[] paymentAccrualFactors, double[] fixingTimes, double[] fixingPeriodStartTimes, double[] fixingPeriodEndTimes, double[] fixingPeriodAccrualFactors) {
+  public CouponIborCompounding(final Currency currency, final double paymentTime, final double paymentAccrualFactor, final double notional, final double notionalAccrued, final IborIndex index,
+      final double[] paymentAccrualFactors, final double[] fixingTimes, final double[] fixingPeriodStartTimes, final double[] fixingPeriodEndTimes, final double[] fixingPeriodAccrualFactors) {
     super(currency, paymentTime, paymentAccrualFactor, notional);
     ArgumentChecker.isTrue(fixingTimes.length == fixingPeriodStartTimes.length, "Fixing times and fixing period should have same length");
     ArgumentChecker.isTrue(fixingTimes.length == fixingPeriodEndTimes.length, "Fixing times and fixing period should have same length");
@@ -201,19 +202,20 @@ public class CouponIborCompounding extends Coupon {
     return _forwardCurveName;
   }
 
+  @SuppressWarnings("deprecation")
   @Override
-  public Coupon withNotional(double notional) {
+  public Coupon withNotional(final double notional) {
     return new CouponIborCompounding(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), notional, _notionalAccrued, _index, _paymentAccrualFactors, _fixingTimes,
         _fixingPeriodStartTimes, _fixingPeriodEndTimes, _fixingPeriodAccrualFactors, _forwardCurveName);
   }
 
   @Override
-  public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
     return visitor.visitCouponIborCompounding(this, data);
   }
 
   @Override
-  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
     return visitor.visitCouponIborCompounding(this);
   }
 
@@ -235,7 +237,7 @@ public class CouponIborCompounding extends Coupon {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -245,7 +247,7 @@ public class CouponIborCompounding extends Coupon {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    CouponIborCompounding other = (CouponIborCompounding) obj;
+    final CouponIborCompounding other = (CouponIborCompounding) obj;
     if (!Arrays.equals(_fixingPeriodAccrualFactors, other._fixingPeriodAccrualFactors)) {
       return false;
     }

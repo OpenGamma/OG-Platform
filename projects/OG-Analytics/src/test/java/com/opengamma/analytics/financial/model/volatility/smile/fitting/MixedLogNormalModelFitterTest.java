@@ -98,15 +98,17 @@ public class MixedLogNormalModelFitterTest extends SmileModelFitterTest<MixedLog
 
     // DoubleMatrix1D start = new DoubleMatrix1D(0.1653806454982462, 0.2981998932366687, 1.298321083180569, 0.16115590666749585);
     //  best = fitter.solve(start);
-    System.out.println(best.toString());
-    final MixedLogNormalModelData data = new MixedLogNormalModelData(best.getModelParameters().getData());
-    System.out.println(data.toString());
-    for (int i = 0; i < 200; i++) {
-      final double k = 500 + 1700 * i / 199.;
+    if (best != null) {
+      System.out.println(best.toString());
+      final MixedLogNormalModelData data = new MixedLogNormalModelData(best.getModelParameters().getData());
+      System.out.println(data.toString());
+      for (int i = 0; i < 200; i++) {
+        final double k = 500 + 1700 * i / 199.;
 
-      final EuropeanVanillaOption option = new EuropeanVanillaOption(k, expiry, true);
-      final double vol = model.getVolatility(option, forward, data);
-      System.out.println(k + "\t" + vol);
+        final EuropeanVanillaOption option = new EuropeanVanillaOption(k, expiry, true);
+        final double vol = model.getVolatility(option, forward, data);
+        System.out.println(k + "\t" + vol);
+      }
     }
 
     //    BitSet fixed = new BitSet();

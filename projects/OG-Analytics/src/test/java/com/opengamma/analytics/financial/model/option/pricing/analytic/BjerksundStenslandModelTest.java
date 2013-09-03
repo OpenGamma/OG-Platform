@@ -18,12 +18,12 @@ import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribut
 
 /**
  * Bjerksund and Stensland model test.
- * 
  */
 public class BjerksundStenslandModelTest extends AmericanAnalyticOptionModelTest {
 
   private static final ProbabilityDistribution<double[]> BIVARIATE_NORMAL = new BivariateNormalDistribution();
 
+  @SuppressWarnings("deprecation")
   @Test
   public void test() {
     // Deprecated form used for this test
