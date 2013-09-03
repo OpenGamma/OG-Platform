@@ -171,7 +171,15 @@ public class InterestRateFutureOptionBlackScenarioPnLFunction extends InterestRa
     }
   }
   
-  @Override
+  @Override  
+  protected ValueProperties.Builder getResultProperties(final String currency) {
+    return super.getResultProperties(currency)
+        .withAny(s_priceShift)
+        .withAny(s_volShift)
+        .withAny(s_priceShiftType)
+        .withAny(s_volShiftType);
+  } 
+  
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
     if (inputs.size() == 1) {
       ValueSpecification input = inputs.keySet().iterator().next();
@@ -179,13 +187,6 @@ public class InterestRateFutureOptionBlackScenarioPnLFunction extends InterestRa
         return inputs.keySet();
       }
     }
-    ValueSpecification superSpec = super.getResults(context, target, inputs).iterator().next();
-    Builder properties = superSpec.getProperties().copy()
-        .withAny(s_priceShift)
-        .withAny(s_volShift)
-        .withAny(s_priceShiftType)
-        .withAny(s_volShiftType);
-        
-    return Collections.singleton(new ValueSpecification(ValueRequirementNames.PNL, target.toSpecification(), properties.get()));    
+    return super.getResults(context, target, inputs);
   }
 }

@@ -151,7 +151,7 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final String currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode();
-    return Collections.singleton(new ValueSpecification(_valueRequirementName, target.toSpecification(), getResultProperties(currency)));
+    return Collections.singleton(new ValueSpecification(_valueRequirementName, target.toSpecification(), getResultProperties(currency).get()));
   }
 
   @Override
@@ -208,12 +208,12 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
   protected abstract Set<ComputedValue> getResult(final InstrumentDerivative irFutureOption, final YieldCurveWithBlackCubeBundle data,
       final ValueSpecification spec, Set<ValueRequirement> desiredValues);
 
-  protected ValueProperties getResultProperties(final String currency) {
+  protected ValueProperties.Builder getResultProperties(final String currency) {
     return createValueProperties()
         .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
         .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
         .withAny(ValuePropertyNames.SURFACE)
-        .with(ValuePropertyNames.CURRENCY, currency).get();
+        .with(ValuePropertyNames.CURRENCY, currency);
   }
 
   protected ValueRequirement getVolatilityRequirement(final String surface, final Currency currency) {

@@ -19,7 +19,6 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.black.BlackDiscountingForwardIRFutureOptionFunction;
 import com.opengamma.util.ArgumentChecker;
 
@@ -50,13 +49,8 @@ public class InterestRateFutureOptionBlackForwardFunction extends InterestRateFu
   }
 
   @Override
-  /** Removed CURRENCY from properties */
-  protected ValueProperties getResultProperties(final String currency) {
-    return createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
-        .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
-        .withAny(ValuePropertyNames.SURFACE)
-        .get();
+  protected ValueProperties.Builder getResultProperties(final String currency) {
+    return super.getResultProperties(currency).withoutAny(ValuePropertyNames.CURRENCY);
   }
 
 }
