@@ -8,11 +8,14 @@ package com.opengamma.engine.view.worker.cache;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Element;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,10 +44,6 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
-
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Element;
 
 /**
  * An EH-Cache based implementation of {@link ViewExecutionCache}.
@@ -116,8 +115,8 @@ public class EHCacheViewExecutionCache implements ViewExecutionCache {
     private final ComputationTargetSpecification[] _nodeTargets;
     private final FunctionParameters[] _nodeParameters;
     private final String[] _nodeFunctions;
-    private final Set<ValueSpecification>[] _nodeInputs;
-    private final Set<ValueSpecification>[] _nodeOutputs;
+    private final Collection<ValueSpecification>[] _nodeInputs;
+    private final Collection<ValueSpecification>[] _nodeOutputs;
 
     @SuppressWarnings("unchecked")
     public DependencyGraphHolder(final DependencyGraph graph) {
@@ -126,15 +125,15 @@ public class EHCacheViewExecutionCache implements ViewExecutionCache {
       _nodeTargets = new ComputationTargetSpecification[size];
       _nodeParameters = new FunctionParameters[size];
       _nodeFunctions = new String[size];
-      _nodeInputs = new Set[size];
-      _nodeOutputs = new Set[size];
+      _nodeInputs = new Collection[size];
+      _nodeOutputs = new Collection[size];
       int i = 0;
       for (DependencyNode node : graph.getDependencyNodes()) {
         _nodeTargets[i] = node.getComputationTarget();
         _nodeParameters[i] = node.getFunction().getParameters();
         _nodeFunctions[i] = node.getFunction().getFunction().getFunctionDefinition().getUniqueId();
         _nodeInputs[i] = node.getInputValues();
-        _nodeOutputs[i] = new HashSet<>(node.getOutputValues());
+        _nodeOutputs[i] = new ArrayList<ValueSpecification>(node.getOutputValues());
         i++;
       }
       _terminalOutputs = graph.getTerminalOutputs();
@@ -221,7 +220,7 @@ public class EHCacheViewExecutionCache implements ViewExecutionCache {
           .resolve(new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO, _portfolio), _versionCorrection).getValue();
       CompiledViewDefinitionWithGraphsImpl compiledViewDef =
           new CompiledViewDefinitionWithGraphsImpl(_versionCorrection, _compilationId, viewDefinition, graphs,
-                                                   _resolutions, portfolio, _functionInitId, _calcConfigs);
+              _resolutions, portfolio, _functionInitId, _calcConfigs);
       return parent.new CompiledViewDefinitionWithGraphsHolder(compiledViewDef);
     }
   }
