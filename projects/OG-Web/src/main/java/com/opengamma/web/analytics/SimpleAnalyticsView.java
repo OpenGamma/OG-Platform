@@ -56,6 +56,7 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
   private final Supplier<Portfolio> _portfolioSupplier;
   private final PortfolioEntityExtractor _portfolioEntityExtractor;
   private final UniqueId _viewDefinitionId;
+  private final ErrorManager _errorManager;
 
   private PortfolioAnalyticsGrid _portfolioGrid;
   private MainAnalyticsGrid _primitivesGrid;
@@ -74,8 +75,9 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
    * @param blotterColumnMapper For populating the blotter columns with details for each different security type
    * @param portfolioSupplier Supplies an up to date version of the portfolio
    * @param showBlotterColumns Whether the blotter columns should be shown in the portfolio analytics grid
+   * @param errorManager Holds information about errors that occur compiling and executing the view
    */
-  /* package */ SimpleAnalyticsView(UniqueId viewDefinitionId, 
+  /* package */ SimpleAnalyticsView(UniqueId viewDefinitionId,
                                     boolean primitivesOnly,
                                     VersionCorrection versionCorrection,
                                     String viewId,
@@ -86,7 +88,8 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
                                     SecurityAttributeMapper blotterColumnMapper,
                                     Supplier<Portfolio> portfolioSupplier,
                                     PortfolioEntityExtractor portfolioEntityExtractor,
-                                    boolean showBlotterColumns) {
+                                    boolean showBlotterColumns,
+                                    ErrorManager errorManager) {
     ArgumentChecker.notNull(viewDefinitionId, "viewDefinitionId");
     ArgumentChecker.notEmpty(viewId, "viewId");
     ArgumentChecker.notEmpty(portfolioCallbackId, "portfolioCallbackId");
@@ -97,7 +100,9 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
     ArgumentChecker.notNull(portfolioSupplier, "portfolioSupplier");
     ArgumentChecker.notNull(portfolioEntityExtractor, "portfolioEntityExtractor");
-    
+    ArgumentChecker.notNull(errorManager, "errorManager");
+
+    _errorManager = errorManager;
     _viewDefinitionId = viewDefinitionId;
     _versionCorrection = versionCorrection;
     _viewId = viewId;
@@ -140,9 +145,8 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
   }
 
   @Override
-  public List<String> viewCompilationFailed(Exception e) {
-    // TODO add an error to ErrorManager, return the ErrorInfo / callbackId
-    return Collections.emptyList();
+  public String viewCompilationFailed(Exception e) {
+    return _errorManager.add(e);
   }
 
   private void doUpdateStructure(CompiledViewDefinition compiledViewDefinition, Portfolio portfolio) {
@@ -433,6 +437,15 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
   public UniqueId getViewDefinitionId() {
     return _viewDefinitionId;
   }
-  
+
+  @Override
+  public ErrorInfo getError(String id) {
+    return _errorManager.get(id);
+  }
+
+  @Override
+  public void deleteError(String id) {
+    _errorManager.delete(id);
+  }
 }
 

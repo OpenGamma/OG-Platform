@@ -8,9 +8,9 @@ package com.opengamma.web.analytics;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * Information about an error that occurred in the server.
  */
-public class ErrorInfo {
+public final class ErrorInfo {
 
   private final String _message;
   private final Exception _exception;

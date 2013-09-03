@@ -94,14 +94,12 @@ public class ViewResource {
   @Path("errors/{errorId}")
   @GET
   public ErrorInfo getError(@PathParam("errorId") String errorId) {
-    throw new UnsupportedOperationException();
-    // TODO getError() method on AnalyticsView
+    return _view.getError(errorId);
   }
 
   @Path("errors/{errorId}")
   @DELETE
   public void deleteError(@PathParam("errorId") String errorId) {
-    throw new UnsupportedOperationException();
-    // TODO deleteError() method on AnalyticsView
+    _view.deleteError(errorId);
   }
 }

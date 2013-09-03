@@ -46,7 +46,7 @@ import com.opengamma.web.analytics.formatting.TypeFormatter.Format;
   }
 
   @Override
-  public List<String> viewCompilationFailed(Exception e) {
+  public String viewCompilationFailed(Exception e) {
     try {
       _lock.writeLock().lock();
       return _delegate.viewCompilationFailed(e);
@@ -244,7 +244,24 @@ import com.opengamma.web.analytics.formatting.TypeFormatter.Format;
       _lock.readLock().unlock();
     }
   }
-  
-  
-  
+
+  @Override
+  public ErrorInfo getError(String id) {
+    try {
+      _lock.readLock().lock();
+      return _delegate.getError(id);
+    } finally {
+      _lock.readLock().unlock();
+    }
+  }
+
+  @Override
+  public void deleteError(String id) {
+    try {
+      _lock.writeLock().lock();
+      _delegate.deleteError(id);
+    } finally {
+      _lock.writeLock().unlock();
+    }
+  }
 }

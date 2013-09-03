@@ -8,11 +8,12 @@ package com.opengamma.web.analytics;
 import java.util.concurrent.ConcurrentMap;
 
 import com.google.common.collect.Maps;
+import com.opengamma.DataNotFoundException;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.web.analytics.rest.ErrorIdFactory;
 
 /**
- * TODO this contains the errors for a single view, how does the REST code get hold of it?
- * method on AnalyticsView? not nice. getError and deleteError methods on AnalyticsView? that fits the current model best
+ * Contains details of the errors that have occurred in the server for a view.
  */
 /* package */ class ErrorManager {
 
@@ -24,17 +25,40 @@ import com.opengamma.util.ArgumentChecker;
     _idFactory = idFactory;
   }
 
+  /**
+   * Adds information about a new error.
+   * @param exception The exception that triggered the error
+   * @return The ID of the error
+   */
   /* package */ String add(Exception exception) {
     String id = _idFactory.generateId();
     _errors.put(id, new ErrorInfo(exception));
     return id;
   }
 
+  /**
+   * Returns information about an error.
+   * @param id The ID of the error
+   * @return The error details
+   * @throws DataNotFoundException If the ID is unknown
+   */
   /* package */ ErrorInfo get(String id) {
-    return _errors.get(id);
+    ErrorInfo error = _errors.get(id);
+    if (error == null) {
+      throw new DataNotFoundException("No error found with ID " + id);
+    }
+    return error;
   }
 
+  /**
+   * Deletes an error's details when the client is no longer interested in it.
+   * @param id The ID of the error
+   * @throws DataNotFoundException If the ID is unknown
+   */
   /* package */ void delete(String id) {
-    _errors.remove(id);
+    ErrorInfo error = _errors.remove(id);
+    if (error == null) {
+      throw new DataNotFoundException("No error found with ID " + id);
+    }
   }
 }

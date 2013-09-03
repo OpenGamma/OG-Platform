@@ -17,7 +17,7 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
 import com.opengamma.web.analytics.push.UpdateListener;
 
 /**
- * View implementation that delegates to another view, catches any exceptions and notifies the client.
+ * View implementation that delegates operations to another view, catches any exceptions and notifies the client.
  */
 /* package */ class CatchingAnalyticsView implements AnalyticsView {
 
@@ -46,7 +46,7 @@ import com.opengamma.web.analytics.push.UpdateListener;
   }
 
   @Override
-  public List<String> viewCompilationFailed(Exception ex) {
+  public String viewCompilationFailed(Exception ex) {
     try {
       return _delegate.viewCompilationFailed(ex);
     } catch (Exception e) {
@@ -280,6 +280,28 @@ import com.opengamma.web.analytics.push.UpdateListener;
   public UniqueId getViewDefinitionId() {
     try {
       return _delegate.getViewDefinitionId();
+    } catch (Exception e) {
+      String id = _errorManager.add(e);
+      _listener.itemUpdated(id);
+      throw e;
+    }
+  }
+
+  @Override
+  public ErrorInfo getError(String errorId) {
+    try {
+      return _delegate.getError(errorId);
+    } catch (Exception e) {
+      String id = _errorManager.add(e);
+      _listener.itemUpdated(id);
+      throw e;
+    }
+  }
+
+  @Override
+  public void deleteError(String errorId) {
+    try {
+      _delegate.deleteError(errorId);
     } catch (Exception e) {
       String id = _errorManager.add(e);
       _listener.itemUpdated(id);
