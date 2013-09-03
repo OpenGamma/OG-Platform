@@ -53,13 +53,13 @@ public class SmoothSurfaceTest {
     }
   }
 
-  @Test
+  @Test(enabled = false)
   public void test() {
     final Function1D<Double, Double> basisFunction = new MultiquadraticRadialBasisFunction(0.5);
     fit(FLAT_DATA, basisFunction, true, NODE_POS);
   }
 
-  @Test
+  @Test(enabled = false)
   public void testNoisy() {
     final Function1D<Double, Double> basisFunction = new MultiquadraticRadialBasisFunction(0.5);
     fit(NOISY_DATA, basisFunction, true, NODE_POS);
