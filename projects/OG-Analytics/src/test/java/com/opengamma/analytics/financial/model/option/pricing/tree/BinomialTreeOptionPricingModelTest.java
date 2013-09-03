@@ -217,47 +217,6 @@ public class BinomialTreeOptionPricingModelTest {
   //    }
   //  }
 
-  @Test
-  public void spreadEuropeanPriceTest() {
-    final double[] spotSet2 = new double[] {SPOT * 0.9, SPOT * 1.1 };
-    final double[] sigmaSet2 = new double[] {0.05, 0.12 };
-    final double[] rhoSet = new double[] {0.1, 0.6, 0.9 };
-
-    final double strike = 0.;
-    final double div2 = 0.03;
-
-    final boolean[] tfSet = new boolean[] {true, false };
-    for (final boolean isCall : tfSet) {
-      for (final double interest : INTERESTS) {
-        for (final double vol : VOLS) {
-          final int[] choicesSteps = new int[] {29, 113 };
-          for (final int nSteps : choicesSteps) {
-            for (final double spot2 : spotSet2) {
-              for (final double sigma2 : sigmaSet2) {
-                for (final double rho : rhoSet) {
-                  for (final double dividend : DIVIDENDS) {
-                    if (interest > 0. && dividend > 0.) {// this must be a sufficient condition for all probabilities > 0.
-                      double exactDiv = BlackScholesFormulaRepository.price(SPOT, spot2, TIME, Math.sqrt(vol * vol + sigma2 * sigma2 - 2. * rho * vol * sigma2), div2, div2 - dividend, isCall);
-                      final double resDiv = _model.getEuropeanSpreadPrice(SPOT, spot2, strike, TIME, vol, sigma2, rho, interest, dividend, div2, nSteps, isCall);
-                      final double refDiv = Math.max(exactDiv, 1.) / Math.sqrt(nSteps);
-                      assertEquals(resDiv, exactDiv, refDiv);
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-
-  @Test
-  public void spreadAmericanPriceTest() {
-    final double resDiv = _model.getAmericanSpreadPrice(100, 100., 1., 1., 0.2, 0.3, 0.50, 0.06, 0.03, 0.04, 3, true);
-    assertEquals(resDiv, 1.e-3, 10.04479);
-  }
-
   //  /*
   //   * Just consistency is checked
   //   */
@@ -405,10 +364,58 @@ public class BinomialTreeOptionPricingModelTest {
   }
 
   /*************************************************************************
-   * Tests below compare old method and new method
+   * Tests below compare old method and new method, removed later
    *************************************************************************/
 
-  @Test
+  @Test(enabled = false)
+  public void EuropeanSpreadPriceNewMethodTest() {
+
+    final boolean[] tfSet = new boolean[] {true, false };
+    for (final boolean isCall : tfSet) {
+      for (final double strike : STRIKES) {
+        for (final double interest : INTERESTS) {
+          for (final double vol : VOLS) {
+            for (final double dividend : DIVIDENDS) {
+              final int[] choicesSteps = new int[] {11, 105 };
+              for (final int nSteps : choicesSteps) {
+                final OptionFunctionProvider2D function = new EuropeanSpreadOptionFunctionProvider(strike, nSteps, isCall);
+                final double resNew = _model.getPrice(function, SPOT, SPOT * 0.95, TIME, vol, vol * 1.05, 0.5, interest, dividend, dividend * 1.05);
+                final double resOld = _model.getEuropeanSpreadPrice(SPOT, SPOT * 0.95, strike, TIME, vol, vol * 1.05, 0.5, interest, dividend, dividend * 1.05, nSteps, isCall);
+                //                  System.out.println(resNew + "\t" + resOld);
+                assertEquals(resNew, resOld, Math.max(resOld, 1.) * 1.e-14);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  @Test(enabled = false)
+  public void AmericanSpreadPriceNewMethodTest() {
+
+    final boolean[] tfSet = new boolean[] {true, false };
+    for (final boolean isCall : tfSet) {
+      for (final double strike : STRIKES) {
+        for (final double interest : INTERESTS) {
+          for (final double vol : VOLS) {
+            for (final double dividend : DIVIDENDS) {
+              final int[] choicesSteps = new int[] {11, 105 };
+              for (final int nSteps : choicesSteps) {
+                final OptionFunctionProvider2D function = new AmericanSpreadOptionFunctionProvider(strike, nSteps, isCall);
+                final double resNew = _model.getPrice(function, SPOT, SPOT * 0.95, TIME, vol, vol * 1.05, 0.5, interest, dividend, dividend * 1.05);
+                final double resOld = _model.getAmericanSpreadPrice(SPOT, SPOT * 0.95, strike, TIME, vol, vol * 1.05, 0.5, interest, dividend, dividend * 1.05, nSteps, isCall);
+                //                  System.out.println(resNew + "\t" + resOld);
+                assertEquals(resNew, resOld, Math.max(resOld, 1.) * 1.e-14);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  @Test(enabled = false)
   public void EuropeanPriceLatticeNewMethodTest() {
     final LatticeSpecification[] lattices = new LatticeSpecification[] {new CoxRossRubinsteinLatticeSpecification(), new JarrowRuddLatticeSpecification(), new TrigeorgisLatticeSpecification(),
         new JabbourKraminYoungLatticeSpecification(), new TianLatticeSpecification(), new LeisenReimerLatticeSpecification() };
@@ -436,7 +443,7 @@ public class BinomialTreeOptionPricingModelTest {
     }
   }
 
-  @Test
+  @Test(enabled = false)
   public void EuropeanGreekLatticeNewMethodTest() {
     final LatticeSpecification[] lattices = new LatticeSpecification[] {new CoxRossRubinsteinLatticeSpecification(), new JarrowRuddLatticeSpecification(), new TrigeorgisLatticeSpecification(),
         new JabbourKraminYoungLatticeSpecification(), new TianLatticeSpecification(), new LeisenReimerLatticeSpecification() };
@@ -467,7 +474,7 @@ public class BinomialTreeOptionPricingModelTest {
     }
   }
 
-  @Test
+  @Test(enabled = false)
   public void AmericanPriceLatticeNewMethodTest() {
     final LatticeSpecification[] lattices = new LatticeSpecification[] {new CoxRossRubinsteinLatticeSpecification(), new JarrowRuddLatticeSpecification(), new TrigeorgisLatticeSpecification(),
         new JabbourKraminYoungLatticeSpecification(), new TianLatticeSpecification(), new LeisenReimerLatticeSpecification() };
@@ -495,7 +502,7 @@ public class BinomialTreeOptionPricingModelTest {
     }
   }
 
-  @Test
+  @Test(enabled = false)
   public void AmericanGreekLatticeNewMethodTest() {
     final LatticeSpecification[] lattices = new LatticeSpecification[] {new CoxRossRubinsteinLatticeSpecification(), new JarrowRuddLatticeSpecification(), new TrigeorgisLatticeSpecification(),
         new JabbourKraminYoungLatticeSpecification(), new TianLatticeSpecification(), new LeisenReimerLatticeSpecification() };
@@ -526,7 +533,7 @@ public class BinomialTreeOptionPricingModelTest {
     }
   }
 
-  @Test
+  @Test(enabled = false)
   public void barrierEuropeanNewMethodTest() {
     final LatticeSpecification[] lattices = new LatticeSpecification[] {new CoxRossRubinsteinLatticeSpecification(), new JarrowRuddLatticeSpecification(), new TrigeorgisLatticeSpecification(),
         new JabbourKraminYoungLatticeSpecification(), new TianLatticeSpecification(), new LeisenReimerLatticeSpecification() };
@@ -562,7 +569,7 @@ public class BinomialTreeOptionPricingModelTest {
     }
   }
 
-  @Test
+  @Test(enabled = false)
   public void barrierEuropeanGreekNewMethodTest() {
     final LatticeSpecification[] lattices = new LatticeSpecification[] {new CoxRossRubinsteinLatticeSpecification(), new JarrowRuddLatticeSpecification(), new TrigeorgisLatticeSpecification(),
         new JabbourKraminYoungLatticeSpecification(), new TianLatticeSpecification(), new LeisenReimerLatticeSpecification() };
@@ -604,7 +611,7 @@ public class BinomialTreeOptionPricingModelTest {
     }
   }
 
-  @Test
+  @Test(enabled = false)
   public void barrierAmericanNewMethodTest() {
     final LatticeSpecification[] lattices = new LatticeSpecification[] {new CoxRossRubinsteinLatticeSpecification(), new JarrowRuddLatticeSpecification(), new TrigeorgisLatticeSpecification(),
         new JabbourKraminYoungLatticeSpecification(), new TianLatticeSpecification(), new LeisenReimerLatticeSpecification() };
@@ -640,7 +647,7 @@ public class BinomialTreeOptionPricingModelTest {
     }
   }
 
-  @Test
+  @Test(enabled = false)
   public void barrierAmericanGreekNewMethodTest() {
     final LatticeSpecification[] lattices = new LatticeSpecification[] {new CoxRossRubinsteinLatticeSpecification(), new JarrowRuddLatticeSpecification(), new TrigeorgisLatticeSpecification(),
         new JabbourKraminYoungLatticeSpecification(), new TianLatticeSpecification(), new LeisenReimerLatticeSpecification() };
@@ -682,7 +689,7 @@ public class BinomialTreeOptionPricingModelTest {
     }
   }
 
-  @Test
+  @Test(enabled = false)
   public void europeanPriceDiscreteDividendsNewMethodTest() {
     final LatticeSpecification[] lattices = new LatticeSpecification[] {new CoxRossRubinsteinLatticeSpecification(), new JarrowRuddLatticeSpecification(),
         new TrigeorgisLatticeSpecification(), new JabbourKraminYoungLatticeSpecification(), new TianLatticeSpecification(), new LeisenReimerLatticeSpecification() };
@@ -721,7 +728,7 @@ public class BinomialTreeOptionPricingModelTest {
     }
   }
 
-  @Test
+  @Test(enabled = false)
   public void americanPriceDiscreteDividendsNewMethodTest() {
     final LatticeSpecification[] lattices = new LatticeSpecification[] {new CoxRossRubinsteinLatticeSpecification(), new JarrowRuddLatticeSpecification(),
         new TrigeorgisLatticeSpecification(), new JabbourKraminYoungLatticeSpecification(), new TianLatticeSpecification(), new LeisenReimerLatticeSpecification() };

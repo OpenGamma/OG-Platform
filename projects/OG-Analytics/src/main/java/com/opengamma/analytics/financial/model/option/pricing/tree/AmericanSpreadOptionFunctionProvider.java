@@ -6,7 +6,7 @@
 package com.opengamma.analytics.financial.model.option.pricing.tree;
 
 /**
- *
+ * {@link EuropeanSpreadOptionFunctionProvider} with early exercise feature
  */
 public class AmericanSpreadOptionFunctionProvider extends OptionFunctionProvider2D {
 
@@ -45,11 +45,12 @@ public class AmericanSpreadOptionFunctionProvider extends OptionFunctionProvider
     final int stepsP = steps + 1;
     final double strike = getStrike();
     final double sign = getSign();
+    final double assetPrice2Rest = baseAssetPrice2 * Math.pow(downFactor2, steps);
 
     final double[][] res = new double[stepsP][stepsP];
     double assetPrice1 = baseAssetPrice1 * Math.pow(downFactor1, steps);
     for (int j = 0; j < stepsP; ++j) {
-      double assetPrice2 = baseAssetPrice2 * Math.pow(downFactor2, steps);
+      double assetPrice2 = assetPrice2Rest;
       for (int i = 0; i < stepsP; ++i) {
         res[j][i] = discount * (uuProbability * values[j + 1][i + 1] + udProbability * values[j + 1][i] + duProbability * values[j][i + 1] + ddProbability * values[j][i]);
         res[j][i] = Math.max(res[j][i], sign * (assetPrice1 - assetPrice2 - strike));

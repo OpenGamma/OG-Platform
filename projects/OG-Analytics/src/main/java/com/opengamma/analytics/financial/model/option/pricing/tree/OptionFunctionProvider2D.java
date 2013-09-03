@@ -40,7 +40,7 @@ public abstract class OptionFunctionProvider2D {
    * @param udProbability Up-down probability
    * @param duProbability Down-up probability
    * @param ddProbability Down-down probability
-   * @param values Option values in the (steps)-th layer
+   * @param values Option values in the (steps+1)-th layer
    * @param baseAssetPrice1 Asset price 1 at (0,0), i.e., the starting point
    * @param baseAssetPrice2 Asset price 2 at (0,0), i.e., the starting point
    * @param downFactor1 Down factor for asset1
@@ -48,7 +48,7 @@ public abstract class OptionFunctionProvider2D {
    * @param upOverDown1 (up factor)/(down factor) for asset1
    * @param upOverDown2 (up factor)/(down factor) for asset2
    * @param steps  
-   * @return Given a set of option values in the (steps)-th layer, derive option values in the (steps-1)-th layer
+   * @return Given a set of option values in the (steps+1)-th layer, derive option values in the (steps)-th layer
    */
   public abstract double[][] getNextOptionValues(final double discount, final double uuProbability, final double udProbability, final double duProbability, final double ddProbability,
       final double[][] values, final double baseAssetPrice1, final double baseAssetPrice2, final double downFactor1, final double downFactor2,

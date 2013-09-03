@@ -12,7 +12,6 @@ import com.opengamma.util.ArgumentChecker;
  * Provides payoff function and option price function for one-dimensional tree model
  */
 public abstract class OptionFunctionProvider1D {
-
   private double _strike;
   private int _steps;
   private double _sign;

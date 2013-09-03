@@ -32,17 +32,11 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
    * TODO Test Greeks for barriers with discrete/continuous dividends
    * TODO time-varying vol may not be compatible to discrete dividends due to limited control of dt
    *
-   * TODO Other types, such as Binary-type payoff, can be done with OptionDefinition
-   * TODO spread options need more tests
-   *
    * TODO check convergence of theta
    *
    *
    * <<Slight modification of American>>
-   * TODO Bermudan option
-   * <<Full tree information may be needed>>
-   * TODO Asian option
-   * TODO Look-back option
+   * TODO Bermudan option (PLAT-4459)
    */
 
   public BinomialTreeOptionPricingModel() {
@@ -75,7 +69,7 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
     ArgumentChecker.isTrue(Doubles.isFinite(timeToExpiry), "timeToExpiry should be finite");
     ArgumentChecker.isTrue(volatility > 0., "volatility should be positive");
     ArgumentChecker.isTrue(Doubles.isFinite(volatility), "volatility should be finite");
-    ArgumentChecker.isTrue(Doubles.isFinite(interestRate), "dividend should be interestRate");
+    ArgumentChecker.isTrue(Doubles.isFinite(interestRate), "interestRate should be finite");
     ArgumentChecker.isTrue(Doubles.isFinite(dividend), "dividend should be finite");
 
     final LatticeSpecification modLattice = (lattice instanceof TimeVaryingLatticeSpecification) ? new TrigeorgisLatticeSpecification() : lattice;
@@ -134,7 +128,7 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
     for (int i = 0; i < nSteps; ++i) {
       ArgumentChecker.isTrue(volatility[i] > 0., "volatility should be positive");
       ArgumentChecker.isTrue(Doubles.isFinite(volatility[i]), "volatility should be finite");
-      ArgumentChecker.isTrue(Doubles.isFinite(interestRate[i]), "dividend should be finite");
+      ArgumentChecker.isTrue(Doubles.isFinite(interestRate[i]), "interestRate should be finite");
       ArgumentChecker.isTrue(Doubles.isFinite(dividend[i]), "dividend should be finite");
     }
 
@@ -184,7 +178,7 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
     ArgumentChecker.isTrue(Doubles.isFinite(timeToExpiry), "timeToExpiry should be finite");
     ArgumentChecker.isTrue(volatility > 0., "volatility should be positive");
     ArgumentChecker.isTrue(Doubles.isFinite(volatility), "volatility should be finite");
-    ArgumentChecker.isTrue(Doubles.isFinite(interestRate), "dividend should be interestRate");
+    ArgumentChecker.isTrue(Doubles.isFinite(interestRate), "interestRate should be finite");
 
     final LatticeSpecification modLattice = (lattice instanceof TimeVaryingLatticeSpecification) ? new TrigeorgisLatticeSpecification() : lattice;
     if (function instanceof BarrierOptionFunctionProvider) {
@@ -247,6 +241,67 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
   }
 
   @Override
+  public double getPrice(final OptionFunctionProvider2D function, final double spot1, final double spot2, final double timeToExpiry, final double volatility1, final double volatility2,
+      final double correlation, final double interestRate, final double dividend1, final double dividend2) {
+    ArgumentChecker.notNull(function, "function");
+
+    ArgumentChecker.isTrue(spot1 > 0., "spot1 should be positive");
+    ArgumentChecker.isTrue(Doubles.isFinite(spot1), "spot1 should be finite");
+    ArgumentChecker.isTrue(spot2 > 0., "spot2 should be positive");
+    ArgumentChecker.isTrue(Doubles.isFinite(spot2), "spot2 should be finite");
+    ArgumentChecker.isTrue(timeToExpiry > 0., "timeToExpiry should be positive");
+    ArgumentChecker.isTrue(Doubles.isFinite(timeToExpiry), "timeToExpiry should be finite");
+    ArgumentChecker.isTrue(volatility1 > 0., "volatility1 should be positive");
+    ArgumentChecker.isTrue(Doubles.isFinite(volatility1), "volatility1 should be finite");
+    ArgumentChecker.isTrue(volatility2 > 0., "volatility2 should be positive");
+    ArgumentChecker.isTrue(Doubles.isFinite(volatility2), "volatility2 should be finite");
+    ArgumentChecker.isTrue(correlation >= -1. && correlation <= 1., "correlation should be -1. <= rho <= 1.");
+    ArgumentChecker.isTrue(Doubles.isFinite(interestRate), "interestRate should be finite");
+    ArgumentChecker.isTrue(Doubles.isFinite(dividend1), "dividend1 should be finite");
+    ArgumentChecker.isTrue(Doubles.isFinite(dividend2), "dividend2 should be finite");
+
+    final int nSteps = function.getNumberOfSteps();
+
+    final double vol12 = volatility1 * volatility2;
+    final double vol11 = volatility1 * volatility1;
+    final double vol22 = volatility2 * volatility2;
+
+    final double dt = timeToExpiry / nSteps;
+    final double discount = Math.exp(-interestRate * dt);
+    final double rootDt = Math.sqrt(dt);
+    final double dx1 = volatility1 * rootDt;
+    final double dx2 = volatility2 * rootDt;
+
+    final double dx12 = dx1 * dx2;
+    final double nu1Factored = (interestRate - dividend1 - 0.5 * vol11) * dx2 * dt;
+    final double nu2Factored = (interestRate - dividend2 - 0.5 * vol22) * dx1 * dt;
+    final double vol12Factored = vol12 * correlation * dt;
+
+    final double uuProbability = 0.25 * (dx12 + nu1Factored + nu2Factored + vol12Factored) / dx12;
+    final double udProbability = 0.25 * (dx12 + nu1Factored - nu2Factored - vol12Factored) / dx12;
+    final double duProbability = 0.25 * (dx12 - nu1Factored + nu2Factored - vol12Factored) / dx12;
+    final double ddProbability = 0.25 * (dx12 - nu1Factored - nu2Factored + vol12Factored) / dx12;
+    ArgumentChecker.isTrue(uuProbability > 0. && uuProbability < 1., "uuProbability should be 0 < p < 1.");
+    ArgumentChecker.isTrue(udProbability > 0. && udProbability < 1., "udProbability should be 0 < p < 1.");
+    ArgumentChecker.isTrue(duProbability > 0. && duProbability < 1., "duProbability should be 0 < p < 1.");
+    ArgumentChecker.isTrue(ddProbability > 0. && ddProbability < 1., "ddProbability should be 0 < p < 1.");
+
+    final double downFactor1 = Math.exp(-dx1);
+    final double downFactor2 = Math.exp(-dx2);
+    final double upOverDown1 = Math.exp(2. * dx1);
+    final double upOverDown2 = Math.exp(2. * dx2);
+
+    final double assetPrice1 = spot1 * Math.pow(downFactor1, nSteps);
+    final double assetPrice2 = spot2 * Math.pow(downFactor2, nSteps);
+    double[][] values = function.getPayoffAtExpiry(assetPrice1, assetPrice2, upOverDown1, upOverDown2);
+    for (int i = nSteps - 1; i > -1; --i) {
+      values = function.getNextOptionValues(discount, uuProbability, udProbability, duProbability, ddProbability, values, spot1, spot2, downFactor1, downFactor2, upOverDown1, upOverDown2, i);
+    }
+
+    return values[0][0];
+  }
+
+  @Override
   public GreekResultCollection getGreeks(final LatticeSpecification lattice, final OptionFunctionProvider1D function, final double spot, final double timeToExpiry, final double volatility,
       final double interestRate, final double dividend) {
     ArgumentChecker.notNull(lattice, "lattice");
@@ -257,7 +312,7 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
     ArgumentChecker.isTrue(Doubles.isFinite(timeToExpiry), "timeToExpiry should be finite");
     ArgumentChecker.isTrue(volatility > 0., "volatility should be positive");
     ArgumentChecker.isTrue(Doubles.isFinite(volatility), "volatility should be finite");
-    ArgumentChecker.isTrue(Doubles.isFinite(interestRate), "dividend should be interestRate");
+    ArgumentChecker.isTrue(Doubles.isFinite(interestRate), "interestRate should be finite");
     ArgumentChecker.isTrue(Doubles.isFinite(dividend), "dividend should be finite");
 
     final GreekResultCollection collection = new GreekResultCollection();
@@ -331,7 +386,7 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
     for (int i = 0; i < nSteps; ++i) {
       ArgumentChecker.isTrue(volatility[i] > 0., "volatility should be positive");
       ArgumentChecker.isTrue(Doubles.isFinite(volatility[i]), "volatility should be finite");
-      ArgumentChecker.isTrue(Doubles.isFinite(interestRate[i]), "dividend should be interestRate");
+      ArgumentChecker.isTrue(Doubles.isFinite(interestRate[i]), "interestRate should be finite");
       ArgumentChecker.isTrue(Doubles.isFinite(dividend[i]), "dividend should be finite");
     }
 
@@ -403,7 +458,7 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
     ArgumentChecker.isTrue(Doubles.isFinite(timeToExpiry), "timeToExpiry should be finite");
     ArgumentChecker.isTrue(volatility > 0., "volatility should be positive");
     ArgumentChecker.isTrue(Doubles.isFinite(volatility), "volatility should be finite");
-    ArgumentChecker.isTrue(Doubles.isFinite(interestRate), "dividend should be interestRate");
+    ArgumentChecker.isTrue(Doubles.isFinite(interestRate), "interestRate should be finite");
 
     final GreekResultCollection collection = new GreekResultCollection();
     final LatticeSpecification modLattice = (lattice instanceof TimeVaryingLatticeSpecification) ? new TrigeorgisLatticeSpecification() : lattice;
@@ -484,6 +539,109 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
     collection.put(Greek.THETA, res[3]);
 
     return collection;
+  }
+
+  @Override
+  public double[] getGreeks(final OptionFunctionProvider2D function, final double spot1, final double spot2, final double timeToExpiry, final double volatility1,
+      final double volatility2,
+      final double correlation, final double interestRate, final double dividend1, final double dividend2) {
+    ArgumentChecker.notNull(function, "function");
+
+    ArgumentChecker.isTrue(spot1 > 0., "spot1 should be positive");
+    ArgumentChecker.isTrue(Doubles.isFinite(spot1), "spot1 should be finite");
+    ArgumentChecker.isTrue(spot2 > 0., "spot2 should be positive");
+    ArgumentChecker.isTrue(Doubles.isFinite(spot2), "spot2 should be finite");
+    ArgumentChecker.isTrue(timeToExpiry > 0., "timeToExpiry should be positive");
+    ArgumentChecker.isTrue(Doubles.isFinite(timeToExpiry), "timeToExpiry should be finite");
+    ArgumentChecker.isTrue(volatility1 > 0., "volatility1 should be positive");
+    ArgumentChecker.isTrue(Doubles.isFinite(volatility1), "volatility1 should be finite");
+    ArgumentChecker.isTrue(volatility2 > 0., "volatility2 should be positive");
+    ArgumentChecker.isTrue(Doubles.isFinite(volatility2), "volatility2 should be finite");
+    ArgumentChecker.isTrue(correlation >= -1. && correlation <= 1., "correlation should be -1. <= rho <= 1.");
+    ArgumentChecker.isTrue(Doubles.isFinite(interestRate), "interestRate should be finite");
+    ArgumentChecker.isTrue(Doubles.isFinite(dividend1), "dividend1 should be finite");
+    ArgumentChecker.isTrue(Doubles.isFinite(dividend2), "dividend2 should be finite");
+
+    final int nSteps = function.getNumberOfSteps();
+    final double[] res = new double[7];
+
+    final double vol12 = volatility1 * volatility2;
+    final double vol11 = volatility1 * volatility1;
+    final double vol22 = volatility2 * volatility2;
+
+    final double dt = timeToExpiry / nSteps;
+    final double discount = Math.exp(-interestRate * dt);
+    final double rootDt = Math.sqrt(dt);
+    final double dx1 = volatility1 * rootDt;
+    final double dx2 = volatility2 * rootDt;
+
+    final double dx12 = dx1 * dx2;
+    final double nu1Factored = (interestRate - dividend1 - 0.5 * vol11) * dx2 * dt;
+    final double nu2Factored = (interestRate - dividend2 - 0.5 * vol22) * dx1 * dt;
+    final double vol12Factored = vol12 * correlation * dt;
+
+    final double uuProbability = 0.25 * (dx12 + nu1Factored + nu2Factored + vol12Factored) / dx12;
+    final double udProbability = 0.25 * (dx12 + nu1Factored - nu2Factored - vol12Factored) / dx12;
+    final double duProbability = 0.25 * (dx12 - nu1Factored + nu2Factored - vol12Factored) / dx12;
+    final double ddProbability = 0.25 * (dx12 - nu1Factored - nu2Factored + vol12Factored) / dx12;
+    ArgumentChecker.isTrue(uuProbability > 0. && uuProbability < 1., "uuProbability should be 0 < p < 1.");
+    ArgumentChecker.isTrue(udProbability > 0. && udProbability < 1., "udProbability should be 0 < p < 1.");
+    ArgumentChecker.isTrue(duProbability > 0. && duProbability < 1., "duProbability should be 0 < p < 1.");
+    ArgumentChecker.isTrue(ddProbability > 0. && ddProbability < 1., "ddProbability should be 0 < p < 1.");
+
+    final double downFactor1 = Math.exp(-dx1);
+    final double downFactor2 = Math.exp(-dx2);
+    final double upOverDown1 = Math.exp(2. * dx1);
+    final double upOverDown2 = Math.exp(2. * dx2);
+
+    final double assetPrice1 = spot1 * Math.pow(downFactor1, nSteps);
+    final double assetPrice2 = spot2 * Math.pow(downFactor2, nSteps);
+    final double[] pForDelta1 = new double[] {spot1 * downFactor1, spot1 / downFactor1 };
+    final double[] pForDelta2 = new double[] {spot2 * downFactor2, spot2 / downFactor2 };
+    final double[] pForGamma1 = new double[] {pForDelta1[0] * downFactor1, spot1, pForDelta1[1] / downFactor1 };
+    final double[] pForGamma2 = new double[] {pForDelta2[0] * downFactor2, spot2, pForDelta2[1] / downFactor2 };
+    double[][] values = function.getPayoffAtExpiry(assetPrice1, assetPrice2, upOverDown1, upOverDown2);
+    for (int i = nSteps - 1; i > -1; --i) {
+      values = function.getNextOptionValues(discount, uuProbability, udProbability, duProbability, ddProbability, values, spot1, spot2, downFactor1, downFactor2, upOverDown1, upOverDown2, i);
+      if (i == 2) {
+        final double valDiff1huu = values[2][2] - values[1][2];
+        final double valDiff1luu = values[1][2] - values[0][2];
+        final double valDiff1hud = values[2][1] - values[1][1];
+        final double valDiff1lud = values[1][1] - values[0][1];
+        final double valDiff1hdd = values[2][0] - values[1][0];
+        final double valDiff1ldd = values[1][0] - values[0][0];
+        final double valDiff2huu = values[2][2] - values[2][1];
+        final double valDiff2luu = values[2][1] - values[2][0];
+        final double valDiff2hud = values[1][2] - values[1][1];
+        final double valDiff2lud = values[1][1] - values[1][0];
+        final double valDiff2hdd = values[0][2] - values[0][1];
+        final double valDiff2ldd = values[0][1] - values[0][0];
+        final double diff1h = pForGamma1[2] - pForGamma1[1];
+        final double diff1l = pForGamma1[1] - pForGamma1[0];
+        final double diff1 = pForGamma1[2] - pForGamma1[0];
+        final double diff2h = pForGamma2[2] - pForGamma2[1];
+        final double diff2l = pForGamma2[1] - pForGamma2[0];
+        final double diff2 = pForGamma2[2] - pForGamma2[0];
+        res[3] = values[1][1];
+        res[4] = 2. * ((valDiff1huu + valDiff1hud + valDiff1hdd) / diff1h - (valDiff1luu + valDiff1lud + valDiff1ldd) / diff1l) / diff1 / 3.;
+        res[5] = 2. * ((valDiff2huu + valDiff2hud + valDiff2hdd) / diff2h - (valDiff2luu + valDiff2lud + valDiff2ldd) / diff2l) / diff2 / 3.;
+      }
+      if (i == 1) {
+        final double muudu = values[1][1] - values[0][1];
+        final double muddd = values[1][0] - values[0][0];
+        final double muuud = values[1][1] - values[1][0];
+        final double mdudd = values[0][1] - values[0][0];
+        final double diff1 = pForDelta1[1] - pForDelta1[0];
+        final double diff2 = pForDelta2[1] - pForDelta2[0];
+        res[1] = 0.5 * (muudu + muddd) / diff1;
+        res[2] = 0.5 * (muuud + mdudd) / diff2;
+        res[6] = (muudu - muddd) / diff1 / diff2;
+      }
+    }
+    res[3] = 0.5 * (res[3] - values[0][0]) / dt;
+    res[0] = values[0][0];
+
+    return res;
   }
 
   /*
