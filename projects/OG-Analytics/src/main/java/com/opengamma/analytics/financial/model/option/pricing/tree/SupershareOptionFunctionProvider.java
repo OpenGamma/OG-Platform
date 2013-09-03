@@ -56,6 +56,6 @@ public class SupershareOptionFunctionProvider extends OptionFunctionProvider1D {
 
   @Override
   public double getSign() {
-    throw new IllegalArgumentException("Call/put is not relevant");
+    throw new IllegalArgumentException("Call/put is not relevant for this option");
   }
 }
