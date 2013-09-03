@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.curve;
@@ -176,9 +176,7 @@ public class MulticurveBuildingDiscountingForwardTest {
     FWD_IBOR_MAP.put(CURVE_NAME_FWD3_USD, USDLIBOR3M);
   }
 
-  private static final String NOT_USED = "Not used";
-  private static final String[] NOT_USED_2 = {NOT_USED, NOT_USED };
-
+  @SuppressWarnings({"rawtypes", "unchecked" })
   public static InstrumentDefinition<?>[] getDefinitions(final double[] marketQuotes, final GeneratorInstrument[] generators, final GeneratorAttribute[] attribute) {
     final InstrumentDefinition<?>[] definitions = new InstrumentDefinition<?>[marketQuotes.length];
     for (int loopmv = 0; loopmv < marketQuotes.length; loopmv++) {
@@ -284,7 +282,6 @@ public class MulticurveBuildingDiscountingForwardTest {
         sensitivityCalculator);
   }
 
-  @SuppressWarnings("unchecked")
   private static InstrumentDerivative[][] convert(final InstrumentDefinition<?>[][] definitions, final int unit, final boolean withToday) {
     final InstrumentDerivative[][] instruments = new InstrumentDerivative[definitions.length][];
     for (int loopcurve = 0; loopcurve < definitions.length; loopcurve++) {
@@ -293,12 +290,12 @@ public class MulticurveBuildingDiscountingForwardTest {
       for (final InstrumentDefinition<?> instrument : definitions[loopcurve]) {
         InstrumentDerivative ird;
         if (instrument instanceof SwapFixedONDefinition) {
-          ird = ((SwapFixedONDefinition) instrument).toDerivative(NOW, getTSSwapFixedON(withToday, unit), NOT_USED_2);
+          ird = ((SwapFixedONDefinition) instrument).toDerivative(NOW, getTSSwapFixedON(withToday, unit));
         } else {
           if (instrument instanceof SwapFixedIborDefinition) {
-            ird = ((SwapFixedIborDefinition) instrument).toDerivative(NOW, getTSSwapFixedIbor(withToday, unit), NOT_USED_2);
+            ird = ((SwapFixedIborDefinition) instrument).toDerivative(NOW, getTSSwapFixedIbor(withToday, unit));
           } else {
-            ird = instrument.toDerivative(NOW, NOT_USED_2);
+            ird = instrument.toDerivative(NOW);
           }
         }
         instruments[loopcurve][loopins++] = ird;
@@ -307,7 +304,6 @@ public class MulticurveBuildingDiscountingForwardTest {
     return instruments;
   }
 
-  @SuppressWarnings("rawtypes")
   private static ZonedDateTimeDoubleTimeSeries[] getTSSwapFixedON(final Boolean withToday, final Integer unit) {
     switch (unit) {
       case 0:
@@ -317,7 +313,6 @@ public class MulticurveBuildingDiscountingForwardTest {
     }
   }
 
-  @SuppressWarnings("rawtypes")
   private static ZonedDateTimeDoubleTimeSeries[] getTSSwapFixedIbor(final Boolean withToday, final Integer unit) {
     //REVIEW is it intended that the first two branches of the switch statement do the same thing
     switch (unit) {

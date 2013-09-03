@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.sensitivity;
@@ -30,7 +30,7 @@ public class MulticurveSensitivityTest {
   private static final List<DoublesPair> SENSI_DATA_1 = Arrays.asList(new DoublesPair[] {new DoublesPair(1, 10), new DoublesPair(2, 20), new DoublesPair(3, 30), new DoublesPair(4, 40)});
   private static final List<DoublesPair> SENSI_DATA_2 = Arrays.asList(new DoublesPair[] {new DoublesPair(1, 40), new DoublesPair(2, 30), new DoublesPair(3, 20), new DoublesPair(4, 10)});
   private static final List<DoublesPair> SENSI_DATA_3 = Arrays.asList(new DoublesPair[] {new DoublesPair(11, 40), new DoublesPair(12, 30), new DoublesPair(13, 20), new DoublesPair(14, 10)});
-  private static final List<ForwardSensitivity> SENSI_FWD_1 = new ArrayList<ForwardSensitivity>();
+  private static final List<ForwardSensitivity> SENSI_FWD_1 = new ArrayList<>();
   static {
     SENSI_FWD_1.add(new ForwardSensitivity(0.5, 0.75, 0.26, 11));
     SENSI_FWD_1.add(new ForwardSensitivity(0.75, 1.00, 0.26, 12));
@@ -64,59 +64,59 @@ public class MulticurveSensitivityTest {
 
   @Test
   public void of() {
-    Map<String, List<DoublesPair>> mapDsc = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> mapDsc = new HashMap<>();
     mapDsc.put(CURVE_NAME_1, SENSI_DATA_1);
-    Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<String, List<ForwardSensitivity>>();
+    final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<>();
     mapFwd.put(CURVE_NAME_2, SENSI_FWD_1);
-    MulticurveSensitivity of = MulticurveSensitivity.of(mapDsc, mapFwd);
+    final MulticurveSensitivity of = MulticurveSensitivity.of(mapDsc, mapFwd);
     assertEquals("CurveSensitivityMarket: of", mapDsc, of.getYieldDiscountingSensitivities());
     assertEquals("CurveSensitivityMarket: of", mapFwd, of.getForwardSensitivities());
 
-    MulticurveSensitivity ofDsc = MulticurveSensitivity.ofYieldDiscounting(mapDsc);
+    final MulticurveSensitivity ofDsc = MulticurveSensitivity.ofYieldDiscounting(mapDsc);
     assertEquals("CurveSensitivityMarket: of", mapDsc, ofDsc.getYieldDiscountingSensitivities());
     AssertSensivityObjects.assertEquals("CurveSensitivityMarket: of", MulticurveSensitivity.of(mapDsc, new HashMap<String, List<ForwardSensitivity>>()), ofDsc, TOLERANCE);
 
-    MulticurveSensitivity ofFwd = MulticurveSensitivity.ofForward(mapFwd);
+    final MulticurveSensitivity ofFwd = MulticurveSensitivity.ofForward(mapFwd);
     assertEquals("CurveSensitivityMarket: of", mapFwd, ofFwd.getForwardSensitivities());
     AssertSensivityObjects.assertEquals("CurveSensitivityMarket: of", MulticurveSensitivity.of(new HashMap<String, List<DoublesPair>>(), mapFwd), ofFwd, TOLERANCE);
   }
 
   @Test
   public void plusMultipliedByDsc() {
-    final Map<String, List<DoublesPair>> sensi11 = new HashMap<String, List<DoublesPair>>();
-    final Map<String, List<DoublesPair>> sensi12 = new HashMap<String, List<DoublesPair>>();
-    final Map<String, List<DoublesPair>> sensi22 = new HashMap<String, List<DoublesPair>>();
-    final Map<String, List<DoublesPair>> sensi33 = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> sensi11 = new HashMap<>();
+    final Map<String, List<DoublesPair>> sensi12 = new HashMap<>();
+    final Map<String, List<DoublesPair>> sensi22 = new HashMap<>();
+    final Map<String, List<DoublesPair>> sensi33 = new HashMap<>();
     sensi11.put(CURVE_NAME_1, SENSI_DATA_1);
-    MulticurveSensitivity pvSensi_11 = MulticurveSensitivity.ofYieldDiscounting(sensi11);
+    final MulticurveSensitivity pvSensi_11 = MulticurveSensitivity.ofYieldDiscounting(sensi11);
     sensi22.put(CURVE_NAME_2, SENSI_DATA_2);
-    MulticurveSensitivity pvSensi_22 = MulticurveSensitivity.ofYieldDiscounting(sensi22);
+    final MulticurveSensitivity pvSensi_22 = MulticurveSensitivity.ofYieldDiscounting(sensi22);
     sensi12.put(CURVE_NAME_1, SENSI_DATA_2);
-    MulticurveSensitivity pvSensi_12 = MulticurveSensitivity.ofYieldDiscounting(sensi12);
+    final MulticurveSensitivity pvSensi_12 = MulticurveSensitivity.ofYieldDiscounting(sensi12);
     sensi33.put(CURVE_NAME_3, SENSI_DATA_3);
-    MulticurveSensitivity pvSensi_33 = MulticurveSensitivity.ofYieldDiscounting(sensi33);
+    final MulticurveSensitivity pvSensi_33 = MulticurveSensitivity.ofYieldDiscounting(sensi33);
     // Simple add
-    Map<String, List<DoublesPair>> expectedSensi11add22 = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> expectedSensi11add22 = new HashMap<>();
     expectedSensi11add22.put(CURVE_NAME_1, SENSI_DATA_1);
     expectedSensi11add22.put(CURVE_NAME_2, SENSI_DATA_2);
     assertEquals(expectedSensi11add22, pvSensi_11.plus(pvSensi_22).getYieldDiscountingSensitivities());
     assertEquals(MulticurveSensitivity.ofYieldDiscounting(expectedSensi11add22), pvSensi_11.plus(pvSensi_22));
     // Multiply
-    List<DoublesPair> sensiData1Multiply050 = Arrays.asList(new DoublesPair[] {new DoublesPair(1, 5.0), new DoublesPair(2, 10.0), new DoublesPair(3, 15.0), new DoublesPair(4, 20.0)});
-    Map<String, List<DoublesPair>> expectedSensi1Multiply05 = new HashMap<String, List<DoublesPair>>();
+    final List<DoublesPair> sensiData1Multiply050 = Arrays.asList(new DoublesPair[] {new DoublesPair(1, 5.0), new DoublesPair(2, 10.0), new DoublesPair(3, 15.0), new DoublesPair(4, 20.0)});
+    final Map<String, List<DoublesPair>> expectedSensi1Multiply05 = new HashMap<>();
     expectedSensi1Multiply05.put(CURVE_NAME_1, sensiData1Multiply050);
     assertEquals(expectedSensi1Multiply05, pvSensi_11.multipliedBy(0.5).getYieldDiscountingSensitivities());
     assertEquals(MulticurveSensitivity.ofYieldDiscounting(expectedSensi1Multiply05), pvSensi_11.multipliedBy(0.5));
     // Add on the same curve
-    List<DoublesPair> expectedSensiData1add2 = new ArrayList<DoublesPair>();
+    final List<DoublesPair> expectedSensiData1add2 = new ArrayList<>();
     expectedSensiData1add2.addAll(SENSI_DATA_1);
     expectedSensiData1add2.addAll(SENSI_DATA_2);
-    Map<String, List<DoublesPair>> expectedSensi11add12 = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> expectedSensi11add12 = new HashMap<>();
     expectedSensi11add12.put(CURVE_NAME_1, expectedSensiData1add2);
     assertEquals(expectedSensi11add12, pvSensi_11.plus(pvSensi_12).getYieldDiscountingSensitivities());
     assertEquals(MulticurveSensitivity.ofYieldDiscounting(expectedSensi11add12), pvSensi_11.plus(pvSensi_12));
     // Add multi-curve
-    Map<String, List<DoublesPair>> expectedSensiAddMulti = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> expectedSensiAddMulti = new HashMap<>();
     expectedSensiAddMulti.put(CURVE_NAME_1, expectedSensiData1add2);
     expectedSensiAddMulti.put(CURVE_NAME_2, SENSI_DATA_2);
     expectedSensiAddMulti.put(CURVE_NAME_3, SENSI_DATA_3);
@@ -126,59 +126,59 @@ public class MulticurveSensitivityTest {
 
   @Test
   public void plusMultipliedByDscFwd() {
-    final Map<String, List<DoublesPair>> sensi11 = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> sensi11 = new HashMap<>();
     sensi11.put(CURVE_NAME_1, SENSI_DATA_1);
-    final Map<String, List<ForwardSensitivity>> sensiFwd11 = new HashMap<String, List<ForwardSensitivity>>();
+    final Map<String, List<ForwardSensitivity>> sensiFwd11 = new HashMap<>();
     sensiFwd11.put(CURVE_NAME_2, SENSI_FWD_1);
-    MulticurveSensitivity pvSensiDscFwd = MulticurveSensitivity.of(sensi11, sensiFwd11);
+    final MulticurveSensitivity pvSensiDscFwd = MulticurveSensitivity.of(sensi11, sensiFwd11);
     AssertSensivityObjects.assertEquals("CurveSensitivityMarket: plusMultipliedBy", pvSensiDscFwd.plus(pvSensiDscFwd).cleaned(), pvSensiDscFwd.multipliedBy(2.0).cleaned(), TOLERANCE);
 
-    List<ForwardSensitivity> sensiFwd2 = new ArrayList<ForwardSensitivity>();
+    final List<ForwardSensitivity> sensiFwd2 = new ArrayList<>();
     sensiFwd2.add(new ForwardSensitivity(2.5, 2.75, 0.26, 11));
-    final Map<String, List<DoublesPair>> sensi32 = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> sensi32 = new HashMap<>();
     sensi11.put(CURVE_NAME_3, SENSI_DATA_2);
-    final Map<String, List<ForwardSensitivity>> sensiFwd22 = new HashMap<String, List<ForwardSensitivity>>();
+    final Map<String, List<ForwardSensitivity>> sensiFwd22 = new HashMap<>();
     sensiFwd22.put(CURVE_NAME_2, sensiFwd2);
-    MulticurveSensitivity pvSensiDscFwd2 = MulticurveSensitivity.of(sensi32, sensiFwd22);
-    List<ForwardSensitivity> sensiFwd3 = new ArrayList<ForwardSensitivity>();
+    final MulticurveSensitivity pvSensiDscFwd2 = MulticurveSensitivity.of(sensi32, sensiFwd22);
+    final List<ForwardSensitivity> sensiFwd3 = new ArrayList<>();
     sensiFwd3.addAll(SENSI_FWD_1);
     sensiFwd3.add(new ForwardSensitivity(2.5, 2.75, 0.26, 11));
-    final Map<String, List<ForwardSensitivity>> sensiFwd23 = new HashMap<String, List<ForwardSensitivity>>();
+    final Map<String, List<ForwardSensitivity>> sensiFwd23 = new HashMap<>();
     sensiFwd23.put(CURVE_NAME_2, sensiFwd3);
     AssertSensivityObjects.assertEquals("CurveSensitivityMarket: plusMultipliedBy", MulticurveSensitivity.of(InterestRateCurveSensitivityUtils.addSensitivity(sensi11, sensi32), sensiFwd23).cleaned(),
         pvSensiDscFwd.plus(pvSensiDscFwd2).cleaned(), TOLERANCE);
 
-    final Map<String, List<ForwardSensitivity>> sensiFwd32 = new HashMap<String, List<ForwardSensitivity>>();
+    final Map<String, List<ForwardSensitivity>> sensiFwd32 = new HashMap<>();
     sensiFwd22.put(CURVE_NAME_3, sensiFwd2);
-    MulticurveSensitivity pvSensiDscFwd3 = MulticurveSensitivity.of(sensi32, sensiFwd32);
+    final MulticurveSensitivity pvSensiDscFwd3 = MulticurveSensitivity.of(sensi32, sensiFwd32);
     AssertSensivityObjects.assertEquals("CurveSensitivityMarket: plusMultipliedBy", pvSensiDscFwd3.plus(pvSensiDscFwd2).cleaned(), pvSensiDscFwd2.plus(pvSensiDscFwd3).cleaned(), TOLERANCE);
   }
 
   @Test
   public void cleaned() {
-    final Map<String, List<DoublesPair>> sensi11 = new HashMap<String, List<DoublesPair>>();
-    final Map<String, List<DoublesPair>> sensi12 = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> sensi11 = new HashMap<>();
+    final Map<String, List<DoublesPair>> sensi12 = new HashMap<>();
     sensi11.put(CURVE_NAME_1, SENSI_DATA_1);
-    MulticurveSensitivity pvSensi_11 = MulticurveSensitivity.ofYieldDiscounting(sensi11);
+    final MulticurveSensitivity pvSensi_11 = MulticurveSensitivity.ofYieldDiscounting(sensi11);
     sensi12.put(CURVE_NAME_1, SENSI_DATA_2);
-    MulticurveSensitivity pvSensi_12 = MulticurveSensitivity.ofYieldDiscounting(sensi12);
-    List<DoublesPair> expectedSensiDataClean12 = Arrays.asList(new DoublesPair[] {new DoublesPair(1, 50), new DoublesPair(2, 50), new DoublesPair(3, 50), new DoublesPair(4, 50)});
-    Map<String, List<DoublesPair>> expectedSensiClean12 = new HashMap<String, List<DoublesPair>>();
+    final MulticurveSensitivity pvSensi_12 = MulticurveSensitivity.ofYieldDiscounting(sensi12);
+    final List<DoublesPair> expectedSensiDataClean12 = Arrays.asList(new DoublesPair[] {new DoublesPair(1, 50), new DoublesPair(2, 50), new DoublesPair(3, 50), new DoublesPair(4, 50)});
+    final Map<String, List<DoublesPair>> expectedSensiClean12 = new HashMap<>();
     expectedSensiClean12.put(CURVE_NAME_1, expectedSensiDataClean12);
     assertEquals(MulticurveSensitivity.ofYieldDiscounting(expectedSensiClean12).getYieldDiscountingSensitivities(), pvSensi_11.plus(pvSensi_12).cleaned().getYieldDiscountingSensitivities());
   }
 
   @Test
   public void equalHash() {
-    Map<String, List<DoublesPair>> mapDsc = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> mapDsc = new HashMap<>();
     mapDsc.put(CURVE_NAME_1, SENSI_DATA_1);
-    Map<String, List<DoublesPair>> mapDsc2 = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> mapDsc2 = new HashMap<>();
     mapDsc.put(CURVE_NAME_2, SENSI_DATA_1);
-    Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<String, List<ForwardSensitivity>>();
+    final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<>();
     mapFwd.put(CURVE_NAME_2, SENSI_FWD_1);
-    Map<String, List<ForwardSensitivity>> mapFwd2 = new HashMap<String, List<ForwardSensitivity>>();
+    final Map<String, List<ForwardSensitivity>> mapFwd2 = new HashMap<>();
     mapFwd2.put(CURVE_NAME_3, SENSI_FWD_1);
-    MulticurveSensitivity cs = MulticurveSensitivity.of(mapDsc, mapFwd);
+    final MulticurveSensitivity cs = MulticurveSensitivity.of(mapDsc, mapFwd);
     assertEquals("ParameterSensitivity: equalHash", cs, cs);
     assertEquals("ParameterSensitivity: equalHash", cs.hashCode(), cs.hashCode());
     assertFalse("ParameterSensitivity: equalHash", cs.equals(mapDsc));

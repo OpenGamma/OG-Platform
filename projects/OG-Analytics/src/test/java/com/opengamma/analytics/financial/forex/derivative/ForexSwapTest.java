@@ -32,13 +32,10 @@ public class ForexSwapTest {
   private static final ForexDefinition FX_NEAR_DEFINITION = new ForexDefinition(CUR_1, CUR_2, NEAR_DATE, NOMINAL_1, FX_RATE);
   private static final ForexDefinition FX_FAR_DEFINITION = new ForexDefinition(CUR_1, CUR_2, FAR_DATE, -NOMINAL_1, FX_RATE + FORWARD_POINTS);
 
-  private static final String DISCOUNTING_CURVE_NAME_CUR_1 = "Discounting EUR";
-  private static final String DISCOUNTING_CURVE_NAME_CUR_2 = "Discounting USD";
-  private static final String[] CURVES_NAME = new String[] {DISCOUNTING_CURVE_NAME_CUR_1, DISCOUNTING_CURVE_NAME_CUR_2};
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 5, 20);
 
-  private static final Forex FX_NEAR = FX_NEAR_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
-  private static final Forex FX_FAR = FX_FAR_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
+  private static final Forex FX_NEAR = FX_NEAR_DEFINITION.toDerivative(REFERENCE_DATE);
+  private static final Forex FX_FAR = FX_FAR_DEFINITION.toDerivative(REFERENCE_DATE);
 
   private static final ForexSwap FX_SWAP = new ForexSwap(FX_NEAR, FX_FAR);
 
@@ -67,7 +64,7 @@ public class ForexSwapTest {
    */
   public void equalHash() {
     assertTrue(FX_SWAP.equals(FX_SWAP));
-    ForexSwap newFxSwap = new ForexSwap(FX_NEAR, FX_FAR);
+    final ForexSwap newFxSwap = new ForexSwap(FX_NEAR, FX_FAR);
     assertTrue(FX_SWAP.equals(newFxSwap));
     assertTrue(FX_SWAP.hashCode() == newFxSwap.hashCode());
     ForexSwap modifiedFxSwap;
@@ -79,4 +76,30 @@ public class ForexSwapTest {
     assertFalse(FX_SWAP.equals(null));
   }
 
+  @SuppressWarnings("deprecation")
+  @Test
+  /**
+   * Tests the class equal and hashCode
+   */
+  public void equalHashDeprecated() {
+    final String curve1 = "Discounting EUR";
+    final String curve2 = "Discounting USD";
+    final String[] names = new String[] {curve1, curve2};
+    final ForexDefinition fxNearDefinition = new ForexDefinition(CUR_1, CUR_2, NEAR_DATE, NOMINAL_1, FX_RATE);
+    final ForexDefinition fxFarDefinition = new ForexDefinition(CUR_1, CUR_2, FAR_DATE, -NOMINAL_1, FX_RATE + FORWARD_POINTS);
+    final Forex fxNear = fxNearDefinition.toDerivative(REFERENCE_DATE, names);
+    final Forex fxFar = fxFarDefinition.toDerivative(REFERENCE_DATE, names);
+    final ForexSwap fxSwap = new ForexSwap(fxNear, fxFar);
+    assertTrue(fxSwap.equals(fxSwap));
+    final ForexSwap newFxSwap = new ForexSwap(fxNear, fxFar);
+    assertTrue(fxSwap.equals(newFxSwap));
+    assertTrue(fxSwap.hashCode() == newFxSwap.hashCode());
+    ForexSwap modifiedFxSwap;
+    modifiedFxSwap = new ForexSwap(fxFar, fxFar);
+    assertFalse(fxSwap.equals(modifiedFxSwap));
+    modifiedFxSwap = new ForexSwap(fxNear, fxNear);
+    assertFalse(fxSwap.equals(modifiedFxSwap));
+    assertFalse(fxSwap.equals(fxNear));
+    assertFalse(fxSwap.equals(null));
+  }
 }

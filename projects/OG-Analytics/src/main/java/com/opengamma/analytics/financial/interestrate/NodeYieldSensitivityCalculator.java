@@ -88,7 +88,7 @@ public abstract class NodeYieldSensitivityCalculator {
    * @param curve The YieldCurve.
    * @return The node sensitivity.
    */
-  private List<Double> curveToNodeSensitivity(final List<DoublesPair> sensitivityList, final YieldCurve curve) {
+  public List<Double> curveToNodeSensitivity(final List<DoublesPair> sensitivityList, final YieldCurve curve) {
     final List<Double> result = new ArrayList<>();
     if (!(curve.getCurve() instanceof InterpolatedDoublesCurve)) {
       throw new IllegalArgumentException("Can only handle interpolated curves at the moment");
@@ -125,7 +125,7 @@ public abstract class NodeYieldSensitivityCalculator {
    * @param curve The YieldCurve.
    * @return The node sensitivity.
    */
-  private List<Double> curveToNodeSensitivity(final List<DoublesPair> sensitivityList, final DiscountCurve curve) {
+  public List<Double> curveToNodeSensitivity(final List<DoublesPair> sensitivityList, final DiscountCurve curve) {
     final List<Double> result = new ArrayList<>();
     if (!(curve.getCurve() instanceof InterpolatedDoublesCurve)) {
       throw new IllegalArgumentException("Can only handle interpolated curves at the moment");

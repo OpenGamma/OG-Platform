@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.sensitivity;
@@ -33,7 +33,7 @@ public class MultipleCurrencyMulticurveSensitivityTest {
   private static final List<DoublesPair> SENSI_DATA_1 = Arrays.asList(new DoublesPair[] {new DoublesPair(1, 10), new DoublesPair(2, 20), new DoublesPair(3, 30), new DoublesPair(4, 40)});
   private static final List<DoublesPair> SENSI_DATA_2 = Arrays.asList(new DoublesPair[] {new DoublesPair(1, 40), new DoublesPair(2, 30), new DoublesPair(3, 20), new DoublesPair(4, 10)});
   private static final List<DoublesPair> SENSI_DATA_3 = Arrays.asList(new DoublesPair[] {new DoublesPair(11, 40), new DoublesPair(12, 30), new DoublesPair(13, 20), new DoublesPair(14, 10)});
-  private static final List<ForwardSensitivity> SENSI_FWD_1 = new ArrayList<ForwardSensitivity>();
+  private static final List<ForwardSensitivity> SENSI_FWD_1 = new ArrayList<>();
   static {
     SENSI_FWD_1.add(new ForwardSensitivity(0.5, 0.75, 0.26, 11));
     SENSI_FWD_1.add(new ForwardSensitivity(0.75, 1.00, 0.26, 12));
@@ -43,11 +43,11 @@ public class MultipleCurrencyMulticurveSensitivityTest {
   private static final String CURVE_NAME_2 = "B";
   private static final String CURVE_NAME_3 = "C";
 
-  private static final Map<String, List<DoublesPair>> SENSI_11 = new HashMap<String, List<DoublesPair>>();
-  private static final Map<String, List<DoublesPair>> SENSI_12 = new HashMap<String, List<DoublesPair>>();
-  private static final Map<String, List<DoublesPair>> SENSI_22 = new HashMap<String, List<DoublesPair>>();
-  private static final Map<String, List<DoublesPair>> SENSI_33 = new HashMap<String, List<DoublesPair>>();
-  private static final Map<String, List<ForwardSensitivity>> SENSI_FWD_11 = new HashMap<String, List<ForwardSensitivity>>();
+  private static final Map<String, List<DoublesPair>> SENSI_11 = new HashMap<>();
+  private static final Map<String, List<DoublesPair>> SENSI_12 = new HashMap<>();
+  private static final Map<String, List<DoublesPair>> SENSI_22 = new HashMap<>();
+  private static final Map<String, List<DoublesPair>> SENSI_33 = new HashMap<>();
+  private static final Map<String, List<ForwardSensitivity>> SENSI_FWD_11 = new HashMap<>();
   static {
     SENSI_11.put(CURVE_NAME_1, SENSI_DATA_1);
     SENSI_22.put(CURVE_NAME_2, SENSI_DATA_2);
@@ -70,9 +70,9 @@ public class MultipleCurrencyMulticurveSensitivityTest {
 
   @Test
   public void of() {
-    MulticurveSensitivity cs = MulticurveSensitivity.of(SENSI_11, SENSI_FWD_11);
-    Currency ccy1 = Currency.AUD;
-    MultipleCurrencyMulticurveSensitivity mcs = MultipleCurrencyMulticurveSensitivity.of(ccy1, cs);
+    final MulticurveSensitivity cs = MulticurveSensitivity.of(SENSI_11, SENSI_FWD_11);
+    final Currency ccy1 = Currency.AUD;
+    final MultipleCurrencyMulticurveSensitivity mcs = MultipleCurrencyMulticurveSensitivity.of(ccy1, cs);
     assertEquals("MultipleCurrencyCurveSensitivityMarket: of", cs, mcs.getSensitivity(ccy1));
     MultipleCurrencyMulticurveSensitivity constructor = new MultipleCurrencyMulticurveSensitivity();
     constructor = constructor.plus(ccy1, cs);
@@ -82,15 +82,15 @@ public class MultipleCurrencyMulticurveSensitivityTest {
 
   @Test
   public void plusMultipliedBy() {
-    Currency ccy1 = Currency.AUD;
-    Currency ccy2 = Currency.CAD;
-    MulticurveSensitivity cs = MulticurveSensitivity.of(SENSI_11, SENSI_FWD_11);
+    final Currency ccy1 = Currency.AUD;
+    final Currency ccy2 = Currency.CAD;
+    final MulticurveSensitivity cs = MulticurveSensitivity.of(SENSI_11, SENSI_FWD_11);
     MultipleCurrencyMulticurveSensitivity mcs = MultipleCurrencyMulticurveSensitivity.of(ccy1, cs);
-    MulticurveSensitivity cs2 = MulticurveSensitivity.ofYieldDiscounting(SENSI_22);
-    MultipleCurrencyMulticurveSensitivity mcs2 = MultipleCurrencyMulticurveSensitivity.of(ccy1, cs2);
-    MultipleCurrencyMulticurveSensitivity mcs3 = mcs.plus(mcs2);
-    Map<String, List<DoublesPair>> sum = InterestRateCurveSensitivityUtils.addSensitivity(SENSI_11, SENSI_22);
-    MultipleCurrencyMulticurveSensitivity mcs3Expected = MultipleCurrencyMulticurveSensitivity.of(ccy1, MulticurveSensitivity.of(sum, SENSI_FWD_11));
+    final MulticurveSensitivity cs2 = MulticurveSensitivity.ofYieldDiscounting(SENSI_22);
+    final MultipleCurrencyMulticurveSensitivity mcs2 = MultipleCurrencyMulticurveSensitivity.of(ccy1, cs2);
+    final MultipleCurrencyMulticurveSensitivity mcs3 = mcs.plus(mcs2);
+    final Map<String, List<DoublesPair>> sum = InterestRateCurveSensitivityUtils.addSensitivity(SENSI_11, SENSI_22);
+    final MultipleCurrencyMulticurveSensitivity mcs3Expected = MultipleCurrencyMulticurveSensitivity.of(ccy1, MulticurveSensitivity.of(sum, SENSI_FWD_11));
     AssertSensivityObjects.assertEquals("", mcs3Expected.cleaned(), mcs3.cleaned(), TOLERANCE);
     mcs = mcs.plus(ccy2, cs);
     assertEquals("MultipleCurrencyCurveSensitivityMarket: plusMultipliedBy", cs, mcs.getSensitivity(ccy1));
@@ -100,10 +100,10 @@ public class MultipleCurrencyMulticurveSensitivityTest {
 
   @Test
   public void cleaned() {
-    Currency ccy1 = Currency.AUD;
-    Currency ccy2 = Currency.CAD;
-    MulticurveSensitivity cs1 = MulticurveSensitivity.of(SENSI_11, SENSI_FWD_11);
-    MulticurveSensitivity cs2 = MulticurveSensitivity.of(SENSI_22, SENSI_FWD_11);
+    final Currency ccy1 = Currency.AUD;
+    final Currency ccy2 = Currency.CAD;
+    final MulticurveSensitivity cs1 = MulticurveSensitivity.of(SENSI_11, SENSI_FWD_11);
+    final MulticurveSensitivity cs2 = MulticurveSensitivity.of(SENSI_22, SENSI_FWD_11);
     MultipleCurrencyMulticurveSensitivity mcs1 = MultipleCurrencyMulticurveSensitivity.of(ccy1, cs1);
     mcs1 = mcs1.plus(ccy2, cs2);
     MultipleCurrencyMulticurveSensitivity mcs2 = MultipleCurrencyMulticurveSensitivity.of(ccy2, cs2);
@@ -113,27 +113,27 @@ public class MultipleCurrencyMulticurveSensitivityTest {
 
   @Test
   public void converted() {
-    Currency ccy1 = Currency.EUR;
-    Currency ccy2 = Currency.USD;
+    final Currency ccy1 = Currency.EUR;
+    final Currency ccy2 = Currency.USD;
     final FXMatrix fxMatrix = new FXMatrix(ccy1, ccy2, 1.25);
-    MulticurveSensitivity cs = MulticurveSensitivity.of(SENSI_11, SENSI_FWD_11);
-    MultipleCurrencyMulticurveSensitivity mcs = MultipleCurrencyMulticurveSensitivity.of(ccy1, cs);
-    MultipleCurrencyMulticurveSensitivity mcsConverted = mcs.converted(ccy2, fxMatrix);
-    MultipleCurrencyMulticurveSensitivity mcsExpected = MultipleCurrencyMulticurveSensitivity.of(ccy2, cs.multipliedBy(fxMatrix.getFxRate(ccy1, ccy2)));
+    final MulticurveSensitivity cs = MulticurveSensitivity.of(SENSI_11, SENSI_FWD_11);
+    final MultipleCurrencyMulticurveSensitivity mcs = MultipleCurrencyMulticurveSensitivity.of(ccy1, cs);
+    final MultipleCurrencyMulticurveSensitivity mcsConverted = mcs.converted(ccy2, fxMatrix);
+    final MultipleCurrencyMulticurveSensitivity mcsExpected = MultipleCurrencyMulticurveSensitivity.of(ccy2, cs.multipliedBy(fxMatrix.getFxRate(ccy1, ccy2)));
     AssertSensivityObjects.assertEquals("MultipleCurrencyCurveSensitivityMarket: converted", mcsExpected.cleaned(), mcsConverted.cleaned(), TOLERANCE);
   }
 
   @Test
   public void equalHash() {
-    Currency ccy1 = Currency.EUR;
-    Currency ccy2 = Currency.USD;
-    MulticurveSensitivity cs = MulticurveSensitivity.of(SENSI_11, SENSI_FWD_11);
-    MultipleCurrencyMulticurveSensitivity mcs = MultipleCurrencyMulticurveSensitivity.of(ccy1, cs);
+    final Currency ccy1 = Currency.EUR;
+    final Currency ccy2 = Currency.USD;
+    final MulticurveSensitivity cs = MulticurveSensitivity.of(SENSI_11, SENSI_FWD_11);
+    final MultipleCurrencyMulticurveSensitivity mcs = MultipleCurrencyMulticurveSensitivity.of(ccy1, cs);
     assertEquals("MultipleCurrencyCurveSensitivityMarket: equalHash", mcs, mcs);
     assertEquals("MultipleCurrencyCurveSensitivityMarket: equalHash", mcs.hashCode(), mcs.hashCode());
     assertFalse("MultipleCurrencyCurveSensitivityMarket: equalHash", mcs.equals(null));
     assertFalse("MultipleCurrencyCurveSensitivityMarket: equalHash", mcs.equals(SENSI_11));
-    MultipleCurrencyMulticurveSensitivity other = MultipleCurrencyMulticurveSensitivity.of(ccy1, cs);
+    final MultipleCurrencyMulticurveSensitivity other = MultipleCurrencyMulticurveSensitivity.of(ccy1, cs);
     assertEquals("MultipleCurrencyCurveSensitivityMarket: equalHash", mcs, other);
     MultipleCurrencyMulticurveSensitivity modified;
     modified = MultipleCurrencyMulticurveSensitivity.of(ccy2, cs);

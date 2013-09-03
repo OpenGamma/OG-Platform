@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.curve;
@@ -100,7 +100,6 @@ public class MulticurveBuildingHullWhiteDiscountFuturesEUR3Test {
   private static final IborIndex EURIBOR6M = EUR1YEURIBOR6M.getIborIndex();
   private static final IborIndex EUROLIBOR3M = new IborIndex(EUR, Period.ofMonths(3), 2, EURIBOR3M.getDayCount(), EURIBOR3M.getBusinessDayConvention(), true, "EUROLIBOR3M");
   private static final IborIndex EUROLIBOR6M = new IborIndex(EUR, Period.ofMonths(6), 2, EURIBOR6M.getDayCount(), EURIBOR6M.getBusinessDayConvention(), true, "EUROLIBOR6M");
-  //  private static final GeneratorFRA GENERATOR_FRA_3M = new GeneratorFRA("GENERATOR_FRA_3M", EURIBOR3M);
   private static final GeneratorFRA GENERATOR_FRA_6M = new GeneratorFRA("GENERATOR_FRA_6M", EURIBOR6M, TARGET);
   private static final ZonedDateTime ERZ1_START_PERIOD = DateUtils.getUTCDate(2011, 12, 21);
   private static final InterestRateFutureSecurityDefinition ERZ1_DEFINITION = InterestRateFutureSecurityDefinition.fromFixingPeriodStartDate(ERZ1_START_PERIOD, EURIBOR3M, NOTIONAL, 0.25, "ERZ1", TARGET);
@@ -246,9 +245,6 @@ public class MulticurveBuildingHullWhiteDiscountFuturesEUR3Test {
     FWD_IBOR_MAP.put(CURVE_NAME_FWD3_EUR, new IborIndex[] {EURIBOR3M, EUROLIBOR3M });
     FWD_IBOR_MAP.put(CURVE_NAME_FWD6_EUR, new IborIndex[] {EURIBOR6M, EUROLIBOR6M });
   }
-
-  private static final String NOT_USED = "Not used";
-  private static final String[] NOT_USED_2 = {NOT_USED, NOT_USED };
 
   @SuppressWarnings({"rawtypes", "unchecked" })
   public static InstrumentDefinition<?>[] getDefinitions(final double[] marketQuotes, final GeneratorInstrument[] generators, final GeneratorAttribute[] attribute) {
@@ -429,15 +425,15 @@ public class MulticurveBuildingHullWhiteDiscountFuturesEUR3Test {
       for (final InstrumentDefinition<?> instrument : definitions[loopcurve]) {
         InstrumentDerivative ird;
         if (instrument instanceof SwapFixedONDefinition) {
-          ird = ((SwapFixedONDefinition) instrument).toDerivative(NOW, getTSSwapFixedON(withToday), NOT_USED_2);
+          ird = ((SwapFixedONDefinition) instrument).toDerivative(NOW, getTSSwapFixedON(withToday));
         } else {
           if (instrument instanceof SwapFixedIborDefinition) {
-            ird = ((SwapFixedIborDefinition) instrument).toDerivative(NOW, getTSSwapFixedIbor(withToday), NOT_USED_2);
+            ird = ((SwapFixedIborDefinition) instrument).toDerivative(NOW, getTSSwapFixedIbor(withToday));
           } else {
             if (instrument instanceof InterestRateFutureTransactionDefinition) {
-              ird = ((InterestRateFutureTransactionDefinition) instrument).toDerivative(NOW, 0.0, NOT_USED_2); // Trade date = today, reference price not used.
+              ird = ((InterestRateFutureTransactionDefinition) instrument).toDerivative(NOW, 0.0); // Trade date = today, reference price not used.
             } else {
-              ird = instrument.toDerivative(NOW, NOT_USED_2);
+              ird = instrument.toDerivative(NOW);
             }
           }
         }

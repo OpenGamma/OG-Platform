@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.curve;
@@ -227,9 +227,7 @@ public class MulticurveBuildingDiscountingDiscountEURCommitteeTest {
     FWD_IBOR_MAP.put(CURVE_NAME_FWD6_EUR, new IborIndex[] {EURIBOR6M, EUROLIBOR6M });
   }
 
-  private static final String NOT_USED = "Not used";
-  private static final String[] NOT_USED_2 = {NOT_USED, NOT_USED };
-
+  @SuppressWarnings({"rawtypes", "unchecked" })
   public static InstrumentDefinition<?>[] getDefinitions(final double[] marketQuotes, final GeneratorInstrument[] generators, final GeneratorAttribute[] attribute) {
     final InstrumentDefinition<?>[] definitions = new InstrumentDefinition<?>[marketQuotes.length];
     for (int loopmv = 0; loopmv < marketQuotes.length; loopmv++) {
@@ -365,8 +363,6 @@ public class MulticurveBuildingDiscountingDiscountEURCommitteeTest {
     } catch (final IOException e) {
       e.printStackTrace();
     }
-    int t = 0;
-    t++;
   }
 
   private static Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> makeCurvesFromDefinitions(final InstrumentDefinition<?>[][][] definitions, final GeneratorYDCurve[][] curveGenerators,
@@ -408,15 +404,15 @@ public class MulticurveBuildingDiscountingDiscountEURCommitteeTest {
       for (final InstrumentDefinition<?> instrument : definitions[loopcurve]) {
         InstrumentDerivative ird;
         if (instrument instanceof SwapFixedONDefinition) {
-          ird = ((SwapFixedONDefinition) instrument).toDerivative(NOW, getTSSwapFixedON(withToday), NOT_USED_2);
+          ird = ((SwapFixedONDefinition) instrument).toDerivative(NOW, getTSSwapFixedON(withToday));
         } else {
           if (instrument instanceof SwapFixedIborDefinition) {
-            ird = ((SwapFixedIborDefinition) instrument).toDerivative(NOW, getTSSwapFixedIbor(withToday), NOT_USED_2);
+            ird = ((SwapFixedIborDefinition) instrument).toDerivative(NOW, getTSSwapFixedIbor(withToday));
           } else {
             if (instrument instanceof InterestRateFutureTransactionDefinition) {
-              ird = ((InterestRateFutureTransactionDefinition) instrument).toDerivative(NOW, 0.0, NOT_USED_2); // Trade date = today, reference price not used.
+              ird = ((InterestRateFutureTransactionDefinition) instrument).toDerivative(NOW, 0.0); // Trade date = today, reference price not used.
             } else {
-              ird = instrument.toDerivative(NOW, NOT_USED_2);
+              ird = instrument.toDerivative(NOW);
             }
           }
         }

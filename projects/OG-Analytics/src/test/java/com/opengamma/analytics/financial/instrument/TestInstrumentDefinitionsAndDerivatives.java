@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.testng.collections.Sets;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZoneOffset;
@@ -416,12 +415,12 @@ public class TestInstrumentDefinitionsAndDerivatives {
     ALL_DERIVATIVES.add(ENERGY_FUTURE.toDerivative(ENERGY_FUTURE.getSettlementDate()));
     ALL_DERIVATIVES.add(ENERGY_FUTURE_OPTION.toDerivative(ENERGY_FUTURE_OPTION.getExpiryDate().minusDays(1)));
     ALL_DERIVATIVES.add(ENERGY_FWD.toDerivative(ENERGY_FWD.getSettlementDate()));
-    ALL_DERIVATIVES.add(INDEX_FUTURE.toDerivative(SETTLE_DATE.plusDays(1), ArrayUtils.EMPTY_STRING_ARRAY));
-    ALL_DERIVATIVES.add(EQUITY_INDEX_DIVIDEND_FUTURE.toDerivative(SETTLE_DATE.plusDays(1), ArrayUtils.EMPTY_STRING_ARRAY));
-    ALL_DERIVATIVES.add(EQUITY_INDEX_OPTION.toDerivative(SETTLE_DATE.minusDays(100), ArrayUtils.EMPTY_STRING_ARRAY));
-    ALL_DERIVATIVES.add(EQUITY_INDEX_FUTURE_OPTION.toDerivative(SETTLE_DATE.minusDays(100), ArrayUtils.EMPTY_STRING_ARRAY));
-    ALL_DERIVATIVES.add(EQUITY_OPTION.toDerivative(SETTLE_DATE.minusDays(100), ArrayUtils.EMPTY_STRING_ARRAY));
-    ALL_DERIVATIVES.add(EQUITY_VARIANCE_SWAP.toDerivative(SETTLE_DATE.minusDays(100), ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES, ArrayUtils.EMPTY_STRING_ARRAY));
+    ALL_DERIVATIVES.add(INDEX_FUTURE.toDerivative(SETTLE_DATE.plusDays(1)));
+    ALL_DERIVATIVES.add(EQUITY_INDEX_DIVIDEND_FUTURE.toDerivative(SETTLE_DATE.plusDays(1)));
+    ALL_DERIVATIVES.add(EQUITY_INDEX_OPTION.toDerivative(SETTLE_DATE.minusDays(100)));
+    ALL_DERIVATIVES.add(EQUITY_INDEX_FUTURE_OPTION.toDerivative(SETTLE_DATE.minusDays(100)));
+    ALL_DERIVATIVES.add(EQUITY_OPTION.toDerivative(SETTLE_DATE.minusDays(100)));
+    ALL_DERIVATIVES.add(EQUITY_VARIANCE_SWAP.toDerivative(SETTLE_DATE.minusDays(100), ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES));
     ALL_DERIVATIVES.add(FF_SECURITY.toDerivative(FF_SECURITY.getFixingPeriodDate()[0]));
     ALL_DERIVATIVES.add(FF_TRANSACTION.toDerivative(FF_TRANSACTION.getTradeDate(), new DoubleTimeSeries[] {ts, ts }));
     ALL_DERIVATIVES.add(FRA.toDerivative(FRA.getAccrualStartDate(), ts));

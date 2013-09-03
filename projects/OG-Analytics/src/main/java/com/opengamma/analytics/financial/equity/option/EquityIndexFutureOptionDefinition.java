@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.equity.option;
@@ -18,7 +18,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ *
  */
 public class EquityIndexFutureOptionDefinition implements InstrumentDefinition<EquityIndexFutureOption> {
   /** The expiry date */
@@ -151,12 +151,16 @@ public class EquityIndexFutureOptionDefinition implements InstrumentDefinition<E
     return true;
   }
 
-  
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names.
+   */
+  @Deprecated
   @Override
   public EquityIndexFutureOption toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     return toDerivative(date);
   }
-  
+
   @Override
   public EquityIndexFutureOption toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");
@@ -166,15 +170,15 @@ public class EquityIndexFutureOptionDefinition implements InstrumentDefinition<E
       // REVIEW Stephen and Casey - This essentially assumes an Expiry with accuracy of 1 day.
       // The intended behaviour is that an option is still alive on the expiry date
       timeToExpiry = 0.0015; // Approximately half a day
-    } 
+    }
     double timeToFutureFixing = TimeCalculator.getTimeBetween(date, _underlying.getExpiryDate());
     if (timeToFutureFixing == 0) {
       timeToFutureFixing = 0.0015;
-    } 
+    }
     double timeToFutureDelivery = TimeCalculator.getTimeBetween(date, _underlying.getSettlementDate());
     if (timeToFutureDelivery == 0) {
       timeToFutureDelivery = 0.0015;
-    } 
+    }
     final double futureStrike = _underlying.getStrikePrice();
     final Currency currency = _underlying.getCurrency();
     final double unitValue = _underlying.getUnitAmount();

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.horizon;
@@ -11,8 +11,11 @@ import com.opengamma.analytics.financial.model.option.parameters.BlackFlatSwapti
 import com.opengamma.analytics.math.surface.Surface;
 
 /**
- * 
+ * Calculates the change in value of a swaption when the curves and (Black) surface have been
+ * shifted forward in time without slide.
+ * @deprecated {@link YieldCurveBundle} is deprecated
  */
+@Deprecated
 public final class ConstantSpreadSwaptionBlackRolldown implements RolldownFunction<YieldCurveWithBlackSwaptionBundle> {
   private static final ConstantSpreadYieldCurveBundleRolldownFunction CURVES_ROLLDOWN = ConstantSpreadYieldCurveBundleRolldownFunction.getInstance();
   private static final ConstantSpreadSurfaceRolldownFunction SURFACE_ROLLDOWN = ConstantSpreadSurfaceRolldownFunction.getInstance();

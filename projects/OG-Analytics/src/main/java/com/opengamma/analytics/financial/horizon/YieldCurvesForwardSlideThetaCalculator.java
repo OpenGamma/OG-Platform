@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.horizon;
@@ -18,8 +18,11 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
- * 
+ * Calculates the change in value of a FX option when the yield curves have been
+ * shifted forward in time.
+ * @deprecated {@link YieldCurveBundle} is deprecated
  */
+@Deprecated
 public final class YieldCurvesForwardSlideThetaCalculator {
   private static final ConstantSpreadYieldCurveBundleRolldownFunction CURVES_ROLLDOWN = ConstantSpreadYieldCurveBundleRolldownFunction.getInstance();
 

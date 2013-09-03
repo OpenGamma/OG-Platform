@@ -60,7 +60,7 @@ public class AgricultureFutureDefinition extends CommodityFutureDefinition<Agric
 
   /**
    * Static constructor method for cash settled futures
-   * 
+   *
    * @param expiryDate  the time and the day that a particular delivery month of a forwards contract stops trading, as well as the final settlement price for that contract
    * @param underlying  identifier of the underlying commodity
    * @param unitAmount  size of a unit
@@ -78,7 +78,7 @@ public class AgricultureFutureDefinition extends CommodityFutureDefinition<Agric
 
   /**
    * Static constructor method for physical settlement futures
-   * 
+   *
    * @param expiryDate  the time and the day that a particular delivery month of a forwards contract stops trading, as well as the final settlement price for that contract
    * @param underlying  identifier of the underlying commodity
    * @param unitAmount  size of a unit
@@ -98,11 +98,21 @@ public class AgricultureFutureDefinition extends CommodityFutureDefinition<Agric
         SettlementType.PHYSICAL, referencePrice, currency, settlementDate);
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names.
+   */
+  @Deprecated
   @Override
   public AgricultureFuture toDerivative(final ZonedDateTime date, final Double referencePrice, final String... yieldCurveNames) {
     return toDerivative(date, referencePrice);
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names.
+   */
+  @Deprecated
   @Override
   public AgricultureFuture toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     return toDerivative(date);

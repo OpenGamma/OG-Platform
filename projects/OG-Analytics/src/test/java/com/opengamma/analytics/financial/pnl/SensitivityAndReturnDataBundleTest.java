@@ -25,7 +25,7 @@ import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.precise.instant.ImmutableInstantDoubleTimeSeries;
 
 /**
- * 
+ *
  */
 public class SensitivityAndReturnDataBundleTest {
   private static final Sensitivity<ValueGreek> S1 = new ValueGreekSensitivity(new ValueGreek(Greek.DELTA), "ValueDelta");
@@ -50,9 +50,9 @@ public class SensitivityAndReturnDataBundleTest {
     }
     TS1 = ImmutableInstantDoubleTimeSeries.of(times, x1);
     TS2 = ImmutableInstantDoubleTimeSeries.of(times, x2);
-    M1 = new HashMap<UnderlyingType, DoubleTimeSeries<?>>();
+    M1 = new HashMap<>();
     M1.put(UnderlyingType.SPOT_PRICE, TS1);
-    M2 = new HashMap<UnderlyingType, DoubleTimeSeries<?>>();
+    M2 = new HashMap<>();
     M2.put(UnderlyingType.SPOT_PRICE, TS2);
     DATA = new SensitivityAndReturnDataBundle(S1, VALUE_GAMMA, M1);
   }

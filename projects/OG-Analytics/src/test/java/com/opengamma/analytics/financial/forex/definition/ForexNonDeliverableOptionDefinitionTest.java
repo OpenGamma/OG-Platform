@@ -39,11 +39,11 @@ public class ForexNonDeliverableOptionDefinitionTest {
     assertEquals("Forex non-deliverable option - getter", IS_LONG, NDO_DEFINITION.isLong());
   }
 
-  @SuppressWarnings("deprecation")
   @Test
   /**
    * Tests the class toDerivative method.
    */
+  @SuppressWarnings("deprecation")
   public void toDerivativeDeprecated() {
     final String krw = "Discounting KRW";
     final String usd = "Discounting USD";

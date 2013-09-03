@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.sensitivity;
@@ -66,14 +66,13 @@ public class ParameterSensitivityProviderCalculatorTest {
   private static final SwapFixedIborDefinition SWAP_DEFINITION = SwapFixedIborDefinition.from(EFFECTIVE_DATE, Period.ofYears(2), USD6MLIBOR3M, NOTIONAL, 0.05, false);
   private static final AnnuityCouponFixedDefinition ANNUITY_DEFINITION = SWAP_DEFINITION.getFixedLeg();
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 9, 26);
-  private static final String NOT_USED = "Not used";
-  private static final SwapFixedCoupon<Coupon> SWAP = SWAP_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED, NOT_USED);
-  private static final AnnuityCouponFixed ANNUITY = ANNUITY_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED);
+  private static final SwapFixedCoupon<Coupon> SWAP = SWAP_DEFINITION.toDerivative(REFERENCE_DATE);
+  private static final AnnuityCouponFixed ANNUITY = ANNUITY_DEFINITION.toDerivative(REFERENCE_DATE);
 
   private static final GeneratorSwapFixedON USD1YFEDFUND = GeneratorSwapFixedONMaster.getInstance().getGenerator("USD1YFEDFUND", NYC);
   private static final IndexON FEDFUND = USD1YFEDFUND.getIndex();
   private static final SwapFixedONDefinition OIS_DEFINITION = SwapFixedONDefinition.from(EFFECTIVE_DATE, Period.ofMonths(6), NOTIONAL, USD1YFEDFUND, 0.02, false);
-  private static final SwapFixedCoupon<Coupon> OIS = OIS_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED, NOT_USED);
+  private static final SwapFixedCoupon<Coupon> OIS = OIS_DEFINITION.toDerivative(REFERENCE_DATE);
 
   private static final double[] TIME = {0.25, 0.50, 1.0, 2.0, 5.0};
   private static final double[] YIELD = {0.02, 0.025, 0.03, 0.03, 0.028};
@@ -99,7 +98,7 @@ public class ParameterSensitivityProviderCalculatorTest {
 
   private static final PresentValueCurveSensitivityDiscountingCalculator PVCSC = PresentValueCurveSensitivityDiscountingCalculator.getInstance();
   private static final PresentValueDiscountingCalculator PVC = PresentValueDiscountingCalculator.getInstance();
-  private static final ParameterSensitivityParameterCalculator<MulticurveProviderInterface> PSC = new ParameterSensitivityParameterCalculator<MulticurveProviderInterface>(PVCSC);
+  private static final ParameterSensitivityParameterCalculator<MulticurveProviderInterface> PSC = new ParameterSensitivityParameterCalculator<>(PVCSC);
   // private static final ParameterSensitivityMatrixMarketCalculator PSC_MAT = new ParameterSensitivityMatrixMarketCalculator(PVCSC);
   private static final double SHIFT = 5.0E-7;
   private static final ParameterSensitivityMulticurveDiscountInterpolatedFDCalculator PSC_DSC_FD = new ParameterSensitivityMulticurveDiscountInterpolatedFDCalculator(PVC, SHIFT);
@@ -133,7 +132,7 @@ public class ParameterSensitivityProviderCalculatorTest {
     final MultipleCurrencyParameterSensitivity pvps2OisFD = PSC_FWD_FD.calculateSensitivity(OIS, MARKET_FWD);
     AssertSensivityObjects.assertEquals("ParameterSensitivityMarketBlockCalculator: Ois", pvps2OisExact, pvps2OisFD, TOLERANCE_DELTA);
 
-    final Set<String> required = new TreeSet<String>();
+    final Set<String> required = new TreeSet<>();
     required.add(DSC_NAME);
     final MultipleCurrencyParameterSensitivity pvpsSwapNoFwd = PSC.calculateSensitivity(SWAP, MARKET_DSC, required);
     assertTrue("ParameterSensitivityMarketBlockCalculator: fixed curve ", pvpsSwapNoFwd.getAllNamesCurrency().size() == 1);

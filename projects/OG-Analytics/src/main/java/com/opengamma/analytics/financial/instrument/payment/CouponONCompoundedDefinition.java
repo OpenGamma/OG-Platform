@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.payment;
@@ -41,7 +41,7 @@ import com.opengamma.util.money.Currency;
  * $$
  * r_i the overnight rate for the fixing date t_i (or between t_i and t_{i+1})
  * \delta_i is the accrued between t_i and t_{i+1} using the appropriate day-count, for example if we use business/252 as daycounter \delta_i=1/252.
- * 
+ *
  *  This coupon is especially used for Brazilian swaps with the day count business/252.
  */
 public class CouponONCompoundedDefinition extends CouponDefinition implements InstrumentDefinitionWithData<Payment, DoubleTimeSeries<ZonedDateTime>> {
@@ -156,7 +156,7 @@ public class CouponONCompoundedDefinition extends CouponDefinition implements In
   }
 
   /**
-   * Builder from financial details. The accrual and fixing start and end dates are the same. The day count for the payment is the same as the one for the index. 
+   * Builder from financial details. The accrual and fixing start and end dates are the same. The day count for the payment is the same as the one for the index.
    * And with the same fixingAccrualFactor for each period.
    * The payment date is adjusted by the publication lag and the settlement days.
    * @param generator the generator
@@ -388,14 +388,14 @@ public class CouponONCompoundedDefinition extends CouponDefinition implements In
         final double[] fixingPeriodStartTimes = new double[_fixingPeriodDates.length - 1 - fixedPeriod];
         final double[] fixingPeriodEndTimes = new double[_fixingPeriodDates.length - 1 - fixedPeriod];
         final double[] fixingPeriodAccrualFactorsActAct = new double[_fixingPeriodDates.length - 1 - fixedPeriod];
-        for (int i = fixedPeriod; i < _fixingPeriodDates.length - 1; i++) {
-          fixingPeriodStartTimes[i] = TimeCalculator.getTimeBetween(valZdt, _fixingPeriodDates[i]);
-          fixingPeriodEndTimes[i] = TimeCalculator.getTimeBetween(valZdt, _fixingPeriodDates[i + 1]);
-          fixingPeriodAccrualFactorsActAct[i] = TimeCalculator.getTimeBetween(_fixingPeriodDates[i], _fixingPeriodDates[i + 1]);
+        for (int i = 0; i < _fixingPeriodDates.length - 1 - fixedPeriod; i++) {
+          fixingPeriodStartTimes[i] = TimeCalculator.getTimeBetween(valZdt, _fixingPeriodDates[i + fixedPeriod]);
+          fixingPeriodEndTimes[i] = TimeCalculator.getTimeBetween(valZdt, _fixingPeriodDates[i + 1 + fixedPeriod]);
+          fixingPeriodAccrualFactorsActAct[i] = TimeCalculator.getTimeBetween(_fixingPeriodDates[i + fixedPeriod], _fixingPeriodDates[i + 1 + fixedPeriod]);
         }
 
-        for (int loopperiod = fixedPeriod; loopperiod < _fixingPeriodAccrualFactors.length; loopperiod++) {
-          fixingAccrualFactorsLeft[loopperiod] = _fixingPeriodAccrualFactors[loopperiod];
+        for (int loopperiod = 0; loopperiod < _fixingPeriodAccrualFactors.length - fixedPeriod; loopperiod++) {
+          fixingAccrualFactorsLeft[loopperiod] = _fixingPeriodAccrualFactors[loopperiod + fixedPeriod];
         }
         final CouponONCompounded cpn = new CouponONCompounded(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), _index, fixingPeriodStartTimes,
             fixingPeriodEndTimes, fixingAccrualFactorsLeft, fixingPeriodAccrualFactorsActAct, accruedNotional);

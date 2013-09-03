@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.curve;
@@ -70,7 +70,7 @@ import com.opengamma.util.tuple.Pair;
 
 /**
  *  Build of curve in several blocks with relevant Jacobian matrices.
- *  Here we build 
+ *  Here we build
  */
 public class MulticurveBuildingDiscountingBillNoteBondUSDTest {
 
@@ -112,7 +112,7 @@ public class MulticurveBuildingDiscountingBillNoteBondUSDTest {
   }
   // Here we define US NOTES and US BONDS, we are no doing no distinction between notes and bonds because the instrument is exactly the same.
   // typically US NOTES are short maturity interest rate bonds(ie under 10Y) and US BONDS are long maturity interest rate bonds (ie more than 10y but mostly 30y in practice).
-  // To build the curve we choose six bonds, the most recent 2y, 3y, 5y, 7y, 10yand 30y bond : 
+  // To build the curve we choose six bonds, the most recent 2y, 3y, 5y, 7y, 10yand 30y bond :
   // USA, Note 0.125 31jul2014 2Y (ISIN US912828TF73)
   // USA, Note 0.25 15aug2015 3Y (ISIN US912828TK68)
   // USA, Note 0.5 31jul2017 5Y (ISIN US912828TG56)
@@ -317,10 +317,6 @@ public class MulticurveBuildingDiscountingBillNoteBondUSDTest {
   }
 
   private static InstrumentDerivative[][] convert(final InstrumentDefinition<?>[][] definitions, final int unit, final boolean withToday) {
-    //    int nbDef = 0;
-    //    for (final InstrumentDefinition<?>[] definition : definitions) {
-    //      nbDef += definition.length;
-    //    }
     final InstrumentDerivative[][] instruments = new InstrumentDerivative[definitions.length][];
     for (int loopcurve = 0; loopcurve < definitions.length; loopcurve++) {
       instruments[loopcurve] = new InstrumentDerivative[definitions[loopcurve].length];
@@ -338,7 +334,6 @@ public class MulticurveBuildingDiscountingBillNoteBondUSDTest {
     return instruments;
   }
 
-  @SuppressWarnings("rawtypes")
   private static ZonedDateTimeDoubleTimeSeries[] getTSSwapFixedON(final Boolean withToday, final Integer unit) {
     switch (unit) {
       case 0:

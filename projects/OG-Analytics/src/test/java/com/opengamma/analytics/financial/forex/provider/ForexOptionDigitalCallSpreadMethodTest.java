@@ -442,7 +442,7 @@ public class ForexOptionDigitalCallSpreadMethodTest {
   //  public void gammaSpotMethodVsCalculator() {
   //    final GammaSpotCallSpreadBlackForexCalculator calculator = new GammaSpotCallSpreadBlackForexCalculator(CALL_SPREAD);
   //    final ForexOptionDigitalDefinition digitalForeignDefinition = new ForexOptionDigitalDefinition(FOREX_DEFINITION, OPTION_EXP_DATE, IS_CALL, IS_LONG, false);
-  //    final ForexOptionDigital digitalForeign = digitalForeignDefinition.toDerivative(REFERENCE_DATE, NOT_USED_2);
+  //    final ForexOptionDigital digitalForeign = digitalForeignDefinition.toDerivative(REFERENCE_DATE);
   //    final CurrencyAmount gammaForeignMethod = METHOD_DIGITAL_SPREAD.gammaSpot(digitalForeign, SMILE_MULTICURVES);
   //    final CurrencyAmount gammaForeignCalculator = digitalForeign.accept(calculator, SMILE_MULTICURVES);
   //    assertEquals("Forex Digital option: call spread method - gamma spot", gammaForeignCalculator.getAmount(), gammaForeignMethod.getAmount(), TOLERANCE_PV);
