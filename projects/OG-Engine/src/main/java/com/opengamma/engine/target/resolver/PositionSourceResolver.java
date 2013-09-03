@@ -37,11 +37,13 @@ public class PositionSourceResolver {
 
   private final PositionSource _underlying;
 
-  private static class TradeResolver extends PositionSourceResolver implements ObjectResolver<Trade> {
+  private static class TradeResolver extends PositionSourceResolver implements Resolver<Trade> {
 
     public TradeResolver(final PositionSource underlying) {
       super(underlying);
     }
+
+    // ObjectResolver
 
     @Override
     public Trade resolveObject(final UniqueId uniqueId, final VersionCorrection versionCorrection) {
@@ -55,6 +57,33 @@ public class PositionSourceResolver {
     @Override
     public DeepResolver deepResolver() {
       return null;
+    }
+
+    // IdentifierResolver
+
+    @Override
+    public UniqueId resolveExternalId(final ExternalIdBundle identifiers, final VersionCorrection versionCorrection) {
+      return null;
+    }
+
+    @Override
+    public Map<ExternalIdBundle, UniqueId> resolveExternalIds(final Collection<ExternalIdBundle> identifiers, final VersionCorrection versionCorrection) {
+      return Collections.emptyMap();
+    }
+
+    @Override
+    public UniqueId resolveObjectId(final ObjectId identifier, final VersionCorrection versionCorrection) {
+      try {
+        // [PLAT-4491] TODO: PositionSource doesn't have a trade by OID lookup. This is probably wrong, but no worse than treating the identifier as v/c resolved
+        return getUnderlying().getTrade(identifier.atLatestVersion()).getUniqueId();
+      } catch (DataNotFoundException e) {
+        return null;
+      }
+    }
+
+    @Override
+    public Map<ObjectId, UniqueId> resolveObjectIds(final Collection<ObjectId> identifiers, final VersionCorrection versionCorrection) {
+      return AbstractIdentifierResolver.resolveObjectIds(this, identifiers, versionCorrection);
     }
 
   }
@@ -170,7 +199,7 @@ public class PositionSourceResolver {
 
   }
 
-  private static class PortfolioNodeResolver extends PositionSourceResolver implements ObjectResolver<PortfolioNode>, DeepResolver {
+  private static class PortfolioNodeResolver extends PositionSourceResolver implements Resolver<PortfolioNode>, DeepResolver {
 
     public PortfolioNodeResolver(final PositionSource underlying) {
       super(underlying);
@@ -203,6 +232,33 @@ public class PositionSourceResolver {
       }
     }
 
+    // IdentifierResolver
+
+    @Override
+    public UniqueId resolveExternalId(final ExternalIdBundle identifiers, final VersionCorrection versionCorrection) {
+      return null;
+    }
+
+    @Override
+    public Map<ExternalIdBundle, UniqueId> resolveExternalIds(final Collection<ExternalIdBundle> identifiers, final VersionCorrection versionCorrection) {
+      return Collections.emptyMap();
+    }
+
+    @Override
+    public UniqueId resolveObjectId(final ObjectId identifier, final VersionCorrection versionCorrection) {
+      try {
+        // [PLAT-4491] TODO: PositionSource doesn't have a node by OID lookup. This is probably wrong, but no worse than treating the identifier as v/c resolved
+        return getUnderlying().getPortfolioNode(identifier.atLatestVersion(), versionCorrection).getUniqueId();
+      } catch (DataNotFoundException e) {
+        return null;
+      }
+    }
+
+    @Override
+    public Map<ObjectId, UniqueId> resolveObjectIds(final Collection<ObjectId> identifiers, final VersionCorrection versionCorrection) {
+      return AbstractIdentifierResolver.resolveObjectIds(this, identifiers, versionCorrection);
+    }
+
   }
 
   public PositionSourceResolver(final PositionSource underlying) {
@@ -214,7 +270,7 @@ public class PositionSourceResolver {
     return _underlying;
   }
 
-  public ObjectResolver<Trade> trade() {
+  public Resolver<Trade> trade() {
     return new TradeResolver(getUnderlying());
   }
 
@@ -222,7 +278,7 @@ public class PositionSourceResolver {
     return new PositionResolver(getUnderlying());
   }
 
-  public ObjectResolver<PortfolioNode> portfolioNode() {
+  public Resolver<PortfolioNode> portfolioNode() {
     return new PortfolioNodeResolver(getUnderlying());
   }
 

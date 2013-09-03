@@ -9,7 +9,6 @@ import java.util.Map;
 
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
-import com.opengamma.engine.target.ComputationTargetType;
 
 /**
  * Wrapper around a {@link Portfolio} instance that will log any deep resolution calls.
@@ -40,7 +39,7 @@ public class LoggedResolutionPortfolio extends AbstractLoggedResolution<Portfoli
   @Override
   public PortfolioNode getRootNode() {
     final PortfolioNode rootNode = getUnderlying().getRootNode();
-    log(ComputationTargetType.PORTFOLIO_NODE, rootNode);
+    // log(ComputationTargetType.PORTFOLIO_NODE, rootNode); // [PLAT-4491] Nodes are linked to portfolio by UID not OID
     return new LoggedResolutionPortfolioNode(rootNode, getLogger());
   }
 

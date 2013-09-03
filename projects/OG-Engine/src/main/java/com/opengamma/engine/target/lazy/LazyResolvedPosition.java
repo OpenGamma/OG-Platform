@@ -74,4 +74,9 @@ public final class LazyResolvedPosition extends LazyResolvedPositionOrTrade<Posi
     return new SimplePosition(this);
   }
 
+  @Override
+  public String toString() {
+    return "LazyResolvedPosition[" + getUniqueId() + "]";
+  }
+
 }

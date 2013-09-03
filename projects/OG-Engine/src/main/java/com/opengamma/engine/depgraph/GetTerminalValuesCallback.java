@@ -698,6 +698,7 @@ import com.opengamma.util.tuple.Pair;
           if (_spec2Node.containsKey(output)) {
             // Another node already produces this
             s_logger.debug("Discarding output {} - already produced elsewhere in the graph", output);
+            // TODO: Would it be better to do this check at the start of the loop?
           } else {
             s_logger.debug("Adding additional output {} to {}", output, node);
             node.addOutputValue(output);

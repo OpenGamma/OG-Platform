@@ -16,8 +16,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
-import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.test.TestGroup;
 
@@ -68,7 +66,8 @@ public class LoggedResolutionPortfolioTest {
     final PortfolioNode returnedRoot = logged.getRootNode();
     assertTrue(returnedRoot instanceof LoggedResolutionPortfolioNode);
     assertEquals(returnedRoot.getUniqueId(), UniqueId.of("Foo", "Bar", "Cow"));
-    Mockito.verify(logger).log(new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, UniqueId.of("Foo", "Bar")), UniqueId.of("Foo", "Bar", "Cow"));
+    //Mockito.verify(logger).log(new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO_NODE, UniqueId.of("Foo", "Bar")), UniqueId.of("Foo", "Bar", "Cow"));
+    Mockito.verifyNoMoreInteractions(logger);
   }
 
   public void getName() {
