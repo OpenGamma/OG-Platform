@@ -39,12 +39,14 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
    * TODO Bermudan option (PLAT-4459)
    */
 
+  @SuppressWarnings("synthetic-access")
   public BinomialTreeOptionPricingModel() {
     _barrier = 0.;
     _typeName = null;
     _function = new VanillaPayoff();
   }
 
+  @SuppressWarnings("synthetic-access")
   public BinomialTreeOptionPricingModel(final double barrier, final String typeName) {
     _barrier = barrier;
     _typeName = BarrierTypes.valueOf(typeName);
@@ -1147,6 +1149,7 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
         final double strike, final double sign, final double downFactor, final double upOverDown, final int steps);
   }
 
+  @SuppressWarnings("synthetic-access")
   private class VanillaPayoff extends PayoffFunction {
     @Override
     public double[] getPayoffAtExpiry(final double assetPrice, final double strike, final int nSteps, final double sig, final double upOverDown) {
@@ -1244,6 +1247,7 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
     }
   }
 
+  @SuppressWarnings("synthetic-access")
   private class DownAndOutPayoff extends PayoffFunction {
     @Override
     public double[] getPayoffAtExpiry(final double assetPrice, final double strike, final int nSteps, final double sig, final double upOverDown) {
@@ -1270,7 +1274,7 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
       final double[] res = new double[steps + 1];
       double assetPrice = baseAssetPrice * Math.pow(downFactor, steps);
       for (int j = 0; j < steps + 1; ++j) {
-        res[j] = assetPrice <= _barrier ? 0. : discount * (upProbability * values[j + 1] + downProbability * values[j]);
+        res[j] = (assetPrice <= _barrier) ? 0. : discount * (upProbability * values[j + 1] + downProbability * values[j]);
         assetPrice *= upOverDown;
       }
       return res;
@@ -1282,20 +1286,21 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
       final double[] res = new double[steps + 1];
       double assetPrice = baseAssetPrice * Math.pow(downFactor, steps);
       for (int j = 0; j < steps + 1; ++j) {
-        res[j] = assetPrice <= _barrier ? 0. : Math.max(discount * (upProbability * values[j + 1] + downProbability * values[j]), sign * (assetPrice - strike));
+        res[j] = (assetPrice <= _barrier) ? 0. : Math.max(discount * (upProbability * values[j + 1] + downProbability * values[j]), sign * (assetPrice - strike));
         assetPrice *= upOverDown;
       }
       return res;
     }
   }
 
+  @SuppressWarnings("synthetic-access")
   private class UpAndOutPayoff extends PayoffFunction {
     @Override
     public double[] getPayoffAtExpiry(final double assetPrice, final double strike, final int nSteps, final double sig, final double upOverDown) {
       final double[] values = new double[nSteps + 1];
       double priceTmp = assetPrice;
       for (int i = 0; i < nSteps + 1; ++i) {
-        values[i] = priceTmp >= _barrier ? 0. : Math.max(sig * (priceTmp - strike), 0);
+        values[i] = (priceTmp >= _barrier) ? 0. : Math.max(sig * (priceTmp - strike), 0);
         priceTmp *= upOverDown;
       }
       return values;

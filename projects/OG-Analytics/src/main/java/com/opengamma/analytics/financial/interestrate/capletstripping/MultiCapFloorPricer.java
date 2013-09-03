@@ -35,6 +35,7 @@ public class MultiCapFloorPricer {
   private final SimpleOptionData[][] _capCaplets;
   private final int[][] _capletIndices;
 
+  @SuppressWarnings("synthetic-access")
   public MultiCapFloorPricer(final List<CapFloor> caps, final YieldCurveBundle yieldCurves) {
     ArgumentChecker.noNulls(caps, "null caps");
     ArgumentChecker.notNull(yieldCurves, "null yield curve");

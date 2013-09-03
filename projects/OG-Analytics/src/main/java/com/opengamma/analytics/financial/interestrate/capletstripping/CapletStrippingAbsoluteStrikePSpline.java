@@ -113,6 +113,7 @@ public class CapletStrippingAbsoluteStrikePSpline extends CapletStrippingAbsolut
       lsRes = solveForPrice(capPrices, capVols, errors, true);
     } else {
       final Function1D<DoubleMatrix1D, DoubleMatrix1D> modelVolFunc = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
+        @SuppressWarnings("synthetic-access")
         @Override
         public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
           final double[] modelVols = pricer.impliedVols(_volModel.evaluate(x));
@@ -152,6 +153,7 @@ public class CapletStrippingAbsoluteStrikePSpline extends CapletStrippingAbsolut
     };
 
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> modelPriceFunc = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
+      @SuppressWarnings("synthetic-access")
       @Override
       public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
         final double[] modelPrices = pricer.price(_volModel.evaluate(x));

@@ -160,6 +160,7 @@ public class CapletStrippingAbsoluteStrikeInterpolation extends CapletStrippingA
 
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> volDiffFunc = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
 
+      @SuppressWarnings("synthetic-access")
       @Override
       public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
         final VolatilityTermStructure vol = _volModel.evaluate(x);
@@ -194,6 +195,7 @@ public class CapletStrippingAbsoluteStrikeInterpolation extends CapletStrippingA
 
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> weightedPriceFunc = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
 
+      @SuppressWarnings("synthetic-access")
       @Override
       public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
 
@@ -210,6 +212,7 @@ public class CapletStrippingAbsoluteStrikeInterpolation extends CapletStrippingA
 
     final Function1D<DoubleMatrix1D, DoubleMatrix2D> priceJac = new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
 
+      @SuppressWarnings("synthetic-access")
       @Override
       public DoubleMatrix2D evaluate(final DoubleMatrix1D x) {
 
