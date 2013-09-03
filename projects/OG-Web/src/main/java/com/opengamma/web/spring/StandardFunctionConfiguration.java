@@ -461,8 +461,8 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
     return defaultCurrencyInfo("PHP");
   }
 
-  protected CurrencyInfo pnlCurrencyInfo() {
-    return defaultCurrencyInfo("PNL");
+  protected CurrencyInfo plnCurrencyInfo() {
+    return defaultCurrencyInfo("PLN");
   }
 
   protected CurrencyInfo rubCurrencyInfo() {
@@ -516,7 +516,7 @@ public abstract class StandardFunctionConfiguration extends AbstractFunctionConf
     setCurrencyInfo("NOK", nokCurrencyInfo());
     setCurrencyInfo("NZD", nzdCurrencyInfo());
     setCurrencyInfo("PHP", phpCurrencyInfo());
-    setCurrencyInfo("PLN", pnlCurrencyInfo());
+    setCurrencyInfo("PLN", plnCurrencyInfo());
     setCurrencyInfo("RUB", rubCurrencyInfo());
     setCurrencyInfo("SEK", sekCurrencyInfo());
     setCurrencyInfo("SGD", sgdCurrencyInfo());
