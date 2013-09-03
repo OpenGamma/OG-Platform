@@ -43,6 +43,15 @@ import com.opengamma.web.analytics.formatting.TypeFormatter.Format;
   }
 
   @Override
+  public List<String> viewCompilationFailed(Exception e) {
+    long startTime = System.currentTimeMillis();
+    s_logger.trace("Executing AnalyticsView.viewCompilationFailed");
+    List<String> retVal = _delegate.viewCompilationFailed(e);
+    s_logger.trace("viewCompilationFailed completed in " + (System.currentTimeMillis() - startTime) + "ms");
+    return retVal;
+  }
+
+  @Override
   public List<String> updateResults(ViewResultModel results,
                                     ViewCycle viewCycle) {
     long startTime = System.currentTimeMillis();

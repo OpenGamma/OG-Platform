@@ -46,6 +46,16 @@ import com.opengamma.web.analytics.formatting.TypeFormatter.Format;
   }
 
   @Override
+  public List<String> viewCompilationFailed(Exception e) {
+    try {
+      _lock.writeLock().lock();
+      return _delegate.viewCompilationFailed(e);
+    } finally {
+      _lock.writeLock().unlock();
+    }
+  }
+
+  @Override
   public List<String> updateResults(ViewResultModel results, ViewCycle viewCycle) {
     try {
       _lock.writeLock().lock();

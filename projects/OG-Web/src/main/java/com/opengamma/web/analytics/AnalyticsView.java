@@ -51,6 +51,13 @@ public interface AnalyticsView {
   List<String> updateStructure(CompiledViewDefinition compiledViewDefinition, Portfolio resolvedPortfolio);
 
   /**
+   * Invoked if the view can't be built and started.
+   * @param e Exception that triggered the failure, possibly null
+   * @return Callback IDs of any errors
+   */
+  List<String> viewCompilationFailed(Exception e);
+
+  /**
    * Updates the data in the grids when a cycle completes in the calculation engine.
    * 
    * @param results  the results of the calculation cycle

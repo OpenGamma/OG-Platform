@@ -7,8 +7,10 @@ package com.opengamma.web.analytics.rest;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
@@ -21,6 +23,7 @@ import com.opengamma.engine.view.client.ViewClientState;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.analytics.AnalyticsView;
 import com.opengamma.web.analytics.AnalyticsViewManager;
+import com.opengamma.web.analytics.ErrorInfo;
 
 /**
  *
@@ -87,5 +90,18 @@ public class ViewResource {
     }
     return response;
   }
-       
+
+  @Path("errors/{errorId}")
+  @GET
+  public ErrorInfo getError(@PathParam("errorId") String errorId) {
+    throw new UnsupportedOperationException();
+    // TODO getError() method on AnalyticsView
+  }
+
+  @Path("errors/{errorId}")
+  @DELETE
+  public void deleteError(@PathParam("errorId") String errorId) {
+    throw new UnsupportedOperationException();
+    // TODO deleteError() method on AnalyticsView
+  }
 }

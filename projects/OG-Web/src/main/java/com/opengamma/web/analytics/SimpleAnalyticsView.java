@@ -139,6 +139,12 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
     return getGridIds();
   }
 
+  @Override
+  public List<String> viewCompilationFailed(Exception e) {
+    // TODO add an error to ErrorManager, return the ErrorInfo / callbackId
+    return Collections.emptyList();
+  }
+
   private void doUpdateStructure(CompiledViewDefinition compiledViewDefinition, Portfolio portfolio) {
     _compiledViewDefinition = compiledViewDefinition;
     if (portfolio != null) {

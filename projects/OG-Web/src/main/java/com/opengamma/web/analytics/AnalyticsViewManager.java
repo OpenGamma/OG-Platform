@@ -159,6 +159,7 @@ public class AnalyticsViewManager {
                                                  portfolioSupplier,
                                                  entityExtractor,
                                                  request.showBlotterColumns());
+    // TODO CatchingView
     AnalyticsView lockingView = new LockingAnalyticsView(view);
     AnalyticsView notifyingView = new NotifyingAnalyticsView(lockingView, clientConnection);
     AnalyticsView timingView = new TimingAnalyticsView(notifyingView);
