@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.derivative;
@@ -13,7 +13,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * Class describing a OIS-like floating coupon. The description is simplified by not creating the full set of fixing times. 
+ * Class describing a OIS-like floating coupon. The description is simplified by not creating the full set of fixing times.
  * Only the start and the end of the fixing period times are described. The description is enough to construct curves from OIS and price OIS coupons (even if some fixing already took place).
  */
 public class CouponON extends Coupon {
@@ -23,7 +23,7 @@ public class CouponON extends Coupon {
    */
   private final IndexON _index;
   /**
-   * The fixing period start time (in years). The fixing period does take into account the already fixed period, 
+   * The fixing period start time (in years). The fixing period does take into account the already fixed period,
    * i.e. the fixing period start time is the first date for which the coupon is not fixed yet.
    */
   private final double _fixingPeriodStartTime;
@@ -95,7 +95,7 @@ public class CouponON extends Coupon {
     _notionalAccrued = notionalAccrued;
     _forwardCurveName = null;
   }
-  
+
   /**
    * Gets the OIS index of the instrument.
    * @return The index.
@@ -144,6 +144,7 @@ public class CouponON extends Coupon {
     return _forwardCurveName;
   }
 
+  @SuppressWarnings("deprecation")
   @Override
   public CouponON withNotional(final double notional) {
     return new CouponON(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), notional, _index, _fixingPeriodStartTime, _fixingPeriodEndTime, _fixingPeriodAccrualFactor,

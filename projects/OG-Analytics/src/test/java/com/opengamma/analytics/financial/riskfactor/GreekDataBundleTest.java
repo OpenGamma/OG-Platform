@@ -20,7 +20,7 @@ import com.opengamma.analytics.financial.pnl.UnderlyingType;
 import com.opengamma.analytics.financial.trade.OptionTradeData;
 
 /**
- * 
+ *
  */
 public class GreekDataBundleTest {
   private static final double DELTA_VALUE = 120;
@@ -84,7 +84,7 @@ public class GreekDataBundleTest {
   @Test
   public void testEqualsAndHashCode() {
     GreekDataBundle other = new GreekDataBundle(GREEK_RESULTS, UNDERLYING_DATA, OPTION_TRADE_DATA);
-    final Map<UnderlyingType, Double> underlyingData = new HashMap<UnderlyingType, Double>();
+    final Map<UnderlyingType, Double> underlyingData = new HashMap<>();
     underlyingData.put(UnderlyingType.COST_OF_CARRY, SPOT_VALUE);
     assertEquals(DATA, other);
     assertEquals(DATA.hashCode(), other.hashCode());

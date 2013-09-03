@@ -49,8 +49,9 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.money.Currency;
 
 /**
- *
+ * @deprecated This class tests deprecated functionality
  */
+@Deprecated
 public class CapletStrippingTest {
 
   private static final LinkedHashMap<String, Function1D<Double, Double>> PARAMETER_FUNCTIONS = new LinkedHashMap<>();
@@ -316,8 +317,6 @@ public class CapletStrippingTest {
     final Iterator<CapFloor> iter = CAPS.iterator();
 
     CapFloor cap;
-    final int n = CAPS.size();
-    final double[] fittedCapVols = new double[n];
     int i = 0;
     while (iter.hasNext()) {
       cap = iter.next();

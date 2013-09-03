@@ -17,6 +17,7 @@ import com.opengamma.analytics.math.surface.Surface;
 /**
  *
  */
+@SuppressWarnings("deprecation")
 public class ExtendedCoupledFiniteDifference extends CoupledFiniteDifference {
 
   public ExtendedCoupledFiniteDifference(final double theta) {

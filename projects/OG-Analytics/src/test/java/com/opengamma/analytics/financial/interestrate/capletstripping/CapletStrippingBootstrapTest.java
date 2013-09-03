@@ -19,8 +19,9 @@ import com.opengamma.analytics.math.curve.FunctionalDoublesCurve;
 import com.opengamma.analytics.math.function.Function1D;
 
 /**
- *
+ * @deprecated This class tests deprecated functionality
  */
+@Deprecated
 public class CapletStrippingBootstrapTest extends CapletStrippingSetup {
 
   @Test

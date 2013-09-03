@@ -17,6 +17,7 @@ import com.opengamma.util.ArgumentChecker;
  * (operation on the continuously-compounded zero-coupon rates): an existing curve referenced by its name and a new curve.
  * The generated curve is a YieldAndDiscountAddZeroSpreadCurve.
  */
+@SuppressWarnings("deprecation")
 public class GeneratorCurveAddYieldExisiting extends GeneratorYDCurve {
 
   /**

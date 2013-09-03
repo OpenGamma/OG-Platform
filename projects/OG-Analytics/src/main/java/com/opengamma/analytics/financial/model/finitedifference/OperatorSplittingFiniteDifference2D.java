@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.finitedifference;
@@ -10,9 +10,10 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.analytics.math.cube.Cube;
 
 /**
- *  Operating splitting (as in Duffy chapter 22) with boundary conditions applied at each of the 4 steps 
- * <b>Note</b> this is for testing purposes and is not recommended for actual use 
+ *  Operating splitting (as in Duffy chapter 22) with boundary conditions applied at each of the 4 steps
+ * <b>Note</b> this is for testing purposes and is not recommended for actual use
  */
+@SuppressWarnings("deprecation")
 public class OperatorSplittingFiniteDifference2D implements ConvectionDiffusionPDESolver2D {
 
   // private static final Decomposition<?> DCOMP = new LUDecompositionCommons();

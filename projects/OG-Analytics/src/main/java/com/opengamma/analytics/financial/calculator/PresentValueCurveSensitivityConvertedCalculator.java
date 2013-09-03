@@ -16,7 +16,9 @@ import com.opengamma.util.money.Currency;
 
 /**
  * A present value curve sensitivity calculator that convert a multi-currency rate sensitivity into a given currency.
+ * @deprecated {@link YieldCurveBundle} is deprecated
  */
+@Deprecated
 public class PresentValueCurveSensitivityConvertedCalculator extends InstrumentDerivativeVisitorSameMethodAdapter<YieldCurveBundle, InterestRateCurveSensitivity> {
 
   /**

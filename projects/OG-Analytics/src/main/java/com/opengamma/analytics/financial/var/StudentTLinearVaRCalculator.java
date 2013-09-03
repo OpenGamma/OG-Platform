@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.var;
@@ -11,7 +11,7 @@ import com.opengamma.analytics.math.function.Function;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ *
  * @param <T> The type of the data
  */
 public class StudentTLinearVaRCalculator<T> implements VaRCalculator<StudentTVaRParameters, T> {
@@ -25,6 +25,7 @@ public class StudentTLinearVaRCalculator<T> implements VaRCalculator<StudentTVaR
     _stdCalculator = stdCalculator;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public VaRCalculationResult evaluate(final StudentTVaRParameters parameters, final T... data) {
     ArgumentChecker.notNull(parameters, "parameters");

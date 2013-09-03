@@ -93,6 +93,7 @@ public class CapFloorCMS extends CouponFloating implements CapFloor {
    * @param isCap The cap (true) /floor (false) flag.
    * @return The CMS cap/floor.
    */
+  @SuppressWarnings("deprecation")
   public static CapFloorCMS from(final CouponCMS coupon, final double strike, final boolean isCap) {
     try {
       return new CapFloorCMS(coupon.getCurrency(), coupon.getPaymentTime(), coupon.getUnderlyingSwap().getFixedLeg().getNthPayment(0).getFundingCurveName(),
@@ -136,6 +137,7 @@ public class CapFloorCMS extends CouponFloating implements CapFloor {
   }
 
   @Override
+  @SuppressWarnings("deprecation")
   public Coupon withNotional(final double notional) {
     try {
       return new CapFloorCMS(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(),

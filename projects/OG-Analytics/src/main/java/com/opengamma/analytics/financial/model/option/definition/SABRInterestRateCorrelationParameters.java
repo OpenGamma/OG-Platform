@@ -44,6 +44,7 @@ public class SABRInterestRateCorrelationParameters extends SABRInterestRateParam
    * @param correlation The correlation function.
    * @return The SABR with correlation object.
    */
+  @SuppressWarnings("deprecation")
   public static SABRInterestRateCorrelationParameters from(final SABRInterestRateParameters sabr, final DoubleFunction1D correlation) {
     ArgumentChecker.notNull(sabr, "SABR parameters");
     return new SABRInterestRateCorrelationParameters(sabr.getAlphaSurface(), sabr.getBetaSurface(), sabr.getRhoSurface(), sabr.getNuSurface(), sabr.getDayCount(), correlation);

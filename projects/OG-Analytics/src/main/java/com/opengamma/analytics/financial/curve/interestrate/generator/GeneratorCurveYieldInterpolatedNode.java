@@ -18,6 +18,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Store the details and generate the required curve. The curve is interpolated on the rate (continuously compounded).
  */
+@SuppressWarnings("deprecation")
 public class GeneratorCurveYieldInterpolatedNode extends GeneratorYDCurve {
 
   /**
@@ -43,7 +44,7 @@ public class GeneratorCurveYieldInterpolatedNode extends GeneratorYDCurve {
     ArgumentChecker.notNull(interpolator, "Interpolator");
     _nodePoints = nodePoints;
     // Check that node points are sorted
-    double[] nodePointsSorted = nodePoints.clone();
+    final double[] nodePointsSorted = nodePoints.clone();
     Arrays.sort(nodePointsSorted);
     ArgumentChecker.isTrue(Arrays.equals(nodePoints, nodePointsSorted), "Node points not sorted");
     _nbPoints = _nodePoints.length;

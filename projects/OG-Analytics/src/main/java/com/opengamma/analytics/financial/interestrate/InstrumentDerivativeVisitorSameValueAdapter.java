@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -112,6 +112,7 @@ import com.opengamma.analytics.financial.varianceswap.VarianceSwap;
  * @param <DATA_TYPE> The type of the data
  * @param <RESULT_TYPE> The type of the results
  */
+@SuppressWarnings("deprecation")
 public class InstrumentDerivativeVisitorSameValueAdapter<DATA_TYPE, RESULT_TYPE> implements InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
   /** The value */
   private final RESULT_TYPE _value;

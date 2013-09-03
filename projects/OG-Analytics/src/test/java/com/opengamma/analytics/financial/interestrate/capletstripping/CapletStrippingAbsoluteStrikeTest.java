@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.capletstripping;
@@ -13,8 +13,9 @@ import java.util.List;
 import com.opengamma.analytics.financial.model.volatility.VolatilityTermStructure;
 
 /**
- * 
+ * @deprecated This class tests deprecated functionality
  */
+@Deprecated
 public abstract class CapletStrippingAbsoluteStrikeTest extends CapletStrippingSetup {
 
   public abstract CapletStrippingAbsoluteStrike getStripper(final List<CapFloor> caps);
@@ -32,21 +33,21 @@ public abstract class CapletStrippingAbsoluteStrikeTest extends CapletStrippingS
     final int n = getNumberOfStrikes();
 
     final int samples = 101;
-    double[][] mVols = new double[n][samples];
+    final double[][] mVols = new double[n][samples];
 
     for (int i = 0; i < n; i++) {
-      List<CapFloor> caps = getCaps(i);
-      CapletStrippingAbsoluteStrike stripper = getStripper(caps);
+      final List<CapFloor> caps = getCaps(i);
+      final CapletStrippingAbsoluteStrike stripper = getStripper(caps);
 
-      double[] vols = getCapVols(i);
-      CapletStrippingSingleStrikeResult res = stripper.solveForVol(vols);
+      final double[] vols = getCapVols(i);
+      final CapletStrippingSingleStrikeResult res = stripper.solveForVol(vols);
 
       if (print) {
         System.out.println(i + " chiSqr: " + res.getChiSq() + " fit parameters: " + res.getFitParameters());
       }
 
-      double[] fitVols = res.getModelValues().getData();
-      VolatilityTermStructure volCurve = res.getVolatilityCurve();
+      final double[] fitVols = res.getModelValues().getData();
+      final VolatilityTermStructure volCurve = res.getVolatilityCurve();
 
       final int m = vols.length;
       assertEquals(fitVols.length, m);
@@ -56,7 +57,7 @@ public abstract class CapletStrippingAbsoluteStrikeTest extends CapletStrippingS
 
       if (print) {
         for (int j = 0; j < samples; j++) {
-          double t = j * 10.0 / (samples - 1);
+          final double t = j * 10.0 / (samples - 1);
           mVols[i][j] = volCurve.getVolatility(t);
         }
       }
@@ -65,7 +66,7 @@ public abstract class CapletStrippingAbsoluteStrikeTest extends CapletStrippingS
     if (print) {
       System.out.print("\n");
       for (int j = 0; j < samples; j++) {
-        double t = j * 10.0 / (samples - 1);
+        final double t = j * 10.0 / (samples - 1);
         System.out.print(t);
         for (int i = 0; i < n; i++) {
           System.out.print("\t" + mVols[i][j]);
@@ -78,31 +79,31 @@ public abstract class CapletStrippingAbsoluteStrikeTest extends CapletStrippingS
   protected void timingTest(final int warmup, final int beanchmarkCycles) {
     final int n = getNumberOfStrikes();
 
-    CapletStrippingAbsoluteStrike[] strippers = new CapletStrippingAbsoluteStrike[n];
+    final CapletStrippingAbsoluteStrike[] strippers = new CapletStrippingAbsoluteStrike[n];
     // setup the strippers
     for (int i = 0; i < n; i++) {
-      List<CapFloor> caps = getCaps(i);
+      final List<CapFloor> caps = getCaps(i);
       strippers[i] = getStripper(caps);
     }
 
     for (int runs = 0; runs < warmup; runs++) {
       for (int i = 0; i < n; i++) {
-        CapletStrippingSingleStrikeResult res = strippers[i].solveForVol(getCapVols(i));
+        final CapletStrippingSingleStrikeResult res = strippers[i].solveForVol(getCapVols(i));
         // check fit
         assertTrue(res.getChiSq() < 1.0);
       }
     }
     if (beanchmarkCycles > 0) {
-      long start = System.nanoTime();
+      final long start = System.nanoTime();
 
       for (int runs = 0; runs < beanchmarkCycles; runs++) {
         for (int i = 0; i < n; i++) {
-          CapletStrippingSingleStrikeResult res = strippers[i].solveForVol(getCapVols(i));
+          final CapletStrippingSingleStrikeResult res = strippers[i].solveForVol(getCapVols(i));
           // check fit
           assertTrue(res.getChiSq() < 1.0);
         }
       }
-      double time = (System.nanoTime() - start) / ( beanchmarkCycles*1e6);
+      final double time = (System.nanoTime() - start) / ( beanchmarkCycles*1e6);
       System.out.println("Time per fit set for " + this.getClass() + " is: " + time + "ms");
     }
 

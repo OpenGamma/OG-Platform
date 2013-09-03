@@ -10,32 +10,34 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.analytics.math.cube.Cube;
 
 /**
- * <b>Note</b> this is for testing purposes and is not recommended for actual use 
+ * <b>Note</b> this is for testing purposes and is not recommended for actual use
  */
+@SuppressWarnings("deprecation")
 public class ExplicitFiniteDifference2D implements ConvectionDiffusionPDESolver2D {
 
   @Override
-  public double[][] solve(ConvectionDiffusion2DPDEDataBundle pdeData, int tSteps, int xSteps, int ySteps, double tMax, BoundaryCondition2D xLowerBoundary, BoundaryCondition2D xUpperBoundary,
-      BoundaryCondition2D yLowerBoundary, BoundaryCondition2D yUpperBoundary) {
+  public double[][] solve(final ConvectionDiffusion2DPDEDataBundle pdeData, final int tSteps, final int xSteps, final int ySteps, final double tMax,
+      final BoundaryCondition2D xLowerBoundary, final BoundaryCondition2D xUpperBoundary, final BoundaryCondition2D yLowerBoundary,
+      final BoundaryCondition2D yUpperBoundary) {
     return solve(pdeData, tSteps, xSteps, ySteps, tMax, xLowerBoundary, xUpperBoundary, yLowerBoundary, yUpperBoundary, null);
   }
 
   @Override
-  public double[][] solve(ConvectionDiffusion2DPDEDataBundle pdeData, final int tSteps, final int xSteps, final int ySteps, final double tMax, BoundaryCondition2D xLowerBoundary,
-      BoundaryCondition2D xUpperBoundary, BoundaryCondition2D yLowerBoundary, BoundaryCondition2D yUpperBoundary, final Cube<Double, Double, Double, Double> freeBoundary) {
+  public double[][] solve(final ConvectionDiffusion2DPDEDataBundle pdeData, final int tSteps, final int xSteps, final int ySteps, final double tMax, final BoundaryCondition2D xLowerBoundary,
+      final BoundaryCondition2D xUpperBoundary, final BoundaryCondition2D yLowerBoundary, final BoundaryCondition2D yUpperBoundary, final Cube<Double, Double, Double, Double> freeBoundary) {
 
-    double dt = tMax / (tSteps);
-    double dx = (xUpperBoundary.getLevel() - xLowerBoundary.getLevel()) / (xSteps);
-    double dy = (yUpperBoundary.getLevel() - yLowerBoundary.getLevel()) / (ySteps);
-    double dtdx2 = dt / dx / dx;
-    double dtdx = dt / dx;
-    double dtdy2 = dt / dy / dy;
-    double dtdy = dt / dy;
-    double dtdxdy = dt / dy / dx;
+    final double dt = tMax / (tSteps);
+    final double dx = (xUpperBoundary.getLevel() - xLowerBoundary.getLevel()) / (xSteps);
+    final double dy = (yUpperBoundary.getLevel() - yLowerBoundary.getLevel()) / (ySteps);
+    final double dtdx2 = dt / dx / dx;
+    final double dtdx = dt / dx;
+    final double dtdy2 = dt / dy / dy;
+    final double dtdy = dt / dy;
+    final double dtdxdy = dt / dy / dx;
 
     double[][] v = new double[xSteps + 1][ySteps + 1];
-    double[] x = new double[xSteps + 1];
-    double[] y = new double[ySteps + 1];
+    final double[] x = new double[xSteps + 1];
+    final double[] y = new double[ySteps + 1];
 
     double currentX = 0;
     double currentY = 0;
@@ -55,15 +57,15 @@ public class ExplicitFiniteDifference2D implements ConvectionDiffusionPDESolver2
     double sum;
     double t = 0.0;
     for (int k = 0; k < tSteps; k++) {
-      double[][] vNew = new double[xSteps + 1][ySteps + 1];
+      final double[][] vNew = new double[xSteps + 1][ySteps + 1];
       for (int i = 1; i < xSteps; i++) {
         for (int j = 1; j < ySteps; j++) {
-          double a = pdeData.getA(t, x[i], y[j]);
-          double b = pdeData.getB(t, x[i], y[j]);
-          double c = pdeData.getC(t, x[i], y[j]);
-          double d = pdeData.getD(t, x[i], y[j]);
-          double e = pdeData.getE(t, x[i], y[j]);
-          double f = pdeData.getF(t, x[i], y[j]);
+          final double a = pdeData.getA(t, x[i], y[j]);
+          final double b = pdeData.getB(t, x[i], y[j]);
+          final double c = pdeData.getC(t, x[i], y[j]);
+          final double d = pdeData.getD(t, x[i], y[j]);
+          final double e = pdeData.getE(t, x[i], y[j]);
+          final double f = pdeData.getF(t, x[i], y[j]);
 
           sum = v[i][j];
           sum -= a * dtdx2 * (v[i + 1][j] - 2 * v[i][j] + v[i - 1][j]);

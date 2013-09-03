@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.derivative;
@@ -14,7 +14,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * Class describing a overnight indexed floating coupon with spread. The description is simplified by not creating the full set of fixing times. 
+ * Class describing a overnight indexed floating coupon with spread. The description is simplified by not creating the full set of fixing times.
  * Only the start and the end of the fixing period times are described. The description is enough to construct curves from OIS and price OIS coupons (even if some fixing already took place).
  */
 public class CouponONSpread extends Coupon {
@@ -24,7 +24,7 @@ public class CouponONSpread extends Coupon {
    */
   private final IndexON _index;
   /**
-   * The fixing period start time (in years). The fixing period does take into account the already fixed period, 
+   * The fixing period start time (in years). The fixing period does take into account the already fixed period,
    * i.e. the fixing period start time is the first date for which the coupon is not fixed yet.
    */
   private final double _fixingPeriodStartTime;
@@ -60,7 +60,7 @@ public class CouponONSpread extends Coupon {
    */
   public CouponONSpread(final Currency currency, final double paymentTime, final double paymentYearFraction, final double notional, final IndexON index,
       final double fixingPeriodStartTime, final double fixingPeriodEndTime, final double fixingPeriodAccrualFactor, final double notionalAccrued, final double spreadAmount) {
-    super(currency, paymentTime, "NOT USED", paymentYearFraction, notional);
+    super(currency, paymentTime, paymentYearFraction, notional);
     Validate.notNull(index, "Coupon OIS: index");
     _index = index;
     _fixingPeriodStartTime = fixingPeriodStartTime;
@@ -161,7 +161,7 @@ public class CouponONSpread extends Coupon {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -171,7 +171,7 @@ public class CouponONSpread extends Coupon {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    CouponONSpread other = (CouponONSpread) obj;
+    final CouponONSpread other = (CouponONSpread) obj;
     if (Double.doubleToLongBits(_fixingPeriodAccrualFactor) != Double.doubleToLongBits(other._fixingPeriodAccrualFactor)) {
       return false;
     }

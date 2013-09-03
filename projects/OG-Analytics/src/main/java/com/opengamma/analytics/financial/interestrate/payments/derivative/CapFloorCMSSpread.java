@@ -133,6 +133,7 @@ public class CapFloorCMSSpread extends CouponFloating implements CapFloor {
    * @param isCap The cap (true) /floor (false) flag.
    * @return The CMS spread cap/floor.
    */
+  @SuppressWarnings("deprecation")
   public static CapFloorCMSSpread from(final CouponFloating coupon, final SwapFixedCoupon<Coupon> underlyingSwap1, final IndexSwap cmsIndex1, final SwapFixedCoupon<Coupon> underlyingSwap2,
       final IndexSwap cmsIndex2, final double settlementTime, final double strike, final boolean isCap) {
     ArgumentChecker.notNull(coupon, "floating coupon");
@@ -200,6 +201,7 @@ public class CapFloorCMSSpread extends CouponFloating implements CapFloor {
     return Math.max(omega * (fixing - _strike), 0);
   }
 
+  @SuppressWarnings("deprecation")
   @Override
   public CapFloorCMSSpread withNotional(final double notional) {
     try {

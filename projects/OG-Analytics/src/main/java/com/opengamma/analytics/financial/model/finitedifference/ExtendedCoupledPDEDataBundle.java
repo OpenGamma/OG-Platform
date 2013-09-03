@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.finitedifference;
@@ -10,7 +10,7 @@ import com.opengamma.analytics.math.surface.Surface;
 
 /**
  * Not part of the new hierarchy
- * @deprecated
+ * @deprecated Use {@link PDE1DDataBundle}
  */
 @Deprecated
 public class ExtendedCoupledPDEDataBundle {

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -108,10 +108,11 @@ import com.opengamma.analytics.financial.interestrate.swaption.derivative.Swapti
 import com.opengamma.analytics.financial.varianceswap.VarianceSwap;
 
 /**
- * 
+ *
  * @param <DATA_TYPE> The type of the data
  * @param <RESULT_TYPE> The return type of the calculation
  */
+@SuppressWarnings("deprecation")
 public interface InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
 
   // Two arguments

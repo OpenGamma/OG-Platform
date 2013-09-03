@@ -6,11 +6,11 @@
 package com.opengamma.analytics.financial.interestrate.payments.derivative;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -69,12 +69,13 @@ public class CouponIborGearing extends CouponFloating {
    * @deprecated Use the constructor that does not take yield curve names.
    */
   @Deprecated
-  public CouponIborGearing(final Currency currency, final double paymentTime, final String discountingCurveName, final double paymentYearFraction, final double notional, final double fixingTime, final IborIndex index,
-      final double fixingPeriodStartTime, final double fixingPeriodEndTime, final double fixingAccrualFactor, final double spread, final double factor, final String forwardCurveName) {
+  public CouponIborGearing(final Currency currency, final double paymentTime, final String discountingCurveName, final double paymentYearFraction,
+      final double notional, final double fixingTime, final IborIndex index, final double fixingPeriodStartTime, final double fixingPeriodEndTime,
+      final double fixingAccrualFactor, final double spread, final double factor, final String forwardCurveName) {
     super(currency, paymentTime, discountingCurveName, paymentYearFraction, notional, fixingTime);
-    Validate.notNull(index, "Index");
-    Validate.notNull(forwardCurveName, "Forward curve");
-    Validate.isTrue(currency.equals(index.getCurrency()));
+    ArgumentChecker.notNull(index, "Index");
+    ArgumentChecker.notNull(forwardCurveName, "Forward curve");
+    ArgumentChecker.isTrue(currency.equals(index.getCurrency()), "currency does not match index currency");
     _index = index;
     _fixingPeriodStartTime = fixingPeriodStartTime;
     _fixingPeriodEndTime = fixingPeriodEndTime;
@@ -102,8 +103,8 @@ public class CouponIborGearing extends CouponFloating {
   public CouponIborGearing(final Currency currency, final double paymentTime, final double paymentYearFraction, final double notional, final double fixingTime, final IborIndex index,
       final double fixingPeriodStartTime, final double fixingPeriodEndTime, final double fixingAccrualFactor, final double spread, final double factor) {
     super(currency, paymentTime, paymentYearFraction, notional, fixingTime);
-    Validate.notNull(index, "Index");
-    Validate.isTrue(currency.equals(index.getCurrency()));
+    ArgumentChecker.notNull(index, "Index");
+    ArgumentChecker.isTrue(currency.equals(index.getCurrency()), "currency does not match index currency");
     _index = index;
     _fixingPeriodStartTime = fixingPeriodStartTime;
     _fixingPeriodEndTime = fixingPeriodEndTime;
@@ -183,6 +184,7 @@ public class CouponIborGearing extends CouponFloating {
     return _forwardCurveName;
   }
 
+  @SuppressWarnings("deprecation")
   @Override
   public CouponIborGearing withNotional(final double notional) {
     try {

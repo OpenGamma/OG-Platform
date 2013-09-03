@@ -23,8 +23,9 @@ import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.util.monitor.OperationTimer;
 
 /**
- *
+ * @deprecated This class tests deprecated functionality
  */
+@Deprecated
 public class MultiCapFloorPricerTest extends CapletStrippingSetup {
   private static final Logger LOGGER = LoggerFactory.getLogger(MultiCapFloorPricerTest.class);
 

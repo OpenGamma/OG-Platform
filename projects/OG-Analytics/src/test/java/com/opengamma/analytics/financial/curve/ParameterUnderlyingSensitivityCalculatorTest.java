@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.curve;
@@ -8,7 +8,6 @@ package com.opengamma.analytics.financial.curve;
 import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.FLAT_EXTRAPOLATOR;
 import static com.opengamma.analytics.math.interpolation.Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
 import static org.testng.AssertJUnit.assertEquals;
-import static org.threeten.bp.temporal.ChronoUnit.YEARS;
 
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -43,6 +42,10 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.time.DateUtils;
 
+/**
+ * @deprecated This class tests deprecated functionality
+ */
+@Deprecated
 public abstract class ParameterUnderlyingSensitivityCalculatorTest {
 
   private static final String DISCOUNTING_CURVE_NAME = "USD Discounting";

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.derivative;
@@ -80,7 +80,7 @@ public class CouponIborAverage extends CouponFloating {
       final IborIndex index1, final double fixingPeriodStartTime1, final double fixingPeriodEndTime1, final double fixingYearFraction1,
       final IborIndex index2, final double fixingPeriodStartTime2, final double fixingPeriodEndTime2, final double fixingYearFraction2,
       final double weight1, final double weight2) {
-    super(currency, paymentTime, "", paymentYearFraction, notional, fixingTime);
+    super(currency, paymentTime, paymentYearFraction, notional, fixingTime);
     ArgumentChecker.isTrue(fixingPeriodStartTime1 >= fixingTime, "fixing period start < fixing time");
     _fixingPeriodStartTime1 = fixingPeriodStartTime1;
     ArgumentChecker.isTrue(fixingPeriodEndTime1 >= fixingPeriodStartTime1, "fixing period end < fixing period start");
@@ -225,7 +225,7 @@ public class CouponIborAverage extends CouponFloating {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -235,7 +235,7 @@ public class CouponIborAverage extends CouponFloating {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    CouponIborAverage other = (CouponIborAverage) obj;
+    final CouponIborAverage other = (CouponIborAverage) obj;
     if (Double.doubleToLongBits(_fixingAccrualFactor1) != Double.doubleToLongBits(other._fixingAccrualFactor1)) {
       return false;
     }

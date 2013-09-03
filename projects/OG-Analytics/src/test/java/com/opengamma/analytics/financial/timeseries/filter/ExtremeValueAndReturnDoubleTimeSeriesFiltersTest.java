@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.timeseries.filter;
@@ -24,7 +24,7 @@ import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.CalculationMode;
 
 /**
- * 
+ *
  */
 public class ExtremeValueAndReturnDoubleTimeSeriesFiltersTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);
@@ -34,7 +34,7 @@ public class ExtremeValueAndReturnDoubleTimeSeriesFiltersTest {
   private static final ExtremeValueDoubleTimeSeriesFilter VALUE_FILTER = new ExtremeValueDoubleTimeSeriesFilter(MIN, MAX);
   private static final ExtremeReturnDoubleTimeSeriesFilter RETURN_FILTER = new ExtremeReturnDoubleTimeSeriesFilter(MIN, MAX, RETURN_CALCULATOR);
   private static final LocalDateDoubleTimeSeries EMPTY_SERIES = ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES;
-  
+
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullTS1() {
     VALUE_FILTER.evaluate((LocalDateDoubleTimeSeries) null);
@@ -119,12 +119,12 @@ public class ExtremeValueAndReturnDoubleTimeSeriesFiltersTest {
 
   @Test
   public void test() {
-    final List<LocalDate> dates = new ArrayList<LocalDate>();
-    final List<Double> data = new ArrayList<Double>();
-    final List<LocalDate> filteredDates = new ArrayList<LocalDate>();
-    final List<Double> filteredData = new ArrayList<Double>();
-    final List<LocalDate> rejectedDates = new ArrayList<LocalDate>();
-    final List<Double> rejectedData = new ArrayList<Double>();
+    final List<LocalDate> dates = new ArrayList<>();
+    final List<Double> data = new ArrayList<>();
+    final List<LocalDate> filteredDates = new ArrayList<>();
+    final List<Double> filteredData = new ArrayList<>();
+    final List<LocalDate> rejectedDates = new ArrayList<>();
+    final List<Double> rejectedData = new ArrayList<>();
     Double d;
     Double value;
     for (int i = 0; i < 100; i++) {
@@ -141,10 +141,10 @@ public class ExtremeValueAndReturnDoubleTimeSeriesFiltersTest {
         filteredData.add(d);
       }
     }
-    final List<LocalDate> returnFilteredDates = new ArrayList<LocalDate>();
-    final List<Double> returnFilteredData = new ArrayList<Double>();
-    final List<LocalDate> returnRejectedDates = new ArrayList<LocalDate>();
-    final List<Double> returnRejectedData = new ArrayList<Double>();
+    final List<LocalDate> returnFilteredDates = new ArrayList<>();
+    final List<Double> returnFilteredData = new ArrayList<>();
+    final List<LocalDate> returnRejectedDates = new ArrayList<>();
+    final List<Double> returnRejectedData = new ArrayList<>();
     final LocalDateDoubleTimeSeries ts = ImmutableLocalDateDoubleTimeSeries.of(dates, data);
     final LocalDateDoubleTimeSeries returnTS = RETURN_CALCULATOR.evaluate(ts);
     LocalDate date;

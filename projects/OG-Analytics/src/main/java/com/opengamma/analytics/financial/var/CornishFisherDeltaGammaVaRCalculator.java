@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.var;
@@ -11,7 +11,7 @@ import com.opengamma.analytics.math.function.Function;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ *
  * @param <T> The type of the data
  */
 public class CornishFisherDeltaGammaVaRCalculator<T> implements VaRCalculator<NormalVaRParameters, T> {
@@ -48,6 +48,7 @@ public class CornishFisherDeltaGammaVaRCalculator<T> implements VaRCalculator<No
     return _kurtosisCalculator;
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public VaRCalculationResult evaluate(final NormalVaRParameters parameters, final T... data) {
     ArgumentChecker.notNull(parameters, "parameters");

@@ -24,8 +24,9 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * @deprecated {@link YieldCurveBundle} is deprecated
  */
+@Deprecated
 public class MultiCapFloorPricer {
 
   private final int _nCaps;

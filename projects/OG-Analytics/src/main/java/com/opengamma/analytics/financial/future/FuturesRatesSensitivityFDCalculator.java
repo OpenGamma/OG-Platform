@@ -1,21 +1,18 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.future;
 
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
-import com.google.common.collect.Lists;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorSameMethodAdapter;
 import com.opengamma.analytics.financial.interestrate.NodeYieldSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.PresentValueNodeSensitivityCalculator;
-import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.simpleinstruments.pricing.SimpleFutureDataBundle;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
@@ -23,8 +20,9 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * 
+ *
  */
+@SuppressWarnings("deprecation")
 public final class FuturesRatesSensitivityFDCalculator extends InstrumentDerivativeVisitorSameMethodAdapter<SimpleFutureDataBundle, DoubleMatrix1D> {
   private static final double SHIFT = 0.01;
   private static final SettlementTimeCalculator SETTLEMENT_TIME = SettlementTimeCalculator.getInstance();
@@ -53,9 +51,6 @@ public final class FuturesRatesSensitivityFDCalculator extends InstrumentDerivat
     ArgumentChecker.notNull(dataBundle, "data bundle");
     ArgumentChecker.isTrue(dataBundle.getFundingCurve() instanceof YieldCurve, "Calculator expects a YieldCurve, have {}", dataBundle.getFundingCurve().getClass());
     final YieldCurve discCrv = (YieldCurve) dataBundle.getFundingCurve();
-    final String discCrvName = discCrv.getCurve().getName();
-    final YieldCurveBundle interpolatedCurves = new YieldCurveBundle();
-    interpolatedCurves.setCurve(discCrvName, discCrv);
     final double settlement = future.accept(SETTLEMENT_TIME);
     SimpleFutureDataBundle bumpedMarket = new SimpleFutureDataBundle(discCrv.withSingleShift(settlement, SHIFT), dataBundle.getMarketPrice(),
         dataBundle.getSpotValue(), dataBundle.getDividendYield(), dataBundle.getCostOfCarry());
@@ -64,10 +59,9 @@ public final class FuturesRatesSensitivityFDCalculator extends InstrumentDerivat
         dataBundle.getSpotValue(), dataBundle.getDividendYield(), dataBundle.getCostOfCarry());
     final double pvDown = future.accept(_presentValueCalculator, bumpedMarket);
     final double sensitivity = (pvUp - pvDown) / (2.0 * SHIFT);
-    final Map<String, List<DoublesPair>> curveSensitivities = new HashMap<>();
-    curveSensitivities.put(discCrvName, Lists.newArrayList(new DoublesPair(settlement, sensitivity)));
     final NodeYieldSensitivityCalculator distributor = PresentValueNodeSensitivityCalculator.getDefaultInstance();
-    return distributor.curveToNodeSensitivities(curveSensitivities, interpolatedCurves);
+    final List<Double> result = distributor.curveToNodeSensitivity(Arrays.asList(DoublesPair.of(settlement, sensitivity)), discCrv);
+    return new DoubleMatrix1D(result.toArray(new Double[result.size()]));
   }
 
   @Override

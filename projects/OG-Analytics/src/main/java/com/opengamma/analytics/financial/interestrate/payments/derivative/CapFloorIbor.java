@@ -117,6 +117,7 @@ public class CapFloorIbor extends CouponFloating implements CapFloor {
    * @param strike The new strike.
    * @return The cap/floor.
    */
+  @SuppressWarnings("deprecation")
   public CapFloorIbor withStrike(final double strike) {
     try {
       return new CapFloorIbor(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), getNotional(), getFixingTime(), getIndex(), getFixingPeriodStartTime(),
@@ -134,6 +135,7 @@ public class CapFloorIbor extends CouponFloating implements CapFloor {
    * @param isCap The cap/floor flag.
    * @return The cap/floor.
    */
+  @SuppressWarnings("deprecation")
   public static CapFloorIbor from(final CouponIbor coupon, final double strike, final boolean isCap) {
     try {
       return new CapFloorIbor(coupon.getCurrency(), coupon.getPaymentTime(), coupon.getFundingCurveName(), coupon.getPaymentYearFraction(), coupon.getNotional(), coupon.getFixingTime(),
@@ -205,6 +207,7 @@ public class CapFloorIbor extends CouponFloating implements CapFloor {
     return Math.max(omega * (fixing - _strike), 0);
   }
 
+  @SuppressWarnings("deprecation")
   @Override
   public Coupon withNotional(final double notional) {
     try {
@@ -216,6 +219,7 @@ public class CapFloorIbor extends CouponFloating implements CapFloor {
     }
   }
 
+  @SuppressWarnings("deprecation")
   public CouponIborSpread toCoupon() {
     return new CouponIborSpread(getCurrency(), getPaymentTime(), getFundingCurveName(), getFixingAccrualFactor(), getNotional(), getFixingTime(), _index, _fixingPeriodStartTime, _fixingPeriodEndTime,
         _fixingAccrualFactor, _forwardCurveName);

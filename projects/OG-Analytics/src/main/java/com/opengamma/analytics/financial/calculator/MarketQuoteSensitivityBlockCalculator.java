@@ -28,6 +28,7 @@ import com.opengamma.util.tuple.Pair;
  * The sensitivities are computed as a block (vector) for each curve/currency pair.
  * The sensitivity to a particular curve can be in several currencies.
  */
+@SuppressWarnings("deprecation")
 public final class MarketQuoteSensitivityBlockCalculator {
 
   /**

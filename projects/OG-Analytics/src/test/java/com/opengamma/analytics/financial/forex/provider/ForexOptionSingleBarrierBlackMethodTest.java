@@ -507,10 +507,6 @@ public class ForexOptionSingleBarrierBlackMethodTest {
         rateDomestic, vol);
     final double pxSpotDown = BLACK_BARRIER_FUNCTION.getPrice(optionForex.getUnderlyingOption(), optionForex.getBarrier(), rebateByForeignUnit, spotDown, costOfCarry,
         rateDomestic, vol);
-    final double pxUpUp = BLACK_BARRIER_FUNCTION.getPrice(optionForex.getUnderlyingOption(), optionForex.getBarrier(), rebateByForeignUnit, spotUp, costOfCarry,
-        rateDomestic, volUp);
-    final double pxDownDown = BLACK_BARRIER_FUNCTION.getPrice(optionForex.getUnderlyingOption(), optionForex.getBarrier(), rebateByForeignUnit, spotDown, costOfCarry,
-        rateDomestic, volDown);
 
     // 1. Compare the analytic vega to the finite difference vega
     // Bump vol and compute *price*
@@ -544,13 +540,9 @@ public class ForexOptionSingleBarrierBlackMethodTest {
 
     // 6. Computing Vanna - darn cross-derivative
 
-    final double dVdS = METHOD_BARRIER.dVegaDSpotFD(OPTION_BARRIER, SMILE_MULTICURVES, relShift).getAmount();
-    final double dDdsig = METHOD_BARRIER.dDeltaDVolFD(OPTION_BARRIER, SMILE_MULTICURVES, relShift).getAmount();
     final double d2PdSdsig = METHOD_BARRIER.d2PriceDSpotDVolFD(OPTION_BARRIER, SMILE_MULTICURVES, relShift).getAmount();
     // This is the last form given here:http: //en.wikipedia.org/wiki/Finite_difference#Finite_difference_in_several_variables
     final double d2PdSdsigAlt = METHOD_BARRIER.d2PriceDSpotDVolFdAlt(OPTION_BARRIER, SMILE_MULTICURVES, relShift).getAmount();
-    final double vannaAlt = (2 * pxBase + pxUpUp + pxDownDown - pxSpotUp - pxVolUp - pxSpotDown - pxVolDown) / (2 * relShift * vol * relShift * spot)
-        * Math.abs(foreignAmount) * sign;
     assertTrue("Vanna: Agreement of methods is out", Math.abs(d2PdSdsig - d2PdSdsigAlt) < Math.abs(foreignAmount) * bp10);
   }
 

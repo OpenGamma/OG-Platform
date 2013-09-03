@@ -17,6 +17,7 @@ import com.opengamma.util.ArgumentChecker;
  * Store the details and generate the required curve. The curve is interpolated on the discount factor.
  * Only the lastTimeCalculator is stored. The node are computed from the instruments.
  */
+@SuppressWarnings("deprecation")
 public class GeneratorCurveDiscountFactorInterpolatedAnchor extends GeneratorYDCurve {
 
   /**
