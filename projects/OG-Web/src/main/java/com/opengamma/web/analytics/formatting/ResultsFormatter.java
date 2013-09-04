@@ -84,6 +84,7 @@ public class ResultsFormatter {
                   new PriceIndexCurveFormatter(),
                   new ISDADateCurveFormatter(),
                   new ISDACompliantYieldCurveFormatter(),
+                  new ISDACompliantCurveFormatter(),
                   new HazardRateCurveFormatter(),
                   new NodalObjectsCurveFormatter(), //TODO is not a general formatter - used only for (Tenor, Double) curves
                   new VolatilityCubeDataFormatter(),

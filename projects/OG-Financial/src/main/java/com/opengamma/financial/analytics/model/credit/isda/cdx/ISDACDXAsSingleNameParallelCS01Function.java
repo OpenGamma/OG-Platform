@@ -17,6 +17,7 @@ import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.sta
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSAnalytic;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSAnalyticFactory;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantCreditCurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantYieldCurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.QuotedSpread;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.SpreadSensitivityCalculator;
@@ -46,7 +47,9 @@ public class ISDACDXAsSingleNameParallelCS01Function extends ISDACDXAsSingleName
                                                 final ZonedDateTime valuationDate,
                                                 final ComputationTarget target,
                                                 final ValueProperties properties,
-                                                final FunctionInputs inputs) {
+                                                final FunctionInputs inputs,
+                                                ISDACompliantCreditCurve hazardCurve,
+                                                CDSAnalytic analytic) {
 
     final CDSAnalyticFactory analyticFactory = new CDSAnalyticFactory(definition.getRecoveryRate(), definition.getCouponFrequency().getPeriod())
         .with(definition.getBusinessDayAdjustmentConvention())

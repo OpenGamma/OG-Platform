@@ -74,19 +74,20 @@ public class StandardVanillaPresentValueCDSFunction extends StandardVanillaCDSFu
                                                 final ComputationTarget target,
                                                 final ValueProperties properties,
                                                 final FunctionInputs inputs,
-                                                ISDACompliantCreditCurve hazardCurve) {
+                                                ISDACompliantCreditCurve hazardCurve, CDSAnalytic analytic) {
 
-    final CDSAnalyticFactory analyticFactory = new CDSAnalyticFactory(definition.getRecoveryRate(), definition.getCouponFrequency().getPeriod())
-        .with(definition.getBusinessDayAdjustmentConvention())
-        .with(definition.getCalendar()).with(definition.getStubType())
-        .withAccualDCC(definition.getDayCountFractionConvention());
+    double pv = presentValue(definition, yieldCurve, hazardCurve, analytic);
+    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(), properties);
+    return Collections.singleton(new ComputedValue(spec, pv));
+  }
 
+  public static double presentValue(CreditDefaultSwapDefinition definition, ISDACompliantYieldCurve yieldCurve,
+                              ISDACompliantCreditCurve hazardCurve, CDSAnalytic analytic) {
     double pv;
-    final CDSAnalytic pricingCDS = analyticFactory.makeCDS(valuationDate.toLocalDate(), definition.getEffectiveDate().toLocalDate(), definition.getMaturityDate().toLocalDate());
     if (definition instanceof LegacyCreditDefaultSwapDefinition) {
-      pv = PRICER.pv(pricingCDS, yieldCurve, hazardCurve, ((LegacyCreditDefaultSwapDefinition) definition).getParSpread() * 1e-4) * definition.getNotional();
+      pv = PRICER.pv(analytic, yieldCurve, hazardCurve, ((LegacyCreditDefaultSwapDefinition) definition).getParSpread() * 1e-4) * definition.getNotional();
     } else if (definition instanceof StandardCreditDefaultSwapDefinition) {
-      pv = POINTS_UP_FRONT_CONVERTER.quotedSpreadToPUF(pricingCDS,
+      pv = POINTS_UP_FRONT_CONVERTER.quotedSpreadToPUF(analytic,
                                                        getCoupon(((StandardCreditDefaultSwapDefinition) definition).getPremiumLegCoupon()),
                                                        yieldCurve,
                                                        ((StandardCreditDefaultSwapDefinition) definition).getQuotedSpread() * 1e-4) * definition.getNotional();
@@ -95,31 +96,7 @@ public class StandardVanillaPresentValueCDSFunction extends StandardVanillaCDSFu
     }
 
     // SELL protection reverses directions of legs
-    pv = (definition.getBuySellProtection() == BuySellProtection.SELL) ? -pv : pv;
-
-    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(), properties);
-    return Collections.singleton(new ComputedValue(spec, pv));
-  }
-
-  private double getCoupon(final StandardCDSCoupon coupon) {
-    switch (coupon) {
-      case _25bps:
-        return 0.0025;
-      case _100bps:
-        return 0.01;
-      case _125bps:
-        return 0.025;
-      case _300bps:
-        return 0.03;
-      case _500bps:
-        return 0.05;
-      case _750bps:
-        return 0.07;
-      case _1000bps:
-        return 0.1;
-      default:
-        throw new OpenGammaRuntimeException("Unknown coupon amount: " + coupon.name());
-    }
+   return (definition.getBuySellProtection() == BuySellProtection.SELL) ? -pv : pv;
   }
 
   @Override

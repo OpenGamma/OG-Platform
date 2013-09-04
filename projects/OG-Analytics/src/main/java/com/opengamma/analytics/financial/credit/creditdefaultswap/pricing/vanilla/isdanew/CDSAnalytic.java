@@ -306,4 +306,110 @@ public class CDSAnalytic {
   public int getAccuredDays() {
     return _accruedDays;
   }
+
+  private CDSAnalytic(double lgd,
+                     int nPayments,
+                     double[] creditObsTimes,
+                     double[] paymentTimes,
+                     double[] accFractions,
+                     double[] accStart,
+                     double[] accEnd,
+                     double stepin,
+                     double protectionStart,
+                     double protectionEnd,
+                     double valuationTime,
+                     boolean payAccOnDefault,
+                     boolean protectionFromStartOfDay,
+                     double accrued,
+                     int accruedDays) {
+    _lgd = lgd;
+    _nPayments = nPayments;
+    _creditObsTimes = creditObsTimes;
+    _paymentTimes = paymentTimes;
+    _accFractions = accFractions;
+    _accStart = accStart;
+    _accEnd = accEnd;
+    _stepin = stepin;
+    _protectionStart = protectionStart;
+    _protectionEnd = protectionEnd;
+    _valuationTime = valuationTime;
+    _payAccOnDefault = payAccOnDefault;
+    _protectionFromStartOfDay = protectionFromStartOfDay;
+    _accrued = accrued;
+    _accruedDays = accruedDays;
+  }
+
+  /** Create a builder from this CDSAnalytic
+   * @return builder set to clone current CDSAnalytic
+   * */
+  public Builder copy() {
+    return new Builder(_lgd, _nPayments, _creditObsTimes, _paymentTimes, _accFractions,
+                       _accStart, _accEnd, _stepin, _protectionStart, _protectionEnd,
+                       _valuationTime, _payAccOnDefault, _protectionFromStartOfDay, _accrued, _accruedDays);
+  }
+
+  /** Builder for CDSAnalytic */
+  public static class Builder {
+    private double _lgd;
+    private int _nPayments;
+    private double[] _creditObsTimes;
+    private double[] _paymentTimes;
+    private double[] _accFractions;
+    private double[] _accStart;
+    private double[] _accEnd;
+
+    private double _stepin;
+    private double _protectionStart;
+    private double _protectionEnd;
+    private double _valuationTime;
+    private boolean _payAccOnDefault;
+    private boolean _protectionFromStartOfDay;
+    private double _accrued;
+    private int _accruedDays;
+
+    private Builder(double lgd, int nPayments, double[] creditObsTimes, double[] paymentTimes, double[] accFractions,
+                   double[] accStart, double[] accEnd, double stepin, double protectionStart, double protectionEnd,
+                   double valuationTime, boolean payAccOnDefault, boolean protectionFromStartOfDay, double accrued,
+                   int accruedDays) {
+      _lgd = lgd;
+      _nPayments = nPayments;
+      _creditObsTimes = creditObsTimes;
+      _paymentTimes = paymentTimes;
+      _accFractions = accFractions;
+      _accStart = accStart;
+      _accEnd = accEnd;
+      _stepin = stepin;
+      _protectionStart = protectionStart;
+      _protectionEnd = protectionEnd;
+      _valuationTime = valuationTime;
+      _payAccOnDefault = payAccOnDefault;
+      _protectionFromStartOfDay = protectionFromStartOfDay;
+      _accrued = accrued;
+      _accruedDays = accruedDays;
+    }
+
+    /** Set the recovery rate
+     *
+     * @param rate the recovery rate
+     * */
+    public Builder withRecovery(final double rate) {
+      _lgd = 1 - rate;
+      return this;
+    }
+
+    /**
+     * Build a CDSAnalytic from the builders properties
+     *
+     * @return CDSAnalytic
+     */
+    public CDSAnalytic get() {
+      return new CDSAnalytic(_lgd, _nPayments, _creditObsTimes, _paymentTimes, _accFractions,
+      _accStart, _accEnd, _stepin, _protectionStart, _protectionEnd,
+      _valuationTime, _payAccOnDefault, _protectionFromStartOfDay, _accrued, _accruedDays);
+    }
+  }
+
+
+
+
 }
