@@ -19,7 +19,11 @@ public enum FloatingRateType {
   /**
    * Ois
    */
-  OIS;
+  OIS,
+  /**
+   * Overnight arithmetic average
+   */
+  OVERNIGHT_ARITHMETIC_AVERAGE;
   
   //-------------------------------------------------------------------------
   /**
@@ -51,4 +55,13 @@ public enum FloatingRateType {
     return this == OIS;
   }
   
+  //-------------------------------------------------------------------------
+  /**
+   * Checks if the type is "OVERNIGHT_ARITHMETIC_AVERAGE".
+   * 
+   * @return true if overnight arithmetic average, false otherwise.
+   */
+  public boolean isOvernightArithmeticAverage() {
+    return this == OVERNIGHT_ARITHMETIC_AVERAGE;
+  }
 }
