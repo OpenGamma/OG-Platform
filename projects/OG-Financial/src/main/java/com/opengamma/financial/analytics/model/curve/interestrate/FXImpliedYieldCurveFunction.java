@@ -195,16 +195,27 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
     final String fullForeignCurveName = foreignCurveName + "_" + foreignCurrency.getCode();
     final List<InstrumentDerivative> derivatives = new ArrayList<>();
     int nInstruments = 0;
-    HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
+    final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
     final Calendar calendar = CalendarUtils.getCalendar(holidaySource, domesticCurrency, foreignCurrency);
     final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(executionContext);
     final FXSpotConvention fxSpotConvention = (FXSpotConvention) conventionSource.getConvention(ExternalId.of("CONVENTION", "FX Spot"));
     final int spotLag = fxSpotConvention.getSettlementDays();
-    final ZonedDateTime spotDate = ScheduleCalculator.getAdjustedDate(now, spotLag, calendar);
+    final ExternalId conventionSettlementRegion = fxSpotConvention.getSettlementRegion();
+    ZonedDateTime spotDate;
+    if (spotLag == 0 && conventionSettlementRegion == null) {
+      spotDate = now; //This preserves the old behaviour that ignored holidays and settlement days.
+    } else {
+      spotDate = ScheduleCalculator.getAdjustedDate(now, spotLag, calendar);
+    }
     for (final Tenor tenor : definition.getTenors()) {
       final ExternalId identifier = provider.getInstrument(now.toLocalDate(), tenor);
       if (fxForwardData.containsKey(identifier)) {
-        final ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(spotDate, tenor.getPeriod(), MOD_FOL, calendar, true);
+        final ZonedDateTime paymentDate;
+        if (spotLag == 0 && conventionSettlementRegion == null) {
+          paymentDate = now.plus(tenor.getPeriod()); //This preserves the old behaviour that ignored holidays and settlement days.
+        } else {
+          paymentDate = ScheduleCalculator.getAdjustedDate(spotDate, tenor.getPeriod(), MOD_FOL, calendar, true);
+        }
         final double paymentTime = TimeCalculator.getTimeBetween(now, paymentDate);
         final double forwardFX = invertFXQuotes ? 1 / fxForwardData.get(identifier) : fxForwardData.get(identifier);
         derivatives.add(getFXForward(domesticCurrency, foreignCurrency, paymentTime, spotFX, forwardFX, fullDomesticCurveName, fullForeignCurveName));

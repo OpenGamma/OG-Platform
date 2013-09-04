@@ -38,7 +38,7 @@ public class FXSpotConvention extends Convention {
   /**
    * The settlement region.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private ExternalId _settlementRegion;
 
   /**
@@ -51,7 +51,7 @@ public class FXSpotConvention extends Convention {
    * @param name The convention name, not null
    * @param externalIdBundle The external identifiers for this convention, not null
    * @param settlementDays The number of settlement days
-   * @param settlementRegion The settlement region, not null
+   * @param settlementRegion The settlement region, can be null
    */
   public FXSpotConvention(final String name, final ExternalIdBundle externalIdBundle, final int settlementDays, final ExternalId settlementRegion) {
     super(name, externalIdBundle);
@@ -100,12 +100,6 @@ public class FXSpotConvention extends Convention {
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_settlementRegion, "settlementRegion");
-    super.validate();
   }
 
   @Override
@@ -158,7 +152,7 @@ public class FXSpotConvention extends Convention {
   //-----------------------------------------------------------------------
   /**
    * Gets the settlement region.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public ExternalId getSettlementRegion() {
     return _settlementRegion;
@@ -166,10 +160,9 @@ public class FXSpotConvention extends Convention {
 
   /**
    * Sets the settlement region.
-   * @param settlementRegion  the new value of the property, not null
+   * @param settlementRegion  the new value of the property
    */
   public void setSettlementRegion(ExternalId settlementRegion) {
-    JodaBeanUtils.notNull(settlementRegion, "settlementRegion");
     this._settlementRegion = settlementRegion;
   }
 
