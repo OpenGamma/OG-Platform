@@ -40,4 +40,9 @@ public final class ErrorInfo {
   public Exception getException() {
     return _exception;
   }
+
+  @Override
+  public String toString() {
+    return "ErrorInfo [_message='" + _message + "', _exception=" + _exception + "]";
+  }
 }

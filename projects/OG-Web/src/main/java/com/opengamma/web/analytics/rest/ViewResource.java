@@ -73,19 +73,25 @@ public class ViewResource {
     if (state != null) {
       ViewClientState currentState = _viewClient.getState();
       state = state.toUpperCase();
-      if ("PAUSE".equals(state) || "P".equals(state)) {
-        if (currentState != ViewClientState.TERMINATED) {
-          _viewClient.pause();
-          response = Response.ok().build();
-        } 
-      } else if ("RESUME".equals(state) || "R".equals(state)) {
-        if (currentState != ViewClientState.TERMINATED) {
-          _viewClient.resume();
-          response = Response.ok().build();
-        } 
-      } else {
-        s_logger.warn("client {} requesting for invalid view client state change to {}", _viewId, state);
-        response = Response.status(Status.BAD_REQUEST).build();
+      switch (state) {
+        case "PAUSE":
+        case "P":
+          if (currentState != ViewClientState.TERMINATED) {
+            _viewClient.pause();
+            response = Response.ok().build();
+          }
+          break;
+        case "RESUME":
+        case "R":
+          if (currentState != ViewClientState.TERMINATED) {
+            _viewClient.resume();
+            response = Response.ok().build();
+          }
+          break;
+        default:
+          s_logger.warn("client {} requesting for invalid view client state change to {}", _viewId, state);
+          response = Response.status(Status.BAD_REQUEST).build();
+          break;
       }
     }
     return response;

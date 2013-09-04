@@ -146,6 +146,7 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
 
   @Override
   public String viewCompilationFailed(Exception e) {
+    s_logger.warn("View compilation failed, adding error {}", e);
     return _errorManager.add(e);
   }
 
