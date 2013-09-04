@@ -38,6 +38,7 @@ import com.opengamma.financial.security.future.EnergyFutureSecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
 import com.opengamma.financial.security.future.FXFutureSecurity;
+import com.opengamma.financial.security.future.FederalFundsFutureSecurity;
 import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
@@ -824,6 +825,16 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
       };
       return this;
     }
+    
+    public Builder<T> federalFundsFutureSecurityVisitor(final FinancialSecurityVisitor<T> visitor) {
+      _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
+        @Override
+        public T visitFederalFundsFutureSecurity(final FederalFundsFutureSecurity security) {
+          return visitor.visitFederalFundsFutureSecurity(security);
+        }
+      };
+      return this;
+    }
 
     public Builder<T> agricultureForwardSecurityVisitor(final FinancialSecurityVisitor<T> visitor) {
       _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
@@ -1301,6 +1312,16 @@ public class FinancialSecurityVisitorAdapter<T> extends FutureSecurityVisitorAda
       return this;
     }
 
+    public Builder<T> federalFundsFutureSecurityVisitor(final T value) {
+      _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
+        @Override
+        public T visitFederalFundsFutureSecurity(final FederalFundsFutureSecurity security) {
+          return value;
+        }
+      };
+      return this;
+    }
+    
     public Builder<T> agricultureForwardSecurityVisitor(final T value) {
       _visitor = new FinancialSecurityVisitorDelegate<T>(_visitor) {
         @Override

@@ -57,6 +57,7 @@ import com.opengamma.financial.security.future.EnergyFutureSecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
 import com.opengamma.financial.security.future.FXFutureSecurity;
+import com.opengamma.financial.security.future.FederalFundsFutureSecurity;
 import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
@@ -448,6 +449,13 @@ public class ExposureFunctionTestHelper {
     final InterestRateFutureSecurity security = new InterestRateFutureSecurity(new Expiry(DateUtils.getUTCDate(2013, 9, 1)), TRADING, SETTLEMENT, USD, 12500,
         ExternalSchemes.syntheticSecurityId("USD 3m Libor"), "Financial");
     security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "4567"));
+    return security;
+  }
+
+  public static FederalFundsFutureSecurity getFederalFundsFutureSecurity() {
+    final FederalFundsFutureSecurity security = new FederalFundsFutureSecurity(new Expiry(DateUtils.getUTCDate(2013, 9, 1)), TRADING, SETTLEMENT, USD, 12500,
+        ExternalSchemes.syntheticSecurityId("Fed Funds"), "Financial");
+    security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "867"));
     return security;
   }
 

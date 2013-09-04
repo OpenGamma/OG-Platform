@@ -13,6 +13,7 @@ import com.opengamma.financial.security.future.EnergyFutureSecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
 import com.opengamma.financial.security.future.FXFutureSecurity;
+import com.opengamma.financial.security.future.FederalFundsFutureSecurity;
 import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
@@ -44,4 +45,6 @@ public interface FutureSecurityVisitor<T> {
   T visitStockFutureSecurity(StockFutureSecurity security);
 
   T visitDeliverableSwapFutureSecurity(DeliverableSwapFutureSecurity security);
+  
+  T visitFederalFundsFutureSecurity(FederalFundsFutureSecurity security);
 }

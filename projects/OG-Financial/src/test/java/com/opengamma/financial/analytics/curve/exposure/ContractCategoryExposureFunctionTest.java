@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.curve.exposure;
@@ -43,6 +43,7 @@ import com.opengamma.financial.security.future.EnergyFutureSecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
 import com.opengamma.financial.security.future.FXFutureSecurity;
+import com.opengamma.financial.security.future.FederalFundsFutureSecurity;
 import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
@@ -73,7 +74,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ *
  */
 @Test(groups = TestGroup.UNIT)
 public class ContractCategoryExposureFunctionTest {
@@ -405,6 +406,14 @@ public class ContractCategoryExposureFunctionTest {
   }
 
   @Test
+  public void testFederalFundsFutureSecurity() {
+    final FederalFundsFutureSecurity future = ExposureFunctionTestHelper.getFederalFundsFutureSecurity();
+    final List<ExternalId> ids = future.accept(EXPOSURE_FUNCTION);
+    assertEquals(1, ids.size());
+    assertEquals(ExternalId.of(ExposureFunction.CONTRACT_IDENTIFIER, "Financial"), ids.get(0));
+  }
+
+  @Test
   public void testLegacyFixedRecoveryCDSSecurity() {
     final LegacyFixedRecoveryCDSSecurity security = ExposureFunctionTestHelper.getLegacyFixedRecoveryCDSSecurity();
     final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
@@ -525,32 +534,32 @@ public class ContractCategoryExposureFunctionTest {
     final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
     assertNull(ids);
   }
-  
+
   @Test
   public void testPayYoYInflationSwapSecurity() {
-    YearOnYearInflationSwapSecurity security = ExposureFunctionTestHelper.getPayYoYInflationSwapSecurity();
-    List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    final YearOnYearInflationSwapSecurity security = ExposureFunctionTestHelper.getPayYoYInflationSwapSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
     assertNull(ids);
   }
-  
+
   @Test
   public void testReceiveYoYInflationSwapSecurity() {
-    YearOnYearInflationSwapSecurity security = ExposureFunctionTestHelper.getPayYoYInflationSwapSecurity();
-    List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    final YearOnYearInflationSwapSecurity security = ExposureFunctionTestHelper.getPayYoYInflationSwapSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
     assertNull(ids);
   }
-  
+
   @Test
   public void testPayZeroCouponInflationSwapSecurity() {
-    ZeroCouponInflationSwapSecurity security = ExposureFunctionTestHelper.getPayZeroCouponInflationSwapSecurity();
-    List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    final ZeroCouponInflationSwapSecurity security = ExposureFunctionTestHelper.getPayZeroCouponInflationSwapSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
     assertNull(ids);
   }
-  
+
   @Test
   public void testReceiveZeroCouponInflationSwapSecurity() {
-    ZeroCouponInflationSwapSecurity security = ExposureFunctionTestHelper.getReceiveZeroCouponInflationSwapSecurity();
-    List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    final ZeroCouponInflationSwapSecurity security = ExposureFunctionTestHelper.getReceiveZeroCouponInflationSwapSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
     assertNull(ids);
   }
 }

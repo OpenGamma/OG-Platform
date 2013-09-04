@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.curve.exposure;
@@ -41,6 +41,7 @@ import com.opengamma.financial.security.future.EnergyFutureSecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
 import com.opengamma.financial.security.future.FXFutureSecurity;
+import com.opengamma.financial.security.future.FederalFundsFutureSecurity;
 import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
@@ -71,7 +72,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.util.test.TestGroup;
 
 /**
- * 
+ *
  */
 @Test(groups = TestGroup.UNIT)
 public class SecurityTypeExposureFunctionTest {
@@ -185,6 +186,14 @@ public class SecurityTypeExposureFunctionTest {
   @Test
   public void testInterestRateFutureSecurity() {
     final InterestRateFutureSecurity future = ExposureFunctionTestHelper.getInterestRateFutureSecurity();
+    final List<ExternalId> ids = future.accept(EXPOSURE_FUNCTION);
+    assertEquals(1, ids.size());
+    assertEquals(ExternalId.of(SCHEME, "FUTURE"), ids.get(0));
+  }
+
+  @Test
+  public void testFederalFundsFutureSecurity() {
+    final FederalFundsFutureSecurity future = ExposureFunctionTestHelper.getFederalFundsFutureSecurity();
     final List<ExternalId> ids = future.accept(EXPOSURE_FUNCTION);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "FUTURE"), ids.get(0));
@@ -549,35 +558,35 @@ public class SecurityTypeExposureFunctionTest {
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "SWAP"), ids.get(0));
   }
-  
+
   @Test
   public void testPayYoYInflationSwapSecurity() {
-    YearOnYearInflationSwapSecurity security = ExposureFunctionTestHelper.getPayYoYInflationSwapSecurity();
-    List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    final YearOnYearInflationSwapSecurity security = ExposureFunctionTestHelper.getPayYoYInflationSwapSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "YEAR_ON_YEAR_INFLATION_SWAP"), ids.get(0));
   }
-  
+
   @Test
   public void testReceiveYoYInflationSwapSecurity() {
-    YearOnYearInflationSwapSecurity security = ExposureFunctionTestHelper.getPayYoYInflationSwapSecurity();
-    List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    final YearOnYearInflationSwapSecurity security = ExposureFunctionTestHelper.getPayYoYInflationSwapSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "YEAR_ON_YEAR_INFLATION_SWAP"), ids.get(0));
   }
-  
+
   @Test
   public void testPayZeroCouponInflationSwapSecurity() {
-    ZeroCouponInflationSwapSecurity security = ExposureFunctionTestHelper.getPayZeroCouponInflationSwapSecurity();
-    List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    final ZeroCouponInflationSwapSecurity security = ExposureFunctionTestHelper.getPayZeroCouponInflationSwapSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "ZERO_COUPON_INFLATION_SWAP"), ids.get(0));
   }
-  
+
   @Test
   public void testReceiveZeroCouponInflationSwapSecurity() {
-    ZeroCouponInflationSwapSecurity security = ExposureFunctionTestHelper.getReceiveZeroCouponInflationSwapSecurity();
-    List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
+    final ZeroCouponInflationSwapSecurity security = ExposureFunctionTestHelper.getReceiveZeroCouponInflationSwapSecurity();
+    final List<ExternalId> ids = security.accept(EXPOSURE_FUNCTION);
     assertEquals(1, ids.size());
     assertEquals(ExternalId.of(SCHEME, "ZERO_COUPON_INFLATION_SWAP"), ids.get(0));
   }

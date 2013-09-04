@@ -12,6 +12,7 @@ import com.opengamma.financial.security.future.EnergyFutureSecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
 import com.opengamma.financial.security.future.FXFutureSecurity;
+import com.opengamma.financial.security.future.FederalFundsFutureSecurity;
 import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
@@ -78,5 +79,10 @@ public class FutureSecurityVisitorAdapter<T> implements FutureSecurityVisitor<T>
   @Override
   public T visitDeliverableSwapFutureSecurity(final DeliverableSwapFutureSecurity security) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass().getName() + ") is not supporting " + security.getClass().getName() + " security.");
+  }
+  
+  @Override
+  public T visitFederalFundsFutureSecurity(final FederalFundsFutureSecurity security) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass().getName() + ") is not supporting " + security.getClass().getName() + " security.");    
   }
 }

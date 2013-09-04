@@ -62,8 +62,8 @@ import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapSecurity;
 
 /**
- * Base function for all pricing and risk functions that use the discounting curve
- * construction method.
+ * Base function for all pricing and risk functions that use curves constructed using
+ * the Hull-White discounting method.
  */
 public abstract class HullWhiteDiscountingFunction extends MultiCurvePricingFunction {
 

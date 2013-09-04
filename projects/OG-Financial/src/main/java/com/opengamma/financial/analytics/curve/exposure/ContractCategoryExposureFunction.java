@@ -43,6 +43,7 @@ import com.opengamma.financial.security.future.EnergyFutureSecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
 import com.opengamma.financial.security.future.FXFutureSecurity;
+import com.opengamma.financial.security.future.FederalFundsFutureSecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
@@ -138,6 +139,11 @@ public class ContractCategoryExposureFunction implements ExposureFunction {
 
   @Override
   public List<ExternalId> visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
+    return getContractType(security);
+  }
+
+  @Override
+  public List<ExternalId> visitFederalFundsFutureSecurity(final FederalFundsFutureSecurity security) {
     return getContractType(security);
   }
 
@@ -276,7 +282,7 @@ public class ContractCategoryExposureFunction implements ExposureFunction {
   public List<ExternalId> visitMunicipalBondSecurity(final MunicipalBondSecurity security) {
     return null;
   }
-  
+
   @Override
   public List<ExternalId> visitInflationBondSecurity(final InflationBondSecurity security) {
     return null;
