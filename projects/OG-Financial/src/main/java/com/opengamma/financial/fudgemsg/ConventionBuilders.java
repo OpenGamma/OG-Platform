@@ -260,7 +260,9 @@ public final class ConventionBuilders {
       final MutableFudgeMsg message = serializer.newMessage();
       FudgeSerializer.addClassHeader(message, FXSpotConvention.class);
       message.add(SETTLEMENT_DAYS_FIELD, object.getSettlementDays());
-      serializer.addToMessage(message, SETTLEMENT_REGION_FIELD, null, object.getSettlementRegion());
+      if (object.getSettlementRegion() != null) {
+        serializer.addToMessage(message, SETTLEMENT_REGION_FIELD, null, object.getSettlementRegion());
+      }
       message.add(NAME_FIELD, object.getName());
       serializer.addToMessage(message, EXTERNAL_ID_BUNDLE_FIELD, null, object.getExternalIdBundle());
       serializer.addToMessage(message, UNIQUE_ID_FIELD, null, object.getUniqueId());
@@ -272,7 +274,12 @@ public final class ConventionBuilders {
       final String name = message.getString(NAME_FIELD);
       final ExternalIdBundle externalIdBundle = deserializer.fieldValueToObject(ExternalIdBundle.class, message.getByName(EXTERNAL_ID_BUNDLE_FIELD));
       final int settlementDays = message.getInt(SETTLEMENT_DAYS_FIELD);
-      final ExternalId settlementRegion = deserializer.fieldValueToObject(ExternalId.class, message.getByName(SETTLEMENT_REGION_FIELD));
+      ExternalId settlementRegion;
+      if (message.hasField(SETTLEMENT_REGION_FIELD)) {
+        settlementRegion = deserializer.fieldValueToObject(ExternalId.class, message.getByName(SETTLEMENT_REGION_FIELD));
+      } else {
+        settlementRegion = null;
+      }
       final FXSpotConvention convention = new FXSpotConvention(name, externalIdBundle, settlementDays, settlementRegion);
       final FudgeField uniqueIdMsg = message.getByName(UNIQUE_ID_FIELD);
       if (uniqueIdMsg != null) {
