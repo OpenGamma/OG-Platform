@@ -37,6 +37,8 @@ import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
 
@@ -71,10 +73,14 @@ public class CapFloorInflationZeroCouponMonthlyBlackSmileMethodTest {
 
   private static final ZonedDateTime PRICING_DATE = DateUtils.getUTCDate(2011, 8, 3);
   private static final CouponInflationZeroCouponMonthlyDefinition ZERO_COUPON_DEFINITION = CouponInflationZeroCouponMonthlyDefinition.from(START_DATE, PAYMENT_DATE, NOTIONAL, PRICE_INDEX_EUR,
-      INDEX_1MAY_2008, MONTH_LAG, MONTH_LAG, false);
+      MONTH_LAG, MONTH_LAG, false);
   private static final CapFloorInflationZeroCouponMonthlyDefinition ZERO_COUPON_DEFINITION_CAP = CapFloorInflationZeroCouponMonthlyDefinition.from(ZERO_COUPON_DEFINITION,
       LAST_KNOWN_FIXING_DATE, MATURITY, STRIKE, IS_CAP);
-  private static final CapFloorInflationZeroCouponMonthly ZERO_COUPON_CAP = ZERO_COUPON_DEFINITION_CAP.toDerivative(PRICING_DATE);
+
+  private static final DoubleTimeSeries<ZonedDateTime> priceIndexTS = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(
+      new ZonedDateTime[] {DateUtils.getUTCDate(2008, 5, 31), DateUtils.getUTCDate(2018, 5, 31), DateUtils.getUTCDate(2018, 6, 30) }, new double[] {108.23, 128.23, 128.43 });
+
+  private static final CapFloorInflationZeroCouponMonthly ZERO_COUPON_CAP = (CapFloorInflationZeroCouponMonthly) ZERO_COUPON_DEFINITION_CAP.toDerivative(PRICING_DATE, priceIndexTS);
 
   private static final CapFloorInflationZeroCouponMonthlyBlackSmileMethod METHOD = CapFloorInflationZeroCouponMonthlyBlackSmileMethod.getInstance();
   private static final PresentValueBlackSmileInflationZeroCouponCalculator PVIC = PresentValueBlackSmileInflationZeroCouponCalculator.getInstance();

@@ -30,6 +30,8 @@ import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
@@ -60,6 +62,8 @@ public class CapFloorZeroCouponInterpolationCalibrationObjectiveTest {
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 9, 7);
 
+  private static final DoubleTimeSeries<ZonedDateTime> priceIndexTS = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(
+      new ZonedDateTime[] {DateUtils.getUTCDate(2011, 6, 30), DateUtils.getUTCDate(2011, 7, 31) }, new double[] {100, 100 });
   private static final CapFloorInflationZeroCouponInterpolationBlackSmileMethod METHOD = CapFloorInflationZeroCouponInterpolationBlackSmileMethod.getInstance();
   double[][] marketPrices = new double[6][30];
 
@@ -90,8 +94,8 @@ public class CapFloorZeroCouponInterpolationCalibrationObjectiveTest {
         final Period tenor = Period.ofYears(availabelTenor[loop2]);
         final ZonedDateTime payementDate = ScheduleCalculator.getAdjustedDate(START_DATE, tenor, BUSINESS_DAY, CALENDAR_EUR);
         CAP_DEFINITIONS[loop1][loop2] = CapFloorInflationZeroCouponInterpolationDefinition.from(SETTLEMENT_DATE, payementDate, NOTIONAL, PRICE_INDEX_EUR, MONTH_LAG, MONTH_LAG,
-            availabelTenor[loop2], LAST_KNOWN_FIXING_DATE, INDEX_START_VALUE, STRIKES[loop1], IS_CAP);
-        CAPS[loop1][loop2] = CAP_DEFINITIONS[loop1][loop2].toDerivative(REFERENCE_DATE);
+            availabelTenor[loop2], LAST_KNOWN_FIXING_DATE, STRIKES[loop1], IS_CAP);
+        CAPS[loop1][loop2] = (CapFloorInflationZeroCouponInterpolation) CAP_DEFINITIONS[loop1][loop2].toDerivative(REFERENCE_DATE, priceIndexTS);
       }
     }
 
@@ -152,7 +156,7 @@ public class CapFloorZeroCouponInterpolationCalibrationObjectiveTest {
         final Period tenor = Period.ofYears(availabelTenor[loop2]);
         final ZonedDateTime payementDate = ScheduleCalculator.getAdjustedDate(START_DATE, tenor, BUSINESS_DAY, CALENDAR_EUR);
         CAP_DEFINITIONS[loop1][loop2] = CapFloorInflationZeroCouponInterpolationDefinition.from(SETTLEMENT_DATE, payementDate, NOTIONAL, PRICE_INDEX_EUR, MONTH_LAG, MONTH_LAG,
-            availabelTenor[loop2], LAST_KNOWN_FIXING_DATE, INDEX_START_VALUE, STRIKES[loop1], IS_CAP);
+            availabelTenor[loop2], LAST_KNOWN_FIXING_DATE, STRIKES[loop1], IS_CAP);
         CAPS[loop1][loop2] = CAP_DEFINITIONS[loop1][loop2].toDerivative(REFERENCE_DATE);
       }
     }
@@ -168,7 +172,8 @@ public class CapFloorZeroCouponInterpolationCalibrationObjectiveTest {
     // Objective function that we use in the calibration
     final SuccessiveRootFinderInflationZeroCouponCapFloorCalibrationObjective objective = new SuccessiveRootFinderInflationZeroCouponCapFloorCalibrationObjective(parameters, CUR);
     // Calibration engine
-    final SuccessiveRootFinderInflationZeroCouponCapFloorCalibrationEngine<InflationProviderInterface> calibrationEngine = new SuccessiveRootFinderInflationZeroCouponCapFloorCalibrationEngine<>(objective);
+    final SuccessiveRootFinderInflationZeroCouponCapFloorCalibrationEngine<InflationProviderInterface> calibrationEngine = new SuccessiveRootFinderInflationZeroCouponCapFloorCalibrationEngine<>(
+        objective);
 
     // Creation of the market prices we will use in the calibration.
     //For this example we calculate the market prices using a matrix of volatility, but normally market prices should be linked to bloomberg tickers (for example or another data provider)

@@ -91,10 +91,8 @@ public class CouponInflationYearOnYearMonthlyDefinition extends CouponInflationD
    */
   public static CouponInflationYearOnYearMonthlyDefinition from(final ZonedDateTime accrualStartDate, final ZonedDateTime paymentDate, final double notional,
       final IndexPrice priceIndex, final int conventionalMonthLag, final boolean payNotional) {
-    ZonedDateTime referenceStartDate = accrualStartDate.minusMonths(conventionalMonthLag);
-    ZonedDateTime referenceEndDate = paymentDate.minusMonths(conventionalMonthLag);
-    referenceStartDate = referenceStartDate.minusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
-    referenceEndDate = referenceEndDate.minusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
+    final ZonedDateTime referenceStartDate = accrualStartDate.minusMonths(conventionalMonthLag).with(TemporalAdjusters.lastDayOfMonth());
+    final ZonedDateTime referenceEndDate = paymentDate.minusMonths(conventionalMonthLag).with(TemporalAdjusters.lastDayOfMonth());
 
     return new CouponInflationYearOnYearMonthlyDefinition(priceIndex.getCurrency(), paymentDate, accrualStartDate, paymentDate, 1.0, notional, priceIndex, conventionalMonthLag,
         conventionalMonthLag, referenceStartDate, referenceEndDate, payNotional);
@@ -113,11 +111,8 @@ public class CouponInflationYearOnYearMonthlyDefinition extends CouponInflationD
    */
   public static CouponInflationYearOnYearMonthlyDefinition from(final ZonedDateTime accrualStartDate, final ZonedDateTime paymentDate, final double notional,
       final IndexPrice priceIndex, final int conventionalMonthLag, final int monthLag, final boolean payNotional) {
-    ZonedDateTime referenceStartDate = accrualStartDate.minusMonths(conventionalMonthLag);
-    ZonedDateTime referenceEndDate = paymentDate.minusMonths(conventionalMonthLag);
-    referenceStartDate = referenceStartDate.minusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
-    referenceEndDate = referenceEndDate.minusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
-
+    final ZonedDateTime referenceStartDate = accrualStartDate.minusMonths(conventionalMonthLag).with(TemporalAdjusters.lastDayOfMonth());
+    final ZonedDateTime referenceEndDate = paymentDate.minusMonths(conventionalMonthLag).with(TemporalAdjusters.lastDayOfMonth());
     return new CouponInflationYearOnYearMonthlyDefinition(priceIndex.getCurrency(), paymentDate, accrualStartDate, paymentDate, 1.0, notional, priceIndex, conventionalMonthLag,
         monthLag, referenceStartDate, referenceEndDate, payNotional);
   }
@@ -164,10 +159,8 @@ public class CouponInflationYearOnYearMonthlyDefinition extends CouponInflationD
 
   @Override
   public CouponInflationDefinition with(final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double notional) {
-    final ZonedDateTime refInterpolatedDate = accrualEndDate.minusMonths(_conventionalMonthLag);
-    final ZonedDateTime referenceEndDate = refInterpolatedDate.withDayOfMonth(1);
     return new CouponInflationYearOnYearMonthlyDefinition(getCurrency(), paymentDate, accrualStartDate, accrualEndDate, getPaymentYearFraction(), getNotional(),
-        getPriceIndex(), _conventionalMonthLag, _monthLag, getReferenceStartDate(), referenceEndDate, payNotional());
+        getPriceIndex(), _conventionalMonthLag, _monthLag, getReferenceStartDate(), getReferenceEndDate(), payNotional());
   }
 
   /**
@@ -200,32 +193,7 @@ public class CouponInflationYearOnYearMonthlyDefinition extends CouponInflationD
   @Deprecated
   @Override
   public Coupon toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(date, "date");
-    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
-    ArgumentChecker.isTrue(yieldCurveNames.length > 0, "at least one curve required");
-    ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
-    final LocalDate dayConversion = date.toLocalDate();
-    final String discountingCurveName = yieldCurveNames[0];
-    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
-    final LocalDate dayFixing = getReferenceEndDate().toLocalDate();
-    if (dayConversion.isAfter(dayFixing)) {
-      final Double fixedEndIndex = priceIndexTimeSeries.getValue(getReferenceEndDate());
-      if (fixedEndIndex != null) {
-        final Double fixedStartIndex = priceIndexTimeSeries.getValue(getReferenceStartDate());
-        final Double fixedRate = (fixedEndIndex / fixedStartIndex - (payNotional() ? 0.0 : 1.0));
-        return new CouponFixed(getCurrency(), paymentTime, discountingCurveName, getPaymentYearFraction(), getNotional(), fixedRate);
-      }
-    }
-    double referenceEndTime = 0.0;
-    double referenceStartTime = 0.0;
-    referenceEndTime = TimeCalculator.getTimeBetween(date, _referenceEndDate);
-    referenceStartTime = TimeCalculator.getTimeBetween(date, _referenceStartDate);
-    final ZonedDateTime naturalPaymentEndDate = getPaymentDate().minusMonths(_monthLag - _conventionalMonthLag);
-    final double naturalPaymentEndTime = TimeCalculator.getTimeBetween(date, naturalPaymentEndDate);
-    final ZonedDateTime naturalPaymentstartDate = naturalPaymentEndDate.minusMonths(12);
-    final double naturalPaymentStartTime = TimeCalculator.getTimeBetween(date, naturalPaymentstartDate);
-    return new CouponInflationYearOnYearMonthly(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getPriceIndex(), referenceStartTime, naturalPaymentStartTime,
-        referenceEndTime, naturalPaymentEndTime, _payNotional);
+    return toDerivative(date, priceIndexTimeSeries);
   }
 
   @Override

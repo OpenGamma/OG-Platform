@@ -39,6 +39,7 @@ import com.opengamma.analytics.math.surface.Surface;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.time.DateUtils;
 
 /**
@@ -100,6 +101,8 @@ public class InflationMarketModelConvexityAdjustmentForCoupontest {
   private static final CouponInflationYearOnYearInterpolationConvexityAdjustmentMethod METHOD_YOY_INTERPOLATION_CONVEXITY_ADJUSTMENT = new CouponInflationYearOnYearInterpolationConvexityAdjustmentMethod();
   private static final CouponInflationYearOnYearInterpolationDiscountingMethod METHOD_YOY_INTERPOLATION = new CouponInflationYearOnYearInterpolationDiscountingMethod();
 
+  final DoubleTimeSeries<ZonedDateTime> cpiTimeSerie = MulticurveProviderDiscountDataSets.usCpiFrom2009();
+
   @Test
   /**
    * Tests the  value.
@@ -111,8 +114,8 @@ public class InflationMarketModelConvexityAdjustmentForCoupontest {
     final double[] pricesWithConvexity = new double[20];
     final double[] pricesWithoutConvexity = new double[20];
     for (int i = 0; i < 20; i++) {
-      zeroCouponDefinitions[i] = CouponInflationZeroCouponMonthlyDefinition.from(PRICING_DATE, PAYMENT_DATE, NOTIONAL, PRICE_INDEX_EUR, 100.0, MONTH_LAG, 3 + i, true);
-      zeroCoupons[i] = zeroCouponDefinitions[i].toDerivative(PRICING_DATE);
+      zeroCouponDefinitions[i] = CouponInflationZeroCouponMonthlyDefinition.from(PRICING_DATE, PAYMENT_DATE, NOTIONAL, PRICE_INDEX_EUR, MONTH_LAG, 3 + i, true);
+      zeroCoupons[i] = (CouponInflationZeroCouponMonthly) zeroCouponDefinitions[i].toDerivative(PRICING_DATE, cpiTimeSerie);
       convexitysAdjustments[i] = CONVEXITY_ADJUSTMENT_FUNCTION.getZeroCouponConvexityAdjustment(zeroCoupons[i], PARAMETER_INTERFACE);
       pricesWithConvexity[i] = METHOD_ZC_MONTHLY_CONVEXITY_ADJUSTMENT.presentValue(zeroCoupons[i], PARAMETER_INTERFACE).getAmount(zeroCoupons[i].getCurrency());
       pricesWithoutConvexity[i] = METHOD_ZC_MONTHLY.presentValue(zeroCoupons[i], INFLATION_PROVIDER).getAmount(zeroCoupons[i].getCurrency());
@@ -131,8 +134,8 @@ public class InflationMarketModelConvexityAdjustmentForCoupontest {
     final double[] pricesWithConvexity = new double[20];
     final double[] pricesWithoutConvexity = new double[20];
     for (int i = 0; i < 20; i++) {
-      zeroCouponDefinitions[i] = CouponInflationZeroCouponMonthlyDefinition.from(PRICING_DATE, PAYMENT_DATE.plusYears(i), NOTIONAL, PRICE_INDEX_EUR, 100.0, MONTH_LAG, 8, true);
-      zeroCoupons[i] = zeroCouponDefinitions[i].toDerivative(PRICING_DATE);
+      zeroCouponDefinitions[i] = CouponInflationZeroCouponMonthlyDefinition.from(PRICING_DATE, PAYMENT_DATE.plusYears(i), NOTIONAL, PRICE_INDEX_EUR, MONTH_LAG, 8, true);
+      zeroCoupons[i] = (CouponInflationZeroCouponMonthly) zeroCouponDefinitions[i].toDerivative(PRICING_DATE, cpiTimeSerie);
       convexitysAdjustments[i] = CONVEXITY_ADJUSTMENT_FUNCTION.getZeroCouponConvexityAdjustment(zeroCoupons[i], PARAMETER_INTERFACE);
       pricesWithConvexity[i] = METHOD_ZC_MONTHLY_CONVEXITY_ADJUSTMENT.presentValue(zeroCoupons[i], PARAMETER_INTERFACE).getAmount(zeroCoupons[i].getCurrency());
       pricesWithoutConvexity[i] = METHOD_ZC_MONTHLY.presentValue(zeroCoupons[i], INFLATION_PROVIDER).getAmount(zeroCoupons[i].getCurrency());
@@ -151,7 +154,7 @@ public class InflationMarketModelConvexityAdjustmentForCoupontest {
     final double[] pricesWithConvexity = new double[20];
     final double[] pricesWithoutConvexity = new double[20];
     for (int i = 0; i < 20; i++) {
-      zeroCouponDefinitions[i] = CouponInflationZeroCouponInterpolationDefinition.from(PAYMENT_DATE_MINUS1, PAYMENT_DATE, NOTIONAL, PRICE_INDEX_EUR, 100.0, MONTH_LAG, 3 + i, true);
+      zeroCouponDefinitions[i] = CouponInflationZeroCouponInterpolationDefinition.from(PAYMENT_DATE_MINUS1, PAYMENT_DATE, NOTIONAL, PRICE_INDEX_EUR, MONTH_LAG, 3 + i, true);
       zeroCoupons[i] = zeroCouponDefinitions[i].toDerivative(PRICING_DATE);
       convexitysAdjustments[i] = CONVEXITY_ADJUSTMENT_FUNCTION.getZeroCouponConvexityAdjustment(zeroCoupons[i], PARAMETER_INTERFACE);
       pricesWithConvexity[i] = METHOD_ZC_INTERPOLATION_CONVEXITY_ADJUSTMENT.presentValue(zeroCoupons[i], PARAMETER_INTERFACE).getAmount(zeroCoupons[i].getCurrency());

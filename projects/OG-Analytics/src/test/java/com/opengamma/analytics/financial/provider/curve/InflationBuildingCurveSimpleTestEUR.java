@@ -79,7 +79,7 @@ public class InflationBuildingCurveSimpleTestEUR {
   private static final ZonedDateTime NOW = DateUtils.getUTCDate(2012, 9, 28);
 
   private static final ZonedDateTimeDoubleTimeSeries TS_PRICE_INDEX_USD_WITH_TODAY = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 30),
-    DateUtils.getUTCDate(2011, 9, 30) }, new double[] {200, 200 });
+    DateUtils.getUTCDate(2011, 9, 30), DateUtils.getUTCDate(2012, 6, 30) }, new double[] {200, 200, 200 });
   private static final ZonedDateTimeDoubleTimeSeries TS_PRICE_INDEX_USD_WITHOUT_TODAY = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 30) },
       new double[] {100 });
 
@@ -145,9 +145,6 @@ public class InflationBuildingCurveSimpleTestEUR {
     EUR_HICP_MAP.put(CURVE_NAME_HICP_EUR, new IndexPrice[] {EUR_HICP });
   }
 
-  private static final String NOT_USED = "Not used";
-  private static final String[] NOT_USED_2 = {NOT_USED, NOT_USED };
-
   public static InstrumentDefinition<?>[] getDefinitions(final double[] marketQuotes, final GeneratorInstrument[] generators, final GeneratorAttribute[] attribute) {
     final InstrumentDefinition<?>[] definitions = new InstrumentDefinition<?>[marketQuotes.length];
     for (int loopmv = 0; loopmv < marketQuotes.length; loopmv++) {
@@ -156,7 +153,7 @@ public class InflationBuildingCurveSimpleTestEUR {
     return definitions;
   }
 
-  private static List<Pair<InflationProviderDiscount, CurveBuildingBlockBundle>> CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK = new ArrayList<Pair<InflationProviderDiscount, CurveBuildingBlockBundle>>();
+  private static List<Pair<InflationProviderDiscount, CurveBuildingBlockBundle>> CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK = new ArrayList<>();
 
   // Calculator
   private static final PresentValueDiscountingInflationCalculator PVIC = PresentValueDiscountingInflationCalculator.getInstance();
@@ -245,7 +242,6 @@ public class InflationBuildingCurveSimpleTestEUR {
     //    int nbDef = 0;
     //    for (final InstrumentDefinition<?>[] definition : definitions) {
     //      nbDef += definition.length;
-    //    }
     final InstrumentDerivative[][] instruments = new InstrumentDerivative[definitions.length][];
     for (int loopcurve = 0; loopcurve < definitions.length; loopcurve++) {
       instruments[loopcurve] = new InstrumentDerivative[definitions[loopcurve].length];
@@ -254,8 +250,8 @@ public class InflationBuildingCurveSimpleTestEUR {
         InstrumentDerivative ird;
         if (instrument instanceof SwapFixedInflationZeroCouponDefinition) {
           /* ird = ((SwapFixedInflationZeroCouponDefinition) instrument).toDerivative(NOW, getTSSwapFixedInflation(withToday, unit), NOT_USED_2);*/
-          final Annuity<? extends Payment> ird1 = ((SwapFixedInflationZeroCouponDefinition) instrument).getFirstLeg().toDerivative(NOW, NOT_USED_2);
-          final Annuity<? extends Payment> ird2 = ((SwapFixedInflationZeroCouponDefinition) instrument).getSecondLeg().toDerivative(NOW, TS_PRICE_INDEX_USD_WITH_TODAY, NOT_USED_2);
+          final Annuity<? extends Payment> ird1 = ((SwapFixedInflationZeroCouponDefinition) instrument).getFirstLeg().toDerivative(NOW);
+          final Annuity<? extends Payment> ird2 = ((SwapFixedInflationZeroCouponDefinition) instrument).getSecondLeg().toDerivative(NOW, TS_PRICE_INDEX_USD_WITH_TODAY);
           ird = new Swap<>(ird1, ird2);
         }
         else {
@@ -298,10 +294,10 @@ public class InflationBuildingCurveSimpleTestEUR {
     if (instrument instanceof SwapFixedInflationZeroCouponDefinition) {
 
       if (((SwapFixedInflationZeroCouponDefinition) instrument).getFirstLeg().getNthPayment(0) instanceof CouponInflationZeroCouponMonthlyDefinition) {
-        return ((CouponInflationZeroCouponMonthlyDefinition) ((SwapFixedInflationZeroCouponDefinition) instrument).getFirstLeg().getNthPayment(0)).getIndexStartValue();
+        return 100.0;
       }
       if (((SwapFixedInflationZeroCouponDefinition) instrument).getFirstLeg().getNthPayment(0) instanceof CouponInflationZeroCouponInterpolationDefinition) {
-        return ((CouponInflationZeroCouponInterpolationDefinition) ((SwapFixedInflationZeroCouponDefinition) instrument).getFirstLeg().getNthPayment(0)).getIndexStartValue();
+        return 100.0;
       }
       return 100;
     }

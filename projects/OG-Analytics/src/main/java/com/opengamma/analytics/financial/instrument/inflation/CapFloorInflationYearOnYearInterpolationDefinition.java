@@ -10,6 +10,7 @@ import java.util.Arrays;
 import org.apache.commons.lang.Validate;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.temporal.TemporalAdjusters;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
@@ -200,10 +201,10 @@ public class CapFloorInflationYearOnYearInterpolationDefinition extends CouponIn
       final double strike, final boolean isCap) {
     final ZonedDateTime[] referenceStartDate = new ZonedDateTime[2];
     final ZonedDateTime[] referenceEndDate = new ZonedDateTime[2];
-    referenceStartDate[0] = accrualStartDate.minusMonths(monthLag).withDayOfMonth(1);
-    referenceStartDate[1] = referenceStartDate[0].plusMonths(1);
-    referenceEndDate[0] = paymentDate.minusMonths(monthLag).withDayOfMonth(1);
-    referenceEndDate[1] = referenceEndDate[0].plusMonths(1);
+    referenceStartDate[0] = accrualStartDate.minusMonths(monthLag).with(TemporalAdjusters.lastDayOfMonth());
+    referenceStartDate[1] = referenceStartDate[0].plusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
+    referenceEndDate[0] = paymentDate.minusMonths(monthLag).with(TemporalAdjusters.lastDayOfMonth());
+    referenceEndDate[1] = referenceEndDate[0].plusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
 
     return new CapFloorInflationYearOnYearInterpolationDefinition(priceIndex.getCurrency(), paymentDate, accrualStartDate, paymentDate, 1.0, notional, priceIndex,
         lastKnownFixingDate, conventionalMonthLag, monthLag, referenceStartDate, referenceEndDate, weightStart, weightEnd, strike, isCap);
@@ -326,25 +327,7 @@ public class CapFloorInflationYearOnYearInterpolationDefinition extends CouponIn
   @Deprecated
   @Override
   public CapFloorInflationYearOnYearInterpolation toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(date, "date");
-    ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "Do not have any fixing data but are asking for a derivative after the payment date");
-    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
-    ArgumentChecker.isTrue(yieldCurveNames.length > 0, "at least one curve required");
-    ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
-    final double lastKnownFixingTime = TimeCalculator.getTimeBetween(date, _lastKnownFixingDate);
-    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
-    final double[] referenceStartTime = new double[2];
-    referenceStartTime[0] = TimeCalculator.getTimeBetween(date, _referenceStartDate[0]);
-    referenceStartTime[1] = TimeCalculator.getTimeBetween(date, _referenceStartDate[1]);
-    final double[] referenceEndTime = new double[2];
-    referenceEndTime[0] = TimeCalculator.getTimeBetween(date, _referenceEndDate[0]);
-    referenceEndTime[1] = TimeCalculator.getTimeBetween(date, _referenceEndDate[1]);
-    final ZonedDateTime naturalPaymentEndDate = getPaymentDate().minusMonths(_monthLag - _conventionalMonthLag);
-    final double naturalPaymentEndTime = TimeCalculator.getTimeBetween(date, naturalPaymentEndDate);
-    final ZonedDateTime naturalPaymentstartDate = naturalPaymentEndDate.minusMonths(12);
-    final double naturalPaymentStartTime = TimeCalculator.getTimeBetween(date, naturalPaymentstartDate);
-    return new CapFloorInflationYearOnYearInterpolation(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getPriceIndex(), lastKnownFixingTime, referenceStartTime,
-        naturalPaymentStartTime, referenceEndTime, naturalPaymentEndTime, _weightStart, _weightEnd, _strike, _isCap);
+    return toDerivative(date);
   }
 
   /**
@@ -354,40 +337,7 @@ public class CapFloorInflationYearOnYearInterpolationDefinition extends CouponIn
   @Deprecated
   @Override
   public Coupon toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(date, "date");
-    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
-    ArgumentChecker.isTrue(yieldCurveNames.length > 0, "at least one curve required");
-    ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
-    final LocalDate dayConversion = date.toLocalDate();
-    final String discountingCurveName = yieldCurveNames[0];
-    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
-    final LocalDate dayFixing = getReferenceEndDate()[1].toLocalDate();
-    if (dayConversion.isAfter(dayFixing)) {
-      final Double fixedEndIndex1 = priceIndexTimeSeries.getValue(_referenceEndDate[1]);
-
-      if (fixedEndIndex1 != null) {
-        final Double fixedEndIndex0 = priceIndexTimeSeries.getValue(_referenceEndDate[0]);
-        final Double fixedEndIndex = getWeightEnd() * fixedEndIndex0 + (1 - getWeightEnd()) * fixedEndIndex1;
-        final Double fixedStartIndex1 = priceIndexTimeSeries.getValue(_referenceStartDate[1]);
-        final Double fixedStartIndex0 = priceIndexTimeSeries.getValue(_referenceStartDate[0]);
-        final Double fixedStartIndex = getWeightStart() * fixedStartIndex0 + (1 - getWeightStart()) * fixedStartIndex1;
-        final Double fixedRate = (fixedEndIndex / fixedStartIndex - 1.0);
-        return new CouponFixed(getCurrency(), paymentTime, discountingCurveName, getPaymentYearFraction(), getNotional(), payOff(fixedRate));
-      }
-    }
-    final double lastKnownFixingTime = TimeCalculator.getTimeBetween(date, _lastKnownFixingDate);
-    final double[] referenceStartTime = new double[2];
-    referenceStartTime[0] = TimeCalculator.getTimeBetween(date, _referenceStartDate[0]);
-    referenceStartTime[1] = TimeCalculator.getTimeBetween(date, _referenceStartDate[1]);
-    final double[] referenceEndTime = new double[2];
-    referenceEndTime[0] = TimeCalculator.getTimeBetween(date, _referenceEndDate[0]);
-    referenceEndTime[1] = TimeCalculator.getTimeBetween(date, _referenceEndDate[1]);
-    final ZonedDateTime naturalPaymentEndDate = getPaymentDate().minusMonths(_monthLag - _conventionalMonthLag);
-    final double naturalPaymentEndTime = TimeCalculator.getTimeBetween(date, naturalPaymentEndDate);
-    final ZonedDateTime naturalPaymentstartDate = naturalPaymentEndDate.minusMonths(12);
-    final double naturalPaymentStartTime = TimeCalculator.getTimeBetween(date, naturalPaymentstartDate);
-    return new CapFloorInflationYearOnYearInterpolation(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getPriceIndex(), lastKnownFixingTime, referenceStartTime,
-        naturalPaymentStartTime, referenceEndTime, naturalPaymentEndTime, _weightStart, _weightEnd, _strike, _isCap);
+    return toDerivative(date, priceIndexTimeSeries);
   }
 
   @Override

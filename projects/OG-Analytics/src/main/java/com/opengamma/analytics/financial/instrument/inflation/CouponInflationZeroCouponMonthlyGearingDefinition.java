@@ -153,10 +153,8 @@ public class CouponInflationZeroCouponMonthlyGearingDefinition extends CouponInf
   public static CouponInflationZeroCouponMonthlyGearingDefinition from(final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate,
       final ZonedDateTime accrualEndDate, final double notional, final IndexPrice priceIndex, final double indexStartValue, final int conventionalMonthLag,
       final int monthLag, final boolean payNotional, final double factor) {
-    ZonedDateTime referenceStartDate = accrualStartDate.minusMonths(monthLag);
-    ZonedDateTime referenceEndDate = paymentDate.minusMonths(monthLag);
-    referenceStartDate = referenceStartDate.minusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
-    referenceEndDate = referenceEndDate.minusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
+    final ZonedDateTime referenceStartDate = accrualStartDate.minusMonths(monthLag).with(TemporalAdjusters.lastDayOfMonth());
+    final ZonedDateTime referenceEndDate = paymentDate.minusMonths(monthLag).with(TemporalAdjusters.lastDayOfMonth());
     return new CouponInflationZeroCouponMonthlyGearingDefinition(priceIndex.getCurrency(), paymentDate, accrualStartDate, accrualEndDate, 1.0, notional, priceIndex,
         conventionalMonthLag, monthLag, referenceStartDate, indexStartValue, referenceEndDate, payNotional, factor);
   }
@@ -216,10 +214,8 @@ public class CouponInflationZeroCouponMonthlyGearingDefinition extends CouponInf
 
   @Override
   public CouponInflationDefinition with(final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double notional) {
-    final ZonedDateTime refInterpolatedDate = accrualEndDate.minusMonths(_conventionalMonthLag);
-    final ZonedDateTime referenceEndDate = refInterpolatedDate.withDayOfMonth(1);
     return new CouponInflationZeroCouponMonthlyGearingDefinition(getCurrency(), paymentDate, accrualStartDate, accrualEndDate, getPaymentYearFraction(), getNotional(),
-        getPriceIndex(), _conventionalMonthLag, _monthLag, _referenceStartDate, _indexStartValue, referenceEndDate, _payNotional, _factor);
+        getPriceIndex(), _conventionalMonthLag, _monthLag, _referenceStartDate, _indexStartValue, getReferenceEndDate(), _payNotional, _factor);
   }
 
   /**

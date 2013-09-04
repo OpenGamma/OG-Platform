@@ -39,6 +39,8 @@ import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
 
@@ -75,12 +77,16 @@ public class CapFloorInflationZeroCouponInterpolationBlackSmileMethodTest {
   private static final BlackSmileCapInflationZeroCouponProviderDiscount BLACK_INFLATION = new BlackSmileCapInflationZeroCouponProviderDiscount(MARKET.getInflationProvider(), BLACK_PARAM);
 
   private static final CouponInflationZeroCouponInterpolationDefinition ZERO_COUPON_DEFINITION = CouponInflationZeroCouponInterpolationDefinition.from(START_DATE, PAYMENT_DATE, NOTIONAL,
-      PRICE_INDEX_EUR, INDEX_MAY_2008_INT, MONTH_LAG, MONTH_LAG, false);
+      PRICE_INDEX_EUR, MONTH_LAG, MONTH_LAG, false);
 
   private static final ZonedDateTime PRICING_DATE = DateUtils.getUTCDate(2011, 8, 3);
   private static final CapFloorInflationZeroCouponInterpolationDefinition ZERO_COUPON_DEFINITION_CAP = CapFloorInflationZeroCouponInterpolationDefinition.from(ZERO_COUPON_DEFINITION,
       LAST_KNOWN_FIXING_DATE, MATURITY, STRIKE, IS_CAP);
-  private static final CapFloorInflationZeroCouponInterpolation ZERO_COUPON_CAP = ZERO_COUPON_DEFINITION_CAP.toDerivative(PRICING_DATE);
+
+  private static final ZonedDateTimeDoubleTimeSeries TS_PRICE_INDEX_USD = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(
+      new ZonedDateTime[] {DateUtils.getUTCDate(2008, 5, 31), DateUtils.getUTCDate(2008, 6, 30), DateUtils.getUTCDate(2011, 9, 27),
+        DateUtils.getUTCDate(2011, 9, 28) }, new double[] {108.23, 108.64, 200, 200 });
+  private static final CapFloorInflationZeroCouponInterpolation ZERO_COUPON_CAP = (CapFloorInflationZeroCouponInterpolation) ZERO_COUPON_DEFINITION_CAP.toDerivative(PRICING_DATE, TS_PRICE_INDEX_USD);
 
   private static final CapFloorInflationZeroCouponInterpolationBlackSmileMethod METHOD = CapFloorInflationZeroCouponInterpolationBlackSmileMethod.getInstance();
   private static final PresentValueBlackSmileInflationZeroCouponCalculator PVIC = PresentValueBlackSmileInflationZeroCouponCalculator.getInstance();
@@ -105,7 +111,7 @@ public class CapFloorInflationZeroCouponInterpolationBlackSmileMethodTest {
     final double indexMonth0 = MARKET.getCurve(PRICE_INDEX_EUR).getPriceIndex(ZERO_COUPON_CAP.getReferenceEndTime()[0]);
     final double indexMonth1 = MARKET.getCurve(PRICE_INDEX_EUR).getPriceIndex(ZERO_COUPON_CAP.getReferenceEndTime()[1]);
     final double finalIndex = ZERO_COUPON_DEFINITION.getWeight() * indexMonth0 + (1 - ZERO_COUPON_DEFINITION.getWeight()) * indexMonth1;
-    final double forward = finalIndex / INDEX_MAY_2008_INT;
+    final double forward = finalIndex / (ZERO_COUPON_DEFINITION.getWeight() * 108.23 + (1 - ZERO_COUPON_DEFINITION.getWeight()) * 108.64);
     final EuropeanVanillaOption option = new EuropeanVanillaOption(Math.pow(1 + ZERO_COUPON_CAP.getStrike(), ZERO_COUPON_CAP.getMaturity()), timeToMaturity, ZERO_COUPON_CAP.isCap());
     final double volatility = BLACK_INFLATION.getBlackParameters().getVolatility(ZERO_COUPON_CAP.getReferenceEndTime()[1], ZERO_COUPON_CAP.getStrike());
     final BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volatility);
@@ -156,14 +162,20 @@ public class CapFloorInflationZeroCouponInterpolationBlackSmileMethodTest {
     final double notional = 100000000;
     final ZonedDateTime settleDate = ScheduleCalculator.getAdjustedDate(PRICING_DATE, USDLIBOR3M.getSpotLag(), CALENDAR_USD);
     final ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(settleDate, Period.ofYears(tenorYear), BUSINESS_DAY, CALENDAR_USD, USDLIBOR3M.isEndOfMonth());
-    final double weightSettle = 1.0 - (settleDate.getDayOfMonth() - 1.0) / settleDate.toLocalDate().lengthOfMonth();
+    final double weightSettle = 1.0 - (paymentDate.getDayOfMonth() - 1.0) / paymentDate.toLocalDate().lengthOfMonth();
     final double indexStart = weightSettle * 225.964 + (1 - weightSettle) * 225.722;
     final CouponInflationZeroCouponInterpolationDefinition zeroCouponUsdDefinition = CouponInflationZeroCouponInterpolationDefinition.from(settleDate, paymentDate, notional, PRICE_INDEX_US,
-        indexStart, MONTH_LAG, tenorYear, false);
+        MONTH_LAG, MONTH_LAG, false);
     final CapFloorInflationZeroCouponInterpolationDefinition capZeroCouponUsdDefinition = CapFloorInflationZeroCouponInterpolationDefinition.from(zeroCouponUsdDefinition,
         LAST_KNOWN_FIXING_DATE, MATURITY, STRIKE, IS_CAP);
-    final CapFloorInflationZeroCouponInterpolation capZeroCouponUsd = capZeroCouponUsdDefinition.toDerivative(PRICING_DATE);
-    final CouponInflationZeroCouponInterpolation zeroCouponUsd = zeroCouponUsdDefinition.toDerivative(PRICING_DATE);
+
+    final ZonedDateTimeDoubleTimeSeries ts = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(
+        new ZonedDateTime[] {DateUtils.getUTCDate(2008, 4, 30), DateUtils.getUTCDate(2008, 5, 31), DateUtils.getUTCDate(2011, 5, 31), DateUtils.getUTCDate(2011, 6, 30),
+          DateUtils.getUTCDate(2011, 9, 27),
+          DateUtils.getUTCDate(2011, 9, 28) }, new double[] {108.23, 108.64, 225.964, 225.722, 200, 200 });
+
+    final CapFloorInflationZeroCouponInterpolation capZeroCouponUsd = (CapFloorInflationZeroCouponInterpolation) capZeroCouponUsdDefinition.toDerivative(PRICING_DATE, ts);
+    final CouponInflationZeroCouponInterpolation zeroCouponUsd = (CouponInflationZeroCouponInterpolation) zeroCouponUsdDefinition.toDerivative(PRICING_DATE, ts);
     final MultipleCurrencyAmount pvInflation = METHOD.presentValue(capZeroCouponUsd, blackInflation);
     final double df = marketSeason.getCurve(zeroCouponUsd.getCurrency()).getDiscountFactor(zeroCouponUsd.getPaymentTime());
     final double indexMonth0 = marketSeason.getCurve(PRICE_INDEX_US).getPriceIndex(zeroCouponUsd.getReferenceEndTime()[0]);

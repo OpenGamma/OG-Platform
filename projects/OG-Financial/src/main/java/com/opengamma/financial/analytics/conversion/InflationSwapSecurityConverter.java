@@ -190,10 +190,10 @@ public class InflationSwapSecurityConverter extends FinancialSecurityVisitorAdap
     final double notional = ((InterestRateNotional) fixedLeg.getNotional()).getAmount();
     if (isMonthly) {
       return SwapFixedInflationZeroCouponDefinition.fromMonthly(priceIndex, settlementDate, tenor, fixedRate,
-          notional, isPayer, businessDayConvention, calendar, isEOM, conventionalMonthLag, quotationMonthLag, null);
+          notional, isPayer, businessDayConvention, calendar, isEOM, conventionalMonthLag, quotationMonthLag);
     }
     return SwapFixedInflationZeroCouponDefinition.fromInterpolation(priceIndex, settlementDate, tenor, fixedRate,
-        notional, isPayer, businessDayConvention, calendar, isEOM, conventionalMonthLag, quotationMonthLag, null);
+        notional, isPayer, businessDayConvention, calendar, isEOM, conventionalMonthLag, quotationMonthLag);
   }
 
   private static Period getTenor(final Frequency freq) {

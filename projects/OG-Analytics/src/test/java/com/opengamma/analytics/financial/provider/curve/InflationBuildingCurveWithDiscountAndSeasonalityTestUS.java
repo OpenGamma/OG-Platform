@@ -108,10 +108,10 @@ public class InflationBuildingCurveWithDiscountAndSeasonalityTestUS {
   private static final ZonedDateTime NOW = DateUtils.getUTCDate(2012, 9, 28);
 
   private static final ZonedDateTimeDoubleTimeSeries TS_PRICE_INDEX_USD_WITH_TODAY = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27),
-    DateUtils.getUTCDate(2011, 9, 28) }, new double[] {200, 200 });
-  private static final ZonedDateTimeDoubleTimeSeries TS_PRICE_INDEX_USD_WITHOUT_TODAY = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27) },
-      new double[] {100 });
-
+    DateUtils.getUTCDate(2011, 9, 28), DateUtils.getUTCDate(2012, 6, 30), DateUtils.getUTCDate(2012, 7, 31) }, new double[] {200, 200, 200, 200 });
+  private static final ZonedDateTimeDoubleTimeSeries TS_PRICE_INDEX_USD_WITHOUT_TODAY = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(
+      new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27), DateUtils.getUTCDate(2012, 6, 30), DateUtils.getUTCDate(2012, 6, 30) },
+      new double[] {100, 100, 100 });
   @SuppressWarnings("rawtypes")
   private static final DoubleTimeSeries[] TS_FIXED_PRICE_INDEX_USD_WITH_TODAY = new DoubleTimeSeries[] {TS_PRICE_INDEX_USD_WITH_TODAY };
   @SuppressWarnings("rawtypes")
@@ -181,9 +181,9 @@ public class InflationBuildingCurveWithDiscountAndSeasonalityTestUS {
 
   private static final InflationProviderDiscount KNOWN_DATA = new InflationProviderDiscount(FX_MATRIX);
 
-  private static final LinkedHashMap<String, Currency> DSC_MAP = new LinkedHashMap<String, Currency>();
-  private static final LinkedHashMap<String, IndexON[]> FWD_ON_MAP = new LinkedHashMap<String, IndexON[]>();
-  public static final LinkedHashMap<String, IndexPrice[]> US_CPI_MAP = new LinkedHashMap<String, IndexPrice[]>();
+  private static final LinkedHashMap<String, Currency> DSC_MAP = new LinkedHashMap<>();
+  private static final LinkedHashMap<String, IndexON[]> FWD_ON_MAP = new LinkedHashMap<>();
+  public static final LinkedHashMap<String, IndexPrice[]> US_CPI_MAP = new LinkedHashMap<>();
 
   static {
     DEFINITIONS_DSC_USD = getDefinitions(DSC_USD_MARKET_QUOTES, DSC_USD_GENERATORS, DSC_USD_ATTR);
@@ -216,9 +216,6 @@ public class InflationBuildingCurveWithDiscountAndSeasonalityTestUS {
     US_CPI_MAP.put(CURVE_NAME_CPI_USD, new IndexPrice[] {US_CPI });
   }
 
-  public static final String NOT_USED = "Not used";
-  public static final String[] NOT_USED_2 = {NOT_USED, NOT_USED };
-
   public static InstrumentDefinition<?>[] getDefinitions(final double[] marketQuotes, final GeneratorInstrument[] generators, final GeneratorAttribute[] attribute) {
     final InstrumentDefinition<?>[] definitions = new InstrumentDefinition<?>[marketQuotes.length];
     for (int loopmv = 0; loopmv < marketQuotes.length; loopmv++) {
@@ -227,7 +224,7 @@ public class InflationBuildingCurveWithDiscountAndSeasonalityTestUS {
     return definitions;
   }
 
-  private static List<Pair<InflationProviderDiscount, CurveBuildingBlockBundle>> CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK = new ArrayList<Pair<InflationProviderDiscount, CurveBuildingBlockBundle>>();
+  private static List<Pair<InflationProviderDiscount, CurveBuildingBlockBundle>> CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK = new ArrayList<>();
 
   // Calculator
   private static final PresentValueDiscountingInflationCalculator PVIC = PresentValueDiscountingInflationCalculator.getInstance();
@@ -317,9 +314,9 @@ public class InflationBuildingCurveWithDiscountAndSeasonalityTestUS {
     final double notional = 100000;
     final GeneratorAttributeIR swapAttribute = new GeneratorAttributeIR(Period.ofYears(4));
     final SwapFixedInflationZeroCouponDefinition swapDefinition = GENERATOR_INFALTION_SWAP.generateInstrument(NOW, spreadJPYEUR, notional, swapAttribute);
-    final InstrumentDerivative swap = swapDefinition.toDerivative(NOW, "");
-    final ParameterInflationSensitivityParameterCalculator<InflationProviderInterface> PSC = new ParameterInflationSensitivityParameterCalculator<InflationProviderInterface>(PVCSDIC);
-    final MarketQuoteInflationSensitivityBlockCalculator<InflationProviderInterface> MQSC = new MarketQuoteInflationSensitivityBlockCalculator<InflationProviderInterface>(PSC);
+    final InstrumentDerivative swap = swapDefinition.toDerivative(NOW);
+    final ParameterInflationSensitivityParameterCalculator<InflationProviderInterface> PSC = new ParameterInflationSensitivityParameterCalculator<>(PVCSDIC);
+    final MarketQuoteInflationSensitivityBlockCalculator<InflationProviderInterface> MQSC = new MarketQuoteInflationSensitivityBlockCalculator<>(PSC);
     @SuppressWarnings("unused")
     final MultipleCurrencyParameterSensitivity mqs = MQSC.fromInstrument(swap, multicurves7, blocks7);
     int t = 0;
@@ -385,8 +382,8 @@ public class InflationBuildingCurveWithDiscountAndSeasonalityTestUS {
         InstrumentDerivative ird;
         if (instrument instanceof SwapFixedInflationZeroCouponDefinition) {
           /* ird = ((SwapFixedInflationZeroCouponDefinition) instrument).toDerivative(NOW, getTSSwapFixedInflation(withToday, unit), NOT_USED_2);*/
-          final Annuity<? extends Payment> ird1 = ((SwapFixedInflationZeroCouponDefinition) instrument).getFirstLeg().toDerivative(NOW, NOT_USED_2);
-          final Annuity<? extends Payment> ird2 = ((SwapFixedInflationZeroCouponDefinition) instrument).getSecondLeg().toDerivative(NOW, TS_PRICE_INDEX_USD_WITH_TODAY, NOT_USED_2);
+          final Annuity<? extends Payment> ird1 = ((SwapFixedInflationZeroCouponDefinition) instrument).getFirstLeg().toDerivative(NOW);
+          final Annuity<? extends Payment> ird2 = ((SwapFixedInflationZeroCouponDefinition) instrument).getSecondLeg().toDerivative(NOW, TS_PRICE_INDEX_USD_WITH_TODAY);
           ird = new Swap(ird1, ird2);
         }
         else {
@@ -429,12 +426,12 @@ public class InflationBuildingCurveWithDiscountAndSeasonalityTestUS {
     if (instrument instanceof SwapFixedInflationZeroCouponDefinition) {
 
       if (((SwapFixedInflationZeroCouponDefinition) instrument).getFirstLeg().getNthPayment(0) instanceof CouponInflationZeroCouponMonthlyDefinition) {
-        return ((CouponInflationZeroCouponMonthlyDefinition) ((SwapFixedInflationZeroCouponDefinition) instrument).getFirstLeg().getNthPayment(0)).getIndexStartValue();
+        return 200.0;
       }
       if (((SwapFixedInflationZeroCouponDefinition) instrument).getFirstLeg().getNthPayment(0) instanceof CouponInflationZeroCouponInterpolationDefinition) {
-        return ((CouponInflationZeroCouponInterpolationDefinition) ((SwapFixedInflationZeroCouponDefinition) instrument).getFirstLeg().getNthPayment(0)).getIndexStartValue();
+        return 200.0;
       }
-      return 100;
+      return 200.0;
     }
     if (instrument instanceof ForwardRateAgreementDefinition) {
       return ((ForwardRateAgreementDefinition) instrument).getRate();
@@ -442,7 +439,7 @@ public class InflationBuildingCurveWithDiscountAndSeasonalityTestUS {
     if (instrument instanceof CashDefinition) {
       return ((CashDefinition) instrument).getRate();
     }
-    return 100;
+    return 200.0;
   }
 
 }

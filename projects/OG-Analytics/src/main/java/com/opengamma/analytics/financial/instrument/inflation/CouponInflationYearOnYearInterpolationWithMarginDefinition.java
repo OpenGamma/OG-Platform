@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.instrument.inflation;
 
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.temporal.TemporalAdjusters;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
@@ -113,10 +114,10 @@ public class CouponInflationYearOnYearInterpolationWithMarginDefinition extends 
       final IndexPrice priceIndex, final int conventionalMonthLag, final boolean payNotional, final double weightStart, final double weightEnd) {
     final ZonedDateTime[] referenceStartDate = new ZonedDateTime[2];
     final ZonedDateTime[] referenceEndDate = new ZonedDateTime[2];
-    referenceStartDate[0] = accrualStartDate.minusMonths(conventionalMonthLag).withDayOfMonth(1);
-    referenceStartDate[1] = referenceStartDate[0].plusMonths(1);
-    referenceEndDate[0] = paymentDate.minusMonths(conventionalMonthLag).withDayOfMonth(1);
-    referenceEndDate[1] = referenceEndDate[0].plusMonths(1);
+    referenceStartDate[0] = accrualStartDate.minusMonths(conventionalMonthLag).with(TemporalAdjusters.lastDayOfMonth());
+    referenceStartDate[1] = referenceStartDate[0].plusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
+    referenceEndDate[0] = paymentDate.minusMonths(conventionalMonthLag).with(TemporalAdjusters.lastDayOfMonth());
+    referenceEndDate[1] = referenceEndDate[0].plusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
 
     return new CouponInflationYearOnYearInterpolationWithMarginDefinition(factor, priceIndex.getCurrency(), paymentDate, accrualStartDate, paymentDate, 1.0, notional, priceIndex,
         conventionalMonthLag, conventionalMonthLag, referenceStartDate, referenceEndDate, payNotional, weightStart, weightEnd);
@@ -140,10 +141,10 @@ public class CouponInflationYearOnYearInterpolationWithMarginDefinition extends 
       final IndexPrice priceIndex, final int conventionalMonthLag, final int monthLag, final boolean payNotional, final double weightStart, final double weightEnd) {
     final ZonedDateTime[] referenceStartDate = new ZonedDateTime[2];
     final ZonedDateTime[] referenceEndDate = new ZonedDateTime[2];
-    referenceStartDate[0] = accrualStartDate.minusMonths(monthLag).withDayOfMonth(1);
-    referenceStartDate[1] = referenceStartDate[0].plusMonths(1);
-    referenceEndDate[0] = paymentDate.minusMonths(monthLag).withDayOfMonth(1);
-    referenceEndDate[1] = referenceEndDate[0].plusMonths(1);
+    referenceStartDate[0] = accrualStartDate.minusMonths(monthLag).with(TemporalAdjusters.lastDayOfMonth());
+    referenceStartDate[1] = referenceStartDate[0].plusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
+    referenceEndDate[0] = paymentDate.minusMonths(monthLag).with(TemporalAdjusters.lastDayOfMonth());
+    referenceEndDate[1] = referenceEndDate[0].plusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
 
     return new CouponInflationYearOnYearInterpolationWithMarginDefinition(factor, priceIndex.getCurrency(), paymentDate, accrualStartDate, paymentDate, 1.0, notional, priceIndex,
         conventionalMonthLag, monthLag, referenceStartDate, referenceEndDate, payNotional, weightStart, weightEnd);

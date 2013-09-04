@@ -134,13 +134,13 @@ public class ZeroCouponInflationNodeConverter extends CurveNodeVisitorAdapter<In
       case INTERPOLATED:
       {
         final CouponInflationZeroCouponInterpolationDefinition inflationCoupon = CouponInflationZeroCouponInterpolationDefinition.from(settlementDate, paymentDate,
-            -notional, index, priceIndexTimeSeries, conventionalMonthLag, monthLag, false);
+            -notional, index, conventionalMonthLag, monthLag, false);
         return new SwapFixedInflationZeroCouponDefinition(fixedCoupon, inflationCoupon, calendar);
       }
       case MONTHLY:
       {
         final CouponInflationZeroCouponMonthlyDefinition inflationCoupon = CouponInflationZeroCouponMonthlyDefinition.from(settlementDate, paymentDate, -notional,
-            index, priceIndexTimeSeries, conventionalMonthLag, monthLag, false);
+            index, conventionalMonthLag, monthLag, false);
         return new SwapFixedInflationZeroCouponDefinition(fixedCoupon, inflationCoupon, calendar);
       }
       default:

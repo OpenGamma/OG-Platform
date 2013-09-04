@@ -97,10 +97,8 @@ public class CouponInflationYearOnYearMonthlyWithMarginDefinition extends Coupon
    */
   public static CouponInflationYearOnYearMonthlyWithMarginDefinition from(final double factor, final ZonedDateTime accrualStartDate, final ZonedDateTime paymentDate, final double notional,
       final IndexPrice priceIndex, final int conventionalMonthLag, final boolean payNotional) {
-    ZonedDateTime referenceStartDate = accrualStartDate.minusMonths(conventionalMonthLag);
-    ZonedDateTime referenceEndDate = paymentDate.minusMonths(conventionalMonthLag);
-    referenceStartDate = referenceStartDate.minusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
-    referenceEndDate = referenceEndDate.minusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
+    final ZonedDateTime referenceStartDate = accrualStartDate.minusMonths(conventionalMonthLag).with(TemporalAdjusters.lastDayOfMonth());
+    final ZonedDateTime referenceEndDate = paymentDate.minusMonths(conventionalMonthLag).with(TemporalAdjusters.lastDayOfMonth());
 
     return new CouponInflationYearOnYearMonthlyWithMarginDefinition(factor, priceIndex.getCurrency(), paymentDate, accrualStartDate, paymentDate, 1.0, notional, priceIndex, conventionalMonthLag,
         conventionalMonthLag, referenceStartDate, referenceEndDate, payNotional);
@@ -120,10 +118,8 @@ public class CouponInflationYearOnYearMonthlyWithMarginDefinition extends Coupon
    */
   public static CouponInflationYearOnYearMonthlyWithMarginDefinition from(final double factor, final ZonedDateTime accrualStartDate, final ZonedDateTime paymentDate, final double notional,
       final IndexPrice priceIndex, final int conventionalMonthLag, final int monthLag, final boolean payNotional) {
-    ZonedDateTime referenceStartDate = accrualStartDate.minusMonths(conventionalMonthLag);
-    ZonedDateTime referenceEndDate = paymentDate.minusMonths(conventionalMonthLag);
-    referenceStartDate = referenceStartDate.minusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
-    referenceEndDate = referenceEndDate.minusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
+    final ZonedDateTime referenceStartDate = accrualStartDate.minusMonths(conventionalMonthLag).with(TemporalAdjusters.lastDayOfMonth());
+    final ZonedDateTime referenceEndDate = paymentDate.minusMonths(conventionalMonthLag).with(TemporalAdjusters.lastDayOfMonth());
 
     return new CouponInflationYearOnYearMonthlyWithMarginDefinition(factor, priceIndex.getCurrency(), paymentDate, accrualStartDate, paymentDate, 1.0, notional, priceIndex, conventionalMonthLag,
         monthLag, referenceStartDate, referenceEndDate, payNotional);
@@ -176,10 +172,8 @@ public class CouponInflationYearOnYearMonthlyWithMarginDefinition extends Coupon
 
   @Override
   public CouponInflationDefinition with(final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double notional) {
-    final ZonedDateTime refInterpolatedDate = accrualEndDate.minusMonths(_conventionalMonthLag);
-    final ZonedDateTime referenceEndDate = refInterpolatedDate.withDayOfMonth(1);
     return new CouponInflationYearOnYearMonthlyWithMarginDefinition(_factor, getCurrency(), paymentDate, accrualStartDate, accrualEndDate, getPaymentYearFraction(), getNotional(),
-        getPriceIndex(), _conventionalMonthLag, _monthLag, getReferenceStartDate(), referenceEndDate, payNotional());
+        getPriceIndex(), _conventionalMonthLag, _monthLag, getReferenceStartDate(), getAccrualEndDate(), payNotional());
   }
 
   /**
