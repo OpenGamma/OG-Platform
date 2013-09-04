@@ -80,7 +80,7 @@ public class BlotterLookupResourceTest {
 
   @Test
   public void getFloatingRateTypes() throws JSONException {
-    JSONArray expected = new JSONArray(Lists.newArrayList("IBOR", "CMS", "OIS"));
+    JSONArray expected = new JSONArray(Lists.newArrayList("IBOR", "CMS", "OIS", "OVERNIGHT_ARITHMETIC_AVERAGE"));
     assertTrue(JsonTestUtils.equal(expected, new JSONArray(_resource.getFloatingRateTypes())));
   }
 
