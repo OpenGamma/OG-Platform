@@ -31,7 +31,6 @@ public class CDSAnalytic {
 
   private final double _lgd;
   private final int _nPayments;
-  private final double[] _creditObsTimes;
   private final double[] _paymentTimes;
   private final double[] _accFractions;
   private final double[] _accStart;
@@ -153,7 +152,6 @@ public class CDSAnalytic {
 
     _nPayments = paymentSchedule.getNumPayments();
     _paymentTimes = new double[_nPayments];
-    _creditObsTimes = new double[_nPayments];
     _accStart = new double[_nPayments];
     _accEnd = new double[_nPayments];
     _accFractions = new double[_nPayments];
@@ -163,11 +161,9 @@ public class CDSAnalytic {
       _paymentTimes[i] = curveDayCount.getDayCountFraction(tradeDate, paymentDate, calendar);
       final LocalDate accStart = paymentSchedule.getAccStartDate(i);
       final LocalDate accEnd = paymentSchedule.getAccEndDate(i);
-      final LocalDate obsEnd = protectStart ? accEnd.minusDays(1) : accEnd;
       _accFractions[i] = accrualDayCount.getDayCountFraction(accStart, accEnd, calendar);
       _accStart[i] = accStart.isBefore(tradeDate) ? -curveDayCount.getDayCountFraction(accStart, tradeDate, calendar) : curveDayCount.getDayCountFraction(tradeDate, accStart, calendar);
       _accEnd[i] = curveDayCount.getDayCountFraction(tradeDate, accEnd, calendar);
-      _creditObsTimes[i] = curveDayCount.getDayCountFraction(tradeDate, obsEnd, calendar); // TODO this looks odd - check again with ISDA c code
     }
     final LocalDate accStart = paymentSchedule.getAccStartDate(0);
 
@@ -266,10 +262,6 @@ public class CDSAnalytic {
    */
   public double getPaymentTime(final int index) {
     return _paymentTimes[index];
-  }
-
-  public double getCreditObservationTime(final int index) {
-    return _creditObsTimes[index];
   }
 
   /**

@@ -35,10 +35,33 @@ public class RopemakerTest extends ISDABaseTest {
 
   private static final double NOTIONAL = 1e6;
   private static final double COUPON = 0.01;
-  private static final double RECOVERY = 0.25;
+  private static final double RECOVERY = 0.40;
   private static final Period NON_IMM_TENOR = Period.ofMonths(6);
   private static final CDSAnalyticFactory IMM_CDS_FACTORY = new CDSAnalyticFactory(RECOVERY);
   private static final CDSAnalyticFactory NON_IMM_CDS_FACTORY = IMM_CDS_FACTORY.with(NON_IMM_TENOR);
+
+  @Test(enabled = true)
+  public void aegonTest() {
+    final String name = "aegon";
+
+    final LocalDate tradeDate = LocalDate.of(2013, Month.SEPTEMBER, 2);
+    final LocalDate firstMaturity = getNextIMMDate(tradeDate);
+    final LocalDate[] maturities = getIMMDateSet(firstMaturity, 41);
+
+    final double[] spreads = new double[] {0.003372, 0.003751, 0.004117, 0.004892, 0.00557, 0.006765, 0.007629, 0.008325, 0.008907, 0.009919, 0.010759, 0.011492, 0.012135, 0.012951, 0.013681,
+      0.014336, 0.014927, 0.015745, 0.016472, 0.017147, 0.017754, 0.018181, 0.018569, 0.018953, 0.019306, 0.019671, 0.02001, 0.020339, 0.020647, 0.020829, 0.021013, 0.021182, 0.021351, 0.021499,
+      0.021649, 0.021786, 0.022041, 0.022181, 0.022328, 0.02246, 0.022601 };
+
+    //yield curve
+    final LocalDate spotDate = addWorkDays(tradeDate.minusDays(1), 3, DEFAULT_CALENDAR);
+    final String[] yieldCurvePoints = new String[] {"1M", "2M", "3M", "6M", "9M", "1Y", "2Y", "3Y", "4Y", "5Y", "6Y", "7Y", "8Y", "9Y", "10Y", "12Y", "15Y", "20Y", "30Y" };
+    final String[] yieldCurveInstruments = new String[] {"M", "M", "M", "M", "M", "M", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S" };
+    final double[] rates = new double[] {0.00129, 0.00175, 0.00224, 0.00343, 0.0045, 0.00545, 0.00628, 0.00862, 0.01121, 0.01365, 0.01576, 0.01758, 0.01917, 0.0206, 0.02188, 0.02395, 0.02595, 0.0271,
+      0.0271 };
+    final ISDACompliantYieldCurve yieldCurve = makeYieldCurve(tradeDate, spotDate, yieldCurvePoints, yieldCurveInstruments, rates, ACT360, D30360, Period.ofYears(1));
+
+    runGrid(name, tradeDate, maturities, spreads, yieldCurve);
+  }
 
   @Test(enabled = false)
   public void russiaTest() {

@@ -204,50 +204,6 @@ public class ISDAPremiumLegSchedule {
   public ISDAPremiumLegSchedule(final LocalDate startDate, final LocalDate endDate, final Period step, final StubType stubType, final BusinessDayConvention businessdayAdjustmentConvention,
       final Calendar calandar, final boolean protectionStart) {
     this(getUnadjustedDates(startDate, endDate, step, stubType), businessdayAdjustmentConvention, calandar, protectionStart);
-    //    
-    //    ArgumentChecker.notNull(startDate, "null startDate");
-    //    ArgumentChecker.notNull(endDate, "null endDate");
-    //    ArgumentChecker.notNull(stubType, "null stubType");
-    //
-    //    if (protectionStart) {
-    //      ArgumentChecker.isFalse(endDate.isBefore(startDate), "end date is before startDate");
-    //    } else {
-    //      ArgumentChecker.isTrue(endDate.isAfter(startDate), "end is must be after startDate");
-    //    }
-    //
-    //    LocalDate[] tempDates;
-    //    if (startDate.isEqual(endDate)) { // this can only happen if protectionStart == true
-    //      tempDates = new LocalDate[2];
-    //      tempDates[0] = startDate;
-    //      tempDates[1] = endDate;
-    //    } else {
-    //      tempDates = getUnadjustedDates(startDate, endDate, step, stubType);
-    //    }
-    //    
-    //
-    //    _nPayments = tempDates.length - 1;
-    //    _paymentDates = new LocalDate[_nPayments];
-    //    _accStartDates = new LocalDate[_nPayments];
-    //    _accEndDates = new LocalDate[_nPayments];
-    //
-    //    LocalDate dPrev = tempDates[0];
-    //    LocalDate dPrevAdj = dPrev; // first date is never adjusted
-    //    for (int i = 0; i < _nPayments; i++) {
-    //      final LocalDate dNext = tempDates[i + 1];
-    //      final LocalDate dNextAdj = businessDayAdjustDate(dNext, calandar, businessdayAdjustmentConvention);
-    //      _accStartDates[i] = dPrevAdj;
-    //      _accEndDates[i] = dNextAdj;
-    //      _paymentDates[i] = dNextAdj;
-    //      dPrev = dNext;
-    //      dPrevAdj = dNextAdj;
-    //    }
-    //
-    //    // the last accrual date is not adjusted.
-    //    if (protectionStart) {
-    //      _accEndDates[_nPayments - 1] = dPrev.plusDays(1); // extra day of accrued interest
-    //    } else {
-    //      _accEndDates[_nPayments - 1] = dPrev;
-    //    }
   }
 
   public ISDAPremiumLegSchedule(final LocalDate[] unadjustedDates, final BusinessDayConvention businessdayAdjustmentConvention, final Calendar calandar, final boolean protectionStart) {

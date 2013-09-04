@@ -412,9 +412,10 @@ public class FastCreditCurveBuilder implements ISDACompliantCreditCurveBuilder {
 
     public double rpv01(final ISDACompliantCreditCurve creditCurve, final PriceType cleanOrDirty) {
 
+      final double obsOffset = _cds.isProtectionFromStartOfDay() ? -_cds.getCurveOneDay() : 0.0;
       double pv = 0.0;
       for (int i = 0; i < _nPayments; i++) {
-        final double q = creditCurve.getDiscountFactor(_cds.getCreditObservationTime(i));
+        final double q = creditCurve.getDiscountFactor(_cds.getAccEnd(i) + obsOffset);
         pv += _cds.getAccrualFraction(i) * _paymentDF[i] * q;
       }
 

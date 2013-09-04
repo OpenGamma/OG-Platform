@@ -147,24 +147,27 @@ public class AnalyticCDSPricer {
     if (cds.getProtectionEnd() <= 0.0) { //short cut already expired CDSs 
       return 0.0;
     }
+    final double obsOffset = cds.isProtectionFromStartOfDay() ? -cds.getCurveOneDay() : 0.0;
 
     final int n = cds.getNumPayments();
     double pv = 0.0;
     for (int i = 0; i < n; i++) {
-      final double q = creditCurve.getDiscountFactor(cds.getCreditObservationTime(i));
-      final double p = yieldCurve.getDiscountFactor(cds.getPaymentTime(i));
+      final double paymentTime = cds.getPaymentTime(i);
+      final double creditObsTime = cds.getAccEnd(i) + obsOffset;
+      final double q = creditCurve.getDiscountFactor(creditObsTime /*cds.getCreditObservationTime(i)*/);
+      final double p = yieldCurve.getDiscountFactor(paymentTime);
       pv += cds.getAccrualFraction(i) * p * q;
     }
 
     if (cds.isPayAccOnDefault()) {
-      final double offset = cds.isProtectionFromStartOfDay() ? -cds.getCurveOneDay() : 0.0;
+
       final double[] integrationSchedule = getIntegrationsPoints(cds.getAccStart(0), cds.getAccEnd(n - 1), yieldCurve, creditCurve);
-      final double offsetStepin = cds.getStepin() + offset;
+      final double offsetStepin = cds.getStepin() + obsOffset;
 
       double accPV = 0.0;
       for (int i = 0; i < n; i++) {
-        final double offsetAccStart = cds.getAccStart(i) + offset;
-        final double offsetAccEnd = cds.getAccEnd(i) + offset;
+        final double offsetAccStart = cds.getAccStart(i) + obsOffset;
+        final double offsetAccEnd = cds.getAccEnd(i) + obsOffset;
         final double accRate = cds.getAccrualFraction(i) / (offsetAccEnd - offsetAccStart);
         accPV += calculateSinglePeriodAccrualOnDefault(accRate, offsetStepin, offsetAccStart, offsetAccEnd, integrationSchedule, yieldCurve, creditCurve);
       }
@@ -195,24 +198,26 @@ public class AnalyticCDSPricer {
     if (cds.getProtectionEnd() <= 0.0) { //short cut already expired CDSs 
       return 0.0;
     }
+    final double obsOffset = cds.isProtectionFromStartOfDay() ? -cds.getCurveOneDay() : 0.0;
 
     final int n = cds.getNumPayments();
     double pvSense = 0.0;
     for (int i = 0; i < n; i++) {
-      final double dqdh = creditCurve.getSingleNodeDiscountFactorSensitivity(cds.getCreditObservationTime(i), creditCurveNode);
-      final double p = yieldCurve.getDiscountFactor(cds.getPaymentTime(i));
+      final double paymentTime = cds.getPaymentTime(i);
+      final double creditObsTime = cds.getAccEnd(i) + obsOffset;
+      final double dqdh = creditCurve.getSingleNodeDiscountFactorSensitivity(creditObsTime, creditCurveNode);
+      final double p = yieldCurve.getDiscountFactor(paymentTime);
       pvSense += cds.getAccrualFraction(i) * p * dqdh;
     }
 
     if (cds.isPayAccOnDefault()) {
-      final double offset = cds.isProtectionFromStartOfDay() ? -cds.getCurveOneDay() : 0.0;
       final double[] integrationSchedule = getIntegrationsPoints(cds.getAccStart(0), cds.getAccEnd(n - 1), yieldCurve, creditCurve);
-      final double offsetStepin = cds.getStepin() + offset;
+      final double offsetStepin = cds.getStepin() + obsOffset;
 
       double accPVSense = 0.0;
       for (int i = 0; i < n; i++) {
-        final double offsetAccStart = cds.getAccStart(i) + offset;
-        final double offsetAccEnd = cds.getAccEnd(i) + offset;
+        final double offsetAccStart = cds.getAccStart(i) + obsOffset;
+        final double offsetAccEnd = cds.getAccEnd(i) + obsOffset;
         final double accRate = cds.getAccrualFraction(i) / (offsetAccEnd - offsetAccStart);
         accPVSense += calculateSinglePeriodAccrualOnDefaultSensitivity(accRate, offsetStepin, offsetAccStart, offsetAccEnd, integrationSchedule, yieldCurve, creditCurve, creditCurveNode);
       }
@@ -327,13 +332,13 @@ public class AnalyticCDSPricer {
           final double dPVdq1 = b0 * dt / q1 * (-eP + dht * ePP);
           tPvSense = dPVdq0 * dqdr0 + dPVdq1 * dqdr1;
         } else {
-          final double w5 = (b0 - b1) / dhrt;
-          final double w1 = w5 - b1;
-          final double w2 = dht / dhrt;
-          final double w3 = dt / dhrt;
-          final double w4 = (1 - w2) * w1;
-          final double dPVdq0 = w3 / q0 * (w4 + w2 * (b0 - w5));
-          final double dPVdq1 = w3 / q1 * (w4 + w2 * (b1 * (1 + dhrt) - w5));
+          final double w1 = (b0 - b1) / dhrt;
+          final double w2 = w1 - b1;
+          final double w3 = dht / dhrt;
+          final double w4 = dt / dhrt;
+          final double w5 = (1 - w3) * w2;
+          final double dPVdq0 = w4 / q0 * (w5 + w3 * (b0 - w1));
+          final double dPVdq1 = w4 / q1 * (w5 + w3 * (b1 * (1 + dhrt) - w1));
           tPvSense = dPVdq0 * dqdr0 - dPVdq1 * dqdr1;
         }
       } else {

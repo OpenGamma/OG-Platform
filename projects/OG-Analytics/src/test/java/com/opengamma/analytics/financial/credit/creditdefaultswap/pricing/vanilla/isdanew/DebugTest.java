@@ -71,9 +71,10 @@ public class DebugTest extends ISDABaseTest {
 
   }
 
-  @Test(enabled = false)
+  @Test
+  //(enabled = false)
   public void funcTest() {
-    final CDSAnalyticFactory factory = new CDSAnalyticFactory(0.25);
+    final CDSAnalyticFactory factory = new CDSAnalyticFactory(1.0);
     final CDSAnalytic cds = factory.makeIMMCDS(TRADE_DATE, Period.ofYears(5));
     for (int i = 0; i < 100; i++) {
       final double lambda = 0.8 * i / 100.;
