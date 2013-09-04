@@ -29,11 +29,11 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
   private PayoffFunction _function;
 
   /*
-   * TODO Test Greeks for barriers with discrete/continuous dividends
    * TODO time-varying vol may not be compatible to discrete dividends due to limited control of dt
    *
    * TODO check convergence of theta
    *
+   * TODO More accuracy for barrier case??? such as barrier options, two asset correlation option
    *
    * <<Slight modification of American>>
    * TODO Bermudan option (PLAT-4459)
