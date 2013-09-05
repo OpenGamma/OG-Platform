@@ -11,6 +11,7 @@ import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
+import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.ZonedDateTime;
@@ -24,6 +25,8 @@ import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.id.ExternalId;
+import org.joda.beans.Property;
+import org.joda.beans.impl.direct.DirectMetaProperty;
 
 /**
  *
@@ -38,6 +41,13 @@ public class StandardFixedRecoveryCDSSecurity  extends StandardCDSSecurity {
    * The security type
    */
   public static final String SECURITY_TYPE = "STANDARD_FIXED_RECOVERY_CDS";
+
+  /**
+   * The recovery rate.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private double _recoveryRate;
+
   StandardFixedRecoveryCDSSecurity() { // for fudge
     super(SECURITY_TYPE);
   }
@@ -49,8 +59,9 @@ public class StandardFixedRecoveryCDSSecurity  extends StandardCDSSecurity {
       final boolean adjustMaturityDate, final InterestRateNotional notional, final double recoveryRate, final boolean includeAccruedPremium,
       final boolean protectionStart, final double quotedSpread, final InterestRateNotional upfrontAmount) {
     super(isBuy, protectionSeller, protectionBuyer, referenceEntity, debtSeniority, restructuringClause, regionId, startDate, effectiveDate, maturityDate, stubType,
-        couponFrequency, dayCount, businessDayConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional, recoveryRate, includeAccruedPremium,
+        couponFrequency, dayCount, businessDayConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional, includeAccruedPremium,
         protectionStart, quotedSpread, upfrontAmount, SECURITY_TYPE);
+    _recoveryRate = recoveryRate;
   }
 
   @Override
@@ -79,12 +90,27 @@ public class StandardFixedRecoveryCDSSecurity  extends StandardCDSSecurity {
 
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
+    switch (propertyName.hashCode()) {
+      case 2002873877:  // recoveryRate
+        return getRecoveryRate();
+    }
     return super.propertyGet(propertyName, quiet);
   }
 
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+    switch (propertyName.hashCode()) {
+      case 2002873877:  // recoveryRate
+        setRecoveryRate((Double) newValue);
+        return;
+    }
     super.propertySet(propertyName, newValue, quiet);
+  }
+
+  @Override
+  protected void validate() {
+    JodaBeanUtils.notNull(_recoveryRate, "recoveryRate");
+    super.validate();
   }
 
   @Override
@@ -93,7 +119,9 @@ public class StandardFixedRecoveryCDSSecurity  extends StandardCDSSecurity {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      return super.equals(obj);
+      StandardFixedRecoveryCDSSecurity other = (StandardFixedRecoveryCDSSecurity) obj;
+      return JodaBeanUtils.equal(getRecoveryRate(), other.getRecoveryRate()) &&
+          super.equals(obj);
     }
     return false;
   }
@@ -101,7 +129,34 @@ public class StandardFixedRecoveryCDSSecurity  extends StandardCDSSecurity {
   @Override
   public int hashCode() {
     int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRecoveryRate());
     return hash ^ super.hashCode();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the recovery rate.
+   * @return the value of the property, not null
+   */
+  public double getRecoveryRate() {
+    return _recoveryRate;
+  }
+
+  /**
+   * Sets the recovery rate.
+   * @param recoveryRate  the new value of the property, not null
+   */
+  public void setRecoveryRate(double recoveryRate) {
+    JodaBeanUtils.notNull(recoveryRate, "recoveryRate");
+    this._recoveryRate = recoveryRate;
+  }
+
+  /**
+   * Gets the the {@code recoveryRate} property.
+   * @return the property, not null
+   */
+  public final Property<Double> recoveryRate() {
+    return metaBean().recoveryRate().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -115,15 +170,30 @@ public class StandardFixedRecoveryCDSSecurity  extends StandardCDSSecurity {
     static final Meta INSTANCE = new Meta();
 
     /**
+     * The meta-property for the {@code recoveryRate} property.
+     */
+    private final MetaProperty<Double> _recoveryRate = DirectMetaProperty.ofReadWrite(
+        this, "recoveryRate", StandardFixedRecoveryCDSSecurity.class, Double.TYPE);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, (DirectMetaPropertyMap) super.metaPropertyMap());
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "recoveryRate");
 
     /**
      * Restricted constructor.
      */
     protected Meta() {
+    }
+
+    @Override
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 2002873877:  // recoveryRate
+          return _recoveryRate;
+      }
+      return super.metaPropertyGet(propertyName);
     }
 
     @Override
@@ -142,6 +212,14 @@ public class StandardFixedRecoveryCDSSecurity  extends StandardCDSSecurity {
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code recoveryRate} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Double> recoveryRate() {
+      return _recoveryRate;
+    }
+
   }
 
   ///CLOVER:ON

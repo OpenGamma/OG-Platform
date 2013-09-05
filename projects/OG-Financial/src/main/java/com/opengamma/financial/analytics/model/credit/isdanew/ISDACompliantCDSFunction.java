@@ -54,7 +54,9 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.TenorLabelledMatrix1D;
 import com.opengamma.financial.analytics.model.cds.ISDAFunctionConstants;
+import com.opengamma.financial.analytics.model.credit.CreditSecurityToRecoveryRateVisitor;
 import com.opengamma.financial.analytics.model.credit.SpreadCurveFunctions;
+import com.opengamma.financial.credit.CdsRecoveryRateIdentifier;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.cds.CreditDefaultSwapSecurity;
 import com.opengamma.financial.security.cds.LegacyVanillaCDSSecurity;
@@ -109,6 +111,18 @@ public class ISDACompliantCDSFunction extends NonCompiledInvoker {
     final String quoteConventionString = desiredValue.getConstraint(ISDAFunctionConstants.CDS_QUOTE_CONVENTION);
     final StandardCDSQuotingConvention quoteConvention = StandardCDSQuotingConvention.parse(quoteConventionString);
 
+    final CdsRecoveryRateIdentifier recoveryRateIdentifier = security.accept(new CreditSecurityToRecoveryRateVisitor(
+        executionContext.getSecuritySource()));
+    Object recoveryRateObject = inputs.getValue(new ValueRequirement("PX_LAST",
+                                                                     ComputationTargetType.PRIMITIVE,
+                                                                     recoveryRateIdentifier.getExternalId()));
+    if (recoveryRateObject == null) {
+      throw new OpenGammaRuntimeException("Could not get recovery rate");
+      //s_logger.warn("Could not get recovery rate, defaulting to 0.4: " + recoveryRateIdentifier);
+      //recoveryRateObject = 0.4;
+    }
+    final double recoveryRate = (Double) recoveryRateObject;
+
     // get the isda curve
     final Object isdaObject = inputs.getValue(ValueRequirementNames.YIELD_CURVE);
     if (isdaObject == null) {
@@ -138,7 +152,7 @@ public class ISDACompliantCDSFunction extends NonCompiledInvoker {
     final CDSAnalytic[] bucketCDSs = new CDSAnalytic[bucketDates.length];
     for (int i = 0; i < bucketCDSs.length; i++) {
       //security.setMaturityDate(bucketDates[i]);
-      final CDSAnalyticVisitor visitor = new CDSAnalyticVisitor(now.toLocalDate(), _holidaySource, _regionSource, security.getStartDate().toLocalDate(), bucketDates[i].toLocalDate());
+      final CDSAnalyticVisitor visitor = new CDSAnalyticVisitor(now.toLocalDate(), _holidaySource, _regionSource, security.getStartDate().toLocalDate(), bucketDates[i].toLocalDate(), recoveryRate);
       bucketCDSs[i] = security.accept(visitor);
     }
 
@@ -146,7 +160,7 @@ public class ISDACompliantCDSFunction extends NonCompiledInvoker {
     final CDSAnalytic[] pillarCDSs = new CDSAnalytic[pillarDates.length];
     for (int i = 0; i < pillarCDSs.length; i++) {
       //security.setMaturityDate(bucketDates[i]);
-      final CDSAnalyticVisitor visitor = new CDSAnalyticVisitor(now.toLocalDate(), _holidaySource, _regionSource, security.getStartDate().toLocalDate(), pillarDates[i].toLocalDate());
+      final CDSAnalyticVisitor visitor = new CDSAnalyticVisitor(now.toLocalDate(), _holidaySource, _regionSource, security.getStartDate().toLocalDate(), pillarDates[i].toLocalDate(), recoveryRate);
       pillarCDSs[i] = security.accept(visitor);
     }
 
@@ -156,7 +170,7 @@ public class ISDACompliantCDSFunction extends NonCompiledInvoker {
     }
 
     //final CDSAnalytic analytic = CDSAnalyticConverter.create(cds, now.toLocalDate());
-    final CDSAnalyticVisitor visitor = new CDSAnalyticVisitor(now.toLocalDate(), _holidaySource, _regionSource);
+    final CDSAnalyticVisitor visitor = new CDSAnalyticVisitor(now.toLocalDate(), _holidaySource, _regionSource, recoveryRate);
     final CDSAnalytic analytic = security.accept(visitor);
     final BuySellProtection buySellProtection = security.isBuy() ? BuySellProtection.BUY : BuySellProtection.SELL;
     final Double cdsQuoteDouble = (Double) inputs.getValue(MarketDataRequirementNames.MARKET_VALUE);
@@ -273,7 +287,10 @@ public class ISDACompliantCDSFunction extends NonCompiledInvoker {
     final Period period = Period.between(cds.getStartDate().toLocalDate().withDayOfMonth(20), cds.getMaturityDate().toLocalDate().withDayOfMonth(20));
     final ValueRequirement cdsSpreadRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, ExternalId.of("Tenor", period.toString()));
 
-    return Sets.newHashSet(isdaRequirment, spreadRequirment, cdsSpreadRequirement, creditCurveRequirement, pillarRequirment);
+    final CdsRecoveryRateIdentifier recoveryRateIdentifier = cds.accept(new CreditSecurityToRecoveryRateVisitor(context.getSecuritySource()));
+    final ValueRequirement recoveryRateRequirement = new ValueRequirement("PX_LAST", ComputationTargetType.PRIMITIVE, recoveryRateIdentifier.getExternalId());
+
+    return Sets.newHashSet(isdaRequirment, spreadRequirment, cdsSpreadRequirement, creditCurveRequirement, pillarRequirment, recoveryRateRequirement);
   }
 
   @Override

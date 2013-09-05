@@ -40,6 +40,7 @@ public final class LegacyFixedRecoveryCDSSecurityBeanOperation extends AbstractS
     final LegacyFixedRecoveryCDSSecurityBean bean = new LegacyFixedRecoveryCDSSecurityBean();
     CreditDefaultSwapBeanOperation.createBean(secMasterSession, bean, security);
     bean.setParSpread(security.getParSpread());
+    bean.setRecoveryRate(security.getRecoveryRate());
     return bean;
   }
 

@@ -43,6 +43,7 @@ public final class StdFixedRecoveryCDSSecurityBeanOperation extends AbstractSecu
     CreditDefaultSwapBeanOperation.createBean(secMasterSession, bean, security);
     bean.setQuotedSpread(security.getQuotedSpread());
     bean.setUpfrontAmount(NotionalBeanOperation.createBean(secMasterSession, security.getUpfrontAmount()));
+    bean.setRecoveryRate(security.getRecoveryRate());
     return bean;
   }
 

@@ -462,7 +462,7 @@ public class ExposureFunctionTestHelper {
   public static LegacyFixedRecoveryCDSSecurity getLegacyFixedRecoveryCDSSecurity() {
     final LegacyFixedRecoveryCDSSecurity security = new LegacyFixedRecoveryCDSSecurity(false, ExternalId.of("Test", "A"), ExternalId.of("Test", "B"), ExternalId.of("Test", "C"), DebtSeniority.JRSUBUT2,
         RestructuringClause.CR, DE, DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2023, 1, 1), StubType.LONG_END, PeriodFrequency.SEMI_ANNUAL, DC, BDC,
-        false, false, false, new InterestRateNotional(EUR, 1000), 0, true, false, 0.01);
+        false, false, false, new InterestRateNotional(EUR, 1000), 0.4, true, false, 0.01);
     security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "1216"));
     return security;
   }
@@ -470,7 +470,7 @@ public class ExposureFunctionTestHelper {
   public static LegacyRecoveryLockCDSSecurity getLegacyRecoveryLockCDSSecurity() {
     final LegacyRecoveryLockCDSSecurity security = new LegacyRecoveryLockCDSSecurity(false, ExternalId.of("Test", "A"), ExternalId.of("Test", "B"), ExternalId.of("Test", "C"), DebtSeniority.JRSUBUT2,
         RestructuringClause.CR, DE, DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2023, 1, 1), StubType.LONG_END, PeriodFrequency.SEMI_ANNUAL, DC, BDC,
-        false, false, false, new InterestRateNotional(EUR, 1000), 0, true, false, 0.01);
+        false, false, false, new InterestRateNotional(EUR, 1000), 0.4, true, false, 0.01);
     security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "1216"));
     return security;
   }
@@ -478,7 +478,7 @@ public class ExposureFunctionTestHelper {
   public static LegacyVanillaCDSSecurity getLegacyVanillaCDSSecurity() {
     final LegacyVanillaCDSSecurity security = new LegacyVanillaCDSSecurity(false, ExternalId.of("Test", "A"), ExternalId.of("Test", "B"), ExternalId.of("Test", "C"), DebtSeniority.JRSUBUT2,
         RestructuringClause.CR, DE, DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2023, 1, 1), StubType.LONG_END, PeriodFrequency.SEMI_ANNUAL, DC, BDC,
-        false, false, false, new InterestRateNotional(EUR, 1000), 0, true, false, 0.01);
+        false, false, false, new InterestRateNotional(EUR, 1000), true, false, 0.01);
     security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "1216"));
     return security;
   }
@@ -537,7 +537,7 @@ public class ExposureFunctionTestHelper {
   public static StandardFixedRecoveryCDSSecurity getStandardFixedRecoveryCDSSecurity() {
     final StandardFixedRecoveryCDSSecurity security = new StandardFixedRecoveryCDSSecurity(false, ExternalId.of("Test", "A"), ExternalId.of("Test", "B"), ExternalId.of("Test", "C"), DebtSeniority.JRSUBUT2,
         RestructuringClause.CR, DE, DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2023, 1, 1), StubType.LONG_END, PeriodFrequency.SEMI_ANNUAL, DC, BDC,
-        false, false, false, new InterestRateNotional(EUR, 1000), 0, true, false, 0.01, new InterestRateNotional(EUR, 1));
+        false, false, false, new InterestRateNotional(EUR, 1000), 0.4, true, false, 0.01, new InterestRateNotional(EUR, 1));
     security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "1216"));
     return security;
   }
@@ -545,7 +545,7 @@ public class ExposureFunctionTestHelper {
   public static StandardRecoveryLockCDSSecurity getStandardRecoveryLockCDSSecurity() {
     final StandardRecoveryLockCDSSecurity security = new StandardRecoveryLockCDSSecurity(false, ExternalId.of("Test", "A"), ExternalId.of("Test", "B"), ExternalId.of("Test", "C"), DebtSeniority.JRSUBUT2,
         RestructuringClause.CR, DE, DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2023, 1, 1), StubType.LONG_END, PeriodFrequency.SEMI_ANNUAL, DC, BDC,
-        false, false, false, new InterestRateNotional(EUR, 1000), 0, true, false, 0.01, new InterestRateNotional(EUR, 1));
+        false, false, false, new InterestRateNotional(EUR, 1000), 0.4, true, false, 0.01, new InterestRateNotional(EUR, 1));
     security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "1216"));
     return security;
   }
@@ -553,7 +553,7 @@ public class ExposureFunctionTestHelper {
   public static StandardVanillaCDSSecurity getStandardVanillaCDSSecurity() {
     final StandardVanillaCDSSecurity security = new StandardVanillaCDSSecurity(false, ExternalId.of("Test", "A"), ExternalId.of("Test", "B"), ExternalId.of("Test", "C"), DebtSeniority.JRSUBUT2,
         RestructuringClause.CR, DE, DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2023, 1, 1), StubType.LONG_END, PeriodFrequency.SEMI_ANNUAL, DC, BDC,
-        false, false, false, new InterestRateNotional(EUR, 1000), 0, true, false, 0.01, new InterestRateNotional(EUR, 1), 0.02, DateUtils.getUTCDate(2013, 1, 1), false);
+        false, false, false, new InterestRateNotional(EUR, 1000), true, false, 0.01, new InterestRateNotional(EUR, 1), 0.02, DateUtils.getUTCDate(2013, 1, 1), false);
     security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "1216"));
     return security;
   }

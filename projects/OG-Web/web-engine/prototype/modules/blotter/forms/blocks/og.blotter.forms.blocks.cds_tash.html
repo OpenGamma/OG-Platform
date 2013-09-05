@@ -193,18 +193,19 @@
         {{{item_10}}}
       </td>
     </tr>
-    {{#unless index}}
-    <tr>
-      <td>
-        <label>
-          <span>Recovery Rate</span>
-        </label>
-      </td>
-      <td>
-        <input name="{{prefix}}.recoveryRate" type="text" value="{{data.recoveryRate}}"/>
-      </td>
-    </tr>
-    {{/unless}}
+    <!-- TODO: Show this for recovery lock and fixed recovery cds -->
+    <!--{{#unless index}}-->
+    <!--<tr>-->
+      <!--<td>-->
+        <!--<label>-->
+          <!--<span>Recovery Rate</span>-->
+        <!--</label>-->
+      <!--</td>-->
+      <!--<td>-->
+        <!--<input name="{{prefix}}.recoveryRate" type="text" value="{{data.recoveryRate}}"/>-->
+      <!--</td>-->
+    <!--</tr>-->
+    <!--{{/unless}}-->
     {{#if legacy}}
     <tr>
       <td>

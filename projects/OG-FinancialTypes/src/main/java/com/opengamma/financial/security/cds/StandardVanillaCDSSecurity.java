@@ -35,7 +35,7 @@ import com.opengamma.id.ExternalId;
 public class StandardVanillaCDSSecurity extends StandardCDSSecurity {
 
   /** Serialization version */
-  private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 2L;
 
   /**
    * The security type
@@ -67,11 +67,11 @@ public class StandardVanillaCDSSecurity extends StandardCDSSecurity {
       final DebtSeniority debtSeniority, final RestructuringClause restructuringClause, final ExternalId regionId, final ZonedDateTime startDate,
       final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final StubType stubType, final Frequency couponFrequency, final DayCount dayCount,
       final BusinessDayConvention businessDayConvention, final boolean immAdjustMaturityDate, final boolean adjustEffectiveDate,
-      final boolean adjustMaturityDate, final InterestRateNotional notional, final double recoveryRate, final boolean includeAccruedPremium,
+      final boolean adjustMaturityDate, final InterestRateNotional notional, final boolean includeAccruedPremium,
       final boolean protectionStart, final double quotedSpread, final InterestRateNotional upfrontAmount, final double coupon,
       final ZonedDateTime cashSettlementDate, final boolean adjustCashSettlementDate) {
     super(isBuy, protectionSeller, protectionBuyer, referenceEntity, debtSeniority, restructuringClause, regionId, startDate, effectiveDate, maturityDate, stubType,
-        couponFrequency, dayCount, businessDayConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional, recoveryRate, includeAccruedPremium,
+        couponFrequency, dayCount, businessDayConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional, includeAccruedPremium,
         protectionStart, quotedSpread, upfrontAmount, SECURITY_TYPE);
     setCoupon(coupon);
     setCashSettlementDate(cashSettlementDate);

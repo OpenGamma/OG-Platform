@@ -64,8 +64,7 @@ public final class LegacyVanillaCDSSecurityBeanOperation extends AbstractSecurit
         bean.getAdjustEffectiveDate(), 
         bean.getAdjustMaturityDate(), 
         (InterestRateNotional) createNotional(bean.getNotional()), 
-        bean.getRecoveryRate(), 
-        bean.getIncludeAccruedPremium(), 
+        bean.getIncludeAccruedPremium(),
         bean.getProtectionStart(), 
         bean.getParSpread());
     return security;
