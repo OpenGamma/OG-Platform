@@ -18,9 +18,10 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponArithmeticAverageON;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponArithmeticAverageONSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
+import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.timeseries.DoubleTimeSeries;
@@ -182,9 +183,11 @@ public class CouponArithmeticAverageONSpreadDefinition extends CouponDefinition 
    */
   @Deprecated
   @Override
-  public CouponArithmeticAverageON toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+  public CouponArithmeticAverageONSpread toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.isTrue(!_fixingPeriodDate[0].plusDays(_index.getPublicationLag()).isBefore(date), "First fixing publication strictly before reference date");
-    return null; //FIXME
+    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
+    final double[] fixingPeriodTimes = TimeCalculator.getTimeBetween(date, _fixingPeriodDate);
+    return CouponArithmeticAverageONSpread.from(paymentTime, getPaymentYearFraction(), getNotional(), _index, fixingPeriodTimes, _fixingPeriodAccrualFactor, 0, _spread);
   }
 
   /**
@@ -198,9 +201,11 @@ public class CouponArithmeticAverageONSpreadDefinition extends CouponDefinition 
   }
 
   @Override
-  public CouponArithmeticAverageON toDerivative(final ZonedDateTime date) {
+  public CouponArithmeticAverageONSpread toDerivative(final ZonedDateTime date) {
     ArgumentChecker.isTrue(!_fixingPeriodDate[0].plusDays(_index.getPublicationLag()).isBefore(date), "First fixing publication strictly before reference date");
-    return null; //FIXME
+    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
+    final double[] fixingPeriodTimes = TimeCalculator.getTimeBetween(date, _fixingPeriodDate);
+    return CouponArithmeticAverageONSpread.from(paymentTime, getPaymentYearFraction(), getNotional(), _index, fixingPeriodTimes, _fixingPeriodAccrualFactor, 0, _spread);
   }
 
   @Override

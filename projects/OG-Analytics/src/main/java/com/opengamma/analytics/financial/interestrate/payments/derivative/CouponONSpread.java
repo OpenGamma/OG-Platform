@@ -6,7 +6,6 @@
 package com.opengamma.analytics.financial.interestrate.payments.derivative;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
@@ -61,7 +60,7 @@ public class CouponONSpread extends Coupon {
   public CouponONSpread(final Currency currency, final double paymentTime, final double paymentYearFraction, final double notional, final IndexON index,
       final double fixingPeriodStartTime, final double fixingPeriodEndTime, final double fixingPeriodAccrualFactor, final double notionalAccrued, final double spreadAmount) {
     super(currency, paymentTime, paymentYearFraction, notional);
-    Validate.notNull(index, "Coupon OIS: index");
+    ArgumentChecker.notNull(index, "Coupon OIS: index");
     _index = index;
     _fixingPeriodStartTime = fixingPeriodStartTime;
     _fixingPeriodEndTime = fixingPeriodEndTime;

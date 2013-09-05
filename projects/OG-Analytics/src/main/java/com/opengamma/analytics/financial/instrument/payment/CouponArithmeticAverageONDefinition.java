@@ -65,9 +65,9 @@ public final class CouponArithmeticAverageONDefinition extends CouponDefinition 
       final double paymentAccrualFactor, final double notional, final IndexON index, final ZonedDateTime fixingPeriodStartDate, final ZonedDateTime fixingPeriodEndDate,
       final Calendar calendar) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentAccrualFactor, notional);
-    ArgumentChecker.notNull(index, "CouponOISDefinition: index");
-    ArgumentChecker.notNull(fixingPeriodStartDate, "CouponOISDefinition: fixingPeriodStartDate");
-    ArgumentChecker.notNull(fixingPeriodEndDate, "CouponOISDefinition: fixingPeriodEndDate");
+    ArgumentChecker.notNull(index, "CouponArithmeticAverageONDefinition: index");
+    ArgumentChecker.notNull(fixingPeriodStartDate, "CouponArithmeticAverageONDefinition: fixingPeriodStartDate");
+    ArgumentChecker.notNull(fixingPeriodEndDate, "CouponArithmeticAverageONDefinition: fixingPeriodEndDate");
     ArgumentChecker.isTrue(currency.equals(index.getCurrency()), "Coupon and index currencies are not compatible. Expected to be the same");
     _index = index;
     final List<ZonedDateTime> fixingDateList = new ArrayList<>();
