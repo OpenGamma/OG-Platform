@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.financial.instrument.inflation;
 
+import java.util.Arrays;
+
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.temporal.TemporalAdjusters;
@@ -237,12 +239,7 @@ public class CouponInflationYearOnYearInterpolationWithMarginDefinition extends 
 
   @Override
   public CouponInflationDefinition with(final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double notional) {
-    final ZonedDateTime refInterpolatedDate = accrualEndDate.minusMonths(_conventionalMonthLag);
-    final ZonedDateTime[] referenceEndDate = new ZonedDateTime[2];
-    referenceEndDate[0] = refInterpolatedDate.withDayOfMonth(1);
-    referenceEndDate[1] = referenceEndDate[0].plusMonths(1);
-    return new CouponInflationYearOnYearInterpolationWithMarginDefinition(_factor, getCurrency(), paymentDate, accrualStartDate, accrualEndDate, getPaymentYearFraction(), getNotional(),
-        getPriceIndex(), _conventionalMonthLag, _monthLag, getReferenceStartDate(), referenceEndDate, payNotional(), getWeightStart(), getWeightEnd());
+    return from(_factor, accrualStartDate, paymentDate, notional, getPriceIndex(), _conventionalMonthLag, _monthLag, _payNotional);
   }
 
   /**
@@ -384,8 +381,17 @@ public class CouponInflationYearOnYearInterpolationWithMarginDefinition extends 
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
+    result = prime * result + _conventionalMonthLag;
     long temp;
     temp = Double.doubleToLongBits(_factor);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + _monthLag;
+    result = prime * result + (_payNotional ? 1231 : 1237);
+    result = prime * result + Arrays.hashCode(_referenceEndDate);
+    result = prime * result + Arrays.hashCode(_referenceStartDate);
+    temp = Double.doubleToLongBits(_weightEnd);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_weightStart);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     return result;
   }
@@ -402,7 +408,28 @@ public class CouponInflationYearOnYearInterpolationWithMarginDefinition extends 
       return false;
     }
     final CouponInflationYearOnYearInterpolationWithMarginDefinition other = (CouponInflationYearOnYearInterpolationWithMarginDefinition) obj;
+    if (_conventionalMonthLag != other._conventionalMonthLag) {
+      return false;
+    }
     if (Double.doubleToLongBits(_factor) != Double.doubleToLongBits(other._factor)) {
+      return false;
+    }
+    if (_monthLag != other._monthLag) {
+      return false;
+    }
+    if (_payNotional != other._payNotional) {
+      return false;
+    }
+    if (!Arrays.deepEquals(_referenceEndDate, other._referenceEndDate)) {
+      return false;
+    }
+    if (!Arrays.deepEquals(_referenceStartDate, other._referenceStartDate)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_weightEnd) != Double.doubleToLongBits(other._weightEnd)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_weightStart) != Double.doubleToLongBits(other._weightStart)) {
       return false;
     }
     return true;

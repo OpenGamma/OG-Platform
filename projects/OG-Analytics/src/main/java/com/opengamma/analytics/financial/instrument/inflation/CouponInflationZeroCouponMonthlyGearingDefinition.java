@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.instrument.inflation;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.temporal.TemporalAdjusters;
@@ -214,8 +215,7 @@ public class CouponInflationZeroCouponMonthlyGearingDefinition extends CouponInf
 
   @Override
   public CouponInflationDefinition with(final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double notional) {
-    return new CouponInflationZeroCouponMonthlyGearingDefinition(getCurrency(), paymentDate, accrualStartDate, accrualEndDate, getPaymentYearFraction(), getNotional(),
-        getPriceIndex(), _conventionalMonthLag, _monthLag, _referenceStartDate, _indexStartValue, getReferenceEndDate(), _payNotional, _factor);
+    return from(paymentDate, accrualStartDate, accrualEndDate, notional, getPriceIndex(), _indexStartValue, _conventionalMonthLag, _monthLag, _payNotional, _factor);
   }
 
   /**
@@ -327,8 +327,8 @@ public class CouponInflationZeroCouponMonthlyGearingDefinition extends CouponInf
     result = prime * result + (int) (temp ^ (temp >>> 32));
     result = prime * result + _monthLag;
     result = prime * result + (_payNotional ? 1231 : 1237);
-    result = prime * result + ((_referenceEndDate == null) ? 0 : _referenceEndDate.hashCode());
-    result = prime * result + ((_referenceStartDate == null) ? 0 : _referenceStartDate.hashCode());
+    result = prime * result + _referenceEndDate.hashCode();
+    result = prime * result + _referenceStartDate.hashCode();
     return result;
   }
 
@@ -359,18 +359,10 @@ public class CouponInflationZeroCouponMonthlyGearingDefinition extends CouponInf
     if (_payNotional != other._payNotional) {
       return false;
     }
-    if (_referenceEndDate == null) {
-      if (other._referenceEndDate != null) {
-        return false;
-      }
-    } else if (!_referenceEndDate.equals(other._referenceEndDate)) {
+    if (!ObjectUtils.equals(_referenceEndDate, other._referenceEndDate)) {
       return false;
     }
-    if (_referenceStartDate == null) {
-      if (other._referenceStartDate != null) {
-        return false;
-      }
-    } else if (!_referenceStartDate.equals(other._referenceStartDate)) {
+    if (!ObjectUtils.equals(_referenceStartDate, other._referenceStartDate)) {
       return false;
     }
     return true;

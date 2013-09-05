@@ -16,6 +16,7 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationDefinition;
+import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponInterpolationGearingDefinition;
 import com.opengamma.analytics.financial.instrument.inflation.CouponInflationZeroCouponMonthlyGearingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponDefinition;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
@@ -194,35 +195,34 @@ public class BondCapitalIndexedSecurityDefinitionTest {
   private static final String ISSUER_US = "US GOVT";
 
   // TODO : fix this test, problem with date comparaison.
-  /* @Test
-   *//**
-     * Tests the bond constructors for a TIPS.
-     */
-  /*
+  @Test
+  /**
+    * Tests the bond constructors for a TIPS.
+    */
   public void constructorTips() {
-  // Nominal construction
-  final CouponInflationZeroCouponInterpolationGearingDefinition nominalPayment = CouponInflationZeroCouponInterpolationGearingDefinition.from(START_DATE_TIPS_1,
-    MATURITY_DATE_TIPS_1, NOTIONAL_TIPS_1, PRICE_INDEX_USCPI, INDEX_START_TIPS_1, MONTH_LAG_TIPS_1, MONTH_LAG_TIPS_1, true, 1.0);
-  final AnnuityDefinition<CouponInflationZeroCouponInterpolationGearingDefinition> nominalAnnuity = new AnnuityDefinition<>(
-    new CouponInflationZeroCouponInterpolationGearingDefinition[] {nominalPayment }, CALENDAR_USD);
-  // Coupon construction
-  final ZonedDateTime[] paymentDatesUnadjusted = ScheduleCalculator.getUnadjustedDateSchedule(START_DATE_TIPS_1, MATURITY_DATE_TIPS_1, COUPON_PERIOD_TIPS_1, true,
-    true);
-  final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(paymentDatesUnadjusted, BUSINESS_DAY_USD, CALENDAR_USD, false);
-  final CouponInflationZeroCouponInterpolationGearingDefinition[] coupons = new CouponInflationZeroCouponInterpolationGearingDefinition[paymentDates.length];
-  coupons[0] = CouponInflationZeroCouponInterpolationGearingDefinition.from(paymentDates[0], START_DATE_TIPS_1, paymentDatesUnadjusted[0], NOTIONAL_TIPS_1,
-    PRICE_INDEX_USCPI, INDEX_START_TIPS_1, MONTH_LAG_TIPS_1, MONTH_LAG_TIPS_1, true, REAL_RATE_TIPS_1);
-  for (int loopcpn = 1; loopcpn < paymentDates.length; loopcpn++) {
-  coupons[loopcpn] = CouponInflationZeroCouponInterpolationGearingDefinition.from(paymentDates[loopcpn], paymentDatesUnadjusted[loopcpn - 1],
-      paymentDatesUnadjusted[loopcpn], NOTIONAL_TIPS_1, PRICE_INDEX_USCPI, INDEX_START_TIPS_1, MONTH_LAG_TIPS_1, MONTH_LAG_TIPS_1, true, REAL_RATE_TIPS_1);
+    // Nominal construction
+    final CouponInflationZeroCouponInterpolationGearingDefinition nominalPayment = CouponInflationZeroCouponInterpolationGearingDefinition.from(START_DATE_TIPS_1,
+        MATURITY_DATE_TIPS_1, NOTIONAL_TIPS_1, PRICE_INDEX_USCPI, INDEX_START_TIPS_1, MONTH_LAG_TIPS_1, MONTH_LAG_TIPS_1, true, 1.0);
+    final AnnuityDefinition<CouponInflationZeroCouponInterpolationGearingDefinition> nominalAnnuity = new AnnuityDefinition<>(
+        new CouponInflationZeroCouponInterpolationGearingDefinition[] {nominalPayment }, CALENDAR_USD);
+    // Coupon construction
+    final ZonedDateTime[] paymentDatesUnadjusted = ScheduleCalculator.getUnadjustedDateSchedule(START_DATE_TIPS_1, MATURITY_DATE_TIPS_1, COUPON_PERIOD_TIPS_1, true,
+        true);
+    final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(paymentDatesUnadjusted, BUSINESS_DAY_USD, CALENDAR_USD, false);
+    final CouponInflationZeroCouponInterpolationGearingDefinition[] coupons = new CouponInflationZeroCouponInterpolationGearingDefinition[paymentDates.length];
+    coupons[0] = CouponInflationZeroCouponInterpolationGearingDefinition.from(paymentDates[0], START_DATE_TIPS_1, paymentDatesUnadjusted[0], NOTIONAL_TIPS_1,
+        PRICE_INDEX_USCPI, INDEX_START_TIPS_1, MONTH_LAG_TIPS_1, MONTH_LAG_TIPS_1, true, REAL_RATE_TIPS_1);
+    for (int loopcpn = 1; loopcpn < paymentDates.length; loopcpn++) {
+      coupons[loopcpn] = CouponInflationZeroCouponInterpolationGearingDefinition.from(paymentDates[loopcpn], paymentDatesUnadjusted[loopcpn - 1],
+          paymentDatesUnadjusted[loopcpn], NOTIONAL_TIPS_1, PRICE_INDEX_USCPI, INDEX_START_TIPS_1, MONTH_LAG_TIPS_1, MONTH_LAG_TIPS_1, true, REAL_RATE_TIPS_1);
+    }
+    final AnnuityDefinition<CouponInflationZeroCouponInterpolationGearingDefinition> couponAnnuity = new AnnuityDefinition<>(coupons, CALENDAR_USD);
+    final BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponInterpolationGearingDefinition> bond = new BondCapitalIndexedSecurityDefinition<>(
+        nominalAnnuity, couponAnnuity, INDEX_START_TIPS_1, 0, 2, CALENDAR_USD, DAY_COUNT_TIPS_1, YIELD_CONVENTION_TIPS_1, IS_EOM_TIPS_1, MONTH_LAG_TIPS_1, ISSUER_US);
+    final BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponInterpolationGearingDefinition> bondFrom = BondCapitalIndexedSecurityDefinition
+        .fromInterpolation(PRICE_INDEX_USCPI, MONTH_LAG_TIPS_1, START_DATE_TIPS_1, INDEX_START_TIPS_1, MATURITY_DATE_TIPS_1, COUPON_PERIOD_TIPS_1, NOTIONAL_TIPS_1,
+            REAL_RATE_TIPS_1, BUSINESS_DAY_USD, SETTLEMENT_DAYS_TIPS_1, CALENDAR_USD, DAY_COUNT_TIPS_1, YIELD_CONVENTION_TIPS_1, IS_EOM_TIPS_1, ISSUER_US);
+    assertEquals("Capital Index Bond: constructor", bond, bondFrom);
   }
-  final AnnuityDefinition<CouponInflationZeroCouponInterpolationGearingDefinition> couponAnnuity = new AnnuityDefinition<>(coupons, CALENDAR_USD);
-  final BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponInterpolationGearingDefinition> bond = new BondCapitalIndexedSecurityDefinition<>(
-    nominalAnnuity, couponAnnuity, INDEX_START_TIPS_1, 0, 2, CALENDAR_USD, DAY_COUNT_TIPS_1, YIELD_CONVENTION_TIPS_1, IS_EOM_TIPS_1, MONTH_LAG_TIPS_1, ISSUER_US);
-  final BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponInterpolationGearingDefinition> bondFrom = BondCapitalIndexedSecurityDefinition
-    .fromInterpolation(PRICE_INDEX_USCPI, MONTH_LAG_TIPS_1, START_DATE_TIPS_1, INDEX_START_TIPS_1, MATURITY_DATE_TIPS_1, COUPON_PERIOD_TIPS_1, NOTIONAL_TIPS_1,
-        REAL_RATE_TIPS_1, BUSINESS_DAY_USD, SETTLEMENT_DAYS_TIPS_1, CALENDAR_USD, DAY_COUNT_TIPS_1, YIELD_CONVENTION_TIPS_1, IS_EOM_TIPS_1, ISSUER_US);
-  assertEquals("Capital Index Bond: constructor", bond, bondFrom);
-  }*/
 
 }

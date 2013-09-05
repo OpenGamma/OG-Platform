@@ -33,12 +33,12 @@ public class CouponInflationYearOnYearInterpolationDefinition extends CouponInfl
   /**
    * The reference date for the index at the coupon start. May not be relevant as the index value is known.
    */
-  private final ZonedDateTime[] _referenceStartDate;
+  private final ZonedDateTime[] _referenceStartDates;
 
   /**
    * The reference date for the index at the coupon end. The first of the month. There is usually a difference of two or three month between the reference date and the payment date.
    */
-  private final ZonedDateTime[] _referenceEndDate;
+  private final ZonedDateTime[] _referenceEndDates;
   /**
    * The weight on the first month index in the interpolation of the index at the coupon start.
    */
@@ -72,22 +72,22 @@ public class CouponInflationYearOnYearInterpolationDefinition extends CouponInfl
    * @param priceIndex The price index associated to the coupon.
    * @param conventionalMonthLag The lag in month between the index validity and the coupon dates for the standard product.
    * @param monthLag The lag in month between the index validity and the coupon dates for the standard product.
-   * @param referenceStartDate The reference date for the index at the coupon start.
-   * @param referenceEndDate The reference date for the index at the coupon end.
+   * @param referenceStartDates The reference date for the index at the coupon start.
+   * @param referenceEndDates The reference date for the index at the coupon end.
    * @param payNotional Flag indicating if the notional is paid (true) or not (false).
    * @param weightStart The weight on the first month index in the interpolation of the index at the coupon start.
    * @param weightEnd The weight on the first month index in the interpolation of the index at the coupon end.
    */
   public CouponInflationYearOnYearInterpolationDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate,
       final ZonedDateTime accrualEndDate, final double paymentYearFraction, final double notional, final IndexPrice priceIndex, final int conventionalMonthLag,
-      final int monthLag, final ZonedDateTime[] referenceStartDate, final ZonedDateTime[] referenceEndDate, final boolean payNotional, final double weightStart, final double weightEnd) {
+      final int monthLag, final ZonedDateTime[] referenceStartDates, final ZonedDateTime[] referenceEndDates, final boolean payNotional, final double weightStart, final double weightEnd) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentYearFraction, notional, priceIndex);
-    ArgumentChecker.notNull(referenceStartDate, "Reference start date");
-    ArgumentChecker.notNull(referenceEndDate, "Reference end date");
+    ArgumentChecker.notNull(referenceStartDates, "Reference start date");
+    ArgumentChecker.notNull(referenceEndDates, "Reference end date");
     _conventionalMonthLag = conventionalMonthLag;
     _monthLag = monthLag;
-    _referenceStartDate = referenceStartDate;
-    _referenceEndDate = referenceEndDate;
+    _referenceStartDates = referenceStartDates;
+    _referenceEndDates = referenceEndDates;
     _weightStart = weightStart;
     _weightEnd = weightEnd;
     _payNotional = payNotional;
@@ -188,8 +188,8 @@ public class CouponInflationYearOnYearInterpolationDefinition extends CouponInfl
    * Gets the reference date for the index at the coupon start.
    * @return The reference date for the index at the coupon start.
    */
-  public ZonedDateTime[] getReferenceStartDate() {
-    return _referenceStartDate;
+  public ZonedDateTime[] getReferenceStartDates() {
+    return _referenceStartDates;
   }
 
   /**
@@ -197,7 +197,7 @@ public class CouponInflationYearOnYearInterpolationDefinition extends CouponInfl
    * @return The reference date for the index at the coupon end.
    */
   public ZonedDateTime[] getReferenceEndDate() {
-    return _referenceEndDate;
+    return _referenceEndDates;
   }
 
   /**
@@ -226,12 +226,7 @@ public class CouponInflationYearOnYearInterpolationDefinition extends CouponInfl
 
   @Override
   public CouponInflationDefinition with(final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double notional) {
-    final ZonedDateTime refInterpolatedDate = accrualEndDate.minusMonths(_conventionalMonthLag);
-    final ZonedDateTime[] referenceEndDate = new ZonedDateTime[2];
-    referenceEndDate[0] = refInterpolatedDate.withDayOfMonth(1);
-    referenceEndDate[1] = referenceEndDate[0].plusMonths(1);
-    return new CouponInflationYearOnYearInterpolationDefinition(getCurrency(), paymentDate, accrualStartDate, accrualEndDate, getPaymentYearFraction(), getNotional(),
-        getPriceIndex(), _conventionalMonthLag, _monthLag, getReferenceStartDate(), referenceEndDate, payNotional(), getWeightStart(), getWeightEnd());
+    return from(accrualStartDate, paymentDate, notional, getPriceIndex(), _conventionalMonthLag, _monthLag, _payNotional);
   }
 
   /**
@@ -248,8 +243,8 @@ public class CouponInflationYearOnYearInterpolationDefinition extends CouponInfl
     ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
     final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
     final double[] referenceStartTime = new double[2];
-    referenceStartTime[0] = TimeCalculator.getTimeBetween(date, getReferenceStartDate()[0]);
-    referenceStartTime[1] = TimeCalculator.getTimeBetween(date, getReferenceStartDate()[1]);
+    referenceStartTime[0] = TimeCalculator.getTimeBetween(date, getReferenceStartDates()[0]);
+    referenceStartTime[1] = TimeCalculator.getTimeBetween(date, getReferenceStartDates()[1]);
     final double[] referenceEndTime = new double[2];
     referenceEndTime[0] = TimeCalculator.getTimeBetween(date, getReferenceEndDate()[0]);
     referenceEndTime[1] = TimeCalculator.getTimeBetween(date, getReferenceEndDate()[1]);
@@ -279,8 +274,8 @@ public class CouponInflationYearOnYearInterpolationDefinition extends CouponInfl
     ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
     final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
     final double[] referenceStartTime = new double[2];
-    referenceStartTime[0] = TimeCalculator.getTimeBetween(date, getReferenceStartDate()[0]);
-    referenceStartTime[1] = TimeCalculator.getTimeBetween(date, getReferenceStartDate()[1]);
+    referenceStartTime[0] = TimeCalculator.getTimeBetween(date, getReferenceStartDates()[0]);
+    referenceStartTime[1] = TimeCalculator.getTimeBetween(date, getReferenceStartDates()[1]);
     final double[] referenceEndTime = new double[2];
     referenceEndTime[0] = TimeCalculator.getTimeBetween(date, getReferenceEndDate()[0]);
     referenceEndTime[1] = TimeCalculator.getTimeBetween(date, getReferenceEndDate()[1]);
@@ -305,18 +300,18 @@ public class CouponInflationYearOnYearInterpolationDefinition extends CouponInfl
       final Double fixedEndIndex0 = priceIndexTimeSeries.getValue(getReferenceEndDate()[0]);
       final Double fixedEndIndex1 = priceIndexTimeSeries.getValue(getReferenceEndDate()[1]);
       final Double fixedEndIndex = getWeightEnd() * fixedEndIndex0 + (1 - getWeightEnd()) * fixedEndIndex1;
-      final Double fixedStartIndex0 = priceIndexTimeSeries.getValue(getReferenceStartDate()[0]);
-      final Double fixedStartIndex1 = priceIndexTimeSeries.getValue(getReferenceStartDate()[1]);
+      final Double fixedStartIndex0 = priceIndexTimeSeries.getValue(getReferenceStartDates()[0]);
+      final Double fixedStartIndex1 = priceIndexTimeSeries.getValue(getReferenceStartDates()[1]);
       final Double fixedStartIndex = getWeightStart() * fixedStartIndex0 + (1 - getWeightStart()) * fixedStartIndex1;
       final Double fixedRate = (fixedEndIndex / fixedStartIndex - (payNotional() ? 0.0 : 1.0));
       return new CouponFixed(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), fixedRate);
     }
     final double[] referenceEndTime = new double[2];
     final double[] referenceStartTime = new double[2];
-    referenceEndTime[0] = TimeCalculator.getTimeBetween(date, _referenceEndDate[0]);
-    referenceEndTime[1] = TimeCalculator.getTimeBetween(date, _referenceEndDate[1]);
-    referenceStartTime[0] = TimeCalculator.getTimeBetween(date, _referenceStartDate[0]);
-    referenceStartTime[1] = TimeCalculator.getTimeBetween(date, _referenceStartDate[1]);
+    referenceEndTime[0] = TimeCalculator.getTimeBetween(date, _referenceEndDates[0]);
+    referenceEndTime[1] = TimeCalculator.getTimeBetween(date, _referenceEndDates[1]);
+    referenceStartTime[0] = TimeCalculator.getTimeBetween(date, _referenceStartDates[0]);
+    referenceStartTime[1] = TimeCalculator.getTimeBetween(date, _referenceStartDates[1]);
     final ZonedDateTime naturalPaymentEndDate = getPaymentDate().minusMonths(_monthLag - _conventionalMonthLag);
     final double naturalPaymentEndTime = TimeCalculator.getTimeBetween(date, naturalPaymentEndDate);
     final ZonedDateTime naturalPaymentstartDate = naturalPaymentEndDate.minusMonths(12);
@@ -344,8 +339,8 @@ public class CouponInflationYearOnYearInterpolationDefinition extends CouponInfl
     result = prime * result + _conventionalMonthLag;
     result = prime * result + _monthLag;
     result = prime * result + (_payNotional ? 1231 : 1237);
-    result = prime * result + Arrays.hashCode(_referenceEndDate);
-    result = prime * result + Arrays.hashCode(_referenceStartDate);
+    result = prime * result + Arrays.hashCode(_referenceEndDates);
+    result = prime * result + Arrays.hashCode(_referenceStartDates);
     long temp;
     temp = Double.doubleToLongBits(_weightEnd);
     result = prime * result + (int) (temp ^ (temp >>> 32));
@@ -375,10 +370,10 @@ public class CouponInflationYearOnYearInterpolationDefinition extends CouponInfl
     if (_payNotional != other._payNotional) {
       return false;
     }
-    if (!Arrays.equals(_referenceEndDate, other._referenceEndDate)) {
+    if (!Arrays.deepEquals(_referenceEndDates, other._referenceEndDates)) {
       return false;
     }
-    if (!Arrays.equals(_referenceStartDate, other._referenceStartDate)) {
+    if (!Arrays.deepEquals(_referenceStartDates, other._referenceStartDates)) {
       return false;
     }
     if (Double.doubleToLongBits(_weightEnd) != Double.doubleToLongBits(other._weightEnd)) {

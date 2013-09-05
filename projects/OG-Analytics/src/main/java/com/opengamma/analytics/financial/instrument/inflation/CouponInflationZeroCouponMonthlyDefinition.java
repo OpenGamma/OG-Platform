@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.instrument.inflation;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.temporal.TemporalAdjusters;
@@ -158,8 +159,7 @@ public class CouponInflationZeroCouponMonthlyDefinition extends CouponInflationD
 
   @Override
   public CouponInflationDefinition with(final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double notional) {
-    return new CouponInflationZeroCouponMonthlyDefinition(getCurrency(), paymentDate, accrualStartDate, accrualEndDate, getPaymentYearFraction(), getNotional(),
-        getPriceIndex(), _conventionalMonthLag, _monthLag, getReferenceStartDate(), getReferenceEndDate(), payNotional());
+    return from(accrualStartDate, paymentDate, notional, getPriceIndex(), _conventionalMonthLag, _monthLag, _payNotional);
   }
 
   /**
@@ -231,8 +231,8 @@ public class CouponInflationZeroCouponMonthlyDefinition extends CouponInflationD
     result = prime * result + _conventionalMonthLag;
     result = prime * result + _monthLag;
     result = prime * result + (_payNotional ? 1231 : 1237);
-    result = prime * result + ((_referenceEndDate == null) ? 0 : _referenceEndDate.hashCode());
-    result = prime * result + ((_referenceStartDate == null) ? 0 : _referenceStartDate.hashCode());
+    result = prime * result + _referenceEndDate.hashCode();
+    result = prime * result + _referenceStartDate.hashCode();
     return result;
   }
 
@@ -257,18 +257,10 @@ public class CouponInflationZeroCouponMonthlyDefinition extends CouponInflationD
     if (_payNotional != other._payNotional) {
       return false;
     }
-    if (_referenceEndDate == null) {
-      if (other._referenceEndDate != null) {
-        return false;
-      }
-    } else if (!_referenceEndDate.equals(other._referenceEndDate)) {
+    if (!ObjectUtils.equals(_referenceEndDate, other._referenceEndDate)) {
       return false;
     }
-    if (_referenceStartDate == null) {
-      if (other._referenceStartDate != null) {
-        return false;
-      }
-    } else if (!_referenceStartDate.equals(other._referenceStartDate)) {
+    if (!ObjectUtils.equals(_referenceStartDate, other._referenceStartDate)) {
       return false;
     }
     return true;

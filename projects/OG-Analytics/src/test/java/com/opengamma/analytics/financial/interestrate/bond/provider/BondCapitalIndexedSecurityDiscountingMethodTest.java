@@ -10,6 +10,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.temporal.TemporalAdjusters;
 
 import com.opengamma.analytics.financial.instrument.bond.BondCapitalIndexedSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
@@ -34,7 +35,9 @@ import com.opengamma.analytics.financial.provider.sensitivity.inflation.Multiple
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.ParameterSensitivityInflationMulticurveDiscountInterpolatedFDCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyParameterSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterInflationSensitivityParameterCalculator;
+import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -143,7 +146,7 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
   private static final int SETTLEMENT_DAYS_TIPS_1 = 1;
 
   private static final BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponInterpolationGearingDefinition> BOND_SECURITY_TIPS_1_DEFINITION = BondCapitalIndexedSecurityDefinition
-      .fromInterpolation(PRICE_INDEX_USCPI, MONTH_LAG_TIPS_1, START_DATE_TIPS_1, INDEX_START_TIPS, MATURITY_DATE_TIPS_1, COUPON_PERIOD_TIPS_1, NOTIONAL_TIPS_1, REAL_RATE_TIPS_1, BUSINESS_DAY_USD,
+      .fromInterpolation(PRICE_INDEX_USCPI, MONTH_LAG_TIPS_1, START_DATE_TIPS_1, INDEX_START_TIPS_1, MATURITY_DATE_TIPS_1, COUPON_PERIOD_TIPS_1, NOTIONAL_TIPS_1, REAL_RATE_TIPS_1, BUSINESS_DAY_USD,
           SETTLEMENT_DAYS_TIPS_1, CALENDAR_USD, DAY_COUNT_TIPS_1, YIELD_CONVENTION_TIPS_1, IS_EOM_TIPS_1, ISSUER_US_GOVT);
   private static final DoubleTimeSeries<ZonedDateTime> US_CPI = MulticurveProviderDiscountDataSets.usCpiFrom2009();
   private static final BondCapitalIndexedSecurity<Coupon> BOND_SECURITY_TIPS_1 = BOND_SECURITY_TIPS_1_DEFINITION.toDerivative(PRICING_DATE, US_CPI);
@@ -168,32 +171,31 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
   }
 
   // TODO : fix this test, problem with date comparaison. 
-  /* @Test
-  *//**
+  @Test
+  /**
     * Tests the present value computation.
     */
-  /*
   public void presentValueFromCleanPriceRealTips1() {
-  final double cleanPriceReal = 1.05;
-  final MultipleCurrencyAmount pv = METHOD_BOND_INFLATION.presentValueFromCleanPriceReal(BOND_SECURITY_TIPS_1, MARKET, cleanPriceReal);
-  final double dirtyReal = cleanPriceReal + BOND_SECURITY_TIPS_1.getAccruedInterest() / NOTIONAL_TIPS_1;
-  final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(PRICING_DATE, SETTLEMENT_DAYS_TIPS_1, CALENDAR_USD);
-  final ZonedDateTime refInterpolatedDate = spot.minusMonths(MONTH_LAG_TIPS_1);
-  final ZonedDateTime[] referenceEndDate = new ZonedDateTime[2];
-  referenceEndDate[0] = refInterpolatedDate.with(TemporalAdjusters.lastDayOfMonth());
-  referenceEndDate[1] = referenceEndDate[0].plusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
-  final double[] referenceEndTime = new double[2];
-  referenceEndTime[0] = TimeCalculator.getTimeBetween(PRICING_DATE, referenceEndDate[0]);
-  referenceEndTime[1] = TimeCalculator.getTimeBetween(PRICING_DATE, referenceEndDate[1]);
-  final double estimatedIndexMonth0 = MARKET.getPriceIndex(PRICE_INDEX_USCPI, referenceEndTime[0]);
-  final double estimatedIndexMonth1 = MARKET.getPriceIndex(PRICE_INDEX_USCPI, referenceEndTime[1]);
-  final double weight = 1.0 - (spot.getDayOfMonth() - 1.0) / spot.toLocalDate().lengthOfMonth();
-  final double estimatedIndex = weight * estimatedIndexMonth0 + (1 - weight) * estimatedIndexMonth1;
-  final double pvAtSettle = dirtyReal * estimatedIndex / BOND_SECURITY_TIPS_1.getIndexStartValue() * NOTIONAL_TIPS_1;
-  final double dfSettle = MARKET.getDiscountFactor(BOND_SECURITY_TIPS_1.getCurrency(), BOND_SECURITY_TIPS_1.getSettlementTime());
-  final double pvExpected = pvAtSettle * dfSettle;
-  assertEquals("Inflation Capital Indexed bond: present value from clean real price", pvExpected, pv.getAmount(BOND_SECURITY_TIPS_1.getCurrency()), 1.0E-6);
-  }*/
+    final double cleanPriceReal = 1.05;
+    final MultipleCurrencyAmount pv = METHOD_BOND_INFLATION.presentValueFromCleanPriceReal(BOND_SECURITY_TIPS_1, MARKET, cleanPriceReal);
+    final double dirtyReal = cleanPriceReal + BOND_SECURITY_TIPS_1.getAccruedInterest() / NOTIONAL_TIPS_1;
+    final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(PRICING_DATE, SETTLEMENT_DAYS_TIPS_1, CALENDAR_USD);
+    final ZonedDateTime refInterpolatedDate = spot.minusMonths(MONTH_LAG_TIPS_1);
+    final ZonedDateTime[] referenceEndDate = new ZonedDateTime[2];
+    referenceEndDate[0] = refInterpolatedDate.with(TemporalAdjusters.lastDayOfMonth());
+    referenceEndDate[1] = referenceEndDate[0].plusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
+    final double[] referenceEndTime = new double[2];
+    referenceEndTime[0] = TimeCalculator.getTimeBetween(PRICING_DATE, referenceEndDate[0]);
+    referenceEndTime[1] = TimeCalculator.getTimeBetween(PRICING_DATE, referenceEndDate[1]);
+    final double estimatedIndexMonth0 = MARKET.getPriceIndex(PRICE_INDEX_USCPI, referenceEndTime[0]);
+    final double estimatedIndexMonth1 = MARKET.getPriceIndex(PRICE_INDEX_USCPI, referenceEndTime[1]);
+    final double weight = 1.0 - (spot.getDayOfMonth() - 1.0) / spot.toLocalDate().lengthOfMonth();
+    final double estimatedIndex = weight * estimatedIndexMonth0 + (1 - weight) * estimatedIndexMonth1;
+    final double pvAtSettle = dirtyReal * estimatedIndex / BOND_SECURITY_TIPS_1.getIndexStartValue() * NOTIONAL_TIPS_1;
+    final double dfSettle = MARKET.getDiscountFactor(BOND_SECURITY_TIPS_1.getCurrency(), BOND_SECURITY_TIPS_1.getSettlementTime());
+    final double pvExpected = pvAtSettle * dfSettle;
+    assertEquals("Inflation Capital Indexed bond: present value from clean real price", pvExpected, pv.getAmount(BOND_SECURITY_TIPS_1.getCurrency()), 1.0E-6);
+  }
 
   @Test
   /**

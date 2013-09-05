@@ -177,7 +177,7 @@ public class CapFloorInflationYearOnYearInterpolationDefinition extends CouponIn
     Validate.notNull(coupon, "coupon year on year interpolation Inflation");
     return new CapFloorInflationYearOnYearInterpolationDefinition(coupon.getCurrency(), coupon.getPaymentDate(), coupon.getAccrualStartDate(),
         coupon.getAccrualEndDate(), coupon.getPaymentYearFraction(), coupon.getNotional(), coupon.getPriceIndex(), lastKnownFixingDate,
-        coupon.getConventionalMonthLag(), coupon.getMonthLag(), coupon.getReferenceStartDate(), coupon.getReferenceEndDate(), coupon.getWeightStart(),
+        coupon.getConventionalMonthLag(), coupon.getMonthLag(), coupon.getReferenceStartDates(), coupon.getReferenceEndDate(), coupon.getWeightStart(),
         coupon.getWeightEnd(), strike, isCap);
   }
 

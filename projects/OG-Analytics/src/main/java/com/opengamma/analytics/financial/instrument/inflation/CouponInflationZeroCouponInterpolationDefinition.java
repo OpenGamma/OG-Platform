@@ -237,12 +237,7 @@ public class CouponInflationZeroCouponInterpolationDefinition extends CouponInfl
 
   @Override
   public CouponInflationDefinition with(final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double notional) {
-    final ZonedDateTime refInterpolatedDate = accrualEndDate.minusMonths(_conventionalMonthLag);
-    final ZonedDateTime[] referenceEndDate = new ZonedDateTime[2];
-    referenceEndDate[0] = refInterpolatedDate.withDayOfMonth(1);
-    referenceEndDate[1] = referenceEndDate[0].plusMonths(1);
-    return from(getCurrency(), paymentDate, accrualStartDate, accrualEndDate, getPaymentYearFraction(), getNotional(),
-        getPriceIndex(), _conventionalMonthLag, getReferenceStartDates(), referenceEndDate, payNotional());
+    return from(accrualStartDate, paymentDate, notional, getPriceIndex(), _conventionalMonthLag, _monthLag, _payNotional);
   }
 
   /**
@@ -366,10 +361,10 @@ public class CouponInflationZeroCouponInterpolationDefinition extends CouponInfl
     if (_payNotional != other._payNotional) {
       return false;
     }
-    if (!Arrays.equals(_referenceEndDates, other._referenceEndDates)) {
+    if (!Arrays.deepEquals(_referenceEndDates, other._referenceEndDates)) {
       return false;
     }
-    if (!Arrays.equals(_referenceStartDates, other._referenceStartDates)) {
+    if (!Arrays.deepEquals(_referenceStartDates, other._referenceStartDates)) {
       return false;
     }
     if (Double.doubleToLongBits(_weight) != Double.doubleToLongBits(other._weight)) {

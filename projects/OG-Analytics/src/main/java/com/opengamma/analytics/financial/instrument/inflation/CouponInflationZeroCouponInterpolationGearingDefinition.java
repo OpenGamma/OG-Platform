@@ -217,15 +217,14 @@ public class CouponInflationZeroCouponInterpolationGearingDefinition extends Cou
 
   @Override
   public CouponInflationDefinition with(final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double notional) {
-    return from(getCurrency(), paymentDate, accrualStartDate, accrualEndDate, getPaymentYearFraction(),
-        getNotional(), getPriceIndex(), _conventionalMonthLag, _monthLag, getReferenceStartDate(), getIndexStartValue(), getReferenceEndDate(), payNotional(), _factor);
+    return from(paymentDate, accrualStartDate, accrualEndDate, notional, getPriceIndex(), _indexStartValue, _conventionalMonthLag, _monthLag, _payNotional, _factor);
   }
 
   /**
    * Gets the reference date for the index at the coupon start.
    * @return The reference date for the index at the coupon start.
    */
-  public ZonedDateTime[] getReferenceStartDate() {
+  public ZonedDateTime[] getReferenceStartDates() {
     return _referenceStartDates;
   }
 
@@ -241,7 +240,7 @@ public class CouponInflationZeroCouponInterpolationGearingDefinition extends Cou
    * Gets the reference dates for the index at the coupon end.
    * @return The reference date for the index at the coupon end.
    */
-  public ZonedDateTime[] getReferenceEndDate() {
+  public ZonedDateTime[] getReferenceEndDates() {
     return _referenceEndDates;
   }
 
@@ -296,8 +295,8 @@ public class CouponInflationZeroCouponInterpolationGearingDefinition extends Cou
     ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
     final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
     final double[] referenceEndTime = new double[2];
-    referenceEndTime[0] = TimeCalculator.getTimeBetween(date, getReferenceEndDate()[0]);
-    referenceEndTime[1] = TimeCalculator.getTimeBetween(date, getReferenceEndDate()[1]);
+    referenceEndTime[0] = TimeCalculator.getTimeBetween(date, getReferenceEndDates()[0]);
+    referenceEndTime[1] = TimeCalculator.getTimeBetween(date, getReferenceEndDates()[1]);
     final ZonedDateTime naturalPaymentDate = getPaymentDate().minusMonths(_monthLag - _conventionalMonthLag);
     final double naturalPaymentTime = TimeCalculator.getTimeBetween(date, naturalPaymentDate);
     return new CouponInflationZeroCouponInterpolationGearing(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getPriceIndex(), _indexStartValue, referenceEndTime,
@@ -318,12 +317,12 @@ public class CouponInflationZeroCouponInterpolationGearingDefinition extends Cou
     final LocalDate dayConversion = date.toLocalDate();
     final String discountingCurveName = yieldCurveNames[0];
     final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
-    final LocalDate dayFixing = getReferenceEndDate()[1].toLocalDate();
+    final LocalDate dayFixing = getReferenceEndDates()[1].toLocalDate();
     if (dayConversion.isAfter(dayFixing)) {
-      final Double fixedEndIndex1 = priceIndexTimeSeries.getValue(getReferenceEndDate()[1]);
+      final Double fixedEndIndex1 = priceIndexTimeSeries.getValue(getReferenceEndDates()[1]);
 
       if (fixedEndIndex1 != null) {
-        final Double fixedEndIndex0 = priceIndexTimeSeries.getValue(getReferenceEndDate()[0]);
+        final Double fixedEndIndex0 = priceIndexTimeSeries.getValue(getReferenceEndDates()[0]);
         final Double fixedEndIndex = getWeight() * fixedEndIndex0 + (1 - getWeight()) * fixedEndIndex1;
         final Double fixedRate = _factor * (fixedEndIndex / getIndexStartValue() - (payNotional() ? 0.0 : 1.0));
         return new CouponFixed(getCurrency(), paymentTime, discountingCurveName, getPaymentYearFraction(), getNotional(), fixedRate);
@@ -345,8 +344,8 @@ public class CouponInflationZeroCouponInterpolationGearingDefinition extends Cou
     ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
     final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
     final double[] referenceEndTime = new double[2];
-    referenceEndTime[0] = TimeCalculator.getTimeBetween(date, getReferenceEndDate()[0]);
-    referenceEndTime[1] = TimeCalculator.getTimeBetween(date, getReferenceEndDate()[1]);
+    referenceEndTime[0] = TimeCalculator.getTimeBetween(date, getReferenceEndDates()[0]);
+    referenceEndTime[1] = TimeCalculator.getTimeBetween(date, getReferenceEndDates()[1]);
     final ZonedDateTime naturalPaymentDate = getPaymentDate().minusMonths(_monthLag - _conventionalMonthLag);
     final double naturalPaymentTime = TimeCalculator.getTimeBetween(date, naturalPaymentDate);
     return new CouponInflationZeroCouponInterpolationGearing(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), getPriceIndex(), _indexStartValue, referenceEndTime,
@@ -359,12 +358,12 @@ public class CouponInflationZeroCouponInterpolationGearingDefinition extends Cou
     ArgumentChecker.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
     final LocalDate dayConversion = date.toLocalDate();
     final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
-    final LocalDate dayFixing = getReferenceEndDate()[1].toLocalDate();
+    final LocalDate dayFixing = getReferenceEndDates()[1].toLocalDate();
     if (dayConversion.isAfter(dayFixing)) {
-      final Double fixedEndIndex1 = priceIndexTimeSeries.getValue(getReferenceEndDate()[1]);
+      final Double fixedEndIndex1 = priceIndexTimeSeries.getValue(getReferenceEndDates()[1]);
 
       if (fixedEndIndex1 != null) {
-        final Double fixedEndIndex0 = priceIndexTimeSeries.getValue(getReferenceEndDate()[0]);
+        final Double fixedEndIndex0 = priceIndexTimeSeries.getValue(getReferenceEndDates()[0]);
         final Double fixedEndIndex = getWeight() * fixedEndIndex0 + (1 - getWeight()) * fixedEndIndex1;
         final Double fixedRate = _factor * (fixedEndIndex / getIndexStartValue() - (payNotional() ? 0.0 : 1.0));
         return new CouponFixed(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), fixedRate);
@@ -442,10 +441,10 @@ public class CouponInflationZeroCouponInterpolationGearingDefinition extends Cou
     if (_payNotional != other._payNotional) {
       return false;
     }
-    if (!Arrays.equals(_referenceEndDates, other._referenceEndDates)) {
+    if (!Arrays.deepEquals(_referenceEndDates, other._referenceEndDates)) {
       return false;
     }
-    if (!Arrays.equals(_referenceStartDates, other._referenceStartDates)) {
+    if (!Arrays.deepEquals(_referenceStartDates, other._referenceStartDates)) {
       return false;
     }
     if (Double.doubleToLongBits(_weight) != Double.doubleToLongBits(other._weight)) {

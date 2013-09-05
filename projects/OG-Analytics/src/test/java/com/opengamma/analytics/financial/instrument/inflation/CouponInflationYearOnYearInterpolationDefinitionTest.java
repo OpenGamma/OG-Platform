@@ -113,7 +113,7 @@ public class CouponInflationYearOnYearInterpolationDefinitionTest {
     assertEquals("Inflation Year on Year coupon: getter", 1.0, YoY_COUPON_DEFINITION.getPaymentYearFraction());
     assertEquals("Inflation Year on Year coupon: getter", NOTIONAL, YoY_COUPON_DEFINITION.getNotional());
     assertEquals("Inflation Year on Year coupon: getter", PRICE_INDEX, YoY_COUPON_DEFINITION.getPriceIndex());
-    assertEquals("Inflation Year on Year coupon: getter", REFERENCE_START_DATE, YoY_COUPON_DEFINITION.getReferenceStartDate());
+    assertEquals("Inflation Year on Year coupon: getter", REFERENCE_START_DATE, YoY_COUPON_DEFINITION.getReferenceStartDates());
     assertEquals("Inflation Year on Year coupon: getter", REFERENCE_END_DATE, YoY_COUPON_DEFINITION.getReferenceEndDate());
     assertEquals("Inflation Year on Year coupon: getter", MONTH_LAG, YoY_COUPON_DEFINITION.getConventionalMonthLag());
   }

@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.financial.instrument.bond;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
@@ -399,7 +400,7 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
     final double factorToNextCoupon = (factorPeriod - factorSpot) / factorPeriod;
     final CouponInflationDefinition nominalLast = getNominal().getNthPayment(getNominal().getNumberOfPayments() - 1);
     final ZonedDateTime settlementDate2 = settlementDate.isBefore(date) ? date : settlementDate;
-    final double notional = settlementDate.isBefore(date) ? 0.0 : 1.0;
+    final double notional = nominalLast.getNotional() * (settlementDate.isBefore(date) ? 0.0 : 1.0);
     final CouponInflationDefinition settlementDefinition = nominalLast.with(settlementDate2, nominalLast.getAccrualStartDate(), settlementDate2, notional);
     final CouponInflation settlement = (CouponInflation) settlementDefinition.toDerivative(date);
     return new BondCapitalIndexedSecurity<>(nominalStandard, couponStandard, settlementTime, accruedInterest, factorToNextCoupon, _yieldConvention, _couponPerYear, settlement, _indexStartValue,
@@ -456,7 +457,7 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
     result = prime * result + (int) (temp ^ (temp >>> 32));
     result = prime * result + (_isEOM ? 1231 : 1237);
     result = prime * result + _monthLag;
-    result = prime * result + ((_priceIndex == null) ? 0 : _priceIndex.hashCode());
+    result = prime * result + _priceIndex.hashCode();
     return result;
   }
 
@@ -471,7 +472,7 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final BondCapitalIndexedSecurityDefinition other = (BondCapitalIndexedSecurityDefinition) obj;
+    final BondCapitalIndexedSecurityDefinition<?> other = (BondCapitalIndexedSecurityDefinition<?>) obj;
     if (_couponPerYear != other._couponPerYear) {
       return false;
     }
@@ -484,11 +485,7 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
     if (_monthLag != other._monthLag) {
       return false;
     }
-    if (_priceIndex == null) {
-      if (other._priceIndex != null) {
-        return false;
-      }
-    } else if (!_priceIndex.equals(other._priceIndex)) {
+    if (!ObjectUtils.equals(_priceIndex, other._priceIndex)) {
       return false;
     }
     return true;
