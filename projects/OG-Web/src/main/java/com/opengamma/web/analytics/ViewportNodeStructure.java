@@ -12,6 +12,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -21,6 +24,8 @@ import com.opengamma.util.ArgumentChecker;
  *
  */
 /* package */ final class ViewportNodeStructure {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(ViewportNodeStructure.class);
 
   private final AnalyticsNode _rootNode;
   private final Map<Integer, List<String>> _rowToPath = Maps.newHashMap();
@@ -51,6 +56,9 @@ import com.opengamma.util.ArgumentChecker;
     List<String> path = Lists.newArrayList(parentPath);
     path.add(targetLookup.getRow(gridStructureNode.getStartRow()).getName());
     boolean expanded = expandedNodes.contains(path);
+    if (expanded) {
+      s_logger.debug("Building expanded node {}", path);
+    }
     List<AnalyticsNode> viewportStructureChildNodes = Lists.newArrayList();
     for (AnalyticsNode gridStructureChildNode : gridStructureNode.getChildren()) {
       AnalyticsNode viewportStructureChildNode = createNode(gridStructureChildNode, path, targetLookup, expandedNodes);
