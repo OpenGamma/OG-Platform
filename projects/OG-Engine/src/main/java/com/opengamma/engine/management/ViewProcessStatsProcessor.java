@@ -108,22 +108,30 @@ public class ViewProcessStatsProcessor {
             Map<Pair<String, ValueProperties>, ComputedValueResult> values = calculationResult.getValues(targetSpec);
             String securityType = position.getSecurity().getSecurityType();
             Set<Pair<String, ValueProperties>> valueRequirements = portfolioRequirementsBySecurityType.get(securityType);
+            s_logger.error("Processing valueRequirement " + valueRequirements + " for security type " + securityType);
             if (valueRequirements != null) {
               for (Pair<String, ValueProperties> valueRequirement : valueRequirements) {
                 ColumnRequirementBySecurityType keyBySec = ColumnRequirementBySecurityType.of(securityType, ColumnRequirement.of(valueRequirement.getFirst(), valueRequirement.getSecond()));
                 ValueRequirement valueReq = new ValueRequirement(valueRequirement.getFirst(), breadcrumbTargetSpec, valueRequirement.getSecond());
-                ValueSpecification valueSpec = valueMappings.getValueSpecification(calcConfigName, valueReq);
                 ColumnRequirement key = ColumnRequirement.of(valueRequirement.getFirst(), valueRequirement.getSecond());
-                ObjectsPair<String, ValueProperties> valueKey = Pair.of(valueSpec.getValueName(), valueSpec.getProperties());
-                ComputedValueResult computedValueResult = values != null ? values.get(valueKey) : null;
-                if (computedValueResult != null) {
-                  incCount(_successCountBySec, keyBySec);
-                  incCount(_successCount, key);
-                  _successes.increment();
-                } else {
+                ValueSpecification valueSpec = valueMappings.getValueSpecification(calcConfigName, valueReq);
+                if (valueSpec == null) {
+                  s_logger.error("Couldn't get reverse value spec mapping from requirement: " + valueReq.toString());
                   incCount(_failureCountBySec, keyBySec);
                   incCount(_failureCount, key);
-                  _failures.increment();
+                  _failures.increment();                  
+                } else {
+                  ObjectsPair<String, ValueProperties> valueKey = Pair.of(valueSpec.getValueName(), valueSpec.getProperties());
+                  ComputedValueResult computedValueResult = values != null ? values.get(valueKey) : null;
+                  if (computedValueResult != null) {
+                    incCount(_successCountBySec, keyBySec);
+                    incCount(_successCount, key);
+                    _successes.increment();
+                  } else {
+                    incCount(_failureCountBySec, keyBySec);
+                    incCount(_failureCount, key);
+                    _failures.increment();
+                  }
                 }
                 incCount(_totalCountBySec, keyBySec);
                 incCount(_totalCount, key);

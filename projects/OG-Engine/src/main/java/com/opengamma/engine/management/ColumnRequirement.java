@@ -87,7 +87,7 @@ public final class ColumnRequirement {
     elements.put(SUCCEEDED, success);
     elements.put(FAILED, fail);
     elements.put(TOTAL, total);
-    elements.put(PERCENTAGE, Math.round((total / success) * 10000) / 100d); // 2dp-ish
+    elements.put(PERCENTAGE, (total > 0) ? ((double) success / (double) total) * 100d : 0d); // 2dp-ish
     try {
       return new CompositeDataSupport(type, elements);
     } catch (OpenDataException ex) {

@@ -239,20 +239,20 @@ public class ViewProcessMXBeanImpl implements ViewProcessMXBean {
   }
 
   public int getSuccesses() {
-    return _viewProcessStatsProcessor != null ? _viewProcessStatsProcessor.getSuccesses() : -1;
+    return _viewProcessStatsProcessor != null ? _viewProcessStatsProcessor.getSuccesses() : 0;
   }
 
   public int getFailures() {
-    return _viewProcessStatsProcessor != null ? _viewProcessStatsProcessor.getFailures() : -1;
+    return _viewProcessStatsProcessor != null ? _viewProcessStatsProcessor.getFailures() : 0;
   }
 
   public int getTotal() {
-    return _viewProcessStatsProcessor != null ? _viewProcessStatsProcessor.getTotal() : -1;
+    return _viewProcessStatsProcessor != null ? _viewProcessStatsProcessor.getTotal() : 0;
   }
   
   @Override
   public double getPercentage() {
-    return (getSuccesses() / getFailures()) * 100d;
+    return ((double) getSuccesses() / (double) getTotal()) * 100d;
   }
   
   @Override
