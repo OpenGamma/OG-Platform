@@ -53,6 +53,8 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoader;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.impl.RemoteHistoricalTimeSeriesLoader;
 import com.opengamma.master.historicaltimeseries.impl.RemoteHistoricalTimeSeriesMaster;
+import com.opengamma.master.holiday.HolidayMaster;
+import com.opengamma.master.holiday.impl.RemoteHolidayMaster;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.portfolio.impl.RemotePortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
@@ -191,6 +193,11 @@ public class RemoteEngine {
   public RemoteHolidaySource getHolidaySource(final String name) {
     final URI uri = _components.getComponentInfo(HolidaySource.class, name).getUri();
     return new RemoteHolidaySource(uri);
+  }
+  
+  public RemoteHolidayMaster getHolidayMaster(final String name) {
+    final URI uri = _components.getComponentInfo(HolidayMaster.class, name).getUri();
+    return new RemoteHolidayMaster(uri);
   }
 
   public RemoteInterpolatedYieldCurveDefinitionSource getInterpolatedYieldCurveDefinitionSource(final String name) {
