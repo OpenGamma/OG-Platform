@@ -205,7 +205,6 @@ public class CouponONCompoundedDefinition extends CouponDefinition implements In
   @Override
   public CouponONCompounded toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");
-    ArgumentChecker.notNull(date, "date");
     final LocalDate firstPublicationDate = _fixingPeriodDates[_index.getPublicationLag()].toLocalDate(); // This is often one business day following the first fixing date
     ArgumentChecker.isTrue(date.toLocalDate().isBefore(firstPublicationDate),
         "toDerivative method without time series as argument is only valid at dates where the first fixing has not yet been published.");
@@ -221,6 +220,27 @@ public class CouponONCompoundedDefinition extends CouponDefinition implements In
     }
     final CouponONCompounded cpn = new CouponONCompounded(getCurrency(), paymentTime, yieldCurveNames[0], getPaymentYearFraction(), getNotional(), _index, fixingPeriodStartTimes,
         fixingPeriodEndTimes, _fixingPeriodAccrualFactors, fixingPeriodAccrualFactorsActAct, getNotional(), yieldCurveNames[1]);
+    return cpn;
+  }
+
+  @Override
+  public CouponONCompounded toDerivative(final ZonedDateTime date) {
+    ArgumentChecker.notNull(date, "date");
+    final LocalDate firstPublicationDate = _fixingPeriodDates[_index.getPublicationLag()].toLocalDate(); // This is often one business day following the first fixing date
+    ArgumentChecker.isTrue(date.toLocalDate().isBefore(firstPublicationDate),
+        "toDerivative method without time series as argument is only valid at dates where the first fixing has not yet been published.");
+    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
+    final double[] fixingPeriodStartTimes = new double[_fixingPeriodDates.length - 1];
+    final double[] fixingPeriodEndTimes = new double[_fixingPeriodDates.length - 1];
+    final double[] fixingPeriodAccrualFactorsActAct = new double[_fixingPeriodDates.length - 1];
+    for (int i = 0; i < _fixingPeriodDates.length - 1; i++) {
+      fixingPeriodStartTimes[i] = TimeCalculator.getTimeBetween(date, _fixingPeriodDates[i]);
+      fixingPeriodEndTimes[i] = TimeCalculator.getTimeBetween(date, _fixingPeriodDates[i + 1]);
+      fixingPeriodAccrualFactorsActAct[i] = TimeCalculator.getTimeBetween(_fixingPeriodDates[i], _fixingPeriodDates[i + 1]);
+    }
+
+    final CouponONCompounded cpn = new CouponONCompounded(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), _index, fixingPeriodStartTimes,
+        fixingPeriodEndTimes, _fixingPeriodAccrualFactors, fixingPeriodAccrualFactorsActAct, getNotional());
     return cpn;
   }
 
@@ -308,27 +328,6 @@ public class CouponONCompoundedDefinition extends CouponDefinition implements In
     // All fixed already
     return new CouponFixed(getCurrency(), paymentTime, yieldCurveNames[0], getPaymentYearFraction(), getNotional(), (accruedNotional / getNotional() - 1.0)
         / getPaymentYearFraction());
-  }
-
-  @Override
-  public CouponONCompounded toDerivative(final ZonedDateTime date) {
-    ArgumentChecker.notNull(date, "date");
-    final LocalDate firstPublicationDate = _fixingPeriodDates[_index.getPublicationLag()].toLocalDate(); // This is often one business day following the first fixing date
-    ArgumentChecker.isTrue(date.toLocalDate().isBefore(firstPublicationDate),
-        "toDerivative method without time series as argument is only valid at dates where the first fixing has not yet been published.");
-    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
-    final double[] fixingPeriodStartTimes = new double[_fixingPeriodDates.length - 1];
-    final double[] fixingPeriodEndTimes = new double[_fixingPeriodDates.length - 1];
-    final double[] fixingPeriodAccrualFactorsActAct = new double[_fixingPeriodDates.length - 1];
-    for (int i = 0; i < _fixingPeriodDates.length - 1; i++) {
-      fixingPeriodStartTimes[i] = TimeCalculator.getTimeBetween(date, _fixingPeriodDates[i]);
-      fixingPeriodEndTimes[i] = TimeCalculator.getTimeBetween(date, _fixingPeriodDates[i + 1]);
-      fixingPeriodAccrualFactorsActAct[i] = TimeCalculator.getTimeBetween(_fixingPeriodDates[i], _fixingPeriodDates[i + 1]);
-    }
-
-    final CouponONCompounded cpn = new CouponONCompounded(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), _index, fixingPeriodStartTimes,
-        fixingPeriodEndTimes, _fixingPeriodAccrualFactors, fixingPeriodAccrualFactorsActAct, getNotional());
-    return cpn;
   }
 
   @Override
