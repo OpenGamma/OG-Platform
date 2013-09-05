@@ -11,21 +11,26 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.fudgemsg.AnnotationReflector;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.PropertyReadWrite;
+import org.joda.beans.impl.direct.DirectBean;
+import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.conversion.JodaBeanConverters;
+import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
@@ -52,6 +57,7 @@ import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.ManageableSecurityLink;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * A generic row parser for Joda beans that automatically identifies fields to be persisted to rows/populated from rows
@@ -59,41 +65,7 @@ import com.opengamma.util.ArgumentChecker;
 public class JodaBeanRowParser extends RowParser {
 
   private static final Logger s_logger = LoggerFactory.getLogger(JodaBeanRowParser.class);
-
-  /**
-   * Types of swap leg that might be encountered, and for which additional fields are generated
-   */
-  private static final Class<?>[] SWAP_LEG_CLASSES = {
-    SwapLeg.class,
-    InterestRateLeg.class,
-    FixedInterestRateLeg.class,
-    FloatingInterestRateLeg.class,
-    FloatingGearingIRLeg.class,
-    FloatingSpreadIRLeg.class,
-    VarianceSwapLeg.class,
-    FixedVarianceSwapLeg.class,
-    FloatingVarianceSwapLeg.class
-  };
-  
-  /**
-   * The packages where security classes are to be found
-   */
-  private static final String[] CLASS_PACKAGES = {
-    "com.opengamma.financial.security.bond",
-    "com.opengamma.financial.security.capfloor",
-    "com.opengamma.financial.security.cash",
-    "com.opengamma.financial.security.cashflow",
-    "com.opengamma.financial.security.cds",
-    "com.opengamma.financial.security.deposit",
-    "com.opengamma.financial.security.equity",
-    "com.opengamma.financial.security.forward",
-    "com.opengamma.financial.security.fra",
-    "com.opengamma.financial.security.future",
-    "com.opengamma.financial.security.fx",
-    "com.opengamma.financial.security.option",
-    "com.opengamma.financial.security.swap",
-  };
-
+   
   /**
    * Security properties to ignore when scanning
    */
@@ -138,6 +110,8 @@ public class JodaBeanRowParser extends RowParser {
   private SortedMap<String, Class<?>> _columns = new TreeMap<String, Class<?>>();
 
   static {
+    //Make refections available by calling AnnotationReflector.getDefaultReflector()
+    OpenGammaFudgeContext.getInstance();
     // Register the automatic string converters with Joda Beans
     JodaBeanConverters.getInstance();
 
@@ -426,7 +400,7 @@ public class JodaBeanRowParser extends RowParser {
       return builder.build();
   
     } catch (Throwable ex) {
-      s_logger.info("Not creating a " + clazz.getSimpleName() + ": " + ex.getMessage());
+      s_logger.info("Not creating a " + clazz.getSimpleName() + ": " + ex);
       return null;
     }
   }
@@ -521,34 +495,67 @@ public class JodaBeanRowParser extends RowParser {
    */
   private Class<? extends Bean> getClass(String className) {
     Class<? extends Bean> theClass = null;
-    for (String prefix : CLASS_PACKAGES) {
-      try {
-        String fullName = prefix + "." + className;
-        theClass = Class.forName(fullName).asSubclass(Bean.class);
-        break;
-      } catch (Throwable ex) {
-      }
+    if (className.endsWith(CLASS_POSTFIX)) {
+      theClass = getFinancialSecurityClass(className);
+    } else {
+      theClass = getJodaBeanSubType(className);
     }
+    
     if (theClass == null) {
       throw new OpenGammaRuntimeException("Could not load class " + className);
     }
     return theClass;
   }
 
+  private Class<? extends Bean> getJodaBeanSubType(String className) {
+    Reflections reflections = AnnotationReflector.getDefaultReflector().getReflector();
+    Set<String> directBeanSubTypes = reflections.getStore().getSubTypesOf(Bean.class.getName());
+   
+    Class<? extends Bean> theClass = null;
+    for (String directBeanType : directBeanSubTypes) {
+      try {
+        if (directBeanType.endsWith("." + className)) {
+          theClass = Class.forName(directBeanType).asSubclass(Bean.class);
+          break;
+        }
+      } catch (Throwable ex) {
+      }
+    }
+    return theClass;
+  }
+
+  private Class<? extends Bean> getFinancialSecurityClass(String className) {
+    Reflections reflections = AnnotationReflector.getDefaultReflector().getReflector();
+    Set<String> financialSecuritySubTypes = reflections.getStore().getSubTypesOf(FinancialSecurity.class.getName());
+   
+    Class<? extends Bean> theClass = null;
+    for (String securityType : financialSecuritySubTypes) {
+      try {
+        if (securityType.endsWith("." + className)) {
+          theClass = Class.forName(securityType).asSubclass(Bean.class);
+          break;
+        }
+      } catch (Throwable ex) {
+      }
+    }
+    return theClass;
+  }
+
   /**
-   * Given a bean class, find its subclasses; this is current hard coded as Java can neither identify the 
-   * classes within a package, nor identify a class's subclasses. Currently identifies swap legs.
+   * Given a bean class, find its subclasses.
    * 
    * @param beanClass  the bean class
    * @return the collection of subclasses
    */
   private Collection<Class<?>> getSubClasses(Class<? extends Bean> beanClass) {
     Collection<Class<?>> subClasses = new ArrayList<Class<?>>();
-    // This has to be hard-coded since Java can neither identify the classes within a package, nor identify a class's subclasses
-    // TODO: could use AnnotationReflector
-    if (SwapLeg.class.isAssignableFrom(beanClass)) {
-      for (Class<?> c : SWAP_LEG_CLASSES) {
-        subClasses.add(c);
+    
+    Reflections reflections = AnnotationReflector.getDefaultReflector().getReflector();
+    Set<String> subTypes = reflections.getStore().getSubTypesOf(beanClass.getName());
+    for (String subType : subTypes) {
+      try {
+        subClasses.add(Class.forName(subType));
+      } catch (Throwable ex) {
       }
     }
     return (Collection<Class<?>>) subClasses;
