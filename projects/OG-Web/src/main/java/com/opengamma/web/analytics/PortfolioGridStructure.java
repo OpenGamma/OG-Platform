@@ -26,6 +26,7 @@ import com.opengamma.core.position.impl.PortfolioMapper;
 import com.opengamma.core.position.impl.PortfolioMapperFunction;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.management.ValueMappings;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueSpecification;

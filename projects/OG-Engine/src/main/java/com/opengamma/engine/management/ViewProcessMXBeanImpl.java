@@ -7,25 +7,26 @@ package com.opengamma.engine.management;
 
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
+import javax.management.openmbean.TabularData;
 
+import net.sf.ehcache.CacheException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZonedDateTime;
-
-import net.sf.ehcache.CacheException;
 
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewDeltaResultModel;
-import com.opengamma.engine.view.ViewProcessState;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.cycle.ViewCycleMetadata;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.impl.ViewProcessImpl;
 import com.opengamma.engine.view.impl.ViewProcessInternal;
-import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
@@ -36,6 +37,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class ViewProcessMXBeanImpl implements ViewProcessMXBean {
 
+  private static final Logger s_logger = LoggerFactory.getLogger(ViewProcessMXBeanImpl.class);
   /**
    * The backing view process instance
    */
@@ -61,6 +63,10 @@ public class ViewProcessMXBeanImpl implements ViewProcessMXBean {
   private volatile Instant _compilationFailedValuationTime;
   private volatile Exception _compilationFailedException;
   private volatile CycleState _lastCycle = CycleState.PENDING;
+  private volatile CompiledViewDefinition _lastCompiledViewDefinition;
+  private volatile ViewComputationResultModel _lastViewComputationResultModel;
+
+  private ViewProcessStatsProcessor _viewProcessStatsProcessor;
   /**
    * Create a management View
    * 
@@ -76,7 +82,6 @@ public class ViewProcessMXBeanImpl implements ViewProcessMXBean {
     if (_viewProcess instanceof ViewProcessImpl) {
       ViewProcessImpl viewProcessImpl = (ViewProcessImpl) viewProcess;
       viewProcessImpl.attachListener(new InternalViewResultListener() {
-
         @Override
         public UserPrincipal getUser() {
           return null;
@@ -85,6 +90,10 @@ public class ViewProcessMXBeanImpl implements ViewProcessMXBean {
         @Override
         public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition, boolean hasMarketDataPermissions) {
           _compiled = PhaseState.SUCCESSFUL;
+          synchronized (ViewProcessMXBeanImpl.this) {
+            _lastCompiledViewDefinition = compiledViewDefinition;
+            _lastViewComputationResultModel = null;
+          }
           _hasMarketDataPermissions = hasMarketDataPermissions ? Outcome.YES : Outcome.NO;
         }
 
@@ -105,6 +114,9 @@ public class ViewProcessMXBeanImpl implements ViewProcessMXBean {
 
         @Override
         public void cycleCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
+          synchronized (ViewProcessMXBeanImpl.this) {
+            _lastViewComputationResultModel = fullResult;
+          }
           _lastCycle = CycleState.COMPLETED;
         }
 
@@ -218,6 +230,46 @@ public class ViewProcessMXBeanImpl implements ViewProcessMXBean {
     _viewProcess.resume();
   }
   
+  public TabularData getResultsBySecurityType() {
+    return  _viewProcessStatsProcessor.getResultsBySecurityType();
+  }
+
+  public TabularData getResultsByColumnRequirement() {
+    return  _viewProcessStatsProcessor.getResultsByColumnRequirement();
+  }
+
+  public int getSuccesses() {
+    return _viewProcessStatsProcessor != null ? _viewProcessStatsProcessor.getSuccesses() : -1;
+  }
+
+  public int getFailures() {
+    return _viewProcessStatsProcessor != null ? _viewProcessStatsProcessor.getFailures() : -1;
+  }
+
+  public int getTotal() {
+    return _viewProcessStatsProcessor != null ? _viewProcessStatsProcessor.getTotal() : -1;
+  }
+  
+  @Override
+  public double getPercentage() {
+    return (getSuccesses() / getFailures()) * 100d;
+  }
+  
+  @Override
+  public boolean isCleanView100() {
+    return getPercentage() == 100d;
+  }  
+  
+  @Override
+  public boolean isCleanView99() {
+    return getPercentage() >= 99d;
+  }
+  
+  @Override
+  public boolean isCleanView95() {
+    return getPercentage() >= 95d;
+  }
+  
   /**
    * Gets the objectName field.
    * 
@@ -227,4 +279,23 @@ public class ViewProcessMXBeanImpl implements ViewProcessMXBean {
     return _objectName;
   }
   
+  public synchronized boolean processResults() {
+    CompiledViewDefinition compiledViewDef;
+    ViewComputationResultModel viewComputationResultModel;
+    synchronized (this) {
+      compiledViewDef = _lastCompiledViewDefinition;
+      viewComputationResultModel = _lastViewComputationResultModel;
+    }
+    if (compiledViewDef == null || viewComputationResultModel == null) {
+      return false;
+    }
+    _viewProcessStatsProcessor = new ViewProcessStatsProcessor(compiledViewDef, viewComputationResultModel);
+    try {
+      _viewProcessStatsProcessor.processResult();
+    } catch (Exception e) {
+      s_logger.error("error processing results", e);
+    }
+    return true;
+  }
 }
+

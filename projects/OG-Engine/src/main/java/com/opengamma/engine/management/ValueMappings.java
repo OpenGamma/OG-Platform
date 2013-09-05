@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.web.analytics;
+package com.opengamma.engine.management;
 
 import java.util.Collections;
 import java.util.Map;
@@ -23,7 +23,7 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
  * Contains mappings between {@link ValueRequirement}s and {@link ValueSpecification}s for a compiled view definition. These mappings can be large and are used by both the primitives and portfolio
  * grids so it makes sense to share them.
  */
-/* package */class ValueMappings {
+public class ValueMappings {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ValueMappings.class);
   
@@ -59,11 +59,11 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
   /**
    * Creates an instance with no mappings.
    */
-  /* package */ValueMappings() {
+  public ValueMappings() {
     _configurations = Collections.emptyMap();
   }
 
-  /* package */ValueMappings(CompiledViewDefinition compiledViewDef) {
+  public ValueMappings(CompiledViewDefinition compiledViewDef) {
     _configurations = Maps.newHashMap();
     for (ViewCalculationConfiguration calcConfig : compiledViewDef.getViewDefinition().getAllCalculationConfigurations()) {
       String configName = calcConfig.getName();
@@ -80,7 +80,7 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
    * @param valueReq The requirement
    * @return The specification or null if there isn't one for the specified requirement and config
    */
-  /* package */ValueSpecification getValueSpecification(String calcConfigName, ValueRequirement valueReq) {
+  public ValueSpecification getValueSpecification(String calcConfigName, ValueRequirement valueReq) {
     final ConfigurationData configuration = _configurations.get(calcConfigName);
     if (configuration != null) {
       return configuration.getValueSpecification(valueReq);
