@@ -11,7 +11,8 @@ import com.google.common.primitives.Doubles;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * Option function provider for in(out) barrier option
+ * In(Out) option comes into existence (becomes worthless) if the asset price hits the barrier
  */
 public abstract class BarrierOptionFunctionProvider extends OptionFunctionProvider1D {
 
@@ -38,19 +39,20 @@ public abstract class BarrierOptionFunctionProvider extends OptionFunctionProvid
     UpAndIn
   }
 
-  private final double _barrier;
+  private double _barrier;
   private CrossBarrierChecker _checker;
 
   /**
    * Constructor
    * @param strike The strike price
+   * @param timeToExpiry Time to expiry
    * @param steps The number of steps
    * @param isCall True if call option, false if put option
    * @param barrier The barrier price
    * @param typeName Type of barrier option
    */
-  public BarrierOptionFunctionProvider(final double strike, final int steps, final boolean isCall, final double barrier, final BarrierTypes typeName) {
-    super(strike, steps, isCall);
+  public BarrierOptionFunctionProvider(final double strike, final double timeToExpiry, final int steps, final boolean isCall, final double barrier, final BarrierTypes typeName) {
+    super(strike, timeToExpiry, steps, isCall);
     ArgumentChecker.isTrue(barrier > 0., "barrier should be positive");
     ArgumentChecker.isTrue(Doubles.isFinite(barrier), "barrier should be finite");
     _barrier = barrier;
@@ -62,9 +64,7 @@ public abstract class BarrierOptionFunctionProvider extends OptionFunctionProvid
       case UpAndOut:
         _checker = new CrossUpperBarrier();
         break;
-      case DownAndIn:
-        throw new NotImplementedException();
-      default: //i.e., UpAndIn
+      default: //i.e., DownAndIn, UpAndIn
         throw new NotImplementedException();
     }
 
@@ -120,7 +120,7 @@ public abstract class BarrierOptionFunctionProvider extends OptionFunctionProvid
   }
 
   /**
-   * The inherited class checks lower barrier crossing for up-and-out option
+   * The inherited class checks upper barrier crossing for up-and-out option
    */
   @SuppressWarnings("synthetic-access")
   protected class CrossUpperBarrier extends CrossBarrierChecker {

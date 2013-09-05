@@ -18,13 +18,14 @@ public class CappedPowerOptionFunctionProvider extends OptionFunctionProvider1D 
 
   /**
    * @param strike Strike price, K
+   * @param timeToExpiry Time to expiry
    * @param steps Number of steps
    * @param isCall True if call, false if put
    * @param power Power, i
    * @param cap Cap, C
    */
-  public CappedPowerOptionFunctionProvider(final double strike, final int steps, final boolean isCall, final double power, final double cap) {
-    super(strike, steps, isCall);
+  public CappedPowerOptionFunctionProvider(final double strike, final double timeToExpiry, final int steps, final boolean isCall, final double power, final double cap) {
+    super(strike, timeToExpiry, steps, isCall);
     ArgumentChecker.isTrue(power > 0., "power should be positive");
     ArgumentChecker.isTrue(Doubles.isFinite(power), "power should be finite");
     ArgumentChecker.isTrue(cap > 0., "cap should be positive");

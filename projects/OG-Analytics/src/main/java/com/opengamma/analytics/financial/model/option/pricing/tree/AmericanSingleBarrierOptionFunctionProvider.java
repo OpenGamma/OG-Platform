@@ -12,13 +12,14 @@ public class AmericanSingleBarrierOptionFunctionProvider extends BarrierOptionFu
 
   /**
    * @param strike Strike price
+   * @param timeToExpiry Time to expiry
    * @param steps Number of steps
    * @param isCall True if call, false if put
    * @param barrier Barrier price
    * @param typeName {@link BarrierTypes}, DownAndOut or UpAndOut
    */
-  public AmericanSingleBarrierOptionFunctionProvider(final double strike, final int steps, final boolean isCall, final double barrier, final BarrierTypes typeName) {
-    super(strike, steps, isCall, barrier, typeName);
+  public AmericanSingleBarrierOptionFunctionProvider(final double strike, final double timeToExpiry, final int steps, final boolean isCall, final double barrier, final BarrierTypes typeName) {
+    super(strike, timeToExpiry, steps, isCall, barrier, typeName);
   }
 
   @Override

@@ -24,9 +24,9 @@ public class EuropeanSingleBarrierOptionFunctionProviderTest {
 
   private static final BinomialTreeOptionPricingModel _model = new BinomialTreeOptionPricingModel();
   private static final double SPOT = 105.;
-  private static final double[] STRIKES = new double[] {81., 97., 105., 105.1, 114., 138. };
+  private static final double[] STRIKES = new double[] {97., 105., 114. };
   private static final double TIME = 4.2;
-  private static final double[] INTERESTS = new double[] {-0.01, 0.001, 0.005, 0.01 };
+  private static final double[] INTERESTS = new double[] {0.015, 0.05 };
   private static final double[] DIVIDENDS = new double[] {0.005, 0.02 };
 
   /**
@@ -34,71 +34,88 @@ public class EuropeanSingleBarrierOptionFunctionProviderTest {
    */
   @Test
   public void priceTest() {
-    final LatticeSpecification[] lattices = new LatticeSpecification[] {new CoxRossRubinsteinLatticeSpecification(), new JarrowRuddLatticeSpecification(), new TrigeorgisLatticeSpecification(),
-        new JabbourKraminYoungLatticeSpecification(), new TianLatticeSpecification(), new LeisenReimerLatticeSpecification() };
+    /*
+     * Due to slow convergence, only one lattice is used in this test
+     */
+    final LatticeSpecification lattice = new LeisenReimerLatticeSpecification();
+
     /*
      *  As expected, large vol and spot \sim barrier leads to poor accuracy since the effect of discreteness becomes large. 
      */
-    final double[] vols = new double[] {0.02, 0.09 };
+    final double[] vols = new double[] {0.02 };
 
-    final double[] barrierSet = new double[] {90, 121 };
+    final int nSteps = 3121;
+    final double[] barrierSet = new double[] {90., 112. };
     final String[] typeSet = new String[] {"DownAndOut", "UpAndOut" };
     final boolean[] tfSet = new boolean[] {true, false };
     for (final double barrier : barrierSet) {
       for (final String type : typeSet) {
-        for (final LatticeSpecification lattice : lattices) {
-          for (final boolean isCall : tfSet) {
-            for (final double strike : STRIKES) {
-              for (final double interest : INTERESTS) {
-                for (final double vol : vols) {
-                  for (final double dividend : DIVIDENDS) {
-                    final int[] choicesSteps = new int[] {597 };
-                    for (final int nSteps : choicesSteps) {
-                      final OptionFunctionProvider1D function = new EuropeanSingleBarrierOptionFunctionProvider(strike, nSteps, isCall, barrier,
-                          EuropeanSingleBarrierOptionFunctionProvider.BarrierTypes.valueOf(type));
-                      if (type == "DownAndOut") {
-                        if (strike > barrier) {
-                          double exact = isCall ? getA(SPOT, strike, TIME, vol, interest, dividend, barrier, 1.) - getC(SPOT, strike, TIME, vol, interest, dividend, barrier, 1., 1.) : getA(
-                              SPOT, strike, TIME, vol, interest, dividend, barrier, -1.) -
-                              getB(SPOT, strike, TIME, vol, interest, dividend, barrier, -1.) +
-                              getC(SPOT, strike, TIME, vol, interest, dividend, barrier, -1., 1.) -
-                              getD(SPOT, strike, TIME, vol, interest, dividend, barrier, -1., 1.);
-                          exact = exact < 0. ? 0. : exact;
-                          exact = SPOT <= barrier ? 0. : exact;
-                          final double res = _model.getPrice(lattice, function, SPOT, TIME, vol, interest, dividend);
-                          //                        System.out.println(barrier + "\t" + strike + "\t" + vol + "\t" + interest + "\t" + exact + "\t" + res);
-                          assertEquals(res, exact, Math.max(exact, 1.) * 1.e-1);
-                        } else {
-                          double exact = isCall ? getB(SPOT, strike, TIME, vol, interest, dividend, barrier, 1.) - getD(SPOT, strike, TIME, vol, interest, dividend, barrier, 1., 1.) : 0.;
-                          exact = exact < 0. ? 0. : exact;
-                          exact = SPOT <= barrier ? 0. : exact;
-                          final double res = _model.getPrice(lattice, function, SPOT, TIME, vol, interest, dividend);
-                          //                        System.out.println(strike + "\t" + vol + "\t" + interest + "\t" + exact + "\t" + res);
-                          assertEquals(res, exact, Math.max(exact, 1.) * 1.e-1);
-                        }
-                      } else {
-                        if (strike < barrier) {
-                          double exact = !isCall ? getA(SPOT, strike, TIME, vol, interest, dividend, barrier, -1.) - getC(SPOT, strike, TIME, vol, interest, dividend, barrier, -1., -1.) : getA(
-                              SPOT, strike, TIME, vol, interest, dividend, barrier, 1.) -
-                              getB(SPOT, strike, TIME, vol, interest, dividend, barrier, 1.) +
-                              getC(SPOT, strike, TIME, vol, interest, dividend, barrier, 1., -1.) -
-                              getD(SPOT, strike, TIME, vol, interest, dividend, barrier, 1., -1.);
-                          exact = exact < 0. ? 0. : exact;
-                          exact = SPOT >= barrier ? 0. : exact;
-                          final double res = _model.getPrice(lattice, function, SPOT, TIME, vol, interest, dividend);
-                          //                        System.out.println(barrier + "\t" + strike + "\t" + vol + "\t" + interest + "\t" + exact + "\t" + res);
-                          assertEquals(res, exact, Math.max(exact, 1.) * 1.e-1);
-                        } else {
-                          double exact = !isCall ? getB(SPOT, strike, TIME, vol, interest, dividend, barrier, -1.) - getD(SPOT, strike, TIME, vol, interest, dividend, barrier, -1., -1.) : 0.;
-                          exact = exact < 0. ? 0. : exact;
-                          exact = SPOT >= barrier ? 0. : exact;
-                          final double res = _model.getPrice(lattice, function, SPOT, TIME, vol, interest, dividend);
-                          //                        System.out.println(strike + "\t" + vol + "\t" + interest + "\t" + exact + "\t" + res);
-                          assertEquals(res, exact, Math.max(exact, 1.) * 1.e-1);
-                        }
-                      }
-                    }
-                  }
+        for (final boolean isCall : tfSet) {
+          for (final double strike : STRIKES) {
+            for (final double interest : INTERESTS) {
+              for (final double vol : vols) {
+                for (final double dividend : DIVIDENDS) {
+                  final OptionFunctionProvider1D function = new EuropeanSingleBarrierOptionFunctionProvider(strike, TIME, nSteps, isCall, barrier,
+                      EuropeanSingleBarrierOptionFunctionProvider.BarrierTypes.valueOf(type));
+                  double exact = price(SPOT, strike, TIME, vol, interest, dividend, isCall, barrier, type);
+                  final double res = _model.getPrice(lattice, function, SPOT, vol, interest, dividend);
+                  assertEquals(res, exact, Math.max(exact, 1.) * 1.e-2);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * 
+   */
+  @Test
+  public void greeksTest() {
+    final double eps = 1.e-6;
+    /*
+     * Due to slow convergence, only one lattice is used in this test
+     */
+    final LatticeSpecification lattice = new LeisenReimerLatticeSpecification();
+
+    /*
+     *  As expected, large vol and spot \sim barrier leads to poor accuracy since the effect of discreteness becomes large. 
+     */
+    final double[] vols = new double[] {0.02 };
+
+    final int nSteps = 3121;
+
+    final double[] barrierSet = new double[] {90, 112 };
+    final String[] typeSet = new String[] {"DownAndOut", "UpAndOut" };
+    final boolean[] tfSet = new boolean[] {true, false };
+    for (final double barrier : barrierSet) {
+      for (final String type : typeSet) {
+        for (final boolean isCall : tfSet) {
+          for (final double strike : STRIKES) {
+            for (final double interest : INTERESTS) {
+              for (final double vol : vols) {
+                for (final double dividend : DIVIDENDS) {
+                  final OptionFunctionProvider1D function = new EuropeanSingleBarrierOptionFunctionProvider(strike, TIME, nSteps, isCall, barrier,
+                      EuropeanSingleBarrierOptionFunctionProvider.BarrierTypes.valueOf(type));
+                  final double price = price(SPOT, strike, TIME, vol, interest, dividend, isCall, barrier, type);
+                  final double priceSpotUp = price(SPOT + eps, strike, TIME, vol, interest, dividend, isCall, barrier, type);
+                  final double priceSpotDown = price(SPOT - eps, strike, TIME, vol, interest, dividend, isCall, barrier, type);
+                  final double priceSpot2Up = price(SPOT + 2. * eps, strike, TIME, vol, interest, dividend, isCall, barrier, type);
+                  final double priceSpot2Down = price(SPOT - 2. * eps, strike, TIME, vol, interest, dividend, isCall, barrier, type);
+                  final double priceTimeUp = price(SPOT, strike, TIME + eps, vol, interest, dividend, isCall, barrier, type);
+                  final double priceTimeDown = price(SPOT, strike, TIME - eps, vol, interest, dividend, isCall, barrier, type);
+                  final double delta = 0.5 * (priceSpotUp - priceSpotDown) / eps;
+                  final double deltaUp = 0.5 * (priceSpot2Up - price) / eps;
+                  final double deltaDown = 0.5 * (price - priceSpot2Down) / eps;
+                  final double gamma = 0.5 * (deltaUp - deltaDown) / eps;
+                  final double theta = -0.5 * (priceTimeUp - priceTimeDown) / eps;
+                  final GreekResultCollection res = _model.getGreeks(lattice, function, SPOT, vol, interest, dividend);
+                  assertEquals(res.get(Greek.FAIR_PRICE), price, Math.max(price, 1.) * 1.e-2);
+                  assertEquals(res.get(Greek.DELTA), delta, Math.max(delta, 1.) * 1.e-2);
+                  assertEquals(res.get(Greek.GAMMA), gamma, Math.max(gamma, 1.) * 1.e-1);
+                  assertEquals(res.get(Greek.THETA), theta, Math.max(theta, 1.) * 1.e-1);
                 }
               }
             }
@@ -113,99 +130,126 @@ public class EuropeanSingleBarrierOptionFunctionProviderTest {
    */
   @Test
   public void discreteDividendPriceTest() {
-    final LatticeSpecification[] lattices = new LatticeSpecification[] {new CoxRossRubinsteinLatticeSpecification(), new JarrowRuddLatticeSpecification(), new TrigeorgisLatticeSpecification(),
-        new JabbourKraminYoungLatticeSpecification(), new TianLatticeSpecification(), new LeisenReimerLatticeSpecification() };
-
-    final double eps = 1.e-1;
+    /*
+     * Due to slow convergence, only one lattice is used in this test
+     */
+    final LatticeSpecification lattice = new LeisenReimerLatticeSpecification();
 
     final double[] propDividends = new double[] {0.002, 0.001, 0.002 };
     final double[] cashDividends = new double[] {.2, 1.1, .5 };
     final double[] dividendTimes = new double[] {TIME / 6., TIME / 3., TIME / 2. };
 
-    final double[] vols = new double[] {0.02, 0.09 };
-    final double[] barrierSet = new double[] {90, 121 };
+    final double[] vols = new double[] {0.02 };
+    final double[] barrierSet = new double[] {90, 112 };
     final String[] typeSet = new String[] {"DownAndOut", "UpAndOut" };
+
+    final int nSteps = 3121;
 
     final boolean[] tfSet = new boolean[] {true, false };
     for (final double barrier : barrierSet) {
       for (final String type : typeSet) {
-        for (final LatticeSpecification lattice : lattices) {
-          for (final boolean isCall : tfSet) {
-            for (final double strike : STRIKES) {
-              for (final double interest : INTERESTS) {
-                for (final double vol : vols) {
-                  final int[] choicesSteps = new int[] {1181 };
-                  for (final int nSteps : choicesSteps) {
-                    final OptionFunctionProvider1D function = new EuropeanSingleBarrierOptionFunctionProvider(strike, nSteps, isCall, barrier,
-                        EuropeanSingleBarrierOptionFunctionProvider.BarrierTypes.valueOf(type));
+        for (final boolean isCall : tfSet) {
+          for (final double strike : STRIKES) {
+            for (final double interest : INTERESTS) {
+              for (final double vol : vols) {
+                final OptionFunctionProvider1D function = new EuropeanSingleBarrierOptionFunctionProvider(strike, TIME, nSteps, isCall, barrier,
+                    EuropeanSingleBarrierOptionFunctionProvider.BarrierTypes.valueOf(type));
 
-                    final double resSpot = SPOT * (1. - propDividends[0]) * (1. - propDividends[1]) * (1. - propDividends[2]);
-                    final double modSpot = SPOT - cashDividends[0] * Math.exp(-interest * dividendTimes[0]) - cashDividends[1] * Math.exp(-interest * dividendTimes[1]) - cashDividends[2] *
-                        Math.exp(-interest * dividendTimes[2]);
+                final double resSpot = SPOT * (1. - propDividends[0]) * (1. - propDividends[1]) * (1. - propDividends[2]);
+                final double modSpot = SPOT - cashDividends[0] * Math.exp(-interest * dividendTimes[0]) - cashDividends[1] * Math.exp(-interest * dividendTimes[1]) - cashDividends[2] *
+                    Math.exp(-interest * dividendTimes[2]);
 
-                    final DividendFunctionProvider cashDividend = new CashDividendFunctionProvider(dividendTimes, cashDividends);
-                    final DividendFunctionProvider propDividend = new ProportionalDividendFunctionProvider(dividendTimes, propDividends);
-                    final double resMod = _model.getPrice(lattice, function, SPOT, TIME, vol, interest, cashDividend);
-                    final double resRes = _model.getPrice(lattice, function, SPOT, TIME, vol, interest, propDividend);
+                final DividendFunctionProvider cashDividend = new CashDividendFunctionProvider(dividendTimes, cashDividends);
+                final DividendFunctionProvider propDividend = new ProportionalDividendFunctionProvider(dividendTimes, propDividends);
+                final double resMod = _model.getPrice(lattice, function, SPOT, vol, interest, cashDividend);
+                final double resRes = _model.getPrice(lattice, function, SPOT, vol, interest, propDividend);
 
-                    if (type == "DownAndOut") {
-                      if (strike > barrier) {
-                        double exactMod = isCall ? getA(modSpot, strike, TIME, vol, interest, 0., barrier, 1.) - getC(modSpot, strike, TIME, vol, interest, 0., barrier, 1., 1.) : getA(
-                            modSpot, strike, TIME, vol, interest, 0., barrier, -1.) - getB(modSpot, strike, TIME, vol, interest, 0., barrier, -1.) +
-                            getC(modSpot, strike, TIME, vol, interest, 0., barrier, -1., 1.) - getD(modSpot, strike, TIME, vol, interest, 0., barrier, -1., 1.);
-                        //                        exactMod = exactMod < 0. ? 0. : exactMod;
-                        //                        if (exactMod >= 0.) {
-                        exactMod = SPOT <= barrier ? 0. : exactMod;
-                        //                        System.out.println(SPOT + "\t" + strike + "\t" + barrier + "\t" + TIME + "\t" + vol + "\t" + interest + "\t" + isCall);
-                        assertEquals(resMod, exactMod, Math.max(exactMod, 1.) * eps);
-                        //                        }
+                double exactMod = price(modSpot, strike, TIME, vol, interest, 0., isCall, barrier, type);
+                assertEquals(resMod, exactMod, Math.max(exactMod, 1.) * 1.e-2);
+                double exactRes = price(resSpot, strike, TIME, vol, interest, 0., isCall, barrier, type);
+                assertEquals(resRes, exactRes, Math.max(exactRes, 1.) * 1.e-2);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 
-                        double exactRes = isCall ? getA(resSpot, strike, TIME, vol, interest, 0., barrier, 1.) - getC(resSpot, strike, TIME, vol, interest, 0., barrier, 1., 1.) : getA(
-                            resSpot, strike, TIME, vol, interest, 0., barrier, -1.) - getB(resSpot, strike, TIME, vol, interest, 0., barrier, -1.) +
-                            getC(resSpot, strike, TIME, vol, interest, 0., barrier, -1., 1.) - getD(resSpot, strike, TIME, vol, interest, 0., barrier, -1., 1.);
-                        //                        exactRes = exactRes < 0. ? 0. : exactRes;
-                        exactRes = SPOT <= barrier ? 0. : exactRes;
-                        assertEquals(resRes, exactRes, Math.max(exactRes, 1.) * 1. * eps);
-                      } else {
-                        double exactMod = isCall ? getB(modSpot, strike, TIME, vol, interest, 0., barrier, 1.) - getD(modSpot, strike, TIME, vol, interest, 0., barrier, 1., 1.) : 0.;
-                        //                        exactMod = exactMod < 0. ? 0. : exactMod;
-                        exactMod = SPOT <= barrier ? 0. : exactMod;
-                        assertEquals(resMod, exactMod, Math.max(exactMod, 1.) * eps);
+  /**
+   * 
+   */
+  @Test
+  public void discreteDividendGreeksTest() {
+    final double eps = 1.e-6;
+    /*
+     * Due to slow convergence, only one lattice is used in this test
+     */
+    final LatticeSpecification lattice = new LeisenReimerLatticeSpecification();
 
-                        double exactRes = isCall ? getB(resSpot, strike, TIME, vol, interest, 0., barrier, 1.) - getD(resSpot, strike, TIME, vol, interest, 0., barrier, 1., 1.) : 0.;
-                        //                        exactRes = exactRes < 0. ? 0. : exactRes;
-                        exactRes = SPOT <= barrier ? 0. : exactRes;
-                        assertEquals(resRes, exactRes, Math.max(exactRes, 1.) * eps);
-                      }
-                    } else {
-                      if (strike < barrier) {
-                        double exactMod = !isCall ? getA(modSpot, strike, TIME, vol, interest, 0., barrier, -1.) - getC(modSpot, strike, TIME, vol, interest, 0., barrier, -1., -1.) : getA(
-                            modSpot, strike, TIME, vol, interest, 0., barrier, 1.) - getB(modSpot, strike, TIME, vol, interest, 0., barrier, 1.) +
-                            getC(modSpot, strike, TIME, vol, interest, 0., barrier, 1., -1.) - getD(modSpot, strike, TIME, vol, interest, 0., barrier, 1., -1.);
-                        //                        exactMod = exactMod < 0. ? 0. : exactMod;
-                        exactMod = SPOT >= barrier ? 0. : exactMod;
-                        assertEquals(resMod, exactMod, Math.max(exactMod, 1.) * eps);
+    final double[] propDividends = new double[] {0.002, 0.001, 0.002 };
+    final double[] cashDividends = new double[] {.2, 1.1, .5 };
+    final double[] dividendTimes = new double[] {TIME / 6., TIME / 3., TIME / 2. };
 
-                        double exactRes = !isCall ? getA(resSpot, strike, TIME, vol, interest, 0., barrier, -1.) - getC(resSpot, strike, TIME, vol, interest, 0., barrier, -1., -1.) : getA(
-                            resSpot, strike, TIME, vol, interest, 0., barrier, 1.) - getB(resSpot, strike, TIME, vol, interest, 0., barrier, 1.) +
-                            getC(resSpot, strike, TIME, vol, interest, 0., barrier, 1., -1.) - getD(resSpot, strike, TIME, vol, interest, 0., barrier, 1., -1.);
-                        //                        exactRes = exactRes < 0. ? 0. : exactRes;
-                        exactRes = SPOT >= barrier ? 0. : exactRes;
-                        assertEquals(resRes, exactRes, Math.max(exactRes, 1.) * eps);
-                      } else {
-                        double exactMod = !isCall ? getB(modSpot, strike, TIME, vol, interest, 0., barrier, -1.) - getD(modSpot, strike, TIME, vol, interest, 0., barrier, -1., -1.) : 0.;
-                        //                        exactMod = exactMod < 0. ? 0. : exactMod;
-                        exactMod = SPOT >= barrier ? 0. : exactMod;
-                        assertEquals(resMod, exactMod, Math.max(exactMod, 1.) * eps);
+    final double[] vols = new double[] {0.02 };
+    final double[] barrierSet = new double[] {90, 112 };
+    final String[] typeSet = new String[] {"DownAndOut", "UpAndOut" };
 
-                        double exactRes = !isCall ? getB(resSpot, strike, TIME, vol, interest, 0., barrier, -1.) - getD(resSpot, strike, TIME, vol, interest, 0., barrier, -1., -1.) : 0.;
-                        //                        exactRes = exactRes < 0. ? 0. : exactRes;
-                        exactRes = SPOT >= barrier ? 0. : exactRes;
-                        assertEquals(resRes, exactRes, Math.max(exactRes, 1.) * eps);
-                      }
-                    }
+    final int nSteps = 3121;
 
-                  }
+    final boolean[] tfSet = new boolean[] {true, false };
+    for (final double barrier : barrierSet) {
+      for (final String type : typeSet) {
+        for (final boolean isCall : tfSet) {
+          for (final double strike : STRIKES) {
+            for (final double interest : INTERESTS) {
+              for (final double vol : vols) {
+                final OptionFunctionProvider1D function = new EuropeanSingleBarrierOptionFunctionProvider(strike, TIME, nSteps, isCall, barrier,
+                    EuropeanSingleBarrierOptionFunctionProvider.BarrierTypes.valueOf(type));
+
+                final double resSpot = SPOT * (1. - propDividends[0]) * (1. - propDividends[1]) * (1. - propDividends[2]);
+                final double modSpot = SPOT - cashDividends[0] * Math.exp(-interest * dividendTimes[0]) - cashDividends[1] * Math.exp(-interest * dividendTimes[1]) - cashDividends[2] *
+                    Math.exp(-interest * dividendTimes[2]);
+
+                final DividendFunctionProvider cashDividend = new CashDividendFunctionProvider(dividendTimes, cashDividends);
+                final DividendFunctionProvider propDividend = new ProportionalDividendFunctionProvider(dividendTimes, propDividends);
+                {
+                  final double price = price(modSpot, strike, TIME, vol, interest, 0., isCall, barrier, type);
+                  final double priceSpotUp = price(modSpot + eps, strike, TIME, vol, interest, 0., isCall, barrier, type);
+                  final double priceSpotDown = price(modSpot - eps, strike, TIME, vol, interest, 0., isCall, barrier, type);
+                  final double priceSpot2Up = price(modSpot + 2. * eps, strike, TIME, vol, interest, 0., isCall, barrier, type);
+                  final double priceSpot2Down = price(modSpot - 2. * eps, strike, TIME, vol, interest, 0., isCall, barrier, type);
+                  final double priceTimeUp = price(modSpot, strike, TIME + eps, vol, interest, 0., isCall, barrier, type);
+                  final double priceTimeDown = price(modSpot, strike, TIME - eps, vol, interest, 0., isCall, barrier, type);
+                  final double delta = 0.5 * (priceSpotUp - priceSpotDown) / eps;
+                  final double deltaUp = 0.5 * (priceSpot2Up - price) / eps;
+                  final double deltaDown = 0.5 * (price - priceSpot2Down) / eps;
+                  final double gamma = 0.5 * (deltaUp - deltaDown) / eps;
+                  final double theta = -0.5 * (priceTimeUp - priceTimeDown) / eps;
+                  final GreekResultCollection res = _model.getGreeks(lattice, function, SPOT, vol, interest, cashDividend);
+                  assertEquals(res.get(Greek.FAIR_PRICE), price, Math.max(price, 1.) * 1.e-2);
+                  assertEquals(res.get(Greek.DELTA), delta, Math.max(delta, 1.) * 1.e-1);
+                  assertEquals(res.get(Greek.GAMMA), gamma, Math.max(gamma, 1.) * 1.e-1);
+                  assertEquals(res.get(Greek.THETA), theta, Math.max(theta, 1.) * 1.e-1);
+                }
+                {
+                  final double price = price(resSpot, strike, TIME, vol, interest, 0., isCall, barrier, type);
+                  final double priceSpotUp = price(resSpot + eps, strike, TIME, vol, interest, 0., isCall, barrier, type);
+                  final double priceSpotDown = price(resSpot - eps, strike, TIME, vol, interest, 0., isCall, barrier, type);
+                  final double priceSpot2Up = price(resSpot + 2. * eps, strike, TIME, vol, interest, 0., isCall, barrier, type);
+                  final double priceSpot2Down = price(resSpot - 2. * eps, strike, TIME, vol, interest, 0., isCall, barrier, type);
+                  final double priceTimeUp = price(resSpot, strike, TIME + eps, vol, interest, 0., isCall, barrier, type);
+                  final double priceTimeDown = price(resSpot, strike, TIME - eps, vol, interest, 0., isCall, barrier, type);
+                  final double delta = 0.5 * (priceSpotUp - priceSpotDown) / eps;
+                  final double deltaUp = 0.5 * (priceSpot2Up - price) / eps;
+                  final double deltaDown = 0.5 * (price - priceSpot2Down) / eps;
+                  final double gamma = 0.5 * (deltaUp - deltaDown) / eps;
+                  final double theta = -0.5 * (priceTimeUp - priceTimeDown) / eps;
+                  final GreekResultCollection res = _model.getGreeks(lattice, function, SPOT, vol, interest, propDividend);
+                  assertEquals(res.get(Greek.FAIR_PRICE), price, Math.max(price, 1.) * 1.e-2);
+                  assertEquals(res.get(Greek.DELTA), delta, Math.max(delta, 1.) * 1.e-2);
+                  assertEquals(res.get(Greek.GAMMA), gamma, Math.max(gamma, 1.) * 1.e-1);
+                  assertEquals(res.get(Greek.THETA), theta, Math.max(theta, 1.) * 1.e-1);
                 }
               }
             }
@@ -246,25 +290,25 @@ public class EuropeanSingleBarrierOptionFunctionProviderTest {
 
           final double[] barrierSet = new double[] {SPOT * 0.9, SPOT * 1.1 };
           for (final double barrier : barrierSet) {
-            final OptionFunctionProvider1D functionBarrierDown = new EuropeanSingleBarrierOptionFunctionProvider(strike, steps, isCall, barrier,
+            final OptionFunctionProvider1D functionBarrierDown = new EuropeanSingleBarrierOptionFunctionProvider(strike, time, steps, isCall, barrier,
                 EuropeanSingleBarrierOptionFunctionProvider.BarrierTypes.DownAndOut);
-            final OptionFunctionProvider1D functionBarrierUp = new EuropeanSingleBarrierOptionFunctionProvider(strike, steps, isCall, barrier,
+            final OptionFunctionProvider1D functionBarrierUp = new EuropeanSingleBarrierOptionFunctionProvider(strike, time, steps, isCall, barrier,
                 EuropeanSingleBarrierOptionFunctionProvider.BarrierTypes.UpAndOut);
 
-            final double resPriceBarrierDown = _model.getPrice(functionBarrierDown, SPOT, time, vol, rate, dividend);
-            final GreekResultCollection resGreeksBarrierDown = _model.getGreeks(functionBarrierDown, SPOT, time, vol, rate, dividend);
-            final double resPriceConstBarrierDown = _model.getPrice(lattice1, functionBarrierDown, SPOT, time, volRef, rateRef, dividend[0]);
-            final GreekResultCollection resGreeksConstBarrierDown = _model.getGreeks(lattice1, functionBarrierDown, SPOT, time, volRef, rateRef, dividend[0]);
+            final double resPriceBarrierDown = _model.getPrice(functionBarrierDown, SPOT, vol, rate, dividend);
+            final GreekResultCollection resGreeksBarrierDown = _model.getGreeks(functionBarrierDown, SPOT, vol, rate, dividend);
+            final double resPriceConstBarrierDown = _model.getPrice(lattice1, functionBarrierDown, SPOT, volRef, rateRef, dividend[0]);
+            final GreekResultCollection resGreeksConstBarrierDown = _model.getGreeks(lattice1, functionBarrierDown, SPOT, volRef, rateRef, dividend[0]);
             assertEquals(resPriceBarrierDown, resPriceConstBarrierDown, Math.max(Math.abs(resPriceConstBarrierDown), 0.1) * 1.e-1);
             assertEquals(resGreeksBarrierDown.get(Greek.FAIR_PRICE), resGreeksConstBarrierDown.get(Greek.FAIR_PRICE), Math.max(Math.abs(resGreeksConstBarrierDown.get(Greek.FAIR_PRICE)), 0.1) * 0.1);
             assertEquals(resGreeksBarrierDown.get(Greek.DELTA), resGreeksConstBarrierDown.get(Greek.DELTA), Math.max(Math.abs(resGreeksConstBarrierDown.get(Greek.DELTA)), 0.1) * 0.1);
             assertEquals(resGreeksBarrierDown.get(Greek.GAMMA), resGreeksConstBarrierDown.get(Greek.GAMMA), Math.max(Math.abs(resGreeksConstBarrierDown.get(Greek.GAMMA)), 0.1) * 0.1);
             assertEquals(resGreeksBarrierDown.get(Greek.THETA), resGreeksConstBarrierDown.get(Greek.THETA), Math.max(Math.abs(resGreeksConstBarrierDown.get(Greek.THETA)), 0.1));
 
-            final double resPriceBarrierUp = _model.getPrice(functionBarrierUp, SPOT, time, vol, rate, dividend);
-            final GreekResultCollection resGreeksBarrierUp = _model.getGreeks(functionBarrierUp, SPOT, time, vol, rate, dividend);
-            final double resPriceConstBarrierUp = _model.getPrice(lattice1, functionBarrierUp, SPOT, time, volRef, rateRef, dividend[0]);
-            final GreekResultCollection resGreeksConstBarrierUp = _model.getGreeks(lattice1, functionBarrierUp, SPOT, time, volRef, rateRef, dividend[0]);
+            final double resPriceBarrierUp = _model.getPrice(functionBarrierUp, SPOT, vol, rate, dividend);
+            final GreekResultCollection resGreeksBarrierUp = _model.getGreeks(functionBarrierUp, SPOT, vol, rate, dividend);
+            final double resPriceConstBarrierUp = _model.getPrice(lattice1, functionBarrierUp, SPOT, volRef, rateRef, dividend[0]);
+            final GreekResultCollection resGreeksConstBarrierUp = _model.getGreeks(lattice1, functionBarrierUp, SPOT, volRef, rateRef, dividend[0]);
             assertEquals(resPriceBarrierUp, resPriceConstBarrierUp, Math.max(Math.abs(resPriceConstBarrierUp), 0.1) * 1.e-1);
             assertEquals(resGreeksBarrierUp.get(Greek.FAIR_PRICE), resGreeksConstBarrierUp.get(Greek.FAIR_PRICE), Math.max(Math.abs(resGreeksConstBarrierUp.get(Greek.FAIR_PRICE)), 0.1) * 0.1);
             assertEquals(resGreeksBarrierUp.get(Greek.DELTA), resGreeksConstBarrierUp.get(Greek.DELTA), Math.max(Math.abs(resGreeksConstBarrierUp.get(Greek.DELTA)), 0.1) * 0.1);
@@ -282,7 +326,7 @@ public class EuropeanSingleBarrierOptionFunctionProviderTest {
    */
   @Test
   public void getBarrierTest() {
-    final EuropeanSingleBarrierOptionFunctionProvider function = new EuropeanSingleBarrierOptionFunctionProvider(STRIKES[2], 101, true, 90.,
+    final EuropeanSingleBarrierOptionFunctionProvider function = new EuropeanSingleBarrierOptionFunctionProvider(STRIKES[2], 1., 101, true, 90.,
         EuropeanSingleBarrierOptionFunctionProvider.BarrierTypes.valueOf("DownAndOut"));
     assertEquals(function.getBarrier(), 90.);
   }
@@ -292,7 +336,7 @@ public class EuropeanSingleBarrierOptionFunctionProviderTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeBarrierTest() {
-    new EuropeanSingleBarrierOptionFunctionProvider(STRIKES[2], 101, true, -2., EuropeanSingleBarrierOptionFunctionProvider.BarrierTypes.valueOf("DownAndOut"));
+    new EuropeanSingleBarrierOptionFunctionProvider(STRIKES[2], 1., 101, true, -2., EuropeanSingleBarrierOptionFunctionProvider.BarrierTypes.valueOf("DownAndOut"));
   }
 
   /**
@@ -300,7 +344,7 @@ public class EuropeanSingleBarrierOptionFunctionProviderTest {
    */
   @Test(expectedExceptions = NotImplementedException.class)
   public void downInBarrierTest() {
-    new EuropeanSingleBarrierOptionFunctionProvider(STRIKES[2], 101, true, 90., EuropeanSingleBarrierOptionFunctionProvider.BarrierTypes.valueOf("DownAndIn"));
+    new EuropeanSingleBarrierOptionFunctionProvider(STRIKES[2], 1., 101, true, 90., EuropeanSingleBarrierOptionFunctionProvider.BarrierTypes.valueOf("DownAndIn"));
   }
 
   /**
@@ -308,12 +352,66 @@ public class EuropeanSingleBarrierOptionFunctionProviderTest {
    */
   @Test(expectedExceptions = NotImplementedException.class)
   public void upInBarrierTest() {
-    new EuropeanSingleBarrierOptionFunctionProvider(STRIKES[2], 101, true, 90., EuropeanSingleBarrierOptionFunctionProvider.BarrierTypes.valueOf("UpAndIn"));
+    new EuropeanSingleBarrierOptionFunctionProvider(STRIKES[2], 1., 101, true, 90., EuropeanSingleBarrierOptionFunctionProvider.BarrierTypes.valueOf("UpAndIn"));
+  }
+
+  private double price(final double spot, final double strike, final double time, final double vol, final double interest, final double dividend, final boolean isCall, final double barrier,
+      final String type) {
+    double exact = 0.;
+    if (type == "DownAndOut") {
+      if (strike > barrier) {
+        exact = isCall ? getA(spot, strike, time, vol, interest, dividend, barrier, 1.) - getC(spot, strike, time, vol, interest, dividend, barrier, 1., 1.) : getA(
+            spot, strike, time, vol, interest, dividend, barrier, -1.) - getB(spot, strike, time, vol, interest, dividend, barrier, -1.) +
+            getC(spot, strike, time, vol, interest, dividend, barrier, -1., 1.) - getD(spot, strike, time, vol, interest, dividend, barrier, -1., 1.);
+        exact = exact < 0. ? 0. : exact;
+        exact = spot <= barrier ? 0. : exact;
+      } else {
+        exact = isCall ? getB(spot, strike, time, vol, interest, dividend, barrier, 1.) - getD(spot, strike, time, vol, interest, dividend, barrier, 1., 1.) : 0.;
+        exact = exact < 0. ? 0. : exact;
+        exact = spot <= barrier ? 0. : exact;
+      }
+    } else {
+      if (strike < barrier) {
+        exact = !isCall ? getA(spot, strike, time, vol, interest, dividend, barrier, -1.) - getC(spot, strike, time, vol, interest, dividend, barrier, -1., -1.) : getA(
+            spot, strike, time, vol, interest, dividend, barrier, 1.) - getB(spot, strike, time, vol, interest, dividend, barrier, 1.) +
+            getC(spot, strike, time, vol, interest, dividend, barrier, 1., -1.) - getD(spot, strike, time, vol, interest, dividend, barrier, 1., -1.);
+        exact = exact < 0. ? 0. : exact;
+        exact = spot >= barrier ? 0. : exact;
+      } else {
+        exact = !isCall ? getB(spot, strike, time, vol, interest, dividend, barrier, -1.) - getD(spot, strike, time, vol, interest, dividend, barrier, -1., -1.) : 0.;
+        exact = exact < 0. ? 0. : exact;
+        exact = spot >= barrier ? 0. : exact;
+      }
+    }
+    return exact;
   }
 
   /*
    * Tests below are for debugging
    */
+
+  /**
+   * Showing slow convergence for non-small vol
+   */
+  @Test(enabled = false)
+  public void price1Test() {
+
+    final LatticeSpecification lattice = new LeisenReimerLatticeSpecification();
+    final double vol = 0.2;
+
+    final int nSteps = 298121;
+    final double barrier = 85;
+    String type = "DownAndOut";
+    final boolean isCall = true;
+    final double strike = 110.;
+    final double interest = 0.08;
+    final double dividend = 0.02;
+    final OptionFunctionProvider1D function = new EuropeanSingleBarrierOptionFunctionProvider(strike, TIME, nSteps, isCall, barrier,
+        EuropeanSingleBarrierOptionFunctionProvider.BarrierTypes.valueOf(type));
+    double exact = price(SPOT, strike, TIME, vol, interest, dividend, isCall, barrier, type);
+    final double res = _model.getPrice(lattice, function, SPOT, vol, interest, dividend);
+    assertEquals(res, exact, Math.max(exact, 1.) * 1.e-3);
+  }
 
   /**
    * 
@@ -330,7 +428,7 @@ public class EuropeanSingleBarrierOptionFunctionProviderTest {
 
     for (int i = 0; i < 500; ++i) {
       final int nSteps = 2001 + 6 * i;
-      final OptionFunctionProvider1D function = new EuropeanSingleBarrierOptionFunctionProvider(strike, nSteps, isCall, barrier,
+      final OptionFunctionProvider1D function = new EuropeanSingleBarrierOptionFunctionProvider(strike, TIME, nSteps, isCall, barrier,
           EuropeanSingleBarrierOptionFunctionProvider.BarrierTypes.valueOf("DownAndOut"));
       //      final LatticeSpecification lattice = new TrigeorgisLatticeSpecification();
       //      final LatticeSpecification lattice = new CoxRossRubinsteinLatticeSpecification();
@@ -342,7 +440,7 @@ public class EuropeanSingleBarrierOptionFunctionProviderTest {
           getD(SPOT, strike, TIME, vol, interest, dividend, barrier, -1., 1.);
       exact = exact < 0. ? 0. : exact;
       exact = SPOT <= barrier ? 0. : exact;
-      final double res = _model.getPrice(lattice, function, SPOT, TIME, vol, interest, dividend);
+      final double res = _model.getPrice(lattice, function, SPOT, vol, interest, dividend);
       System.out.println(nSteps + "\t" + (res - exact));
     }
   }
@@ -370,7 +468,7 @@ public class EuropeanSingleBarrierOptionFunctionProviderTest {
             for (final double interest : INTERESTS) {
               for (final double vol : vols) {
                 for (final double dividend : DIVIDENDS) {
-                  final OptionFunctionProvider1D function = new EuropeanSingleBarrierOptionFunctionProvider(strike, nSteps, isCall, barrier,
+                  final OptionFunctionProvider1D function = new EuropeanSingleBarrierOptionFunctionProvider(strike, TIME, nSteps, isCall, barrier,
                       EuropeanSingleBarrierOptionFunctionProvider.BarrierTypes.valueOf(type));
                   if (type == "DownAndOut") {
                     if (strike > barrier) {
@@ -381,14 +479,14 @@ public class EuropeanSingleBarrierOptionFunctionProviderTest {
                           getD(SPOT, strike, TIME, vol, interest, dividend, barrier, -1., 1.);
                       exact = exact < 0. ? 0. : exact;
                       exact = SPOT <= barrier ? 0. : exact;
-                      final double res = _model.getPrice(lattice, function, SPOT, TIME, vol, interest, dividend);
+                      final double res = _model.getPrice(lattice, function, SPOT, vol, interest, dividend);
                       System.out.println(barrier + "\t" + strike + "\t" + vol + "\t" + interest + "\t" + dividend + "\t" + isCall);
                       assertEquals(res, exact, Math.max(exact, 1.) * eps);
                     } else {
                       double exact = isCall ? getB(SPOT, strike, TIME, vol, interest, dividend, barrier, 1.) - getD(SPOT, strike, TIME, vol, interest, dividend, barrier, 1., 1.) : 0.;
                       exact = exact < 0. ? 0. : exact;
                       exact = SPOT <= barrier ? 0. : exact;
-                      final double res = _model.getPrice(lattice, function, SPOT, TIME, vol, interest, dividend);
+                      final double res = _model.getPrice(lattice, function, SPOT, vol, interest, dividend);
                       //                        System.out.println(strike + "\t" + vol + "\t" + interest + "\t" + exact + "\t" + res);
                       assertEquals(res, exact, Math.max(exact, 1.) * eps);
                     }
@@ -401,14 +499,14 @@ public class EuropeanSingleBarrierOptionFunctionProviderTest {
                           getD(SPOT, strike, TIME, vol, interest, dividend, barrier, 1., -1.);
                       exact = exact < 0. ? 0. : exact;
                       exact = SPOT >= barrier ? 0. : exact;
-                      final double res = _model.getPrice(lattice, function, SPOT, TIME, vol, interest, dividend);
+                      final double res = _model.getPrice(lattice, function, SPOT, vol, interest, dividend);
                       //                        System.out.println(barrier + "\t" + strike + "\t" + vol + "\t" + interest + "\t" + exact + "\t" + res);
                       assertEquals(res, exact, Math.max(exact, 1.) * eps);
                     } else {
                       double exact = !isCall ? getB(SPOT, strike, TIME, vol, interest, dividend, barrier, -1.) - getD(SPOT, strike, TIME, vol, interest, dividend, barrier, -1., -1.) : 0.;
                       exact = exact < 0. ? 0. : exact;
                       exact = SPOT >= barrier ? 0. : exact;
-                      final double res = _model.getPrice(lattice, function, SPOT, TIME, vol, interest, dividend);
+                      final double res = _model.getPrice(lattice, function, SPOT, vol, interest, dividend);
                       //                        System.out.println(strike + "\t" + vol + "\t" + interest + "\t" + exact + "\t" + res);
                       assertEquals(res, exact, Math.max(exact, 1.) * eps);
                     }

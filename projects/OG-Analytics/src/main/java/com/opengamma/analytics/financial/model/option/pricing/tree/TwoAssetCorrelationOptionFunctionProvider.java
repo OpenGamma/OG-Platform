@@ -18,11 +18,12 @@ public class TwoAssetCorrelationOptionFunctionProvider extends OptionFunctionPro
   /**
    * @param strike1 Strike price for asset 1, X1
    * @param strike2 Strike price for asset 2, X2
+   * @param timeToExpiry Time to expiry
    * @param steps Number of steps
    * @param isCall True if call, false if put
    */
-  public TwoAssetCorrelationOptionFunctionProvider(final double strike1, final double strike2, final int steps, final boolean isCall) {
-    super(strike1, steps, isCall);
+  public TwoAssetCorrelationOptionFunctionProvider(final double strike1, final double strike2, final double timeToExpiry, final int steps, final boolean isCall) {
+    super(strike1, timeToExpiry, steps, isCall);
     ArgumentChecker.isTrue(strike2 > 0., "strike2 should be positive");
     ArgumentChecker.isTrue(Doubles.isFinite(strike2), "strike2 should be finite");
     _strike2 = strike2;
@@ -30,7 +31,7 @@ public class TwoAssetCorrelationOptionFunctionProvider extends OptionFunctionPro
 
   @Override
   public double[][] getPayoffAtExpiry(final double assetPrice1, final double assetPrice2, final double upOverDown1, final double upOverDown2) {
-    final double strike1 = getStrike();
+    final double strike1 = super.getStrike();
     final int nStepsP = getNumberOfSteps() + 1;
     final double sign = getSign();
 
@@ -67,7 +68,7 @@ public class TwoAssetCorrelationOptionFunctionProvider extends OptionFunctionPro
    * @return strike1
    */
   public double getStrike1() {
-    return getStrike();
+    return super.getStrike();
   }
 
   /**
@@ -76,6 +77,11 @@ public class TwoAssetCorrelationOptionFunctionProvider extends OptionFunctionPro
    */
   public double getStrike2() {
     return _strike2;
+  }
+
+  @Override
+  public double getStrike() {
+    throw new IllegalArgumentException("Specify strike for asset 1 or strike for asset 2");
   }
 
 }

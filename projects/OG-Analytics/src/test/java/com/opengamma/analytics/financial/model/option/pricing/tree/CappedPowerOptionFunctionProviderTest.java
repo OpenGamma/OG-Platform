@@ -53,9 +53,9 @@ public class CappedPowerOptionFunctionProviderTest {
               for (final double vol : VOLS) {
                 final int nSteps = 369;
                 for (final double dividend : DIVIDENDS) {
-                  final OptionFunctionProvider1D function = new CappedPowerOptionFunctionProvider(strike, nSteps, isCall, POWER, cap);
+                  final OptionFunctionProvider1D function = new CappedPowerOptionFunctionProvider(strike, TIME, nSteps, isCall, POWER, cap);
                   final double exactDiv = price(SPOT, strike, TIME, vol, interest, interest - dividend, isCall, POWER, cap);
-                  final double resDiv = _model.getPrice(lattice, function, SPOT, TIME, vol, interest, dividend);
+                  final double resDiv = _model.getPrice(lattice, function, SPOT, vol, interest, dividend);
                   final double refDiv = Math.max(Math.abs(exactDiv), 1.) * 1.e-2;
                   //                  System.out.println(exactDiv + "\t" + resDiv);
                   assertEquals(resDiv, exactDiv, refDiv);
@@ -90,7 +90,7 @@ public class CappedPowerOptionFunctionProviderTest {
             for (final double interest : INTERESTS) {
               for (final double vol : VOLS) {
                 final int nSteps = 521;
-                final OptionFunctionProvider1D function = new CappedPowerOptionFunctionProvider(strike, nSteps, isCall, POWER, cap);
+                final OptionFunctionProvider1D function = new CappedPowerOptionFunctionProvider(strike, TIME, nSteps, isCall, POWER, cap);
                 final DividendFunctionProvider cashDividend = new CashDividendFunctionProvider(dividendTimes, cashDividends);
                 final DividendFunctionProvider propDividend = new ProportionalDividendFunctionProvider(dividendTimes, propDividends);
                 final double resSpot = SPOT * (1. - propDividends[0]) * (1. - propDividends[1]) * (1. - propDividends[2]);
@@ -98,10 +98,10 @@ public class CappedPowerOptionFunctionProviderTest {
                     Math.exp(-interest * dividendTimes[2]);
                 final double exactProp = price(resSpot, strike, TIME, vol, interest, interest, isCall, POWER, cap);
                 final double appCash = price(modSpot, strike, TIME, vol, interest, interest, isCall, POWER, cap);
-                final double resProp = _model.getPrice(lattice, function, SPOT, TIME, vol, interest, propDividend);
+                final double resProp = _model.getPrice(lattice, function, SPOT, vol, interest, propDividend);
                 final double refProp = Math.max(Math.abs(exactProp), 1.) * 1.e-2;
                 assertEquals(resProp, exactProp, refProp);
-                final double resCash = _model.getPrice(lattice, function, SPOT, TIME, vol, interest, cashDividend);
+                final double resCash = _model.getPrice(lattice, function, SPOT, vol, interest, cashDividend);
                 final double refCash = Math.max(Math.abs(appCash), 1.) * 1.e-1;
                 assertEquals(resCash, appCash, refCash);
               }
@@ -131,8 +131,8 @@ public class CappedPowerOptionFunctionProviderTest {
               for (final double vol : VOLS) {
                 final int nSteps = 429;
                 for (final double dividend : DIVIDENDS) {
-                  final OptionFunctionProvider1D function = new CappedPowerOptionFunctionProvider(strike, nSteps, isCall, POWER, cap);
-                  final GreekResultCollection resDiv = _model.getGreeks(lattice, function, SPOT, TIME, vol, interest, dividend);
+                  final OptionFunctionProvider1D function = new CappedPowerOptionFunctionProvider(strike, TIME, nSteps, isCall, POWER, cap);
+                  final GreekResultCollection resDiv = _model.getGreeks(lattice, function, SPOT, vol, interest, dividend);
                   final double priceDiv = price(SPOT, strike, TIME, vol, interest, interest - dividend, isCall, POWER, cap);
                   final double refPriceDiv = Math.max(Math.abs(priceDiv), 1.) * 1.e-2;
                   assertEquals(resDiv.get(Greek.FAIR_PRICE), priceDiv, refPriceDiv);
@@ -191,11 +191,11 @@ public class CappedPowerOptionFunctionProviderTest {
                 final double appGammaCash = gamma(modSpot, strike, TIME, vol, interest, interest, isCall, POWER, cap);
                 final double appThetaCash = theta(modSpot, strike, TIME, vol, interest, interest, isCall, POWER, cap);
 
-                final OptionFunctionProvider1D function = new CappedPowerOptionFunctionProvider(strike, nSteps, isCall, POWER, cap);
+                final OptionFunctionProvider1D function = new CappedPowerOptionFunctionProvider(strike, TIME, nSteps, isCall, POWER, cap);
                 final DividendFunctionProvider cashDividend = new CashDividendFunctionProvider(dividendTimes, cashDividends);
                 final DividendFunctionProvider propDividend = new ProportionalDividendFunctionProvider(dividendTimes, propDividends);
-                final GreekResultCollection resProp = _model.getGreeks(lattice, function, SPOT, TIME, vol, interest, propDividend);
-                final GreekResultCollection resCash = _model.getGreeks(lattice, function, SPOT, TIME, vol, interest, cashDividend);
+                final GreekResultCollection resProp = _model.getGreeks(lattice, function, SPOT, vol, interest, propDividend);
+                final GreekResultCollection resCash = _model.getGreeks(lattice, function, SPOT, vol, interest, cashDividend);
 
                 assertEquals(resProp.get(Greek.FAIR_PRICE), exactPriceProp, Math.max(1., Math.abs(exactPriceProp)) * 1.e-2);
                 assertEquals(resProp.get(Greek.DELTA), exactDeltaProp, Math.max(1., Math.abs(exactDeltaProp)) * 1.e-1);
@@ -245,12 +245,12 @@ public class CappedPowerOptionFunctionProviderTest {
             final double rateRef = constA + 0.5 * constB * time;
             final double volRef = Math.sqrt(constC * constC + 0.5 * constD * constD + 2. * constC * constD / time * (1. - Math.cos(time)) - constD * constD * 0.25 / time * Math.sin(2. * time));
 
-            final OptionFunctionProvider1D function = new CappedPowerOptionFunctionProvider(strike, steps, isCall, POWER, cap);
-            final double resPrice = _model.getPrice(function, SPOT, time, vol, rate, dividend);
-            final GreekResultCollection resGreeks = _model.getGreeks(function, SPOT, time, vol, rate, dividend);
+            final OptionFunctionProvider1D function = new CappedPowerOptionFunctionProvider(strike, time, steps, isCall, POWER, cap);
+            final double resPrice = _model.getPrice(function, SPOT, vol, rate, dividend);
+            final GreekResultCollection resGreeks = _model.getGreeks(function, SPOT, vol, rate, dividend);
 
-            final double resPriceConst = _model.getPrice(lattice1, function, SPOT, time, volRef, rateRef, dividend[0]);
-            final GreekResultCollection resGreeksConst = _model.getGreeks(lattice1, function, SPOT, time, volRef, rateRef, dividend[0]);
+            final double resPriceConst = _model.getPrice(lattice1, function, SPOT, volRef, rateRef, dividend[0]);
+            final GreekResultCollection resGreeksConst = _model.getGreeks(lattice1, function, SPOT, volRef, rateRef, dividend[0]);
             assertEquals(resPrice, resPriceConst, Math.max(Math.abs(resPriceConst), 1.) * 1.e-2);
             assertEquals(resGreeks.get(Greek.FAIR_PRICE), resGreeksConst.get(Greek.FAIR_PRICE), Math.max(Math.abs(resGreeksConst.get(Greek.FAIR_PRICE)), 1.) * 1.e-2);
             assertEquals(resGreeks.get(Greek.DELTA), resGreeksConst.get(Greek.DELTA), Math.max(Math.abs(resGreeksConst.get(Greek.DELTA)), 1.) * 1.e-2);
@@ -267,7 +267,7 @@ public class CappedPowerOptionFunctionProviderTest {
    */
   @Test
   public void getPowerTest() {
-    final CappedPowerOptionFunctionProvider function = new CappedPowerOptionFunctionProvider(103., 1003, true, 4., 30.);
+    final CappedPowerOptionFunctionProvider function = new CappedPowerOptionFunctionProvider(103., TIME, 1003, true, 4., 30.);
     assertEquals(function.getPower(), 4.);
   }
 
@@ -276,7 +276,7 @@ public class CappedPowerOptionFunctionProviderTest {
    */
   @Test
   public void getCapTest() {
-    final CappedPowerOptionFunctionProvider function = new CappedPowerOptionFunctionProvider(103., 1003, true, 4., 30.);
+    final CappedPowerOptionFunctionProvider function = new CappedPowerOptionFunctionProvider(103., TIME, 1003, true, 4., 30.);
     assertEquals(function.getCap(), 30.);
   }
 
@@ -285,7 +285,7 @@ public class CappedPowerOptionFunctionProviderTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativePowerTest() {
-    new CappedPowerOptionFunctionProvider(103., 1003, true, -12., 30.);
+    new CappedPowerOptionFunctionProvider(103., TIME, 1003, true, -12., 30.);
   }
 
   /**
@@ -293,7 +293,7 @@ public class CappedPowerOptionFunctionProviderTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeCapTest() {
-    new CappedPowerOptionFunctionProvider(103., 1003, true, 12., -30.);
+    new CappedPowerOptionFunctionProvider(103., TIME, 1003, true, 12., -30.);
   }
 
   /**
@@ -301,7 +301,7 @@ public class CappedPowerOptionFunctionProviderTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void tooLargeCaprTest() {
-    new CappedPowerOptionFunctionProvider(103., 1003, false, 3., 130.);
+    new CappedPowerOptionFunctionProvider(103., TIME, 1003, false, 3., 130.);
   }
 
   private double price(final double spot, final double strike, final double time, final double vol, final double interest, final double cost, final boolean isCall, final double power, final double cap) {

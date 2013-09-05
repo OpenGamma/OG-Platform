@@ -45,9 +45,9 @@ public class EuropeanSpreadOptionFunctionProviderTest {
           for (final double spot2 : spotSet2) {
             for (final double rho : rhoSet) {
               for (final double dividend : DIVIDENDS) {
-                final OptionFunctionProvider2D function = new EuropeanSpreadOptionFunctionProvider(strike, nSteps, isCall);
+                final OptionFunctionProvider2D function = new EuropeanSpreadOptionFunctionProvider(strike, TIME, nSteps, isCall);
                 double exactDiv = BlackScholesFormulaRepository.price(SPOT, spot2, TIME, Math.sqrt(vol * vol + sigma2 * sigma2 - 2. * rho * vol * sigma2), div2, div2 - dividend, isCall);
-                final double resDiv = _model.getPrice(function, SPOT, spot2, TIME, vol, sigma2, rho, interest, dividend, div2);
+                final double resDiv = _model.getPrice(function, SPOT, spot2, vol, sigma2, rho, interest, dividend, div2);
                 final double refDiv = Math.max(exactDiv, 1.) * 1.e-2;
                 assertEquals(resDiv, exactDiv, refDiv);
               }
@@ -77,9 +77,9 @@ public class EuropeanSpreadOptionFunctionProviderTest {
           for (final double vol : VOLS) {
             for (final double rho : rhoSet) {
               for (final double dividend : DIVIDENDS) {
-                final OptionFunctionProvider2D function = new EuropeanSpreadOptionFunctionProvider(strike, nSteps, isCall);
+                final OptionFunctionProvider2D function = new EuropeanSpreadOptionFunctionProvider(strike, TIME, nSteps, isCall);
                 double exactDiv = BlackScholesFormulaRepository.price(SPOT, strike, TIME, vol, interest, interest - dividend, isCall);
-                final double resDiv = _model.getPrice(function, SPOT, spot2, TIME, vol, sigma2, rho, interest, dividend, div2);
+                final double resDiv = _model.getPrice(function, SPOT, spot2, vol, sigma2, rho, interest, dividend, div2);
                 final double refDiv = Math.max(exactDiv, 1.) * 1.e-2;
                 assertEquals(resDiv, exactDiv, refDiv);
               }
@@ -110,7 +110,7 @@ public class EuropeanSpreadOptionFunctionProviderTest {
           for (final double spot2 : spotSet2) {
             for (final double rho : rhoSet) {
               for (final double dividend : DIVIDENDS) {
-                final OptionFunctionProvider2D function = new EuropeanSpreadOptionFunctionProvider(strike, nSteps, isCall);
+                final OptionFunctionProvider2D function = new EuropeanSpreadOptionFunctionProvider(strike, TIME, nSteps, isCall);
                 final double price = BlackScholesFormulaRepository.price(SPOT, spot2, TIME, Math.sqrt(vol * vol + sigma2 * sigma2 - 2. * rho * vol * sigma2), div2, div2 - dividend, isCall);
                 final double delta1 = BlackScholesFormulaRepository.delta(SPOT, spot2, TIME, Math.sqrt(vol * vol + sigma2 * sigma2 - 2. * rho * vol * sigma2), div2, div2 - dividend, isCall);
                 final double delta2 = BlackScholesFormulaRepository.dualDelta(SPOT, spot2, TIME, Math.sqrt(vol * vol + sigma2 * sigma2 - 2. * rho * vol * sigma2), div2, div2 - dividend, isCall);
@@ -119,7 +119,7 @@ public class EuropeanSpreadOptionFunctionProviderTest {
                 final double gamma2 = BlackScholesFormulaRepository.dualGamma(SPOT, spot2, TIME, Math.sqrt(vol * vol + sigma2 * sigma2 - 2. * rho * vol * sigma2), div2, div2 - dividend);
                 final double cross = BlackScholesFormulaRepository.crossGamma(SPOT, spot2, TIME, Math.sqrt(vol * vol + sigma2 * sigma2 - 2. * rho * vol * sigma2), div2, div2 - dividend);
                 final double[] ref = new double[] {price, delta1, delta2, theta, gamma1, gamma2, cross };
-                final double[] res = _model.getGreeks(function, SPOT, spot2, TIME, vol, sigma2, rho, interest, dividend, div2);
+                final double[] res = _model.getGreeks(function, SPOT, spot2, vol, sigma2, rho, interest, dividend, div2);
                 assertGreeks(res, ref, 1.e-2);
               }
             }
@@ -148,13 +148,13 @@ public class EuropeanSpreadOptionFunctionProviderTest {
           for (final double vol : VOLS) {
             for (final double rho : rhoSet) {
               for (final double dividend : DIVIDENDS) {
-                final OptionFunctionProvider2D function = new EuropeanSpreadOptionFunctionProvider(strike, nSteps, isCall);
+                final OptionFunctionProvider2D function = new EuropeanSpreadOptionFunctionProvider(strike, TIME, nSteps, isCall);
                 final double price = BlackScholesFormulaRepository.price(SPOT, strike, TIME, vol, interest, interest - dividend, isCall);
                 final double delta1 = BlackScholesFormulaRepository.delta(SPOT, strike, TIME, vol, interest, interest - dividend, isCall);
                 final double theta = BlackScholesFormulaRepository.theta(SPOT, strike, TIME, vol, interest, interest - dividend, isCall);
                 final double gamma1 = BlackScholesFormulaRepository.gamma(SPOT, strike, TIME, vol, interest, interest - dividend);
                 final double[] ref = new double[] {price, delta1, theta, gamma1 };
-                final double[] res = _model.getGreeks(function, SPOT, spot2, TIME, vol, sigma2, rho, interest, dividend, div2);
+                final double[] res = _model.getGreeks(function, SPOT, spot2, vol, sigma2, rho, interest, dividend, div2);
                 final double[] resMod = new double[] {res[0], res[1], res[3], res[4] };
                 //                System.out.println(resMod[3] + "\t" + ref[3]);
                 assertGreeks(resMod, ref, 1.e-2);
@@ -164,6 +164,30 @@ public class EuropeanSpreadOptionFunctionProviderTest {
         }
       }
     }
+  }
+
+  /**
+   * 
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void negativeStrikeTest() {
+    new EuropeanSpreadOptionFunctionProvider(-10., TIME, 202, true);
+  }
+
+  /**
+   * 
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void negativeTimeTest() {
+    new EuropeanSpreadOptionFunctionProvider(10., -TIME, 202, true);
+  }
+
+  /**
+   * 
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void fewStepsTest() {
+    new EuropeanSpreadOptionFunctionProvider(10., TIME, 2, true);
   }
 
   private void assertGreeks(final double[] res, final double[] ref, final double eps) {

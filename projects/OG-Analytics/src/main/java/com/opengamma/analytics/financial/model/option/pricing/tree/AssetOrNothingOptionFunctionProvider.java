@@ -13,11 +13,12 @@ public class AssetOrNothingOptionFunctionProvider extends OptionFunctionProvider
 
   /**
    * @param strike Strike price
+   * @param timeToExpiry Time to expiry
    * @param steps Number of steps
    * @param isCall True if call, false if put
    */
-  public AssetOrNothingOptionFunctionProvider(final double strike, final int steps, final boolean isCall) {
-    super(strike, steps, isCall);
+  public AssetOrNothingOptionFunctionProvider(final double strike, final double timeToExpiry, final int steps, final boolean isCall) {
+    super(strike, timeToExpiry, steps, isCall);
   }
 
   @Override

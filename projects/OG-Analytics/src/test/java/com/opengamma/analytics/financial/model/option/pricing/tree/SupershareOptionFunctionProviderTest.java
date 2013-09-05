@@ -45,9 +45,9 @@ public class SupershareOptionFunctionProviderTest {
           for (final double vol : VOLS) {
             final int nSteps = 51;
             for (final double dividend : DIVIDENDS) {
-              final OptionFunctionProvider1D function = new SupershareOptionFunctionProvider(lowerBound, upperBound, nSteps);
+              final OptionFunctionProvider1D function = new SupershareOptionFunctionProvider(TIME, lowerBound, upperBound, nSteps);
               final double exactDiv = price(SPOT, lowerBound, upperBound, TIME, vol, interest, interest - dividend);
-              final double resDiv = _model.getPrice(lattice, function, SPOT, TIME, vol, interest, dividend);
+              final double resDiv = _model.getPrice(lattice, function, SPOT, vol, interest, dividend);
               final double refDiv = Math.max(exactDiv, 1.) * 1.e-1;
               assertEquals(resDiv, exactDiv, refDiv);
             }
@@ -71,9 +71,9 @@ public class SupershareOptionFunctionProviderTest {
         for (final double vol : VOLS) {
           final int nSteps = 1047;//slow convergence even with Leisen-Reimer
           for (final double dividend : DIVIDENDS) {
-            final OptionFunctionProvider1D function = new SupershareOptionFunctionProvider(lowerBound, upperBound, nSteps);
+            final OptionFunctionProvider1D function = new SupershareOptionFunctionProvider(TIME, lowerBound, upperBound, nSteps);
             final double exactDiv = price(SPOT, lowerBound, upperBound, TIME, vol, interest, interest - dividend);
-            final double resDiv = _model.getPrice(lattice, function, SPOT, TIME, vol, interest, dividend);
+            final double resDiv = _model.getPrice(lattice, function, SPOT, vol, interest, dividend);
             final double refDiv = Math.max(exactDiv, 1.) * 1.e-2;
             //            System.out.println(resDiv + "\t" + exactDiv + "\t" + (exactDiv - resDiv));
             assertEquals(resDiv, exactDiv, refDiv);
@@ -102,7 +102,7 @@ public class SupershareOptionFunctionProviderTest {
         for (final double interest : INTERESTS) {
           for (final double vol : VOLS) {
             final int nSteps = 51;
-            final OptionFunctionProvider1D function = new SupershareOptionFunctionProvider(lowerBound, upperBound, nSteps);
+            final OptionFunctionProvider1D function = new SupershareOptionFunctionProvider(TIME, lowerBound, upperBound, nSteps);
             final DividendFunctionProvider cashDividend = new CashDividendFunctionProvider(dividendTimes, cashDividends);
             final DividendFunctionProvider propDividend = new ProportionalDividendFunctionProvider(dividendTimes, propDividends);
             final double resSpot = SPOT * (1. - propDividends[0]) * (1. - propDividends[1]) * (1. - propDividends[2]);
@@ -110,10 +110,10 @@ public class SupershareOptionFunctionProviderTest {
                 Math.exp(-interest * dividendTimes[2]);
             final double exactProp = price(resSpot, lowerBound, upperBound, TIME, vol, interest, interest);
             final double appCash = price(modSpot, lowerBound, upperBound, TIME, vol, interest, interest);
-            final double resProp = _model.getPrice(lattice, function, SPOT, TIME, vol, interest, propDividend);
+            final double resProp = _model.getPrice(lattice, function, SPOT, vol, interest, propDividend);
             final double refProp = Math.max(exactProp, 1.) * 1.e-1;
             assertEquals(resProp, exactProp, refProp);
-            final double resCash = _model.getPrice(lattice, function, SPOT, TIME, vol, interest, cashDividend);
+            final double resCash = _model.getPrice(lattice, function, SPOT, vol, interest, cashDividend);
             final double refCash = Math.max(appCash, 1.) * 1.e-1;
             assertEquals(resCash, appCash, refCash);
           }
@@ -137,8 +137,8 @@ public class SupershareOptionFunctionProviderTest {
           for (final double vol : VOLS) {
             final int nSteps = 51;
             for (final double dividend : DIVIDENDS) {
-              final OptionFunctionProvider1D function = new SupershareOptionFunctionProvider(lowerBound, upperBound, nSteps);
-              final GreekResultCollection resDiv = _model.getGreeks(lattice, function, SPOT, TIME, vol, interest, dividend);
+              final OptionFunctionProvider1D function = new SupershareOptionFunctionProvider(TIME, lowerBound, upperBound, nSteps);
+              final GreekResultCollection resDiv = _model.getGreeks(lattice, function, SPOT, vol, interest, dividend);
               final double priceDiv = price(SPOT, lowerBound, upperBound, TIME, vol, interest, interest - dividend);
               final double refPriceDiv = Math.max(Math.abs(priceDiv), 1.) * 1.e-1;
               assertEquals(resDiv.get(Greek.FAIR_PRICE), priceDiv, refPriceDiv);
@@ -172,8 +172,8 @@ public class SupershareOptionFunctionProviderTest {
         for (final double vol : VOLS) {
           final int nSteps = 1047;
           for (final double dividend : DIVIDENDS) {
-            final OptionFunctionProvider1D function = new SupershareOptionFunctionProvider(lowerBound, upperBound, nSteps);
-            final GreekResultCollection resDiv = _model.getGreeks(lattice, function, SPOT, TIME, vol, interest, dividend);
+            final OptionFunctionProvider1D function = new SupershareOptionFunctionProvider(TIME, lowerBound, upperBound, nSteps);
+            final GreekResultCollection resDiv = _model.getGreeks(lattice, function, SPOT, vol, interest, dividend);
             final double priceDiv = price(SPOT, lowerBound, upperBound, TIME, vol, interest, interest - dividend);
             final double refPriceDiv = Math.max(Math.abs(priceDiv), 1.) * 1.e-2;
             assertEquals(resDiv.get(Greek.FAIR_PRICE), priceDiv, refPriceDiv);
@@ -224,11 +224,11 @@ public class SupershareOptionFunctionProviderTest {
             final double appGammaCash = gamma(modSpot, lowerBound, upperBound, TIME, vol, interest, interest);
             final double appThetaCash = theta(modSpot, lowerBound, upperBound, TIME, vol, interest, interest);
 
-            final OptionFunctionProvider1D function = new SupershareOptionFunctionProvider(lowerBound, upperBound, nSteps);
+            final OptionFunctionProvider1D function = new SupershareOptionFunctionProvider(TIME, lowerBound, upperBound, nSteps);
             final DividendFunctionProvider cashDividend = new CashDividendFunctionProvider(dividendTimes, cashDividends);
             final DividendFunctionProvider propDividend = new ProportionalDividendFunctionProvider(dividendTimes, propDividends);
-            final GreekResultCollection resProp = _model.getGreeks(lattice, function, SPOT, TIME, vol, interest, propDividend);
-            final GreekResultCollection resCash = _model.getGreeks(lattice, function, SPOT, TIME, vol, interest, cashDividend);
+            final GreekResultCollection resProp = _model.getGreeks(lattice, function, SPOT, vol, interest, propDividend);
+            final GreekResultCollection resCash = _model.getGreeks(lattice, function, SPOT, vol, interest, cashDividend);
 
             assertEquals(resProp.get(Greek.FAIR_PRICE), exactPriceProp, Math.max(1., Math.abs(exactPriceProp)) * 1.e-1);
             assertEquals(resProp.get(Greek.DELTA), exactDeltaProp, Math.max(1., Math.abs(exactDeltaProp)) * 1.e-1);
@@ -274,12 +274,12 @@ public class SupershareOptionFunctionProviderTest {
         final double rateRef = constA + 0.5 * constB * time;
         final double volRef = Math.sqrt(constC * constC + 0.5 * constD * constD + 2. * constC * constD / time * (1. - Math.cos(time)) - constD * constD * 0.25 / time * Math.sin(2. * time));
 
-        final OptionFunctionProvider1D function = new SupershareOptionFunctionProvider(lowerBound, upperBound, steps);
-        final double resPrice = _model.getPrice(function, SPOT, time, vol, rate, dividend);
-        final GreekResultCollection resGreeks = _model.getGreeks(function, SPOT, time, vol, rate, dividend);
+        final OptionFunctionProvider1D function = new SupershareOptionFunctionProvider(time, lowerBound, upperBound, steps);
+        final double resPrice = _model.getPrice(function, SPOT, vol, rate, dividend);
+        final GreekResultCollection resGreeks = _model.getGreeks(function, SPOT, vol, rate, dividend);
 
-        final double resPriceConst = _model.getPrice(lattice1, function, SPOT, time, volRef, rateRef, dividend[0]);
-        final GreekResultCollection resGreeksConst = _model.getGreeks(lattice1, function, SPOT, time, volRef, rateRef, dividend[0]);
+        final double resPriceConst = _model.getPrice(lattice1, function, SPOT, volRef, rateRef, dividend[0]);
+        final GreekResultCollection resGreeksConst = _model.getGreeks(lattice1, function, SPOT, volRef, rateRef, dividend[0]);
         assertEquals(resPrice, resPriceConst, Math.max(Math.abs(resPriceConst), 1.) * 1.e-2);
         assertEquals(resGreeks.get(Greek.FAIR_PRICE), resGreeksConst.get(Greek.FAIR_PRICE), Math.max(Math.abs(resGreeksConst.get(Greek.FAIR_PRICE)), 1.) * 1.e-2);
         assertEquals(resGreeks.get(Greek.DELTA), resGreeksConst.get(Greek.DELTA), Math.max(Math.abs(resGreeksConst.get(Greek.DELTA)), 1.) * 1.e-2);
@@ -292,13 +292,39 @@ public class SupershareOptionFunctionProviderTest {
   /**
    * 
    */
+  @Test
+  public void getLowerBoundTest() {
+    final double ref = 100.;
+    final double lowerBound = ref * 0.9;
+    final double upperBound = ref * 1.1;
+    final int steps = 801;
+    final OptionFunctionProvider1D function = new SupershareOptionFunctionProvider(TIME, lowerBound, upperBound, steps);
+    assertEquals(((SupershareOptionFunctionProvider) function).getLowerBound(), lowerBound);
+  }
+
+  /**
+   * 
+   */
+  @Test
+  public void getUpperBoundTest() {
+    final double ref = 100.;
+    final double lowerBound = ref * 0.9;
+    final double upperBound = ref * 1.1;
+    final int steps = 801;
+    final OptionFunctionProvider1D function = new SupershareOptionFunctionProvider(TIME, lowerBound, upperBound, steps);
+    assertEquals(((SupershareOptionFunctionProvider) function).getUpperBound(), upperBound);
+  }
+
+  /**
+   * 
+   */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void minusUpperBoundTest() {
     final double ref = 100.;
     final double lowerBound = ref * 0.9;
     final double upperBound = -ref * 1.1;
     final int steps = 801;
-    new SupershareOptionFunctionProvider(lowerBound, upperBound, steps);
+    new SupershareOptionFunctionProvider(TIME, lowerBound, upperBound, steps);
   }
 
   /**
@@ -310,7 +336,7 @@ public class SupershareOptionFunctionProviderTest {
     final double lowerBound = -ref * 0.9;
     final double upperBound = ref * 1.1;
     final int steps = 801;
-    new SupershareOptionFunctionProvider(lowerBound, upperBound, steps);
+    new SupershareOptionFunctionProvider(TIME, lowerBound, upperBound, steps);
   }
 
   /**
@@ -322,7 +348,7 @@ public class SupershareOptionFunctionProviderTest {
     final double lowerBound = ref * 1.9;
     final double upperBound = ref * 0.1;
     final int steps = 801;
-    new SupershareOptionFunctionProvider(lowerBound, upperBound, steps);
+    new SupershareOptionFunctionProvider(TIME, lowerBound, upperBound, steps);
   }
 
   /**
@@ -334,7 +360,7 @@ public class SupershareOptionFunctionProviderTest {
     final double lowerBound = ref * 0.9;
     final double upperBound = ref * 1.1;
     final int steps = 801;
-    final OptionFunctionProvider1D function = new SupershareOptionFunctionProvider(lowerBound, upperBound, steps);
+    final OptionFunctionProvider1D function = new SupershareOptionFunctionProvider(TIME, lowerBound, upperBound, steps);
     function.getSign();
   }
 

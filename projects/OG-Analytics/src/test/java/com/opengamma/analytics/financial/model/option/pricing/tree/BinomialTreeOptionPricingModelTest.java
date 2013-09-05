@@ -351,8 +351,8 @@ public class BinomialTreeOptionPricingModelTest {
 
     for (final LatticeSpecification lattice : lattices) {
       final double[] resDiv = _model.getAmericanGreeks(lattice, spot, strike, time, vol, interest, dividend, nSteps, isCall);
-      final OptionFunctionProvider1D function = new AmericanVanillaOptionFunctionProvider(strike, nSteps, isCall);
-      final GreekResultCollection resNew = _model.getGreeks(lattice, function, spot, time, vol, interest, dividend);
+      final OptionFunctionProvider1D function = new AmericanVanillaOptionFunctionProvider(strike, time, nSteps, isCall);
+      final GreekResultCollection resNew = _model.getGreeks(lattice, function, spot, vol, interest, dividend);
 
       System.out.println(resDiv[0] + "\t" + resDiv[3] + "\t" + resNew.get(Greek.THETA));
     }
@@ -373,8 +373,8 @@ public class BinomialTreeOptionPricingModelTest {
             for (final double dividend : DIVIDENDS) {
               final int[] choicesSteps = new int[] {11, 105 };
               for (final int nSteps : choicesSteps) {
-                final OptionFunctionProvider2D function = new EuropeanSpreadOptionFunctionProvider(strike, nSteps, isCall);
-                final double resNew = _model.getPrice(function, SPOT, SPOT * 0.95, TIME, vol, vol * 1.05, 0.5, interest, dividend, dividend * 1.05);
+                final OptionFunctionProvider2D function = new EuropeanSpreadOptionFunctionProvider(strike, TIME, nSteps, isCall);
+                final double resNew = _model.getPrice(function, SPOT, SPOT * 0.95, vol, vol * 1.05, 0.5, interest, dividend, dividend * 1.05);
                 final double resOld = _model.getEuropeanSpreadPrice(SPOT, SPOT * 0.95, strike, TIME, vol, vol * 1.05, 0.5, interest, dividend, dividend * 1.05, nSteps, isCall);
                 //                  System.out.println(resNew + "\t" + resOld);
                 assertEquals(resNew, resOld, Math.max(resOld, 1.) * 1.e-14);
@@ -397,8 +397,8 @@ public class BinomialTreeOptionPricingModelTest {
             for (final double dividend : DIVIDENDS) {
               final int[] choicesSteps = new int[] {11, 105 };
               for (final int nSteps : choicesSteps) {
-                final OptionFunctionProvider2D function = new AmericanSpreadOptionFunctionProvider(strike, nSteps, isCall);
-                final double resNew = _model.getPrice(function, SPOT, SPOT * 0.95, TIME, vol, vol * 1.05, 0.5, interest, dividend, dividend * 1.05);
+                final OptionFunctionProvider2D function = new AmericanSpreadOptionFunctionProvider(strike, TIME, nSteps, isCall);
+                final double resNew = _model.getPrice(function, SPOT, SPOT * 0.95, vol, vol * 1.05, 0.5, interest, dividend, dividend * 1.05);
                 final double resOld = _model.getAmericanSpreadPrice(SPOT, SPOT * 0.95, strike, TIME, vol, vol * 1.05, 0.5, interest, dividend, dividend * 1.05, nSteps, isCall);
                 //                  System.out.println(resNew + "\t" + resOld);
                 assertEquals(resNew, resOld, Math.max(resOld, 1.) * 1.e-14);
@@ -424,8 +424,8 @@ public class BinomialTreeOptionPricingModelTest {
               for (final double dividend : DIVIDENDS) {
                 final int[] choicesSteps = new int[] {11, 105 };
                 for (final int nSteps : choicesSteps) {
-                  final OptionFunctionProvider1D function = new EuropeanVanillaOptionFunctionProvider(strike, nSteps, isCall);
-                  final double resNew = _model.getPrice(lattice, function, SPOT, TIME, vol, interest, dividend);
+                  final OptionFunctionProvider1D function = new EuropeanVanillaOptionFunctionProvider(strike, TIME, nSteps, isCall);
+                  final double resNew = _model.getPrice(lattice, function, SPOT, vol, interest, dividend);
                   final double resOld = _model.getEuropeanPrice(lattice, SPOT, strike, TIME, vol, interest, dividend, nSteps, isCall);
                   //                  System.out.println(resNew + "\t" + resOld);
                   assertEquals(resNew, resOld, Math.max(resOld, 1.) * 1.e-14);
@@ -452,8 +452,8 @@ public class BinomialTreeOptionPricingModelTest {
               for (final double dividend : DIVIDENDS) {
                 final int[] choicesSteps = new int[] {11, 105 };
                 for (final int nSteps : choicesSteps) {
-                  final OptionFunctionProvider1D function = new EuropeanVanillaOptionFunctionProvider(strike, nSteps, isCall);
-                  final GreekResultCollection resNew = _model.getGreeks(lattice, function, SPOT, TIME, vol, interest, dividend);
+                  final OptionFunctionProvider1D function = new EuropeanVanillaOptionFunctionProvider(strike, TIME, nSteps, isCall);
+                  final GreekResultCollection resNew = _model.getGreeks(lattice, function, SPOT, vol, interest, dividend);
                   final double[] resOld = _model.getEuropeanGreeks(lattice, SPOT, strike, TIME, vol, interest, dividend, nSteps, isCall);
                   //                  System.out.println(resNew + "\t" + resOld);
                   assertEquals(resNew.get(Greek.FAIR_PRICE), resOld[0], Math.max(Math.abs(resOld[0]), 1.) * 1.e-14);
@@ -483,8 +483,8 @@ public class BinomialTreeOptionPricingModelTest {
               for (final double dividend : DIVIDENDS) {
                 final int[] choicesSteps = new int[] {11, 105 };
                 for (final int nSteps : choicesSteps) {
-                  final OptionFunctionProvider1D function = new AmericanVanillaOptionFunctionProvider(strike, nSteps, isCall);
-                  final double resNew = _model.getPrice(lattice, function, SPOT, TIME, vol, interest, dividend);
+                  final OptionFunctionProvider1D function = new AmericanVanillaOptionFunctionProvider(strike, TIME, nSteps, isCall);
+                  final double resNew = _model.getPrice(lattice, function, SPOT, vol, interest, dividend);
                   final double resOld = _model.getAmericanPrice(lattice, SPOT, strike, TIME, vol, interest, dividend, nSteps, isCall);
                   //                    System.out.println(resNew + "\t" + resOld);
                   assertEquals(resNew, resOld, Math.max(resOld, 1.) * 1.e-14);
@@ -511,8 +511,8 @@ public class BinomialTreeOptionPricingModelTest {
               for (final double dividend : DIVIDENDS) {
                 final int[] choicesSteps = new int[] {11, 105 };
                 for (final int nSteps : choicesSteps) {
-                  final OptionFunctionProvider1D function = new AmericanVanillaOptionFunctionProvider(strike, nSteps, isCall);
-                  final GreekResultCollection resNew = _model.getGreeks(lattice, function, SPOT, TIME, vol, interest, dividend);
+                  final OptionFunctionProvider1D function = new AmericanVanillaOptionFunctionProvider(strike, TIME, nSteps, isCall);
+                  final GreekResultCollection resNew = _model.getGreeks(lattice, function, SPOT, vol, interest, dividend);
                   final double[] resOld = _model.getAmericanGreeks(lattice, SPOT, strike, TIME, vol, interest, dividend, nSteps, isCall);
                   //                  System.out.println(resNew + "\t" + resOld);
                   assertEquals(resNew.get(Greek.FAIR_PRICE), resOld[0], Math.max(Math.abs(resOld[0]), 1.) * 1.e-14);
@@ -549,9 +549,9 @@ public class BinomialTreeOptionPricingModelTest {
                 for (final double vol : vols) {
                   final int[] choicesSteps = new int[] {11, 105 };
                   for (final int nSteps : choicesSteps) {
-                    final OptionFunctionProvider1D function = new EuropeanSingleBarrierOptionFunctionProvider(strike, nSteps, isCall, barrier,
+                    final OptionFunctionProvider1D function = new EuropeanSingleBarrierOptionFunctionProvider(strike, TIME, nSteps, isCall, barrier,
                         EuropeanSingleBarrierOptionFunctionProvider.BarrierTypes.valueOf(type));
-                    final double resNew = _model.getPrice(lattice, function, SPOT, TIME, vol, interest, 0.);
+                    final double resNew = _model.getPrice(lattice, function, SPOT, vol, interest, 0.);
                     final double resOld = modelB.getEuropeanPrice(lattice, SPOT, strike, TIME, vol, interest, nSteps, isCall);
                     assertEquals(resNew, resOld, Math.max(resOld, 1.) * 1.e-14);
                   }
@@ -586,9 +586,9 @@ public class BinomialTreeOptionPricingModelTest {
                   for (final double dividend : DIVIDENDS) {
                     final int[] choicesSteps = new int[] {11, 105 };
                     for (final int nSteps : choicesSteps) {
-                      final OptionFunctionProvider1D function = new EuropeanSingleBarrierOptionFunctionProvider(strike, nSteps, isCall, barrier,
+                      final OptionFunctionProvider1D function = new EuropeanSingleBarrierOptionFunctionProvider(strike, TIME, nSteps, isCall, barrier,
                           EuropeanSingleBarrierOptionFunctionProvider.BarrierTypes.valueOf(type));
-                      final GreekResultCollection resNew = _model.getGreeks(lattice, function, SPOT, TIME, vol, interest, dividend);
+                      final GreekResultCollection resNew = _model.getGreeks(lattice, function, SPOT, vol, interest, dividend);
                       final double[] resOld = modelB.getEuropeanGreeks(lattice, SPOT, strike, TIME, vol, interest, dividend, nSteps, isCall);
                       //                  System.out.println(resNew + "\t" + resOld);
                       assertEquals(resNew.get(Greek.FAIR_PRICE), resOld[0], Math.max(Math.abs(resOld[0]), 1.) * 1.e-14);
@@ -627,9 +627,9 @@ public class BinomialTreeOptionPricingModelTest {
                 for (final double vol : vols) {
                   final int[] choicesSteps = new int[] {11, 105 };
                   for (final int nSteps : choicesSteps) {
-                    final OptionFunctionProvider1D function = new AmericanSingleBarrierOptionFunctionProvider(strike, nSteps, isCall, barrier,
+                    final OptionFunctionProvider1D function = new AmericanSingleBarrierOptionFunctionProvider(strike, TIME, nSteps, isCall, barrier,
                         AmericanSingleBarrierOptionFunctionProvider.BarrierTypes.valueOf(type));
-                    final double resNew = _model.getPrice(lattice, function, SPOT, TIME, vol, interest, 0.);
+                    final double resNew = _model.getPrice(lattice, function, SPOT, vol, interest, 0.);
                     final double resOld = modelB.getAmericanPrice(lattice, SPOT, strike, TIME, vol, interest, nSteps, isCall);
                     assertEquals(resNew, resOld, Math.max(resOld, 1.) * 1.e-14);
                   }
@@ -664,9 +664,9 @@ public class BinomialTreeOptionPricingModelTest {
                   for (final double dividend : DIVIDENDS) {
                     final int[] choicesSteps = new int[] {11, 105 };
                     for (final int nSteps : choicesSteps) {
-                      final OptionFunctionProvider1D function = new AmericanSingleBarrierOptionFunctionProvider(strike, nSteps, isCall, barrier,
+                      final OptionFunctionProvider1D function = new AmericanSingleBarrierOptionFunctionProvider(strike, TIME, nSteps, isCall, barrier,
                           AmericanSingleBarrierOptionFunctionProvider.BarrierTypes.valueOf(type));
-                      final GreekResultCollection resNew = _model.getGreeks(lattice, function, SPOT, TIME, vol, interest, dividend);
+                      final GreekResultCollection resNew = _model.getGreeks(lattice, function, SPOT, vol, interest, dividend);
                       final double[] resOld = modelB.getAmericanGreeks(lattice, SPOT, strike, TIME, vol, interest, dividend, nSteps, isCall);
                       //                  System.out.println(resNew + "\t" + resOld);
                       assertEquals(resNew.get(Greek.FAIR_PRICE), resOld[0], Math.max(Math.abs(resOld[0]), 1.) * 1.e-14);
@@ -708,11 +708,11 @@ public class BinomialTreeOptionPricingModelTest {
                 final double[] propDividends = propDividendsMat[j];
                 final double oldCash = _model.getEuropeanPriceCashDividends(model, SPOT, strike, TIME, vol, interest, dividendTimes, cashDividends, steps, isCall);
                 final double oldProp = _model.getEuropeanPriceProportionalDividends(model, SPOT, strike, TIME, vol, interest, dividendTimes, propDividends, steps, isCall);
-                final OptionFunctionProvider1D function = new EuropeanVanillaOptionFunctionProvider(strike, steps, isCall);
+                final OptionFunctionProvider1D function = new EuropeanVanillaOptionFunctionProvider(strike, TIME, steps, isCall);
                 final DividendFunctionProvider cashDividend = new CashDividendFunctionProvider(dividendTimes, cashDividends);
                 final DividendFunctionProvider propDividend = new ProportionalDividendFunctionProvider(dividendTimes, propDividends);
-                final double newCash = _model.getPrice(model, function, SPOT, TIME, vol, interest, cashDividend);
-                final double newProp = _model.getPrice(model, function, SPOT, TIME, vol, interest, propDividend);
+                final double newCash = _model.getPrice(model, function, SPOT, vol, interest, cashDividend);
+                final double newProp = _model.getPrice(model, function, SPOT, vol, interest, propDividend);
                 assertEquals(newCash, oldCash, Math.max(Math.abs(oldCash), 1.) * 1.e-13);
                 assertEquals(newProp, oldProp, Math.max(Math.abs(oldProp), 1.) * 1.e-13);
               }
@@ -747,11 +747,11 @@ public class BinomialTreeOptionPricingModelTest {
                 final double[] propDividends = propDividendsMat[j];
                 final double oldCash = _model.getAmericanPriceCashDividends(model, SPOT, strike, TIME, vol, interest, dividendTimes, cashDividends, steps, isCall);
                 final double oldProp = _model.getAmericanPriceProportionalDividends(model, SPOT, strike, TIME, vol, interest, dividendTimes, propDividends, steps, isCall);
-                final OptionFunctionProvider1D function = new AmericanVanillaOptionFunctionProvider(strike, steps, isCall);
+                final OptionFunctionProvider1D function = new AmericanVanillaOptionFunctionProvider(strike, TIME, steps, isCall);
                 final DividendFunctionProvider cashDividend = new CashDividendFunctionProvider(dividendTimes, cashDividends);
                 final DividendFunctionProvider propDividend = new ProportionalDividendFunctionProvider(dividendTimes, propDividends);
-                final double newCash = _model.getPrice(model, function, SPOT, TIME, vol, interest, cashDividend);
-                final double newProp = _model.getPrice(model, function, SPOT, TIME, vol, interest, propDividend);
+                final double newCash = _model.getPrice(model, function, SPOT, vol, interest, cashDividend);
+                final double newProp = _model.getPrice(model, function, SPOT, vol, interest, propDividend);
                 assertEquals(newCash, oldCash, Math.max(Math.abs(oldCash), 1.) * 1.e-13);
                 assertEquals(newProp, oldProp, Math.max(Math.abs(oldProp), 1.) * 1.e-13);
               }

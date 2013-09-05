@@ -12,10 +12,11 @@ public class LogOptionFunctionProvider extends OptionFunctionProvider1D {
 
   /**
    * @param strike The strike
+   * @param timeToExpiry Time to expiry
    * @param steps Number of steps
    */
-  public LogOptionFunctionProvider(final double strike, final int steps) {
-    super(strike, steps, true);
+  public LogOptionFunctionProvider(final double strike, final double timeToExpiry, final int steps) {
+    super(strike, timeToExpiry, steps, true);
   }
 
   @Override

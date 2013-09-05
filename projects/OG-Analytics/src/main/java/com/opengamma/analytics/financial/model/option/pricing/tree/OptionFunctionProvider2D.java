@@ -5,22 +5,33 @@
  */
 package com.opengamma.analytics.financial.model.option.pricing.tree;
 
+import com.google.common.primitives.Doubles;
+import com.opengamma.util.ArgumentChecker;
+
 /**
  * Provides payoff function and option price function for two-dimensional tree model
  */
 public abstract class OptionFunctionProvider2D {
-
   private double _strike;
+  private double _timeToExpiry;
   private int _steps;
   private double _sign;
 
   /**
    * @param strike Strike price
+   * @param timeToExpiry Time to expiry
    * @param steps Number of steps
    * @param isCall True if call, false if put
    */
-  public OptionFunctionProvider2D(final double strike, final int steps, final boolean isCall) {
+  public OptionFunctionProvider2D(final double strike, final double timeToExpiry, final int steps, final boolean isCall) {
+    ArgumentChecker.isTrue(strike >= 0., "strike should be positive");
+    ArgumentChecker.isTrue(Doubles.isFinite(strike), "strike should be finite");
+    ArgumentChecker.isTrue(timeToExpiry > 0., "timeToExpiry should be positive");
+    ArgumentChecker.isTrue(Doubles.isFinite(timeToExpiry), "timeToExpiry should be finite");
+    ArgumentChecker.isTrue(steps > 2, "The number of steps should be greater than 2");
+
     _strike = strike;
+    _timeToExpiry = timeToExpiry;
     _steps = steps;
     _sign = isCall ? 1. : -1.;
   }
@@ -60,6 +71,14 @@ public abstract class OptionFunctionProvider2D {
    */
   public double getStrike() {
     return _strike;
+  }
+
+  /**
+   * Access time to expiry
+   * @return _timeToExpiry
+   */
+  public double getTimeToExpiry() {
+    return _timeToExpiry;
   }
 
   /**

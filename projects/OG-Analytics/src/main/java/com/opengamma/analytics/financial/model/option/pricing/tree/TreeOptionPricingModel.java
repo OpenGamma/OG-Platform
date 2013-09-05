@@ -12,69 +12,49 @@ import com.opengamma.analytics.financial.greeks.GreekResultCollection;
  */
 public abstract class TreeOptionPricingModel {
 
-  /*
-   * TODO Two dimensional case must be implemented (by using StandardTwoAssetOptionDataBundle class) (PLAT-4413)
-   */
-  //  public double getPrice(final LatticeSpecification lattice, final OptionDefinition definition, final StandardOptionDataBundle data, final int steps) {
-  //    final double strike = definition.getStrike();
-  //    final double timeToExpiry = definition.getTimeToExpiry(data.getDate());
-  //    final boolean isCall = definition.isCall();
-  //
-  //    if (definition instanceof AmericanVanillaOptionDefinition) {
-  //      return this.getPrice(lattice, data, strike, timeToExpiry, steps, isCall);
-  //    } else {
-  //      return this.getPrice(lattice, definition.getPayoffFunction(), data, strike, timeToExpiry, steps, isCall);
-  //    }
-  //  }
-
   /**
    * Compute option price on one asset with constant volatility, interest rate and dividend
    * @param lattice {@link LatticeSpecification}
    * @param function {@link OptionFunctionProvider1D}
    * @param spot Spot price of underlying
-   * @param timeToExpiry Time to expiry
    * @param volatility Volatility 
    * @param interestRate Interest rate
    * @param dividend Dividend
    * @return Option price
    */
-  public abstract double getPrice(final LatticeSpecification lattice, final OptionFunctionProvider1D function, final double spot, final double timeToExpiry, final double volatility,
-      final double interestRate, final double dividend);
+  public abstract double getPrice(final LatticeSpecification lattice, final OptionFunctionProvider1D function, final double spot, final double volatility, final double interestRate,
+      final double dividend);
 
   /**
    * Compute option price on one asset with time-varying volatility, interest rate and dividend
    * The condition (number of steps) = (volatility length) = (interest rate length) = (dividend length) Should hold
    * @param function {@link OptionFunctionProvider1D}
    * @param spot Spot price of underlying
-   * @param timeToExpiry Time to expiry
    * @param volatility Volatility 
    * @param interestRate Interest rate
    * @param dividend Dividend
    * @return Option price
    */
-  public abstract double getPrice(final OptionFunctionProvider1D function, final double spot, final double timeToExpiry, final double[] volatility, final double[] interestRate,
-      final double[] dividend);
+  public abstract double getPrice(final OptionFunctionProvider1D function, final double spot, final double[] volatility, final double[] interestRate, final double[] dividend);
 
   /**
    * Compute option price on one asset with volatility, interest rate and discrete dividends 
    * @param lattice {@link LatticeSpecification}
    * @param function {@link OptionFunctionProvider1D}
    * @param spot Spot price of underlying
-   * @param timeToExpiry Time to expiry
    * @param volatility Volatility 
    * @param interestRate Interest rate
    * @param dividend {@link DividendFunctionProvider}
    * @return Option price
    */
-  public abstract double getPrice(final LatticeSpecification lattice, final OptionFunctionProvider1D function, final double spot, final double timeToExpiry,
-      final double volatility, final double interestRate, final DividendFunctionProvider dividend);
+  public abstract double getPrice(final LatticeSpecification lattice, final OptionFunctionProvider1D function, final double spot, final double volatility, final double interestRate,
+      final DividendFunctionProvider dividend);
 
   /**
    * Compute option price on two assets with constant volatilities, correlation, interest rate and dividends
    * @param function {@link OptionFunctionProvider2D}
    * @param spot1 Spot price of asset 1
    * @param spot2 Spot price of asset 2
-   * @param timeToExpiry Time to expiry
    * @param volatility1 Volatility of asset 1
    * @param volatility2 Volatility of asset 2
    * @param correlation Correlation between asset 1 and asset 2
@@ -83,57 +63,52 @@ public abstract class TreeOptionPricingModel {
    * @param dividend2 Dividend of asset 2
    * @return Option price
    */
-  public abstract double getPrice(final OptionFunctionProvider2D function, final double spot1, final double spot2, final double timeToExpiry, final double volatility1, final double volatility2,
-      final double correlation, final double interestRate, final double dividend1, final double dividend2);
+  public abstract double getPrice(final OptionFunctionProvider2D function, final double spot1, final double spot2, final double volatility1, final double volatility2, final double correlation,
+      final double interestRate, final double dividend1, final double dividend2);
 
   /**
    * Compute option Greeks on one asset with constant volatility, interest rate and dividend
    * @param lattice {@link LatticeSpecification}
    * @param function {@link OptionFunctionProvider1D}
    * @param spot Spot price of underlying
-   * @param timeToExpiry Time to expiry
    * @param volatility Volatility 
    * @param interestRate Interest rate
    * @param dividend Dividend
    * @return Option Greeks as {@link GreekResultCollection}
    */
-  public abstract GreekResultCollection getGreeks(final LatticeSpecification lattice, final OptionFunctionProvider1D function, final double spot, final double timeToExpiry, final double volatility,
-      final double interestRate, final double dividend);
+  public abstract GreekResultCollection getGreeks(final LatticeSpecification lattice, final OptionFunctionProvider1D function, final double spot, final double volatility, final double interestRate,
+      final double dividend);
 
   /**
    * Compute option Greeks on one asset with time-varying volatility, interest rate and dividend
    * The condition (number of steps) = (volatility length) = (interest rate length) = (dividend length) Should hold
    * @param function {@link OptionFunctionProvider1D}
    * @param spot Spot price of underlying
-   * @param timeToExpiry Time to expiry
    * @param volatility Volatility 
    * @param interestRate Interest rate
    * @param dividend Dividend
    * @return Option Greeks as {@link GreekResultCollection}
    */
-  public abstract GreekResultCollection getGreeks(final OptionFunctionProvider1D function, final double spot, final double timeToExpiry, final double[] volatility, final double[] interestRate,
-      final double[] dividend);
+  public abstract GreekResultCollection getGreeks(final OptionFunctionProvider1D function, final double spot, final double[] volatility, final double[] interestRate, final double[] dividend);
 
   /**
    * Compute option Greeks on one asset with volatility, interest rate and discrete dividends 
    * @param lattice {@link LatticeSpecification}
    * @param function {@link OptionFunctionProvider1D}
    * @param spot Spot price of underlying
-   * @param timeToExpiry Time to expiry
    * @param volatility Volatility 
    * @param interestRate Interest rate
    * @param dividend {@link DividendFunctionProvider}
    * @return Option Greeks as {@link GreekResultCollection}
    */
-  public abstract GreekResultCollection getGreeks(final LatticeSpecification lattice, final OptionFunctionProvider1D function, final double spot, final double timeToExpiry,
-      final double volatility, final double interestRate, final DividendFunctionProvider dividend);
+  public abstract GreekResultCollection getGreeks(final LatticeSpecification lattice, final OptionFunctionProvider1D function, final double spot, final double volatility, final double interestRate,
+      final DividendFunctionProvider dividend);
 
   /**
    * Compute option Greeks on two assets with constant volatilities, correlation, interest rate and dividends
    * @param function {@link OptionFunctionProvider2D}
    * @param spot1 Spot price of asset 1
    * @param spot2 Spot price of asset 2
-   * @param timeToExpiry Time to expiry
    * @param volatility1 Volatility of asset 1
    * @param volatility2 Volatility of asset 2
    * @param correlation Correlation between asset 1 and asset 2
@@ -142,7 +117,7 @@ public abstract class TreeOptionPricingModel {
    * @param dividend2 Dividend of asset 2
    * @return Option Greeks as an array {option price, delta for asset 1, delta for asset 2, theta, gamma for asset 1, gamma for asset 2, cross gamma}
    */
-  public abstract double[] getGreeks(final OptionFunctionProvider2D function, final double spot1, final double spot2, final double timeToExpiry, final double volatility1,
-      final double volatility2, final double correlation, final double interestRate, final double dividend1, final double dividend2);
+  public abstract double[] getGreeks(final OptionFunctionProvider2D function, final double spot1, final double spot2, final double volatility1, final double volatility2, final double correlation,
+      final double interestRate, final double dividend1, final double dividend2);
 
 }

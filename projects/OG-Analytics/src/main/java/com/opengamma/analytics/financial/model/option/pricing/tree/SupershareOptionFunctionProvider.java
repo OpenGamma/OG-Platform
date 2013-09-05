@@ -16,12 +16,13 @@ public class SupershareOptionFunctionProvider extends OptionFunctionProvider1D {
   private double _upperBound;
 
   /**
+   * @param timeToExpiry Time to expiry
    * @param lowerBound Lower bound, KL
    * @param upperBound Upper bound, KH
    * @param steps Number of steps
    */
-  public SupershareOptionFunctionProvider(final double lowerBound, final double upperBound, final int steps) {
-    super(lowerBound, steps, true);
+  public SupershareOptionFunctionProvider(final double timeToExpiry, final double lowerBound, final double upperBound, final int steps) {
+    super(lowerBound, timeToExpiry, steps, true);
     ArgumentChecker.isTrue(upperBound > 0., "upperBound should be positive");
     ArgumentChecker.isTrue(Doubles.isFinite(upperBound), "upperBound should be finite");
     ArgumentChecker.isTrue(upperBound > lowerBound, "upperBound should be larger than lowerBound");
@@ -30,7 +31,7 @@ public class SupershareOptionFunctionProvider extends OptionFunctionProvider1D {
 
   @Override
   public double[] getPayoffAtExpiry(final double assetPrice, final double upOverDown) {
-    final double lowerBound = getStrike();
+    final double lowerBound = super.getStrike();
     final int nStepsP = getNumberOfSteps() + 1;
 
     final double[] values = new double[nStepsP];
@@ -52,6 +53,22 @@ public class SupershareOptionFunctionProvider extends OptionFunctionProvider1D {
       res[j] = discount * (upProbability * values[j + 1] + downProbability * values[j]);
     }
     return res;
+  }
+
+  /**
+   * Access lower bound
+   * @return _strike in superclass
+   */
+  public double getLowerBound() {
+    return super.getStrike();
+  }
+
+  /**
+   * Access upper bound 
+   * @return _upperBound
+   */
+  public double getUpperBound() {
+    return _upperBound;
   }
 
   @Override

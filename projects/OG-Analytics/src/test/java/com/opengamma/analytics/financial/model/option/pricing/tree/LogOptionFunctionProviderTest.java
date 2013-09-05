@@ -43,9 +43,9 @@ public class LogOptionFunctionProviderTest {
           for (final double vol : VOLS) {
             final int nSteps = 151;
             for (final double dividend : DIVIDENDS) {
-              final OptionFunctionProvider1D function = new LogOptionFunctionProvider(strike, nSteps);
+              final OptionFunctionProvider1D function = new LogOptionFunctionProvider(strike, TIME, nSteps);
               final double exactDiv = price(SPOT, strike, TIME, vol, interest, interest - dividend);
-              final double resDiv = _model.getPrice(lattice, function, SPOT, TIME, vol, interest, dividend);
+              final double resDiv = _model.getPrice(lattice, function, SPOT, vol, interest, dividend);
               final double refDiv = Math.max(exactDiv, 1.) * 1.e-3;
               assertEquals(resDiv, exactDiv, refDiv);
             }
@@ -67,9 +67,9 @@ public class LogOptionFunctionProviderTest {
         for (final double vol : VOLS) {
           final int nSteps = 919;
           for (final double dividend : DIVIDENDS) {
-            final OptionFunctionProvider1D function = new LogOptionFunctionProvider(strike, nSteps);
+            final OptionFunctionProvider1D function = new LogOptionFunctionProvider(strike, TIME, nSteps);
             final double exactDiv = price(SPOT, strike, TIME, vol, interest, interest - dividend);
-            final double resDiv = _model.getPrice(lattice, function, SPOT, TIME, vol, interest, dividend);
+            final double resDiv = _model.getPrice(lattice, function, SPOT, vol, interest, dividend);
             final double refDiv = Math.max(exactDiv, 1.) * 1.e-4;
             assertEquals(resDiv, exactDiv, refDiv);
           }
@@ -95,7 +95,7 @@ public class LogOptionFunctionProviderTest {
         for (final double interest : INTERESTS) {
           for (final double vol : VOLS) {
             final int nSteps = 163;
-            final OptionFunctionProvider1D function = new LogOptionFunctionProvider(strike, nSteps);
+            final OptionFunctionProvider1D function = new LogOptionFunctionProvider(strike, TIME, nSteps);
             final DividendFunctionProvider cashDividend = new CashDividendFunctionProvider(dividendTimes, cashDividends);
             final DividendFunctionProvider propDividend = new ProportionalDividendFunctionProvider(dividendTimes, propDividends);
             final double resSpot = SPOT * (1. - propDividends[0]) * (1. - propDividends[1]) * (1. - propDividends[2]);
@@ -103,10 +103,10 @@ public class LogOptionFunctionProviderTest {
                 Math.exp(-interest * dividendTimes[2]);
             final double exactProp = price(resSpot, strike, TIME, vol, interest, interest);
             final double appCash = price(modSpot, strike, TIME, vol, interest, interest);
-            final double resProp = _model.getPrice(lattice, function, SPOT, TIME, vol, interest, propDividend);
+            final double resProp = _model.getPrice(lattice, function, SPOT, vol, interest, propDividend);
             final double refProp = Math.max(exactProp, 1.) * 1.e-3;
             assertEquals(resProp, exactProp, refProp);
-            final double resCash = _model.getPrice(lattice, function, SPOT, TIME, vol, interest, cashDividend);
+            final double resCash = _model.getPrice(lattice, function, SPOT, vol, interest, cashDividend);
             final double refCash = Math.max(appCash, 1.) * 1.e-3;
             assertEquals(resCash, appCash, refCash);
           }
@@ -128,8 +128,8 @@ public class LogOptionFunctionProviderTest {
           for (final double vol : VOLS) {
             final int nSteps = 163; //Slow convergence
             for (final double dividend : DIVIDENDS) {
-              final OptionFunctionProvider1D function = new LogOptionFunctionProvider(strike, nSteps);
-              final GreekResultCollection resDiv = _model.getGreeks(lattice, function, SPOT, TIME, vol, interest, dividend);
+              final OptionFunctionProvider1D function = new LogOptionFunctionProvider(strike, TIME, nSteps);
+              final GreekResultCollection resDiv = _model.getGreeks(lattice, function, SPOT, vol, interest, dividend);
               final double priceDiv = price(SPOT, strike, TIME, vol, interest, interest - dividend);
               final double refPriceDiv = Math.max(Math.abs(priceDiv), 1.) * 1.e-3;
               assertEquals(resDiv.get(Greek.FAIR_PRICE), priceDiv, refPriceDiv);
@@ -161,8 +161,8 @@ public class LogOptionFunctionProviderTest {
         for (final double vol : VOLS) {
           final int nSteps = 919;
           for (final double dividend : DIVIDENDS) {
-            final OptionFunctionProvider1D function = new LogOptionFunctionProvider(strike, nSteps);
-            final GreekResultCollection resDiv = _model.getGreeks(lattice, function, SPOT, TIME, vol, interest, dividend);
+            final OptionFunctionProvider1D function = new LogOptionFunctionProvider(strike, TIME, nSteps);
+            final GreekResultCollection resDiv = _model.getGreeks(lattice, function, SPOT, vol, interest, dividend);
             final double priceDiv = price(SPOT, strike, TIME, vol, interest, interest - dividend);
             final double refPriceDiv = Math.max(Math.abs(priceDiv), 1.) * 1.e-4;
             assertEquals(resDiv.get(Greek.FAIR_PRICE), priceDiv, refPriceDiv);
@@ -211,11 +211,11 @@ public class LogOptionFunctionProviderTest {
             final double appGammaCash = gamma(modSpot, strike, TIME, vol, interest, interest);
             final double appThetaCash = theta(modSpot, strike, TIME, vol, interest, interest);
 
-            final OptionFunctionProvider1D function = new LogOptionFunctionProvider(strike, nSteps);
+            final OptionFunctionProvider1D function = new LogOptionFunctionProvider(strike, TIME, nSteps);
             final DividendFunctionProvider cashDividend = new CashDividendFunctionProvider(dividendTimes, cashDividends);
             final DividendFunctionProvider propDividend = new ProportionalDividendFunctionProvider(dividendTimes, propDividends);
-            final GreekResultCollection resProp = _model.getGreeks(lattice, function, SPOT, TIME, vol, interest, propDividend);
-            final GreekResultCollection resCash = _model.getGreeks(lattice, function, SPOT, TIME, vol, interest, cashDividend);
+            final GreekResultCollection resProp = _model.getGreeks(lattice, function, SPOT, vol, interest, propDividend);
+            final GreekResultCollection resCash = _model.getGreeks(lattice, function, SPOT, vol, interest, cashDividend);
 
             assertEquals(resProp.get(Greek.FAIR_PRICE), exactPriceProp, Math.max(1., Math.abs(exactPriceProp)) * 1.e-3);
             assertEquals(resProp.get(Greek.DELTA), exactDeltaProp, Math.max(1., Math.abs(exactDeltaProp)) * 1.e-2);
@@ -259,12 +259,12 @@ public class LogOptionFunctionProviderTest {
         final double rateRef = constA + 0.5 * constB * time;
         final double volRef = Math.sqrt(constC * constC + 0.5 * constD * constD + 2. * constC * constD / time * (1. - Math.cos(time)) - constD * constD * 0.25 / time * Math.sin(2. * time));
 
-        final OptionFunctionProvider1D function = new LogOptionFunctionProvider(strike, steps);
-        final double resPrice = _model.getPrice(function, SPOT, time, vol, rate, dividend);
-        final GreekResultCollection resGreeks = _model.getGreeks(function, SPOT, time, vol, rate, dividend);
+        final OptionFunctionProvider1D function = new LogOptionFunctionProvider(strike, time, steps);
+        final double resPrice = _model.getPrice(function, SPOT, vol, rate, dividend);
+        final GreekResultCollection resGreeks = _model.getGreeks(function, SPOT, vol, rate, dividend);
 
-        final double resPriceConst = _model.getPrice(lattice1, function, SPOT, time, volRef, rateRef, dividend[0]);
-        final GreekResultCollection resGreeksConst = _model.getGreeks(lattice1, function, SPOT, time, volRef, rateRef, dividend[0]);
+        final double resPriceConst = _model.getPrice(lattice1, function, SPOT, volRef, rateRef, dividend[0]);
+        final GreekResultCollection resGreeksConst = _model.getGreeks(lattice1, function, SPOT, volRef, rateRef, dividend[0]);
         assertEquals(resPrice, resPriceConst, Math.max(Math.abs(resPriceConst), 1.) * 1.e-3);
         assertEquals(resGreeks.get(Greek.FAIR_PRICE), resGreeksConst.get(Greek.FAIR_PRICE), Math.max(Math.abs(resGreeksConst.get(Greek.FAIR_PRICE)), 1.) * 1.e-3);
         assertEquals(resGreeks.get(Greek.DELTA), resGreeksConst.get(Greek.DELTA), Math.max(Math.abs(resGreeksConst.get(Greek.DELTA)), 1.) * 1.e-3);
@@ -281,7 +281,7 @@ public class LogOptionFunctionProviderTest {
   public void getSignErrorTest() {
     final double strike = 100.;
     final int steps = 801;
-    final OptionFunctionProvider1D function = new LogOptionFunctionProvider(strike, steps);
+    final OptionFunctionProvider1D function = new LogOptionFunctionProvider(strike, 1., steps);
     function.getSign();
   }
 

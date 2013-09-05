@@ -26,7 +26,7 @@ public class ProductOptionFunctionProviderTest {
   private static final double[] DIVIDENDS = new double[] {0.005, 0.014 };
 
   /**
-   * Analytic formula is available if K =0
+   *
    */
   @Test
   public void priceTest() {
@@ -45,11 +45,11 @@ public class ProductOptionFunctionProviderTest {
             for (final double rho : rhoSet) {
               for (final double strike : STRIKES) {
                 for (final double dividend : DIVIDENDS) {
-                  final OptionFunctionProvider2D function = new ProductOptionFunctionProvider(strike, nSteps, isCall);
+                  final OptionFunctionProvider2D function = new ProductOptionFunctionProvider(strike, TIME, nSteps, isCall);
                   final double rhoVols = rho * vol * sigma2;
                   double exactDiv = Math.exp(-interest * TIME) * BlackFormulaRepository.price(SPOT * spot2 * Math.exp((2 * interest - dividend - div2 + rhoVols) * TIME), strike, TIME,
                       Math.sqrt(vol * vol + sigma2 * sigma2 + 2. * rhoVols), isCall);
-                  final double resDiv = _model.getPrice(function, SPOT, spot2, TIME, vol, sigma2, rho, interest, dividend, div2);
+                  final double resDiv = _model.getPrice(function, SPOT, spot2, vol, sigma2, rho, interest, dividend, div2);
                   final double refDiv = Math.max(exactDiv, 1.) * 1.e-2;
                   assertEquals(resDiv, exactDiv, refDiv);
                 }
@@ -81,7 +81,7 @@ public class ProductOptionFunctionProviderTest {
             for (final double rho : rhoSet) {
               for (final double dividend : DIVIDENDS) {
                 for (final double strike : STRIKES) {
-                  final OptionFunctionProvider2D function = new ProductOptionFunctionProvider(strike, nSteps, isCall);
+                  final OptionFunctionProvider2D function = new ProductOptionFunctionProvider(strike, TIME, nSteps, isCall);
                   final double rhoVols = rho * vol * sigma2;
                   final double volhat = Math.sqrt(vol * vol + sigma2 * sigma2 + 2. * rhoVols);
                   final double fValue = SPOT * spot2 * Math.exp((2 * interest - dividend - div2 + rhoVols) * TIME);
@@ -114,7 +114,7 @@ public class ProductOptionFunctionProviderTest {
                    */
                   //                  final double[] ref = new double[] {price, delta1, delta2, theta, gamma1, gamma2, cross };
 
-                  final double[] res = _model.getGreeks(function, SPOT, spot2, TIME, vol, sigma2, rho, interest, dividend, div2);
+                  final double[] res = _model.getGreeks(function, SPOT, spot2, vol, sigma2, rho, interest, dividend, div2);
                   final double[] refMod = new double[] {price, delta1, delta2, gamma1, gamma2, cross };
                   final double[] resMod = new double[] {res[0], res[1], res[2], res[4], res[5], res[6] };
                   assertGreeks(resMod, refMod, 1.e-2);

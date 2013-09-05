@@ -29,6 +29,7 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
   private PayoffFunction _function;
 
   /*
+   * TODO check put-call symmetry, american vanilla, american single barrier, european double barrier (PLAT-4547)
    * TODO time-varying vol may not be compatible to discrete dividends due to limited control of dt
    *
    * TODO check convergence of theta
@@ -61,14 +62,11 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
   }
 
   @Override
-  public double getPrice(final LatticeSpecification lattice, final OptionFunctionProvider1D function, final double spot, final double timeToExpiry, final double volatility,
-      final double interestRate, final double dividend) {
+  public double getPrice(final LatticeSpecification lattice, final OptionFunctionProvider1D function, final double spot, final double volatility, final double interestRate, final double dividend) {
     ArgumentChecker.notNull(lattice, "lattice");
     ArgumentChecker.notNull(function, "function");
     ArgumentChecker.isTrue(spot > 0., "Spot should be positive");
     ArgumentChecker.isTrue(Doubles.isFinite(spot), "Spot should be finite");
-    ArgumentChecker.isTrue(timeToExpiry > 0., "timeToExpiry should be positive");
-    ArgumentChecker.isTrue(Doubles.isFinite(timeToExpiry), "timeToExpiry should be finite");
     ArgumentChecker.isTrue(volatility > 0., "volatility should be positive");
     ArgumentChecker.isTrue(Doubles.isFinite(volatility), "volatility should be finite");
     ArgumentChecker.isTrue(Doubles.isFinite(interestRate), "interestRate should be finite");
@@ -84,6 +82,7 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
 
     final int nSteps = function.getNumberOfSteps();
     final double strike = function.getStrike();
+    final double timeToExpiry = function.getTimeToExpiry();
 
     final double dt = timeToExpiry / nSteps;
     final double discount = Math.exp(-interestRate * dt);
@@ -109,7 +108,7 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
    * Array is used for dividend to realize constant cost of carry given by b = r - q
    */
   @Override
-  public double getPrice(final OptionFunctionProvider1D function, final double spot, final double timeToExpiry, final double[] volatility, final double[] interestRate, final double[] dividend) {
+  public double getPrice(final OptionFunctionProvider1D function, final double spot, final double[] volatility, final double[] interestRate, final double[] dividend) {
     ArgumentChecker.notNull(function, "function");
     ArgumentChecker.notNull(volatility, "volatility");
     ArgumentChecker.notNull(interestRate, "interestRate");
@@ -117,11 +116,10 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
 
     ArgumentChecker.isTrue(spot > 0., "Spot should be positive");
     ArgumentChecker.isTrue(Doubles.isFinite(spot), "Spot should be finite");
-    ArgumentChecker.isTrue(timeToExpiry > 0., "timeToExpiry should be positive");
-    ArgumentChecker.isTrue(Doubles.isFinite(timeToExpiry), "timeToExpiry should be finite");
 
     final TimeVaryingLatticeSpecification vLattice = new TimeVaryingLatticeSpecification();
     final int nSteps = function.getNumberOfSteps();
+    final double timeToExpiry = function.getTimeToExpiry();
 
     ArgumentChecker.isTrue(nSteps == interestRate.length, "Wrong interestRate length");
     ArgumentChecker.isTrue(nSteps == volatility.length, "Wrong volatility length");
@@ -168,16 +166,14 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
   }
 
   @Override
-  public double getPrice(final LatticeSpecification lattice, final OptionFunctionProvider1D function, final double spot, final double timeToExpiry, final double volatility,
-      final double interestRate, final DividendFunctionProvider dividend) {
+  public double getPrice(final LatticeSpecification lattice, final OptionFunctionProvider1D function, final double spot, final double volatility, final double interestRate,
+      final DividendFunctionProvider dividend) {
     ArgumentChecker.notNull(lattice, "lattice");
     ArgumentChecker.notNull(function, "function");
     ArgumentChecker.notNull(dividend, "dividend");
 
     ArgumentChecker.isTrue(spot > 0., "Spot should be positive");
     ArgumentChecker.isTrue(Doubles.isFinite(spot), "Spot should be finite");
-    ArgumentChecker.isTrue(timeToExpiry > 0., "timeToExpiry should be positive");
-    ArgumentChecker.isTrue(Doubles.isFinite(timeToExpiry), "timeToExpiry should be finite");
     ArgumentChecker.isTrue(volatility > 0., "volatility should be positive");
     ArgumentChecker.isTrue(Doubles.isFinite(volatility), "volatility should be finite");
     ArgumentChecker.isTrue(Doubles.isFinite(interestRate), "interestRate should be finite");
@@ -192,6 +188,7 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
 
     final int nSteps = function.getNumberOfSteps();
     final double strike = function.getStrike();
+    final double timeToExpiry = function.getTimeToExpiry();
 
     final double dt = timeToExpiry / nSteps;
     ArgumentChecker.isTrue(dividend.checkTimeSteps(dt), "Number of steps is too small");
@@ -243,16 +240,14 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
   }
 
   @Override
-  public double getPrice(final OptionFunctionProvider2D function, final double spot1, final double spot2, final double timeToExpiry, final double volatility1, final double volatility2,
-      final double correlation, final double interestRate, final double dividend1, final double dividend2) {
+  public double getPrice(final OptionFunctionProvider2D function, final double spot1, final double spot2, final double volatility1, final double volatility2, final double correlation,
+      final double interestRate, final double dividend1, final double dividend2) {
     ArgumentChecker.notNull(function, "function");
 
     ArgumentChecker.isTrue(spot1 > 0., "spot1 should be positive");
     ArgumentChecker.isTrue(Doubles.isFinite(spot1), "spot1 should be finite");
     ArgumentChecker.isTrue(spot2 > 0., "spot2 should be positive");
     ArgumentChecker.isTrue(Doubles.isFinite(spot2), "spot2 should be finite");
-    ArgumentChecker.isTrue(timeToExpiry > 0., "timeToExpiry should be positive");
-    ArgumentChecker.isTrue(Doubles.isFinite(timeToExpiry), "timeToExpiry should be finite");
     ArgumentChecker.isTrue(volatility1 > 0., "volatility1 should be positive");
     ArgumentChecker.isTrue(Doubles.isFinite(volatility1), "volatility1 should be finite");
     ArgumentChecker.isTrue(volatility2 > 0., "volatility2 should be positive");
@@ -263,6 +258,7 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
     ArgumentChecker.isTrue(Doubles.isFinite(dividend2), "dividend2 should be finite");
 
     final int nSteps = function.getNumberOfSteps();
+    final double timeToExpiry = function.getTimeToExpiry();
 
     final double vol12 = volatility1 * volatility2;
     final double vol11 = volatility1 * volatility1;
@@ -304,14 +300,12 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
   }
 
   @Override
-  public GreekResultCollection getGreeks(final LatticeSpecification lattice, final OptionFunctionProvider1D function, final double spot, final double timeToExpiry, final double volatility,
-      final double interestRate, final double dividend) {
+  public GreekResultCollection getGreeks(final LatticeSpecification lattice, final OptionFunctionProvider1D function, final double spot, final double volatility, final double interestRate,
+      final double dividend) {
     ArgumentChecker.notNull(lattice, "lattice");
     ArgumentChecker.notNull(function, "function");
     ArgumentChecker.isTrue(spot > 0., "Spot should be positive");
     ArgumentChecker.isTrue(Doubles.isFinite(spot), "Spot should be finite");
-    ArgumentChecker.isTrue(timeToExpiry > 0., "timeToExpiry should be positive");
-    ArgumentChecker.isTrue(Doubles.isFinite(timeToExpiry), "timeToExpiry should be finite");
     ArgumentChecker.isTrue(volatility > 0., "volatility should be positive");
     ArgumentChecker.isTrue(Doubles.isFinite(volatility), "volatility should be finite");
     ArgumentChecker.isTrue(Doubles.isFinite(interestRate), "interestRate should be finite");
@@ -322,6 +316,7 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
 
     final int nSteps = function.getNumberOfSteps();
     final double strike = function.getStrike();
+    final double timeToExpiry = function.getTimeToExpiry();
 
     final double dt = timeToExpiry / nSteps;
     final double discount = Math.exp(-interestRate * dt);
@@ -366,8 +361,7 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
    * Array is used for dividend to realize constant cost of carry given by b = r - q
    */
   @Override
-  public GreekResultCollection getGreeks(final OptionFunctionProvider1D function, final double spot, final double timeToExpiry, final double[] volatility, final double[] interestRate,
-      final double[] dividend) {
+  public GreekResultCollection getGreeks(final OptionFunctionProvider1D function, final double spot, final double[] volatility, final double[] interestRate, final double[] dividend) {
     ArgumentChecker.notNull(function, "function");
     ArgumentChecker.notNull(volatility, "volatility");
     ArgumentChecker.notNull(interestRate, "interestRate");
@@ -375,11 +369,10 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
 
     ArgumentChecker.isTrue(spot > 0., "Spot should be positive");
     ArgumentChecker.isTrue(Doubles.isFinite(spot), "Spot should be finite");
-    ArgumentChecker.isTrue(timeToExpiry > 0., "timeToExpiry should be positive");
-    ArgumentChecker.isTrue(Doubles.isFinite(timeToExpiry), "timeToExpiry should be finite");
 
     final TimeVaryingLatticeSpecification vLattice = new TimeVaryingLatticeSpecification();
     final int nSteps = function.getNumberOfSteps();
+    final double timeToExpiry = function.getTimeToExpiry();
 
     ArgumentChecker.isTrue(nSteps == interestRate.length, "Wrong interestRate length");
     ArgumentChecker.isTrue(nSteps == volatility.length, "Wrong volatility length");
@@ -448,16 +441,14 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
   }
 
   @Override
-  public GreekResultCollection getGreeks(final LatticeSpecification lattice, final OptionFunctionProvider1D function, final double spot, final double timeToExpiry,
-      final double volatility, final double interestRate, final DividendFunctionProvider dividend) {
+  public GreekResultCollection getGreeks(final LatticeSpecification lattice, final OptionFunctionProvider1D function, final double spot, final double volatility, final double interestRate,
+      final DividendFunctionProvider dividend) {
     ArgumentChecker.notNull(lattice, "lattice");
     ArgumentChecker.notNull(function, "function");
     ArgumentChecker.notNull(dividend, "dividend");
 
     ArgumentChecker.isTrue(spot > 0., "Spot should be positive");
     ArgumentChecker.isTrue(Doubles.isFinite(spot), "Spot should be finite");
-    ArgumentChecker.isTrue(timeToExpiry > 0., "timeToExpiry should be positive");
-    ArgumentChecker.isTrue(Doubles.isFinite(timeToExpiry), "timeToExpiry should be finite");
     ArgumentChecker.isTrue(volatility > 0., "volatility should be positive");
     ArgumentChecker.isTrue(Doubles.isFinite(volatility), "volatility should be finite");
     ArgumentChecker.isTrue(Doubles.isFinite(interestRate), "interestRate should be finite");
@@ -467,6 +458,7 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
 
     final int nSteps = function.getNumberOfSteps();
     final double strike = function.getStrike();
+    final double timeToExpiry = function.getTimeToExpiry();
 
     final double dt = timeToExpiry / nSteps;
     ArgumentChecker.isTrue(dividend.checkTimeSteps(dt), "Number of steps is too small");
@@ -544,17 +536,14 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
   }
 
   @Override
-  public double[] getGreeks(final OptionFunctionProvider2D function, final double spot1, final double spot2, final double timeToExpiry, final double volatility1,
-      final double volatility2,
-      final double correlation, final double interestRate, final double dividend1, final double dividend2) {
+  public double[] getGreeks(final OptionFunctionProvider2D function, final double spot1, final double spot2, final double volatility1, final double volatility2, final double correlation,
+      final double interestRate, final double dividend1, final double dividend2) {
     ArgumentChecker.notNull(function, "function");
 
     ArgumentChecker.isTrue(spot1 > 0., "spot1 should be positive");
     ArgumentChecker.isTrue(Doubles.isFinite(spot1), "spot1 should be finite");
     ArgumentChecker.isTrue(spot2 > 0., "spot2 should be positive");
     ArgumentChecker.isTrue(Doubles.isFinite(spot2), "spot2 should be finite");
-    ArgumentChecker.isTrue(timeToExpiry > 0., "timeToExpiry should be positive");
-    ArgumentChecker.isTrue(Doubles.isFinite(timeToExpiry), "timeToExpiry should be finite");
     ArgumentChecker.isTrue(volatility1 > 0., "volatility1 should be positive");
     ArgumentChecker.isTrue(Doubles.isFinite(volatility1), "volatility1 should be finite");
     ArgumentChecker.isTrue(volatility2 > 0., "volatility2 should be positive");
@@ -565,6 +554,7 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
     ArgumentChecker.isTrue(Doubles.isFinite(dividend2), "dividend2 should be finite");
 
     final int nSteps = function.getNumberOfSteps();
+    final double timeToExpiry = function.getTimeToExpiry();
     final double[] res = new double[7];
 
     final double vol12 = volatility1 * volatility2;

@@ -46,9 +46,9 @@ public class EuropeanExchangeOptionFunctionProviderTest {
           for (final double rho : rhoSet) {
             for (final double dividend : DIVIDENDS) {
               for (final double quant1 : quant1Set) {
-                final OptionFunctionProvider2D function = new EuropeanExchangeOptionFunctionProvider(nSteps, quant1, quant2);
+                final OptionFunctionProvider2D function = new EuropeanExchangeOptionFunctionProvider(TIME, nSteps, quant1, quant2);
                 double exactDiv = price(SPOT, spot2, TIME, vol, sigma2, rho, interest, interest - dividend, interest - div2, quant1, quant2);
-                final double resDiv = _model.getPrice(function, SPOT, spot2, TIME, vol, sigma2, rho, interest, dividend, div2);
+                final double resDiv = _model.getPrice(function, SPOT, spot2, vol, sigma2, rho, interest, dividend, div2);
                 final double refDiv = Math.max(exactDiv, 1.) * 1.e-2;
                 assertEquals(resDiv, exactDiv, refDiv);
               }
@@ -79,7 +79,7 @@ public class EuropeanExchangeOptionFunctionProviderTest {
           for (final double rho : rhoSet) {
             for (final double dividend : DIVIDENDS) {
               for (final double quant1 : quant1Set) {
-                final OptionFunctionProvider2D function = new EuropeanExchangeOptionFunctionProvider(nSteps, quant1, quant2);
+                final OptionFunctionProvider2D function = new EuropeanExchangeOptionFunctionProvider(TIME, nSteps, quant1, quant2);
                 double price = price(SPOT, spot2, TIME, vol, sigma2, rho, interest, interest - dividend, interest - div2, quant1, quant2);
                 double delta1 = delta1(SPOT, spot2, TIME, vol, sigma2, rho, interest, interest - dividend, interest - div2, quant1, quant2);
                 double delta2 = delta2(SPOT, spot2, TIME, vol, sigma2, rho, interest, interest - dividend, interest - div2, quant1, quant2);
@@ -88,7 +88,7 @@ public class EuropeanExchangeOptionFunctionProviderTest {
                 double gamma2 = gamma2(SPOT, spot2, TIME, vol, sigma2, rho, interest, interest - dividend, interest - div2, quant1, quant2);
                 double cross = crossGamma(SPOT, spot2, TIME, vol, sigma2, rho, interest, interest - dividend, interest - div2, quant1, quant2);
                 final double[] exact = new double[] {price, delta1, delta2, theta, gamma1, gamma2, cross };
-                final double[] res = _model.getGreeks(function, SPOT, spot2, TIME, vol, sigma2, rho, interest, dividend, div2);
+                final double[] res = _model.getGreeks(function, SPOT, spot2, vol, sigma2, rho, interest, dividend, div2);
                 assertGreeks(res, exact, 1.e-2);
               }
             }
@@ -103,7 +103,7 @@ public class EuropeanExchangeOptionFunctionProviderTest {
    */
   @Test
   public void getQuantityTest() {
-    final OptionFunctionProvider2D function = new EuropeanExchangeOptionFunctionProvider(1001, 3., 2.);
+    final OptionFunctionProvider2D function = new EuropeanExchangeOptionFunctionProvider(TIME, 1001, 3., 2.);
     assertEquals(((EuropeanExchangeOptionFunctionProvider) function).getQuantity1(), 3.);
     assertEquals(((EuropeanExchangeOptionFunctionProvider) function).getQuantity2(), 2.);
   }
@@ -113,7 +113,7 @@ public class EuropeanExchangeOptionFunctionProviderTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void getSignTest() {
-    final OptionFunctionProvider2D function = new EuropeanExchangeOptionFunctionProvider(1001, 3., 2.);
+    final OptionFunctionProvider2D function = new EuropeanExchangeOptionFunctionProvider(TIME, 1001, 3., 2.);
     function.getSign();
   }
 
@@ -122,7 +122,7 @@ public class EuropeanExchangeOptionFunctionProviderTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void getStrikeTest() {
-    final OptionFunctionProvider2D function = new EuropeanExchangeOptionFunctionProvider(1001, 3., 2.);
+    final OptionFunctionProvider2D function = new EuropeanExchangeOptionFunctionProvider(TIME, 1001, 3., 2.);
     function.getStrike();
   }
 
@@ -131,7 +131,7 @@ public class EuropeanExchangeOptionFunctionProviderTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void minusQuant1Test() {
-    new EuropeanExchangeOptionFunctionProvider(1001, -3., 2.);
+    new EuropeanExchangeOptionFunctionProvider(TIME, 1001, -3., 2.);
   }
 
   /**
@@ -139,7 +139,7 @@ public class EuropeanExchangeOptionFunctionProviderTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void minusQuant2Test() {
-    new EuropeanExchangeOptionFunctionProvider(1001, 3., -2.);
+    new EuropeanExchangeOptionFunctionProvider(TIME, 1001, 3., -2.);
   }
 
   private void assertGreeks(final double[] res, final double[] ref, final double eps) {

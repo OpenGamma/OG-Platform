@@ -51,9 +51,9 @@ public class GapOptionFunctionProviderTest {
               final int nSteps = 831;
               for (final double dividend : DIVIDENDS) {
                 for (final double payoffStrike : PAYOFF_STRIKES) {
-                  final OptionFunctionProvider1D function = new GapOptionFunctionProvider(strike, nSteps, isCall, payoffStrike);
+                  final OptionFunctionProvider1D function = new GapOptionFunctionProvider(strike, TIME, nSteps, isCall, payoffStrike);
                   final double exactDiv = price(SPOT, strike, payoffStrike, TIME, vol, interest, interest - dividend, isCall);
-                  final double resDiv = _model.getPrice(lattice, function, SPOT, TIME, vol, interest, dividend);
+                  final double resDiv = _model.getPrice(lattice, function, SPOT, vol, interest, dividend);
                   final double refDiv = Math.max(Math.abs(exactDiv), 1.) * 1.e-6;
                   //                  System.out.println(exactDiv + "\t" + resDiv);
                   assertEquals(resDiv, exactDiv, refDiv);
@@ -90,7 +90,7 @@ public class GapOptionFunctionProviderTest {
             for (final double vol : VOLS) {
               for (final double payoffStrike : PAYOFF_STRIKES) {
                 final int nSteps = 1631;
-                final OptionFunctionProvider1D function = new GapOptionFunctionProvider(strike, nSteps, isCall, payoffStrike);
+                final OptionFunctionProvider1D function = new GapOptionFunctionProvider(strike, TIME, nSteps, isCall, payoffStrike);
                 final DividendFunctionProvider cashDividend = new CashDividendFunctionProvider(dividendTimes, cashDividends);
                 final DividendFunctionProvider propDividend = new ProportionalDividendFunctionProvider(dividendTimes, propDividends);
                 final double resSpot = SPOT * (1. - propDividends[0]) * (1. - propDividends[1]) * (1. - propDividends[2]);
@@ -98,10 +98,10 @@ public class GapOptionFunctionProviderTest {
                     Math.exp(-interest * dividendTimes[2]);
                 final double exactProp = price(resSpot, strike, payoffStrike, TIME, vol, interest, interest, isCall);
                 final double appCash = price(modSpot, strike, payoffStrike, TIME, vol, interest, interest, isCall);
-                final double resProp = _model.getPrice(lattice, function, SPOT, TIME, vol, interest, propDividend);
+                final double resProp = _model.getPrice(lattice, function, SPOT, vol, interest, propDividend);
                 final double refProp = Math.max(Math.abs(exactProp), 1.) * 1.e-2;
                 assertEquals(resProp, exactProp, refProp);
-                final double resCash = _model.getPrice(lattice, function, SPOT, TIME, vol, interest, cashDividend);
+                final double resCash = _model.getPrice(lattice, function, SPOT, vol, interest, cashDividend);
                 final double refCash = Math.max(Math.abs(appCash), 1.) * 1.e-1;
                 assertEquals(resCash, appCash, refCash);
               }
@@ -133,8 +133,8 @@ public class GapOptionFunctionProviderTest {
               for (final double payoffStrike : PAYOFF_STRIKES) {
                 final int nSteps = 831;
                 for (final double dividend : DIVIDENDS) {
-                  final OptionFunctionProvider1D function = new GapOptionFunctionProvider(strike, nSteps, isCall, payoffStrike);
-                  final GreekResultCollection resDiv = _model.getGreeks(lattice, function, SPOT, TIME, vol, interest, dividend);
+                  final OptionFunctionProvider1D function = new GapOptionFunctionProvider(strike, TIME, nSteps, isCall, payoffStrike);
+                  final GreekResultCollection resDiv = _model.getGreeks(lattice, function, SPOT, vol, interest, dividend);
                   final double priceDiv = price(SPOT, strike, payoffStrike, TIME, vol, interest, interest - dividend, isCall);
                   final double refPriceDiv = Math.max(Math.abs(priceDiv), 1.) * 1.e-6;
                   assertEquals(resDiv.get(Greek.FAIR_PRICE), priceDiv, refPriceDiv);
@@ -193,11 +193,11 @@ public class GapOptionFunctionProviderTest {
                 final double appGammaCash = gamma(modSpot, strike, payoffStrike, TIME, vol, interest, interest, isCall);
                 final double appThetaCash = theta(modSpot, strike, payoffStrike, TIME, vol, interest, interest, isCall);
 
-                final OptionFunctionProvider1D function = new GapOptionFunctionProvider(strike, nSteps, isCall, payoffStrike);
+                final OptionFunctionProvider1D function = new GapOptionFunctionProvider(strike, TIME, nSteps, isCall, payoffStrike);
                 final DividendFunctionProvider cashDividend = new CashDividendFunctionProvider(dividendTimes, cashDividends);
                 final DividendFunctionProvider propDividend = new ProportionalDividendFunctionProvider(dividendTimes, propDividends);
-                final GreekResultCollection resProp = _model.getGreeks(lattice, function, SPOT, TIME, vol, interest, propDividend);
-                final GreekResultCollection resCash = _model.getGreeks(lattice, function, SPOT, TIME, vol, interest, cashDividend);
+                final GreekResultCollection resProp = _model.getGreeks(lattice, function, SPOT, vol, interest, propDividend);
+                final GreekResultCollection resCash = _model.getGreeks(lattice, function, SPOT, vol, interest, cashDividend);
                 //              System.out.println(price(resSpot, strike, TIME, vol, interest, interest, isCall) + "\t" + price(SPOT, strike, TIME, vol, interest, interest, isCall) + "\t" +
                 //                  resProp.get(Greek.FAIR_PRICE));
                 //              System.out.println(price(modSpot, strike, TIME, vol, interest, interest, isCall) + "\t" + price(SPOT, strike, TIME, vol, interest, interest, isCall) + "\t" +
@@ -251,12 +251,12 @@ public class GapOptionFunctionProviderTest {
           final double volRef = Math.sqrt(constC * constC + 0.5 * constD * constD + 2. * constC * constD / time * (1. - Math.cos(time)) - constD * constD * 0.25 / time * Math.sin(2. * time));
           for (final double payoffStrike : PAYOFF_STRIKES) {
 
-            final OptionFunctionProvider1D function = new GapOptionFunctionProvider(strike, steps, isCall, payoffStrike);
-            final double resPrice = _model.getPrice(function, SPOT, time, vol, rate, dividend);
-            final GreekResultCollection resGreeks = _model.getGreeks(function, SPOT, time, vol, rate, dividend);
+            final OptionFunctionProvider1D function = new GapOptionFunctionProvider(strike, time, steps, isCall, payoffStrike);
+            final double resPrice = _model.getPrice(function, SPOT, vol, rate, dividend);
+            final GreekResultCollection resGreeks = _model.getGreeks(function, SPOT, vol, rate, dividend);
 
-            final double resPriceConst = _model.getPrice(lattice1, function, SPOT, time, volRef, rateRef, dividend[0]);
-            final GreekResultCollection resGreeksConst = _model.getGreeks(lattice1, function, SPOT, time, volRef, rateRef, dividend[0]);
+            final double resPriceConst = _model.getPrice(lattice1, function, SPOT, volRef, rateRef, dividend[0]);
+            final GreekResultCollection resGreeksConst = _model.getGreeks(lattice1, function, SPOT, volRef, rateRef, dividend[0]);
             assertEquals(resPrice, resPriceConst, Math.max(Math.abs(resPriceConst), 1.) * 1.e-1);
             assertEquals(resGreeks.get(Greek.FAIR_PRICE), resGreeksConst.get(Greek.FAIR_PRICE), Math.max(Math.abs(resGreeksConst.get(Greek.FAIR_PRICE)), 1.) * 0.1);
             assertEquals(resGreeks.get(Greek.DELTA), resGreeksConst.get(Greek.DELTA), Math.max(Math.abs(resGreeksConst.get(Greek.DELTA)), 1.) * 0.1);
@@ -273,7 +273,7 @@ public class GapOptionFunctionProviderTest {
    */
   @Test
   public void getStrikePayoffTest() {
-    final GapOptionFunctionProvider function = new GapOptionFunctionProvider(103., 1003, true, 105.5);
+    final GapOptionFunctionProvider function = new GapOptionFunctionProvider(103., 1., 1003, true, 105.5);
     assertEquals(function.getStrikePayoff(), 105.5);
   }
 
@@ -282,7 +282,7 @@ public class GapOptionFunctionProviderTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   void negativePayoffTest() {
-    new GapOptionFunctionProvider(103., 1003, true, -105.5);
+    new GapOptionFunctionProvider(103., 1., 1003, true, -105.5);
   }
 
   private double price(final double spot, final double strike, final double payoffStrike, final double time, final double vol, final double interest, final double cost, final boolean isCall) {

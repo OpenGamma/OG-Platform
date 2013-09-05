@@ -17,12 +17,13 @@ public class EuropeanExchangeOptionFunctionProvider extends OptionFunctionProvid
   private double _quantity2;
 
   /**
+   * @param timeToExpiry Time to expiry
    * @param steps Number of steps
    * @param quantity1 Quantity of asset 1
    * @param quantity2 Quantity of asset 2
    */
-  public EuropeanExchangeOptionFunctionProvider(final int steps, final double quantity1, final double quantity2) {
-    super(0., steps, true);
+  public EuropeanExchangeOptionFunctionProvider(final double timeToExpiry, final int steps, final double quantity1, final double quantity2) {
+    super(0., timeToExpiry, steps, true);
     ArgumentChecker.isTrue(quantity1 > 0., "quantity1 should be positive");
     ArgumentChecker.isTrue(Doubles.isFinite(quantity1), "quantity1 should be finite");
     ArgumentChecker.isTrue(quantity2 > 0., "quantity2 should be positive");

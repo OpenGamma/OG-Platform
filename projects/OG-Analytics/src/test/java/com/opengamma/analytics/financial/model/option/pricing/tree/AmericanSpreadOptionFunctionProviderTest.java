@@ -31,8 +31,8 @@ public class AmericanSpreadOptionFunctionProviderTest {
    */
   @Test
   public void spreadAmericanPriceTest() {
-    final OptionFunctionProvider2D function = new AmericanSpreadOptionFunctionProvider(1., 3, true);
-    final double resDiv = _model.getPrice(function, 100, 100., 1., 0.2, 0.3, 0.50, 0.06, 0.03, 0.04);
+    final OptionFunctionProvider2D function = new AmericanSpreadOptionFunctionProvider(1., 1., 3, true);
+    final double resDiv = _model.getPrice(function, 100, 100., 0.2, 0.3, 0.50, 0.06, 0.03, 0.04);
     assertEquals(resDiv, 10.04479, 1.e-4);
   }
 
@@ -55,10 +55,10 @@ public class AmericanSpreadOptionFunctionProviderTest {
           for (final double vol : VOLS) {
             for (final double rho : rhoSet) {
               for (final double dividend : DIVIDENDS) {
-                final OptionFunctionProvider2D function2D = new AmericanSpreadOptionFunctionProvider(strike, nSteps, isCall);
-                final OptionFunctionProvider1D function1D = new AmericanVanillaOptionFunctionProvider(strike, nSteps, isCall);
-                final double res2D = _model.getPrice(function2D, SPOT, spot2, TIME, vol, sigma2, rho, interest, dividend, div2);
-                final double res1D = _model.getPrice(new LeisenReimerLatticeSpecification(), function1D, SPOT, TIME, vol, interest, dividend);
+                final OptionFunctionProvider2D function2D = new AmericanSpreadOptionFunctionProvider(strike, TIME, nSteps, isCall);
+                final OptionFunctionProvider1D function1D = new AmericanVanillaOptionFunctionProvider(strike, TIME, nSteps, isCall);
+                final double res2D = _model.getPrice(function2D, SPOT, spot2, vol, sigma2, rho, interest, dividend, div2);
+                final double res1D = _model.getPrice(new LeisenReimerLatticeSpecification(), function1D, SPOT, vol, interest, dividend);
                 final double ref = Math.max(res1D, 1.) * 1.e-2;
                 assertEquals(res2D, res1D, ref);
               }
@@ -85,10 +85,10 @@ public class AmericanSpreadOptionFunctionProviderTest {
           for (final double vol : VOLS) {
             for (final double rho : rhoSet) {
               for (final double dividend : DIVIDENDS) {
-                final OptionFunctionProvider2D functionAmerican = new AmericanSpreadOptionFunctionProvider(strike, nSteps, isCall);
-                final OptionFunctionProvider2D functionEuropean = new EuropeanSpreadOptionFunctionProvider(strike, nSteps, isCall);
-                final double resAmerican = _model.getPrice(functionAmerican, SPOT, SPOT, TIME, vol, sigma2, rho, interest, dividend, dividend);
-                final double resEuropean = _model.getPrice(functionEuropean, SPOT, SPOT, TIME, vol, sigma2, rho, interest, dividend, dividend);
+                final OptionFunctionProvider2D functionAmerican = new AmericanSpreadOptionFunctionProvider(strike, TIME, nSteps, isCall);
+                final OptionFunctionProvider2D functionEuropean = new EuropeanSpreadOptionFunctionProvider(strike, TIME, nSteps, isCall);
+                final double resAmerican = _model.getPrice(functionAmerican, SPOT, SPOT, vol, sigma2, rho, interest, dividend, dividend);
+                final double resEuropean = _model.getPrice(functionEuropean, SPOT, SPOT, vol, sigma2, rho, interest, dividend, dividend);
                 final double ref = Math.max(resEuropean, 1.) * 1.e-1;
                 assertEquals(resAmerican, resEuropean, ref);
               }
@@ -119,11 +119,11 @@ public class AmericanSpreadOptionFunctionProviderTest {
           for (final double vol : VOLS) {
             for (final double rho : rhoSet) {
               for (final double dividend : DIVIDENDS) {
-                final OptionFunctionProvider2D function2D = new AmericanSpreadOptionFunctionProvider(strike, nSteps, isCall);
-                final OptionFunctionProvider1D function1D = new AmericanVanillaOptionFunctionProvider(strike, nSteps, isCall);
-                final GreekResultCollection res1D = _model.getGreeks(new TrigeorgisLatticeSpecification(), function1D, SPOT, TIME, vol, interest, dividend);
+                final OptionFunctionProvider2D function2D = new AmericanSpreadOptionFunctionProvider(strike, TIME, nSteps, isCall);
+                final OptionFunctionProvider1D function1D = new AmericanVanillaOptionFunctionProvider(strike, TIME, nSteps, isCall);
+                final GreekResultCollection res1D = _model.getGreeks(new TrigeorgisLatticeSpecification(), function1D, SPOT, vol, interest, dividend);
                 final double[] ref = new double[] {res1D.get(Greek.FAIR_PRICE), res1D.get(Greek.DELTA), res1D.get(Greek.GAMMA), res1D.get(Greek.THETA) };
-                final double[] res = _model.getGreeks(function2D, SPOT, spot2, TIME, vol, sigma2, rho, interest, dividend, div2);
+                final double[] res = _model.getGreeks(function2D, SPOT, spot2, vol, sigma2, rho, interest, dividend, div2);
                 final double[] resMod = new double[] {res[0], res[1], res[4], res[3] };
                 assertGreeks(resMod, ref, 1.e-2);
               }
@@ -150,10 +150,10 @@ public class AmericanSpreadOptionFunctionProviderTest {
           for (final double vol : VOLS) {
             for (final double rho : rhoSet) {
               for (final double dividend : DIVIDENDS) {
-                final OptionFunctionProvider2D functionAmerican = new AmericanSpreadOptionFunctionProvider(strike, nSteps, isCall);
-                final OptionFunctionProvider2D functionEuropean = new EuropeanSpreadOptionFunctionProvider(strike, nSteps, isCall);
-                final double[] resAmerican = _model.getGreeks(functionAmerican, SPOT, SPOT, TIME, vol, sigma2, rho, interest, dividend, dividend);
-                final double[] resEuropean = _model.getGreeks(functionEuropean, SPOT, SPOT, TIME, vol, sigma2, rho, interest, dividend, dividend);
+                final OptionFunctionProvider2D functionAmerican = new AmericanSpreadOptionFunctionProvider(strike, TIME, nSteps, isCall);
+                final OptionFunctionProvider2D functionEuropean = new EuropeanSpreadOptionFunctionProvider(strike, TIME, nSteps, isCall);
+                final double[] resAmerican = _model.getGreeks(functionAmerican, SPOT, SPOT, vol, sigma2, rho, interest, dividend, dividend);
+                final double[] resEuropean = _model.getGreeks(functionEuropean, SPOT, SPOT, vol, sigma2, rho, interest, dividend, dividend);
                 assertGreeks(resAmerican, resEuropean, 0.2);
               }
             }

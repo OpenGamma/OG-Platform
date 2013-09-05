@@ -47,9 +47,9 @@ public class TwoAssetCorrelationOptionFunctionProviderTest {
             for (final double rho : rhoSet) {
               for (final double strike1 : STRIKES1) {
                 for (final double dividend : DIVIDENDS) {
-                  final OptionFunctionProvider2D function = new TwoAssetCorrelationOptionFunctionProvider(strike1, strike2, nSteps, isCall);
+                  final OptionFunctionProvider2D function = new TwoAssetCorrelationOptionFunctionProvider(strike1, strike2, TIME, nSteps, isCall);
                   double exactDiv = price(SPOT, spot2, strike1, strike2, TIME, vol, sigma2, rho, interest, interest - dividend, interest - div2, isCall);
-                  final double resDiv = _model.getPrice(function, SPOT, spot2, TIME, vol, sigma2, rho, interest, dividend, div2);
+                  final double resDiv = _model.getPrice(function, SPOT, spot2, vol, sigma2, rho, interest, dividend, div2);
                   final double refDiv = Math.max(exactDiv, 1.) * 1.e-1;
                   assertEquals(resDiv, exactDiv, refDiv);
                 }
@@ -82,7 +82,7 @@ public class TwoAssetCorrelationOptionFunctionProviderTest {
             for (final double rho : rhoSet) {
               for (final double dividend : DIVIDENDS) {
                 for (final double strike1 : STRIKES1) {
-                  final OptionFunctionProvider2D function = new TwoAssetCorrelationOptionFunctionProvider(strike1, strike2, nSteps, isCall);
+                  final OptionFunctionProvider2D function = new TwoAssetCorrelationOptionFunctionProvider(strike1, strike2, TIME, nSteps, isCall);
 
                   final double price = price(SPOT, spot2, strike1, strike2, TIME, vol, sigma2, rho, interest, interest - dividend, interest - div2, isCall);
                   final double delta1 = delta1(SPOT, spot2, strike1, strike2, TIME, vol, sigma2, rho, interest, interest - dividend, interest - div2, isCall);
@@ -102,7 +102,7 @@ public class TwoAssetCorrelationOptionFunctionProviderTest {
                   final double cross = 0.5 * (upForCross - downForCross) / eps;
 
                   final double[] ref = new double[] {price, delta1, delta2, theta, gamma1, gamma2, cross };
-                  final double[] res = _model.getGreeks(function, SPOT, spot2, TIME, vol, sigma2, rho, interest, dividend, div2);
+                  final double[] res = _model.getGreeks(function, SPOT, spot2, vol, sigma2, rho, interest, dividend, div2);
                   assertGreeks(res, ref, 1.e-1);
                 }
               }
@@ -118,7 +118,7 @@ public class TwoAssetCorrelationOptionFunctionProviderTest {
    */
   @Test
   public void getStrike1Test() {
-    final TwoAssetCorrelationOptionFunctionProvider function = new TwoAssetCorrelationOptionFunctionProvider(100., 101., 1001, true);
+    final TwoAssetCorrelationOptionFunctionProvider function = new TwoAssetCorrelationOptionFunctionProvider(100., 101., 1., 1001, true);
     assertEquals(function.getStrike1(), 100.);
   }
 
@@ -127,7 +127,7 @@ public class TwoAssetCorrelationOptionFunctionProviderTest {
    */
   @Test
   public void getStrike2Test() {
-    final TwoAssetCorrelationOptionFunctionProvider function = new TwoAssetCorrelationOptionFunctionProvider(100., 101., 1001, true);
+    final TwoAssetCorrelationOptionFunctionProvider function = new TwoAssetCorrelationOptionFunctionProvider(100., 101., 1., 1001, true);
     assertEquals(function.getStrike2(), 101.);
   }
 
@@ -135,8 +135,17 @@ public class TwoAssetCorrelationOptionFunctionProviderTest {
    * 
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
+  public void getStrikeFailTest() {
+    final TwoAssetCorrelationOptionFunctionProvider function = new TwoAssetCorrelationOptionFunctionProvider(100., 101., 1., 1001, true);
+    function.getStrike();
+  }
+
+  /**
+   * 
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeStrike2Test() {
-    new TwoAssetCorrelationOptionFunctionProvider(100., -101., 1001, true);
+    new TwoAssetCorrelationOptionFunctionProvider(100., -101., 1., 1001, true);
   }
 
   private void assertGreeks(final double[] res, final double[] ref, final double eps) {

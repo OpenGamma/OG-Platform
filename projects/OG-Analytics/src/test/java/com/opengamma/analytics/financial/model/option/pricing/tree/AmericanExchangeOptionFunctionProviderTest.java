@@ -44,12 +44,12 @@ public class AmericanExchangeOptionFunctionProviderTest {
           for (final double rho : rhoSet) {
             for (final double dividend : DIVIDENDS) {
               for (final double quant1 : quant1Set) {
-                final OptionFunctionProvider2D function = new AmericanExchangeOptionFunctionProvider(nSteps, quant1, quant2);
+                final OptionFunctionProvider2D function = new AmericanExchangeOptionFunctionProvider(TIME, nSteps, quant1, quant2);
                 final double volhat = Math.sqrt(vol * vol + sigma2 * sigma2 - 2. * rho * vol * sigma2);
                 final double b1 = interest - dividend;
                 final double b2 = interest - div2;
                 final double appDiv = _bs.price(SPOT * quant1, quant2 * spot2, interest - b2, b1 - b2, TIME, volhat, true);
-                final double resDiv = _model.getPrice(function, SPOT, spot2, TIME, vol, sigma2, rho, interest, dividend, div2);
+                final double resDiv = _model.getPrice(function, SPOT, spot2, vol, sigma2, rho, interest, dividend, div2);
                 final double refDiv = Math.max(appDiv, 0.1) * 1.e-1;
                 assertEquals(resDiv, appDiv, refDiv);
               }
@@ -82,7 +82,7 @@ public class AmericanExchangeOptionFunctionProviderTest {
           for (final double rho : rhoSet) {
             for (final double dividend : DIVIDENDS) {
               for (final double quant1 : quant1Set) {
-                final OptionFunctionProvider2D function = new AmericanExchangeOptionFunctionProvider(nSteps, quant1, quant2);
+                final OptionFunctionProvider2D function = new AmericanExchangeOptionFunctionProvider(TIME, nSteps, quant1, quant2);
                 final double volhat = Math.sqrt(vol * vol + sigma2 * sigma2 - 2. * rho * vol * sigma2);
                 final double b1 = interest - dividend;
                 final double b2 = interest - div2;
@@ -100,7 +100,7 @@ public class AmericanExchangeOptionFunctionProviderTest {
                 final double gamma2 = quant2 * 0.5 * (appSpot2Up[2] - appSpot2Down[2]) / eps;
                 final double cross = quant2 * 0.5 * (appSpot1Up[2] - appSpot1Down[2]) / eps;
                 //                final double[] exact = new double[] {price, delta1, delta2, -theta, gamma1, gamma2, cross };
-                final double[] res = _model.getGreeks(function, SPOT, spot2, TIME, vol, sigma2, rho, interest, dividend, div2);
+                final double[] res = _model.getGreeks(function, SPOT, spot2, vol, sigma2, rho, interest, dividend, div2);
                 final double[] exactMod = new double[] {price, delta1, delta2, gamma1, gamma2, cross };
                 final double[] resMod = new double[] {res[0], res[1], res[2], res[4], res[5], res[6] };
                 assertGreeks(resMod, exactMod, 1.e-1);
@@ -117,7 +117,7 @@ public class AmericanExchangeOptionFunctionProviderTest {
    */
   @Test
   public void getQuantityTest() {
-    final OptionFunctionProvider2D function = new AmericanExchangeOptionFunctionProvider(1001, 3., 2.);
+    final OptionFunctionProvider2D function = new AmericanExchangeOptionFunctionProvider(2., 1001, 3., 2.);
     assertEquals(((AmericanExchangeOptionFunctionProvider) function).getQuantity1(), 3.);
     assertEquals(((AmericanExchangeOptionFunctionProvider) function).getQuantity2(), 2.);
   }
@@ -127,7 +127,7 @@ public class AmericanExchangeOptionFunctionProviderTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void getSignTest() {
-    final OptionFunctionProvider2D function = new AmericanExchangeOptionFunctionProvider(1001, 3., 2.);
+    final OptionFunctionProvider2D function = new AmericanExchangeOptionFunctionProvider(2., 1001, 3., 2.);
     function.getSign();
   }
 
@@ -136,7 +136,7 @@ public class AmericanExchangeOptionFunctionProviderTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void getStrikeTest() {
-    final OptionFunctionProvider2D function = new AmericanExchangeOptionFunctionProvider(1001, 3., 2.);
+    final OptionFunctionProvider2D function = new AmericanExchangeOptionFunctionProvider(2., 1001, 3., 2.);
     function.getStrike();
   }
 
@@ -145,7 +145,7 @@ public class AmericanExchangeOptionFunctionProviderTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void minusQuant1Test() {
-    new AmericanExchangeOptionFunctionProvider(1001, -3., 2.);
+    new AmericanExchangeOptionFunctionProvider(2., 1001, -3., 2.);
   }
 
   /**
@@ -153,7 +153,7 @@ public class AmericanExchangeOptionFunctionProviderTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void minusQuant2Test() {
-    new AmericanExchangeOptionFunctionProvider(1001, 3., -2.);
+    new AmericanExchangeOptionFunctionProvider(2., 1001, 3., -2.);
   }
 
   private void assertGreeks(final double[] res, final double[] ref, final double eps) {

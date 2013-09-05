@@ -18,12 +18,13 @@ public class GapOptionFunctionProvider extends OptionFunctionProvider1D {
 
   /**
    * @param strike Strike price, K1
+   * @param timeToExpiry Time to expiry
    * @param steps Number of steps
    * @param isCall True if call, false if put
    * @param payoffStrike Payoff-strike, K2
    */
-  public GapOptionFunctionProvider(final double strike, final int steps, final boolean isCall, final double payoffStrike) {
-    super(strike, steps, isCall);
+  public GapOptionFunctionProvider(final double strike, final double timeToExpiry, final int steps, final boolean isCall, final double payoffStrike) {
+    super(strike, timeToExpiry, steps, isCall);
     ArgumentChecker.isTrue(payoffStrike > 0., "payoffStrike should be positive");
     ArgumentChecker.isTrue(Doubles.isFinite(payoffStrike), "payoffStrike should be finite");
     _payoffStrike = payoffStrike;
