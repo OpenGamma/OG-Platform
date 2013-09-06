@@ -27,17 +27,18 @@ public class BermudanOptionFunctionProvider extends OptionFunctionProvider1D {
    */
   public BermudanOptionFunctionProvider(final double strike, final double timeToExpiry, final int steps, final boolean isCall, final double[] exerciseTimes) {
     super(strike, timeToExpiry, steps, isCall);
-
     ArgumentChecker.notNull(exerciseTimes, "exerciseDates");
+
     _nTimes = exerciseTimes.length;
+
+    ArgumentChecker.isTrue(steps + 1 >= _nTimes, "Number of steps is not large enough");
     for (int i = 0; i < _nTimes; ++i) {
       ArgumentChecker.isTrue(exerciseTimes[i] >= 0., "exerciseDates should be non-negative");
-      ArgumentChecker.isTrue(exerciseTimes[i] <= timeToExpiry, "exerciseDates should less than timeToExpiry");
+      ArgumentChecker.isTrue(exerciseTimes[i] <= timeToExpiry, "exerciseDates should be less than timeToExpiry");
     }
 
     _exerciseTimes = Arrays.copyOf(exerciseTimes, _nTimes);
     Arrays.sort(_exerciseTimes);
-
     _exerciseSteps = timesToSteps(steps, timeToExpiry, timeToExpiry / steps);
   }
 
@@ -60,21 +61,32 @@ public class BermudanOptionFunctionProvider extends OptionFunctionProvider1D {
   public double[] getNextOptionValues(final double discount, final double upProbability, final double downProbability, final double[] values, final double baseAssetPrice, final double sumCashDiv,
       final double downFactor, final double upOverDown, final int steps) {
     final double strike = getStrike();
-    final double sign = getSign();
     final int nStepsP = steps + 1;
 
     final double[] res = new double[nStepsP];
-    double assetPrice = baseAssetPrice * Math.pow(downFactor, steps);
-    int k = _nTimes - 1;
-    for (int j = 0; j < nStepsP; ++j) {
-      res[j] = discount * (upProbability * values[j + 1] + downProbability * values[j]);
-      if (k > -1 && steps == _exerciseTimes[k]) {
-        res[j] = Math.max(res[j], sign * (assetPrice + sumCashDiv - strike));
-        --k;
+    final boolean exercise = checkExercise(steps);
+    if (exercise) {
+      final double sign = getSign();
+      double assetPrice = baseAssetPrice * Math.pow(downFactor, steps);
+      for (int j = 0; j < nStepsP; ++j) {
+        res[j] = Math.max(discount * (upProbability * values[j + 1] + downProbability * values[j]), sign * (assetPrice + sumCashDiv - strike));
+        assetPrice *= upOverDown;
       }
-      assetPrice *= upOverDown;
+    } else {
+      for (int j = 0; j < nStepsP; ++j) {
+        res[j] = discount * (upProbability * values[j + 1] + downProbability * values[j]);
+      }
     }
+
     return res;
+  }
+
+  /**
+   * Access number of exercise times
+   * @return _nTimes
+   */
+  public int getNumberOfExerciseTimes() {
+    return _nTimes;
   }
 
   /**
@@ -93,17 +105,31 @@ public class BermudanOptionFunctionProvider extends OptionFunctionProvider1D {
     return _exerciseSteps;
   }
 
+  private boolean checkExercise(final int currentStep) {
+    for (int i = 0; i < _nTimes; ++i) {
+      if (currentStep == _exerciseSteps[i]) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   private int[] timesToSteps(final int nSteps, final double timeToExpiry, final double dt) {
     final int[] steps = new int[_nTimes];
     int j = 0;
     for (int i = 0; i < nSteps + 1; ++i) {
       final double currentTime = dt * i;
       if (currentTime >= _exerciseTimes[j]) {
-        _exerciseTimes[j] = currentTime;
+        final double ref1 = currentTime - _exerciseTimes[j];
+        final double ref2 = dt - ref1;
+        steps[j] = ref1 <= ref2 ? i : i - 1;
+        if (j != 0) {
+          ArgumentChecker.isFalse(steps[j] == steps[j - 1], "Number of steps is not large enough");
+        }
         ++j;
       }
       if (j == _nTimes) {
-        return steps;
+        i = nSteps;
       }
     }
     return steps;
