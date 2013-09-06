@@ -200,9 +200,17 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
 
   private static Period getTenor(final Frequency freq) {
     if (freq instanceof PeriodFrequency) {
-      return ((PeriodFrequency) freq).getPeriod();
+      Period period = ((PeriodFrequency) freq).getPeriod();
+      if (period.getYears() == 1) {
+        return Period.ofMonths(12);
+      }
+      return period;
     } else if (freq instanceof SimpleFrequency) {
-      return ((SimpleFrequency) freq).toPeriodFrequency().getPeriod();
+      Period period =  ((SimpleFrequency) freq).toPeriodFrequency().getPeriod();
+      if (period.getYears() == 1) {
+        return Period.ofMonths(12);
+      }
+      return period;
     }
     throw new OpenGammaRuntimeException("Can only PeriodFrequency or SimpleFrequency; have " + freq.getClass());
   }

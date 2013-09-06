@@ -66,6 +66,8 @@ public class PerCurrencyConventionHelper {
   public static final String TENOR_STR_3M = "3M";
   /** Tenor string: 6M **/
   public static final String TENOR_STR_6M = "6M";
+  /** Tenor string: 12M **/
+  public static final String TENOR_STR_12M = "12M";
   /** Tenor string: 1Y **/
   public static final String TENOR_STR_1Y = "1Y";
   /** Tenor string: short period instruments (usually for 1w or 2w) **/
