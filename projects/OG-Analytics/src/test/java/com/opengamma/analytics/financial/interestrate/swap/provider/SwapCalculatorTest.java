@@ -77,10 +77,10 @@ public class SwapCalculatorTest {
   private static final TodayPaymentCalculator TPC = TodayPaymentCalculator.getInstance();
 
   private static final ZonedDateTimeDoubleTimeSeries FIXING_TS_3 = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2012, 5, 10),
-      DateUtils.getUTCDate(2012, 5, 14), DateUtils.getUTCDate(2012, 5, 15), DateUtils.getUTCDate(2012, 5, 16), DateUtils.getUTCDate(2012, 8, 15), DateUtils.getUTCDate(2012, 11, 15) }, new double[] {
-      0.0080, 0.0090, 0.0100, 0.0110, 0.0140, 0.0160 });
+    DateUtils.getUTCDate(2012, 5, 14), DateUtils.getUTCDate(2012, 5, 15), DateUtils.getUTCDate(2012, 5, 16), DateUtils.getUTCDate(2012, 8, 15), DateUtils.getUTCDate(2012, 11, 15) }, new double[] {
+    0.0080, 0.0090, 0.0100, 0.0110, 0.0140, 0.0160 });
   private static final ZonedDateTimeDoubleTimeSeries FIXING_TS_6 = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2012, 5, 10),
-      DateUtils.getUTCDate(2012, 5, 15), DateUtils.getUTCDate(2012, 5, 16) }, new double[] {0.0095, 0.0120, 0.0130 });
+    DateUtils.getUTCDate(2012, 5, 15), DateUtils.getUTCDate(2012, 5, 16) }, new double[] {0.0095, 0.0120, 0.0130 });
   private static final ZonedDateTimeDoubleTimeSeries[] FIXING_TS_3_6 = new ZonedDateTimeDoubleTimeSeries[] {FIXING_TS_3, FIXING_TS_6 };
 
   private static final PV01CurveParametersCalculator<MulticurveProviderInterface> PV01CPC = new PV01CurveParametersCalculator<>(PresentValueCurveSensitivityDiscountingCalculator.getInstance());
@@ -120,7 +120,8 @@ public class SwapCalculatorTest {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 5, 14);
     final Swap<Coupon, Coupon> swap = SWAP_IBORSPREAD_IBORSPREAD_DEFINITION.toDerivative(referenceDate);
     final double parSpread = swap.accept(PSMQDC, MULTICURVES);
-    final SwapIborIborDefinition swap0Definition = new SwapIborIborDefinition(AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL, USDLIBOR3M, SPREAD3 + parSpread, true, NYC),
+    final SwapIborIborDefinition swap0Definition = new SwapIborIborDefinition(
+        AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL, USDLIBOR3M, SPREAD3 + parSpread, true, NYC),
         AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL, USDLIBOR6M, SPREAD6, false, NYC));
     final Swap<Coupon, Coupon> swap0 = swap0Definition.toDerivative(referenceDate);
     final MultipleCurrencyAmount pv = swap0.accept(PVDC, MULTICURVES);
@@ -132,7 +133,8 @@ public class SwapCalculatorTest {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 5, 16);
     final Swap<Coupon, Coupon> swap = SWAP_IBORSPREAD_IBORSPREAD_DEFINITION.toDerivative(referenceDate, FIXING_TS_3_6);
     final double parSpread = swap.accept(PSMQDC, MULTICURVES);
-    final SwapIborIborDefinition swap0Definition = new SwapIborIborDefinition(AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL, USDLIBOR3M, SPREAD3 + parSpread, true, NYC),
+    final SwapIborIborDefinition swap0Definition = new SwapIborIborDefinition(
+        AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL, USDLIBOR3M, SPREAD3 + parSpread, true, NYC),
         AnnuityCouponIborSpreadDefinition.from(SETTLEMENT_DATE, SWAP_TENOR, NOTIONAL, USDLIBOR6M, SPREAD6, false, NYC));
     final Swap<Coupon, Coupon> swap0 = swap0Definition.toDerivative(referenceDate, FIXING_TS_3_6);
     final MultipleCurrencyAmount pv = swap0.accept(PVDC, MULTICURVES);
@@ -145,6 +147,7 @@ public class SwapCalculatorTest {
    */
   public void parSpreadIborIborBeforeFirstFixing() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 5, 14);
+    @SuppressWarnings("unchecked")
     final Swap<? extends Payment, ? extends Payment> swap = new Swap<>((Annuity<Payment>) SWAP_IBOR_IBORSPREAD_DEFINITION.getFirstLeg().toDerivative(referenceDate),
         (Annuity<Payment>) SWAP_IBOR_IBORSPREAD_DEFINITION.getSecondLeg().toDerivative(referenceDate));
     final double parSpread = swap.accept(PSMQDC, MULTICURVES);

@@ -71,7 +71,7 @@ public class FutureTradeConverter {
       final InstrumentDefinitionWithData<?, Double> securityDefinition = ((FutureSecurity) security).accept(_futureSecurityConverter);
       double tradePremium = 0.0;
       if (trade.getPremium() != null) {
-        tradePremium = trade.getPremium(); // TODO: The trade price is stored in the trade premium. This has to be corrected.
+        tradePremium = trade.getPremium(); // TODO: The trade price is stored in the trade premium.
       }
       ZonedDateTime tradeDate = DateUtils.getUTCDate(1900, 1, 1);
       if ((trade.getTradeDate() != null) && trade.getTradeTime() != null && (trade.getTradeTime().toLocalTime() != null)) {

@@ -190,7 +190,7 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
     final String currencyString = currency.getCode();
     final Integer publicationLag = indexConvention.getPublicationLag();
     final Period paymentFrequency = getTenor(floatLeg.getFrequency());
-    final IndexON index = new IndexON(floatLeg.getFloatingReferenceRateId().getValue(), currency, indexConvention.getDayCount(), publicationLag);
+    final IndexON index = new IndexON(indexConvention.getName(), currency, indexConvention.getDayCount(), publicationLag);
     final GeneratorSwapFixedON generator = new GeneratorSwapFixedON(currencyString + "_OIS_Convention", index, paymentFrequency, fixedLeg.getDayCount(), fixedLeg.getBusinessDayConvention(),
         fixedLeg.isEom(), 0, 1 - publicationLag, calendar); // TODO: The payment lag is not available at the security level!
     final double notionalFixed = ((InterestRateNotional) fixedLeg.getNotional()).getAmount();

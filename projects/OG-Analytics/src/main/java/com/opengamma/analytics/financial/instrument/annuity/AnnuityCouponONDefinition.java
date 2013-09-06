@@ -28,10 +28,6 @@ import com.opengamma.util.ArgumentChecker;
  * A wrapper class for a AnnuityDefinition containing CouponOISDefinition.
  */
 public class AnnuityCouponONDefinition extends AnnuityCouponDefinition<CouponONDefinition> {
-  //REVIEW emcleod 13-05-2013 This is supposed to be an object that constructs one leg of a swap. It should
-  // not be necessary for the user to pass in a generator (which, as far as I can tell, are a convenience for
-  // testing), as this implies that they have to know what a swap type is - what if they just want to
-  // construct the leg?
 
   /** Empty array for array conversion of list */
   protected static final Coupon[] EMPTY_ARRAY_COUPON = new Coupon[0];

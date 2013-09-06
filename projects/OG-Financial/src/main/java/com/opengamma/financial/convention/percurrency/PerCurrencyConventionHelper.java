@@ -60,6 +60,8 @@ public class PerCurrencyConventionHelper {
   /** Swap index string */
   public static final String SWAP_INDEX = "Swap Index";
 
+  /** Tenor string: 1M **/
+  public static final String TENOR_STR_1M = "1M";
   /** Tenor string: 3M **/
   public static final String TENOR_STR_3M = "3M";
   /** Tenor string: 6M **/
