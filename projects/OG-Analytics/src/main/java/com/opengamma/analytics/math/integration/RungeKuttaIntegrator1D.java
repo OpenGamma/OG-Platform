@@ -5,6 +5,7 @@
  */
 package com.opengamma.analytics.math.integration;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.math.function.Function1D;
 
 /**
@@ -77,7 +78,9 @@ public class RungeKuttaIntegrator1D extends Integrator1D<Double, Double> {
   }
 
   private double calculateRungeKuttaFourthOrder(final Function1D<Double, Double> f, final double x, final double h, final double fl, final double fm, final double fu) {
-
+    if (Double.isNaN(h) || Double.isInfinite(h)) {
+      throw new OpenGammaRuntimeException("h was Inf or NaN");
+    }
     final double f1 = f.evaluate(x + 0.25 * h);
     final double f2 = f.evaluate(x + 0.75 * h);
     final double ya = h * (fl + 4.0 * fm + fu) / 6.0;
