@@ -8,6 +8,8 @@ package com.opengamma.integration.copier.portfolio.writer;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,10 +22,12 @@ import java.util.concurrent.Future;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
 
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdSearch;
@@ -140,7 +144,17 @@ public class MasterPortfolioWriter implements PortfolioWriter {
 
     _securitySource = new MasterSecuritySource(_securityMaster);
 
-    _beanCompare = new BeanCompare();
+    // unique ID and external ID bundle are ignored when comparing securities
+    Comparator<Object> alwaysEqualComparator = new Comparator<Object>() {
+      @Override
+      public int compare(Object notUsed1, Object notUsed2) {
+        return 0;
+      }
+    };
+    Map<MetaProperty<?>, Comparator<Object>> comparators = ImmutableMap.<MetaProperty<?>, Comparator<Object>>of(
+        ManageableSecurity.meta().uniqueId(), alwaysEqualComparator,
+        ManageableSecurity.meta().externalIdBundle(), alwaysEqualComparator);
+    _beanCompare = new BeanCompare(comparators, Collections.<Class<?>, Comparator<Object>>emptyMap());
 
     //_currentPath = new String[0];
     //_securityIdToPosition = new HashMap<ObjectId, ManageablePosition>();
@@ -661,5 +675,4 @@ public class MasterPortfolioWriter implements PortfolioWriter {
   public SecurityMaster getSecurityMaster() {
     return _securityMaster;
   }
-
 }
