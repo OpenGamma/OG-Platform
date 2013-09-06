@@ -79,9 +79,10 @@ public final class SwaptionPhysicalFixedIborBlackMethod implements PricingMethod
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(curveBlack, "Curves with Black volatility");
     ArgumentChecker.isTrue(curveBlack.getBlackParameters().getGeneratorSwap().getCurrency() == swaption.getCurrency(), "Black data currency should be equal to swaption currency");
+    final Calendar calendar = curveBlack.getBlackParameters().getGeneratorSwap().getCalendar();
     final double pvbpModified = METHOD_SWAP.presentValueBasisPoint(swaption.getUnderlyingSwap(), curveBlack.getBlackParameters().getGeneratorSwap().getFixedLegDayCount(),
-        curveBlack.getBlackParameters().getGeneratorSwap().getCalendar(), curveBlack);
-    final double forwardModified = PRC.visitFixedCouponSwap(swaption.getUnderlyingSwap(), curveBlack.getBlackParameters().getGeneratorSwap().getFixedLegDayCount(), curveBlack);
+        calendar, curveBlack);
+    final double forwardModified = PRC.visitFixedCouponSwap(swaption.getUnderlyingSwap(), curveBlack.getBlackParameters().getGeneratorSwap().getFixedLegDayCount(), curveBlack, calendar);
     final double strikeModified = METHOD_SWAP.couponEquivalent(swaption.getUnderlyingSwap(), pvbpModified, curveBlack);
     final double maturity = swaption.getMaturityTime();
     final EuropeanVanillaOption option = new EuropeanVanillaOption(strikeModified, swaption.getTimeToExpiry(), swaption.isCall());
@@ -130,7 +131,7 @@ public final class SwaptionPhysicalFixedIborBlackMethod implements PricingMethod
     final DayCount dayCountModification = curveBlack.getBlackParameters().getGeneratorSwap().getFixedLegDayCount();
     final Calendar calendar = curveBlack.getBlackParameters().getGeneratorSwap().getCalendar();
     final double pvbpModified = METHOD_SWAP.presentValueBasisPoint(swaption.getUnderlyingSwap(), dayCountModification, calendar, curveBlack);
-    final double forwardModified = PRC.visitFixedCouponSwap(swaption.getUnderlyingSwap(), dayCountModification, curveBlack);
+    final double forwardModified = PRC.visitFixedCouponSwap(swaption.getUnderlyingSwap(), dayCountModification, curveBlack, calendar);
     final double strikeModified = METHOD_SWAP.couponEquivalent(swaption.getUnderlyingSwap(), pvbpModified, curveBlack);
     final double maturity = swaption.getMaturityTime();
     // Derivative of the forward and pvbp with respect to the rates.
@@ -164,7 +165,8 @@ public final class SwaptionPhysicalFixedIborBlackMethod implements PricingMethod
     final DayCount dayCountModification = curveBlack.getBlackParameters().getGeneratorSwap().getFixedLegDayCount();
     final double pvbpModified = METHOD_SWAP.presentValueBasisPoint(swaption.getUnderlyingSwap(), dayCountModification, curveBlack.getBlackParameters().getGeneratorSwap().getCalendar(),
         curveBlack);
-    final double forwardModified = PRC.visitFixedCouponSwap(swaption.getUnderlyingSwap(), dayCountModification, curveBlack);
+    final Calendar calendar = curveBlack.getBlackParameters().getGeneratorSwap().getCalendar();
+    final double forwardModified = PRC.visitFixedCouponSwap(swaption.getUnderlyingSwap(), dayCountModification, curveBlack, calendar);
     final double strikeModified = METHOD_SWAP.couponEquivalent(swaption.getUnderlyingSwap(), pvbpModified, curveBlack);
     final double maturity = swaption.getMaturityTime();
     final EuropeanVanillaOption option = new EuropeanVanillaOption(strikeModified, swaption.getTimeToExpiry(), swaption.isCall());
