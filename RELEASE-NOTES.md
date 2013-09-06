@@ -1,7 +1,7 @@
-OpenGamma Platform 2.1.0-M3
+OpenGamma Platform 2.1.0-M3px
 ---------------------------
 
-This is a milestone release of version 2.1.0 which contains enhancements and bug fixes.
+This is a patch release of the M3 milestone release of version 2.1.0 which contains enhancements.
 
 
 Upgrading from 2.0.0
@@ -54,6 +54,23 @@ API compatibility
 Analytics compatibility
 - In FX implied curve construction, the curve node tenors are now adjusted correctly using holidays and the appropriate number of settlement days for the currency pair. This may cause differences. [PLAT-4373]
 
+To 2.1.0-M3
+-----------
+As above, and:
+
+Configuration compatibility
+- No changes required
+
+Database compatibility
+- No upgrade required
+
+API compatibility
+- No significant changes
+
+Analytics compatibility
+- No expected differences
+
+
 
 Changes since 2.0.0
 ===================
@@ -69,4 +86,10 @@ As above, and http://jira.opengamma.com/issues/?jql=fixVersion%20%3D%20%222.1.0-
 To 2.1.0-M3
 -----------
 As above, and http://jira.opengamma.com/issues/?jql=fixVersion%20%3D%20%222.1.0-M3%22
+
+To 2.1.0-M3px
+------------
+ [PLAT-4562] Swaptions need to use calendars when calculating pvbp, as BRL won't work otherwise.
+ [PLAT-4538] Add code that preserves old FX implied curve functionality if the calendar and settlement days are not set in the convention
+
 
