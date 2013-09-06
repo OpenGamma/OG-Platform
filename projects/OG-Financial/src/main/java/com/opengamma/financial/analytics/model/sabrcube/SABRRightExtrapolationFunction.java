@@ -51,6 +51,9 @@ public abstract class SABRRightExtrapolationFunction extends SABRFunction {
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     final Security security = target.getSecurity();
     if (security instanceof SwapSecurity) {
+      if (!InterestRateInstrumentType.isFixedIncomeInstrumentType((SwapSecurity) security)) {
+        return false;
+      }
       final InterestRateInstrumentType type = SwapSecurityUtils.getSwapType((SwapSecurity) security);
       if ((type != InterestRateInstrumentType.SWAP_FIXED_CMS) && (type != InterestRateInstrumentType.SWAP_CMS_CMS) && (type != InterestRateInstrumentType.SWAP_IBOR_CMS)) {
         return false;

@@ -56,6 +56,16 @@ public class SwapSecurity extends FinancialSecurity {
   @PropertyDefinition(validate = "notNull")
   private String _counterparty;
   /**
+   * Whether the initial notional is exchanged.
+   */
+  @PropertyDefinition
+  private boolean _exchangeInitialNotional;
+  /**
+   * Whether the final notional is exchanged.
+   */
+  @PropertyDefinition
+  private boolean _exchangeFinalNotional;
+  /**
    * The pay leg.
    */
   @PropertyDefinition(validate = "notNull")
@@ -86,6 +96,8 @@ public class SwapSecurity extends FinancialSecurity {
     setCounterparty(counterparty);
     setPayLeg(payLeg);
     setReceiveLeg(receiveLeg);
+    setExchangeInitialNotional(false);
+    setExchangeFinalNotional(false);
   }
 
   /**
@@ -114,6 +126,8 @@ public class SwapSecurity extends FinancialSecurity {
     setCounterparty(counterparty);
     setPayLeg(payLeg);
     setReceiveLeg(receiveLeg);
+    setExchangeInitialNotional(false);
+    setExchangeFinalNotional(false);
   }
 
   //-------------------------------------------------------------------------
@@ -152,6 +166,10 @@ public class SwapSecurity extends FinancialSecurity {
         return getMaturityDate();
       case -1651301782:  // counterparty
         return getCounterparty();
+      case -1304307199:  // exchangeInitialNotional
+        return isExchangeInitialNotional();
+      case -1976228493:  // exchangeFinalNotional
+        return isExchangeFinalNotional();
       case -995239866:  // payLeg
         return getPayLeg();
       case 209233963:  // receiveLeg
@@ -174,6 +192,12 @@ public class SwapSecurity extends FinancialSecurity {
         return;
       case -1651301782:  // counterparty
         setCounterparty((String) newValue);
+        return;
+      case -1304307199:  // exchangeInitialNotional
+        setExchangeInitialNotional((Boolean) newValue);
+        return;
+      case -1976228493:  // exchangeFinalNotional
+        setExchangeFinalNotional((Boolean) newValue);
         return;
       case -995239866:  // payLeg
         setPayLeg((SwapLeg) newValue);
@@ -207,6 +231,8 @@ public class SwapSecurity extends FinancialSecurity {
           JodaBeanUtils.equal(getEffectiveDate(), other.getEffectiveDate()) &&
           JodaBeanUtils.equal(getMaturityDate(), other.getMaturityDate()) &&
           JodaBeanUtils.equal(getCounterparty(), other.getCounterparty()) &&
+          JodaBeanUtils.equal(isExchangeInitialNotional(), other.isExchangeInitialNotional()) &&
+          JodaBeanUtils.equal(isExchangeFinalNotional(), other.isExchangeFinalNotional()) &&
           JodaBeanUtils.equal(getPayLeg(), other.getPayLeg()) &&
           JodaBeanUtils.equal(getReceiveLeg(), other.getReceiveLeg()) &&
           super.equals(obj);
@@ -221,6 +247,8 @@ public class SwapSecurity extends FinancialSecurity {
     hash += hash * 31 + JodaBeanUtils.hashCode(getEffectiveDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCounterparty());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isExchangeInitialNotional());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isExchangeFinalNotional());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPayLeg());
     hash += hash * 31 + JodaBeanUtils.hashCode(getReceiveLeg());
     return hash ^ super.hashCode();
@@ -332,6 +360,56 @@ public class SwapSecurity extends FinancialSecurity {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets whether the initial notional is exchanged.
+   * @return the value of the property
+   */
+  public boolean isExchangeInitialNotional() {
+    return _exchangeInitialNotional;
+  }
+
+  /**
+   * Sets whether the initial notional is exchanged.
+   * @param exchangeInitialNotional  the new value of the property
+   */
+  public void setExchangeInitialNotional(boolean exchangeInitialNotional) {
+    this._exchangeInitialNotional = exchangeInitialNotional;
+  }
+
+  /**
+   * Gets the the {@code exchangeInitialNotional} property.
+   * @return the property, not null
+   */
+  public final Property<Boolean> exchangeInitialNotional() {
+    return metaBean().exchangeInitialNotional().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets whether the final notional is exchanged.
+   * @return the value of the property
+   */
+  public boolean isExchangeFinalNotional() {
+    return _exchangeFinalNotional;
+  }
+
+  /**
+   * Sets whether the final notional is exchanged.
+   * @param exchangeFinalNotional  the new value of the property
+   */
+  public void setExchangeFinalNotional(boolean exchangeFinalNotional) {
+    this._exchangeFinalNotional = exchangeFinalNotional;
+  }
+
+  /**
+   * Gets the the {@code exchangeFinalNotional} property.
+   * @return the property, not null
+   */
+  public final Property<Boolean> exchangeFinalNotional() {
+    return metaBean().exchangeFinalNotional().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the pay leg.
    * @return the value of the property, not null
    */
@@ -413,6 +491,16 @@ public class SwapSecurity extends FinancialSecurity {
     private final MetaProperty<String> _counterparty = DirectMetaProperty.ofReadWrite(
         this, "counterparty", SwapSecurity.class, String.class);
     /**
+     * The meta-property for the {@code exchangeInitialNotional} property.
+     */
+    private final MetaProperty<Boolean> _exchangeInitialNotional = DirectMetaProperty.ofReadWrite(
+        this, "exchangeInitialNotional", SwapSecurity.class, Boolean.TYPE);
+    /**
+     * The meta-property for the {@code exchangeFinalNotional} property.
+     */
+    private final MetaProperty<Boolean> _exchangeFinalNotional = DirectMetaProperty.ofReadWrite(
+        this, "exchangeFinalNotional", SwapSecurity.class, Boolean.TYPE);
+    /**
      * The meta-property for the {@code payLeg} property.
      */
     private final MetaProperty<SwapLeg> _payLeg = DirectMetaProperty.ofReadWrite(
@@ -431,6 +519,8 @@ public class SwapSecurity extends FinancialSecurity {
         "effectiveDate",
         "maturityDate",
         "counterparty",
+        "exchangeInitialNotional",
+        "exchangeFinalNotional",
         "payLeg",
         "receiveLeg");
 
@@ -451,6 +541,10 @@ public class SwapSecurity extends FinancialSecurity {
           return _maturityDate;
         case -1651301782:  // counterparty
           return _counterparty;
+        case -1304307199:  // exchangeInitialNotional
+          return _exchangeInitialNotional;
+        case -1976228493:  // exchangeFinalNotional
+          return _exchangeFinalNotional;
         case -995239866:  // payLeg
           return _payLeg;
         case 209233963:  // receiveLeg
@@ -505,6 +599,22 @@ public class SwapSecurity extends FinancialSecurity {
      */
     public final MetaProperty<String> counterparty() {
       return _counterparty;
+    }
+
+    /**
+     * The meta-property for the {@code exchangeInitialNotional} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> exchangeInitialNotional() {
+      return _exchangeInitialNotional;
+    }
+
+    /**
+     * The meta-property for the {@code exchangeFinalNotional} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> exchangeFinalNotional() {
+      return _exchangeFinalNotional;
     }
 
     /**

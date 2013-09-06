@@ -591,7 +591,7 @@ public class ExposureFunctionTestHelper {
     final FixedInflationSwapLeg fixedLeg = new FixedInflationSwapLeg(DC, PeriodFrequency.QUARTERLY, US, BDC, new InterestRateNotional(USD, 100000), false, 0.02);
     final InflationIndexSwapLeg indexLeg = new InflationIndexSwapLeg(DC, PeriodFrequency.QUARTERLY, US, BDC, new InterestRateNotional(USD, 100000), true, ExternalSchemes.syntheticSecurityId("CPI"), 2, 3, InterpolationMethod.MONTH_START_LINEAR);
     final YearOnYearInflationSwapSecurity security = new YearOnYearInflationSwapSecurity(DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2023, 1, 1), "OG",
-        fixedLeg, indexLeg, true, Tenor.TEN_YEARS);
+        fixedLeg, indexLeg, true, true, Tenor.TEN_YEARS);
     security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "36"));
     return security;
   }
@@ -600,7 +600,7 @@ public class ExposureFunctionTestHelper {
     final FixedInflationSwapLeg fixedLeg = new FixedInflationSwapLeg(DC, PeriodFrequency.QUARTERLY, US, BDC, new InterestRateNotional(USD, 100000), false, 0.02);
     final InflationIndexSwapLeg indexLeg = new InflationIndexSwapLeg(DC, PeriodFrequency.QUARTERLY, US, BDC, new InterestRateNotional(USD, 100000), false, ExternalSchemes.syntheticSecurityId("CPI"), 2, 3, InterpolationMethod.MONTH_START_LINEAR);
     final YearOnYearInflationSwapSecurity security = new YearOnYearInflationSwapSecurity(DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2023, 1, 1), "OG",
-        indexLeg, fixedLeg, true, Tenor.TEN_YEARS);
+        indexLeg, fixedLeg, true, true, Tenor.TEN_YEARS);
     security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "4562"));
     return security;
   }
@@ -609,7 +609,7 @@ public class ExposureFunctionTestHelper {
     final FixedInflationSwapLeg fixedLeg = new FixedInflationSwapLeg(DC, PeriodFrequency.QUARTERLY, US, BDC, new InterestRateNotional(USD, 100000), false, 0.02);
     final InflationIndexSwapLeg indexLeg = new InflationIndexSwapLeg(DC, PeriodFrequency.QUARTERLY, US, BDC, new InterestRateNotional(USD, 100000), true, ExternalSchemes.syntheticSecurityId("CPI"), 2, 3, InterpolationMethod.MONTH_START_LINEAR);
     final ZeroCouponInflationSwapSecurity security = new ZeroCouponInflationSwapSecurity(DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2023, 1, 1), "OG",
-        fixedLeg, indexLeg, false);
+        fixedLeg, indexLeg);
     security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "684"));
     return security;
   }
@@ -618,7 +618,7 @@ public class ExposureFunctionTestHelper {
     final FixedInflationSwapLeg fixedLeg = new FixedInflationSwapLeg(DC, PeriodFrequency.QUARTERLY, US, BDC, new InterestRateNotional(USD, 100000), false, 0.02);
     final InflationIndexSwapLeg indexLeg = new InflationIndexSwapLeg(DC, PeriodFrequency.QUARTERLY, US, BDC, new InterestRateNotional(USD, 100000), false, ExternalSchemes.syntheticSecurityId("CPI"), 2, 3, InterpolationMethod.MONTH_START_LINEAR);
     final ZeroCouponInflationSwapSecurity security = new ZeroCouponInflationSwapSecurity(DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2023, 1, 1), "OG",
-        fixedLeg, indexLeg, false);
+        fixedLeg, indexLeg);
     security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "3216"));
     return security;
   }

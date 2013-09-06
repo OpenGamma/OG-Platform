@@ -51,7 +51,7 @@ public class SwapSecurityFudgeBuilderTest extends AbstractFudgeBuilderTestCase {
     final FixedInflationSwapLeg payLeg = new FixedInflationSwapLeg(DC, FREQUENCY, REGION_ID, BDC, NOTIONAL, EOM, 0.002);
     final InflationIndexSwapLeg receiveLeg = new InflationIndexSwapLeg(DC, FREQUENCY, REGION_ID, BDC, NOTIONAL, EOM, ExternalId.of("Test", "SDF"),
         2, 3, InterpolationMethod.MONTH_START_LINEAR);
-    final ZeroCouponInflationSwapSecurity security = new ZeroCouponInflationSwapSecurity(TRADE_DATE, EFFECTIVE_DATE, MATURITY, COUNTERPARTY, payLeg, receiveLeg, false);
+    final ZeroCouponInflationSwapSecurity security = new ZeroCouponInflationSwapSecurity(TRADE_DATE, EFFECTIVE_DATE, MATURITY, COUNTERPARTY, payLeg, receiveLeg);
     assertEncodeDecodeCycle(ZeroCouponInflationSwapSecurity.class, security);
   }
 
@@ -61,7 +61,7 @@ public class SwapSecurityFudgeBuilderTest extends AbstractFudgeBuilderTestCase {
     final InflationIndexSwapLeg receiveLeg = new InflationIndexSwapLeg(DC, FREQUENCY, REGION_ID, BDC, NOTIONAL, EOM, ExternalId.of("Test", "SDF"),
         2, 3, InterpolationMethod.MONTH_START_LINEAR);
     final YearOnYearInflationSwapSecurity security = new YearOnYearInflationSwapSecurity(TRADE_DATE, EFFECTIVE_DATE, MATURITY, COUNTERPARTY, payLeg, receiveLeg,
-        true, Tenor.TEN_YEARS);
+        true, true, Tenor.TEN_YEARS);
     assertEncodeDecodeCycle(YearOnYearInflationSwapSecurity.class, security);
   }
 

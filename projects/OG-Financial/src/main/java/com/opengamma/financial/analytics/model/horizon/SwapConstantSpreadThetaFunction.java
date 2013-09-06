@@ -125,7 +125,8 @@ public class SwapConstantSpreadThetaFunction extends AbstractFunction.NonCompile
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (!(target.getSecurity() instanceof SwapSecurity)) {
+    if (!(target.getSecurity() instanceof SwapSecurity 
+        && InterestRateInstrumentType.isFixedIncomeInstrumentType((SwapSecurity) target.getSecurity()))) {
       return false;
     }
     final InterestRateInstrumentType type = InterestRateInstrumentType.getInstrumentTypeFromSecurity((FinancialSecurity) target.getSecurity());

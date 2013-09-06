@@ -80,7 +80,9 @@ public abstract class DiscountingFunction extends MultiCurvePricingFunction {
           .withAny(CURVE_EXPOSURES);
       if (_withCurrency) {
         final Security security = target.getTrade().getSecurity();
-        if (security instanceof SwapSecurity && (InterestRateInstrumentType.getInstrumentTypeFromSecurity((SwapSecurity) security) == InterestRateInstrumentType.SWAP_CROSS_CURRENCY)) {
+        if (security instanceof SwapSecurity
+            && InterestRateInstrumentType.isFixedIncomeInstrumentType((SwapSecurity) security)
+            && (InterestRateInstrumentType.getInstrumentTypeFromSecurity((SwapSecurity) security) == InterestRateInstrumentType.SWAP_CROSS_CURRENCY)) {
           final SwapSecurity swapSecurity = (SwapSecurity) security;
           if (swapSecurity.getPayLeg().getNotional() instanceof InterestRateNotional) {
             final String currency = ((InterestRateNotional) swapSecurity.getPayLeg().getNotional()).getCurrency().getCode();

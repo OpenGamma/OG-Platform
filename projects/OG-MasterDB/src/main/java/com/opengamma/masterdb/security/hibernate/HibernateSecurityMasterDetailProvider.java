@@ -22,6 +22,9 @@ import com.google.common.base.Objects;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.Security;
 import com.opengamma.financial.security.bond.BondSecuritySearchRequest;
+import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.financial.security.swap.YearOnYearInflationSwapSecurity;
+import com.opengamma.financial.security.swap.ZeroCouponInflationSwapSecurity;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.masterdb.security.DbSecurityMaster;
@@ -173,6 +176,9 @@ public class HibernateSecurityMasterDetailProvider implements SecurityMasterDeta
       }
       if (type.equals("SWAPTION")) { // SWAPTION used to be SWAP_OPTION, in which case the above code handled it.
         beanOperation = BEAN_OPERATIONS_BY_TYPE.get("OPTION");
+      }
+      if (ZeroCouponInflationSwapSecurity.SECURITY_TYPE.equals(type) || YearOnYearInflationSwapSecurity.SECURITY_TYPE.equals(type)) {
+        beanOperation = BEAN_OPERATIONS_BY_TYPE.get(SwapSecurity.SECURITY_TYPE);
       }
       if (beanOperation == null) {
         throw new OpenGammaRuntimeException("can't find BeanOperation for " + type);

@@ -56,6 +56,7 @@ import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.future.DeliverableSwapFutureSecurity;
+import com.opengamma.financial.security.future.FederalFundsFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
@@ -127,10 +128,14 @@ public abstract class HullWhiteDiscountingFunction extends MultiCurvePricingFunc
     public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
       boolean canApplyTo = super.canApplyTo(context, target);
       final Security security = target.getTrade().getSecurity();
-      if (security instanceof SwapSecurity) {
+      if (security instanceof SwapSecurity
+          && InterestRateInstrumentType.isFixedIncomeInstrumentType((SwapSecurity) security)) {
         canApplyTo &= InterestRateInstrumentType.getInstrumentTypeFromSecurity((SwapSecurity) security) != InterestRateInstrumentType.SWAP_CROSS_CURRENCY;
       }
-      return canApplyTo || security instanceof SwaptionSecurity || security instanceof DeliverableSwapFutureSecurity;
+      return canApplyTo
+          || security instanceof SwaptionSecurity
+          || security instanceof DeliverableSwapFutureSecurity
+          || security instanceof FederalFundsFutureSecurity;
     }
 
     @Override
@@ -142,7 +147,9 @@ public abstract class HullWhiteDiscountingFunction extends MultiCurvePricingFunc
           .withAny(PROPERTY_HULL_WHITE_CURRENCY);
       if (_withCurrency) {
         final Security security = target.getTrade().getSecurity();
-        if (security instanceof SwapSecurity && (InterestRateInstrumentType.getInstrumentTypeFromSecurity((SwapSecurity) security) == InterestRateInstrumentType.SWAP_CROSS_CURRENCY)) {
+        if (security instanceof SwapSecurity
+            && InterestRateInstrumentType.isFixedIncomeInstrumentType((SwapSecurity) security)
+            && (InterestRateInstrumentType.getInstrumentTypeFromSecurity((SwapSecurity) security) == InterestRateInstrumentType.SWAP_CROSS_CURRENCY)) {
           final SwapSecurity swapSecurity = (SwapSecurity) security;
           if (swapSecurity.getPayLeg().getNotional() instanceof InterestRateNotional) {
             final String currency = ((InterestRateNotional) swapSecurity.getPayLeg().getNotional()).getCurrency().getCode();

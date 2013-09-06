@@ -225,8 +225,8 @@ public class SwapLegFudgeBuilder extends AbstractFudgeBuilder {
       final MutableFudgeMsg msg = serializer.newMessage();
       toFudgeMsg(serializer, object, msg);
       addToMessage(msg, INDEX_ID_FIELD_NAME, ExternalIdFudgeBuilder.toFudgeMsg(serializer, object.getIndexId()));
-      addToMessage(msg, QUOTATION_LAG_FIELD_NAME, object.getQuotationLag());
-      addToMessage(msg, CONVENTIONAL_LAG_FIELD_NAME, object.getConventionalLag());
+      addToMessage(msg, QUOTATION_LAG_FIELD_NAME, object.getQuotationIndexationLag());
+      addToMessage(msg, CONVENTIONAL_LAG_FIELD_NAME, object.getConventionalIndexationLag());
       addToMessage(msg, INTERPOLATION_METHOD_FIELD_NAME, object.getInterpolationMethod().name());
       return msg;
     }
@@ -236,8 +236,8 @@ public class SwapLegFudgeBuilder extends AbstractFudgeBuilder {
       final InflationIndexSwapLeg inflationIndexSwapLeg = new InflationIndexSwapLeg();
       fromFudgeMsg(deserializer, msg, inflationIndexSwapLeg);
       inflationIndexSwapLeg.setIndexId(ExternalIdFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(INDEX_ID_FIELD_NAME)));
-      inflationIndexSwapLeg.setQuotationLag(msg.getInt(QUOTATION_LAG_FIELD_NAME));
-      inflationIndexSwapLeg.setConventionalLag(msg.getInt(CONVENTIONAL_LAG_FIELD_NAME));
+      inflationIndexSwapLeg.setQuotationIndexationLag(msg.getInt(QUOTATION_LAG_FIELD_NAME));
+      inflationIndexSwapLeg.setConventionalIndexationLag(msg.getInt(CONVENTIONAL_LAG_FIELD_NAME));
       inflationIndexSwapLeg.setInterpolationMethod(InterpolationMethod.valueOf(msg.getString(INTERPOLATION_METHOD_FIELD_NAME)));
       return inflationIndexSwapLeg;
     }

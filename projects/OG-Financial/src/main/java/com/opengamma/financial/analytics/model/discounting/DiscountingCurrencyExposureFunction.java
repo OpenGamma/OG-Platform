@@ -33,6 +33,8 @@ import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.financial.security.swap.YearOnYearInflationSwapSecurity;
+import com.opengamma.financial.security.swap.ZeroCouponInflationSwapSecurity;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
@@ -58,7 +60,11 @@ public class DiscountingCurrencyExposureFunction extends DiscountingFunction {
       public boolean canApplyTo(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
         final Security security = target.getTrade().getSecurity();
         if (security instanceof SwapSecurity) {
-          return InterestRateInstrumentType.getInstrumentTypeFromSecurity((SwapSecurity) security) == InterestRateInstrumentType.SWAP_CROSS_CURRENCY;
+          if (InterestRateInstrumentType.isFixedIncomeInstrumentType((SwapSecurity) security)) {
+            return InterestRateInstrumentType.getInstrumentTypeFromSecurity((SwapSecurity) security) == InterestRateInstrumentType.SWAP_CROSS_CURRENCY;
+          } else {
+            return false;
+          }
         }
         return security instanceof FXForwardSecurity ||
             security instanceof NonDeliverableFXForwardSecurity;

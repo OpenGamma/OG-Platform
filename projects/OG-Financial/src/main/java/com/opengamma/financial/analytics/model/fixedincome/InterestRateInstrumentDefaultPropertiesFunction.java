@@ -76,6 +76,9 @@ public class InterestRateInstrumentDefaultPropertiesFunction extends DefaultProp
       return false;
     }
     if (security instanceof SwapSecurity) {
+      if (!InterestRateInstrumentType.isFixedIncomeInstrumentType((SwapSecurity) security)) {
+        return false;
+      }
       final InterestRateInstrumentType type = InterestRateInstrumentType.getInstrumentTypeFromSecurity(security);
       if (type == InterestRateInstrumentType.SWAP_FIXED_IBOR || type == InterestRateInstrumentType.SWAP_FIXED_IBOR_WITH_SPREAD
           || type == InterestRateInstrumentType.SWAP_IBOR_IBOR || type == InterestRateInstrumentType.SWAP_FIXED_OIS) {

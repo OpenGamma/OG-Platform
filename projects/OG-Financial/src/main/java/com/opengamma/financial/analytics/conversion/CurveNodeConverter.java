@@ -66,7 +66,10 @@ public class CurveNodeConverter {
         if (length == 0) {
           throw new OpenGammaRuntimeException("Price time series for " + id + " was empty");
         }
-        return ((InstrumentDefinitionWithData<?, DoubleTimeSeries<ZonedDateTime>>) definition).toDerivative(now, (DoubleTimeSeries<ZonedDateTime>) ts.multiply(100));
+        ZonedDateTimeDoubleTimeSeries multiply = (ZonedDateTimeDoubleTimeSeries) convertTimeSeries(ZoneId.of("UTC"), (LocalDateDoubleTimeSeries) ts.multiply(100));
+        return ((InstrumentDefinitionWithData<?, ZonedDateTimeDoubleTimeSeries[]>) definition).toDerivative(
+            now,
+            new ZonedDateTimeDoubleTimeSeries[] {multiply, multiply});
       }
       if (node.getCurveNode() instanceof RateFutureNode || node.getCurveNode() instanceof DeliverableSwapFutureNode) {
         ArgumentChecker.notNull(timeSeries, "time series");
@@ -101,7 +104,7 @@ public class CurveNodeConverter {
   }
 
   private static boolean requiresFixingSeries(final CurveNode node) {
-    return node instanceof RateFutureNode || node instanceof DeliverableSwapFutureNode; // || (node instanceof SwapNode && ((SwapNode) node).isUseFixings());
+    return node instanceof ZeroCouponInflationNode || node instanceof RateFutureNode || node instanceof DeliverableSwapFutureNode; // || (node instanceof SwapNode && ((SwapNode) node).isUseFixings());
   }
 
   private static ZonedDateTimeDoubleTimeSeries convertTimeSeries(final ZoneId timeZone, final LocalDateDoubleTimeSeries localDateTS) {

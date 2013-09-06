@@ -8,10 +8,13 @@ package com.opengamma.masterdb.security.hibernate.swap;
 
 import static com.opengamma.masterdb.security.hibernate.Converters.dateTimeWithZoneToZonedDateTimeBean;
 import static com.opengamma.masterdb.security.hibernate.Converters.zonedDateTimeBeanToDateTimeWithZone;
+import static com.opengamma.masterdb.security.hibernate.Converters.tenorBeanToTenor;
 
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.financial.security.swap.YearOnYearInflationSwapSecurity;
+import com.opengamma.financial.security.swap.ZeroCouponInflationSwapSecurity;
 import com.opengamma.masterdb.security.hibernate.AbstractSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDao;
 import com.opengamma.masterdb.security.hibernate.OperationContext;
@@ -43,6 +46,8 @@ public final class SwapSecurityBeanOperation extends AbstractSecurityBeanOperati
         bean.setCounterparty(security.getCounterparty());
         bean.setPayLeg(SwapLegBeanOperation.createBean(secMasterSession, security.getPayLeg()));
         bean.setReceiveLeg(SwapLegBeanOperation.createBean(secMasterSession, security.getReceiveLeg()));
+        bean.setExchangeInitialNotional(security.isExchangeInitialNotional());
+        bean.setExchangeFinalNotional(security.isExchangeFinalNotional());
         return bean;
       }
 
@@ -58,6 +63,18 @@ public final class SwapSecurityBeanOperation extends AbstractSecurityBeanOperati
         return createSwapSecurityBean(security);
       }
 
+      @Override
+      public SwapSecurityBean visitYearOnYearInflationSwapSecurity(YearOnYearInflationSwapSecurity security) {
+        final SwapSecurityBean bean = createSwapSecurityBean(security);
+        bean.setMaturityTenor(secMasterSession.getOrCreateTenorBean(security.getMaturityTenor().getPeriod().toString()));
+        return bean;
+      }
+      
+      @Override
+      public SwapSecurityBean visitZeroCouponInflationSwapSecurity(ZeroCouponInflationSwapSecurity security) {
+        final SwapSecurityBean bean = createSwapSecurityBean(security);
+        return bean;
+      }
     });
   }
 
@@ -78,6 +95,28 @@ public final class SwapSecurityBeanOperation extends AbstractSecurityBeanOperati
           .getMaturityDate()), bean.getCounterparty(), SwapLegBeanOperation.createSwapLeg(bean.getPayLeg()), SwapLegBeanOperation.createSwapLeg(bean.getReceiveLeg()));
       }
 
+      @Override
+      public SwapSecurity visitYearOnYearInflationSwapSecurity(YearOnYearInflationSwapSecurity security) {
+        return new YearOnYearInflationSwapSecurity(zonedDateTimeBeanToDateTimeWithZone(bean.getTradeDate()),
+            zonedDateTimeBeanToDateTimeWithZone(bean.getEffectiveDate()),
+            zonedDateTimeBeanToDateTimeWithZone(bean.getMaturityDate()),
+            bean.getCounterparty(),
+            SwapLegBeanOperation.createSwapLeg(bean.getPayLeg()),
+            SwapLegBeanOperation.createSwapLeg(bean.getReceiveLeg()),
+            bean.isExchangeInitialNotional(),
+            bean.isExchangeFinalNotional(),
+            tenorBeanToTenor(bean.getMaturityTenor()));
+      }
+      
+      @Override
+      public SwapSecurity visitZeroCouponInflationSwapSecurity(ZeroCouponInflationSwapSecurity security) {
+        return new ZeroCouponInflationSwapSecurity(zonedDateTimeBeanToDateTimeWithZone(bean.getTradeDate()),
+            zonedDateTimeBeanToDateTimeWithZone(bean.getEffectiveDate()),
+            zonedDateTimeBeanToDateTimeWithZone(bean.getMaturityDate()),
+            bean.getCounterparty(),
+            SwapLegBeanOperation.createSwapLeg(bean.getPayLeg()),
+            SwapLegBeanOperation.createSwapLeg(bean.getReceiveLeg()));
+      }
     });
   }
 

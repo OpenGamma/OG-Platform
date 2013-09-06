@@ -132,7 +132,8 @@ public abstract class G2ppDiscountingFunction extends MultiCurvePricingFunction 
     public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
       boolean canApplyTo = super.canApplyTo(context, target);
       final Security security = target.getTrade().getSecurity();
-      if (security instanceof SwapSecurity) {
+      if (security instanceof SwapSecurity
+          && InterestRateInstrumentType.isFixedIncomeInstrumentType((SwapSecurity) security)) {
         canApplyTo &= InterestRateInstrumentType.getInstrumentTypeFromSecurity((SwapSecurity) security) != InterestRateInstrumentType.SWAP_CROSS_CURRENCY;
       }
       return canApplyTo || security instanceof SwaptionSecurity || security instanceof DeliverableSwapFutureSecurity;
@@ -148,7 +149,9 @@ public abstract class G2ppDiscountingFunction extends MultiCurvePricingFunction 
           .withAny(PROPERTY_G2PP_PARAMETERS);
       if (_withCurrency) {
         final Security security = target.getTrade().getSecurity();
-        if (security instanceof SwapSecurity && (InterestRateInstrumentType.getInstrumentTypeFromSecurity((SwapSecurity) security) == InterestRateInstrumentType.SWAP_CROSS_CURRENCY)) {
+        if (security instanceof SwapSecurity
+            && InterestRateInstrumentType.isFixedIncomeInstrumentType((SwapSecurity) security)
+            && (InterestRateInstrumentType.getInstrumentTypeFromSecurity((SwapSecurity) security) == InterestRateInstrumentType.SWAP_CROSS_CURRENCY)) {
           final SwapSecurity swapSecurity = (SwapSecurity) security;
           if (swapSecurity.getPayLeg().getNotional() instanceof InterestRateNotional) {
             final String currency = ((InterestRateNotional) swapSecurity.getPayLeg().getNotional()).getCurrency().getCode();

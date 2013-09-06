@@ -88,7 +88,7 @@ public class MultiSwapLegVisitorTest {
   }
 
   private static ZeroCouponInflationSwapSecurity zciSwap(final SwapLeg payLeg, final SwapLeg receiveLeg) {
-    return new ZeroCouponInflationSwapSecurity(ZonedDateTime.now(), ZonedDateTime.now(), ZonedDateTime.now(), "cpty", payLeg, receiveLeg, true);
+    return new ZeroCouponInflationSwapSecurity(ZonedDateTime.now(), ZonedDateTime.now(), ZonedDateTime.now(), "cpty", payLeg, receiveLeg);
   }
 
   private static SwapLeg fixedLeg(final Frequency frequency) {
