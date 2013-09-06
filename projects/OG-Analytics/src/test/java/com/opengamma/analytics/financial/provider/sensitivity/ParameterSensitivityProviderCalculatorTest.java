@@ -51,7 +51,6 @@ import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the computation of parameter sensitivity from point sensitivity.
- * @author marc
  *
  */
 public class ParameterSensitivityProviderCalculatorTest {

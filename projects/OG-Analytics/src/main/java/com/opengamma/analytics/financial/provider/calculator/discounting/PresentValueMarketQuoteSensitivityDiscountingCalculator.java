@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.calculator.discounting;
@@ -27,7 +27,6 @@ import com.opengamma.util.ArgumentChecker;
  * For coupons, it is the discounted notional times the accrual factor.
  * For annuities, it is the sum of sensitivities of all payments.
  * For swaps it is the pvbp of the first leg.
- * @author marc
  */
 public final class PresentValueMarketQuoteSensitivityDiscountingCalculator extends InstrumentDerivativeVisitorAdapter<MulticurveProviderInterface, Double> {
 

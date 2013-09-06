@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.curve.hullwhite;
@@ -14,7 +14,6 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Function computing the error of valuation produce by an array representing the curve parameters.
- * @author marc
  */
 public class HullWhiteProviderDiscountFinderFunction extends Function1D<DoubleMatrix1D, DoubleMatrix1D> {
 

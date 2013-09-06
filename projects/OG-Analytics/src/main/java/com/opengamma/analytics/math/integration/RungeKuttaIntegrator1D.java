@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.math.integration;
@@ -26,7 +26,7 @@ public class RungeKuttaIntegrator1D extends Integrator1D<Double, Double> {
       throw new IllegalArgumentException("Absolute Tolerance must be greater than zero");
     }
     if (relTol < 0.0) {
-      throw new IllegalArgumentException("Relative Tolerance must be grater than zero");
+      throw new IllegalArgumentException("Relative Tolerance must be greater than zero");
     }
     if (minSteps < 1) {
       throw new IllegalArgumentException("Must have minimum of 1 step");

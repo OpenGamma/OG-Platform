@@ -27,7 +27,6 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Computes the sensitivity to the curves (in the Market description of curve bundle) of the market quote sensitivity.
- * @author marc
  */
 public final class PresentValueMarketQuoteSensitivityCurveSensitivityDiscountingCalculator extends InstrumentDerivativeVisitorAdapter<MulticurveProviderInterface, MulticurveSensitivity> {
 

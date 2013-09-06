@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.equity.future.definition;
@@ -17,7 +17,6 @@ import com.opengamma.util.money.Currency;
 /**
  * Volatility index future definition. An IndexFuture is always cash-settled.
  * eg UXH5 Index, http://cfe.cboe.com/products/Products_VIX.aspx
- * @author casey
  */
 public class VolatilityIndexFutureDefinition extends IndexFutureDefinition {
 
