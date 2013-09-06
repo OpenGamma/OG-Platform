@@ -42,6 +42,10 @@ public final class ColumnRequirement {
    */
   public static final String FAILED = "Failed";
   /**
+   * Name of field for the number of failed calcalations
+   */
+  public static final String ERRORS = "Errors";
+  /**
    * Name of field for the number of calculations that succeeded
    */
   public static final String SUCCEEDED = "Succeeded";
@@ -80,12 +84,13 @@ public final class ColumnRequirement {
   
   // Stupid JMX support that shouldn't really be necessary.
   
-  public CompositeData toCompositeData(CompositeType type, int success, int fail, int total) {
+  public CompositeData toCompositeData(CompositeType type, int success, int fail, int error, int total) {
     Map<String, Object> elements = new LinkedHashMap<>();
     elements.put(REQUIREMENT_NAME, getRequirementName());
     elements.put(VALUE_PROPERTIES, getProperties().toSimpleString());
     elements.put(SUCCEEDED, success);
     elements.put(FAILED, fail);
+    elements.put(ERRORS, error);
     elements.put(TOTAL, total);
     elements.put(PERCENTAGE, (total > 0) ? ((double) success / (double) total) * 100d : 0d); // 2dp-ish
     try {
@@ -98,39 +103,38 @@ public final class ColumnRequirement {
   
   public static CompositeType getCompositeType() {
     try {
-      return new CompositeType("ColumnRequirementsBySecurityType", 
+      return new CompositeType("ColumnRequirements", 
           "Number of successes or failures for a value requirement by security type", 
-          new String[] {ColumnRequirementBySecurityType.SECURITY_TYPE, 
-                        ColumnRequirementBySecurityType.REQUIREMENT_NAME, 
-                        ColumnRequirementBySecurityType.VALUE_PROPERTIES, 
-                        ColumnRequirementBySecurityType.SUCCEEDED, 
-                        ColumnRequirementBySecurityType.FAILED, 
-                        ColumnRequirementBySecurityType.TOTAL, 
-                        ColumnRequirementBySecurityType.PERCENTAGE },
-          new String[] {"The security type", 
-                        "The name of the requirement", 
+          new String[] {REQUIREMENT_NAME, 
+                        VALUE_PROPERTIES,
+                        SUCCEEDED, 
+                        FAILED, 
+                        ERRORS,
+                        TOTAL, 
+                        PERCENTAGE },
+          new String[] {"The name of the requirement", 
                         "The ValueProperties parameters to the requirement", 
                         "number of calculations that succeeded", 
                         "number of calculations failed", 
+                        "number of calculations that returned errors", 
                         "total expected number of calculations", 
                         "percentage of calculations that succeeded" },
-          new OpenType[] {SimpleType.STRING, SimpleType.STRING, SimpleType.STRING, SimpleType.INTEGER, SimpleType.INTEGER, SimpleType.INTEGER, SimpleType.DOUBLE });
+          new OpenType[] {SimpleType.STRING, SimpleType.STRING, SimpleType.INTEGER, SimpleType.INTEGER, SimpleType.INTEGER, SimpleType.INTEGER, SimpleType.DOUBLE });
     } catch (OpenDataException ex) {
-      s_logger.error("OpenDataException building CompositeType for ColumnRequirement", ex);
-      throw new OpenGammaRuntimeException("OpenDataException building CompositeType for ColumnRequirement", ex);
+      s_logger.error("OpenDataException building CompositeType for ColumnRequirementBySecurityType", ex);
+      throw new OpenGammaRuntimeException("OpenDataException building CompositeType for ColumnRequirementBySecurityType", ex);
     }
   }
   
-  public static TabularType getTablularType() {
+  public static TabularType getTabularType() {
     try {
-      return new TabularType("ListColumnRequirementsBySecurityType", 
+      return new TabularType("ListColumnRequirements", 
           "List of number of successes or failures for a value requirement by security type", 
-          getCompositeType(), new String[] {ColumnRequirementBySecurityType.SECURITY_TYPE, 
-                                                    ColumnRequirementBySecurityType.REQUIREMENT_NAME, 
-                                                    ColumnRequirementBySecurityType.VALUE_PROPERTIES });
+          getCompositeType(), new String[] {ColumnRequirement.REQUIREMENT_NAME, 
+                                            ColumnRequirement.VALUE_PROPERTIES });
     } catch (OpenDataException ex) {
-      s_logger.error("OpenDataException building TabularType for ColumnRequirement", ex);
-      throw new OpenGammaRuntimeException("OpenDataException building TabularType for ColumnRequirement", ex);
+      s_logger.error("OpenDataException building TabularType for ColumnRequirementBySecurityType", ex);
+      throw new OpenGammaRuntimeException("OpenDataException building TabularType for ColumnRequirementBySecurityType", ex);
     }
   }
   
