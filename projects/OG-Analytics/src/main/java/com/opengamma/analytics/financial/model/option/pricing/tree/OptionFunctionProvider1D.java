@@ -45,6 +45,7 @@ public abstract class OptionFunctionProvider1D {
   public abstract double[] getPayoffAtExpiry(final double assetPrice, final double upOverDown);
 
   /**
+   * Given a set of option values in the (steps+1)-th layer, derive option values in the (steps)-th layer
    * @param discount Discount factor
    * @param upProbability Up probability
    * @param downProbability Down probability
@@ -54,7 +55,7 @@ public abstract class OptionFunctionProvider1D {
    * @param downFactor Down factor 
    * @param upOverDown  (up factor)/(down factor)
    * @param steps  
-   * @return Given a set of option values in the (steps+1)-th layer, derive option values in the (steps)-th layer
+   * @return Option values in the (steps)-th layer
    */
   public abstract double[] getNextOptionValues(final double discount, final double upProbability, final double downProbability, final double[] values, final double baseAssetPrice,
       final double sumCashDiv, final double downFactor, final double upOverDown, final int steps);
