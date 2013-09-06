@@ -21,6 +21,7 @@ import com.opengamma.financial.convention.FederalFundsFutureConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
+import com.opengamma.financial.security.future.FederalFundsFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
@@ -53,6 +54,23 @@ public class FederalFundsFutureSecurityConverter extends FinancialSecurityVisito
 
   @Override
   public FederalFundsFutureSecurityDefinition visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
+    ArgumentChecker.notNull(security, "security");
+    final ZonedDateTime lastTradeDate = security.getExpiry().getExpiry();
+    final Currency currency = security.getCurrency();
+    final FederalFundsFutureConvention convention = _conventionSource.getConvention(FederalFundsFutureConvention.class, ExternalId.of(SCHEME_NAME, FED_FUNDS_FUTURE));
+    if (convention == null) {
+      throw new OpenGammaRuntimeException("Could not get interest rate future convention with id " + ExternalId.of(SCHEME_NAME, FED_FUNDS_FUTURE));
+    }
+    final OvernightIndexConvention overnightIndexConvention = _conventionSource.getConvention(OvernightIndexConvention.class, convention.getIndexConvention());
+    final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, convention.getExchangeCalendar());
+    final IndexON index = new IndexON(overnightIndexConvention.getName(), currency, overnightIndexConvention.getDayCount(), overnightIndexConvention.getPublicationLag());
+    final double paymentAccrualFactor = 1 / 12.; //TODO should not be hard-coded
+    final double notional = security.getUnitAmount() / paymentAccrualFactor;
+    return FederalFundsFutureSecurityDefinition.from(lastTradeDate, index, notional, paymentAccrualFactor, security.getName(), calendar);
+  }
+  
+  @Override
+  public InstrumentDefinition<?> visitFederalFundsFutureSecurity(FederalFundsFutureSecurity security) {
     ArgumentChecker.notNull(security, "security");
     final ZonedDateTime lastTradeDate = security.getExpiry().getExpiry();
     final Currency currency = security.getCurrency();

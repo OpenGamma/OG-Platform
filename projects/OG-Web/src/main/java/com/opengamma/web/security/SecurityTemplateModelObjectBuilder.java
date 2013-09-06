@@ -34,6 +34,7 @@ import com.opengamma.financial.security.future.EnergyFutureSecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
 import com.opengamma.financial.security.future.FXFutureSecurity;
+import com.opengamma.financial.security.future.FederalFundsFutureSecurity;
 import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
@@ -268,6 +269,13 @@ import com.opengamma.util.time.Tenor;
         s_logger.warn("{} does not currently support CDSOption underlying lookup based on {}", WebSecuritiesResource.class, underlyingId.getScheme().getName());
       }
     }
+    return null;
+  }
+  
+  @Override
+  public Void visitFederalFundsFutureSecurity(FederalFundsFutureSecurity security) {
+    addFutureSecurityType("FederalFundsFutureSecurity");
+    addUnderlyingSecurity(security.getUnderlyingId());
     return null;
   }
 

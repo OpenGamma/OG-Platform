@@ -38,6 +38,7 @@ import com.opengamma.financial.security.future.EnergyFutureSecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
 import com.opengamma.financial.security.future.FXFutureSecurity;
+import com.opengamma.financial.security.future.FederalFundsFutureSecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
@@ -570,6 +571,7 @@ public final class DefaultSecurityAttributeMappings {
     mapper.mapColumn(TYPE, IndexFutureSecurity.class, "Index Future");
     mapper.mapColumn(TYPE, EquityFutureSecurity.class, "Equity Future");
     mapper.mapColumn(TYPE, EquityIndexDividendFutureSecurity.class, "Equity Index Dividend Future");
+    mapper.mapColumn(TYPE, FederalFundsFutureSecurity.class, "Federal Funds Future");
   }
 
   /**
