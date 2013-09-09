@@ -14,8 +14,7 @@ public class FederalFundsFutureBean extends FutureSecurityBean {
 
   @Override
   public <T> T accept(Visitor<T> visitor) {
-//    return visitor.visitFederalFundsFutureType(this);
-    return null;
+    return visitor.visitFederalFundsFutureType(this);
   }
 
 }
