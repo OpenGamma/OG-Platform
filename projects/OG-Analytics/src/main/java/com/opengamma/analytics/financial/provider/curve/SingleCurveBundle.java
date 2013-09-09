@@ -14,7 +14,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * @param <T> The type of the curve generator
  */
 public class SingleCurveBundle<T extends GeneratorCurve> {
   private final String _curveName;

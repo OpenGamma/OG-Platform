@@ -11,7 +11,7 @@ import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorC
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * @param <T> The type of the curve generator
  */
 public class MultiCurveBundle<T extends GeneratorCurve> {
   private final SingleCurveBundle<T>[] _curveBundles;
