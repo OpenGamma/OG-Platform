@@ -611,6 +611,7 @@ $.register_module({
                 }
                 return acc;
             }, {scan: 0, cols: []}).cols);
+            // let the viewport know about the user-changed grid structure
             grid.dataman.viewport(viewport);
             return (handler && handler.call(grid)), grid;
         };
