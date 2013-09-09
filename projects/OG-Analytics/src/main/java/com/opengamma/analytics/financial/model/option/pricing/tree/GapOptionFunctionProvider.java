@@ -64,4 +64,33 @@ public class GapOptionFunctionProvider extends OptionFunctionProvider1D {
   public double getStrikePayoff() {
     return _payoffStrike;
   }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    long temp;
+    temp = Double.doubleToLongBits(_payoffStrike);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    if (!(obj instanceof GapOptionFunctionProvider)) {
+      return false;
+    }
+    GapOptionFunctionProvider other = (GapOptionFunctionProvider) obj;
+    if (Double.doubleToLongBits(_payoffStrike) != Double.doubleToLongBits(other._payoffStrike)) {
+      return false;
+    }
+    return true;
+  }
+
 }

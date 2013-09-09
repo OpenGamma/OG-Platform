@@ -73,4 +73,23 @@ public class ProportionalDividendFunctionProvider extends DividendFunctionProvid
     }
     return res;
   }
+
+  @Override
+  public int hashCode() {
+    return super.hashCode();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (!(obj instanceof CashDividendFunctionProvider)) {
+      return false;
+    }
+    return true;
+  }
 }

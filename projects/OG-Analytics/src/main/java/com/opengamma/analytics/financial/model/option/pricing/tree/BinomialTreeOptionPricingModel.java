@@ -21,7 +21,7 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
    * TODO test Dividend provider for full coverage
    * TODO check convergence of theta
    *
-   * TODO More accuracy for barrier case??? such as barrier options, two asset correlation option
+   * TODO More accuracy for barrier case??? such as barrier options(-> adaptive mesh method) , two asset correlation option
    */
 
   @Override
@@ -155,6 +155,7 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
 
     final double dt = timeToExpiry / nSteps;
     ArgumentChecker.isTrue(dividend.checkTimeSteps(dt), "Number of steps is too small");
+    ArgumentChecker.isTrue(dividend.checkDividendBeforeExpiry(timeToExpiry), "Dividend is paid after expiry");
 
     final double discount = Math.exp(-interestRate * dt);
     final double[] params = modLattice.getParameters(spot, strike, timeToExpiry, volatility, interestRate, nSteps, dt);
@@ -425,6 +426,7 @@ public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
 
     final double dt = timeToExpiry / nSteps;
     ArgumentChecker.isTrue(dividend.checkTimeSteps(dt), "Number of steps is too small");
+    ArgumentChecker.isTrue(dividend.checkDividendBeforeExpiry(timeToExpiry), "Dividend is paid after expiry");
 
     final double discount = Math.exp(-interestRate * dt);
     final double[] params = modLattice.getParameters(spot, strike, timeToExpiry, volatility, interestRate, nSteps, dt);

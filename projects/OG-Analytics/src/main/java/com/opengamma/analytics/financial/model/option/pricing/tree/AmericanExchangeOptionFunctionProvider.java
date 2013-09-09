@@ -95,4 +95,38 @@ public class AmericanExchangeOptionFunctionProvider extends OptionFunctionProvid
   public double getQuantity2() {
     return _quantity2;
   }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    long temp;
+    temp = Double.doubleToLongBits(_quantity1);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_quantity2);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    if (!(obj instanceof AmericanExchangeOptionFunctionProvider)) {
+      return false;
+    }
+    AmericanExchangeOptionFunctionProvider other = (AmericanExchangeOptionFunctionProvider) obj;
+    if (Double.doubleToLongBits(_quantity1) != Double.doubleToLongBits(other._quantity1)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_quantity2) != Double.doubleToLongBits(other._quantity2)) {
+      return false;
+    }
+    return true;
+  }
+
 }

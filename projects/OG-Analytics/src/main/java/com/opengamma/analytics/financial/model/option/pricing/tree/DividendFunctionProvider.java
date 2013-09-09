@@ -117,6 +117,20 @@ public abstract class DividendFunctionProvider {
   }
 
   /**
+   * @param timeToExpiry Time to expiry
+   * @return True if all of the dividend times are before expiry, false otherwise
+   */
+  public boolean checkDividendBeforeExpiry(final double timeToExpiry) {
+    final int nDiv = _nDividends;
+    for (int i = 0; i < nDiv; ++i) {
+      if (_dividendTimes[i] > timeToExpiry) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
    * Access dividend times
    * @return _dividendTimes
    */
@@ -138,5 +152,39 @@ public abstract class DividendFunctionProvider {
    */
   public int getNumberOfDividends() {
     return _nDividends;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + Arrays.hashCode(_dividendTimes);
+    result = prime * result + Arrays.hashCode(_dividends);
+    result = prime * result + _nDividends;
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (!(obj instanceof DividendFunctionProvider)) {
+      return false;
+    }
+    DividendFunctionProvider other = (DividendFunctionProvider) obj;
+    if (!Arrays.equals(_dividendTimes, other._dividendTimes)) {
+      return false;
+    }
+    if (!Arrays.equals(_dividends, other._dividends)) {
+      return false;
+    }
+    if (_nDividends != other._nDividends) {
+      return false;
+    }
+    return true;
   }
 }

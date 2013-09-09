@@ -39,7 +39,7 @@ public class BermudanOptionFunctionProvider extends OptionFunctionProvider1D {
 
     _exerciseTimes = Arrays.copyOf(exerciseTimes, _nTimes);
     Arrays.sort(_exerciseTimes);
-    _exerciseSteps = timesToSteps(steps, timeToExpiry, timeToExpiry / steps);
+    _exerciseSteps = timesToSteps(steps, timeToExpiry / steps);
   }
 
   @Override
@@ -114,7 +114,7 @@ public class BermudanOptionFunctionProvider extends OptionFunctionProvider1D {
     return false;
   }
 
-  private int[] timesToSteps(final int nSteps, final double timeToExpiry, final double dt) {
+  private int[] timesToSteps(final int nSteps, final double dt) {
     final int[] steps = new int[_nTimes];
     int j = 0;
     for (int i = 0; i < nSteps + 1; ++i) {
@@ -133,5 +133,33 @@ public class BermudanOptionFunctionProvider extends OptionFunctionProvider1D {
       }
     }
     return steps;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    result = prime * result + Arrays.hashCode(_exerciseSteps);
+    result = prime * result + Arrays.hashCode(_exerciseTimes);
+    result = prime * result + _nTimes;
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    if (!(obj instanceof BermudanOptionFunctionProvider)) {
+      return false;
+    }
+    BermudanOptionFunctionProvider other = (BermudanOptionFunctionProvider) obj;
+    if (!Arrays.equals(_exerciseTimes, other._exerciseTimes)) {
+      return false;
+    }
+    return true;
   }
 }

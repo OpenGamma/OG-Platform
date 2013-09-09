@@ -50,4 +50,23 @@ public class EuropeanSingleBarrierOptionFunctionProvider extends BarrierOptionFu
     }
     return res;
   }
+
+  @Override
+  public int hashCode() {
+    return super.hashCode();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (!(obj instanceof EuropeanSingleBarrierOptionFunctionProvider)) {
+      return false;
+    }
+    return super.equals(obj);
+  }
 }

@@ -63,4 +63,33 @@ public class PoweredOptionFunctionProvider extends OptionFunctionProvider1D {
   public double getPower() {
     return _power;
   }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    long temp;
+    temp = Double.doubleToLongBits(_power);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    if (!(obj instanceof PoweredOptionFunctionProvider)) {
+      return false;
+    }
+    PoweredOptionFunctionProvider other = (PoweredOptionFunctionProvider) obj;
+    if (Double.doubleToLongBits(_power) != Double.doubleToLongBits(other._power)) {
+      return false;
+    }
+    return true;
+  }
+
 }

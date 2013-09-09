@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.model.option.pricing.tree;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
@@ -141,7 +142,7 @@ public class GapOptionFunctionProviderTest {
                   final double deltaDiv = delta(SPOT, strike, payoffStrike, TIME, vol, interest, interest - dividend, isCall);
                   final double refDeltaDiv = Math.max(Math.abs(deltaDiv), 1.) * 1.e-3;
                   assertEquals(resDiv.get(Greek.DELTA), deltaDiv, refDeltaDiv);
-                  final double gammaDiv = gamma(SPOT, strike, payoffStrike, TIME, vol, interest, interest - dividend, isCall);
+                  final double gammaDiv = gamma(SPOT, strike, payoffStrike, TIME, vol, interest, interest - dividend);
                   final double refGammaDiv = Math.max(Math.abs(gammaDiv), 1.) * 1.e-3;
                   assertEquals(resDiv.get(Greek.GAMMA), gammaDiv, refGammaDiv);
                   final double thetaDiv = theta(SPOT, strike, payoffStrike, TIME, vol, interest, interest - dividend, isCall);
@@ -185,12 +186,12 @@ public class GapOptionFunctionProviderTest {
                     Math.exp(-interest * dividendTimes[2]);
                 final double exactPriceProp = price(resSpot, strike, payoffStrike, TIME, vol, interest, interest, isCall);
                 final double exactDeltaProp = delta(resSpot, strike, payoffStrike, TIME, vol, interest, interest, isCall);
-                final double exactGammaProp = gamma(resSpot, strike, payoffStrike, TIME, vol, interest, interest, isCall);
+                final double exactGammaProp = gamma(resSpot, strike, payoffStrike, TIME, vol, interest, interest);
                 final double exactThetaProp = theta(resSpot, strike, payoffStrike, TIME, vol, interest, interest, isCall);
 
                 final double appPriceCash = price(modSpot, strike, payoffStrike, TIME, vol, interest, interest, isCall);
                 final double appDeltaCash = delta(modSpot, strike, payoffStrike, TIME, vol, interest, interest, isCall);
-                final double appGammaCash = gamma(modSpot, strike, payoffStrike, TIME, vol, interest, interest, isCall);
+                final double appGammaCash = gamma(modSpot, strike, payoffStrike, TIME, vol, interest, interest);
                 final double appThetaCash = theta(modSpot, strike, payoffStrike, TIME, vol, interest, interest, isCall);
 
                 final OptionFunctionProvider1D function = new GapOptionFunctionProvider(strike, TIME, nSteps, isCall, payoffStrike);
@@ -280,9 +281,29 @@ public class GapOptionFunctionProviderTest {
   /**
    * 
    */
+  @SuppressWarnings("unused")
   @Test(expectedExceptions = IllegalArgumentException.class)
   void negativePayoffTest() {
     new GapOptionFunctionProvider(103., 1., 1003, true, -105.5);
+  }
+
+  /**
+   * 
+   */
+  @Test
+  public void hashCodeEqualsTest() {
+    final OptionFunctionProvider1D ref = new GapOptionFunctionProvider(103., 1., 1003, true, 105.5);
+    final OptionFunctionProvider1D[] function = new OptionFunctionProvider1D[] {ref, new GapOptionFunctionProvider(103., 1., 1003, true, 105.5),
+        new GapOptionFunctionProvider(103., 1., 1003, true, 106), new EuropeanVanillaOptionFunctionProvider(103., 1., 1003, true), null };
+    final int len = function.length;
+    for (int i = 0; i < len; ++i) {
+      if (ref.equals(function[i])) {
+        assertTrue(ref.hashCode() == function[i].hashCode());
+      }
+    }
+    for (int i = 0; i < len - 1; ++i) {
+      assertTrue(function[i].equals(ref) == ref.equals(function[i]));
+    }
   }
 
   private double price(final double spot, final double strike, final double payoffStrike, final double time, final double vol, final double interest, final double cost, final boolean isCall) {
@@ -298,7 +319,7 @@ public class GapOptionFunctionProviderTest {
     return Math.exp((cost - interest) * time) * (sign * NORMAL.getCDF(sign * d1) + NORMAL.getPDF(d1) * (1. - payoffStrike / strike) / vol / Math.sqrt(time));
   }
 
-  private double gamma(final double spot, final double strike, final double payoffStrike, final double time, final double vol, final double interest, final double cost, final boolean isCall) {
+  private double gamma(final double spot, final double strike, final double payoffStrike, final double time, final double vol, final double interest, final double cost) {
     final double d1 = (Math.log(spot / strike) + (cost + 0.5 * vol * vol) * time) / vol / Math.sqrt(time);
     return Math.exp((cost - interest) * time) * NORMAL.getPDF(d1) * (1. - (1. - payoffStrike / strike) * d1 / vol / Math.sqrt(time)) / spot / vol / Math.sqrt(time);
   }

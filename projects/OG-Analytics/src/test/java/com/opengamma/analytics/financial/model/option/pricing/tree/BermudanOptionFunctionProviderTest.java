@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.model.option.pricing.tree;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Arrays;
@@ -187,6 +188,7 @@ public class BermudanOptionFunctionProviderTest {
   /**
    * 
    */
+  @SuppressWarnings("unused")
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void tooManyTimesTest() {
     final int steps = 5;
@@ -197,6 +199,7 @@ public class BermudanOptionFunctionProviderTest {
   /**
    * 
    */
+  @SuppressWarnings("unused")
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void coincideStepsTest() {
     final int steps = 12;
@@ -207,6 +210,7 @@ public class BermudanOptionFunctionProviderTest {
   /**
    * 
    */
+  @SuppressWarnings("unused")
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeTimesTest() {
     final int steps = 55;
@@ -217,11 +221,35 @@ public class BermudanOptionFunctionProviderTest {
   /**
    * 
    */
+  @SuppressWarnings("unused")
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void largeTimesTest() {
     final int steps = 95;
     final double[] exerciseTimes = new double[] {0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 9.5, 4.0 };
     new BermudanOptionFunctionProvider(100., TIME, steps, true, exerciseTimes);
+  }
+
+  /**
+   * 
+   */
+  @Test
+  public void hashCodeEqualsTest() {
+    final OptionFunctionProvider1D ref = new BermudanOptionFunctionProvider(100., 5., 50, true, new double[] {0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5 });
+    final OptionFunctionProvider1D[] function = new OptionFunctionProvider1D[] {ref,
+        new BermudanOptionFunctionProvider(100., 5., 50, true, new double[] {0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5 }),
+        new BermudanOptionFunctionProvider(100., 5., 50, true, new double[] {0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.4, 4.5 }),
+        new BermudanOptionFunctionProvider(100., 10., 50, true, new double[] {1., 2., 3., 4., 5., 6., 7., 8., 9. }),
+        new AmericanVanillaOptionFunctionProvider(100., 5., 50, true), null };
+    final int len = function.length;
+    for (int i = 0; i < len; ++i) {
+      if (ref.equals(function[i])) {
+        assertTrue(ref.hashCode() == function[i].hashCode());
+      }
+    }
+    for (int i = 0; i < len - 1; ++i) {
+      assertTrue(function[i].equals(ref) == ref.equals(function[i]));
+    }
+    assertFalse(ref.equals(new EuropeanSpreadOptionFunctionProvider(110., 1., 53, true)));
   }
 
   /**

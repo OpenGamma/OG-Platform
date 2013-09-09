@@ -6,6 +6,8 @@
 package com.opengamma.analytics.financial.model.option.pricing.tree;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.testng.annotations.Test;
@@ -334,6 +336,7 @@ public class EuropeanSingleBarrierOptionFunctionProviderTest {
   /**
    * 
    */
+  @SuppressWarnings("unused")
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeBarrierTest() {
     new EuropeanSingleBarrierOptionFunctionProvider(STRIKES[2], 1., 101, true, -2., EuropeanSingleBarrierOptionFunctionProvider.BarrierTypes.valueOf("DownAndOut"));
@@ -342,6 +345,7 @@ public class EuropeanSingleBarrierOptionFunctionProviderTest {
   /**
    * 
    */
+  @SuppressWarnings("unused")
   @Test(expectedExceptions = NotImplementedException.class)
   public void downInBarrierTest() {
     new EuropeanSingleBarrierOptionFunctionProvider(STRIKES[2], 1., 101, true, 90., EuropeanSingleBarrierOptionFunctionProvider.BarrierTypes.valueOf("DownAndIn"));
@@ -350,9 +354,33 @@ public class EuropeanSingleBarrierOptionFunctionProviderTest {
   /**
    * 
    */
+  @SuppressWarnings("unused")
   @Test(expectedExceptions = NotImplementedException.class)
   public void upInBarrierTest() {
     new EuropeanSingleBarrierOptionFunctionProvider(STRIKES[2], 1., 101, true, 90., EuropeanSingleBarrierOptionFunctionProvider.BarrierTypes.valueOf("UpAndIn"));
+  }
+
+  /**
+   * 
+   */
+  @Test
+  public void hashCodeEqualsTest() {
+    final EuropeanSingleBarrierOptionFunctionProvider.BarrierTypes type = EuropeanSingleBarrierOptionFunctionProvider.BarrierTypes.valueOf("DownAndOut");
+    final OptionFunctionProvider1D ref = new EuropeanSingleBarrierOptionFunctionProvider(100., 1., 53, true, 90., type);
+    final OptionFunctionProvider1D[] function = new OptionFunctionProvider1D[] {ref, new EuropeanSingleBarrierOptionFunctionProvider(100., 1., 53, true, 90., type),
+        new EuropeanSingleBarrierOptionFunctionProvider(100., 1., 53, true, 91., type),
+        new EuropeanSingleBarrierOptionFunctionProvider(100., 1., 53, true, 90., EuropeanSingleBarrierOptionFunctionProvider.BarrierTypes.valueOf("UpAndOut")),
+        new EuropeanVanillaOptionFunctionProvider(100., 1., 53, true), null };
+    final int len = function.length;
+    for (int i = 0; i < len; ++i) {
+      if (ref.equals(function[i])) {
+        assertTrue(ref.hashCode() == function[i].hashCode());
+      }
+    }
+    for (int i = 0; i < len - 1; ++i) {
+      assertTrue(function[i].equals(ref) == ref.equals(function[i]));
+    }
+    assertFalse(ref.equals(new EuropeanSpreadOptionFunctionProvider(100., 1., 53, true)));
   }
 
   private double price(final double spot, final double strike, final double time, final double vol, final double interest, final double dividend, final boolean isCall, final double barrier,
@@ -360,8 +388,8 @@ public class EuropeanSingleBarrierOptionFunctionProviderTest {
     double exact = 0.;
     if (type == "DownAndOut") {
       if (strike > barrier) {
-        exact = isCall ? getA(spot, strike, time, vol, interest, dividend, barrier, 1.) - getC(spot, strike, time, vol, interest, dividend, barrier, 1., 1.) : getA(
-            spot, strike, time, vol, interest, dividend, barrier, -1.) - getB(spot, strike, time, vol, interest, dividend, barrier, -1.) +
+        exact = isCall ? getA(spot, strike, time, vol, interest, dividend, 1.) - getC(spot, strike, time, vol, interest, dividend, barrier, 1., 1.) : getA(
+            spot, strike, time, vol, interest, dividend, -1.) - getB(spot, strike, time, vol, interest, dividend, barrier, -1.) +
             getC(spot, strike, time, vol, interest, dividend, barrier, -1., 1.) - getD(spot, strike, time, vol, interest, dividend, barrier, -1., 1.);
         exact = exact < 0. ? 0. : exact;
         exact = spot <= barrier ? 0. : exact;
@@ -372,8 +400,8 @@ public class EuropeanSingleBarrierOptionFunctionProviderTest {
       }
     } else {
       if (strike < barrier) {
-        exact = !isCall ? getA(spot, strike, time, vol, interest, dividend, barrier, -1.) - getC(spot, strike, time, vol, interest, dividend, barrier, -1., -1.) : getA(
-            spot, strike, time, vol, interest, dividend, barrier, 1.) - getB(spot, strike, time, vol, interest, dividend, barrier, 1.) +
+        exact = !isCall ? getA(spot, strike, time, vol, interest, dividend, -1.) - getC(spot, strike, time, vol, interest, dividend, barrier, -1., -1.) : getA(
+            spot, strike, time, vol, interest, dividend, 1.) - getB(spot, strike, time, vol, interest, dividend, barrier, 1.) +
             getC(spot, strike, time, vol, interest, dividend, barrier, 1., -1.) - getD(spot, strike, time, vol, interest, dividend, barrier, 1., -1.);
         exact = exact < 0. ? 0. : exact;
         exact = spot >= barrier ? 0. : exact;
@@ -433,8 +461,8 @@ public class EuropeanSingleBarrierOptionFunctionProviderTest {
       //      final LatticeSpecification lattice = new TrigeorgisLatticeSpecification();
       //      final LatticeSpecification lattice = new CoxRossRubinsteinLatticeSpecification();
       final LatticeSpecification lattice = new LeisenReimerLatticeSpecification();
-      double exact = isCall ? getA(SPOT, strike, TIME, vol, interest, dividend, barrier, 1.) - getC(SPOT, strike, TIME, vol, interest, dividend, barrier, 1., 1.) : getA(
-          SPOT, strike, TIME, vol, interest, dividend, barrier, -1.) -
+      double exact = isCall ? getA(SPOT, strike, TIME, vol, interest, dividend, 1.) - getC(SPOT, strike, TIME, vol, interest, dividend, barrier, 1., 1.) : getA(
+          SPOT, strike, TIME, vol, interest, dividend, -1.) -
           getB(SPOT, strike, TIME, vol, interest, dividend, barrier, -1.) +
           getC(SPOT, strike, TIME, vol, interest, dividend, barrier, -1., 1.) -
           getD(SPOT, strike, TIME, vol, interest, dividend, barrier, -1., 1.);
@@ -472,8 +500,8 @@ public class EuropeanSingleBarrierOptionFunctionProviderTest {
                       EuropeanSingleBarrierOptionFunctionProvider.BarrierTypes.valueOf(type));
                   if (type == "DownAndOut") {
                     if (strike > barrier) {
-                      double exact = isCall ? getA(SPOT, strike, TIME, vol, interest, dividend, barrier, 1.) - getC(SPOT, strike, TIME, vol, interest, dividend, barrier, 1., 1.) : getA(
-                          SPOT, strike, TIME, vol, interest, dividend, barrier, -1.) -
+                      double exact = isCall ? getA(SPOT, strike, TIME, vol, interest, dividend, 1.) - getC(SPOT, strike, TIME, vol, interest, dividend, barrier, 1., 1.) : getA(
+                          SPOT, strike, TIME, vol, interest, dividend, -1.) -
                           getB(SPOT, strike, TIME, vol, interest, dividend, barrier, -1.) +
                           getC(SPOT, strike, TIME, vol, interest, dividend, barrier, -1., 1.) -
                           getD(SPOT, strike, TIME, vol, interest, dividend, barrier, -1., 1.);
@@ -492,8 +520,8 @@ public class EuropeanSingleBarrierOptionFunctionProviderTest {
                     }
                   } else {
                     if (strike < barrier) {
-                      double exact = !isCall ? getA(SPOT, strike, TIME, vol, interest, dividend, barrier, -1.) - getC(SPOT, strike, TIME, vol, interest, dividend, barrier, -1., -1.) : getA(
-                          SPOT, strike, TIME, vol, interest, dividend, barrier, 1.) -
+                      double exact = !isCall ? getA(SPOT, strike, TIME, vol, interest, dividend, -1.) - getC(SPOT, strike, TIME, vol, interest, dividend, barrier, -1., -1.) : getA(
+                          SPOT, strike, TIME, vol, interest, dividend, 1.) -
                           getB(SPOT, strike, TIME, vol, interest, dividend, barrier, 1.) +
                           getC(SPOT, strike, TIME, vol, interest, dividend, barrier, 1., -1.) -
                           getD(SPOT, strike, TIME, vol, interest, dividend, barrier, 1., -1.);
@@ -520,7 +548,7 @@ public class EuropeanSingleBarrierOptionFunctionProviderTest {
     }
   }
 
-  private double getA(final double spot, final double strike, final double time, final double vol, final double interest, final double dividend, final double barrier, final double phi) {
+  private double getA(final double spot, final double strike, final double time, final double vol, final double interest, final double dividend, final double phi) {
     final boolean isCall = (phi == 1.);
     return BlackScholesFormulaRepository.price(spot, strike, time, vol, interest, interest - dividend, isCall);
   }

@@ -84,4 +84,31 @@ public class TwoAssetCorrelationOptionFunctionProvider extends OptionFunctionPro
     throw new IllegalArgumentException("Specify strike for asset 1 or strike for asset 2");
   }
 
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    long temp;
+    temp = Double.doubleToLongBits(_strike2);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    if (!(obj instanceof TwoAssetCorrelationOptionFunctionProvider)) {
+      return false;
+    }
+    TwoAssetCorrelationOptionFunctionProvider other = (TwoAssetCorrelationOptionFunctionProvider) obj;
+    if (Double.doubleToLongBits(_strike2) != Double.doubleToLongBits(other._strike2)) {
+      return false;
+    }
+    return true;
+  }
 }

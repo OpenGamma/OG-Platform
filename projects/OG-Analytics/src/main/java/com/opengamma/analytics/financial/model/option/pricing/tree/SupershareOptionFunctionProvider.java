@@ -75,4 +75,33 @@ public class SupershareOptionFunctionProvider extends OptionFunctionProvider1D {
   public double getSign() {
     throw new IllegalArgumentException("Call/put is not relevant for this option");
   }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    long temp;
+    temp = Double.doubleToLongBits(_upperBound);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    if (!(obj instanceof SupershareOptionFunctionProvider)) {
+      return false;
+    }
+    SupershareOptionFunctionProvider other = (SupershareOptionFunctionProvider) obj;
+    if (Double.doubleToLongBits(_upperBound) != Double.doubleToLongBits(other._upperBound)) {
+      return false;
+    }
+    return true;
+  }
+
 }

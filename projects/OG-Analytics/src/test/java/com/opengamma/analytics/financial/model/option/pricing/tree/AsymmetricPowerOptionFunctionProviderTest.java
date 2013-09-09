@@ -6,6 +6,8 @@
 package com.opengamma.analytics.financial.model.option.pricing.tree;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
@@ -258,9 +260,30 @@ public class AsymmetricPowerOptionFunctionProviderTest {
   /**
    * 
    */
+  @SuppressWarnings("unused")
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativePowerTest() {
     new AsymmetricPowerOptionFunctionProvider(103., TIME, 1003, true, -12.);
+  }
+
+  /**
+   * 
+   */
+  @Test
+  public void hashCodeEqualsTest() {
+    final OptionFunctionProvider1D ref = new AsymmetricPowerOptionFunctionProvider(100., 1., 53, true, 2.);
+    final OptionFunctionProvider1D[] function = new OptionFunctionProvider1D[] {ref, new AsymmetricPowerOptionFunctionProvider(100., 1., 53, true, 2.),
+        new AsymmetricPowerOptionFunctionProvider(100., 1., 53, true, 3.), new AmericanVanillaOptionFunctionProvider(100., 1., 53, true), null };
+    final int len = function.length;
+    for (int i = 0; i < len; ++i) {
+      if (ref.equals(function[i])) {
+        assertTrue(ref.hashCode() == function[i].hashCode());
+      }
+    }
+    for (int i = 0; i < len - 1; ++i) {
+      assertTrue(function[i].equals(ref) == ref.equals(function[i]));
+    }
+    assertFalse(ref.equals(new EuropeanSpreadOptionFunctionProvider(110., 1., 53, true)));
   }
 
   private double price(final double spot, final double strike, final double time, final double vol, final double interest, final double cost, final boolean isCall, final double power) {

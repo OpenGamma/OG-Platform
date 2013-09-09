@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.model.option.pricing.tree;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
@@ -283,6 +284,7 @@ public class CappedPowerOptionFunctionProviderTest {
   /**
    * 
    */
+  @SuppressWarnings("unused")
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativePowerTest() {
     new CappedPowerOptionFunctionProvider(103., TIME, 1003, true, -12., 30.);
@@ -291,6 +293,7 @@ public class CappedPowerOptionFunctionProviderTest {
   /**
    * 
    */
+  @SuppressWarnings("unused")
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeCapTest() {
     new CappedPowerOptionFunctionProvider(103., TIME, 1003, true, 12., -30.);
@@ -299,9 +302,30 @@ public class CappedPowerOptionFunctionProviderTest {
   /**
    * 
    */
+  @SuppressWarnings("unused")
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void tooLargeCaprTest() {
     new CappedPowerOptionFunctionProvider(103., TIME, 1003, false, 3., 130.);
+  }
+
+  /**
+   * 
+   */
+  @Test
+  public void hashCodeEqualsTest() {
+    final OptionFunctionProvider1D ref = new CappedPowerOptionFunctionProvider(103., 1., 1003, true, 12., 120.);
+    final OptionFunctionProvider1D[] function = new OptionFunctionProvider1D[] {ref, new CappedPowerOptionFunctionProvider(103., 1., 1003, true, 12., 120.),
+        new CappedPowerOptionFunctionProvider(103., 1., 1003, true, 12., 121.), new CappedPowerOptionFunctionProvider(103., 1., 1003, true, 11., 120.),
+        new CappedPowerOptionFunctionProvider(103., 10., 1003, true, 12., 120.), new EuropeanVanillaOptionFunctionProvider(103., 1., 1003, true), null };
+    final int len = function.length;
+    for (int i = 0; i < len; ++i) {
+      if (ref.equals(function[i])) {
+        assertTrue(ref.hashCode() == function[i].hashCode());
+      }
+    }
+    for (int i = 0; i < len - 1; ++i) {
+      assertTrue(function[i].equals(ref) == ref.equals(function[i]));
+    }
   }
 
   private double price(final double spot, final double strike, final double time, final double vol, final double interest, final double cost, final boolean isCall, final double power, final double cap) {

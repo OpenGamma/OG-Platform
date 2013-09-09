@@ -117,6 +117,19 @@ public abstract class BarrierOptionFunctionProvider extends OptionFunctionProvid
     public boolean checkStrikeBehindBarrier() {
       return getSign() == 1. ? false : (_barrier >= getStrike());
     }
+
+    @Override
+    public int hashCode() {
+      return 1;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (!(obj instanceof CrossLowerBarrier)) {
+        return false;
+      }
+      return true;
+    }
   }
 
   /**
@@ -133,5 +146,49 @@ public abstract class BarrierOptionFunctionProvider extends OptionFunctionProvid
     public boolean checkStrikeBehindBarrier() {
       return getSign() == 1. ? (_barrier <= getStrike()) : false;
     }
+
+    @Override
+    public int hashCode() {
+      return 2;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+      if (!(obj instanceof CrossUpperBarrier)) {
+        return false;
+      }
+      return true;
+    }
   }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    long temp;
+    temp = Double.doubleToLongBits(_barrier);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + ((_checker == null) ? 0 : _checker.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+
+    if (!super.equals(obj)) {
+      return false;
+    }
+    if (!(obj instanceof BarrierOptionFunctionProvider)) {
+      return false;
+    }
+    BarrierOptionFunctionProvider other = (BarrierOptionFunctionProvider) obj;
+    if (Double.doubleToLongBits(_barrier) != Double.doubleToLongBits(other._barrier)) {
+      return false;
+    }
+    if (!_checker.equals(other._checker)) {
+      return false;
+    }
+    return true;
+  }
+
 }

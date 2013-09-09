@@ -79,4 +79,37 @@ public class CappedPowerOptionFunctionProvider extends OptionFunctionProvider1D 
   public double getCap() {
     return _cap;
   }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    long temp;
+    temp = Double.doubleToLongBits(_cap);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_power);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    if (!(obj instanceof CappedPowerOptionFunctionProvider)) {
+      return false;
+    }
+    CappedPowerOptionFunctionProvider other = (CappedPowerOptionFunctionProvider) obj;
+    if (Double.doubleToLongBits(_cap) != Double.doubleToLongBits(other._cap)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_power) != Double.doubleToLongBits(other._power)) {
+      return false;
+    }
+    return true;
+  }
 }

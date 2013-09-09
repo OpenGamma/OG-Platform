@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.model.option.pricing.tree;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
@@ -258,9 +259,30 @@ public class PoweredOptionFunctionProviderTest {
   /**
    *
    */
+  @SuppressWarnings("unused")
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativePowerTest() {
     new PoweredOptionFunctionProvider(103., 1., 1003, true, -12.);
+  }
+
+  /**
+   * 
+   */
+  @Test
+  public void hashCodeEqualsTest() {
+    final OptionFunctionProvider1D ref = new PoweredOptionFunctionProvider(103., 1., 1003, true, 12.);
+    final OptionFunctionProvider1D[] function = new OptionFunctionProvider1D[] {ref, new PoweredOptionFunctionProvider(103., 1., 1003, true, 12.),
+        new PoweredOptionFunctionProvider(103., 1., 1003, true, 11.),
+        new PoweredOptionFunctionProvider(100., 1., 1003, true, 12.), new EuropeanVanillaOptionFunctionProvider(103., 1., 1003, true) };
+    final int len = function.length;
+    for (int i = 0; i < len; ++i) {
+      if (ref.equals(function[i])) {
+        assertTrue(ref.hashCode() == function[i].hashCode());
+      }
+    }
+    for (int i = 0; i < len; ++i) {
+      assertTrue(function[i].equals(ref) == ref.equals(function[i]));
+    }
   }
 
   private double price(final double spot, final double strike, final double time, final double vol, final double interest, final double cost, final boolean isCall, final double power) {

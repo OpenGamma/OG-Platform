@@ -6,6 +6,8 @@
 package com.opengamma.analytics.financial.model.option.pricing.tree;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
@@ -459,5 +461,25 @@ public class AmericanVanillaOptionFunctionProviderTest {
         }
       }
     }
+  }
+
+  /**
+   * 
+   */
+  @Test
+  public void hashCodeEqualsTest() {
+    final OptionFunctionProvider1D ref = new AmericanVanillaOptionFunctionProvider(100., 1., 53, true);
+    final OptionFunctionProvider1D[] function = new OptionFunctionProvider1D[] {ref, new AmericanVanillaOptionFunctionProvider(100., 1., 53, true),
+        new EuropeanVanillaOptionFunctionProvider(100., 1., 53, true), null };
+    final int len = function.length;
+    for (int i = 0; i < len; ++i) {
+      if (ref.equals(function[i])) {
+        assertTrue(ref.hashCode() == function[i].hashCode());
+      }
+    }
+    for (int i = 0; i < len - 1; ++i) {
+      assertTrue(function[i].equals(ref) == ref.equals(function[i]));
+    }
+    assertFalse(ref.equals(new EuropeanSpreadOptionFunctionProvider(100., 1., 53, true)));
   }
 }

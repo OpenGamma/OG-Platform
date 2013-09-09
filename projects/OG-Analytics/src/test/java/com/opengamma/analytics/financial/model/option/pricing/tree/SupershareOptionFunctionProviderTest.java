@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.model.option.pricing.tree;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
@@ -318,6 +319,7 @@ public class SupershareOptionFunctionProviderTest {
   /**
    * 
    */
+  @SuppressWarnings("unused")
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void minusUpperBoundTest() {
     final double ref = 100.;
@@ -330,6 +332,7 @@ public class SupershareOptionFunctionProviderTest {
   /**
    * 
    */
+  @SuppressWarnings("unused")
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void minusLowerBoundTest() {
     final double ref = 100.;
@@ -342,6 +345,7 @@ public class SupershareOptionFunctionProviderTest {
   /**
    * 
    */
+  @SuppressWarnings("unused")
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void illegalBoundsTest() {
     final double ref = 100.;
@@ -362,6 +366,25 @@ public class SupershareOptionFunctionProviderTest {
     final int steps = 801;
     final OptionFunctionProvider1D function = new SupershareOptionFunctionProvider(TIME, lowerBound, upperBound, steps);
     function.getSign();
+  }
+
+  /**
+   * 
+   */
+  @Test
+  public void hashCodeEqualsTest() {
+    final OptionFunctionProvider1D ref = new SupershareOptionFunctionProvider(1., 90., 110., 53);
+    final OptionFunctionProvider1D[] function = new OptionFunctionProvider1D[] {ref, new SupershareOptionFunctionProvider(1., 91., 110., 53), new SupershareOptionFunctionProvider(1., 90., 112., 53),
+        new SupershareOptionFunctionProvider(1., 90., 110., 53), new EuropeanVanillaOptionFunctionProvider(90., 1., 53, true) };
+    final int len = function.length;
+    for (int i = 0; i < len; ++i) {
+      if (ref.equals(function[i])) {
+        assertTrue(ref.hashCode() == function[i].hashCode());
+      }
+    }
+    for (int i = 0; i < len; ++i) {
+      assertTrue(function[i].equals(ref) == ref.equals(function[i]));
+    }
   }
 
   private double price(final double spot, final double lowerBound, final double upperBound, final double time, final double vol, final double interest, final double cost) {

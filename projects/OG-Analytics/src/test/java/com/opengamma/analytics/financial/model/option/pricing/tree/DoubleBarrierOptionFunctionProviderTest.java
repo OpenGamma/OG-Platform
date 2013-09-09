@@ -6,6 +6,8 @@
 package com.opengamma.analytics.financial.model.option.pricing.tree;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.testng.annotations.Test;
@@ -216,6 +218,7 @@ public class DoubleBarrierOptionFunctionProviderTest {
   /**
    * 
    */
+  @SuppressWarnings("unused")
   @Test(expectedExceptions = NotImplementedException.class)
   public void DoubleKnockInTest() {
     new DoubleBarrierOptionFunctionProvider(100., TIME, 21, true, 88., 121., DoubleBarrierOptionFunctionProvider.BarrierTypes.valueOf("DoubleKnockIn"));
@@ -224,6 +227,7 @@ public class DoubleBarrierOptionFunctionProviderTest {
   /**
    * 
    */
+  @SuppressWarnings("unused")
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeUpperBarrierTest() {
     new DoubleBarrierOptionFunctionProvider(100., TIME, 21, true, 88., -121., DoubleBarrierOptionFunctionProvider.BarrierTypes.valueOf("DoubleKnockOut"));
@@ -232,9 +236,33 @@ public class DoubleBarrierOptionFunctionProviderTest {
   /**
    * 
    */
+  @SuppressWarnings("unused")
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void smallUpperBarrierTest() {
     new DoubleBarrierOptionFunctionProvider(100., TIME, 21, true, 188., 121., DoubleBarrierOptionFunctionProvider.BarrierTypes.valueOf("DoubleKnockOut"));
+  }
+
+  /**
+   * 
+   */
+  @Test
+  public void hashCodeEqualsTest() {
+    final DoubleBarrierOptionFunctionProvider.BarrierTypes type = DoubleBarrierOptionFunctionProvider.BarrierTypes.valueOf("DoubleKnockOut");
+    final AmericanSingleBarrierOptionFunctionProvider.BarrierTypes type1 = AmericanSingleBarrierOptionFunctionProvider.BarrierTypes.valueOf("DownAndOut");
+    final OptionFunctionProvider1D ref = new DoubleBarrierOptionFunctionProvider(100., 1., 53, true, 90., 120., type);
+    final OptionFunctionProvider1D[] function = new OptionFunctionProvider1D[] {ref, new DoubleBarrierOptionFunctionProvider(100., 1., 53, true, 90., 120., type),
+        new DoubleBarrierOptionFunctionProvider(100., 1., 53, true, 90., 121., type), new AmericanSingleBarrierOptionFunctionProvider(100., 1., 53, true, 90., type1),
+        new AmericanVanillaOptionFunctionProvider(100., 1., 53, true), null };
+    final int len = function.length;
+    for (int i = 0; i < len; ++i) {
+      if (ref.equals(function[i])) {
+        assertTrue(ref.hashCode() == function[i].hashCode());
+      }
+    }
+    for (int i = 0; i < len - 1; ++i) {
+      assertTrue(function[i].equals(ref) == ref.equals(function[i]));
+    }
+    assertFalse(ref.equals(new EuropeanSpreadOptionFunctionProvider(100., 1., 53, true)));
   }
 
   private double price(final double spot, final double strike, final double time, final double vol, final double interest, final double div, final boolean isCall,
@@ -263,20 +291,19 @@ public class DoubleBarrierOptionFunctionProviderTest {
       }
       final double res = tmp1 * spot * Math.exp(-div * time) - tmp2 * strike * Math.exp(-interest * time);
       return res <= 0. ? 0. : res;
-    } else {
-      for (int i = -rg; i < rg + 1; ++i) {
-        final double y1 = (Math.log(spot * Math.pow(upper, 2. * i) / Math.pow(lower, 2. * i + 1.)) + second) / sigmaRootT;
-        final double y2 = (Math.log(spot * Math.pow(upper, 2. * i) / strike / Math.pow(lower, 2. * i)) + second) / sigmaRootT;
-        final double y3 = (Math.log(Math.pow(lower, 2. * i + 1.) / spot / Math.pow(upper, 2. * i)) + second) / sigmaRootT;
-        final double y4 = (Math.log(Math.pow(lower, 2. * i + 2.) / spot / strike / Math.pow(upper, 2. * i)) + second) / sigmaRootT;
-
-        tmp2 += Math.pow(upper / lower, i * mu - i * 2.) * (NORMAL.getCDF(y1 - sigmaRootT) - NORMAL.getCDF(y2 - sigmaRootT)) - Math.pow(Math.pow(lower, i + 1.) / Math.pow(upper, i) / spot, mu - 2.) *
-            (NORMAL.getCDF(y3 - sigmaRootT) - NORMAL.getCDF(y4 - sigmaRootT));
-        tmp1 += Math.pow(upper / lower, i * mu) * (NORMAL.getCDF(y1) - NORMAL.getCDF(y2)) - Math.pow(Math.pow(lower, i + 1.) / Math.pow(upper, i) / spot, mu) * (NORMAL.getCDF(y3) - NORMAL.getCDF(y4));
-      }
-      final double res = tmp2 * strike * Math.exp(-interest * time) - tmp1 * spot * Math.exp(-div * time);
-      return res <= 0. ? 0. : res;
     }
+    for (int i = -rg; i < rg + 1; ++i) {
+      final double y1 = (Math.log(spot * Math.pow(upper, 2. * i) / Math.pow(lower, 2. * i + 1.)) + second) / sigmaRootT;
+      final double y2 = (Math.log(spot * Math.pow(upper, 2. * i) / strike / Math.pow(lower, 2. * i)) + second) / sigmaRootT;
+      final double y3 = (Math.log(Math.pow(lower, 2. * i + 1.) / spot / Math.pow(upper, 2. * i)) + second) / sigmaRootT;
+      final double y4 = (Math.log(Math.pow(lower, 2. * i + 2.) / spot / strike / Math.pow(upper, 2. * i)) + second) / sigmaRootT;
+
+      tmp2 += Math.pow(upper / lower, i * mu - i * 2.) * (NORMAL.getCDF(y1 - sigmaRootT) - NORMAL.getCDF(y2 - sigmaRootT)) - Math.pow(Math.pow(lower, i + 1.) / Math.pow(upper, i) / spot, mu - 2.) *
+          (NORMAL.getCDF(y3 - sigmaRootT) - NORMAL.getCDF(y4 - sigmaRootT));
+      tmp1 += Math.pow(upper / lower, i * mu) * (NORMAL.getCDF(y1) - NORMAL.getCDF(y2)) - Math.pow(Math.pow(lower, i + 1.) / Math.pow(upper, i) / spot, mu) * (NORMAL.getCDF(y3) - NORMAL.getCDF(y4));
+    }
+    final double res = tmp2 * strike * Math.exp(-interest * time) - tmp1 * spot * Math.exp(-div * time);
+    return res <= 0. ? 0. : res;
   }
 
   private double delta(final double spot, final double strike, final double time, final double vol, final double interest, final double div, final boolean isCall,
@@ -312,27 +339,26 @@ public class DoubleBarrierOptionFunctionProviderTest {
       }
       final double res = tmp1 * Math.exp(-div * time) + tmp1Diff * spot * Math.exp(-div * time) - tmp2Diff * strike * Math.exp(-interest * time);
       return res;
-    } else {
-      final double y12Diff = 1. / spot / sigmaRootT;
-      final double y34Diff = -y12Diff;
-      for (int i = -rg; i < rg + 1; ++i) {
-        final double y1 = (Math.log(spot * Math.pow(upper, 2. * i) / Math.pow(lower, 2. * i + 1.)) + second) / sigmaRootT;
-        final double y2 = (Math.log(spot * Math.pow(upper, 2. * i) / strike / Math.pow(lower, 2. * i)) + second) / sigmaRootT;
-        final double y3 = (Math.log(Math.pow(lower, 2. * i + 1.) / spot / Math.pow(upper, 2. * i)) + second) / sigmaRootT;
-        final double y4 = (Math.log(Math.pow(lower, 2. * i + 2.) / spot / strike / Math.pow(upper, 2. * i)) + second) / sigmaRootT;
-
-        tmp2Diff += Math.pow(upper / lower, i * mu - i * 2.) * (NORMAL.getPDF(y1 - sigmaRootT) - NORMAL.getPDF(y2 - sigmaRootT)) * y12Diff -
-            Math.pow(Math.pow(lower, i + 1.) / Math.pow(upper, i) / spot, mu - 2.) *
-            (NORMAL.getPDF(y3 - sigmaRootT) - NORMAL.getPDF(y4 - sigmaRootT)) * y34Diff + (mu - 2.) / spot * Math.pow(Math.pow(lower, i + 1.) / Math.pow(upper, i) / spot, mu - 2.) *
-            (NORMAL.getCDF(y3 - sigmaRootT) - NORMAL.getCDF(y4 - sigmaRootT));
-        tmp1Diff += Math.pow(upper / lower, i * mu) * (NORMAL.getPDF(y1) - NORMAL.getPDF(y2)) * y12Diff - Math.pow(Math.pow(lower, i + 1.) / Math.pow(upper, i) / spot, mu) *
-            (NORMAL.getPDF(y3) - NORMAL.getPDF(y4)) * y34Diff
-            + mu / spot * Math.pow(Math.pow(lower, i + 1.) / Math.pow(upper, i) / spot, mu) * (NORMAL.getCDF(y3) - NORMAL.getCDF(y4));
-        tmp1 += Math.pow(upper / lower, i * mu) * (NORMAL.getCDF(y1) - NORMAL.getCDF(y2)) - Math.pow(Math.pow(lower, i + 1.) / Math.pow(upper, i) / spot, mu) * (NORMAL.getCDF(y3) - NORMAL.getCDF(y4));
-      }
-      final double res = tmp2Diff * strike * Math.exp(-interest * time) - tmp1Diff * spot * Math.exp(-div * time) - tmp1 * Math.exp(-div * time);
-      return res;
     }
+    final double y12Diff = 1. / spot / sigmaRootT;
+    final double y34Diff = -y12Diff;
+    for (int i = -rg; i < rg + 1; ++i) {
+      final double y1 = (Math.log(spot * Math.pow(upper, 2. * i) / Math.pow(lower, 2. * i + 1.)) + second) / sigmaRootT;
+      final double y2 = (Math.log(spot * Math.pow(upper, 2. * i) / strike / Math.pow(lower, 2. * i)) + second) / sigmaRootT;
+      final double y3 = (Math.log(Math.pow(lower, 2. * i + 1.) / spot / Math.pow(upper, 2. * i)) + second) / sigmaRootT;
+      final double y4 = (Math.log(Math.pow(lower, 2. * i + 2.) / spot / strike / Math.pow(upper, 2. * i)) + second) / sigmaRootT;
+
+      tmp2Diff += Math.pow(upper / lower, i * mu - i * 2.) * (NORMAL.getPDF(y1 - sigmaRootT) - NORMAL.getPDF(y2 - sigmaRootT)) * y12Diff -
+          Math.pow(Math.pow(lower, i + 1.) / Math.pow(upper, i) / spot, mu - 2.) *
+          (NORMAL.getPDF(y3 - sigmaRootT) - NORMAL.getPDF(y4 - sigmaRootT)) * y34Diff + (mu - 2.) / spot * Math.pow(Math.pow(lower, i + 1.) / Math.pow(upper, i) / spot, mu - 2.) *
+          (NORMAL.getCDF(y3 - sigmaRootT) - NORMAL.getCDF(y4 - sigmaRootT));
+      tmp1Diff += Math.pow(upper / lower, i * mu) * (NORMAL.getPDF(y1) - NORMAL.getPDF(y2)) * y12Diff - Math.pow(Math.pow(lower, i + 1.) / Math.pow(upper, i) / spot, mu) *
+          (NORMAL.getPDF(y3) - NORMAL.getPDF(y4)) * y34Diff
+          + mu / spot * Math.pow(Math.pow(lower, i + 1.) / Math.pow(upper, i) / spot, mu) * (NORMAL.getCDF(y3) - NORMAL.getCDF(y4));
+      tmp1 += Math.pow(upper / lower, i * mu) * (NORMAL.getCDF(y1) - NORMAL.getCDF(y2)) - Math.pow(Math.pow(lower, i + 1.) / Math.pow(upper, i) / spot, mu) * (NORMAL.getCDF(y3) - NORMAL.getCDF(y4));
+    }
+    final double res = tmp2Diff * strike * Math.exp(-interest * time) - tmp1Diff * spot * Math.exp(-div * time) - tmp1 * Math.exp(-div * time);
+    return res;
   }
 
   //  /**

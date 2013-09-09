@@ -49,4 +49,23 @@ public class LogOptionFunctionProvider extends OptionFunctionProvider1D {
   public double getSign() {
     throw new IllegalArgumentException("Call/put is not relevant");
   }
+
+  @Override
+  public int hashCode() {
+    return super.hashCode();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (!(obj instanceof LogOptionFunctionProvider)) {
+      return false;
+    }
+    return super.equals(obj);
+  }
 }

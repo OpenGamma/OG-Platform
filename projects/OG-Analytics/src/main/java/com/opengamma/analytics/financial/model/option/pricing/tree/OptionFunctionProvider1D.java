@@ -91,4 +91,43 @@ public abstract class OptionFunctionProvider1D {
   public double getSign() {
     return _sign;
   }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    long temp;
+    temp = Double.doubleToLongBits(_sign);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + _steps;
+    temp = Double.doubleToLongBits(_strike);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_timeToExpiry);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == null) {
+      return false;
+    }
+    if (!(obj instanceof OptionFunctionProvider1D)) {
+      return false;
+    }
+    OptionFunctionProvider1D other = (OptionFunctionProvider1D) obj;
+    if (Double.doubleToLongBits(_sign) != Double.doubleToLongBits(other.getSign())) {
+      return false;
+    }
+    if (_steps != other.getNumberOfSteps()) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_strike) != Double.doubleToLongBits(other.getStrike())) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_timeToExpiry) != Double.doubleToLongBits(other.getTimeToExpiry())) {
+      return false;
+    }
+    return true;
+  }
 }

@@ -6,6 +6,8 @@
 package com.opengamma.analytics.financial.model.option.pricing.tree;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
@@ -143,9 +145,30 @@ public class TwoAssetCorrelationOptionFunctionProviderTest {
   /**
    * 
    */
+  @SuppressWarnings("unused")
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeStrike2Test() {
     new TwoAssetCorrelationOptionFunctionProvider(100., -101., 1., 1001, true);
+  }
+
+  /**
+   * 
+   */
+  @Test
+  public void hashCodeEqualsTest() {
+    final OptionFunctionProvider2D ref = new TwoAssetCorrelationOptionFunctionProvider(100., 90., 1., 53, true);
+    final OptionFunctionProvider2D[] function = new OptionFunctionProvider2D[] {ref, new TwoAssetCorrelationOptionFunctionProvider(100., 90., 1., 53, true),
+        new TwoAssetCorrelationOptionFunctionProvider(100., 92., 1., 53, true), new AmericanSpreadOptionFunctionProvider(100., 1., 53, true), null };
+    final int len = function.length;
+    for (int i = 0; i < len; ++i) {
+      if (ref.equals(function[i])) {
+        assertTrue(ref.hashCode() == function[i].hashCode());
+      }
+    }
+    for (int i = 0; i < len - 1; ++i) {
+      assertTrue(function[i].equals(ref) == ref.equals(function[i]));
+    }
+    assertFalse(ref.equals(new EuropeanVanillaOptionFunctionProvider(100., 1., 53, true)));
   }
 
   private void assertGreeks(final double[] res, final double[] ref, final double eps) {
@@ -175,24 +198,24 @@ public class TwoAssetCorrelationOptionFunctionProviderTest {
   private double delta1(final double spot1, final double spot2, final double strike1, final double strike2, final double time, final double vol1, final double vol2, final double cor,
       final double interest, final double cost1, final double cost2, final boolean isCall) {
     final double eps = 1.e-6;
-    final double priceSpotUp = price(SPOT + eps, spot2, strike1, strike2, TIME, vol1, vol2, cor, interest, cost1, cost2, isCall);
-    final double priceSpotDown = price(SPOT - eps, spot2, strike1, strike2, TIME, vol1, vol2, cor, interest, cost1, cost2, isCall);
+    final double priceSpotUp = price(spot1 + eps, spot2, strike1, strike2, time, vol1, vol2, cor, interest, cost1, cost2, isCall);
+    final double priceSpotDown = price(spot1 - eps, spot2, strike1, strike2, time, vol1, vol2, cor, interest, cost1, cost2, isCall);
     return 0.5 * (priceSpotUp - priceSpotDown) / eps;
   }
 
   private double delta2(final double spot1, final double spot2, final double strike1, final double strike2, final double time, final double vol1, final double vol2, final double cor,
       final double interest, final double cost1, final double cost2, final boolean isCall) {
     final double eps = 1.e-6;
-    final double priceSpotUp = price(SPOT, spot2 + eps, strike1, strike2, TIME, vol1, vol2, cor, interest, cost1, cost2, isCall);
-    final double priceSpotDown = price(SPOT, spot2 - eps, strike1, strike2, TIME, vol1, vol2, cor, interest, cost1, cost2, isCall);
+    final double priceSpotUp = price(spot1, spot2 + eps, strike1, strike2, time, vol1, vol2, cor, interest, cost1, cost2, isCall);
+    final double priceSpotDown = price(spot1, spot2 - eps, strike1, strike2, time, vol1, vol2, cor, interest, cost1, cost2, isCall);
     return 0.5 * (priceSpotUp - priceSpotDown) / eps;
   }
 
   private double theta(final double spot1, final double spot2, final double strike1, final double strike2, final double time, final double vol1, final double vol2, final double cor,
       final double interest, final double cost1, final double cost2, final boolean isCall) {
     final double eps = 1.e-6;
-    final double priceTimeUp = price(SPOT, spot2, strike1, strike2, TIME + eps, vol1, vol2, cor, interest, cost1, cost2, isCall);
-    final double priceTimeDown = price(SPOT, spot2, strike1, strike2, TIME - eps, vol1, vol2, cor, interest, cost1, cost2, isCall);
+    final double priceTimeUp = price(spot1, spot2, strike1, strike2, time + eps, vol1, vol2, cor, interest, cost1, cost2, isCall);
+    final double priceTimeDown = price(spot1, spot2, strike1, strike2, time - eps, vol1, vol2, cor, interest, cost1, cost2, isCall);
     return 0.5 * (priceTimeUp - priceTimeDown) / eps;
   }
 

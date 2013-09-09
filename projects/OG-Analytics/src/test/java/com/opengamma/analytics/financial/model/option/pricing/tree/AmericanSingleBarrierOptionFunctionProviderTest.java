@@ -6,6 +6,8 @@
 package com.opengamma.analytics.financial.model.option.pricing.tree;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
@@ -55,8 +57,8 @@ public class AmericanSingleBarrierOptionFunctionProviderTest {
                         AmericanSingleBarrierOptionFunctionProvider.BarrierTypes.valueOf(type));
                     if (type == "DownAndOut") {
                       if (strike > barrier) {
-                        double exact = isCall ? getA(SPOT, strike, time, vol, interest, dividend, barrier, 1.) - getC(SPOT, strike, time, vol, interest, dividend, barrier, 1., 1.) : getA(
-                            SPOT, strike, time, vol, interest, dividend, barrier, -1.) -
+                        double exact = isCall ? getA(SPOT, strike, time, vol, interest, dividend, 1.) - getC(SPOT, strike, time, vol, interest, dividend, barrier, 1., 1.) : getA(
+                            SPOT, strike, time, vol, interest, dividend, -1.) -
                             getB(SPOT, strike, time, vol, interest, dividend, barrier, -1.) +
                             getC(SPOT, strike, time, vol, interest, dividend, barrier, -1., 1.) -
                             getD(SPOT, strike, time, vol, interest, dividend, barrier, -1., 1.);
@@ -77,8 +79,8 @@ public class AmericanSingleBarrierOptionFunctionProviderTest {
                       }
                     } else {
                       if (strike < barrier) {
-                        double exact = !isCall ? getA(SPOT, strike, time, vol, interest, dividend, barrier, -1.) - getC(SPOT, strike, time, vol, interest, dividend, barrier, -1., -1.) : getA(
-                            SPOT, strike, time, vol, interest, dividend, barrier, 1.) -
+                        double exact = !isCall ? getA(SPOT, strike, time, vol, interest, dividend, -1.) - getC(SPOT, strike, time, vol, interest, dividend, barrier, -1., -1.) : getA(
+                            SPOT, strike, time, vol, interest, dividend, 1.) -
                             getB(SPOT, strike, time, vol, interest, dividend, barrier, 1.) +
                             getC(SPOT, strike, time, vol, interest, dividend, barrier, 1., -1.) -
                             getD(SPOT, strike, time, vol, interest, dividend, barrier, 1., -1.);
@@ -157,15 +159,15 @@ public class AmericanSingleBarrierOptionFunctionProviderTest {
 
                     if (type == "DownAndOut") {
                       if (strike > barrier) {
-                        double exactMod = isCall ? getA(modSpot, strike, time, vol, interest, 0., barrier, 1.) - getC(modSpot, strike, time, vol, interest, 0., barrier, 1., 1.) : getA(
-                            modSpot, strike, time, vol, interest, 0., barrier, -1.) - getB(modSpot, strike, time, vol, interest, 0., barrier, -1.) +
+                        double exactMod = isCall ? getA(modSpot, strike, time, vol, interest, 0., 1.) - getC(modSpot, strike, time, vol, interest, 0., barrier, 1., 1.) : getA(
+                            modSpot, strike, time, vol, interest, 0., -1.) - getB(modSpot, strike, time, vol, interest, 0., barrier, -1.) +
                             getC(modSpot, strike, time, vol, interest, 0., barrier, -1., 1.) - getD(modSpot, strike, time, vol, interest, 0., barrier, -1., 1.);
                         exactMod = barrier >= SPOT ? 0. : exactMod;
                         final double resMod = _model.getPrice(lattice, function, SPOT, vol, interest, cashDividend);
                         assertEquals(resMod, exactMod, Math.max(exactMod, 1.) * eps);
 
-                        double exactRes = isCall ? getA(resSpot, strike, time, vol, interest, 0., barrier, 1.) - getC(resSpot, strike, time, vol, interest, 0., barrier, 1., 1.) : getA(
-                            resSpot, strike, time, vol, interest, 0., barrier, -1.) - getB(resSpot, strike, time, vol, interest, 0., barrier, -1.) +
+                        double exactRes = isCall ? getA(resSpot, strike, time, vol, interest, 0., 1.) - getC(resSpot, strike, time, vol, interest, 0., barrier, 1., 1.) : getA(
+                            resSpot, strike, time, vol, interest, 0., -1.) - getB(resSpot, strike, time, vol, interest, 0., barrier, -1.) +
                             getC(resSpot, strike, time, vol, interest, 0., barrier, -1., 1.) - getD(resSpot, strike, time, vol, interest, 0., barrier, -1., 1.);
                         exactRes = barrier >= SPOT ? 0. : exactRes;
                         final double resRes = _model.getPrice(lattice, function, SPOT, vol, interest, propDividend);
@@ -183,16 +185,16 @@ public class AmericanSingleBarrierOptionFunctionProviderTest {
                       }
                     } else {
                       if (strike < barrier) {
-                        double exactMod = !isCall ? getA(modSpot, strike, time, vol, interest, 0., barrier, -1.) - getC(modSpot, strike, time, vol, interest, 0., barrier, -1., -1.) : getA(
-                            modSpot, strike, time, vol, interest, 0., barrier, 1.) - getB(modSpot, strike, time, vol, interest, 0., barrier, 1.) +
+                        double exactMod = !isCall ? getA(modSpot, strike, time, vol, interest, 0., -1.) - getC(modSpot, strike, time, vol, interest, 0., barrier, -1., -1.) : getA(
+                            modSpot, strike, time, vol, interest, 0., 1.) - getB(modSpot, strike, time, vol, interest, 0., barrier, 1.) +
                             getC(modSpot, strike, time, vol, interest, 0., barrier, 1., -1.) - getD(modSpot, strike, time, vol, interest, 0., barrier, 1., -1.);
                         //                        exactMod = exactMod < 0. ? 0. : exactMod;
                         exactMod = barrier <= SPOT ? 0. : exactMod;
                         final double resMod = _model.getPrice(lattice, function, SPOT, vol, interest, cashDividend);
                         assertEquals(resMod, exactMod, Math.max(exactMod, 1.) * eps);
 
-                        double exactRes = !isCall ? getA(resSpot, strike, time, vol, interest, 0., barrier, -1.) - getC(resSpot, strike, time, vol, interest, 0., barrier, -1., -1.) : getA(
-                            resSpot, strike, time, vol, interest, 0., barrier, 1.) - getB(resSpot, strike, time, vol, interest, 0., barrier, 1.) +
+                        double exactRes = !isCall ? getA(resSpot, strike, time, vol, interest, 0., -1.) - getC(resSpot, strike, time, vol, interest, 0., barrier, -1., -1.) : getA(
+                            resSpot, strike, time, vol, interest, 0., 1.) - getB(resSpot, strike, time, vol, interest, 0., barrier, 1.) +
                             getC(resSpot, strike, time, vol, interest, 0., barrier, 1., -1.) - getD(resSpot, strike, time, vol, interest, 0., barrier, 1., -1.);
                         exactRes = exactRes < 0. ? 0. : exactRes;
                         exactRes = barrier <= SPOT ? 0. : exactRes;
@@ -283,7 +285,28 @@ public class AmericanSingleBarrierOptionFunctionProviderTest {
     }
   }
 
-  private double getA(final double spot, final double strike, final double time, final double vol, final double interest, final double dividend, final double barrier, final double phi) {
+  /**
+   * 
+   */
+  @Test
+  public void hashCodeEqualsTest() {
+    final AmericanSingleBarrierOptionFunctionProvider.BarrierTypes type = AmericanSingleBarrierOptionFunctionProvider.BarrierTypes.valueOf("DownAndOut");
+    final OptionFunctionProvider1D ref = new AmericanSingleBarrierOptionFunctionProvider(100., 1., 53, true, 90., type);
+    final OptionFunctionProvider1D[] function = new OptionFunctionProvider1D[] {ref, new AmericanSingleBarrierOptionFunctionProvider(100., 1., 53, true, 90., type),
+        new EuropeanVanillaOptionFunctionProvider(100., 1., 53, true), null };
+    final int len = function.length;
+    for (int i = 0; i < len; ++i) {
+      if (ref.equals(function[i])) {
+        assertTrue(ref.hashCode() == function[i].hashCode());
+      }
+    }
+    for (int i = 0; i < len - 1; ++i) {
+      assertTrue(function[i].equals(ref) == ref.equals(function[i]));
+    }
+    assertFalse(ref.equals(new EuropeanSpreadOptionFunctionProvider(100., 1., 53, true)));
+  }
+
+  private double getA(final double spot, final double strike, final double time, final double vol, final double interest, final double dividend, final double phi) {
     final boolean isCall = (phi == 1.);
     return BlackScholesFormulaRepository.price(spot, strike, time, vol, interest, interest - dividend, isCall);
   }

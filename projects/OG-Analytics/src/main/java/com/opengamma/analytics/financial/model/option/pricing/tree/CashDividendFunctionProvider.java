@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.financial.model.option.pricing.tree;
 
+import com.opengamma.util.ArgumentChecker;
+
 /**
  *
  */
@@ -27,6 +29,7 @@ public class CashDividendFunctionProvider extends DividendFunctionProvider {
     for (int i = 0; i < nDiv; ++i) {
       res -= dividends[i] * Math.exp(-interestRate * dividendTimes[i]);
     }
+    ArgumentChecker.isTrue(res > 0., "Dividends are too large");
     return res;
   }
 
@@ -53,5 +56,24 @@ public class CashDividendFunctionProvider extends DividendFunctionProvider {
     res[1] = assetPriceBase * upFactor * downFactor + sumDiscountDiv;
     res[2] = assetPriceBase * upFactor * upFactor + sumDiscountDiv;
     return res;
+  }
+
+  @Override
+  public int hashCode() {
+    return super.hashCode();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (!(obj instanceof CashDividendFunctionProvider)) {
+      return false;
+    }
+    return true;
   }
 }

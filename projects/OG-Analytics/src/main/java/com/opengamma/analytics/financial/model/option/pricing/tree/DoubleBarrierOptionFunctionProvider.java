@@ -135,4 +135,32 @@ public class DoubleBarrierOptionFunctionProvider extends BarrierOptionFunctionPr
       return getSign() == 1. ? (_upperBarrier <= getStrike()) : false || getSuperclassChecker().checkStrikeBehindBarrier();
     }
   }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = super.hashCode();
+    long temp;
+    temp = Double.doubleToLongBits(_upperBarrier);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    return result;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!super.equals(obj)) {
+      return false;
+    }
+    if (!(obj instanceof DoubleBarrierOptionFunctionProvider)) {
+      return false;
+    }
+    DoubleBarrierOptionFunctionProvider other = (DoubleBarrierOptionFunctionProvider) obj;
+    if (Double.doubleToLongBits(_upperBarrier) != Double.doubleToLongBits(other._upperBarrier)) {
+      return false;
+    }
+    return true;
+  }
 }
