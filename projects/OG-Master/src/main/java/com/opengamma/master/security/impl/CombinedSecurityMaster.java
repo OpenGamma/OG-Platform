@@ -5,15 +5,10 @@
  */
 package com.opengamma.master.security.impl;
 
-import static com.google.common.collect.Maps.newHashMap;
-
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import com.google.common.collect.Lists;
 import com.opengamma.core.change.ChangeManager;
-import com.opengamma.id.UniqueId;
 import com.opengamma.master.CombinedMaster;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityHistoryRequest;
@@ -58,14 +53,6 @@ public class CombinedSecurityMaster extends CombinedMaster<SecurityDocument, Sec
     return result;
   }
 
-  @Override
-  public Map<UniqueId, SecurityDocument> get(Collection<UniqueId> uniqueIds) {
-    Map<UniqueId, SecurityDocument> map = newHashMap();
-    for (UniqueId uniqueId : uniqueIds) {
-      map.put(uniqueId, get(uniqueId));
-    }
-    return map;
-  }
 
   /**
    * Callback interface for the search operation to sort, filter and process results.

@@ -5,15 +5,10 @@
  */
 package com.opengamma.master.marketdatasnapshot.impl;
 
-import static com.google.common.collect.Maps.newHashMap;
-
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import com.google.common.collect.Lists;
 import com.opengamma.core.change.ChangeManager;
-import com.opengamma.id.UniqueId;
 import com.opengamma.master.CombinedMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryRequest;
@@ -51,15 +46,6 @@ public class CombinedMarketDataSnapshotMaster extends CombinedMaster<MarketDataS
     applyPaging(result, request.getPagingRequest());
 
     return result;
-  }
-
-  @Override
-  public Map<UniqueId, MarketDataSnapshotDocument> get(Collection<UniqueId> uniqueIds) {
-    Map<UniqueId, MarketDataSnapshotDocument> map = newHashMap();
-    for (UniqueId uniqueId : uniqueIds) {
-      map.put(uniqueId, get(uniqueId));      
-    }
-    return map;
   }
 
   /**

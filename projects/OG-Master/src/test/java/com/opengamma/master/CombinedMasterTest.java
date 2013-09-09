@@ -8,10 +8,8 @@ import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -36,7 +34,10 @@ public class CombinedMasterTest {
   private HolidayMaster m2;
   
   private ObjectId o1;
+  private ObjectId o2;
   private UniqueId u1;
+  private UniqueId u2;
+  
   private HolidayDocument d1;
   
   private CombinedMaster<HolidayDocument, HolidayMaster> cMaster;
@@ -46,17 +47,13 @@ public class CombinedMasterTest {
     m1 = mock(HolidayMaster.class);
     m2 = mock(HolidayMaster.class);
     o1 = ObjectId.of("TestScheme", "123");
+    o2 = ObjectId.of("TestScheme2", "234");
     u1 = UniqueId.of(o1, "v123");
+    u2 = UniqueId.of(o2, "v234");
     d1 = mock(HolidayDocument.class);
     when(d1.getUniqueId()).thenReturn(u1);
     when(d1.getObjectId()).thenReturn(o1);
-    cMaster = new CombinedMaster<HolidayDocument, HolidayMaster>(ImmutableList.of(m1, m2)) {
-      
-      @Override
-      public Map<UniqueId, HolidayDocument> get(Collection<UniqueId> uniqueIds) {
-        return null;
-      }
-    };
+    cMaster = new CombinedMaster<HolidayDocument, HolidayMaster>(ImmutableList.of(m1, m2)) {};
   }
   
   @Test
@@ -269,8 +266,18 @@ public class CombinedMasterTest {
     return holidayDocument;
   }
   
-  
-  
+  @Test
+  public void get() {
+    ArrayList<UniqueId> getList = Lists.newArrayList(u1, u2);
+    
+    when(m1.get(u2)).thenThrow(new IllegalArgumentException());
+    
+    cMaster.get(getList);
+    cMaster.get(getList);
+    
+    verify(m1, times(2)).get(u1);
+    verify(m2, times(2)).get(u2);
+  }
 
   @Test
   public void update() {
