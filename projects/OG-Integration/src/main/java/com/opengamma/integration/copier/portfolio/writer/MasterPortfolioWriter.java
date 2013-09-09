@@ -56,7 +56,6 @@ import com.opengamma.master.security.SecuritySearchSortOrder;
 import com.opengamma.master.security.impl.MasterSecuritySource;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.beancompare.BeanCompare;
-import com.opengamma.util.beancompare.BeanDifference;
 import com.opengamma.util.tuple.ObjectsPair;
 
 /**
@@ -398,6 +397,14 @@ public class MasterPortfolioWriter implements PortfolioWriter {
    */
   protected ManageableSecurity updateSecurityVersionIfFound(ManageableSecurity security, SecuritySearchResult searchResult) {
     for (ManageableSecurity foundSecurity : searchResult.getSecurities()) {
+      if (foundSecurity.getClass().equals(security.getClass())) {
+        s_logger.info("Returning existing security " + foundSecurity);
+        return foundSecurity;
+      }
+    }
+    return null;
+    // TODO this is too prone to finding trivial differences and creating unnecessary new security versions
+    /*for (ManageableSecurity foundSecurity : searchResult.getSecurities()) {
       List<BeanDifference<?>> differences = null;
       if (foundSecurity.getClass().equals(security.getClass())) {
         try {
@@ -407,7 +414,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
           return null;
         }
       }
-      if (differences != null && (differences.isEmpty() || (differences.size() == 1 && differences.get(0).getProperty().propertyType() == UniqueId.class))) {
+      if (differences.isEmpty()) {
         // It's already there, don't update or add it
         return foundSecurity;
       } else {
@@ -427,7 +434,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
       }
     }
     // no matching security in searchResult, return null
-    return null;
+    return null;*/
   }
 
   /**
