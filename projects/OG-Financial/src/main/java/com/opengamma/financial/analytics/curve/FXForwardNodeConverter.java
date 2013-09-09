@@ -31,7 +31,8 @@ import com.opengamma.util.time.Tenor;
  * The dates of the forward are computed in the following way:
  * - The spot date is computed from the valuation date adding the "Settlement Days" (i.e. the number of business days) of the convention.
  * - The exchange date is computed from the spot date adding the "MaturityTenor" of the node and using the business-day-convention, calendar and EOM of the convention.
- * The forward amount in the pay currency is 1 and -quote in the receive currency.
+ * - The "startTenor" is not used.
+ * The forward amount in the pay currency is 1 and in the receive currency -quote (e.g. - (spot+forward points)).
  */
 public class FXForwardNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinition<?>> {
   /** The convention source */

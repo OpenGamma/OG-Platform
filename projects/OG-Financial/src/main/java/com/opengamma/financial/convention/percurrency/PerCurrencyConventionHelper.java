@@ -59,6 +59,10 @@ public class PerCurrencyConventionHelper {
   public static final String PRICE_INDEX = "Price Index";
   /** Swap index string */
   public static final String SWAP_INDEX = "Swap Index";
+  /** FX Spot string */
+  public static final String FX_SPOT = "FX Spot";
+  /** FX Forward string */
+  public static final String FX_FORWARD = "FX Forward";
 
   /** Tenor string: 1M **/
   public static final String TENOR_STR_1M = "1M";

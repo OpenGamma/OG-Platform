@@ -8,6 +8,8 @@ package com.opengamma.financial.convention.percurrency;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.DEPOSIT;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.DEPOSIT_ON;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.FIXED_LEG;
+import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.FX_FORWARD;
+import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.FX_SPOT;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.IBOR_LEG;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.IRS_IBOR_LEG;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.LIBOR;
@@ -32,6 +34,8 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.Convention;
 import com.opengamma.financial.convention.DepositConvention;
 import com.opengamma.financial.convention.ExchangeTradedInstrumentExpiryCalculator;
+import com.opengamma.financial.convention.FXForwardAndSwapConvention;
+import com.opengamma.financial.convention.FXSpotConvention;
 import com.opengamma.financial.convention.IMMFutureAndFutureOptionQuarterlyExpiryCalculator;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.InMemoryConventionMaster;
@@ -61,6 +65,7 @@ public class EUConventions {
   private static final DayCount ACT_360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final DayCount THIRTY_U_360 = DayCountFactory.INSTANCE.getDayCount("30U/360");  
   private static final ExternalId EU = ExternalSchemes.financialRegionId("EU");
+  private static final ExternalId USEU = ExternalSchemes.financialRegionId("US+EU");
   /** OIS X-Ccy USD/EUR ON leg convention string **/
   public static final String OIS_USD_EUR_ON_LEG = "EUR Overnight USD/EUR XCcy Leg";
 
@@ -140,10 +145,20 @@ public class EUConventions {
     final Convention quarterlySTIRFutureConvention = new InterestRateFutureConvention(quarterlySTIRFutureConventionName, 
         ExternalIdBundle.of(ExternalId.of(SCHEME_NAME, quarterlySTIRFutureConventionName)),
         ExternalId.of(ExchangeTradedInstrumentExpiryCalculator.SCHEME, IMMFutureAndFutureOptionQuarterlyExpiryCalculator.NAME), EU, euriborConventionId);
+    
+    // Forex
+    final String fxSpotEURUSDName = FX_SPOT + " EUR/USD";
+    final FXSpotConvention fxSpotEURUSD = new FXSpotConvention(fxSpotEURUSDName, ExternalIdBundle.of(ExternalId.of(SCHEME_NAME, fxSpotEURUSDName)), 2, USEU);
+    final String fxFwdEURUSDName = FX_FORWARD + " EUR/USD";
+    final FXForwardAndSwapConvention fxForwardEURUSD = new FXForwardAndSwapConvention(fxFwdEURUSDName, ExternalIdBundle.of(ExternalId.of(SCHEME_NAME, fxFwdEURUSDName)),
+        ExternalId.of(SCHEME_NAME, fxSpotEURUSDName), FOLLOWING, false, USEU);
+    
     // X-Ccy OIS
     final Convention oisXCcyUSDLegConvention = new OISLegConvention(OIS_USD_EUR_ON_LEG, getIds(OIS_USD_EUR_ON_LEG), onIndexId,
         Tenor.THREE_MONTHS, MODIFIED_FOLLOWING, 2, true, StubType.NONE, false, 2);
+    
     conventionMaster.add(oisXCcyUSDLegConvention);
+    
     // Convention add
     conventionMaster.add(onIndex);
     conventionMaster.add(liborIndex);
@@ -163,6 +178,8 @@ public class EUConventions {
     conventionMaster.add(irsIbor3MLegConvention);
     conventionMaster.add(irsIbor1MLegConvention);
     conventionMaster.add(quarterlySTIRFutureConvention);
+    conventionMaster.add(fxSpotEURUSD);
+    conventionMaster.add(fxForwardEURUSD);
   }
 
 }
