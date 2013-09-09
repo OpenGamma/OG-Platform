@@ -11,7 +11,7 @@ CREATE TABLE sec_schema_version (
     version_key VARCHAR(32) NOT NULL,
     version_value VARCHAR(255) NOT NULL
 );
-INSERT INTO sec_schema_version (version_key, version_value) VALUES ('schema_patch', '66');
+INSERT INTO sec_schema_version (version_key, version_value) VALUES ('schema_patch', '67');
 
 CREATE SEQUENCE sec_hibernate_sequence
     START WITH 1 INCREMENT BY 1;

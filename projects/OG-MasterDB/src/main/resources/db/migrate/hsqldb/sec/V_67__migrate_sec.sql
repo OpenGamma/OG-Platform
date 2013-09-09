@@ -1,7 +1,7 @@
 START TRANSACTION;
 
   -- update the version
-  UPDATE sec_schema_version SET version_value='66' WHERE version_key='schema_patch';
+  UPDATE sec_schema_version SET version_value='67' WHERE version_key='schema_patch';
 
   -- add exchange initial notional column
   ALTER TABLE sec_swap ADD exchange_initial_notional boolean DEFAULT false NOT NULL ;
