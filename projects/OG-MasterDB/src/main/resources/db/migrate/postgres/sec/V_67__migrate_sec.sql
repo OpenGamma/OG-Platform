@@ -13,7 +13,7 @@ START TRANSACTION;
   ALTER TABLE sec_swap ADD maturity_tenor_id bigint NULL ;
 
   -- add maturity tenor constraint
-  ALTER TABLE sec_swap ADD CONSTRAINT sec_fk_sec_swapmaturitytenor2tenor FOREIGN KEY (maturity_tenor_id) REFERENCES sec_tenor (id)
+  ALTER TABLE sec_swap ADD CONSTRAINT sec_fk_sec_swapmaturitytenor2tenor FOREIGN KEY (maturity_tenor_id) REFERENCES sec_tenor (id) ;
 
   -- add pay conventional indexation lag column
   ALTER TABLE sec_swap ADD pay_conventional_indexation_lag integer NULL ;
