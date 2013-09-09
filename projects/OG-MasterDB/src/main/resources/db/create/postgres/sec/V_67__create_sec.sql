@@ -934,7 +934,7 @@ CREATE TABLE sec_debt_seniority (
    notional_amount double precision,
    notional_scheme varchar(255),
    notional_id varchar(255),
-   recovery_rate double precision NOT NULL,
+   recovery_rate double precision,
    include_accrued_premium boolean NOT NULL,
    protection_start boolean NOT NULL,
    legacy_par_spread double precision,
