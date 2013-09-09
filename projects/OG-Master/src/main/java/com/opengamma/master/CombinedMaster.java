@@ -5,13 +5,17 @@
  */
 package com.opengamma.master;
 
+import static com.google.common.collect.Maps.newHashMap;
+
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 
@@ -428,6 +432,14 @@ public abstract class CombinedMaster<D extends AbstractDocument, M extends Abstr
     }
   }
   
+  @Override
+  public Map<UniqueId, D> get(Collection<UniqueId> uniqueIds) {
+    Map<UniqueId, D> map = newHashMap();
+    for (UniqueId uniqueId : uniqueIds) {
+      map.put(uniqueId, get(uniqueId));
+    }
+    return map;
+  }
 
   protected void applyPaging(AbstractSearchResult<D> result, PagingRequest originalRequest) {
     result.setPaging(Paging.of(originalRequest, result.getDocuments().size()));

@@ -5,11 +5,7 @@
  */
 package com.opengamma.master.portfolio.impl;
 
-import static com.google.common.collect.Maps.newHashMap;
-
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import com.google.common.collect.Lists;
 import com.opengamma.core.change.ChangeManager;
@@ -97,12 +93,4 @@ public class CombinedPortfolioMaster extends CombinedMaster<PortfolioDocument, P
     }).each(nodeId.getScheme());
   }
 
-  @Override
-  public Map<UniqueId, PortfolioDocument> get(Collection<UniqueId> uniqueIds) {
-    Map<UniqueId, PortfolioDocument> map = newHashMap();
-    for (UniqueId uniqueId : uniqueIds) {
-      map.put(uniqueId, get(uniqueId));
-    }
-    return map;
-  }
 }

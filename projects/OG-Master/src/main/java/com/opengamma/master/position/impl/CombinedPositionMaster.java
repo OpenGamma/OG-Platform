@@ -5,11 +5,7 @@
  */
 package com.opengamma.master.position.impl;
 
-import static com.google.common.collect.Maps.newHashMap;
-
-import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import com.google.common.collect.Lists;
 import com.opengamma.core.change.ChangeManager;
@@ -85,12 +81,4 @@ public class CombinedPositionMaster extends CombinedMaster<PositionDocument, Pos
     return null;
   }
 
-  @Override
-  public Map<UniqueId, PositionDocument> get(Collection<UniqueId> uniqueIds) {
-    Map<UniqueId, PositionDocument> map = newHashMap();
-    for (UniqueId uniqueId : uniqueIds) {
-      map.put(uniqueId, get(uniqueId));
-    }
-    return map;
-  }
 }
