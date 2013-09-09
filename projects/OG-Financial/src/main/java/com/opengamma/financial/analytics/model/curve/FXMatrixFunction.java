@@ -126,7 +126,7 @@ public class FXMatrixFunction extends AbstractFunction {
         if (pairs.getCurrencyPair(initialCurrency, otherCurrency).getBase().equals(initialCurrency)) {
           final double spotRate = (Double) inputs.getValue(new ValueRequirement(ValueRequirementNames.SPOT_RATE,
               CurrencyPair.TYPE.specification(CurrencyPair.of(otherCurrency, initialCurrency))));
-          matrix.addCurrency(initialCurrency, otherCurrency, spotRate);
+          matrix.addCurrency(otherCurrency, initialCurrency, spotRate);
         } else {
           final double spotRate = (Double) inputs.getValue(new ValueRequirement(ValueRequirementNames.SPOT_RATE,
               CurrencyPair.TYPE.specification(CurrencyPair.of(otherCurrency, initialCurrency))));
