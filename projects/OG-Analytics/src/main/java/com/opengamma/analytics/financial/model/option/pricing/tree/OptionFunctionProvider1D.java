@@ -116,16 +116,16 @@ public abstract class OptionFunctionProvider1D {
       return false;
     }
     OptionFunctionProvider1D other = (OptionFunctionProvider1D) obj;
-    if (Double.doubleToLongBits(_sign) != Double.doubleToLongBits(other.getSign())) {
+    if (Double.doubleToLongBits(_sign) != Double.doubleToLongBits(other._sign)) {
       return false;
     }
     if (_steps != other.getNumberOfSteps()) {
       return false;
     }
-    if (Double.doubleToLongBits(_strike) != Double.doubleToLongBits(other.getStrike())) {
+    if (Double.doubleToLongBits(_strike) != Double.doubleToLongBits(other._strike)) {
       return false;
     }
-    if (Double.doubleToLongBits(_timeToExpiry) != Double.doubleToLongBits(other.getTimeToExpiry())) {
+    if (Double.doubleToLongBits(_timeToExpiry) != Double.doubleToLongBits(other._timeToExpiry)) {
       return false;
     }
     return true;

@@ -130,12 +130,12 @@ public class AmericanSingleBarrierOptionFunctionProviderTest {
         new JabbourKraminYoungLatticeSpecification(), new TianLatticeSpecification(), new LeisenReimerLatticeSpecification() };
     final double eps = 1.e-1;
 
-    final double[] propDividends = new double[] {0.002, 0.001, 0.002 };
-    final double[] cashDividends = new double[] {.2, 1.1, .5 };
-    final double[] dividendTimes = new double[] {TIME / 6., TIME / 3., TIME / 2. };
+    final double[] propDividends = new double[] {0.002, 0.004, 0.001 };
+    final double[] cashDividends = new double[] {.2, .3, .2 };
+    final double time = 0.05;
+    final double[] dividendTimes = new double[] {time / 6., time / 3., time / 2. };
 
     final double[] vols = new double[] {0.1, 0.15 };
-    final double time = 0.1;
 
     final double[] barrierSet = new double[] {90, 121 };
     final String[] typeSet = new String[] {"DownAndOut", "UpAndOut" };
