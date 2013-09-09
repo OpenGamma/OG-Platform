@@ -122,7 +122,7 @@ public class ColumnRequirementBySecurityType {
                         "number of calculations that returned errors", 
                         "total expected number of calculations", 
                         "percentage of calculations that succeeded" },
-          new OpenType[] {SimpleType.STRING, SimpleType.STRING, SimpleType.STRING, SimpleType.INTEGER, SimpleType.INTEGER, SimpleType.INTEGER, SimpleType.DOUBLE });
+          new OpenType[] {SimpleType.STRING, SimpleType.STRING, SimpleType.STRING, SimpleType.INTEGER, SimpleType.INTEGER, SimpleType.INTEGER, SimpleType.INTEGER, SimpleType.DOUBLE });
     } catch (OpenDataException ex) {
       s_logger.error("OpenDataException building CompositeType for ColumnRequirement", ex);
       throw new OpenGammaRuntimeException("OpenDataException building CompositeType for ColumnRequirement", ex);
