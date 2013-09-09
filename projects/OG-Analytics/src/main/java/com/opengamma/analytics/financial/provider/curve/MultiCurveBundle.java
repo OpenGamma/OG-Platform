@@ -7,32 +7,33 @@ package com.opengamma.analytics.financial.provider.curve;
 
 import java.util.Arrays;
 
+import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorCurve;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  *
  */
-public class MultiCurveBundle {
-  private final SingleCurveBundle[] _curveBundles;
+public class MultiCurveBundle<T extends GeneratorCurve> {
+  private final SingleCurveBundle<T>[] _curveBundles;
   private final int _numberOfInstruments;
   private final int _size;
 
-  public MultiCurveBundle(final SingleCurveBundle[] curveBundles) {
+  public MultiCurveBundle(final SingleCurveBundle<T>[] curveBundles) {
     ArgumentChecker.notNull(curveBundles, "curve bundles");
     _curveBundles = curveBundles;
     _size = curveBundles.length;
     int n = 0;
-    for (final SingleCurveBundle bundle : curveBundles) {
+    for (final SingleCurveBundle<T> bundle : curveBundles) {
       n += bundle.size();
     }
     _numberOfInstruments = n;
   }
 
-  public SingleCurveBundle getCurveBundle(final int n) {
+  public SingleCurveBundle<T> getCurveBundle(final int n) {
     return _curveBundles[n];
   }
 
-  public SingleCurveBundle[] getCurveBundles() {
+  public SingleCurveBundle<T>[] getCurveBundles() {
     return _curveBundles;
   }
 
@@ -63,7 +64,7 @@ public class MultiCurveBundle {
     if (!(obj instanceof MultiCurveBundle)) {
       return false;
     }
-    final MultiCurveBundle other = (MultiCurveBundle) obj;
+    final MultiCurveBundle<?> other = (MultiCurveBundle<?>) obj;
     if (_numberOfInstruments != other._numberOfInstruments) {
       return false;
     }

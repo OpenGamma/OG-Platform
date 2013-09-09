@@ -9,22 +9,22 @@ import java.util.Arrays;
 
 import org.apache.commons.lang.ObjectUtils;
 
-import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorYDCurve;
+import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorCurve;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  *
  */
-public class SingleCurveBundle {
+public class SingleCurveBundle<T extends GeneratorCurve> {
   private final String _curveName;
   private final InstrumentDerivative[] _derivatives;
-  private final GeneratorYDCurve _curveGenerator;
+  private final T _curveGenerator;
   private final double[] _startingPoints;
   private final int _size;
 
   public SingleCurveBundle(final String curveName, final InstrumentDerivative[] derivatives,
-      final double[] startingPoint, final GeneratorYDCurve curveGenerator) {
+      final double[] startingPoint, final T curveGenerator) {
     ArgumentChecker.notNull(curveName, "curve name");
     ArgumentChecker.notNull(derivatives, "derivatives");
     ArgumentChecker.notNull(startingPoint, "starting point");
@@ -65,7 +65,7 @@ public class SingleCurveBundle {
    * Gets the curve generator.
    * @return The curve generator
    */
-  public GeneratorYDCurve getCurveGenerator() {
+  public T getCurveGenerator() {
     return _curveGenerator;
   }
 
@@ -95,7 +95,7 @@ public class SingleCurveBundle {
     if (!(obj instanceof SingleCurveBundle)) {
       return false;
     }
-    final SingleCurveBundle other = (SingleCurveBundle) obj;
+    final SingleCurveBundle<?> other = (SingleCurveBundle<?>) obj;
     if (_size != other._size) {
       return false;
     }

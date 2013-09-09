@@ -9,7 +9,6 @@ import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CONSTRUCTION_CONFIG;
 import static com.opengamma.engine.value.ValueRequirementNames.YIELD_CURVE;
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.DISCOUNTING;
-import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -32,6 +31,8 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParSpreadMarketQuoteDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
+import com.opengamma.analytics.financial.provider.curve.MultiCurveBundle;
+import com.opengamma.analytics.financial.provider.curve.SingleCurveBundle;
 import com.opengamma.analytics.financial.provider.curve.multicurve.MulticurveDiscountBuildingRepository;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
@@ -123,23 +124,18 @@ public class MultiCurveDiscountingFunction extends
           (HistoricalTimeSeriesBundle) inputs.getValue(new ValueRequirement(ValueRequirementNames.CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES,
               ComputationTargetSpecification.NULL, curveConstructionProperties));
       final int nGroups = _curveConstructionConfiguration.getCurveGroups().size();
-      final InstrumentDerivative[][][] definitions = new InstrumentDerivative[nGroups][][];
-      final GeneratorYDCurve[][] curveGenerators = new GeneratorYDCurve[nGroups][];
-      final String[][] curves = new String[nGroups][];
-      final double[][] parameterGuess = new double[nGroups][];
+      @SuppressWarnings("unchecked")
+      final MultiCurveBundle<GeneratorYDCurve>[] curveBundles = new MultiCurveBundle[nGroups];
       final LinkedHashMap<String, Currency> discountingMap = new LinkedHashMap<>();
       final LinkedHashMap<String, IborIndex[]> forwardIborMap = new LinkedHashMap<>();
       final LinkedHashMap<String, IndexON[]> forwardONMap = new LinkedHashMap<>();
       //TODO comparator to sort groups by order
       int i = 0; // Implementation Note: loop on the groups
       for (final CurveGroupConfiguration group : _curveConstructionConfiguration.getCurveGroups()) { // Group - start
-        int j = 0;
         final int nCurves = group.getTypesForCurves().size();
-        definitions[i] = new InstrumentDerivative[nCurves][];
-        curveGenerators[i] = new GeneratorYDCurve[nCurves];
-        curves[i] = new String[nCurves];
-        parameterGuess[i] = new double[nCurves];
-        final DoubleArrayList parameterGuessForCurves = new DoubleArrayList();
+        @SuppressWarnings("unchecked")
+        final SingleCurveBundle<GeneratorYDCurve>[] singleCurves = new SingleCurveBundle[nCurves];
+        int j = 0;
         for (final Map.Entry<String, List<CurveTypeConfiguration>> entry : group.getTypesForCurves().entrySet()) {
           final List<IborIndex> iborIndex = new ArrayList<>();
           final List<IndexON> overnightIndex = new ArrayList<>();
@@ -153,15 +149,14 @@ public class MultiCurveDiscountingFunction extends
               (SnapshotDataBundle) inputs.getValue(new ValueRequirement(ValueRequirementNames.CURVE_MARKET_DATA, ComputationTargetSpecification.NULL, properties));
           final int nNodes = specification.getNodes().size();
           final InstrumentDerivative[] derivativesForCurve = new InstrumentDerivative[nNodes];
-          final double[] marketDataForCurve = new double[nNodes]; // FIXME: Where is this used?
+          final double[] parameterGuessForCurves = new double[nNodes];
           int k = 0;
           for (final CurveNodeWithIdentifier node : specification.getNodes()) { // Node points - start
             final Double marketData = snapshot.getDataPoint(node.getIdentifier());
             if (marketData == null) {
               throw new OpenGammaRuntimeException("Could not get market data for " + node.getIdentifier());
             }
-            marketDataForCurve[k] = marketData;
-            parameterGuessForCurves.add(0.02); // For FX forward, the FX rate is not a good initial guess. // TODO: change this // marketData
+            parameterGuessForCurves[k] = 0.02; // For FX forward, the FX rate is not a good initial guess. // TODO: change this // marketData
             final InstrumentDefinition<?> definitionForNode = node.getCurveNode().accept(getCurveNodeConverter(conventionSource, holidaySource, regionSource,
                 snapshot, node.getIdentifier(), timeSeries, now));
             derivativesForCurve[k++] = getCurveNodeConverter().getDerivative(node, definitionForNode, now, timeSeries);
@@ -202,16 +197,14 @@ public class MultiCurveDiscountingFunction extends
           if (!overnightIndex.isEmpty()) {
             forwardONMap.put(curveName, overnightIndex.toArray(new IndexON[overnightIndex.size()]));
           }
-          definitions[i][j] = derivativesForCurve;
-          curveGenerators[i][j] = getGenerator(definition);
-          curves[i][j] = curveName;
-          parameterGuess[i] = parameterGuessForCurves.toDoubleArray();
-          j++;
+          final GeneratorYDCurve generator = getGenerator(definition);
+          singleCurves[j++] = new SingleCurveBundle<>(curveName, derivativesForCurve, generator.initialGuess(parameterGuessForCurves), generator);
         }
-        i++;
+        final MultiCurveBundle<GeneratorYDCurve> groupBundle = new MultiCurveBundle<>(singleCurves);
+        curveBundles[i++] = groupBundle;
       } // Group - end
       //TODO this is only in here because the code in analytics doesn't use generics properly
-      final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> temp = builder.makeCurvesFromDerivatives(definitions, curveGenerators, curves, parameterGuess,
+      final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> temp = builder.makeCurvesFromDerivatives(curveBundles,
           (MulticurveProviderDiscount) knownData, discountingMap, forwardIborMap, forwardONMap, getCalculator(), getSensitivityCalculator());
       final Pair<MulticurveProviderInterface, CurveBuildingBlockBundle> result = Pair.of((MulticurveProviderInterface) temp.getFirst(), temp.getSecond());
       return result;

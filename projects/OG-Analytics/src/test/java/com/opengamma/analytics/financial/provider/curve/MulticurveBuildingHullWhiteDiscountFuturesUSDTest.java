@@ -130,14 +130,6 @@ public class MulticurveBuildingHullWhiteDiscountFuturesUSDTest {
       new double[] {0.0007 });
   private static final ZonedDateTimeDoubleTimeSeries[] TS_FIXED_OIS_EUR_WITH_TODAY = new ZonedDateTimeDoubleTimeSeries[] {TS_EMPTY, TS_ON_EUR_WITH_TODAY };
   private static final ZonedDateTimeDoubleTimeSeries[] TS_FIXED_OIS_EUR_WITHOUT_TODAY = new ZonedDateTimeDoubleTimeSeries[] {TS_EMPTY, TS_ON_EUR_WITHOUT_TODAY };
-  //
-  //  private static final ZonedDateTimeDoubleTimeSeries TS_IBOR_EUR3M_WITH_TODAY = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27),
-  //      DateUtils.getUTCDate(2011, 9, 28) }, new double[] {0.0035, 0.0036 });
-  //  private static final ZonedDateTimeDoubleTimeSeries TS_IBOR_EUR3M_WITHOUT_TODAY = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27) },
-  //      new double[] {0.0035 });
-  //
-  //  private static final ZonedDateTimeDoubleTimeSeries[] TS_FIXED_IBOR_EUR3M_WITH_TODAY = new ZonedDateTimeDoubleTimeSeries[] {TS_IBOR_EUR3M_WITH_TODAY };
-  //  private static final ZonedDateTimeDoubleTimeSeries[] TS_FIXED_IBOR_EUR3M_WITHOUT_TODAY = new ZonedDateTimeDoubleTimeSeries[] {TS_IBOR_EUR3M_WITHOUT_TODAY };
 
   private static final String CURVE_NAME_DSC_USD = "USD OIS";
   private static final String CURVE_NAME_FWD3_USD = "USD Fwd 3M";
@@ -298,32 +290,31 @@ public class MulticurveBuildingHullWhiteDiscountFuturesUSDTest {
     }
   }
 
+  @SuppressWarnings("unchecked")
   private static Pair<HullWhiteOneFactorProviderDiscount, CurveBuildingBlockBundle> makeCurvesFromDefinitions(final InstrumentDefinition<?>[][][] definitions,
       final GeneratorYDCurve[][] curveGenerators, final String[][] curveNames, final HullWhiteOneFactorProviderDiscount knownData,
       final InstrumentDerivativeVisitor<HullWhiteOneFactorProviderInterface, Double> calculator,
       final InstrumentDerivativeVisitor<HullWhiteOneFactorProviderInterface, MulticurveSensitivity> sensitivityCalculator, final boolean withToday) {
-    final int nbUnits = curveGenerators.length;
-    final double[][] parametersGuess = new double[nbUnits][];
-    final GeneratorYDCurve[][] generatorFinal = new GeneratorYDCurve[nbUnits][];
-    final InstrumentDerivative[][][] instruments = new InstrumentDerivative[nbUnits][][];
-    for (int loopunit = 0; loopunit < nbUnits; loopunit++) {
-      generatorFinal[loopunit] = new GeneratorYDCurve[curveGenerators[loopunit].length];
-      int nbInsUnit = 0;
-      for (int loopcurve = 0; loopcurve < curveGenerators[loopunit].length; loopcurve++) {
-        nbInsUnit += definitions[loopunit][loopcurve].length;
+    final int nUnits = definitions.length;
+    final MultiCurveBundle<GeneratorYDCurve>[] curveBundles = new MultiCurveBundle[nUnits];
+    for (int i = 0; i < nUnits; i++) {
+      final int nCurves = definitions[i].length;
+      final SingleCurveBundle<GeneratorYDCurve>[] singleCurves = new SingleCurveBundle[nCurves];
+      for (int j = 0; j < nCurves; j++) {
+        final int nInstruments = definitions[i][j].length;
+        final InstrumentDerivative[] derivatives = new InstrumentDerivative[nInstruments];
+        final double[] rates = new double[nInstruments];
+        for(int k = 0; k < nInstruments; k++) {
+          derivatives[k] = convert(definitions[i][j][k], withToday);
+          rates[k] = initialGuess(definitions[i][j][k]);
+        }
+        final GeneratorYDCurve generator = curveGenerators[i][j].finalGenerator(derivatives);
+        final double[] initialGuess = generator.initialGuess(rates);
+        singleCurves[j] = new SingleCurveBundle<>(curveNames[i][j], derivatives, initialGuess, generator);
       }
-      parametersGuess[loopunit] = new double[nbInsUnit];
-      int startCurve = 0; // First parameter index of the curve in the unit.
-      instruments[loopunit] = convert(definitions[loopunit], withToday);
-      for (int loopcurve = 0; loopcurve < curveGenerators[loopunit].length; loopcurve++) {
-        generatorFinal[loopunit][loopcurve] = curveGenerators[loopunit][loopcurve].finalGenerator(instruments[loopunit][loopcurve]);
-        final double[] guessCurve = generatorFinal[loopunit][loopcurve].initialGuess(initialGuess(definitions[loopunit][loopcurve]));
-        System.arraycopy(guessCurve, 0, parametersGuess[loopunit], startCurve, instruments[loopunit][loopcurve].length);
-        startCurve += instruments[loopunit][loopcurve].length;
-      }
+      curveBundles[i] = new MultiCurveBundle<>(singleCurves);
     }
-    return CURVE_BUILDING_REPOSITORY.makeCurvesFromDerivatives(instruments, generatorFinal, curveNames, parametersGuess, knownData, DSC_MAP, FWD_IBOR_MAP, FWD_ON_MAP, calculator,
-        sensitivityCalculator);
+    return CURVE_BUILDING_REPOSITORY.makeCurvesFromDerivatives(curveBundles, knownData, DSC_MAP, FWD_IBOR_MAP, FWD_ON_MAP, calculator, sensitivityCalculator);
   }
 
   private static InstrumentDerivative[][] convert(final InstrumentDefinition<?>[][] definitions, final boolean withToday) {
@@ -352,17 +343,26 @@ public class MulticurveBuildingHullWhiteDiscountFuturesUSDTest {
     return instruments;
   }
 
-  private static ZonedDateTimeDoubleTimeSeries[] getTSSwapFixedON(final Boolean withToday) {
-    return withToday ? TS_FIXED_OIS_EUR_WITH_TODAY : TS_FIXED_OIS_EUR_WITHOUT_TODAY;
+  private static InstrumentDerivative convert(final InstrumentDefinition<?> instrument, final boolean withToday) {
+    InstrumentDerivative ird;
+    if (instrument instanceof SwapFixedONDefinition) {
+      ird = ((SwapFixedONDefinition) instrument).toDerivative(NOW, getTSSwapFixedON(withToday));
+    } else {
+      if (instrument instanceof InterestRateFutureTransactionDefinition) {
+        ird = ((InterestRateFutureTransactionDefinition) instrument).toDerivative(NOW, 0.0); // Trade date = today, reference price not used.
+      } else {
+        if (instrument instanceof SwapFuturesPriceDeliverableTransactionDefinition) {
+          ird = ((SwapFuturesPriceDeliverableTransactionDefinition) instrument).toDerivative(NOW, 0.0); // Trade date = today, reference price not used.
+        } else {
+          ird = instrument.toDerivative(NOW);
+        }
+      }
+    }
+    return ird;
   }
 
-  private static double[] initialGuess(final InstrumentDefinition<?>[] definitions) {
-    final double[] result = new double[definitions.length];
-    int loopr = 0;
-    for (final InstrumentDefinition<?> definition : definitions) {
-      result[loopr++] = initialGuess(definition);
-    }
-    return result;
+  private static ZonedDateTimeDoubleTimeSeries[] getTSSwapFixedON(final Boolean withToday) {
+    return withToday ? TS_FIXED_OIS_EUR_WITH_TODAY : TS_FIXED_OIS_EUR_WITHOUT_TODAY;
   }
 
   private static double initialGuess(final InstrumentDefinition<?> instrument) {

@@ -153,8 +153,6 @@ public class InflationBuildingCurveWithDiscountTestEUR {
   public static final GeneratorCurve[][][] GENERATORS_UNITS = new GeneratorCurve[NB_BLOCKS][][];
   public static final String[][][] NAMES_UNITS = new String[NB_BLOCKS][][];
 
-  /*public static final MulticurveProviderDiscount usMulticurveProviderDiscount = MulticurveProviderDiscountDataSets.createMulticurveUsdWithoutDiscount().copy();
-  public static final InflationProviderDiscount KNOWN_DATA = new InflationProviderDiscount(usMulticurveProviderDiscount);*/
   private static final InflationProviderDiscount KNOWN_DATA = new InflationProviderDiscount(FX_MATRIX);
 
   private static final LinkedHashMap<String, Currency> DSC_MAP = new LinkedHashMap<>();
@@ -290,7 +288,7 @@ public class InflationBuildingCurveWithDiscountTestEUR {
     final double notional = 100000;
     final GeneratorAttributeIR swapAttribute = new GeneratorAttributeIR(Period.ofYears(4));
     final SwapFixedInflationZeroCouponDefinition swapDefinition = GENERATOR_INFALTION_SWAP.generateInstrument(NOW, spreadJPYEUR, notional, swapAttribute);
-    final InstrumentDerivative swap = swapDefinition.toDerivative(NOW);
+    final InstrumentDerivative swap = swapDefinition.toDerivative(NOW, new ZonedDateTimeDoubleTimeSeries[] {TS_PRICE_INDEX_USD_WITH_TODAY, TS_PRICE_INDEX_USD_WITH_TODAY});
     final ParameterInflationSensitivityParameterCalculator<InflationProviderInterface> PSC = new ParameterInflationSensitivityParameterCalculator<>(PVCSDIC);
     final MarketQuoteInflationSensitivityBlockCalculator<InflationProviderInterface> MQSC = new MarketQuoteInflationSensitivityBlockCalculator<>(PSC);
     @SuppressWarnings("unused")
@@ -312,40 +310,34 @@ public class InflationBuildingCurveWithDiscountTestEUR {
     }
   }
 
+  @SuppressWarnings("unchecked")
   private static Pair<InflationProviderDiscount, CurveBuildingBlockBundle> makeCurvesFromDefinitions(final InstrumentDefinition<?>[][][] definitions,
       final GeneratorCurve[][] curveGenerators,
       final String[][] curveNames, final InflationProviderDiscount knownData, final InstrumentDerivativeVisitor<InflationProviderInterface, Double> calculator,
       final InstrumentDerivativeVisitor<InflationProviderInterface, InflationSensitivity> sensitivityCalculator) {
-    final int nbUnits = curveGenerators.length;
-    final double[][] parametersGuess = new double[nbUnits][];
-    final GeneratorCurve[][] generatorFinal = new GeneratorCurve[nbUnits][];
-    final InstrumentDerivative[][][] instruments = new InstrumentDerivative[nbUnits][][];
-    for (int loopunit = 0; loopunit < nbUnits; loopunit++) {
-      generatorFinal[loopunit] = new GeneratorCurve[curveGenerators[loopunit].length];
-      int nbInsUnit = 0;
-      for (int loopcurve = 0; loopcurve < curveGenerators[loopunit].length; loopcurve++) {
-        nbInsUnit += definitions[loopunit][loopcurve].length;
+    final int nUnits = definitions.length;
+    final MultiCurveBundle<GeneratorCurve>[] curveBundles = new MultiCurveBundle[nUnits];
+    for (int i = 0; i < nUnits; i++) {
+      final int nCurves = definitions[i].length;
+      final SingleCurveBundle<GeneratorCurve>[] singleCurves = new SingleCurveBundle[nCurves];
+      for (int j = 0; j < nCurves; j++) {
+        final int nInstruments = definitions[i][j].length;
+        final InstrumentDerivative[] derivatives = new InstrumentDerivative[nInstruments];
+        final double[] initialGuess = new double[nInstruments];
+        for (int k = 0; k < nInstruments; k++) {
+          derivatives[k] = convert(definitions[i][j][k]);
+          initialGuess[k] = initialGuess(definitions[i][j][k]);
+        }
+        final GeneratorCurve generator = curveGenerators[i][j].finalGenerator(derivatives);
+        singleCurves[j] = new SingleCurveBundle<>(curveNames[i][j], derivatives, initialGuess, generator);
       }
-      parametersGuess[loopunit] = new double[nbInsUnit];
-      int startCurve = 0; // First parameter index of the curve in the unit.
-      instruments[loopunit] = convert(definitions[loopunit]);
-      for (int loopcurve = 0; loopcurve < curveGenerators[loopunit].length; loopcurve++) {
-        generatorFinal[loopunit][loopcurve] = curveGenerators[loopunit][loopcurve].finalGenerator(instruments[loopunit][loopcurve]);
-        final double[] guessCurve = generatorFinal[loopunit][loopcurve].initialGuess(initialGuess(definitions[loopunit][loopcurve]));
-        System.arraycopy(guessCurve, 0, parametersGuess[loopunit], startCurve, instruments[loopunit][loopcurve].length);
-        startCurve += instruments[loopunit][loopcurve].length;
-      }
+      curveBundles[i] = new MultiCurveBundle<>(singleCurves);
     }
-    return CURVE_BUILDING_REPOSITORY.makeCurvesFromDerivatives(instruments, generatorFinal, curveNames, parametersGuess, knownData, DSC_MAP, FWD_ON_MAP, US_CPI_MAP, calculator,
+    return CURVE_BUILDING_REPOSITORY.makeCurvesFromDerivatives(curveBundles, knownData, DSC_MAP, FWD_ON_MAP, US_CPI_MAP, calculator,
         sensitivityCalculator);
-
   }
 
   private static InstrumentDerivative[][] convert(final InstrumentDefinition<?>[][] definitions) {
-    //    int nbDef = 0;
-    //    for (final InstrumentDefinition<?>[] definition : definitions) {
-    //      nbDef += definition.length;
-    //    }
     final InstrumentDerivative[][] instruments = new InstrumentDerivative[definitions.length][];
     for (int loopcurve = 0; loopcurve < definitions.length; loopcurve++) {
       instruments[loopcurve] = new InstrumentDerivative[definitions[loopcurve].length];
@@ -353,7 +345,6 @@ public class InflationBuildingCurveWithDiscountTestEUR {
       for (final InstrumentDefinition<?> instrument : definitions[loopcurve]) {
         InstrumentDerivative ird;
         if (instrument instanceof SwapFixedInflationZeroCouponDefinition) {
-          /* ird = ((SwapFixedInflationZeroCouponDefinition) instrument).toDerivative(NOW, getTSSwapFixedInflation(withToday, unit));*/
           final Annuity<? extends Payment> ird1 = ((SwapFixedInflationZeroCouponDefinition) instrument).getFirstLeg().toDerivative(NOW);
           final Annuity<? extends Payment> ird2 = ((SwapFixedInflationZeroCouponDefinition) instrument).getSecondLeg().toDerivative(NOW, TS_PRICE_INDEX_USD_WITH_TODAY);
           ird = new Swap<>(ird1, ird2);
@@ -367,13 +358,17 @@ public class InflationBuildingCurveWithDiscountTestEUR {
     return instruments;
   }
 
-  private static double[] initialGuess(final InstrumentDefinition<?>[] definitions) {
-    final double[] result = new double[definitions.length];
-    int loopr = 0;
-    for (final InstrumentDefinition<?> definition : definitions) {
-      result[loopr++] = initialGuess(definition);
+  private static InstrumentDerivative convert(final InstrumentDefinition<?> instrument) {
+    InstrumentDerivative ird;
+    if (instrument instanceof SwapFixedInflationZeroCouponDefinition) {
+      final Annuity<? extends Payment> ird1 = ((SwapFixedInflationZeroCouponDefinition) instrument).getFirstLeg().toDerivative(NOW);
+      final Annuity<? extends Payment> ird2 = ((SwapFixedInflationZeroCouponDefinition) instrument).getSecondLeg().toDerivative(NOW, TS_PRICE_INDEX_USD_WITH_TODAY);
+      ird = new Swap<>(ird1, ird2);
     }
-    return result;
+    else {
+      ird = instrument.toDerivative(NOW);
+    }
+    return ird;
   }
 
   private static double initialGuess(final InstrumentDefinition<?> instrument) {
