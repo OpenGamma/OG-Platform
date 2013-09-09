@@ -266,6 +266,12 @@ public class MasterPortfolioWriter implements PortfolioWriter {
     if (position.getSecurityLink().getExternalId().isEmpty() && position.getSecurityLink().getObjectId() == null) {
       position.setSecurityLink(ManageableSecurityLink.of(writtenSecurities.get(0)));
     }
+    // also check trades within position for a valid securityLink
+    for (ManageableTrade trade : position.getTrades()) {
+      if (trade.getSecurityLink().getExternalId().isEmpty() && trade.getSecurityLink().getObjectId() == null) {
+        trade.setSecurityLink(ManageableSecurityLink.of(writtenSecurities.get(0))); // or reuse link from position?
+      }
+    }
 
     // No existing position could be reused/updated: just Add the new position to the position master as a new document
     // (can't launch a thread since we need the position id immediately, to be stored with the pos document in the map)
