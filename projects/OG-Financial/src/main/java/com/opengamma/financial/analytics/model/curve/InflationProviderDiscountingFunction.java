@@ -12,7 +12,6 @@ import static com.opengamma.engine.value.ValueRequirementNames.CURVE_MARKET_DATA
 import static com.opengamma.engine.value.ValueRequirementNames.CURVE_SPECIFICATION;
 import static com.opengamma.engine.value.ValueRequirementNames.PRICE_INDEX_CURVE;
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.DISCOUNTING;
-import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -26,7 +25,6 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.curve.inflation.generator.GeneratorPriceIndexCurve;
-import com.opengamma.analytics.financial.curve.inflation.generator.GeneratorPriceIndexCurveAddSeasonality;
 import com.opengamma.analytics.financial.curve.inflation.generator.GeneratorPriceIndexCurveInterpolated;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
@@ -42,6 +40,8 @@ import com.opengamma.analytics.financial.model.interestrate.curve.SeasonalCurve;
 import com.opengamma.analytics.financial.provider.calculator.inflation.ParSpreadInflationMarketQuoteCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.inflation.ParSpreadInflationMarketQuoteDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
+import com.opengamma.analytics.financial.provider.curve.MultiCurveBundle;
+import com.opengamma.analytics.financial.provider.curve.SingleCurveBundle;
 import com.opengamma.analytics.financial.provider.curve.inflation.InflationDiscountBuildingRepository;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
@@ -123,6 +123,7 @@ public class InflationProviderDiscountingFunction extends
       _exogenousRequirements = exogenousRequirements;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     protected Pair<InflationProviderInterface, CurveBuildingBlockBundle> getCurves(final FunctionInputs inputs, final ZonedDateTime now, final InflationDiscountBuildingRepository builder,
         final InflationProviderInterface knownData, final ConventionSource conventionSource, final HolidaySource holidaySource, final RegionSource regionSource) {
@@ -133,10 +134,7 @@ public class InflationProviderDiscountingFunction extends
           (HistoricalTimeSeriesBundle) inputs.getValue(new ValueRequirement(ValueRequirementNames.CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES,
               ComputationTargetSpecification.NULL, curveConstructionProperties));
       final int nGroups = _curveConstructionConfiguration.getCurveGroups().size();
-      final InstrumentDerivative[][][] definitions = new InstrumentDerivative[nGroups][][];
-      final GeneratorPriceIndexCurve[][] curveGenerators = new GeneratorPriceIndexCurve[nGroups][];
-      final String[][] curves = new String[nGroups][];
-      final double[][] parameterGuess = new double[nGroups][];
+      final MultiCurveBundle<GeneratorPriceIndexCurve>[] curveBundles = new MultiCurveBundle[nGroups];
       final LinkedHashMap<String, IndexPrice[]> inflationMap = new LinkedHashMap<>();
       // seasonal time step construction
       final ZonedDateTime[] seasonalityDate = ScheduleCalculator.getUnadjustedDateSchedule(now.withDayOfMonth(1), now.withDayOfMonth(1).plusYears(50), Period.ofMonths(1), true, false);
@@ -149,11 +147,7 @@ public class InflationProviderDiscountingFunction extends
       for (final CurveGroupConfiguration group : _curveConstructionConfiguration.getCurveGroups()) { // Group - start
         int j = 0;
         final int nCurves = group.getTypesForCurves().size();
-        definitions[i] = new InstrumentDerivative[nCurves][];
-        curveGenerators[i] = new GeneratorPriceIndexCurve[nCurves];
-        curves[i] = new String[nCurves];
-        parameterGuess[i] = new double[nCurves];
-        final DoubleArrayList parameterGuessForCurves = new DoubleArrayList();
+        final SingleCurveBundle<GeneratorPriceIndexCurve>[] singleCurves = new SingleCurveBundle[nCurves];
         for (final Map.Entry<String, List<CurveTypeConfiguration>> entry : group.getTypesForCurves().entrySet()) {
           final List<IndexPrice> inflation = new ArrayList<>();
           final String curveName = entry.getKey();
@@ -166,15 +160,13 @@ public class InflationProviderDiscountingFunction extends
               (SnapshotDataBundle) inputs.getValue(new ValueRequirement(CURVE_MARKET_DATA, ComputationTargetSpecification.NULL, properties));
           final int nNodes = specification.getNodes().size();
           final InstrumentDerivative[] derivativesForCurve = new InstrumentDerivative[nNodes];
-          final double[] marketDataForCurve = new double[nNodes];
+          final double[] parameterGuessForCurves = new double[nNodes];
           int k = 0;
           for (final CurveNodeWithIdentifier node : specification.getNodes()) { // Node points - start
             final Double marketData = snapshot.getDataPoint(node.getIdentifier());
             if (marketData == null) {
               throw new OpenGammaRuntimeException("Could not get market data for " + node.getIdentifier());
             }
-            marketDataForCurve[k] = marketData;
-
             final InstrumentDefinition<?> definitionForNode = node.getCurveNode().accept(getCurveNodeConverter(conventionSource, holidaySource, regionSource,
                 snapshot, node.getIdentifier(), timeSeries, now));
             // Construction of the first guess for the root finder
@@ -183,14 +175,12 @@ public class InflationProviderDiscountingFunction extends
             final CouponFixedCompoundingDefinition couponFix = (CouponFixedCompoundingDefinition) swap.getFirstLeg().getNthPayment(swap.getFirstLeg().getNumberOfPayments() - 1);
             if (couponInflation instanceof CouponInflationZeroCouponInterpolationDefinition) {
               final CouponInflationZeroCouponInterpolationDefinition coupon = (CouponInflationZeroCouponInterpolationDefinition) couponInflation;
-              parameterGuessForCurves.add(100.0 * Math.pow((1 + marketData), couponFix.getPaymentAccrualFactors().length));
+              parameterGuessForCurves[k] = 100.0 * Math.pow((1 + marketData), couponFix.getPaymentAccrualFactors().length);
             } else {
               final CouponInflationZeroCouponMonthlyDefinition coupon = (CouponInflationZeroCouponMonthlyDefinition) couponInflation;
-              parameterGuessForCurves.add(100.0 * Math.pow((1 + marketData), couponFix.getPaymentAccrualFactors().length));
+              parameterGuessForCurves[k] = 100.0 * Math.pow((1 + marketData), couponFix.getPaymentAccrualFactors().length);
             }
-
             derivativesForCurve[k++] = getCurveNodeConverter().getDerivative(node, definitionForNode, now, timeSeries);
-
           } // Node points - end
           for (final CurveTypeConfiguration type : entry.getValue()) { // Type - start
             if (type instanceof InflationCurveTypeConfiguration) {
@@ -214,25 +204,22 @@ public class InflationProviderDiscountingFunction extends
           if (!inflation.isEmpty()) {
             inflationMap.put(curveName, inflation.toArray(new IndexPrice[inflation.size()]));
           }
-          definitions[i][j] = derivativesForCurve;
+          final GeneratorPriceIndexCurve generator = getGenerator(definition);
+          singleCurves[j++] = new SingleCurveBundle<>(curveName, derivativesForCurve, generator.initialGuess(parameterGuessForCurves), generator);
           // seasonal curve construction
           final double[] seasonalFactors = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
           final SeasonalCurve seasonalCurve = new SeasonalCurve(seasonalStep, seasonalFactors, false);
 
           // TODO : inputs () should be retrieve from historical data, for this we need two things :
-          // 1) histrical value of the price index (this can be retrieve from bloomberg using the appropriate ticker)
+          // 1) historical value of the price index (this can be retrieve from bloomberg using the appropriate ticker)
           // 2) A statistical treatment on this data should be done, usually am kind of specific ARIMA.
-
-          curveGenerators[i][j] = new GeneratorPriceIndexCurveAddSeasonality(getGenerator(definition), seasonalCurve);
-          curves[i][j] = curveName;
-          parameterGuess[i] = parameterGuessForCurves.toDoubleArray();
-          j++;
         }
-        i++;
+        final MultiCurveBundle<GeneratorPriceIndexCurve> groupBundle = new MultiCurveBundle<>(singleCurves);
+        curveBundles[i++] = groupBundle;
       } // Group - end
       //TODO this is only in here because the code in analytics doesn't use generics properly
-      final Pair<InflationProviderDiscount, CurveBuildingBlockBundle> temp = builder.makeCurvesFromDerivatives(definitions, curveGenerators, curves,
-          parameterGuess, (InflationProviderDiscount) knownData, inflationMap, getCalculator(), getSensitivityCalculator());
+      final Pair<InflationProviderDiscount, CurveBuildingBlockBundle> temp = builder.makeCurvesFromDerivatives(curveBundles,
+          (InflationProviderDiscount) knownData, inflationMap, getCalculator(), getSensitivityCalculator());
       final Pair<InflationProviderInterface, CurveBuildingBlockBundle> result = Pair.of((InflationProviderInterface) temp.getFirst(), temp.getSecond());
       return result;
     }
