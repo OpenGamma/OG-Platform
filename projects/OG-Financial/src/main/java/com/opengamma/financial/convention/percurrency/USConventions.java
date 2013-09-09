@@ -145,7 +145,7 @@ public class USConventions {
         ExternalId.of(ExchangeTradedInstrumentExpiryCalculator.SCHEME, IMMFutureAndFutureOptionMonthlyExpiryCalculator.NAME), US, liborConventionId);
     
     final Convention fedFundsConvention = new FederalFundsFutureConvention(fedFundFutureConventionName, ExternalIdBundle.of(ExternalId.of(SCHEME_NAME, FED_FUNDS_FUTURE)),
-        ExternalId.of(ExchangeTradedInstrumentExpiryCalculator.SCHEME, FedFundFutureAndFutureOptionMonthlyExpiryCalculator.NAME), US, liborConventionId, 5000000);
+        ExternalId.of(ExchangeTradedInstrumentExpiryCalculator.SCHEME, FedFundFutureAndFutureOptionMonthlyExpiryCalculator.NAME), US, overnightConventionId, 5000000);
     final Convention cmsDeliverableSwapFutureConvention = new DeliverablePriceQuotedSwapFutureConvention(cmeDeliverableSwapFutureConventionName,
         ExternalIdBundle.of(SCHEME_NAME, CME_DELIVERABLE_SWAP_FUTURE), ExternalId.of(ExchangeTradedInstrumentExpiryCalculator.SCHEME,
             IMMFutureAndFutureOptionQuarterlyExpiryCalculator.NAME), US, liborConventionId, 100000);
