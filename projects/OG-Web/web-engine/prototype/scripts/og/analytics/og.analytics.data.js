@@ -166,7 +166,6 @@ $.register_module({
                 initialize();
             };
             var structure_handler = function (result) {
-                console.log('STRUCTURE HANDLER', result);
                 if (!result || !grid_type || (depgraph && !graph_id)) {
                     return;
                 }
@@ -215,7 +214,6 @@ $.register_module({
                     (structure_promise = api.grid.viewports.structure.get({view_id: view_id, grid_type: grid_type,
                         update: structure_setup, viewport_id: data.viewport_id}))
                     .pipe(function (result) {
-                        console.log('PROMISE ID', structure_promise.id, result.meta.promise);
                         if (result.error === 404) { // server restart logic caught in 404
                             missing_viewport();
                         } else {
@@ -240,7 +238,6 @@ $.register_module({
                 }
             };
             var structure_setup_impl = function (result) {
-                console.log('STRUCTURE CHANGE', result);
                 if (result.error) {
                     return fire('fatal', data.prefix + result.message);
                 }
