@@ -27,8 +27,48 @@ public class AmericanSingleBarrierOptionFunctionProviderTest {
   private static final double SPOT = 105.;
   private static final double[] STRIKES = new double[] {97., 105., 114. };
   private static final double TIME = 4.2;
+  private static final double[] VOLS = new double[] {0.05, 0.1, 0.5 };
   private static final double[] INTERESTS = new double[] {0.01, 0.05 };
   private static final double[] DIVIDENDS = new double[] {0.005, 0.02 };
+
+  /**
+   * 
+   */
+  @Test
+  public void putCallSymmetryTest() {
+    /*
+     * Two sample lattices are checked 
+     */
+    final LatticeSpecification[] lattices = new LatticeSpecification[] {new CoxRossRubinsteinLatticeSpecification(), new LeisenReimerLatticeSpecification() };
+    final int steps = 401;
+    final double[] barrierSet = new double[] {90, 121 };
+    AmericanSingleBarrierOptionFunctionProvider.BarrierTypes dao = AmericanSingleBarrierOptionFunctionProvider.BarrierTypes.valueOf("DownAndOut");
+    AmericanSingleBarrierOptionFunctionProvider.BarrierTypes uao = AmericanSingleBarrierOptionFunctionProvider.BarrierTypes.valueOf("UpAndOut");
+    for (final double strike : STRIKES) {
+      for (final double barrier : barrierSet) {
+        final OptionFunctionProvider1D functionCall = new AmericanSingleBarrierOptionFunctionProvider(strike, TIME, steps, true, barrier, dao);
+        final OptionFunctionProvider1D functionPut = new AmericanSingleBarrierOptionFunctionProvider(SPOT * SPOT / strike, TIME, steps, false, SPOT * SPOT / barrier, uao);
+        for (final double interest : INTERESTS) {
+          for (final double vol : VOLS) {
+            for (final double dividend : DIVIDENDS) {
+              for (final LatticeSpecification lattice : lattices) {
+                final GreekResultCollection greekCall = _model.getGreeks(lattice, functionCall, SPOT, vol, interest, dividend);
+                final GreekResultCollection greekPut = _model.getGreeks(lattice, functionPut, SPOT, vol, dividend, interest);
+                final double priceCall = greekCall.get(Greek.FAIR_PRICE);
+                final double thetaCall = greekCall.get(Greek.THETA);
+                final double pricePut = greekPut.get(Greek.FAIR_PRICE);
+                final double thetaPut = greekPut.get(Greek.THETA);
+                final double refPrice = strike * pricePut / SPOT;
+                final double refTheta = strike * thetaPut / SPOT;
+                assertEquals(priceCall, refPrice, Math.max(refPrice, 1.) * 1.e-5);
+                assertEquals(thetaCall, refTheta, Math.max(Math.abs(refTheta), 1.) * 1.e-2);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 
   /**
    * Check the case when analytic approximation is available
@@ -40,6 +80,7 @@ public class AmericanSingleBarrierOptionFunctionProviderTest {
 
     final double[] vols = new double[] {0.1, 0.15 };
     final double time = 0.1;
+    final int nSteps = 511;
 
     final double[] barrierSet = new double[] {90, 121 };
     final String[] typeSet = new String[] {"DownAndOut", "UpAndOut" };
@@ -52,24 +93,15 @@ public class AmericanSingleBarrierOptionFunctionProviderTest {
               for (final double interest : INTERESTS) {
                 for (final double vol : vols) {
                   for (final double dividend : DIVIDENDS) {
-                    final int nSteps = 511;
                     final OptionFunctionProvider1D function = new AmericanSingleBarrierOptionFunctionProvider(strike, time, nSteps, isCall, barrier,
                         AmericanSingleBarrierOptionFunctionProvider.BarrierTypes.valueOf(type));
                     if (type == "DownAndOut") {
                       if (strike > barrier) {
                         double exact = isCall ? getA(SPOT, strike, time, vol, interest, dividend, 1.) - getC(SPOT, strike, time, vol, interest, dividend, barrier, 1., 1.) : getA(
-                            SPOT, strike, time, vol, interest, dividend, -1.) -
-                            getB(SPOT, strike, time, vol, interest, dividend, barrier, -1.) +
-                            getC(SPOT, strike, time, vol, interest, dividend, barrier, -1., 1.) -
-                            getD(SPOT, strike, time, vol, interest, dividend, barrier, -1., 1.);
+                            SPOT, strike, time, vol, interest, dividend, -1.) - getB(SPOT, strike, time, vol, interest, dividend, barrier, -1.) +
+                            getC(SPOT, strike, time, vol, interest, dividend, barrier, -1., 1.) - getD(SPOT, strike, time, vol, interest, dividend, barrier, -1., 1.);
                         exact = exact < 0. ? 0. : exact;
                         final double res = _model.getPrice(lattice, function, SPOT, vol, interest, dividend);
-                        //                        if (isCall) {
-                        //                          final OptionFunctionProvider1D functionDual = new AmericanSingleBarrierOptionFunctionProvider(SPOT * SPOT / strike, nSteps, false, SPOT * SPOT / barrier,
-                        //                              AmericanSingleBarrierOptionFunctionProvider.BarrierTypes.valueOf("UpAndOut"));
-                        //                          final double dual = strike * _model.getPrice(lattice, functionDual, SPOT, time, vol, dividend, interest) / SPOT;
-                        //                          System.out.println(res + "\t" + dual);
-                        //                        }
                         assertEquals(res, exact, Math.max(exact, 1.) * 1.e-1);
                       } else {
                         double exact = isCall ? getB(SPOT, strike, time, vol, interest, dividend, barrier, 1.) - getD(SPOT, strike, time, vol, interest, dividend, barrier, 1., 1.) : 0.;
@@ -80,10 +112,8 @@ public class AmericanSingleBarrierOptionFunctionProviderTest {
                     } else {
                       if (strike < barrier) {
                         double exact = !isCall ? getA(SPOT, strike, time, vol, interest, dividend, -1.) - getC(SPOT, strike, time, vol, interest, dividend, barrier, -1., -1.) : getA(
-                            SPOT, strike, time, vol, interest, dividend, 1.) -
-                            getB(SPOT, strike, time, vol, interest, dividend, barrier, 1.) +
-                            getC(SPOT, strike, time, vol, interest, dividend, barrier, 1., -1.) -
-                            getD(SPOT, strike, time, vol, interest, dividend, barrier, 1., -1.);
+                            SPOT, strike, time, vol, interest, dividend, 1.) - getB(SPOT, strike, time, vol, interest, dividend, barrier, 1.) +
+                            getC(SPOT, strike, time, vol, interest, dividend, barrier, 1., -1.) - getD(SPOT, strike, time, vol, interest, dividend, barrier, 1., -1.);
                         exact = exact < 0. ? 0. : exact;
                         final double res = _model.getPrice(lattice, function, SPOT, vol, interest, dividend);
                         assertEquals(res, exact, Math.max(exact, 1.) * 1.e-1);
@@ -101,23 +131,6 @@ public class AmericanSingleBarrierOptionFunctionProviderTest {
           }
         }
       }
-    }
-
-    /**
-     * sample data
-     */
-    final double spot = 100.;
-    final double strike = 100.;
-    final double time1 = 1.;
-    final double sig = 0.2;
-    final double rate = 0.06;
-    final double barrier = 95.;
-    final int steps = 3;
-    final OptionFunctionProvider1D function1 = new AmericanSingleBarrierOptionFunctionProvider(strike, time1, steps, true, barrier,
-        AmericanSingleBarrierOptionFunctionProvider.BarrierTypes.valueOf("DownAndOut"));
-    for (final LatticeSpecification lattice : lattices) {
-      final double res = _model.getPrice(lattice, function1, spot, sig, rate, 0.);
-      assertEquals(res, 9.9958, 9958 * 1.e-1);
     }
   }
 
@@ -147,71 +160,68 @@ public class AmericanSingleBarrierOptionFunctionProviderTest {
             for (final double strike : STRIKES) {
               for (final double interest : INTERESTS) {
                 for (final double vol : vols) {
-                  final int[] choicesSteps = new int[] {311 };
-                  for (final int nSteps : choicesSteps) {
-                    final OptionFunctionProvider1D function = new AmericanSingleBarrierOptionFunctionProvider(strike, time, nSteps, isCall, barrier,
-                        AmericanSingleBarrierOptionFunctionProvider.BarrierTypes.valueOf(type));
-                    final double resSpot = SPOT * (1. - propDividends[0]) * (1. - propDividends[1]) * (1. - propDividends[2]);
-                    final double modSpot = SPOT - cashDividends[0] * Math.exp(-interest * dividendTimes[0]) - cashDividends[1] * Math.exp(-interest * dividendTimes[1]) - cashDividends[2] *
-                        Math.exp(-interest * dividendTimes[2]);
-                    final DividendFunctionProvider cashDividend = new CashDividendFunctionProvider(dividendTimes, cashDividends);
-                    final DividendFunctionProvider propDividend = new ProportionalDividendFunctionProvider(dividendTimes, propDividends);
+                  final int nSteps = 311;
+                  final OptionFunctionProvider1D function = new AmericanSingleBarrierOptionFunctionProvider(strike, time, nSteps, isCall, barrier,
+                      AmericanSingleBarrierOptionFunctionProvider.BarrierTypes.valueOf(type));
+                  final double resSpot = SPOT * (1. - propDividends[0]) * (1. - propDividends[1]) * (1. - propDividends[2]);
+                  final double modSpot = SPOT - cashDividends[0] * Math.exp(-interest * dividendTimes[0]) - cashDividends[1] * Math.exp(-interest * dividendTimes[1]) - cashDividends[2] *
+                      Math.exp(-interest * dividendTimes[2]);
+                  final DividendFunctionProvider cashDividend = new CashDividendFunctionProvider(dividendTimes, cashDividends);
+                  final DividendFunctionProvider propDividend = new ProportionalDividendFunctionProvider(dividendTimes, propDividends);
 
-                    if (type == "DownAndOut") {
-                      if (strike > barrier) {
-                        double exactMod = isCall ? getA(modSpot, strike, time, vol, interest, 0., 1.) - getC(modSpot, strike, time, vol, interest, 0., barrier, 1., 1.) : getA(
-                            modSpot, strike, time, vol, interest, 0., -1.) - getB(modSpot, strike, time, vol, interest, 0., barrier, -1.) +
-                            getC(modSpot, strike, time, vol, interest, 0., barrier, -1., 1.) - getD(modSpot, strike, time, vol, interest, 0., barrier, -1., 1.);
-                        exactMod = barrier >= SPOT ? 0. : exactMod;
-                        final double resMod = _model.getPrice(lattice, function, SPOT, vol, interest, cashDividend);
-                        assertEquals(resMod, exactMod, Math.max(exactMod, 1.) * eps);
+                  if (type == "DownAndOut") {
+                    if (strike > barrier) {
+                      double exactMod = isCall ? getA(modSpot, strike, time, vol, interest, 0., 1.) - getC(modSpot, strike, time, vol, interest, 0., barrier, 1., 1.) : getA(
+                          modSpot, strike, time, vol, interest, 0., -1.) - getB(modSpot, strike, time, vol, interest, 0., barrier, -1.) +
+                          getC(modSpot, strike, time, vol, interest, 0., barrier, -1., 1.) - getD(modSpot, strike, time, vol, interest, 0., barrier, -1., 1.);
+                      exactMod = barrier >= SPOT ? 0. : exactMod;
+                      final double resMod = _model.getPrice(lattice, function, SPOT, vol, interest, cashDividend);
+                      assertEquals(resMod, exactMod, Math.max(exactMod, 1.) * eps);
 
-                        double exactRes = isCall ? getA(resSpot, strike, time, vol, interest, 0., 1.) - getC(resSpot, strike, time, vol, interest, 0., barrier, 1., 1.) : getA(
-                            resSpot, strike, time, vol, interest, 0., -1.) - getB(resSpot, strike, time, vol, interest, 0., barrier, -1.) +
-                            getC(resSpot, strike, time, vol, interest, 0., barrier, -1., 1.) - getD(resSpot, strike, time, vol, interest, 0., barrier, -1., 1.);
-                        exactRes = barrier >= SPOT ? 0. : exactRes;
-                        final double resRes = _model.getPrice(lattice, function, SPOT, vol, interest, propDividend);
-                        assertEquals(resRes, exactRes, Math.max(exactRes, 1.) * eps);
-                      } else {
-                        double exactMod = isCall ? getB(modSpot, strike, time, vol, interest, 0., barrier, 1.) - getD(modSpot, strike, time, vol, interest, 0., barrier, 1., 1.) : 0.;
-                        exactMod = barrier >= SPOT ? 0. : exactMod;
-                        final double resMod = _model.getPrice(lattice, function, SPOT, vol, interest, cashDividend);
-                        assertEquals(resMod, exactMod, Math.max(exactMod, 1.) * eps);
-
-                        double exactRes = isCall ? getB(resSpot, strike, time, vol, interest, 0., barrier, 1.) - getD(resSpot, strike, time, vol, interest, 0., barrier, 1., 1.) : 0.;
-                        exactRes = barrier >= SPOT ? 0. : exactRes;
-                        final double resRes = _model.getPrice(lattice, function, SPOT, vol, interest, propDividend);
-                        assertEquals(resRes, exactRes, Math.max(exactRes, 1.) * eps);
-                      }
+                      double exactRes = isCall ? getA(resSpot, strike, time, vol, interest, 0., 1.) - getC(resSpot, strike, time, vol, interest, 0., barrier, 1., 1.) : getA(
+                          resSpot, strike, time, vol, interest, 0., -1.) - getB(resSpot, strike, time, vol, interest, 0., barrier, -1.) +
+                          getC(resSpot, strike, time, vol, interest, 0., barrier, -1., 1.) - getD(resSpot, strike, time, vol, interest, 0., barrier, -1., 1.);
+                      exactRes = barrier >= SPOT ? 0. : exactRes;
+                      final double resRes = _model.getPrice(lattice, function, SPOT, vol, interest, propDividend);
+                      assertEquals(resRes, exactRes, Math.max(exactRes, 1.) * eps);
                     } else {
-                      if (strike < barrier) {
-                        double exactMod = !isCall ? getA(modSpot, strike, time, vol, interest, 0., -1.) - getC(modSpot, strike, time, vol, interest, 0., barrier, -1., -1.) : getA(
-                            modSpot, strike, time, vol, interest, 0., 1.) - getB(modSpot, strike, time, vol, interest, 0., barrier, 1.) +
-                            getC(modSpot, strike, time, vol, interest, 0., barrier, 1., -1.) - getD(modSpot, strike, time, vol, interest, 0., barrier, 1., -1.);
-                        //                        exactMod = exactMod < 0. ? 0. : exactMod;
-                        exactMod = barrier <= SPOT ? 0. : exactMod;
-                        final double resMod = _model.getPrice(lattice, function, SPOT, vol, interest, cashDividend);
-                        assertEquals(resMod, exactMod, Math.max(exactMod, 1.) * eps);
+                      double exactMod = isCall ? getB(modSpot, strike, time, vol, interest, 0., barrier, 1.) - getD(modSpot, strike, time, vol, interest, 0., barrier, 1., 1.) : 0.;
+                      exactMod = barrier >= SPOT ? 0. : exactMod;
+                      final double resMod = _model.getPrice(lattice, function, SPOT, vol, interest, cashDividend);
+                      assertEquals(resMod, exactMod, Math.max(exactMod, 1.) * eps);
 
-                        double exactRes = !isCall ? getA(resSpot, strike, time, vol, interest, 0., -1.) - getC(resSpot, strike, time, vol, interest, 0., barrier, -1., -1.) : getA(
-                            resSpot, strike, time, vol, interest, 0., 1.) - getB(resSpot, strike, time, vol, interest, 0., barrier, 1.) +
-                            getC(resSpot, strike, time, vol, interest, 0., barrier, 1., -1.) - getD(resSpot, strike, time, vol, interest, 0., barrier, 1., -1.);
-                        exactRes = exactRes < 0. ? 0. : exactRes;
-                        exactRes = barrier <= SPOT ? 0. : exactRes;
-                        final double resRes = _model.getPrice(lattice, function, SPOT, vol, interest, propDividend);
-                        assertEquals(resRes, exactRes, Math.max(exactRes, 1.) * eps);
-                      } else {
-                        double exactMod = !isCall ? getB(modSpot, strike, time, vol, interest, 0., barrier, -1.) - getD(modSpot, strike, time, vol, interest, 0., barrier, -1., -1.) : 0.;
-                        exactMod = barrier <= SPOT ? 0. : exactMod;
-                        final double resMod = _model.getPrice(lattice, function, SPOT, vol, interest, cashDividend);
-                        assertEquals(resMod, exactMod, Math.max(exactMod, 1.) * eps);
+                      double exactRes = isCall ? getB(resSpot, strike, time, vol, interest, 0., barrier, 1.) - getD(resSpot, strike, time, vol, interest, 0., barrier, 1., 1.) : 0.;
+                      exactRes = barrier >= SPOT ? 0. : exactRes;
+                      final double resRes = _model.getPrice(lattice, function, SPOT, vol, interest, propDividend);
+                      assertEquals(resRes, exactRes, Math.max(exactRes, 1.) * eps);
+                    }
+                  } else {
+                    if (strike < barrier) {
+                      double exactMod = !isCall ? getA(modSpot, strike, time, vol, interest, 0., -1.) - getC(modSpot, strike, time, vol, interest, 0., barrier, -1., -1.) : getA(
+                          modSpot, strike, time, vol, interest, 0., 1.) - getB(modSpot, strike, time, vol, interest, 0., barrier, 1.) +
+                          getC(modSpot, strike, time, vol, interest, 0., barrier, 1., -1.) - getD(modSpot, strike, time, vol, interest, 0., barrier, 1., -1.);
+                      exactMod = barrier <= SPOT ? 0. : exactMod;
+                      final double resMod = _model.getPrice(lattice, function, SPOT, vol, interest, cashDividend);
+                      assertEquals(resMod, exactMod, Math.max(exactMod, 1.) * eps);
 
-                        double exactRes = !isCall ? getB(resSpot, strike, time, vol, interest, 0., barrier, -1.) - getD(resSpot, strike, time, vol, interest, 0., barrier, -1., -1.) : 0.;
-                        exactRes = exactRes < 0. ? 0. : exactRes;
-                        exactRes = barrier <= SPOT ? 0. : exactRes;
-                        final double res = _model.getPrice(lattice, function, SPOT, vol, interest, propDividend);
-                        assertEquals(res, exactRes, Math.max(exactRes, 1.) * eps);
-                      }
+                      double exactRes = !isCall ? getA(resSpot, strike, time, vol, interest, 0., -1.) - getC(resSpot, strike, time, vol, interest, 0., barrier, -1., -1.) : getA(
+                          resSpot, strike, time, vol, interest, 0., 1.) - getB(resSpot, strike, time, vol, interest, 0., barrier, 1.) +
+                          getC(resSpot, strike, time, vol, interest, 0., barrier, 1., -1.) - getD(resSpot, strike, time, vol, interest, 0., barrier, 1., -1.);
+                      exactRes = exactRes < 0. ? 0. : exactRes;
+                      exactRes = barrier <= SPOT ? 0. : exactRes;
+                      final double resRes = _model.getPrice(lattice, function, SPOT, vol, interest, propDividend);
+                      assertEquals(resRes, exactRes, Math.max(exactRes, 1.) * eps);
+                    } else {
+                      double exactMod = !isCall ? getB(modSpot, strike, time, vol, interest, 0., barrier, -1.) - getD(modSpot, strike, time, vol, interest, 0., barrier, -1., -1.) : 0.;
+                      exactMod = barrier <= SPOT ? 0. : exactMod;
+                      final double resMod = _model.getPrice(lattice, function, SPOT, vol, interest, cashDividend);
+                      assertEquals(resMod, exactMod, Math.max(exactMod, 1.) * eps);
+
+                      double exactRes = !isCall ? getB(resSpot, strike, time, vol, interest, 0., barrier, -1.) - getD(resSpot, strike, time, vol, interest, 0., barrier, -1., -1.) : 0.;
+                      exactRes = exactRes < 0. ? 0. : exactRes;
+                      exactRes = barrier <= SPOT ? 0. : exactRes;
+                      final double res = _model.getPrice(lattice, function, SPOT, vol, interest, propDividend);
+                      assertEquals(res, exactRes, Math.max(exactRes, 1.) * eps);
                     }
                   }
                 }

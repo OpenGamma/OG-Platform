@@ -27,9 +27,46 @@ public class DoubleBarrierOptionFunctionProviderTest {
   private static final double SPOT = 105.;
   private static final double[] STRIKES = new double[] {97., 105., 114. };
   private static final double TIME = 4.2;
-  //  private static final double[] VOLS = new double[] {0.05, 0.1, 0.5 };
+  private static final double[] VOLS = new double[] {0.05, 0.1, 0.5 };
   private static final double[] INTERESTS = new double[] {0.015, 0.05 };
   private static final double[] DIVIDENDS = new double[] {0.005, 0.01 };
+
+  /**
+   * 
+   */
+  @Test
+  public void putCallSymmetryTest() {
+    /*
+     * Two sample lattices are checked 
+     */
+    final LatticeSpecification[] lattices = new LatticeSpecification[] {new CoxRossRubinsteinLatticeSpecification(), new LeisenReimerLatticeSpecification() };
+    final int steps = 401;
+    final double lower = 90.;
+    final double upper = 120.;
+    DoubleBarrierOptionFunctionProvider.BarrierTypes out = DoubleBarrierOptionFunctionProvider.BarrierTypes.valueOf("DoubleKnockOut");
+    for (final double strike : STRIKES) {
+      final OptionFunctionProvider1D functionCall = new DoubleBarrierOptionFunctionProvider(strike, TIME, steps, true, lower, upper, out);
+      final OptionFunctionProvider1D functionPut = new DoubleBarrierOptionFunctionProvider(SPOT * SPOT / strike, TIME, steps, false, SPOT * SPOT / upper, SPOT * SPOT / lower, out);
+      for (final double interest : INTERESTS) {
+        for (final double vol : VOLS) {
+          for (final double dividend : DIVIDENDS) {
+            for (final LatticeSpecification lattice : lattices) {
+              final GreekResultCollection greekCall = _model.getGreeks(lattice, functionCall, SPOT, vol, interest, dividend);
+              final GreekResultCollection greekPut = _model.getGreeks(lattice, functionPut, SPOT, vol, dividend, interest);
+              final double priceCall = greekCall.get(Greek.FAIR_PRICE);
+              final double thetaCall = greekCall.get(Greek.THETA);
+              final double pricePut = greekPut.get(Greek.FAIR_PRICE);
+              final double thetaPut = greekPut.get(Greek.THETA);
+              final double refPrice = strike * pricePut / SPOT;
+              final double refTheta = strike * thetaPut / SPOT;
+              assertEquals(priceCall, refPrice, Math.max(refPrice, 0.1) * 1.e-5);
+              assertEquals(thetaCall, refTheta, Math.max(Math.abs(refTheta), 0.1) * 1.e-2);
+            }
+          }
+        }
+      }
+    }
+  }
 
   /**
    * 

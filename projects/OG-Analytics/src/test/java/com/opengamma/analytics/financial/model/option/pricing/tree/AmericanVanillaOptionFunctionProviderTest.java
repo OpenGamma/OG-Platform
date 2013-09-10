@@ -25,8 +25,42 @@ public class AmericanVanillaOptionFunctionProviderTest {
   private static final double TIME = 4.2;
   private static final double[] INTERESTS = new double[] {-0.01, 0.001, 0.005, 0.01 };
   private static final double[] VOLS = new double[] {0.05, 0.1, 0.5 };
-
   private static final double[] DIVIDENDS = new double[] {0.005, 0.02 };
+
+  /**
+   * 
+   */
+  @Test
+  public void putCallSymmetryTest() {
+    /*
+     * Two sample lattices are checked 
+     */
+    final LatticeSpecification[] lattices = new LatticeSpecification[] {new CoxRossRubinsteinLatticeSpecification(), new LeisenReimerLatticeSpecification() };
+
+    final int steps = 401;
+    for (final double strike : STRIKES) {
+      final OptionFunctionProvider1D functionCall = new AmericanVanillaOptionFunctionProvider(strike, TIME, steps, true);
+      final OptionFunctionProvider1D functionPut = new AmericanVanillaOptionFunctionProvider(SPOT * SPOT / strike, TIME, steps, false);
+      for (final double interest : INTERESTS) {
+        for (final double vol : VOLS) {
+          for (final double dividend : DIVIDENDS) {
+            for (final LatticeSpecification lattice : lattices) {
+              final GreekResultCollection greekCall = _model.getGreeks(lattice, functionCall, SPOT, vol, interest, dividend);
+              final GreekResultCollection greekPut = _model.getGreeks(lattice, functionPut, SPOT, vol, dividend, interest);
+              final double priceCall = greekCall.get(Greek.FAIR_PRICE);
+              final double thetaCall = greekCall.get(Greek.THETA);
+              final double pricePut = greekPut.get(Greek.FAIR_PRICE);
+              final double thetaPut = greekPut.get(Greek.THETA);
+              final double refPrice = strike * pricePut / SPOT;
+              final double refTheta = strike * thetaPut / SPOT;
+              assertEquals(priceCall, refPrice, Math.max(refPrice, 1.) * 1.e-5);
+              assertEquals(thetaCall, refTheta, Math.max(Math.abs(refTheta), 1.) * 1.e-2);
+            }
+          }
+        }
+      }
+    }
+  }
 
   /**
    * 
@@ -34,12 +68,12 @@ public class AmericanVanillaOptionFunctionProviderTest {
   @Test
   public void putPriceTest() {
     final LatticeSpecification[] lattices = new LatticeSpecification[] {new CoxRossRubinsteinLatticeSpecification(), new JarrowRuddLatticeSpecification(),
-        new TrigeorgisLatticeSpecification(), new JabbourKraminYoungLatticeSpecification(), new TianLatticeSpecification(), new LeisenReimerLatticeSpecification() };
+        new TrigeorgisLatticeSpecification(), new JabbourKraminYoungLatticeSpecification(), new TianLatticeSpecification() };
     final int nLattices = lattices.length;
     final int nStrikes = STRIKES.length;
     final int nInterests = INTERESTS.length;
     final int nVols = VOLS.length;
-    final int steps = 301;
+    final int steps = 101;
 
     /*
      * Reference values computed by Leisen & Reimer with n=1517
@@ -61,11 +95,7 @@ public class AmericanVanillaOptionFunctionProviderTest {
           for (int l = 0; l < nVols; ++l) {
             final OptionFunctionProvider1D function = new AmericanVanillaOptionFunctionProvider(STRIKES[k], TIME, steps, false);
             final double priceP = _model.getPrice(lattice, function, SPOT, VOLS[l], INTERESTS[j], 0.);
-            if (lattice instanceof LeisenReimerLatticeSpecification) {
-              assertEquals(priceP, expected[j][k][l], Math.max(expected[j][k][l], 1.) / steps);
-            } else {
-              assertEquals(priceP, expected[j][k][l], Math.max(expected[j][k][l], 1.) / Math.sqrt(steps));
-            }
+            assertEquals(priceP, expected[j][k][l], Math.max(expected[j][k][l], 1.) / Math.sqrt(steps));
           }
         }
       }
@@ -78,12 +108,12 @@ public class AmericanVanillaOptionFunctionProviderTest {
   @Test
   public void putGreeksTest() {
     final LatticeSpecification[] lattices = new LatticeSpecification[] {new CoxRossRubinsteinLatticeSpecification(), new JarrowRuddLatticeSpecification(),
-        new TrigeorgisLatticeSpecification(), new JabbourKraminYoungLatticeSpecification(), new TianLatticeSpecification(), new LeisenReimerLatticeSpecification() };
+        new TrigeorgisLatticeSpecification(), new JabbourKraminYoungLatticeSpecification(), new TianLatticeSpecification() };
     final int nLattices = lattices.length;
     final int nStrikes = STRIKES.length;
     final int nInterests = INTERESTS.length;
     final int nVols = VOLS.length;
-    final int steps = 1117;
+    final int steps = 117;
 
     /*
      * Reference values computed by Leisen & Reimer with n=1517
@@ -159,40 +189,19 @@ public class AmericanVanillaOptionFunctionProviderTest {
           for (int l = 0; l < nVols; ++l) {
             final OptionFunctionProvider1D function = new AmericanVanillaOptionFunctionProvider(STRIKES[k], TIME, steps, false);
             final GreekResultCollection greeks = _model.getGreeks(lattice, function, SPOT, VOLS[l], INTERESTS[j], 0.);
-            if (lattice instanceof LeisenReimerLatticeSpecification) {
-              assertEquals(greeks.get(Greek.DELTA), exDelta[j][k][l], Math.max(exDelta[j][k][l], 1.) / steps);
-              assertEquals(greeks.get(Greek.GAMMA), exGamma[j][k][l], Math.max(exGamma[j][k][l], 1.) / steps);
-              assertEquals(greeks.get(Greek.THETA), exTheta[j][k][l], Math.max(exTheta[j][k][l], 1.) / Math.sqrt(steps));
-            } else {
-              assertEquals(greeks.get(Greek.DELTA), exDelta[j][k][l], Math.max(Math.abs(exDelta[j][k][l]), 1.) / Math.sqrt(steps));
-              assertEquals(greeks.get(Greek.GAMMA), exGamma[j][k][l], Math.max(Math.abs(exGamma[j][k][l]), 1.) / Math.sqrt(steps));
-              /*
-               * Because theta is poorly approximated in binomial models, the output is not tested here
-               * For the 3 cases below, the resulting value hugely depends on lattice specifications
-               */
-              if (exTheta[j][k][l] != 0.138 && exTheta[j][k][l] != 0.69 && exTheta[j][k][l] != 1.379999999999999) {
-                assertEquals(greeks.get(Greek.THETA), exTheta[j][k][l], Math.max(Math.abs(exTheta[j][k][l]), 1.) / Math.sqrt(steps));
-              }
+            assertEquals(greeks.get(Greek.DELTA), exDelta[j][k][l], Math.max(Math.abs(exDelta[j][k][l]), 1.) / Math.sqrt(steps));
+            assertEquals(greeks.get(Greek.GAMMA), exGamma[j][k][l], Math.max(Math.abs(exGamma[j][k][l]), 1.) / Math.sqrt(steps));
+            /*
+             * Because theta is poorly approximated in binomial models, the output is not tested here
+             * For the 3 cases below, the resulting value hugely depends on lattice specifications
+             */
+            if (exTheta[j][k][l] != -0.01110279072301 && exTheta[j][k][l] != 0.138 && exTheta[j][k][l] != 0.69 && exTheta[j][k][l] != 1.379999999999999) {
+              assertEquals(greeks.get(Greek.THETA), exTheta[j][k][l], Math.max(Math.abs(exTheta[j][k][l]), 1.) / Math.sqrt(steps));
             }
           }
         }
       }
     }
-
-    /*
-     * Sample data
-     */
-    final double spot = 100.;
-    final double strike = 100.;
-    final double time = 1.;
-    final double vol = 0.2;
-    final double interest = 0.06;
-    final int steps1 = 3;
-    final OptionFunctionProvider1D function = new AmericanVanillaOptionFunctionProvider(strike, time, steps1, false);
-    final GreekResultCollection greeks = _model.getGreeks(new TrigeorgisLatticeSpecification(), function, spot, vol, interest, 0.);
-    assertEquals(greeks.get(Greek.FAIR_PRICE), 6.1621, 6.1621 * 1.e-4);
-    assertEquals(greeks.get(Greek.DELTA), -0.40923, 1.e-4);
-    assertEquals(greeks.get(Greek.GAMMA), 0.0250975, 1.e-4);
   }
 
   /**
@@ -212,7 +221,7 @@ public class AmericanVanillaOptionFunctionProviderTest {
     final int nVols = VOLS.length;
     final int nTf = 2;
     final int nDiv = DIVIDENDS.length;
-    final int steps = 417;
+    final int steps = 117;
     for (int m = 0; m < nLattices; ++m) {
       final LatticeSpecification lattice = lattices[m];
       for (int j = 0; j < nInterests; ++j) {
@@ -313,30 +322,25 @@ public class AmericanVanillaOptionFunctionProviderTest {
       for (final boolean isCall : tfSet) {
         for (final double strike : STRIKES) {
           for (final double interest : INTERESTS) {
-            for (final double vol : VOLS) {
-              for (int j = 0; j < divDim; ++j) {
-                final double[] dividendTimes = dividendTimesMat[j];
-                final double[] cashDividends = cashDividendsMat[j];
-                final OptionFunctionProvider1D function = new AmericanVanillaOptionFunctionProvider(strike, TIME, steps, isCall);
-                final DividendFunctionProvider cashDividend = new CashDividendFunctionProvider(dividendTimes, cashDividends);
-                double priceDiv = _model.getPrice(model, function, SPOT, vol, interest, cashDividend);
-                //                System.out.println(priceDiv);
-                double modSpot = SPOT;
-                final int divTimes = cashDividends.length;
-                for (int i = 0; i < divTimes; ++i) {
-                  modSpot -= cashDividends[i] * Math.exp(-interest * dividendTimes[i]);
-                }
-                double priceMod = _model.getPrice(model, function, modSpot, vol, interest, 0.);
-                //                System.out.println(priceMod);
-                double price = _model.getPrice(model, function, SPOT, vol, interest, 0.);
-                //                System.out.println(price);
+            if (interest > 0.) {
+              for (final double vol : VOLS) {
+                for (int j = 0; j < divDim; ++j) {
+                  final double[] dividendTimes = dividendTimesMat[j];
+                  final double[] cashDividends = cashDividendsMat[j];
+                  final OptionFunctionProvider1D function = new AmericanVanillaOptionFunctionProvider(strike, TIME, steps, isCall);
+                  final DividendFunctionProvider cashDividend = new CashDividendFunctionProvider(dividendTimes, cashDividends);
+                  double priceDiv = _model.getPrice(model, function, SPOT, vol, interest, cashDividend);
+                  double modSpot = SPOT;
+                  final int divTimes = cashDividends.length;
+                  for (int i = 0; i < divTimes; ++i) {
+                    modSpot -= cashDividends[i] * Math.exp(-interest * dividendTimes[i]);
+                  }
+                  double priceMod = _model.getPrice(model, function, modSpot, vol, interest, 0.);
+                  double price = _model.getPrice(model, function, SPOT, vol, interest, 0.);
 
-                final double ref = Math.abs(priceDiv - priceMod) > Math.abs(priceDiv - price) ? price : priceMod;
-                if (interest > 0.) {
-                  //                  System.out.println(SPOT + "\t" + strike + "\t" + TIME + "\t" + vol + "\t" + interest + ";\t" + isCall);
+                  final double ref = Math.abs(priceDiv - priceMod) > Math.abs(priceDiv - price) ? price : priceMod;
                   assertEquals(priceDiv, ref, Math.max(ref, 1.) * 1.e-1);
                 }
-                //                System.out.println("\n");
               }
             }
           }
@@ -365,30 +369,25 @@ public class AmericanVanillaOptionFunctionProviderTest {
       for (final boolean isCall : tfSet) {
         for (final double strike : STRIKES) {
           for (final double interest : INTERESTS) {
-            for (final double vol : VOLS) {
-              for (int j = 0; j < divDim; ++j) {
-                final double[] dividendTimes = dividendTimesMat[j];
-                final double[] propDividends = ProportionalDividendsMat[j];
-                final OptionFunctionProvider1D function = new AmericanVanillaOptionFunctionProvider(strike, TIME, steps, isCall);
-                final DividendFunctionProvider propDividend = new ProportionalDividendFunctionProvider(dividendTimes, propDividends);
+            if (interest > 0.) {
+              for (final double vol : VOLS) {
+                for (int j = 0; j < divDim; ++j) {
+                  final double[] dividendTimes = dividendTimesMat[j];
+                  final double[] propDividends = ProportionalDividendsMat[j];
+                  final OptionFunctionProvider1D function = new AmericanVanillaOptionFunctionProvider(strike, TIME, steps, isCall);
+                  final DividendFunctionProvider propDividend = new ProportionalDividendFunctionProvider(dividendTimes, propDividends);
 
-                double priceDiv = _model.getPrice(model, function, SPOT, vol, interest, propDividend);
-                //                System.out.println(priceDiv);
-                double modSpot = SPOT;
-                final int divTimes = propDividends.length;
-                for (int i = 0; i < divTimes; ++i) {
-                  modSpot -= propDividends[i] * Math.exp(-interest * dividendTimes[i]);
-                }
-                double priceMod = _model.getPrice(model, function, modSpot, vol, interest, 0.);
-                //                System.out.println(priceMod);
-                double price = _model.getPrice(model, function, SPOT, vol, interest, 0.);
-                //                System.out.println(price);
-                final double ref = Math.abs(priceDiv - priceMod) > Math.abs(priceDiv - price) ? price : priceMod;
-                if (interest > 0.) {
-                  //                  System.out.println(SPOT + "\t" + strike + "\t" + TIME + "\t" + vol + "\t" + interest + ";\t" + isCall);
+                  double priceDiv = _model.getPrice(model, function, SPOT, vol, interest, propDividend);
+                  double modSpot = SPOT;
+                  final int divTimes = propDividends.length;
+                  for (int i = 0; i < divTimes; ++i) {
+                    modSpot -= propDividends[i] * Math.exp(-interest * dividendTimes[i]);
+                  }
+                  double priceMod = _model.getPrice(model, function, modSpot, vol, interest, 0.);
+                  double price = _model.getPrice(model, function, SPOT, vol, interest, 0.);
+                  final double ref = Math.abs(priceDiv - priceMod) > Math.abs(priceDiv - price) ? price : priceMod;
                   assertEquals(priceDiv, ref, Math.max(ref, 1.) * 1.e-1);
                 }
-                //                System.out.println("\n");
               }
             }
           }
