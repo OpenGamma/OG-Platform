@@ -5,23 +5,29 @@
  */
 package com.opengamma.web.analytics;
 
-import java.util.HashSet;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.opengamma.engine.view.cycle.ViewCycle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
+/**
+ *
+ */
 public class PortfolioGridViewport extends MainGridViewport {
 
   /** The node structure. */
   private  ViewportNodeStructure _nodeStructure;
   /** The current expanded paths. */
-  private Set<List<String>> _currentExpandedPaths;
+  private Set<List<
+      String>> _currentExpandedPaths;
   /** Row and column structure of the grid. */
   private MainGridStructure _gridStructure;
   private static final Logger s_logger = LoggerFactory.getLogger(PortfolioGridViewport.class);
@@ -42,9 +48,27 @@ public class PortfolioGridViewport extends MainGridViewport {
                         ResultsCache cache) {
     super(callbackId, structureCallbackId, viewportDefinition);
     _gridStructure = gridStructure;
-    _nodeStructure = new ViewportNodeStructure(getGridStructure().getRootNode(), getGridStructure().getTargetLookup());
-    _currentExpandedPaths = new HashSet<>(_nodeStructure.getInitialPaths());
+    Set<List<String>> expandedPaths = getExpandedPaths(gridStructure.getRootNode(),
+                                                       Collections.<String>emptyList(),
+                                                       gridStructure.getTargetLookup());
+    _nodeStructure = new ViewportNodeStructure(getGridStructure().getRootNode(),
+                                               getGridStructure().getTargetLookup(),
+                                               expandedPaths);
+    _currentExpandedPaths = expandedPaths;
     update(viewportDefinition, cycle, cache);
+  }
+
+  private static Set<List<String>> getExpandedPaths(AnalyticsNode node, List<String> parentPath, TargetLookup targetLookup) {
+    Set<List<String>> paths = Sets.newHashSet();
+    List<String> path = Lists.newArrayList(parentPath);
+    path.add(targetLookup.getRow(node.getStartRow()).getName());
+    if (!node.isCollapsed()) {
+      paths.add(path);
+    }
+    for (AnalyticsNode childNode : node.getChildren()) {
+      paths.addAll(getExpandedPaths(childNode, path, targetLookup));
+    }
+    return paths;
   }
 
   @Override

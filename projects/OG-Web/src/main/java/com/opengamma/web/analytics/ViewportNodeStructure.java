@@ -45,7 +45,7 @@ import com.opengamma.util.ArgumentChecker;
     if (root == null) {
       return null;
     } else {
-      return createNode(root, ImmutableList.of(targetLookup.getRow(0).getName()), targetLookup, expandedNodes);
+      return createNode(root, Collections.<String>emptyList(), targetLookup, expandedNodes);
     }
   }
 
@@ -74,14 +74,6 @@ import com.opengamma.util.ArgumentChecker;
 
   /* package */ List<String> getPathForRow(int rowIndex) {
     return _rowToPath.get(rowIndex);
-  }
-
-  /**
-   * The initial state of the tree is only the root expanded
-   */
-  /* package */ Collection<List<String>> getInitialPaths() {
-    return ImmutableList.of(_rowToPath.get(0));
-
   }
 
   /* package */ AnalyticsNode getRootNode() {
