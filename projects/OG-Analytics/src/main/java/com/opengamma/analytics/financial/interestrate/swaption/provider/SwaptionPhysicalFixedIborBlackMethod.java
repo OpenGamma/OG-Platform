@@ -8,6 +8,10 @@ package com.opengamma.analytics.financial.interestrate.swaption.provider;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.opengamma.analytics.financial.instrument.index.GeneratorAttributeIR;
+import com.opengamma.analytics.financial.instrument.index.GeneratorInstrument;
+import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
+import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedON;
 import com.opengamma.analytics.financial.interestrate.PresentValueBlackSwaptionSensitivity;
 import com.opengamma.analytics.financial.interestrate.swap.provider.SwapFixedCouponDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
@@ -69,12 +73,24 @@ public final class SwaptionPhysicalFixedIborBlackMethod {
   public MultipleCurrencyAmount presentValue(final SwaptionPhysicalFixedIbor swaption, final BlackSwaptionFlatProviderInterface blackMulticurves) {
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(blackMulticurves, "Black volatility for swaption and multicurve");
-    ArgumentChecker.isTrue(blackMulticurves.getBlackParameters().getGeneratorSwap().getCurrency() == swaption.getCurrency(), "Black data currency should be equal to swaption currency");
+    final GeneratorInstrument<GeneratorAttributeIR> generatorSwap = blackMulticurves.getBlackParameters().getGeneratorSwap();
+    Calendar calendar;
+    DayCount dayCountModification;
+    if (generatorSwap instanceof GeneratorSwapFixedIbor) {
+      final GeneratorSwapFixedIbor fixedIborGenerator = (GeneratorSwapFixedIbor) generatorSwap;
+      calendar = fixedIborGenerator.getCalendar();
+      dayCountModification = fixedIborGenerator.getFixedLegDayCount();
+    } else if (generatorSwap instanceof GeneratorSwapFixedON) {
+      final GeneratorSwapFixedON fixedONGenerator = (GeneratorSwapFixedON) generatorSwap;
+      calendar = fixedONGenerator.getOvernightCalendar();
+      dayCountModification = fixedONGenerator.getFixedLegDayCount();
+    } else {
+      throw new IllegalArgumentException("Cannot handle swap with underlying generator of type " + generatorSwap.getClass());
+    }
     final MulticurveProviderInterface multicurves = blackMulticurves.getMulticurveProvider();
-    final Calendar calendar = blackMulticurves.getBlackParameters().getGeneratorSwap().getCalendar();
-    final double pvbpModified = METHOD_SWAP.presentValueBasisPoint(swaption.getUnderlyingSwap(), blackMulticurves.getBlackParameters().getGeneratorSwap().getFixedLegDayCount(),
+    final double pvbpModified = METHOD_SWAP.presentValueBasisPoint(swaption.getUnderlyingSwap(), dayCountModification,
         calendar, multicurves);
-    final double forwardModified = PRDC.visitFixedCouponSwap(swaption.getUnderlyingSwap(), blackMulticurves.getBlackParameters().getGeneratorSwap().getFixedLegDayCount(), multicurves);
+    final double forwardModified = PRDC.visitFixedCouponSwap(swaption.getUnderlyingSwap(), dayCountModification, multicurves);
     final double strikeModified = METHOD_SWAP.couponEquivalent(swaption.getUnderlyingSwap(), pvbpModified, multicurves);
     final double maturity = swaption.getMaturityTime();
     final EuropeanVanillaOption option = new EuropeanVanillaOption(strikeModified, swaption.getTimeToExpiry(), swaption.isCall());
@@ -110,10 +126,21 @@ public final class SwaptionPhysicalFixedIborBlackMethod {
   public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final SwaptionPhysicalFixedIbor swaption, final BlackSwaptionFlatProviderInterface blackMulticurves) {
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(blackMulticurves, "Black volatility for swaption and multicurve");
-    ArgumentChecker.isTrue(blackMulticurves.getBlackParameters().getGeneratorSwap().getCurrency() == swaption.getCurrency(), "Black data currency should be equal to swaption currency");
+    final GeneratorInstrument<GeneratorAttributeIR> generatorSwap = blackMulticurves.getBlackParameters().getGeneratorSwap();
+    Calendar calendar;
+    DayCount dayCountModification;
+    if (generatorSwap instanceof GeneratorSwapFixedIbor) {
+      final GeneratorSwapFixedIbor fixedIborGenerator = (GeneratorSwapFixedIbor) generatorSwap;
+      calendar = fixedIborGenerator.getCalendar();
+      dayCountModification = fixedIborGenerator.getFixedLegDayCount();
+    } else if (generatorSwap instanceof GeneratorSwapFixedON) {
+      final GeneratorSwapFixedON fixedONGenerator = (GeneratorSwapFixedON) generatorSwap;
+      calendar = fixedONGenerator.getOvernightCalendar();
+      dayCountModification = fixedONGenerator.getFixedLegDayCount();
+    } else {
+      throw new IllegalArgumentException("Cannot handle swap with underlying generator of type " + generatorSwap.getClass());
+    }
     final MulticurveProviderInterface multicurves = blackMulticurves.getMulticurveProvider();
-    final Calendar calendar = blackMulticurves.getBlackParameters().getGeneratorSwap().getCalendar();
-    final DayCount dayCountModification = blackMulticurves.getBlackParameters().getGeneratorSwap().getFixedLegDayCount();
     final double pvbpModified = METHOD_SWAP.presentValueBasisPoint(swaption.getUnderlyingSwap(), dayCountModification, calendar, multicurves);
     final double forwardModified = PRDC.visitFixedCouponSwap(swaption.getUnderlyingSwap(), dayCountModification, multicurves);
     final double strikeModified = METHOD_SWAP.couponEquivalent(swaption.getUnderlyingSwap(), pvbpModified, multicurves);
@@ -146,10 +173,21 @@ public final class SwaptionPhysicalFixedIborBlackMethod {
   public PresentValueBlackSwaptionSensitivity presentValueBlackSensitivity(final SwaptionPhysicalFixedIbor swaption, final BlackSwaptionFlatProviderInterface blackMulticurves) {
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(blackMulticurves, "Black volatility for swaption and multicurve");
-    ArgumentChecker.isTrue(blackMulticurves.getBlackParameters().getGeneratorSwap().getCurrency() == swaption.getCurrency(), "Black data currency should be equal to swaption currency");
+    final GeneratorInstrument<GeneratorAttributeIR> generatorSwap = blackMulticurves.getBlackParameters().getGeneratorSwap();
+    Calendar calendar;
+    DayCount dayCountModification;
+    if (generatorSwap instanceof GeneratorSwapFixedIbor) {
+      final GeneratorSwapFixedIbor fixedIborGenerator = (GeneratorSwapFixedIbor) generatorSwap;
+      calendar = fixedIborGenerator.getCalendar();
+      dayCountModification = fixedIborGenerator.getFixedLegDayCount();
+    } else if (generatorSwap instanceof GeneratorSwapFixedON) {
+      final GeneratorSwapFixedON fixedONGenerator = (GeneratorSwapFixedON) generatorSwap;
+      calendar = fixedONGenerator.getOvernightCalendar();
+      dayCountModification = fixedONGenerator.getFixedLegDayCount();
+    } else {
+      throw new IllegalArgumentException("Cannot handle swap with underlying generator of type " + generatorSwap.getClass());
+    }
     final MulticurveProviderInterface multicurves = blackMulticurves.getMulticurveProvider();
-    final DayCount dayCountModification = blackMulticurves.getBlackParameters().getGeneratorSwap().getFixedLegDayCount();
-    final Calendar calendar = blackMulticurves.getBlackParameters().getGeneratorSwap().getCalendar();
     final double pvbpModified = METHOD_SWAP.presentValueBasisPoint(swaption.getUnderlyingSwap(), dayCountModification, calendar, multicurves);
     final double forwardModified = PRDC.visitFixedCouponSwap(swaption.getUnderlyingSwap(), dayCountModification, multicurves);
     final double strikeModified = METHOD_SWAP.couponEquivalent(swaption.getUnderlyingSwap(), pvbpModified, multicurves);

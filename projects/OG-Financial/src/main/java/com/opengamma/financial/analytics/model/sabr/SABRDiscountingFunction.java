@@ -17,8 +17,12 @@ import static com.opengamma.financial.analytics.model.volatility.SmileFittingPro
 
 import java.util.Set;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
+import com.opengamma.analytics.financial.instrument.index.GeneratorAttributeIR;
+import com.opengamma.analytics.financial.instrument.index.GeneratorInstrument;
+import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
 import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateParameters;
 import com.opengamma.analytics.financial.model.volatility.smile.function.VolatilityFunctionFactory;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
@@ -174,7 +178,11 @@ public abstract class SABRDiscountingFunction extends DiscountingFunction {
       final SABRInterestRateParameters modelParameters = new SABRInterestRateParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, dayCount,
           VolatilityFunctionFactory.HAGAN_FORMULA);
       final MulticurveProviderDiscount curves = getMergedProviders(inputs, fxMatrix);
-      return new SABRSwaptionProviderDiscount(curves, modelParameters, SwaptionUtils.getSwapGenerator(security, definition, securitySource));
+      final GeneratorInstrument<GeneratorAttributeIR> generatorSwap = SwaptionUtils.getSwapGenerator(security, definition, securitySource);
+      if (!(generatorSwap instanceof GeneratorSwapFixedIbor)) {
+        throw new OpenGammaRuntimeException("Cannot handle swap generators of type " + generatorSwap.getClass());
+      }
+      return new SABRSwaptionProviderDiscount(curves, modelParameters, (GeneratorSwapFixedIbor) generatorSwap);
     }
 
   }

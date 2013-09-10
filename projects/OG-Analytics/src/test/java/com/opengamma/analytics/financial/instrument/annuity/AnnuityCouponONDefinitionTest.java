@@ -118,7 +118,7 @@ public class AnnuityCouponONDefinitionTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCoupons() {
-    new AnnuityCouponONDefinition(null, null);
+    new AnnuityCouponONDefinition(null, null, null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

@@ -76,7 +76,6 @@ public final class SwaptionCashFixedIborBlackMethod implements PricingMethod {
   public CurrencyAmount presentValue(final SwaptionCashFixedIbor swaption, final YieldCurveWithBlackSwaptionBundle curveBlack) {
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(curveBlack, "Curves with Black volatility");
-    ArgumentChecker.isTrue(curveBlack.getBlackParameters().getGeneratorSwap().getCurrency() == swaption.getCurrency(), "Black data currency should be equal to swaption currency");
     final AnnuityCouponFixed annuityFixed = swaption.getUnderlyingSwap().getFixedLeg();
     final double tenor = swaption.getMaturityTime();
     final double forward = swaption.getUnderlyingSwap().accept(PRC, curveBlack);
@@ -107,7 +106,6 @@ public final class SwaptionCashFixedIborBlackMethod implements PricingMethod {
   public InterestRateCurveSensitivity presentValueCurveSensitivity(final SwaptionCashFixedIbor swaption, final YieldCurveWithBlackSwaptionBundle curveBlack) {
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(curveBlack, "Curves with Black volatility");
-    ArgumentChecker.isTrue(curveBlack.getBlackParameters().getGeneratorSwap().getCurrency() == swaption.getCurrency(), "Black data currency should be equal to swaption currency");
     final AnnuityCouponFixed annuityFixed = swaption.getUnderlyingSwap().getFixedLeg();
     final double tenor = swaption.getMaturityTime();
     final double forward = swaption.getUnderlyingSwap().accept(PRC, curveBlack);
@@ -144,7 +142,6 @@ public final class SwaptionCashFixedIborBlackMethod implements PricingMethod {
   public PresentValueBlackSwaptionSensitivity presentValueBlackSensitivity(final SwaptionCashFixedIbor swaption, final YieldCurveWithBlackSwaptionBundle curveBlack) {
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(curveBlack, "Curves with Black volatility");
-    ArgumentChecker.isTrue(curveBlack.getBlackParameters().getGeneratorSwap().getCurrency() == swaption.getCurrency(), "Black data currency should be equal to swaption currency");
     final AnnuityCouponFixed annuityFixed = swaption.getUnderlyingSwap().getFixedLeg();
     final double forward = swaption.getUnderlyingSwap().accept(PRC, curveBlack);
     final double pvbp = METHOD_SWAP.getAnnuityCash(swaption.getUnderlyingSwap(), forward);

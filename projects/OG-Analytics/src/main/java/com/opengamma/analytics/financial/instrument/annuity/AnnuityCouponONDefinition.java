@@ -33,12 +33,20 @@ public class AnnuityCouponONDefinition extends AnnuityCouponDefinition<CouponOND
   protected static final Coupon[] EMPTY_ARRAY_COUPON = new Coupon[0];
 
   /**
+   * The overnight index.
+   */
+  private final IndexON _index;
+
+  /**
    * Constructor from a list of OIS coupons.
    * @param payments The coupons.
+   * @param index The index, not null
    * @param calendar The holiday calendar
    */
-  public AnnuityCouponONDefinition(final CouponONDefinition[] payments, final Calendar calendar) {
+  public AnnuityCouponONDefinition(final CouponONDefinition[] payments, final IndexON index, final Calendar calendar) {
     super(payments, calendar);
+    ArgumentChecker.notNull(index, "index");
+    _index = index;
   }
 
   /**
@@ -152,7 +160,7 @@ public class AnnuityCouponONDefinition extends AnnuityCouponDefinition<CouponOND
       coupons[loopcpn] = CouponONDefinition.from(indexON, endFixingPeriodDate[loopcpn - 1], endFixingPeriodDate[loopcpn], notionalSigned, paymentLag,
           indexCalendar);
     }
-    return new AnnuityCouponONDefinition(coupons, indexCalendar);
+    return new AnnuityCouponONDefinition(coupons, indexON, indexCalendar);
   }
 
   private static AnnuityCouponONDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime[] endFixingPeriodDate, final double notional, final GeneratorSwapFixedON generator,
@@ -165,7 +173,7 @@ public class AnnuityCouponONDefinition extends AnnuityCouponDefinition<CouponOND
       coupons[loopcpn] = CouponONDefinition.from(generator.getIndex(), endFixingPeriodDate[loopcpn - 1], endFixingPeriodDate[loopcpn], notionalSigned, generator.getPaymentLag(),
           generator.getOvernightCalendar());
     }
-    return new AnnuityCouponONDefinition(coupons, generator.getOvernightCalendar());
+    return new AnnuityCouponONDefinition(coupons, generator.getIndex(), generator.getOvernightCalendar());
   }
 
   private static AnnuityCouponONDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime[] endFixingPeriodDate, final double notional, final GeneratorSwapIborON generator,
@@ -178,7 +186,15 @@ public class AnnuityCouponONDefinition extends AnnuityCouponDefinition<CouponOND
       coupons[loopcpn] = CouponONDefinition.from(generator.getIndexON(), endFixingPeriodDate[loopcpn - 1], endFixingPeriodDate[loopcpn], notionalSigned, generator.getPaymentLag(),
           generator.getOvernightCalendar());
     }
-    return new AnnuityCouponONDefinition(coupons, generator.getOvernightCalendar());
+    return new AnnuityCouponONDefinition(coupons, generator.getIndexON(), generator.getOvernightCalendar());
+  }
+
+  /**
+   * Gets the overnight index.
+   * @return The overnight index.
+   */
+  public IndexON getOvernightIndex() {
+    return _index;
   }
 
   /**

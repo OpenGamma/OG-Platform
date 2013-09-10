@@ -9,7 +9,8 @@ import java.util.Map;
 
 import org.apache.commons.lang.ObjectUtils;
 
-import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
+import com.opengamma.analytics.financial.instrument.index.GeneratorAttributeIR;
+import com.opengamma.analytics.financial.instrument.index.GeneratorInstrument;
 import com.opengamma.analytics.util.amount.SurfaceValue;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
@@ -26,13 +27,13 @@ public class PresentValueBlackSwaptionSensitivity {
   /**
    * The standard swap generator (in particular fixed leg convention and floating leg tenor) for which the volatility surface is valid. Not null.
    */
-  private final GeneratorSwapFixedIbor _generatorSwap;
+  private final GeneratorInstrument<GeneratorAttributeIR> _generatorSwap;
 
   /**
    * Constructor with empty sensitivity.
    * @param generatorSwap The standard swap generator for which the volatility surface is valid.
    */
-  public PresentValueBlackSwaptionSensitivity(final GeneratorSwapFixedIbor generatorSwap) {
+  public PresentValueBlackSwaptionSensitivity(final GeneratorInstrument<GeneratorAttributeIR> generatorSwap) {
     ArgumentChecker.notNull(generatorSwap, "Swap generator");
     _sensitivity = new SurfaceValue();
     _generatorSwap = generatorSwap;
@@ -43,7 +44,7 @@ public class PresentValueBlackSwaptionSensitivity {
    * @param sensitivity The volatility sensitivity as a map.
    * @param generatorSwap The standard swap generator for which the volatility surface is valid.
    */
-  public PresentValueBlackSwaptionSensitivity(final Map<DoublesPair, Double> sensitivity, final GeneratorSwapFixedIbor generatorSwap) {
+  public PresentValueBlackSwaptionSensitivity(final Map<DoublesPair, Double> sensitivity, final GeneratorInstrument<GeneratorAttributeIR> generatorSwap) {
     ArgumentChecker.notNull(sensitivity, "Sensitivity");
     ArgumentChecker.notNull(generatorSwap, "Swap generator");
     _sensitivity = SurfaceValue.from(sensitivity);
@@ -55,7 +56,7 @@ public class PresentValueBlackSwaptionSensitivity {
    * @param sensitivity The volatility sensitivity as a SurfaceValue.
    * @param generatorSwap The standard swap generator for which the volatility surface is valid.
    */
-  public PresentValueBlackSwaptionSensitivity(final SurfaceValue sensitivity, final GeneratorSwapFixedIbor generatorSwap) {
+  public PresentValueBlackSwaptionSensitivity(final SurfaceValue sensitivity, final GeneratorInstrument<GeneratorAttributeIR> generatorSwap) {
     ArgumentChecker.notNull(sensitivity, "Sensitivity");
     ArgumentChecker.notNull(generatorSwap, "Swap generator");
     _sensitivity = sensitivity;
@@ -105,7 +106,7 @@ public class PresentValueBlackSwaptionSensitivity {
    * Gets the standard swap generator for which the volatility surface is valid.
    * @return The generator.
    */
-  public GeneratorSwapFixedIbor getGeneratorSwap() {
+  public GeneratorInstrument<GeneratorAttributeIR> getGeneratorSwap() {
     return _generatorSwap;
   }
 
