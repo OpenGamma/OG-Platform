@@ -5,14 +5,21 @@
  */
 package com.opengamma.financial.analytics.model.curve;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfigurationFunction;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
+import com.opengamma.financial.analytics.curve.CurveGroupConfiguration;
+import com.opengamma.financial.analytics.curve.CurveTypeConfiguration;
+import com.opengamma.financial.analytics.curve.InflationCurveTypeConfiguration;
+import com.opengamma.financial.analytics.curve.IssuerCurveTypeConfiguration;
 import com.opengamma.financial.analytics.model.curve.forward.InstantaneousForwardCurveFunction;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
@@ -109,13 +116,18 @@ public class CurveFunctions extends AbstractFunctionConfigurationBean {
     }
 
     protected void addInterpolatedCurveBuildingFunctions(final List<FunctionConfiguration> functions,
+                                                         final Set<Class<? extends CurveTypeConfiguration>> curveTypeConfigClasses,
                                                          final String curveConfigName) {
+      if (curveTypeConfigClasses.contains(InflationCurveTypeConfiguration.class)) {
+        functions.add(functionConfiguration(InflationProviderDiscountingFunction.class, curveConfigName));
+      } else if (curveTypeConfigClasses.contains(IssuerCurveTypeConfiguration.class)) {
+        functions.add(functionConfiguration(IssuerProviderDiscountingFunction.class, curveConfigName));
+      } else {
+        functions.add(functionConfiguration(MultiCurveDiscountingFunction.class, curveConfigName));
+        functions.add(functionConfiguration(HullWhiteOneFactorDiscountingCurveFunction.class, curveConfigName));
+      }
       functions.add(functionConfiguration(FXMatrixFunction.class, curveConfigName));
       functions.add(functionConfiguration(CurveConstructionConfigurationFunction.class, curveConfigName));
-      functions.add(functionConfiguration(MultiCurveDiscountingFunction.class, curveConfigName));
-      functions.add(functionConfiguration(InflationProviderDiscountingFunction.class, curveConfigName));
-      functions.add(functionConfiguration(HullWhiteOneFactorDiscountingCurveFunction.class, curveConfigName));
-//      functions.add(functionConfiguration(IssuerProviderDiscountingFunction.class, curveConfigName));
     }
 
     protected void addCurveBuildingFunctions(final List<FunctionConfiguration> functions,
@@ -132,7 +144,15 @@ public class CurveFunctions extends AbstractFunctionConfigurationBean {
         searchRequest.setType(klass);
         for (final ConfigDocument configDocument : ConfigSearchIterator.iterable(getConfigMaster(), searchRequest)) {
           final String documentName = configDocument.getName();
-          addInterpolatedCurveBuildingFunctions(functions, documentName);
+          CurveConstructionConfiguration config = ((ConfigItem<CurveConstructionConfiguration>) configDocument.getConfig()).getValue();
+          
+          /*
+           * We need the CurveTypeConfigurations of the curves contained within the CurveConstructionConfiguration to
+           * decided whether we want to add the curve building function for this CurveConstructionConfiguration.
+           */
+          Set<Class<? extends CurveTypeConfiguration>> allCurveTypeConfigs = extractCurveTypeConfigurationClasses(config);
+          
+          addInterpolatedCurveBuildingFunctions(functions, allCurveTypeConfigs, documentName);
         }
       }
 
@@ -141,6 +161,26 @@ public class CurveFunctions extends AbstractFunctionConfigurationBean {
         final String documentName = configDocument.getName();
         addCurveBuildingFunctions(functions, documentName);
       }
+    }
+
+    /**
+     * Extracts the CurveTypeConfiguration classes from a given CurveConstructionConfiguration.
+     * <p>
+     * This allows us to decide whether we want a function to be supported based on the contained CurveTypeConfigurations.
+     * 
+     * @param config the CurveConstructionConfiguration to retrieve the curve types from.
+     * @return a Set of CurveTypeConfigurations.
+     */
+    private Set<Class<? extends CurveTypeConfiguration>> extractCurveTypeConfigurationClasses(CurveConstructionConfiguration config) {
+      Set<Class<? extends CurveTypeConfiguration>> allCurveTypeConfigs = new HashSet<>();
+      for (CurveGroupConfiguration group: config.getCurveGroups()) {
+        for (List<CurveTypeConfiguration> curveTypeConfigs: group.getTypesForCurves().values()) {
+          for (CurveTypeConfiguration curveTypeConfig: curveTypeConfigs) {
+            allCurveTypeConfigs.add(curveTypeConfig.getClass());
+          }
+        }
+      }
+      return allCurveTypeConfigs;
     }
   }
 
