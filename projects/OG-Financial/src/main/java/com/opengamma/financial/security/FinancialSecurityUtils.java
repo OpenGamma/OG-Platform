@@ -1221,6 +1221,16 @@ public class FinancialSecurityUtils {
           return security.getUnderlyingId();
         }
 
+        @Override
+        public ExternalId visitCreditDefaultSwapIndexSecurity(final CreditDefaultSwapIndexSecurity security) {
+          return security.getReferenceEntity();
+        }
+
+        @Override
+        public ExternalId visitCreditDefaultSwapOptionSecurity(final CreditDefaultSwapOptionSecurity security) {
+          return security.getUnderlyingId();
+        }
+
       });
       return id;
     }
