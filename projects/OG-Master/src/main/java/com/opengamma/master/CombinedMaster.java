@@ -441,7 +441,43 @@ public abstract class CombinedMaster<D extends AbstractDocument, M extends Abstr
     return map;
   }
 
-  protected void applyPaging(AbstractSearchResult<D> result, PagingRequest originalRequest) {
+  /**
+   * Resets the paging on a search request back to ALL and returns
+   * the configured {@link PagingRequest}. This is useful for 
+   * implementing search methods which require support for paging
+   * and can be used with {@link #applyPaging(AbstractSearchResult, PagingRequest)}
+   * to restrict the resultset back to what was originally requested.
+   * Obviously, querying everything then filtering out the subset
+   * required for the page is not the most efficient approach but
+   * avoids complexities such as dealing with live updates.
+   * @param request the search request to broaden
+   * @return the {@link PagingRequest}
+   */
+  protected PagingRequest clearPaging(AbstractSearchRequest request) {
+    PagingRequest pagingRequest = request.getPagingRequest();
+    request.setPagingRequest(PagingRequest.ALL);
+    return pagingRequest;
+  }
+  
+  /**
+   * Same as for {@link AbstractSearchRequest}.
+   * @param request the search request
+   * @return the paging request
+   */
+  protected PagingRequest clearPaging(AbstractHistoryRequest request) {
+    PagingRequest pagingRequest = request.getPagingRequest();
+    request.setPagingRequest(PagingRequest.ALL);
+    return pagingRequest;
+  }
+  
+  /**
+   * Applies paging to a comprehensive search result. Only the subset of
+   * records contained in this page are retained in the result.
+   * Typically used after a call to {@link #clearPaging(AbstractSearchRequest)}.
+   * @param result the search result
+   * @param originalRequest the original request
+   */
+  protected void applyPaging(AbstractDocumentsResult<D> result, PagingRequest originalRequest) {
     result.setPaging(Paging.of(originalRequest, result.getDocuments().size()));
     ArrayList<D> resultDocuments = Lists.newArrayList(result.getDocuments().subList(originalRequest.getFirstItem(), originalRequest.getLastItem()));
     result.setDocuments(resultDocuments);
