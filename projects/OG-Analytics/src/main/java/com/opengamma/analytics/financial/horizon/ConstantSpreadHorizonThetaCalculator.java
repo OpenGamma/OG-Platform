@@ -132,10 +132,10 @@ public final class ConstantSpreadHorizonThetaCalculator {
     final TodayPaymentCalculator paymentCalculator = TodayPaymentCalculator.getInstance(shiftTime);
     final SwaptionPhysicalFixedIbor swaptionTomorrow = definition.toDerivative(horizonDate, yieldCurveNames);
     final MultipleCurrencyAmount paymentToday = swaptionToday.accept(paymentCalculator);
-    if (paymentToday.size() != 1 || !paymentToday.getCurrencyAmounts()[0].getCurrency().equals(definition.getUnderlyingSwap().getCurrency())) {
+    if (paymentToday.size() != 1 || !paymentToday.getCurrencyAmounts()[0].getCurrency().equals(definition.getCurrency())) {
       throw new IllegalStateException("Expecting a single payment in the currency of the swaption");
     }
-    final Currency currency = definition.getUnderlyingSwap().getCurrency();
+    final Currency currency = definition.getCurrency();
     final PresentValueBlackCalculator pvCalculator = PresentValueBlackCalculator.getInstance();
     final YieldCurveWithBlackSwaptionBundle tomorrowData = SWAPTION_ROLLDOWN.rollDown(data, shiftTime);
     final double result = swaptionTomorrow.accept(pvCalculator, tomorrowData) - swaptionToday.accept(pvCalculator, data) + paymentToday.getAmount(currency);
@@ -151,10 +151,10 @@ public final class ConstantSpreadHorizonThetaCalculator {
     final TodayPaymentCalculator paymentCalculator = TodayPaymentCalculator.getInstance(shiftTime);
     final SwaptionCashFixedIbor swaptionTomorrow = definition.toDerivative(horizonDate, yieldCurveNames);
     final MultipleCurrencyAmount paymentToday = swaptionToday.accept(paymentCalculator);
-    if (paymentToday.size() != 1 || !paymentToday.getCurrencyAmounts()[0].getCurrency().equals(definition.getUnderlyingSwap().getCurrency())) {
+    if (paymentToday.size() != 1 || !paymentToday.getCurrencyAmounts()[0].getCurrency().equals(definition.getCurrency())) {
       throw new IllegalStateException("Expecting a single payment in the currency of the swaption");
     }
-    final Currency currency = definition.getUnderlyingSwap().getCurrency();
+    final Currency currency = definition.getCurrency();
     final PresentValueBlackCalculator pvCalculator = PresentValueBlackCalculator.getInstance();
     final YieldCurveWithBlackSwaptionBundle tomorrowData = SWAPTION_ROLLDOWN.rollDown(data, shiftTime);
     final double result = swaptionTomorrow.accept(pvCalculator, tomorrowData) - swaptionToday.accept(pvCalculator, data) + paymentToday.getAmount(currency);

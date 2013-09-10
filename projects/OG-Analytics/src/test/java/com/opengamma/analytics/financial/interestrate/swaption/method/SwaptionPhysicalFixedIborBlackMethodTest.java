@@ -229,7 +229,7 @@ public class SwaptionPhysicalFixedIborBlackMethodTest {
     final double pvToday = swaptionToday.accept(PVC_BLACK, CURVES_BLACK);
     final YieldCurveBundle tomorrowData = SWAPTION_ROLLDOWN.rollDown(CURVES_BLACK, TimeCalculator.getTimeBetween(REFERENCE_DATE, REFERENCE_DATE.plusDays(1)));
     final double pvTomorrow = swaptionTomorrow.accept(PVC_BLACK, tomorrowData);
-    assertEquals("ThetaCalculator: fixed-coupon swap", pvTomorrow - pvToday, theta.getAmount(SWAPTION_DEFINITION_LONG_REC.getUnderlyingSwap().getCurrency()), TOLERANCE_PV);
+    assertEquals("ThetaCalculator: fixed-coupon swap", pvTomorrow - pvToday, theta.getAmount(SWAPTION_DEFINITION_LONG_REC.getCurrency()), TOLERANCE_PV);
     assertEquals("ThetaCalculator: fixed-coupon swap", 1, theta.getCurrencyAmounts().length);
   }
 }

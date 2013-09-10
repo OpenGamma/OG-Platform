@@ -11,23 +11,27 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
-import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
+import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
+import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
+import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
+import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
 
 /**
- * Class describing a European swaption on a vanilla swap with physical delivery.
+ * Class describing a European swaption on a fixed / float swap with physical delivery.
  */
 public final class SwaptionPhysicalFixedIborDefinition implements InstrumentDefinition<SwaptionPhysicalFixedIbor> {
 
   /**
    * Swap underlying the swaption.
    */
-  private final SwapFixedIborDefinition _underlyingSwap;
+  private final SwapDefinition _underlyingSwap;
   /**
    * Flag indicating if the option is long (true) or short (false).
    */
@@ -36,6 +40,10 @@ public final class SwaptionPhysicalFixedIborDefinition implements InstrumentDefi
    * The swaption expiry.
    */
   private final Expiry _expiry;
+  /**
+   * The currency.
+   */
+  private final Currency _currency;
 
   /**
    * Constructor from the expiry date, the underlying swap and the long/short flqg.
@@ -45,11 +53,25 @@ public final class SwaptionPhysicalFixedIborDefinition implements InstrumentDefi
    * @param isCall Call.
    * @param isLong The long (true) / short (false) flag.
    */
-  private SwaptionPhysicalFixedIborDefinition(final ZonedDateTime expiryDate, final double strike, final SwapFixedIborDefinition underlyingSwap, final boolean isCall, final boolean isLong) {
+  private SwaptionPhysicalFixedIborDefinition(final ZonedDateTime expiryDate, final double strike, final SwapDefinition underlyingSwap, final boolean isCall, final boolean isLong) {
     ArgumentChecker.notNull(expiryDate, "expiry date");
     ArgumentChecker.notNull(underlyingSwap, "underlying swap");
-    ArgumentChecker.isTrue(isCall == underlyingSwap.getFixedLeg().isPayer(), "Call flag not in line with underlying");
+    final AnnuityDefinition<? extends PaymentDefinition> payLeg = underlyingSwap.getFirstLeg();
+    final AnnuityDefinition<? extends PaymentDefinition> receiveLeg = underlyingSwap.getSecondLeg();
+    AnnuityCouponFixedDefinition fixedLeg;
+    boolean isPayer;
+    if (payLeg instanceof AnnuityCouponFixedDefinition) {
+      isPayer = true;
+      fixedLeg = (AnnuityCouponFixedDefinition) payLeg;
+    } else if (receiveLeg instanceof AnnuityCouponFixedDefinition) {
+      isPayer = false;
+      fixedLeg = (AnnuityCouponFixedDefinition) receiveLeg;
+    } else {
+      throw new IllegalArgumentException("Swap must have one leg that is an AnnuityCouponFixedDefinition");
+    }
+    ArgumentChecker.isTrue(isCall == isPayer, "Call flag not in line with underlying");
     _underlyingSwap = underlyingSwap;
+    _currency = fixedLeg.getCurrency();
     _isLong = isLong;
     _expiry = new Expiry(expiryDate);
   }
@@ -62,19 +84,32 @@ public final class SwaptionPhysicalFixedIborDefinition implements InstrumentDefi
    * @param isLong The long (true) / short (false) flag.
    * @return The swaption.
    */
-  public static SwaptionPhysicalFixedIborDefinition from(final ZonedDateTime expiryDate, final SwapFixedIborDefinition underlyingSwap, final boolean isLong) {
+  public static SwaptionPhysicalFixedIborDefinition from(final ZonedDateTime expiryDate, final SwapDefinition underlyingSwap, final boolean isLong) {
     ArgumentChecker.notNull(expiryDate, "expiry date");
     ArgumentChecker.notNull(underlyingSwap, "underlying swap");
-    final double strike = underlyingSwap.getFixedLeg().getNthPayment(0).getRate();
+    final AnnuityDefinition<? extends PaymentDefinition> payLeg = underlyingSwap.getFirstLeg();
+    final AnnuityDefinition<? extends PaymentDefinition> receiveLeg = underlyingSwap.getSecondLeg();
+    AnnuityCouponFixedDefinition fixedLeg;
+    boolean isPayer;
+    if (payLeg instanceof AnnuityCouponFixedDefinition) {
+      isPayer = true;
+      fixedLeg = (AnnuityCouponFixedDefinition) payLeg;
+    } else if (receiveLeg instanceof AnnuityCouponFixedDefinition) {
+      isPayer = false;
+      fixedLeg = (AnnuityCouponFixedDefinition) receiveLeg;
+    } else {
+      throw new IllegalArgumentException("Swap must have one leg that is an AnnuityCouponFixedDefinition");
+    }
+    final double strike = fixedLeg.getNthPayment(0).getRate();
     // Implementation comment: The strike is working only for swap with same rate on all coupons and standard conventions. The strike equivalent is computed in the pricing methods.
-    return new SwaptionPhysicalFixedIborDefinition(expiryDate, strike, underlyingSwap, underlyingSwap.getFixedLeg().isPayer(), isLong);
+    return new SwaptionPhysicalFixedIborDefinition(expiryDate, strike, underlyingSwap, isPayer, isLong);
   }
 
   /**
    * Gets the underlying swap.
    * @return The underlying swap.
    */
-  public SwapFixedIborDefinition getUnderlyingSwap() {
+  public SwapDefinition getUnderlyingSwap() {
     return _underlyingSwap;
   }
 
@@ -86,8 +121,20 @@ public final class SwaptionPhysicalFixedIborDefinition implements InstrumentDefi
     return _isLong;
   }
 
+  /**
+   * Gets the expiry.
+   * @return The expiry
+   */
   public Expiry getExpiry() {
     return _expiry;
+  }
+
+  /**
+   * Gets the currency.
+   * @return The currency.
+   */
+  public Currency getCurrency() {
+    return _currency;
   }
 
   @Override
@@ -122,8 +169,18 @@ public final class SwaptionPhysicalFixedIborDefinition implements InstrumentDefi
     ArgumentChecker.isTrue(!dayConversion.isAfter(getExpiry().getExpiry().toLocalDate()), "date is after expiry date");
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
     final double expiryTime = TimeCalculator.getTimeBetween(dateTime, _expiry.getExpiry());
-    final double settlementTime = TimeCalculator.getTimeBetween(dateTime, _underlyingSwap.getFixedLeg().getNthPayment(0).getAccrualStartDate());
-    final SwapFixedCoupon<? extends Payment> underlyingSwap = _underlyingSwap.toDerivative(dateTime, yieldCurveNames);
+    final AnnuityDefinition<? extends PaymentDefinition> payLeg = _underlyingSwap.getFirstLeg();
+    final AnnuityDefinition<? extends PaymentDefinition> receiveLeg = _underlyingSwap.getSecondLeg();
+    AnnuityCouponFixedDefinition fixedLeg;
+    if (payLeg instanceof AnnuityCouponFixedDefinition) {
+      fixedLeg = (AnnuityCouponFixedDefinition) payLeg;
+    } else if (receiveLeg instanceof AnnuityCouponFixedDefinition) {
+      fixedLeg = (AnnuityCouponFixedDefinition) receiveLeg;
+    } else {
+      throw new IllegalArgumentException("Swap must have one leg that is an AnnuityCouponFixedDefinition");
+    }
+    final double settlementTime = TimeCalculator.getTimeBetween(dateTime, fixedLeg.getNthPayment(0).getAccrualStartDate());
+    final SwapFixedCoupon<? extends Payment> underlyingSwap = (SwapFixedCoupon<? extends Payment>) _underlyingSwap.toDerivative(dateTime, yieldCurveNames);
     return SwaptionPhysicalFixedIbor.from(expiryTime, underlyingSwap, settlementTime, _isLong);
   }
 
@@ -132,9 +189,19 @@ public final class SwaptionPhysicalFixedIborDefinition implements InstrumentDefi
     ArgumentChecker.notNull(dateTime, "date");
     final LocalDate dayConversion = dateTime.toLocalDate();
     ArgumentChecker.isTrue(!dayConversion.isAfter(getExpiry().getExpiry().toLocalDate()), "date is after expiry date");
+    final AnnuityDefinition<? extends PaymentDefinition> payLeg = _underlyingSwap.getFirstLeg();
+    final AnnuityDefinition<? extends PaymentDefinition> receiveLeg = _underlyingSwap.getSecondLeg();
+    AnnuityCouponFixedDefinition fixedLeg;
+    if (payLeg instanceof AnnuityCouponFixedDefinition) {
+      fixedLeg = (AnnuityCouponFixedDefinition) payLeg;
+    } else if (receiveLeg instanceof AnnuityCouponFixedDefinition) {
+      fixedLeg = (AnnuityCouponFixedDefinition) receiveLeg;
+    } else {
+      throw new IllegalArgumentException("Swap must have one leg that is an AnnuityCouponFixedDefinition");
+    }
     final double expiryTime = TimeCalculator.getTimeBetween(dateTime, _expiry.getExpiry());
-    final double settlementTime = TimeCalculator.getTimeBetween(dateTime, _underlyingSwap.getFixedLeg().getNthPayment(0).getAccrualStartDate());
-    final SwapFixedCoupon<? extends Payment> underlyingSwap = _underlyingSwap.toDerivative(dateTime);
+    final double settlementTime = TimeCalculator.getTimeBetween(dateTime, fixedLeg.getNthPayment(0).getAccrualStartDate());
+    final SwapFixedCoupon<? extends Payment> underlyingSwap = (SwapFixedCoupon<? extends Payment>) _underlyingSwap.toDerivative(dateTime);
     return SwaptionPhysicalFixedIbor.from(expiryTime, underlyingSwap, settlementTime, _isLong);
   }
 

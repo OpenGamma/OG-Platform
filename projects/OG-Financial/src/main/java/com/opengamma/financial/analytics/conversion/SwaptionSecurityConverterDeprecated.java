@@ -7,9 +7,8 @@ package com.opengamma.financial.analytics.conversion;
 
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
-import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
+import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionCashFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
 import com.opengamma.core.security.SecuritySource;
@@ -46,10 +45,7 @@ public class SwaptionSecurityConverterDeprecated extends FinancialSecurityVisito
     final ExternalId underlyingIdentifier = swaptionSecurity.getUnderlyingId();
     final ZonedDateTime expiry = swaptionSecurity.getExpiry().getExpiry();
     final InstrumentDefinition<?> underlyingSwap = ((SwapSecurity) _securitySource.getSingle(ExternalIdBundle.of(underlyingIdentifier))).accept(_swapConverter);
-    if (!(underlyingSwap instanceof SwapFixedIborDefinition)) {
-      throw new OpenGammaRuntimeException("Need a fixed-float swap to create a swaption");
-    }
-    final SwapFixedIborDefinition fixedFloat = (SwapFixedIborDefinition) underlyingSwap;
+    final SwapDefinition fixedFloat = (SwapDefinition) underlyingSwap;
     final boolean isCashSettled = swaptionSecurity.isCashSettled();
     final boolean isLong = swaptionSecurity.isLong();
     return isCashSettled ? SwaptionCashFixedIborDefinition.from(expiry, fixedFloat, isLong)

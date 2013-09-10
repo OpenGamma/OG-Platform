@@ -16,8 +16,12 @@ import org.testng.annotations.Test;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
+import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexSwap;
+import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
+import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
@@ -249,7 +253,14 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethodTest {
     // 2. Funding curve sensitivity
     final String[] bumpedCurvesFundingName = {bumpedCurveName, FORWARD_CURVE_NAME};
     final SwaptionPhysicalFixedIbor swaptionBumpedFunding = swaptionDefinitionLongPayerHighStrike.toDerivative(REFERENCE_DATE, bumpedCurvesFundingName);
-    final int nbPayDate = swaptionDefinitionLongPayerHighStrike.getUnderlyingSwap().getIborLeg().getPayments().length;
+    final SwapDefinition underlyingSwap = swaptionDefinitionLongPayerHighStrike.getUnderlyingSwap();
+    AnnuityDefinition<? extends PaymentDefinition> floatLeg;
+    if (underlyingSwap.getFirstLeg() instanceof AnnuityCouponFixedDefinition) {
+      floatLeg = underlyingSwap.getSecondLeg();
+    } else {
+      floatLeg = underlyingSwap.getFirstLeg();
+    }
+    final int nbPayDate = floatLeg.getPayments().length;
     final YieldAndDiscountCurve curveFunding = curves.getCurve(FUNDING_CURVE_NAME);
     final double[] yieldsFunding = new double[nbPayDate + 1];
     final double[] nodeTimesFunding = new double[nbPayDate + 1];
