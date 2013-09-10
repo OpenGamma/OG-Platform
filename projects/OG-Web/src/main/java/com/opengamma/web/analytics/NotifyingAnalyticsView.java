@@ -180,12 +180,12 @@ import com.opengamma.web.analytics.push.UpdateListener;
   }
 
   @Override
-  public ErrorInfo getError(String id) {
-    return _delegate.getError(id);
+  public List<ErrorInfo> getErrors() {
+    return _delegate.getErrors();
   }
 
   @Override
-  public void deleteError(String id) {
+  public void deleteError(long id) {
     _delegate.deleteError(id);
   }
 }
