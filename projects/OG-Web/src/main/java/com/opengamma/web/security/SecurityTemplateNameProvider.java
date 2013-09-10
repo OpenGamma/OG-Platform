@@ -31,6 +31,7 @@ import com.opengamma.financial.security.future.EnergyFutureSecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
 import com.opengamma.financial.security.future.FXFutureSecurity;
+import com.opengamma.financial.security.future.FederalFundsFutureSecurity;
 import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
@@ -302,6 +303,11 @@ import com.opengamma.financial.security.swap.SwapSecurity;
   @Override
   public String visitCreditDefaultSwapOptionSecurity(CreditDefaultSwapOptionSecurity security) {
     return "cds-option.ftl";
+  }
+  
+  @Override
+  public String visitFederalFundsFutureSecurity(FederalFundsFutureSecurity security) {
+    return getFuture();
   }
 
   private String getBond() {
