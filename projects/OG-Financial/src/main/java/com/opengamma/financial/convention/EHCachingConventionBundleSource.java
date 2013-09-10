@@ -23,7 +23,7 @@ import com.opengamma.util.ehcache.EHCacheUtils;
  */
 public class EHCachingConventionBundleSource implements ConventionBundleSource {
 
-  private static final String CONVENTION_CACHE_NAME = "convention";
+  private static final String CONVENTION_CACHE_NAME = "conventionBundle";
 
   private final ConventionBundleSource _underlying;
   private final CacheManager _cacheManager;
