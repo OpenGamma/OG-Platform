@@ -43,9 +43,7 @@ import com.opengamma.engine.marketdata.live.LiveDataFactory;
 import com.opengamma.engine.marketdata.live.LiveMarketDataProviderFactory;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.livedata.LiveDataClient;
-import com.opengamma.livedata.client.DistributedLiveDataClient;
 import com.opengamma.livedata.client.JmsLiveDataClient;
-import com.opengamma.livedata.client.RemoteLiveDataClientFactoryBean;
 import com.opengamma.provider.livedata.LiveDataMetaData;
 import com.opengamma.provider.livedata.LiveDataMetaDataProvider;
 import com.opengamma.provider.livedata.LiveDataServerTypes;
@@ -153,14 +151,13 @@ public class LiveMarketDataProviderFactoryComponentFactory extends AbstractCompo
     JmsTemplate jmsTemplate = getJmsConnector().getJmsTemplateTopic();
     
     JmsByteArrayRequestSender jmsSubscriptionRequestSender;
-    /*
+
     if (metaData.getJmsSubscriptionQueue() != null) {
       JmsTemplate subscriptionRequestTemplate = getJmsConnector().getJmsTemplateQueue();
       jmsSubscriptionRequestSender = new JmsByteArrayRequestSender(metaData.getJmsSubscriptionQueue(), subscriptionRequestTemplate);
     } else {
-    */
       jmsSubscriptionRequestSender = new JmsByteArrayRequestSender(metaData.getJmsSubscriptionTopic(), jmsTemplate);
-    //}
+    }
     ByteArrayFudgeRequestSender fudgeSubscriptionRequestSender = new ByteArrayFudgeRequestSender(jmsSubscriptionRequestSender);
     
     JmsByteArrayRequestSender jmsEntitlementRequestSender = new JmsByteArrayRequestSender(metaData.getJmsEntitlementTopic(), jmsTemplate);
