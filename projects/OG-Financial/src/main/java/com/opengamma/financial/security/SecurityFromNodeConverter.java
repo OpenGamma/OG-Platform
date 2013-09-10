@@ -16,7 +16,7 @@ import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.Security;
 import com.opengamma.financial.analytics.conversion.CalendarUtils;
-import com.opengamma.financial.analytics.curve.CurveNodeWithExternalIdVisitorAdapter;
+import com.opengamma.financial.analytics.curve.CurveNodeVisitorAdapter;
 import com.opengamma.financial.analytics.ircurve.strips.CashNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
@@ -58,7 +58,7 @@ import com.opengamma.util.tuple.Triple;
  * business-day-convention, calendar and EOM of the convention.
  * The FRA notional is 1.
  */
-public class SecurityFromNodeConverter extends CurveNodeWithExternalIdVisitorAdapter<Security> {
+public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Security> {
 
   /** The convention source */
   private final ConventionSource _conventionSource;
@@ -69,10 +69,12 @@ public class SecurityFromNodeConverter extends CurveNodeWithExternalIdVisitorAda
   /** The valuation time */
   private final ZonedDateTime _valuationTime;
 
-  /** the rate to fill in * */
+  /** the rate to fill in */
   private final Double _rate;
-  /** the amount to fill in * */
+  /** the amount to fill in */
   private final Double _amount;
+  /** the external identifier */
+  private final ExternalId _identifier;
 
   /**
    * @param conventionSource The convention source, not null
@@ -83,11 +85,12 @@ public class SecurityFromNodeConverter extends CurveNodeWithExternalIdVisitorAda
    * @param valuationTime The valuation time, not null
    */
   public SecurityFromNodeConverter(final ConventionSource conventionSource,
-                       final HolidaySource holidaySource,
-                       final RegionSource regionSource,
-                       final ZonedDateTime valuationTime,
-                       final Double rate,
-                       final Double amount) {
+                                   final HolidaySource holidaySource,
+                                   final RegionSource regionSource,
+                                   final ZonedDateTime valuationTime,
+                                   final Double rate,
+                                   final Double amount,
+                                   final ExternalId identifier) {
     ArgumentChecker.notNull(conventionSource, "convention source");
     ArgumentChecker.notNull(holidaySource, "holiday source");
     ArgumentChecker.notNull(regionSource, "region source");
@@ -98,11 +101,12 @@ public class SecurityFromNodeConverter extends CurveNodeWithExternalIdVisitorAda
     _valuationTime = valuationTime;
     _rate = rate;
     _amount = amount;
+    _identifier = identifier;
   }
 
 
   @Override
-  public FRASecurity visitFRANode(final FRANode fraNode, final ExternalId externalId) {
+  public FRASecurity visitFRANode(final FRANode fraNode) {
     final Convention convention = _conventionSource.getConvention(fraNode.getConvention());
     final Period startPeriod = fraNode.getFixingStart().getPeriod();
     final Period endPeriod = fraNode.getFixingEnd().getPeriod();
@@ -124,7 +128,7 @@ public class SecurityFromNodeConverter extends CurveNodeWithExternalIdVisitorAda
                                                               indexConvention.getFixingCalendar());
     final Calendar regionCalendar = CalendarUtils.getCalendar(_regionSource,
                                                               _holidaySource,
-                                                              indexConvention.getRegionIdentifier());
+                                                              indexConvention.getRegionCalendar());
     final int spotLag = indexConvention.getSettlementDays();
     final BusinessDayConvention businessDayConvention = indexConvention.getBusinessDayConvention();
     final DayCount dayCount = indexConvention.getDayCount();
@@ -160,18 +164,18 @@ public class SecurityFromNodeConverter extends CurveNodeWithExternalIdVisitorAda
                                                                         -iborIndex.getSpotLag(),
                                                                         fixingCalendar);
     return new FRASecurity(currency,
-                           indexConvention.getRegionIdentifier(),
+                           indexConvention.getRegionCalendar(),
                            accrualStartDate,
                            accrualEndDate,
                            _rate,
-                           _amount,
-                           externalId,
+                           1,
+                           _identifier,
                            fixingDate);
   }
 
 
   @Override
-  public Security visitSwapNode(SwapNode swapNode, final ExternalId externalId) {
+  public Security visitSwapNode(SwapNode swapNode) {
     final Convention payLegConvention = _conventionSource.getConvention(swapNode.getPayLegConvention());
     if (payLegConvention == null) {
       throw new OpenGammaRuntimeException("Convention with id " + swapNode.getPayLegConvention() + " was null");
@@ -187,22 +191,22 @@ public class SecurityFromNodeConverter extends CurveNodeWithExternalIdVisitorAda
     if (payLegConvention instanceof SwapFixedLegConvention) {
       payLeg = getFixedLeg((SwapFixedLegConvention) payLegConvention, swapNode, true);
     } else if (payLegConvention instanceof VanillaIborLegConvention) {
-      payLeg = getIborLeg(externalId, (VanillaIborLegConvention) payLegConvention, swapNode, true, false);
+      payLeg = getIborLeg(_identifier, (VanillaIborLegConvention) payLegConvention, swapNode, true, false);
     } else if (payLegConvention instanceof OISLegConvention) {
-      payLeg = getOISLeg(externalId, (OISLegConvention) payLegConvention, swapNode, true, false);
+      payLeg = getOISLeg(_identifier, (OISLegConvention) payLegConvention, swapNode, true, false);
     } else {
       throw new OpenGammaRuntimeException("Cannot handle convention type " + payLegConvention.getClass());
     }
     if (receiveLegConvention instanceof SwapFixedLegConvention) {
       receiveLeg = getFixedLeg((SwapFixedLegConvention) receiveLegConvention, swapNode, false);
     } else if (receiveLegConvention instanceof VanillaIborLegConvention) {
-      receiveLeg = getIborLeg(externalId,
+      receiveLeg = getIborLeg(_identifier,
                               (VanillaIborLegConvention) receiveLegConvention,
                               swapNode,
                               false,
                               isFloatFloat);
     } else if (receiveLegConvention instanceof OISLegConvention) {
-      receiveLeg = getOISLeg(externalId, (OISLegConvention) receiveLegConvention, swapNode, false, isFloatFloat);
+      receiveLeg = getOISLeg(_identifier, (OISLegConvention) receiveLegConvention, swapNode, false, isFloatFloat);
     } else {
       throw new OpenGammaRuntimeException("Cannot handle convention type " + receiveLegConvention.getClass());
     }
@@ -233,7 +237,7 @@ public class SecurityFromNodeConverter extends CurveNodeWithExternalIdVisitorAda
                                                                                                       final boolean isPayer) {
     final Calendar calendar = CalendarUtils.getCalendar(_regionSource,
                                                         _holidaySource,
-                                                        convention.getRegionIdentifier());
+                                                        convention.getRegionCalendar());
 
     final Currency currency = convention.getCurrency();
     final DayCount dayCount = convention.getDayCount();
@@ -251,7 +255,7 @@ public class SecurityFromNodeConverter extends CurveNodeWithExternalIdVisitorAda
 
     return Pair.of(new FixedInterestRateLeg(dayCount,
                                             PeriodFrequency.of(paymentPeriod),
-                                            convention.getRegionIdentifier(),
+                                            convention.getRegionCalendar(),
                                             businessDayConvention,
                                             new InterestRateNotional(currency, _amount),
                                             eomLeg,
@@ -302,7 +306,7 @@ public class SecurityFromNodeConverter extends CurveNodeWithExternalIdVisitorAda
       //return AnnuityCouponIborSpreadDefinition.from(startDate, maturityTenor, 1, iborIndex, spread, isPayer, calendar);
       return Pair.of(new FloatingSpreadIRLeg(dayCount,
                                              PeriodFrequency.of(convention.getResetTenor().getPeriod()),
-                                             indexConvention.getRegionIdentifier(),
+                                             indexConvention.getRegionCalendar(),
                                              businessDayConvention,
                                              new InterestRateNotional(currency, _amount),
                                              eomLeg,
@@ -314,7 +318,7 @@ public class SecurityFromNodeConverter extends CurveNodeWithExternalIdVisitorAda
     //return AnnuityCouponIborDefinition.from(startDate, maturityTenor, 1, iborIndex, isPayer, calendar);
     return Pair.of(new FloatingInterestRateLeg(dayCount,
                                                PeriodFrequency.of(maturityTenor),
-                                               indexConvention.getRegionIdentifier(),
+                                               indexConvention.getRegionCalendar(),
                                                businessDayConvention,
                                                new InterestRateNotional(currency, _amount),
                                                eomLeg,
@@ -376,7 +380,7 @@ public class SecurityFromNodeConverter extends CurveNodeWithExternalIdVisitorAda
 
 
   @Override
-  public CashSecurity visitCashNode(CashNode cashNode, ExternalId externalId) {
+  public CashSecurity visitCashNode(CashNode cashNode) {
     final Convention convention = _conventionSource.getConvention(cashNode.getConvention());
     if (convention == null) {
       throw new OpenGammaRuntimeException("Convention with id " + cashNode.getConvention() + " was null");
@@ -417,7 +421,7 @@ public class SecurityFromNodeConverter extends CurveNodeWithExternalIdVisitorAda
       final Currency currency = iborConvention.getCurrency();
       final Calendar calendar = CalendarUtils.getCalendar(_regionSource,
                                                           _holidaySource,
-                                                          iborConvention.getRegionIdentifier());
+                                                          iborConvention.getRegionCalendar());
       final BusinessDayConvention businessDayConvention = iborConvention.getBusinessDayConvention();
       final boolean isEOM = iborConvention.isIsEOM();
       final DayCount dayCount = iborConvention.getDayCount();
@@ -446,7 +450,7 @@ public class SecurityFromNodeConverter extends CurveNodeWithExternalIdVisitorAda
                                                 eom,
                                                 convention.getName());
       return new CashSecurity(currency,
-                              iborConvention.getRegionIdentifier(),
+                              iborConvention.getRegionCalendar(),
                               startDate,
                               endDate,
                               dayCount,

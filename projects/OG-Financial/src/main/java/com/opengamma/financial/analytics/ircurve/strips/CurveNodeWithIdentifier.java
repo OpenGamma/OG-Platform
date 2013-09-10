@@ -5,25 +5,42 @@
  */
 package com.opengamma.financial.analytics.ircurve.strips;
 
+import java.util.Map;
+
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
+import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBean;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaBean;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 
-/**
- * Contains a curve node and the information necessary to get market data from the engine.
- */
-public class CurveNodeWithIdentifier implements Comparable<CurveNodeWithIdentifier> {
+/** Contains a curve node and the information necessary to get market data from the engine. */
+@BeanDefinition
+public class CurveNodeWithIdentifier extends DirectBean implements Comparable<CurveNodeWithIdentifier> {
+
   /** The node */
-  private final CurveNode _node;
+  @PropertyDefinition(validate = "notNull")
+  private CurveNode _curveNode;
   /** The market data id */
-  private final ExternalId _id;
+  @PropertyDefinition(validate = "notNull")
+  private ExternalId _identifier;
   /** The data field id */
-  private final String _dataField;
+  @PropertyDefinition(validate = "notNull")
+  private String _dataField;
   /** The data field type */
-  private final DataFieldType _fieldType;
+  @PropertyDefinition(validate = "notNull")
+  private DataFieldType _fieldType;
 
   /**
    * @param node The curve node, not null
@@ -31,56 +48,30 @@ public class CurveNodeWithIdentifier implements Comparable<CurveNodeWithIdentifi
    * @param dataField The data field, not null
    * @param fieldType The field type, not null
    */
-  public CurveNodeWithIdentifier(final CurveNode node, final ExternalId id, final String dataField, final DataFieldType fieldType) {
+  public CurveNodeWithIdentifier(final CurveNode node,
+                                 final ExternalId id,
+                                 final String dataField,
+                                 final DataFieldType fieldType) {
     ArgumentChecker.notNull(node, "node");
     ArgumentChecker.notNull(id, "id");
     ArgumentChecker.notNull(dataField, "data field");
     ArgumentChecker.notNull(fieldType, "field type");
-    _node = node;
-    _id = id;
+    _curveNode = node;
+    _identifier = id;
     _dataField = dataField;
     _fieldType = fieldType;
   }
 
-  /**
-   * Gets the curve node.
-   * @return The curve node
-   */
-  public CurveNode getCurveNode() {
-    return _node;
-  }
-
-  /**
-   * Gets the market data identifier.
-   * @return The market data identifier
-   */
-  public ExternalId getIdentifier() {
-    return _id;
-  }
-
-  /**
-   * Gets the market data field.
-   * @return The market data field
-   */
-  public String getDataField() {
-    return _dataField;
-  }
-
-  /**
-   * Gets the market data field type.
-   * @return The market data field type
-   */
-  public DataFieldType getFieldType() {
-    return _fieldType;
+  protected CurveNodeWithIdentifier() {
   }
 
   @Override
   public int compareTo(final CurveNodeWithIdentifier o) {
-    int result = _node.compareTo(o._node);
+    int result = _curveNode.compareTo(o._curveNode);
     if (result != 0) {
       return result;
     }
-    result = _id.getValue().compareTo(o._id.getValue());
+    result = _identifier.getValue().compareTo(o._identifier.getValue());
     if (result != 0) {
       return result;
     }
@@ -100,8 +91,8 @@ public class CurveNodeWithIdentifier implements Comparable<CurveNodeWithIdentifi
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + _id.hashCode();
-    result = prime * result + _node.hashCode();
+    result = prime * result + _identifier.hashCode();
+    result = prime * result + _curveNode.hashCode();
     result = prime * result + _dataField.hashCode();
     result = prime * result + _fieldType.hashCode();
     return result;
@@ -116,10 +107,10 @@ public class CurveNodeWithIdentifier implements Comparable<CurveNodeWithIdentifi
       return false;
     }
     final CurveNodeWithIdentifier other = (CurveNodeWithIdentifier) obj;
-    if (!ObjectUtils.equals(_id, other._id)) {
+    if (!ObjectUtils.equals(_identifier, other._identifier)) {
       return false;
     }
-    if (!ObjectUtils.equals(_node, other._node)) {
+    if (!ObjectUtils.equals(_curveNode, other._curveNode)) {
       return false;
     }
     if (!ObjectUtils.equals(_dataField, other._dataField)) {
@@ -132,4 +123,283 @@ public class CurveNodeWithIdentifier implements Comparable<CurveNodeWithIdentifi
   }
 
 
+  //------------------------- AUTOGENERATED START -------------------------
+  ///CLOVER:OFF
+  /**
+   * The meta-bean for {@code CurveNodeWithIdentifier}.
+   * @return the meta-bean, not null
+   */
+  public static CurveNodeWithIdentifier.Meta meta() {
+    return CurveNodeWithIdentifier.Meta.INSTANCE;
+  }
+
+  static {
+    JodaBeanUtils.registerMetaBean(CurveNodeWithIdentifier.Meta.INSTANCE);
+  }
+
+  @Override
+  public CurveNodeWithIdentifier.Meta metaBean() {
+    return CurveNodeWithIdentifier.Meta.INSTANCE;
+  }
+
+  @Override
+  protected Object propertyGet(String propertyName, boolean quiet) {
+    switch (propertyName.hashCode()) {
+      case 771167121:  // curveNode
+        return getCurveNode();
+      case -1618432855:  // identifier
+        return getIdentifier();
+      case -386794640:  // dataField
+        return getDataField();
+      case 1265211220:  // fieldType
+        return getFieldType();
+    }
+    return super.propertyGet(propertyName, quiet);
+  }
+
+  @Override
+  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+    switch (propertyName.hashCode()) {
+      case 771167121:  // curveNode
+        setCurveNode((CurveNode) newValue);
+        return;
+      case -1618432855:  // identifier
+        setIdentifier((ExternalId) newValue);
+        return;
+      case -386794640:  // dataField
+        setDataField((String) newValue);
+        return;
+      case 1265211220:  // fieldType
+        setFieldType((DataFieldType) newValue);
+        return;
+    }
+    super.propertySet(propertyName, newValue, quiet);
+  }
+
+  @Override
+  protected void validate() {
+    JodaBeanUtils.notNull(_curveNode, "curveNode");
+    JodaBeanUtils.notNull(_identifier, "identifier");
+    JodaBeanUtils.notNull(_dataField, "dataField");
+    JodaBeanUtils.notNull(_fieldType, "fieldType");
+    super.validate();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the node
+   * @return the value of the property, not null
+   */
+  public CurveNode getCurveNode() {
+    return _curveNode;
+  }
+
+  /**
+   * Sets the node
+   * @param curveNode  the new value of the property, not null
+   */
+  public void setCurveNode(CurveNode curveNode) {
+    JodaBeanUtils.notNull(curveNode, "curveNode");
+    this._curveNode = curveNode;
+  }
+
+  /**
+   * Gets the the {@code curveNode} property.
+   * @return the property, not null
+   */
+  public final Property<CurveNode> curveNode() {
+    return metaBean().curveNode().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the market data id
+   * @return the value of the property, not null
+   */
+  public ExternalId getIdentifier() {
+    return _identifier;
+  }
+
+  /**
+   * Sets the market data id
+   * @param identifier  the new value of the property, not null
+   */
+  public void setIdentifier(ExternalId identifier) {
+    JodaBeanUtils.notNull(identifier, "identifier");
+    this._identifier = identifier;
+  }
+
+  /**
+   * Gets the the {@code identifier} property.
+   * @return the property, not null
+   */
+  public final Property<ExternalId> identifier() {
+    return metaBean().identifier().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the data field id
+   * @return the value of the property, not null
+   */
+  public String getDataField() {
+    return _dataField;
+  }
+
+  /**
+   * Sets the data field id
+   * @param dataField  the new value of the property, not null
+   */
+  public void setDataField(String dataField) {
+    JodaBeanUtils.notNull(dataField, "dataField");
+    this._dataField = dataField;
+  }
+
+  /**
+   * Gets the the {@code dataField} property.
+   * @return the property, not null
+   */
+  public final Property<String> dataField() {
+    return metaBean().dataField().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the data field type
+   * @return the value of the property, not null
+   */
+  public DataFieldType getFieldType() {
+    return _fieldType;
+  }
+
+  /**
+   * Sets the data field type
+   * @param fieldType  the new value of the property, not null
+   */
+  public void setFieldType(DataFieldType fieldType) {
+    JodaBeanUtils.notNull(fieldType, "fieldType");
+    this._fieldType = fieldType;
+  }
+
+  /**
+   * Gets the the {@code fieldType} property.
+   * @return the property, not null
+   */
+  public final Property<DataFieldType> fieldType() {
+    return metaBean().fieldType().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * The meta-bean for {@code CurveNodeWithIdentifier}.
+   */
+  public static class Meta extends DirectMetaBean {
+    /**
+     * The singleton instance of the meta-bean.
+     */
+    static final Meta INSTANCE = new Meta();
+
+    /**
+     * The meta-property for the {@code curveNode} property.
+     */
+    private final MetaProperty<CurveNode> _curveNode = DirectMetaProperty.ofReadWrite(
+        this, "curveNode", CurveNodeWithIdentifier.class, CurveNode.class);
+    /**
+     * The meta-property for the {@code identifier} property.
+     */
+    private final MetaProperty<ExternalId> _identifier = DirectMetaProperty.ofReadWrite(
+        this, "identifier", CurveNodeWithIdentifier.class, ExternalId.class);
+    /**
+     * The meta-property for the {@code dataField} property.
+     */
+    private final MetaProperty<String> _dataField = DirectMetaProperty.ofReadWrite(
+        this, "dataField", CurveNodeWithIdentifier.class, String.class);
+    /**
+     * The meta-property for the {@code fieldType} property.
+     */
+    private final MetaProperty<DataFieldType> _fieldType = DirectMetaProperty.ofReadWrite(
+        this, "fieldType", CurveNodeWithIdentifier.class, DataFieldType.class);
+    /**
+     * The meta-properties.
+     */
+    private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
+        this, null,
+        "curveNode",
+        "identifier",
+        "dataField",
+        "fieldType");
+
+    /**
+     * Restricted constructor.
+     */
+    protected Meta() {
+    }
+
+    @Override
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case 771167121:  // curveNode
+          return _curveNode;
+        case -1618432855:  // identifier
+          return _identifier;
+        case -386794640:  // dataField
+          return _dataField;
+        case 1265211220:  // fieldType
+          return _fieldType;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public BeanBuilder<? extends CurveNodeWithIdentifier> builder() {
+      return new DirectBeanBuilder<CurveNodeWithIdentifier>(new CurveNodeWithIdentifier());
+    }
+
+    @Override
+    public Class<? extends CurveNodeWithIdentifier> beanType() {
+      return CurveNodeWithIdentifier.class;
+    }
+
+    @Override
+    public Map<String, MetaProperty<?>> metaPropertyMap() {
+      return _metaPropertyMap$;
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code curveNode} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<CurveNode> curveNode() {
+      return _curveNode;
+    }
+
+    /**
+     * The meta-property for the {@code identifier} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ExternalId> identifier() {
+      return _identifier;
+    }
+
+    /**
+     * The meta-property for the {@code dataField} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> dataField() {
+      return _dataField;
+    }
+
+    /**
+     * The meta-property for the {@code fieldType} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<DataFieldType> fieldType() {
+      return _fieldType;
+    }
+
+  }
+
+  ///CLOVER:ON
+  //-------------------------- AUTOGENERATED END --------------------------
 }
