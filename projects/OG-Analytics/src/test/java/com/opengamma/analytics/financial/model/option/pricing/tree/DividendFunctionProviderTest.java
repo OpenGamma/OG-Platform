@@ -5,6 +5,9 @@
  */
 package com.opengamma.analytics.financial.model.option.pricing.tree;
 
+import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertTrue;
+
 import org.testng.annotations.Test;
 
 /**
@@ -95,7 +98,6 @@ public class DividendFunctionProviderTest {
   /**
    * 
    */
-  @SuppressWarnings("unused")
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void tooBigCashDividendTest() {
     final double[] dividends = new double[] {1., 2., 300. };
@@ -106,7 +108,6 @@ public class DividendFunctionProviderTest {
   /**
    * 
    */
-  @SuppressWarnings("unused")
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void dividendAfterExpiryPriceTest() {
     final double[] times = new double[] {1., 2., 45. };
@@ -117,11 +118,58 @@ public class DividendFunctionProviderTest {
   /**
    * 
    */
-  @SuppressWarnings("unused")
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void dividendAfterExpiryGreeksTest() {
     final double[] times = new double[] {1., 2., 45. };
     final DividendFunctionProvider div = new CashDividendFunctionProvider(times, _dividends);
     (new BinomialTreeOptionPricingModel()).getGreeks(new TianLatticeSpecification(), new EuropeanVanillaOptionFunctionProvider(100, 10., 101, true), 100., 0.2, 0.05, div);
+  }
+
+  /**
+   * 
+   */
+  @Test
+  public void hashCodeEqualsCashTest() {
+    final double[] times = new double[] {1., 2., 4. };
+    final double[] dividends = new double[] {0.2, 0.1, 0.3 };
+
+    final DividendFunctionProvider ref = new CashDividendFunctionProvider(_times, _dividends);
+    final DividendFunctionProvider[] function = new DividendFunctionProvider[] {ref, new CashDividendFunctionProvider(_times, _dividends),
+        new CashDividendFunctionProvider(times, _dividends), new CashDividendFunctionProvider(_times, dividends),
+        new ProportionalDividendFunctionProvider(_times, _dividends), new ProportionalDividendFunctionProvider(_times, dividends), null };
+    final int len = function.length;
+    for (int i = 0; i < len; ++i) {
+      if (ref.equals(function[i])) {
+        assertTrue(ref.hashCode() == function[i].hashCode());
+      }
+    }
+    for (int i = 0; i < len - 1; ++i) {
+      assertTrue(function[i].equals(ref) == ref.equals(function[i]));
+    }
+    assertFalse(ref.equals(new EuropeanSpreadOptionFunctionProvider(100., 1., 53, true)));
+  }
+
+  /**
+   * 
+   */
+  @Test
+  public void hashCodeEqualsPropTest() {
+    final double[] times = new double[] {1., 2., 4. };
+    final double[] dividends = new double[] {0.2, 0.1, 0.3 };
+
+    final DividendFunctionProvider ref = new ProportionalDividendFunctionProvider(_times, _dividends);
+    final DividendFunctionProvider[] function = new DividendFunctionProvider[] {ref, new ProportionalDividendFunctionProvider(_times, _dividends),
+        new ProportionalDividendFunctionProvider(times, _dividends), new ProportionalDividendFunctionProvider(_times, dividends),
+        new CashDividendFunctionProvider(_times, _dividends), new CashDividendFunctionProvider(_times, dividends), null };
+    final int len = function.length;
+    for (int i = 0; i < len; ++i) {
+      if (ref.equals(function[i])) {
+        assertTrue(ref.hashCode() == function[i].hashCode());
+      }
+    }
+    for (int i = 0; i < len - 1; ++i) {
+      assertTrue(function[i].equals(ref) == ref.equals(function[i]));
+    }
+    assertFalse(ref.equals(new EuropeanSpreadOptionFunctionProvider(100., 1., 53, true)));
   }
 }

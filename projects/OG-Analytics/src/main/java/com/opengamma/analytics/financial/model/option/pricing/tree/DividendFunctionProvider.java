@@ -166,23 +166,14 @@ public abstract class DividendFunctionProvider {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (obj == null) {
-      return false;
-    }
-    if (!(obj instanceof DividendFunctionProvider)) {
-      return false;
-    }
+    /*
+     * This case is always successful because this equals() is necessarily called by a subclass
+     */
     DividendFunctionProvider other = (DividendFunctionProvider) obj;
     if (!Arrays.equals(_dividendTimes, other._dividendTimes)) {
       return false;
     }
     if (!Arrays.equals(_dividends, other._dividends)) {
-      return false;
-    }
-    if (_nDividends != other._nDividends) {
       return false;
     }
     return true;

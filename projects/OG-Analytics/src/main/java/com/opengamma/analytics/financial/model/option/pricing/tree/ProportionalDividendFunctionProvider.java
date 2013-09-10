@@ -87,9 +87,9 @@ public class ProportionalDividendFunctionProvider extends DividendFunctionProvid
     if (obj == null) {
       return false;
     }
-    if (!(obj instanceof CashDividendFunctionProvider)) {
+    if (!(obj instanceof ProportionalDividendFunctionProvider)) {
       return false;
     }
-    return true;
+    return super.equals(obj);
   }
 }

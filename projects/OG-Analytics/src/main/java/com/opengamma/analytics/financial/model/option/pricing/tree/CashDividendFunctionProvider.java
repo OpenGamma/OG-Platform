@@ -74,6 +74,6 @@ public class CashDividendFunctionProvider extends DividendFunctionProvider {
     if (!(obj instanceof CashDividendFunctionProvider)) {
       return false;
     }
-    return true;
+    return super.equals(obj);
   }
 }
