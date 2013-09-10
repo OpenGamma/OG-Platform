@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.capletstripping;
@@ -9,20 +9,13 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
-import com.opengamma.analytics.financial.model.volatility.SimpleOptionData;
-import com.opengamma.analytics.financial.model.volatility.VolatilityModel1D;
-import com.opengamma.analytics.financial.model.volatility.VolatilityModelProvider;
 import com.opengamma.analytics.math.FunctionUtils;
-import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
-import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResults;
-import com.opengamma.analytics.math.statistics.leastsquare.NonLinearLeastSquare;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * @deprecated {@link YieldCurveBundle} is deprecated
  */
+@Deprecated
 public abstract class CapletStrippingAbsoluteStrike {
 
   private final MultiCapFloorPricer _pricer;
@@ -71,7 +64,7 @@ public abstract class CapletStrippingAbsoluteStrike {
     ArgumentChecker.notEmpty(capPrices, "null cap prices");
     final int n = getnCaps();
     ArgumentChecker.isTrue(n == capPrices.length, "wrong number of capPrices, should have {}, but {} given", n, capPrices.length);
-    double[] base = getPricer().getIntrinsicCapValues();
+    final double[] base = getPricer().getIntrinsicCapValues();
     for (int i = 0; i < n; i++) {
       ArgumentChecker.isTrue(capPrices[i] >= base[i], "Cap price {} lower that intrinisic value {}", capPrices[i], base[i]);
     }
@@ -127,7 +120,7 @@ public abstract class CapletStrippingAbsoluteStrike {
     return _capEndTimes;
   }
 
-  protected double chiSqr(double[] expected, double[] actual) {
+  protected double chiSqr(final double[] expected, final double[] actual) {
     final int n = expected.length;
     double chi2 = 0.0;
     for (int i = 0; i < n; i++) {
@@ -136,7 +129,7 @@ public abstract class CapletStrippingAbsoluteStrike {
     return chi2;
   }
 
-  protected double chiSqr(double[] expected, double[] actual, double[] error) {
+  protected double chiSqr(final double[] expected, final double[] actual, final double[] error) {
     final int n = expected.length;
     double chi2 = 0.0;
     for (int i = 0; i < n; i++) {

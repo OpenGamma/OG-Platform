@@ -131,7 +131,7 @@ public class DependencyNode {
    * 
    * @param outputValues the output values produced by this node, not null
    */
-  public void addOutputValues(final Set<ValueSpecification> outputValues) {
+  public void addOutputValues(final Iterable<ValueSpecification> outputValues) {
     for (final ValueSpecification outputValue : outputValues) {
       addOutputValue(outputValue);
     }

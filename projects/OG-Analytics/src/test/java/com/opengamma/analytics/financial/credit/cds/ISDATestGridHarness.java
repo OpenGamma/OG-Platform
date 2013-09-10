@@ -34,7 +34,6 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.FollowingBusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
-import com.opengamma.financial.convention.daycount.ActualThreeSixty;
 import com.opengamma.financial.convention.daycount.ActualThreeSixtyFive;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
@@ -70,7 +69,7 @@ public class ISDATestGridHarness {
 
   private static final Map<String,String[]> selectedUnitTestGrids;
   static {
-    selectedUnitTestGrids = new HashMap<String,String[]>();
+    selectedUnitTestGrids = new HashMap<>();
     selectedUnitTestGrids.put("benchmark", new String[] { "USD_20090911.xls", "HKD_20090908.xls", "SGD_20090909.xls" } );
     selectedUnitTestGrids.put("corporate", new String[] { "CAD_20090501.xls", "CHF_20090507.xls", "EUR_20090525.xls", "GBP_20090512.xls", "JPY_20090526.xls", "USD_20090528.xls" } );
   }
@@ -92,6 +91,7 @@ public class ISDATestGridHarness {
     public final double cleanExpected;
     public final double cleanPercentageError;
 
+    @SuppressWarnings("hiding")
     public TestResult (final double dirty, final double dirtyExpected, final double dirtyAbsoluteError, final double dirtyRelativeError,
       final double clean, final double cleanExpected, final double cleanPercentageError) {
 
@@ -115,6 +115,7 @@ public class ISDATestGridHarness {
     public final double maxRelativeError;
     public final double maxCleanPercentageError;
 
+    @SuppressWarnings("hiding")
     public TestGridResult(final int cases, final int failures, final int marginals, final double seconds, final double maxAbsoluteError, final double maxRelativeError, final double maxCleanPercentageError) {
       this.cases = cases;
       this.failures = failures;
@@ -166,9 +167,9 @@ public class ISDATestGridHarness {
 	  double maxRelativeError = 0.0;
 	  double maxCleanPercentageError = 0.0;
 
-	  final Set<String> testGridFilter = new HashSet<String>();
-	  final Set<String> failedGrids = new HashSet<String>();
-	  final Set<String> marginalGrids = new HashSet<String>();
+	  final Set<String> testGridFilter = new HashSet<>();
+	  final Set<String> failedGrids = new HashSet<>();
+	  final Set<String> marginalGrids = new HashSet<>();
 
 	  for (final Entry<String, String[]> batch : testGrids.entrySet()) {
   	  for (final String fileName : batch.getValue()) {
@@ -179,9 +180,8 @@ public class ISDATestGridHarness {
 
           if (testGridFilter.contains(classification)) {
             continue;
-          } else {
-            testGridFilter.add(classification);
           }
+          testGridFilter.add(classification);
         }
 
         // Load the IR curve for the current grid
@@ -329,9 +329,9 @@ public class ISDATestGridHarness {
     return new TestGridResult(i, failures, marginalCases, seconds, maxAbsoluteError, maxRelativeError, maxCleanPercentageError);
   }
 
+  @SuppressWarnings("deprecation")
   public TestResult runTestCase(final ISDATestGridRow testCase, final ISDACurve discountCurve) {
 
-    final DayCount dayCount = new ActualThreeSixty();
     final BusinessDayConvention businessDays = new FollowingBusinessDayConvention();
     final Calendar calendar = new MondayToFridayCalendar("TestCalendar");
     final Convention convention = new Convention(3, dayCount, businessDays, calendar, "");

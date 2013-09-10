@@ -1,11 +1,9 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.math.interpolation;
-
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.WeightingFunction;
 import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.WeightingFunctionFactory;
@@ -16,7 +14,7 @@ import com.opengamma.analytics.math.interpolation.data.Interpolator1DDoubleQuadr
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ *
  */
 public class DoubleQuadraticInterpolator1D extends Interpolator1D {
   private static final long serialVersionUID = 1L;
@@ -35,9 +33,9 @@ public class DoubleQuadraticInterpolator1D extends Interpolator1D {
 
   @Override
   public Double interpolate(final Interpolator1DDataBundle data, final Double value) {
-    Validate.notNull(value, "value");
-    Validate.notNull(data, "data bundle");
-    Validate.isTrue(data instanceof Interpolator1DDoubleQuadraticDataBundle);
+    ArgumentChecker.notNull(value, "value");
+    ArgumentChecker.notNull(data, "data bundle");
+    ArgumentChecker.isTrue(data instanceof Interpolator1DDoubleQuadraticDataBundle, "data bundle is of wrong type");
     final Interpolator1DDoubleQuadraticDataBundle quadraticData = (Interpolator1DDoubleQuadraticDataBundle) data;
     final int low = data.getLowerBoundIndex(value);
     final int high = low + 1;
@@ -65,15 +63,14 @@ public class DoubleQuadraticInterpolator1D extends Interpolator1D {
 
   @Override
   public double firstDerivative(final Interpolator1DDataBundle data, final Double value) {
-    Validate.notNull(value, "value");
-    Validate.notNull(data, "data bundle");
-    Validate.isTrue(data instanceof Interpolator1DDoubleQuadraticDataBundle);
+    ArgumentChecker.notNull(value, "value");
+    ArgumentChecker.notNull(data, "data bundle");
+    ArgumentChecker.isTrue(data instanceof Interpolator1DDoubleQuadraticDataBundle, "data bundle is of wrong type");
     final Interpolator1DDoubleQuadraticDataBundle quadraticData = (Interpolator1DDoubleQuadraticDataBundle) data;
     final int low = data.getLowerBoundIndex(value);
     final int high = low + 1;
     final int n = data.size() - 1;
     final double[] xData = data.getKeys();
-    final double[] yData = data.getValues();
     if (low == n) {
       return 0.;
     } else if (low == 0) {
@@ -90,7 +87,6 @@ public class DoubleQuadraticInterpolator1D extends Interpolator1D {
     final RealPolynomialFunction1D quadratic1FirstDerivative = quadraticData.getQuadraticFirstDerivative(low - 1);
     final RealPolynomialFunction1D quadratic2FirstDerivative = quadraticData.getQuadraticFirstDerivative(high - 1);
     final double w = _weightFunction.getWeight((xData[high] - value) / (xData[high] - xData[low]));
-    //final double w = (xData[high] - value) / (xData[high] - xData[low]);
     final double res = w * quadratic1FirstDerivative.evaluate(value - xData[low]) + (1 - w) * quadratic2FirstDerivative.evaluate(value - xData[high]) +
         (quadratic2.evaluate(value - xData[high]) - quadratic1.evaluate(value - xData[low])) / (xData[high] - xData[low]);
     return res;
@@ -98,8 +94,8 @@ public class DoubleQuadraticInterpolator1D extends Interpolator1D {
 
   @Override
   public double[] getNodeSensitivitiesForValue(final Interpolator1DDataBundle data, final Double value) {
-    Validate.notNull(data, "data");
-    Validate.isTrue(data instanceof Interpolator1DDoubleQuadraticDataBundle);
+    ArgumentChecker.notNull(data, "data");
+    ArgumentChecker.isTrue(data instanceof Interpolator1DDoubleQuadraticDataBundle, "data bundle is of wrong type");
     final Interpolator1DDoubleQuadraticDataBundle quadraticData = (Interpolator1DDoubleQuadraticDataBundle) data;
     final int low = quadraticData.getLowerBoundIndex(value);
     final int high = low + 1;

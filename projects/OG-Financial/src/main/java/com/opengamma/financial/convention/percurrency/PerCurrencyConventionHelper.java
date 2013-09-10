@@ -57,6 +57,29 @@ public class PerCurrencyConventionHelper {
   public static final String INFLATION_LEG = "Inflation Swap Leg";
   /** Price index string */
   public static final String PRICE_INDEX = "Price Index";
+  /** Swap index string */
+  public static final String SWAP_INDEX = "Swap Index";
+
+  /** Tenor string: 1M **/
+  public static final String TENOR_STR_1M = "1M";
+  /** Tenor string: 3M **/
+  public static final String TENOR_STR_3M = "3M";
+  /** Tenor string: 6M **/
+  public static final String TENOR_STR_6M = "6M";
+  /** Tenor string: 12M **/
+  public static final String TENOR_STR_12M = "12M";
+  /** Tenor string: 1Y **/
+  public static final String TENOR_STR_1Y = "1Y";
+  /** Tenor string: short period instruments (usually for 1w or 2w) **/
+  public static final String TENOR_STR_SHORT = "Short";
+  /** STIR Futures (i.e. futures on Ibor) **/
+  public static final String STIR_FUTURES = "STIR Futures ";
+  /** Serial (i.e. monthly) futures **/
+  public static final String SERIAL = " Serial";
+  /** Quarterly (i.e. March, June, September, December) futures **/
+  public static final String QUARTERLY = " Quarterly";
+  /** Government (Simplified bond description) **/
+  public static final String GOVT = "Govt ";
 
   public static ExternalIdBundle getIds(final Currency currency, final String instrumentName) {
     final String idName = getConventionName(currency, instrumentName);

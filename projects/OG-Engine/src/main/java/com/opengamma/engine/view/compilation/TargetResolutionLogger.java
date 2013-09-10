@@ -170,11 +170,13 @@ import com.opengamma.id.VersionCorrection;
 
     @Override
     public void log(final ComputationTargetReference reference, final UniqueId resolvedId) {
-      final ComputationTargetReference key = MemoryUtils.instance(reference);
-      final UniqueId previousId = _resolutions.put(key, resolvedId);
-      if ((previousId != null) && !resolvedId.equals(previousId)) {
-        s_logger.info("Transitive resolution of {} to {} has expired", previousId);
-        _expiredResolutions.add(previousId);
+      final ComputationTargetReference key = reference.accept(this);
+      if (key != null) {
+        final UniqueId previousId = _resolutions.put(key, resolvedId);
+        if ((previousId != null) && !resolvedId.equals(previousId)) {
+          s_logger.info("Transitive resolution of {} to {} has expired", previousId);
+          _expiredResolutions.add(previousId);
+        }
       }
     }
 

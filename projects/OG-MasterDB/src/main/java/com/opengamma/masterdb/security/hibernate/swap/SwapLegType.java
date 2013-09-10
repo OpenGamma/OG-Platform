@@ -22,29 +22,37 @@ import com.opengamma.financial.security.swap.SwapLegVisitor;
  */
 public enum SwapLegType {
   /**
-   * 
+   * Fixed interest rate leg type.
    */
   FIXED_INTEREST,
   /**
-   * 
+   * Floating interest rate leg type.
    */
   FLOATING_INTEREST,
   /**
-   * 
+   * Floating spread interest rate leg type.
    */
   FLOATING_SPREAD_INTEREST,
   /**
-   * 
+   * Floating gearing interest rate leg type.
    */
   FLOATING_GEARING_INTEREST,
   /**
-   *
+   * Fixed variance swap leg type.
    */
   FIXED_VARIANCE,
   /**
-   *
+   * Floating variance swap leg type.
    */
-  FLOATING_VARIANCE;
+  FLOATING_VARIANCE,
+  /**
+   * Fixed inflation swap leg type.
+   */
+  FIXED_INFLATION,
+  /**
+   * Inflation index swap leg type.
+   */
+  INFLATION_INDEX;
 
   public static SwapLegType identify(final SwapLeg object) {
     return object.accept(new SwapLegVisitor<SwapLegType>() {
@@ -81,14 +89,12 @@ public enum SwapLegType {
 
       @Override
       public SwapLegType visitFixedInflationSwapLeg(FixedInflationSwapLeg swapLeg) {
-        //TODO
-        throw new UnsupportedOperationException("Cannot handle fixed inflation swap legs");
+        return FIXED_INFLATION;
       }
 
       @Override
       public SwapLegType visitInflationIndexSwapLeg(InflationIndexSwapLeg swapLeg) {
-        //TODO
-        throw new UnsupportedOperationException("Cannot handle inflation index swap legs");
+        return INFLATION_INDEX;
       }
 
     });
@@ -108,6 +114,10 @@ public enum SwapLegType {
         return visitor.visitFixedVarianceSwapLeg(null);
       case FLOATING_VARIANCE:
         return visitor.visitFloatingVarianceSwapLeg(null);
+      case FIXED_INFLATION:
+        return visitor.visitFixedInflationSwapLeg(null);
+      case INFLATION_INDEX:
+        return visitor.visitInflationIndexSwapLeg(null);
       default:
         throw new OpenGammaRuntimeException("unexpected SwapLegType: " + this);
     }

@@ -49,6 +49,7 @@ import com.opengamma.financial.security.future.EnergyFutureSecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
 import com.opengamma.financial.security.future.FXFutureSecurity;
+import com.opengamma.financial.security.future.FederalFundsFutureSecurity;
 import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
@@ -140,6 +141,22 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
     _includeEmptyCategories = includeEmptyCategories;
   }
 
+  /**
+   * Gets all of the asset class categories in this aggregation function.
+   * @return A list of the categories
+   */
+  protected static List<String> getAllCategories() {
+    return ALL_CATEGORIES;
+  }
+
+  /**
+   * Gets the include empty categories field.
+   * @return The include empty categories field
+   */
+  protected boolean includeEmptyCategories() {
+    return _includeEmptyCategories;
+  }
+
   @Override
   public String classifyPosition(final Position position) {
     final Security security = position.getSecurity();
@@ -161,7 +178,7 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
         public String visitMunicipalBondSecurity(final MunicipalBondSecurity security) {
           return BONDS;
         }
-        
+
         @Override
         public String visitInflationBondSecurity(final InflationBondSecurity security) {
           return BONDS;
@@ -354,6 +371,11 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
         }
 
         @Override
+        public String visitFederalFundsFutureSecurity(final FederalFundsFutureSecurity security) {
+          return FUTURES;
+        }
+
+        @Override
         public String visitMetalFutureSecurity(final MetalFutureSecurity security) {
           return FUTURES;
         }
@@ -434,12 +456,12 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
         }
 
         @Override
-        public String visitZeroCouponInflationSwapSecurity(ZeroCouponInflationSwapSecurity security) {
+        public String visitZeroCouponInflationSwapSecurity(final ZeroCouponInflationSwapSecurity security) {
           return INFLATION_SWAPS;
         }
 
         @Override
-        public String visitYearOnYearInflationSwapSecurity(YearOnYearInflationSwapSecurity security) {
+        public String visitYearOnYearInflationSwapSecurity(final YearOnYearInflationSwapSecurity security) {
           return INFLATION_SWAPS;
         }
       });

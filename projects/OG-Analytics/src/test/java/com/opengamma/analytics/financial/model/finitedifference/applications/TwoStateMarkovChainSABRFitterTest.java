@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.finitedifference.applications;
@@ -39,7 +39,7 @@ import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ *
  */
 public class TwoStateMarkovChainSABRFitterTest {
 
@@ -55,7 +55,7 @@ public class TwoStateMarkovChainSABRFitterTest {
   //private static final YieldCurve YIELD_CURVE;
   private static final double RATE = 0.0;
   private static final Function<Double, Double> SABR_VOL_FUNCTION;
-  private static final List<double[]> EXPIRY_AND_STRIKES = new ArrayList<double[]>();
+  private static final List<double[]> EXPIRY_AND_STRIKES = new ArrayList<>();
   private static final List<Pair<double[], Double>> SABR_VOLS;
 
   static {
@@ -140,10 +140,10 @@ public class TwoStateMarkovChainSABRFitterTest {
       }
     };
 
-    SABR_VOLS = new ArrayList<Pair<double[], Double>>(EXPIRY_AND_STRIKES.size());
+    SABR_VOLS = new ArrayList<>(EXPIRY_AND_STRIKES.size());
     for (int i = 0; i < EXPIRY_AND_STRIKES.size(); i++) {
       final double[] tk = EXPIRY_AND_STRIKES.get(i);
-      final Pair<double[], Double> pair = new ObjectsPair<double[], Double>(tk, SABR_VOL_FUNCTION.evaluate(tk[0], tk[1]));
+      final Pair<double[], Double> pair = new ObjectsPair<>(tk, SABR_VOL_FUNCTION.evaluate(tk[0], tk[1]));
       SABR_VOLS.add(pair);
     }
 

@@ -71,7 +71,7 @@ public abstract class BlackFormulaRepository {
     if (sigmaRootT < SMALL) {
       return Math.max(sign * (forward - strike), 0.0);
     }
-    if (Math.abs(forward - strike) < SMALL | bSigRt) {
+    if (Math.abs(forward - strike) < SMALL || bSigRt) {
       d1 = 0.5 * sigmaRootT;
       d2 = -0.5 * sigmaRootT;
     } else {
@@ -151,10 +151,9 @@ public abstract class BlackFormulaRepository {
     if (sigmaRootT < SMALL) {
       if (Math.abs(forward - strike) >= SMALL && !(bFwd && bStr)) {
         return (isCall ? (forward > strike ? 1.0 : 0.0) : (forward > strike ? 0.0 : -1.0));
-      } else {
-        s_logger.info("(log 1.)/0., ambiguous value");
-        return isCall ? 0.5 : -0.5;
       }
+      s_logger.info("(log 1.)/0., ambiguous value");
+      return isCall ? 0.5 : -0.5;
     }
     if (Math.abs(forward - strike) < SMALL | (bFwd && bStr)) {
       d1 = 0.5 * sigmaRootT;
@@ -217,10 +216,9 @@ public abstract class BlackFormulaRepository {
     if (sigmaRootT < SMALL) {
       if (Math.abs(forward - strike) >= SMALL && !(bFwd && bStr)) {
         return (isCall ? (forward > strike ? -1.0 : 0.0) : (forward > strike ? 0.0 : 1.0));
-      } else {
-        s_logger.info("(log 1.)/0., ambiguous value");
-        return isCall ? -0.5 : 0.5;
       }
+      s_logger.info("(log 1.)/0., ambiguous value");
+      return isCall ? -0.5 : 0.5;
     }
     if (Math.abs(forward - strike) < SMALL | (bFwd && bStr)) {
       d2 = -0.5 * sigmaRootT;
@@ -268,16 +266,14 @@ public abstract class BlackFormulaRepository {
     if (sigmaRootT < SMALL) {
       if (Math.abs(forward - strike) >= SMALL && !(bFwd && bStr)) {
         return (isCall ? (forward > strike ? 1.0 : 0.0) : (forward > strike ? 0.0 : -1.0));
-      } else {
-        s_logger.info("(log 1.)/0., ambiguous");
-        return isCall ? 0.5 : -0.5;
       }
+      s_logger.info("(log 1.)/0., ambiguous");
+      return isCall ? 0.5 : -0.5;
+    }
+    if (Math.abs(forward - strike) < SMALL | (bFwd && bStr)) {
+      d = 0.;
     } else {
-      if (Math.abs(forward - strike) < SMALL | (bFwd && bStr)) {
-        d = 0.;
-      } else {
-        d = Math.log(forward / strike) / sigmaRootT;
-      }
+      d = Math.log(forward / strike) / sigmaRootT;
     }
 
     return sign * NORMAL.getCDF(sign * d);
@@ -315,16 +311,14 @@ public abstract class BlackFormulaRepository {
     if (sigmaRootT < SMALL) {
       if (Math.abs(forward - strike) >= SMALL && !(bFwd && bStr)) {
         return 0.0;
-      } else {
-        s_logger.info("(log 1.)/0. ambiguous");
-        return bFwd ? NORMAL.getPDF(0.) : NORMAL.getPDF(0.) / forward / sigmaRootT;
       }
+      s_logger.info("(log 1.)/0. ambiguous");
+      return bFwd ? NORMAL.getPDF(0.) : NORMAL.getPDF(0.) / forward / sigmaRootT;
+    }
+    if (Math.abs(forward - strike) < SMALL | (bFwd && bStr)) {
+      d1 = 0.5 * sigmaRootT;
     } else {
-      if (Math.abs(forward - strike) < SMALL | (bFwd && bStr)) {
-        d1 = 0.5 * sigmaRootT;
-      } else {
-        d1 = Math.log(forward / strike) / sigmaRootT + 0.5 * sigmaRootT;
-      }
+      d1 = Math.log(forward / strike) / sigmaRootT + 0.5 * sigmaRootT;
     }
 
     final double nVal = NORMAL.getPDF(d1);
@@ -362,16 +356,14 @@ public abstract class BlackFormulaRepository {
     if (sigmaRootT < SMALL) {
       if (Math.abs(forward - strike) >= SMALL && !(bFwd && bStr)) {
         return 0.0;
-      } else {
-        s_logger.info("(log 1.)/0. ambiguous");
-        return bStr ? NORMAL.getPDF(0.) : NORMAL.getPDF(0.) / strike / sigmaRootT;
       }
+      s_logger.info("(log 1.)/0. ambiguous");
+      return bStr ? NORMAL.getPDF(0.) : NORMAL.getPDF(0.) / strike / sigmaRootT;
+    }
+    if (Math.abs(forward - strike) < SMALL | (bFwd && bStr)) {
+      d2 = -0.5 * sigmaRootT;
     } else {
-      if (Math.abs(forward - strike) < SMALL | (bFwd && bStr)) {
-        d2 = -0.5 * sigmaRootT;
-      } else {
-        d2 = Math.log(forward / strike) / sigmaRootT - 0.5 * sigmaRootT;
-      }
+      d2 = Math.log(forward / strike) / sigmaRootT - 0.5 * sigmaRootT;
     }
 
     final double nVal = NORMAL.getPDF(d2);
@@ -409,16 +401,14 @@ public abstract class BlackFormulaRepository {
     if (sigmaRootT < SMALL) {
       if (Math.abs(forward - strike) >= SMALL && !(bFwd && bStr)) {
         return 0.0;
-      } else {
-        s_logger.info("(log 1.)/0. ambiguous");
-        return bFwd ? -NORMAL.getPDF(0.) : -NORMAL.getPDF(0.) / forward / sigmaRootT;
       }
+      s_logger.info("(log 1.)/0. ambiguous");
+      return bFwd ? -NORMAL.getPDF(0.) : -NORMAL.getPDF(0.) / forward / sigmaRootT;
+    }
+    if (Math.abs(forward - strike) < SMALL | (bFwd && bStr)) {
+      d2 = -0.5 * sigmaRootT;
     } else {
-      if (Math.abs(forward - strike) < SMALL | (bFwd && bStr)) {
-        d2 = -0.5 * sigmaRootT;
-      } else {
-        d2 = Math.log(forward / strike) / sigmaRootT - 0.5 * sigmaRootT;
-      }
+      d2 = Math.log(forward / strike) / sigmaRootT - 0.5 * sigmaRootT;
     }
 
     final double nVal = NORMAL.getPDF(d2);
@@ -532,21 +522,19 @@ public abstract class BlackFormulaRepository {
     if (sigmaRootT < SMALL) {
       if (Math.abs(forward - strike) >= SMALL && !(bFwd && bStr)) {
         return 0.0;
-      } else {
-        s_logger.info("log(1)/0 ambiguous");
-        if (rootT < SMALL) {
-          return forward < SMALL ? -NORMAL.getPDF(0.) * lognormalVol / 2. : (lognormalVol < SMALL ? -forward * NORMAL.getPDF(0.) / 2. : -forward * NORMAL.getPDF(0.) * lognormalVol / 2. / rootT);
-        }
-        if (lognormalVol < SMALL) {
-          return bFwd ? -NORMAL.getPDF(0.) / 2. / rootT : -forward * NORMAL.getPDF(0.) * lognormalVol / 2. / rootT;
-        }
       }
+      s_logger.info("log(1)/0 ambiguous");
+      if (rootT < SMALL) {
+        return forward < SMALL ? -NORMAL.getPDF(0.) * lognormalVol / 2. : (lognormalVol < SMALL ? -forward * NORMAL.getPDF(0.) / 2. : -forward * NORMAL.getPDF(0.) * lognormalVol / 2. / rootT);
+      }
+      if (lognormalVol < SMALL) {
+        return bFwd ? -NORMAL.getPDF(0.) / 2. / rootT : -forward * NORMAL.getPDF(0.) * lognormalVol / 2. / rootT;
+      }
+    }
+    if (Math.abs(forward - strike) < SMALL | (bFwd && bStr)) {
+      d1 = 0.5 * sigmaRootT;
     } else {
-      if (Math.abs(forward - strike) < SMALL | (bFwd && bStr)) {
-        d1 = 0.5 * sigmaRootT;
-      } else {
-        d1 = Math.log(forward / strike) / sigmaRootT + 0.5 * sigmaRootT;
-      }
+      d1 = Math.log(forward / strike) / sigmaRootT + 0.5 * sigmaRootT;
     }
 
     final double nVal = NORMAL.getPDF(d1);
@@ -586,16 +574,14 @@ public abstract class BlackFormulaRepository {
     if (sigmaRootT < SMALL) {
       if (Math.abs(forward - strike) >= SMALL && !(bFwd && bStr)) {
         return 0.;
-      } else {
-        s_logger.info("log(1)/0 ambiguous");
-        return (rootT < SMALL && forward > LARGE) ? NORMAL.getPDF(0.) : forward * rootT * NORMAL.getPDF(0.);
       }
+      s_logger.info("log(1)/0 ambiguous");
+      return (rootT < SMALL && forward > LARGE) ? NORMAL.getPDF(0.) : forward * rootT * NORMAL.getPDF(0.);
+    }
+    if (Math.abs(forward - strike) < SMALL | (bFwd && bStr)) {
+      d1 = 0.5 * sigmaRootT;
     } else {
-      if (Math.abs(forward - strike) < SMALL | (bFwd && bStr)) {
-        d1 = 0.5 * sigmaRootT;
-      } else {
-        d1 = Math.log(forward / strike) / sigmaRootT + 0.5 * sigmaRootT;
-      }
+      d1 = Math.log(forward / strike) / sigmaRootT + 0.5 * sigmaRootT;
     }
 
     final double nVal = NORMAL.getPDF(d1);
@@ -643,18 +629,16 @@ public abstract class BlackFormulaRepository {
     if (sigmaRootT < SMALL) {
       if (Math.abs(forward - strike) >= SMALL && !(bFwd && bStr)) {
         return 0.0;
-      } else {
-        s_logger.info("log(1)/0 ambiguous");
-        return lognormalVol < SMALL ? -NORMAL.getPDF(0.) / lognormalVol : NORMAL.getPDF(0.) * rootT;
       }
+      s_logger.info("log(1)/0 ambiguous");
+      return lognormalVol < SMALL ? -NORMAL.getPDF(0.) / lognormalVol : NORMAL.getPDF(0.) * rootT;
+    }
+    if (Math.abs(forward - strike) < SMALL | (bFwd && bStr)) {
+      d1 = 0.5 * sigmaRootT;
+      d2 = -0.5 * sigmaRootT;
     } else {
-      if (Math.abs(forward - strike) < SMALL | (bFwd && bStr)) {
-        d1 = 0.5 * sigmaRootT;
-        d2 = -0.5 * sigmaRootT;
-      } else {
-        d1 = Math.log(forward / strike) / sigmaRootT + 0.5 * sigmaRootT;
-        d2 = d1 - sigmaRootT;
-      }
+      d1 = Math.log(forward / strike) / sigmaRootT + 0.5 * sigmaRootT;
+      d2 = d1 - sigmaRootT;
     }
 
     final double nVal = NORMAL.getPDF(d1);
@@ -695,18 +679,16 @@ public abstract class BlackFormulaRepository {
     if (sigmaRootT < SMALL) {
       if (Math.abs(forward - strike) >= SMALL && !(bFwd && bStr)) {
         return 0.0;
-      } else {
-        s_logger.info("log(1)/0 ambiguous");
-        return lognormalVol < SMALL ? -NORMAL.getPDF(0.) / lognormalVol : -NORMAL.getPDF(0.) * rootT;
       }
+      s_logger.info("log(1)/0 ambiguous");
+      return lognormalVol < SMALL ? -NORMAL.getPDF(0.) / lognormalVol : -NORMAL.getPDF(0.) * rootT;
+    }
+    if (Math.abs(forward - strike) < SMALL | (bFwd && bStr)) {
+      d1 = 0.5 * sigmaRootT;
+      d2 = -0.5 * sigmaRootT;
     } else {
-      if (Math.abs(forward - strike) < SMALL | (bFwd && bStr)) {
-        d1 = 0.5 * sigmaRootT;
-        d2 = -0.5 * sigmaRootT;
-      } else {
-        d1 = Math.log(forward / strike) / sigmaRootT + 0.5 * sigmaRootT;
-        d2 = d1 - sigmaRootT;
-      }
+      d1 = Math.log(forward / strike) / sigmaRootT + 0.5 * sigmaRootT;
+      d2 = d1 - sigmaRootT;
     }
 
     final double nVal = NORMAL.getPDF(d2);
@@ -747,22 +729,19 @@ public abstract class BlackFormulaRepository {
     if (sigmaRootT < SMALL) {
       if (Math.abs(forward - strike) >= SMALL && !(bFwd && bStr)) {
         return 0.0;
-      } else {
-        s_logger.info("log(1)/0 ambiguous");
-        if (bFwd) {
-          return rootT < SMALL ? NORMAL.getPDF(0.) / lognormalVol : forward * NORMAL.getPDF(0.) * rootT / lognormalVol;
-        } else {
-          return lognormalVol < SMALL ? forward * NORMAL.getPDF(0.) * rootT / lognormalVol : -forward * NORMAL.getPDF(0.) * timeToExpiry * lognormalVol / 4.;
-        }
       }
+      s_logger.info("log(1)/0 ambiguous");
+      if (bFwd) {
+        return rootT < SMALL ? NORMAL.getPDF(0.) / lognormalVol : forward * NORMAL.getPDF(0.) * rootT / lognormalVol;
+      }
+      return lognormalVol < SMALL ? forward * NORMAL.getPDF(0.) * rootT / lognormalVol : -forward * NORMAL.getPDF(0.) * timeToExpiry * lognormalVol / 4.;
+    }
+    if (Math.abs(forward - strike) < SMALL | (bFwd && bStr)) {
+      d1 = 0.5 * sigmaRootT;
+      d2 = -0.5 * sigmaRootT;
     } else {
-      if (Math.abs(forward - strike) < SMALL | (bFwd && bStr)) {
-        d1 = 0.5 * sigmaRootT;
-        d2 = -0.5 * sigmaRootT;
-      } else {
-        d1 = Math.log(forward / strike) / sigmaRootT + 0.5 * sigmaRootT;
-        d2 = d1 - sigmaRootT;
-      }
+      d1 = Math.log(forward / strike) / sigmaRootT + 0.5 * sigmaRootT;
+      d2 = d1 - sigmaRootT;
     }
 
     final double nVal = NORMAL.getPDF(d1);

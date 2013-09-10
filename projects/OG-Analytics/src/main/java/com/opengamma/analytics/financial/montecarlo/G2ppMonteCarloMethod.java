@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.montecarlo;
@@ -20,25 +20,19 @@ import com.opengamma.util.money.CurrencyAmount;
 /**
  * Monte Carlo pricing method in the G2++ two factors model.
  * The Monte Carlo is on the solution of the discount factor (not on the equation of the short rate).
+ * @deprecated Use {@link com.opengamma.analytics.financial.montecarlo.provider.G2ppMonteCarloMethod}
  */
+@Deprecated
 public class G2ppMonteCarloMethod extends MonteCarloMethod {
 
   /**
    * The decision schedule calculator (calculate the exercise dates, the cash flow dates and the reference amounts).
    */
   private static final DecisionScheduleCalculator DC = DecisionScheduleCalculator.getInstance();
-  //  /**
-  //   * The decision schedule derivative calculator (calculate the exercise dates, the cash flow dates, the reference amounts and the sensitivity of the reference amount to the curves).
-  //   */
-  //  private static final DecisionScheduleDerivativeCalculator DDC = DecisionScheduleDerivativeCalculator.getInstance();
   /**
    * The calculator from discount factors (calculate the price from simulated discount factors and the reference amounts).
    */
   private static final MonteCarloDiscountFactorCalculator MCC = MonteCarloDiscountFactorCalculator.getInstance();
-  //  /**
-  //   * The calculator of price and derivatives from discount factors and reference amounts.
-  //   */
-  //  private static final MonteCarloDiscountFactorDerivativeCalculator MCDC = MonteCarloDiscountFactorDerivativeCalculator.getInstance();
   /**
    * The Hull-White one factor model.
    */
@@ -59,7 +53,7 @@ public class G2ppMonteCarloMethod extends MonteCarloMethod {
   /**
    * Computes the present value in the G2++ two factors model by Monte-Carlo.
    * Implementation note: The total number of paths is divided in blocks of maximum size BLOCK_SIZE=1000. The Monte Carlo is run on each block and the average of each
-   * block price is the total price. 
+   * block price is the total price.
    * @param instrument The swaption.
    * @param ccy The currency
    * @param dscName The discounting curve name.
@@ -67,7 +61,6 @@ public class G2ppMonteCarloMethod extends MonteCarloMethod {
    * @return The present value.
    */
   public CurrencyAmount presentValue(final InstrumentDerivative instrument, final Currency ccy, final String dscName, final G2ppPiecewiseConstantDataBundle g2Data) {
-    // TODO: remove currency and dsc curve name (should be available from the instrument)
     final YieldAndDiscountCurve dsc = g2Data.getCurve(dscName);
     final DecisionSchedule decision = instrument.accept(DC, g2Data);
     final double[] decisionTime = decision.getDecisionTime();
@@ -166,7 +159,7 @@ public class G2ppMonteCarloMethod extends MonteCarloMethod {
    * @param initDiscountFactor The initial discount factors. jump/cf
    * @param y The correlated random variables. jump0+jump1/path.
    * @param h The H parameters. factor/jump/cf
-   * @param tau2 The square of total volatilities. jump/cf 
+   * @param tau2 The square of total volatilities. jump/cf
    * @return The discount factor paths (path/jump/cf).
    */
   private Double[][][] pathGeneratorDiscount(final double[][] initDiscountFactor, final double[][] y, final double[][][] h, final double[][] tau2) {

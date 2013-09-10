@@ -69,8 +69,8 @@ import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapSecurity;
 
 /**
- * Base function for all pricing and risk functions that use the discounting curve
- * construction method.
+ * Base function for all pricing and risk functions that use curves constructed using the G2++
+ * method.
  */
 public abstract class G2ppDiscountingFunction extends MultiCurvePricingFunction {
 
@@ -90,7 +90,7 @@ public abstract class G2ppDiscountingFunction extends MultiCurvePricingFunction 
     final ConventionSource conventionSource = OpenGammaCompilationContext.getConventionSource(context);
     final CashSecurityConverter cashConverter = new CashSecurityConverter(holidaySource, regionSource);
     final FRASecurityConverter fraConverter = new FRASecurityConverter(holidaySource, regionSource, conventionSource);
-    final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource, regionSource, false);
+    final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource, regionSource);
     final SwaptionSecurityConverter swaptionConverter = new SwaptionSecurityConverter(securitySource, swapConverter);
     final FXForwardSecurityConverter fxForwardSecurityConverter = new FXForwardSecurityConverter();
     final NonDeliverableFXForwardSecurityConverter nonDeliverableFXForwardSecurityConverter = new NonDeliverableFXForwardSecurityConverter();
@@ -132,14 +132,15 @@ public abstract class G2ppDiscountingFunction extends MultiCurvePricingFunction 
     public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
       boolean canApplyTo = super.canApplyTo(context, target);
       final Security security = target.getTrade().getSecurity();
-      if (security instanceof SwapSecurity) {
+      if (security instanceof SwapSecurity
+          && InterestRateInstrumentType.isFixedIncomeInstrumentType((SwapSecurity) security)) {
         canApplyTo &= InterestRateInstrumentType.getInstrumentTypeFromSecurity((SwapSecurity) security) != InterestRateInstrumentType.SWAP_CROSS_CURRENCY;
       }
       return canApplyTo || security instanceof SwaptionSecurity || security instanceof DeliverableSwapFutureSecurity;
     }
 
     @Override
-    protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
+    protected ValueProperties.Builder getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
       final ValueProperties.Builder properties =  createValueProperties()
           .with(PROPERTY_CURVE_TYPE, HULL_WHITE_DISCOUNTING)
           .withAny(CURVE_EXPOSURES)
@@ -148,7 +149,9 @@ public abstract class G2ppDiscountingFunction extends MultiCurvePricingFunction 
           .withAny(PROPERTY_G2PP_PARAMETERS);
       if (_withCurrency) {
         final Security security = target.getTrade().getSecurity();
-        if (security instanceof SwapSecurity && (InterestRateInstrumentType.getInstrumentTypeFromSecurity((SwapSecurity) security) == InterestRateInstrumentType.SWAP_CROSS_CURRENCY)) {
+        if (security instanceof SwapSecurity
+            && InterestRateInstrumentType.isFixedIncomeInstrumentType((SwapSecurity) security)
+            && (InterestRateInstrumentType.getInstrumentTypeFromSecurity((SwapSecurity) security) == InterestRateInstrumentType.SWAP_CROSS_CURRENCY)) {
           final SwapSecurity swapSecurity = (SwapSecurity) security;
           if (swapSecurity.getPayLeg().getNotional() instanceof InterestRateNotional) {
             final String currency = ((InterestRateNotional) swapSecurity.getPayLeg().getNotional()).getCurrency().getCode();

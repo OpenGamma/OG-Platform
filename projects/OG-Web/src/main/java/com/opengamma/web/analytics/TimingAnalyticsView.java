@@ -43,6 +43,15 @@ import com.opengamma.web.analytics.formatting.TypeFormatter.Format;
   }
 
   @Override
+  public String viewCompilationFailed(Exception e) {
+    long startTime = System.currentTimeMillis();
+    s_logger.trace("Executing AnalyticsView.viewCompilationFailed");
+    String retVal = _delegate.viewCompilationFailed(e);
+    s_logger.trace("viewCompilationFailed completed in " + (System.currentTimeMillis() - startTime) + "ms");
+    return retVal;
+  }
+
+  @Override
   public List<String> updateResults(ViewResultModel results,
                                     ViewCycle viewCycle) {
     long startTime = System.currentTimeMillis();
@@ -236,5 +245,21 @@ import com.opengamma.web.analytics.formatting.TypeFormatter.Format;
     s_logger.trace("getViewDefinitionId completed in " + (System.currentTimeMillis() - startTime) + "ms");
     return retVal;
   }
-  
+
+  @Override
+  public ErrorInfo getError(String id) {
+    long startTime = System.currentTimeMillis();
+    s_logger.trace("Executing AnalyticsView.getError");
+    ErrorInfo retVal = _delegate.getError(id);
+    s_logger.trace("getError completed in " + (System.currentTimeMillis() - startTime) + "ms");
+    return retVal;
+  }
+
+  @Override
+  public void deleteError(String id) {
+    long startTime = System.currentTimeMillis();
+    s_logger.trace("Executing AnalyticsView.deleteError");
+    _delegate.deleteError(id);
+    s_logger.trace("deleteError completed in " + (System.currentTimeMillis() - startTime) + "ms");
+  }
 }

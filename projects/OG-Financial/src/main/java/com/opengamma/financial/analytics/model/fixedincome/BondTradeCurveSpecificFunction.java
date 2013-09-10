@@ -89,6 +89,7 @@ public abstract class BondTradeCurveSpecificFunction extends AbstractFunction.No
     _visitor = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder().bondSecurityVisitor(bondConverter)
         .bondFutureSecurityVisitor(bondFutureConverter).create();
     _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
+    ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
   }
 
   @Override

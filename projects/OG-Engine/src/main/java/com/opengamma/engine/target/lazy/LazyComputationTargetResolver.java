@@ -59,7 +59,12 @@ public final class LazyComputationTargetResolver extends DelegatingComputationTa
   public static ComputationTarget resolve(final ComputationTargetResolver.AtVersionCorrection underlying, final ComputationTargetSpecification specification) {
     final Function2<ComputationTargetResolver.AtVersionCorrection, ComputationTargetSpecification, UniqueIdentifiable> resolver = s_resolvers.get(specification.getType());
     if (resolver != null) {
-      return new ComputationTarget(specification, resolver.execute(underlying, specification));
+      final UniqueIdentifiable lazy = resolver.execute(underlying, specification);
+      if (specification.getUniqueId().isVersioned()) {
+        return new ComputationTarget(specification, lazy);
+      } else {
+        return new ComputationTarget(specification.replaceIdentifier(lazy.getUniqueId()), lazy);
+      }
     } else {
       return underlying.resolve(specification);
     }
@@ -68,7 +73,12 @@ public final class LazyComputationTargetResolver extends DelegatingComputationTa
   public static ComputationTarget resolve(final ComputationTargetResolver underlying, final ComputationTargetSpecification specification, final VersionCorrection versionCorrection) {
     final Function2<ComputationTargetResolver.AtVersionCorrection, ComputationTargetSpecification, UniqueIdentifiable> resolver = s_resolvers.get(specification.getType());
     if (resolver != null) {
-      return new ComputationTarget(specification, resolver.execute(underlying.atVersionCorrection(versionCorrection), specification));
+      final UniqueIdentifiable lazy = resolver.execute(underlying.atVersionCorrection(versionCorrection), specification);
+      if (specification.getUniqueId().isVersioned()) {
+        return new ComputationTarget(specification, lazy);
+      } else {
+        return new ComputationTarget(specification.replaceIdentifier(lazy.getUniqueId()), lazy);
+      }
     } else {
       return underlying.resolve(specification, versionCorrection);
     }

@@ -73,7 +73,9 @@ public class ISDACDXAsSingleNamePresentValueFunction extends ISDACDXAsSingleName
                                                 final ZonedDateTime valuationDate,
                                                 final ComputationTarget target,
                                                 final ValueProperties properties,
-                                                final FunctionInputs inputs) {
+                                                final FunctionInputs inputs,
+                                                ISDACompliantCreditCurve hazardCurve,
+                                                CDSAnalytic analytic) {
     final Object hazardRateCurveObject = inputs.getValue(ValueRequirementNames.HAZARD_RATE_CURVE);
     if (hazardRateCurveObject == null) {
       throw new OpenGammaRuntimeException("Could not get hazard rate curve");

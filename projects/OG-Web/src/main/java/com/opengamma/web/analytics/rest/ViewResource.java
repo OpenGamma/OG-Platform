@@ -7,8 +7,10 @@ package com.opengamma.web.analytics.rest;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
@@ -21,6 +23,7 @@ import com.opengamma.engine.view.client.ViewClientState;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.analytics.AnalyticsView;
 import com.opengamma.web.analytics.AnalyticsViewManager;
+import com.opengamma.web.analytics.ErrorInfo;
 
 /**
  *
@@ -70,22 +73,39 @@ public class ViewResource {
     if (state != null) {
       ViewClientState currentState = _viewClient.getState();
       state = state.toUpperCase();
-      if ("PAUSE".equals(state) || "P".equals(state)) {
-        if (currentState != ViewClientState.TERMINATED) {
-          _viewClient.pause();
-          response = Response.ok().build();
-        } 
-      } else if ("RESUME".equals(state) || "R".equals(state)) {
-        if (currentState != ViewClientState.TERMINATED) {
-          _viewClient.resume();
-          response = Response.ok().build();
-        } 
-      } else {
-        s_logger.warn("client {} requesting for invalid view client state change to {}", _viewId, state);
-        response = Response.status(Status.BAD_REQUEST).build();
+      switch (state) {
+        case "PAUSE":
+        case "P":
+          if (currentState != ViewClientState.TERMINATED) {
+            _viewClient.pause();
+            response = Response.ok().build();
+          }
+          break;
+        case "RESUME":
+        case "R":
+          if (currentState != ViewClientState.TERMINATED) {
+            _viewClient.resume();
+            response = Response.ok().build();
+          }
+          break;
+        default:
+          s_logger.warn("client {} requesting for invalid view client state change to {}", _viewId, state);
+          response = Response.status(Status.BAD_REQUEST).build();
+          break;
       }
     }
     return response;
   }
-       
+
+  @Path("errors/{errorId}")
+  @GET
+  public ErrorInfo getError(@PathParam("errorId") String errorId) {
+    return _view.getError(errorId);
+  }
+
+  @Path("errors/{errorId}")
+  @DELETE
+  public void deleteError(@PathParam("errorId") String errorId) {
+    _view.deleteError(errorId);
+  }
 }

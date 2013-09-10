@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.conversion;
@@ -36,7 +36,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ *
  */
 public class CreditDefaultSwapOptionSecurityConverter extends FinancialSecurityVisitorAdapter<CreditDefaultSwapOptionDefinition> {
   private static final Obligor DUMMY_OBLIGOR_A = new Obligor(
@@ -101,7 +101,7 @@ public class CreditDefaultSwapOptionSecurityConverter extends FinancialSecurityV
         isKnockOut, isPayer, optionExerciseType, underlyingCDS);
   }
 
-  private CDSOptionExerciseType convertExerciseType(final ExerciseType exerciseType) {
+  private static CDSOptionExerciseType convertExerciseType(final ExerciseType exerciseType) {
     final ExerciseTypeVisitor<CDSOptionExerciseType> visitor = new ExerciseTypeVisitor<CDSOptionExerciseType>() {
 
       @Override

@@ -126,7 +126,7 @@ public class ParVsQuotedSpreadTest extends ISDABaseTest {
     final CDSQuoteConvention[] quotes = new CDSQuoteConvention[nPillars];
     final double[] spreads = new double[nPillars];
     for (int i = 0; i < nPillars; i++) {
-      pillarCDSs[i] = new CDSAnalytic(TRADE_DATE, SPOT_DATE, EFFECTIVE_DATE, STARTDATE, PILLAR_DATES[i], PAY_ACC_ON_DEFAULT, TENOR, STUB, PROCTECTION_START, RECOVERY);
+      pillarCDSs[i] = new CDSAnalytic(TRADE_DATE, SPOT_DATE, EFFECTIVE_DATE, STARTDATE, PILLAR_DATES[i], PAY_ACC_ON_DEFAULT, PAYMENT_INTERVAL, STUB, PROCTECTION_START, RECOVERY);
       spreads[i] = PILLAR_SPREADS[i] * ONE_BP;
       quotes[i] = new QuotedSpread(COUPON * ONE_BP, spreads[i]);
       System.out.println(TENORS[i] + "\t" + PILLAR_DATES[i]);
@@ -138,7 +138,7 @@ public class ParVsQuotedSpreadTest extends ISDABaseTest {
     for (int i = 0; i < SPREADS_BPS_ALL.length; i++) {
       final LocalDate mat = MATURITY_DATES[i];
       if (isIMMDate(mat)) {
-        final Period couponInterval = TENOR;
+        final Period couponInterval = PAYMENT_INTERVAL;
         final CDSAnalytic cds = new CDSAnalytic(TRADE_DATE, SPOT_DATE, EFFECTIVE_DATE, STARTDATE, mat, PAY_ACC_ON_DEFAULT, couponInterval, STUB, PROCTECTION_START, RECOVERY);
         final double puf = PRICER.pv(cds, YIELD_CURVE, creditCurve, COUPON * ONE_BP);
         final double qSpread = PUF_CONVERTER.pufToQuotedSpread(cds, COUPON * ONE_BP, YIELD_CURVE, puf);
@@ -163,7 +163,7 @@ public class ParVsQuotedSpreadTest extends ISDABaseTest {
     final CDSQuoteConvention[] pillar_quotes = new CDSQuoteConvention[nPillars];
     final double[] pillar_qSpreads = new double[nPillars];
     for (int i = 0; i < nPillars; i++) {
-      pillarCDSs_IMM[i] = new CDSAnalytic(TRADE_DATE, EFFECTIVE_DATE, CASH_SETTLE_DATE, STARTDATE, PILLAR_DATES[i], PAY_ACC_ON_DEFAULT, TENOR, STUB, PROCTECTION_START, RECOVERY);
+      pillarCDSs_IMM[i] = new CDSAnalytic(TRADE_DATE, EFFECTIVE_DATE, CASH_SETTLE_DATE, STARTDATE, PILLAR_DATES[i], PAY_ACC_ON_DEFAULT, PAYMENT_INTERVAL, STUB, PROCTECTION_START, RECOVERY);
       pillarCDSs_nonIMM[i] = new CDSAnalytic(TRADE_DATE, EFFECTIVE_DATE, CASH_SETTLE_DATE, STARTDATE, PILLAR_DATES[i], PAY_ACC_ON_DEFAULT, NON_IMM_TENOR, STUB, PROCTECTION_START, RECOVERY);
       pillar_qSpreads[i] = PILLAR_SPREADS[i] * ONE_BP;
       if (isIMMDate(PILLAR_DATES[i])) {
@@ -187,7 +187,7 @@ public class ParVsQuotedSpreadTest extends ISDABaseTest {
     final double[][] bucketedCS01_IMM_flatSpread = new double[nIMMDates][];
 
     for (int i = 0; i < nIMMDates; i++) {
-      final CDSAnalytic pricingCDS = new CDSAnalytic(TRADE_DATE, EFFECTIVE_DATE, CASH_SETTLE_DATE, STARTDATE, IMM_DATES[i], PAY_ACC_ON_DEFAULT, TENOR, STUB, PROCTECTION_START, RECOVERY);
+      final CDSAnalytic pricingCDS = new CDSAnalytic(TRADE_DATE, EFFECTIVE_DATE, CASH_SETTLE_DATE, STARTDATE, IMM_DATES[i], PAY_ACC_ON_DEFAULT, PAYMENT_INTERVAL, STUB, PROCTECTION_START, RECOVERY);
       final double[] flatSpreadTS = new double[nPillars];
       Arrays.fill(flatSpreadTS, ((QuotedSpread) IMM_QUOTES.get(i)).getQuotedSpread());
 

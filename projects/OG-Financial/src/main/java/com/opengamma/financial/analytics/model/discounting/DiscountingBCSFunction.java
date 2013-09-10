@@ -34,7 +34,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
- *
+ * Calculates the sensitivities to all curves to which an instrument is sensitive.
  */
 public class DiscountingBCSFunction extends DiscountingFunction {
   /** The curve sensitivity calculator */

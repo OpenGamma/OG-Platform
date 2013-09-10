@@ -5,17 +5,18 @@
  */
 package com.opengamma.analytics.financial.interestrate.capletstripping;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.interestrate.ParRateCalculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.volatility.SimpleOptionData;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Decomposes a {@link CapFloor} into an array of {@link SimpleOptionData}
+ * @deprecated {@link YieldCurveBundle} is deprecated
  */
+@Deprecated
 public final class CapFloorDecomposer {
   private static final ParRateCalculator PRC = ParRateCalculator.getInstance();
 
@@ -32,13 +33,13 @@ public final class CapFloorDecomposer {
    * @return strip of European call or put options
    */
   public static SimpleOptionData[] toOptions(final CapFloor cap, final YieldCurveBundle ycb) {
-    Validate.notNull(cap, "null cap");
+    ArgumentChecker.notNull(cap, "null cap");
     return toOptions(cap.getPayments(), ycb);
   }
 
   public static SimpleOptionData[] toOptions(final CapFloorIbor[] caplets, final YieldCurveBundle ycb) {
-    Validate.noNullElements(caplets, "null caplets");
-    Validate.notNull(ycb, "null yield curves");
+    ArgumentChecker.noNulls(caplets, "null caplets");
+    ArgumentChecker.notNull(ycb, "null yield curves");
     final int n = caplets.length;
 
     final SimpleOptionData[] options = new SimpleOptionData[n];

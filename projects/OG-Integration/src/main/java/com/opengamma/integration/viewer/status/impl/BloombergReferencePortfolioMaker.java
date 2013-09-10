@@ -757,12 +757,11 @@ public class BloombergReferencePortfolioMaker implements Runnable {
     final boolean adjustEffectiveDate = bool();
     final boolean adjustMaturityDate = bool();
     final InterestRateNotional notional = interestRateNotional();
-    final double recoveryRate = 0;
     final boolean includeAccruedPremium = bool();
     final boolean protectionStart = bool();
     final double parSpread = 0;
     final LegacyVanillaCDSSecurity security = new LegacyVanillaCDSSecurity(isBuy, protectionSeller, protectionBuyer, referenceEntity, debtSeniority, restructuringClause, regionId,
-        startDate, effectiveDate, maturityDate, stubType, couponFrequency, dayCount, businessDayConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional, recoveryRate,
+        startDate, effectiveDate, maturityDate, stubType, couponFrequency, dayCount, businessDayConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional,
         includeAccruedPremium, protectionStart, parSpread);
     store(security);
     return security;
@@ -886,7 +885,6 @@ public class BloombergReferencePortfolioMaker implements Runnable {
     final boolean adjustEffectiveDate = bool();
     final boolean adjustMaturityDate = bool();
     final InterestRateNotional notional = interestRateNotional();
-    final double recoveryRate = 0;
     final boolean includeAccruedPremium = bool();
     final boolean protectionStart = bool();
     final double quotedSpread = 0;
@@ -895,7 +893,7 @@ public class BloombergReferencePortfolioMaker implements Runnable {
     final ZonedDateTime settlementDate = ZonedDateTime.now().plusMonths(7);
     final boolean adjustCashSettlementDate = true;
     final StandardVanillaCDSSecurity security = new StandardVanillaCDSSecurity(isBuy, protectionSeller, protectionBuyer, referenceEntity, debtSeniority, restructuringClause, regionId,
-        startDate, effectiveDate, maturityDate, stubType, couponFrequency, dayCount, businessDayConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional, recoveryRate,
+        startDate, effectiveDate, maturityDate, stubType, couponFrequency, dayCount, businessDayConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional,
         includeAccruedPremium, protectionStart, quotedSpread, upfrontAmount, coupon, settlementDate, adjustCashSettlementDate);
     store(security);
     return security;

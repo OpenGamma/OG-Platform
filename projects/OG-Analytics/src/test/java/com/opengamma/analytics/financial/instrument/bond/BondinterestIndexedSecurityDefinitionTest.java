@@ -150,9 +150,9 @@ public class BondinterestIndexedSecurityDefinitionTest {
         PRICE_INDEX_UKRPI, MONTH_LAG_1, START_DATE_1, FIRST_COUPON_DATE_1, MATURITY_DATE_1, COUPON_PERIOD_1,
         NOTIONAL_1, FACTOR, BUSINESS_DAY_GBP, SETTLEMENT_DAYS_1, CALENDAR_GBP, DAY_COUNT_1, YIELD_CONVENTION_1, IS_EOM_1, ISSUER_UK);
     final BondInterestIndexedSecurity<PaymentFixed, Coupon> bond = bondFromDefinition.toDerivative(pricingDate, ukRpi);
-    final ZonedDateTime referenceDateNextCoupon = DateUtils.getUTCDate(2011, 4, 30); // May 11
+    final ZonedDateTime referenceDateNextCoupon = DateUtils.getUTCDate(2011, 5, 31); // May 11
     final double referenceIndexNextCoupon = ukRpi.getValue(referenceDateNextCoupon);
-    final ZonedDateTime referenceStartDateNextCoupon = DateUtils.getUTCDate(2010, 10, 31); // May 11
+    final ZonedDateTime referenceStartDateNextCoupon = DateUtils.getUTCDate(2010, 11, 30); // May 11
     final double referenceStartIndexNextCoupon = ukRpi.getValue(referenceStartDateNextCoupon);
     final double amountNextCoupon = (referenceIndexNextCoupon / referenceStartIndexNextCoupon + FACTOR) * NOTIONAL_1;
     assertEquals("Interest Index Bond: toDerivative", amountNextCoupon, ((CouponFixed) bond.getCoupon().getNthPayment(0)).getAmount());
@@ -193,7 +193,7 @@ public class BondinterestIndexedSecurityDefinitionTest {
         PRICE_INDEX_UKRPI, MONTH_LAG_1, START_DATE_1, FIRST_COUPON_DATE_1, MATURITY_DATE_1, COUPON_PERIOD_1,
         NOTIONAL_1, FACTOR, BUSINESS_DAY_GBP, SETTLEMENT_DAYS_1, CALENDAR_GBP, DAY_COUNT_1, YIELD_CONVENTION_1, IS_EOM_1, ISSUER_UK);
     final BondInterestIndexedSecurity<PaymentFixed, Coupon> bond = bondFromDefinition.toDerivative(pricingDate, ukRpi);
-    final ZonedDateTime[] referenceDateNextCoupon = new ZonedDateTime[] {DateUtils.getUTCDate(2010, 4, 30), DateUtils.getUTCDate(2010, 10, 31), DateUtils.getUTCDate(2011, 4, 30) }; // Nov 10, May 11
+    final ZonedDateTime[] referenceDateNextCoupon = new ZonedDateTime[] {DateUtils.getUTCDate(2010, 5, 31), DateUtils.getUTCDate(2010, 11, 30), DateUtils.getUTCDate(2011, 5, 31) }; // Nov 10, May 11
     final double[] referenceIndexNextCoupon = new double[] {ukRpi.getValue(referenceDateNextCoupon[0]), ukRpi.getValue(referenceDateNextCoupon[1]), ukRpi.getValue(referenceDateNextCoupon[2]) };
     for (int loopcpn = 0; loopcpn < 2; loopcpn++) {
       final double amountNextCoupon = (referenceIndexNextCoupon[loopcpn + 1] / referenceIndexNextCoupon[loopcpn] + FACTOR) * NOTIONAL_1;

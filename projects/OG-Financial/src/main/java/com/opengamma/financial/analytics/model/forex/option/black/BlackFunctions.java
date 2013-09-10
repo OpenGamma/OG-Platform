@@ -10,7 +10,6 @@ import java.util.List;
 import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
-import com.opengamma.financial.analytics.model.forex.option.black.deprecated.DeprecatedFunctions;
 import com.opengamma.financial.analytics.model.forex.option.vannavolga.FXOptionVannaVolgaPresentValueFunction;
 import com.opengamma.financial.analytics.model.horizon.FXOptionBlackConstantSpreadThetaFunction;
 import com.opengamma.financial.analytics.model.horizon.FXOptionBlackForwardSlideThetaFunction;
@@ -21,7 +20,9 @@ import com.opengamma.financial.analytics.model.horizon.FXOptionBlackYieldCurvesF
 
 /**
  * Function repository configuration source for the functions contained in this package.
+ * @deprecated This class adds deprecated functions
  */
+@Deprecated
 public class BlackFunctions extends AbstractFunctionConfigurationBean {
 
   /**
@@ -31,10 +32,6 @@ public class BlackFunctions extends AbstractFunctionConfigurationBean {
    */
   public static FunctionConfigurationSource instance() {
     return new BlackFunctions().getObjectCreating();
-  }
-
-  public static FunctionConfigurationSource deprecated() {
-    return new DeprecatedFunctions().getObjectCreating();
   }
 
   /**

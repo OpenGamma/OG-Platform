@@ -121,7 +121,7 @@ public final class InterestRateFutureOptionMarginSecurityBlackSurfaceMethod exte
    * It is supposed that for a given strike the volatility does not change with the curves.
    * @param security The future option security.
    * @param blackData The curve and Black volatility data.
-   * @return The security price curve sensitivity.
+   * @return The delta.
    */
   public double optionPriceDelta(final InterestRateFutureOptionMarginSecurity security, final YieldCurveWithBlackCubeBundle blackData) {
  // Forward sweep

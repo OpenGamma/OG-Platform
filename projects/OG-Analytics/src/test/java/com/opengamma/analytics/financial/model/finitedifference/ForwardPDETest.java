@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.finitedifference;
@@ -95,7 +95,7 @@ public class ForwardPDETest {
 
     final PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
 
-    final PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(PDE, INT_COND, LOWER, UPPER, grid);
+    final PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db = new PDE1DDataBundle<>(PDE, INT_COND, LOWER, UPPER, grid);
     final PDEFullResults1D res = (PDEFullResults1D) solver.solve(db);
 
     double t, x;
@@ -157,9 +157,8 @@ public class ForwardPDETest {
         final double x = Math.log(m);
         if (Math.abs(x) > Math.sqrt(t) * 1.2) {
           return 0.0;
-        } else {
-          return 0.4;
         }
+        return 0.4;
       }
     };
     final LocalVolatilitySurfaceMoneyness lv = new LocalVolatilitySurfaceMoneyness(FunctionalDoublesSurface.from(lvFunc), new ForwardCurve(1.0));

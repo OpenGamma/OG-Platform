@@ -84,12 +84,14 @@ public class CreditDefaultSwapSecurityConverterDeprecated extends FinancialSecur
       "NJ");
   private final HolidaySource _holidaySource;
   private final RegionSource _regionSource;
+  private final double _recoveryRate;
 
-  public CreditDefaultSwapSecurityConverterDeprecated(final HolidaySource holidaySource, final RegionSource regionSource) {
+  public CreditDefaultSwapSecurityConverterDeprecated(final HolidaySource holidaySource, final RegionSource regionSource, final double recoveryRate) {
     ArgumentChecker.notNull(holidaySource, "holiday source");
     ArgumentChecker.notNull(regionSource, "region source");
     _holidaySource = holidaySource;
     _regionSource = regionSource;
+    _recoveryRate = recoveryRate;
   }
 
   @Override
@@ -112,7 +114,7 @@ public class CreditDefaultSwapSecurityConverterDeprecated extends FinancialSecur
     final DebtSeniority debtSeniority = security.getDebtSeniority();
     final RestructuringClause restructuringClause = security.getRestructuringClause();
     final double amount = notional.getAmount();
-    final double recoveryRate = security.getRecoveryRate();
+    final double recoveryRate = _recoveryRate;
     final boolean includeAccruedPremium = security.isIncludeAccruedPremium();
     final boolean protectionStart = security.isProtectionStart();
     final double quotedSpread = security.getQuotedSpread();
@@ -148,7 +150,7 @@ public class CreditDefaultSwapSecurityConverterDeprecated extends FinancialSecur
     final DebtSeniority debtSeniority = security.getDebtSeniority();
     final RestructuringClause restructuringClause = security.getRestructuringClause();
     final double amount = notional.getAmount();
-    final double recoveryRate = security.getRecoveryRate();
+    final double recoveryRate = _recoveryRate;
     final boolean includeAccruedPremium = security.isIncludeAccruedPremium();
     final boolean protectionStart = security.isProtectionStart();
     final StubType stubType = security.getStubType().toAnalyticsType();

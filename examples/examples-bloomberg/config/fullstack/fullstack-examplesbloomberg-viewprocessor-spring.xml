@@ -160,6 +160,9 @@
             </set>
           </constructor-arg>
         </bean>
+        <bean class="com.opengamma.financial.view.ConfigDocumentWatchSetProvider">
+          <constructor-arg ref="combinedConfigSource" />
+        </bean>
       </set>
     </property>
   </bean>

@@ -17,13 +17,17 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.Interest
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackCubeBundle;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.model.black.BlackDiscountingGammaIRFutureOptionFunction;
 
 /**
  * Function computes the {@link ValueRequirementNames#GAMMA}, second order derivative of position price with respect to the futures rate,
  * for interest rate future options in the Black world.
+ * @deprecated Use {@link BlackDiscountingGammaIRFutureOptionFunction}
  */
+@Deprecated
 public class InterestRateFutureOptionBlackGammaFunction extends InterestRateFutureOptionBlackFunction {
 
   /**
@@ -36,17 +40,17 @@ public class InterestRateFutureOptionBlackGammaFunction extends InterestRateFutu
   }
 
   @Override
-  protected Set<ComputedValue> getResult(final InstrumentDerivative irFutureOptionTransaction, final YieldCurveWithBlackCubeBundle data, final ValueSpecification spec) {
+  protected Set<ComputedValue> getResult(final InstrumentDerivative irFutureOptionTransaction, final YieldCurveWithBlackCubeBundle data, final ValueSpecification spec, Set<ValueRequirement> desiredValues) {
     Double gamma = null;
     if (irFutureOptionTransaction instanceof InterestRateFutureOptionMarginTransaction) {
-      InterestRateFutureOptionMarginSecurity irFutureOptionSecurity = ((InterestRateFutureOptionMarginTransaction) irFutureOptionTransaction).getUnderlyingOption();
+      final InterestRateFutureOptionMarginSecurity irFutureOptionSecurity = ((InterestRateFutureOptionMarginTransaction) irFutureOptionTransaction).getUnderlyingOption();
       gamma = irFutureOptionSecurity.accept(CALCULATOR, data);
     } else {
       s_logger.error("Unexpected security type! {}", irFutureOptionTransaction.getClass());
     }
     return Collections.singleton(new ComputedValue(spec, gamma));
   }
-  
+
   private static final Logger s_logger = LoggerFactory.getLogger(InterestRateFutureOptionBlackGammaFunction.class);
 
 }

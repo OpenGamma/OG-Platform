@@ -35,7 +35,7 @@ import com.opengamma.id.ExternalId;
 public class LegacyVanillaCDSSecurity extends LegacyCDSSecurity {
 
   /** Serialization version. */
-  private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 2L;
 
   /**
    * The security type
@@ -55,11 +55,11 @@ public class LegacyVanillaCDSSecurity extends LegacyCDSSecurity {
       final DebtSeniority debtSeniority, final RestructuringClause restructuringClause, final ExternalId regionId, final ZonedDateTime startDate,
       final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final StubType stubType, final Frequency couponFrequency, final DayCount dayCount,
       final BusinessDayConvention businessDayConvention, final boolean immAdjustMaturityDate, final boolean adjustEffectiveDate,
-      final boolean adjustMaturityDate, final InterestRateNotional notional, final double recoveryRate, final boolean includeAccruedPremium,
+      final boolean adjustMaturityDate, final InterestRateNotional notional, final boolean includeAccruedPremium,
       final boolean protectionStart, final double parSpread) {
     super(isBuy, protectionSeller, protectionBuyer, referenceEntity, debtSeniority, restructuringClause, regionId, startDate,
         effectiveDate, maturityDate, stubType, couponFrequency, dayCount, businessDayConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, protectionStart, SECURITY_TYPE);
+        adjustMaturityDate, notional, includeAccruedPremium, protectionStart, SECURITY_TYPE);
     setParSpread(parSpread);
   }
 

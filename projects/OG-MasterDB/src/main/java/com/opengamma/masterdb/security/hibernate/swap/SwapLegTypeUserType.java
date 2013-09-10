@@ -27,6 +27,8 @@ public class SwapLegTypeUserType extends EnumUserType<SwapLegType> {
   private static final String FLOATING_GEARING_INTEREST = "Floating gearing interest";
   private static final String FIXED_VARIANCE = "Fixed variance";
   private static final String FLOATING_VARIANCE = "Floating variance";
+  private static final String FIXED_INFLATION = "Fixed inflation";
+  private static final String INFLATION_INDEX = "Inflation index";
 
   public SwapLegTypeUserType() {
     super(SwapLegType.class, SwapLegType.values());
@@ -68,14 +70,12 @@ public class SwapLegTypeUserType extends EnumUserType<SwapLegType> {
 
       @Override
       public String visitInflationIndexSwapLeg(InflationIndexSwapLeg swapLeg) {
-        //TODO
-        throw new UnsupportedOperationException("Cannot handle inflation index swap legs");
+        return FIXED_INFLATION;
       }
 
       @Override
       public String visitFixedInflationSwapLeg(FixedInflationSwapLeg swapLeg) {
-        //TODO
-        throw new UnsupportedOperationException("Cannot handle fixed inflation swap legs");
+        return INFLATION_INDEX;
       }
     });
   }

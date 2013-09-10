@@ -69,8 +69,8 @@ public class HullWhiteMonteCarloDiscountingPVFunction extends HullWhiteDiscounti
       }
 
       @Override
-      protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
-        return super.getResultProperties(target)
+      protected ValueProperties.Builder getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
+        return super.getResultProperties(compilationContext, target)
             .with(CALCULATION_METHOD, "Monte Carlo");
       }
 

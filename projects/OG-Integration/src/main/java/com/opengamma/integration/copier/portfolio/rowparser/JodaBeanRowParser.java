@@ -3,31 +3,34 @@
  * 
  * Please see distribution for license.
  */
-
 package com.opengamma.integration.copier.portfolio.rowparser;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
+import org.fudgemsg.AnnotationReflector;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.PropertyReadWrite;
 import org.joda.beans.impl.direct.DirectBean;
-import org.joda.beans.impl.direct.DirectMetaBean;
+import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.conversion.JodaBeanConverters;
+import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.future.AgricultureFutureSecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
@@ -54,6 +57,7 @@ import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.ManageableSecurityLink;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * A generic row parser for Joda beans that automatically identifies fields to be persisted to rows/populated from rows
@@ -61,41 +65,7 @@ import com.opengamma.util.ArgumentChecker;
 public class JodaBeanRowParser extends RowParser {
 
   private static final Logger s_logger = LoggerFactory.getLogger(JodaBeanRowParser.class);
-
-  /**
-   * Types of swap leg that might be encountered, and for which additional fields are generated
-   */
-  private static final Class<?>[] SWAP_LEG_CLASSES = {
-    SwapLeg.class,
-    InterestRateLeg.class,
-    FixedInterestRateLeg.class,
-    FloatingInterestRateLeg.class,
-    FloatingGearingIRLeg.class,
-    FloatingSpreadIRLeg.class,
-    VarianceSwapLeg.class,
-    FixedVarianceSwapLeg.class,
-    FloatingVarianceSwapLeg.class
-  };
-  
-  /**
-   * The packages where security classes are to be found
-   */
-  private static final String[] CLASS_PACKAGES = {
-    "com.opengamma.financial.security.bond",
-    "com.opengamma.financial.security.capfloor",
-    "com.opengamma.financial.security.cash",
-    "com.opengamma.financial.security.cashflow",
-    "com.opengamma.financial.security.cds",
-    "com.opengamma.financial.security.deposit",
-    "com.opengamma.financial.security.equity",
-    "com.opengamma.financial.security.forward",
-    "com.opengamma.financial.security.fra",
-    "com.opengamma.financial.security.future",
-    "com.opengamma.financial.security.fx",
-    "com.opengamma.financial.security.option",
-    "com.opengamma.financial.security.swap",
-  };
-
+   
   /**
    * Security properties to ignore when scanning
    */
@@ -127,7 +97,7 @@ public class JodaBeanRowParser extends RowParser {
   /**
    * The security class that this parser is adapted to
    */
-  private Class<DirectBean> _securityClass;
+  private Class<? extends Bean> _securityClass;
   
   /**
    * The underlying security class(es) for the security class above
@@ -140,6 +110,8 @@ public class JodaBeanRowParser extends RowParser {
   private SortedMap<String, Class<?>> _columns = new TreeMap<String, Class<?>>();
 
   static {
+    //Make refections available by calling AnnotationReflector.getDefaultReflector()
+    OpenGammaFudgeContext.getInstance();
     // Register the automatic string converters with Joda Beans
     JodaBeanConverters.getInstance();
 
@@ -184,7 +156,7 @@ public class JodaBeanRowParser extends RowParser {
     _columns.putAll(recursiveGetColumnMap(ManageableTrade.class, TRADE_PREFIX + ":"));
   }
 
-  private List<Class<?>> getUnderlyingSecurityClasses(Class<DirectBean> securityClass) {
+  private List<Class<?>> getUnderlyingSecurityClasses(Class<? extends Bean> securityClass) {
     
     List<Class<?>> result = new ArrayList<Class<?>>();
           
@@ -334,7 +306,6 @@ public class JodaBeanRowParser extends RowParser {
    * @param prefix  The class membership path traced from the top-level bean class to the current class
    * @return        A map of the column names and their types
    */
-  @SuppressWarnings("unchecked")
   private SortedMap<String, Class<?>> recursiveGetColumnMap(Class<?> clazz, String prefix) {
  
     // Scan through and capture the list of relevant properties and their types
@@ -354,14 +325,14 @@ public class JodaBeanRowParser extends RowParser {
         if (isBean(metaProperty.propertyType()) && !isConvertible(metaProperty.propertyType())) {
           
           // This is the bean (might be an abstract class/subclassed)
-          Class<DirectBean> beanClass = (Class<DirectBean>) metaProperty.propertyType().asSubclass(DirectBean.class);
+          Class<? extends Bean> beanClass = metaProperty.propertyType().asSubclass(Bean.class);
           
           // Recursively extract this bean's properties
           columns.putAll(recursiveGetColumnMap(beanClass, prefix + metaProperty.name() + ":"));
 
           // Identify ALL subclasses of this bean and extract all their properties
           for (Class<?> subClass : getSubClasses(beanClass)) {
-            columns.putAll(recursiveGetColumnMap((Class<DirectBean>) subClass, prefix + metaProperty.name() + ":"));            
+            columns.putAll(recursiveGetColumnMap(subClass, prefix + metaProperty.name() + ":"));            
           }
         }
       }
@@ -377,15 +348,13 @@ public class JodaBeanRowParser extends RowParser {
    * @param prefix  The class membership path traced from the top-level bean class to the current class
    * @return        The constructed security bean
    */
-  private DirectBean recursiveConstructBean(Map<String, String> row, Class<?> clazz, String prefix) {
+  private Bean recursiveConstructBean(Map<String, String> row, Class<?> clazz, String prefix) {
     try {
       // Get a reference to the meta-bean
-      Method metaMethod = clazz.getMethod("meta", (Class<?>[]) null);
-      DirectMetaBean metaBean = (DirectMetaBean) metaMethod.invoke(null, (Object[]) null);
+      MetaBean metaBean = JodaBeanUtils.metaBean(clazz);
 
       // Get a new builder from the meta-bean
-      @SuppressWarnings("unchecked")
-      BeanBuilder<? extends DirectBean> builder = (BeanBuilder<? extends DirectBean>) metaBean.builder();
+      BeanBuilder<? extends Bean> builder = metaBean.builder();
 
       // Populate the bean from the supplied row using the builder
       for (MetaProperty<?> metaProperty : JodaBeanUtils.metaBean(clazz).metaPropertyIterable()) {
@@ -398,7 +367,7 @@ public class JodaBeanRowParser extends RowParser {
   
             // Get the actual type of this bean from the relevant column
             String className = row.get((prefix + metaProperty.name()).trim().toLowerCase());
-            Class<DirectBean> beanClass = getClass(className);
+            Class<? extends Bean> beanClass = getClass(className);
             
             // Recursively set properties
             builder.set(metaProperty.name(),
@@ -431,7 +400,7 @@ public class JodaBeanRowParser extends RowParser {
       return builder.build();
   
     } catch (Throwable ex) {
-      s_logger.info("Not creating a " + clazz.getSimpleName() + ": " + ex.getMessage());
+      s_logger.info("Not creating a " + clazz.getSimpleName() + ": " + ex);
       return null;
     }
   }
@@ -443,7 +412,7 @@ public class JodaBeanRowParser extends RowParser {
    * @param prefix  The class membership path traced from the top-level bean class to the current class
    * @return        A map of extracted column names and values
    */
-  private Map<String, String> recursiveConstructRow(DirectBean bean, String prefix) {
+  private Map<String, String> recursiveConstructRow(Bean bean, String prefix) {
     Map<String, String> result = new HashMap<String, String>();
     
     // Populate the row from the bean's properties
@@ -458,7 +427,7 @@ public class JodaBeanRowParser extends RowParser {
           result.put(prefix + metaProperty.name(), metaProperty.get(bean).getClass().getSimpleName());
           
           // Recursively extract bean's columns        
-          result.putAll(recursiveConstructRow((DirectBean) metaProperty.get(bean), prefix + metaProperty.name() + ":"));
+          result.putAll(recursiveConstructRow((Bean) metaProperty.get(bean), prefix + metaProperty.name() + ":"));
           
         // If not a bean, or it is a bean for which a converter exists, just extract its value using joda convert
         } else {
@@ -483,15 +452,16 @@ public class JodaBeanRowParser extends RowParser {
     }
     return result;
   }
-  
+
   /**
-   * Converts a list of objects to a |-separated string of their JodaConverted string representations
-   * @param i the list to be converted
-   * @return  the |-separated string string
+   * Converts a list of objects to a |-separated string of their JodaConverted string representations.
+   * 
+   * @param list  the list to be converted, not null
+   * @return the |-separated string string, not null
    */
-  private String listToString(List<?> i) {
+  private String listToString(List<?> list) {
     String result = "";
-    for (Object o : i) {
+    for (Object o : list) {
       if (isConvertible(o.getClass())) {
         result = result + JodaBeanUtils.stringConverter().convertToString(o) + " | "; 
       } else {
@@ -500,61 +470,97 @@ public class JodaBeanRowParser extends RowParser {
     }
     return result.substring(0, result.lastIndexOf('|')).trim();
   }
-  
+
   /**
    * Converts a |-separated string to a list of objects using JodaConvert.
-   * @param raw the string to parse
-   * @param t   the class to convert to
-   * @return    the list of objects of type t
+   * 
+   * @param rawStr  the string to parse, not null
+   * @param cls  the class to convert to, not null
+   * @return the list of objects of the specified class, not null
    */
-  private List<?> stringToList(String raw, Class<?> t) {
+  private List<?> stringToList(String rawStr, Class<?> cls) {
     List<Object> result = new ArrayList<Object>();
-    for (String s : raw.split("\\|")) {
-      result.add(JodaBeanUtils.stringConverter().convertFromString(t, s.trim()));
+    for (String s : rawStr.split("\\|")) {
+      result.add(JodaBeanUtils.stringConverter().convertFromString(cls, s.trim()));
     }
     return result;
   }
-  
+
   /**
    * Given a class name, look for the class in the list of packages specified by CLASS_PACKAGES and return it
-   * or throw exception if not found  
-   * @param className   the class name to seek
-   * @return            the corresponding class 
+   * or throw exception if not found.
+   * 
+   * @param className  the class name to seek, not null
+   * @return the corresponding class, not null
    */
-  @SuppressWarnings("unchecked")
-  private Class<DirectBean> getClass(String className) {
-    Class<DirectBean> theClass = null;
-    for (String prefix : CLASS_PACKAGES) {
-      try {
-        String fullName = prefix + "." + className;
-        theClass = (Class<DirectBean>) Class.forName(fullName);
-        break;
-      } catch (Throwable ex) { }
+  private Class<? extends Bean> getClass(String className) {
+    Class<? extends Bean> theClass = null;
+    if (className.endsWith(CLASS_POSTFIX)) {
+      theClass = getFinancialSecurityClass(className);
+    } else {
+      theClass = getJodaBeanSubType(className);
     }
+    
     if (theClass == null) {
       throw new OpenGammaRuntimeException("Could not load class " + className);
     }
     return theClass;
   }
-  
+
+  private Class<? extends Bean> getJodaBeanSubType(String className) {
+    Reflections reflections = AnnotationReflector.getDefaultReflector().getReflector();
+    Set<String> directBeanSubTypes = reflections.getStore().getSubTypesOf(Bean.class.getName());
+   
+    Class<? extends Bean> theClass = null;
+    for (String directBeanType : directBeanSubTypes) {
+      try {
+        if (directBeanType.endsWith("." + className)) {
+          theClass = Class.forName(directBeanType).asSubclass(Bean.class);
+          break;
+        }
+      } catch (Throwable ex) {
+      }
+    }
+    return theClass;
+  }
+
+  private Class<? extends Bean> getFinancialSecurityClass(String className) {
+    Reflections reflections = AnnotationReflector.getDefaultReflector().getReflector();
+    Set<String> financialSecuritySubTypes = reflections.getStore().getSubTypesOf(FinancialSecurity.class.getName());
+   
+    Class<? extends Bean> theClass = null;
+    for (String securityType : financialSecuritySubTypes) {
+      try {
+        if (securityType.endsWith("." + className)) {
+          theClass = Class.forName(securityType).asSubclass(Bean.class);
+          break;
+        }
+      } catch (Throwable ex) {
+      }
+    }
+    return theClass;
+  }
+
   /**
-   * Given a bean class, find its subclasses; this is current hard coded as Java can neither identify the 
-   * classes within a package, nor identify a class's subclasses. Currently identifies swap legs.
-   * @param beanClass
-   * @return
+   * Given a bean class, find its subclasses.
+   * 
+   * @param beanClass  the bean class
+   * @return the collection of subclasses
    */
-  private Collection<Class<?>> getSubClasses(Class<?> beanClass) {
+  private Collection<Class<?>> getSubClasses(Class<? extends Bean> beanClass) {
     Collection<Class<?>> subClasses = new ArrayList<Class<?>>();
     
-    // This has to be hard-coded since Java can neither identify the classes within a package, nor identify a class's subclasses
-    if (SwapLeg.class.isAssignableFrom(beanClass)) {
-      for (Class<?> c : SWAP_LEG_CLASSES) {
-        subClasses.add(c);
+    Reflections reflections = AnnotationReflector.getDefaultReflector().getReflector();
+    Set<String> subTypes = reflections.getStore().getSubTypesOf(beanClass.getName());
+    for (String subType : subTypes) {
+      try {
+        subClasses.add(Class.forName(subType));
+      } catch (Throwable ex) {
       }
-    }  
+    }
     return (Collection<Class<?>>) subClasses;
   }
-  
+
   /**
    * Checks whether the supplied class has a registered Joda string converter
    * @param clazz   the class to check
@@ -568,26 +574,28 @@ public class JodaBeanRowParser extends RowParser {
       return false;
     }
   }
-  
+
   /**
-   * Determines whether the supplied class is a direct bean
-   * @param clazz the class in question
-   * @return      the answer
+   * Determines whether the supplied class is a direct bean.
+   * 
+   * @param clazz  the class to check, not null
+   * @return true if it is a bean
    */
   private boolean isBean(Class<?> clazz) {
-    return DirectBean.class.isAssignableFrom(clazz) ? true : false; 
+    return Bean.class.isAssignableFrom(clazz);
   }
 
   /**
-   * Checks whether the specified metaproperty is to be ignored when extracting fields
-   * @param mp  the metaproperty in question
-   * @return    the answer
+   * Checks whether the specified meta-property is to be ignored when extracting fields.
+   * 
+   * @param mp  the meta-property to check, not null
+   * @return true if it is to be ignored
    */
   private boolean ignoreMetaProperty(MetaProperty<?> mp) {
     if (mp.readWrite() != PropertyReadWrite.READ_WRITE) {
       return true;
     }
-    String s = mp.name().trim().toLowerCase(); 
+    String s = mp.name().trim().toLowerCase();
     for (String t : IGNORE_METAPROPERTIES) {
       if (s.equals(t.trim().toLowerCase())) {
         return true;
@@ -595,5 +603,5 @@ public class JodaBeanRowParser extends RowParser {
     }
     return false;
   }
-  
+
 }

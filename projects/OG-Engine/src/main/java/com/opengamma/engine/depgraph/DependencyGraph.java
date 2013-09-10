@@ -21,7 +21,6 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableSet;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
@@ -332,61 +331,42 @@ public class DependencyGraph {
    * @param discriminatorProperties properties added to the value spec of the original node, such that the new node produces a unique value spec, not null
    * @return the newly created proxy node, not null
    */
-  public DependencyNode appendInput(final DependencyNode original,
-      final CompiledFunctionDefinition function,
-      final Map<String, String> discriminatorProperties) {
-
+  public DependencyNode appendInput(final DependencyNode original, final CompiledFunctionDefinition function, final Map<String, String> discriminatorProperties) {
     ArgumentChecker.notNull(original, "node");
-    ArgumentChecker.isFalse(equals(original), "Proxy node must be different to the proxied node");
     ArgumentChecker.notNull(function, "function");
     ArgumentChecker.notEmpty(discriminatorProperties, "discriminatorProperties");
-
     // Create the new proxy node based on the original
-    DependencyNode proxyNode = new DependencyNode(original.getComputationTarget());
+    final DependencyNode proxyNode = new DependencyNode(original.getComputationTarget());
     proxyNode.setFunction(function);
-
     // TODO - this implementation is naive as it proxies all output specs - we should actually only proxy the spec we are interested in
     // However, in most cases there will only be one output anyway
-
-    Map<ValueSpecification, ValueSpecification> newValueSpecifications = copyValueSpecifications(original, discriminatorProperties);
-    proxyNode.addOutputValues(ImmutableSet.copyOf(newValueSpecifications.values()));
-
+    final Map<ValueSpecification, ValueSpecification> newValueSpecifications = copyValueSpecifications(original, discriminatorProperties);
+    proxyNode.addOutputValues(newValueSpecifications.values());
     // Note the dependents of the original
     Set<DependencyNode> originalDependents = new HashSet<>(original.getDependentNodes());
-
     // Now switch the inputs for each of the dependents
     for (DependencyNode dependent : originalDependents) {
       for (Map.Entry<ValueSpecification, ValueSpecification> entry : newValueSpecifications.entrySet()) {
         dependent.replaceInput(entry.getKey(), entry.getValue(), original, proxyNode);
       }
     }
-
     // Now the input values
     proxyNode.addInputNode(original);
     for (ValueSpecification specification : original.getOutputValues()) {
       proxyNode.addInputValue(specification);
     }
-
     addDependencyNode(proxyNode);
-
     return proxyNode;
   }
 
-  private Map<ValueSpecification, ValueSpecification> copyValueSpecifications(final DependencyNode node,
-      final Map<String, String> discriminatorProperties) {
-
+  private Map<ValueSpecification, ValueSpecification> copyValueSpecifications(final DependencyNode node, final Map<String, String> discriminatorProperties) {
     Map<ValueSpecification, ValueSpecification> converted = new HashMap<>();
-
     for (ValueSpecification original : node.getOutputValues()) {
-
       ValueProperties.Builder builder = original.getProperties().copy();
-
       for (Map.Entry<String, String> entry : discriminatorProperties.entrySet()) {
         builder = builder.with(entry.getKey(), entry.getValue());
       }
-
-      converted.put(original,
-          new ValueSpecification(original.getValueName(), original.getTargetSpecification(), builder.get()));
+      converted.put(original, new ValueSpecification(original.getValueName(), original.getTargetSpecification(), builder.get()));
     }
     return converted;
   }

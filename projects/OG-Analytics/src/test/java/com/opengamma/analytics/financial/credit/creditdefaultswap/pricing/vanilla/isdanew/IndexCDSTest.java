@@ -74,10 +74,10 @@ public class IndexCDSTest extends ISDABaseTest {
     Arrays.fill(flatSpreads, tradeLevel);
     final CDSAnalytic[] calibrationCDS = new CDSAnalytic[nPillars];
     for (int i = 0; i < nPillars; i++) {
-      calibrationCDS[i] = new CDSAnalytic(tradeDate, stepinDate, cashSettleDate, startDate, pillarDates[i], PAY_ACC_ON_DEFAULT, TENOR, STUB, PROCTECTION_START, RECOVERY_RATE);
+      calibrationCDS[i] = new CDSAnalytic(tradeDate, stepinDate, cashSettleDate, startDate, pillarDates[i], PAY_ACC_ON_DEFAULT, PAYMENT_INTERVAL, STUB, PROCTECTION_START, RECOVERY_RATE);
     }
 
-    final CDSAnalytic pointCDS = new CDSAnalytic(tradeDate, stepinDate, cashSettleDate, startDate, maturity, PAY_ACC_ON_DEFAULT, TENOR, STUB, PROCTECTION_START, RECOVERY_RATE);
+    final CDSAnalytic pointCDS = new CDSAnalytic(tradeDate, stepinDate, cashSettleDate, startDate, maturity, PAY_ACC_ON_DEFAULT, PAYMENT_INTERVAL, STUB, PROCTECTION_START, RECOVERY_RATE);
     final QuotedSpread qSpread = new QuotedSpread(COUPON, tradeLevel);
     final double puf = PUF_CONVERTER.toPointsUpFront(pointCDS, qSpread, yieldCurve).getPointsUpFront();
     final double price = (1 - puf) * 100;
@@ -140,7 +140,7 @@ public class IndexCDSTest extends ISDABaseTest {
     //      0.035815, 0.03782, 0.038725, 0.039235 };
     //    final ISDACompliantYieldCurve yieldCurve = makeYieldCurve(tradeDate, spotDate, yieldCurvePoints, yieldCurveInstruments, rates, ACT360, D30360, Period.ofMonths(6));
 
-    final CDSAnalytic pointCDS = new CDSAnalytic(tradeDate, stepinDate, cashSettleDate, startDate, maturity, PAY_ACC_ON_DEFAULT, TENOR, STUB, PROCTECTION_START, RECOVERY_RATE);
+    final CDSAnalytic pointCDS = new CDSAnalytic(tradeDate, stepinDate, cashSettleDate, startDate, maturity, PAY_ACC_ON_DEFAULT, PAYMENT_INTERVAL, STUB, PROCTECTION_START, RECOVERY_RATE);
     final QuotedSpread qSpread = new QuotedSpread(COUPON, tradeLevel);
     final double puf = pufConverter.toPointsUpFront(pointCDS, qSpread, yieldCurve).getPointsUpFront();
     final double accAmt = notional * pointCDS.getAccruedPremium(COUPON);
@@ -158,7 +158,7 @@ public class IndexCDSTest extends ISDABaseTest {
     final CDSAnalytic[] pillarCDS = new CDSAnalytic[nMat];
     for (int i = 0; i < nMat; i++) {
       maturities[i] = nextRolldate.plus(standardTenors[i]).minusMonths(3);
-      pillarCDS[i] = new CDSAnalytic(tradeDate, stepinDate, cashSettleDate, startDate, maturities[i], PAY_ACC_ON_DEFAULT, TENOR, STUB, PROCTECTION_START, RECOVERY_RATE);
+      pillarCDS[i] = new CDSAnalytic(tradeDate, stepinDate, cashSettleDate, startDate, maturities[i], PAY_ACC_ON_DEFAULT, PAYMENT_INTERVAL, STUB, PROCTECTION_START, RECOVERY_RATE);
     }
     final double[] flatSpreads = new double[nMat];
     Arrays.fill(flatSpreads, tradeLevel);

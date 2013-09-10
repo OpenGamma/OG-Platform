@@ -10,6 +10,7 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 import com.opengamma.core.position.Portfolio;
+import com.opengamma.engine.management.ValueMappings;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.financial.security.lookup.SecurityAttribute;

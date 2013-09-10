@@ -11,6 +11,7 @@ import java.util.Map;
 import com.google.common.collect.Lists;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.engine.ComputationTargetResolver;
+import com.opengamma.engine.management.ValueMappings;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.financial.security.lookup.SecurityAttributeMapper;
 import com.opengamma.id.ObjectId;

@@ -82,6 +82,8 @@
     <subclass name="EquityIndexDividendFutureBean" discriminator-value="Equity Index Dividend">
     </subclass>
 
+    <subclass name="FederalFundsFutureBean" discriminator-value="Federal Funds">
+    </subclass>
 
   </class>
 

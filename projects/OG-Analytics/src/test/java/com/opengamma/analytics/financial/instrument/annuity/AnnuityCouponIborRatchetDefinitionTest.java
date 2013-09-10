@@ -89,7 +89,8 @@ public class AnnuityCouponIborRatchetDefinitionTest {
   public void constructorIborGearing() {
     final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(SETTLEMENT_DATE, ANNUITY_TENOR, INDEX_TENOR, BUSINESS_DAY, CALENDAR, IS_EOM);
     final CouponDefinition[] cpn = new CouponDefinition[NB_COUPON];
-    cpn[0] = CouponIborGearingDefinition.from(SETTLEMENT_DATE, paymentDates[0], DAY_COUNT.getDayCountFraction(SETTLEMENT_DATE, paymentDates[0]), NOTIONAL, IBOR_INDEX, MAIN_COEF[2], MAIN_COEF[1], CALENDAR);
+    cpn[0] = CouponIborGearingDefinition.from(SETTLEMENT_DATE, paymentDates[0], DAY_COUNT.getDayCountFraction(SETTLEMENT_DATE, paymentDates[0]), NOTIONAL, IBOR_INDEX, MAIN_COEF[2], MAIN_COEF[1],
+        CALENDAR);
     for (int loopcpn = 1; loopcpn < NB_COUPON; loopcpn++) {
       cpn[loopcpn] = new CouponIborRatchetDefinition(CUR, paymentDates[loopcpn], paymentDates[loopcpn - 1], paymentDates[loopcpn], DAY_COUNT.getDayCountFraction(paymentDates[loopcpn - 1],
           paymentDates[loopcpn]), NOTIONAL, ScheduleCalculator.getAdjustedDate(paymentDates[loopcpn - 1], -SETTLEMENT_DAYS, CALENDAR), IBOR_INDEX, MAIN_COEF, FLOOR_COEF, CAP_COEF, CALENDAR);
@@ -111,6 +112,7 @@ public class AnnuityCouponIborRatchetDefinitionTest {
   public void toDerivativesFixedNoFixingDeprecated() {
     final AnnuityCouponIborRatchetDefinition annuityDefinition = AnnuityCouponIborRatchetDefinition.withFirstCouponFixed(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, IBOR_INDEX, IS_PAYER,
         FIRST_CPN_RATE, MAIN_COEF, FLOOR_COEF, CAP_COEF, CALENDAR);
+    @SuppressWarnings("unchecked")
     final Annuity<Payment> annuity = (Annuity<Payment>) annuityDefinition.toDerivative(REFERENCE_DATE, CURVES_NAMES);
     final Coupon[] cpn = new Coupon[NB_COUPON];
     for (int loopcpn = 0; loopcpn < NB_COUPON; loopcpn++) {
@@ -128,6 +130,7 @@ public class AnnuityCouponIborRatchetDefinitionTest {
   public void toDerivativesIborNoFixingDeprecated() {
     final AnnuityCouponIborRatchetDefinition annuityDefinition = AnnuityCouponIborRatchetDefinition.withFirstCouponIborGearing(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, IBOR_INDEX, IS_PAYER,
         MAIN_COEF, FLOOR_COEF, CAP_COEF, CALENDAR);
+    @SuppressWarnings("unchecked")
     final Annuity<Payment> annuity = ((Annuity<Payment>) annuityDefinition.toDerivative(REFERENCE_DATE, CURVES_NAMES));
     final Coupon[] cpn = new Coupon[NB_COUPON];
     for (int loopcpn = 0; loopcpn < NB_COUPON; loopcpn++) {
@@ -229,6 +232,7 @@ public class AnnuityCouponIborRatchetDefinitionTest {
   public void toDerivativesFixedNoFixing() {
     final AnnuityCouponIborRatchetDefinition annuityDefinition = AnnuityCouponIborRatchetDefinition.withFirstCouponFixed(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, IBOR_INDEX, IS_PAYER,
         FIRST_CPN_RATE, MAIN_COEF, FLOOR_COEF, CAP_COEF, CALENDAR);
+    @SuppressWarnings("unchecked")
     final Annuity<Payment> annuity = (Annuity<Payment>) annuityDefinition.toDerivative(REFERENCE_DATE);
     final Coupon[] cpn = new Coupon[NB_COUPON];
     for (int loopcpn = 0; loopcpn < NB_COUPON; loopcpn++) {
@@ -245,6 +249,7 @@ public class AnnuityCouponIborRatchetDefinitionTest {
   public void toDerivativesIborNoFixing() {
     final AnnuityCouponIborRatchetDefinition annuityDefinition = AnnuityCouponIborRatchetDefinition.withFirstCouponIborGearing(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, IBOR_INDEX, IS_PAYER,
         MAIN_COEF, FLOOR_COEF, CAP_COEF, CALENDAR);
+    @SuppressWarnings("unchecked")
     final Annuity<Payment> annuity = (Annuity<Payment>) annuityDefinition.toDerivative(REFERENCE_DATE);
     final Coupon[] cpn = new Coupon[NB_COUPON];
     for (int loopcpn = 0; loopcpn < NB_COUPON; loopcpn++) {

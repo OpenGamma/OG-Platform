@@ -35,7 +35,7 @@ public class ISDATestGrid {
 		 */
 		private final int _poiType;
 
-		DataTypes(int type) {
+		DataTypes(final int type) {
 			_poiType = type;
 		}
 
@@ -59,9 +59,9 @@ public class ISDATestGrid {
 	/**
 	 * The test data itself
 	 */
-	private List<ISDATestGridRow> _data = new ArrayList<ISDATestGridRow>();
+	private final List<ISDATestGridRow> _data = new ArrayList<>();
 
-	private Set<String> _currencies = new TreeSet<String>();
+	private final Set<String> _currencies = new TreeSet<>();
 
 	private LocalDate _tradeDate;
 
@@ -74,19 +74,19 @@ public class ISDATestGrid {
 	{
 		if(headingIndex == null)
 		{
-			headingIndex = new TreeMap<ISDATestGridFields, Integer>();
+			headingIndex = new TreeMap<>();
 			for (int i = 0; i < headingNames.length; i++) {
 				headingIndex.put(headingNames[i], i);
 			}
 		}
-		
+
 		return headingIndex;
 	}
 
-	private void checkHeader(Row row) {
-		for (Cell cell : row) {
-			int index = cell.getColumnIndex();
-			String colName = cell.getStringCellValue();
+	private void checkHeader(final Row row) {
+		for (final Cell cell : row) {
+			final int index = cell.getColumnIndex();
+			final String colName = cell.getStringCellValue();
 			if (!colName.trim().startsWith(headingNames[index].getHeading())) {
 				throw new IllegalArgumentException("Heading name " + colName
 						+ " does not match column name in the expected header "
@@ -97,7 +97,7 @@ public class ISDATestGrid {
 
 	/**
 	 * Get the currency(ies) used in the test grid
-	 * 
+	 *
 	 * @return
 	 */
 	public Set<String> getCurrencies() {
@@ -108,25 +108,25 @@ public class ISDATestGrid {
 	{
 		if(_currency == null)
 		{
-			for (String currency : _currencies) {
+			for (final String currency : _currencies) {
 				_currency = currency;
 				break;
 			}
 		}
 		return _currency;
 	}
-	
+
 
 	/**
 	 * Get the interest curve date for the Test Grid - one business day before
 	 * the trade date
-	 * 
+	 *
 	 * @return
 	 */
 	public LocalDate getInterestRateCurveDate() {
 		// Interest rate curve is for the day before
 		LocalDate dt = getTradeDate().minusDays(1);
-		
+
 		// deal with weekends.
 		if (dt.getDayOfWeek() == SATURDAY) {
 			dt = dt.minusDays(1);
@@ -143,7 +143,7 @@ public class ISDATestGrid {
 
 	/**
 	 * Get the list of trade dates
-	 * 
+	 *
 	 * @return
 	 */
 	public LocalDate getTradeDate() {
@@ -152,12 +152,12 @@ public class ISDATestGrid {
 
 	/**
 	 * Process a the incoming XLS data to get the values and build the test grid
-	 * 
+	 *
 	 * @param sheet
 	 */
-	public void process(Sheet sheet) {
-		for (Row row : sheet) {
-			int rowNum = row.getRowNum();
+	public void process(final Sheet sheet) {
+		for (final Row row : sheet) {
+			final int rowNum = row.getRowNum();
 
 			if (rowNum == 0) {
 				checkHeader(row);
@@ -167,11 +167,11 @@ public class ISDATestGrid {
 		}
 	}
 
-	private void processRow(Row row) {
-		Object[] rowData = new Object[headingNames.length];
-		for (Cell cell : row) {
-			int colIndex = cell.getColumnIndex();
-			int type = cell.getCellType();
+	private void processRow(final Row row) {
+		final Object[] rowData = new Object[headingNames.length];
+		for (final Cell cell : row) {
+			final int colIndex = cell.getColumnIndex();
+			final int type = cell.getCellType();
 			if (type == Cell.CELL_TYPE_BLANK) {
 				return;
 			}
@@ -184,8 +184,8 @@ public class ISDATestGrid {
 
 			switch (headingTypes[colIndex]) {
 			case DATE:
-				Integer originalDate = (int) cell.getNumericCellValue();
-				LocalDate date = LocalDate.parse(originalDate.toString(),
+				final Integer originalDate = (int) cell.getNumericCellValue();
+				final LocalDate date = LocalDate.parse(originalDate.toString(),
 						formatter);
 				rowData[colIndex] = date;
 				if (colIndex == 0) {

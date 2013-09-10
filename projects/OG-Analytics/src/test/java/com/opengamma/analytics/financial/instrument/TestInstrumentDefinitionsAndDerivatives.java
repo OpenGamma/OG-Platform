@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.testng.collections.Sets;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZoneOffset;
@@ -170,13 +169,13 @@ public class TestInstrumentDefinitionsAndDerivatives {
   public static final CouponONDefinition COUPON_OIS = CouponONDefinition.from(INDEX_ON, SETTLE_DATE, SETTLE_DATE.plusYears(1), NOTIONAL, SPOT_LAG, C);
 
   public static final CouponInflationZeroCouponMonthlyDefinition INFLATION_ZERO_COUPON = CouponInflationZeroCouponMonthlyDefinition.from(SETTLE_DATE, SETTLE_DATE.plusMonths(3), NOTIONAL, INDEX_PRICE,
-      100, 1, 1, true);
+      1, 1, true);
   public static final CouponInflationZeroCouponInterpolationDefinition INFLATION_INTERPOLATED_COUPON = CouponInflationZeroCouponInterpolationDefinition.from(SETTLE_DATE, SETTLE_DATE.plusYears(1),
-      NOTIONAL, INDEX_PRICE, 100, 2, 2, false);
+      NOTIONAL, INDEX_PRICE, 2, 2, false);
   public static final CouponInflationZeroCouponMonthlyGearingDefinition INFLATION_ZERO_GEARING_COUPON = CouponInflationZeroCouponMonthlyGearingDefinition.from(SETTLE_DATE, SETTLE_DATE.plusYears(1),
-      NOTIONAL, INDEX_PRICE, 100, 2, 2, false, 0.4);
+      NOTIONAL, INDEX_PRICE, 100.0, 2, 2, false, 0.4);
   public static final CouponInflationZeroCouponInterpolationGearingDefinition INFLATION_INTERPOLATED_GEARING_COUPON = CouponInflationZeroCouponInterpolationGearingDefinition.from(SETTLE_DATE,
-      SETTLE_DATE.plusYears(1), NOTIONAL, INDEX_PRICE, 100, 2, 2, false, 1.4);
+      SETTLE_DATE.plusYears(1), NOTIONAL, INDEX_PRICE, 100.0, 2, 2, false, 1.4);
 
   public static final BondCapitalIndexedSecurityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition> CAPITAL_INDEXED_BOND_SECURITY = BondCapitalIndexedSecurityDefinition.fromMonthly(
       INDEX_PRICE, SPOT_LAG, SETTLE_DATE, 100, SETTLE_DATE.plusYears(5), FIXED_PERIOD, NOTIONAL, FIXED_RATE, BD, 2, C, FIXED_DAY_COUNT, SimpleYieldConvention.AUSTRIA_ISMA_METHOD, IS_EOM, "");
@@ -198,7 +197,7 @@ public class TestInstrumentDefinitionsAndDerivatives {
   public static final AnnuityCouponIborSpreadDefinition ANNUITY_IBOR_SPREAD_RECEIVE = AnnuityCouponIborSpreadDefinition.from(SETTLE_DATE, TENOR, NOTIONAL, IBOR_INDEX_2, SPREAD, !IS_PAYER, C);
   public static final AnnuityCouponIborSpreadDefinition ANNUITY_IBOR_SPREAD_PAY = AnnuityCouponIborSpreadDefinition.from(SETTLE_DATE, TENOR, NOTIONAL, IBOR_INDEX_1, 0.0, IS_PAYER, C);
   public static final AnnuityDefinition<PaymentFixedDefinition> GENERAL_ANNUITY = new AnnuityDefinition<>(new PaymentFixedDefinition[] {
-      new PaymentFixedDefinition(CUR, DateUtils.getUTCDate(2011, 1, 1), 1000), new PaymentFixedDefinition(CUR, DateUtils.getUTCDate(2012, 1, 1), 1000) }, C);
+    new PaymentFixedDefinition(CUR, DateUtils.getUTCDate(2011, 1, 1), 1000), new PaymentFixedDefinition(CUR, DateUtils.getUTCDate(2012, 1, 1), 1000) }, C);
 
   public static final BillSecurityDefinition BILL_SECURITY = new BillSecurityDefinition(CUR, SETTLE_DATE.plusYears(1), NOTIONAL, 0, C, SimpleYieldConvention.BANK_OF_CANADA, FIXED_DAY_COUNT, "");
   public static final BillTransactionDefinition BILL_TRANSACTION = new BillTransactionDefinition(BILL_SECURITY, 100, SETTLE_DATE, -100);
@@ -257,7 +256,7 @@ public class TestInstrumentDefinitionsAndDerivatives {
   public static final SwaptionPhysicalFixedIborDefinition SWAPTION_PHYS = SwaptionInstrumentsDescriptionDataSet.createSwaptionPhysicalFixedIborDefinition();
   public static final SwaptionPhysicalFixedIborSpreadDefinition SWAPTION_PHYS_SPREAD = SwaptionPhysicalFixedIborSpreadDefinition.from(SETTLE_DATE, SWAP_FIXED_IBOR_SPREAD, IS_EOM);
   public static final SwaptionBermudaFixedIborDefinition SWAPTION_BERMUDA = SwaptionBermudaFixedIborDefinition.from(SWAP_FIXED_IBOR, false, new ZonedDateTime[] {SETTLE_DATE.minusMonths(6),
-      SETTLE_DATE.minusMonths(5), SETTLE_DATE.minusMonths(4), SETTLE_DATE.minusMonths(3) });
+    SETTLE_DATE.minusMonths(5), SETTLE_DATE.minusMonths(4), SETTLE_DATE.minusMonths(3) });
 
   public static final CapFloorIborDefinition CAP_FLOOR_IBOR = CapFloorIborDefinition.from(COUPON_IBOR, FIXED_RATE, true, C);
   public static final CapFloorCMSDefinition CAP_FLOOR_CMS = CapFloorCMSDefinition.from(COUPON_CMS, FIXED_RATE, true);
@@ -367,7 +366,7 @@ public class TestInstrumentDefinitionsAndDerivatives {
     ALL_INSTRUMENTS.add(VARIANCE_SWAP);
     ALL_INSTRUMENTS.add(XCCY_SWAP);
 
-    final ZonedDateTime endDate = DateUtils.getUTCDate(2012, 11, 1);
+    final ZonedDateTime endDate = DateUtils.getUTCDate(2013, 11, 1);
     ZonedDateTime date = DateUtils.getUTCDate(2000, 1, 1);
     final List<ZonedDateTime> dates = new ArrayList<>();
     final List<Double> data = new ArrayList<>();
@@ -416,12 +415,12 @@ public class TestInstrumentDefinitionsAndDerivatives {
     ALL_DERIVATIVES.add(ENERGY_FUTURE.toDerivative(ENERGY_FUTURE.getSettlementDate()));
     ALL_DERIVATIVES.add(ENERGY_FUTURE_OPTION.toDerivative(ENERGY_FUTURE_OPTION.getExpiryDate().minusDays(1)));
     ALL_DERIVATIVES.add(ENERGY_FWD.toDerivative(ENERGY_FWD.getSettlementDate()));
-    ALL_DERIVATIVES.add(INDEX_FUTURE.toDerivative(SETTLE_DATE.plusDays(1), ArrayUtils.EMPTY_STRING_ARRAY));
-    ALL_DERIVATIVES.add(EQUITY_INDEX_DIVIDEND_FUTURE.toDerivative(SETTLE_DATE.plusDays(1), ArrayUtils.EMPTY_STRING_ARRAY));
-    ALL_DERIVATIVES.add(EQUITY_INDEX_OPTION.toDerivative(SETTLE_DATE.minusDays(100), ArrayUtils.EMPTY_STRING_ARRAY));
-    ALL_DERIVATIVES.add(EQUITY_INDEX_FUTURE_OPTION.toDerivative(SETTLE_DATE.minusDays(100), ArrayUtils.EMPTY_STRING_ARRAY));
-    ALL_DERIVATIVES.add(EQUITY_OPTION.toDerivative(SETTLE_DATE.minusDays(100), ArrayUtils.EMPTY_STRING_ARRAY));
-    ALL_DERIVATIVES.add(EQUITY_VARIANCE_SWAP.toDerivative(SETTLE_DATE.minusDays(100), ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES, ArrayUtils.EMPTY_STRING_ARRAY));
+    ALL_DERIVATIVES.add(INDEX_FUTURE.toDerivative(SETTLE_DATE.plusDays(1)));
+    ALL_DERIVATIVES.add(EQUITY_INDEX_DIVIDEND_FUTURE.toDerivative(SETTLE_DATE.plusDays(1)));
+    ALL_DERIVATIVES.add(EQUITY_INDEX_OPTION.toDerivative(SETTLE_DATE.minusDays(100)));
+    ALL_DERIVATIVES.add(EQUITY_INDEX_FUTURE_OPTION.toDerivative(SETTLE_DATE.minusDays(100)));
+    ALL_DERIVATIVES.add(EQUITY_OPTION.toDerivative(SETTLE_DATE.minusDays(100)));
+    ALL_DERIVATIVES.add(EQUITY_VARIANCE_SWAP.toDerivative(SETTLE_DATE.minusDays(100), ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES));
     ALL_DERIVATIVES.add(FF_SECURITY.toDerivative(FF_SECURITY.getFixingPeriodDate()[0]));
     ALL_DERIVATIVES.add(FF_TRANSACTION.toDerivative(FF_TRANSACTION.getTradeDate(), new DoubleTimeSeries[] {ts, ts }));
     ALL_DERIVATIVES.add(FRA.toDerivative(FRA.getAccrualStartDate(), ts));
@@ -433,10 +432,10 @@ public class TestInstrumentDefinitionsAndDerivatives {
     ALL_DERIVATIVES.add(FX_SWAP.toDerivative(FX_SWAP.getNearLeg().getExchangeDate().minusDays(1)));
     ALL_DERIVATIVES.add(FX_VANILLA_OPTION.toDerivative(FX_VANILLA_OPTION.getExpirationDate().minusDays(1)));
     ALL_DERIVATIVES.add(GENERAL_ANNUITY.toDerivative(GENERAL_ANNUITY.getPayments()[0].getPaymentDate(), ts));
-    ALL_DERIVATIVES.add(INFLATION_INTERPOLATED_COUPON.toDerivative(INFLATION_INTERPOLATED_COUPON.getAccrualStartDate()));
-    ALL_DERIVATIVES.add(INFLATION_INTERPOLATED_GEARING_COUPON.toDerivative(INFLATION_INTERPOLATED_GEARING_COUPON.getAccrualStartDate()));
-    ALL_DERIVATIVES.add(INFLATION_ZERO_COUPON.toDerivative(INFLATION_ZERO_COUPON.getAccrualStartDate().minusDays(3)));
-    ALL_DERIVATIVES.add(INFLATION_ZERO_GEARING_COUPON.toDerivative(INFLATION_ZERO_GEARING_COUPON.getAccrualStartDate().minusDays(3)));
+    ALL_DERIVATIVES.add(INFLATION_INTERPOLATED_COUPON.toDerivative(INFLATION_INTERPOLATED_COUPON.getAccrualStartDate(), ts));
+    ALL_DERIVATIVES.add(INFLATION_INTERPOLATED_GEARING_COUPON.toDerivative(INFLATION_INTERPOLATED_GEARING_COUPON.getAccrualStartDate(), ts));
+    ALL_DERIVATIVES.add(INFLATION_ZERO_COUPON.toDerivative(INFLATION_ZERO_COUPON.getAccrualStartDate().minusDays(3), ts));
+    ALL_DERIVATIVES.add(INFLATION_ZERO_GEARING_COUPON.toDerivative(INFLATION_ZERO_GEARING_COUPON.getAccrualStartDate().minusDays(3), ts));
     ALL_DERIVATIVES.add(IR_FUT_OPT_MARGIN_SEC_DEF.toDerivative(IR_FUT_OPT_MARGIN_SEC_DEF.getExpirationDate().minusDays(1)));
     ALL_DERIVATIVES.add(IR_FUT_OPT_MARGIN_T_DEF.toDerivative(IR_FUT_OPT_MARGIN_T_DEF.getTradeDate(), 0.99));
     ALL_DERIVATIVES.add(IR_FUT_OPT_PREMIUM_SEC_DEF.toDerivative(IR_FUT_OPT_PREMIUM_SEC_DEF.getExpirationDate().minusDays(1)));

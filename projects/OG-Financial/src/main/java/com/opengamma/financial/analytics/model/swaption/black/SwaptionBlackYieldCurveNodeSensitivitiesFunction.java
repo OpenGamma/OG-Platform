@@ -51,7 +51,7 @@ import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
-import com.opengamma.financial.analytics.model.black.BlackDiscountingYCNSFunction;
+import com.opengamma.financial.analytics.model.black.BlackDiscountingYCNSSwaptionFunction;
 import com.opengamma.financial.analytics.model.curve.interestrate.FXImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults;
 import com.opengamma.financial.analytics.model.swaption.SwaptionUtils;
@@ -62,7 +62,8 @@ import com.opengamma.util.money.Currency;
 
 /**
  * Calculates yield curve node sensitivities for swaptions using the Black method
- * @deprecated Use {@link BlackDiscountingYCNSFunction}
+ * 
+ * @deprecated Use {@link BlackDiscountingYCNSSwaptionFunction}
  */
 @Deprecated
 public class SwaptionBlackYieldCurveNodeSensitivitiesFunction extends SwaptionBlackCurveSpecificFunction {

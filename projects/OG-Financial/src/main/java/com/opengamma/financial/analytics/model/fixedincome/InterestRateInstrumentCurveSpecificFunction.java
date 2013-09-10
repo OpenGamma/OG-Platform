@@ -66,6 +66,7 @@ import com.opengamma.util.money.Currency;
 
 /**
  * Base function for calculating curve-specific risk factors for interest-rate instruments without optionality.
+ * 
  * @deprecated Use descendants of {@link MultiCurvePricingFunction}
  */
 @Deprecated
@@ -100,6 +101,7 @@ public abstract class InterestRateInstrumentCurveSpecificFunction extends Abstra
         .swapSecurityVisitor(swapConverter).interestRateFutureSecurityVisitor(irFutureConverter).bondSecurityVisitor(bondConverter)
         .bondFutureSecurityVisitor(bondFutureConverter).create();
     _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
+    ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
   }
 
   @Override

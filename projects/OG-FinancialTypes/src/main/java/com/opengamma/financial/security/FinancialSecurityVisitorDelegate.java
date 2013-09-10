@@ -38,6 +38,7 @@ import com.opengamma.financial.security.future.EnergyFutureSecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
 import com.opengamma.financial.security.future.FXFutureSecurity;
+import com.opengamma.financial.security.future.FederalFundsFutureSecurity;
 import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
@@ -298,6 +299,11 @@ public class FinancialSecurityVisitorDelegate<T> implements FinancialSecurityVis
     return _delegate.visitStockFutureSecurity(security);
   }
 
+  @Override
+  public T visitFederalFundsFutureSecurity(FederalFundsFutureSecurity security) {
+    return _delegate.visitFederalFundsFutureSecurity(security);
+  }
+  
   @Override
   public T visitAgricultureForwardSecurity(final AgricultureForwardSecurity security) {
     return _delegate.visitAgricultureForwardSecurity(security);

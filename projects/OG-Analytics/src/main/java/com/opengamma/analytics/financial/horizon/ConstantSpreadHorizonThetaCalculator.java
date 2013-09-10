@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.horizon;
@@ -40,12 +40,14 @@ import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
- *  Computes the difference in present value between one day and the next, without Volatility or Rate slide. 
- * That is, the market moves in such a way that the discount rates or implied volatility requested 
+ *  Computes the difference in present value between one day and the next, without Volatility or Rate slide.
+ * That is, the market moves in such a way that the discount rates or implied volatility requested
  * for the same maturity DATE will be equal on both dates. <p>
- * 
+ *
  * Note that the time to maturity will differ by the daysForward provided in the constructor // TODO Rethink daysForward as it is only safely handles 1/-1.
+ * @deprecated This class tests deprecated functionality
  */
+@Deprecated
 public final class ConstantSpreadHorizonThetaCalculator {
   private static final ConstantSpreadYieldCurveBundleRolldownFunction CURVE_ROLLDOWN = ConstantSpreadYieldCurveBundleRolldownFunction.getInstance();
   private static final ConstantSpreadSwaptionBlackRolldown SWAPTION_ROLLDOWN = ConstantSpreadSwaptionBlackRolldown.getInstance();
@@ -269,7 +271,7 @@ public final class ConstantSpreadHorizonThetaCalculator {
         laggedFixingSeries[i] = ImmutableZonedDateTimeDoubleTimeSeries.ofEmpty(tomorrow.getZone());
       } else {
         final ZonedDateTimeDoubleTimeSeries ts = fixingSeries[i].subSeries(fixingSeries[i].getEarliestTime(), tomorrow);
-        ZonedDateTimeDoubleTimeSeriesBuilder bld = ts.toBuilder();
+        final ZonedDateTimeDoubleTimeSeriesBuilder bld = ts.toBuilder();
         bld.put(tomorrow, ts.getLatestValue());
         laggedFixingSeries[i] = bld.build();
       }

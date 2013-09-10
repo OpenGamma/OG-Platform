@@ -1,11 +1,10 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.equity.variance;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
@@ -19,14 +18,12 @@ import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSerie
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ *
  */
 public class VarianceSwapDefinitionTest {
 
   private static final ZonedDateTime now = ZonedDateTime.now();
   private static final ZonedDateTime tPlus2 = now.plusDays(2);
-  @SuppressWarnings("unused")
-  private static final ZonedDateTime plus1y = now.plusYears(1);
   private static final ZonedDateTime plus5y = now.plusYears(5);
   private static final PeriodFrequency obsFreq = PeriodFrequency.DAILY;
   private static final Currency ccy = Currency.EUR;
@@ -42,7 +39,7 @@ public class VarianceSwapDefinitionTest {
     // Construct a forward starting swap, Definition
     final VarianceSwapDefinition varSwapDefn = new VarianceSwapDefinition(tPlus2, plus5y, plus5y, obsFreq, ccy, WEEKENDCAL, obsPerYear, volStrike, volNotional);
     // Construct a forward starting swap, Derivative
-    varSwapDefn.toDerivative(now, emptyTimeSeries, ArrayUtils.EMPTY_STRING_ARRAY);
+    varSwapDefn.toDerivative(now, emptyTimeSeries);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

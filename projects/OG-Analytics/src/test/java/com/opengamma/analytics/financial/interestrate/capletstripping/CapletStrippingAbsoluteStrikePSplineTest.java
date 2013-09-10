@@ -10,8 +10,9 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 /**
- *
+ * @deprecated This class tests deprecated functionality
  */
+@Deprecated
 public class CapletStrippingAbsoluteStrikePSplineTest extends CapletStrippingAbsoluteStrikeTest {
 
   @Override

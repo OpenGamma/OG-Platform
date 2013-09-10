@@ -414,20 +414,12 @@ public class CreditFunctions extends AbstractFunctionConfigurationBean {
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
     functions.add(functionConfiguration(ISDACreditSpreadCurveFunction.class));
     functions.add(functionConfiguration(ISDACreditSpreadCurveShiftFunction.class));
-    functions.add(functionConfiguration(ISDALegacyVanillaCDSCleanPriceFunction.class));
-    functions.add(functionConfiguration(ISDALegacyVanillaCDSDirtyPriceFunction.class));
     functions.add(functionConfiguration(ISDAYieldCurveFunction.class));
     functions.add(functionConfiguration(ISDACDSHazardRateCurveFunction.class));
     functions.add(functionConfiguration(ISDACDSOptionHazardRateCurveFunction.class));
     functions.add(functionConfiguration(ISDACDXAsSingleNameHazardRateCurveFunction.class));
     functions.add(functionConfiguration(BucketedSpreadCurveFunction.class));
     functions.add(functionConfiguration(ISDACompliantCreditCurveFunction.class));
-    functions.add(functionConfiguration(ISDAParallelCS01VanillaCDSFunction.class));
-    functions.add(functionConfiguration(ISDABucketedCS01VanillaCDSFunction.class));
-    functions.add(functionConfiguration(ISDACleanPresentValueVanillaCDSFunction.class));
-    functions.add(functionConfiguration(ISDADirtyPresentValueVanillaCDSFunction.class));
-    functions.add(functionConfiguration(ISDAPointsUpfrontVanillaCDSFunction.class));
-    functions.add(functionConfiguration(ISDAUpfrontAmountVanillaCDSFunction.class));
     functions.add(functionConfiguration(StandardVanillaParallelCS01CDSFunction.class));
     functions.add(functionConfiguration(StandardVanillaBucketedCS01CDSFunction.class));
     functions.add(functionConfiguration(StandardVanillaParallelGammaCS01CDSFunction.class));

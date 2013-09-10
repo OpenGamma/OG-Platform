@@ -14,6 +14,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.DiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.PriceIndexCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountAddZeroSpreadCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
@@ -65,4 +66,10 @@ public class ModelInterestRateCurveTest extends AnalyticsTestBase {
     assertEquals(curve, cycleObject(PriceIndexCurve.class, curve));
   }
 
+  @Test
+  public void testYieldAndDiscountAddZeroSpreadCurve() {
+    YieldAndDiscountAddZeroSpreadCurve curve =
+        new YieldAndDiscountAddZeroSpreadCurve("name", false, YieldCurve.from(ConstantDoublesCurve.from(0.1)));
+    assertEquals(curve, cycleObject(YieldAndDiscountAddZeroSpreadCurve.class, curve));
+  }
 }

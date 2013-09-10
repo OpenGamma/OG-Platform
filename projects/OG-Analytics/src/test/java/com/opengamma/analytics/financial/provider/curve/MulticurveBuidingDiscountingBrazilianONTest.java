@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.curve;
@@ -51,7 +51,7 @@ import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ *  this example provide an example of curve construction using Brazilian swap.
  */
 public class MulticurveBuidingDiscountingBrazilianONTest {
 
@@ -129,6 +129,7 @@ public class MulticurveBuidingDiscountingBrazilianONTest {
     FWD_ON_MAP.put(CURVE_NAME_DSC_BRL, new IndexON[] {INDEX_ON_BRL });
   }
 
+  @SuppressWarnings({"rawtypes", "unchecked" })
   public static InstrumentDefinition<?>[] getDefinitions(final double[] marketQuotes, final GeneratorInstrument[] generators, final GeneratorAttribute[] attribute) {
     final InstrumentDefinition<?>[] definitions = new InstrumentDefinition<?>[marketQuotes.length];
     for (int loopmv = 0; loopmv < marketQuotes.length; loopmv++) {
@@ -218,7 +219,6 @@ public class MulticurveBuidingDiscountingBrazilianONTest {
         sensitivityCalculator);
   }
 
-  @SuppressWarnings("unchecked")
   private static InstrumentDerivative[][] convert(final InstrumentDefinition<?>[][] definitions, final int unit, final boolean withToday) {
     final InstrumentDerivative[][] instruments = new InstrumentDerivative[definitions.length][];
     for (int loopcurve = 0; loopcurve < definitions.length; loopcurve++) {
@@ -237,7 +237,6 @@ public class MulticurveBuidingDiscountingBrazilianONTest {
     return instruments;
   }
 
-  @SuppressWarnings("rawtypes")
   private static ZonedDateTimeDoubleTimeSeries[] getTSSwapFixedON(final Boolean withToday, final Integer unit) {
     switch (unit) {
       case 0:
@@ -249,14 +248,13 @@ public class MulticurveBuidingDiscountingBrazilianONTest {
 
   private static double[] initialGuess(final InstrumentDefinition<?>[] definitions) {
     final double[] result = new double[definitions.length];
-    int loopr = 0;
-    for (final InstrumentDefinition<?> definition : definitions) {
-      result[loopr++] = initialGuess(definition);
+    for (int i = 0; i < definitions.length; i++) {
+      result[i] = initialGuess();
     }
     return result;
   }
 
-  private static double initialGuess(final InstrumentDefinition<?> instrument) {
+  private static double initialGuess() {
     return 0.01;
   }
 }

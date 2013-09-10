@@ -126,14 +126,19 @@ public final class SwapLegBeanOperation {
 
       @Override
       public SwapLegBean visitFixedInflationSwapLeg(FixedInflationSwapLeg swapLeg) {
-        //TODO
-        throw new UnsupportedOperationException("Cannot handle fixed inflation swap legs");
+        SwapLegBean bean = createSwapLegBean(swapLeg);
+        bean.setRate(swapLeg.getRate());
+        return bean;
       }
 
       @Override
       public SwapLegBean visitInflationIndexSwapLeg(InflationIndexSwapLeg swapLeg) {
-        //TODO
-        throw new UnsupportedOperationException("Cannot handle inflation index swap legs");
+        SwapLegBean bean = createSwapLegBean(swapLeg);
+        bean.setRateIdentifier(externalIdToExternalIdBean(swapLeg.getIndexId()));
+        bean.setActualIndexationLag(swapLeg.getQuotationIndexationLag());
+        bean.setConventionalIndexationLag(swapLeg.getConventionalIndexationLag());
+        bean.setIndexInterpolationMethod(swapLeg.getInterpolationMethod());
+        return bean;
       }
     });
   }
@@ -232,12 +237,29 @@ public final class SwapLegBeanOperation {
 
       @Override
       public SwapLeg visitFixedInflationSwapLeg(FixedInflationSwapLeg swapLeg) {
-        return null;
+        return new FixedInflationSwapLeg(
+            dayCountBeanToDayCount(bean.getDayCount()),
+            frequencyBeanToFrequency(bean.getFrequency()),
+            externalIdBeanToExternalId(bean.getRegion()),
+            businessDayConventionBeanToBusinessDayConvention(bean.getBusinessDayConvention()),
+            NotionalBeanOperation.createNotional(bean.getNotional()),
+            bean.isEom(),
+            bean.getRate());
       }
 
       @Override
       public SwapLeg visitInflationIndexSwapLeg(InflationIndexSwapLeg swapLeg) {
-        return null;
+        return new InflationIndexSwapLeg(
+            dayCountBeanToDayCount(bean.getDayCount()),
+            frequencyBeanToFrequency(bean.getFrequency()),
+            externalIdBeanToExternalId(bean.getRegion()),
+            businessDayConventionBeanToBusinessDayConvention(bean.getBusinessDayConvention()),
+            NotionalBeanOperation.createNotional(bean.getNotional()),
+            bean.isEom(),
+            externalIdBeanToExternalId(bean.getRateIdentifier()),
+            bean.getActualIndexationLag(),
+            bean.getConventionalIndexationLag(),
+            bean.getIndexInterpolationMethod());
       }
     });
   }

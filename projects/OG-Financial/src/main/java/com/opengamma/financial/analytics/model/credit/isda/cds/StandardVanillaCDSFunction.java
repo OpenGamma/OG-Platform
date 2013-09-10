@@ -19,8 +19,11 @@ import org.threeten.bp.ZonedDateTime;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.StandardCDSCoupon;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSAnalytic;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSAnalyticFactory;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantCreditCurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantYieldCurve;
 import com.opengamma.analytics.math.curve.NodalObjectsCurve;
@@ -92,9 +95,9 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
     final CdsRecoveryRateIdentifier recoveryRateIdentifier = security.accept(new CreditSecurityToRecoveryRateVisitor(securitySource));
     Object recoveryRateObject = inputs.getValue(new ValueRequirement("PX_LAST", ComputationTargetType.PRIMITIVE, recoveryRateIdentifier.getExternalId()));
     if (recoveryRateObject == null) {
-      //throw new OpenGammaRuntimeException("Could not get recovery rate");
-      s_logger.warn("Could not get recovery rate, defaulting to 0.4: " + recoveryRateIdentifier);
-      recoveryRateObject = 0.4;
+      throw new OpenGammaRuntimeException("Could not get recovery rate");
+      //s_logger.warn("Could not get recovery rate, defaulting to 0.4: " + recoveryRateIdentifier);
+      //recoveryRateObject = 0.4;
     }
     final double recoveryRate = (Double) recoveryRateObject;
     LegacyVanillaCreditDefaultSwapDefinition definition = (LegacyVanillaCreditDefaultSwapDefinition) security.accept(converter);
@@ -121,10 +124,15 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
       marketSpreads[i] = marketSpreadObjects[i] * 1e-4;
     }
     ISDACompliantCreditCurve hazardCurve = (ISDACompliantCreditCurve) inputs.getValue(ValueRequirementNames.HAZARD_RATE_CURVE);
+    final CDSAnalyticFactory analyticFactory = new CDSAnalyticFactory(0, definition.getCouponFrequency().getPeriod())
+        .with(definition.getBusinessDayAdjustmentConvention())
+        .with(definition.getCalendar()).with(definition.getStubType())
+        .withAccualDCC(definition.getDayCountFractionConvention());
+    final CDSAnalytic pricingCDS = analyticFactory.makeCDS(definition.getStartDate().toLocalDate(), definition.getEffectiveDate().toLocalDate(), definition.getMaturityDate().toLocalDate());
     final ValueProperties properties = desiredValues.iterator().next().getConstraints().copy()
         .with(ValuePropertyNames.FUNCTION, getUniqueId())
         .get();
-    return getComputedValue(definition, yieldCurve, times, marketSpreads, valuationTime, target, properties, inputs, hazardCurve);
+    return getComputedValue(definition, yieldCurve, times, marketSpreads, valuationTime, target, properties, inputs, hazardCurve, pricingCDS);
   }
 
   @Override
@@ -233,7 +241,7 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
                                                          ComputationTarget target,
                                                          ValueProperties properties,
                                                          FunctionInputs inputs,
-                                                         ISDACompliantCreditCurve hazardCurve);
+                                                         ISDACompliantCreditCurve hazardCurve, CDSAnalytic analytic);
 
   protected abstract ValueProperties.Builder getCommonResultProperties();
 
@@ -249,4 +257,24 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
     return true;
   }
 
+  protected static double getCoupon(final StandardCDSCoupon coupon) {
+    switch (coupon) {
+      case _25bps:
+        return 0.0025;
+      case _100bps:
+        return 0.01;
+      case _125bps:
+        return 0.025;
+      case _300bps:
+        return 0.03;
+      case _500bps:
+        return 0.05;
+      case _750bps:
+        return 0.07;
+      case _1000bps:
+        return 0.1;
+      default:
+        throw new OpenGammaRuntimeException("Unknown coupon amount: " + coupon.name());
+    }
+  }
 }

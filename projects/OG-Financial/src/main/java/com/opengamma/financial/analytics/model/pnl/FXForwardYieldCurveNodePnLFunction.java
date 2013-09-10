@@ -49,6 +49,11 @@ import com.opengamma.util.money.UnorderedCurrencyPair;
 public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction.NonCompiledInvoker {
 
   @Override
+  public void init(final FunctionCompilationContext context) {
+    ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
+  }
+
+  @Override
   public ComputationTargetType getTargetType() {
     return ComputationTargetType.POSITION;
   }

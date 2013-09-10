@@ -164,7 +164,7 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
       _curveRequirement = curveRequirement;
       _exogenousRequirements = exogenousRequirements;
       _results = new HashSet<>();
-      final ValueProperties properties = getBundleProperties();
+      final ValueProperties properties = getBundleProperties(_curveNames);
       for (final String curveName : _curveNames) {
         final ValueProperties curveProperties = getCurveProperties(curveName);
         _results.add(new ValueSpecification(curveRequirement, ComputationTargetSpecification.NULL, curveProperties));
@@ -377,9 +377,10 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
 
     /**
      * Gets the result properties for a curve bundle
+     * @param curveNames All of the curves produced by this function
      * @return The result properties
      */
-    protected ValueProperties getBundleProperties() {
+    protected ValueProperties getBundleProperties(final String[] curveNames) {
       return createValueProperties()
           .with(CURVE_CALCULATION_METHOD, ROOT_FINDING)
           .with(PROPERTY_CURVE_TYPE, getCurveTypeProperty())
@@ -387,6 +388,7 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
           .withAny(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE)
           .withAny(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE)
           .withAny(PROPERTY_ROOT_FINDER_MAX_ITERATIONS)
+          .with(CURVE, curveNames)
           .get();
     }
 

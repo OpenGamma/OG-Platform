@@ -48,37 +48,41 @@ public class StandardVanillaParallelCS01CDSFunction extends StandardVanillaCS01C
                                                 final ComputationTarget target,
                                                 final ValueProperties properties,
                                                 final FunctionInputs inputs,
-                                                ISDACompliantCreditCurve hazardCurve) {
-    final CDSAnalyticFactory analyticFactory = new CDSAnalyticFactory(definition.getRecoveryRate(), definition.getCouponFrequency().getPeriod())
-        .with(definition.getBusinessDayAdjustmentConvention())
-        .with(definition.getCalendar()).with(definition.getStubType())
-        .withAccualDCC(definition.getDayCountFractionConvention());
-    final CDSAnalytic pricingCDS = analyticFactory.makeCDS(definition.getStartDate().toLocalDate(), definition.getEffectiveDate().toLocalDate(), definition.getMaturityDate().toLocalDate());
+                                                ISDACompliantCreditCurve hazardCurve, CDSAnalytic analytic) {
+    double cs01 = parallelCS01(definition, yieldCurve, times, marketSpreads, analytic, 1e-4);
 
-    Period[] tenors = new Period[times.length];
-    for (int i = 0; i < times.length; i++) {
-      tenors[i] = Period.between(definition.getStartDate().toLocalDate(), times[i].toLocalDate()).withDays(0);
-    }
-    CDSAnalytic[] pillars = analyticFactory.makeIMMCDS(definition.getStartDate().toLocalDate(), tenors);
+    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.CS01, target.toSpecification(), properties);
+    return Collections.singleton(new ComputedValue(spec, cs01));
+  }
 
+  public static double parallelCS01(CreditDefaultSwapDefinition definition,
+                             ISDACompliantYieldCurve yieldCurve,
+                             ZonedDateTime[] times, double[] marketSpreads, CDSAnalytic analytic, double fracBump) {
     double cs01;
     if (definition instanceof StandardCreditDefaultSwapDefinition) {
       StandardCreditDefaultSwapDefinition cds = (StandardCreditDefaultSwapDefinition) definition;
-      cs01 = CALCULATOR.parallelCS01(pricingCDS, new QuotedSpread(cds.getQuotedSpread() * 1e-4, 0.01), yieldCurve, 1e-4);
+      cs01 = CALCULATOR.parallelCS01(analytic, new QuotedSpread(cds.getQuotedSpread() * 1e-4, getCoupon(cds.getPremiumLegCoupon())), yieldCurve, fracBump);
     } else if (definition instanceof LegacyCreditDefaultSwapDefinition) {
-      cs01 = CALCULATOR.parallelCS01FromParSpreads(pricingCDS,
+      final CDSAnalyticFactory analyticFactory = new CDSAnalyticFactory(definition.getRecoveryRate(), definition.getCouponFrequency().getPeriod())
+          .with(definition.getBusinessDayAdjustmentConvention())
+          .with(definition.getCalendar()).with(definition.getStubType())
+          .withAccualDCC(definition.getDayCountFractionConvention());
+      Period[] tenors = new Period[times.length];
+      for (int i = 0; i < times.length; i++) {
+        tenors[i] = Period.between(definition.getStartDate().toLocalDate(), times[i].toLocalDate()).withDays(0);
+      }
+      CDSAnalytic[] pillars = analyticFactory.makeIMMCDS(definition.getStartDate().toLocalDate(), tenors);
+      cs01 = CALCULATOR.parallelCS01FromParSpreads(analytic,
                                                    ((LegacyCreditDefaultSwapDefinition) definition).getParSpread() * 1e-4,
                                                    yieldCurve,
                                                    pillars,
                                                    marketSpreads,
-                                                   1e-4,
+                                                   fracBump,
                                                    BumpType.ADDITIVE);
     } else {
       throw new OpenGammaRuntimeException("Unexpected cds type: " + definition.getClass().getSimpleName());
     }
-
-    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.CS01, target.toSpecification(), properties);
-    return Collections.singleton(new ComputedValue(spec, cs01));
+    return cs01 * definition.getNotional() * 1e-4;
   }
 
 }

@@ -23,6 +23,7 @@ import com.opengamma.util.ArgumentChecker;
  * A wrapper class for a AnnuityDefinition containing mainly CouponIborRatchetDefinition. The first coupon should be a CouponFixed or a CouponIborGearing.
  * The other coupons should be CouponFixed or a CouponIborRatchet.
  */
+@SuppressWarnings("deprecation")
 public class AnnuityCouponIborRatchet extends Annuity<Coupon> {
 
   /**
@@ -68,6 +69,7 @@ public class AnnuityCouponIborRatchet extends Annuity<Coupon> {
    * @return A list of coupons that are used in calibration
    * @deprecated {@link YieldCurveBundle} is deprecated
    */
+  //REVIEW emcleod This method does not belong in this class
   @Deprecated
   public InstrumentDerivative[] calibrationBasket(final RatchetIborCalibrationType type, final YieldCurveBundle curves) {
     final ArrayList<InstrumentDerivative> calibration = new ArrayList<>();

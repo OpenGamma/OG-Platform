@@ -49,6 +49,7 @@ public class PaymentFixed extends Payment {
    * @param paymentAmount The amount.
    * @return The fixed payment.
    */
+  @SuppressWarnings("deprecation")
   public PaymentFixed withAmount(final double paymentAmount) {
     try {
       return new PaymentFixed(getCurrency(), getPaymentTime(), paymentAmount, getFundingCurveName());

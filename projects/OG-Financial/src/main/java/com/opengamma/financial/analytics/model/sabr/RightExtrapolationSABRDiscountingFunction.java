@@ -57,8 +57,8 @@ public abstract class RightExtrapolationSABRDiscountingFunction extends SABRDisc
     }
 
     @Override
-    protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
-      final ValueProperties.Builder properties = super.getResultProperties(target)
+    protected ValueProperties.Builder getResultProperties(final FunctionCompilationContext context, final ComputationTarget target) {
+      final ValueProperties.Builder properties = super.getResultProperties(context, target)
           .withAny(PROPERTY_STRIKE_CUTOFF)
           .withAny(PROPERTY_MU);
       return properties;

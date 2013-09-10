@@ -5,6 +5,8 @@
  */
 package com.opengamma.web.analytics.formatting;
 
+import static com.opengamma.web.analytics.formatting.ResultsFormatter.CurrencyDisplay.DISPLAY_CURRENCY;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +21,21 @@ import com.opengamma.web.analytics.ValueTypes;
  */
 @SuppressWarnings("rawtypes")
 public class ResultsFormatter {
+
+  /**
+   * Enum indicating whether the currency code should be included in the output
+   * when values are formatted.
+   */
+  public enum CurrencyDisplay {
+    /**
+     * Include the currency code in formatted outputs (if one is available).
+     */
+    DISPLAY_CURRENCY,
+    /**
+     * Do not include the currency code in formatted outputs.
+     */
+    SUPPRESS_CURRENCY
+  }
 
   /**
    * Marker value returned to indicate there is no formatted value available for a combination of value, formatter
@@ -49,9 +66,13 @@ public class ResultsFormatter {
   private final UnknownTypeFormatter _unknownTypeFormatter = new UnknownTypeFormatter();
 
   public ResultsFormatter() {
-    BigDecimalFormatter bigDecimalFormatter = new BigDecimalFormatter();
+    this(DISPLAY_CURRENCY);
+  }
+
+  public ResultsFormatter(CurrencyDisplay currencyDisplay) {
+    BigDecimalFormatter bigDecimalFormatter = new BigDecimalFormatter(currencyDisplay);
     DoubleFormatter doubleFormatter = new DoubleFormatter(bigDecimalFormatter);
-    CurrencyAmountFormatter currencyAmountFormatter = new CurrencyAmountFormatter(bigDecimalFormatter);
+    CurrencyAmountFormatter currencyAmountFormatter = new CurrencyAmountFormatter(currencyDisplay, bigDecimalFormatter);
     ZonedDateTimeFormatter zonedDateTimeFormatter = new ZonedDateTimeFormatter();
     LocalDateDoubleTimeSeriesFormatter localDateDoubleTimeSeriesFormatter = new LocalDateDoubleTimeSeriesFormatter();
     addFormatters(doubleFormatter,
@@ -63,6 +84,7 @@ public class ResultsFormatter {
                   new PriceIndexCurveFormatter(),
                   new ISDADateCurveFormatter(),
                   new ISDACompliantYieldCurveFormatter(),
+                  new ISDACompliantCurveFormatter(),
                   new HazardRateCurveFormatter(),
                   new NodalObjectsCurveFormatter(), //TODO is not a general formatter - used only for (Tenor, Double) curves
                   new VolatilityCubeDataFormatter(),
@@ -173,7 +195,7 @@ public class ResultsFormatter {
     TypeFormatter formatter = getFormatter(value, valueSpec);
     return formatter.format(value, valueSpec, format, inlineKey);
   }
-  
+
   /**
    * Returns the format type for a value type.
    * @param type The value type

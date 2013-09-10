@@ -14,7 +14,6 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -34,10 +33,7 @@ public class GeneratorSwapFixedInflationYearOnYear extends GeneratorInstrument<G
    * The Price index.
    */
   private final IndexPrice _indexPrice;
-  /**
-   * The time series with the relevant price index values.
-   */
-  private final DoubleTimeSeries<ZonedDateTime> _priceIndexTimeSeries;
+
   /**
    * The business day convention associated to fix leg.
    */
@@ -73,7 +69,6 @@ public class GeneratorSwapFixedInflationYearOnYear extends GeneratorInstrument<G
    * @param fixedLegPeriod The fixed leg payment period.
    * @param fixedLegDayCount The day count convention associated to the fixed leg.
    * @param indexPrice The Price index..
-   * @param priceIndexTimeSeries price index time series.
    * @param businessDayConvention The business day convention associated to fix leg.
    * @param calendar  The calendar used to compute the payment date.
    * @param endOfMonth The end-of-month flag.
@@ -83,8 +78,8 @@ public class GeneratorSwapFixedInflationYearOnYear extends GeneratorInstrument<G
    * @param isLinear The flag indicating if price index is interpolated linearly (TRUE) or piecewise constant (FALSE).
    */
   public GeneratorSwapFixedInflationYearOnYear(final String name, final Period fixedLegPeriod, final DayCount fixedLegDayCount, final IndexPrice indexPrice,
-      final DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries, final BusinessDayConvention businessDayConvention, final Calendar calendar,
-      final boolean endOfMonth, final int monthLag, final int spotLag, final boolean payNotional, final boolean isLinear) {
+      final BusinessDayConvention businessDayConvention, final Calendar calendar, final boolean endOfMonth,
+      final int monthLag, final int spotLag, final boolean payNotional, final boolean isLinear) {
     super(name);
     ArgumentChecker.notNull(fixedLegPeriod, "fixed leg period");
     ArgumentChecker.notNull(fixedLegDayCount, "fixed leg day count");
@@ -94,7 +89,6 @@ public class GeneratorSwapFixedInflationYearOnYear extends GeneratorInstrument<G
     _fixedLegPeriod = fixedLegPeriod;
     _fixedLegDayCount = fixedLegDayCount;
     _indexPrice = indexPrice;
-    _priceIndexTimeSeries = priceIndexTimeSeries;
     _businessDayConvention = businessDayConvention;
     _calendar = calendar;
     _endOfMonth = endOfMonth;
@@ -126,14 +120,6 @@ public class GeneratorSwapFixedInflationYearOnYear extends GeneratorInstrument<G
    */
   public IndexPrice getIndexPrice() {
     return _indexPrice;
-  }
-
-  /**
-   * Gets the priceIndexTimeSeries.
-   * @return the priceIndexTimeSeries
-   */
-  public DoubleTimeSeries<ZonedDateTime> getPriceIndexTimeSeries() {
-    return _priceIndexTimeSeries;
   }
 
   /**
@@ -226,7 +212,6 @@ public class GeneratorSwapFixedInflationYearOnYear extends GeneratorInstrument<G
     result = prime * result + (_isLinear ? 1231 : 1237);
     result = prime * result + (_payNotional ? 1231 : 1237);
     result = prime * result + _monthLag;
-    result = prime * result + ((_priceIndexTimeSeries == null) ? 0 : _priceIndexTimeSeries.hashCode());
     result = prime * result + _spotLag;
     return result;
   }
@@ -280,13 +265,6 @@ public class GeneratorSwapFixedInflationYearOnYear extends GeneratorInstrument<G
       return false;
     }
     if (_monthLag != other._monthLag) {
-      return false;
-    }
-    if (_priceIndexTimeSeries == null) {
-      if (other._priceIndexTimeSeries != null) {
-        return false;
-      }
-    } else if (!_priceIndexTimeSeries.equals(other._priceIndexTimeSeries)) {
       return false;
     }
     if (_spotLag != other._spotLag) {

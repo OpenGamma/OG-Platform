@@ -282,4 +282,8 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
     defaults.setReceiveCurveName("SECONDARY");
   }
 
+  @Override
+  protected FunctionConfigurationSource createObject() {
+    return CombiningFunctionConfigurationSource.of(super.createObject(), curveFunctions());
+  }
 }

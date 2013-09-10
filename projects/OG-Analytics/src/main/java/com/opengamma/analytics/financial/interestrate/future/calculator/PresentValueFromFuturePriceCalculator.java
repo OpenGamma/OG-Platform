@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.calculator;
@@ -8,6 +8,7 @@ package com.opengamma.analytics.financial.interestrate.future.calculator;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
+import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFuture;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.method.BondFutureDiscountingMethod;
@@ -15,7 +16,9 @@ import com.opengamma.analytics.financial.interestrate.future.method.InterestRate
 
 /**
  * Calculate present value for futures from the quoted price.
+ * @deprecated {@link YieldCurveBundle} is deprecated
  */
+@Deprecated
 public final class PresentValueFromFuturePriceCalculator extends InstrumentDerivativeVisitorAdapter<Double, Double> {
 
   /**

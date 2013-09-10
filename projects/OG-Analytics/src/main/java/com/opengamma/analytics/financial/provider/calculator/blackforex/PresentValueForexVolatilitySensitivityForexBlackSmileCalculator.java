@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.calculator.blackforex;
@@ -14,15 +14,14 @@ import com.opengamma.analytics.financial.forex.provider.ForexNonDeliverableOptio
 import com.opengamma.analytics.financial.forex.provider.ForexOptionDigitalBlackSmileMethod;
 import com.opengamma.analytics.financial.forex.provider.ForexOptionSingleBarrierBlackMethod;
 import com.opengamma.analytics.financial.forex.provider.ForexOptionVanillaBlackSmileMethod;
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorSameMethodAdapter;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.provider.description.forex.BlackForexSmileProviderInterface;
 
 /**
  * Calculates the present value of an inflation instruments by discounting for a given MarketBundle
  */
 public final class PresentValueForexVolatilitySensitivityForexBlackSmileCalculator extends
-    InstrumentDerivativeVisitorSameMethodAdapter<BlackForexSmileProviderInterface, PresentValueForexBlackVolatilitySensitivity> {
+    InstrumentDerivativeVisitorAdapter<BlackForexSmileProviderInterface, PresentValueForexBlackVolatilitySensitivity> {
 
   /**
    * The unique instance of the calculator.
@@ -52,13 +51,6 @@ public final class PresentValueForexVolatilitySensitivityForexBlackSmileCalculat
   private static final ForexOptionSingleBarrierBlackMethod METHOD_BARRIER = ForexOptionSingleBarrierBlackMethod.getInstance();
 
   @Override
-  public PresentValueForexBlackVolatilitySensitivity visit(final InstrumentDerivative derivative, final BlackForexSmileProviderInterface blackSmile) {
-    return derivative.accept(this, blackSmile);
-  }
-
-  // -----     Forex     ------
-
-  @Override
   public PresentValueForexBlackVolatilitySensitivity visitForexOptionVanilla(final ForexOptionVanilla option, final BlackForexSmileProviderInterface blackSmile) {
     return METHOD_FX_VAN.presentValueBlackVolatilitySensitivity(option, blackSmile);
   }
@@ -76,11 +68,6 @@ public final class PresentValueForexVolatilitySensitivityForexBlackSmileCalculat
   @Override
   public PresentValueForexBlackVolatilitySensitivity visitForexOptionSingleBarrier(final ForexOptionSingleBarrier option, final BlackForexSmileProviderInterface blackSmile) {
     return METHOD_BARRIER.presentValueBlackVolatilitySensitivity(option, blackSmile);
-  }
-
-  @Override
-  public PresentValueForexBlackVolatilitySensitivity visit(final InstrumentDerivative derivative) {
-    throw new UnsupportedOperationException();
   }
 
 }

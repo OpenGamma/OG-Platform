@@ -21,6 +21,7 @@ public class ISDAApproxCDSPricingMethodTest extends ISDAApproxCDSPricingMethodTe
   /**
    * Test against the same data as in the ISDA example (main.c)
    */
+  @SuppressWarnings("deprecation")
   @Test
   public void testISDAExampleMainC() {
 

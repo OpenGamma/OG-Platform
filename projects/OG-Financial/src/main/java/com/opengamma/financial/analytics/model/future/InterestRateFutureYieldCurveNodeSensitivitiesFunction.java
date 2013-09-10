@@ -66,6 +66,7 @@ import com.opengamma.util.money.Currency;
 
 /**
  * Calculates yield curve node sensitivities for interest rate future.
+ * 
  * @deprecated Use {@link FutureTradeDiscountingYCNSFunction}
  */
 @Deprecated
@@ -85,6 +86,7 @@ public class InterestRateFutureYieldCurveNodeSensitivitiesFunction extends Abstr
     final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
     _converter = new InterestRateFutureTradeConverter(new InterestRateFutureSecurityConverterDeprecated(holidaySource, conventionSource, regionSource));
     _dataConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
+    ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
   }
 
   @Override

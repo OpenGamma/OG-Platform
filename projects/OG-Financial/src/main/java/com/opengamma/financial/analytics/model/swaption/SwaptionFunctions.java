@@ -43,6 +43,12 @@ public class SwaptionFunctions extends AbstractFunctionConfigurationBean {
     return BlackFunctions.instance();
   }
 
+  /**
+   * Adds all swaption constant Black pricing functions.
+   * @return The configuration source populated with constant Black pricing functions
+   * @deprecated The functions that are added are deprecated
+   */
+  @Deprecated
   protected FunctionConfigurationSource basicBlackFunctionConfiguration() {
     return BasicBlackFunctions.instance();
   }

@@ -38,6 +38,7 @@ import com.opengamma.financial.security.future.EnergyFutureSecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
 import com.opengamma.financial.security.future.FXFutureSecurity;
+import com.opengamma.financial.security.future.FederalFundsFutureSecurity;
 import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
@@ -294,6 +295,11 @@ public class FinancialSecurityVisitorSameValueAdapter<T> implements FinancialSec
   }
 
   @Override
+  public T visitFederalFundsFutureSecurity(FederalFundsFutureSecurity security) {
+    return _value;
+  }
+
+  @Override
   public T visitAgricultureForwardSecurity(final AgricultureForwardSecurity security) {
     return _value;
   }
@@ -306,7 +312,7 @@ public class FinancialSecurityVisitorSameValueAdapter<T> implements FinancialSec
   @Override
   public T visitMetalForwardSecurity(final MetalForwardSecurity security) {
     return _value;
-  }
+  }  
 
   @Override
   public T visitCDSSecurity(final CDSSecurity security) {

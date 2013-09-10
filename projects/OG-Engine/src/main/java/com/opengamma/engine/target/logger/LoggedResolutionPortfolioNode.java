@@ -39,7 +39,7 @@ public class LoggedResolutionPortfolioNode extends AbstractLoggedResolution<Port
     final List<PortfolioNode> childNodes = getUnderlying().getChildNodes();
     final List<PortfolioNode> result = new ArrayList<PortfolioNode>(childNodes.size());
     for (PortfolioNode childNode : childNodes) {
-      log(ComputationTargetType.PORTFOLIO_NODE, childNode);
+      //log(ComputationTargetType.PORTFOLIO_NODE, childNode); // [PLAT-4491] Nodes are linked by UID not OID
       result.add(new LoggedResolutionPortfolioNode(childNode, getLogger()));
     }
     return result;

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.provider;
@@ -55,8 +55,7 @@ public class CouponONCompoundedDiscountingMethodTest {
       GENERATOR_SWAP_EONIA.isEndOfMonth(), CALENDAR);
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 12, 27);
-  private static final String[] NOT_USED = new String[] {"Not used 1", "not used 2" };
-  private static final CouponONCompounded CPN_ON_COMPOUNDED = CPN_ON_COMPOUNDED_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED);
+  private static final CouponONCompounded CPN_ON_COMPOUNDED = CPN_ON_COMPOUNDED_DEFINITION.toDerivative(REFERENCE_DATE);
 
   private static final CouponONCompoundedDiscountingMethod METHOD_CPN_OIS = CouponONCompoundedDiscountingMethod.getInstance();
   private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
@@ -91,7 +90,7 @@ public class CouponONCompoundedDiscountingMethodTest {
     final ZonedDateTimeDoubleTimeSeries TS_ON = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 5, 20), DateUtils.getUTCDate(2011, 5, 23) }, new double[] {
       0.0010, fixing });
     final ZonedDateTime referenceDate = ScheduleCalculator.getAdjustedDate(EFFECTIVE_DATE, 1, TARGET);
-    final CouponONCompounded cpnONCompoundedStarted = (CouponONCompounded) CPN_ON_COMPOUNDED_DEFINITION.toDerivative(referenceDate, TS_ON, NOT_USED);
+    final CouponONCompounded cpnONCompoundedStarted = (CouponONCompounded) CPN_ON_COMPOUNDED_DEFINITION.toDerivative(referenceDate, TS_ON);
     final double notionalAccrued = NOTIONAL * Math.pow(1 + fixing, CPN_ON_COMPOUNDED_DEFINITION.getFixingPeriodAccrualFactors()[0]);
     assertEquals("CouponONCompoundedDiscountingMethod: present value", notionalAccrued, cpnONCompoundedStarted.getNotionalAccrued(), TOLERANCE_PV);
     final MultipleCurrencyAmount pvComputed = METHOD_CPN_OIS.presentValue(cpnONCompoundedStarted, MULTICURVES);

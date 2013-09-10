@@ -21,7 +21,9 @@ import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests of Deprecated Hazard Rate Curve Calibrator
+ * @deprecated This class tests deprecated functionality
  */
+@Deprecated
 public class CalibrateHazardRateTermStructureISDAMethodTest {
 
   private static final CalibrateHazardRateTermStructureISDAMethod DEPRECATED_CALCULATOR = new CalibrateHazardRateTermStructureISDAMethod();

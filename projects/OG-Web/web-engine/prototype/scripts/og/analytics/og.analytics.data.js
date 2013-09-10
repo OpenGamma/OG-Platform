@@ -54,7 +54,8 @@ $.register_module({
                 viewport = null, viewport_cache, prefix, view_id = config.view_id, viewport_version,
                 graph_id = config.graph_id, subscribed = false, ROOT = 'rootNode', SETS = 'columnSets',
                 ROWS = 'rowCount', grid_type = null, depgraph = !!source.depgraph, loading_viewport_id = false,
-                fixed_set = {portfolio: 'Portfolio', primitives: 'Primitives'}, bypass_types = config.bypass;
+                fixed_set = {portfolio: 'Portfolio', primitives: 'Primitives'}, bypass_types = config.bypass,
+                structure_promise;
             data.viewport_id = null;
             var data_handler = (function () {
                 var timeout = null, rate = 500, last = +new Date, current, delta;
@@ -165,6 +166,7 @@ $.register_module({
                 initialize();
             };
             var structure_handler = function (result) {
+                console.log('STRUCTURE HANDLER', result);
                 if (!result || !grid_type || (depgraph && !graph_id)) {
                     return;
                 }
@@ -188,7 +190,7 @@ $.register_module({
                 }
             };
             var missing_viewport = function () {
-                //viewport no longer exists, null it at get a new one
+                //viewport no longer exists, null it and get a new one
                 data.viewport_id = null;
                 if (depgraph && !graph_id) { //for depgraphs make sure that a grid id exists before setting up data
                     api.grid.depgraphs.put({view_id: view_id, grid_type: grid_type, row: source.row, col: source.col})
@@ -210,21 +212,19 @@ $.register_module({
                     api.grid.structure.get({view_id: view_id, grid_type: grid_type, update: structure_setup})
                         .pipe(structure_setup_impl);
                 } else {
-                    api.grid.viewports.structure.get({view_id: view_id, grid_type: grid_type,
-                        update: structure_setup, viewport_id: data.viewport_id})
+                    (structure_promise = api.grid.viewports.structure.get({view_id: view_id, grid_type: grid_type,
+                        update: structure_setup, viewport_id: data.viewport_id}))
                     .pipe(function (result) {
+                        console.log('PROMISE ID', structure_promise.id, result.meta.promise);
                         if (result.error === 404) { // server restart logic caught in 404
                             missing_viewport();
                         } else {
+                            if (structure_promise.id != result.meta.promise) return;
                             structure_setup_impl(result);
-                        }
-                    })
-                    .pipe(function () {
-                        if (data.viewport_id) {
                             (promise = viewports.put({view_id: view_id, grid_type: grid_type, graph_id: graph_id,
-                                rows: meta.viewport.rows, cols: meta.viewport.cols, format: meta.viewport.format,
-                                cells: meta.viewport ? meta.viewport.cells : null, log: viewport.log,
-                                viewport_id: data.viewport_id
+                                 rows: meta.viewport.rows, cols: meta.viewport.cols, format: meta.viewport.format,
+                                 cells: meta.viewport ? meta.viewport.cells : null, log: viewport.log,
+                                 viewport_id: data.viewport_id
                             }))
                             .pipe(function (result) {
                                 loading_viewport_id = false;
@@ -240,6 +240,7 @@ $.register_module({
                 }
             };
             var structure_setup_impl = function (result) {
+                console.log('STRUCTURE CHANGE', result);
                 if (result.error) {
                     return fire('fatal', data.prefix + result.message);
                 }

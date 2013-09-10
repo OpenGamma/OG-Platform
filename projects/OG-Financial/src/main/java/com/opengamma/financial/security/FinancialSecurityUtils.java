@@ -55,6 +55,7 @@ import com.opengamma.financial.security.future.EnergyFutureSecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
 import com.opengamma.financial.security.future.FXFutureSecurity;
+import com.opengamma.financial.security.future.FederalFundsFutureSecurity;
 import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
@@ -305,6 +306,11 @@ public class FinancialSecurityUtils {
         }
 
         @Override
+        public ExternalId visitFederalFundsFutureSecurity(final FederalFundsFutureSecurity security) {
+          return ExternalId.of(ExternalSchemes.ISO_MIC, security.getTradingExchange());
+        }
+
+        @Override
         public ExternalId visitMetalFutureSecurity(final MetalFutureSecurity security) {
           return ExternalId.of(ExternalSchemes.ISO_MIC, security.getTradingExchange());
         }
@@ -343,12 +349,12 @@ public class FinancialSecurityUtils {
         public Currency visitMunicipalBondSecurity(final MunicipalBondSecurity security) {
           return security.getCurrency();
         }
-        
+
         @Override
         public Currency visitInflationBondSecurity(final InflationBondSecurity security) {
           return security.getCurrency();
         }
-        
+
         @Override
         public Currency visitCorporateBondSecurity(final CorporateBondSecurity security) {
           return security.getCurrency();
@@ -554,6 +560,11 @@ public class FinancialSecurityUtils {
         }
 
         @Override
+        public Currency visitFederalFundsFutureSecurity(final FederalFundsFutureSecurity security) {
+          return security.getCurrency();
+        }
+
+        @Override
         public Currency visitMetalFutureSecurity(final MetalFutureSecurity security) {
           return security.getCurrency();
         }
@@ -695,7 +706,7 @@ public class FinancialSecurityUtils {
         public Collection<Currency> visitMunicipalBondSecurity(final MunicipalBondSecurity security) {
           return Collections.singletonList(security.getCurrency());
         }
-        
+
         @Override
         public Collection<Currency> visitInflationBondSecurity(final InflationBondSecurity security) {
           return Collections.singletonList(security.getCurrency());
@@ -934,6 +945,11 @@ public class FinancialSecurityUtils {
         }
 
         @Override
+        public Collection<Currency> visitFederalFundsFutureSecurity(final FederalFundsFutureSecurity security) {
+          return Collections.singletonList(security.getCurrency());
+        }
+
+        @Override
         public Collection<Currency> visitMetalFutureSecurity(final MetalFutureSecurity security) {
           return Collections.singletonList(security.getCurrency());
         }
@@ -1081,6 +1097,7 @@ public class FinancialSecurityUtils {
           equityIndexFutureOptionVisitor(true).
           irfutureOptionVisitor(true).
           interestRateFutureSecurityVisitor(true).
+          federalFundsFutureSecurityVisitor(true).
           create());
 
       result = isExchangeTraded == null ? false : isExchangeTraded;
@@ -1150,6 +1167,11 @@ public class FinancialSecurityUtils {
         }
 
         @Override
+        public ExternalId visitFederalFundsFutureSecurity(final FederalFundsFutureSecurity security) {
+          return security.getUnderlyingId();
+        }
+
+        @Override
         public ExternalId visitMetalFutureSecurity(final MetalFutureSecurity security) {
           return security.getUnderlyingId();
         }
@@ -1196,6 +1218,16 @@ public class FinancialSecurityUtils {
 
         @Override
         public ExternalId visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
+          return security.getUnderlyingId();
+        }
+
+        @Override
+        public ExternalId visitCreditDefaultSwapIndexSecurity(final CreditDefaultSwapIndexSecurity security) {
+          return security.getReferenceEntity();
+        }
+
+        @Override
+        public ExternalId visitCreditDefaultSwapOptionSecurity(final CreditDefaultSwapOptionSecurity security) {
           return security.getUnderlyingId();
         }
 
@@ -1328,6 +1360,13 @@ public class FinancialSecurityUtils {
 
         @Override
         public CurrencyAmount visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
+          final Currency currency = security.getCurrency();
+          final double notional = security.getUnitAmount();
+          return CurrencyAmount.of(currency, notional);
+        }
+
+        @Override
+        public CurrencyAmount visitFederalFundsFutureSecurity(final FederalFundsFutureSecurity security) {
           final Currency currency = security.getCurrency();
           final double notional = security.getUnitAmount();
           return CurrencyAmount.of(currency, notional);

@@ -49,7 +49,7 @@ public class EquityOptionBlackScenarioPnLFunction extends EquityOptionBlackFunct
   private static final String s_priceShiftType = ScenarioPnLPropertyNamesAndValues.PROPERTY_PRICE_SHIFT_TYPE;
   private static final String s_volShiftType = ScenarioPnLPropertyNamesAndValues.PROPERTY_VOL_SHIFT_TYPE;
   
-  private static final Logger s_logger = LoggerFactory.getLogger(EquityOptionBAWScenarioPnLFunction.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(EquityOptionBlackScenarioPnLFunction.class);
   
   private String getValueRequirementName() {
     return ValueRequirementNames.PNL;

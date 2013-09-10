@@ -39,10 +39,16 @@ public class InflationIndexSwapLeg extends InflationLeg {
   private ExternalId _indexId;
 
   /**
-   * The lag.
+   * The quotation indexation lag.
    */
   @PropertyDefinition
-  private int _lag;
+  private int _quotationIndexationLag;
+
+  /**
+   * The conventional indexation lag.
+   */
+  @PropertyDefinition
+  private int _conventionalIndexationLag;
 
   /**
    * The interpolation method.
@@ -65,14 +71,16 @@ public class InflationIndexSwapLeg extends InflationLeg {
    * @param notional The notional, not null
    * @param isEOM True if dates follow the EOM convention
    * @param indexId The id of the index, not null
-   * @param lag The quotation lag
+   * @param quotationIndexationLag The actual quotation indexation lag
+   * @param conventionalIndexationLag The conventional indexation lag
    * @param interpolationMethod The interpolation method, not null
    */
   public InflationIndexSwapLeg(final DayCount dayCount, final Frequency frequency, final ExternalId regionId, final BusinessDayConvention businessDayConvention,
-      final Notional notional, final boolean isEOM, final ExternalId indexId, final int lag, final InterpolationMethod interpolationMethod) {
+      final Notional notional, final boolean isEOM, final ExternalId indexId, final int quotationIndexationLag, final int conventionalIndexationLag, final InterpolationMethod interpolationMethod) {
     super(dayCount, frequency, regionId, businessDayConvention, notional, isEOM);
     setIndexId(indexId);
-    setLag(lag);
+    setQuotationIndexationLag(quotationIndexationLag);
+    setConventionalIndexationLag(conventionalIndexationLag);
     setInterpolationMethod(interpolationMethod);
   }
 
@@ -106,8 +114,10 @@ public class InflationIndexSwapLeg extends InflationLeg {
     switch (propertyName.hashCode()) {
       case 1943291277:  // indexId
         return getIndexId();
-      case 106898:  // lag
-        return getLag();
+      case -1106689277:  // quotationIndexationLag
+        return getQuotationIndexationLag();
+      case 1031469875:  // conventionalIndexationLag
+        return getConventionalIndexationLag();
       case 374385573:  // interpolationMethod
         return getInterpolationMethod();
     }
@@ -120,8 +130,11 @@ public class InflationIndexSwapLeg extends InflationLeg {
       case 1943291277:  // indexId
         setIndexId((ExternalId) newValue);
         return;
-      case 106898:  // lag
-        setLag((Integer) newValue);
+      case -1106689277:  // quotationIndexationLag
+        setQuotationIndexationLag((Integer) newValue);
+        return;
+      case 1031469875:  // conventionalIndexationLag
+        setConventionalIndexationLag((Integer) newValue);
         return;
       case 374385573:  // interpolationMethod
         setInterpolationMethod((InterpolationMethod) newValue);
@@ -145,7 +158,8 @@ public class InflationIndexSwapLeg extends InflationLeg {
     if (obj != null && obj.getClass() == this.getClass()) {
       InflationIndexSwapLeg other = (InflationIndexSwapLeg) obj;
       return JodaBeanUtils.equal(getIndexId(), other.getIndexId()) &&
-          JodaBeanUtils.equal(getLag(), other.getLag()) &&
+          JodaBeanUtils.equal(getQuotationIndexationLag(), other.getQuotationIndexationLag()) &&
+          JodaBeanUtils.equal(getConventionalIndexationLag(), other.getConventionalIndexationLag()) &&
           JodaBeanUtils.equal(getInterpolationMethod(), other.getInterpolationMethod()) &&
           super.equals(obj);
     }
@@ -156,7 +170,8 @@ public class InflationIndexSwapLeg extends InflationLeg {
   public int hashCode() {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getIndexId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLag());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getQuotationIndexationLag());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getConventionalIndexationLag());
     hash += hash * 31 + JodaBeanUtils.hashCode(getInterpolationMethod());
     return hash ^ super.hashCode();
   }
@@ -189,27 +204,52 @@ public class InflationIndexSwapLeg extends InflationLeg {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the lag.
+   * Gets the quotation indexation lag.
    * @return the value of the property
    */
-  public int getLag() {
-    return _lag;
+  public int getQuotationIndexationLag() {
+    return _quotationIndexationLag;
   }
 
   /**
-   * Sets the lag.
-   * @param lag  the new value of the property
+   * Sets the quotation indexation lag.
+   * @param quotationIndexationLag  the new value of the property
    */
-  public void setLag(int lag) {
-    this._lag = lag;
+  public void setQuotationIndexationLag(int quotationIndexationLag) {
+    this._quotationIndexationLag = quotationIndexationLag;
   }
 
   /**
-   * Gets the the {@code lag} property.
+   * Gets the the {@code quotationIndexationLag} property.
    * @return the property, not null
    */
-  public final Property<Integer> lag() {
-    return metaBean().lag().createProperty(this);
+  public final Property<Integer> quotationIndexationLag() {
+    return metaBean().quotationIndexationLag().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the conventional indexation lag.
+   * @return the value of the property
+   */
+  public int getConventionalIndexationLag() {
+    return _conventionalIndexationLag;
+  }
+
+  /**
+   * Sets the conventional indexation lag.
+   * @param conventionalIndexationLag  the new value of the property
+   */
+  public void setConventionalIndexationLag(int conventionalIndexationLag) {
+    this._conventionalIndexationLag = conventionalIndexationLag;
+  }
+
+  /**
+   * Gets the the {@code conventionalIndexationLag} property.
+   * @return the property, not null
+   */
+  public final Property<Integer> conventionalIndexationLag() {
+    return metaBean().conventionalIndexationLag().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -254,10 +294,15 @@ public class InflationIndexSwapLeg extends InflationLeg {
     private final MetaProperty<ExternalId> _indexId = DirectMetaProperty.ofReadWrite(
         this, "indexId", InflationIndexSwapLeg.class, ExternalId.class);
     /**
-     * The meta-property for the {@code lag} property.
+     * The meta-property for the {@code quotationIndexationLag} property.
      */
-    private final MetaProperty<Integer> _lag = DirectMetaProperty.ofReadWrite(
-        this, "lag", InflationIndexSwapLeg.class, Integer.TYPE);
+    private final MetaProperty<Integer> _quotationIndexationLag = DirectMetaProperty.ofReadWrite(
+        this, "quotationIndexationLag", InflationIndexSwapLeg.class, Integer.TYPE);
+    /**
+     * The meta-property for the {@code conventionalIndexationLag} property.
+     */
+    private final MetaProperty<Integer> _conventionalIndexationLag = DirectMetaProperty.ofReadWrite(
+        this, "conventionalIndexationLag", InflationIndexSwapLeg.class, Integer.TYPE);
     /**
      * The meta-property for the {@code interpolationMethod} property.
      */
@@ -269,7 +314,8 @@ public class InflationIndexSwapLeg extends InflationLeg {
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "indexId",
-        "lag",
+        "quotationIndexationLag",
+        "conventionalIndexationLag",
         "interpolationMethod");
 
     /**
@@ -283,8 +329,10 @@ public class InflationIndexSwapLeg extends InflationLeg {
       switch (propertyName.hashCode()) {
         case 1943291277:  // indexId
           return _indexId;
-        case 106898:  // lag
-          return _lag;
+        case -1106689277:  // quotationIndexationLag
+          return _quotationIndexationLag;
+        case 1031469875:  // conventionalIndexationLag
+          return _conventionalIndexationLag;
         case 374385573:  // interpolationMethod
           return _interpolationMethod;
       }
@@ -316,11 +364,19 @@ public class InflationIndexSwapLeg extends InflationLeg {
     }
 
     /**
-     * The meta-property for the {@code lag} property.
+     * The meta-property for the {@code quotationIndexationLag} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Integer> lag() {
-      return _lag;
+    public final MetaProperty<Integer> quotationIndexationLag() {
+      return _quotationIndexationLag;
+    }
+
+    /**
+     * The meta-property for the {@code conventionalIndexationLag} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Integer> conventionalIndexationLag() {
+      return _conventionalIndexationLag;
     }
 
     /**

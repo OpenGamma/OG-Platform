@@ -91,6 +91,9 @@ public abstract class AbstractRestfulJmsResultPublisher extends AbstractDataReso
   @Consumes(FudgeRest.MEDIA)
   public Response startResultStream(final FudgeMsg msg) {
     updateLastAccessed();
+    if (getResultPublisher() == null) {
+      throw new UnsupportedOperationException("JMS not configured on server");
+    }
     final String destination = msg.getString(DESTINATION_FIELD);
     _executor.execute(new Runnable() {
 
@@ -111,6 +114,9 @@ public abstract class AbstractRestfulJmsResultPublisher extends AbstractDataReso
   @Path(PATH_STOP_JMS_RESULT_STREAM)
   public Response stopResultStream() {
     updateLastAccessed();
+    if (getResultPublisher() == null) {
+      throw new UnsupportedOperationException("JMS not configured on server");
+    }
     _executor.execute(new Runnable() {
 
       @Override

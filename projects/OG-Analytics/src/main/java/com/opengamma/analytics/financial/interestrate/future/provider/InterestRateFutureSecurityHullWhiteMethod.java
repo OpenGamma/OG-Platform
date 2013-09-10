@@ -13,6 +13,7 @@ import java.util.Map;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
 import com.opengamma.analytics.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
 import com.opengamma.analytics.financial.provider.description.interestrate.HullWhiteOneFactorProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.util.ArgumentChecker;
@@ -22,7 +23,7 @@ import com.opengamma.util.ArgumentChecker;
  * <p> Reference: Henrard M., Eurodollar Futures and Options: Convexity Adjustment in HJM One-Factor Model. March 2005.
  * Available at <a href="http://ssrn.com/abstract=682343">http://ssrn.com/abstract=682343</a>
  */
-public final class InterestRateFutureSecurityHullWhiteMethod { // extends InterestRateFutureSecurityMethod {
+public final class InterestRateFutureSecurityHullWhiteMethod extends InterestRateFutureSecurityMethod {
 
   /**
    * The unique instance of the calculator.
@@ -48,21 +49,35 @@ public final class InterestRateFutureSecurityHullWhiteMethod { // extends Intere
    */
   private static final HullWhiteOneFactorPiecewiseConstantInterestRateModel MODEL = new HullWhiteOneFactorPiecewiseConstantInterestRateModel();
 
+  @Override
+  public double price(final InterestRateFutureSecurity futures, final ParameterProviderInterface multicurve) {
+    ArgumentChecker.notNull(multicurve, "Multi-curve and parameter provider");
+    ArgumentChecker.isTrue(multicurve instanceof HullWhiteOneFactorProviderInterface, "Multi-curve and HW provider");
+    return price(futures, (HullWhiteOneFactorProviderInterface) multicurve);
+  }
+
   /**
    * Computes the price of a future from the curves using an estimation of the future rate without convexity adjustment.
-   * @param future The future.
+   * @param futures The STIR future.
    * @param hwMulticurves The multi-curves provider with Hull-White one factor parameters.
    * @return The price.
    */
-  public double price(final InterestRateFutureSecurity future, final HullWhiteOneFactorProviderInterface hwMulticurves) {
-    ArgumentChecker.notNull(future, "Future");
+  public double price(final InterestRateFutureSecurity futures, final HullWhiteOneFactorProviderInterface hwMulticurves) {
+    ArgumentChecker.notNull(futures, "Future");
     ArgumentChecker.notNull(hwMulticurves, "Multi-curves with Hull-White");
-    final double forward = hwMulticurves.getMulticurveProvider().getForwardRate(future.getIborIndex(), future.getFixingPeriodStartTime(), future.getFixingPeriodEndTime(),
-        future.getFixingPeriodAccrualFactor());
-    final double futureConvexityFactor = MODEL.futuresConvexityFactor(hwMulticurves.getHullWhiteParameters(), future.getLastTradingTime(),
-        future.getFixingPeriodStartTime(), future.getFixingPeriodEndTime());
-    final double price = 1.0 - futureConvexityFactor * forward + (1 - futureConvexityFactor) / future.getFixingPeriodAccrualFactor();
+    final double forward = hwMulticurves.getMulticurveProvider().getForwardRate(futures.getIborIndex(), futures.getFixingPeriodStartTime(), futures.getFixingPeriodEndTime(),
+        futures.getFixingPeriodAccrualFactor());
+    final double futureConvexityFactor = MODEL.futuresConvexityFactor(hwMulticurves.getHullWhiteParameters(), futures.getLastTradingTime(),
+        futures.getFixingPeriodStartTime(), futures.getFixingPeriodEndTime());
+    final double price = 1.0 - futureConvexityFactor * forward + (1 - futureConvexityFactor) / futures.getFixingPeriodAccrualFactor();
     return price;
+  }
+
+  @Override
+  public MulticurveSensitivity priceCurveSensitivity(final InterestRateFutureSecurity futures, final ParameterProviderInterface multicurve) {
+    ArgumentChecker.notNull(multicurve, "Multi-curve and parameter provider");
+    ArgumentChecker.isTrue(multicurve instanceof HullWhiteOneFactorProviderInterface, "Multi-curve and HW provider");
+    return priceCurveSensitivity(futures, (HullWhiteOneFactorProviderInterface) multicurve);
   }
 
   /**

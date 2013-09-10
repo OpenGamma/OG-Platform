@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.montecarlo;
@@ -18,7 +18,9 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscou
 
 /**
  * Calculator of decision schedule for different instruments. Used in particular for Monte Carlo pricing.
+ * @deprecated Use {@link com.opengamma.analytics.financial.montecarlo.provider.DecisionScheduleCalculator}
  */
+@Deprecated
 public class DecisionScheduleCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, DecisionSchedule> {
 
   /**

@@ -12,11 +12,12 @@ public class EuropeanVanillaOptionFunctionProvider extends OptionFunctionProvide
 
   /**
    * @param strike Strike price
+   * @param timeToExpiry Time to expiry
    * @param steps Number of steps
    * @param isCall True if call, false if put
    */
-  public EuropeanVanillaOptionFunctionProvider(final double strike, final int steps, final boolean isCall) {
-    super(strike, steps, isCall);
+  public EuropeanVanillaOptionFunctionProvider(final double strike, final double timeToExpiry, final int steps, final boolean isCall) {
+    super(strike, timeToExpiry, steps, isCall);
   }
 
   @Override
@@ -28,7 +29,7 @@ public class EuropeanVanillaOptionFunctionProvider extends OptionFunctionProvide
     final double[] values = new double[nStepsP];
     double priceTmp = assetPrice;
     for (int i = 0; i < nStepsP; ++i) {
-      values[i] = Math.max(sign * (priceTmp - strike), 0);
+      values[i] = Math.max(sign * (priceTmp - strike), 0.);
       priceTmp *= upOverDown;
     }
     return values;
@@ -44,5 +45,24 @@ public class EuropeanVanillaOptionFunctionProvider extends OptionFunctionProvide
       res[j] = discount * (upProbability * values[j + 1] + downProbability * values[j]);
     }
     return res;
+  }
+
+  @Override
+  public int hashCode() {
+    return super.hashCode();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (!(obj instanceof EuropeanVanillaOptionFunctionProvider)) {
+      return false;
+    }
+    return super.equals(obj);
   }
 }

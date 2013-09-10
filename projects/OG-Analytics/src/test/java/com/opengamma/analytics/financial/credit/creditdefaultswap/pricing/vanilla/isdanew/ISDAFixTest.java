@@ -59,14 +59,14 @@ public class ISDAFixTest extends ISDABaseTest {
     final int nPillars = PILLAR_DATES.length;
     final CDSAnalytic[] pillarCDSS = new CDSAnalytic[nPillars];
     for (int i = 0; i < nPillars; i++) {
-      pillarCDSS[i] = new CDSAnalytic(TODAY, EFFECTIVE_DATE, CASH_SETTLE_DATE, STARTDATE, PILLAR_DATES[i], PAY_ACC_ON_DEFAULT, TENOR, STUB, PROCTECTION_START, RECOVERY_RATE);
+      pillarCDSS[i] = new CDSAnalytic(TODAY, EFFECTIVE_DATE, CASH_SETTLE_DATE, STARTDATE, PILLAR_DATES[i], PAY_ACC_ON_DEFAULT, PAYMENT_INTERVAL, STUB, PROCTECTION_START, RECOVERY_RATE);
     }
 
     final ISDACompliantCreditCurve creditCurve = curveBuilder.calibrateCreditCurve(pillarCDSS, SPREADS, YIELD_CURVE);
 
     final int nMat = MATURITIES.length;
     for (int i = 0; i < nMat; i++) {
-      final CDSAnalytic cds = new CDSAnalytic(TODAY, EFFECTIVE_DATE, CASH_SETTLE_DATE, STARTDATE, MATURITIES[i], PAY_ACC_ON_DEFAULT, TENOR, STUB, PROCTECTION_START, RECOVERY_RATE);
+      final CDSAnalytic cds = new CDSAnalytic(TODAY, EFFECTIVE_DATE, CASH_SETTLE_DATE, STARTDATE, MATURITIES[i], PAY_ACC_ON_DEFAULT, PAYMENT_INTERVAL, STUB, PROCTECTION_START, RECOVERY_RATE);
       final double dPV = pricer.pv(cds, YIELD_CURVE, creditCurve, COUPON, PriceType.DIRTY);
       //  System.out.println(MATURITIES[i] + "\t" + dPV);
       assertEquals(MATURITIES[i].toString(), EXPECTED_UPFRONT_CHARGE[i], dPV, 1e-15);

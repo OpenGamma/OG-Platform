@@ -1,16 +1,16 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.option.parameters;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.model.volatility.VolatilityModel;
 import com.opengamma.analytics.math.surface.Surface;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Class describing the Black volatility surface used in cap/floor modeling.
@@ -32,8 +32,8 @@ public class BlackSmileCapParameters implements VolatilityModel<double[]> {
    * @param index The Ibor index for which the volatility is valid.
    */
   public BlackSmileCapParameters(final Surface<Double, Double, Double> volatility, final IborIndex index) {
-    Validate.notNull(volatility, "volatility curve");
-    Validate.notNull(index, "Ibor index");
+    ArgumentChecker.notNull(volatility, "volatility curve");
+    ArgumentChecker.notNull(index, "Ibor index");
     _volatility = volatility;
     _index = index;
   }
@@ -55,8 +55,8 @@ public class BlackSmileCapParameters implements VolatilityModel<double[]> {
    * @return The volatility.
    */
   public Double getVolatility(final double[] data) {
-    Validate.notNull(data, "data");
-    Validate.isTrue(data.length == 2, "data should have two components (expiration and strike)");
+    ArgumentChecker.notNull(data, "data");
+    ArgumentChecker.isTrue(data.length == 2, "data should have two components (expiration and strike)");
     return getVolatility(data[0], data[1]);
   }
 
@@ -78,7 +78,7 @@ public class BlackSmileCapParameters implements VolatilityModel<double[]> {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -88,7 +88,7 @@ public class BlackSmileCapParameters implements VolatilityModel<double[]> {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    BlackSmileCapParameters other = (BlackSmileCapParameters) obj;
+    final BlackSmileCapParameters other = (BlackSmileCapParameters) obj;
     if (!ObjectUtils.equals(_index, other._index)) {
       return false;
     }

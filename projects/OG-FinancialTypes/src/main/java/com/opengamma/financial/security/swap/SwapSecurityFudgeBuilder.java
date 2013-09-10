@@ -34,6 +34,10 @@ public class SwapSecurityFudgeBuilder extends AbstractFudgeBuilder implements Fu
   public static final String PAY_LEG_FIELD_NAME = "payLeg";
   /** Field name. */
   public static final String RECEIVE_LEG_FIELD_NAME = "receiveLeg";
+  /** The exchange initial notional field */
+  private static final String EXCHANGE_INITIAL_NOTIONAL_FIELD = "exchangeInitialNotional";
+  /** The exchange final notional field */
+  private static final String EXCHANGE_FINAL_NOTIONAL_FIELD = "exchangeExchangeNotional";
 
   @Override
   public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final SwapSecurity object) {
@@ -48,6 +52,8 @@ public class SwapSecurityFudgeBuilder extends AbstractFudgeBuilder implements Fu
     addToMessage(msg, EFFECTIVE_DATE_FIELD_NAME, ZonedDateTimeFudgeBuilder.toFudgeMsg(serializer, object.getEffectiveDate()));
     addToMessage(msg, MATURITY_DATE_FIELD_NAME, ZonedDateTimeFudgeBuilder.toFudgeMsg(serializer, object.getMaturityDate()));
     addToMessage(msg, COUNTERPARTY_FIELD_NAME, object.getCounterparty());
+    addToMessage(msg, EXCHANGE_INITIAL_NOTIONAL_FIELD, object.isExchangeInitialNotional());
+    addToMessage(msg, EXCHANGE_FINAL_NOTIONAL_FIELD, object.isExchangeFinalNotional());
     addToMessage(serializer, msg, PAY_LEG_FIELD_NAME, object.getPayLeg(), SwapLeg.class);
     addToMessage(serializer, msg, RECEIVE_LEG_FIELD_NAME, object.getReceiveLeg(), SwapLeg.class);
   }
@@ -65,6 +71,8 @@ public class SwapSecurityFudgeBuilder extends AbstractFudgeBuilder implements Fu
     object.setEffectiveDate(ZonedDateTimeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(EFFECTIVE_DATE_FIELD_NAME)));
     object.setMaturityDate(ZonedDateTimeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(MATURITY_DATE_FIELD_NAME)));
     object.setCounterparty(msg.getString(COUNTERPARTY_FIELD_NAME));
+    object.setExchangeInitialNotional(msg.getBoolean(EXCHANGE_INITIAL_NOTIONAL_FIELD));
+    object.setExchangeFinalNotional(msg.getBoolean(EXCHANGE_FINAL_NOTIONAL_FIELD));
     object.setPayLeg(deserializer.fudgeMsgToObject(SwapLeg.class, msg.getMessage(PAY_LEG_FIELD_NAME)));
     object.setReceiveLeg(deserializer.fudgeMsgToObject(SwapLeg.class, msg.getMessage(RECEIVE_LEG_FIELD_NAME)));
   }

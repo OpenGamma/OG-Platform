@@ -23,14 +23,15 @@ import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 
 /**
- *
+ * @deprecated This class uses deprecated trade and security converters.
  */
+@Deprecated
 public class InterestRateInstrumentTradeOrSecurityConverter {
   private final FinancialSecurityVisitor<InstrumentDefinition<?>> _securityVisitor;
   private final BondFutureTradeConverter _bondFutureConverter;
   private final BondTradeConverter _bondTradeConverter;
   private final InterestRateFutureTradeConverter _interestRateFutureTradeConverter;
-  private final InterestRateFutureOptionTradeConverter _interestRateFutureOptionTradeConverter;
+  private final InterestRateFutureOptionTradeConverterDeprecated _interestRateFutureOptionTradeConverter;
 
   public InterestRateInstrumentTradeOrSecurityConverter(final HolidaySource holidaySource, final ConventionBundleSource conventionSource, final RegionSource regionSource,
       final SecuritySource securitySource, final boolean forCurves) {
@@ -42,7 +43,8 @@ public class InterestRateInstrumentTradeOrSecurityConverter {
     final FRASecurityConverterDeprecated fraConverter = new FRASecurityConverterDeprecated(holidaySource, regionSource, conventionSource);
     final SwapSecurityConverterDeprecated swapConverter = new SwapSecurityConverterDeprecated(holidaySource, conventionSource, regionSource, forCurves);
     final BondSecurityConverter bondConverter = new BondSecurityConverter(holidaySource, conventionSource, regionSource);
-    final InterestRateFutureOptionSecurityConverter irFutureOptionConverter = new InterestRateFutureOptionSecurityConverter(holidaySource, conventionSource, regionSource, securitySource);
+    final InterestRateFutureOptionSecurityConverterDeprecated irFutureOptionConverter =
+        new InterestRateFutureOptionSecurityConverterDeprecated(holidaySource, conventionSource, regionSource, securitySource);
     final InterestRateFutureSecurityConverterDeprecated irFutureConverter = new InterestRateFutureSecurityConverterDeprecated(holidaySource, conventionSource, regionSource);
     final BondFutureSecurityConverter bondFutureConverter = new BondFutureSecurityConverter(securitySource, bondConverter);
 
@@ -57,7 +59,7 @@ public class InterestRateInstrumentTradeOrSecurityConverter {
     _bondTradeConverter = new BondTradeConverter(bondConverter);
     _bondFutureConverter = new BondFutureTradeConverter(bondFutureConverter);
     _interestRateFutureTradeConverter = new InterestRateFutureTradeConverter(irFutureConverter);
-    _interestRateFutureOptionTradeConverter = new InterestRateFutureOptionTradeConverter(irFutureOptionConverter);
+    _interestRateFutureOptionTradeConverter = new InterestRateFutureOptionTradeConverterDeprecated(irFutureOptionConverter);
   }
 
   public InstrumentDefinition<?> visit(final Trade trade) {

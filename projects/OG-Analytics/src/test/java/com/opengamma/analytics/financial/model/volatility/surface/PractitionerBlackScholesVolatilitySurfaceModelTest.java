@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.volatility.surface;
@@ -29,7 +29,7 @@ import com.opengamma.util.time.Expiry;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * 
+ *
  */
 public class PractitionerBlackScholesVolatilitySurfaceModelTest {
   private static final AnalyticOptionModel<OptionDefinition, StandardOptionDataBundle> BSM = new BlackScholesMertonModel();
@@ -60,7 +60,7 @@ public class PractitionerBlackScholesVolatilitySurfaceModelTest {
 
   @Test
   public void testFlatSurface() {
-    final Map<OptionDefinition, Double> prices = new HashMap<OptionDefinition, Double>();
+    final Map<OptionDefinition, Double> prices = new HashMap<>();
     final double sigma = 0.3;
     OptionDefinition definition;
     final StandardOptionDataBundle data = new StandardOptionDataBundle(CURVE, B, new VolatilitySurface(ConstantDoublesSurface.from(sigma)), SPOT, DATE);
@@ -86,7 +86,7 @@ public class PractitionerBlackScholesVolatilitySurfaceModelTest {
 
   @Test
   public void testUnifomlyVaryingSurface() {
-    final Map<OptionDefinition, Double> prices = new HashMap<OptionDefinition, Double>();
+    final Map<OptionDefinition, Double> prices = new HashMap<>();
     OptionDefinition definition;
     StandardOptionDataBundle data = new StandardOptionDataBundle(CURVE, B, null, SPOT, DATE);
     final double diff = 0.09;

@@ -95,6 +95,7 @@ public class MultiYieldCurvePresentValueMethodFunction extends MultiYieldCurveFu
 
   @Override
   public void init(final FunctionCompilationContext context) {
+    super.init(context);
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);

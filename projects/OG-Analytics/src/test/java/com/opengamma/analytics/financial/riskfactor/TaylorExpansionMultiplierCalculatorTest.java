@@ -40,7 +40,7 @@ public class TaylorExpansionMultiplierCalculatorTest {
     }
 
   };
-  private static final Map<UnderlyingType, DoubleTimeSeries<?>> UNDERLYING_DATA = new HashMap<UnderlyingType, DoubleTimeSeries<?>>();
+  private static final Map<UnderlyingType, DoubleTimeSeries<?>> UNDERLYING_DATA = new HashMap<>();
   private static final long[] T;
   private static final double[] X_DATA;
   private static final double[] Y_DATA;
@@ -115,7 +115,7 @@ public class TaylorExpansionMultiplierCalculatorTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testWrongTSLength() {
     final DoubleTimeSeries<?> z = ImmutableInstantDoubleTimeSeries.of(new long[] {1, 2, 3, 4, 5}, new double[] {1, 1, 1, 1, 1});
-    final Map<UnderlyingType, DoubleTimeSeries<?>> m = new HashMap<UnderlyingType, DoubleTimeSeries<?>>();
+    final Map<UnderlyingType, DoubleTimeSeries<?>> m = new HashMap<>();
     m.put(UnderlyingType.SPOT_PRICE, X);
     m.put(UnderlyingType.IMPLIED_VOLATILITY, z);
     getTimeSeries(m, MIXED_ORDER);
@@ -131,7 +131,7 @@ public class TaylorExpansionMultiplierCalculatorTest {
       z[i] = Math.random() - 0.5;
     }
     final DoubleTimeSeries<?> ts = ImmutableInstantDoubleTimeSeries.of(t, z);
-    final Map<UnderlyingType, DoubleTimeSeries<?>> m = new HashMap<UnderlyingType, DoubleTimeSeries<?>>();
+    final Map<UnderlyingType, DoubleTimeSeries<?>> m = new HashMap<>();
     m.put(UnderlyingType.SPOT_PRICE, X);
     m.put(UnderlyingType.IMPLIED_VOLATILITY, ts);
     getTimeSeries(m, MIXED_ORDER);

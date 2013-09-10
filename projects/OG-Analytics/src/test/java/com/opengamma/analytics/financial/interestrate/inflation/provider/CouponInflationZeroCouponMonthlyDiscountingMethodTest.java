@@ -29,6 +29,8 @@ import com.opengamma.analytics.financial.util.AssertSensivityObjects;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
 
@@ -49,11 +51,13 @@ public class CouponInflationZeroCouponMonthlyDiscountingMethodTest {
   private static final double INDEX_1MAY_2008 = 108.23; // 3 m before Aug: May / 1 May index = May index: 108.23
   private static final ZonedDateTime PRICING_DATE = DateUtils.getUTCDate(2011, 8, 3);
   private static final CouponInflationZeroCouponMonthlyDefinition ZERO_COUPON_NO_DEFINITION = CouponInflationZeroCouponMonthlyDefinition.from(START_DATE, PAYMENT_DATE, NOTIONAL, PRICE_INDEX_EUR,
-      INDEX_1MAY_2008, MONTH_LAG, MONTH_LAG, false);
-  private static final CouponInflationZeroCouponMonthly ZERO_COUPON_NO = ZERO_COUPON_NO_DEFINITION.toDerivative(PRICING_DATE);
+      MONTH_LAG, MONTH_LAG, false);
+  private static final DoubleTimeSeries<ZonedDateTime> priceIndexTS = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(
+      new ZonedDateTime[] {DateUtils.getUTCDate(2008, 5, 31), DateUtils.getUTCDate(2018, 5, 31), DateUtils.getUTCDate(2018, 6, 30) }, new double[] {108.23, 128.23, 128.43 });
+  private static final CouponInflationZeroCouponMonthly ZERO_COUPON_NO = (CouponInflationZeroCouponMonthly) ZERO_COUPON_NO_DEFINITION.toDerivative(PRICING_DATE, priceIndexTS);
   private static final CouponInflationZeroCouponMonthlyDefinition ZERO_COUPON_WITH_DEFINITION = CouponInflationZeroCouponMonthlyDefinition.from(START_DATE, PAYMENT_DATE, NOTIONAL, PRICE_INDEX_EUR,
-      INDEX_1MAY_2008, MONTH_LAG, MONTH_LAG, true);
-  private static final CouponInflationZeroCouponMonthly ZERO_COUPON_WITH = ZERO_COUPON_WITH_DEFINITION.toDerivative(PRICING_DATE);
+      MONTH_LAG, MONTH_LAG, true);
+  private static final CouponInflationZeroCouponMonthly ZERO_COUPON_WITH = (CouponInflationZeroCouponMonthly) ZERO_COUPON_WITH_DEFINITION.toDerivative(PRICING_DATE, priceIndexTS);
 
   private static final double SHIFT_FD = 1.0E-7;
   private static final double TOLERANCE_PV = 1.0E-2;

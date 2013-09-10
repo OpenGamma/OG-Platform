@@ -1,17 +1,16 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.option.parameters;
 
 import java.util.Arrays;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.math.curve.Curve;
 import com.opengamma.analytics.math.surface.Surface;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * _atmVolatility
@@ -19,7 +18,7 @@ import com.opengamma.analytics.math.surface.Surface;
 public class InflationConvexityAdjustmentParameters {
 
   /**
-   * The times separating the inflation periods. 
+   * The times separating the inflation periods.
    */
   private final double[] _inflationTime;
   /**
@@ -50,17 +49,19 @@ public class InflationConvexityAdjustmentParameters {
    * Constructor from the parameter surfaces. 
    * @param inflationTime the inflation times.
    * @param atmVolatility The atm Black volatility curve.
+   * @param liborCorrelation the inter libor correlation
    * @param priceIndexCorrelation The price index correlation surface.
    * @param priceIndexRateCorrelation  The price index\rate volatility surface.
    * @param index The index price for which the volatility is valid.
    */
-  public InflationConvexityAdjustmentParameters(final double[] inflationTime, double[] atmVolatility, final Surface<Double, Double, Double> priceIndexCorrelation,
+  public InflationConvexityAdjustmentParameters(final double[] inflationTime, final double[] atmVolatility, final Surface<Double, Double, Double> priceIndexCorrelation,
       final Surface<Double, Double, Double> liborCorrelation, final Curve<Double, Double> priceIndexRateCorrelation, final IndexPrice index) {
-    Validate.notNull(inflationTime, "inflation time");
-    Validate.notNull(atmVolatility, "price index correlation surface");
-    Validate.notNull(priceIndexCorrelation, "volatility curve");
-    Validate.notNull(priceIndexRateCorrelation, "price index\rate volatility");
-    Validate.notNull(index, "index price");
+    ArgumentChecker.notNull(inflationTime, "inflation time");
+    ArgumentChecker.notNull(atmVolatility, "price index correlation surface");
+    ArgumentChecker.notNull(priceIndexCorrelation, "price index correlation");
+    ArgumentChecker.notNull(liborCorrelation, "Libor correlation");
+    ArgumentChecker.notNull(priceIndexRateCorrelation, "price index\rate volatility");
+    ArgumentChecker.notNull(index, "index price");
     _inflationTime = inflationTime;
     _atmVolatility = atmVolatility;
     _priceIndexCorrelation = priceIndexCorrelation;
@@ -131,7 +132,7 @@ public class InflationConvexityAdjustmentParameters {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -141,7 +142,7 @@ public class InflationConvexityAdjustmentParameters {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    InflationConvexityAdjustmentParameters other = (InflationConvexityAdjustmentParameters) obj;
+    final InflationConvexityAdjustmentParameters other = (InflationConvexityAdjustmentParameters) obj;
     if (!Arrays.equals(_atmVolatility, other._atmVolatility)) {
       return false;
     }

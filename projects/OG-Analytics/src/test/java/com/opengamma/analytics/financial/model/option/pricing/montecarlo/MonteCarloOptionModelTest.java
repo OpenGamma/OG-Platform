@@ -26,12 +26,12 @@ import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 
 /**
- * 
+ *
  */
 public class MonteCarloOptionModelTest {
   private static final int N = 100;
   private static final int STEPS = 1000;
-  private static final StochasticProcess<OptionDefinition, StandardOptionDataBundle> PROCESS = new BlackScholesArithmeticBrownianMotionProcess<OptionDefinition, StandardOptionDataBundle>();
+  private static final StochasticProcess<OptionDefinition, StandardOptionDataBundle> PROCESS = new BlackScholesArithmeticBrownianMotionProcess<>();
   private static final RandomNumberGenerator GENERATOR = new NormalRandomNumberGenerator(0, 1);
   private static final DummyModel MODEL = new DummyModel(N, STEPS, PROCESS, GENERATOR);
 

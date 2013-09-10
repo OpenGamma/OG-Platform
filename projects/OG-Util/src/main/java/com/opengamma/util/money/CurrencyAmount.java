@@ -16,10 +16,25 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * An amount of a currency.
  * <p>
- * This class effectively represents a monetary amount, however it uses a
- * {@code double}. This is required for performance reasons.
- * This design is acceptable because this is a system designed for the calculation
- * of risk (which is an estimate), rather than a system for accurate accounting of money.
+ * This class represents a {@code double} amount associated with a currency.
+ * It is specifically named "CurrencyAmount" and not "Money" to indicate that
+ * it simply holds a currency and an amount. By contrast, naming it "Money"
+ * would imply it was a suitable choice for accounting purposes, which it is not.
+ * <p>
+ * This design approach has been chosen primarily for performance reasons.
+ * Using a {@code BigDecimal} is markedly slower.
+ * <p>
+ * A {@code double} is a 64 bit floating point value suitable for most calculations.
+ * Floating point maths is
+ * <a href="http://docs.oracle.com/cd/E19957-01/806-3568/ncg_goldberg.html">inexact</a>
+ * due to the conflict between binary and decimal arithmetic.
+ * As such, there is the potential for data loss at the margins.
+ * For example, adding the {@code double} values {@code 0.1d} and {@code 0.2d}
+ * results in {@code 0.30000000000000004} rather than {@code 0.3}.
+ * As can be seen, the level of error is small, hence providing this class is
+ * used appropriately, the use of {@code double} is acceptable.
+ * For example, using this class to provide a meaningful result type after
+ * calculations have completed would be an appropriate use.
  * <p>
  * This class is immutable and thread-safe.
  */

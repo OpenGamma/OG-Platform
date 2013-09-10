@@ -15,8 +15,6 @@ import com.opengamma.analytics.math.statistics.descriptive.MeanCalculator;
  */
 public class TimeVaryingLatticeSpecification extends LatticeSpecification {
 
-  private static final Function1D<double[], Double> CALCULATOR = new MeanCalculator();
-
   @Override
   public double[] getParameters(final double spot, final double strike, final double timeToExpiry, final double volatility, final double interestRate, final int nSteps, final double dt) {
     throw new NotImplementedException();
@@ -95,8 +93,9 @@ public class TimeVaryingLatticeSpecification extends LatticeSpecification {
    * @return space step 
    */
   public double getSpaceStep(final double timeToExpiry, final double[] volatility, final int nSteps, final double[] nu) {
-    final double meanNu = CALCULATOR.evaluate(nu);
-    final double meanVol = CALCULATOR.evaluate(volatility);
+    final Function1D<double[], Double> calculator = new MeanCalculator();
+    final double meanNu = calculator.evaluate(nu);
+    final double meanVol = calculator.evaluate(volatility);
     final double dt = timeToExpiry / nSteps;
 
     return Math.sqrt(meanVol * meanVol * dt + meanNu * meanNu * dt * dt);

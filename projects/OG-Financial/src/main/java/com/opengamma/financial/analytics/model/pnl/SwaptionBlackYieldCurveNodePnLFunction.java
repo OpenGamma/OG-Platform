@@ -78,6 +78,11 @@ public class SwaptionBlackYieldCurveNodePnLFunction extends AbstractFunction.Non
   private static final TimeSeriesDifferenceOperator DIFFERENCE = new TimeSeriesDifferenceOperator();
 
   @Override
+  public void init(final FunctionCompilationContext context) {
+    ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
+  }
+
+  @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Position position = target.getPosition();
     final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
@@ -263,7 +268,7 @@ public class SwaptionBlackYieldCurveNodePnLFunction extends AbstractFunction.Non
     final List<StripInstrumentType> stripList = new ArrayList<StripInstrumentType>(n);
     int stripCount = 0;
     for (final FixedIncomeStripWithSecurity strip : strips) {
-      final int index = stripCount++;  //labelsList.indexOf(strip.getSecurityIdentifier());
+      final int index = stripCount++; //labelsList.indexOf(strip.getSecurityIdentifier());
       if (index < 0) {
         throw new OpenGammaRuntimeException("Could not get index for " + strip);
       }

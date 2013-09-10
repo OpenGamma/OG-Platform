@@ -33,7 +33,7 @@ import com.opengamma.id.ExternalId;
 public abstract class StandardCDSSecurity extends CreditDefaultSwapSecurity {
 
   /** Serialization version */
-  private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 2L;
 
   /**
    * The quoted spread.
@@ -55,7 +55,7 @@ public abstract class StandardCDSSecurity extends CreditDefaultSwapSecurity {
       final DebtSeniority debtSeniority, final RestructuringClause restructuringClause, final ExternalId regionId, final ZonedDateTime startDate,
       final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final StubType stubType, final Frequency couponFrequency, final DayCount dayCount,
       final BusinessDayConvention businessDayConvention, final boolean immAdjustMaturityDate, final boolean adjustEffectiveDate,
-      final boolean adjustMaturityDate, final InterestRateNotional notional, final double recoveryRate, final boolean includeAccruedPremium,
+      final boolean adjustMaturityDate, final InterestRateNotional notional, final boolean includeAccruedPremium,
       final boolean protectionStart, final double quotedSpread, final InterestRateNotional upfrontAmount, final String securityType) {
 
     super(isBuy,
@@ -76,7 +76,6 @@ public abstract class StandardCDSSecurity extends CreditDefaultSwapSecurity {
           adjustEffectiveDate,
           adjustMaturityDate,
           notional,
-          recoveryRate,
           includeAccruedPremium,
           protectionStart,
           securityType);
@@ -102,7 +101,6 @@ public abstract class StandardCDSSecurity extends CreditDefaultSwapSecurity {
                                 boolean adjustEffectiveDate,
                                 boolean adjustMaturityDate,
                                 InterestRateNotional notional,
-                                double recoveryRate,
                                 boolean includeAccruedPremium,
                                 boolean protectionStart,
                                 String securityType,
@@ -126,7 +124,6 @@ public abstract class StandardCDSSecurity extends CreditDefaultSwapSecurity {
           adjustEffectiveDate,
           adjustMaturityDate,
           notional,
-          recoveryRate,
           includeAccruedPremium,
           protectionStart,
           securityType);

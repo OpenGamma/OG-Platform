@@ -23,8 +23,9 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- *
+ * @deprecated Use {@link com.opengamma.analytics.financial.provider.calculator.generic.ZSpreadCalculator}
  */
+@Deprecated
 public final class ZSpreadCalculator {
   private static final PresentValueCalculator PRESENT_VALUE_CALCULATOR = PresentValueCalculator.getInstance();
   private static final PresentValueCurveSensitivityCalculator PV_SENSITIVITY_CALCULATOR = PresentValueCurveSensitivityCalculator.getInstance();

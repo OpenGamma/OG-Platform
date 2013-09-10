@@ -103,7 +103,7 @@ public class CdsRedCodeAggregationFunctionTest {
                                                                     createZdt(2013, 3, 20), createZdt(2013, 3, 21), createZdt(2014,3,20), StubType.SHORT_START,
                                                                     SimpleFrequency.SEMI_ANNUAL, DayCountFactory.INSTANCE.getDayCount("Actual/360"),
                                                                     BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"),
-                                                                    true, true, true, new InterestRateNotional(Currency.USD, 10000000), 0.4, true, true, 500,
+                                                                    true, true, true, new InterestRateNotional(Currency.USD, 10000000), true, true, 500,
                                                                     new InterestRateNotional(Currency.USD, 500000), 500, createZdt(2013,3,21), true);
     ExternalId secId = ExternalId.of("SEC_ID", "12345");
     cds.addExternalId(secId);

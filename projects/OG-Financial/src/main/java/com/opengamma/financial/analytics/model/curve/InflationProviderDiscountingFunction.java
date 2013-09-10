@@ -183,10 +183,10 @@ public class InflationProviderDiscountingFunction extends
             final CouponFixedCompoundingDefinition couponFix = (CouponFixedCompoundingDefinition) swap.getFirstLeg().getNthPayment(swap.getFirstLeg().getNumberOfPayments() - 1);
             if (couponInflation instanceof CouponInflationZeroCouponInterpolationDefinition) {
               final CouponInflationZeroCouponInterpolationDefinition coupon = (CouponInflationZeroCouponInterpolationDefinition) couponInflation;
-              parameterGuessForCurves.add(coupon.getIndexStartValue() * Math.pow((1 + marketData), couponFix.getPaymentAccrualFactors().length));
+              parameterGuessForCurves.add(100.0 * Math.pow((1 + marketData), couponFix.getPaymentAccrualFactors().length));
             } else {
               final CouponInflationZeroCouponMonthlyDefinition coupon = (CouponInflationZeroCouponMonthlyDefinition) couponInflation;
-              parameterGuessForCurves.add(coupon.getIndexStartValue() * Math.pow((1 + marketData), couponFix.getPaymentAccrualFactors().length));
+              parameterGuessForCurves.add(100.0 * Math.pow((1 + marketData), couponFix.getPaymentAccrualFactors().length));
             }
 
             derivativesForCurve[k++] = getCurveNodeConverter().getDerivative(node, definitionForNode, now, timeSeries);

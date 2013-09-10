@@ -43,7 +43,7 @@ public class GreekConverterTest {
     GREEKS.put(Greek.DELTA, DELTA);
     GREEKS.put(Greek.GAMMA, GAMMA);
     GREEKS.put(Greek.VANNA, VANNA);
-    final Map<UnderlyingType, Double> map = new HashMap<UnderlyingType, Double>();
+    final Map<UnderlyingType, Double> map = new HashMap<>();
     map.put(UnderlyingType.SPOT_PRICE, SPOT_PRICE);
     map.put(UnderlyingType.IMPLIED_VOLATILITY, IMPLIED_VOLATILITY);
     GREEKS_DATA = new GreekDataBundle(GREEKS, map, TRADE_DATA);

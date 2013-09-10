@@ -52,7 +52,7 @@ public class FutureTradeConverter {
   public FutureTradeConverter(final SecuritySource securitySource, final HolidaySource holidaySource, final ConventionSource conventionSource,
       final ConventionBundleSource conventionBundleSource, final RegionSource regionSource) {
     final InterestRateFutureSecurityConverter irFutureConverter = new InterestRateFutureSecurityConverter(holidaySource, conventionSource, regionSource);
-    final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource, regionSource, false);
+    final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource, regionSource);
     final DeliverableSwapFutureSecurityConverter dsfConverter = new DeliverableSwapFutureSecurityConverter(securitySource, swapConverter);
     final BondSecurityConverter bondConverter = new BondSecurityConverter(holidaySource, conventionBundleSource, regionSource);
     final BondFutureSecurityConverter bondFutureConverter = new BondFutureSecurityConverter(securitySource, bondConverter);
@@ -71,7 +71,7 @@ public class FutureTradeConverter {
       final InstrumentDefinitionWithData<?, Double> securityDefinition = ((FutureSecurity) security).accept(_futureSecurityConverter);
       double tradePremium = 0.0;
       if (trade.getPremium() != null) {
-        tradePremium = trade.getPremium(); // TODO: The trade price is stored in the trade premium. This has to be corrected.
+        tradePremium = trade.getPremium(); // TODO: The trade price is stored in the trade premium.
       }
       ZonedDateTime tradeDate = DateUtils.getUTCDate(1900, 1, 1);
       if ((trade.getTradeDate() != null) && trade.getTradeTime() != null && (trade.getTradeTime().toLocalTime() != null)) {

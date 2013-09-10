@@ -24,7 +24,7 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.B
 import com.opengamma.analytics.financial.model.volatility.VolatilityAndBucketedSensitivities;
 import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParametersStrikeInterpolation;
 import com.opengamma.analytics.financial.provider.calculator.blackforex.CurrencyExposureForexBlackSmileCalculator;
-import com.opengamma.analytics.financial.provider.calculator.blackforex.GammaSpotForexBlackSmileCalculator;
+import com.opengamma.analytics.financial.provider.calculator.blackforex.PercentageGammaForexBlackSmileCalculator;
 import com.opengamma.analytics.financial.provider.calculator.blackforex.PresentValueCurveSensitivityForexBlackSmileCalculator;
 import com.opengamma.analytics.financial.provider.calculator.blackforex.PresentValueForexBlackSmileCalculator;
 import com.opengamma.analytics.financial.provider.calculator.blackforex.PresentValueForexVolatilitySensitivityForexBlackSmileCalculator;
@@ -594,27 +594,7 @@ public class ForexOptionVanillaBlackSmileMethodTest {
     assertEquals("Forex: relative gamma", 1.0, gammaExpected / gammaComputed.getAmount(), TOLERANCE_PV);
   }
 
-  //    @Test
-  //    /**
-  //     * Tests the gamma for Forex option.
-  //     */
-  //    public void gammaMethodVsCalculator() {
-  //      final double strike = 1.45;
-  //      final boolean isCall = true;
-  //      final boolean isLong = true;
-  //      final double notional = 100000000;
-  //      final ZonedDateTime payDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofMonths(9), BUSINESS_DAY, CALENDAR);
-  //      final ZonedDateTime expDate = ScheduleCalculator.getAdjustedDate(payDate, -SETTLEMENT_DAYS, CALENDAR);
-  //      final ForexDefinition forexUnderlyingDefinition = new ForexDefinition(EUR, USD, payDate, notional, strike);
-  //      final ForexOptionVanillaDefinition forexOptionDefinition = new ForexOptionVanillaDefinition(forexUnderlyingDefinition, expDate, isCall, isLong);
-  //      final ForexOptionVanilla forexOption = forexOptionDefinition.toDerivative(REFERENCE_DATE, NOT_USED_2);
-  //      final GammaValueBlackForexCalculator calculator = GammaValueBlackForexCalculator.getInstance();
-  //      final CurrencyAmount gammaCalculator = forexOption.accept(calculator, SMILE_MULTICURVES);
-  //      final CurrencyAmount gammaMethod = METHOD_OPTION.gamma(forexOption, SMILE_MULTICURVES, true);
-  //      assertEquals("Forex: relative gamma", 1.0, gammaCalculator.getAmount() / gammaMethod.getAmount(), TOLERANCE_PV);
-  //    }
-
-  private static final GammaSpotForexBlackSmileCalculator GSFBSC = GammaSpotForexBlackSmileCalculator.getInstance();
+  private static final PercentageGammaForexBlackSmileCalculator GSFBSC = PercentageGammaForexBlackSmileCalculator.getInstance();
 
   @Test
   /**

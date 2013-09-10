@@ -291,8 +291,8 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
     }
 
     @Override
-    protected ValueProperties getBundleProperties() {
-      return super.getBundleProperties().copy()
+    protected ValueProperties getBundleProperties(final String[] curveNames) {
+      return super.getBundleProperties(curveNames).copy()
           .withAny(PROPERTY_HULL_WHITE_PARAMETERS)
           .withAny(PROPERTY_HULL_WHITE_CURRENCY)
           .get();

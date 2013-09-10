@@ -22,20 +22,21 @@ public class CurrencyAggregationFunction implements AggregationFunction<String> 
   private static final String NAME = "Currency";
   private static final String NO_CURRENCY = "No or multiple currencies";
   private final Comparator<Position> _comparator = new SimplePositionComparator();
-  
+
   @Override
-  public String classifyPosition(Position position) {
+  public String classifyPosition(final Position position) {
     try {
-      Currency currency = FinancialSecurityUtils.getCurrency(position.getSecurity());
+      final Currency currency = FinancialSecurityUtils.getCurrency(position.getSecurity());
       if (currency == null) {
         return NO_CURRENCY;
       }
       return currency.toString();
-    } catch (UnsupportedOperationException ex) {
+    } catch (final UnsupportedOperationException ex) {
       return NO_CURRENCY;
     }
   }
 
+  @Override
   public String getName() {
     return NAME;
   }
@@ -46,10 +47,11 @@ public class CurrencyAggregationFunction implements AggregationFunction<String> 
   }
 
   @Override
-  public int compare(String currency1, String currency2) {
+  public int compare(final String currency1, final String currency2) {
     return currency1.compareTo(currency2);
   }
-  
+
+  @Override
   public Comparator<Position> getPositionComparator() {
     return _comparator;
   }

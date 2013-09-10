@@ -22,7 +22,6 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
  */
 public class FutureOptionUtils {
   private static final TemporalAdjuster THIRD_WED_ADJUSTER = TemporalAdjusters.dayOfWeekInMonth(3, DayOfWeek.WEDNESDAY);
-  private static final TemporalAdjuster LAST_DAY_ADJUSTER = TemporalAdjusters.lastDayOfMonth();
   private static final Calendar WEEKDAYS = new MondayToFridayCalendar("MTWThF");
   /**
    * Compute time between now and future or future option's settlement date,
@@ -91,13 +90,13 @@ public class FutureOptionUtils {
   public static LocalDate getApproximateIRFutureQuarterlyExpiry(final int nthFuture, final LocalDate valDate) {
     return IMMFutureAndFutureOptionQuarterlyExpiryCalculator.getInstance().getExpiryDate(nthFuture, valDate, WEEKDAYS);
   }
-  
+
   public static LocalDate getIRFutureMonthlyExpiryDate(final int nthFuture, final LocalDate valDate, final Calendar holidayCalendar) {
     return IMMFutureAndFutureOptionMonthlyExpiryCalculator.getInstance().getExpiryDate(nthFuture, valDate, holidayCalendar);
   }
 
   public static LocalDate getApproximateIRFutureMonth(final int nthFuture, final LocalDate valDate) {
     return IMMFutureAndFutureOptionMonthlyExpiryCalculator.getInstance().getExpiryDate(nthFuture, valDate, WEEKDAYS);
-  }  
+  }
 
 }

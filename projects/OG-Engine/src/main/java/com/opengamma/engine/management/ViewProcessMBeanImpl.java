@@ -17,8 +17,9 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * An MBean implementation for attributes and operations on a view process.
- * 
+ * @deprecated use ViewProcessMXBeanImpl
  */
+@Deprecated
 public class ViewProcessMBeanImpl implements ViewProcessMBean {
 
   /**

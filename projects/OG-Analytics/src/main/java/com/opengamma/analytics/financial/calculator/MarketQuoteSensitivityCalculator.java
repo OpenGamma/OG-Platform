@@ -24,6 +24,7 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * Calculator of the sensitivity to the market quotes of instruments used to build the curves.
  */
+@SuppressWarnings("deprecation")
 public final class MarketQuoteSensitivityCalculator {
 
   /**

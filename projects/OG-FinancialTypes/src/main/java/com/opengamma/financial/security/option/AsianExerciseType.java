@@ -22,7 +22,6 @@ public class AsianExerciseType extends ExerciseType {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
-
   /**
    * Creates an empty instance.
    */

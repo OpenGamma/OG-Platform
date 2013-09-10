@@ -2,7 +2,7 @@ package com.opengamma.analytics.financial.credit.cds;
 
 /**
  * The fields we expect in the ISDA CDS test grid files.
- * 
+ *
  * @author Niels Stchedroff
  */
 public enum ISDATestGridFields {
@@ -18,7 +18,7 @@ public enum ISDATestGridFields {
 	MATURITY_DATE("Maturity Date"),
 	TRADE_DATE("Trade Date"),
 	RECOVERY("Recovery");
-	
+
 	/**
 	 * The heading name for the column in the Excel file.
 	 */
@@ -28,8 +28,8 @@ public enum ISDATestGridFields {
 		return _heading;
 	}
 
-	private ISDATestGridFields(String _heading) 
+	private ISDATestGridFields(final String heading)
 	{
-		this._heading = _heading;
+		this._heading = heading;
 	}
 }

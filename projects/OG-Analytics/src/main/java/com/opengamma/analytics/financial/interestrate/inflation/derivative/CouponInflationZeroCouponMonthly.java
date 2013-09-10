@@ -129,7 +129,7 @@ public class CouponInflationZeroCouponMonthly extends CouponInflation {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -139,7 +139,7 @@ public class CouponInflationZeroCouponMonthly extends CouponInflation {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    CouponInflationZeroCouponMonthly other = (CouponInflationZeroCouponMonthly) obj;
+    final CouponInflationZeroCouponMonthly other = (CouponInflationZeroCouponMonthly) obj;
     if (Double.doubleToLongBits(_indexStartValue) != Double.doubleToLongBits(other._indexStartValue)) {
       return false;
     }

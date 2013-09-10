@@ -248,6 +248,7 @@ import com.opengamma.util.ArgumentChecker;
     @Override
     public void viewDefinitionCompilationFailed(Instant valuationTime, Exception exception) {
       s_logger.warn("Compilation of the view definition failed", exception);
+      _view.viewCompilationFailed(exception);
     }
   }
 

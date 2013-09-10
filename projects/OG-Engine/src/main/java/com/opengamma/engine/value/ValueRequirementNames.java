@@ -401,6 +401,12 @@ public final class ValueRequirementNames {
    */
   public static final String VOLATILITY_CUBE_FITTED_POINTS = "VolatilityCubeFittedPoints";
 
+  ///// Volatility adjustments
+  /**
+   * The shifts to apply to a log-normal volatility surface
+   */
+  public static final String LOGNORMAL_SURFACE_SHIFTS = "LognormalSurfaceShifts";
+  
   ///// Pricing
 
   /**
@@ -527,6 +533,10 @@ public final class ValueRequirementNames {
    */
   public static final String PAR_RATE = "Par Rate";
   /**
+   * The spread that must be added to the market quote of an instrument to produce a present value of zero
+   */
+  public static final String PAR_SPREAD = "Par Spread";
+  /**
    * Sensitivity of par rate to a 1bp shift in the yield curve.
    */
   public static final String PAR_RATE_PARALLEL_CURVE_SHIFT = "Par Rate Parallel Shift Sensitivity";
@@ -558,7 +568,15 @@ public final class ValueRequirementNames {
    * Fair value for an option position (used for options - equal to the FAIR_VALUE multiplied by the number of trades and the point value).
    */
   public static final String VALUE_FAIR_VALUE = "ValueFairValue";
-
+  /**
+   * The convexity adjustment - the difference between the price and the par rate of an instrument
+   */
+  public static final String CONVEXITY_ADJUSTMENT = "Convexity Adjustment";
+  /**
+   * The net amount of an inflation coupon at the start of a month with respect to the reference index.
+   */
+  public static final String INFLATION_NET_AMOUNT = "Inflation Net Amount";
+  
   ///// Greeks
 
   /**

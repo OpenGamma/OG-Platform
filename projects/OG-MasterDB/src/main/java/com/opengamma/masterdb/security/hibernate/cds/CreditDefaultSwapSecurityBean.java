@@ -71,8 +71,6 @@ public abstract class CreditDefaultSwapSecurityBean extends SecurityBean {
   @PropertyDefinition
   private NotionalBean _notional;
   @PropertyDefinition
-  private Double _recoveryRate;
-  @PropertyDefinition
   private Boolean _includeAccruedPremium;
   @PropertyDefinition
   private Boolean _protectionStart;
@@ -139,8 +137,6 @@ public abstract class CreditDefaultSwapSecurityBean extends SecurityBean {
         return getAdjustMaturityDate();
       case 1585636160:  // notional
         return getNotional();
-      case 2002873877:  // recoveryRate
-        return getRecoveryRate();
       case 2100149628:  // includeAccruedPremium
         return getIncludeAccruedPremium();
       case 2103482633:  // protectionStart
@@ -206,9 +202,6 @@ public abstract class CreditDefaultSwapSecurityBean extends SecurityBean {
       case 1585636160:  // notional
         setNotional((NotionalBean) newValue);
         return;
-      case 2002873877:  // recoveryRate
-        setRecoveryRate((Double) newValue);
-        return;
       case 2100149628:  // includeAccruedPremium
         setIncludeAccruedPremium((Boolean) newValue);
         return;
@@ -244,7 +237,6 @@ public abstract class CreditDefaultSwapSecurityBean extends SecurityBean {
           JodaBeanUtils.equal(getAdjustEffectiveDate(), other.getAdjustEffectiveDate()) &&
           JodaBeanUtils.equal(getAdjustMaturityDate(), other.getAdjustMaturityDate()) &&
           JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
-          JodaBeanUtils.equal(getRecoveryRate(), other.getRecoveryRate()) &&
           JodaBeanUtils.equal(getIncludeAccruedPremium(), other.getIncludeAccruedPremium()) &&
           JodaBeanUtils.equal(getProtectionStart(), other.getProtectionStart()) &&
           super.equals(obj);
@@ -273,7 +265,6 @@ public abstract class CreditDefaultSwapSecurityBean extends SecurityBean {
     hash += hash * 31 + JodaBeanUtils.hashCode(getAdjustEffectiveDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getAdjustMaturityDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRecoveryRate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getIncludeAccruedPremium());
     hash += hash * 31 + JodaBeanUtils.hashCode(getProtectionStart());
     return hash ^ super.hashCode();
@@ -731,31 +722,6 @@ public abstract class CreditDefaultSwapSecurityBean extends SecurityBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the recoveryRate.
-   * @return the value of the property
-   */
-  public Double getRecoveryRate() {
-    return _recoveryRate;
-  }
-
-  /**
-   * Sets the recoveryRate.
-   * @param recoveryRate  the new value of the property
-   */
-  public void setRecoveryRate(Double recoveryRate) {
-    this._recoveryRate = recoveryRate;
-  }
-
-  /**
-   * Gets the the {@code recoveryRate} property.
-   * @return the property, not null
-   */
-  public final Property<Double> recoveryRate() {
-    return metaBean().recoveryRate().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets the includeAccruedPremium.
    * @return the value of the property
    */
@@ -905,11 +871,6 @@ public abstract class CreditDefaultSwapSecurityBean extends SecurityBean {
     private final MetaProperty<NotionalBean> _notional = DirectMetaProperty.ofReadWrite(
         this, "notional", CreditDefaultSwapSecurityBean.class, NotionalBean.class);
     /**
-     * The meta-property for the {@code recoveryRate} property.
-     */
-    private final MetaProperty<Double> _recoveryRate = DirectMetaProperty.ofReadWrite(
-        this, "recoveryRate", CreditDefaultSwapSecurityBean.class, Double.class);
-    /**
      * The meta-property for the {@code includeAccruedPremium} property.
      */
     private final MetaProperty<Boolean> _includeAccruedPremium = DirectMetaProperty.ofReadWrite(
@@ -942,7 +903,6 @@ public abstract class CreditDefaultSwapSecurityBean extends SecurityBean {
         "adjustEffectiveDate",
         "adjustMaturityDate",
         "notional",
-        "recoveryRate",
         "includeAccruedPremium",
         "protectionStart");
 
@@ -991,8 +951,6 @@ public abstract class CreditDefaultSwapSecurityBean extends SecurityBean {
           return _adjustMaturityDate;
         case 1585636160:  // notional
           return _notional;
-        case 2002873877:  // recoveryRate
-          return _recoveryRate;
         case 2100149628:  // includeAccruedPremium
           return _includeAccruedPremium;
         case 2103482633:  // protectionStart
@@ -1159,14 +1117,6 @@ public abstract class CreditDefaultSwapSecurityBean extends SecurityBean {
      */
     public final MetaProperty<NotionalBean> notional() {
       return _notional;
-    }
-
-    /**
-     * The meta-property for the {@code recoveryRate} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Double> recoveryRate() {
-      return _recoveryRate;
     }
 
     /**

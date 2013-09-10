@@ -17,29 +17,29 @@ import com.opengamma.analytics.financial.interestrate.future.method.InterestRate
 import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureOptionMarginTransactionBlackSurfaceMethod;
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackCubeBundle;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.model.black.BlackDiscountingValueGammaIRFutureOptionFunction;
 
 /**
  * Calculates the "ValueGamma" ({@link ValueRequirementNames#VALUE_GAMMA}) of an interest rate future option taking
  * the Black "Gamma" ({@link ValueRequirementNames#GAMMA}) as required input.
  * The underlying Futures price is computed from the futures curve.
+ * @deprecated Use {@link BlackDiscountingValueGammaIRFutureOptionFunction}
  */
+@Deprecated
 public class InterestRateFutureOptionBlackValueGammaFunction extends InterestRateFutureOptionBlackFunction {
-
-  /** Value gamma calculator */
-  // private static final ValueGreekCalculator CALCULATOR = ValueGammaCalculator.getInstance();
-  
   /** The methods  */
   private static final InterestRateFutureOptionMarginTransactionBlackSurfaceMethod TRANSANCTION_METHOD = InterestRateFutureOptionMarginTransactionBlackSurfaceMethod.getInstance();
   private static final InterestRateFutureOptionMarginSecurityBlackSurfaceMethod SECURITY_METHOD = InterestRateFutureOptionMarginSecurityBlackSurfaceMethod.getInstance();
-  
+
   public InterestRateFutureOptionBlackValueGammaFunction() {
     super(ValueRequirementNames.VALUE_GAMMA);
   }
 
   @Override
-  protected Set<ComputedValue> getResult(final InstrumentDerivative derivative, final YieldCurveWithBlackCubeBundle data, final ValueSpecification spec) {
+  protected Set<ComputedValue> getResult(final InstrumentDerivative derivative, final YieldCurveWithBlackCubeBundle data, final ValueSpecification spec, Set<ValueRequirement> desiredValues) {
     Double valueGamma = null;
     if (derivative instanceof InterestRateFutureOptionMarginTransaction) {
       final InterestRateFutureOptionMarginTransaction  transaction = (InterestRateFutureOptionMarginTransaction) derivative;

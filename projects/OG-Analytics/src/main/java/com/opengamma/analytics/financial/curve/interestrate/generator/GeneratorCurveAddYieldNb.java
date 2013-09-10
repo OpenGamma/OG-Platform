@@ -20,6 +20,7 @@ import com.opengamma.util.ArgumentChecker;
  * The number of parameter for each curve is imposed.
  * The generated curve is a YieldAndDiscountAddZeroSpreadCurve.
  */
+@SuppressWarnings("deprecation")
 public class GeneratorCurveAddYieldNb extends GeneratorYDCurve {
 
   /**

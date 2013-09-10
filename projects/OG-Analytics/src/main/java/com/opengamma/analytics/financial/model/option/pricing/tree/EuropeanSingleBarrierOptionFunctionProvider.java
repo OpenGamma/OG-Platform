@@ -6,19 +6,20 @@
 package com.opengamma.analytics.financial.model.option.pricing.tree;
 
 /**
- * 
+ * European type of single barrier option
  */
 public class EuropeanSingleBarrierOptionFunctionProvider extends BarrierOptionFunctionProvider {
 
   /**
    * @param strike Strike price
+   * @param timeToExpiry Time to expiry
    * @param steps Number of steps
    * @param isCall True if call, false if put
    * @param barrier Barrier price
    * @param typeName {@link BarrierTypes}, DownAndOut or UpAndOut
    */
-  public EuropeanSingleBarrierOptionFunctionProvider(final double strike, final int steps, final boolean isCall, final double barrier, final BarrierTypes typeName) {
-    super(strike, steps, isCall, barrier, typeName);
+  public EuropeanSingleBarrierOptionFunctionProvider(final double strike, final double timeToExpiry, final int steps, final boolean isCall, final double barrier, final BarrierTypes typeName) {
+    super(strike, timeToExpiry, steps, isCall, barrier, typeName);
   }
 
   @Override
@@ -30,7 +31,7 @@ public class EuropeanSingleBarrierOptionFunctionProvider extends BarrierOptionFu
     final double[] values = new double[nStepsP];
     double priceTmp = assetPrice;
     for (int i = 0; i < nStepsP; ++i) {
-      values[i] = getChecker().checkOut(priceTmp) ? 0. : Math.max(sign * (priceTmp - strike), 0);
+      values[i] = getChecker().checkOut(priceTmp) ? 0. : Math.max(sign * (priceTmp - strike), 0.);
       priceTmp *= upOverDown;
     }
     return values;
@@ -48,5 +49,24 @@ public class EuropeanSingleBarrierOptionFunctionProvider extends BarrierOptionFu
       assetPrice *= upOverDown;
     }
     return res;
+  }
+
+  @Override
+  public int hashCode() {
+    return super.hashCode();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (!(obj instanceof EuropeanSingleBarrierOptionFunctionProvider)) {
+      return false;
+    }
+    return super.equals(obj);
   }
 }

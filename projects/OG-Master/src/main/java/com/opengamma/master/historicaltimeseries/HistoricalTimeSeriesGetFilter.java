@@ -37,6 +37,9 @@ import com.opengamma.util.PublicSPI;
 @BeanDefinition
 public class HistoricalTimeSeriesGetFilter extends DirectBean implements Serializable {
 
+  /** Serialization version. */
+  private static final long serialVersionUID = -3240580993706420652L;
+
   /**
    * The earliest date to return, inclusive, null means far past.
    */

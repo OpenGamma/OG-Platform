@@ -44,7 +44,6 @@ import com.opengamma.financial.analytics.model.volatility.SmileFittingPropertyNa
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.util.money.Currency;
 
-
 /**
  *
  */

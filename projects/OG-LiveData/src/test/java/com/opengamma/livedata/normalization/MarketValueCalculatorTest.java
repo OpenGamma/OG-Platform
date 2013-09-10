@@ -86,7 +86,7 @@ public class MarketValueCalculatorTest {
     MarketValueCalculator calculator = new MarketValueCalculator();
     
     MutableFudgeMsg historicalMsg = OpenGammaFudgeContext.getInstance().newMessage();
-    historicalMsg.add(MarketDataRequirementNames.LAST, 50.52);
+    historicalMsg.add(MarketDataRequirementNames.LAST, 45); // Should never use this
     
     FieldHistoryStore store = new FieldHistoryStore();
     store.liveDataReceived(historicalMsg);
@@ -94,9 +94,10 @@ public class MarketValueCalculatorTest {
     MutableFudgeMsg msg = OpenGammaFudgeContext.getInstance().newMessage();
     msg.add(MarketDataRequirementNames.BID, 50.0);
     msg.add(MarketDataRequirementNames.ASK, 100.0);
+    msg.add(MarketDataRequirementNames.LAST, 50.52);
     
     MutableFudgeMsg normalized = calculator.apply(msg, "123", store);
-    assertEquals(3, normalized.getAllFields().size());
+    assertEquals(4, normalized.getAllFields().size());
     assertEquals(50.52, normalized.getDouble(MarketDataRequirementNames.MARKET_VALUE), 0.0001);
   }
 

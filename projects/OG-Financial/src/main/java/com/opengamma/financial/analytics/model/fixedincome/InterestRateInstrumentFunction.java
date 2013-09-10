@@ -68,6 +68,7 @@ import com.opengamma.util.money.Currency;
 
 /**
  * Base function for pricing interest-rate instruments without optionality.
+ * 
  * @deprecated Use descendants of {@link MultiCurvePricingFunction}
  */
 @Deprecated
@@ -95,6 +96,7 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     _visitor = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder().cashSecurityVisitor(cashConverter).fraSecurityVisitor(fraConverter)
         .swapSecurityVisitor(swapConverter).interestRateFutureSecurityVisitor(irFutureConverter).create();
     _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
+    ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
   }
 
   @Override

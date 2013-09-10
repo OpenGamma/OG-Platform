@@ -8,6 +8,8 @@ package com.opengamma.integration.copier.portfolio.writer;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,10 +22,12 @@ import java.util.concurrent.Future;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
 
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdSearch;
@@ -52,7 +56,6 @@ import com.opengamma.master.security.SecuritySearchSortOrder;
 import com.opengamma.master.security.impl.MasterSecuritySource;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.beancompare.BeanCompare;
-import com.opengamma.util.beancompare.BeanDifference;
 import com.opengamma.util.tuple.ObjectsPair;
 
 /**
@@ -140,7 +143,17 @@ public class MasterPortfolioWriter implements PortfolioWriter {
 
     _securitySource = new MasterSecuritySource(_securityMaster);
 
-    _beanCompare = new BeanCompare();
+    // unique ID and external ID bundle are ignored when comparing securities
+    Comparator<Object> alwaysEqualComparator = new Comparator<Object>() {
+      @Override
+      public int compare(Object notUsed1, Object notUsed2) {
+        return 0;
+      }
+    };
+    Map<MetaProperty<?>, Comparator<Object>> comparators = ImmutableMap.<MetaProperty<?>, Comparator<Object>>of(
+        ManageableSecurity.meta().uniqueId(), alwaysEqualComparator,
+        ManageableSecurity.meta().externalIdBundle(), alwaysEqualComparator);
+    _beanCompare = new BeanCompare(comparators, Collections.<Class<?>, Comparator<Object>>emptyMap());
 
     //_currentPath = new String[0];
     //_securityIdToPosition = new HashMap<ObjectId, ManageablePosition>();
@@ -252,6 +265,12 @@ public class MasterPortfolioWriter implements PortfolioWriter {
     if (position.getSecurityLink().getExternalId().isEmpty() && position.getSecurityLink().getObjectId() == null) {
       position.setSecurityLink(ManageableSecurityLink.of(writtenSecurities.get(0)));
     }
+    // also check trades within position for a valid securityLink
+    for (ManageableTrade trade : position.getTrades()) {
+      if (trade.getSecurityLink().getExternalId().isEmpty() && trade.getSecurityLink().getObjectId() == null) {
+        trade.setSecurityLink(ManageableSecurityLink.of(writtenSecurities.get(0))); // or reuse link from position?
+      }
+    }
 
     // No existing position could be reused/updated: just Add the new position to the position master as a new document
     // (can't launch a thread since we need the position id immediately, to be stored with the pos document in the map)
@@ -329,23 +348,63 @@ public class MasterPortfolioWriter implements PortfolioWriter {
     return null;
   }
 
-  /*
-   * writeSecurity searches for an existing security that matches an external id search, and attempts to
+  /**
+   * Searches for an existing security that matches an {@code ExternalId} search, and attempts to
    * reuse/update it wherever possible, instead of creating a new one.
+   * @param security  The security to be written to the master.
+   * @return The new security as added to the master or the existing security found in the master
    */
-  private ManageableSecurity writeSecurity(ManageableSecurity security) {
+  protected ManageableSecurity writeSecurity(ManageableSecurity security) {
     
     ArgumentChecker.notNull(security, "security");
     
-    SecuritySearchRequest searchReq = new SecuritySearchRequest();
-    ExternalIdSearch idSearch = new ExternalIdSearch(security.getExternalIdBundle());  // match any one of the IDs
-    searchReq.setVersionCorrection(VersionCorrection.ofVersionAsOf(Instant.now())); // valid now
-    searchReq.setExternalIdSearch(idSearch);
-    searchReq.setFullDetail(true);
-    searchReq.setSortOrder(SecuritySearchSortOrder.VERSION_FROM_INSTANT_DESC);
-    SecuritySearchResult searchResult = _securityMaster.search(searchReq);
+    SecuritySearchResult searchResult = lookupSecurity(security);
 
+    ManageableSecurity foundSecurity = updateSecurityVersionIfFound(security, searchResult);
+
+    if (foundSecurity != null) {
+      return foundSecurity;
+    } else {
+      return addSecurity(security);
+    }
+  }
+
+  /**
+   * Adds a security to master and returns the newly added security.  Returns null if 
+   * unable to add security
+   */
+  private ManageableSecurity addSecurity(ManageableSecurity security) {
+    SecurityDocument addDoc = new SecurityDocument(security);
+    try {
+      SecurityDocument result = _securityMaster.add(addDoc);
+      return result.getSecurity();
+    } catch (Exception e) {
+      s_logger.error("Failed to write security " + security + " to the security master", e);
+      return null;
+    }
+  }
+
+  /**
+   * If there is an existing {@code ManageableSecurity} in the searchResult that matches security, for the 1st match:
+   * <p><ul>
+   * <li>if the only difference is the {@link UniqueId} do nothing and return the existing 
+   * <li> If there are other differences, update the existing and return the new security
+   * <li> If there are no matches or any errors are encountered, return null
+   * @param security new security being searched for
+   * <ul><p>
+   * @param searchResult results from search of Master for security
+   * @return found or updated security, null if no matches
+   */
+  protected ManageableSecurity updateSecurityVersionIfFound(ManageableSecurity security, SecuritySearchResult searchResult) {
     for (ManageableSecurity foundSecurity : searchResult.getSecurities()) {
+      if (foundSecurity.getClass().equals(security.getClass())) {
+        s_logger.info("Returning existing security " + foundSecurity);
+        return foundSecurity;
+      }
+    }
+    return null;
+    // TODO this is too prone to finding trivial differences and creating unnecessary new security versions
+    /*for (ManageableSecurity foundSecurity : searchResult.getSecurities()) {
       List<BeanDifference<?>> differences = null;
       if (foundSecurity.getClass().equals(security.getClass())) {
         try {
@@ -355,7 +414,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
           return null;
         }
       }
-      if (differences != null && (differences.isEmpty() || (differences.size() == 1 && differences.get(0).getProperty().propertyType() == UniqueId.class))) {
+      if (differences.isEmpty()) {
         // It's already there, don't update or add it
         return foundSecurity;
       } else {
@@ -374,16 +433,26 @@ public class MasterPortfolioWriter implements PortfolioWriter {
         }
       }
     }
+    // no matching security in searchResult, return null
+    return null;*/
+  }
 
-    // Not found, so add it
-    SecurityDocument addDoc = new SecurityDocument(security);
-    try {
-      SecurityDocument result = _securityMaster.add(addDoc);
-      return result.getSecurity();
-    } catch (Exception e) {
-      s_logger.error("Failed to write security " + security + " to the security master", e);
-      return null;
-    }
+  /**
+   * Attempts to find a security in the master by {@code ExternalId}.  If any of the {@code ExternalId}s on the security
+   * match any {@code ExternalId} on an existing security, the existing security will be added to the returned 
+   * {@link SecuritySearchResult}.  The current version of the existing securities are used.
+   * @param security new security to search for in Master
+   * @return search result
+   */
+  protected SecuritySearchResult lookupSecurity(ManageableSecurity security) {
+    SecuritySearchRequest searchReq = new SecuritySearchRequest();
+    ExternalIdSearch idSearch = new ExternalIdSearch(security.getExternalIdBundle());  // match any one of the IDs
+    searchReq.setVersionCorrection(VersionCorrection.ofVersionAsOf(Instant.now())); // valid now
+    searchReq.setExternalIdSearch(idSearch);
+    searchReq.setFullDetail(true);
+    searchReq.setSortOrder(SecuritySearchSortOrder.VERSION_FROM_INSTANT_DESC);
+    SecuritySearchResult searchResult = _securityMaster.search(searchReq);
+    return searchResult;
   }
 
   private void testQuantities(ManageablePosition position) {
@@ -619,5 +688,4 @@ public class MasterPortfolioWriter implements PortfolioWriter {
   public SecurityMaster getSecurityMaster() {
     return _securityMaster;
   }
-
 }

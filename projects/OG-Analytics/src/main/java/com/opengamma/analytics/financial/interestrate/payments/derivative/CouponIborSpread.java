@@ -214,6 +214,7 @@ public class CouponIborSpread extends CouponFloating {
     return withSpread(0.0);
   }
 
+  @SuppressWarnings("deprecation")
   @Override
   public CouponIborSpread withNotional(final double notional) {
     try {
@@ -278,6 +279,7 @@ public class CouponIborSpread extends CouponFloating {
     return true;
   }
 
+  @SuppressWarnings("deprecation")
   public CouponIborSpread withSpread(final double spread) {
     try {
       return new CouponIborSpread(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), getNotional(), getFixingTime(), _index, getFixingPeriodStartTime(),

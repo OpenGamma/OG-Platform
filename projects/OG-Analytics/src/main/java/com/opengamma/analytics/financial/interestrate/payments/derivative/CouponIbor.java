@@ -143,6 +143,7 @@ public class CouponIbor extends CouponFloating {
     return _index;
   }
 
+  @SuppressWarnings("deprecation")
   @Override
   public CouponIbor withNotional(final double notional) {
     try {
@@ -201,6 +202,7 @@ public class CouponIbor extends CouponFloating {
     return true;
   }
 
+  @SuppressWarnings("deprecation")
   public CouponFixed withUnitCoupon() {
     try {
       return new CouponFixed(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), getNotional(), 1.0);

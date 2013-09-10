@@ -1,12 +1,11 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.forex.method;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.util.amount.SurfaceValue;
 import com.opengamma.util.ArgumentChecker;
@@ -31,16 +30,16 @@ public class PresentValueForexBlackVolatilitySensitivity {
   private final SurfaceValue _vega;
 
   /**
-   * Constructor with given sensitivities for a given currency pair. 
+   * Constructor with given sensitivities for a given currency pair.
    * @param ccy1 First currency.
    * @param ccy2 Second currency.
    * @param vega Values for vega. A new map is created for the new object.
    */
   public PresentValueForexBlackVolatilitySensitivity(final Currency ccy1, final Currency ccy2, final SurfaceValue vega) {
-    Validate.notNull(ccy1, "currency 1");
-    Validate.notNull(ccy2, "currency 2");
-    Validate.notNull(vega, "vega");
-    Validate.isTrue(!vega.getMap().isEmpty(), "vega map was empty");
+    ArgumentChecker.notNull(ccy1, "currency 1");
+    ArgumentChecker.notNull(ccy2, "currency 2");
+    ArgumentChecker.notNull(vega, "vega");
+    ArgumentChecker.isTrue(!vega.getMap().isEmpty(), "vega map was empty");
     _currencyPair = ObjectsPair.of(ccy1, ccy2);
     _vega = SurfaceValue.from(vega.getMap());
   }
@@ -70,7 +69,7 @@ public class PresentValueForexBlackVolatilitySensitivity {
   }
 
   /**
-   * Return a new volatility sensitivity by adding another sensitivity. 
+   * Return a new volatility sensitivity by adding another sensitivity.
    * @param other The Black volatility sensitivity. Not null.
    * @return The new sensitivity.
    */
@@ -105,7 +104,7 @@ public class PresentValueForexBlackVolatilitySensitivity {
    * @param tolerance The tolerance.
    * @return The comparison flag.
    */
-  public static boolean compare(final PresentValueForexBlackVolatilitySensitivity value1, final PresentValueForexBlackVolatilitySensitivity value2, double tolerance) {
+  public static boolean compare(final PresentValueForexBlackVolatilitySensitivity value1, final PresentValueForexBlackVolatilitySensitivity value2, final double tolerance) {
     if (!value1._currencyPair.equals(value2._currencyPair)) {
       return false;
     }
@@ -117,7 +116,7 @@ public class PresentValueForexBlackVolatilitySensitivity {
    * @return The amount.
    */
   public CurrencyAmount toSingleValue() {
-    Currency ccy = _currencyPair.getSecond();
+    final Currency ccy = _currencyPair.getSecond();
     return CurrencyAmount.of(ccy, _vega.toSingleValue());
   }
 

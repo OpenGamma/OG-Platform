@@ -119,7 +119,7 @@ public class CS01FromQuotedSpreadsTest extends ISDABaseTest {
 
     final int n = MATURITIES.length;
     for (int i = 0; i < n; i++) {
-      final CDSAnalytic cds = new CDSAnalytic(TRADE_DATE, EFFECTIVE_DATE, CASH_SETTLE_DATE, STARTDATE, MATURITIES[i], PAY_ACC_ON_DEFAULT, TENOR, STUB, PROCTECTION_START, RECOVERY_RATE);
+      final CDSAnalytic cds = new CDSAnalytic(TRADE_DATE, EFFECTIVE_DATE, CASH_SETTLE_DATE, STARTDATE, MATURITIES[i], PAY_ACC_ON_DEFAULT, PAYMENT_INTERVAL, STUB, PROCTECTION_START, RECOVERY_RATE);
       final PointsUpFront puf = PUF_CONVERTER.toPointsUpFront(cds, new QuotedSpread(coupon, QUOTED_SPREADS[i] * ONE_BP), YIELD_CURVE);
       final double cash = (puf.getPointsUpFront() - cds.getAccruedPremium(coupon)) * NOTIONAL;
       // System.out.println(cash);
@@ -137,7 +137,7 @@ public class CS01FromQuotedSpreadsTest extends ISDABaseTest {
 
     final int n = MATURITIES.length;
     for (int i = 0; i < n; i++) {
-      final CDSAnalytic cds = new CDSAnalytic(TRADE_DATE, EFFECTIVE_DATE, CASH_SETTLE_DATE, STARTDATE, MATURITIES[i], PAY_ACC_ON_DEFAULT, TENOR, STUB, PROCTECTION_START, RECOVERY_RATE);
+      final CDSAnalytic cds = new CDSAnalytic(TRADE_DATE, EFFECTIVE_DATE, CASH_SETTLE_DATE, STARTDATE, MATURITIES[i], PAY_ACC_ON_DEFAULT, PAYMENT_INTERVAL, STUB, PROCTECTION_START, RECOVERY_RATE);
       final CDSQuoteConvention quote = new QuotedSpread(coupon, QUOTED_SPREADS[i] * ONE_BP);
       final double cs01 = scale * CS01_CAL.parallelCS01(cds, quote, YIELD_CURVE, ONE_BP);
       assertEquals(MATURITIES[i].toString(), PARELLEL_CS01[i], cs01, 1e-14 * NOTIONAL);
@@ -152,13 +152,13 @@ public class CS01FromQuotedSpreadsTest extends ISDABaseTest {
     final CDSAnalytic[] curveCDSs = new CDSAnalytic[m];
     final double[] quotedSpreads = new double[m];
     for (int i = 0; i < m; i++) {
-      curveCDSs[i] = new CDSAnalytic(TRADE_DATE, EFFECTIVE_DATE, CASH_SETTLE_DATE, TRADE_DATE, BUCKET_DATES[i], PAY_ACC_ON_DEFAULT, TENOR, STUB, PROCTECTION_START, RECOVERY_RATE);
+      curveCDSs[i] = new CDSAnalytic(TRADE_DATE, EFFECTIVE_DATE, CASH_SETTLE_DATE, TRADE_DATE, BUCKET_DATES[i], PAY_ACC_ON_DEFAULT, PAYMENT_INTERVAL, STUB, PROCTECTION_START, RECOVERY_RATE);
       quotedSpreads[i] = QUOTED_SPREADS_AT_BUCKET_DATES[i] * ONE_BP;
     }
 
     final int n = MATURITIES.length;
     for (int i = 0; i < n; i++) {
-      final CDSAnalytic cds = new CDSAnalytic(TRADE_DATE, EFFECTIVE_DATE, CASH_SETTLE_DATE, STARTDATE, MATURITIES[i], PAY_ACC_ON_DEFAULT, TENOR, STUB, PROCTECTION_START, RECOVERY_RATE);
+      final CDSAnalytic cds = new CDSAnalytic(TRADE_DATE, EFFECTIVE_DATE, CASH_SETTLE_DATE, STARTDATE, MATURITIES[i], PAY_ACC_ON_DEFAULT, PAYMENT_INTERVAL, STUB, PROCTECTION_START, RECOVERY_RATE);
       final double[] bucketedCS01 = CS01_CAL.bucketedCS01FromQuotedSpreads(cds, COUPON * ONE_BP, YIELD_CURVE, curveCDSs, quotedSpreads, ONE_BP, BumpType.ADDITIVE);
 
       for (int j = 0; j < m; j++) {
@@ -175,14 +175,14 @@ public class CS01FromQuotedSpreadsTest extends ISDABaseTest {
     final CDSAnalytic[] curveCDSs = new CDSAnalytic[m];
     final double[] quotedSpreads = new double[m];
     for (int i = 0; i < m; i++) {
-      curveCDSs[i] = new CDSAnalytic(TRADE_DATE, EFFECTIVE_DATE, CASH_SETTLE_DATE, TRADE_DATE, BUCKET_DATES[i], PAY_ACC_ON_DEFAULT, TENOR, STUB, PROCTECTION_START, RECOVERY_RATE);
+      curveCDSs[i] = new CDSAnalytic(TRADE_DATE, EFFECTIVE_DATE, CASH_SETTLE_DATE, TRADE_DATE, BUCKET_DATES[i], PAY_ACC_ON_DEFAULT, PAYMENT_INTERVAL, STUB, PROCTECTION_START, RECOVERY_RATE);
       quotedSpreads[i] = QUOTED_SPREADS_AT_BUCKET_DATES[i] * ONE_BP;
     }
 
     final int n = MATURITIES.length;
     final CDSAnalytic[] tradedCDSs = new CDSAnalytic[n];
     for (int i = 0; i < n; i++) {
-      tradedCDSs[i] = new CDSAnalytic(TRADE_DATE, EFFECTIVE_DATE, CASH_SETTLE_DATE, STARTDATE, MATURITIES[i], PAY_ACC_ON_DEFAULT, TENOR, STUB, PROCTECTION_START, RECOVERY_RATE);
+      tradedCDSs[i] = new CDSAnalytic(TRADE_DATE, EFFECTIVE_DATE, CASH_SETTLE_DATE, STARTDATE, MATURITIES[i], PAY_ACC_ON_DEFAULT, PAYMENT_INTERVAL, STUB, PROCTECTION_START, RECOVERY_RATE);
     }
     final double[][] cs01Mat = CS01_CAL.bucketedCS01FromQuotedSpreads(tradedCDSs, COUPON * ONE_BP, YIELD_CURVE, curveCDSs, quotedSpreads, ONE_BP, BumpType.ADDITIVE);
 
@@ -206,14 +206,14 @@ public class CS01FromQuotedSpreadsTest extends ISDABaseTest {
     final CDSAnalytic[] curveCDSs = new CDSAnalytic[m];
     final double[] quotedSpreads = new double[m];
     for (int i = 0; i < m; i++) {
-      curveCDSs[i] = new CDSAnalytic(TRADE_DATE, EFFECTIVE_DATE, CASH_SETTLE_DATE, TRADE_DATE, BUCKET_DATES[i], PAY_ACC_ON_DEFAULT, TENOR, STUB, PROCTECTION_START, RECOVERY_RATE);
+      curveCDSs[i] = new CDSAnalytic(TRADE_DATE, EFFECTIVE_DATE, CASH_SETTLE_DATE, TRADE_DATE, BUCKET_DATES[i], PAY_ACC_ON_DEFAULT, PAYMENT_INTERVAL, STUB, PROCTECTION_START, RECOVERY_RATE);
       quotedSpreads[i] = QUOTED_SPREADS_AT_BUCKET_DATES[i] * ONE_BP;
     }
 
     final int n = MATURITIES.length;
     final CDSAnalytic[] tradedCDSs = new CDSAnalytic[n];
     for (int i = 0; i < n; i++) {
-      tradedCDSs[i] = new CDSAnalytic(TRADE_DATE, EFFECTIVE_DATE, CASH_SETTLE_DATE, STARTDATE, MATURITIES[i], PAY_ACC_ON_DEFAULT, TENOR, STUB, PROCTECTION_START, RECOVERY_RATE);
+      tradedCDSs[i] = new CDSAnalytic(TRADE_DATE, EFFECTIVE_DATE, CASH_SETTLE_DATE, STARTDATE, MATURITIES[i], PAY_ACC_ON_DEFAULT, PAYMENT_INTERVAL, STUB, PROCTECTION_START, RECOVERY_RATE);
     }
     final double[][] res = CS01_CAL.bucketedCS01FromQuotedSpreads(tradedCDSs, COUPON * ONE_BP, YIELD_CURVE, curveCDSs, quotedSpreads, ONE_BP, BumpType.ADDITIVE);
 

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.irfutureoption;
@@ -31,11 +31,11 @@ import com.opengamma.util.money.Currency;
  * Provides the market price for the security of a position as a value on the position
  */
 public class InterestRateFutureOptionMarketUnderlyingPriceFunction extends AbstractFunction.NonCompiledInvoker {
-  
+
   @Override
-  public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs,
-      ComputationTarget target, Set<ValueRequirement> desiredValues) {
-    Double marketValue = (Double) inputs.getValue(getRequirement(target));
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
+      final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
+    final Double marketValue = (Double) inputs.getValue(getRequirement(target));
     return Collections.singleton(new ComputedValue(getSpecification(target), marketValue));
   }
 
@@ -50,18 +50,18 @@ public class InterestRateFutureOptionMarketUnderlyingPriceFunction extends Abstr
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
-    ValueRequirement valueRequirement = getRequirement(target);
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+    final ValueRequirement valueRequirement = getRequirement(target);
     return Collections.singleton(valueRequirement);
   }
 
   @Override
-  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
-    ValueSpecification spec = getSpecification(target);
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+    final ValueSpecification spec = getSpecification(target);
     return Collections.singleton(spec);
   }
 
-  private ValueSpecification getSpecification(ComputationTarget target) {
+  private ValueSpecification getSpecification(final ComputationTarget target) {
     final Currency ccy = FinancialSecurityUtils.getCurrency(target.getPositionOrTrade().getSecurity());
     ValueProperties valueProperties;
     if (ccy == null) {
@@ -71,8 +71,8 @@ public class InterestRateFutureOptionMarketUnderlyingPriceFunction extends Abstr
     }
     return new ValueSpecification(ValueRequirementNames.UNDERLYING_MARKET_PRICE, target.toSpecification(), valueProperties);
   }
-  
-  private ValueRequirement getRequirement(ComputationTarget target) {
+
+  private static ValueRequirement getRequirement(final ComputationTarget target) {
     final IRFutureOptionSecurity irfo = (IRFutureOptionSecurity) target.getPositionOrTrade().getSecurity();
     final ExternalId underlyingID = irfo.getUnderlyingId();
     return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, underlyingID);

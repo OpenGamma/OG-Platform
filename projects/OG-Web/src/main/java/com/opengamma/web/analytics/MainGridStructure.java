@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.google.common.collect.Lists;
+import com.opengamma.engine.management.ValueMappings;
 import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
@@ -19,8 +20,15 @@ import com.opengamma.util.tuple.Pair;
  */
 /* package */ abstract class MainGridStructure implements GridStructure {
 
-  /** The column structure. */
+  /** The complete column structure. */
   private final GridColumnGroups _columnGroups;
+
+  /** The fixed column structure. */
+  private final GridColumnGroup _fixedColumnGroup;
+
+  /** The non fixed column structure. */
+  private final GridColumnGroups _nonFixedColumnGroups;
+
 
   /** For looking up the underlying target of a grid cell. */
   private final TargetLookup _targetLookup;
@@ -30,6 +38,8 @@ import com.opengamma.util.tuple.Pair;
 
   /* package */ MainGridStructure() {
     _columnGroups = GridColumnGroups.empty();
+    _fixedColumnGroup = GridColumnGroup.empty();
+    _nonFixedColumnGroups = GridColumnGroups.empty();
     _targetLookup = new TargetLookup(new ValueMappings(), Collections.<Row>emptyList());
     _rootNode = null;
   }
@@ -48,6 +58,8 @@ import com.opengamma.util.tuple.Pair;
     columnGroups.addAll(nonFixedColumns.getGroups());
     _rootNode = rootNode;
     _columnGroups = new GridColumnGroups(columnGroups);
+    _fixedColumnGroup = fixedColumns;
+    _nonFixedColumnGroups = nonFixedColumns;
     _targetLookup = targetLookup;
   }
 
@@ -61,6 +73,8 @@ import com.opengamma.util.tuple.Pair;
     columnGroups.addAll(nonFixedColumns.getGroups());
     _columnGroups = new GridColumnGroups(columnGroups);
     _targetLookup = targetLookup;
+    _fixedColumnGroup = fixedColumns;
+    _nonFixedColumnGroups = nonFixedColumns;
     _rootNode = null;
   }
 
@@ -83,6 +97,16 @@ import com.opengamma.util.tuple.Pair;
   @Override
   public GridColumnGroups getColumnStructure() {
     return _columnGroups;
+  }
+
+  @Override
+  public GridColumnGroup getFixedColumns() {
+    return _fixedColumnGroup;
+  }
+
+  @Override
+  public GridColumnGroups getNonFixedColumns() {
+    return _nonFixedColumnGroups;
   }
 
   @Override

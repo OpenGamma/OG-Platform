@@ -36,6 +36,7 @@ import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.analytics.push.ClientConnection;
+import com.opengamma.web.analytics.rest.ErrorIdFactory;
 import com.opengamma.web.server.AggregatedViewDefinitionManager;
 
 /**
@@ -111,6 +112,7 @@ public class AnalyticsViewManager {
    * @param viewCallbackId ID that's passed to the listener when the view's portfolio grid structure changes
    * @param portfolioGridId ID that's passed to the listener when the view's portfolio grid structure changes
    * @param primitivesGridId ID that's passed to the listener when the view's primitives grid structure changes
+   * @param errorIdFactory Factory for generating IDs for errors generated on the server
    */
   public void createView(ViewRequest request,
                          String clientId,
@@ -119,7 +121,8 @@ public class AnalyticsViewManager {
                          String viewId,
                          Object viewCallbackId,
                          String portfolioGridId,
-                         String primitivesGridId) {
+                         String primitivesGridId,
+                         ErrorIdFactory errorIdFactory) {
     if (_viewConnections.containsKey(viewId)) {
       throw new IllegalArgumentException("View ID " + viewId + " is already in use");
     }
@@ -147,6 +150,7 @@ public class AnalyticsViewManager {
     PortfolioEntityExtractor entityExtractor = new PortfolioEntityExtractor(versionCorrection, _securityMaster);
     // TODO add filtering change listener to portfolio master which calls portfolioChanged() on the outer view
     boolean primitivesOnly = portfolioId == null;
+    ErrorManager errorManager = new ErrorManager(errorIdFactory);
     AnalyticsView view = new SimpleAnalyticsView(aggregatedViewDef.getUniqueId(),
                                                  primitivesOnly,
                                                  versionCorrection,
@@ -158,18 +162,20 @@ public class AnalyticsViewManager {
                                                  _blotterColumnMapper,
                                                  portfolioSupplier,
                                                  entityExtractor,
-                                                 request.showBlotterColumns());
+                                                 request.showBlotterColumns(),
+                                                 errorManager);
     AnalyticsView lockingView = new LockingAnalyticsView(view);
     AnalyticsView notifyingView = new NotifyingAnalyticsView(lockingView, clientConnection);
     AnalyticsView timingView = new TimingAnalyticsView(notifyingView);
-    AutoCloseable securityListener = new MasterNotificationListener<>(_securityMaster, timingView);
-    AutoCloseable positionListener = new MasterNotificationListener<>(_positionMaster, timingView);
-    AutoCloseable portfolioListener = new PortfolioListener(portfolioObjectId, timingView, _positionSource);
+    AnalyticsView catchingView = new CatchingAnalyticsView(timingView, errorManager, clientConnection);
+    AutoCloseable securityListener = new MasterNotificationListener<>(_securityMaster, catchingView);
+    AutoCloseable positionListener = new MasterNotificationListener<>(_positionMaster, catchingView);
+    AutoCloseable portfolioListener = new PortfolioListener(portfolioObjectId, catchingView, _positionSource);
     List<AutoCloseable> listeners = Lists.newArrayList(securityListener, positionListener, portfolioListener);
     AnalyticsViewClientConnection connection = new AnalyticsViewClientConnection(request,
                                                                                  aggregatedViewDef,
                                                                                  viewClient,
-                                                                                 timingView,
+                                                                                 catchingView,
                                                                                  listeners,
                                                                                  _parallelViewRecompilation,
                                                                                  _marketDataSpecificationRepository,

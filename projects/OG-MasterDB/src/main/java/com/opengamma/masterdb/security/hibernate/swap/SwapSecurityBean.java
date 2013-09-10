@@ -20,7 +20,9 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.masterdb.security.hibernate.SecurityBean;
+import com.opengamma.masterdb.security.hibernate.TenorBean;
 import com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean;
+import com.opengamma.util.time.Tenor;
 
 /**
  * A Hibernate bean representation of {@link SwapSecurity}.
@@ -40,6 +42,12 @@ public class SwapSecurityBean extends SecurityBean {
   private ZonedDateTimeBean _forwardStartDate;
   @PropertyDefinition
   private String _counterparty;
+  @PropertyDefinition
+  private boolean _exchangeInitialNotional;
+  @PropertyDefinition
+  private boolean _exchangeFinalNotional;
+  @PropertyDefinition
+  private TenorBean _maturityTenor;
   @PropertyDefinition
   private SwapLegBean _payLeg;
   @PropertyDefinition
@@ -79,6 +87,12 @@ public class SwapSecurityBean extends SecurityBean {
         return getForwardStartDate();
       case -1651301782:  // counterparty
         return getCounterparty();
+      case -1304307199:  // exchangeInitialNotional
+        return isExchangeInitialNotional();
+      case -1976228493:  // exchangeFinalNotional
+        return isExchangeFinalNotional();
+      case 45907375:  // maturityTenor
+        return getMaturityTenor();
       case -995239866:  // payLeg
         return getPayLeg();
       case 209233963:  // receiveLeg
@@ -108,6 +122,15 @@ public class SwapSecurityBean extends SecurityBean {
       case -1651301782:  // counterparty
         setCounterparty((String) newValue);
         return;
+      case -1304307199:  // exchangeInitialNotional
+        setExchangeInitialNotional((Boolean) newValue);
+        return;
+      case -1976228493:  // exchangeFinalNotional
+        setExchangeFinalNotional((Boolean) newValue);
+        return;
+      case 45907375:  // maturityTenor
+        setMaturityTenor((TenorBean) newValue);
+        return;
       case -995239866:  // payLeg
         setPayLeg((SwapLegBean) newValue);
         return;
@@ -131,6 +154,9 @@ public class SwapSecurityBean extends SecurityBean {
           JodaBeanUtils.equal(getMaturityDate(), other.getMaturityDate()) &&
           JodaBeanUtils.equal(getForwardStartDate(), other.getForwardStartDate()) &&
           JodaBeanUtils.equal(getCounterparty(), other.getCounterparty()) &&
+          JodaBeanUtils.equal(isExchangeInitialNotional(), other.isExchangeInitialNotional()) &&
+          JodaBeanUtils.equal(isExchangeFinalNotional(), other.isExchangeFinalNotional()) &&
+          JodaBeanUtils.equal(getMaturityTenor(), other.getMaturityTenor()) &&
           JodaBeanUtils.equal(getPayLeg(), other.getPayLeg()) &&
           JodaBeanUtils.equal(getReceiveLeg(), other.getReceiveLeg()) &&
           super.equals(obj);
@@ -147,6 +173,9 @@ public class SwapSecurityBean extends SecurityBean {
     hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getForwardStartDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCounterparty());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isExchangeInitialNotional());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isExchangeFinalNotional());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityTenor());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPayLeg());
     hash += hash * 31 + JodaBeanUtils.hashCode(getReceiveLeg());
     return hash ^ super.hashCode();
@@ -304,6 +333,81 @@ public class SwapSecurityBean extends SecurityBean {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the exchangeInitialNotional.
+   * @return the value of the property
+   */
+  public boolean isExchangeInitialNotional() {
+    return _exchangeInitialNotional;
+  }
+
+  /**
+   * Sets the exchangeInitialNotional.
+   * @param exchangeInitialNotional  the new value of the property
+   */
+  public void setExchangeInitialNotional(boolean exchangeInitialNotional) {
+    this._exchangeInitialNotional = exchangeInitialNotional;
+  }
+
+  /**
+   * Gets the the {@code exchangeInitialNotional} property.
+   * @return the property, not null
+   */
+  public final Property<Boolean> exchangeInitialNotional() {
+    return metaBean().exchangeInitialNotional().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the exchangeFinalNotional.
+   * @return the value of the property
+   */
+  public boolean isExchangeFinalNotional() {
+    return _exchangeFinalNotional;
+  }
+
+  /**
+   * Sets the exchangeFinalNotional.
+   * @param exchangeFinalNotional  the new value of the property
+   */
+  public void setExchangeFinalNotional(boolean exchangeFinalNotional) {
+    this._exchangeFinalNotional = exchangeFinalNotional;
+  }
+
+  /**
+   * Gets the the {@code exchangeFinalNotional} property.
+   * @return the property, not null
+   */
+  public final Property<Boolean> exchangeFinalNotional() {
+    return metaBean().exchangeFinalNotional().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the maturityTenor.
+   * @return the value of the property
+   */
+  public TenorBean getMaturityTenor() {
+    return _maturityTenor;
+  }
+
+  /**
+   * Sets the maturityTenor.
+   * @param maturityTenor  the new value of the property
+   */
+  public void setMaturityTenor(TenorBean maturityTenor) {
+    this._maturityTenor = maturityTenor;
+  }
+
+  /**
+   * Gets the the {@code maturityTenor} property.
+   * @return the property, not null
+   */
+  public final Property<TenorBean> maturityTenor() {
+    return metaBean().maturityTenor().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the payLeg.
    * @return the value of the property
    */
@@ -393,6 +497,21 @@ public class SwapSecurityBean extends SecurityBean {
     private final MetaProperty<String> _counterparty = DirectMetaProperty.ofReadWrite(
         this, "counterparty", SwapSecurityBean.class, String.class);
     /**
+     * The meta-property for the {@code exchangeInitialNotional} property.
+     */
+    private final MetaProperty<Boolean> _exchangeInitialNotional = DirectMetaProperty.ofReadWrite(
+        this, "exchangeInitialNotional", SwapSecurityBean.class, Boolean.TYPE);
+    /**
+     * The meta-property for the {@code exchangeFinalNotional} property.
+     */
+    private final MetaProperty<Boolean> _exchangeFinalNotional = DirectMetaProperty.ofReadWrite(
+        this, "exchangeFinalNotional", SwapSecurityBean.class, Boolean.TYPE);
+    /**
+     * The meta-property for the {@code maturityTenor} property.
+     */
+    private final MetaProperty<TenorBean> _maturityTenor = DirectMetaProperty.ofReadWrite(
+        this, "maturityTenor", SwapSecurityBean.class, TenorBean.class);
+    /**
      * The meta-property for the {@code payLeg} property.
      */
     private final MetaProperty<SwapLegBean> _payLeg = DirectMetaProperty.ofReadWrite(
@@ -413,6 +532,9 @@ public class SwapSecurityBean extends SecurityBean {
         "maturityDate",
         "forwardStartDate",
         "counterparty",
+        "exchangeInitialNotional",
+        "exchangeFinalNotional",
+        "maturityTenor",
         "payLeg",
         "receiveLeg");
 
@@ -437,6 +559,12 @@ public class SwapSecurityBean extends SecurityBean {
           return _forwardStartDate;
         case -1651301782:  // counterparty
           return _counterparty;
+        case -1304307199:  // exchangeInitialNotional
+          return _exchangeInitialNotional;
+        case -1976228493:  // exchangeFinalNotional
+          return _exchangeFinalNotional;
+        case 45907375:  // maturityTenor
+          return _maturityTenor;
         case -995239866:  // payLeg
           return _payLeg;
         case 209233963:  // receiveLeg
@@ -507,6 +635,30 @@ public class SwapSecurityBean extends SecurityBean {
      */
     public final MetaProperty<String> counterparty() {
       return _counterparty;
+    }
+
+    /**
+     * The meta-property for the {@code exchangeInitialNotional} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> exchangeInitialNotional() {
+      return _exchangeInitialNotional;
+    }
+
+    /**
+     * The meta-property for the {@code exchangeFinalNotional} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> exchangeFinalNotional() {
+      return _exchangeFinalNotional;
+    }
+
+    /**
+     * The meta-property for the {@code maturityTenor} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<TenorBean> maturityTenor() {
+      return _maturityTenor;
     }
 
     /**

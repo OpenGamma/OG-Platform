@@ -53,6 +53,7 @@ import com.opengamma.util.money.Currency;
 
 /**
  * Base class for functions that calculate price and risk for interest rate futures
+ * 
  * @deprecated Use descendants of {@link MultiCurvePricingFunction}
  */
 @Deprecated
@@ -78,6 +79,7 @@ public abstract class InterestRateFutureFunction extends AbstractFunction.NonCom
     _converter = new InterestRateFutureTradeConverter(new InterestRateFutureSecurityConverterDeprecated(holidaySource, conventionSource, regionSource));
     _dataConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
     _curveConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
+    ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
   }
 
   @Override

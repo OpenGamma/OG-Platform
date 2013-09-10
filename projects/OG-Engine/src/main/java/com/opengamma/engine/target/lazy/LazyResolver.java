@@ -144,9 +144,9 @@ public interface LazyResolver {
   /**
    * Lazy resolution of portfolio nodes.
    */
-  public static class LazyPortfolioNodeResolver extends ObjectResolverImpl<PortfolioNode> {
+  public static class LazyPortfolioNodeResolver extends ResolverImpl<PortfolioNode> {
 
-    public LazyPortfolioNodeResolver(final LazyResolver parent, final ObjectResolver<PortfolioNode> underlying) {
+    public LazyPortfolioNodeResolver(final LazyResolver parent, final Resolver<PortfolioNode> underlying) {
       super(parent, underlying);
     }
 
@@ -202,9 +202,9 @@ public interface LazyResolver {
   /**
    * Lazy resolution of trades.
    */
-  public static class LazyTradeResolver extends ObjectResolverImpl<Trade> {
+  public static class LazyTradeResolver extends ResolverImpl<Trade> {
 
-    public LazyTradeResolver(final LazyResolver parent, final ObjectResolver<Trade> underlying) {
+    public LazyTradeResolver(final LazyResolver parent, final Resolver<Trade> underlying) {
       super(parent, underlying);
     }
 

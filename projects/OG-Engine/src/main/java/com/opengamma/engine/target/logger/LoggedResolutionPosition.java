@@ -56,7 +56,7 @@ public class LoggedResolutionPosition extends AbstractLoggedResolution<Position>
     final Collection<Trade> trades = getUnderlying().getTrades();
     final Collection<Trade> result = new ArrayList<Trade>(trades.size());
     for (Trade trade : trades) {
-      log(ComputationTargetType.TRADE, trade);
+      // log(ComputationTargetType.TRADE, trade); // [PLAT-4491] Trades are linked to positions by UID, not OID
       result.add(new LoggedResolutionTrade(trade, getLogger()));
     }
     return result;

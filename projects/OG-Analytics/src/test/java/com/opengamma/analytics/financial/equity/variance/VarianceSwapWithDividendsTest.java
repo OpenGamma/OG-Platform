@@ -53,29 +53,23 @@ public class VarianceSwapWithDividendsTest {
   private static final EquityVarianceSwapBackwardsPurePDE PDE_BKD_SOLVER = new EquityVarianceSwapBackwardsPurePDE();
   private static final double EXPIRY = 1.5;
   private static final double PURE_VOL = 0.5;
-  private static final double VOL = 0.4;
   private static final double SPOT = 123;
   private static final double DRIFT = 0.07;
 
-  @SuppressWarnings("unused")
-  private static final LocalVolatilitySurfaceStrike LOCAL_VOL_FLAT = new LocalVolatilitySurfaceStrike(ConstantDoublesSurface.from(VOL));
   private static final PureLocalVolatilitySurface PURE_LOCAL_VOL_FLAT = new PureLocalVolatilitySurface(ConstantDoublesSurface.from(PURE_VOL));
   private static final PureImpliedVolatilitySurface PURE_IMPLIED_VOL_FLAT = new PureImpliedVolatilitySurface(ConstantDoublesSurface.from(PURE_VOL));
   private static final MultiHorizonMixedLogNormalModelData MLN_DATA;
   private static final YieldAndDiscountCurve DISCOUNT_CURVE = YieldCurve.from(ConstantDoublesCurve.from(DRIFT));
 
-  // private static final ForwardCurve FORWARD_CURVE;
-
   static {
     final double[] weights = new double[] {0.8, 0.15, 0.05 };
     final double[] sigmas = new double[] {0.3, 0.5, 0.9 };
-    //double[] mus = new double[3];
     final double[] mus = new double[] {0.04, 0.1, -0.2 };
     MLN_DATA = new MultiHorizonMixedLogNormalModelData(weights, sigmas, mus);
   }
 
   @SuppressWarnings("unused")
-  //@Test
+  @Test
   public void checkTest() {
     if (PRINT) {
       System.out.println("VarianceSwapWithDividendsTest PRINT must be set to false");
@@ -88,28 +82,15 @@ public class VarianceSwapWithDividendsTest {
     }
   }
 
-  //  @Test
-  //  public void debug() {
-  //    System.out.println("VarianceSwapWithDividendsTest");
-  //
-  //    PDEUtilityTools.printSurface("lv", PURE_LOCAL_VOL.getSurface(), 0.001, 2.0, 0.01, 10.0);
-  //    PDEUtilityTools.printSurface("im", PURE_IMPLIED_VOL.getSurface(), 0.001, 2.0, 0.01, 10.0);
-  //
-  //    DupireLocalVolatilityCalculator dupire = new DupireLocalVolatilityCalculator();
-  //    PureLocalVolatilitySurface lv2 = dupire.getLocalVolatility(PURE_IMPLIED_VOL);
-  //    PDEUtilityTools.printSurface("lv2", lv2.getSurface(), 0.001, 2.0, 0.01, 10.0);
-  //  }
-
-  //@Test
+  @Test
   public void noDividendsTest() {
-
     final AffineDividends dividends = AffineDividends.noDividends();
     testNumericsForFlatPureVol(dividends);
     testNumerics(dividends, MLN_DATA, 1e-7);
 
   }
 
-  //@Test
+  @Test
   public void proportionalOnlyTest() {
     final double[] tau = new double[] {EXPIRY - 0.7, EXPIRY - 0.1, EXPIRY + 0.1 };
     final double[] alpha = new double[3];
@@ -119,7 +100,7 @@ public class VarianceSwapWithDividendsTest {
     testNumerics(dividends, MLN_DATA, 1e-7);
   }
 
-  //@Test
+  @Test
   public void dividendsAfterExpiryTest() {
     final double[] tau = new double[] {EXPIRY + 0.1, EXPIRY + 0.6 };
     final double[] alpha = new double[] {0.1 * SPOT, 0.05 * SPOT };
@@ -129,7 +110,7 @@ public class VarianceSwapWithDividendsTest {
     testNumerics(dividends, MLN_DATA, 1e-7);
   }
 
-  //@Test
+  @Test
   public void dividendsBeforeExpiryTest() {
     final double[] tau = new double[] {0.85, 1.2 };
     final double[] alpha = new double[] {0.3 * SPOT, 0.2 * SPOT };
@@ -139,7 +120,7 @@ public class VarianceSwapWithDividendsTest {
     testNumerics(dividends, MLN_DATA, 1e-7);
   }
 
-  //@Test
+  @Test
   public void dividendsAtExpiryTest() {
     final double[] tau = new double[] {1.2, EXPIRY };
     final double[] alpha = new double[] {0.1 * SPOT, 0.05 * SPOT };
@@ -149,12 +130,11 @@ public class VarianceSwapWithDividendsTest {
     testNumerics(dividends, MLN_DATA, 1e-7);
   }
 
-  //@Test
+  @Test
   public void testMixedLogNormalVolSurface() {
 
     final AffineDividends dividends = AffineDividends.noDividends();
     final ForwardCurve fwdCurve = new ForwardCurve(SPOT, DRIFT);
-//
     final double sigma1 = 0.2;
     final double sigma2 = 1.0;
     final double w = 0.9;
@@ -399,6 +379,7 @@ public class VarianceSwapWithDividendsTest {
    * @param pImpVol The pure implied volatility surface
    * @param plv The pure local volatility surface
    */
+  @SuppressWarnings("unused")
   private void testNumerics(final boolean isAnalytic, final double expDivCorr, final double expDivNoCorr, final AffineDividends dividends, final PureImpliedVolatilitySurface pImpVol,
       final PureLocalVolatilitySurface plv, final double defaultTol) {
 

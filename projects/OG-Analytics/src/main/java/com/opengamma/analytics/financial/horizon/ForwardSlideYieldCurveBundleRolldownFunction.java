@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.horizon;
@@ -9,7 +9,9 @@ import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 
 /**
  * Produces a yield curve bundle where each curve has a forward slide.
+ * @deprecated {@link YieldCurveBundle} is deprecated
  */
+@Deprecated
 public final class ForwardSlideYieldCurveBundleRolldownFunction implements RolldownFunction<YieldCurveBundle> {
   private static final ForwardSlideYieldCurveRolldownFunction CURVE_ROLLDOWN = ForwardSlideYieldCurveRolldownFunction.getInstance();
   private static final ForwardSlideYieldCurveBundleRolldownFunction INSTANCE = new ForwardSlideYieldCurveBundleRolldownFunction();

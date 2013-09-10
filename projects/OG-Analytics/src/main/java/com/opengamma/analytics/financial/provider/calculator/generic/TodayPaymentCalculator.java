@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.calculator.generic;
@@ -18,8 +18,8 @@ import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositCounterpart;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositZero;
 import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
-import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
@@ -37,7 +37,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * Calculates the payment amounts due on the valuation date (|time to payment|<small).
  */
-public final class TodayPaymentCalculator extends InstrumentDerivativeVisitorAdapter<Object, MultipleCurrencyAmount> {
+public final class TodayPaymentCalculator extends InstrumentDerivativeVisitorAdapter<Void, MultipleCurrencyAmount> {
   /**
    * The default time limit below which the payment is consider as being today.
    */

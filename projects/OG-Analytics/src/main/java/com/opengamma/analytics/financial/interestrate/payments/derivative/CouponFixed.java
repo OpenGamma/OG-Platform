@@ -171,6 +171,7 @@ public class CouponFixed extends Coupon {
    * Creates a new coupon with the same characteristics, except the rate which is 1.0.
    * @return The new coupon.
    */
+  @SuppressWarnings("deprecation")
   public CouponFixed withUnitCoupon() {
     try {
       return new CouponFixed(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), getNotional(), 1);
@@ -184,6 +185,7 @@ public class CouponFixed extends Coupon {
    * @param rate The new rate.
    * @return The coupon.
    */
+  @SuppressWarnings("deprecation")
   public CouponFixed withRate(final double rate) {
     try {
       return new CouponFixed(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), getNotional(), rate, getAccrualStartDate(), getAccrualEndDate());
@@ -197,6 +199,7 @@ public class CouponFixed extends Coupon {
    * @param spread The rate spread.
    * @return The coupon.
    */
+  @SuppressWarnings("deprecation")
   public CouponFixed withRateShifted(final double spread) {
     try {
       return new CouponFixed(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), getNotional(), getFixedRate() + spread, getAccrualStartDate(), getAccrualEndDate());
@@ -205,6 +208,7 @@ public class CouponFixed extends Coupon {
     }
   }
 
+  @SuppressWarnings("deprecation")
   @Override
   public CouponFixed withNotional(final double notional) {
     try {
@@ -219,6 +223,7 @@ public class CouponFixed extends Coupon {
    * Returns a fixed payment with the same features (currency, payment time, amount) as the fixed coupon.
    * @return A fixed payment.
    */
+  @SuppressWarnings("deprecation")
   public PaymentFixed toPaymentFixed() {
     try {
       return new PaymentFixed(getCurrency(), getPaymentTime(), _amount, getFundingCurveName());

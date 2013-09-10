@@ -100,8 +100,13 @@ public class ViewsResource {
     ClientConnection connection = _connectionManager.getConnectionByClientId(userName, clientId);
     URI uri = uriInfo.getAbsolutePathBuilder().path(viewId).build();
     ImmutableMap<String, Object> callbackMap = ImmutableMap.<String, Object>of("id", requestId, "message", uri.getPath());
+    URI errorUri = uriInfo.getAbsolutePathBuilder()
+        .path(viewId)
+        .path(ViewResource.class, "getError")
+        .build(ErrorIdFactory.ERROR_ID);
+    ErrorIdFactory errorIdFactory = new ErrorIdFactory(errorUri.getPath());
     _viewManager.createView(viewRequest, clientId, user, connection, viewId, callbackMap,
-                            portfolioGridUri.getPath(), primitivesGridUri.getPath());
+                            portfolioGridUri.getPath(), primitivesGridUri.getPath(), errorIdFactory);
     return Response.status(Response.Status.CREATED).build();
   }
 

@@ -57,7 +57,12 @@ public class FXForwardCurveNodeReturnSeriesFunction extends AbstractFunction.Non
   private static final TimeSeriesDifferenceOperator DIFFERENCE = new TimeSeriesDifferenceOperator();
   private static final HolidayDateRemovalFunction HOLIDAY_REMOVER = HolidayDateRemovalFunction.getInstance();
   private static final Calendar WEEKEND_CALENDAR = new MondayToFridayCalendar("Weekend");
-  
+
+  @Override
+  public void init(final FunctionCompilationContext context) {
+    ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
+  }
+
   @Override
   public ComputationTargetType getTargetType() {
     // NOTE jonathan 2013-04-23 -- should be ComputationTargetType.NULL
@@ -78,7 +83,7 @@ public class FXForwardCurveNodeReturnSeriesFunction extends AbstractFunction.Non
         .get();
     return properties;
   }
-  
+
   @Override
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
     ValueProperties properties = getResultProperties(target);
@@ -99,7 +104,7 @@ public class FXForwardCurveNodeReturnSeriesFunction extends AbstractFunction.Non
       return null;
     }
     String curveCalculationConfigName = Iterables.getOnlyElement(curveCalculationConfigNames);
-    
+
     String ychtsStart = getFCHTSStart(constraints);
     if (ychtsStart == null) {
       return null;
@@ -113,7 +118,7 @@ public class FXForwardCurveNodeReturnSeriesFunction extends AbstractFunction.Non
     if (start == null || end == null) {
       return null;
     }
-    
+
     Set<String> includeStarts = constraints.getValues(HistoricalTimeSeriesFunctionUtils.INCLUDE_START_PROPERTY);
     if (includeStarts != null && includeStarts.size() != 1) {
       return null;
@@ -133,9 +138,9 @@ public class FXForwardCurveNodeReturnSeriesFunction extends AbstractFunction.Non
       return null;
     }
     Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-    requirements.add(HistoricalTimeSeriesFunctionUtils.createFXForwardCurveHTSRequirement(currencyPair, curveName, MarketDataRequirementNames.MARKET_VALUE, 
+    requirements.add(HistoricalTimeSeriesFunctionUtils.createFXForwardCurveHTSRequirement(currencyPair, curveName, MarketDataRequirementNames.MARKET_VALUE,
         null, start, includeStart, end, includeEnd));
-    
+
     ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
     MultiCurveCalculationConfig curveCalculationConfig = curveCalculationConfigSource.getConfig(curveCalculationConfigName);
@@ -164,15 +169,15 @@ public class FXForwardCurveNodeReturnSeriesFunction extends AbstractFunction.Non
     Schedule scheduleCalculator = getScheduleCalculator(scheduleCalculatorName);
     String samplingFunctionName = desiredValue.getConstraint(ValuePropertyNames.SAMPLING_FUNCTION);
     TimeSeriesSamplingFunction samplingFunction = getSamplingFunction(samplingFunctionName);
-    
+
     //REVIEW emcleod should "fromEnd" be hard-coded?
     LocalDate[] schedule = HOLIDAY_REMOVER.getStrippedSchedule(scheduleCalculator.getSchedule(tsStart, returnSeriesEnd, true, false), WEEKEND_CALENDAR);
-    
+
     final ComputedValue bundleValue = inputs.getComputedValue(ValueRequirementNames.FX_FORWARD_CURVE_HISTORICAL_TIME_SERIES);
     final HistoricalTimeSeriesBundle bundle = (HistoricalTimeSeriesBundle) bundleValue.getValue();
     final boolean includeStart = HistoricalTimeSeriesFunctionUtils.parseBoolean(bundleValue.getSpecification().getProperty(HistoricalTimeSeriesFunctionUtils.INCLUDE_START_PROPERTY));
     final FXForwardCurveDefinition fxForwardCurveDefinition = (FXForwardCurveDefinition) inputs.getValue(ValueRequirementNames.FX_FORWARD_CURVE_DEFINITION);
-    
+
     final Tenor[] tenors = fxForwardCurveDefinition.getTenors();
 
     TenorLabelledLocalDateDoubleTimeSeriesMatrix1D returnSeriesVector = getReturnSeriesVector(bundle, tenors,
@@ -184,7 +189,7 @@ public class FXForwardCurveNodeReturnSeriesFunction extends AbstractFunction.Non
   protected String getFCHTSStart(ValueProperties constraints) {
     return getReturnSeriesStart(constraints);
   }
-  
+
   protected String getReturnSeriesStart(ValueProperties constraints) {
     Set<String> startDates = constraints.getValues(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY);
     if (startDates == null || startDates.size() != 1) {
@@ -192,7 +197,7 @@ public class FXForwardCurveNodeReturnSeriesFunction extends AbstractFunction.Non
     }
     return Iterables.getOnlyElement(startDates);
   }
-  
+
   protected String getReturnSeriesEnd(ValueProperties constraints) {
     Set<String> endDates = constraints.getValues(HistoricalTimeSeriesFunctionUtils.END_DATE_PROPERTY);
     if (endDates == null || endDates.size() != 1) {
@@ -200,11 +205,11 @@ public class FXForwardCurveNodeReturnSeriesFunction extends AbstractFunction.Non
     }
     return Iterables.getOnlyElement(endDates);
   }
-  
+
   protected LocalDateDoubleTimeSeries getReturnSeries(LocalDateDoubleTimeSeries ts, ValueRequirement desiredValue) {
     return (LocalDateDoubleTimeSeries) DIFFERENCE.evaluate(ts);
   }
-  
+
   private TenorLabelledLocalDateDoubleTimeSeriesMatrix1D getReturnSeriesVector(HistoricalTimeSeriesBundle timeSeriesBundle,
       Tenor[] tenors, LocalDate[] schedule, TimeSeriesSamplingFunction samplingFunction,
       LocalDate startDate, boolean includeStart, ValueRequirement desiredValue) {
@@ -224,15 +229,15 @@ public class FXForwardCurveNodeReturnSeriesFunction extends AbstractFunction.Non
       }
       LocalDateDoubleTimeSeries nodeTimeSeries = samplingFunction.getSampledTimeSeries(dbNodeTimeSeries.getTimeSeries(), schedule);
       LocalDateDoubleTimeSeries returnSeries = getReturnSeries(nodeTimeSeries, desiredValue);
-      
+
       // Clip the time-series to the range originally asked for
       returnSeries = returnSeries.subSeries(startDate, includeStart, returnSeries.getLatestTime(), true);
-      
+
       returnSeriesArray[t] = returnSeries;
     }
     return new TenorLabelledLocalDateDoubleTimeSeriesMatrix1D(tenors, returnSeriesArray);
   }
-  
+
   private ValueRequirement getFXForwardCurveDefinitionRequirement(UnorderedCurrencyPair currencies, String curveName) {
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.CURVE, curveName).get();

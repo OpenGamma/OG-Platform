@@ -70,6 +70,7 @@ import com.opengamma.util.money.Currency;
 
 /**
  * Base class for cross-currency swap analytics
+ * 
  * @deprecated Use functions descending from {@link DiscountingFunction}
  */
 @Deprecated
@@ -108,6 +109,7 @@ public abstract class CrossCurrencySwapFunction extends AbstractFunction.NonComp
         .swapSecurityVisitor(swapConverter).interestRateFutureSecurityVisitor(irFutureConverter).bondSecurityVisitor(bondConverter)
         .bondFutureSecurityVisitor(bondFutureConverter).create();
     _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
+    ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
   }
 
   @Override
@@ -310,6 +312,7 @@ public abstract class CrossCurrencySwapFunction extends AbstractFunction.NonComp
 
   /**
    * Calculates the results.
+   * 
    * @param derivative The derivative
    * @param bundle The yield curves
    * @param targetSpec The target specification of the results
@@ -321,6 +324,7 @@ public abstract class CrossCurrencySwapFunction extends AbstractFunction.NonComp
 
   /**
    * Gets the value requirement names.
+   * 
    * @return The value requirement names
    */
   protected String[] getValueRequirementNames() {

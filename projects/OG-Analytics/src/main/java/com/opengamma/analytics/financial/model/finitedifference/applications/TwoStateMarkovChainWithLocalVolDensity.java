@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.finitedifference.applications;
@@ -23,8 +23,9 @@ import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
 
 /**
- * 
+ *
  */
+@SuppressWarnings("deprecation")
 public class TwoStateMarkovChainWithLocalVolDensity {
 
   private static final double THETA = 1.0;

@@ -120,7 +120,6 @@ public class CreditDefaultSwapSecurityConverter extends FinancialSecurityVisitor
     final DebtSeniority debtSeniority = security.getDebtSeniority();
     final RestructuringClause restructuringClause = security.getRestructuringClause();
     final double amount = notional.getAmount();
-    final double recoveryRate = security.getRecoveryRate();
     final boolean includeAccruedPremium = security.isIncludeAccruedPremium();
     final boolean protectionStart = security.isProtectionStart();
     final double quotedSpread = security.getQuotedSpread();

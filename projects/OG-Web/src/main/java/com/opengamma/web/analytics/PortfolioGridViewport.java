@@ -92,11 +92,12 @@ public class PortfolioGridViewport extends MainGridViewport {
         //System.out.println("Row: " + rowIndex.toString() + " Expanded: " + expanded.toString() + " Path: " + path);
         if (expanded) {
           _currentExpandedPaths.add(path);
+          s_logger.debug("Expanding {}", path);
         } else {
           _currentExpandedPaths.remove(path);
+          s_logger.debug("Collapsing {}", path);
         }
         s_logger.debug("Current expanded set of nodes {}", _currentExpandedPaths);
-        //System.out.println("Current: " + _currentExpandedPaths);
       }
     }
     setViewportDefinition(viewportDefinition);

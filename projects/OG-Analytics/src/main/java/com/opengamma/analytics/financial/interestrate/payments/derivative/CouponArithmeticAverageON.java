@@ -56,7 +56,7 @@ public final class CouponArithmeticAverageON extends Coupon {
    */
   private CouponArithmeticAverageON(Currency currency, double paymentTime, double paymentYearFraction, double notional, IndexON index, double[] fixingPeriodTimes, double[] fixingPeriodAccrualFactors,
       double rateAccrued, double fixingPeriodRemainingAccrualFactor) {
-    super(currency, paymentTime, "NOT USED", paymentYearFraction, notional);
+    super(currency, paymentTime, paymentYearFraction, notional);
     _index = index;
     _fixingPeriodTimes = fixingPeriodTimes;
     _fixingPeriodAccrualFactors = fixingPeriodAccrualFactors;

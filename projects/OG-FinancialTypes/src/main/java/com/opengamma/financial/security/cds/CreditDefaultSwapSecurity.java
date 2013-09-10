@@ -33,13 +33,7 @@ import com.opengamma.id.ExternalId;
 public abstract class CreditDefaultSwapSecurity extends AbstractCreditDefaultSwapSecurity {
 
   /** Serialization version. */
-  private static final long serialVersionUID = 1L;
-  /**
-   * The recovery rate. Note: this field is no longer used by the analytics,
-   * being resolved independently.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private double _recoveryRate;
+  private static final long serialVersionUID = 2L;
 
   /**
    * The debt seniority.
@@ -69,7 +63,7 @@ public abstract class CreditDefaultSwapSecurity extends AbstractCreditDefaultSwa
                                    final DebtSeniority debtSeniority, final RestructuringClause restructuringClause, final ExternalId regionId, final ZonedDateTime startDate,
                                    final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final StubType stubType, final Frequency couponFrequency, final DayCount dayCount,
                                    final BusinessDayConvention businessDayConvention, final boolean immAdjustMaturityDate, final boolean adjustEffectiveDate,
-                                   final boolean adjustMaturityDate, final InterestRateNotional notional, final double recoveryRate, final boolean includeAccruedPremium,
+                                   final boolean adjustMaturityDate, final InterestRateNotional notional, final boolean includeAccruedPremium,
                                    final boolean protectionStart, final String securityType) {
     super(securityType,
           isBuy,
@@ -89,7 +83,6 @@ public abstract class CreditDefaultSwapSecurity extends AbstractCreditDefaultSwa
           notional,
           includeAccruedPremium,
           protectionStart);
-    setRecoveryRate(recoveryRate);
     setDebtSeniority(debtSeniority);
     setRestructuringClause(restructuringClause);
     setRegionId(regionId);
@@ -117,8 +110,6 @@ public abstract class CreditDefaultSwapSecurity extends AbstractCreditDefaultSwa
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case 2002873877:  // recoveryRate
-        return getRecoveryRate();
       case 1737168171:  // debtSeniority
         return getDebtSeniority();
       case -1774904020:  // restructuringClause
@@ -132,9 +123,6 @@ public abstract class CreditDefaultSwapSecurity extends AbstractCreditDefaultSwa
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case 2002873877:  // recoveryRate
-        setRecoveryRate((Double) newValue);
-        return;
       case 1737168171:  // debtSeniority
         setDebtSeniority((DebtSeniority) newValue);
         return;
@@ -150,7 +138,6 @@ public abstract class CreditDefaultSwapSecurity extends AbstractCreditDefaultSwa
 
   @Override
   protected void validate() {
-    JodaBeanUtils.notNull(_recoveryRate, "recoveryRate");
     JodaBeanUtils.notNull(_debtSeniority, "debtSeniority");
     JodaBeanUtils.notNull(_restructuringClause, "restructuringClause");
     JodaBeanUtils.notNull(_regionId, "regionId");
@@ -164,8 +151,7 @@ public abstract class CreditDefaultSwapSecurity extends AbstractCreditDefaultSwa
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       CreditDefaultSwapSecurity other = (CreditDefaultSwapSecurity) obj;
-      return JodaBeanUtils.equal(getRecoveryRate(), other.getRecoveryRate()) &&
-          JodaBeanUtils.equal(getDebtSeniority(), other.getDebtSeniority()) &&
+      return JodaBeanUtils.equal(getDebtSeniority(), other.getDebtSeniority()) &&
           JodaBeanUtils.equal(getRestructuringClause(), other.getRestructuringClause()) &&
           JodaBeanUtils.equal(getRegionId(), other.getRegionId()) &&
           super.equals(obj);
@@ -176,40 +162,10 @@ public abstract class CreditDefaultSwapSecurity extends AbstractCreditDefaultSwa
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRecoveryRate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDebtSeniority());
     hash += hash * 31 + JodaBeanUtils.hashCode(getRestructuringClause());
     hash += hash * 31 + JodaBeanUtils.hashCode(getRegionId());
     return hash ^ super.hashCode();
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the recovery rate. Note: this field is no longer used by the analytics,
-   * being resolved independently.
-   * @return the value of the property, not null
-   */
-  public double getRecoveryRate() {
-    return _recoveryRate;
-  }
-
-  /**
-   * Sets the recovery rate. Note: this field is no longer used by the analytics,
-   * being resolved independently.
-   * @param recoveryRate  the new value of the property, not null
-   */
-  public void setRecoveryRate(double recoveryRate) {
-    JodaBeanUtils.notNull(recoveryRate, "recoveryRate");
-    this._recoveryRate = recoveryRate;
-  }
-
-  /**
-   * Gets the the {@code recoveryRate} property.
-   * being resolved independently.
-   * @return the property, not null
-   */
-  public final Property<Double> recoveryRate() {
-    return metaBean().recoveryRate().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -301,11 +257,6 @@ public abstract class CreditDefaultSwapSecurity extends AbstractCreditDefaultSwa
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code recoveryRate} property.
-     */
-    private final MetaProperty<Double> _recoveryRate = DirectMetaProperty.ofReadWrite(
-        this, "recoveryRate", CreditDefaultSwapSecurity.class, Double.TYPE);
-    /**
      * The meta-property for the {@code debtSeniority} property.
      */
     private final MetaProperty<DebtSeniority> _debtSeniority = DirectMetaProperty.ofReadWrite(
@@ -325,7 +276,6 @@ public abstract class CreditDefaultSwapSecurity extends AbstractCreditDefaultSwa
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "recoveryRate",
         "debtSeniority",
         "restructuringClause",
         "regionId");
@@ -339,8 +289,6 @@ public abstract class CreditDefaultSwapSecurity extends AbstractCreditDefaultSwa
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 2002873877:  // recoveryRate
-          return _recoveryRate;
         case 1737168171:  // debtSeniority
           return _debtSeniority;
         case -1774904020:  // restructuringClause
@@ -367,14 +315,6 @@ public abstract class CreditDefaultSwapSecurity extends AbstractCreditDefaultSwa
     }
 
     //-----------------------------------------------------------------------
-    /**
-     * The meta-property for the {@code recoveryRate} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<Double> recoveryRate() {
-      return _recoveryRate;
-    }
-
     /**
      * The meta-property for the {@code debtSeniority} property.
      * @return the meta-property, not null

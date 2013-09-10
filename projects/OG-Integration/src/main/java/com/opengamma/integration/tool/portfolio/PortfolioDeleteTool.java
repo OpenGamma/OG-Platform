@@ -28,7 +28,7 @@ import com.opengamma.scripts.Scriptable;
 /**
  * The portfolio loader tool
  */
-@Scriptable
+//@Scriptable disabled because this tool basically doesn't work properly and leaves orphaned positions.
 public class PortfolioDeleteTool extends AbstractTool<ToolContext> {
 
   private static final Logger s_logger = LoggerFactory.getLogger(PortfolioDeleteTool.class);

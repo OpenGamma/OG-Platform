@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.option.pricing.tree;
@@ -27,7 +27,7 @@ import com.opengamma.util.time.Expiry;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * 
+ *
  */
 public class BinomialOptionModelTest {
   private static final BinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle> DUMMY = new BinomialOptionModelDefinition<OptionDefinition, StandardOptionDataBundle>() {
@@ -50,7 +50,7 @@ public class BinomialOptionModelTest {
           tree[i][ii] = p;
         }
       }
-      return new RecombiningBinomialTree<Double>(tree);
+      return new RecombiningBinomialTree<>(tree);
     }
 
     @Override
@@ -58,31 +58,31 @@ public class BinomialOptionModelTest {
       return 1.1;
     }
   };
-  private static final BinomialOptionModel<StandardOptionDataBundle> BINOMIAL_THREE_STEPS = new BinomialOptionModel<StandardOptionDataBundle>(DUMMY, 3);
+  private static final BinomialOptionModel<StandardOptionDataBundle> BINOMIAL_THREE_STEPS = new BinomialOptionModel<>(DUMMY, 3);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDefinition() {
-    new BinomialOptionModel<StandardOptionDataBundle>(null);
+    new BinomialOptionModel<>(null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeN() {
-    new BinomialOptionModel<StandardOptionDataBundle>(DUMMY, -3);
+    new BinomialOptionModel<>(DUMMY, -3);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testZeroN() {
-    new BinomialOptionModel<StandardOptionDataBundle>(DUMMY, 0);
+    new BinomialOptionModel<>(DUMMY, 0);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeDepth() {
-    new BinomialOptionModel<StandardOptionDataBundle>(DUMMY, 3, -3);
+    new BinomialOptionModel<>(DUMMY, 3, -3);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInconsistentDepth() {
-    new BinomialOptionModel<StandardOptionDataBundle>(DUMMY, 3, 10);
+    new BinomialOptionModel<>(DUMMY, 3, 10);
   }
 
   @Test

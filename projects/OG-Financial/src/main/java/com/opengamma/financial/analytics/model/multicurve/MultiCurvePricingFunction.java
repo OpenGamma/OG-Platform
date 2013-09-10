@@ -107,7 +107,7 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
     final ConventionSource conventionSource = OpenGammaCompilationContext.getConventionSource(context);
     final CashSecurityConverter cashConverter = new CashSecurityConverter(holidaySource, regionSource);
     final FRASecurityConverter fraConverter = new FRASecurityConverter(holidaySource, regionSource, conventionSource);
-    final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource, regionSource, false);
+    final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource, regionSource);
     final FXForwardSecurityConverter fxForwardSecurityConverter = new FXForwardSecurityConverter();
     final NonDeliverableFXForwardSecurityConverter nonDeliverableFXForwardSecurityConverter = new NonDeliverableFXForwardSecurityConverter();
     final DeliverableSwapFutureSecurityConverter dsfConverter = new DeliverableSwapFutureSecurityConverter(securitySource, swapConverter);
@@ -196,7 +196,7 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
 
     @Override
     public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-      final ValueProperties properties = getResultProperties(target).get();
+      final ValueProperties properties = getResultProperties(context, target).get();
       final Set<ValueSpecification> results = new HashSet<>();
       for (final String valueRequirement : _valueRequirements) {
         results.add(new ValueSpecification(valueRequirement, target.toSpecification(), properties));
@@ -328,10 +328,11 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
 
     /**
      * Gets the properties for the results given a target.
+     * @param context The compilation context, not null
      * @param target The target, not null
      * @return The result properties
      */
-    protected abstract ValueProperties.Builder getResultProperties(ComputationTarget target);
+    protected abstract ValueProperties.Builder getResultProperties(FunctionCompilationContext context, ComputationTarget target);
 
     /**
      * Checks that all constraints have values.

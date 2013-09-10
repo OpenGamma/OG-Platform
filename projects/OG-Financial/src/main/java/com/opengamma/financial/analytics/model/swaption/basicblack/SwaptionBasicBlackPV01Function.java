@@ -19,6 +19,7 @@ import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.model.black.ConstantBlackDiscountingPV01SwaptionFunction;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 
 /**
@@ -28,7 +29,9 @@ import com.opengamma.financial.security.FinancialSecurityUtils;
  * <p>
  * Produces a result for {@link ValueRequirementNames#PV01} using {@link PV01Calculator} with
  * {@link PresentValueCurveSensitivityBlackCalculator} as the sensitivity calculator.
+ * @deprecated Use {@link ConstantBlackDiscountingPV01SwaptionFunction}
  */
+@Deprecated
 public class SwaptionBasicBlackPV01Function extends SwaptionBasicBlackCurveSpecificFunction {
   /** The calculator */
   private static final PV01Calculator CALCULATOR = new PV01Calculator(PresentValueCurveSensitivityBlackCalculator.getInstance());

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.option.definition;
@@ -15,6 +15,10 @@ import com.opengamma.analytics.financial.interestrate.TestsDataSetsBlack;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.option.parameters.BlackFlatSwaptionParameters;
 
+/**
+ * @deprecated This class tests deprecated functionality
+ */
+@Deprecated
 public class YieldCurveWithBlackSwaptionBundleTest {
 
   private static final BlackFlatSwaptionParameters BLACK_SWAPTION = TestsDataSetsBlack.createBlackSwaptionEUR6();

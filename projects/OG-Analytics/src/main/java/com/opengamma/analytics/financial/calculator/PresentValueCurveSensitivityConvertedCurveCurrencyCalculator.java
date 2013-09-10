@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.calculator;
@@ -17,7 +17,9 @@ import com.opengamma.util.money.Currency;
 
 /**
  * A present value curve sensitivity calculator that convert a multi-currency rate sensitivity into the curve currency.
+ * @deprecated {@link YieldCurveBundle} is deprecated
  */
+@Deprecated
 public class PresentValueCurveSensitivityConvertedCurveCurrencyCalculator extends InstrumentDerivativeVisitorSameMethodAdapter<YieldCurveBundle, InterestRateCurveSensitivity> {
 
   /**

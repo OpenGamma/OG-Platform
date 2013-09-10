@@ -41,6 +41,7 @@ import com.opengamma.financial.security.future.EnergyFutureSecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
 import com.opengamma.financial.security.future.FXFutureSecurity;
+import com.opengamma.financial.security.future.FederalFundsFutureSecurity;
 import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
@@ -137,6 +138,13 @@ public class SecurityAndTradingExchangeExposureFunction implements ExposureFunct
 
   @Override
   public List<ExternalId> visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
+    final String exchange = security.getTradingExchange();
+    final String securityType = security.getSecurityType();
+    return Arrays.asList(ExternalId.of(SECURITY_IDENTIFIER, securityType + SEPARATOR + exchange));
+  }
+
+  @Override
+  public List<ExternalId> visitFederalFundsFutureSecurity(final FederalFundsFutureSecurity security) {
     final String exchange = security.getTradingExchange();
     final String securityType = security.getSecurityType();
     return Arrays.asList(ExternalId.of(SECURITY_IDENTIFIER, securityType + SEPARATOR + exchange));
@@ -281,7 +289,7 @@ public class SecurityAndTradingExchangeExposureFunction implements ExposureFunct
   public List<ExternalId> visitGovernmentBondSecurity(final GovernmentBondSecurity security) {
     return null;
   }
-  
+
   @Override
   public List<ExternalId> visitInflationBondSecurity(final InflationBondSecurity security) {
     return null;

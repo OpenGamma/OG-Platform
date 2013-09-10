@@ -7,6 +7,7 @@ package com.opengamma.web.analytics;
 
 import java.util.List;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
@@ -49,6 +50,13 @@ public interface AnalyticsView {
    * @return the callback IDs of grids that were updated
    */
   List<String> updateStructure(CompiledViewDefinition compiledViewDefinition, Portfolio resolvedPortfolio);
+
+  /**
+   * Invoked if the view can't be built and started.
+   * @param e Exception that triggered the failure, possibly null
+   * @return Callback ID of the error
+   */
+  String viewCompilationFailed(Exception e);
 
   /**
    * Updates the data in the grids when a cycle completes in the calculation engine.
@@ -253,4 +261,18 @@ public interface AnalyticsView {
    */
   UniqueId getViewDefinitionId();
 
+  /**
+   * Returns information about an error that occurred in the server
+   * @param id The error ID. This is pushed to the client as a notification
+   * @return The error, not null
+   * @throws DataNotFoundException If the ID is unknown
+   */
+  ErrorInfo getError(String id);
+
+  /**
+   * Deletes an error that a client is no longer interested in
+   * @param id The error ID. This is pushed to the client as a notification
+   * @throws DataNotFoundException If the ID is unknown
+   */
+  void deleteError(String id);
 }

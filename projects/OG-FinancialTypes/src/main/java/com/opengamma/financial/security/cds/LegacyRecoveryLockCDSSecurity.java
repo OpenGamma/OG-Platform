@@ -47,6 +47,12 @@ public class LegacyRecoveryLockCDSSecurity extends LegacyCDSSecurity {
   @PropertyDefinition(validate = "notNull")
   private double _parSpread;
 
+  /**
+   * The recovery rate.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private double _recoveryRate;
+
   LegacyRecoveryLockCDSSecurity() { // For Fudge builder
     super(SECURITY_TYPE);
   }
@@ -59,8 +65,9 @@ public class LegacyRecoveryLockCDSSecurity extends LegacyCDSSecurity {
       final boolean protectionStart, final double parSpread) {
     super(isBuy, protectionSeller, protectionBuyer, referenceEntity, debtSeniority, restructuringClause, regionId, startDate,
         effectiveDate, maturityDate, stubType, couponFrequency, dayCount, businessDayConvention, immAdjustMaturityDate, adjustEffectiveDate,
-        adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, protectionStart, SECURITY_TYPE);
+        adjustMaturityDate, notional, includeAccruedPremium, protectionStart, SECURITY_TYPE);
     setParSpread(parSpread);
+    _recoveryRate = recoveryRate;
   }
 
   @Override
@@ -91,6 +98,8 @@ public class LegacyRecoveryLockCDSSecurity extends LegacyCDSSecurity {
     switch (propertyName.hashCode()) {
       case 1556795764:  // parSpread
         return getParSpread();
+      case 2002873877:  // recoveryRate
+        return getRecoveryRate();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -101,6 +110,9 @@ public class LegacyRecoveryLockCDSSecurity extends LegacyCDSSecurity {
       case 1556795764:  // parSpread
         setParSpread((Double) newValue);
         return;
+      case 2002873877:  // recoveryRate
+        setRecoveryRate((Double) newValue);
+        return;
     }
     super.propertySet(propertyName, newValue, quiet);
   }
@@ -108,6 +120,7 @@ public class LegacyRecoveryLockCDSSecurity extends LegacyCDSSecurity {
   @Override
   protected void validate() {
     JodaBeanUtils.notNull(_parSpread, "parSpread");
+    JodaBeanUtils.notNull(_recoveryRate, "recoveryRate");
     super.validate();
   }
 
@@ -119,6 +132,7 @@ public class LegacyRecoveryLockCDSSecurity extends LegacyCDSSecurity {
     if (obj != null && obj.getClass() == this.getClass()) {
       LegacyRecoveryLockCDSSecurity other = (LegacyRecoveryLockCDSSecurity) obj;
       return JodaBeanUtils.equal(getParSpread(), other.getParSpread()) &&
+          JodaBeanUtils.equal(getRecoveryRate(), other.getRecoveryRate()) &&
           super.equals(obj);
     }
     return false;
@@ -128,6 +142,7 @@ public class LegacyRecoveryLockCDSSecurity extends LegacyCDSSecurity {
   public int hashCode() {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getParSpread());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRecoveryRate());
     return hash ^ super.hashCode();
   }
 
@@ -159,6 +174,32 @@ public class LegacyRecoveryLockCDSSecurity extends LegacyCDSSecurity {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the recovery rate.
+   * @return the value of the property, not null
+   */
+  public double getRecoveryRate() {
+    return _recoveryRate;
+  }
+
+  /**
+   * Sets the recovery rate.
+   * @param recoveryRate  the new value of the property, not null
+   */
+  public void setRecoveryRate(double recoveryRate) {
+    JodaBeanUtils.notNull(recoveryRate, "recoveryRate");
+    this._recoveryRate = recoveryRate;
+  }
+
+  /**
+   * Gets the the {@code recoveryRate} property.
+   * @return the property, not null
+   */
+  public final Property<Double> recoveryRate() {
+    return metaBean().recoveryRate().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code LegacyRecoveryLockCDSSecurity}.
    */
   public static class Meta extends LegacyCDSSecurity.Meta {
@@ -173,11 +214,17 @@ public class LegacyRecoveryLockCDSSecurity extends LegacyCDSSecurity {
     private final MetaProperty<Double> _parSpread = DirectMetaProperty.ofReadWrite(
         this, "parSpread", LegacyRecoveryLockCDSSecurity.class, Double.TYPE);
     /**
+     * The meta-property for the {@code recoveryRate} property.
+     */
+    private final MetaProperty<Double> _recoveryRate = DirectMetaProperty.ofReadWrite(
+        this, "recoveryRate", LegacyRecoveryLockCDSSecurity.class, Double.TYPE);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "parSpread");
+        "parSpread",
+        "recoveryRate");
 
     /**
      * Restricted constructor.
@@ -190,6 +237,8 @@ public class LegacyRecoveryLockCDSSecurity extends LegacyCDSSecurity {
       switch (propertyName.hashCode()) {
         case 1556795764:  // parSpread
           return _parSpread;
+        case 2002873877:  // recoveryRate
+          return _recoveryRate;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -216,6 +265,14 @@ public class LegacyRecoveryLockCDSSecurity extends LegacyCDSSecurity {
      */
     public final MetaProperty<Double> parSpread() {
       return _parSpread;
+    }
+
+    /**
+     * The meta-property for the {@code recoveryRate} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Double> recoveryRate() {
+      return _recoveryRate;
     }
 
   }

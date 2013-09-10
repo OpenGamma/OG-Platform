@@ -134,7 +134,7 @@ public final class ManagementService implements ViewProcessorEventListener {
 
   private void initializeViewProcesses() throws Exception {
     for (ViewProcessInternal viewProcess : _viewProcessor.getViewProcesses()) {
-      ViewProcessMBeanImpl viewProcessBean = new ViewProcessMBeanImpl(viewProcess, _viewProcessor);
+      ViewProcessMXBeanImpl viewProcessBean = new ViewProcessMXBeanImpl(viewProcess, _viewProcessor);
       registerViewProcess(viewProcessBean);
     }
   }
@@ -167,13 +167,13 @@ public final class ManagementService implements ViewProcessorEventListener {
     }
   }
 
-  private void registerViewProcess(ViewProcessMBeanImpl view) throws Exception {
+  private void registerViewProcess(ViewProcessMXBeanImpl viewProcessBean) throws Exception {
     try {
-      StandardMBean mbean = new StandardMBean(view, ViewProcessMBean.class);
-      _mBeanServer.registerMBean(mbean, view.getObjectName());
+      StandardMBean mbean = new StandardMBean(viewProcessBean, ViewProcessMXBean.class);
+      _mBeanServer.registerMBean(mbean, viewProcessBean.getObjectName());
     } catch (InstanceAlreadyExistsException e) {
-      _mBeanServer.unregisterMBean(view.getObjectName());
-      _mBeanServer.registerMBean(view, view.getObjectName());
+      _mBeanServer.unregisterMBean(viewProcessBean.getObjectName());
+      _mBeanServer.registerMBean(viewProcessBean, viewProcessBean.getObjectName());
     }
   }
 
@@ -194,7 +194,7 @@ public final class ManagementService implements ViewProcessorEventListener {
     if (view == null) {
       return;
     }
-    ViewProcessMBeanImpl viewManagement = new ViewProcessMBeanImpl(view, _viewProcessor);
+    ViewProcessMXBeanImpl viewManagement = new ViewProcessMXBeanImpl(view, _viewProcessor);
     try {
       registerViewProcess(viewManagement);
     } catch (Exception e) {
@@ -221,7 +221,7 @@ public final class ManagementService implements ViewProcessorEventListener {
   public void notifyViewProcessRemoved(UniqueId viewProcessId) {
     ObjectName objectName = null;
     try {
-      objectName = ViewProcessMBeanImpl.createObjectName(_viewProcessor.getName(), viewProcessId);
+      objectName = ViewProcessMXBeanImpl.createObjectName(_viewProcessor.getName(), viewProcessId);
       _mBeanServer.unregisterMBean(objectName);
     } catch (Exception e) {
       s_logger.warn("Error unregistering view for management for " + objectName + " . Error was " + e.getMessage(), e);

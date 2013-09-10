@@ -64,6 +64,10 @@ public class DependencyGraphGridStructure implements GridStructure {
   private final String _rootRowName;
   /** Column name of the root cell of the dependency graph in the parent grid */
   private final String _rootColumnName;
+  /** The fixed column structure. */
+  private final GridColumnGroup _fixedColumnGroup;
+  /** The non fixed column structure. */
+  private final GridColumnGroups _nonFixedColumnGroups;
 
   /* package */ DependencyGraphGridStructure(AnalyticsNode root,
                                              String calcConfigName,
@@ -84,18 +88,19 @@ public class DependencyGraphGridStructure implements GridStructure {
     _valueSpecs = Collections.unmodifiableList(valueSpecs);
     _fnNames = Collections.unmodifiableList(fnNames);
     _computationTargetResolver = targetResolver;
-    _columnGroups = new GridColumnGroups(ImmutableList.of(
-        // fixed column group with one column for the row label
-        new GridColumnGroup("", ImmutableList.<GridColumn>of(
-            column("Target", 0)), false),
-        // non-fixed columns
-        new GridColumnGroup("", ImmutableList.<GridColumn>of(
-            column("Type", 1),
-            column("Value Name", 2),
-            column("Value", null, 3),
-            column("Function", 4),
-            column("Properties", ValueProperties.class, 5)),
-        false)));
+    // fixed column group with one column for the row label
+    _fixedColumnGroup = new GridColumnGroup("", ImmutableList.<GridColumn>of(column("Target", 0)), false);
+    // non-fixed columns
+    GridColumnGroup nonFixedColumnGroup = new GridColumnGroup("", ImmutableList.<GridColumn>of(
+        column("Type", 1),
+        column("Value Name", 2),
+        column("Value", null, 3),
+        column("Function", 4),
+        column("Properties", ValueProperties.class, 5)),
+      false);
+    _nonFixedColumnGroups = new GridColumnGroups(nonFixedColumnGroup);
+    _columnGroups = new GridColumnGroups(ImmutableList.of(_fixedColumnGroup, nonFixedColumnGroup));
+
   }
 
   /**
@@ -174,6 +179,16 @@ public class DependencyGraphGridStructure implements GridStructure {
   @Override
   public GridColumnGroups getColumnStructure() {
     return _columnGroups;
+  }
+
+  @Override
+  public GridColumnGroup getFixedColumns() {
+    return _fixedColumnGroup;
+  }
+
+  @Override
+  public GridColumnGroups getNonFixedColumns() {
+    return _nonFixedColumnGroups;
   }
 
   @Override

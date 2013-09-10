@@ -13,6 +13,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 /**
  * Interface for describing and generating curves in curve construction process.
  */
+@SuppressWarnings("deprecation")
 public abstract class GeneratorYDCurve extends GeneratorCurve {
 
   /**

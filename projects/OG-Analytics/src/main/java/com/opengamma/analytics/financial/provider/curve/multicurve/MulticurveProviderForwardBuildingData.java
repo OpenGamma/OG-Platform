@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.curve.multicurve;
@@ -11,7 +11,6 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Data required to build curves in the Multiple Curve on MarketDiscountBundle framework.
- * @author marc
  */
 public class MulticurveProviderForwardBuildingData {
 
@@ -46,7 +45,7 @@ public class MulticurveProviderForwardBuildingData {
    * @return The instruments.
    */
   public InstrumentDerivative[] getInstruments() {
-    InstrumentDerivative[] instruments = new InstrumentDerivative[_nbInstruments];
+    final InstrumentDerivative[] instruments = new InstrumentDerivative[_nbInstruments];
     System.arraycopy(_instruments, 0, instruments, 0, _nbInstruments);
     return instruments;
   }

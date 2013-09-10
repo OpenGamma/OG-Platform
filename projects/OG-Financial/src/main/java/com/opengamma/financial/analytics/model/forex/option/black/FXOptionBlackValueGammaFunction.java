@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.forex.option.black;
@@ -21,11 +21,14 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.model.black.BlackDiscountingValueGammaFXOptionFunction;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**
  * The function to compute the Gamma of Forex options in the Black model.
+ * @deprecated Use {@link BlackDiscountingValueGammaFXOptionFunction}
  */
+@Deprecated
 public class FXOptionBlackValueGammaFunction extends FXOptionBlackSingleValuedFunction {
 
   /**

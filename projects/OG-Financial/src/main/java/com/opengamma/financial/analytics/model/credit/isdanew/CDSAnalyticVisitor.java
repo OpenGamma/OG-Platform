@@ -31,13 +31,15 @@ public class CDSAnalyticVisitor extends FinancialSecurityVisitorAdapter<CDSAnaly
   private final RegionSource _regionSource;
   private final LocalDate _startDate;
   private final LocalDate _maturityDate;
+  private final double _recoveryRate;
 
-  public CDSAnalyticVisitor(final LocalDate valuationDate, final HolidaySource holidaySource, final RegionSource regionSource) {
+  public CDSAnalyticVisitor(final LocalDate valuationDate, final HolidaySource holidaySource, final RegionSource regionSource, final double recoveryRate) {
     _valuationDate = valuationDate;
     _holidaySource = holidaySource;
     _regionSource = regionSource;
     _startDate = null;
     _maturityDate = null;
+    _recoveryRate = recoveryRate;
   }
 
   /**
@@ -49,12 +51,13 @@ public class CDSAnalyticVisitor extends FinancialSecurityVisitorAdapter<CDSAnaly
    * @param maturityDate
    */
   public CDSAnalyticVisitor(final LocalDate valuationDate, final HolidaySource holidaySource, final RegionSource regionSource,
-                            final LocalDate startDate, final LocalDate maturityDate) {
+                            final LocalDate startDate, final LocalDate maturityDate, final double recoveryRate) {
     _valuationDate = valuationDate;
     _holidaySource = holidaySource;
     _regionSource = regionSource;
     _startDate = startDate;
     _maturityDate = maturityDate;
+    _recoveryRate = recoveryRate;
   }
 
   @Override
@@ -74,11 +77,10 @@ public class CDSAnalyticVisitor extends FinancialSecurityVisitorAdapter<CDSAnaly
                                                     period,
                                                     stubType,
                                                     security.isProtectionStart(),
-                                                    security.getRecoveryRate(),
+                                                    _recoveryRate,
                                                     security.getBusinessDayConvention(),
                                                     calendar,
-                                                    security.getDayCount()
-                                                    );
+                                                    security.getDayCount());
     return cdsAnalytic;
   }
 
@@ -99,7 +101,7 @@ public class CDSAnalyticVisitor extends FinancialSecurityVisitorAdapter<CDSAnaly
                                                     period,
                                                     stubType,
                                                     security.isProtectionStart(),
-                                                    security.getRecoveryRate(),
+                                                    _recoveryRate,
                                                     security.getBusinessDayConvention(),
                                                     calendar,
                                                     security.getDayCount()

@@ -48,6 +48,7 @@ import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalcula
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
+import com.opengamma.financial.analytics.model.black.ConstantBlackDiscountingSwaptionFunction;
 import com.opengamma.financial.analytics.model.swaption.SwaptionUtils;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.FinancialSecurityTypes;
@@ -57,9 +58,11 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * Base class for functions that return values for swaptions using the basic Black model
- * (i.e. using a security-specific volatility and not interpolating volatilities).
+ * Base class for functions that return values for swaptions using the basic Black model (i.e. using a security-specific volatility and not interpolating volatilities).
+ * 
+ * @deprecated Use classes descended from {@link ConstantBlackDiscountingSwaptionFunction}
  */
+@Deprecated
 public abstract class SwaptionBasicBlackFunction extends AbstractFunction.NonCompiledInvoker {
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(SwaptionBasicBlackFunction.class);
@@ -84,6 +87,7 @@ public abstract class SwaptionBasicBlackFunction extends AbstractFunction.NonCom
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final SwapSecurityConverterDeprecated swapConverter = new SwapSecurityConverterDeprecated(holidaySource, conventionSource, regionSource, false);
     _visitor = new SwaptionSecurityConverterDeprecated(securitySource, swapConverter);
+    ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
   }
 
   @Override
@@ -165,6 +169,7 @@ public abstract class SwaptionBasicBlackFunction extends AbstractFunction.NonCom
 
   /**
    * Calculates the results.
+   * 
    * @param swaption The swaption
    * @param data The market data bundle
    * @param spec The result specification
@@ -188,7 +193,7 @@ public abstract class SwaptionBasicBlackFunction extends AbstractFunction.NonCom
 
   }
 
-  private ValueRequirement getVolatilityRequirement(final ComputationTargetSpecification target) {
+  private static ValueRequirement getVolatilityRequirement(final ComputationTargetSpecification target) {
     return new ValueRequirement(MarketDataRequirementNames.IMPLIED_VOLATILITY, target, ValueProperties.builder().get());
   }
 }

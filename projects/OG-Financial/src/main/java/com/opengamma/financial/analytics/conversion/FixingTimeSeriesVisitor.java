@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.conversion;
@@ -74,12 +74,12 @@ public class FixingTimeSeriesVisitor extends FinancialSecurityVisitorAdapter<Val
     return HistoricalTimeSeriesFunctionUtils.createHTSRequirement(ts, MarketDataRequirementNames.MARKET_VALUE, DateConstraint.of(startDate), true, now, includeEndDate);
   }
 
-  public static ZonedDateTimeDoubleTimeSeries convertTimeSeries(final HistoricalTimeSeries ts, final ZonedDateTime now) {
+  public static ZonedDateTimeDoubleTimeSeries convertTimeSeries(final HistoricalTimeSeries ts) {
     final LocalDateDoubleTimeSeries localDateTS = ts.getTimeSeries();
     // FIXME CASE Converting a daily historical time series to an arbitrary time. Bad idea
-    ZonedDateTime[] instants = new ZonedDateTime[localDateTS.size()];
-    for (LocalDateDoubleEntryIterator it = localDateTS.iterator(); it.hasNext(); ) {
-      LocalDate date = it.nextTime();
+    final ZonedDateTime[] instants = new ZonedDateTime[localDateTS.size()];
+    for (final LocalDateDoubleEntryIterator it = localDateTS.iterator(); it.hasNext(); ) {
+      final LocalDate date = it.nextTime();
       instants[it.currentIndex()] = date.atStartOfDay(ZoneOffset.UTC);
     }
     return ImmutableZonedDateTimeDoubleTimeSeries.of(instants, localDateTS.valuesArrayFast(), ZoneOffset.UTC);

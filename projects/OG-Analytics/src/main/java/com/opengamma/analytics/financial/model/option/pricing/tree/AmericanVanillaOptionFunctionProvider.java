@@ -12,11 +12,12 @@ public class AmericanVanillaOptionFunctionProvider extends OptionFunctionProvide
 
   /**
    * @param strike Strike price
+   * @param timeToExpiry Time to expiry
    * @param steps Number of steps
    * @param isCall True if call, false if put
    */
-  public AmericanVanillaOptionFunctionProvider(final double strike, final int steps, final boolean isCall) {
-    super(strike, steps, isCall);
+  public AmericanVanillaOptionFunctionProvider(final double strike, final double timeToExpiry, final int steps, final boolean isCall) {
+    super(strike, timeToExpiry, steps, isCall);
   }
 
   @Override
@@ -28,7 +29,7 @@ public class AmericanVanillaOptionFunctionProvider extends OptionFunctionProvide
     final double[] values = new double[nStepsP];
     double priceTmp = assetPrice;
     for (int i = 0; i < nStepsP; ++i) {
-      values[i] = Math.max(sign * (priceTmp - strike), 0);
+      values[i] = Math.max(sign * (priceTmp - strike), 0.);
       priceTmp *= upOverDown;
     }
     return values;
@@ -48,5 +49,24 @@ public class AmericanVanillaOptionFunctionProvider extends OptionFunctionProvide
       assetPrice *= upOverDown;
     }
     return res;
+  }
+
+  @Override
+  public int hashCode() {
+    return super.hashCode();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (!(obj instanceof AmericanVanillaOptionFunctionProvider)) {
+      return false;
+    }
+    return super.equals(obj);
   }
 }

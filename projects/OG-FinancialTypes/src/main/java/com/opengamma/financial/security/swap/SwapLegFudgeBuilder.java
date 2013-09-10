@@ -213,8 +213,10 @@ public class SwapLegFudgeBuilder extends AbstractFudgeBuilder {
   public static class InflationIndexSwapLegBuilder extends SwapLegFudgeBuilder implements FudgeBuilder<InflationIndexSwapLeg>  {
     /** The index reference id field name */
     private static final String INDEX_ID_FIELD_NAME = "indexId";
-    /** The lag field name */
-    private static final String LAG_FIELD_NAME = "lagField";
+    /** The quotation lag field name */
+    private static final String QUOTATION_LAG_FIELD_NAME = "quotationLagField";
+    /** The conventional lag field name */
+    private static final String CONVENTIONAL_LAG_FIELD_NAME = "conventionalLagField";
     /** The interpolation method field name */
     private static final String INTERPOLATION_METHOD_FIELD_NAME = "interpolationMethod";
 
@@ -223,7 +225,8 @@ public class SwapLegFudgeBuilder extends AbstractFudgeBuilder {
       final MutableFudgeMsg msg = serializer.newMessage();
       toFudgeMsg(serializer, object, msg);
       addToMessage(msg, INDEX_ID_FIELD_NAME, ExternalIdFudgeBuilder.toFudgeMsg(serializer, object.getIndexId()));
-      addToMessage(msg, LAG_FIELD_NAME, object.getLag());
+      addToMessage(msg, QUOTATION_LAG_FIELD_NAME, object.getQuotationIndexationLag());
+      addToMessage(msg, CONVENTIONAL_LAG_FIELD_NAME, object.getConventionalIndexationLag());
       addToMessage(msg, INTERPOLATION_METHOD_FIELD_NAME, object.getInterpolationMethod().name());
       return msg;
     }
@@ -233,7 +236,8 @@ public class SwapLegFudgeBuilder extends AbstractFudgeBuilder {
       final InflationIndexSwapLeg inflationIndexSwapLeg = new InflationIndexSwapLeg();
       fromFudgeMsg(deserializer, msg, inflationIndexSwapLeg);
       inflationIndexSwapLeg.setIndexId(ExternalIdFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(INDEX_ID_FIELD_NAME)));
-      inflationIndexSwapLeg.setLag(msg.getInt(LAG_FIELD_NAME));
+      inflationIndexSwapLeg.setQuotationIndexationLag(msg.getInt(QUOTATION_LAG_FIELD_NAME));
+      inflationIndexSwapLeg.setConventionalIndexationLag(msg.getInt(CONVENTIONAL_LAG_FIELD_NAME));
       inflationIndexSwapLeg.setInterpolationMethod(InterpolationMethod.valueOf(msg.getString(INTERPOLATION_METHOD_FIELD_NAME)));
       return inflationIndexSwapLeg;
     }

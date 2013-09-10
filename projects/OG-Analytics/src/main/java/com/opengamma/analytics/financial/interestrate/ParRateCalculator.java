@@ -24,11 +24,12 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponON;
 import com.opengamma.analytics.financial.interestrate.payments.method.CouponIborDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.payments.method.CouponOISDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.payments.method.CouponONDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.interestrate.swap.method.SwapFixedCouponDiscountingMethod;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
+import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.util.CompareUtils;
 
@@ -64,7 +65,7 @@ public final class ParRateCalculator extends InstrumentDerivativeVisitorAdapter<
    */
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
 
-  private static final CouponOISDiscountingMethod METHOD_OIS = CouponOISDiscountingMethod.getInstance();
+  private static final CouponONDiscountingMethod METHOD_OIS = CouponONDiscountingMethod.getInstance();
   private static final CouponIborDiscountingMethod METHOD_IBOR = CouponIborDiscountingMethod.getInstance();
   private static final DepositZeroDiscountingMethod METHOD_DEPOSIT_ZERO = DepositZeroDiscountingMethod.getInstance();
   private static final ForwardRateAgreementDiscountingMethod METHOD_FRA = ForwardRateAgreementDiscountingMethod.getInstance();
@@ -163,6 +164,20 @@ public final class ParRateCalculator extends InstrumentDerivativeVisitorAdapter<
   }
 
   /**
+   * Computes the swap convention-modified par rate for a fixed coupon swap.
+   * <P>Reference: Swaption pricing - v 1.3, OpenGamma Quantitative Research, June 2012.
+   * @param swap The swap.
+   * @param dayCount The day count convention to modify the swap rate.
+   * @param curves The curves.
+   * @param calendar The calendar
+   * @return The modified rate.
+   */
+  public Double visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final DayCount dayCount, final YieldCurveBundle curves, final Calendar calendar) {
+    final double pvbp = METHOD_SWAP.presentValueBasisPoint(swap, dayCount, calendar, curves);
+    return visitFixedCouponSwap(swap, pvbp, curves);
+  }
+
+  /**
    * Computes the swap convention-modified par rate for a fixed coupon swap with a PVBP externally provided.
    * <P>Reference: Swaption pricing - v 1.3, OpenGamma Quantitative Research, June 2012.
    * @param swap The swap.
@@ -212,7 +227,6 @@ public final class ParRateCalculator extends InstrumentDerivativeVisitorAdapter<
   // TODO: review
   /**
    * This gives you the bond coupon, for a given yield curve, that renders the bond par (present value of all cash flows equal to 1.0)
-   * For a bonds yield use ??????????????? //TODO
    * @param bond the bond
    * @param curves the input curves
    * @return the par rate

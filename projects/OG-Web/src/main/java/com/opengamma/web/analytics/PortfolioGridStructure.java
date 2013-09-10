@@ -26,6 +26,7 @@ import com.opengamma.core.position.impl.PortfolioMapper;
 import com.opengamma.core.position.impl.PortfolioMapperFunction;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.management.ValueMappings;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueSpecification;
@@ -157,7 +158,7 @@ public class PortfolioGridStructure extends MainGridStructure {
   }
 
   /* package */ PortfolioGridStructure withNode(AnalyticsNode node) {
-    return new PortfolioGridStructure(_rows, buildFixedColumns(_rows), getColumnStructure(), node, getTargetLookup(), _valueMappings, _viewDef);
+    return new PortfolioGridStructure(_rows, getFixedColumns(), getNonFixedColumns(), node, getTargetLookup(), _valueMappings, _viewDef);
   }
 
   /* package */ static GridColumnGroup buildFixedColumns(List<PortfolioGridRow> rows) {

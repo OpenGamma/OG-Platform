@@ -59,6 +59,7 @@ import com.opengamma.util.money.Currency;
 
 /**
  * Calculates the yield curve node sensitivities of an interest rate instrument
+ * 
  * @deprecated Use {@link DiscountingYCNSFunction}
  */
 @Deprecated

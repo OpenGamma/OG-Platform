@@ -22,6 +22,8 @@ public class InstrumentTypeProperties {
   public static final String IR_FUTURE_PRICE = "IR_FUTURE_PRICE";
   /** Property representing ATM surfaces for swaptions */
   public static final String SWAPTION_ATM = "SWAPTION_ATM";
+  /** Property representing surfaces for cap/floors */
+  public static final String CAP_FLOOR = "CAP_FLOOR";
   /** Property representing a surface for equity and equity index options */
   public static final String EQUITY_OPTION = "EQUITY_OPTION";
   /** Property representing a surface for equity and equity index future options */

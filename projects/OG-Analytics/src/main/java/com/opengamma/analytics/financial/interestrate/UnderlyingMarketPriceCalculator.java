@@ -7,12 +7,12 @@ package com.opengamma.analytics.financial.interestrate;
 
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
 import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureOptionMarginSecurityBlackSurfaceMethod;
+import com.opengamma.analytics.financial.provider.calculator.blackstirfutures.UnderlyingMarketPriceSTIRFutureOptionCalculator;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * InstrumentDerivativeVisitor that calculates {@link ValueRequirementNames#UNDERLYING_MARKET_PRICE},
- * the market price of the Security underlying an option or similar derivative.<p>
- * @deprecated [@link YieldCurveBundle} is deprecated.
+ * InstrumentDerivativeVisitor that calculates the underlying future price.
+ * @deprecated [@link YieldCurveBundle} is deprecated. Use {@link UnderlyingMarketPriceSTIRFutureOptionCalculator}.
  */
 @Deprecated
 public class UnderlyingMarketPriceCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> {

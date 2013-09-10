@@ -1,10 +1,11 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.math.integration;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.math.function.Function1D;
 
 /**
@@ -25,7 +26,7 @@ public class RungeKuttaIntegrator1D extends Integrator1D<Double, Double> {
       throw new IllegalArgumentException("Absolute Tolerance must be greater than zero");
     }
     if (relTol < 0.0) {
-      throw new IllegalArgumentException("Relative Tolerance must be grater than zero");
+      throw new IllegalArgumentException("Relative Tolerance must be greater than zero");
     }
     if (minSteps < 1) {
       throw new IllegalArgumentException("Must have minimum of 1 step");
@@ -77,7 +78,9 @@ public class RungeKuttaIntegrator1D extends Integrator1D<Double, Double> {
   }
 
   private double calculateRungeKuttaFourthOrder(final Function1D<Double, Double> f, final double x, final double h, final double fl, final double fm, final double fu) {
-
+    if (Double.isNaN(h) || Double.isInfinite(h)) {
+      throw new OpenGammaRuntimeException("h was Inf or NaN");
+    }
     final double f1 = f.evaluate(x + 0.25 * h);
     final double f2 = f.evaluate(x + 0.75 * h);
     final double ya = h * (fl + 4.0 * fm + fu) / 6.0;

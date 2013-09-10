@@ -16,8 +16,8 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.Interest
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.analytics.financial.provider.calculator.blackstirfutures.PresentValueBlackSTIRFuturesCalculator;
-import com.opengamma.analytics.financial.provider.calculator.blackstirfutures.PresentValueCurveSensitivityBlackSTIRFuturesCalculator;
+import com.opengamma.analytics.financial.provider.calculator.blackstirfutures.PresentValueBlackSTIRFutureOptionCalculator;
+import com.opengamma.analytics.financial.provider.calculator.blackstirfutures.PresentValueCurveSensitivityBlackSTIRFutureOptionCalculator;
 import com.opengamma.analytics.financial.provider.description.BlackDataSets;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackSTIRFuturesSmileProviderDiscount;
@@ -81,8 +81,8 @@ public class InterestRateFutureOptionMarginBlackSmileMethodTest {
   private static final InterestRateFutureOptionMarginSecurityBlackSmileMethod METHOD_SECURITY_OPTION_BLACK = InterestRateFutureOptionMarginSecurityBlackSmileMethod.getInstance();
   private static final InterestRateFutureOptionMarginTransactionBlackSmileMethod METHOD_TRANSACTION_OPTION_BLACK = InterestRateFutureOptionMarginTransactionBlackSmileMethod.getInstance();
 
-  private static final PresentValueBlackSTIRFuturesCalculator PVBFC = PresentValueBlackSTIRFuturesCalculator.getInstance();
-  private static final PresentValueCurveSensitivityBlackSTIRFuturesCalculator PVCSBFC = PresentValueCurveSensitivityBlackSTIRFuturesCalculator.getInstance();
+  private static final PresentValueBlackSTIRFutureOptionCalculator PVBFC = PresentValueBlackSTIRFutureOptionCalculator.getInstance();
+  private static final PresentValueCurveSensitivityBlackSTIRFutureOptionCalculator PVCSBFC = PresentValueCurveSensitivityBlackSTIRFutureOptionCalculator.getInstance();
   private static final double SHIFT = 1.0E-6;
   private static final ParameterSensitivityParameterCalculator<BlackSTIRFuturesSmileProviderInterface> PSHWC = new ParameterSensitivityParameterCalculator<>(
       PVCSBFC);

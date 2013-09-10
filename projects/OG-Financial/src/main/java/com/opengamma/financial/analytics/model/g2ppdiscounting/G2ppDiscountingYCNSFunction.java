@@ -135,8 +135,8 @@ public class G2ppDiscountingYCNSFunction extends G2ppDiscountingFunction {
       }
 
       @Override
-      protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
-        final ValueProperties.Builder properties = super.getResultProperties(target);
+      protected ValueProperties.Builder getResultProperties(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
+        final ValueProperties.Builder properties = super.getResultProperties(compilationContext, target);
         return properties.withAny(CURVE);
       }
 

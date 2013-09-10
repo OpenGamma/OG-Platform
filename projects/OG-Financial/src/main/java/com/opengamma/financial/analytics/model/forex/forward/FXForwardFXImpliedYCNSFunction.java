@@ -65,10 +65,9 @@ import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * Calculates yield curve node sensitivities for yield curves constructed using
- * the FX implied method.
- * @deprecated There is no longer any need to treat FX-implied curves differently;
- * see {@link DiscountingYCNSFunction}
+ * Calculates yield curve node sensitivities for yield curves constructed using the FX implied method.
+ * 
+ * @deprecated There is no longer any need to treat FX-implied curves differently; see {@link DiscountingYCNSFunction}
  */
 @Deprecated
 public class FXForwardFXImpliedYCNSFunction extends FXForwardSingleValuedFunction {
@@ -81,6 +80,11 @@ public class FXForwardFXImpliedYCNSFunction extends FXForwardSingleValuedFunctio
 
   public FXForwardFXImpliedYCNSFunction() {
     super(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
+  }
+
+  @Override
+  public void init(final FunctionCompilationContext context) {
+    ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
   }
 
   @Override

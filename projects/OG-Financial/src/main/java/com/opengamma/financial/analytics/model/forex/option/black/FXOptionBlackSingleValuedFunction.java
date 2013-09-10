@@ -11,6 +11,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
+import com.opengamma.financial.analytics.model.black.BlackDiscountingFXOptionFunction;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.security.FinancialSecurity;
@@ -19,8 +20,11 @@ import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecu
 import com.opengamma.util.money.Currency;
 
 /**
- *
+ * Base class for FX option functions that use the Black method. The results
+ * set the {@link ValuePropertyNames#CURRENCY} property.
+ * @deprecated Use classes that descend from {@link BlackDiscountingFXOptionFunction}
  */
+@Deprecated
 public abstract class FXOptionBlackSingleValuedFunction extends FXOptionBlackFunction {
 
   public FXOptionBlackSingleValuedFunction(final String valueRequirementName) {

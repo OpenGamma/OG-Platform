@@ -13,24 +13,28 @@ import com.opengamma.analytics.financial.interestrate.PresentValueBlackDeltaForT
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackCubeBundle;
 import com.opengamma.core.position.Position;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.model.black.BlackDiscountingPositionDeltaIRFutureOptionFunction;
 
 /**
  * Function computes the {@link ValueRequirementNames#POSITION_DELTA}, first order derivative of {@link Position} price with respect to the futures price,
  * for interest rate future options in the Black world. <p>
+ * @deprecated Use {@link BlackDiscountingPositionDeltaIRFutureOptionFunction}
  */
+@Deprecated
 public class InterestRateFutureOptionBlackPositionDeltaFunction extends InterestRateFutureOptionBlackFunction {
 
   /** The calculator to compute the delta value */
   private static final PresentValueBlackDeltaForTransactionCalculator CALCULATOR = PresentValueBlackDeltaForTransactionCalculator.getInstance();
-  
+
   public InterestRateFutureOptionBlackPositionDeltaFunction() {
     super(ValueRequirementNames.POSITION_DELTA);
   }
-  
+
   @Override
-  protected Set<ComputedValue> getResult(InstrumentDerivative irFutureOption, YieldCurveWithBlackCubeBundle curveBundle, ValueSpecification spec) {
+  protected Set<ComputedValue> getResult(final InstrumentDerivative irFutureOption, final YieldCurveWithBlackCubeBundle curveBundle, final ValueSpecification spec, final Set<ValueRequirement> desiredValues) {
     final double delta = irFutureOption.accept(CALCULATOR, curveBundle);
     return Collections.singleton(new ComputedValue(spec, delta));
   }

@@ -44,6 +44,13 @@ import com.opengamma.web.analytics.push.UpdateListener;
   }
 
   @Override
+  public String viewCompilationFailed(Exception e) {
+    String callbackId = _delegate.viewCompilationFailed(e);
+    _listener.itemUpdated(callbackId);
+    return callbackId;
+  }
+
+  @Override
   public List<String> updateResults(ViewResultModel results, ViewCycle viewCycle) {
     List<String> callbackIds = _delegate.updateResults(results, viewCycle);
     _listener.itemsUpdated(callbackIds);
@@ -171,5 +178,14 @@ import com.opengamma.web.analytics.push.UpdateListener;
   public UniqueId getViewDefinitionId() {
     return _delegate.getViewDefinitionId();
   }
-  
+
+  @Override
+  public ErrorInfo getError(String id) {
+    return _delegate.getError(id);
+  }
+
+  @Override
+  public void deleteError(String id) {
+    _delegate.deleteError(id);
+  }
 }

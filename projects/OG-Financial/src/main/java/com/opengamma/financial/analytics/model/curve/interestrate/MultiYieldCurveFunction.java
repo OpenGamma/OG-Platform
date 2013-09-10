@@ -50,6 +50,11 @@ public abstract class MultiYieldCurveFunction extends AbstractFunction.NonCompil
   private static final Logger s_logger = LoggerFactory.getLogger(MultiYieldCurveFunction.class);
 
   @Override
+  public void init(final FunctionCompilationContext context) {
+    ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
+  }
+
+  @Override
   public ComputationTargetType getTargetType() {
     return ComputationTargetType.CURRENCY;
   }
