@@ -33,8 +33,20 @@ public abstract class ExerciseType extends DirectBean implements Serializable {
   /**
    * Cache of known types.
    */
-  private static final ConcurrentMap<String, ExerciseType> CACHE = new ConcurrentHashMap<>(8, 0.75f, 1);
+  private static volatile ConcurrentMap<String, ExerciseType> s_cache;
 
+  private static void registerKnownTypes() {
+    synchronized (ExerciseType.class) {
+      if (s_cache == null) {
+        s_cache = new ConcurrentHashMap<>(8, 0.75f, 1);
+        register(new AmericanExerciseType());
+        register(new AsianExerciseType());
+        register(new BermudanExerciseType());
+        register(new EuropeanExerciseType());
+      }
+    }
+  }
+  
   /**
    * Gets an exercise type by name.
    * 
@@ -44,7 +56,9 @@ public abstract class ExerciseType extends DirectBean implements Serializable {
   @FromString
   public static ExerciseType of(String name) {
     ArgumentChecker.notNull(name, "name");
-    ExerciseType type = CACHE.get(name);
+   
+    registerKnownTypes();
+    ExerciseType type = s_cache.get(name);
     if (type == null) {
       throw new IllegalArgumentException("Unknown ExerciseType: " + name);
     }
@@ -58,8 +72,11 @@ public abstract class ExerciseType extends DirectBean implements Serializable {
    */
   public static void register(ExerciseType type) {
     ArgumentChecker.notNull(type, "type");
-    CACHE.putIfAbsent(type.getName(), type);
+    
+    registerKnownTypes();
+    s_cache.putIfAbsent(type.getName(), type);
   }
+  
 
   //-------------------------------------------------------------------------
   /**

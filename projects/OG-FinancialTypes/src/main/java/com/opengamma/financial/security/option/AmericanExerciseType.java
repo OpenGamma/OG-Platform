@@ -22,11 +22,6 @@ public class AmericanExerciseType extends ExerciseType {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
-
-  static {
-    ExerciseType.register(new AmericanExerciseType());
-  }
-
   /**
    * Creates an empty instance.
    */
