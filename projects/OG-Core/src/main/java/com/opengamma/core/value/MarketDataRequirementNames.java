@@ -141,4 +141,9 @@ public interface MarketDataRequirementNames {
    * Previous day's closing ask price.
    */
   String CLOSING_ASK = "Market_ClosingAsk";
+  
+  /**
+   * Last closing trade price, may be from mulitple days ago
+   */
+  String CLOSE = "Market_Close";
 }
