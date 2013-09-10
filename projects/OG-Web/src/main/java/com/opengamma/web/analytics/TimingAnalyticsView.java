@@ -247,16 +247,16 @@ import com.opengamma.web.analytics.formatting.TypeFormatter.Format;
   }
 
   @Override
-  public ErrorInfo getError(String id) {
+  public List<ErrorInfo> getErrors() {
     long startTime = System.currentTimeMillis();
     s_logger.trace("Executing AnalyticsView.getError");
-    ErrorInfo retVal = _delegate.getError(id);
+    List<ErrorInfo> retVal = _delegate.getErrors();
     s_logger.trace("getError completed in " + (System.currentTimeMillis() - startTime) + "ms");
     return retVal;
   }
 
   @Override
-  public void deleteError(String id) {
+  public void deleteError(long id) {
     long startTime = System.currentTimeMillis();
     s_logger.trace("Executing AnalyticsView.deleteError");
     _delegate.deleteError(id);

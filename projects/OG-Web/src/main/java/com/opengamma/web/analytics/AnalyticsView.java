@@ -263,16 +263,16 @@ public interface AnalyticsView {
 
   /**
    * Returns information about an error that occurred in the server
-   * @param id The error ID. This is pushed to the client as a notification
    * @return The error, not null
    * @throws DataNotFoundException If the ID is unknown
    */
-  ErrorInfo getError(String id);
+  List<ErrorInfo> getErrors();
 
   /**
    * Deletes an error that a client is no longer interested in
+   *
    * @param id The error ID. This is pushed to the client as a notification
    * @throws DataNotFoundException If the ID is unknown
    */
-  void deleteError(String id);
+  void deleteError(long id);
 }

@@ -440,12 +440,12 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
   }
 
   @Override
-  public ErrorInfo getError(String id) {
-    return _errorManager.get(id);
+  public List<ErrorInfo> getErrors() {
+    return _errorManager.get();
   }
 
   @Override
-  public void deleteError(String id) {
+  public void deleteError(long id) {
     _errorManager.delete(id);
   }
 }

@@ -36,7 +36,6 @@ import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.analytics.push.ClientConnection;
-import com.opengamma.web.analytics.rest.ErrorIdFactory;
 import com.opengamma.web.server.AggregatedViewDefinitionManager;
 
 /**
@@ -112,7 +111,7 @@ public class AnalyticsViewManager {
    * @param viewCallbackId ID that's passed to the listener when the view's portfolio grid structure changes
    * @param portfolioGridId ID that's passed to the listener when the view's portfolio grid structure changes
    * @param primitivesGridId ID that's passed to the listener when the view's primitives grid structure changes
-   * @param errorIdFactory Factory for generating IDs for errors generated on the server
+   * @param errorId
    */
   public void createView(ViewRequest request,
                          String clientId,
@@ -121,8 +120,7 @@ public class AnalyticsViewManager {
                          String viewId,
                          Object viewCallbackId,
                          String portfolioGridId,
-                         String primitivesGridId,
-                         ErrorIdFactory errorIdFactory) {
+                         String primitivesGridId, String errorId) {
     if (_viewConnections.containsKey(viewId)) {
       throw new IllegalArgumentException("View ID " + viewId + " is already in use");
     }
@@ -150,7 +148,7 @@ public class AnalyticsViewManager {
     PortfolioEntityExtractor entityExtractor = new PortfolioEntityExtractor(versionCorrection, _securityMaster);
     // TODO add filtering change listener to portfolio master which calls portfolioChanged() on the outer view
     boolean primitivesOnly = portfolioId == null;
-    ErrorManager errorManager = new ErrorManager(errorIdFactory);
+    ErrorManager errorManager = new ErrorManager(errorId);
     AnalyticsView view = new SimpleAnalyticsView(aggregatedViewDef.getUniqueId(),
                                                  primitivesOnly,
                                                  versionCorrection,

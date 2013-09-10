@@ -5,15 +5,17 @@
  */
 package com.opengamma.web.analytics;
 
+import java.util.List;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.web.analytics.rest.ErrorIdFactory;
 
 /**
  * Contains details of the errors that have occurred in the server for a view.
@@ -22,12 +24,12 @@ import com.opengamma.web.analytics.rest.ErrorIdFactory;
 
   private static final Logger s_logger = LoggerFactory.getLogger(ErrorManager.class);
 
-  private final ErrorIdFactory _idFactory;
-  private final ConcurrentMap<String, ErrorInfo> _errors = Maps.newConcurrentMap();
+  private final ConcurrentMap<Long, ErrorInfo> _errors = Maps.newConcurrentMap();
+  private final AtomicLong _nextId = new AtomicLong(0);
+  private final String _errorId;
 
-  /* package */ ErrorManager(ErrorIdFactory idFactory) {
-    ArgumentChecker.notNull(idFactory, "idFactory");
-    _idFactory = idFactory;
+  /* package */ ErrorManager(String errorId) {
+    _errorId = errorId;
   }
 
   /**
@@ -37,25 +39,21 @@ import com.opengamma.web.analytics.rest.ErrorIdFactory;
    */
   /* package */ String add(Exception exception) {
     ArgumentChecker.notNull(exception, "exception");
-    String id = _idFactory.generateId();
+    long id = _nextId.getAndIncrement();
     _errors.put(id, new ErrorInfo(exception));
     s_logger.info("Added error with ID {}, exception {}", id, exception.getMessage());
-    return id;
+    return _errorId;
   }
 
   /**
    * Returns information about an error.
-   * @param id The ID of the error
    * @return The error details
    * @throws DataNotFoundException If the ID is unknown
    */
-  /* package */ ErrorInfo get(String id) {
-    ErrorInfo error = _errors.get(id);
-    if (error == null) {
-      throw new DataNotFoundException("No error found with ID " + id);
-    }
-    s_logger.info("Returning error with ID {}, {}", id, error);
-    return error;
+  /* package */ List<ErrorInfo> get() {
+    List<ErrorInfo> errors = Lists.newArrayList(_errors.values());
+    s_logger.info("Returning errors {}", errors);
+    return errors;
   }
 
   /**
@@ -63,7 +61,7 @@ import com.opengamma.web.analytics.rest.ErrorIdFactory;
    * @param id The ID of the error
    * @throws DataNotFoundException If the ID is unknown
    */
-  /* package */ void delete(String id) {
+  /* package */ void delete(long id) {
     ErrorInfo error = _errors.remove(id);
     if (error == null) {
       throw new DataNotFoundException("No error found with ID " + id);

@@ -246,17 +246,17 @@ import com.opengamma.web.analytics.formatting.TypeFormatter.Format;
   }
 
   @Override
-  public ErrorInfo getError(String id) {
+  public List<ErrorInfo> getErrors() {
     try {
       _lock.readLock().lock();
-      return _delegate.getError(id);
+      return _delegate.getErrors();
     } finally {
       _lock.readLock().unlock();
     }
   }
 
   @Override
-  public void deleteError(String id) {
+  public void deleteError(long id) {
     try {
       _lock.writeLock().lock();
       _delegate.deleteError(id);

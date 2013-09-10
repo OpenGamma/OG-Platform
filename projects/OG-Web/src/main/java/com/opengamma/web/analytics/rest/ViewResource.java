@@ -5,6 +5,8 @@
  */
 package com.opengamma.web.analytics.rest;
 
+import java.util.List;
+
 import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -97,15 +99,15 @@ public class ViewResource {
     return response;
   }
 
-  @Path("errors/{errorId}")
+  @Path("errors")
   @GET
-  public ErrorInfo getError(@PathParam("errorId") String errorId) {
-    return _view.getError(errorId);
+  public List<ErrorInfo> getErrors() {
+    return _view.getErrors();
   }
 
   @Path("errors/{errorId}")
   @DELETE
-  public void deleteError(@PathParam("errorId") String errorId) {
+  public void deleteError(@PathParam("errorId") long errorId) {
     _view.deleteError(errorId);
   }
 }

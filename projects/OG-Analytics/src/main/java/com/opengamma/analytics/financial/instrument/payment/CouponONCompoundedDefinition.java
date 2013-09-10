@@ -351,24 +351,14 @@ public class CouponONCompoundedDefinition extends CouponDefinition implements In
     // Accrue notional for fixings before today; up to and including yesterday
     int fixedPeriod = 0;
     double accruedNotional = getNotional();
-    while (valDate.isAfter(_fixingPeriodDates[fixedPeriod + _index.getPublicationLag()].toLocalDate()) && (fixedPeriod < _fixingPeriodDates.length - 1)) {
+    while ((fixedPeriod < _fixingPeriodDates.length - 1) && valDate.isAfter(_fixingPeriodDates[fixedPeriod + _index.getPublicationLag()].toLocalDate())) {
 
       final LocalDate currentDate = _fixingPeriodDates[fixedPeriod].toLocalDate();
-      Double fixedRate = indexFixingDateSeries.getValue(currentDate);
+      final Double fixedRate = indexFixingDateSeries.getValue(currentDate);
 
       if (fixedRate == null) {
         final LocalDate latestDate = indexFixingDateSeries.getLatestTime();
-        if (currentDate.isAfter(latestDate)) {
-          throw new OpenGammaRuntimeException("Could not get fixing value of index " + _index.getName() + " for date " + currentDate + ". The last data is available on " + latestDate);
-        }
-        // Don't remove this until we've worked out what's going on with INR calendars
-        for (int i = 0; i < 7; i++) {
-          final LocalDate previousDate = currentDate.minusDays(1);
-          fixedRate = indexFixingDateSeries.getValue(previousDate);
-        }
-        if (fixedRate == null) {
-          throw new OpenGammaRuntimeException("Could not get fixing value of index " + _index.getName() + " for date " + currentDate);
-        }
+        throw new OpenGammaRuntimeException("Could not get fixing value of index " + _index.getName() + " for date " + currentDate + ". The last data is available on " + latestDate);
       }
       accruedNotional *= Math.pow(1 + fixedRate, _fixingPeriodAccrualFactors[fixedPeriod]);
       fixedPeriod++;
@@ -383,7 +373,7 @@ public class CouponONCompoundedDefinition extends CouponDefinition implements In
         fixedPeriod++;
       }
       if (fixedPeriod < _fixingPeriodDates.length - 1) { // More OIS period left
-        final double[] fixingAccrualFactorsLeft = new double[_fixingPeriodDates.length - 1 - fixedPeriod];
+        final double[] fixingAccrualFactorsLeft = new double[_fixingPeriodAccrualFactors.length - fixedPeriod];
         final double[] fixingPeriodStartTimes = new double[_fixingPeriodDates.length - 1 - fixedPeriod];
         final double[] fixingPeriodEndTimes = new double[_fixingPeriodDates.length - 1 - fixedPeriod];
         final double[] fixingPeriodAccrualFactorsActAct = new double[_fixingPeriodDates.length - 1 - fixedPeriod];

@@ -288,9 +288,9 @@ import com.opengamma.web.analytics.push.UpdateListener;
   }
 
   @Override
-  public ErrorInfo getError(String errorId) {
+  public List<ErrorInfo> getErrors() {
     try {
-      return _delegate.getError(errorId);
+      return _delegate.getErrors();
     } catch (Exception e) {
       String id = _errorManager.add(e);
       _listener.itemUpdated(id);
@@ -299,7 +299,7 @@ import com.opengamma.web.analytics.push.UpdateListener;
   }
 
   @Override
-  public void deleteError(String errorId) {
+  public void deleteError(long errorId) {
     try {
       _delegate.deleteError(errorId);
     } catch (Exception e) {

@@ -66,7 +66,7 @@ public final class CouponArithmeticAverageONDefinition extends CouponDefinition 
    * @param fixingPeriodEndDate The end date of the fixing period.
    * @param calendar The holiday calendar for the overnight leg.
    */
-  private CouponArithmeticAverageONDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate,
+  public CouponArithmeticAverageONDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate,
       final double paymentAccrualFactor, final double notional, final IndexON index, final ZonedDateTime fixingPeriodStartDate, final ZonedDateTime fixingPeriodEndDate,
       final Calendar calendar) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentAccrualFactor, notional);
@@ -142,7 +142,7 @@ public final class CouponArithmeticAverageONDefinition extends CouponDefinition 
    * Gets the dates of the fixing periods (start and end). There is one date more than period.
    * @return The dates of the fixing periods.
    */
-  public ZonedDateTime[] getFixingPeriodDate() {
+  public ZonedDateTime[] getFixingPeriodDates() {
     return _fixingPeriodDates;
   }
 
@@ -150,7 +150,7 @@ public final class CouponArithmeticAverageONDefinition extends CouponDefinition 
    * Gets the accrual factors (or year fractions) associated to the fixing periods in the Index day count convention.
    * @return The accrual factors.
    */
-  public double[] getFixingPeriodAccrualFactor() {
+  public double[] getFixingPeriodAccrualFactors() {
     return _fixingPeriodAccrualFactors;
   }
 
@@ -206,24 +206,14 @@ public final class CouponArithmeticAverageONDefinition extends CouponDefinition 
     // Accrued rate for fixings before today; up to and including yesterday
     int fixedPeriod = 0;
     double accruedRate = 0.0;
-    while (valDate.isAfter(_fixingPeriodDates[fixedPeriod + _index.getPublicationLag()].toLocalDate()) && (fixedPeriod < _fixingPeriodDates.length - 1)) {
+    while ((fixedPeriod < _fixingPeriodDates.length - 1) && valDate.isAfter(_fixingPeriodDates[fixedPeriod + _index.getPublicationLag()].toLocalDate())) {
 
       final LocalDate currentDate = _fixingPeriodDates[fixedPeriod].toLocalDate();
-      Double fixedRate = indexFixingDateSeries.getValue(currentDate);
+      final Double fixedRate = indexFixingDateSeries.getValue(currentDate);
 
       if (fixedRate == null) {
         final LocalDate latestDate = indexFixingDateSeries.getLatestTime();
-        if (currentDate.isAfter(latestDate)) {
-          throw new OpenGammaRuntimeException("Could not get fixing value of index " + _index.getName() + " for date " + currentDate + ". The last data is available on " + latestDate);
-        }
-        // Don't remove this until we've worked out what's going on with INR calendars
-        for (int i = 0; i < 7; i++) {
-          final LocalDate previousDate = currentDate.minusDays(1);
-          fixedRate = indexFixingDateSeries.getValue(previousDate);
-        }
-        if (fixedRate == null) {
-          throw new OpenGammaRuntimeException("Could not get fixing value of index " + _index.getName() + " for date " + currentDate);
-        }
+        throw new OpenGammaRuntimeException("Could not get fixing value of index " + _index.getName() + " for date " + currentDate + ". The last data is available on " + latestDate);
       }
       accruedRate += _fixingPeriodAccrualFactors[fixedPeriod] * fixedRate;
       fixedPeriod++;
@@ -234,12 +224,12 @@ public final class CouponArithmeticAverageONDefinition extends CouponDefinition 
       // Check to see if a fixing is available on current date
       final Double fixedRate = indexFixingDateSeries.getValue(_fixingPeriodDates[fixedPeriod].toLocalDate());
       if (fixedRate != null) { // There is!
-        accruedRate *= _fixingPeriodAccrualFactors[fixedPeriod] * fixedRate;
+        accruedRate += _fixingPeriodAccrualFactors[fixedPeriod] * fixedRate;
         fixedPeriod++;
       }
       if (fixedPeriod < _fixingPeriodDates.length - 1) { // More OIS period left
-        final double[] fixingAccrualFactorsLeft = new double[_fixingPeriodDates.length - fixedPeriod];
-        final double[] fixingPeriodTimes = new double[_fixingPeriodDates.length - 1 - fixedPeriod];
+        final double[] fixingAccrualFactorsLeft = new double[_fixingPeriodAccrualFactors.length - fixedPeriod];
+        final double[] fixingPeriodTimes = new double[_fixingPeriodDates.length - fixedPeriod];
 
         for (int i = 0; i < _fixingPeriodDates.length - fixedPeriod; i++) {
           fixingPeriodTimes[i] = TimeCalculator.getTimeBetween(valZdt, _fixingPeriodDates[i + fixedPeriod]);
