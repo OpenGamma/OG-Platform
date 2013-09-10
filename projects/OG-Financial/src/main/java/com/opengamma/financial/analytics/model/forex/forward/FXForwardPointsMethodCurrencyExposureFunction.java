@@ -24,7 +24,6 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveDefinition;
 import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
-import com.opengamma.financial.analytics.model.forex.FXUtils;
 import com.opengamma.financial.analytics.model.fx.FXForwardPointsCurrencyExposureFunction;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
@@ -47,7 +46,7 @@ public class FXForwardPointsMethodCurrencyExposureFunction extends FXForwardPoin
     final MultipleCurrencyAmount mca = CALCULATOR.currencyExposure(fxForward, data, forwardPoints);
     final ValueProperties properties = getResultProperties(Iterables.getOnlyElement(desiredValues), target).get();
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.FX_CURRENCY_EXPOSURE, target.toSpecification(), properties);
-    return Collections.singleton(new ComputedValue(spec, FXUtils.getMultipleCurrencyAmountAsMatrix(mca)));
+    return Collections.singleton(new ComputedValue(spec, mca));
   }
 
   @Override

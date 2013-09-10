@@ -12,7 +12,6 @@ import java.util.Set;
 import org.threeten.bp.Instant;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.security.Security;
@@ -47,7 +46,7 @@ import com.opengamma.util.money.UnorderedCurrencyPair;
 /**
  *
  */
-public class FXForwardCurrencyExposurePnLFunction extends AbstractFunction {
+public class FXForwardPointsMethodCurrencyExposurePnLFunction extends AbstractFunction {
 
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
@@ -100,52 +99,31 @@ public class FXForwardCurrencyExposurePnLFunction extends AbstractFunction {
       if (receiveCurveCalculationConfigs == null || receiveCurveCalculationConfigs.size() != 1) {
         return null;
       }
-      final Set<String> calculationMethods = constraints.getValues(ValuePropertyNames.CALCULATION_METHOD);
-      if (calculationMethods == null || calculationMethods.size() != 1) {
-        final ValueProperties newConstraints = constraints.copy()
-            .withoutAny(ValuePropertyNames.CALCULATION_METHOD)
-            .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.DISCOUNTING)
-            .get();
-        return Collections.singleton(new ValueRequirement(ValueRequirementNames.PNL_SERIES, target.toSpecification(), newConstraints));
-      }
-      final String calculationMethod = Iterables.getOnlyElement(calculationMethods);
-      ValueRequirement fxCurrencyExposureRequirement;
-      final FinancialSecurity security = (FinancialSecurity) target.getPosition().getSecurity();
-      if (CalculationPropertyNamesAndValues.DISCOUNTING.equals(calculationMethod)) {
-        fxCurrencyExposureRequirement = new ValueRequirement(ValueRequirementNames.FX_CURRENCY_EXPOSURE, ComputationTargetSpecification.of(target.getPosition().getSecurity()),
-          ValueProperties.builder()
-            .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.DISCOUNTING)
-            .with(ValuePropertyNames.PAY_CURVE, payCurveNames.iterator().next())
-            .with(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG, payCurveCalculationConfigs.iterator().next())
-            .with(ValuePropertyNames.RECEIVE_CURVE, receiveCurveNames.iterator().next())
-            .with(ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG, receiveCurveCalculationConfigs.iterator().next()).get());
-      } else if (CalculationPropertyNamesAndValues.FORWARD_POINTS.equals(calculationMethod)) {
-        final Set<String> forwardCurveNames = constraints.getValues(ValuePropertyNames.FORWARD_CURVE_NAME);
-        if (forwardCurveNames == null || forwardCurveNames.size() != 1) {
-          return null;
-        }
-        final String forwardCurveName = Iterables.getOnlyElement(forwardCurveNames);
-        fxCurrencyExposureRequirement = new ValueRequirement(ValueRequirementNames.FX_CURRENCY_EXPOSURE, ComputationTargetSpecification.of(target.getPosition().getSecurity()),
-          ValueProperties.builder()
-            .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.FORWARD_POINTS)
-            .with(ValuePropertyNames.PAY_CURVE, payCurveNames.iterator().next())
-            .with(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG, payCurveCalculationConfigs.iterator().next())
-            .with(ValuePropertyNames.RECEIVE_CURVE, receiveCurveNames.iterator().next())
-            .with(ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG, receiveCurveCalculationConfigs.iterator().next())
-            .with(ValuePropertyNames.FORWARD_CURVE_NAME, forwardCurveName).get());
-      } else {
+      final Set<String> forwardCurveNames = constraints.getValues(ValuePropertyNames.FORWARD_CURVE_NAME);
+      if (forwardCurveNames == null || forwardCurveNames.size() != 1) {
         return null;
       }
+      final FinancialSecurity security = (FinancialSecurity) target.getPosition().getSecurity();
+      final ValueRequirement fxCurrencyExposureRequirement = new ValueRequirement(ValueRequirementNames.FX_CURRENCY_EXPOSURE, ComputationTargetSpecification.of(target.getPosition().getSecurity()),
+          ValueProperties.builder()
+          .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.FORWARD_POINTS)
+          .with(ValuePropertyNames.PAY_CURVE, payCurveNames.iterator().next())
+          .with(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG, payCurveCalculationConfigs.iterator().next())
+          .with(ValuePropertyNames.RECEIVE_CURVE, receiveCurveNames.iterator().next())
+          .with(ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG, receiveCurveCalculationConfigs.iterator().next())
+          .with(ValuePropertyNames.FORWARD_CURVE_NAME, forwardCurveNames.iterator().next())
+          .get());
       final Currency payCurrency = security.accept(ForexVisitors.getPayCurrencyVisitor());
       final Currency receiveCurrency = security.accept(ForexVisitors.getReceiveCurrencyVisitor());
+
       final ValueProperties fxSpotConstraints = desiredValue.getConstraints().copy()
           .withoutAny(ValuePropertyNames.PAY_CURVE)
           .withoutAny(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG)
           .withoutAny(ValuePropertyNames.RECEIVE_CURVE)
           .withoutAny(ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG)
           .withoutAny(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS)
-          .withoutAny(ValuePropertyNames.CURVE_CURRENCY)
           .withoutAny(ValuePropertyNames.CALCULATION_METHOD)
+          .withoutAny(ValuePropertyNames.CURVE_CURRENCY)
           .withoutAny(ValuePropertyNames.FORWARD_CURVE_NAME)
           .get();
       final ComputationTargetSpecification fxSpotReturnSeriesSpec = ComputationTargetType.UNORDERED_CURRENCY_PAIR.specification(UnorderedCurrencyPair.of(payCurrency, receiveCurrency));
@@ -155,12 +133,6 @@ public class FXForwardCurrencyExposurePnLFunction extends AbstractFunction {
 
     @Override
     public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
-      if (inputs.size() == 1) {
-        final ValueSpecification input = Iterables.getOnlyElement(inputs.keySet());
-        if (ValueRequirementNames.PNL_SERIES.equals(input.getValueName())) {
-          return Collections.singleton(input);
-        }
-      }
       final FXForwardSecurity security = (FXForwardSecurity) target.getPosition().getSecurity();
       final CurrencyPair currencyPair = _currencyPairs.getCurrencyPair(security.getPayCurrency(), security.getReceiveCurrency());
       if (currencyPair == null) {
@@ -185,6 +157,7 @@ public class FXForwardCurrencyExposurePnLFunction extends AbstractFunction {
       builder.withoutAny(ValuePropertyNames.CURRENCY)
           .with(ValuePropertyNames.CURRENCY, currencyBase.getCode())
           .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.FX_CURRENCY_EXPOSURE);
+
       return ImmutableSet.of(new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), builder.get()));
     }
 

@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.timeseries;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
@@ -19,6 +20,7 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculatorFactory;
 import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunction;
 import com.opengamma.analytics.financial.schedule.TimeSeriesSamplingFunctionFactory;
 import com.opengamma.analytics.financial.timeseries.util.TimeSeriesDifferenceOperator;
+import com.opengamma.analytics.financial.timeseries.util.TimeSeriesPercentageChangeOperator;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -43,10 +45,14 @@ import com.opengamma.util.money.UnorderedCurrencyPair;
  * Calculates an absolute return series from a time-series of FX spot rates.
  */
 public class FXReturnSeriesFunction extends AbstractFunction.NonCompiledInvoker {
-
+  /** Absolute returns */
+  public static final String ABSOLUTE_RETURNS = "Absolute";
+  /** Relative returns */
+  public static final String RELATIVE_RETURNS = "Relative";
   private static final HolidayDateRemovalFunction HOLIDAY_REMOVER = HolidayDateRemovalFunction.getInstance();
   private static final Calendar WEEKEND_CALENDAR = new MondayToFridayCalendar("Weekend");
   private static final TimeSeriesDifferenceOperator DIFFERENCE = new TimeSeriesDifferenceOperator();
+  private static final TimeSeriesPercentageChangeOperator PERCENTAGE_CHANGE = new TimeSeriesPercentageChangeOperator();
 
   @Override
   public ComputationTargetType getTargetType() {
@@ -57,6 +63,7 @@ public class FXReturnSeriesFunction extends AbstractFunction.NonCompiledInvoker 
     final ValueProperties properties = createValueProperties()
         .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
         .withAny(ValuePropertyNames.SCHEDULE_CALCULATOR)
+        .withAny(ValuePropertyNames.RETURN_CALCULATOR)
         .withAny(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY)
         .with(HistoricalTimeSeriesFunctionUtils.INCLUDE_START_PROPERTY, HistoricalTimeSeriesFunctionUtils.YES_VALUE, HistoricalTimeSeriesFunctionUtils.NO_VALUE)
         .withAny(HistoricalTimeSeriesFunctionUtils.END_DATE_PROPERTY)
@@ -102,11 +109,23 @@ public class FXReturnSeriesFunction extends AbstractFunction.NonCompiledInvoker 
     if (scheduleMethod == null || scheduleMethod.size() != 1) {
       return null;
     }
+    final Set<String> returnMethods = constraints.getValues(ValuePropertyNames.RETURN_CALCULATOR);
+    if (returnMethods == null || returnMethods.size() != 1) {
+      final ValueProperties newConstraints = constraints.copy()
+          .withoutAny(ValuePropertyNames.RETURN_CALCULATOR)
+          .with(ValuePropertyNames.RETURN_CALCULATOR, ABSOLUTE_RETURNS)
+          .get();
+      return Collections.singleton(new ValueRequirement(ValueRequirementNames.RETURN_SERIES, target.toSpecification(), newConstraints));
+    }
     return ImmutableSet.of(ConventionBasedFXRateFunction.getHistoricalTimeSeriesRequirement((UnorderedCurrencyPair) target.getValue(), start, includeStart, end, includeEnd));
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
+    final ValueSpecification input = inputs.keySet().iterator().next();
+    if (ValueRequirementNames.RETURN_SERIES.equals(input.getValueName())) {
+      return Collections.singleton(input);
+    }
     return ImmutableSet.of(new ValueSpecification(ValueRequirementNames.RETURN_SERIES, target.toSpecification(), getResultProperties()));
   }
 
@@ -159,6 +178,11 @@ public class FXReturnSeriesFunction extends AbstractFunction.NonCompiledInvoker 
   }
 
   protected LocalDateDoubleTimeSeries getReturnSeries(final LocalDateDoubleTimeSeries spotSeries, final ValueRequirement desiredValue) {
+    final ValueProperties constraints = desiredValue.getConstraints();
+    final Set<String> returnProperty = constraints.getValues(ValuePropertyNames.RETURN_CALCULATOR);
+    if (returnProperty != null && returnProperty.size() == 1 && Iterables.getOnlyElement(returnProperty).equals(RELATIVE_RETURNS)) {
+      return (LocalDateDoubleTimeSeries) PERCENTAGE_CHANGE.evaluate(spotSeries);
+    }
     return (LocalDateDoubleTimeSeries) DIFFERENCE.evaluate(spotSeries);
   }
 }
