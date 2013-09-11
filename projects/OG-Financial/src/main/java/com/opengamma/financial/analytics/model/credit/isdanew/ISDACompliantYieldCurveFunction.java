@@ -83,7 +83,6 @@ public class ISDACompliantYieldCurveFunction extends AbstractFunction {
     final ZonedDateTime atZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(compilationContext);
     final InterpolatedYieldCurveSpecificationBuilder curveSpecBuilder = new ConfigDBInterpolatedYieldCurveSpecificationBuilder(configSource);
-    final ISDACompliantYieldCurveBuild builder = new ISDACompliantYieldCurveBuild();
     return new AbstractInvokingCompiledFunction(atZDT.with(LocalTime.MIDNIGHT), atZDT.plusDays(1).with(LocalTime.MIDNIGHT).minusNanos(1000000)) {
 
       @SuppressWarnings("synthetic-access")
@@ -141,7 +140,7 @@ public class ISDACompliantYieldCurveFunction extends AbstractFunction {
           i++;
         }
 
-        final ISDACompliantYieldCurve yieldCurve = builder.build(valuationDate.toLocalDate(), spotDate, instruments, tenors, values, MONEY_MARKET_DCC, SWAP_DCC, swapIvl, CURVE_DCC, badDayConv);
+        final ISDACompliantYieldCurve yieldCurve = ISDACompliantYieldCurveBuild.build(valuationDate.toLocalDate(), spotDate, instruments, tenors, values, MONEY_MARKET_DCC, SWAP_DCC, swapIvl, CURVE_DCC, badDayConv);
 
         final ValueProperties properties = createValueProperties()
             .with(ValuePropertyNames.CURVE, curveName)

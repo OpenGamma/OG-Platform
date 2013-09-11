@@ -6,7 +6,6 @@
 package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew;
 
 import static com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.IMMDateLogic.getIMMDateSet;
-import static com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.IMMDateLogic.getIMMDateSet;
 import static com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.IMMDateLogic.getNextIMMDate;
 import static org.testng.AssertJUnit.assertEquals;
 

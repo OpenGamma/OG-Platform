@@ -47,7 +47,6 @@ public class FastCreditCurveBuilderTest extends CreditCurveCalibrationTest {
   // YIELD_CURVE = new ISDACompliantDateYieldCurve(BASE_DATE, YC_DATES, YC_RATES);
   // }
 
-  @SuppressWarnings("unused")
   @Test
   public void test() {
 

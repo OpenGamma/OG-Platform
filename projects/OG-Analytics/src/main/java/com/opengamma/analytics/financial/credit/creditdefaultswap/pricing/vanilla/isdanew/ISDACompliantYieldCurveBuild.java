@@ -30,10 +30,16 @@ public class ISDACompliantYieldCurveBuild {
   private static final NewtonRaphsonSingleRootFinder ROOTFINDER = new NewtonRaphsonSingleRootFinder(); // new BrentSingleRootFinder(); // TODO get gradient and use Newton
   private static final BracketRoot BRACKETER = new BracketRoot();
 
+  private final double _offset; //if curve spot date is not the same as CDS trade date
+  private final double[] _t; //yieldCurve nodes
+  private final double[] _mmYF; //money market year fractions
+  private final BasicFixedLeg[] _swaps;
+  private final ISDAInstrumentTypes[] _instrumentTypes;
+
   /**
    *  Build a ISDA-Compliant yield curve (i.e. one with piecewise flat forward rate) from money market rates and par swap rates.
    *  Note if today is different from spotDate, the curve is adjusted accordingly
-   * @param today The 'observation' date
+   * @param cdsTradeDate The 'observation' date
    * @param spotDate The spot date of the instruments
    * @param instrumentTypes List of instruments - these are  MoneyMarket or Swap
    * @param tenors The length of the instruments (e.g. a 5y swap would be  Period.ofYears(5))
@@ -45,15 +51,10 @@ public class ISDACompliantYieldCurveBuild {
    * @param convention Specification of non-business days
    * @return A yield curve observed from today
    */
-  public ISDACompliantYieldCurve build(final LocalDate today, final LocalDate spotDate, final ISDAInstrumentTypes[] instrumentTypes, final Period[] tenors, final double[] rates,
+  public static ISDACompliantYieldCurve build(final LocalDate cdsTradeDate, final LocalDate spotDate, final ISDAInstrumentTypes[] instrumentTypes, final Period[] tenors, final double[] rates,
       final DayCount moneyMarketDCC, final DayCount swapDCC, final Period swapInterval, final DayCount curveDCC, final BusinessDayConvention convention) {
-    final ISDACompliantYieldCurve baseCurve = build(spotDate, instrumentTypes, tenors, rates, moneyMarketDCC, swapDCC, swapInterval, curveDCC, convention);
-    if (spotDate.isEqual(today)) {
-      return baseCurve;
-    }
-
-    final double offset = today.isAfter(spotDate) ? -curveDCC.getDayCountFraction(spotDate, today) : curveDCC.getDayCountFraction(today, spotDate);
-    return new ISDACompliantYieldCurve(baseCurve.getKnotTimes(), baseCurve.getKnotZeroRates(), offset);
+    final ISDACompliantYieldCurveBuild builder = new ISDACompliantYieldCurveBuild(cdsTradeDate, spotDate, instrumentTypes, tenors, moneyMarketDCC, swapDCC, swapInterval, curveDCC, convention);
+    return builder.build(rates);
   }
 
   /**
@@ -69,10 +70,30 @@ public class ISDACompliantYieldCurveBuild {
    * @param convention Specification of non-business days
    * @return A yield curve
    */
-  public ISDACompliantYieldCurve build(final LocalDate spotDate, final ISDAInstrumentTypes[] instrumentTypes, final Period[] tenors, final double[] rates, final DayCount moneyMarketDCC,
+  public static ISDACompliantYieldCurve build(final LocalDate spotDate, final ISDAInstrumentTypes[] instrumentTypes, final Period[] tenors, final double[] rates, final DayCount moneyMarketDCC,
       final DayCount swapDCC, final Period swapInterval, final DayCount curveDCC, final BusinessDayConvention convention) {
+    final ISDACompliantYieldCurveBuild builder = new ISDACompliantYieldCurveBuild(spotDate, instrumentTypes, tenors, moneyMarketDCC, swapDCC, swapInterval, curveDCC, convention);
+    return builder.build(rates);
+  }
 
+  public ISDACompliantYieldCurveBuild(final LocalDate spotDate, final ISDAInstrumentTypes[] instrumentTypes, final Period[] tenors, final DayCount moneyMarketDCC, final DayCount swapDCC,
+      final Period swapInterval, final DayCount curveDCC, final BusinessDayConvention convention) {
+    this(spotDate, spotDate, instrumentTypes, tenors, moneyMarketDCC, swapDCC, swapInterval, curveDCC, convention);
+  }
+
+  public ISDACompliantYieldCurveBuild(final LocalDate cdsTradeDate, final LocalDate spotDate, final ISDAInstrumentTypes[] instrumentTypes, final Period[] tenors, final DayCount moneyMarketDCC,
+      final DayCount swapDCC, final Period swapInterval, final DayCount curveDCC, final BusinessDayConvention convention) {
+    ArgumentChecker.notNull(spotDate, "spotDate");
+    ArgumentChecker.noNulls(instrumentTypes, "instrumentTypes");
+    ArgumentChecker.noNulls(tenors, "tenors");
+    ArgumentChecker.notNull(moneyMarketDCC, "moneyMarketDCC");
+    ArgumentChecker.notNull(swapDCC, "swapDCC");
+    ArgumentChecker.notNull(swapInterval, "swapInterval");
+    ArgumentChecker.notNull(curveDCC, "curveDCC");
+    ArgumentChecker.notNull(convention, "convention");
     final int n = tenors.length;
+    ArgumentChecker.isTrue(n == instrumentTypes.length, n + " tenors given, but " + instrumentTypes.length + " instrumentTypes");
+
     final LocalDate[] matDates = new LocalDate[n];
     final LocalDate[] adjMatDates = new LocalDate[n];
     for (int i = 0; i < n; i++) {
@@ -85,31 +106,59 @@ public class ISDACompliantYieldCurveBuild {
       adjMatDates[i] = convention.adjustDate(DEFAULT_CALENDAR, matDates[i]);
     }
 
-    final double[] t = new double[n];
+    _t = new double[n];
+    _instrumentTypes = instrumentTypes;
+    int nMM = 0;
     for (int i = 0; i < n; i++) {
-      t[i] = curveDCC.getDayCountFraction(spotDate, adjMatDates[i]);
+      _t[i] = curveDCC.getDayCountFraction(spotDate, adjMatDates[i]);
+      if (_instrumentTypes[i] == ISDAInstrumentTypes.MoneyMarket) {
+        nMM++;
+      }
     }
-
-    // set up curve with best guess rates
-    ISDACompliantCurve curve = new ISDACompliantCurve(t, rates);
-
-    // loop over the instruments and adjust the curve to price each in turn
+    final int nSwap = n - nMM;
+    _mmYF = new double[nMM];
+    _swaps = new BasicFixedLeg[nSwap];
+    int mmCount = 0;
+    int swapCount = 0;
     for (int i = 0; i < n; i++) {
       if (instrumentTypes[i] == ISDAInstrumentTypes.MoneyMarket) {
         // TODO in ISDA code money market instruments of less than 21 days have special treatment
-        final double dt = moneyMarketDCC.getDayCountFraction(spotDate, adjMatDates[i]);
-        final double z = 1.0 / (1 + rates[i] * dt);
-        curve = curve.withDiscountFactor(z, i);
+        _mmYF[mmCount++] = moneyMarketDCC.getDayCountFraction(spotDate, adjMatDates[i]);
       } else {
-        final BasicFixedLeg swap = new BasicFixedLeg(spotDate, matDates[i], swapInterval, rates[i], swapDCC, curveDCC, convention);
-        curve = fitSwap(i, swap, curve);
+        _swaps[swapCount++] = new BasicFixedLeg(spotDate, matDates[i], swapInterval, swapDCC, curveDCC, convention);
       }
-
     }
-    return new ISDACompliantYieldCurve(curve);
+    _offset = cdsTradeDate.isAfter(spotDate) ? -curveDCC.getDayCountFraction(spotDate, cdsTradeDate) : curveDCC.getDayCountFraction(cdsTradeDate, spotDate);
   }
 
-  private ISDACompliantCurve fitSwap(final int curveIndex, final BasicFixedLeg swap, final ISDACompliantCurve curve) {
+  public ISDACompliantYieldCurve build(final double[] rates) {
+    ArgumentChecker.notEmpty(rates, "rates");
+    final int n = _instrumentTypes.length;
+    ArgumentChecker.isTrue(n == rates.length, "expecting " + n + " rates, given " + rates.length);
+
+    // set up curve with best guess rates
+    ISDACompliantCurve curve = new ISDACompliantCurve(_t, rates);
+    // loop over the instruments and adjust the curve to price each in turn
+    int mmCount = 0;
+    int swapCount = 0;
+    for (int i = 0; i < n; i++) {
+      if (_instrumentTypes[i] == ISDAInstrumentTypes.MoneyMarket) {
+        // TODO in ISDA code money market instruments of less than 21 days have special treatment
+        final double z = 1.0 / (1 + rates[i] * _mmYF[mmCount++]);
+        curve = curve.withDiscountFactor(z, i);
+      } else {
+        curve = fitSwap(i, _swaps[swapCount++], curve, rates[i]);
+      }
+    }
+
+    final ISDACompliantYieldCurve baseCurve = new ISDACompliantYieldCurve(curve);
+    if (_offset == 0.0) {
+      return baseCurve;
+    }
+    return new ISDACompliantYieldCurve(baseCurve.getKnotTimes(), baseCurve.getKnotZeroRates(), _offset);
+  }
+
+  private ISDACompliantCurve fitSwap(final int curveIndex, final BasicFixedLeg swap, final ISDACompliantCurve curve, final double swapRate) {
 
     final int nPayments = swap.getNumPayments();
     final int nNodes = curve.getNumberOfKnots();
@@ -123,13 +172,13 @@ public class ISDACompliantYieldCurveBuild {
     for (int i = 0; i < nPayments; i++) {
       final double t = swap.getPaymentTime(i);
       if (t <= t1) {
-        final double c = swap.getPaymentAmounts(i);
+        final double c = swap.getPaymentAmounts(i, swapRate);
         final double df = curve.getDiscountFactor(t);
         temp += c * df;
         temp2 -= c * curve.getSingleNodeDiscountFactorSensitivity(t, curveIndex);
         i1++;
       } else if (t >= t2) {
-        final double c = swap.getPaymentAmounts(i);
+        final double c = swap.getPaymentAmounts(i, swapRate);
         final double df = curve.getDiscountFactor(t);
         temp += c * df;
         temp2 += c * curve.getSingleNodeDiscountFactorSensitivity(t, curveIndex);
@@ -149,7 +198,7 @@ public class ISDACompliantYieldCurveBuild {
         double sum = 1.0 - cachedValues; // Floating leg at par
         for (int i = index1; i < index2; i++) {
           final double t = swap.getPaymentTime(i);
-          sum -= swap.getPaymentAmounts(i) * tempCurve.getDiscountFactor(t);
+          sum -= swap.getPaymentAmounts(i, swapRate) * tempCurve.getDiscountFactor(t);
         }
         return sum;
       }
@@ -164,7 +213,7 @@ public class ISDACompliantYieldCurveBuild {
         for (int i = index1; i < index2; i++) {
           final double t = swap.getPaymentTime(i);
           // TODO have two looks ups for the same time - could have a specialist function in ISDACompliantCurve
-          sum -= swap.getPaymentAmounts(i) * tempCurve.getSingleNodeDiscountFactorSensitivity(t, curveIndex);
+          sum -= swap.getPaymentAmounts(i, swapRate) * tempCurve.getSingleNodeDiscountFactorSensitivity(t, curveIndex);
         }
         return sum;
       }
@@ -191,8 +240,7 @@ public class ISDACompliantYieldCurveBuild {
     private final double[] _swapPaymentTimes;
     private final double[] _paymentAmounts;
 
-    public BasicFixedLeg(final LocalDate spotDate, final LocalDate mat, final Period swapInterval, final double rate, final DayCount swapDCC, final DayCount curveDCC,
-        final BusinessDayConvention convention) {
+    public BasicFixedLeg(final LocalDate spotDate, final LocalDate mat, final Period swapInterval, final DayCount swapDCC, final DayCount curveDCC, final BusinessDayConvention convention) {
       ArgumentChecker.isFalse(swapInterval.getDays() > 0, "swap interval must be in months or years");
 
       final List<LocalDate> list = new ArrayList<>();
@@ -215,19 +263,19 @@ public class ISDACompliantYieldCurveBuild {
       for (int i = 0; i < _nPayments; i++, j--) {
         final LocalDate current = list.get(j);
         final LocalDate adjCurr = convention.adjustDate(DEFAULT_CALENDAR, current);
-        _paymentAmounts[i] = rate * swapDCC.getDayCountFraction(prev, adjCurr);
+        _paymentAmounts[i] = swapDCC.getDayCountFraction(prev, adjCurr);
         _swapPaymentTimes[i] = curveDCC.getDayCountFraction(spotDate, adjCurr); // Payment times always good business days
         prev = adjCurr;
       }
-      _paymentAmounts[_nPayments - 1] += 1.0; // see Javadocs comment
+      //  _paymentAmounts[_nPayments - 1] += 1.0; // see Javadocs comment
     }
 
     public int getNumPayments() {
       return _nPayments;
     }
 
-    public double getPaymentAmounts(final int index) {
-      return _paymentAmounts[index];
+    public double getPaymentAmounts(final int index, final double rate) {
+      return index == _nPayments - 1 ? 1 + rate * _paymentAmounts[index] : rate * _paymentAmounts[index];
     }
 
     public double getPaymentTime(final int index) {

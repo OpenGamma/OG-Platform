@@ -16,14 +16,11 @@ import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.model.BumpType;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
-import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
 
 /**
  * 
  */
 public class SpreadSensitivityTest {
-  private static final DayCount ACT365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
 
   // private static final ISDACompliantCreditCurveBuild BUILDER = new ISDACompliantCreditCurveBuild();
   private static final ISDACompliantCreditCurveBuilder BUILDER = new FastCreditCurveBuilder();
@@ -46,8 +43,8 @@ public class SpreadSensitivityTest {
 
   // market CDSs
   private static final LocalDate[] PAR_SPD_DATES = new LocalDate[] {LocalDate.of(2013, 6, 20), LocalDate.of(2013, 9, 20), LocalDate.of(2014, 3, 20), LocalDate.of(2015, 3, 20),
-      LocalDate.of(2016, 3, 20), LocalDate.of(2018, 3, 20), LocalDate.of(2023, 3, 20)};
-  private static final double[] PAR_SPREADS = new double[] {50, 70, 80, 95, 100, 95, 80};
+    LocalDate.of(2016, 3, 20), LocalDate.of(2018, 3, 20), LocalDate.of(2023, 3, 20) };
+  private static final double[] PAR_SPREADS = new double[] {50, 70, 80, 95, 100, 95, 80 };
   private static final int NUM_MARKET_CDS = PAR_SPD_DATES.length;
   private static final CDSAnalytic[] MARKET_CDS = new CDSAnalytic[NUM_MARKET_CDS];
 
@@ -55,14 +52,14 @@ public class SpreadSensitivityTest {
   private static ISDACompliantYieldCurve YIELD_CURVE;
 
   static {
-    double flatrate = 0.05;
-    double t = 20.0;
-    YIELD_CURVE = new ISDACompliantYieldCurve(new double[] {t}, new double[] {flatrate});
+    final double flatrate = 0.05;
+    final double t = 20.0;
+    YIELD_CURVE = new ISDACompliantYieldCurve(new double[] {t }, new double[] {flatrate });
 
-    boolean payAccOndefault = true;
-    Period tenor = Period.ofMonths(3);
-    StubType stubType = StubType.FRONTSHORT;
-    boolean protectionStart = true;
+    final boolean payAccOndefault = true;
+    final Period tenor = Period.ofMonths(3);
+    final StubType stubType = StubType.FRONTSHORT;
+    final boolean protectionStart = true;
 
     CDS = new CDSAnalytic(TODAY, EFFECTIVE_DATE, CASH_SETTLE_DATE, PROTECTION_STATE_DATE, PROTECTION_END_DATE, payAccOndefault, tenor, stubType, protectionStart, RECOVERY_RATE);
 
@@ -92,8 +89,8 @@ public class SpreadSensitivityTest {
     for (int i = 0; i < 1; i++) {
       mrkSpreads[i] = PAR_SPREADS[i] / 10000.;
     }
-    CDSAnalytic[] mrkCDS = new CDSAnalytic[] {MARKET_CDS[0]};
-    ISDACompliantCreditCurve creditCurve = BUILDER.calibrateCreditCurve(mrkCDS, mrkSpreads, YIELD_CURVE);
+    final CDSAnalytic[] mrkCDS = new CDSAnalytic[] {MARKET_CDS[0] };
+    final ISDACompliantCreditCurve creditCurve = BUILDER.calibrateCreditCurve(mrkCDS, mrkSpreads, YIELD_CURVE);
 
     final int n = creditCurve.getNumberOfKnots();
     for (int i = 0; i < n; i++) {
@@ -109,7 +106,6 @@ public class SpreadSensitivityTest {
     // final double h = creditCurve.getHazardRate(t);
     // System.out.println(temp + "\t" + t + "\t" + p + "\t" + h);
     // }
-    ISDACompliantCreditCurve creditCurveExcel = new ISDACompliantCreditCurve(new double[] {1}, new double[] {0.008413406});
 
     final double price = NOTIONAL * PRICER.pv(CDS, YIELD_CURVE, creditCurve, 50 / 10000.);
     System.out.println(price);

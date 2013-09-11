@@ -118,7 +118,6 @@ public class IndexCDSTest extends ISDABaseTest {
     final Period tenor = Period.ofYears(3);
     final double tradeLevel = 99.785 * ONE_BP;
     //final double tradeLevel = 99.78471 * ONE_BP;
-    final int nDays = 6;
 
     final LocalDate tradeDate = today;
     final LocalDate stepinDate = tradeDate.plusDays(1); // AKA stepin date

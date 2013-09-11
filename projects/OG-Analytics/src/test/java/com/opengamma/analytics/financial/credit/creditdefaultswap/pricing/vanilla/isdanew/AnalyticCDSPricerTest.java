@@ -23,6 +23,7 @@ public class AnalyticCDSPricerTest {
   private static final AnalyticCDSPricer PRICER = new AnalyticCDSPricer();
   private static final AnalyticCDSPricer PRICER_CORRECT = new AnalyticCDSPricer(true);
 
+  @SuppressWarnings("unused")
   @Test(enabled = false)
   public void timingTest() {
 

@@ -69,7 +69,6 @@ public class ISDAYieldCurveFunction extends AbstractFunction.NonCompiledInvoker 
 
   // ISDA fixes yield curve daycout to Act/365
   private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
-  private static final ISDACompliantYieldCurveBuild BUILDER = new ISDACompliantYieldCurveBuild();
 
   @Override
   public void init(final FunctionCompilationContext context) {
@@ -137,7 +136,7 @@ public class ISDAYieldCurveFunction extends AbstractFunction.NonCompiledInvoker 
       k++;
     }
     //TODO: Check spot date logic
-    final ISDACompliantYieldCurve yieldCurve = BUILDER.build(now.toLocalDate(), now.toLocalDate().minusDays(offset), instruments, tenors, marketDataForCurve, cashDCC,
+    final ISDACompliantYieldCurve yieldCurve = ISDACompliantYieldCurveBuild.build(now.toLocalDate(), now.toLocalDate().minusDays(offset), instruments, tenors, marketDataForCurve, cashDCC,
                                                              fixDCC, paymentTenor, ACT_365, floatBadDayConv);
     final ValueProperties properties = createValueProperties()
         .with(ValuePropertyNames.CURVE, curveName)

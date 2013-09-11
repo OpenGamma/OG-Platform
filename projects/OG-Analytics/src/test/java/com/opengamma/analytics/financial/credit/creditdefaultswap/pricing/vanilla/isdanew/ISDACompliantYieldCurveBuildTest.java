@@ -57,7 +57,6 @@ public class ISDACompliantYieldCurveBuildTest {
       0.0659667431709796, 0.0663851731522577, 0.0668735344788778, 0.0673405584796377, 0.0677924400667054, 0.0682275513575991, 0.0686468089170376, 0.0690488939824011, 0.0694369182384849,
       0.06981160656508, 0.0701736348572483, 0.0705236340943412 };
 
-    final ISDACompliantYieldCurveBuild bob = new ISDACompliantYieldCurveBuild();
     final LocalDate spotDate = LocalDate.of(2013, 5, 31);
 
     final int nMoneyMarket = 6;
@@ -90,7 +89,8 @@ public class ISDACompliantYieldCurveBuildTest {
     final DayCount curveDCC = ACT365;
     final Period swapInterval = Period.ofMonths(6);
 
-    final ISDACompliantCurve hc = bob.build(spotDate, types, tenors, rates, moneyMarketDCC, swapDCC, swapInterval, curveDCC, MOD_FOLLOWING);
+    final ISDACompliantYieldCurveBuild bob = new ISDACompliantYieldCurveBuild(spotDate, types, tenors, moneyMarketDCC, swapDCC, swapInterval, curveDCC, MOD_FOLLOWING);
+    final ISDACompliantCurve hc = bob.build(rates);
 
     final int nCurvePoints = hc.getNumberOfKnots();
     assertEquals(nInstruments, nCurvePoints);
@@ -112,13 +112,13 @@ public class ISDACompliantYieldCurveBuildTest {
     final int hotSpot = 0;
 
     for (int i = 0; i < warmup; i++) {
-      final ISDACompliantCurve hc1 = bob.build(spotDate, types, tenors, rates, moneyMarketDCC, swapDCC, swapInterval, curveDCC, MOD_FOLLOWING);
+      final ISDACompliantCurve hc1 = bob.build(rates);
     }
 
     if (hotSpot > 0) {
       final long t0 = System.nanoTime();
       for (int i = 0; i < warmup; i++) {
-        final ISDACompliantCurve hc1 = bob.build(spotDate, types, tenors, rates, moneyMarketDCC, swapDCC, swapInterval, curveDCC, MOD_FOLLOWING);
+        final ISDACompliantCurve hc1 = bob.build(rates);
       }
       System.out.println("time to build yield curve: " + (System.nanoTime() - t0) / 1e6 / hotSpot + "ms");
     }
@@ -149,7 +149,6 @@ public class ISDACompliantYieldCurveBuildTest {
       0.035053405709698, 0.0350273994983831, 0.0350148748938213, 0.0350028303815154, 0.0349912388762854, 0.0349799549048451, 0.0349692583262832, 0.0349587725430485, 0.0349488194559029,
       0.0349390500683469, 0.0349297655642079, 0.0349205440948243 };
 
-    final ISDACompliantYieldCurveBuild bob = new ISDACompliantYieldCurveBuild();
     final LocalDate spotDate = LocalDate.of(2009, 11, 12);
 
     final int nMoneyMarket = 6;
@@ -180,8 +179,8 @@ public class ISDACompliantYieldCurveBuildTest {
     final DayCount swapDCC = ACT360;
     final DayCount curveDCC = ACT365;
     final Period swapInterval = Period.ofMonths(6);
-
-    final ISDACompliantCurve hc = bob.build(spotDate, types, tenors, rates, moneyMarketDCC, swapDCC, swapInterval, curveDCC, FOLLOWING);
+    final ISDACompliantYieldCurveBuild bob = new ISDACompliantYieldCurveBuild(spotDate, types, tenors, moneyMarketDCC, swapDCC, swapInterval, curveDCC, FOLLOWING);
+    final ISDACompliantCurve hc = bob.build(rates);
 
     final int nCurvePoints = hc.getNumberOfKnots();
     assertEquals(nInstruments, nCurvePoints);
@@ -267,7 +266,6 @@ public class ISDACompliantYieldCurveBuildTest {
         0.0345073236854629, 0.0344960234389951, 0.0344850339837525, 0.0344746250607718, 0.0344645933627979, 0.0344548665425021, 0.0344455824855072, 0.0344364697801176, 0.0344278093650792,
         0.0344192986850272, } };
 
-    final ISDACompliantYieldCurveBuild bob = new ISDACompliantYieldCurveBuild();
     final LocalDate[] spotDate = new LocalDate[] {LocalDate.of(2000, 7, 31), LocalDate.of(2013, 5, 31), LocalDate.of(2015, 1, 30), LocalDate.of(2033, 11, 29) };
     final int nDates = spotDate.length;
 
@@ -302,7 +300,8 @@ public class ISDACompliantYieldCurveBuildTest {
     final int nSamplePoints = sampleTimes.length;
 
     for (int k = 0; k < nDates; ++k) {
-      final ISDACompliantCurve hc = bob.build(spotDate[k], types, tenors, rates, moneyMarketDCC, swapDCC, swapInterval, curveDCC, MOD_FOLLOWING);
+      final ISDACompliantYieldCurveBuild bob = new ISDACompliantYieldCurveBuild(spotDate[k], types, tenors, moneyMarketDCC, swapDCC, swapInterval, curveDCC, MOD_FOLLOWING);
+      final ISDACompliantCurve hc = bob.build(rates);
 
       final int nCurvePoints = hc.getNumberOfKnots();
       assertEquals(nInstruments, nCurvePoints);
@@ -319,7 +318,7 @@ public class ISDACompliantYieldCurveBuildTest {
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void OverlappingInstrumentsTest() {
-    final ISDACompliantYieldCurveBuild bob = new ISDACompliantYieldCurveBuild();
+
     final LocalDate spotDate = LocalDate.of(2013, 5, 31);
 
     final int nMoneyMarket = 6;
@@ -352,7 +351,7 @@ public class ISDACompliantYieldCurveBuildTest {
     final DayCount curveDCC = ACT365;
     final Period swapInterval = Period.ofMonths(6);
 
-    bob.build(spotDate, types, tenors, rates, moneyMarketDCC, swapDCC, swapInterval, curveDCC, MOD_FOLLOWING);
+    ISDACompliantYieldCurveBuild.build(spotDate, types, tenors, rates, moneyMarketDCC, swapDCC, swapInterval, curveDCC, MOD_FOLLOWING);
   }
 
   /**
@@ -361,7 +360,6 @@ public class ISDACompliantYieldCurveBuildTest {
   @Test
   public void dayCountTest() {
 
-    final ISDACompliantYieldCurveBuild bob = new ISDACompliantYieldCurveBuild();
     final LocalDate spotDate = LocalDate.of(2009, 11, 13);
 
     final int nMoneyMarket = 6;
@@ -427,7 +425,7 @@ public class ISDACompliantYieldCurveBuildTest {
 
     for (int ii = 0; ii < 3; ++ii) {
       //      System.out.println(ii);
-      final ISDACompliantCurve hc = bob.build(spotDate, types, tenors, rates, moneyMarketDCC[ii], swapDCC[ii], swapInterval, curveDCC,
+      final ISDACompliantCurve hc = ISDACompliantYieldCurveBuild.build(spotDate, types, tenors, rates, moneyMarketDCC[ii], swapDCC[ii], swapInterval, curveDCC,
           BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"));
 
       final int nCurvePoints = hc.getNumberOfKnots();
@@ -467,7 +465,6 @@ public class ISDACompliantYieldCurveBuildTest {
       0.0659667431709796, 0.0663851731522577, 0.0668735344788778, 0.0673405584796377, 0.0677924400667054, 0.0682275513575991, 0.0686468089170376, 0.0690488939824011, 0.0694369182384849,
       0.06981160656508, 0.0701736348572483, 0.0705236340943412 };
 
-    final ISDACompliantYieldCurveBuild bob = new ISDACompliantYieldCurveBuild();
     final LocalDate spotDate = LocalDate.of(2013, 5, 31);
     final DayCount moneyMarketDCC = ACT360;
     final DayCount swapDCC = D30360;
@@ -518,10 +515,10 @@ public class ISDACompliantYieldCurveBuildTest {
       0.046708518178509, 0.0491196954851753, 0.0529297239911766, 0.0562025436376854, 0.0589772202773522, 0.0607471217692999 };
     final double[] rates2 = new double[] {0.00340055550701297, 0.00636929056400781, 0.0102617798438113, 0.0135851258907251, 0.0162809551414651, 0.020583125112332 };
 
-    final ISDACompliantCurve hc1 = bob.build(spotDate, types1, tenors1, rates1, moneyMarketDCC, swapDCC, swapInterval, curveDCC, MOD_FOLLOWING);
+    final ISDACompliantCurve hc1 = ISDACompliantYieldCurveBuild.build(spotDate, types1, tenors1, rates1, moneyMarketDCC, swapDCC, swapInterval, curveDCC, MOD_FOLLOWING);
     final int nCurvePoints1 = hc1.getNumberOfKnots();
     assertEquals(nInstruments1, nCurvePoints1);
-    final ISDACompliantCurve hc2 = bob.build(spotDate, types2, tenors2, rates2, moneyMarketDCC, swapDCC, swapInterval, curveDCC, MOD_FOLLOWING);
+    final ISDACompliantCurve hc2 = ISDACompliantYieldCurveBuild.build(spotDate, types2, tenors2, rates2, moneyMarketDCC, swapDCC, swapInterval, curveDCC, MOD_FOLLOWING);
     final int nCurvePoints2 = hc2.getNumberOfKnots();
     assertEquals(nInstruments2, nCurvePoints2);
 
@@ -569,7 +566,6 @@ public class ISDACompliantYieldCurveBuildTest {
       0.035053079675205, 0.0350274964895541, 0.0350149676071521, 0.0350028541063757, 0.0349912611565855, 0.0349799757789108, 0.0349692778673166, 0.0349587907773192, 0.0349488364497969,
       0.0349389615071325, 0.034929780183562, 0.0349206063118399, };
 
-    final ISDACompliantYieldCurveBuild bob = new ISDACompliantYieldCurveBuild();
     final LocalDate spotDate = LocalDate.of(2009, 11, 13);
 
     final int nMoneyMarket = 6;
@@ -601,7 +597,7 @@ public class ISDACompliantYieldCurveBuildTest {
     final DayCount curveDCC = ACT365;
     final Period swapInterval = Period.ofMonths(6);
 
-    final ISDACompliantCurve hc = bob.build(spotDate, types, tenors, rates, moneyMarketDCC, swapDCC, swapInterval, curveDCC, conv);
+    final ISDACompliantCurve hc = ISDACompliantYieldCurveBuild.build(spotDate, types, tenors, rates, moneyMarketDCC, swapDCC, swapInterval, curveDCC, conv);
 
     final int nCurvePoints = hc.getNumberOfKnots();
     assertEquals(nInstruments, nCurvePoints);
@@ -639,7 +635,6 @@ public class ISDACompliantYieldCurveBuildTest {
       0.0345703878366083, 0.0345445163389807, 0.0345192753750602, 0.0345074031846624, 0.0344955408983266, 0.0344843750709356, 0.0344735054836918, 0.0344632017183462, 0.034453101007236,
       0.0344435134298795, 0.0344341530670394, 0.0344251592591684, };
 
-    final ISDACompliantYieldCurveBuild bob = new ISDACompliantYieldCurveBuild();
     final LocalDate spotDate = LocalDate.of(2009, 11, 13);
 
     final int nMoneyMarket = 6;
@@ -671,7 +666,7 @@ public class ISDACompliantYieldCurveBuildTest {
     final DayCount curveDCC = ACT365;
     final Period swapInterval = Period.ofMonths(6);
 
-    final ISDACompliantCurve hc = bob.build(spotDate, types, tenors, rates, moneyMarketDCC, swapDCC, swapInterval, curveDCC, conv);
+    final ISDACompliantCurve hc = ISDACompliantYieldCurveBuild.build(spotDate, types, tenors, rates, moneyMarketDCC, swapDCC, swapInterval, curveDCC, conv);
 
     final int nCurvePoints = hc.getNumberOfKnots();
     assertEquals(nInstruments, nCurvePoints);

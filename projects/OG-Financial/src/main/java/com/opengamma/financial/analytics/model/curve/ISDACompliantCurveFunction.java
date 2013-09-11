@@ -65,7 +65,6 @@ public class ISDACompliantCurveFunction extends AbstractFunction.NonCompiledInvo
 
   // ISDA fixes yield curve daycout to Act/365
   private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
-  private static final ISDACompliantYieldCurveBuild BUILDER = new ISDACompliantYieldCurveBuild();
 
   /** the curve configuration name */
   private String _curveName;
@@ -168,7 +167,7 @@ public class ISDACompliantCurveFunction extends AbstractFunction.NonCompiledInvo
     liborConvention = conventionSource.getConvention(IborIndexConvention.class, floatLegConvention.getIborIndexConvention());
     ArgumentChecker.notNull(liborConvention, floatLegConvention.getIborIndexConvention().toString());
 
-    final ISDACompliantYieldCurve yieldCurve = BUILDER.build(spotDate, spotDate, instruments, tenors, marketDataForCurve, cashConvention.getDayCount(),
+    final ISDACompliantYieldCurve yieldCurve = ISDACompliantYieldCurveBuild.build(spotDate, spotDate, instruments, tenors, marketDataForCurve, cashConvention.getDayCount(),
         fixLegConvention.getDayCount(), fixLegConvention.getPaymentTenor().getPeriod(), ACT_365, liborConvention.getBusinessDayConvention());
 
     final ValueProperties properties = desiredValue.getConstraints().copy()

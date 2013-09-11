@@ -146,7 +146,6 @@ public class CDSPaperExamples extends ISDABaseTest {
   @Test(enabled = false)
   public void parRateSensitivityTest() {
     final DateTimeFormatter formatt = DateTimeFormatter.ofPattern("dd-MMM-yy");
-    final double coupon = 0.01;
     final StringBuilder out = new StringBuilder();
     final AnalyticCDSPricer pricer = new AnalyticCDSPricer(true);
     final CDSAnalyticFactory factory = new CDSAnalyticFactory(0.4);
@@ -285,6 +284,7 @@ public class CDSPaperExamples extends ISDABaseTest {
     System.out.print(out);
   }
 
+  @SuppressWarnings("unused")
   @Test(enabled = false)
   public void hedgingTest2() {
 

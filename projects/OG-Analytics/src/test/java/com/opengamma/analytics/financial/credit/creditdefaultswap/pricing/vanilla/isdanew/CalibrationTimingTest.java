@@ -44,7 +44,6 @@ public class CalibrationTimingTest {
 
   private static final CholeskyDecompositionCommons CHOLESKY = new CholeskyDecompositionCommons();
 
-  private static final ISDACompliantYieldCurveBuild YIELD_CURVE_BUILDER = new ISDACompliantYieldCurveBuild();
   private static final FastCreditCurveBuilder CREDIT_CURVE_BUILDER = new FastCreditCurveBuilder();
 
   private static final Calendar DEFAULT_CALENDAR = new MondayToFridayCalendar("Weekend_Only");
@@ -53,6 +52,7 @@ public class CalibrationTimingTest {
   private static final DayCount ACT360 = DayCountFactory.INSTANCE.getDayCount("ACT/360");
   private static final DayCount D30360 = DayCountFactory.INSTANCE.getDayCount("30/360");
 
+  @SuppressWarnings("unused")
   private static final BusinessDayConvention FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   private static final BusinessDayConvention MOD_FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
 
@@ -61,14 +61,14 @@ public class CalibrationTimingTest {
   private static final ISDAInstrumentTypes[] YC_INST_TYPES;
   private static final Period[] YC_INST_TENOR;
   private static final double[] YC_MARKET_RATES = new double[] {0.00340055550701297, 0.00636929056400781, 0.0102617798438113, 0.0135851258907251, 0.0162809551414651, 0.020583125112332,
-      0.0227369218210212, 0.0251978805237614, 0.0273223815467694, 0.0310882447627048, 0.0358397743454067, 0.036047665095421, 0.0415916567616181, 0.044066373237682, 0.046708518178509,
-      0.0491196954851753, 0.0529297239911766, 0.0562025436376854, 0.0589772202773522, 0.0607471217692999};
+    0.0227369218210212, 0.0251978805237614, 0.0273223815467694, 0.0310882447627048, 0.0358397743454067, 0.036047665095421, 0.0415916567616181, 0.044066373237682, 0.046708518178509,
+    0.0491196954851753, 0.0529297239911766, 0.0562025436376854, 0.0589772202773522, 0.0607471217692999 };
   private static final DoubleMatrix2D YC_COVAR;
   private static final DoubleMatrix2D YC_COVAR_SQR;
 
   private static final int NUM_CREDIT_CURVE_POINTS = 11;
   private static final LocalDate[] CC_DATES = new LocalDate[] {LocalDate.of(2013, 9, 20), LocalDate.of(2013, 12, 20), LocalDate.of(2014, 3, 20), LocalDate.of(2014, 6, 20), LocalDate.of(2014, 9, 20),
-      LocalDate.of(2015, 9, 20), LocalDate.of(2016, 9, 20), LocalDate.of(2017, 9, 20), LocalDate.of(2018, 9, 20), LocalDate.of(2020, 9, 20), LocalDate.of(2023, 9, 20)};
+    LocalDate.of(2015, 9, 20), LocalDate.of(2016, 9, 20), LocalDate.of(2017, 9, 20), LocalDate.of(2018, 9, 20), LocalDate.of(2020, 9, 20), LocalDate.of(2023, 9, 20) };
   private static final DoubleMatrix2D CC_COVAR;
   private static final DoubleMatrix2D CC_COVAR_SQR;
 
@@ -77,14 +77,14 @@ public class CalibrationTimingTest {
   private static final LocalDate SPOTDATE = addWorkDays(TODAY, 3, DEFAULT_CALENDAR); // 3 working days on
   private static final LocalDate VALUEDATE = SPOTDATE;
   private static final LocalDate STARTDATE = TODAY; // have protection start now.
-  private static final double[] MARKET_CREDIT_SPREADS = new double[] {40, 45, 50, 55, 70, 90, 130, 130, 130, 120, 115, 105, 90};
+  private static final double[] MARKET_CREDIT_SPREADS = new double[] {40, 45, 50, 55, 70, 90, 130, 130, 130, 120, 115, 105, 90 };
 
   static {
     // setup yield curve stuff
     YC_INST_TYPES = new ISDAInstrumentTypes[NUM_YIELD_CURVE_POINTS];
     YC_INST_TENOR = new Period[NUM_YIELD_CURVE_POINTS];
-    final int[] mmMonths = new int[] {1, 2, 3, 6, 9, 12};
-    final int[] swapYears = new int[] {2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 20, 25, 30};
+    final int[] mmMonths = new int[] {1, 2, 3, 6, 9, 12 };
+    final int[] swapYears = new int[] {2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 20, 25, 30 };
     final int nMoneyMarket = 6;
     final int nSwaps = 14;
     // check
@@ -162,41 +162,42 @@ public class CalibrationTimingTest {
 
   }
 
-  @Test(enabled=false)
+  @Test(enabled = false)
   public void yieldCurvePeturbTest() {
     System.out.println("CalibrationTimingTest - set enabled=false before push");
-    
-    DoubleMatrix1D base = new DoubleMatrix1D(YC_MARKET_RATES);
-    final int nSims = 50000;
 
-    long startTime = System.nanoTime();
+    final DoubleMatrix1D base = new DoubleMatrix1D(YC_MARKET_RATES);
+    final int nSims = 50000;
+    final ISDACompliantYieldCurveBuild ycBuilder = new ISDACompliantYieldCurveBuild(SPOTDATE, YC_INST_TYPES, YC_INST_TENOR, ACT360, D30360, SWAP_INTERVAL, ACT365, MOD_FOLLOWING);
+
+    final long startTime = System.nanoTime();
     int failed = 0;
     for (int count = 0; count < nSims; count++) {
 
-      double[] temp = new double[NUM_YIELD_CURVE_POINTS];
+      final double[] temp = new double[NUM_YIELD_CURVE_POINTS];
       for (int i = 0; i < NUM_YIELD_CURVE_POINTS; i++) {
         temp[i] = NORMAL.nextRandom();
       }
-      DoubleMatrix1D z = new DoubleMatrix1D(temp);
-      DoubleMatrix1D w = (DoubleMatrix1D) MA.multiply(YC_COVAR_SQR, z);
-      DoubleMatrix1D peturbedRates = (DoubleMatrix1D) MA.add(base, w);
+      final DoubleMatrix1D z = new DoubleMatrix1D(temp);
+      final DoubleMatrix1D w = (DoubleMatrix1D) MA.multiply(YC_COVAR_SQR, z);
+      final DoubleMatrix1D peturbedRates = (DoubleMatrix1D) MA.add(base, w);
       // System.out.println(peturbedRates);
 
       try {
         @SuppressWarnings("unused")
-        ISDACompliantCurve yieldCurve = YIELD_CURVE_BUILDER.build(SPOTDATE, YC_INST_TYPES, YC_INST_TENOR, peturbedRates.getData(), ACT360, D30360, SWAP_INTERVAL, ACT365, MOD_FOLLOWING);
-      } catch (MathException e) {
+        final ISDACompliantCurve yieldCurve = ycBuilder.build(peturbedRates.getData());
+      } catch (final MathException e) {
         failed++;
       }
     }
-    double totalTime = (System.nanoTime() - startTime) / 1e9;
+    final double totalTime = (System.nanoTime() - startTime) / 1e9;
     System.out.println("total time for " + nSims + " yield Curves: " + totalTime + "s. Failed to build " + failed + " curves (" + ((100. * failed) / nSims) + "%)");
   }
 
-  @Test(enabled=false)
+  @Test(enabled = false)
   public void creditCurvePeturbTest() {
     System.out.println("CalibrationTimingTest - set enabled=false before push");
-    final ISDACompliantYieldCurve yieldCurve = YIELD_CURVE_BUILDER.build(SPOTDATE, YC_INST_TYPES, YC_INST_TENOR, YC_MARKET_RATES, ACT360, D30360, SWAP_INTERVAL, ACT365, MOD_FOLLOWING);
+    final ISDACompliantYieldCurve yieldCurve = ISDACompliantYieldCurveBuild.build(SPOTDATE, YC_INST_TYPES, YC_INST_TENOR, YC_MARKET_RATES, ACT360, D30360, SWAP_INTERVAL, ACT365, MOD_FOLLOWING);
     final Period tenor = Period.ofMonths(3);
     final StubType stubType = StubType.FRONTSHORT;
     final boolean payAccOndefault = true;
@@ -210,30 +211,30 @@ public class CalibrationTimingTest {
       coupons[i] = MARKET_CREDIT_SPREADS[i] / 10000.0;
     }
 
-    DoubleMatrix1D base = new DoubleMatrix1D(coupons);
+    final DoubleMatrix1D base = new DoubleMatrix1D(coupons);
     final int nSims = 50000;
 
-    long startTime = System.nanoTime();
+    final long startTime = System.nanoTime();
     int failed = 0;
     for (int count = 0; count < nSims; count++) {
 
-      double[] temp = new double[NUM_CREDIT_CURVE_POINTS];
+      final double[] temp = new double[NUM_CREDIT_CURVE_POINTS];
       for (int i = 0; i < NUM_CREDIT_CURVE_POINTS; i++) {
         temp[i] = NORMAL.nextRandom();
       }
-      DoubleMatrix1D z = new DoubleMatrix1D(temp);
-      DoubleMatrix1D w = (DoubleMatrix1D) MA.multiply(CC_COVAR_SQR, z);
-      DoubleMatrix1D peturbedSpreads = (DoubleMatrix1D) MA.add(base, w);
+      final DoubleMatrix1D z = new DoubleMatrix1D(temp);
+      final DoubleMatrix1D w = (DoubleMatrix1D) MA.multiply(CC_COVAR_SQR, z);
+      final DoubleMatrix1D peturbedSpreads = (DoubleMatrix1D) MA.add(base, w);
       // System.out.println(peturbedRates);
 
       try {
         @SuppressWarnings("unused")
-        ISDACompliantCreditCurve creditCurve = CREDIT_CURVE_BUILDER.calibrateCreditCurve(cds, peturbedSpreads.getData(), yieldCurve);
-      } catch (MathException e) {
+        final ISDACompliantCreditCurve creditCurve = CREDIT_CURVE_BUILDER.calibrateCreditCurve(cds, peturbedSpreads.getData(), yieldCurve);
+      } catch (final MathException e) {
         failed++;
       }
     }
-    double totalTime = (System.nanoTime() - startTime) / 1e9;
+    final double totalTime = (System.nanoTime() - startTime) / 1e9;
     System.out.println("total time for " + nSims + " credit Curves: " + totalTime + "s. Failed to build " + failed + " curves (" + ((100. * failed) / nSims) + "%)");
   }
 }

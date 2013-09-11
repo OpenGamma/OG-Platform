@@ -18,7 +18,6 @@ public class ISDABaseTest {
   protected static final AnalyticCDSPricer PRICER = new AnalyticCDSPricer();
   protected static final AnalyticCDSPricer PRICER_CORRECT = new AnalyticCDSPricer(true);
   protected static final ISDACompliantCreditCurveBuilder CREDIT_CURVE_BUILDER = new FastCreditCurveBuilder();
-  protected static final ISDACompliantYieldCurveBuild YIELD_CURVE_BUILDER = new ISDACompliantYieldCurveBuild();
   protected static final SpreadSensitivityCalculator CS01_CAL = new SpreadSensitivityCalculator();
 
   protected static final double ONE_PC = 1e-2;
@@ -72,7 +71,7 @@ public class ISDABaseTest {
         throw new IllegalArgumentException("cannot parse " + temp);
       }
     }
-    return YIELD_CURVE_BUILDER.build(today, spotDate, types, tenors, rates, moneyMarketDCC, swapDCC, swapInterval, curveDCC, MOD_FOLLOWING);
+    return ISDACompliantYieldCurveBuild.build(today, spotDate, types, tenors, rates, moneyMarketDCC, swapDCC, swapInterval, curveDCC, MOD_FOLLOWING);
 
   }
 

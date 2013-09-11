@@ -13,7 +13,6 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 
 import com.opengamma.analytics.financial.credit.StubType;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.FastCreditCurveBuilder.Pricer;
 import com.opengamma.analytics.financial.model.BumpType;
 import com.opengamma.analytics.math.linearalgebra.LUDecompositionCommons;
 import com.opengamma.analytics.math.linearalgebra.LUDecompositionResult;
@@ -30,7 +29,6 @@ public class AnalyticCDV01Test {
   // private static final ISDACompliantCreditCurveBuild BUILDER = new ISDACompliantCreditCurveBuild();
   private static final ISDACompliantCreditCurveBuilder BUILDER = new FastCreditCurveBuilder();
   private static final AnalyticCDSPricer PRICER = new AnalyticCDSPricer();
-  private static final SpreadSensitivityCalculator CDV01_CAL = new SpreadSensitivityCalculator();
   private static final Calendar DEFAULT_CALENDAR = new MondayToFridayCalendar("Weekend_Only");
 
   // common data
@@ -38,8 +36,6 @@ public class AnalyticCDV01Test {
   private static final LocalDate EFFECTIVE_DATE = TODAY.plusDays(1); // AKA stepin date
   private static final LocalDate CASH_SETTLE_DATE = addWorkDays(TODAY, 3, DEFAULT_CALENDAR); // AKA valuation date
   private static final double RECOVERY_RATE = 0.4;
-  private static final double NOTIONAL = 1e7;
-
   // valuation CDS
   private static final LocalDate PROTECTION_STATE_DATE = LocalDate.of(2013, 2, 3); // Seasoned CDS
   private static final LocalDate PROTECTION_END_DATE = LocalDate.of(2018, 3, 20);
@@ -48,8 +44,8 @@ public class AnalyticCDV01Test {
 
   // market CDSs
   private static final LocalDate[] PAR_SPD_DATES = new LocalDate[] {LocalDate.of(2013, 6, 20), LocalDate.of(2013, 9, 20), LocalDate.of(2014, 3, 20), LocalDate.of(2015, 3, 20),
-      LocalDate.of(2016, 3, 20), LocalDate.of(2018, 3, 20), LocalDate.of(2023, 3, 20)};
-  private static final double[] PAR_SPREADS = new double[] {50, 70, 80, 95, 100, 95, 80};
+    LocalDate.of(2016, 3, 20), LocalDate.of(2018, 3, 20), LocalDate.of(2023, 3, 20) };
+  private static final double[] PAR_SPREADS = new double[] {50, 70, 80, 95, 100, 95, 80 };
   private static final int NUM_MARKET_CDS = PAR_SPD_DATES.length;
   private static final CDSAnalytic[] MARKET_CDS = new CDSAnalytic[NUM_MARKET_CDS];
 
@@ -57,14 +53,14 @@ public class AnalyticCDV01Test {
   private static ISDACompliantYieldCurve YIELD_CURVE;
 
   static {
-    double flatrate = 0.05;
-    double t = 20.0;
-    YIELD_CURVE = new ISDACompliantYieldCurve(new double[] {t}, new double[] {flatrate});
+    final double flatrate = 0.05;
+    final double t = 20.0;
+    YIELD_CURVE = new ISDACompliantYieldCurve(new double[] {t }, new double[] {flatrate });
 
-    boolean payAccOndefault = true;
-    Period tenor = Period.ofMonths(3);
-    StubType stubType = StubType.FRONTSHORT;
-    boolean protectionStart = true;
+    final boolean payAccOndefault = true;
+    final Period tenor = Period.ofMonths(3);
+    final StubType stubType = StubType.FRONTSHORT;
+    final boolean protectionStart = true;
 
     CDS = new CDSAnalytic(TODAY, EFFECTIVE_DATE, CASH_SETTLE_DATE, PROTECTION_STATE_DATE, PROTECTION_END_DATE, payAccOndefault, tenor, stubType, protectionStart, RECOVERY_RATE);
 
@@ -85,9 +81,9 @@ public class AnalyticCDV01Test {
     for (int i = 0; i < NUM_MARKET_CDS; i++) {
       mrkSpreads[i] = PAR_SPREADS[i] / 10000;
     }
-    ISDACompliantCreditCurve creditCurve = BUILDER.calibrateCreditCurve(MARKET_CDS, mrkSpreads, YIELD_CURVE);
-    int n = creditCurve.getNumberOfKnots();
-    double[][] jacA = new double[n][n];
+    final ISDACompliantCreditCurve creditCurve = BUILDER.calibrateCreditCurve(MARKET_CDS, mrkSpreads, YIELD_CURVE);
+    final int n = creditCurve.getNumberOfKnots();
+    final double[][] jacA = new double[n][n];
     for (int j = 0; j < n; j++) {
       final CDSAnalytic cds = MARKET_CDS[j];
       for (int i = 0; i < n; i++) {
@@ -101,24 +97,24 @@ public class AnalyticCDV01Test {
       System.out.println();
     }
 
-    double[] temp = new double[n];
+    final double[] temp = new double[n];
     for (int i = 0; i < n; i++) {
       temp[i] = PRICER.pvCreditSensitivity(CDS, YIELD_CURVE, creditCurve, dealSpread, i);
     }
-    DoubleMatrix1D dVdH = new DoubleMatrix1D(temp);
+    final DoubleMatrix1D dVdH = new DoubleMatrix1D(temp);
     if (print) {
       System.out.println(dVdH);
       System.out.println();
     }
 
-    LUDecompositionCommons decomp = new LUDecompositionCommons();
-    LUDecompositionResult res = decomp.evaluate(jac);
-    DoubleMatrix1D dVdS = res.solve(dVdH);
-    
+    final LUDecompositionCommons decomp = new LUDecompositionCommons();
+    final LUDecompositionResult res = decomp.evaluate(jac);
+    final DoubleMatrix1D dVdS = res.solve(dVdH);
+
     // compare with bump and reprice
     final SpreadSensitivityCalculator bumpCal = new SpreadSensitivityCalculator();
     final double[] fd = bumpCal.bucketedCS01FromParSpreads(CDS, dealSpread, YIELD_CURVE, MARKET_CDS, mrkSpreads, 1e-7, BumpType.ADDITIVE);
-    DoubleMatrix1D fd_dVdS = new DoubleMatrix1D(fd);
+    final DoubleMatrix1D fd_dVdS = new DoubleMatrix1D(fd);
     if (print) {
       System.out.println(dVdS);
       System.out.println(fd_dVdS);
