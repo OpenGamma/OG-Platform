@@ -73,6 +73,7 @@ public class ISDACreditSpreadCurveFunction extends AbstractFunction {
           curveName = idName;
           curveSpecification = CurveUtils.getCurveSpecification(now.toInstant(), configSource, now.toLocalDate(), idName);
         }
+
         final List<Tenor> tenors = new ArrayList<>();
         final List<Double> marketSpreads = new ArrayList<>();
         for (final CurveNodeWithIdentifier strip : curveSpecification.getNodes()) {
@@ -84,7 +85,13 @@ public class ISDACreditSpreadCurveFunction extends AbstractFunction {
           } else {
             s_logger.warn("Could not get spread data for {}, defaulting", strip.getIdentifier());
             tenors.add(strip.getCurveNode().getResolvedMaturity());
-            marketSpreads.add(105.0);
+            if (!marketSpreads.isEmpty()) {
+              //TODO: Find out why some tails are missing - for now set flat spread
+              marketSpreads.add(marketSpreads.get(marketSpreads.size() - 1));
+            } else {
+              marketSpreads.add(105.0);
+              //throw new OpenGammaRuntimeException("Couldnt get spreads for " + strip.getIdentifier());
+            }
           }
         }
         if (tenors.size() == 0) {

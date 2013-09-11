@@ -65,8 +65,8 @@ public class ISDACDXAsSingleNameBucketedGammaCS01Function extends ISDACDXAsSingl
     final Double spreadCurveBump = Double.valueOf(Iterables.getOnlyElement(properties.getValues(
         CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_BUMP)));
     final SpreadBumpType spreadBumpType = SpreadBumpType.valueOf(Iterables.getOnlyElement(properties.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_BUMP_TYPE)));
-    final double[] gammaCS01 = new double[hazardCurve.getNumberOfKnots()];
-    final LocalDate[] dates = new LocalDate[hazardCurve.getNumberOfKnots()];
+    final double[] gammaCS01 = new double[times.length];
+    final LocalDate[] dates = new LocalDate[times.length];
     StandardVanillaBucketedGammaCS01CDSFunction.bucketedGammaCS01(definition, yieldCurve, times, marketSpreads, hazardCurve, analytic, spreadCurveBump, spreadBumpType, gammaCS01, dates);
     final LocalDateLabelledMatrix1D cs01Matrix = new LocalDateLabelledMatrix1D(dates, gammaCS01);
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.BUCKETED_GAMMA_CS01, target.toSpecification(), properties);

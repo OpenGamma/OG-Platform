@@ -96,6 +96,14 @@ public class StandardVanillaParallelGammaCS01CDSFunction extends StandardVanilla
     if (cdsPriceTypes == null || cdsPriceTypes.size() != 1) {
       return null;
     }
+    final Set<String> bumptype = constraints.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_BUMP_TYPE);
+    if (bumptype == null || bumptype.size() != 1) {
+      return null;
+    }
+    final Set<String> bump = constraints.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_BUMP);
+    if (bump == null || bump.size() != 1) {
+      return null;
+    }
     //final Set<String> hazardRateCurveCalculationMethodNames = constraints.getValues(PROPERTY_HAZARD_RATE_CURVE_CALCULATION_METHOD);
     //if (hazardRateCurveCalculationMethodNames == null || hazardRateCurveCalculationMethodNames.size() != 1) {
     //  return null;

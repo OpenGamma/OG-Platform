@@ -11,6 +11,7 @@ import java.util.Set;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.standard.StandardCreditDefaultSwapDefinition;
@@ -28,6 +29,8 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues;
+import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaParallelCS01CDSFunction;
 
 /**
  * 
@@ -51,34 +54,9 @@ public class ISDACDXAsSingleNameParallelCS01Function extends ISDACDXAsSingleName
                                                 ISDACompliantCreditCurve hazardCurve,
                                                 CDSAnalytic analytic) {
 
-    final CDSAnalyticFactory analyticFactory = new CDSAnalyticFactory(definition.getRecoveryRate(), definition.getCouponFrequency().getPeriod())
-        .with(definition.getBusinessDayAdjustmentConvention())
-        .with(definition.getCalendar()).with(definition.getStubType())
-        .withAccualDCC(definition.getDayCountFractionConvention());
-    final CDSAnalytic pricingCDS = analyticFactory.makeCDS(definition.getStartDate().toLocalDate(), definition.getEffectiveDate().toLocalDate(), definition.getMaturityDate().toLocalDate());
-
-    Period[] tenors = new Period[times.length];
-    for (int i = 0; i < times.length; i++) {
-      tenors[i] = Period.between(definition.getStartDate().toLocalDate(), times[i].toLocalDate()).withDays(0);
-    }
-    CDSAnalytic[] pillars = analyticFactory.makeIMMCDS(definition.getStartDate().toLocalDate(), tenors);
-
-    double cs01;
-    if (definition instanceof StandardCreditDefaultSwapDefinition) {
-      StandardCreditDefaultSwapDefinition cds = (StandardCreditDefaultSwapDefinition) definition;
-      cs01 = CALCULATOR.parallelCS01(pricingCDS, new QuotedSpread(cds.getQuotedSpread(), 0.01), yieldCurve, 1e-4);
-    } else if (definition instanceof LegacyCreditDefaultSwapDefinition) {
-      cs01 = CALCULATOR.parallelCS01FromParSpreads(pricingCDS,
-                                                   ((LegacyCreditDefaultSwapDefinition) definition).getParSpread(),
-                                                   yieldCurve,
-                                                   pillars,
-                                                   marketSpreads,
-                                                   1e-4,
-                                                   BumpType.ADDITIVE);
-    } else {
-      throw new OpenGammaRuntimeException("Unexpected cds type: " + definition.getClass().getSimpleName());
-    }
-
+    //TODO: bump type
+    Double bump = Double.valueOf(Iterables.getOnlyElement(properties.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_BUMP)));
+    double cs01 = StandardVanillaParallelCS01CDSFunction.parallelCS01(definition, yieldCurve, times, marketSpreads, analytic, bump * 1e-4);
     //final Double spreadCurveBump = Double.valueOf(Iterables.getOnlyElement(properties.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_BUMP)));
     //final SpreadBumpType spreadBumpType = SpreadBumpType.valueOf(Iterables.getOnlyElement(properties.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_BUMP_TYPE)));
     //final PriceType priceType = PriceType.valueOf(Iterables.getOnlyElement(properties.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_CDS_PRICE_TYPE)));

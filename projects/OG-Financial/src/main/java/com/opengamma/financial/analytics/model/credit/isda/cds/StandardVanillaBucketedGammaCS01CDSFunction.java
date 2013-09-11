@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.Set;
 
 import org.threeten.bp.LocalDate;
+import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Iterables;
@@ -26,7 +27,10 @@ import com.opengamma.analytics.financial.credit.bumpers.SpreadBumpType;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.greeks.vanilla.isda.ISDACreditDefaultSwapBucketedGammaCS01Calculator;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSAnalytic;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSAnalyticFactory;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.FastCreditCurveBuilder;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantCreditCurve;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantCreditCurveBuilder;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantYieldCurve;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -49,6 +53,7 @@ import com.opengamma.financial.security.FinancialSecurity;
 public class StandardVanillaBucketedGammaCS01CDSFunction extends StandardVanillaCS01CDSFunction {
   private static final ISDACreditDefaultSwapBucketedGammaCS01Calculator CALCULATOR = new ISDACreditDefaultSwapBucketedGammaCS01Calculator();
   private static final CreditSpreadBumpersNew SPREAD_BUMPER = new CreditSpreadBumpersNew();
+  private static ISDACompliantCreditCurveBuilder CURVE_BUILDER = new FastCreditCurveBuilder();
 
   public StandardVanillaBucketedGammaCS01CDSFunction() {
     super(ValueRequirementNames.BUCKETED_GAMMA_CS01);
@@ -67,8 +72,8 @@ public class StandardVanillaBucketedGammaCS01CDSFunction extends StandardVanilla
     final Double spreadCurveBump = Double.valueOf(Iterables.getOnlyElement(properties.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_BUMP)));
     final SpreadBumpType spreadBumpType = SpreadBumpType.valueOf(Iterables.getOnlyElement(properties.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_BUMP_TYPE)));
     //final PriceType priceType = PriceType.valueOf(Iterables.getOnlyElement(properties.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_CDS_PRICE_TYPE)));
-    final double[] gammaCS01 = new double[hazardCurve.getNumberOfKnots()];
-    final LocalDate[] dates = new LocalDate[hazardCurve.getNumberOfKnots()];
+    final double[] gammaCS01 = new double[marketSpreads.length];
+    final LocalDate[] dates = new LocalDate[marketSpreads.length];
     bucketedGammaCS01(definition,
                       yieldCurve,
                       times,
@@ -93,11 +98,22 @@ public class StandardVanillaBucketedGammaCS01CDSFunction extends StandardVanilla
                                  Double spreadCurveBump,
                                  SpreadBumpType spreadBumpType,
                                  double[] gammaCS01, LocalDate[] dates) {
-    for (int i = 0; i < hazardCurve.getR().length; i++) {
-      final double[] bumpedUpRates = SPREAD_BUMPER.getBumpedCreditSpreads(hazardCurve.getR(), i, spreadCurveBump * 1e-4, spreadBumpType);
-      final double[] bumpedDownRates = SPREAD_BUMPER.getBumpedCreditSpreads(hazardCurve.getR(), i, -spreadCurveBump * 1e-4, spreadBumpType);
-      final ISDACompliantCreditCurve bumpedUpCreditCurve = hazardCurve.withRates(bumpedUpRates);
-      final ISDACompliantCreditCurve bumpedDownCreditCurve = hazardCurve.withRates(bumpedDownRates);
+
+    final CDSAnalyticFactory analyticFactory = new CDSAnalyticFactory(definition.getRecoveryRate(), definition.getCouponFrequency().getPeriod())
+        .with(definition.getBusinessDayAdjustmentConvention())
+        .with(definition.getCalendar()).with(definition.getStubType())
+        .withAccualDCC(definition.getDayCountFractionConvention());
+    Period[] tenors = new Period[times.length];
+    for (int i = 0; i < times.length; i++) {
+      tenors[i] = Period.between(definition.getStartDate().toLocalDate(), times[i].toLocalDate()).withDays(0);
+    }
+    CDSAnalytic[] buckets = analyticFactory.makeIMMCDS(definition.getStartDate().toLocalDate(), tenors);
+
+    for (int i = 0; i < times.length; i++) {
+      final double[] bumpedUpRates = SPREAD_BUMPER.getBumpedCreditSpreads(marketSpreads, i, spreadCurveBump * 1e-4, spreadBumpType);
+      final double[] bumpedDownRates = SPREAD_BUMPER.getBumpedCreditSpreads(marketSpreads, i, -spreadCurveBump * 1e-4, spreadBumpType);
+      final ISDACompliantCreditCurve bumpedUpCreditCurve = CURVE_BUILDER.calibrateCreditCurve(buckets, bumpedUpRates, yieldCurve);
+      final ISDACompliantCreditCurve bumpedDownCreditCurve = CURVE_BUILDER.calibrateCreditCurve(buckets, bumpedDownRates, yieldCurve);
       final double pv = StandardVanillaPresentValueCDSFunction.presentValue(definition, yieldCurve, hazardCurve, analytic);
       final double bumpedUpPresentValue = StandardVanillaPresentValueCDSFunction.presentValue(definition, yieldCurve, bumpedUpCreditCurve, analytic);
       final double bumpedDownPresentValue = StandardVanillaPresentValueCDSFunction.presentValue(definition, yieldCurve, bumpedDownCreditCurve, analytic);

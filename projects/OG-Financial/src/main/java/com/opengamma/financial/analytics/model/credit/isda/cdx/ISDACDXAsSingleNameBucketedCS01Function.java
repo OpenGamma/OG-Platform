@@ -19,6 +19,7 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.standard.StandardCreditDefaultSwapDefinition;
@@ -39,7 +40,10 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.LocalDateLabelledMatrix1D;
+import com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.credit.CreditSecurityToIdentifierVisitor;
+import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaBucketedCS01CDSFunction;
+import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaParallelCS01CDSFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 
 
@@ -65,40 +69,9 @@ public class ISDACDXAsSingleNameBucketedCS01Function extends ISDACDXAsSingleName
                                                 ISDACompliantCreditCurve hazardCurve,
                                                 CDSAnalytic analytic) {
 
-    ISDACompliantCreditCurve creditCurve = (ISDACompliantCreditCurve) inputs.getValue(ValueRequirementNames.HAZARD_RATE_CURVE);
-    if (creditCurve == null) {
-      throw new OpenGammaRuntimeException("Couldn't get credit curve");
-    }
-
-    final CDSAnalyticFactory analyticFactory = new CDSAnalyticFactory(definition.getRecoveryRate(), definition.getCouponFrequency().getPeriod())
-        .with(definition.getBusinessDayAdjustmentConvention())
-        .with(definition.getCalendar()).with(definition.getStubType())
-        .withAccualDCC(definition.getDayCountFractionConvention());
-    final CDSAnalytic pricingCDS = analyticFactory.makeCDS(definition.getStartDate().toLocalDate(), definition.getEffectiveDate().toLocalDate(), definition.getMaturityDate().toLocalDate());
-
-    Period[] tenors = new Period[times.length];
-    for (int i = 0; i < times.length; i++) {
-      tenors[i] = Period.between(definition.getStartDate().toLocalDate(), times[i].toLocalDate()).withDays(0);
-    }
-    CDSAnalytic[] buckets = analyticFactory.makeIMMCDS(definition.getStartDate().toLocalDate(), tenors);
-
-    double[] cs01Values;
-    if (definition instanceof StandardCreditDefaultSwapDefinition) {
-      StandardCreditDefaultSwapDefinition cds = (StandardCreditDefaultSwapDefinition) definition;
-      cs01Values = CALCULATOR.bucketedCS01FromCreditCurve(pricingCDS, cds.getQuotedSpread(), buckets, yieldCurve, creditCurve, 1e-4);
-    } else if (definition instanceof LegacyCreditDefaultSwapDefinition) {
-      LegacyCreditDefaultSwapDefinition cds = (LegacyCreditDefaultSwapDefinition) definition;
-      cs01Values = CALCULATOR.bucketedCS01FromCreditCurve(pricingCDS, cds.getParSpread(), buckets, yieldCurve, creditCurve, 1e-4);
-    } else {
-      throw new OpenGammaRuntimeException("Unknown cds type " + definition.getClass().getSimpleName());
-    }
-    final int n = times.length;
-    final LocalDate[] dates = new LocalDate[n];
-    for (int i = 0; i < n; i++) {
-      dates[i] = times[i].toLocalDate();
-      cs01Values[i] /= 1000;
-    }
-    final LocalDateLabelledMatrix1D cs01Matrix = new LocalDateLabelledMatrix1D(dates, cs01Values);
+    //TODO: bump type
+    Double bump = Double.valueOf(Iterables.getOnlyElement(properties.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_BUMP)));
+    final LocalDateLabelledMatrix1D cs01Matrix = StandardVanillaBucketedCS01CDSFunction.getBucketedCS01(definition, yieldCurve, times, hazardCurve, analytic, bump * 1e-4);
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.BUCKETED_CS01, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, cs01Matrix));
   }

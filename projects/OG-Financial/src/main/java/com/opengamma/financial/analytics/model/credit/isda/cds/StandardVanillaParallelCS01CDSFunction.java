@@ -11,6 +11,7 @@ import java.util.Set;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.standard.StandardCreditDefaultSwapDefinition;
@@ -28,6 +29,7 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues;
 
 /**
  * 
@@ -49,7 +51,9 @@ public class StandardVanillaParallelCS01CDSFunction extends StandardVanillaCS01C
                                                 final ValueProperties properties,
                                                 final FunctionInputs inputs,
                                                 ISDACompliantCreditCurve hazardCurve, CDSAnalytic analytic) {
-    double cs01 = parallelCS01(definition, yieldCurve, times, marketSpreads, analytic, 1e-4);
+    //TODO: bump type
+    Double bump = Double.valueOf(Iterables.getOnlyElement(properties.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_BUMP)));
+    double cs01 = parallelCS01(definition, yieldCurve, times, marketSpreads, analytic, bump * 1e-4);
 
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.CS01, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, cs01));

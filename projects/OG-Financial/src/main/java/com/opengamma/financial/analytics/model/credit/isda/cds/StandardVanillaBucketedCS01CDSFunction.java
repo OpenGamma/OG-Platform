@@ -19,6 +19,7 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.standard.StandardCreditDefaultSwapDefinition;
@@ -39,6 +40,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.LocalDateLabelledMatrix1D;
+import com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.credit.CreditSecurityToIdentifierVisitor;
 import com.opengamma.financial.security.FinancialSecurity;
 
@@ -62,11 +64,17 @@ public class StandardVanillaBucketedCS01CDSFunction extends StandardVanillaCS01C
                                                 final ValueProperties properties,
                                                 final FunctionInputs inputs,
                                                 ISDACompliantCreditCurve hazardCurve, CDSAnalytic analytic) {
-    ISDACompliantCreditCurve creditCurve = (ISDACompliantCreditCurve) inputs.getValue(ValueRequirementNames.HAZARD_RATE_CURVE);
-    if (creditCurve == null) {
-      throw new OpenGammaRuntimeException("Couldn't get credit curve");
-    }
+    //TODO: bump type
+    Double bump = Double.valueOf(Iterables.getOnlyElement(properties.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_BUMP)));
+    final LocalDateLabelledMatrix1D cs01Matrix = getBucketedCS01(definition, yieldCurve, times, hazardCurve, analytic, bump * 1e-4);
+    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.BUCKETED_CS01, target.toSpecification(), properties);
+    return Collections.singleton(new ComputedValue(spec, cs01Matrix));
+  }
 
+  public static LocalDateLabelledMatrix1D getBucketedCS01(CreditDefaultSwapDefinition definition,
+                                                    ISDACompliantYieldCurve yieldCurve,
+                                                    ZonedDateTime[] times,
+                                                    ISDACompliantCreditCurve hazardCurve, CDSAnalytic analytic, double bump) {
     final CDSAnalyticFactory analyticFactory = new CDSAnalyticFactory(definition.getRecoveryRate(), definition.getCouponFrequency().getPeriod())
         .with(definition.getBusinessDayAdjustmentConvention())
         .with(definition.getCalendar()).with(definition.getStubType())
@@ -81,10 +89,10 @@ public class StandardVanillaBucketedCS01CDSFunction extends StandardVanillaCS01C
     double[] cs01Values;
     if (definition instanceof StandardCreditDefaultSwapDefinition) {
       StandardCreditDefaultSwapDefinition cds = (StandardCreditDefaultSwapDefinition) definition;
-      cs01Values = CALCULATOR.bucketedCS01FromCreditCurve(analytic, cds.getQuotedSpread(), buckets, yieldCurve, creditCurve, 1e-4);
+      cs01Values = CALCULATOR.bucketedCS01FromCreditCurve(analytic, cds.getQuotedSpread(), buckets, yieldCurve, hazardCurve, bump);
     } else if (definition instanceof LegacyCreditDefaultSwapDefinition) {
       LegacyCreditDefaultSwapDefinition cds = (LegacyCreditDefaultSwapDefinition) definition;
-      cs01Values = CALCULATOR.bucketedCS01FromCreditCurve(analytic, cds.getParSpread(), buckets, yieldCurve, creditCurve, 1e-4);
+      cs01Values = CALCULATOR.bucketedCS01FromCreditCurve(analytic, cds.getParSpread(), buckets, yieldCurve, hazardCurve, bump);
     } else {
       throw new OpenGammaRuntimeException("Unknown cds type " + definition.getClass().getSimpleName());
     }
@@ -94,9 +102,7 @@ public class StandardVanillaBucketedCS01CDSFunction extends StandardVanillaCS01C
       dates[i] = times[i].toLocalDate();
       cs01Values[i] *= 1e-4 * definition.getNotional();
     }
-    final LocalDateLabelledMatrix1D cs01Matrix = new LocalDateLabelledMatrix1D(dates, cs01Values);
-    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.BUCKETED_CS01, target.toSpecification(), properties);
-    return Collections.singleton(new ComputedValue(spec, cs01Matrix));
+    return new LocalDateLabelledMatrix1D(dates, cs01Values);
   }
 
   @Override
