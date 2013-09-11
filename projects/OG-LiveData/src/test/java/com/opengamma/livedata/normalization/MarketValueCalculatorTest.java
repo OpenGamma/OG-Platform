@@ -194,5 +194,19 @@ public class MarketValueCalculatorTest {
     assertEquals(4, normalized.getAllFields().size());
     assertEquals(0.5, normalized.getDouble(MarketDataRequirementNames.MARKET_VALUE), 0.0001);
   }
+  
+  public void noBidAskLastOrFieldHistory() {
+    MarketValueCalculator calculator = new MarketValueCalculator();
+    
+    MutableFudgeMsg msg = OpenGammaFudgeContext.getInstance().newMessage();
+    msg.add(MarketDataRequirementNames.CLOSING_BID, 0.1);
+    msg.add(MarketDataRequirementNames.CLOSING_ASK, 0.2);
+    msg.add(MarketDataRequirementNames.CLOSE, 0.14);
+    
+    FieldHistoryStore store = new FieldHistoryStore();
+    
+    MutableFudgeMsg normalized = calculator.apply(msg, "123", store);
+    assertEquals(0.14, normalized.getDouble(MarketDataRequirementNames.MARKET_VALUE));
+  }
 
 }

@@ -93,6 +93,13 @@ public class MarketValueCalculator implements NormalizationRule {
       msg.add(MarketDataRequirementNames.MARKET_VALUE, last);
       return msg;
     }
+ // Use "CLOSE" if we've been given one
+    Double close = msg.getDouble(MarketDataRequirementNames.CLOSE);
+    if (close != null) {
+      msg.add(MarketDataRequirementNames.MARKET_VALUE, close);
+      return msg;
+    }    
+    
     // Fall back to last known market value
     return lastKnownMarketValue(msg, fieldHistory);
   }
