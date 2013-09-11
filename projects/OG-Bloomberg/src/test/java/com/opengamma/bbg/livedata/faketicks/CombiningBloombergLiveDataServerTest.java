@@ -18,6 +18,7 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.bbg.referencedata.ReferenceDataProviderGetRequest;
@@ -235,7 +236,7 @@ public class CombiningBloombergLiveDataServerTest {
     assertEquals(0, realSubs.get());
     assertTrue(listener.waitUntilEnoughUpdatesReceived(30000));
     for (int i = 0; i < 3; i++) {
-      expirationManager.extendPublicationTimeout(getLiveDataSpec(_liveDataClient, weak));
+      expirationManager.extendPublicationTimeout(ImmutableSet.of(getLiveDataSpec(_liveDataClient, weak)));
       Thread.sleep(period / 2);
     }
     assertEquals(1, combinedSubs.get());
