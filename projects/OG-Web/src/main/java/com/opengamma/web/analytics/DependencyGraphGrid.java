@@ -22,13 +22,9 @@ import com.opengamma.util.ArgumentChecker;
  */
 public final class DependencyGraphGrid extends AnalyticsGrid<DependencyGraphViewport> {
 
-  /**
-   * The config name.
-   */
+  /** The config name. */
   private final String _calcConfigName;
-  /**
-   * The grid structure.
-   */
+  /** The grid structure. */
   private final DependencyGraphGridStructure _gridStructure;
   /**
    * Each dependency graph maintains its own cache of results.
@@ -46,7 +42,7 @@ public final class DependencyGraphGrid extends AnalyticsGrid<DependencyGraphView
    * @param calcConfigName  the calculation configuration used for the calculations, not null
    * @param cycle  the view cycle that calculated the results, not null
    * @param callbackId  the ID that's passed to listeners when the row and column structure of the grid changes
-   * @param targetResolver  the resoler for looking up the target of the calculation given its specification
+   * @param targetResolver  the resolver for looking up the target of the calculation given its specification
    * @param viewportListener  receives notifications when any viewport changes, not null
    * @param rootRowName  the row name of the root of the dependency graph in the parent grid
    * @return the grid, not null
@@ -95,9 +91,12 @@ public final class DependencyGraphGrid extends AnalyticsGrid<DependencyGraphView
   }
 
   @Override
-  protected DependencyGraphViewport createViewport(
-      ViewportDefinition viewportDefinition, String callbackId, String  structureCallbackId, ResultsCache cache) {
-    return new DependencyGraphViewport(_calcConfigName, _gridStructure, callbackId, structureCallbackId, viewportDefinition, _latestCycle, cache);
+  protected DependencyGraphViewport createViewport(ViewportDefinition viewportDefinition,
+                                                   String callbackId,
+                                                   String structureCallbackId,
+                                                   ResultsCache cache) {
+    return new DependencyGraphViewport(_calcConfigName, _gridStructure, callbackId, structureCallbackId,
+                                       viewportDefinition, _latestCycle, cache);
   }
 
   /* package */ List<String> updateResults(ViewCycle cycle, ResultsCache cache) {
