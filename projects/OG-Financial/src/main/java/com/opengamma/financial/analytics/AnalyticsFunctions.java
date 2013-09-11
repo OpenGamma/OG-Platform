@@ -186,6 +186,7 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
     addUnitScalingFunction(functions, ValueRequirementNames.MARKET_DIRTY_PRICE);
     addSummingFunction(functions, ValueRequirementNames.MTM_PNL);
     addUnitScalingFunction(functions, ValueRequirementNames.MTM_PNL);
+    addUnitScalingFunction(functions, ValueRequirementNames.MARKET_QUOTE);
     addUnitScalingFunction(functions, ValueRequirementNames.MARKET_YTM);
     addUnitScalingFunction(functions, ValueRequirementNames.MODIFIED_DURATION);
     addUnitScalingAndSummingFunction(functions, ValueRequirementNames.NET_BASIS);

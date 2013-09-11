@@ -25,6 +25,7 @@ public class DiscountingPricingFunctions extends AbstractFunctionConfigurationBe
     functions.add(functionConfiguration(DiscountingBCSFunction.class));
     functions.add(functionConfiguration(DiscountingCurrencyExposureFunction.class));
     functions.add(functionConfiguration(DiscountingFXPVFunction.class));
+    functions.add(functionConfiguration(DiscountingMarketQuoteFunction.class));
     functions.add(functionConfiguration(DiscountingPVFunction.class));
     functions.add(functionConfiguration(DiscountingParRateFunction.class));
     functions.add(functionConfiguration(DiscountingPV01Function.class));

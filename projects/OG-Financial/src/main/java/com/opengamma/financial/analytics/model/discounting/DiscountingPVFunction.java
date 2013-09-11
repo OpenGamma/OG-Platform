@@ -64,9 +64,8 @@ public class DiscountingPVFunction extends DiscountingFunction {
         if (security instanceof SwapSecurity) {
           if (InterestRateInstrumentType.isFixedIncomeInstrumentType((SwapSecurity) security)) {
             return InterestRateInstrumentType.getInstrumentTypeFromSecurity((SwapSecurity) security) != InterestRateInstrumentType.SWAP_CROSS_CURRENCY;
-          } else {
-            return false;
           }
+          return false;
         }
         return security instanceof CashSecurity ||
             security instanceof FRASecurity ||

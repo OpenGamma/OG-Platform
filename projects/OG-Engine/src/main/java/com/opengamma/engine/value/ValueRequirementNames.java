@@ -576,7 +576,10 @@ public final class ValueRequirementNames {
    * The net amount of an inflation coupon at the start of a month with respect to the reference index.
    */
   public static final String INFLATION_NET_AMOUNT = "Inflation Net Amount";
-  
+  /**
+   * The market quoted value of an instrument (e.g. 0.99 for a Eurodollar future)
+   */
+  public static final String MARKET_QUOTE = "Market Quote";
   ///// Greeks
 
   /**

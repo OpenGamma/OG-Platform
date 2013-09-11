@@ -22,12 +22,13 @@ public class HullWhitePricingFunctions extends AbstractFunctionConfigurationBean
 
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
+    functions.add(functionConfiguration(HullWhiteConvexityAdjustmentFunction.class));
     functions.add(functionConfiguration(HullWhiteDiscountingBCSFunction.class));
     functions.add(functionConfiguration(HullWhiteDiscountingParRateFunction.class));
     functions.add(functionConfiguration(HullWhiteDiscountingPVFunction.class));
+    functions.add(functionConfiguration(HullWhiteMarketQuoteFunction.class));
     functions.add(functionConfiguration(HullWhiteMonteCarloDiscountingPVFunction.class));
     functions.add(functionConfiguration(HullWhiteDiscountingPV01Function.class));
     functions.add(functionConfiguration(HullWhiteDiscountingYCNSFunction.class));
-    functions.add(functionConfiguration(HullWhiteConvexityAdjustmentFunction.class));
   }
 }
