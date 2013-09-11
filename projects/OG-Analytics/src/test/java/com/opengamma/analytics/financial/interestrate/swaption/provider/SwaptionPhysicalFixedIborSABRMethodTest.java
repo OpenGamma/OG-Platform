@@ -297,7 +297,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
   //  }
 
   @SuppressWarnings("unused")
-  @Test(enabled = false)
+  @Test(enabled = true)
   /**
    * Test of performance. In normal testing, "enabled = false".
    */
@@ -320,7 +320,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     System.out.println(nbTest + " physical swaptions SABR (price+delta+vega separately): " + (endTime - startTime) + " ms");
     // Performance note: price+delta: 16-Nov-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 380 ms for 5000 swaptions.
 
-    // 2. Together compute: Price plus Curve Sensitivity and SABR Parameter Sensitivity
+    // 2. Together compute: Price, Curve Sensitivity and SABR Parameter Sensitivity
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
       pvad = METHOD_SWPT_SABR.presentValueAD(SWAPTION_LONG_PAYER, SABR_MULTICURVES);

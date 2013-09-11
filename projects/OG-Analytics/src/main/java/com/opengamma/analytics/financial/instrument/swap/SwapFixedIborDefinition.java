@@ -199,7 +199,7 @@ public class SwapFixedIborDefinition extends SwapDefinition {
   }
 
   /**
-   * Creates a new swap containing the coupons with start accrual date strictly before the given date.
+   * Creates a new swap. The coupon in the new swap have start accrual date after or on the given date.
    * @param trimDate The date.
    * @return The trimmed swap.
    */

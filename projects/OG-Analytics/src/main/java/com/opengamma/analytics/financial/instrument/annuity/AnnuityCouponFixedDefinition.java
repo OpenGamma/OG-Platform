@@ -278,7 +278,7 @@ public class AnnuityCouponFixedDefinition extends AnnuityDefinition<CouponFixedD
   }
 
   /**
-   * Remove the payments paying on or before the given date.
+   * Creates a new annuity. The coupon is the new annuity are those with payment date strictly after the given date.
    * @param trimDate The date.
    * @return The trimmed annuity.
    */
@@ -294,7 +294,7 @@ public class AnnuityCouponFixedDefinition extends AnnuityDefinition<CouponFixedD
   }
 
   /**
-   * Creates a new annuity containing the coupons with start accrual date strictly before the given date.
+   * Creates a new annuity. The coupon in the new annuity have start accrual date after or on the given date.
    * @param trimDate The date.
    * @return The trimmed annuity.
    */
