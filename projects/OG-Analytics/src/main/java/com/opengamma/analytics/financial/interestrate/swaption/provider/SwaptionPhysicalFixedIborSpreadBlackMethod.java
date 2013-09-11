@@ -7,6 +7,7 @@ package com.opengamma.analytics.financial.interestrate.swaption.provider;
 
 import com.opengamma.analytics.financial.instrument.index.GeneratorAttributeIR;
 import com.opengamma.analytics.financial.instrument.index.GeneratorInstrument;
+import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedCompoundedONCompounded;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedON;
 import com.opengamma.analytics.financial.interestrate.swap.provider.SwapFixedIborSpreadDiscountingMethod;
@@ -73,6 +74,10 @@ public final class SwaptionPhysicalFixedIborSpreadBlackMethod {
       final GeneratorSwapFixedON fixedONGenerator = (GeneratorSwapFixedON) generatorSwap;
       calendar = fixedONGenerator.getOvernightCalendar();
       dayCountModification = fixedONGenerator.getFixedLegDayCount();
+    } else if (generatorSwap instanceof GeneratorSwapFixedCompoundedONCompounded) {
+      final GeneratorSwapFixedCompoundedONCompounded fixedCompoundedON = (GeneratorSwapFixedCompoundedONCompounded) generatorSwap;
+      calendar = fixedCompoundedON.getOvernightCalendar();
+      dayCountModification = fixedCompoundedON.getFixedLegDayCount();
     } else {
       throw new IllegalArgumentException("Cannot handle swap with underlying generator of type " + generatorSwap.getClass());
     }

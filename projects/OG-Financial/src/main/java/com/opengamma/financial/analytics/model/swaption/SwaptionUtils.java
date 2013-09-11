@@ -13,6 +13,7 @@ import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponIborDef
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponONDefinition;
 import com.opengamma.analytics.financial.instrument.index.GeneratorAttributeIR;
 import com.opengamma.analytics.financial.instrument.index.GeneratorInstrument;
+import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedCompoundedONCompounded;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedON;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
@@ -27,6 +28,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
+import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
@@ -109,6 +111,9 @@ public class SwaptionUtils {
         final BusinessDayConvention businessDayConvention = fixedLeg.getBusinessDayConvention();
         final boolean isEOM = fixedLeg.isEom();
         final int spotLag = 0; //TODO
+        if (FinancialSecurityUtils.getCurrency(underlyingSecurity).getCode().equals("BRL")) {
+          return new GeneratorSwapFixedCompoundedONCompounded("Swap Generator", onIndex, fixedLegDayCount, businessDayConvention, isEOM, spotLag, calendar);
+        }
         return new GeneratorSwapFixedON("Swap Generator", onIndex, fixedLegPeriod, fixedLegDayCount, businessDayConvention, isEOM, spotLag, calendar);
       }
       default:
