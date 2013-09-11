@@ -211,15 +211,15 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Security>
       throw new OpenGammaRuntimeException("Cannot handle convention type " + receiveLegConvention.getClass());
     }
 
-    if (payLeg.getSecond().getFirst() != receiveLeg.getSecond().getFirst()) {
+    if (!payLeg.getSecond().getFirst().equals(receiveLeg.getSecond().getFirst())) {
       throw new OpenGammaRuntimeException(
           "Both, pay and receive legs should resolve equal start dates, but instead there were: payleg(" + payLeg.getSecond().getFirst() + "), receiveLeg(" + receiveLeg.getSecond().getFirst() + ")");
     }
-    if (payLeg.getSecond().getSecond() != receiveLeg.getSecond().getSecond()) {
+    if (!payLeg.getSecond().getSecond().equals(receiveLeg.getSecond().getSecond())) {
       throw new OpenGammaRuntimeException(
           "Both, pay and receive legs should resolve equal effective dates, but instead there were: payleg(" + payLeg.getSecond().getSecond() + "), receiveLeg(" + receiveLeg.getSecond().getSecond() + ")");
     }
-    if (payLeg.getSecond().getThird() != receiveLeg.getSecond().getThird()) {
+    if (!payLeg.getSecond().getThird().equals(receiveLeg.getSecond().getThird())) {
       throw new OpenGammaRuntimeException(
           "Both, pay and receive legs should resolve equal maturity dates, but instead there were: payleg(" + payLeg.getSecond().getThird() + "), receiveLeg(" + receiveLeg.getSecond().getThird() + ")");
     }
