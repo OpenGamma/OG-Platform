@@ -6,6 +6,7 @@
 package com.opengamma.master;
 
 import static com.google.common.collect.Maps.newHashMap;
+import static java.lang.String.format;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -169,7 +170,69 @@ public abstract class CombinedMaster<D extends AbstractDocument, M extends Abstr
   }
 
   
+  /**
+   * Implements the logic of querying one master after another, adjusting the paging details
+   * on the search request as appropriate.
+   * @param searchStrategy the search strategy to execute
+   * @param documentsResult the documents result to append documents to
+   * @param searchRequest the search request to execute
+   * @param <S> the search request type
+   */
+  protected <S extends AbstractSearchRequest> void pagedSearch(SearchStrategy<D, M, S> searchStrategy, AbstractDocumentsResult<D> documentsResult, S searchRequest) {
+    PagingRequest originalPagingRequest = searchRequest.getPagingRequest();
+    PagingRequest nextPage = originalPagingRequest;
+    for (M master : getMasterList()) {
+      List<D> searchResult = searchStrategy.search(master, searchRequest);
+      documentsResult.getDocuments().addAll(searchResult);
+      if (documentsResult.getDocuments().size() >= originalPagingRequest.getLastItem()) {
+        break;
+      }
+      //adjust paging parameters if necessary:
+      nextPage = getNextPage(searchResult.size(), nextPage);
+      searchRequest.setPagingRequest(nextPage);
+    }
+    searchRequest.setPagingRequest(originalPagingRequest); //put the original paging back
+    applyPaging(documentsResult, originalPagingRequest);
+  }
   
+  /**
+   * Calculates the next page to ask for in the sequence of queries to masters.
+   * @param itemsFound items found in the last query
+   * @param lastRequest the last paging request
+   * @return the next paging request
+   */
+  private PagingRequest getNextPage(int itemsFound, PagingRequest lastRequest) {
+    int nextFirstItem = lastRequest.getFirstItem() - itemsFound;
+    int nextWindowSize = lastRequest.getPagingSize();
+    if (nextFirstItem < 0) {
+      //need to adjust window size
+      nextWindowSize += nextFirstItem;
+      nextFirstItem = 0;
+      
+      if (nextWindowSize <= 0) {
+        throw new IllegalStateException(format("Failed to compute next window size. Last page: %s, items found: %d", lastRequest, itemsFound));
+      }
+      
+    }
+    return PagingRequest.ofIndex(nextFirstItem, nextWindowSize);
+  }
+  
+  /**
+   * 
+   * @param <D> document type
+   * @param <M> master type
+   * @param <S> search request type
+   */
+  public interface SearchStrategy<D extends AbstractDocument, M extends AbstractMaster<D>, S extends AbstractSearchRequest> {
+    
+    /**
+     * @param master the master to query
+     * @param searchRequest the search request, with appropriate paging set
+     * @return the list of documents returned
+     */
+    public List<D> search(M master, S searchRequest);
+    
+  }
   
   
   /**
@@ -479,7 +542,10 @@ public abstract class CombinedMaster<D extends AbstractDocument, M extends Abstr
    */
   protected void applyPaging(AbstractDocumentsResult<D> result, PagingRequest originalRequest) {
     result.setPaging(Paging.of(originalRequest, result.getDocuments().size()));
-    ArrayList<D> resultDocuments = Lists.newArrayList(result.getDocuments().subList(originalRequest.getFirstItem(), originalRequest.getLastItem()));
+    int docSize = result.getDocuments().size();
+    int firstItem = originalRequest.getFirstItem() > docSize ? docSize : originalRequest.getFirstItem();
+    int lastItem = originalRequest.getLastItem() > docSize ? docSize : originalRequest.getLastItem();
+    ArrayList<D> resultDocuments = Lists.newArrayList(result.getDocuments().subList(firstItem, lastItem));
     result.setDocuments(resultDocuments);
   }
 

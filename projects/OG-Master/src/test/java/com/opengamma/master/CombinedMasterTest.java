@@ -6,11 +6,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.mockito.Mockito;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -20,8 +22,10 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.CombinedMaster.SearchCallback;
+import com.opengamma.master.CombinedMaster.SearchStrategy;
 import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.HolidayMaster;
+import com.opengamma.master.holiday.HolidaySearchRequest;
 import com.opengamma.master.holiday.HolidaySearchResult;
 import com.opengamma.util.paging.Paging;
 import com.opengamma.util.paging.PagingRequest;
@@ -39,6 +43,7 @@ public class CombinedMasterTest {
   private UniqueId u2;
   
   private HolidayDocument d1;
+  private HolidayDocument d2;
   
   private CombinedMaster<HolidayDocument, HolidayMaster> cMaster;
   
@@ -51,6 +56,7 @@ public class CombinedMasterTest {
     u1 = UniqueId.of(o1, "v123");
     u2 = UniqueId.of(o2, "v234");
     d1 = mock(HolidayDocument.class);
+    d2 = mock(HolidayDocument.class);
     when(d1.getUniqueId()).thenReturn(u1);
     when(d1.getObjectId()).thenReturn(o1);
     cMaster = new CombinedMaster<HolidayDocument, HolidayMaster>(ImmutableList.of(m1, m2)) {};
@@ -103,14 +109,26 @@ public class CombinedMasterTest {
     HolidayDocument m1h2 = holidayDocWithId("m1", "2");
     HolidayDocument m1h3 = holidayDocWithId("m1", "3");
     HolidayDocument m1h4 = holidayDocWithId("m1", "4");
-    HolidaySearchResult sr = new HolidaySearchResult(ImmutableList.of(m1h1, m1h2, m1h3, m1h4));
+    HolidaySearchResult sr;
+    sr = new HolidaySearchResult(ImmutableList.of(m1h1, m1h2, m1h3, m1h4));
     
-    PagingRequest ofIndex = PagingRequest.ofIndex(1, 3);
+    PagingRequest ofIndex ;
+    ofIndex = PagingRequest.ofIndex(1, 3);
     
     cMaster.applyPaging(sr, ofIndex);
     
     assertEquals(Paging.of(ofIndex, 4), sr.getPaging());
     assertEquals(ImmutableList.of(m1h2, m1h3, m1h4), sr.getDocuments());
+
+    sr = new HolidaySearchResult(ImmutableList.of(m1h1, m1h2, m1h3, m1h4));
+    
+    ofIndex = PagingRequest.ofIndex(100, 103);
+    
+    cMaster.applyPaging(sr, ofIndex);
+    
+    assertEquals(Paging.of(ofIndex, 4), sr.getPaging());
+    assertEquals(ImmutableList.of(), sr.getDocuments());
+
   }
 
   @Test
@@ -287,5 +305,106 @@ public class CombinedMasterTest {
     
     verify(m1, times(2)).update(d1);
 
+  }
+  
+  
+  @Test
+  public void pagedSearchEmpty() {
+    PagingRequest pr = PagingRequest.ALL;
+    List<HolidayDocument> m1Result = Lists.newArrayList();
+    List<HolidayDocument> m2Result = Lists.newArrayList();
+    
+    List<HolidayDocument> result = runPagedSearch(pr, m1Result, m2Result);
+    
+    assertTrue(result.isEmpty());
+  }
+
+  @Test
+  public void pagedSearchOneElement() {
+    PagingRequest pr = PagingRequest.ALL;
+    List<HolidayDocument> singleton = Lists.newArrayList(d1);
+    List<HolidayDocument> empty = Lists.newArrayList();
+    
+    List<HolidayDocument> result = runPagedSearch(pr, singleton, empty);
+    assertEquals(1, result.size());
+  
+    List<HolidayDocument> result2 = runPagedSearch(pr, empty, singleton);
+    assertEquals(1, result2.size());
+
+  }
+
+  @Test
+  public void pagedSearchTwoElements() {
+    PagingRequest pr = PagingRequest.ALL;
+    List<HolidayDocument> singleton1 = Lists.newArrayList(d1);
+    List<HolidayDocument> singleton2 = Lists.newArrayList(d2);
+    
+    List<HolidayDocument> result = runPagedSearch(pr, singleton1, singleton2);
+    assertEquals(2, result.size());
+  
+    pr = PagingRequest.ofIndex(0, 1);
+    List<HolidayDocument> result2 = runPagedSearch(pr, singleton1, singleton2);
+    assertEquals(1, result2.size());
+
+    pr = PagingRequest.ofIndex(1, 1);
+    List<HolidayDocument> result3 = runPagedSearch(pr, singleton1, singleton2);
+    assertEquals(1, result3.size());
+  }
+
+  @Test
+  public void pagedSearchMultiple() {
+    PagingRequest pr = PagingRequest.ofIndex(2, 2);
+    List<HolidayDocument> m1Result = Lists.newArrayList(d1, d1, d1);
+    List<HolidayDocument> m2Result = Lists.newArrayList(d2, d2);
+    List<HolidayDocument> expected = Lists.newArrayList(d1, d2);
+    
+    List<HolidayDocument> result = runPagedSearch(pr, m1Result, m2Result);
+    
+    assertEquals(2, result.size());
+    
+    assertEquals(expected, result);
+    
+  }
+
+  @Test
+  public void pagedSearchOnlyFirst() {
+    List<HolidayDocument> m1Result = Lists.newArrayList(d1, d1, d1);
+    List<HolidayDocument> m2Result = Lists.newArrayList(d2, d2);
+    List<HolidayDocument> result ;
+    
+    result = runPagedSearch(PagingRequest.ofIndex(0, 2), m1Result, m2Result);
+    assertEquals(2, result.size());
+    
+    result = runPagedSearch(PagingRequest.ofIndex(1, 2), m1Result, m2Result);
+    assertEquals(2, result.size());
+    
+    result = runPagedSearch(PagingRequest.ofIndex(0, 3), m1Result, m2Result);
+    assertEquals(3, result.size());
+    
+    verifyNoMoreInteractions(m2);
+    
+  }
+  
+  private List<HolidayDocument> runPagedSearch(PagingRequest pr, List<HolidayDocument> m1Result, List<HolidayDocument> m2Result) {
+    HolidaySearchResult result = new HolidaySearchResult();
+    HolidaySearchRequest searchRequest = new HolidaySearchRequest();
+    searchRequest.setPagingRequest(pr);
+    HolidaySearchResult m1SearchResult = new HolidaySearchResult();
+    m1SearchResult.setDocuments(m1Result);
+    HolidaySearchResult m2SearchResult = new HolidaySearchResult();
+    m2SearchResult.setDocuments(m2Result);
+    
+    when(m1.search(Mockito.<HolidaySearchRequest>any())).thenReturn(m1SearchResult);
+    when(m2.search(Mockito.<HolidaySearchRequest>any())).thenReturn(m2SearchResult);
+    
+    cMaster.pagedSearch(new SearchStrategy<HolidayDocument, HolidayMaster, HolidaySearchRequest>() {
+
+      @Override
+      public List<HolidayDocument> search(HolidayMaster master, HolidaySearchRequest searchRequest) {
+        return master.search(searchRequest).getDocuments();
+      }
+    }, result, searchRequest);
+    
+    return result.getDocuments();
   }
 }
