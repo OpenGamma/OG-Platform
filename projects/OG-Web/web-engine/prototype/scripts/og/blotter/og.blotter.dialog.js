@@ -11,8 +11,8 @@ $.register_module({
              * launches a trade entry dialog
              * @param {Object} config.details the data of a current trade, places form in edit mode (optional)
              * @param {Object} config.node the data of a node, places form in create mode (optional)
-             * @param {Function} config.handler the endopoint that the form submits too
-             * @param {Function} config.complete fired when the form closes after a sucessful edit/create (optional) 
+             * @param {Function} config.handler the endpoint that the form submits too
+             * @param {Function} config.complete fired when the form closes after a successful edit/create (optional)
              * @param {Boolean} config.save_as toggle if save as button is present, default false 
              */
             var constructor = this, $selector, form_block = '.OG-blotter-form-block', form_wrapper, title, submit,
@@ -43,8 +43,8 @@ $.register_module({
                     });
                 }
             };
-            /** validation_handler is passed to each form via thier submit or submit_new,
-             *  The form api's submit listener in each form attempts to sumbit the form
+            /** validation_handler is passed to each form via their submit or submit_new,
+             *  The form api submit listener in each form attempts to submit the form
              *  If an error exists the message is displayed otherwise the form is closed
              */
             var validation_handler = function (result) {

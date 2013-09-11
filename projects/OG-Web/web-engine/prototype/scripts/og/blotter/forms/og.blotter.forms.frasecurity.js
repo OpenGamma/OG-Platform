@@ -8,9 +8,12 @@ $.register_module({
     obj: function () {
         return function (config) {
             var constructor = this, form, ui = og.common.util.ui, data, validate, util = og.blotter.util;
-            if(config.details) {data = config.details.data; data.id = config.details.data.trade.uniqueId;}
-            else {data = {security: {type: "FRASecurity", externalIdBundle: "", attributes: {}},
-                trade: util.otc_trade};}
+            if (config.details) {
+                data = config.details.data;
+                data.id = config.details.data.trade.uniqueId;
+            } else {
+                data = {security: {type: "FRASecurity", externalIdBundle: "", attributes: {}}, trade: util.otc_trade};
+            }
             data.nodeId = config.node ? config.node.id : null;
             constructor.load = function () {
                 constructor.title = 'Forward Rate Agreement';
@@ -29,33 +32,31 @@ $.register_module({
                     new form.Block({
                         module: 'og.blotter.forms.blocks.forward_rate_agreement_tash',
                         extras: {start: data.security.startDate, end: data.security.endDate,
-                            fixing:data.security.fixingDate, underlyingId: data.security.underlyingId,
-                            region: data.security.regionId, amount: data.security.amount, rate: data.security.rate
-                        },
+                            fixing: data.security.fixingDate, underlyingId: data.security.underlyingId,
+                            region: data.security.regionId, amount: data.security.amount, rate: data.security.rate},
                         children: [
-                            new form.Block({module:'og.views.forms.currency_tash',
-                                extras:{name: "security.currency"}}),
-                            new og.blotter.forms.blocks.Regions({name: 'security.regionId', 
+                            new form.Block({module: 'og.views.forms.currency_tash',
+                                extras: {name: "security.currency"}}),
+                            new og.blotter.forms.blocks.Regions({name: 'security.regionId',
                                 value: data.security.regionId, form: form}),
-                            new og.blotter.forms.blocks.Security({
-                                form: form, label: "Underlying ID", security: data.security.underlyingId,
-                                index: "security.underlyingId"
-                            })
+                            new og.blotter.forms.blocks.Security({ form: form, label: "Underlying ID",
+                                security: data.security.underlyingId, index: "security.underlyingId"})
                         ]
                     }),
-                    new og.common.util.ui.Attributes({
-                        form: form, attributes: data.trade.attributes, index: 'trade.attributes'
-                    })
+                    new og.common.util.ui.Attributes({ form: form, attributes: data.trade.attributes,
+                        index: 'trade.attributes'})
                 );
                 form.dom();
-                form.on('form:load', function (){
+                form.on('form:load', function () {
                     util.add_date_picker('.blotter-date');
                     util.add_time_picker('.blotter-time');
                     util.set_initial_focus();
-                    if(data.security.length) return;
+                    if (data.security.length) {
+                        return;
+                    }
                     util.set_select("security.currency", data.security.currency);
                 });
-                form.on('form:submit', function (result){
+                form.on('form:submit', function (result) {
                     $.when(config.handler(result.data)).then(validate);
                 });
             };
