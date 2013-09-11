@@ -28,7 +28,7 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
 
 /**
  * Row and column structure for a grid that displays the dependency graph used when calculating a value.
- * Each row contains one calcuated value from the results, all other columns in the row contain metadata about
+ * Each row contains one calculated value from the results, all other columns in the row contain metadata about
  * the value.
  */
 public class DependencyGraphGridStructure implements GridStructure {
@@ -296,7 +296,7 @@ public class DependencyGraphGridStructure implements GridStructure {
     }
 
     /**
-     * @param targetSpec Specification of the target for a grid row
+     * @param valueSpec Specification of the target for a grid row
      * @return The name of the target
      */
     private String getTargetName(ValueSpecification valueSpec) {
