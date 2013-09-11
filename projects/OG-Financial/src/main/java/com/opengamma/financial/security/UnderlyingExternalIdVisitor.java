@@ -19,6 +19,7 @@ import com.opengamma.financial.security.future.EnergyFutureSecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
 import com.opengamma.financial.security.future.FXFutureSecurity;
+import com.opengamma.financial.security.future.FederalFundsFutureSecurity;
 import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
@@ -233,4 +234,12 @@ public final class UnderlyingExternalIdVisitor extends FinancialSecurityVisitorA
     return null;
   }
 
+  @Override
+  public Void visitFederalFundsFutureSecurity(FederalFundsFutureSecurity security) {
+    ExternalId identifier = security.getUnderlyingId();
+    if (identifier != null) {
+      _underlyings.add(ExternalIdBundle.of(identifier));
+    }
+    return null;
+  }
 }
