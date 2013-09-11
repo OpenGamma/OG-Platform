@@ -5,6 +5,10 @@
  */
 package com.opengamma.livedata.server;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,11 +91,17 @@ public class ExpirationManager extends AbstractHousekeeper<StandardLiveDataServe
   /**
    * Extends the timeout for the live data specification.
    * 
-   * @param fullyQualifiedSpec the specification, not null
+   * @param fullyQualifiedSpecs the fully-qualified specifications, not null
    */
-  public void extendPublicationTimeout(LiveDataSpecification fullyQualifiedSpec) {
+  public void extendPublicationTimeout(Collection<LiveDataSpecification> fullyQualifiedSpecs) {
     final StandardLiveDataServer server = getTarget();
-    if (server != null) {
+    if (server == null) {
+      s_logger.warn("No live data server set in expiration manager - unable to extend publication timeouts");
+      return;
+    }
+    
+    Set<LiveDataSpecification> resubscriptions = new HashSet<LiveDataSpecification>();
+    for (LiveDataSpecification fullyQualifiedSpec : fullyQualifiedSpecs) {
       MarketDataDistributor distributor = server.getMarketDataDistributor(fullyQualifiedSpec);
       if (distributor != null) {
         s_logger.debug("Heartbeat on {}", fullyQualifiedSpec);
@@ -99,13 +109,14 @@ public class ExpirationManager extends AbstractHousekeeper<StandardLiveDataServe
       } else {
         // We have (presumably erroneously) dropped a subscription that a client is
         // expecting. In lieu of determining the underlying cause of dropping the
-        // subscription, we automatically create a new subscribtion
-        s_logger.warn("Failed to find distributor for heartbeat on {} from {} - adding new subscription",
-                      fullyQualifiedSpec, server);
-        server.subscribe(fullyQualifiedSpec, false);
+        // subscription, we automatically create a new subscription
+        s_logger.info("Failed to find distributor for heartbeat on {} from {} - will resubscribe", fullyQualifiedSpec, server);
+        resubscriptions.add(fullyQualifiedSpec);
       }
-    } else {
-      s_logger.warn("No server for {}", fullyQualifiedSpec);
+    }
+    if (!resubscriptions.isEmpty()) {
+      s_logger.warn("Received heartbeat for {} live data specifications. Resubscribing to {} of these.", fullyQualifiedSpecs.size(), resubscriptions.size());
+      server.subscribe(resubscriptions, false);
     }
   }
 
