@@ -90,6 +90,11 @@ public final class ValueRequirementNames {
    */
   public static final String UNDERLYING_MARKET_PRICE = "Underlying Market Price";
   /**
+   * For margined securities, the reference or margin price. This will either be the security's close price or,
+   * on the transaction date itself, the traded price 
+   */
+  public static final String MARGIN_PRICE = "Margin Price";
+  /**
    * The historical time series of a quantity.
    */
   public static final String HISTORICAL_TIME_SERIES = "Historical Time Series";

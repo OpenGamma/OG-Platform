@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.analytics.model;
 
-import static com.opengamma.engine.value.ValueRequirementNames.SECURITY_MARKET_PRICE;
+import static com.opengamma.engine.value.ValueRequirementNames.MARGIN_PRICE;
 
 import java.util.Collections;
 import java.util.Set;
@@ -39,14 +39,11 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.conversion.FutureTradeConverter;
 import com.opengamma.financial.analytics.conversion.InterestRateFutureOptionSecurityConverter;
-import com.opengamma.financial.analytics.conversion.InterestRateFutureSecurityConverter;
-import com.opengamma.financial.analytics.conversion.TradeConverter;
+import com.opengamma.financial.analytics.conversion.InterestRateFutureOptionTradeConverter;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.ConventionSource;
-import com.opengamma.financial.security.FinancialSecurityVisitor;
-import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
@@ -72,15 +69,10 @@ public class MarginPriceFunction extends AbstractFunction {
     final ConventionSource conventionSource = OpenGammaCompilationContext.getConventionSource(context);
     final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
     final InterestRateFutureOptionSecurityConverter irFutureOptionConverter = new InterestRateFutureOptionSecurityConverter(holidaySource, conventionSource, regionSource, securitySource);
-    final InterestRateFutureSecurityConverter irFutureSecurityConverter = new InterestRateFutureSecurityConverter(holidaySource, conventionSource, regionSource);
-    final FinancialSecurityVisitor<InstrumentDefinition<?>> securityConverter = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder()
-        .irfutureOptionVisitor(irFutureOptionConverter)
-        .interestRateFutureSecurityVisitor(irFutureSecurityConverter)
-        .create();
-    final FutureTradeConverter futureTradeConverter = new FutureTradeConverter(securitySource, holidaySource, conventionSource, conventionBundleSource,
-        regionSource);
-    final TradeConverter tradeConverter = new TradeConverter(futureTradeConverter, securityConverter);
+    final InterestRateFutureOptionTradeConverter optionTradeToTxnDefnConverter = new InterestRateFutureOptionTradeConverter(irFutureOptionConverter);
+    final FutureTradeConverter futureTradeConverter = new FutureTradeConverter(securitySource, holidaySource, conventionSource, conventionBundleSource, regionSource);
     final FixedIncomeConverterDataProvider definitionConverter = new FixedIncomeConverterDataProvider(conventionBundleSource, timeSeriesResolver);
+
     return new AbstractInvokingCompiledFunction() {
 
       @Override
@@ -91,11 +83,16 @@ public class MarginPriceFunction extends AbstractFunction {
         final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
         final Trade trade = target.getTrade();
         final Security security = trade.getSecurity();
+        final InstrumentDefinition<?> definition;
+        if (security instanceof IRFutureOptionSecurity) {
+          definition = optionTradeToTxnDefnConverter.convert(trade);  
+        } else {
+          definition = futureTradeConverter.convert(trade);  
+        }
         final HistoricalTimeSeriesBundle timeSeries = HistoricalTimeSeriesFunctionUtils.getHistoricalTimeSeriesInputs(executionContext, inputs);
-        final InstrumentDefinition<?> definition = tradeConverter.convert(trade);
         final InstrumentDerivative derivative = definitionConverter.convert(security, definition, now, timeSeries);
         final Double price = derivative.accept(s_priceVisitor);
-        final ValueSpecification spec = new ValueSpecification(SECURITY_MARKET_PRICE, target.toSpecification(), desiredValue.getConstraints().copy().get());
+        final ValueSpecification spec = new ValueSpecification(MARGIN_PRICE, target.toSpecification(), desiredValue.getConstraints().copy().get());
         return Collections.singleton(new ComputedValue(spec, price));
       }
 
@@ -113,13 +110,20 @@ public class MarginPriceFunction extends AbstractFunction {
 
       @Override
       public Set<ValueSpecification> getResults(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
-        return Collections.singleton(new ValueSpecification(SECURITY_MARKET_PRICE, target.toSpecification(), createValueProperties().get()));
+        return Collections.singleton(new ValueSpecification(MARGIN_PRICE, target.toSpecification(), createValueProperties().get()));
       }
 
       @Override
       public Set<ValueRequirement> getRequirements(final FunctionCompilationContext compilationContext, final ComputationTarget target, final ValueRequirement desiredValue) {
         try {
-          final Set<ValueRequirement> tsRequirements = definitionConverter.getConversionTimeSeriesRequirements(target.getTrade().getSecurity(), tradeConverter.convert(target.getTrade()));
+          final Trade trade = target.getTrade();
+          final Security security = trade.getSecurity();
+          Set<ValueRequirement> tsRequirements = null;
+          if (security instanceof IRFutureOptionSecurity) {
+            tsRequirements = definitionConverter.getConversionTimeSeriesRequirements(security, optionTradeToTxnDefnConverter.convert(trade));
+          } else {
+            tsRequirements = definitionConverter.getConversionTimeSeriesRequirements(security, futureTradeConverter.convert(trade));
+          }
           if (tsRequirements == null) {
             return null;
           }

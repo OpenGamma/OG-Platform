@@ -12,7 +12,9 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.Interest
 
 /**
  * Provides the reference margin price,
- * for futures, options and other exchange traded securities that are margined
+ * for futures, options and other exchange traded securities that are margined. <p>
+ * This is typically last night's close price, but may, on the trade date itself, be the trade price.<p>
+ * See also {@link ValueRequirementNames#MARGIN_PRICE} in OG-Engine, and {@link MarginPriceFunction} in OG-Financial.
  */
 public class MarginPriceVisitor extends InstrumentDerivativeVisitorAdapter<Void, Double> {
 
@@ -47,4 +49,5 @@ public class MarginPriceVisitor extends InstrumentDerivativeVisitorAdapter<Void,
   public Double visitBondFuture(final BondFuture future) {
     return future.getReferencePrice();
   }
+
 }
