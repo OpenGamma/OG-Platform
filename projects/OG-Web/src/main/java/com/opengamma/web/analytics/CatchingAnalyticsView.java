@@ -46,7 +46,7 @@ import com.opengamma.web.analytics.push.UpdateListener;
   }
 
   @Override
-  public String viewCompilationFailed(Exception ex) {
+  public String viewCompilationFailed(Throwable ex) {
     try {
       return _delegate.viewCompilationFailed(ex);
     } catch (Exception e) {

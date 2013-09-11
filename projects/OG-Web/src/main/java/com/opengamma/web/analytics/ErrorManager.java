@@ -34,14 +34,14 @@ import com.opengamma.util.ArgumentChecker;
 
   /**
    * Adds information about a new error.
-   * @param exception The exception that triggered the error
+   * @param throwable The throwable that triggered the error
    * @return The ID of the error
    */
-  /* package */ String add(Exception exception) {
-    ArgumentChecker.notNull(exception, "exception");
+  /* package */ String add(Throwable throwable) {
+    ArgumentChecker.notNull(throwable, "throwable");
     long id = _nextId.getAndIncrement();
-    _errors.put(id, new ErrorInfo(exception));
-    s_logger.info("Added error with ID {}, exception {}", id, exception.getMessage());
+    _errors.put(id, new ErrorInfo(id, throwable));
+    s_logger.info("Added error with ID {}, throwable {}", id, throwable.getMessage());
     return _errorId;
   }
 

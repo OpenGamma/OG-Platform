@@ -46,8 +46,8 @@ import com.opengamma.financial.aggregation.PortfolioAggregationFunctions;
 import com.opengamma.financial.currency.ConfigDBCurrencyPairsSource;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.currency.CurrencyPairsSource;
-import com.opengamma.financial.security.lookup.SecurityAttributeMapper;
 import com.opengamma.financial.security.lookup.DefaultSecurityAttributeMappings;
+import com.opengamma.financial.security.lookup.SecurityAttributeMapper;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.impl.MasterConfigSource;
@@ -65,6 +65,7 @@ import com.opengamma.web.analytics.blotter.BlotterResource;
 import com.opengamma.web.analytics.formatting.ResultsFormatter;
 import com.opengamma.web.analytics.json.Compressor;
 import com.opengamma.web.analytics.json.DependencyGraphGridStructureMessageBodyWriter;
+import com.opengamma.web.analytics.json.ErrorInfoMessageBodyWriter;
 import com.opengamma.web.analytics.json.GridColumnGroupsMessageBodyWriter;
 import com.opengamma.web.analytics.json.PortfolioGridStructureMessageBodyWriter;
 import com.opengamma.web.analytics.json.PrimitivesGridStructureMessageBodyWriter;
@@ -266,6 +267,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     repo.getRestComponents().publishHelper(new GridColumnGroupsMessageBodyWriter(columnWriter));
     repo.getRestComponents().publishHelper(new ViewportResultsMessageBodyWriter(viewportResultsWriter));
     repo.getRestComponents().publishHelper(new ViewDefinitionEntriesResource(configSource));
+    repo.getRestComponents().publishHelper(new ErrorInfoMessageBodyWriter());
 
     // these items need to be available to the servlet, but aren't important enough to be published components
     repo.registerServletContextAware(new ServletContextAware() {

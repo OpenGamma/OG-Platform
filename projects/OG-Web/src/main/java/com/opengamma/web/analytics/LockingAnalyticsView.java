@@ -46,10 +46,10 @@ import com.opengamma.web.analytics.formatting.TypeFormatter.Format;
   }
 
   @Override
-  public String viewCompilationFailed(Exception e) {
+  public String viewCompilationFailed(Throwable t) {
     try {
       _lock.writeLock().lock();
-      return _delegate.viewCompilationFailed(e);
+      return _delegate.viewCompilationFailed(t);
     } finally {
       _lock.writeLock().unlock();
     }

@@ -53,10 +53,11 @@ public interface AnalyticsView {
 
   /**
    * Invoked if the view can't be built and started.
-   * @param e Exception that triggered the failure, possibly null
+   *
+   * @param t Exception that triggered the failure, possibly null
    * @return Callback ID of the error
    */
-  String viewCompilationFailed(Exception e);
+  String viewCompilationFailed(Throwable t);
 
   /**
    * Updates the data in the grids when a cycle completes in the calculation engine.

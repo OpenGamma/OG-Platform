@@ -13,18 +13,14 @@ import com.opengamma.util.ArgumentChecker;
 public final class ErrorInfo {
 
   private final String _message;
-  private final Exception _exception;
+  private final Throwable _throwable;
+  private final long _id;
 
-  /* package */ ErrorInfo(Exception exception) {
-    ArgumentChecker.notNull(exception, "exception");
-    _message = exception.getMessage();
-    _exception = exception;
-  }
-
-  /* package */ ErrorInfo(String message) {
-    ArgumentChecker.notEmpty(message, "message");
-    _message = message;
-    _exception = null;
+  public ErrorInfo(long id, Throwable throwable) {
+    _id = id;
+    ArgumentChecker.notNull(throwable, "throwable");
+    _message = throwable.getMessage();
+    _throwable = throwable;
   }
 
   /**
@@ -37,12 +33,19 @@ public final class ErrorInfo {
   /**
    * @return The exception that triggered the error, possibly null
    */
-  public Exception getException() {
-    return _exception;
+  public Throwable getThrowable() {
+    return _throwable;
+  }
+
+  /**
+   * @return The unique ID of the error (unique within the view)
+   */
+  public long getId() {
+    return _id;
   }
 
   @Override
   public String toString() {
-    return "ErrorInfo [_message='" + _message + "', _exception=" + _exception + "]";
+    return "ErrorInfo [_message='" + _message + "', _throwable=" + _throwable + "]";
   }
 }

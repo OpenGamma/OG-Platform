@@ -145,9 +145,9 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
   }
 
   @Override
-  public String viewCompilationFailed(Exception e) {
-    s_logger.warn("View compilation failed, adding error {}", e);
-    return _errorManager.add(e);
+  public String viewCompilationFailed(Throwable t) {
+    s_logger.warn("View compilation failed, adding error {}", t);
+    return _errorManager.add(t);
   }
 
   private void doUpdateStructure(CompiledViewDefinition compiledViewDefinition, Portfolio portfolio) {

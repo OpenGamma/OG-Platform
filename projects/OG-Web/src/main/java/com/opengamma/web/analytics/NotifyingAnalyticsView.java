@@ -44,8 +44,8 @@ import com.opengamma.web.analytics.push.UpdateListener;
   }
 
   @Override
-  public String viewCompilationFailed(Exception e) {
-    String callbackId = _delegate.viewCompilationFailed(e);
+  public String viewCompilationFailed(Throwable t) {
+    String callbackId = _delegate.viewCompilationFailed(t);
     _listener.itemUpdated(callbackId);
     return callbackId;
   }

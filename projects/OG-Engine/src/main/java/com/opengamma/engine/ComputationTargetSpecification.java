@@ -145,7 +145,7 @@ public final class ComputationTargetSpecification extends ComputationTargetRefer
   /**
    * Gets the unique identifier, if one exists.
    * 
-   * @return the unique identifier, may be null
+   * @return the unique identifier, may be null if the target type is {@link ComputationTargetType#NULL}
    */
   public UniqueId getUniqueId() {
     return _uniqueId;

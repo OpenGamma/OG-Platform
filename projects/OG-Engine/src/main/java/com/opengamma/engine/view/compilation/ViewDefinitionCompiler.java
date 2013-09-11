@@ -242,7 +242,8 @@ public final class ViewDefinitionCompiler {
       }
       final ComputationTarget target = versioned.resolve(specification);
       if (target == null) {
-        throw new OpenGammaRuntimeException("Unable to resolve '" + specification + "' for view '" + getContext().getViewDefinition().getName() + "'");
+        throw new OpenGammaRuntimeException("Unable to resolve portfolio ID " + specification.getUniqueId() +
+                                                " for view '" + getContext().getViewDefinition().getName() + "'");
       }
       return target.getValue(ComputationTargetType.PORTFOLIO);
     }

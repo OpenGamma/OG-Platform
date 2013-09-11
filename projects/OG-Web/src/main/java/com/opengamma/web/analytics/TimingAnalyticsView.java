@@ -43,10 +43,10 @@ import com.opengamma.web.analytics.formatting.TypeFormatter.Format;
   }
 
   @Override
-  public String viewCompilationFailed(Exception e) {
+  public String viewCompilationFailed(Throwable t) {
     long startTime = System.currentTimeMillis();
     s_logger.trace("Executing AnalyticsView.viewCompilationFailed");
-    String retVal = _delegate.viewCompilationFailed(e);
+    String retVal = _delegate.viewCompilationFailed(t);
     s_logger.trace("viewCompilationFailed completed in " + (System.currentTimeMillis() - startTime) + "ms");
     return retVal;
   }
