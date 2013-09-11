@@ -64,7 +64,7 @@ public class StandardVanillaRR01CDSFunction extends StandardVanillaCDSFunction {
     if (recoveryRateBumpType != RecoveryRateBumpType.ADDITIVE) {
       throw new UnsupportedOperationException("Only Additive rr01 sensitivity supported currently. Got " + recoveryRateBumpType);
     }
-    final CDSAnalytic rr01Analytic = analytic.copy().withRecovery(0).get();
+    final CDSAnalytic rr01Analytic = analytic.withRecoveryRate(0);
     final Double recoveryRateCurveBump = Double.valueOf(Iterables.getOnlyElement(properties.getValues(
         CreditInstrumentPropertyNamesAndValues.PROPERTY_RECOVERY_RATE_CURVE_BUMP)));
     final double rr01 = 1e-4 * definition.getNotional() * recoveryRateCurveBump * CALCULATOR.protectionLeg(rr01Analytic, yieldCurve, hazardCurve);

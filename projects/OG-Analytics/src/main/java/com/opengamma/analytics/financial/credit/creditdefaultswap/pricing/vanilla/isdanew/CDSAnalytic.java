@@ -58,15 +58,15 @@ public class CDSAnalytic {
    * is at the end.
    * @param endDate The protection end date (the protection ends at end of day)
    * @param payAccOnDefault Is the accrued premium paid in the event of a default
-   * @param tenor The nominal step between premium payments (e.g. 3 months, 6 months).
+   * @param paymentInterval The nominal step between premium payments (e.g. 3 months, 6 months).
    * @param stubType stubType Options are FRONTSHORT, FRONTLONG, BACKSHORT, BACKLONG or NONE
    *  - <b>Note</b> in this code NONE is not allowed
    * @param protectStart Does protection start at the beginning of the day
    * @param recoveryRate The recovery rate
    */
   public CDSAnalytic(final LocalDate tradeDate, final LocalDate stepinDate, final LocalDate valueDate, final LocalDate startDate, final LocalDate endDate, final boolean payAccOnDefault,
-      final Period tenor, final StubType stubType, final boolean protectStart, final double recoveryRate) {
-    this(tradeDate, stepinDate, valueDate, startDate, endDate, payAccOnDefault, tenor, stubType, protectStart, recoveryRate, FOLLOWING, DEFAULT_CALENDAR, ACT_360, ACT_365);
+      final Period paymentInterval, final StubType stubType, final boolean protectStart, final double recoveryRate) {
+    this(tradeDate, stepinDate, valueDate, startDate, endDate, payAccOnDefault, paymentInterval, stubType, protectStart, recoveryRate, FOLLOWING, DEFAULT_CALENDAR, ACT_360, ACT_365);
   }
 
   /**
@@ -83,7 +83,7 @@ public class CDSAnalytic {
    * is at the end.
    * @param endDate The protection end date (the protection ends at end of day)
    * @param payAccOnDefault Is the accrued premium paid in the event of a default
-   * @param tenor The nominal step between premium payments (e.g. 3 months, 6 months).
+   * @param paymentInterval The nominal step between premium payments (e.g. 3 months, 6 months).
    * @param stubType stubType Options are FRONTSHORT, FRONTLONG, BACKSHORT, BACKLONG or NONE
    *  - <b>Note</b> in this code NONE is not allowed
    * @param protectStart Does protection start at the beginning of the day
@@ -93,9 +93,10 @@ public class CDSAnalytic {
    * @param accrualDayCount Day count used for accrual
    */
   public CDSAnalytic(final LocalDate tradeDate, final LocalDate stepinDate, final LocalDate valueDate, final LocalDate startDate, final LocalDate endDate, final boolean payAccOnDefault,
-      final Period tenor, final StubType stubType, final boolean protectStart, final double recoveryRate, final BusinessDayConvention businessdayAdjustmentConvention, final Calendar calendar,
-      final DayCount accrualDayCount) {
-    this(tradeDate, stepinDate, valueDate, startDate, endDate, payAccOnDefault, tenor, stubType, protectStart, recoveryRate, businessdayAdjustmentConvention, calendar, accrualDayCount, ACT_365);
+      final Period paymentInterval, final StubType stubType, final boolean protectStart, final double recoveryRate, final BusinessDayConvention businessdayAdjustmentConvention,
+      final Calendar calendar, final DayCount accrualDayCount) {
+    this(tradeDate, stepinDate, valueDate, startDate, endDate, payAccOnDefault, paymentInterval, stubType, protectStart, recoveryRate, businessdayAdjustmentConvention, calendar, accrualDayCount,
+        ACT_365);
   }
 
   /**
@@ -107,7 +108,7 @@ public class CDSAnalytic {
    * is at the end.
    * @param endDate The protection end date (the protection ends at end of day)
    * @param payAccOnDefault Is the accrued premium paid in the event of a default
-   * @param tenor The nominal step between premium payments (e.g. 3 months, 6 months).
+   * @param paymentInterval The nominal step between premium payments (e.g. 3 months, 6 months).
    * @param stubType stubType Options are FRONTSHORT, FRONTLONG, BACKSHORT, BACKLONG or NONE
    *  - <b>Note</b> in this code NONE is not allowed
    * @param protectStart Does protection start at the beginning of the day
@@ -118,18 +119,19 @@ public class CDSAnalytic {
    * @param curveDayCount Day count used on curve (NOTE ISDA uses ACT/365 and it is not recommended to change this)
    */
   public CDSAnalytic(final LocalDate tradeDate, final LocalDate stepinDate, final LocalDate valueDate, final LocalDate startDate, final LocalDate endDate, final boolean payAccOnDefault,
-      final Period tenor, final StubType stubType, final boolean protectStart, final double recoveryRate, final BusinessDayConvention businessdayAdjustmentConvention, final Calendar calendar,
-      final DayCount accrualDayCount, final DayCount curveDayCount) {
+      final Period paymentInterval, final StubType stubType, final boolean protectStart, final double recoveryRate, final BusinessDayConvention businessdayAdjustmentConvention,
+      final Calendar calendar, final DayCount accrualDayCount, final DayCount curveDayCount) {
     ArgumentChecker.notNull(tradeDate, "tradeDate");
     ArgumentChecker.notNull(stepinDate, "stepinDate");
     ArgumentChecker.notNull(valueDate, "valueDate");
     ArgumentChecker.notNull(startDate, "startDate");
     ArgumentChecker.notNull(endDate, "endDate");
-    ArgumentChecker.notNull(tenor, "tenor");
+    ArgumentChecker.notNull(paymentInterval, "tenor");
     ArgumentChecker.notNull(stubType, "stubType");
     ArgumentChecker.notNull(businessdayAdjustmentConvention, "businessdayAdjustmentConvention");
     ArgumentChecker.notNull(accrualDayCount, "accuralDayCount");
     ArgumentChecker.notNull(curveDayCount, "curveDayCount");
+    ArgumentChecker.isInRangeInclusive(0, 1, recoveryRate);
     ArgumentChecker.isFalse(valueDate.isBefore(tradeDate), "Require valueDate >= today");
     ArgumentChecker.isFalse(stepinDate.isBefore(tradeDate), "Require stepin >= today");
     ArgumentChecker.isFalse(tradeDate.isAfter(endDate), "CDS has expired");
@@ -147,7 +149,7 @@ public class CDSAnalytic {
 
     _lgd = 1 - recoveryRate;
 
-    final ISDAPremiumLegSchedule fullPaymentSchedule = new ISDAPremiumLegSchedule(startDate, endDate, tenor, stubType, businessdayAdjustmentConvention, calendar, protectStart);
+    final ISDAPremiumLegSchedule fullPaymentSchedule = new ISDAPremiumLegSchedule(startDate, endDate, paymentInterval, stubType, businessdayAdjustmentConvention, calendar, protectStart);
     final ISDAPremiumLegSchedule paymentSchedule = ISDAPremiumLegSchedule.truncateSchedule(stepinDate, fullPaymentSchedule);
 
     _nPayments = paymentSchedule.getNumPayments();
@@ -299,24 +301,11 @@ public class CDSAnalytic {
     return _accruedDays;
   }
 
-  private CDSAnalytic(double lgd,
-                     int nPayments,
-                     double[] creditObsTimes,
-                     double[] paymentTimes,
-                     double[] accFractions,
-                     double[] accStart,
-                     double[] accEnd,
-                     double stepin,
-                     double protectionStart,
-                     double protectionEnd,
-                     double valuationTime,
-                     boolean payAccOnDefault,
-                     boolean protectionFromStartOfDay,
-                     double accrued,
-                     int accruedDays) {
+  private CDSAnalytic(final double lgd, final int nPayments, final double[] paymentTimes, final double[] accFractions, final double[] accStart, final double[] accEnd, final double stepin,
+      final double protectionStart, final double protectionEnd, final double valuationTime, final boolean payAccOnDefault, final boolean protectionFromStartOfDay, final double accrued,
+      final int accruedDays) {
     _lgd = lgd;
     _nPayments = nPayments;
-    _creditObsTimes = creditObsTimes;
     _paymentTimes = paymentTimes;
     _accFractions = accFractions;
     _accStart = accStart;
@@ -331,77 +320,10 @@ public class CDSAnalytic {
     _accruedDays = accruedDays;
   }
 
-  /** Create a builder from this CDSAnalytic
-   * @return builder set to clone current CDSAnalytic
-   * */
-  public Builder copy() {
-    return new Builder(_lgd, _nPayments, _creditObsTimes, _paymentTimes, _accFractions,
-                       _accStart, _accEnd, _stepin, _protectionStart, _protectionEnd,
-                       _valuationTime, _payAccOnDefault, _protectionFromStartOfDay, _accrued, _accruedDays);
+  public CDSAnalytic withRecoveryRate(final double recoveryRate) {
+    ArgumentChecker.isInRangeInclusive(0, 1, recoveryRate);
+    return new CDSAnalytic(1 - recoveryRate, _nPayments, _paymentTimes, _accFractions, _accStart, _accEnd, _stepin, _protectionStart, _protectionEnd, _valuationTime, _payAccOnDefault,
+        _protectionFromStartOfDay, _accrued, _accruedDays);
   }
-
-  /** Builder for CDSAnalytic */
-  public static class Builder {
-    private double _lgd;
-    private int _nPayments;
-    private double[] _creditObsTimes;
-    private double[] _paymentTimes;
-    private double[] _accFractions;
-    private double[] _accStart;
-    private double[] _accEnd;
-
-    private double _stepin;
-    private double _protectionStart;
-    private double _protectionEnd;
-    private double _valuationTime;
-    private boolean _payAccOnDefault;
-    private boolean _protectionFromStartOfDay;
-    private double _accrued;
-    private int _accruedDays;
-
-    private Builder(double lgd, int nPayments, double[] creditObsTimes, double[] paymentTimes, double[] accFractions,
-                   double[] accStart, double[] accEnd, double stepin, double protectionStart, double protectionEnd,
-                   double valuationTime, boolean payAccOnDefault, boolean protectionFromStartOfDay, double accrued,
-                   int accruedDays) {
-      _lgd = lgd;
-      _nPayments = nPayments;
-      _creditObsTimes = creditObsTimes;
-      _paymentTimes = paymentTimes;
-      _accFractions = accFractions;
-      _accStart = accStart;
-      _accEnd = accEnd;
-      _stepin = stepin;
-      _protectionStart = protectionStart;
-      _protectionEnd = protectionEnd;
-      _valuationTime = valuationTime;
-      _payAccOnDefault = payAccOnDefault;
-      _protectionFromStartOfDay = protectionFromStartOfDay;
-      _accrued = accrued;
-      _accruedDays = accruedDays;
-    }
-
-    /** Set the recovery rate
-     *
-     * @param rate the recovery rate
-     * */
-    public Builder withRecovery(final double rate) {
-      _lgd = 1 - rate;
-      return this;
-    }
-
-    /**
-     * Build a CDSAnalytic from the builders properties
-     *
-     * @return CDSAnalytic
-     */
-    public CDSAnalytic get() {
-      return new CDSAnalytic(_lgd, _nPayments, _creditObsTimes, _paymentTimes, _accFractions,
-      _accStart, _accEnd, _stepin, _protectionStart, _protectionEnd,
-      _valuationTime, _payAccOnDefault, _protectionFromStartOfDay, _accrued, _accruedDays);
-    }
-  }
-
-
-
 
 }

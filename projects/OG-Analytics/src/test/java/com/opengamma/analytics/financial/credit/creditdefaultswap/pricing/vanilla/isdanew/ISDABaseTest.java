@@ -31,6 +31,7 @@ public class ISDABaseTest {
   protected static final DayCount ACT365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
   protected static final DayCount ACT360 = DayCountFactory.INSTANCE.getDayCount("ACT/360");
   protected static final DayCount D30360 = DayCountFactory.INSTANCE.getDayCount("30/360");
+  protected static final DayCount ACT_ACT_ISDA = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
 
   protected static final BusinessDayConvention FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   protected static final BusinessDayConvention MOD_FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
