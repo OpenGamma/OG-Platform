@@ -33,8 +33,10 @@ import com.opengamma.web.analytics.push.ConnectionManager;
 
 /**
  * RESTful resource for creating and looking up views that calculate analytics data for a portfolio.
+ * @deprecated in favour of {@link WebUiResource}
  */
 @Path("views")
+@Deprecated
 public class ViewsResource {
 
   /** For generating IDs for the views. */

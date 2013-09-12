@@ -5,7 +5,6 @@
  */
 package com.opengamma.web.analytics.rest;
 
-import java.net.URI;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -29,7 +28,9 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
 
 /**
  * REST resource superclass for all analytics grids.
+ * @deprecated in favour of {@link WebUiResource}
  */
+@Deprecated
 public abstract class AbstractGridResource {
 
   /**

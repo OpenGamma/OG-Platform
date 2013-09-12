@@ -13,7 +13,9 @@ import com.opengamma.web.analytics.ViewportDefinition;
 
 /**
  * REST resource for a grid displaying the dependency graph showing the calculation steps for a cell's value.
+ * @deprecated in favour of {@link WebUiResource}
  */
+@Deprecated
 public class DependencyGraphResource extends AbstractGridResource {
 
   private final int _graphId;

@@ -15,7 +15,9 @@ import javax.ws.rs.core.UriInfo;
 
 /**
  * TODO this is an awful name
+ * @deprecated in favour of {@link WebUiResource}
  */
+@Deprecated
 public interface DependencyGraphOwnerResource {
 
   @POST

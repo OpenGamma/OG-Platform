@@ -31,7 +31,9 @@ import com.opengamma.web.analytics.formatting.TypeFormatter.Format;
 /**
  * @Path at this point is "views/{viewId}/{gridType}/"
  * for example "/jax/views/2/primitives"
+ * @deprecated in favour of {@link WebUiResource}
  */
+@Deprecated
 public class MainGridResource extends AbstractGridResource implements DependencyGraphOwnerResource {
   
   private static final DateTimeFormatter CSV_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm_ss");

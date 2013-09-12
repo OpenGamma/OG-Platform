@@ -28,9 +28,10 @@ import com.opengamma.web.analytics.AnalyticsViewManager;
 import com.opengamma.web.analytics.ErrorInfo;
 
 /**
- *
+ * @deprecated in favour of {@link WebUiResource}
  */
 @Path("views/{viewId}")
+@Deprecated
 public class ViewResource {
   
   private static final Logger s_logger = LoggerFactory.getLogger(ViewResource.class);

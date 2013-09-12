@@ -12,7 +12,9 @@ import com.opengamma.web.analytics.ViewportResults;
 
 /**
  * REST resource for a viewport on a dependency graph grid. The viewport represents the visible part of the grid.
+ * @deprecated in favour of {@link WebUiResource}
  */
+@Deprecated
 public class DependencyGraphViewportResource extends AbstractViewportResource {
 
   private final int _graphId;
