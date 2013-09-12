@@ -145,7 +145,6 @@ public abstract class G2ppDiscountingFunction extends MultiCurvePricingFunction 
           .with(PROPERTY_CURVE_TYPE, HULL_WHITE_DISCOUNTING)
           .withAny(CURVE_EXPOSURES)
           .withAny(PROPERTY_HULL_WHITE_PARAMETERS)
-          .withAny(PROPERTY_HULL_WHITE_CURRENCY)
           .withAny(PROPERTY_G2PP_PARAMETERS);
       if (_withCurrency) {
         final Security security = target.getTrade().getSecurity();
@@ -192,10 +191,6 @@ public abstract class G2ppDiscountingFunction extends MultiCurvePricingFunction 
       if (hullWhiteParameters == null || hullWhiteParameters.size() != 1) {
         return false;
       }
-      final Set<String> hullWhiteCurrencies = constraints.getValues(PROPERTY_HULL_WHITE_CURRENCY);
-      if (hullWhiteCurrencies == null || hullWhiteCurrencies.size() != 1) {
-        return false;
-      }
       final Set<String> g2ppParameters = constraints.getValues(PROPERTY_G2PP_PARAMETERS);
       if (g2ppParameters == null || g2ppParameters.size() != 1) {
         return false;
@@ -205,7 +200,7 @@ public abstract class G2ppDiscountingFunction extends MultiCurvePricingFunction 
 
     @Override
     protected Builder getCurveProperties(final ComputationTarget target, final ValueProperties constraints) {
-      final Set<String> currency = constraints.getValues(PROPERTY_HULL_WHITE_CURRENCY);
+      final String currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode();
       final Set<String> hullWhiteParameters = constraints.getValues(PROPERTY_HULL_WHITE_PARAMETERS);
       return ValueProperties.builder()
           .with(PROPERTY_HULL_WHITE_PARAMETERS, hullWhiteParameters)

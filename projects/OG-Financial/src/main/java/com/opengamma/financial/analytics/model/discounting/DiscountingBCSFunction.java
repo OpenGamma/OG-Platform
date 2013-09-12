@@ -7,12 +7,11 @@ package com.opengamma.financial.analytics.model.discounting;
 
 import static com.opengamma.engine.value.ValueRequirementNames.BLOCK_CURVE_SENSITIVITIES;
 
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.threeten.bp.Instant;
 
-import com.google.common.collect.Iterables;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
@@ -62,12 +61,15 @@ public class DiscountingBCSFunction extends DiscountingFunction {
       protected Set<ComputedValue> getValues(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
           final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative,
           final FXMatrix fxMatrix) {
-        final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
+        final Set<ComputedValue> result = new HashSet<>();
         final MulticurveProviderInterface curves = getMergedProviders(inputs, fxMatrix);
         final CurveBuildingBlockBundle blocks = getMergedCurveBuildingBlocks(inputs);
         final MultipleCurrencyParameterSensitivity sensitivities = CALCULATOR.fromInstrument(derivative, curves, blocks);
-        final ValueSpecification spec = new ValueSpecification(BLOCK_CURVE_SENSITIVITIES, target.toSpecification(), desiredValue.getConstraints().copy().get());
-        return Collections.singleton(new ComputedValue(spec, sensitivities));
+        for (final ValueRequirement desiredValue : desiredValues) {
+          final ValueSpecification spec = new ValueSpecification(BLOCK_CURVE_SENSITIVITIES, target.toSpecification(), desiredValue.getConstraints().copy().get());
+          result.add(new ComputedValue(spec, sensitivities));
+        }
+        return result;
       }
 
     };

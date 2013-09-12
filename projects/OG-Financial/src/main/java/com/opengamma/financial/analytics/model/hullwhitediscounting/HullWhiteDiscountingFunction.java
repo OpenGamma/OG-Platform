@@ -11,6 +11,7 @@ import static com.opengamma.engine.value.ValueRequirementNames.CURVE_BUNDLE;
 import static com.opengamma.engine.value.ValueRequirementNames.JACOBIAN_BUNDLE;
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.HULL_WHITE_DISCOUNTING;
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.PROPERTY_CURVE_TYPE;
+import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.PROPERTY_HULL_WHITE_CURRENCY;
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.PROPERTY_HULL_WHITE_PARAMETERS;
 
 import java.util.Collection;
@@ -178,9 +179,11 @@ public abstract class HullWhiteDiscountingFunction extends MultiCurvePricingFunc
 
     @Override
     protected Builder getCurveProperties(final ComputationTarget target, final ValueProperties constraints) {
+      final String currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode();
       final Set<String> hullWhiteParameters = constraints.getValues(PROPERTY_HULL_WHITE_PARAMETERS);
       return ValueProperties.builder()
-          .with(PROPERTY_HULL_WHITE_PARAMETERS, hullWhiteParameters);
+          .with(PROPERTY_HULL_WHITE_PARAMETERS, hullWhiteParameters)
+          .with(PROPERTY_HULL_WHITE_CURRENCY, currency);
     }
 
     protected HullWhiteOneFactorProviderDiscount getMergedProviders(final FunctionInputs inputs, final FXMatrix matrix) {
