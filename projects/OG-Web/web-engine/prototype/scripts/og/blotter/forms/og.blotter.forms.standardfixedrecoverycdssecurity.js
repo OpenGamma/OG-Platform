@@ -9,8 +9,7 @@ $.register_module({
         return function (config) {
             config.title = 'Standard Fixed Recovery CDS';
             config.type = 'StandardFixedRecoveryCDSSecurity';
-            config.standard = true;
             return new og.blotter.forms.cds(config);
-        };    
+        };
     }
 });

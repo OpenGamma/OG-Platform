@@ -9,8 +9,7 @@ $.register_module({
         return function (config) {
             config.title = 'CDS Index';
             config.type = 'CreditDefaultSwapIndexSecurity';
-            config.index = true;
             return new og.blotter.forms.cds(config);
-        };    
+        };
     }
 });
