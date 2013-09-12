@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.analytics.model.credit.isda.cds;
 
-import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_CDS_PRICE_TYPE;
 import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_SHIFT;
 import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_SHIFT_TYPE;
 import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_YIELD_CURVE;
@@ -20,8 +19,8 @@ import org.threeten.bp.ZonedDateTime;
 import com.google.common.collect.Iterables;
 import com.opengamma.analytics.financial.credit.bumpers.RecoveryRateBumpType;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.AnalyticCDSPricer;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSAnalytic;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSRiskFactors;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantCreditCurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantYieldCurve;
 import com.opengamma.engine.ComputationTarget;
@@ -42,7 +41,7 @@ import com.opengamma.financial.security.FinancialSecurity;
  * 
  */
 public class StandardVanillaRR01CDSFunction extends StandardVanillaCDSFunction {
-  private static final AnalyticCDSPricer CALCULATOR = new AnalyticCDSPricer();
+  private static final CDSRiskFactors CALCULATOR = new CDSRiskFactors();
 
   public StandardVanillaRR01CDSFunction() {
     super(ValueRequirementNames.RR01);
@@ -59,17 +58,25 @@ public class StandardVanillaRR01CDSFunction extends StandardVanillaCDSFunction {
                                                 final FunctionInputs inputs,
                                                 ISDACompliantCreditCurve hazardCurve, CDSAnalytic analytic) {
 
+    final double rr01 = getRR01(definition, yieldCurve, properties, hazardCurve, analytic);
+    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.RR01, target.toSpecification(), properties);
+    return Collections.singleton(new ComputedValue(spec, rr01));
+  }
+
+  public static double getRR01(CreditDefaultSwapDefinition definition,
+                         ISDACompliantYieldCurve yieldCurve,
+                         ValueProperties properties, ISDACompliantCreditCurve hazardCurve, CDSAnalytic analytic) {
     final RecoveryRateBumpType recoveryRateBumpType =
-        RecoveryRateBumpType.valueOf(Iterables.getOnlyElement(properties.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_RECOVERY_RATE_BUMP_TYPE)));
+        RecoveryRateBumpType.valueOf(Iterables.getOnlyElement(properties.getValues(
+            CreditInstrumentPropertyNamesAndValues.PROPERTY_RECOVERY_RATE_BUMP_TYPE)));
     if (recoveryRateBumpType != RecoveryRateBumpType.ADDITIVE) {
       throw new UnsupportedOperationException("Only Additive rr01 sensitivity supported currently. Got " + recoveryRateBumpType);
     }
-    final CDSAnalytic rr01Analytic = analytic.withRecoveryRate(0);
-    final Double recoveryRateCurveBump = Double.valueOf(Iterables.getOnlyElement(properties.getValues(
+    final Double bump = Double.valueOf(Iterables.getOnlyElement(properties.getValues(
         CreditInstrumentPropertyNamesAndValues.PROPERTY_RECOVERY_RATE_CURVE_BUMP)));
-    final double rr01 = 1e-4 * definition.getNotional() * recoveryRateCurveBump * CALCULATOR.protectionLeg(rr01Analytic, yieldCurve, hazardCurve);
-    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.RR01, target.toSpecification(), properties);
-    return Collections.singleton(new ComputedValue(spec, rr01));
+    return bump * 1e-4 * definition.getNotional() * CALCULATOR.recoveryRateSensitivity(analytic,
+                                                                                       yieldCurve,
+                                                                                       hazardCurve);
   }
 
   @Override

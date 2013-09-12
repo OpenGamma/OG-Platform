@@ -47,6 +47,26 @@ public class InterestRateSensitivityCalculator {
   }
 
   /**
+   * The IR01 (Interest-Rate 01) is by definition the change in the price of a CDS when the yield curve is bumped by 1bps.
+   *
+   * Note, this bumps the yield curve not the underlying instrument market data. See methods which take a {@code ISDACompliantYieldCurveBuild}
+   * for bumping of the underlying instruments.
+   *
+   * @param cds analytic description of a CDS traded at a certain time
+   * @param coupon The cds's coupon (as a fraction)
+   * @param creditCurve the credit (or survival) curve
+   * @param yieldCurve yield curve
+   * @return the parallel IR01
+   */
+  public double parallelIR01(final CDSAnalytic cds, final double coupon, final ISDACompliantCreditCurve creditCurve, final ISDACompliantYieldCurve yieldCurve) {
+    ArgumentChecker.notNull(cds, "cds");
+    ArgumentChecker.notNull(creditCurve, "creditCurve");
+    ArgumentChecker.notNull(yieldCurve, "yieldCurve");
+    final ISDACompliantYieldCurve ycUP = bumpYieldCurve(yieldCurve, ONE_BPS);
+    return priceDiff(cds, creditCurve, coupon, ycUP, yieldCurve);
+  }
+
+  /**
    * The bucketed IR01 (Interest-Rate 01) is by definition the vector of changes in the price of a CDS when the market interest rates
    * (these are money-market and swap rates) increased by 1bps in turn 
    * @param cds analytic description of a CDS traded at a certain time 
@@ -67,6 +87,32 @@ public class InterestRateSensitivityCalculator {
     final ISDACompliantYieldCurve[] bumpedYC = new ISDACompliantYieldCurve[n];
     for (int i = 0; i < n; i++) {
       bumpedYC[i] = bumpYieldCurve(yieldCurveBuilder, marketRates, ONE_BPS, i);
+    }
+    return priceDiff(cds, creditCurve, coupon, bumpedYC, baseYC);
+  }
+
+  /**
+   * The bucketed IR01 (Interest-Rate 01) is by definition the vector of changes in the price of a CDS when the points on the
+   * yield curve are bumped.
+   *
+   * Note, this bumps the yield curve not the underlying instrument market data. See methods which take a {@code ISDACompliantYieldCurveBuild}
+   * for bumping of the underlying instruments.
+   *
+   * @param cds analytic description of a CDS traded at a certain time
+   * @param coupon The cds's coupon (as a fraction)
+   * @param creditCurve the credit (or survival) curve
+   * @param yieldCurve yield curve
+   * @return the bucketed IR01
+   */
+  public double[] bucketedIR01(final CDSAnalytic cds, final double coupon, final ISDACompliantCreditCurve creditCurve, final ISDACompliantYieldCurve yieldCurve) {
+    ArgumentChecker.notNull(cds, "cds");
+    ArgumentChecker.notNull(creditCurve, "creditCurve");
+    ArgumentChecker.notNull(yieldCurve, "yieldCurve");
+    final ISDACompliantYieldCurve baseYC = yieldCurve;
+    final int n = yieldCurve.getNumberOfKnots();
+    final ISDACompliantYieldCurve[] bumpedYC = new ISDACompliantYieldCurve[n];
+    for (int i = 0; i < n; i++) {
+      bumpedYC[i] = bumpYieldCurve(yieldCurve, ONE_BPS, i);
     }
     return priceDiff(cds, creditCurve, coupon, bumpedYC, baseYC);
   }
@@ -98,12 +144,26 @@ public class InterestRateSensitivityCalculator {
     return builder.build(bumped);
   }
 
+  private ISDACompliantYieldCurve bumpYieldCurve(final ISDACompliantYieldCurve curve, final double bumpAmount) {
+    final int n = curve.getR().length;
+    final double[] bumped = new double[n];
+    System.arraycopy(curve.getR(), 0, bumped, 0, n);
+    for (int i = 0; i < n; i++) {
+      bumped[i] += bumpAmount;
+    }
+    return curve.withRates(bumped);
+  }
+
   private ISDACompliantYieldCurve bumpYieldCurve(final ISDACompliantYieldCurveBuild builder, final double[] rates, final double bumpAmount, final int index) {
     final int n = rates.length;
     final double[] bumped = new double[n];
     System.arraycopy(rates, 0, bumped, 0, n);
     bumped[index] += bumpAmount;
     return builder.build(bumped);
+  }
+
+  private ISDACompliantYieldCurve bumpYieldCurve(final ISDACompliantYieldCurve curve, final double bumpAmount, final int index) {
+    return curve.withRate(curve.getR()[index] + bumpAmount, index);
   }
 
   @SuppressWarnings("unused")

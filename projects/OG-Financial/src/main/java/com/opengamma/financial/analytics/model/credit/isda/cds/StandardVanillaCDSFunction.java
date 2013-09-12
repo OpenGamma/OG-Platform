@@ -20,7 +20,9 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.StandardCDSCoupon;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.standard.StandardCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSAnalytic;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSAnalyticFactory;
@@ -276,6 +278,16 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
         return 0.1;
       default:
         throw new OpenGammaRuntimeException("Unknown coupon amount: " + coupon.name());
+    }
+  }
+
+  protected static double getCoupon(final CreditDefaultSwapDefinition definition) {
+    if (definition instanceof StandardCreditDefaultSwapDefinition) {
+      return getCoupon(((StandardCreditDefaultSwapDefinition) definition).getPremiumLegCoupon());
+    } else if (definition instanceof LegacyCreditDefaultSwapDefinition) {
+      return 1e-4 * ((LegacyCreditDefaultSwapDefinition) definition).getParSpread();
+    } else {
+      throw new OpenGammaRuntimeException("Ubnexpected security type: " + definition);
     }
   }
 }

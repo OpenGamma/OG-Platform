@@ -27,13 +27,13 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.LocalDateLabelledMatrix1D;
 import com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues;
+import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaBucketedIR01CDSFunction;
 import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaPresentValueCDSFunction;
 
 /**
  * 
  */
 public class ISDACDXAsSingleNameBucketedIR01Function extends ISDACDXAsSingleNameIR01Function {
-  private static final InterestRateBumpers BUMPER = new InterestRateBumpers();
 
   public ISDACDXAsSingleNameBucketedIR01Function() {
     super(ValueRequirementNames.BUCKETED_IR01);
@@ -50,25 +50,9 @@ public class ISDACDXAsSingleNameBucketedIR01Function extends ISDACDXAsSingleName
                                                 final FunctionInputs inputs,
                                                 ISDACompliantCreditCurve hazardCurve,
                                                 CDSAnalytic analytic) {
-    final Double interestRateCurveBump = Double.valueOf(Iterables.getOnlyElement(properties.getValues(
-        CreditInstrumentPropertyNamesAndValues.PROPERTY_INTEREST_RATE_CURVE_BUMP)));
-    final InterestRateBumpType interestRateBumpType =
-        InterestRateBumpType.valueOf(Iterables.getOnlyElement(properties.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_INTEREST_RATE_BUMP_TYPE)));
-    //final PriceType priceType = PriceType.valueOf(Iterables.getOnlyElement(properties.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_CDS_PRICE_TYPE)));
-    final double[] rates = yieldCurve.getR();
-    final LocalDate[] dates = new LocalDate[rates.length];
-    final double[] ir01 = new double[rates.length];
-    for (int i = 0; i < rates.length; i++) {
-      final double[] bumpedUpRates = BUMPER.getBumpedRates(rates, interestRateCurveBump * 1e-4, interestRateBumpType, i);
-      final ISDACompliantYieldCurve bumpedUpYieldCurve = yieldCurve.withRates(bumpedUpRates);
-      final double presentValue = StandardVanillaPresentValueCDSFunction.presentValue(definition,
-                                                                                      yieldCurve,
-                                                                                      hazardCurve,
-                                                                                      analytic);
-      final double bumpedPresentValue = StandardVanillaPresentValueCDSFunction.presentValue(definition, bumpedUpYieldCurve, hazardCurve, analytic);
-      ir01[i] = (bumpedPresentValue - presentValue) / interestRateCurveBump;
-      dates[i] = valuationDate.plusDays((long) yieldCurve.getTimeAtIndex(i) * 365).toLocalDate();
-    }
+    final LocalDate[] dates = new LocalDate[yieldCurve.getNumberOfKnots()];
+
+    final double[] ir01 = StandardVanillaBucketedIR01CDSFunction.getBucketedIR01(definition, yieldCurve, valuationDate, properties, hazardCurve, analytic, dates);
     //final String[] labels = CreditFunctionUtils.getFormattedBucketedXAxis(dates, valuationDate);
     final LocalDateLabelledMatrix1D ir01Matrix = new LocalDateLabelledMatrix1D(dates, ir01);
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.BUCKETED_IR01, target.toSpecification(), properties);

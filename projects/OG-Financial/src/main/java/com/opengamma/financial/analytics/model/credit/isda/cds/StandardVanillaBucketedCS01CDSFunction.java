@@ -89,10 +89,10 @@ public class StandardVanillaBucketedCS01CDSFunction extends StandardVanillaCS01C
     double[] cs01Values;
     if (definition instanceof StandardCreditDefaultSwapDefinition) {
       StandardCreditDefaultSwapDefinition cds = (StandardCreditDefaultSwapDefinition) definition;
-      cs01Values = CALCULATOR.bucketedCS01FromCreditCurve(analytic, cds.getQuotedSpread(), buckets, yieldCurve, hazardCurve, bump);
+      cs01Values = CALCULATOR.bucketedCS01FromCreditCurve(analytic, getCoupon(definition), buckets, yieldCurve, hazardCurve, bump);
     } else if (definition instanceof LegacyCreditDefaultSwapDefinition) {
       LegacyCreditDefaultSwapDefinition cds = (LegacyCreditDefaultSwapDefinition) definition;
-      cs01Values = CALCULATOR.bucketedCS01FromCreditCurve(analytic, cds.getParSpread(), buckets, yieldCurve, hazardCurve, bump);
+      cs01Values = CALCULATOR.bucketedCS01FromCreditCurve(analytic, getCoupon(definition), buckets, yieldCurve, hazardCurve, bump);
     } else {
       throw new OpenGammaRuntimeException("Unknown cds type " + definition.getClass().getSimpleName());
     }

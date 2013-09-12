@@ -37,13 +37,13 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.credit.CreditSecurityToIdentifierVisitor;
+import com.opengamma.financial.analytics.model.credit.isda.cds.StandardVanillaRR01CDSFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 
 /**
  * 
  */
 public class ISDACDXAsSingleNameRR01Function extends ISDACDXAsSingleNameFunction {
-  private static final AnalyticCDSPricer CALCULATOR = new AnalyticCDSPricer();
 
   public ISDACDXAsSingleNameRR01Function() {
     super(ValueRequirementNames.RR01);
@@ -60,15 +60,7 @@ public class ISDACDXAsSingleNameRR01Function extends ISDACDXAsSingleNameFunction
                                                 final FunctionInputs inputs,
                                                 ISDACompliantCreditCurve hazardCurve,
                                                 CDSAnalytic analytic) {
-    final RecoveryRateBumpType recoveryRateBumpType =
-        RecoveryRateBumpType.valueOf(Iterables.getOnlyElement(properties.getValues(
-            CreditInstrumentPropertyNamesAndValues.PROPERTY_RECOVERY_RATE_BUMP_TYPE)));
-    if (recoveryRateBumpType != RecoveryRateBumpType.ADDITIVE) {
-      throw new UnsupportedOperationException("Only Additive rr01 sensitivity supported currently. Got " + recoveryRateBumpType);
-    }
-    final CDSAnalytic rr01Analytic = analytic.withRecoveryRate(0);
-    final Double recoveryRateCurveBump = Double.valueOf(Iterables.getOnlyElement(properties.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_RECOVERY_RATE_CURVE_BUMP)));
-    final double rr01 = 1e-4 * definition.getNotional() * recoveryRateCurveBump * CALCULATOR.protectionLeg(rr01Analytic, yieldCurve, hazardCurve);
+    final double rr01 = StandardVanillaRR01CDSFunction.getRR01(definition, yieldCurve, properties, hazardCurve, analytic);
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.RR01, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, rr01));
   }

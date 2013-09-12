@@ -18,9 +18,12 @@ import java.util.Set;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.standard.StandardCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.greeks.vanilla.isda.ISDACreditDefaultSwapValueOnDefaultCalculator;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSAnalytic;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSRiskFactors;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantCreditCurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantYieldCurve;
 import com.opengamma.engine.ComputationTarget;
@@ -41,6 +44,8 @@ import com.opengamma.financial.security.FinancialSecurity;
  * 
  */
 public class StandardVanillaJumpToDefaultCDSFunction extends StandardVanillaCDSFunction {
+
+  private static CDSRiskFactors CALCULATOR = new CDSRiskFactors();
 
   public StandardVanillaJumpToDefaultCDSFunction() {
     super(ValueRequirementNames.JUMP_TO_DEFAULT);
@@ -66,18 +71,9 @@ public class StandardVanillaJumpToDefaultCDSFunction extends StandardVanillaCDSF
   public static double jumpToDefault(CreditDefaultSwapDefinition definition,
                                ISDACompliantYieldCurve yieldCurve,
                                ISDACompliantCreditCurve hazardCurve, CDSAnalytic analytic) {
-    final double presentValue = StandardVanillaPresentValueCDSFunction.presentValue(definition,
-                                                                                    yieldCurve,
-                                                                                    hazardCurve,
-                                                                                    analytic);
-    final double lossGivenDefault = definition.getNotional() * analytic.getLGD();
-    double valueOnDefault; // = 0.0;
-    if (definition.getBuySellProtection() == BuySellProtection.BUY) {
-      valueOnDefault = -presentValue + lossGivenDefault;
-    } else {
-      valueOnDefault = -presentValue - lossGivenDefault;
-    }
-    return valueOnDefault;
+    double coupon = getCoupon(definition);
+    final double lossGivenDefault = definition.getNotional() * CALCULATOR.valueOnDefault(analytic, yieldCurve, hazardCurve, coupon);
+    return (definition.getBuySellProtection() == BuySellProtection.BUY) ? lossGivenDefault : -lossGivenDefault;
   }
 
   @Override

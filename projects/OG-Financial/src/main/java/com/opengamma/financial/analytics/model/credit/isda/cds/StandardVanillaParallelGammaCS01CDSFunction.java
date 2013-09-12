@@ -82,7 +82,7 @@ public class StandardVanillaParallelGammaCS01CDSFunction extends StandardVanilla
     final double pv = StandardVanillaPresentValueCDSFunction.presentValue(definition, yieldCurve, hazardCurve, analytic);
     final double bumpedUpPresentValue = StandardVanillaPresentValueCDSFunction.presentValue(definition, yieldCurve, bumpedUpCreditCurve, analytic);
     final double bumpedDownPresentValue = StandardVanillaPresentValueCDSFunction.presentValue(definition, yieldCurve, bumpedDownCreditCurve, analytic);
-    return (bumpedUpPresentValue - 2 * pv + bumpedDownPresentValue) / (2 * spreadCurveBump);
+    return (bumpedUpPresentValue - 2 * pv + bumpedDownPresentValue) / (spreadCurveBump * spreadCurveBump);
   }
 
   @Override

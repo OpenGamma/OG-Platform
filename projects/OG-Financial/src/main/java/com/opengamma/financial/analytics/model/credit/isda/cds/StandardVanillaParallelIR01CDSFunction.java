@@ -27,6 +27,7 @@ import com.opengamma.analytics.financial.credit.creditdefaultswap.greeks.vanilla
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSAnalytic;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantCreditCurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantYieldCurve;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.InterestRateSensitivityCalculator;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.InterestRateBumpType;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -46,7 +47,7 @@ import com.opengamma.financial.security.FinancialSecurity;
  * 
  */
 public class StandardVanillaParallelIR01CDSFunction extends StandardVanillaIR01CDSFunction {
-  private static final InterestRateBumpers BUMPER = new InterestRateBumpers();
+  private static final InterestRateSensitivityCalculator CALCULATOR = new InterestRateSensitivityCalculator();
 
   public StandardVanillaParallelIR01CDSFunction() {
     super(ValueRequirementNames.IR01);
@@ -62,18 +63,23 @@ public class StandardVanillaParallelIR01CDSFunction extends StandardVanillaIR01C
                                                 final ValueProperties properties,
                                                 final FunctionInputs inputs,
                                                 ISDACompliantCreditCurve hazardCurve, CDSAnalytic analytic) {
-    final Double interestRateCurveBump = Double.valueOf(Iterables.getOnlyElement(properties.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_INTEREST_RATE_CURVE_BUMP)));
+    final double ir01 = getParallelIR01(definition, yieldCurve, properties, hazardCurve, analytic);
+    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.IR01, target.toSpecification(), properties);
+    return Collections.singleton(new ComputedValue(spec, ir01));
+  }
+
+  public static double getParallelIR01(CreditDefaultSwapDefinition definition,
+                                 ISDACompliantYieldCurve yieldCurve,
+                                 ValueProperties properties,
+                                 ISDACompliantCreditCurve hazardCurve,
+                                 CDSAnalytic analytic) {
+    final Double interestRateCurveBump = Double.valueOf(Iterables.getOnlyElement(properties.getValues(
+        CreditInstrumentPropertyNamesAndValues.PROPERTY_INTEREST_RATE_CURVE_BUMP)));
     final InterestRateBumpType interestRateBumpType =
         InterestRateBumpType.valueOf(Iterables.getOnlyElement(properties.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_INTEREST_RATE_BUMP_TYPE)));
     //final PriceType priceType = PriceType.valueOf(Iterables.getOnlyElement(properties.getValues(CreditInstrumentPropertyNamesAndValues.PROPERTY_CDS_PRICE_TYPE)));
-    final double[] rates = yieldCurve.getR();
-    final double[] bumpedUpRates = BUMPER.getBumpedRates(rates, interestRateCurveBump * 1e-4, interestRateBumpType);
-    final ISDACompliantYieldCurve bumpedUpYieldCurve = yieldCurve.withRates(bumpedUpRates);
-    final double presentValue = StandardVanillaPresentValueCDSFunction.presentValue(definition, yieldCurve, hazardCurve, analytic);
-    final double bumpedPresentValue = StandardVanillaPresentValueCDSFunction.presentValue(definition, bumpedUpYieldCurve, hazardCurve, analytic);
-    final double ir01 = (bumpedPresentValue - presentValue) / interestRateCurveBump;
-    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.IR01, target.toSpecification(), properties);
-    return Collections.singleton(new ComputedValue(spec, ir01));
+
+    return interestRateCurveBump * definition.getNotional() * CALCULATOR.parallelIR01(analytic, getCoupon(definition), hazardCurve, yieldCurve);
   }
 
   @Override
