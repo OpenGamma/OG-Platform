@@ -28,7 +28,7 @@ public class DividendFrequencyCodeCalculator implements NormalizationRule {
     Double freq = msg.getDouble(MarketDataRequirementNames.DIVIDEND_FREQUENCY);
     if (freq != null) {
       if (freq != 2.0) {
-        s_logger.warn("Unrecognized dividend frequency. Trivial to add handling for this. Defaulting to 4 / year.");
+        s_logger.warn("Unrecognized dividend frequency {} for security {}. Trivial to add handling for this. Defaulting to 4 / year.", freq, securityUniqueId);
       }
       msg.add(MarketDataRequirementNames.DIVIDEND_FREQUENCY, 4.0);
       return msg;
