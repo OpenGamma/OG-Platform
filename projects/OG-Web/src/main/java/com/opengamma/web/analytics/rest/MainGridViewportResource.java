@@ -13,7 +13,9 @@ import com.opengamma.web.analytics.ViewportResults;
 /**
  * REST resource for a viewport on one of the main grids displaying analytics data. The viewport represents the
  * visible part of the grid.
+ * @deprecated in favour of {@link WebUiResource}
  */
+@Deprecated
 public class MainGridViewportResource extends AbstractViewportResource {
 
   public MainGridViewportResource(AnalyticsView.GridType gridType, AnalyticsView view, int viewportId) {
