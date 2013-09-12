@@ -15,15 +15,6 @@ import com.opengamma.util.ArgumentChecker;
 //TODO there is a lot of repeated code in this class and EquityOptionBlackMethod
 public final class EquityIndexOptionBlackMethod {
 
-  // TODO What else?
-  /**
-   * Delta wrt Fwd
-   * Delta wrt Strike (DualDelta)
-   * Gamma (spot, fwd, strike)
-   * Vega (wrt impliedVol surface)
-   * Rates Delta (again, single rate, and curve)
-   */
-
   private static final EquityIndexOptionBlackMethod INSTANCE = new EquityIndexOptionBlackMethod();
 
   /**

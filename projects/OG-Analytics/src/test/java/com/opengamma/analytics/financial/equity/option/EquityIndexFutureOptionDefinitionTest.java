@@ -29,33 +29,34 @@ public class EquityIndexFutureOptionDefinitionTest {
   private static final ZonedDateTime EXPIRY = DateUtils.getUTCDate(2013, 2, 1);
   private static final ZonedDateTime SETTLEMENT = DateUtils.getUTCDate(2013, 2, 4);
   private static final double POINT_VALUE = 2500;
+  private static final double REFERENCE_PRICE = 42;
   private static final ExternalId EXTERNAL_ID = ExternalId.of(ExternalScheme.of("BLOOMBERG_TICKER"), "TEST");
   private static final IndexFutureDefinition UNDERLYING = new IndexFutureDefinition(EXPIRY, SETTLEMENT, STRIKE, CCY, POINT_VALUE, EXTERNAL_ID);
-  private static final EquityIndexFutureOptionDefinition AMERICAN_PUT = new EquityIndexFutureOptionDefinition(EXPIRY, UNDERLYING, STRIKE, EXERCISE, IS_CALL, POINT_VALUE);
+  private static final EquityIndexFutureOptionDefinition AMERICAN_PUT = new EquityIndexFutureOptionDefinition(EXPIRY, UNDERLYING, STRIKE, EXERCISE, IS_CALL, POINT_VALUE, REFERENCE_PRICE);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullExpiry() {
-    new EquityIndexFutureOptionDefinition(null, UNDERLYING, STRIKE, EXERCISE, IS_CALL, POINT_VALUE);
+    new EquityIndexFutureOptionDefinition(null, UNDERLYING, STRIKE, EXERCISE, IS_CALL, POINT_VALUE, REFERENCE_PRICE);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullUnderlying() {
-    new EquityIndexFutureOptionDefinition(EXPIRY, null, STRIKE, EXERCISE, IS_CALL, POINT_VALUE);
+    new EquityIndexFutureOptionDefinition(EXPIRY, null, STRIKE, EXERCISE, IS_CALL, POINT_VALUE, REFERENCE_PRICE);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullExerciseType() {
-    new EquityIndexFutureOptionDefinition(EXPIRY, UNDERLYING, STRIKE, null, IS_CALL, POINT_VALUE);
+    new EquityIndexFutureOptionDefinition(EXPIRY, UNDERLYING, STRIKE, null, IS_CALL, POINT_VALUE, REFERENCE_PRICE);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeStrike() {
-    new EquityIndexFutureOptionDefinition(EXPIRY, UNDERLYING, -STRIKE, EXERCISE, IS_CALL, POINT_VALUE);
+    new EquityIndexFutureOptionDefinition(EXPIRY, UNDERLYING, -STRIKE, EXERCISE, IS_CALL, POINT_VALUE, REFERENCE_PRICE);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testZeroStrike() {
-    new EquityIndexFutureOptionDefinition(EXPIRY, UNDERLYING, 0, EXERCISE, IS_CALL, POINT_VALUE);
+    new EquityIndexFutureOptionDefinition(EXPIRY, UNDERLYING, 0, EXERCISE, IS_CALL, POINT_VALUE, REFERENCE_PRICE);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -77,20 +78,20 @@ public class EquityIndexFutureOptionDefinitionTest {
     assertEquals(STRIKE, AMERICAN_PUT.getStrike());
     assertEquals(EXERCISE, AMERICAN_PUT.getExerciseType());
     assertEquals(EXPIRY, AMERICAN_PUT.getExpiryDate());
-    EquityIndexFutureOptionDefinition other = new EquityIndexFutureOptionDefinition(EXPIRY, UNDERLYING, STRIKE, EXERCISE, IS_CALL, POINT_VALUE);
+    EquityIndexFutureOptionDefinition other = new EquityIndexFutureOptionDefinition(EXPIRY, UNDERLYING, STRIKE, EXERCISE, IS_CALL, POINT_VALUE, REFERENCE_PRICE);
     assertEquals(AMERICAN_PUT, other);
     assertEquals(AMERICAN_PUT.hashCode(), other.hashCode());
-    other = new EquityIndexFutureOptionDefinition(EXPIRY.plusDays(1), UNDERLYING, STRIKE, EXERCISE, IS_CALL, POINT_VALUE);
+    other = new EquityIndexFutureOptionDefinition(EXPIRY.plusDays(1), UNDERLYING, STRIKE, EXERCISE, IS_CALL, POINT_VALUE, REFERENCE_PRICE);
     assertFalse(AMERICAN_PUT.equals(other));
-    other = new EquityIndexFutureOptionDefinition(EXPIRY, new IndexFutureDefinition(EXPIRY, SETTLEMENT.plusDays(2), STRIKE, CCY, POINT_VALUE, EXTERNAL_ID), STRIKE, EXERCISE, IS_CALL, POINT_VALUE);
+    other = new EquityIndexFutureOptionDefinition(EXPIRY, new IndexFutureDefinition(EXPIRY, SETTLEMENT.plusDays(2), STRIKE, CCY, POINT_VALUE, EXTERNAL_ID), STRIKE, EXERCISE, IS_CALL, POINT_VALUE, REFERENCE_PRICE);
     assertFalse(AMERICAN_PUT.equals(other));
-    other = new EquityIndexFutureOptionDefinition(EXPIRY, UNDERLYING, STRIKE + 1, EXERCISE, IS_CALL, POINT_VALUE);
+    other = new EquityIndexFutureOptionDefinition(EXPIRY, UNDERLYING, STRIKE + 1, EXERCISE, IS_CALL, POINT_VALUE, REFERENCE_PRICE);
     assertFalse(AMERICAN_PUT.equals(other));
-    other = new EquityIndexFutureOptionDefinition(EXPIRY, UNDERLYING, STRIKE, ExerciseDecisionType.EUROPEAN, IS_CALL, POINT_VALUE);
+    other = new EquityIndexFutureOptionDefinition(EXPIRY, UNDERLYING, STRIKE, ExerciseDecisionType.EUROPEAN, IS_CALL, POINT_VALUE, REFERENCE_PRICE);
     assertFalse(AMERICAN_PUT.equals(other));
-    other = new EquityIndexFutureOptionDefinition(EXPIRY, UNDERLYING, STRIKE, EXERCISE, !IS_CALL, POINT_VALUE);
+    other = new EquityIndexFutureOptionDefinition(EXPIRY, UNDERLYING, STRIKE, EXERCISE, !IS_CALL, POINT_VALUE, REFERENCE_PRICE);
     assertFalse(AMERICAN_PUT.equals(other));
-    other = new EquityIndexFutureOptionDefinition(EXPIRY, UNDERLYING, STRIKE, EXERCISE, IS_CALL, POINT_VALUE * 10);
+    other = new EquityIndexFutureOptionDefinition(EXPIRY, UNDERLYING, STRIKE, EXERCISE, IS_CALL, POINT_VALUE * 10, REFERENCE_PRICE);
     assertFalse(AMERICAN_PUT.equals(other));
   }
 

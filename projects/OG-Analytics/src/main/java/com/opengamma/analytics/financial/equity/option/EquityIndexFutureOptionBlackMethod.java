@@ -15,15 +15,6 @@ import com.opengamma.util.ArgumentChecker;
 //TODO there is a lot of repeated code in this class and EquityOptionBlackMethod
 public final class EquityIndexFutureOptionBlackMethod {
 
-  // TODO What else?
-  /**
-   * Delta wrt Fwd
-   * Delta wrt Strike (DualDelta)
-   * Gamma (spot, fwd, strike)
-   * Vega (wrt impliedVol surface)
-   * Rates Delta (again, single rate, and curve)
-   */
-
   private static final EquityIndexFutureOptionBlackMethod INSTANCE = new EquityIndexFutureOptionBlackMethod();
 
   /**
@@ -100,6 +91,16 @@ public final class EquityIndexFutureOptionBlackMethod {
     return df * fwdPrice;
   }
 
+  /**
+   * @param derivative An EquityIndexFutureOption, the OG-Analytics form of the derivative
+   * @param marketData A StaticReplicationDataBundle, containing a BlackVolatilitySurface, forward equity and funding curves
+   * @return The difference between the present value of the option and its reference / margin price
+   */
+  public double presentValueFromReferencePrice(final EquityIndexFutureOption derivative, final StaticReplicationDataBundle marketData) {
+    final double securityPrice = presentValue(derivative, marketData);
+    return securityPrice - derivative.getPointValue() * derivative.getReferencePrice();
+  }
+  
   /**
    * Computes the sensitivity of the present value wrt the discounting rate assuming one is hedging with the Forward, F. <p>
    * In this case, the arguments d1,d2 in the cumulative normal calls have no rates dependence.

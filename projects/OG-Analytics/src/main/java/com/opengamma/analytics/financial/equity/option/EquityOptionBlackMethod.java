@@ -16,15 +16,6 @@ import com.opengamma.util.ArgumentChecker;
 //TODO the javadocs are out of date
 public final class EquityOptionBlackMethod {
 
-  // TODO What else?
-  /**
-   * Delta wrt Fwd
-   * Delta wrt Strike (DualDelta)
-   * Gamma (spot, fwd, strike)
-   * Vega (wrt impliedVol surface)
-   * Rates Delta (again, single rate, and curve)
-   */
-
   private static final EquityOptionBlackMethod INSTANCE = new EquityOptionBlackMethod();
 
   /**

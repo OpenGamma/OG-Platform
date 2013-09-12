@@ -237,7 +237,7 @@ public class TestInstrumentDefinitionsAndDerivatives {
       SettlementType.CASH);
   public static final EquityOptionDefinition EQUITY_OPTION = new EquityOptionDefinition(false, 34, CUR, ExerciseDecisionType.EUROPEAN, SETTLE_DATE, SETTLE_DATE.toLocalDate(), 25,
       SettlementType.PHYSICAL);
-  public static final EquityIndexFutureOptionDefinition EQUITY_INDEX_FUTURE_OPTION = new EquityIndexFutureOptionDefinition(SETTLE_DATE, INDEX_FUTURE, 100, ExerciseDecisionType.EUROPEAN, true, 100);
+  public static final EquityIndexFutureOptionDefinition EQUITY_INDEX_FUTURE_OPTION = new EquityIndexFutureOptionDefinition(SETTLE_DATE, INDEX_FUTURE, 100, ExerciseDecisionType.EUROPEAN, true, 100, 0);
 
   public static final InterestRateFutureSecurityDefinition IR_FUT_SECURITY_DEFINITION = FutureInstrumentsDescriptionDataSet.createInterestRateFutureSecurityDefinition();
   public static final InterestRateFutureOptionMarginSecurityDefinition IR_FUT_OPT_MARGIN_SEC_DEF = FutureInstrumentsDescriptionDataSet.createInterestRateFutureOptionMarginSecurityDefinition();
