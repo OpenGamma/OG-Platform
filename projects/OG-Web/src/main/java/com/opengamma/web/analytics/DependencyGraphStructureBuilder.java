@@ -14,8 +14,8 @@ import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphExplorer;
 import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
 import com.opengamma.engine.view.cycle.ViewCycle;
@@ -38,22 +38,21 @@ import com.opengamma.engine.view.cycle.ViewCycle;
 
   /**
    * @param compiledViewDef The compiled view definition containing the dependency graph
-   * @param root Specificaion of the value whose dependency graph structure is being built
+   * @param rootSpec Specification of the value whose dependency graph structure is being built
    * @param calcConfigName The calculation configuration used when calculating the value
    * @param targetResolver For looking up calculation targets given their specification
    * @param cycle The most recent view cycle
-   * @param rootRowName Row name of the root of the dependency graph in the parent grid
    */
   /* package */ DependencyGraphStructureBuilder(CompiledViewDefinition compiledViewDef,
-                                                ValueSpecification root,
+                                                ValueRequirement requirement,
+                                                ValueSpecification rootSpec,
                                                 String calcConfigName,
                                                 ComputationTargetResolver targetResolver,
-                                                ViewCycle cycle,
-                                                String rootRowName) {
+                                                ViewCycle cycle) {
     // TODO see [PLAT-2478] this is a bit nasty
     // with this hack in place the user can open a dependency graph before the first set of results arrives
     // and see the graph structure with no values. without this hack the graph would be completely empty.
-    // it only works if this class is runing in the same VM as the engine
+    // it only works if this class is running in the same VM as the engine
     //
     // if the engine and the web components are in a different VM then compiledViewDef won't be an instance of
     // CompiledViewDefinitionWithGraphs and the hack won't work. in that case the view cycle will be empty and the
@@ -66,21 +65,9 @@ import com.opengamma.engine.view.cycle.ViewCycle;
       viewDef = cycle.getCompiledViewDefinition();
     }
     DependencyGraphExplorer depGraphExplorer = viewDef.getDependencyGraphExplorer(calcConfigName);
-    DependencyGraph depGraph = depGraphExplorer.getSubgraphProducing(root);
-    AnalyticsNode node = createNode(root, depGraph, true);
-    ViewCalculationConfiguration calcConfig = compiledViewDef.getViewDefinition().getCalculationConfiguration(calcConfigName);
-    String rootColumnName = getRootColumnName(root, calcConfig.getColumns());
-    _structure = new DependencyGraphGridStructure(node, calcConfigName, _valueSpecs, _fnNames, targetResolver,
-                                                  rootRowName, rootColumnName);
-  }
-
-  private static String getRootColumnName(ValueSpecification root, List<ViewCalculationConfiguration.Column> columns) {
-    for (ViewCalculationConfiguration.Column column : columns) {
-      if (column.getValueName().equals(root.getValueName()) && column.getProperties().equals(root.getProperties())) {
-        return column.getHeader();
-      }
-    }
-    return root.getValueName();
+    DependencyGraph depGraph = depGraphExplorer.getSubgraphProducing(rootSpec);
+    AnalyticsNode node = createNode(rootSpec, depGraph, true);
+    _structure = new DependencyGraphGridStructure(node, calcConfigName, requirement, _valueSpecs, _fnNames, targetResolver);
   }
 
   /**

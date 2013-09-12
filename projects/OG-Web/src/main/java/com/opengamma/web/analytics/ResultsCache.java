@@ -54,7 +54,7 @@ import com.opengamma.util.money.CurrencyAmount;
   /** The cached results. */
   private final Map<ResultKey, CacheItem> _results = Maps.newHashMap();
 
-  /** Cache of portoflio entities, i.e. trades, positions, securities */
+  /** Cache of portfolio entities, i.e. trades, positions, securities */
   private final Map<ObjectId, CacheItem> _entities = Maps.newHashMap();
 
   /** ID that's incremented each time results are received, used for keeping track of which items were updated. */
@@ -62,7 +62,7 @@ import com.opengamma.util.money.CurrencyAmount;
 
   /** Duration of the last calculation cycle. */
   private Duration _lastCalculationDuration = Duration.ZERO;
-  /** Last valution time */
+  /** Last valuation time */
   private Instant _valuationTime = Instant.MIN;
 
   /**

@@ -18,6 +18,7 @@ import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.target.ComputationTargetTypeMap;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.AggregatedExecutionLog;
 import com.opengamma.id.UniqueId;
@@ -48,6 +49,8 @@ public class DependencyGraphGridStructure implements GridStructure {
   /** Map of target types to displayable names. */
   private static final ComputationTargetTypeMap<String> TARGET_TYPE_NAMES = createTargetTypeNames();
 
+  /** The {@link ValueRequirement} that requested the root node. */
+  private final ValueRequirement _rootRequirement;
   /** {@link ValueSpecification}s for all rows in the grid in row index order. */
   private final List<ValueSpecification> _valueSpecs;
   /** Function names for all rows in the grid in row index order. */
@@ -60,10 +63,6 @@ public class DependencyGraphGridStructure implements GridStructure {
   private final String _calcConfigName;
   /** The columns in the grid. */
   private final GridColumnGroups _columnGroups;
-  /** Row name of the root cell of the dependency graph in the parent grid. */
-  private final String _rootRowName;
-  /** Column name of the root cell of the dependency graph in the parent grid */
-  private final String _rootColumnName;
   /** The fixed column structure. */
   private final GridColumnGroup _fixedColumnGroup;
   /** The non fixed column structure. */
@@ -71,20 +70,17 @@ public class DependencyGraphGridStructure implements GridStructure {
 
   /* package */ DependencyGraphGridStructure(AnalyticsNode root,
                                              String calcConfigName,
+                                             ValueRequirement rootRequirement,
                                              List<ValueSpecification> valueSpecs,
                                              List<String> fnNames,
-                                             ComputationTargetResolver targetResolver,
-                                             String rootRowName,
-                                             String rootColumnName) {
+                                             ComputationTargetResolver targetResolver) {
     ArgumentChecker.notNull(valueSpecs, "valueSpecs");
     ArgumentChecker.notNull(fnNames, "fnNames");
+    ArgumentChecker.notNull(rootRequirement, "rootRequirement");
     ArgumentChecker.notNull(targetResolver, "targetResolver");
-    ArgumentChecker.notNull(rootRowName, "rootRowName");
-    ArgumentChecker.notNull(rootColumnName, "rootColumnName");
-    _rootColumnName = rootColumnName;
-    _rootRowName = rootRowName;
     _root = root;
     _calcConfigName = calcConfigName;
+    _rootRequirement = rootRequirement;
     _valueSpecs = Collections.unmodifiableList(valueSpecs);
     _fnNames = Collections.unmodifiableList(fnNames);
     _computationTargetResolver = targetResolver;
@@ -207,20 +203,6 @@ public class DependencyGraphGridStructure implements GridStructure {
     return _root;
   }
 
-  /**
-   * @return Row name of the root of the dependency graph in the parent grid.
-   */
-  public String getRootRowName() {
-    return _rootRowName;
-  }
-
-  /**
-   * @return Column name of the root of the dependency graph in the parent grid
-   */
-  public String getRootColumnName() {
-    return _rootColumnName;
-  }
-
   private static ComputationTargetTypeMap<String> createTargetTypeNames() {
     ComputationTargetTypeMap<String> map = new ComputationTargetTypeMap<>();
     map.put(ComputationTargetType.PORTFOLIO_NODE, "Agg");
@@ -230,6 +212,17 @@ public class DependencyGraphGridStructure implements GridStructure {
     map.put(ComputationTargetType.NULL, "Prim");
     map.put(ComputationTargetType.TRADE, "Trade");
     return map;
+  }
+
+  /**
+   * @return The {@link ValueRequirement} that requested the root node.
+   */
+  /* package */ ValueRequirement getRootRequirement() {
+    return _rootRequirement;
+  }
+
+  /* package */ String getCalculationConfigurationName() {
+    return _calcConfigName;
   }
 
   /**
@@ -330,5 +323,20 @@ public class DependencyGraphGridStructure implements GridStructure {
         return valueSpec.getValueName();
       }
     }
+  }
+
+  @Override
+  public String toString() {
+    return "DependencyGraphGridStructure [" +
+        "_rootRequirement=" + _rootRequirement +
+        ", _valueSpecs=" + _valueSpecs +
+        ", _fnNames=" + _fnNames +
+        ", _computationTargetResolver=" + _computationTargetResolver +
+        ", _root=" + _root +
+        ", _calcConfigName='" + _calcConfigName + "'" +
+        ", _columnGroups=" + _columnGroups +
+        ", _fixedColumnGroup=" + _fixedColumnGroup +
+        ", _nonFixedColumnGroups=" + _nonFixedColumnGroups +
+        "]";
   }
 }

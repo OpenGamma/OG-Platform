@@ -45,8 +45,6 @@ import com.opengamma.util.tuple.Triple;
  */
 public class PortfolioGridStructure extends MainGridStructure {
 
-  /** For mapping cells to values in the results. */
-  private final ValueMappings _valueMappings;
   /** Definition of the view driving the grid. */
   private final ViewDefinition _viewDef;
   /** Meta data for exploded child columns, keyed by the specification of the parent column. */
@@ -73,12 +71,11 @@ public class PortfolioGridStructure extends MainGridStructure {
                                        ValueMappings valueMappings,
                                        ViewDefinition viewDef,
                                        Map<ColumnSpecification, SortedSet<ColumnMeta>> inlineColumnMeta) {
-    super(fixedColumns, nonFixedColumns, targetLookup, rootNode);
+    super(fixedColumns, nonFixedColumns, targetLookup, rootNode, valueMappings);
     ArgumentChecker.notNull(rows, "rows");
     ArgumentChecker.notNull(inlineColumnMeta, "inlineColumnCounts");
     _inlineColumnMeta = inlineColumnMeta;
     _rows = rows;
-    _valueMappings = valueMappings;
     _viewDef = viewDef;
   }
 
@@ -101,10 +98,11 @@ public class PortfolioGridStructure extends MainGridStructure {
     AnalyticsNode rootNode = AnalyticsNode.portfolioRoot(portfolio);
     List<PortfolioGridRow> rows = buildRows(portfolio);
     GridColumnGroup fixedColumns = buildFixedColumns(rows);
-    TargetLookup targetLookup = new TargetLookup(_valueMappings, rows);
+    TargetLookup targetLookup = new TargetLookup(super.getValueMappings(), rows);
     List<GridColumnGroup> analyticsColumns = buildAnalyticsColumns(_viewDef, targetLookup);
     GridColumnGroups nonFixedColumns = new GridColumnGroups(analyticsColumns);
-    return new PortfolioGridStructure(rows, fixedColumns, nonFixedColumns, rootNode, targetLookup, _valueMappings, _viewDef);
+    return new PortfolioGridStructure(rows, fixedColumns, nonFixedColumns, rootNode, targetLookup,
+                                      super.getValueMappings(), _viewDef);
   }
 
   /* package */ PortfolioGridStructure withUpdatedStructure(CompiledViewDefinition compiledViewDef, Portfolio portfolio) {
@@ -158,7 +156,8 @@ public class PortfolioGridStructure extends MainGridStructure {
   }
 
   /* package */ PortfolioGridStructure withNode(AnalyticsNode node) {
-    return new PortfolioGridStructure(_rows, getFixedColumns(), getNonFixedColumns(), node, getTargetLookup(), _valueMappings, _viewDef);
+    return new PortfolioGridStructure(_rows, getFixedColumns(), getNonFixedColumns(), node, getTargetLookup(),
+                                      super.getValueMappings(), _viewDef);
   }
 
   /* package */ static GridColumnGroup buildFixedColumns(List<PortfolioGridRow> rows) {
@@ -300,9 +299,5 @@ public class PortfolioGridStructure extends MainGridStructure {
     } else {
       return false;
     }
-  }
-
-  /* package */ ValueMappings getValueMappings() {
-    return _valueMappings;
   }
 }

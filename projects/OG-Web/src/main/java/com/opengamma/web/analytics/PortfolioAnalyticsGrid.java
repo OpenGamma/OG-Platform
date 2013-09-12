@@ -6,7 +6,6 @@
 package com.opengamma.web.analytics;
 
 import java.util.List;
-import java.util.Map;
 
 import com.google.common.collect.Lists;
 import com.opengamma.core.position.Portfolio;
@@ -31,12 +30,15 @@ import com.opengamma.id.ObjectId;
     _gridStructure = gridStructure;
   }
 
+  /**
+   * Creates a new grid when the structure is updated using an existing grid as the basis
+   * @param gridStructure The updated grid structure
+   * @param previousGrid The old grid whose state is the basis for the new grid
+   */
   /* package */ PortfolioAnalyticsGrid(PortfolioGridStructure gridStructure,
-                                       String gridId,
-                                       ComputationTargetResolver targetResolver,
-                                       ViewportListener viewportListener,
-                                       Map<Integer, PortfolioGridViewport> viewports) {
-    super(AnalyticsView.GridType.PORTFOLIO, gridId, targetResolver, viewportListener, viewports);
+                                       PortfolioAnalyticsGrid previousGrid,
+                                       CompiledViewDefinition compiledViewDef) {
+    super(AnalyticsView.GridType.PORTFOLIO, previousGrid, compiledViewDef);
     _gridStructure = gridStructure;
   }
 
@@ -46,10 +48,10 @@ import com.opengamma.id.ObjectId;
   }
 
   /**
-   * Updates with changed structure
+   * Updates with changed structure when the view recompiles
    * @param portfolio  the portfolio of positions
    * @param compiledViewDef  the basic state required for computation of a view
-   * @returns new PortfolioAnalyticsGrid
+   * @return new PortfolioAnalyticsGrid
    */
   /* package */ PortfolioAnalyticsGrid withUpdatedStructure(CompiledViewDefinition compiledViewDef,
                                                             Portfolio portfolio) {
@@ -57,13 +59,13 @@ import com.opengamma.id.ObjectId;
     for (PortfolioGridViewport viewport : getViewports().values()) {
       viewport.updateResultsAndStructure(updatedStructure);
     }
-
-    return new PortfolioAnalyticsGrid(updatedStructure, getCallbackId(), getTargetResolver(), getViewportListener(), getViewports());
+    return new PortfolioAnalyticsGrid(updatedStructure, this, compiledViewDef);
   }
 
   /**
    * Updates on for each tick, returns this if structure remains the same
-   * @param cache  the result cache  @return PortfolioAnalyticsGrid
+   * @param cache  the result cache
+   * @return PortfolioAnalyticsGrid
    */
   /* package */ PortfolioAnalyticsGrid withUpdatedTickAndPossiblyStructure(ResultsCache cache) {
     PortfolioGridStructure updatedStructure = _gridStructure.withUpdatedStructure(cache);

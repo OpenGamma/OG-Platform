@@ -36,7 +36,20 @@ import com.opengamma.util.tuple.Pair;
     _rows = Collections.unmodifiableList(rows);
   }
 
-  // TODO need to specify row using a stable target ID for the row to cope with dynamic reaggregation
+  /* package */ Pair<String, ValueRequirement> getRequirementForCell(int rowIndex, ColumnSpecification colSpec) {
+    if (rowIndex < 0 || rowIndex >= _rows.size()) {
+      throw new IllegalArgumentException("Row is outside grid bounds: row=" + rowIndex + ", rowCount=" + _rows.size());
+    }
+    if (colSpec == null) {
+      return null;
+    }
+    MainGridStructure.Row row = _rows.get(rowIndex);
+    ValueRequirement valueReq = new ValueRequirement(colSpec.getValueName(), row.getTarget(), colSpec.getValueProperties());
+    String calcConfigName = colSpec.getCalcConfigName();
+    return Pair.of(calcConfigName, valueReq);
+  }
+
+  // TODO need to specify row using a stable target ID for the row to cope with dynamic aggregation
   /* package */ Pair<String, ValueSpecification> getTargetForCell(int rowIndex, ColumnSpecification colSpec) {
     if (rowIndex < 0 || rowIndex >= _rows.size()) {
       throw new IllegalArgumentException("Row is outside grid bounds: row=" + rowIndex + ", rowCount=" + _rows.size());

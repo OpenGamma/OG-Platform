@@ -53,6 +53,8 @@ import com.opengamma.engine.view.cycle.ViewCycle;
    */
   String getCallbackId();
 
+  String getStructureCallbackId();
+
   /**
    * @return The viewport's state
    */

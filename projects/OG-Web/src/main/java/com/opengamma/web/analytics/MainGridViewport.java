@@ -15,7 +15,7 @@ import com.opengamma.util.tuple.Pair;
 
   /** The ID that is sent to the client to notify it that the viewport's data has been updated. */
   private final String _callbackId;
-  /** The ID that is sent to the client to notify it that the viewport's data has been updated. */
+  /** The ID that is sent to the client to notify it that the viewport's structure has been updated. */
   private final String _structureCallbackId;
   /** Defines the extent of the viewport. */
   private ViewportDefinition _viewportDefinition;
@@ -54,6 +54,11 @@ import com.opengamma.util.tuple.Pair;
     return _latestResults;
   }
 
+  @Override
+  public String getStructureCallbackId() {
+    return _structureCallbackId;
+  }
+
   void setViewportDefinition(ViewportDefinition viewportDefinition) {
     _viewportDefinition = viewportDefinition;
   }
@@ -65,10 +70,6 @@ import com.opengamma.util.tuple.Pair;
 
   public String getCallbackId() {
     return _callbackId;
-  }
-
-  public String getStructureCallbackId() {
-    return _structureCallbackId;
   }
 
   @Override

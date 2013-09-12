@@ -9,6 +9,7 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 import com.opengamma.engine.ComputationTargetResolver;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.cycle.ViewCycle;
@@ -37,26 +38,26 @@ public final class DependencyGraphGrid extends AnalyticsGrid<DependencyGraphView
   /**
    * Creates a new grid for displaying a dependency graph of calculations.
    *
+   *
    * @param compiledViewDef  the view definition from which the graph and calculations were derived
+   * @param requirement  requirement that requested the target
    * @param target  the object whose dependency graph is being displayed
    * @param calcConfigName  the calculation configuration used for the calculations, not null
    * @param cycle  the view cycle that calculated the results, not null
    * @param callbackId  the ID that's passed to listeners when the row and column structure of the grid changes
    * @param targetResolver  the resolver for looking up the target of the calculation given its specification
-   * @param viewportListener  receives notifications when any viewport changes, not null
-   * @param rootRowName  the row name of the root of the dependency graph in the parent grid
-   * @return the grid, not null
+   * @param viewportListener  receives notifications when any viewport changes, not null       @return the grid, not null
    */
   /* package */ static DependencyGraphGrid create(CompiledViewDefinition compiledViewDef,
+                                                  ValueRequirement requirement,
                                                   ValueSpecification target,
                                                   String calcConfigName,
                                                   ViewCycle cycle,
                                                   String callbackId,
                                                   ComputationTargetResolver targetResolver,
-                                                  ViewportListener viewportListener,
-                                                  String rootRowName) {
+                                                  ViewportListener viewportListener) {
     DependencyGraphStructureBuilder builder =
-        new DependencyGraphStructureBuilder(compiledViewDef, target, calcConfigName, targetResolver, cycle, rootRowName);
+        new DependencyGraphStructureBuilder(compiledViewDef, requirement, target, calcConfigName, targetResolver, cycle);
     return new DependencyGraphGrid(builder.getStructure(), calcConfigName, callbackId, cycle, viewportListener);
   }
 

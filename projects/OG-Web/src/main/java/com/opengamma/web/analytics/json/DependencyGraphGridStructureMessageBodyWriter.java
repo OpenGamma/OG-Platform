@@ -35,6 +35,10 @@ import com.opengamma.web.analytics.PortfolioGridStructure;
 @Produces(MediaType.APPLICATION_JSON)
 public class DependencyGraphGridStructureMessageBodyWriter implements MessageBodyWriter<DependencyGraphGridStructure> {
 
+  /** Field name for the JSON. */
+  private static final String COLUMN_SETS = "columnSets";
+  /** Field name for the JSON. */
+  private static final String ROOT_NODE = "rootNode";
   private final GridColumnsJsonWriter _writer;
 
   public DependencyGraphGridStructureMessageBodyWriter(GridColumnsJsonWriter writer) {
@@ -67,10 +71,7 @@ public class DependencyGraphGridStructureMessageBodyWriter implements MessageBod
                       OutputStream entityStream) throws IOException, WebApplicationException {
     Object[] rootNode = AnalyticsNodeJsonWriter.getJsonStructure(gridStructure.getRootNode());
     List<Map<String, Object>> columns = _writer.getJsonStructure(gridStructure.getColumnStructure().getGroups());
-    ImmutableMap<String, Object> jsonMap = ImmutableMap.of("columnSets", columns,
-                                                           "rootNode", rootNode,
-                                                           "rootRowName", gridStructure.getRootRowName(),
-                                                           "rootColumnName", gridStructure.getRootColumnName());
+    ImmutableMap<String, Object> jsonMap = ImmutableMap.of(COLUMN_SETS, columns, ROOT_NODE, rootNode);
     entityStream.write(new JSONObject(jsonMap).toString().getBytes());
   }
 }

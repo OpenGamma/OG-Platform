@@ -11,6 +11,7 @@ import java.util.List;
 import com.google.common.collect.Lists;
 import com.opengamma.engine.management.ValueMappings;
 import com.opengamma.engine.target.ComputationTargetReference;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
@@ -20,6 +21,9 @@ import com.opengamma.util.tuple.Pair;
  */
 /* package */ abstract class MainGridStructure implements GridStructure {
 
+  /** For mapping cells to values in the results. */
+  private final ValueMappings _valueMappings;
+
   /** The complete column structure. */
   private final GridColumnGroups _columnGroups;
 
@@ -28,7 +32,6 @@ import com.opengamma.util.tuple.Pair;
 
   /** The non fixed column structure. */
   private final GridColumnGroups _nonFixedColumnGroups;
-
 
   /** For looking up the underlying target of a grid cell. */
   private final TargetLookup _targetLookup;
@@ -40,7 +43,8 @@ import com.opengamma.util.tuple.Pair;
     _columnGroups = GridColumnGroups.empty();
     _fixedColumnGroup = GridColumnGroup.empty();
     _nonFixedColumnGroups = GridColumnGroups.empty();
-    _targetLookup = new TargetLookup(new ValueMappings(), Collections.<Row>emptyList());
+    _valueMappings = new ValueMappings();
+    _targetLookup = new TargetLookup(_valueMappings, Collections.<Row>emptyList());
     _rootNode = null;
   }
 
@@ -50,10 +54,12 @@ import com.opengamma.util.tuple.Pair;
   /* package */ MainGridStructure(GridColumnGroup fixedColumns,
                                   GridColumnGroups nonFixedColumns,
                                   TargetLookup targetLookup,
-                                  AnalyticsNode rootNode) {
+                                  AnalyticsNode rootNode, 
+                                  ValueMappings valueMappings) {
     ArgumentChecker.notNull(targetLookup, "targetLookup");
     ArgumentChecker.notNull(nonFixedColumns, "nonFixedColumns");
     ArgumentChecker.notNull(fixedColumns, "fixedColumns");
+    ArgumentChecker.notNull(valueMappings, "valueMappings");
     List<GridColumnGroup> columnGroups = Lists.newArrayList(fixedColumns);
     columnGroups.addAll(nonFixedColumns.getGroups());
     _rootNode = rootNode;
@@ -61,14 +67,17 @@ import com.opengamma.util.tuple.Pair;
     _fixedColumnGroup = fixedColumns;
     _nonFixedColumnGroups = nonFixedColumns;
     _targetLookup = targetLookup;
+    _valueMappings = valueMappings;
   }
 
   /* package */ MainGridStructure(GridColumnGroup fixedColumns,
                                   GridColumnGroups nonFixedColumns,
-                                  TargetLookup targetLookup) {
+                                  TargetLookup targetLookup,
+                                  ValueMappings valueMappings) {
     ArgumentChecker.notNull(targetLookup, "targetLookup");
     ArgumentChecker.notNull(nonFixedColumns, "nonFixedColumns");
     ArgumentChecker.notNull(fixedColumns, "fixedColumns");
+    ArgumentChecker.notNull(valueMappings, "valueMappings");
     List<GridColumnGroup> columnGroups = Lists.newArrayList(fixedColumns);
     columnGroups.addAll(nonFixedColumns.getGroups());
     _columnGroups = new GridColumnGroups(columnGroups);
@@ -76,6 +85,7 @@ import com.opengamma.util.tuple.Pair;
     _fixedColumnGroup = fixedColumns;
     _nonFixedColumnGroups = nonFixedColumns;
     _rootNode = null;
+    _valueMappings = valueMappings;
   }
 
     /**
@@ -83,7 +93,7 @@ import com.opengamma.util.tuple.Pair;
      * @param rowIndex The row index
      * @param colIndex The column index
      * @return Pair of value spec and calculation config name.
-     * TODO need to specify row using a stable target ID for the row to cope with dynamic reaggregation
+     * TODO need to specify row using a stable target ID for the row to cope with dynamic aggregation
      */
   @Override
   public Pair<String, ValueSpecification> getTargetForCell(int rowIndex, int colIndex) {
@@ -92,6 +102,14 @@ import com.opengamma.util.tuple.Pair;
                                              ", rowCount=" + getRowCount() + ", colCount=" + getColumnCount());
     }
     return _targetLookup.getTargetForCell(rowIndex, _columnGroups.getColumn(colIndex).getSpecification());
+  }
+
+  /* package */ Pair<String, ValueRequirement> getRequirementForCell(int rowIndex, int colIndex) {
+    if (rowIndex < 0 || rowIndex >= getRowCount() || colIndex < 0 || colIndex >= getColumnCount()) {
+      throw new IllegalArgumentException("Cell is outside grid bounds: row=" + rowIndex + ", col=" + colIndex +
+                                             ", rowCount=" + getRowCount() + ", colCount=" + getColumnCount());
+    }
+    return _targetLookup.getRequirementForCell(rowIndex, _columnGroups.getColumn(colIndex).getSpecification());
   }
 
   @Override
@@ -162,6 +180,13 @@ import com.opengamma.util.tuple.Pair;
                                                           _columnGroups,
                                                           cache.getLastCalculationDuration(), cache.getValuationTime());
     return Pair.of(viewportResults, state);
+  }
+
+  /**
+   * @return For mapping cells to values in the results.
+   */
+  protected ValueMappings getValueMappings() {
+    return _valueMappings;
   }
 
   /**

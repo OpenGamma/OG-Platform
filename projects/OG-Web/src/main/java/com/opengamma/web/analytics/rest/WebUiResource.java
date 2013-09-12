@@ -1,0 +1,324 @@
+/**
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+package com.opengamma.web.analytics.rest;
+
+import java.net.URI;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+
+import javax.ws.rs.DELETE;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.threeten.bp.Instant;
+
+import com.google.common.collect.ImmutableMap;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.engine.view.client.ViewClient;
+import com.opengamma.engine.view.client.ViewClientState;
+import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
+import com.opengamma.livedata.UserPrincipal;
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.web.analytics.AnalyticsView;
+import com.opengamma.web.analytics.AnalyticsViewManager;
+import com.opengamma.web.analytics.GridCell;
+import com.opengamma.web.analytics.GridStructure;
+import com.opengamma.web.analytics.MarketDataSpecificationJsonReader;
+import com.opengamma.web.analytics.ViewRequest;
+import com.opengamma.web.analytics.ViewportDefinition;
+import com.opengamma.web.analytics.ViewportResults;
+import com.opengamma.web.analytics.formatting.TypeFormatter;
+import com.opengamma.web.analytics.push.ClientConnection;
+import com.opengamma.web.analytics.push.ConnectionManager;
+
+/**
+ * TODO this isn't used yet but is intended to replace all the analytics UI resources
+ * the existing code is too complicated and it's hard to know which URLs apply to which resources
+ */
+@Path("views")
+public class WebUiResource {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(WebUiResource.class);
+
+  /** For generating IDs for the views. */
+  private static final AtomicLong s_nextViewId = new AtomicLong(0);
+  /** For generating IDs for the viewports and dependency graphs. */
+  private static final AtomicInteger s_nextId = new AtomicInteger(0);
+
+  /** For creating and retrieving views. */
+  private final AnalyticsViewManager _viewManager;
+  /** For looking up a client's connection. */
+  private final ConnectionManager _connectionManager;
+
+  public WebUiResource(AnalyticsViewManager viewManager, ConnectionManager connectionManager) {
+    ArgumentChecker.notNull(viewManager, "viewManager");
+    ArgumentChecker.notNull(connectionManager, "connectionManager");
+    _viewManager = viewManager;
+    _connectionManager = connectionManager;
+  }
+
+  @POST
+  public Response createView(@Context UriInfo uriInfo,
+                             @FormParam("requestId") String requestId,
+                             @FormParam("viewDefinitionId") String viewDefinitionId,
+                             @FormParam("aggregators") List<String> aggregators,
+                             @FormParam("marketDataProviders") String marketDataProviders,
+                             @FormParam("valuationTime") String valuationTime,
+                             @FormParam("portfolioVersionTime") String portfolioVersionTime,
+                             @FormParam("portfolioCorrectionTime") String portfolioCorrectionTime,
+                             @FormParam("clientId") String clientId,
+                             @FormParam("blotter") Boolean blotter) {
+    ArgumentChecker.notEmpty(requestId, "requestId");
+    ArgumentChecker.notEmpty(viewDefinitionId, "viewDefinitionId");
+    ArgumentChecker.notNull(aggregators, "aggregators");
+    ArgumentChecker.notEmpty(marketDataProviders, "marketDataProviders");
+    ArgumentChecker.notEmpty(clientId, "clientId");
+    boolean blotterColumns = blotter == null ? false : blotter;
+    List<MarketDataSpecification> marketDataSpecs =
+        MarketDataSpecificationJsonReader.buildSpecifications(marketDataProviders);
+    VersionCorrection versionCorrection = VersionCorrection.of(parseInstant(portfolioVersionTime),
+                                                               parseInstant(portfolioCorrectionTime));
+    ViewRequest viewRequest = new ViewRequest(UniqueId.parse(viewDefinitionId), aggregators, marketDataSpecs,
+                                              parseInstant(valuationTime), versionCorrection, blotterColumns);
+    String viewId = Long.toString(s_nextViewId.getAndIncrement());
+    URI portfolioGridUri = uriInfo.getAbsolutePathBuilder()
+        .path(viewId)
+        .path(ViewResource.class, "getPortfolioGrid")
+        .build();
+    URI primitivesGridUri = uriInfo.getAbsolutePathBuilder()
+        .path(viewId)
+        .path(ViewResource.class, "getPrimitivesGrid")
+        .build();
+    // TODO this is very obviously wrong - where can I get the user?
+    UserPrincipal user = UserPrincipal.getTestUser();
+    String userName = null;
+    //String userName = user.getUserName();
+    ClientConnection connection = _connectionManager.getConnectionByClientId(userName, clientId);
+    URI uri = uriInfo.getAbsolutePathBuilder().path(viewId).build();
+    ImmutableMap<String, Object> callbackMap =
+        ImmutableMap.<String, Object>of("id", requestId, "message", uri.getPath());
+    /*_viewManager.createView(viewRequest, clientId, user, connection, viewId, callbackMap,
+                            portfolioGridUri.getPath(), primitivesGridUri.getPath());*/
+    return Response.status(Response.Status.CREATED).build();
+  }
+
+  @Path("{viewId}")
+  @DELETE
+  public void deleteView(@PathParam("viewId") String viewId) {
+    _viewManager.deleteView(viewId);
+  }
+
+  @Path("{viewId}/pauseOrResume")
+  @PUT
+  public Response pauseOrResumeView(@PathParam("viewId") String viewId,
+                                    @FormParam("state") String state) {
+    ViewClient viewClient = _viewManager.getViewCient(viewId);
+    state = StringUtils.stripToNull(state);
+    Response response = Response.status(Response.Status.BAD_REQUEST).build();
+    if (state != null) {
+      ViewClientState currentState = viewClient.getState();
+      state = state.toUpperCase();
+      switch (state) {
+        case "PAUSE":
+        case "P":
+          if (currentState != ViewClientState.TERMINATED) {
+            viewClient.pause();
+            response = Response.ok().build();
+          }
+          break;
+        case "RESUME":
+        case "R":
+          if (currentState != ViewClientState.TERMINATED) {
+            viewClient.resume();
+            response = Response.ok().build();
+          }
+          break;
+        default:
+          s_logger.warn("client {} requesting for invalid view client state change to {}", viewId, state);
+          response = Response.status(Response.Status.BAD_REQUEST).build();
+          break;
+      }
+    }
+    return response;
+  }
+
+  @Path("{viewId}/{gridType}")
+  @GET
+  public GridStructure getGridStructure(@PathParam("viewId") String viewId,
+                                        @PathParam("gridType") String gridType) {
+    //return _viewManager.getView(viewId).getGridStructure(gridType(gridType));
+    return null;
+  }
+
+  @Path("{viewId}/{gridType}/viewports")
+  @POST
+  public Response createViewport(@Context UriInfo uriInfo,
+                                 @PathParam("viewId") String viewId,
+                                 @PathParam("gridType") String gridType,
+                                 @FormParam("requestId") int requestId,
+                                 @FormParam("version") int version,
+                                 @FormParam("rows") List<Integer> rows,
+                                 @FormParam("columns") List<Integer> columns,
+                                 @FormParam("cells") List<GridCell> cells,
+                                 @FormParam("format") TypeFormatter.Format format,
+                                 @FormParam("enableLogging") Boolean enableLogging) {
+    ViewportDefinition viewportDefinition = ViewportDefinition.create(version, rows, columns, cells, format, enableLogging);
+    int viewportId = s_nextId.getAndIncrement();
+    String viewportIdStr = Integer.toString(viewportId);
+    URI viewportUri = uriInfo.getAbsolutePathBuilder().path(viewportIdStr).build();
+    String callbackId = viewportUri.getPath();
+    //_viewManager.getView(viewId).createViewport(requestId, gridType(gridType), viewportId, callbackId, viewportDefinition);
+    return Response.status(Response.Status.CREATED).build();
+  }
+
+  @Path("{viewId}/{gridType}/viewports/{viewportId}")
+  @PUT
+  public void updateViewport(@PathParam("viewId") String viewId,
+                             @PathParam("gridType") String gridType,
+                             @PathParam("viewportId") int viewportId,
+                             @FormParam("version") int version,
+                             @FormParam("rows") List<Integer> rows,
+                             @FormParam("columns") List<Integer> columns,
+                             @FormParam("cells") List<GridCell> cells,
+                             @FormParam("format") TypeFormatter.Format format,
+                             @FormParam("enableLogging") Boolean enableLogging) {
+    ViewportDefinition viewportDef = ViewportDefinition.create(version, rows, columns, cells, format, enableLogging);
+    _viewManager.getView(viewId).updateViewport(gridType(gridType), viewportId, viewportDef);
+  }
+
+  @Path("{viewId}/{gridType}/viewports/{viewportId}/structure")
+  @PUT
+  public GridStructure getViewportGridStructure(@PathParam("viewId") String viewId,
+                                                @PathParam("gridType") String gridType,
+                                                @PathParam("viewportId") int viewportId) {
+    // TODO the method to support this doesn't exist yet
+    throw new UnsupportedOperationException();
+  }
+
+  @Path("{viewId}/{gridType}/viewports/{viewportId}")
+  @GET
+  public ViewportResults getViewportData(@PathParam("viewId") String viewId,
+                                         @PathParam("gridType") String gridType,
+                                         @PathParam("viewportId") int viewportId) {
+    return _viewManager.getView(viewId).getData(gridType(gridType), viewportId);
+  }
+
+  @Path("{viewId}/{gridType}/viewports/{viewportId}")
+  @DELETE
+  public void deleteViewport(@PathParam("viewId") String viewId,
+                             @PathParam("gridType") String gridType,
+                             @PathParam("viewportId") int viewportId) {
+    _viewManager.getView(viewId).deleteViewport(gridType(gridType), viewportId);
+  }
+
+  @Path("{viewId}/{gridType}/depgraphs")
+  @POST
+  public Response openDependencyGraph(@Context UriInfo uriInfo,
+                                      @PathParam("viewId") String viewId,
+                                      @PathParam("gridType") String gridType,
+                                      @FormParam("requestId") int requestId,
+                                      @FormParam("row") int row,
+                                      @FormParam("col") int col) {
+    int graphId = s_nextId.getAndIncrement();
+    String graphIdStr = Integer.toString(graphId);
+    URI graphUri = uriInfo.getAbsolutePathBuilder().path(graphIdStr).build();
+    String callbackId = graphUri.getPath();
+    _viewManager.getView(viewId).openDependencyGraph(requestId, gridType(gridType), graphId, callbackId, row, col);
+    return Response.status(Response.Status.CREATED).build();
+  }
+
+  @Path("{viewId}/{gridType}/depgraphs/{depgraphId}")
+  @GET
+  public GridStructure getDependencyGraphGridStructure(@PathParam("viewId") String viewId,
+                                                       @PathParam("gridType") String gridType,
+                                                       @PathParam("depgraphId") int depgraphId) {
+    return _viewManager.getView(viewId).getGridStructure(gridType(gridType), depgraphId);
+  }
+
+  @Path("{viewId}/{gridType}/depgraphs/{depgraphId}/viewports")
+  @POST
+  public Response createDependencyGraphViewport(@Context UriInfo uriInfo,
+                                                @PathParam("viewId") String viewId,
+                                                @PathParam("gridType") String gridType,
+                                                @PathParam("depgraphId") int depgraphId,
+                                                @FormParam("requestId") int requestId,
+                                                @FormParam("version") int version,
+                                                @FormParam("rows") List<Integer> rows,
+                                                @FormParam("columns") List<Integer> columns,
+                                                @FormParam("cells") List<GridCell> cells,
+                                                @FormParam("format") TypeFormatter.Format format,
+                                                @FormParam("enableLogging") Boolean enableLogging) {
+    ViewportDefinition viewportDefinition = ViewportDefinition.create(version, rows, columns, cells, format, enableLogging);
+    int viewportId = s_nextId.getAndIncrement();
+    String viewportIdStr = Integer.toString(viewportId);
+    URI viewportUri = uriInfo.getAbsolutePathBuilder().path(viewportIdStr).build();
+    String callbackId = viewportUri.getPath();
+    //_viewManager.getView(viewId).createViewport(requestId, gridType(gridType), depgraphId, viewportId, callbackId, viewportDefinition);
+    return Response.status(Response.Status.CREATED).build();
+  }
+
+  @Path("{viewId}/{gridType}/depgraphs/{depgraphId}/viewports/{viewportId}")
+  @PUT
+  public void updateDependencyGraphViewport(@PathParam("viewId") String viewId,
+                                            @PathParam("gridType") String gridType,
+                                            @PathParam("depgraphId") int depgraphId,
+                                            @PathParam("viewportId") int viewportId,
+                                            @FormParam("version") int version,
+                                            @FormParam("rows") List<Integer> rows,
+                                            @FormParam("columns") List<Integer> columns,
+                                            @FormParam("cells") List<GridCell> cells,
+                                            @FormParam("format") TypeFormatter.Format format,
+                                            @FormParam("enableLogging") Boolean enableLogging) {
+    ViewportDefinition viewportDef = ViewportDefinition.create(version, rows, columns, cells, format, enableLogging);
+    _viewManager.getView(viewId).updateViewport(gridType(gridType), depgraphId, viewportId, viewportDef);
+  }
+
+  @Path("{viewId}/{gridType}/depgraphs/{depgraphId}/viewports/{viewportId}")
+  @GET
+  public ViewportResults getDependencyGraphViewportData(@PathParam("viewId") String viewId,
+                                                        @PathParam("gridType") String gridType,
+                                                        @PathParam("depgraphId") int depgraphId,
+                                                        @PathParam("viewportId") int viewportId) {
+    return _viewManager.getView(viewId).getData(gridType(gridType), depgraphId, viewportId);
+  }
+
+  @Path("{viewId}/{gridType}/depgraphs/{depgraphId}/viewports/{viewportId}")
+  @DELETE
+  public void deleteDependencyGraphViewport(@PathParam("viewId") String viewId,
+                                            @PathParam("gridType") String gridType,
+                                            @PathParam("depgraphId") int depgraphId,
+                                            @PathParam("viewportId") int viewportId) {
+    _viewManager.getView(viewId).deleteViewport(gridType(gridType), depgraphId, viewportId);
+  }
+
+  /**
+   * @param instantString An ISO-8601 string representing an instant or null
+   * @return The parsed string or null if the input is null
+   */
+  private static Instant parseInstant(String instantString) {
+    if (instantString == null) {
+      return null;
+    } else {
+      return Instant.parse(instantString);
+    }
+  }
+
+  private static AnalyticsView.GridType gridType(String gridType) {
+    return AnalyticsView.GridType.valueOf(gridType.toUpperCase());
+  }
+}

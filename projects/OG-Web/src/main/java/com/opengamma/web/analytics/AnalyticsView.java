@@ -169,6 +169,7 @@ public interface AnalyticsView {
 
   /**
    * Opens a grid showing the dependency graph of calculations for a cell in one of the main grids.
+   * TODO this needs to include the structure version otherwise there's a race condition
    * 
    * @param requestId  the ID of the request
    * @param gridType Specifies which of the main grids
@@ -179,6 +180,25 @@ public interface AnalyticsView {
    * @param col The column of the cell whose dependency graph should be opened
    */
   void openDependencyGraph(int requestId, GridType gridType, int graphId, String callbackId, int row, int col);
+
+  /**
+   * Opens a grid showing the dependency graph of calculations for a cell in one of the main grids.
+   *
+   * @param requestId  the ID of the request
+   * @param gridType Specifies which of the main grids
+   * @param graphId A unique ID for the dependency graph grid
+   * @param callbackId A value that is sent to the client with notification that the structure has changed.
+   * The server makes no assumptions about its format other than the fact that it must be unique for each grid in a view.
+   * @param calcConfigName Name of the calculation configuration containing the value we're interested in
+   * @param valueRequirement Requirement which requests the value we're interested in
+   * TODO this is only necessary for the client to connect after a server restart so not top priority yet
+   */
+  /*void openDependencyGraph(int requestId,
+                           GridType gridType,
+                           int graphId,
+                           String callbackId,
+                           String calcConfigName,
+                           ValueRequirement valueRequirement);*/
 
   /**
    * Closes a dependency graph.

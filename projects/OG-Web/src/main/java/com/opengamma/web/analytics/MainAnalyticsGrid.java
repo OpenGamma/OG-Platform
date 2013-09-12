@@ -5,8 +5,12 @@
  */
 package com.opengamma.web.analytics;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -17,15 +21,18 @@ import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.management.ValueMappings;
 import com.opengamma.engine.target.ComputationTargetSpecificationResolver;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.target.resolver.ObjectResolver;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.cycle.ViewCycle;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.web.analytics.formatting.TypeFormatter;
 
 /**
  * Grid for displaying analytics data for a portfolio or for calculated values that aren't associated with the
@@ -33,6 +40,8 @@ import com.opengamma.util.tuple.Pair;
  * (primitives). This class isn't thread safe.
  */
 /* package */abstract class MainAnalyticsGrid<T extends MainGridViewport> extends AnalyticsGrid<T> {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(MainAnalyticsGrid.class);
 
   /** Type of data in the grid, portfolio or primitives. */
   private final AnalyticsView.GridType _gridType;
@@ -54,17 +63,17 @@ import com.opengamma.util.tuple.Pair;
     _targetResolver = targetResolver;
   }
 
-  /* package */MainAnalyticsGrid(AnalyticsView.GridType gridType,
-                                 String gridId,
-                                 ComputationTargetResolver targetResolver,
-                                 ViewportListener viewportListener,
-                                 Map<Integer, T> viewports) {
-    super(viewportListener, gridId, viewports);
+  /* package */ MainAnalyticsGrid(AnalyticsView.GridType gridType,
+                                  MainAnalyticsGrid<T> previousGrid,
+                                  CompiledViewDefinition compiledViewDef) {
+    super(previousGrid.getViewportListener(), previousGrid.getCallbackId(), previousGrid.getViewports());
     ArgumentChecker.notNull(gridType, "gridType");
-    ArgumentChecker.notNull(targetResolver, "targetResolver");
-    ArgumentChecker.notNull(viewports, "viewports");
     _gridType = gridType;
-    _targetResolver = targetResolver;
+    _targetResolver = previousGrid.getTargetResolver();
+    // reopen existing dependency graphs using the value requirements from the depgraph grid structures
+    for (Map.Entry<Integer, DependencyGraphGrid> entry : _depGraphs.entrySet()) {
+      openDependencyGraph(entry.getKey(), entry.getValue(), compiledViewDef);
+    }
   }
 
   /**
@@ -99,14 +108,15 @@ import com.opengamma.util.tuple.Pair;
    * @param row Row index of the cell whose dependency graph is required
    * @param col Column index of the cell whose dependency graph is required
    * @param compiledViewDef Compiled view definition containing the full dependency graph
-   * @param viewportListener Receives notification when there are changes to a viewport TODO a better way to specify which cell we want - target spec? stable row ID generated on the server?
+   * @param viewportListener Receives notification when there are changes to a viewport
+   * TODO should include a version ID for the structure to avoid race condition when the structure is updated
    */
-  /* package */void openDependencyGraph(int graphId,
-                                        String gridId,
-                                        int row,
-                                        int col,
-                                        CompiledViewDefinition compiledViewDef,
-                                        ViewportListener viewportListener) {
+  /* package */ void openDependencyGraph(int graphId,
+                                         String gridId,
+                                         int row,
+                                         int col,
+                                         CompiledViewDefinition compiledViewDef,
+                                         ViewportListener viewportListener) {
     if (_depGraphs.containsKey(graphId)) {
       throw new IllegalArgumentException("Dependency graph ID " + graphId + " is already in use");
     }
@@ -116,9 +126,44 @@ import com.opengamma.util.tuple.Pair;
     }
     String calcConfigName = targetForCell.getFirst();
     ValueSpecification valueSpec = targetForCell.getSecond();
-    MainGridStructure.Row gridRow = getGridStructure().getTargetLookup().getRow(row);
-    DependencyGraphGrid grid = DependencyGraphGrid.create(compiledViewDef, valueSpec, calcConfigName, _cycle, gridId,
-                                                          _targetResolver, viewportListener, gridRow.getName());
+    ValueRequirement valueReq = getGridStructure().getRequirementForCell(row, col).getSecond();
+    DependencyGraphGrid grid = DependencyGraphGrid.create(compiledViewDef, valueReq, valueSpec, calcConfigName, _cycle,
+                                                          gridId, _targetResolver, viewportListener);
+    _depGraphs.put(graphId, grid);
+  }
+
+  /**
+   * TODO specify what this is intended for
+   * Opens a dependency graph grid showing the steps used to calculate a cell's value.
+   *
+   * @param graphId Unique ID of the dependency graph
+   * @param previousGrid Previous version of the same grid, created with the previous version of the view definition
+   * @param compiledViewDef Compiled view definition containing the full dependency graph
+   */
+  private void openDependencyGraph(int graphId, DependencyGraphGrid previousGrid, CompiledViewDefinition compiledViewDef) {
+    s_logger.debug("Creating new version of dependency graph grid {}", previousGrid.getCallbackId());
+    DependencyGraphGridStructure structure = previousGrid.getGridStructure();
+    ValueMappings valueMappings = getGridStructure().getValueMappings();
+    String calcConfigName = structure.getCalculationConfigurationName();
+    ValueRequirement valueReq = structure.getRootRequirement();
+    ValueSpecification valueSpec = valueMappings.getValueSpecification(calcConfigName, valueReq);
+    DependencyGraphGrid grid = DependencyGraphGrid.create(compiledViewDef, valueReq, valueSpec, calcConfigName,
+                                                          _cycle, previousGrid.getCallbackId(), _targetResolver,
+                                                          previousGrid.getViewportListener());
+    // empty invalid viewport which can never be used to create data
+    // the client will update it before it produces data
+    ViewportDefinition viewportDefinition = new RectangularViewportDefinition(-1,
+                                                                              Collections.<Integer>emptyList(),
+                                                                              Collections.<Integer>emptyList(),
+                                                                              TypeFormatter.Format.CELL,
+                                                                              false);
+    // the cache can be empty because we can guarantee the viewport is always empty
+    ResultsCache emptyCache = new ResultsCache();
+    for (Map.Entry<Integer, DependencyGraphViewport> entry : previousGrid.getViewports().entrySet()) {
+      Integer id = entry.getKey();
+      DependencyGraphViewport viewport = entry.getValue();
+      grid.createViewport(id, viewport.getCallbackId(), viewport.getStructureCallbackId(), viewportDefinition, emptyCache);
+    }
     _depGraphs.put(graphId, grid);
   }
 
@@ -181,7 +226,7 @@ import com.opengamma.util.tuple.Pair;
     return getDependencyGraph(graphId).createViewport(viewportId, callbackId, structureCallbackId, viewportDefinition, cache);
   }
 
-   @Override
+  @Override
   abstract T createViewport(ViewportDefinition viewportDefinition, String callbackId, String structureCallbackId, ResultsCache cache);
 
   /**

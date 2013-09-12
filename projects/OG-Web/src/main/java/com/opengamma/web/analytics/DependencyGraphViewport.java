@@ -22,6 +22,8 @@ public class DependencyGraphViewport implements Viewport {
   private final DependencyGraphGridStructure _gridStructure;
   /** The ID that is sent to the client to notify it that the viewport's data has been updated. */
   private final String _callbackId;
+  /** The ID that is sent to the client to notify it that the viewport's structure has been updated. */
+  private final String _structureCallbackId;
 
   /** Defines the extent of the viewport. */
   private ViewportDefinition _viewportDefinition;
@@ -51,6 +53,7 @@ public class DependencyGraphViewport implements Viewport {
                                         ViewportDefinition viewportDefinition,
                                         ViewCycle cycle,
                                         ResultsCache cache) {
+    _structureCallbackId = structureCallbackId;
     ArgumentChecker.notEmpty(calcConfigName, "calcConfigName");
     ArgumentChecker.notNull(gridStructure, "gridStructure");
     ArgumentChecker.notEmpty(callbackId, "callbackId");
@@ -122,4 +125,8 @@ public class DependencyGraphViewport implements Viewport {
     return _state;
   }
 
+  @Override
+  public String getStructureCallbackId() {
+    return _structureCallbackId;
+  }
 }
