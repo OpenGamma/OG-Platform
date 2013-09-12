@@ -258,7 +258,6 @@ public class WebUiResource {
     return Response.status(Response.Status.CREATED).build();
   }
 
-  // TODO similar endpoint to get the structure from the viewport
   @Path("{viewId}/{gridType}/depgraphs/{depgraphId}")
   @GET
   public GridStructure getDependencyGraphGridStructure(@PathParam("viewId") String viewId,
@@ -318,6 +317,15 @@ public class WebUiResource {
                                             @FormParam("enableLogging") Boolean enableLogging) {
     ViewportDefinition viewportDef = ViewportDefinition.create(version, rows, columns, cells, format, enableLogging);
     _viewManager.getView(viewId).updateViewport(gridType(gridType), depgraphId, viewportId, viewportDef);
+  }
+
+  @Path("{viewId}/{gridType}/depgraphs/{depgraphId}/viewports/{viewportId}")
+  @GET
+  public GridStructure getDependencyGraphViewportGridStructure(@PathParam("viewId") String viewId,
+                                                               @PathParam("gridType") String gridType,
+                                                               @PathParam("depgraphId") int depgraphId,
+                                                               @PathParam("viewportId") int viewportId) {
+    return _viewManager.getView(viewId).getGridStructure(gridType(gridType), depgraphId, viewportId);
   }
 
   @Path("{viewId}/{gridType}/depgraphs/{depgraphId}/viewports/{viewportId}")
