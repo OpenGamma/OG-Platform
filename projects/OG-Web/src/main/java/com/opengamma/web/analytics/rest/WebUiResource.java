@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -17,14 +18,18 @@ import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.format.DateTimeFormatter;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
@@ -34,6 +39,8 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.OpenGammaClock;
+import com.opengamma.util.rest.RestUtils;
 import com.opengamma.web.analytics.AnalyticsView;
 import com.opengamma.web.analytics.AnalyticsViewManager;
 import com.opengamma.web.analytics.GridCell;
@@ -54,6 +61,7 @@ import com.opengamma.web.analytics.push.ConnectionManager;
 public class WebUiResource {
 
   private static final Logger s_logger = LoggerFactory.getLogger(WebUiResource.class);
+  private static final DateTimeFormatter CSV_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm_ss");
 
   /** For generating IDs for the views. */
   private static final AtomicLong s_nextViewId = new AtomicLong(0);
@@ -112,8 +120,12 @@ public class WebUiResource {
     URI uri = uriInfo.getAbsolutePathBuilder().path(viewId).build();
     ImmutableMap<String, Object> callbackMap =
         ImmutableMap.<String, Object>of("id", requestId, "message", uri.getPath());
-    /*_viewManager.createView(viewRequest, clientId, user, connection, viewId, callbackMap,
-                            portfolioGridUri.getPath(), primitivesGridUri.getPath());*/
+    URI errorUri = uriInfo.getAbsolutePathBuilder()
+        .path(viewId)
+        .path(ViewResource.class, "getErrors")
+        .build();
+    _viewManager.createView(viewRequest, clientId, user, connection, viewId, callbackMap,
+                            portfolioGridUri.getPath(), primitivesGridUri.getPath(), errorUri.getPath());
     return Response.status(Response.Status.CREATED).build();
   }
 
@@ -161,8 +173,7 @@ public class WebUiResource {
   @GET
   public GridStructure getGridStructure(@PathParam("viewId") String viewId,
                                         @PathParam("gridType") String gridType) {
-    //return _viewManager.getView(viewId).getGridStructure(gridType(gridType));
-    return null;
+    return _viewManager.getView(viewId).getInitialGridStructure(gridType(gridType));
   }
 
   @Path("{viewId}/{gridType}/viewports")
@@ -180,9 +191,15 @@ public class WebUiResource {
     ViewportDefinition viewportDefinition = ViewportDefinition.create(version, rows, columns, cells, format, enableLogging);
     int viewportId = s_nextId.getAndIncrement();
     String viewportIdStr = Integer.toString(viewportId);
-    URI viewportUri = uriInfo.getAbsolutePathBuilder().path(viewportIdStr).build();
-    String callbackId = viewportUri.getPath();
-    //_viewManager.getView(viewId).createViewport(requestId, gridType(gridType), viewportId, callbackId, viewportDefinition);
+    UriBuilder viewportUriBuilder = uriInfo.getAbsolutePathBuilder().path(viewportIdStr);
+    String callbackId = viewportUriBuilder.build().getPath();
+    String structureCallbackId = viewportUriBuilder.path("structure").build().getPath();
+    _viewManager.getView(viewId).createViewport(requestId,
+                                                gridType(gridType),
+                                                viewportId,
+                                                callbackId,
+                                                structureCallbackId,
+                                                viewportDefinition);
     return Response.status(Response.Status.CREATED).build();
   }
 
@@ -206,8 +223,7 @@ public class WebUiResource {
   public GridStructure getViewportGridStructure(@PathParam("viewId") String viewId,
                                                 @PathParam("gridType") String gridType,
                                                 @PathParam("viewportId") int viewportId) {
-    // TODO the method to support this doesn't exist yet
-    throw new UnsupportedOperationException();
+    return _viewManager.getView(viewId).getGridStructure(gridType(gridType), viewportId);
   }
 
   @Path("{viewId}/{gridType}/viewports/{viewportId}")
@@ -242,12 +258,21 @@ public class WebUiResource {
     return Response.status(Response.Status.CREATED).build();
   }
 
+  // TODO similar endpoint to get the structure from the viewport
   @Path("{viewId}/{gridType}/depgraphs/{depgraphId}")
   @GET
   public GridStructure getDependencyGraphGridStructure(@PathParam("viewId") String viewId,
                                                        @PathParam("gridType") String gridType,
                                                        @PathParam("depgraphId") int depgraphId) {
-    return _viewManager.getView(viewId).getGridStructure(gridType(gridType), depgraphId);
+    return _viewManager.getView(viewId).getInitialGridStructure(gridType(gridType), depgraphId);
+  }
+
+  @Path("{viewId}/{gridType}/depgraphs/{depgraphId}")
+  @DELETE
+  public void deleteDependencyGraph(@PathParam("viewId") String viewId,
+                                    @PathParam("gridType") String gridType,
+                                    @PathParam("depgraphId") int depgraphId) {
+    _viewManager.getView(viewId).closeDependencyGraph(gridType(gridType), depgraphId);
   }
 
   @Path("{viewId}/{gridType}/depgraphs/{depgraphId}/viewports")
@@ -266,9 +291,16 @@ public class WebUiResource {
     ViewportDefinition viewportDefinition = ViewportDefinition.create(version, rows, columns, cells, format, enableLogging);
     int viewportId = s_nextId.getAndIncrement();
     String viewportIdStr = Integer.toString(viewportId);
-    URI viewportUri = uriInfo.getAbsolutePathBuilder().path(viewportIdStr).build();
-    String callbackId = viewportUri.getPath();
-    //_viewManager.getView(viewId).createViewport(requestId, gridType(gridType), depgraphId, viewportId, callbackId, viewportDefinition);
+    UriBuilder viewportUriBuilder = uriInfo.getAbsolutePathBuilder().path(viewportIdStr);
+    String callbackId = viewportUriBuilder.build().getPath();
+    String structureCallbackId = viewportUriBuilder.path("structure").build().getPath();
+    _viewManager.getView(viewId).createViewport(requestId,
+                                                gridType(gridType),
+                                                depgraphId,
+                                                viewportId,
+                                                callbackId,
+                                                structureCallbackId,
+                                                viewportDefinition);
     return Response.status(Response.Status.CREATED).build();
   }
 
@@ -304,6 +336,37 @@ public class WebUiResource {
                                             @PathParam("depgraphId") int depgraphId,
                                             @PathParam("viewportId") int viewportId) {
     _viewManager.getView(viewId).deleteViewport(gridType(gridType), depgraphId, viewportId);
+  }
+
+  /**
+   * Produces view port results as CSV
+   *
+   * @param response the injected servlet response, not null.
+   * @return The view port result as csv
+   */
+  @GET
+  @Path("{viewId}/{gridType}/data")
+  @Produces(RestUtils.TEXT_CSV)
+  public ViewportResults getViewportResultAsCsv(@PathParam("viewId") String viewId,
+                                                @PathParam("gridType") String gridTypeStr,
+                                                @Context HttpServletResponse response) {
+    AnalyticsView view = _viewManager.getView(viewId);
+    AnalyticsView.GridType gridType = gridType(gridTypeStr);
+    ViewportResults result = view.getAllGridData(gridType, TypeFormatter.Format.CELL);
+    Instant valuationTime;
+    if (result.getValuationTime() != null) {
+      valuationTime = result.getValuationTime();
+    } else {
+      valuationTime = OpenGammaClock.getInstance().instant();
+    }
+    LocalDateTime time = LocalDateTime.ofInstant(valuationTime, OpenGammaClock.getZone());
+
+    String filename = String.format("%s-%s-%s.csv",
+                                    view.getViewDefinitionId(),
+                                    gridType.name().toLowerCase(),
+                                    time.toString(CSV_TIME_FORMAT));
+    response.addHeader("content-disposition", "attachment; filename=\"" + filename + "\"");
+    return view.getAllGridData(gridType, TypeFormatter.Format.CELL);
   }
 
   /**

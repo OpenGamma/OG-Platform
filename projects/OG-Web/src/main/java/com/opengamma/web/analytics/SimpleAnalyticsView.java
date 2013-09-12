@@ -427,9 +427,11 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
       cols.add(i);
     }
     ViewportDefinition viewportDefinition = ViewportDefinition.create(Integer.MIN_VALUE, rows, cols, Lists.<GridCell>newArrayList(), format, false);
-    
+
     String callbackId = GUIDGenerator.generate().toString();
     String structureCallbackId = GUIDGenerator.generate().toString();
+    // TODO this is a resource leak
+    // it creates a potentially big viewport and never cleans it up
     MainGridViewport viewport = getGrid(gridType).createViewport(viewportDefinition, callbackId, structureCallbackId, _cache);
     return viewport.getData();
   }
