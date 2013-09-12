@@ -39,7 +39,7 @@ public class HullWhiteOneFactorParametersBuilder extends AbstractFudgeBuilder<Hu
   private static final String INITIAL_VOLATILITY_ID = "initialVolatilityId";
   /** The tenor field */
   private static final String TENOR = "tenor";
-  /** The external id field */
+  /** The volatility parameter id field */
   private static final String VOLATILITY_PARAMETER_ID = "volatilityParameterId";
 
   @Override

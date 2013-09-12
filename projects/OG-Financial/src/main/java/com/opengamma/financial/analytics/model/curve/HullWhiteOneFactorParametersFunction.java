@@ -140,7 +140,7 @@ public class HullWhiteOneFactorParametersFunction extends AbstractFunction {
             volatilityTime.add(t);
           }
         }
-        final HullWhiteOneFactorPiecewiseConstantParameters hullWhiteParameters = new HullWhiteOneFactorPiecewiseConstantParameters(0, volatility.toDoubleArray(),
+        final HullWhiteOneFactorPiecewiseConstantParameters hullWhiteParameters = new HullWhiteOneFactorPiecewiseConstantParameters(meanReversion, volatility.toDoubleArray(),
             volatilityTime.toDoubleArray());
         return Collections.singleton(new ComputedValue(_result, hullWhiteParameters));
       }

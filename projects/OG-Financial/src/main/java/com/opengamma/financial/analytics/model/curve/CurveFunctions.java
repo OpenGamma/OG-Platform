@@ -21,6 +21,7 @@ import com.opengamma.financial.analytics.curve.CurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.InflationCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.IssuerCurveTypeConfiguration;
 import com.opengamma.financial.analytics.model.curve.forward.InstantaneousForwardCurveFunction;
+import com.opengamma.financial.analytics.parameters.G2ppParameters;
 import com.opengamma.financial.analytics.parameters.HullWhiteOneFactorParameters;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
@@ -226,13 +227,21 @@ public class CurveFunctions extends AbstractFunctionConfigurationBean {
 
     @Override
     protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
-      final ConfigSearchRequest<HullWhiteOneFactorParameters> searchRequest = new ConfigSearchRequest<>();
-      searchRequest.setType(HullWhiteOneFactorParameters.class);
-      for (final ConfigDocument configDocument : ConfigSearchIterator.iterable(getConfigMaster(), searchRequest)) {
+      final ConfigSearchRequest<HullWhiteOneFactorParameters> hwSearchRequest = new ConfigSearchRequest<>();
+      hwSearchRequest.setType(HullWhiteOneFactorParameters.class);
+      for (final ConfigDocument configDocument : ConfigSearchIterator.iterable(getConfigMaster(), hwSearchRequest)) {
         final String configurationName = configDocument.getName();
         final HullWhiteOneFactorParameters hullWhiteParameters = ((ConfigItem<HullWhiteOneFactorParameters>) configDocument.getConfig()).getValue();
         final Currency currency = hullWhiteParameters.getCurrency();
         functions.add(functionConfiguration(HullWhiteOneFactorParametersFunction.class, configurationName, currency.getCode()));
+      }
+      final ConfigSearchRequest<G2ppParameters> g2ppSearchRequest = new ConfigSearchRequest<>();
+      g2ppSearchRequest.setType(G2ppParameters.class);
+      for (final ConfigDocument configDocument : ConfigSearchIterator.iterable(getConfigMaster(), g2ppSearchRequest)) {
+        final String configurationName = configDocument.getName();
+        final G2ppParameters g2ppParameters = ((ConfigItem<G2ppParameters>) configDocument.getConfig()).getValue();
+        final Currency currency = g2ppParameters.getCurrency();
+        functions.add(functionConfiguration(G2ppParametersFunction.class, configurationName, currency.getCode()));
       }
     }
   }
@@ -240,7 +249,7 @@ public class CurveFunctions extends AbstractFunctionConfigurationBean {
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
     functions.add(functionConfiguration(HardCodedHullWhiteOneFactorParametersFunction.class));
-    functions.add(functionConfiguration(G2ppParametersFunction.class));
+    functions.add(functionConfiguration(HardCodedG2ppParametersFunction.class));
     functions.add(functionConfiguration(InstantaneousForwardCurveFunction.class));
   }
 }
