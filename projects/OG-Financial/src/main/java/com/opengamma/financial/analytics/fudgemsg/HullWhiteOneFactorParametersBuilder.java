@@ -35,6 +35,8 @@ public class HullWhiteOneFactorParametersBuilder extends AbstractFudgeBuilder<Hu
   private static final String CURRENCY = "currency";
   /** The mean reversion id field */
   private static final String MEAN_REVERSION_ID = "meanReversionId";
+  /** The initial volatility id field */
+  private static final String INITIAL_VOLATILITY_ID = "initialVolatilityId";
   /** The tenor field */
   private static final String TENOR = "tenor";
   /** The external id field */
@@ -45,6 +47,7 @@ public class HullWhiteOneFactorParametersBuilder extends AbstractFudgeBuilder<Hu
     final UniqueId uniqueId = deserializer.fieldValueToObject(UniqueId.class, message.getByName(UNIQUE_ID));
     final Currency currency = deserializer.fieldValueToObject(Currency.class, message.getByName(CURRENCY));
     final ExternalId meanReversionId = deserializer.fieldValueToObject(ExternalId.class, message.getByName(MEAN_REVERSION_ID));
+    final ExternalId initialVolatilityId = deserializer.fieldValueToObject(ExternalId.class, message.getByName(INITIAL_VOLATILITY_ID));
     final SortedMap<Tenor, ExternalId> volatilityTermStructure = new TreeMap<>();
     final List<FudgeField> tenors = message.getAllByName(TENOR);
     final List<FudgeField> volatilityParameterIds = message.getAllByName(VOLATILITY_PARAMETER_ID);
@@ -57,7 +60,8 @@ public class HullWhiteOneFactorParametersBuilder extends AbstractFudgeBuilder<Hu
       final ExternalId volatilityParameterId = deserializer.fieldValueToObject(ExternalId.class, volatilityParameterIds.get(i));
       volatilityTermStructure.put(tenor, volatilityParameterId);
     }
-    final HullWhiteOneFactorParameters parameters = new HullWhiteOneFactorParameters(currency, meanReversionId, volatilityTermStructure);
+    final HullWhiteOneFactorParameters parameters = new HullWhiteOneFactorParameters(currency, meanReversionId, initialVolatilityId,
+        volatilityTermStructure);
     parameters.setUniqueId(uniqueId);
     return parameters;
   }
@@ -67,6 +71,7 @@ public class HullWhiteOneFactorParametersBuilder extends AbstractFudgeBuilder<Hu
     serializer.addToMessage(message, UNIQUE_ID, null, object.getUniqueId());
     serializer.addToMessage(message, CURRENCY, null, object.getCurrency());
     serializer.addToMessage(message, MEAN_REVERSION_ID, null, object.getMeanReversionId());
+    serializer.addToMessage(message, INITIAL_VOLATILITY_ID, null, object.getInitialVolatilityId());
     for (final Map.Entry<Tenor, ExternalId> entry : object.getVolatilityTermStructure().entrySet()) {
       message.add(TENOR, entry.getKey().getPeriod().toString());
       serializer.addToMessage(message, VOLATILITY_PARAMETER_ID, null, entry.getValue());

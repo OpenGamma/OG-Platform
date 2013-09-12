@@ -95,6 +95,7 @@ public class HullWhiteOneFactorParametersFunction extends AbstractFunction {
     }
     final HullWhiteOneFactorParameters parameters = configs.iterator().next().getValue();
     requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, parameters.getMeanReversionId()));
+    requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, parameters.getInitialVolatilityId()));
     final Map<Tenor, ExternalId> volatilityTermStructure = parameters.getVolatilityTermStructure();
     for (final Map.Entry<Tenor, ExternalId> entry : volatilityTermStructure.entrySet()) {
       final ExternalScheme scheme = entry.getValue().getScheme();
@@ -115,8 +116,15 @@ public class HullWhiteOneFactorParametersFunction extends AbstractFunction {
         if (meanReversionObject == null) {
           throw new OpenGammaRuntimeException("Could not get mean reversion value");
         }
+        final Object initialVolatilityObject = inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE,
+            ComputationTargetType.PRIMITIVE, parameters.getInitialVolatilityId()));
+        if (initialVolatilityObject == null) {
+          throw new OpenGammaRuntimeException("Could not get initial volatility value");
+        }
         final Double meanReversion = (Double) meanReversionObject;
+        final Double initialVolatility = (Double) initialVolatilityObject;
         final DoubleArrayList volatility = new DoubleArrayList();
+        volatility.add(initialVolatility);
         final DoubleArrayList volatilityTime = new DoubleArrayList();
         for (final Map.Entry<Tenor, ExternalId> entry : volatilityTermStructure.entrySet()) {
           final ExternalScheme scheme = entry.getValue().getScheme();
