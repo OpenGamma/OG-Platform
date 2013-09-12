@@ -55,6 +55,8 @@ import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecu
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.financial.security.swap.YearOnYearInflationSwapSecurity;
+import com.opengamma.financial.security.swap.ZeroCouponInflationSwapSecurity;
 
 /**
  * Returns Freemarker template filename for a given security type.
@@ -308,6 +310,16 @@ import com.opengamma.financial.security.swap.SwapSecurity;
   @Override
   public String visitFederalFundsFutureSecurity(FederalFundsFutureSecurity security) {
     return getFuture();
+  }
+  
+  @Override
+  public String visitZeroCouponInflationSwapSecurity(ZeroCouponInflationSwapSecurity security) {
+    return "swap.ftl";
+  }
+  
+  @Override
+  public String visitYearOnYearInflationSwapSecurity(YearOnYearInflationSwapSecurity security) {
+    return "swap.ftl";
   }
 
   private String getBond() {
