@@ -16,6 +16,7 @@ import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
+import com.opengamma.analytics.financial.provider.calculator.hullwhite.MarketQuoteHullWhiteCalculator;
 import com.opengamma.analytics.financial.provider.calculator.hullwhite.PresentValueCurveSensitivityHullWhiteCalculator;
 import com.opengamma.analytics.financial.provider.calculator.hullwhite.PresentValueHullWhiteCalculator;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
@@ -61,8 +62,8 @@ public class InterestRateFutureTransactionHullWhiteMethodTest {
   private static final InterestRateFutureTransaction ERU2_TRA = ERU2_TRA_DEFINITION.toDerivative(REFERENCE_DATE, REFERENCE_PRICE);
 
   private static final double MEAN_REVERSION = 0.01;
-  private static final double[] VOLATILITY = new double[] {0.01, 0.011, 0.012, 0.013, 0.014};
-  private static final double[] VOLATILITY_TIME = new double[] {0.5, 1.0, 2.0, 5.0};
+  private static final double[] VOLATILITY = new double[] {0.01, 0.011, 0.012, 0.013, 0.014 };
+  private static final double[] VOLATILITY_TIME = new double[] {0.5, 1.0, 2.0, 5.0 };
   private static final HullWhiteOneFactorPiecewiseConstantParameters MODEL_PARAMETERS = new HullWhiteOneFactorPiecewiseConstantParameters(MEAN_REVERSION, VOLATILITY, VOLATILITY_TIME);
 
   private static final HullWhiteOneFactorProviderDiscount HW_MULTICURVES = new HullWhiteOneFactorProviderDiscount(MULTICURVES, MODEL_PARAMETERS, EUR);
@@ -70,6 +71,7 @@ public class InterestRateFutureTransactionHullWhiteMethodTest {
   private static final InterestRateFutureTransactionHullWhiteMethod METHOD_IRFUT_TRA_HW = InterestRateFutureTransactionHullWhiteMethod.getInstance();
   private static final InterestRateFutureSecurityHullWhiteMethod METHOD_IRFUT_SEC_HW = InterestRateFutureSecurityHullWhiteMethod.getInstance();
 
+  private static final MarketQuoteHullWhiteCalculator MQHWC = MarketQuoteHullWhiteCalculator.getInstance();
   private static final PresentValueHullWhiteCalculator PVHWC = PresentValueHullWhiteCalculator.getInstance();
   private static final PresentValueCurveSensitivityHullWhiteCalculator PVCSHWC = PresentValueCurveSensitivityHullWhiteCalculator.getInstance();
 
@@ -79,6 +81,7 @@ public class InterestRateFutureTransactionHullWhiteMethodTest {
 
   private static final double TOLERANCE_PV = 1.0E-2;
   private static final double TOLERANCE_PV_DELTA = 1.0E+2;
+  private static final double TOLERANCE_PRICE = 1.0E-10;
 
   @Test
   /**
@@ -96,6 +99,16 @@ public class InterestRateFutureTransactionHullWhiteMethodTest {
     final MultipleCurrencyAmount pvMethod = METHOD_IRFUT_TRA_HW.presentValue(ERU2_TRA, HW_MULTICURVES);
     final MultipleCurrencyAmount pvCalculator = ERU2_TRA.accept(PVHWC, HW_MULTICURVES);
     assertEquals("InterestRateFutureSecurityHullWhiteProviderMethod: present value - calculator vs method", pvCalculator.getAmount(EUR), pvMethod.getAmount(EUR), TOLERANCE_PV);
+  }
+
+  @Test
+  /**
+   * Test the price as "MarketQuote"
+   */
+  public void marketQuote() {
+    final double priceMethod = METHOD_IRFUT_SEC_HW.price(ERU2_SEC, HW_MULTICURVES);
+    final double marketQuote = ERU2_TRA.accept(MQHWC, HW_MULTICURVES);
+    assertEquals("InterestRateFutureSecurityHullWhiteProviderMethod: price", priceMethod, marketQuote, TOLERANCE_PRICE);
   }
 
   @Test

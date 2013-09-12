@@ -89,6 +89,16 @@ public class InterestRateFutureSecurityHullWhiteMethodTest {
 
   @Test
   /**
+   * Test the price as "MarketQuote"
+   */
+  public void marketQuote() {
+    final double priceMethod = METHOD_IRFUT_HW.price(ERU2, HW_MULTICURVES);
+    final double marketQuote = ERU2.accept(MQHWC, HW_MULTICURVES);
+    assertEquals("InterestRateFutureSecurityHullWhiteProviderMethod: price", priceMethod, marketQuote, TOLERANCE_PRICE);
+  }
+
+  @Test
+  /**
    * Test the convexity adjustment
    */
   public void convexityAdjustment() {

@@ -9,6 +9,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorSameMethodAdapter;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesPriceDeliverableSecurity;
 import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureOptionMarginSecurityHullWhiteMethod;
 import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureSecurityHullWhiteMethod;
@@ -57,6 +58,11 @@ public class MarketQuoteHullWhiteCalculator extends InstrumentDerivativeVisitorS
   @Override
   public Double visitInterestRateFutureSecurity(final InterestRateFutureSecurity futures, final HullWhiteOneFactorProviderInterface hullWhite) {
     return METHOD_STIRFUT.price(futures, hullWhite);
+  }
+
+  @Override
+  public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction futures, final HullWhiteOneFactorProviderInterface hullWhite) {
+    return METHOD_STIRFUT.price(futures.getUnderlying(), hullWhite);
   }
 
   @Override

@@ -5,16 +5,16 @@
  */
 package com.opengamma.analytics.financial.provider.calculator.discounting;
 
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorSameMethodAdapter;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureSecurityDiscountingMethod;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 
 /**
  * Calculate the market quote of instruments dependent of a Hull-White one factor provider.
  */
-public final class MarketQuoteDiscountingCalculator extends InstrumentDerivativeVisitorSameMethodAdapter<MulticurveProviderInterface, Double> {
+public final class MarketQuoteDiscountingCalculator extends InstrumentDerivativeVisitorAdapter<MulticurveProviderInterface, Double> {
 
   /**
    * The unique instance of the calculator.
@@ -40,11 +40,6 @@ public final class MarketQuoteDiscountingCalculator extends InstrumentDerivative
    */
   private static final InterestRateFutureSecurityDiscountingMethod METHOD_IR_FUT = InterestRateFutureSecurityDiscountingMethod.getInstance();
 
-  @Override
-  public Double visit(final InstrumentDerivative derivative, final MulticurveProviderInterface multicurves) {
-    return derivative.accept(ParSpreadMarketQuoteDiscountingCalculator.getInstance(), multicurves);
-  }
-
   // TODO: Add FRA, IRS, FX forward, FX swap
 
   //     -----     Futures     -----
@@ -55,8 +50,8 @@ public final class MarketQuoteDiscountingCalculator extends InstrumentDerivative
   }
 
   @Override
-  public Double visit(final InstrumentDerivative derivative) {
-    throw new UnsupportedOperationException();
+  public Double visitInterestRateFutureTransaction(final InterestRateFutureTransaction futures, final MulticurveProviderInterface multicurves) {
+    return METHOD_IR_FUT.price(futures.getUnderlying(), multicurves);
   }
 
 }
