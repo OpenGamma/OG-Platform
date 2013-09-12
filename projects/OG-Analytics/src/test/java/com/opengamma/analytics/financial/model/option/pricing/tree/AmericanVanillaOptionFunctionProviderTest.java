@@ -20,6 +20,7 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.Bjerksund
  */
 public class AmericanVanillaOptionFunctionProviderTest {
   private static final BinomialTreeOptionPricingModel _model = new BinomialTreeOptionPricingModel();
+  private static final TrinomialTreeOptionPricingModel _modelTrinomial = new TrinomialTreeOptionPricingModel();
   private static final double SPOT = 105.;
   private static final double[] STRIKES = new double[] {81., 97., 105., 105.1, 114., 138. };
   private static final double TIME = 4.2;
@@ -96,6 +97,11 @@ public class AmericanVanillaOptionFunctionProviderTest {
             final OptionFunctionProvider1D function = new AmericanVanillaOptionFunctionProvider(STRIKES[k], TIME, steps, false);
             final double priceP = _model.getPrice(lattice, function, SPOT, VOLS[l], INTERESTS[j], 0.);
             assertEquals(priceP, expected[j][k][l], Math.max(expected[j][k][l], 1.) / Math.sqrt(steps));
+            if (lattice instanceof CoxRossRubinsteinLatticeSpecification || lattice instanceof JarrowRuddLatticeSpecification || lattice instanceof TrigeorgisLatticeSpecification ||
+                lattice instanceof TianLatticeSpecification) {
+              final double priceTrinomial = _modelTrinomial.getPrice(lattice, function, SPOT, VOLS[l], INTERESTS[j], 0.);
+              assertEquals(priceTrinomial, expected[j][k][l], Math.max(expected[j][k][l], 1.) * 1.e-2);
+            }
           }
         }
       }
@@ -198,6 +204,15 @@ public class AmericanVanillaOptionFunctionProviderTest {
             if (exTheta[j][k][l] != -0.01110279072301 && exTheta[j][k][l] != 0.138 && exTheta[j][k][l] != 0.69 && exTheta[j][k][l] != 1.379999999999999) {
               assertEquals(greeks.get(Greek.THETA), exTheta[j][k][l], Math.max(Math.abs(exTheta[j][k][l]), 1.) / Math.sqrt(steps));
             }
+            if (lattice instanceof CoxRossRubinsteinLatticeSpecification || lattice instanceof JarrowRuddLatticeSpecification || lattice instanceof TrigeorgisLatticeSpecification ||
+                lattice instanceof TianLatticeSpecification) {
+              final GreekResultCollection greeksTrinomial = _modelTrinomial.getGreeks(lattice, function, SPOT, VOLS[l], INTERESTS[j], 0.);
+              assertEquals(greeksTrinomial.get(Greek.DELTA), exDelta[j][k][l], Math.max(Math.abs(exDelta[j][k][l]), 1.) / Math.sqrt(steps));
+              assertEquals(greeksTrinomial.get(Greek.GAMMA), exGamma[j][k][l], Math.max(Math.abs(exGamma[j][k][l]), 1.) / Math.sqrt(steps));
+              if (exTheta[j][k][l] != -0.01110279072301 && exTheta[j][k][l] != 0.138 && exTheta[j][k][l] != 0.69 && exTheta[j][k][l] != 1.379999999999999) {
+                assertEquals(greeksTrinomial.get(Greek.THETA), exTheta[j][k][l], Math.max(Math.abs(exTheta[j][k][l]), 1.) / Math.sqrt(steps));
+              }
+            }
           }
         }
       }
@@ -297,7 +312,6 @@ public class AmericanVanillaOptionFunctionProviderTest {
           assertEquals(resGreeks.get(Greek.DELTA), resGreeksConst.get(Greek.DELTA), Math.max(Math.abs(resGreeksConst.get(Greek.DELTA)), 0.1) * 0.1);
           assertEquals(resGreeks.get(Greek.GAMMA), resGreeksConst.get(Greek.GAMMA), Math.max(Math.abs(resGreeksConst.get(Greek.GAMMA)), 0.1) * 0.1);
           assertEquals(resGreeks.get(Greek.THETA), resGreeksConst.get(Greek.THETA), Math.max(Math.abs(resGreeksConst.get(Greek.THETA)), 0.1));
-          //          System.out.println(resGreeks.get(Greek.THETA) + "\t" + resGreeksConst.get(Greek.THETA));
         }
       }
     }

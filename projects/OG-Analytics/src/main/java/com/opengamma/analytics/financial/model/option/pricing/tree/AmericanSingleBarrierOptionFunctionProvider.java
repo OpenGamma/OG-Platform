@@ -54,6 +54,38 @@ public class AmericanSingleBarrierOptionFunctionProvider extends BarrierOptionFu
   }
 
   @Override
+  public double[] getPayoffAtExpiryTrinomial(final double assetPrice, final double middleOverDown) {
+    final double strike = getStrike();
+    final int nNodes = 2 * getNumberOfSteps() + 1;
+    final double sign = getSign();
+
+    final double[] values = new double[nNodes];
+    double priceTmp = assetPrice;
+    for (int i = 0; i < nNodes; ++i) {
+      values[i] = getChecker().checkOut(priceTmp) ? 0. : Math.max(sign * (priceTmp - strike), 0.);
+      priceTmp *= middleOverDown;
+    }
+    return values;
+  }
+
+  @Override
+  public double[] getNextOptionValues(final double discount, final double upProbability, final double middleProbability, final double downProbability, final double[] values,
+      final double baseAssetPrice, final double sumCashDiv, final double downFactor, final double middleOverDown, final int steps) {
+    final double strike = getStrike();
+    final double sign = getSign();
+    final int nNodes = 2 * steps + 1;
+
+    final double[] res = new double[nNodes];
+    double assetPrice = baseAssetPrice * Math.pow(downFactor, steps);
+    for (int j = 0; j < nNodes; ++j) {
+      res[j] = getChecker().checkOut(assetPrice + sumCashDiv) ? 0. : Math.max(discount * (upProbability * values[j + 2] + middleProbability * values[j + 1] + downProbability * values[j]), sign *
+          (assetPrice + sumCashDiv - strike));
+      assetPrice *= middleOverDown;
+    }
+    return res;
+  }
+
+  @Override
   public int hashCode() {
     return super.hashCode();
   }

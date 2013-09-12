@@ -25,11 +25,93 @@ public class EuropeanSingleBarrierOptionFunctionProviderTest {
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
 
   private static final BinomialTreeOptionPricingModel _model = new BinomialTreeOptionPricingModel();
+  private static final TrinomialTreeOptionPricingModel _modelTrinomial = new TrinomialTreeOptionPricingModel();
   private static final double SPOT = 105.;
   private static final double[] STRIKES = new double[] {97., 105., 114. };
   private static final double TIME = 4.2;
   private static final double[] INTERESTS = new double[] {0.015, 0.05 };
   private static final double[] DIVIDENDS = new double[] {0.005, 0.02 };
+
+  /**
+   * 
+   */
+  @Test
+  public void priceTrinomialTest() {
+    final LatticeSpecification lattice = new CoxRossRubinsteinLatticeSpecification();
+    final double[] vols = new double[] {0.02 };
+
+    final int nSteps = 3121;
+    final double[] barrierSet = new double[] {90., 112. };
+    final String[] typeSet = new String[] {"DownAndOut", "UpAndOut" };
+    final boolean[] tfSet = new boolean[] {true, false };
+    for (final double barrier : barrierSet) {
+      for (final String type : typeSet) {
+        for (final boolean isCall : tfSet) {
+          for (final double strike : STRIKES) {
+            for (final double interest : INTERESTS) {
+              for (final double vol : vols) {
+                for (final double dividend : DIVIDENDS) {
+                  final OptionFunctionProvider1D function = new EuropeanSingleBarrierOptionFunctionProvider(strike, TIME, nSteps, isCall, barrier,
+                      EuropeanSingleBarrierOptionFunctionProvider.BarrierTypes.valueOf(type));
+                  double exact = price(SPOT, strike, TIME, vol, interest, dividend, isCall, barrier, type);
+                  final double res = _modelTrinomial.getPrice(lattice, function, SPOT, vol, interest, dividend);
+                  assertEquals(res, exact, Math.max(exact, 1.) * 1.e-2);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * 
+   */
+  @Test
+  public void greeksTrinomialTest() {
+    final double eps = 1.e-6;
+    final LatticeSpecification lattice = new CoxRossRubinsteinLatticeSpecification();
+    final double[] vols = new double[] {0.02 };
+
+    final int nSteps = 3121;
+    final double[] barrierSet = new double[] {90., 112. };
+    final String[] typeSet = new String[] {"DownAndOut", "UpAndOut" };
+    final boolean[] tfSet = new boolean[] {true, false };
+    for (final double barrier : barrierSet) {
+      for (final String type : typeSet) {
+        for (final boolean isCall : tfSet) {
+          for (final double strike : STRIKES) {
+            for (final double interest : INTERESTS) {
+              for (final double vol : vols) {
+                for (final double dividend : DIVIDENDS) {
+                  final OptionFunctionProvider1D function = new EuropeanSingleBarrierOptionFunctionProvider(strike, TIME, nSteps, isCall, barrier,
+                      EuropeanSingleBarrierOptionFunctionProvider.BarrierTypes.valueOf(type));
+                  final double price = price(SPOT, strike, TIME, vol, interest, dividend, isCall, barrier, type);
+                  final double priceSpotUp = price(SPOT + eps, strike, TIME, vol, interest, dividend, isCall, barrier, type);
+                  final double priceSpotDown = price(SPOT - eps, strike, TIME, vol, interest, dividend, isCall, barrier, type);
+                  final double priceSpot2Up = price(SPOT + 2. * eps, strike, TIME, vol, interest, dividend, isCall, barrier, type);
+                  final double priceSpot2Down = price(SPOT - 2. * eps, strike, TIME, vol, interest, dividend, isCall, barrier, type);
+                  final double priceTimeUp = price(SPOT, strike, TIME + eps, vol, interest, dividend, isCall, barrier, type);
+                  final double priceTimeDown = price(SPOT, strike, TIME - eps, vol, interest, dividend, isCall, barrier, type);
+                  final double delta = 0.5 * (priceSpotUp - priceSpotDown) / eps;
+                  final double deltaUp = 0.5 * (priceSpot2Up - price) / eps;
+                  final double deltaDown = 0.5 * (price - priceSpot2Down) / eps;
+                  final double gamma = 0.5 * (deltaUp - deltaDown) / eps;
+                  final double theta = -0.5 * (priceTimeUp - priceTimeDown) / eps;
+                  final GreekResultCollection res = _modelTrinomial.getGreeks(lattice, function, SPOT, vol, interest, dividend);
+                  assertEquals(res.get(Greek.FAIR_PRICE), price, Math.max(price, 1.) * 1.e-2);
+                  assertEquals(res.get(Greek.DELTA), delta, Math.max(delta, 1.) * 1.e-2);
+                  assertEquals(res.get(Greek.GAMMA), gamma, Math.max(gamma, 1.) * 1.e-1);
+                  assertEquals(res.get(Greek.THETA), theta, Math.max(theta, 1.) * 1.e-1);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 
   /**
    * 

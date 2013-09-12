@@ -24,6 +24,7 @@ public class AmericanSingleBarrierOptionFunctionProviderTest {
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
 
   private static final BinomialTreeOptionPricingModel _model = new BinomialTreeOptionPricingModel();
+  private static final TrinomialTreeOptionPricingModel _modelTrinomial = new TrinomialTreeOptionPricingModel();
   private static final double SPOT = 105.;
   private static final double[] STRIKES = new double[] {97., 105., 114. };
   private static final double TIME = 4.2;
@@ -40,8 +41,8 @@ public class AmericanSingleBarrierOptionFunctionProviderTest {
      * Two sample lattices are checked 
      */
     final LatticeSpecification[] lattices = new LatticeSpecification[] {new CoxRossRubinsteinLatticeSpecification(), new LeisenReimerLatticeSpecification() };
-    final int steps = 401;
-    final double[] barrierSet = new double[] {90, 121 };
+    final int steps = 251;
+    final double[] barrierSet = new double[] {92, 116 };
     AmericanSingleBarrierOptionFunctionProvider.BarrierTypes dao = AmericanSingleBarrierOptionFunctionProvider.BarrierTypes.valueOf("DownAndOut");
     AmericanSingleBarrierOptionFunctionProvider.BarrierTypes uao = AmericanSingleBarrierOptionFunctionProvider.BarrierTypes.valueOf("UpAndOut");
     for (final double strike : STRIKES) {
@@ -103,11 +104,21 @@ public class AmericanSingleBarrierOptionFunctionProviderTest {
                         exact = exact < 0. ? 0. : exact;
                         final double res = _model.getPrice(lattice, function, SPOT, vol, interest, dividend);
                         assertEquals(res, exact, Math.max(exact, 1.) * 1.e-1);
+                        if (lattice instanceof CoxRossRubinsteinLatticeSpecification || lattice instanceof JarrowRuddLatticeSpecification || lattice instanceof TrigeorgisLatticeSpecification ||
+                            lattice instanceof TianLatticeSpecification) {
+                          final double resTrinomial = _modelTrinomial.getPrice(lattice, function, SPOT, vol, interest, dividend);
+                          assertEquals(resTrinomial, exact, Math.max(exact, 1.) * 1.e-1);
+                        }
                       } else {
                         double exact = isCall ? getB(SPOT, strike, time, vol, interest, dividend, barrier, 1.) - getD(SPOT, strike, time, vol, interest, dividend, barrier, 1., 1.) : 0.;
                         exact = exact < 0. ? 0. : exact;
                         final double res = _model.getPrice(lattice, function, SPOT, vol, interest, dividend);
                         assertEquals(res, exact, Math.max(exact, 1.) * 1.e-1);
+                        if (lattice instanceof CoxRossRubinsteinLatticeSpecification || lattice instanceof JarrowRuddLatticeSpecification || lattice instanceof TrigeorgisLatticeSpecification ||
+                            lattice instanceof TianLatticeSpecification) {
+                          final double resTrinomial = _modelTrinomial.getPrice(lattice, function, SPOT, vol, interest, dividend);
+                          assertEquals(resTrinomial, exact, Math.max(exact, 1.) * 1.e-2);
+                        }
                       }
                     } else {
                       if (strike < barrier) {
@@ -117,11 +128,21 @@ public class AmericanSingleBarrierOptionFunctionProviderTest {
                         exact = exact < 0. ? 0. : exact;
                         final double res = _model.getPrice(lattice, function, SPOT, vol, interest, dividend);
                         assertEquals(res, exact, Math.max(exact, 1.) * 1.e-1);
+                        if (lattice instanceof CoxRossRubinsteinLatticeSpecification || lattice instanceof JarrowRuddLatticeSpecification || lattice instanceof TrigeorgisLatticeSpecification ||
+                            lattice instanceof TianLatticeSpecification) {
+                          final double resTrinomial = _modelTrinomial.getPrice(lattice, function, SPOT, vol, interest, dividend);
+                          assertEquals(resTrinomial, exact, Math.max(exact, 1.) * 1.e-1);
+                        }
                       } else {
                         double exact = !isCall ? getB(SPOT, strike, time, vol, interest, dividend, barrier, -1.) - getD(SPOT, strike, time, vol, interest, dividend, barrier, -1., -1.) : 0.;
                         exact = exact < 0. ? 0. : exact;
                         final double res = _model.getPrice(lattice, function, SPOT, vol, interest, dividend);
                         assertEquals(res, exact, Math.max(exact, 1.) * 1.e-1);
+                        if (lattice instanceof CoxRossRubinsteinLatticeSpecification || lattice instanceof JarrowRuddLatticeSpecification || lattice instanceof TrigeorgisLatticeSpecification ||
+                            lattice instanceof TianLatticeSpecification) {
+                          final double resTrinomial = _modelTrinomial.getPrice(lattice, function, SPOT, vol, interest, dividend);
+                          assertEquals(resTrinomial, exact, Math.max(exact, 1.) * 1.e-2);
+                        }
                       }
                     }
                   }
@@ -234,13 +255,13 @@ public class AmericanSingleBarrierOptionFunctionProviderTest {
   }
 
   /**
-   * 
+   * Greeks test for trinomial is also included
    */
   @Test
   public void timeVaryingVolTest() {
     final LatticeSpecification lattice1 = new TimeVaryingLatticeSpecification();
     final double[] time_set = new double[] {0.5, 1.2 };
-    final int steps = 801;
+    final int steps = 797;
 
     final double[] vol = new double[steps];
     final double[] rate = new double[steps];
@@ -262,7 +283,7 @@ public class AmericanSingleBarrierOptionFunctionProviderTest {
           final double rateRef = constA + 0.5 * constB * time;
           final double volRef = Math.sqrt(constC * constC + 0.5 * constD * constD + 2. * constC * constD / time * (1. - Math.cos(time)) - constD * constD * 0.25 / time * Math.sin(2. * time));
 
-          final double[] barrierSet = new double[] {SPOT * 0.9, SPOT * 1.1 };
+          final double[] barrierSet = new double[] {SPOT * 0.9, SPOT * 1.15 };
           for (final double barrier : barrierSet) {
             final OptionFunctionProvider1D functionBarrierDown = new AmericanSingleBarrierOptionFunctionProvider(strike, time, steps, isCall, barrier,
                 AmericanSingleBarrierOptionFunctionProvider.BarrierTypes.DownAndOut);
@@ -288,6 +309,22 @@ public class AmericanSingleBarrierOptionFunctionProviderTest {
             assertEquals(resGreeksBarrierUp.get(Greek.DELTA), resGreeksConstBarrierUp.get(Greek.DELTA), Math.max(Math.abs(resGreeksConstBarrierUp.get(Greek.DELTA)), 0.1) * 0.1);
             assertEquals(resGreeksBarrierUp.get(Greek.GAMMA), resGreeksConstBarrierUp.get(Greek.GAMMA), Math.max(Math.abs(resGreeksConstBarrierUp.get(Greek.GAMMA)), 0.1) * 0.1);
             assertEquals(resGreeksBarrierUp.get(Greek.THETA), resGreeksConstBarrierUp.get(Greek.THETA), Math.max(Math.abs(resGreeksConstBarrierUp.get(Greek.THETA)), 0.1));
+
+            final LatticeSpecification[] lattices = new LatticeSpecification[] {new CoxRossRubinsteinLatticeSpecification(), new JarrowRuddLatticeSpecification(),
+                new TrigeorgisLatticeSpecification(), new TianLatticeSpecification() };
+            for (final LatticeSpecification lattice : lattices) {
+              final GreekResultCollection resGreeksBarrierDownTri = _modelTrinomial.getGreeks(lattice, functionBarrierDown, SPOT, volRef, rateRef, dividend[0]);
+              assertEquals(resGreeksBarrierDownTri.get(Greek.FAIR_PRICE), resGreeksConstBarrierDown.get(Greek.FAIR_PRICE),
+                  Math.max(Math.abs(resGreeksConstBarrierDown.get(Greek.FAIR_PRICE)), 0.1) * 0.1);
+              assertEquals(resGreeksBarrierDownTri.get(Greek.DELTA), resGreeksConstBarrierDown.get(Greek.DELTA), Math.max(Math.abs(resGreeksConstBarrierDown.get(Greek.DELTA)), 0.1) * 0.1);
+              assertEquals(resGreeksBarrierDownTri.get(Greek.GAMMA), resGreeksConstBarrierDown.get(Greek.GAMMA), Math.max(Math.abs(resGreeksConstBarrierDown.get(Greek.GAMMA)), 0.1) * 0.1);
+              assertEquals(resGreeksBarrierDownTri.get(Greek.THETA), resGreeksConstBarrierDown.get(Greek.THETA), Math.max(Math.abs(resGreeksConstBarrierDown.get(Greek.THETA)), 0.1));
+              final GreekResultCollection resGreeksBarrierUpTri = _modelTrinomial.getGreeks(lattice, functionBarrierUp, SPOT, volRef, rateRef, dividend[0]);
+              assertEquals(resGreeksBarrierUpTri.get(Greek.FAIR_PRICE), resGreeksConstBarrierUp.get(Greek.FAIR_PRICE), Math.max(Math.abs(resGreeksConstBarrierUp.get(Greek.FAIR_PRICE)), 0.1) * 0.1);
+              assertEquals(resGreeksBarrierUpTri.get(Greek.DELTA), resGreeksConstBarrierUp.get(Greek.DELTA), Math.max(Math.abs(resGreeksConstBarrierUp.get(Greek.DELTA)), 0.1) * 0.1);
+              assertEquals(resGreeksBarrierUpTri.get(Greek.GAMMA), resGreeksConstBarrierUp.get(Greek.GAMMA), Math.max(Math.abs(resGreeksConstBarrierUp.get(Greek.GAMMA)), 0.1) * 0.1);
+              assertEquals(resGreeksBarrierUpTri.get(Greek.THETA), resGreeksConstBarrierUp.get(Greek.THETA), Math.max(Math.abs(resGreeksConstBarrierUp.get(Greek.THETA)), 0.1));
+            }
           }
 
         }

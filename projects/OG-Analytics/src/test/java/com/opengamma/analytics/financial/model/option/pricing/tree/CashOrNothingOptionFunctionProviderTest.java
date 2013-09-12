@@ -23,12 +23,76 @@ public class CashOrNothingOptionFunctionProviderTest {
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
 
   private static final BinomialTreeOptionPricingModel _model = new BinomialTreeOptionPricingModel();
+  private static final TrinomialTreeOptionPricingModel _modelTrinomial = new TrinomialTreeOptionPricingModel();
   private static final double SPOT = 105.;
   private static final double[] STRIKES = new double[] {97., 105., 105.1, 114. };
   private static final double TIME = 4.2;
   private static final double[] INTERESTS = new double[] {-0.01, 0.017, 0.05 };
   private static final double[] VOLS = new double[] {0.05, 0.1, 0.5 };
   private static final double[] DIVIDENDS = new double[] {0.005, 0.014 };
+
+  /**
+   * 
+   */
+  @Test
+  public void priceLatticeTrinomialTest() {
+    final LatticeSpecification[] lattices = new LatticeSpecification[] {new CoxRossRubinsteinLatticeSpecification(), new JarrowRuddLatticeSpecification(),
+        new TrigeorgisLatticeSpecification(), new TianLatticeSpecification() };
+
+    final boolean[] tfSet = new boolean[] {true, false };
+    for (final LatticeSpecification lattice : lattices) {
+      for (final boolean isCall : tfSet) {
+        for (final double strike : STRIKES) {
+          for (final double interest : INTERESTS) {
+            for (final double vol : VOLS) {
+              final int nSteps = 441;
+              for (final double dividend : DIVIDENDS) {
+                final OptionFunctionProvider1D function = new CashOrNothingOptionFunctionProvider(strike, TIME, nSteps, isCall);
+                final double exactDiv = price(SPOT, strike, TIME, vol, interest, interest - dividend, isCall);
+                final double resDiv = _modelTrinomial.getPrice(lattice, function, SPOT, vol, interest, dividend);
+                final double refDiv = Math.max(exactDiv, .1) * 1.e-1;
+                assertEquals(resDiv, exactDiv, refDiv);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * 
+   */
+  @Test
+  public void greekTrinomialTest() {
+    final LatticeSpecification lattice = new TianLatticeSpecification();
+    final boolean[] tfSet = new boolean[] {true, false };
+    for (final boolean isCall : tfSet) {
+      for (final double strike : STRIKES) {
+        for (final double interest : INTERESTS) {
+          for (final double vol : VOLS) {
+            final int nSteps = 1023;
+            for (final double dividend : DIVIDENDS) {
+              final OptionFunctionProvider1D function = new CashOrNothingOptionFunctionProvider(strike, TIME, nSteps, isCall);
+              final GreekResultCollection resDiv = _modelTrinomial.getGreeks(lattice, function, SPOT, vol, interest, dividend);
+              final double priceDiv = price(SPOT, strike, TIME, vol, interest, interest - dividend, isCall);
+              final double refPriceDiv = Math.max(Math.abs(priceDiv), .1) * 1.e-1;
+              assertEquals(resDiv.get(Greek.FAIR_PRICE), priceDiv, refPriceDiv);
+              final double deltaDiv = delta(SPOT, strike, TIME, vol, interest, interest - dividend, isCall);
+              final double refDeltaDiv = Math.max(Math.abs(deltaDiv), 0.1) * 1.e-1;
+              assertEquals(resDiv.get(Greek.DELTA), deltaDiv, refDeltaDiv);
+              final double gammaDiv = gamma(SPOT, strike, TIME, vol, interest, interest - dividend, isCall);
+              final double refGammaDiv = Math.max(Math.abs(gammaDiv), 0.1) * 1.e-1;
+              assertEquals(resDiv.get(Greek.GAMMA), gammaDiv, refGammaDiv);
+              final double thetaDiv = theta(SPOT, strike, TIME, vol, interest, interest - dividend, isCall);
+              final double refThetaDiv = Math.max(Math.abs(thetaDiv), 1.) * 1.e-1;
+              assertEquals(resDiv.get(Greek.THETA), thetaDiv, refThetaDiv);
+            }
+          }
+        }
+      }
+    }
+  }
 
   /**
    * 
@@ -345,34 +409,34 @@ public class CashOrNothingOptionFunctionProviderTest {
     return -strike * (-interest) * Math.exp((-interest) * time) * NORMAL.getCDF(sign * d) - sign * strike * Math.exp((-interest) * time) * NORMAL.getPDF(d) * div;
   }
 
-  //  /**
-  //   * 
-  //   */
-  //  @Test
-  //  public void functionTest() {
-  //    final boolean[] tfSet = new boolean[] {true, false };
-  //    final double eps = 1.e-6;
-  //    for (final boolean isCall : tfSet) {
-  //      for (final double strike : STRIKES) {
-  //        for (final double interest : INTERESTS) {
-  //          for (final double vol : VOLS) {
-  //            for (final double dividend : DIVIDENDS) {
-  //              final double delta = delta(SPOT, strike, TIME, vol, interest, interest - dividend, isCall);
-  //              final double gamma = gamma(SPOT, strike, TIME, vol, interest, interest - dividend, isCall);
-  //              final double theta = theta(SPOT, strike, TIME, vol, interest, interest - dividend, isCall);
-  //              final double upSpot = price(SPOT + eps, strike, TIME, vol, interest, interest - dividend, isCall);
-  //              final double downSpot = price(SPOT - eps, strike, TIME, vol, interest, interest - dividend, isCall);
-  //              final double upSpotDelta = delta(SPOT + eps, strike, TIME, vol, interest, interest - dividend, isCall);
-  //              final double downSpotDelta = delta(SPOT - eps, strike, TIME, vol, interest, interest - dividend, isCall);
-  //              final double upTime = price(SPOT, strike, TIME + eps, vol, interest, interest - dividend, isCall);
-  //              final double downTime = price(SPOT, strike, TIME - eps, vol, interest, interest - dividend, isCall);
-  //              assertEquals(delta, 0.5 * (upSpot - downSpot) / eps, eps);
-  //              assertEquals(gamma, 0.5 * (upSpotDelta - downSpotDelta) / eps, eps);
-  //              assertEquals(theta, -0.5 * (upTime - downTime) / eps, eps);
-  //            }
-  //          }
-  //        }
-  //      }
-  //    }
-  //  }
+  /**
+   * test for analytic formula
+   */
+  @Test(enabled = false)
+  public void functionTest() {
+    final boolean[] tfSet = new boolean[] {true, false };
+    final double eps = 1.e-6;
+    for (final boolean isCall : tfSet) {
+      for (final double strike : STRIKES) {
+        for (final double interest : INTERESTS) {
+          for (final double vol : VOLS) {
+            for (final double dividend : DIVIDENDS) {
+              final double delta = delta(SPOT, strike, TIME, vol, interest, interest - dividend, isCall);
+              final double gamma = gamma(SPOT, strike, TIME, vol, interest, interest - dividend, isCall);
+              final double theta = theta(SPOT, strike, TIME, vol, interest, interest - dividend, isCall);
+              final double upSpot = price(SPOT + eps, strike, TIME, vol, interest, interest - dividend, isCall);
+              final double downSpot = price(SPOT - eps, strike, TIME, vol, interest, interest - dividend, isCall);
+              final double upSpotDelta = delta(SPOT + eps, strike, TIME, vol, interest, interest - dividend, isCall);
+              final double downSpotDelta = delta(SPOT - eps, strike, TIME, vol, interest, interest - dividend, isCall);
+              final double upTime = price(SPOT, strike, TIME + eps, vol, interest, interest - dividend, isCall);
+              final double downTime = price(SPOT, strike, TIME - eps, vol, interest, interest - dividend, isCall);
+              assertEquals(delta, 0.5 * (upSpot - downSpot) / eps, eps);
+              assertEquals(gamma, 0.5 * (upSpotDelta - downSpotDelta) / eps, eps);
+              assertEquals(theta, -0.5 * (upTime - downTime) / eps, eps);
+            }
+          }
+        }
+      }
+    }
+  }
 }

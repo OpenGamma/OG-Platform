@@ -16,7 +16,6 @@ import com.opengamma.util.ArgumentChecker;
 public class BinomialTreeOptionPricingModel extends TreeOptionPricingModel {
 
   /*
-   * TODO check put-call symmetry, american vanilla, american single barrier, european double barrier (PLAT-4547)
    * TODO time-varying vol may not be compatible to discrete dividends due to limited control of dt
    * TODO test Dividend provider for full coverage
    * TODO check convergence of theta

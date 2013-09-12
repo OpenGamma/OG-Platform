@@ -21,6 +21,7 @@ import com.opengamma.analytics.financial.greeks.GreekResultCollection;
  */
 public class BermudanOptionFunctionProviderTest {
   private static final TreeOptionPricingModel _model = new BinomialTreeOptionPricingModel();
+  private static final TrinomialTreeOptionPricingModel _modelTrinomial = new TrinomialTreeOptionPricingModel();
 
   private static final double SPOT = 105.;
   private static final double[] STRIKES = new double[] {97., 105., 114., };
@@ -29,6 +30,71 @@ public class BermudanOptionFunctionProviderTest {
   private static final double[] VOLS = new double[] {0.04, 0.15, 0.4 };
 
   private static final double[] DIVIDENDS = new double[] {0.02, 0.09 };
+
+  /**
+   * 
+   */
+  @Test
+  public void priceBinomialTrinomialTest() {
+    final LatticeSpecification[] lattices = new LatticeSpecification[] {new CoxRossRubinsteinLatticeSpecification(), new JarrowRuddLatticeSpecification(), new TrigeorgisLatticeSpecification(),
+        new TianLatticeSpecification() };
+
+    final double time = 5.;
+    final double[] exerciseTimes = new double[] {0.1, 1., 13. / 12., 1.6, 2.5, 3.1, 10. / 3., 11. / 3., 5.0 };
+    final int steps = 107;
+
+    final boolean[] tfSet = new boolean[] {true, false };
+    for (final boolean isCall : tfSet) {
+      for (final double strike : STRIKES) {
+        for (final double interest : INTERESTS) {
+          for (final double vol : VOLS) {
+            for (final double dividend : DIVIDENDS) {
+              final OptionFunctionProvider1D function = new BermudanOptionFunctionProvider(strike, time, steps, isCall, exerciseTimes);
+              final double res = _model.getPrice(new LeisenReimerLatticeSpecification(), function, SPOT, vol, interest, dividend);
+              for (final LatticeSpecification lattice : lattices) {
+                final double resTri = _modelTrinomial.getPrice(lattice, function, SPOT, vol, interest, dividend);
+                assertEquals(resTri, res, Math.max(Math.abs(res), 1.) * 1.e-1);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * 
+   */
+  @Test
+  public void greeksBinomialTrinomialTest() {
+    final LatticeSpecification[] lattices = new LatticeSpecification[] {new CoxRossRubinsteinLatticeSpecification(), new JarrowRuddLatticeSpecification(), new TrigeorgisLatticeSpecification(),
+        new TianLatticeSpecification() };
+
+    final double time = 5.;
+    final double[] exerciseTimes = new double[] {0.1, 1., 13. / 12., 1.6, 2.5, 3.1, 10. / 3., 11. / 3., 5.0 };
+    final int steps = 877;
+
+    final boolean[] tfSet = new boolean[] {true, false };
+    for (final boolean isCall : tfSet) {
+      for (final double strike : STRIKES) {
+        for (final double interest : INTERESTS) {
+          for (final double vol : VOLS) {
+            for (final double dividend : DIVIDENDS) {
+              final OptionFunctionProvider1D function = new BermudanOptionFunctionProvider(strike, time, steps, isCall, exerciseTimes);
+              final GreekResultCollection res = _model.getGreeks(new LeisenReimerLatticeSpecification(), function, SPOT, vol, interest, dividend);
+              for (final LatticeSpecification lattice : lattices) {
+                final GreekResultCollection resTri = _modelTrinomial.getGreeks(lattice, function, SPOT, vol, interest, dividend);
+                assertEquals(resTri.get(Greek.FAIR_PRICE), res.get(Greek.FAIR_PRICE), Math.max(Math.abs(res.get(Greek.FAIR_PRICE)), 1.) * 1.e-1);
+                assertEquals(resTri.get(Greek.DELTA), res.get(Greek.DELTA), Math.max(Math.abs(res.get(Greek.DELTA)), 1.) * 1.e-1);
+                assertEquals(resTri.get(Greek.GAMMA), res.get(Greek.GAMMA), Math.max(Math.abs(res.get(Greek.GAMMA)), 1.) * 1.e-1);
+                assertEquals(resTri.get(Greek.THETA), res.get(Greek.THETA), Math.max(Math.abs(res.get(Greek.THETA)), 1.) * 1.e-1);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 
   /**
    * the exercise times agree with nodes. Then the option price is the same as the American vanilla option

@@ -21,6 +21,7 @@ import com.opengamma.analytics.financial.model.volatility.BlackScholesFormulaRep
  */
 public class EuropeanVanillaOptionFunctionProviderTest {
   private static final BinomialTreeOptionPricingModel _model = new BinomialTreeOptionPricingModel();
+  private static final TrinomialTreeOptionPricingModel _modelTrinomial = new TrinomialTreeOptionPricingModel();
   private static final double SPOT = 105.;
   private static final double[] STRIKES = new double[] {81., 97., 105., 105.1, 114., 138. };
   private static final double TIME = 4.2;
@@ -28,6 +29,72 @@ public class EuropeanVanillaOptionFunctionProviderTest {
   private static final double[] VOLS = new double[] {0.05, 0.1, 0.5 };
 
   private static final double[] DIVIDENDS = new double[] {0.005, 0.02 };
+
+  /**
+   * 
+   */
+  @Test
+  public void priceLatticeTrinomialTest() {
+    final LatticeSpecification[] lattices = new LatticeSpecification[] {new CoxRossRubinsteinLatticeSpecification(), new JarrowRuddLatticeSpecification(),
+        new TrigeorgisLatticeSpecification(), new TianLatticeSpecification() };
+
+    final boolean[] tfSet = new boolean[] {true, false };
+    for (final LatticeSpecification lattice : lattices) {
+      for (final boolean isCall : tfSet) {
+        for (final double strike : STRIKES) {
+          for (final double interest : INTERESTS) {
+            for (final double vol : VOLS) {
+              final int nSteps = 621;
+              for (final double dividend : DIVIDENDS) {
+                final OptionFunctionProvider1D function = new EuropeanVanillaOptionFunctionProvider(strike, TIME, nSteps, isCall);
+                final double exactDiv = BlackScholesFormulaRepository.price(SPOT, strike, TIME, vol, interest, interest - dividend, isCall);
+                final double resDiv = _modelTrinomial.getPrice(lattice, function, SPOT, vol, interest, dividend);
+                final double refDiv = lattice instanceof CoxRossRubinsteinLatticeSpecification ? Math.max(exactDiv, 1.) * 1.e-2 : Math.max(exactDiv, 1.) * 1.e-3;
+                assertEquals(resDiv, exactDiv, refDiv);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * 
+   */
+  @Test
+  public void greekTrinomialTest() {
+    final LatticeSpecification[] lattices = new LatticeSpecification[] {new CoxRossRubinsteinLatticeSpecification(), new JarrowRuddLatticeSpecification(),
+        new TrigeorgisLatticeSpecification(), new TianLatticeSpecification() };
+    final boolean[] tfSet = new boolean[] {true, false };
+    for (final LatticeSpecification lattice : lattices) {
+      for (final boolean isCall : tfSet) {
+        for (final double strike : STRIKES) {
+          for (final double interest : INTERESTS) {
+            for (final double vol : VOLS) {
+              final int nSteps = 177;
+              for (final double dividend : DIVIDENDS) {
+                final OptionFunctionProvider1D function = new EuropeanVanillaOptionFunctionProvider(strike, TIME, nSteps, isCall);
+                final GreekResultCollection resDiv = _modelTrinomial.getGreeks(lattice, function, SPOT, vol, interest, dividend);
+                final double priceDiv = BlackScholesFormulaRepository.price(SPOT, strike, TIME, vol, interest, interest - dividend, isCall);
+                final double refPriceDiv = Math.max(Math.abs(priceDiv), 1.) * 1.e-2;
+                assertEquals(resDiv.get(Greek.FAIR_PRICE), priceDiv, refPriceDiv);
+                final double deltaDiv = BlackScholesFormulaRepository.delta(SPOT, strike, TIME, vol, interest, interest - dividend, isCall);
+                final double refDeltaDiv = Math.max(Math.abs(deltaDiv), 0.1) * 1.e-1;
+                assertEquals(resDiv.get(Greek.DELTA), deltaDiv, refDeltaDiv);
+                final double gammaDiv = BlackScholesFormulaRepository.gamma(SPOT, strike, TIME, vol, interest, interest - dividend);
+                final double refGammaDiv = Math.max(Math.abs(gammaDiv), 0.1) * 1.e-1;
+                assertEquals(resDiv.get(Greek.GAMMA), gammaDiv, refGammaDiv);
+                final double thetaDiv = BlackScholesFormulaRepository.theta(SPOT, strike, TIME, vol, interest, interest - dividend, isCall);
+                final double refThetaDiv = Math.max(Math.abs(thetaDiv), 0.1) * 1.e-1;
+                assertEquals(resDiv.get(Greek.THETA), thetaDiv, refThetaDiv);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 
   /**
    * 
@@ -50,7 +117,6 @@ public class EuropeanVanillaOptionFunctionProviderTest {
                   final double exactDiv = BlackScholesFormulaRepository.price(SPOT, strike, TIME, vol, interest, interest - dividend, isCall);
                   final double resDiv = _model.getPrice(lattice, function, SPOT, vol, interest, dividend);
                   final double refDiv = (lattice instanceof LeisenReimerLatticeSpecification) ? Math.max(exactDiv, 1.) / nSteps / nSteps : Math.max(exactDiv, 1.) / Math.sqrt(nSteps);
-                  //                  System.out.println(SPOT + "\t" + strike + "\t" + TIME + "\t" + vol + "\t" + interest + "\t" + dividend + "\t" + nSteps + "\t" + isCall);
                   assertEquals(resDiv, exactDiv, refDiv);
                 }
               }
@@ -71,7 +137,7 @@ public class EuropeanVanillaOptionFunctionProviderTest {
 
     final double[] propDividends = new double[] {0.01, 0.01, 0.01 };
     final double[] cashDividends = new double[] {5., 10., 8. };
-    final double[] dividendTimes = new double[] {TIME / 6., TIME / 3., TIME / 2. };
+    final double[] dividendTimes = new double[] {TIME / 9., TIME / 3., TIME / 2. };
 
     final boolean[] tfSet = new boolean[] {true, false };
     for (final LatticeSpecification lattice : lattices) {
@@ -79,7 +145,7 @@ public class EuropeanVanillaOptionFunctionProviderTest {
         for (final double strike : STRIKES) {
           for (final double interest : INTERESTS) {
             for (final double vol : VOLS) {
-              final int[] choicesSteps = new int[] {31, 115, 301 };
+              final int[] choicesSteps = new int[] {33, 115 };
               for (final int nSteps : choicesSteps) {
                 final OptionFunctionProvider1D function = new EuropeanVanillaOptionFunctionProvider(strike, TIME, nSteps, isCall);
                 final DividendFunctionProvider cashDividend = new CashDividendFunctionProvider(dividendTimes, cashDividends);
@@ -191,7 +257,7 @@ public class EuropeanVanillaOptionFunctionProviderTest {
 
     final double[] propDividends = new double[] {0.01, 0.01, 0.01 };
     final double[] cashDividends = new double[] {5., 10., 8. };
-    final double[] dividendTimes = new double[] {TIME / 6., TIME / 3., TIME / 2. };
+    final double[] dividendTimes = new double[] {TIME / 420., TIME / 203., TIME / 2. };
 
     final boolean[] tfSet = new boolean[] {true, false };
     for (final LatticeSpecification lattice : lattices) {

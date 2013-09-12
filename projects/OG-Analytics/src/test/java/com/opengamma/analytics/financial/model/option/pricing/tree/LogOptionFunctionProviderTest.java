@@ -23,12 +23,73 @@ public class LogOptionFunctionProviderTest {
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
 
   private static final BinomialTreeOptionPricingModel _model = new BinomialTreeOptionPricingModel();
+  private static final TrinomialTreeOptionPricingModel _modelTrinomial = new TrinomialTreeOptionPricingModel();
   private static final double SPOT = 105.;
   private static final double[] STRIKES = new double[] {97., 105., 105.1, 114. };
   private static final double TIME = 4.2;
   private static final double[] INTERESTS = new double[] {-0.01, 0.017, 0.05 };
   private static final double[] VOLS = new double[] {0.05, 0.1, 0.5 };
   private static final double[] DIVIDENDS = new double[] {0.005, 0.014 };
+
+  /**
+   * 
+   */
+  @Test
+  public void priceLatticeTrinomialTest() {
+    final LatticeSpecification[] lattices = new LatticeSpecification[] {new CoxRossRubinsteinLatticeSpecification(), new JarrowRuddLatticeSpecification(),
+        new TrigeorgisLatticeSpecification(), new TianLatticeSpecification() };
+
+    for (final LatticeSpecification lattice : lattices) {
+      for (final double strike : STRIKES) {
+        for (final double interest : INTERESTS) {
+          for (final double vol : VOLS) {
+            final int nSteps = 91;
+            for (final double dividend : DIVIDENDS) {
+              final OptionFunctionProvider1D function = new LogOptionFunctionProvider(strike, TIME, nSteps);
+              final double exactDiv = price(SPOT, strike, TIME, vol, interest, interest - dividend);
+              final double resDiv = _modelTrinomial.getPrice(lattice, function, SPOT, vol, interest, dividend);
+              final double refDiv = Math.max(exactDiv, 1.) * 1.e-3;
+              assertEquals(resDiv, exactDiv, refDiv);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * 
+   */
+  @Test
+  public void greekTrinomialTest() {
+    final LatticeSpecification[] lattices = new LatticeSpecification[] {new CoxRossRubinsteinLatticeSpecification(), new JarrowRuddLatticeSpecification(),
+        new TrigeorgisLatticeSpecification(), new TianLatticeSpecification() };
+    for (final LatticeSpecification lattice : lattices) {
+      for (final double strike : STRIKES) {
+        for (final double interest : INTERESTS) {
+          for (final double vol : VOLS) {
+            final int nSteps = 91;
+            for (final double dividend : DIVIDENDS) {
+              final OptionFunctionProvider1D function = new LogOptionFunctionProvider(strike, TIME, nSteps);
+              final GreekResultCollection resDiv = _modelTrinomial.getGreeks(lattice, function, SPOT, vol, interest, dividend);
+              final double priceDiv = price(SPOT, strike, TIME, vol, interest, interest - dividend);
+              final double refPriceDiv = Math.max(Math.abs(priceDiv), 1.) * 1.e-3;
+              assertEquals(resDiv.get(Greek.FAIR_PRICE), priceDiv, refPriceDiv);
+              final double deltaDiv = delta(SPOT, strike, TIME, vol, interest, interest - dividend);
+              final double refDeltaDiv = Math.max(Math.abs(deltaDiv), 1.) * 1.e-3;
+              assertEquals(resDiv.get(Greek.DELTA), deltaDiv, refDeltaDiv);
+              final double gammaDiv = gamma(SPOT, strike, TIME, vol, interest, interest - dividend);
+              final double refGammaDiv = Math.max(Math.abs(gammaDiv), 1.) * 1.e-3;
+              assertEquals(resDiv.get(Greek.GAMMA), gammaDiv, refGammaDiv);
+              final double thetaDiv = theta(SPOT, strike, TIME, vol, interest, interest - dividend);
+              final double refThetaDiv = Math.max(Math.abs(thetaDiv), 1.) * 1.e-3;
+              assertEquals(resDiv.get(Greek.THETA), thetaDiv, refThetaDiv);
+            }
+          }
+        }
+      }
+    }
+  }
 
   /**
    * 
@@ -332,31 +393,31 @@ public class LogOptionFunctionProviderTest {
     return -firstTerm - secondTerm - thirdTerm;
   }
 
-  //  /**
-  //   * 
-  //   */
-  //  @Test
-  //  public void functionTest() {
-  //    final double eps = 1.e-6;
-  //    for (final double strike : STRIKES) {
-  //      for (final double interest : INTERESTS) {
-  //        for (final double vol : VOLS) {
-  //          for (final double dividend : DIVIDENDS) {
-  //            final double delta = delta(SPOT, strike, TIME, vol, interest, interest - dividend);
-  //            final double gamma = gamma(SPOT, strike, TIME, vol, interest, interest - dividend);
-  //            final double theta = theta(SPOT, strike, TIME, vol, interest, interest - dividend);
-  //            final double upSpot = price(SPOT + eps, strike, TIME, vol, interest, interest - dividend);
-  //            final double downSpot = price(SPOT - eps, strike, TIME, vol, interest, interest - dividend);
-  //            final double upSpotDelta = delta(SPOT + eps, strike, TIME, vol, interest, interest - dividend);
-  //            final double downSpotDelta = delta(SPOT - eps, strike, TIME, vol, interest, interest - dividend);
-  //            final double upTime = price(SPOT, strike, TIME + eps, vol, interest, interest - dividend);
-  //            final double downTime = price(SPOT, strike, TIME - eps, vol, interest, interest - dividend);
-  //            assertEquals(delta, 0.5 * (upSpot - downSpot) / eps, eps);
-  //            assertEquals(gamma, 0.5 * (upSpotDelta - downSpotDelta) / eps, eps);
-  //            assertEquals(theta, -0.5 * (upTime - downTime) / eps, eps);
-  //          }
-  //        }
-  //      }
-  //    }
-  //  }
+  /**
+   * test for analytic formula
+   */
+  @Test(enabled = false)
+  public void functionTest() {
+    final double eps = 1.e-6;
+    for (final double strike : STRIKES) {
+      for (final double interest : INTERESTS) {
+        for (final double vol : VOLS) {
+          for (final double dividend : DIVIDENDS) {
+            final double delta = delta(SPOT, strike, TIME, vol, interest, interest - dividend);
+            final double gamma = gamma(SPOT, strike, TIME, vol, interest, interest - dividend);
+            final double theta = theta(SPOT, strike, TIME, vol, interest, interest - dividend);
+            final double upSpot = price(SPOT + eps, strike, TIME, vol, interest, interest - dividend);
+            final double downSpot = price(SPOT - eps, strike, TIME, vol, interest, interest - dividend);
+            final double upSpotDelta = delta(SPOT + eps, strike, TIME, vol, interest, interest - dividend);
+            final double downSpotDelta = delta(SPOT - eps, strike, TIME, vol, interest, interest - dividend);
+            final double upTime = price(SPOT, strike, TIME + eps, vol, interest, interest - dividend);
+            final double downTime = price(SPOT, strike, TIME - eps, vol, interest, interest - dividend);
+            assertEquals(delta, 0.5 * (upSpot - downSpot) / eps, eps);
+            assertEquals(gamma, 0.5 * (upSpotDelta - downSpotDelta) / eps, eps);
+            assertEquals(theta, -0.5 * (upTime - downTime) / eps, eps);
+          }
+        }
+      }
+    }
+  }
 }

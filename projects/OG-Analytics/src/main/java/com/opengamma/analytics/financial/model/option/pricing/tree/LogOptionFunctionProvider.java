@@ -34,15 +34,17 @@ public class LogOptionFunctionProvider extends OptionFunctionProvider1D {
   }
 
   @Override
-  public double[] getNextOptionValues(final double discount, final double upProbability, final double downProbability, final double[] values, final double baseAssetPrice, final double sumCashDiv,
-      final double downFactor, final double upOverDown, final int steps) {
-    final int nStepsP = steps + 1;
+  public double[] getPayoffAtExpiryTrinomial(final double assetPrice, final double middleOverDown) {
+    final double strike = getStrike();
+    final int nNodes = 2 * getNumberOfSteps() + 1;
 
-    final double[] res = new double[nStepsP];
-    for (int j = 0; j < nStepsP; ++j) {
-      res[j] = discount * (upProbability * values[j + 1] + downProbability * values[j]);
+    final double[] values = new double[nNodes];
+    double priceTmp = assetPrice;
+    for (int i = 0; i < nNodes; ++i) {
+      values[i] = Math.max(Math.log(priceTmp / strike), 0.);
+      priceTmp *= middleOverDown;
     }
-    return res;
+    return values;
   }
 
   @Override
