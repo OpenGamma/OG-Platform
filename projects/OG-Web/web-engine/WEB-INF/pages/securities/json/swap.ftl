@@ -33,19 +33,22 @@
             <#case "FloatingInterestRateLeg">
               ,
               "floatingReferenceRateId":"${security.payLeg.floatingReferenceRateId}",
-              "initialFloatingRate":"${security.payLeg.initialFloatingRate}"
+              "initialFloatingRate":"${security.payLeg.initialFloatingRate}",
+              "floatingRateType":"${security.payLeg.floatingRateType}"
             <#break>
             <#case "FloatingSpreadInterestRateLeg">
               ,
               "floatingReferenceRateId":"${security.payLeg.floatingReferenceRateId}",
               "initialFloatingRate":"${security.payLeg.initialFloatingRate}",
-              "spread":"${security.payLeg.spread}"
+              "spread":"${security.payLeg.spread}",
+              "floatingRateType":"${security.payLeg.floatingRateType}"
             <#break>
             <#case "FloatingGearingInterestRateLeg">
               ,
               "floatingReferenceRateId":"${security.payLeg.floatingReferenceRateId}",
               "initialFloatingRate":"${security.payLeg.initialFloatingRate}",
-              "gearing":"${security.payLeg.gearing}"
+              "gearing":"${security.payLeg.gearing}",
+              "floatingRateType":"${security.payLeg.floatingRateType}"
             <#break>
             <#case "FixedInflationLeg">
               ,
@@ -77,19 +80,22 @@
             <#case "FloatingInterestRateLeg">
               ,
               "floatingReferenceRateId":"${security.receiveLeg.floatingReferenceRateId}",
-              "initialFloatingRate":"${security.receiveLeg.initialFloatingRate}"
+              "initialFloatingRate":"${security.receiveLeg.initialFloatingRate}",
+              "floatingRateType":"${security.receiveLeg.floatingRateType}"
             <#break>
             <#case "FloatingSpreadInterestRateLeg">
               ,
               "floatingReferenceRateId":"${security.receiveLeg.floatingReferenceRateId}",
               "initialFloatingRate":"${security.receiveLeg.initialFloatingRate}",
-              "spread":"${security.receiveLeg.spread}"
+              "spread":"${security.receiveLeg.spread}",
+              "floatingRateType":"${security.receiveLeg.floatingRateType}"
             <#break>
             <#case "FloatingGearingInterestRateLeg">
               ,
               "floatingReferenceRateId":"${security.receiveLeg.floatingReferenceRateId}",
               "initialFloatingRate":"${security.receiveLeg.initialFloatingRate}",
-              "gearing":"${security.receiveLeg.gearing}"
+              "gearing":"${security.receiveLeg.gearing}",
+              "floatingRateType":"${security.receiveLeg.floatingRateType}"
             <#break>
             <#case "FixedInflationLeg">
               ,
