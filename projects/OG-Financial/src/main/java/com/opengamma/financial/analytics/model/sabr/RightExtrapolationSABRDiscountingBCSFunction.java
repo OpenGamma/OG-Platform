@@ -5,16 +5,20 @@
  */
 package com.opengamma.financial.analytics.model.sabr;
 
+import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
 import static com.opengamma.engine.value.ValueRequirementNames.BLOCK_CURVE_SENSITIVITIES;
 import static com.opengamma.financial.analytics.model.sabr.SABRPropertyValues.PROPERTY_MU;
 import static com.opengamma.financial.analytics.model.sabr.SABRPropertyValues.PROPERTY_STRIKE_CUTOFF;
 
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 import org.threeten.bp.Instant;
 
 import com.google.common.collect.Iterables;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
@@ -32,6 +36,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
@@ -58,7 +63,26 @@ public class RightExtrapolationSABRDiscountingBCSFunction extends RightExtrapola
       protected Set<ComputedValue> getValues(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
           final ComputationTarget target, final Set<ValueRequirement> desiredValues, final InstrumentDerivative derivative,
           final FXMatrix fxMatrix) {
-        final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
+        ValueProperties.Builder properties = null;
+        if (desiredValues.size() == 1) {
+          properties = Iterables.getOnlyElement(desiredValues).getConstraints().copy();
+        } else {
+          final Iterator<ValueRequirement> iterator = desiredValues.iterator();
+          final Set<String> curveNames = new HashSet<>();
+          while (iterator.hasNext()) {
+            if (properties == null) {
+              properties = iterator.next().getConstraints().copy();
+              curveNames.addAll(properties.get().getValues(CURVE));
+            } else {
+              curveNames.addAll(iterator.next().getConstraints().getValues(CURVE));
+            }
+          }
+          if (properties == null) {
+            throw new OpenGammaRuntimeException("No entries in desiredValues");
+          }
+          properties.withoutAny(CURVE).with(CURVE, curveNames);
+        }
+        final ValueRequirement desiredValue = desiredValues.iterator().next();
         final DayCount dayCount = DayCountFactory.INSTANCE.getDayCount("Act/360"); //TODO
         final SABRSwaptionProvider sabrData = getSABRSurfaces(executionContext, inputs, target, fxMatrix, dayCount);
         final double strikeCutoff = Double.parseDouble(desiredValue.getConstraint(PROPERTY_STRIKE_CUTOFF));

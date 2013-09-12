@@ -180,6 +180,10 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
   protected FunctionConfigurationSource curveConfigurations() {
     return CurveFunctions.providers(getConfigMaster());
   }
+  
+  protected FunctionConfigurationSource curveParameterConfigurations() {
+    return CurveFunctions.parameterProviders(getConfigMaster());
+  }
 
   /**
    * Initializes the list of sources to be combined.
@@ -204,6 +208,7 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
     final List<FunctionConfigurationSource> sources = new LinkedList<FunctionConfigurationSource>();    
     sources.add(yieldCurveConfigurations());
     sources.add(curveConfigurations());
+    sources.add(curveParameterConfigurations());
     sources.add(fxForwardCurveConfigurations());
     return sources;
   }

@@ -21,11 +21,13 @@ import com.opengamma.financial.analytics.curve.CurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.InflationCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.IssuerCurveTypeConfiguration;
 import com.opengamma.financial.analytics.model.curve.forward.InstantaneousForwardCurveFunction;
+import com.opengamma.financial.analytics.parameters.HullWhiteOneFactorParameters;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.impl.ConfigSearchIterator;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 
 /**
  * Function repository configuration source for the functions contained in this package and sub-packages.
@@ -41,8 +43,19 @@ public class CurveFunctions extends AbstractFunctionConfigurationBean {
     return new CurveFunctions().getObjectCreating();
   }
 
+  /**
+   * Returns a configuration populated with curve building functions
+   * @param configMaster The config master
+   * @return A populated configuration
+   */
   public static FunctionConfigurationSource providers(final ConfigMaster configMaster) {
     final Providers factory = new Providers();
+    factory.setConfigMaster(configMaster);
+    return factory.getObjectCreating();
+  }
+
+  public static FunctionConfigurationSource parameterProviders(final ConfigMaster configMaster) {
+    final ParameterProviders factory = new ParameterProviders();
     factory.setConfigMaster(configMaster);
     return factory.getObjectCreating();
   }
@@ -106,11 +119,19 @@ public class CurveFunctions extends AbstractFunctionConfigurationBean {
   public static class Providers extends AbstractFunctionConfigurationBean {
     private ConfigMaster _configMaster;
 
+    /**
+     * Sets the config master.
+     * @param configMaster The config master, not null
+     */
     public void setConfigMaster(final ConfigMaster configMaster) {
       ArgumentChecker.notNull(configMaster, "config master");
       _configMaster = configMaster;
     }
 
+    /**
+     * Gets the config master.
+     * @return The config master
+     */
     public ConfigMaster getConfigMaster() {
       return _configMaster;
     }
@@ -144,14 +165,14 @@ public class CurveFunctions extends AbstractFunctionConfigurationBean {
         searchRequest.setType(klass);
         for (final ConfigDocument configDocument : ConfigSearchIterator.iterable(getConfigMaster(), searchRequest)) {
           final String documentName = configDocument.getName();
-          CurveConstructionConfiguration config = ((ConfigItem<CurveConstructionConfiguration>) configDocument.getConfig()).getValue();
-          
+          final CurveConstructionConfiguration config = ((ConfigItem<CurveConstructionConfiguration>) configDocument.getConfig()).getValue();
+
           /*
            * We need the CurveTypeConfigurations of the curves contained within the CurveConstructionConfiguration to
            * decided whether we want to add the curve building function for this CurveConstructionConfiguration.
            */
-          Set<Class<? extends CurveTypeConfiguration>> allCurveTypeConfigs = extractCurveTypeConfigurationClasses(config);
-          
+          final Set<Class<? extends CurveTypeConfiguration>> allCurveTypeConfigs = extractCurveTypeConfigurationClasses(config);
+
           addInterpolatedCurveBuildingFunctions(functions, allCurveTypeConfigs, documentName);
         }
       }
@@ -167,15 +188,15 @@ public class CurveFunctions extends AbstractFunctionConfigurationBean {
      * Extracts the CurveTypeConfiguration classes from a given CurveConstructionConfiguration.
      * <p>
      * This allows us to decide whether we want a function to be supported based on the contained CurveTypeConfigurations.
-     * 
+     *
      * @param config the CurveConstructionConfiguration to retrieve the curve types from.
      * @return a Set of CurveTypeConfigurations.
      */
-    private Set<Class<? extends CurveTypeConfiguration>> extractCurveTypeConfigurationClasses(CurveConstructionConfiguration config) {
-      Set<Class<? extends CurveTypeConfiguration>> allCurveTypeConfigs = new HashSet<>();
-      for (CurveGroupConfiguration group: config.getCurveGroups()) {
-        for (List<CurveTypeConfiguration> curveTypeConfigs: group.getTypesForCurves().values()) {
-          for (CurveTypeConfiguration curveTypeConfig: curveTypeConfigs) {
+    private static Set<Class<? extends CurveTypeConfiguration>> extractCurveTypeConfigurationClasses(final CurveConstructionConfiguration config) {
+      final Set<Class<? extends CurveTypeConfiguration>> allCurveTypeConfigs = new HashSet<>();
+      for (final CurveGroupConfiguration group: config.getCurveGroups()) {
+        for (final List<CurveTypeConfiguration> curveTypeConfigs: group.getTypesForCurves().values()) {
+          for (final CurveTypeConfiguration curveTypeConfig: curveTypeConfigs) {
             allCurveTypeConfigs.add(curveTypeConfig.getClass());
           }
         }
@@ -184,9 +205,41 @@ public class CurveFunctions extends AbstractFunctionConfigurationBean {
     }
   }
 
+  /**
+   * Function repository configuration source for curve parameter functions based on the items in a {@link ConfigMaster}
+   */
+  public static class ParameterProviders extends AbstractFunctionConfigurationBean {
+    private ConfigMaster _configMaster;
+
+    /**
+     * Sets the config master
+     * @param configMaster The config master, not null
+     */
+    public void setConfigMaster(final ConfigMaster configMaster) {
+      ArgumentChecker.notNull(configMaster, "config master");
+      _configMaster = configMaster;
+    }
+
+    public ConfigMaster getConfigMaster() {
+      return _configMaster;
+    }
+
+    @Override
+    protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
+      final ConfigSearchRequest<HullWhiteOneFactorParameters> searchRequest = new ConfigSearchRequest<>();
+      searchRequest.setType(HullWhiteOneFactorParameters.class);
+      for (final ConfigDocument configDocument : ConfigSearchIterator.iterable(getConfigMaster(), searchRequest)) {
+        final String configurationName = configDocument.getName();
+        final HullWhiteOneFactorParameters hullWhiteParameters = ((ConfigItem<HullWhiteOneFactorParameters>) configDocument.getConfig()).getValue();
+        final Currency currency = hullWhiteParameters.getCurrency();
+        functions.add(functionConfiguration(HullWhiteOneFactorParametersFunction.class, configurationName, currency.getCode()));
+      }
+    }
+  }
+
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
-    functions.add(functionConfiguration(HullWhiteOneFactorParametersFunction.class));
+    functions.add(functionConfiguration(HardCodedHullWhiteOneFactorParametersFunction.class));
     functions.add(functionConfiguration(G2ppParametersFunction.class));
     functions.add(functionConfiguration(InstantaneousForwardCurveFunction.class));
   }

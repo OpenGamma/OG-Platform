@@ -11,7 +11,6 @@ import static com.opengamma.engine.value.ValueRequirementNames.CURVE_BUNDLE;
 import static com.opengamma.engine.value.ValueRequirementNames.JACOBIAN_BUNDLE;
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.HULL_WHITE_DISCOUNTING;
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.PROPERTY_CURVE_TYPE;
-import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.PROPERTY_HULL_WHITE_CURRENCY;
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.PROPERTY_HULL_WHITE_PARAMETERS;
 
 import java.util.Collection;
@@ -143,8 +142,7 @@ public abstract class HullWhiteDiscountingFunction extends MultiCurvePricingFunc
       final ValueProperties.Builder properties =  createValueProperties()
           .with(PROPERTY_CURVE_TYPE, HULL_WHITE_DISCOUNTING)
           .withAny(CURVE_EXPOSURES)
-          .withAny(PROPERTY_HULL_WHITE_PARAMETERS)
-          .withAny(PROPERTY_HULL_WHITE_CURRENCY);
+          .withAny(PROPERTY_HULL_WHITE_PARAMETERS);
       if (_withCurrency) {
         final Security security = target.getTrade().getSecurity();
         if (security instanceof SwapSecurity
@@ -175,20 +173,14 @@ public abstract class HullWhiteDiscountingFunction extends MultiCurvePricingFunc
       if (hullWhiteParameters == null || hullWhiteParameters.size() != 1) {
         return false;
       }
-      final Set<String> hullWhiteCurrencies = constraints.getValues(PROPERTY_HULL_WHITE_CURRENCY);
-      if (hullWhiteCurrencies == null || hullWhiteCurrencies.size() != 1) {
-        return false;
-      }
       return true;
     }
 
     @Override
     protected Builder getCurveProperties(final ComputationTarget target, final ValueProperties constraints) {
-      final Set<String> currency = constraints.getValues(PROPERTY_HULL_WHITE_CURRENCY);
       final Set<String> hullWhiteParameters = constraints.getValues(PROPERTY_HULL_WHITE_PARAMETERS);
       return ValueProperties.builder()
-          .with(PROPERTY_HULL_WHITE_PARAMETERS, hullWhiteParameters)
-          .with(PROPERTY_HULL_WHITE_CURRENCY, currency);
+          .with(PROPERTY_HULL_WHITE_PARAMETERS, hullWhiteParameters);
     }
 
     protected HullWhiteOneFactorProviderDiscount getMergedProviders(final FunctionInputs inputs, final FXMatrix matrix) {

@@ -21,6 +21,7 @@ import java.util.Set;
 
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorCurveYieldInterpolated;
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorYDCurve;
@@ -251,11 +252,12 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
       if (hwCurrencies == null || hwCurrencies.size() != 1) {
         return null;
       }
+      final Currency hwCurrency = Currency.of(Iterables.getOnlyElement(hwCurrencies));
       final ValueProperties hwProperties = ValueProperties.builder()
           .with(PROPERTY_HULL_WHITE_PARAMETERS, hwPropertyNames)
           .with(PROPERTY_HULL_WHITE_CURRENCY, hwCurrencies)
           .get();
-      requirements.add(new ValueRequirement(ValueRequirementNames.HULL_WHITE_ONE_FACTOR_PARAMETERS, ComputationTargetSpecification.NULL, hwProperties));
+      requirements.add(new ValueRequirement(ValueRequirementNames.HULL_WHITE_ONE_FACTOR_PARAMETERS, ComputationTargetSpecification.of(hwCurrency), hwProperties));
       return requirements;
     }
 
