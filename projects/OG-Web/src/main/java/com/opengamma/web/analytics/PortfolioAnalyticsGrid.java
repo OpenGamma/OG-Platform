@@ -38,7 +38,7 @@ import com.opengamma.id.ObjectId;
   /* package */ PortfolioAnalyticsGrid(PortfolioGridStructure gridStructure,
                                        PortfolioAnalyticsGrid previousGrid,
                                        CompiledViewDefinition compiledViewDef) {
-    super(AnalyticsView.GridType.PORTFOLIO, previousGrid, compiledViewDef);
+    super(AnalyticsView.GridType.PORTFOLIO, previousGrid, compiledViewDef, gridStructure.getValueMappings());
     _gridStructure = gridStructure;
   }
 

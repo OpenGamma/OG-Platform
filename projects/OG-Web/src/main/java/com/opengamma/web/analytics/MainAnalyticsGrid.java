@@ -65,14 +65,15 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
 
   /* package */ MainAnalyticsGrid(AnalyticsView.GridType gridType,
                                   MainAnalyticsGrid<T> previousGrid,
-                                  CompiledViewDefinition compiledViewDef) {
+                                  CompiledViewDefinition compiledViewDef,
+                                  ValueMappings valueMappings) {
     super(previousGrid.getViewportListener(), previousGrid.getCallbackId(), previousGrid.getViewports());
     ArgumentChecker.notNull(gridType, "gridType");
     _gridType = gridType;
     _targetResolver = previousGrid.getTargetResolver();
     // reopen existing dependency graphs using the value requirements from the depgraph grid structures
     for (Map.Entry<Integer, DependencyGraphGrid> entry : previousGrid._depGraphs.entrySet()) {
-      openDependencyGraph(entry.getKey(), entry.getValue(), compiledViewDef);
+      openDependencyGraph(entry.getKey(), entry.getValue(), compiledViewDef, valueMappings);
     }
   }
 
@@ -140,10 +141,12 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
    * @param previousGrid Previous version of the same grid, created with the previous version of the view definition
    * @param compiledViewDef Compiled view definition containing the full dependency graph
    */
-  private void openDependencyGraph(int graphId, DependencyGraphGrid previousGrid, CompiledViewDefinition compiledViewDef) {
+  private void openDependencyGraph(int graphId,
+                                   DependencyGraphGrid previousGrid,
+                                   CompiledViewDefinition compiledViewDef,
+                                   ValueMappings valueMappings) {
     s_logger.debug("Creating new version of dependency graph grid {}", previousGrid.getCallbackId());
     DependencyGraphGridStructure structure = previousGrid.getGridStructure();
-    ValueMappings valueMappings = getGridStructure().getValueMappings();
     String calcConfigName = structure.getCalculationConfigurationName();
     ValueRequirement valueReq = structure.getRootRequirement();
     ValueSpecification valueSpec = valueMappings.getValueSpecification(calcConfigName, valueReq);
