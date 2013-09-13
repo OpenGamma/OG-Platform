@@ -54,7 +54,7 @@ API compatibility
 Analytics compatibility
 - In FX implied curve construction, the curve node tenors are now adjusted correctly using holidays and the appropriate number of settlement days for the currency pair. This may cause differences. [PLAT-4373]
 
-To 2.1.0-M3
+To 2.1.0-M3p01
 -----------
 As above, and:
 
@@ -70,6 +70,21 @@ API compatibility
 Analytics compatibility
 - No expected differences
 
+To 2.1.0-M3p02
+-----------
+As above, and:
+
+Configuration compatibility
+- No changes required
+
+Database compatibility
+- No upgrade required
+
+API compatibility
+- No significant changes
+
+Analytics compatibility
+- No expected differences
 
 
 Changes since 2.0.0
@@ -87,9 +102,22 @@ To 2.1.0-M3
 -----------
 As above, and http://jira.opengamma.com/issues/?jql=fixVersion%20%3D%20%222.1.0-M3%22
 
-To 2.1.0-M3px
+To 2.1.0-M3p01
 ------------
+As above, and:
  [PLAT-4562] Swaptions need to use calendars when calculating pvbp, as BRL won't work otherwise.
  [PLAT-4538] Add code that preserves old FX implied curve functionality if the calendar and settlement days are not set in the convention
+
+To 2.1.0-M3p02
+------------
+As above, and:
+[PLAT-4642] Adding toDerivative methods to BRL-type swap definitions
+[PLAT-4638] Non-forward theta for fx option
+[PLAT-4636] Fixing PV01 graph build
+[PLAT-4639] Test new theta
+[PLAT-4637] Notionals aren't resolved correctly for Swaptions in the NotionalFunction
+Multiplied spot exchange rate to the valueGamma to take into account misaligned currency
+Changed Scale factor default from 1.0 to empty
+
 
 
