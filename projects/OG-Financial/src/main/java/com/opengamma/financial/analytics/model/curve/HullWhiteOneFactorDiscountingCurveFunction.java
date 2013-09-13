@@ -295,6 +295,9 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
     @Override
     protected HullWhiteOneFactorProviderInterface getKnownData(final FunctionInputs inputs) {
       final HullWhiteOneFactorPiecewiseConstantParameters modelParameters = (HullWhiteOneFactorPiecewiseConstantParameters) inputs.getValue(ValueRequirementNames.HULL_WHITE_ONE_FACTOR_PARAMETERS);
+      if (modelParameters == null) {
+        throw new OpenGammaRuntimeException("Could not get the Hull-White model parameters");
+      }
       Currency currency = null;
       for (final ComputedValue input : inputs.getAllValues()) {
         if (input.getSpecification().getValueName().equals(ValueRequirementNames.HULL_WHITE_ONE_FACTOR_PARAMETERS)) {

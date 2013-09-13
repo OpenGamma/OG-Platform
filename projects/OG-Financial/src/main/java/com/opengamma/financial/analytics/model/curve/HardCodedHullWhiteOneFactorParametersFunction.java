@@ -31,6 +31,8 @@ import com.opengamma.util.money.Currency;
  * Function that supplies hard-coded Hull-White one factor parameters. Used for testing only.
  */
 public class HardCodedHullWhiteOneFactorParametersFunction extends AbstractFunction.NonCompiledInvoker {
+  /** The name of this configuration */
+  private static final String CONFIG_NAME = "Test";
   private static final HullWhiteOneFactorPiecewiseConstantParameters CONSTANT_PARAMETERS =
       new HullWhiteOneFactorPiecewiseConstantParameters(0.02, new double[] {0.01}, new double[0]);
 
@@ -51,7 +53,7 @@ public class HardCodedHullWhiteOneFactorParametersFunction extends AbstractFunct
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final String currency = ((Currency) target.getValue()).getCode();
     final ValueProperties properties = createValueProperties()
-        .withAny(PROPERTY_HULL_WHITE_PARAMETERS)
+        .with(PROPERTY_HULL_WHITE_PARAMETERS, CONFIG_NAME)
         .with(PROPERTY_HULL_WHITE_CURRENCY, currency)
         .get();
     return Collections.singleton(new ValueSpecification(HULL_WHITE_ONE_FACTOR_PARAMETERS, target.toSpecification(), properties));
@@ -59,11 +61,6 @@ public class HardCodedHullWhiteOneFactorParametersFunction extends AbstractFunct
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final ValueProperties constraints = desiredValue.getConstraints();
-    final Set<String> names = constraints.getValues(PROPERTY_HULL_WHITE_PARAMETERS);
-    if (names == null || names.size() != 1) {
-      return null;
-    }
     return Collections.emptySet();
   }
 

@@ -64,8 +64,6 @@ public class G2ppParametersFunction extends AbstractFunction {
   private final String _name;
   /** The currency for which these parameters are valid */
   private final Currency _currency;
-  /** The set of results of this function */
-  private final ValueSpecification _result;
 
   /**
    * @param name The name of the G2++ parameter set, not null
@@ -76,10 +74,6 @@ public class G2ppParametersFunction extends AbstractFunction {
     ArgumentChecker.notNull(currency, "currency");
     _name = name;
     _currency = Currency.of(currency);
-    final ValueProperties properties = createValueProperties()
-        .with(PROPERTY_G2PP_PARAMETERS, _name)
-        .get();
-    _result = new ValueSpecification(G2PP_PARAMETERS, ComputationTargetSpecification.of(_currency), properties);
   }
 
   @Override
@@ -89,6 +83,10 @@ public class G2ppParametersFunction extends AbstractFunction {
 
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
+    final ValueProperties properties = createValueProperties()
+        .with(PROPERTY_G2PP_PARAMETERS, _name)
+        .get();
+    final ValueSpecification result = new ValueSpecification(G2PP_PARAMETERS, ComputationTargetSpecification.of(_currency), properties);
     final Set<ValueRequirement> requirements = new HashSet<>();
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     final Collection<ConfigItem<G2ppParameters>> configs = configSource.get(G2ppParameters.class, _name, VersionCorrection.LATEST);
@@ -181,7 +179,7 @@ public class G2ppParametersFunction extends AbstractFunction {
         }
         final G2ppPiecewiseConstantParameters g2ppParameters = new G2ppPiecewiseConstantParameters(new double[] {firstMeanReversion, secondMeanReversion},
             new double[][] {firstVolatility.toDoubleArray(), secondVolatility.toDoubleArray()}, volatilityTime.toDoubleArray(), correlation);
-        return Collections.singleton(new ComputedValue(_result, g2ppParameters));
+        return Collections.singleton(new ComputedValue(result, g2ppParameters));
       }
 
       @Override
@@ -196,7 +194,7 @@ public class G2ppParametersFunction extends AbstractFunction {
 
       @Override
       public Set<ValueSpecification> getResults(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
-        return Collections.singleton(_result);
+        return Collections.singleton(result);
       }
 
       @Override

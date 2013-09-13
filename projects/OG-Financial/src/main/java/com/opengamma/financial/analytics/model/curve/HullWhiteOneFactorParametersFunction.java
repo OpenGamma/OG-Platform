@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.model.curve;
 
 import static com.opengamma.engine.value.ValueRequirementNames.HULL_WHITE_ONE_FACTOR_PARAMETERS;
+import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.PROPERTY_HULL_WHITE_CURRENCY;
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.PROPERTY_HULL_WHITE_PARAMETERS;
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
@@ -62,8 +63,6 @@ public class HullWhiteOneFactorParametersFunction extends AbstractFunction {
   private final String _name;
   /** The currency for which these parameters are valid */
   private final Currency _currency;
-  /** The set of results of this function */
-  private final ValueSpecification _result;
 
   /**
    * @param name The name of the Hull-White parameter set, not null
@@ -74,10 +73,6 @@ public class HullWhiteOneFactorParametersFunction extends AbstractFunction {
     ArgumentChecker.notNull(currency, "currency");
     _name = name;
     _currency = Currency.of(currency);
-    final ValueProperties properties = createValueProperties()
-        .with(PROPERTY_HULL_WHITE_PARAMETERS, _name)
-        .get();
-    _result = new ValueSpecification(HULL_WHITE_ONE_FACTOR_PARAMETERS, ComputationTargetSpecification.of(_currency), properties);
   }
 
   @Override
@@ -87,6 +82,11 @@ public class HullWhiteOneFactorParametersFunction extends AbstractFunction {
 
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
+    final ValueProperties properties = createValueProperties()
+        .with(PROPERTY_HULL_WHITE_PARAMETERS, _name)
+        .with(PROPERTY_HULL_WHITE_CURRENCY, _currency.getCode())
+        .get();
+    final ValueSpecification result = new ValueSpecification(HULL_WHITE_ONE_FACTOR_PARAMETERS, ComputationTargetSpecification.of(_currency), properties);
     final Set<ValueRequirement> requirements = new HashSet<>();
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     final Collection<ConfigItem<HullWhiteOneFactorParameters>> configs = configSource.get(HullWhiteOneFactorParameters.class, _name, VersionCorrection.LATEST);
@@ -142,7 +142,7 @@ public class HullWhiteOneFactorParametersFunction extends AbstractFunction {
         }
         final HullWhiteOneFactorPiecewiseConstantParameters hullWhiteParameters = new HullWhiteOneFactorPiecewiseConstantParameters(meanReversion, volatility.toDoubleArray(),
             volatilityTime.toDoubleArray());
-        return Collections.singleton(new ComputedValue(_result, hullWhiteParameters));
+        return Collections.singleton(new ComputedValue(result, hullWhiteParameters));
       }
 
       @Override
@@ -157,7 +157,7 @@ public class HullWhiteOneFactorParametersFunction extends AbstractFunction {
 
       @Override
       public Set<ValueSpecification> getResults(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
-        return Collections.singleton(_result);
+        return Collections.singleton(result);
       }
 
       @Override

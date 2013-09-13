@@ -30,6 +30,8 @@ import com.opengamma.util.async.AsynchronousExecution;
  * Function that supplies hard-coded G2++ parameters.
  */
 public class HardCodedG2ppParametersFunction extends AbstractFunction.NonCompiledInvoker {
+  /** The name of this configuration */
+  private static final String CONFIG_NAME = "Test";
   private static final G2ppPiecewiseConstantParameters CONSTANT_PARAMETERS =
       new G2ppPiecewiseConstantParameters(new double[] {0.01, 0.02} , new double[][] {new double[] {0.01, 0.02}, new double[] {0.01, 0.02}}, new double[] {1}, 0.4);
 
@@ -49,7 +51,7 @@ public class HardCodedG2ppParametersFunction extends AbstractFunction.NonCompile
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueProperties properties = createValueProperties()
-        .withAny(PROPERTY_G2PP_PARAMETERS)
+        .with(PROPERTY_G2PP_PARAMETERS, CONFIG_NAME)
         .get();
     return Collections.singleton(new ValueSpecification(G2PP_PARAMETERS, ComputationTargetSpecification.NULL, properties));
   }
@@ -57,10 +59,6 @@ public class HardCodedG2ppParametersFunction extends AbstractFunction.NonCompile
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties constraints = desiredValue.getConstraints();
-    final Set<String> names = constraints.getValues(PROPERTY_G2PP_PARAMETERS);
-    if (names == null || names.size() != 1) {
-      return null;
-    }
     return Collections.emptySet();
   }
 
