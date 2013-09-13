@@ -38,10 +38,14 @@ import com.opengamma.util.ArgumentChecker;
  *
  */
 public class CurveNodeConverter {
-  
+  /** The convention source */
   private final ConventionSource _conventionSource;
-  
-  public CurveNodeConverter(ConventionSource conventionSource) {
+
+  /**
+   * @param conventionSource The convention source, not null
+   */
+  public CurveNodeConverter(final ConventionSource conventionSource) {
+    ArgumentChecker.notNull(conventionSource, "convention source");
     _conventionSource = conventionSource;
   }
 
@@ -63,12 +67,12 @@ public class CurveNodeConverter {
     if (definition instanceof InstrumentDefinitionWithData<?, ?> && requiresFixingSeries(node.getCurveNode())) {
       if (node.getCurveNode() instanceof ZeroCouponInflationNode) {
         ArgumentChecker.notNull(timeSeries, "time series");
-        
+
         ExternalId priceIndexId;
-        Convention inflationLegConvention = _conventionSource.getConvention(((ZeroCouponInflationNode) node.getCurveNode()).getInflationLegConvention());
+        final Convention inflationLegConvention = _conventionSource.getConvention(((ZeroCouponInflationNode) node.getCurveNode()).getInflationLegConvention());
         if (inflationLegConvention instanceof InflationLegConvention) {
-          ExternalId priceIndexConventionId = ((InflationLegConvention) inflationLegConvention).getPriceIndexConvention();
-          Convention priceIndexConvention = _conventionSource.getConvention(priceIndexConventionId);
+          final ExternalId priceIndexConventionId = ((InflationLegConvention) inflationLegConvention).getPriceIndexConvention();
+          final Convention priceIndexConvention = _conventionSource.getConvention(priceIndexConventionId);
           if (priceIndexConvention instanceof PriceIndexConvention) {
             priceIndexId = ((PriceIndexConvention) priceIndexConvention).getPriceIndexId();
           } else {
@@ -77,7 +81,7 @@ public class CurveNodeConverter {
         } else {
           throw new OpenGammaRuntimeException("Unexpected convention on inflation leg, expected an inflation leg convention");
         }
-        
+
         final HistoricalTimeSeries historicalTimeSeries = timeSeries.get(node.getDataField(), priceIndexId);
         if (historicalTimeSeries == null) {
           throw new OpenGammaRuntimeException("Could not get price time series for " + priceIndexId);
@@ -90,7 +94,7 @@ public class CurveNodeConverter {
         if (length == 0) {
           throw new OpenGammaRuntimeException("Price time series for " + priceIndexId + " was empty");
         }
-        ZonedDateTimeDoubleTimeSeries multiply = (ZonedDateTimeDoubleTimeSeries) convertTimeSeries(ZoneId.of("UTC"), (LocalDateDoubleTimeSeries) ts.multiply(100));
+        final ZonedDateTimeDoubleTimeSeries multiply = convertTimeSeries(ZoneId.of("UTC"), (LocalDateDoubleTimeSeries) ts.multiply(100));
         return ((InstrumentDefinitionWithData<?, ZonedDateTimeDoubleTimeSeries[]>) definition).toDerivative(
             now,
             new ZonedDateTimeDoubleTimeSeries[] {multiply, multiply});
