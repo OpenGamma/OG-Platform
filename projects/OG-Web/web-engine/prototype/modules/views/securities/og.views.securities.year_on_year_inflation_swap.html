@@ -1,0 +1,86 @@
+<article>
+  ${header}
+  <section>
+    <div class="OG-details-content OG-js-details-panel">
+      <section class="og-js-identifiers"></section>
+      <section>
+        <table class="OG-table">
+          <col style="width: 40%" />
+          <col style="width: 60%" />
+          <thead>
+            <tr>
+              <th><span><em>${securityType}</em></span></th><th>&nbsp;</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><span>Trade Date</span></td><td>${tradeDate.date} - ${tradeDate.zone}</td></tr>
+            <tr><td><span>Effective Date</span></td><td>${effectiveDate.date} - ${effectiveDate.zone}</td></tr>
+            <tr><td><span>Maturity Date</span></td><td>${maturityDate.date} - ${maturityDate.zone}</td></tr>
+            <tr><td><span>Counterparty</span></td><td>${counterparty}</td></tr>
+          </tbody>
+        </table>
+      </section>
+      <section>
+        <table class="OG-table">
+          <col style="width: 40%" />
+          <col style="width: 60%" />
+          <thead>
+            <tr>
+              <th><span><em>Pay Leg</em></span></th><th>&nbsp;</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><span>Day Count</span></td><td>${payLeg.dayCount}</td></tr>
+            <tr><td><span>Frequency</span></td><td>${payLeg.frequency}</td></tr>
+            <tr><td><span>Regional Identifier</span></td><td>${payLeg.regionId.value} (${payLeg.regionId.scheme})</td></tr>
+            <tr><td><span>Business Day Convention</span></td><td>${payLeg.businessDayConvention}</td></tr>
+            <tr><td><span>Notional</span></td><td>${payLeg.notional.amount} ${payLeg.notional.currency}</td></tr>
+            {{if payLeg.floatingReferenceRateId}}
+            <tr>
+              <td><span>Inflation Index Id</span></td>
+              <td>${payLeg.floatingReferenceRateId}</td>
+            </tr>
+            {{/if}}
+            {{if payLeg.interestRateLeg}}
+            <tr>
+              <td><span>Interest Rate</span></td>
+              <td>${payLeg.interestRateLeg}</td>
+            </tr>
+            {{/if}}
+          </tbody>
+        </table>
+      </section>
+      <section>
+        <table class="OG-table">
+          <col style="width: 40%" />
+          <col style="width: 60%" />
+          <thead>
+            <tr>
+              <th><span><em>Receive Leg</em></span></th><th>&nbsp;</th>
+            </tr>
+          </thead>
+          <tbody>
+          <tr><td><span>Day Count</span></td><td>${receiveLeg.dayCount}</td></tr>
+          <tr><td><span>Frequency</span></td><td>${receiveLeg.frequency}</td></tr>
+          <tr><td><span>Regional Identifier</span></td><td>${receiveLeg.regionId.value} (${receiveLeg.regionId.scheme})</td></tr>
+          <tr><td><span>Business Day Convention</span></td><td>${receiveLeg.businessDayConvention}</td></tr>
+          <tr><td><span>Notional</span></td><td>${receiveLeg.notional.amount} ${receiveLeg.notional.currency}</td></tr>
+          {{if receiveLeg.floatingReferenceRateId}}
+          <tr>
+            <td><span>Inflation Index Id</span></td>
+            <td>${receiveLeg.floatingReferenceRateId}</td>
+          </tr>{{/if}}
+          {{if receiveLeg.interestRateLeg}}
+          <tr>
+            <td><span>Interest Rate</span></td>
+            <td>${receiveLeg.interestRateLeg}</td>
+          </tr>
+          {{/if}}
+          </tbody>
+        </table>
+      </section>
+      <section class="OG-timeseries-container"></section>
+      ${attributes}
+    </div>
+  </section>
+</article>
