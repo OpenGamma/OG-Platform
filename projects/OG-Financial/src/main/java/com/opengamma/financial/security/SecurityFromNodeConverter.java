@@ -5,25 +5,35 @@
  */
 package com.opengamma.financial.security;
 
+import org.threeten.bp.LocalTime;
 import org.threeten.bp.Period;
+import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureTransactionDefinition;
+import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
-import com.opengamma.core.security.Security;
 import com.opengamma.financial.analytics.conversion.CalendarUtils;
 import com.opengamma.financial.analytics.curve.CurveNodeVisitorAdapter;
 import com.opengamma.financial.analytics.ircurve.strips.CashNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
+import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
 import com.opengamma.financial.convention.Convention;
 import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.convention.DepositConvention;
+import com.opengamma.financial.convention.ExchangeTradedInstrumentExpiryCalculator;
+import com.opengamma.financial.convention.ExchangeTradedInstrumentExpiryCalculatorFactory;
+import com.opengamma.financial.convention.FederalFundsFutureConvention;
 import com.opengamma.financial.convention.IborIndexConvention;
+import com.opengamma.financial.convention.InterestRateFutureConvention;
 import com.opengamma.financial.convention.OISLegConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
 import com.opengamma.financial.convention.SwapFixedLegConvention;
@@ -34,6 +44,9 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
+import com.opengamma.financial.security.future.FederalFundsFutureSecurity;
+import com.opengamma.financial.security.future.FutureSecurity;
+import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingRateType;
@@ -44,6 +57,7 @@ import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.Expiry;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Triple;
 
@@ -459,5 +473,94 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
     } else {
       throw new OpenGammaRuntimeException("Could not handle convention of type " + convention.getClass());
     }
+  }
+
+  @Override
+  public FutureSecurity visitRateFutureNode(final RateFutureNode rateFuture) {
+    final Convention futureConvention = _conventionSource.getConvention(rateFuture.getFutureConvention());
+    if (futureConvention == null) {
+      throw new OpenGammaRuntimeException("Future convention was null");
+    }
+    if (futureConvention instanceof InterestRateFutureConvention) {
+      return getInterestRateFuture(rateFuture, (InterestRateFutureConvention) futureConvention, _rate);
+    } else if (futureConvention instanceof FederalFundsFutureConvention) {
+      return getFederalFundsFuture(rateFuture, (FederalFundsFutureConvention) futureConvention, _rate);
+    }
+    throw new OpenGammaRuntimeException("Could not handle future convention of type " + futureConvention.getClass());
+  }
+
+
+  /**
+   * Creates an interest rate future security from a rate future node.
+   *
+   * @param rateFuture The rate future node
+   * @param futureConvention The future convention
+   * @param price The price
+   * @return The interest rate future
+   */
+  private InterestRateFutureSecurity getInterestRateFuture(final RateFutureNode rateFuture, final InterestRateFutureConvention futureConvention,
+                                                           final Double price) {
+    final String expiryCalculatorName = futureConvention.getExpiryConvention().getValue();
+    final IborIndexConvention indexConvention = _conventionSource.getConvention(IborIndexConvention.class, rateFuture.getUnderlyingConvention());
+    if (indexConvention == null) {
+      throw new OpenGammaRuntimeException("Underlying convention was null");
+    }
+    final Period indexTenor = rateFuture.getUnderlyingTenor().getPeriod();
+    final double paymentAccrualFactor = indexTenor.toTotalMonths() / 12.; //TODO don't use this method
+    final Currency currency = indexConvention.getCurrency();
+    final Calendar fixingCalendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, indexConvention.getFixingCalendar());
+    final Calendar regionCalendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, indexConvention.getRegionCalendar());
+    final BusinessDayConvention businessDayConvention = indexConvention.getBusinessDayConvention();
+    final DayCount dayCount = indexConvention.getDayCount();
+    final boolean eom = indexConvention.isIsEOM();
+    final int spotLag = indexConvention.getSettlementDays();
+    final IborIndex iborIndex = new IborIndex(currency, indexTenor, spotLag, dayCount, businessDayConvention, eom, indexConvention.getName());
+    final ExchangeTradedInstrumentExpiryCalculator expiryCalculator = ExchangeTradedInstrumentExpiryCalculatorFactory.getCalculator(expiryCalculatorName);
+    final ZonedDateTime startDate = _valuationTime.plus(rateFuture.getStartTenor().getPeriod());
+    final LocalTime time = startDate.toLocalTime();
+    final ZoneId timeZone = startDate.getZone();
+    final ZonedDateTime expiryDate = ZonedDateTime.of(expiryCalculator.getExpiryDate(rateFuture.getFutureNumber(), startDate.toLocalDate(), regionCalendar), time, timeZone);
+    final InterestRateFutureSecurityDefinition securityDefinition = new InterestRateFutureSecurityDefinition(expiryDate, iborIndex, 1, paymentAccrualFactor, "", fixingCalendar);
+    final InterestRateFutureTransactionDefinition transactionDefinition = new InterestRateFutureTransactionDefinition(securityDefinition, _valuationTime, price, 1);
+    //return transactionDefinition;
+
+    Expiry expiry = new Expiry(expiryDate);
+    return new InterestRateFutureSecurity(expiry, "TRADING_EXCHANGE", "SETTLEMENT_EXCHANGE", currency, _amount, _identifier, "CATEGORY");
+
+  }
+
+  /**
+   * Creates a Federal fund future security from a rate future node.
+   *
+   * @param rateFuture The rate future node
+   * @param futureConvention The future convention
+   * @param price The price
+   * @return The Fed fund future
+   */
+  private FederalFundsFutureSecurity getFederalFundsFuture(final RateFutureNode rateFuture, final FederalFundsFutureConvention futureConvention,
+                                                           final Double price) {
+    final String expiryCalculatorName = futureConvention.getExpiryConvention().getValue();
+    final OvernightIndexConvention indexConvention = _conventionSource.getConvention(OvernightIndexConvention.class, rateFuture.getUnderlyingConvention());
+    if (indexConvention == null) {
+      throw new OpenGammaRuntimeException("Underlying convention was null");
+    }
+    final Currency currency = indexConvention.getCurrency();
+    final DayCount dayCount = indexConvention.getDayCount();
+    final int publicationLag = indexConvention.getPublicationLag();
+    final IndexON index = new IndexON(indexConvention.getName(), currency, dayCount, publicationLag);
+    final double paymentAccrualFactor = 1 / 12.;
+    final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, indexConvention.getRegionCalendar());
+    final ExchangeTradedInstrumentExpiryCalculator expiryCalculator = ExchangeTradedInstrumentExpiryCalculatorFactory.getCalculator(expiryCalculatorName);
+    final ZonedDateTime startDate = _valuationTime.plus(rateFuture.getStartTenor().getPeriod());
+    final LocalTime time = startDate.toLocalTime();
+    final ZoneId timeZone = startDate.getZone();
+    final ZonedDateTime expiryDate = ZonedDateTime.of(expiryCalculator.getExpiryDate(rateFuture.getFutureNumber(), startDate.toLocalDate(), calendar), time, timeZone);
+    final FederalFundsFutureSecurityDefinition securityDefinition = FederalFundsFutureSecurityDefinition.from(expiryDate,
+                                                                                                              index, 1, paymentAccrualFactor, "", calendar);
+    final FederalFundsFutureTransactionDefinition transactionDefinition = new FederalFundsFutureTransactionDefinition(securityDefinition, 1, _valuationTime, price);
+    //return transactionDefinition;
+
+    Expiry expiry = new Expiry(expiryDate);
+    return new FederalFundsFutureSecurity(expiry, "TRADING_EXCHANGE", "SETTLEMENT_EXCHANGE", currency, _amount, _identifier, "CATEGORY");
   }
 }
