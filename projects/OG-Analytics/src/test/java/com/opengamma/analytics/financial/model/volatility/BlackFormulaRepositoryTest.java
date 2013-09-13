@@ -5559,6 +5559,1100 @@ public class BlackFormulaRepositoryTest {
 
   /*
    *
+   * thetaMod tests
+   *
+   */
+  /**
+   * large/small input
+   */
+  @Test
+  public void exthetaModTest() {
+    final int nStrikes = STRIKES_INPUT.length;
+    final int nVols = VOLS.length;
+    final double inf = Double.POSITIVE_INFINITY;
+
+    for (int i = 0; i < nStrikes; ++i) {
+      for (int j = 0; j < nVols; ++j) {
+        final double strike = STRIKES_INPUT[i];
+        final double vol = VOLS[j];
+        final double resC1 = BlackFormulaRepository.thetaMod(1.e-12 * strike, strike, TIME_TO_EXPIRY, vol, true, 0.05);
+        final double refC1 = BlackFormulaRepository.thetaMod(0., strike, TIME_TO_EXPIRY, vol, true, 0.05);
+        final double resC2 = BlackFormulaRepository.thetaMod(1.e12 * strike, strike, TIME_TO_EXPIRY, vol, true, 0.05);
+        final double refC2 = BlackFormulaRepository.thetaMod(inf, strike, TIME_TO_EXPIRY, vol, true, 0.05);
+        final double resP1 = BlackFormulaRepository.thetaMod(1.e-12 * strike, strike, TIME_TO_EXPIRY, vol, false, 0.05);
+        final double refP1 = BlackFormulaRepository.thetaMod(0., strike, TIME_TO_EXPIRY, vol, false, 0.05);
+        final double resP2 = BlackFormulaRepository.thetaMod(1.e12 * strike, strike, TIME_TO_EXPIRY, vol, false, 0.05);
+        final double refP2 = BlackFormulaRepository.thetaMod(inf, strike, TIME_TO_EXPIRY, vol, false, 0.05);
+
+        final double[] resVec = new double[] {resC1, resP1, resC2, resP2 };
+        final double[] refVec = new double[] {refC1, refP1, refC2, refP2 };
+
+        for (int k = 0; k < 4; ++k) {
+          //          System.out.println(k + "\t" + refVec[k] + "\t" + resVec[k]);
+          if (refVec[k] > 1.e10) {
+            assertTrue(resVec[k] > 1.e10);
+          } else {
+            if (refVec[k] < -1.e10) {
+              assertTrue(resVec[k] < -1.e10);
+            } else {
+              if (refVec[k] == 0.) {
+                assertTrue(Math.abs(resVec[k]) < 1.e-10);
+              } else {
+                assertEquals(refVec[k], resVec[k], Math.abs(refVec[k]) * 1.e-10);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    for (int i = 0; i < nStrikes; ++i) {
+      for (int j = 0; j < nVols; ++j) {
+        final double forward = STRIKES_INPUT[i];
+        final double vol = VOLS[j];
+        final double resC1 = BlackFormulaRepository.thetaMod(forward, 1.e-14 * forward, TIME_TO_EXPIRY, vol, true, 0.05);
+        final double resC2 = BlackFormulaRepository.thetaMod(forward, 1.e12 * forward, TIME_TO_EXPIRY, vol, true, 0.05);
+        final double resP1 = BlackFormulaRepository.thetaMod(forward, 1.e-12 * forward, TIME_TO_EXPIRY, vol, false, 0.05);
+        final double resP2 = BlackFormulaRepository.thetaMod(forward, 1.e12 * forward, TIME_TO_EXPIRY, vol, false, 0.05);
+        final double refC1 = BlackFormulaRepository.thetaMod(forward, 0., TIME_TO_EXPIRY, vol, true, 0.05);
+        final double refC2 = BlackFormulaRepository.thetaMod(forward, inf, TIME_TO_EXPIRY, vol, true, 0.05);
+        final double refP1 = BlackFormulaRepository.thetaMod(forward, 0., TIME_TO_EXPIRY, vol, false, 0.05);
+        final double refP2 = BlackFormulaRepository.thetaMod(forward, inf, TIME_TO_EXPIRY, vol, false, 0.05);
+
+        final double[] resVec = new double[] {resC1, resP1, resC2, resP2 };
+        final double[] refVec = new double[] {refC1, refP1, refC2, refP2 };
+
+        for (int k = 0; k < 4; ++k) {
+          //          System.out.println(k + "\t" + refVec[k] + "\t" + resVec[k]);
+          if (refVec[k] > 1.e10) {
+            assertTrue(resVec[k] > 1.e12);
+          } else {
+            if (refVec[k] < -1.e10) {
+              assertTrue(resVec[k] < -1.e12);
+            } else {
+              if (refVec[k] == 0.) {
+                assertTrue(Math.abs(resVec[k]) < 1.e-12);
+              } else {
+                assertEquals(refVec[k], resVec[k], Math.abs(refVec[k]) * 1.e-12);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    for (int i = 0; i < nStrikes; ++i) {
+      for (int j = 0; j < nVols; ++j) {
+        final double strike = STRIKES_INPUT[i];
+        final double vol = VOLS[j];
+        final double resC1 = BlackFormulaRepository.thetaMod(FORWARD, strike, 1e-12, vol, true, 0.05);
+        final double resC2 = BlackFormulaRepository.thetaMod(FORWARD, strike, 1e12, vol, true, 0.05);
+        final double resP1 = BlackFormulaRepository.thetaMod(FORWARD, strike, 1e-12, vol, false, 0.05);
+        final double resP2 = BlackFormulaRepository.thetaMod(FORWARD, strike, 1e12, vol, false, 0.05);
+        final double refC1 = BlackFormulaRepository.thetaMod(FORWARD, strike, 0., vol, true, 0.05);
+        final double refC2 = BlackFormulaRepository.thetaMod(FORWARD, strike, inf, vol, true, 0.05);
+        final double refP1 = BlackFormulaRepository.thetaMod(FORWARD, strike, 0., vol, false, 0.05);
+        final double refP2 = BlackFormulaRepository.thetaMod(FORWARD, strike, inf, vol, false, 0.05);
+
+        final double[] resVec = new double[] {resC1, resP1, resC2, resP2 };
+        final double[] refVec = new double[] {refC1, refP1, refC2, refP2 };
+
+        for (int k = 0; k < 4; ++k) {
+          //          System.out.println(k + "\t" + refVec[k] + "\t" + resVec[k]);
+          if (refVec[k] > 1.e10) {
+            assertTrue(resVec[k] > 1.e10);
+          } else {
+            if (refVec[k] < -1.e10) {
+              assertTrue(resVec[k] < -1.e10);
+            } else {
+              if (refVec[k] == 0.) {
+                assertTrue(Math.abs(resVec[k]) < 1.e-10);
+              } else {
+                assertEquals(refVec[k], resVec[k], Math.abs(refVec[k]) * 1.e-10);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    for (int i = 0; i < nStrikes; ++i) {
+      final double strike = STRIKES_INPUT[i];
+      final double resC1 = BlackFormulaRepository.thetaMod(FORWARD, strike, TIME_TO_EXPIRY, 1.e-24, true, 0.05);
+      final double refC1 = BlackFormulaRepository.thetaMod(FORWARD, strike, TIME_TO_EXPIRY, 0., true, 0.05);
+      final double resC2 = BlackFormulaRepository.thetaMod(FORWARD, strike, TIME_TO_EXPIRY, 1.e24, true, 0.05);
+      final double refC2 = BlackFormulaRepository.thetaMod(FORWARD, strike, TIME_TO_EXPIRY, inf, true, 0.05);
+      final double resP1 = BlackFormulaRepository.thetaMod(FORWARD, strike, TIME_TO_EXPIRY, 1.e-24, false, 0.05);
+      final double refP1 = BlackFormulaRepository.thetaMod(FORWARD, strike, TIME_TO_EXPIRY, 0., false, 0.05);
+      final double resP2 = BlackFormulaRepository.thetaMod(FORWARD, strike, TIME_TO_EXPIRY, 1.e24, false, 0.05);
+      final double refP2 = BlackFormulaRepository.thetaMod(FORWARD, strike, TIME_TO_EXPIRY, inf, false, 0.05);
+
+      final double[] resVec = new double[] {resC1, resP1, resC2, resP2 };
+      final double[] refVec = new double[] {refC1, refP1, refC2, refP2 };
+
+      for (int k = 0; k < 4; ++k) {
+        //        System.out.println(k + "\t" + refVec[k] + "\t" + resVec[k]);
+        if (refVec[k] > 1.e10) {
+          assertTrue(resVec[k] > 1.e12);
+        } else {
+          if (refVec[k] < -1.e10) {
+            assertTrue(resVec[k] < -1.e12);
+          } else {
+            if (refVec[k] == 0.) {
+              assertTrue(Math.abs(resVec[k]) < 1.e-12);
+            } else {
+              assertEquals(refVec[k], resVec[k], Math.abs(refVec[k]) * 1.e-12);
+            }
+          }
+        }
+      }
+    }
+
+    for (int i = 0; i < nStrikes; ++i) {
+      for (int j = 0; j < nVols; ++j) {
+        final double strike = STRIKES_INPUT[i];
+        final double vol = VOLS[j];
+        final double resC1 = BlackFormulaRepository.thetaMod(FORWARD, strike, TIME_TO_EXPIRY, vol, true, 1.e-12);
+        final double resP1 = BlackFormulaRepository.thetaMod(FORWARD, strike, TIME_TO_EXPIRY, vol, false, 1.e-12);
+        final double refC1 = BlackFormulaRepository.thetaMod(FORWARD, strike, TIME_TO_EXPIRY, vol, true, 0.);
+        final double refP1 = BlackFormulaRepository.thetaMod(FORWARD, strike, TIME_TO_EXPIRY, vol, false, 0.);
+        final double resC2 = BlackFormulaRepository.thetaMod(FORWARD, strike, TIME_TO_EXPIRY, vol, true, 1.e12);
+        final double resP2 = BlackFormulaRepository.thetaMod(FORWARD, strike, TIME_TO_EXPIRY, vol, false, 1.e12);
+        final double refC2 = BlackFormulaRepository.thetaMod(FORWARD, strike, TIME_TO_EXPIRY, vol, true, inf);
+        final double refP2 = BlackFormulaRepository.thetaMod(FORWARD, strike, TIME_TO_EXPIRY, vol, false, inf);
+
+        final double[] resVec = new double[] {resC1, resP1, resC2, resP2 };
+        final double[] refVec = new double[] {refC1, refP1, refC2, refP2 };
+
+        for (int k = 0; k < 4; ++k) {
+          //          System.out.println(k + "\t" + refVec[k] + "\t" + resVec[k]);
+          if (refVec[k] > 1.e10) {
+            assertTrue(resVec[k] > 1.e8);
+          } else {
+            if (refVec[k] < -1.e10) {
+              assertTrue(resVec[k] < -1.e9);
+            } else {
+              if (refVec[k] == 0.) {
+                assertTrue(Math.abs(resVec[k]) < 1.e-9);
+              } else {
+                assertEquals(refVec[k], resVec[k], Math.max(Math.abs(refVec[k]) * 1.e-9, 1.e-9));
+              }
+            }
+          }
+        }
+      }
+    }
+
+    for (int j = 0; j < nVols; ++j) {
+      final double vol = VOLS[j];
+      final double resC1 = BlackFormulaRepository.thetaMod(1.e-12, 1.e-12, TIME_TO_EXPIRY, vol, true, 0.05);
+      final double resC2 = BlackFormulaRepository.thetaMod(1.e-12, 1.e12, TIME_TO_EXPIRY, vol, true, 0.05);
+      final double resC3 = BlackFormulaRepository.thetaMod(1.e12, 1.e-12, TIME_TO_EXPIRY, vol, true, 0.05);
+      final double resP1 = BlackFormulaRepository.thetaMod(1.e-12, 1.e-12, TIME_TO_EXPIRY, vol, false, 0.05);
+      final double resP2 = BlackFormulaRepository.thetaMod(1.e-12, 1.e12, TIME_TO_EXPIRY, vol, false, 0.05);
+      final double resP3 = BlackFormulaRepository.thetaMod(1.e12, 1.e-12, TIME_TO_EXPIRY, vol, false, 0.05);
+      final double resC4 = BlackFormulaRepository.thetaMod(1.e12, 1.e12, TIME_TO_EXPIRY, vol, true, 0.05);
+      final double resP4 = BlackFormulaRepository.thetaMod(1.e12, 1.e12, TIME_TO_EXPIRY, vol, false, 0.05);
+      final double resC5 = BlackFormulaRepository.thetaMod(1.e10, 1.e11, TIME_TO_EXPIRY, vol, true, 0.05);
+      final double resP5 = BlackFormulaRepository.thetaMod(1.e11, 1.e10, TIME_TO_EXPIRY, vol, false, 0.05);
+
+      final double refC1 = BlackFormulaRepository.thetaMod(0., 0., TIME_TO_EXPIRY, vol, true, 0.05);
+      final double refC2 = BlackFormulaRepository.thetaMod(0., inf, TIME_TO_EXPIRY, vol, true, 0.05);
+      final double refC3 = BlackFormulaRepository.thetaMod(inf, 0., TIME_TO_EXPIRY, vol, true, 0.05);
+      final double refP1 = BlackFormulaRepository.thetaMod(0., 0., TIME_TO_EXPIRY, vol, false, 0.05);
+      final double refP2 = BlackFormulaRepository.thetaMod(0., inf, TIME_TO_EXPIRY, vol, false, 0.05);
+      final double refP3 = BlackFormulaRepository.thetaMod(inf, 0., TIME_TO_EXPIRY, vol, false, 0.05);
+      final double refC4 = BlackFormulaRepository.thetaMod(inf, inf, TIME_TO_EXPIRY, vol, true, 0.05);
+      final double refP4 = BlackFormulaRepository.thetaMod(inf, inf, TIME_TO_EXPIRY, vol, false, 0.05);
+      final double refC5 = BlackFormulaRepository.thetaMod(1.e15, 1.e16, TIME_TO_EXPIRY, vol, true, 0.05);
+      final double refP5 = BlackFormulaRepository.thetaMod(1.e16, 1.e15, TIME_TO_EXPIRY, vol, false, 0.05);
+
+      final double[] resVec = new double[] {resC1, resP1, resC2, resP2, resC3, resP3, resC4, resP4, resC5, resP5 };
+      final double[] refVec = new double[] {refC1, refP1, refC2, refP2, refC3, refP3, refC4, refP4, refC5, refP5 };
+
+      for (int k = 0; k < 6; ++k) {//ref values
+        //        System.out.println(k + "\t" + refVec[k] + "\t" + resVec[k]);
+        if (k != 6 && k != 7) {
+          if (refVec[k] > 1.e10) {
+            assertTrue(resVec[k] > 1.e8);
+          } else {
+            if (refVec[k] < -1.e10) {
+              assertTrue(resVec[k] < -1.e9);
+            } else {
+              if (refVec[k] == 0.) {
+                assertTrue(Math.abs(resVec[k]) < 1.e-10);
+              } else {
+                assertEquals(refVec[k], resVec[k], Math.abs(refVec[k]) * 1.e-10);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    for (int i = 0; i < nStrikes; ++i) {
+      for (int j = 0; j < nVols; ++j) {
+        final double strike = STRIKES_INPUT[i];
+        final double vol = VOLS[j];
+        final double resC1 = BlackFormulaRepository.thetaMod(1.e-12, strike, 1.e-24, vol, true, 0.05);
+        final double resC2 = BlackFormulaRepository.thetaMod(1.e-12, strike, 1.e24, vol, true, 0.05);
+        final double resC3 = BlackFormulaRepository.thetaMod(1.e12, strike, 1.e-24, vol, true, 0.05);
+        final double resP1 = BlackFormulaRepository.thetaMod(1.e-12, strike, 1.e-24, vol, false, 0.05);
+        final double resP2 = BlackFormulaRepository.thetaMod(1.e-12, strike, 1.e24, vol, false, 0.05);
+        final double resP3 = BlackFormulaRepository.thetaMod(1.e12, strike, 1.e-24, vol, false, 0.05);
+        final double resC4 = BlackFormulaRepository.thetaMod(1.e12, strike, 1.e24, vol, true, 0.05);
+        final double resP4 = BlackFormulaRepository.thetaMod(1.e12, strike, 1.e24, vol, false, 0.05);
+
+        final double refC1 = BlackFormulaRepository.thetaMod(0., strike, 0., vol, true, 0.05);
+        final double refC2 = BlackFormulaRepository.thetaMod(0., strike, inf, vol, true, 0.05);
+        final double refC3 = BlackFormulaRepository.thetaMod(inf, strike, 0., vol, true, 0.05);
+        final double refP1 = BlackFormulaRepository.thetaMod(0., strike, 0., vol, false, 0.05);
+        final double refP2 = BlackFormulaRepository.thetaMod(0., strike, inf, vol, false, 0.05);
+        final double refP3 = BlackFormulaRepository.thetaMod(inf, strike, 0., vol, false, 0.05);
+        final double refC4 = BlackFormulaRepository.thetaMod(inf, strike, inf, vol, true, 0.05);
+        final double refP4 = BlackFormulaRepository.thetaMod(inf, strike, inf, vol, false, 0.05);
+
+        final double[] resVec = new double[] {resC1, resP1, resC2, resP2, resC3, resP3, resC4, resP4 };
+        final double[] refVec = new double[] {refC1, refP1, refC2, refP2, refC3, refP3, refC4, refP4 };
+
+        for (int k = 0; k < 8; ++k) {
+          if (refVec[k] > 1.e10) {
+            assertTrue(resVec[k] > 1.e10);
+          } else {
+            if (refVec[k] < -1.e10) {
+              assertTrue(resVec[k] < -1.e10);
+            } else {
+              if (refVec[k] == 0.) {
+                assertTrue(Math.abs(resVec[k]) < 1.e-10);
+              } else {
+                assertEquals(refVec[k], resVec[k], Math.abs(refVec[k]) * 1.e-10);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    for (int i = 0; i < nStrikes; ++i) {
+      final double strike = STRIKES_INPUT[i];
+      final double resC1 = BlackFormulaRepository.thetaMod(1.e-12, strike, TIME_TO_EXPIRY, 1.e-24, true, 0.05);
+      final double resC2 = BlackFormulaRepository.thetaMod(1.e-12, strike, TIME_TO_EXPIRY, 1.e24, true, 0.05);
+      final double resC3 = BlackFormulaRepository.thetaMod(1.e12, strike, TIME_TO_EXPIRY, 1.e-24, true, 0.05);
+      final double resP1 = BlackFormulaRepository.thetaMod(1.e-12, strike, TIME_TO_EXPIRY, 1.e-24, false, 0.05);
+      final double resP2 = BlackFormulaRepository.thetaMod(1.e-12, strike, TIME_TO_EXPIRY, 1.e24, false, 0.05);
+      final double resP3 = BlackFormulaRepository.thetaMod(1.e12, strike, TIME_TO_EXPIRY, 1.e-24, false, 0.05);
+      final double resC4 = BlackFormulaRepository.thetaMod(1.e12, strike, TIME_TO_EXPIRY, 1.e24, true, 0.05);
+      final double resP4 = BlackFormulaRepository.thetaMod(1.e12, strike, TIME_TO_EXPIRY, 1.e24, false, 0.05);
+
+      final double refC1 = BlackFormulaRepository.thetaMod(0., strike, TIME_TO_EXPIRY, 0., true, 0.05);
+      final double refC2 = BlackFormulaRepository.thetaMod(0., strike, TIME_TO_EXPIRY, inf, true, 0.05);
+      final double refC3 = BlackFormulaRepository.thetaMod(inf, strike, TIME_TO_EXPIRY, 0., true, 0.05);
+      final double refP1 = BlackFormulaRepository.thetaMod(0., strike, TIME_TO_EXPIRY, 0., false, 0.05);
+      final double refP2 = BlackFormulaRepository.thetaMod(0., strike, TIME_TO_EXPIRY, inf, false, 0.05);
+      final double refP3 = BlackFormulaRepository.thetaMod(inf, strike, TIME_TO_EXPIRY, 0., false, 0.05);
+      final double refC4 = BlackFormulaRepository.thetaMod(inf, strike, TIME_TO_EXPIRY, inf, true, 0.05);
+      final double refP4 = BlackFormulaRepository.thetaMod(inf, strike, TIME_TO_EXPIRY, inf, false, 0.05);
+
+      final double[] resVec = new double[] {resC1, resP1, resC2, resP2, resC3, resP3, resC4, resP4 };
+      final double[] refVec = new double[] {refC1, refP1, refC2, refP2, refC3, refP3, refC4, refP4 };
+
+      for (int k = 0; k < 8; ++k) {
+        //        System.out.println(k + "\t" + refVec[k] + "\t" + resVec[k]);
+        if (refVec[k] > 1.e10) {
+          assertTrue(resVec[k] > 1.e10);
+        } else {
+          if (refVec[k] < -1.e10) {
+            assertTrue(resVec[k] < -1.e10);
+          } else {
+            if (refVec[k] == 0.) {
+              assertTrue(Math.abs(resVec[k]) < 1.e-10);
+            } else {
+              assertEquals(refVec[k], resVec[k], Math.abs(refVec[k]) * 1.e-10);
+            }
+          }
+        }
+      }
+    }
+
+    for (int i = 0; i < nStrikes; ++i) {
+      for (int j = 0; j < nVols; ++j) {
+        final double forward = STRIKES_INPUT[i];
+        final double vol = VOLS[j];
+        final double resC1 = BlackFormulaRepository.thetaMod(forward, 1.e-12, 1.e-24, vol, true, 0.05);
+        final double resC2 = BlackFormulaRepository.thetaMod(forward, 1.e-12, 1.e24, vol, true, 0.05);
+        final double resC3 = BlackFormulaRepository.thetaMod(forward, 1.e12, 1.e-24, vol, true, 0.05);
+        final double resP1 = BlackFormulaRepository.thetaMod(forward, 1.e-12, 1.e-24, vol, false, 0.05);
+        final double resP2 = BlackFormulaRepository.thetaMod(forward, 1.e-12, 1.e24, vol, false, 0.05);
+        final double resP3 = BlackFormulaRepository.thetaMod(forward, 1.e12, 1.e-24, vol, false, 0.05);
+        final double resC4 = BlackFormulaRepository.thetaMod(forward, 1.e12, 1.e24, vol, true, 0.05);
+        final double resP4 = BlackFormulaRepository.thetaMod(forward, 1.e12, 1.e24, vol, false, 0.05);
+
+        final double refC1 = BlackFormulaRepository.thetaMod(forward, 0., 0., vol, true, 0.05);
+        final double refC2 = BlackFormulaRepository.thetaMod(forward, 0., inf, vol, true, 0.05);
+        final double refC3 = BlackFormulaRepository.thetaMod(forward, inf, 0., vol, true, 0.05);
+        final double refP1 = BlackFormulaRepository.thetaMod(forward, 0., 0., vol, false, 0.05);
+        final double refP2 = BlackFormulaRepository.thetaMod(forward, 0., inf, vol, false, 0.05);
+        final double refP3 = BlackFormulaRepository.thetaMod(forward, inf, 0., vol, false, 0.05);
+        final double refC4 = BlackFormulaRepository.thetaMod(forward, inf, inf, vol, true, 0.05);
+        final double refP4 = BlackFormulaRepository.thetaMod(forward, inf, inf, vol, false, 0.05);
+
+        final double[] resVec = new double[] {resC1, resP1, resC2, resP2, resC3, resP3, resC4, resP4 };
+        final double[] refVec = new double[] {refC1, refP1, refC2, refP2, refC3, refP3, refC4, refP4 };
+
+        for (int k = 0; k < 8; ++k) {
+          //          System.out.println(k + "\t" + refVec[k] + "\t" + resVec[k]);
+          if (refVec[k] > 1.e10) {
+            assertTrue(resVec[k] > 1.e10);
+          } else {
+            if (refVec[k] < -1.e10) {
+              assertTrue(resVec[k] < -1.e10);
+            } else {
+              if (refVec[k] == 0.) {
+                assertTrue(Math.abs(resVec[k]) < 1.e-10);
+              } else {
+                assertEquals(refVec[k], resVec[k], Math.abs(refVec[k]) * 1.e-10);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    for (int i = 0; i < nStrikes; ++i) {
+      final double forward = STRIKES_INPUT[i];
+      final double resC1 = BlackFormulaRepository.thetaMod(forward, 1.e-12, TIME_TO_EXPIRY, 1.e-12, true, 0.05);
+      final double resC2 = BlackFormulaRepository.thetaMod(forward, 1.e-12, TIME_TO_EXPIRY, 1.e12, true, 0.05);
+      final double resC3 = BlackFormulaRepository.thetaMod(forward, 1.e12, TIME_TO_EXPIRY, 1.e-12, true, 0.05);
+      final double resP1 = BlackFormulaRepository.thetaMod(forward, 1.e-12, TIME_TO_EXPIRY, 1.e-12, false, 0.05);
+      final double resP2 = BlackFormulaRepository.thetaMod(forward, 1.e-12, TIME_TO_EXPIRY, 1.e12, false, 0.05);
+      final double resP3 = BlackFormulaRepository.thetaMod(forward, 1.e12, TIME_TO_EXPIRY, 1.e-12, false, 0.05);
+      final double resC4 = BlackFormulaRepository.thetaMod(forward, 1.e12, TIME_TO_EXPIRY, 1.e12, true, 0.05);
+      final double resP4 = BlackFormulaRepository.thetaMod(forward, 1.e12, TIME_TO_EXPIRY, 1.e12, false, 0.05);
+
+      final double refC1 = BlackFormulaRepository.thetaMod(forward, 0., TIME_TO_EXPIRY, 0., true, 0.05);
+      final double refC2 = BlackFormulaRepository.thetaMod(forward, 0., TIME_TO_EXPIRY, inf, true, 0.05);
+      final double refC3 = BlackFormulaRepository.thetaMod(forward, inf, TIME_TO_EXPIRY, 0., true, 0.05);
+      final double refP1 = BlackFormulaRepository.thetaMod(forward, 0., TIME_TO_EXPIRY, 0., false, 0.05);
+      final double refP2 = BlackFormulaRepository.thetaMod(forward, 0., TIME_TO_EXPIRY, inf, false, 0.05);
+      final double refP3 = BlackFormulaRepository.thetaMod(forward, inf, TIME_TO_EXPIRY, 0., false, 0.05);
+      final double refC4 = BlackFormulaRepository.thetaMod(forward, inf, TIME_TO_EXPIRY, inf, true, 0.05);
+      final double refP4 = BlackFormulaRepository.thetaMod(forward, inf, TIME_TO_EXPIRY, inf, false, 0.05);
+
+      final double[] resVec = new double[] {resC1, resP1, resC2, resP2, resC3, resP3, resC4, resP4 };
+      final double[] refVec = new double[] {refC1, refP1, refC2, refP2, refC3, refP3, refC4, refP4 };
+
+      for (int k = 0; k < 8; ++k) {
+        //        System.out.println(k + "\t" + refVec[k] + "\t" + resVec[k]);
+        if (refVec[k] > 1.e10) {
+          assertTrue(resVec[k] > 1.e10);
+        } else {
+          if (refVec[k] < -1.e10) {
+            assertTrue(resVec[k] < -1.e10);
+          } else {
+            if (refVec[k] == 0.) {
+              assertTrue(Math.abs(resVec[k]) < 1.e-10);
+            } else {
+              assertEquals(refVec[k], resVec[k], Math.abs(refVec[k]) * 1.e-10);
+            }
+          }
+        }
+      }
+    }
+
+    for (int i = 0; i < nStrikes; ++i) {
+      for (int j = 0; j < nVols; ++j) {
+        final double strike = STRIKES_INPUT[i];
+        final double vol = VOLS[j];
+        final double resC1 = BlackFormulaRepository.thetaMod(FORWARD, strike, 1.e-12, vol, true, 1.e-12);
+        final double resC2 = BlackFormulaRepository.thetaMod(FORWARD, strike, 1.e12, vol, true, 1.e-12);
+        final double resP1 = BlackFormulaRepository.thetaMod(FORWARD, strike, 1.e-12, vol, false, 1.e-12);
+        final double resP2 = BlackFormulaRepository.thetaMod(FORWARD, strike, 1.e12, vol, false, 1.e-12);
+        final double resC3 = BlackFormulaRepository.thetaMod(FORWARD, strike, 1.e12, vol, true, 1.e12);
+        final double resP3 = BlackFormulaRepository.thetaMod(FORWARD, strike, 1.e12, vol, false, 1.e12);
+        final double resC4 = BlackFormulaRepository.thetaMod(FORWARD, strike, 1.e-12, vol, true, 1.e12);
+        final double resP4 = BlackFormulaRepository.thetaMod(FORWARD, strike, 1.e-12, vol, false, 1.e12);
+
+        final double refC1 = BlackFormulaRepository.thetaMod(FORWARD, strike, 0., vol, true, 0.);
+        final double refC2 = BlackFormulaRepository.thetaMod(FORWARD, strike, inf, vol, true, 0.);
+        final double refP1 = BlackFormulaRepository.thetaMod(FORWARD, strike, 0., vol, false, 0.);
+        final double refP2 = BlackFormulaRepository.thetaMod(FORWARD, strike, inf, vol, false, 0.);
+        final double refC3 = BlackFormulaRepository.thetaMod(FORWARD, strike, inf, vol, true, inf);
+        final double refP3 = BlackFormulaRepository.thetaMod(FORWARD, strike, inf, vol, false, inf);
+        final double refC4 = BlackFormulaRepository.thetaMod(FORWARD, strike, 0., vol, true, inf);
+        final double refP4 = BlackFormulaRepository.thetaMod(FORWARD, strike, 0., vol, false, inf);
+
+        final double[] resVec = new double[] {resC1, resP1, resC2, resP2, resC3, resP3, resC4, resP4 };
+        final double[] refVec = new double[] {refC1, refP1, refC2, refP2, refC3, refP3, refC4, refP4 };
+
+        for (int k = 0; k < 6; ++k) {
+          //          System.out.println(k + "\t" + refVec[k] + "\t" + resVec[k]);
+          if (refVec[k] > 1.e10) {
+            assertTrue(resVec[k] > 1.e10);
+          } else {
+            if (refVec[k] < -1.e10) {
+              assertTrue(resVec[k] < -1.e10);
+            } else {
+              if (refVec[k] == 0.) {
+                assertTrue(Math.abs(resVec[k]) < 1.e-9);
+              } else {
+                assertEquals(refVec[k], resVec[k], Math.abs(refVec[k]) * 1.e-10);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    for (int i = 0; i < nStrikes; ++i) {
+      for (int j = 0; j < nVols; ++j) {
+        final double strike = STRIKES_INPUT[i];
+        final double vol = VOLS[j];
+        final double resC1 = BlackFormulaRepository.thetaMod(strike, 1.e-12, TIME_TO_EXPIRY, vol, true, 1.e-12);
+        final double resC2 = BlackFormulaRepository.thetaMod(strike, 1.e12, TIME_TO_EXPIRY, vol, true, 1.e-12);
+        final double resP1 = BlackFormulaRepository.thetaMod(strike, 1.e-12, TIME_TO_EXPIRY, vol, false, 1.e-12);
+        final double resP2 = BlackFormulaRepository.thetaMod(strike, 1.e12, TIME_TO_EXPIRY, vol, false, 1.e-12);
+        final double resC3 = BlackFormulaRepository.thetaMod(strike, 1.e12, TIME_TO_EXPIRY, vol, true, 1.e12);
+        final double resP3 = BlackFormulaRepository.thetaMod(strike, 1.e12, TIME_TO_EXPIRY, vol, false, 1.e12);
+
+        final double refC1 = BlackFormulaRepository.thetaMod(strike, 0., TIME_TO_EXPIRY, vol, true, 0.);
+        final double refC2 = BlackFormulaRepository.thetaMod(strike, inf, TIME_TO_EXPIRY, vol, true, 0.);
+        final double refP1 = BlackFormulaRepository.thetaMod(strike, 0., TIME_TO_EXPIRY, vol, false, 0.);
+        final double refP2 = BlackFormulaRepository.thetaMod(strike, inf, TIME_TO_EXPIRY, vol, false, 0.);
+        final double refC3 = BlackFormulaRepository.thetaMod(strike, inf, TIME_TO_EXPIRY, vol, true, inf);
+        final double refP3 = BlackFormulaRepository.thetaMod(strike, inf, TIME_TO_EXPIRY, vol, false, inf);
+
+        final double[] resVec = new double[] {resC1, resP1, resC2, resP2, resC3, resP3 };
+        final double[] refVec = new double[] {refC1, refP1, refC2, refP2, refC3, refP3 };
+
+        for (int k = 0; k < 6; ++k) {
+          //          System.out.println(k + "\t" + refVec[k] + "\t" + resVec[k]);
+          if (k != 3) {
+            if (refVec[k] > 1.e10) {
+              assertTrue(resVec[k] > 1.e10);
+            } else {
+              if (refVec[k] < -1.e10) {
+                assertTrue(resVec[k] < -1.e10);
+              } else {
+                if (refVec[k] == 0.) {
+                  assertTrue(Math.abs(resVec[k]) < 1.e-9);
+                } else {
+                  assertEquals(refVec[k], resVec[k], Math.max(Math.abs(refVec[k]) * 1.e-9, 1.e-9));
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    for (int i = 0; i < nStrikes; ++i) {
+      final double strike = STRIKES_INPUT[i];
+      final double resC1 = BlackFormulaRepository.thetaMod(FORWARD, strike, TIME_TO_EXPIRY, 1.e-12, true, 1.e-12);
+      final double resC2 = BlackFormulaRepository.thetaMod(FORWARD, strike, TIME_TO_EXPIRY, 1.e12, true, 1.e-12);
+      final double resP1 = BlackFormulaRepository.thetaMod(FORWARD, strike, TIME_TO_EXPIRY, 1.e-12, false, 1.e-12);
+      final double resP2 = BlackFormulaRepository.thetaMod(FORWARD, strike, TIME_TO_EXPIRY, 1.e12, false, 1.e-12);
+      final double resC3 = BlackFormulaRepository.thetaMod(FORWARD, strike, TIME_TO_EXPIRY, 1.e12, true, 1.e12);
+      final double resP3 = BlackFormulaRepository.thetaMod(FORWARD, strike, TIME_TO_EXPIRY, 1.e12, false, 1.e12);
+      final double resC4 = BlackFormulaRepository.thetaMod(FORWARD, strike, TIME_TO_EXPIRY, 1.e-12, true, 1.e12);
+      final double resP4 = BlackFormulaRepository.thetaMod(FORWARD, strike, TIME_TO_EXPIRY, 1.e-12, false, 1.e12);
+
+      final double refC1 = BlackFormulaRepository.thetaMod(FORWARD, strike, TIME_TO_EXPIRY, 0., true, 0.);
+      final double refC2 = BlackFormulaRepository.thetaMod(FORWARD, strike, TIME_TO_EXPIRY, inf, true, 0.);
+      final double refP1 = BlackFormulaRepository.thetaMod(FORWARD, strike, TIME_TO_EXPIRY, 0., false, 0.);
+      final double refP2 = BlackFormulaRepository.thetaMod(FORWARD, strike, TIME_TO_EXPIRY, inf, false, 0.);
+      final double refC3 = BlackFormulaRepository.thetaMod(FORWARD, strike, TIME_TO_EXPIRY, inf, true, inf);
+      final double refP3 = BlackFormulaRepository.thetaMod(FORWARD, strike, TIME_TO_EXPIRY, inf, false, inf);
+      final double refC4 = BlackFormulaRepository.thetaMod(FORWARD, strike, TIME_TO_EXPIRY, 0., true, inf);
+      final double refP4 = BlackFormulaRepository.thetaMod(FORWARD, strike, TIME_TO_EXPIRY, 0., false, inf);
+
+      final double[] resVec = new double[] {resC1, resP1, resC2, resP2, resC3, resP3, resC4, resP4 };
+      final double[] refVec = new double[] {refC1, refP1, refC2, refP2, refC3, refP3, refC4, refP4 };
+
+      for (int k = 0; k < 6; ++k) {
+        //        System.out.println(k + "\t" + refVec[k] + "\t" + resVec[k]);
+        if (refVec[k] > 1.e10) {
+          assertTrue(resVec[k] > 1.e10);
+        } else {
+          if (refVec[k] < -1.e10) {
+            assertTrue(resVec[k] < -1.e9);
+          } else {
+            if (refVec[k] == 0.) {
+              assertTrue(Math.abs(resVec[k]) < 1.e-9);
+            } else {
+              assertEquals(refVec[k], resVec[k], Math.abs(refVec[k]) * 1.e-10);
+            }
+          }
+        }
+      }
+    }
+
+    for (int i = 0; i < nStrikes; ++i) {
+      for (int j = 0; j < nVols; ++j) {
+        final double strike = STRIKES_INPUT[i];
+        final double vol = VOLS[j];
+        final double resC1 = BlackFormulaRepository.thetaMod(1.e-12, strike, TIME_TO_EXPIRY, vol, true, 1.e-12);
+        final double resC2 = BlackFormulaRepository.thetaMod(1.e12, strike, TIME_TO_EXPIRY, vol, true, 1.e-12);
+        final double resP1 = BlackFormulaRepository.thetaMod(1.e-12, strike, TIME_TO_EXPIRY, vol, false, 1.e-12);
+        final double resP2 = BlackFormulaRepository.thetaMod(1.e12, strike, TIME_TO_EXPIRY, vol, false, 1.e-12);
+        final double resC3 = BlackFormulaRepository.thetaMod(1.e12, strike, TIME_TO_EXPIRY, vol, true, 1.e12);
+        final double resP3 = BlackFormulaRepository.thetaMod(1.e12, strike, TIME_TO_EXPIRY, vol, false, 1.e12);
+        final double resC4 = BlackFormulaRepository.thetaMod(1.e-12, strike, TIME_TO_EXPIRY, vol, true, 1.e12);
+        final double resP4 = BlackFormulaRepository.thetaMod(1.e-12, strike, TIME_TO_EXPIRY, vol, false, 1.e12);
+
+        final double refC1 = BlackFormulaRepository.thetaMod(0., strike, TIME_TO_EXPIRY, vol, true, 0.);
+        final double refC2 = BlackFormulaRepository.thetaMod(inf, strike, TIME_TO_EXPIRY, vol, true, 0.);
+        final double refP1 = BlackFormulaRepository.thetaMod(0., strike, TIME_TO_EXPIRY, vol, false, 0.);
+        final double refP2 = BlackFormulaRepository.thetaMod(inf, strike, TIME_TO_EXPIRY, vol, false, 0.);
+        final double refC3 = BlackFormulaRepository.thetaMod(inf, strike, TIME_TO_EXPIRY, vol, true, inf);
+        final double refP3 = BlackFormulaRepository.thetaMod(inf, strike, TIME_TO_EXPIRY, vol, false, inf);
+        final double refC4 = BlackFormulaRepository.thetaMod(0., strike, TIME_TO_EXPIRY, vol, true, inf);
+        final double refP4 = BlackFormulaRepository.thetaMod(0., strike, TIME_TO_EXPIRY, vol, false, inf);
+
+        final double[] resVec = new double[] {resC1, resP1, resC2, resP2, resC3, resP3, resC4, resP4 };
+        final double[] refVec = new double[] {refC1, refP1, refC2, refP2, refC3, refP3, refC4, refP4 };
+
+        for (int k = 0; k < 8; ++k) {
+          //          System.out.println(k + "\t" + refVec[k] + "\t" + resVec[k]);
+          if (k != 2 && k != 7) {
+            if (refVec[k] > 1.e10) {
+              assertTrue(resVec[k] > 1.e10);
+            } else {
+              if (refVec[k] < -1.e10) {
+                assertTrue(resVec[k] < -1.e10);
+              } else {
+                if (refVec[k] == 0.) {
+                  assertTrue(Math.abs(resVec[k]) < 1.e-9);
+                } else {
+                  assertEquals(refVec[k], resVec[k], Math.max(Math.abs(refVec[k]) * 1.e-9, 1.e-9));
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    for (int j = 0; j < nVols; ++j) {
+      final double vol = VOLS[j];
+      final double resC1 = BlackFormulaRepository.thetaMod(1.e-12, 1.e-12, 1.e-24, vol, true, 0.05);
+      final double resC2 = BlackFormulaRepository.thetaMod(1.e-12, 1.e-12, 1.e24, vol, true, 0.05);
+      final double resC3 = BlackFormulaRepository.thetaMod(1.e-12, 1.e12, 1.e-24, vol, true, 0.05);
+      final double resP1 = BlackFormulaRepository.thetaMod(1.e-12, 1.e-12, 1.e-24, vol, false, 0.05);
+      final double resP2 = BlackFormulaRepository.thetaMod(1.e-12, 1.e-12, 1.e24, vol, false, 0.05);
+      final double resP3 = BlackFormulaRepository.thetaMod(1.e-12, 1.e12, 1.e-24, vol, false, 0.05);
+      final double resC4 = BlackFormulaRepository.thetaMod(1.e12, 1.e-12, 1.e-24, vol, true, 0.05);
+      final double resP4 = BlackFormulaRepository.thetaMod(1.e12, 1.e-12, 1.e-24, vol, false, 0.05);
+      final double resC5 = BlackFormulaRepository.thetaMod(FORWARD, FORWARD * (1. + 1.e-12), 1.e-24, vol, true, 0.05);
+      final double resP5 = BlackFormulaRepository.thetaMod(FORWARD, FORWARD * (1. + 1.e-12), 1.e-24, vol, false, 0.05);
+      final double resC6 = BlackFormulaRepository.thetaMod(1.e12, 1.e12, 1.e24, vol, true, 0.05);
+      final double resP6 = BlackFormulaRepository.thetaMod(1.e12, 1.e12, 1.e24, vol, false, 0.05);
+
+      final double refC1 = BlackFormulaRepository.thetaMod(0., 0., 0., vol, true, 0.05);
+      final double refC2 = BlackFormulaRepository.thetaMod(0., 0., inf, vol, true, 0.05);
+      final double refC3 = BlackFormulaRepository.thetaMod(0., inf, 0., vol, true, 0.05);
+      final double refP1 = BlackFormulaRepository.thetaMod(0., 0., 0., vol, false, 0.05);
+      final double refP2 = BlackFormulaRepository.thetaMod(0., 0., inf, vol, false, 0.05);
+      final double refP3 = BlackFormulaRepository.thetaMod(0., inf, 0., vol, false, 0.05);
+      final double refC4 = BlackFormulaRepository.thetaMod(inf, 0., 0., vol, true, 0.05);
+      final double refP4 = BlackFormulaRepository.thetaMod(inf, 0., 0., vol, false, 0.05);
+      final double refC5 = BlackFormulaRepository.thetaMod(FORWARD, FORWARD, 0., vol, true, 0.05);
+      final double refP5 = BlackFormulaRepository.thetaMod(FORWARD, FORWARD, 0., vol, false, 0.05);
+      final double refC6 = BlackFormulaRepository.thetaMod(inf, inf, inf, vol, true, 0.05);
+      final double refP6 = BlackFormulaRepository.thetaMod(inf, inf, inf, vol, false, 0.05);
+
+      final double[] resVec = new double[] {resC1, resP1, resC2, resP2, resC3, resP3, resC4, resP4, resC5, resP5, resC6, resP6 };
+      final double[] refVec = new double[] {refC1, refP1, refC2, refP2, refC3, refP3, refC4, refP4, refC5, refP5, refC6, refP6 };
+      for (int k = 0; k < 12; ++k) {
+        //        System.out.println(k + "\t" + refVec[k] + "\t" + resVec[k]);
+
+        if ((refVec[k] != -0.5 * vol) && (refVec[k] != -0.5 * FORWARD) && (refVec[k] != Double.NEGATIVE_INFINITY) && k != 11) {
+          if (refVec[k] > 1.e10) {
+            assertTrue(resVec[k] > 1.e10);
+          } else {
+            if (refVec[k] < -1.e10) {
+              assertTrue(resVec[k] < -1.e10);
+            } else {
+              if (refVec[k] == 0.) {
+                assertTrue(Math.abs(resVec[k]) < 1.e-7);////should be rechecked
+              } else {
+                assertEquals(refVec[k], resVec[k], Math.abs(refVec[k]) * 1.e-10);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    {
+      final double resC1 = BlackFormulaRepository.thetaMod(1.e-12, 1.e-12, TIME_TO_EXPIRY, 1.e-12, true, 0.05);
+      final double resC2 = BlackFormulaRepository.thetaMod(1.e-12, 1.e-12, TIME_TO_EXPIRY, 1.e12, true, 0.05);
+      final double resC3 = BlackFormulaRepository.thetaMod(1.e-12, 1.e12, TIME_TO_EXPIRY, 1.e-12, true, 0.05);
+      final double resP1 = BlackFormulaRepository.thetaMod(1.e-12, 1.e-12, TIME_TO_EXPIRY, 1.e-12, false, 0.05);
+      final double resP2 = BlackFormulaRepository.thetaMod(1.e-12, 1.e-12, TIME_TO_EXPIRY, 1.e12, false, 0.05);
+      final double resP3 = BlackFormulaRepository.thetaMod(1.e-12, 1.e12, TIME_TO_EXPIRY, 1.e-12, false, 0.05);
+      final double resC4 = BlackFormulaRepository.thetaMod(1.e12, 1.e-12, TIME_TO_EXPIRY, 1.e-12, true, 0.05);
+      final double resP4 = BlackFormulaRepository.thetaMod(1.e12, 1.e-12, TIME_TO_EXPIRY, 1.e-12, false, 0.05);
+      final double resC5 = BlackFormulaRepository.thetaMod(FORWARD, FORWARD * (1. + 1.e-12), TIME_TO_EXPIRY, 1.e-12, true, 0.05);
+      final double resP5 = BlackFormulaRepository.thetaMod(FORWARD, FORWARD * (1. + 1.e-12), TIME_TO_EXPIRY, 1.e-12, false, 0.05);
+      final double resC6 = BlackFormulaRepository.thetaMod(1.e12, 1.e12, TIME_TO_EXPIRY, 1.e24, true, 0.05);
+      final double resP6 = BlackFormulaRepository.thetaMod(1.e12, 1.e12, TIME_TO_EXPIRY, 1.e24, false, 0.05);
+
+      final double refC1 = BlackFormulaRepository.thetaMod(0., 0., TIME_TO_EXPIRY, 0., true, 0.05);
+      final double refC2 = BlackFormulaRepository.thetaMod(0., 0., TIME_TO_EXPIRY, inf, true, 0.05);
+      final double refC3 = BlackFormulaRepository.thetaMod(0., inf, TIME_TO_EXPIRY, 0., true, 0.05);
+      final double refP1 = BlackFormulaRepository.thetaMod(0., 0., TIME_TO_EXPIRY, 0., false, 0.05);
+      final double refP2 = BlackFormulaRepository.thetaMod(0., 0., TIME_TO_EXPIRY, inf, false, 0.05);
+      final double refP3 = BlackFormulaRepository.thetaMod(0., inf, TIME_TO_EXPIRY, 0., false, 0.05);
+      final double refC4 = BlackFormulaRepository.thetaMod(inf, 0., TIME_TO_EXPIRY, 0., true, 0.05);
+      final double refP4 = BlackFormulaRepository.thetaMod(inf, 0., TIME_TO_EXPIRY, 0., false, 0.05);
+      final double refC5 = BlackFormulaRepository.thetaMod(FORWARD, FORWARD, TIME_TO_EXPIRY, 0., true, 0.05);
+      final double refP5 = BlackFormulaRepository.thetaMod(FORWARD, FORWARD, TIME_TO_EXPIRY, 0., false, 0.05);
+      final double refC6 = BlackFormulaRepository.thetaMod(inf, inf, TIME_TO_EXPIRY, inf, true, 0.05);
+      final double refP6 = BlackFormulaRepository.thetaMod(inf, inf, TIME_TO_EXPIRY, inf, false, 0.05);
+
+      final double[] resVec = new double[] {resC1, resP1, resC2, resP2, resC3, resP3, resC4, resP4, resC6, resP6, resC5, resP5 };
+      final double[] refVec = new double[] {refC1, refP1, refC2, refP2, refC3, refP3, refC4, refP4, refC6, refP6, refC5, refP5 };
+
+      for (int k = 0; k < 10; ++k) {//The last two cases return reference values
+        //        System.out.println(k + "\t" + refVec[k] + "\t" + resVec[k]);
+        if (refVec[k] > 1.e10) {
+          assertTrue(resVec[k] > 1.e10);
+        } else {
+          if (refVec[k] < -1.e10) {
+            assertTrue(resVec[k] < -1.e10);
+          } else {
+            if (refVec[k] == 0.) {
+              assertTrue(Math.abs(resVec[k]) < 1.e-10);
+            } else {
+              assertEquals(refVec[k], resVec[k], Math.abs(refVec[k]) * 1.e-10);
+            }
+          }
+        }
+      }
+    }
+
+    /*******************************************************
+     *
+     */
+    for (int j = 0; j < nVols; ++j) {
+      final double vol = VOLS[j];
+      final double resC1 = BlackFormulaRepository.thetaMod(1.e-12, 1.e-12, TIME_TO_EXPIRY, vol, true, 1.e-12);
+      final double resC2 = BlackFormulaRepository.thetaMod(1.e-12, 1.e12, TIME_TO_EXPIRY, vol, true, 1.e-12);
+      final double resC3 = BlackFormulaRepository.thetaMod(1.e12, 1.e-12, TIME_TO_EXPIRY, vol, true, 1.e-12);
+      final double resP1 = BlackFormulaRepository.thetaMod(1.e-12, 1.e-12, TIME_TO_EXPIRY, vol, false, 1.e-12);
+      final double resP2 = BlackFormulaRepository.thetaMod(1.e-12, 1.e12, TIME_TO_EXPIRY, vol, false, 1.e-12);
+      final double resP3 = BlackFormulaRepository.thetaMod(1.e12, 1.e-12, TIME_TO_EXPIRY, vol, false, 1.e-12);
+      final double resC4 = BlackFormulaRepository.thetaMod(1.e12, 1.e12, TIME_TO_EXPIRY, vol, true, 1.e12);
+      final double resP4 = BlackFormulaRepository.thetaMod(1.e12, 1.e12, TIME_TO_EXPIRY, vol, false, 1.e12);
+      final double resC5 = BlackFormulaRepository.thetaMod(1.e12, 1.e-12, TIME_TO_EXPIRY, vol, true, 1.e12);
+      final double resP5 = BlackFormulaRepository.thetaMod(1.e12, 1.e-12, TIME_TO_EXPIRY, vol, false, 1.e12);
+      final double resC6 = BlackFormulaRepository.thetaMod(1.e-12, 1.e12, TIME_TO_EXPIRY, vol, true, 1.e12);
+      final double resP6 = BlackFormulaRepository.thetaMod(1.e-12, 1.e12, TIME_TO_EXPIRY, vol, false, 1.e12);
+      final double resC7 = BlackFormulaRepository.thetaMod(1.e-12, 2.e-12, TIME_TO_EXPIRY, vol, true, 1.e12);
+      final double resP7 = BlackFormulaRepository.thetaMod(1.e-12, 0.5e-12, TIME_TO_EXPIRY, vol, false, 1.e12);
+      final double resC8 = BlackFormulaRepository.thetaMod(1.e12, 1.e12, TIME_TO_EXPIRY, vol, true, 1.e-12);
+      final double resP8 = BlackFormulaRepository.thetaMod(1.e12, 1.e12, TIME_TO_EXPIRY, vol, false, 1.e-12);
+
+      final double refC1 = BlackFormulaRepository.thetaMod(0., 0., TIME_TO_EXPIRY, vol, true, 0.);
+      final double refC2 = BlackFormulaRepository.thetaMod(0., inf, TIME_TO_EXPIRY, vol, true, 0.);
+      final double refC3 = BlackFormulaRepository.thetaMod(inf, 0., TIME_TO_EXPIRY, vol, true, 0.);
+      final double refP1 = BlackFormulaRepository.thetaMod(0., 0., TIME_TO_EXPIRY, vol, false, 0.);
+      final double refP2 = BlackFormulaRepository.thetaMod(0., inf, TIME_TO_EXPIRY, vol, false, 0.);
+      final double refP3 = BlackFormulaRepository.thetaMod(inf, 0., TIME_TO_EXPIRY, vol, false, 0.);
+      final double refC4 = BlackFormulaRepository.thetaMod(inf, inf, TIME_TO_EXPIRY, vol, true, inf);
+      final double refP4 = BlackFormulaRepository.thetaMod(inf, inf, TIME_TO_EXPIRY, vol, false, inf);
+      final double refC5 = BlackFormulaRepository.thetaMod(inf, 0., TIME_TO_EXPIRY, vol, true, inf);
+      final double refP5 = BlackFormulaRepository.thetaMod(inf, 0., TIME_TO_EXPIRY, vol, false, inf);
+      final double refC6 = BlackFormulaRepository.thetaMod(0., inf, TIME_TO_EXPIRY, vol, true, inf);
+      final double refP6 = BlackFormulaRepository.thetaMod(0., inf, TIME_TO_EXPIRY, vol, false, inf);
+      final double refC7 = BlackFormulaRepository.thetaMod(0., 0., TIME_TO_EXPIRY, vol, true, inf);
+      final double refP7 = BlackFormulaRepository.thetaMod(0., 0., TIME_TO_EXPIRY, vol, false, inf);
+      final double refC8 = BlackFormulaRepository.thetaMod(inf, inf, TIME_TO_EXPIRY, vol, true, 0.);
+      final double refP8 = BlackFormulaRepository.thetaMod(inf, inf, TIME_TO_EXPIRY, vol, false, 0.);
+
+      final double[] resVec = new double[] {resC1, resP1, resC2, resP2, resC3, resP3, resC4, resP4, resC5, resP5, resC6, resP6, resC7, resP7, resC8, resP8 };
+      final double[] refVec = new double[] {refC1, refP1, refC2, refP2, refC3, refP3, refC4, refP4, refC5, refP5, refC6, refP6, refC7, refP7, refC8, refP8 };
+
+      for (int k = 0; k < 14; ++k) {
+        //        System.out.println(k + "\t" + refVec[k] + "\t" + resVec[k]);
+        if (k != 3 && k != 8) {
+          if (k != 12 && k != 13) {//ref values are returned
+            if (refVec[k] > 1.e10) {
+              assertTrue(resVec[k] > 1.e9);
+            } else {
+              if (refVec[k] < -1.e10) {
+                assertTrue(resVec[k] < -1.e9);
+              } else {
+                if (refVec[k] == 0.) {
+                  assertTrue(Math.abs(resVec[k]) < 1.e-9);
+                } else {
+                  assertEquals(refVec[k], resVec[k], Math.abs(refVec[k]) * 1.e-10);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    for (int i = 0; i < nStrikes; ++i) {
+      for (int j = 0; j < nVols; ++j) {
+        final double strike = STRIKES_INPUT[i];
+        final double vol = VOLS[j];
+        final double resC1 = BlackFormulaRepository.thetaMod(1.e-12, strike, 1.e-24, vol, true, 1.e-12);
+        final double resC2 = BlackFormulaRepository.thetaMod(1.e-12, strike, 1.e24, vol, true, 1.e-12);
+        final double resC3 = BlackFormulaRepository.thetaMod(1.e12, strike, 1.e-24, vol, true, 1.e-12);
+        final double resP1 = BlackFormulaRepository.thetaMod(1.e-12, strike, 1.e-24, vol, false, 1.e-12);
+        final double resP2 = BlackFormulaRepository.thetaMod(1.e-12, strike, 1.e24, vol, false, 1.e-12);
+        final double resP3 = BlackFormulaRepository.thetaMod(1.e12, strike, 1.e-24, vol, false, 1.e-12);
+        final double resC4 = BlackFormulaRepository.thetaMod(1.e12, strike, 1.e24, vol, true, 1.e12);
+        final double resP4 = BlackFormulaRepository.thetaMod(1.e12, strike, 1.e24, vol, false, 1.e12);
+        final double resC5 = BlackFormulaRepository.thetaMod(1.e-12, strike, 1.e24, vol, true, 1.e12);
+        final double resP5 = BlackFormulaRepository.thetaMod(1.e-12, strike, 1.e24, vol, false, 1.e12);
+        final double resC6 = BlackFormulaRepository.thetaMod(1.e12, strike, 1.e-24, vol, true, 1.e12);
+        final double resP6 = BlackFormulaRepository.thetaMod(1.e12, strike, 1.e-24, vol, false, 1.e12);
+        final double resC7 = BlackFormulaRepository.thetaMod(1.e12, strike, 1.e24, vol, true, 1.e-12);
+        final double resP7 = BlackFormulaRepository.thetaMod(1.e12, strike, 1.e24, vol, false, 1.e-12);
+        final double resC8 = BlackFormulaRepository.thetaMod(1.e-12, strike, 1.e-24, vol, true, 1.e12);
+        final double resP8 = BlackFormulaRepository.thetaMod(1.e-12, strike, 1.e-24, vol, false, 1.e12);
+
+        final double refC1 = BlackFormulaRepository.thetaMod(0., strike, 0., vol, true, 0.);
+        final double refC2 = BlackFormulaRepository.thetaMod(0., strike, inf, vol, true, 0.);
+        final double refC3 = BlackFormulaRepository.thetaMod(inf, strike, 0., vol, true, 0.);
+        final double refP1 = BlackFormulaRepository.thetaMod(0., strike, 0., vol, false, 0.);
+        final double refP2 = BlackFormulaRepository.thetaMod(0., strike, inf, vol, false, 0.);
+        final double refP3 = BlackFormulaRepository.thetaMod(inf, strike, 0., vol, false, 0.);
+        final double refC4 = BlackFormulaRepository.thetaMod(inf, strike, inf, vol, true, inf);
+        final double refP4 = BlackFormulaRepository.thetaMod(inf, strike, inf, vol, false, inf);
+        final double refC5 = BlackFormulaRepository.thetaMod(0., strike, inf, vol, true, inf);
+        final double refP5 = BlackFormulaRepository.thetaMod(0., strike, inf, vol, false, inf);
+        final double refC6 = BlackFormulaRepository.thetaMod(inf, strike, 0., vol, true, inf);
+        final double refP6 = BlackFormulaRepository.thetaMod(inf, strike, 0., vol, false, inf);
+        final double refC7 = BlackFormulaRepository.thetaMod(inf, strike, inf, vol, true, 0.);
+        final double refP7 = BlackFormulaRepository.thetaMod(inf, strike, inf, vol, false, 0.);
+        final double refC8 = BlackFormulaRepository.thetaMod(0., strike, 0., vol, true, inf);
+        final double refP8 = BlackFormulaRepository.thetaMod(0., strike, 0., vol, false, inf);
+
+        final double[] resVec = new double[] {resC1, resP1, resC2, resP2, resC3, resP3, resC4, resP4, resC5, resP5, resC6, resP6, resC7, resP7, resC8, resP8 };
+        final double[] refVec = new double[] {refC1, refP1, refC2, refP2, refC3, refP3, refC4, refP4, refC5, refP5, refC6, refP6, refC7, refP7, refC8, refP8 };
+
+        for (int k = 0; k < 16; ++k) {
+          //          System.out.println(k + "\t" + refVec[k] + "\t" + resVec[k]);
+          if (k != 4 && k != 8 && k != 12) {
+            if (refVec[k] > 1.e10) {
+              assertTrue(resVec[k] > 1.e10);
+            } else {
+              if (refVec[k] < -1.e10) {
+                assertTrue(resVec[k] < -1.e10);
+              } else {
+                if (refVec[k] == 0.) {
+                  assertTrue(Math.abs(resVec[k]) < 1.e-9);
+                } else {
+                  assertEquals(refVec[k], resVec[k], Math.abs(refVec[k]) * 1.e-9);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    for (int i = 0; i < nStrikes; ++i) {
+      final double strike = STRIKES_INPUT[i];
+      final double resC1 = BlackFormulaRepository.thetaMod(1.e-12, strike, TIME_TO_EXPIRY, 1.e-12, true, 1.e-12);
+      final double resC2 = BlackFormulaRepository.thetaMod(1.e-12, strike, TIME_TO_EXPIRY, 1.e12, true, 1.e-12);
+      final double resC3 = BlackFormulaRepository.thetaMod(1.e12, strike, TIME_TO_EXPIRY, 1.e-12, true, 1.e-12);
+      final double resP1 = BlackFormulaRepository.thetaMod(1.e-12, strike, TIME_TO_EXPIRY, 1.e-12, false, 1.e-12);
+      final double resP2 = BlackFormulaRepository.thetaMod(1.e-12, strike, TIME_TO_EXPIRY, 1.e12, false, 1.e-12);
+      final double resP3 = BlackFormulaRepository.thetaMod(1.e12, strike, TIME_TO_EXPIRY, 1.e-12, false, 1.e-12);
+      final double resC4 = BlackFormulaRepository.thetaMod(1.e12, strike, TIME_TO_EXPIRY, 1.e12, true, 1.e12);
+      final double resP4 = BlackFormulaRepository.thetaMod(1.e12, strike, TIME_TO_EXPIRY, 1.e12, false, 1.e12);
+      final double resC5 = BlackFormulaRepository.thetaMod(1.e-12, strike, TIME_TO_EXPIRY, 1.e-12, true, 1.e12);
+      final double resP5 = BlackFormulaRepository.thetaMod(1.e-12, strike, TIME_TO_EXPIRY, 1.e-12, false, 1.e12);
+      final double resC6 = BlackFormulaRepository.thetaMod(1.e12, strike, TIME_TO_EXPIRY, 1.e-12, true, 1.e12);
+      final double resP6 = BlackFormulaRepository.thetaMod(1.e12, strike, TIME_TO_EXPIRY, 1.e-12, false, 1.e12);
+      final double resC7 = BlackFormulaRepository.thetaMod(1.e-12, strike, TIME_TO_EXPIRY, 1.e12, true, 1.e12);
+      final double resP7 = BlackFormulaRepository.thetaMod(1.e-12, strike, TIME_TO_EXPIRY, 1.e12, false, 1.e12);
+      final double resC8 = BlackFormulaRepository.thetaMod(1.e12, strike, TIME_TO_EXPIRY, 1.e12, true, 1.e-12);
+      final double resP8 = BlackFormulaRepository.thetaMod(1.e12, strike, TIME_TO_EXPIRY, 1.e12, false, 1.e-12);
+
+      final double refC1 = BlackFormulaRepository.thetaMod(0., strike, TIME_TO_EXPIRY, 0., true, 0.);
+      final double refC2 = BlackFormulaRepository.thetaMod(0., strike, TIME_TO_EXPIRY, inf, true, 0.);
+      final double refC3 = BlackFormulaRepository.thetaMod(inf, strike, TIME_TO_EXPIRY, 0., true, 0.);
+      final double refP1 = BlackFormulaRepository.thetaMod(0., strike, TIME_TO_EXPIRY, 0., false, 0.);
+      final double refP2 = BlackFormulaRepository.thetaMod(0., strike, TIME_TO_EXPIRY, inf, false, 0.);
+      final double refP3 = BlackFormulaRepository.thetaMod(inf, strike, TIME_TO_EXPIRY, 0., false, 0.);
+      final double refC4 = BlackFormulaRepository.thetaMod(inf, strike, TIME_TO_EXPIRY, inf, true, inf);
+      final double refP4 = BlackFormulaRepository.thetaMod(inf, strike, TIME_TO_EXPIRY, inf, false, inf);
+      final double refC5 = BlackFormulaRepository.thetaMod(0., strike, TIME_TO_EXPIRY, 0., true, inf);
+      final double refP5 = BlackFormulaRepository.thetaMod(0., strike, TIME_TO_EXPIRY, 0., false, inf);
+      final double refC6 = BlackFormulaRepository.thetaMod(inf, strike, TIME_TO_EXPIRY, 0., true, inf);
+      final double refP6 = BlackFormulaRepository.thetaMod(inf, strike, TIME_TO_EXPIRY, 0., false, inf);
+      final double refC7 = BlackFormulaRepository.thetaMod(0., strike, TIME_TO_EXPIRY, inf, true, inf);
+      final double refP7 = BlackFormulaRepository.thetaMod(0., strike, TIME_TO_EXPIRY, inf, false, inf);
+      final double refC8 = BlackFormulaRepository.thetaMod(inf, strike, TIME_TO_EXPIRY, inf, true, 0.);
+      final double refP8 = BlackFormulaRepository.thetaMod(inf, strike, TIME_TO_EXPIRY, inf, false, 0.);
+
+      final double[] resVec = new double[] {resC1, resP1, resC2, resP2, resC3, resP3, resC4, resP4, resC5, resP5, resC6, resP6, resC7, resP7, resC8, resP8 };
+      final double[] refVec = new double[] {refC1, refP1, refC2, refP2, refC3, refP3, refC4, refP4, refC5, refP5, refC6, refP6, refC7, refP7, refC8, refP8 };
+
+      for (int k = 0; k < 16; ++k) {
+        //        System.out.println(k + "\t" + refVec[k] + "\t" + resVec[k]);
+        if (k != 9 && k != 10) {
+          if (refVec[k] > 1.e10) {
+            assertTrue(resVec[k] > 1.e10);
+          } else {
+            if (refVec[k] < -1.e10) {
+              assertTrue(resVec[k] < -1.e10);
+            } else {
+              if (refVec[k] == 0.) {
+                assertTrue(Math.abs(resVec[k]) < 1.e-9);
+              } else {
+                assertEquals(refVec[k], resVec[k], Math.abs(refVec[k]) * 1.e-9);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    for (int i = 0; i < nStrikes; ++i) {
+      for (int j = 0; j < nVols; ++j) {
+        final double forward = STRIKES_INPUT[i];
+        final double vol = VOLS[j];
+        final double resC1 = BlackFormulaRepository.thetaMod(forward, 1.e-12, 1.e-24, vol, true, 1.e-12);
+        final double resC2 = BlackFormulaRepository.thetaMod(forward, 1.e-12, 1.e24, vol, true, 1.e-12);
+        final double resC3 = BlackFormulaRepository.thetaMod(forward, 1.e12, 1.e-24, vol, true, 1.e-12);
+        final double resP1 = BlackFormulaRepository.thetaMod(forward, 1.e-12, 1.e-24, vol, false, 1.e-12);
+        final double resP2 = BlackFormulaRepository.thetaMod(forward, 1.e-12, 1.e24, vol, false, 1.e-12);
+        final double resP3 = BlackFormulaRepository.thetaMod(forward, 1.e12, 1.e-24, vol, false, 1.e-12);
+        final double resC4 = BlackFormulaRepository.thetaMod(forward, 1.e12, 1.e24, vol, true, 1.e12);
+        final double resP4 = BlackFormulaRepository.thetaMod(forward, 1.e12, 1.e24, vol, false, 1.e12);
+        final double resC5 = BlackFormulaRepository.thetaMod(forward, 1.e-12, 1.e24, vol, true, 1.e12);
+        final double resP5 = BlackFormulaRepository.thetaMod(forward, 1.e-12, 1.e24, vol, false, 1.e12);
+        final double resC6 = BlackFormulaRepository.thetaMod(forward, 1.e12, 1.e-12, vol, true, 1.e12);
+        final double resP6 = BlackFormulaRepository.thetaMod(forward, 1.e12, 1.e-12, vol, false, 1.e12);
+        final double resC7 = BlackFormulaRepository.thetaMod(forward, 1.e-12, 1.e-12, vol, true, 1.e12);
+        final double resP7 = BlackFormulaRepository.thetaMod(forward, 1.e-12, 1.e-12, vol, false, 1.e12);
+        final double resC8 = BlackFormulaRepository.thetaMod(forward, 1.e12, 1.e24, vol, true, 1.e-12);
+        final double resP8 = BlackFormulaRepository.thetaMod(forward, 1.e12, 1.e24, vol, false, 1.e-12);
+
+        final double refC1 = BlackFormulaRepository.thetaMod(forward, 0., 0., vol, true, 0.);
+        final double refC2 = BlackFormulaRepository.thetaMod(forward, 0., inf, vol, true, 0.);
+        final double refC3 = BlackFormulaRepository.thetaMod(forward, inf, 0., vol, true, 0.);
+        final double refP1 = BlackFormulaRepository.thetaMod(forward, 0., 0., vol, false, 0.);
+        final double refP2 = BlackFormulaRepository.thetaMod(forward, 0., inf, vol, false, 0.);
+        final double refP3 = BlackFormulaRepository.thetaMod(forward, inf, 0., vol, false, 0.);
+        final double refC4 = BlackFormulaRepository.thetaMod(forward, inf, inf, vol, true, inf);
+        final double refP4 = BlackFormulaRepository.thetaMod(forward, inf, inf, vol, false, inf);
+        final double refC5 = BlackFormulaRepository.thetaMod(forward, 0., inf, vol, true, inf);
+        final double refP5 = BlackFormulaRepository.thetaMod(forward, 0., inf, vol, false, inf);
+        final double refC6 = BlackFormulaRepository.thetaMod(forward, inf, 0., vol, true, inf);
+        final double refP6 = BlackFormulaRepository.thetaMod(forward, inf, 0., vol, false, inf);
+        final double refC7 = BlackFormulaRepository.thetaMod(forward, 0., inf, vol, true, inf);
+        final double refP7 = BlackFormulaRepository.thetaMod(forward, 0., inf, vol, false, inf);
+        final double refC8 = BlackFormulaRepository.thetaMod(forward, 0., 0., vol, true, inf);
+        final double refP8 = BlackFormulaRepository.thetaMod(forward, 0., 0., vol, false, inf);
+
+        final double[] resVec = new double[] {resC1, resP1, resC2, resP2, resC3, resP3, resC4, resP4, resC5, resP5, resC6, resP6, resC7, resP7, resC8, resP8 };
+        final double[] refVec = new double[] {refC1, refP1, refC2, refP2, refC3, refP3, refC4, refP4, refC5, refP5, refC6, refP6, refC7, refP7, refC8, refP8 };
+
+        for (int k = 0; k < 14; ++k) {//some of ref values skipped
+          //          System.out.println(k + "\t" + refVec[k] + "\t" + resVec[k]);
+          if (k != 5 && k != 9 && k != 12) {
+            if (refVec[k] > 1.e10) {
+              assertTrue(resVec[k] > 1.e10);
+            } else {
+              if (refVec[k] < -1.e10) {
+                assertTrue(resVec[k] < -1.e10);
+              } else {
+                if (refVec[k] == 0.) {
+                  assertTrue(Math.abs(resVec[k]) < 1.e-9);
+                } else {
+                  assertEquals(refVec[k], resVec[k], Math.abs(refVec[k]) * 1.e-9);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    for (int i = 0; i < nStrikes; ++i) {
+      final double forward = STRIKES_INPUT[i];
+      final double resC1 = BlackFormulaRepository.thetaMod(forward, 1.e-12, TIME_TO_EXPIRY, 1.e-12, true, 1.e-12);
+      final double resC2 = BlackFormulaRepository.thetaMod(forward, 1.e-12, TIME_TO_EXPIRY, 1.e12, true, 1.e-12);
+      final double resC3 = BlackFormulaRepository.thetaMod(forward, 1.e12, TIME_TO_EXPIRY, 1.e-12, true, 1.e-12);
+      final double resP1 = BlackFormulaRepository.thetaMod(forward, 1.e-12, TIME_TO_EXPIRY, 1.e-12, false, 1.e-12);
+      final double resP2 = BlackFormulaRepository.thetaMod(forward, 1.e-12, TIME_TO_EXPIRY, 1.e12, false, 1.e-12);
+      final double resP3 = BlackFormulaRepository.thetaMod(forward, 1.e12, TIME_TO_EXPIRY, 1.e-12, false, 1.e-12);
+      final double resC4 = BlackFormulaRepository.thetaMod(forward, 1.e12, TIME_TO_EXPIRY, 1.e12, true, 1.e12);
+      final double resP4 = BlackFormulaRepository.thetaMod(forward, 1.e12, TIME_TO_EXPIRY, 1.e12, false, 1.e12);
+      final double resC5 = BlackFormulaRepository.thetaMod(forward, 1.e-12, TIME_TO_EXPIRY, 1.e12, true, 1.e12);
+      final double resP5 = BlackFormulaRepository.thetaMod(forward, 1.e-12, TIME_TO_EXPIRY, 1.e12, false, 1.e12);
+      final double resC6 = BlackFormulaRepository.thetaMod(forward, 1.e12, TIME_TO_EXPIRY, 1.e-12, true, 1.e12);
+      final double resP6 = BlackFormulaRepository.thetaMod(forward, 1.e12, TIME_TO_EXPIRY, 1.e-12, false, 1.e12);
+      final double resC7 = BlackFormulaRepository.thetaMod(forward, 1.e12, TIME_TO_EXPIRY, 1.e12, true, 1.e-12);
+      final double resP7 = BlackFormulaRepository.thetaMod(forward, 1.e12, TIME_TO_EXPIRY, 1.e12, false, 1.e-12);
+      final double resC8 = BlackFormulaRepository.thetaMod(forward, 1.e-12, TIME_TO_EXPIRY, 1.e-12, true, 1.e12);
+      final double resP8 = BlackFormulaRepository.thetaMod(forward, 1.e-12, TIME_TO_EXPIRY, 1.e-12, false, 1.e12);
+
+      final double refC1 = BlackFormulaRepository.thetaMod(forward, 0., TIME_TO_EXPIRY, 0., true, 0.);
+      final double refC2 = BlackFormulaRepository.thetaMod(forward, 0., TIME_TO_EXPIRY, inf, true, 0.);
+      final double refC3 = BlackFormulaRepository.thetaMod(forward, inf, TIME_TO_EXPIRY, 0., true, 0.);
+      final double refP1 = BlackFormulaRepository.thetaMod(forward, 0., TIME_TO_EXPIRY, 0., false, 0.);
+      final double refP2 = BlackFormulaRepository.thetaMod(forward, 0., TIME_TO_EXPIRY, inf, false, 0.);
+      final double refP3 = BlackFormulaRepository.thetaMod(forward, inf, TIME_TO_EXPIRY, 0., false, 0.);
+      final double refC4 = BlackFormulaRepository.thetaMod(forward, inf, TIME_TO_EXPIRY, inf, true, inf);
+      final double refP4 = BlackFormulaRepository.thetaMod(forward, inf, TIME_TO_EXPIRY, inf, false, inf);
+      final double refC5 = BlackFormulaRepository.thetaMod(forward, 0., TIME_TO_EXPIRY, inf, true, inf);
+      final double refP5 = BlackFormulaRepository.thetaMod(forward, 0., TIME_TO_EXPIRY, inf, false, inf);
+      final double refC6 = BlackFormulaRepository.thetaMod(forward, inf, TIME_TO_EXPIRY, 0., true, inf);
+      final double refP6 = BlackFormulaRepository.thetaMod(forward, inf, TIME_TO_EXPIRY, 0., false, inf);
+      final double refC7 = BlackFormulaRepository.thetaMod(forward, inf, TIME_TO_EXPIRY, inf, true, 0.);
+      final double refP7 = BlackFormulaRepository.thetaMod(forward, inf, TIME_TO_EXPIRY, inf, false, 0.);
+      final double refC8 = BlackFormulaRepository.thetaMod(forward, 0., TIME_TO_EXPIRY, 0., true, inf);
+      final double refP8 = BlackFormulaRepository.thetaMod(forward, 0., TIME_TO_EXPIRY, 0., false, inf);
+
+      final double[] resVec = new double[] {resC1, resP1, resC2, resP2, resC3, resP3, resC4, resP4, resC5, resP5, resC6, resP6, resC7, resP7, resC8, resP8 };
+      final double[] refVec = new double[] {refC1, refP1, refC2, refP2, refC3, refP3, refC4, refP4, refC5, refP5, refC6, refP6, refC7, refP7, refC8, refP8 };
+
+      for (int k = 0; k < 16; ++k) {
+        //        System.out.println(k + "\t" + refVec[k] + "\t" + resVec[k]);
+        if (k != 5 && k != 9 && k != 11 && k != 13 && k != 14) {
+          if (refVec[k] > 1.e10) {
+            assertTrue(resVec[k] > 1.e10);
+          } else {
+            if (refVec[k] < -1.e10) {
+              assertTrue(resVec[k] < -1.e10);
+            } else {
+              if (refVec[k] == 0.) {
+                assertTrue(Math.abs(resVec[k]) < 1.e-9);
+              } else {
+                assertEquals(refVec[k], resVec[k], Math.abs(refVec[k]) * 1.e-9);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    for (int i = 0; i < nStrikes; ++i) {
+      final double strike = STRIKES_INPUT[i];
+      final double resC1 = BlackFormulaRepository.thetaMod(strike, strike, inf, 0., true, 1.);
+      final double resP1 = BlackFormulaRepository.thetaMod(strike, strike, inf, 0., false, 1.);
+      final double resC2 = BlackFormulaRepository.thetaMod(strike, strike, inf, 0., true, 0.);
+      final double resP2 = BlackFormulaRepository.thetaMod(strike, strike, inf, 0., false, 0.);
+      final double refC1 = strike * (NORMAL.getCDF(0.5));
+      final double refP1 = -strike * (NORMAL.getCDF(-0.5));
+
+      final double[] resVec = new double[] {resC1, resP1, resC2, resP2 };
+      final double[] refVec = new double[] {refC1, refP1, 0., 0. };
+      for (int k = 2; k < 4; ++k) {
+        //        System.out.println(k + "\t" + refVec[k] + "\t" + resVec[k]);
+        if (refVec[k] > 1.e10) {
+          assertTrue(resVec[k] > 1.e10);
+        } else {
+          if (refVec[k] < -1.e10) {
+            assertTrue(resVec[k] < -1.e10);
+          } else {
+            if (refVec[k] == 0.) {
+              assertTrue(Math.abs(resVec[k]) < 1.e-10);
+            } else {
+              assertEquals(refVec[k], resVec[k], Math.max(Math.abs(refVec[k]) * 1.e-10, 1.e-10));
+            }
+          }
+        }
+      }
+    }
+
+    for (int i = 0; i < nStrikes; ++i) {
+      final double strike = STRIKES_INPUT[i];
+      final double resC1 = BlackFormulaRepository.thetaMod(FORWARD, strike, TIME_TO_EXPIRY, VOLS[0], true, -inf);
+      final double resP1 = BlackFormulaRepository.thetaMod(FORWARD, strike, TIME_TO_EXPIRY, VOLS[1], false, -inf);
+      final double resC2 = BlackFormulaRepository.thetaMod(FORWARD, strike, TIME_TO_EXPIRY, VOLS[2], true, -inf);
+      final double resP2 = BlackFormulaRepository.thetaMod(FORWARD, strike, TIME_TO_EXPIRY, VOLS[3], false, -inf);
+
+      final double[] resVec = new double[] {resC1, resP1, resC2, resP2 };
+      final double[] refVec = new double[] {0., 0., 0., 0. };
+      for (int k = 0; k < 4; ++k) {
+        //        System.out.println(k + "\t" + refVec[k] + "\t" + resVec[k]);
+        if (refVec[k] > 1.e10) {
+          assertTrue(resVec[k] > 1.e10);
+        } else {
+          if (refVec[k] < -1.e10) {
+            assertTrue(resVec[k] < -1.e10);
+          } else {
+            if (refVec[k] == 0.) {
+              assertTrue(Math.abs(resVec[k]) < 1.e-10);
+            } else {
+              assertEquals(refVec[k], resVec[k], Math.max(Math.abs(refVec[k]) * 1.e-10, 1.e-10));
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   *
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void negativeVolErrorthetaModTest() {
+    BlackFormulaRepository.thetaMod(FORWARD, STRIKES_INPUT[1], TIME_TO_EXPIRY, -0.5, true, 0.1);
+  }
+
+  /**
+   *
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void negativeFwdErrorthetaModTest() {
+    BlackFormulaRepository.thetaMod(-FORWARD, STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], true, 0.1);
+  }
+
+  /**
+   *
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void negativeStrikeErrorthetaModTest() {
+    BlackFormulaRepository.thetaMod(FORWARD, -STRIKES_INPUT[1], TIME_TO_EXPIRY, VOLS[1], true, 0.1);
+  }
+
+  /**
+   *
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void negativeTimeErrorthetaModTest() {
+    BlackFormulaRepository.thetaMod(FORWARD, STRIKES_INPUT[1], -TIME_TO_EXPIRY, VOLS[1], true, 0.1);
+  }
+
+  /**
+   * 
+   */
+  @Test
+  public void consistencyWithBlackScholestest() {
+    final int nStrikes = STRIKES_INPUT.length;
+    final int nVols = VOLS.length;
+    final double interestRate = 0.02;
+    final double df = Math.exp(-interestRate * TIME_TO_EXPIRY);
+    final double spot = FORWARD * df;
+
+    final boolean[] tfSet = new boolean[] {true, false };
+    for (final boolean isCall : tfSet) {
+      for (int i = 0; i < nStrikes; ++i) {
+        for (int j = 0; j < nVols; ++j) {
+          final double strike = STRIKES_INPUT[i];
+          final double vol = VOLS[j];
+          final double price1 = df * BlackFormulaRepository.thetaMod(FORWARD, strike, TIME_TO_EXPIRY, vol, isCall, interestRate);
+          final double price2 = BlackScholesFormulaRepository.theta(spot, strike, TIME_TO_EXPIRY, vol, interestRate, interestRate, isCall);
+          assertEquals(price1, price2, 1.e-10);
+        }
+      }
+    }
+  }
+
+  /*
+   *
    *
    *
    * vega
