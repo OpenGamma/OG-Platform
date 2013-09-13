@@ -178,7 +178,7 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
             }
             final InstrumentDefinition<?> definitionForNode = node.getCurveNode().accept(getCurveNodeConverter(conventionSource, holidaySource, regionSource, snapshot,
                 node.getIdentifier(), timeSeries, now));
-            derivativesForCurve[k++] = getCurveNodeConverter().getDerivative(node, definitionForNode, now, timeSeries);
+            derivativesForCurve[k++] = getCurveNodeConverter(conventionSource).getDerivative(node, definitionForNode, now, timeSeries);
           } // Node points - end
           for (final CurveTypeConfiguration type : entry.getValue()) { // Type - start
             if (type instanceof DiscountingCurveTypeConfiguration) {
