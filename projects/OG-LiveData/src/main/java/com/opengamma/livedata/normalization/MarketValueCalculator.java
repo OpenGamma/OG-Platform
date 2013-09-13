@@ -20,7 +20,7 @@ public class MarketValueCalculator implements NormalizationRule {
   /**
    * The maximum relative bid/ask spread to use their midpoint.
    */
-  private static final double MAX_ACCEPTABLE_SPREAD_TO_USE_MIDPOINT = 0.05;
+  private static final double MAX_ACCEPTABLE_SPREAD_TO_USE_MIDPOINT = 0.20;
 
   /**
    * Calculates a best estimate of the current value of a security.
@@ -105,7 +105,7 @@ public class MarketValueCalculator implements NormalizationRule {
   }
 
   private double getRelativeSpread(Double bid, Double ask) {
-    return Math.abs(ask - bid) / Math.abs(bid);
+    return Math.abs(ask - bid) / Math.abs(ask);
   }
   
   /**
