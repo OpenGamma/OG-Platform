@@ -38,6 +38,7 @@ import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunction
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
+import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
@@ -116,14 +117,10 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
 
     // 2. Get inputs
     // For all TradeTypes, we'll require the live Price
-    final ComputedValue valLivePrice = inputs.getComputedValue(MarketDataRequirementNames.MARKET_VALUE);
-    if (valLivePrice == null) {
-      throw new OpenGammaRuntimeException(MarketDataRequirementNames.MARKET_VALUE + " not available," + security.getName());
-    }
-    Double livePrice = (Double) valLivePrice.getValue();
+    Double livePrice = calculateLivePrice(inputs, target);
 
     // For PNL, we need a reference price. We have two cases:
-    // Open: will need the closing price
+    // Open: will need the closing price and any carry
     // New: will need the trade price
     Double referencePrice;
     Double costOfCarry = 0.0;
@@ -133,22 +130,17 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
       if (referencePrice == null) {
         throw new NullPointerException("New Trades require a premium to compute PNL on trade date. Premium was null for " + trade.getUniqueId());
       }
-    } else {
-      for (final ComputedValue input : inputs.getAllValues()) {
-        if (input.getSpecification().getValueName().equals(ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST)) {
-          final String field = input.getSpecification().getProperty(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY);
-          if (field.equals(_costOfCarryField)) {
-            // Get cost of carry, if available
-            Object value = input.getValue();
-            if (value != null) {
-              costOfCarry = (Double) value;
-            }
-          }
-        }
+      if ((security instanceof InterestRateFutureSecurity || security instanceof IRFutureOptionSecurity) && (trade.getPremium() > 1.0)) {
+        referencePrice /= 100.0;
       }
+    } else {
       referencePrice = calculateReferencePrice(inputs, target);
       if (referencePrice == null) {
         throw new NullPointerException("Failed to get reference price");
+      }
+      Object carryValue = inputs.getValue(_costOfCarryField);
+      if (carryValue != null) {
+        costOfCarry = (Double) carryValue;
       }
     }
     // 3. Compute the PNL
@@ -204,28 +196,46 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
   @Override
   public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
     final Set<ValueRequirement> requirements = new HashSet<>();
-    // Security's Market Value. We scale up by Notionals and Quantities during execute()
     final Security security = target.getPositionOrTrade().getSecurity();
-    final ComputationTargetReference securityTarget = new ComputationTargetSpecification(ComputationTargetType.SECURITY, security.getUniqueId());
-    final ValueRequirement securityValueReq = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, securityTarget);
-    requirements.add(securityValueReq);
+    requirements.addAll(createLivePriceRequirement(security));
     requirements.addAll(createReferencePriceRequirement(security));
-    // and Cost of Carry, if provided
-    if (_costOfCarryField.length() > 0) {
+    if (_costOfCarryField.length() > 0) {     // Cost of Carry, if provided
       requirements.add(HistoricalTimeSeriesFunctionUtils.createHTSLatestRequirement(security, _costOfCarryField, null));
     }
     return requirements;
   }
 
+  /** 
+   * @param security the target's security
+   * @return Engine Function requirements for the current / live price 
+   */
+  protected Set<ValueRequirement> createLivePriceRequirement(Security security) {
+    final ComputationTargetReference securityTarget = new ComputationTargetSpecification(ComputationTargetType.SECURITY, security.getUniqueId());
+    final ValueRequirement securityValueReq = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, securityTarget);
+    return Collections.singleton(securityValueReq);
+  }
+  
+  /** 
+   * @param security the target's security
+   * @return Engine Function requirements for the closing / reference price
+   */
   protected Set<ValueRequirement> createReferencePriceRequirement(Security security) {
     ValueRequirement htsReq =
         HistoricalTimeSeriesFunctionUtils.createHTSLatestRequirement(security, getClosingPriceField(), null);
     return Collections.singleton(htsReq);
   }
-
+  
+  // Provides the current / live price 
+  protected Double calculateLivePrice(FunctionInputs inputs, ComputationTarget target) {  
+    final ComputedValue valLivePrice = inputs.getComputedValue(MarketDataRequirementNames.MARKET_VALUE);
+    if (valLivePrice == null) {
+      throw new OpenGammaRuntimeException(MarketDataRequirementNames.MARKET_VALUE + " not available," + target);
+    }
+    return (Double) valLivePrice.getValue();
+  }
+  
+  // Provides the closing / reference price
   protected Double calculateReferencePrice(FunctionInputs inputs, ComputationTarget target) {
-    final Trade trade = target.getTrade();
-    final Security security = trade.getSecurity();
     for (ComputedValue input : inputs.getAllValues()) {
       if (input.getSpecification().getValueName().equals(ValueRequirementNames.HISTORICAL_TIME_SERIES_LATEST)) {
         String field = input.getSpecification().getProperty(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY);
