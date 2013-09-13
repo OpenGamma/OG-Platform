@@ -183,6 +183,10 @@ public class USConventions {
         null, 2, false, usgb);
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("USD_BASIS_SWAP")), "USD_BASIS_SWAP", act360, modified, quarterly, 2,
         null, usgb, act360, modified, quarterly, 2, null, usgb);
+    
+    // Inflation
+    utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("CPURNSA Index"), simpleNameSecurityId("USD CPI")),
+        "USD CPI", act360, modified, Period.ofMonths(1), 2, false, us);
 
     // TODO: Add all ISDA fixing
     final int[] isdaFixTenor = new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30 };
