@@ -68,7 +68,8 @@ public class FXOptionBlackVegaFunction extends FXOptionBlackSingleValuedFunction
     final ValueProperties.Builder properties = super.getResultProperties(target, putCurve, putCurveCalculationConfig, callCurve, callCurveCalculationConfig, baseQuotePair,
         optionalProperties);
     if (scale == null || scale.isEmpty()) {
-      return properties.with(ValuePropertyNames.SCALE, Double.toString(1));
+      // return properties.with(ValuePropertyNames.SCALE, Double.toString(1));
+      return properties.withAny(ValuePropertyNames.SCALE);      
     }
     return properties.with(ValuePropertyNames.SCALE, scale);
   }
