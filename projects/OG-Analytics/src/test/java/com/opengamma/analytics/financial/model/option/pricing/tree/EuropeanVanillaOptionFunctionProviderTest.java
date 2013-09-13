@@ -162,6 +162,14 @@ public class EuropeanVanillaOptionFunctionProviderTest {
                 final double resCash = _model.getPrice(lattice, function, SPOT, vol, interest, cashDividend);
                 final double refCash = Math.max(appCash, 1.) / Math.sqrt(nSteps);
                 assertEquals(resCash, appCash, refCash);
+
+                if (lattice instanceof CoxRossRubinsteinLatticeSpecification || lattice instanceof JarrowRuddLatticeSpecification || lattice instanceof TrigeorgisLatticeSpecification ||
+                    lattice instanceof TianLatticeSpecification) {
+                  final double resPropTrinomial = _modelTrinomial.getPrice(lattice, function, SPOT, vol, interest, propDividend);
+                  final double resCashTrinomial = _modelTrinomial.getPrice(lattice, function, SPOT, vol, interest, cashDividend);
+                  assertEquals(resPropTrinomial, resProp, Math.max(resProp, 1.) / Math.sqrt(nSteps));
+                  assertEquals(resCashTrinomial, resCash, Math.max(resCash, 1.) / Math.sqrt(nSteps));
+                }
               }
             }
           }
@@ -237,7 +245,6 @@ public class EuropeanVanillaOptionFunctionProviderTest {
                 assertEquals(resDiv.get(Greek.GAMMA), gammaDiv, refGammaDiv);
                 final double thetaDiv = BlackScholesFormulaRepository.theta(SPOT, strike, TIME, vol, interest, interest - dividend, isCall);
                 final double refThetaDiv = Math.max(Math.abs(thetaDiv), 1.) / nSteps;
-                //                System.out.println(SPOT + "\t" + strike + "\t" + TIME + "\t" + vol + "\t" + interest + "\t" + dividend + "\t" + nSteps + "\t" + isCall);
                 assertEquals(resDiv.get(Greek.THETA), thetaDiv, refThetaDiv * 10.);
               }
             }
@@ -294,6 +301,24 @@ public class EuropeanVanillaOptionFunctionProviderTest {
               assertEquals(resCash.get(Greek.DELTA), appDeltaCash, Math.max(1., Math.abs(appDeltaCash)) * 1.e-1);
               assertEquals(resCash.get(Greek.GAMMA), appGammaCash, Math.max(1., Math.abs(appGammaCash)) * 1.e-1);
               assertEquals(resCash.get(Greek.THETA), appThetaCash, Math.max(1., Math.abs(appThetaCash)));
+
+              if (lattice instanceof CoxRossRubinsteinLatticeSpecification || lattice instanceof JarrowRuddLatticeSpecification || lattice instanceof TrigeorgisLatticeSpecification ||
+                  lattice instanceof TianLatticeSpecification) {
+                final GreekResultCollection resPropTrinomial = _modelTrinomial.getGreeks(lattice, function, SPOT, vol, interest, propDividend);
+                final GreekResultCollection resCashTrinomial = _modelTrinomial.getGreeks(lattice, function, SPOT, vol, interest, cashDividend);
+
+                assertEquals(resPropTrinomial.get(Greek.FAIR_PRICE), resProp.get(Greek.FAIR_PRICE), Math.max(1., Math.abs(resProp.get(Greek.FAIR_PRICE))) * 1.e-2);
+                assertEquals(resPropTrinomial.get(Greek.DELTA), resProp.get(Greek.DELTA), Math.max(1., Math.abs(resProp.get(Greek.DELTA))) * 1.e-2);
+
+                assertEquals(resPropTrinomial.get(Greek.GAMMA), resProp.get(Greek.GAMMA), Math.max(1., Math.abs(resProp.get(Greek.GAMMA))) * 1.e-2);
+                assertEquals(resPropTrinomial.get(Greek.THETA), resProp.get(Greek.THETA), Math.max(1., Math.abs(resProp.get(Greek.THETA))) * 1.e-1);
+
+                assertEquals(resCashTrinomial.get(Greek.FAIR_PRICE), resCash.get(Greek.FAIR_PRICE), Math.max(1., Math.abs(resCash.get(Greek.FAIR_PRICE))) * 1.e-2);
+                assertEquals(resCashTrinomial.get(Greek.DELTA), resCash.get(Greek.DELTA), Math.max(1., Math.abs(resCash.get(Greek.DELTA))) * 1.e-2);
+                assertEquals(resCashTrinomial.get(Greek.GAMMA), resCash.get(Greek.GAMMA), Math.max(1., Math.abs(resCash.get(Greek.GAMMA))) * 1.e-2);
+                assertEquals(resCashTrinomial.get(Greek.THETA), resCash.get(Greek.THETA), Math.max(1., Math.abs(resCash.get(Greek.THETA))) * 1.e-1);
+              }
+
             }
           }
         }

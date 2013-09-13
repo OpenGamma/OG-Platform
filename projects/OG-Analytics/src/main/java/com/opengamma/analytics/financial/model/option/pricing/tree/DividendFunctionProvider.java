@@ -88,6 +88,34 @@ public abstract class DividendFunctionProvider {
   public abstract double[] getAssetPricesForGamma(final double spot, final double interestRate, final int[] divSteps, final double upFactor, final double downFactor, final double sumDiscountDiv);
 
   /**
+   * Asset prices in the 1st layer, i.e., S_{10} and S_{11}
+   * @param spot The spot
+   * @param interestRate The interest rate 
+   * @param divSteps The position of layers where dividends are paid
+   * @param upFactor Up factor
+   * @param middleFactor Middle factor
+   * @param downFactor Down factor
+   * @param sumDiscountDiv Sum of discounted (cash) dividends
+   * @return { S_{10}, S_{11}, S_{12} }
+   */
+  public abstract double[] getAssetPricesForDelta(final double spot, final double interestRate, final int[] divSteps, final double upFactor, final double middleFactor, final double downFactor,
+      final double sumDiscountDiv);
+
+  /**
+   * Asset prices in the second layer, i.e., S_{20}, S_{21} and S_{22}
+   * @param spot The spot
+   * @param interestRate The interest rate 
+   * @param divSteps The positions of layers where dividends are paid
+   * @param upFactor Up factor
+   * @param middleFactor Middle factor
+   * @param downFactor Down factor
+   * @param sumDiscountDiv Sum of discounted (cash) dividends
+   * @return { S_{20}, S_{21}, S_{22}, S_{23}, S_{24} }
+   */
+  public abstract double[] getAssetPricesForGamma(final double spot, final double interestRate, final int[] divSteps, final double upFactor, final double middleFactor, final double downFactor,
+      final double sumDiscountDiv);
+
+  /**
    * @param dt Time step
    * @return The positions of layers where dividends are paid
    */

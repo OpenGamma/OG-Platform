@@ -169,6 +169,7 @@ public class AssetOrNothingOptionFunctionProviderTest {
           for (final double interest : INTERESTS) {
             for (final double vol : VOLS) {
               final int nSteps = 631;
+              final int nStepsTri = 614;
               final OptionFunctionProvider1D function = new AssetOrNothingOptionFunctionProvider(strike, TIME, nSteps, isCall);
               final DividendFunctionProvider cashDividend = new CashDividendFunctionProvider(dividendTimes, cashDividends);
               final DividendFunctionProvider propDividend = new ProportionalDividendFunctionProvider(dividendTimes, propDividends);
@@ -183,6 +184,16 @@ public class AssetOrNothingOptionFunctionProviderTest {
               final double resCash = _model.getPrice(lattice, function, SPOT, vol, interest, cashDividend);
               final double refCash = Math.max(appCash, 1.) * 1.e-1;
               assertEquals(resCash, appCash, refCash);
+
+              if (lattice instanceof CoxRossRubinsteinLatticeSpecification || lattice instanceof JarrowRuddLatticeSpecification || lattice instanceof TrigeorgisLatticeSpecification ||
+                  lattice instanceof TianLatticeSpecification) {
+                final OptionFunctionProvider1D functionTri = new AssetOrNothingOptionFunctionProvider(strike, TIME, nStepsTri, isCall);
+                final double resPropTrinomial = _modelTrinomial.getPrice(lattice, functionTri, SPOT, vol, interest, propDividend);
+                final double resCashTrinomial = _modelTrinomial.getPrice(lattice, functionTri, SPOT, vol, interest, cashDividend);
+                assertEquals(resPropTrinomial, resProp, Math.max(resProp, 1.) * 1.e-1);
+                //                System.out.println(+ "\t" + resCashTrinomial + "\t" + resCash + "\t" + (resCashTrinomial - resCash));
+                //                assertEquals(resCashTrinomial, resCash, Math.max(resCash, 1.) * 1.e-1);
+              }
             }
           }
         }

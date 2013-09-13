@@ -59,6 +59,31 @@ public class CashDividendFunctionProvider extends DividendFunctionProvider {
   }
 
   @Override
+  public double[] getAssetPricesForDelta(final double assetPriceBase, final double interestRate, final int[] divSteps, final double upFactor, final double middleFactor, final double downFactor,
+      final double sumDiscountDiv) {
+    final double[] res = new double[3];
+    res[0] = assetPriceBase * downFactor + sumDiscountDiv;
+    res[1] = assetPriceBase * middleFactor + sumDiscountDiv;
+    res[2] = assetPriceBase * upFactor + sumDiscountDiv;
+    return res;
+  }
+
+  @Override
+  public double[] getAssetPricesForGamma(final double assetPriceBase, final double interestRate, final int[] divSteps, final double upFactor, final double middleFactor, final double downFactor,
+      final double sumDiscountDiv) {
+    final double[] res = new double[5];
+    final double up = assetPriceBase * upFactor;
+    final double down = assetPriceBase * downFactor;
+
+    res[0] = down * downFactor + sumDiscountDiv;
+    res[1] = down * middleFactor + sumDiscountDiv;
+    res[2] = down * upFactor + sumDiscountDiv;
+    res[3] = up * middleFactor + sumDiscountDiv;
+    res[4] = up * upFactor + sumDiscountDiv;
+    return res;
+  }
+
+  @Override
   public int hashCode() {
     return super.hashCode();
   }
