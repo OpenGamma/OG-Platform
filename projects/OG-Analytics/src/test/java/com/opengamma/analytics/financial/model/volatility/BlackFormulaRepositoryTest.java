@@ -6645,7 +6645,7 @@ public class BlackFormulaRepositoryTest {
           final double vol = VOLS[j];
           final double price1 = df * BlackFormulaRepository.thetaMod(FORWARD, strike, TIME_TO_EXPIRY, vol, isCall, interestRate);
           final double price2 = BlackScholesFormulaRepository.theta(spot, strike, TIME_TO_EXPIRY, vol, interestRate, interestRate, isCall);
-          assertEquals(price1, price2, 1.e-10);
+          assertEquals(price1, price2, 1.e-14);
         }
       }
     }

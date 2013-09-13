@@ -18,6 +18,7 @@ import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermS
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
+import com.opengamma.analytics.financial.model.volatility.BlackScholesFormulaRepository;
 import com.opengamma.analytics.financial.model.volatility.VolatilityAndBucketedSensitivities;
 import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTermStructureParametersStrikeInterpolation;
 import com.opengamma.analytics.math.function.Function1D;
@@ -336,11 +337,12 @@ public final class ForexOptionVanillaBlackSmileMethod implements ForexPricingMet
     final double dfForeign = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency1().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime());
     final double spot = smile.getFxRates().getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
     final double forward = spot * dfForeign / dfDomestic;
-    final double interestRate = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency1().getFundingCurveName()).getInterestRate(optionForex.getUnderlyingForex().getPaymentTime()) -
-        smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency2().getFundingCurveName()).getInterestRate(optionForex.getUnderlyingForex().getPaymentTime());
+    final double rDomestic = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency2().getFundingCurveName()).getInterestRate(optionForex.getUnderlyingForex().getPaymentTime());
+    final double rForeign = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency1().getFundingCurveName()).getInterestRate(optionForex.getUnderlyingForex().getPaymentTime());
+    final double interestRate = rDomestic - rForeign;
     final double volatility = FXVolatilityUtils.getVolatility(smile, optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry(), optionForex.getStrike(), forward);
     final boolean isCall = optionForex.isCall();
-    return BlackFormulaRepository.thetaMod(forward, optionForex.getStrike(), optionForex.getTimeToExpiry(), volatility, isCall, interestRate);
+    return BlackScholesFormulaRepository.theta(spot, optionForex.getStrike(), optionForex.getTimeToExpiry(), volatility, rDomestic, interestRate, isCall);
   }
 
   /**
