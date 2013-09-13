@@ -71,7 +71,7 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
     _gridType = gridType;
     _targetResolver = previousGrid.getTargetResolver();
     // reopen existing dependency graphs using the value requirements from the depgraph grid structures
-    for (Map.Entry<Integer, DependencyGraphGrid> entry : _depGraphs.entrySet()) {
+    for (Map.Entry<Integer, DependencyGraphGrid> entry : previousGrid._depGraphs.entrySet()) {
       openDependencyGraph(entry.getKey(), entry.getValue(), compiledViewDef);
     }
   }
