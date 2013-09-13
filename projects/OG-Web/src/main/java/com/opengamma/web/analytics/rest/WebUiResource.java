@@ -33,6 +33,7 @@ import org.threeten.bp.format.DateTimeFormatter;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.client.ViewClientState;
 import com.opengamma.id.UniqueId;
@@ -250,13 +251,19 @@ public class WebUiResource {
                                       @PathParam("viewId") String viewId,
                                       @PathParam("gridType") String gridType,
                                       @FormParam("requestId") int requestId,
-                                      @FormParam("row") int row,
-                                      @FormParam("col") int col) {
+                                      @FormParam("row") Integer row,
+                                      @FormParam("col") Integer col,
+                                      @FormParam("calcConfigName") String calcConfigName,
+                                      @FormParam("valueRequirement") ValueRequirement valueRequirement) {
     int graphId = s_nextId.getAndIncrement();
     String graphIdStr = Integer.toString(graphId);
     URI graphUri = uriInfo.getAbsolutePathBuilder().path(graphIdStr).build();
     String callbackId = graphUri.getPath();
-    _viewManager.getView(viewId).openDependencyGraph(requestId, gridType(gridType), graphId, callbackId, row, col);
+    if (row != null && col != null) {
+      _viewManager.getView(viewId).openDependencyGraph(requestId, gridType(gridType), graphId, callbackId, row, col);
+    } else if (calcConfigName != null && valueRequirement != null) {
+      _viewManager.getView(viewId).openDependencyGraph(requestId, gridType(gridType), graphId, callbackId, calcConfigName, valueRequirement);
+    }
     return Response.status(Response.Status.CREATED).build();
   }
 

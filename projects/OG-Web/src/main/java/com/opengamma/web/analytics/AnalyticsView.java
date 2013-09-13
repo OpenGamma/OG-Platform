@@ -9,6 +9,7 @@ import java.util.List;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.position.Portfolio;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.cycle.ViewCycle;
@@ -193,12 +194,12 @@ public interface AnalyticsView {
    * @param calcConfigName Name of the calculation configuration containing the value we're interested in
    * @param valueRequirement Requirement which requests the value we're interested in
    */
-  /*void openDependencyGraph(int requestId,
+  void openDependencyGraph(int requestId,
                            GridType gridType,
                            int graphId,
                            String callbackId,
                            String calcConfigName,
-                           ValueRequirement valueRequirement);*/
+                           ValueRequirement valueRequirement);
 
   /**
    * Closes a dependency graph.

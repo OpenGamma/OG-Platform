@@ -23,6 +23,7 @@ import com.opengamma.core.position.impl.PortfolioMapper;
 import com.opengamma.core.position.impl.SimplePortfolio;
 import com.opengamma.core.position.impl.SimplePortfolioNode;
 import com.opengamma.engine.ComputationTargetResolver;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.cycle.ViewCycle;
@@ -268,6 +269,16 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
     s_logger.debug("View {} opening dependency graph {} for cell ({}, {}) of the {} grid",
                    _viewId, graphId, row, col, gridType);
     getGrid(gridType).openDependencyGraph(graphId, callbackId, row, col, _compiledViewDefinition, _viewportListener);
+  }
+
+  @Override
+  public void openDependencyGraph(int requestId,
+                                  GridType gridType,
+                                  int graphId,
+                                  String callbackId,
+                                  String calcConfigName,
+                                  ValueRequirement valueRequirement) {
+    getGrid(gridType).openDependencyGraph(graphId, callbackId, calcConfigName, valueRequirement, _compiledViewDefinition, _viewportListener);
   }
 
   @Override

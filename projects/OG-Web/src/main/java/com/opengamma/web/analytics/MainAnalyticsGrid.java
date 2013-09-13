@@ -102,7 +102,8 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
   // -------- dependency graph grids --------
 
   /**
-   * Opens a dependency graph grid showing the steps used to calculate a cell's value.
+   * Opens a dependency graph grid showing the steps used to calculate a cell's value. This variant is intended for
+   * clients to use when first opening a dependency graph.
    *
    * @param graphId Unique ID of the dependency graph
    * @param gridId ID passed to listeners when the grid's row and column structure changes, this can be any unique value
@@ -128,6 +129,32 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
     String calcConfigName = targetForCell.getFirst();
     ValueSpecification valueSpec = targetForCell.getSecond();
     ValueRequirement valueReq = getGridStructure().getRequirementForCell(row, col).getSecond();
+    DependencyGraphGrid grid = DependencyGraphGrid.create(compiledViewDef, valueReq, valueSpec, calcConfigName, _cycle,
+                                                          gridId, _targetResolver, viewportListener);
+    _depGraphs.put(graphId, grid);
+  }
+
+  /**
+   * Opens a dependency graph grid showing the steps used to calculate a cell's value. This variant is intended for
+   * clients to use when reconnecting after a server restart.
+   *
+   * @param graphId Unique ID of the dependency graph
+   * @param gridId ID passed to listeners when the grid's row and column structure changes, this can be any unique value
+   * @param calcConfigName Name of the calculation configuration containing the value
+   * @param valueReq Requirement that resulted in the value
+   * @param compiledViewDef Compiled view definition containing the full dependency graph
+   * @param viewportListener Receives notification when there are changes to a viewport
+   */
+  /* package */ void openDependencyGraph(int graphId,
+                                         String gridId,
+                                         String calcConfigName,
+                                         ValueRequirement valueReq,
+                                         CompiledViewDefinition compiledViewDef,
+                                         ViewportListener viewportListener) {
+    if (_depGraphs.containsKey(graphId)) {
+      throw new IllegalArgumentException("Dependency graph ID " + graphId + " is already in use");
+    }
+    ValueSpecification valueSpec = getGridStructure().getValueMappings().getValueSpecification(calcConfigName, valueReq);
     DependencyGraphGrid grid = DependencyGraphGrid.create(compiledViewDef, valueReq, valueSpec, calcConfigName, _cycle,
                                                           gridId, _targetResolver, viewportListener);
     _depGraphs.put(graphId, grid);

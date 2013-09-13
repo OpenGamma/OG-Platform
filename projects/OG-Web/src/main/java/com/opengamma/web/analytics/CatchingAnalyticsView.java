@@ -8,6 +8,7 @@ package com.opengamma.web.analytics;
 import java.util.List;
 
 import com.opengamma.core.position.Portfolio;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.cycle.ViewCycle;
@@ -169,6 +170,22 @@ import com.opengamma.web.analytics.push.UpdateListener;
   public void openDependencyGraph(int requestId, GridType gridType, int graphId, String callbackId, int row, int col) {
     try {
       _delegate.openDependencyGraph(requestId, gridType, graphId, callbackId, row, col);
+    } catch (Exception e) {
+      String id = _errorManager.add(e);
+      _listener.itemUpdated(id);
+      throw e;
+    }
+  }
+
+  @Override
+  public void openDependencyGraph(int requestId,
+                                  GridType gridType,
+                                  int graphId,
+                                  String callbackId,
+                                  String calcConfigName,
+                                  ValueRequirement valueRequirement) {
+    try {
+      _delegate.openDependencyGraph(requestId, gridType, graphId, callbackId, calcConfigName, valueRequirement);
     } catch (Exception e) {
       String id = _errorManager.add(e);
       _listener.itemUpdated(id);

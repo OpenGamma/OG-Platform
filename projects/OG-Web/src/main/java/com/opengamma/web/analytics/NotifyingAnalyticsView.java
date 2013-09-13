@@ -10,6 +10,7 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.core.position.Portfolio;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.cycle.ViewCycle;
@@ -105,6 +106,18 @@ import com.opengamma.web.analytics.push.UpdateListener;
   @Override
   public void openDependencyGraph(int requestId, GridType gridType, int graphId, String callbackId, int row, int col) {
     _delegate.openDependencyGraph(requestId, gridType, graphId, callbackId, row, col);
+    ImmutableMap<String, Object> callbackMap = ImmutableMap.<String, Object>of("id", requestId, "message", callbackId);
+    _listener.itemUpdated(callbackMap);
+  }
+
+  @Override
+  public void openDependencyGraph(int requestId,
+                                  GridType gridType,
+                                  int graphId,
+                                  String callbackId,
+                                  String calcConfigName,
+                                  ValueRequirement valueRequirement) {
+    _delegate.openDependencyGraph(requestId, gridType, graphId, callbackId, calcConfigName, valueRequirement);
     ImmutableMap<String, Object> callbackMap = ImmutableMap.<String, Object>of("id", requestId, "message", callbackId);
     _listener.itemUpdated(callbackMap);
   }
