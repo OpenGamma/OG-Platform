@@ -57,7 +57,8 @@ public class FXOptionBlackCurveDefaults extends DefaultPropertyFunction {
     ValueRequirementNames.GAMMA,
     ValueRequirementNames.FORWARD_GAMMA,
     ValueRequirementNames.FORWARD_VEGA,
-    ValueRequirementNames.FORWARD_DRIFTLESS_THETA
+    ValueRequirementNames.FORWARD_DRIFTLESS_THETA,
+    ValueRequirementNames.THETA
   };
   private final Map<String, Pair<String, String>> _currencyCurveConfigAndDiscountingCurveNames;
 

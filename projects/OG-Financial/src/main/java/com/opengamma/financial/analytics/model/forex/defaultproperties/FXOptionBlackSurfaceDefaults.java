@@ -56,7 +56,8 @@ public class FXOptionBlackSurfaceDefaults extends DefaultPropertyFunction {
     ValueRequirementNames.GAMMA,
     ValueRequirementNames.FORWARD_GAMMA,
     ValueRequirementNames.FORWARD_VEGA,
-    ValueRequirementNames.FORWARD_DRIFTLESS_THETA
+    ValueRequirementNames.FORWARD_DRIFTLESS_THETA,
+    ValueRequirementNames.THETA
   };
   private final String _interpolatorName;
   private final String _leftExtrapolatorName;
