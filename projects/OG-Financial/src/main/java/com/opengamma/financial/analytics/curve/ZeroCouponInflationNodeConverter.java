@@ -128,7 +128,7 @@ public class ZeroCouponInflationNodeConverter extends CurveNodeVisitorAdapter<In
     final LocalDateDoubleTimeSeries localDateTS = ts.getTimeSeries();
     final DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries = convertTimeSeries(zone, localDateTS);
     final int conventionalMonthLag = inflationLegConvention.getMonthLag();
-    final int monthLag = inflationLegConvention.getSpotLag();
+    final int monthLag = inflationLegConvention.getMonthLag();
     final IndexPrice index = new IndexPrice(priceIndexConvention.getName(), currency);
     switch (inflationNode.getInflationNodeType()) {
       case INTERPOLATED:
