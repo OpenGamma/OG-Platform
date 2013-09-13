@@ -217,11 +217,14 @@ public class DependencyGraphGridStructure implements GridStructure {
   /**
    * @return The {@link ValueRequirement} that requested the root node.
    */
-  /* package */ ValueRequirement getRootRequirement() {
+  public ValueRequirement getRootRequirement() {
     return _rootRequirement;
   }
 
-  /* package */ String getCalculationConfigurationName() {
+  /**
+   * @return The name of the calculation config containing the dependency graph's root value.
+   */
+  public String getCalculationConfigurationName() {
     return _calcConfigName;
   }
 
