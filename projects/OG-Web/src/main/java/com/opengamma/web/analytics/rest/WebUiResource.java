@@ -43,6 +43,7 @@ import com.opengamma.util.OpenGammaClock;
 import com.opengamma.util.rest.RestUtils;
 import com.opengamma.web.analytics.AnalyticsView;
 import com.opengamma.web.analytics.AnalyticsViewManager;
+import com.opengamma.web.analytics.ErrorInfo;
 import com.opengamma.web.analytics.GridCell;
 import com.opengamma.web.analytics.GridStructure;
 import com.opengamma.web.analytics.MarketDataSpecificationJsonReader;
@@ -54,8 +55,9 @@ import com.opengamma.web.analytics.push.ClientConnection;
 import com.opengamma.web.analytics.push.ConnectionManager;
 
 /**
+ * REST resource for the analytics grid. This resource class specifies the endpoints of every object in the
+ * hierarchy of grids, dependency graphs and viewports in the analytics viewer.
  * TODO this isn't used yet but is intended to replace all the analytics UI resources
- * the existing code is too complicated and it's hard to know which URLs apply to which resources
  */
 @Path("views")
 public class WebUiResource {
@@ -106,11 +108,11 @@ public class WebUiResource {
     String viewId = Long.toString(s_nextViewId.getAndIncrement());
     URI portfolioGridUri = uriInfo.getAbsolutePathBuilder()
         .path(viewId)
-        .path(ViewResource.class, "getPortfolioGrid")
+        .path("portfolio")
         .build();
     URI primitivesGridUri = uriInfo.getAbsolutePathBuilder()
         .path(viewId)
-        .path(ViewResource.class, "getPrimitivesGrid")
+        .path("primitives")
         .build();
     // TODO this is very obviously wrong - where can I get the user?
     UserPrincipal user = UserPrincipal.getTestUser();
@@ -122,7 +124,7 @@ public class WebUiResource {
         ImmutableMap.<String, Object>of("id", requestId, "message", uri.getPath());
     URI errorUri = uriInfo.getAbsolutePathBuilder()
         .path(viewId)
-        .path(ViewResource.class, "getErrors")
+        .path("errors")
         .build();
     _viewManager.createView(viewRequest, clientId, user, connection, viewId, callbackMap,
                             portfolioGridUri.getPath(), primitivesGridUri.getPath(), errorUri.getPath());
@@ -319,7 +321,7 @@ public class WebUiResource {
     _viewManager.getView(viewId).updateViewport(gridType(gridType), depgraphId, viewportId, viewportDef);
   }
 
-  @Path("{viewId}/{gridType}/depgraphs/{depgraphId}/viewports/{viewportId}")
+  @Path("{viewId}/{gridType}/depgraphs/{depgraphId}/viewports/{viewportId}/structure")
   @GET
   public GridStructure getDependencyGraphViewportGridStructure(@PathParam("viewId") String viewId,
                                                                @PathParam("gridType") String gridType,
@@ -346,10 +348,25 @@ public class WebUiResource {
     _viewManager.getView(viewId).deleteViewport(gridType(gridType), depgraphId, viewportId);
   }
 
+  @Path("{viewId}/errors")
+  @GET
+  public List<ErrorInfo> getErrors(@PathParam("viewId") String viewId) {
+    return _viewManager.getView(viewId).getErrors();
+  }
+
+
+  @Path("{viewId}/errors/{errorId}")
+  @DELETE
+  public void deleteError(@PathParam("viewId") String viewId, @PathParam("errorId") long errorId) {
+    _viewManager.getView(viewId).deleteError(errorId);
+  }
+
   /**
    * Produces view port results as CSV
    *
    * @param response the injected servlet response, not null.
+   * @param viewId ID of the view
+   * @param gridTypeStr the grid type, 'portfolio' or 'primitives'
    * @return The view port result as csv
    */
   @GET
