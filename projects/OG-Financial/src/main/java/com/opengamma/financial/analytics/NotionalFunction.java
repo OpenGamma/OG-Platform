@@ -10,6 +10,7 @@ import static com.opengamma.engine.value.ValueRequirementNames.CURRENCY_PAIRS;
 import java.util.Collections;
 import java.util.Set;
 
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
@@ -44,7 +45,8 @@ public class NotionalFunction extends AbstractFunction.NonCompiledInvoker {
       final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final CurrencyPairs currencyPairs = (CurrencyPairs) inputs.getValue(CURRENCY_PAIRS);
-    final CurrencyAmount ca = FinancialSecurityUtils.getNotional(target.getSecurity(), currencyPairs);
+    SecuritySource securitySource = executionContext.getSecuritySource();
+    final CurrencyAmount ca = FinancialSecurityUtils.getNotional(target.getSecurity(), currencyPairs, securitySource);
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.NOTIONAL, target.toSpecification(), desiredValue.getConstraints().copy().get());
     if (desiredValue.getConstraint(PROPERTY_BUY).equals(NEGATIVE)) {
       return Collections.singleton(new ComputedValue(spec, ca.multipliedBy(-1)));

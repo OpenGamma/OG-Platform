@@ -11,6 +11,7 @@ import java.util.Collections;
 
 import org.fudgemsg.FudgeMsgEnvelope;
 
+import com.google.common.base.Preconditions;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.security.Security;
@@ -85,6 +86,7 @@ import com.opengamma.financial.security.swap.YearOnYearInflationSwapSecurity;
 import com.opengamma.financial.security.swap.ZeroCouponInflationSwapSecurity;
 import com.opengamma.financial.sensitivities.SecurityEntryData;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.lambdava.functions.Function1;
 import com.opengamma.master.security.RawSecurity;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
@@ -1205,7 +1207,7 @@ public class FinancialSecurityUtils {
     return null;
   }
 
-  public static CurrencyAmount getNotional(final Security security, final CurrencyPairs currencyPairs) {
+  public static CurrencyAmount getNotional(final Security security, final CurrencyPairs currencyPairs, final SecuritySource securitySource) {
     if (security instanceof FinancialSecurity) {
       final FinancialSecurity finSec = (FinancialSecurity) security;
       final CurrencyAmount notional = finSec.accept(new FinancialSecurityVisitorAdapter<CurrencyAmount>() {
@@ -1314,9 +1316,9 @@ public class FinancialSecurityUtils {
 
         @Override
         public CurrencyAmount visitSwaptionSecurity(final SwaptionSecurity security) {
-          final Currency currency = security.getCurrency();
-          final double notional = security.getNotional();
-          return CurrencyAmount.of(currency, notional);
+          Security underlying = securitySource.getSingle(ExternalIdBundle.of(security.getUnderlyingId()));
+          Preconditions.checkState(underlying instanceof SwapSecurity, "Failed to resolve underlying SwapSecurity. DB record potentially corrupted. '%s' returned.", underlying);
+          return visitSwapSecurity((SwapSecurity) underlying);
         }
 
         @Override
