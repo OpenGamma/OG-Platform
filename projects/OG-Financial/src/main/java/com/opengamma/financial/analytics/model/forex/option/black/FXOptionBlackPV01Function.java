@@ -49,7 +49,7 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Calculates the PV01 for FX options using the Black method
- * 
+ *
  * @deprecated Use {@link BlackDiscountingPV01FXOptionFunction}
  */
 @Deprecated
@@ -78,7 +78,8 @@ public class FXOptionBlackPV01Function extends FXOptionBlackSingleValuedFunction
     }
     final String fullCurveName = curveName + "_" + currency;
     final MultipleCurrencyInterestRateCurveSensitivity curveSensitivities = (MultipleCurrencyInterestRateCurveSensitivity) curveSensitivitiesObject;
-    final Map<String, List<DoublesPair>> sensitivitiesForCurrency = curveSensitivities.getSensitivity(Currency.of(currency)).getSensitivities();
+    final Currency resultCurrency = Iterables.getOnlyElement(curveSensitivities.getCurrencies());
+    final Map<String, List<DoublesPair>> sensitivitiesForCurrency = curveSensitivities.getSensitivity(resultCurrency).getSensitivities();
     final Map<String, Double> pv01 = forex.accept(CALCULATOR, sensitivitiesForCurrency);
     if (!pv01.containsKey(fullCurveName)) {
       throw new OpenGammaRuntimeException("Could not get PV01 for " + fullCurveName);
@@ -159,16 +160,18 @@ public class FXOptionBlackPV01Function extends FXOptionBlackSingleValuedFunction
         if (constraints.getProperties().contains(PUT_CURVE)) {
           putCurveName = Iterables.getOnlyElement(constraints.getValues(ValuePropertyNames.CURVE));
           putCurveCalculationConfig = Iterables.getOnlyElement(constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG));
-          ValuePropertiesUtils.withAllOptional(optionalProperties, constraints);
+          final ValueProperties properties = ValuePropertiesUtils.removeAll(constraints.copy().get(), ValuePropertyNames.CURVE, ValuePropertyNames.CURVE_CALCULATION_CONFIG).get();
+          ValuePropertiesUtils.withAllOptional(optionalProperties, properties);
         } else if (constraints.getProperties().contains(CALL_CURVE)) {
           callCurveName = Iterables.getOnlyElement(constraints.getValues(ValuePropertyNames.CURVE));
           callCurveCalculationConfig = Iterables.getOnlyElement(constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG));
-          ValuePropertiesUtils.withAllOptional(optionalProperties, constraints);
+          final ValueProperties properties = ValuePropertiesUtils.removeAll(constraints.copy().get(), ValuePropertyNames.CURVE, ValuePropertyNames.CURVE_CALCULATION_CONFIG).get();
+          ValuePropertiesUtils.withAllOptional(optionalProperties, properties);
         }
       } else if (specification.getValueName().equals(ValueRequirementNames.CURRENCY_PAIRS)) {
         currencyPairConfigName = specification.getProperty(CurrencyPairsFunction.CURRENCY_PAIRS_NAME);
-      } else if (specification.getValueName().equals(ValueRequirementNames.FX_CURVE_SENSITIVITIES)) {
-        curveCurrency = specification.getProperty(ValuePropertyNames.CURVE_CURRENCY);
+      } else if (requirement.getValueName().equals(ValueRequirementNames.FX_CURVE_SENSITIVITIES)) {
+        curveCurrency = requirement.getConstraint(ValuePropertyNames.CURVE_CURRENCY);
       }
     }
     if (putCurveName == null || callCurveName == null || currencyPairConfigName == null || curveCurrency == null) {
