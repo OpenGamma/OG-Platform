@@ -83,7 +83,7 @@ import com.opengamma.util.tuple.Pair;
  */
 public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U, V, W> extends AbstractFunction {
   /** The curve node converter */
-  private static final CurveNodeConverter CURVE_NODE_CONVERTER = new CurveNodeConverter();
+//  private static final CurveNodeConverter CURVE_NODE_CONVERTER = new CurveNodeConverter();
   /** The curve configuration name */
   private final String _configurationName;
   /** The maturity calculator */
@@ -343,11 +343,13 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
         ValueProperties bundleProperties, Pair<T, CurveBuildingBlockBundle> pair);
 
     /**
-     * Gets the curve node converter.
-     * @return The curve node converter
+     * Gets the curve node converter used to convert a node into an InstrumentDerivative.
+     * @param conventionSource the convention source, not null
+     * @return The curve node converter used to convert a node into an InstrumentDerivative.
      */
-    protected CurveNodeConverter getCurveNodeConverter() {
-      return CURVE_NODE_CONVERTER;
+    protected CurveNodeConverter getCurveNodeConverter(ConventionSource conventionSource) {
+      ArgumentChecker.notNull(conventionSource, "convention source");
+      return new CurveNodeConverter(conventionSource);
     }
 
     /**

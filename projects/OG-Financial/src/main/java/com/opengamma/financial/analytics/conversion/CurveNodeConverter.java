@@ -21,6 +21,10 @@ import com.opengamma.financial.analytics.ircurve.strips.DeliverableSwapFutureNod
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.ZeroCouponInflationNode;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
+import com.opengamma.financial.convention.Convention;
+import com.opengamma.financial.convention.ConventionSource;
+import com.opengamma.financial.convention.InflationLegConvention;
+import com.opengamma.financial.convention.PriceIndexConvention;
 import com.opengamma.id.ExternalId;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleEntryIterator;
@@ -34,6 +38,12 @@ import com.opengamma.util.ArgumentChecker;
  *
  */
 public class CurveNodeConverter {
+  
+  private final ConventionSource _conventionSource;
+  
+  public CurveNodeConverter(ConventionSource conventionSource) {
+    _conventionSource = conventionSource;
+  }
 
   /**
    * Given an {@link InstrumentDefinition} (the time-independent form used in the analytics library) and a valuation time, converts to the
@@ -53,18 +63,32 @@ public class CurveNodeConverter {
     if (definition instanceof InstrumentDefinitionWithData<?, ?> && requiresFixingSeries(node.getCurveNode())) {
       if (node.getCurveNode() instanceof ZeroCouponInflationNode) {
         ArgumentChecker.notNull(timeSeries, "time series");
-        final ExternalId id = node.getIdentifier();
-        final HistoricalTimeSeries historicalTimeSeries = timeSeries.get(node.getDataField(), id);
+        
+        ExternalId priceIndexId;
+        Convention inflationLegConvention = _conventionSource.getConvention(((ZeroCouponInflationNode) node.getCurveNode()).getInflationLegConvention());
+        if (inflationLegConvention instanceof InflationLegConvention) {
+          ExternalId priceIndexConventionId = ((InflationLegConvention) inflationLegConvention).getPriceIndexConvention();
+          Convention priceIndexConvention = _conventionSource.getConvention(priceIndexConventionId);
+          if (priceIndexConvention instanceof PriceIndexConvention) {
+            priceIndexId = ((PriceIndexConvention) priceIndexConvention).getPriceIndexId();
+          } else {
+            throw new OpenGammaRuntimeException("Unexpected convention type for price index");
+          }
+        } else {
+          throw new OpenGammaRuntimeException("Unexpected convention on inflation leg, expected an inflation leg convention");
+        }
+        
+        final HistoricalTimeSeries historicalTimeSeries = timeSeries.get(node.getDataField(), priceIndexId);
         if (historicalTimeSeries == null) {
-          throw new OpenGammaRuntimeException("Could not get price time series for " + id);
+          throw new OpenGammaRuntimeException("Could not get price time series for " + priceIndexId);
         }
         final DoubleTimeSeries<?> ts = historicalTimeSeries.getTimeSeries();
         if (ts == null) {
-          throw new OpenGammaRuntimeException("Could not get price time series for " + id);
+          throw new OpenGammaRuntimeException("Could not get price time series for " + priceIndexId);
         }
         final int length = ts.size();
         if (length == 0) {
-          throw new OpenGammaRuntimeException("Price time series for " + id + " was empty");
+          throw new OpenGammaRuntimeException("Price time series for " + priceIndexId + " was empty");
         }
         ZonedDateTimeDoubleTimeSeries multiply = (ZonedDateTimeDoubleTimeSeries) convertTimeSeries(ZoneId.of("UTC"), (LocalDateDoubleTimeSeries) ts.multiply(100));
         return ((InstrumentDefinitionWithData<?, ZonedDateTimeDoubleTimeSeries[]>) definition).toDerivative(
