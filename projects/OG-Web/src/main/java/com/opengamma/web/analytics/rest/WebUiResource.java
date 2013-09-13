@@ -52,6 +52,7 @@ import com.opengamma.web.analytics.ViewRequest;
 import com.opengamma.web.analytics.ViewportDefinition;
 import com.opengamma.web.analytics.ViewportResults;
 import com.opengamma.web.analytics.formatting.TypeFormatter;
+import com.opengamma.web.analytics.json.ValueRequirementFormParam;
 import com.opengamma.web.analytics.push.ClientConnection;
 import com.opengamma.web.analytics.push.ConnectionManager;
 
@@ -254,15 +255,16 @@ public class WebUiResource {
                                       @FormParam("row") Integer row,
                                       @FormParam("col") Integer col,
                                       @FormParam("calcConfigName") String calcConfigName,
-                                      @FormParam("valueRequirement") ValueRequirement valueRequirement) {
+                                      @FormParam("valueRequirement") ValueRequirementFormParam valueRequirementParam) {
     int graphId = s_nextId.getAndIncrement();
     String graphIdStr = Integer.toString(graphId);
     URI graphUri = uriInfo.getAbsolutePathBuilder().path(graphIdStr).build();
     String callbackId = graphUri.getPath();
     if (row != null && col != null) {
       _viewManager.getView(viewId).openDependencyGraph(requestId, gridType(gridType), graphId, callbackId, row, col);
-    } else if (calcConfigName != null && valueRequirement != null) {
-      _viewManager.getView(viewId).openDependencyGraph(requestId, gridType(gridType), graphId, callbackId, calcConfigName, valueRequirement);
+    } else if (calcConfigName != null && valueRequirementParam != null) {
+      ValueRequirement req = valueRequirementParam.getValueRequirement();
+      _viewManager.getView(viewId).openDependencyGraph(requestId, gridType(gridType), graphId, callbackId, calcConfigName, req);
     }
     return Response.status(Response.Status.CREATED).build();
   }
