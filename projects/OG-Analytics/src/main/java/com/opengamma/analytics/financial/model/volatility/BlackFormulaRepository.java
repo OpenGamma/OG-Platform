@@ -490,6 +490,79 @@ public abstract class BlackFormulaRepository {
   }
 
   /**
+   * The theta (non-forward), the sensitivity of the present value to a change in time to maturity, $\-frac{\partial V}{\partial T}$
+   * This is consistent with {@link BlackScholesFormulaRepository}
+   * @param forward The forward value of the underlying
+   * @param strike The Strike
+   * @param timeToExpiry The time-to-expiry
+   * @param lognormalVol The log-normal volatility
+   * @param isCall true for call, false for put
+   * @param interestRate the interest rate
+   * @return theta
+   */
+  @ExternalFunction
+  public static double thetaMod(final double forward, final double strike, final double timeToExpiry, final double lognormalVol, final boolean isCall, final double interestRate) {
+    ArgumentChecker.isTrue(forward >= 0.0, "negative/NaN forward; have {}", forward);
+    ArgumentChecker.isTrue(strike >= 0.0, "negative/NaN strike; have {}", strike);
+    ArgumentChecker.isTrue(timeToExpiry >= 0.0, "negative/NaN timeToExpiry; have {}", timeToExpiry);
+    ArgumentChecker.isTrue(lognormalVol >= 0.0, "negative/NaN lognormalVol; have {}", lognormalVol);
+    ArgumentChecker.isFalse(Double.isNaN(interestRate), "interestRate is NaN");
+
+    if (-interestRate > LARGE) {
+      return 0.;
+    }
+    final double driftLess = driftlessTheta(forward, strike, timeToExpiry, lognormalVol);
+    if (Math.abs(interestRate) < SMALL) {
+      return driftLess;
+    }
+
+    final double rootT = Math.sqrt(timeToExpiry);
+    double sigmaRootT = lognormalVol * rootT;
+    if (Double.isNaN(sigmaRootT)) {
+      s_logger.info("lognormalVol * Math.sqrt(timeToExpiry) ambiguous");
+      sigmaRootT = 1.;
+    }
+    final int sign = isCall ? 1 : -1;
+
+    final boolean bFwd = (forward > LARGE);
+    final boolean bStr = (strike > LARGE);
+    final boolean bSigRt = (sigmaRootT > LARGE);
+    double d1 = 0.;
+    double d2 = 0.;
+
+    double priceLike = Double.NaN;
+    final double rt = (timeToExpiry < SMALL && Math.abs(interestRate) > LARGE) ? (interestRate > 0. ? 1. : -1.) : interestRate * timeToExpiry;
+    if (bFwd && bStr) {
+      s_logger.info("(large value)/(large value) ambiguous");
+      priceLike = isCall ? (forward >= strike ? forward : 0.) : (strike >= forward ? strike : 0.);
+    } else {
+      if (sigmaRootT < SMALL) {
+        if (rt > LARGE) {
+          priceLike = isCall ? (forward > strike ? forward : 0.0) : (forward > strike ? 0.0 : -forward);
+        } else {
+          priceLike = isCall ? (forward > strike ? forward - strike : 0.0) : (forward > strike ? 0.0 : -forward + strike);
+        }
+      } else {
+        if (Math.abs(forward - strike) < SMALL | bSigRt) {
+          d1 = 0.5 * sigmaRootT;
+          d2 = -0.5 * sigmaRootT;
+        } else {
+          d1 = Math.log(forward / strike) / sigmaRootT + 0.5 * sigmaRootT;
+          d2 = d1 - sigmaRootT;
+        }
+        final double nF = NORMAL.getCDF(sign * d1);
+        final double nS = NORMAL.getCDF(sign * d2);
+        final double first = nF == 0. ? 0. : forward * nF;
+        final double second = ((nS == 0.) | (Math.exp(-interestRate * timeToExpiry) == 0.)) ? 0. : strike * nS;
+        priceLike = sign * (first - second);
+      }
+    }
+
+    final double res = (interestRate > LARGE && Math.abs(priceLike) < SMALL) ? 0. : interestRate * priceLike;
+    return Math.abs(res) > LARGE ? res : driftLess + res;
+  }
+
+  /**
    * The forward (i.e. driftless) theta
    * @param forward The forward value of the underlying
    * @param strike The Strike
