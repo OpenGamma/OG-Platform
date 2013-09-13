@@ -172,7 +172,8 @@ public class InflationSwapSecurityConverter extends FinancialSecurityVisitorAdap
     final BusinessDayConvention businessDayConvention = fixedLeg.getBusinessDayConvention();
     final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, indexConvention.getRegion());
     final ZoneOffset zone = ZoneOffset.UTC; //TODO
-    final int tenor = (int) (getTenor(indexLeg.getFrequency()).toTotalMonths() / 12);
+    
+    final int swapMaturityTenor = (int) Math.round(indexLeg.getDayCount().getDayCountFraction(security.getEffectiveDate(), security.getMaturityDate()));
     boolean isMonthly;
     switch (indexLeg.getInterpolationMethod()) {
       case MONTH_START_LINEAR:
@@ -190,10 +191,10 @@ public class InflationSwapSecurityConverter extends FinancialSecurityVisitorAdap
     final int quotationMonthLag = indexLeg.getQuotationIndexationLag();
     final double notional = ((InterestRateNotional) fixedLeg.getNotional()).getAmount();
     if (isMonthly) {
-      return SwapFixedInflationZeroCouponDefinition.fromMonthly(priceIndex, settlementDate, tenor, fixedRate,
+      return SwapFixedInflationZeroCouponDefinition.fromMonthly(priceIndex, settlementDate, swapMaturityTenor, fixedRate,
           notional, isPayer, businessDayConvention, calendar, isEOM, conventionalMonthLag, quotationMonthLag);
     }
-    return SwapFixedInflationZeroCouponDefinition.fromInterpolation(priceIndex, settlementDate, tenor, fixedRate,
+    return SwapFixedInflationZeroCouponDefinition.fromInterpolation(priceIndex, settlementDate, swapMaturityTenor, fixedRate,
         notional, isPayer, businessDayConvention, calendar, isEOM, conventionalMonthLag, quotationMonthLag);
   }
 
