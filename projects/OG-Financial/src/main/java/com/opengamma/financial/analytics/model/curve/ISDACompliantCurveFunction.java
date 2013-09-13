@@ -48,7 +48,6 @@ import com.opengamma.financial.convention.Convention;
 import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.convention.DepositConvention;
 import com.opengamma.financial.convention.IborIndexConvention;
-import com.opengamma.financial.convention.OISLegConvention;
 import com.opengamma.financial.convention.SwapFixedLegConvention;
 import com.opengamma.financial.convention.VanillaIborLegConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -67,7 +66,7 @@ public class ISDACompliantCurveFunction extends AbstractFunction.NonCompiledInvo
   private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
 
   /** the curve configuration name */
-  private String _curveName;
+  private final String _curveName;
 
   public ISDACompliantCurveFunction(final String curveName) {
     ArgumentChecker.notNull(curveName, "curve name");

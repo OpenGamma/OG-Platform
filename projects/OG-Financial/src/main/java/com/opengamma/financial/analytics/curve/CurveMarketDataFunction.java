@@ -38,6 +38,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.PointsCurveNodeWithIdentifier;
+import com.opengamma.financial.view.ConfigDocumentWatchSetProvider;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
@@ -67,6 +68,12 @@ public class CurveMarketDataFunction extends AbstractFunction {
    */
   public String getCurveName() {
     return _curveName;
+  }
+
+  @Override
+  public void init(final FunctionCompilationContext context) {
+    ConfigDocumentWatchSetProvider.reinitOnChanges(context, null, CurveDefinition.class);
+    ConfigDocumentWatchSetProvider.reinitOnChanges(context, null, InterpolatedCurveDefinition.class);
   }
 
   @Override

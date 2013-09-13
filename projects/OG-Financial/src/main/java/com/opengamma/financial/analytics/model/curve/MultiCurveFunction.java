@@ -63,9 +63,11 @@ import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveConstructionConfigurationSource;
 import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.curve.CurveUtils;
+import com.opengamma.financial.analytics.curve.InterpolatedCurveDefinition;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeVisitor;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.convention.ConventionSource;
+import com.opengamma.financial.view.ConfigDocumentWatchSetProvider;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
@@ -82,8 +84,6 @@ import com.opengamma.util.tuple.Pair;
  * @param <W> The type of the sensitivity results
  */
 public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U, V, W> extends AbstractFunction {
-  /** The curve node converter */
-//  private static final CurveNodeConverter CURVE_NODE_CONVERTER = new CurveNodeConverter();
   /** The curve configuration name */
   private final String _configurationName;
   /** The maturity calculator */
@@ -95,6 +95,13 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
   public MultiCurveFunction(final String configurationName) {
     ArgumentChecker.notNull(configurationName, "configuration name");
     _configurationName = configurationName;
+  }
+
+  @Override
+  public void init(final FunctionCompilationContext context) {
+    ConfigDocumentWatchSetProvider.reinitOnChanges(context, this, CurveConstructionConfiguration.class);
+    ConfigDocumentWatchSetProvider.reinitOnChanges(context, null, CurveDefinition.class);
+    ConfigDocumentWatchSetProvider.reinitOnChanges(context, null, InterpolatedCurveDefinition.class);
   }
 
   @Override
@@ -347,7 +354,7 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
      * @param conventionSource the convention source, not null
      * @return The curve node converter used to convert a node into an InstrumentDerivative.
      */
-    protected CurveNodeConverter getCurveNodeConverter(ConventionSource conventionSource) {
+    protected CurveNodeConverter getCurveNodeConverter(final ConventionSource conventionSource) {
       ArgumentChecker.notNull(conventionSource, "convention source");
       return new CurveNodeConverter(conventionSource);
     }

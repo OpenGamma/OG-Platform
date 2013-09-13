@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.curve;
@@ -32,6 +32,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.view.ConfigDocumentWatchSetProvider;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
@@ -49,6 +50,11 @@ public class CurveConstructionConfigurationFunction extends AbstractFunction {
   public CurveConstructionConfigurationFunction(final String configurationName) {
     ArgumentChecker.notNull(configurationName, "configuration name");
     _configurationName = configurationName;
+  }
+
+  @Override
+  public void init(final FunctionCompilationContext context) {
+    ConfigDocumentWatchSetProvider.reinitOnChanges(context, this, CurveConstructionConfiguration.class);
   }
 
   @Override

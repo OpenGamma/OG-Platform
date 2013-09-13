@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.curve;
@@ -33,6 +33,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.curve.credit.ConfigDBCurveDefinitionSource;
 import com.opengamma.financial.analytics.curve.credit.CurveDefinitionSource;
+import com.opengamma.financial.view.ConfigDocumentWatchSetProvider;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
@@ -50,6 +51,12 @@ public class CurveDefinitionFunction extends AbstractFunction {
   public CurveDefinitionFunction(final String curveName) {
     ArgumentChecker.notNull(curveName, "curve name");
     _curveName = curveName;
+  }
+
+  @Override
+  public void init(final FunctionCompilationContext context) {
+    ConfigDocumentWatchSetProvider.reinitOnChanges(context, this, CurveDefinition.class);
+    ConfigDocumentWatchSetProvider.reinitOnChanges(context, this, InterpolatedCurveDefinition.class);
   }
 
   @Override

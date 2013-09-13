@@ -58,6 +58,7 @@ import com.opengamma.financial.analytics.curve.ConfigDBCurveConstructionConfigur
 import com.opengamma.financial.analytics.curve.CurveConstructionConfiguration;
 import com.opengamma.financial.analytics.curve.CurveUtils;
 import com.opengamma.financial.analytics.curve.exposure.ConfigDBInstrumentExposuresProvider;
+import com.opengamma.financial.analytics.curve.exposure.ExposureFunctions;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.convention.ConventionBundleSource;
@@ -73,6 +74,7 @@ import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.financial.view.ConfigDocumentWatchSetProvider;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
@@ -92,6 +94,11 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
   public MultiCurvePricingFunction(final String... valueRequirements) {
     ArgumentChecker.notNull(valueRequirements, "value requirements");
     _valueRequirements = valueRequirements;
+  }
+
+  @Override
+  public void init(final FunctionCompilationContext context) {
+    ConfigDocumentWatchSetProvider.reinitOnChanges(context, null, ExposureFunctions.class);
   }
 
   /**
