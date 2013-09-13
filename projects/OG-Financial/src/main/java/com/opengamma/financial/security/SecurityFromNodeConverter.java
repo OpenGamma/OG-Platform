@@ -58,7 +58,7 @@ import com.opengamma.util.tuple.Triple;
  * business-day-convention, calendar and EOM of the convention.
  * The FRA notional is 1.
  */
-public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Security> {
+public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<FinancialSecurity> {
 
   /** The convention source */
   private final ConventionSource _conventionSource;
@@ -175,7 +175,7 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Security>
 
 
   @Override
-  public Security visitSwapNode(SwapNode swapNode) {
+  public FinancialSecurity visitSwapNode(SwapNode swapNode) {
     final Convention payLegConvention = _conventionSource.getConvention(swapNode.getPayLegConvention());
     if (payLegConvention == null) {
       throw new OpenGammaRuntimeException("Convention with id " + swapNode.getPayLegConvention() + " was null");
