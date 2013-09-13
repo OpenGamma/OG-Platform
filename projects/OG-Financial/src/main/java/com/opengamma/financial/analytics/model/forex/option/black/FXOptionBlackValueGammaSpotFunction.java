@@ -10,6 +10,7 @@ import java.util.Set;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.calculator.GammaSpotBlackForexCalculator;
+import com.opengamma.analytics.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.model.option.definition.ForexOptionDataBundle;
 import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
@@ -45,7 +46,14 @@ public class FXOptionBlackValueGammaSpotFunction extends FXOptionBlackSingleValu
     if (data instanceof SmileDeltaTermStructureDataBundle) {
       final CurrencyAmount result = forex.accept(CALCULATOR, data);
       final double gammaValue = result.getAmount() / 100.0; // FIXME: the 100 should be removed when the scaling is available
-      return Collections.singleton(new ComputedValue(spec, gammaValue));
+      // for PLAT-4626
+      double spot = 1;
+      if (forex instanceof ForexOptionVanilla) {
+        ForexOptionVanilla fxDerivative = (ForexOptionVanilla) forex;
+        spot = data.getFxRates().getFxRate(fxDerivative.getCurrency1(), fxDerivative.getCurrency2());
+      }
+      
+      return Collections.singleton(new ComputedValue(spec, gammaValue * spot));
     }
     throw new OpenGammaRuntimeException("Can only calculate gamma spot for surfaces with smiles");
   }
