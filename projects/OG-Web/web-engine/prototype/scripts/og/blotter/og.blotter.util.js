@@ -137,6 +137,10 @@ $.register_module({
                 {text: 'Floating Spread Interest Rate Leg', value: 'FloatingSpreadIRLeg'},
                 {text: 'Fixed Interest Rate Leg', value: 'FixedInterestRateLeg'}
             ],
+            inflation_swap_types : [
+                {text: 'Fixed Inflation Leg', value: 'FixedInflationSwapLeg'},
+                {text: 'Inflation Index Leg', value: 'InflationIndexSwapLeg'},
+            ],
             cds_types : [
                 {text: 'CDS Index', value: 'CreditDefaultSwapIndexSecurity'},
                 {text: 'Legacy Fixed Recovery CDS', value: 'LegacyFixedRecoveryCDSSecurity'},

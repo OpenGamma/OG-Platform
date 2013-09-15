@@ -1,0 +1,87 @@
+<table class="OG-table" id="{{index}}">
+  <colgroup>
+    <col style="width: 33%">
+    <col style="width: 67%">
+  </colgroup>
+  <tbody>
+    <tr>
+      <td>
+      </td>
+      <td>
+        <input name="{{leg}}eom" type="checkbox" /><span>End Of Month</span>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Notional</span>
+        </label>
+      </td>
+      <td class="og-double-cell">
+        <div><span>{{{item_0}}}</span><span><input name="{{leg}}notional.amount" type="text" value="{{notional}}"/></span></div>
+      </td>
+    </tr>
+    {{{item_1}}}
+    {{{item_2}}}
+    <tr>
+      <td>
+        <label>
+          <span>Day Count</span>
+        </label>
+      </td>
+      <td>
+        {{{item_3}}}
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Frequency</span>
+        </label>
+      </td>
+      <td>
+        {{{item_4}}}
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Business Day Convention</span>
+        </label>
+      </td>
+      <td>
+        {{{item_5}}}
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Quotation Indexation Lag</span>
+        </label>
+      </td>
+      <td>
+        <input name="{{leg}}quotationIndexationLag" type="text" value="{{quotationIndexationLag}}"/>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Conventional Indexation Lag</span>
+        </label>
+      </td>
+      <td>
+        <input name="{{leg}}conventionalIndexationLag" type="text" value="{{conventionalIndexationLag}}"/>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label>
+          <span>Interpolation Method</span>
+        </label>
+      </td>
+      <td>
+        {{{item_6}}}
+      </td>
+    </tr>
+  </tbody>
+</table>

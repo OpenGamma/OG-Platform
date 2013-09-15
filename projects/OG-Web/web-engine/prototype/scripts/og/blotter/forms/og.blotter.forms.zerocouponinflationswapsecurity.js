@@ -3,7 +3,7 @@
  * Please see distribution for license.
  */
 $.register_module({
-    name: 'og.blotter.forms.swapsecurity',
+    name: 'og.blotter.forms.zerocouponinflationswapsecurity',
     dependencies: [],
     obj: function () {
         return function (config) {
@@ -14,12 +14,12 @@ $.register_module({
             if (config.details) {
                 data = config.details.data; data.id = config.details.data.trade.uniqueId;
             } else {
-                data = {security: {type: "SwapSecurity", externalIdBundle: "", attributes: {}},
+                data = {security: {type: "ZeroCouponInflationSwapSecurity", externalIdBundle: "", attributes: {}},
                     trade: util.otc_trade};
             }
             data.nodeId = config.node ? config.node.id : null;
             constructor.load = function () {
-                constructor.title = 'Swap';
+                constructor.title = 'Zero Coupon Inflation Swap';
                 form = new og.common.util.ui.Form({
                     module: 'og.blotter.forms.swap_tash',
                     selector: '.OG-blotter-form-block',
@@ -50,13 +50,13 @@ $.register_module({
                             effective: data.security.effectiveDate, prefix: 'security.'}
                     }),
                     pay_select = new ui.Dropdown({
-                        form: form, placeholder: 'Select Swap Type',
-                        data_generator: function (handler) {handler(util.swap_types);}
+                        form: form, placeholder: 'Select Inflation Swap Leg Type',
+                        data_generator: function (handler) {handler(util.inflation_swap_types);}
                     }),
                     pay_block = new form.Block({content:"<div id='" + pay_index + "'></div>"}),
                     receive_select = new ui.Dropdown({
-                        form: form, placeholder: 'Select Swap Type',
-                        data_generator: function (handler) {handler(util.swap_types);}
+                        form: form, placeholder: 'Select Inflation Swap Leg Type',
+                        data_generator: function (handler) {handler(util.inflation_swap_types);}
                     }),
                     receive_block = new form.Block({content:"<div id='" + receive_index + "'></div>"}),
                     new og.common.util.ui.Attributes({
@@ -94,11 +94,11 @@ $.register_module({
             swap_leg = function (swap) {
                 var new_block;
                 if(!swap.type.length) {new_block = new form.Block({content:"<div id='" + swap.index + "'></div>"});}
-                else if(!~swap.type.indexOf('Floating')){
+                else if(!~swap.type.indexOf('Index')){
                     new_block = new og.blotter.forms.blocks.Fixedleg({form: form, data: data, leg: swap.leg,
                         index: swap.index});
                 } else {
-                    new_block = new og.blotter.forms.blocks.Floatingleg({form: form, data: data, leg: swap.leg,
+                    new_block = new og.blotter.forms.blocks.Inflationindexleg({form: form, data: data, leg: swap.leg,
                         type: swap.type, index: swap.index});
                 }
                 new_block.html(function (html) {

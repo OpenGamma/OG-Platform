@@ -63,13 +63,17 @@ import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.financial.security.option.SamplingFrequency;
 import com.opengamma.financial.security.option.SwaptionSecurity;
+import com.opengamma.financial.security.swap.FixedInflationSwapLeg;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingGearingIRLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingSpreadIRLeg;
+import com.opengamma.financial.security.swap.InflationIndexSwapLeg;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.financial.security.swap.YearOnYearInflationSwapSecurity;
+import com.opengamma.financial.security.swap.ZeroCouponInflationSwapSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.security.ManageableSecurity;
@@ -98,6 +102,8 @@ import com.opengamma.util.time.Expiry;
       FloatingInterestRateLeg.meta(),
       FloatingSpreadIRLeg.meta(),
       FloatingGearingIRLeg.meta(),
+      FixedInflationSwapLeg.meta(),
+      InflationIndexSwapLeg.meta(),
       InterestRateNotional.meta(),
       LegacyVanillaCDSSecurity.meta(),
       LegacyRecoveryLockCDSSecurity.meta(),
@@ -106,7 +112,9 @@ import com.opengamma.util.time.Expiry;
       StandardRecoveryLockCDSSecurity.meta(),
       StandardFixedRecoveryCDSSecurity.meta(),
       CreditDefaultSwapIndexSecurity.meta(),
-      CreditDefaultSwapOptionSecurity.meta());
+      CreditDefaultSwapOptionSecurity.meta(),
+      YearOnYearInflationSwapSecurity.meta(),
+      ZeroCouponInflationSwapSecurity.meta());
 
   /** Meta bean factory for looking up meta beans by type name. */
   private static final MetaBeanFactory s_metaBeanFactory = new MapMetaBeanFactory(s_metaBeans);

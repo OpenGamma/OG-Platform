@@ -19,7 +19,7 @@ $.register_module({
             };
         [ // blotter/lookup/* endpoints
             'barrierdirections', 'barriertypes', 'businessdayconventions', 'daycountconventions',
-            'exercisetypes', 'floatingratetypes', 'frequencies', 'idschemes', 'longshort', 'monitoringtype',
+            'exercisetypes', 'floatingratetypes', 'frequencies', 'idschemes', 'interpolationmethods', 'longshort', 'monitoringtype',
             'samplingfrequencies', 'regions', 'debtseniority', 'restructuringclause', 'stubtype'
         ].forEach(function (key) {
             blotter[key] = {
