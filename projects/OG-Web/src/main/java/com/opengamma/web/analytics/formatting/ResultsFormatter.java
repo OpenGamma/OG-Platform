@@ -107,6 +107,7 @@ public class ResultsFormatter {
                   new HistoricalTimeSeriesFormatter(),
                   new DoubleArrayFormatter(),
                   new DoubleObjectArrayFormatter(),
+                  new FudgeMsgFormatter(),
                   new ListDoubleArrayFormatter(),
                   new PresentValueForexBlackVolatilitySensitivityFormatter(),
                   new SnapshotDataBundleFormatter(doubleFormatter),

@@ -406,6 +406,11 @@ public class DefaultViewComputationCache implements ViewComputationCache,
       final FudgeFieldType doubleFieldType = FudgeWireType.DOUBLE;
       newMessage.add(null, NATIVE_FIELD_INDEX, doubleFieldType, value);
       return newMessage;
+    } else if (value instanceof FudgeMsg) {
+      final MutableFudgeMsg newMessage = serializer.newMessage();
+      final FudgeFieldType messageFieldType = FudgeWireType.SUB_MESSAGE;
+      newMessage.add(null, NATIVE_FIELD_INDEX, messageFieldType, value);
+      return newMessage;
     }
     serializer.reset();
     final MutableFudgeMsg message = serializer.newMessage();

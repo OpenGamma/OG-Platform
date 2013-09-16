@@ -17,6 +17,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.types.FudgeDate;
 import org.fudgemsg.types.FudgeDateTime;
 import org.fudgemsg.wire.types.FudgeWireType;
@@ -24,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.marketdata.AbstractMarketDataProvider;
 import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataPermissionProvider;
@@ -45,6 +47,7 @@ import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResult;
 import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * A {@link MarketDataProvider} for live data backed by an {@link InMemoryLKVMarketDataProvider}.
@@ -358,36 +361,58 @@ public class InMemoryLKVLiveMarketDataProvider extends AbstractMarketDataProvide
     s_logger.debug("Subscribed values are {}", subscriptions);
     final FudgeMsg msg = valueUpdate.getFields();
     for (final ValueSpecification subscription : subscriptions) {
-      final FudgeField field = msg.getByName(subscription.getValueName());
-      if (field == null) {
-        s_logger.debug("{} subscription was null, {}", subscription.getValueName(), subscription.getTargetSpecification());
-      } else {
-        Object value;
-        switch (field.getType().getTypeId()) {
-          case FudgeWireType.BYTE_TYPE_ID:
-          case FudgeWireType.SHORT_TYPE_ID:
-          case FudgeWireType.INT_TYPE_ID:
-          case FudgeWireType.LONG_TYPE_ID:
-          case FudgeWireType.FLOAT_TYPE_ID:
-            // All numeric data is presented as a double downstream - convert
-            value = ((Number) field.getValue()).doubleValue();
-            break;
-          case FudgeWireType.DOUBLE_TYPE_ID:
-            // Already a double
-            value = (Double) field.getValue();
-            break;
-          case FudgeWireType.DATE_TYPE_ID:
-            value = ((FudgeDate) field.getValue()).toLocalDate();
-            break;
-          case FudgeWireType.DATETIME_TYPE_ID:
-            value = ((FudgeDateTime) field.getValue()).toLocalDateTime();
-            break;
-          default:
-            s_logger.warn("Unexpected market data type {}", field);
-            continue;
+      
+      String valueName = subscription.getValueName();
+      Object value;
+      if (MarketDataRequirementNames.ALL.equals(valueName)) {
+        Object previousValue = _underlyingProvider.getCurrentValue(subscription);
+        if (previousValue == null) {
+          value = msg;
+        } else if (!(previousValue instanceof FudgeMsg)) {
+          s_logger.error("Found unexpected previous market value " + previousValue + " of type " + previousValue.getClass() + " for specification " + subscription);
+          value = msg;
+        } else {
+          FudgeMsg currentValueMsg = (FudgeMsg) previousValue;
+          MutableFudgeMsg unionMsg = OpenGammaFudgeContext.getInstance().newMessage(msg);
+          Set<String> missingFields = currentValueMsg.getAllFieldNames();
+          missingFields.removeAll(msg.getAllFieldNames());
+          for (String missingField : missingFields) {
+            unionMsg.add(currentValueMsg.getByName(missingField));
+          }
+          value = unionMsg;
         }
-        _underlyingProvider.addValue(subscription, value);
+      } else {
+        final FudgeField field = msg.getByName(valueName);
+        if (field == null) {
+          s_logger.debug("No market data value for {} on target {}", valueName, subscription.getTargetSpecification());
+          continue;
+        } else {
+          switch (field.getType().getTypeId()) {
+            case FudgeWireType.BYTE_TYPE_ID:
+            case FudgeWireType.SHORT_TYPE_ID:
+            case FudgeWireType.INT_TYPE_ID:
+            case FudgeWireType.LONG_TYPE_ID:
+            case FudgeWireType.FLOAT_TYPE_ID:
+              // All numeric data is presented as a double downstream - convert
+              value = ((Number) field.getValue()).doubleValue();
+              break;
+            case FudgeWireType.DOUBLE_TYPE_ID:
+              // Already a double
+              value = (Double) field.getValue();
+              break;
+            case FudgeWireType.DATE_TYPE_ID:
+              value = ((FudgeDate) field.getValue()).toLocalDate();
+              break;
+            case FudgeWireType.DATETIME_TYPE_ID:
+              value = ((FudgeDateTime) field.getValue()).toLocalDateTime();
+              break;
+            default:
+              s_logger.warn("Unexpected market data type {}", field);
+              continue;
+          }
+        }
       }
+      _underlyingProvider.addValue(subscription, value);
     }
     valuesChanged(subscriptions);
   }

@@ -170,4 +170,10 @@ public interface MarketDataRequirementNames {
    * The date associated with {@link MarketDataRequirementNames#CLOSE}.
    */
   String CLOSE_DATE = "Market_CloseDate";
+  
+  /**
+   * A special name used to request all available market data for an instrument.
+   */
+  String ALL = "Market_All";
+
 }
