@@ -172,6 +172,14 @@ public class GapOptionFunctionProviderTest {
                 final double resCash = _model.getPrice(lattice, function, SPOT, vol, interest, cashDividend);
                 final double refCash = Math.max(Math.abs(appCash), 1.) * 1.e-1;
                 assertEquals(resCash, appCash, refCash);
+
+                final LatticeSpecification latticeTri = new TianLatticeSpecification();
+                final int nStepsTri = 531;
+                final OptionFunctionProvider1D functionTri = new GapOptionFunctionProvider(strike, TIME, nStepsTri, isCall, payoffStrike);
+                final double resPropTrinomial = _modelTrinomial.getPrice(latticeTri, functionTri, SPOT, vol, interest, propDividend);
+                final double resCashTrinomial = _modelTrinomial.getPrice(latticeTri, functionTri, SPOT, vol, interest, cashDividend);
+                assertEquals(resPropTrinomial, exactProp, Math.max(exactProp, 1.) * 1.e-1);
+                assertEquals(resCashTrinomial, appCash, Math.max(appCash, 1.) * 1.e-1);
               }
             }
           }
@@ -276,6 +284,22 @@ public class GapOptionFunctionProviderTest {
                 assertEquals(resCash.get(Greek.DELTA), appDeltaCash, Math.max(1., Math.abs(appDeltaCash)) * 1.e-1);
                 assertEquals(resCash.get(Greek.GAMMA), appGammaCash, Math.max(1., Math.abs(appGammaCash)) * 1.e-1);
                 assertEquals(resCash.get(Greek.THETA), appThetaCash, Math.max(1., Math.abs(appThetaCash)));//theta is poorly approximated
+
+                final LatticeSpecification latticeTri = new TianLatticeSpecification();
+                final int nStepsTri = 731;
+                final OptionFunctionProvider1D functionTri = new GapOptionFunctionProvider(strike, TIME, nStepsTri, isCall, payoffStrike);
+                final GreekResultCollection resPropTrinomial = _modelTrinomial.getGreeks(latticeTri, functionTri, SPOT, vol, interest, propDividend);
+                final GreekResultCollection resCashTrinomial = _modelTrinomial.getGreeks(latticeTri, functionTri, SPOT, vol, interest, cashDividend);
+
+                assertEquals(resPropTrinomial.get(Greek.FAIR_PRICE), exactPriceProp, Math.max(1., Math.abs(exactPriceProp)) * 1.e-1);
+                assertEquals(resPropTrinomial.get(Greek.DELTA), exactDeltaProp, Math.max(1., Math.abs(exactDeltaProp)) * 1.e-1);
+                assertEquals(resPropTrinomial.get(Greek.GAMMA), exactGammaProp, Math.max(1., Math.abs(exactGammaProp)) * 1.e-1);
+                assertEquals(resPropTrinomial.get(Greek.THETA), exactThetaProp, Math.max(1., Math.abs(exactThetaProp)) * 1.e-1);
+
+                assertEquals(resCashTrinomial.get(Greek.FAIR_PRICE), appPriceCash, Math.max(1., Math.abs(appPriceCash)) * 1.e-1);
+                assertEquals(resCashTrinomial.get(Greek.DELTA), appDeltaCash, Math.max(1., Math.abs(appDeltaCash)) * 1.e-1);
+                assertEquals(resCashTrinomial.get(Greek.GAMMA), appGammaCash, Math.max(1., Math.abs(appGammaCash)) * 1.e-1);
+                assertEquals(resCashTrinomial.get(Greek.THETA), appThetaCash, Math.max(1., Math.abs(appThetaCash)));//theta is poorly approximated
               }
             }
           }

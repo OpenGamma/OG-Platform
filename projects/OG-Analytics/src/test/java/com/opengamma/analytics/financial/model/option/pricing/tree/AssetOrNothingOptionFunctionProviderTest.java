@@ -169,7 +169,7 @@ public class AssetOrNothingOptionFunctionProviderTest {
           for (final double interest : INTERESTS) {
             for (final double vol : VOLS) {
               final int nSteps = 631;
-              final int nStepsTri = 614;
+              final int nStepsTri = 231;
               final OptionFunctionProvider1D function = new AssetOrNothingOptionFunctionProvider(strike, TIME, nSteps, isCall);
               final DividendFunctionProvider cashDividend = new CashDividendFunctionProvider(dividendTimes, cashDividends);
               final DividendFunctionProvider propDividend = new ProportionalDividendFunctionProvider(dividendTimes, propDividends);
@@ -190,9 +190,8 @@ public class AssetOrNothingOptionFunctionProviderTest {
                 final OptionFunctionProvider1D functionTri = new AssetOrNothingOptionFunctionProvider(strike, TIME, nStepsTri, isCall);
                 final double resPropTrinomial = _modelTrinomial.getPrice(lattice, functionTri, SPOT, vol, interest, propDividend);
                 final double resCashTrinomial = _modelTrinomial.getPrice(lattice, functionTri, SPOT, vol, interest, cashDividend);
-                assertEquals(resPropTrinomial, resProp, Math.max(resProp, 1.) * 1.e-1);
-                //                System.out.println(+ "\t" + resCashTrinomial + "\t" + resCash + "\t" + (resCashTrinomial - resCash));
-                //                assertEquals(resCashTrinomial, resCash, Math.max(resCash, 1.) * 1.e-1);
+                assertEquals(resPropTrinomial, exactProp, Math.max(exactProp, 1.) * 1.e-1);
+                assertEquals(resCashTrinomial, appCash, Math.max(appCash, 1.) * 1.e-1);
               }
             }
           }
@@ -278,49 +277,61 @@ public class AssetOrNothingOptionFunctionProviderTest {
    */
   @Test
   public void greeksDiscreteDividendLatticeTest() {
-    final LatticeSpecification[] lattices = new LatticeSpecification[] {new CoxRossRubinsteinLatticeSpecification(), new JarrowRuddLatticeSpecification(), new TrigeorgisLatticeSpecification(),
-        new JabbourKraminYoungLatticeSpecification(), new TianLatticeSpecification(), new LeisenReimerLatticeSpecification() };
+    final LatticeSpecification lattice = new TianLatticeSpecification();
 
     final double[] propDividends = new double[] {0.01, 0.03, 0.02 };
     final double[] cashDividends = new double[] {5., 10., 8. };
     final double[] dividendTimes = new double[] {TIME / 601., TIME / 3., TIME / 2. };
 
     final boolean[] tfSet = new boolean[] {true, false };
-    for (final LatticeSpecification lattice : lattices) {
-      for (final boolean isCall : tfSet) {
-        for (final double strike : STRIKES) {
-          for (final double interest : INTERESTS) {
-            for (final double vol : VOLS) {
-              final int nSteps = 1101;
-              final double resSpot = SPOT * (1. - propDividends[0]) * (1. - propDividends[1]) * (1. - propDividends[2]);
-              final double modSpot = SPOT - cashDividends[0] * Math.exp(-interest * dividendTimes[0]) - cashDividends[1] * Math.exp(-interest * dividendTimes[1]) - cashDividends[2] *
-                  Math.exp(-interest * dividendTimes[2]);
-              final double exactPriceProp = price(resSpot, strike, TIME, vol, interest, interest, isCall);
-              final double exactDeltaProp = delta(resSpot, strike, TIME, vol, interest, interest, isCall);
-              final double exactGammaProp = gamma(resSpot, strike, TIME, vol, interest, interest, isCall);
-              final double exactThetaProp = theta(resSpot, strike, TIME, vol, interest, interest, isCall);
+    for (final boolean isCall : tfSet) {
+      for (final double strike : STRIKES) {
+        for (final double interest : INTERESTS) {
+          for (final double vol : VOLS) {
+            final int nSteps = 501;//1101 for all lattices
+            final int nStepsTri = 301;
+            final double resSpot = SPOT * (1. - propDividends[0]) * (1. - propDividends[1]) * (1. - propDividends[2]);
+            final double modSpot = SPOT - cashDividends[0] * Math.exp(-interest * dividendTimes[0]) - cashDividends[1] * Math.exp(-interest * dividendTimes[1]) - cashDividends[2] *
+                Math.exp(-interest * dividendTimes[2]);
+            final double exactPriceProp = price(resSpot, strike, TIME, vol, interest, interest, isCall);
+            final double exactDeltaProp = delta(resSpot, strike, TIME, vol, interest, interest, isCall);
+            final double exactGammaProp = gamma(resSpot, strike, TIME, vol, interest, interest, isCall);
+            final double exactThetaProp = theta(resSpot, strike, TIME, vol, interest, interest, isCall);
 
-              final double appPriceCash = price(modSpot, strike, TIME, vol, interest, interest, isCall);
-              final double appDeltaCash = delta(modSpot, strike, TIME, vol, interest, interest, isCall);
-              final double appGammaCash = gamma(modSpot, strike, TIME, vol, interest, interest, isCall);
-              final double appThetaCash = theta(modSpot, strike, TIME, vol, interest, interest, isCall);
+            final double appPriceCash = price(modSpot, strike, TIME, vol, interest, interest, isCall);
+            final double appDeltaCash = delta(modSpot, strike, TIME, vol, interest, interest, isCall);
+            final double appGammaCash = gamma(modSpot, strike, TIME, vol, interest, interest, isCall);
+            final double appThetaCash = theta(modSpot, strike, TIME, vol, interest, interest, isCall);
 
-              final OptionFunctionProvider1D function = new AssetOrNothingOptionFunctionProvider(strike, TIME, nSteps, isCall);
-              final DividendFunctionProvider cashDividend = new CashDividendFunctionProvider(dividendTimes, cashDividends);
-              final DividendFunctionProvider propDividend = new ProportionalDividendFunctionProvider(dividendTimes, propDividends);
-              final GreekResultCollection resProp = _model.getGreeks(lattice, function, SPOT, vol, interest, propDividend);
-              final GreekResultCollection resCash = _model.getGreeks(lattice, function, SPOT, vol, interest, cashDividend);
+            final OptionFunctionProvider1D function = new AssetOrNothingOptionFunctionProvider(strike, TIME, nSteps, isCall);
+            final DividendFunctionProvider cashDividend = new CashDividendFunctionProvider(dividendTimes, cashDividends);
+            final DividendFunctionProvider propDividend = new ProportionalDividendFunctionProvider(dividendTimes, propDividends);
+            final GreekResultCollection resProp = _model.getGreeks(lattice, function, SPOT, vol, interest, propDividend);
+            final GreekResultCollection resCash = _model.getGreeks(lattice, function, SPOT, vol, interest, cashDividend);
 
-              assertEquals(resProp.get(Greek.FAIR_PRICE), exactPriceProp, Math.max(1., Math.abs(exactPriceProp)) * 1.e-1);
-              assertEquals(resProp.get(Greek.DELTA), exactDeltaProp, Math.max(1., Math.abs(exactDeltaProp)) * 1.e-1);
-              assertEquals(resProp.get(Greek.GAMMA), exactGammaProp, Math.max(1., Math.abs(exactGammaProp)) * 1.e-1);
-              assertEquals(resProp.get(Greek.THETA), exactThetaProp, Math.max(1., Math.abs(exactThetaProp)));//theta is poorly approximated
+            assertEquals(resProp.get(Greek.FAIR_PRICE), exactPriceProp, Math.max(1., Math.abs(exactPriceProp)) * 1.e-1);
+            assertEquals(resProp.get(Greek.DELTA), exactDeltaProp, Math.max(1., Math.abs(exactDeltaProp)) * 1.e-1);
+            assertEquals(resProp.get(Greek.GAMMA), exactGammaProp, Math.max(1., Math.abs(exactGammaProp)) * 1.e-1);
+            assertEquals(resProp.get(Greek.THETA), exactThetaProp, Math.max(1., Math.abs(exactThetaProp)));//theta is poorly approximated
 
-              assertEquals(resCash.get(Greek.FAIR_PRICE), appPriceCash, Math.max(1., Math.abs(appPriceCash)) * 1.e-1);
-              assertEquals(resCash.get(Greek.DELTA), appDeltaCash, Math.max(1., Math.abs(appDeltaCash)) * 1.e-1);
-              assertEquals(resCash.get(Greek.GAMMA), appGammaCash, Math.max(1., Math.abs(appGammaCash)) * 1.e-1);
-              assertEquals(resCash.get(Greek.THETA), appThetaCash, Math.max(1., Math.abs(appThetaCash)));//theta is poorly approximated
-            }
+            assertEquals(resCash.get(Greek.FAIR_PRICE), appPriceCash, Math.max(1., Math.abs(appPriceCash)) * 1.e-1);
+            assertEquals(resCash.get(Greek.DELTA), appDeltaCash, Math.max(1., Math.abs(appDeltaCash)) * 1.e-1);
+            assertEquals(resCash.get(Greek.GAMMA), appGammaCash, Math.max(1., Math.abs(appGammaCash)) * 1.e-1);
+            assertEquals(resCash.get(Greek.THETA), appThetaCash, Math.max(1., Math.abs(appThetaCash)));//theta is poorly approximated
+
+            final OptionFunctionProvider1D functionTri = new AssetOrNothingOptionFunctionProvider(strike, TIME, nStepsTri, isCall);
+            final GreekResultCollection greeksPropTrinomial = _modelTrinomial.getGreeks(lattice, functionTri, SPOT, vol, interest, propDividend);
+            final GreekResultCollection greeksCashTrinomial = _modelTrinomial.getGreeks(lattice, functionTri, SPOT, vol, interest, cashDividend);
+
+            assertEquals(greeksPropTrinomial.get(Greek.FAIR_PRICE), exactPriceProp, Math.max(1., Math.abs(exactPriceProp)) * 1.e-1);
+            assertEquals(greeksPropTrinomial.get(Greek.DELTA), exactDeltaProp, Math.max(1., Math.abs(exactDeltaProp)) * 1.e-1);
+            assertEquals(greeksPropTrinomial.get(Greek.GAMMA), exactGammaProp, Math.max(1., Math.abs(exactGammaProp)) * 1.e-1);
+            assertEquals(greeksPropTrinomial.get(Greek.THETA), exactThetaProp, Math.max(1., Math.abs(exactThetaProp)));//theta is poorly approximated
+
+            assertEquals(greeksCashTrinomial.get(Greek.FAIR_PRICE), appPriceCash, Math.max(1., Math.abs(appPriceCash)) * 1.e-1);
+            assertEquals(greeksCashTrinomial.get(Greek.DELTA), appDeltaCash, Math.max(1., Math.abs(appDeltaCash)) * 1.e-1);
+            assertEquals(greeksCashTrinomial.get(Greek.GAMMA), appGammaCash, Math.max(1., Math.abs(appGammaCash)) * 1.e-1);
+            assertEquals(greeksCashTrinomial.get(Greek.THETA), appThetaCash, Math.max(1., Math.abs(appThetaCash)));//theta is poorly approximated
           }
         }
       }

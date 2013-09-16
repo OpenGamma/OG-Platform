@@ -163,6 +163,7 @@ public class CappedPowerOptionFunctionProviderTest {
             for (final double interest : INTERESTS) {
               for (final double vol : VOLS) {
                 final int nSteps = 521;
+                final int nStepsTri = 71;
                 final OptionFunctionProvider1D function = new CappedPowerOptionFunctionProvider(strike, TIME, nSteps, isCall, POWER, cap);
                 final DividendFunctionProvider cashDividend = new CashDividendFunctionProvider(dividendTimes, cashDividends);
                 final DividendFunctionProvider propDividend = new ProportionalDividendFunctionProvider(dividendTimes, propDividends);
@@ -177,6 +178,15 @@ public class CappedPowerOptionFunctionProviderTest {
                 final double resCash = _model.getPrice(lattice, function, SPOT, vol, interest, cashDividend);
                 final double refCash = Math.max(Math.abs(appCash), 1.) * 1.e-1;
                 assertEquals(resCash, appCash, refCash);
+
+                if (lattice instanceof CoxRossRubinsteinLatticeSpecification || lattice instanceof JarrowRuddLatticeSpecification || lattice instanceof TrigeorgisLatticeSpecification ||
+                    lattice instanceof TianLatticeSpecification) {
+                  final OptionFunctionProvider1D functionTri = new CappedPowerOptionFunctionProvider(strike, TIME, nStepsTri, isCall, POWER, cap);
+                  final double resPropTrinomial = _modelTrinomial.getPrice(lattice, functionTri, SPOT, vol, interest, propDividend);
+                  final double resCashTrinomial = _modelTrinomial.getPrice(lattice, functionTri, SPOT, vol, interest, cashDividend);
+                  assertEquals(resPropTrinomial, exactProp, Math.max(exactProp, 1.) * 1.e-1);
+                  assertEquals(resCashTrinomial, appCash, Math.max(appCash, 1.) * 1.e-1);
+                }
               }
             }
           }
@@ -250,6 +260,7 @@ public class CappedPowerOptionFunctionProviderTest {
             for (final double interest : INTERESTS) {
               for (final double vol : VOLS) {
                 final int nSteps = 781;
+                final int nStepsTri = 481;
                 //              final int nSteps = 8637;
                 final double resSpot = SPOT * (1. - propDividends[0]) * (1. - propDividends[1]) * (1. - propDividends[2]);
                 final double modSpot = SPOT - cashDividends[0] * Math.exp(-interest * dividendTimes[0]) - cashDividends[1] * Math.exp(-interest * dividendTimes[1]) - cashDividends[2] *
@@ -279,6 +290,23 @@ public class CappedPowerOptionFunctionProviderTest {
                 assertEquals(resCash.get(Greek.DELTA), appDeltaCash, Math.max(1., Math.abs(appDeltaCash)) * 1.e-1);
                 assertEquals(resCash.get(Greek.GAMMA), appGammaCash, Math.max(1., Math.abs(appGammaCash)) * 1.e-1);
                 assertEquals(resCash.get(Greek.THETA), appThetaCash, Math.max(1., Math.abs(appThetaCash)));//theta is poorly approximated
+
+                if (lattice instanceof CoxRossRubinsteinLatticeSpecification || lattice instanceof JarrowRuddLatticeSpecification || lattice instanceof TrigeorgisLatticeSpecification ||
+                    lattice instanceof TianLatticeSpecification) {
+                  final OptionFunctionProvider1D functionTri = new CappedPowerOptionFunctionProvider(strike, TIME, nStepsTri, isCall, POWER, cap);
+                  final GreekResultCollection resPropTrinomial = _modelTrinomial.getGreeks(lattice, functionTri, SPOT, vol, interest, propDividend);
+                  final GreekResultCollection resCashTrinomial = _modelTrinomial.getGreeks(lattice, functionTri, SPOT, vol, interest, cashDividend);
+
+                  assertEquals(resPropTrinomial.get(Greek.FAIR_PRICE), exactPriceProp, Math.max(1., Math.abs(exactPriceProp)) * 1.e-2);
+                  assertEquals(resPropTrinomial.get(Greek.DELTA), exactDeltaProp, Math.max(1., Math.abs(exactDeltaProp)) * 1.e-1);
+                  assertEquals(resPropTrinomial.get(Greek.GAMMA), exactGammaProp, Math.max(1., Math.abs(exactGammaProp)) * 1.e-1);
+                  assertEquals(resPropTrinomial.get(Greek.THETA), exactThetaProp, Math.max(1., Math.abs(exactThetaProp)) * 1.e-1);
+
+                  assertEquals(resCashTrinomial.get(Greek.FAIR_PRICE), appPriceCash, Math.max(1., Math.abs(appPriceCash)) * 1.e-1);
+                  assertEquals(resCashTrinomial.get(Greek.DELTA), appDeltaCash, Math.max(1., Math.abs(appDeltaCash)) * 1.e-1);
+                  assertEquals(resCashTrinomial.get(Greek.GAMMA), appGammaCash, Math.max(1., Math.abs(appGammaCash)) * 1.e-1);
+                  assertEquals(resCashTrinomial.get(Greek.THETA), appThetaCash, Math.max(1., Math.abs(appThetaCash)));//theta is poorly approximated
+                }
               }
             }
           }
