@@ -116,6 +116,11 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
   private static final Logger s_logger = LoggerFactory.getLogger(SingleThreadViewProcessWorker.class);
 
   private static final ExecutorService s_executor = Executors.newCachedThreadPool(new NamedThreadPoolFactory("Worker"));
+  private SubscriptionStateQuery _marketDataMBean;
+
+  public SubscriptionStateQuery getSubscriptionStateQueryMBean() {
+    return _marketDataMBean;
+  }
 
   /**
    * Wrapper that allows a thread to be "borrowed" from an executor service.
@@ -308,7 +313,8 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
     _ignoreCompilationValidity = executionOptions.getFlags().contains(ViewExecutionFlags.IGNORE_COMPILATION_VALIDITY);
     _viewDefinition = viewDefinition;
     _specificMarketDataSelectors = extractSpecificSelectors(viewDefinition);
-    _marketDataManager = new MarketDataManager(this, getProcessContext().getMarketDataProviderResolver());
+    // TODO - the hardcoded main should really be derived from a view process name if one were available
+    _marketDataManager = new MarketDataManager(this, getProcessContext().getMarketDataProviderResolver(), "main", context.getProcessContext().getProcessId());
     _marketDataSelectionGraphManipulator = createMarketDataManipulator(
         _executionOptions.getDefaultExecutionOptions(),
         _specificMarketDataSelectors);

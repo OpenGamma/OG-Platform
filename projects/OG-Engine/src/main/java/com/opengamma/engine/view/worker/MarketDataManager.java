@@ -6,11 +6,11 @@
 package com.opengamma.engine.view.worker;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
@@ -18,13 +18,22 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import javax.management.InstanceNotFoundException;
+import javax.management.MBeanRegistrationException;
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
+import org.springframework.jmx.export.MBeanExporter;
+import org.springframework.jmx.support.JmxUtils;
 import org.threeten.bp.Duration;
 import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.temporal.ChronoUnit;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -33,15 +42,18 @@ import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvid
 import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.NamedThreadPoolFactory;
 import com.opengamma.util.monitor.OperationTimer;
 
+import net.sf.ehcache.CacheException;
+
 /**
  * Manages market data for a view process, taking care of subscriptions and producing snapshots.
  */
-public class MarketDataManager implements MarketDataListener, Lifecycle {
+public class MarketDataManager implements MarketDataListener, Lifecycle, SubscriptionStateQuery {
 
   /**
    * Logger for the class.
@@ -72,17 +84,32 @@ public class MarketDataManager implements MarketDataListener, Lifecycle {
   private static final ScheduledExecutorService s_submonitor = Executors.newScheduledThreadPool(1, new NamedThreadPoolFactory("Subscription Monitor"));
 
   /**
-   * The current set of market data subscriptions.
+   * The set of market data subscriptions which have been successfully
+   * activated. The time indicates when it became active.
    */
-  private final Set<ValueSpecification> _marketDataSubscriptions = new HashSet<>();
+  private final Map<ValueSpecification, ZonedDateTime> _activeSubscriptions = new HashMap<>();
 
   /**
-   * Subscriptions which have been requested but not yet been satisfied by the market data provider. The time indicates when the subscription was first requested.
+   * Subscriptions which have been requested but not yet been satisfied by the
+   * market data provider. The time indicates when the subscription was first requested.
    */
-  private final Map<ValueSpecification, ZonedDateTime> _pendingSubscriptions = new ConcurrentHashMap<>();
+  private final Map<ValueSpecification, ZonedDateTime> _pendingSubscriptions = new HashMap<>();
 
   /**
-   * Lock for safely adding and removing items from the {@link #_marketDataSubscriptions} and {@link #_pendingSubscriptions} collections.
+   * Subscriptions which were requested but were failed by the market data
+   * provider (they probably couldn't be found). The time indicates when the
+   * failure was reported.
+   */
+  private final Map<ValueSpecification, ZonedDateTime> _failedSubscriptions = new HashMap<>();
+
+  /**
+   * Subscriptions which were requested but have subsequently been removed as
+   * they were no longer required. The time indicates when the subscription was removed..
+   */
+  private final Map<ValueSpecification, ZonedDateTime> _removedSubscriptions = new HashMap<>();
+
+  /**
+   * Lock for safely adding and removing items from the subscription collections.
    */
   private final Lock _subscriptionsLock = new ReentrantLock();
 
@@ -118,17 +145,57 @@ public class MarketDataManager implements MarketDataListener, Lifecycle {
 
   /**
    * Create the manager for the market data.
-   * 
+   *
    * @param listener the listener for market data changes, not null
    * @param marketDataProviderResolver the provider resolver, not null
+   * @param viewProcessorName the view processor name, used for generating
+   * the JMX name. If null, no JMX bean will be registered.
+   * @param viewProcessId the view process id, used for generating
+   * the JMX name. If null, no JMX bean will be registered.
    */
   public MarketDataManager(MarketDataChangeListener listener,
-      MarketDataProviderResolver marketDataProviderResolver) {
+                           MarketDataProviderResolver marketDataProviderResolver,
+                           String viewProcessorName,
+                           UniqueId viewProcessId) {
 
     ArgumentChecker.notNull(listener, "listener");
     ArgumentChecker.notNull(marketDataProviderResolver, "marketDataProviderResolver");
     _marketDataChangeListener = listener;
     _marketDataProviderResolver = marketDataProviderResolver;
+
+    if (viewProcessorName != null && viewProcessId != null) {
+      registerJmx(createObjectName(viewProcessorName, viewProcessId));
+    }
+  }
+
+  /**
+   * Creates an object name using the scheme "com.opengamma:type=View,ViewProcessor=<viewProcessorName>,name=<viewProcessId>"
+   */
+  private ObjectName createObjectName(String viewProcessorName, UniqueId viewProcessId) {
+    try {
+      return new ObjectName("com.opengamma:type=ViewProcess,ViewProcessor=ViewProcessor " + viewProcessorName + ",name=ViewProcessMarketData " + viewProcessId.getValue());
+    } catch (MalformedObjectNameException e) {
+      throw new CacheException(e);
+    }
+  }
+
+  private void registerJmx(ObjectName objectName) {
+    MBeanServer mBeanServer = JmxUtils.locateMBeanServer();
+
+    if (mBeanServer != null) {
+
+      if (mBeanServer.isRegistered(objectName)) {
+        try {
+          mBeanServer.unregisterMBean(objectName);
+        } catch (InstanceNotFoundException | MBeanRegistrationException e) {
+          s_logger.warn("Unable to unregister object: {} from MBeanServer", objectName);
+        }
+      }
+      final MBeanExporter exporter = new MBeanExporter();
+      exporter.setServer(mBeanServer);
+      exporter.registerManagedResource(this, objectName);
+    }
+
   }
 
   private Runnable createSubscriptionMonitorLogging() {
@@ -174,7 +241,7 @@ public class MarketDataManager implements MarketDataListener, Lifecycle {
           if (!toAbandon.isEmpty()) {
             s_logger.warn("Giving up waiting on {} subscriptions - maybe they don't exist", toAbandon.size());
             s_logger.info("No longer waiting for subscriptions: {}", toAbandon);
-            removePendingSubscriptions(toAbandon);
+            removePendingSubscriptions(toAbandon, false);
           }
           if (!toRetry.isEmpty()) {
             s_logger.info("Retrying {} subscriptions as no responses received yet", toRetry.size());
@@ -190,7 +257,7 @@ public class MarketDataManager implements MarketDataListener, Lifecycle {
 
   /**
    * Create a snapshot manager for use in the current cycle.
-   * 
+   *
    * @param marketDataUser the market data user, not null
    * @param marketDataSpecifications the market data required for the cycle (and hence to be included in any snapshot created), not null
    * @return new snapshot manager, not null
@@ -216,7 +283,7 @@ public class MarketDataManager implements MarketDataListener, Lifecycle {
 
   /**
    * Return the current market data provider.
-   * 
+   *
    * @return the current market data provider, may be null
    */
   public SnapshottingViewExecutionDataProvider getMarketDataProvider() {
@@ -230,13 +297,13 @@ public class MarketDataManager implements MarketDataListener, Lifecycle {
 
   @Override
   public void subscriptionsSucceeded(final Collection<ValueSpecification> valueSpecifications) {
-    removePendingSubscriptions(valueSpecifications);
+    removePendingSubscriptions(valueSpecifications, true);
     s_logger.info("{} subscription succeeded - {} pending subscriptions remaining", valueSpecifications.size(), _pendingSubscriptions.size());
   }
 
   @Override
   public void subscriptionFailed(final ValueSpecification valueSpecification, final String msg) {
-    removePendingSubscription(valueSpecification);
+    removePendingSubscriptions(ImmutableSet.of(valueSpecification), false);
     s_logger.info("Market data subscription to {} failed. This market data may be missing from computation cycles.", valueSpecification);
     s_logger.info("{} pending subscriptions remaining", _pendingSubscriptions.size());
   }
@@ -277,24 +344,19 @@ public class MarketDataManager implements MarketDataListener, Lifecycle {
     return result;
   }
 
-  private void removePendingSubscription(final ValueSpecification specification) {
-    _subscriptionsLock.lock();
-    try {
-      _pendingSubscriptions.remove(specification);
-    } finally {
-      _subscriptionsLock.unlock();
-    }
-  }
-
-  private void removePendingSubscriptions(final Collection<ValueSpecification> specifications) {
-    // Previously, this method used _pendingSubscriptions.removeAll, but as specifications may
-    // be a list and the JDK may invert iteration order, it was observed that we may end up
-    // iterating over _pendingSubscriptions and calling contains() on specifications, resulting
-    // in long wait times for a view to load (PLAT-3508)
+  private void removePendingSubscriptions(final Collection<ValueSpecification> specifications,
+                                          boolean subscriptionSucceeded) {
     _subscriptionsLock.lock();
     try {
       for (ValueSpecification specification : specifications) {
         _pendingSubscriptions.remove(specification);
+        if (subscriptionSucceeded) {
+          _activeSubscriptions.put(specification, ZonedDateTime.now());
+        } else {
+          _activeSubscriptions.remove(specification);
+          _failedSubscriptions.put(specification, ZonedDateTime.now());
+        }
+
       }
     } finally {
       _subscriptionsLock.unlock();
@@ -306,7 +368,15 @@ public class MarketDataManager implements MarketDataListener, Lifecycle {
     _subscriptionsLock.lock();
     try {
       _marketDataProvider.unsubscribe(unusedSubscriptions);
-      _marketDataSubscriptions.removeAll(unusedSubscriptions);
+      ZonedDateTime removalTime = ZonedDateTime.now();
+      for (ValueSpecification subscription : unusedSubscriptions) {
+        if (!_removedSubscriptions.containsKey(subscription)) {
+          _activeSubscriptions.remove(subscription);
+          _pendingSubscriptions.remove(subscription);
+          _failedSubscriptions.remove(subscription);
+          _removedSubscriptions.put(subscription, removalTime);
+        }
+      }
     } finally {
       _subscriptionsLock.unlock();
     }
@@ -315,7 +385,7 @@ public class MarketDataManager implements MarketDataListener, Lifecycle {
 
   /**
    * Replace the market data provider if required. It will be replaced if it is not already setup or if the user has changed.
-   * 
+   *
    * @param marketDataUser the market data user, not null
    */
   public void replaceMarketDataProviderIfRequired(UserPrincipal marketDataUser) {
@@ -350,7 +420,8 @@ public class MarketDataManager implements MarketDataListener, Lifecycle {
       if (_marketDataProvider == null) {
         return;
       }
-      removeMarketDataSubscriptions(_marketDataSubscriptions);
+      removeMarketDataSubscriptions(_activeSubscriptions.keySet());
+      removeMarketDataSubscriptions(_pendingSubscriptions.keySet());
       _marketDataProvider.removeListener(this);
       _marketDataProvider = null;
       _marketDataProviderDirty = true;
@@ -377,7 +448,7 @@ public class MarketDataManager implements MarketDataListener, Lifecycle {
    * Request subscriptions for required market data. The request is checked against current
    * subscriptions ensuring subscriptions are only sent for new requests. Any previously
    * requested subscriptions that are no longer required will be removed.
-   * 
+   *
    * @param requiredSubscriptions the required subscriptions, not null
    */
   public void requestMarketDataSubscriptions(final Set<ValueSpecification> requiredSubscriptions) {
@@ -407,19 +478,26 @@ public class MarketDataManager implements MarketDataListener, Lifecycle {
   private Set<ValueSpecification> manageOngoingSubscriptions(Set<ValueSpecification> requiredSubscriptions) {
     _subscriptionsLock.lock();
     try {
-      final Set<ValueSpecification> currentSubscriptions = Sets.difference(_marketDataSubscriptions,
-                                                                           _pendingSubscriptions.keySet()).immutableCopy();
-      final Set<ValueSpecification> unusedMarketData = Sets.difference(currentSubscriptions, requiredSubscriptions).immutableCopy();
-      if (!unusedMarketData.isEmpty()) {
-        s_logger.info("{} unused market data subscriptions", unusedMarketData.size());
-        removeMarketDataSubscriptions(unusedMarketData);
+      final Set<ValueSpecification> currentSubscriptions =
+          ImmutableSet.<ValueSpecification>builder()
+              .addAll(_activeSubscriptions.keySet())
+              .addAll(_pendingSubscriptions.keySet())
+              .addAll(_failedSubscriptions.keySet())
+              .build();
+
+      Set<ValueSpecification> unusedSubscriptions = Sets.difference(currentSubscriptions, requiredSubscriptions).immutableCopy();
+      if (!unusedSubscriptions.isEmpty()) {
+        s_logger.info("{} unused market data subscriptions", unusedSubscriptions.size());
+        removeMarketDataSubscriptions(unusedSubscriptions);
       }
+
       final Set<ValueSpecification> newMarketData = Sets.difference(requiredSubscriptions, currentSubscriptions).immutableCopy();
       if (!newMarketData.isEmpty()) {
         s_logger.info("{} new market data requirements", newMarketData.size());
-        _marketDataSubscriptions.addAll(newMarketData);
-        for (ValueSpecification subscription : newMarketData) {
-          _pendingSubscriptions.put(subscription, ZonedDateTime.now());
+        for (ValueSpecification specification : newMarketData) {
+          _pendingSubscriptions.put(specification, ZonedDateTime.now());
+          _failedSubscriptions.remove(specification);
+          _removedSubscriptions.remove(specification);
         }
       }
       return newMarketData;
@@ -429,8 +507,8 @@ public class MarketDataManager implements MarketDataListener, Lifecycle {
   }
 
   /**
-   * Shortcut method to get the availanbility provider from the market data provider.
-   * 
+   * Shortcut method to get the availability provider from the market data provider.
+   *
    * @return the market data availability provider, may be null.
    */
   public MarketDataAvailabilityProvider getAvailabilityProvider() {
@@ -444,7 +522,7 @@ public class MarketDataManager implements MarketDataListener, Lifecycle {
 
   /**
    * Indicates if the current market data provider is dirty and thus any nodes sourcing market data into the dependency graph may now be invalid.
-   * 
+   *
    * @return true if the market data provider is dirty
    */
   public boolean isMarketDataProviderDirty() {
@@ -470,7 +548,7 @@ public class MarketDataManager implements MarketDataListener, Lifecycle {
 
   /**
    * Switches {@link UserPrincipal#getTestUser()} for the given userPrincipal if {@link UserPrincipal#getUserName()} is null or empty.
-   * 
+   *
    * @param userPrincipal the object to check
    * @return the resolved object
    */
@@ -526,4 +604,157 @@ public class MarketDataManager implements MarketDataListener, Lifecycle {
     return _monitorTask != null;
   }
 
+  @Override
+  public Map<String, SubscriptionStatus> queryFailedSubscriptions() {
+    return querySubscriptions(_failedSubscriptions, SubscriptionState.FAILED);
+  }
+
+  @Override
+  public Map<String, SubscriptionStatus> queryPendingSubscriptions() {
+    return querySubscriptions(_pendingSubscriptions, SubscriptionState.PENDING);
+  }
+
+  @Override
+  public Map<String, SubscriptionStatus> queryRemovedSubscriptions() {
+    return querySubscriptions(_removedSubscriptions, SubscriptionState.REMOVED);
+  }
+
+  @Override
+  public Map<String, SubscriptionStatus> queryActiveSubscriptions() {
+    return querySubscriptions(_activeSubscriptions, SubscriptionState.ACTIVE);
+  }
+
+  private Map<String, SubscriptionStatus> querySubscriptions(Map<ValueSpecification, ZonedDateTime> subscriptions,
+                                                             SubscriptionState state) {
+    // We need the lock as we'll get confused if the collections change underneath our feet
+    _subscriptionsLock.lock();
+    try {
+      Map<String, SubscriptionStatus> results = new HashMap<>();
+
+      for (Map.Entry<ValueSpecification, ZonedDateTime> entry : subscriptions.entrySet()) {
+        String ticker = entry.getKey().getTargetSpecification().getUniqueId().getValue();
+        results.put(ticker, new MarketDataManager.SubscriptionStatus(state, entry.getValue()));
+      }
+      return results;
+
+    } finally {
+      _subscriptionsLock.unlock();
+    }
+  }
+
+  @Override
+  public int getFailedSubscriptionCount() {
+    return _failedSubscriptions.size();
+  }
+
+  @Override
+  public int getPendingSubscriptionCount() {
+    return _pendingSubscriptions.size();
+  }
+
+  @Override
+  public int getRemovedSubscriptionCount() {
+    return _removedSubscriptions.size();
+  }
+
+  @Override
+  public int getActiveSubscriptionCount() {
+    return _activeSubscriptions.size();
+  }
+
+  /**
+   * Extract the state of subscriptions which contain the requested ticker. As there is
+   * some cost involved in doing this extract and filter, this is not exposed as an attribute.
+   *
+   * @param ticker the ticker to search for
+   * @return a map of matching tickers and the current state of subscription for each
+   */
+  @Override
+  public Map<String, SubscriptionStatus> querySubscriptionState(String ticker) {
+
+    // We need the lock as we'll get confused if the collections change underneath our feet
+    _subscriptionsLock.lock();
+    try {
+      Map<String, SubscriptionStatus> results = new HashMap<>();
+
+      // Note that the active set also includes pending subs, so we process activ first and
+      // pending list second
+      results.putAll(createStateMap(ticker, _activeSubscriptions, SubscriptionState.ACTIVE));
+      results.putAll(createStateMap(ticker, _pendingSubscriptions, SubscriptionState.PENDING));
+      results.putAll(createStateMap(ticker, _failedSubscriptions, SubscriptionState.FAILED));
+      results.putAll(createStateMap(ticker, _removedSubscriptions, SubscriptionState.REMOVED));
+
+      return results;
+
+    } finally {
+      _subscriptionsLock.unlock();
+    }
+  }
+
+  private Map<String, SubscriptionStatus> createStateMap(String ticker,
+                                                        Map<ValueSpecification, ZonedDateTime> specifications,
+                                                        SubscriptionState subscriptionState) {
+
+    Map<String, SubscriptionStatus> results = new HashMap<>();
+    for (Map.Entry<ValueSpecification, ZonedDateTime> entry : specifications.entrySet()) {
+
+      ValueSpecification specification = entry.getKey();
+      String fullTicker = specification.getTargetSpecification().getUniqueId().getValue();
+
+      if (ticker == null || ticker.equals("") || fullTicker.contains(ticker)) {
+        results.put(fullTicker, new SubscriptionStatus(subscriptionState, entry.getValue()));
+      }
+    }
+
+    return results;
+  }
+
+  /**
+   * Represents the state of a particular subscription and the time
+   * when it moved to that state. Implemented using Strings so that
+   * it is displayable via JMX.
+   */
+  public class SubscriptionStatus {
+
+    /**
+     * The state of the subscription. Maps to the the values in
+     * the {@link SubscriptionStatus} enum.
+     */
+    private final String _state;
+
+    /**
+     * The time (as an ISO-format String) when the subscription moved
+     * to this state.
+     */
+    private final String _timestamp;
+
+    /**
+     * Create a new subscription state.
+     *
+     * @param state the state of the subscription
+     * @param time the time the subscription got the state
+     */
+    public SubscriptionStatus(SubscriptionState state, ZonedDateTime time) {
+      _state = state.name();
+      _timestamp = time.toString();
+    }
+
+    /**
+     * Return the state of the subscription.
+     *
+     * @return the state of the subscription
+     */
+    public String getState() {
+      return _state;
+    }
+
+    /**
+     * Return the timestamp when the subscription moved to this state.
+     *
+     * @return the timestamp when the subscription moved to this state
+     */
+    public String getTimestamp() {
+      return _timestamp;
+    }
+  }
 }
