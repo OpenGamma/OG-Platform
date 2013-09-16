@@ -34,7 +34,6 @@ public class SingleNameIdentifiable implements UniqueIdentifiable, ObjectIdentif
   private BusinessDayConvention badDayConvention;
   private DayCount daycount;
   private Period couponFrequency;
-  private double recoveryRate;
   private StubType stubType;
 
   public SingleNameIdentifiable(String name,
@@ -42,30 +41,27 @@ public class SingleNameIdentifiable implements UniqueIdentifiable, ObjectIdentif
                                 BusinessDayConvention badDayConvention,
                                 DayCount daycount,
                                 Period couponFrequency,
-                                double recoveryRate,
                                 StubType stubType) {
     this.name = name;
     this.referenceEntity = referenceEntity;
     this.badDayConvention = badDayConvention;
     this.daycount = daycount;
     this.couponFrequency = couponFrequency;
-    this.recoveryRate = recoveryRate;
     this.stubType = stubType;
     this.id = UniqueId.of(SCHEME, name + SEPERATOR + referenceEntity.getScheme() + SEPERATOR + badDayConvention.getConventionName()
-        + SEPERATOR + daycount.getConventionName() + SEPERATOR + couponFrequency + SEPERATOR + recoveryRate + SEPERATOR + stubType);
+        + SEPERATOR + daycount.getConventionName() + SEPERATOR + couponFrequency + SEPERATOR + stubType);
   }
 
   public static SingleNameIdentifiable of(final UniqueId id) {
     String[] tokens = id.getValue().split(SEPERATOR);
-    ArgumentChecker.isTrue(tokens.length == 7, "Incorrect number of params for SingleNameIdentifiable");
+    ArgumentChecker.isTrue(tokens.length == 6, "Incorrect number of params for SingleNameIdentifiable");
     final String name = tokens[0];
     final ExternalId reference = ExternalId.of(tokens[1], name);
     final BusinessDayConvention badDayConvention = BusinessDayConventionFactory.of(tokens[2]);
     final DayCount dayCount = DayCountFactory.of(tokens[3]);
     final Period couponFrequency = Period.parse(tokens[4]);
-    final double recoveryRate = Double.valueOf(tokens[5]);
-    final StubType stubType = StubType.valueOf(tokens[6]);
-    return new SingleNameIdentifiable(name, reference, badDayConvention, dayCount, couponFrequency, recoveryRate, stubType);
+    final StubType stubType = StubType.valueOf(tokens[5]);
+    return new SingleNameIdentifiable(name, reference, badDayConvention, dayCount, couponFrequency, stubType);
   }
 
   @Override
@@ -98,10 +94,6 @@ public class SingleNameIdentifiable implements UniqueIdentifiable, ObjectIdentif
     return couponFrequency;
   }
 
-  public double getRecoveryRate() {
-    return recoveryRate;
-  }
-
   public StubType getStubType() {
     return stubType;
   }
@@ -117,9 +109,6 @@ public class SingleNameIdentifiable implements UniqueIdentifiable, ObjectIdentif
 
     SingleNameIdentifiable that = (SingleNameIdentifiable) o;
 
-    if (Double.compare(that.recoveryRate, recoveryRate) != 0) {
-      return false;
-    }
     if (badDayConvention != null ? !badDayConvention.equals(that.badDayConvention) : that.badDayConvention != null) {
       return false;
     }
@@ -148,15 +137,12 @@ public class SingleNameIdentifiable implements UniqueIdentifiable, ObjectIdentif
   @Override
   public int hashCode() {
     int result;
-    long temp;
     result = name != null ? name.hashCode() : 0;
     result = 31 * result + (id != null ? id.hashCode() : 0);
     result = 31 * result + (referenceEntity != null ? referenceEntity.hashCode() : 0);
     result = 31 * result + (badDayConvention != null ? badDayConvention.hashCode() : 0);
     result = 31 * result + (daycount != null ? daycount.hashCode() : 0);
     result = 31 * result + (couponFrequency != null ? couponFrequency.hashCode() : 0);
-    temp = Double.doubleToLongBits(recoveryRate);
-    result = 31 * result + (int) (temp ^ (temp >>> 32));
     result = 31 * result + (stubType != null ? stubType.hashCode() : 0);
     return result;
   }
