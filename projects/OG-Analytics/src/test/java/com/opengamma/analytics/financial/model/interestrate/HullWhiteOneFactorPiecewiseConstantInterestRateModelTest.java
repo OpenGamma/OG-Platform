@@ -14,21 +14,18 @@ import org.testng.internal.junit.ArrayAsserts;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalDateTime;
 import org.threeten.bp.LocalTime;
-import org.threeten.bp.Period;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
+import com.opengamma.analytics.financial.instrument.index.IndexIborMaster;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
-import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Pair;
 
@@ -51,6 +48,8 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
   private static final double TOLERANCE_RATE = 1.0E-10;
   private static final double TOLERANCE_RATE_DELTA = 1.0E-8;
   private static final double TOLERANCE_RATE_DELTA2 = 1.0E-7;
+
+  private static final IborIndex EURIBOR3M = IndexIborMaster.getInstance().getIndex("EURIBOR3M");
 
   @Test
   /**
@@ -98,19 +97,11 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
    * Test the future convexity adjustment factor v a hard-coded value.
    */
   public void futureConvexityFactor() {
-    //EURIBOR 3M Index
-    final Period TENOR = Period.ofMonths(3);
-    final int SETTLEMENT_DAYS = 2;
     final Calendar CALENDAR = new MondayToFridayCalendar("A");
-    final DayCount DAY_COUNT_INDEX = DayCountFactory.INSTANCE.getDayCount("Actual/360");
-    final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
-    final boolean IS_EOM = true;
-    final Currency CUR = Currency.EUR;
-    final IborIndex IBOR_INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM, "Ibor");
     // Future
     final ZonedDateTime SPOT_LAST_TRADING_DATE = DateUtils.getUTCDate(2012, 9, 19);
-    final ZonedDateTime LAST_TRADING_DATE = ScheduleCalculator.getAdjustedDate(SPOT_LAST_TRADING_DATE, -SETTLEMENT_DAYS, CALENDAR);
-    final ZonedDateTime FIXING_END_DATE = ScheduleCalculator.getAdjustedDate(SPOT_LAST_TRADING_DATE, TENOR, BUSINESS_DAY, CALENDAR, IS_EOM);
+    final ZonedDateTime LAST_TRADING_DATE = ScheduleCalculator.getAdjustedDate(SPOT_LAST_TRADING_DATE, -EURIBOR3M.getSpotLag(), CALENDAR);
+    final ZonedDateTime FIXING_END_DATE = ScheduleCalculator.getAdjustedDate(SPOT_LAST_TRADING_DATE, EURIBOR3M.getTenor(), EURIBOR3M.getBusinessDayConvention(), CALENDAR, EURIBOR3M.isEndOfMonth());
     final double NOTIONAL = 1000000.0; // 1m
     final double FUTURE_FACTOR = 0.25;
     final double REFERENCE_PRICE = 0.0; // TODO CASE - Future Refactor - referencePrice = 0
@@ -122,12 +113,44 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
     final double LAST_TRADING_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_ZONED, LAST_TRADING_DATE);
     final double FIXING_START_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_ZONED, SPOT_LAST_TRADING_DATE);
     final double FIXING_END_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_ZONED, FIXING_END_DATE);
-    final double FIXING_ACCRUAL = DAY_COUNT_INDEX.getDayCountFraction(SPOT_LAST_TRADING_DATE, FIXING_END_DATE);
-    final InterestRateFutureTransaction ERU2 = new InterestRateFutureTransaction(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, REFERENCE_PRICE, NOTIONAL,
+    final double FIXING_ACCRUAL = EURIBOR3M.getDayCount().getDayCountFraction(SPOT_LAST_TRADING_DATE, FIXING_END_DATE);
+    final InterestRateFutureTransaction ERU2 = new InterestRateFutureTransaction(LAST_TRADING_TIME, EURIBOR3M, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, REFERENCE_PRICE, NOTIONAL,
         FUTURE_FACTOR, quantity, NAME);
     final double factor = MODEL.futuresConvexityFactor(MODEL_PARAMETERS, ERU2.getLastTradingTime(), ERU2.getFixingPeriodStartTime(), ERU2.getFixingPeriodEndTime());
     final double expectedFactor = 1.000079130767980;
-    assertEquals("Hull-White one factor: future convexity adjusment factor", expectedFactor, factor, 1E-10);
+    assertEquals("Hull-White one factor: future convexity adjusment factor", expectedFactor, factor, TOLERANCE_RATE);
+  }
+
+  @Test
+  /**
+   * Test the payment delay convexity adjustment factor.
+   */
+  public void paymentDelayConvexityFactor() {
+    final double startExpiryTime = 1.00;
+    final double endExpiryTime = 3.00;
+    final double startFixingPeriod = 3.05;
+    final double endFixingPeriod = 3.55;
+    final double paymentTime = 3.45;
+    final double hwMeanReversion = 0.011;
+    // Constant volatility
+    final double hwEta = 0.02;
+    final HullWhiteOneFactorPiecewiseConstantParameters parameters = new HullWhiteOneFactorPiecewiseConstantParameters(hwMeanReversion, new double[] {hwEta }, new double[0]);
+    final double factor1 = (Math.exp(-hwMeanReversion * endFixingPeriod) - Math.exp(-hwMeanReversion * paymentTime)) *
+        (Math.exp(-hwMeanReversion * endFixingPeriod) - Math.exp(-hwMeanReversion * startFixingPeriod));
+    final double num = 2 * Math.pow(hwMeanReversion, 3);
+    final double factor2 = hwEta * hwEta * (Math.exp(2 * hwMeanReversion * endExpiryTime) - Math.exp(2 * hwMeanReversion * startExpiryTime));
+    final double factorExpected = Math.exp(factor1 * factor2 / num);
+    final double factorComputed = MODEL.paymentDelayConvexityFactor(parameters, startExpiryTime, endExpiryTime, startFixingPeriod, endFixingPeriod, paymentTime);
+    assertEquals("Hull-White one factor: payment delay adjustment factor", factorExpected, factorComputed, TOLERANCE_RATE);
+    // Piecewise constant constant volatility
+    final double[] hwEtaP = new double[] {0.02, 0.021, 0.022, 0.023 };
+    final double[] hwTime = new double[] {0.5, 1.0, 2.0 };
+    final HullWhiteOneFactorPiecewiseConstantParameters parametersP = new HullWhiteOneFactorPiecewiseConstantParameters(hwMeanReversion, hwEtaP, hwTime);
+    double factorP2 = hwEtaP[2] * hwEtaP[2] * (Math.exp(2 * hwMeanReversion * hwTime[2]) - Math.exp(2 * hwMeanReversion * startExpiryTime));
+    factorP2 += hwEtaP[3] * hwEtaP[3] * (Math.exp(2 * hwMeanReversion * endExpiryTime) - Math.exp(2 * hwMeanReversion * hwTime[2]));
+    final double factorPExpected = Math.exp(factor1 * factorP2 / num);
+    final double factorPComputed = MODEL.paymentDelayConvexityFactor(parametersP, startExpiryTime, endExpiryTime, startFixingPeriod, endFixingPeriod, paymentTime);
+    assertEquals("Hull-White one factor: payment delay adjustment factor", factorPExpected, factorPComputed, TOLERANCE_RATE);
   }
 
   @Test

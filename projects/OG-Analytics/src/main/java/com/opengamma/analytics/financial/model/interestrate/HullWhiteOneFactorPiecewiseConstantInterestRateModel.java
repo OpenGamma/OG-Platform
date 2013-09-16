@@ -31,7 +31,7 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModel {
    * <p>
    * Reference: Henrard, M. The Irony in the derivatives discounting Part II: the crisis. Wilmott Journal, 2010, 2, 301-316
    * @param data The Hull-White model parameters.
-   * @param t0 The expiry time.
+   * @param t0 The first expiry time.
    * @param t1 The first reference time.
    * @param t2 The second reference time.
    * @return The factor.
@@ -52,6 +52,49 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModel {
           * (2 - Math.exp(-data.getMeanReversion() * (t2 - s[loopperiod + 1])) - Math.exp(-data.getMeanReversion() * (t2 - s[loopperiod])));
     }
     return Math.exp(factor1 / numerator * factor2);
+  }
+
+  /**
+   * Computes the payment delay convexity factor used in coupons with mismatched dates pricing.  The factor
+   * is called $\zeta$ in the note and is given by
+   * $$
+   * \begin{equation*}
+   * \zeta = \exp\left(\int_{\theta_0}^{\theta_1} (\nu(s,v)-\nu(s,t_p)) (\nu(s,v)-\nu(s,u)) ds \right). 
+   * \end{equation*}
+   * $$
+   * <p>
+   * Reference: Henrard, M. xxx
+   * @param parameters The Hull-White model parameters.
+   * @param startExpiry The start expiry time.
+   * @param endExpiry The end expiry time.
+   * @param u The fixing period start time.
+   * @param v The fixing period end time.
+   * @param tp The payment time.
+   * @return The factor.
+   */
+  public double paymentDelayConvexityFactor(final HullWhiteOneFactorPiecewiseConstantParameters parameters, final double startExpiry, final double endExpiry,
+      final double u, final double v, final double tp) {
+    final double a = parameters.getMeanReversion();
+    final double factor1 = (Math.exp(-a * v) - Math.exp(-a * tp)) * (Math.exp(-a * v) - Math.exp(-a * u));
+    final double numerator = 2 * a * a * a;
+    int indexStart = Math.abs(Arrays.binarySearch(parameters.getVolatilityTime(), startExpiry) + 1);
+    // Period in which the time startExpiry is; _volatilityTime[i-1] <= startExpiry < _volatilityTime[i];
+    int indexEnd = Math.abs(Arrays.binarySearch(parameters.getVolatilityTime(), endExpiry) + 1);
+    // Period in which the time endExpiry is; _volatilityTime[i-1] <= endExpiry < _volatilityTime[i];
+    int sLen = indexEnd - indexStart + 1;
+    double[] s = new double[sLen + 1];
+    s[0] = startExpiry;
+    System.arraycopy(parameters.getVolatilityTime(), indexStart, s, 1, sLen - 1);
+    s[sLen] = endExpiry;
+    double factor2 = 0.0;
+    double[] exp2as = new double[sLen + 1];
+    for (int loopperiod = 0; loopperiod < sLen + 1; loopperiod++) {
+      exp2as[loopperiod] = Math.exp(2 * a * s[loopperiod]);
+    }
+    for (int loopperiod = 0; loopperiod < sLen; loopperiod++) {
+      factor2 += parameters.getVolatility()[loopperiod + indexStart - 1] * parameters.getVolatility()[loopperiod + indexStart - 1] * (exp2as[loopperiod + 1] - exp2as[loopperiod]);
+    }
+    return Math.exp(factor1 * factor2 / numerator);
   }
 
   /**
