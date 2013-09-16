@@ -116,11 +116,6 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
   private static final Logger s_logger = LoggerFactory.getLogger(SingleThreadViewProcessWorker.class);
 
   private static final ExecutorService s_executor = Executors.newCachedThreadPool(new NamedThreadPoolFactory("Worker"));
-  private SubscriptionStateQuery _marketDataMBean;
-
-  public SubscriptionStateQuery getSubscriptionStateQueryMBean() {
-    return _marketDataMBean;
-  }
 
   /**
    * Wrapper that allows a thread to be "borrowed" from an executor service.

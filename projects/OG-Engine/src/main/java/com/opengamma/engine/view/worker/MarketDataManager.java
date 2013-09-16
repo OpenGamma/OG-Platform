@@ -420,8 +420,8 @@ public class MarketDataManager implements MarketDataListener, Lifecycle, Subscri
       if (_marketDataProvider == null) {
         return;
       }
-      removeMarketDataSubscriptions(_activeSubscriptions.keySet());
-      removeMarketDataSubscriptions(_pendingSubscriptions.keySet());
+      removeMarketDataSubscriptions(ImmutableSet.copyOf(_activeSubscriptions.keySet()));
+      removeMarketDataSubscriptions(ImmutableSet.copyOf(_pendingSubscriptions.keySet()));
       _marketDataProvider.removeListener(this);
       _marketDataProvider = null;
       _marketDataProviderDirty = true;
