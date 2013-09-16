@@ -14,7 +14,7 @@ import com.opengamma.analytics.financial.forex.provider.ForexSwapDiscountingMeth
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositIbor;
-import com.opengamma.analytics.financial.interestrate.cash.provider.CashDiscountingProviderMethod;
+import com.opengamma.analytics.financial.interestrate.cash.provider.CashDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.cash.provider.DepositIborDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.fra.provider.ForwardRateAgreementDiscountingProviderMethod;
@@ -67,7 +67,7 @@ public final class ParSpreadInflationMarketQuoteCurveSensitivityDiscountingCalcu
   private static final PresentValueCurveSensitivityDiscountingCalculator PVCSMC = PresentValueCurveSensitivityDiscountingCalculator.getInstance();
   private static final PresentValueMarketQuoteSensitivityDiscountingCalculator PVMQSMC = PresentValueMarketQuoteSensitivityDiscountingCalculator.getInstance();
   private static final PresentValueMarketQuoteSensitivityCurveSensitivityDiscountingCalculator PVMQSCSMC = PresentValueMarketQuoteSensitivityCurveSensitivityDiscountingCalculator.getInstance();
-  private static final CashDiscountingProviderMethod METHOD_DEPOSIT = CashDiscountingProviderMethod.getInstance();
+  private static final CashDiscountingMethod METHOD_DEPOSIT = CashDiscountingMethod.getInstance();
   private static final DepositIborDiscountingMethod METHOD_DEPOSIT_IBOR = DepositIborDiscountingMethod.getInstance();
   private static final ForwardRateAgreementDiscountingProviderMethod METHOD_FRA = ForwardRateAgreementDiscountingProviderMethod.getInstance();
   private static final ForexSwapDiscountingMethod METHOD_FOREX_SWAP = ForexSwapDiscountingMethod.getInstance();

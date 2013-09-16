@@ -14,7 +14,6 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
-import com.opengamma.analytics.financial.interestrate.cash.provider.CashDiscountingProviderMethod;
 import com.opengamma.analytics.financial.interestrate.method.PricingMethod;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.ArgumentChecker;
@@ -23,7 +22,7 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * The methods associated to the pricing of cash deposit by discounting.
- * @deprecated Use {@link CashDiscountingProviderMethod}
+ * @deprecated Use {@link CashDiscountingMethod}
  */
 @Deprecated
 public final class CashDiscountingMethod implements PricingMethod {

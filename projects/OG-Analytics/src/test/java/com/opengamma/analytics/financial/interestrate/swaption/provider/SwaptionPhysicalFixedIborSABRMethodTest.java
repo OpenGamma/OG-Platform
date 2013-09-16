@@ -297,7 +297,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
   //  }
 
   @SuppressWarnings("unused")
-  @Test(enabled = true)
+  @Test(enabled = false)
   /**
    * Test of performance. In normal testing, "enabled = false".
    */
@@ -317,7 +317,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
       pvss[looptest] = METHOD_SWPT_SABR.presentValueSABRSensitivity(SWAPTION_LONG_PAYER, SABR_MULTICURVES);
     }
     endTime = System.currentTimeMillis();
-    System.out.println(nbTest + " physical swaptions SABR (price+delta+vega separately): " + (endTime - startTime) + " ms");
+    System.out.println("SwaptionPhysicalFixedIborSABRMethodTest: " + nbTest + " physical swaptions SABR (price+delta+vega separately): " + (endTime - startTime) + " ms");
     // Performance note: price+delta: 16-Nov-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 380 ms for 5000 swaptions.
 
     // 2. Together compute: Price, Curve Sensitivity and SABR Parameter Sensitivity
@@ -326,7 +326,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
       pvad = METHOD_SWPT_SABR.presentValueAD(SWAPTION_LONG_PAYER, SABR_MULTICURVES);
     }
     endTime = System.currentTimeMillis();
-    System.out.println(nbTest + " physical swaptions SABR (price+delta+vega together): " + (endTime - startTime) + " ms");
+    System.out.println("SwaptionPhysicalFixedIborSABRMethodTest: " + nbTest + " physical swaptions SABR (price+delta+vega together): " + (endTime - startTime) + " ms");
     // Performance note: price: 16-Nov-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 210 ms for 5000 swaptions.
 
     // 3. Compute only Present Value
@@ -335,7 +335,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
       pv[looptest] = METHOD_SWPT_SABR.presentValue(SWAPTION_LONG_PAYER, SABR_MULTICURVES);
     }
     endTime = System.currentTimeMillis();
-    System.out.println(nbTest + " physical swaptions SABR (price): " + (endTime - startTime) + " ms");
+    System.out.println("SwaptionPhysicalFixedIborSABRMethodTest: " + nbTest + " physical swaptions SABR (price): " + (endTime - startTime) + " ms");
     // Performance note: price: 16-Nov-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 75 ms for 5000 swaptions.
 
     // 4. Compute present value using Hull-White Monte Carlo. Only for MC testing.
@@ -348,7 +348,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
       pvMC[looptest] = SWAPTION_LONG_PAYER.accept(pvcSABRHWMC, SABR_MULTICURVES);
     }
     endTime = System.currentTimeMillis();
-    System.out.println(nbTest2 + " physical swaptions SABR + Hull-White Monte Carlo: " + (endTime - startTime) + " ms");
+    System.out.println("SwaptionPhysicalFixedIborSABRMethodTest: " + nbTest2 + " physical swaptions SABR + Hull-White Monte Carlo: " + (endTime - startTime) + " ms");
     //     Performance note: price+delta+vega: 12-Jun-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 310 ms for 10 swaptions.
 
     //    double sum = 0.0;

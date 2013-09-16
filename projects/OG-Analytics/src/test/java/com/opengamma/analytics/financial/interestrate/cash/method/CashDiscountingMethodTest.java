@@ -192,6 +192,20 @@ public class CashDiscountingMethodTest {
 
   @Test
   /**
+   * Tests parRate when the present is before the deposit start date.
+   */
+  public void parRateBeforeStart() {
+    final ZonedDateTime referenceDate = TRADE_DATE;
+    final Cash deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, CURVES_NAME[0]);
+    final double parRate = METHOD_DEPOSIT.parRate(deposit, CURVES);
+    final CashDefinition deposit0Definition = new CashDefinition(EUR, SPOT_DATE, END_DATE, NOTIONAL, parRate, DEPOSIT_AF);
+    final Cash deposit0 = deposit0Definition.toDerivative(referenceDate, CURVES_NAME[0]);
+    final CurrencyAmount pv0 = METHOD_DEPOSIT.presentValue(deposit0, CURVES);
+    assertEquals("DepositDefinition: par rate", 0, pv0.getAmount(), TOLERANCE_PRICE);
+  }
+
+  @Test
+  /**
    * Tests parSpread when the present is before the deposit start date.
    */
   public void parSpreadBeforeStart() {
@@ -201,7 +215,7 @@ public class CashDiscountingMethodTest {
     final CashDefinition deposit0Definition = new CashDefinition(EUR, SPOT_DATE, END_DATE, NOTIONAL, RATE + parSpread, DEPOSIT_AF);
     final Cash deposit0 = deposit0Definition.toDerivative(referenceDate, CURVES_NAME[0]);
     final CurrencyAmount pv0 = METHOD_DEPOSIT.presentValue(deposit0, CURVES);
-    assertEquals("DepositDefinition: present value", 0, pv0.getAmount(), TOLERANCE_PRICE);
+    assertEquals("DepositDefinition: par spread", 0, pv0.getAmount(), TOLERANCE_PRICE);
   }
 
   @Test

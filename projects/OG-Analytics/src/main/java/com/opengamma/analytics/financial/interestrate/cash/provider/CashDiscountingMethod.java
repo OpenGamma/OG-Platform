@@ -21,25 +21,25 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * The methods associated to the pricing of cash deposit by discounting.
  */
-public final class CashDiscountingProviderMethod {
+public final class CashDiscountingMethod {
 
   /**
    * The method unique instance.
    */
-  private static final CashDiscountingProviderMethod INSTANCE = new CashDiscountingProviderMethod();
+  private static final CashDiscountingMethod INSTANCE = new CashDiscountingMethod();
 
   /**
    * Return the unique instance of the class.
    * @return The instance.
    */
-  public static CashDiscountingProviderMethod getInstance() {
+  public static CashDiscountingMethod getInstance() {
     return INSTANCE;
   }
 
   /**
    * Private constructor.
    */
-  private CashDiscountingProviderMethod() {
+  private CashDiscountingMethod() {
   }
 
   /**
