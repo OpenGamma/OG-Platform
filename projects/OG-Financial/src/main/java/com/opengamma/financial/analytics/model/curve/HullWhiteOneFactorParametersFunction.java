@@ -13,6 +13,7 @@ import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -59,6 +60,18 @@ import com.opengamma.util.time.Tenor;
 public class HullWhiteOneFactorParametersFunction extends AbstractFunction {
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(HullWhiteOneFactorParametersFunction.class);
+  private static final Map<Tenor, Double> VOLATILITY_TERMS = new LinkedHashMap<>();
+  static {
+    VOLATILITY_TERMS.put(Tenor.THREE_MONTHS, 0.01d);
+    VOLATILITY_TERMS.put(Tenor.TWELVE_MONTHS, 0.01d);
+    VOLATILITY_TERMS.put(Tenor.TWO_YEARS, 0.01d);
+    VOLATILITY_TERMS.put(Tenor.THREE_YEARS, 0.01d);
+    VOLATILITY_TERMS.put(Tenor.FOUR_YEARS, 0.01d);
+    VOLATILITY_TERMS.put(Tenor.FIVE_YEARS, 0.01d);
+  }
+  private static final Double MEAN_REVERSION_DEFAULT = 0.01d;
+  private static final Double INITIAL_VOLATILITY_DEFAULT = 0.01d;
+
   /** The configuration name */
   private final String _name;
   /** The currency for which these parameters are valid */
@@ -111,15 +124,21 @@ public class HullWhiteOneFactorParametersFunction extends AbstractFunction {
           final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
         final Clock snapshotClock = executionContext.getValuationClock();
         final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
-        final Object meanReversionObject = inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE,
+        Object meanReversionObject = inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE,
             ComputationTargetType.PRIMITIVE, parameters.getMeanReversionId()));
         if (meanReversionObject == null) {
-          throw new OpenGammaRuntimeException("Could not get mean reversion value");
+          // Jim - these are hacks that should be removed.
+          meanReversionObject = MEAN_REVERSION_DEFAULT;
+          s_logger.warn("Using default mean reversion");
+          //throw new OpenGammaRuntimeException("Could not get mean reversion value");
         }
-        final Object initialVolatilityObject = inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE,
+        Object initialVolatilityObject = inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE,
             ComputationTargetType.PRIMITIVE, parameters.getInitialVolatilityId()));
         if (initialVolatilityObject == null) {
-          throw new OpenGammaRuntimeException("Could not get initial volatility value");
+          // Jim - these are hacks that should be removed.
+          initialVolatilityObject = INITIAL_VOLATILITY_DEFAULT;
+          s_logger.warn("Using default initial volatility");
+          //throw new OpenGammaRuntimeException("Could not get initial volatility value");
         }
         final Double meanReversion = (Double) meanReversionObject;
         final Double initialVolatility = (Double) initialVolatilityObject;
@@ -130,8 +149,12 @@ public class HullWhiteOneFactorParametersFunction extends AbstractFunction {
           final ExternalScheme scheme = entry.getValue().getScheme();
           final String id = entry.getValue().getValue();
           final ExternalId tenorAppendedId = ExternalId.of(scheme, createId(entry.getKey(), id));
-          final Object volatilityObject = inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE,
+          Object volatilityObject = inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE,
               ComputationTargetType.PRIMITIVE, tenorAppendedId));
+          // Jim - next block is a hack that should be removed.
+          if (volatilityObject == null) {
+            volatilityObject = VOLATILITY_TERMS.get(entry.getKey());
+          }
           if (volatilityObject == null) {
             s_logger.error("Could not get value for " + tenorAppendedId);
           } else {
