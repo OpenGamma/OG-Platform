@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew;
@@ -15,17 +15,17 @@ import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ *
  */
 public class MultiAnalyticCDSPricer {
-
+  /** Default value for determining if results consistent with ISDA model versions 1.8.2 or lower are to be calculated */
   private static final boolean DEFAULT_USE_CORRECT_ACC_ON_DEFAULT_FORMULA = false;
-
+  /** True if results consistent with ISDA model versions 1.8.2 or lower are to be calculated */
   private final boolean _useCorrectAccOnDefaultFormula;
 
   /**
    * For consistency with the ISDA model version 1.8.2 and lower, a bug in the accrual on default calculation
-   * has been reproduced.   
+   * has been reproduced.
    */
   public MultiAnalyticCDSPricer() {
     _useCorrectAccOnDefaultFormula = DEFAULT_USE_CORRECT_ACC_ON_DEFAULT_FORMULA;
@@ -33,7 +33,7 @@ public class MultiAnalyticCDSPricer {
 
   /**
    *  For consistency with the ISDA model version 1.8.2 and lower, a bug in the accrual on default calculation
-   * has been reproduced.  
+   * has been reproduced.
    * @param useCorrectAccOnDefaultFormula Set to true to use correct accrual on default formulae.
    */
   public MultiAnalyticCDSPricer(final boolean useCorrectAccOnDefaultFormula) {
@@ -41,19 +41,18 @@ public class MultiAnalyticCDSPricer {
   }
 
   /**
-   * Present value for the payer of premiums (i.e. the buyer of protection) 
-  * @param cds analytic description of a CDS traded at a certain time 
-   * @param yieldCurve The yield (or discount) curve  
-   * @param creditCurve the credit (or survival) curve 
-   * @param fractionalSpread The <b>fraction</b> spread 
-  * @param cleanOrDirty Clean or dirty price 
-   * @return The PV on unit notional 
+   * Present value for the payer of premiums (i.e. the buyer of protection)
+  * @param cds analytic description of a CDS traded at a certain time
+   * @param yieldCurve The yield (or discount) curve
+   * @param creditCurve the credit (or survival) curve
+  * @param cleanOrDirty Clean or dirty price
+   * @return The PV on unit notional
    */
   public double[] pv(final MultiCDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final PriceType cleanOrDirty) {
     final int n = cds.getNumMaturities();
     final double[] pv = new double[n];
 
-    if (cds.getProtectionEnd(cds.getNumMaturities() - 1) <= 0.0) { //all CDSs have expired 
+    if (cds.getProtectionEnd(cds.getNumMaturities() - 1) <= 0.0) { //all CDSs have expired
       return pv;
     }
     // TODO check for any repeat calculations
@@ -66,12 +65,11 @@ public class MultiAnalyticCDSPricer {
   }
 
   /**
-   * Present value (clean price) for the payer of premiums (i.e. the buyer of protection) 
-  * @param cds analytic description of a CDS traded at a certain time 
-   * @param yieldCurve The yield (or discount) curve  
-   * @param creditCurve the credit (or survival) curve 
-   * @param fractionalSpread The <b>fraction</b> spread 
-   * @return The PV 
+   * Present value (clean price) for the payer of premiums (i.e. the buyer of protection)
+  * @param cds analytic description of a CDS traded at a certain time
+   * @param yieldCurve The yield (or discount) curve
+   * @param creditCurve the credit (or survival) curve
+   * @return The PV
    */
   public double[] pv(final MultiCDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve) {
     return pv(cds, yieldCurve, creditCurve, PriceType.CLEAN);
@@ -79,16 +77,16 @@ public class MultiAnalyticCDSPricer {
 
   /**
    * Sensitivity of the present value (for the payer of premiums, i.e. the buyer of protection) to the zero hazard rate
-   *  of a given node (knot) of the credit curve. This is per unit of notional 
-  * @param cds analytic description of a CDS traded at a certain time 
-   * @param yieldCurve The yield (or discount) curve  
-   * @param creditCurve the credit (or survival) curve 
-   * @param fractionalSpread The <b>fraction</b> spread 
-   * @param creditCurveNode The credit curve node 
+   *  of a given node (knot) of the credit curve. This is per unit of notional
+  * @param cds analytic description of a CDS traded at a certain time
+   * @param yieldCurve The yield (or discount) curve
+   * @param creditCurve the credit (or survival) curve
+   * @param fractionalSpread The <b>fraction</b> spread
+   * @param creditCurveNode The credit curve node
    * @return PV sensitivity to one node (knot) on the credit (hazard rate/survival) curve
    */
   //  public double[] pvCreditSensitivity(final MultiCDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final int creditCurveNode) {
-  //    if (cds.getProtectionEnd(cds.getNumMaturities() - 1) <= 0.0) { //all CDSs have expired 
+  //    if (cds.getProtectionEnd(cds.getNumMaturities() - 1) <= 0.0) { //all CDSs have expired
   //      return 0.0;
   //    }
   //    final double rpv01Sense = pvPremiumLegCreditSensitivity(cds, yieldCurve, creditCurve, creditCurveNode);
@@ -98,13 +96,13 @@ public class MultiAnalyticCDSPricer {
 
   /**
    * The par spread par spread for a given yield and credit (hazard rate/survival) curve)
-   * @param cds analytic description of a CDS traded at a certain time 
-   * @param yieldCurve The yield (or discount) curve  
-   * @param creditCurve the credit (or survival) curve 
+   * @param cds analytic description of a CDS traded at a certain time
+   * @param yieldCurve The yield (or discount) curve
+   * @param creditCurve the credit (or survival) curve
    * @return the par spread
    */
   public double[] parSpread(final MultiCDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve) {
-    if (cds.getProtectionEnd(0) <= 0.0) { //short cut already expired CDSs 
+    if (cds.getProtectionEnd(0) <= 0.0) { //short cut already expired CDSs
       throw new IllegalArgumentException("A CDSs has expired - cannot compute a par spread for it");
     }
 
@@ -121,15 +119,15 @@ public class MultiAnalyticCDSPricer {
 
   /**
    * Sensitivity of the par spread (the fixed payment on the premium leg that make the PV of the CDS zero for a given yield
-   * and credit (hazard rate/survival) curve) to the zero hazard rate of a given node (knot) of the credit curve. 
-  * @param cds analytic description of a CDS traded at a certain time 
-   * @param yieldCurve The yield (or discount) curve  
-   * @param creditCurve the credit (or survival) curve 
-   * @param creditCurveNode The credit curve node 
+   * and credit (hazard rate/survival) curve) to the zero hazard rate of a given node (knot) of the credit curve.
+  * @param cds analytic description of a CDS traded at a certain time
+   * @param yieldCurve The yield (or discount) curve
+   * @param creditCurve the credit (or survival) curve
+   * @param creditCurveNode The credit curve node
    * @return Par spread sensitivity to one node (knot) on the credit (hazard rate/survival) curve
    */
   //  public double parSpreadCreditSensitivity(final MultiCDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final int creditCurveNode) {
-  //    if (cds.getProtectionEnd(0) <= 0.0) { //short cut already expired CDSs 
+  //    if (cds.getProtectionEnd(0) <= 0.0) { //short cut already expired CDSs
   //      throw new IllegalArgumentException("A CDSs has expired - cannot compute a par spread for it");
   //    }
   //
@@ -143,12 +141,12 @@ public class MultiAnalyticCDSPricer {
 
   /**
    * This is the present value of the premium leg per unit of fractional spread - hence it is equal to 10,000 times the RPV01
-   * (Risky PV01). The actual PV of the leg is this multiplied by the notional and the fractional spread (i.e. spread in basis 
-   * points divided by 10,000) 
-   * @param cds analytic description of a CDS traded at a certain time 
-   * @param yieldCurve The yield (or discount) curve  
-   * @param creditCurve the credit (or survival) curve 
-   * @param cleanOrDirty Clean or dirty price 
+   * (Risky PV01). The actual PV of the leg is this multiplied by the notional and the fractional spread (i.e. spread in basis
+   * points divided by 10,000)
+   * @param cds analytic description of a CDS traded at a certain time
+   * @param yieldCurve The yield (or discount) curve
+   * @param creditCurve the credit (or survival) curve
+   * @param cleanOrDirty Clean or dirty price
    * @return 10,000 times the RPV01 (on a notional of 1)
    */
   public double[] pvPremiumLegPerUnitSpread(final MultiCDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final PriceType cleanOrDirty) {
@@ -171,7 +169,7 @@ public class MultiAnalyticCDSPricer {
     int start = 0;
     double runningPV = 0;
     for (int matIndex = 0; matIndex < nMat; matIndex++) {
-      if (cds.getProtectionEnd(matIndex) <= 0.0) { //skip expired CDSs (they have zero pv) 
+      if (cds.getProtectionEnd(matIndex) <= 0.0) { //skip expired CDSs (they have zero pv)
         continue;
       }
       double localPV = 0;
@@ -221,12 +219,12 @@ public class MultiAnalyticCDSPricer {
   }
 
   /**
-   * The sensitivity (on a unit notional) of the (scaled) RPV01 to the zero hazard rate of a given node (knot) of the credit curve. 
-   * @param cds analytic description of a CDS traded at a certain time 
-   * @param yieldCurve The yield (or discount) curve  
-   * @param creditCurve the credit (or survival) curve 
-   * @param creditCurveNode The credit curve node 
-   * @return  sensitivity (on a unit notional) 
+   * The sensitivity (on a unit notional) of the (scaled) RPV01 to the zero hazard rate of a given node (knot) of the credit curve.
+   * @param cds analytic description of a CDS traded at a certain time
+   * @param yieldCurve The yield (or discount) curve
+   * @param creditCurve the credit (or survival) curve
+   * @param creditCurveNode The credit curve node
+   * @return  sensitivity (on a unit notional)
    */
   //  public double pvPremiumLegCreditSensitivity(final MultiCDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final int creditCurveNode) {
   //    ArgumentChecker.notNull(cds, "null cds");
@@ -411,14 +409,14 @@ public class MultiAnalyticCDSPricer {
   }
 
   /**
-   * Compute the present value of the protection leg with a notional of 1, which is given by the integral 
-   * $\frac{1-R}{P(T_{v})} \int_{T_a} ^{T_b} P(t) \frac{dQ(t)}{dt} dt$ where $P(t)$ and $Q(t)$ are the discount and survival curves 
-   * respectively, $T_a$ and $T_b$ are the start and end of the protection respectively, $T_v$ is the valuation time (all measured 
-   * from $t = 0$, 'today') and $R$ is the recovery rate. 
-   * @param cds analytic description of a CDS traded at a certain time 
-   * @param yieldCurve The yield (or discount) curve  
-   * @param creditCurve the credit (or survival) curve 
-   * @return The value of the protection leg (on a unit notional) 
+   * Compute the present value of the protection leg with a notional of 1, which is given by the integral
+   * $\frac{1-R}{P(T_{v})} \int_{T_a} ^{T_b} P(t) \frac{dQ(t)}{dt} dt$ where $P(t)$ and $Q(t)$ are the discount and survival curves
+   * respectively, $T_a$ and $T_b$ are the start and end of the protection respectively, $T_v$ is the valuation time (all measured
+   * from $t = 0$, 'today') and $R$ is the recovery rate.
+   * @param cds analytic description of a CDS traded at a certain time
+   * @param yieldCurve The yield (or discount) curve
+   * @param creditCurve the credit (or survival) curve
+   * @return The value of the protection leg (on a unit notional)
    */
   public double[] protectionLeg(final MultiCDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve) {
     ArgumentChecker.notNull(cds, "null cds");
@@ -436,7 +434,7 @@ public class MultiAnalyticCDSPricer {
     for (int matIndex = 0; matIndex < nMat; matIndex++) {
       final double end = cds.getProtectionEnd(matIndex);
       if (end <= 0.0) {
-        continue; //short cut already expired CDSs 
+        continue; //short cut already expired CDSs
       }
 
       final double[] integrationSchedule = truncateSetInclusive(start, end, fullIntegrationSchedule);
@@ -483,12 +481,12 @@ public class MultiAnalyticCDSPricer {
   }
 
   /**
-   * The sensitivity of the PV of the protection leg to the zero hazard rate of a given node (knot) of the credit curve. 
-   * @param cds analytic description of a CDS traded at a certain time 
-   * @param yieldCurve The yield (or discount) curve  
-   * @param creditCurve the credit (or survival) curve 
-   * @param creditCurveNode The credit curve node 
-   * @return  sensitivity (on a unit notional) 
+   * The sensitivity of the PV of the protection leg to the zero hazard rate of a given node (knot) of the credit curve.
+   * @param cds analytic description of a CDS traded at a certain time
+   * @param yieldCurve The yield (or discount) curve
+   * @param creditCurve the credit (or survival) curve
+   * @param creditCurveNode The credit curve node
+   * @return  sensitivity (on a unit notional)
    */
   //  public double protectionLegCreditSensitivity(final MultiCDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final int creditCurveNode) {
   //    ArgumentChecker.notNull(cds, "null cds");
@@ -499,7 +497,7 @@ public class MultiAnalyticCDSPricer {
   //        (creditCurveNode != creditCurve.getNumberOfKnots() - 1 && cds.getProtectionStart() >= creditCurve.getTimeAtIndex(creditCurveNode + 1))) {
   //      return 0.0; // can't have any sensitivity in this case
   //    }
-  //    if (cds.getProtectionEnd() <= 0.0) { //short cut already expired CDSs 
+  //    if (cds.getProtectionEnd() <= 0.0) { //short cut already expired CDSs
   //      return 0.0;
   //    }
   //

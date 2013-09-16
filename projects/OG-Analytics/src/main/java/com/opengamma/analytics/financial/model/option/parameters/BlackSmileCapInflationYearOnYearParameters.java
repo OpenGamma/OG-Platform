@@ -1,12 +1,11 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.option.parameters;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.model.interestrate.definition.InflationYearOnYearCapFloorParameters;
@@ -17,6 +16,7 @@ import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator2D;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -34,35 +34,35 @@ public class BlackSmileCapInflationYearOnYearParameters implements VolatilityMod
   private final IndexPrice _index;
 
   /**
-   * Constructor from the parameter surfaces. 
+   * Constructor from the parameter surfaces.
    * @param volatility The Black volatility curve.
    * @param index The index price for which the volatility is valid.
    */
   public BlackSmileCapInflationYearOnYearParameters(final InterpolatedDoublesSurface volatility, final IndexPrice index) {
-    Validate.notNull(volatility, "volatility curve");
-    Validate.notNull(index, "index price");
+    ArgumentChecker.notNull(volatility, "volatility curve");
+    ArgumentChecker.notNull(index, "index price");
     _volatility = volatility;
     _index = index;
   }
 
   /**
-   * Constructor from the parameter surfaces. 
+   * Constructor from the parameter surfaces.
    * @param expiryTimes The Black volatility curve.
    * @param strikes The Black volatility curve.
    * @param volatility The Black volatility cube.
    * @param interpolator The interpolator necessary to Black volatility surface from the black volatility cube.
    * @param index The index price for which the volatility is valid.
    */
-  public BlackSmileCapInflationYearOnYearParameters(double[] expiryTimes, double[] strikes, final double[][] volatility, final Interpolator2D interpolator, final IndexPrice index) {
-    Validate.notNull(volatility, "volatility curve");
-    Validate.notNull(expiryTimes, "expiry times");
-    Validate.notNull(strikes, "strikes");
-    Validate.notNull(index, "index price");
-    Validate.isTrue(expiryTimes.length == volatility.length, null);
-    Validate.isTrue(strikes.length == volatility[0].length, null);
+  public BlackSmileCapInflationYearOnYearParameters(final double[] expiryTimes, final double[] strikes, final double[][] volatility, final Interpolator2D interpolator, final IndexPrice index) {
+    ArgumentChecker.notNull(volatility, "volatility curve");
+    ArgumentChecker.notNull(expiryTimes, "expiry times");
+    ArgumentChecker.notNull(strikes, "strikes");
+    ArgumentChecker.notNull(index, "index price");
+    ArgumentChecker.isTrue(expiryTimes.length == volatility.length, null);
+    ArgumentChecker.isTrue(strikes.length == volatility[0].length, null);
 
-    DoublesPair[] xyData = new DoublesPair[expiryTimes.length * strikes.length];
-    double[] volatilityVector = new double[expiryTimes.length * strikes.length];
+    final DoublesPair[] xyData = new DoublesPair[expiryTimes.length * strikes.length];
+    final double[] volatilityVector = new double[expiryTimes.length * strikes.length];
     for (int i = 0; i < expiryTimes.length; i++) {
       for (int j = 0; j < strikes.length; j++) {
         xyData[i + j * expiryTimes.length] = DoublesPair.of(expiryTimes[i], strikes[j]);
@@ -74,20 +74,19 @@ public class BlackSmileCapInflationYearOnYearParameters implements VolatilityMod
   }
 
   /**
-   * Constructor from the parameter surfaces. 
+   * Constructor from the parameter surfaces.
    * @param parameters The Black volatility curve.
    * @param interpolator The Black volatility curve.
-   * @return 
    */
-  public BlackSmileCapInflationYearOnYearParameters(final InflationYearOnYearCapFloorParameters parameters, Interpolator2D interpolator) {
-    Validate.notNull(interpolator, "interpolator");
+  public BlackSmileCapInflationYearOnYearParameters(final InflationYearOnYearCapFloorParameters parameters, final Interpolator2D interpolator) {
+    ArgumentChecker.notNull(interpolator, "interpolator");
 
-    double[] expiryTimes = parameters.getExpiryTimes();
-    double[] strikes = parameters.getStrikes();
-    double[][] volatility = parameters.getVolatility();
+    final double[] expiryTimes = parameters.getExpiryTimes();
+    final double[] strikes = parameters.getStrikes();
+    final double[][] volatility = parameters.getVolatility();
 
-    DoublesPair[] xyData = new DoublesPair[expiryTimes.length * strikes.length];
-    double[] volatilityVector = new double[expiryTimes.length * strikes.length];
+    final DoublesPair[] xyData = new DoublesPair[expiryTimes.length * strikes.length];
+    final double[] volatilityVector = new double[expiryTimes.length * strikes.length];
     for (int i = 0; i < expiryTimes.length; i++) {
       for (int j = 0; j < strikes.length; j++) {
         xyData[i + j * expiryTimes.length] = DoublesPair.of(expiryTimes[i], strikes[j]);
@@ -100,18 +99,17 @@ public class BlackSmileCapInflationYearOnYearParameters implements VolatilityMod
   }
 
   /**
-   * Constructor from the parameter surfaces and default interpolator. 
+   * Constructor from the parameter surfaces and default interpolator.
    * @param parameters The Black volatility curve.
-   * @return 
    */
   public BlackSmileCapInflationYearOnYearParameters(final InflationYearOnYearCapFloorParameters parameters) {
 
-    double[] expiryTimes = parameters.getExpiryTimes();
-    double[] strikes = parameters.getStrikes();
-    double[][] volatility = parameters.getVolatility();
+    final double[] expiryTimes = parameters.getExpiryTimes();
+    final double[] strikes = parameters.getStrikes();
+    final double[][] volatility = parameters.getVolatility();
 
-    DoublesPair[] xyData = new DoublesPair[expiryTimes.length * strikes.length];
-    double[] volatilityVector = new double[expiryTimes.length * strikes.length];
+    final DoublesPair[] xyData = new DoublesPair[expiryTimes.length * strikes.length];
+    final double[] volatilityVector = new double[expiryTimes.length * strikes.length];
     for (int i = 0; i < expiryTimes.length; i++) {
       for (int j = 0; j < strikes.length; j++) {
         xyData[i + j * expiryTimes.length] = DoublesPair.of(expiryTimes[i], strikes[j]);
@@ -152,8 +150,8 @@ public class BlackSmileCapInflationYearOnYearParameters implements VolatilityMod
    * @return The volatility.
    */
   public Double getVolatility(final double[] data) {
-    Validate.notNull(data, "data");
-    Validate.isTrue(data.length == 2, "data should have two components (expiration and strike)");
+    ArgumentChecker.notNull(data, "data");
+    ArgumentChecker.isTrue(data.length == 2, "data should have two components (expiration and strike)");
     return getVolatility(data[0], data[1]);
   }
 
@@ -175,7 +173,7 @@ public class BlackSmileCapInflationYearOnYearParameters implements VolatilityMod
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -185,7 +183,7 @@ public class BlackSmileCapInflationYearOnYearParameters implements VolatilityMod
     if (getClass() != obj.getClass()) {
       return false;
     }
-    BlackSmileCapInflationYearOnYearParameters other = (BlackSmileCapInflationYearOnYearParameters) obj;
+    final BlackSmileCapInflationYearOnYearParameters other = (BlackSmileCapInflationYearOnYearParameters) obj;
     if (!ObjectUtils.equals(_index, other._index)) {
       return false;
     }

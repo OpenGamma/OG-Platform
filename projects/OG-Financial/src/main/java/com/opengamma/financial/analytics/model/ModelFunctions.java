@@ -88,7 +88,7 @@ public class ModelFunctions extends AbstractFunctionConfigurationBean {
   /**
    * Adds deprecated interest rate instrument functions.
    * @return A configuration source containing the deprecated interest rate instrument functions
-   * @deprecated The current versions of these functions are added in {@link #multiCurvePricingFunctionConfiguration()}
+   * @deprecated The current versions of these functions are added in {@link #discountingFunctionConfiguration}
    */
   @Deprecated
   protected FunctionConfigurationSource fixedIncomeFunctionConfiguration() {

@@ -45,7 +45,7 @@ public interface ConventionSource {
    * @param clazz The expected class of the convention
    * @param identifier An identifier of the instrument
    * @return The convention data or null if not found
-   * @throw OpenGammaRuntimeException if multiple matches to the identifier are found, or if
+   * @throws OpenGammaRuntimeException if multiple matches to the identifier are found, or if
    * the type of the convention does not match that expected
    */
   <T extends Convention> T getConvention(Class<T> clazz, ExternalId identifier);

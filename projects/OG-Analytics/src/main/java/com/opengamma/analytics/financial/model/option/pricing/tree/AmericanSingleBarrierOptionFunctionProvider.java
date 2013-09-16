@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.option.pricing.tree;
 
 /**
- * 
+ *
  */
 public class AmericanSingleBarrierOptionFunctionProvider extends BarrierOptionFunctionProvider {
 
@@ -16,7 +16,7 @@ public class AmericanSingleBarrierOptionFunctionProvider extends BarrierOptionFu
    * @param steps Number of steps
    * @param isCall True if call, false if put
    * @param barrier Barrier price
-   * @param typeName {@link BarrierTypes}, DownAndOut or UpAndOut
+   * @param typeName {@link com.opengamma.analytics.financial.model.option.pricing.tree.BarrierOptionFunctionProvider.BarrierTypes}, DownAndOut or UpAndOut
    */
   public AmericanSingleBarrierOptionFunctionProvider(final double strike, final double timeToExpiry, final int steps, final boolean isCall, final double barrier, final BarrierTypes typeName) {
     super(strike, timeToExpiry, steps, isCall, barrier, typeName);
@@ -91,7 +91,7 @@ public class AmericanSingleBarrierOptionFunctionProvider extends BarrierOptionFu
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }

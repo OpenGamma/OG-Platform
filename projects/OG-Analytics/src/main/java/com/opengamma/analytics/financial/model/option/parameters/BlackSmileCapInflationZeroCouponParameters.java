@@ -6,7 +6,6 @@
 package com.opengamma.analytics.financial.model.option.parameters;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.analytics.financial.model.interestrate.definition.InflationZeroCouponCapFloorParameters;
@@ -17,6 +16,7 @@ import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator2D;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -39,8 +39,8 @@ public class BlackSmileCapInflationZeroCouponParameters implements VolatilityMod
    * @param index The Ibor index for which the volatility is valid.
    */
   public BlackSmileCapInflationZeroCouponParameters(final InterpolatedDoublesSurface volatility, final IndexPrice index) {
-    Validate.notNull(volatility, "volatility curve");
-    Validate.notNull(index, "index price");
+    ArgumentChecker.notNull(volatility, "volatility curve");
+    ArgumentChecker.notNull(index, "index price");
     _volatility = volatility;
     _index = index;
   }
@@ -54,12 +54,12 @@ public class BlackSmileCapInflationZeroCouponParameters implements VolatilityMod
    * @param index The index price for which the volatility is valid.
    */
   public BlackSmileCapInflationZeroCouponParameters(final double[] expiryTimes, final double[] strikes, final double[][] volatility, final Interpolator2D interpolator, final IndexPrice index) {
-    Validate.notNull(volatility, "volatility curve");
-    Validate.notNull(expiryTimes, "expiry times");
-    Validate.notNull(strikes, "strikes");
-    Validate.notNull(index, "index price");
-    Validate.isTrue(expiryTimes.length == volatility.length, null);
-    Validate.isTrue(strikes.length == volatility[0].length, null);
+    ArgumentChecker.notNull(volatility, "volatility curve");
+    ArgumentChecker.notNull(expiryTimes, "expiry times");
+    ArgumentChecker.notNull(strikes, "strikes");
+    ArgumentChecker.notNull(index, "index price");
+    ArgumentChecker.isTrue(expiryTimes.length == volatility.length, null);
+    ArgumentChecker.isTrue(strikes.length == volatility[0].length, null);
 
     final DoublesPair[] xyData = new DoublesPair[expiryTimes.length * strikes.length];
     final double[] volatilityVector = new double[expiryTimes.length * strikes.length];
@@ -77,10 +77,9 @@ public class BlackSmileCapInflationZeroCouponParameters implements VolatilityMod
    * Constructor from the parameter surfaces.
    * @param parameters The Black volatility curve.
    * @param interpolator The Black volatility curve.
-   * @return
    */
   public BlackSmileCapInflationZeroCouponParameters(final InflationZeroCouponCapFloorParameters parameters, final Interpolator2D interpolator) {
-    Validate.notNull(interpolator, "interpolator");
+    ArgumentChecker.notNull(interpolator, "interpolator");
 
     final double[] expiryTimes = parameters.getExpiryTimes();
     final double[] strikes = parameters.getStrikes();
@@ -102,7 +101,6 @@ public class BlackSmileCapInflationZeroCouponParameters implements VolatilityMod
   /**
    * Constructor from the parameter surfaces and default interpolator (flat extrapolation, linear interpolation).
    * @param parameters The Black volatility curve.
-   * @return
    */
   public BlackSmileCapInflationZeroCouponParameters(final InflationZeroCouponCapFloorParameters parameters) {
 
@@ -151,8 +149,8 @@ public class BlackSmileCapInflationZeroCouponParameters implements VolatilityMod
    * @return The volatility.
    */
   public Double getVolatility(final double[] data) {
-    Validate.notNull(data, "data");
-    Validate.isTrue(data.length == 2, "data should have two components (expiration and strike)");
+    ArgumentChecker.notNull(data, "data");
+    ArgumentChecker.isTrue(data.length == 2, "data should have two components (expiration and strike)");
     return getVolatility(data[0], data[1]);
   }
 

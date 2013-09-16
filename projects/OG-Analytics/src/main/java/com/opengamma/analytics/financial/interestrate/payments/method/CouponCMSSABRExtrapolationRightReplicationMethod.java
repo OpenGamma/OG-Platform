@@ -11,7 +11,7 @@ package com.opengamma.analytics.financial.interestrate.payments.method;
  *  Reference: Hagan, P. S. (2003). Convexity conundrums: Pricing CMS swaps, caps, and floors. Wilmott Magazine, March, pages 38--44.
  *  OpenGamma implementation note: Replication pricing for linear and TEC format CMS, Version 1.2, March 2011.
  *  OpenGamma implementation note for the extrapolation: Smile extrapolation, version 1.2, May 2011.
- *  @deprecated Use {@likn com.opengamma.analytics.financial.interestrate.payments.provider.CouponCMSSABRReplicationGenericMethod}
+ *  @deprecated Use {@link com.opengamma.analytics.financial.interestrate.payments.provider.CouponCMSSABRReplicationGenericMethod}
  */
 @Deprecated
 public class CouponCMSSABRExtrapolationRightReplicationMethod extends CouponCMSSABRReplicationGenericMethod {

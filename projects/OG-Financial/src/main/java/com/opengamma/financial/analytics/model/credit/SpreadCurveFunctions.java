@@ -10,7 +10,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.standard.PresentValueStandardCreditDefaultSwap;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
@@ -19,6 +18,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.StandardCDSQuotingConvention;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.standard.PresentValueStandardCreditDefaultSwap;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSAnalytic;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSQuoteConvention;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantYieldCurve;
@@ -66,13 +66,13 @@ public class SpreadCurveFunctions {
     if (inputs == null || inputs.isEmpty()) {
       return getDefaultBuckets(now);
     }
-    List<ZonedDateTime> dates = new ArrayList<>();
+    final List<ZonedDateTime> dates = new ArrayList<>();
     for (final String tenorOrDate : inputs.split(",")) {
       if (tenorOrDate.startsWith("P")) { // tenor
-        Tenor tenor = Tenor.of(Period.parse(tenorOrDate));
+        final Tenor tenor = Tenor.of(Period.parse(tenorOrDate));
         dates.add(IMMDateGenerator.getNextIMMDate(now, tenor));
       } else { // date
-        LocalDate date = LocalDate.parse(tenorOrDate);
+        final LocalDate date = LocalDate.parse(tenorOrDate);
         dates.add(date.atStartOfDay(now.getZone()));
       }
     }
@@ -80,7 +80,7 @@ public class SpreadCurveFunctions {
   }
 
   public static final ZonedDateTime[] getPillarDates(final ZonedDateTime now, final Tenor[] tenors) {
-    ZonedDateTime[] dates = new ZonedDateTime[tenors.length];
+    final ZonedDateTime[] dates = new ZonedDateTime[tenors.length];
     for (int i = 0; i < tenors.length; i++) {
       dates[i] = IMMDateGenerator.getNextIMMDate(now, tenors[i]);
     }
@@ -100,10 +100,10 @@ public class SpreadCurveFunctions {
     if (inputs == null || inputs.isEmpty()) {
       return BUCKET_TENORS.toArray(new Tenor[BUCKET_TENORS.size()]);
     }
-    List<Tenor> tenors = new ArrayList<>();
+    final List<Tenor> tenors = new ArrayList<>();
     for (final String tenorOrDate : inputs.split(",")) {
       if (tenorOrDate.startsWith("P")) { // tenor
-        Tenor tenor = new Tenor(Period.parse(tenorOrDate));
+        final Tenor tenor = new Tenor(Period.parse(tenorOrDate));
         tenors.add(tenor);
       } else { // date
         throw new OpenGammaRuntimeException("Unsupported");
@@ -302,10 +302,10 @@ public class SpreadCurveFunctions {
    * @param pricedCDSMaturity the maturity of the priced cds
    * @param values the quotes
    * @param quoteConvention the quote convention e.g. SPREAD or PUF
-   * @parm normalise control whether to normalise spreads to fractional vlaues
+   * @param normalise control whether to normalise spreads to fractional vlaues
    * @return the cds quote conventions
    */
-  public static CDSQuoteConvention[] getQuotes(final ZonedDateTime pricedCDSMaturity, final double[] values, double coupon, final StandardCDSQuotingConvention quoteConvention, final boolean normalise) {
+  public static CDSQuoteConvention[] getQuotes(final ZonedDateTime pricedCDSMaturity, final double[] values, final double coupon, final StandardCDSQuotingConvention quoteConvention, final boolean normalise) {
     final CDSQuoteConvention[] result = new CDSQuoteConvention[values.length];
     // PUF normalised to 1%, spreads to 1 BP
     double multiplier = 1;

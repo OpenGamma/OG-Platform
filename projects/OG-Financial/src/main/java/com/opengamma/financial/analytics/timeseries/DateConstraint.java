@@ -67,7 +67,7 @@ public abstract class DateConstraint {
 
   /**
    * Returns a date constraint that corresponds to the weekday before this one.
-   * 
+   *
    * @return the new date constraint
    */
   public DateConstraint previousWeekDay() {
@@ -76,7 +76,7 @@ public abstract class DateConstraint {
 
   /**
    * Returns a date constraint that corresponds to the weekday after this one.
-   * 
+   *
    * @return the new date constraint
    */
   public DateConstraint nextWeekDay() {
@@ -85,42 +85,42 @@ public abstract class DateConstraint {
 
   /**
    * Returns a date constraint that corresponds to this one plus the given period.
-   * 
+   *
    * @param period the period to add, not null
    * @return the new date constraint
    */
-  public DateConstraint plus(Period period) {
+  public DateConstraint plus(final Period period) {
     return new PlusMinusPeriodDateConstraint(this, true, period);
   }
 
   /**
    * Returns a date constraint that corresponds to this one minus the given period.
-   * 
+   *
    * @param period the period to subtract, not null
    * @return the new date constraint
    */
-  public DateConstraint minus(Period period) {
+  public DateConstraint minus(final Period period) {
     return new PlusMinusPeriodDateConstraint(this, false, period);
   }
 
   /**
    * Returns a date constraint that corresponds to this one minus the given period.
-   * 
+   *
    * @param period the period to subtract, not null
    * @return the new date constraint
    */
-  public DateConstraint minus(String period) {
+  public DateConstraint minus(final String period) {
     return minus(Period.parse(period));
   }
 
   /**
    * Approximates the period difference between two constraints, that is the period that must be added to this contraint to get the same value as the other one.
-   * 
+   *
    * @param other the other constraint, not null
    * @return the difference as a period, not null
    * @throws IllegalArgumentException if the constraints are not sufficiently compatible
    */
-  public Period periodUntil(DateConstraint other) {
+  public Period periodUntil(final DateConstraint other) {
     if (equals(other)) {
       return Period.ZERO;
     } else if (other instanceof PlusMinusPeriodDateConstraint) {
@@ -191,17 +191,17 @@ public abstract class DateConstraint {
     }
 
     @Override
-    public DateConstraint plus(Period period) {
+    public DateConstraint plus(final Period period) {
       return new LiteralDateConstraint(_value.plus(period));
     }
 
     @Override
-    public DateConstraint minus(Period period) {
+    public DateConstraint minus(final Period period) {
       return new LiteralDateConstraint(_value.minus(period));
     }
 
     @Override
-    public Period periodUntil(DateConstraint other) {
+    public Period periodUntil(final DateConstraint other) {
       if (other instanceof LiteralDateConstraint) {
         return _value.periodUntil(((LiteralDateConstraint) other)._value);
       } else {
@@ -224,7 +224,7 @@ public abstract class DateConstraint {
       if (!(o instanceof LiteralDateConstraint)) {
         return false;
       }
-      LiteralDateConstraint other = (LiteralDateConstraint) o;
+      final LiteralDateConstraint other = (LiteralDateConstraint) o;
       return _value.equals(other._value);
     }
 
@@ -281,12 +281,12 @@ public abstract class DateConstraint {
     }
 
     @Override
-    public Period periodUntil(DateConstraint o) {
+    public Period periodUntil(final DateConstraint o) {
       if (o instanceof PlusMinusPeriodDateConstraint) {
         final PlusMinusPeriodDateConstraint other = (PlusMinusPeriodDateConstraint) o;
         if (ObjectUtils.equals(_underlying, other._underlying)) {
-          Period a = _plus ? _period : _period.negated();
-          Period b = other._plus ? other._period : other._period.negated();
+          final Period a = _plus ? _period : _period.negated();
+          final Period b = other._plus ? other._period : other._period.negated();
           return b.minus(a);
         }
       } else if (o.equals((_underlying == null) ? DateConstraint.VALUATION_TIME : _underlying)) {
@@ -333,7 +333,7 @@ public abstract class DateConstraint {
     private final DateConstraint _underlying;
     private final int _adjust;
 
-    public WeekDayDateConstraint(final DateConstraint underlying, int adjust) {
+    public WeekDayDateConstraint(final DateConstraint underlying, final int adjust) {
       _underlying = underlying;
       _adjust = adjust;
     }
@@ -493,7 +493,7 @@ public abstract class DateConstraint {
    * <p>
    * This is not a full parser for the syntax described above. For example, expressions such as <code>-P7D-P7D</code> will not be recognized. Such expressions will not however be constructed using the
    * classes above (it would produce <code>-P14D</code>).
-   * 
+   *
    * @param str the string to parse, not null
    * @return the parsed constraint or null if the empty string is given
    */
@@ -543,7 +543,7 @@ public abstract class DateConstraint {
       } else {
         return new LiteralDateConstraint(LocalDate.parse(str));
       }
-    } catch (Exception e) {
+    } catch (final Exception e) {
       throw new OpenGammaRuntimeException("Unable to parse date constraint '" + str + "'", e);
     }
   }
@@ -552,7 +552,7 @@ public abstract class DateConstraint {
    * Evaluates a date constraint expression with respect to the information in the execution context such as the valuation time.
    * <p>
    * This is more efficient than parsing and evaluating the {@link DateConstraint} object structures as two separate steps.
-   * 
+   *
    * @param context the execution context, not null
    * @param str the string to parse and evaluate
    * @return the evaluated local date, possibly null

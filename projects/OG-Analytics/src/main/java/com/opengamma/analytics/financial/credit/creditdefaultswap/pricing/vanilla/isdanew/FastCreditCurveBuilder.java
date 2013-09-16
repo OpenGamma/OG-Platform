@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew;
@@ -23,7 +23,7 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * This is a fast bootstrapper for the credit curve that is consistent with ISDA in that it will produce the same curve from
- * the same inputs (up to numerical round-off) 
+ * the same inputs (up to numerical round-off)
  */
 
 public class FastCreditCurveBuilder implements ISDACompliantCreditCurveBuilder {
@@ -41,7 +41,7 @@ public class FastCreditCurveBuilder implements ISDACompliantCreditCurveBuilder {
 
   /**
    * For consistency with the ISDA model version 1.8.2 and lower, a bug in the accrual on default calculation
-   * has been reproduced.   
+   * has been reproduced.
    */
   public FastCreditCurveBuilder() {
     _arbHandling = DEFAULT_ARBITRAGE_HANDLING;
@@ -50,7 +50,7 @@ public class FastCreditCurveBuilder implements ISDACompliantCreditCurveBuilder {
 
   /**
    * For consistency with the ISDA model version 1.8.2 and lower, a bug in the accrual on default calculation
-   * has been reproduced.  
+   * has been reproduced.
    * @param useCorrectAccOnDefaultFormula Set to true to use correct accrual on default formulae.
    */
   public FastCreditCurveBuilder(final boolean useCorrectAccOnDefaultFormula) {
@@ -60,7 +60,7 @@ public class FastCreditCurveBuilder implements ISDACompliantCreditCurveBuilder {
 
   /**
    * For consistency with the ISDA model version 1.8.2 and lower, a bug in the accrual on default calculation
-   * has been reproduced.  
+   * has been reproduced.
    * @param useCorrectAccOnDefaultFormula Set to true to use correct accrual on default formulae.
    * @param arbHandling How should any arbitrage in the input date be handled
    */
@@ -117,7 +117,7 @@ public class FastCreditCurveBuilder implements ISDACompliantCreditCurveBuilder {
    * @param calibrationCDS
    * @param marketQuote
    * @param yieldCurve
-   * @return
+   * @return The market quotes in the form required by the curve builder
    */
   private double[] getStandardQuoteForm(final CDSAnalytic calibrationCDS, final CDSQuoteConvention marketQuote, final ISDACompliantYieldCurve yieldCurve) {
     final double[] res = new double[2];
@@ -287,6 +287,9 @@ public class FastCreditCurveBuilder implements ISDACompliantCreditCurveBuilder {
     return calibrateCreditCurve(cds, couponRates, yieldCurve);
   }
 
+  /**
+   * Prices the CDS
+   */
   protected class Pricer {
 
     private final CDSAnalytic _cds;

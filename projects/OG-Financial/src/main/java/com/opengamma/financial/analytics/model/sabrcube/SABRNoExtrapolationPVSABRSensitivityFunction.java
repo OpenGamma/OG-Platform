@@ -15,7 +15,7 @@ import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
 
 /**
  * Calculates sensitivities with respect to the SABR parameters.
- * @deprecated Use {@link NoExtrapolationSABRDiscountingSABRSensitivityFunction}
+ * @deprecated The parent of this class is deprecated
  */
 @Deprecated
 public abstract class SABRNoExtrapolationPVSABRSensitivityFunction extends SABRNoExtrapolationFunction {

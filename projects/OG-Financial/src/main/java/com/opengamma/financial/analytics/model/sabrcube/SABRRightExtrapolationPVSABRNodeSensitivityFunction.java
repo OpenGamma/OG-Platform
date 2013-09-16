@@ -24,7 +24,7 @@ import com.opengamma.financial.security.FinancialSecurityUtils;
 
 /**
  * Calculates sensitivities with respect to the SABR parameters.
- * @deprecated Use {@link RightExtrapolationSABRDiscountingSABRSensitivityFunction}
+ * @deprecated The parent of this class is deprecated
  */
 @Deprecated
 public abstract class SABRRightExtrapolationPVSABRNodeSensitivityFunction extends SABRRightExtrapolationFunction {

@@ -32,7 +32,7 @@ import com.opengamma.util.money.Currency;
 
 /**
  * Calculates the vega quote matrix.
- * @deprecated Use {@link NoExtrapolationSABRDiscountingVegaQuoteMatrixFunction}
+ * @deprecated The parent of this class is deprecated
  */
 @Deprecated
 public class SABRNoExtrapolationVegaFunction extends SABRVegaFunction {

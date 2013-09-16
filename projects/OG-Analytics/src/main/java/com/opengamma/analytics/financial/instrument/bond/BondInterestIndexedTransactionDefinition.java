@@ -31,7 +31,6 @@ import com.opengamma.util.ArgumentChecker;
  * Describes a interest inflation indexed bond transaction. Both the coupon and the nominal are indexed on a price index.
  * @param <N> Type of  fix payment coupon.
  * @param <C> Type of inflation coupon. Can be {@link CouponInflationZeroCouponMonthlyGearingDefinition} or {@link CouponInflationZeroCouponInterpolationGearingDefinition}.
- * @param <N> Type of the fixed payment.
  */
 public class BondInterestIndexedTransactionDefinition<N extends PaymentFixedDefinition, C extends CouponDefinition> extends BondTransactionDefinition<N, C>
     implements InstrumentDefinitionWithData<BondTransaction<? extends BondSecurity<? extends Payment, ? extends Coupon>>, DoubleTimeSeries<ZonedDateTime>> {

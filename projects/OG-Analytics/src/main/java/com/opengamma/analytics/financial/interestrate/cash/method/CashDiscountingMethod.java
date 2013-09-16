@@ -92,7 +92,7 @@ public final class CashDiscountingMethod implements PricingMethod {
 
   /**
    * Computes the deposit fair rate given the start and end time and the accrual factor.
-   * When deposit has already start the number may not be meaning full as the remaining period is not in line with the accrual factor.
+   * When deposit has already start the number may not be meaningful as the remaining period is not in line with the accrual factor.
    * @param deposit The deposit.
    * @param curves The curves.
    * @return The rate.

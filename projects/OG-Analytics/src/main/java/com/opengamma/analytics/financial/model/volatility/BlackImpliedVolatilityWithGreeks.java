@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.volatility;
@@ -9,13 +9,13 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Given a set of European-type option data (price, spot, time to expiry) and futures (or discount factor),
- * derive implied volatility via {@link BlackFormulaRepository1}, then compute Greeks by using the derived volatility
- * 
- * The inverse is also implemented, i.e., volatility -> price,  where the Greeks are computed at the same time. 
+ * derive implied volatility via {@link BlackFormulaRepository}, then compute Greeks by using the derived volatility
+ *
+ * The inverse is also implemented, i.e., volatility -> price,  where the Greeks are computed at the same time.
  */
 public class BlackImpliedVolatilityWithGreeks {
 
-  /** 
+  /**
    * Compute implied volatility, spot option delta, spot option gamma, spot option vega WITH forward price of underlying
    * @param spotOptionPrice Option price of spot
    * @param forward Forward price of underlying

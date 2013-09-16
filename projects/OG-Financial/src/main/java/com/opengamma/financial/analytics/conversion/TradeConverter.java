@@ -57,7 +57,7 @@ public class TradeConverter {
    * Converts a {@link Trade} to a {@link InstrumentDefinition}
    * @param trade The trade, not null
    * @return The instrument definition
-   * @throw IllegalArgumentException if the underlying security is not a {@link FinancialSecurity}
+   * @throws IllegalArgumentException if the underlying security is not a {@link FinancialSecurity}
    */
   public InstrumentDefinition<?> convert(final Trade trade) {
     ArgumentChecker.notNull(trade, "trade");

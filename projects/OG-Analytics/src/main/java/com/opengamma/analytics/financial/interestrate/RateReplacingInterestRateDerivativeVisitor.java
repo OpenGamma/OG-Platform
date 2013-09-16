@@ -15,7 +15,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 
 /**
- * @deprecated This calculator uses {@link InstrumentDerivatives} that refer to curve names.
+ * @deprecated This calculator uses {@link InstrumentDerivative}s that refer to curve names.
  * Use {@link RateReplacingVisitor}.
  */
 @Deprecated

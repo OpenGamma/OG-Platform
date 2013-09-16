@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew;
@@ -11,11 +11,11 @@ import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * If a CDS is quoted with a standard premium (100 or 500bps in North America) then an up-front free (of either sign) is 
+ * If a CDS is quoted with a standard premium (100 or 500bps in North America) then an up-front free (of either sign) is
  * payable. If I buy protection (thus pay the premium) and the premium is greater than the par spread (the old way of quoting),
  * then the up-front free is negative (i.e. I  pay a negative fee, or to put it another way, I am compensated by receiving a
  * positive amount). <br>
- * The free is quoted as Points Up-Front (PUF), which is a percentage of the notional (here was use a fractional amount). 
+ * The free is quoted as Points Up-Front (PUF), which is a percentage of the notional (here was use a fractional amount).
  */
 public class PointsUpFrontConverter {
 
@@ -33,7 +33,7 @@ public class PointsUpFrontConverter {
   }
 
   /**
-   * The clean price as a fraction of notional (it is often expressed as a percentage of notional) 
+   * The clean price as a fraction of notional (it is often expressed as a percentage of notional)
    * @param fractionalPUF The points up-front (as a fraction)
    * @return The clean price  (as a fraction)
    */
@@ -43,10 +43,10 @@ public class PointsUpFrontConverter {
 
   /**
    * The clean price as a fraction of notional (it is often expressed as a percentage of notional)  - this requires that a
-   * credit curve is bootstrapped first 
+   * credit curve is bootstrapped first
    * @param cds The CDS to be traded
-   * @param yieldCurve the yield/discount curve 
-   * @param creditCurve the credit/hazard curve 
+   * @param yieldCurve the yield/discount curve
+   * @param creditCurve the credit/hazard curve
    * @param coupon The fractional quoted spread (coupon) of the CDS
    * @return the clean price  (as a fraction)
    */
@@ -56,26 +56,26 @@ public class PointsUpFrontConverter {
   }
 
   /**
-   * The principal - this is the clean present value 
-   * @param notional The notional of the trade 
+   * The principal - this is the clean present value
+   * @param notional The notional of the trade
    * @param cds The CDS to be traded
-   * @param yieldCurve the yield/discount curve 
-   * @param creditCurve the credit/hazard curve 
+   * @param yieldCurve the yield/discount curve
+   * @param creditCurve the credit/hazard curve
    * @param coupon The fractional quoted spread (coupon) of the CDS
-   * @return The principle 
+   * @return The principle
    */
   public double principal(final double notional, final CDSAnalytic cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final double coupon) {
     return notional * _pricer.pv(cds, yieldCurve, creditCurve, coupon, PriceType.CLEAN);
   }
 
   /**
-   * Get the points up-front  - this requires that a credit curve is bootstrapped first 
+   * Get the points up-front  - this requires that a credit curve is bootstrapped first
    * @param cds The CDS to be traded
    * @param premium The standard premium of the CDS <b>expressed as a fraction</b>
-   * @param yieldCurve the yield/discount curve 
-   * @param creditCurve the credit/hazard curve 
+   * @param yieldCurve the yield/discount curve
+   * @param creditCurve the credit/hazard curve
    * @return  points up-front - these are usually quoted as a percentage of the notional - here we return a fraction of notional,
-   *  so 0.01 is 1(%) points up-front  
+   *  so 0.01 is 1(%) points up-front
    */
   public double pointsUpFront(final CDSAnalytic cds, final double premium, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve) {
     return _pricer.pv(cds, yieldCurve, creditCurve, premium, PriceType.CLEAN);
@@ -83,12 +83,11 @@ public class PointsUpFrontConverter {
 
   /**
    * Get the points up-front for a collection of CDSs - this requires that a credit curve is bootstrapped first. This will
-   * give a slightly different answer to using a single (flat) credit curve for each CDS (the latter is the market standard)  
-   * @param  cds collection of CDSs 
-   * @param premium The single common premium of the CDSs expressed as fractions (these are usually 0.01 or 0.05) 
-   * @param yieldCurve the yield/discount curve 
-   * @param creditCurve the credit/hazard curve 
-   * @see pointsUpFrontFlat
+   * give a slightly different answer to using a single (flat) credit curve for each CDS (the latter is the market standard)
+   * @param  cds collection of CDSs
+   * @param premium The single common premium of the CDSs expressed as fractions (these are usually 0.01 or 0.05)
+   * @param yieldCurve the yield/discount curve
+   * @param creditCurve the credit/hazard curve
    * @return points up-front (as fractions)
    */
   public double[] pointsUpFront(final CDSAnalytic[] cds, final double premium, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve) {
@@ -103,12 +102,11 @@ public class PointsUpFrontConverter {
 
   /**
    * Get the points up-front for a collection of CDSs - this requires that a credit curve is bootstrapped first. This will
-   * give a slightly different answer to using a single (flat) credit curve for each CDS (the latter is the market standard) 
-   * @param  cds collection of CDSs 
-   * @param premiums The premiums of the CDSs expressed as fractions (these are usually 0.01 or 0.05) 
-   * @param yieldCurve the yield/discount curve 
-   * @param creditCurve the credit/hazard curve 
-   * @see pointsUpFrontFlat
+   * give a slightly different answer to using a single (flat) credit curve for each CDS (the latter is the market standard)
+   * @param  cds collection of CDSs
+   * @param premiums The premiums of the CDSs expressed as fractions (these are usually 0.01 or 0.05)
+   * @param yieldCurve the yield/discount curve
+   * @param creditCurve the credit/hazard curve
    * @return points-upfront (as fractions)
    */
   public double[] pointsUpFront(final CDSAnalytic[] cds, final double[] premiums, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve) {
@@ -133,10 +131,10 @@ public class PointsUpFrontConverter {
    *  off a flat credit/hazard curve.
    * @param cds The CDS to be traded
    * @param premium The standard premium of the CDS <b>expressed as a fraction</b>
-   * @param yieldCurve the yield/discount curve 
+   * @param yieldCurve the yield/discount curve
    * @param quotedSpread The quoted spread (<b>as a fraction</b>).
    * @return points up-front - these are usually quoted as a percentage of the notional - here we return a fraction of notional,
-   *  so 0.01 is 1(%) points up-front  
+   *  so 0.01 is 1(%) points up-front
    */
   public double quotedSpreadToPUF(final CDSAnalytic cds, final double premium, final ISDACompliantYieldCurve yieldCurve, final double quotedSpread) {
     final ISDACompliantCreditCurve creditCurve = _builder.calibrateCreditCurve(cds, quotedSpread, yieldCurve);
@@ -160,12 +158,12 @@ public class PointsUpFrontConverter {
   /**
    *  Convert from a set of CDSs quoted spreads  to points up-front (PUF). <b>Note:</b> Quoted spread is not the same as par spread
    * (although they are numerically similar) - it is simply an alternative quoting convention from PUF where each CDS is priced
-   *  off a <b>separate</b> flat credit/hazard curve - i.e. the CDSs are completely decoupled from each other. 
-   * @param cds   collection of CDSs 
-   * @param premium The single common premium of the CDSs expressed as fractions (these are usually 0.01 or 0.05) 
-   * @param yieldCurve yieldCurve the yield/discount curve 
+   *  off a <b>separate</b> flat credit/hazard curve - i.e. the CDSs are completely decoupled from each other.
+   * @param cds   collection of CDSs
+   * @param premium The single common premium of the CDSs expressed as fractions (these are usually 0.01 or 0.05)
+   * @param yieldCurve yieldCurve the yield/discount curve
    * @param quotedSpreads The quoted spreads (<b>as a fractions</b>).
-   * @return points up-front (expressed as fractions) 
+   * @return points up-front (expressed as fractions)
    */
   public double[] quotedSpreadsToPUF(final CDSAnalytic[] cds, final double premium, final ISDACompliantYieldCurve yieldCurve, final double[] quotedSpreads) {
     ArgumentChecker.noNulls(cds, "cds");
@@ -182,12 +180,12 @@ public class PointsUpFrontConverter {
   /**
   *  Convert from a set of CDSs quoted spreads  to points up-front (PUF). <b>Note:</b> Quoted spread is not the same as par spread
    * (although they are numerically similar) - it is simply an alternative quoting convention from PUF where each CDS is priced
-   *  off a <b>separate</b> flat credit/hazard curve - i.e. the CDSs are completely decoupled from each other. 
-   * @param cds   collection of CDSs 
-   * @param premiums The premiums of the CDSs expressed as fractions (these are usually 0.01 or 0.05) 
-   * @param yieldCurve yieldCurve the yield/discount curve 
+   *  off a <b>separate</b> flat credit/hazard curve - i.e. the CDSs are completely decoupled from each other.
+   * @param cds   collection of CDSs
+   * @param premiums The premiums of the CDSs expressed as fractions (these are usually 0.01 or 0.05)
+   * @param yieldCurve yieldCurve the yield/discount curve
    * @param  quotedSpreads The quoted spreads (<b>as a fractions</b>).
-   * @return points up-front (expressed as fractions) 
+   * @return points up-front (expressed as fractions)
    */
   public double[] quotedSpreadsToPUF(final CDSAnalytic[] cds, final double[] premiums, final ISDACompliantYieldCurve yieldCurve, final double[] quotedSpreads) {
     ArgumentChecker.noNulls(cds, "cds");
@@ -204,15 +202,15 @@ public class PointsUpFrontConverter {
   }
 
   /**
-   *  Convert from a set of CDSs quoted as a par spreads (the old way of quoting) to points up-front (PUF). 
+   *  Convert from a set of CDSs quoted as a par spreads (the old way of quoting) to points up-front (PUF).
    *  Each CDS is priced off a <b>single non-flat</b> credit/hazard curve. <br>
    *  If the CDS are quoted as <b>quoted</b> spreads one must use quotedSpreadsToPUF instead
-   *   @see pointsUpFrontFlat
-   * @param cds  collection of CDSs 
-   * @param premium The single common premium of the CDSs expressed as fractions (these are usually 0.01 or 0.05) 
-   * @param yieldCurve yieldCurve the yield/discount curve 
+   *  {@link #pointsUpFront}
+   * @param cds  collection of CDSs
+   * @param premium The single common premium of the CDSs expressed as fractions (these are usually 0.01 or 0.05)
+   * @param yieldCurve yieldCurve the yield/discount curve
    * @param parSpreads The par-spreads (<b>as a fractions</b>).
-   * @return points up-front (expressed as fractions) 
+   * @return points up-front (expressed as fractions)
    */
   public double[] parSpreadsToPUF(final CDSAnalytic[] cds, final double premium, final ISDACompliantYieldCurve yieldCurve, final double[] parSpreads) {
     final ISDACompliantCreditCurve creditCurve = _builder.calibrateCreditCurve(cds, parSpreads, yieldCurve);
@@ -220,15 +218,15 @@ public class PointsUpFrontConverter {
   }
 
   /**
-   *  Convert from a set of CDSs quoted as a par spreads (the old way of quoting) to points up-front (PUF). 
+   *  Convert from a set of CDSs quoted as a par spreads (the old way of quoting) to points up-front (PUF).
    *  Each CDS is priced off a <b>single non-flat</b> credit/hazard curve. <br>
    *  If the CDS are quoted as <b>quoted</b> spreads one must use quotedSpreadsToPUF instead
-   *   @see pointsUpFrontFlat
-   * @param cds  collection of CDSs 
-   * @param premiums The premiums of the CDSs expressed as fractions (these are usually 0.01 or 0.05) 
-   * @param yieldCurve yieldCurve the yield/discount curve 
+   * @param cds  collection of CDSs
+   * @param premiums The premiums of the CDSs expressed as fractions (these are usually 0.01 or 0.05)
+   * @param yieldCurve yieldCurve the yield/discount curve
    * @param parSpreads The par-spreads (<b>as a fractions</b>).
-   * @return points up-front (expressed as fractions) 
+   * @see PointsUpFrontConverter#pointsUpFront
+   * @return points up-front (expressed as fractions)
    */
   public double[] parSpreadsToPUF(final CDSAnalytic[] cds, final double[] premiums, final ISDACompliantYieldCurve yieldCurve, final double[] parSpreads) {
     final ISDACompliantCreditCurve creditCurve = _builder.calibrateCreditCurve(cds, parSpreads, yieldCurve);
@@ -236,11 +234,11 @@ public class PointsUpFrontConverter {
   }
 
   /**
-   * Convert from a CDS quote as points up-front (PUF) and a standard premium, to a <i>quoted</i> spread. 
+   * Convert from a CDS quote as points up-front (PUF) and a standard premium, to a <i>quoted</i> spread.
    * This is simply an alternative quoting convention from PUF where the CDS is priced off a flat credit/hazard curve.
    * @param cds The CDS to be traded
    * @param premium The standard premium of the CDS <b>expressed as a fraction</b>
-   * @param yieldCurve the yield/discount curve 
+   * @param yieldCurve the yield/discount curve
    * @param pointsUpfront points up-front
    * @return the par spread <b>expressed as a fraction</b>
    */
@@ -252,12 +250,12 @@ public class PointsUpFrontConverter {
   /**
    * Get the equivalent <i>quoted</i> spreads for a collection of CDSs. This is simply a quoting convention -each CDS is priced
    * off a <b>separate</b> flat credit/hazard curve - i.e. the CDSs are completely decoupled from each other.
-   * @param cds collection of CDSs 
-   * @param premium The single common premium of the CDSs expressed as fractions (these are usually 0.01 or 0.05) 
-   * @param yieldCurve the yield/discount curve 
+   * @param cds collection of CDSs
+   * @param premium The single common premium of the CDSs expressed as fractions (these are usually 0.01 or 0.05)
+   * @param yieldCurve the yield/discount curve
    * @param pointsUpfront The points up-front (expressed as fractions)
-   * @see
-   * @return collection of CDSs 
+   * @see PointsUpFrontConverter#pufToQuotedSpread
+   * @return collection of CDSs
    */
   public double[] pufToQuotedSpreads(final CDSAnalytic[] cds, final double premium, final ISDACompliantYieldCurve yieldCurve, final double[] pointsUpfront) {
     ArgumentChecker.noNulls(cds, "cds");
@@ -274,11 +272,11 @@ public class PointsUpFrontConverter {
   /**
    * Get the equivalent <i>quoted</i> spreads for a collection of CDSs. This is simply a quoting convention -each CDS is priced
    * off a <b>separate</b> flat credit/hazard curve - i.e. the CDSs are completely decoupled from each other.
-   * @param cds collection of CDSs 
-   * @param premiums The premiums of the CDSs expressed as fractions (these are usually 0.01 or 0.05) 
-   * @param yieldCurve the yield/discount curve 
+   * @param cds collection of CDSs
+   * @param premiums The premiums of the CDSs expressed as fractions (these are usually 0.01 or 0.05)
+   * @param yieldCurve the yield/discount curve
    * @param pointsUpfront The points up-front (expressed as fractions)
-   * @see 
+   * @see PointsUpFrontConverter#pufToQuotedSpread
    * @return equivalent par spreads
    */
   public double[] pufToQuotedSpreads(final CDSAnalytic[] cds, final double[] premiums, final ISDACompliantYieldCurve yieldCurve, final double[] pointsUpfront) {
@@ -295,13 +293,13 @@ public class PointsUpFrontConverter {
   }
 
   /**
-   * the equivalent par spreads for a collection of CDSs where a single, non-flat, credit/hazard curve is bootstrapped to
+   * The equivalent par spreads for a collection of CDSs where a single, non-flat, credit/hazard curve is bootstrapped to
    * reprice all the given CDSs.
-     * @param cds collection of CDSs 
-     * @param premium The single common premium of the CDSs expressed as fractions (these are usually 0.01 or 0.05)
-     * @param yieldCurve the yield/discount curve 
-     * @param pointsUpfront The points up-front (expressed as fractions)
-     * @see parSpreadFlat
+   * @param cds collection of CDSs
+   * @param premium The single common premium of the CDSs expressed as fractions (these are usually 0.01 or 0.05)
+   * @param yieldCurve the yield/discount curve
+   * @param pointsUpfront The points up-front (expressed as fractions)
+   * @see PointsUpFrontConverter#pufToParSpreads
    * @return equivalent par spreads
    */
   public double[] pufToParSpreads(final CDSAnalytic[] cds, final double premium, final ISDACompliantYieldCurve yieldCurve, final double[] pointsUpfront) {
@@ -313,13 +311,13 @@ public class PointsUpFrontConverter {
   }
 
   /**
-   * the equivalent par spreads for a collection of CDSs where a single, non-flat, credit/hazard curve is bootstrapped to
+   * The equivalent par spreads for a collection of CDSs where a single, non-flat, credit/hazard curve is bootstrapped to
    * reprice all the given CDSs.
-   * @param cds collection of CDSs 
-   * @param premiums The premiums of the CDSs expressed as fractions (these are usually 0.01 or 0.05) 
-   * @param yieldCurve the yield/discount curve 
+   * @param cds collection of CDSs
+   * @param premiums The premiums of the CDSs expressed as fractions (these are usually 0.01 or 0.05)
+   * @param yieldCurve the yield/discount curve
    * @param pointsUpfront The points up-front (expressed as fractions)
-   * @see 
+   * @see PointsUpFrontConverter#parSpreads
    * @return equivalent par spreads
    */
   public double[] pufToParSpreads(final CDSAnalytic[] cds, final double[] premiums, final ISDACompliantYieldCurve yieldCurve, final double[] pointsUpfront) {
@@ -328,12 +326,12 @@ public class PointsUpFrontConverter {
   }
 
   /**
-  * Convert from par spreads to quoted spreads 
-   * @param cds collection of CDSs 
-   * @param premium The single common premium of the CDSs expressed as fractions (these are usually 0.01 or 0.05) 
-   * @param yieldCurve the yield/discount curve 
-   * @param parSpreads par spreads 
-   * @return quoted spreads 
+  * Convert from par spreads to quoted spreads
+   * @param cds collection of CDSs
+   * @param premium The single common premium of the CDSs expressed as fractions (these are usually 0.01 or 0.05)
+   * @param yieldCurve the yield/discount curve
+   * @param parSpreads par spreads
+   * @return quoted spreads
    */
   public double[] parSpreadsToQuotedSpreads(final CDSAnalytic[] cds, final double premium, final ISDACompliantYieldCurve yieldCurve, final double[] parSpreads) {
     final double[] puf = parSpreadsToPUF(cds, premium, yieldCurve, parSpreads);
@@ -341,12 +339,12 @@ public class PointsUpFrontConverter {
   }
 
   /**
-   * Convert from par spreads to quoted spreads 
-   * @param cds collection of CDSs 
-   * @param premiums The premiums of the CDSs expressed as fractions (these are usually 0.01 or 0.05) 
-   * @param yieldCurve the yield/discount curve 
-   * @param parSpreads par spreads 
-   * @return quoted spreads 
+   * Convert from par spreads to quoted spreads
+   * @param cds collection of CDSs
+   * @param premiums The premiums of the CDSs expressed as fractions (these are usually 0.01 or 0.05)
+   * @param yieldCurve the yield/discount curve
+   * @param parSpreads par spreads
+   * @return quoted spreads
    */
   public double[] parSpreadsToQuotedSpreads(final CDSAnalytic[] cds, final double[] premiums, final ISDACompliantYieldCurve yieldCurve, final double[] parSpreads) {
     final double[] puf = parSpreadsToPUF(cds, premiums, yieldCurve, parSpreads);
@@ -354,12 +352,12 @@ public class PointsUpFrontConverter {
   }
 
   /**
-   * Convert from quoted spreads to par spreads 
-   * @param cds collection of CDSs 
-   * @param premium The single common premium of the CDSs expressed as fractions (these are usually 0.01 or 0.05) 
-   * @param yieldCurve the yield/discount curve 
-   * @param quotedSpreads The quoted spreads 
-   * @return par spreads 
+   * Convert from quoted spreads to par spreads
+   * @param cds collection of CDSs
+   * @param premium The single common premium of the CDSs expressed as fractions (these are usually 0.01 or 0.05)
+   * @param yieldCurve the yield/discount curve
+   * @param quotedSpreads The quoted spreads
+   * @return par spreads
    */
   public double[] quotedSpreadToParSpreads(final CDSAnalytic[] cds, final double premium, final ISDACompliantYieldCurve yieldCurve, final double[] quotedSpreads) {
     final double[] puf = quotedSpreadsToPUF(cds, premium, yieldCurve, quotedSpreads);
@@ -367,12 +365,12 @@ public class PointsUpFrontConverter {
   }
 
   /**
-   * Convert from quoted spreads to par spreads 
-   * @param cds collection of CDSs 
-   * @param premiums The premiums of the CDSs expressed as fractions (these are usually 0.01 or 0.05) 
-   * @param yieldCurve the yield/discount curve 
-   * @param quotedSpreads The quoted spreads 
-   * @return par spreads 
+   * Convert from quoted spreads to par spreads
+   * @param cds collection of CDSs
+   * @param premiums The premiums of the CDSs expressed as fractions (these are usually 0.01 or 0.05)
+   * @param yieldCurve the yield/discount curve
+   * @param quotedSpreads The quoted spreads
+   * @return par spreads
    */
   public double[] quotedSpreadToParSpreads(final CDSAnalytic[] cds, final double[] premiums, final ISDACompliantYieldCurve yieldCurve, final double[] quotedSpreads) {
     final double[] puf = quotedSpreadsToPUF(cds, premiums, yieldCurve, quotedSpreads);
@@ -381,10 +379,10 @@ public class PointsUpFrontConverter {
 
   /**
    * The par spreads for a collection of CDSs where a single, non-flat, credit/hazard curve is known.
-   * @param cds collection of CDSs 
-   * @param yieldCurve the yield/discount curve 
-   * @param creditCurve the credit/hazard curve 
-   * @return par spreads 
+   * @param cds collection of CDSs
+   * @param yieldCurve the yield/discount curve
+   * @param creditCurve the credit/hazard curve
+   * @return par spreads
    */
   public double[] parSpreads(final CDSAnalytic[] cds, final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve) {
     ArgumentChecker.noNulls(cds, "cds");

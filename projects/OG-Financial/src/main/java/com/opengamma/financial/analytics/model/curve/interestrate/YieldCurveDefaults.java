@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.curve.interestrate;
@@ -17,21 +17,36 @@ import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ *
  */
 public class YieldCurveDefaults extends DefaultPropertyFunction {
+  /** The value requirement names to which these defaults apply */
   private static final String[] VALUE_REQUIREMENTS = new String[] {
     ValueRequirementNames.YIELD_CURVE,
     ValueRequirementNames.YIELD_CURVE_JACOBIAN,
     ValueRequirementNames.FX_IMPLIED_TRANSITION_MATRIX
   };
+  /** The absolute tolerance */
   private final String _absoluteTolerance;
+  /** The relative tolerance */
   private final String _relativeTolerance;
+  /** The maximum number of iterations */
   private final String _maxIterations;
+  /** The matrix decomposition method */
   private final String _decomposition;
+  /** Whether to use finite difference or analytic derivatives */
   private final String _useFiniteDifference;
+  /** The currencies for which these defaults apply */
   private final String[] _applicableCurrencies;
 
+  /**
+   * @param absoluteTolerance The absolute tolerance used in root-finding
+   * @param relativeTolerance The relative tolerance use in root-finding
+   * @param maxIterations The maximum number of iterations used in root-finding
+   * @param decomposition The matrix decomposition method used in root-finding
+   * @param useFiniteDifference True if calculations should use finite difference in root-finding, otherwise analytic derivatives are used
+   * @param applicableCurrencies The currencies for which these defaults apply
+   */
   public YieldCurveDefaults(final String absoluteTolerance, final String relativeTolerance, final String maxIterations, final String decomposition,
       final String useFiniteDifference, final String... applicableCurrencies) {
     super(ComputationTargetType.CURRENCY, true);

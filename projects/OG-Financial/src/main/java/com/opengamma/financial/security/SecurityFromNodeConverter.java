@@ -94,8 +94,9 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
    * @param conventionSource The convention source, not null
    * @param holidaySource The holiday source, not null
    * @param regionSource The region source, not null
-   * @param marketData The market data, not null
-   * @param dataId The id of the market data, not null
+   * @param rate The fixed rate
+   * @param amount The notional amounts
+   * @param identifier The floating rate identifier
    * @param valuationTime The valuation time, not null
    */
   public SecurityFromNodeConverter(final ConventionSource conventionSource,
@@ -165,15 +166,6 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
                                                                             businessDayConvention,
                                                                             regionCalendar,
                                                                             eom);
-
-    //ForwardRateAgreementDefinition fra = ForwardRateAgreementDefinition.from(accrualStartDate, accrualEndDate, 1, iborIndex, rate, fixingCalendar);
-    //fra.getFixingPeriodEndDate();
-    //fra.getAccrualStartDate();
-    //fra.getAccrualEndDate();
-    //fra.getIndex().getCurrency();
-    //fra.getCurrency();
-    //fra.getCalendar();
-
     final ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(accrualStartDate,
                                                                         -iborIndex.getSpotLag(),
                                                                         fixingCalendar);
@@ -189,7 +181,7 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
 
 
   @Override
-  public FinancialSecurity visitSwapNode(SwapNode swapNode) {
+  public FinancialSecurity visitSwapNode(final SwapNode swapNode) {
     final Convention payLegConvention = _conventionSource.getConvention(swapNode.getPayLegConvention());
     if (payLegConvention == null) {
       throw new OpenGammaRuntimeException("Convention with id " + swapNode.getPayLegConvention() + " was null");
@@ -231,11 +223,13 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
     }
     if (!payLeg.getSecond().getSecond().equals(receiveLeg.getSecond().getSecond())) {
       throw new OpenGammaRuntimeException(
-          "Both, pay and receive legs should resolve equal effective dates, but instead there were: payleg(" + payLeg.getSecond().getSecond() + "), receiveLeg(" + receiveLeg.getSecond().getSecond() + ")");
+          "Both, pay and receive legs should resolve equal effective dates, but instead there were: payleg(" + payLeg.getSecond().getSecond() + "), " +
+              "receiveLeg(" + receiveLeg.getSecond().getSecond() + ")");
     }
     if (!payLeg.getSecond().getThird().equals(receiveLeg.getSecond().getThird())) {
       throw new OpenGammaRuntimeException(
-          "Both, pay and receive legs should resolve equal maturity dates, but instead there were: payleg(" + payLeg.getSecond().getThird() + "), receiveLeg(" + receiveLeg.getSecond().getThird() + ")");
+          "Both, pay and receive legs should resolve equal maturity dates, but instead there were: payleg(" + payLeg.getSecond().getThird() + "), " +
+              "receiveLeg(" + receiveLeg.getSecond().getThird() + ")");
     }
     return new SwapSecurity(payLeg.getSecond().getFirst(),
                             payLeg.getSecond().getSecond(),
@@ -394,7 +388,7 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
 
 
   @Override
-  public CashSecurity visitCashNode(CashNode cashNode) {
+  public CashSecurity visitCashNode(final CashNode cashNode) {
     final Convention convention = _conventionSource.getConvention(cashNode.getConvention());
     if (convention == null) {
       throw new OpenGammaRuntimeException("Convention with id " + cashNode.getConvention() + " was null");
@@ -524,7 +518,7 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
     final InterestRateFutureTransactionDefinition transactionDefinition = new InterestRateFutureTransactionDefinition(securityDefinition, _valuationTime, price, 1);
     //return transactionDefinition;
 
-    Expiry expiry = new Expiry(expiryDate);
+    final Expiry expiry = new Expiry(expiryDate);
     return new InterestRateFutureSecurity(expiry, "TRADING_EXCHANGE", "SETTLEMENT_EXCHANGE", currency, _amount, _identifier, "CATEGORY");
 
   }
@@ -560,7 +554,7 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
     final FederalFundsFutureTransactionDefinition transactionDefinition = new FederalFundsFutureTransactionDefinition(securityDefinition, 1, _valuationTime, price);
     //return transactionDefinition;
 
-    Expiry expiry = new Expiry(expiryDate);
+    final Expiry expiry = new Expiry(expiryDate);
     return new FederalFundsFutureSecurity(expiry, "TRADING_EXCHANGE", "SETTLEMENT_EXCHANGE", currency, _amount, _identifier, "CATEGORY");
   }
 }

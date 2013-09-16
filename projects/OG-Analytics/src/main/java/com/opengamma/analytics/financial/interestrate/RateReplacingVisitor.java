@@ -15,7 +15,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 
 /**
- * Replaces fixed rates in {@link InstrumentDerivatives}.
+ * Replaces fixed rates in {@link InstrumentDerivative}s.
  */
 public final class RateReplacingVisitor extends InstrumentDerivativeVisitorAdapter<Double, InstrumentDerivative> {
   private static final RateReplacingVisitor INSTANCE = new RateReplacingVisitor();
