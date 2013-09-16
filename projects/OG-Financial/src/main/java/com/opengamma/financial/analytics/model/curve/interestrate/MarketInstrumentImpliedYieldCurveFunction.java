@@ -82,7 +82,7 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 @Deprecated
 public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInvoker {
-
+  /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(MarketInstrumentImpliedYieldCurveFunction.class);
 
   private static final LastTimeCalculator LAST_DATE_CALCULATOR = LastTimeCalculator.getInstance();
@@ -238,7 +238,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
       fundingCurveName = fundingCurveNames.iterator().next();
       forwardCurveName = forwardCurveNames.iterator().next();
     }
-    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+    final Set<ValueRequirement> requirements = new HashSet<>();
     final ComputationTargetSpecification targetSpec = target.toSpecification();
     requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_MARKET_DATA, targetSpec, ValueProperties.with(ValuePropertyNames.CURVE, fundingCurveName).get()));
     requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES, targetSpec, ValueProperties.with(ValuePropertyNames.CURVE, fundingCurveName)
@@ -394,7 +394,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
       final boolean createYieldCurve, final boolean createJacobian, final boolean createSensitivities) {
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
-    final List<InstrumentDerivative> derivatives = new ArrayList<InstrumentDerivative>();
+    final List<InstrumentDerivative> derivatives = new ArrayList<>();
     final int n = specificationWithSecurities.getStrips().size();
     final double[] initialRatesGuess = new double[n];
     final double[] nodeTimes = new double[n];
@@ -412,11 +412,6 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
 
       final InstrumentDefinition<?> definition = getSecurityConverter().visit(financialSecurity);
       if (strip.getSecurity().getSecurityType().equals("FUTURE")) {
-        if (!_calcTypeParRate) {
-          // Scale notional to 1 - this is to better condition the jacobian matrix
-          // Set trade price to current market value - so the present value will be zero once fit
-          //definition = ((InterestRateFutureTransactionDefinition) definition).withNewNotionalAndTransactionPrice(1.0, marketValue);
-        }
         marketValue = 1 - marketValue; // transform to rate for initial rates guess
       }
       try {
@@ -437,10 +432,10 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
       i++;
     }
     ParallelArrayBinarySort.parallelBinarySort(nodeTimes, initialRatesGuess);
-    final LinkedHashMap<String, double[]> curveKnots = new LinkedHashMap<String, double[]>();
+    final LinkedHashMap<String, double[]> curveKnots = new LinkedHashMap<>();
     curveKnots.put(curveName, nodeTimes);
-    final LinkedHashMap<String, double[]> curveNodes = new LinkedHashMap<String, double[]>();
-    final LinkedHashMap<String, Interpolator1D> interpolators = new LinkedHashMap<String, Interpolator1D>();
+    final LinkedHashMap<String, double[]> curveNodes = new LinkedHashMap<>();
+    final LinkedHashMap<String, Interpolator1D> interpolators = new LinkedHashMap<>();
     curveNodes.put(curveName, nodeTimes);
     interpolators.put(curveName, getInterpolator(specificationWithSecurities));
     // TODO have use finite difference or not as an input [FIN-147]
@@ -502,7 +497,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
       final boolean createJacobian, final boolean createSensitivities) {
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = ZonedDateTime.now(snapshotClock);
-    final List<InstrumentDerivative> derivatives = new ArrayList<InstrumentDerivative>();
+    final List<InstrumentDerivative> derivatives = new ArrayList<>();
     final int nFunding = fundingCurveSpecificationWithSecurities.getStrips().size();
     final int nForward = forwardCurveSpecificationWithSecurities.getStrips().size();
     final double[] initialRatesGuess = new double[nFunding + nForward];
@@ -572,8 +567,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
       forwardNodeTimes[forwardIndex] = derivative.accept(LAST_DATE_CALCULATOR);
       forwardIndex++;
     }
-    final LinkedHashMap<String, double[]> curveNodes = new LinkedHashMap<String, double[]>();
-    final LinkedHashMap<String, Interpolator1D> interpolators = new LinkedHashMap<String, Interpolator1D>();
+    final LinkedHashMap<String, double[]> curveNodes = new LinkedHashMap<>();
+    final LinkedHashMap<String, Interpolator1D> interpolators = new LinkedHashMap<>();
     curveNodes.put(fundingCurveName, fundingNodeTimes);
     interpolators.put(fundingCurveName, getInterpolator(fundingCurveSpecificationWithSecurities));
     curveNodes.put(forwardCurveName, forwardNodeTimes);

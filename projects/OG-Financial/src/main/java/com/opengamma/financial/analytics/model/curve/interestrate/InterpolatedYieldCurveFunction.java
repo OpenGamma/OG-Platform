@@ -8,8 +8,6 @@ package com.opengamma.financial.analytics.model.curve.interestrate;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.ZoneOffset;
@@ -51,7 +49,6 @@ import com.opengamma.util.time.Tenor;
  *
  */
 public class InterpolatedYieldCurveFunction extends AbstractFunction {
-  private static final Logger s_logger = LoggerFactory.getLogger(InterpolatedYieldCurveFunction.class);
 
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext compilationContext, final Instant atInstant) {

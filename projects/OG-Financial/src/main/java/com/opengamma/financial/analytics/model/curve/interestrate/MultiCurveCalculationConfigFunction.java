@@ -52,7 +52,7 @@ public class MultiCurveCalculationConfigFunction extends AbstractFunction {
       }
 
       @Override
-      public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+      public Set<ValueSpecification> getResults(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
         final ValueProperties properties = createValueProperties()
             .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG).get();
         final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.CURVE_CALCULATION_CONFIG, target.toSpecification(), properties);
@@ -60,7 +60,7 @@ public class MultiCurveCalculationConfigFunction extends AbstractFunction {
       }
 
       @Override
-      public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+      public Set<ValueRequirement> getRequirements(final FunctionCompilationContext compilationContext, final ComputationTarget target, final ValueRequirement desiredValue) {
         return Collections.emptySet();
       }
 

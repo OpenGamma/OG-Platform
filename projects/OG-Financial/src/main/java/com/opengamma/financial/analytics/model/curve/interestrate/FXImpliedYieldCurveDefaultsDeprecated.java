@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.curve.interestrate;
@@ -18,15 +18,24 @@ import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.util.ArgumentChecker;
 
 /**
+ * Sets defaults for <b>all</b> curves that are calculated using the FX implied method.
  * @deprecated Use the version that takes information about how to calculate the curve
  * @see FXImpliedYieldCurveDefaults
  */
 @Deprecated
 public class FXImpliedYieldCurveDefaultsDeprecated extends DefaultPropertyFunction {
+  /** The interpolator name */
   private final String _interpolatorName;
+  /** The left extrapolator name */
   private final String _leftExtrapolatorName;
+  /** The right extrapolator name */
   private final String _rightExtrapolatorName;
 
+  /**
+   * @param interpolatorName The interpolator name
+   * @param leftExtrapolatorName The left extrapolator name
+   * @param rightExtrapolatorName The right extrapolator name
+   */
   public FXImpliedYieldCurveDefaultsDeprecated(final String interpolatorName, final String leftExtrapolatorName, final String rightExtrapolatorName) {
     super(ComputationTargetType.CURRENCY, true);
     ArgumentChecker.notNull(interpolatorName, "interpolator name");

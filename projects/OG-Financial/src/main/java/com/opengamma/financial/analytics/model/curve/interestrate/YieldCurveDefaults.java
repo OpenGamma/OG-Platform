@@ -17,8 +17,9 @@ import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * @deprecated This function sets defaults for deprecated yield curve calculation functions.
  */
+@Deprecated
 public class YieldCurveDefaults extends DefaultPropertyFunction {
   /** The value requirement names to which these defaults apply */
   private static final String[] VALUE_REQUIREMENTS = new String[] {

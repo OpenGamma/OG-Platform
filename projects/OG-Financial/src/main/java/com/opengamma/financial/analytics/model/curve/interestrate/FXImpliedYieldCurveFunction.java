@@ -66,6 +66,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.CalendarUtils;
+import com.opengamma.financial.analytics.curve.CurveDefinition;
 import com.opengamma.financial.analytics.fxforwardcurve.ConfigDBFXForwardCurveDefinitionSource;
 import com.opengamma.financial.analytics.fxforwardcurve.ConfigDBFXForwardCurveSpecificationSource;
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveDefinition;
@@ -73,8 +74,10 @@ import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveInstrument
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveSpecification;
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
+import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
 import com.opengamma.financial.analytics.model.FunctionUtils;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
+import com.opengamma.financial.analytics.model.curve.MultiCurveFunction;
 import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.convention.FXSpotConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -88,16 +91,24 @@ import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.time.Tenor;
 
 /**
- *
+ * Constructs a single yield curve and its Jacobian from exogenously-supplied yield curves and
+ * a {@link FXForwardCurveDefinition} and {@link FXForwardCurveSpecification}.
+ * @deprecated This function uses configuration objects that have been superseded. Use functions
+ * that descend from {@link MultiCurveFunction}. Curves that use FX forwards directly in
+ * {@link CurveDefinition} (see {@link FXForwardNode}) are constructed in these classes.
  */
+@Deprecated
 public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInvoker {
   /** Property name for the calculation method */
   public static final String FX_IMPLIED = "FXImplied";
+  /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(FXImpliedYieldCurveFunction.class);
+  /** Calculates the par rate */
   private static final ParRateCalculator PAR_RATE_CALCULATOR = ParRateCalculator.getInstance();
+  /** Calculates the sensitivity of the par rate to the curves */
   private static final ParRateCurveSensitivityCalculator PAR_RATE_SENSITIVITY_CALCULATOR = ParRateCurveSensitivityCalculator.getInstance();
   /** The matrix algebra used for matrix inversion. */
-  private static final MatrixAlgebra MATRIX_ALGEBRA = new ColtMatrixAlgebra(); //TODO make this a parameter
+  private static final MatrixAlgebra MATRIX_ALGEBRA = new ColtMatrixAlgebra();
   /** The business day convention used for FX forward dates computation **/
   private static final BusinessDayConvention MOD_FOL = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
 
@@ -411,7 +422,13 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
     return requirements;
   }
 
-  private ValueProperties getForeignCurveProperties(final MultiCurveCalculationConfig foreignConfig, final String foreignCurveName) {
+  /**
+   * Gets the properties for the foreign curve i.e. the fixed yield curve that is being used to imply the yield curve.
+   * @param foreignConfig The foreign curve configuration name
+   * @param foreignCurveName The foreign curve name
+   * @return The foreign curve properties
+   */
+  private static ValueProperties getForeignCurveProperties(final MultiCurveCalculationConfig foreignConfig, final String foreignCurveName) {
     return ValueProperties.builder()
         .with(ValuePropertyNames.CURVE, foreignCurveName)
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, foreignConfig.getCalculationConfigName())
@@ -419,13 +436,22 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
         .get();
   }
 
-  private ValueProperties getForeignJacobianProperties(final MultiCurveCalculationConfig foreignConfig) {
+  /**
+   * Gets the properties for the foreign curve configuration Jacobian i.e. the Jacobian that is being used to imply the yield curve.
+   * @param foreignConfig The foreign curve configuration name
+   * @return The foreign Jacobian properties
+   */
+  private static ValueProperties getForeignJacobianProperties(final MultiCurveCalculationConfig foreignConfig) {
     return ValueProperties.builder()
         .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, foreignConfig.getCalculationConfigName())
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, foreignConfig.getCalculationMethod())
         .get();
   }
 
+  /**
+   * Gets the properties of the implied yield curve with no values set.
+   * @return The properties
+   */
   private ValueProperties getCurveProperties() {
     return createValueProperties()
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, FX_IMPLIED)
@@ -441,6 +467,10 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
         .withAny(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME).get();
   }
 
+  /**
+   * Gets the properties of the Jacobian with no values set.
+   * @return The properties.
+   */
   private ValueProperties getProperties() {
     return createValueProperties()
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, FX_IMPLIED)
@@ -455,6 +485,20 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
         .withAny(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME).get();
   }
 
+  /**
+   * Gets the properties of the implied yield curve.
+   * @param curveCalculationConfigName The curve calculation configuration name
+   * @param curveName The curve name
+   * @param absoluteTolerance The absolute tolerance
+   * @param relativeTolerance The relative tolerance
+   * @param maxIterations The maximum number of iterations
+   * @param decomposition The decomposition
+   * @param useFiniteDifference True if finite difference was used to calculate derivatives
+   * @param interpolatorName The interpolator name
+   * @param leftExtrapolatorName The left extrapolator name
+   * @param rightExtrapolatorName The right extrapolator name
+   * @return The curve properties
+   */
   private ValueProperties getCurveProperties(final String curveCalculationConfigName, final String curveName, final String absoluteTolerance,
       final String relativeTolerance, final String maxIterations, final String decomposition, final String useFiniteDifference, final String interpolatorName,
       final String leftExtrapolatorName, final String rightExtrapolatorName) {
@@ -472,6 +516,19 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
         .with(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME, rightExtrapolatorName).get();
   }
 
+  /**
+   * Gets the properties of the Jacobian for the implied yield curve.
+   * @param curveCalculationConfigName The curve calculation configuration name
+   * @param absoluteTolerance The absolute tolerance
+   * @param relativeTolerance The relative tolerance
+   * @param maxIterations The maximum number of iterations
+   * @param decomposition The decomposition
+   * @param useFiniteDifference True if finite difference was used to calculate derivatives
+   * @param interpolatorName The interpolator name
+   * @param leftExtrapolatorName The left extrapolator name
+   * @param rightExtrapolatorName The right extrapolator name
+   * @return The Jacobian properties
+   */
   private ValueProperties getProperties(final String curveCalculationConfigName, final String absoluteTolerance, final String relativeTolerance,
       final String maxIterations, final String decomposition, final String useFiniteDifference, final String interpolatorName, final String leftExtrapolatorName,
       final String rightExtrapolatorName) {
@@ -488,8 +545,19 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
         .with(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME, rightExtrapolatorName).get();
   }
 
+  /**
+   * @param ccy1 The domestic currency
+   * @param ccy2 The foreign currency
+   * @param paymentTime The payment time
+   * @param spotFX The spot FX rate
+   * @param forwardFX The forward FX rate
+   * @param curveName1 The domestic curve name
+   * @param curveName2 The foreign curve name
+   * @return
+   */
   //TODO determine domestic and notional from dominance data
-  private ForexForward getFXForward(final Currency ccy1, final Currency ccy2, final double paymentTime, final double spotFX, final double forwardFX, final String curveName1, final String curveName2) {
+  private static ForexForward getFXForward(final Currency ccy1, final Currency ccy2, final double paymentTime, final double spotFX, final double forwardFX,
+      final String curveName1, final String curveName2) {
     final PaymentFixed paymentCurrency1 = new PaymentFixed(ccy1, paymentTime, 1, curveName1);
     final PaymentFixed paymentCurrency2 = new PaymentFixed(ccy2, paymentTime, -1. / forwardFX, curveName2);
     try {
