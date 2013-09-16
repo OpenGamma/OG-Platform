@@ -71,7 +71,7 @@ public abstract class BlackFormulaRepository {
     if (sigmaRootT < SMALL) {
       return Math.max(sign * (forward - strike), 0.0);
     }
-    if (Math.abs(forward - strike) < SMALL | bSigRt) {
+    if (Math.abs(forward - strike) < SMALL || bSigRt) {
       d1 = 0.5 * sigmaRootT;
       d2 = -0.5 * sigmaRootT;
     } else {
