@@ -43,7 +43,6 @@ public class HullWhiteOneFactorPiecewiseConstantParameters {
   public HullWhiteOneFactorPiecewiseConstantParameters(final double meanReversion, final double[] volatility, final double[] volatilityTime) {
     ArgumentChecker.notNull(volatility, "volatility time");
     ArgumentChecker.notNull(volatilityTime, "volatility time");
-    ArgumentChecker.isTrue(volatilityTime.length + 1 == volatility.length, "volatility time");
     _meanReversion = meanReversion;
     _volatility = new DoubleArrayList(volatility);
     final double[] volatilityTimeArray = new double[volatilityTime.length + 2];
