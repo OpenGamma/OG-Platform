@@ -71,22 +71,33 @@ public class PresentValueMCACalculator extends InstrumentDerivativeVisitorAdapte
   public PresentValueMCACalculator() {
   }
 
-  /**
-   * The methods used by the different instruments.
-   */
+  /** Discounting for cash instruments */
   private static final CashDiscountingMethod METHOD_DEPOSIT = CashDiscountingMethod.getInstance();
+  /** Discounting for bills */
   private static final BillTransactionDiscountingMethod METHOD_BILL_TRANSACTION = BillTransactionDiscountingMethod.getInstance();
+  /** Discounting for fixed payments */
   private static final PaymentFixedDiscountingMethod METHOD_PAY_FIXED = PaymentFixedDiscountingMethod.getInstance();
+  /** Discounting for fixed couponds */
   private static final CouponFixedDiscountingMethod METHOD_CPN_FIXED = CouponFixedDiscountingMethod.getInstance();
+  /** Discounting for overnight-indexed coupons */
   private static final CouponONDiscountingMethod METHOD_CPN_OIS = CouponONDiscountingMethod.getInstance();
+  /** Discounting for ibor-type coupons */
   private static final CouponIborDiscountingMethod METHOD_CPN_IBOR = CouponIborDiscountingMethod.getInstance();
+  /** Discounting for ibor-type coupons with spread */
   private static final CouponIborSpreadDiscountingMethod METHOD_CPN_IBOR_SPREAD = CouponIborSpreadDiscountingMethod.getInstance();
+  /** Discounting for compounded ibor-type coupons */
   private static final CouponIborCompoundedDiscountingMethod METHOD_CPN_IBOR_COMP = CouponIborCompoundedDiscountingMethod.getInstance();
+  /** Discounting for FRAs */
   private static final ForwardRateAgreementDiscountingMethod METHOD_FRA = ForwardRateAgreementDiscountingMethod.getInstance();
+  /** Discounting for interest rate future transactions */
   private static final InterestRateFutureTransactionDiscountingMethod METHOD_IR_FUTURES_TRANSACTION = InterestRateFutureTransactionDiscountingMethod.getInstance();
+  /** Discounting for interest rate future securities */
   private static final InterestRateFutureSecurityDiscountingMethod METHOD_IR_FUTURES_SECURITY = InterestRateFutureSecurityDiscountingMethod.getInstance();
+  /** Discounting for FX spot and forwards */
   private static final ForexDiscountingMethod METHOD_FOREX = ForexDiscountingMethod.getInstance();
+  /** Discounting for FX swaps */
   private static final ForexSwapDiscountingMethod METHOD_FXSWAP = ForexSwapDiscountingMethod.getInstance();
+  /** Discounting for non-deliverable FX forwards */
   private static final ForexNonDeliverableForwardDiscountingMethod METHOD_NDF = ForexNonDeliverableForwardDiscountingMethod.getInstance();
 
   // -----     Deposit     ------

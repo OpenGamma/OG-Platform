@@ -17,14 +17,16 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * A wrapper class for a AnnuityDefinition containing CouponOISSimplifiedDefinition.
+ * A wrapper class for a {@link AnnuityDefinition} containing {@link CouponONSimplifiedDefinition}.
  */
 public class AnnuityCouponONSimplifiedDefinition extends AnnuityDefinition<CouponONSimplifiedDefinition> {
-
+  /**
+   * The overnight reference index
+   */
   private final IndexON _index;
 
   /**
-   * Constructor from a list of OIS coupons.
+   * Constructor from a list of overnight coupons.
    * @param payments The coupons.
    * @param index The underlying overnight index.
    * @param calendar The calendar.
@@ -39,7 +41,7 @@ public class AnnuityCouponONSimplifiedDefinition extends AnnuityDefinition<Coupo
    * @param settlementDate The settlement date, not null
    * @param tenorAnnuity The annuity tenor, not null
    * @param notional The annuity notional.
-   * @param generator The OIS generator, not null
+   * @param generator The overnight generator, not null
    * @param isPayer The flag indicating if the annuity is paying (true) or receiving (false).
    * @return The annuity.
    */
@@ -73,9 +75,9 @@ public class AnnuityCouponONSimplifiedDefinition extends AnnuityDefinition<Coupo
   }
 
   /**
-   * Build a annuity of OIS coupons from financial details.
+   * Build a annuity of overnight coupons from financial details.
    * @param settlementDate The annuity settlement or first fixing date, not null.
-   * @param endFixingPeriodDate The end date of the OIS accrual period. Also called the maturity date of the annuity even if the actual payment can take place one or two days later. Not null.
+   * @param endFixingPeriodDate The end date of the overnight accrual period. Also called the maturity date of the annuity even if the actual payment can take place one or two days later. Not null.
    * @param notional The annuity notional.
    * @param isPayer The flag indicating if the annuity is paying (true) or receiving (false).
    * @param indexON The overnight index.
@@ -100,7 +102,7 @@ public class AnnuityCouponONSimplifiedDefinition extends AnnuityDefinition<Coupo
   }
 
   /**
-   * Build a annuity of OIS coupons from financial details.
+   * Build a annuity of overnight coupons from financial details.
    * @param settlementDate The annuity settlement or first fixing date, not null.
    * @param tenorAnnuity The annuity tenor, not null
    * @param notional The annuity notional.
@@ -126,32 +128,56 @@ public class AnnuityCouponONSimplifiedDefinition extends AnnuityDefinition<Coupo
     return AnnuityCouponONSimplifiedDefinition.from(settlementDate, endFixingPeriodDates, notional, isPayer, indexON, paymentLag, indexCalendar);
   }
 
-  private static AnnuityCouponONSimplifiedDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime[] endFixingPeriodDate, final double notional, final GeneratorSwapFixedON generator,
+  /**
+   * Creates an overnight annuity
+   * @param settlementDate The settlement date
+   * @param endFixingPeriodDates The end period fixing dates
+   * @param notional The notional
+   * @param generator A fixed / overnight swap generator
+   * @param isPayer True if the annuity is paid
+   * @return An overnight annuity
+   */
+  private static AnnuityCouponONSimplifiedDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime[] endFixingPeriodDates, final double notional, final GeneratorSwapFixedON generator,
       final boolean isPayer) {
     final double sign = isPayer ? -1.0 : 1.0;
     final double notionalSigned = sign * notional;
-    final CouponONSimplifiedDefinition[] coupons = new CouponONSimplifiedDefinition[endFixingPeriodDate.length];
-    coupons[0] = CouponONSimplifiedDefinition.from(generator.getIndex(), settlementDate, endFixingPeriodDate[0], notionalSigned, generator.getPaymentLag(), generator.getOvernightCalendar());
-    for (int loopcpn = 1; loopcpn < endFixingPeriodDate.length; loopcpn++) {
-      coupons[loopcpn] = CouponONSimplifiedDefinition.from(generator.getIndex(), endFixingPeriodDate[loopcpn - 1], endFixingPeriodDate[loopcpn], notionalSigned, generator.getPaymentLag(),
+    final CouponONSimplifiedDefinition[] coupons = new CouponONSimplifiedDefinition[endFixingPeriodDates.length];
+    coupons[0] = CouponONSimplifiedDefinition.from(generator.getIndex(), settlementDate, endFixingPeriodDates[0], notionalSigned, generator.getPaymentLag(), generator.getOvernightCalendar());
+    for (int loopcpn = 1; loopcpn < endFixingPeriodDates.length; loopcpn++) {
+      coupons[loopcpn] = CouponONSimplifiedDefinition.from(generator.getIndex(), endFixingPeriodDates[loopcpn - 1], endFixingPeriodDates[loopcpn], notionalSigned, generator.getPaymentLag(),
           generator.getOvernightCalendar());
     }
     return new AnnuityCouponONSimplifiedDefinition(coupons, generator.getIndex(), generator.getOvernightCalendar());
   }
 
-  private static AnnuityCouponONSimplifiedDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime[] endFixingPeriodDate, final double notional, final boolean isPayer,
+  /**
+   * Creates an overnight annuity
+   * @param settlementDate The settlement date
+   * @param endFixingPeriodDates The end period fixing dates
+   * @param notional The notional
+   * @param isPayer True if the annuity is paid
+   * @param indexON The reference overnight index
+   * @param paymentLag The payment lag
+   * @param indexCalendar The index calendar
+   * @return An overnight annuity
+   */
+  private static AnnuityCouponONSimplifiedDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime[] endFixingPeriodDates, final double notional, final boolean isPayer,
       final IndexON indexON, final int paymentLag, final Calendar indexCalendar) {
     final double sign = isPayer ? -1.0 : 1.0;
     final double notionalSigned = sign * notional;
-    final CouponONSimplifiedDefinition[] coupons = new CouponONSimplifiedDefinition[endFixingPeriodDate.length];
-    coupons[0] = CouponONSimplifiedDefinition.from(indexON, settlementDate, endFixingPeriodDate[0], notionalSigned, paymentLag, indexCalendar);
-    for (int loopcpn = 1; loopcpn < endFixingPeriodDate.length; loopcpn++) {
-      coupons[loopcpn] = CouponONSimplifiedDefinition.from(indexON, endFixingPeriodDate[loopcpn - 1], endFixingPeriodDate[loopcpn], notionalSigned, paymentLag,
+    final CouponONSimplifiedDefinition[] coupons = new CouponONSimplifiedDefinition[endFixingPeriodDates.length];
+    coupons[0] = CouponONSimplifiedDefinition.from(indexON, settlementDate, endFixingPeriodDates[0], notionalSigned, paymentLag, indexCalendar);
+    for (int loopcpn = 1; loopcpn < endFixingPeriodDates.length; loopcpn++) {
+      coupons[loopcpn] = CouponONSimplifiedDefinition.from(indexON, endFixingPeriodDates[loopcpn - 1], endFixingPeriodDates[loopcpn], notionalSigned, paymentLag,
           indexCalendar);
     }
     return new AnnuityCouponONSimplifiedDefinition(coupons, indexON, indexCalendar);
   }
 
+  /**
+   * Gets the overnight reference index.
+   * @return The overnight reference index
+   */
   public IndexON getIndex() {
     return _index;
   }

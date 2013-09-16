@@ -134,7 +134,13 @@ public class AnnuityCouponIborSpreadDefinition extends AnnuityCouponDefinition<C
     return new AnnuityCouponIborSpreadDefinition(coupons, calendar);
   }
 
+  /**
+   * Creates an annuity with zero spread from an {@link AnnuityCouponIborDefinition}
+   * @param iborAnnuity The annuity, not null
+   * @return An ibor annuity with spread
+   */
   public static AnnuityCouponIborSpreadDefinition from(final AnnuityCouponIborDefinition iborAnnuity) {
+    ArgumentChecker.notNull(iborAnnuity, "ibor annuity");
     final CouponIborSpreadDefinition[] coupons = new CouponIborSpreadDefinition[iborAnnuity.getPayments().length];
     for (int loopcpn = 0; loopcpn < iborAnnuity.getPayments().length; loopcpn++) {
       coupons[loopcpn] = CouponIborSpreadDefinition.from(iborAnnuity.getNthPayment(loopcpn), 0);

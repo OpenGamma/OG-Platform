@@ -33,6 +33,7 @@ import com.opengamma.util.money.Currency;
 public class HardCodedHullWhiteOneFactorParametersFunction extends AbstractFunction.NonCompiledInvoker {
   /** The name of this configuration */
   private static final String CONFIG_NAME = "Test";
+  /** Hard-coded Hull-White one factor parameters */
   private static final HullWhiteOneFactorPiecewiseConstantParameters CONSTANT_PARAMETERS =
       new HullWhiteOneFactorPiecewiseConstantParameters(0.02, new double[] {0.01}, new double[0]);
 

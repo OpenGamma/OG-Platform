@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.calculator;
@@ -30,6 +30,9 @@ public class PortfolioHedgingCalculator {
    * The matrix algebra used (mainly multiplying matrices and solving systems).
    */
   private static final CommonsMatrixAlgebra MATRIX = new CommonsMatrixAlgebra();
+  /**
+   * The decomposition method used.
+   */
   private static final SVDecompositionCommons DECOMPOSITION = new SVDecompositionCommons();
 
   /**

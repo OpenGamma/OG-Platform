@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.annuity;
@@ -17,14 +17,16 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ *
  */
 public class AnnuityCouponONCompoundedDefinition extends AnnuityDefinition<CouponONCompoundedDefinition> {
-
+  /**
+   * The overnight reference index
+   */
   private final IndexON _index;
 
   /**
-   * Constructor from a list of OIS coupons.
+   * Constructor from a list of overnight coupons.
    * @param payments The coupons.
    * @param index The underlying overnight index.
    * @param calendar The holiday calendar
@@ -39,7 +41,7 @@ public class AnnuityCouponONCompoundedDefinition extends AnnuityDefinition<Coupo
    * @param settlementDate The settlement date, not null
    * @param tenorAnnuity The annuity tenor, not null
    * @param notional The annuity notional.
-   * @param generator The OIS generator, not null
+   * @param generator The overnight generator, not null
    * @param isPayer The flag indicating if the annuity is paying (true) or receiving (false).
    * @return The annuity.
    */
@@ -74,9 +76,9 @@ public class AnnuityCouponONCompoundedDefinition extends AnnuityDefinition<Coupo
   }
 
   /**
-   * Build a annuity of OIS coupons from financial details.
+   * Build a annuity of overnight coupons from financial details.
    * @param settlementDate The annuity settlement or first fixing date, not null.
-   * @param endFixingPeriodDate The end date of the OIS accrual period. Also called the maturity date of the annuity even if the actual payment can take place one or two days later. Not null.
+   * @param endFixingPeriodDate The end date of the overnight accrual period. Also called the maturity date of the annuity even if the actual payment can take place one or two days later. Not null.
    * @param notional The annuity notional.
    * @param isPayer The flag indicating if the annuity is paying (true) or receiving (false).
    * @param indexON The overnight index.
@@ -102,7 +104,7 @@ public class AnnuityCouponONCompoundedDefinition extends AnnuityDefinition<Coupo
   }
 
   /**
-   * Build a annuity of OIS coupons from financial details.
+   * Build a annuity of overnight coupons from financial details.
    * @param settlementDate The annuity settlement or first fixing date, not null.
    * @param tenorAnnuity The annuity tenor, not null
    * @param notional The annuity notional.
@@ -128,19 +130,34 @@ public class AnnuityCouponONCompoundedDefinition extends AnnuityDefinition<Coupo
     return AnnuityCouponONCompoundedDefinition.from(settlementDate, endFixingPeriodDates, notional, isPayer, indexON, paymentLag, indexCalendar);
   }
 
-  private static AnnuityCouponONCompoundedDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime[] endFixingPeriodDate, final double notional,
+  /**
+   * Creates an overnight annuity
+   * @param settlementDate The settlement date
+   * @param endFixingPeriodDates The end fixing period dates
+   * @param notional The notional
+   * @param isPayer True if the annuity is paid
+   * @param indexON The overnight reference index
+   * @param paymentLag The payment lag
+   * @param indexCalendar The index calendar
+   * @return An overnight annuity
+   */
+  private static AnnuityCouponONCompoundedDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime[] endFixingPeriodDates, final double notional,
       final boolean isPayer, final IndexON indexON, final int paymentLag, final Calendar indexCalendar) {
     final double sign = isPayer ? -1.0 : 1.0;
     final double notionalSigned = sign * notional;
-    final CouponONCompoundedDefinition[] coupons = new CouponONCompoundedDefinition[endFixingPeriodDate.length];
-    coupons[0] = CouponONCompoundedDefinition.from(indexON, settlementDate, endFixingPeriodDate[0], notionalSigned, paymentLag, indexCalendar);
-    for (int loopcpn = 1; loopcpn < endFixingPeriodDate.length; loopcpn++) {
-      coupons[loopcpn] = CouponONCompoundedDefinition.from(indexON, endFixingPeriodDate[loopcpn - 1], endFixingPeriodDate[loopcpn], notionalSigned, paymentLag,
+    final CouponONCompoundedDefinition[] coupons = new CouponONCompoundedDefinition[endFixingPeriodDates.length];
+    coupons[0] = CouponONCompoundedDefinition.from(indexON, settlementDate, endFixingPeriodDates[0], notionalSigned, paymentLag, indexCalendar);
+    for (int loopcpn = 1; loopcpn < endFixingPeriodDates.length; loopcpn++) {
+      coupons[loopcpn] = CouponONCompoundedDefinition.from(indexON, endFixingPeriodDates[loopcpn - 1], endFixingPeriodDates[loopcpn], notionalSigned, paymentLag,
           indexCalendar);
     }
     return new AnnuityCouponONCompoundedDefinition(coupons, indexON, indexCalendar);
   }
 
+  /**
+   * Gets the overnight reference index
+   * @return The overnight reference index
+   */
   public IndexON getIndex() {
     return _index;
   }

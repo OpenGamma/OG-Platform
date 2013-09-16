@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.covariance;
@@ -10,7 +10,7 @@ import com.opengamma.analytics.math.statistics.distribution.ChiSquareDistributio
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 
 /**
- * 
+ *
  * Calculates the confidence interval for a volatility estimate, where the
  * percentage changes in the price are assumed to be normally distributed.
  * <p>
@@ -25,14 +25,15 @@ import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribut
  * $1 - * \alpha$.
  */
 public class LogNormalVolatilityEstimateConfidenceIntervalCalculator {
+  /** The chi-squared probability distribution */
   private ProbabilityDistribution<Double> _chiSquare;
 
   /**
-   * 
+   *
    * @param volatility The volatility estimate
    * @param confidenceLevel The confidence level for the interval
    * @param n Degrees of freedom
-   * @return The confidence interval 
+   * @return The confidence interval
    */
   public ConfidenceInterval getConfidenceInterval(final double volatility, final double confidenceLevel, final int n) {
     _chiSquare = new ChiSquareDistribution(n - 1);

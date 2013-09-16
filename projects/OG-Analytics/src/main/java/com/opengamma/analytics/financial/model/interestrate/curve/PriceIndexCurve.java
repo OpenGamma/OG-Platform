@@ -28,6 +28,9 @@ public class PriceIndexCurve {
    */
   private final DoublesCurve _curve;
 
+  /**
+   * A small amount of time
+   */
   private static final double SMALL_TIME = 1.0E-6;
 
   /**
@@ -100,6 +103,10 @@ public class PriceIndexCurve {
     return _curve.getYValue(secondTime) / _curve.getYValue(firstTime) - 1.0;
   }
 
+  /**
+   * Gets the number of parameters in a curve.
+   * @return The number of parameters
+   */
   public int getNumberOfParameters() {
     return _curve.size();
   }
@@ -112,6 +119,12 @@ public class PriceIndexCurve {
     return new ArrayList<>();
   }
 
+  /**
+   * Gets the sensitivities of the price index to the curve parameters for a time.
+   * @param time The time
+   * @return The sensitivities. If the time is less than 1e<sup>-6</sup>, the rate is
+   * ill-defined and zero is returned.
+   */
   public double[] getPriceIndexParameterSensitivity(final double time) {
     final Double[] curveSensitivity = _curve.getYValueParameterSensitivity(time);
     final double[] priceIndexZeroSensitivity = new double[curveSensitivity.length];

@@ -28,6 +28,9 @@ public final class CommodityFutureOptionBlackForwardDeltaCalculator extends Inst
     return s_instance;
   }
 
+  /**
+   * Private constructor.
+   */
   private CommodityFutureOptionBlackForwardDeltaCalculator() {
   }
 

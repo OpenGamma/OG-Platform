@@ -9,6 +9,7 @@ import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CONSTRUCTION_CONFIG;
 import static com.opengamma.engine.value.ValueRequirementNames.YIELD_CURVE;
 import static com.opengamma.financial.analytics.model.curve.CurveCalculationPropertyNamesAndValues.DISCOUNTING;
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -17,10 +18,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorCurveYieldInterpolated;
+import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorCurveYieldInterpolatedAnchorNode;
 import com.opengamma.analytics.financial.curve.interestrate.generator.GeneratorYDCurve;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
@@ -39,6 +42,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.Multi
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
+import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
@@ -60,6 +64,7 @@ import com.opengamma.financial.analytics.curve.CurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.DiscountingCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.FRANodeConverter;
 import com.opengamma.financial.analytics.curve.FXForwardNodeConverter;
+import com.opengamma.financial.analytics.curve.FixedDateInterpolatedCurveDefinition;
 import com.opengamma.financial.analytics.curve.IborCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.InterpolatedCurveDefinition;
 import com.opengamma.financial.analytics.curve.OvernightCurveTypeConfiguration;
@@ -72,6 +77,7 @@ import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
 import com.opengamma.id.ExternalId;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
@@ -102,14 +108,21 @@ public class MultiCurveDiscountingFunction extends
    * Compiled function implementation.
    */
   protected class MyCompiledFunctionDefinition extends CurveCompiledFunctionDefinition {
-    private final Set<ValueRequirement> _exogenousRequirements;
+    /** The curve construction configuration */
     private final CurveConstructionConfiguration _curveConstructionConfiguration;
 
+    /**
+     * @param earliestInvokation The earliest time for which this function is valid, null if there is no bound
+     * @param latestInvokation The latest time for which this function is valid, null if there is no bound
+     * @param curveNames The names of the curves produced by this function, not null
+     * @param exogenousRequirements The exogenous requirements, not null
+     * @param curveConstructionConfiguration The curve construction configuration, not null
+     */
     protected MyCompiledFunctionDefinition(final ZonedDateTime earliestInvokation, final ZonedDateTime latestInvokation, final String[] curveNames,
         final Set<ValueRequirement> exogenousRequirements, final CurveConstructionConfiguration curveConstructionConfiguration) {
       super(earliestInvokation, latestInvokation, curveNames, ValueRequirementNames.YIELD_CURVE, exogenousRequirements);
+      ArgumentChecker.notNull(curveConstructionConfiguration, "curve construction configuration");
       _curveConstructionConfiguration = curveConstructionConfiguration;
-      _exogenousRequirements = exogenousRequirements;
     }
 
     @Override
@@ -197,7 +210,7 @@ public class MultiCurveDiscountingFunction extends
           if (!overnightIndex.isEmpty()) {
             forwardONMap.put(curveName, overnightIndex.toArray(new IndexON[overnightIndex.size()]));
           }
-          final GeneratorYDCurve generator = getGenerator(definition);
+          final GeneratorYDCurve generator = getGenerator(definition, now.toLocalDate());
           singleCurves[j++] = new SingleCurveBundle<>(curveName, derivativesForCurve, generator.initialGuess(parameterGuessForCurves), generator);
         }
         final MultiCurveBundle<GeneratorYDCurve> groupBundle = new MultiCurveBundle<>(singleCurves);
@@ -229,7 +242,7 @@ public class MultiCurveDiscountingFunction extends
     protected MulticurveProviderInterface getKnownData(final FunctionInputs inputs) {
       final FXMatrix fxMatrix = (FXMatrix) inputs.getValue(ValueRequirementNames.FX_MATRIX);
       MulticurveProviderDiscount knownData;
-      if (_exogenousRequirements.isEmpty()) {
+      if (getExogenousRequirements().isEmpty()) {
         knownData = new MulticurveProviderDiscount(fxMatrix);
       } else {
         knownData = (MulticurveProviderDiscount) inputs.getValue(ValueRequirementNames.CURVE_BUNDLE);
@@ -244,13 +257,23 @@ public class MultiCurveDiscountingFunction extends
     }
 
     @Override
-    protected GeneratorYDCurve getGenerator(final CurveDefinition definition) {
+    protected GeneratorYDCurve getGenerator(final CurveDefinition definition, final LocalDate valuationDate) {
       if (definition instanceof InterpolatedCurveDefinition) {
         final InterpolatedCurveDefinition interpolatedDefinition = (InterpolatedCurveDefinition) definition;
         final String interpolatorName = interpolatedDefinition.getInterpolatorName();
         final String leftExtrapolatorName = interpolatedDefinition.getLeftExtrapolatorName();
         final String rightExtrapolatorName = interpolatedDefinition.getRightExtrapolatorName();
         final Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
+        if (definition instanceof FixedDateInterpolatedCurveDefinition) {
+          final FixedDateInterpolatedCurveDefinition fixedDateDefinition = (FixedDateInterpolatedCurveDefinition) definition;
+          final List<LocalDate> fixedDates = fixedDateDefinition.getFixedDates();
+          final DoubleArrayList nodePoints = new DoubleArrayList(fixedDates.size()); //TODO what about equal node points?
+          for (final LocalDate fixedDate : fixedDates) {
+            nodePoints.add(TimeCalculator.getTimeBetween(valuationDate, fixedDate)); //TODO what to do if the fixed date is before the valuation date?
+          }
+          final double anchor = nodePoints.get(0); //TODO should the anchor go into the definition?
+          return new GeneratorCurveYieldInterpolatedAnchorNode(nodePoints.toDoubleArray(), anchor, interpolator);
+        }
         return new GeneratorCurveYieldInterpolated(getMaturityCalculator(), interpolator);
       }
       throw new OpenGammaRuntimeException("Cannot handle curves of type " + definition.getClass());

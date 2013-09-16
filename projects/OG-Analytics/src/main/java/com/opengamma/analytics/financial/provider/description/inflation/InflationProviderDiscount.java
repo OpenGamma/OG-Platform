@@ -119,10 +119,13 @@ public class InflationProviderDiscount implements InflationProviderInterface {
     setInflationCurves();
   }
 
+  /**
+   * Adds all inflation curves to a map with (curve name, curve) elements.
+   */
   private void setInflationCurves() {
     _allCurves = new LinkedHashMap<>();
-    final Set<IndexPrice> inlfationIndexSet = _priceIndexCurves.keySet();
-    for (final IndexPrice index : inlfationIndexSet) {
+    final Set<IndexPrice> inflationIndexSet = _priceIndexCurves.keySet();
+    for (final IndexPrice index : inflationIndexSet) {
       final String name = _priceIndexCurves.get(index).getName();
       _allCurves.put(name, _priceIndexCurves.get(index));
     }
@@ -206,12 +209,14 @@ public class InflationProviderDiscount implements InflationProviderInterface {
   }
 
   /**
-   * Replaces the curve for a price index.
-   * @param index The index
-   * @param replacement The replacement curve
+   * Returns a new provider with the curve for a price index replaced by the input curve.
+   * @param index The index, not null
+   * @param replacement The replacement curve, not null
    * @return A new provider with the curve replaced
    */
   public InflationProviderDiscount withPriceIndex(final IndexPrice index, final PriceIndexCurve replacement) {
+    ArgumentChecker.notNull(index, "index");
+    ArgumentChecker.notNull(replacement, "replacement");
     final Map<IndexPrice, PriceIndexCurve> newPriceIndexCurves = new LinkedHashMap<>(_priceIndexCurves);
     newPriceIndexCurves.put(index, replacement);
     final InflationProviderDiscount decorated = new InflationProviderDiscount(_multicurveProvider, newPriceIndexCurves);

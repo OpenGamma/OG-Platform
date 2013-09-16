@@ -220,6 +220,12 @@ public class G2ppParametersFunction extends AbstractFunction {
     };
   }
 
+  /**
+   * Appends the tenor to an id to create the market data identifier.
+   * @param tenor The tenor
+   * @param id The id
+   * @return The market data id
+   */
   static String createId(final Tenor tenor, final String id) {
     final StringBuilder newId = new StringBuilder(id);
     newId.append("_");

@@ -28,6 +28,9 @@ public final class CommodityFutureOptionBlackThetaCalculator extends InstrumentD
     return s_instance;
   }
 
+  /**
+   * Private constructor.
+   */
   private CommodityFutureOptionBlackThetaCalculator() {
   }
 

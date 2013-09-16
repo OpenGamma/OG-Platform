@@ -5,9 +5,8 @@
  */
 package com.opengamma.analytics.financial.timeseries.util;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CompareUtils;
 
 /**
@@ -21,8 +20,8 @@ public class TimeSeriesDataTestUtils {
    * @throws IllegalArgumentException If the time series is null or empty
    */
   public static void testNotNullOrEmpty(final DoubleTimeSeries<?> ts) {
-    Validate.notNull(ts, "time series");
-    Validate.isTrue(!ts.isEmpty(), "time series");
+    ArgumentChecker.notNull(ts, "time series");
+    ArgumentChecker.isTrue(!ts.isEmpty(), "time series");
   }
 
   /**
@@ -32,9 +31,9 @@ public class TimeSeriesDataTestUtils {
    * @throws IllegalArgumentException If the time series is null, empty, or contains fewer elements than the minimum size, if the minimum size is less than zero
    */
   public static void testTimeSeriesSize(final DoubleTimeSeries<?> ts, final int minLength) {
-    testNotNullOrEmpty(ts);
-    Validate.isTrue(minLength >= 0);
-    Validate.isTrue(ts.size() >= minLength, "time series must contain at least " + minLength + " values");
+    ArgumentChecker.notNull(ts, "time series");
+    ArgumentChecker.isTrue(minLength >= 0, "Minumum length must be greater than zero");
+    ArgumentChecker.isTrue(ts.size() >= minLength, "time series must contain at least " + minLength + " values");
   }
 
   /**

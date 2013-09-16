@@ -105,8 +105,16 @@ public class FXMatrixFunction extends AbstractFunction {
     /** The set of relevant currencies */
     private final Set<Currency> _currencies;
 
+    /**
+     * @param earliestInvocation The earliest time that this function is valid, not null
+     * @param latestInvocation The latest time that this function is valid, not null
+     * @param spec The result specification for the FX matrix, not null
+     * @param currencies The currencies contained in the matrix, not null
+     */
     public MyCompiledFunction(final ZonedDateTime earliestInvocation, final ZonedDateTime latestInvocation, final ValueSpecification spec, final Set<Currency> currencies) {
       super(earliestInvocation, latestInvocation);
+      ArgumentChecker.notNull(spec, "specification");
+      ArgumentChecker.notNull(currencies, "currencies");
       _spec = spec;
       _currencies = currencies;
     }

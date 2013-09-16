@@ -14,7 +14,7 @@ import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Store the details and generate the required curve. The curve is interpolated on the rate (continuously compounded).
+ * Store the details and generate the required curve. The curve is interpolated on the rate (periodally compounded).
  * Only the lastTimeCalculator is stored. The node are computed from the instruments.
  */
 @SuppressWarnings("deprecation")

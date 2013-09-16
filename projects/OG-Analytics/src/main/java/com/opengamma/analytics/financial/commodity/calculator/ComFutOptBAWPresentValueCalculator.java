@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.commodity.calculator;
@@ -27,6 +27,9 @@ public final class ComFutOptBAWPresentValueCalculator extends CommodityFutureOpt
     return INSTANCE;
   }
 
+  /**
+   * Private constructor.
+   */
   private ComFutOptBAWPresentValueCalculator() {
   }
 

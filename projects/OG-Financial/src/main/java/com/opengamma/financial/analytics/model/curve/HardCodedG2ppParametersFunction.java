@@ -32,6 +32,7 @@ import com.opengamma.util.async.AsynchronousExecution;
 public class HardCodedG2ppParametersFunction extends AbstractFunction.NonCompiledInvoker {
   /** The name of this configuration */
   private static final String CONFIG_NAME = "Test";
+  /** Hard-coded G2++ parameters */
   private static final G2ppPiecewiseConstantParameters CONSTANT_PARAMETERS =
       new G2ppPiecewiseConstantParameters(new double[] {0.01, 0.02} , new double[][] {new double[] {0.01, 0.02}, new double[] {0.01, 0.02}}, new double[] {1}, 0.4);
 

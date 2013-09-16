@@ -62,12 +62,16 @@ import com.opengamma.util.async.AsynchronousExecution;
 // non compiled for now to allow dynamic config db lookup
 public class ISDACompliantCurveFunction extends AbstractFunction.NonCompiledInvoker {
 
-  // ISDA fixes yield curve daycout to Act/365
+  /** ISDA fixes yield curve daycout to Act/365 */
   private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
 
   /** the curve configuration name */
   private final String _curveName;
 
+  /**
+   * The name of the curve produced by this function.
+   * @param curveName The curve name, not null
+   */
   public ISDACompliantCurveFunction(final String curveName) {
     ArgumentChecker.notNull(curveName, "curve name");
     _curveName = curveName;
@@ -170,7 +174,6 @@ public class ISDACompliantCurveFunction extends AbstractFunction.NonCompiledInvo
         fixLegConvention.getDayCount(), fixLegConvention.getPaymentTenor().getPeriod(), ACT_365, liborConvention.getBusinessDayConvention());
 
     final ValueProperties properties = desiredValue.getConstraints().copy()
-        //.withoutAny(ISDAFunctionConstants.ISDA_CURVE_DATE)
         .with(ISDAFunctionConstants.ISDA_CURVE_DATE, spotDate.toString())
         .get();
 
@@ -205,24 +208,7 @@ public class ISDACompliantCurveFunction extends AbstractFunction.NonCompiledInvo
     requirements.add(new ValueRequirement(CURVE_DEFINITION, ComputationTargetSpecification.NULL, properties));
     requirements.add(new ValueRequirement(CURVE_MARKET_DATA, ComputationTargetSpecification.NULL, properties));
     requirements.add(new ValueRequirement(CURVE_SPECIFICATION, ComputationTargetSpecification.NULL, properties));
-    // Exogenous needed?
-    //final ValueProperties properties = ValueProperties.builder()
-    //    .with(CURVE_CONSTRUCTION_CONFIG, _configurationName)
-    //    .get();
-    //requirements.add(new ValueRequirement(CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES, ComputationTargetSpecification.NULL, properties));
-    //requirements.add(new ValueRequirement(FX_MATRIX, ComputationTargetSpecification.NULL, properties));
-    //requirements.addAll(_exogenousRequirements);
     return requirements;
   }
-
-  //@Override
-  //public boolean canHandleMissingInputs() {
-  //  return true;
-  //}
-  //
-  //@Override
-  //public boolean canHandleMissingRequirements() {
-  //  return true;
-  //}
 
 }

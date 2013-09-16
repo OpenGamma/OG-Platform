@@ -121,6 +121,9 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
     return new MulticurveProviderDiscount(discountingCurves, forwardIborCurves, forwardONCurves, fxMatrix);
   }
 
+  /**
+   * Adds all curves to a single map containing (curve name, curve) elements.
+   */
   private void setAllCurves() {
     _allCurves = new LinkedHashMap<>();
     final Set<Currency> ccySet = _discountingCurves.keySet();
@@ -193,6 +196,11 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
     return _allCurves.get(name).getUnderlyingCurvesNames();
   }
 
+  /**
+   * Gets a named curve.
+   * @param name The name
+   * @return The curve, null if not found
+   */
   public YieldAndDiscountCurve getCurve(final String name) {
     return _allCurves.get(name);
   }
@@ -363,7 +371,12 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
     setAllCurves();
   }
 
+  /**
+   * Sets the FX matrix.
+   * @param fxMatrix The FX matrix, not null
+   */
   public void setForexMatrix(final FXMatrix fxMatrix) {
+    ArgumentChecker.notNull(fxMatrix, "FX matrix");
     _fxMatrix = fxMatrix;
   }
 
@@ -467,7 +480,15 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
     return Collections.unmodifiableMap(_forwardONCurves);
   }
 
+  /**
+   * Returns a new provider with the discounting curve for a particular currency replaced.
+   * @param ccy The currency, not null
+   * @param replacement The replacement discounting curve, not null
+   * @return A new provider with the discounting curve for the currency replaced by the input curve.
+   */
   public MulticurveProviderDiscount withDiscountFactor(final Currency ccy, final YieldAndDiscountCurve replacement) {
+    ArgumentChecker.notNull(ccy, "currency");
+    ArgumentChecker.notNull(replacement, "replacement");
     // REVIEW: Is this too slow for the pricing of cash-flows?
     final Map<Currency, YieldAndDiscountCurve> newDiscountCurves = new LinkedHashMap<>(_discountingCurves);
     newDiscountCurves.put(ccy, replacement); //TODO think about ccy not existing in current map
@@ -475,14 +496,30 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
     return decorated;
   }
 
+  /**
+   * Returns a new provider with the curve for a particular ibor index replaced.
+   * @param index The ibor index, not null
+   * @param replacement The replacement ibor index curve, not null
+   * @return A new provider with the ibor index curve replaced by the input curve.
+   */
   public MulticurveProviderDiscount withForward(final IborIndex index, final YieldAndDiscountCurve replacement) {
+    ArgumentChecker.notNull(index, "index");
+    ArgumentChecker.notNull(replacement, "replacement");
     final Map<IborIndex, YieldAndDiscountCurve> newForwardCurves = new LinkedHashMap<>(_forwardIborCurves);
     newForwardCurves.put(index, replacement);
     final MulticurveProviderDiscount decorated = new MulticurveProviderDiscount(_discountingCurves, newForwardCurves, _forwardONCurves, _fxMatrix);
     return decorated;
   }
 
+  /**
+   * Returns a new provider with the curve for a particular overnight index replaced.
+   * @param index The overnight index, not null
+   * @param replacement The replacement overnight index curve, not null
+   * @return A new provider with the overnight index curve replaced by the input curve.
+   */
   public MulticurveProviderDiscount withForward(final IndexON index, final YieldAndDiscountCurve replacement) {
+    ArgumentChecker.notNull(index, "index");
+    ArgumentChecker.notNull(replacement, "replacement");
     final Map<IndexON, YieldAndDiscountCurve> newForwardCurves = new LinkedHashMap<>(_forwardONCurves);
     newForwardCurves.put(index, replacement);
     final MulticurveProviderDiscount decorated = new MulticurveProviderDiscount(_discountingCurves, _forwardIborCurves, newForwardCurves, _fxMatrix);

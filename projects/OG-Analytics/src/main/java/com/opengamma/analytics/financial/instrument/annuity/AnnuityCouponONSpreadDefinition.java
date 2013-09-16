@@ -30,7 +30,7 @@ import com.opengamma.util.ArgumentChecker;
 public class AnnuityCouponONSpreadDefinition extends AnnuityCouponDefinition<CouponONSpreadDefinition> {
 
   /**
-   * Constructor from a list of OIS coupons.
+   * Constructor from a list of overnight coupons.
    * @param payments The coupons.
    * @param calendar The holiday calendar
    */
@@ -39,11 +39,11 @@ public class AnnuityCouponONSpreadDefinition extends AnnuityCouponDefinition<Cou
   }
 
   /**
-   * Build a annuity of OIS coupons from financial details.
+   * Build a annuity of overnight coupons from financial details.
    * @param settlementDate The annuity settlement or first fixing date, not null.
    * @param tenorAnnuity The total tenor of the annuity, not null.
    * @param notional The annuity notional.
-   * @param generator The OIS generator, not null.
+   * @param generator The overnight generator, not null.
    * @param isPayer The flag indicating if the annuity is paying (true) or receiving (false).
    * @param spread The spread
    * @return The annuity.
@@ -59,7 +59,7 @@ public class AnnuityCouponONSpreadDefinition extends AnnuityCouponDefinition<Cou
   }
 
   /**
-   * Build a annuity of OIS coupons from financial details.
+   * Build a annuity of overnight coupons from financial details.
    * @param settlementDate The annuity settlement or first fixing date, not null.
    * @param tenorAnnuity The total tenor of the annuity, not null.
    * @param notional The annuity notional.
@@ -79,11 +79,11 @@ public class AnnuityCouponONSpreadDefinition extends AnnuityCouponDefinition<Cou
   }
 
   /**
-   * Build a annuity of OIS coupons from financial details.
+   * Build a annuity of overnight coupons from financial details.
    * @param settlementDate The annuity settlement or first fixing date, not null.
-   * @param endFixingPeriodDate The end date of the OIS accrual period. Also called the maturity date of the annuity even if the actual payment can take place one or two days later. Not null.
+   * @param endFixingPeriodDate The end date of the overnight accrual period. Also called the maturity date of the annuity even if the actual payment can take place one or two days later. Not null.
    * @param notional The annuity notional.
-   * @param generator The OIS generator, not null.
+   * @param generator The overnight generator, not null.
    * @param isPayer The flag indicating if the annuity is paying (true) or receiving (false).
    * @param spread The spread
    * @return The annuity.
@@ -99,9 +99,9 @@ public class AnnuityCouponONSpreadDefinition extends AnnuityCouponDefinition<Cou
   }
 
   /**
-   * Build a annuity of OIS coupons from financial details.
+   * Build a annuity of overnight coupons from financial details.
    * @param settlementDate The annuity settlement or first fixing date, not null.
-   * @param endFixingPeriodDate The end date of the OIS accrual period. Also called the maturity date of the annuity even if the actual payment can take place one or two days later. Not null.
+   * @param endFixingPeriodDate The end date of the overnight accrual period. Also called the maturity date of the annuity even if the actual payment can take place one or two days later. Not null.
    * @param notional The annuity notional.
    * @param isPayer The flag indicating if the annuity is paying (true) or receiving (false).
    * @param indexON The overnight index.
@@ -124,13 +124,21 @@ public class AnnuityCouponONSpreadDefinition extends AnnuityCouponDefinition<Cou
     ArgumentChecker.notNull(paymentPeriod, "payment period");
     final ZonedDateTime[] endFixingPeriodDates = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, endFixingPeriodDate, paymentPeriod, true,
         false, businessDayConvention, indexCalendar, isEOM); //TODO get rid of hard-codings
-    return AnnuityCouponONSpreadDefinition.from(settlementDate, endFixingPeriodDates, notional, isPayer, indexON, paymentLag, indexCalendar, spread);
+    final double sign = isPayer ? -1.0 : 1.0;
+    final double notionalSigned = sign * notional;
+    final CouponONSpreadDefinition[] coupons = new CouponONSpreadDefinition[endFixingPeriodDates.length];
+    coupons[0] = CouponONSpreadDefinition.from(indexON, settlementDate, endFixingPeriodDates[0], notionalSigned, paymentLag, indexCalendar, spread);
+    for (int loopcpn = 1; loopcpn < endFixingPeriodDates.length; loopcpn++) {
+      coupons[loopcpn] = CouponONSpreadDefinition.from(indexON, endFixingPeriodDates[loopcpn - 1], endFixingPeriodDates[loopcpn], notionalSigned, paymentLag,
+          indexCalendar, spread);
+    }
+    return new AnnuityCouponONSpreadDefinition(coupons, indexCalendar);
   }
 
   /**
-   * Build a annuity of OIS coupons from financial details.
+   * Build a annuity of overnight coupons from financial details.
    * @param settlementDate The annuity settlement or first fixing date, not null.
-   * @param endFixingPeriodDate The end date of the OIS accrual period. Also called the maturity date of the annuity even if the actual payment can take place one or two days later. Not null.
+   * @param endFixingPeriodDate The end date of the overnight accrual period. Also called the maturity date of the annuity even if the actual payment can take place one or two days later. Not null.
    * @param notional The annuity notional.
    * @param generator The Ibor/ON generator, not null.
    * @param isPayer The flag indicating if the annuity is paying (true) or receiving (false).
@@ -147,19 +155,16 @@ public class AnnuityCouponONSpreadDefinition extends AnnuityCouponDefinition<Cou
     return AnnuityCouponONSpreadDefinition.from(settlementDate, endFixingPeriodDates, notional, generator, isPayer, spread);
   }
 
-  private static AnnuityCouponONSpreadDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime[] endFixingPeriodDate, final double notional, final boolean isPayer,
-      final IndexON indexON, final int paymentLag, final Calendar indexCalendar, final double spread) {
-    final double sign = isPayer ? -1.0 : 1.0;
-    final double notionalSigned = sign * notional;
-    final CouponONSpreadDefinition[] coupons = new CouponONSpreadDefinition[endFixingPeriodDate.length];
-    coupons[0] = CouponONSpreadDefinition.from(indexON, settlementDate, endFixingPeriodDate[0], notionalSigned, paymentLag, indexCalendar, spread);
-    for (int loopcpn = 1; loopcpn < endFixingPeriodDate.length; loopcpn++) {
-      coupons[loopcpn] = CouponONSpreadDefinition.from(indexON, endFixingPeriodDate[loopcpn - 1], endFixingPeriodDate[loopcpn], notionalSigned, paymentLag,
-          indexCalendar, spread);
-    }
-    return new AnnuityCouponONSpreadDefinition(coupons, indexCalendar);
-  }
-
+  /**
+   * Creates an overnight annuity with spread.
+   * @param settlementDate The setttlement date
+   * @param endFixingPeriodDate The end fixing period dates
+   * @param notional The notional
+   * @param generator A fixed / overnight swap generator
+   * @param isPayer True if the annuity is paid
+   * @param spread The spread
+   * @return An overnight annuity with spread
+   */
   private static AnnuityCouponONSpreadDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime[] endFixingPeriodDate, final double notional, final GeneratorSwapFixedON generator,
       final boolean isPayer, final double spread) {
     final double sign = isPayer ? -1.0 : 1.0;
@@ -174,6 +179,16 @@ public class AnnuityCouponONSpreadDefinition extends AnnuityCouponDefinition<Cou
     return new AnnuityCouponONSpreadDefinition(coupons, generator.getOvernightCalendar());
   }
 
+  /**
+   * Creates an overnight annuity with spread.
+   * @param settlementDate The setttlement date
+   * @param endFixingPeriodDate The end fixing period dates
+   * @param notional The notional
+   * @param generator A ibor / overnight swap generator
+   * @param isPayer True if the annuity is paid
+   * @param spread The spread
+   * @return An overnight annuity with spread
+   */
   private static AnnuityCouponONSpreadDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime[] endFixingPeriodDate, final double notional, final GeneratorSwapIborON generator,
       final boolean isPayer, final double spread) {
     final double sign = isPayer ? -1.0 : 1.0;

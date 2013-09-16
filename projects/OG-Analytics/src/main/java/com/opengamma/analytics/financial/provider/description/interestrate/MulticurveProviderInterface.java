@@ -11,6 +11,7 @@ import java.util.Set;
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
@@ -66,9 +67,22 @@ public interface MulticurveProviderInterface extends ParameterProviderInterface 
   double getFxRate(final Currency ccy1, final Currency ccy2);
 
   // TODO: Maybe some of the methods below should be in an implementation class.
-
+  // REVIEW emcleod 2013-9-16 Yes, they should be moved - these classes do far too much and there's
+  // quite a lot of code repeated between various providers.
+  /**
+   * Gets the sensitivities to the curve parameters.
+   * @param name The curve name
+   * @param pointSensitivity The point sensitivities
+   * @return The sensitivities to the parameters
+   */
   double[] parameterSensitivity(String name, List<DoublesPair> pointSensitivity);
 
+  /**
+   * Gets the forward sensitivities to the curve parameters.
+   * @param name The curve name
+   * @param pointSensitivity The point sensitivities
+   * @return The forward sensitivities to the parameters
+   */
   double[] parameterForwardSensitivity(String name, List<ForwardSensitivity> pointSensitivity);
 
   /**
@@ -78,6 +92,12 @@ public interface MulticurveProviderInterface extends ParameterProviderInterface 
    */
   Integer getNumberOfParameters(String name);
 
+  /**
+   * Gets the underlying name(s) (i.e. {@link YieldAndDiscountCurve#getName()} for a curve name;
+   * this can be multi-valued in the case of spread curves.
+   * @param name The curve name
+   * @return The name(s) of the underlying curves.
+   */
   List<String> getUnderlyingCurvesNames(String name);
 
   //     =====     Related methods for the discounting curves     =====

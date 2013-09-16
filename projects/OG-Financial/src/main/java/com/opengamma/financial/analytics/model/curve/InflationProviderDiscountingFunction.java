@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
@@ -82,6 +83,7 @@ import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.convention.PriceIndexConvention;
 import com.opengamma.id.ExternalId;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
@@ -113,14 +115,21 @@ public class InflationProviderDiscountingFunction extends
    * Compiled function implementation.
    */
   protected class MyCompiledFunctionDefinition extends CurveCompiledFunctionDefinition {
-    private final Set<ValueRequirement> _exogenousRequirements;
+    /** The curve construction configuration */
     private final CurveConstructionConfiguration _curveConstructionConfiguration;
 
+    /**
+     * @param earliestInvokation The earliest time for which this function is valid, null if there is no bound
+     * @param latestInvokation The latest time for which this function is valid, null if there is no bound
+     * @param curveNames The names of the curves produced by this function, not null
+     * @param exogenousRequirements The exogenous requirements, not null
+     * @param curveConstructionConfiguration The curve construction configuration, not null
+     */
     protected MyCompiledFunctionDefinition(final ZonedDateTime earliestInvokation, final ZonedDateTime latestInvokation, final String[] curveNames,
         final Set<ValueRequirement> exogenousRequirements, final CurveConstructionConfiguration curveConstructionConfiguration) {
       super(earliestInvokation, latestInvokation, curveNames, ValueRequirementNames.PRICE_INDEX_CURVE, exogenousRequirements);
+      ArgumentChecker.notNull(curveConstructionConfiguration, "curve construction configuration");
       _curveConstructionConfiguration = curveConstructionConfiguration;
-      _exogenousRequirements = exogenousRequirements;
     }
 
     @SuppressWarnings("unchecked")
@@ -204,7 +213,7 @@ public class InflationProviderDiscountingFunction extends
           if (!inflation.isEmpty()) {
             inflationMap.put(curveName, inflation.toArray(new IndexPrice[inflation.size()]));
           }
-          final GeneratorPriceIndexCurve generator = getGenerator(definition);
+          final GeneratorPriceIndexCurve generator = getGenerator(definition, now.toLocalDate());
           singleCurves[j++] = new SingleCurveBundle<>(curveName, derivativesForCurve, generator.initialGuess(parameterGuessForCurves), generator);
           // seasonal curve construction
           final double[] seasonalFactors = {1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0 };
@@ -244,7 +253,7 @@ public class InflationProviderDiscountingFunction extends
       final FXMatrix fxMatrix = (FXMatrix) inputs.getValue(ValueRequirementNames.FX_MATRIX);
       //TODO requires that the discounting curves are supplied externally
       InflationProviderDiscount knownData;
-      if (_exogenousRequirements.isEmpty()) {
+      if (getExogenousRequirements().isEmpty()) {
         knownData = new InflationProviderDiscount(fxMatrix);
       } else {
         knownData = new InflationProviderDiscount((MulticurveProviderDiscount) inputs.getValue(ValueRequirementNames.CURVE_BUNDLE));
@@ -259,7 +268,7 @@ public class InflationProviderDiscountingFunction extends
     }
 
     @Override
-    protected GeneratorPriceIndexCurve getGenerator(final CurveDefinition definition) {
+    protected GeneratorPriceIndexCurve getGenerator(final CurveDefinition definition, final LocalDate valuationDate) {
       if (definition instanceof InterpolatedCurveDefinition) {
         final InterpolatedCurveDefinition interpolatedDefinition = (InterpolatedCurveDefinition) definition;
         final String interpolatorName = interpolatedDefinition.getInterpolatorName();

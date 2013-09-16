@@ -27,6 +27,7 @@ import java.util.Set;
 
 import org.threeten.bp.Clock;
 import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
@@ -160,13 +161,16 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
     /**
      * @param earliestInvocation The earliest time this metadata and invoker are valid, null to indicate no lower validity bound
      * @param latestInvocation The latest time this metadata and invoker are valid, null to indicate no upper validity bound
-     * @param curveNames The curve names
-     * @param curveRequirement The curve value requirement produced by this function
-     * @param exogenousRequirements The exogenous requirements
+     * @param curveNames The curve names, not null
+     * @param curveRequirement The curve value requirement produced by this function, not null
+     * @param exogenousRequirements The exogenous requirements, not null
      */
     protected CurveCompiledFunctionDefinition(final ZonedDateTime earliestInvocation, final ZonedDateTime latestInvocation, final String[] curveNames,
         final String curveRequirement, final Set<ValueRequirement> exogenousRequirements) {
       super(earliestInvocation, latestInvocation);
+      ArgumentChecker.notNull(curveNames, "curve names");
+      ArgumentChecker.notNull(curveRequirement, "curve requirement");
+      ArgumentChecker.notNull(exogenousRequirements, "exogenous requirements");
       _curveNames = curveNames;
       _curveRequirement = curveRequirement;
       _exogenousRequirements = exogenousRequirements;
@@ -309,9 +313,10 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
     /**
      * Gets the generator for a curve definition
      * @param definition The curve definition
+     * @param valuationDate The valuation date
      * @return The generator
      */
-    protected abstract V getGenerator(CurveDefinition definition);
+    protected abstract V getGenerator(CurveDefinition definition, LocalDate valuationDate);
 
     /**
      * @param conventionSource The convention source

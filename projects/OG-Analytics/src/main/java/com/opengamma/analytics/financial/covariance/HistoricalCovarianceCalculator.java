@@ -1,15 +1,14 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.covariance;
 
 import java.util.Iterator;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.timeseries.DoubleTimeSeries;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Calculates the historical covariance of two return series. The covariance is
@@ -32,8 +31,8 @@ public class HistoricalCovarianceCalculator extends CovarianceCalculator {
    */
   @Override
   public Double evaluate(final DoubleTimeSeries<?>... ts) {
-    Validate.notNull(ts, "time series array");
-    Validate.isTrue(ts.length == 2);
+    ArgumentChecker.notNull(ts, "time series array");
+    ArgumentChecker.isTrue(ts.length == 2, "must have two time series");
     testTimeSeries(ts[0], ts[1]);
     final DoubleTimeSeries<?> returnTS1 = ts[0];
     final DoubleTimeSeries<?> returnTS2 = ts[1];
