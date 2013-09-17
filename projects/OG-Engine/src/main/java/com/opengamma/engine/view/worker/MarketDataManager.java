@@ -42,7 +42,6 @@ import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvid
 import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.NamedThreadPoolFactory;
@@ -144,6 +143,18 @@ public class MarketDataManager implements MarketDataListener, Lifecycle, Subscri
   private Future<?> _monitorTask;
 
   /**
+   * The object name against which this manager will be registered against
+   * JMX. If null, then no registration will be done.
+   */
+  private final ObjectName _objectName;
+
+  /**
+   * THe MBean server to register the manager against. If null, then no
+   * registration will be done.
+   */
+  private final MBeanServer _jmxServer;
+
+  /**
    * Create the manager for the market data.
    *
    * @param listener the listener for market data changes, not null
@@ -156,46 +167,49 @@ public class MarketDataManager implements MarketDataListener, Lifecycle, Subscri
   public MarketDataManager(MarketDataChangeListener listener,
                            MarketDataProviderResolver marketDataProviderResolver,
                            String viewProcessorName,
-                           UniqueId viewProcessId) {
+                           String viewProcessId) {
 
     ArgumentChecker.notNull(listener, "listener");
     ArgumentChecker.notNull(marketDataProviderResolver, "marketDataProviderResolver");
     _marketDataChangeListener = listener;
     _marketDataProviderResolver = marketDataProviderResolver;
 
-    if (viewProcessorName != null && viewProcessId != null) {
-      registerJmx(createObjectName(viewProcessorName, viewProcessId));
-    }
+    _objectName = viewProcessorName != null && viewProcessId != null ?
+        createObjectName(viewProcessorName, viewProcessId) :
+        null;
+    _jmxServer = JmxUtils.locateMBeanServer();
+    registerJmx();
   }
 
   /**
    * Creates an object name using the scheme "com.opengamma:type=View,ViewProcessor=<viewProcessorName>,name=<viewProcessId>"
    */
-  private ObjectName createObjectName(String viewProcessorName, UniqueId viewProcessId) {
+  private ObjectName createObjectName(String viewProcessorName, String viewProcessId) {
     try {
-      return new ObjectName("com.opengamma:type=ViewProcess,ViewProcessor=ViewProcessor " + viewProcessorName + ",name=ViewProcessMarketData " + viewProcessId.getValue());
+      return new ObjectName("com.opengamma:type=ViewProcess,ViewProcessor=ViewProcessor " + viewProcessorName + ",name=ViewProcessMarketData " + viewProcessId);
     } catch (MalformedObjectNameException e) {
       throw new CacheException(e);
     }
   }
 
-  private void registerJmx(ObjectName objectName) {
-    MBeanServer mBeanServer = JmxUtils.locateMBeanServer();
+  private void registerJmx() {
 
-    if (mBeanServer != null) {
-
-      if (mBeanServer.isRegistered(objectName)) {
-        try {
-          mBeanServer.unregisterMBean(objectName);
-        } catch (InstanceNotFoundException | MBeanRegistrationException e) {
-          s_logger.warn("Unable to unregister object: {} from MBeanServer", objectName);
-        }
-      }
+    if (_objectName != null && _jmxServer != null) {
+      unregisterFromJmx();
       final MBeanExporter exporter = new MBeanExporter();
-      exporter.setServer(mBeanServer);
-      exporter.registerManagedResource(this, objectName);
+      exporter.setServer(_jmxServer);
+      exporter.registerManagedResource(this, _objectName);
     }
+  }
 
+  private void unregisterFromJmx() {
+    if (_objectName != null && _jmxServer != null && _jmxServer.isRegistered(_objectName)) {
+      try {
+        _jmxServer.unregisterMBean(_objectName);
+      } catch (InstanceNotFoundException | MBeanRegistrationException e) {
+        s_logger.warn("Unable to unregister object: {} from MBeanServer", _objectName);
+      }
+    }
   }
 
   private Runnable createSubscriptionMonitorLogging() {
@@ -589,6 +603,9 @@ public class MarketDataManager implements MarketDataListener, Lifecycle, Subscri
       _monitorTask.cancel(true);
       _monitorTask = null;
     }
+
+    unregisterFromJmx();
+
     // removeMarketDataProvider may block until the lock can be obtained; post it to the detach queue instead rather than
     // block the caller
     s_submonitor.submit(new Runnable() {

@@ -22,6 +22,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.Lock;
 
@@ -255,12 +256,19 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
   private final MarketDataSelectionGraphManipulator _marketDataSelectionGraphManipulator;
 
   /**
-   * The market data selectors and function parameters which have been passed in via the ViewDefinition, which are applicable to a specific dependency graph. There will be an entry for each graph in
-   * the view, even if the only contents are an empty map.
+   * The market data selectors and function parameters which have been passed in via the
+   * ViewDefinition, which are applicable to a specific dependency graph. There will be
+   * an entry for each graph in the view, even if the only contents are an empty map.
    */
   private final Map<String, Map<DistinctMarketDataSelector, FunctionParameters>> _specificMarketDataSelectors;
 
   private final MarketDataManager _marketDataManager;
+
+  /**
+   * Keep track of the number of market data managers created as we need to ensure
+   * they each have a unique name (for JMX registration).
+   */
+  private static final ConcurrentMap<String, AtomicInteger> _mdmCount = new ConcurrentHashMap();
 
   /**
    * Timer to track delta cycle execution time.
@@ -308,8 +316,7 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
     _ignoreCompilationValidity = executionOptions.getFlags().contains(ViewExecutionFlags.IGNORE_COMPILATION_VALIDITY);
     _viewDefinition = viewDefinition;
     _specificMarketDataSelectors = extractSpecificSelectors(viewDefinition);
-    // TODO - the hardcoded main should really be derived from a view process name if one were available
-    _marketDataManager = new MarketDataManager(this, getProcessContext().getMarketDataProviderResolver(), "main", context.getProcessContext().getProcessId());
+    _marketDataManager = createMarketDataManager(context);
     _marketDataSelectionGraphManipulator = createMarketDataManipulator(
         _executionOptions.getDefaultExecutionOptions(),
         _specificMarketDataSelectors);
@@ -318,6 +325,18 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
     _deltaCycleTimer = OpenGammaMetricRegistry.getSummaryInstance().timer("SingleThreadViewProcessWorker.cycle.delta");
     _fullCycleTimer = OpenGammaMetricRegistry.getSummaryInstance().timer("SingleThreadViewProcessWorker.cycle.full");
     s_executor.submit(_thread);
+  }
+
+  private MarketDataManager createMarketDataManager(ViewProcessWorkerContext context) {
+    String processId = context.getProcessContext().getProcessId().getValue();
+    AtomicInteger currentEntry = _mdmCount.putIfAbsent(processId, new AtomicInteger());
+    if (currentEntry == null) {
+      currentEntry = _mdmCount.get(processId);
+    }
+    int newCount = currentEntry.incrementAndGet();
+    // TODO - the hardcoded main should really be derived from a view process name if one were available
+    return new MarketDataManager(this, getProcessContext().getMarketDataProviderResolver(), "main",
+                                                   processId + "-" + newCount);
   }
 
   /**
