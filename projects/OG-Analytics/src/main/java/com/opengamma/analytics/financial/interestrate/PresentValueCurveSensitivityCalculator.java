@@ -12,8 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
 import com.opengamma.analytics.financial.interestrate.bond.definition.BillSecurity;
@@ -39,6 +37,7 @@ import com.opengamma.analytics.financial.interestrate.future.method.InterestRate
 import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureTransactionDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedAccruedCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
@@ -47,6 +46,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.analytics.financial.interestrate.payments.method.CouponCMSDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.payments.method.CouponFixedAccruedCompoundingDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.method.CouponFixedDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.method.CouponIborCompoundedDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.method.CouponIborDiscountingMethod;
@@ -57,6 +57,7 @@ import com.opengamma.analytics.financial.interestrate.payments.method.PaymentFix
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -87,23 +88,36 @@ public class PresentValueCurveSensitivityCalculator extends InstrumentDerivative
   PresentValueCurveSensitivityCalculator() {
   }
 
-  /**
-   * The methods.
-   */
+  /** The cash discounting method */
   private static final CashDiscountingMethod METHOD_DEPOSIT = CashDiscountingMethod.getInstance();
+  /** The zero deposit discounting method */
   private static final DepositZeroDiscountingMethod METHOD_DEPOSIT_ZERO = DepositZeroDiscountingMethod.getInstance();
+  /** The bill security discounting method */
   private static final BillSecurityDiscountingMethod METHOD_BILL_SECURITY = BillSecurityDiscountingMethod.getInstance();
+  /** The bill transaction discounting method */
   private static final BillTransactionDiscountingMethod METHOD_BILL_TRANSACTION = BillTransactionDiscountingMethod.getInstance();
+  /** The fixed payment discounting method */
   private static final PaymentFixedDiscountingMethod METHOD_PAY_FIXED = PaymentFixedDiscountingMethod.getInstance();
+  /** The fixed coupon discounting method */
   private static final CouponFixedDiscountingMethod METHOD_CPN_FIXED = CouponFixedDiscountingMethod.getInstance();
+  /** The OIS coupon discounting method */
   private static final CouponOISDiscountingMethod METHOD_CPN_OIS = CouponOISDiscountingMethod.getInstance();
+  /** The ibor discounting method */
   private static final CouponIborDiscountingMethod METHOD_CPN_IBOR = CouponIborDiscountingMethod.getInstance();
+  /** The ibor spread coupon discounting method */
   private static final CouponIborSpreadDiscountingMethod METHOD_CPN_IBOR_SPREAD = CouponIborSpreadDiscountingMethod.getInstance();
+  /** The ibor gearing coupon discounting method */
   private static final CouponIborGearingDiscountingMethod METHOD_CPN_IBOR_GEARING = CouponIborGearingDiscountingMethod.getInstance();
+  /** The compounded ibor coupon discounting method */
   private static final CouponIborCompoundedDiscountingMethod METHOD_CPN_IBOR_COMP = CouponIborCompoundedDiscountingMethod.getInstance();
+  /** The FRA discounting method */
   private static final ForwardRateAgreementDiscountingMethod METHOD_FRA = ForwardRateAgreementDiscountingMethod.getInstance();
+  /** The interest rate future transaction discounting method */
   private static final InterestRateFutureTransactionDiscountingMethod METHOD_IRFUT_TRANSACTION = InterestRateFutureTransactionDiscountingMethod.getInstance();
+  /** The interest rate future security discounting method */
   private static final InterestRateFutureSecurityDiscountingMethod METHOD_IRFUT_SECURITY = InterestRateFutureSecurityDiscountingMethod.getInstance();
+  /** Fixed accrued compounding coupon discounting method */
+  private static final CouponFixedAccruedCompoundingDiscountingMethod METHOD_FIXED_ACCRUED = CouponFixedAccruedCompoundingDiscountingMethod.getInstance();
 
   // -----     Deposit     ------
 
@@ -207,8 +221,8 @@ public class PresentValueCurveSensitivityCalculator extends InstrumentDerivative
 
   @Override
   public Map<String, List<DoublesPair>> visitBondFuture(final BondFuture bondFuture, final YieldCurveBundle curves) {
-    Validate.notNull(curves);
-    Validate.notNull(bondFuture);
+    ArgumentChecker.notNull(curves, "curves");
+    ArgumentChecker.notNull(bondFuture, "bond future");
     final BondFutureDiscountingMethod method = BondFutureDiscountingMethod.getInstance();
     return method.presentValueCurveSensitivity(bondFuture, curves).getSensitivities();
   }
@@ -223,6 +237,11 @@ public class PresentValueCurveSensitivityCalculator extends InstrumentDerivative
   @Override
   public Map<String, List<DoublesPair>> visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final YieldCurveBundle curves) {
     return visitSwap(swap, curves);
+  }
+
+  @Override
+  public Map<String, List<DoublesPair>> visitCouponFixedAccruedCompounding(final CouponFixedAccruedCompounding coupon, final YieldCurveBundle curves) {
+    return METHOD_FIXED_ACCRUED.presentValueCurveSensitivity(coupon, curves).getSensitivities();
   }
 
   @Override
