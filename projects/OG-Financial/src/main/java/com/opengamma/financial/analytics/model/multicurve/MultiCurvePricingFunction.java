@@ -49,6 +49,7 @@ import com.opengamma.financial.analytics.conversion.CashSecurityConverter;
 import com.opengamma.financial.analytics.conversion.DeliverableSwapFutureSecurityConverter;
 import com.opengamma.financial.analytics.conversion.FRASecurityConverter;
 import com.opengamma.financial.analytics.conversion.FXForwardSecurityConverter;
+import com.opengamma.financial.analytics.conversion.FederalFundsFutureTradeConverter;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.conversion.FutureTradeConverter;
 import com.opengamma.financial.analytics.conversion.NonDeliverableFXForwardSecurityConverter;
@@ -118,6 +119,7 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
     final FXForwardSecurityConverter fxForwardSecurityConverter = new FXForwardSecurityConverter();
     final NonDeliverableFXForwardSecurityConverter nonDeliverableFXForwardSecurityConverter = new NonDeliverableFXForwardSecurityConverter();
     final DeliverableSwapFutureSecurityConverter dsfConverter = new DeliverableSwapFutureSecurityConverter(securitySource, swapConverter);
+    final FederalFundsFutureTradeConverter federalFundsFutureTradeConverter = new FederalFundsFutureTradeConverter(holidaySource, conventionSource, regionSource);
     final FinancialSecurityVisitor<InstrumentDefinition<?>> securityConverter = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder()
         .cashSecurityVisitor(cashConverter)
         .deliverableSwapFutureSecurityVisitor(dsfConverter)
@@ -128,7 +130,7 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
         .create();
     final FutureTradeConverter futureTradeConverter = new FutureTradeConverter(securitySource, holidaySource, conventionSource, conventionBundleSource,
         regionSource);
-    return new TradeConverter(futureTradeConverter, securityConverter);
+    return new TradeConverter(futureTradeConverter, federalFundsFutureTradeConverter, securityConverter);
   }
 
   /**
@@ -251,7 +253,7 @@ public abstract class MultiCurvePricingFunction extends AbstractFunction {
         requirements.addAll(timeSeriesRequirements);
         return requirements;
       } catch (final Exception e) {
-        s_logger.error(e.getMessage());
+        s_logger.error(e.getMessage(), e);
         return null;
       }
     }
