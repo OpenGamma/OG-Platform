@@ -82,9 +82,9 @@ public class UnionMarketDataAvailabilityTest {
     final MarketDataAvailabilityProvider c = new BlockingDataProvider();
     final ValueProperties properties = ValueProperties.with(ValuePropertyNames.FUNCTION, "Mock").get();
     a.addAvailableData(ExternalId.of("A", "Present"), new ValueSpecification("Foo", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueId.of("Y", "A")), properties));
-    a.addMissingData(ExternalId.of("A", "Missing"), "Foo");
+    a.addAvailableData(ExternalId.of("A", "Missing"), new ValueSpecification("Foo", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueId.of("Y", "A")), properties));
     b.addAvailableData(ExternalId.of("B", "Present"), new ValueSpecification("Foo", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueId.of("Y", "B")), properties));
-    b.addMissingData(ExternalId.of("B", "Missing"), "Foo");
+    b.addAvailableData(ExternalId.of("B", "Missing"), new ValueSpecification("Foo", new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, UniqueId.of("Y", "B")), properties));
     return new UnionMarketDataAvailability.Provider(Arrays.asList(c, a, b));
   }
 

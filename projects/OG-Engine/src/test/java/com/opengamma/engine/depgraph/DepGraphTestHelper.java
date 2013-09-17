@@ -158,10 +158,6 @@ public class DepGraphTestHelper {
         "LiveData").get()));
   }
 
-  public void make2MissingFromLiveData() {
-    _liveDataAvailabilityProvider.addMissingData(_req2.getTargetReference().getSpecification().getUniqueId(), _req2.getValueName());
-  }
-
   public DependencyGraphBuilder createBuilder(final FunctionPriority prioritizer) {
     final Instant now = Instant.now();
     final DependencyGraphBuilder builder = new DependencyGraphBuilder();

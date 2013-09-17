@@ -7,7 +7,6 @@ package com.opengamma.engine.marketdata.availability;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -18,7 +17,6 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.MarketDataSourcingFunction;
 import com.opengamma.engine.target.ComputationTargetReferenceVisitor;
 import com.opengamma.engine.target.ComputationTargetRequirement;
-import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
@@ -36,10 +34,8 @@ public class FixedMarketDataAvailabilityProvider extends AbstractMarketDataAvail
   private static final AtomicInteger s_nextIdentifier = new AtomicInteger();
 
   private static class TargetData extends ConcurrentHashMap<String, Set<ValueSpecification>> {
-
+    
     private static final long serialVersionUID = 1L;
-
-    private Set<String> _missing;
 
     public TargetData(final ValueSpecification initialValue) {
       final Set<ValueSpecification> values = new CopyOnWriteArraySet<ValueSpecification>();
@@ -51,10 +47,6 @@ public class FixedMarketDataAvailabilityProvider extends AbstractMarketDataAvail
     }
 
     public ValueSpecification getAvailability(final ValueRequirement desiredValue) {
-      if ((_missing != null) && _missing.contains(desiredValue.getValueName())) {
-        return new ValueSpecification(desiredValue.getValueName(), desiredValue.getTargetReference().getSpecification(), 
-            ValueProperties.with(ValuePropertyNames.FUNCTION, MarketDataSourcingFunction.UNIQUE_ID).get());
-      }
       final Set<ValueSpecification> specs = get(desiredValue.getValueName());
       if (specs != null) {
         final ValueProperties constraints = desiredValue.getConstraints().withoutAny(ValuePropertyNames.FUNCTION);
@@ -86,13 +78,6 @@ public class FixedMarketDataAvailabilityProvider extends AbstractMarketDataAvail
       if (values != null) {
         values.remove(specification);
       }
-    }
-
-    public void addMissingData(final String valueName) {
-      if (_missing == null) {
-        _missing = new HashSet<String>();
-      }
-      _missing.add(valueName);
     }
 
   }
@@ -267,51 +252,6 @@ public class FixedMarketDataAvailabilityProvider extends AbstractMarketDataAvail
   }
   
   
-  
-  protected void addMissingData(final ComputationTargetSpecification target, final String valueName) {
-    TargetData data = _strictIndex.get(target);
-    if (data == null) {
-      data = new TargetData();
-      data.addMissingData(valueName);
-      final TargetData existing = _strictIndex.putIfAbsent(target, data);
-      if (existing != null) {
-        existing.addMissingData(valueName);
-      }
-    } else {
-      data.addMissingData(valueName);
-    }
-  }
-
-  public void addMissingData(final ValueSpecification valueSpecification) {
-    ArgumentChecker.notNull(valueSpecification, "value specification");
-    final ComputationTargetSpecification target = valueSpecification.getTargetSpecification();
-    addMissingData(target, valueSpecification.getValueName());
-    // Creating the target specification updated the weak index
-  }
-  
-  public void addMissingData(final ExternalId identifier, final String valueName) {
-    ArgumentChecker.notNull(identifier, "identifier");
-    ArgumentChecker.notNull(valueName, "valueName");
-    final ComputationTargetSpecification target = new ComputationTargetRequirement(ComputationTargetType.PRIMITIVE, identifier).accept(_getTargetSpecification);
-    addMissingData(target, valueName);
-    // Creating the target specification updated the weak index
-  }
-
-  public void addMissingData(final ExternalIdBundle identifiers, final String valueName) {
-    ArgumentChecker.notNull(identifiers, "identifiers");
-    ArgumentChecker.notNull(valueName, "valueName");
-    final ComputationTargetSpecification target = new ComputationTargetRequirement(ComputationTargetType.PRIMITIVE, identifiers).accept(_getTargetSpecification);
-    addMissingData(target, valueName);
-    // Creating the target specification updated the weak index
-  }
-
-  public void addMissingData(final UniqueId identifier, final String valueName) {
-    ArgumentChecker.notNull(identifier, "identifier");
-    ArgumentChecker.notNull(valueName, "valueName");
-    final ComputationTargetSpecification target = new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, identifier);
-    addMissingData(target, valueName);
-  }
-
   @Override
   public Serializable getAvailabilityHintKey() {
     final ArrayList<Serializable> key = new ArrayList<Serializable>(2);

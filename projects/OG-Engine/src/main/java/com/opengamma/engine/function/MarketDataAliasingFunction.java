@@ -8,8 +8,10 @@ package com.opengamma.engine.function;
 import java.util.Collection;
 import java.util.Set;
 
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.cache.MissingInput;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -45,11 +47,13 @@ public final class MarketDataAliasingFunction extends IntrinsicFunction {
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Collection<ComputedValue> values = inputs.getAllValues();
     final Set<ComputedValue> result = Sets.newHashSetWithExpectedSize(desiredValues.size() * values.size());
-    for (final ValueRequirement desiredValueReq : desiredValues) {
-      final ValueSpecification desiredValue = new ValueSpecification(desiredValueReq.getValueName(), target.toSpecification(), desiredValueReq.getConstraints());
-      for (final ComputedValue value : values) {
-        result.add(new ComputedValue(desiredValue, value.getValue()));
-      }
+    final ValueRequirement desiredValueReq = Iterables.getOnlyElement(desiredValues);
+    final ValueSpecification desiredValue = new ValueSpecification(desiredValueReq.getValueName(), target.toSpecification(), desiredValueReq.getConstraints());
+    if (values.isEmpty()) {
+      result.add(new ComputedValue(desiredValue, MissingInput.MISSING_MARKET_DATA));
+    } else {
+      ComputedValue value = Iterables.getOnlyElement(values);
+      result.add(new ComputedValue(desiredValue, value.getValue()));
     }
     return result;
   }
