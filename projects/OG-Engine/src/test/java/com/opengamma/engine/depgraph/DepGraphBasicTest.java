@@ -159,16 +159,6 @@ public class DepGraphBasicTest extends AbstractDependencyGraphBuilderTest {
     }
   }
 
-  public void missingLiveData() {
-    final DepGraphTestHelper helper = helper();
-    helper.addFunctionRequiring2Producing1();
-    helper.make2MissingFromLiveData();
-    final DependencyGraphBuilder builder = helper.createBuilder(null);
-    builder.addTarget(helper.getRequirement1());
-    final DependencyGraph graph = builder.getDependencyGraph();
-    assertNotNull(graph);
-    assertEquals(2, graph.getDependencyNodes().size());
-  }
 
   public void incrementalBuild() {
     final DepGraphTestHelper helper = helper();
