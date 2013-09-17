@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.provider;
@@ -10,12 +10,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedAccruedCompounding;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
@@ -51,8 +50,8 @@ public final class CouponFixedAccruedCompoundingDiscountingMethod {
    * @return The present value.
    */
   public MultipleCurrencyAmount presentValue(final CouponFixedAccruedCompounding coupon, final MulticurveProviderInterface multicurves) {
-    Validate.notNull(coupon, "Coupon");
-    Validate.notNull(multicurves, "multicurve");
+    ArgumentChecker.notNull(coupon, "Coupon");
+    ArgumentChecker.notNull(multicurves, "multicurve");
     final double df = multicurves.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
     final double value = coupon.getAmount() * df;
     return MultipleCurrencyAmount.of(coupon.getCurrency(), value);
@@ -65,8 +64,8 @@ public final class CouponFixedAccruedCompoundingDiscountingMethod {
    * @return The present value.
    */
   public CurrencyAmount presentValuePositiveNotional(final CouponFixedAccruedCompounding coupon, final MulticurveProviderInterface multicurves) {
-    Validate.notNull(coupon, "Coupon");
-    Validate.notNull(multicurves, "multicurve");
+    ArgumentChecker.notNull(coupon, "Coupon");
+    ArgumentChecker.notNull(multicurves, "multicurve");
     return CurrencyAmount.of(coupon.getCurrency(), Math.signum(coupon.getNotional()) * presentValue(coupon, multicurves).getAmount(coupon.getCurrency()));
   }
 
