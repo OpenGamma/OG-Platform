@@ -86,6 +86,22 @@ API compatibility
 Analytics compatibility
 - No expected differences
 
+To 2.1.0-M3p03
+-----------
+As above, and:
+
+Configuration compatibility
+- No changes required
+
+Database compatibility
+- No upgrade required
+
+API compatibility
+- No significant changes
+
+Analytics compatibility
+- No expected differences
+
 
 Changes since 2.0.0
 ===================
@@ -119,5 +135,9 @@ As above, and:
 Multiplied spot exchange rate to the valueGamma to take into account misaligned currency
 Changed Scale factor default from 1.0 to empty
 
-
+To 2.1.0-M3p02
+------------
+As above, and:
+ [PLAT-4658] Added handling for missing market data in snapshots
+ [PLAT-4666] Adding a scaling factor for THETA and FORWARD_DRIFTLESS_THETA for FX options
 
