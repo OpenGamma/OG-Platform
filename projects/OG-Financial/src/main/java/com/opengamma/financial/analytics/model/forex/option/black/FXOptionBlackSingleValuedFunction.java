@@ -27,6 +27,9 @@ import com.opengamma.util.money.Currency;
 @Deprecated
 public abstract class FXOptionBlackSingleValuedFunction extends FXOptionBlackFunction {
 
+  /**
+   * @param valueRequirementName The value requirement name, not null
+   */
   public FXOptionBlackSingleValuedFunction(final String valueRequirementName) {
     super(valueRequirementName);
   }
@@ -85,6 +88,14 @@ public abstract class FXOptionBlackSingleValuedFunction extends FXOptionBlackFun
         .with(ValuePropertyNames.CURRENCY, getResultCurrency(target, baseQuotePair));
   }
 
+  /**
+   * Gets the currency of the result. This is necessary to set before the calculation is performed
+   * because the engine tries to do a currency conversion if the currency is not set, leading to
+   * mismatched result specifications.
+   * @param target The target
+   * @param baseQuotePair The base quote pair
+   * @return The currency of the result
+   */
   protected String getResultCurrency(final ComputationTarget target, final CurrencyPair baseQuotePair) {
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     if (security instanceof FXDigitalOptionSecurity) {
