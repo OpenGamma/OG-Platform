@@ -12,31 +12,31 @@ import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**
- * Calculator of the theta (first order derivative with respect to time) using the forward theta
+ * Calculator of the theta (first order derivative with respect to time) using the forward driftless theta
  * for Forex derivatives in the Black (Garman-Kohlhagen) world. The theta is not scaled and so is an annual
  * value.
  * @deprecated Curve builders that use and populate {@link YieldCurveBundle}s are deprecated.
  */
 @Deprecated
-public class OptionThetaBlackForexCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, CurrencyAmount> {
+public class OptionDriftlessThetaBlackForexCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, CurrencyAmount> {
 
   /**
    * The unique instance of the calculator.
    */
-  private static final OptionThetaBlackForexCalculator INSTANCE = new OptionThetaBlackForexCalculator();
+  private static final OptionDriftlessThetaBlackForexCalculator INSTANCE = new OptionDriftlessThetaBlackForexCalculator();
 
   /**
    * Gets the calculator instance.
    * @return The calculator.
    */
-  public static OptionThetaBlackForexCalculator getInstance() {
+  public static OptionDriftlessThetaBlackForexCalculator getInstance() {
     return INSTANCE;
   }
 
   /**
    * Constructor.
    */
-  OptionThetaBlackForexCalculator() {
+  OptionDriftlessThetaBlackForexCalculator() {
   }
 
   /**
@@ -46,7 +46,7 @@ public class OptionThetaBlackForexCalculator extends InstrumentDerivativeVisitor
 
   @Override
   public CurrencyAmount visitForexOptionVanilla(final ForexOptionVanilla derivative, final YieldCurveBundle data) {
-    return METHOD_FXOPTIONVANILLA.forwardTheta(derivative, data);
+    return METHOD_FXOPTIONVANILLA.theta(derivative, data);
   }
 
 }

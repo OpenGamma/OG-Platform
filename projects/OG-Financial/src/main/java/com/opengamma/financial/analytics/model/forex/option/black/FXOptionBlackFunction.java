@@ -60,6 +60,7 @@ import com.opengamma.util.money.Currency;
  */
 @Deprecated
 public abstract class FXOptionBlackFunction extends AbstractFunction.NonCompiledInvoker {
+  /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(FXOptionBlackFunction.class);
   /** Property name for the put curve */
   public static final String PUT_CURVE = "PutCurve";

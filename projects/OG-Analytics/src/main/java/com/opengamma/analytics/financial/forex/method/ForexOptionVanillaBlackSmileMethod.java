@@ -302,8 +302,8 @@ public final class ForexOptionVanillaBlackSmileMethod implements ForexPricingMet
   }
 
   /**
-   * Computes the Theta (derivative with respect to the time) using the forward driftless theta in the Black formula. The theta is not scaled.
-   * Reference on driftless theta: The complete guide to Option Pricing Formula (2007), E. G. Haug, Mc Graw Hill, p. 67, equation (2.43)
+   * Computes the theta (derivative with respect to the time) using the forward driftless theta in the Black formula. The theta is not scaled.
+   * Reference on driftless theta: The complete guide to Option Pricing Formula (2007), E. G. Haug, McGraw Hill, p. 67, equation (2.43)
    * @param optionForex The Forex option.
    * @param curves The yield curve bundle.
    * @return The theta. In the same currency as present value.
@@ -320,6 +320,29 @@ public final class ForexOptionVanillaBlackSmileMethod implements ForexPricingMet
     final double sign = (optionForex.isLong() ? 1.0 : -1.0);
     final double theta = BlackFormulaRepository.driftlessTheta(forward, optionForex.getStrike(), optionForex.getTimeToExpiry(), volatility) * sign
         * Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount());
+    return CurrencyAmount.of(optionForex.getUnderlyingForex().getCurrency2(), theta);
+  }
+
+  /**
+   * Computes the theta (derivative with respect to the time). The theta is not scaled.
+   * @param optionForex The Forex option.
+   * @param curves The yield curve bundle.
+   * @return The theta
+   */
+  public CurrencyAmount forwardTheta(final ForexOptionVanilla optionForex, final YieldCurveBundle curves) {
+    ArgumentChecker.notNull(curves, "Curves");
+    ArgumentChecker.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Yield curve bundle should contain smile data");
+    final SmileDeltaTermStructureDataBundle smile = (SmileDeltaTermStructureDataBundle) curves;
+    final double dfDomestic = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency2().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime());
+    final double dfForeign = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency1().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime());
+    final double spot = smile.getFxRates().getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
+    final double forward = spot * dfForeign / dfDomestic;
+    final double rDomestic = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency2().getFundingCurveName()).getInterestRate(optionForex.getUnderlyingForex().getPaymentTime());
+    final double rForeign = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency1().getFundingCurveName()).getInterestRate(optionForex.getUnderlyingForex().getPaymentTime());
+    final double interestRate = rDomestic - rForeign;
+    final double volatility = FXVolatilityUtils.getVolatility(smile, optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry(), optionForex.getStrike(), forward);
+    final boolean isCall = optionForex.isCall();
+    final double theta = BlackScholesFormulaRepository.theta(spot, optionForex.getStrike(), optionForex.getTimeToExpiry(), volatility, rDomestic, interestRate, isCall);
     return CurrencyAmount.of(optionForex.getUnderlyingForex().getCurrency2(), theta);
   }
 
