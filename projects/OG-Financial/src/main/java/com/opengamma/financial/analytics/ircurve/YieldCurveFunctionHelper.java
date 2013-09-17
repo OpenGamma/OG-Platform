@@ -63,9 +63,9 @@ public class YieldCurveFunctionHelper {
         // REVIEW 2012-10-23 Andrew -- The initialisation state is no longer appropriate for tasks such as this as job version/correction will never be available at
         // this point. Most init methods are examples of premature optimisation to avoid work during the other calls. Additional target dependencies should be used
         // which easily replaces the function reinitialiser mechanism and will result in a proper implementation of version/correction handling.
-        FunctionReinitializer functionReinitializer = context.getFunctionReinitializer(); 
+        final FunctionReinitializer functionReinitializer = context.getFunctionReinitializer();
         if (functionReinitializer != null) { // this step won't happen during a compile.
-          ObjectId objectId = _definition.getUniqueId().getObjectId();
+          final ObjectId objectId = _definition.getUniqueId().getObjectId();
           functionReinitializer.reinitializeFunction(defnToReInit, objectId);
         }
       } else {
@@ -84,7 +84,7 @@ public class YieldCurveFunctionHelper {
     final LocalDate curveDate = atInstantZDT.toLocalDate();
     final InterpolatedYieldCurveSpecification specification = buildCurve(curveDate);
     final Instant expiry = findCurveExpiryDate(context.getSecuritySource(), atInstant, specification, atInstantZDT.with(LocalTime.MIDNIGHT).plusDays(1).minusNanos(1000000).toInstant());
-    return new Triple<Instant, Instant, InterpolatedYieldCurveSpecification>((expiry != null) ? atInstantZDT.with(LocalTime.MIDNIGHT).toInstant() : null, expiry, specification);
+    return new Triple<>((expiry != null) ? atInstantZDT.with(LocalTime.MIDNIGHT).toInstant() : null, expiry, specification);
   }
 
   private YieldCurveDefinition getDefinition(final FunctionCompilationContext context) {

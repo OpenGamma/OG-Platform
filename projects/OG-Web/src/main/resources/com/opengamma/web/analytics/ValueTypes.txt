@@ -44,7 +44,6 @@
 'Security Market Price' java.lang.Double
 'Sharpe Ratio' java.lang.Double
 'Spot' java.lang.Double
-'StandardVolatilitySurfaceData' com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData
 'Total Risk Alpha' java.lang.Double
 'Treynor Ratio' java.lang.Double
 'Underlying Market Price' java.lang.Double
