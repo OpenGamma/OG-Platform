@@ -10,9 +10,6 @@ import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CALCULATION_CO
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CALCULATION_METHOD;
 import static com.opengamma.engine.value.ValueRequirementNames.YIELD_CURVE;
 import static com.opengamma.engine.value.ValueRequirementNames.YIELD_CURVE_JACOBIAN;
-import static com.opengamma.financial.analytics.model.InterpolatedDataProperties.LEFT_X_EXTRAPOLATOR_NAME;
-import static com.opengamma.financial.analytics.model.InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME;
-import static com.opengamma.financial.analytics.model.InterpolatedDataProperties.X_INTERPOLATOR_NAME;
 import static com.opengamma.financial.analytics.model.curve.interestrate.FXImpliedYieldCurveFunction.FX_IMPLIED;
 import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults.PROPERTY_DECOMPOSITION;
 import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE;
@@ -34,7 +31,16 @@ import org.threeten.bp.ZonedDateTime;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
+import com.opengamma.analytics.financial.interestrate.cash.method.CashDiscountingMethod;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
+import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
+import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
+import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
+import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.engine.ComputationTarget;
@@ -59,13 +65,18 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.convention.FXSpotConvention;
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.view.ConfigDocumentWatchSetProvider;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
+import com.opengamma.util.time.Tenor;
 
 /**
  * Constructs a single yield curve and its Jacobian from an FX-implied yield curve calculation configuration
@@ -77,6 +88,10 @@ public class ImpliedDepositCurveFromFXFunction extends AbstractFunction {
   public static final String IMPLIED_DEPOSIT = "ImpliedDeposit";
   /** The value property name for the yield curve definitions that the implied curve is transformed into */
   public static final String PROPERTY_IMPLIED_DEPOSIT_CURVE = "ImpliedCurveDefinition";
+  /** The par rate calculator */
+  private static final CashDiscountingMethod PAR_RATE_CALCULATOR = CashDiscountingMethod.getInstance();
+  /** The business day convention used for FX forward dates computation **/
+  private static final BusinessDayConvention MOD_FOL = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(ImpliedDepositCurveFromFXFunction.class);
   /** The curve name */
@@ -85,14 +100,14 @@ public class ImpliedDepositCurveFromFXFunction extends AbstractFunction {
   private final Currency _currency;
 
   /**
-   * @param curveName The curve name, not null
    * @param currency The currency string, not null
+   * @param curveName The curve name, not null
    */
-  public ImpliedDepositCurveFromFXFunction(final String curveName, final String currency) {
-    ArgumentChecker.notNull(curveName, "curve name");
+  public ImpliedDepositCurveFromFXFunction(final String currency, final String curveName) {
     ArgumentChecker.notNull(currency, "currency");
-    _curveName = curveName;
+    ArgumentChecker.notNull(curveName, "curve name");
     _currency = Currency.of(currency);
+    _curveName = curveName;
   }
 
   @Override
@@ -106,11 +121,14 @@ public class ImpliedDepositCurveFromFXFunction extends AbstractFunction {
     final YieldCurveDefinition definition = configurationSource.getLatestByName(YieldCurveDefinition.class, _curveName + "_" + _currency.getCode());
     final Set<FixedIncomeStrip> strips = definition.getStrips();
     for (final FixedIncomeStrip strip : strips) {
-      if (strip.getInstrumentType() == StripInstrumentType.CASH) {
+      if (strip.getInstrumentType() != StripInstrumentType.CASH) {
         throw new OpenGammaRuntimeException("Can only handle yield curve definitions with CASH strips");
       }
     }
     final ZonedDateTime atZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
+    final String interpolatorName = definition.getInterpolatorName();
+    final String leftExtrapolatorName = definition.getLeftExtrapolatorName();
+    final String rightExtrapolatorName = definition.getRightExtrapolatorName();
     return new AbstractInvokingCompiledFunction(atZDT.with(LocalTime.MIDNIGHT), atZDT.plusDays(1).with(LocalTime.MIDNIGHT).minusNanos(1000000)) {
 
       @Override
@@ -118,6 +136,7 @@ public class ImpliedDepositCurveFromFXFunction extends AbstractFunction {
           final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
         Object domesticCurveObject = null;
         Object foreignCurveObject = null;
+        String domesticCurveName = null;
         final Currency domesticCurrency = target.getValue(PrimitiveComputationTargetType.CURRENCY);
         Currency foreignCurrency = null;
         ComputationTargetSpecification foreignSpec = null;
@@ -133,12 +152,29 @@ public class ImpliedDepositCurveFromFXFunction extends AbstractFunction {
               foreignCurveObject = input.getValue();
             } else {
               domesticCurveObject = input.getValue();
+              domesticCurveName = input.getSpecification().getProperty(CURVE);
             }
           }
         }
         if (foreignCurrency == null) {
-          throw new OpenGammaRuntimeException("Could not find foreign currency curves");
+          throw new OpenGammaRuntimeException("Could not find foreign currency curve");
         }
+        if (domesticCurveObject == null) {
+          throw new OpenGammaRuntimeException("Could not get domestic currency curve");
+        }
+        ValueProperties resultCurveProperties = null;
+        for (final ValueRequirement desiredValue : desiredValues) {
+          if (desiredValue.getValueName().equals(YIELD_CURVE)) {
+            resultCurveProperties = desiredValue.getConstraints().copy().get();
+            break;
+          }
+        }
+        if (resultCurveProperties == null) {
+          throw new OpenGammaRuntimeException("Could not get result curve properties");
+        }
+        final ValueProperties resultJacobianProperties = resultCurveProperties
+            .withoutAny(CURVE)
+            .withoutAny(PROPERTY_IMPLIED_DEPOSIT_CURVE);
         final Object domesticJacobianObject = inputs.getValue(new ValueRequirement(YIELD_CURVE_JACOBIAN, target.toSpecification()));
         final Object foreignJacobianObject = inputs.getValue(new ValueRequirement(YIELD_CURVE_JACOBIAN, foreignSpec));
         final ZonedDateTime now = ZonedDateTime.now(executionContext.getValuationClock());
@@ -154,12 +190,30 @@ public class ImpliedDepositCurveFromFXFunction extends AbstractFunction {
         } else {
           spotDate = ScheduleCalculator.getAdjustedDate(now, spotLag, calendar);
         }
-
+        final YieldCurveBundle curves = new YieldCurveBundle();
+        final String fullYieldCurveName = domesticCurveName + "_" + domesticCurrency;
+        curves.setCurve(fullYieldCurveName, (YieldAndDiscountCurve) domesticCurveObject);
+        final int n = definition.getStrips().size();
+        final double[] t = new double[n];
+        final double[] r = new double[n];
+        int i = 0;
+        final DayCount dayCount = DayCountFactory.INSTANCE.getDayCount("Act/365"); //TODO
         for (final FixedIncomeStrip strip : definition.getStrips()) {
-
-//          final Cash cash = new Cash(domesticCurrency, startTime, endTime, 1, 0, accrualFactor, yieldCurveName);
+          final Tenor tenor = strip.getCurveNodePointTime();
+          final ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(spotDate, tenor.getPeriod(), MOD_FOL, calendar, true);
+          final double startTime = TimeCalculator.getTimeBetween(now, spotDate);
+          final double endTime = TimeCalculator.getTimeBetween(now, paymentDate);
+          final double accrualFactor = dayCount.getDayCountFraction(now, now.plus(tenor.getPeriod()), calendar);
+          final Cash cash = new Cash(domesticCurrency, startTime, endTime, 1, 0, accrualFactor, fullYieldCurveName);
+          final double parRate = PAR_RATE_CALCULATOR.parRate(cash, curves);
+          t[i] = endTime;
+          r[i++] = parRate;
         }
-        return null;
+        final CombinedInterpolatorExtrapolator interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolatorName, leftExtrapolatorName,
+            rightExtrapolatorName);
+        final YieldCurve impliedDepositCurve = new YieldCurve(fullYieldCurveName, InterpolatedDoublesCurve.from(t, r, interpolator));
+        final ValueSpecification spec = new ValueSpecification(YIELD_CURVE, target.toSpecification(), resultCurveProperties);
+        return Sets.newHashSet(new ComputedValue(spec, impliedDepositCurve));
       }
 
       @Override
@@ -202,18 +256,6 @@ public class ImpliedDepositCurveFromFXFunction extends AbstractFunction {
         }
         final Set<String> useFiniteDifference = constraints.getValues(PROPERTY_USE_FINITE_DIFFERENCE);
         if (useFiniteDifference == null || useFiniteDifference.size() != 1) {
-          return null;
-        }
-        final Set<String> interpolatorName = constraints.getValues(X_INTERPOLATOR_NAME);
-        if (interpolatorName == null || interpolatorName.size() != 1) {
-          return null;
-        }
-        final Set<String> leftExtrapolatorName = constraints.getValues(LEFT_X_EXTRAPOLATOR_NAME);
-        if (leftExtrapolatorName == null || leftExtrapolatorName.size() != 1) {
-          return null;
-        }
-        final Set<String> rightExtrapolatorName = constraints.getValues(RIGHT_X_EXTRAPOLATOR_NAME);
-        if (rightExtrapolatorName == null || rightExtrapolatorName.size() != 1) {
           return null;
         }
         final Set<String> domesticCurveCalculationConfigNames = constraints.getValues(CURVE_CALCULATION_CONFIG);
@@ -312,16 +354,13 @@ public class ImpliedDepositCurveFromFXFunction extends AbstractFunction {
         return createValueProperties()
             .with(CURVE_CALCULATION_METHOD, IMPLIED_DEPOSIT)
             .with(PROPERTY_IMPLIED_DEPOSIT_CURVE, _curveName)
-            .withAny(CURVE)
+            .with(CURVE, _curveName)
             .withAny(CURVE_CALCULATION_CONFIG)
             .withAny(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE)
             .withAny(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE)
             .withAny(PROPERTY_ROOT_FINDER_MAX_ITERATIONS)
             .withAny(PROPERTY_DECOMPOSITION)
-            .withAny(PROPERTY_USE_FINITE_DIFFERENCE)
-            .withAny(X_INTERPOLATOR_NAME)
-            .withAny(LEFT_X_EXTRAPOLATOR_NAME)
-            .withAny(RIGHT_X_EXTRAPOLATOR_NAME).get();
+            .withAny(PROPERTY_USE_FINITE_DIFFERENCE).get();
       }
 
       /**
@@ -331,16 +370,12 @@ public class ImpliedDepositCurveFromFXFunction extends AbstractFunction {
       private ValueProperties getJacobianProperties() {
         return createValueProperties()
             .with(CURVE_CALCULATION_METHOD, IMPLIED_DEPOSIT)
-            .with(PROPERTY_IMPLIED_DEPOSIT_CURVE, _curveName)
             .withAny(CURVE_CALCULATION_CONFIG)
             .withAny(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE)
             .withAny(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE)
             .withAny(PROPERTY_ROOT_FINDER_MAX_ITERATIONS)
             .withAny(PROPERTY_DECOMPOSITION)
-            .withAny(PROPERTY_USE_FINITE_DIFFERENCE)
-            .withAny(X_INTERPOLATOR_NAME)
-            .withAny(LEFT_X_EXTRAPOLATOR_NAME)
-            .withAny(RIGHT_X_EXTRAPOLATOR_NAME).get();
+            .withAny(PROPERTY_USE_FINITE_DIFFERENCE).get();
       }
     };
   }

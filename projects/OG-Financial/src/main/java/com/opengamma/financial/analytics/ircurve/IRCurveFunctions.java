@@ -15,6 +15,7 @@ import com.opengamma.financial.analytics.curve.CurveDefinitionFunction;
 import com.opengamma.financial.analytics.curve.CurveMarketDataFunction;
 import com.opengamma.financial.analytics.curve.CurveSpecificationFunction;
 import com.opengamma.financial.analytics.curve.InterpolatedCurveDefinition;
+import com.opengamma.financial.analytics.model.curve.interestrate.ImpliedDepositCurveFromFXFunction;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
@@ -81,6 +82,7 @@ public class IRCurveFunctions extends AbstractFunctionConfigurationBean {
         final String currencyISO = documentName.substring(underscore + 1);
         addYieldCurveFunctions(functions, currencyISO, curveName);
       }
+      functions.add(functionConfiguration(ImpliedDepositCurveFromFXFunction.class, "EUR", "TestImpliedDepositCurve"));
 
       // new curves
       final Class[] curveClasses = new Class[] {CurveDefinition.class, InterpolatedCurveDefinition.class};
