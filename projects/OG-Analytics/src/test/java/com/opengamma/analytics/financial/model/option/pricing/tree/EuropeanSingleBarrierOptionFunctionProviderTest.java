@@ -229,6 +229,9 @@ public class EuropeanSingleBarrierOptionFunctionProviderTest {
 
     final int nSteps = 3121;
 
+    final LatticeSpecification latticeTri = new TianLatticeSpecification();
+    final int nStepsTri = 121;
+
     final boolean[] tfSet = new boolean[] {true, false };
     for (final double barrier : barrierSet) {
       for (final String type : typeSet) {
@@ -252,6 +255,13 @@ public class EuropeanSingleBarrierOptionFunctionProviderTest {
                 assertEquals(resMod, exactMod, Math.max(exactMod, 1.) * 1.e-2);
                 double exactRes = price(resSpot, strike, TIME, vol, interest, 0., isCall, barrier, type);
                 assertEquals(resRes, exactRes, Math.max(exactRes, 1.) * 1.e-2);
+
+                final OptionFunctionProvider1D functionTri = new EuropeanSingleBarrierOptionFunctionProvider(strike, TIME, nStepsTri, isCall, barrier,
+                    EuropeanSingleBarrierOptionFunctionProvider.BarrierTypes.valueOf(type));
+                final double resTriCash = _modelTrinomial.getPrice(latticeTri, functionTri, SPOT, vol, interest, cashDividend);
+                final double resTriProp = _modelTrinomial.getPrice(latticeTri, functionTri, SPOT, vol, interest, propDividend);
+                assertEquals(resTriCash, exactMod, Math.max(exactMod, 1.) * 1.e-1);
+                assertEquals(resTriProp, exactRes, Math.max(exactRes, 1.) * 1.e-1);
               }
             }
           }
@@ -270,6 +280,7 @@ public class EuropeanSingleBarrierOptionFunctionProviderTest {
      * Due to slow convergence, only one lattice is used in this test
      */
     final LatticeSpecification lattice = new LeisenReimerLatticeSpecification();
+    final int nSteps = 3121;
 
     final double[] propDividends = new double[] {0.002, 0.001, 0.002 };
     final double[] cashDividends = new double[] {.2, 1.1, .5 };
@@ -279,7 +290,8 @@ public class EuropeanSingleBarrierOptionFunctionProviderTest {
     final double[] barrierSet = new double[] {90, 112 };
     final String[] typeSet = new String[] {"DownAndOut", "UpAndOut" };
 
-    final int nSteps = 3121;
+    final LatticeSpecification latticeTri = new TianLatticeSpecification();
+    final int nStepsTri = 2121;
 
     final boolean[] tfSet = new boolean[] {true, false };
     for (final double barrier : barrierSet) {
@@ -289,6 +301,8 @@ public class EuropeanSingleBarrierOptionFunctionProviderTest {
             for (final double interest : INTERESTS) {
               for (final double vol : vols) {
                 final OptionFunctionProvider1D function = new EuropeanSingleBarrierOptionFunctionProvider(strike, TIME, nSteps, isCall, barrier,
+                    EuropeanSingleBarrierOptionFunctionProvider.BarrierTypes.valueOf(type));
+                final OptionFunctionProvider1D functionTri = new EuropeanSingleBarrierOptionFunctionProvider(strike, TIME, nStepsTri, isCall, barrier,
                     EuropeanSingleBarrierOptionFunctionProvider.BarrierTypes.valueOf(type));
 
                 final double resSpot = SPOT * (1. - propDividends[0]) * (1. - propDividends[1]) * (1. - propDividends[2]);
@@ -315,6 +329,12 @@ public class EuropeanSingleBarrierOptionFunctionProviderTest {
                   assertEquals(res.get(Greek.DELTA), delta, Math.max(delta, 1.) * 1.e-1);
                   assertEquals(res.get(Greek.GAMMA), gamma, Math.max(gamma, 1.) * 1.e-1);
                   assertEquals(res.get(Greek.THETA), theta, Math.max(theta, 1.) * 1.e-1);
+
+                  final GreekResultCollection resTri = _modelTrinomial.getGreeks(latticeTri, functionTri, SPOT, vol, interest, cashDividend);
+                  assertEquals(resTri.get(Greek.FAIR_PRICE), price, Math.max(price, 1.) * 1.e-2);
+                  assertEquals(resTri.get(Greek.DELTA), delta, Math.max(delta, 1.) * 1.e-1);
+                  assertEquals(resTri.get(Greek.GAMMA), gamma, Math.max(gamma, 1.) * 1.e-1);
+                  assertEquals(resTri.get(Greek.THETA), theta, Math.max(theta, 1.) * 1.e-1);
                 }
                 {
                   final double price = price(resSpot, strike, TIME, vol, interest, 0., isCall, barrier, type);
@@ -334,6 +354,12 @@ public class EuropeanSingleBarrierOptionFunctionProviderTest {
                   assertEquals(res.get(Greek.DELTA), delta, Math.max(delta, 1.) * 1.e-2);
                   assertEquals(res.get(Greek.GAMMA), gamma, Math.max(gamma, 1.) * 1.e-1);
                   assertEquals(res.get(Greek.THETA), theta, Math.max(theta, 1.) * 1.e-1);
+
+                  final GreekResultCollection resTri = _modelTrinomial.getGreeks(latticeTri, functionTri, SPOT, vol, interest, propDividend);
+                  assertEquals(resTri.get(Greek.FAIR_PRICE), price, Math.max(price, 1.) * 1.e-1);
+                  assertEquals(resTri.get(Greek.DELTA), delta, Math.max(delta, 1.) * 1.e-1);
+                  assertEquals(resTri.get(Greek.GAMMA), gamma, Math.max(gamma, 1.) * 1.e-1);
+                  assertEquals(resTri.get(Greek.THETA), theta, Math.max(theta, 1.) * 1.e-1);
                 }
               }
             }

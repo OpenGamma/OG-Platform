@@ -354,6 +354,16 @@ public class AmericanVanillaOptionFunctionProviderTest {
 
                   final double ref = Math.abs(priceDiv - priceMod) > Math.abs(priceDiv - price) ? price : priceMod;
                   assertEquals(priceDiv, ref, Math.max(ref, 1.) * 1.e-1);
+                  if (model instanceof LeisenReimerLatticeSpecification) {
+                    final LatticeSpecification[] latticesTri = new LatticeSpecification[] {new CoxRossRubinsteinLatticeSpecification(), new JarrowRuddLatticeSpecification(),
+                        new TrigeorgisLatticeSpecification(), new TianLatticeSpecification() };
+                    final int stepsTri = 71;
+                    for (final LatticeSpecification latticeTri : latticesTri) {
+                      final OptionFunctionProvider1D functionTri = new AmericanVanillaOptionFunctionProvider(strike, TIME, stepsTri, isCall);
+                      final double priceTrinomial = _modelTrinomial.getPrice(latticeTri, functionTri, SPOT, vol, interest, 0.);
+                      assertEquals(priceTrinomial, price, Math.max(price, 1.) * 1.e-2);
+                    }
+                  }
                 }
               }
             }
@@ -401,6 +411,17 @@ public class AmericanVanillaOptionFunctionProviderTest {
                   double price = _model.getPrice(model, function, SPOT, vol, interest, 0.);
                   final double ref = Math.abs(priceDiv - priceMod) > Math.abs(priceDiv - price) ? price : priceMod;
                   assertEquals(priceDiv, ref, Math.max(ref, 1.) * 1.e-1);
+
+                  if (model instanceof LeisenReimerLatticeSpecification) {
+                    final LatticeSpecification[] latticesTri = new LatticeSpecification[] {new CoxRossRubinsteinLatticeSpecification(), new JarrowRuddLatticeSpecification(),
+                        new TrigeorgisLatticeSpecification(), new TianLatticeSpecification() };
+                    final int stepsTri = 71;
+                    for (final LatticeSpecification latticeTri : latticesTri) {
+                      final OptionFunctionProvider1D functionTri = new AmericanVanillaOptionFunctionProvider(strike, TIME, stepsTri, isCall);
+                      final double priceTrinomial = _modelTrinomial.getPrice(latticeTri, functionTri, SPOT, vol, interest, 0.);
+                      assertEquals(priceTrinomial, price, Math.max(price, 1.) * 1.e-2);
+                    }
+                  }
                 }
               }
             }
@@ -428,7 +449,7 @@ public class AmericanVanillaOptionFunctionProviderTest {
         for (final double strike : STRIKES) {
           for (final double interest : INTERESTS) {
             for (final double vol : VOLS) {
-              final int nSteps = 301;
+              final int nSteps = 21;
               final double resSpot = SPOT * (1. - propDividends[0]) * (1. - propDividends[1]) * (1. - propDividends[2]);
               final double modSpot = SPOT - cashDividends[0] * Math.exp(-interest * dividendTimes[0]) - cashDividends[1] * Math.exp(-interest * dividendTimes[1]) - cashDividends[2] *
                   Math.exp(-interest * dividendTimes[2]);
@@ -452,8 +473,8 @@ public class AmericanVanillaOptionFunctionProviderTest {
               final double refThetaProp = Math.abs(resProp.get(Greek.THETA) - resRes.get(Greek.THETA)) > Math.abs(resProp.get(Greek.THETA) - resBare.get(Greek.THETA)) ? resBare
                   .get(Greek.THETA) : resRes.get(Greek.THETA);
               assertEquals(resProp.get(Greek.FAIR_PRICE), refPriceProp, Math.max(1., Math.abs(refPriceProp)) * 1.e-1);
-              assertEquals(resProp.get(Greek.DELTA), refDeltaProp, Math.max(1., Math.abs(refDeltaProp)));
-              assertEquals(resProp.get(Greek.GAMMA), refGammaProp, Math.max(1., Math.abs(refGammaProp)));
+              assertEquals(resProp.get(Greek.DELTA), refDeltaProp, Math.max(1., Math.abs(refDeltaProp)) * 1.e-1);
+              assertEquals(resProp.get(Greek.GAMMA), refGammaProp, Math.max(1., Math.abs(refGammaProp)) * 1.e-1);
               assertEquals(resProp.get(Greek.THETA), refThetaProp, Math.max(1., Math.abs(refThetaProp)));
 
               final double refPriceCash = Math.abs(resCash.get(Greek.FAIR_PRICE) - resMod.get(Greek.FAIR_PRICE)) > Math.abs(resCash.get(Greek.FAIR_PRICE) - resBare.get(Greek.FAIR_PRICE)) ? resBare
@@ -464,11 +485,34 @@ public class AmericanVanillaOptionFunctionProviderTest {
                   .get(Greek.GAMMA) : resRes.get(Greek.GAMMA);
               final double refThetaCash = Math.abs(resCash.get(Greek.THETA) - resMod.get(Greek.THETA)) > Math.abs(resCash.get(Greek.THETA) - resBare.get(Greek.THETA)) ? resBare
                   .get(Greek.THETA) : resRes.get(Greek.THETA);
-              assertEquals(resProp.get(Greek.FAIR_PRICE), refPriceCash, Math.max(1., Math.abs(refPriceCash)) * 1.e-1);
-              assertEquals(resProp.get(Greek.DELTA), refDeltaCash, Math.max(1., Math.abs(refDeltaCash)));
-              assertEquals(resProp.get(Greek.GAMMA), refGammaCash, Math.max(1., Math.abs(refGammaCash)));
-              assertEquals(resProp.get(Greek.THETA), refThetaCash, Math.max(1., Math.abs(refThetaCash)));
+              assertEquals(resCash.get(Greek.FAIR_PRICE), refPriceCash, Math.max(1., Math.abs(refPriceCash)) * 1.e-1);
+              assertEquals(resCash.get(Greek.DELTA), refDeltaCash, Math.max(1., Math.abs(refDeltaCash)) * 1.e-1);
+              assertEquals(resCash.get(Greek.GAMMA), refGammaCash, Math.max(1., Math.abs(refGammaCash)) * 1.e-1);
+              assertEquals(resCash.get(Greek.THETA), refThetaCash, Math.max(1., Math.abs(refThetaCash)));
 
+              if (lattice instanceof TrigeorgisLatticeSpecification) {
+                final LatticeSpecification[] latticesTri = new LatticeSpecification[] {new CoxRossRubinsteinLatticeSpecification(), new JarrowRuddLatticeSpecification(),
+                    new TrigeorgisLatticeSpecification(), new TianLatticeSpecification() };
+                final int stepsTri = 11;
+                for (final LatticeSpecification latticeTri : latticesTri) {
+                  final OptionFunctionProvider1D functionTri = new AmericanVanillaOptionFunctionProvider(strike, TIME, stepsTri, isCall);
+                  final GreekResultCollection resPropTrinomial = _modelTrinomial.getGreeks(latticeTri, functionTri, SPOT, vol, interest, propDividend);
+                  final GreekResultCollection resCashTrinomial = _modelTrinomial.getGreeks(latticeTri, functionTri, SPOT, vol, interest, cashDividend);
+
+                  assertEquals(resPropTrinomial.get(Greek.FAIR_PRICE), resProp.get(Greek.FAIR_PRICE), Math.max(1., Math.abs(resProp.get(Greek.FAIR_PRICE))) * 1.e-1);
+                  assertEquals(resPropTrinomial.get(Greek.DELTA), resProp.get(Greek.DELTA), Math.max(1., Math.abs(resProp.get(Greek.DELTA))) * 1.e-1);
+                  assertEquals(resPropTrinomial.get(Greek.GAMMA), resProp.get(Greek.GAMMA), Math.max(1., Math.abs(resProp.get(Greek.GAMMA))) * 1.e-1);
+                  if (resProp.get(Greek.THETA) > 0.) {
+                    assertEquals(resPropTrinomial.get(Greek.THETA), resProp.get(Greek.THETA), Math.max(1., Math.abs(resProp.get(Greek.THETA))));
+                  }
+                  assertEquals(resCashTrinomial.get(Greek.FAIR_PRICE), resCash.get(Greek.FAIR_PRICE), Math.max(1., Math.abs(resCash.get(Greek.FAIR_PRICE))) * 1.e-1);
+                  assertEquals(resCashTrinomial.get(Greek.DELTA), resCash.get(Greek.DELTA), Math.max(1., Math.abs(resCash.get(Greek.DELTA))) * 1.e-1);
+                  assertEquals(resCashTrinomial.get(Greek.GAMMA), resCash.get(Greek.GAMMA), Math.max(1., Math.abs(resCash.get(Greek.GAMMA))) * 1.e-1);
+                  if (resCash.get(Greek.THETA) > 0.) {
+                    assertEquals(resCashTrinomial.get(Greek.THETA), resCash.get(Greek.THETA), Math.max(1., Math.abs(resCash.get(Greek.THETA))));
+                  }
+                }
+              }
             }
           }
         }

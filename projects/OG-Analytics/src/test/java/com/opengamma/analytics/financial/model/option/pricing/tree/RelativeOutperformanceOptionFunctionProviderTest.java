@@ -20,6 +20,7 @@ import com.opengamma.util.ArgumentChecker;
 public class RelativeOutperformanceOptionFunctionProviderTest {
 
   private static final BinomialTreeOptionPricingModel _model = new BinomialTreeOptionPricingModel();
+  private static final TrinomialTreeOptionPricingModel _modelTri = new TrinomialTreeOptionPricingModel();
   private static final double SPOT = 105.;
   private static final double[] STRIKES = new double[] {0.9, 1., 1.1 };
   private static final double TIME = 4.2;
@@ -36,6 +37,7 @@ public class RelativeOutperformanceOptionFunctionProviderTest {
     final double sigma2 = 0.15;
     final double[] rhoSet = new double[] {-0.1, 0.6 };
     final int nSteps = 95;
+    final int nStepsTri = 66;
 
     final double div2 = 0.01;
 
@@ -54,8 +56,11 @@ public class RelativeOutperformanceOptionFunctionProviderTest {
                       Math.sqrt(vol * vol + sigma2 * sigma2 - 2. * rhoVols), isCall);
                   final double resDiv = _model.getPrice(function, SPOT, spot2, vol, sigma2, rho, interest, dividend, div2);
                   final double refDiv = Math.max(exactDiv, 1.) * 1.e-3;
-                  //                  System.out.println(resDiv + "\t" + exactDiv);
                   assertEquals(resDiv, exactDiv, refDiv);
+
+                  final OptionFunctionProvider2D functionTri = new RelativeOutperformanceOptionFunctionProvider(strike, TIME, nStepsTri, isCall);
+                  final double resDivTri = _modelTri.getPrice(functionTri, SPOT, spot2, vol, sigma2, rho, interest, dividend, div2);
+                  assertEquals(resDivTri, exactDiv, refDiv);
                 }
               }
             }
@@ -74,6 +79,7 @@ public class RelativeOutperformanceOptionFunctionProviderTest {
     final double sigma2 = 0.15;
     final double[] rhoSet = new double[] {-0.1, 0.6 };
     final int nSteps = 95;
+    final int nStepsTri = 66;
     final double div2 = 0.01;
     final double eps = 1.e-6;
 
@@ -118,6 +124,10 @@ public class RelativeOutperformanceOptionFunctionProviderTest {
                   final double[] ref = new double[] {price, delta1, delta2, theta, gamma1, gamma2, cross };
                   final double[] res = _model.getGreeks(function, SPOT, spot2, vol, sigma2, rho, interest, dividend, div2);
                   assertGreeks(res, ref, 1.e-3);
+
+                  final OptionFunctionProvider2D functionTri = new RelativeOutperformanceOptionFunctionProvider(strike, TIME, nStepsTri, isCall);
+                  final double[] resTri = _modelTri.getGreeks(functionTri, SPOT, spot2, vol, sigma2, rho, interest, dividend, div2);
+                  assertGreeks(resTri, ref, 1.e-3);
                 }
               }
             }

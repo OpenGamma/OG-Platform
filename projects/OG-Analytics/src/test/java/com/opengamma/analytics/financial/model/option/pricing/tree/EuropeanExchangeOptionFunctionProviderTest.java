@@ -22,6 +22,7 @@ public class EuropeanExchangeOptionFunctionProviderTest {
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
 
   private static final BinomialTreeOptionPricingModel _model = new BinomialTreeOptionPricingModel();
+  private static final TrinomialTreeOptionPricingModel _modelTri = new TrinomialTreeOptionPricingModel();
   private static final double SPOT = 105.;
   private static final double TIME = 4.2;
   private static final double[] INTERESTS = new double[] {-0.01, 0.017, 0.05 };
@@ -37,6 +38,7 @@ public class EuropeanExchangeOptionFunctionProviderTest {
     final double sigma2 = 0.15;
     final double[] rhoSet = new double[] {-0.1, 0.6 };
     final int nSteps = 91;
+    final int nStepsTri = 81;
     final double quant2 = 2.;
     final double[] quant1Set = new double[] {1., 2., 3. };
 
@@ -53,6 +55,10 @@ public class EuropeanExchangeOptionFunctionProviderTest {
                 final double resDiv = _model.getPrice(function, SPOT, spot2, vol, sigma2, rho, interest, dividend, div2);
                 final double refDiv = Math.max(exactDiv, 1.) * 1.e-2;
                 assertEquals(resDiv, exactDiv, refDiv);
+
+                final OptionFunctionProvider2D functionTri = new EuropeanExchangeOptionFunctionProvider(TIME, nStepsTri, quant1, quant2);
+                final double resDivTri = _modelTri.getPrice(functionTri, SPOT, spot2, vol, sigma2, rho, interest, dividend, div2);
+                assertEquals(resDivTri, exactDiv, refDiv);
               }
             }
           }
@@ -70,6 +76,7 @@ public class EuropeanExchangeOptionFunctionProviderTest {
     final double sigma2 = 0.15;
     final double[] rhoSet = new double[] {-0.1, 0.6 };
     final int nSteps = 201;
+    final int nStepsTri = 31;//181 for 1.e-2
     final double quant2 = 2.;
     final double[] quant1Set = new double[] {1., 2., 3. };
 
@@ -92,6 +99,10 @@ public class EuropeanExchangeOptionFunctionProviderTest {
                 final double[] exact = new double[] {price, delta1, delta2, theta, gamma1, gamma2, cross };
                 final double[] res = _model.getGreeks(function, SPOT, spot2, vol, sigma2, rho, interest, dividend, div2);
                 assertGreeks(res, exact, 1.e-2);
+
+                final OptionFunctionProvider2D functionTri = new EuropeanExchangeOptionFunctionProvider(TIME, nStepsTri, quant1, quant2);
+                final double[] resTri = _modelTri.getGreeks(functionTri, SPOT, spot2, vol, sigma2, rho, interest, dividend, div2);
+                assertGreeks(resTri, exact, 1.e-1);
               }
             }
           }

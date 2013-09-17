@@ -148,7 +148,60 @@ public class TrinomialTreeOptionPricingModel extends TreeOptionPricingModel {
   @Override
   public double getPrice(OptionFunctionProvider2D function, double spot1, double spot2, double volatility1, double volatility2, double correlation, double interestRate, double dividend1,
       double dividend2) {
-    return 0;
+    ArgumentChecker.notNull(function, "function");
+
+    ArgumentChecker.isTrue(spot1 > 0., "spot1 should be positive");
+    ArgumentChecker.isTrue(Doubles.isFinite(spot1), "spot1 should be finite");
+    ArgumentChecker.isTrue(spot2 > 0., "spot2 should be positive");
+    ArgumentChecker.isTrue(Doubles.isFinite(spot2), "spot2 should be finite");
+    ArgumentChecker.isTrue(volatility1 > 0., "volatility1 should be positive");
+    ArgumentChecker.isTrue(Doubles.isFinite(volatility1), "volatility1 should be finite");
+    ArgumentChecker.isTrue(volatility2 > 0., "volatility2 should be positive");
+    ArgumentChecker.isTrue(Doubles.isFinite(volatility2), "volatility2 should be finite");
+    ArgumentChecker.isTrue(correlation >= -1. && correlation <= 1., "correlation should be -1. <= rho <= 1.");
+    ArgumentChecker.isTrue(Doubles.isFinite(interestRate), "interestRate should be finite");
+    ArgumentChecker.isTrue(Doubles.isFinite(dividend1), "dividend1 should be finite");
+    ArgumentChecker.isTrue(Doubles.isFinite(dividend2), "dividend2 should be finite");
+
+    final int nSteps = function.getNumberOfSteps();
+    final double timeToExpiry = function.getTimeToExpiry();
+    final double dt = timeToExpiry / nSteps;
+
+    final CoxRossRubinsteinLatticeSpecification crr = new CoxRossRubinsteinLatticeSpecification();
+    final double[] params1 = crr.getParametersTrinomial(volatility1, interestRate - dividend1, dt);
+    final double[] params2 = crr.getParametersTrinomial(volatility2, interestRate - dividend2, dt);
+    final double downFactor1 = params1[2];
+    final double downFactor2 = params2[2];
+    final double middleOverDown1 = params1[0];
+    final double middleOverDown2 = params2[0];
+
+    final double up1 = params1[3];
+    final double md1 = params1[4];
+    final double dw1 = params1[5];
+    final double up2 = params2[3];
+    final double md2 = params2[4];
+    final double dw2 = params2[5];
+
+    final double discount = Math.exp(-interestRate * dt);
+    final double uuProbability = up1 / 3. + up2 / 3. - 1. / 9. + correlation / 4.;
+    final double umProbability = up1 / 3. + md2 / 3. - 1. / 9.;
+    final double udProbability = up1 / 3. + dw2 / 3. - 1. / 9. - correlation / 4.;
+    final double muProbability = md1 / 3. + up2 / 3. - 1. / 9.;
+    final double mmProbability = md1 / 3. + md2 / 3. - 1. / 9.;
+    final double mdProbability = md1 / 3. + dw2 / 3. - 1. / 9.;
+    final double duProbability = dw1 / 3. + up2 / 3. - 1. / 9. - correlation / 4.;
+    final double dmProbability = dw1 / 3. + md2 / 3. - 1. / 9.;
+    final double ddProbability = dw1 / 3. + dw2 / 3. - 1. / 9. + correlation / 4.;
+
+    final double assetPrice1 = spot1 * Math.pow(downFactor1, nSteps);
+    final double assetPrice2 = spot2 * Math.pow(downFactor2, nSteps);
+    double[][] values = function.getPayoffAtExpiryTrinomial(assetPrice1, assetPrice2, middleOverDown1, middleOverDown2);
+    for (int i = nSteps - 1; i > -1; --i) {
+      values = function.getNextOptionValues(discount, uuProbability, umProbability, udProbability, muProbability, mmProbability, mdProbability, duProbability, dmProbability, ddProbability, values,
+          spot1, spot2, downFactor1, downFactor2, middleOverDown1, middleOverDown2, i);
+    }
+
+    return values[0][0];
   }
 
   @Override
@@ -347,7 +400,109 @@ public class TrinomialTreeOptionPricingModel extends TreeOptionPricingModel {
   @Override
   public double[] getGreeks(OptionFunctionProvider2D function, double spot1, double spot2, double volatility1, double volatility2, double correlation, double interestRate, double dividend1,
       double dividend2) {
-    return null;
-  }
+    ArgumentChecker.notNull(function, "function");
 
+    ArgumentChecker.isTrue(spot1 > 0., "spot1 should be positive");
+    ArgumentChecker.isTrue(Doubles.isFinite(spot1), "spot1 should be finite");
+    ArgumentChecker.isTrue(spot2 > 0., "spot2 should be positive");
+    ArgumentChecker.isTrue(Doubles.isFinite(spot2), "spot2 should be finite");
+    ArgumentChecker.isTrue(volatility1 > 0., "volatility1 should be positive");
+    ArgumentChecker.isTrue(Doubles.isFinite(volatility1), "volatility1 should be finite");
+    ArgumentChecker.isTrue(volatility2 > 0., "volatility2 should be positive");
+    ArgumentChecker.isTrue(Doubles.isFinite(volatility2), "volatility2 should be finite");
+    ArgumentChecker.isTrue(correlation >= -1. && correlation <= 1., "correlation should be -1. <= rho <= 1.");
+    ArgumentChecker.isTrue(Doubles.isFinite(interestRate), "interestRate should be finite");
+    ArgumentChecker.isTrue(Doubles.isFinite(dividend1), "dividend1 should be finite");
+    ArgumentChecker.isTrue(Doubles.isFinite(dividend2), "dividend2 should be finite");
+
+    final int nSteps = function.getNumberOfSteps();
+    final double timeToExpiry = function.getTimeToExpiry();
+    final double dt = timeToExpiry / nSteps;
+
+    final CoxRossRubinsteinLatticeSpecification crr = new CoxRossRubinsteinLatticeSpecification();
+    final double[] params1 = crr.getParametersTrinomial(volatility1, interestRate - dividend1, dt);
+    final double[] params2 = crr.getParametersTrinomial(volatility2, interestRate - dividend2, dt);
+    final double downFactor1 = params1[2];
+    final double downFactor2 = params2[2];
+    final double middleOverDown1 = params1[0];
+    final double middleOverDown2 = params2[0];
+
+    final double up1 = params1[3];
+    final double md1 = params1[4];
+    final double dw1 = params1[5];
+    final double up2 = params2[3];
+    final double md2 = params2[4];
+    final double dw2 = params2[5];
+
+    final double discount = Math.exp(-interestRate * dt);
+    final double uuProbability = up1 / 3. + up2 / 3. - 1. / 9. + correlation / 4.;
+    final double umProbability = up1 / 3. + md2 / 3. - 1. / 9.;
+    final double udProbability = up1 / 3. + dw2 / 3. - 1. / 9. - correlation / 4.;
+    final double muProbability = md1 / 3. + up2 / 3. - 1. / 9.;
+    final double mmProbability = md1 / 3. + md2 / 3. - 1. / 9.;
+    final double mdProbability = md1 / 3. + dw2 / 3. - 1. / 9.;
+    final double duProbability = dw1 / 3. + up2 / 3. - 1. / 9. - correlation / 4.;
+    final double dmProbability = dw1 / 3. + md2 / 3. - 1. / 9.;
+    final double ddProbability = dw1 / 3. + dw2 / 3. - 1. / 9. + correlation / 4.;
+
+    final double[] pForDelta1 = new double[] {spot1 * downFactor1, spot1, spot1 * middleOverDown1 };
+    final double[] pForDelta2 = new double[] {spot2 * downFactor2, spot2, spot2 * middleOverDown2 };
+    final double[] pForGamma1 = new double[] {pForDelta1[0] * downFactor1, pForDelta1[0], spot1, pForDelta1[2], pForDelta1[2] * middleOverDown1 };
+    final double[] pForGamma2 = new double[] {pForDelta2[0] * downFactor2, pForDelta2[0], spot2, pForDelta2[2], pForDelta2[2] * middleOverDown2 };
+
+    final double assetPrice1 = spot1 * Math.pow(downFactor1, nSteps);
+    final double assetPrice2 = spot2 * Math.pow(downFactor2, nSteps);
+    double[][] values = function.getPayoffAtExpiryTrinomial(assetPrice1, assetPrice2, middleOverDown1, middleOverDown2);
+    final double[] res = new double[7];
+
+    for (int i = nSteps - 1; i > -1; --i) {
+      values = function.getNextOptionValues(discount, uuProbability, umProbability, udProbability, muProbability, mmProbability, mdProbability, duProbability, dmProbability, ddProbability, values,
+          spot1, spot2, downFactor1, downFactor2, middleOverDown1, middleOverDown2, i);
+      if (i == 2) {
+        final double diff11 = pForGamma1[1] - pForGamma1[0];
+        final double diff12 = pForGamma1[2] - pForGamma1[1];
+        final double diff13 = pForGamma1[3] - pForGamma1[2];
+        final double diff14 = pForGamma1[4] - pForGamma1[3];
+        final double delta11 = (values[1][0] - values[0][0] + values[1][1] - values[0][1] + values[1][2] - values[0][2] + values[1][3] - values[0][3] + values[1][4] - values[0][4]) / diff11 / 5.;
+        final double delta12 = (values[2][0] - values[1][0] + values[2][1] - values[1][1] + values[2][2] - values[1][2] + values[2][3] - values[1][3] + values[2][4] - values[1][4]) / diff12 / 5.;
+        final double delta13 = (values[3][0] - values[2][0] + values[3][1] - values[2][1] + values[3][2] - values[2][2] + values[3][3] - values[2][3] + values[3][4] - values[2][4]) / diff13 / 5.;
+        final double delta14 = (values[4][0] - values[3][0] + values[4][1] - values[3][1] + values[4][2] - values[3][2] + values[4][3] - values[3][3] + values[4][4] - values[3][4]) / diff14 / 5.;
+        res[4] = (2. * (delta12 - delta11) / (pForGamma1[2] - pForGamma1[0]) + 2. * (delta13 - delta12) / (pForGamma1[3] - pForGamma1[1])
+            + 2. * (delta14 - delta13) / (pForGamma1[4] - pForGamma1[2])) / 3.;
+
+        final double diff21 = pForGamma2[1] - pForGamma2[0];
+        final double diff22 = pForGamma2[2] - pForGamma2[1];
+        final double diff23 = pForGamma2[3] - pForGamma2[2];
+        final double diff24 = pForGamma2[4] - pForGamma2[3];
+        final double delta21 = (values[0][1] - values[0][0] + values[1][1] - values[1][0] + values[2][1] - values[2][0] + values[3][1] - values[3][0] + values[4][1] - values[4][0]) / diff21 / 5.;
+        final double delta22 = (values[0][2] - values[0][1] + values[1][2] - values[1][1] + values[2][2] - values[2][1] + values[3][2] - values[3][1] + values[4][2] - values[4][1]) / diff22 / 5.;
+        final double delta23 = (values[0][3] - values[0][2] + values[1][3] - values[1][2] + values[2][3] - values[2][2] + values[3][3] - values[3][2] + values[4][3] - values[4][2]) / diff23 / 5.;
+        final double delta24 = (values[0][4] - values[0][3] + values[1][4] - values[1][3] + values[2][4] - values[2][3] + values[3][4] - values[3][3] + values[4][4] - values[4][3]) / diff24 / 5.;
+        res[5] = (2. * (delta22 - delta21) / (pForGamma2[2] - pForGamma2[0]) + 2. * (delta23 - delta22) / (pForGamma2[3] - pForGamma2[1])
+            + 2. * (delta24 - delta23) / (pForGamma2[4] - pForGamma2[2])) / 3.;
+
+        res[3] = values[2][2];
+      }
+      if (i == 1) {
+        final double diff1L = pForDelta1[1] - pForDelta1[0];
+        final double diff1H = pForDelta1[2] - pForDelta1[1];
+        final double delta1d = 0.5 * ((values[1][0] - values[0][0]) / diff1L + (values[2][0] - values[1][0]) / diff1H);
+        final double delta1m = 0.5 * ((values[1][1] - values[0][1]) / diff1L + (values[2][1] - values[1][1]) / diff1H);
+        final double delta1u = 0.5 * ((values[1][2] - values[0][2]) / diff1L + (values[2][2] - values[1][2]) / diff1H);
+        res[1] = (delta1d + delta1m + delta1u) / 3.;
+        final double diff2L = pForDelta2[1] - pForDelta2[0];
+        final double diff2H = pForDelta2[2] - pForDelta2[1];
+        final double delta2d = 0.5 * ((values[0][1] - values[0][0]) / diff2L + (values[0][2] - values[0][1]) / diff2H);
+        final double delta2m = 0.5 * ((values[1][1] - values[1][0]) / diff2L + (values[1][2] - values[1][1]) / diff2H);
+        final double delta2u = 0.5 * ((values[2][1] - values[2][0]) / diff2L + (values[2][2] - values[2][1]) / diff2H);
+        res[2] = (delta2d + delta2m + delta2u) / 3.;
+
+        res[6] = 0.25 * ((delta1m - delta1d) / diff2L + (delta1u - delta1m) / diff2H + (delta2m - delta2d) / diff1L + (delta2u - delta2m) / diff1H);
+      }
+    }
+    res[0] = values[0][0];
+    res[3] = 0.5 * (res[3] - values[0][0]) / dt;
+
+    return res;
+  }
 }

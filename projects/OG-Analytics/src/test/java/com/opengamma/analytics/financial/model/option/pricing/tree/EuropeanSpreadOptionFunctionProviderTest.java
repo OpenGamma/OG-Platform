@@ -20,12 +20,52 @@ import com.opengamma.util.ArgumentChecker;
 public class EuropeanSpreadOptionFunctionProviderTest {
 
   private static final BinomialTreeOptionPricingModel _model = new BinomialTreeOptionPricingModel();
+  private static final TrinomialTreeOptionPricingModel _modelTri = new TrinomialTreeOptionPricingModel();
   private static final double SPOT = 105.;
   private static final double[] STRIKES = new double[] {1., 5., 14. };
   private static final double TIME = 4.2;
   private static final double[] INTERESTS = new double[] {0.017, 0.05 };
   private static final double[] VOLS = new double[] {0.05, 0.1, 0.5 };
   private static final double[] DIVIDENDS = new double[] {0.005, 0.014 };
+
+  /**
+   * 
+   */
+  @Test
+  public void binomialTrinomialTest() {
+    final double[] spotSet2 = new double[] {SPOT * 0.9, SPOT * 1.1 };
+    final double sigma2 = 0.15;
+    final double[] rhoSet = new double[] {-0.1, 0.6 };
+    final int nSteps = 58;
+    final int nStepsTri = 19;
+
+    final double div2 = 0.01;
+
+    final boolean[] tfSet = new boolean[] {true, false };
+    for (final boolean isCall : tfSet) {
+      for (final double interest : INTERESTS) {
+        for (final double vol : VOLS) {
+          for (final double spot2 : spotSet2) {
+            for (final double rho : rhoSet) {
+              for (final double strike : STRIKES) {
+                for (final double dividend : DIVIDENDS) {
+                  final OptionFunctionProvider2D function = new EuropeanSpreadOptionFunctionProvider(strike, TIME, nSteps, isCall);
+                  final double resDiv = _model.getPrice(function, SPOT, spot2, vol, sigma2, rho, interest, dividend, div2);
+                  final OptionFunctionProvider2D functionTri = new EuropeanSpreadOptionFunctionProvider(strike, TIME, nStepsTri, isCall);
+                  final double resDivTri = _modelTri.getPrice(functionTri, SPOT, spot2, vol, sigma2, rho, interest, dividend, div2);
+                  assertEquals(resDivTri, resDiv, resDiv * 1.e-2);
+
+                  final double[] greek = _model.getGreeks(function, SPOT, spot2, vol, sigma2, rho, interest, dividend, div2);
+                  final double[] greekTri = _modelTri.getGreeks(functionTri, SPOT, spot2, vol, sigma2, rho, interest, dividend, div2);
+                  assertGreeks(greekTri, greek, 1.e-1);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 
   /**
    * Analytic formula is available if K =0

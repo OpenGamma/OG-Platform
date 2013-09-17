@@ -284,11 +284,67 @@ public class DoubleBarrierOptionFunctionProviderTest {
               final double theta = -0.5 * (priceTimeUp - priceTimeDown) / eps;
 
               final GreekResultCollection res = _model.getGreeks(lattice, function, SPOT, vol, interest, dividend);
-              assertEquals(res.get(Greek.FAIR_PRICE), price, Math.max(price, .1) * 1.e-1);
-              assertEquals(res.get(Greek.DELTA), delta, Math.max(delta, .1) * 1.e-1);
-              assertEquals(res.get(Greek.GAMMA), gamma, Math.max(gamma, .1) * 1.e-1);
-              assertEquals(res.get(Greek.THETA), theta, Math.max(theta, .1) * 1.e-1);
+              assertEquals(res.get(Greek.FAIR_PRICE), price, Math.max(price, 1.) * 1.e-3);
+              assertEquals(res.get(Greek.DELTA), delta, Math.max(delta, 1.) * 1.e-3);
+              assertEquals(res.get(Greek.GAMMA), gamma, Math.max(gamma, 1.) * 1.e-3);
+              assertEquals(res.get(Greek.THETA), theta, Math.max(theta, 1.) * 1.e-3);
             }
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * 
+   */
+  @Test
+  public void binomialTrinomialDiscreteDividendTest() {
+    final LatticeSpecification lattice = new TianLatticeSpecification();
+
+    final double time = 5.;
+    final double[] propDividends = new double[] {0.05, 0.06, 0.05 };
+    final double[] cashDividends = new double[] {3., 2., 4.5 };
+    final double[] dividendTimes = new double[] {time / 6., time / 3., time / 2. };
+    final DividendFunctionProvider cashDividend = new CashDividendFunctionProvider(dividendTimes, cashDividends);
+    final DividendFunctionProvider propDividend = new ProportionalDividendFunctionProvider(dividendTimes, propDividends);
+    final int steps = 139;
+    final int stepsTri = 114;
+
+    final boolean[] tfSet = new boolean[] {true, false };
+    for (final boolean isCall : tfSet) {
+      final double strike = isCall ? 115. : 95.;
+      final double[] lower = new double[] {85., isCall ? 95. : 80. };
+      final double[] upper = new double[] {125., isCall ? 130. : 115. };
+      for (final double interest : INTERESTS) {
+        for (final double vol : VOLS) {
+          for (int i = 0; i < lower.length; ++i) {
+            final OptionFunctionProvider1D function = new DoubleBarrierOptionFunctionProvider(strike, TIME, steps, isCall, lower[i], upper[i],
+                DoubleBarrierOptionFunctionProvider.BarrierTypes.valueOf("DoubleKnockOut"));
+            final double priceCash = _model.getPrice(lattice, function, SPOT, vol, interest, cashDividend);
+            final double priceProp = _model.getPrice(lattice, function, SPOT, vol, interest, propDividend);
+            final GreekResultCollection resCash = _model.getGreeks(lattice, function, SPOT, vol, interest, cashDividend);
+            final GreekResultCollection resProp = _model.getGreeks(lattice, function, SPOT, vol, interest, propDividend);
+            final OptionFunctionProvider1D functionTri = new DoubleBarrierOptionFunctionProvider(strike, TIME, stepsTri, isCall, lower[i], upper[i],
+                DoubleBarrierOptionFunctionProvider.BarrierTypes.valueOf("DoubleKnockOut"));
+            final double priceCashTrinomial = _modelTrinomial.getPrice(lattice, functionTri, SPOT, vol, interest, cashDividend);
+            final double pricePropTrinomial = _modelTrinomial.getPrice(lattice, functionTri, SPOT, vol, interest, propDividend);
+            final GreekResultCollection resCashTrinomial = _modelTrinomial.getGreeks(lattice, functionTri, SPOT, vol, interest, cashDividend);
+            final GreekResultCollection resPropTrinomial = _modelTrinomial.getGreeks(lattice, functionTri, SPOT, vol, interest, propDividend);
+
+            assertEquals(resCash.get(Greek.FAIR_PRICE), priceCash, 1.e-14);
+            assertEquals(resCashTrinomial.get(Greek.FAIR_PRICE), priceCashTrinomial, 1.e-14);
+            assertEquals(resCash.get(Greek.FAIR_PRICE), resCashTrinomial.get(Greek.FAIR_PRICE), Math.max(Math.abs(resCashTrinomial.get(Greek.FAIR_PRICE)), 1.) * 1.e-1);
+            assertEquals(resCash.get(Greek.DELTA), resCashTrinomial.get(Greek.DELTA), Math.max(Math.abs(resCashTrinomial.get(Greek.DELTA)), 1.) * 1.e-1);
+            assertEquals(resCash.get(Greek.GAMMA), resCashTrinomial.get(Greek.GAMMA), Math.max(Math.abs(resCashTrinomial.get(Greek.GAMMA)), 1.) * 1.e-1);
+            assertEquals(resCash.get(Greek.THETA), resCashTrinomial.get(Greek.THETA), Math.max(Math.abs(resCashTrinomial.get(Greek.THETA)), 1.) * 1.);
+
+            assertEquals(resProp.get(Greek.FAIR_PRICE), priceProp, 1.e-14);
+            assertEquals(resPropTrinomial.get(Greek.FAIR_PRICE), pricePropTrinomial, 1.e-14);
+            assertEquals(resProp.get(Greek.FAIR_PRICE), resPropTrinomial.get(Greek.FAIR_PRICE), Math.max(Math.abs(resPropTrinomial.get(Greek.FAIR_PRICE)), 1.) * 1.e-1);
+            assertEquals(resProp.get(Greek.DELTA), resPropTrinomial.get(Greek.DELTA), Math.max(Math.abs(resPropTrinomial.get(Greek.DELTA)), 1.) * 1.e-1);
+            assertEquals(resProp.get(Greek.GAMMA), resPropTrinomial.get(Greek.GAMMA), Math.max(Math.abs(resPropTrinomial.get(Greek.GAMMA)), 1.) * 1.e-1);
+            assertEquals(resProp.get(Greek.THETA), resPropTrinomial.get(Greek.THETA), Math.max(Math.abs(resPropTrinomial.get(Greek.THETA)), 1.) * 1.);
           }
         }
       }

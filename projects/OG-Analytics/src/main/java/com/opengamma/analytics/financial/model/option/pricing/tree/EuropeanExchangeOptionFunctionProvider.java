@@ -50,19 +50,20 @@ public class EuropeanExchangeOptionFunctionProvider extends OptionFunctionProvid
     return values;
   }
 
-  @Override
-  public double[][] getNextOptionValues(final double discount, final double uuProbability, final double udProbability, final double duProbability, final double ddProbability,
-      final double[][] values, final double baseAssetPrice1, final double baseAssetPrice2, final double downFactor1, final double downFactor2,
-      final double upOverDown1, final double upOverDown2, final int steps) {
+  public double[][] getPayoffAtExpiryTrinomial(final double assetPrice1, final double assetPrice2, final double middleOverDown1, final double middleOverDown2) {
+    final int nNodes = 2 * getNumberOfSteps() + 1;
 
-    final int stepsP = steps + 1;
-    final double[][] res = new double[stepsP][stepsP];
-    for (int j = 0; j < stepsP; ++j) {
-      for (int i = 0; i < stepsP; ++i) {
-        res[j][i] = discount * (uuProbability * values[j + 1][i + 1] + udProbability * values[j + 1][i] + duProbability * values[j][i + 1] + ddProbability * values[j][i]);
+    final double[][] values = new double[nNodes][nNodes];
+    double priceTmp1 = assetPrice1;
+    for (int i = 0; i < nNodes; ++i) {
+      double priceTmp2 = assetPrice2;
+      for (int j = 0; j < nNodes; ++j) {
+        values[i][j] = Math.max(_quantity1 * priceTmp1 - _quantity2 * priceTmp2, 0.);
+        priceTmp2 *= middleOverDown2;
       }
+      priceTmp1 *= middleOverDown1;
     }
-    return res;
+    return values;
   }
 
   @Override

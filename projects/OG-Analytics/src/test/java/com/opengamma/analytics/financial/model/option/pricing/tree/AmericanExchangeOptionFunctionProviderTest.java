@@ -19,6 +19,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class AmericanExchangeOptionFunctionProviderTest {
   private static final BinomialTreeOptionPricingModel _model = new BinomialTreeOptionPricingModel();
+  private static final TrinomialTreeOptionPricingModel _modelTri = new TrinomialTreeOptionPricingModel();
   private static final BjerksundStenslandModel _bs = new BjerksundStenslandModel();
   private static final double SPOT = 105.;
   private static final double TIME = 4.2;
@@ -35,6 +36,7 @@ public class AmericanExchangeOptionFunctionProviderTest {
     final double sigma2 = 0.15;
     final double[] rhoSet = new double[] {-0.1, 0.6 };
     final int nSteps = 51;
+    final int nStepsTri = 21;
     final double quant2 = 2.;
     final double[] quant1Set = new double[] {1., 2., 3. };
 
@@ -54,6 +56,14 @@ public class AmericanExchangeOptionFunctionProviderTest {
                 final double resDiv = _model.getPrice(function, SPOT, spot2, vol, sigma2, rho, interest, dividend, div2);
                 final double refDiv = Math.max(appDiv, 0.1) * 1.e-1;
                 assertEquals(resDiv, appDiv, refDiv);
+
+                final OptionFunctionProvider2D functionTri = new AmericanExchangeOptionFunctionProvider(TIME, nStepsTri, quant1, quant2);
+                final double resDivTri = _modelTri.getPrice(functionTri, SPOT, spot2, vol, sigma2, rho, interest, dividend, div2);
+                assertEquals(resDivTri, resDiv, Math.max(resDiv, 0.1) * 1.e-1);
+
+                final double[] greek = _model.getGreeks(function, SPOT, spot2, vol, sigma2, rho, interest, dividend, div2);
+                final double[] greekTri = _modelTri.getGreeks(functionTri, SPOT, spot2, vol, sigma2, rho, interest, dividend, div2);
+                assertGreeks(greekTri, greek, 1.e-1);
               }
             }
           }

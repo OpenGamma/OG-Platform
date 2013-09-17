@@ -37,6 +37,7 @@ public abstract class OptionFunctionProvider2D {
   }
 
   /**
+   * For binomial model
    * @param assetPrice1 Asset price 1 at (nSteps,0), i.e., the price at the lowest node
    * @param assetPrice2 Asset price 2 at (nSteps,0), i.e., the price at the lowest node
    * @param upOverDown1 (up factor)/(down factor) for asset1
@@ -46,6 +47,8 @@ public abstract class OptionFunctionProvider2D {
   public abstract double[][] getPayoffAtExpiry(final double assetPrice1, final double assetPrice2, final double upOverDown1, final double upOverDown2);
 
   /**
+   * Given a set of option values in the (steps+1)-th layer, derive option values in the (steps)-th layer
+   * This method should be overridden if an option has early exercise feature
    * @param discount Discount factor
    * @param uuProbability Up-up probability 
    * @param udProbability Up-down probability
@@ -59,11 +62,68 @@ public abstract class OptionFunctionProvider2D {
    * @param upOverDown1 (up factor)/(down factor) for asset1
    * @param upOverDown2 (up factor)/(down factor) for asset2
    * @param steps  
-   * @return Given a set of option values in the (steps+1)-th layer, derive option values in the (steps)-th layer
+   * @return The option values in the (steps)-th layer
    */
-  public abstract double[][] getNextOptionValues(final double discount, final double uuProbability, final double udProbability, final double duProbability, final double ddProbability,
+  public double[][] getNextOptionValues(final double discount, final double uuProbability, final double udProbability, final double duProbability, final double ddProbability,
       final double[][] values, final double baseAssetPrice1, final double baseAssetPrice2, final double downFactor1, final double downFactor2,
-      final double upOverDown1, final double upOverDown2, final int steps);
+      final double upOverDown1, final double upOverDown2, final int steps) {
+    final int stepsP = steps + 1;
+    final double[][] res = new double[stepsP][stepsP];
+    for (int j = 0; j < stepsP; ++j) {
+      for (int i = 0; i < stepsP; ++i) {
+        res[j][i] = discount * (uuProbability * values[j + 1][i + 1] + udProbability * values[j + 1][i] + duProbability * values[j][i + 1] + ddProbability * values[j][i]);
+      }
+    }
+    return res;
+  }
+
+  /**
+   * For trinomial model
+   * @param assetPrice1 Asset price 1 at (nSteps,0), i.e., the price at the lowest node
+   * @param assetPrice2 Asset price 2 at (nSteps,0), i.e., the price at the lowest node
+   * @param middleOverDown1 (middle factor)/(down factor) for asset1
+   * @param middleOverDown2 (middle factor)/(down factor) for asset2
+   * @return Payoff at expiry 
+   */
+  public abstract double[][] getPayoffAtExpiryTrinomial(final double assetPrice1, final double assetPrice2, final double middleOverDown1, final double middleOverDown2);
+
+  /**
+   * Given a set of option values in the (steps+1)-th layer, derive option values in the (steps)-th layer
+   * This method should be overridden if an option has early exercise feature
+   * @param discount Discount factor
+   * @param uuProbability Up-up probability 
+   * @param umProbability Up-middle probability 
+   * @param udProbability Up-down probability 
+   * @param muProbability Middle-up probability
+   * @param mmProbability Middle-middle probability
+   * @param mdProbability Middle-down probability
+   * @param duProbability Down-up probability
+   * @param dmProbability Down-middle probability
+   * @param ddProbability Down-down probability
+   * @param values Option values in the (steps+1)-th layer
+   * @param baseAssetPrice1 Asset price 1 at (0,0), i.e., the starting point
+   * @param baseAssetPrice2 Asset price 2 at (0,0), i.e., the starting point
+   * @param downFactor1 Down factor for asset1
+   * @param downFactor2 Down factor for asset2
+   * @param middleOverDown1 (middle factor)/(down factor) for asset1
+   * @param middleOverDown2 (middle factor)/(down factor) for asset2
+   * @param steps 
+   * @return The option values in the (steps)-th layer
+   */
+  public double[][] getNextOptionValues(final double discount, final double uuProbability, final double umProbability, final double udProbability, final double muProbability,
+      final double mmProbability, final double mdProbability, final double duProbability, final double dmProbability, final double ddProbability, final double[][] values,
+      final double baseAssetPrice1, final double baseAssetPrice2, final double downFactor1, final double downFactor2, final double middleOverDown1, final double middleOverDown2, final int steps) {
+    final int nNodes = 2 * steps + 1;
+    final double[][] res = new double[nNodes][nNodes];
+    for (int j = 0; j < nNodes; ++j) {
+      for (int i = 0; i < nNodes; ++i) {
+        res[j][i] = discount *
+            (uuProbability * values[j + 2][i + 2] + umProbability * values[j + 2][i + 1] + udProbability * values[j + 2][i] + muProbability * values[j + 1][i + 2] + mmProbability *
+                values[j + 1][i + 1] + mdProbability * values[j + 1][i] + duProbability * values[j][i + 2] + dmProbability * values[j][i + 1] + ddProbability * values[j][i]);
+      }
+    }
+    return res;
+  }
 
   /**
    * Access strike price

@@ -233,6 +233,52 @@ public class BermudanOptionFunctionProviderTest {
    * 
    */
   @Test
+  public void binomialTrinomialDiscreteDividendTest() {
+    final LatticeSpecification[] lattices = new LatticeSpecification[] {new JarrowRuddLatticeSpecification(), new TrigeorgisLatticeSpecification(),
+        new TianLatticeSpecification() };
+
+    final double time = 5.;
+    final double[] exerciseTimes = new double[] {0.1, 1., 13. / 12., 1.6, 2.5, 3.1, 10. / 3., 11. / 3., 5.0 };
+    final double[] propDividends = new double[] {0.05, 0.06, 0.05 };
+    final double[] cashDividends = new double[] {3., 2., 4.5 };
+    final double[] dividendTimes = new double[] {time / 6., time / 3., time / 2. };
+    final DividendFunctionProvider cashDividend = new CashDividendFunctionProvider(dividendTimes, cashDividends);
+    final DividendFunctionProvider propDividend = new ProportionalDividendFunctionProvider(dividendTimes, propDividends);
+    final int steps = 369;
+    final int stepsTri = 144;
+
+    final boolean[] tfSet = new boolean[] {true, false };
+    for (final LatticeSpecification lattice : lattices) {
+      for (final boolean isCall : tfSet) {
+        for (final double strike : STRIKES) {
+          for (final double interest : INTERESTS) {
+            for (final double vol : VOLS) {
+              final OptionFunctionProvider1D function = new BermudanOptionFunctionProvider(strike, time, steps, isCall, exerciseTimes);
+              final GreekResultCollection resCash = _model.getGreeks(lattice, function, SPOT, vol, interest, cashDividend);
+              final GreekResultCollection resProp = _model.getGreeks(lattice, function, SPOT, vol, interest, propDividend);
+              final OptionFunctionProvider1D functionTri = new BermudanOptionFunctionProvider(strike, time, stepsTri, isCall, exerciseTimes);
+              final GreekResultCollection resCashTrinomial = _modelTrinomial.getGreeks(lattice, functionTri, SPOT, vol, interest, cashDividend);
+              final GreekResultCollection resPropTrinomial = _modelTrinomial.getGreeks(lattice, functionTri, SPOT, vol, interest, propDividend);
+              assertEquals(resCash.get(Greek.FAIR_PRICE), resCashTrinomial.get(Greek.FAIR_PRICE), Math.max(Math.abs(resCashTrinomial.get(Greek.FAIR_PRICE)), 1.) * 1.e-1);
+              assertEquals(resCash.get(Greek.DELTA), resCashTrinomial.get(Greek.DELTA), Math.max(Math.abs(resCashTrinomial.get(Greek.DELTA)), 1.) * 1.e-1);
+              assertEquals(resCash.get(Greek.GAMMA), resCashTrinomial.get(Greek.GAMMA), Math.max(Math.abs(resCashTrinomial.get(Greek.GAMMA)), 1.) * 1.e-1);
+              assertEquals(resCash.get(Greek.THETA), resCashTrinomial.get(Greek.THETA), Math.max(Math.abs(resCashTrinomial.get(Greek.THETA)), 1.) * 1.);
+
+              assertEquals(resProp.get(Greek.FAIR_PRICE), resPropTrinomial.get(Greek.FAIR_PRICE), Math.max(Math.abs(resPropTrinomial.get(Greek.FAIR_PRICE)), 1.) * 1.e-1);
+              assertEquals(resProp.get(Greek.DELTA), resPropTrinomial.get(Greek.DELTA), Math.max(Math.abs(resPropTrinomial.get(Greek.DELTA)), 1.) * 1.e-1);
+              assertEquals(resProp.get(Greek.GAMMA), resPropTrinomial.get(Greek.GAMMA), Math.max(Math.abs(resPropTrinomial.get(Greek.GAMMA)), 1.) * 1.e-1);
+              assertEquals(resProp.get(Greek.THETA), resPropTrinomial.get(Greek.THETA), Math.max(Math.abs(resPropTrinomial.get(Greek.THETA)), 1.) * 1.);
+            }
+          }
+        }
+      }
+    }
+  }
+
+  /**
+   * 
+   */
+  @Test
   public void getExerciseTimesTest() {
     final int steps = 1253;
     final double dt = TIME / steps;

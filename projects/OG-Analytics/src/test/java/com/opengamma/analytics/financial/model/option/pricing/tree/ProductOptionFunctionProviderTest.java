@@ -20,6 +20,7 @@ import com.opengamma.util.ArgumentChecker;
 public class ProductOptionFunctionProviderTest {
 
   private static final BinomialTreeOptionPricingModel _model = new BinomialTreeOptionPricingModel();
+  private static final TrinomialTreeOptionPricingModel _modelTri = new TrinomialTreeOptionPricingModel();
   private static final double SPOT = 105.;
   private static final double[] STRIKES = new double[] {9900., 11500., 14000. };
   private static final double TIME = 4.2;
@@ -36,6 +37,7 @@ public class ProductOptionFunctionProviderTest {
     final double sigma2 = 0.15;
     final double[] rhoSet = new double[] {-0.1, 0.6 };
     final int nSteps = 184;
+    final int nStepsTri = 116;
 
     final double div2 = 0.01;
 
@@ -54,6 +56,10 @@ public class ProductOptionFunctionProviderTest {
                   final double resDiv = _model.getPrice(function, SPOT, spot2, vol, sigma2, rho, interest, dividend, div2);
                   final double refDiv = Math.max(exactDiv, 1.) * 1.e-2;
                   assertEquals(resDiv, exactDiv, refDiv);
+
+                  final OptionFunctionProvider2D functionTri = new ProductOptionFunctionProvider(strike, TIME, nStepsTri, isCall);
+                  final double resDivTri = _modelTri.getPrice(functionTri, SPOT, spot2, vol, sigma2, rho, interest, dividend, div2);
+                  assertEquals(resDivTri, exactDiv, refDiv);
                 }
               }
             }
@@ -72,6 +78,7 @@ public class ProductOptionFunctionProviderTest {
     final double sigma2 = 0.15;
     final double[] rhoSet = new double[] {-0.1, 0.6 };
     final int nSteps = 194;
+    final int nStepsTri = 39;
     final double div2 = 0.01;
     final double eps = 1.e-6;
 
@@ -115,11 +122,15 @@ public class ProductOptionFunctionProviderTest {
                    * Poor approximation of theta
                    */
                   //                  final double[] ref = new double[] {price, delta1, delta2, theta, gamma1, gamma2, cross };
-
                   final double[] res = _model.getGreeks(function, SPOT, spot2, vol, sigma2, rho, interest, dividend, div2);
                   final double[] refMod = new double[] {price, delta1, delta2, gamma1, gamma2, cross };
                   final double[] resMod = new double[] {res[0], res[1], res[2], res[4], res[5], res[6] };
                   assertGreeks(resMod, refMod, 1.e-2);
+
+                  final OptionFunctionProvider2D functionTri = new ProductOptionFunctionProvider(strike, TIME, nStepsTri, isCall);
+                  final double[] resTri = _modelTri.getGreeks(functionTri, SPOT, spot2, vol, sigma2, rho, interest, dividend, div2);
+                  final double[] resTriMod = new double[] {resTri[0], resTri[1], resTri[2], resTri[4], resTri[5], resTri[6] };
+                  assertGreeks(resTriMod, refMod, 1.e-1);
                 }
               }
             }

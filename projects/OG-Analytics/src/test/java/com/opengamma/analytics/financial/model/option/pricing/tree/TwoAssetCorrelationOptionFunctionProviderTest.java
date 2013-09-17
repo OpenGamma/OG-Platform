@@ -20,11 +20,12 @@ import com.opengamma.util.ArgumentChecker;
 public class TwoAssetCorrelationOptionFunctionProviderTest {
   private static final BivariateNormalDistribution _bivariate = new BivariateNormalDistribution();
   private static final BinomialTreeOptionPricingModel _model = new BinomialTreeOptionPricingModel();
+  private static final TrinomialTreeOptionPricingModel _modelTri = new TrinomialTreeOptionPricingModel();
   private static final double SPOT = 105.;
   private static final double[] STRIKES1 = new double[] {95., 105., 115. };
   private static final double TIME = 4.2;
   private static final double[] INTERESTS = new double[] {0.017, 0.05 };
-  private static final double[] VOLS = new double[] {0.05, 0.1, 0.5 };
+  private static final double[] VOLS = new double[] {0.05, 0.25 };
   private static final double[] DIVIDENDS = new double[] {0.005, 0.014 };
 
   /**
@@ -36,7 +37,8 @@ public class TwoAssetCorrelationOptionFunctionProviderTest {
     final double sigma2 = 0.15;
     final double[] rhoSet = new double[] {-0.1, 0.6 };
     final double strike2 = 104.;
-    final int nSteps = 199;
+    final int nSteps = 69;
+    final int nStepsTri = 63;
 
     final double div2 = 0.01;
 
@@ -52,8 +54,12 @@ public class TwoAssetCorrelationOptionFunctionProviderTest {
                   final OptionFunctionProvider2D function = new TwoAssetCorrelationOptionFunctionProvider(strike1, strike2, TIME, nSteps, isCall);
                   double exactDiv = price(SPOT, spot2, strike1, strike2, TIME, vol, sigma2, rho, interest, interest - dividend, interest - div2, isCall);
                   final double resDiv = _model.getPrice(function, SPOT, spot2, vol, sigma2, rho, interest, dividend, div2);
-                  final double refDiv = Math.max(exactDiv, 1.) * 1.e-1;
+                  final double refDiv = Math.max(exactDiv, 1.) * 0.2;
                   assertEquals(resDiv, exactDiv, refDiv);
+
+                  final OptionFunctionProvider2D functionTri = new TwoAssetCorrelationOptionFunctionProvider(strike1, strike2, TIME, nStepsTri, isCall);
+                  final double resDivTri = _modelTri.getPrice(functionTri, SPOT, spot2, vol, sigma2, rho, interest, dividend, div2);
+                  assertEquals(resDivTri, exactDiv, refDiv);
                 }
               }
             }
@@ -72,6 +78,7 @@ public class TwoAssetCorrelationOptionFunctionProviderTest {
     final double sigma2 = 0.15;
     final double[] rhoSet = new double[] {-0.1, 0.6 };
     final int nSteps = 199;
+    final int nStepsTri = 13;
     final double div2 = 0.01;
     final double strike2 = 104.;
     final double eps = 1.e-6;
@@ -106,6 +113,13 @@ public class TwoAssetCorrelationOptionFunctionProviderTest {
                   final double[] ref = new double[] {price, delta1, delta2, theta, gamma1, gamma2, cross };
                   final double[] res = _model.getGreeks(function, SPOT, spot2, vol, sigma2, rho, interest, dividend, div2);
                   assertGreeks(res, ref, 1.e-1);
+
+                  final OptionFunctionProvider2D functionTri = new TwoAssetCorrelationOptionFunctionProvider(strike1, strike2, TIME, nStepsTri, isCall);
+                  final double[] resTri = _modelTri.getGreeks(functionTri, SPOT, spot2, vol, sigma2, rho, interest, dividend, div2);
+                  /*
+                   * asset1 gamma is poorly approximated for cetain data sets
+                   */
+                  assertGreeks(resTri, ref, 1.);
                 }
               }
             }
