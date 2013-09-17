@@ -23,7 +23,6 @@ import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.PropertyReadWrite;
-import org.joda.beans.impl.direct.DirectBean;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -103,6 +102,7 @@ public class JodaBeanRowParser extends RowParser {
    * The underlying security class(es) for the security class above
    */
   private List<Class<?>> _underlyingSecurityClasses;
+  
   
   /**
    *  Map from column name to the field's Java type
