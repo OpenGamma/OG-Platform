@@ -10,6 +10,7 @@ import java.util.List;
 import com.google.common.collect.Lists;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.id.UniqueId;
+import com.opengamma.master.AbstractDocumentsResult;
 import com.opengamma.master.CombinedMaster;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
@@ -35,18 +36,29 @@ public class CombinedPositionMaster extends CombinedMaster<PositionDocument, Pos
   }
 
   @Override
-  public PositionSearchResult search(final PositionSearchRequest request) {
-    final PositionSearchResult result = new PositionSearchResult();
-    for (PositionMaster master : getMasterList()) {
-      PositionSearchResult search = master.search(request);
-      result.getDocuments().addAll(search.getDocuments());
-      result.setVersionCorrection(search.getVersionCorrection());
-    }
-    applyPaging(result, request.getPagingRequest());
-
-    return result;
+  public PositionSearchResult search(final PositionSearchRequest overallRequest) {
+    final PositionSearchResult overallResult = new PositionSearchResult();
+    
+    pagedSearch(new PositionSearchStrategy() {
+      
+      @Override
+      public AbstractDocumentsResult<PositionDocument> search(PositionMaster master, PositionSearchRequest searchRequest) {
+        PositionSearchResult masterResult = master.search(searchRequest);
+        overallResult.setVersionCorrection(masterResult.getVersionCorrection());
+        return masterResult;
+      }
+    }, overallResult, overallRequest);
+    
+    
+    return overallResult;
   }
 
+  /**
+   * Callback interface for position searches
+   */
+  private interface PositionSearchStrategy extends SearchStrategy<PositionDocument, PositionMaster, PositionSearchRequest> { }
+
+  
   /**
    * Callback interface for the search operation to sort, filter and process results.
    */

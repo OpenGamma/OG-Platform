@@ -10,6 +10,7 @@ import java.util.List;
 import com.google.common.collect.Lists;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.id.UniqueId;
+import com.opengamma.master.AbstractDocumentsResult;
 import com.opengamma.master.CombinedMaster;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
@@ -35,20 +36,28 @@ public class CombinedPortfolioMaster extends CombinedMaster<PortfolioDocument, P
   }
 
   @Override
-  public PortfolioSearchResult search(final PortfolioSearchRequest request) {
-    final PortfolioSearchResult result = new PortfolioSearchResult();
+  public PortfolioSearchResult search(PortfolioSearchRequest overallRequest) {
+    final PortfolioSearchResult overallResult = new PortfolioSearchResult();
     
-    for (PortfolioMaster master : getMasterList()) {
-      PortfolioSearchResult search = master.search(request);
-      result.getDocuments().addAll(search.getDocuments());
-      result.setVersionCorrection(search.getVersionCorrection());
-    }
+    pagedSearch(new PortfolioSearchStrategy() {
+      
+      @Override
+      public AbstractDocumentsResult<PortfolioDocument> search(PortfolioMaster master, PortfolioSearchRequest searchRequest) {
+        PortfolioSearchResult masterResult = master.search(searchRequest);
+        overallResult.setVersionCorrection(masterResult.getVersionCorrection());
+        return masterResult;
+      }
+    }, overallResult, overallRequest);
     
-    applyPaging(result, request.getPagingRequest());
-    
-    return result;
+    return overallResult;
 
   }
+  
+  /**
+   * Callback interface for portfolio searches
+   */
+  private interface PortfolioSearchStrategy extends SearchStrategy<PortfolioDocument, PortfolioMaster, PortfolioSearchRequest> { }
+
   
   /**
    * Callback interface for the search operation to sort, filter and process results.
