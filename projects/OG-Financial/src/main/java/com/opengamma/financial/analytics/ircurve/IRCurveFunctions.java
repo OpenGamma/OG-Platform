@@ -82,7 +82,7 @@ public class IRCurveFunctions extends AbstractFunctionConfigurationBean {
         final String currencyISO = documentName.substring(underscore + 1);
         addYieldCurveFunctions(functions, currencyISO, curveName);
       }
-      functions.add(functionConfiguration(ImpliedDepositCurveFromFXFunction.class, "EUR", "TestImpliedDepositCurve"));
+//      functions.add(functionConfiguration(ImpliedDepositCurveFromFXFunction.class, "EUR", "TestImpliedDepositCurve"));
 
       // new curves
       final Class[] curveClasses = new Class[] {CurveDefinition.class, InterpolatedCurveDefinition.class};
