@@ -58,7 +58,7 @@ public class ForwardBlackVegaForexCalculator extends InstrumentDerivativeVisitor
   @Override
   public Double visitForexOptionDigital(final ForexOptionDigital derivative, final YieldCurveBundle data) {
     ArgumentChecker.isTrue(data instanceof SmileDeltaTermStructureDataBundle, "Must have data bundle with volatility data");
-    return 0.;
+    return METHOD_FXDIGITAL.forwardVegaTheoretical(derivative, data);
   }
 
   @Override

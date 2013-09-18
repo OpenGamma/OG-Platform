@@ -60,6 +60,6 @@ public class GammaValueBlackForexCalculator extends InstrumentDerivativeVisitorA
 
   @Override
   public CurrencyAmount visitForexOptionDigital(final ForexOptionDigital derivative, final YieldCurveBundle data) {
-    return null;
+    return METHOD_FXDIGITAL.gamma(derivative, data, true);
   }
 }
