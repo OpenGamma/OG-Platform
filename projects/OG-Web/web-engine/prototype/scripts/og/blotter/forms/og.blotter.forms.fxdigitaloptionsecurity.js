@@ -3,13 +3,13 @@
  * Please see distribution for license.
  */
 $.register_module({
-    name: 'og.blotter.forms.fxoptionsecurity',
+    name: 'og.blotter.forms.fxdigitaloptionsecurity',
     dependencies: [],
     obj: function () {
         return function (config) {
-            config.title = 'FX Option';
+            config.title = 'FX Digital Option';
             config.type = 'FXOptionSecurity';
-            config.fxoption = true;
+            config.digital = true;
             return new og.blotter.forms.fxoptionbasesecurity(config);
         };
     }

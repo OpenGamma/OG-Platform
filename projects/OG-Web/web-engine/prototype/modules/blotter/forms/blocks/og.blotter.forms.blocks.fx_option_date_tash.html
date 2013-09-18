@@ -14,10 +14,11 @@
         <input class="blotter-date" name="security.expiry" type="text" value="{{expiry}}"/>
       </td>
     </tr>
+
     <tr>
       <td>
         <label>
-          <span>Exercise Type</span>
+          <span>{{#if fxoption}}Exercise Type{{/if}}{{#if digital}}Payment Currency{{/if}}</span>
         </label>
       </td>
       <td>

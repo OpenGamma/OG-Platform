@@ -433,7 +433,9 @@
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.swaptionsecurity.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.fxbarrieroptionsecurity.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.fxforwardsecurity.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.fxoptionbasesecurity.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.fxoptionsecurity.js</fragment>
+    <fragment>/scripts/og/blotter/forms/og.blotter.forms.fxdigitaloptionsecurity.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.nondeliverablefxoptionsecurity.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.capfloorsecurity.js</fragment>
     <fragment>/scripts/og/blotter/forms/og.blotter.forms.capfloorcmsspreadsecurity.js</fragment>
