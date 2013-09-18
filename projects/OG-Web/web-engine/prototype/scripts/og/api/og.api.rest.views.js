@@ -123,6 +123,24 @@ $.register_module({
                         return api.request(method, {data: data, meta: meta}, promise);
                     },
                     viewports: {
+                        structure: {
+                            root: 'views/{{view_id}}/{{grid_type}}/depgraphs/{{graph_id}}/viewports/{{viewport_id}}/structure',
+                            get: function (config) {
+                                config = config || {};
+                                var root = this.root, method = root.split('/'), data = {}, meta;
+                                meta = check({
+                                    bundle: {method: root + '#get', config: config},
+                                    required: [{all_of: ['view_id', 'grid_type', 'viewport_id', 'graph_id']}]
+                                });
+                                method[1] = config.view_id;
+                                method[2] = config.grid_type;
+                                method[4] = config.graph_id;
+                                method[6] = config.viewport_id;
+                                return api.request(method, {data: data, meta: meta});
+                            },
+                            put: common.not_available_put,
+                            del: common.not_available_del
+                        },
                         root: 'views/{{view_id}}/{{grid_type}}/depgraphs/{{graph_id}}/viewports',
                         get: function (config) {
                             config = config || {};
