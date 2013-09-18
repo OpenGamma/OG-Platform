@@ -287,6 +287,36 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
   }
 
   @Test
+  public void swapRateDa() {
+    final double shift = 1.0E-8;
+    final double x = 0.0;
+    final double[] dafComputed = MODEL.swapRateDaf1(x, DCF_FIXED, ALPHA_FIXED, DCF_IBOR, ALPHA_IBOR);
+
+    final double[] dafExpected = new double[ALPHA_FIXED.length];
+    for (int loopcf = 0; loopcf < ALPHA_FIXED.length; loopcf++) {
+      final double[] afBumped = ALPHA_FIXED.clone();
+      afBumped[loopcf] += shift;
+      final double swapRatePlus = MODEL.swapRate(x, DCF_FIXED, afBumped, DCF_IBOR, ALPHA_IBOR);
+      afBumped[loopcf] -= 2 * shift;
+      final double swapRateMinus = MODEL.swapRate(x, DCF_FIXED, afBumped, DCF_IBOR, ALPHA_IBOR);
+      dafExpected[loopcf] = (swapRatePlus - swapRateMinus) / (2 * shift);
+    }
+    ArrayAsserts.assertArrayEquals("Hull-White model: swap rate dAlphaFixed", dafExpected, dafComputed, TOLERANCE_RATE_DELTA);
+
+    final double[] daiExpected = new double[DCF_IBOR.length];
+    for (int loopcf = 0; loopcf < DCF_IBOR.length; loopcf++) {
+      final double[] aiBumped = ALPHA_IBOR.clone();
+      aiBumped[loopcf] += shift;
+      final double swapRatePlus = MODEL.swapRate(x, DCF_FIXED, ALPHA_FIXED, DCF_IBOR, aiBumped);
+      aiBumped[loopcf] -= 2 * shift;
+      final double swapRateMinus = MODEL.swapRate(x, DCF_FIXED, ALPHA_FIXED, DCF_IBOR, aiBumped);
+      daiExpected[loopcf] = (swapRatePlus - swapRateMinus) / (2 * shift);
+    }
+    final double[] daiComputed = MODEL.swapRateDai1(x, DCF_FIXED, ALPHA_FIXED, DCF_IBOR, ALPHA_IBOR);
+    ArrayAsserts.assertArrayEquals("Hull-White model: swap rate dAlphaIbor", daiExpected, daiComputed, TOLERANCE_RATE_DELTA);
+  }
+
+  @Test
   public void swapRateDx2Ddcf() {
     final double shift = 1.0E-7;
     final double x = 0.0;
@@ -311,6 +341,35 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
       dx2DdcfiExpected[loopcf] = (swapRatePlus - swapRateMinus) / (2 * shift);
     }
     ArrayAsserts.assertArrayEquals("Hull-White model: swap rate", dx2DdcfiExpected, dx2ddcfComputed.getSecond(), TOLERANCE_RATE_DELTA2);
+  }
+
+  @Test
+  public void swapRateDx2Da() {
+    final double shift = 1.0E-7;
+    final double x = 0.0;
+    final Pair<double[], double[]> dx2DaComputed = MODEL.swapRateDx2Da1(x, DCF_FIXED, ALPHA_FIXED, DCF_IBOR, ALPHA_IBOR);
+
+    final double[] dx2DafExpected = new double[DCF_FIXED.length];
+    for (int loopcf = 0; loopcf < DCF_FIXED.length; loopcf++) {
+      final double[] afBumped = ALPHA_FIXED.clone();
+      afBumped[loopcf] += shift;
+      final double swapRatePlus = MODEL.swapRateDx2(x, DCF_FIXED, afBumped, DCF_IBOR, ALPHA_IBOR);
+      afBumped[loopcf] -= 2 * shift;
+      final double swapRateMinus = MODEL.swapRateDx2(x, DCF_FIXED, afBumped, DCF_IBOR, ALPHA_IBOR);
+      dx2DafExpected[loopcf] = (swapRatePlus - swapRateMinus) / (2 * shift);
+    }
+    ArrayAsserts.assertArrayEquals("Hull-White model: swap rate - dx2 dAlphaFixed", dx2DafExpected, dx2DaComputed.getFirst(), TOLERANCE_RATE_DELTA2);
+
+    final double[] dx2DaiExpected = new double[DCF_IBOR.length];
+    for (int loopcf = 0; loopcf < DCF_IBOR.length; loopcf++) {
+      final double[] aiBumped = ALPHA_IBOR.clone();
+      aiBumped[loopcf] += shift;
+      final double swapRatePlus = MODEL.swapRateDx2(x, DCF_FIXED, ALPHA_FIXED, DCF_IBOR, aiBumped);
+      aiBumped[loopcf] -= 2 * shift;
+      final double swapRateMinus = MODEL.swapRateDx2(x, DCF_FIXED, ALPHA_FIXED, DCF_IBOR, aiBumped);
+      dx2DaiExpected[loopcf] = (swapRatePlus - swapRateMinus) / (2 * shift);
+    }
+    ArrayAsserts.assertArrayEquals("Hull-White model: swap rate - dx2 dAlphaIbor", dx2DaiExpected, dx2DaComputed.getSecond(), TOLERANCE_RATE_DELTA2);
   }
 
   @Test(enabled = false)
@@ -342,6 +401,51 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
     // Performance note: value: 31-Aug-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 75 ms for 1000000 swaptions.
     // Performance note: value+derivatives: 31-Aug-11: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 100 ms for 1000000 swaptions.
     System.out.println("Alpha: " + alpha);
+  }
+
+  @Test(enabled = false)
+  /**
+   * Test the payment delay convexity adjustment factor. Analysis of the size. 
+   * In normal test, should have (enabled=false)
+   */
+  public void paymentDelayConvexityFactorAnalysis() {
+
+    final double hwMeanReversion = 0.01;
+    final double rate = 0.02;
+
+    final double[] tenorTime = {0.25, 0.50 };
+    final int nbTenors = tenorTime.length;
+    final double[] lagPayTime = {1.0d / 365.0d, 2.0d / 365.0d, 7.0d / 365.0d };
+    final int nbLags = lagPayTime.length;
+    final double lagFixTime = 2.0d / 365.0d;
+    final int nbPeriods = 120;
+    final double startTimeFirst = 0.25;
+    final double startTimeStep = 0.25;
+    final double[] startTime = new double[nbPeriods];
+    for (int loopp = 0; loopp < nbPeriods; loopp++) {
+      startTime[loopp] = startTimeFirst + loopp * startTimeStep;
+    }
+
+    // Constant volatility
+    final double hwEta = 0.02;
+    final HullWhiteOneFactorPiecewiseConstantParameters parameters = new HullWhiteOneFactorPiecewiseConstantParameters(hwMeanReversion, new double[] {hwEta }, new double[0]);
+
+    final double[][][] factor = new double[nbTenors][nbLags][nbPeriods];
+    final double[][][] adj = new double[nbTenors][nbLags][nbPeriods];
+    for (int loopt = 0; loopt < nbTenors; loopt++) {
+      for (int loopl = 0; loopl < nbLags; loopl++) {
+        for (int loopp = 0; loopp < nbPeriods; loopp++) {
+          factor[loopt][loopl][loopp] = MODEL.paymentDelayConvexityFactor(parameters, 0, startTime[loopp] - lagFixTime, startTime[loopp], startTime[loopp] + tenorTime[loopt],
+              startTime[loopp] + tenorTime[loopt] - lagPayTime[loopl]);
+          adj[loopt][loopl][loopp] = (1.0d / tenorTime[loopt] - rate) * (factor[loopt][loopl][loopp] - 1);
+        }
+      }
+    }
+
+    @SuppressWarnings("unused")
+    int t = 0;
+    t++;
+
   }
 
 }
