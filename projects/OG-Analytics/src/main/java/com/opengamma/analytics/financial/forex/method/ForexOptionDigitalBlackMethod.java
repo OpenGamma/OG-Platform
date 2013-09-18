@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionDigital;
+import com.opengamma.analytics.financial.forex.provider.ForexOptionDigitalBlackSmileMethod;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
@@ -445,7 +446,7 @@ public final class ForexOptionDigitalBlackMethod implements ForexPricingMethod {
     final double volatility = FXVolatilityUtils.getVolatility(smile, foreignCcy, domesticCcy, expiry, forward, forward);
     final double sign = (optionForex.isLong() ? 1.0 : -1.0);
     final boolean isCall = optionForex.isCall();
-    final double deltaDirect = DigitalOptionFunction.delta(spot, strike, expiry, volatility, rDomestic, rForeign, isCall) * dfForeign * sign;
+    final double deltaDirect = DigitalOptionFunction.delta(spot, strike, expiry, volatility, rDomestic, rDomestic - rForeign, isCall) * sign;
     if (directQuote) {
       return deltaDirect;
     }
@@ -509,11 +510,11 @@ public final class ForexOptionDigitalBlackMethod implements ForexPricingMethod {
     final double volatility = FXVolatilityUtils.getVolatility(smile, foreignCcy, domesticCcy, expiry, forward, forward);
     final double sign = (optionForex.isLong() ? 1.0 : -1.0);
     final boolean isCall = optionForex.isCall();
-    final double gammaDirect = DigitalOptionFunction.gamma(spot, strike, expiry, volatility, rDomestic, rForeign, isCall) * (dfForeign * dfForeign) / dfDomestic * sign;
+    final double gammaDirect = DigitalOptionFunction.gamma(spot, strike, expiry, volatility, rDomestic, rForeign, isCall) * sign;
     if (directQuote) {
       return gammaDirect;
     }
-    final double deltaDirect = DigitalOptionFunction.delta(spot, strike, expiry, volatility, rDomestic, rForeign, isCall) * dfForeign * sign;
+    final double deltaDirect = DigitalOptionFunction.delta(spot, strike, expiry, volatility, rDomestic, rForeign, isCall) * sign;
     final double gamma = (gammaDirect * spot + 2 * deltaDirect) * spot * spot * spot;
     return gamma;
   }
@@ -581,11 +582,11 @@ public final class ForexOptionDigitalBlackMethod implements ForexPricingMethod {
     final double sign = (optionForex.isLong() ? 1.0 : -1.0);
     final boolean isCall = optionForex.isCall();
     final double volatility = FXVolatilityUtils.getVolatility(smile, foreignCcy, domesticCcy, expiry, forward, forward);
-    final double gammaDirect = DigitalOptionFunction.gamma(spot, strike, expiry, volatility, rDomestic, rForeign, isCall) * (dfForeign * dfForeign) / dfDomestic * sign;
+    final double gammaDirect = DigitalOptionFunction.gamma(spot, strike, expiry, volatility, rDomestic, rForeign, isCall) * sign;
     if (directQuote) {
       return gammaDirect * spot;
     }
-    final double deltaDirect = DigitalOptionFunction.delta(spot, strike, expiry, volatility, rDomestic, rForeign, isCall) * dfForeign * sign;
+    final double deltaDirect = DigitalOptionFunction.delta(spot, strike, expiry, volatility, rDomestic, rForeign, isCall) * sign;
     final double gamma = (gammaDirect * spot + 2 * deltaDirect) * spot * spot;
     return gamma;
   }
@@ -643,14 +644,12 @@ public final class ForexOptionDigitalBlackMethod implements ForexPricingMethod {
     }
     final double dfDomestic = smile.getCurve(domesticCurveName).getDiscountFactor(paymentTime);
     final double dfForeign = smile.getCurve(foreignCurveName).getDiscountFactor(paymentTime);
-    final double rDomestic = smile.getCurve(domesticCurveName).getInterestRate(paymentTime);
-    final double rForeign = smile.getCurve(foreignCurveName).getInterestRate(paymentTime);
     final double spot = smile.getFxRates().getFxRate(foreignCcy, domesticCcy);
     final double forward = spot * dfForeign / dfDomestic;
     final double expiry = optionForex.getExpirationTime();
     final boolean isCall = optionForex.isCall();
     final double volatility = FXVolatilityUtils.getVolatility(smile, foreignCcy, domesticCcy, expiry, forward, forward);
-    final double theta = DigitalOptionFunction.theta(spot, strike, expiry, volatility, rDomestic, rForeign, isCall);
+    final double theta = DigitalOptionFunction.driftlessTheta(forward, strike, expiry, volatility, isCall);
     return CurrencyAmount.of(optionForex.getUnderlyingForex().getCurrency2(), theta);
   }
 
@@ -664,8 +663,8 @@ public final class ForexOptionDigitalBlackMethod implements ForexPricingMethod {
     ArgumentChecker.notNull(curves, "Curves");
     ArgumentChecker.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Yield curve bundle should contain smile data");
     final SmileDeltaTermStructureDataBundle smile = (SmileDeltaTermStructureDataBundle) curves;
-    final double dfForeign = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency1().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime());
-    return forwardDeltaTheoretical(optionForex, curves) * dfForeign;
+    final double dfDomestic = smile.getCurve(optionForex.getUnderlyingForex().getPaymentCurrency2().getFundingCurveName()).getDiscountFactor(optionForex.getUnderlyingForex().getPaymentTime());
+    return forwardDeltaTheoretical(optionForex, curves) * dfDomestic;
   }
 
   /**
@@ -706,7 +705,7 @@ public final class ForexOptionDigitalBlackMethod implements ForexPricingMethod {
     final double expiry = optionForex.getExpirationTime();
     final double volatility = FXVolatilityUtils.getVolatility(smile, foreignCcy, domesticCcy, expiry, forward, forward);
     final boolean isCall = optionForex.isCall();
-    return DigitalOptionFunction.delta(spot, strike, expiry, volatility, rDomestic, rForeign, isCall);
+    return DigitalOptionFunction.delta(spot, strike, expiry, volatility, rDomestic, rDomestic - rForeign, isCall) / dfDomestic;
   }
 
   /**
@@ -747,7 +746,7 @@ public final class ForexOptionDigitalBlackMethod implements ForexPricingMethod {
     final double expiry = optionForex.getExpirationTime();
     final double volatility = FXVolatilityUtils.getVolatility(smile, foreignCcy, domesticCcy, expiry, forward, forward);
     final boolean isCall = optionForex.isCall();
-    return DigitalOptionFunction.delta(spot, strike, expiry, volatility, rDomestic, rForeign, isCall);
+    return DigitalOptionFunction.gamma(spot, strike, expiry, volatility, rDomestic, rDomestic - rForeign, isCall);
   }
 
   /**
@@ -788,7 +787,7 @@ public final class ForexOptionDigitalBlackMethod implements ForexPricingMethod {
     final double expiry = optionForex.getExpirationTime();
     final double volatility = FXVolatilityUtils.getVolatility(smile, foreignCcy, domesticCcy, expiry, forward, forward);
     final boolean isCall = optionForex.isCall();
-    return DigitalOptionFunction.gamma(spot, strike, expiry, volatility, rDomestic, rForeign, isCall);
+    return DigitalOptionFunction.gamma(spot, strike, expiry, volatility, rDomestic, rDomestic - rForeign, isCall) / dfDomestic;
   }
 
   /**
@@ -829,8 +828,7 @@ public final class ForexOptionDigitalBlackMethod implements ForexPricingMethod {
     final double expiry = optionForex.getExpirationTime();
     final double volatility = FXVolatilityUtils.getVolatility(smile, foreignCcy, domesticCcy, expiry, forward, forward);
     final boolean isCall = optionForex.isCall();
-    return -10000;
-//    return DigitalOptionFunction.vega(spot, strike, expiry, volatility, rDomestic, rForeign, isCall);
+    return DigitalOptionFunction.vega(spot, strike, expiry, volatility, rDomestic, rDomestic - rForeign, isCall) / dfDomestic;
   }
 
   /**
@@ -865,19 +863,17 @@ public final class ForexOptionDigitalBlackMethod implements ForexPricingMethod {
     }
     final double dfDomestic = smile.getCurve(domesticCurveName).getDiscountFactor(paymentTime);
     final double dfForeign = smile.getCurve(foreignCurveName).getDiscountFactor(paymentTime);
-    final double rDomestic = smile.getCurve(domesticCurveName).getInterestRate(paymentTime);
-    final double rForeign = smile.getCurve(foreignCurveName).getInterestRate(paymentTime);
     final double spot = smile.getFxRates().getFxRate(foreignCcy, domesticCcy);
     final double forward = spot * dfForeign / dfDomestic;
     final double expiry = optionForex.getExpirationTime();
     final double volatility = FXVolatilityUtils.getVolatility(smile, foreignCcy, domesticCcy, expiry, forward, forward);
-    return -10000;
-//    return DigitalOptionFunction.driftlessTheta(forward, optionForex.getStrike(), timeToExpiry, volatility);
+    final boolean isCall = optionForex.isCall();
+    return DigitalOptionFunction.driftlessTheta(forward, strike, expiry, volatility, isCall);
   }
 
   /**
-   * Computes the forward driftless theta (derivative with respect to the time). The theta is not scaled.
-   * Reference on driftless theta: The complete guide to Option Pricing Formula (2007), E. G. Haug, Mc Graw Hill, p. 67, equation (2.43)
+   * Computes the spot theta (derivative with respect to the time). The theta is not scaled.
+   * Reference on theta: The complete guide to Option Pricing Formula (2007), E. G. Haug, Mc Graw Hill, p. 67, equation (2.43)
    * @param optionForex The Forex option.
    * @param curves The yield curve bundle.
    * @return The forward driftless theta
@@ -913,6 +909,6 @@ public final class ForexOptionDigitalBlackMethod implements ForexPricingMethod {
     final double forward = spot * dfForeign / dfDomestic;
     final double expiry = optionForex.getExpirationTime();
     final double volatility = FXVolatilityUtils.getVolatility(smile, foreignCcy, domesticCcy, expiry, forward, forward);
-    return DigitalOptionFunction.theta(spot, strike, expiry, volatility, rDomestic, rForeign, optionForex.isCall());
+    return DigitalOptionFunction.theta(spot, strike, expiry, volatility, rDomestic, rDomestic - rForeign, optionForex.isCall());
   }
 }

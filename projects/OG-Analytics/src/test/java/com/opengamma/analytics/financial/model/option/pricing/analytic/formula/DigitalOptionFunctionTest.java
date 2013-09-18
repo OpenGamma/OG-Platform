@@ -30,8 +30,8 @@ import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Triple;
 
 /**
- *
- */
+*
+*/
 @SuppressWarnings("deprecation")
 public class DigitalOptionFunctionTest {
 
@@ -99,15 +99,28 @@ public class DigitalOptionFunctionTest {
               final double delta = DigitalOptionFunction.delta(SPOT, strike, TIME, vol, interest, interest - dividend, isCall);
               final double gamma = DigitalOptionFunction.gamma(SPOT, strike, TIME, vol, interest, interest - dividend, isCall);
               final double theta = DigitalOptionFunction.theta(SPOT, strike, TIME, vol, interest, interest - dividend, isCall);
+              final double vega = DigitalOptionFunction.vega(SPOT, strike, TIME, vol, interest, interest - dividend, isCall);
               final double upSpot = DigitalOptionFunction.price(SPOT + eps, strike, TIME, vol, interest, interest - dividend, isCall);
               final double downSpot = DigitalOptionFunction.price(SPOT - eps, strike, TIME, vol, interest, interest - dividend, isCall);
               final double upSpotDelta = DigitalOptionFunction.delta(SPOT + eps, strike, TIME, vol, interest, interest - dividend, isCall);
               final double downSpotDelta = DigitalOptionFunction.delta(SPOT - eps, strike, TIME, vol, interest, interest - dividend, isCall);
               final double upTime = DigitalOptionFunction.price(SPOT, strike, TIME + eps, vol, interest, interest - dividend, isCall);
               final double downTime = DigitalOptionFunction.price(SPOT, strike, TIME - eps, vol, interest, interest - dividend, isCall);
+              final double upVol = DigitalOptionFunction.price(SPOT, strike, TIME, vol + eps, interest, interest - dividend, isCall);
+              final double downVol = DigitalOptionFunction.price(SPOT, strike, TIME, vol - eps, interest, interest - dividend, isCall);
               assertEquals(delta, 0.5 * (upSpot - downSpot) / eps, eps);
               assertEquals(gamma, 0.5 * (upSpotDelta - downSpotDelta) / eps, eps);
               assertEquals(theta, -0.5 * (upTime - downTime) / eps, eps);
+              assertEquals(vega, 0.5 * (upVol - downVol) / eps, eps);
+
+              final double forward = SPOT * Math.exp(interest - dividend * TIME);
+              final double forwardTheta = DigitalOptionFunction.driftlessTheta(forward, strike, TIME, vol, isCall);
+              final double sign = isCall ? 1. : -1.;
+              final double dUp = Math.log(forward / strike) / vol / Math.sqrt(TIME + eps) - 0.5 * vol * Math.sqrt(TIME + eps);
+              final double dDw = Math.log(forward / strike) / vol / Math.sqrt(TIME - eps) - 0.5 * vol * Math.sqrt(TIME - eps);
+              final double fwUp = NORMAL.getCDF(sign * dUp);
+              final double fwDw = NORMAL.getCDF(sign * dDw);
+              assertEquals(forwardTheta, 0.5 * (fwUp - fwDw) / eps, eps);
             }
           }
         }
@@ -241,5 +254,69 @@ public class DigitalOptionFunctionTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeVolthetaTest() {
     DigitalOptionFunction.theta(SPOT, STRIKES[0], TIME, -VOLS[1], INTERESTS[1], INTERESTS[1] - DIVIDENDS[1], true);
+  }
+
+  /**
+   *
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void negativeSpotvegaTest() {
+    DigitalOptionFunction.vega(-SPOT, STRIKES[0], TIME, VOLS[1], INTERESTS[1], INTERESTS[1] - DIVIDENDS[1], true);
+  }
+
+  /**
+   *
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void negativeStrikevegaTest() {
+    DigitalOptionFunction.vega(SPOT, -STRIKES[0], TIME, VOLS[1], INTERESTS[1], INTERESTS[1] - DIVIDENDS[1], true);
+  }
+
+  /**
+   *
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void negativeTimevegaTest() {
+    DigitalOptionFunction.vega(SPOT, STRIKES[0], -TIME, VOLS[1], INTERESTS[1], INTERESTS[1] - DIVIDENDS[1], true);
+  }
+
+  /**
+   *
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void negativeVolvegaTest() {
+    DigitalOptionFunction.vega(SPOT, STRIKES[0], TIME, -VOLS[1], INTERESTS[1], INTERESTS[1] - DIVIDENDS[1], true);
+  }
+
+  /**
+   *
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void negativeSpotdriftlessThetaTest() {
+    DigitalOptionFunction.driftlessTheta(-SPOT, STRIKES[0], TIME, VOLS[1], true);
+  }
+
+  /**
+   *
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void negativeStrikedriftlessThetaTest() {
+    DigitalOptionFunction.driftlessTheta(SPOT, -STRIKES[0], TIME, VOLS[1], true);
+  }
+
+  /**
+   *
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void negativeTimedriftlessThetaTest() {
+    DigitalOptionFunction.driftlessTheta(SPOT, STRIKES[0], -TIME, VOLS[1], true);
+  }
+
+  /**
+   *
+   */
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void negativeVoldriftlessThetaTest() {
+    DigitalOptionFunction.driftlessTheta(SPOT, STRIKES[0], TIME, -VOLS[1], true);
   }
 }
