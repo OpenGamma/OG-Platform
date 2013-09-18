@@ -209,7 +209,7 @@ import com.opengamma.financial.security.swap.ZeroCouponInflationSwapSecurity;
 
   @Override
   public String visitNonDeliverableFXOptionSecurity(NonDeliverableFXOptionSecurity security) {
-    return "nondeliverable-fxoption";
+    return "nondeliverable-fxoption.ftl";
   }
 
   @Override
