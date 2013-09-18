@@ -71,8 +71,12 @@ public class SwapSecurityFudgeBuilder extends AbstractFudgeBuilder implements Fu
     object.setEffectiveDate(ZonedDateTimeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(EFFECTIVE_DATE_FIELD_NAME)));
     object.setMaturityDate(ZonedDateTimeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(MATURITY_DATE_FIELD_NAME)));
     object.setCounterparty(msg.getString(COUNTERPARTY_FIELD_NAME));
-    object.setExchangeInitialNotional(msg.getBoolean(EXCHANGE_INITIAL_NOTIONAL_FIELD));
-    object.setExchangeFinalNotional(msg.getBoolean(EXCHANGE_FINAL_NOTIONAL_FIELD));
+    if (msg.hasField(EXCHANGE_INITIAL_NOTIONAL_FIELD)) {
+      object.setExchangeInitialNotional(msg.getBoolean(EXCHANGE_INITIAL_NOTIONAL_FIELD));
+    }
+    if (msg.hasField(EXCHANGE_FINAL_NOTIONAL_FIELD)) {
+      object.setExchangeFinalNotional(msg.getBoolean(EXCHANGE_FINAL_NOTIONAL_FIELD));
+    }
     object.setPayLeg(deserializer.fudgeMsgToObject(SwapLeg.class, msg.getMessage(PAY_LEG_FIELD_NAME)));
     object.setReceiveLeg(deserializer.fudgeMsgToObject(SwapLeg.class, msg.getMessage(RECEIVE_LEG_FIELD_NAME)));
   }
