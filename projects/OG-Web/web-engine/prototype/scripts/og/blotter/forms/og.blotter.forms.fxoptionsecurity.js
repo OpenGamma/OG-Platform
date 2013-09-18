@@ -8,9 +8,13 @@ $.register_module({
     obj: function () {
         return function (config) {
             var constructor = this, form, ui = og.common.util.ui, data, validate, util = og.blotter.util;
-            if(config.details) {data = config.details.data; data.id = config.details.data.trade.uniqueId;}
-            else {data = {security: {type: "FXOptionSecurity", regionId: "ABC~123", externalIdBundle: "",
-                attributes: {}}, trade: util.otc_trade};}
+            if (config.details) {
+                data = config.details.data;
+                data.id = config.details.data.trade.uniqueId;
+            } else {
+                data = {security: {type: "FXOptionSecurity", externalIdBundle: "",
+                    attributes: {}}, trade: util.otc_trade};
+            }
             data.nodeId = config.node ? config.node.id : null;
             constructor.load = function () {
                 constructor.title = 'FX Option';
@@ -33,10 +37,10 @@ $.register_module({
                         module: 'og.blotter.forms.blocks.fx_option_value_tash',
                         extras: {put: data.security.putAmount, call: data.security.callAmount},
                         children: [
-                            new form.Block({module:'og.views.forms.currency_tash',
-                                extras:{name: 'security.putCurrency'}}),
-                            new form.Block({module:'og.views.forms.currency_tash',
-                                extras:{name: 'security.callCurrency'}})
+                            new form.Block({module: 'og.views.forms.currency_tash',
+                                extras: {name: 'security.putCurrency'}}),
+                            new form.Block({module: 'og.views.forms.currency_tash',
+                                extras: {name: 'security.callCurrency'}})
                         ]
                     }),
                     new form.Block({
@@ -47,9 +51,7 @@ $.register_module({
                             new ui.Dropdown({
                                 form: form, resource: 'blotter.exercisetypes', index: 'security.exerciseType',
                                 value: data.security.exerciseType, placeholder: 'Select Exercise Type'
-                            }),
-                            new form.Block({module:'og.views.forms.currency_tash',
-                                extras:{name: 'trade.premiumCurrency'}})
+                            })
                         ]
                     }),
                     new og.common.util.ui.Attributes({
@@ -57,17 +59,17 @@ $.register_module({
                     })
                 );
                 form.dom();
-                form.on('form:load', function (){
+                form.on('form:load', function () {
                     util.add_date_picker('.blotter-date');
                     util.add_time_picker('.blotter-time');
                     util.set_initial_focus();
-                    if(data.security.length) return;
+                    if (data.security.length) return;
                     util.set_select("trade.premiumCurrency", data.trade.premiumCurrency);
                     util.set_select("security.putCurrency", data.security.putCurrency);
                     util.set_select("security.callCurrency", data.security.callCurrency);
                     util.check_radio("security.longShort", data.security.longShort);
                 });
-                form.on('form:submit', function (result){
+                form.on('form:submit', function (result) {
                     $.when(config.handler(result.data)).then(validate);
                 });
             };
