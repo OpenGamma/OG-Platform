@@ -20,6 +20,7 @@ import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.marketdata.MarketDataProvider;
@@ -60,14 +61,14 @@ public class MarketDataManagerTest {
 
   @Test
   public void testQueryForNonExistentSub() {
-    _manager.requestMarketDataSubscriptions(ImmutableSet.of(createMarketDataValueSpec("AAPL.")));
+    _manager.requestMarketDataSubscriptions(ImmutableSet.of(createValueSpecForMarketValue("AAPL.")));
 
     assertThat(_manager.querySubscriptionState("BOGUS").size(), is(0));
   }
 
   @Test
   public void testMarketDataRequestIsInitiallyPending() {
-    _manager.requestMarketDataSubscriptions(ImmutableSet.of(createMarketDataValueSpec("AAPL.")));
+    _manager.requestMarketDataSubscriptions(ImmutableSet.of(createValueSpecForMarketValue("AAPL.")));
 
     checkSingleSubscriptionState("AAPL.", SubscriptionStateQuery.SubscriptionState.PENDING);
   }
@@ -75,7 +76,7 @@ public class MarketDataManagerTest {
   @Test
   public void testMarketDataSubscriptionSucceeding() {
 
-    ImmutableSet<ValueSpecification> valueSpecs = ImmutableSet.of(createMarketDataValueSpec("AAPL."));
+    ImmutableSet<ValueSpecification> valueSpecs = ImmutableSet.of(createValueSpecForMarketValue("AAPL."));
     _manager.requestMarketDataSubscriptions(valueSpecs);
     _manager.subscriptionsSucceeded(valueSpecs);
 
@@ -85,7 +86,7 @@ public class MarketDataManagerTest {
   @Test
   public void testMarketDataSubscriptionFailing() {
 
-    ValueSpecification valueSpec = createMarketDataValueSpec("AAPL.");
+    ValueSpecification valueSpec = createValueSpecForMarketValue("AAPL.");
     _manager.requestMarketDataSubscriptions(ImmutableSet.of(valueSpec));
     _manager.subscriptionFailed(valueSpec, "Que?");
 
@@ -95,7 +96,7 @@ public class MarketDataManagerTest {
   @Test
   public void testMarketDataSubscriptionRemoval() {
 
-    ImmutableSet<ValueSpecification> valueSpecs1 = ImmutableSet.of(createMarketDataValueSpec("AAPL."));
+    ImmutableSet<ValueSpecification> valueSpecs1 = ImmutableSet.of(createValueSpecForMarketValue("AAPL."));
     _manager.requestMarketDataSubscriptions(valueSpecs1);
     _manager.subscriptionsSucceeded(valueSpecs1);
 
@@ -110,7 +111,7 @@ public class MarketDataManagerTest {
   @Test
   public void testMarketDataLifecycle() {
 
-    ValueSpecification spec = createMarketDataValueSpec("AAPL.");
+    ValueSpecification spec = createValueSpecForMarketValue("AAPL.");
     ImmutableSet<ValueSpecification> valueSpecs = ImmutableSet.of(spec);
 
     _manager.requestMarketDataSubscriptions(valueSpecs);
@@ -175,8 +176,8 @@ public class MarketDataManagerTest {
             .addAll(appleOptions)
             .addAll(appleSpec)
             .build());
-    assertThat(_manager.queryFailedSubscriptions().size(), is(0));
-    assertThat(_manager.queryPendingSubscriptions().size(), is(3));
+    assertThat(_manager.getFailedSubscriptionCount(), is(0));
+    assertThat(_manager.getPendingSubscriptionCount(), is(3));
 
     // Drop the AAPL request
     _manager.requestMarketDataSubscriptions(
@@ -185,7 +186,7 @@ public class MarketDataManagerTest {
             .addAll(googleOptions)
             .build());
 
-    _manager.subscriptionFailed(createMarketDataValueSpec("AAPL/G4NHG.O"), "oops");
+    _manager.subscriptionFailed(createValueSpecForMarketValue("AAPL/G4NHG.O"), "oops");
     _manager.subscriptionsSucceeded(createMarketDataValueSpecs("AAPL/G4G3F."));
 
     assertThat(_manager.getFailedSubscriptionCount(), is(1));
@@ -194,24 +195,54 @@ public class MarketDataManagerTest {
     assertThat(_manager.getActiveSubscriptionCount(), is(1));
   }
 
+  @Test
+  public void testValueSpecsOnSameTickerAreDistinguishedByGet() {
+
+    Set<ValueSpecification> specs = ImmutableSet.of(createValueSpecForMarketValue("AAPL."),
+                                                    createValueSpecForDividendYield("AAPL."));
+    _manager.requestMarketDataSubscriptions(specs);
+    assertThat(_manager.getPendingSubscriptionCount(), is(2));
+    Set<String> keys = _manager.queryPendingSubscriptions().keySet();
+    assertThat(keys.size(), is(2));
+    assertThat(keys.contains("AAPL. [Market_Value]"), is(true));
+    assertThat(keys.contains("AAPL. [Dividend_Yield]"), is(true));
+  }
+
+  @Test
+  public void testValueSpecsOnSameTickerAreDistinguishedByQuery() {
+
+    Set<ValueSpecification> specs = ImmutableSet.of(createValueSpecForMarketValue("AAPL."), createValueSpecForDividendYield("AAPL."));
+    _manager.requestMarketDataSubscriptions(specs);
+    Set<String> keys = _manager.querySubscriptionState("").keySet();
+    assertThat(keys.size(), is(2));
+    assertThat(keys.contains("AAPL. [Market_Value]"), is(true));
+    assertThat(keys.contains("AAPL. [Dividend_Yield]"), is(true));
+  }
+
   private void checkSingleSubscriptionState(String ticker, MarketDataManager.SubscriptionState expectedState) {
 
     Map<String, MarketDataManager.SubscriptionStatus> stateMap = _manager.querySubscriptionState(ticker);
-    assertThat(stateMap.size(), is(1));
-    assertThat(stateMap.get(ticker).getState(), is(expectedState.name()));
+    assertThat(Iterables.getOnlyElement(stateMap.values()).getState(), is(expectedState.name()));
   }
 
   private Set<ValueSpecification> createMarketDataValueSpecs(String... tickers) {
 
     ImmutableSet.Builder<ValueSpecification> builder = ImmutableSet.builder();
     for (String ticker : tickers) {
-      builder.add(createMarketDataValueSpec(ticker));
+      builder.add(createValueSpecForMarketValue(ticker));
     }
     return builder.build();
   }
 
-  private ValueSpecification createMarketDataValueSpec(String ticker) {
+  private ValueSpecification createValueSpecForMarketValue(String ticker) {
+    return createValueSpec(ticker, "Market_Value");
+  }
 
+  private ValueSpecification createValueSpecForDividendYield(String ticker) {
+    return createValueSpec(ticker, "Dividend_Yield");
+  }
+
+  private ValueSpecification createValueSpec(String ticker, String valueName) {
     UniqueId uniqueId = UniqueId.of(ExternalSchemes.ACTIVFEED_TICKER.getName(), ticker);
 
     ValueProperties properties = ValueProperties.builder()
@@ -221,7 +252,7 @@ public class MarketDataManagerTest {
     ComputationTargetSpecification targetSpecification =
         new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, uniqueId);
 
-    return new ValueSpecification("Market_Value", targetSpecification, properties);
+    return new ValueSpecification(valueName, targetSpecification, properties);
   }
 
   private MarketDataChangeListener createChangeListener() {
