@@ -1116,7 +1116,7 @@ public class FinancialSecurityUtils {
   public static ExternalId getUnderlyingId(final Security security) {
     if (security instanceof FinancialSecurity) {
       final FinancialSecurity finSec = (FinancialSecurity) security;
-      final ExternalId id = finSec.accept(new FinancialSecurityVisitorAdapter<ExternalId>() {
+      return finSec.accept(new FinancialSecurityVisitorSameValueAdapter<ExternalId>(null) {
 
         @Override
         public ExternalId visitFxFutureOptionSecurity(final FxFutureOptionSecurity security) {
@@ -1232,9 +1232,7 @@ public class FinancialSecurityUtils {
         public ExternalId visitCreditDefaultSwapOptionSecurity(final CreditDefaultSwapOptionSecurity security) {
           return security.getUnderlyingId();
         }
-
       });
-      return id;
     }
     return null;
   }
