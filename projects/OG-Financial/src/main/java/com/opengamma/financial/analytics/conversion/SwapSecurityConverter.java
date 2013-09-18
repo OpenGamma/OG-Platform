@@ -436,11 +436,11 @@ public class SwapSecurityConverter extends FinancialSecurityVisitorAdapter<Instr
         final Calendar indexCalendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, indexConvention.getRegionCalendar());
         if (swapLeg instanceof FloatingSpreadIRLeg) {
           final FloatingSpreadIRLeg spread = (FloatingSpreadIRLeg) swapLeg;
-          return AnnuityCouponArithmeticAverageONSpreadDefinition.from(effectiveDate, maturityDate, notional, isPayer, index, paymentLag, indexCalendar,
-              businessDayConvention, paymentFrequency, isEOM, spread.getSpread());
+          return AnnuityCouponArithmeticAverageONSpreadDefinition.from(effectiveDate, maturityDate, notional, spread.getSpread(), isPayer, paymentFrequency, index,
+              paymentLag, businessDayConvention, isEOM, indexCalendar);
         }
-        return AnnuityCouponArithmeticAverageONDefinition.from(effectiveDate, maturityDate, notional, isPayer, index, paymentLag, indexCalendar,
-            businessDayConvention, paymentFrequency, isEOM);
+        return AnnuityCouponArithmeticAverageONDefinition.from(effectiveDate, maturityDate, notional, isPayer, paymentFrequency, index, paymentLag,
+            businessDayConvention, isEOM, indexCalendar);
       }
     };
   }

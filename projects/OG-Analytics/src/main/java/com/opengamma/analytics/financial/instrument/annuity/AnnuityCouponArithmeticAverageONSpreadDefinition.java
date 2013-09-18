@@ -17,6 +17,7 @@ import com.opengamma.analytics.financial.instrument.payment.CouponArithmeticAver
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
+import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.timeseries.DoubleTimeSeries;
@@ -38,32 +39,57 @@ public class AnnuityCouponArithmeticAverageONSpreadDefinition extends AnnuityCou
   }
 
   /**
+   * Build a annuity of overnight arithmetic average coupons with spread from financial details. The stub convention is short at the start.
+   * @param settlementDate The annuity settlement or first fixing date, not null.
+   * @param endFixingPeriodDate The end date of the overnight arithmetic average coupons accrual period. Also called the maturity date of the annuity even if the
+   * actual payment can take place one or two days later. Not null.
+   * @param notional The annuity notional, not null
+   * @param spread The spread
+   * @param isPayer The flag indicating if the annuity is paying (true) or receiving (false).
+   * @param paymentPeriod The payment period, not null
+   * @param indexON The overnight index, not null
+   * @param paymentLag The payment lag, not null
+   * @param businessDayConvention The business day convention, not null
+   * @param isEOM True if the date schedule is EOM.
+   * @param indexCalendar The calendar for the overnight index, not null
+   * @return The annuity.
+   */
+  public static AnnuityCouponArithmeticAverageONSpreadDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime endFixingPeriodDate, final double notional, final double spread,
+      final boolean isPayer, final Period paymentPeriod, final IndexON indexON, final int paymentLag, final BusinessDayConvention businessDayConvention, final boolean isEOM,
+      final Calendar indexCalendar) {
+    return from(settlementDate, endFixingPeriodDate, notional, spread, isPayer, paymentPeriod, indexON, paymentLag, businessDayConvention, isEOM, indexCalendar, StubType.SHORT_START);
+  }
+
+  /**
    * Build a annuity of overnight arithmetic average coupons with spread from financial details.
    * @param settlementDate The annuity settlement or first fixing date, not null.
    * @param endFixingPeriodDate The end date of the overnight arithmetic average coupons accrual period. Also called the maturity date of the annuity even if the
    * actual payment can take place one or two days later. Not null.
    * @param notional The annuity notional, not null
+   * @param spread The spread
    * @param isPayer The flag indicating if the annuity is paying (true) or receiving (false).
+   * @param paymentPeriod The payment period, not null
    * @param indexON The overnight index, not null
    * @param paymentLag The payment lag, not null
-   * @param indexCalendar The calendar for the overnight index, not null
    * @param businessDayConvention The business day convention, not null
-   * @param paymentPeriod The payment period, not null
    * @param isEOM True if the date schedule is EOM.
-   * @param spread The spread
+   * @param indexCalendar The calendar for the overnight index, not null
+   * @param stub The stub type.
    * @return The annuity.
    */
-  public static AnnuityCouponArithmeticAverageONSpreadDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime endFixingPeriodDate, final double notional, final boolean isPayer,
-      final IndexON indexON, final int paymentLag, final Calendar indexCalendar, final BusinessDayConvention businessDayConvention, final Period paymentPeriod, final boolean isEOM,
-      final double spread) {
+  public static AnnuityCouponArithmeticAverageONSpreadDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime endFixingPeriodDate, final double notional, final double spread,
+      final boolean isPayer, final Period paymentPeriod, final IndexON indexON, final int paymentLag, final BusinessDayConvention businessDayConvention, final boolean isEOM,
+      final Calendar indexCalendar, final StubType stub) {
     ArgumentChecker.notNull(settlementDate, "settlement date");
     ArgumentChecker.notNull(endFixingPeriodDate, "End fixing period date");
     ArgumentChecker.notNull(indexON, "overnight index");
     ArgumentChecker.notNull(indexCalendar, "index calendar");
     ArgumentChecker.notNull(businessDayConvention, "business day convention");
     ArgumentChecker.notNull(paymentPeriod, "payment period");
-    final ZonedDateTime[] endFixingPeriodDates = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, endFixingPeriodDate, paymentPeriod, true,
-        false, businessDayConvention, indexCalendar, isEOM); //TODO get rid of hard-codings
+    final boolean isStubShort = stub.equals(StubType.SHORT_END) || stub.equals(StubType.SHORT_START);
+    final boolean isStubStart = stub.equals(StubType.LONG_START) || stub.equals(StubType.SHORT_START); // Implementation note: dates computed from the end.
+    final ZonedDateTime[] endFixingPeriodDates = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, endFixingPeriodDate, paymentPeriod, isStubShort,
+        isStubStart, businessDayConvention, indexCalendar, isEOM);
     final double sign = isPayer ? -1.0 : 1.0;
     final double notionalSigned = sign * notional;
     final CouponArithmeticAverageONSpreadDefinition[] coupons = new CouponArithmeticAverageONSpreadDefinition[endFixingPeriodDates.length];
