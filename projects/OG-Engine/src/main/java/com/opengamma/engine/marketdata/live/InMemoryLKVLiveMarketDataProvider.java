@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.marketdata.live;
 
+import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -15,6 +16,10 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
@@ -23,6 +28,7 @@ import org.fudgemsg.types.FudgeDateTime;
 import org.fudgemsg.wire.types.FudgeWireType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.jmx.export.MBeanExporter;
 
 import com.google.common.collect.Sets;
 import com.opengamma.core.value.MarketDataRequirementNames;
@@ -49,13 +55,16 @@ import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
+import net.sf.ehcache.CacheException;
+
 /**
  * A {@link MarketDataProvider} for live data backed by an {@link InMemoryLKVMarketDataProvider}.
  */
-public class InMemoryLKVLiveMarketDataProvider extends AbstractMarketDataProvider implements LiveMarketDataProvider, LiveDataListener {
+public class InMemoryLKVLiveMarketDataProvider extends AbstractMarketDataProvider implements LiveMarketDataProvider, LiveDataListener, SubscriptionReporter {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(InMemoryLKVLiveMarketDataProvider.class);
+  private static int clientCount;
 
   private static final class Subscription {
 
@@ -117,7 +126,7 @@ public class InMemoryLKVLiveMarketDataProvider extends AbstractMarketDataProvide
       if (count == null) {
         return true;
       } else {
-        if (count.intValue() == 1) {
+        if (count == 1) {
           _values.remove(valueSpecification);
           return true;
         } else {
@@ -168,6 +177,48 @@ public class InMemoryLKVLiveMarketDataProvider extends AbstractMarketDataProvide
     _underlyingProvider = new InMemoryLKVMarketDataProvider();
     _permissionProvider = permissionProvider;
     _marketDataUser = marketDataUser;
+
+    try {
+      MBeanServer jmxServer = ManagementFactory.getPlatformMBeanServer();
+      MBeanExporter exporter = new MBeanExporter();
+      exporter.setServer(jmxServer);
+      exporter.registerManagedResource(this, createObjectName());
+    } catch (SecurityException e) {
+      s_logger.warn("No permissions for platform MBean server - JMX will not be available", e);
+    }
+
+  }
+
+  @Override
+  public Map<String, SubscriptionInfo> queryByTicker(String ticker) {
+
+    Map<String, SubscriptionInfo> results = new HashMap<>();
+    synchronized (_activeSubscriptions) {
+
+      for (ValueSpecification specification : _allSubscriptions.keySet()) {
+
+        String specTicker = specification.getTargetSpecification().getUniqueId().getValue();
+        if (specTicker.contains(ticker)) {
+
+          String resultKey = specTicker + " [" + specification.getValueName() + "]";
+          Subscription subscription = _allSubscriptions.get(specification);
+          int subscriberCount = subscription.getValueSpecifications().size();
+          String state = subscription.getRequestedLiveData() == null ? "FAILED" :
+              subscription.getFullyQualifiedLiveData() == null ? "PENDING" : "ACTIVE";
+          Object currentValue = _underlyingProvider.getCurrentValue(specification);
+          results.put(resultKey, new SubscriptionInfo(subscriberCount, state, currentValue));
+        }
+      }
+    }
+    return results;
+  }
+
+  private ObjectName createObjectName() {
+    try {
+      return new ObjectName("com.opengamma:type=MarketDataClient,Client=Client,name=MarketDataClient " + clientCount++);
+    } catch (MalformedObjectNameException e) {
+      throw new CacheException(e);
+    }
   }
 
   @Override
