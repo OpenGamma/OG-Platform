@@ -27,7 +27,7 @@ public class ValueMappings {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ValueMappings.class);
   
-  private static final class ConfigurationData {
+  private final class ConfigurationData {
     
     private final Map<ValueRequirement, ValueSpecification> _reqsToSpecs = Maps.newHashMap();
 
@@ -40,15 +40,25 @@ public class ValueMappings {
           continue;
         }
         for (ValueRequirement valueRequirement : requirements) {
-          _reqsToSpecs.put(valueRequirement, entry.getKey());
+          _reqsToSpecs.put(createRequirement(valueRequirement), entry.getKey());
         }
       }
     }
 
     public ValueSpecification getValueSpecification(final ValueRequirement valueRequirement) {
-      return _reqsToSpecs.get(valueRequirement);
+      return _reqsToSpecs.get(createRequirement(valueRequirement));
     }
 
+  }
+
+  /**
+   * Subclasses of ValueMappings need to alter the ValueRequirement, for example
+   * UnversionedValueMappings strips out version from the unique id
+   * @param valueRequirement in this case it is returned unaltered
+   * @return valueRequirement
+   */
+  protected ValueRequirement createRequirement(ValueRequirement valueRequirement) {
+    return valueRequirement;
   }
 
   /**

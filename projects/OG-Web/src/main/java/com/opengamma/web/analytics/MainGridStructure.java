@@ -22,7 +22,7 @@ import com.opengamma.util.tuple.Pair;
 /* package */ abstract class MainGridStructure implements GridStructure {
 
   /** For mapping cells to values in the results. */
-  private final ValueMappings _valueMappings;
+  private final UnversionedValueMappings _valueMappings;
 
   /** The complete column structure. */
   private final GridColumnGroups _columnGroups;
@@ -43,7 +43,7 @@ import com.opengamma.util.tuple.Pair;
     _columnGroups = GridColumnGroups.empty();
     _fixedColumnGroup = GridColumnGroup.empty();
     _nonFixedColumnGroups = GridColumnGroups.empty();
-    _valueMappings = new ValueMappings();
+    _valueMappings = new UnversionedValueMappings();
     _targetLookup = new TargetLookup(_valueMappings, Collections.<Row>emptyList());
     _rootNode = null;
   }
@@ -54,8 +54,8 @@ import com.opengamma.util.tuple.Pair;
   /* package */ MainGridStructure(GridColumnGroup fixedColumns,
                                   GridColumnGroups nonFixedColumns,
                                   TargetLookup targetLookup,
-                                  AnalyticsNode rootNode, 
-                                  ValueMappings valueMappings) {
+                                  AnalyticsNode rootNode,
+                                  UnversionedValueMappings valueMappings) {
     ArgumentChecker.notNull(targetLookup, "targetLookup");
     ArgumentChecker.notNull(nonFixedColumns, "nonFixedColumns");
     ArgumentChecker.notNull(fixedColumns, "fixedColumns");
@@ -73,7 +73,7 @@ import com.opengamma.util.tuple.Pair;
   /* package */ MainGridStructure(GridColumnGroup fixedColumns,
                                   GridColumnGroups nonFixedColumns,
                                   TargetLookup targetLookup,
-                                  ValueMappings valueMappings) {
+                                  UnversionedValueMappings valueMappings) {
     ArgumentChecker.notNull(targetLookup, "targetLookup");
     ArgumentChecker.notNull(nonFixedColumns, "nonFixedColumns");
     ArgumentChecker.notNull(fixedColumns, "fixedColumns");
@@ -185,7 +185,7 @@ import com.opengamma.util.tuple.Pair;
   /**
    * @return For mapping cells to values in the results.
    */
-  protected ValueMappings getValueMappings() {
+  protected UnversionedValueMappings getValueMappings() {
     return _valueMappings;
   }
 
