@@ -171,28 +171,66 @@ public abstract class CombinedMaster<D extends AbstractDocument, M extends Abstr
 
   
   /**
-   * Implements the logic of querying one master after another, adjusting the paging details
-   * on the search request as appropriate.
+   * Implements the logic of querying one master after another. The paging information
+   * passed on the searchRequst will be modified so that it is appropriate to each
+   * master delegated to. Original paging information will be restored to this instance
+   * once the method completes (successfully).
+   * 
+   * Note that any documents returned by the searchStrategy will be added to the 
+   * documentsResult object by this method. However, no other result fields are
+   * managed here. If other fields are need to be salvaged from the DocumentsResult,
+   * it should be done within the strategy itself.
+   * 
    * @param searchStrategy the search strategy to execute
    * @param documentsResult the documents result to append documents to
    * @param searchRequest the search request to execute
    * @param <S> the search request type
    */
-  protected <S extends AbstractSearchRequest> void pagedSearch(SearchStrategy<D, M, S> searchStrategy, AbstractDocumentsResult<D> documentsResult, S searchRequest) {
+  protected <S extends PagedRequest> void pagedSearch(SearchStrategy<D, M, S> searchStrategy, AbstractDocumentsResult<D> documentsResult, S searchRequest) {
+    //first, hive off the original paging request. this is
+    //because we're about to mutate the searchRequest so 
+    //that it is appropriate for downstream masters.
     PagingRequest originalPagingRequest = searchRequest.getPagingRequest();
+    //first page to request will be identical to passed
+    //page request.
     PagingRequest nextPage = originalPagingRequest;
-    for (M master : getMasterList()) {
-      List<D> searchResult = searchStrategy.search(master, searchRequest);
-      documentsResult.getDocuments().addAll(searchResult);
-      if (documentsResult.getDocuments().size() >= originalPagingRequest.getLastItem()) {
+    //totalResults used to keep track of whether we
+    //have accumulated enough records to satisfy the
+    //page size.
+    int totalResults = 0;
+    //iterate over the master list, stopping when we
+    //either run out of masters or the totalResults
+    //exceeds the range of records requested.
+    for (int i = 0; i < getMasterList().size(); i++) {
+      M master = getMasterList().get(i);
+      //delegate the query to the master via the strategy
+      AbstractDocumentsResult<D> masterResult = searchStrategy.search(master, searchRequest);
+      //totalItems() reflects the total number of records
+      //available from the queried master.
+      totalResults += masterResult.getPaging().getTotalItems();
+      documentsResult.getDocuments().addAll(masterResult.getDocuments());
+      if (i == getMasterList().size() - 1) {
+        //all masters are exhausted so stop here.
+        //totalResults will reflect the total number of
+        //records available across masters to no need
+        //to modify it (see next condition).
         break;
       }
-      //adjust paging parameters if necessary:
-      nextPage = getNextPage(searchResult.size(), nextPage);
+      if (totalResults >= nextPage.getLastItem()) {
+        //we have maxed out the requested window and more masters remain.
+        //add one to ensure that the gui makes further requests which will
+        //run into the next master's range.
+        totalResults += 1;
+        break;
+      }
+      //more masters remain, so adjust the page size to
+      //be appropriate for them. this is done by taking
+      //into account the totalResults received so far.
+      nextPage = getNextPage(totalResults, nextPage);
       searchRequest.setPagingRequest(nextPage);
     }
     searchRequest.setPagingRequest(originalPagingRequest); //put the original paging back
-    applyPaging(documentsResult, originalPagingRequest);
+    documentsResult.setPaging(Paging.of(originalPagingRequest, totalResults));
   }
   
   /**
@@ -218,19 +256,21 @@ public abstract class CombinedMaster<D extends AbstractDocument, M extends Abstr
   }
   
   /**
-   * 
+   * Used in {@link CombinedMaster#pagedSearch(SearchStrategy, AbstractDocumentsResult, PagedRequest)} for indicating
+   * how the master should be queried. Lots of nasty generics here, but there's not really much choice since
+   * the masters all have their own query methods.
    * @param <D> document type
    * @param <M> master type
    * @param <S> search request type
    */
-  public interface SearchStrategy<D extends AbstractDocument, M extends AbstractMaster<D>, S extends AbstractSearchRequest> {
+  public interface SearchStrategy<D extends AbstractDocument, M extends AbstractMaster<D>, S extends PagedRequest> {
     
     /**
      * @param master the master to query
      * @param searchRequest the search request, with appropriate paging set
      * @return the list of documents returned
      */
-    public List<D> search(M master, S searchRequest);
+    AbstractDocumentsResult<D> search(M master, S searchRequest);
     
   }
   
@@ -548,7 +588,6 @@ public abstract class CombinedMaster<D extends AbstractDocument, M extends Abstr
     ArrayList<D> resultDocuments = Lists.newArrayList(result.getDocuments().subList(firstItem, lastItem));
     result.setDocuments(resultDocuments);
   }
-
   
 
 }
