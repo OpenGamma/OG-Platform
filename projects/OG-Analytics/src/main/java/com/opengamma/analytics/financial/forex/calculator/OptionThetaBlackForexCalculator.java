@@ -62,6 +62,6 @@ public class OptionThetaBlackForexCalculator extends InstrumentDerivativeVisitor
 
   @Override
   public CurrencyAmount visitForexOptionSingleBarrier(final ForexOptionSingleBarrier derivative, final YieldCurveBundle data) {
-    return null;
+    return METHOD_FXBARRIER.forwardTheta(derivative, data);
   }
 }
