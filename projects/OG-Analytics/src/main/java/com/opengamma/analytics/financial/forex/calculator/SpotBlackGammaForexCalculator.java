@@ -64,6 +64,6 @@ public class SpotBlackGammaForexCalculator extends InstrumentDerivativeVisitorAd
   @Override
   public Double visitForexOptionSingleBarrier(final ForexOptionSingleBarrier derivative, final YieldCurveBundle data) {
     ArgumentChecker.isTrue(data instanceof SmileDeltaTermStructureDataBundle, "Must have data bundle with volatility data");
-    return 0.;
+    return METHOD_FXBARRIER.spotGammaTheoretical(derivative, data);
   }
 }
