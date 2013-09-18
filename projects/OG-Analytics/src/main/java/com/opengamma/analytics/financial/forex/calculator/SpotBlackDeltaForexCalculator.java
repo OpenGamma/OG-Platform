@@ -6,8 +6,10 @@
 package com.opengamma.analytics.financial.forex.calculator;
 
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionDigital;
+import com.opengamma.analytics.financial.forex.derivative.ForexOptionSingleBarrier;
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.analytics.financial.forex.method.ForexOptionDigitalBlackMethod;
+import com.opengamma.analytics.financial.forex.method.ForexOptionSingleBarrierBlackMethod;
 import com.opengamma.analytics.financial.forex.method.ForexOptionVanillaBlackSmileMethod;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
@@ -44,6 +46,8 @@ public class SpotBlackDeltaForexCalculator extends InstrumentDerivativeVisitorAd
   private static final ForexOptionVanillaBlackSmileMethod METHOD_FXOPTIONVANILLA = ForexOptionVanillaBlackSmileMethod.getInstance();
   /** Digital option calculator */
   private static final ForexOptionDigitalBlackMethod METHOD_FXDIGITAL = ForexOptionDigitalBlackMethod.getInstance();
+  /** Single barrier option calculator */
+  private static final ForexOptionSingleBarrierBlackMethod METHOD_FXBARRIER = ForexOptionSingleBarrierBlackMethod.getInstance();
 
   @Override
   public Double visitForexOptionVanilla(final ForexOptionVanilla derivative, final YieldCurveBundle data) {
@@ -53,6 +57,12 @@ public class SpotBlackDeltaForexCalculator extends InstrumentDerivativeVisitorAd
 
   @Override
   public Double visitForexOptionDigital(final ForexOptionDigital derivative, final YieldCurveBundle data) {
+    ArgumentChecker.isTrue(data instanceof SmileDeltaTermStructureDataBundle, "Must have data bundle with volatility data");
+    return 0.;
+  }
+
+  @Override
+  public Double visitForexOptionSingleBarrier(final ForexOptionSingleBarrier derivative, final YieldCurveBundle data) {
     ArgumentChecker.isTrue(data instanceof SmileDeltaTermStructureDataBundle, "Must have data bundle with volatility data");
     return 0.;
   }
