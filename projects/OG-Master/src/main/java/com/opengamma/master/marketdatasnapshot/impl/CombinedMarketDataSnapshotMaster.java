@@ -9,6 +9,7 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 import com.opengamma.core.change.ChangeManager;
+import com.opengamma.master.AbstractDocumentsResult;
 import com.opengamma.master.CombinedMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryRequest;
@@ -34,19 +35,26 @@ public class CombinedMarketDataSnapshotMaster extends CombinedMaster<MarketDataS
   }
 
   @Override
-  public MarketDataSnapshotSearchResult search(final MarketDataSnapshotSearchRequest request) {
-    final MarketDataSnapshotSearchResult result = new MarketDataSnapshotSearchResult();
+  public MarketDataSnapshotSearchResult search(MarketDataSnapshotSearchRequest overallRequest) {
+    final MarketDataSnapshotSearchResult overallResult = new MarketDataSnapshotSearchResult();
     
-    for (MarketDataSnapshotMaster master : getMasterList()) {
-      MarketDataSnapshotSearchResult search = master.search(request);
-      result.getDocuments().addAll(search.getDocuments());
-      result.setVersionCorrection(search.getVersionCorrection());
-    }
-    
-    applyPaging(result, request.getPagingRequest());
+    pagedSearch(new SnapshotSearchStrategy() {
 
-    return result;
+      @Override
+      public AbstractDocumentsResult<MarketDataSnapshotDocument> search(MarketDataSnapshotMaster master, MarketDataSnapshotSearchRequest searchRequest) {
+        MarketDataSnapshotSearchResult masterResult = master.search(searchRequest);
+        masterResult.setVersionCorrection(overallResult.getVersionCorrection());
+        return masterResult;
+      }
+    }, overallResult, overallRequest);
+    
+    return overallResult;
   }
+  
+  /**
+   * Callback interface for snapshot searches
+   */
+  private interface SnapshotSearchStrategy extends SearchStrategy<MarketDataSnapshotDocument, MarketDataSnapshotMaster, MarketDataSnapshotSearchRequest> { }
 
   /**
    * Callback interface for the search operation to sort, filter and process results.
