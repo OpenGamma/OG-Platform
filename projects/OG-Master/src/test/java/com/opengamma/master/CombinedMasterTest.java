@@ -314,7 +314,7 @@ public class CombinedMasterTest {
     List<HolidayDocument> m1Result = Lists.newArrayList();
     List<HolidayDocument> m2Result = Lists.newArrayList();
     
-    List<HolidayDocument> result = runPagedSearch(pr, m1Result, m2Result);
+    List<HolidayDocument> result = runPagedSearch(pr, m1Result, 0, m2Result, 0);
     
     assertTrue(result.isEmpty());
   }
@@ -325,40 +325,43 @@ public class CombinedMasterTest {
     List<HolidayDocument> singleton = Lists.newArrayList(d1);
     List<HolidayDocument> empty = Lists.newArrayList();
     
-    List<HolidayDocument> result = runPagedSearch(pr, singleton, empty);
+    List<HolidayDocument> result = runPagedSearch(pr, singleton, 1, empty, 0);
     assertEquals(1, result.size());
   
-    List<HolidayDocument> result2 = runPagedSearch(pr, empty, singleton);
+    List<HolidayDocument> result2 = runPagedSearch(pr, empty, 0, singleton, 1);
     assertEquals(1, result2.size());
 
   }
 
   @Test
   public void pagedSearchTwoElements() {
-    PagingRequest pr = PagingRequest.ALL;
-    List<HolidayDocument> singleton1 = Lists.newArrayList(d1);
-    List<HolidayDocument> singleton2 = Lists.newArrayList(d2);
+    PagingRequest pr;
+    List<HolidayDocument> singleton = Lists.newArrayList(d1);
+    List<HolidayDocument> empty = Lists.newArrayList();
     
-    List<HolidayDocument> result = runPagedSearch(pr, singleton1, singleton2);
+    pr = PagingRequest.ofIndex(0, 1);
+    List<HolidayDocument> result2 = runPagedSearch(pr, singleton, 1, singleton, 1);
+    assertEquals(1, result2.size());
+    verifyNoMoreInteractions(m2);
+  
+    pr = PagingRequest.ALL;
+    List<HolidayDocument> result = runPagedSearch(pr, singleton, 1, singleton, 1);
     assertEquals(2, result.size());
   
-    pr = PagingRequest.ofIndex(0, 1);
-    List<HolidayDocument> result2 = runPagedSearch(pr, singleton1, singleton2);
-    assertEquals(1, result2.size());
-
+  
     pr = PagingRequest.ofIndex(1, 1);
-    List<HolidayDocument> result3 = runPagedSearch(pr, singleton1, singleton2);
+    List<HolidayDocument> result3 = runPagedSearch(pr, empty, 1, singleton, 1);
     assertEquals(1, result3.size());
   }
 
   @Test
   public void pagedSearchMultiple() {
     PagingRequest pr = PagingRequest.ofIndex(2, 2);
-    List<HolidayDocument> m1Result = Lists.newArrayList(d1, d1, d1);
-    List<HolidayDocument> m2Result = Lists.newArrayList(d2, d2);
+    List<HolidayDocument> m1Result = Lists.newArrayList(d1);
+    List<HolidayDocument> m2Result = Lists.newArrayList(d2);
     List<HolidayDocument> expected = Lists.newArrayList(d1, d2);
     
-    List<HolidayDocument> result = runPagedSearch(pr, m1Result, m2Result);
+    List<HolidayDocument> result = runPagedSearch(pr, m1Result, 3, m2Result, 1);
     
     assertEquals(2, result.size());
     
@@ -368,30 +371,31 @@ public class CombinedMasterTest {
 
   @Test
   public void pagedSearchOnlyFirst() {
-    List<HolidayDocument> m1Result = Lists.newArrayList(d1, d1, d1);
-    List<HolidayDocument> m2Result = Lists.newArrayList(d2, d2);
+    List<HolidayDocument> m2Result = Lists.newArrayList();
     List<HolidayDocument> result ;
     
-    result = runPagedSearch(PagingRequest.ofIndex(0, 2), m1Result, m2Result);
+    result = runPagedSearch(PagingRequest.ofIndex(0, 2), Lists.newArrayList(d1, d1), 3, m2Result, 0);
     assertEquals(2, result.size());
     
-    result = runPagedSearch(PagingRequest.ofIndex(1, 2), m1Result, m2Result);
+    result = runPagedSearch(PagingRequest.ofIndex(1, 2), Lists.newArrayList(d1, d1), 3, m2Result, 0);
     assertEquals(2, result.size());
     
-    result = runPagedSearch(PagingRequest.ofIndex(0, 3), m1Result, m2Result);
+    result = runPagedSearch(PagingRequest.ofIndex(0, 3), Lists.newArrayList(d1, d1, d1), 3, m2Result, 0);
     assertEquals(3, result.size());
     
     verifyNoMoreInteractions(m2);
     
   }
   
-  private List<HolidayDocument> runPagedSearch(PagingRequest pr, List<HolidayDocument> m1Result, List<HolidayDocument> m2Result) {
+  private List<HolidayDocument> runPagedSearch(PagingRequest pr, List<HolidayDocument> m1Result, int m1Total, List<HolidayDocument> m2Result, int m2Total) {
     HolidaySearchResult result = new HolidaySearchResult();
     HolidaySearchRequest searchRequest = new HolidaySearchRequest();
     searchRequest.setPagingRequest(pr);
     HolidaySearchResult m1SearchResult = new HolidaySearchResult();
     m1SearchResult.setDocuments(m1Result);
+    m1SearchResult.setPaging(Paging.of(PagingRequest.ofIndex(0, m1Result.size()), m1Total));
     HolidaySearchResult m2SearchResult = new HolidaySearchResult();
+    m2SearchResult.setPaging(Paging.of(PagingRequest.ofIndex(0, m2Result.size()), m2Total));
     m2SearchResult.setDocuments(m2Result);
     
     when(m1.search(Mockito.<HolidaySearchRequest>any())).thenReturn(m1SearchResult);
@@ -400,8 +404,8 @@ public class CombinedMasterTest {
     cMaster.pagedSearch(new SearchStrategy<HolidayDocument, HolidayMaster, HolidaySearchRequest>() {
 
       @Override
-      public List<HolidayDocument> search(HolidayMaster master, HolidaySearchRequest searchRequest) {
-        return master.search(searchRequest).getDocuments();
+      public HolidaySearchResult search(HolidayMaster master, HolidaySearchRequest searchRequest) {
+        return master.search(searchRequest);
       }
     }, result, searchRequest);
     
