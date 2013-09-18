@@ -9,6 +9,7 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 import com.opengamma.core.change.ChangeManager;
+import com.opengamma.master.AbstractDocumentsResult;
 import com.opengamma.master.CombinedMaster;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityHistoryRequest;
@@ -40,20 +41,29 @@ public class CombinedSecurityMaster extends CombinedMaster<SecurityDocument, Sec
   }
 
   @Override
-  public SecuritySearchResult search(final SecuritySearchRequest request) {
-    final SecuritySearchResult result = new SecuritySearchResult();
-    for (SecurityMaster master : getMasterList()) {
-      SecuritySearchResult search = master.search(request);
-      result.getDocuments().addAll(search.getDocuments());
-      result.setVersionCorrection(search.getVersionCorrection());
-    }
+  public SecuritySearchResult search(final SecuritySearchRequest overallRequest) {
+    final SecuritySearchResult overallResult = new SecuritySearchResult();
+    pagedSearch(new SecuritySearchStrategy() {
+      
+      @Override
+      public AbstractDocumentsResult<SecurityDocument> search(SecurityMaster master, SecuritySearchRequest searchRequest) {
+        SecuritySearchResult masterResult = master.search(searchRequest);
+        overallResult.setVersionCorrection(masterResult.getVersionCorrection());
+        return masterResult;
+      }
+    }, overallResult, overallRequest);
     
-    applyPaging(result, request.getPagingRequest());
 
-    return result;
+    return overallResult;
   }
 
+  /**
+   * Callback interface for security searches
+   */
+  private interface SecuritySearchStrategy extends SearchStrategy<SecurityDocument, SecurityMaster, SecuritySearchRequest> { }
 
+  
+  
   /**
    * Callback interface for the search operation to sort, filter and process results.
    */
