@@ -10,8 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionSingleBarrier;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
@@ -23,6 +21,7 @@ import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTerm
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.util.amount.SurfaceValue;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -70,8 +69,8 @@ public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMe
    * @return The present value (in domestic currency).
    */
   public MultipleCurrencyAmount presentValue(final ForexOptionSingleBarrier optionForex, final SmileDeltaTermStructureDataBundle smile) {
-    Validate.notNull(optionForex, "Forex option");
-    Validate.notNull(smile, "Smile");
+    ArgumentChecker.notNull(optionForex, "Forex option");
+    ArgumentChecker.notNull(smile, "Smile");
     final double payTime = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentTime();
     final double rateDomestic = smile.getCurve(optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency2().getFundingCurveName()).getInterestRate(
         payTime);
@@ -95,8 +94,8 @@ public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMe
 
   @Override
   public MultipleCurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
-    Validate.isTrue(instrument instanceof ForexOptionSingleBarrier, "Single barrier Forex option");
-    Validate.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Smile delta data bundle required");
+    ArgumentChecker.isTrue(instrument instanceof ForexOptionSingleBarrier, "Single barrier Forex option");
+    ArgumentChecker.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Smile delta data bundle required");
     return presentValue((ForexOptionSingleBarrier) instrument, (SmileDeltaTermStructureDataBundle) curves);
   }
 
@@ -108,8 +107,8 @@ public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMe
    * @return The currency exposure.
    */
   public MultipleCurrencyAmount currencyExposure(final ForexOptionSingleBarrier optionForex, final SmileDeltaTermStructureDataBundle smile) {
-    Validate.notNull(optionForex, "Forex option");
-    Validate.notNull(smile, "Smile");
+    ArgumentChecker.notNull(optionForex, "Forex option");
+    ArgumentChecker.notNull(smile, "Smile");
     final double payTime = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentTime();
     final double rateDomestic = smile.getCurve(optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency2().getFundingCurveName()).getInterestRate(
         payTime);
@@ -138,8 +137,8 @@ public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMe
 
   @Override
   public MultipleCurrencyAmount currencyExposure(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
-    Validate.isTrue(instrument instanceof ForexOptionSingleBarrier, "Single barrier Forex option");
-    Validate.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Smile delta data bundle required");
+    ArgumentChecker.isTrue(instrument instanceof ForexOptionSingleBarrier, "Single barrier Forex option");
+    ArgumentChecker.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Smile delta data bundle required");
     return currencyExposure((ForexOptionSingleBarrier) instrument, (SmileDeltaTermStructureDataBundle) curves);
   }
 
@@ -152,8 +151,8 @@ public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMe
    */
   public MultipleCurrencyInterestRateCurveSensitivity presentValueCurveSensitivity(final ForexOptionSingleBarrier optionForex,
       final SmileDeltaTermStructureDataBundle smile) {
-    Validate.notNull(optionForex, "Forex option");
-    Validate.notNull(smile, "Smile");
+    ArgumentChecker.notNull(optionForex, "Forex option");
+    ArgumentChecker.notNull(smile, "Smile");
     final String domesticCurveName = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency2().getFundingCurveName();
     final String foreignCurveName = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency1().getFundingCurveName();
     final double payTime = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentTime();
@@ -199,8 +198,8 @@ public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMe
    */
   @Override
   public MultipleCurrencyInterestRateCurveSensitivity presentValueCurveSensitivity(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
-    Validate.isTrue(instrument instanceof ForexOptionSingleBarrier, "Single barrier Forex option");
-    Validate.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Smile delta data bundle required");
+    ArgumentChecker.isTrue(instrument instanceof ForexOptionSingleBarrier, "Single barrier Forex option");
+    ArgumentChecker.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Smile delta data bundle required");
     return presentValueCurveSensitivity((ForexOptionSingleBarrier) instrument, (SmileDeltaTermStructureDataBundle) curves);
   }
 
@@ -212,8 +211,8 @@ public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMe
    */
   public PresentValueForexBlackVolatilitySensitivity presentValueBlackVolatilitySensitivity(final ForexOptionSingleBarrier optionForex,
       final SmileDeltaTermStructureDataBundle smile) {
-    Validate.notNull(optionForex, "Forex option");
-    Validate.notNull(smile, "Smile");
+    ArgumentChecker.notNull(optionForex, "Forex option");
+    ArgumentChecker.notNull(smile, "Smile");
     final String domesticCurveName = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency2().getFundingCurveName();
     final String foreignCurveName = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency1().getFundingCurveName();
     final double payTime = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentTime();
@@ -231,8 +230,6 @@ public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMe
         volatility, priceDerivatives);
     final double volatilitySensitivityValue = priceDerivatives[4] * Math.abs(foreignAmount) * sign;
     final DoublesPair point = DoublesPair.of(optionForex.getUnderlyingOption().getTimeToExpiry(), optionForex.getUnderlyingOption().getStrike());
-    //    Map<DoublesPair, Double> result = new HashMap<DoublesPair, Double>();
-    //    result.put(point, volatilitySensitivityValue);
     final SurfaceValue result = SurfaceValue.from(point, volatilitySensitivityValue);
     final PresentValueForexBlackVolatilitySensitivity sensi = new PresentValueForexBlackVolatilitySensitivity(optionForex.getUnderlyingOption().getUnderlyingForex()
         .getCurrency1(), optionForex.getUnderlyingOption().getUnderlyingForex().getCurrency2(), result);
@@ -246,8 +243,8 @@ public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMe
    * @return The volatility sensitivity.
    */
   public PresentValueForexBlackVolatilitySensitivity presentValueBlackVolatilitySensitivity(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
-    Validate.isTrue(instrument instanceof ForexOptionSingleBarrier, "Single barrier Forex option");
-    Validate.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Smile delta data bundle required");
+    ArgumentChecker.isTrue(instrument instanceof ForexOptionSingleBarrier, "Single barrier Forex option");
+    ArgumentChecker.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Smile delta data bundle required");
     return presentValueBlackVolatilitySensitivity((ForexOptionSingleBarrier) instrument, (SmileDeltaTermStructureDataBundle) curves);
   }
 
@@ -260,8 +257,8 @@ public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMe
    */
   public PresentValueForexBlackVolatilityNodeSensitivityDataBundle presentValueBlackVolatilityNodeSensitivity(final ForexOptionSingleBarrier optionForex,
       final SmileDeltaTermStructureDataBundle smile) {
-    Validate.notNull(optionForex, "Forex option");
-    Validate.notNull(smile, "Smile");
+    ArgumentChecker.notNull(optionForex, "Forex option");
+    ArgumentChecker.notNull(smile, "Smile");
     final PresentValueForexBlackVolatilitySensitivity pointSensitivity = presentValueBlackVolatilitySensitivity(optionForex, smile);
     final SmileDeltaTermStructureParametersStrikeInterpolation volatilityModel = smile.getVolatilityModel();
     final double df = smile.getCurve(optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency2().getFundingCurveName()).getDiscountFactor(
@@ -286,6 +283,29 @@ public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMe
   }
 
   /**
+   * Computes the implied Black volatility of the barrier option.
+   * @param optionForex The Forex option.
+   * @param curves The yield curve bundle.
+   * @return The implied volatility.
+   */
+  public double impliedVolatility(final ForexOptionSingleBarrier optionForex, final YieldCurveBundle curves) {
+    ArgumentChecker.notNull(curves, "Curves");
+    ArgumentChecker.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Yield curve bundle should contain smile data");
+    final SmileDeltaTermStructureDataBundle smile = (SmileDeltaTermStructureDataBundle) curves;
+    final String domesticCurveName = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency2().getFundingCurveName();
+    final String foreignCurveName = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency1().getFundingCurveName();
+    final double payTime = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentTime();
+    final double rateDomestic = smile.getCurve(domesticCurveName).getInterestRate(payTime);
+    final double rateForeign = smile.getCurve(foreignCurveName).getInterestRate(payTime);
+    final double spot = smile.getFxRates().getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
+    final double forward = spot * Math.exp(-rateForeign * payTime) / Math.exp(-rateDomestic * payTime);
+    final double foreignAmount = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency1().getAmount();
+    final double volatility = FXVolatilityUtils.getVolatility(smile, optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getUnderlyingOption()
+        .getTimeToExpiry(), optionForex.getUnderlyingOption().getStrike(), forward);
+    return volatility;
+  }
+
+  /**
    * Computes the 2nd order spot fx sensitivity of the option present value by centered finite difference <p>
    * This gamma is be computed with respect to the direct quote (1 foreign = x domestic)
    * @param optionForex A single barrier Forex option.
@@ -294,8 +314,8 @@ public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMe
    * @return Gamma
    */
   public CurrencyAmount gammaFd(final ForexOptionSingleBarrier optionForex, final SmileDeltaTermStructureDataBundle smile, final double relShift) {
-    Validate.notNull(optionForex, "Forex option");
-    Validate.notNull(smile, "Smile");
+    ArgumentChecker.notNull(optionForex, "Forex option");
+    ArgumentChecker.notNull(smile, "Smile");
     // repackage for calls to BARRIER_FUNCTION
     final String domesticCurveName = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency2().getFundingCurveName();
     final String foreignCurveName = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency1().getFundingCurveName();
@@ -334,8 +354,8 @@ public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMe
    * @return Gamma
    */
   public CurrencyAmount gammaFd(final ForexOptionSingleBarrier optionForex, final SmileDeltaTermStructureDataBundle smile) {
-    Validate.notNull(optionForex, "Forex option");
-    Validate.notNull(smile, "Smile");
+    ArgumentChecker.notNull(optionForex, "Forex option");
+    ArgumentChecker.notNull(smile, "Smile");
     return gammaFd(optionForex, smile, DEFAULT_GAMMA_SHIFT);
   }
 
@@ -346,8 +366,8 @@ public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMe
    * @return The curve sensitivity as SurfaceValue  (point, value)
    */
   public CurrencyAmount gammaFd(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
-    Validate.isTrue(instrument instanceof ForexOptionSingleBarrier, "Single barrier Forex option");
-    Validate.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Smile delta data bundle required");
+    ArgumentChecker.isTrue(instrument instanceof ForexOptionSingleBarrier, "Single barrier Forex option");
+    ArgumentChecker.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Smile delta data bundle required");
     return gammaFd((ForexOptionSingleBarrier) instrument, (SmileDeltaTermStructureDataBundle) curves);
   }
 
@@ -359,8 +379,8 @@ public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMe
    * @return Vomma as a SurfaceValue (point, value)
    */
   public CurrencyAmount vommaFd(final ForexOptionSingleBarrier optionForex, final SmileDeltaTermStructureDataBundle smile, final double relShift) {
-    Validate.notNull(optionForex, "Forex option");
-    Validate.notNull(smile, "Smile");
+    ArgumentChecker.notNull(optionForex, "Forex option");
+    ArgumentChecker.notNull(smile, "Smile");
     // repackage for calls to BARRIER_FUNCTION
     final String domesticCurveName = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency2().getFundingCurveName();
     final String foreignCurveName = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency1().getFundingCurveName();
@@ -398,8 +418,8 @@ public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMe
    * @return Vomma as a SurfaceValue
    */
   public CurrencyAmount vommaFd(final ForexOptionSingleBarrier optionForex, final SmileDeltaTermStructureDataBundle smile) {
-    Validate.notNull(optionForex, "Forex option");
-    Validate.notNull(smile, "Smile");
+    ArgumentChecker.notNull(optionForex, "Forex option");
+    ArgumentChecker.notNull(smile, "Smile");
     return vommaFd(optionForex, smile, DEFAULT_VOMMA_SHIFT);
   }
 
@@ -410,8 +430,8 @@ public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMe
    * @return The curve sensitivity.
    */
   public CurrencyAmount vommaFd(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
-    Validate.isTrue(instrument instanceof ForexOptionSingleBarrier, "Single barrier Forex option");
-    Validate.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Smile delta data bundle required");
+    ArgumentChecker.isTrue(instrument instanceof ForexOptionSingleBarrier, "Single barrier Forex option");
+    ArgumentChecker.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Smile delta data bundle required");
     return vommaFd((ForexOptionSingleBarrier) instrument, (SmileDeltaTermStructureDataBundle) curves);
   }
 
@@ -433,8 +453,8 @@ public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMe
    * @return Vomma as a SurfaceValue
    */
   public CurrencyAmount vannaFd(final ForexOptionSingleBarrier optionForex, final SmileDeltaTermStructureDataBundle smile) {
-    Validate.notNull(optionForex, "Forex option");
-    Validate.notNull(smile, "Smile");
+    ArgumentChecker.notNull(optionForex, "Forex option");
+    ArgumentChecker.notNull(smile, "Smile");
     return vannaFd(optionForex, smile, DEFAULT_VANNA_SHIFT);
   }
 
@@ -445,8 +465,8 @@ public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMe
    * @return The curve sensitivity.
    */
   public CurrencyAmount vannaFd(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
-    Validate.isTrue(instrument instanceof ForexOptionSingleBarrier, "Single barrier Forex option");
-    Validate.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Smile delta data bundle required");
+    ArgumentChecker.isTrue(instrument instanceof ForexOptionSingleBarrier, "Single barrier Forex option");
+    ArgumentChecker.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Smile delta data bundle required");
     return vannaFd((ForexOptionSingleBarrier) instrument, (SmileDeltaTermStructureDataBundle) curves);
   }
 
@@ -458,8 +478,8 @@ public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMe
    * @return Vomma as a SurfaceValue
    */
   public CurrencyAmount dVegaDSpotFD(final ForexOptionSingleBarrier optionForex, final SmileDeltaTermStructureDataBundle smile, final double relShift) {
-    Validate.notNull(optionForex, "Forex option");
-    Validate.notNull(smile, "Smile");
+    ArgumentChecker.notNull(optionForex, "Forex option");
+    ArgumentChecker.notNull(smile, "Smile");
     // repackage for calls to BARRIER_FUNCTION
     final String domesticCurveName = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency2().getFundingCurveName();
     final String foreignCurveName = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency1().getFundingCurveName();
@@ -498,8 +518,8 @@ public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMe
    * @return Vomma as a SurfaceValue
    */
   public CurrencyAmount dDeltaDVolFD(final ForexOptionSingleBarrier optionForex, final SmileDeltaTermStructureDataBundle smile, final double relShift) {
-    Validate.notNull(optionForex, "Forex option");
-    Validate.notNull(smile, "Smile");
+    ArgumentChecker.notNull(optionForex, "Forex option");
+    ArgumentChecker.notNull(smile, "Smile");
     // repackage for calls to BARRIER_FUNCTION
     final String domesticCurveName = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency2().getFundingCurveName();
     final String foreignCurveName = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency1().getFundingCurveName();
@@ -538,8 +558,8 @@ public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMe
    * @return Vomma as a SurfaceValue
    */
   public CurrencyAmount d2PriceDSpotDVolFD(final ForexOptionSingleBarrier optionForex, final SmileDeltaTermStructureDataBundle smile, final double relShift) {
-    Validate.notNull(optionForex, "Forex option");
-    Validate.notNull(smile, "Smile");
+    ArgumentChecker.notNull(optionForex, "Forex option");
+    ArgumentChecker.notNull(smile, "Smile");
     // repackage for calls to BARRIER_FUNCTION
     final String domesticCurveName = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency2().getFundingCurveName();
     final String foreignCurveName = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency1().getFundingCurveName();
@@ -581,8 +601,8 @@ public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMe
    * @return Vomma as a SurfaceValue
    */
   public CurrencyAmount d2PriceDSpotDVolFdAlt(final ForexOptionSingleBarrier optionForex, final SmileDeltaTermStructureDataBundle smile, final double relShift) {
-    Validate.notNull(optionForex, "Forex option");
-    Validate.notNull(smile, "Smile");
+    ArgumentChecker.notNull(optionForex, "Forex option");
+    ArgumentChecker.notNull(smile, "Smile");
     // repackage for calls to BARRIER_FUNCTION
     final String domesticCurveName = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency2().getFundingCurveName();
     final String foreignCurveName = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency1().getFundingCurveName();

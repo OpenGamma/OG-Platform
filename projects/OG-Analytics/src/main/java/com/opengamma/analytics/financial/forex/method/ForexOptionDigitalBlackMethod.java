@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionDigital;
-import com.opengamma.analytics.financial.forex.provider.ForexOptionDigitalBlackSmileMethod;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
@@ -302,6 +301,43 @@ public final class ForexOptionDigitalBlackMethod implements ForexPricingMethod {
     final SurfaceValue result = SurfaceValue.from(point, volatilityBar);
     final PresentValueForexBlackVolatilitySensitivity sensi = new PresentValueForexBlackVolatilitySensitivity(foreignCcy, domesticCcy, result);
     return sensi;
+  }
+
+  /**
+   * Computes the implied Black volatility of the digital option.
+   * @param optionForex The Forex option.
+   * @param curves The yield curve bundle.
+   * @return The implied volatility.
+   */
+  public double impliedVolatility(final ForexOptionDigital optionForex, final YieldCurveBundle curves) {
+    ArgumentChecker.notNull(curves, "Curves");
+    ArgumentChecker.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Yield curve bundle should contain smile data");
+    final SmileDeltaTermStructureDataBundle smile = (SmileDeltaTermStructureDataBundle) curves;
+    ArgumentChecker.notNull(optionForex, "Forex option");
+    ArgumentChecker.isTrue(smile.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
+    final double payTime = optionForex.getUnderlyingForex().getPaymentTime();
+    // Forward sweep
+    final Currency domesticCcy;
+    final Currency foreignCcy;
+    final String foreignCurveName;
+    final String domesticCurveName;
+    if (optionForex.payDomestic()) {
+      foreignCurveName = optionForex.getUnderlyingForex().getPaymentCurrency1().getFundingCurveName();
+      domesticCurveName = optionForex.getUnderlyingForex().getPaymentCurrency2().getFundingCurveName();
+      domesticCcy = optionForex.getUnderlyingForex().getCurrency2();
+      foreignCcy = optionForex.getUnderlyingForex().getCurrency1();
+    } else {
+      foreignCurveName = optionForex.getUnderlyingForex().getPaymentCurrency2().getFundingCurveName();
+      domesticCurveName = optionForex.getUnderlyingForex().getPaymentCurrency1().getFundingCurveName();
+      domesticCcy = optionForex.getUnderlyingForex().getCurrency1();
+      foreignCcy = optionForex.getUnderlyingForex().getCurrency2();
+    }
+    final double dfDomestic = smile.getCurve(domesticCurveName).getDiscountFactor(payTime);
+    final double dfForeign = smile.getCurve(foreignCurveName).getDiscountFactor(payTime);
+    final double spot = smile.getFxRates().getFxRate(foreignCcy, domesticCcy);
+    final double forward = spot * dfForeign / dfDomestic;
+    final double volatility = FXVolatilityUtils.getVolatility(smile, foreignCcy, domesticCcy, optionForex.getExpirationTime(), forward, forward);
+    return volatility;
   }
 
   /**
