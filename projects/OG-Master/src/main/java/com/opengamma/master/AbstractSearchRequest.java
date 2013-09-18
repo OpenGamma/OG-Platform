@@ -35,7 +35,7 @@ import com.opengamma.util.paging.PagingRequest;
  */
 @PublicSPI
 @BeanDefinition
-public abstract class AbstractSearchRequest extends DirectBean {
+public abstract class AbstractSearchRequest extends DirectBean implements PagedRequest {
 
   /**
    * The request for paging.
