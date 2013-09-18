@@ -111,6 +111,18 @@ public final class IndexIborMaster {
         "JPYLIBOR6M",
         new IborIndex(Currency.JPY, Period.ofMonths(6), 2, DayCountFactory.INSTANCE.getDayCount("Actual/365"), BusinessDayConventionFactory.INSTANCE
             .getBusinessDayConvention("Modified Following"), true, "JPYLIBOR6M"));
+    _ibor.put(
+            "PLNWIBOR6M",
+            new IborIndex(Currency.PLN, Period.ofMonths(6), 2, DayCountFactory.INSTANCE.getDayCount("Actual/365"), BusinessDayConventionFactory.INSTANCE
+                .getBusinessDayConvention("Modified Following"), true, "PLNWIBOR6M"));
+    _ibor.put(
+            "PLNWIBOR3M",
+            new IborIndex(Currency.PLN, Period.ofMonths(3), 2, DayCountFactory.INSTANCE.getDayCount("Actual/365"), BusinessDayConventionFactory.INSTANCE
+                .getBusinessDayConvention("Modified Following"), true, "PLNWIBOR3M"));
+    _ibor.put(
+            "PLNWIBOR1M",
+            new IborIndex(Currency.PLN, Period.ofMonths(1), 2, DayCountFactory.INSTANCE.getDayCount("Actual/365"), BusinessDayConventionFactory.INSTANCE
+                .getBusinessDayConvention("Modified Following"), true, "PLNWIBOR1M"));
   }
 
   public IborIndex getIndex(final String name) {
