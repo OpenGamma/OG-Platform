@@ -55,7 +55,7 @@ public class GammaSpotBlackForexCalculator extends InstrumentDerivativeVisitorAd
 
   @Override
   public CurrencyAmount visitForexOptionDigital(final ForexOptionDigital derivative, final YieldCurveBundle data) {
-    return null;
+    return METHOD_FXDIGITAL.gammaSpot(derivative, data, true);
   }
 
   @Override

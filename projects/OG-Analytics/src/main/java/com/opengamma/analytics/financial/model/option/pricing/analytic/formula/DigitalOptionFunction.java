@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.option.pricing.analytic.formula;
@@ -11,7 +11,7 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Compute price and Greeks of digital (cash-or-nothing) option
- * Cash-or-nothing call option pays 0 if S <= K and K if S > K, whereas cash-or-nothing put option pays 1. if S < K and 0 if S >= K, 
+ * Cash-or-nothing call option pays 0 if S <= K and K if S > K, whereas cash-or-nothing put option pays 1. if S < K and 0 if S >= K,
  * where S is asset price at expiry.
  */
 public class DigitalOptionFunction {
@@ -19,7 +19,7 @@ public class DigitalOptionFunction {
 
   /**
    * Compute <b>spot</b> price of cash-or-nothing option
-   * @param spot The spot 
+   * @param spot The spot
    * @param strike The strike
    * @param timeToExpiry The time to expiry
    * @param lognormalVol The log-normal volatility
@@ -28,7 +28,7 @@ public class DigitalOptionFunction {
    * @param isCall True for calls, false for puts
    * @return The option price
    */
-  public double price(final double spot, final double strike, final double timeToExpiry, final double lognormalVol, final double interestRate, final double costOfCarry, final boolean isCall) {
+  public static double price(final double spot, final double strike, final double timeToExpiry, final double lognormalVol, final double interestRate, final double costOfCarry, final boolean isCall) {
     ArgumentChecker.isTrue(spot > 0.0, "negative/NaN spot; have {}", spot);
     ArgumentChecker.isTrue(strike > 0.0, "negative/NaN strike; have {}", strike);
     ArgumentChecker.isTrue(timeToExpiry > 0.0, "negative/NaN timeToExpiry; have {}", timeToExpiry);
@@ -43,7 +43,7 @@ public class DigitalOptionFunction {
 
   /**
    * Compute delta of cash-or-nothing option
-   * @param spot The spot 
+   * @param spot The spot
    * @param strike The strike
    * @param timeToExpiry The time to expiry
    * @param lognormalVol The log-normal volatility
@@ -52,7 +52,8 @@ public class DigitalOptionFunction {
    * @param isCall True for calls, false for puts
    * @return The option price
    */
-  public double delta(final double spot, final double strike, final double timeToExpiry, final double lognormalVol, final double interestRate, final double costOfCarry, final boolean isCall) {
+  public static double delta(final double spot, final double strike, final double timeToExpiry, final double lognormalVol, final double interestRate,
+      final double costOfCarry, final boolean isCall) {
     ArgumentChecker.isTrue(spot > 0.0, "negative/NaN spot; have {}", spot);
     ArgumentChecker.isTrue(strike > 0.0, "negative/NaN strike; have {}", strike);
     ArgumentChecker.isTrue(timeToExpiry > 0.0, "negative/NaN timeToExpiry; have {}", timeToExpiry);
@@ -68,7 +69,7 @@ public class DigitalOptionFunction {
 
   /**
    * Compute gamma of cash-or-nothing option
-   * @param spot The spot 
+   * @param spot The spot
    * @param strike The strike
    * @param timeToExpiry The time to expiry
    * @param lognormalVol The log-normal volatility
@@ -77,7 +78,8 @@ public class DigitalOptionFunction {
    * @param isCall True for calls, false for puts
    * @return The option price
    */
-  public double gamma(final double spot, final double strike, final double timeToExpiry, final double lognormalVol, final double interestRate, final double costOfCarry, final boolean isCall) {
+  public static double gamma(final double spot, final double strike, final double timeToExpiry, final double lognormalVol, final double interestRate,
+      final double costOfCarry, final boolean isCall) {
     ArgumentChecker.isTrue(spot > 0.0, "negative/NaN spot; have {}", spot);
     ArgumentChecker.isTrue(strike > 0.0, "negative/NaN strike; have {}", strike);
     ArgumentChecker.isTrue(timeToExpiry > 0.0, "negative/NaN timeToExpiry; have {}", timeToExpiry);
@@ -93,7 +95,7 @@ public class DigitalOptionFunction {
 
   /**
    * Compute theta price of cash-or-nothing option
-   * @param spot The spot 
+   * @param spot The spot
    * @param strike The strike
    * @param timeToExpiry The time to expiry
    * @param lognormalVol The log-normal volatility
@@ -102,7 +104,8 @@ public class DigitalOptionFunction {
    * @param isCall True for calls, false for puts
    * @return The option price
    */
-  public double theta(final double spot, final double strike, final double timeToExpiry, final double lognormalVol, final double interestRate, final double costOfCarry, final boolean isCall) {
+  public static double theta(final double spot, final double strike, final double timeToExpiry, final double lognormalVol, final double interestRate,
+      final double costOfCarry, final boolean isCall) {
     ArgumentChecker.isTrue(spot > 0.0, "negative/NaN spot; have {}", spot);
     ArgumentChecker.isTrue(strike > 0.0, "negative/NaN strike; have {}", strike);
     ArgumentChecker.isTrue(timeToExpiry > 0.0, "negative/NaN timeToExpiry; have {}", timeToExpiry);

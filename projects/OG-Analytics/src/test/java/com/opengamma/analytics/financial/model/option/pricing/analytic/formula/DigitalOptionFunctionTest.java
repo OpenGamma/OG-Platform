@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.option.pricing.analytic.formula;
@@ -30,12 +30,11 @@ import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Triple;
 
 /**
- * 
+ *
  */
 @SuppressWarnings("deprecation")
 public class DigitalOptionFunctionTest {
 
-  private static final DigitalOptionFunction _function = new DigitalOptionFunction();
   private static final double SPOT = 105.;
   private static final double[] STRIKES = new double[] {97., 105., 105.1, 114. };
   private static final double TIME = 4.2;
@@ -81,12 +80,12 @@ public class DigitalOptionFunctionTest {
 
     final double pvExpected = Math.abs(forexOption.getUnderlyingForex().getPaymentCurrency1().getAmount()) * dfDomestic * NORMAL.getCDF(omega * dM) * (isLong ? 1.0 : -1.0);
     final double price = Math.abs(forexOption.getUnderlyingForex().getPaymentCurrency1().getAmount()) *
-        _function.price(SPOT, strike, forexOption.getUnderlyingForex().getPaymentTime(), volatility, rDomestic, rDomestic - rForeign, isCall);
+        DigitalOptionFunction.price(SPOT, strike, forexOption.getUnderlyingForex().getPaymentTime(), volatility, rDomestic, rDomestic - rForeign, isCall);
     assertEquals(price, pvExpected, pvExpected * 1.e-14);
   }
 
   /**
-   * 
+   *
    */
   @Test
   public void greeksTest() {
@@ -97,15 +96,15 @@ public class DigitalOptionFunctionTest {
         for (final double interest : INTERESTS) {
           for (final double vol : VOLS) {
             for (final double dividend : DIVIDENDS) {
-              final double delta = _function.delta(SPOT, strike, TIME, vol, interest, interest - dividend, isCall);
-              final double gamma = _function.gamma(SPOT, strike, TIME, vol, interest, interest - dividend, isCall);
-              final double theta = _function.theta(SPOT, strike, TIME, vol, interest, interest - dividend, isCall);
-              final double upSpot = _function.price(SPOT + eps, strike, TIME, vol, interest, interest - dividend, isCall);
-              final double downSpot = _function.price(SPOT - eps, strike, TIME, vol, interest, interest - dividend, isCall);
-              final double upSpotDelta = _function.delta(SPOT + eps, strike, TIME, vol, interest, interest - dividend, isCall);
-              final double downSpotDelta = _function.delta(SPOT - eps, strike, TIME, vol, interest, interest - dividend, isCall);
-              final double upTime = _function.price(SPOT, strike, TIME + eps, vol, interest, interest - dividend, isCall);
-              final double downTime = _function.price(SPOT, strike, TIME - eps, vol, interest, interest - dividend, isCall);
+              final double delta = DigitalOptionFunction.delta(SPOT, strike, TIME, vol, interest, interest - dividend, isCall);
+              final double gamma = DigitalOptionFunction.gamma(SPOT, strike, TIME, vol, interest, interest - dividend, isCall);
+              final double theta = DigitalOptionFunction.theta(SPOT, strike, TIME, vol, interest, interest - dividend, isCall);
+              final double upSpot = DigitalOptionFunction.price(SPOT + eps, strike, TIME, vol, interest, interest - dividend, isCall);
+              final double downSpot = DigitalOptionFunction.price(SPOT - eps, strike, TIME, vol, interest, interest - dividend, isCall);
+              final double upSpotDelta = DigitalOptionFunction.delta(SPOT + eps, strike, TIME, vol, interest, interest - dividend, isCall);
+              final double downSpotDelta = DigitalOptionFunction.delta(SPOT - eps, strike, TIME, vol, interest, interest - dividend, isCall);
+              final double upTime = DigitalOptionFunction.price(SPOT, strike, TIME + eps, vol, interest, interest - dividend, isCall);
+              final double downTime = DigitalOptionFunction.price(SPOT, strike, TIME - eps, vol, interest, interest - dividend, isCall);
               assertEquals(delta, 0.5 * (upSpot - downSpot) / eps, eps);
               assertEquals(gamma, 0.5 * (upSpotDelta - downSpotDelta) / eps, eps);
               assertEquals(theta, -0.5 * (upTime - downTime) / eps, eps);
@@ -117,130 +116,130 @@ public class DigitalOptionFunctionTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeSpotPriceTest() {
-    _function.price(-SPOT, STRIKES[0], TIME, VOLS[1], INTERESTS[1], INTERESTS[1] - DIVIDENDS[1], true);
+    DigitalOptionFunction.price(-SPOT, STRIKES[0], TIME, VOLS[1], INTERESTS[1], INTERESTS[1] - DIVIDENDS[1], true);
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeStrikePriceTest() {
-    _function.price(SPOT, -STRIKES[0], TIME, VOLS[1], INTERESTS[1], INTERESTS[1] - DIVIDENDS[1], true);
+    DigitalOptionFunction.price(SPOT, -STRIKES[0], TIME, VOLS[1], INTERESTS[1], INTERESTS[1] - DIVIDENDS[1], true);
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeTimePriceTest() {
-    _function.price(SPOT, STRIKES[0], -TIME, VOLS[1], INTERESTS[1], INTERESTS[1] - DIVIDENDS[1], true);
+    DigitalOptionFunction.price(SPOT, STRIKES[0], -TIME, VOLS[1], INTERESTS[1], INTERESTS[1] - DIVIDENDS[1], true);
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeVolPriceTest() {
-    _function.price(SPOT, STRIKES[0], TIME, -VOLS[1], INTERESTS[1], INTERESTS[1] - DIVIDENDS[1], true);
+    DigitalOptionFunction.price(SPOT, STRIKES[0], TIME, -VOLS[1], INTERESTS[1], INTERESTS[1] - DIVIDENDS[1], true);
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeSpotdeltaTest() {
-    _function.delta(-SPOT, STRIKES[0], TIME, VOLS[1], INTERESTS[1], INTERESTS[1] - DIVIDENDS[1], true);
+    DigitalOptionFunction.delta(-SPOT, STRIKES[0], TIME, VOLS[1], INTERESTS[1], INTERESTS[1] - DIVIDENDS[1], true);
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeStrikedeltaTest() {
-    _function.delta(SPOT, -STRIKES[0], TIME, VOLS[1], INTERESTS[1], INTERESTS[1] - DIVIDENDS[1], true);
+    DigitalOptionFunction.delta(SPOT, -STRIKES[0], TIME, VOLS[1], INTERESTS[1], INTERESTS[1] - DIVIDENDS[1], true);
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeTimedeltaTest() {
-    _function.delta(SPOT, STRIKES[0], -TIME, VOLS[1], INTERESTS[1], INTERESTS[1] - DIVIDENDS[1], true);
+    DigitalOptionFunction.delta(SPOT, STRIKES[0], -TIME, VOLS[1], INTERESTS[1], INTERESTS[1] - DIVIDENDS[1], true);
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeVoldeltaTest() {
-    _function.delta(SPOT, STRIKES[0], TIME, -VOLS[1], INTERESTS[1], INTERESTS[1] - DIVIDENDS[1], true);
+    DigitalOptionFunction.delta(SPOT, STRIKES[0], TIME, -VOLS[1], INTERESTS[1], INTERESTS[1] - DIVIDENDS[1], true);
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeSpotgammaTest() {
-    _function.gamma(-SPOT, STRIKES[0], TIME, VOLS[1], INTERESTS[1], INTERESTS[1] - DIVIDENDS[1], true);
+    DigitalOptionFunction.gamma(-SPOT, STRIKES[0], TIME, VOLS[1], INTERESTS[1], INTERESTS[1] - DIVIDENDS[1], true);
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeStrikegammaTest() {
-    _function.gamma(SPOT, -STRIKES[0], TIME, VOLS[1], INTERESTS[1], INTERESTS[1] - DIVIDENDS[1], true);
+    DigitalOptionFunction.gamma(SPOT, -STRIKES[0], TIME, VOLS[1], INTERESTS[1], INTERESTS[1] - DIVIDENDS[1], true);
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeTimegammaTest() {
-    _function.gamma(SPOT, STRIKES[0], -TIME, VOLS[1], INTERESTS[1], INTERESTS[1] - DIVIDENDS[1], true);
+    DigitalOptionFunction.gamma(SPOT, STRIKES[0], -TIME, VOLS[1], INTERESTS[1], INTERESTS[1] - DIVIDENDS[1], true);
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeVolgammaTest() {
-    _function.gamma(SPOT, STRIKES[0], TIME, -VOLS[1], INTERESTS[1], INTERESTS[1] - DIVIDENDS[1], true);
+    DigitalOptionFunction.gamma(SPOT, STRIKES[0], TIME, -VOLS[1], INTERESTS[1], INTERESTS[1] - DIVIDENDS[1], true);
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeSpotthetaTest() {
-    _function.theta(-SPOT, STRIKES[0], TIME, VOLS[1], INTERESTS[1], INTERESTS[1] - DIVIDENDS[1], true);
+    DigitalOptionFunction.theta(-SPOT, STRIKES[0], TIME, VOLS[1], INTERESTS[1], INTERESTS[1] - DIVIDENDS[1], true);
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeStrikethetaTest() {
-    _function.theta(SPOT, -STRIKES[0], TIME, VOLS[1], INTERESTS[1], INTERESTS[1] - DIVIDENDS[1], true);
+    DigitalOptionFunction.theta(SPOT, -STRIKES[0], TIME, VOLS[1], INTERESTS[1], INTERESTS[1] - DIVIDENDS[1], true);
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeTimethetaTest() {
-    _function.theta(SPOT, STRIKES[0], -TIME, VOLS[1], INTERESTS[1], INTERESTS[1] - DIVIDENDS[1], true);
+    DigitalOptionFunction.theta(SPOT, STRIKES[0], -TIME, VOLS[1], INTERESTS[1], INTERESTS[1] - DIVIDENDS[1], true);
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void negativeVolthetaTest() {
-    _function.theta(SPOT, STRIKES[0], TIME, -VOLS[1], INTERESTS[1], INTERESTS[1] - DIVIDENDS[1], true);
+    DigitalOptionFunction.theta(SPOT, STRIKES[0], TIME, -VOLS[1], INTERESTS[1], INTERESTS[1] - DIVIDENDS[1], true);
   }
 }
