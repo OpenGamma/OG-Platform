@@ -60,6 +60,6 @@ public class GammaSpotBlackForexCalculator extends InstrumentDerivativeVisitorAd
 
   @Override
   public CurrencyAmount visitForexOptionSingleBarrier(final ForexOptionSingleBarrier derivative, final YieldCurveBundle data) {
-    return null;
+    return METHOD_FXBARRIER.gammaSpot(derivative, data, true);
   }
 }
