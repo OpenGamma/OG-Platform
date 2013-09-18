@@ -81,6 +81,9 @@ public final class GeneratorSwapFixedIborMaster {
     _generatorSwap.put("AUD6MBBSW6M",
         new GeneratorSwapFixedIbor("AUD6MBBSW6M", Period.ofMonths(6), DayCountFactory.INSTANCE.getDayCount("ACT/365"),
             _iborIndexMaster.getIndex("AUDBB6M"), baseCalendar));
+    _generatorSwap.put("PLN1YWIBOR6M",
+            new GeneratorSwapFixedIbor("PLN1YWIBOR6M", Period.ofMonths(12), DayCountFactory.INSTANCE.getDayCount("ACT/365"),
+                _iborIndexMaster.getIndex("PLNWIBOR6M"), baseCalendar));
   }
 
   public GeneratorSwapFixedIbor getGenerator(final String name, final Calendar cal) {
