@@ -5,7 +5,9 @@
  */
 package com.opengamma.analytics.financial.forex.calculator;
 
+import com.opengamma.analytics.financial.forex.derivative.ForexOptionDigital;
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionVanilla;
+import com.opengamma.analytics.financial.forex.method.ForexOptionDigitalBlackMethod;
 import com.opengamma.analytics.financial.forex.method.ForexOptionVanillaBlackSmileMethod;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
@@ -38,10 +40,10 @@ public class SpotBlackDeltaForexCalculator extends InstrumentDerivativeVisitorAd
   SpotBlackDeltaForexCalculator() {
   }
 
-  /**
-   * The methods used by the different instruments.
-   */
+  /** Vanilla option calculator */
   private static final ForexOptionVanillaBlackSmileMethod METHOD_FXOPTIONVANILLA = ForexOptionVanillaBlackSmileMethod.getInstance();
+  /** Digital option calculator */
+  private static final ForexOptionDigitalBlackMethod METHOD_FXDIGITAL = ForexOptionDigitalBlackMethod.getInstance();
 
   @Override
   public Double visitForexOptionVanilla(final ForexOptionVanilla derivative, final YieldCurveBundle data) {
@@ -49,4 +51,9 @@ public class SpotBlackDeltaForexCalculator extends InstrumentDerivativeVisitorAd
     return METHOD_FXOPTIONVANILLA.spotDeltaTheoretical(derivative, data);
   }
 
+  @Override
+  public Double visitForexOptionDigital(final ForexOptionDigital derivative, final YieldCurveBundle data) {
+    ArgumentChecker.isTrue(data instanceof SmileDeltaTermStructureDataBundle, "Must have data bundle with volatility data");
+    return 0.;
+  }
 }
