@@ -17,7 +17,10 @@ import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYi
 import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE;
 import static com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults.PROPERTY_USE_FINITE_DIFFERENCE;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -31,6 +34,13 @@ import org.threeten.bp.ZonedDateTime;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.forex.method.FXMatrix;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.MultipleYieldCurveFinderDataBundle;
+import com.opengamma.analytics.financial.interestrate.MultipleYieldCurveFinderFunction;
+import com.opengamma.analytics.financial.interestrate.MultipleYieldCurveFinderJacobian;
+import com.opengamma.analytics.financial.interestrate.ParRateCalculator;
+import com.opengamma.analytics.financial.interestrate.ParRateCurveSensitivityCalculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.analytics.financial.interestrate.cash.method.CashDiscountingMethod;
@@ -38,8 +48,16 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscou
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
+import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
+import com.opengamma.analytics.math.interpolation.Interpolator1D;
+import com.opengamma.analytics.math.linearalgebra.Decomposition;
+import com.opengamma.analytics.math.linearalgebra.DecompositionFactory;
+import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
+import com.opengamma.analytics.math.rootfinding.newton.BroydenVectorRootFinder;
+import com.opengamma.analytics.math.rootfinding.newton.NewtonVectorRootFinder;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.holiday.HolidaySource;
@@ -88,8 +106,12 @@ public class ImpliedDepositCurveFromFXFunction extends AbstractFunction {
   public static final String IMPLIED_DEPOSIT = "ImpliedDeposit";
   /** The value property name for the yield curve definitions that the implied curve is transformed into */
   public static final String PROPERTY_IMPLIED_DEPOSIT_CURVE = "ImpliedCurveDefinition";
-  /** The par rate calculator */
-  private static final CashDiscountingMethod PAR_RATE_CALCULATOR = CashDiscountingMethod.getInstance();
+  /** The Cash instrument method */
+  private static final CashDiscountingMethod METHOD_CASH = CashDiscountingMethod.getInstance();
+  /** Calculates the par rate */
+  private static final ParRateCalculator PAR_RATE_CALCULATOR = ParRateCalculator.getInstance();
+  /** Calculates the sensitivity of the par rate to the curves */
+  private static final ParRateCurveSensitivityCalculator PAR_RATE_SENSITIVITY_CALCULATOR = ParRateCurveSensitivityCalculator.getInstance();
   /** The business day convention used for FX forward dates computation **/
   private static final BusinessDayConvention MOD_FOL = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   /** The logger */
@@ -163,8 +185,18 @@ public class ImpliedDepositCurveFromFXFunction extends AbstractFunction {
           throw new OpenGammaRuntimeException("Could not get domestic currency curve");
         }
         ValueProperties resultCurveProperties = null;
+        String absoluteToleranceName = null;
+        String relativeToleranceName = null;
+        String iterationsName = null;
+        String decompositionName = null;
+        String useFiniteDifferenceName = null;
         for (final ValueRequirement desiredValue : desiredValues) {
           if (desiredValue.getValueName().equals(YIELD_CURVE)) {
+            absoluteToleranceName = desiredValue.getConstraint(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE);
+            relativeToleranceName = desiredValue.getConstraint(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE);
+            iterationsName = desiredValue.getConstraint(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_MAX_ITERATIONS);
+            decompositionName = desiredValue.getConstraint(MultiYieldCurvePropertiesAndDefaults.PROPERTY_DECOMPOSITION);
+            useFiniteDifferenceName = desiredValue.getConstraint(MultiYieldCurvePropertiesAndDefaults.PROPERTY_USE_FINITE_DIFFERENCE);
             resultCurveProperties = desiredValue.getConstraints().copy().get();
             break;
           }
@@ -198,22 +230,46 @@ public class ImpliedDepositCurveFromFXFunction extends AbstractFunction {
         final double[] r = new double[n];
         int i = 0;
         final DayCount dayCount = DayCountFactory.INSTANCE.getDayCount("Act/365"); //TODO
+
+        final String impliedDepositCurveName = _curveName + "_" + domesticCurrency.getCode();
+        final List<InstrumentDerivative> derivatives = new ArrayList<>();
+        
         for (final FixedIncomeStrip strip : definition.getStrips()) {
           final Tenor tenor = strip.getCurveNodePointTime();
           final ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(spotDate, tenor.getPeriod(), MOD_FOL, calendar, true);
           final double startTime = TimeCalculator.getTimeBetween(now, spotDate);
           final double endTime = TimeCalculator.getTimeBetween(now, paymentDate);
           final double accrualFactor = dayCount.getDayCountFraction(now, now.plus(tenor.getPeriod()), calendar);
-          final Cash cash = new Cash(domesticCurrency, startTime, endTime, 1, 0, accrualFactor, fullYieldCurveName);
-          final double parRate = PAR_RATE_CALCULATOR.parRate(cash, curves);
+          final Cash cashFXCurve = new Cash(domesticCurrency, startTime, endTime, 1, 0, accrualFactor, fullYieldCurveName);
+          final double parRate = METHOD_CASH.parRate(cashFXCurve, curves);
+          final Cash cashDepositCurve = new Cash(domesticCurrency, startTime, endTime, 1, 0, accrualFactor, impliedDepositCurveName);
+          derivatives.add(cashDepositCurve);
           t[i] = endTime;
           r[i++] = parRate;
         }
         final CombinedInterpolatorExtrapolator interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(interpolatorName, leftExtrapolatorName,
             rightExtrapolatorName);
-        final YieldCurve impliedDepositCurve = new YieldCurve(fullYieldCurveName, InterpolatedDoublesCurve.from(t, r, interpolator));
-        final ValueSpecification spec = new ValueSpecification(YIELD_CURVE, target.toSpecification(), resultCurveProperties);
-        return Sets.newHashSet(new ComputedValue(spec, impliedDepositCurve));
+        final double absoluteTolerance = Double.parseDouble(absoluteToleranceName);
+        final double relativeTolerance = Double.parseDouble(relativeToleranceName);
+        final int iterations = Integer.parseInt(iterationsName);
+        final Decomposition<?> decomposition = DecompositionFactory.getDecomposition(decompositionName);
+        final boolean useFiniteDifference = Boolean.parseBoolean(useFiniteDifferenceName);
+        final LinkedHashMap<String, double[]> curveNodes = new LinkedHashMap<>();
+        final LinkedHashMap<String, Interpolator1D> interpolators = new LinkedHashMap<>();
+        curveNodes.put(impliedDepositCurveName, t);
+        interpolators.put(impliedDepositCurveName, interpolator);
+        final FXMatrix fxMatrix = new FXMatrix();
+        final YieldCurveBundle knownCurve = new YieldCurveBundle();
+        final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(derivatives, r, knownCurve, curveNodes, interpolators, useFiniteDifference, fxMatrix);
+        final NewtonVectorRootFinder rootFinder = new BroydenVectorRootFinder(absoluteTolerance, relativeTolerance, iterations, decomposition);
+        final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveCalculator = new MultipleYieldCurveFinderFunction(data, PAR_RATE_CALCULATOR);
+        final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MultipleYieldCurveFinderJacobian(data, PAR_RATE_SENSITIVITY_CALCULATOR);
+        final double[] fittedYields = rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(r)).getData();
+        final DoubleMatrix2D jacobianMatrix = jacobianCalculator.evaluate(new DoubleMatrix1D(fittedYields));
+        final YieldCurve impliedDepositCurve = new YieldCurve(impliedDepositCurveName, InterpolatedDoublesCurve.from(t, fittedYields, interpolator));
+        final ValueSpecification curveSpec = new ValueSpecification(YIELD_CURVE, target.toSpecification(), resultCurveProperties);
+        ValueSpecification jacobianSpec = new ValueSpecification(YIELD_CURVE_JACOBIAN, target.toSpecification(), resultJacobianProperties);
+        return Sets.newHashSet(new ComputedValue(curveSpec, impliedDepositCurve), new ComputedValue(jacobianSpec, jacobianMatrix));
       }
 
       @Override
