@@ -41,6 +41,12 @@ public class PositionMapper {
   private final PortfolioMaster _portfolioMaster;
   private final SecurityMaster _securityMaster;
 
+  /**
+   * @param portfolioMaster For looking up the portfolio
+   * @param positionMaster For looking up positions
+   * @param securityMaster For looking up securities
+   * @param versionCorrection Version correction used when querying the masters
+   */
   public PositionMapper(PortfolioMaster portfolioMaster,
                         PositionMaster positionMaster,
                         SecurityMaster securityMaster,
@@ -57,21 +63,49 @@ public class PositionMapper {
     _securitySource = new MasterSecuritySource(securityMaster);
   }
 
+  /**
+   * Creates a mapping that uses {@link VersionCorrection#LATEST} in all master lookups.
+   * @param portfolioMaster For looking up the portfolio
+   * @param positionMaster For looking up positions
+   * @param securityMaster For looking up securities
+   */
   public PositionMapper(PortfolioMaster portfolioMaster, PositionMaster positionMaster, SecurityMaster securityMaster) {
     this(portfolioMaster, positionMaster, securityMaster, VersionCorrection.LATEST);
   }
 
+  /**
+   * Calls the function for every position in the portfolio and collects the results. Null results aren't included
+   * @param portfolioObjectId Object ID of the portfolio
+   * @param function Called for every position in the portfolio
+   * @param <T> Type of the function's result
+   * @return Values returned from the function, not including any nulls
+   */
   public <T> List<T> map(String portfolioObjectId, Function<T> function) {
     ObjectId objectId = ObjectId.parse(portfolioObjectId);
     ManageablePortfolio portfolio = _portfolioMaster.get(objectId, _versionCorrection).getPortfolio();
     return map(portfolio.getRootNode(), function);
   }
 
+  /**
+   * Calls the function for every position in the portfolio and collects the results. Null results aren't included
+   * @param portfolioId ID of the portfolio
+   * @param function Called for every position in the portfolio
+   * @param <T> Type of the function's result
+   * @return Values returned from the function, not including any nulls
+   */
   public <T> List<T> map(ObjectId portfolioId, Function<T> function) {
     ManageablePortfolio portfolio = _portfolioMaster.get(portfolioId, _versionCorrection).getPortfolio();
     return map(portfolio.getRootNode(), function);
   }
 
+  /**
+   * Calls the function for every position in the portfolio and collects the results. Null results aren't included.
+   * The ID shouldn't include a version as the version correction is included in the class constructor.
+   * @param unversionedPortfolioId Unique ID of the portfolio without a version
+   * @param function Called for every position in the portfolio
+   * @param <T> Type of the function's result
+   * @return Values returned from the function, not including any nulls
+   */
   public <T> List<T> map(UniqueId unversionedPortfolioId, Function<T> function) {
     if (unversionedPortfolioId.isVersioned()) {
       throw new IllegalArgumentException("Portfolio ID " + unversionedPortfolioId + " should be unversioned, " +
@@ -82,6 +116,13 @@ public class PositionMapper {
     return map(portfolio.getRootNode(), function);
   }
 
+  /**
+   * Calls the function for every position in the portfolio tree and collects the results. Null results aren't included
+   * @param node Root of the portfolio tree
+   * @param function Called for every position in the portfolio
+   * @param <T> Type of the function's result
+   * @return Values returned from the function, not including any nulls
+   */
   public <T> List<T> map(ManageablePortfolioNode node, Function<T> function) {
     List<T> results = Lists.newArrayList();
     for (ObjectId positionId : node.getPositionIds()) {
