@@ -120,7 +120,7 @@ public class DigitalOptionFunctionTest {
               final double dDw = Math.log(forward / strike) / vol / Math.sqrt(TIME - eps) - 0.5 * vol * Math.sqrt(TIME - eps);
               final double fwUp = NORMAL.getCDF(sign * dUp);
               final double fwDw = NORMAL.getCDF(sign * dDw);
-              assertEquals(forwardTheta, 0.5 * (fwUp - fwDw) / eps, eps);
+              assertEquals(forwardTheta, -0.5 * (fwUp - fwDw) / eps, eps);
             }
           }
         }

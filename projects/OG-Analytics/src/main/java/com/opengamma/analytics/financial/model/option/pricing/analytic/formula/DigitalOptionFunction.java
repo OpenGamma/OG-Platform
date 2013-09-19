@@ -138,7 +138,7 @@ public class DigitalOptionFunction {
     final double d = Math.log(forward / strike) / sigmaRootT - 0.5 * sigmaRootT;
     final double sign = isCall ? 1. : -1.;
     final double div = 0.5 * (-Math.log(forward / strike) / Math.pow(timeToExpiry, 1.5) / lognormalVol - 0.5 * lognormalVol / Math.pow(timeToExpiry, 0.5));
-    return sign * NORMAL.getPDF(d) * div;
+    return -sign * NORMAL.getPDF(d) * div;
   }
 
   /**
