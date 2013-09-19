@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionDigital;
-import com.opengamma.analytics.financial.forex.provider.ForexOptionDigitalBlackSmileMethod;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
@@ -644,12 +643,16 @@ public final class ForexOptionDigitalBlackMethod implements ForexPricingMethod {
     }
     final double dfDomestic = smile.getCurve(domesticCurveName).getDiscountFactor(paymentTime);
     final double dfForeign = smile.getCurve(foreignCurveName).getDiscountFactor(paymentTime);
+    final double rDomestic = smile.getCurve(domesticCurveName).getInterestRate(paymentTime);
+    final double rForeign = smile.getCurve(foreignCurveName).getInterestRate(paymentTime);
     final double spot = smile.getFxRates().getFxRate(foreignCcy, domesticCcy);
     final double forward = spot * dfForeign / dfDomestic;
     final double expiry = optionForex.getExpirationTime();
     final boolean isCall = optionForex.isCall();
     final double volatility = FXVolatilityUtils.getVolatility(smile, foreignCcy, domesticCcy, expiry, forward, forward);
-    final double theta = DigitalOptionFunction.driftlessTheta(forward, strike, expiry, volatility, isCall);
+    final double sign = (optionForex.isLong() ? 1.0 : -1.0);
+    final double theta = DigitalOptionFunction.theta(spot, strike, expiry, volatility, rDomestic, rForeign - rDomestic, isCall) * sign
+        * Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount());
     return CurrencyAmount.of(optionForex.getUnderlyingForex().getCurrency2(), theta);
   }
 

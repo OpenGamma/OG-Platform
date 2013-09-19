@@ -478,7 +478,10 @@ public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMe
         underlyingOption.isCall(), underlyingOption.isLong());
     final double priceUp = BARRIER_FUNCTION.getPrice(bumpedOption, optionForex.getBarrier(), rebateByForeignUnit, spot, rateDomestic - rateForeign, rateDomestic,
         vol);
-    return CurrencyAmount.of(underlyingOption.getUnderlyingForex().getCurrency2(), (priceUp - price) / DEFAULT_THETA_SHIFT);
+    final double sign = (optionForex.getUnderlyingOption().isLong() ? 1.0 : -1.0);
+    final double theta = (priceUp - price) / DEFAULT_THETA_SHIFT * sign
+        * Math.abs(underlyingOption.getUnderlyingForex().getPaymentCurrency1().getAmount());
+    return CurrencyAmount.of(underlyingOption.getUnderlyingForex().getCurrency2(), theta);
   }
 
   /**

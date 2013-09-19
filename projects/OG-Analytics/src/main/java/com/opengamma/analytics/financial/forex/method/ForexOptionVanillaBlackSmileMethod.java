@@ -342,7 +342,9 @@ public final class ForexOptionVanillaBlackSmileMethod implements ForexPricingMet
     final double interestRate = rDomestic - rForeign;
     final double volatility = FXVolatilityUtils.getVolatility(smile, optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getTimeToExpiry(), optionForex.getStrike(), forward);
     final boolean isCall = optionForex.isCall();
-    final double theta = BlackScholesFormulaRepository.theta(spot, optionForex.getStrike(), optionForex.getTimeToExpiry(), volatility, rDomestic, interestRate, isCall);
+    final double sign = (optionForex.isLong() ? 1.0 : -1.0);
+    final double theta = BlackScholesFormulaRepository.theta(spot, optionForex.getStrike(), optionForex.getTimeToExpiry(), volatility, rDomestic, interestRate, isCall) * sign
+        * Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount());
     return CurrencyAmount.of(optionForex.getUnderlyingForex().getCurrency2(), theta);
   }
 
