@@ -60,7 +60,7 @@ public final class CouponONCompoundedDiscountingMethod implements PricingMethod 
     double ratio = 1.0;
     double forwardRatei;
     for (int i = 0; i < coupon.getFixingPeriodAccrualFactors().length; i++) {
-      forwardRatei = (forwardCurve.getDiscountFactor(coupon.getFixingPeriodStartTimes()[i + 1]) / forwardCurve.getDiscountFactor(coupon.getFixingPeriodStartTimes()[i]) - 1) /
+      forwardRatei = (forwardCurve.getDiscountFactor(coupon.getFixingPeriodEndTimes()[i]) / forwardCurve.getDiscountFactor(coupon.getFixingPeriodStartTimes()[i]) - 1) /
           coupon.getFixingPeriodAccrualFactorsActAct()[i];
       ratio *= Math.pow(1 + forwardRatei, coupon.getFixingPeriodAccrualFactors()[i]);
     }

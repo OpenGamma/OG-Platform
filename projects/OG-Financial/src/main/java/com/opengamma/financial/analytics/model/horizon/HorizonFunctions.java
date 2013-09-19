@@ -61,9 +61,6 @@ public class HorizonFunctions extends AbstractFunctionConfigurationBean {
       final String[] args = new String[] {PriorityClass.ABOVE_NORMAL.name(), Integer.toString(getDaysForward())};
       functions.add(functionConfiguration(FXForwardThetaDefaults.class, args));
       functions.add(functionConfiguration(FXOptionBlackThetaDefaults.class, args));
-      functions.add(functionConfiguration(InterestRateFutureThetaDefaults.class, args));
-      functions.add(functionConfiguration(SwapThetaDefaults.class, args));
-      functions.add(functionConfiguration(SwaptionBlackThetaDefaults.class, args));
     }
 
   }

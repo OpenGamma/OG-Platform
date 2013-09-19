@@ -36,7 +36,9 @@ public class BRConventions {
   public static synchronized void addFixedIncomeInstrumentConventions(final InMemoryConventionBundleMaster conventionMaster) {
     ArgumentChecker.notNull(conventionMaster, "convention master");
     final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
-    final DayCount bus252 = DayCountFactory.INSTANCE.getDayCount("Actual/252");
+    final BusinessDayConvention modifiedFollowing = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+    final DayCount bus252 = DayCountFactory.INSTANCE.getDayCount("Business/252");
+    final Frequency annual = PeriodFrequency.ANNUAL;
     final ExternalId br = ExternalSchemes.financialRegionId("BR");
 
     final ConventionBundleMasterUtils utils = new ConventionBundleMasterUtils(conventionMaster);
@@ -88,8 +90,8 @@ public class BRConventions {
     final boolean isEOM = true;
 
     utils.addConventionBundle(
-        ExternalIdBundle.of(bloombergTickerSecurityId("BZDIOVRA Index"), simpleNameSecurityId("Brazil Cetip Interbank Deposit Rate")), "Brazil Cetip Interbank Deposit Rate", bus252,
-        following, Period.ofDays(1), 0, false, br);
+        ExternalIdBundle.of(bloombergTickerSecurityId("BZDIOVRA Index"), simpleNameSecurityId("Brazil Cetip Interbank Deposit Rate")),
+        "Brazil Cetip Interbank Deposit Rate", bus252, following, Period.ofDays(1), 0, false, br, 0);
 
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("BRL_DI_SWAP")), "BRL_DI_SWAP", swapFixedLegDayCount, swapFixedLegBusinessDayConvention, swapFixedLegPaymentFrequency,
         swapFixedLegSettlementDays, swapFixedLegRegion, swapFixedLegCompoundingFrequency, swapFixedLegCompoundingType, swapFloatingLegDayCount, swapFloatingLegBusinessDayConvention,
