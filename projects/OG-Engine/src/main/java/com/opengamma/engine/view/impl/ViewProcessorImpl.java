@@ -48,6 +48,7 @@ import com.opengamma.engine.view.ViewProcessState;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.client.ViewClientImpl;
+import com.opengamma.engine.view.client.ViewResultMode;
 import com.opengamma.engine.view.cycle.SingleComputationCycle;
 import com.opengamma.engine.view.event.ViewProcessorEventListenerRegistry;
 import com.opengamma.engine.view.execution.ExecutionOptions;
@@ -216,7 +217,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     _processLock.lock();
     ViewProcessImpl process = null;
     try {
-      process = getOrCreateSharedViewProcess(viewDefinitionId, executionOptions);
+      process = getOrCreateSharedViewProcess(viewDefinitionId, executionOptions, client.getResultMode(), client.getFragmentResultMode());
       return attachClientToViewProcessCore(client, listener, process, false);
     } catch (final Exception e) {
       // Roll-back
@@ -248,7 +249,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     ViewProcessImpl process = null;
     _processLock.lock();
     try {
-      process = createViewProcess(viewDefinitionId, executionOptions);
+      process = createViewProcess(viewDefinitionId, executionOptions, client.getResultMode(), client.getFragmentResultMode());
       return attachClientToViewProcessCore(client, listener, process, true);
     } catch (final Exception e) {
       // Roll-back
@@ -294,7 +295,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
       if (existingAttachment != null) {
         throw new IllegalStateException("View client " + client.getUniqueId() + " is already attached to view process " + existingAttachment.getFirst().getUniqueId());
       }
-      final ViewPermissionProvider permissionProvider = process.attachListener(listener);
+      final ViewPermissionProvider permissionProvider = process.attachListener(listener, client.getResultMode(), client.getFragmentResultMode());
       _clientToProcess.put(client.getUniqueId(), processListenerPair);
       return permissionProvider;
     } finally {
@@ -325,13 +326,14 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     }
   }
 
-  private ViewProcessImpl getOrCreateSharedViewProcess(UniqueId viewDefinitionId, ViewExecutionOptions executionOptions) {
+  private ViewProcessImpl getOrCreateSharedViewProcess(UniqueId viewDefinitionId, ViewExecutionOptions executionOptions,
+      ViewResultMode resultMode, ViewResultMode fragmentResultMode) {
     _processLock.lock();
     try {
       final ViewProcessDescription viewDescription = new ViewProcessDescription(viewDefinitionId, executionOptions);
       ViewProcessImpl process = _sharedProcessesByDescription.get(viewDescription);
       if (process == null) {
-        process = createViewProcess(viewDefinitionId, executionOptions);
+        process = createViewProcess(viewDefinitionId, executionOptions, resultMode, fragmentResultMode);
         process.setDescriptionKey(viewDescription); // TEMPORARY - the execution options in the key might not match what the process was created with
         _sharedProcessesByDescription.put(viewDescription, process);
       }
@@ -341,7 +343,8 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     }
   }
 
-  private ViewProcessImpl createViewProcess(UniqueId definitionId, ViewExecutionOptions viewExecutionOptions) {
+  private ViewProcessImpl createViewProcess(UniqueId definitionId, ViewExecutionOptions viewExecutionOptions,
+      ViewResultMode resultMode, ViewResultMode fragmentResultMode) {
 
     // TEMPORARY CODE - This method should be removed post credit work and supports Excel (Jim)
     ViewExecutionOptions executionOptions = verifyLiveDataViewExecutionOptions(viewExecutionOptions);
@@ -359,7 +362,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
         if (_viewResultListenerFactory == null) {
           throw new IllegalStateException("Batch mode requires a ViewResultListenerFactory");
         }
-        viewProcess.attachListener(_viewResultListenerFactory.createViewResultListener(viewProcess.getLatestViewDefinition().getMarketDataUser()));
+        viewProcess.attachListener(_viewResultListenerFactory.createViewResultListener(viewProcess.getLatestViewDefinition().getMarketDataUser()), resultMode, fragmentResultMode);
       }
 
       // The view must be created in a locked state if this view processor is suspended

@@ -5,10 +5,11 @@
  */
 package com.opengamma.engine.view.impl;
 
-import java.util.HashSet;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -30,6 +31,7 @@ import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.ViewProcess;
 import com.opengamma.engine.view.ViewProcessState;
 import com.opengamma.engine.view.client.ViewDeltaResultCalculator;
+import com.opengamma.engine.view.client.ViewResultMode;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
 import com.opengamma.engine.view.cycle.ViewCycle;
 import com.opengamma.engine.view.cycle.ViewCycleMetadata;
@@ -64,7 +66,13 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
    */
   private final Semaphore _processLock = new Semaphore(1);
 
-  private final Set<ViewResultListener> _listeners = new HashSet<ViewResultListener>();
+  /**
+   * Key is the listener to which events will be dispatched.
+   * Value is true iff that listener requires delta calculations to be performed.
+   * When there are no listeners remaining that require delta calculations,
+   * they will stop being computed to save CPU and heap.
+   */
+  private final Map<ViewResultListener, Boolean> _listeners = new HashMap<ViewResultListener, Boolean>();
   private volatile int _internalListenerCount; // only safe if used within lock
 
   private volatile ViewDefinition _currentViewDefinition;
@@ -77,6 +85,8 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
       new AtomicReference<Pair<CompiledViewDefinitionWithGraphs, MarketDataPermissionProvider>>();
 
   private final AtomicReference<ViewComputationResultModel> _latestResult = new AtomicReference<ViewComputationResultModel>();
+  
+  private final AtomicBoolean _mustCalculateDeltas = new AtomicBoolean(false);
 
   private final ChangeListener _viewDefinitionChangeListener;
 
@@ -187,6 +197,10 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
   public ViewProcessState getState() {
     return _state;
   }
+  
+  public ViewResultListener[] getListenerArray() {
+    return _listeners.keySet().toArray(new ViewResultListener[_listeners.size()]);
+  }
 
   @Override
   public void shutdown() {
@@ -205,7 +219,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
     try {
       isInterrupting = (getState() == ViewProcessState.RUNNING);
       setState(ViewProcessState.TERMINATED);
-      listeners = _listeners.toArray(new ViewResultListener[_listeners.size()]);
+      listeners = getListenerArray();
       _listeners.clear();
       terminateComputationJob();
     } finally {
@@ -307,7 +321,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
     lock();
     try {
       _latestCompiledViewDefinition.set(Pair.of(compiledViewDefinition, permissionProvider));
-      listeners = _listeners.toArray(new ViewResultListener[_listeners.size()]);
+      listeners = getListenerArray();
     } finally {
       unlock();
     }
@@ -334,7 +348,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
     final ViewResultListener[] listeners;
     lock();
     try {
-      listeners = _listeners.toArray(new ViewResultListener[_listeners.size()]);
+      listeners = getListenerArray();
     } finally {
       unlock();
     }
@@ -355,16 +369,18 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
     // Caller MUST NOT hold the semaphore
     s_logger.debug("View cycle {} completed on view process {}", cycle.getUniqueId(), getUniqueId());
     final ViewComputationResultModel result;
-    final ViewDeltaResultModel deltaResult;
+    ViewDeltaResultModel deltaResult = null;
     final ViewResultListener[] listeners;
     lock();
     try {
       result = cycle.getResultModel();
-      // We swap these first so that in the callback the process is consistent.
-      final ViewComputationResultModel previousResult = _latestResult.getAndSet(result);
-      // [PLAT-1158] Is the cost of computing the delta going to be high; should we offload that to a slave thread before dispatching to the listeners?
-      deltaResult = ViewDeltaResultCalculator.computeDeltaModel(cycle.getCompiledViewDefinition().getViewDefinition(), previousResult, result);
-      listeners = _listeners.toArray(new ViewResultListener[_listeners.size()]);
+      if (_mustCalculateDeltas.get()) {
+        // We swap these first so that in the callback the process is consistent.
+        final ViewComputationResultModel previousResult = _latestResult.getAndSet(result);
+        // [PLAT-1158] Is the cost of computing the delta going to be high; should we offload that to a slave thread before dispatching to the listeners?
+        deltaResult = ViewDeltaResultCalculator.computeDeltaModel(cycle.getCompiledViewDefinition().getViewDefinition(), previousResult, result);
+      }
+      listeners = getListenerArray();
     } finally {
       unlock();
     }
@@ -387,7 +403,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
     final ViewResultListener[] listeners;
     lock();
     try {
-      listeners = _listeners.toArray(new ViewResultListener[_listeners.size()]);
+      listeners = getListenerArray();
     } finally {
       unlock();
     }
@@ -414,7 +430,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
       // [PLAT-1158] Is the cost of computing the delta going to be high; should we offload that to a slave thread before dispatching to the listeners?
       final ViewComputationResultModel previousResult = _latestResult.get();
       deltaFragment = ViewDeltaResultCalculator.computeDeltaModel(viewDefinition, previousResult, fullFragment);
-      listeners = _listeners.toArray(new ViewResultListener[_listeners.size()]);
+      listeners = getListenerArray();
     } finally {
       unlock();
     }
@@ -437,7 +453,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
     final ViewResultListener[] listeners;
     lock();
     try {
-      listeners = _listeners.toArray(new ViewResultListener[_listeners.size()]);
+      listeners = getListenerArray();
     } finally {
       unlock();
     }
@@ -461,7 +477,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
     lock();
     try {
       setState(ViewProcessState.FINISHED);
-      listeners = _listeners.toArray(new ViewResultListener[_listeners.size()]);
+      listeners = getListenerArray();
     } finally {
       unlock();
     }
@@ -534,16 +550,25 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
    * The method operates with set semantics, so duplicate notifications for the same listener have no effect.
    * 
    * @param listener the listener, not null
+   * @param resultMode the result mode for the listener, not null
+   * @param fragmentResultMode the fragment result mode for the listener, not null
    * @return the permission provider for the process, not null
    */
-  public ViewPermissionProvider attachListener(final ViewResultListener listener) {
+  public ViewPermissionProvider attachListener(final ViewResultListener listener, final ViewResultMode resultMode, final ViewResultMode fragmentResultMode) {
     ArgumentChecker.notNull(listener, "listener");
+    ArgumentChecker.notNull(resultMode, "resultMode");
+    ArgumentChecker.notNull(fragmentResultMode, "fragmentResultMode");
     // Caller MUST NOT hold the semaphore
     Pair<CompiledViewDefinitionWithGraphs, MarketDataPermissionProvider> latestCompilation = null;
     ViewComputationResultModel latestResult = null;
+    boolean listenerRequiresDeltas = doesListenerRequireDeltas(resultMode, fragmentResultMode);
     lock();
     try {
-      if (_listeners.add(listener)) {
+      if (_listeners.put(listener, listenerRequiresDeltas) == null) {
+        if (listenerRequiresDeltas) {
+          _mustCalculateDeltas.set(true);
+        }
+        
         // keep track of number of internal listeners
         if (listener instanceof InternalViewResultListener) { 
           _internalListenerCount++;
@@ -593,6 +618,23 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
     return getProcessContext().getViewPermissionProvider();
   }
 
+  private static boolean doesListenerRequireDeltas(ViewResultMode resultMode, ViewResultMode fragmentResultMode) {
+    boolean requiresDeltas = false;
+    switch(resultMode) {
+      case BOTH:
+      case DELTA_ONLY:
+      case FULL_THEN_DELTA:
+        requiresDeltas = true;
+    }
+    switch(fragmentResultMode) {
+      case BOTH:
+      case DELTA_ONLY:
+      case FULL_THEN_DELTA:
+        requiresDeltas = true;
+    }
+    return requiresDeltas;
+  }
+
   /**
    * Removes a listener from the view process. Removal of the last listener generating execution demand will cause the process to stop.
    * We allow instances extending InternalViewResultListener to be ignored for the purposes of reference counting.  This allows e.g. JMX MBeans
@@ -607,7 +649,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
     // Caller MUST NOT hold the semaphore
     lock();
     try {
-      if (_listeners.remove(listener)) {
+      if (_listeners.remove(listener) != null) {
         // keep track of internal listeners so they can be excluded from reference count
         if (listener instanceof InternalViewResultListener) {
           _internalListenerCount--;
@@ -616,10 +658,26 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
         if ((_listeners.size() - _internalListenerCount) == 0) {
           stopComputationJobIfRequired();
         }
+        
+        checkIfDeltasRequired();
       }
     } finally {
       unlock();
     }
+  }
+  
+  protected void checkIfDeltasRequired() {
+    boolean deltasRequired = false;
+    for (Boolean requiresDeltas : _listeners.values()) {
+      if (requiresDeltas) {
+        deltasRequired = true;
+        break;
+      }
+    }
+    if (!deltasRequired) {
+      _latestResult.set(null);
+    }
+    _mustCalculateDeltas.set(deltasRequired);
   }
 
   public boolean hasExecutionDemand() {

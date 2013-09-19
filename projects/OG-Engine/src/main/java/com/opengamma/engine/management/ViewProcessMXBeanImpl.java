@@ -22,6 +22,7 @@ import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.ViewProcessor;
+import com.opengamma.engine.view.client.ViewResultMode;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.cycle.ViewCycleMetadata;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
@@ -137,7 +138,7 @@ public class ViewProcessMXBeanImpl implements ViewProcessMXBean {
         public void clientShutdown(Exception e) {
         }
         
-      });
+      }, ViewResultMode.FULL_ONLY, ViewResultMode.NONE);
     }
   }
 
