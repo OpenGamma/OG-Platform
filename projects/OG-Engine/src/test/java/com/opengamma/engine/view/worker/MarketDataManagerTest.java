@@ -224,8 +224,9 @@ public class MarketDataManagerTest {
     boolean dyMatch = false;
 
     for (String key : keys) {
-      mvMatch = mvMatch || key.matches("AAPL\\..*Market_Value.*");
-      dyMatch = dyMatch || key.matches("AAPL\\..*Dividend_Yield.*");
+      assertThat(key.contains("AAPL"), is(true));
+      mvMatch = mvMatch || key.contains("Market_Value");
+      dyMatch = dyMatch || key.contains("Dividend_Yield");
     }
 
     assertThat(mvMatch, is(true));

@@ -656,47 +656,29 @@ public class MarketDataManager implements MarketDataListener, Lifecycle, Subscri
     // We need the lock as we'll get confused if the collections change underneath our feet
     _subscriptionsLock.lock();
     try {
-      Map<String, SubscriptionStatus> results = new HashMap<>();
-
-      for (Map.Entry<ValueSpecification, ZonedDateTime> entry : subscriptions.entrySet()) {
-        ValueSpecification spec = entry.getKey();
-        results.put(buildStateMapKey(spec), new MarketDataManager.SubscriptionStatus(state, entry.getValue()));
-      }
-      return results;
-
+      return createStateMap(null, subscriptions, state);
     } finally {
       _subscriptionsLock.unlock();
     }
   }
 
-  private String buildStateMapKey(ValueSpecification spec) {
-    return buildStateMapKey(extractTickerFromSpec(spec), spec);
-  }
-
   private Map<String, SubscriptionStatus> createStateMap(String ticker,
-                                                         Map<ValueSpecification, ZonedDateTime> specifications,
-                                                         SubscriptionState subscriptionState) {
+                                                         Map<ValueSpecification, ZonedDateTime> subscriptions,
+                                                         SubscriptionState state) {
 
     Map<String, SubscriptionStatus> results = new HashMap<>();
 
-    for (Map.Entry<ValueSpecification, ZonedDateTime> entry : specifications.entrySet()) {
-      ValueSpecification spec = entry.getKey();
-      String fullTicker = extractTickerFromSpec(spec);
+    for (Map.Entry<ValueSpecification, ZonedDateTime> entry : subscriptions.entrySet()) {
 
-      if (ticker == null || ticker.equals("") || fullTicker.contains(ticker)) {
-        results.put(buildStateMapKey(fullTicker, spec), new SubscriptionStatus(subscriptionState, entry.getValue()));
+      // As the ticker could be in the properties or the target spec, just search the whole string
+      String fullSpec = entry.getKey().toString();
+
+      if (ticker == null || ticker.equals("") || fullSpec.contains(ticker)) {
+        results.put(fullSpec, new SubscriptionStatus(state, entry.getValue()));
       }
     }
 
     return results;
-  }
-
-  private String buildStateMapKey(String fullTicker, ValueSpecification specification) {
-    return fullTicker + " [" + specification + "]";
-  }
-
-  private String extractTickerFromSpec(ValueSpecification specification) {
-    return specification.getTargetSpecification().getUniqueId().getValue();
   }
 
   @Override
@@ -734,8 +716,6 @@ public class MarketDataManager implements MarketDataListener, Lifecycle, Subscri
     try {
       Map<String, SubscriptionStatus> results = new HashMap<>();
 
-      // Note that the active set also includes pending subs, so we process activ first and
-      // pending list second
       results.putAll(createStateMap(ticker, _activeSubscriptions, SubscriptionState.ACTIVE));
       results.putAll(createStateMap(ticker, _pendingSubscriptions, SubscriptionState.PENDING));
       results.putAll(createStateMap(ticker, _failedSubscriptions, SubscriptionState.FAILED));

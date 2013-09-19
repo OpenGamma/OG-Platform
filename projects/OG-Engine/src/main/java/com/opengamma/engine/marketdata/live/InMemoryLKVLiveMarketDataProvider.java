@@ -197,16 +197,15 @@ public class InMemoryLKVLiveMarketDataProvider extends AbstractMarketDataProvide
 
       for (ValueSpecification specification : _allSubscriptions.keySet()) {
 
-        String specTicker = specification.getTargetSpecification().getUniqueId().getValue();
-        if (specTicker.contains(ticker)) {
+        String fullSpec = specification.toString();
+        if (fullSpec.contains(ticker)) {
 
-          String resultKey = specTicker + " [" + specification + "]";
           Subscription subscription = _allSubscriptions.get(specification);
           int subscriberCount = subscription.getValueSpecifications().size();
           String state = subscription.getRequestedLiveData() == null ? "FAILED" :
               subscription.getFullyQualifiedLiveData() == null ? "PENDING" : "ACTIVE";
           Object currentValue = _underlyingProvider.getCurrentValue(specification);
-          results.put(resultKey, new SubscriptionInfo(subscriberCount, state, currentValue));
+          results.put(fullSpec, new SubscriptionInfo(subscriberCount, state, currentValue));
         }
       }
     }
