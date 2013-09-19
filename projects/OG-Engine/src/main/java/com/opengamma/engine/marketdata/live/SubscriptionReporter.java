@@ -13,4 +13,8 @@ import javax.management.MXBean;
 public interface SubscriptionReporter {
 
   Map<String, SubscriptionInfo> queryByTicker(String ticker);
+
+  int getSpecificationCount();
+
+  int getSubscriptionCount();
 }

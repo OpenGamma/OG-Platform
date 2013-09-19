@@ -190,6 +190,16 @@ public class InMemoryLKVLiveMarketDataProvider extends AbstractMarketDataProvide
   }
 
   @Override
+  public int getSpecificationCount() {
+    return _allSubscriptions.size();
+  }
+
+  @Override
+  public int getSubscriptionCount() {
+    return _activeSubscriptions.size();
+  }
+
+  @Override
   public Map<String, SubscriptionInfo> queryByTicker(String ticker) {
 
     Map<String, SubscriptionInfo> results = new HashMap<>();
