@@ -15,9 +15,7 @@ import com.opengamma.analytics.financial.forex.definition.ForexOptionDigitalDefi
 import com.opengamma.analytics.financial.forex.definition.ForexOptionVanillaDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOptionMarginTransactionDefinition;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureTransactionDefinition;
-import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
-import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborSpreadDefinition;
-import com.opengamma.analytics.financial.instrument.swap.SwapFixedONDefinition;
+import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionCashFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
@@ -61,47 +59,7 @@ public final class ConstantSpreadHorizonThetaCalculator {
   private ConstantSpreadHorizonThetaCalculator() {
   }
 
-  public MultipleCurrencyAmount getTheta(final SwapFixedIborDefinition definition, final ZonedDateTime date, final String[] yieldCurveNames, final YieldCurveBundle data,
-      final ZonedDateTimeDoubleTimeSeries[] fixingSeries, final int daysForward) {
-    ArgumentChecker.isTrue(daysForward == 1 || daysForward == -1, "daysForward must be either 1 or -1");
-    final InstrumentDerivative instrumentToday = definition.toDerivative(date, fixingSeries, yieldCurveNames);
-    final ZonedDateTime horizonDate = date.plusDays(daysForward);
-    final double shiftTime = TimeCalculator.getTimeBetween(date, horizonDate);
-    final TodayPaymentCalculator paymentCalculator = TodayPaymentCalculator.getInstance(shiftTime);
-    final ZonedDateTimeDoubleTimeSeries[] shiftedFixingSeries = getDateShiftedTimeSeries(fixingSeries, horizonDate);
-    final InstrumentDerivative instrumentTomorrow = definition.toDerivative(horizonDate, shiftedFixingSeries, yieldCurveNames);
-    final MultipleCurrencyAmount paymentToday = instrumentToday.accept(paymentCalculator);
-    if (paymentToday.size() != 1) {
-      throw new IllegalStateException("Expecting a single payment in the currency of the swap");
-    }
-    final YieldCurveBundle tomorrowData = CURVE_ROLLDOWN.rollDown(data, shiftTime);
-    final Currency currency = paymentToday.getCurrencyAmounts()[0].getCurrency(); //TODO assuming that currencies are all the same
-    final PresentValueCalculator pvCalculator = PresentValueCalculator.getInstance();
-    final double result = instrumentTomorrow.accept(pvCalculator, tomorrowData) - instrumentToday.accept(pvCalculator, data) + paymentToday.getAmount(currency);
-    return MultipleCurrencyAmount.of(CurrencyAmount.of(currency, result));
-  }
-
-  public MultipleCurrencyAmount getTheta(final SwapFixedIborSpreadDefinition definition, final ZonedDateTime date, final String[] yieldCurveNames, final YieldCurveBundle data,
-      final ZonedDateTimeDoubleTimeSeries[] fixingSeries, final int daysForward) {
-    ArgumentChecker.isTrue(daysForward == 1 || daysForward == -1, "daysForward must be either 1 or -1");
-    final InstrumentDerivative instrumentToday = definition.toDerivative(date, fixingSeries, yieldCurveNames);
-    final ZonedDateTime horizonDate = date.plusDays(daysForward);
-    final double shiftTime = TimeCalculator.getTimeBetween(date, horizonDate);
-    final TodayPaymentCalculator paymentCalculator = TodayPaymentCalculator.getInstance(shiftTime);
-    final ZonedDateTimeDoubleTimeSeries[] shiftedFixingSeries = getDateShiftedTimeSeries(fixingSeries, horizonDate);
-    final InstrumentDerivative instrumentTomorrow = definition.toDerivative(horizonDate, shiftedFixingSeries, yieldCurveNames);
-    final MultipleCurrencyAmount paymentToday = instrumentToday.accept(paymentCalculator);
-    if (paymentToday.size() != 1) {
-      throw new IllegalStateException("Expecting a single payment in the currency of the swap");
-    }
-    final YieldCurveBundle tomorrowData = CURVE_ROLLDOWN.rollDown(data, shiftTime);
-    final Currency currency = paymentToday.getCurrencyAmounts()[0].getCurrency(); //TODO assuming that currencies are all the same
-    final PresentValueCalculator pvCalculator = PresentValueCalculator.getInstance();
-    final double result = instrumentTomorrow.accept(pvCalculator, tomorrowData) - instrumentToday.accept(pvCalculator, data) + paymentToday.getAmount(currency);
-    return MultipleCurrencyAmount.of(CurrencyAmount.of(currency, result));
-  }
-
-  public MultipleCurrencyAmount getTheta(final SwapFixedONDefinition definition, final ZonedDateTime date, final String[] yieldCurveNames, final YieldCurveBundle data,
+  public MultipleCurrencyAmount getTheta(final SwapDefinition definition, final ZonedDateTime date, final String[] yieldCurveNames, final YieldCurveBundle data,
       final ZonedDateTimeDoubleTimeSeries[] fixingSeries, final int daysForward) {
     ArgumentChecker.isTrue(daysForward == 1 || daysForward == -1, "daysForward must be either 1 or -1");
     final InstrumentDerivative instrumentToday = definition.toDerivative(date, fixingSeries, yieldCurveNames);

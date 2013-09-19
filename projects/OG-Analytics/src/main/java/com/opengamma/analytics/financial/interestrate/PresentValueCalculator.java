@@ -36,6 +36,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponON;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONCompounded;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.analytics.financial.interestrate.payments.method.CouponCMSDiscountingMethod;
@@ -46,6 +47,7 @@ import com.opengamma.analytics.financial.interestrate.payments.method.CouponIbor
 import com.opengamma.analytics.financial.interestrate.payments.method.CouponIborGearingDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.method.CouponIborSpreadDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.method.CouponOISDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.payments.method.CouponONCompoundedDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.method.PaymentFixedDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
@@ -108,6 +110,8 @@ public class PresentValueCalculator extends InstrumentDerivativeVisitorAdapter<Y
   private static final CouponCMSDiscountingMethod METHOD_CMS_DISCOUNTING = CouponCMSDiscountingMethod.getInstance();
   /** Fixed accrued compounding coupon discounting method */
   private static final CouponFixedAccruedCompoundingDiscountingMethod METHOD_FIXED_ACCRUED = CouponFixedAccruedCompoundingDiscountingMethod.getInstance();
+  /** Overnight compounded coupon discounting method */
+  private static final CouponONCompoundedDiscountingMethod METHOD_CPN_ON_COMPOUNDED = CouponONCompoundedDiscountingMethod.getInstance();
 
   // -----     Deposit     ------
 
@@ -200,6 +204,11 @@ public class PresentValueCalculator extends InstrumentDerivativeVisitorAdapter<Y
   @Override
   public Double visitCouponIborCompounding(final CouponIborCompounding coupon, final YieldCurveBundle curves) {
     return METHOD_CPN_IBOR_COMP.presentValue(coupon, curves).getAmount();
+  }
+
+  @Override
+  public Double visitCouponONCompounded(final CouponONCompounded coupon, final YieldCurveBundle curves) {
+    return METHOD_CPN_ON_COMPOUNDED.presentValue(coupon, curves).getAmount();
   }
 
   @Override
