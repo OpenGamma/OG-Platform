@@ -112,14 +112,9 @@ public class SwapConstantSpreadThetaFunction extends AbstractFunction.NonCompile
     final int numCurveNames = curveNames.length;
     final String[] fullCurveNames = new String[numCurveNames];
     for (int i = 0; i < numCurveNames; i++) {
-      fullCurveNames[i] = curveNames[i] + "_BRL"; // + currency.getCode();
+      fullCurveNames[i] = curveNames[i] + currency.getCode();
     }
     final YieldCurveBundle bundle = YieldCurveFunctionUtils.getAllYieldCurves(inputs, curveCalculationConfig, curveCalculationConfigSource);
-    final YieldCurveBundle tempBundle = new YieldCurveBundle();
-    for (final String name : bundle.getAllNames()) {
-      final String[] temp = name.split("_");
-      tempBundle.setCurve(temp[0] + "_BRL", bundle.getCurve(name));
-    }
     final InstrumentDefinition<?> definition = security.accept(_visitor);
     if (definition == null) {
       throw new OpenGammaRuntimeException("Definition for security " + security + " was null");
@@ -130,7 +125,7 @@ public class SwapConstantSpreadThetaFunction extends AbstractFunction.NonCompile
     final String[] curveNamesForSecurity = FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, yieldCurveNames[0], yieldCurveNames[1]);
     final ConstantSpreadHorizonThetaCalculator calculator = ConstantSpreadHorizonThetaCalculator.getInstance();
     if (definition instanceof SwapDefinition) {
-      final MultipleCurrencyAmount theta = calculator.getTheta((SwapDefinition) definition, now, curveNamesForSecurity, tempBundle, fixingSeries, Integer.parseInt(daysForward));
+      final MultipleCurrencyAmount theta = calculator.getTheta((SwapDefinition) definition, now, curveNamesForSecurity, bundle, fixingSeries, Integer.parseInt(daysForward));
       return Collections.singleton(new ComputedValue(getResultSpec(target, curveCalculationConfigName, currency.getCode(), daysForward), theta));
     }
     throw new OpenGammaRuntimeException("Can only handle fixed / float ibor and ois swaps; have " + definition.getClass());
@@ -183,7 +178,7 @@ public class SwapConstantSpreadThetaFunction extends AbstractFunction.NonCompile
     final Currency currency = FinancialSecurityUtils.getCurrency(security);
     if (!ComputationTargetSpecification.of(currency).equals(curveCalculationConfig.getTarget())) {
       s_logger.info("Security currency and curve calculation config id were not equal; have {} and {}", currency, curveCalculationConfig.getTarget());
-//      return null;
+      return null;
     }
     final Set<ValueRequirement> requirements = YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, curveCalculationConfigSource);
     final HistoricalTimeSeriesResolver resolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
