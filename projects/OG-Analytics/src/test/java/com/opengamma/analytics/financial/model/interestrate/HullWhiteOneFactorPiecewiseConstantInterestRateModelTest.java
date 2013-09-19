@@ -17,15 +17,14 @@ import org.threeten.bp.LocalTime;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexIborMaster;
-import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
-import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Pair;
 
@@ -48,6 +47,7 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
   private static final double TOLERANCE_RATE = 1.0E-10;
   private static final double TOLERANCE_RATE_DELTA = 1.0E-8;
   private static final double TOLERANCE_RATE_DELTA2 = 1.0E-7;
+  private static final double TOLERANCE_ALPHA = 1E-8;
 
   private static final IborIndex EURIBOR3M = IndexIborMaster.getInstance().getIndex("EURIBOR3M");
 
@@ -97,28 +97,38 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
    * Test the future convexity adjustment factor v a hard-coded value.
    */
   public void futureConvexityFactor() {
-    final Calendar CALENDAR = new MondayToFridayCalendar("A");
-    // Future
+    final Calendar calendar = new MondayToFridayCalendar("A");
     final ZonedDateTime SPOT_LAST_TRADING_DATE = DateUtils.getUTCDate(2012, 9, 19);
-    final ZonedDateTime LAST_TRADING_DATE = ScheduleCalculator.getAdjustedDate(SPOT_LAST_TRADING_DATE, -EURIBOR3M.getSpotLag(), CALENDAR);
-    final ZonedDateTime FIXING_END_DATE = ScheduleCalculator.getAdjustedDate(SPOT_LAST_TRADING_DATE, EURIBOR3M.getTenor(), EURIBOR3M.getBusinessDayConvention(), CALENDAR, EURIBOR3M.isEndOfMonth());
-    final double NOTIONAL = 1000000.0; // 1m
-    final double FUTURE_FACTOR = 0.25;
-    final double REFERENCE_PRICE = 0.0; // TODO CASE - Future Refactor - referencePrice = 0
-    final String NAME = "ERU2";
-    final int quantity = 123;
+    final ZonedDateTime LAST_TRADING_DATE = ScheduleCalculator.getAdjustedDate(SPOT_LAST_TRADING_DATE, -EURIBOR3M.getSpotLag(), calendar);
+    final double noitonal = 1000000.0; // 1m
+    final double futuresAccrualFactor = 0.25;
+    final double referencePrice = 0.99;
+    final String name = "ERU2";
     final LocalDate REFERENCE_DATE = LocalDate.of(2010, 8, 18);
-    final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     final ZonedDateTime REFERENCE_DATE_ZONED = ZonedDateTime.of(LocalDateTime.of(REFERENCE_DATE, LocalTime.MIDNIGHT), ZoneOffset.UTC);
-    final double LAST_TRADING_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_ZONED, LAST_TRADING_DATE);
-    final double FIXING_START_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_ZONED, SPOT_LAST_TRADING_DATE);
-    final double FIXING_END_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_ZONED, FIXING_END_DATE);
-    final double FIXING_ACCRUAL = EURIBOR3M.getDayCount().getDayCountFraction(SPOT_LAST_TRADING_DATE, FIXING_END_DATE);
-    final InterestRateFutureTransaction ERU2 = new InterestRateFutureTransaction(LAST_TRADING_TIME, EURIBOR3M, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, REFERENCE_PRICE, NOTIONAL,
-        FUTURE_FACTOR, quantity, NAME);
-    final double factor = MODEL.futuresConvexityFactor(MODEL_PARAMETERS, ERU2.getLastTradingTime(), ERU2.getFixingPeriodStartTime(), ERU2.getFixingPeriodEndTime());
+    final InterestRateFutureSecurityDefinition eru2Definition = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, EURIBOR3M, noitonal, futuresAccrualFactor, name, calendar);
+    final InterestRateFutureSecurity eru2 = eru2Definition.toDerivative(REFERENCE_DATE_ZONED, referencePrice);
+    final double factor = MODEL.futuresConvexityFactor(MODEL_PARAMETERS, eru2.getLastTradingTime(), eru2.getFixingPeriodStartTime(), eru2.getFixingPeriodEndTime());
     final double expectedFactor = 1.000079130767980;
     assertEquals("Hull-White one factor: future convexity adjusment factor", expectedFactor, factor, TOLERANCE_RATE);
+    // Derivative with respect to volatility parameters
+    final int nbSigma = MODEL_PARAMETERS.getVolatility().length;
+    final double[] sigmaBar = new double[nbSigma];
+    final double factor2 = MODEL.futuresConvexityFactor(MODEL_PARAMETERS, eru2.getLastTradingTime(), eru2.getFixingPeriodStartTime(), eru2.getFixingPeriodEndTime(), sigmaBar);
+    assertEquals("Hull-White one factor: future convexity adjusment factor", factor, factor2, TOLERANCE_RATE);
+    final double[] sigmaBarExpected = new double[nbSigma];
+    final double shift = 1E-6;
+    for (int loops = 0; loops < nbSigma; loops++) {
+      double[] volBumped = VOLATILITY.clone();
+      volBumped[loops] += shift;
+      HullWhiteOneFactorPiecewiseConstantParameters parametersBumped = new HullWhiteOneFactorPiecewiseConstantParameters(MEAN_REVERSION, volBumped, VOLATILITY_TIME);
+      double factorPlus = MODEL.futuresConvexityFactor(parametersBumped, eru2.getLastTradingTime(), eru2.getFixingPeriodStartTime(), eru2.getFixingPeriodEndTime());
+      volBumped[loops] -= 2 * shift;
+      parametersBumped = new HullWhiteOneFactorPiecewiseConstantParameters(MEAN_REVERSION, volBumped, VOLATILITY_TIME);
+      double factorMinus = MODEL.futuresConvexityFactor(parametersBumped, eru2.getLastTradingTime(), eru2.getFixingPeriodStartTime(), eru2.getFixingPeriodEndTime());
+      sigmaBarExpected[loops] = (factorPlus - factorMinus) / (2 * shift);
+      assertEquals("Hull-White one factor: future convexity adjusment factor", sigmaBarExpected[loops], sigmaBar[loops], TOLERANCE_RATE);
+    }
   }
 
   @Test
@@ -157,52 +167,29 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
   /**
    * Test the bond volatility (called alpha) vs a hard-coded value.
    */
-  public void bondVolatility() {
+  public void alpha() {
     final double expiry1 = 0.25;
     final double expiry2 = 2.25;
     final double numeraire = 10.0;
     final double maturity = 9.0;
     double alphaExpected = -0.015191631;
     double alpha = MODEL.alpha(MODEL_PARAMETERS, expiry1, expiry2, numeraire, maturity); //All data
-    assertEquals("Hull-White one factor: bond volatility (alpha) - all", alphaExpected, alpha, 1E-8);
+    assertEquals("Hull-White one factor: bond volatility (alpha) - all", alphaExpected, alpha, TOLERANCE_ALPHA);
     alphaExpected = -0.015859116;
     alpha = MODEL.alpha(MODEL_PARAMETERS, 0.0, expiry2, numeraire, maturity);//From today
-    assertEquals("Hull-White one factor: bond volatility (alpha)- today", alphaExpected, alpha, 1E-8);
+    assertEquals("Hull-White one factor: bond volatility (alpha)- today", alphaExpected, alpha, TOLERANCE_ALPHA);
     alphaExpected = 0.111299267;
     alpha = MODEL.alpha(MODEL_PARAMETERS, 0.0, expiry2, expiry2, maturity);// From today with expiry numeraire
-    assertEquals("Hull-White one factor: bond volatility (alpha) - today and expiry numeraire", alphaExpected, alpha, 1E-8);
+    assertEquals("Hull-White one factor: bond volatility (alpha) - today and expiry numeraire", alphaExpected, alpha, TOLERANCE_ALPHA);
+    alpha = MODEL.alpha(MODEL_PARAMETERS, 0.0, 0.0, numeraire, maturity); // From 0 to 0
+    assertEquals("Hull-White one factor: bond volatility (alpha) - today and expiry numeraire", 0.0d, alpha, TOLERANCE_ALPHA);
   }
 
   @Test
   /**
-   * Test the swaption exercise boundary.
+   * Test the adjoint algorithmic differentiation version of alpha.
    */
-  public void kappa() {
-    final double[] cashFlowAmount = new double[] {-1.0, 0.05, 0.05, 0.05, 0.05, 1.05 };
-    final double notional = 100000000; // 100m
-    final double[] cashFlowTime = new double[] {10.0, 11.0, 12.0, 13.0, 14.00, 15.00 };
-    final double expiryTime = cashFlowTime[0] - 2.0 / 365.0;
-    final int nbCF = cashFlowAmount.length;
-    final double[] discountedCashFlow = new double[nbCF];
-    final double[] alpha = new double[nbCF];
-    final double rate = 0.04;
-    for (int loopcf = 0; loopcf < nbCF; loopcf++) {
-      discountedCashFlow[loopcf] = cashFlowAmount[loopcf] * Math.exp(-rate * cashFlowTime[loopcf]) * notional;
-      alpha[loopcf] = MODEL.alpha(MODEL_PARAMETERS, 0.0, expiryTime, expiryTime, cashFlowTime[loopcf]);
-    }
-    final double kappa = MODEL.kappa(discountedCashFlow, alpha);
-    double swapValue = 0.0;
-    for (int loopcf = 0; loopcf < nbCF; loopcf++) {
-      swapValue += discountedCashFlow[loopcf] * Math.exp(-Math.pow(alpha[loopcf], 2.0) / 2.0 - alpha[loopcf] * kappa);
-    }
-    assertEquals("Exercise boundary", 0.0, swapValue, 1.0E-1);
-  }
-
-  @Test
-  /**
-   * Test the adjoint version of alpha.
-   */
-  public void alphaAdjoint() {
+  public void alphaDSigma() {
     final double expiry1 = 0.25;
     final double expiry2 = 2.25;
     final double numeraire = 10.0;
@@ -229,6 +216,31 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModelTest {
           (alphaBumpedPlus[loopvol] - alphaBumpedMinus[loopvol]) / (2 * shiftVol), alphaDerivatives[loopvol], 1.0E-9);
       volatilityBumped[loopvol] = VOLATILITY[loopvol];
     }
+  }
+
+  @Test
+  /**
+   * Test the swaption exercise boundary.
+   */
+  public void kappa() {
+    final double[] cashFlowAmount = new double[] {-1.0, 0.05, 0.05, 0.05, 0.05, 1.05 };
+    final double notional = 100000000; // 100m
+    final double[] cashFlowTime = new double[] {10.0, 11.0, 12.0, 13.0, 14.00, 15.00 };
+    final double expiryTime = cashFlowTime[0] - 2.0 / 365.0;
+    final int nbCF = cashFlowAmount.length;
+    final double[] discountedCashFlow = new double[nbCF];
+    final double[] alpha = new double[nbCF];
+    final double rate = 0.04;
+    for (int loopcf = 0; loopcf < nbCF; loopcf++) {
+      discountedCashFlow[loopcf] = cashFlowAmount[loopcf] * Math.exp(-rate * cashFlowTime[loopcf]) * notional;
+      alpha[loopcf] = MODEL.alpha(MODEL_PARAMETERS, 0.0, expiryTime, expiryTime, cashFlowTime[loopcf]);
+    }
+    final double kappa = MODEL.kappa(discountedCashFlow, alpha);
+    double swapValue = 0.0;
+    for (int loopcf = 0; loopcf < nbCF; loopcf++) {
+      swapValue += discountedCashFlow[loopcf] * Math.exp(-Math.pow(alpha[loopcf], 2.0) / 2.0 - alpha[loopcf] * kappa);
+    }
+    assertEquals("Exercise boundary", 0.0, swapValue, 1.0E-1);
   }
 
   @Test

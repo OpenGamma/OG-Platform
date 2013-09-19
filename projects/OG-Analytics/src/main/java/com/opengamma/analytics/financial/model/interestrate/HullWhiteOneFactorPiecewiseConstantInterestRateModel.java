@@ -55,6 +55,53 @@ public class HullWhiteOneFactorPiecewiseConstantInterestRateModel {
   }
 
   /**
+   * Computes the future convexity factor used in future pricing. Computes also the derivatives of the factor with respect to the model volatilities.
+   * The factor is called $\gamma$ in the article and is given by
+   * $$
+   * \begin{equation*}
+   * \gamma(t) = \exp\left(\int_t^{t_0} \nu(s,t_2) (\nu(s,t_2)-\nu(s,t_1)) ds \right). 
+   * \end{equation*}
+   * $$
+   * <p>
+   * Reference: Henrard, M. The Irony in the derivatives discounting Part II: the crisis. Wilmott Journal, 2010, 2, 301-316
+   * @param data The Hull-White model parameters.
+   * @param t0 The expiry time.
+   * @param t1 The first reference time.
+   * @param t2 The second reference time.
+   * @param derivatives Array used for return the derivatives with respect to the input. The array is changed by the method. The derivatives of the function alpha
+   * with respect to the piecewise constant volatilities.
+   * @return The factor.
+   */
+  public double futuresConvexityFactor(final HullWhiteOneFactorPiecewiseConstantParameters data, final double t0, final double t1, final double t2, final double[] derivatives) {
+    final int nbSigma = data.getVolatility().length;
+    ArgumentChecker.isTrue(derivatives.length == nbSigma, "derivatives vector of incorrect size");
+    double factor1 = Math.exp(-data.getMeanReversion() * t1) - Math.exp(-data.getMeanReversion() * t2);
+    double numerator = 2 * data.getMeanReversion() * data.getMeanReversion() * data.getMeanReversion();
+    int indexT0 = 1; // Period in which the time t0 is; _volatilityTime[i-1] <= t0 < _volatilityTime[i];
+    while (t0 > data.getVolatilityTime()[indexT0]) {
+      indexT0++;
+    }
+    double[] s = new double[indexT0 + 1];
+    System.arraycopy(data.getVolatilityTime(), 0, s, 0, indexT0);
+    s[indexT0] = t0;
+    double factor2 = 0.0;
+    double[] factorExp = new double[indexT0];
+    for (int loopperiod = 0; loopperiod < indexT0; loopperiod++) {
+      factorExp[loopperiod] = (Math.exp(data.getMeanReversion() * s[loopperiod + 1]) - Math.exp(data.getMeanReversion() * s[loopperiod]))
+          * (2 - Math.exp(-data.getMeanReversion() * (t2 - s[loopperiod + 1])) - Math.exp(-data.getMeanReversion() * (t2 - s[loopperiod])));
+      factor2 += data.getVolatility()[loopperiod] * data.getVolatility()[loopperiod] * factorExp[loopperiod];
+    }
+    double factor = Math.exp(factor1 / numerator * factor2);
+    // Backward sweep 
+    double factorBar = 1.0;
+    double factor2Bar = factor1 / numerator * factor * factorBar;
+    for (int loopperiod = 0; loopperiod < indexT0; loopperiod++) {
+      derivatives[loopperiod] = 2 * data.getVolatility()[loopperiod] * factorExp[loopperiod] * factor2Bar;
+    }
+    return factor;
+  }
+
+  /**
    * Computes the payment delay convexity factor used in coupons with mismatched dates pricing.  The factor
    * is called $\zeta$ in the note and is given by
    * $$
