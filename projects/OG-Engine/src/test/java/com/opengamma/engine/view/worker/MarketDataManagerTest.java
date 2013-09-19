@@ -204,8 +204,8 @@ public class MarketDataManagerTest {
     assertThat(_manager.getPendingSubscriptionCount(), is(2));
     Set<String> keys = _manager.queryPendingSubscriptions().keySet();
     assertThat(keys.size(), is(2));
-    assertThat(keys.contains("AAPL. [Market_Value]"), is(true));
-    assertThat(keys.contains("AAPL. [Dividend_Yield]"), is(true));
+
+    checkKeyMatches(keys);
   }
 
   @Test
@@ -215,8 +215,21 @@ public class MarketDataManagerTest {
     _manager.requestMarketDataSubscriptions(specs);
     Set<String> keys = _manager.querySubscriptionState("").keySet();
     assertThat(keys.size(), is(2));
-    assertThat(keys.contains("AAPL. [Market_Value]"), is(true));
-    assertThat(keys.contains("AAPL. [Dividend_Yield]"), is(true));
+
+    checkKeyMatches(keys);
+  }
+
+  private void checkKeyMatches(Set<String> keys) {
+    boolean mvMatch = false;
+    boolean dyMatch = false;
+
+    for (String key : keys) {
+      mvMatch = mvMatch || key.matches("AAPL\\..*Market_Value.*");
+      dyMatch = dyMatch || key.matches("AAPL\\..*Dividend_Yield.*");
+    }
+
+    assertThat(mvMatch, is(true));
+    assertThat(dyMatch, is(true));
   }
 
   private void checkSingleSubscriptionState(String ticker, MarketDataManager.SubscriptionState expectedState) {

@@ -692,7 +692,7 @@ public class MarketDataManager implements MarketDataListener, Lifecycle, Subscri
   }
 
   private String buildStateMapKey(String fullTicker, ValueSpecification specification) {
-    return fullTicker + " [" + specification.getValueName() + "]";
+    return fullTicker + " [" + specification + "]";
   }
 
   private String extractTickerFromSpec(ValueSpecification specification) {
