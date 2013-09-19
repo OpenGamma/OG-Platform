@@ -548,13 +548,18 @@ public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMe
     final double dfDomestic = smile.getCurve(domesticCurveName).getDiscountFactor(payTime);
     final double spot = smile.getFxRates().getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
     final double forward = spot * dfForeign / dfDomestic;
-    final double rateDomestic = smile.getCurve(domesticCurveName).getInterestRate(payTime);
-    final double rateForeign = smile.getCurve(foreignCurveName).getInterestRate(payTime);
     final double foreignAmount = underlyingOption.getUnderlyingForex().getPaymentCurrency1().getAmount();
     final double rebateByForeignUnit = optionForex.getRebate() / Math.abs(foreignAmount);
     final double vol = FXVolatilityUtils.getVolatility(smile, optionForex.getCurrency1(), optionForex.getCurrency2(),
         underlyingOption.getTimeToExpiry(), underlyingOption.getStrike(), forward);
-    return -100000000;
+
+    final ForexOptionVanilla upOption = new ForexOptionVanilla(underlyingOption.getUnderlyingForex(), underlyingOption.getTimeToExpiry() + DEFAULT_THETA_SHIFT,
+        underlyingOption.isCall(), underlyingOption.isLong());
+    final double priceUp = BARRIER_FUNCTION.getPrice(upOption, optionForex.getBarrier(), rebateByForeignUnit, forward, 0., 0., vol);
+    final ForexOptionVanilla downOption = new ForexOptionVanilla(underlyingOption.getUnderlyingForex(), underlyingOption.getTimeToExpiry() - DEFAULT_THETA_SHIFT,
+        underlyingOption.isCall(), underlyingOption.isLong());
+    final double priceDown = BARRIER_FUNCTION.getPrice(downOption, optionForex.getBarrier(), rebateByForeignUnit, forward, 0., 0., vol);
+    return -0.5 * (priceUp - priceDown) / DEFAULT_THETA_SHIFT;
   }
 
   /**
