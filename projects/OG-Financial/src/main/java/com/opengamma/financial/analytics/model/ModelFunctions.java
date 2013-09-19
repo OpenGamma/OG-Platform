@@ -154,6 +154,10 @@ public class ModelFunctions extends AbstractFunctionConfigurationBean {
     return FutureOptionFunctions.instance();
   }
 
+  /**
+   * Adds horizon functions.
+   * @return A configuration source containing horizon functions.
+   */
   protected FunctionConfigurationSource horizonFunctionConfiguration() {
     return HorizonFunctions.instance();
   }
