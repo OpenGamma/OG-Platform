@@ -36,6 +36,9 @@ public class UnversionedValueMappings extends ValueMappings {
     ComputationTargetReference ref = valueRequirement.getTargetReference();
 
     if (ref instanceof ComputationTargetSpecification) {
+      if (((ComputationTargetSpecification) ref).getUniqueId() == null) {
+        return valueRequirement;
+      }
       if (((ComputationTargetSpecification) ref).getUniqueId().isVersioned()) {
         ComputationTargetSpecification newTargetSpec = new ComputationTargetSpecification(ref.getType(), ((ComputationTargetSpecification) ref).getUniqueId().toLatest());
         ValueRequirement valueReq = new ValueRequirement(valueRequirement.getValueName(), newTargetSpec, valueRequirement.getConstraints());
