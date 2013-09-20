@@ -71,7 +71,7 @@ public class InMemoryLKVLiveMarketDataProvider extends AbstractMarketDataProvide
     /**
      * The value specifications subscribed to this item (mapped to the open subscription count).
      */
-    private Map<ValueSpecification, Integer> _values = new HashMap<ValueSpecification, Integer>();
+    private Map<ValueSpecification, Integer> _values = new HashMap<>();
 
     /**
      * The requested live data specification (inferred from a value specification), or NULL if the subscription has failed.
@@ -153,8 +153,8 @@ public class InMemoryLKVLiveMarketDataProvider extends AbstractMarketDataProvide
   // Runtime State:
   private final InMemoryLKVMarketDataProvider _underlyingProvider;
   private final MarketDataPermissionProvider _permissionProvider;
-  private final ConcurrentMap<ValueSpecification, Subscription> _allSubscriptions = new ConcurrentHashMap<ValueSpecification, Subscription>();
-  private final ConcurrentMap<LiveDataSpecification, Subscription> _activeSubscriptions = new ConcurrentHashMap<LiveDataSpecification, Subscription>();
+  private final ConcurrentMap<ValueSpecification, Subscription> _allSubscriptions = new ConcurrentHashMap<>();
+  private final ConcurrentMap<LiveDataSpecification, Subscription> _activeSubscriptions = new ConcurrentHashMap<>();
   private final UserPrincipal _marketDataUser;
 
   public InMemoryLKVLiveMarketDataProvider(final LiveDataClient liveDataClient,
@@ -242,8 +242,8 @@ public class InMemoryLKVLiveMarketDataProvider extends AbstractMarketDataProvide
 
   @Override
   public void subscribe(final Set<ValueSpecification> valueSpecifications) {
-    final Collection<LiveDataSpecification> toSubscribe = new ArrayList<LiveDataSpecification>(valueSpecifications.size());
-    final Collection<ValueSpecification> alreadySubscribed = new ArrayList<ValueSpecification>(valueSpecifications.size());
+    final Collection<LiveDataSpecification> toSubscribe = new ArrayList<>(valueSpecifications.size());
+    final Collection<ValueSpecification> alreadySubscribed = new ArrayList<>(valueSpecifications.size());
     // Serialize all subscribes/unsubscribes
     synchronized (_liveDataClient) {
       synchronized (_activeSubscriptions) {
@@ -367,8 +367,8 @@ public class InMemoryLKVLiveMarketDataProvider extends AbstractMarketDataProvide
 
   @Override
   public void subscriptionResultsReceived(final Collection<LiveDataSubscriptionResponse> subscriptionResults) {
-    final Set<ValueSpecification> successfulSubscriptions = new HashSet<ValueSpecification>();
-    final Set<ValueSpecification> failedSubscriptions = new HashSet<ValueSpecification>();
+    final Set<ValueSpecification> successfulSubscriptions = new HashSet<>();
+    final Set<ValueSpecification> failedSubscriptions = new HashSet<>();
     synchronized (_activeSubscriptions) {
       for (LiveDataSubscriptionResponse subscriptionResult : subscriptionResults) {
         final Subscription subscription = _activeSubscriptions.get(subscriptionResult.getRequestedSpecification());
@@ -385,8 +385,9 @@ public class InMemoryLKVLiveMarketDataProvider extends AbstractMarketDataProvide
           _activeSubscriptions.remove(subscription.getFullyQualifiedLiveData());
 
           s_logger.warn("Removing from _activeSubscriptions - dumping stack:\n{}", dumpStack());
+        }
 
-        } if (subscriptionResult.getSubscriptionResult() == LiveDataSubscriptionResult.SUCCESS) {
+        if (subscriptionResult.getSubscriptionResult() == LiveDataSubscriptionResult.SUCCESS) {
           subscription.setFullyQualifiedLiveData(subscriptionResult.getFullyQualifiedSpecification());
           _activeSubscriptions.put(subscription.getFullyQualifiedLiveData(), subscription);
           successfulSubscriptions.addAll(subscription.getValueSpecifications());
@@ -424,11 +425,7 @@ public class InMemoryLKVLiveMarketDataProvider extends AbstractMarketDataProvide
   @Override
   public boolean isFailed(final ValueSpecification specification) {
     final Subscription subscription = _allSubscriptions.get(specification);
-    if (subscription == null) {
-      // No subscription - treat as a failure
-      return true;
-    }
-    return subscription.getRequestedLiveData() == null;
+    return subscription == null || subscription.getRequestedLiveData() == null;
   }
 
   @Override
@@ -485,7 +482,7 @@ public class InMemoryLKVLiveMarketDataProvider extends AbstractMarketDataProvide
               break;
             case FudgeWireType.DOUBLE_TYPE_ID:
               // Already a double
-              value = (Double) field.getValue();
+              value = field.getValue();
               break;
             case FudgeWireType.DATE_TYPE_ID:
               value = ((FudgeDate) field.getValue()).toLocalDate();
