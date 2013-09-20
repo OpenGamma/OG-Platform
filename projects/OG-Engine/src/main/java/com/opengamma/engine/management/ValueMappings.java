@@ -51,10 +51,6 @@ public class ValueMappings {
 
   }
 
-  protected ValueRequirement createRequirement(ValueRequirement requirement) {
-    return requirement;
-  }
-
   /**
    * Subclasses of ValueMappings need to alter the ValueRequirement, for example
    * UnversionedValueMappings strips out version from the unique id
