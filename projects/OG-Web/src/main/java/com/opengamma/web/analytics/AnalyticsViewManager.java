@@ -41,6 +41,7 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
 /**
  * Creates and manages {@link AnalyticsView} implementations.
  */
+@SuppressWarnings("deprecation")
 public class AnalyticsViewManager {
 
   /* TODO handle userId and clientId

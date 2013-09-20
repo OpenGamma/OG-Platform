@@ -8,6 +8,9 @@ package com.opengamma.web.analytics;
 import com.opengamma.engine.view.cycle.ViewCycle;
 import com.opengamma.util.ArgumentChecker;
 
+/**
+ * The grid viewport.
+ */
 public class PrimitivesGridViewport extends MainGridViewport {
 
   /** Row and column structure of the grid. */

@@ -24,6 +24,9 @@ import com.opengamma.id.ExternalId;
 @BeanDefinition
 public abstract class VarianceSwapLeg extends SwapLeg {
 
+  /** Serialization version */
+  private static final long serialVersionUID = 1L;
+
   /**
    * @param dayCount The day count convention, not null
    * @param frequency The frequency, not null

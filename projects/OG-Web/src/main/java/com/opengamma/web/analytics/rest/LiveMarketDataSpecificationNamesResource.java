@@ -19,6 +19,7 @@ import com.opengamma.util.ArgumentChecker;
  * REST endpoint returning a JSON array containing the names of available live market data specifications.
  */
 @Path("livedatasources")
+@SuppressWarnings("deprecation")
 public class LiveMarketDataSpecificationNamesResource {
 
   private final NamedMarketDataSpecificationRepository _marketDataSpecRepo;

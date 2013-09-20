@@ -70,6 +70,7 @@ import com.opengamma.web.server.conversion.ResultConverterCache;
 /**
  * The core of the back-end to the web client, providing the implementation of the Bayeux protocol.
  */
+@SuppressWarnings("deprecation")
 public class LiveResultsService extends AbstractService implements SessionListener {
 
   private static final Logger s_logger = LoggerFactory.getLogger(LiveResultsService.class);

@@ -46,6 +46,7 @@ import com.opengamma.web.spring.defaults.GeneralLocalVolatilitySurfaceDefaults;
  * <p>
  * A sub-class should provide installation specific details relating to the data providers used.
  */
+@SuppressWarnings("deprecation")
 public abstract class StandardFunctionConfiguration extends AbstractFunctionConfigurationBean {
 
   private static final Logger s_logger = LoggerFactory.getLogger(StandardFunctionConfiguration.class);

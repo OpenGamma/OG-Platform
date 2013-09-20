@@ -29,7 +29,7 @@ import com.opengamma.web.analytics.ViewportResults;
 import com.opengamma.web.analytics.formatting.TypeFormatter.Format;
 
 /**
- * @Path at this point is "views/{viewId}/{gridType}/"
+ * The @Path at this point is "views/{viewId}/{gridType}/"
  * for example "/jax/views/2/primitives"
  * @deprecated in favour of {@link WebUiResource}
  */
