@@ -544,7 +544,7 @@ public final class ForexOptionDigitalBlackMethod implements ForexPricingMethod {
       domesticCcy = optionForex.getUnderlyingForex().getCurrency1();
     }
     final double gammaRelative = gammaRelative(optionForex, smile, directQuote);
-    return CurrencyAmount.of(domesticCcy, gammaRelative * Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount()));
+    return CurrencyAmount.of(domesticCcy, -gammaRelative * Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount()));
   }
 
   /**
@@ -661,7 +661,7 @@ public final class ForexOptionDigitalBlackMethod implements ForexPricingMethod {
     final double sign = (optionForex.isLong() ? 1.0 : -1.0);
     final double theta = DigitalOptionFunction.theta(spot, strike, expiry, volatility, rDomestic, rDomestic - rForeign, isCall) * sign
         * Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount());
-    return CurrencyAmount.of(optionForex.getUnderlyingForex().getCurrency2(), theta);
+    return CurrencyAmount.of(optionForex.getUnderlyingForex().getCurrency2(), -theta);
   }
 
   /**
