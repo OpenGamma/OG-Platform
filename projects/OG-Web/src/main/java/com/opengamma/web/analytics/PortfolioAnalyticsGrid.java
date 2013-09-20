@@ -74,7 +74,7 @@ import com.opengamma.id.ObjectId;
     if (updatedStructure == _gridStructure) {
       return this;
     } else {
-      return new PortfolioAnalyticsGrid(updatedStructure, getCallbackId(), getTargetResolver(), getViewportListener());
+      return new PortfolioAnalyticsGrid(updatedStructure, this, getViewCycle().getCompiledViewDefinition());
     }
   }
 
