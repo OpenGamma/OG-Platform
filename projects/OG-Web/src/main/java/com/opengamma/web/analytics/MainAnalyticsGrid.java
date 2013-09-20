@@ -212,6 +212,10 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
     return grid;
   }
 
+  /* package */ Map<Integer, DependencyGraphGrid> getDependencyGraphs() {
+    return _depGraphs;
+  }
+
   /**
    * Closes an existing dependency graph grid.
    *
@@ -234,6 +238,18 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
    */
   /* package */DependencyGraphGridStructure getGridStructure(int graphId) {
     return getDependencyGraph(graphId).getGridStructure();
+  }
+
+  /**
+   * Returns the grid structure for a dependency graph.
+   *
+   * @param graphId ID of the dependency graph
+   * @param viewportId ID of the dependency graph
+   * @return The grid structure of the specified dependency graph
+   * @throws DataNotFoundException If no dependency graph exists with the specified ID
+   */
+  /* package */ DependencyGraphGridStructure getGridStructure(int graphId, int viewportId) {
+    return (DependencyGraphGridStructure) getDependencyGraph(graphId).getViewport(viewportId).getGridStructure();
   }
 
   /**
