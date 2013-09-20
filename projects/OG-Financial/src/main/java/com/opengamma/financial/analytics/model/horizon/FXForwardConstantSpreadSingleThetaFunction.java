@@ -127,7 +127,7 @@ public class FXForwardConstantSpreadSingleThetaFunction extends FXForwardConstan
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final String payCurveName, final String receiveCurveName,
       final String payCurveCalculationConfig, final String receiveCurveCalculationConfig, final CurrencyPair baseQuotePair, final String daysForward) {
     final ValueProperties.Builder properties = super.getResultProperties(target, payCurveName, receiveCurveName, payCurveCalculationConfig, receiveCurveCalculationConfig,
-        baseQuotePair)
+        baseQuotePair, daysForward)
         .withoutAny(PROPERTY_THETA_CALCULATION_METHOD)
         .with(PROPERTY_THETA_CALCULATION_METHOD, CONSTANT_SPREAD_COLLAPSED)
         .with(CURRENCY, ((FinancialSecurity) target.getSecurity()).accept(ForexVisitors.getPayCurrencyVisitor()).getCode());
