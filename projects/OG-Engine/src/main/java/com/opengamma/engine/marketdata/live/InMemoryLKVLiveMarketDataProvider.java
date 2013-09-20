@@ -191,7 +191,7 @@ public class InMemoryLKVLiveMarketDataProvider extends AbstractMarketDataProvide
 
   @Override
   public String getMarketDataUser() {
-    return _marketDataUser;
+    return _marketDataUser.toString();
   }
   
   @Override
