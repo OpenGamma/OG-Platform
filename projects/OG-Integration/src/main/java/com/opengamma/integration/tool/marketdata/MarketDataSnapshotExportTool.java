@@ -117,13 +117,13 @@ public class MarketDataSnapshotExportTool extends AbstractTool<ToolContext> {
 
   private static Option createSnapshotNameOption() {
     final Option option = new Option(SNAPSHOT_NAME_OPTION, "snapshot-name", true, "The snapshot name to export");
-    option.setArgName("snapshot uid");
+    option.setArgName("snapshot name");
     return option;
   }
    
   private static Option createSnapshotDateOption() {
     final Option option = new Option(SNAPSHOT_DATE_OPTION, "snapshot-date", true, "Specify a version date for a named snapshot");
-    option.setArgName("snapshot name");
+    option.setArgName("snapshot date");
     return option;    
   }
 }
