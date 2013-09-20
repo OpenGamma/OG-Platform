@@ -181,7 +181,8 @@ $.register_module({
                         data_setup();
                     });
                 } else {
-                    data_setup();
+                    api.grid.structure.get({view_id: view_id, grid_type: grid_type, update: structure_setup})
+                        .pipe(structure_setup_impl).pipe(data_setup);
                 }
             };
             var structure_setup = function () {
