@@ -60,6 +60,6 @@ public class DeltaValueBlackForexCalculator extends InstrumentDerivativeVisitorA
 
   @Override
   public CurrencyAmount visitForexOptionSingleBarrier(final ForexOptionSingleBarrier derivative, final YieldCurveBundle data) {
-    return null;
+    return METHOD_FXBARRIER.delta(derivative, data, true);
   }
 }

@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionDigital;
+import com.opengamma.analytics.financial.forex.provider.ForexOptionDigitalBlackSmileMethod;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
@@ -55,6 +56,7 @@ public final class ForexOptionDigitalBlackMethod implements ForexPricingMethod {
   private ForexOptionDigitalBlackMethod() {
   }
 
+  /** Normal distribution function */
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
 
   /**
@@ -465,7 +467,13 @@ public final class ForexOptionDigitalBlackMethod implements ForexPricingMethod {
     ArgumentChecker.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Yield curve bundle should contain smile data");
     final SmileDeltaTermStructureDataBundle smile = (SmileDeltaTermStructureDataBundle) curves;
     final double deltaRelative = deltaRelative(optionForex, smile, directQuote);
-    return CurrencyAmount.of(optionForex.getUnderlyingForex().getCurrency2(), deltaRelative * Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount()));
+    final Currency domesticCcy;
+    if (optionForex.payDomestic()) {
+      domesticCcy = optionForex.getUnderlyingForex().getCurrency2();
+    } else {
+      domesticCcy = optionForex.getUnderlyingForex().getCurrency1();
+    }
+    return CurrencyAmount.of(domesticCcy, deltaRelative * Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount()));
   }
 
   /**
@@ -650,7 +658,7 @@ public final class ForexOptionDigitalBlackMethod implements ForexPricingMethod {
     final double expiry = optionForex.getExpirationTime();
     final boolean isCall = optionForex.isCall();
     final double volatility = FXVolatilityUtils.getVolatility(smile, foreignCcy, domesticCcy, expiry, forward, forward);
-    final double sign = (optionForex.isLong() ? 1.0 : -1.0);
+    final double sign = (optionForex.isLong() ? -1.0 : 1.0);
     final double theta = DigitalOptionFunction.theta(spot, strike, expiry, volatility, rDomestic, rForeign - rDomestic, isCall) * sign
         * Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount());
     return CurrencyAmount.of(optionForex.getUnderlyingForex().getCurrency2(), theta);

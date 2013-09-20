@@ -1270,6 +1270,19 @@ public class FinancialSecurityUtils {
         }
 
         @Override
+        public CurrencyAmount visitFXBarrierOptionSecurity(final FXBarrierOptionSecurity security) {
+          final Currency currency1 = security.getPutCurrency();
+          final double amount1 = security.getPutAmount();
+          final Currency currency2 = security.getCallCurrency();
+          final double amount2 = security.getCallAmount();
+          final CurrencyPair currencyPair = currencyPairs.getCurrencyPair(currency1, currency2);
+          if (currencyPair.getBase().equals(currency1)) {
+            return CurrencyAmount.of(currency1, amount1);
+          }
+          return CurrencyAmount.of(currency2, amount2);
+        }
+
+        @Override
         public CurrencyAmount visitNonDeliverableFXOptionSecurity(final NonDeliverableFXOptionSecurity security) {
           final Currency currency = security.getDeliveryCurrency();
           final double amount = security.getCallCurrency().equals(currency) ? security.getCallAmount() : security.getPutAmount();
@@ -1346,7 +1359,7 @@ public class FinancialSecurityUtils {
 
         @Override
         public CurrencyAmount visitSwaptionSecurity(final SwaptionSecurity security) {
-          Security underlying = securitySource.getSingle(ExternalIdBundle.of(security.getUnderlyingId()));
+          final Security underlying = securitySource.getSingle(ExternalIdBundle.of(security.getUnderlyingId()));
           Preconditions.checkState(underlying instanceof SwapSecurity, "Failed to resolve underlying SwapSecurity. DB record potentially corrupted. '%s' returned.", underlying);
           return visitSwapSecurity((SwapSecurity) underlying);
         }

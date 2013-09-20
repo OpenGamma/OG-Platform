@@ -36,6 +36,9 @@ public class FXOptionBlackValueDeltaFunction extends FXOptionBlackSingleValuedFu
    */
   private static final DeltaValueBlackForexCalculator CALCULATOR = DeltaValueBlackForexCalculator.getInstance();
 
+  /**
+   * Sets the value requirement name to {@link ValueRequirementNames#VALUE_DELTA}
+   */
   public FXOptionBlackValueDeltaFunction() {
     super(ValueRequirementNames.VALUE_DELTA);
   }

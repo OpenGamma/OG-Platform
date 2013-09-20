@@ -40,8 +40,9 @@ public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMe
    * The method unique instance.
    */
   private static final ForexOptionSingleBarrierBlackMethod INSTANCE = new ForexOptionSingleBarrierBlackMethod();
-
+  /** Shift to use for finite difference calculations of theta */
   private static final double DEFAULT_THETA_SHIFT = 1. / 365 / 24; // one hour
+  /** Shift to use for finite difference calculations of gamma */
   private static final double DEFAULT_GAMMA_SHIFT = 0.00001; // 0.1 basis point
   private static final double DEFAULT_VOMMA_SHIFT = 0.00001; // 0.1 basis point
   private static final double DEFAULT_VANNA_SHIFT = 0.00001; // 0.1 basis point
@@ -305,6 +306,60 @@ public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMe
     final double volatility = FXVolatilityUtils.getVolatility(smile, optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getUnderlyingOption()
         .getTimeToExpiry(), optionForex.getUnderlyingOption().getStrike(), forward);
     return volatility;
+  }
+
+  /**
+   * Computes the relative delta of the Forex option. The relative delta is the amount in the foreign currency equivalent to the option up to the first order divided by the option notional.
+   * @param optionForex The Forex option.
+   * @param smile The curve and smile data.
+   * @param directQuote Flag indicating if the gamma should be computed with respect to the direct quote (1 foreign = x domestic) or the reverse quote (1 domestic = x foreign)
+   * @return The delta.
+   */
+  public double deltaRelative(final ForexOptionSingleBarrier optionForex, final SmileDeltaTermStructureDataBundle smile, final boolean directQuote) {
+    ArgumentChecker.notNull(optionForex, "Forex option");
+    ArgumentChecker.notNull(smile, "Smile");
+    ArgumentChecker.isTrue(smile.checkCurrencies(optionForex.getCurrency1(), optionForex.getCurrency2()), "Option currencies not compatible with smile data");
+    final ForexOptionVanilla underlyingOption = optionForex.getUnderlyingOption();
+    final String domesticCurveName = underlyingOption.getUnderlyingForex().getPaymentCurrency2().getFundingCurveName();
+    final String foreignCurveName = underlyingOption.getUnderlyingForex().getPaymentCurrency1().getFundingCurveName();
+    final double timeToExpiry = underlyingOption.getTimeToExpiry();
+    final double strike = underlyingOption.getStrike();
+    final double payTime = underlyingOption.getUnderlyingForex().getPaymentTime();
+    final double dfForeign = smile.getCurve(foreignCurveName).getDiscountFactor(payTime);
+    final double dfDomestic = smile.getCurve(domesticCurveName).getDiscountFactor(payTime);
+    final double spot = smile.getFxRates().getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
+    final double forward = spot * dfForeign / dfDomestic;
+    final double volatility = FXVolatilityUtils.getVolatility(smile, optionForex.getCurrency1(), optionForex.getCurrency2(), timeToExpiry, strike, forward);
+    final double sign = (underlyingOption.isLong() ? 1.0 : -1.0);
+    final double rateDomestic = smile.getCurve(domesticCurveName).getInterestRate(payTime);
+    final double rateForeign = smile.getCurve(foreignCurveName).getInterestRate(payTime);
+    final double foreignAmount = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency1().getAmount();
+    final double rebateByForeignUnit = optionForex.getRebate() / Math.abs(foreignAmount);
+    final double[] adjoint = new double[5];
+    BARRIER_FUNCTION.getPriceAdjoint(optionForex.getUnderlyingOption(), optionForex.getBarrier(), rebateByForeignUnit, spot, rateDomestic - rateForeign, rateDomestic,
+        volatility, adjoint);
+    final double deltaDirect = adjoint[0] * dfForeign * sign;
+    if (directQuote) {
+      return deltaDirect;
+    }
+    final double deltaReverse = -deltaDirect * spot * spot;
+    return deltaReverse;
+  }
+
+  /**
+   * Computes the delta of the Forex option. The delta is the first order derivative of the option present value to the spot fx rate.
+   * @param optionForex The Forex option.
+   * @param curves The yield curve bundle.
+   * @param directQuote Flag indicating if the delta should be computed with respect to the direct quote (1 foreign = x domestic) or the reverse quote (1 domestic = x foreign)
+   * @return The delta.
+   */
+  public CurrencyAmount delta(final ForexOptionSingleBarrier optionForex, final YieldCurveBundle curves, final boolean directQuote) {
+    ArgumentChecker.notNull(curves, "Curves");
+    ArgumentChecker.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Yield curve bundle should contain smile data");
+    final SmileDeltaTermStructureDataBundle smile = (SmileDeltaTermStructureDataBundle) curves;
+    final double deltaRelative = deltaRelative(optionForex, smile, directQuote);
+    final ForexOptionVanilla underlyingOption = optionForex.getUnderlyingOption();
+    return CurrencyAmount.of(underlyingOption.getUnderlyingForex().getCurrency2(), deltaRelative * Math.abs(underlyingOption.getUnderlyingForex().getPaymentCurrency1().getAmount()));
   }
 
   /**

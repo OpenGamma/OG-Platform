@@ -10,6 +10,8 @@ import java.util.Set;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.forex.calculator.GammaSpotBlackForexCalculator;
+import com.opengamma.analytics.financial.forex.derivative.ForexOptionDigital;
+import com.opengamma.analytics.financial.forex.derivative.ForexOptionSingleBarrier;
 import com.opengamma.analytics.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.model.option.definition.ForexOptionDataBundle;
@@ -36,6 +38,9 @@ public class FXOptionBlackValueGammaSpotFunction extends FXOptionBlackSingleValu
    */
   private static final GammaSpotBlackForexCalculator CALCULATOR = GammaSpotBlackForexCalculator.getInstance();
 
+  /**
+   * Sets the value requirement name to {@link ValueRequirementNames#VALUE_GAMMA_P}
+   */
   public FXOptionBlackValueGammaSpotFunction() {
     super(ValueRequirementNames.VALUE_GAMMA_P);
   }
@@ -49,10 +54,15 @@ public class FXOptionBlackValueGammaSpotFunction extends FXOptionBlackSingleValu
       // for PLAT-4626
       double spot = 1;
       if (forex instanceof ForexOptionVanilla) {
-        ForexOptionVanilla fxDerivative = (ForexOptionVanilla) forex;
+        final ForexOptionVanilla fxDerivative = (ForexOptionVanilla) forex;
+        spot = data.getFxRates().getFxRate(fxDerivative.getCurrency1(), fxDerivative.getCurrency2());
+      } else if (forex instanceof ForexOptionDigital) {
+        final ForexOptionDigital fxDerivative = (ForexOptionDigital) forex;
+        spot = data.getFxRates().getFxRate(fxDerivative.getCurrency1(), fxDerivative.getCurrency2());
+      } else if (forex instanceof ForexOptionSingleBarrier) {
+        final ForexOptionSingleBarrier fxDerivative = (ForexOptionSingleBarrier) forex;
         spot = data.getFxRates().getFxRate(fxDerivative.getCurrency1(), fxDerivative.getCurrency2());
       }
-      
       return Collections.singleton(new ComputedValue(spec, gammaValue * spot));
     }
     throw new OpenGammaRuntimeException("Can only calculate gamma spot for surfaces with smiles");

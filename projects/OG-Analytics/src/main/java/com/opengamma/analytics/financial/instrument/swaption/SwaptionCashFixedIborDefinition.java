@@ -11,6 +11,7 @@ import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
+import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedAccruedCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
@@ -62,24 +63,35 @@ public final class SwaptionCashFixedIborDefinition implements InstrumentDefiniti
     ArgumentChecker.notNull(underlyingSwap, "underlying swap");
     final AnnuityDefinition<? extends PaymentDefinition> payLeg = underlyingSwap.getFirstLeg();
     final AnnuityDefinition<? extends PaymentDefinition> receiveLeg = underlyingSwap.getSecondLeg();
-    AnnuityCouponFixedDefinition fixedLeg;
     boolean isPayer;
     if (payLeg instanceof AnnuityCouponFixedDefinition) {
+      final AnnuityCouponFixedDefinition fixedLeg = (AnnuityCouponFixedDefinition) payLeg;
+      _settlementDate = fixedLeg.getNthPayment(0).getAccrualStartDate();
+      _currency = fixedLeg.getCurrency();
       isPayer = true;
-      fixedLeg = (AnnuityCouponFixedDefinition) payLeg;
+    } else if (payLeg instanceof AnnuityCouponFixedAccruedCompoundingDefinition) {
+      final AnnuityCouponFixedAccruedCompoundingDefinition fixedLeg = (AnnuityCouponFixedAccruedCompoundingDefinition) payLeg;
+      _settlementDate = fixedLeg.getNthPayment(0).getAccrualStartDate();
+      _currency = fixedLeg.getCurrency();
+      isPayer = true;
     } else if (receiveLeg instanceof AnnuityCouponFixedDefinition) {
+      final AnnuityCouponFixedDefinition fixedLeg = (AnnuityCouponFixedDefinition) receiveLeg;
+      _settlementDate = fixedLeg.getNthPayment(0).getAccrualStartDate();
+      _currency = fixedLeg.getCurrency();
       isPayer = false;
-      fixedLeg = (AnnuityCouponFixedDefinition) receiveLeg;
+    } else if (receiveLeg instanceof AnnuityCouponFixedAccruedCompoundingDefinition) {
+      final AnnuityCouponFixedAccruedCompoundingDefinition fixedLeg = (AnnuityCouponFixedAccruedCompoundingDefinition) receiveLeg;
+      _settlementDate = fixedLeg.getNthPayment(0).getAccrualStartDate();
+      _currency = fixedLeg.getCurrency();
+      isPayer = false;
     } else {
-      throw new IllegalArgumentException("Swap must have one leg that is an AnnuityCouponFixedDefinition");
+      throw new IllegalArgumentException("Swap must have one leg that is an fixed");
     }
     ArgumentChecker.isTrue(isCall == isPayer, "Call flag not in line with underlying");
     //TODO do we need to check that the swaption expiry is consistent with the underlying swap?
     _underlyingSwap = underlyingSwap;
     _isLong = isLong;
-    _settlementDate = fixedLeg.getNthPayment(0).getAccrualStartDate();
     _expiry = new Expiry(expiryDate);
-    _currency = fixedLeg.getCurrency();
   }
 
   /**
@@ -94,18 +106,23 @@ public final class SwaptionCashFixedIborDefinition implements InstrumentDefiniti
     ArgumentChecker.notNull(underlyingSwap, "underlying swap");
     final AnnuityDefinition<? extends PaymentDefinition> payLeg = underlyingSwap.getFirstLeg();
     final AnnuityDefinition<? extends PaymentDefinition> receiveLeg = underlyingSwap.getSecondLeg();
-    AnnuityCouponFixedDefinition fixedLeg;
     boolean isPayer;
+    double strike;
     if (payLeg instanceof AnnuityCouponFixedDefinition) {
-      fixedLeg = (AnnuityCouponFixedDefinition) payLeg;
+      strike = ((AnnuityCouponFixedDefinition) payLeg).getNthPayment(0).getRate();
+      isPayer = true;
+    } else if (payLeg instanceof AnnuityCouponFixedAccruedCompoundingDefinition) {
+      strike = ((AnnuityCouponFixedAccruedCompoundingDefinition) payLeg).getNthPayment(0).getRate();
       isPayer = true;
     } else if (receiveLeg instanceof AnnuityCouponFixedDefinition) {
-      fixedLeg = (AnnuityCouponFixedDefinition) receiveLeg;
+      strike = ((AnnuityCouponFixedDefinition) receiveLeg).getNthPayment(0).getRate();
+      isPayer = false;
+    } else if (receiveLeg instanceof AnnuityCouponFixedAccruedCompoundingDefinition) {
+      strike = ((AnnuityCouponFixedAccruedCompoundingDefinition) receiveLeg).getNthPayment(0).getRate();
       isPayer = false;
     } else {
-      throw new IllegalArgumentException("Swap must have one leg that is an AnnuityCouponFixedDefinition");
+      throw new IllegalArgumentException("Swap must have one leg that is fixed");
     }
-    final double strike = fixedLeg.getNthPayment(0).getRate();
     // Implementation note: cash-settle swaptions underlying have the same rate on all coupons and standard conventions.
     return new SwaptionCashFixedIborDefinition(expiryDate, strike, underlyingSwap, isPayer, isLong);
   }
