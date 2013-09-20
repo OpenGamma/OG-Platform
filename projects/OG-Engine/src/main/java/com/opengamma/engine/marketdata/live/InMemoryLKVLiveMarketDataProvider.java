@@ -64,7 +64,7 @@ public class InMemoryLKVLiveMarketDataProvider extends AbstractMarketDataProvide
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(InMemoryLKVLiveMarketDataProvider.class);
-  private static int clientCount;
+  private static int s_clientCount;
 
   private static final class Subscription {
 
@@ -190,6 +190,11 @@ public class InMemoryLKVLiveMarketDataProvider extends AbstractMarketDataProvide
   }
 
   @Override
+  public String getMarketDataUser() {
+    return _marketDataUser;
+  }
+  
+  @Override
   public int getSpecificationCount() {
     return _allSubscriptions.size();
   }
@@ -224,7 +229,7 @@ public class InMemoryLKVLiveMarketDataProvider extends AbstractMarketDataProvide
 
   private ObjectName createObjectName() {
     try {
-      return new ObjectName("com.opengamma:type=MarketDataClient,Client=Client,name=MarketDataClient " + clientCount++);
+      return new ObjectName("com.opengamma:type=InMemoryLKVLiveMarketDataProvider,name=InMemoryLKVLiveMarketDataProvider " + s_clientCount++);
     } catch (MalformedObjectNameException e) {
       throw new CacheException(e);
     }

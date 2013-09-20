@@ -17,4 +17,7 @@ public interface SubscriptionReporter {
   int getSpecificationCount();
 
   int getSubscriptionCount();
+
+  String getMarketDataUser();
+  
 }
