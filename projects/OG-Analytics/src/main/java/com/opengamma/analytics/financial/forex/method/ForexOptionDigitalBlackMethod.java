@@ -658,7 +658,7 @@ public final class ForexOptionDigitalBlackMethod implements ForexPricingMethod {
     final double expiry = optionForex.getExpirationTime();
     final boolean isCall = optionForex.isCall();
     final double volatility = FXVolatilityUtils.getVolatility(smile, foreignCcy, domesticCcy, expiry, forward, forward);
-    final double sign = (optionForex.isLong() ? -1.0 : 1.0);
+    final double sign = (optionForex.isLong() ? 1.0 : -1.0);
     final double theta = DigitalOptionFunction.theta(spot, strike, expiry, volatility, rDomestic, rForeign - rDomestic, isCall) * sign
         * Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount());
     return CurrencyAmount.of(optionForex.getUnderlyingForex().getCurrency2(), theta);
