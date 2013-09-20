@@ -302,24 +302,15 @@ public class InMemoryLKVLiveMarketDataProvider extends AbstractMarketDataProvide
             if (subscription.decrementCount(valueSpecification)) {
               _allSubscriptions.remove(valueSpecification);
 
-
-              s_logger.warn("Removing from _allSubscriptions - dumping stack:\n{}", dumpStack());
-
               if (subscription.isUnsubscribed()) {
                 final LiveDataSpecification requestedLiveData = subscription.getRequestedLiveData();
                 if (requestedLiveData != null) {
                   _activeSubscriptions.remove(requestedLiveData);
 
-                  s_logger.warn("Removing from _activeSubscriptions - dumping stack:\n{}", dumpStack());
-
                   final LiveDataSpecification actualLiveData = subscription.getFullyQualifiedLiveData();
                   if (actualLiveData != null) {
                     if (actualLiveData != requestedLiveData) {
                       _activeSubscriptions.remove(actualLiveData);
-
-
-                      s_logger.warn("Removing from _activeSubscriptions - dumping stack:\n{}", dumpStack());
-
                     }
                     liveDataSpecs.add(actualLiveData);
                   }
@@ -383,10 +374,7 @@ public class InMemoryLKVLiveMarketDataProvider extends AbstractMarketDataProvide
         if (subscription.getFullyQualifiedLiveData() != null) {
           s_logger.warn("Received duplicate subscription result: {}", subscriptionResult);
           _activeSubscriptions.remove(subscription.getFullyQualifiedLiveData());
-
-          s_logger.warn("Removing from _activeSubscriptions - dumping stack:\n{}", dumpStack());
         }
-
         if (subscriptionResult.getSubscriptionResult() == LiveDataSubscriptionResult.SUCCESS) {
           subscription.setFullyQualifiedLiveData(subscriptionResult.getFullyQualifiedSpecification());
           _activeSubscriptions.put(subscription.getFullyQualifiedLiveData(), subscription);
@@ -411,15 +399,6 @@ public class InMemoryLKVLiveMarketDataProvider extends AbstractMarketDataProvide
     if (!successfulSubscriptions.isEmpty()) {
       subscriptionsSucceeded(successfulSubscriptions);
     }
-  }
-
-  private String dumpStack() {
-
-    StringBuilder sb = new StringBuilder();
-    for (StackTraceElement element : Thread.currentThread().getStackTrace()) {
-      sb.append(element).append("\n");
-    }
-    return sb.toString();
   }
 
   @Override
