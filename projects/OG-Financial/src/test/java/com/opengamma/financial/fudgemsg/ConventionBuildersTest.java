@@ -57,8 +57,8 @@ public class ConventionBuildersTest extends AnalyticsTestBase {
 
   @Test
   public void testCompoundingIborLegConvention() {
-    final CompoundingIborLegConvention convention = new CompoundingIborLegConvention("EUR CMS", ExternalIdBundle.of(InMemoryConventionBundleMaster.simpleNameSecurityId("EUR CMS")),
-        ExternalId.of("Test", "EUR 6m Swap Index"), Tenor.SIX_MONTHS, CompoundingType.FLAT_COMPOUNDING, false);
+    final CompoundingIborLegConvention convention = new CompoundingIborLegConvention("EUR Compounded", ExternalIdBundle.of(InMemoryConventionBundleMaster.simpleNameSecurityId("EUR Compounded")),
+        ExternalId.of("Test", "EURIBOR 3M"), Tenor.SIX_MONTHS, CompoundingType.FLAT_COMPOUNDING, StubType.SHORT_START, 2, false, StubType.LONG_START, true, 1);
     convention.setUniqueId(UniqueId.of("Test", "12345"));
     assertEquals(convention, cycleObject(CompoundingIborLegConvention.class, convention));
   }

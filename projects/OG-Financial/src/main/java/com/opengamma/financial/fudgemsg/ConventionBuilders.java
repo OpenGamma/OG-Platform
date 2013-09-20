@@ -12,6 +12,7 @@ import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
+import org.joda.beans.PropertyDefinition;
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.Period;
 
@@ -111,8 +112,30 @@ public final class ConventionBuilders {
     private static final String PAYMENT_TENOR_FIELD = "paymentTenor";
     /** The compounding type field */
     private static final String COMPOUNDING_TYPE_FIELD = "compoundingType";
+    /** The stub type for the compounding within one coupon field */
+    private static final String STUB_TYPE_COMPOUND_FIELD = "stubTypeCompound";
     /** The exchange notional field */
     private static final String EXCHANGE_NOTIONAL_FIELD = "exchangeNotional";
+    /** The settlement days field */
+    private static final String SETTLEMENT_DAYS_FIELD = "settlementDays";
+    /** The payment lag field */
+    private static final String PAYMENT_LAG_FIELD = "paymentLag";
+    /** The EOM field */
+    private static final String IS_EOM_FIELD = "isEOM";
+    /** The stub type for the coupons in the leg field */
+    private static final String STUB_TYPE_LEG_FIELD = "stubTypeLeg";
+
+    /**
+     * The stub type.
+     */
+    @PropertyDefinition(validate = "notNull")
+    private StubType _stubTypeLeg;
+
+    /**
+     * The payment lag in days.
+     */
+    @PropertyDefinition
+    private int _paymentLag;
 
     @Override
     public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final CompoundingIborLegConvention object) {
@@ -121,8 +144,13 @@ public final class ConventionBuilders {
       serializer.addToMessage(message, IBOR_INDEX_ID_FIELD, null, object.getIborIndexConvention());
       message.add(PAYMENT_TENOR_FIELD, object.getPaymentTenor().getPeriod().toString());
       message.add(COMPOUNDING_TYPE_FIELD, object.getCompoundingType().name());
-      message.add(NAME_FIELD, object.getName());
+      message.add(STUB_TYPE_COMPOUND_FIELD, object.getStubTypeCompound().name());
+      message.add(SETTLEMENT_DAYS_FIELD, object.getSettlementDays());
+      message.add(IS_EOM_FIELD, object.isIsEOM());
+      message.add(STUB_TYPE_LEG_FIELD, object.getStubTypeLeg().name());
       message.add(EXCHANGE_NOTIONAL_FIELD, object.isIsExchangeNotional());
+      message.add(PAYMENT_LAG_FIELD, object.getPaymentLag());
+      message.add(NAME_FIELD, object.getName());
       serializer.addToMessage(message, EXTERNAL_ID_BUNDLE_FIELD, null, object.getExternalIdBundle());
       serializer.addToMessage(message, UNIQUE_ID_FIELD, null, object.getUniqueId());
       return message;
@@ -135,9 +163,14 @@ public final class ConventionBuilders {
       final ExternalId swapIndexConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(IBOR_INDEX_ID_FIELD));
       final Tenor paymentTenor = Tenor.of(Period.parse(message.getString(PAYMENT_TENOR_FIELD)));
       final CompoundingType compoundingType = CompoundingType.valueOf(message.getString(COMPOUNDING_TYPE_FIELD));
+      final StubType stubTypeCompound = StubType.valueOf(message.getString(STUB_TYPE_COMPOUND_FIELD));
+      final int settlementDays = message.getInt(SETTLEMENT_DAYS_FIELD);
+      final boolean isEOM = message.getBoolean(IS_EOM_FIELD);
+      final StubType stubTypeLeg = StubType.valueOf(message.getString(STUB_TYPE_LEG_FIELD));
       final boolean exchangeNotional = message.getBoolean(EXCHANGE_NOTIONAL_FIELD);
-      final CompoundingIborLegConvention convention = new CompoundingIborLegConvention(name, externalIdBundle, swapIndexConvention, paymentTenor, compoundingType,
-          exchangeNotional);
+      final int paymentLag = message.getInt(PAYMENT_LAG_FIELD);
+      final CompoundingIborLegConvention convention = new CompoundingIborLegConvention(name, externalIdBundle, swapIndexConvention, paymentTenor, 
+          compoundingType, stubTypeCompound, settlementDays, isEOM, stubTypeLeg, exchangeNotional, paymentLag);
       final FudgeField uniqueIdMsg = message.getByName(UNIQUE_ID_FIELD);
       if (uniqueIdMsg != null) {
         convention.setUniqueId(deserializer.fieldValueToObject(UniqueId.class, uniqueIdMsg));

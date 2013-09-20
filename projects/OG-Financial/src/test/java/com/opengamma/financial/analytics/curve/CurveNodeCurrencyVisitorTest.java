@@ -106,7 +106,7 @@ public class CurveNodeCurrencyVisitorTest {
   private static final SwapIndexConvention SWAP_INDEX = new SwapIndexConvention("3M Swap Index", ExternalIdBundle.of(ExternalId.of(SCHEME, "3M Swap Index")), LocalTime.of(11, 0),
       SWAP_3M_IBOR_ID);
   private static final CompoundingIborLegConvention COMPOUNDING_IBOR = new CompoundingIborLegConvention("USD Compounding Libor", ExternalIdBundle.of(ExternalId.of(SCHEME, "USD Compounding Libor")),
-      LIBOR_3M_ID, Tenor.THREE_MONTHS, CompoundingType.COMPOUNDING, false);
+      LIBOR_3M_ID, Tenor.THREE_MONTHS, CompoundingType.COMPOUNDING, StubType.SHORT_START, 2, false, StubType.LONG_START, true, 1);
   private static final PriceIndexConvention PRICE_INDEX = new PriceIndexConvention("USD CPI", ExternalIdBundle.of(ExternalId.of(SCHEME, "USD CPI")), Currency.USD, US,
       ExternalId.of("TS", "CPI"));
   private static final InflationLegConvention INFLATION_LEG = new InflationLegConvention("ZCI", ExternalIdBundle.of(ExternalId.of(SCHEME, "ZCI")), MODIFIED_FOLLOWING, ACT_360, false,
@@ -236,7 +236,7 @@ public class CurveNodeCurrencyVisitorTest {
   public void testNullCompoundingIborLegConvention() {
     final Map<ExternalId, Convention> map = new HashMap<>();
     final CompoundingIborLegConvention compoundingIbor = new CompoundingIborLegConvention("USD Compounding Libor", ExternalIdBundle.of(ExternalId.of(SCHEME, "USD Compounding Libor")),
-        FX_FORWARD_ID, Tenor.THREE_MONTHS, CompoundingType.COMPOUNDING, false);
+        LIBOR_3M_ID, Tenor.THREE_MONTHS, CompoundingType.COMPOUNDING, StubType.SHORT_START, 2, false, StubType.LONG_START, true, 1);
     map.put(FIXED_LEG_ID, FIXED_LEG);
     map.put(COMPOUNDING_IBOR_ID, compoundingIbor);
     final CurveNodeCurrencyVisitor visitor = new CurveNodeCurrencyVisitor(new TestConventionSource(map));
