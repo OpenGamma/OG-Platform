@@ -102,6 +102,22 @@ API compatibility
 Analytics compatibility
 - No expected differences
 
+To 2.1.0-M3p04
+-----------
+As above, and:
+
+Configuration compatibility
+- No changes required
+
+Database compatibility
+- No upgrade required
+
+API compatibility
+- No significant changes
+
+Analytics compatibility
+- No expected differences
+
 
 Changes since 2.0.0
 ===================
@@ -140,4 +156,23 @@ To 2.1.0-M3p02
 As above, and:
  [PLAT-4658] Added handling for missing market data in snapshots
  [PLAT-4666] Adding a scaling factor for THETA and FORWARD_DRIFTLESS_THETA for FX options
+
+To 2.1.0-M3p02
+------------
+As above, and:
+    [PLAT-4694] added ability to provide a custom instance of a BloombergLiveDataServer in a subclass factory.
+    [PLAT-4697] Correcting properties for FX forward constant spread
+    [PLAT-4697] Adding a function that will convert a multi-valued theta into a single-valued theta for FX forwards
+    [PLAT-4698] Fix value theta
+    [PLAT-4696] Adding support for Notional for single barriers and scaling percentage value gamma by spot
+    [PLAT-4686] Forex barrier option Greeks    
+                Driftless theta added
+    [PLAT-4691] Adding second getResults() method to swap theta to allow the graph to build
+    [PLAT-4687] Adding horizon functions with defaults to the main function configuration and setting the days property forward explicitly in the graph building phase
+    [PLAT-4686] Forex barrier option Greeks
+    [PLAT-4671] Scaling value theta by the notional and sign
+    [PLAT-4671] Adding greeks for single barrier options
+    [PLAT-4677] Digital Option Greeks    
+                Forward Greeks corrected
+
 
