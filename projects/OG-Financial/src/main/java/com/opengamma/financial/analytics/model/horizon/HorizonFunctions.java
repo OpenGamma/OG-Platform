@@ -69,6 +69,7 @@ public class HorizonFunctions extends AbstractFunctionConfigurationBean {
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
     functions.add(functionConfiguration(FXDigitalCallSpreadBlackConstantSpreadThetaFunction.class));
     functions.add(functionConfiguration(FXForwardConstantSpreadThetaFunction.class));
+    functions.add(functionConfiguration(FXForwardConstantSpreadSingleThetaFunction.class));
     functions.add(functionConfiguration(FXOptionBlackConstantSpreadThetaFunction.class));
     functions.add(functionConfiguration(FXOptionBlackForwardSlideThetaFunction.class));
     functions.add(functionConfiguration(FXOptionBlackVolatilitySurfaceConstantSpreadThetaFunction.class));
