@@ -28,9 +28,12 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
  */
 @Deprecated
 public class FXForwardFXPresentValueFunction extends FXForwardMultiValuedFunction {
-
+  /** The present value calculator */
   private static final PresentValueMCACalculator CALCULATOR = PresentValueMCACalculator.getInstance();
 
+  /**
+   * Sets the value requirement name to {@link ValueRequirementNames#FX_PRESENT_VALUE}
+   */
   public FXForwardFXPresentValueFunction() {
     super(ValueRequirementNames.FX_PRESENT_VALUE);
   }

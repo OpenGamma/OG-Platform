@@ -216,15 +216,15 @@ public class FXForwardConstantSpreadThetaFunction extends FXForwardMultiValuedFu
    * Gets the result properties with property values set.
    *
    * @param target The target
-   * @param payCurve The name of the pay curve
+   * @param payCurveName The name of the pay curve
    * @param payCurveCalculationConfig The name of the pay curve calculation configuration
-   * @param receiveCurve The name of the receive curve
+   * @param receiveCurveName The name of the receive curve
    * @param receiveCurveCalculationConfig The name of the receive curve calculation configuration
    * @param baseQuotePair The base / counter information for the currency pair
    * @param daysForward The number of days forward
    * @return The result properties
    */
-  private ValueProperties.Builder getResultProperties(final ComputationTarget target, final String payCurveName, final String receiveCurveName,
+  protected ValueProperties.Builder getResultProperties(final ComputationTarget target, final String payCurveName, final String receiveCurveName,
       final String payCurveCalculationConfig, final String receiveCurveCalculationConfig, final CurrencyPair baseQuotePair, final String daysForward) {
     final ValueProperties.Builder properties = super.getResultProperties(target, payCurveName, receiveCurveName, payCurveCalculationConfig, receiveCurveCalculationConfig,
         baseQuotePair)
