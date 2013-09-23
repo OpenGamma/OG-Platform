@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.model.horizon;
 
 import static com.opengamma.engine.value.ValuePropertyNames.CURRENCY;
 import static com.opengamma.engine.value.ValuePropertyNames.FUNCTION;
+import static com.opengamma.engine.value.ValueRequirementNames.CURRENCY_PAIRS;
 import static com.opengamma.financial.analytics.model.horizon.ThetaPropertyNamesAndValues.PROPERTY_DAYS_TO_MOVE_FORWARD;
 import static com.opengamma.financial.analytics.model.horizon.ThetaPropertyNamesAndValues.PROPERTY_THETA_CALCULATION_METHOD;
 
@@ -27,6 +28,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.currency.CurrencyMatrixSpotSourcingFunction;
 import com.opengamma.financial.currency.CurrencyPair;
+import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
@@ -60,6 +62,18 @@ public class FXForwardConstantSpreadSingleThetaFunction extends FXForwardConstan
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final Currency payCurrency = security.accept(ForexVisitors.getPayCurrencyVisitor());
     final Currency receiveCurrency = security.accept(ForexVisitors.getReceiveCurrencyVisitor());
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    final CurrencyPairs currencyPairs = (CurrencyPairs) inputs.getValue(CURRENCY_PAIRS);
+    final CurrencyPair currencyPair = currencyPairs.getCurrencyPair(payCurrency, receiveCurrency);
+    final double scale;
+    if (payCurrency.equals(currencyPair.getBase())) {
+      scale = 1;
+    } else {
+      scale = -1;
+    }
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     int payIndex = -1;
     int receiveIndex = -1;
     final CurrencyAmount[] currencyAmounts = theta.getCurrencyAmounts();
@@ -76,7 +90,11 @@ public class FXForwardConstantSpreadSingleThetaFunction extends FXForwardConstan
     final double payValue = currencyAmounts[payIndex].getAmount();
     final double receiveValue = currencyAmounts[receiveIndex].getAmount();
     final double spot = (Double) inputs.getValue(ValueRequirementNames.SPOT_RATE);
-    final double singleTheta = payValue + spot * receiveValue;
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    final double singleTheta = scale * (payValue + spot * receiveValue);
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
     final ValueProperties properties = spec.getProperties().copy()
         .withoutAny(FUNCTION)
         .with(FUNCTION, getUniqueId())
