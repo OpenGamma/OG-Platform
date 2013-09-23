@@ -8,9 +8,8 @@ $.register_module({
     obj: function () {
         return function (config) {
             config.title = 'FX Digital Option';
-            config.type = 'FXOptionSecurity';
+            config.type = 'FXDigitalOptionSecurity';
             config.digital = true;
             return new og.blotter.forms.fxoptionbasesecurity(config);
         };
     }
-});
