@@ -106,48 +106,44 @@ public class MarketDataSnapshotToolUtils {
       .toFormatter();
       
 
-    //try {
-      List<VersionInfo> snapshotVersions = snapshotUtils.snapshotVersionsByName(optionValue);
-      System.out.println(OffsetDateTime.now().toString(dateTimeFormatter));
+    List<VersionInfo> snapshotVersions = snapshotUtils.snapshotVersionsByName(optionValue);
+    System.out.println(OffsetDateTime.now().toString(dateTimeFormatter));
 
-      int fieldWidth = OffsetDateTime.now().toString(dateTimeFormatter).length(); // Assumes all offset date times have same width
+    int fieldWidth = OffsetDateTime.now().toString(dateTimeFormatter).length(); // Assumes all offset date times have same width
 
-      header(fieldWidth);
-      String id = TimeZone.getDefault().getID();
-      for (VersionInfo versionInfo : snapshotVersions) {
-        OffsetDateTime versionFrom = versionInfo.getVersionFrom() != null ? OffsetDateTime.ofInstant(versionInfo.getVersionFrom(), ZoneId.of(id)) : null;
-        OffsetDateTime versionTo = versionInfo.getVersionTo() != null ? OffsetDateTime.ofInstant(versionInfo.getVersionTo(), ZoneId.of(id)) : null;
-        OffsetDateTime correctionFrom = versionInfo.getCorrectionFrom() != null ? OffsetDateTime.ofInstant(versionInfo.getCorrectionFrom(), ZoneId.of(id)) : null;
-        OffsetDateTime correctionTo = versionInfo.getCorrectionTo() != null ? OffsetDateTime.ofInstant(versionInfo.getCorrectionTo(), ZoneId.of(id)) : null;
-        if (versionFrom != null) {
-          System.out.print(versionFrom.toString(dateTimeFormatter));
-        } else {
-          notSpecified(fieldWidth);
-        }
-        spaces();
-        if (versionTo != null) {
-          System.out.print(versionTo.toString(dateTimeFormatter));
-        } else {
-          notSpecified(fieldWidth);
-        }
-        spaces();
-        if (correctionFrom != null) {
-          System.out.print(correctionFrom.toString(dateTimeFormatter));
-        } else {
-          notSpecified(fieldWidth);
-        }
-        spaces();
-        if (correctionTo != null) {
-          System.out.print(correctionTo.toString(dateTimeFormatter));
-        } else {
-          notSpecified(fieldWidth);
-        }
-        spaces();
-        System.out.println(versionInfo.getUniqueId());
+    header(fieldWidth);
+    String id = TimeZone.getDefault().getID();
+    for (VersionInfo versionInfo : snapshotVersions) {
+      OffsetDateTime versionFrom = versionInfo.getVersionFrom() != null ? OffsetDateTime.ofInstant(versionInfo.getVersionFrom(), ZoneId.of(id)) : null;
+      OffsetDateTime versionTo = versionInfo.getVersionTo() != null ? OffsetDateTime.ofInstant(versionInfo.getVersionTo(), ZoneId.of(id)) : null;
+      OffsetDateTime correctionFrom = versionInfo.getCorrectionFrom() != null ? OffsetDateTime.ofInstant(versionInfo.getCorrectionFrom(), ZoneId.of(id)) : null;
+      OffsetDateTime correctionTo = versionInfo.getCorrectionTo() != null ? OffsetDateTime.ofInstant(versionInfo.getCorrectionTo(), ZoneId.of(id)) : null;
+      if (versionFrom != null) {
+        System.out.print(versionFrom.toString(dateTimeFormatter));
+      } else {
+        notSpecified(fieldWidth);
       }
-    //} catch (OpenGammaRuntimeException ogre) {
-    //  System.err.println("Found multiple matches to name");
-    //}
+      spaces();
+      if (versionTo != null) {
+        System.out.print(versionTo.toString(dateTimeFormatter));
+      } else {
+        notSpecified(fieldWidth);
+      }
+      spaces();
+      if (correctionFrom != null) {
+        System.out.print(correctionFrom.toString(dateTimeFormatter));
+      } else {
+        notSpecified(fieldWidth);
+      }
+      spaces();
+      if (correctionTo != null) {
+        System.out.print(correctionTo.toString(dateTimeFormatter));
+      } else {
+        notSpecified(fieldWidth);
+      }
+      spaces();
+      System.out.println(versionInfo.getUniqueId());
+    }
   }
   
   private static void header(int fieldWidth) {
