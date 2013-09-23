@@ -207,9 +207,33 @@ public final class CouponIborCompoundingDefinition extends CouponDefinition impl
    */
   public static CouponIborCompoundingDefinition from(final double notional, final ZonedDateTime accrualStartDate, final Period tenor, final IborIndex index,
       final Calendar calendar, final StubType stub) {
+    ArgumentChecker.notNull(accrualStartDate, "Accrual start date");
+    ArgumentChecker.notNull(tenor, "Tenor");
+    final ZonedDateTime accrualEndDate = accrualStartDate.plus(tenor);
+    return from(notional, accrualStartDate, accrualEndDate, index, stub, calendar);
+  }
+
+  /**
+   * Builds an Ibor compounded coupon from a total period and the Ibor index. The Ibor day count is used to compute the accrual factors.
+   * If required the stub of the sub-periods will be short and last. The payment date is the start accrual date plus the tenor in the index conventions.
+   * @param notional The coupon notional.
+   * @param accrualStartDate The first accrual date. 
+   * @param accrualEndDate The end accrual date.
+   * @param index The underlying Ibor index.
+   * @param stub The stub type used for the compounding sub-periods. Not null.
+   * @param calendar The holiday calendar for the ibor index.
+   * @return The compounded coupon.
+   */
+  public static CouponIborCompoundingDefinition from(final double notional, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final IborIndex index,
+      final StubType stub, final Calendar calendar) {
+    ArgumentChecker.notNull(accrualStartDate, "Accrual start date");
+    ArgumentChecker.notNull(accrualEndDate, "Accrual end date");
+    ArgumentChecker.notNull(index, "Index");
+    ArgumentChecker.notNull(calendar, "Calendar");
     final boolean isStubShort = stub.equals(StubType.SHORT_END) || stub.equals(StubType.SHORT_START);
     final boolean isStubStart = stub.equals(StubType.LONG_START) || stub.equals(StubType.SHORT_START); // Implementation note: dates computed from the end.
-    final ZonedDateTime[] accrualEndDates = ScheduleCalculator.getAdjustedDateSchedule(accrualStartDate, tenor, isStubShort, isStubStart, index, calendar);
+    final ZonedDateTime[] accrualEndDates = ScheduleCalculator.getAdjustedDateSchedule(accrualStartDate, accrualEndDate, index.getTenor(), isStubShort, isStubStart,
+        index.getBusinessDayConvention(), calendar, index.isEndOfMonth());
     final int nbSubPeriod = accrualEndDates.length;
     final ZonedDateTime[] accrualStartDates = new ZonedDateTime[nbSubPeriod];
     accrualStartDates[0] = accrualStartDate;
