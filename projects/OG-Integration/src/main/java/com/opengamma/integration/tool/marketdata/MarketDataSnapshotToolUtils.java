@@ -37,7 +37,7 @@ public class MarketDataSnapshotToolUtils {
   private static final String UNIQUE_ID = "UniqueId";
   private static final String NOT_SPECIFIED = "Not Specified";
   /** Snapshot listing option flag */
-  private static final String SNAPSHOT_LIST_OPTION = "l";
+  private static final String SNAPSHOT_LIST_OPTION = "s";
   /** Snapshot query option flag */
   private static final String SNAPSHOT_QUERY_OPTION = "q";
   /** Snapshot version list option flag */
