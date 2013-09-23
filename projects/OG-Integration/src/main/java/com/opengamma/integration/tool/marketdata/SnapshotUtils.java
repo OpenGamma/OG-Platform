@@ -43,14 +43,15 @@ public final class SnapshotUtils {
 
   /**
    * Get a list of all available snapshot names
-   * @return the list of all available snapshot names or an empty list if no snapshots found
+   * @return the list of all available snapshot ids and names or an empty list if no snapshots found
    */
-  public List<String> allSnapshotNames() {
+  public List<String> allSnapshots() {
     MarketDataSnapshotSearchRequest searchRequest = new MarketDataSnapshotSearchRequest();
+    searchRequest.setIncludeData(false);
     MarketDataSnapshotSearchResult searchResult = _snapshotMaster.search(searchRequest);
     List<String> results = new ArrayList<>();
     for (MarketDataSnapshotDocument doc : searchResult.getDocuments()) {
-      results.add(doc.getName());
+      results.add(doc.getUniqueId() + " - " + doc.getName());
     }
     return results;
   }
