@@ -80,8 +80,9 @@ public final class SnapshotUtils {
    */
   public UniqueId latestSnapshotByName(String name) {
     MarketDataSnapshotSearchRequest searchRequest = new MarketDataSnapshotSearchRequest();
-    MarketDataSnapshotSearchResult searchResult = _snapshotMaster.search(searchRequest);
     searchRequest.setName(name);
+    searchRequest.setIncludeData(false);
+    MarketDataSnapshotSearchResult searchResult = _snapshotMaster.search(searchRequest);
     if (searchResult.getDocuments().size() > 1) {
       throw new OpenGammaRuntimeException("More than one snapshot matches supplied name");
     }
@@ -100,8 +101,9 @@ public final class SnapshotUtils {
    */
   public UniqueId latestSnapshotByNameAndDate(String name, ZonedDateTime dateTime) {
     MarketDataSnapshotSearchRequest searchRequest = new MarketDataSnapshotSearchRequest();
-    MarketDataSnapshotSearchResult searchResult = _snapshotMaster.search(searchRequest);
     searchRequest.setName(name);
+    searchRequest.setIncludeData(false);
+    MarketDataSnapshotSearchResult searchResult = _snapshotMaster.search(searchRequest);
     searchRequest.setVersionCorrection(VersionCorrection.ofVersionAsOf(dateTime.toInstant()));
     if (searchResult.getDocuments().size() > 1) {
       throw new OpenGammaRuntimeException("More than one snapshot matches supplied name");
@@ -120,8 +122,9 @@ public final class SnapshotUtils {
    */
   public List<VersionInfo> snapshotVersionsByName(String name) {
     MarketDataSnapshotSearchRequest searchRequest = new MarketDataSnapshotSearchRequest();
-    MarketDataSnapshotSearchResult searchResult = _snapshotMaster.search(searchRequest);
     searchRequest.setName(name);
+    searchRequest.setIncludeData(false);
+    MarketDataSnapshotSearchResult searchResult = _snapshotMaster.search(searchRequest);
     if (searchResult.getDocuments().size() > 1) {
       s_logger.warn("More than one snapshot matches supplied name, using first");
     }
