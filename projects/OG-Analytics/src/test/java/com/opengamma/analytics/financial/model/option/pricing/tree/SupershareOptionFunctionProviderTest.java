@@ -343,7 +343,7 @@ public class SupershareOptionFunctionProviderTest {
     final double[] vol = new double[steps];
     final double[] rate = new double[steps];
     final double[] dividend = new double[steps];
-    final int stepsTri = 4817;
+    final int stepsTri = 117;
     final double[] volTri = new double[stepsTri];
     final double[] rateTri = new double[stepsTri];
     final double[] dividendTri = new double[stepsTri];
@@ -381,15 +381,14 @@ public class SupershareOptionFunctionProviderTest {
         assertEquals(resGreeks.get(Greek.GAMMA), resGreeksConst.get(Greek.GAMMA), Math.max(Math.abs(resGreeksConst.get(Greek.GAMMA)), 1.) * 1.e-2);
         assertEquals(resGreeks.get(Greek.THETA), resGreeksConst.get(Greek.THETA), Math.max(Math.abs(resGreeksConst.get(Greek.THETA)), 1.));
 
-        //        final OptionFunctionProvider1D functionTri = new SupershareOptionFunctionProvider(time, lowerBound, upperBound, stepsTri);
-        //        final double resPriceTrinomial = _modelTrinomial.getPrice(functionTri, SPOT, volTri, rateTri, dividendTri);
-        //        assertEquals(resPriceTrinomial, resPriceConst, Math.max(Math.abs(resPriceConst), 1.) * 1.e-2);
-        //        final GreekResultCollection resGreeksTrinomial = _modelTrinomial.getGreeks(functionTri, SPOT, volTri, rateTri, dividendTri);
-        //        System.out.println(resPriceConst + "\t" + price(SPOT, lowerBound, upperBound, TIME, volRef, rateRef, rateRef - dividend[0]) + "\t" + resPriceTrinomial);
-        //        assertEquals(resGreeksTrinomial.get(Greek.FAIR_PRICE), resGreeksConst.get(Greek.FAIR_PRICE), Math.max(Math.abs(resGreeksConst.get(Greek.FAIR_PRICE)), 1.) * 1.e-2);
-        //        assertEquals(resGreeksTrinomial.get(Greek.DELTA), resGreeksConst.get(Greek.DELTA), Math.max(Math.abs(resGreeksConst.get(Greek.DELTA)), 1.) * 1.e-2);
-        //        assertEquals(resGreeksTrinomial.get(Greek.GAMMA), resGreeksConst.get(Greek.GAMMA), Math.max(Math.abs(resGreeksConst.get(Greek.GAMMA)), 1.) * 1.e-2);
-        //        assertEquals(resGreeksTrinomial.get(Greek.THETA), resGreeksConst.get(Greek.THETA), Math.max(Math.abs(resGreeksConst.get(Greek.THETA)), 0.1));
+        final OptionFunctionProvider1D functionTri = new SupershareOptionFunctionProvider(time, lowerBound, upperBound, stepsTri);
+        final double resPriceTrinomial = _modelTrinomial.getPrice(functionTri, SPOT, volTri, rateTri, dividendTri);
+        assertEquals(resPriceTrinomial, resPriceConst, Math.max(Math.abs(resPriceConst), 1.) * 1.e-1);
+        final GreekResultCollection resGreeksTrinomial = _modelTrinomial.getGreeks(functionTri, SPOT, volTri, rateTri, dividendTri);
+        assertEquals(resGreeksTrinomial.get(Greek.FAIR_PRICE), resGreeksConst.get(Greek.FAIR_PRICE), Math.max(Math.abs(resGreeksConst.get(Greek.FAIR_PRICE)), 1.) * 1.e-1);
+        assertEquals(resGreeksTrinomial.get(Greek.DELTA), resGreeksConst.get(Greek.DELTA), Math.max(Math.abs(resGreeksConst.get(Greek.DELTA)), 1.) * 1.e-1);
+        assertEquals(resGreeksTrinomial.get(Greek.GAMMA), resGreeksConst.get(Greek.GAMMA), Math.max(Math.abs(resGreeksConst.get(Greek.GAMMA)), 1.) * 1.e-1);
+        assertEquals(resGreeksTrinomial.get(Greek.THETA), resGreeksConst.get(Greek.THETA), Math.max(Math.abs(resGreeksConst.get(Greek.THETA)), 0.1));
       }
     }
   }
