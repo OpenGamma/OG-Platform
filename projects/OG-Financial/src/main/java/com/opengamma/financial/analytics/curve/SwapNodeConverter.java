@@ -26,6 +26,7 @@ import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.financial.analytics.conversion.CalendarUtils;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
+import com.opengamma.financial.convention.CompoundingIborLegConvention;
 import com.opengamma.financial.convention.Convention;
 import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.convention.IborIndexConvention;
@@ -101,8 +102,11 @@ public class SwapNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
     }
     final AnnuityDefinition<? extends PaymentDefinition> payLeg;
     final AnnuityDefinition<? extends PaymentDefinition> receiveLeg;
-    final boolean isFloatFloat = ((payLegConvention instanceof VanillaIborLegConvention) || (payLegConvention instanceof OISLegConvention)) 
-        &&  ((receiveLegConvention instanceof VanillaIborLegConvention) || (receiveLegConvention instanceof OISLegConvention));
+    // CompoundingIborLegConvention
+    final boolean isFloatFloat = ((payLegConvention instanceof VanillaIborLegConvention) || (payLegConvention instanceof OISLegConvention) || 
+        (payLegConvention instanceof CompoundingIborLegConvention)) 
+        &&  ((receiveLegConvention instanceof VanillaIborLegConvention) || (receiveLegConvention instanceof OISLegConvention) ||
+            (receiveLegConvention instanceof CompoundingIborLegConvention));
     if (payLegConvention instanceof SwapFixedLegConvention) {
       payLeg = getFixedLeg((SwapFixedLegConvention) payLegConvention, swapNode, true);
     } else if (payLegConvention instanceof VanillaIborLegConvention) {

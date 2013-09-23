@@ -50,6 +50,12 @@ public class CompoundingIborLegConvention extends Convention {
   private CompoundingType _compoundingType;
 
   /**
+   * The composition tenor, i.e. the tenor of the sub-periods compounded into the payment tenor.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private Tenor _compositionTenor;
+
+  /**
    * The stub type.
    */
   @PropertyDefinition(validate = "notNull")
@@ -97,6 +103,7 @@ public class CompoundingIborLegConvention extends Convention {
    * @param iborIndexConvention The id of the underlying ibor index convention, not null
    * @param paymentTenor The payment tenor, not null
    * @param compoundingType The compounding type, not null
+   * @param compositionTenor The composition tenor. Not null.
    * @param stubTypeCompound The stub type used in each coupon for the compounding. Not null.
    * @param settlementDays The number of settlement days
    * @param isEOM True if dates follow the end-of-month rule
@@ -105,12 +112,13 @@ public class CompoundingIborLegConvention extends Convention {
    * @param paymentLag The payment lag in days
    */
   public CompoundingIborLegConvention(final String name, final ExternalIdBundle externalIdBundle, final ExternalId iborIndexConvention, final Tenor paymentTenor,
-      final CompoundingType compoundingType, final StubType stubTypeCompound, final int settlementDays, final boolean isEOM, final StubType stubTypeLeg, final boolean isExchangeNotional,
-      final int paymentLag) {
+      final CompoundingType compoundingType, final Tenor compositionTenor, final StubType stubTypeCompound, final int settlementDays, final boolean isEOM, 
+      final StubType stubTypeLeg, final boolean isExchangeNotional, final int paymentLag) {
     super(name, externalIdBundle);
     setIborIndexConvention(iborIndexConvention);
     setPaymentTenor(paymentTenor);
     setCompoundingType(compoundingType);
+    setCompositionTenor(compositionTenor);
     setStubTypeCompound(stubTypeCompound);
     setSettlementDays(settlementDays);
     setIsEOM(isEOM);
@@ -147,6 +155,8 @@ public class CompoundingIborLegConvention extends Convention {
         return getPaymentTenor();
       case -1936397775:  // compoundingType
         return getCompoundingType();
+      case -1679443146:  // compositionTenor
+        return getCompositionTenor();
       case -1172460845:  // stubTypeCompound
         return getStubTypeCompound();
       case 348962765:  // isExchangeNotional
@@ -175,6 +185,9 @@ public class CompoundingIborLegConvention extends Convention {
       case -1936397775:  // compoundingType
         setCompoundingType((CompoundingType) newValue);
         return;
+      case -1679443146:  // compositionTenor
+        setCompositionTenor((Tenor) newValue);
+        return;
       case -1172460845:  // stubTypeCompound
         setStubTypeCompound((StubType) newValue);
         return;
@@ -202,6 +215,7 @@ public class CompoundingIborLegConvention extends Convention {
     JodaBeanUtils.notNull(_iborIndexConvention, "iborIndexConvention");
     JodaBeanUtils.notNull(_paymentTenor, "paymentTenor");
     JodaBeanUtils.notNull(_compoundingType, "compoundingType");
+    JodaBeanUtils.notNull(_compositionTenor, "compositionTenor");
     JodaBeanUtils.notNull(_stubTypeCompound, "stubTypeCompound");
     JodaBeanUtils.notNull(_stubTypeLeg, "stubTypeLeg");
     super.validate();
@@ -217,6 +231,7 @@ public class CompoundingIborLegConvention extends Convention {
       return JodaBeanUtils.equal(getIborIndexConvention(), other.getIborIndexConvention()) &&
           JodaBeanUtils.equal(getPaymentTenor(), other.getPaymentTenor()) &&
           JodaBeanUtils.equal(getCompoundingType(), other.getCompoundingType()) &&
+          JodaBeanUtils.equal(getCompositionTenor(), other.getCompositionTenor()) &&
           JodaBeanUtils.equal(getStubTypeCompound(), other.getStubTypeCompound()) &&
           JodaBeanUtils.equal(isIsExchangeNotional(), other.isIsExchangeNotional()) &&
           JodaBeanUtils.equal(getSettlementDays(), other.getSettlementDays()) &&
@@ -234,6 +249,7 @@ public class CompoundingIborLegConvention extends Convention {
     hash += hash * 31 + JodaBeanUtils.hashCode(getIborIndexConvention());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentTenor());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCompoundingType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCompositionTenor());
     hash += hash * 31 + JodaBeanUtils.hashCode(getStubTypeCompound());
     hash += hash * 31 + JodaBeanUtils.hashCode(isIsExchangeNotional());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementDays());
@@ -319,6 +335,32 @@ public class CompoundingIborLegConvention extends Convention {
    */
   public final Property<CompoundingType> compoundingType() {
     return metaBean().compoundingType().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the composition tenor, i.e. the tenor of the sub-periods compounded into the payment tenor.
+   * @return the value of the property, not null
+   */
+  public Tenor getCompositionTenor() {
+    return _compositionTenor;
+  }
+
+  /**
+   * Sets the composition tenor, i.e. the tenor of the sub-periods compounded into the payment tenor.
+   * @param compositionTenor  the new value of the property, not null
+   */
+  public void setCompositionTenor(Tenor compositionTenor) {
+    JodaBeanUtils.notNull(compositionTenor, "compositionTenor");
+    this._compositionTenor = compositionTenor;
+  }
+
+  /**
+   * Gets the the {@code compositionTenor} property.
+   * @return the property, not null
+   */
+  public final Property<Tenor> compositionTenor() {
+    return metaBean().compositionTenor().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -499,6 +541,11 @@ public class CompoundingIborLegConvention extends Convention {
     private final MetaProperty<CompoundingType> _compoundingType = DirectMetaProperty.ofReadWrite(
         this, "compoundingType", CompoundingIborLegConvention.class, CompoundingType.class);
     /**
+     * The meta-property for the {@code compositionTenor} property.
+     */
+    private final MetaProperty<Tenor> _compositionTenor = DirectMetaProperty.ofReadWrite(
+        this, "compositionTenor", CompoundingIborLegConvention.class, Tenor.class);
+    /**
      * The meta-property for the {@code stubTypeCompound} property.
      */
     private final MetaProperty<StubType> _stubTypeCompound = DirectMetaProperty.ofReadWrite(
@@ -536,6 +583,7 @@ public class CompoundingIborLegConvention extends Convention {
         "iborIndexConvention",
         "paymentTenor",
         "compoundingType",
+        "compositionTenor",
         "stubTypeCompound",
         "isExchangeNotional",
         "settlementDays",
@@ -558,6 +606,8 @@ public class CompoundingIborLegConvention extends Convention {
           return _paymentTenor;
         case -1936397775:  // compoundingType
           return _compoundingType;
+        case -1679443146:  // compositionTenor
+          return _compositionTenor;
         case -1172460845:  // stubTypeCompound
           return _stubTypeCompound;
         case 348962765:  // isExchangeNotional
@@ -612,6 +662,14 @@ public class CompoundingIborLegConvention extends Convention {
      */
     public final MetaProperty<CompoundingType> compoundingType() {
       return _compoundingType;
+    }
+
+    /**
+     * The meta-property for the {@code compositionTenor} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Tenor> compositionTenor() {
+      return _compositionTenor;
     }
 
     /**

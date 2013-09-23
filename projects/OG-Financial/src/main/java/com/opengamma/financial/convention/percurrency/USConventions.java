@@ -153,7 +153,7 @@ public class USConventions {
     // Ibor legs - compounded
     final String liborLeg1MComp3MConventionName = getConventionName(Currency.USD, TENOR_STR_1M + " x " + TENOR_STR_3M, IBOR_CMP_LEG);
     final Convention liborLeg1MComp3MConvention = new CompoundingIborLegConvention(liborLeg1MComp3MConventionName, getIds(Currency.USD, TENOR_STR_1M + " x " + TENOR_STR_3M, IBOR_CMP_LEG), 
-        liborConventionId, Tenor.THREE_MONTHS, CompoundingType.FLAT_COMPOUNDING, StubType.SHORT_START, 2, false, StubType.LONG_START, false, 0);
+        liborConventionId, Tenor.THREE_MONTHS, CompoundingType.FLAT_COMPOUNDING, Tenor.ONE_MONTH, StubType.SHORT_START, 2, false, StubType.LONG_START, false, 0);
     
     // Swaps
     final Convention swapConvention = new SwapConvention("USD Swap", ExternalIdBundle.of(ExternalId.of(SCHEME_NAME, "USD Swap")),

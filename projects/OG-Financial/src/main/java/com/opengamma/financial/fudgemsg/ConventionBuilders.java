@@ -112,6 +112,8 @@ public final class ConventionBuilders {
     private static final String PAYMENT_TENOR_FIELD = "paymentTenor";
     /** The compounding type field */
     private static final String COMPOUNDING_TYPE_FIELD = "compoundingType";
+    /** The compounding tenor field */
+    private static final String COMPOSITION_TENOR_FIELD = "compositionTenor";
     /** The stub type for the compounding within one coupon field */
     private static final String STUB_TYPE_COMPOUND_FIELD = "stubTypeCompound";
     /** The exchange notional field */
@@ -145,6 +147,7 @@ public final class ConventionBuilders {
       message.add(PAYMENT_TENOR_FIELD, object.getPaymentTenor().getPeriod().toString());
       message.add(COMPOUNDING_TYPE_FIELD, object.getCompoundingType().name());
       message.add(STUB_TYPE_COMPOUND_FIELD, object.getStubTypeCompound().name());
+      message.add(COMPOSITION_TENOR_FIELD, object.getCompositionTenor().getPeriod().toString());
       message.add(SETTLEMENT_DAYS_FIELD, object.getSettlementDays());
       message.add(IS_EOM_FIELD, object.isIsEOM());
       message.add(STUB_TYPE_LEG_FIELD, object.getStubTypeLeg().name());
@@ -163,6 +166,7 @@ public final class ConventionBuilders {
       final ExternalId swapIndexConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(IBOR_INDEX_ID_FIELD));
       final Tenor paymentTenor = Tenor.of(Period.parse(message.getString(PAYMENT_TENOR_FIELD)));
       final CompoundingType compoundingType = CompoundingType.valueOf(message.getString(COMPOUNDING_TYPE_FIELD));
+      final Tenor compositionTenor = Tenor.of(Period.parse(message.getString(COMPOSITION_TENOR_FIELD)));
       final StubType stubTypeCompound = StubType.valueOf(message.getString(STUB_TYPE_COMPOUND_FIELD));
       final int settlementDays = message.getInt(SETTLEMENT_DAYS_FIELD);
       final boolean isEOM = message.getBoolean(IS_EOM_FIELD);
@@ -170,7 +174,7 @@ public final class ConventionBuilders {
       final boolean exchangeNotional = message.getBoolean(EXCHANGE_NOTIONAL_FIELD);
       final int paymentLag = message.getInt(PAYMENT_LAG_FIELD);
       final CompoundingIborLegConvention convention = new CompoundingIborLegConvention(name, externalIdBundle, swapIndexConvention, paymentTenor, 
-          compoundingType, stubTypeCompound, settlementDays, isEOM, stubTypeLeg, exchangeNotional, paymentLag);
+          compoundingType, compositionTenor, stubTypeCompound, settlementDays, isEOM, stubTypeLeg, exchangeNotional, paymentLag);
       final FudgeField uniqueIdMsg = message.getByName(UNIQUE_ID_FIELD);
       if (uniqueIdMsg != null) {
         convention.setUniqueId(deserializer.fieldValueToObject(UniqueId.class, uniqueIdMsg));
