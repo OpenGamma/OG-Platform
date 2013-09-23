@@ -13,3 +13,4 @@ $.register_module({
             return new og.blotter.forms.fxoptionbasesecurity(config);
         };
     }
+});
