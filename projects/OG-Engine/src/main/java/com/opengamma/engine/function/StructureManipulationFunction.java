@@ -51,7 +51,7 @@ public final class StructureManipulationFunction extends IntrinsicFunction {
 
   /**
    * Execute the function, performing a manipulation of the structured data which will come in via
-   * the inputs paramter. The manipulation to actually undertake will be defined by a
+   * the inputs parameter. The manipulation to actually undertake will be defined by a
    * {@link StructureManipulator} instance passed in through the executionContext. If no
    * manipulator is available the inputs are passed through unaffected (apart from a change to the
    * value specification to ensure they are still valid).
