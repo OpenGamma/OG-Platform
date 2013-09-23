@@ -68,7 +68,7 @@ public class MarketDataSnapshotToolUtils {
       printSnapshotQuery(snapshotUtils, commandLine.getOptionValue(SNAPSHOT_QUERY_OPTION));
       return true;      
     } else if (commandLine.hasOption(SNAPSHOT_VERSION_LIST_OPTION)) {
-      printVersionListQuery(snapshotUtils, commandLine.getOptionValue(SNAPSHOT_QUERY_OPTION));
+      printVersionListQuery(snapshotUtils, commandLine.getOptionValue(SNAPSHOT_VERSION_LIST_OPTION));
       return true;      
     } else {
       return false;
@@ -83,7 +83,7 @@ public class MarketDataSnapshotToolUtils {
   }
 
   private static void printSnapshotList(SnapshotUtils snapshotUtils) {
-    List<String> snapshotNamesByGlob = snapshotUtils.allSnapshotNames();
+    List<String> snapshotNamesByGlob = snapshotUtils.allSnapshots();
     for (String name : snapshotNamesByGlob) {
       System.out.println(name);
     }
@@ -105,15 +105,15 @@ public class MarketDataSnapshotToolUtils {
       .appendOffsetId()
       .toFormatter();
       
-    
-    try {
+
+    //try {
       List<VersionInfo> snapshotVersions = snapshotUtils.snapshotVersionsByName(optionValue);
       System.out.println(OffsetDateTime.now().toString(dateTimeFormatter));
 
       int fieldWidth = OffsetDateTime.now().toString(dateTimeFormatter).length(); // Assumes all offset date times have same width
 
       header(fieldWidth);
-      String id = TimeZone.getDefault().getID();  
+      String id = TimeZone.getDefault().getID();
       for (VersionInfo versionInfo : snapshotVersions) {
         OffsetDateTime versionFrom = versionInfo.getVersionFrom() != null ? OffsetDateTime.ofInstant(versionInfo.getVersionFrom(), ZoneId.of(id)) : null;
         OffsetDateTime versionTo = versionInfo.getVersionTo() != null ? OffsetDateTime.ofInstant(versionInfo.getVersionTo(), ZoneId.of(id)) : null;
@@ -145,9 +145,9 @@ public class MarketDataSnapshotToolUtils {
         spaces();
         System.out.println(versionInfo.getUniqueId());
       }
-    } catch (OpenGammaRuntimeException ogre) {
-      System.err.println("Found multiple matches to name");
-    }
+    //} catch (OpenGammaRuntimeException ogre) {
+    //  System.err.println("Found multiple matches to name");
+    //}
   }
   
   private static void header(int fieldWidth) {
