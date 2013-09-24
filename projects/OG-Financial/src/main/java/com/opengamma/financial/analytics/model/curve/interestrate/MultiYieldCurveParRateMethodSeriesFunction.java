@@ -96,8 +96,6 @@ import com.opengamma.financial.analytics.model.curve.MultiCurveFunction;
 import com.opengamma.financial.analytics.timeseries.DateConstraint;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.CompareUtils;
@@ -125,8 +123,6 @@ public class MultiYieldCurveParRateMethodSeriesFunction extends MultiYieldCurveS
   private InterestRateInstrumentTradeOrSecurityConverter _securityConverter;
   /** Converts instrument definitions to derivatives */
   private FixedIncomeConverterDataProvider _definitionConverter;
-  /** Calculates the offset time */
-  private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual");
 
   @Override
   public void init(final FunctionCompilationContext context) {
@@ -176,7 +172,6 @@ public class MultiYieldCurveParRateMethodSeriesFunction extends MultiYieldCurveS
     }
     final Map<String, Map<LocalDate, YieldAndDiscountCurve>> curveSeries = new HashMap<>();
     LocalDate valuationDate = startDate;
-    final double timeOffset = DAY_COUNT.getDayCountFraction(startDate, endDate);
     while (!valuationDate.isAfter(endDate)) {
       final ZonedDateTime valuationDateTime = ZonedDateTime.of(valuationDate, now.toLocalTime(), now.getZone());
       final YieldCurveBundle knownCurves = getKnownCurves(curveCalculationConfig, targetSpec, inputs);
@@ -212,7 +207,7 @@ public class MultiYieldCurveParRateMethodSeriesFunction extends MultiYieldCurveS
           if (derivative != null) {
             if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
               final InterestRateFutureSecurityDefinition securityDefinition = (InterestRateFutureSecurityDefinition) definition;
-              InterestRateFutureTransactionDefinition unitNotional = new InterestRateFutureTransactionDefinition(securityDefinition, valuationDateTime, marketValue, 1);
+              InterestRateFutureTransactionDefinition unitNotional = new InterestRateFutureTransactionDefinition(securityDefinition, now, marketValue, 1);
               unitNotional = unitNotional.withNewNotionalAndTransactionPrice(1, marketValue);
               final InstrumentDerivative unitNotionalDerivative = _definitionConverter.convert(security, unitNotional, now, curveNamesForSecurity, timeSeries);
               derivatives.add(unitNotionalDerivative);
@@ -221,7 +216,7 @@ public class MultiYieldCurveParRateMethodSeriesFunction extends MultiYieldCurveS
               derivatives.add(derivative);
               initialRatesGuess.add(marketValue);
             }
-            final double t = derivative.accept(LAST_TIME_CALCULATOR) - timeOffset;
+            final double t = derivative.accept(LAST_TIME_CALCULATOR); // - timeOffset;
             if (nInstruments > 0 && CompareUtils.closeEquals(nodeTimes.get(nInstruments - 1), t, 1e-12)) {
               throw new OpenGammaRuntimeException("Strip " + strip + " has same maturity as one already added (" + previousStrip + ") - will lead to" +
                   "equal nodes in the curve. Remove one of these strips.");
@@ -269,7 +264,7 @@ public class MultiYieldCurveParRateMethodSeriesFunction extends MultiYieldCurveS
         }
         valuationDate = valuationDate.plusDays(1);
       } catch (final Exception e) {
-        System.err.println(valuationDate);
+        s_logger.error("Could not fit curve on {}", valuationDate);
         valuationDate = valuationDate.plusDays(1);
         continue;
       }
