@@ -5,8 +5,10 @@
  */
 package com.opengamma.financial.analytics.ircurve;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
@@ -15,7 +17,9 @@ import com.opengamma.financial.analytics.curve.CurveDefinitionFunction;
 import com.opengamma.financial.analytics.curve.CurveMarketDataFunction;
 import com.opengamma.financial.analytics.curve.CurveSpecificationFunction;
 import com.opengamma.financial.analytics.curve.InterpolatedCurveDefinition;
-import com.opengamma.financial.analytics.model.curve.interestrate.ImpliedDepositCurveFromFXFunction;
+import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
+import com.opengamma.financial.analytics.model.curve.interestrate.ImpliedDepositCurveFunction;
+import com.opengamma.financial.analytics.model.curve.interestrate.ImpliedDepositCurveSeriesFunction;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
@@ -70,7 +74,26 @@ public class IRCurveFunctions extends AbstractFunctionConfigurationBean {
 
     @Override
     protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
+
+      // implied deposit curves
+      final List<String> impliedDepositCurveNames = new ArrayList<>();
       final ConfigSearchRequest<YieldCurveDefinition> searchRequest = new ConfigSearchRequest<>();
+      searchRequest.setType(MultiCurveCalculationConfig.class);
+      for (final ConfigDocument configDocument : ConfigSearchIterator.iterable(_configMaster, searchRequest)) {
+        final String documentName = configDocument.getName();
+        final MultiCurveCalculationConfig config = ((ConfigItem<MultiCurveCalculationConfig>) configDocument.getConfig()).getValue();
+        if (config.getCalculationMethod().equals(ImpliedDepositCurveFunction.IMPLIED_DEPOSIT)) {
+          functions.add(functionConfiguration(ImpliedDepositCurveFunction.class, documentName));
+          functions.add(functionConfiguration(ImpliedDepositCurveSeriesFunction.class, documentName));
+          final String currencyISO = config.getTarget().getUniqueId().getValue();
+          final String[] yieldCurveNames = config.getYieldCurveNames();
+          for (final String curveName : yieldCurveNames) {
+            functions.add(functionConfiguration(ImpliedYieldCurveSpecificationFunction.class, currencyISO, curveName));
+            impliedDepositCurveNames.add(curveName);
+          }
+        }
+      }
+
       searchRequest.setType(YieldCurveDefinition.class);
       for (final ConfigDocument configDocument : ConfigSearchIterator.iterable(getConfigMaster(), searchRequest)) {
         final String documentName = configDocument.getName();
@@ -79,10 +102,11 @@ public class IRCurveFunctions extends AbstractFunctionConfigurationBean {
           continue;
         }
         final String curveName = documentName.substring(0, underscore);
-        final String currencyISO = documentName.substring(underscore + 1);
-        addYieldCurveFunctions(functions, currencyISO, curveName);
+        if (!impliedDepositCurveNames.contains(curveName)) { // don't want to add curves with implied rates to the normal yield curve calculator
+          final String currencyISO = documentName.substring(underscore + 1);
+          addYieldCurveFunctions(functions, currencyISO, curveName);
+        }
       }
-      functions.add(functionConfiguration(ImpliedDepositCurveFromFXFunction.class, "EUR", "TestImpliedDepositCurve"));
 
       // new curves
       final Class[] curveClasses = new Class[] {CurveDefinition.class, InterpolatedCurveDefinition.class};

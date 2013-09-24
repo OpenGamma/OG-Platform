@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.ircurve;
@@ -10,6 +10,7 @@ import java.util.Set;
 
 import org.threeten.bp.Instant;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -107,11 +108,15 @@ public class YieldCurveSpecificationFunction extends AbstractFunction {
 
     @Override
     public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-      final FixedIncomeStripIdentifierAndMaturityBuilder builder = new FixedIncomeStripIdentifierAndMaturityBuilder(OpenGammaExecutionContext.getRegionSource(executionContext),
-          OpenGammaExecutionContext.getConventionBundleSource(executionContext), executionContext.getSecuritySource(), OpenGammaExecutionContext.getHolidaySource(executionContext));
-      final SnapshotDataBundle marketData = getHelper().getMarketDataMap(inputs);
-      final InterpolatedYieldCurveSpecificationWithSecurities curveSpecificationWithSecurities = builder.resolveToSecurity(getCurveSpecification(), marketData);
-      return Collections.singleton(new ComputedValue(getResultSpecification(), curveSpecificationWithSecurities));
+      try {
+        final FixedIncomeStripIdentifierAndMaturityBuilder builder = new FixedIncomeStripIdentifierAndMaturityBuilder(OpenGammaExecutionContext.getRegionSource(executionContext),
+            OpenGammaExecutionContext.getConventionBundleSource(executionContext), executionContext.getSecuritySource(), OpenGammaExecutionContext.getHolidaySource(executionContext));
+        final SnapshotDataBundle marketData = getHelper().getMarketDataMap(inputs);
+        final InterpolatedYieldCurveSpecificationWithSecurities curveSpecificationWithSecurities = builder.resolveToSecurity(getCurveSpecification(), marketData);
+        return Collections.singleton(new ComputedValue(getResultSpecification(), curveSpecificationWithSecurities));
+      } catch (final OpenGammaRuntimeException e) {
+        throw new OpenGammaRuntimeException("Error in constructing " + _helper.getCurveName() + "_" + _helper.getCurrency() + ": " + e.getMessage());
+      }
     }
 
   }

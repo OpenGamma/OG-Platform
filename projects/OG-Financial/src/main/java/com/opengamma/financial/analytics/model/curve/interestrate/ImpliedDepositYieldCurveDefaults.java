@@ -23,7 +23,7 @@ import com.opengamma.util.ArgumentChecker;
  * @deprecated This function sets defaults for deprecated yield curve calculation functions.
  */
 @Deprecated
-public class YieldCurveDefaults extends DefaultPropertyFunction {
+public class ImpliedDepositYieldCurveDefaults extends DefaultPropertyFunction {
   /** The value requirement names to which these defaults apply */
   private static final String[] VALUE_REQUIREMENTS = new String[] {
     ValueRequirementNames.YIELD_CURVE,
@@ -53,7 +53,7 @@ public class YieldCurveDefaults extends DefaultPropertyFunction {
    * @param useFiniteDifference True if calculations should use finite difference in root-finding, otherwise analytic derivatives are used
    * @param applicableCurrencies The currencies for which these defaults apply
    */
-  public YieldCurveDefaults(final String absoluteTolerance, final String relativeTolerance, final String maxIterations, final String decomposition,
+  public ImpliedDepositYieldCurveDefaults(final String absoluteTolerance, final String relativeTolerance, final String maxIterations, final String decomposition,
       final String useFiniteDifference, final String... applicableCurrencies) {
     super(ComputationTargetType.CURRENCY, true);
     ArgumentChecker.notNull(absoluteTolerance, "absolute tolerance");
@@ -91,8 +91,7 @@ public class YieldCurveDefaults extends DefaultPropertyFunction {
       return super.getRequirements(context, target, desiredValue);
     }
     final String curveCalculationMethod = Iterables.getOnlyElement(curveCalculationMethods);
-    if (!(curveCalculationMethod.equals(MultiYieldCurvePropertiesAndDefaults.PAR_RATE_STRING) ||
-        (curveCalculationMethod.equals(MultiYieldCurvePropertiesAndDefaults.PRESENT_VALUE_STRING)))) {
+    if (!curveCalculationMethod.equals(ImpliedDepositCurveFunction.IMPLIED_DEPOSIT)) {
       return null;
     }
     return super.getRequirements(context, target, desiredValue);

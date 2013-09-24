@@ -317,6 +317,23 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties constraints = desiredValue.getConstraints();
+    final Set<String> curveCalculationConfigNames = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
+    if (curveCalculationConfigNames == null || curveCalculationConfigNames.size() != 1) {
+      return null;
+    }
+    final String domesticCurveCalculationConfigName = curveCalculationConfigNames.iterator().next();
+    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
+    final ConfigDBFXForwardCurveDefinitionSource fxCurveDefinitionSource = new ConfigDBFXForwardCurveDefinitionSource(configSource);
+    final ConfigDBFXForwardCurveSpecificationSource fxCurveSpecificationSource = new ConfigDBFXForwardCurveSpecificationSource(configSource);
+    final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
+    final MultiCurveCalculationConfig domesticCurveCalculationConfig = curveCalculationConfigSource.getConfig(domesticCurveCalculationConfigName);
+    if (domesticCurveCalculationConfig == null) {
+      s_logger.error("Could not get domestic curve calculation config called {}", domesticCurveCalculationConfigName);
+      return null;
+    }
+    if (!domesticCurveCalculationConfig.getCalculationMethod().equals(FX_IMPLIED)) {
+      return null;
+    }
     final Set<String> rootFinderAbsoluteTolerance = constraints.getValues(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE);
     if (rootFinderAbsoluteTolerance == null || rootFinderAbsoluteTolerance.size() != 1) {
       return null;
@@ -347,23 +364,6 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
     }
     final Set<String> rightExtrapolatorName = constraints.getValues(InterpolatedDataProperties.RIGHT_X_EXTRAPOLATOR_NAME);
     if (rightExtrapolatorName == null || rightExtrapolatorName.size() != 1) {
-      return null;
-    }
-    final Set<String> curveCalculationConfigNames = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
-    if (curveCalculationConfigNames == null || curveCalculationConfigNames.size() != 1) {
-      return null;
-    }
-    final String domesticCurveCalculationConfigName = curveCalculationConfigNames.iterator().next();
-    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
-    final ConfigDBFXForwardCurveDefinitionSource fxCurveDefinitionSource = new ConfigDBFXForwardCurveDefinitionSource(configSource);
-    final ConfigDBFXForwardCurveSpecificationSource fxCurveSpecificationSource = new ConfigDBFXForwardCurveSpecificationSource(configSource);
-    final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
-    final MultiCurveCalculationConfig domesticCurveCalculationConfig = curveCalculationConfigSource.getConfig(domesticCurveCalculationConfigName);
-    if (domesticCurveCalculationConfig == null) {
-      s_logger.error("Could not get domestic curve calculation config called {}", domesticCurveCalculationConfigName);
-      return null;
-    }
-    if (!domesticCurveCalculationConfig.getCalculationMethod().equals(FX_IMPLIED)) {
       return null;
     }
     if (domesticCurveCalculationConfig.getExogenousConfigData() == null) {
@@ -560,10 +560,6 @@ public class FXImpliedYieldCurveFunction extends AbstractFunction.NonCompiledInv
       final String curveName1, final String curveName2) {
     final PaymentFixed paymentCurrency1 = new PaymentFixed(ccy1, paymentTime, 1, curveName1);
     final PaymentFixed paymentCurrency2 = new PaymentFixed(ccy2, paymentTime, -1. / forwardFX, curveName2);
-    try {
-      return new ForexForward(paymentCurrency1, paymentCurrency2, spotFX);
-    } catch (final IllegalArgumentException e) {
-      throw e;
-    }
+    return new ForexForward(paymentCurrency1, paymentCurrency2, spotFX);
   }
 }

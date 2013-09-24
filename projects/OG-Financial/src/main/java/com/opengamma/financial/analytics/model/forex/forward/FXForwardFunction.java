@@ -178,7 +178,7 @@ public abstract class FXForwardFunction extends AbstractFunction.NonCompiledInvo
     final ValueRequirement receiveFundingCurve = YieldCurveFunctionUtils.getCurveRequirementForFXForward(ComputationTargetSpecification.of(receiveCurrency),
         receiveCurveName, receiveCurveCalculationConfig, false);
     final ValueRequirement pairQuoteRequirement = new ValueRequirement(ValueRequirementNames.CURRENCY_PAIRS, ComputationTargetSpecification.NULL);
-    return Sets.newHashSet(payFundingCurve, receiveFundingCurve, pairQuoteRequirement);
+    return Sets.newHashSet(pairQuoteRequirement, payFundingCurve, receiveFundingCurve);
   }
 
   @Override
@@ -204,7 +204,9 @@ public abstract class FXForwardFunction extends AbstractFunction.NonCompiledInvo
         }
       }
     }
-    assert currencyPairConfigName != null;
+    if (currencyPairConfigName == null || payCurveName == null || receiveCurveName == null) {
+      return null;
+    }
     final CurrencyPairs baseQuotePairs = OpenGammaCompilationContext.getCurrencyPairsSource(context).getCurrencyPairs(currencyPairConfigName);
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final Currency payCurrency = security.accept(ForexVisitors.getPayCurrencyVisitor());

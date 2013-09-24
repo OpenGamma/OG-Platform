@@ -1,14 +1,16 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model;
 
 import java.util.List;
 
+import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
+
 /**
- * 
+ *
  */
 public class FunctionUtils {
 
@@ -26,8 +28,10 @@ public class FunctionUtils {
       for (final double[] d : jacobianList) {
         array[i++] = d;
       }
+    } else if (jacobianObject instanceof DoubleMatrix2D) {
+      array = ((DoubleMatrix2D) jacobianObject).getData();
     } else {
-      throw new ClassCastException("Jacobian object " + jacobianObject + " not List<double[]> or double[][]");
+      throw new ClassCastException("Jacobian object " + jacobianObject + " not List<double[]> or double[][]; have " + jacobianObject.getClass());
     }
     return array;
   }

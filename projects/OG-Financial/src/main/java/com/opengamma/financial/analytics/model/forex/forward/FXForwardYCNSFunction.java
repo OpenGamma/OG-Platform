@@ -50,6 +50,7 @@ import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues
 import com.opengamma.financial.analytics.model.FunctionUtils;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
 import com.opengamma.financial.analytics.model.curve.interestrate.FXImpliedYieldCurveFunction;
+import com.opengamma.financial.analytics.model.curve.interestrate.ImpliedDepositCurveFunction;
 import com.opengamma.financial.analytics.model.curve.interestrate.MultiYieldCurvePropertiesAndDefaults;
 import com.opengamma.financial.analytics.model.discounting.DiscountingYCNSFunction;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
@@ -62,7 +63,7 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Calculates yield curve node sensitivities for FX forwards.
- * 
+ *
  * @deprecated Use {@link DiscountingYCNSFunction}
  */
 @Deprecated
@@ -239,7 +240,8 @@ public class FXForwardYCNSFunction extends FXForwardSingleValuedFunction {
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
     final ValueProperties.Builder properties = createValueProperties()
         .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.DISCOUNTING)
-        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, MultiYieldCurvePropertiesAndDefaults.PRESENT_VALUE_STRING, MultiYieldCurvePropertiesAndDefaults.PAR_RATE_STRING)
+        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, MultiYieldCurvePropertiesAndDefaults.PRESENT_VALUE_STRING, MultiYieldCurvePropertiesAndDefaults.PAR_RATE_STRING,
+            ImpliedDepositCurveFunction.IMPLIED_DEPOSIT)
         .withAny(ValuePropertyNames.PAY_CURVE)
         .withAny(ValuePropertyNames.RECEIVE_CURVE)
         .withAny(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG)
@@ -336,7 +338,7 @@ public class FXForwardYCNSFunction extends FXForwardSingleValuedFunction {
     }
     final double[][] array = FunctionUtils.decodeJacobian(jacobianObject);
     final DoubleMatrix2D jacobian = new DoubleMatrix2D(array);
-    if (calculationMethod.equals(MultiYieldCurvePropertiesAndDefaults.PAR_RATE_STRING)) {
+    if (calculationMethod.equals(MultiYieldCurvePropertiesAndDefaults.PAR_RATE_STRING) || calculationMethod.equals(ImpliedDepositCurveFunction.IMPLIED_DEPOSIT)) {
       final DoubleMatrix1D result = CALCULATOR.calculateFromParRate(sensitivitiesForCurrency, interpolatedCurveForCurrency, jacobian);
       return YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(fullCurveName, interpolatedCurveForCurrency, result, curveSpec, spec);
     }

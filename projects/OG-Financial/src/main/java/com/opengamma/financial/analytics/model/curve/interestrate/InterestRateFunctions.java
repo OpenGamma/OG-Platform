@@ -244,6 +244,7 @@ public class InterestRateFunctions extends AbstractFunctionConfigurationBean {
         args[i++] = currency;
       }
       functions.add(functionConfiguration(YieldCurveDefaults.class, args));
+      functions.add(functionConfiguration(ImpliedDepositYieldCurveDefaults.class, args));
     }
 
     @Override
@@ -258,12 +259,14 @@ public class InterestRateFunctions extends AbstractFunctionConfigurationBean {
   @Override
   protected void addAllConfigurations(final List<FunctionConfiguration> functions) {
     functions.add(functionConfiguration(FXImpliedYieldCurveFunction.class));
+    functions.add(functionConfiguration(FXImpliedYieldCurveSeriesFunction.class));
     functions.add(functionConfiguration(InterpolatedYieldCurveFunction.class));
     functions.add(functionConfiguration(MarketInstrumentImpliedYieldCurveFunction.class, MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING));
     functions.add(functionConfiguration(MarketInstrumentImpliedYieldCurveFunction.class, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
     functions.add(functionConfiguration(MultiYieldCurveParRateMethodFunction.class));
     functions.add(functionConfiguration(MultiYieldCurvePresentValueMethodFunction.class));
     functions.add(functionConfiguration(MultiCurveCalculationConfigFunction.class));
+    functions.add(functionConfiguration(MultiYieldCurveParRateMethodSeriesFunction.class));
   }
 
 }
