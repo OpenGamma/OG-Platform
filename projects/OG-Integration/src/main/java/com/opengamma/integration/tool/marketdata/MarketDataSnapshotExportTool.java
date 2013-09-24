@@ -106,6 +106,7 @@ public class MarketDataSnapshotExportTool extends AbstractTool<ToolContext> {
   private static Option createFilenameOption() {
     final Option option = new Option(FILE_NAME_OPTION, "filename", true, "The path to the file to create and export to");
     //option.setRequired(true);
+    option.setArgName("file path/name");
     return option;
   }
 
