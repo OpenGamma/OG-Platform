@@ -428,26 +428,26 @@ public class CashOrNothingOptionFunctionProviderTest {
   private double price(final double spot, final double strike, final double time, final double vol, final double interest, final double cost, final boolean isCall) {
     final double d = (Math.log(spot / strike) + (cost - 0.5 * vol * vol) * time) / vol / Math.sqrt(time);
     final double sign = isCall ? 1. : -1.;
-    return strike * Math.exp((-interest) * time) * NORMAL.getCDF(sign * d);
+    return Math.exp((-interest) * time) * NORMAL.getCDF(sign * d);
   }
 
   private double delta(final double spot, final double strike, final double time, final double vol, final double interest, final double cost, final boolean isCall) {
     final double d = (Math.log(spot / strike) + (cost - 0.5 * vol * vol) * time) / vol / Math.sqrt(time);
     final double sign = isCall ? 1. : -1.;
-    return strike * Math.exp((-interest) * time) * (sign * NORMAL.getPDF(d) / spot / vol / Math.sqrt(time));
+    return Math.exp((-interest) * time) * (sign * NORMAL.getPDF(d) / spot / vol / Math.sqrt(time));
   }
 
   private double gamma(final double spot, final double strike, final double time, final double vol, final double interest, final double cost, final boolean isCall) {
     final double d = (Math.log(spot / strike) + (cost - 0.5 * vol * vol) * time) / vol / Math.sqrt(time);
     final double sign = isCall ? 1. : -1.;
-    return -sign * (Math.exp((-interest) * time) * strike * NORMAL.getPDF(d) * (1. + d / vol / Math.sqrt(time)) / spot / spot / vol / Math.sqrt(time));
+    return -sign * (Math.exp((-interest) * time) * NORMAL.getPDF(d) * (1. + d / vol / Math.sqrt(time)) / spot / spot / vol / Math.sqrt(time));
   }
 
   private double theta(final double spot, final double strike, final double time, final double vol, final double interest, final double cost, final boolean isCall) {
     final double d = (Math.log(spot / strike) + (cost - 0.5 * vol * vol) * time) / vol / Math.sqrt(time);
     final double sign = isCall ? 1. : -1.;
     final double div = 0.5 * (-Math.log(spot / strike) / Math.pow(time, 1.5) + (cost - 0.5 * vol * vol) / Math.pow(time, 0.5)) / vol;
-    return -strike * (-interest) * Math.exp((-interest) * time) * NORMAL.getCDF(sign * d) - sign * strike * Math.exp((-interest) * time) * NORMAL.getPDF(d) * div;
+    return interest * Math.exp((-interest) * time) * NORMAL.getCDF(sign * d) - sign * Math.exp((-interest) * time) * NORMAL.getPDF(d) * div;
   }
 
   /**
