@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.security.cds;
 
+import java.io.Serializable;
 import java.util.Map;
 
 import org.joda.beans.BeanBuilder;
@@ -26,7 +27,7 @@ import com.opengamma.util.ArgumentChecker;
  * Represents a member of a Credit Default Swap Index
  */
 @BeanDefinition
-public class CreditDefaultSwapIndexComponent extends DirectBean implements Comparable<CreditDefaultSwapIndexComponent> {
+public class CreditDefaultSwapIndexComponent extends DirectBean implements Comparable<CreditDefaultSwapIndexComponent>, Serializable {
   /**
    * The obligor red code identifier
    */

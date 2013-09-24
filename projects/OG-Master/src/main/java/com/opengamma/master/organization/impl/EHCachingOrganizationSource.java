@@ -69,10 +69,6 @@ public class EHCachingOrganizationSource extends AbstractEHCachingSource<Organiz
     _tickerCache.getCacheManager().removeCache(TICKER_CACHE_NAME);
   }
   
-  protected OrganizationSource getUnderlying() {
-    return _underling;
-  }
-
   @Override
   public Organization getOrganizationByRedCode(String redCode) {
     Element element = _redCache.get(redCode);
