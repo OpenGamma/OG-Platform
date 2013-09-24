@@ -58,6 +58,27 @@ public class AnnuityDefinitionBuilderTest {
   }
 
   @Test
+  public void annuityIborFromShortFirst() {
+    ZonedDateTime settlementDate = DateUtils.getUTCDate(2013, 8, 20);
+    ZonedDateTime maturityDate = settlementDate.plusYears(2).plusMonths(1); // 2Y 1M
+    Period paymentPeriod = Period.ofMonths(6);
+    final StubType stub = StubType.SHORT_START;
+    AnnuityDefinition<CouponIborDefinition> leg = AnnuityDefinitionBuilder.annuityIborFrom(settlementDate, maturityDate, paymentPeriod, NOTIONAL,
+        USDLIBOR6M, true, USDLIBOR6M.getBusinessDayConvention(), USDLIBOR6M.isEndOfMonth(), USDLIBOR6M.getDayCount(), NYC, stub);
+    ZonedDateTime[] expectedPaymentDates = new ZonedDateTime[] {DateUtils.getUTCDate(2013, 9, 20), DateUtils.getUTCDate(2014, 3, 20),
+      DateUtils.getUTCDate(2014, 9, 22), DateUtils.getUTCDate(2015, 3, 20), DateUtils.getUTCDate(2015, 9, 21) };
+    assertEquals("AnnuityDefinitionBuilder: Coupon Ibor Spread", expectedPaymentDates.length, leg.getNumberOfPayments());
+    assertEquals("AnnuityDefinitionBuilder: Coupon Ibor Spread", settlementDate, leg.getNthPayment(0).getAccrualStartDate());
+    for (int loopcpn = 0; loopcpn < leg.getNumberOfPayments(); loopcpn++) {
+      assertEquals("AnnuityDefinitionBuilder: Coupon Ibor Spread", expectedPaymentDates[loopcpn], leg.getNthPayment(loopcpn).getPaymentDate());
+      assertEquals("AnnuityDefinitionBuilder: Coupon Ibor Spread", leg.getNthPayment(loopcpn).getAccrualStartDate(), leg.getNthPayment(loopcpn).getFixingPeriodStartDate());
+      assertEquals("AnnuityDefinitionBuilder: Coupon Ibor Spread", leg.getNthPayment(loopcpn).getFixingPeriodEndDate(),
+          ScheduleCalculator.getAdjustedDate(leg.getNthPayment(loopcpn).getFixingPeriodStartDate(), USDLIBOR6M, NYC));
+      assertEquals("AnnuityDefinitionBuilder: Coupon Ibor Spread", NOTIONAL, -leg.getNthPayment(loopcpn).getNotional()); // Payer
+    }
+  }
+
+  @Test
   public void annuityIborSpreadFromStandard() {
     ZonedDateTime settlementDate = DateUtils.getUTCDate(2013, 9, 20);
     ZonedDateTime maturityDate = settlementDate.plusYears(2);
@@ -86,7 +107,7 @@ public class AnnuityDefinitionBuilderTest {
     Period paymentPeriod = Period.ofMonths(6);
     final StubType stub = StubType.SHORT_START;
     AnnuityDefinition<CouponIborCompoundingDefinition> leg = AnnuityDefinitionBuilder.annuityIborCompoundingFrom(settlementDate, maturityDate, paymentPeriod, NOTIONAL,
-        USDLIBOR3M, stub, true, USDLIBOR3M.getBusinessDayConvention(), USDLIBOR3M.isEndOfMonth(), USDLIBOR3M.getDayCount(), NYC, stub);
+        USDLIBOR3M, stub, true, USDLIBOR3M.getBusinessDayConvention(), USDLIBOR3M.isEndOfMonth(), NYC, stub);
     ZonedDateTime[] expectedPaymentDates = new ZonedDateTime[] {DateUtils.getUTCDate(2014, 3, 20), DateUtils.getUTCDate(2014, 9, 22),
       DateUtils.getUTCDate(2015, 3, 20), DateUtils.getUTCDate(2015, 9, 21) };
     assertEquals("AnnuityDefinitionBuilder: Coupon Ibor Compounding", expectedPaymentDates.length, leg.getNumberOfPayments());
@@ -109,7 +130,7 @@ public class AnnuityDefinitionBuilderTest {
     Period paymentPeriod = Period.ofMonths(6);
     final StubType stub = StubType.SHORT_START;
     AnnuityDefinition<CouponIborCompoundingSpreadDefinition> leg = AnnuityDefinitionBuilder.annuityIborCompoundingSpreadFrom(settlementDate, maturityDate, paymentPeriod, NOTIONAL, SPREAD,
-        USDLIBOR3M, stub, true, USDLIBOR3M.getBusinessDayConvention(), USDLIBOR3M.isEndOfMonth(), USDLIBOR3M.getDayCount(), NYC, stub);
+        USDLIBOR3M, stub, true, USDLIBOR3M.getBusinessDayConvention(), USDLIBOR3M.isEndOfMonth(), NYC, stub);
     ZonedDateTime[] expectedPaymentDates = new ZonedDateTime[] {DateUtils.getUTCDate(2014, 3, 20), DateUtils.getUTCDate(2014, 9, 22),
       DateUtils.getUTCDate(2015, 3, 20), DateUtils.getUTCDate(2015, 9, 21) };
     assertEquals("AnnuityDefinitionBuilder: Coupon Ibor Spread", expectedPaymentDates.length, leg.getNumberOfPayments());

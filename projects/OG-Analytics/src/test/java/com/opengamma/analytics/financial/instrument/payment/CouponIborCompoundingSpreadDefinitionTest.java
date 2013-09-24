@@ -20,6 +20,8 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.StubType;
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.timeseries.DoubleTimeSeries;
@@ -34,6 +36,7 @@ public class CouponIborCompoundingSpreadDefinitionTest {
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
   private static final IndexIborMaster MASTER_IBOR = IndexIborMaster.getInstance();
   private static final IborIndex USDLIBOR1M = MASTER_IBOR.getIndex("USDLIBOR1M");
+  private static final BusinessDayConvention PREC = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Preceding");
 
   private static final Period TENOR_3M = Period.ofMonths(3);
   private static final ZonedDateTime START_DATE = DateUtils.getUTCDate(2012, 8, 24);
@@ -102,14 +105,15 @@ public class CouponIborCompoundingSpreadDefinitionTest {
 
   @Test
   public void fromShortStub() {
-    final ZonedDateTime endDate = DateUtils.getUTCDate(2012, 11, 30);
-    final CouponIborCompoundingSpreadDefinition cpn = CouponIborCompoundingSpreadDefinition.from(NOTIONAL, START_DATE, endDate, USDLIBOR1M, SPREAD, StubType.SHORT_START, NYC);
-    assertEquals("CouponIborCompoundedSpreadDefinition: from", START_DATE, cpn.getAccrualStartDate());
+    final ZonedDateTime startDate = DateUtils.getUTCDate(2012, 8, 7);
+    final ZonedDateTime endDate = DateUtils.getUTCDate(2012, 11, 23);
+    final CouponIborCompoundingSpreadDefinition cpn = CouponIborCompoundingSpreadDefinition.from(NOTIONAL, startDate, endDate, USDLIBOR1M, SPREAD, StubType.SHORT_START, PREC, true, NYC);
+    assertEquals("CouponIborCompoundedSpreadDefinition: from", startDate, cpn.getAccrualStartDate());
     assertEquals("CouponIborCompoundedSpreadDefinition: from", cpn.getAccrualStartDate(), cpn.getAccrualStartDates()[0]);
     int nbSubPeriod = cpn.getAccrualStartDates().length;
     for (int loops = 0; loops < nbSubPeriod; loops++) {
       assertEquals("CouponIborCompoundedSpreadDefinition: dates - " + loops, cpn.getAccrualEndDates()[nbSubPeriod - 1 - loops],
-          ScheduleCalculator.getAdjustedDate(endDate, Period.ofMonths(-loops), USDLIBOR1M.getBusinessDayConvention(), NYC, false));
+          ScheduleCalculator.getAdjustedDate(endDate, Period.ofMonths(-loops), PREC, NYC, false));
       assertEquals("CouponIborCompoundedSpreadDefinition: dates - " + loops, cpn.getFixingPeriodEndDates()[loops],
           ScheduleCalculator.getAdjustedDate(cpn.getFixingPeriodStartDates()[loops], USDLIBOR1M, NYC));
     }

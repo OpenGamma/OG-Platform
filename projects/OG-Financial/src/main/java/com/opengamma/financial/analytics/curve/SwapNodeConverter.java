@@ -16,6 +16,7 @@ import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponIborSpr
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponONSimplifiedDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityCouponONSpreadSimplifiedDefinition;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
+import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinitionBuilder;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
@@ -102,7 +103,6 @@ public class SwapNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
     }
     final AnnuityDefinition<? extends PaymentDefinition> payLeg;
     final AnnuityDefinition<? extends PaymentDefinition> receiveLeg;
-    // CompoundingIborLegConvention
     final boolean isFloatFloat = ((payLegConvention instanceof VanillaIborLegConvention) || (payLegConvention instanceof OISLegConvention) || 
         (payLegConvention instanceof CompoundingIborLegConvention)) 
         &&  ((receiveLegConvention instanceof VanillaIborLegConvention) || (receiveLegConvention instanceof OISLegConvention) ||
@@ -113,6 +113,8 @@ public class SwapNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
       payLeg = getIborLeg((VanillaIborLegConvention) payLegConvention, swapNode, true, false);
     } else if (payLegConvention instanceof OISLegConvention) {
       payLeg = getOISLeg((OISLegConvention) payLegConvention, swapNode, true, false);
+    } else if (payLegConvention instanceof CompoundingIborLegConvention) {
+      payLeg = getIborCompoundingLeg((CompoundingIborLegConvention) payLegConvention, swapNode, true, false);
     } else {
       throw new OpenGammaRuntimeException("Cannot handle convention type " + payLegConvention.getClass());
     }
@@ -122,6 +124,8 @@ public class SwapNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
       receiveLeg = getIborLeg((VanillaIborLegConvention) receiveLegConvention, swapNode, false, isFloatFloat);
     } else if (receiveLegConvention instanceof OISLegConvention) {
       receiveLeg = getOISLeg((OISLegConvention) receiveLegConvention, swapNode, false, isFloatFloat);
+    } else if (receiveLegConvention instanceof CompoundingIborLegConvention) {
+      receiveLeg = getIborCompoundingLeg((CompoundingIborLegConvention) receiveLegConvention, swapNode, false, isFloatFloat);
     } else {
       throw new OpenGammaRuntimeException("Cannot handle convention type " + receiveLegConvention.getClass());
     }
@@ -183,6 +187,46 @@ public class SwapNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
       return AnnuityCouponIborSpreadDefinition.from(startDate, maturityDate, indexTenor, 1, spread, iborIndex, isPayer, businessDayConvention, eom, dayCount, calendar, stub);
     }
     return AnnuityCouponIborDefinition.from(startDate, maturityDate, indexTenor, 1, iborIndex, isPayer, businessDayConvention, eom, dayCount, calendar, stub);
+  }
+
+  private AnnuityDefinition<? extends PaymentDefinition> getIborCompoundingLeg(final CompoundingIborLegConvention convention, final SwapNode swapNode, final boolean isPayer,
+       final boolean isMarketDataSpread) {
+    final Convention underlyingConvention = _conventionSource.getConvention(convention.getIborIndexConvention());
+    if (!(underlyingConvention instanceof IborIndexConvention)) {
+      if (underlyingConvention == null) {
+        throw new OpenGammaRuntimeException("Could not get convention with id " + convention.getIborIndexConvention());
+      }
+      throw new OpenGammaRuntimeException("Convention of the underlying was not an ibor index convention; have " + underlyingConvention.getClass());
+    }
+    final IborIndexConvention indexConvention = (IborIndexConvention) underlyingConvention;
+    final Currency currency = indexConvention.getCurrency();
+    final DayCount dayCount = indexConvention.getDayCount();
+    final BusinessDayConvention businessDayConvention = indexConvention.getBusinessDayConvention();
+    final boolean eomIndex = indexConvention.isIsEOM();
+    final boolean eomLeg = convention.isIsEOM();
+    final Period indexTenor = convention.getCompositionTenor().getPeriod();
+    final Period paymentTenor = convention.getPaymentTenor().getPeriod();
+    final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, indexConvention.getFixingCalendar());
+    final int spotLag = indexConvention.getSettlementDays();
+    final IborIndex iborIndex = new IborIndex(currency, indexTenor, spotLag, dayCount, businessDayConvention, eomIndex, indexConvention.getName());
+    final Period maturityTenor = swapNode.getMaturityTenor().getPeriod();
+    final int spotLagLeg = convention.getSettlementDays();
+    final ZonedDateTime spotDateLeg = ScheduleCalculator.getAdjustedDate(_valuationTime, spotLagLeg, calendar);
+    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spotDateLeg, swapNode.getStartTenor().getPeriod(), businessDayConvention, calendar, eomLeg);
+    final StubType stubLeg = convention.getStubTypeLeg();
+    final StubType stubComp = convention.getStubTypeCompound();
+    final boolean eom = convention.isIsEOM();
+    final ZonedDateTime maturityDate = startDate.plus(maturityTenor);
+    if (!isPayer && isMarketDataSpread) {
+      final Double spread = _marketData.getDataPoint(_dataId);
+      if (spread == null) {
+        throw new OpenGammaRuntimeException("Could not get market data for " + _dataId);
+      }
+      return AnnuityDefinitionBuilder.annuityIborCompoundingSpreadFrom(startDate, maturityDate, paymentTenor, 1, spread, iborIndex, stubComp, isPayer, 
+          businessDayConvention, eom, calendar, stubLeg);
+    }
+    return AnnuityDefinitionBuilder.annuityIborCompoundingFrom(startDate, maturityDate, paymentTenor, 1, iborIndex, stubComp, isPayer, 
+        businessDayConvention, eom, calendar, stubLeg);
   }
 
   private AnnuityDefinition<? extends PaymentDefinition> getOISLeg(final OISLegConvention convention, final SwapNode swapNode, final boolean isPayer,

@@ -37,7 +37,6 @@ public class TimeCalculatorTest {
   @Test
   /** No time between instants on same date */
   public void sameDay() {
-
     final ZonedDateTime midday = LocalDate.now().atTime(LocalTime.NOON).atZone(ZoneOffset.UTC);
     final ZonedDateTime midnight = LocalDate.now().atTime(LocalTime.MIDNIGHT).atZone(ZoneOffset.UTC);
     final double yearFraction = TimeCalculator.getTimeBetween(midday, midnight);
@@ -47,7 +46,6 @@ public class TimeCalculatorTest {
   @Test
   /** No time between instants on same date */
   public void sameDay2() {
-
     final ZonedDateTime midday = LocalDate.now().atTime(LocalTime.NOON).atZone(ZoneOffset.UTC);
     final ZonedDateTime midnight = LocalDate.now().atTime(LocalTime.MIDNIGHT).atZone(ZoneOffset.UTC);
     final double yearFraction = TimeCalculator.getTimeBetween(midnight, midday);
@@ -64,6 +62,19 @@ public class TimeCalculatorTest {
     assertTrue(midnightLondon.isEqual(sevenNewYork));
     final double yearFraction = TimeCalculator.getTimeBetween(sevenNewYork, midnightLondon);
     assertEquals(0.0, yearFraction, TOLERANCE);
+  }
+
+  @Test
+  /** Time between same instants but specified under time zones that fall on different days.
+      This is trapped as daycount computation first converts each ZonedDateTime to LocalDate. */
+  public void sameTimeDifferentLocalDates2() {
+    final ZonedDateTime date1 = LocalDateTime.of(2013, 9, 24, 0, 0).atZone(ZoneId.of("Europe/London")); // 2013-09-24T00:00+01:00[Europe/London]
+    final ZonedDateTime date2 = LocalDateTime.of(2013, 9, 24, 9, 2, 45, 936000000).atZone(ZoneOffset.UTC);
+    final double yearFraction = TimeCalculator.getTimeBetween(date1, date2);
+    assertEquals("TimeCalculator", 0.0, yearFraction, TOLERANCE);
+    // FIXME: Correct the time zone problem. PLAT-4725
+    //    final double yearFraction2 = TimeCalculator.getTimeBetween(date2, date1);
+    //    assertEquals("TimeCalculator", 0.0, yearFraction2, TOLERANCE);
   }
 
   @Test

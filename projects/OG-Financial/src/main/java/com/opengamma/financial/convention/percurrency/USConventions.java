@@ -151,7 +151,7 @@ public class USConventions {
         liborConventionId, true, Interpolator1DFactory.LINEAR, Tenor.THREE_MONTHS, 2, true, StubType.NONE, false, 2);
 
     // Ibor legs - compounded
-    final String liborLeg1MComp3MConventionName = getConventionName(Currency.USD, TENOR_STR_1M + " x " + TENOR_STR_3M, IBOR_CMP_LEG);
+    final String liborLeg1MComp3MConventionName = getConventionName(Currency.USD, TENOR_STR_1M + " x " + TENOR_STR_3M, IBOR_CMP_LEG); // "USD 1M x 3M Comp Ibor Leg"  
     final Convention liborLeg1MComp3MConvention = new CompoundingIborLegConvention(liborLeg1MComp3MConventionName, getIds(Currency.USD, TENOR_STR_1M + " x " + TENOR_STR_3M, IBOR_CMP_LEG), 
         liborConventionId, Tenor.THREE_MONTHS, CompoundingType.FLAT_COMPOUNDING, Tenor.ONE_MONTH, StubType.SHORT_START, 2, false, StubType.LONG_START, false, 0);
     
