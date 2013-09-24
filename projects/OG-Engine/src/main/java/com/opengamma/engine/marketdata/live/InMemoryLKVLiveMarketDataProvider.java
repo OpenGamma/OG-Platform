@@ -55,8 +55,6 @@ import com.opengamma.livedata.normalization.StandardRules;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
-import net.sf.ehcache.CacheException;
-
 /**
  * A {@link MarketDataProvider} for live data backed by an {@link InMemoryLKVMarketDataProvider}.
  */
@@ -144,6 +142,19 @@ public class InMemoryLKVLiveMarketDataProvider extends AbstractMarketDataProvide
       return _values.keySet();
     }
 
+    public int getSubscriberCount() {
+
+      // There is a small chance that we could get ConcurrentModificationExceptions if
+      // subscriptions are updated whilst this method is called. AS this method is
+      // intended for use by JMX calls, this is probably not a major issue. However,
+      // if required we could maintain the overall count as increment and decrement
+      // are called
+      int count = 0;
+      for (Integer specCount : _values.values()) {
+        count += specCount;
+      }
+      return count;
+    }
   }
 
   // Injected Inputs:
@@ -180,13 +191,15 @@ public class InMemoryLKVLiveMarketDataProvider extends AbstractMarketDataProvide
 
     try {
       MBeanServer jmxServer = ManagementFactory.getPlatformMBeanServer();
-      MBeanExporter exporter = new MBeanExporter();
-      exporter.setServer(jmxServer);
-      exporter.registerManagedResource(this, createObjectName());
+      ObjectName objectName = createObjectName();
+      if (objectName != null) {
+        MBeanExporter exporter = new MBeanExporter();
+        exporter.setServer(jmxServer);
+        exporter.registerManagedResource(this, objectName);
+      }
     } catch (SecurityException e) {
       s_logger.warn("No permissions for platform MBean server - JMX will not be available", e);
     }
-
   }
 
   @Override
@@ -216,7 +229,7 @@ public class InMemoryLKVLiveMarketDataProvider extends AbstractMarketDataProvide
         if (fullSpec.contains(ticker)) {
 
           Subscription subscription = _allSubscriptions.get(specification);
-          int subscriberCount = subscription.getValueSpecifications().size();
+          int subscriberCount = subscription.getSubscriberCount();
           String state = subscription.getRequestedLiveData() == null ? "FAILED" :
               subscription.getFullyQualifiedLiveData() == null ? "PENDING" : "ACTIVE";
           Object currentValue = _underlyingProvider.getCurrentValue(specification);
@@ -231,7 +244,8 @@ public class InMemoryLKVLiveMarketDataProvider extends AbstractMarketDataProvide
     try {
       return new ObjectName("com.opengamma:type=InMemoryLKVLiveMarketDataProvider,name=InMemoryLKVLiveMarketDataProvider " + s_clientCount++);
     } catch (MalformedObjectNameException e) {
-      throw new CacheException(e);
+      s_logger.warn("Invalid object name - unable to setup JMX bean", e);
+      return null;
     }
   }
 
@@ -269,7 +283,7 @@ public class InMemoryLKVLiveMarketDataProvider extends AbstractMarketDataProvide
             final LiveDataSpecification liveDataSpecification = LiveMarketDataAvailabilityProvider.getLiveDataSpecification(valueSpecification);
             subscription.retry(liveDataSpecification);
             toSubscribe.add(liveDataSpecification);
-          } else {
+          } else /*if (subscription.getFullyQualifiedLiveData() != null)*/ {
             alreadySubscribed.add(valueSpecification);
           }
         }
