@@ -23,7 +23,6 @@ import org.threeten.bp.format.DateTimeFormatter;
 import org.threeten.bp.format.DateTimeFormatterBuilder;
 import org.threeten.bp.format.SignStyle;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.integration.tool.marketdata.SnapshotUtils.VersionInfo;
 
 /**
@@ -76,16 +75,16 @@ public class MarketDataSnapshotToolUtils {
   }
 
   private static void printSnapshotQuery(SnapshotUtils snapshotUtils, String query) {
-    List<String> snapshotNamesByGlob = snapshotUtils.snapshotNamesByGlob(query);
-    for (String name : snapshotNamesByGlob) {
-      System.out.println(name);
+    List<String> snapshotsByGlob = snapshotUtils.snapshotByGlob(query);
+    for (String info : snapshotsByGlob) {
+      System.out.println(info);
     }
   }
 
   private static void printSnapshotList(SnapshotUtils snapshotUtils) {
-    List<String> snapshotNamesByGlob = snapshotUtils.allSnapshots();
-    for (String name : snapshotNamesByGlob) {
-      System.out.println(name);
+    List<String> allSnapshots = snapshotUtils.allSnapshots();
+    for (String info : allSnapshots) {
+      System.out.println(info);
     }
   }
   

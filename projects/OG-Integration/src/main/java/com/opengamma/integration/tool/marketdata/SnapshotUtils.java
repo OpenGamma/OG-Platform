@@ -41,8 +41,12 @@ public final class SnapshotUtils {
     return new SnapshotUtils(snapshotMaster);
   }
 
+  private static String getSnapshotNameId(MarketDataSnapshotDocument doc) {
+    return doc.getUniqueId() + " - " + doc.getName();
+  }
+
   /**
-   * Get a list of all available snapshot names
+   * Get a list of all available snapshots
    * @return the list of all available snapshot ids and names or an empty list if no snapshots found
    */
   public List<String> allSnapshots() {
@@ -51,23 +55,24 @@ public final class SnapshotUtils {
     MarketDataSnapshotSearchResult searchResult = _snapshotMaster.search(searchRequest);
     List<String> results = new ArrayList<>();
     for (MarketDataSnapshotDocument doc : searchResult.getDocuments()) {
-      results.add(doc.getUniqueId() + " - " + doc.getName());
+      results.add(getSnapshotNameId(doc));
     }
     return results;
   }
   
   /**
-   * Get a list of snapshot names according to a glob query string
+   * Get a list of snapshot according to a glob query string
    * @param query the query string, which can contain wildcards
-   * @return the list of resulting snapshot names or an empty list if no matches
+   * @return the list of resulting snapshot ids and names or an empty list if no matches
    */
-  public List<String> snapshotNamesByGlob(String query) {
+  public List<String> snapshotByGlob(String query) {
     MarketDataSnapshotSearchRequest searchRequest = new MarketDataSnapshotSearchRequest();
     searchRequest.setName(query);
+    searchRequest.setIncludeData(false);
     MarketDataSnapshotSearchResult searchResult = _snapshotMaster.search(searchRequest);
     List<String> results = new ArrayList<>();
     for (MarketDataSnapshotDocument doc : searchResult.getDocuments()) {
-      results.add(doc.getName());
+      results.add(getSnapshotNameId(doc));
     }
     return results;
   }
