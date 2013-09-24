@@ -197,6 +197,14 @@ public final class ValueRequirementNames {
    * The bundle of time series objects needed to convert instruments on a curve to their OG-Analytics derivative form.
    */
   public static final String CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES = "Curve Instrument Conversion Historical Time Series";
+  /**
+   * The bundle of time series objects needed to convert instruments on a yield curve to their OG-Analytics derivative form.
+   */
+  public static final String YIELD_CURVE_CONVERSION_HISTORICAL_TIME_SERIES = "Yield Curve Conversion Series";
+  /**
+   * A series of yield curves calculated using historical data
+   */
+  public static final String YIELD_CURVE_SERIES = "Yield Curve Series";
   /** 
    * The FX matrix associated with a bundle of curves.
    */

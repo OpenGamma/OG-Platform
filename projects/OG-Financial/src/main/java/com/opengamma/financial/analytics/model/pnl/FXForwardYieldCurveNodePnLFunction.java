@@ -122,8 +122,9 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction.NonComp
     } else {
       curveCalculationMethod = Iterables.getOnlyElement(curveCalculationMethods);
     }
+    final Set<String> calculationMethods = constraints.getValues(ValuePropertyNames.CALCULATION_METHOD);
     final ValueRequirement ycnsRequirement = getYCNSRequirement(payCurveName, payCurveCalculationConfigName, receiveCurveName, receiveCurveCalculationConfigName,
-        curveCurrency.getCode(), curveName, curveCalculationMethods, security);
+        curveCurrency.getCode(), curveName, curveCalculationMethods, calculationMethods, security);
     final ValueProperties returnSeriesBaseConstraints = desiredValue.getConstraints().copy()
         .withoutAny(ValuePropertyNames.RECEIVE_CURVE)
         .withoutAny(ValuePropertyNames.RECEIVE_CURVE_CALCULATION_CONFIG)
@@ -131,7 +132,8 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction.NonComp
         .withoutAny(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG)
         .withoutAny(ValuePropertyNames.CURVE_CURRENCY)
         .withoutAny(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS)
-        .withoutAny(ValuePropertyNames.CURVE_CALCULATION_METHOD).get();
+        .withoutAny(ValuePropertyNames.CURVE_CALCULATION_METHOD)
+        .withoutAny(ValuePropertyNames.CALCULATION_METHOD).get();
     final ValueRequirement returnSeriesRequirement;
     if (curveCalculationMethod.equals(FXImpliedYieldCurveFunction.FX_IMPLIED)) {
       final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
@@ -157,7 +159,8 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction.NonComp
   }
 
   private static ValueRequirement getYCNSRequirement(final String payCurveName, final String payCurveCalculationConfigName, final String receiveCurveName,
-      final String receiveCurveCalculationConfigName, final String currencyName, final String curveName, final Set<String> curveCalculationMethods, final Security security) {
+      final String receiveCurveCalculationConfigName, final String currencyName, final String curveName, final Set<String> curveCalculationMethods,
+      final Set<String> calculationMethods, final Security security) {
     final ValueProperties.Builder properties = ValueProperties.builder()
         .with(ValuePropertyNames.PAY_CURVE, payCurveName)
         .with(ValuePropertyNames.PAY_CURVE_CALCULATION_CONFIG, payCurveCalculationConfigName)
@@ -168,6 +171,9 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction.NonComp
         .with(ValuePropertyNames.CURVE, curveName);
     if (curveCalculationMethods != null) {
       properties.with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethods);
+    }
+    if (calculationMethods != null) {
+      properties.with(ValuePropertyNames.CALCULATION_METHOD, calculationMethods);
     }
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, ComputationTargetType.SECURITY, security.getUniqueId(), properties.get());
   }

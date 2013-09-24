@@ -18,6 +18,7 @@ import org.threeten.bp.LocalDate;
 import com.google.common.collect.Iterables;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.security.Security;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.AbstractFunction;
@@ -32,31 +33,34 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
+import com.opengamma.financial.analytics.conversion.YieldCurveFixingSeriesProvider;
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithSecurity;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
+import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * Function to source time series data for each of the instruments in a curve from a {@link HistoricalTimeSeriesSource} attached to the execution context.
  */
-public class YieldCurveHistoricalTimeSeriesFunction extends AbstractFunction.NonCompiledInvoker {
+public class YieldCurveConversionSeriesFunction extends AbstractFunction.NonCompiledInvoker {
   /** The logger */
-  private static final Logger s_logger = LoggerFactory.getLogger(YieldCurveHistoricalTimeSeriesFunction.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(YieldCurveConversionSeriesFunction.class);
   /** The excluded curve names */
   private final String[] _excludedCurves;
 
   /**
    * No curves names are excluded.
    */
-  public YieldCurveHistoricalTimeSeriesFunction() {
+  public YieldCurveConversionSeriesFunction() {
     this(ArrayUtils.EMPTY_STRING_ARRAY);
   }
 
   /**
    * @param excludedCurves The excluded curve names, not null
    */
-  public YieldCurveHistoricalTimeSeriesFunction(final String[] excludedCurves) {
+  public YieldCurveConversionSeriesFunction(final String[] excludedCurves) {
     ArgumentChecker.notNull(excludedCurves, "excluded curves");
     _excludedCurves = excludedCurves;
   }
@@ -76,6 +80,8 @@ public class YieldCurveHistoricalTimeSeriesFunction extends AbstractFunction.Non
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final HistoricalTimeSeriesSource timeSeriesSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
+    final ConventionBundleSource conventionBundleSource = OpenGammaExecutionContext.getConventionBundleSource(executionContext);
+    final YieldCurveFixingSeriesProvider provider = new YieldCurveFixingSeriesProvider(conventionBundleSource);
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String dataField = desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY);
     final String resolutionKey = parseString(desiredValue.getConstraint(HistoricalTimeSeriesFunctionUtils.RESOLUTION_KEY_PROPERTY));
@@ -86,19 +92,27 @@ public class YieldCurveHistoricalTimeSeriesFunction extends AbstractFunction.Non
     final InterpolatedYieldCurveSpecificationWithSecurities yieldCurve = (InterpolatedYieldCurveSpecificationWithSecurities) inputs.getAllValues().iterator().next().getValue();
     final HistoricalTimeSeriesBundle bundle = new HistoricalTimeSeriesBundle();
     for (final FixedIncomeStripWithSecurity strip : yieldCurve.getStrips()) {
-      final ExternalIdBundle id = ExternalIdBundle.of(strip.getSecurityIdentifier());
-      final HistoricalTimeSeries timeSeries = timeSeriesSource.getHistoricalTimeSeries(dataField, id, resolutionKey, startDate, includeStart, endDate, includeEnd);
-      if (timeSeries != null) {
-        if (timeSeries.getTimeSeries().isEmpty()) {
-          s_logger.warn("Time series for {} is empty", id);
-        } else {
-          bundle.add(dataField, id, timeSeries);
+      final Security security = strip.getSecurity();
+      if (security instanceof FinancialSecurity) {
+        final FinancialSecurity financialSecurity = (FinancialSecurity) security;
+        final Set<ExternalIdBundle> idBundles = financialSecurity.accept(provider);
+        for (final ExternalIdBundle id : idBundles) {
+          final HistoricalTimeSeries timeSeries = timeSeriesSource.getHistoricalTimeSeries(dataField, id, resolutionKey, startDate, includeStart, endDate, includeEnd);
+          if (timeSeries != null) {
+            if (timeSeries.getTimeSeries().isEmpty()) {
+              s_logger.warn("Time series for {} is empty", id);
+            } else {
+              bundle.add(dataField, id, timeSeries);
+            }
+          } else {
+            s_logger.warn("Couldn't get time series for {}", id);
+          }
         }
       } else {
-        s_logger.warn("Couldn't get time series for {}", id);
+        s_logger.warn("Security was not a FinancialSecurity");
       }
     }
-    return Collections.singleton(new ComputedValue(new ValueSpecification(ValueRequirementNames.YIELD_CURVE_HISTORICAL_TIME_SERIES, target.toSpecification(),
+    return Collections.singleton(new ComputedValue(new ValueSpecification(ValueRequirementNames.YIELD_CURVE_CONVERSION_HISTORICAL_TIME_SERIES, target.toSpecification(),
         desiredValue.getConstraints()), bundle));
   }
 
@@ -109,7 +123,7 @@ public class YieldCurveHistoricalTimeSeriesFunction extends AbstractFunction.Non
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    return Collections.singleton(new ValueSpecification(ValueRequirementNames.YIELD_CURVE_HISTORICAL_TIME_SERIES, target.toSpecification(), createValueProperties()
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.YIELD_CURVE_CONVERSION_HISTORICAL_TIME_SERIES, target.toSpecification(), createValueProperties()
         .withAny(ValuePropertyNames.CURVE)
         .withAny(HistoricalTimeSeriesFunctionUtils.DATA_FIELD_PROPERTY)
         .withAny(HistoricalTimeSeriesFunctionUtils.RESOLUTION_KEY_PROPERTY)
@@ -195,13 +209,13 @@ public class YieldCurveHistoricalTimeSeriesFunction extends AbstractFunction.Non
       return Collections.singleton(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, target.toSpecification(), curveConstraints));
     }
     // We need to substitute ourselves with the adjusted constraints
-    return Collections.singleton(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_HISTORICAL_TIME_SERIES, target.toSpecification(), constraints.get()));
+    return Collections.singleton(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_CONVERSION_HISTORICAL_TIME_SERIES, target.toSpecification(), constraints.get()));
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
     final ValueSpecification input = inputs.keySet().iterator().next();
-    if (ValueRequirementNames.YIELD_CURVE_HISTORICAL_TIME_SERIES.equals(input.getValueName())) {
+    if (ValueRequirementNames.YIELD_CURVE_CONVERSION_HISTORICAL_TIME_SERIES.equals(input.getValueName())) {
       // Use the substituted result
       return Collections.singleton(input);
     }

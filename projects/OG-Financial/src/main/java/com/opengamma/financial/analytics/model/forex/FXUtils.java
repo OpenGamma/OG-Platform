@@ -12,6 +12,8 @@ import java.util.Map;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.Security;
 import com.opengamma.financial.analytics.CurrencyLabelledMatrix1D;
+import com.opengamma.financial.currency.CurrencyPair;
+import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
@@ -72,6 +74,21 @@ public class FXUtils {
       return false;
     }
     throw new OpenGammaRuntimeException("Base quote order information for " + currency1 + " and " + currency2 + " not available");
+  }
+
+  /**
+   * Indicator that the currencies are in the standard base/quote order.
+   * @param currency1 The first currency.
+   * @param currency2 The second currency.
+   * @param currencyPairs The currency pairs.
+   * @return The indicator.
+   */
+  public static boolean isInBaseQuoteOrder(final Currency currency1, final Currency currency2, final CurrencyPairs currencyPairs) {
+    final CurrencyPair currencyPair = currencyPairs.getCurrencyPair(currency1, currency2);
+    if (currencyPair.getBase().equals(currency1)) {
+      return true;
+    }
+    return false;
   }
 
   /**
