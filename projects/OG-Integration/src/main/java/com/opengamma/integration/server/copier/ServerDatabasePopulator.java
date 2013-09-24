@@ -6,7 +6,6 @@
 package com.opengamma.integration.server.copier;
 
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
@@ -65,10 +64,11 @@ public class ServerDatabasePopulator {
     } catch (final Exception ex) {
       s_logger.error("Caught exception", ex);
       ex.printStackTrace();
+      System.exit(1);
     }
   }
 
-  public void run() throws IOException {
+  public void run() throws Exception {
     Resource res = ResourceUtils.createResource(_configFile);
     Properties props = new Properties();
     try (InputStream in = res.getInputStream()) {
