@@ -94,8 +94,9 @@ public final class CouponONCompoundedDiscountingMethod implements PricingMethod 
     for (int i = 0; i < coupon.getFixingPeriodAccrualFactors().length; i++) {
       discountFactorStart[i] = forwardCurve.getDiscountFactor(coupon.getFixingPeriodStartTimes()[i]);
       discountFactorEnd[i] = forwardCurve.getDiscountFactor(coupon.getFixingPeriodEndTimes()[i]);
-
-      forwardRate[i] = (discountFactorEnd[i] / discountFactorStart[i] - 1) / coupon.getFixingPeriodAccrualFactorsActAct()[i];
+      
+//      forwardRate[i] = (discountFactorEnd[i] / discountFactorStart[i] - 1) / coupon.getFixingPeriodAccrualFactorsActAct()[i];
+      forwardRate[i] = (discountFactorStart[i] / discountFactorEnd[i] - 1) / coupon.getFixingPeriodAccrualFactorsActAct()[i];      
       ratio *= Math.pow(1 + forwardRate[i], coupon.getFixingPeriodAccrualFactors()[i]);
     }
     // Backward sweep
@@ -105,10 +106,13 @@ public final class CouponONCompoundedDiscountingMethod implements PricingMethod 
     final double[] discountFactorEndBar = new double[coupon.getFixingPeriodAccrualFactors().length];
     final double[] forwardBar = new double[coupon.getFixingPeriodAccrualFactors().length];
     for (int i = 0; i < coupon.getFixingPeriodAccrualFactors().length; i++) {
-      forwardBar[i] = ratioBar * ratioBar * coupon.getFixingPeriodAccrualFactors()[i] /
-          (1 + forwardRate[i]);
-      discountFactorStartBar[i] = forwardBar[i] * discountFactorEnd[i] / (discountFactorStart[i] * discountFactorStart[i]) / coupon.getFixingPeriodAccrualFactorsActAct()[i];
-      discountFactorEndBar[i] = forwardBar[i] / (discountFactorStart[i] * coupon.getFixingPeriodAccrualFactorsActAct()[i]);
+//      forwardBar[i] = ratioBar * ratioBar * coupon.getFixingPeriodAccrualFactors()[i] /
+//          (1 + forwardRate[i]);
+      forwardBar[i] = ratio * ratioBar * coupon.getFixingPeriodAccrualFactors()[i] / (1 + forwardRate[i]);
+//      discountFactorStartBar[i] = forwardBar[i] * discountFactorEnd[i] / (discountFactorStart[i] * discountFactorStart[i]) / coupon.getFixingPeriodAccrualFactorsActAct()[i];
+//      discountFactorEndBar[i] = -forwardBar[i] / (discountFactorStart[i] * coupon.getFixingPeriodAccrualFactorsActAct()[i]);      
+      discountFactorStartBar[i] = forwardBar[i] / (discountFactorEnd[i] * coupon.getFixingPeriodAccrualFactorsActAct()[i]);      
+      discountFactorEndBar[i] = -forwardBar[i] * discountFactorStart[i] / (discountFactorEnd[i] * discountFactorEnd[i]) / coupon.getFixingPeriodAccrualFactorsActAct()[i];      
     }
     final double dfBar = coupon.getNotionalAccrued() * ratio * pvBar;
     final Map<String, List<DoublesPair>> mapDsc = new HashMap<>();
