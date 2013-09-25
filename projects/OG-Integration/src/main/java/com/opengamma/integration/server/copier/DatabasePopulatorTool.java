@@ -9,29 +9,23 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Sets;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.position.Portfolio;
-import com.opengamma.core.position.Position;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.function.config.FunctionConfigurationDefinition;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.engine.view.compilation.PortfolioCompiler;
-import com.opengamma.financial.aggregation.PortfolioAggregator;
 import com.opengamma.financial.portfolio.save.SavePortfolio;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.ObjectId;
-import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.integration.tool.config.ConfigLoader;
 import com.opengamma.integration.tool.config.ConfigSaver;
@@ -60,14 +54,16 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-/* package */ class DatabasePopulatorTool extends AbstractTool<ToolContext> {
+public class DatabasePopulatorTool extends AbstractTool<ToolContext> {
   
   private static final Logger s_logger = LoggerFactory.getLogger(DatabasePopulatorTool.class);
   /**
    * Demo function configuration object name.
    */
   public static final String DEMO_FUNCTION = "DEMO_FUNCTIONS";
-  
+  /**
+   * URL of opengamma server to copy data from
+   */
   private final String _serverUrl;
   private final ExecutorService _executorService = Executors.newCachedThreadPool();
   
@@ -87,7 +83,7 @@ import com.opengamma.util.ArgumentChecker;
     loadFunctionConfiguration(toolContext.getConfigMaster());
   }
   
-  private void loadFunctionConfiguration(final ConfigMaster configMaster) {
+  protected void loadFunctionConfiguration(final ConfigMaster configMaster) {
     AbstractTool<ToolContext> remoteServerTool = new AbstractTool<ToolContext>() {
 
       @Override
@@ -102,36 +98,16 @@ import com.opengamma.util.ArgumentChecker;
     remoteServerTool.initAndRun(args, ToolContext.class);
   }
 
-  private void loadSecurity(final SecurityMaster demoSecurityMaster) {
+  protected void loadSecurity(final SecurityMaster demoSecurityMaster) {
     s_logger.info("loading securities");
     AbstractTool<ToolContext> remoteServerTool = new AbstractTool<ToolContext>() {
 
       @Override
       protected void doRun() throws Exception {
         SecurityMaster remotesecurityMaster = getToolContext().getSecurityMaster();
-        
-        PortfolioMaster remotePortfolioMaster = getToolContext().getPortfolioMaster();
-        PositionSource remotePositionSource = getToolContext().getPositionSource();
-        
-        final Set<UniqueId> portfoliosecurities = Sets.newHashSet();
-        PortfolioSearchRequest request = new PortfolioSearchRequest();
-        request.setDepth(0);
-        for (PortfolioDocument portfolioDocument : PortfolioSearchIterator.iterable(remotePortfolioMaster, request)) {
-          Portfolio portfolio = remotePositionSource.getPortfolio(portfolioDocument.getUniqueId(), VersionCorrection.LATEST);
-          Portfolio resolvePortfolio = PortfolioCompiler.resolvePortfolio(portfolio, _executorService, getToolContext().getSecuritySource());
-          List<Position> positions = PortfolioAggregator.flatten(resolvePortfolio);
-          for (Position position : positions) {
-            if (position.getSecurity() != null) {
-              portfoliosecurities.add(position.getSecurity().getUniqueId());
-            }
-          }
-        }
-          
         for (SecurityDocument securityDocument : SecuritySearchIterator.iterable(remotesecurityMaster, new SecuritySearchRequest())) {
-          if (portfoliosecurities.contains(securityDocument.getUniqueId())) {
-            securityDocument.setUniqueId(null);
-            demoSecurityMaster.add(securityDocument);
-          }
+          securityDocument.setUniqueId(null);
+          demoSecurityMaster.add(securityDocument);
         }
       }
     };
@@ -139,7 +115,7 @@ import com.opengamma.util.ArgumentChecker;
     remoteServerTool.initAndRun(args, ToolContext.class);
   }
   
-  private void loadPortfolio(final PortfolioMaster demoPortfolioMaster, final PositionMaster demoPositionMaster,
+  protected void loadPortfolio(final PortfolioMaster demoPortfolioMaster, final PositionMaster demoPositionMaster,
       final SecurityMaster demoSecurityMaster, final SecuritySource demoSecuritySource) {
     s_logger.info("loading portfolios");
     AbstractTool<ToolContext> remoteServerTool = new AbstractTool<ToolContext>() {
@@ -153,8 +129,15 @@ import com.opengamma.util.ArgumentChecker;
         request.setDepth(0);
         for (PortfolioDocument portfolioDocument : PortfolioSearchIterator.iterable(remotePortfolioMaster, request)) {
           Portfolio portfolio = remotePositionSource.getPortfolio(portfolioDocument.getUniqueId(), VersionCorrection.LATEST);
+          Portfolio resolvePortfolio = null;
+          try {
+            resolvePortfolio = PortfolioCompiler.resolvePortfolio(portfolio, _executorService, getToolContext().getSecuritySource());
+          } catch (Exception ex) {
+            s_logger.warn(String.format("Error resolving porfolio %s", portfolio.getName()), ex);
+            continue;
+          }
           SavePortfolio savePortfolio = new SavePortfolio(_executorService, demoPortfolioMaster, demoPositionMaster);
-          savePortfolio.savePortfolio(portfolio, true);
+          savePortfolio.savePortfolio(resolvePortfolio, true);
         }
       }
     };
@@ -162,7 +145,7 @@ import com.opengamma.util.ArgumentChecker;
     remoteServerTool.initAndRun(args, ToolContext.class);
   }
   
-  private void loadConfig(final ConfigMaster configMaster, final PortfolioMaster portfolioMaster) {
+  protected void loadConfig(final ConfigMaster configMaster, final PortfolioMaster portfolioMaster) {
     s_logger.info("loading configs");
     AbstractTool<ToolContext> remoteServerTool = new AbstractTool<ToolContext>() {
 
@@ -182,7 +165,7 @@ import com.opengamma.util.ArgumentChecker;
     remoteServerTool.initAndRun(args, ToolContext.class);
   }
   
-  private void loadHistoricalTimeSeries(final HistoricalTimeSeriesMaster htsMaster) {
+  protected void loadHistoricalTimeSeries(final HistoricalTimeSeriesMaster htsMaster) {
     s_logger.info("loading timeseries");
     AbstractTool<ToolContext> remoteServerTool = new AbstractTool<ToolContext>() {
 
@@ -202,7 +185,7 @@ import com.opengamma.util.ArgumentChecker;
     remoteServerTool.initAndRun(args, ToolContext.class);
   }
 
-  private void loadSnapshot(final MarketDataSnapshotMaster marketDataSnapshotMaster) {
+  protected void loadSnapshot(final MarketDataSnapshotMaster marketDataSnapshotMaster) {
     s_logger.info("loading market data snapshots");
     AbstractTool<ToolContext> remoteServerTool = new AbstractTool<ToolContext>() {
 
@@ -219,4 +202,12 @@ import com.opengamma.util.ArgumentChecker;
     remoteServerTool.initAndRun(args, ToolContext.class);
   }
 
+  /**
+   * Gets the serverUrl.
+   * @return the serverUrl
+   */
+  public String getServerUrl() {
+    return _serverUrl;
+  }
+ 
 }
