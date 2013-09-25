@@ -35,7 +35,6 @@ import org.threeten.bp.Duration;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.livedata.BloombergLiveDataServer;
 import com.opengamma.bbg.referencedata.ReferenceDataProvider;
-import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.livedata.resolver.DistributionSpecificationResolver;
 import com.opengamma.livedata.server.StandardLiveDataServer;
@@ -74,6 +73,11 @@ public class FakeSubscriptionBloombergLiveDataServer extends StandardLiveDataSer
    * The underlying server.
    */
   private final BloombergLiveDataServer _underlying;
+  /**
+   * The external identifier scheme that this live data server handles. This must match the scheme that the underlying
+   * live data server handles.
+   */
+  private final ExternalScheme _uniqueIdDomain;
 
   /**
    * Creates an instance.
@@ -82,14 +86,17 @@ public class FakeSubscriptionBloombergLiveDataServer extends StandardLiveDataSer
    * are set by the constructor based on the underlying server.
    * 
    * @param underlying  the underlying server, not null
+   * @param uniqueIdDomain  the external identifier scheme that this live data server handles, not null
    * @param cacheManager  the cache manager, not null
    */
-  public FakeSubscriptionBloombergLiveDataServer(BloombergLiveDataServer underlying, CacheManager cacheManager) {
+  public FakeSubscriptionBloombergLiveDataServer(BloombergLiveDataServer underlying, ExternalScheme uniqueIdDomain, CacheManager cacheManager) {
     super(cacheManager);
-    _underlying = underlying;
     ArgumentChecker.notNull(underlying, "underlying");
+    ArgumentChecker.notNull(uniqueIdDomain, "uniqueIdDomain");
+    _underlying = underlying;
+    _uniqueIdDomain = uniqueIdDomain;
     ArgumentChecker.notNull(cacheManager, "cacheManager");
-    setDistributionSpecificationResolver(getDistributionSpecResolver(underlying.getDistributionSpecificationResolver()));
+    setDistributionSpecificationResolver(getDistributionSpecificationResolver(underlying.getDistributionSpecificationResolver()));
     setEntitlementChecker(underlying.getEntitlementChecker());
     setMarketDataSenderFactory(underlying.getMarketDataSenderFactory());
     
@@ -98,7 +105,7 @@ public class FakeSubscriptionBloombergLiveDataServer extends StandardLiveDataSer
     _snapshotValues = EHCacheUtils.getCacheFromManager(cacheManager, snapshotCacheName);
   }
 
-  private DistributionSpecificationResolver getDistributionSpecResolver(final DistributionSpecificationResolver underlying) {
+  private DistributionSpecificationResolver getDistributionSpecificationResolver(final DistributionSpecificationResolver underlying) {
     return new FakeDistributionSpecificationResolver(underlying);
   }
 
@@ -262,8 +269,8 @@ public class FakeSubscriptionBloombergLiveDataServer extends StandardLiveDataSer
   }
 
   @Override
-  protected ExternalScheme getUniqueIdDomain() {
-    return ExternalSchemes.BLOOMBERG_BUID_WEAK;
+  public ExternalScheme getUniqueIdDomain() {
+    return _uniqueIdDomain;
   }
 
   @Override
