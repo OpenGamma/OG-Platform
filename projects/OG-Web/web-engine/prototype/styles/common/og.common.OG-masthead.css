@@ -14,11 +14,21 @@
 }
 
 .OG-masthead ul {
-  white-space: nowrap;
+    white-space: nowrap;
 }
 
 .OG-masthead li {
-  display: inline-block;
+    display: inline-block;
+    float: left;
+}
+
+.OG-masthead .og-username-logout {
+    float:right;
+    margin-right: 8px;
+}
+
+.OG-masthead .og-logout {
+    cursor: pointer;
 }
 
 .OG-masthead a {

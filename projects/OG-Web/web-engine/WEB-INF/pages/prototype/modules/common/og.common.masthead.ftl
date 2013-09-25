@@ -107,6 +107,9 @@
         <span class="OG-icon og-icon-speech"></span>Feedback
       </a>
     </li>
+    <li class="og-username-logout">
+      <span class="og-username">Default User</span> | <span class="og-logout">Logout</span>
+    </li>
   </ul>
 </section>
 <div class="OG-analytics-form"></div>
