@@ -138,6 +138,7 @@ public class BlackFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(SwaptionBlackPV01Function.class));
     functions.add(functionConfiguration(SwaptionBlackYieldCurveNodeSensitivitiesFunction.class));
     functions.add(functionConfiguration(SwaptionBlackImpliedVolatilityFunction.class));
+    functions.add(functionConfiguration(SwaptionBlackTheoreticalDeltaFunction.class));
   }
 
 }
