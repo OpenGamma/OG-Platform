@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument;
@@ -104,6 +104,7 @@ import com.opengamma.analytics.financial.instrument.swap.SwapIborIborDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapXCcyIborIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionBermudaFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionCashFixedIborDefinition;
+import com.opengamma.analytics.financial.instrument.swaption.SwaptionCashFixedCompoundedONCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.varianceswap.VarianceSwapDefinition;
@@ -1129,6 +1130,23 @@ public abstract class InstrumentDefinitionVisitorAdapter<DATA_TYPE, RESULT_TYPE>
     return getException(definition);
   }
 
+  @Override
+  public RESULT_TYPE visitSwaptionCashFixedONCompoundingDefinition(final SwaptionCashFixedCompoundedONCompoundingDefinition swaption) {
+    return getException(swaption);
+  }
+
+  @Override
+  public RESULT_TYPE visitSwaptionCashFixedONCompoundingDefinition(final SwaptionCashFixedCompoundedONCompoundingDefinition swaption, final DATA_TYPE data) {
+    return getException(swaption, data);
+  }
+
+  /**
+   * Default result of calling a visit method, which is to throw an {@link UnsupportedOperationException}
+   * @param definition The definition
+   * @param data The data
+   * @return Throws an exception
+   * @throws UnsupportedOperationException
+   */
   private RESULT_TYPE getException(final InstrumentDefinition<?> definition, final DATA_TYPE data) {
     if (definition != null && data != null) {
       throw new UnsupportedOperationException(getClass().getSimpleName() + " does not support definitions of type " + definition.getClass().getSimpleName() + " with data of type "
@@ -1137,6 +1155,12 @@ public abstract class InstrumentDefinitionVisitorAdapter<DATA_TYPE, RESULT_TYPE>
     throw new UnsupportedOperationException(getClass().getSimpleName() + " does not support this method");
   }
 
+  /**
+   * Default result of calling a visit method, which is to throw an {@link UnsupportedOperationException}
+   * @param definition The definition
+   * @return Throws an exception
+   * @throws UnsupportedOperationException
+   */
   private RESULT_TYPE getException(final InstrumentDefinition<?> definition) {
     if (definition != null) {
       throw new UnsupportedOperationException(getClass().getSimpleName() + " does not support definitions of type " + definition.getClass().getSimpleName());

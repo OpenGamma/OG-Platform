@@ -18,8 +18,11 @@ import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedON;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
+import com.opengamma.analytics.financial.instrument.payment.CouponONCompoundedDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
+import com.opengamma.analytics.financial.instrument.swaption.SwaptionCashFixedCompoundedONCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionCashFixedIborDefinition;
+import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedCompoundedONCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -50,6 +53,10 @@ public class SwaptionUtils {
       swap = ((SwaptionPhysicalFixedIborDefinition) swaption).getUnderlyingSwap();
     } else if (swaption instanceof SwaptionCashFixedIborDefinition) {
       swap = ((SwaptionCashFixedIborDefinition) swaption).getUnderlyingSwap();
+    } else if (swaption instanceof SwaptionPhysicalFixedCompoundedONCompoundingDefinition) {
+      swap = ((SwaptionPhysicalFixedCompoundedONCompoundingDefinition) swaption).getUnderlyingSwap();
+    } else if (swaption instanceof SwaptionCashFixedCompoundedONCompoundingDefinition) {
+      swap = ((SwaptionCashFixedCompoundedONCompoundingDefinition) swaption).getUnderlyingSwap();
     } else {
       throw new OpenGammaRuntimeException("Can only handle cash- and physically-settled ibor swaptions");
     }
@@ -88,16 +95,27 @@ public class SwaptionUtils {
         return new GeneratorSwapFixedIbor("Swap Generator", fixedLegPeriod, fixedLegDayCount, iborIndex, calendar);
       }
       case OIS: {
-        AnnuityCouponONDefinition onLeg;
+        IndexON onIndex;
+        Calendar calendar;
         if (swap.getFirstLeg() instanceof AnnuityCouponONDefinition) {
-          onLeg = (AnnuityCouponONDefinition) swap.getFirstLeg();
+          final AnnuityCouponONDefinition annuityCouponONDefinition = (AnnuityCouponONDefinition) swap.getFirstLeg();
+          onIndex = annuityCouponONDefinition.getOvernightIndex();
+          calendar = annuityCouponONDefinition.getCalendar();
         } else if (swap.getSecondLeg() instanceof AnnuityCouponONDefinition) {
-          onLeg = (AnnuityCouponONDefinition) swap.getSecondLeg();
+          final AnnuityCouponONDefinition annuityCouponONDefinition = (AnnuityCouponONDefinition) swap.getSecondLeg();
+          onIndex = annuityCouponONDefinition.getOvernightIndex();
+          calendar = annuityCouponONDefinition.getCalendar();
+        } else if (swap.getFirstLeg().getNthPayment(0) instanceof CouponONCompoundedDefinition) {
+          final CouponONCompoundedDefinition couponONDefinition = (CouponONCompoundedDefinition) swap.getFirstLeg().getNthPayment(0);
+          onIndex = couponONDefinition.getIndex();
+          calendar = couponONDefinition.getCalendar();
+        } else if (swap.getSecondLeg().getNthPayment(0) instanceof CouponONCompoundedDefinition) {
+          final CouponONCompoundedDefinition couponONDefinition = (CouponONCompoundedDefinition) swap.getSecondLeg().getNthPayment(0);
+          onIndex = couponONDefinition.getIndex();
+          calendar = couponONDefinition.getCalendar();
         } else {
-          throw new OpenGammaRuntimeException("Could not find ibor leg for " + underlyingSecurity);
+          throw new OpenGammaRuntimeException("Could not find overnight leg for " + underlyingSecurity);
         }
-        final IndexON onIndex = onLeg.getOvernightIndex();
-        final Calendar calendar = onLeg.getCalendar();
         final DayCount fixedLegDayCount = fixedLeg.getDayCount();
         final Frequency frequency = fixedLeg.getFrequency();
         final Period fixedLegPeriod;

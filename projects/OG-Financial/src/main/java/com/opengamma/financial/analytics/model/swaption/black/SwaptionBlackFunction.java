@@ -41,6 +41,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
+import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.conversion.SwapSecurityConverterDeprecated;
 import com.opengamma.financial.analytics.conversion.SwaptionSecurityConverterDeprecated;
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
@@ -50,10 +51,14 @@ import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
 import com.opengamma.financial.analytics.model.black.BlackDiscountingSwaptionFunction;
 import com.opengamma.financial.analytics.model.swaption.SwaptionUtils;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
+import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesFunctionUtils;
 import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.SwaptionSecurity;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -67,6 +72,7 @@ public abstract class SwaptionBlackFunction extends AbstractFunction.NonCompiled
   private static final Logger s_logger = LoggerFactory.getLogger(SwaptionBlackFunction.class);
   private final String _valueRequirementName;
   private SwaptionSecurityConverterDeprecated _visitor;
+  private FixedIncomeConverterDataProvider _definitionConverter;
 
   public SwaptionBlackFunction(final String valueRequirementName) {
     ArgumentChecker.notNull(valueRequirementName, "value requirement name");
@@ -78,9 +84,11 @@ public abstract class SwaptionBlackFunction extends AbstractFunction.NonCompiled
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
+    final HistoricalTimeSeriesResolver timeSeriesResolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final SwapSecurityConverterDeprecated swapConverter = new SwapSecurityConverterDeprecated(holidaySource, conventionSource, regionSource, false);
     _visitor = new SwaptionSecurityConverterDeprecated(securitySource, swapConverter);
+    _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource, timeSeriesResolver);
     ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
   }
 
@@ -109,6 +117,11 @@ public abstract class SwaptionBlackFunction extends AbstractFunction.NonCompiled
       fullCurveNames[i] = curveNames[i] + "_" + currency.getCode();
     }
     final YieldCurveBundle curves = YieldCurveFunctionUtils.getYieldCurves(inputs, curveCalculationConfig);
+    final YieldCurveBundle tempBundle = new YieldCurveBundle();
+    for (final String name : curves.getAllNames()) {
+      final String[] temp = name.split("_");
+      tempBundle.setCurve(temp[0] + "_BRL", curves.getCurve(name));
+    }
     final Object volatilitySurfaceObject = inputs.getValue(getVolatilityRequirement(surfaceName, currency));
     if (volatilitySurfaceObject == null) {
       throw new OpenGammaRuntimeException("Could not get volatility surface");
@@ -118,7 +131,8 @@ public abstract class SwaptionBlackFunction extends AbstractFunction.NonCompiled
       throw new OpenGammaRuntimeException("Expecting an InterpolatedDoublesSurface; got " + volatilitySurface.getSurface().getClass());
     }
     final InstrumentDefinition<?> definition = security.accept(_visitor);
-    final InstrumentDerivative swaption = definition.toDerivative(now, fullCurveNames);
+    final HistoricalTimeSeriesBundle timeSeries = HistoricalTimeSeriesFunctionUtils.getHistoricalTimeSeriesInputs(executionContext, inputs);
+    final InstrumentDerivative swaption = _definitionConverter.convert(security, definition, now, fullCurveNames, timeSeries);
     final ValueProperties properties = getResultProperties(currency.getCode(), curveCalculationConfigName, surfaceName);
     final ValueSpecification spec = new ValueSpecification(_valueRequirementName, target.toSpecification(), properties);
     final BlackFlatSwaptionParameters parameters = new BlackFlatSwaptionParameters(volatilitySurface.getSurface(),
@@ -166,7 +180,18 @@ public abstract class SwaptionBlackFunction extends AbstractFunction.NonCompiled
     final Set<ValueRequirement> requirements = new HashSet<>();
     requirements.addAll(YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, curveCalculationConfigSource));
     requirements.add(getVolatilityRequirement(surfaceName, currency));
-    return requirements;
+    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
+    try {
+      final Set<ValueRequirement> timeSeriesRequirements = _definitionConverter.getConversionTimeSeriesRequirements(security, security.accept(_visitor));
+      if (timeSeriesRequirements == null) {
+        return null;
+      }
+      requirements.addAll(timeSeriesRequirements);
+      return requirements;
+    } catch (final Exception e) {
+      s_logger.error(e.getMessage());
+      return null;
+    }
   }
 
   protected abstract Set<ComputedValue> getResult(final InstrumentDerivative swaption, final YieldCurveWithBlackSwaptionBundle data, final ValueSpecification spec);
