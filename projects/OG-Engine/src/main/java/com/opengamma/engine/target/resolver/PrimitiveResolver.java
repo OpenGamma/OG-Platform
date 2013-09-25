@@ -110,7 +110,7 @@ public class PrimitiveResolver extends AbstractIdentifierResolver implements Res
 
   @Override
   public UniqueId resolveObjectId(final ObjectId identifier, final VersionCorrection versionCorrection) {
-    return identifier.atVersion(VERSION);
+    return identifier.atLatestVersion();
   }
 
   @Override

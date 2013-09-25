@@ -52,7 +52,7 @@ public class DefaultComputationTargetSpecificationResolverTest {
   private final VersionCorrection VC = VersionCorrection.of(Instant.now(), Instant.now());
   private final DefaultComputationTargetSpecificationResolver RESOLVER = new DefaultComputationTargetSpecificationResolver();
   private final ComputationTargetSpecification SPECIFICATION_NULL = ComputationTargetSpecification.NULL;
-  private final ComputationTargetSpecification SPECIFICATION_PRIMITIVE_VERSIONED = ComputationTargetSpecification.of(UniqueId.of("ExternalId-Test", "X", "0"));
+  private final ComputationTargetSpecification SPECIFICATION_PRIMITIVE_VERSIONED = ComputationTargetSpecification.of(UniqueId.of("ExternalId-Test", "X", "V"));
   private final ComputationTargetSpecification SPECIFICATION_PRIMITIVE_LATEST = ComputationTargetSpecification.of(UniqueId.of("ExternalId-Test", "X"));
   private final ComputationTargetSpecification SPECIFICATION_FOO_VERSIONED = new ComputationTargetSpecification(ComputationTargetType.of(Foo.class), UniqueId.of("Foo", "Bar", "V"));
   private final ComputationTargetSpecification SPECIFICATION_FOO_LATEST = new ComputationTargetSpecification(ComputationTargetType.of(Foo.class), UniqueId.of("Foo", "Bar"));
@@ -113,7 +113,7 @@ public class DefaultComputationTargetSpecificationResolverTest {
 
   public void testSpecification_latestResolved() {
     assertEquals(RESOLVER.getTargetSpecification(SPECIFICATION_FOO_LATEST, VC), SPECIFICATION_FOO_VERSIONED);
-    assertEquals(RESOLVER.getTargetSpecification(SPECIFICATION_PRIMITIVE_LATEST, VC), SPECIFICATION_PRIMITIVE_VERSIONED);
+    assertEquals(RESOLVER.getTargetSpecification(SPECIFICATION_PRIMITIVE_LATEST, VC), SPECIFICATION_PRIMITIVE_LATEST);
   }
 
   public void testSpecification_latestUnresolved() {
@@ -172,7 +172,7 @@ public class DefaultComputationTargetSpecificationResolverTest {
     final Map<ComputationTargetReference, ComputationTargetSpecification> result = RESOLVER.getTargetSpecifications(request, VC);
     assertEquals(result.get(SPECIFICATION_NULL), SPECIFICATION_NULL);
     assertEquals(result.get(SPECIFICATION_PRIMITIVE_VERSIONED), SPECIFICATION_PRIMITIVE_VERSIONED);
-    assertEquals(result.get(SPECIFICATION_PRIMITIVE_LATEST), SPECIFICATION_PRIMITIVE_VERSIONED);
+    assertEquals(result.get(SPECIFICATION_PRIMITIVE_LATEST), SPECIFICATION_PRIMITIVE_LATEST);
     assertEquals(result.get(SPECIFICATION_FOO_LATEST), SPECIFICATION_FOO_VERSIONED);
     assertEquals(result.get(SPECIFICATION_BAR_LATEST), SPECIFICATION_BAR_LATEST);
     assertEquals(result.get(SPECIFICATION_FOO_BAD), null);
