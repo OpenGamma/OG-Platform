@@ -28,20 +28,16 @@ import com.opengamma.util.ResourceUtils;
 public class ServerDatabasePopulator {
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ServerDatabasePopulator.class);  
-  /**
-   * URL of opengamma server to copy data from
-   */
-  private final String _serverUrl;
+
   private final String _configFile;
+  private final DatabasePopulatorTool _populatorTool;
   
-  public ServerDatabasePopulator(String configFile, String serverUrl) {
-    configFile = StringUtils.trimToNull(configFile);
-    serverUrl = StringUtils.trimToNull(serverUrl);
+  public ServerDatabasePopulator(String configFile, DatabasePopulatorTool populatorTool) {
     ArgumentChecker.notNull(configFile, "configFile");
-    ArgumentChecker.notNull(serverUrl, "serverUrl");
+    ArgumentChecker.notNull(populatorTool, "populatorTool");
     
     _configFile = configFile;
-    _serverUrl = serverUrl;
+    _populatorTool = populatorTool;
   }
 
   //-------------------------------------------------------------------------
@@ -54,10 +50,11 @@ public class ServerDatabasePopulator {
     s_logger.info("Populating demo server database");
     try {
       CommandLineOption option = new CommandLineOption(args, ServerDatabasePopulator.class);
-      String configFile = option.getConfigFile();
-      String serverUrl = option.getServerUrl();
+      String configFile = StringUtils.trimToNull(option.getConfigFile());
+      String serverUrl = StringUtils.trimToNull(option.getServerUrl());
+      
       if (configFile != null && serverUrl != null) {
-        ServerDatabasePopulator populator = new ServerDatabasePopulator(configFile, serverUrl);
+        ServerDatabasePopulator populator = new ServerDatabasePopulator(configFile, new DatabasePopulatorTool(serverUrl));
         populator.run();
       }
       System.exit(0);
@@ -77,8 +74,6 @@ public class ServerDatabasePopulator {
       }
       props.load(in);
     }
-   
-    DatabasePopulatorTool populatorTool = new DatabasePopulatorTool(_serverUrl);
-    populatorTool.run(ResourceUtils.toResourceLocator(res), ToolContext.class);    
+    _populatorTool.run(ResourceUtils.toResourceLocator(res), ToolContext.class);    
   }
 }
