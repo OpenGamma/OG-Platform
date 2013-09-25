@@ -488,11 +488,7 @@ import com.opengamma.util.tuple.Pair;
   }
 
   public ComputationTargetSpecification resolveTargetReference(final ComputationTargetReference reference) {
-    final ComputationTargetSpecification specification = getBuilder().resolveTargetReference(reference);
-    if (specification == null) {
-      s_logger.warn("Couldn't resolve {}", reference);
-    }
-    return specification;
+    return getBuilder().resolveTargetReference(reference);
   }
 
   /**

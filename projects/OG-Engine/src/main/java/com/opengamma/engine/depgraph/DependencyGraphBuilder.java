@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Supplier;
 import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.depgraph.ResolvedValueProducer.Chain;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -41,9 +42,12 @@ import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
 import com.opengamma.engine.function.resolver.CompiledFunctionResolver;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.target.ComputationTargetReference;
+import com.opengamma.engine.target.ComputationTargetType;
+import com.opengamma.engine.target.ComputationTargetTypeVisitor;
 import com.opengamma.engine.target.digest.TargetDigests;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.Cancelable;
 import com.opengamma.util.test.Profiler;
@@ -324,8 +328,44 @@ public final class DependencyGraphBuilder implements Cancelable {
     _activeResolveTasks.decrementAndGet();
   }
 
+  private static final ComputationTargetTypeVisitor<Void, Boolean> s_isUnionType = new ComputationTargetTypeVisitor<Void, Boolean>() {
+
+    @Override
+    public Boolean visitMultipleComputationTargetTypes(final Set<ComputationTargetType> types, final Void unused) {
+      return Boolean.TRUE;
+    }
+
+    @Override
+    public Boolean visitNestedComputationTargetTypes(final List<ComputationTargetType> types, final Void unused) {
+      return types.get(types.size() - 1).accept(this, unused);
+    }
+
+    @Override
+    public Boolean visitNullComputationTargetType(final Void unused) {
+      return Boolean.FALSE;
+    }
+
+    @Override
+    public Boolean visitClassComputationTargetType(final Class<? extends UniqueIdentifiable> type, final Void unused) {
+      return Boolean.FALSE;
+    }
+
+  };
+
   protected ComputationTargetSpecification resolveTargetReference(final ComputationTargetReference reference) {
-    return getCompilationContext().getComputationTargetResolver().getSpecificationResolver().getTargetSpecification(reference);
+    ComputationTargetSpecification specification = getCompilationContext().getComputationTargetResolver().getSpecificationResolver().getTargetSpecification(reference);
+    if (specification == null) {
+      s_logger.warn("Couldn't resolve {}", reference);
+    }
+    if (specification.getType().accept(s_isUnionType, null) == Boolean.TRUE) {
+      final ComputationTarget target = getCompilationContext().getComputationTargetResolver().resolve(specification);
+      if (target != null) {
+        return target.toSpecification();
+      } else {
+        s_logger.warn("Resolved {} to {} but can't resolve target to eliminate union", reference, specification);
+      }
+    }
+    return specification;
   }
 
   protected MapEx<ResolveTask, ResolvedValueProducer> getTasks(final ValueSpecification valueSpecification) {
