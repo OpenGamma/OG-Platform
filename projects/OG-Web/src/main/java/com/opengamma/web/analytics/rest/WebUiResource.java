@@ -59,7 +59,6 @@ import com.opengamma.web.analytics.push.ConnectionManager;
 /**
  * REST resource for the analytics grid. This resource class specifies the endpoints of every object in the
  * hierarchy of grids, dependency graphs and viewports in the analytics viewer.
- * TODO this isn't used yet but is intended to replace all the analytics UI resources
  */
 @Path("views")
 public class WebUiResource {
