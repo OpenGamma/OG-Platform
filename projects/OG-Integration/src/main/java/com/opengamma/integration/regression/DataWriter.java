@@ -18,10 +18,16 @@ import org.fudgemsg.wire.xml.FudgeXMLStreamWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Lists;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.integration.marketdata.manipulator.dsl.RemoteServer;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchRequest;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchResult;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
+import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.PortfolioSearchResult;
@@ -45,18 +51,22 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
   private final PositionMaster _positionMaster;
   private final PortfolioMaster _portfolioMaster;
   private final ConfigMaster _configMaster;
+  private final HistoricalTimeSeriesMaster _timeSeriesMaster;
   private final File _outputDir;
 
   /* package */ DataWriter(File outputDir,
                            SecurityMaster securityMaster,
                            PositionMaster positionMaster,
                            PortfolioMaster portfolioMaster,
-                           ConfigMaster configMaster) {
+                           ConfigMaster configMaster,
+                           HistoricalTimeSeriesMaster timeSeriesMaster) {
     ArgumentChecker.notNull(securityMaster, "securityMaster");
     ArgumentChecker.notNull(outputDir, "outputDir");
     ArgumentChecker.notNull(positionMaster, "positionMaster");
     ArgumentChecker.notNull(portfolioMaster, "portfolioMaster");
     ArgumentChecker.notNull(configMaster, "configMaster");
+    ArgumentChecker.notNull(timeSeriesMaster, "timeSeriesMaster");
+    _timeSeriesMaster = timeSeriesMaster;
     _positionMaster = positionMaster;
     _portfolioMaster = portfolioMaster;
     _configMaster = configMaster;
@@ -76,11 +86,13 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
                                              server.getSecurityMaster(),
                                              server.getPositionMaster(),
                                              server.getPortfolioMaster(),
-                                             server.getConfigMaster());
+                                             server.getConfigMaster(),
+                                             server.getHistoricalTimeSeriesMaster());
       //dataWriter.writeSecurities();
       //dataWriter.writePositions();
       //dataWriter.writePortfolios();
-      dataWriter.writeConfig();
+      //dataWriter.writeConfig();
+      dataWriter.writeTimeSeries();
     } catch (Exception e) {
       s_logger.warn("Failed to write data", e);
     }
@@ -105,6 +117,16 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
   private void writePortfolios() throws IOException {
     PortfolioSearchResult result = _portfolioMaster.search(new PortfolioSearchRequest());
     writeToFile(result.getPortfolios(), "portfolios.xml");
+  }
+
+  private void writeTimeSeries() throws IOException {
+    List<Object> objects = Lists.newArrayList();
+    HistoricalTimeSeriesInfoSearchResult infoResult = _timeSeriesMaster.search(new HistoricalTimeSeriesInfoSearchRequest());
+    for (ManageableHistoricalTimeSeriesInfo info : infoResult.getInfoList()) {
+      objects.add(_timeSeriesMaster.getTimeSeries(info.getTimeSeriesObjectId(), VersionCorrection.LATEST));
+      objects.add(info);
+    }
+    writeToFile(objects, "timeseries.xml");
   }
 
   private void writeToFile(List<?> objects, String outputFileName) throws IOException {

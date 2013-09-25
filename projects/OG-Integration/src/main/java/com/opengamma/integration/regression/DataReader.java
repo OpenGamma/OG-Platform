@@ -31,6 +31,10 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.integration.marketdata.manipulator.dsl.RemoteServer;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
+import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
+import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
@@ -56,13 +60,16 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
   private final PositionMaster _positionMaster;
   private final PortfolioMaster _portfolioMaster;
   private final ConfigMaster _configMaster;
+  private final HistoricalTimeSeriesMaster _timeSeriesMaster;
 
   public DataReader(File dataDir,
                     SecurityMaster securityMaster,
                     PositionMaster positionMaster,
                     PortfolioMaster portfolioMaster,
-                    ConfigMaster configMaster) {
+                    ConfigMaster configMaster,
+                    HistoricalTimeSeriesMaster timeSeriesMaster) {
     ArgumentChecker.notNull(dataDir, "dataDir");
+    _timeSeriesMaster = timeSeriesMaster;
     _securityMaster = securityMaster;
     _positionMaster = positionMaster;
     _portfolioMaster = portfolioMaster;
@@ -77,37 +84,40 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
                                              server.getSecurityMaster(),
                                              server.getPositionMaster(),
                                              server.getPortfolioMaster(),
-                                             server.getConfigMaster());
-      //Map<UniqueId, UniqueId> securityIdMappings = dataReader.loadSecurities();
-      Map<ObjectId, ObjectId> positionIdMappings = dataReader.loadPositions();
-      Map<UniqueId, UniqueId> portfolioIdMappings = dataReader.loadPortfolios(positionIdMappings);
-      dataReader.loadConfigs(portfolioIdMappings);
+                                             server.getConfigMaster(),
+                                             server.getHistoricalTimeSeriesMaster());
+      //Map<ObjectId, ObjectId> securityIdMappings = dataReader.loadSecurities();
+      //Map<ObjectId, ObjectId> positionIdMappings = dataReader.loadPositions(securityIdMappings);
+      //Map<UniqueId, UniqueId> portfolioIdMappings = dataReader.loadPortfolios(positionIdMappings);
+      //dataReader.loadConfigs(portfolioIdMappings);
+      dataReader.loadTimeSeries();
     } catch (Exception e) {
       s_logger.warn("Failed to read Fudge data", e);
     }
     System.exit(0);
   }
 
-  private Map<UniqueId, UniqueId> loadSecurities() throws IOException {
+  private Map<ObjectId, ObjectId> loadSecurities() throws IOException {
     List<?> securities = readFromFile("securities.xml");
-    Map<UniqueId, UniqueId> ids = Maps.newHashMapWithExpectedSize(securities.size());
+    Map<ObjectId, ObjectId> ids = Maps.newHashMapWithExpectedSize(securities.size());
     for (Object o : securities) {
       ManageableSecurity security = (ManageableSecurity) o;
-      UniqueId oldId = security.getUniqueId();
+      ObjectId oldId = security.getUniqueId().getObjectId();
       security.setUniqueId(null);
       SecurityDocument doc = _securityMaster.add(new SecurityDocument(security));
-      ids.put(oldId, doc.getUniqueId());
+      ids.put(oldId, doc.getUniqueId().getObjectId());
     }
     return ids;
   }
 
-  private Map<ObjectId, ObjectId> loadPositions() throws IOException {
+  private Map<ObjectId, ObjectId> loadPositions(Map<ObjectId, ObjectId> securityIdMappings) throws IOException {
     List<?> positions = readFromFile("positions.xml");
     Map<ObjectId, ObjectId> ids = Maps.newHashMapWithExpectedSize(positions.size());
     for (Object o : positions) {
       ManageablePosition position = (ManageablePosition) o;
       ObjectId oldId = position.getUniqueId().getObjectId();
       position.setUniqueId(null);
+      // TODO need to handle this, some people use ObjectIds in positions
       if (position.getSecurityLink().getObjectId() != null) {
         s_logger.warn("Position {} has non-null ObjectId in its SecurityLink", position);
       }
@@ -175,6 +185,18 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
         calcConfig.setScenarioId(idMappings.get(calcConfig.getScenarioId()));
         calcConfig.setScenarioParametersId(idMappings.get(calcConfig.getScenarioParametersId()));
       }
+    }
+  }
+
+  private void loadTimeSeries() throws IOException {
+    List<?> objects = readFromFile("timeseries.xml");
+    // TODO check size is even
+    for (int i = 0; i < objects.size(); i += 2) {
+      ManageableHistoricalTimeSeries timeSeries = (ManageableHistoricalTimeSeries) objects.get(i);
+      ManageableHistoricalTimeSeriesInfo timeSeriesInfo = (ManageableHistoricalTimeSeriesInfo) objects.get(i + 1);
+      timeSeriesInfo.setUniqueId(null);
+      HistoricalTimeSeriesInfoDocument infoDoc = _timeSeriesMaster.add(new HistoricalTimeSeriesInfoDocument(timeSeriesInfo));
+      _timeSeriesMaster.updateTimeSeriesDataPoints(infoDoc.getInfo().getTimeSeriesObjectId(), timeSeries.getTimeSeries());
     }
   }
 
