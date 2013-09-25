@@ -77,6 +77,9 @@ public final class ExpiryFudgeBuilder extends AbstractFudgeBuilder implements Fu
 
   protected static Expiry dateTimeToExpiry(final FudgeDateTime datetime, final String timezone) {
     switch (datetime.getAccuracy()) {
+      case NANOSECOND:
+      case MICROSECOND:
+      case MILLISECOND:
       case MINUTE:
         return new Expiry(ZonedDateTime.ofInstant(datetime.toInstant(), ZoneId.of(timezone)), ExpiryAccuracy.MIN_HOUR_DAY_MONTH_YEAR);
       case HOUR:
