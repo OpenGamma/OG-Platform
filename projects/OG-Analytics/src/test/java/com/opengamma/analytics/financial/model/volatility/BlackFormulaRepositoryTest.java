@@ -132,7 +132,7 @@ public class BlackFormulaRepositoryTest {
     for (int i = 0; i < m; i++) {
       for (int j = 0; j < n; j++) {
         final double price = BlackFormulaRepository.price(FORWARD, STRIKES_INPUT[i], TIME_TO_EXPIRY, VOLS[j], isCall);
-        assertEquals(PRE_COMPUTER_PRICES[i][j], price, 1e-18 * price);
+        assertEquals(PRE_COMPUTER_PRICES[i][j], price, 1e-13 * price);
         if (print) {
           if (j == 0) {
             System.out.print(price);
