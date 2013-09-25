@@ -269,80 +269,85 @@ public class ImpliedDepositCurveSeriesFunction extends AbstractFunction {
       final YieldCurveBundle knownCurve = new YieldCurveBundle();
       final Map<LocalDate, YieldAndDiscountCurve> originalCurveSeries = (Map<LocalDate, YieldAndDiscountCurve>) originalCurveObject;
       final Map<FixedIncomeStrip, List<Double>> results = new HashMap<>();
+      final List<LocalDate> validDates = new ArrayList<>();
       for (final Map.Entry<LocalDate, YieldAndDiscountCurve> entry : originalCurveSeries.entrySet()) {
-        final LocalDate valuationDate = entry.getKey();
-        final ZonedDateTime valuationDateTime = ZonedDateTime.of(valuationDate, now.toLocalTime(), now.getZone());
-        final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
-        final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(executionContext);
-        final Calendar calendar = CalendarUtils.getCalendar(holidaySource, _currency);
-        final DepositConvention convention = conventionSource.getConvention(DepositConvention.class, ExternalId.of(SCHEME_NAME, getConventionName(_currency, DEPOSIT)));
-        final int spotLag = convention.getSettlementDays();
-        final ExternalId conventionSettlementRegion = convention.getRegionCalendar();
-        ZonedDateTime spotDate;
-        if (spotLag == 0 && conventionSettlementRegion == null) {
-          spotDate = valuationDateTime;
-        } else {
-          spotDate = ScheduleCalculator.getAdjustedDate(valuationDateTime, spotLag, calendar);
-        }
-        final YieldCurveBundle curves = new YieldCurveBundle();
-        final String fullYieldCurveName = _originalCurveName + "_" + _currency;
-        curves.setCurve(fullYieldCurveName, entry.getValue());
-        final int n = _impliedDefinition.getStrips().size();
-        final double[] t = new double[n];
-        final double[] r = new double[n];
-        int i = 0;
-        final DayCount dayCount = DayCountFactory.INSTANCE.getDayCount("Act/365"); //TODO
-        final String impliedDepositCurveName = _impliedCurveCalculationConfig + "_" + _currency.getCode();
-        final List<InstrumentDerivative> derivatives = new ArrayList<>();
-        for (final FixedIncomeStrip strip : _impliedDefinition.getStrips()) {
-          final Tenor tenor = strip.getCurveNodePointTime();
-          final ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(spotDate, tenor.getPeriod(), MOD_FOL, calendar, true);
-          final double startTime = TimeCalculator.getTimeBetween(valuationDateTime, spotDate);
-          final double endTime = TimeCalculator.getTimeBetween(valuationDateTime, paymentDate);
-          final double accrualFactor = dayCount.getDayCountFraction(valuationDateTime, valuationDateTime.plus(tenor.getPeriod()), calendar);
-          final Cash cashFXCurve = new Cash(_currency, startTime, endTime, 1, 0, accrualFactor, fullYieldCurveName);
-          final double parRate = METHOD_CASH.parRate(cashFXCurve, curves);
-          final Cash cashDepositCurve = new Cash(_currency, startTime, endTime, 1, 0, accrualFactor, impliedDepositCurveName);
-          derivatives.add(cashDepositCurve);
-          t[i] = endTime;
-          r[i++] = parRate;
-        }
-        final CombinedInterpolatorExtrapolator interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(_interpolatorName, _leftExtrapolatorName,
-            _rightExtrapolatorName);
-        final double absoluteTolerance = Double.parseDouble(absoluteToleranceName);
-        final double relativeTolerance = Double.parseDouble(relativeToleranceName);
-        final int iterations = Integer.parseInt(iterationsName);
-        final Decomposition<?> decomposition = DecompositionFactory.getDecomposition(decompositionName);
-        final boolean useFiniteDifference = Boolean.parseBoolean(useFiniteDifferenceName);
-        final LinkedHashMap<String, double[]> curveNodes = new LinkedHashMap<>();
-        final LinkedHashMap<String, Interpolator1D> interpolators = new LinkedHashMap<>();
-        curveNodes.put(impliedDepositCurveName, t);
-        interpolators.put(impliedDepositCurveName, interpolator);
-        final FXMatrix fxMatrix = new FXMatrix();
-        final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(derivatives, r, knownCurve, curveNodes, interpolators, useFiniteDifference, fxMatrix);
-        final NewtonVectorRootFinder rootFinder = new BroydenVectorRootFinder(absoluteTolerance, relativeTolerance, iterations, decomposition);
-        final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveCalculator = new MultipleYieldCurveFinderFunction(data, PAR_RATE_CALCULATOR);
-        final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MultipleYieldCurveFinderJacobian(data, PAR_RATE_SENSITIVITY_CALCULATOR);
-        final double[] fittedYields = rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(r)).getData();
-        i = 0;
-        for (final FixedIncomeStrip strip : _impliedDefinition.getStrips()) {
-          if (results.containsKey(strip)) {
-            results.get(strip).add(fittedYields[i++]);
+        try {
+          final LocalDate valuationDate = entry.getKey();
+          final ZonedDateTime valuationDateTime = ZonedDateTime.of(valuationDate, now.toLocalTime(), now.getZone());
+          final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
+          final ConventionSource conventionSource = OpenGammaExecutionContext.getConventionSource(executionContext);
+          final Calendar calendar = CalendarUtils.getCalendar(holidaySource, _currency);
+          final DepositConvention convention = conventionSource.getConvention(DepositConvention.class, ExternalId.of(SCHEME_NAME, getConventionName(_currency, DEPOSIT)));
+          final int spotLag = convention.getSettlementDays();
+          final ExternalId conventionSettlementRegion = convention.getRegionCalendar();
+          ZonedDateTime spotDate;
+          if (spotLag == 0 && conventionSettlementRegion == null) {
+            spotDate = valuationDateTime;
           } else {
-            final List<Double> value = new ArrayList<>();
-            value.add(fittedYields[i++]);
-            results.put(strip, value);
+            spotDate = ScheduleCalculator.getAdjustedDate(valuationDateTime, spotLag, calendar);
           }
+          final YieldCurveBundle curves = new YieldCurveBundle();
+          final String fullYieldCurveName = _originalCurveName + "_" + _currency;
+          curves.setCurve(fullYieldCurveName, entry.getValue());
+          final int n = _impliedDefinition.getStrips().size();
+          final double[] t = new double[n];
+          final double[] r = new double[n];
+          int i = 0;
+          final DayCount dayCount = DayCountFactory.INSTANCE.getDayCount("Act/365"); //TODO
+          final String impliedDepositCurveName = _impliedCurveCalculationConfig + "_" + _currency.getCode();
+          final List<InstrumentDerivative> derivatives = new ArrayList<>();
+          for (final FixedIncomeStrip strip : _impliedDefinition.getStrips()) {
+            final Tenor tenor = strip.getCurveNodePointTime();
+            final ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(spotDate, tenor.getPeriod(), MOD_FOL, calendar, true);
+            final double startTime = TimeCalculator.getTimeBetween(valuationDateTime, spotDate);
+            final double endTime = TimeCalculator.getTimeBetween(valuationDateTime, paymentDate);
+            final double accrualFactor = dayCount.getDayCountFraction(valuationDateTime, valuationDateTime.plus(tenor.getPeriod()), calendar);
+            final Cash cashFXCurve = new Cash(_currency, startTime, endTime, 1, 0, accrualFactor, fullYieldCurveName);
+            final double parRate = METHOD_CASH.parRate(cashFXCurve, curves);
+            final Cash cashDepositCurve = new Cash(_currency, startTime, endTime, 1, 0, accrualFactor, impliedDepositCurveName);
+            derivatives.add(cashDepositCurve);
+            t[i] = endTime;
+            r[i++] = parRate;
+          }
+          final CombinedInterpolatorExtrapolator interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(_interpolatorName, _leftExtrapolatorName,
+              _rightExtrapolatorName);
+          final double absoluteTolerance = Double.parseDouble(absoluteToleranceName);
+          final double relativeTolerance = Double.parseDouble(relativeToleranceName);
+          final int iterations = Integer.parseInt(iterationsName);
+          final Decomposition<?> decomposition = DecompositionFactory.getDecomposition(decompositionName);
+          final boolean useFiniteDifference = Boolean.parseBoolean(useFiniteDifferenceName);
+          final LinkedHashMap<String, double[]> curveNodes = new LinkedHashMap<>();
+          final LinkedHashMap<String, Interpolator1D> interpolators = new LinkedHashMap<>();
+          curveNodes.put(impliedDepositCurveName, t);
+          interpolators.put(impliedDepositCurveName, interpolator);
+          final FXMatrix fxMatrix = new FXMatrix();
+          final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(derivatives, r, knownCurve, curveNodes, interpolators, useFiniteDifference, fxMatrix);
+          final NewtonVectorRootFinder rootFinder = new BroydenVectorRootFinder(absoluteTolerance, relativeTolerance, iterations, decomposition);
+          final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveCalculator = new MultipleYieldCurveFinderFunction(data, PAR_RATE_CALCULATOR);
+          final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MultipleYieldCurveFinderJacobian(data, PAR_RATE_SENSITIVITY_CALCULATOR);
+          final double[] fittedYields = rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(r)).getData();
+          i = 0;
+          for (final FixedIncomeStrip strip : _impliedDefinition.getStrips()) {
+            if (results.containsKey(strip)) {
+              results.get(strip).add(fittedYields[i++]);
+            } else {
+              final List<Double> value = new ArrayList<>();
+              value.add(fittedYields[i++]);
+              results.put(strip, value);
+            }
+          }
+          validDates.add(valuationDate);
+        } catch (Throwable t) {
+          s_logger.error("Missing (perhaps Holiday) date in ImpliedDepoCurveSeries? {} ", t.getMessage());
         }
       }
       final HistoricalTimeSeriesBundle bundle = new HistoricalTimeSeriesBundle();
-      final Set<LocalDate> dates = originalCurveSeries.keySet();
       final InterpolatedYieldCurveSpecificationWithSecurities yieldCurveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) inputs.getValue(YIELD_CURVE_SPEC);
       for (final FixedIncomeStripWithSecurity strip : yieldCurveSpec.getStrips()) {
         final ExternalId securityIdentifier = strip.getSecurityIdentifier();
         final UniqueId uid = UniqueId.of(securityIdentifier.getScheme().getName(), securityIdentifier.getValue());
         final ExternalIdBundle id = ExternalIdBundle.of(securityIdentifier);
-        final HistoricalTimeSeries ts = new SimpleHistoricalTimeSeries(uid, ImmutableLocalDateDoubleTimeSeries.of(dates, results.get(strip.getStrip())));
+        final HistoricalTimeSeries ts = new SimpleHistoricalTimeSeries(uid, ImmutableLocalDateDoubleTimeSeries.of(validDates, results.get(strip.getStrip())));
         bundle.add(MarketDataRequirementNames.MARKET_VALUE, id, ts);
       }
       final ValueSpecification curveSpec = new ValueSpecification(YIELD_CURVE_HISTORICAL_TIME_SERIES, target.toSpecification(), resultCurveProperties);
