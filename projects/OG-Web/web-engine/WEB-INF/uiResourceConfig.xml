@@ -309,6 +309,7 @@
     <fragment>/scripts/og/api/og.api.rest.js</fragment>
     <fragment>/scripts/og/api/og.api.rest.aggregators.js</fragment>
     <fragment>/scripts/og/api/og.api.rest.blotter.js</fragment>
+    <fragment>/scripts/og/api/og.api.rest.user.js</fragment>
     <fragment>/scripts/og/api/og.api.rest.compressor.js</fragment>
     <fragment>/scripts/og/api/og.api.rest.configs.js</fragment>
     <fragment>/scripts/og/api/og.api.rest.exchanges.js</fragment>
@@ -371,6 +372,7 @@
     <fragment>/scripts/og/common/og.common.timeseries_menu.js</fragment>
     <fragment>/scripts/og/common/og.common.timeseries_data.js</fragment>
     <fragment>/scripts/og/common/og.common.timeseries.js</fragment>
+    <fragment>/scripts/og/common/og.common.user.js</fragment>
   </bundle>
   <bundle id="gadgets.js">
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.manager.js</fragment>
