@@ -243,7 +243,7 @@ public final class ViewDefinitionCompiler {
       final ComputationTarget target = versioned.resolve(specification);
       if (target == null) {
         throw new OpenGammaRuntimeException("Unable to resolve portfolio ID " + specification.getUniqueId() +
-                                                " for view '" + getContext().getViewDefinition().getName() + "'");
+            " for view '" + getContext().getViewDefinition().getName() + "'");
       }
       return target.getValue(ComputationTargetType.PORTFOLIO);
     }
@@ -386,44 +386,46 @@ public final class ViewDefinitionCompiler {
       final Pair<DependencyGraph, Set<ValueRequirement>> graphPair = _previousGraphs.remove(builder.getCalculationConfigurationName());
       if (graphPair != null) {
         final DependencyGraph graph = graphPair.getFirst();
-        // Remove any invalid terminal outputs from the graph
-        final PortfolioIdentifierGatherer gatherer = new PortfolioIdentifierGatherer();
-        PortfolioNodeTraverser.parallel(gatherer, getContext().getServices().getExecutorService()).traverse(builder.getCompilationContext().getPortfolio().getRootNode());
-        final Set<UniqueId> identifiers = gatherer.getIdentifiers();
-        final Set<ValueRequirement> specifics = calcConfig.getSpecificRequirements();
-        final Map<ValueSpecification, Set<ValueRequirement>> terminalOutputs = graph.getTerminalOutputs();
-        ValueSpecification[] removeValueSpec = null;
-        Set<ValueRequirement>[] removeValueReq = null;
-        int i = 0;
-        for (Map.Entry<ValueSpecification, Set<ValueRequirement>> terminal : terminalOutputs.entrySet()) {
-          if (!identifiers.contains(terminal.getKey().getTargetSpecification().getUniqueId())) {
-            // Can't be a portfolio requirement
-            Set<ValueRequirement> toRemove = null;
-            for (ValueRequirement requirement : terminal.getValue()) {
-              if (!specifics.contains(requirement)) {
-                // Not a specific requirement
-                if (toRemove == null) {
-                  toRemove = Sets.newHashSetWithExpectedSize(terminal.getValue().size());
+        if (builder.getCompilationContext().getPortfolio() != null) {
+          // Remove any invalid terminal outputs from the graph
+          final PortfolioIdentifierGatherer gatherer = new PortfolioIdentifierGatherer();
+          PortfolioNodeTraverser.parallel(gatherer, getContext().getServices().getExecutorService()).traverse(builder.getCompilationContext().getPortfolio().getRootNode());
+          final Set<UniqueId> identifiers = gatherer.getIdentifiers();
+          final Set<ValueRequirement> specifics = calcConfig.getSpecificRequirements();
+          final Map<ValueSpecification, Set<ValueRequirement>> terminalOutputs = graph.getTerminalOutputs();
+          ValueSpecification[] removeValueSpec = null;
+          Set<ValueRequirement>[] removeValueReq = null;
+          int i = 0;
+          for (Map.Entry<ValueSpecification, Set<ValueRequirement>> terminal : terminalOutputs.entrySet()) {
+            if (!identifiers.contains(terminal.getKey().getTargetSpecification().getUniqueId())) {
+              // Can't be a portfolio requirement
+              Set<ValueRequirement> toRemove = null;
+              for (ValueRequirement requirement : terminal.getValue()) {
+                if (!specifics.contains(requirement)) {
+                  // Not a specific requirement
+                  if (toRemove == null) {
+                    toRemove = Sets.newHashSetWithExpectedSize(terminal.getValue().size());
+                  }
+                  toRemove.add(requirement);
                 }
-                toRemove.add(requirement);
               }
-            }
-            if (toRemove != null) {
-              if (i == 0) {
-                removeValueSpec = new ValueSpecification[terminalOutputs.size()];
-                removeValueReq = new Set[terminalOutputs.size()];
+              if (toRemove != null) {
+                if (i == 0) {
+                  removeValueSpec = new ValueSpecification[terminalOutputs.size()];
+                  removeValueReq = new Set[terminalOutputs.size()];
+                }
+                removeValueSpec[i] = terminal.getKey();
+                removeValueReq[i++] = toRemove;
               }
-              removeValueSpec[i] = terminal.getKey();
-              removeValueReq[i++] = toRemove;
             }
           }
-        }
-        if (i > 0) {
-          s_logger.info("Removing {} unmatched terminal outputs from {}", i, graph);
-          do {
-            i--;
-            graph.removeTerminalOutputs(removeValueReq[i], removeValueSpec[i]);
-          } while (i > 0);
+          if (i > 0) {
+            s_logger.info("Removing {} unmatched terminal outputs from {}", i, graph);
+            do {
+              i--;
+              graph.removeTerminalOutputs(removeValueReq[i], removeValueSpec[i]);
+            } while (i > 0);
+          }
         }
         // Populate the builder with the graph
         builder.setDependencyGraph(graph);
