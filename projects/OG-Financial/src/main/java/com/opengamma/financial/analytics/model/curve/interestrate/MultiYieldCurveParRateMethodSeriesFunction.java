@@ -49,6 +49,7 @@ import com.opengamma.analytics.financial.interestrate.MultipleYieldCurveFinderFu
 import com.opengamma.analytics.financial.interestrate.MultipleYieldCurveFinderIRSJacobian;
 import com.opengamma.analytics.financial.interestrate.ParSpreadRateCalculator;
 import com.opengamma.analytics.financial.interestrate.ParSpreadRateCurveSensitivityCalculator;
+import com.opengamma.analytics.financial.interestrate.RateReplacingInterestRateDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
@@ -203,20 +204,22 @@ public class MultiYieldCurveParRateMethodSeriesFunction extends MultiYieldCurveS
           final Security security = strip.getSecurity();
           final String[] curveNamesForSecurity = curveCalculationConfig.getCurveExposureForInstrument(curveName, strip.getInstrumentType());
           final InstrumentDefinition<?> definition = _securityConverter.visit(security);
-          final InstrumentDerivative derivative = _definitionConverter.convert(security, definition, now, curveNamesForSecurity, timeSeries);
+          InstrumentDerivative derivative = _definitionConverter.convert(security, definition, now, curveNamesForSecurity, timeSeries);
           if (derivative != null) {
             if (strip.getInstrumentType() == StripInstrumentType.FUTURE) {
               final InterestRateFutureSecurityDefinition securityDefinition = (InterestRateFutureSecurityDefinition) definition;
               InterestRateFutureTransactionDefinition unitNotional = new InterestRateFutureTransactionDefinition(securityDefinition, now, marketValue, 1);
               unitNotional = unitNotional.withNewNotionalAndTransactionPrice(1, marketValue);
-              final InstrumentDerivative unitNotionalDerivative = _definitionConverter.convert(security, unitNotional, now, curveNamesForSecurity, timeSeries);
+              InstrumentDerivative unitNotionalDerivative = _definitionConverter.convert(security, unitNotional, now, curveNamesForSecurity, timeSeries);
+              unitNotionalDerivative = unitNotionalDerivative.accept(RateReplacingInterestRateDerivativeVisitor.getInstance(), marketValue);
               derivatives.add(unitNotionalDerivative);
               initialRatesGuess.add(1 - marketValue);
             } else {
+              derivative = derivative.accept(RateReplacingInterestRateDerivativeVisitor.getInstance(), marketValue);
               derivatives.add(derivative);
               initialRatesGuess.add(marketValue);
             }
-            final double t = derivative.accept(LAST_TIME_CALCULATOR); // - timeOffset;
+            final double t = derivative.accept(LAST_TIME_CALCULATOR);
             if (nInstruments > 0 && CompareUtils.closeEquals(nodeTimes.get(nInstruments - 1), t, 1e-12)) {
               throw new OpenGammaRuntimeException("Strip " + strip + " has same maturity as one already added (" + previousStrip + ") - will lead to" +
                   "equal nodes in the curve. Remove one of these strips.");
