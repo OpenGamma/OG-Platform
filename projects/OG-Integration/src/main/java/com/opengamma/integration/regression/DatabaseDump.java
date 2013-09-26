@@ -53,11 +53,11 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
- *
+ * Dumps all the data required to run views from the database into Fudge XML files.
  */
-/* package */ class DataWriter {
+/* package */ class DatabaseDump {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(DataWriter.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(DatabaseDump.class);
 
   private final File _outputDir;
   private final SecurityMaster _securityMaster;
@@ -69,26 +69,23 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
   private final ExchangeMaster _exchangeMaster;
   private final MarketDataSnapshotMaster _snapshotMaster;
   private final OrganizationMaster _organizationMaster;
-  //private final UserMaster _userMaster;
 
-  /* package */ DataWriter(File outputDir,
-                           SecurityMaster securityMaster,
-                           PositionMaster positionMaster,
-                           PortfolioMaster portfolioMaster,
-                           ConfigMaster configMaster,
-                           HistoricalTimeSeriesMaster timeSeriesMaster,
-                           HolidayMaster holidayMaster,
-                           ExchangeMaster exchangeMaster,
-                           MarketDataSnapshotMaster snapshotMaster,
-                           OrganizationMaster organizationMaster/*,
-                           UserMaster userMaster*/) {
+  /* package */ DatabaseDump(File outputDir,
+                             SecurityMaster securityMaster,
+                             PositionMaster positionMaster,
+                             PortfolioMaster portfolioMaster,
+                             ConfigMaster configMaster,
+                             HistoricalTimeSeriesMaster timeSeriesMaster,
+                             HolidayMaster holidayMaster,
+                             ExchangeMaster exchangeMaster,
+                             MarketDataSnapshotMaster snapshotMaster,
+                             OrganizationMaster organizationMaster) {
     ArgumentChecker.notNull(securityMaster, "securityMaster");
     ArgumentChecker.notNull(outputDir, "outputDir");
     ArgumentChecker.notNull(positionMaster, "positionMaster");
     ArgumentChecker.notNull(portfolioMaster, "portfolioMaster");
     ArgumentChecker.notNull(configMaster, "configMaster");
     ArgumentChecker.notNull(timeSeriesMaster, "timeSeriesMaster");
-    //_userMaster = userMaster;
     _organizationMaster = organizationMaster;
     _snapshotMaster = snapshotMaster;
     _exchangeMaster = exchangeMaster;
@@ -109,25 +106,25 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
     try {
       RemoteServer server = RemoteServer.create("http://localhost:8080");
-      DataWriter dataWriter = new DataWriter(new File("/Users/chris/tmp/regression"),
-                                             server.getSecurityMaster(),
-                                             server.getPositionMaster(),
-                                             server.getPortfolioMaster(),
-                                             server.getConfigMaster(),
-                                             server.getHistoricalTimeSeriesMaster(),
-                                             server.getHolidayMaster(),
-                                             server.getExchangeMaster(),
-                                             server.getMarketDataSnapshotMaster(),
-                                             server.getOrganizationMaster());
-      dataWriter.writeSecurities();
-      dataWriter.writePositions();
-      dataWriter.writePortfolios();
-      dataWriter.writeConfig();
-      dataWriter.writeTimeSeries();
-      dataWriter.writeHolidays();
-      dataWriter.writeExchanges();
-      dataWriter.writeSnapshots();
-      dataWriter.writeOrganizations();
+      DatabaseDump databaseDump = new DatabaseDump(new File("/Users/chris/tmp/regression"),
+                                                   server.getSecurityMaster(),
+                                                   server.getPositionMaster(),
+                                                   server.getPortfolioMaster(),
+                                                   server.getConfigMaster(),
+                                                   server.getHistoricalTimeSeriesMaster(),
+                                                   server.getHolidayMaster(),
+                                                   server.getExchangeMaster(),
+                                                   server.getMarketDataSnapshotMaster(),
+                                                   server.getOrganizationMaster());
+      databaseDump.writeSecurities();
+      databaseDump.writePositions();
+      databaseDump.writePortfolios();
+      databaseDump.writeConfig();
+      databaseDump.writeTimeSeries();
+      databaseDump.writeHolidays();
+      databaseDump.writeExchanges();
+      databaseDump.writeSnapshots();
+      databaseDump.writeOrganizations();
     } catch (Exception e) {
       s_logger.warn("Failed to write data", e);
     }
@@ -184,10 +181,6 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
     writeToFile(result.getOrganizations(), "organizations.xml");
   }
 
-  /*private void writeUsers() {
-
-  }*/
-
   private void writeToFile(List<?> objects, String outputFileName) throws IOException {
     File outputFile = new File(_outputDir, outputFileName);
     s_logger.info("Writing to {}", outputFile.getAbsolutePath());
@@ -198,7 +191,6 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
       FudgeMsgWriter fudgeMsgWriter = new FudgeMsgWriter(streamWriter);
       FudgeSerializer serializer = new FudgeSerializer(ctx);
       for (Object object : objects) {
-        // TODO need to write class
         MutableFudgeMsg msg = serializer.objectToFudgeMsg(object);
         FudgeSerializer.addClassHeader(msg, object.getClass());
         fudgeMsgWriter.writeMessage(msg);

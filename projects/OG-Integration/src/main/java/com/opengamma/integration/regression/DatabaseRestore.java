@@ -61,11 +61,11 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
- *
+ * Loads the data required to run views from Fudge XML files into an empty database.
  */
-/* package */ class DataReader {
+/* package */ class DatabaseRestore {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(DataReader.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(DatabaseRestore.class);
 
   private final File _dataDir;
   private final SecurityMaster _securityMaster;
@@ -78,16 +78,16 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
   private final MarketDataSnapshotMaster _snapshotMaster;
   private final OrganizationMaster _organizationMaster;
 
-  public DataReader(File dataDir,
-                    SecurityMaster securityMaster,
-                    PositionMaster positionMaster,
-                    PortfolioMaster portfolioMaster,
-                    ConfigMaster configMaster,
-                    HistoricalTimeSeriesMaster timeSeriesMaster,
-                    HolidayMaster holidayMaster,
-                    ExchangeMaster exchangeMaster,
-                    MarketDataSnapshotMaster snapshotMaster,
-                    OrganizationMaster organizationMaster) {
+  public DatabaseRestore(File dataDir,
+                         SecurityMaster securityMaster,
+                         PositionMaster positionMaster,
+                         PortfolioMaster portfolioMaster,
+                         ConfigMaster configMaster,
+                         HistoricalTimeSeriesMaster timeSeriesMaster,
+                         HolidayMaster holidayMaster,
+                         ExchangeMaster exchangeMaster,
+                         MarketDataSnapshotMaster snapshotMaster,
+                         OrganizationMaster organizationMaster) {
     _exchangeMaster = exchangeMaster;
     _snapshotMaster = snapshotMaster;
     _organizationMaster = organizationMaster;
@@ -112,25 +112,25 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
   public static void main(String[] args) throws IOException {
     try {
       RemoteServer server = RemoteServer.create("http://localhost:8080");
-      DataReader dataReader = new DataReader(new File("/Users/chris/tmp/regression"),
-                                             server.getSecurityMaster(),
-                                             server.getPositionMaster(),
-                                             server.getPortfolioMaster(),
-                                             server.getConfigMaster(),
-                                             server.getHistoricalTimeSeriesMaster(),
-                                             server.getHolidayMaster(),
-                                             server.getExchangeMaster(),
-                                             server.getMarketDataSnapshotMaster(),
-                                             server.getOrganizationMaster());
-      Map<ObjectId, ObjectId> securityIdMappings = dataReader.loadSecurities();
-      Map<ObjectId, ObjectId> positionIdMappings = dataReader.loadPositions(securityIdMappings);
-      Map<ObjectId, ObjectId> portfolioIdMappings = dataReader.loadPortfolios(positionIdMappings);
-      dataReader.loadConfigs(portfolioIdMappings);
-      dataReader.loadTimeSeries();
-      dataReader.loadHolidays();
-      dataReader.loadExchanges();
-      dataReader.loadSnapshots();
-      dataReader.loadOrganizations();
+      DatabaseRestore databaseRestore = new DatabaseRestore(new File("/Users/chris/tmp/regression"),
+                                                            server.getSecurityMaster(),
+                                                            server.getPositionMaster(),
+                                                            server.getPortfolioMaster(),
+                                                            server.getConfigMaster(),
+                                                            server.getHistoricalTimeSeriesMaster(),
+                                                            server.getHolidayMaster(),
+                                                            server.getExchangeMaster(),
+                                                            server.getMarketDataSnapshotMaster(),
+                                                            server.getOrganizationMaster());
+      Map<ObjectId, ObjectId> securityIdMappings = databaseRestore.loadSecurities();
+      Map<ObjectId, ObjectId> positionIdMappings = databaseRestore.loadPositions(securityIdMappings);
+      Map<ObjectId, ObjectId> portfolioIdMappings = databaseRestore.loadPortfolios(positionIdMappings);
+      databaseRestore.loadConfigs(portfolioIdMappings);
+      databaseRestore.loadTimeSeries();
+      databaseRestore.loadHolidays();
+      databaseRestore.loadExchanges();
+      databaseRestore.loadSnapshots();
+      databaseRestore.loadOrganizations();
     } catch (Exception e) {
       s_logger.warn("Failed to read Fudge data", e);
     }
