@@ -21,9 +21,11 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.forex.ConventionBasedFXRateFunction;
+import com.opengamma.financial.analytics.model.forex.ForexVisitors;
+import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityTypes;
-import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.util.async.AsynchronousExecution;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 
 /**
@@ -42,8 +44,10 @@ public class FXOptionSpotRateFunction extends AbstractFunction.NonCompiledInvoke
       final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
     final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
     final String dataType = desiredValue.getConstraint(PROPERTY_DATA_TYPE);
-    final FXOptionSecurity security = (FXOptionSecurity) target.getSecurity();
-    final UnorderedCurrencyPair currencyPair = UnorderedCurrencyPair.of(security.getPutCurrency(), security.getCallCurrency());
+    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
+    final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
+    final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
+    final UnorderedCurrencyPair currencyPair = UnorderedCurrencyPair.of(putCurrency, callCurrency);
     if (dataType.equals(LIVE)) {
       final Object spotObject = inputs.getValue(ValueRequirementNames.SPOT_RATE);
       if (spotObject == null) {
@@ -66,7 +70,7 @@ public class FXOptionSpotRateFunction extends AbstractFunction.NonCompiledInvoke
 
   @Override
   public ComputationTargetType getTargetType() {
-    return FinancialSecurityTypes.FX_OPTION_SECURITY;
+    return FinancialSecurityTypes.FX_OPTION_SECURITY.or(FinancialSecurityTypes.FX_DIGITAL_OPTION_SECURITY).or(FinancialSecurityTypes.FX_BARRIER_OPTION_SECURITY);
   }
 
   @Override
@@ -77,8 +81,10 @@ public class FXOptionSpotRateFunction extends AbstractFunction.NonCompiledInvoke
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final FXOptionSecurity security = (FXOptionSecurity) target.getSecurity();
-    final UnorderedCurrencyPair currencyPair = UnorderedCurrencyPair.of(security.getPutCurrency(), security.getCallCurrency());
+    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
+    final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
+    final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
+    final UnorderedCurrencyPair currencyPair = UnorderedCurrencyPair.of(putCurrency, callCurrency);
     final Set<String> dataTypes = desiredValue.getConstraints().getValues(PROPERTY_DATA_TYPE);
     if ((dataTypes == null) || dataTypes.isEmpty() || dataTypes.contains(LIVE)) {
       // Live
