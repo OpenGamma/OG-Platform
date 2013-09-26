@@ -24,10 +24,22 @@ import com.opengamma.integration.marketdata.manipulator.dsl.RemoteServer;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
+import com.opengamma.master.exchange.ExchangeMaster;
+import com.opengamma.master.exchange.ExchangeSearchRequest;
+import com.opengamma.master.exchange.ExchangeSearchResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchRequest;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
+import com.opengamma.master.holiday.HolidayMaster;
+import com.opengamma.master.holiday.HolidaySearchRequest;
+import com.opengamma.master.holiday.HolidaySearchResult;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
+import com.opengamma.master.orgs.OrganizationMaster;
+import com.opengamma.master.orgs.OrganizationSearchRequest;
+import com.opengamma.master.orgs.OrganizationSearchResult;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.PortfolioSearchResult;
@@ -47,25 +59,40 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
   private static final Logger s_logger = LoggerFactory.getLogger(DataWriter.class);
 
+  private final File _outputDir;
   private final SecurityMaster _securityMaster;
   private final PositionMaster _positionMaster;
   private final PortfolioMaster _portfolioMaster;
   private final ConfigMaster _configMaster;
   private final HistoricalTimeSeriesMaster _timeSeriesMaster;
-  private final File _outputDir;
+  private final HolidayMaster _holidayMaster;
+  private final ExchangeMaster _exchangeMaster;
+  private final MarketDataSnapshotMaster _snapshotMaster;
+  private final OrganizationMaster _organizationMaster;
+  //private final UserMaster _userMaster;
 
   /* package */ DataWriter(File outputDir,
                            SecurityMaster securityMaster,
                            PositionMaster positionMaster,
                            PortfolioMaster portfolioMaster,
                            ConfigMaster configMaster,
-                           HistoricalTimeSeriesMaster timeSeriesMaster) {
+                           HistoricalTimeSeriesMaster timeSeriesMaster,
+                           HolidayMaster holidayMaster,
+                           ExchangeMaster exchangeMaster,
+                           MarketDataSnapshotMaster snapshotMaster,
+                           OrganizationMaster organizationMaster/*,
+                           UserMaster userMaster*/) {
     ArgumentChecker.notNull(securityMaster, "securityMaster");
     ArgumentChecker.notNull(outputDir, "outputDir");
     ArgumentChecker.notNull(positionMaster, "positionMaster");
     ArgumentChecker.notNull(portfolioMaster, "portfolioMaster");
     ArgumentChecker.notNull(configMaster, "configMaster");
     ArgumentChecker.notNull(timeSeriesMaster, "timeSeriesMaster");
+    //_userMaster = userMaster;
+    _organizationMaster = organizationMaster;
+    _snapshotMaster = snapshotMaster;
+    _exchangeMaster = exchangeMaster;
+    _holidayMaster = holidayMaster;
     _timeSeriesMaster = timeSeriesMaster;
     _positionMaster = positionMaster;
     _portfolioMaster = portfolioMaster;
@@ -87,12 +114,20 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
                                              server.getPositionMaster(),
                                              server.getPortfolioMaster(),
                                              server.getConfigMaster(),
-                                             server.getHistoricalTimeSeriesMaster());
-      //dataWriter.writeSecurities();
-      //dataWriter.writePositions();
-      //dataWriter.writePortfolios();
-      //dataWriter.writeConfig();
+                                             server.getHistoricalTimeSeriesMaster(),
+                                             server.getHolidayMaster(),
+                                             server.getExchangeMaster(),
+                                             server.getMarketDataSnapshotMaster(),
+                                             server.getOrganizationMaster());
+      dataWriter.writeSecurities();
+      dataWriter.writePositions();
+      dataWriter.writePortfolios();
+      dataWriter.writeConfig();
       dataWriter.writeTimeSeries();
+      dataWriter.writeHolidays();
+      dataWriter.writeExchanges();
+      dataWriter.writeSnapshots();
+      dataWriter.writeOrganizations();
     } catch (Exception e) {
       s_logger.warn("Failed to write data", e);
     }
@@ -128,6 +163,30 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
     }
     writeToFile(objects, "timeseries.xml");
   }
+
+  private void writeHolidays() throws IOException {
+    HolidaySearchResult result = _holidayMaster.search(new HolidaySearchRequest());
+    writeToFile(result.getHolidays(), "holidays.xml");
+  }
+
+  private void writeExchanges() throws IOException {
+    ExchangeSearchResult result = _exchangeMaster.search(new ExchangeSearchRequest());
+    writeToFile(result.getExchanges(), "exchanges.xml");
+  }
+
+  private void writeSnapshots() throws IOException {
+    MarketDataSnapshotSearchResult result = _snapshotMaster.search(new MarketDataSnapshotSearchRequest());
+    writeToFile(result.getSnapshots(), "snapshots.xml");
+  }
+
+  private void writeOrganizations() throws IOException {
+    OrganizationSearchResult result = _organizationMaster.search(new OrganizationSearchRequest());
+    writeToFile(result.getOrganizations(), "organizations.xml");
+  }
+
+  /*private void writeUsers() {
+
+  }*/
 
   private void writeToFile(List<?> objects, String outputFileName) throws IOException {
     File outputFile = new File(_outputDir, outputFileName);

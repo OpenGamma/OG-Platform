@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.core.config.impl.ConfigItem;
+import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.id.ObjectId;
@@ -31,10 +32,21 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.integration.marketdata.manipulator.dsl.RemoteServer;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
+import com.opengamma.master.exchange.ExchangeDocument;
+import com.opengamma.master.exchange.ExchangeMaster;
+import com.opengamma.master.exchange.ManageableExchange;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
+import com.opengamma.master.holiday.HolidayDocument;
+import com.opengamma.master.holiday.HolidayMaster;
+import com.opengamma.master.holiday.ManageableHoliday;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
+import com.opengamma.master.orgs.ManageableOrganization;
+import com.opengamma.master.orgs.OrganizationDocument;
+import com.opengamma.master.orgs.OrganizationMaster;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
@@ -61,20 +73,40 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
   private final PortfolioMaster _portfolioMaster;
   private final ConfigMaster _configMaster;
   private final HistoricalTimeSeriesMaster _timeSeriesMaster;
+  private final HolidayMaster _holidayMaster;
+  private final ExchangeMaster _exchangeMaster;
+  private final MarketDataSnapshotMaster _snapshotMaster;
+  private final OrganizationMaster _organizationMaster;
 
   public DataReader(File dataDir,
                     SecurityMaster securityMaster,
                     PositionMaster positionMaster,
                     PortfolioMaster portfolioMaster,
                     ConfigMaster configMaster,
-                    HistoricalTimeSeriesMaster timeSeriesMaster) {
-    ArgumentChecker.notNull(dataDir, "dataDir");
+                    HistoricalTimeSeriesMaster timeSeriesMaster,
+                    HolidayMaster holidayMaster,
+                    ExchangeMaster exchangeMaster,
+                    MarketDataSnapshotMaster snapshotMaster,
+                    OrganizationMaster organizationMaster) {
+    _exchangeMaster = exchangeMaster;
+    _snapshotMaster = snapshotMaster;
+    _organizationMaster = organizationMaster;
+    _holidayMaster = holidayMaster;
     _timeSeriesMaster = timeSeriesMaster;
     _securityMaster = securityMaster;
     _positionMaster = positionMaster;
     _portfolioMaster = portfolioMaster;
     _configMaster = configMaster;
     _dataDir = dataDir;
+    ArgumentChecker.notNull(dataDir, "dataDir");
+    ArgumentChecker.notNull(exchangeMaster, "exchangeMaster");
+    ArgumentChecker.notNull(snapshotMaster, "snapshotMaster");
+    ArgumentChecker.notNull(organizationMaster, "organizationMaster");
+    ArgumentChecker.notNull(timeSeriesMaster, "timeSeriesMaster");
+    ArgumentChecker.notNull(securityMaster, "securityMaster");
+    ArgumentChecker.notNull(positionMaster, "positionMaster");
+    ArgumentChecker.notNull(portfolioMaster, "portfolioMaster");
+    ArgumentChecker.notNull(configMaster, "configMaster");
   }
 
   public static void main(String[] args) throws IOException {
@@ -85,12 +117,20 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
                                              server.getPositionMaster(),
                                              server.getPortfolioMaster(),
                                              server.getConfigMaster(),
-                                             server.getHistoricalTimeSeriesMaster());
-      //Map<ObjectId, ObjectId> securityIdMappings = dataReader.loadSecurities();
-      //Map<ObjectId, ObjectId> positionIdMappings = dataReader.loadPositions(securityIdMappings);
-      //Map<UniqueId, UniqueId> portfolioIdMappings = dataReader.loadPortfolios(positionIdMappings);
-      //dataReader.loadConfigs(portfolioIdMappings);
+                                             server.getHistoricalTimeSeriesMaster(),
+                                             server.getHolidayMaster(),
+                                             server.getExchangeMaster(),
+                                             server.getMarketDataSnapshotMaster(),
+                                             server.getOrganizationMaster());
+      Map<ObjectId, ObjectId> securityIdMappings = dataReader.loadSecurities();
+      Map<ObjectId, ObjectId> positionIdMappings = dataReader.loadPositions(securityIdMappings);
+      Map<UniqueId, UniqueId> portfolioIdMappings = dataReader.loadPortfolios(positionIdMappings);
+      dataReader.loadConfigs(portfolioIdMappings);
       dataReader.loadTimeSeries();
+      dataReader.loadHolidays();
+      dataReader.loadExchanges();
+      dataReader.loadSnapshots();
+      dataReader.loadOrganizations();
     } catch (Exception e) {
       s_logger.warn("Failed to read Fudge data", e);
     }
@@ -197,6 +237,42 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
       timeSeriesInfo.setUniqueId(null);
       HistoricalTimeSeriesInfoDocument infoDoc = _timeSeriesMaster.add(new HistoricalTimeSeriesInfoDocument(timeSeriesInfo));
       _timeSeriesMaster.updateTimeSeriesDataPoints(infoDoc.getInfo().getTimeSeriesObjectId(), timeSeries.getTimeSeries());
+    }
+  }
+
+  private void loadHolidays() throws IOException {
+    List<?> holidays = readFromFile("holidays.xml");
+    for (Object o : holidays) {
+      ManageableHoliday holiday = (ManageableHoliday) o;
+      holiday.setUniqueId(null);
+      _holidayMaster.add(new HolidayDocument(holiday));
+    }
+  }
+
+  private void loadExchanges() throws IOException {
+    List<?> exchanges = readFromFile("exchanges.xml");
+    for (Object o : exchanges) {
+      ManageableExchange exchange = (ManageableExchange) o;
+      exchange.setUniqueId(null);
+      _exchangeMaster.add(new ExchangeDocument(exchange));
+    }
+  }
+
+  private void loadSnapshots() throws IOException {
+    List<?> snapshots = readFromFile("snapshots.xml");
+    for (Object o : snapshots) {
+      ManageableMarketDataSnapshot snapshot = (ManageableMarketDataSnapshot) o;
+      snapshot.setUniqueId(null);
+      _snapshotMaster.add(new MarketDataSnapshotDocument(snapshot));
+    }
+  }
+
+  private void loadOrganizations() throws IOException {
+    List<?> organizations = readFromFile("organizations.xml");
+    for (Object o : organizations) {
+      ManageableOrganization organization = (ManageableOrganization) o;
+      organization.setUniqueId(null);
+      _organizationMaster.add(new OrganizationDocument(organization));
     }
   }
 
