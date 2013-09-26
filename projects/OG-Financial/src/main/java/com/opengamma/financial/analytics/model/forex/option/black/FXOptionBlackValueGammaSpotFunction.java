@@ -67,6 +67,7 @@ public class FXOptionBlackValueGammaSpotFunction extends FXOptionBlackSingleValu
       } else if (forex instanceof ForexOptionSingleBarrier) {
         final ForexOptionSingleBarrier fxDerivative = (ForexOptionSingleBarrier) forex;
         spot = data.getFxRates().getFxRate(fxDerivative.getCurrency1(), fxDerivative.getCurrency2());
+        return Collections.singleton(new ComputedValue(spec, gammaValue * spot * spot));
       }
       return Collections.singleton(new ComputedValue(spec, gammaValue * spot));
     }
