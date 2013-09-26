@@ -149,6 +149,22 @@ public class IRFutureOptionFunctions extends AbstractFunctionConfigurationBean {
       functions.add(functionConfiguration(InterestRateFutureOptionBlackThetaDefaults.class, daysPlusBlackArgs));
     }
     
+    // TODO Default is hardcoded here. Where should this be done?
+    protected void addIRFutureOptionBlackPositionDeltaGammaScaleDefaults(final List<FunctionConfiguration> functions) {
+
+      double defaultScaleFactor = 0.0001; // scale to basis point moves in underlying 
+      
+      final String[] scalePlusBlackArgs = new String[getPerCurrencyInfo().size() * 3 + 1];
+      int i = 0;
+      scalePlusBlackArgs[i++] = Double.toString(defaultScaleFactor);
+      for (final Map.Entry<String, CurrencyInfo> e : getPerCurrencyInfo().entrySet()) {
+        scalePlusBlackArgs[i++] = e.getKey();
+        scalePlusBlackArgs[i++] = e.getValue().getCurveConfiguration();
+        scalePlusBlackArgs[i++] = e.getValue().getSurfaceName();
+      }
+      functions.add(functionConfiguration(InterestRateFutureOptionBlackPositionDeltaGammaScaleDefaults.class, scalePlusBlackArgs));
+    }
+    
     protected void addIRFutureOptionBlackCurveSpecificDefaults(final List<FunctionConfiguration> functions) {
       final String[] args = new String[getPerCurrencyInfo().size() * 4];
       int i = 0;
@@ -190,6 +206,7 @@ public class IRFutureOptionFunctions extends AbstractFunctionConfigurationBean {
         addIRFutureOptionBlackDefaults(functions);
         addIRFutureOptionBlackCurveSpecificDefaults(functions);
         addIRFutureOptionBlackThetaDefaults(functions);
+        addIRFutureOptionBlackPositionDeltaGammaScaleDefaults(functions);
         addIRFutureOptionSABRDefaults(functions);
         addIRFutureOptionHestonDefaults(functions);
       }

@@ -6,7 +6,11 @@
 package com.opengamma.financial.analytics.model.future;
 
 import com.opengamma.analytics.financial.future.MarkToMarketFuturesCalculator;
+import com.opengamma.core.security.Security;
+import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.financial.security.future.FutureSecurity;
 
 /**
  * Calculates the {@link ValueRequirementNames#VALUE_DELTA} "ValueDelta" of a Future.<p>
@@ -25,5 +29,17 @@ public class MarkToMarketValueDeltaFuturesFunction extends MarkToMarketFuturesFu
    */
   public MarkToMarketValueDeltaFuturesFunction(final String closingPriceField, final String costOfCarryField, final String resolutionKey) {
     super(ValueRequirementNames.VALUE_DELTA, MarkToMarketFuturesCalculator.ValueDeltaCalculator.getInstance(), closingPriceField, costOfCarryField, resolutionKey);
+  }
+  
+  @Override
+  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+    final Security security = target.getTrade().getSecurity();
+    if (security instanceof FutureSecurity) {
+      if (security instanceof FutureSecurity) {
+        return false;
+      }
+      return true;
+    }
+    return false;
   }
 }

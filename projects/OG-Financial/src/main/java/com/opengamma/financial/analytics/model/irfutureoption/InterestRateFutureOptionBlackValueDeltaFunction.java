@@ -8,6 +8,9 @@ package com.opengamma.financial.analytics.model.irfutureoption;
 import java.util.Collections;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackCubeBundle;
@@ -16,6 +19,8 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
@@ -38,12 +43,19 @@ public class InterestRateFutureOptionBlackValueDeltaFunction extends InterestRat
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+    // First, confirm Scale is set, by user or by default
+    final ValueProperties constraints = desiredValue.getConstraints();
+    final Set<String> scale = constraints.getValues(ValuePropertyNames.SCALE);
+    if (scale == null || scale.size() != 1) {
+      s_logger.info("Could not find {} requirement. Looking for a default..", ValuePropertyNames.SCALE);
+      return null;
+    }
     final Set<ValueRequirement> requirements = super.getRequirements(context, target, desiredValue);
     if (requirements == null) {
       return null;
     }
-    requirements.add(new ValueRequirement(ValueRequirementNames.POSITION_DELTA, target.toSpecification(), desiredValue.getConstraints()));
-    requirements.add(new ValueRequirement(ValueRequirementNames.FORWARD, target.toSpecification()));
+    requirements.add(new ValueRequirement(ValueRequirementNames.POSITION_DELTA, target.toSpecification(), constraints));
+    requirements.add(new ValueRequirement(ValueRequirementNames.FORWARD, target.toSpecification(), constraints.withoutAny(ValuePropertyNames.SCALE)));
     return requirements;
   }
 
@@ -77,5 +89,13 @@ public class InterestRateFutureOptionBlackValueDeltaFunction extends InterestRat
       final ValueSpecification spec, final Set<ValueRequirement> desiredValues) {
     throw new OpenGammaRuntimeException("Should never get called");
   }
+  
+  @Override
+  protected ValueProperties.Builder getResultProperties(final String currency) {
+    return super.getResultProperties(currency)
+        .withAny(ValuePropertyNames.SCALE);
+  }
+  
+  private static final Logger s_logger = LoggerFactory.getLogger(InterestRateFutureOptionBlackValueDeltaFunction.class);
 
 }
