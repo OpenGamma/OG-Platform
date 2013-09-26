@@ -117,11 +117,11 @@ public abstract class SwaptionBlackFunction extends AbstractFunction.NonCompiled
       fullCurveNames[i] = curveNames[i] + "_" + currency.getCode();
     }
     final YieldCurveBundle curves = YieldCurveFunctionUtils.getYieldCurves(inputs, curveCalculationConfig);
-//    final YieldCurveBundle tempBundle = new YieldCurveBundle();
-//    for (final String name : curves.getAllNames()) {
-//      final String[] temp = name.split("_");
-//      tempBundle.setCurve(temp[0] + "_BRL", curves.getCurve(name));
-//    }
+    final YieldCurveBundle tempBundle = new YieldCurveBundle();
+    for (final String name : curves.getAllNames()) {
+      final String[] temp = name.split("_");
+      tempBundle.setCurve(temp[0] + "_BRL", curves.getCurve(name));
+    }
     final Object volatilitySurfaceObject = inputs.getValue(getVolatilityRequirement(surfaceName, currency));
     if (volatilitySurfaceObject == null) {
       throw new OpenGammaRuntimeException("Could not get volatility surface");
@@ -192,7 +192,6 @@ public abstract class SwaptionBlackFunction extends AbstractFunction.NonCompiled
       s_logger.error(e.getMessage());
       return null;
     }
-//    return requirements;
   }
 
   protected abstract Set<ComputedValue> getResult(final InstrumentDerivative swaption, final YieldCurveWithBlackSwaptionBundle data, final ValueSpecification spec);
