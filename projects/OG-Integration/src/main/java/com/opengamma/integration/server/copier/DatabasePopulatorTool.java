@@ -192,9 +192,14 @@ public class DatabasePopulatorTool extends AbstractTool<ToolContext> {
             
             @Override
             public UniqueId call() throws Exception {
-              ManageableHistoricalTimeSeriesInfo added = htsMaster.add(infoDoc).getInfo();
-              htsMaster.updateTimeSeriesDataPoints(added.getTimeSeriesObjectId(), timeSeries.getTimeSeries());
-              return added.getUniqueId();
+              try {
+                ManageableHistoricalTimeSeriesInfo added = htsMaster.add(infoDoc).getInfo();
+                htsMaster.updateTimeSeriesDataPoints(added.getTimeSeriesObjectId(), timeSeries.getTimeSeries());
+                return added.getUniqueId();
+              } catch (Exception ex) {
+                ex.printStackTrace();
+                return null;
+              }
             }
           });
         }
