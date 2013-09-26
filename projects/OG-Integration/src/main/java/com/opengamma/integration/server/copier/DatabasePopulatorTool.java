@@ -9,12 +9,17 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorCompletionService;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Lists;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.position.Portfolio;
@@ -26,6 +31,7 @@ import com.opengamma.engine.view.compilation.PortfolioCompiler;
 import com.opengamma.financial.portfolio.save.SavePortfolio;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.integration.tool.config.ConfigLoader;
 import com.opengamma.integration.tool.config.ConfigSaver;
@@ -35,6 +41,7 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocumen
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchRequest;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
+import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesInfoSearchIterator;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
@@ -50,6 +57,7 @@ import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.impl.SecuritySearchIterator;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.monitor.OperationTimer;
 
 /**
  * 
@@ -65,7 +73,9 @@ public class DatabasePopulatorTool extends AbstractTool<ToolContext> {
    * URL of opengamma server to copy data from
    */
   private final String _serverUrl;
-  private final ExecutorService _executorService = Executors.newCachedThreadPool();
+  private final ExecutorService _executorService = Executors.newFixedThreadPool(10);
+  private final ExecutorCompletionService<UniqueId> _completionService = new ExecutorCompletionService<UniqueId>(_executorService);
+  private final List<HistoricalTimeSeriesInfoDocument> _tsList = Lists.newArrayList();
   
   public DatabasePopulatorTool(final String serverUrl) {
     ArgumentChecker.notNull(serverUrl, "serverUrl");
@@ -81,6 +91,7 @@ public class DatabasePopulatorTool extends AbstractTool<ToolContext> {
     loadHistoricalTimeSeries(toolContext.getHistoricalTimeSeriesMaster());
     loadSnapshot(toolContext.getMarketDataSnapshotMaster());
     loadFunctionConfiguration(toolContext.getConfigMaster());
+    _executorService.shutdown();
   }
   
   protected void loadFunctionConfiguration(final ConfigMaster configMaster) {
@@ -167,22 +178,38 @@ public class DatabasePopulatorTool extends AbstractTool<ToolContext> {
   
   protected void loadHistoricalTimeSeries(final HistoricalTimeSeriesMaster htsMaster) {
     s_logger.info("loading timeseries");
+    final OperationTimer timer = new OperationTimer(s_logger, "Loading time series");
     AbstractTool<ToolContext> remoteServerTool = new AbstractTool<ToolContext>() {
-
+      
       @Override
       protected void doRun() throws Exception {
         final HistoricalTimeSeriesMaster remoteHtsMaster = getToolContext().getHistoricalTimeSeriesMaster();
-        HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest();
-        for (HistoricalTimeSeriesInfoDocument historicalTimeSeriesInfoDocument : HistoricalTimeSeriesInfoSearchIterator.iterable(remoteHtsMaster, request)) {
-          ObjectId timeSeriesObjectId = historicalTimeSeriesInfoDocument.getInfo().getTimeSeriesObjectId();
-          ManageableHistoricalTimeSeries timeSeries = remoteHtsMaster.getTimeSeries(timeSeriesObjectId, VersionCorrection.LATEST);            
-          HistoricalTimeSeriesInfoDocument addedDoc = htsMaster.add(historicalTimeSeriesInfoDocument);
-          htsMaster.updateTimeSeriesDataPoints(addedDoc.getInfo().getTimeSeriesObjectId(), timeSeries.getTimeSeries());
+        for (final HistoricalTimeSeriesInfoDocument infoDoc : HistoricalTimeSeriesInfoSearchIterator.iterable(remoteHtsMaster, new HistoricalTimeSeriesInfoSearchRequest())) {
+          ObjectId timeSeriesObjectId = infoDoc.getInfo().getTimeSeriesObjectId();
+          final ManageableHistoricalTimeSeries timeSeries = remoteHtsMaster.getTimeSeries(timeSeriesObjectId, VersionCorrection.LATEST);
+          _tsList.add(infoDoc);
+          _completionService.submit(new Callable<UniqueId>() {
+            
+            @Override
+            public UniqueId call() throws Exception {
+              ManageableHistoricalTimeSeriesInfo added = htsMaster.add(infoDoc).getInfo();
+              htsMaster.updateTimeSeriesDataPoints(added.getTimeSeriesObjectId(), timeSeries.getTimeSeries());
+              return added.getUniqueId();
+            }
+          });
         }
       }
     };
-    String[] args = {"-c", _serverUrl };
+    String[] args = {"-c", getServerUrl()};
     remoteServerTool.initAndRun(args, ToolContext.class);
+    for (int i = 0; i < _tsList.size(); i++) {
+      try {
+        _completionService.take();
+      } catch (Exception ex) {
+        throw new OpenGammaRuntimeException("Error writing TS to remote master", ex);
+      }
+    }
+    timer.finished();
   }
 
   protected void loadSnapshot(final MarketDataSnapshotMaster marketDataSnapshotMaster) {
