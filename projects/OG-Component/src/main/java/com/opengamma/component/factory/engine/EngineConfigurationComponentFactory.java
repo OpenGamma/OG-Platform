@@ -79,7 +79,7 @@ public class EngineConfigurationComponentFactory extends AbstractComponentFactor
    * (for example, in-memory) masters or other data stores.
    */
   @PropertyDefinition
-  private String _logicalServerId /* = createLogicalServerId() */;
+  private String _logicalServerId;
 
   /**
    * Creates a random logical server unique identifier. This is used if an explicit identifier is not set in the configuration file.
