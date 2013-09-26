@@ -14,7 +14,7 @@ import com.opengamma.analytics.financial.instrument.swap.SwapFixedCompoundedONCo
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionCashFixedCompoundedONCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionCashFixedIborDefinition;
-import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedCompoundedONCompoundingDefinition;
+import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedCompoundedONCompoundedDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
@@ -57,7 +57,7 @@ public class SwaptionSecurityConverter extends FinancialSecurityVisitorAdapter<I
         throw new OpenGammaRuntimeException("Underlying BRL swap must be fixed compounded / overnight compounded");
       }
       return isCashSettled ? SwaptionCashFixedCompoundedONCompoundingDefinition.from(expiry, (SwapFixedCompoundedONCompoundedDefinition) swapDefinition, isLong) :
-        SwaptionPhysicalFixedCompoundedONCompoundingDefinition.from(expiry, (SwapFixedCompoundedONCompoundedDefinition) swapDefinition, isLong);
+        SwaptionPhysicalFixedCompoundedONCompoundedDefinition.from(expiry, (SwapFixedCompoundedONCompoundedDefinition) swapDefinition, isLong);
     }
     if (!(underlyingSwap instanceof SwapFixedIborDefinition)) {
       throw new OpenGammaRuntimeException("Underlying swap of a swaption must be a fixed / ibor swap");

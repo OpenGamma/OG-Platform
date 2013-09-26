@@ -114,7 +114,7 @@ public abstract class SwaptionBlackFunction extends AbstractFunction.NonCompiled
     }
     final String[] fullCurveNames = new String[curveNames.length];
     for (int i = 0; i < curveNames.length; i++) {
-      fullCurveNames[i] = curveNames[i] + "_" + currency.getCode();
+      fullCurveNames[i] = curveNames[i] + "_BRL"; // + currency.getCode();
     }
     final YieldCurveBundle curves = YieldCurveFunctionUtils.getYieldCurves(inputs, curveCalculationConfig);
     final YieldCurveBundle tempBundle = new YieldCurveBundle();
@@ -137,7 +137,7 @@ public abstract class SwaptionBlackFunction extends AbstractFunction.NonCompiled
     final ValueSpecification spec = new ValueSpecification(_valueRequirementName, target.toSpecification(), properties);
     final BlackFlatSwaptionParameters parameters = new BlackFlatSwaptionParameters(volatilitySurface.getSurface(),
         SwaptionUtils.getSwapGenerator(security, definition, securitySource));
-    final YieldCurveWithBlackSwaptionBundle data = new YieldCurveWithBlackSwaptionBundle(parameters, curves);
+    final YieldCurveWithBlackSwaptionBundle data = new YieldCurveWithBlackSwaptionBundle(parameters, tempBundle);
     return getResult(swaption, data, spec);
   }
 

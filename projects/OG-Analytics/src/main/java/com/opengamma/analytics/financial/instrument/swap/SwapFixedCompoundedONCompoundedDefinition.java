@@ -13,6 +13,7 @@ import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedComp
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedAccruedCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponONCompoundedDefinition;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedAccruedCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -35,8 +36,8 @@ public class SwapFixedCompoundedONCompoundedDefinition extends SwapDefinition {
    */
   public SwapFixedCompoundedONCompoundedDefinition(final CouponFixedAccruedCompoundingDefinition fixedCoupon, final CouponONCompoundedDefinition onCoupon,
       final Calendar calendar) {
-    super(new AnnuityDefinition<>(new CouponFixedAccruedCompoundingDefinition[] {fixedCoupon}, calendar),
-        new AnnuityDefinition<>(new CouponONCompoundedDefinition[] {onCoupon}, calendar));
+    super(new AnnuityDefinition<>(new CouponFixedAccruedCompoundingDefinition[] {fixedCoupon }, calendar),
+        new AnnuityDefinition<>(new CouponONCompoundedDefinition[] {onCoupon }, calendar));
   }
 
   /**
@@ -85,6 +86,7 @@ public class SwapFixedCompoundedONCompoundedDefinition extends SwapDefinition {
    * The fixed leg of the swap.
    * @return Fixed leg.
    */
+  @SuppressWarnings("unchecked")
   public AnnuityDefinition<CouponFixedAccruedCompoundingDefinition> getFixedLeg() {
     return (AnnuityDefinition<CouponFixedAccruedCompoundingDefinition>) getFirstLeg();
   }
@@ -93,6 +95,7 @@ public class SwapFixedCompoundedONCompoundedDefinition extends SwapDefinition {
    * The overnight compounded leg of the swap.
    * @return Ibor leg.
    */
+  @SuppressWarnings("unchecked")
   public AnnuityDefinition<CouponONCompoundedDefinition> getONLeg() {
     return (AnnuityDefinition<CouponONCompoundedDefinition>) getSecondLeg();
   }
@@ -104,14 +107,16 @@ public class SwapFixedCompoundedONCompoundedDefinition extends SwapDefinition {
   public Currency getCurrency() {
     return getFirstLeg().getCurrency();
   }
+
   /**
    * {@inheritDoc}
    * @deprecated Use the method that does not take yield curve names
    */
+  @SuppressWarnings("unchecked")
   @Deprecated
   @Override
-  public Swap<? extends Payment, ? extends Payment> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    final Annuity<? extends Payment> fixedLeg = getFixedLeg().toDerivative(date, yieldCurveNames);
+  public Swap<CouponFixedAccruedCompounding, ? extends Payment> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+    final Annuity<CouponFixedAccruedCompounding> fixedLeg = (Annuity<CouponFixedAccruedCompounding>) getFixedLeg().toDerivative(date, yieldCurveNames);
     final Annuity<? extends Payment> iborLeg = getONLeg().toDerivative(date, yieldCurveNames);
     return new Swap<>(fixedLeg, iborLeg);
   }
@@ -120,11 +125,12 @@ public class SwapFixedCompoundedONCompoundedDefinition extends SwapDefinition {
    * {@inheritDoc}
    * @deprecated Use the method that does not take yield curve names
    */
+  @SuppressWarnings("unchecked")
   @Deprecated
   @Override
-  public Swap<? extends Payment, ? extends Payment> toDerivative(final ZonedDateTime date, final ZonedDateTimeDoubleTimeSeries[] indexDataTS, final String... yieldCurveNames) {
+  public Swap<CouponFixedAccruedCompounding, ? extends Payment> toDerivative(final ZonedDateTime date, final ZonedDateTimeDoubleTimeSeries[] indexDataTS, final String... yieldCurveNames) {
     ArgumentChecker.notNull(indexDataTS, "index data time series array");
-    final Annuity<? extends Payment> fixedLeg = getFixedLeg().toDerivative(date, yieldCurveNames);
+    final Annuity<CouponFixedAccruedCompounding> fixedLeg = (Annuity<CouponFixedAccruedCompounding>) getFixedLeg().toDerivative(date, yieldCurveNames);
     final Annuity<? extends Payment> iborLeg = getONLeg().toDerivative(date, indexDataTS[0], yieldCurveNames);
     return new Swap<>(fixedLeg, iborLeg);
   }

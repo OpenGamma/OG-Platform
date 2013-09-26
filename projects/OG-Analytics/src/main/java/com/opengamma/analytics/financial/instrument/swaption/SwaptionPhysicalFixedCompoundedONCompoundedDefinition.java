@@ -28,7 +28,7 @@ import com.opengamma.util.time.Expiry;
 /**
  * Class describing a European swaption on a vanilla swap with physical delivery.
  */
-public final class SwaptionPhysicalFixedCompoundedONCompoundingDefinition implements InstrumentDefinitionWithData<SwaptionPhysicalFixedCompoundedONCompounded, ZonedDateTimeDoubleTimeSeries> {
+public final class SwaptionPhysicalFixedCompoundedONCompoundedDefinition implements InstrumentDefinitionWithData<SwaptionPhysicalFixedCompoundedONCompounded, ZonedDateTimeDoubleTimeSeries> {
 
   /**
    * Swap underlying the swaption.
@@ -57,7 +57,7 @@ public final class SwaptionPhysicalFixedCompoundedONCompoundingDefinition implem
    * @param underlyingSwap The underlying swap.
    * @param isLong The long (true) / short (false) flag.
    */
-  private SwaptionPhysicalFixedCompoundedONCompoundingDefinition(final ZonedDateTime expiryDate, final SwapFixedCompoundedONCompoundedDefinition underlyingSwap, final boolean isLong) {
+  private SwaptionPhysicalFixedCompoundedONCompoundedDefinition(final ZonedDateTime expiryDate, final SwapFixedCompoundedONCompoundedDefinition underlyingSwap, final boolean isLong) {
     ArgumentChecker.notNull(expiryDate, "expiry date");
     ArgumentChecker.notNull(underlyingSwap, "underlying swap");
     final AnnuityDefinition<CouponFixedAccruedCompoundingDefinition> fixedLeg = underlyingSwap.getFixedLeg();
@@ -76,10 +76,10 @@ public final class SwaptionPhysicalFixedCompoundedONCompoundingDefinition implem
    * @param isLong The long (true) / short (false) flag.
    * @return The swaption.
    */
-  public static SwaptionPhysicalFixedCompoundedONCompoundingDefinition from(final ZonedDateTime expiryDate, final SwapFixedCompoundedONCompoundedDefinition underlyingSwap, final boolean isLong) {
+  public static SwaptionPhysicalFixedCompoundedONCompoundedDefinition from(final ZonedDateTime expiryDate, final SwapFixedCompoundedONCompoundedDefinition underlyingSwap, final boolean isLong) {
     ArgumentChecker.notNull(expiryDate, "expiry date");
     ArgumentChecker.notNull(underlyingSwap, "underlying swap");
-    return new SwaptionPhysicalFixedCompoundedONCompoundingDefinition(expiryDate, underlyingSwap, isLong);
+    return new SwaptionPhysicalFixedCompoundedONCompoundedDefinition(expiryDate, underlyingSwap, isLong);
   }
 
   /**
@@ -217,7 +217,7 @@ public final class SwaptionPhysicalFixedCompoundedONCompoundingDefinition implem
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final SwaptionPhysicalFixedCompoundedONCompoundingDefinition other = (SwaptionPhysicalFixedCompoundedONCompoundingDefinition) obj;
+    final SwaptionPhysicalFixedCompoundedONCompoundedDefinition other = (SwaptionPhysicalFixedCompoundedONCompoundedDefinition) obj;
     if (!ObjectUtils.equals(_expiry, other._expiry)) {
       return false;
     }

@@ -5,12 +5,11 @@
  */
 package com.opengamma.analytics.financial.interestrate.swaption.method;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import com.opengamma.analytics.financial.instrument.index.GeneratorAttributeIR;
-import com.opengamma.analytics.financial.instrument.index.GeneratorInstrument;
-import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedCompoundedONCompounded;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.PresentValueBlackSwaptionSensitivity;
@@ -23,14 +22,11 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.method.SwapFixedCompoundingONCompoundingDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedCompoundedONCompounded;
-import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackSwaptionBundle;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
@@ -85,23 +81,18 @@ public final class SwaptionPhysicalFixedCompoundedONCompoundedBlackMethod implem
   public CurrencyAmount presentValue(final SwaptionPhysicalFixedCompoundedONCompounded swaption, final YieldCurveWithBlackSwaptionBundle curveBlack) {
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(curveBlack, "Curves with Black volatility");
-    final GeneratorInstrument<GeneratorAttributeIR> generatorSwap = curveBlack.getBlackParameters().getGeneratorSwap();
-    final GeneratorSwapFixedCompoundedONCompounded fixedCompoundedON = (GeneratorSwapFixedCompoundedONCompounded) generatorSwap;
-    final Calendar calendar = fixedCompoundedON.getOvernightCalendar();
-    final DayCount fixedLegDayCount = fixedCompoundedON.getFixedLegDayCount();
-    final double pvbpModified = METHOD_SWAP.presentValueBasisPoint(swaption.getUnderlyingSwap(), fixedLegDayCount,
-        calendar, curveBlack);
     final Swap<CouponFixedAccruedCompounding, CouponONCompounded> swap = swaption.getUnderlyingSwap();
-    final double pvbp = METHOD_SWAP.presentValueBasisPoint(swaption.getUnderlyingSwap(), fixedLegDayCount, calendar, curveBlack);
-    final double pvSecond = -swap.getSecondLeg().accept(PVC, curveBlack) * Math.signum(swap.getSecondLeg().getNthPayment(0).getNotional());
-    final double forwardModified = -pvSecond / pvbp;
-    final double strikeModified = METHOD_SWAP.couponEquivalent(swaption.getUnderlyingSwap(), pvbpModified, curveBlack);
+    final CouponFixedAccruedCompounding cpnFixed = swap.getFirstLeg().getNthPayment(0);
+    final double numeraire = curveBlack.getCurve(cpnFixed.getFundingCurveName()).getDiscountFactor(cpnFixed.getPaymentTime()) * cpnFixed.getNotional();
+    final double delta = swap.getFirstLeg().getNthPayment(0).getPaymentYearFraction();
+    final double forwardModified = METHOD_SWAP.forwardModified(swap, curveBlack);
+    final double strikeModified = Math.pow(1.0d + swaption.getStrike(), delta) - 1.0;
+    // Implementation note: Modified strike: \bar K = (1+K)^\delta-1; the swaption payoff is pvbp*(\bar F - \bar K)^+
     final double maturity = swaption.getMaturityTime();
     final EuropeanVanillaOption option = new EuropeanVanillaOption(strikeModified, swaption.getTimeToExpiry(), swaption.isCall());
-    // Implementation note: option required to pass the strike (in case the swap has non-constant coupon).
     final BlackPriceFunction blackFunction = new BlackPriceFunction();
     final double volatility = curveBlack.getBlackParameters().getVolatility(swaption.getTimeToExpiry(), maturity);
-    final BlackFunctionData dataBlack = new BlackFunctionData(forwardModified, pvbpModified, volatility);
+    final BlackFunctionData dataBlack = new BlackFunctionData(forwardModified, numeraire, volatility);
     final Function1D<BlackFunctionData, Double> func = blackFunction.getPriceFunction(option);
     final double pv = func.evaluate(dataBlack) * (swaption.isLong() ? 1.0 : -1.0);
     return CurrencyAmount.of(swaption.getCurrency(), pv);
@@ -109,9 +100,9 @@ public final class SwaptionPhysicalFixedCompoundedONCompoundedBlackMethod implem
 
   @Override
   public CurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
-    ArgumentChecker.isTrue(instrument instanceof SwaptionPhysicalFixedIbor, "Physical delivery swaption");
+    ArgumentChecker.isTrue(instrument instanceof SwaptionPhysicalFixedCompoundedONCompounded, "Physical delivery swaption");
     ArgumentChecker.isTrue(curves instanceof YieldCurveWithBlackSwaptionBundle, "Bundle should contain Black Swaption data");
-    return presentValue(instrument, curves);
+    return presentValue((SwaptionPhysicalFixedCompoundedONCompounded) instrument, (YieldCurveWithBlackSwaptionBundle) curves);
   }
 
   /**
@@ -139,36 +130,34 @@ public final class SwaptionPhysicalFixedCompoundedONCompoundedBlackMethod implem
   public InterestRateCurveSensitivity presentValueCurveSensitivity(final SwaptionPhysicalFixedCompoundedONCompounded swaption, final YieldCurveWithBlackSwaptionBundle curveBlack) {
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(curveBlack, "Curves with Black volatility");
-    final GeneratorInstrument<GeneratorAttributeIR> generatorSwap = curveBlack.getBlackParameters().getGeneratorSwap();
-    final GeneratorSwapFixedCompoundedONCompounded fixedCompoundedON = (GeneratorSwapFixedCompoundedONCompounded) generatorSwap;
-    final Calendar calendar = fixedCompoundedON.getOvernightCalendar();
-    final DayCount dayCountModification = fixedCompoundedON.getFixedLegDayCount();
-    final double pvbpModified = METHOD_SWAP.presentValueBasisPoint(swaption.getUnderlyingSwap(), dayCountModification, calendar, curveBlack);
     final Swap<CouponFixedAccruedCompounding, CouponONCompounded> swap = swaption.getUnderlyingSwap();
-    final double pvbp = METHOD_SWAP.presentValueBasisPoint(swaption.getUnderlyingSwap(), dayCountModification, calendar, curveBlack);
-    final double pvSecond = swap.getSecondLeg().accept(PVC, curveBlack) * Math.signum(swap.getSecondLeg().getNthPayment(0).getNotional());
-    final double forwardModified = pvSecond / pvbp;
-    final double strikeModified = METHOD_SWAP.couponEquivalent(swaption.getUnderlyingSwap(), pvbpModified, curveBlack);
+    final CouponFixedAccruedCompounding cpnFixed = swap.getFirstLeg().getNthPayment(0);
+    final double numeraire = curveBlack.getCurve(cpnFixed.getFundingCurveName()).getDiscountFactor(cpnFixed.getPaymentTime()) * cpnFixed.getNotional();
+    final double delta = swap.getFirstLeg().getNthPayment(0).getPaymentYearFraction();
+    final double forwardModified = METHOD_SWAP.forwardModified(swap, curveBlack);
+    final double strikeModified = Math.pow(1.0d + swaption.getStrike(), delta) - 1.0;
+    // Implementation note: Modified strike: \bar K = (1+K)^\delta-1; the swaption payoff is pvbp*(\bar F - \bar K)^+
     final double maturity = swaption.getMaturityTime();
-    // Derivative of the forward and pvbp with respect to the rates.
-    final InterestRateCurveSensitivity pvbpModifiedDr = METHOD_SWAP.presentValueBasisPointCurveSensitivity(swaption.getUnderlyingSwap(), dayCountModification,
-        calendar, curveBlack);
-    final InterestRateCurveSensitivity pvbpDr = METHOD_SWAP.presentValueBasisPointCurveSensitivity(swap, dayCountModification, curveBlack);
-    final InterestRateCurveSensitivity pvSecondDr = new InterestRateCurveSensitivity(swap.getSecondLeg().accept(PV_SENSITIVITY_CALCULATOR, curveBlack)).multipliedBy(Math
-        .signum(swap.getSecondLeg().getNthPayment(0).getNotional()));
-    final InterestRateCurveSensitivity forwardModifiedDr = pvSecondDr.multipliedBy(1.0 / pvbp).plus(pvbpDr.multipliedBy(-pvSecond / (pvbp * pvbp)));
-    // Implementation note: strictly speaking, the strike equivalent is curve dependent; that dependency is ignored.
     final EuropeanVanillaOption option = new EuropeanVanillaOption(strikeModified, swaption.getTimeToExpiry(), swaption.isCall());
-    // Implementation note: option required to pass the strike (in case the swap has non-constant coupon).
     final BlackPriceFunction blackFunction = new BlackPriceFunction();
     final double volatility = curveBlack.getBlackParameters().getVolatility(swaption.getTimeToExpiry(), maturity);
-    final BlackFunctionData dataBlack = new BlackFunctionData(forwardModified, 1.0, volatility);
+    final BlackFunctionData dataBlack = new BlackFunctionData(forwardModified, 1, volatility);
     final double[] bsAdjoint = blackFunction.getPriceAdjoint(option, dataBlack);
-    InterestRateCurveSensitivity result = pvbpModifiedDr.multipliedBy(bsAdjoint[0]);
-    result = result.plus(forwardModifiedDr.multipliedBy(pvbpModified * bsAdjoint[1]));
-    if (!swaption.isLong()) {
-      result = result.multipliedBy(-1);
-    }
+    final double sign = (swaption.isLong() ? 1.0 : -1.0);
+    //    final double pv = numeraire * bsAdjoint[0] * sign;
+    // Backward sweep
+    final double pvBar = 1.0;
+    final double numeraireBar = bsAdjoint[0] * sign * pvBar;
+    final double forwardModifiedBar = numeraire * bsAdjoint[1] * sign * pvBar;
+    InterestRateCurveSensitivity forwardModifiedDr = METHOD_SWAP.forwardModifiedCurveSensitivity(swap, curveBlack);
+    final double numeraireDr = -cpnFixed.getPaymentTime() * numeraire;
+    final List<DoublesPair> list = new ArrayList<>();
+    list.add(new DoublesPair(cpnFixed.getPaymentTime(), numeraireDr * numeraireBar));
+    final Map<String, List<DoublesPair>> numeraireMap = new HashMap<>();
+    numeraireMap.put(cpnFixed.getFundingCurveName(), list);
+    InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(numeraireMap);
+    result = result.plus(forwardModifiedDr.multipliedBy(forwardModifiedBar));
+    result = result.cleaned();
     return result;
   }
 
@@ -181,27 +170,25 @@ public final class SwaptionPhysicalFixedCompoundedONCompoundedBlackMethod implem
   public PresentValueBlackSwaptionSensitivity presentValueBlackSensitivity(final SwaptionPhysicalFixedCompoundedONCompounded swaption, final YieldCurveWithBlackSwaptionBundle curveBlack) {
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(curveBlack, "Curves with Black volatility");
-    final GeneratorInstrument<GeneratorAttributeIR> generatorSwap = curveBlack.getBlackParameters().getGeneratorSwap();
-    final GeneratorSwapFixedCompoundedONCompounded fixedCompoundedON = (GeneratorSwapFixedCompoundedONCompounded) generatorSwap;
-    final Calendar calendar = fixedCompoundedON.getOvernightCalendar();
-    final DayCount dayCountModification = fixedCompoundedON.getFixedLegDayCount();
-    final double pvbpModified = METHOD_SWAP.presentValueBasisPoint(swaption.getUnderlyingSwap(), dayCountModification, calendar,
-        curveBlack);
     final Swap<CouponFixedAccruedCompounding, CouponONCompounded> swap = swaption.getUnderlyingSwap();
-    final double pvbp = METHOD_SWAP.presentValueBasisPoint(swaption.getUnderlyingSwap(), dayCountModification, calendar, curveBlack);
-    final double pvSecond = -swap.getSecondLeg().accept(PVC, curveBlack) * Math.signum(swap.getSecondLeg().getNthPayment(0).getNotional());
-    final double forwardModified = -pvSecond / pvbp;
-    final double strikeModified = METHOD_SWAP.couponEquivalent(swaption.getUnderlyingSwap(), pvbpModified, curveBlack);
+    final CouponFixedAccruedCompounding cpnFixed = swap.getFirstLeg().getNthPayment(0);
+    final double numeraire = curveBlack.getCurve(cpnFixed.getFundingCurveName()).getDiscountFactor(cpnFixed.getPaymentTime()) * cpnFixed.getNotional();
+    final double delta = swap.getFirstLeg().getNthPayment(0).getPaymentYearFraction();
+    final double forwardModified = METHOD_SWAP.forwardModified(swap, curveBlack);
+    final double strikeModified = Math.pow(1.0d + swaption.getStrike(), delta) - 1.0;
+    // Implementation note: Modified strike: \bar K = (1+K)^\delta-1; the swaption payoff is pvbp*(\bar F - \bar K)^+
     final double maturity = swaption.getMaturityTime();
     final EuropeanVanillaOption option = new EuropeanVanillaOption(strikeModified, swaption.getTimeToExpiry(), swaption.isCall());
-    // Implementation note: option required to pass the strike (in case the swap has non-constant coupon).
-    final DoublesPair point = new DoublesPair(swaption.getTimeToExpiry(), maturity);
     final BlackPriceFunction blackFunction = new BlackPriceFunction();
-    final double volatility = curveBlack.getBlackParameters().getVolatility(point);
-    final BlackFunctionData dataBlack = new BlackFunctionData(forwardModified, 1.0, volatility);
+    final double volatility = curveBlack.getBlackParameters().getVolatility(swaption.getTimeToExpiry(), maturity);
+    final BlackFunctionData dataBlack = new BlackFunctionData(forwardModified, 1, volatility);
     final double[] bsAdjoint = blackFunction.getPriceAdjoint(option, dataBlack);
+    final double sign = (swaption.isLong() ? 1.0 : -1.0);
+    //    final double pv = numeraire * bsAdjoint[0] * sign;
+    // Backward sweep
+    final DoublesPair point = new DoublesPair(swaption.getTimeToExpiry(), maturity);
     final Map<DoublesPair, Double> sensitivity = new HashMap<>();
-    sensitivity.put(point, bsAdjoint[2] * pvbpModified * (swaption.isLong() ? 1.0 : -1.0));
+    sensitivity.put(point, bsAdjoint[2] * numeraire * sign);
     return new PresentValueBlackSwaptionSensitivity(sensitivity, curveBlack.getBlackParameters().getGeneratorSwap());
   }
 
