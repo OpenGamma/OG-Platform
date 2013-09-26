@@ -101,7 +101,7 @@ public class TimeCalculatorTest {
     assertArrayEquals("TimeCalculator: normal days array", new double[] {timeExpected, 0.0 }, timeCalculated2, TOLERANCE);
   }
   
-  @Test(enalbed = false)
+  @Test(enabled = false)
   /** 
    * Time between dates in different time zones, when one is near midnight.
    * Trouble arises because timeBetween(date1,date2) != -1 * timeBetween(date2,date1).
