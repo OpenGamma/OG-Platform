@@ -22,7 +22,7 @@ import com.opengamma.analytics.financial.instrument.payment.CouponONCompoundedDe
 import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionCashFixedCompoundedONCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionCashFixedIborDefinition;
-import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedCompoundedONCompoundingDefinition;
+import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedCompoundedONCompoundedDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -53,8 +53,8 @@ public class SwaptionUtils {
       swap = ((SwaptionPhysicalFixedIborDefinition) swaption).getUnderlyingSwap();
     } else if (swaption instanceof SwaptionCashFixedIborDefinition) {
       swap = ((SwaptionCashFixedIborDefinition) swaption).getUnderlyingSwap();
-    } else if (swaption instanceof SwaptionPhysicalFixedCompoundedONCompoundingDefinition) {
-      swap = ((SwaptionPhysicalFixedCompoundedONCompoundingDefinition) swaption).getUnderlyingSwap();
+    } else if (swaption instanceof SwaptionPhysicalFixedCompoundedONCompoundedDefinition) {
+      swap = ((SwaptionPhysicalFixedCompoundedONCompoundedDefinition) swaption).getUnderlyingSwap();
     } else if (swaption instanceof SwaptionCashFixedCompoundedONCompoundingDefinition) {
       swap = ((SwaptionCashFixedCompoundedONCompoundingDefinition) swaption).getUnderlyingSwap();
     } else {

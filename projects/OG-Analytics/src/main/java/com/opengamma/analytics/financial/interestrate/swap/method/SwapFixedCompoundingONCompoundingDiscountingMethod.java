@@ -17,11 +17,13 @@ import com.opengamma.analytics.financial.interestrate.annuity.method.AnnuityDisc
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedAccruedCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONCompounded;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
+import com.opengamma.analytics.financial.interestrate.payments.method.CouponONCompoundedDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -54,8 +56,10 @@ public class SwapFixedCompoundingONCompoundingDiscountingMethod {
    * The methods.
    */
   protected static final AnnuityDiscountingMethod METHOD_ANNUITY = AnnuityDiscountingMethod.getInstance();
+  private static final CouponONCompoundedDiscountingMethod METHOD_COUPON_ON_CMP = CouponONCompoundedDiscountingMethod.getInstance();
 
   /**
+   * REVIEW: MH 26-Sep-13: Is "cash annuity" used with couponFixedAccruedCompounding swaps?
    * Computes the conventional cash annuity of a swap. The computation is relevant only for standard swaps with constant notional and regular payments.
    * @param fixedCouponSwap The underlying swap.
    * @param forward The swap forward rate.
@@ -83,6 +87,71 @@ public class SwapFixedCompoundingONCompoundingDiscountingMethod {
     double annuityCashDerivative = -1.0 / (forward * forward) * (1.0 - 1.0 / Math.pow(1 + forward / nbFixedPaymentYear, nbFixedPeriod)) * notional;
     annuityCashDerivative += 1.0 / (forward * nbFixedPaymentYear) * nbFixedPeriod * Math.pow(1 + forward / nbFixedPaymentYear, -nbFixedPeriod - 1.0) * notional;
     return annuityCashDerivative;
+  }
+
+  /**
+   * Computes the forward rate of the swaps with one fixed payment.
+   * @param fixedCouponSwap The underlying swap. Should have one fixed payment.
+   * @param curves The yield curve bundle.
+   * @return The forward rate.
+   */
+  public double forward(final Swap<CouponFixedAccruedCompounding, CouponONCompounded> fixedCouponSwap, final YieldCurveBundle curves) {
+    ArgumentChecker.notNull(fixedCouponSwap, "Swap");
+    ArgumentChecker.isTrue(fixedCouponSwap.getFirstLeg().getNumberOfPayments() == 1, "Swap should have one fixed payment");
+    ArgumentChecker.isTrue(fixedCouponSwap.getSecondLeg().getNumberOfPayments() == 1, "Swap should have one floating payment");
+    CouponFixedAccruedCompounding cpnFixed = fixedCouponSwap.getFirstLeg().getNthPayment(0);
+    CurrencyAmount pvLegFloating = METHOD_COUPON_ON_CMP.presentValue(fixedCouponSwap.getSecondLeg().getNthPayment(0), curves);
+    double dfPay = curves.getCurve(cpnFixed.getFundingCurveName()).getDiscountFactor(cpnFixed.getPaymentTime());
+    double rate = Math.pow(-pvLegFloating.getAmount() / (dfPay * cpnFixed.getNotional()), 1.0d / cpnFixed.getPaymentYearFraction()) - 1.0d;
+    return rate;
+  }
+
+  /**
+   * Computes the "modified forward", i.e. the quantity F such that the swap with amount $N(F + 1)$ has a pv of 0.
+   * The modified forward is also equal to $(1+forward)^\delta - 1$.
+   * @param fixedCouponSwap The underlying swap. Should have one fixed payment.
+   * @param curves The yield curve bundle.
+   * @return The modified forward rate.
+   */
+  public double forwardModified(final Swap<CouponFixedAccruedCompounding, CouponONCompounded> fixedCouponSwap, final YieldCurveBundle curves) {
+    ArgumentChecker.notNull(fixedCouponSwap, "Swap");
+    ArgumentChecker.isTrue(fixedCouponSwap.getFirstLeg().getNumberOfPayments() == 1, "Swap should have one fixed payment");
+    ArgumentChecker.isTrue(fixedCouponSwap.getSecondLeg().getNumberOfPayments() == 1, "Swap should have one floating payment");
+    CouponFixedAccruedCompounding cpnFixed = fixedCouponSwap.getFirstLeg().getNthPayment(0);
+    CurrencyAmount pvLegFloating = METHOD_COUPON_ON_CMP.presentValue(fixedCouponSwap.getSecondLeg().getNthPayment(0), curves);
+    double dfPay = curves.getCurve(cpnFixed.getFundingCurveName()).getDiscountFactor(cpnFixed.getPaymentTime());
+    double rate = -pvLegFloating.getAmount() / (dfPay * cpnFixed.getNotional()) - 1.0d;
+    return rate;
+  }
+
+  /**
+   * Computes the "modified forward", i.e. the quantity F such that the swap with amount $N(F + 1)$ has a pv of 0.
+   * The modified forward is also equal to $(1+forward)^\delta - 1$.
+   * @param fixedCouponSwap The underlying swap. Should have one fixed payment.
+   * @param curves The yield curve bundle.
+   * @return The modified forward rate.
+   */
+  public InterestRateCurveSensitivity forwardModifiedCurveSensitivity(final Swap<CouponFixedAccruedCompounding, CouponONCompounded> fixedCouponSwap, final YieldCurveBundle curves) {
+    ArgumentChecker.notNull(fixedCouponSwap, "Swap");
+    ArgumentChecker.isTrue(fixedCouponSwap.getFirstLeg().getNumberOfPayments() == 1, "Swap should have one fixed payment");
+    ArgumentChecker.isTrue(fixedCouponSwap.getSecondLeg().getNumberOfPayments() == 1, "Swap should have one floating payment");
+    CouponFixedAccruedCompounding cpnFixed = fixedCouponSwap.getFirstLeg().getNthPayment(0);
+    CurrencyAmount pvLegFloating = METHOD_COUPON_ON_CMP.presentValue(fixedCouponSwap.getSecondLeg().getNthPayment(0), curves);
+    double dfPay = curves.getCurve(cpnFixed.getFundingCurveName()).getDiscountFactor(cpnFixed.getPaymentTime());
+    //    double rate = -pvLegFloating.getAmount() / (dfPay * cpnFixed.getNotional()) - 1.0d;
+    // Backward sweep
+    double rateBar = 1.0;
+    double pvFloatingBar = -1.0d / (dfPay * cpnFixed.getNotional()) * rateBar;
+    double dfBar = pvLegFloating.getAmount() / (dfPay * dfPay * cpnFixed.getNotional()) * rateBar;
+    final double dfDr = -cpnFixed.getPaymentTime() * dfPay;
+    final List<DoublesPair> list = new ArrayList<>();
+    list.add(new DoublesPair(cpnFixed.getPaymentTime(), dfDr * dfBar));
+    final Map<String, List<DoublesPair>> dfMap = new HashMap<>();
+    dfMap.put(cpnFixed.getFundingCurveName(), list);
+    InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(dfMap);
+    InterestRateCurveSensitivity pvLegFloatingDr = METHOD_COUPON_ON_CMP.presentValueCurveSensitivity(fixedCouponSwap.getSecondLeg().getNthPayment(0), curves);
+    result = result.plus(pvLegFloatingDr.multipliedBy(pvFloatingBar));
+    return result;
   }
 
   /**
