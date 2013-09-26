@@ -134,6 +134,22 @@ API compatibility
 Analytics compatibility
 - No expected differences
 
+To 2.1.0-M3p06
+-----------
+As above, and:
+
+Configuration compatibility
+- No changes required
+
+Database compatibility
+- No upgrade required
+
+API compatibility
+- No significant changes
+
+Analytics compatibility
+- No expected differences
+
 
 Changes since 2.0.0
 ===================
@@ -198,3 +214,12 @@ As above, and:
     PLAT-4722:  Scaling ValueGammaP according to domestic/foreign currencies
     Setting the sign of ValueTheta according to the pay currency of the FX forward
     [PLAT-4694] added ability to override the BBG subscription prefix
+
+To 2.1.0-M3p05
+------------
+As above, and:
+    [PLAT-4762] Adding spot rate requirement for FX digitals and barriers
+    Fixed scaling ValueGammaP by spot exchange rate
+    [PLAT-4527]  PLAT-4574] Switched search methods to use pagedSearch
+    [PLAT-4745] Support alternative weak schemes
+    Changed presentValueCurveSensitivity() adjoint zero rate sensitivity calculation:
