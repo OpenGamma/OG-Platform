@@ -124,7 +124,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
                                              server.getOrganizationMaster());
       Map<ObjectId, ObjectId> securityIdMappings = dataReader.loadSecurities();
       Map<ObjectId, ObjectId> positionIdMappings = dataReader.loadPositions(securityIdMappings);
-      Map<UniqueId, UniqueId> portfolioIdMappings = dataReader.loadPortfolios(positionIdMappings);
+      Map<ObjectId, ObjectId> portfolioIdMappings = dataReader.loadPortfolios(positionIdMappings);
       dataReader.loadConfigs(portfolioIdMappings);
       dataReader.loadTimeSeries();
       dataReader.loadHolidays();
@@ -171,49 +171,46 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
     return ids;
   }
 
-  private Map<UniqueId, UniqueId> loadPortfolios(Map<ObjectId, ObjectId> positionIdMappings) throws IOException {
+  private Map<ObjectId, ObjectId> loadPortfolios(Map<ObjectId, ObjectId> positionIdMappings) throws IOException {
     List<?> portfolios = readFromFile("portfolios.xml");
-    Map<UniqueId, UniqueId> idMappings = Maps.newHashMapWithExpectedSize(portfolios.size());
+    Map<ObjectId, ObjectId> idMappings = Maps.newHashMapWithExpectedSize(portfolios.size());
     for (Object o : portfolios) {
       ManageablePortfolio portfolio = (ManageablePortfolio) o;
       UniqueId oldId = portfolio.getUniqueId();
       portfolio.setUniqueId(null);
-      // TODO this is temporary
-      portfolio.setName(portfolio.getName() + " uploaded");
       replacePositionIds(portfolio.getRootNode(), positionIdMappings);
       UniqueId newId = _portfolioMaster.add(new PortfolioDocument(portfolio)).getUniqueId();
       s_logger.info("Saved portfolio with ID {}, {}", newId, portfolio);
-      idMappings.put(newId, oldId);
+      idMappings.put(oldId.getObjectId(), newId.getObjectId());
     }
     return idMappings;
   }
 
-  private void loadConfigs(Map<UniqueId, UniqueId> portfolioIdMappings) throws IOException {
+  private void loadConfigs(Map<ObjectId, ObjectId> portfolioIdMappings) throws IOException {
     List<?> configs = readFromFile("configs.xml");
     List<ViewDefinition> viewDefs = Lists.newArrayList();
     // view definitions refer to other config items by unique ID
     Map<UniqueId, UniqueId> idMappings = Maps.newHashMap();
     for (Object o : configs) {
       ConfigItem<?> config = (ConfigItem<?>) o;
-      config.setUniqueId(null);
-      config.setName(config.getName() + " uploaded");
       Object configValue = config.getValue();
       if (configValue instanceof ViewDefinition) {
         viewDefs.add((ViewDefinition) configValue);
       } else {
         UniqueId oldId = config.getUniqueId();
+        config.setUniqueId(null);
         UniqueId newId = _configMaster.add(new ConfigDocument(config)).getUniqueId();
-        s_logger.info("Saved config with ID {} of type {}", newId, configValue.getClass().getSimpleName());
+        s_logger.info("Saved config of type {} with ID {}", configValue.getClass().getSimpleName(), newId);
         idMappings.put(oldId, newId);
       }
     }
     // TODO maybe this should be pluggable to handle new config types that need post processing
     for (ViewDefinition viewDef : viewDefs) {
-      UniqueId oldPortfolioId = viewDef.getPortfolioId();
+      ObjectId oldPortfolioId = viewDef.getPortfolioId().getObjectId();
       UniqueId newPortfolioId;
       if (oldPortfolioId != null) {
         if (portfolioIdMappings.containsKey(oldPortfolioId)) {
-          newPortfolioId = portfolioIdMappings.get(oldPortfolioId);
+          newPortfolioId = portfolioIdMappings.get(oldPortfolioId).atLatestVersion();
         } else {
           newPortfolioId = null;
           s_logger.warn("No mapping found for view def portfolio ID {}", oldPortfolioId);
@@ -226,6 +223,8 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
         calcConfig.setScenarioId(idMappings.get(calcConfig.getScenarioId()));
         calcConfig.setScenarioParametersId(idMappings.get(calcConfig.getScenarioParametersId()));
       }
+      UniqueId newId = _configMaster.add(new ConfigDocument(ConfigItem.of(viewDef))).getUniqueId();
+      s_logger.info("Saved view definition with ID {}", newId);
     }
   }
 
