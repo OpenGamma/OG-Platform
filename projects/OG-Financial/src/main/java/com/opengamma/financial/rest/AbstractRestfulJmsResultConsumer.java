@@ -40,9 +40,9 @@ public abstract class AbstractRestfulJmsResultConsumer {
 
   private static final long START_JMS_RESULT_STREAM_TIMEOUT_MILLIS = 10000;
   private static final int HEARTBEAT_RETRIES = 3;
-  
+
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractRestfulJmsResultConsumer.class);
-  
+
   /**
    * The base URI
    */
@@ -75,7 +75,7 @@ public abstract class AbstractRestfulJmsResultConsumer {
    * The started signal latch
    */
   private CountDownLatch _startedSignalLatch;
-  
+
   protected AbstractRestfulJmsResultConsumer(URI baseUri, FudgeContext fudgeContext, JmsConnector jmsConnector, ScheduledExecutorService scheduler, long heartbeatPeriodMillis) {
     _baseUri = baseUri;
     _jmsConnector = jmsConnector;
@@ -89,21 +89,21 @@ public abstract class AbstractRestfulJmsResultConsumer {
     };
     _scheduledHeartbeat = scheduler.scheduleAtFixedRate(runnable, heartbeatPeriodMillis, heartbeatPeriodMillis, TimeUnit.MILLISECONDS);
   }
-  
+
   //-------------------------------------------------------------------------
   protected void onStartResultStream() {
   }
-  
+
   protected void onEndResultStream() {
   }
-  
+
   protected abstract void dispatchListenerCall(Function<?, ?> listenerCall);
-  
+
   //-------------------------------------------------------------------------
   protected URI getBaseUri() {
     return _baseUri;
   }
-  
+
   protected FudgeRestClient getClient() {
     return _client;
   }
@@ -120,7 +120,7 @@ public abstract class AbstractRestfulJmsResultConsumer {
   /**
    * Externally visible for testing.
    * 
-   * @param heartbeatUri  the heartbeat URI, not null
+   * @param heartbeatUri the heartbeat URI, not null
    */
   public void heartbeat(URI heartbeatUri) {
     ArgumentChecker.notNull(heartbeatUri, "heartbeatUri");
@@ -142,12 +142,12 @@ public abstract class AbstractRestfulJmsResultConsumer {
   }
 
   /**
-   * Called when heartbeating has failed, indicating that the remote resource has been discarded or the connection to
-   * the remote host has been lost. This is intended to be overridden to add custom error handling.
+   * Called when heartbeating has failed, indicating that the remote resource has been discarded or the connection to the remote host has been lost. This is intended to be overridden to add custom
+   * error handling.
    * <p>
    * Externally visible for testing.
    * 
-   * @param ex  an exception associated with the failed heartbeat, may be null
+   * @param ex an exception associated with the failed heartbeat, may be null
    */
   public void heartbeatFailed(Exception ex) {
     s_logger.error("Heartbeating failed for resource " + getBaseUri() + " failed", ex);
@@ -168,8 +168,8 @@ public abstract class AbstractRestfulJmsResultConsumer {
    * <p>
    * If an exception is thrown then the listener state remains unchanged.
    * 
-   * @throws InterruptedException  if the thread is interrupted while starting the subscription
-   * @throws JMSException  if a JMS error occurs while starting the subscription
+   * @throws InterruptedException if the thread is interrupted while starting the subscription
+   * @throws JMSException if a JMS error occurs while starting the subscription
    */
   protected void incrementListenerDemand() throws InterruptedException, JMSException {
     _listenerDemand++;
@@ -183,14 +183,14 @@ public abstract class AbstractRestfulJmsResultConsumer {
       throw e;
     }
   }
-  
+
   /**
    * Decrements the listener demand, stopping the underlying subscription if the last listener is removed.
    * <p>
    * If an exception is thrown then the listener state remains unchanged.
    * 
-   * @throws InterruptedException  if the thread is interrupted while stopping the subscription
-   * @throws JMSException  if a JMS error occurs while stopping the subscription
+   * @throws InterruptedException if the thread is interrupted while stopping the subscription
+   * @throws JMSException if a JMS error occurs while stopping the subscription
    */
   protected void decrementListenerDemand() throws InterruptedException, JMSException {
     _listenerDemand--;
@@ -204,14 +204,14 @@ public abstract class AbstractRestfulJmsResultConsumer {
       throw e;
     }
   }
-  
+
   /**
    * Configures the underlying subscription if required.
    * <p>
    * If an exception is thrown then the listener state remains unchanged.
    * 
-   * @throws InterruptedException  if the thread is interrupted while configuring the subscription
-   * @throws JMSException  if a JMS error occurs while configuring the subscription
+   * @throws InterruptedException if the thread is interrupted while configuring the subscription
+   * @throws JMSException if a JMS error occurs while configuring the subscription
    */
   private void configureResultListener() throws InterruptedException, JMSException {
     if (_listenerDemand == 0) {
@@ -239,7 +239,7 @@ public abstract class AbstractRestfulJmsResultConsumer {
       onStartResultStream();
     }
   }
-  
+
   private String startJms() throws JMSException {
     try {
       _startedSignalLatch = new CountDownLatch(1);
@@ -257,16 +257,21 @@ public abstract class AbstractRestfulJmsResultConsumer {
               return;
             }
             listenerCall = fudgeContext.fromFudgeMsg(Function.class, msgEnvelope.getMessage());
-          } catch (Exception e) {
-            s_logger.warn("Caught exception parsing message", e);
+          } catch (Throwable t) {
+            s_logger.error("Couldn't parse message {}", t.getMessage());
+            s_logger.warn("Caught exception parsing message", t);
             s_logger.debug("Couldn't parse message {}", msgEnvelope.getMessage());
             return;
           }
-          dispatchListenerCall(listenerCall);
+          try {
+            dispatchListenerCall(listenerCall);
+          } catch (Throwable t) {
+            s_logger.error("Error dispatching " + listenerCall + " to listener", t);
+          }
         }
       }, _fudgeContext);
       _queueHost = new JmsTemporaryQueueHost(_jmsConnector, new JmsByteArrayMessageDispatcher(bafmr));
-      
+
       s_logger.info("Set up result JMS subscription to {}", _queueHost.getQueueName());
       return _queueHost.getQueueName();
     } catch (JMSException e) {
@@ -275,7 +280,7 @@ public abstract class AbstractRestfulJmsResultConsumer {
       throw e;
     }
   }
-  
+
   private void closeJms() {
     if (_queueHost != null) {
       try {
@@ -286,10 +291,10 @@ public abstract class AbstractRestfulJmsResultConsumer {
       }
     }
   }
-  
+
   //-------------------------------------------------------------------------
   protected static URI getUri(URI baseUri, String path) {
     return UriBuilder.fromUri(baseUri).path(path).build();
   }
-  
+
 }
