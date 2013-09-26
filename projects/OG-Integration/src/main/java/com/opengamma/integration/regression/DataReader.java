@@ -157,12 +157,13 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
       ManageablePosition position = (ManageablePosition) o;
       ObjectId oldId = position.getUniqueId().getObjectId();
       position.setUniqueId(null);
-      // TODO need to handle this, some people use ObjectIds in positions
-      if (position.getSecurityLink().getObjectId() != null) {
-        s_logger.warn("Position {} has non-null ObjectId in its SecurityLink", position);
-      }
-      if (position.getSecurityLink().getExternalId() == null) {
-        s_logger.warn("Position {} has null ExternalIdBundle", position);
+      ObjectId securityObjectId = position.getSecurityLink().getObjectId();
+      if (securityObjectId != null) {
+        ObjectId newObjectId = securityIdMappings.get(securityObjectId);
+        position.getSecurityLink().setObjectId(newObjectId);
+        if (newObjectId == null) {
+          s_logger.warn("No security found with ID {} for position {}", securityObjectId, position);
+        }
       }
       PositionDocument doc = _positionMaster.add(new PositionDocument(position));
       ids.put(oldId, doc.getUniqueId().getObjectId());
