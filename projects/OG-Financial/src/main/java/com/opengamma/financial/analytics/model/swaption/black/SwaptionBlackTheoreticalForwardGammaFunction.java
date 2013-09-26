@@ -8,24 +8,23 @@ package com.opengamma.financial.analytics.model.swaption.black;
 import java.util.Collections;
 import java.util.Set;
 
-import com.opengamma.analytics.financial.interestrate.DeltaBlackCalculator;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.interestrate.PresentValueBlackCalculator;
 import com.opengamma.analytics.financial.interestrate.swaption.method.SwaptionBlackForwardDeltaCalculator;
+import com.opengamma.analytics.financial.interestrate.swaption.method.SwaptionBlackForwardGammaCalculator;
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackSwaptionBundle;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
- * 
+ * Calculates gamma of swaptions using the Black method.
  */
 @Deprecated
-public class SwaptionBlackTheoreticaForwardlDeltaFunction extends SwaptionBlackFunction {
-  private static final SwaptionBlackForwardDeltaCalculator CALCULATOR = SwaptionBlackForwardDeltaCalculator.getInstance();
+public class SwaptionBlackTheoreticalForwardGammaFunction extends SwaptionBlackFunction  {
+  private static final SwaptionBlackForwardGammaCalculator CALCULATOR = SwaptionBlackForwardGammaCalculator.getInstance();
 
-  public SwaptionBlackTheoreticaForwardlDeltaFunction() {
-    super(ValueRequirementNames.DELTA);
+  public SwaptionBlackTheoreticalForwardGammaFunction() {
+    super(ValueRequirementNames.FORWARD_GAMMA);
   }
 
   @Override

@@ -37,7 +37,14 @@ public class SwaptionBlackDefaultPropertiesFunction extends DefaultPropertyFunct
     ValueRequirementNames.PV01,
     ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
     ValueRequirementNames.SECURITY_IMPLIED_VOLATILITY,
-    ValueRequirementNames.DELTA
+    ValueRequirementNames.DELTA,
+    ValueRequirementNames.FORWARD_DELTA,
+    ValueRequirementNames.GAMMA,
+    ValueRequirementNames.FORWARD_GAMMA,
+    ValueRequirementNames.THETA,
+    ValueRequirementNames.DRIFTLESS_THETA,
+    ValueRequirementNames.VEGA,
+    ValueRequirementNames.FORWARD_VEGA
   };
   private final Map<String, Pair<String, String>> _currencyCurveConfigAndSurfaceNames;
 

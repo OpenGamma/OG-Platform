@@ -173,7 +173,13 @@ public final class SwaptionCashFixedIborBlackMethod implements PricingMethod {
     return volatility;
   }
 
-  public double deltaTheoretical(final SwaptionCashFixedIbor swaption, final YieldCurveWithBlackSwaptionBundle curveBlack) {
+  /**
+   * Compute first derivative of present value with respect to forward rate
+   * @param swaption The swaption.
+   * @param curveBlack The curves with Black volatility data.
+   * @return The forward delta
+   */
+  public double forwardDeltaTheoretical(final SwaptionCashFixedIbor swaption, final YieldCurveWithBlackSwaptionBundle curveBlack) {
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(curveBlack, "Curves with Black volatility");
     final AnnuityCouponFixed annuityFixed = swaption.getUnderlyingSwap().getFixedLeg();
@@ -194,10 +200,16 @@ public final class SwaptionCashFixedIborBlackMethod implements PricingMethod {
   public CurrencyAmount delta(final SwaptionCashFixedIbor swaption, final YieldCurveWithBlackSwaptionBundle curveBlack) {
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(curveBlack, "Curves with Black volatility");
-    return CurrencyAmount.of(swaption.getCurrency(), deltaTheoretical(swaption, curveBlack));
+    return CurrencyAmount.of(swaption.getCurrency(), forwardDeltaTheoretical(swaption, curveBlack));
   }
 
-  public double gammaTheoretical(final SwaptionCashFixedIbor swaption, final YieldCurveWithBlackSwaptionBundle curveBlack) {
+  /**
+   * Compute second derivative of present value with respect to forward rate
+   * @param swaption The swaption.
+   * @param curveBlack The curves with Black volatility data.
+   * @return The forward gamma
+   */
+  public double forwardGammaTheoretical(final SwaptionCashFixedIbor swaption, final YieldCurveWithBlackSwaptionBundle curveBlack) {
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(curveBlack, "Curves with Black volatility");
     final AnnuityCouponFixed annuityFixed = swaption.getUnderlyingSwap().getFixedLeg();
@@ -214,13 +226,36 @@ public final class SwaptionCashFixedIborBlackMethod implements PricingMethod {
     return df * BlackFormulaRepository.gamma(forward, strike, expiry, volatility) * (swaption.isLong() ? 1.0 : -1.0);
   }
 
-  public CurrencyAmount gamma(final SwaptionCashFixedIbor swaption, final YieldCurveWithBlackSwaptionBundle curveBlack) {
+  /**
+   * Compute minus of first derivative of present value with respect to time, setting drift term to be 0
+   * @param swaption The swaption.
+   * @param curveBlack The curves with Black volatility data.
+   * @return The driftless theta
+   */
+  public double driftlessThetaTheoretical(final SwaptionCashFixedIbor swaption, final YieldCurveWithBlackSwaptionBundle curveBlack) {
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(curveBlack, "Curves with Black volatility");
-    return CurrencyAmount.of(swaption.getCurrency(), gammaTheoretical(swaption, curveBlack));
+    final double tenor = swaption.getMaturityTime();
+    final AnnuityCouponFixed annuityFixed = swaption.getUnderlyingSwap().getFixedLeg();
+    final double forward = swaption.getUnderlyingSwap().accept(PRC, curveBlack);
+    final double pvbp = METHOD_SWAP.getAnnuityCash(swaption.getUnderlyingSwap(), forward);
+    // Implementation comment: cash-settled swaptions make sense only for constant strike, the computation of coupon equivalent is not required.
+    final double volatility = curveBlack.getBlackParameters().getVolatility(swaption.getTimeToExpiry(), tenor);
+    final double discountFactorSettle = curveBlack.getCurve(annuityFixed.getNthPayment(0).getFundingCurveName()).getDiscountFactor(swaption.getSettlementTime());
+
+    final double strike = swaption.getStrike();
+    final double expiry = swaption.getTimeToExpiry();
+    final double df = discountFactorSettle * pvbp;
+    return df * BlackFormulaRepository.driftlessTheta(forward, strike, expiry, volatility) * (swaption.isLong() ? 1.0 : -1.0);
   }
 
-  public double thetaTheoretical(final SwaptionCashFixedIbor swaption, final YieldCurveWithBlackSwaptionBundle curveBlack) {
+  /**
+   * Compute minus of first derivative of present value with respect to time
+   * @param swaption The swaption.
+   * @param curveBlack The curves with Black volatility data.
+   * @return The forward theta
+   */
+  public double forwardThetaTheoretical(final SwaptionCashFixedIbor swaption, final YieldCurveWithBlackSwaptionBundle curveBlack) {
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(curveBlack, "Curves with Black volatility");
     final AnnuityCouponFixed annuityFixed = swaption.getUnderlyingSwap().getFixedLeg();
@@ -239,13 +274,13 @@ public final class SwaptionCashFixedIborBlackMethod implements PricingMethod {
         BlackFormulaRepository.driftlessTheta(forward, strike, expiry, volatility) * (swaption.isLong() ? 1.0 : -1.0);
   }
 
-  public CurrencyAmount theta(final SwaptionCashFixedIbor swaption, final YieldCurveWithBlackSwaptionBundle curveBlack) {
-    ArgumentChecker.notNull(swaption, "Swaption");
-    ArgumentChecker.notNull(curveBlack, "Curves with Black volatility");
-    return CurrencyAmount.of(swaption.getCurrency(), thetaTheoretical(swaption, curveBlack));
-  }
-
-  public double vegaTheoretical(final SwaptionCashFixedIbor swaption, final YieldCurveWithBlackSwaptionBundle curveBlack) {
+  /**
+   * Compute first derivative of present value with respect to volatility
+   * @param swaption The swaption.
+   * @param curveBlack The curves with Black volatility data.
+   * @return The forward vega
+   */
+  public double forwardVegaTheoretical(final SwaptionCashFixedIbor swaption, final YieldCurveWithBlackSwaptionBundle curveBlack) {
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(curveBlack, "Curves with Black volatility");
     final AnnuityCouponFixed annuityFixed = swaption.getUnderlyingSwap().getFixedLeg();
@@ -262,9 +297,4 @@ public final class SwaptionCashFixedIborBlackMethod implements PricingMethod {
     return df * BlackFormulaRepository.vega(forward, strike, expiry, volatility) * (swaption.isLong() ? 1.0 : -1.0);
   }
 
-  public CurrencyAmount vega(final SwaptionCashFixedIbor swaption, final YieldCurveWithBlackSwaptionBundle curveBlack) {
-    ArgumentChecker.notNull(swaption, "Swaption");
-    ArgumentChecker.notNull(curveBlack, "Curves with Black volatility");
-    return CurrencyAmount.of(swaption.getCurrency(), vegaTheoretical(swaption, curveBlack));
-  }
 }
