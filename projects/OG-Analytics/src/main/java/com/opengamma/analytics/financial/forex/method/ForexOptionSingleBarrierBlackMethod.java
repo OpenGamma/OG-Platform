@@ -338,7 +338,7 @@ public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMe
     final double[] adjoint = new double[5];
     BARRIER_FUNCTION.getPriceAdjoint(optionForex.getUnderlyingOption(), optionForex.getBarrier(), rebateByForeignUnit, spot, rateDomestic - rateForeign, rateDomestic,
         volatility, adjoint);
-    final double deltaDirect = adjoint[0] * dfForeign * sign;
+    final double deltaDirect = adjoint[0] * sign / dfForeign;
     if (directQuote) {
       return deltaDirect;
     }
@@ -461,30 +461,15 @@ public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMe
     ArgumentChecker.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Yield curve bundle should contain smile data");
     final SmileDeltaTermStructureDataBundle smile = (SmileDeltaTermStructureDataBundle) curves;
     final ForexOptionVanilla underlyingOption = optionForex.getUnderlyingOption();
-    final PaymentFixed paymentCurrency1 = underlyingOption.getUnderlyingForex().getPaymentCurrency1();
     final PaymentFixed paymentCurrency2 = underlyingOption.getUnderlyingForex().getPaymentCurrency2();
     final double sign = (optionForex.getUnderlyingOption().isLong() ? 1.0 : -1.0);
     final double gammaDirect = gammaFd(optionForex, smile).getAmount() * sign;
-    final double dfDomestic = smile.getCurve(paymentCurrency2.getFundingCurveName()).getDiscountFactor(underlyingOption.getUnderlyingForex().getPaymentTime());
-    final double dfForeign = smile.getCurve(paymentCurrency1.getFundingCurveName()).getDiscountFactor(underlyingOption.getUnderlyingForex().getPaymentTime());
     final double spot = smile.getFxRates().getFxRate(optionForex.getCurrency1(), optionForex.getCurrency2());
-    final double forward = spot * dfForeign / dfDomestic;
     if (directQuote) {
       return CurrencyAmount.of(paymentCurrency2.getCurrency(), gammaDirect);
     }
     final double deltaDirect = spotDeltaTheoretical(optionForex, curves) * sign;
-    final String domesticCurveName = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency2().getFundingCurveName();
-    final String foreignCurveName = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency1().getFundingCurveName();
-    final double payTime = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentTime();
-    final double rateDomestic = smile.getCurve(domesticCurveName).getInterestRate(payTime);
-    final double rateForeign = smile.getCurve(foreignCurveName).getInterestRate(payTime);
-    final double foreignAmount = optionForex.getUnderlyingOption().getUnderlyingForex().getPaymentCurrency1().getAmount();
-    final double rebateByForeignUnit = optionForex.getRebate() / Math.abs(foreignAmount);
-    final double vol = FXVolatilityUtils.getVolatility(smile, optionForex.getCurrency1(), optionForex.getCurrency2(),
-        optionForex.getUnderlyingOption().getTimeToExpiry(), optionForex.getUnderlyingOption().getStrike(), forward);
-    final double price = BARRIER_FUNCTION.getPrice(underlyingOption, optionForex.getBarrier(), rebateByForeignUnit, spot, rateDomestic - rateForeign, rateDomestic,
-        vol) * sign;
-    final double gamma = (gammaDirect + 2. * price / spot / spot - 2 * deltaDirect / spot) / spot;
+    final double gamma = (gammaDirect * spot + 2 * deltaDirect) * spot * spot * spot;
     return CurrencyAmount.of(paymentCurrency2.getCurrency(), gamma);
   }
 
