@@ -38,6 +38,7 @@ import com.opengamma.engine.view.cycle.ViewCycleMetadata;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.ViewResultListener;
+import com.opengamma.engine.view.permission.ViewPermissionContext;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
 import com.opengamma.engine.view.worker.ViewExecutionDataProvider;
 import com.opengamma.engine.view.worker.ViewProcessWorker;
@@ -533,7 +534,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
   /**
    * Sets the current worker
    * 
-   * @param computationJob the current worker
+   * @param worker the current worker
    */
   private void setWorker(final ViewProcessWorker worker) {
     _worker = worker;
@@ -549,12 +550,15 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
    * <p>
    * The method operates with set semantics, so duplicate notifications for the same listener have no effect.
    * 
+   *
    * @param listener the listener, not null
    * @param resultMode the result mode for the listener, not null
    * @param fragmentResultMode the fragment result mode for the listener, not null
-   * @return the permission provider for the process, not null
+   * @return the permission context for the process, not null
    */
-  public ViewPermissionProvider attachListener(final ViewResultListener listener, final ViewResultMode resultMode, final ViewResultMode fragmentResultMode) {
+  public ViewPermissionContext attachListener(final ViewResultListener listener,
+                                              final ViewResultMode resultMode,
+                                              final ViewResultMode fragmentResultMode) {
     ArgumentChecker.notNull(listener, "listener");
     ArgumentChecker.notNull(resultMode, "resultMode");
     ArgumentChecker.notNull(fragmentResultMode, "fragmentResultMode");
@@ -615,7 +619,9 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
         logListenerError(listener, e);
       }
     }
-    return getProcessContext().getViewPermissionProvider();
+    return new ViewPermissionContext(
+        getProcessContext().getViewPermissionProvider(),
+        getProcessContext().getViewPortfolioPermissionProvider());
   }
 
   private static boolean doesListenerRequireDeltas(ViewResultMode resultMode, ViewResultMode fragmentResultMode) {

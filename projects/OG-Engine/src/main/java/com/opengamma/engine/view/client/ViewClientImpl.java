@@ -27,13 +27,16 @@ import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.client.merging.RateLimitingMergingViewProcessListener;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
+import com.opengamma.engine.view.compilation.CompiledViewDefinitionImpl;
 import com.opengamma.engine.view.cycle.ViewCycle;
 import com.opengamma.engine.view.cycle.ViewCycleMetadata;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.impl.ViewProcessorImpl;
 import com.opengamma.engine.view.listener.ViewResultListener;
+import com.opengamma.engine.view.permission.ViewPermissionContext;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
+import com.opengamma.engine.view.permission.ViewPortfolioPermissionProvider;
 import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
@@ -53,8 +56,8 @@ public class ViewClientImpl implements ViewClient {
   private final UserPrincipal _user;
   private final EngineResourceRetainer _latestCycleRetainer;
 
-  private final AtomicReference<ViewResultMode> _resultMode = new AtomicReference<ViewResultMode>(ViewResultMode.FULL_ONLY);
-  private final AtomicReference<ViewResultMode> _fragmentResultMode = new AtomicReference<ViewResultMode>(ViewResultMode.NONE);
+  private final AtomicReference<ViewResultMode> _resultMode = new AtomicReference<>(ViewResultMode.FULL_ONLY);
+  private final AtomicReference<ViewResultMode> _fragmentResultMode = new AtomicReference<>(ViewResultMode.NONE);
 
   private final AtomicBoolean _isViewCycleAccessSupported = new AtomicBoolean(false);
   private final AtomicBoolean _isAttached = new AtomicBoolean(false);
@@ -62,22 +65,22 @@ public class ViewClientImpl implements ViewClient {
 
   // Per-process state
   private volatile ViewPermissionProvider _permissionProvider;
+  private volatile ViewPortfolioPermissionProvider _portfolioPermissionProvider;
 
   @SuppressWarnings("unused")
   private volatile boolean _canAccessCompiledViewDefinition;
+
   @SuppressWarnings("unused")
   private volatile boolean _canAccessComputationResults;
-
   private volatile CountDownLatch _completionLatch = new CountDownLatch(0);
-  private final AtomicReference<ViewComputationResultModel> _latestResult = new AtomicReference<ViewComputationResultModel>();
-  private final AtomicReference<CompiledViewDefinition> _latestCompiledViewDefinition = new AtomicReference<CompiledViewDefinition>();
+  private final AtomicReference<ViewComputationResultModel> _latestResult = new AtomicReference<>();
 
-  private final ViewResultListener _mergedViewProcessListener;
+  private final AtomicReference<CompiledViewDefinition> _latestCompiledViewDefinition = new AtomicReference<>();
+
   private final RateLimitingMergingViewProcessListener _mergingViewProcessListener;
 
-  private final AtomicReference<ViewResultListener> _userResultListener = new AtomicReference<ViewResultListener>();
-
-  private final Set<Pair<String, ValueSpecification>> _elevatedLogSpecs = new HashSet<Pair<String, ValueSpecification>>();
+  private final AtomicReference<ViewResultListener> _userResultListener = new AtomicReference<>();
+  private final Set<Pair<String, ValueSpecification>> _elevatedLogSpecs = new HashSet<>();
 
   /**
    * Constructs an instance.
@@ -98,7 +101,8 @@ public class ViewClientImpl implements ViewClient {
     _user = user;
     _latestCycleRetainer = new EngineResourceRetainer(viewProcessor.getViewCycleManager());
 
-    _mergedViewProcessListener = new ViewResultListener() {
+
+    ViewResultListener mergedViewProcessListener = new ViewResultListener() {
 
       @Override
       public UserPrincipal getUser() {
@@ -106,19 +110,37 @@ public class ViewClientImpl implements ViewClient {
       }
 
       @Override
-      public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition, boolean hasMarketDataPermissions) {
+      public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition,
+                                         boolean hasMarketDataPermissions) {
         updateLatestCompiledViewDefinition(compiledViewDefinition);
 
-        _canAccessCompiledViewDefinition = _permissionProvider.canAccessCompiledViewDefinition(getUser(), compiledViewDefinition);
-        _canAccessComputationResults = _permissionProvider.canAccessComputationResults(getUser(), compiledViewDefinition, hasMarketDataPermissions);
+        _canAccessCompiledViewDefinition = _permissionProvider.canAccessCompiledViewDefinition(getUser(),
+                                                                                               compiledViewDefinition);
+        _canAccessComputationResults = _permissionProvider.canAccessComputationResults(getUser(),
+                                                                                       compiledViewDefinition,
+                                                                                       hasMarketDataPermissions);
+
+        PortfolioFilter filter = _portfolioPermissionProvider.createPortfolioFilter(getUser());
 
         // TODO [PLAT-1144] -- so we know whether or not the user is permissioned for various things, but what do we
         // pass to downstream listeners? Some special perm denied message in place of results on each computation
         // cycle?
 
+
+        // Would be better if there was a builder for this!
+        CompiledViewDefinition replacementViewDef = new CompiledViewDefinitionImpl(
+            compiledViewDefinition.getResolverVersionCorrection(),
+            compiledViewDefinition.getCompilationIdentifier(),
+            compiledViewDefinition.getViewDefinition(),
+            filter.generateRestrictedPortfolio(compiledViewDefinition.getPortfolio()),
+            compiledViewDefinition.getCompiledCalculationConfigurations(),
+            compiledViewDefinition.getValidFrom(),
+            compiledViewDefinition.getValidTo());
+
+
         ViewResultListener listener = _userResultListener.get();
         if (listener != null) {
-          listener.viewDefinitionCompiled(compiledViewDefinition, hasMarketDataPermissions);
+          listener.viewDefinitionCompiled(replacementViewDef, hasMarketDataPermissions);
         }
       }
 
@@ -140,8 +162,10 @@ public class ViewClientImpl implements ViewClient {
         if (listener != null) {
           ViewResultMode resultMode = getResultMode();
           if (!resultMode.equals(ViewResultMode.NONE)) {
-            ViewComputationResultModel userFullResult = isFullResultRequired(resultMode, isFirstResult) ? fullResult : null;
-            ViewDeltaResultModel userDeltaResult = isDeltaResultRequired(resultMode, isFirstResult) ? deltaResult : null;
+            ViewComputationResultModel userFullResult = isFullResultRequired(resultMode,
+                                                                             isFirstResult) ? fullResult : null;
+            ViewDeltaResultModel userDeltaResult = isDeltaResultRequired(resultMode,
+                                                                         isFirstResult) ? deltaResult : null;
             if (userFullResult != null || userDeltaResult != null) {
               listener.cycleCompleted(userFullResult, userDeltaResult);
             } else if (!isFirstResult || resultMode != ViewResultMode.DELTA_ONLY) {
@@ -159,8 +183,10 @@ public class ViewClientImpl implements ViewClient {
         if (listener != null) {
           ViewResultMode resultMode = getFragmentResultMode();
           if (!resultMode.equals(ViewResultMode.NONE)) {
-            ViewComputationResultModel userFullResult = isFullResultRequired(resultMode, prevResult == null) ? fullFragment : null;
-            ViewDeltaResultModel userDeltaResult = isDeltaResultRequired(resultMode, prevResult == null) ? deltaFragment : null;
+            ViewComputationResultModel userFullResult = isFullResultRequired(resultMode,
+                                                                             prevResult == null) ? fullFragment : null;
+            ViewDeltaResultModel userDeltaResult = isDeltaResultRequired(resultMode,
+                                                                         prevResult == null) ? deltaFragment : null;
             if (userFullResult != null || userDeltaResult != null) {
               listener.cycleFragmentCompleted(userFullResult, userDeltaResult);
             } else if (prevResult == null || resultMode != ViewResultMode.DELTA_ONLY) {
@@ -207,12 +233,13 @@ public class ViewClientImpl implements ViewClient {
 
       @Override
       public void clientShutdown(Exception e) {
-        throw new UnsupportedOperationException("Shutdown notification unexpectedly received from merging result listener");
+        throw new UnsupportedOperationException(
+            "Shutdown notification unexpectedly received from merging result listener");
       }
 
     };
 
-    _mergingViewProcessListener = new RateLimitingMergingViewProcessListener(_mergedViewProcessListener, getViewProcessor().getViewCycleManager(), timer);
+    _mergingViewProcessListener = new RateLimitingMergingViewProcessListener(mergedViewProcessListener, getViewProcessor().getViewCycleManager(), timer);
     _mergingViewProcessListener.setPaused(true);
   }
 
@@ -256,12 +283,11 @@ public class ViewClientImpl implements ViewClient {
       // The client is detached right now so the merging update listener is paused. Although the following calls may
       // cause initial updates to be pushed through, they will not be seen until the merging update listener is
       // resumed, at which point the new permission provider will be in place. 
-      if (privateProcess) {
-        _permissionProvider = getViewProcessor().attachClientToPrivateViewProcess(getUniqueId(), _mergingViewProcessListener, viewDefinitionId, executionOptions);
-      } else {
-        _permissionProvider = getViewProcessor().attachClientToSharedViewProcess(getUniqueId(), _mergingViewProcessListener, viewDefinitionId, executionOptions);
-      }
-      attachToViewProcessCore();
+      ViewProcessorImpl viewProcessor = getViewProcessor();
+      ViewPermissionContext context = privateProcess ?
+          viewProcessor.attachClientToPrivateViewProcess(getUniqueId(), _mergingViewProcessListener, viewDefinitionId, executionOptions) :
+          viewProcessor.attachClientToSharedViewProcess(getUniqueId(), _mergingViewProcessListener, viewDefinitionId, executionOptions);
+      attachToViewProcessCore(context);
     } finally {
       _clientLock.unlock();
     }
@@ -272,14 +298,17 @@ public class ViewClientImpl implements ViewClient {
     _clientLock.lock();
     try {
       checkNotTerminated();
-      _permissionProvider = getViewProcessor().attachClientToViewProcess(getUniqueId(), _mergingViewProcessListener, processId);
-      attachToViewProcessCore();
+      ViewPermissionContext context =
+          getViewProcessor().attachClientToViewProcess(getUniqueId(), _mergingViewProcessListener, processId);
+      attachToViewProcessCore(context);
     } finally {
       _clientLock.unlock();
     }
   }
 
-  private void attachToViewProcessCore() {
+  private void attachToViewProcessCore(ViewPermissionContext context) {
+    _permissionProvider = context.getViewPermissionProvider();
+    _portfolioPermissionProvider = context.getViewPortfolioPermissionProvider();
     _isAttached.set(true);
     boolean isPaused = getState() == ViewClientState.PAUSED;
     _mergingViewProcessListener.setPaused(isPaused);
@@ -466,7 +495,7 @@ public class ViewClientImpl implements ViewClient {
     _clientLock.lock();
     try {
       checkAttached();
-      Set<Pair<String, ValueSpecification>> affected = new HashSet<Pair<String, ValueSpecification>>(resultSpecifications);
+      Set<Pair<String, ValueSpecification>> affected = new HashSet<>(resultSpecifications);
       switch (minimumLogMode) {
         case INDICATORS:
           affected.retainAll(_elevatedLogSpecs);

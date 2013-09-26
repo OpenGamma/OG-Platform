@@ -25,7 +25,9 @@ import com.opengamma.engine.marketdata.OverrideOperationCompiler;
 import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
 import com.opengamma.engine.view.impl.ViewProcessorImpl;
 import com.opengamma.engine.view.listener.ViewResultListenerFactory;
+import com.opengamma.engine.view.permission.DefaultViewPortfolioPermissionProvider;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
+import com.opengamma.engine.view.permission.ViewPortfolioPermissionProvider;
 import com.opengamma.engine.view.worker.SingleThreadViewProcessWorkerFactory;
 import com.opengamma.engine.view.worker.ViewProcessWorkerFactory;
 import com.opengamma.engine.view.worker.cache.InMemoryViewExecutionCache;
@@ -53,6 +55,8 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
   private DependencyGraphExecutorFactory _dependencyGraphExecutorFactory = new SingleNodeExecutorFactory();
   private GraphExecutorStatisticsGathererProvider _graphExecutionStatistics = new DiscardingGraphStatisticsGathererProvider();
   private ViewPermissionProvider _viewPermissionProvider;
+  private ViewPortfolioPermissionProvider viewClientPortfolioPermissionProvider =
+      new DefaultViewPortfolioPermissionProvider();
   private OverrideOperationCompiler _overrideOperationCompiler = new DummyOverrideOperationCompiler();
   private ViewResultListenerFactory _batchViewClientFactory;
   private ViewExecutionCache _viewExecutionCache = new InMemoryViewExecutionCache();
@@ -210,6 +214,7 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
         getDependencyGraphExecutorFactory(),
         getGraphExecutionStatistics(),
         getViewPermissionProvider(),
+        getViewPortfolioPermissionProvider(),
         getOverrideOperationCompiler(),
         getViewResultListenerFactory(),
         getViewProcessWorkerFactory(),
@@ -222,5 +227,13 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
 
   public ViewResultListenerFactory getViewResultListenerFactory() {
     return _batchViewClientFactory;
+  }
+
+  public ViewPortfolioPermissionProvider getViewPortfolioPermissionProvider() {
+    return viewClientPortfolioPermissionProvider;
+  }
+
+  public void setViewPortfolioPermissionProvider(ViewPortfolioPermissionProvider permissionProvider) {
+    viewClientPortfolioPermissionProvider = permissionProvider;
   }
 }

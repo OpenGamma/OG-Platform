@@ -57,7 +57,9 @@ import com.opengamma.engine.view.execution.ViewExecutionFlags;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.engine.view.listener.ViewResultListenerFactory;
+import com.opengamma.engine.view.permission.ViewPermissionContext;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
+import com.opengamma.engine.view.permission.ViewPortfolioPermissionProvider;
 import com.opengamma.engine.view.worker.ViewProcessWorkerFactory;
 import com.opengamma.engine.view.worker.cache.ViewExecutionCache;
 import com.opengamma.id.UniqueId;
@@ -83,7 +85,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   private final ReentrantLock _lifecycleLock = new ReentrantLock();
   private final Timer _clientResultTimer = new Timer("Shared ViewClient result timer");
 
-  private final EngineResourceManagerInternal<SingleComputationCycle> _cycleManager = new EngineResourceManagerImpl<SingleComputationCycle>();
+  private final EngineResourceManagerInternal<SingleComputationCycle> _cycleManager = new EngineResourceManagerImpl<>();
 
   private final ReentrantLock _processLock = new ReentrantLock();
 
@@ -100,6 +102,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   private final DependencyGraphExecutorFactory _dependencyGraphExecutorFactory;
   private final GraphExecutorStatisticsGathererProvider _graphExecutionStatistics;
   private final ViewPermissionProvider _viewPermissionProvider;
+  private final ViewPortfolioPermissionProvider _viewPortfolioPermissionProvider;
   private final OverrideOperationCompiler _overrideOperationCompiler;
   private final ViewResultListenerFactory _viewResultListenerFactory;
   private final ViewProcessWorkerFactory _viewProcessWorkerFactory;
@@ -109,12 +112,12 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   /**
    * ConcurrentHashMap to allow access for querying processes independently and concurrently to client attachment.
    */
-  private final ConcurrentMap<UniqueId, ViewProcessImpl> _allProcessesById = new ConcurrentHashMap<UniqueId, ViewProcessImpl>();
-  private final Map<ViewProcessDescription, ViewProcessImpl> _sharedProcessesByDescription = new HashMap<ViewProcessDescription, ViewProcessImpl>();
+  private final ConcurrentMap<UniqueId, ViewProcessImpl> _allProcessesById = new ConcurrentHashMap<>();
+  private final Map<ViewProcessDescription, ViewProcessImpl> _sharedProcessesByDescription = new HashMap<>();
 
-  private final ConcurrentMap<UniqueId, ViewClientImpl> _allClientsById = new ConcurrentHashMap<UniqueId, ViewClientImpl>();
+  private final ConcurrentMap<UniqueId, ViewClientImpl> _allClientsById = new ConcurrentHashMap<>();
 
-  private final Map<UniqueId, Pair<ViewProcessImpl, ViewResultListener>> _clientToProcess = new HashMap<UniqueId, Pair<ViewProcessImpl, ViewResultListener>>();
+  private final Map<UniqueId, Pair<ViewProcessImpl, ViewResultListener>> _clientToProcess = new HashMap<>();
 
   /**
    * The view processor event listener registry
@@ -137,6 +140,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
       final DependencyGraphExecutorFactory dependencyGraphExecutorFactory,
       final GraphExecutorStatisticsGathererProvider graphExecutionStatisticsProvider,
       final ViewPermissionProvider viewPermissionProvider,
+      final ViewPortfolioPermissionProvider viewPortfolioPermissionProvider,
       final OverrideOperationCompiler overrideOperationCompiler,
       final ViewResultListenerFactory viewResultListenerFactory,
       final ViewProcessWorkerFactory workerFactory,
@@ -153,6 +157,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     _dependencyGraphExecutorFactory = dependencyGraphExecutorFactory;
     _graphExecutionStatistics = graphExecutionStatisticsProvider;
     _viewPermissionProvider = viewPermissionProvider;
+    _viewPortfolioPermissionProvider = viewPortfolioPermissionProvider;
     _overrideOperationCompiler = overrideOperationCompiler;
     _viewResultListenerFactory = viewResultListenerFactory;
     _viewProcessWorkerFactory = workerFactory;
@@ -179,7 +184,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   //-------------------------------------------------------------------------
   @Override
   public Collection<ViewProcessImpl> getViewProcesses() {
-    return Collections.unmodifiableCollection(new ArrayList<ViewProcessImpl>(_allProcessesById.values()));
+    return Collections.unmodifiableCollection(new ArrayList<>(_allProcessesById.values()));
   }
 
   @Override
@@ -205,9 +210,9 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
    * @param listener the process listener, not null
    * @param viewDefinitionId the id of the view definition, not null
    * @param executionOptions the view execution options, not null
-   * @return the permission provider to be used for access control, not null
+   * @return the permission context to be used for access control, not null
    */
-  public ViewPermissionProvider attachClientToSharedViewProcess(final UniqueId clientId,
+  public ViewPermissionContext attachClientToSharedViewProcess(final UniqueId clientId,
       final ViewResultListener listener, final UniqueId viewDefinitionId, final ViewExecutionOptions executionOptions) {
     ArgumentChecker.notNull(clientId, "clientId");
     ArgumentChecker.notNull(viewDefinitionId, "viewDefinitionId");
@@ -218,7 +223,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     ViewProcessImpl process = null;
     try {
       process = getOrCreateSharedViewProcess(viewDefinitionId, executionOptions, client.getResultMode(), client.getFragmentResultMode());
-      return attachClientToViewProcessCore(client, listener, process, false);
+      return attachClientToViewProcessCore(client, listener, process);
     } catch (final Exception e) {
       // Roll-back
       if (process != null) {
@@ -240,7 +245,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
    * @param executionOptions the view execution options, not null
    * @return the permission provider to be used for access control, not null
    */
-  public ViewPermissionProvider attachClientToPrivateViewProcess(final UniqueId clientId,
+  public ViewPermissionContext attachClientToPrivateViewProcess(final UniqueId clientId,
       final ViewResultListener listener, final UniqueId viewDefinitionId, final ViewExecutionOptions executionOptions) {
     ArgumentChecker.notNull(viewDefinitionId, "definitionID");
     ArgumentChecker.notNull(executionOptions, "executionOptions");
@@ -250,7 +255,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     _processLock.lock();
     try {
       process = createViewProcess(viewDefinitionId, executionOptions, client.getResultMode(), client.getFragmentResultMode());
-      return attachClientToViewProcessCore(client, listener, process, true);
+      return attachClientToViewProcessCore(client, listener, process);
     } catch (final Exception e) {
       // Roll-back
       if (process != null) {
@@ -271,13 +276,13 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
    * @param processId the unique identifier of the existing process, not null
    * @return the permission provider to be used for access control, not null
    */
-  public ViewPermissionProvider attachClientToViewProcess(final UniqueId clientId, final ViewResultListener listener, final UniqueId processId) {
+  public ViewPermissionContext attachClientToViewProcess(final UniqueId clientId, final ViewResultListener listener, final UniqueId processId) {
     final ViewClientImpl client = getViewClient(clientId);
 
     _processLock.lock();
     try {
       final ViewProcessImpl process = getViewProcess(processId);
-      return attachClientToViewProcessCore(client, listener, process, false);
+      return attachClientToViewProcessCore(client, listener, process);
     } catch (final Exception e) {
       // Nothing to roll back
       s_logger.error("Error attaching client to existing view process", e);
@@ -287,7 +292,9 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     }
   }
 
-  private ViewPermissionProvider attachClientToViewProcessCore(final ViewClientImpl client, final ViewResultListener listener, final ViewProcessImpl process, final boolean privateProcess) {
+  private ViewPermissionContext attachClientToViewProcessCore(final ViewClientImpl client,
+                                                               final ViewResultListener listener,
+                                                               final ViewProcessImpl process) {
     final Pair<ViewProcessImpl, ViewResultListener> processListenerPair = Pair.of(process, listener);
     _processLock.lock();
     try {
@@ -295,7 +302,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
       if (existingAttachment != null) {
         throw new IllegalStateException("View client " + client.getUniqueId() + " is already attached to view process " + existingAttachment.getFirst().getUniqueId());
       }
-      final ViewPermissionProvider permissionProvider = process.attachListener(listener, client.getResultMode(), client.getFragmentResultMode());
+      final ViewPermissionContext permissionProvider = process.attachListener(listener, client.getResultMode(), client.getFragmentResultMode());
       _clientToProcess.put(client.getUniqueId(), processListenerPair);
       return permissionProvider;
     } finally {
@@ -603,6 +610,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
         processId,
         _configSource,
         _viewPermissionProvider,
+        _viewPortfolioPermissionProvider,
         _marketDataProviderFactoryResolver,
         _functionCompilationService,
         _functionResolver,
@@ -662,7 +670,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
         throw new IllegalStateException("Already suspended");
       }
       _isSuspended = true;
-      final List<Future<?>> suspends = new ArrayList<Future<?>>(_allProcessesById.size());
+      final List<Future<?>> suspends = new ArrayList<>(_allProcessesById.size());
       // Request all the views suspend
       for (final ViewProcessInternal view : _allProcessesById.values()) {
         suspends.add(executor.submit(new Runnable() {
@@ -770,13 +778,8 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
         return false;
       }
       final ViewProcessDescription other = (ViewProcessDescription) obj;
-      if (!_viewDefinitionId.equals(other._viewDefinitionId)) {
-        return false;
-      }
-      if (!_executionOptions.equals(other._executionOptions)) {
-        return false;
-      }
-      return true;
+      return _viewDefinitionId.equals(other._viewDefinitionId) &&
+          _executionOptions.equals(other._executionOptions);
     }
 
   }
