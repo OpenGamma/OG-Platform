@@ -9,7 +9,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.List;
 import java.util.Map;
 
@@ -23,6 +22,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
@@ -62,6 +62,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * Loads the data required to run views from Fudge XML files into an empty database.
+ * TODO split this up to allow a subset of data to be dumped and restored
  */
 /* package */ class DatabaseRestore {
 
@@ -138,7 +139,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
   }
 
   private Map<ObjectId, ObjectId> loadSecurities() throws IOException {
-    List<?> securities = readFromFile("securities.xml");
+    List<?> securities = readFromDirectory("securities");
     Map<ObjectId, ObjectId> ids = Maps.newHashMapWithExpectedSize(securities.size());
     for (Object o : securities) {
       ManageableSecurity security = (ManageableSecurity) o;
@@ -151,7 +152,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
   }
 
   private Map<ObjectId, ObjectId> loadPositions(Map<ObjectId, ObjectId> securityIdMappings) throws IOException {
-    List<?> positions = readFromFile("positions.xml");
+    List<?> positions = readFromDirectory("positions");
     Map<ObjectId, ObjectId> ids = Maps.newHashMapWithExpectedSize(positions.size());
     for (Object o : positions) {
       ManageablePosition position = (ManageablePosition) o;
@@ -172,7 +173,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
   }
 
   private Map<ObjectId, ObjectId> loadPortfolios(Map<ObjectId, ObjectId> positionIdMappings) throws IOException {
-    List<?> portfolios = readFromFile("portfolios.xml");
+    List<?> portfolios = readFromDirectory("portfolios");
     Map<ObjectId, ObjectId> idMappings = Maps.newHashMapWithExpectedSize(portfolios.size());
     for (Object o : portfolios) {
       ManageablePortfolio portfolio = (ManageablePortfolio) o;
@@ -187,7 +188,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
   }
 
   private void loadConfigs(Map<ObjectId, ObjectId> portfolioIdMappings) throws IOException {
-    List<?> configs = readFromFile("configs.xml");
+    List<?> configs = readFromDirectory("configs");
     List<ViewDefinition> viewDefs = Lists.newArrayList();
     // view definitions refer to other config items by unique ID
     Map<UniqueId, UniqueId> idMappings = Maps.newHashMap();
@@ -229,7 +230,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
   }
 
   private void loadTimeSeries() throws IOException {
-    List<?> objects = readFromFile("timeseries.xml");
+    List<?> objects = readFromDirectory("timeseries");
     // TODO check size is even
     for (int i = 0; i < objects.size(); i += 2) {
       ManageableHistoricalTimeSeries timeSeries = (ManageableHistoricalTimeSeries) objects.get(i);
@@ -241,7 +242,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
   }
 
   private void loadHolidays() throws IOException {
-    List<?> holidays = readFromFile("holidays.xml");
+    List<?> holidays = readFromDirectory("holidays");
     for (Object o : holidays) {
       ManageableHoliday holiday = (ManageableHoliday) o;
       holiday.setUniqueId(null);
@@ -250,7 +251,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
   }
 
   private void loadExchanges() throws IOException {
-    List<?> exchanges = readFromFile("exchanges.xml");
+    List<?> exchanges = readFromDirectory("exchanges");
     for (Object o : exchanges) {
       ManageableExchange exchange = (ManageableExchange) o;
       exchange.setUniqueId(null);
@@ -259,7 +260,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
   }
 
   private void loadSnapshots() throws IOException {
-    List<?> snapshots = readFromFile("snapshots.xml");
+    List<?> snapshots = readFromDirectory("snapshots");
     for (Object o : snapshots) {
       ManageableMarketDataSnapshot snapshot = (ManageableMarketDataSnapshot) o;
       snapshot.setUniqueId(null);
@@ -268,7 +269,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
   }
 
   private void loadOrganizations() throws IOException {
-    List<?> organizations = readFromFile("organizations.xml");
+    List<?> organizations = readFromDirectory("organizations");
     for (Object o : organizations) {
       ManageableOrganization organization = (ManageableOrganization) o;
       organization.setUniqueId(null);
@@ -296,24 +297,33 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
     }
   }
 
-  private List<?> readFromFile(String fileName) throws IOException {
-    File file = new File(_dataDir, fileName);
-    s_logger.info("Reading from {}", file.getAbsolutePath());
+  private List<?> readFromDirectory(String subDirName) throws IOException {
+    File subDir = new File(_dataDir, subDirName);
+    if (!subDir.exists()) {
+      boolean success = subDir.mkdir();
+      if (!success) {
+        throw new OpenGammaRuntimeException("Failed to create directory " + subDir);
+      }
+    }
+    s_logger.info("Reading from {}", subDir.getAbsolutePath());
+    FudgeContext ctx = OpenGammaFudgeContext.getInstance();
+    FudgeDeserializer deserializer = new FudgeDeserializer(ctx);
     List<Object> objects = Lists.newArrayList();
-    try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-      FudgeContext ctx = OpenGammaFudgeContext.getInstance();
-      FudgeDeserializer deserializer = new FudgeDeserializer(ctx);
-      String line;
-      while ((line = reader.readLine()) != null) {
-        FudgeXMLStreamReader streamReader = new FudgeXMLStreamReader(ctx, new StringReader(line));
+    File[] files = subDir.listFiles();
+    if (files == null) {
+      throw new OpenGammaRuntimeException("No files found in " + subDir);
+    }
+    for (File file : files) {
+      try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+        FudgeXMLStreamReader streamReader = new FudgeXMLStreamReader(ctx, reader);
         FudgeMsgReader fudgeMsgReader = new FudgeMsgReader(streamReader);
         FudgeMsg msg = fudgeMsgReader.nextMessage();
         Object object = deserializer.fudgeMsgToObject(msg);
         s_logger.debug("Read object {}", object);
         objects.add(object);
       }
-      s_logger.info("Read {} objects from {}", objects.size(), file.getAbsolutePath());
     }
+    s_logger.info("Read {} objects from {}", objects.size(), subDir.getAbsolutePath());
     return objects;
   }
 }

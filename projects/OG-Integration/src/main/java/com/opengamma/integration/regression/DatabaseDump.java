@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.integration.marketdata.manipulator.dsl.RemoteServer;
 import com.opengamma.master.config.ConfigMaster;
@@ -54,6 +55,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * Dumps all the data required to run views from the database into Fudge XML files.
+ * TODO split this up to allow a subset of data to be dumped and restored
  */
 /* package */ class DatabaseDump {
 
@@ -133,22 +135,22 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
   private void writeSecurities() throws IOException {
     SecuritySearchResult result = _securityMaster.search(new SecuritySearchRequest());
-    writeToFile(result.getSecurities(), "securities.xml");
+    writeToDirectory(result.getSecurities(), "securities");
   }
 
   private void writePositions() throws IOException {
     PositionSearchResult result = _positionMaster.search(new PositionSearchRequest());
-    writeToFile(result.getPositions(), "positions.xml");
+    writeToDirectory(result.getPositions(), "positions");
   }
 
   private void writeConfig() throws IOException {
     ConfigSearchResult<Object> result = _configMaster.search(new ConfigSearchRequest<>(Object.class));
-    writeToFile(result.getValues(), "configs.xml");
+    writeToDirectory(result.getValues(), "configs");
   }
 
   private void writePortfolios() throws IOException {
     PortfolioSearchResult result = _portfolioMaster.search(new PortfolioSearchRequest());
-    writeToFile(result.getPortfolios(), "portfolios.xml");
+    writeToDirectory(result.getPortfolios(), "portfolios");
   }
 
   private void writeTimeSeries() throws IOException {
@@ -158,47 +160,55 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
       objects.add(_timeSeriesMaster.getTimeSeries(info.getTimeSeriesObjectId(), VersionCorrection.LATEST));
       objects.add(info);
     }
-    writeToFile(objects, "timeseries.xml");
+    writeToDirectory(objects, "timeseries");
   }
 
   private void writeHolidays() throws IOException {
     HolidaySearchResult result = _holidayMaster.search(new HolidaySearchRequest());
-    writeToFile(result.getHolidays(), "holidays.xml");
+    writeToDirectory(result.getHolidays(), "holidays");
   }
 
   private void writeExchanges() throws IOException {
     ExchangeSearchResult result = _exchangeMaster.search(new ExchangeSearchRequest());
-    writeToFile(result.getExchanges(), "exchanges.xml");
+    writeToDirectory(result.getExchanges(), "exchanges");
   }
 
   private void writeSnapshots() throws IOException {
     MarketDataSnapshotSearchResult result = _snapshotMaster.search(new MarketDataSnapshotSearchRequest());
-    writeToFile(result.getSnapshots(), "snapshots.xml");
+    writeToDirectory(result.getSnapshots(), "snapshots");
   }
 
   private void writeOrganizations() throws IOException {
     OrganizationSearchResult result = _organizationMaster.search(new OrganizationSearchRequest());
-    writeToFile(result.getOrganizations(), "organizations.xml");
+    writeToDirectory(result.getOrganizations(), "organizations");
   }
 
-  private void writeToFile(List<?> objects, String outputFileName) throws IOException {
-    File outputFile = new File(_outputDir, outputFileName);
-    s_logger.info("Writing to {}", outputFile.getAbsolutePath());
-    // TODO wrap in a root element so it's a valid XML document?
-    try (FileWriter writer = new FileWriter(outputFile)) {
-      FudgeContext ctx = OpenGammaFudgeContext.getInstance();
-      FudgeXMLStreamWriter streamWriter = new FudgeXMLStreamWriter(ctx, writer);
-      FudgeMsgWriter fudgeMsgWriter = new FudgeMsgWriter(streamWriter);
-      FudgeSerializer serializer = new FudgeSerializer(ctx);
-      for (Object object : objects) {
+  private void writeToDirectory(List<?> objects, String outputSubDirName) throws IOException {
+    File outputSubDir = new File(_outputDir, outputSubDirName);
+    if (!outputSubDir.exists()) {
+      boolean success = outputSubDir.mkdir();
+      if (success) {
+        s_logger.debug("Created directory {}", outputSubDir);
+      } else {
+        throw new OpenGammaRuntimeException("Failed to create directory " + outputSubDir);
+      }
+    }
+    s_logger.info("Writing to {}", outputSubDir.getAbsolutePath());
+    FudgeContext ctx = OpenGammaFudgeContext.getInstance();
+    FudgeSerializer serializer = new FudgeSerializer(ctx);
+    int count = 0;
+    for (Object object : objects) {
+      try (FileWriter writer = new FileWriter(new File(outputSubDir, ++count + ".xml"))) {
+        FudgeXMLStreamWriter streamWriter = new FudgeXMLStreamWriter(ctx, writer);
+        FudgeMsgWriter fudgeMsgWriter = new FudgeMsgWriter(streamWriter);
         MutableFudgeMsg msg = serializer.objectToFudgeMsg(object);
         FudgeSerializer.addClassHeader(msg, object.getClass());
         fudgeMsgWriter.writeMessage(msg);
         writer.append("\n");
         s_logger.debug("Wrote object {}", object);
+        fudgeMsgWriter.flush();
       }
-      s_logger.info("Wrote {} objects to {}", objects.size(), outputFile.getAbsolutePath());
-      fudgeMsgWriter.flush();
     }
+    s_logger.info("Wrote {} objects to {}", objects.size(), outputSubDir.getAbsolutePath());
   }
 }
