@@ -81,9 +81,9 @@ public class PerCurrencyConventionHelper {
   /** STIR Futures (i.e. futures on Ibor) **/
   public static final String STIR_FUTURES = "STIR Futures ";
   /** Serial (i.e. monthly) futures **/
-  public static final String SERIAL = " Serial";
+  public static final String SERIAL = "Serial";
   /** Quarterly (i.e. March, June, September, December) futures **/
-  public static final String QUARTERLY = " Quarterly";
+  public static final String QUARTERLY = "Quarterly";
   /** Government (Simplified bond description) **/
   public static final String GOVT = "Govt ";
 

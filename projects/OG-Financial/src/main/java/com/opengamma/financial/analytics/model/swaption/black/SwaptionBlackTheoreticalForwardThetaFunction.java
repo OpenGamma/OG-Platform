@@ -8,24 +8,24 @@ package com.opengamma.financial.analytics.model.swaption.black;
 import java.util.Collections;
 import java.util.Set;
 
-import com.opengamma.analytics.financial.interestrate.DeltaBlackCalculator;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
-import com.opengamma.analytics.financial.interestrate.PresentValueBlackCalculator;
-import com.opengamma.analytics.financial.interestrate.swaption.method.SwaptionBlackSpotDeltaCalculator;
+import com.opengamma.analytics.financial.interestrate.swaption.method.SwaptionBlackForwardDeltaCalculator;
+import com.opengamma.analytics.financial.interestrate.swaption.method.SwaptionBlackForwardThetaCalculator;
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackSwaptionBundle;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.model.black.BlackDiscountingPVSwaptionFunction;
 
 /**
- * 
+ * Calculates theta of swaptions using the Black method.
  */
 @Deprecated
-public class SwaptionBlackTheoreticalDeltaFunction extends SwaptionBlackFunction {
-  private static final SwaptionBlackSpotDeltaCalculator CALCULATOR = SwaptionBlackSpotDeltaCalculator.getInstance();
+public class SwaptionBlackTheoreticalForwardThetaFunction extends SwaptionBlackFunction  {
+  private static final SwaptionBlackForwardThetaCalculator CALCULATOR = SwaptionBlackForwardThetaCalculator.getInstance();
 
-  public SwaptionBlackTheoreticalDeltaFunction() {
-    super(ValueRequirementNames.DELTA);
+  public SwaptionBlackTheoreticalForwardThetaFunction() {
+    super(ValueRequirementNames.THETA);
   }
 
   @Override

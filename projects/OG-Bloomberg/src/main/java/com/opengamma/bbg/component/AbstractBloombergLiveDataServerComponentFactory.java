@@ -104,8 +104,7 @@ public abstract class AbstractBloombergLiveDataServerComponentFactory extends Ab
     repo.registerMBean(new BloombergLiveDataServerMBean(realServer));
 
     // fake server
-    FakeSubscriptionBloombergLiveDataServer fakeServer = new FakeSubscriptionBloombergLiveDataServer(realServer,
-                                                                                                     getCacheManager());
+    FakeSubscriptionBloombergLiveDataServer fakeServer = createFakeBloombergLiveDataServer(realServer);
     repo.registerLifecycle(fakeServer);
     repo.registerMBean(new LiveDataServerMBean(fakeServer));
 
@@ -134,7 +133,7 @@ public abstract class AbstractBloombergLiveDataServerComponentFactory extends Ab
    * @param referenceDataProvider the reference data provider
    * @param cacheManager the cache manager
    * @param availabilityNotificationSender the availability notification sender
-   * @return the bloomberg live data server
+   * @return the Bloomberg live data server, not null
    */
   protected BloombergLiveDataServer createBloombergLiveDataServer(BloombergConnector bloombergConnector, ReferenceDataProvider referenceDataProvider, CacheManager cacheManager,
       FudgeMessageSender availabilityNotificationSender) {
@@ -142,6 +141,16 @@ public abstract class AbstractBloombergLiveDataServerComponentFactory extends Ab
                                        referenceDataProvider,
                                        cacheManager,
                                        availabilityNotificationSender);
+  }
+  
+  /**
+   * Creates the {@link FakeSubscriptionBloombergLiveDataServer} instance to use.
+   * 
+   * @param realServer  the {@link BloombergLiveDataServer} instance, not null
+   * @return the fake Bloomberg live data server, not null
+   */
+  protected FakeSubscriptionBloombergLiveDataServer createFakeBloombergLiveDataServer(BloombergLiveDataServer realServer) {
+    return new FakeSubscriptionBloombergLiveDataServer(realServer, ExternalSchemes.BLOOMBERG_BUID_WEAK, getCacheManager());
   }
 
   /**

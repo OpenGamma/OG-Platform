@@ -16,25 +16,25 @@ import com.opengamma.util.ArgumentChecker;
  * 
  */
 @Deprecated
-public class SwaptionBlackSpotDeltaCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> {
+public class SwaptionBlackForwardVegaCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> {
 
   /**
    * The unique instance of the calculator.
    */
-  private static final SwaptionBlackSpotDeltaCalculator INSTANCE = new SwaptionBlackSpotDeltaCalculator();
+  private static final SwaptionBlackForwardVegaCalculator INSTANCE = new SwaptionBlackForwardVegaCalculator();
 
   /**
    * Gets the calculator instance.
    * @return The calculator.
    */
-  public static SwaptionBlackSpotDeltaCalculator getInstance() {
+  public static SwaptionBlackForwardVegaCalculator getInstance() {
     return INSTANCE;
   }
 
   /**
    * Constructor.
    */
-  SwaptionBlackSpotDeltaCalculator() {
+  SwaptionBlackForwardVegaCalculator() {
   }
 
   /**
@@ -49,9 +49,9 @@ public class SwaptionBlackSpotDeltaCalculator extends InstrumentDerivativeVisito
     ArgumentChecker.notNull(curves, "curves");
     if (curves instanceof YieldCurveWithBlackSwaptionBundle) {
       final YieldCurveWithBlackSwaptionBundle curvesBlack = (YieldCurveWithBlackSwaptionBundle) curves;
-      return 0.; //CASH_SWAPTION.spotDeltaTheoretical(swaption, curvesBlack).getAmount();
+      return CASH_SWAPTION.forwardVegaTheoretical(swaption, curvesBlack);
     }
-    throw new UnsupportedOperationException("The SwaptionBlackSpotDeltaCalculator visitor visitSwaptionCashFixedIbor requires a YieldCurveWithBlackSwaptionBundle as data.");
+    throw new UnsupportedOperationException("The SwaptionBlackForwardVegaCalculator visitor visitSwaptionCashFixedIbor requires a YieldCurveWithBlackSwaptionBundle as data.");
   }
 
   @Override
@@ -60,8 +60,8 @@ public class SwaptionBlackSpotDeltaCalculator extends InstrumentDerivativeVisito
     ArgumentChecker.notNull(curves, "curves");
     if (curves instanceof YieldCurveWithBlackSwaptionBundle) {
       final YieldCurveWithBlackSwaptionBundle curvesBlack = (YieldCurveWithBlackSwaptionBundle) curves;
-      return PHYSICAL_SWAPTION.spotDeltaTheoretical(swaption, curvesBlack);
+      return PHYSICAL_SWAPTION.forwardVegaTheoretical(swaption, curvesBlack);
     }
-    throw new UnsupportedOperationException("The SwaptionBlackSpotDeltaCalculator visitor visitSwaptionPhysicalFixedIbor requires a YieldCurveWithBlackSwaptionBundle as data.");
+    throw new UnsupportedOperationException("The SwaptionBlackForwardVegaCalculator visitor visitSwaptionPhysicalFixedIbor requires a YieldCurveWithBlackSwaptionBundle as data.");
   }
 }

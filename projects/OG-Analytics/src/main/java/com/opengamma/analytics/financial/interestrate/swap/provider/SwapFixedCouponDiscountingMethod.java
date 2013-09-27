@@ -81,6 +81,23 @@ public class SwapFixedCouponDiscountingMethod {
   }
 
   /**
+   * Computes the second derivative of cash annuity with respect to the forward. The computation is relevant only for standard swaps with constant notional and regular payments.
+   * @param fixedCouponSwap The underlying swap.
+   * @param forward The swap forward.
+   * @return The cash annuity second derivative.
+   */
+  public double getAnnuityCashSecondDerivative(final SwapFixedCoupon<? extends Payment> fixedCouponSwap, final double forward) {
+    final int nbFixedPeriod = fixedCouponSwap.getFixedLeg().getPayments().length;
+    final int nbFixedPaymentYear = (int) Math.round(1.0 / fixedCouponSwap.getFixedLeg().getNthPayment(0).getPaymentYearFraction());
+    final double notional = Math.abs(fixedCouponSwap.getFixedLeg().getNthPayment(0).getNotional());
+    double annuityCashDerivative = 2.0 / (forward * forward * forward) * (1.0 - 1.0 / Math.pow(1 + forward / nbFixedPaymentYear, nbFixedPeriod)) * notional;
+    annuityCashDerivative -= 2.0 / (forward * forward * nbFixedPaymentYear) * nbFixedPeriod * Math.pow(1 + forward / nbFixedPaymentYear, -nbFixedPeriod - 1.0) * notional;
+    annuityCashDerivative -= 1.0 / (forward * nbFixedPaymentYear * nbFixedPaymentYear) * nbFixedPeriod * (nbFixedPeriod + 1.) * Math.pow(1 + forward / nbFixedPaymentYear, -nbFixedPeriod - 2.0) *
+        notional;
+    return annuityCashDerivative;
+  }
+
+  /**
    * Computes the physical annuity (also called PVBP or level) of the fixed leg of a swap.
    * @param fixedCouponSwap The underlying swap.
    * @param multicurves The multi-curves provider.
@@ -180,6 +197,33 @@ public class SwapFixedCouponDiscountingMethod {
     for (int loopcpn = 0; loopcpn < annuityFixed.getPayments().length; loopcpn++) {
       time = annuityFixed.getNthPayment(loopcpn).getPaymentTime();
       final DoublesPair s = new DoublesPair(time, -time * multicurves.getDiscountFactor(ccy, time)
+          * dayCount.getDayCountFraction(annuityFixed.getNthPayment(loopcpn).getAccrualStartDate(), annuityFixed.getNthPayment(loopcpn).getAccrualEndDate(), calendar)
+          * Math.abs(annuityFixed.getNthPayment(loopcpn).getNotional()));
+      list.add(s);
+    }
+    final Map<String, List<DoublesPair>> mapDsc = new HashMap<>();
+    mapDsc.put(multicurves.getName(annuityFixed.getCurrency()), list);
+    final MulticurveSensitivity result = MulticurveSensitivity.ofYieldDiscounting(mapDsc);
+    return result;
+  }
+
+  /**
+   * Compute the second order sensitivity of the PVBP to the discounting curve.
+   * @param fixedCouponSwap The swap.
+   * @param dayCount Day count convention for the PVBP modification.
+   * @param calendar The calendar
+   * @param multicurves The multi-curves provider.
+   * @return The sensitivity.
+   */
+  public MulticurveSensitivity presentValueBasisPointSecondOrderCurveSensitivity(final SwapFixedCoupon<? extends Payment> fixedCouponSwap, final DayCount dayCount,
+      final Calendar calendar, final MulticurveProviderInterface multicurves) {
+    final AnnuityCouponFixed annuityFixed = fixedCouponSwap.getFixedLeg();
+    final Currency ccy = annuityFixed.getCurrency();
+    double time;
+    final List<DoublesPair> list = new ArrayList<>();
+    for (int loopcpn = 0; loopcpn < annuityFixed.getPayments().length; loopcpn++) {
+      time = annuityFixed.getNthPayment(loopcpn).getPaymentTime();
+      final DoublesPair s = new DoublesPair(time, time * time * multicurves.getDiscountFactor(ccy, time)
           * dayCount.getDayCountFraction(annuityFixed.getNthPayment(loopcpn).getAccrualStartDate(), annuityFixed.getNthPayment(loopcpn).getAccrualEndDate(), calendar)
           * Math.abs(annuityFixed.getNthPayment(loopcpn).getNotional()));
       list.add(s);

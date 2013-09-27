@@ -18,6 +18,7 @@ import static com.opengamma.financial.convention.percurrency.PerCurrencyConventi
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.PAY_LAG;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.QUARTERLY;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.SCHEME_NAME;
+import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.SERIAL;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.STIR_FUTURES;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.TENOR_STR_12M;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.TENOR_STR_1M;
@@ -36,6 +37,7 @@ import com.opengamma.financial.convention.DepositConvention;
 import com.opengamma.financial.convention.ExchangeTradedInstrumentExpiryCalculator;
 import com.opengamma.financial.convention.FXForwardAndSwapConvention;
 import com.opengamma.financial.convention.FXSpotConvention;
+import com.opengamma.financial.convention.IMMFutureAndFutureOptionMonthlyExpiryCalculator;
 import com.opengamma.financial.convention.IMMFutureAndFutureOptionQuarterlyExpiryCalculator;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.InMemoryConventionMaster;
@@ -140,11 +142,15 @@ public class EUConventions {
     final String irsibor1MLegConventionName = getConventionName(Currency.EUR, TENOR_STR_1M, IRS_IBOR_LEG);
     final Convention irsIbor1MLegConvention = new VanillaIborLegConvention(irsibor1MLegConventionName, getIds(Currency.EUR, TENOR_STR_1M, IRS_IBOR_LEG),
         euriborConventionId, true, Interpolator1DFactory.LINEAR, Tenor.ONE_MONTH, 2, true, StubType.SHORT_START, false, 0);
+    
     // Futures
-    final String quarterlySTIRFutureConventionName = getConventionName(Currency.EUR, STIR_FUTURES + TENOR_STR_3M + QUARTERLY);    
+    final String quarterlySTIRFutureConventionName = getConventionName(Currency.EUR, STIR_FUTURES + QUARTERLY);    
     final Convention quarterlySTIRFutureConvention = new InterestRateFutureConvention(quarterlySTIRFutureConventionName, 
         ExternalIdBundle.of(ExternalId.of(SCHEME_NAME, quarterlySTIRFutureConventionName)),
         ExternalId.of(ExchangeTradedInstrumentExpiryCalculator.SCHEME, IMMFutureAndFutureOptionQuarterlyExpiryCalculator.NAME), EU, euriborConventionId);
+    final String serialFutureConventionName = getConventionName(Currency.EUR, STIR_FUTURES + SERIAL);
+    final Convention serialSTIRFutureConvention = new InterestRateFutureConvention(serialFutureConventionName, ExternalIdBundle.of(ExternalId.of(SCHEME_NAME, serialFutureConventionName)),
+        ExternalId.of(ExchangeTradedInstrumentExpiryCalculator.SCHEME, IMMFutureAndFutureOptionMonthlyExpiryCalculator.NAME), EU, liborConventionId);
     
     // Forex
     final String fxSpotEURUSDName = FX_SPOT + " EUR/USD";
@@ -178,6 +184,7 @@ public class EUConventions {
     conventionMaster.add(irsIbor3MLegConvention);
     conventionMaster.add(irsIbor1MLegConvention);
     conventionMaster.add(quarterlySTIRFutureConvention);
+    conventionMaster.add(serialSTIRFutureConvention);
     conventionMaster.add(fxSpotEURUSD);
     conventionMaster.add(fxForwardEURUSD);
   }

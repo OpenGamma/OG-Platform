@@ -18,7 +18,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Server copier command line options
  */
-/* package */ class CommandLineOption {
+public class CommandLineOption {
   
   /**
    * Help command line option.

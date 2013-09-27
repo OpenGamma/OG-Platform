@@ -100,5 +100,24 @@ public class TimeCalculatorTest {
     final double[] timeCalculated2 = TimeCalculator.getTimeBetween(date1, dateArray2);
     assertArrayEquals("TimeCalculator: normal days array", new double[] {timeExpected, 0.0 }, timeCalculated2, TOLERANCE);
   }
+  
+  @Test(enabled = false)
+  /** 
+   * Time between dates in different time zones, when one is near midnight.
+   * Trouble arises because timeBetween(date1,date2) != -1 * timeBetween(date2,date1).
+   * TimeCalculator computes time in ACTACT Daycount convention, hence fractions of a day are rounded to either 0 or 1 day's year fraction..
+   */
+  public void plat4725() {
+    ZoneId gmt = ZoneId.of("GMT");
+    ZoneId london = ZoneId.of("+01:00");
+
+    final ZonedDateTime date1 = ZonedDateTime.of(2013, 9, 24, 0, 0, 1, 0, london);
+    final ZonedDateTime date2 = ZonedDateTime.of(2013, 9, 24, 9, 2, 45,936, gmt);
+    final double time12 = TimeCalculator.getTimeBetween(date1, date2);
+    final double time21 = TimeCalculator.getTimeBetween(date2, date1);
+    assertEquals("TimeCalculator: across midnight", -1 * time12, time21, TOLERANCE);
+  }
+  
+  
 
 }

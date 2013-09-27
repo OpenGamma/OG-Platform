@@ -160,16 +160,13 @@ public class USConventions {
         ExternalId.of(SCHEME_NAME, getConventionName(Currency.USD, IRS_FIXED_LEG)),
         ExternalId.of(SCHEME_NAME, getConventionName(Currency.USD, TENOR_STR_3M, IRS_IBOR_LEG)));
     final Convention swapIndexConvention = new SwapIndexConvention(swapIndexConventionName, getIds(Currency.USD, SWAP_INDEX), LocalTime.of(11, 0), ExternalId.of(SCHEME_NAME, "USD Swap"));
-    // Futures
-//    final String eurodollarFutureConventionName = EURODOLLAR_FUTURE;
-//    final Convention edQuarterlySTIRFutureConvention = new InterestRateFutureConvention(eurodollarFutureConventionName, ExternalIdBundle.of(ExternalId.of(SCHEME_NAME, EURODOLLAR_FUTURE)),
-//        ExternalId.of(ExchangeTradedInstrumentExpiryCalculator.SCHEME, IMMFutureAndFutureOptionQuarterlyExpiryCalculator.NAME), US, liborConventionId);
     
-    final String quartEDFutureConventionName = getConventionName(Currency.USD, STIR_FUTURES + TENOR_STR_3M + QUARTERLY);
-    final Convention quartSTIRFutureConvention = new InterestRateFutureConvention(quartEDFutureConventionName, ExternalIdBundle.of(ExternalId.of(SCHEME_NAME, quartEDFutureConventionName)),
+    // Futures (for ED-LIBOR3M and EM-LIBOR1M)
+    final String quartFutureConventionName = getConventionName(Currency.USD, STIR_FUTURES + QUARTERLY);
+    final Convention quartSTIRFutureConvention = new InterestRateFutureConvention(quartFutureConventionName, ExternalIdBundle.of(ExternalId.of(SCHEME_NAME, quartFutureConventionName)),
         ExternalId.of(ExchangeTradedInstrumentExpiryCalculator.SCHEME, IMMFutureAndFutureOptionQuarterlyExpiryCalculator.NAME), US, liborConventionId);
-    final String serialEDFutureConventionName = getConventionName(Currency.USD, STIR_FUTURES + TENOR_STR_3M + SERIAL);
-    final Convention serialSTIRFutureConvention = new InterestRateFutureConvention(serialEDFutureConventionName, ExternalIdBundle.of(ExternalId.of(SCHEME_NAME, serialEDFutureConventionName)),
+    final String serialFutureConventionName = getConventionName(Currency.USD, STIR_FUTURES + SERIAL);
+    final Convention serialSTIRFutureConvention = new InterestRateFutureConvention(serialFutureConventionName, ExternalIdBundle.of(ExternalId.of(SCHEME_NAME, serialFutureConventionName)),
         ExternalId.of(ExchangeTradedInstrumentExpiryCalculator.SCHEME, IMMFutureAndFutureOptionMonthlyExpiryCalculator.NAME), US, liborConventionId);
     
     final Convention fedFundsConvention = new FederalFundsFutureConvention(fedFundFutureConventionName, ExternalIdBundle.of(ExternalId.of(SCHEME_NAME, FED_FUNDS_FUTURE)),

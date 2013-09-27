@@ -124,7 +124,7 @@ public class ServerDatabaseCreator {
     
     // populate the database
     s_logger.info("Populating main database...");
-    ServerDatabasePopulator populator = new ServerDatabasePopulator(_configFile, _serverUrl);
+    ServerDatabasePopulator populator = new ServerDatabasePopulator(_configFile, new DatabasePopulatorTool(_serverUrl));
     populator.run();
     s_logger.info("Successfully created server databases");
   }

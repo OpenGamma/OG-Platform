@@ -5,6 +5,8 @@
  */
 package com.opengamma.analytics.financial.interestrate;
 
+import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedCompoundedONCompounded;
+import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedCompoundedONCompoundedMaster;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIborMaster;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -36,6 +38,10 @@ public class TestsDataSetsBlack {
   private static final GeneratorSwapFixedIborMaster GENERATOR_SWAP_MASTER = GeneratorSwapFixedIborMaster.getInstance();
   private static final GeneratorSwapFixedIbor EUR1YEURIBOR6M = GENERATOR_SWAP_MASTER.getGenerator("EUR1YEURIBOR6M", CALENDAR);
   private static final GeneratorSwapFixedIbor EUR1YEURIBOR3M = GENERATOR_SWAP_MASTER.getGenerator("EUR1YEURIBOR3M", CALENDAR);
+  private static final GeneratorSwapFixedCompoundedONCompounded BRLCDI =
+      GeneratorSwapFixedCompoundedONCompoundedMaster.getInstance().getGenerator("BRLCDI", CALENDAR);
+
+  private static final String DISCOUNTING_BRL = "BRL Discounting";
 
   private static final InterpolatedDoublesSurface BLACK_SURFACE_EXP_TEN = InterpolatedDoublesSurface.from(
       new double[] {0.5, 1.0, 5.0, 0.5, 1.0, 5.0 },
@@ -50,6 +56,7 @@ public class TestsDataSetsBlack {
 
   private static final BlackFlatSwaptionParameters BLACK_SWAPTION_EUR6 = new BlackFlatSwaptionParameters(BLACK_SURFACE_EXP_TEN, EUR1YEURIBOR6M);
   private static final BlackFlatSwaptionParameters BLACK_SWAPTION_EUR3 = new BlackFlatSwaptionParameters(BLACK_SURFACE_EXP_TEN, EUR1YEURIBOR3M);
+  private static final BlackFlatSwaptionParameters BLACK_SWAPTION_BRL = new BlackFlatSwaptionParameters(BLACK_SURFACE_EXP_TEN, BRLCDI);
 
   public static InterpolatedDoublesSurface createBlackSurfaceExpiryTenor() {
     return BLACK_SURFACE_EXP_TEN;
@@ -79,6 +86,10 @@ public class TestsDataSetsBlack {
     return BLACK_SWAPTION_EUR3;
   }
 
+  public static BlackFlatSwaptionParameters createBlackSwaptionBRL() {
+    return BLACK_SWAPTION_BRL;
+  }
+
   /**
    * Create the same surface as createBlackSwaptionEUR6() but with a given parallel shift.
    * @param shift The shift.
@@ -87,6 +98,16 @@ public class TestsDataSetsBlack {
   public static BlackFlatSwaptionParameters createBlackSwaptionEUR6Shift(final double shift) {
     final InterpolatedDoublesSurface surfaceShift = createBlackSurfaceExpiryTenorShift(shift);
     return new BlackFlatSwaptionParameters(surfaceShift, EUR1YEURIBOR6M);
+  }
+
+  /**
+   * Create the same surface as createBlackSwaptionEUR6() but with a given parallel shift.
+   * @param shift The shift.
+   * @return The surface.
+   */
+  public static BlackFlatSwaptionParameters createBlackSwaptionBRLShift(final double shift) {
+    final InterpolatedDoublesSurface surfaceShift = createBlackSurfaceExpiryTenorShift(shift);
+    return new BlackFlatSwaptionParameters(surfaceShift, BRLCDI);
   }
 
   /**
@@ -141,6 +162,18 @@ public class TestsDataSetsBlack {
     curves.setCurve(forward3MCurveName, YieldCurve.from(fwd3C));
     curves.setCurve(forward6MCurveName, YieldCurve.from(fwd6C));
     return curves;
+  }
+
+  public static YieldCurveBundle createCurvesBRL() {
+    final InterpolatedDoublesCurve dscC = new InterpolatedDoublesCurve(new double[] {0.05, 1.0, 2.0, 5.0, 10.0, 20.0 }, new double[] {0.0050, 0.0100, 0.0150, 0.0200, 0.0200, 0.0300 },
+        CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.LINEAR_EXTRAPOLATOR), true, DISCOUNTING_BRL);
+    final YieldCurveBundle curves = new YieldCurveBundle();
+    curves.setCurve(DISCOUNTING_BRL, YieldCurve.from(dscC));
+    return curves;
+  }
+
+  public static String[] curvesBRLNames() {
+    return new String[] {DISCOUNTING_BRL };
   }
 
   /**

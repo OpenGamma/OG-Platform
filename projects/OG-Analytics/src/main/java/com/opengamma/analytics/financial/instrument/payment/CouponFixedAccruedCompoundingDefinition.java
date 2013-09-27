@@ -79,15 +79,18 @@ public class CouponFixedAccruedCompoundingDefinition extends CouponDefinition {
     return new CouponFixedAccruedCompoundingDefinition(currency, paymentDate, accrualStartDate, accrualEndDate, paymentYearFraction, notional, rate);
   }
 
-  public static CouponFixedAccruedCompoundingDefinition from(final CouponFloatingDefinition floatingCoupon, final double fixedRate) {
-    return new CouponFixedAccruedCompoundingDefinition(floatingCoupon.getCurrency(), floatingCoupon.getPaymentDate(), floatingCoupon.getAccrualStartDate(),
-        floatingCoupon.getAccrualEndDate(), floatingCoupon.getPaymentYearFraction(), floatingCoupon.getNotional(), fixedRate);
-  }
-
+  /**
+   * Gets the fixed rate.
+   * @return The fixed rate
+   */
   public double getRate() {
     return _rate;
   }
 
+  /**
+   * Gets the amount.
+   * @return The amount
+   */
   public double getAmount() {
     return _amount;
   }

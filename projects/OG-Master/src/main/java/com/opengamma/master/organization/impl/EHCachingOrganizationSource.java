@@ -79,7 +79,7 @@ public class EHCachingOrganizationSource extends AbstractEHCachingSource<Organiz
       s_logger.debug("Cache miss on {}", redCode);
       Organization organization = getUnderlying().getOrganizationByRedCode(redCode);
       _redCache.put(new Element(redCode, organization));
-      if (organization.getObligor() != null && organization.getObligor().getObligorTicker() != null) {
+      if (organization != null && organization.getObligor() != null && organization.getObligor().getObligorTicker() != null) {
         // cross populate the ticker cache
         _tickerCache.put(new Element(organization.getObligor().getObligorTicker(), organization));
       }
@@ -97,7 +97,7 @@ public class EHCachingOrganizationSource extends AbstractEHCachingSource<Organiz
       s_logger.debug("Cache miss on {}", ticker);
       Organization organization = getUnderlying().getOrganizationByRedCode(ticker);
       _tickerCache.put(new Element(ticker, organization));
-      if (organization.getObligor() != null && organization.getObligor().getObligorTicker() != null) {
+      if (organization != null && organization.getObligor() != null && organization.getObligor().getObligorTicker() != null) {
         // cross populate the ticker cache
         _redCache.put(new Element(organization.getObligor().getObligorREDCode(), organization));
       }
