@@ -51,15 +51,15 @@ public final class CouponIborCompoundingFlatSpreadDefinition extends CouponDefin
   /**
    * The start dates of the accrual sub-periods.
    */
-  private final ZonedDateTime[] _subperiodsAccrualStartDates;
+  private final ZonedDateTime[] _subperiodAccrualStartDates;
   /**
    * The end dates of the accrual sub-periods.
    */
-  private final ZonedDateTime[] _subperiodsAccrualEndDates;
+  private final ZonedDateTime[] _subperiodAccrualEndDates;
   /**
    * The accrual factors (or year fraction) associated to the sub-periods.
    */
-  private final double[] _subperiodsAccrualFactors;
+  private final double[] _subperiodAccrualFactors;
   /**
    * The coupon fixing dates.
    */
@@ -67,15 +67,15 @@ public final class CouponIborCompoundingFlatSpreadDefinition extends CouponDefin
   /**
    * The start dates of the fixing periods.
    */
-  private final ZonedDateTime[] _fixingPeriodStartDates;
+  private final ZonedDateTime[] _fixingSubperiodStartDates;
   /**
    * The end dates of the fixing periods.
    */
-  private final ZonedDateTime[] _fixingPeriodEndDates;
+  private final ZonedDateTime[] _fixingSuberiodEndDates;
   /**
    * The accrual factors (or year fraction) associated with the fixing periods in the Index day count convention.
    */
-  private final double[] _fixingPeriodAccrualFactors;
+  private final double[] _fixingSubperiodAccrualFactors;
   /**
    * The spread paid above the Ibor rate.
    */
@@ -110,13 +110,13 @@ public final class CouponIborCompoundingFlatSpreadDefinition extends CouponDefin
     ArgumentChecker.isTrue(accrualStartDates.length == fixingPeriodEndDates.length, "Same length");
     ArgumentChecker.isTrue(accrualStartDates.length == fixingPeriodAccrualFactors.length, "Same length");
     _index = index;
-    _subperiodsAccrualStartDates = accrualStartDates;
-    _subperiodsAccrualEndDates = accrualEndDates;
-    _subperiodsAccrualFactors = paymentAccrualFactors;
+    _subperiodAccrualStartDates = accrualStartDates;
+    _subperiodAccrualEndDates = accrualEndDates;
+    _subperiodAccrualFactors = paymentAccrualFactors;
     _fixingDates = fixingDates;
-    _fixingPeriodStartDates = fixingPeriodStartDates;
-    _fixingPeriodEndDates = fixingPeriodEndDates;
-    _fixingPeriodAccrualFactors = fixingPeriodAccrualFactors;
+    _fixingSubperiodStartDates = fixingPeriodStartDates;
+    _fixingSuberiodEndDates = fixingPeriodEndDates;
+    _fixingSubperiodAccrualFactors = fixingPeriodAccrualFactors;
     _spread = spread;
   }
 
@@ -202,7 +202,7 @@ public final class CouponIborCompoundingFlatSpreadDefinition extends CouponDefin
    * @return The dates.
    */
   public ZonedDateTime[] getSubperiodsAccrualStartDates() {
-    return _subperiodsAccrualStartDates;
+    return _subperiodAccrualStartDates;
   }
 
   /**
@@ -210,7 +210,7 @@ public final class CouponIborCompoundingFlatSpreadDefinition extends CouponDefin
    * @return The dates.
    */
   public ZonedDateTime[] getSubperiodsAccrualEndDates() {
-    return _subperiodsAccrualEndDates;
+    return _subperiodAccrualEndDates;
   }
 
   /**
@@ -218,7 +218,7 @@ public final class CouponIborCompoundingFlatSpreadDefinition extends CouponDefin
    * @return The factors.
    */
   public double[] getSubperiodsAccrualFactors() {
-    return _subperiodsAccrualFactors;
+    return _subperiodAccrualFactors;
   }
 
   /**
@@ -233,24 +233,24 @@ public final class CouponIborCompoundingFlatSpreadDefinition extends CouponDefin
    * Returns the fixing period start dates for each sub-period.
    * @return The dates.
    */
-  public ZonedDateTime[] getFixingPeriodStartDates() {
-    return _fixingPeriodStartDates;
+  public ZonedDateTime[] getFixingSubperiodStartDates() {
+    return _fixingSubperiodStartDates;
   }
 
   /**
    * Returns the fixing period end dates for each sub-period.
    * @return The dates.
    */
-  public ZonedDateTime[] getFixingPeriodEndDates() {
-    return _fixingPeriodEndDates;
+  public ZonedDateTime[] getFixingSubperiodEndDates() {
+    return _fixingSuberiodEndDates;
   }
 
   /**
    * Returns the fixing period accrual factors for each sub-period.
    * @return The factors.
    */
-  public double[] getFixingPeriodAccrualFactors() {
-    return _fixingPeriodAccrualFactors;
+  public double[] getFixingSubperiodAccrualFactors() {
+    return _fixingSubperiodAccrualFactors;
   }
 
   /**
@@ -287,10 +287,10 @@ public final class CouponIborCompoundingFlatSpreadDefinition extends CouponDefin
     ArgumentChecker.isTrue(!dateConversion.isAfter(_fixingDates[0].toLocalDate()), "toDerivative without time series should have a date before the first fixing date.");
     final double paymentTime = TimeCalculator.getTimeBetween(dateTime, getPaymentDate());
     final double[] fixingTimes = TimeCalculator.getTimeBetween(dateTime, _fixingDates);
-    final double[] fixingPeriodStartTimes = TimeCalculator.getTimeBetween(dateTime, _fixingPeriodStartDates);
-    final double[] fixingPeriodEndTimes = TimeCalculator.getTimeBetween(dateTime, _fixingPeriodEndDates);
-    return new CouponIborCompoundingFlatSpread(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), 0, _index, _subperiodsAccrualFactors,
-        fixingTimes, fixingPeriodStartTimes, fixingPeriodEndTimes, _fixingPeriodAccrualFactors, _spread);
+    final double[] fixingPeriodStartTimes = TimeCalculator.getTimeBetween(dateTime, _fixingSubperiodStartDates);
+    final double[] fixingPeriodEndTimes = TimeCalculator.getTimeBetween(dateTime, _fixingSuberiodEndDates);
+    return new CouponIborCompoundingFlatSpread(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), 0, _index, _subperiodAccrualFactors,
+        fixingTimes, fixingPeriodStartTimes, fixingPeriodEndTimes, _fixingSubperiodAccrualFactors, _spread);
   }
 
   @Override
@@ -321,8 +321,8 @@ public final class CouponIborCompoundingFlatSpreadDefinition extends CouponDefin
         throw new OpenGammaRuntimeException("Could not get fixing value for date " + rezonedFixingDate);
       }
       rateFixed[loopsub] = fixing;
-      cpaAccumulated += cpaAccumulated * fixing * _subperiodsAccrualFactors[loopsub]; // Additional Compounding Period Amount
-      cpaAccumulated += getNotional() * (fixing + _spread) * _subperiodsAccrualFactors[loopsub]; // Basic Compounding Period Amount
+      cpaAccumulated += cpaAccumulated * fixing * _subperiodAccrualFactors[loopsub]; // Additional Compounding Period Amount
+      cpaAccumulated += getNotional() * (fixing + _spread) * _subperiodAccrualFactors[loopsub]; // Basic Compounding Period Amount
     }
     if (nbFixed == nbSubPeriods) {
       // Implementation note: all dates already fixed: CouponFixed
@@ -332,15 +332,15 @@ public final class CouponIborCompoundingFlatSpreadDefinition extends CouponDefin
     // Implementation note: Copying the remaining periods
     final int nbSubPeriodLeft = nbSubPeriods - nbFixed;
     final double[] paymentAccrualFactorsLeft = new double[nbSubPeriodLeft];
-    System.arraycopy(_subperiodsAccrualFactors, nbFixed, paymentAccrualFactorsLeft, 0, nbSubPeriodLeft);
+    System.arraycopy(_subperiodAccrualFactors, nbFixed, paymentAccrualFactorsLeft, 0, nbSubPeriodLeft);
     final double[] fixingTimesLeft = new double[nbSubPeriodLeft];
     System.arraycopy(TimeCalculator.getTimeBetween(dateTime, _fixingDates), nbFixed, fixingTimesLeft, 0, nbSubPeriodLeft);
     final double[] fixingPeriodStartTimesLeft = new double[nbSubPeriodLeft];
-    System.arraycopy(TimeCalculator.getTimeBetween(dateTime, _fixingPeriodStartDates), nbFixed, fixingPeriodStartTimesLeft, 0, nbSubPeriodLeft);
+    System.arraycopy(TimeCalculator.getTimeBetween(dateTime, _fixingSubperiodStartDates), nbFixed, fixingPeriodStartTimesLeft, 0, nbSubPeriodLeft);
     final double[] fixingPeriodEndTimesLeft = new double[nbSubPeriodLeft];
-    System.arraycopy(TimeCalculator.getTimeBetween(dateTime, _fixingPeriodEndDates), nbFixed, fixingPeriodEndTimesLeft, 0, nbSubPeriodLeft);
+    System.arraycopy(TimeCalculator.getTimeBetween(dateTime, _fixingSuberiodEndDates), nbFixed, fixingPeriodEndTimesLeft, 0, nbSubPeriodLeft);
     final double[] fixingPeriodAccrualFactorsLeft = new double[nbSubPeriodLeft];
-    System.arraycopy(_fixingPeriodAccrualFactors, nbFixed, fixingPeriodAccrualFactorsLeft, 0, nbSubPeriodLeft);
+    System.arraycopy(_fixingSubperiodAccrualFactors, nbFixed, fixingPeriodAccrualFactorsLeft, 0, nbSubPeriodLeft);
     return new CouponIborCompoundingFlatSpread(getCurrency(), paymentTime, getPaymentYearFraction(), getNotional(), cpaAccumulated, _index, paymentAccrualFactorsLeft,
         fixingTimesLeft, fixingPeriodStartTimesLeft, fixingPeriodEndTimesLeft, fixingPeriodAccrualFactorsLeft, _spread);
   }
@@ -362,16 +362,16 @@ public final class CouponIborCompoundingFlatSpreadDefinition extends CouponDefin
     final int prime = 31;
     int result = super.hashCode();
     result = prime * result + Arrays.hashCode(_fixingDates);
-    result = prime * result + Arrays.hashCode(_fixingPeriodAccrualFactors);
-    result = prime * result + Arrays.hashCode(_fixingPeriodEndDates);
-    result = prime * result + Arrays.hashCode(_fixingPeriodStartDates);
+    result = prime * result + Arrays.hashCode(_fixingSubperiodAccrualFactors);
+    result = prime * result + Arrays.hashCode(_fixingSuberiodEndDates);
+    result = prime * result + Arrays.hashCode(_fixingSubperiodStartDates);
     result = prime * result + ((_index == null) ? 0 : _index.hashCode());
     long temp;
     temp = Double.doubleToLongBits(_spread);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + Arrays.hashCode(_subperiodsAccrualEndDates);
-    result = prime * result + Arrays.hashCode(_subperiodsAccrualFactors);
-    result = prime * result + Arrays.hashCode(_subperiodsAccrualStartDates);
+    result = prime * result + Arrays.hashCode(_subperiodAccrualEndDates);
+    result = prime * result + Arrays.hashCode(_subperiodAccrualFactors);
+    result = prime * result + Arrays.hashCode(_subperiodAccrualStartDates);
     return result;
   }
 
@@ -390,13 +390,13 @@ public final class CouponIborCompoundingFlatSpreadDefinition extends CouponDefin
     if (!Arrays.equals(_fixingDates, other._fixingDates)) {
       return false;
     }
-    if (!Arrays.equals(_fixingPeriodAccrualFactors, other._fixingPeriodAccrualFactors)) {
+    if (!Arrays.equals(_fixingSubperiodAccrualFactors, other._fixingSubperiodAccrualFactors)) {
       return false;
     }
-    if (!Arrays.equals(_fixingPeriodEndDates, other._fixingPeriodEndDates)) {
+    if (!Arrays.equals(_fixingSuberiodEndDates, other._fixingSuberiodEndDates)) {
       return false;
     }
-    if (!Arrays.equals(_fixingPeriodStartDates, other._fixingPeriodStartDates)) {
+    if (!Arrays.equals(_fixingSubperiodStartDates, other._fixingSubperiodStartDates)) {
       return false;
     }
     if (!ObjectUtils.equals(_index, other._index)) {
@@ -405,13 +405,13 @@ public final class CouponIborCompoundingFlatSpreadDefinition extends CouponDefin
     if (Double.doubleToLongBits(_spread) != Double.doubleToLongBits(other._spread)) {
       return false;
     }
-    if (!Arrays.equals(_subperiodsAccrualEndDates, other._subperiodsAccrualEndDates)) {
+    if (!Arrays.equals(_subperiodAccrualEndDates, other._subperiodAccrualEndDates)) {
       return false;
     }
-    if (!Arrays.equals(_subperiodsAccrualFactors, other._subperiodsAccrualFactors)) {
+    if (!Arrays.equals(_subperiodAccrualFactors, other._subperiodAccrualFactors)) {
       return false;
     }
-    if (!Arrays.equals(_subperiodsAccrualStartDates, other._subperiodsAccrualStartDates)) {
+    if (!Arrays.equals(_subperiodAccrualStartDates, other._subperiodAccrualStartDates)) {
       return false;
     }
     return true;
