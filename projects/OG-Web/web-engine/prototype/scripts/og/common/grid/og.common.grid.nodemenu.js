@@ -26,7 +26,7 @@ $.register_module({
                 if ($target.is('.loading')) return; else $target.removeClass('expand collapse').addClass('loading');
             };
             if (!grid.state.nodes[has](cell.row)) return [];
-            expand_deep = {name: 'Expand (deep)', handler: function () {
+            /*expand_deep = {name: 'Expand (deep)', handler: function () {
                 var range = state.nodes.ranges.filter(function (range) {return range[0] === cell.row;})[0],
                     indent, max_indent, nodes, changed;
                 indent = state.nodes.indent[cell.row];
@@ -76,7 +76,7 @@ $.register_module({
                 });
                 if (dry) return changed;
                 grid.resize().selector.clear();
-            }};
+            }};*/
             new_portfolio = {name: 'Create a new portfolio containing this position', handler: function () {
                 var position = cell.value.v['positionId'], portfolio, win = window.open();
                 og.api.rest.portfolios.put({name: cell.value.v['name'] + ' - ' + og.common.util.date(new Date)})
@@ -95,11 +95,12 @@ $.register_module({
                         win.location.href = 'admin.ftl#/portfolios/' + portfolio.object_id;
                     });
             }};
-            items = (expanded ? [collapse_deep, collapse_globally, {}, expand_deep, expand_globally]
+            /*items = (expanded ? [collapse_deep, collapse_globally, {}, expand_deep, expand_globally]
                 : [expand_deep, expand_globally, {}, collapse_deep, collapse_globally]).map(function (item) {
                     if (item.handler) item.disabled = !item.handler(); // check changed flags & enable relevant options
                     return item;
-                });
+                });*/
+            items = [];
             if (!grid.source.aggregators.length && cell.value.v[has]('positionId')) // no new portfolio option in
                 items.push({}, new_portfolio);                                      // aggregated views
             return (dry = false), items;
