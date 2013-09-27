@@ -114,7 +114,7 @@ public class CouponIborCompoundingFlatSpread extends Coupon {
    * Returns the payment accrual factors for each sub-period.
    * @return The factors.
    */
-  public double[] getPaymentAccrualFactors() {
+  public double[] getSubperiodsAccrualFactors() {
     return _subperiodsAccrualFactors;
   }
 
@@ -130,7 +130,7 @@ public class CouponIborCompoundingFlatSpread extends Coupon {
    * Gets the fixing period start times (in years).
    * @return The times.
    */
-  public double[] getFixingPeriodStartTimes() {
+  public double[] getFixingSubperiodsStartTimes() {
     return _fixingSubperiodsStartTimes;
   }
 
@@ -138,7 +138,7 @@ public class CouponIborCompoundingFlatSpread extends Coupon {
    * Gets the fixing period end times (in years).
    * @return The times.
    */
-  public double[] getFixingPeriodEndTimes() {
+  public double[] getFixingSubperiodsEndTimes() {
     return _fixingSubperiodsEndTimes;
   }
 
@@ -146,7 +146,7 @@ public class CouponIborCompoundingFlatSpread extends Coupon {
    * Returns the fixing period accrual factors for each sub-period.
    * @return The factors.
    */
-  public double[] getFixingPeriodAccrualFactors() {
+  public double[] getFixingSubperiodsAccrualFactors() {
     return _fixingSubperiodsAccrualFactors;
   }
 

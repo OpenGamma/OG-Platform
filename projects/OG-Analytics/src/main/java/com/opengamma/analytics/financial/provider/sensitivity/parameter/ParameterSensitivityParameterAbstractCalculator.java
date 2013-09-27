@@ -49,7 +49,6 @@ public abstract class ParameterSensitivityParameterAbstractCalculator<DATA_TYPE 
     ArgumentChecker.notNull(parameterMulticurves, "Black data");
     ArgumentChecker.notNull(curvesSet, "curves");
     final MultipleCurrencyMulticurveSensitivity sensitivity = instrument.accept(_curveSensitivityCalculator, parameterMulticurves);
-    // sensitivity = sensitivity.cleaned(); // TODO: for testing purposes mainly. Could be removed after the tests.
     return pointToParameterSensitivity(sensitivity, parameterMulticurves, curvesSet);
   }
 

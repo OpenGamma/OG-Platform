@@ -201,7 +201,7 @@ public final class CouponIborCompoundingFlatSpreadDefinition extends CouponDefin
    * Returns the accrual start dates of each sub-period.
    * @return The dates.
    */
-  public ZonedDateTime[] getAccrualStartDates() {
+  public ZonedDateTime[] getSubperiodsAccrualStartDates() {
     return _subperiodsAccrualStartDates;
   }
 
@@ -209,7 +209,7 @@ public final class CouponIborCompoundingFlatSpreadDefinition extends CouponDefin
    * Returns the accrual end dates of each sub-period.
    * @return The dates.
    */
-  public ZonedDateTime[] getAccrualEndDates() {
+  public ZonedDateTime[] getSubperiodsAccrualEndDates() {
     return _subperiodsAccrualEndDates;
   }
 
@@ -217,7 +217,7 @@ public final class CouponIborCompoundingFlatSpreadDefinition extends CouponDefin
    * Returns the payment accrual factors for each sub-period.
    * @return The factors.
    */
-  public double[] getPaymentAccrualFactors() {
+  public double[] getSubperiodsAccrualFactors() {
     return _subperiodsAccrualFactors;
   }
 

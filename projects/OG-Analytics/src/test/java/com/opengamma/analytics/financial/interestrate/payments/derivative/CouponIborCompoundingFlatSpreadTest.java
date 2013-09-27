@@ -127,11 +127,11 @@ public class CouponIborCompoundingFlatSpreadTest {
     assertEquals("CouponIborCompoundingFlatSpread: getter", NOTIONAL * 0.01, CPN.getCompoundingPeriodAmountAccumulated());
     assertEquals("CouponIborCompoundingFlatSpread: getter", USDLIBOR1M, CPN.getIndex());
     assertEquals("CouponIborCompoundingFlatSpread: getter", SPREAD, CPN.getSpread());
-    assertArrayEquals("CouponIborCompoundingFlatSpread: getter", PAYMENT_ACCRUAL_FACTORS, CPN.getPaymentAccrualFactors(), TOLERANCE);
+    assertArrayEquals("CouponIborCompoundingFlatSpread: getter", PAYMENT_ACCRUAL_FACTORS, CPN.getSubperiodsAccrualFactors(), TOLERANCE);
     assertArrayEquals("CouponIborCompoundingFlatSpread: getter", FIXING_TIMES, CPN.getFixingTimes(), TOLERANCE);
-    assertArrayEquals("CouponIborCompoundingFlatSpread: getter", ACCRUAL_START_TIMES, CPN.getFixingPeriodStartTimes(), TOLERANCE);
-    assertArrayEquals("CouponIborCompoundingFlatSpread: getter", FIXING_PERIOD_END_TIMES, CPN.getFixingPeriodEndTimes(), TOLERANCE);
-    assertArrayEquals("CouponIborCompoundingFlatSpread: getter", FIXING_ACCRUAL_FACTORS, CPN.getFixingPeriodAccrualFactors(), TOLERANCE);
+    assertArrayEquals("CouponIborCompoundingFlatSpread: getter", ACCRUAL_START_TIMES, CPN.getFixingSubperiodsStartTimes(), TOLERANCE);
+    assertArrayEquals("CouponIborCompoundingFlatSpread: getter", FIXING_PERIOD_END_TIMES, CPN.getFixingSubperiodsEndTimes(), TOLERANCE);
+    assertArrayEquals("CouponIborCompoundingFlatSpread: getter", FIXING_ACCRUAL_FACTORS, CPN.getFixingSubperiodsAccrualFactors(), TOLERANCE);
   }
 
   @Test

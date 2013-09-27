@@ -90,15 +90,15 @@ public class CouponIborCompoundingFlatSpreadDefinitionTest {
     final CouponIborCompoundingFlatSpreadDefinition cpnFromAccrualDates = CouponIborCompoundingFlatSpreadDefinition.from(ACCRUAL_END_DATES[NB_SUB_PERIOD - 1], NOTIONAL, USDLIBOR1M,
         ACCRUAL_START_DATES, ACCRUAL_END_DATES, PAYMENT_ACCRUAL_FACTORS, SPREAD, NYC);
     assertEquals("CouponIborCompoundedDefinition: from", cpnFromAccrualDates, CPN_FROM_INDEX_DEFINITION);
-    assertArrayEquals("CouponIborCompoundingFlatSpreadDefinition: getter", ACCRUAL_START_DATES, CPN_FROM_INDEX_DEFINITION.getAccrualStartDates());
+    assertArrayEquals("CouponIborCompoundingFlatSpreadDefinition: getter", ACCRUAL_START_DATES, CPN_FROM_INDEX_DEFINITION.getSubperiodsAccrualStartDates());
     assertArrayEquals("CouponIborCompoundingFlatSpreadDefinition: getter", ACCRUAL_START_DATES, CPN_FROM_INDEX_DEFINITION.getFixingPeriodStartDates());
-    assertArrayEquals("CouponIborCompoundingFlatSpreadDefinition: getter", ACCRUAL_END_DATES, CPN_FROM_INDEX_DEFINITION.getAccrualEndDates());
+    assertArrayEquals("CouponIborCompoundingFlatSpreadDefinition: getter", ACCRUAL_END_DATES, CPN_FROM_INDEX_DEFINITION.getSubperiodsAccrualEndDates());
     assertArrayEquals("CouponIborCompoundingFlatSpreadDefinition: getter", FIXING_DATES, CPN_FROM_INDEX_DEFINITION.getFixingDates());
     assertArrayEquals("CouponIborCompoundingFlatSpreadDefinition: getter", FIXING_PERIOD_END_DATES, CPN_FROM_INDEX_DEFINITION.getFixingPeriodEndDates());
     assertEquals("CouponIborCompoundingFlatSpreadDefinition: getter", SPREAD, CPN_FROM_INDEX_DEFINITION.getSpread());
-    int nbSubPeriod = CPN_FROM_INDEX_DEFINITION.getAccrualStartDates().length;
+    int nbSubPeriod = CPN_FROM_INDEX_DEFINITION.getSubperiodsAccrualStartDates().length;
     for (int loops = 0; loops < nbSubPeriod; loops++) {
-      assertEquals("CouponIborCompoundingFlatSpreadDefinition: dates - " + loops, CPN_FROM_INDEX_DEFINITION.getAccrualEndDates()[nbSubPeriod - 1 - loops],
+      assertEquals("CouponIborCompoundingFlatSpreadDefinition: dates - " + loops, CPN_FROM_INDEX_DEFINITION.getSubperiodsAccrualEndDates()[nbSubPeriod - 1 - loops],
           ScheduleCalculator.getAdjustedDate(END_DATE, Period.ofMonths(-loops), PREC, NYC, false));
       assertEquals("CouponIborCompoundingFlatSpreadDefinition: dates - " + loops, CPN_FROM_INDEX_DEFINITION.getFixingPeriodEndDates()[loops],
           ScheduleCalculator.getAdjustedDate(CPN_FROM_INDEX_DEFINITION.getFixingPeriodStartDates()[loops], USDLIBOR1M, NYC));
@@ -111,10 +111,10 @@ public class CouponIborCompoundingFlatSpreadDefinitionTest {
     final ZonedDateTime endDate = DateUtils.getUTCDate(2012, 11, 23);
     final CouponIborCompoundingFlatSpreadDefinition cpn = CouponIborCompoundingFlatSpreadDefinition.from(NOTIONAL, startDate, endDate, USDLIBOR1M, SPREAD, StubType.SHORT_START, PREC, true, NYC);
     assertEquals("CouponIborCompoundingFlatSpreadDefinition: from", startDate, cpn.getAccrualStartDate());
-    assertEquals("CouponIborCompoundingFlatSpreadDefinition: from", cpn.getAccrualStartDate(), cpn.getAccrualStartDates()[0]);
-    int nbSubPeriod = cpn.getAccrualStartDates().length;
+    assertEquals("CouponIborCompoundingFlatSpreadDefinition: from", cpn.getAccrualStartDate(), cpn.getSubperiodsAccrualStartDates()[0]);
+    int nbSubPeriod = cpn.getSubperiodsAccrualStartDates().length;
     for (int loops = 0; loops < nbSubPeriod; loops++) {
-      assertEquals("CouponIborCompoundingFlatSpreadDefinition: dates - " + loops, cpn.getAccrualEndDates()[nbSubPeriod - 1 - loops],
+      assertEquals("CouponIborCompoundingFlatSpreadDefinition: dates - " + loops, cpn.getSubperiodsAccrualEndDates()[nbSubPeriod - 1 - loops],
           ScheduleCalculator.getAdjustedDate(endDate, Period.ofMonths(-loops), PREC, NYC, false));
       assertEquals("CouponIborCompoundingFlatSpreadDefinition: dates - " + loops, cpn.getFixingPeriodEndDates()[loops],
           ScheduleCalculator.getAdjustedDate(cpn.getFixingPeriodStartDates()[loops], USDLIBOR1M, NYC));
@@ -125,9 +125,9 @@ public class CouponIborCompoundingFlatSpreadDefinitionTest {
   public void getter() {
     assertEquals("CouponIborCompoundingFlatSpreadDefinition: getter", USDLIBOR1M, CPN_FROM_INDEX_DEFINITION.getIndex());
     assertEquals("CouponIborCompoundingFlatSpreadDefinition: getter", START_DATE, CPN_FROM_INDEX_DEFINITION.getAccrualStartDate());
-    assertEquals("CouponIborCompoundingFlatSpreadDefinition: getter", START_DATE, CPN_FROM_INDEX_DEFINITION.getAccrualStartDates()[0]);
+    assertEquals("CouponIborCompoundingFlatSpreadDefinition: getter", START_DATE, CPN_FROM_INDEX_DEFINITION.getSubperiodsAccrualStartDates()[0]);
     assertEquals("CouponIborCompoundingFlatSpreadDefinition: getter", CPN_FROM_INDEX_DEFINITION.getPaymentDate(),
-        CPN_FROM_INDEX_DEFINITION.getAccrualEndDates()[CPN_FROM_INDEX_DEFINITION.getAccrualEndDates().length - 1]);
+        CPN_FROM_INDEX_DEFINITION.getSubperiodsAccrualEndDates()[CPN_FROM_INDEX_DEFINITION.getSubperiodsAccrualEndDates().length - 1]);
     assertEquals("CouponIborCompoundingFlatSpreadDefinition: getter", SPREAD, CPN_FROM_INDEX_DEFINITION.getSpread());
   }
 
