@@ -19,12 +19,13 @@
 
 .OG-masthead li {
     display: inline-block;
-    float: left;
 }
 
 .OG-masthead .og-username-logout {
-    float:right;
     margin-right: 8px;
+    position: absolute;
+    right: 0;
+    top: 0;
 }
 
 .OG-masthead .og-logout {

@@ -1,5 +1,5 @@
 <section class="OG-masthead">
-  <ul>
+  <ul  class="og-nav">
     <li><a href="analytics.ftl" class="og-home"><span class="OG-logo-light-small"></span><span>OpenGamma</span></a></li>
     <!--<li><a href="analytics_legacy.ftl" class="og-analytics">Analytics Legacy</a></li>-->
     <li><a href="analytics.ftl" class="og-analytics-beta">Analytics</a></li>
@@ -107,7 +107,9 @@
         <span class="OG-icon og-icon-speech"></span>Feedback
       </a>
     </li>
-    <li class="og-username-logout">
+  </ul>
+  <ul class="og-username-logout">
+    <li>
       <span class="og-username">Default User</span> | <span class="og-logout">Logout</span>
     </li>
   </ul>
