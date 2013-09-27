@@ -31,6 +31,7 @@ import com.opengamma.master.exchange.ExchangeSearchResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchRequest;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
+import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import com.opengamma.master.holiday.HolidayMaster;
 import com.opengamma.master.holiday.HolidaySearchRequest;
@@ -157,8 +158,10 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
     List<Object> objects = Lists.newArrayList();
     HistoricalTimeSeriesInfoSearchResult infoResult = _timeSeriesMaster.search(new HistoricalTimeSeriesInfoSearchRequest());
     for (ManageableHistoricalTimeSeriesInfo info : infoResult.getInfoList()) {
-      objects.add(_timeSeriesMaster.getTimeSeries(info.getTimeSeriesObjectId(), VersionCorrection.LATEST));
-      objects.add(info);
+      ManageableHistoricalTimeSeries timeSeries =
+          _timeSeriesMaster.getTimeSeries(info.getTimeSeriesObjectId(), VersionCorrection.LATEST);
+      TimeSeriesWithInfo timeSeriesWithInfo = new TimeSeriesWithInfo(info, timeSeries);
+      objects.add(timeSeriesWithInfo);
     }
     writeToDirectory(objects, "timeseries");
   }

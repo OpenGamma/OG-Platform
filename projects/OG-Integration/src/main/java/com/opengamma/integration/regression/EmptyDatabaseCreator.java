@@ -21,9 +21,9 @@ import com.opengamma.util.db.tool.DbTool;
 /**
  *
  */
-/* package */ class DatabaseCreator {
+/* package */ class EmptyDatabaseCreator {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(DatabaseCreator.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(EmptyDatabaseCreator.class);
 
   /** Shared database URL. */
   private static final String KEY_SHARED_URL = "db.standard.url";
@@ -44,7 +44,7 @@ import com.opengamma.util.db.tool.DbTool;
     if (args.length == 0) {
       throw new IllegalArgumentException("Argument required specifying configuration file");
     }
-    new DatabaseCreator().createDatabases(args[0]);
+    new EmptyDatabaseCreator().createDatabases(args[0]);
   }
 
   public void createDatabases(String configFile) throws IOException {

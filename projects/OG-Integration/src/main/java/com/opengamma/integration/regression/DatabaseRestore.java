@@ -52,6 +52,7 @@ import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.ManageablePosition;
+import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.ManageableSecurity;
@@ -166,6 +167,10 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
           s_logger.warn("No security found with ID {} for position {}", securityObjectId, position);
         }
       }
+      for (ManageableTrade trade : position.getTrades()) {
+        trade.setUniqueId(null);
+        trade.setParentPositionId(null);
+      }
       PositionDocument doc = _positionMaster.add(new PositionDocument(position));
       ids.put(oldId, doc.getUniqueId().getObjectId());
     }
@@ -181,7 +186,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
       portfolio.setUniqueId(null);
       replacePositionIds(portfolio.getRootNode(), positionIdMappings);
       UniqueId newId = _portfolioMaster.add(new PortfolioDocument(portfolio)).getUniqueId();
-      s_logger.info("Saved portfolio with ID {}, {}", newId, portfolio);
+      s_logger.debug("Saved portfolio {} with ID {}, old ID {}", portfolio.getName(), newId, oldId);
       idMappings.put(oldId.getObjectId(), newId.getObjectId());
     }
     return idMappings;
@@ -191,7 +196,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
     List<?> configs = readFromDirectory("configs");
     List<ViewDefinition> viewDefs = Lists.newArrayList();
     // view definitions refer to other config items by unique ID
-    Map<UniqueId, UniqueId> idMappings = Maps.newHashMap();
+    Map<ObjectId, ObjectId> idMappings = Maps.newHashMap();
     for (Object o : configs) {
       ConfigItem<?> config = (ConfigItem<?>) o;
       Object configValue = config.getValue();
@@ -201,8 +206,8 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
         UniqueId oldId = config.getUniqueId();
         config.setUniqueId(null);
         UniqueId newId = _configMaster.add(new ConfigDocument(config)).getUniqueId();
-        s_logger.info("Saved config of type {} with ID {}", configValue.getClass().getSimpleName(), newId);
-        idMappings.put(oldId, newId);
+        s_logger.debug("Saved config of type {} with ID {}", configValue.getClass().getSimpleName(), newId);
+        idMappings.put(oldId.getObjectId(), newId.getObjectId());
       }
     }
     // TODO maybe this should be pluggable to handle new config types that need post processing
@@ -221,22 +226,34 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
       }
       ViewDefinition newViewDef = viewDef.copyWith(viewDef.getName(), newPortfolioId, viewDef.getMarketDataUser());
       for (ViewCalculationConfiguration calcConfig : newViewDef.getAllCalculationConfigurations()) {
-        calcConfig.setScenarioId(idMappings.get(calcConfig.getScenarioId()));
-        calcConfig.setScenarioParametersId(idMappings.get(calcConfig.getScenarioParametersId()));
+        calcConfig.setScenarioId(getNewId(calcConfig.getScenarioId(), idMappings));
+        calcConfig.setScenarioParametersId(getNewId(calcConfig.getScenarioParametersId(), idMappings));
       }
-      UniqueId newId = _configMaster.add(new ConfigDocument(ConfigItem.of(viewDef))).getUniqueId();
-      s_logger.info("Saved view definition with ID {}", newId);
+      UniqueId newId = _configMaster.add(new ConfigDocument(ConfigItem.of(newViewDef))).getUniqueId();
+      s_logger.debug("Saved view definition with ID {}", newId);
+    }
+  }
+
+  private static UniqueId getNewId(UniqueId oldId, Map<ObjectId, ObjectId> idMappings) {
+    if (oldId == null) {
+      return null;
+    }
+    ObjectId newObjectId = idMappings.get(oldId.getObjectId());
+    if (newObjectId == null) {
+      return null;
+    } else {
+      return newObjectId.atLatestVersion();
     }
   }
 
   private void loadTimeSeries() throws IOException {
     List<?> objects = readFromDirectory("timeseries");
-    // TODO check size is even
-    for (int i = 0; i < objects.size(); i += 2) {
-      ManageableHistoricalTimeSeries timeSeries = (ManageableHistoricalTimeSeries) objects.get(i);
-      ManageableHistoricalTimeSeriesInfo timeSeriesInfo = (ManageableHistoricalTimeSeriesInfo) objects.get(i + 1);
-      timeSeriesInfo.setUniqueId(null);
-      HistoricalTimeSeriesInfoDocument infoDoc = _timeSeriesMaster.add(new HistoricalTimeSeriesInfoDocument(timeSeriesInfo));
+    for (Object o : objects) {
+      TimeSeriesWithInfo timeSeriesWithInfo = (TimeSeriesWithInfo) o;
+      ManageableHistoricalTimeSeriesInfo info = timeSeriesWithInfo.getInfo();
+      ManageableHistoricalTimeSeries timeSeries = timeSeriesWithInfo.getTimeSeries();
+      info.setUniqueId(null);
+      HistoricalTimeSeriesInfoDocument infoDoc = _timeSeriesMaster.add(new HistoricalTimeSeriesInfoDocument(info));
       _timeSeriesMaster.updateTimeSeriesDataPoints(infoDoc.getInfo().getTimeSeriesObjectId(), timeSeries.getTimeSeries());
     }
   }
