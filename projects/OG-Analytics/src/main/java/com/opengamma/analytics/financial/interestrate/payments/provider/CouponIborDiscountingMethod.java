@@ -84,4 +84,24 @@ public final class CouponIborDiscountingMethod {
     return MultipleCurrencyMulticurveSensitivity.of(coupon.getCurrency(), MulticurveSensitivity.of(mapDsc, mapFwd));
   }
 
+  public MultipleCurrencyMulticurveSensitivity presentValueSecondOrderCurveSensitivity(final CouponIbor coupon, final MulticurveProviderInterface multicurve) {
+    ArgumentChecker.notNull(coupon, "Coupon");
+    ArgumentChecker.notNull(multicurve, "Curves");
+    final double forward = multicurve.getForwardRate(coupon.getIndex(), coupon.getFixingPeriodStartTime(), coupon.getFixingPeriodEndTime(), coupon.getFixingAccrualFactor());
+    final double df = multicurve.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
+    // Backward sweep
+    final double pvBar = 1.0;
+    final double forwardBar = coupon.getNotional() * coupon.getPaymentYearFraction() * df * pvBar;
+    final double dfBar = coupon.getNotional() * coupon.getPaymentYearFraction() * forward * pvBar;
+    final Map<String, List<DoublesPair>> mapDsc = new HashMap<>();
+    final List<DoublesPair> listDiscounting = new ArrayList<>();
+    listDiscounting.add(new DoublesPair(coupon.getPaymentTime(), coupon.getPaymentTime() * coupon.getPaymentTime() * df * dfBar));
+    mapDsc.put(multicurve.getName(coupon.getCurrency()), listDiscounting);
+    final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<>();
+    final List<ForwardSensitivity> listForward = new ArrayList<>();
+    listForward.add(new ForwardSensitivity(coupon.getFixingPeriodStartTime(), coupon.getFixingPeriodEndTime(), coupon.getFixingAccrualFactor(), -2. * coupon.getPaymentTime() * forwardBar));
+    mapFwd.put(multicurve.getName(coupon.getIndex()), listForward);
+    return MultipleCurrencyMulticurveSensitivity.of(coupon.getCurrency(), MulticurveSensitivity.of(mapDsc, mapFwd));
+  }
+
 }

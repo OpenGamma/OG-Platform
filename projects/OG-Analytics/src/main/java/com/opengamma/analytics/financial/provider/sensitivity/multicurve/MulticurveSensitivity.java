@@ -131,6 +131,17 @@ public class MulticurveSensitivity {
   }
 
   /**
+   * Create a new sensitivity object by a product of two sensitivities
+   * @param other The other sensitivity
+   * @return The new sensitivity
+   */
+  public MulticurveSensitivity productOf(final MulticurveSensitivity other) {
+    final Map<String, List<DoublesPair>> resultDsc = MulticurveSensitivityUtils.productOf(_sensitivityYieldDiscounting, other._sensitivityYieldDiscounting);
+    final Map<String, List<ForwardSensitivity>> resultFwd = MulticurveSensitivityUtils.productOfFwd(_sensitivityForward, other._sensitivityForward);
+    return new MulticurveSensitivity(resultDsc, resultFwd);
+  }
+
+  /**
    * Return a new sensitivity by sorting the times and adding the values at duplicated times.
    * @return The cleaned sensitivity.
    */

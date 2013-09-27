@@ -180,7 +180,7 @@ public final class SwaptionPhysicalFixedIborBlackMethod {
    * @param blackMulticurves Black volatility for swaption and multi-curves provider.
    * @return The present value curve sensitivity.
    */
-  public MultipleCurrencyMulticurveSensitivity presentValueCurveSecondOrderSensitivity(final SwaptionPhysicalFixedIbor swaption, final BlackSwaptionFlatProviderInterface blackMulticurves) {
+  public MultipleCurrencyMulticurveSensitivity presentValueSecondOrderCurveSensitivity(final SwaptionPhysicalFixedIbor swaption, final BlackSwaptionFlatProviderInterface blackMulticurves) {
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(blackMulticurves, "Black volatility for swaption and multicurve");
     final GeneratorInstrument<GeneratorAttributeIR> generatorSwap = blackMulticurves.getBlackParameters().getGeneratorSwap();
@@ -202,31 +202,28 @@ public final class SwaptionPhysicalFixedIborBlackMethod {
       throw new IllegalArgumentException("Cannot handle swap with underlying generator of type " + generatorSwap.getClass());
     }
     final MulticurveProviderInterface multicurves = blackMulticurves.getMulticurveProvider();
+
     final double pvbpModified = METHOD_SWAP.presentValueBasisPoint(swaption.getUnderlyingSwap(), dayCountModification, calendar, multicurves);
     final double forwardModified = PRDC.visitFixedCouponSwap(swaption.getUnderlyingSwap(), dayCountModification, multicurves);
     final double strikeModified = METHOD_SWAP.couponEquivalent(swaption.getUnderlyingSwap(), pvbpModified, multicurves);
     final double maturity = swaption.getMaturityTime();
-    // Derivative of the forward and pvbp with respect to the rates.
     final MulticurveSensitivity pvbpModifiedDr = METHOD_SWAP.presentValueBasisPointCurveSensitivity(swaption.getUnderlyingSwap(), dayCountModification,
         calendar, multicurves);
     final MulticurveSensitivity forwardModifiedDr = PRCSDC.visitFixedCouponSwap(swaption.getUnderlyingSwap(), dayCountModification, multicurves);
     final MulticurveSensitivity pvbpModifiedDr2 = METHOD_SWAP.presentValueBasisPointSecondOrderCurveSensitivity(swaption.getUnderlyingSwap(), dayCountModification,
         calendar, multicurves);
-    // Implementation note: strictly speaking, the strike equivalent is curve dependent; that dependency is ignored.
-    final EuropeanVanillaOption option = new EuropeanVanillaOption(strikeModified, swaption.getTimeToExpiry(), swaption.isCall());
-    // Implementation note: option required to pass the strike (in case the swap has non-constant coupon).
-    final BlackPriceFunction blackFunction = new BlackPriceFunction();
+    final MulticurveSensitivity forwardModifiedDr2 = PRCSDC.visitFixedCouponSwapDerivative(swaption.getUnderlyingSwap(), dayCountModification, multicurves);
+
     final double volatility = blackMulticurves.getBlackParameters().getVolatility(swaption.getTimeToExpiry(), maturity);
-    final BlackFunctionData dataBlack = new BlackFunctionData(forwardModified, 1.0, volatility);
-    final double[] bsAdjoint = blackFunction.getPriceAdjoint(option, dataBlack);
 
     final double price = BlackFormulaRepository.price(forwardModified, strikeModified, volatility, swaption.getTimeToExpiry(), swaption.isCall());
     final double delta = BlackFormulaRepository.delta(forwardModified, strikeModified, volatility, swaption.getTimeToExpiry(), swaption.isCall());
     final double gamma = BlackFormulaRepository.gamma(forwardModified, strikeModified, volatility, swaption.getTimeToExpiry());
 
     MulticurveSensitivity result = pvbpModifiedDr2.multipliedBy(price);
-    //    result = result.plus(pvbpModifiedDr.multipliedBy(forwardModifiedDr.multipliedBy(2. * pvbpModified * delta)));
-    //    result = result.plus(forwardModifiedDr.multipliedBy(forwardModifiedDr.multipliedBy(pvbpModified * gamma)));
+    result = result.plus(pvbpModifiedDr.productOf(forwardModifiedDr.multipliedBy(2. * pvbpModified * delta)));
+    result = result.plus(forwardModifiedDr2.multipliedBy(pvbpModified * delta));
+    result = result.plus(forwardModifiedDr.productOf(forwardModifiedDr.multipliedBy(pvbpModified * gamma)));
     if (!swaption.isLong()) {
       result = result.multipliedBy(-1);
     }

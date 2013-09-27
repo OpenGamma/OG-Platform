@@ -261,6 +261,32 @@ public class SwapFixedCouponDiscountingMethod {
   }
 
   /**
+   * Compute the sensitivity of the PVBP to the discounting curve.
+   * @param fixedCouponSwap The swap.
+   * @param dayCount Day count convention for the PVBP modification.
+   * @param multicurves The multi-curves provider.
+   * @return The sensitivity.
+   */
+  public MulticurveSensitivity presentValueBasisPointSecondOrderCurveSensitivity(final SwapFixedCoupon<? extends Payment> fixedCouponSwap, final DayCount dayCount,
+      final MulticurveProviderInterface multicurves) {
+    final AnnuityCouponFixed annuityFixed = fixedCouponSwap.getFixedLeg();
+    final Currency ccy = annuityFixed.getCurrency();
+    double time;
+    final List<DoublesPair> list = new ArrayList<>();
+    for (int loopcpn = 0; loopcpn < annuityFixed.getPayments().length; loopcpn++) {
+      time = annuityFixed.getNthPayment(loopcpn).getPaymentTime();
+      final DoublesPair s = new DoublesPair(time, time * time * multicurves.getDiscountFactor(ccy, time)
+          * dayCount.getDayCountFraction(annuityFixed.getNthPayment(loopcpn).getAccrualStartDate(), annuityFixed.getNthPayment(loopcpn).getAccrualEndDate())
+          * Math.abs(annuityFixed.getNthPayment(loopcpn).getNotional()));
+      list.add(s);
+    }
+    final Map<String, List<DoublesPair>> mapDsc = new HashMap<>();
+    mapDsc.put(multicurves.getName(annuityFixed.getCurrency()), list);
+    final MulticurveSensitivity result = MulticurveSensitivity.ofYieldDiscounting(mapDsc);
+    return result;
+  }
+
+  /**
    * Computes the coupon equivalent of a swap (without margins).
    * @param fixedCouponSwap The underlying swap.
    * @param pvbp The swap PVBP.
