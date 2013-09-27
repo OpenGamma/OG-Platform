@@ -68,8 +68,8 @@ public class ViewClientMBeanImpl implements ViewClientMBean {
   }
 
   @Override
-  public UserPrincipal getUser() {
-    return _viewClient.getUser();
+  public String getUser() {
+    return _viewClient.getUser().getUserName();
   }
 
   @Override

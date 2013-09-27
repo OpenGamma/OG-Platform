@@ -29,7 +29,7 @@ public interface ViewClientMBean {
    * 
    * @return the user, not null
    */
-  UserPrincipal getUser();
+  String getUser();
   
   /**
    * Gets the state of this view client.

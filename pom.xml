@@ -709,6 +709,11 @@
         <artifactId>jetty-jsp</artifactId>
         <version>${jetty.version}</version>
       </dependency>
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-plus</artifactId>
+        <version>${jetty.version}</version>
+      </dependency>
 
       <!--Jruby and gems -->
       <dependency>

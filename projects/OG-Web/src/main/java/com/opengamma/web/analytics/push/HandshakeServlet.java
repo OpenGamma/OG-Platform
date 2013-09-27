@@ -6,6 +6,7 @@
 package com.opengamma.web.analytics.push;
 
 import java.io.IOException;
+import java.security.Principal;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -60,7 +61,8 @@ public class HandshakeServlet extends HttpServlet {
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-    String userId = req.getRemoteUser(); // TODO is this right?
+    Principal requestUser = req.getUserPrincipal();
+    String userId = requestUser != null ? requestUser.getName() : null;
     String clientId = _connectionManager.clientConnected(userId);
     resp.setContentType(MediaType.APPLICATION_JSON);
     JSONObject json = new JSONObject();
