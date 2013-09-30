@@ -30,9 +30,11 @@ public final class ClassUtils {
   }
 
   /**
-   * Loads a class from a class name, or fetches one from the calling thread's cache. The calling thread's class loader is used.
+   * Loads a class from a class name, or fetches one from the calling thread's cache.
+   * The calling thread's class loader is used.
    * <p>
-   * Some class loaders involve quite heavy synchronization overheads which can impact performance on multi-core systems if called heavy (for example as part of decoding a Fudge message).
+   * Some class loaders involve quite heavy synchronization overheads which can impact
+   * performance on multi-core systems if called heavy (for example as part of decoding a Fudge message).
    * 
    * @param className the class name, not null
    * @return the class object, not null
