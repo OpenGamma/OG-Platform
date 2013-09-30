@@ -1213,7 +1213,7 @@ public class DbBatchWriter extends AbstractDbMaster {
     }
     // Java's smallest double is 4.9e-324, but most databases would underflow.
     // Postgres is 1e-307, Oracle is 2.2e-307, SQL Server is 2.2e-308.
-    if (value < 1e-300) {
+    if (Math.abs(value) < 1e-300) {
       return 0d;
     }
     return value;
