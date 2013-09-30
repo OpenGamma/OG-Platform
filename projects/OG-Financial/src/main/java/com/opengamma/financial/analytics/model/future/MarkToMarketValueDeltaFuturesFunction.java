@@ -11,6 +11,7 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.security.future.FutureSecurity;
+import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 
 /**
  * Calculates the {@link ValueRequirementNames#VALUE_DELTA} "ValueDelta" of a Future.<p>
@@ -35,7 +36,7 @@ public class MarkToMarketValueDeltaFuturesFunction extends MarkToMarketFuturesFu
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     final Security security = target.getTrade().getSecurity();
     if (security instanceof FutureSecurity) {
-      if (security instanceof FutureSecurity) {
+      if (security instanceof InterestRateFutureSecurity) {
         return false;
       }
       return true;
