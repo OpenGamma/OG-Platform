@@ -22,7 +22,6 @@ import org.joda.beans.BeanBuilder;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
-import org.joda.beans.PropertyReadWrite;
 import org.reflections.Reflections;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -592,7 +591,7 @@ public class JodaBeanRowParser extends RowParser {
    * @return true if it is to be ignored
    */
   private boolean ignoreMetaProperty(MetaProperty<?> mp) {
-    if (mp.readWrite() != PropertyReadWrite.READ_WRITE) {
+    if (mp.style().isSerializable()) {
       return true;
     }
     String s = mp.name().trim().toLowerCase();

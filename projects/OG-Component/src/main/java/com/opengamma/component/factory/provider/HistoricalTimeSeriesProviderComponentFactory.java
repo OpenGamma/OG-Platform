@@ -26,6 +26,7 @@ import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProvider;
 import com.opengamma.provider.historicaltimeseries.impl.DataHistoricalTimeSeriesProviderResource;
 import com.opengamma.provider.historicaltimeseries.impl.NoneFoundHistoricalTimeSeriesProvider;
 import com.opengamma.provider.historicaltimeseries.impl.RemoteHistoricalTimeSeriesProvider;
+import org.joda.beans.Bean;
 
 /**
  * Component factory for the time-series provider.
@@ -102,58 +103,6 @@ public class HistoricalTimeSeriesProviderComponentFactory extends AbstractCompon
     return HistoricalTimeSeriesProviderComponentFactory.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        return getClassifier();
-      case -614707837:  // publishRest
-        return isPublishRest();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        setClassifier((String) newValue);
-        return;
-      case -614707837:  // publishRest
-        setPublishRest((Boolean) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_classifier, "classifier");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      HistoricalTimeSeriesProviderComponentFactory other = (HistoricalTimeSeriesProviderComponentFactory) obj;
-      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
-          JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the classifier that the factory should publish under.
@@ -203,6 +152,54 @@ public class HistoricalTimeSeriesProviderComponentFactory extends AbstractCompon
    */
   public final Property<Boolean> publishRest() {
     return metaBean().publishRest().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public HistoricalTimeSeriesProviderComponentFactory clone() {
+    return (HistoricalTimeSeriesProviderComponentFactory) super.clone();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      HistoricalTimeSeriesProviderComponentFactory other = (HistoricalTimeSeriesProviderComponentFactory) obj;
+      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
+          (isPublishRest() == other.isPublishRest()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(96);
+    buf.append("HistoricalTimeSeriesProviderComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("classifier").append('=').append(getClassifier()).append(',').append(' ');
+    buf.append("publishRest").append('=').append(isPublishRest()).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -280,6 +277,37 @@ public class HistoricalTimeSeriesProviderComponentFactory extends AbstractCompon
      */
     public final MetaProperty<Boolean> publishRest() {
       return _publishRest;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          return ((HistoricalTimeSeriesProviderComponentFactory) bean).getClassifier();
+        case -614707837:  // publishRest
+          return ((HistoricalTimeSeriesProviderComponentFactory) bean).isPublishRest();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          ((HistoricalTimeSeriesProviderComponentFactory) bean).setClassifier((String) newValue);
+          return;
+        case -614707837:  // publishRest
+          ((HistoricalTimeSeriesProviderComponentFactory) bean).setPublishRest((Boolean) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((HistoricalTimeSeriesProviderComponentFactory) bean)._classifier, "classifier");
+      super.validate(bean);
     }
 
   }

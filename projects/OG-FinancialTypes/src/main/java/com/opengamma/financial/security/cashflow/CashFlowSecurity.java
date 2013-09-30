@@ -7,6 +7,7 @@ package com.opengamma.financial.security.cashflow;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -88,66 +89,6 @@ public class CashFlowSecurity extends FinancialSecurity {
     return CashFlowSecurity.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 575402001:  // currency
-        return getCurrency();
-      case 73828649:  // settlement
-        return getSettlement();
-      case -1413853096:  // amount
-        return getAmount();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 575402001:  // currency
-        setCurrency((Currency) newValue);
-        return;
-      case 73828649:  // settlement
-        setSettlement((ZonedDateTime) newValue);
-        return;
-      case -1413853096:  // amount
-        setAmount((Double) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_currency, "currency");
-    JodaBeanUtils.notNull(_settlement, "settlement");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      CashFlowSecurity other = (CashFlowSecurity) obj;
-      return JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getSettlement(), other.getSettlement()) &&
-          JodaBeanUtils.equal(getAmount(), other.getAmount()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlement());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAmount());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the currency.
@@ -223,6 +164,57 @@ public class CashFlowSecurity extends FinancialSecurity {
    */
   public final Property<Double> amount() {
     return metaBean().amount().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public CashFlowSecurity clone() {
+    return (CashFlowSecurity) super.clone();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      CashFlowSecurity other = (CashFlowSecurity) obj;
+      return JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
+          JodaBeanUtils.equal(getSettlement(), other.getSettlement()) &&
+          JodaBeanUtils.equal(getAmount(), other.getAmount()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlement());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getAmount());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(128);
+    buf.append("CashFlowSecurity{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
+    buf.append("settlement").append('=').append(getSettlement()).append(',').append(' ');
+    buf.append("amount").append('=').append(getAmount()).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -316,6 +308,43 @@ public class CashFlowSecurity extends FinancialSecurity {
      */
     public final MetaProperty<Double> amount() {
       return _amount;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 575402001:  // currency
+          return ((CashFlowSecurity) bean).getCurrency();
+        case 73828649:  // settlement
+          return ((CashFlowSecurity) bean).getSettlement();
+        case -1413853096:  // amount
+          return ((CashFlowSecurity) bean).getAmount();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 575402001:  // currency
+          ((CashFlowSecurity) bean).setCurrency((Currency) newValue);
+          return;
+        case 73828649:  // settlement
+          ((CashFlowSecurity) bean).setSettlement((ZonedDateTime) newValue);
+          return;
+        case -1413853096:  // amount
+          ((CashFlowSecurity) bean).setAmount((Double) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((CashFlowSecurity) bean)._currency, "currency");
+      JodaBeanUtils.notNull(((CashFlowSecurity) bean)._settlement, "settlement");
+      super.validate(bean);
     }
 
   }

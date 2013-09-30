@@ -23,6 +23,7 @@ import com.opengamma.batch.BatchMaster;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
+import org.joda.beans.Bean;
 
 /**
  * Data model for a market data value.
@@ -117,79 +118,6 @@ public class MarketDataValue extends DirectBean implements ObjectIdentifiable {
   @Override
   public MarketDataValue.Meta metaBean() {
     return MarketDataValue.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 3355:  // id
-        return getId();
-      case -530966079:  // marketDataId
-        return getMarketDataId();
-      case -1157884501:  // computationTargetSpecification
-        return getComputationTargetSpecification();
-      case -330473434:  // computationTargetSpecificationId
-        return getComputationTargetSpecificationId();
-      case 3373707:  // name
-        return getName();
-      case 111972721:  // value
-        return getValue();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 3355:  // id
-        setId((Long) newValue);
-        return;
-      case -530966079:  // marketDataId
-        setMarketDataId((Long) newValue);
-        return;
-      case -1157884501:  // computationTargetSpecification
-        setComputationTargetSpecification((ComputationTargetSpecification) newValue);
-        return;
-      case -330473434:  // computationTargetSpecificationId
-        setComputationTargetSpecificationId((Long) newValue);
-        return;
-      case 3373707:  // name
-        setName((String) newValue);
-        return;
-      case 111972721:  // value
-        setValue((Double) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      MarketDataValue other = (MarketDataValue) obj;
-      return JodaBeanUtils.equal(getId(), other.getId()) &&
-          JodaBeanUtils.equal(getMarketDataId(), other.getMarketDataId()) &&
-          JodaBeanUtils.equal(getComputationTargetSpecification(), other.getComputationTargetSpecification()) &&
-          JodaBeanUtils.equal(getComputationTargetSpecificationId(), other.getComputationTargetSpecificationId()) &&
-          JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getValue(), other.getValue());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getComputationTargetSpecification());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getComputationTargetSpecificationId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getValue());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -343,6 +271,73 @@ public class MarketDataValue extends DirectBean implements ObjectIdentifiable {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public MarketDataValue clone() {
+    BeanBuilder<? extends MarketDataValue> builder = metaBean().builder();
+    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
+      if (mp.style().isBuildable()) {
+        Object value = mp.get(this);
+        if (value instanceof Bean) {
+          value = ((Bean) value).clone();
+        }
+        builder.set(mp.name(), value);
+      }
+    }
+    return builder.build();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      MarketDataValue other = (MarketDataValue) obj;
+      return (getId() == other.getId()) &&
+          (getMarketDataId() == other.getMarketDataId()) &&
+          JodaBeanUtils.equal(getComputationTargetSpecification(), other.getComputationTargetSpecification()) &&
+          JodaBeanUtils.equal(getComputationTargetSpecificationId(), other.getComputationTargetSpecificationId()) &&
+          JodaBeanUtils.equal(getName(), other.getName()) &&
+          JodaBeanUtils.equal(getValue(), other.getValue());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getComputationTargetSpecification());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getComputationTargetSpecificationId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getValue());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(224);
+    buf.append("MarketDataValue{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("id").append('=').append(getId()).append(',').append(' ');
+    buf.append("marketDataId").append('=').append(getMarketDataId()).append(',').append(' ');
+    buf.append("computationTargetSpecification").append('=').append(getComputationTargetSpecification()).append(',').append(' ');
+    buf.append("computationTargetSpecificationId").append('=').append(getComputationTargetSpecificationId()).append(',').append(' ');
+    buf.append("name").append('=').append(getName()).append(',').append(' ');
+    buf.append("value").append('=').append(getValue()).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code MarketDataValue}.
    */
@@ -481,6 +476,51 @@ public class MarketDataValue extends DirectBean implements ObjectIdentifiable {
      */
     public final MetaProperty<Double> value() {
       return _value;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 3355:  // id
+          return ((MarketDataValue) bean).getId();
+        case -530966079:  // marketDataId
+          return ((MarketDataValue) bean).getMarketDataId();
+        case -1157884501:  // computationTargetSpecification
+          return ((MarketDataValue) bean).getComputationTargetSpecification();
+        case -330473434:  // computationTargetSpecificationId
+          return ((MarketDataValue) bean).getComputationTargetSpecificationId();
+        case 3373707:  // name
+          return ((MarketDataValue) bean).getName();
+        case 111972721:  // value
+          return ((MarketDataValue) bean).getValue();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 3355:  // id
+          ((MarketDataValue) bean).setId((Long) newValue);
+          return;
+        case -530966079:  // marketDataId
+          ((MarketDataValue) bean).setMarketDataId((Long) newValue);
+          return;
+        case -1157884501:  // computationTargetSpecification
+          ((MarketDataValue) bean).setComputationTargetSpecification((ComputationTargetSpecification) newValue);
+          return;
+        case -330473434:  // computationTargetSpecificationId
+          ((MarketDataValue) bean).setComputationTargetSpecificationId((Long) newValue);
+          return;
+        case 3373707:  // name
+          ((MarketDataValue) bean).setName((String) newValue);
+          return;
+        case 111972721:  // value
+          ((MarketDataValue) bean).setValue((Double) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

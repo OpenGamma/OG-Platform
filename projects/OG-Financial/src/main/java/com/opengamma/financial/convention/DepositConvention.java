@@ -22,6 +22,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.money.Currency;
+import org.joda.beans.Bean;
 
 /**
  * Convention for deposit rates.
@@ -113,89 +114,6 @@ public class DepositConvention extends Convention {
   @Override
   public DepositConvention.Meta metaBean() {
     return DepositConvention.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1905311443:  // dayCount
-        return getDayCount();
-      case -1002835891:  // businessDayConvention
-        return getBusinessDayConvention();
-      case -295948000:  // settlementDays
-        return getSettlementDays();
-      case 100464505:  // isEOM
-        return isIsEOM();
-      case 575402001:  // currency
-        return getCurrency();
-      case 1932874322:  // regionCalendar
-        return getRegionCalendar();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1905311443:  // dayCount
-        setDayCount((DayCount) newValue);
-        return;
-      case -1002835891:  // businessDayConvention
-        setBusinessDayConvention((BusinessDayConvention) newValue);
-        return;
-      case -295948000:  // settlementDays
-        setSettlementDays((Integer) newValue);
-        return;
-      case 100464505:  // isEOM
-        setIsEOM((Boolean) newValue);
-        return;
-      case 575402001:  // currency
-        setCurrency((Currency) newValue);
-        return;
-      case 1932874322:  // regionCalendar
-        setRegionCalendar((ExternalId) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_dayCount, "dayCount");
-    JodaBeanUtils.notNull(_businessDayConvention, "businessDayConvention");
-    JodaBeanUtils.notNull(_currency, "currency");
-    JodaBeanUtils.notNull(_regionCalendar, "regionCalendar");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      DepositConvention other = (DepositConvention) obj;
-      return JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
-          JodaBeanUtils.equal(getBusinessDayConvention(), other.getBusinessDayConvention()) &&
-          JodaBeanUtils.equal(getSettlementDays(), other.getSettlementDays()) &&
-          JodaBeanUtils.equal(isIsEOM(), other.isIsEOM()) &&
-          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getRegionCalendar(), other.getRegionCalendar()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDayCount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBusinessDayConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementDays());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isIsEOM());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionCalendar());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -353,6 +271,66 @@ public class DepositConvention extends Convention {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public DepositConvention clone() {
+    return (DepositConvention) super.clone();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      DepositConvention other = (DepositConvention) obj;
+      return JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
+          JodaBeanUtils.equal(getBusinessDayConvention(), other.getBusinessDayConvention()) &&
+          (getSettlementDays() == other.getSettlementDays()) &&
+          (isIsEOM() == other.isIsEOM()) &&
+          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
+          JodaBeanUtils.equal(getRegionCalendar(), other.getRegionCalendar()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDayCount());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBusinessDayConvention());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementDays());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isIsEOM());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionCalendar());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(224);
+    buf.append("DepositConvention{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("dayCount").append('=').append(getDayCount()).append(',').append(' ');
+    buf.append("businessDayConvention").append('=').append(getBusinessDayConvention()).append(',').append(' ');
+    buf.append("settlementDays").append('=').append(getSettlementDays()).append(',').append(' ');
+    buf.append("isEOM").append('=').append(isIsEOM()).append(',').append(' ');
+    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
+    buf.append("regionCalendar").append('=').append(getRegionCalendar()).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code DepositConvention}.
    */
@@ -491,6 +469,60 @@ public class DepositConvention extends Convention {
      */
     public final MetaProperty<ExternalId> regionCalendar() {
       return _regionCalendar;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1905311443:  // dayCount
+          return ((DepositConvention) bean).getDayCount();
+        case -1002835891:  // businessDayConvention
+          return ((DepositConvention) bean).getBusinessDayConvention();
+        case -295948000:  // settlementDays
+          return ((DepositConvention) bean).getSettlementDays();
+        case 100464505:  // isEOM
+          return ((DepositConvention) bean).isIsEOM();
+        case 575402001:  // currency
+          return ((DepositConvention) bean).getCurrency();
+        case 1932874322:  // regionCalendar
+          return ((DepositConvention) bean).getRegionCalendar();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1905311443:  // dayCount
+          ((DepositConvention) bean).setDayCount((DayCount) newValue);
+          return;
+        case -1002835891:  // businessDayConvention
+          ((DepositConvention) bean).setBusinessDayConvention((BusinessDayConvention) newValue);
+          return;
+        case -295948000:  // settlementDays
+          ((DepositConvention) bean).setSettlementDays((Integer) newValue);
+          return;
+        case 100464505:  // isEOM
+          ((DepositConvention) bean).setIsEOM((Boolean) newValue);
+          return;
+        case 575402001:  // currency
+          ((DepositConvention) bean).setCurrency((Currency) newValue);
+          return;
+        case 1932874322:  // regionCalendar
+          ((DepositConvention) bean).setRegionCalendar((ExternalId) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((DepositConvention) bean)._dayCount, "dayCount");
+      JodaBeanUtils.notNull(((DepositConvention) bean)._businessDayConvention, "businessDayConvention");
+      JodaBeanUtils.notNull(((DepositConvention) bean)._currency, "currency");
+      JodaBeanUtils.notNull(((DepositConvention) bean)._regionCalendar, "regionCalendar");
+      super.validate(bean);
     }
 
   }

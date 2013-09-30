@@ -26,6 +26,7 @@ import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.masterdb.batch.DbBatchMaster;
+import org.joda.beans.Bean;
 
 /**
  * Component factory for the database batch master.
@@ -93,73 +94,6 @@ public class DbBatchMasterComponentFactory extends AbstractDbMasterComponentFact
   @Override
   public DbBatchMasterComponentFactory.Meta metaBean() {
     return DbBatchMasterComponentFactory.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        return getClassifier();
-      case -614707837:  // publishRest
-        return isPublishRest();
-      case -1737146991:  // uniqueIdScheme
-        return getUniqueIdScheme();
-      case 1562222174:  // computationTargetResolver
-        return getComputationTargetResolver();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        setClassifier((String) newValue);
-        return;
-      case -614707837:  // publishRest
-        setPublishRest((Boolean) newValue);
-        return;
-      case -1737146991:  // uniqueIdScheme
-        setUniqueIdScheme((String) newValue);
-        return;
-      case 1562222174:  // computationTargetResolver
-        setComputationTargetResolver((ComputationTargetResolver) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_classifier, "classifier");
-    JodaBeanUtils.notNull(_computationTargetResolver, "computationTargetResolver");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      DbBatchMasterComponentFactory other = (DbBatchMasterComponentFactory) obj;
-      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
-          JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
-          JodaBeanUtils.equal(getUniqueIdScheme(), other.getUniqueIdScheme()) &&
-          JodaBeanUtils.equal(getComputationTargetResolver(), other.getComputationTargetResolver()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueIdScheme());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getComputationTargetResolver());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -262,6 +196,60 @@ public class DbBatchMasterComponentFactory extends AbstractDbMasterComponentFact
    */
   public final Property<ComputationTargetResolver> computationTargetResolver() {
     return metaBean().computationTargetResolver().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public DbBatchMasterComponentFactory clone() {
+    return (DbBatchMasterComponentFactory) super.clone();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      DbBatchMasterComponentFactory other = (DbBatchMasterComponentFactory) obj;
+      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
+          (isPublishRest() == other.isPublishRest()) &&
+          JodaBeanUtils.equal(getUniqueIdScheme(), other.getUniqueIdScheme()) &&
+          JodaBeanUtils.equal(getComputationTargetResolver(), other.getComputationTargetResolver()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueIdScheme());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getComputationTargetResolver());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(160);
+    buf.append("DbBatchMasterComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("classifier").append('=').append(getClassifier()).append(',').append(' ');
+    buf.append("publishRest").append('=').append(isPublishRest()).append(',').append(' ');
+    buf.append("uniqueIdScheme").append('=').append(getUniqueIdScheme()).append(',').append(' ');
+    buf.append("computationTargetResolver").append('=').append(getComputationTargetResolver()).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -371,6 +359,48 @@ public class DbBatchMasterComponentFactory extends AbstractDbMasterComponentFact
      */
     public final MetaProperty<ComputationTargetResolver> computationTargetResolver() {
       return _computationTargetResolver;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          return ((DbBatchMasterComponentFactory) bean).getClassifier();
+        case -614707837:  // publishRest
+          return ((DbBatchMasterComponentFactory) bean).isPublishRest();
+        case -1737146991:  // uniqueIdScheme
+          return ((DbBatchMasterComponentFactory) bean).getUniqueIdScheme();
+        case 1562222174:  // computationTargetResolver
+          return ((DbBatchMasterComponentFactory) bean).getComputationTargetResolver();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          ((DbBatchMasterComponentFactory) bean).setClassifier((String) newValue);
+          return;
+        case -614707837:  // publishRest
+          ((DbBatchMasterComponentFactory) bean).setPublishRest((Boolean) newValue);
+          return;
+        case -1737146991:  // uniqueIdScheme
+          ((DbBatchMasterComponentFactory) bean).setUniqueIdScheme((String) newValue);
+          return;
+        case 1562222174:  // computationTargetResolver
+          ((DbBatchMasterComponentFactory) bean).setComputationTargetResolver((ComputationTargetResolver) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((DbBatchMasterComponentFactory) bean)._classifier, "classifier");
+      JodaBeanUtils.notNull(((DbBatchMasterComponentFactory) bean)._computationTargetResolver, "computationTargetResolver");
+      super.validate(bean);
     }
 
   }

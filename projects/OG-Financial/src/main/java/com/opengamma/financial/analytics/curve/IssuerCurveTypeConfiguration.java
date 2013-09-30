@@ -16,6 +16,7 @@ import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.Bean;
 
 /**
  * Configuration object for curves that are to be used as an issuer curve.
@@ -74,59 +75,6 @@ public class IssuerCurveTypeConfiguration extends CurveTypeConfiguration {
     return IssuerCurveTypeConfiguration.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1459772644:  // issuerName
-        return getIssuerName();
-      case -1415245714:  // underlyingReference
-        return getUnderlyingReference();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1459772644:  // issuerName
-        setIssuerName((String) newValue);
-        return;
-      case -1415245714:  // underlyingReference
-        setUnderlyingReference((String) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_issuerName, "issuerName");
-    JodaBeanUtils.notNull(_underlyingReference, "underlyingReference");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      IssuerCurveTypeConfiguration other = (IssuerCurveTypeConfiguration) obj;
-      return JodaBeanUtils.equal(getIssuerName(), other.getIssuerName()) &&
-          JodaBeanUtils.equal(getUnderlyingReference(), other.getUnderlyingReference()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIssuerName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingReference());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the issuer name.
@@ -177,6 +125,54 @@ public class IssuerCurveTypeConfiguration extends CurveTypeConfiguration {
    */
   public final Property<String> underlyingReference() {
     return metaBean().underlyingReference().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public IssuerCurveTypeConfiguration clone() {
+    return (IssuerCurveTypeConfiguration) super.clone();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      IssuerCurveTypeConfiguration other = (IssuerCurveTypeConfiguration) obj;
+      return JodaBeanUtils.equal(getIssuerName(), other.getIssuerName()) &&
+          JodaBeanUtils.equal(getUnderlyingReference(), other.getUnderlyingReference()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getIssuerName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingReference());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(96);
+    buf.append("IssuerCurveTypeConfiguration{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("issuerName").append('=').append(getIssuerName()).append(',').append(' ');
+    buf.append("underlyingReference").append('=').append(getUnderlyingReference()).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -254,6 +250,38 @@ public class IssuerCurveTypeConfiguration extends CurveTypeConfiguration {
      */
     public final MetaProperty<String> underlyingReference() {
       return _underlyingReference;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1459772644:  // issuerName
+          return ((IssuerCurveTypeConfiguration) bean).getIssuerName();
+        case -1415245714:  // underlyingReference
+          return ((IssuerCurveTypeConfiguration) bean).getUnderlyingReference();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1459772644:  // issuerName
+          ((IssuerCurveTypeConfiguration) bean).setIssuerName((String) newValue);
+          return;
+        case -1415245714:  // underlyingReference
+          ((IssuerCurveTypeConfiguration) bean).setUnderlyingReference((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((IssuerCurveTypeConfiguration) bean)._issuerName, "issuerName");
+      JodaBeanUtils.notNull(((IssuerCurveTypeConfiguration) bean)._underlyingReference, "underlyingReference");
+      super.validate(bean);
     }
 
   }

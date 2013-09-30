@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -79,67 +80,6 @@ public class HistoricalTimeSeriesInfoMetaDataResult extends AbstractMetaDataResu
   @Override
   public HistoricalTimeSeriesInfoMetaDataResult.Meta metaBean() {
     return HistoricalTimeSeriesInfoMetaDataResult.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 894268163:  // dataFields
-        return getDataFields();
-      case 791883950:  // dataSources
-        return getDataSources();
-      case 1942087704:  // dataProviders
-        return getDataProviders();
-      case -576554374:  // observationTimes
-        return getObservationTimes();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 894268163:  // dataFields
-        setDataFields((List<String>) newValue);
-        return;
-      case 791883950:  // dataSources
-        setDataSources((List<String>) newValue);
-        return;
-      case 1942087704:  // dataProviders
-        setDataProviders((List<String>) newValue);
-        return;
-      case -576554374:  // observationTimes
-        setObservationTimes((List<String>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      HistoricalTimeSeriesInfoMetaDataResult other = (HistoricalTimeSeriesInfoMetaDataResult) obj;
-      return JodaBeanUtils.equal(getDataFields(), other.getDataFields()) &&
-          JodaBeanUtils.equal(getDataSources(), other.getDataSources()) &&
-          JodaBeanUtils.equal(getDataProviders(), other.getDataProviders()) &&
-          JodaBeanUtils.equal(getObservationTimes(), other.getObservationTimes()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataFields());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataSources());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataProviders());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getObservationTimes());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -259,6 +199,60 @@ public class HistoricalTimeSeriesInfoMetaDataResult extends AbstractMetaDataResu
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public HistoricalTimeSeriesInfoMetaDataResult clone() {
+    return (HistoricalTimeSeriesInfoMetaDataResult) super.clone();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      HistoricalTimeSeriesInfoMetaDataResult other = (HistoricalTimeSeriesInfoMetaDataResult) obj;
+      return JodaBeanUtils.equal(getDataFields(), other.getDataFields()) &&
+          JodaBeanUtils.equal(getDataSources(), other.getDataSources()) &&
+          JodaBeanUtils.equal(getDataProviders(), other.getDataProviders()) &&
+          JodaBeanUtils.equal(getObservationTimes(), other.getObservationTimes()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDataFields());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDataSources());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDataProviders());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getObservationTimes());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(160);
+    buf.append("HistoricalTimeSeriesInfoMetaDataResult{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("dataFields").append('=').append(getDataFields()).append(',').append(' ');
+    buf.append("dataSources").append('=').append(getDataSources()).append(',').append(' ');
+    buf.append("dataProviders").append('=').append(getDataProviders()).append(',').append(' ');
+    buf.append("observationTimes").append('=').append(getObservationTimes()).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code HistoricalTimeSeriesInfoMetaDataResult}.
    */
@@ -369,6 +363,42 @@ public class HistoricalTimeSeriesInfoMetaDataResult extends AbstractMetaDataResu
      */
     public final MetaProperty<List<String>> observationTimes() {
       return _observationTimes;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 894268163:  // dataFields
+          return ((HistoricalTimeSeriesInfoMetaDataResult) bean).getDataFields();
+        case 791883950:  // dataSources
+          return ((HistoricalTimeSeriesInfoMetaDataResult) bean).getDataSources();
+        case 1942087704:  // dataProviders
+          return ((HistoricalTimeSeriesInfoMetaDataResult) bean).getDataProviders();
+        case -576554374:  // observationTimes
+          return ((HistoricalTimeSeriesInfoMetaDataResult) bean).getObservationTimes();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 894268163:  // dataFields
+          ((HistoricalTimeSeriesInfoMetaDataResult) bean).setDataFields((List<String>) newValue);
+          return;
+        case 791883950:  // dataSources
+          ((HistoricalTimeSeriesInfoMetaDataResult) bean).setDataSources((List<String>) newValue);
+          return;
+        case 1942087704:  // dataProviders
+          ((HistoricalTimeSeriesInfoMetaDataResult) bean).setDataProviders((List<String>) newValue);
+          return;
+        case -576554374:  // observationTimes
+          ((HistoricalTimeSeriesInfoMetaDataResult) bean).setObservationTimes((List<String>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

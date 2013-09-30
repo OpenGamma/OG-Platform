@@ -23,6 +23,7 @@ import com.opengamma.livedata.resolver.DistributionSpecificationResolver;
 import com.opengamma.security.user.HibernateUserManager;
 import com.opengamma.security.user.UserManager;
 import com.opengamma.util.db.DbConnector;
+import org.joda.beans.Bean;
 
 /**
  * Component factory to create a Bloomberg server.
@@ -62,51 +63,6 @@ public class BloombergLiveDataServerComponentFactory extends AbstractBloombergLi
     return BloombergLiveDataServerComponentFactory.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 39794031:  // dbConnector
-        return getDbConnector();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 39794031:  // dbConnector
-        setDbConnector((DbConnector) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_dbConnector, "dbConnector");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      BloombergLiveDataServerComponentFactory other = (BloombergLiveDataServerComponentFactory) obj;
-      return JodaBeanUtils.equal(getDbConnector(), other.getDbConnector()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDbConnector());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the database connector for user entitlement.
@@ -131,6 +87,51 @@ public class BloombergLiveDataServerComponentFactory extends AbstractBloombergLi
    */
   public final Property<DbConnector> dbConnector() {
     return metaBean().dbConnector().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public BloombergLiveDataServerComponentFactory clone() {
+    return (BloombergLiveDataServerComponentFactory) super.clone();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      BloombergLiveDataServerComponentFactory other = (BloombergLiveDataServerComponentFactory) obj;
+      return JodaBeanUtils.equal(getDbConnector(), other.getDbConnector()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDbConnector());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(64);
+    buf.append("BloombergLiveDataServerComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("dbConnector").append('=').append(getDbConnector()).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -192,6 +193,32 @@ public class BloombergLiveDataServerComponentFactory extends AbstractBloombergLi
      */
     public final MetaProperty<DbConnector> dbConnector() {
       return _dbConnector;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 39794031:  // dbConnector
+          return ((BloombergLiveDataServerComponentFactory) bean).getDbConnector();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 39794031:  // dbConnector
+          ((BloombergLiveDataServerComponentFactory) bean).setDbConnector((DbConnector) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((BloombergLiveDataServerComponentFactory) bean)._dbConnector, "dbConnector");
+      super.validate(bean);
     }
 
   }

@@ -20,6 +20,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.money.Currency;
+import org.joda.beans.Bean;
 
 /**
  * Convention for price indices.
@@ -86,67 +87,6 @@ public class PriceIndexConvention extends Convention {
   @Override
   public PriceIndexConvention.Meta metaBean() {
     return PriceIndexConvention.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 575402001:  // currency
-        return getCurrency();
-      case -934795532:  // region
-        return getRegion();
-      case 118085636:  // priceIndexId
-        return getPriceIndexId();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 575402001:  // currency
-        setCurrency((Currency) newValue);
-        return;
-      case -934795532:  // region
-        setRegion((ExternalId) newValue);
-        return;
-      case 118085636:  // priceIndexId
-        setPriceIndexId((ExternalId) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_currency, "currency");
-    JodaBeanUtils.notNull(_region, "region");
-    JodaBeanUtils.notNull(_priceIndexId, "priceIndexId");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      PriceIndexConvention other = (PriceIndexConvention) obj;
-      return JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getRegion(), other.getRegion()) &&
-          JodaBeanUtils.equal(getPriceIndexId(), other.getPriceIndexId()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegion());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPriceIndexId());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -225,6 +165,57 @@ public class PriceIndexConvention extends Convention {
    */
   public final Property<ExternalId> priceIndexId() {
     return metaBean().priceIndexId().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public PriceIndexConvention clone() {
+    return (PriceIndexConvention) super.clone();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      PriceIndexConvention other = (PriceIndexConvention) obj;
+      return JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
+          JodaBeanUtils.equal(getRegion(), other.getRegion()) &&
+          JodaBeanUtils.equal(getPriceIndexId(), other.getPriceIndexId()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRegion());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPriceIndexId());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(128);
+    buf.append("PriceIndexConvention{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
+    buf.append("region").append('=').append(getRegion()).append(',').append(' ');
+    buf.append("priceIndexId").append('=').append(getPriceIndexId()).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -318,6 +309,44 @@ public class PriceIndexConvention extends Convention {
      */
     public final MetaProperty<ExternalId> priceIndexId() {
       return _priceIndexId;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 575402001:  // currency
+          return ((PriceIndexConvention) bean).getCurrency();
+        case -934795532:  // region
+          return ((PriceIndexConvention) bean).getRegion();
+        case 118085636:  // priceIndexId
+          return ((PriceIndexConvention) bean).getPriceIndexId();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 575402001:  // currency
+          ((PriceIndexConvention) bean).setCurrency((Currency) newValue);
+          return;
+        case -934795532:  // region
+          ((PriceIndexConvention) bean).setRegion((ExternalId) newValue);
+          return;
+        case 118085636:  // priceIndexId
+          ((PriceIndexConvention) bean).setPriceIndexId((ExternalId) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((PriceIndexConvention) bean)._currency, "currency");
+      JodaBeanUtils.notNull(((PriceIndexConvention) bean)._region, "region");
+      JodaBeanUtils.notNull(((PriceIndexConvention) bean)._priceIndexId, "priceIndexId");
+      super.validate(bean);
     }
 
   }

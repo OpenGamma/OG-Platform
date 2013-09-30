@@ -22,6 +22,7 @@ import com.opengamma.core.holiday.impl.CachedHolidaySource;
 import com.opengamma.master.holiday.HolidayMaster;
 import com.opengamma.master.holiday.impl.MasterHolidaySource;
 import com.opengamma.util.spring.SpringFactoryBean;
+import org.joda.beans.Bean;
 
 /**
  * Spring factory bean to create the holiday source.
@@ -71,45 +72,6 @@ public class HolidaySourceFactoryBean extends SpringFactoryBean<HolidaySource> {
     return HolidaySourceFactoryBean.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 246258906:  // holidayMaster
-        return getHolidayMaster();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 246258906:  // holidayMaster
-        setHolidayMaster((HolidayMaster) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      HolidaySourceFactoryBean other = (HolidaySourceFactoryBean) obj;
-      return JodaBeanUtils.equal(getHolidayMaster(), other.getHolidayMaster()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHolidayMaster());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the holiday master.
@@ -133,6 +95,51 @@ public class HolidaySourceFactoryBean extends SpringFactoryBean<HolidaySource> {
    */
   public final Property<HolidayMaster> holidayMaster() {
     return metaBean().holidayMaster().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public HolidaySourceFactoryBean clone() {
+    return (HolidaySourceFactoryBean) super.clone();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      HolidaySourceFactoryBean other = (HolidaySourceFactoryBean) obj;
+      return JodaBeanUtils.equal(getHolidayMaster(), other.getHolidayMaster()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHolidayMaster());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(64);
+    buf.append("HolidaySourceFactoryBean{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("holidayMaster").append('=').append(getHolidayMaster()).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -194,6 +201,26 @@ public class HolidaySourceFactoryBean extends SpringFactoryBean<HolidaySource> {
      */
     public final MetaProperty<HolidayMaster> holidayMaster() {
       return _holidayMaster;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 246258906:  // holidayMaster
+          return ((HolidaySourceFactoryBean) bean).getHolidayMaster();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 246258906:  // holidayMaster
+          ((HolidaySourceFactoryBean) bean).setHolidayMaster((HolidayMaster) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

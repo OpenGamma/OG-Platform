@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -158,73 +159,6 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
     return ConfigSearchRequest.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -804471786:  // configIds
-        return getConfigIds();
-      case 3373707:  // name
-        return getName();
-      case 3575610:  // type
-        return getType();
-      case -26774448:  // sortOrder
-        return getSortOrder();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -804471786:  // configIds
-        setConfigIds((List<ObjectId>) newValue);
-        return;
-      case 3373707:  // name
-        setName((String) newValue);
-        return;
-      case 3575610:  // type
-        setType((Class<?>) newValue);
-        return;
-      case -26774448:  // sortOrder
-        setSortOrder((ConfigSearchSortOrder) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_sortOrder, "sortOrder");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      ConfigSearchRequest<?> other = (ConfigSearchRequest<?>) obj;
-      return JodaBeanUtils.equal(getConfigIds(), other.getConfigIds()) &&
-          JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getType(), other.getType()) &&
-          JodaBeanUtils.equal(getSortOrder(), other.getSortOrder()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigIds());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSortOrder());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the set of configuration object identifiers, null to not limit by configuration object identifiers.
@@ -318,6 +252,61 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
    */
   public final Property<ConfigSearchSortOrder> sortOrder() {
     return metaBean().sortOrder().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  @SuppressWarnings("unchecked")
+  public ConfigSearchRequest<T> clone() {
+    return (ConfigSearchRequest<T>) super.clone();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ConfigSearchRequest<?> other = (ConfigSearchRequest<?>) obj;
+      return JodaBeanUtils.equal(getConfigIds(), other.getConfigIds()) &&
+          JodaBeanUtils.equal(getName(), other.getName()) &&
+          JodaBeanUtils.equal(getType(), other.getType()) &&
+          JodaBeanUtils.equal(getSortOrder(), other.getSortOrder()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigIds());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSortOrder());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(160);
+    buf.append("ConfigSearchRequest{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("configIds").append('=').append(getConfigIds()).append(',').append(' ');
+    buf.append("name").append('=').append(getName()).append(',').append(' ');
+    buf.append("type").append('=').append(getType()).append(',').append(' ');
+    buf.append("sortOrder").append('=').append(getSortOrder()).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -431,6 +420,48 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
      */
     public final MetaProperty<ConfigSearchSortOrder> sortOrder() {
       return _sortOrder;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -804471786:  // configIds
+          return ((ConfigSearchRequest<?>) bean).getConfigIds();
+        case 3373707:  // name
+          return ((ConfigSearchRequest<?>) bean).getName();
+        case 3575610:  // type
+          return ((ConfigSearchRequest<?>) bean).getType();
+        case -26774448:  // sortOrder
+          return ((ConfigSearchRequest<?>) bean).getSortOrder();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -804471786:  // configIds
+          ((ConfigSearchRequest<T>) bean).setConfigIds((List<ObjectId>) newValue);
+          return;
+        case 3373707:  // name
+          ((ConfigSearchRequest<T>) bean).setName((String) newValue);
+          return;
+        case 3575610:  // type
+          ((ConfigSearchRequest<T>) bean).setType((Class<?>) newValue);
+          return;
+        case -26774448:  // sortOrder
+          ((ConfigSearchRequest<T>) bean).setSortOrder((ConfigSearchSortOrder) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((ConfigSearchRequest<?>) bean)._sortOrder, "sortOrder");
+      super.validate(bean);
     }
 
   }

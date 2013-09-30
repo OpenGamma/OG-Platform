@@ -21,6 +21,7 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.Bean;
 
 /**
  * Data model for a function unique id.
@@ -66,30 +67,6 @@ public class FunctionUniqueId extends DirectBean {
   @Override
   public FunctionUniqueId.Meta metaBean() {
     return FunctionUniqueId.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 3355:  // id
-        return getId();
-      case -294460212:  // uniqueId
-        return getUniqueId();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 3355:  // id
-        setId((Long) newValue);
-        return;
-      case -294460212:  // uniqueId
-        setUniqueId((String) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
   }
 
   //-----------------------------------------------------------------------
@@ -140,6 +117,22 @@ public class FunctionUniqueId extends DirectBean {
    */
   public final Property<String> uniqueId() {
     return metaBean().uniqueId().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public FunctionUniqueId clone() {
+    BeanBuilder<? extends FunctionUniqueId> builder = metaBean().builder();
+    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
+      if (mp.style().isBuildable()) {
+        Object value = mp.get(this);
+        if (value instanceof Bean) {
+          value = ((Bean) value).clone();
+        }
+        builder.set(mp.name(), value);
+      }
+    }
+    return builder.build();
   }
 
   //-----------------------------------------------------------------------
@@ -217,6 +210,31 @@ public class FunctionUniqueId extends DirectBean {
      */
     public final MetaProperty<String> uniqueId() {
       return _uniqueId;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 3355:  // id
+          return ((FunctionUniqueId) bean).getId();
+        case -294460212:  // uniqueId
+          return ((FunctionUniqueId) bean).getUniqueId();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 3355:  // id
+          ((FunctionUniqueId) bean).setId((Long) newValue);
+          return;
+        case -294460212:  // uniqueId
+          ((FunctionUniqueId) bean).setUniqueId((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

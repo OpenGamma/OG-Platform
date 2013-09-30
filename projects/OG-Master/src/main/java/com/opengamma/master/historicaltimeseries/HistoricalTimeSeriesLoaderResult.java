@@ -7,6 +7,7 @@ package com.opengamma.master.historicaltimeseries;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -74,45 +75,6 @@ public class HistoricalTimeSeriesLoaderResult extends DirectBean {
     return HistoricalTimeSeriesLoaderResult.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1819569153:  // resultMap
-        return getResultMap();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1819569153:  // resultMap
-        setResultMap((Map<ExternalId, UniqueId>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      HistoricalTimeSeriesLoaderResult other = (HistoricalTimeSeriesLoaderResult) obj;
-      return JodaBeanUtils.equal(getResultMap(), other.getResultMap());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getResultMap());
-    return hash;
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the unique IDs of the time-series that were obtained.
@@ -140,6 +102,58 @@ public class HistoricalTimeSeriesLoaderResult extends DirectBean {
    */
   public final Property<Map<ExternalId, UniqueId>> resultMap() {
     return metaBean().resultMap().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public HistoricalTimeSeriesLoaderResult clone() {
+    BeanBuilder<? extends HistoricalTimeSeriesLoaderResult> builder = metaBean().builder();
+    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
+      if (mp.style().isBuildable()) {
+        Object value = mp.get(this);
+        if (value instanceof Bean) {
+          value = ((Bean) value).clone();
+        }
+        builder.set(mp.name(), value);
+      }
+    }
+    return builder.build();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      HistoricalTimeSeriesLoaderResult other = (HistoricalTimeSeriesLoaderResult) obj;
+      return JodaBeanUtils.equal(getResultMap(), other.getResultMap());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getResultMap());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(64);
+    buf.append("HistoricalTimeSeriesLoaderResult{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("resultMap").append('=').append(getResultMap()).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -202,6 +216,27 @@ public class HistoricalTimeSeriesLoaderResult extends DirectBean {
      */
     public final MetaProperty<Map<ExternalId, UniqueId>> resultMap() {
       return _resultMap;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1819569153:  // resultMap
+          return ((HistoricalTimeSeriesLoaderResult) bean).getResultMap();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1819569153:  // resultMap
+          ((HistoricalTimeSeriesLoaderResult) bean).setResultMap((Map<ExternalId, UniqueId>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

@@ -16,6 +16,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.component.ComponentFactory;
+import org.joda.beans.Bean;
 
 /**
  * Base component factory.
@@ -42,14 +43,20 @@ public abstract class AbstractComponentFactory extends DirectBean implements Com
     return AbstractComponentFactory.Meta.INSTANCE;
   }
 
+  //-----------------------------------------------------------------------
   @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    super.propertySet(propertyName, newValue, quiet);
+  public AbstractComponentFactory clone() {
+    BeanBuilder<? extends AbstractComponentFactory> builder = metaBean().builder();
+    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
+      if (mp.style().isBuildable()) {
+        Object value = mp.get(this);
+        if (value instanceof Bean) {
+          value = ((Bean) value).clone();
+        }
+        builder.set(mp.name(), value);
+      }
+    }
+    return builder.build();
   }
 
   @Override
@@ -67,6 +74,22 @@ public abstract class AbstractComponentFactory extends DirectBean implements Com
   public int hashCode() {
     int hash = getClass().hashCode();
     return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(32);
+    buf.append("AbstractComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
   }
 
   //-----------------------------------------------------------------------

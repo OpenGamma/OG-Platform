@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -259,108 +260,6 @@ public class UserSearchRequest extends AbstractSearchRequest {
     return UserSearchRequest.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1489617159:  // objectIds
-        return getObjectIds();
-      case -265376882:  // externalIdSearch
-        return getExternalIdSearch();
-      case 2072311499:  // externalIdValue
-        return getExternalIdValue();
-      case -267027573:  // externalIdScheme
-        return getExternalIdScheme();
-      case -836030906:  // userId
-        return getUserId();
-      case 3373707:  // name
-        return getName();
-      case -2077180903:  // timeZone
-        return getTimeZone();
-      case -1070931784:  // emailAddress
-        return getEmailAddress();
-      case -26774448:  // sortOrder
-        return getSortOrder();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1489617159:  // objectIds
-        setObjectIds((List<ObjectId>) newValue);
-        return;
-      case -265376882:  // externalIdSearch
-        setExternalIdSearch((ExternalIdSearch) newValue);
-        return;
-      case 2072311499:  // externalIdValue
-        setExternalIdValue((String) newValue);
-        return;
-      case -267027573:  // externalIdScheme
-        setExternalIdScheme((String) newValue);
-        return;
-      case -836030906:  // userId
-        setUserId((String) newValue);
-        return;
-      case 3373707:  // name
-        setName((String) newValue);
-        return;
-      case -2077180903:  // timeZone
-        setTimeZone((String) newValue);
-        return;
-      case -1070931784:  // emailAddress
-        setEmailAddress((String) newValue);
-        return;
-      case -26774448:  // sortOrder
-        setSortOrder((UserSearchSortOrder) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_sortOrder, "sortOrder");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      UserSearchRequest other = (UserSearchRequest) obj;
-      return JodaBeanUtils.equal(getObjectIds(), other.getObjectIds()) &&
-          JodaBeanUtils.equal(getExternalIdSearch(), other.getExternalIdSearch()) &&
-          JodaBeanUtils.equal(getExternalIdValue(), other.getExternalIdValue()) &&
-          JodaBeanUtils.equal(getExternalIdScheme(), other.getExternalIdScheme()) &&
-          JodaBeanUtils.equal(getUserId(), other.getUserId()) &&
-          JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getTimeZone(), other.getTimeZone()) &&
-          JodaBeanUtils.equal(getEmailAddress(), other.getEmailAddress()) &&
-          JodaBeanUtils.equal(getSortOrder(), other.getSortOrder()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getObjectIds());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdSearch());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdValue());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdScheme());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUserId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTimeZone());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getEmailAddress());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSortOrder());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the set of user object identifiers, null to not limit by user object identifiers.
@@ -600,6 +499,75 @@ public class UserSearchRequest extends AbstractSearchRequest {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public UserSearchRequest clone() {
+    return (UserSearchRequest) super.clone();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      UserSearchRequest other = (UserSearchRequest) obj;
+      return JodaBeanUtils.equal(getObjectIds(), other.getObjectIds()) &&
+          JodaBeanUtils.equal(getExternalIdSearch(), other.getExternalIdSearch()) &&
+          JodaBeanUtils.equal(getExternalIdValue(), other.getExternalIdValue()) &&
+          JodaBeanUtils.equal(getExternalIdScheme(), other.getExternalIdScheme()) &&
+          JodaBeanUtils.equal(getUserId(), other.getUserId()) &&
+          JodaBeanUtils.equal(getName(), other.getName()) &&
+          JodaBeanUtils.equal(getTimeZone(), other.getTimeZone()) &&
+          JodaBeanUtils.equal(getEmailAddress(), other.getEmailAddress()) &&
+          JodaBeanUtils.equal(getSortOrder(), other.getSortOrder()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getObjectIds());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdSearch());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdValue());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdScheme());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUserId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTimeZone());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getEmailAddress());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSortOrder());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(320);
+    buf.append("UserSearchRequest{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("objectIds").append('=').append(getObjectIds()).append(',').append(' ');
+    buf.append("externalIdSearch").append('=').append(getExternalIdSearch()).append(',').append(' ');
+    buf.append("externalIdValue").append('=').append(getExternalIdValue()).append(',').append(' ');
+    buf.append("externalIdScheme").append('=').append(getExternalIdScheme()).append(',').append(' ');
+    buf.append("userId").append('=').append(getUserId()).append(',').append(' ');
+    buf.append("name").append('=').append(getName()).append(',').append(' ');
+    buf.append("timeZone").append('=').append(getTimeZone()).append(',').append(' ');
+    buf.append("emailAddress").append('=').append(getEmailAddress()).append(',').append(' ');
+    buf.append("sortOrder").append('=').append(getSortOrder()).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code UserSearchRequest}.
    */
@@ -787,6 +755,73 @@ public class UserSearchRequest extends AbstractSearchRequest {
      */
     public final MetaProperty<UserSearchSortOrder> sortOrder() {
       return _sortOrder;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1489617159:  // objectIds
+          return ((UserSearchRequest) bean).getObjectIds();
+        case -265376882:  // externalIdSearch
+          return ((UserSearchRequest) bean).getExternalIdSearch();
+        case 2072311499:  // externalIdValue
+          return ((UserSearchRequest) bean).getExternalIdValue();
+        case -267027573:  // externalIdScheme
+          return ((UserSearchRequest) bean).getExternalIdScheme();
+        case -836030906:  // userId
+          return ((UserSearchRequest) bean).getUserId();
+        case 3373707:  // name
+          return ((UserSearchRequest) bean).getName();
+        case -2077180903:  // timeZone
+          return ((UserSearchRequest) bean).getTimeZone();
+        case -1070931784:  // emailAddress
+          return ((UserSearchRequest) bean).getEmailAddress();
+        case -26774448:  // sortOrder
+          return ((UserSearchRequest) bean).getSortOrder();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1489617159:  // objectIds
+          ((UserSearchRequest) bean).setObjectIds((List<ObjectId>) newValue);
+          return;
+        case -265376882:  // externalIdSearch
+          ((UserSearchRequest) bean).setExternalIdSearch((ExternalIdSearch) newValue);
+          return;
+        case 2072311499:  // externalIdValue
+          ((UserSearchRequest) bean).setExternalIdValue((String) newValue);
+          return;
+        case -267027573:  // externalIdScheme
+          ((UserSearchRequest) bean).setExternalIdScheme((String) newValue);
+          return;
+        case -836030906:  // userId
+          ((UserSearchRequest) bean).setUserId((String) newValue);
+          return;
+        case 3373707:  // name
+          ((UserSearchRequest) bean).setName((String) newValue);
+          return;
+        case -2077180903:  // timeZone
+          ((UserSearchRequest) bean).setTimeZone((String) newValue);
+          return;
+        case -1070931784:  // emailAddress
+          ((UserSearchRequest) bean).setEmailAddress((String) newValue);
+          return;
+        case -26774448:  // sortOrder
+          ((UserSearchRequest) bean).setSortOrder((UserSearchSortOrder) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((UserSearchRequest) bean)._sortOrder, "sortOrder");
+      super.validate(bean);
     }
 
   }

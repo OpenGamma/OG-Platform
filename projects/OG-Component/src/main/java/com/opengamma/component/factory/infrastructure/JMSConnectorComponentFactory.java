@@ -27,6 +27,7 @@ import javax.jms.ConnectionFactory;
 import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import org.joda.beans.Bean;
 
 /**
  * Component Factory for a shared JmsConnector.
@@ -112,66 +113,6 @@ public class JMSConnectorComponentFactory extends AbstractComponentFactory {
     return JMSConnectorComponentFactory.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        return getClassifier();
-      case -1176216760:  // clientBrokerUri
-        return getClientBrokerUri();
-      case 1966765132:  // connectionFactory
-        return getConnectionFactory();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        setClassifier((String) newValue);
-        return;
-      case -1176216760:  // clientBrokerUri
-        setClientBrokerUri((String) newValue);
-        return;
-      case 1966765132:  // connectionFactory
-        setConnectionFactory((ConnectionFactory) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_classifier, "classifier");
-    JodaBeanUtils.notNull(_clientBrokerUri, "clientBrokerUri");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      JMSConnectorComponentFactory other = (JMSConnectorComponentFactory) obj;
-      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
-          JodaBeanUtils.equal(getClientBrokerUri(), other.getClientBrokerUri()) &&
-          JodaBeanUtils.equal(getConnectionFactory(), other.getConnectionFactory()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClientBrokerUri());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConnectionFactory());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the classifier.
@@ -247,6 +188,57 @@ public class JMSConnectorComponentFactory extends AbstractComponentFactory {
    */
   public final Property<ConnectionFactory> connectionFactory() {
     return metaBean().connectionFactory().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public JMSConnectorComponentFactory clone() {
+    return (JMSConnectorComponentFactory) super.clone();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      JMSConnectorComponentFactory other = (JMSConnectorComponentFactory) obj;
+      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
+          JodaBeanUtils.equal(getClientBrokerUri(), other.getClientBrokerUri()) &&
+          JodaBeanUtils.equal(getConnectionFactory(), other.getConnectionFactory()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getClientBrokerUri());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getConnectionFactory());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(128);
+    buf.append("JMSConnectorComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("classifier").append('=').append(getClassifier()).append(',').append(' ');
+    buf.append("clientBrokerUri").append('=').append(getClientBrokerUri()).append(',').append(' ');
+    buf.append("connectionFactory").append('=').append(getConnectionFactory()).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -340,6 +332,43 @@ public class JMSConnectorComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<ConnectionFactory> connectionFactory() {
       return _connectionFactory;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          return ((JMSConnectorComponentFactory) bean).getClassifier();
+        case -1176216760:  // clientBrokerUri
+          return ((JMSConnectorComponentFactory) bean).getClientBrokerUri();
+        case 1966765132:  // connectionFactory
+          return ((JMSConnectorComponentFactory) bean).getConnectionFactory();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          ((JMSConnectorComponentFactory) bean).setClassifier((String) newValue);
+          return;
+        case -1176216760:  // clientBrokerUri
+          ((JMSConnectorComponentFactory) bean).setClientBrokerUri((String) newValue);
+          return;
+        case 1966765132:  // connectionFactory
+          ((JMSConnectorComponentFactory) bean).setConnectionFactory((ConnectionFactory) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((JMSConnectorComponentFactory) bean)._classifier, "classifier");
+      JodaBeanUtils.notNull(((JMSConnectorComponentFactory) bean)._clientBrokerUri, "clientBrokerUri");
+      super.validate(bean);
     }
 
   }

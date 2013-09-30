@@ -9,6 +9,7 @@ import java.util.Map;
 
 import javax.ws.rs.core.UriInfo;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -124,100 +125,6 @@ public class WebSecuritiesData extends DirectBean {
   @Override
   public WebSecuritiesData.Meta metaBean() {
     return WebSecuritiesData.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -887218750:  // securityMaster
-        return getSecurityMaster();
-      case -903470221:  // securityLoader
-        return getSecurityLoader();
-      case 173967376:  // historicalTimeSeriesMaster
-        return getHistoricalTimeSeriesMaster();
-      case -173275078:  // uriInfo
-        return getUriInfo();
-      case 1433303815:  // uriSecurityId
-        return getUriSecurityId();
-      case 666567687:  // uriVersionId
-        return getUriVersionId();
-      case 949122880:  // security
-        return getSecurity();
-      case -1407102089:  // versioned
-        return getVersioned();
-      case -1158737547:  // organizationMaster
-        return getOrganizationMaster();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -887218750:  // securityMaster
-        setSecurityMaster((SecurityMaster) newValue);
-        return;
-      case -903470221:  // securityLoader
-        setSecurityLoader((SecurityLoader) newValue);
-        return;
-      case 173967376:  // historicalTimeSeriesMaster
-        setHistoricalTimeSeriesMaster((HistoricalTimeSeriesMaster) newValue);
-        return;
-      case -173275078:  // uriInfo
-        setUriInfo((UriInfo) newValue);
-        return;
-      case 1433303815:  // uriSecurityId
-        setUriSecurityId((String) newValue);
-        return;
-      case 666567687:  // uriVersionId
-        setUriVersionId((String) newValue);
-        return;
-      case 949122880:  // security
-        setSecurity((SecurityDocument) newValue);
-        return;
-      case -1407102089:  // versioned
-        setVersioned((SecurityDocument) newValue);
-        return;
-      case -1158737547:  // organizationMaster
-        setOrganizationMaster((OrganizationMaster) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      WebSecuritiesData other = (WebSecuritiesData) obj;
-      return JodaBeanUtils.equal(getSecurityMaster(), other.getSecurityMaster()) &&
-          JodaBeanUtils.equal(getSecurityLoader(), other.getSecurityLoader()) &&
-          JodaBeanUtils.equal(getHistoricalTimeSeriesMaster(), other.getHistoricalTimeSeriesMaster()) &&
-          JodaBeanUtils.equal(getUriInfo(), other.getUriInfo()) &&
-          JodaBeanUtils.equal(getUriSecurityId(), other.getUriSecurityId()) &&
-          JodaBeanUtils.equal(getUriVersionId(), other.getUriVersionId()) &&
-          JodaBeanUtils.equal(getSecurity(), other.getSecurity()) &&
-          JodaBeanUtils.equal(getVersioned(), other.getVersioned()) &&
-          JodaBeanUtils.equal(getOrganizationMaster(), other.getOrganizationMaster());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityLoader());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUriInfo());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUriSecurityId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUriVersionId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurity());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVersioned());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getOrganizationMaster());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -446,6 +353,82 @@ public class WebSecuritiesData extends DirectBean {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public WebSecuritiesData clone() {
+    BeanBuilder<? extends WebSecuritiesData> builder = metaBean().builder();
+    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
+      if (mp.style().isBuildable()) {
+        Object value = mp.get(this);
+        if (value instanceof Bean) {
+          value = ((Bean) value).clone();
+        }
+        builder.set(mp.name(), value);
+      }
+    }
+    return builder.build();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      WebSecuritiesData other = (WebSecuritiesData) obj;
+      return JodaBeanUtils.equal(getSecurityMaster(), other.getSecurityMaster()) &&
+          JodaBeanUtils.equal(getSecurityLoader(), other.getSecurityLoader()) &&
+          JodaBeanUtils.equal(getHistoricalTimeSeriesMaster(), other.getHistoricalTimeSeriesMaster()) &&
+          JodaBeanUtils.equal(getUriInfo(), other.getUriInfo()) &&
+          JodaBeanUtils.equal(getUriSecurityId(), other.getUriSecurityId()) &&
+          JodaBeanUtils.equal(getUriVersionId(), other.getUriVersionId()) &&
+          JodaBeanUtils.equal(getSecurity(), other.getSecurity()) &&
+          JodaBeanUtils.equal(getVersioned(), other.getVersioned()) &&
+          JodaBeanUtils.equal(getOrganizationMaster(), other.getOrganizationMaster());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityLoader());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUriInfo());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUriSecurityId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUriVersionId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurity());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getVersioned());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getOrganizationMaster());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(320);
+    buf.append("WebSecuritiesData{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("securityMaster").append('=').append(getSecurityMaster()).append(',').append(' ');
+    buf.append("securityLoader").append('=').append(getSecurityLoader()).append(',').append(' ');
+    buf.append("historicalTimeSeriesMaster").append('=').append(getHistoricalTimeSeriesMaster()).append(',').append(' ');
+    buf.append("uriInfo").append('=').append(getUriInfo()).append(',').append(' ');
+    buf.append("uriSecurityId").append('=').append(getUriSecurityId()).append(',').append(' ');
+    buf.append("uriVersionId").append('=').append(getUriVersionId()).append(',').append(' ');
+    buf.append("security").append('=').append(getSecurity()).append(',').append(' ');
+    buf.append("versioned").append('=').append(getVersioned()).append(',').append(' ');
+    buf.append("organizationMaster").append('=').append(getOrganizationMaster()).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code WebSecuritiesData}.
    */
@@ -632,6 +615,66 @@ public class WebSecuritiesData extends DirectBean {
      */
     public final MetaProperty<OrganizationMaster> organizationMaster() {
       return _organizationMaster;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -887218750:  // securityMaster
+          return ((WebSecuritiesData) bean).getSecurityMaster();
+        case -903470221:  // securityLoader
+          return ((WebSecuritiesData) bean).getSecurityLoader();
+        case 173967376:  // historicalTimeSeriesMaster
+          return ((WebSecuritiesData) bean).getHistoricalTimeSeriesMaster();
+        case -173275078:  // uriInfo
+          return ((WebSecuritiesData) bean).getUriInfo();
+        case 1433303815:  // uriSecurityId
+          return ((WebSecuritiesData) bean).getUriSecurityId();
+        case 666567687:  // uriVersionId
+          return ((WebSecuritiesData) bean).getUriVersionId();
+        case 949122880:  // security
+          return ((WebSecuritiesData) bean).getSecurity();
+        case -1407102089:  // versioned
+          return ((WebSecuritiesData) bean).getVersioned();
+        case -1158737547:  // organizationMaster
+          return ((WebSecuritiesData) bean).getOrganizationMaster();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -887218750:  // securityMaster
+          ((WebSecuritiesData) bean).setSecurityMaster((SecurityMaster) newValue);
+          return;
+        case -903470221:  // securityLoader
+          ((WebSecuritiesData) bean).setSecurityLoader((SecurityLoader) newValue);
+          return;
+        case 173967376:  // historicalTimeSeriesMaster
+          ((WebSecuritiesData) bean).setHistoricalTimeSeriesMaster((HistoricalTimeSeriesMaster) newValue);
+          return;
+        case -173275078:  // uriInfo
+          ((WebSecuritiesData) bean).setUriInfo((UriInfo) newValue);
+          return;
+        case 1433303815:  // uriSecurityId
+          ((WebSecuritiesData) bean).setUriSecurityId((String) newValue);
+          return;
+        case 666567687:  // uriVersionId
+          ((WebSecuritiesData) bean).setUriVersionId((String) newValue);
+          return;
+        case 949122880:  // security
+          ((WebSecuritiesData) bean).setSecurity((SecurityDocument) newValue);
+          return;
+        case -1407102089:  // versioned
+          ((WebSecuritiesData) bean).setVersioned((SecurityDocument) newValue);
+          return;
+        case -1158737547:  // organizationMaster
+          ((WebSecuritiesData) bean).setOrganizationMaster((OrganizationMaster) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

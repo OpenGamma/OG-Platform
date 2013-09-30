@@ -24,6 +24,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.Lists;
 import com.opengamma.util.ArgumentChecker;
+import org.joda.beans.Bean;
 
 /**
  * Container for function configurations
@@ -76,45 +77,6 @@ public class FunctionConfigurationBundle extends DirectBean implements Serializa
     return FunctionConfigurationBundle.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -140572773:  // functions
-        return getFunctions();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -140572773:  // functions
-        setFunctions((List<FunctionConfiguration>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      FunctionConfigurationBundle other = (FunctionConfigurationBundle) obj;
-      return JodaBeanUtils.equal(getFunctions(), other.getFunctions());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFunctions());
-    return hash;
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the functions.
@@ -139,6 +101,58 @@ public class FunctionConfigurationBundle extends DirectBean implements Serializa
    */
   public final Property<List<FunctionConfiguration>> functions() {
     return metaBean().functions().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public FunctionConfigurationBundle clone() {
+    BeanBuilder<? extends FunctionConfigurationBundle> builder = metaBean().builder();
+    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
+      if (mp.style().isBuildable()) {
+        Object value = mp.get(this);
+        if (value instanceof Bean) {
+          value = ((Bean) value).clone();
+        }
+        builder.set(mp.name(), value);
+      }
+    }
+    return builder.build();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      FunctionConfigurationBundle other = (FunctionConfigurationBundle) obj;
+      return JodaBeanUtils.equal(getFunctions(), other.getFunctions());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFunctions());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(64);
+    buf.append("FunctionConfigurationBundle{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("functions").append('=').append(getFunctions()).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -201,6 +215,27 @@ public class FunctionConfigurationBundle extends DirectBean implements Serializa
      */
     public final MetaProperty<List<FunctionConfiguration>> functions() {
       return _functions;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -140572773:  // functions
+          return ((FunctionConfigurationBundle) bean).getFunctions();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -140572773:  // functions
+          ((FunctionConfigurationBundle) bean).setFunctions((List<FunctionConfiguration>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

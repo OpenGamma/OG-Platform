@@ -25,6 +25,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.batch.domain.RiskRun;
 import com.opengamma.util.PublicSPI;
 import com.opengamma.util.paging.Paging;
+import org.joda.beans.Bean;
 
 /**
  * Result from searching for live data values.
@@ -69,52 +70,6 @@ public class BatchRunSearchResult extends DirectBean {
   @Override
   public BatchRunSearchResult.Meta metaBean() {
     return BatchRunSearchResult.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -995747956:  // paging
-        return getPaging();
-      case -823812830:  // values
-        return getValues();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -995747956:  // paging
-        setPaging((Paging) newValue);
-        return;
-      case -823812830:  // values
-        setValues((List<RiskRun>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      BatchRunSearchResult other = (BatchRunSearchResult) obj;
-      return JodaBeanUtils.equal(getPaging(), other.getPaging()) &&
-          JodaBeanUtils.equal(getValues(), other.getValues());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPaging());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getValues());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -166,6 +121,61 @@ public class BatchRunSearchResult extends DirectBean {
    */
   public final Property<List<RiskRun>> values() {
     return metaBean().values().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public BatchRunSearchResult clone() {
+    BeanBuilder<? extends BatchRunSearchResult> builder = metaBean().builder();
+    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
+      if (mp.style().isBuildable()) {
+        Object value = mp.get(this);
+        if (value instanceof Bean) {
+          value = ((Bean) value).clone();
+        }
+        builder.set(mp.name(), value);
+      }
+    }
+    return builder.build();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      BatchRunSearchResult other = (BatchRunSearchResult) obj;
+      return JodaBeanUtils.equal(getPaging(), other.getPaging()) &&
+          JodaBeanUtils.equal(getValues(), other.getValues());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPaging());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getValues());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(96);
+    buf.append("BatchRunSearchResult{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("paging").append('=').append(getPaging()).append(',').append(' ');
+    buf.append("values").append('=').append(getValues()).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -244,6 +254,32 @@ public class BatchRunSearchResult extends DirectBean {
      */
     public final MetaProperty<List<RiskRun>> values() {
       return _values;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -995747956:  // paging
+          return ((BatchRunSearchResult) bean).getPaging();
+        case -823812830:  // values
+          return ((BatchRunSearchResult) bean).getValues();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -995747956:  // paging
+          ((BatchRunSearchResult) bean).setPaging((Paging) newValue);
+          return;
+        case -823812830:  // values
+          ((BatchRunSearchResult) bean).setValues((List<RiskRun>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

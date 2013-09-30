@@ -23,6 +23,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
+import org.joda.beans.Bean;
 
 /**
  * Convention for a fixed swap leg.
@@ -147,119 +148,6 @@ public class SwapFixedLegConvention extends Convention {
   @Override
   public SwapFixedLegConvention.Meta metaBean() {
     return SwapFixedLegConvention.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -507548582:  // paymentTenor
-        return getPaymentTenor();
-      case 1905311443:  // dayCount
-        return getDayCount();
-      case -1002835891:  // businessDayConvention
-        return getBusinessDayConvention();
-      case 575402001:  // currency
-        return getCurrency();
-      case 1932874322:  // regionCalendar
-        return getRegionCalendar();
-      case -295948000:  // settlementDays
-        return getSettlementDays();
-      case 100464505:  // isEOM
-        return isIsEOM();
-      case 1873675528:  // stubType
-        return getStubType();
-      case 348962765:  // isExchangeNotional
-        return isIsExchangeNotional();
-      case 1612870060:  // paymentLag
-        return getPaymentLag();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -507548582:  // paymentTenor
-        setPaymentTenor((Tenor) newValue);
-        return;
-      case 1905311443:  // dayCount
-        setDayCount((DayCount) newValue);
-        return;
-      case -1002835891:  // businessDayConvention
-        setBusinessDayConvention((BusinessDayConvention) newValue);
-        return;
-      case 575402001:  // currency
-        setCurrency((Currency) newValue);
-        return;
-      case 1932874322:  // regionCalendar
-        setRegionCalendar((ExternalId) newValue);
-        return;
-      case -295948000:  // settlementDays
-        setSettlementDays((Integer) newValue);
-        return;
-      case 100464505:  // isEOM
-        setIsEOM((Boolean) newValue);
-        return;
-      case 1873675528:  // stubType
-        setStubType((StubType) newValue);
-        return;
-      case 348962765:  // isExchangeNotional
-        setIsExchangeNotional((Boolean) newValue);
-        return;
-      case 1612870060:  // paymentLag
-        setPaymentLag((Integer) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_paymentTenor, "paymentTenor");
-    JodaBeanUtils.notNull(_dayCount, "dayCount");
-    JodaBeanUtils.notNull(_businessDayConvention, "businessDayConvention");
-    JodaBeanUtils.notNull(_currency, "currency");
-    JodaBeanUtils.notNull(_regionCalendar, "regionCalendar");
-    JodaBeanUtils.notNull(_stubType, "stubType");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      SwapFixedLegConvention other = (SwapFixedLegConvention) obj;
-      return JodaBeanUtils.equal(getPaymentTenor(), other.getPaymentTenor()) &&
-          JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
-          JodaBeanUtils.equal(getBusinessDayConvention(), other.getBusinessDayConvention()) &&
-          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getRegionCalendar(), other.getRegionCalendar()) &&
-          JodaBeanUtils.equal(getSettlementDays(), other.getSettlementDays()) &&
-          JodaBeanUtils.equal(isIsEOM(), other.isIsEOM()) &&
-          JodaBeanUtils.equal(getStubType(), other.getStubType()) &&
-          JodaBeanUtils.equal(isIsExchangeNotional(), other.isIsExchangeNotional()) &&
-          JodaBeanUtils.equal(getPaymentLag(), other.getPaymentLag()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentTenor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDayCount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBusinessDayConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionCalendar());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementDays());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isIsEOM());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStubType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isIsExchangeNotional());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentLag());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -519,6 +407,78 @@ public class SwapFixedLegConvention extends Convention {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public SwapFixedLegConvention clone() {
+    return (SwapFixedLegConvention) super.clone();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      SwapFixedLegConvention other = (SwapFixedLegConvention) obj;
+      return JodaBeanUtils.equal(getPaymentTenor(), other.getPaymentTenor()) &&
+          JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
+          JodaBeanUtils.equal(getBusinessDayConvention(), other.getBusinessDayConvention()) &&
+          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
+          JodaBeanUtils.equal(getRegionCalendar(), other.getRegionCalendar()) &&
+          (getSettlementDays() == other.getSettlementDays()) &&
+          (isIsEOM() == other.isIsEOM()) &&
+          JodaBeanUtils.equal(getStubType(), other.getStubType()) &&
+          (isIsExchangeNotional() == other.isIsExchangeNotional()) &&
+          (getPaymentLag() == other.getPaymentLag()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentTenor());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDayCount());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBusinessDayConvention());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionCalendar());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementDays());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isIsEOM());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getStubType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isIsExchangeNotional());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentLag());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(352);
+    buf.append("SwapFixedLegConvention{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("paymentTenor").append('=').append(getPaymentTenor()).append(',').append(' ');
+    buf.append("dayCount").append('=').append(getDayCount()).append(',').append(' ');
+    buf.append("businessDayConvention").append('=').append(getBusinessDayConvention()).append(',').append(' ');
+    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
+    buf.append("regionCalendar").append('=').append(getRegionCalendar()).append(',').append(' ');
+    buf.append("settlementDays").append('=').append(getSettlementDays()).append(',').append(' ');
+    buf.append("isEOM").append('=').append(isIsEOM()).append(',').append(' ');
+    buf.append("stubType").append('=').append(getStubType()).append(',').append(' ');
+    buf.append("isExchangeNotional").append('=').append(isIsExchangeNotional()).append(',').append(' ');
+    buf.append("paymentLag").append('=').append(getPaymentLag()).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code SwapFixedLegConvention}.
    */
@@ -721,6 +681,82 @@ public class SwapFixedLegConvention extends Convention {
      */
     public final MetaProperty<Integer> paymentLag() {
       return _paymentLag;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -507548582:  // paymentTenor
+          return ((SwapFixedLegConvention) bean).getPaymentTenor();
+        case 1905311443:  // dayCount
+          return ((SwapFixedLegConvention) bean).getDayCount();
+        case -1002835891:  // businessDayConvention
+          return ((SwapFixedLegConvention) bean).getBusinessDayConvention();
+        case 575402001:  // currency
+          return ((SwapFixedLegConvention) bean).getCurrency();
+        case 1932874322:  // regionCalendar
+          return ((SwapFixedLegConvention) bean).getRegionCalendar();
+        case -295948000:  // settlementDays
+          return ((SwapFixedLegConvention) bean).getSettlementDays();
+        case 100464505:  // isEOM
+          return ((SwapFixedLegConvention) bean).isIsEOM();
+        case 1873675528:  // stubType
+          return ((SwapFixedLegConvention) bean).getStubType();
+        case 348962765:  // isExchangeNotional
+          return ((SwapFixedLegConvention) bean).isIsExchangeNotional();
+        case 1612870060:  // paymentLag
+          return ((SwapFixedLegConvention) bean).getPaymentLag();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -507548582:  // paymentTenor
+          ((SwapFixedLegConvention) bean).setPaymentTenor((Tenor) newValue);
+          return;
+        case 1905311443:  // dayCount
+          ((SwapFixedLegConvention) bean).setDayCount((DayCount) newValue);
+          return;
+        case -1002835891:  // businessDayConvention
+          ((SwapFixedLegConvention) bean).setBusinessDayConvention((BusinessDayConvention) newValue);
+          return;
+        case 575402001:  // currency
+          ((SwapFixedLegConvention) bean).setCurrency((Currency) newValue);
+          return;
+        case 1932874322:  // regionCalendar
+          ((SwapFixedLegConvention) bean).setRegionCalendar((ExternalId) newValue);
+          return;
+        case -295948000:  // settlementDays
+          ((SwapFixedLegConvention) bean).setSettlementDays((Integer) newValue);
+          return;
+        case 100464505:  // isEOM
+          ((SwapFixedLegConvention) bean).setIsEOM((Boolean) newValue);
+          return;
+        case 1873675528:  // stubType
+          ((SwapFixedLegConvention) bean).setStubType((StubType) newValue);
+          return;
+        case 348962765:  // isExchangeNotional
+          ((SwapFixedLegConvention) bean).setIsExchangeNotional((Boolean) newValue);
+          return;
+        case 1612870060:  // paymentLag
+          ((SwapFixedLegConvention) bean).setPaymentLag((Integer) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((SwapFixedLegConvention) bean)._paymentTenor, "paymentTenor");
+      JodaBeanUtils.notNull(((SwapFixedLegConvention) bean)._dayCount, "dayCount");
+      JodaBeanUtils.notNull(((SwapFixedLegConvention) bean)._businessDayConvention, "businessDayConvention");
+      JodaBeanUtils.notNull(((SwapFixedLegConvention) bean)._currency, "currency");
+      JodaBeanUtils.notNull(((SwapFixedLegConvention) bean)._regionCalendar, "regionCalendar");
+      JodaBeanUtils.notNull(((SwapFixedLegConvention) bean)._stubType, "stubType");
+      super.validate(bean);
     }
 
   }

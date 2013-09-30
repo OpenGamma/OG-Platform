@@ -8,6 +8,7 @@ package com.opengamma.master.security;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -109,52 +110,6 @@ public class SecurityLoaderResult extends DirectBean {
     return SecurityLoaderResult.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1819569153:  // resultMap
-        return getResultMap();
-      case 1550085628:  // securityMap
-        return getSecurityMap();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1819569153:  // resultMap
-        setResultMap((Map<ExternalIdBundle, UniqueId>) newValue);
-        return;
-      case 1550085628:  // securityMap
-        setSecurityMap((Map<UniqueId, Security>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      SecurityLoaderResult other = (SecurityLoaderResult) obj;
-      return JodaBeanUtils.equal(getResultMap(), other.getResultMap()) &&
-          JodaBeanUtils.equal(getSecurityMap(), other.getSecurityMap());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getResultMap());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityMap());
-    return hash;
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the unique IDs of the securities that were obtained.
@@ -211,6 +166,61 @@ public class SecurityLoaderResult extends DirectBean {
    */
   public final Property<Map<UniqueId, Security>> securityMap() {
     return metaBean().securityMap().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public SecurityLoaderResult clone() {
+    BeanBuilder<? extends SecurityLoaderResult> builder = metaBean().builder();
+    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
+      if (mp.style().isBuildable()) {
+        Object value = mp.get(this);
+        if (value instanceof Bean) {
+          value = ((Bean) value).clone();
+        }
+        builder.set(mp.name(), value);
+      }
+    }
+    return builder.build();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      SecurityLoaderResult other = (SecurityLoaderResult) obj;
+      return JodaBeanUtils.equal(getResultMap(), other.getResultMap()) &&
+          JodaBeanUtils.equal(getSecurityMap(), other.getSecurityMap());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getResultMap());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityMap());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(96);
+    buf.append("SecurityLoaderResult{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("resultMap").append('=').append(getResultMap()).append(',').append(' ');
+    buf.append("securityMap").append('=').append(getSecurityMap()).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -290,6 +300,32 @@ public class SecurityLoaderResult extends DirectBean {
      */
     public final MetaProperty<Map<UniqueId, Security>> securityMap() {
       return _securityMap;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1819569153:  // resultMap
+          return ((SecurityLoaderResult) bean).getResultMap();
+        case 1550085628:  // securityMap
+          return ((SecurityLoaderResult) bean).getSecurityMap();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1819569153:  // resultMap
+          ((SecurityLoaderResult) bean).setResultMap((Map<ExternalIdBundle, UniqueId>) newValue);
+          return;
+        case 1550085628:  // securityMap
+          ((SecurityLoaderResult) bean).setSecurityMap((Map<UniqueId, Security>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

@@ -24,6 +24,7 @@ import org.springframework.cache.ehcache.EhCacheManagerFactoryBean;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import org.joda.beans.Bean;
 
 /**
  * Component Factory for an Ehcache CacheManager using the standard OG ehcache config found on the classpath.
@@ -85,66 +86,6 @@ public class CacheManagerComponentFactory extends AbstractComponentFactory {
   @Override
   public CacheManagerComponentFactory.Meta metaBean() {
     return CacheManagerComponentFactory.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        return getClassifier();
-      case -903566235:  // shared
-        return isShared();
-      case -1277483753:  // configLocation
-        return getConfigLocation();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        setClassifier((String) newValue);
-        return;
-      case -903566235:  // shared
-        setShared((Boolean) newValue);
-        return;
-      case -1277483753:  // configLocation
-        setConfigLocation((String) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_classifier, "classifier");
-    JodaBeanUtils.notNull(_configLocation, "configLocation");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      CacheManagerComponentFactory other = (CacheManagerComponentFactory) obj;
-      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
-          JodaBeanUtils.equal(isShared(), other.isShared()) &&
-          JodaBeanUtils.equal(getConfigLocation(), other.getConfigLocation()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isShared());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigLocation());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -222,6 +163,57 @@ public class CacheManagerComponentFactory extends AbstractComponentFactory {
    */
   public final Property<String> configLocation() {
     return metaBean().configLocation().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public CacheManagerComponentFactory clone() {
+    return (CacheManagerComponentFactory) super.clone();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      CacheManagerComponentFactory other = (CacheManagerComponentFactory) obj;
+      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
+          (isShared() == other.isShared()) &&
+          JodaBeanUtils.equal(getConfigLocation(), other.getConfigLocation()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isShared());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigLocation());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(128);
+    buf.append("CacheManagerComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("classifier").append('=').append(getClassifier()).append(',').append(' ');
+    buf.append("shared").append('=').append(isShared()).append(',').append(' ');
+    buf.append("configLocation").append('=').append(getConfigLocation()).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -315,6 +307,43 @@ public class CacheManagerComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<String> configLocation() {
       return _configLocation;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          return ((CacheManagerComponentFactory) bean).getClassifier();
+        case -903566235:  // shared
+          return ((CacheManagerComponentFactory) bean).isShared();
+        case -1277483753:  // configLocation
+          return ((CacheManagerComponentFactory) bean).getConfigLocation();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          ((CacheManagerComponentFactory) bean).setClassifier((String) newValue);
+          return;
+        case -903566235:  // shared
+          ((CacheManagerComponentFactory) bean).setShared((Boolean) newValue);
+          return;
+        case -1277483753:  // configLocation
+          ((CacheManagerComponentFactory) bean).setConfigLocation((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((CacheManagerComponentFactory) bean)._classifier, "classifier");
+      JodaBeanUtils.notNull(((CacheManagerComponentFactory) bean)._configLocation, "configLocation");
+      super.validate(bean);
     }
 
   }

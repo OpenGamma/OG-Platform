@@ -35,6 +35,7 @@ import org.joda.beans.Property;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.Bean;
 
 @XmlRootElement
 // Ensure we look at subclasses when unmarshalling
@@ -120,87 +121,6 @@ public abstract class Trade extends DirectBean {
   @Override
   public Trade.Meta metaBean() {
     return Trade.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 3355:  // id
-        return getId();
-      case -1924302699:  // externalSystemId
-        return getExternalSystemId();
-      case 752419634:  // tradeDate
-        return getTradeDate();
-      case -414641441:  // maturityDate
-        return getMaturityDate();
-      case -1651301782:  // counterparty
-        return getCounterparty();
-      case -254405301:  // additionalCashflows
-        return getAdditionalCashflows();
-      case -1075726114:  // additionalAttributes
-        return getAdditionalAttributes();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 3355:  // id
-        setId((String) newValue);
-        return;
-      case -1924302699:  // externalSystemId
-        setExternalSystemId((IdWrapper) newValue);
-        return;
-      case 752419634:  // tradeDate
-        setTradeDate((LocalDate) newValue);
-        return;
-      case -414641441:  // maturityDate
-        setMaturityDate((LocalDate) newValue);
-        return;
-      case -1651301782:  // counterparty
-        setCounterparty((IdWrapper) newValue);
-        return;
-      case -254405301:  // additionalCashflows
-        setAdditionalCashflows((List<AdditionalCashflow>) newValue);
-        return;
-      case -1075726114:  // additionalAttributes
-        setAdditionalAttributes((Map<String, String>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      Trade other = (Trade) obj;
-      return JodaBeanUtils.equal(getId(), other.getId()) &&
-          JodaBeanUtils.equal(getExternalSystemId(), other.getExternalSystemId()) &&
-          JodaBeanUtils.equal(getTradeDate(), other.getTradeDate()) &&
-          JodaBeanUtils.equal(getMaturityDate(), other.getMaturityDate()) &&
-          JodaBeanUtils.equal(getCounterparty(), other.getCounterparty()) &&
-          JodaBeanUtils.equal(getAdditionalCashflows(), other.getAdditionalCashflows()) &&
-          JodaBeanUtils.equal(getAdditionalAttributes(), other.getAdditionalAttributes());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalSystemId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTradeDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityDate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCounterparty());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAdditionalCashflows());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAdditionalAttributes());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -371,6 +291,76 @@ public abstract class Trade extends DirectBean {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public Trade clone() {
+    BeanBuilder<? extends Trade> builder = metaBean().builder();
+    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
+      if (mp.style().isBuildable()) {
+        Object value = mp.get(this);
+        if (value instanceof Bean) {
+          value = ((Bean) value).clone();
+        }
+        builder.set(mp.name(), value);
+      }
+    }
+    return builder.build();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      Trade other = (Trade) obj;
+      return JodaBeanUtils.equal(getId(), other.getId()) &&
+          JodaBeanUtils.equal(getExternalSystemId(), other.getExternalSystemId()) &&
+          JodaBeanUtils.equal(getTradeDate(), other.getTradeDate()) &&
+          JodaBeanUtils.equal(getMaturityDate(), other.getMaturityDate()) &&
+          JodaBeanUtils.equal(getCounterparty(), other.getCounterparty()) &&
+          JodaBeanUtils.equal(getAdditionalCashflows(), other.getAdditionalCashflows()) &&
+          JodaBeanUtils.equal(getAdditionalAttributes(), other.getAdditionalAttributes());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalSystemId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTradeDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityDate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCounterparty());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getAdditionalCashflows());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getAdditionalAttributes());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(256);
+    buf.append("Trade{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("id").append('=').append(getId()).append(',').append(' ');
+    buf.append("externalSystemId").append('=').append(getExternalSystemId()).append(',').append(' ');
+    buf.append("tradeDate").append('=').append(getTradeDate()).append(',').append(' ');
+    buf.append("maturityDate").append('=').append(getMaturityDate()).append(',').append(' ');
+    buf.append("counterparty").append('=').append(getCounterparty()).append(',').append(' ');
+    buf.append("additionalCashflows").append('=').append(getAdditionalCashflows()).append(',').append(' ');
+    buf.append("additionalAttributes").append('=').append(getAdditionalAttributes()).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code Trade}.
    */
@@ -527,6 +517,57 @@ public abstract class Trade extends DirectBean {
      */
     public final MetaProperty<Map<String, String>> additionalAttributes() {
       return _additionalAttributes;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 3355:  // id
+          return ((Trade) bean).getId();
+        case -1924302699:  // externalSystemId
+          return ((Trade) bean).getExternalSystemId();
+        case 752419634:  // tradeDate
+          return ((Trade) bean).getTradeDate();
+        case -414641441:  // maturityDate
+          return ((Trade) bean).getMaturityDate();
+        case -1651301782:  // counterparty
+          return ((Trade) bean).getCounterparty();
+        case -254405301:  // additionalCashflows
+          return ((Trade) bean).getAdditionalCashflows();
+        case -1075726114:  // additionalAttributes
+          return ((Trade) bean).getAdditionalAttributes();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 3355:  // id
+          ((Trade) bean).setId((String) newValue);
+          return;
+        case -1924302699:  // externalSystemId
+          ((Trade) bean).setExternalSystemId((IdWrapper) newValue);
+          return;
+        case 752419634:  // tradeDate
+          ((Trade) bean).setTradeDate((LocalDate) newValue);
+          return;
+        case -414641441:  // maturityDate
+          ((Trade) bean).setMaturityDate((LocalDate) newValue);
+          return;
+        case -1651301782:  // counterparty
+          ((Trade) bean).setCounterparty((IdWrapper) newValue);
+          return;
+        case -254405301:  // additionalCashflows
+          ((Trade) bean).setAdditionalCashflows((List<AdditionalCashflow>) newValue);
+          return;
+        case -1075726114:  // additionalAttributes
+          ((Trade) bean).setAdditionalAttributes((Map<String, String>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

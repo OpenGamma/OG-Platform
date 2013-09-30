@@ -18,6 +18,7 @@ import org.joda.beans.Property;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.joda.beans.Bean;
 
 /**
  * Convention for price-quoted deliverable swap futures (as traded on CME).
@@ -80,58 +81,6 @@ public class DeliverablePriceQuotedSwapFutureConvention extends ExchangeTradedFu
     return DeliverablePriceQuotedSwapFutureConvention.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1414180196:  // swapConvention
-        return getSwapConvention();
-      case 1585636160:  // notional
-        return getNotional();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1414180196:  // swapConvention
-        setSwapConvention((ExternalId) newValue);
-        return;
-      case 1585636160:  // notional
-        setNotional((Double) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_swapConvention, "swapConvention");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      DeliverablePriceQuotedSwapFutureConvention other = (DeliverablePriceQuotedSwapFutureConvention) obj;
-      return JodaBeanUtils.equal(getSwapConvention(), other.getSwapConvention()) &&
-          JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSwapConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the convention for the underlying swap.
@@ -181,6 +130,54 @@ public class DeliverablePriceQuotedSwapFutureConvention extends ExchangeTradedFu
    */
   public final Property<Double> notional() {
     return metaBean().notional().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public DeliverablePriceQuotedSwapFutureConvention clone() {
+    return (DeliverablePriceQuotedSwapFutureConvention) super.clone();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      DeliverablePriceQuotedSwapFutureConvention other = (DeliverablePriceQuotedSwapFutureConvention) obj;
+      return JodaBeanUtils.equal(getSwapConvention(), other.getSwapConvention()) &&
+          JodaBeanUtils.equal(getNotional(), other.getNotional()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSwapConvention());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getNotional());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(96);
+    buf.append("DeliverablePriceQuotedSwapFutureConvention{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("swapConvention").append('=').append(getSwapConvention()).append(',').append(' ');
+    buf.append("notional").append('=').append(getNotional()).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -258,6 +255,37 @@ public class DeliverablePriceQuotedSwapFutureConvention extends ExchangeTradedFu
      */
     public final MetaProperty<Double> notional() {
       return _notional;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1414180196:  // swapConvention
+          return ((DeliverablePriceQuotedSwapFutureConvention) bean).getSwapConvention();
+        case 1585636160:  // notional
+          return ((DeliverablePriceQuotedSwapFutureConvention) bean).getNotional();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1414180196:  // swapConvention
+          ((DeliverablePriceQuotedSwapFutureConvention) bean).setSwapConvention((ExternalId) newValue);
+          return;
+        case 1585636160:  // notional
+          ((DeliverablePriceQuotedSwapFutureConvention) bean).setNotional((Double) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((DeliverablePriceQuotedSwapFutureConvention) bean)._swapConvention, "swapConvention");
+      super.validate(bean);
     }
 
   }

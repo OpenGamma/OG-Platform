@@ -7,8 +7,8 @@
 package com.opengamma.masterdb.security.hibernate.swap;
 
 import static com.opengamma.masterdb.security.hibernate.Converters.dateTimeWithZoneToZonedDateTimeBean;
-import static com.opengamma.masterdb.security.hibernate.Converters.zonedDateTimeBeanToDateTimeWithZone;
 import static com.opengamma.masterdb.security.hibernate.Converters.tenorBeanToTenor;
+import static com.opengamma.masterdb.security.hibernate.Converters.zonedDateTimeBeanToDateTimeWithZone;
 
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;

@@ -25,6 +25,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.component.rest.RemoteComponentServer;
 import com.opengamma.util.ArgumentChecker;
+import org.joda.beans.Bean;
 
 /**
  * Information about a principal component of the OpenGamma system.
@@ -151,59 +152,6 @@ public class ComponentServer extends DirectBean {
     return ComponentServer.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 116076:  // uri
-        return getUri();
-      case 1349827208:  // componentInfos
-        return getComponentInfos();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 116076:  // uri
-        setUri((URI) newValue);
-        return;
-      case 1349827208:  // componentInfos
-        setComponentInfos((List<ComponentInfo>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_uri, "uri");
-    JodaBeanUtils.notNull(_componentInfos, "componentInfos");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      ComponentServer other = (ComponentServer) obj;
-      return JodaBeanUtils.equal(getUri(), other.getUri()) &&
-          JodaBeanUtils.equal(getComponentInfos(), other.getComponentInfos());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUri());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getComponentInfos());
-    return hash;
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the URI that the server is published at.
@@ -260,6 +208,61 @@ public class ComponentServer extends DirectBean {
    */
   public final Property<List<ComponentInfo>> componentInfos() {
     return metaBean().componentInfos().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public ComponentServer clone() {
+    BeanBuilder<? extends ComponentServer> builder = metaBean().builder();
+    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
+      if (mp.style().isBuildable()) {
+        Object value = mp.get(this);
+        if (value instanceof Bean) {
+          value = ((Bean) value).clone();
+        }
+        builder.set(mp.name(), value);
+      }
+    }
+    return builder.build();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ComponentServer other = (ComponentServer) obj;
+      return JodaBeanUtils.equal(getUri(), other.getUri()) &&
+          JodaBeanUtils.equal(getComponentInfos(), other.getComponentInfos());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUri());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getComponentInfos());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(96);
+    buf.append("ComponentServer{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("uri").append('=').append(getUri()).append(',').append(' ');
+    buf.append("componentInfos").append('=').append(getComponentInfos()).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -338,6 +341,38 @@ public class ComponentServer extends DirectBean {
      */
     public final MetaProperty<List<ComponentInfo>> componentInfos() {
       return _componentInfos;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 116076:  // uri
+          return ((ComponentServer) bean).getUri();
+        case 1349827208:  // componentInfos
+          return ((ComponentServer) bean).getComponentInfos();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 116076:  // uri
+          ((ComponentServer) bean).setUri((URI) newValue);
+          return;
+        case 1349827208:  // componentInfos
+          ((ComponentServer) bean).setComponentInfos((List<ComponentInfo>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((ComponentServer) bean)._uri, "uri");
+      JodaBeanUtils.notNull(((ComponentServer) bean)._componentInfos, "componentInfos");
     }
 
   }

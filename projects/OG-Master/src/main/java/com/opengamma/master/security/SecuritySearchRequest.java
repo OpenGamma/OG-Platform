@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -251,101 +252,6 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
     return SecuritySearchRequest.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1489617159:  // objectIds
-        return getObjectIds();
-      case -265376882:  // externalIdSearch
-        return getExternalIdSearch();
-      case 2072311499:  // externalIdValue
-        return getExternalIdValue();
-      case -267027573:  // externalIdScheme
-        return getExternalIdScheme();
-      case 3373707:  // name
-        return getName();
-      case 808245914:  // securityType
-        return getSecurityType();
-      case -26774448:  // sortOrder
-        return getSortOrder();
-      case -1233600576:  // fullDetail
-        return isFullDetail();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1489617159:  // objectIds
-        setObjectIds((List<ObjectId>) newValue);
-        return;
-      case -265376882:  // externalIdSearch
-        setExternalIdSearch((ExternalIdSearch) newValue);
-        return;
-      case 2072311499:  // externalIdValue
-        setExternalIdValue((String) newValue);
-        return;
-      case -267027573:  // externalIdScheme
-        setExternalIdScheme((String) newValue);
-        return;
-      case 3373707:  // name
-        setName((String) newValue);
-        return;
-      case 808245914:  // securityType
-        setSecurityType((String) newValue);
-        return;
-      case -26774448:  // sortOrder
-        setSortOrder((SecuritySearchSortOrder) newValue);
-        return;
-      case -1233600576:  // fullDetail
-        setFullDetail((Boolean) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_sortOrder, "sortOrder");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      SecuritySearchRequest other = (SecuritySearchRequest) obj;
-      return JodaBeanUtils.equal(getObjectIds(), other.getObjectIds()) &&
-          JodaBeanUtils.equal(getExternalIdSearch(), other.getExternalIdSearch()) &&
-          JodaBeanUtils.equal(getExternalIdValue(), other.getExternalIdValue()) &&
-          JodaBeanUtils.equal(getExternalIdScheme(), other.getExternalIdScheme()) &&
-          JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getSecurityType(), other.getSecurityType()) &&
-          JodaBeanUtils.equal(getSortOrder(), other.getSortOrder()) &&
-          JodaBeanUtils.equal(isFullDetail(), other.isFullDetail()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getObjectIds());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdSearch());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdValue());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdScheme());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSortOrder());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isFullDetail());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the set of security object identifiers, null to not limit by security object identifiers.
@@ -569,6 +475,72 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public SecuritySearchRequest clone() {
+    return (SecuritySearchRequest) super.clone();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      SecuritySearchRequest other = (SecuritySearchRequest) obj;
+      return JodaBeanUtils.equal(getObjectIds(), other.getObjectIds()) &&
+          JodaBeanUtils.equal(getExternalIdSearch(), other.getExternalIdSearch()) &&
+          JodaBeanUtils.equal(getExternalIdValue(), other.getExternalIdValue()) &&
+          JodaBeanUtils.equal(getExternalIdScheme(), other.getExternalIdScheme()) &&
+          JodaBeanUtils.equal(getName(), other.getName()) &&
+          JodaBeanUtils.equal(getSecurityType(), other.getSecurityType()) &&
+          JodaBeanUtils.equal(getSortOrder(), other.getSortOrder()) &&
+          (isFullDetail() == other.isFullDetail()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getObjectIds());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdSearch());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdValue());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdScheme());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSortOrder());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isFullDetail());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(288);
+    buf.append("SecuritySearchRequest{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("objectIds").append('=').append(getObjectIds()).append(',').append(' ');
+    buf.append("externalIdSearch").append('=').append(getExternalIdSearch()).append(',').append(' ');
+    buf.append("externalIdValue").append('=').append(getExternalIdValue()).append(',').append(' ');
+    buf.append("externalIdScheme").append('=').append(getExternalIdScheme()).append(',').append(' ');
+    buf.append("name").append('=').append(getName()).append(',').append(' ');
+    buf.append("securityType").append('=').append(getSecurityType()).append(',').append(' ');
+    buf.append("sortOrder").append('=').append(getSortOrder()).append(',').append(' ');
+    buf.append("fullDetail").append('=').append(isFullDetail()).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code SecuritySearchRequest}.
    */
@@ -740,6 +712,68 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
      */
     public final MetaProperty<Boolean> fullDetail() {
       return _fullDetail;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1489617159:  // objectIds
+          return ((SecuritySearchRequest) bean).getObjectIds();
+        case -265376882:  // externalIdSearch
+          return ((SecuritySearchRequest) bean).getExternalIdSearch();
+        case 2072311499:  // externalIdValue
+          return ((SecuritySearchRequest) bean).getExternalIdValue();
+        case -267027573:  // externalIdScheme
+          return ((SecuritySearchRequest) bean).getExternalIdScheme();
+        case 3373707:  // name
+          return ((SecuritySearchRequest) bean).getName();
+        case 808245914:  // securityType
+          return ((SecuritySearchRequest) bean).getSecurityType();
+        case -26774448:  // sortOrder
+          return ((SecuritySearchRequest) bean).getSortOrder();
+        case -1233600576:  // fullDetail
+          return ((SecuritySearchRequest) bean).isFullDetail();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1489617159:  // objectIds
+          ((SecuritySearchRequest) bean).setObjectIds((List<ObjectId>) newValue);
+          return;
+        case -265376882:  // externalIdSearch
+          ((SecuritySearchRequest) bean).setExternalIdSearch((ExternalIdSearch) newValue);
+          return;
+        case 2072311499:  // externalIdValue
+          ((SecuritySearchRequest) bean).setExternalIdValue((String) newValue);
+          return;
+        case -267027573:  // externalIdScheme
+          ((SecuritySearchRequest) bean).setExternalIdScheme((String) newValue);
+          return;
+        case 3373707:  // name
+          ((SecuritySearchRequest) bean).setName((String) newValue);
+          return;
+        case 808245914:  // securityType
+          ((SecuritySearchRequest) bean).setSecurityType((String) newValue);
+          return;
+        case -26774448:  // sortOrder
+          ((SecuritySearchRequest) bean).setSortOrder((SecuritySearchSortOrder) newValue);
+          return;
+        case -1233600576:  // fullDetail
+          ((SecuritySearchRequest) bean).setFullDetail((Boolean) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((SecuritySearchRequest) bean)._sortOrder, "sortOrder");
+      super.validate(bean);
     }
 
   }

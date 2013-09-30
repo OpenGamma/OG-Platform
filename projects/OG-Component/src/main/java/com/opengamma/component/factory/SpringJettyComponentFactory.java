@@ -51,6 +51,7 @@ import com.opengamma.util.rest.IllegalArgumentExceptionMapper;
 import com.opengamma.util.rest.ThrowableExceptionMapper;
 import com.opengamma.util.rest.UnsupportedOperationExceptionMapper;
 import com.opengamma.util.rest.WebApplicationExceptionMapper;
+import org.joda.beans.Bean;
 
 /**
  * Component definition for the Jetty server defined in Spring.
@@ -231,59 +232,6 @@ public class SpringJettyComponentFactory extends AbstractSpringComponentFactory 
     return SpringJettyComponentFactory.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1422950650:  // active
-        return isActive();
-      case 2012797757:  // requireAuthentication
-        return isRequireAuthentication();
-      case 852061195:  // loginConfig
-        return getLoginConfig();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1422950650:  // active
-        setActive((Boolean) newValue);
-        return;
-      case 2012797757:  // requireAuthentication
-        setRequireAuthentication((Boolean) newValue);
-        return;
-      case 852061195:  // loginConfig
-        setLoginConfig((String) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      SpringJettyComponentFactory other = (SpringJettyComponentFactory) obj;
-      return JodaBeanUtils.equal(isActive(), other.isActive()) &&
-          JodaBeanUtils.equal(isRequireAuthentication(), other.isRequireAuthentication()) &&
-          JodaBeanUtils.equal(getLoginConfig(), other.getLoginConfig()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(isActive());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isRequireAuthentication());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getLoginConfig());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the flag indicating if the component is active.
@@ -363,6 +311,57 @@ public class SpringJettyComponentFactory extends AbstractSpringComponentFactory 
    */
   public final Property<String> loginConfig() {
     return metaBean().loginConfig().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public SpringJettyComponentFactory clone() {
+    return (SpringJettyComponentFactory) super.clone();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      SpringJettyComponentFactory other = (SpringJettyComponentFactory) obj;
+      return (isActive() == other.isActive()) &&
+          (isRequireAuthentication() == other.isRequireAuthentication()) &&
+          JodaBeanUtils.equal(getLoginConfig(), other.getLoginConfig()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(isActive());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isRequireAuthentication());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getLoginConfig());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(128);
+    buf.append("SpringJettyComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("active").append('=').append(isActive()).append(',').append(' ');
+    buf.append("requireAuthentication").append('=').append(isRequireAuthentication()).append(',').append(' ');
+    buf.append("loginConfig").append('=').append(getLoginConfig()).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -456,6 +455,36 @@ public class SpringJettyComponentFactory extends AbstractSpringComponentFactory 
      */
     public final MetaProperty<String> loginConfig() {
       return _loginConfig;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1422950650:  // active
+          return ((SpringJettyComponentFactory) bean).isActive();
+        case 2012797757:  // requireAuthentication
+          return ((SpringJettyComponentFactory) bean).isRequireAuthentication();
+        case 852061195:  // loginConfig
+          return ((SpringJettyComponentFactory) bean).getLoginConfig();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1422950650:  // active
+          ((SpringJettyComponentFactory) bean).setActive((Boolean) newValue);
+          return;
+        case 2012797757:  // requireAuthentication
+          ((SpringJettyComponentFactory) bean).setRequireAuthentication((Boolean) newValue);
+          return;
+        case 852061195:  // loginConfig
+          ((SpringJettyComponentFactory) bean).setLoginConfig((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

@@ -120,7 +120,7 @@ public class SecurityAttributeMapper {
    * Looks up and returns values from {@link Bean} instances using a {@link MetaProperty}.
    * @param <T>
    */
-  private static final class PropertyValueProvider<T extends Security & Bean> implements SecurityValueProvider<T> {
+  private static final class PropertyValueProvider<T extends Security> implements SecurityValueProvider<T> {
 
     /** The property used to get the value from the security. */
     private final MetaProperty<?> _property;
@@ -132,7 +132,7 @@ public class SecurityAttributeMapper {
 
     @Override
     public Object getValue(T security) {
-      return _property.get(security);
+      return _property.get((Bean) security);
     }
   }
 

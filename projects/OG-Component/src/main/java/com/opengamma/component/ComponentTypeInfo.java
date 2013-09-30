@@ -21,6 +21,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.util.ArgumentChecker;
+import org.joda.beans.Bean;
 
 /**
  * Stores information about a single component type.
@@ -92,59 +93,6 @@ public class ComponentTypeInfo extends DirectBean {
     return ComponentTypeInfo.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 3575610:  // type
-        return getType();
-      case 1945395662:  // infoMap
-        return getInfoMap();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 3575610:  // type
-        setType((Class<?>) newValue);
-        return;
-      case 1945395662:  // infoMap
-        setInfoMap((Map<String, ComponentInfo>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_type, "type");
-    JodaBeanUtils.notNull(_infoMap, "infoMap");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      ComponentTypeInfo other = (ComponentTypeInfo) obj;
-      return JodaBeanUtils.equal(getType(), other.getType()) &&
-          JodaBeanUtils.equal(getInfoMap(), other.getInfoMap());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getInfoMap());
-    return hash;
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the type of the component, typically an interface.
@@ -195,6 +143,61 @@ public class ComponentTypeInfo extends DirectBean {
    */
   public final Property<Map<String, ComponentInfo>> infoMap() {
     return metaBean().infoMap().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public ComponentTypeInfo clone() {
+    BeanBuilder<? extends ComponentTypeInfo> builder = metaBean().builder();
+    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
+      if (mp.style().isBuildable()) {
+        Object value = mp.get(this);
+        if (value instanceof Bean) {
+          value = ((Bean) value).clone();
+        }
+        builder.set(mp.name(), value);
+      }
+    }
+    return builder.build();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ComponentTypeInfo other = (ComponentTypeInfo) obj;
+      return JodaBeanUtils.equal(getType(), other.getType()) &&
+          JodaBeanUtils.equal(getInfoMap(), other.getInfoMap());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getInfoMap());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(96);
+    buf.append("ComponentTypeInfo{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("type").append('=').append(getType()).append(',').append(' ');
+    buf.append("infoMap").append('=').append(getInfoMap()).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -274,6 +277,38 @@ public class ComponentTypeInfo extends DirectBean {
      */
     public final MetaProperty<Map<String, ComponentInfo>> infoMap() {
       return _infoMap;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 3575610:  // type
+          return ((ComponentTypeInfo) bean).getType();
+        case 1945395662:  // infoMap
+          return ((ComponentTypeInfo) bean).getInfoMap();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 3575610:  // type
+          ((ComponentTypeInfo) bean).setType((Class<?>) newValue);
+          return;
+        case 1945395662:  // infoMap
+          ((ComponentTypeInfo) bean).setInfoMap((Map<String, ComponentInfo>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((ComponentTypeInfo) bean)._type, "type");
+      JodaBeanUtils.notNull(((ComponentTypeInfo) bean)._infoMap, "infoMap");
     }
 
   }

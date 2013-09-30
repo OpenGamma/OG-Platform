@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -267,81 +268,6 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
     return RegionSearchRequest.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1489617159:  // objectIds
-        return getObjectIds();
-      case -265376882:  // externalIdSearch
-        return getExternalIdSearch();
-      case 3373707:  // name
-        return getName();
-      case 382350310:  // classification
-        return getClassification();
-      case 205149932:  // providerId
-        return getProviderId();
-      case 178436081:  // childrenOfId
-        return getChildrenOfId();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1489617159:  // objectIds
-        setObjectIds((List<ObjectId>) newValue);
-        return;
-      case -265376882:  // externalIdSearch
-        setExternalIdSearch((ExternalIdSearch) newValue);
-        return;
-      case 3373707:  // name
-        setName((String) newValue);
-        return;
-      case 382350310:  // classification
-        setClassification((RegionClassification) newValue);
-        return;
-      case 205149932:  // providerId
-        setProviderId((ExternalId) newValue);
-        return;
-      case 178436081:  // childrenOfId
-        setChildrenOfId((UniqueId) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      RegionSearchRequest other = (RegionSearchRequest) obj;
-      return JodaBeanUtils.equal(getObjectIds(), other.getObjectIds()) &&
-          JodaBeanUtils.equal(getExternalIdSearch(), other.getExternalIdSearch()) &&
-          JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getClassification(), other.getClassification()) &&
-          JodaBeanUtils.equal(getProviderId(), other.getProviderId()) &&
-          JodaBeanUtils.equal(getChildrenOfId(), other.getChildrenOfId()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getObjectIds());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdSearch());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassification());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getProviderId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getChildrenOfId());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the set of region object identifiers, null to not limit by region object identifiers.
@@ -493,6 +419,66 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public RegionSearchRequest clone() {
+    return (RegionSearchRequest) super.clone();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      RegionSearchRequest other = (RegionSearchRequest) obj;
+      return JodaBeanUtils.equal(getObjectIds(), other.getObjectIds()) &&
+          JodaBeanUtils.equal(getExternalIdSearch(), other.getExternalIdSearch()) &&
+          JodaBeanUtils.equal(getName(), other.getName()) &&
+          JodaBeanUtils.equal(getClassification(), other.getClassification()) &&
+          JodaBeanUtils.equal(getProviderId(), other.getProviderId()) &&
+          JodaBeanUtils.equal(getChildrenOfId(), other.getChildrenOfId()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getObjectIds());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdSearch());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getClassification());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getProviderId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getChildrenOfId());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(224);
+    buf.append("RegionSearchRequest{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("objectIds").append('=').append(getObjectIds()).append(',').append(' ');
+    buf.append("externalIdSearch").append('=').append(getExternalIdSearch()).append(',').append(' ');
+    buf.append("name").append('=').append(getName()).append(',').append(' ');
+    buf.append("classification").append('=').append(getClassification()).append(',').append(' ');
+    buf.append("providerId").append('=').append(getProviderId()).append(',').append(' ');
+    buf.append("childrenOfId").append('=').append(getChildrenOfId()).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code RegionSearchRequest}.
    */
@@ -632,6 +618,52 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
      */
     public final MetaProperty<UniqueId> childrenOfId() {
       return _childrenOfId;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1489617159:  // objectIds
+          return ((RegionSearchRequest) bean).getObjectIds();
+        case -265376882:  // externalIdSearch
+          return ((RegionSearchRequest) bean).getExternalIdSearch();
+        case 3373707:  // name
+          return ((RegionSearchRequest) bean).getName();
+        case 382350310:  // classification
+          return ((RegionSearchRequest) bean).getClassification();
+        case 205149932:  // providerId
+          return ((RegionSearchRequest) bean).getProviderId();
+        case 178436081:  // childrenOfId
+          return ((RegionSearchRequest) bean).getChildrenOfId();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1489617159:  // objectIds
+          ((RegionSearchRequest) bean).setObjectIds((List<ObjectId>) newValue);
+          return;
+        case -265376882:  // externalIdSearch
+          ((RegionSearchRequest) bean).setExternalIdSearch((ExternalIdSearch) newValue);
+          return;
+        case 3373707:  // name
+          ((RegionSearchRequest) bean).setName((String) newValue);
+          return;
+        case 382350310:  // classification
+          ((RegionSearchRequest) bean).setClassification((RegionClassification) newValue);
+          return;
+        case 205149932:  // providerId
+          ((RegionSearchRequest) bean).setProviderId((ExternalId) newValue);
+          return;
+        case 178436081:  // childrenOfId
+          ((RegionSearchRequest) bean).setChildrenOfId((UniqueId) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

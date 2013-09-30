@@ -21,6 +21,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.id.UniqueId;
+import org.joda.beans.Bean;
 
 /**
  * Represents a view process attachment request
@@ -64,58 +65,6 @@ public class AttachToViewProcessRequest extends DirectBean {
   @Override
   public AttachToViewProcessRequest.Meta metaBean() {
     return AttachToViewProcessRequest.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -545262317:  // viewDefinitionId
-        return getViewDefinitionId();
-      case -1448089498:  // executionOptions
-        return getExecutionOptions();
-      case -1977436267:  // newBatchProcess
-        return isNewBatchProcess();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -545262317:  // viewDefinitionId
-        setViewDefinitionId((UniqueId) newValue);
-        return;
-      case -1448089498:  // executionOptions
-        setExecutionOptions((ViewExecutionOptions) newValue);
-        return;
-      case -1977436267:  // newBatchProcess
-        setNewBatchProcess((Boolean) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      AttachToViewProcessRequest other = (AttachToViewProcessRequest) obj;
-      return JodaBeanUtils.equal(getViewDefinitionId(), other.getViewDefinitionId()) &&
-          JodaBeanUtils.equal(getExecutionOptions(), other.getExecutionOptions()) &&
-          JodaBeanUtils.equal(isNewBatchProcess(), other.isNewBatchProcess());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getViewDefinitionId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExecutionOptions());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isNewBatchProcess());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -194,6 +143,64 @@ public class AttachToViewProcessRequest extends DirectBean {
    */
   public final Property<Boolean> newBatchProcess() {
     return metaBean().newBatchProcess().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public AttachToViewProcessRequest clone() {
+    BeanBuilder<? extends AttachToViewProcessRequest> builder = metaBean().builder();
+    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
+      if (mp.style().isBuildable()) {
+        Object value = mp.get(this);
+        if (value instanceof Bean) {
+          value = ((Bean) value).clone();
+        }
+        builder.set(mp.name(), value);
+      }
+    }
+    return builder.build();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      AttachToViewProcessRequest other = (AttachToViewProcessRequest) obj;
+      return JodaBeanUtils.equal(getViewDefinitionId(), other.getViewDefinitionId()) &&
+          JodaBeanUtils.equal(getExecutionOptions(), other.getExecutionOptions()) &&
+          (isNewBatchProcess() == other.isNewBatchProcess());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getViewDefinitionId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExecutionOptions());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isNewBatchProcess());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(128);
+    buf.append("AttachToViewProcessRequest{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("viewDefinitionId").append('=').append(getViewDefinitionId()).append(',').append(' ');
+    buf.append("executionOptions").append('=').append(getExecutionOptions()).append(',').append(' ');
+    buf.append("newBatchProcess").append('=').append(isNewBatchProcess()).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -287,6 +294,36 @@ public class AttachToViewProcessRequest extends DirectBean {
      */
     public final MetaProperty<Boolean> newBatchProcess() {
       return _newBatchProcess;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -545262317:  // viewDefinitionId
+          return ((AttachToViewProcessRequest) bean).getViewDefinitionId();
+        case -1448089498:  // executionOptions
+          return ((AttachToViewProcessRequest) bean).getExecutionOptions();
+        case -1977436267:  // newBatchProcess
+          return ((AttachToViewProcessRequest) bean).isNewBatchProcess();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -545262317:  // viewDefinitionId
+          ((AttachToViewProcessRequest) bean).setViewDefinitionId((UniqueId) newValue);
+          return;
+        case -1448089498:  // executionOptions
+          ((AttachToViewProcessRequest) bean).setExecutionOptions((ViewExecutionOptions) newValue);
+          return;
+        case -1977436267:  // newBatchProcess
+          ((AttachToViewProcessRequest) bean).setNewBatchProcess((Boolean) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

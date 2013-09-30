@@ -6,8 +6,8 @@
 package com.opengamma.core.marketdatasnapshot.impl;
 
 import java.util.Map;
-import java.util.Set;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -173,94 +173,6 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
   @Override
   public ManageableMarketDataSnapshot.Meta metaBean() {
     return ManageableMarketDataSnapshot.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        return getUniqueId();
-      case 3373707:  // name
-        return getName();
-      case 858810670:  // basisViewName
-        return getBasisViewName();
-      case -591591771:  // globalValues
-        return getGlobalValues();
-      case 119589713:  // yieldCurves
-        return getYieldCurves();
-      case -1349116572:  // curves
-        return getCurves();
-      case -2137883207:  // volatilityCubes
-        return getVolatilityCubes();
-      case -1329840981:  // volatilitySurfaces
-        return getVolatilitySurfaces();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        setUniqueId((UniqueId) newValue);
-        return;
-      case 3373707:  // name
-        setName((String) newValue);
-        return;
-      case 858810670:  // basisViewName
-        setBasisViewName((String) newValue);
-        return;
-      case -591591771:  // globalValues
-        setGlobalValues((ManageableUnstructuredMarketDataSnapshot) newValue);
-        return;
-      case 119589713:  // yieldCurves
-        setYieldCurves((Map<YieldCurveKey, YieldCurveSnapshot>) newValue);
-        return;
-      case -1349116572:  // curves
-        setCurves((Map<CurveKey, CurveSnapshot>) newValue);
-        return;
-      case -2137883207:  // volatilityCubes
-        setVolatilityCubes((Map<VolatilityCubeKey, VolatilityCubeSnapshot>) newValue);
-        return;
-      case -1329840981:  // volatilitySurfaces
-        setVolatilitySurfaces((Map<VolatilitySurfaceKey, VolatilitySurfaceSnapshot>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      ManageableMarketDataSnapshot other = (ManageableMarketDataSnapshot) obj;
-      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
-          JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getBasisViewName(), other.getBasisViewName()) &&
-          JodaBeanUtils.equal(getGlobalValues(), other.getGlobalValues()) &&
-          JodaBeanUtils.equal(getYieldCurves(), other.getYieldCurves()) &&
-          JodaBeanUtils.equal(getCurves(), other.getCurves()) &&
-          JodaBeanUtils.equal(getVolatilityCubes(), other.getVolatilityCubes()) &&
-          JodaBeanUtils.equal(getVolatilitySurfaces(), other.getVolatilitySurfaces());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBasisViewName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getGlobalValues());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getYieldCurves());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurves());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVolatilityCubes());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVolatilitySurfaces());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -464,6 +376,79 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public ManageableMarketDataSnapshot clone() {
+    BeanBuilder<? extends ManageableMarketDataSnapshot> builder = metaBean().builder();
+    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
+      if (mp.style().isBuildable()) {
+        Object value = mp.get(this);
+        if (value instanceof Bean) {
+          value = ((Bean) value).clone();
+        }
+        builder.set(mp.name(), value);
+      }
+    }
+    return builder.build();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ManageableMarketDataSnapshot other = (ManageableMarketDataSnapshot) obj;
+      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+          JodaBeanUtils.equal(getName(), other.getName()) &&
+          JodaBeanUtils.equal(getBasisViewName(), other.getBasisViewName()) &&
+          JodaBeanUtils.equal(getGlobalValues(), other.getGlobalValues()) &&
+          JodaBeanUtils.equal(getYieldCurves(), other.getYieldCurves()) &&
+          JodaBeanUtils.equal(getCurves(), other.getCurves()) &&
+          JodaBeanUtils.equal(getVolatilityCubes(), other.getVolatilityCubes()) &&
+          JodaBeanUtils.equal(getVolatilitySurfaces(), other.getVolatilitySurfaces());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBasisViewName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getGlobalValues());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getYieldCurves());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCurves());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getVolatilityCubes());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getVolatilitySurfaces());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(288);
+    buf.append("ManageableMarketDataSnapshot{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("uniqueId").append('=').append(getUniqueId()).append(',').append(' ');
+    buf.append("name").append('=').append(getName()).append(',').append(' ');
+    buf.append("basisViewName").append('=').append(getBasisViewName()).append(',').append(' ');
+    buf.append("globalValues").append('=').append(getGlobalValues()).append(',').append(' ');
+    buf.append("yieldCurves").append('=').append(getYieldCurves()).append(',').append(' ');
+    buf.append("curves").append('=').append(getCurves()).append(',').append(' ');
+    buf.append("volatilityCubes").append('=').append(getVolatilityCubes()).append(',').append(' ');
+    buf.append("volatilitySurfaces").append('=').append(getVolatilitySurfaces()).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code ManageableMarketDataSnapshot}.
    */
@@ -638,6 +623,62 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
      */
     public final MetaProperty<Map<VolatilitySurfaceKey, VolatilitySurfaceSnapshot>> volatilitySurfaces() {
       return _volatilitySurfaces;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          return ((ManageableMarketDataSnapshot) bean).getUniqueId();
+        case 3373707:  // name
+          return ((ManageableMarketDataSnapshot) bean).getName();
+        case 858810670:  // basisViewName
+          return ((ManageableMarketDataSnapshot) bean).getBasisViewName();
+        case -591591771:  // globalValues
+          return ((ManageableMarketDataSnapshot) bean).getGlobalValues();
+        case 119589713:  // yieldCurves
+          return ((ManageableMarketDataSnapshot) bean).getYieldCurves();
+        case -1349116572:  // curves
+          return ((ManageableMarketDataSnapshot) bean).getCurves();
+        case -2137883207:  // volatilityCubes
+          return ((ManageableMarketDataSnapshot) bean).getVolatilityCubes();
+        case -1329840981:  // volatilitySurfaces
+          return ((ManageableMarketDataSnapshot) bean).getVolatilitySurfaces();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          ((ManageableMarketDataSnapshot) bean).setUniqueId((UniqueId) newValue);
+          return;
+        case 3373707:  // name
+          ((ManageableMarketDataSnapshot) bean).setName((String) newValue);
+          return;
+        case 858810670:  // basisViewName
+          ((ManageableMarketDataSnapshot) bean).setBasisViewName((String) newValue);
+          return;
+        case -591591771:  // globalValues
+          ((ManageableMarketDataSnapshot) bean).setGlobalValues((ManageableUnstructuredMarketDataSnapshot) newValue);
+          return;
+        case 119589713:  // yieldCurves
+          ((ManageableMarketDataSnapshot) bean).setYieldCurves((Map<YieldCurveKey, YieldCurveSnapshot>) newValue);
+          return;
+        case -1349116572:  // curves
+          ((ManageableMarketDataSnapshot) bean).setCurves((Map<CurveKey, CurveSnapshot>) newValue);
+          return;
+        case -2137883207:  // volatilityCubes
+          ((ManageableMarketDataSnapshot) bean).setVolatilityCubes((Map<VolatilityCubeKey, VolatilityCubeSnapshot>) newValue);
+          return;
+        case -1329840981:  // volatilitySurfaces
+          ((ManageableMarketDataSnapshot) bean).setVolatilitySurfaces((Map<VolatilitySurfaceKey, VolatilitySurfaceSnapshot>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

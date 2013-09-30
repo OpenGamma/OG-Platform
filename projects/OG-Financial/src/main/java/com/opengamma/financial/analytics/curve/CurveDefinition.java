@@ -28,6 +28,7 @@ import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
+import org.joda.beans.Bean;
 
 /**
  * Basic curve definition class containing only a name and curve nodes. Most curve definitions (e.g. {@link InterpolatedCurveDefinition}) will descend from this class,
@@ -89,66 +90,6 @@ public class CurveDefinition extends DirectBean implements Serializable, UniqueI
   @Override
   public CurveDefinition.Meta metaBean() {
     return CurveDefinition.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        return getUniqueId();
-      case 3373707:  // name
-        return getName();
-      case 104993457:  // nodes
-        return getNodes();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        setUniqueId((UniqueId) newValue);
-        return;
-      case 3373707:  // name
-        setName((String) newValue);
-        return;
-      case 104993457:  // nodes
-        setNodes((SortedSet<CurveNode>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_name, "name");
-    JodaBeanUtils.notNull(_nodes, "nodes");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      CurveDefinition other = (CurveDefinition) obj;
-      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
-          JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getNodes(), other.getNodes());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getNodes());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -226,6 +167,64 @@ public class CurveDefinition extends DirectBean implements Serializable, UniqueI
    */
   public final Property<SortedSet<CurveNode>> nodes() {
     return metaBean().nodes().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public CurveDefinition clone() {
+    BeanBuilder<? extends CurveDefinition> builder = metaBean().builder();
+    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
+      if (mp.style().isBuildable()) {
+        Object value = mp.get(this);
+        if (value instanceof Bean) {
+          value = ((Bean) value).clone();
+        }
+        builder.set(mp.name(), value);
+      }
+    }
+    return builder.build();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      CurveDefinition other = (CurveDefinition) obj;
+      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+          JodaBeanUtils.equal(getName(), other.getName()) &&
+          JodaBeanUtils.equal(getNodes(), other.getNodes());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getNodes());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(128);
+    buf.append("CurveDefinition{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("uniqueId").append('=').append(getUniqueId()).append(',').append(' ');
+    buf.append("name").append('=').append(getName()).append(',').append(' ');
+    buf.append("nodes").append('=').append(getNodes()).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -320,6 +319,43 @@ public class CurveDefinition extends DirectBean implements Serializable, UniqueI
      */
     public final MetaProperty<SortedSet<CurveNode>> nodes() {
       return _nodes;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          return ((CurveDefinition) bean).getUniqueId();
+        case 3373707:  // name
+          return ((CurveDefinition) bean).getName();
+        case 104993457:  // nodes
+          return ((CurveDefinition) bean).getNodes();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          ((CurveDefinition) bean).setUniqueId((UniqueId) newValue);
+          return;
+        case 3373707:  // name
+          ((CurveDefinition) bean).setName((String) newValue);
+          return;
+        case 104993457:  // nodes
+          ((CurveDefinition) bean).setNodes((SortedSet<CurveNode>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((CurveDefinition) bean)._name, "name");
+      JodaBeanUtils.notNull(((CurveDefinition) bean)._nodes, "nodes");
     }
 
   }

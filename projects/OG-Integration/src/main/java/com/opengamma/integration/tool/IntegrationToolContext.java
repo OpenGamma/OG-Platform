@@ -21,6 +21,7 @@ import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.bbg.tool.BloombergToolContext;
 import com.opengamma.financial.depgraph.provider.DependencyGraphTraceProvider;
 import com.opengamma.financial.tool.ToolContext;
+import org.joda.beans.Bean;
 
 /**
  * Extended context that is used to provide components to tools.
@@ -57,52 +58,6 @@ public class IntegrationToolContext extends ToolContext implements BloombergTool
   @Override
   public IntegrationToolContext.Meta metaBean() {
     return IntegrationToolContext.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -245204181:  // bloombergReferenceDataProvider
-        return getBloombergReferenceDataProvider();
-      case 67712595:  // dependencyGraphTraceProvider
-        return getDependencyGraphTraceProvider();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -245204181:  // bloombergReferenceDataProvider
-        setBloombergReferenceDataProvider((ReferenceDataProvider) newValue);
-        return;
-      case 67712595:  // dependencyGraphTraceProvider
-        setDependencyGraphTraceProvider((DependencyGraphTraceProvider) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      IntegrationToolContext other = (IntegrationToolContext) obj;
-      return JodaBeanUtils.equal(getBloombergReferenceDataProvider(), other.getBloombergReferenceDataProvider()) &&
-          JodaBeanUtils.equal(getDependencyGraphTraceProvider(), other.getDependencyGraphTraceProvider()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBloombergReferenceDataProvider());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDependencyGraphTraceProvider());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -153,6 +108,54 @@ public class IntegrationToolContext extends ToolContext implements BloombergTool
    */
   public final Property<DependencyGraphTraceProvider> dependencyGraphTraceProvider() {
     return metaBean().dependencyGraphTraceProvider().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public IntegrationToolContext clone() {
+    return (IntegrationToolContext) super.clone();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      IntegrationToolContext other = (IntegrationToolContext) obj;
+      return JodaBeanUtils.equal(getBloombergReferenceDataProvider(), other.getBloombergReferenceDataProvider()) &&
+          JodaBeanUtils.equal(getDependencyGraphTraceProvider(), other.getDependencyGraphTraceProvider()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBloombergReferenceDataProvider());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDependencyGraphTraceProvider());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(96);
+    buf.append("IntegrationToolContext{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("bloombergReferenceDataProvider").append('=').append(getBloombergReferenceDataProvider()).append(',').append(' ');
+    buf.append("dependencyGraphTraceProvider").append('=').append(getDependencyGraphTraceProvider()).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -230,6 +233,31 @@ public class IntegrationToolContext extends ToolContext implements BloombergTool
      */
     public final MetaProperty<DependencyGraphTraceProvider> dependencyGraphTraceProvider() {
       return _dependencyGraphTraceProvider;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -245204181:  // bloombergReferenceDataProvider
+          return ((IntegrationToolContext) bean).getBloombergReferenceDataProvider();
+        case 67712595:  // dependencyGraphTraceProvider
+          return ((IntegrationToolContext) bean).getDependencyGraphTraceProvider();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -245204181:  // bloombergReferenceDataProvider
+          ((IntegrationToolContext) bean).setBloombergReferenceDataProvider((ReferenceDataProvider) newValue);
+          return;
+        case 67712595:  // dependencyGraphTraceProvider
+          ((IntegrationToolContext) bean).setDependencyGraphTraceProvider((DependencyGraphTraceProvider) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

@@ -20,6 +20,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.time.Tenor;
+import org.joda.beans.Bean;
 
 /**
  * Convention for a vanilla ibor swap leg.
@@ -136,110 +137,6 @@ public class VanillaIborLegConvention extends Convention {
   @Override
   public VanillaIborLegConvention.Meta metaBean() {
     return VanillaIborLegConvention.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1542426233:  // iborIndexConvention
-        return getIborIndexConvention();
-      case 1363941829:  // isAdvanceFixing
-        return isIsAdvanceFixing();
-      case 374385573:  // interpolationMethod
-        return getInterpolationMethod();
-      case -1687017807:  // resetTenor
-        return getResetTenor();
-      case -295948000:  // settlementDays
-        return getSettlementDays();
-      case 100464505:  // isEOM
-        return isIsEOM();
-      case 1873675528:  // stubType
-        return getStubType();
-      case 348962765:  // isExchangeNotional
-        return isIsExchangeNotional();
-      case 1612870060:  // paymentLag
-        return getPaymentLag();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1542426233:  // iborIndexConvention
-        setIborIndexConvention((ExternalId) newValue);
-        return;
-      case 1363941829:  // isAdvanceFixing
-        setIsAdvanceFixing((Boolean) newValue);
-        return;
-      case 374385573:  // interpolationMethod
-        setInterpolationMethod((String) newValue);
-        return;
-      case -1687017807:  // resetTenor
-        setResetTenor((Tenor) newValue);
-        return;
-      case -295948000:  // settlementDays
-        setSettlementDays((Integer) newValue);
-        return;
-      case 100464505:  // isEOM
-        setIsEOM((Boolean) newValue);
-        return;
-      case 1873675528:  // stubType
-        setStubType((StubType) newValue);
-        return;
-      case 348962765:  // isExchangeNotional
-        setIsExchangeNotional((Boolean) newValue);
-        return;
-      case 1612870060:  // paymentLag
-        setPaymentLag((Integer) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_iborIndexConvention, "iborIndexConvention");
-    JodaBeanUtils.notNull(_interpolationMethod, "interpolationMethod");
-    JodaBeanUtils.notNull(_resetTenor, "resetTenor");
-    JodaBeanUtils.notNull(_stubType, "stubType");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      VanillaIborLegConvention other = (VanillaIborLegConvention) obj;
-      return JodaBeanUtils.equal(getIborIndexConvention(), other.getIborIndexConvention()) &&
-          JodaBeanUtils.equal(isIsAdvanceFixing(), other.isIsAdvanceFixing()) &&
-          JodaBeanUtils.equal(getInterpolationMethod(), other.getInterpolationMethod()) &&
-          JodaBeanUtils.equal(getResetTenor(), other.getResetTenor()) &&
-          JodaBeanUtils.equal(getSettlementDays(), other.getSettlementDays()) &&
-          JodaBeanUtils.equal(isIsEOM(), other.isIsEOM()) &&
-          JodaBeanUtils.equal(getStubType(), other.getStubType()) &&
-          JodaBeanUtils.equal(isIsExchangeNotional(), other.isIsExchangeNotional()) &&
-          JodaBeanUtils.equal(getPaymentLag(), other.getPaymentLag()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIborIndexConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isIsAdvanceFixing());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getInterpolationMethod());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getResetTenor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementDays());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isIsEOM());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStubType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isIsExchangeNotional());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentLag());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -472,6 +369,75 @@ public class VanillaIborLegConvention extends Convention {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public VanillaIborLegConvention clone() {
+    return (VanillaIborLegConvention) super.clone();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      VanillaIborLegConvention other = (VanillaIborLegConvention) obj;
+      return JodaBeanUtils.equal(getIborIndexConvention(), other.getIborIndexConvention()) &&
+          (isIsAdvanceFixing() == other.isIsAdvanceFixing()) &&
+          JodaBeanUtils.equal(getInterpolationMethod(), other.getInterpolationMethod()) &&
+          JodaBeanUtils.equal(getResetTenor(), other.getResetTenor()) &&
+          (getSettlementDays() == other.getSettlementDays()) &&
+          (isIsEOM() == other.isIsEOM()) &&
+          JodaBeanUtils.equal(getStubType(), other.getStubType()) &&
+          (isIsExchangeNotional() == other.isIsExchangeNotional()) &&
+          (getPaymentLag() == other.getPaymentLag()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getIborIndexConvention());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isIsAdvanceFixing());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getInterpolationMethod());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getResetTenor());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementDays());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isIsEOM());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getStubType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isIsExchangeNotional());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentLag());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(320);
+    buf.append("VanillaIborLegConvention{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("iborIndexConvention").append('=').append(getIborIndexConvention()).append(',').append(' ');
+    buf.append("isAdvanceFixing").append('=').append(isIsAdvanceFixing()).append(',').append(' ');
+    buf.append("interpolationMethod").append('=').append(getInterpolationMethod()).append(',').append(' ');
+    buf.append("resetTenor").append('=').append(getResetTenor()).append(',').append(' ');
+    buf.append("settlementDays").append('=').append(getSettlementDays()).append(',').append(' ');
+    buf.append("isEOM").append('=').append(isIsEOM()).append(',').append(' ');
+    buf.append("stubType").append('=').append(getStubType()).append(',').append(' ');
+    buf.append("isExchangeNotional").append('=').append(isIsExchangeNotional()).append(',').append(' ');
+    buf.append("paymentLag").append('=').append(getPaymentLag()).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code VanillaIborLegConvention}.
    */
@@ -658,6 +624,75 @@ public class VanillaIborLegConvention extends Convention {
      */
     public final MetaProperty<Integer> paymentLag() {
       return _paymentLag;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1542426233:  // iborIndexConvention
+          return ((VanillaIborLegConvention) bean).getIborIndexConvention();
+        case 1363941829:  // isAdvanceFixing
+          return ((VanillaIborLegConvention) bean).isIsAdvanceFixing();
+        case 374385573:  // interpolationMethod
+          return ((VanillaIborLegConvention) bean).getInterpolationMethod();
+        case -1687017807:  // resetTenor
+          return ((VanillaIborLegConvention) bean).getResetTenor();
+        case -295948000:  // settlementDays
+          return ((VanillaIborLegConvention) bean).getSettlementDays();
+        case 100464505:  // isEOM
+          return ((VanillaIborLegConvention) bean).isIsEOM();
+        case 1873675528:  // stubType
+          return ((VanillaIborLegConvention) bean).getStubType();
+        case 348962765:  // isExchangeNotional
+          return ((VanillaIborLegConvention) bean).isIsExchangeNotional();
+        case 1612870060:  // paymentLag
+          return ((VanillaIborLegConvention) bean).getPaymentLag();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1542426233:  // iborIndexConvention
+          ((VanillaIborLegConvention) bean).setIborIndexConvention((ExternalId) newValue);
+          return;
+        case 1363941829:  // isAdvanceFixing
+          ((VanillaIborLegConvention) bean).setIsAdvanceFixing((Boolean) newValue);
+          return;
+        case 374385573:  // interpolationMethod
+          ((VanillaIborLegConvention) bean).setInterpolationMethod((String) newValue);
+          return;
+        case -1687017807:  // resetTenor
+          ((VanillaIborLegConvention) bean).setResetTenor((Tenor) newValue);
+          return;
+        case -295948000:  // settlementDays
+          ((VanillaIborLegConvention) bean).setSettlementDays((Integer) newValue);
+          return;
+        case 100464505:  // isEOM
+          ((VanillaIborLegConvention) bean).setIsEOM((Boolean) newValue);
+          return;
+        case 1873675528:  // stubType
+          ((VanillaIborLegConvention) bean).setStubType((StubType) newValue);
+          return;
+        case 348962765:  // isExchangeNotional
+          ((VanillaIborLegConvention) bean).setIsExchangeNotional((Boolean) newValue);
+          return;
+        case 1612870060:  // paymentLag
+          ((VanillaIborLegConvention) bean).setPaymentLag((Integer) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((VanillaIborLegConvention) bean)._iborIndexConvention, "iborIndexConvention");
+      JodaBeanUtils.notNull(((VanillaIborLegConvention) bean)._interpolationMethod, "interpolationMethod");
+      JodaBeanUtils.notNull(((VanillaIborLegConvention) bean)._resetTenor, "resetTenor");
+      JodaBeanUtils.notNull(((VanillaIborLegConvention) bean)._stubType, "stubType");
+      super.validate(bean);
     }
 
   }
