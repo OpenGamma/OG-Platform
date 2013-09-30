@@ -21,6 +21,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
@@ -542,6 +543,72 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
     }
 
     @Override
+    public ValueProperties union(final ValueProperties other) {
+      if (other == EMPTY) {
+        // Union with an empty set is ourself
+        return this;
+      }
+      if (other == INFINITE) {
+        // Union with the infinite set if the infinite set
+        return other;
+      }
+      final Set<String> otherNames = other.getProperties();
+      if (otherNames.isEmpty()) {
+        // Union with a near-infinite set; best effort
+        final ValueProperties.Builder copy = other.copy();
+        for (String name : _properties.keySet()) {
+          copy.withAny(name);
+        }
+        return copy.get();
+      }
+      final Map<String, Set<String>> properties = new HashMap<String, Set<String>>(_properties);
+      Set<String> optional = (_optional.isEmpty()) ? null : new HashSet<String>(_optional);
+      boolean changed = false;
+      for (String name : otherNames) {
+        final Set<String> myValues = properties.get(name);
+        final Set<String> otherValues = other.getValues(name);
+        if (myValues == null) {
+          properties.put(name, otherValues);
+          if (other.isOptional(name)) {
+            if (optional == null) {
+              optional = new HashSet<String>();
+            }
+            optional.add(name);
+          }
+          changed = true;
+        } else {
+          if (!myValues.isEmpty()) {
+            if (otherValues.isEmpty()) {
+              properties.put(name, otherValues);
+              changed = true;
+            } else {
+              final Set<String> newValues = new HashSet<String>(myValues);
+              newValues.addAll(otherValues);
+              if (newValues.size() != myValues.size()) {
+                properties.put(name, Collections.unmodifiableSet(newValues));
+                changed = true;
+              }
+            }
+          }
+          if (optional != null) {
+            if (optional.contains(name) && !other.isOptional(name)) {
+              optional.remove(name);
+              if (optional.isEmpty()) {
+                optional = null;
+              }
+              changed = true;
+            }
+          }
+        }
+      }
+      if (changed) {
+        return new ValuePropertiesImpl(Collections.unmodifiableMap(properties), (optional != null) ? Collections.unmodifiableSet(optional) : Collections.<String>emptySet());
+      } else {
+        return this;
+      }
+    }
+
+    @Override
     public boolean isStrict() {
       for (Set<String> property : _properties.values()) {
         if (property.size() != 1) {
@@ -875,14 +942,65 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
     }
 
     @Override
-    public ValueProperties intersect(final ValueProperties properties) {
-      // Yields the same unless we are intersecting against another "nearly infinite" set
+    public ValueProperties intersect(final ValueProperties other) {
+      if (other == EMPTY) {
+        return EMPTY;
+      }
+      if (other == INFINITE) {
+        return this;
+      }
+      if (other instanceof NearlyInfinitePropertiesImpl) {
+        final NearlyInfinitePropertiesImpl otherImpl = (NearlyInfinitePropertiesImpl) other;
+        // Intersection is the UNION of the things we DON'T contain, subtracted from the INFINITE set
+        return new NearlyInfinitePropertiesImpl(Collections.unmodifiableSet(Sets.union(_without, otherImpl._without)));
+      }
+      final Set<String> names = other.getProperties();
+      final Map<String, Set<String>> properties = Maps.newHashMapWithExpectedSize(names.size());
+      boolean changed = false;
+      for (String property : names) {
+        if (_without.contains(property)) {
+          changed = true;
+        } else {
+          properties.put(property, other.getValues(property));
+          if (other.isOptional(property)) {
+            changed = true;
+          }
+        }
+      }
+      if (changed) {
+        return new ValuePropertiesImpl(Collections.unmodifiableMap(properties), Collections.<String>emptySet());
+      } else {
+        return other;
+      }
+    }
+
+    @Override
+    public ValueProperties union(final ValueProperties properties) {
+      if (properties == EMPTY) {
+        return this;
+      }
+      if (properties == INFINITE) {
+        return INFINITE;
+      }
       if (properties instanceof NearlyInfinitePropertiesImpl) {
         final NearlyInfinitePropertiesImpl other = (NearlyInfinitePropertiesImpl) properties;
-        // Intersection is the UNION of the things we DON'T contain subtracted from the INFINITE set
-        return new NearlyInfinitePropertiesImpl(Collections.unmodifiableSet(Sets.union(_without, other._without)));
-      } else {
+        // Union is the INTERSECTION of the things we DON'T contain, subtracted from the INFINITE set
+        final Set<String> intersection = Sets.intersection(_without, other._without);
+        if (intersection.isEmpty()) {
+          return INFINITE;
+        } else {
+          return new NearlyInfinitePropertiesImpl(Collections.unmodifiableSet(intersection));
+        }
+      }
+      // Best efforts
+      final Set<String> newWithout = new HashSet<String>(_without);
+      newWithout.removeAll(properties.getProperties());
+      if (newWithout.size() == _without.size()) {
         return this;
+      } else if (newWithout.isEmpty()) {
+        return INFINITE;
+      } else {
+        return new NearlyInfinitePropertiesImpl(Collections.unmodifiableSet(newWithout));
       }
     }
 
@@ -1047,56 +1165,14 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
     }
 
     @Override
+    public ValueProperties union(final ValueProperties properties) {
+      // Union yields the infinite set
+      return this;
+    }
+
+    @Override
     public Builder copy() {
-      return new Builder() {
-
-        @Override
-        public Builder with(String propertyName, String propertyValue) {
-          // By definition already has this property
-          return this;
-        }
-
-        @Override
-        public Builder with(String propertyName, String... propertyValues) {
-          // By definition already has this property
-          return this;
-        }
-
-        @Override
-        public Builder with(String propertyName, Collection<String> propertyValues) {
-          // By definition already has this property
-          return this;
-        }
-
-        @Override
-        public Builder withAny(String propertyName) {
-          // By definition already has this property
-          return this;
-        }
-
-        @Override
-        public Builder withOptional(String propertyName) {
-          throw new UnsupportedOperationException("Can't have optionality within the infinite set");
-        }
-
-        @Override
-        public Builder notOptional(String propertyName) {
-          // Nothing is ever optional, so this is okay
-          return this;
-        }
-
-        @Override
-        public Builder withoutAny(String propertyName) {
-          final Set<String> properties = new HashSet<String>();
-          properties.add(propertyName);
-          return new NearlyInfinitePropertiesBuilder(properties);
-        }
-
-        @Override
-        public ValueProperties get() {
-          return INFINITE;
-        }
-      };
+      return new NearlyInfinitePropertiesBuilder(new HashSet<String>());
     }
 
     @Override
@@ -1188,6 +1264,12 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
     public ValueProperties intersect(final ValueProperties properties) {
       // Nothing to intersect with, so still empty
       return this;
+    }
+
+    @Override
+    public ValueProperties union(final ValueProperties properties) {
+      // Union is the other set
+      return properties;
     }
 
     @Override
@@ -1397,9 +1479,19 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
    * property. If there are no common property values, the property is ommited from the result.
    * 
    * @param properties the other property set to compose against, not null
-   * @return the new set of properties, or this object if the intersection result is equal, not null
+   * @return the new set of properties, or this (or the other) object if the intersection result is equal, not null
    */
   public abstract ValueProperties intersect(ValueProperties properties);
+
+  /**
+   * Produces the union of two property sets.
+   * <p>
+   * This produces a set of properties such that any properties defined in either this or the other are present in the output. For these, the union of values from each property set is taken.
+   * 
+   * @param properties the other property set to compose against, not null
+   * @return the new set of properties, or this (or the other) object if the union result is equal, not null
+   */
+  public abstract ValueProperties union(ValueProperties properties);
 
   /**
    * Checks if the set of properties is strict.
