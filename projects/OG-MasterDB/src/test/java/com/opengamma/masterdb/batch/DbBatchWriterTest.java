@@ -29,6 +29,7 @@ import org.threeten.bp.Instant;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.DataNotFoundException;
@@ -55,6 +56,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.AggregatedExecutionLog;
 import com.opengamma.engine.view.ViewComputationResultModel;
+import com.opengamma.engine.view.ViewResultEntry;
 import com.opengamma.engine.view.cycle.ViewCycleMetadata;
 import com.opengamma.engine.view.impl.InMemoryViewComputationResultModel;
 import com.opengamma.financial.security.equity.EquitySecurity;
@@ -543,4 +545,21 @@ public class DbBatchWriterTest extends AbstractDbBatchTest {
     result.addValue("config_1", cvr);
     _batchMaster.addJobResults(run.getObjectId(), result);
   }
+  
+  @Test
+  public void truncateSmallValueToZero() {
+    final UniqueId marketDataUid = _cycleMetadataStub.getMarketDataSnapshotId();
+    _batchMaster.createMarketData(marketDataUid);
+    final RiskRun run = _batchMaster.startRiskRun(_cycleMetadataStub, Maps.<String, String>newHashMap(), RunCreationMode.AUTO, SnapshotMode.PREPARED);
+    final InMemoryViewComputationResultModel result = new InMemoryViewComputationResultModel();
+    final ComputedValueResult cvr = new ComputedValueResult(_specification, 1e-323, AggregatedExecutionLog.EMPTY, "someComputeNode", null, InvocationResult.SUCCESS);
+    //cvr.setRequirements(newHashSet(_requirement));
+    result.addValue("config_1", cvr);
+    _batchMaster.addJobResults(run.getObjectId(), result);
+    
+    List<ViewResultEntry> resultEntries = _batchMaster.getBatchValues(run.getObjectId(), PagingRequest.ALL).getFirst();
+    ViewResultEntry resultEntry = Iterables.getOnlyElement(resultEntries);
+    assertEquals(0d, resultEntry.getComputedValue().getValue());
+  }
+  
 }
