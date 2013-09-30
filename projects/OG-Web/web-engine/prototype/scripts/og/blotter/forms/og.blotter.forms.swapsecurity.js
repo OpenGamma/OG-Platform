@@ -9,10 +9,11 @@ $.register_module({
         return function (config) {
             var constructor = this, form, ui = og.common.util.ui, data, pay_block, receive_block, pay_select,
                 receive_select, pay_index = og.common.id('pay'), receive_index = og.common.id('receive'), validate,
-                pay_leg = 'security.payLeg.', receive_leg = 'security.receiveLeg.', $pay_select, $receive_select
+                pay_leg = 'security.payLeg.', receive_leg = 'security.receiveLeg.', $pay_select, $receive_select,
                 util = og.blotter.util;
             if (config.details) {
-                data = config.details.data; data.id = config.details.data.trade.uniqueId;
+                data = config.details.data;
+                data.id = config.details.data.trade.uniqueId;
             } else {
                 data = {security: {type: "SwapSecurity", externalIdBundle: "", attributes: {}},
                     trade: util.otc_trade};

@@ -28,7 +28,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Adds {@link ValuePropertyNames#SURFACE} and {@link ValuePropertyNames#CURVE_CALCULATION_CONFIG} to the available
  * {@link ValueRequirement}'s produced by {@link InterestRateFutureOptionBlackFunction}
- * @deprecated The functions for which these defaults apply are deprecated
+ * @deprecated The functions for which these defaults apply are deprecated. See {@link InterestRateFutureOptionBlackFunction}
  */
 @Deprecated
 public class InterestRateFutureOptionBlackDefaults extends DefaultPropertyFunction {

@@ -60,7 +60,7 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
   private final ErrorManager _errorManager;
 
   private PortfolioAnalyticsGrid _portfolioGrid;
-  private MainAnalyticsGrid _primitivesGrid;
+  private MainAnalyticsGrid<?> _primitivesGrid;
   private CompiledViewDefinition _compiledViewDefinition;
   private CompiledViewDefinition _pendingStructureChange;
   private Portfolio _pendingPortfolio;
@@ -166,9 +166,17 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
 
   private List<String> getGridIds() {
     List<String> gridIds = Lists.newArrayList();
+    //callback ids for grid viewports
     for (PortfolioGridViewport viewport : _portfolioGrid.getViewports().values()) {
       gridIds.add(viewport.getStructureCallbackId());
       gridIds.add(viewport.getCallbackId());
+    }
+    //callback ids for depgraph grid viewports
+    for (DependencyGraphGrid grid : _portfolioGrid.getDependencyGraphs().values()) {
+      for (DependencyGraphViewport viewport : grid.getViewports().values()) {
+        gridIds.add(viewport.getStructureCallbackId());
+        gridIds.add(viewport.getCallbackId());
+      }
     }
     gridIds.add(_portfolioGrid.getCallbackId());
     gridIds.add(_primitivesGrid.getCallbackId());
@@ -207,7 +215,7 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
     return updatedIds;
   }
 
-  private MainAnalyticsGrid getGrid(GridType gridType) {
+  private MainAnalyticsGrid<?> getGrid(GridType gridType) {
     switch (gridType) {
       case PORTFOLIO:
         return _portfolioGrid;
@@ -289,7 +297,7 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
 
   @Override
   public GridStructure getGridStructure(GridType gridType, int graphId, int viewportId) {
-    DependencyGraphGridStructure gridStructure = getGrid(gridType).getGridStructure(graphId);
+    DependencyGraphGridStructure gridStructure = getGrid(gridType).getGridStructure(graphId, viewportId);
     s_logger.debug("Viewport {} and view {} returning grid structure for dependency graph {} of the {} grid: {}",
                    viewportId, _viewId, graphId, gridType, gridStructure);
     return gridStructure;

@@ -30,6 +30,7 @@ import com.opengamma.core.organization.OrganizationSource;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.helper.AvailableOutputsProvider;
 import com.opengamma.financial.convention.ConventionBundleSource;
@@ -214,6 +215,12 @@ public class ToolContext extends DirectBean implements Closeable {
    */
   @PropertyDefinition
   private AvailableOutputsProvider _avaliableOutputsProvider;
+  
+  /**
+   * The function configuration source
+   */
+  @PropertyDefinition
+  private FunctionConfigurationSource _functionConfigSource;
 
   /**
    * Creates an instance.
@@ -328,6 +335,8 @@ public class ToolContext extends DirectBean implements Closeable {
         return getViewProcessor();
       case -1252442368:  // avaliableOutputsProvider
         return getAvaliableOutputsProvider();
+      case -2085248523:  // functionConfigSource
+        return getFunctionConfigSource();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -425,6 +434,9 @@ public class ToolContext extends DirectBean implements Closeable {
       case -1252442368:  // avaliableOutputsProvider
         setAvaliableOutputsProvider((AvailableOutputsProvider) newValue);
         return;
+      case -2085248523:  // functionConfigSource
+        setFunctionConfigSource((FunctionConfigurationSource) newValue);
+        return;
     }
     super.propertySet(propertyName, newValue, quiet);
   }
@@ -465,7 +477,8 @@ public class ToolContext extends DirectBean implements Closeable {
           JodaBeanUtils.equal(getHistoricalTimeSeriesProvider(), other.getHistoricalTimeSeriesProvider()) &&
           JodaBeanUtils.equal(getHistoricalTimeSeriesLoader(), other.getHistoricalTimeSeriesLoader()) &&
           JodaBeanUtils.equal(getViewProcessor(), other.getViewProcessor()) &&
-          JodaBeanUtils.equal(getAvaliableOutputsProvider(), other.getAvaliableOutputsProvider());
+          JodaBeanUtils.equal(getAvaliableOutputsProvider(), other.getAvaliableOutputsProvider()) &&
+          JodaBeanUtils.equal(getFunctionConfigSource(), other.getFunctionConfigSource());
     }
     return false;
   }
@@ -503,6 +516,7 @@ public class ToolContext extends DirectBean implements Closeable {
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesLoader());
     hash += hash * 31 + JodaBeanUtils.hashCode(getViewProcessor());
     hash += hash * 31 + JodaBeanUtils.hashCode(getAvaliableOutputsProvider());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFunctionConfigSource());
     return hash;
   }
 
@@ -1250,6 +1264,31 @@ public class ToolContext extends DirectBean implements Closeable {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the function configuration source
+   * @return the value of the property
+   */
+  public FunctionConfigurationSource getFunctionConfigSource() {
+    return _functionConfigSource;
+  }
+
+  /**
+   * Sets the function configuration source
+   * @param functionConfigSource  the new value of the property
+   */
+  public void setFunctionConfigSource(FunctionConfigurationSource functionConfigSource) {
+    this._functionConfigSource = functionConfigSource;
+  }
+
+  /**
+   * Gets the the {@code functionConfigSource} property.
+   * @return the property, not null
+   */
+  public final Property<FunctionConfigurationSource> functionConfigSource() {
+    return metaBean().functionConfigSource().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code ToolContext}.
    */
   public static class Meta extends DirectMetaBean {
@@ -1409,6 +1448,11 @@ public class ToolContext extends DirectBean implements Closeable {
     private final MetaProperty<AvailableOutputsProvider> _avaliableOutputsProvider = DirectMetaProperty.ofReadWrite(
         this, "avaliableOutputsProvider", ToolContext.class, AvailableOutputsProvider.class);
     /**
+     * The meta-property for the {@code functionConfigSource} property.
+     */
+    private final MetaProperty<FunctionConfigurationSource> _functionConfigSource = DirectMetaProperty.ofReadWrite(
+        this, "functionConfigSource", ToolContext.class, FunctionConfigurationSource.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -1442,7 +1486,8 @@ public class ToolContext extends DirectBean implements Closeable {
         "historicalTimeSeriesProvider",
         "historicalTimeSeriesLoader",
         "viewProcessor",
-        "avaliableOutputsProvider");
+        "avaliableOutputsProvider",
+        "functionConfigSource");
 
     /**
      * Restricted constructor.
@@ -1513,6 +1558,8 @@ public class ToolContext extends DirectBean implements Closeable {
           return _viewProcessor;
         case -1252442368:  // avaliableOutputsProvider
           return _avaliableOutputsProvider;
+        case -2085248523:  // functionConfigSource
+          return _functionConfigSource;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -1771,6 +1818,14 @@ public class ToolContext extends DirectBean implements Closeable {
      */
     public final MetaProperty<AvailableOutputsProvider> avaliableOutputsProvider() {
       return _avaliableOutputsProvider;
+    }
+
+    /**
+     * The meta-property for the {@code functionConfigSource} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<FunctionConfigurationSource> functionConfigSource() {
+      return _functionConfigSource;
     }
 
   }

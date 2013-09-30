@@ -29,6 +29,8 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverage;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounding;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingFlatSpread;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponON;
@@ -41,12 +43,14 @@ import com.opengamma.analytics.financial.interestrate.payments.provider.CouponFi
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponFixedCompoundingDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponFixedDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborAverageDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborCompoundedDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborCompoundingDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborCompoundingFlatSpreadDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborCompoundingSpreadDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborGearingDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborSpreadDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.payments.provider.CouponONDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponONCompoundedDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.payments.provider.CouponONDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CouponONSpreadDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.payments.provider.PaymentFixedDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
@@ -91,7 +95,9 @@ public final class PresentValueCurveSensitivityDiscountingCalculator extends Ins
   private static final CouponIborAverageDiscountingMethod METHOD_CPN_IBOR_AVERAGE = CouponIborAverageDiscountingMethod.getInstance();
   private static final CouponIborSpreadDiscountingMethod METHOD_CPN_IBOR_SPREAD = CouponIborSpreadDiscountingMethod.getInstance();
   private static final CouponIborGearingDiscountingMethod METHOD_CPN_IBOR_GEARING = CouponIborGearingDiscountingMethod.getInstance();
-  private static final CouponIborCompoundedDiscountingMethod METHOD_CPN_IBOR_COMP = CouponIborCompoundedDiscountingMethod.getInstance();
+  private static final CouponIborCompoundingDiscountingMethod METHOD_CPN_IBOR_COMP = CouponIborCompoundingDiscountingMethod.getInstance();
+  private static final CouponIborCompoundingSpreadDiscountingMethod METHOD_CPN_IBOR_COMP_SPREAD = CouponIborCompoundingSpreadDiscountingMethod.getInstance();
+  private static final CouponIborCompoundingFlatSpreadDiscountingMethod METHOD_CPN_IBOR_COMP_FLAT_SPREAD = CouponIborCompoundingFlatSpreadDiscountingMethod.getInstance();
   private static final CouponONDiscountingMethod METHOD_CPN_ON = CouponONDiscountingMethod.getInstance();
   private static final CouponONSpreadDiscountingMethod METHOD_CPN_ON_SPREAD = CouponONSpreadDiscountingMethod.getInstance();
   private static final CouponArithmeticAverageONDiscountingApproxMethod METHOD_CPN_AAON_APPROX = CouponArithmeticAverageONDiscountingApproxMethod.getInstance();
@@ -155,6 +161,16 @@ public final class PresentValueCurveSensitivityDiscountingCalculator extends Ins
   @Override
   public MultipleCurrencyMulticurveSensitivity visitCouponIborCompounding(final CouponIborCompounding payment, final MulticurveProviderInterface multicurve) {
     return METHOD_CPN_IBOR_COMP.presentValueCurveSensitivity(payment, multicurve);
+  }
+
+  @Override
+  public MultipleCurrencyMulticurveSensitivity visitCouponIborCompoundingSpread(final CouponIborCompoundingSpread payment, final MulticurveProviderInterface multicurve) {
+    return METHOD_CPN_IBOR_COMP_SPREAD.presentValueCurveSensitivity(payment, multicurve);
+  }
+
+  @Override
+  public MultipleCurrencyMulticurveSensitivity visitCouponIborCompoundingFlatSpread(final CouponIborCompoundingFlatSpread coupon, final MulticurveProviderInterface multicurve) {
+    return METHOD_CPN_IBOR_COMP_FLAT_SPREAD.presentValueCurveSensitivity(coupon, multicurve);
   }
 
   @Override

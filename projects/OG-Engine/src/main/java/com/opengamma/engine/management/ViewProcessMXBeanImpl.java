@@ -22,6 +22,7 @@ import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.ViewProcessor;
+import com.opengamma.engine.view.client.ViewResultMode;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.cycle.ViewCycleMetadata;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
@@ -65,6 +66,7 @@ public class ViewProcessMXBeanImpl implements ViewProcessMXBean {
   private volatile CycleState _lastCycle = CycleState.PENDING;
   private volatile CompiledViewDefinition _lastCompiledViewDefinition;
   private volatile ViewComputationResultModel _lastViewComputationResultModel;
+  private volatile boolean _cacheResults /* = false*/;
 
   private ViewProcessStatsProcessor _viewProcessStatsProcessor;
   /**
@@ -114,8 +116,10 @@ public class ViewProcessMXBeanImpl implements ViewProcessMXBean {
 
         @Override
         public void cycleCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
-          synchronized (ViewProcessMXBeanImpl.this) {
-            _lastViewComputationResultModel = fullResult;
+          if (_cacheResults) {
+            synchronized (ViewProcessMXBeanImpl.this) {
+              _lastViewComputationResultModel = fullResult;
+            }
           }
           _lastCycle = CycleState.COMPLETED;
         }
@@ -137,7 +141,7 @@ public class ViewProcessMXBeanImpl implements ViewProcessMXBean {
         public void clientShutdown(Exception e) {
         }
         
-      });
+      }, ViewResultMode.FULL_ONLY, ViewResultMode.NONE);
     }
   }
 
@@ -296,6 +300,14 @@ public class ViewProcessMXBeanImpl implements ViewProcessMXBean {
       s_logger.error("error processing results", e);
     }
     return true;
+  }
+  
+  public void cacheResults() {
+    _cacheResults = true;
+  }
+
+  public void stopCachingResults() {
+    _cacheResults = false;
   }
 }
 

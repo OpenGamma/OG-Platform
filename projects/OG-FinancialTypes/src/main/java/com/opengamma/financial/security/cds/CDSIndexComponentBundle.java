@@ -233,7 +233,7 @@ public final class CDSIndexComponentBundle implements Iterable<CreditDefaultSwap
     return ToStringBuilder.reflectionToString(this);
   }
   
-  private static class CDSIndexComponentObligorComparator implements Comparator<CreditDefaultSwapIndexComponent> {
+  private static class CDSIndexComponentObligorComparator implements Comparator<CreditDefaultSwapIndexComponent>, Serializable {
 
     @Override
     public int compare(final CreditDefaultSwapIndexComponent left, final CreditDefaultSwapIndexComponent right) {

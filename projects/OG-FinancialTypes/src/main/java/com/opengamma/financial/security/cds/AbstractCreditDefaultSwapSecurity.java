@@ -35,6 +35,9 @@ import com.opengamma.id.ExternalId;
 @BeanDefinition
 public abstract class AbstractCreditDefaultSwapSecurity extends FinancialSecurity {
 
+  /** Serialization version */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Has the protection been bought. Note that the market conventions for CDS and
    * CDS Index are the reverse of each other i.e. this flag needs to interpreted

@@ -5,6 +5,8 @@
  */
 package com.opengamma.util.time;
 
+import java.io.Serializable;
+
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 import org.threeten.bp.Duration;
@@ -15,7 +17,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * A tenor.
  */
-public class Tenor implements Comparable<Tenor> {
+public class Tenor implements Comparable<Tenor>, Serializable {
 
   /**
    * An overnight tenor.

@@ -61,7 +61,7 @@ public final class PrimitivesGridStructure extends MainGridStructure {
   private PrimitivesGridStructure(GridColumnGroup fixedColumns,
                                   GridColumnGroups nonFixedColumns,
                                   TargetLookup targetLookup,
-                                  ValueMappings valueMappings) {
+                                  UnversionedValueMappings valueMappings) {
     super(fixedColumns, nonFixedColumns, targetLookup, valueMappings);
   }
 
@@ -69,7 +69,7 @@ public final class PrimitivesGridStructure extends MainGridStructure {
     List<MainGridStructure.Row> rows = rows(compiledViewDef);
     GridColumn labelColumn = new GridColumn("Name", "", String.class, new PrimitivesLabelRenderer(rows));
     GridColumnGroup fixedColumns = new GridColumnGroup("fixed", ImmutableList.of(labelColumn), false);
-    ValueMappings valueMappings = new ValueMappings(compiledViewDef);
+    UnversionedValueMappings valueMappings = new UnversionedValueMappings(compiledViewDef);
     TargetLookup targetLookup = new TargetLookup(valueMappings, rows);
     List<GridColumnGroup> analyticsColumns = buildAnalyticsColumns(compiledViewDef.getViewDefinition(), targetLookup);
     return new PrimitivesGridStructure(fixedColumns, new GridColumnGroups(analyticsColumns), targetLookup, valueMappings);

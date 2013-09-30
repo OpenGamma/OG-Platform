@@ -12,8 +12,8 @@ import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
-import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingDefinition;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounding;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingSpreadDefinition;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingSpread;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
@@ -24,6 +24,7 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multipl
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ParameterSensitivityMulticurveDiscountInterpolatedFDCalculator;
 import com.opengamma.analytics.financial.provider.sensitivity.parameter.ParameterSensitivityParameterCalculator;
 import com.opengamma.analytics.financial.util.AssertSensivityObjects;
+import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
@@ -34,7 +35,7 @@ import com.opengamma.util.time.DateUtils;
 /**
  * Tests related to the pricing and sensitivities of Ibor compounded coupon in the discounting method.
  */
-public class CouponIborCompoundedDiscountingMethodTest {
+public class CouponIborCompoundingSpreadDiscountingMethodTest {
 
   private static final MulticurveProviderDiscount MULTICURVES = MulticurveProviderDiscountDataSets.createMulticurveCad();
   private static final IborIndex[] IBOR_INDEXES = MulticurveProviderDiscountDataSets.getIndexesIborMulticurveCad();
@@ -44,19 +45,23 @@ public class CouponIborCompoundedDiscountingMethodTest {
 
   private static final Period M6 = Period.ofMonths(6);
   private static final double NOTIONAL = 123000000;
+  private static final double SPREAD = 0.0010;
   private static final ZonedDateTime START_DATE = DateUtils.getUTCDate(2012, 8, 24);
-  private static final CouponIborCompoundingDefinition CPN_DEFINITION = CouponIborCompoundingDefinition.from(NOTIONAL, START_DATE, M6, CADCDOR3M, CALENDAR);
+  private static final ZonedDateTime END_DATE = START_DATE.plus(M6);
+  private static final CouponIborCompoundingSpreadDefinition CPN_DEFINITION = CouponIborCompoundingSpreadDefinition.from(NOTIONAL, START_DATE, END_DATE, CADCDOR3M, SPREAD,
+      StubType.SHORT_START, CADCDOR3M.getBusinessDayConvention(), CADCDOR3M.isEndOfMonth(), CALENDAR);
 
-  private static final CouponIborCompoundedDiscountingMethod METHOD_COMPOUNDED = CouponIborCompoundedDiscountingMethod.getInstance();
+  private static final CouponIborCompoundingSpreadDiscountingMethod METHOD_COMPOUNDED = CouponIborCompoundingSpreadDiscountingMethod.getInstance();
 
   private static final ZonedDateTime REFERENCE_DATE_BEFORE = DateUtils.getUTCDate(2012, 8, 7);
-  private static final CouponIborCompounding CPN_BEFORE = CPN_DEFINITION.toDerivative(REFERENCE_DATE_BEFORE);
+  private static final CouponIborCompoundingSpread CPN_BEFORE = CPN_DEFINITION.toDerivative(REFERENCE_DATE_BEFORE);
 
-  private static final double[] FIXING_RATES = new double[] {0.0010, 0.0011, 0.0012};
-  private static final DoubleTimeSeries<ZonedDateTime> FIXING_TS = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2012, 8, 23), DateUtils.getUTCDate(2012, 8, 24),
-      DateUtils.getUTCDate(2012, 9, 20)}, FIXING_RATES);
+  private static final double[] FIXING_RATES = new double[] {0.0010, 0.0011, 0.0012 };
+  private static final DoubleTimeSeries<ZonedDateTime> FIXING_TS = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(
+      new ZonedDateTime[] {DateUtils.getUTCDate(2012, 8, 23), DateUtils.getUTCDate(2012, 8, 24),
+        DateUtils.getUTCDate(2012, 9, 20) }, FIXING_RATES);
   private static final ZonedDateTime REFERENCE_DATE_1 = DateUtils.getUTCDate(2012, 8, 28);
-  private static final CouponIborCompounding CPN_1 = (CouponIborCompounding) CPN_DEFINITION.toDerivative(REFERENCE_DATE_1, FIXING_TS);
+  private static final CouponIborCompoundingSpread CPN_1 = (CouponIborCompoundingSpread) CPN_DEFINITION.toDerivative(REFERENCE_DATE_1, FIXING_TS);
 
   private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
   private static final PresentValueCurveSensitivityDiscountingCalculator PVCSDC = PresentValueCurveSensitivityDiscountingCalculator.getInstance();
@@ -75,9 +80,9 @@ public class CouponIborCompoundedDiscountingMethodTest {
     double notionalAccrued = CPN_BEFORE.getNotional();
     final int nbSub = CPN_BEFORE.getFixingTimes().length;
     for (int loopsub = 0; loopsub < nbSub; loopsub++) {
-      notionalAccrued *= (1.0 + CPN_BEFORE.getPaymentAccrualFactors()[loopsub]
-          * MULTICURVES.getForwardRate(CPN_BEFORE.getIndex(), CPN_BEFORE.getFixingPeriodStartTimes()[loopsub], CPN_BEFORE.getFixingPeriodEndTimes()[loopsub],
-              CPN_BEFORE.getFixingPeriodAccrualFactors()[loopsub]));
+      double forward = MULTICURVES.getForwardRate(CPN_BEFORE.getIndex(), CPN_BEFORE.getFixingPeriodStartTimes()[loopsub], CPN_BEFORE.getFixingPeriodEndTimes()[loopsub],
+          CPN_BEFORE.getFixingPeriodAccrualFactors()[loopsub]);
+      notionalAccrued *= 1.0 + CPN_BEFORE.getPaymentAccrualFactors()[loopsub] * (forward + SPREAD);
     }
     final double dfPayment = MULTICURVES.getDiscountFactor(CAD, CPN_BEFORE.getPaymentTime());
     final double pvExpected = (notionalAccrued - NOTIONAL) * dfPayment;
@@ -95,9 +100,9 @@ public class CouponIborCompoundedDiscountingMethodTest {
   @Test
   public void presentValueAfter1Fixing() {
     final MultipleCurrencyAmount pvComputed = METHOD_COMPOUNDED.presentValue(CPN_1, MULTICURVES);
-    double accruedNotional = (1.0 + CPN_DEFINITION.getPaymentAccrualFactors()[0] * FIXING_RATES[1]) * NOTIONAL;
-    accruedNotional *= (1.0 + CPN_1.getPaymentAccrualFactors()[0]
-        * MULTICURVES.getForwardRate(CPN_1.getIndex(), CPN_1.getFixingPeriodStartTimes()[0], CPN_1.getFixingPeriodEndTimes()[0], CPN_1.getFixingPeriodAccrualFactors()[0]));
+    double accruedNotional = (1.0 + CPN_DEFINITION.getPaymentAccrualFactors()[0] * (FIXING_RATES[1] + SPREAD)) * NOTIONAL;
+    accruedNotional *= 1.0 + CPN_1.getPaymentAccrualFactors()[0]
+        * (MULTICURVES.getForwardRate(CPN_1.getIndex(), CPN_1.getFixingPeriodStartTimes()[0], CPN_1.getFixingPeriodEndTimes()[0], CPN_1.getFixingPeriodAccrualFactors()[0]) + SPREAD);
     final double dfPayment = MULTICURVES.getDiscountFactor(CAD, CPN_1.getPaymentTime());
     final double pvExpected = (accruedNotional - NOTIONAL) * dfPayment;
     assertEquals("CouponIborCompoundedDiscounting: Present value", pvExpected, pvComputed.getAmount(CAD), TOLERANCE_PV);

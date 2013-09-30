@@ -352,6 +352,73 @@ public class DoubleBarrierOptionFunctionProviderTest {
   }
 
   /**
+   * non-constant volatility and interest rate
+   */
+  @Test
+  public void timeVaryingVolTest() {
+    final LatticeSpecification lattice1 = new TimeVaryingLatticeSpecification();
+    final double[] time_set = new double[] {0.5, 1.2 };
+    final int steps = 701;
+    final double[] vol = new double[steps];
+    final double[] rate = new double[steps];
+    final double[] dividend = new double[steps];
+    final int stepsTri = 621;
+    final double[] volTri = new double[stepsTri];
+    final double[] rateTri = new double[stepsTri];
+    final double[] dividendTri = new double[stepsTri];
+    final double constA = 0.01;
+    final double constB = 0.001;
+    final double constC = 0.1;
+    final double constD = 0.05;
+
+    final boolean[] tfSet = new boolean[] {true, false };
+    for (final boolean isCall : tfSet) {
+      final double strike = isCall ? 115. : 95.;
+      final double[] lower = new double[] {85., isCall ? 95. : 80. };
+      final double[] upper = new double[] {125., isCall ? 130. : 115. };
+      for (final double time : time_set) {
+        for (int i = 0; i < steps; ++i) {
+          rate[i] = constA + constB * i * time / steps;
+          vol[i] = constC + constD * Math.sin(i * time / steps);
+          dividend[i] = 0.005;
+        }
+        for (int i = 0; i < stepsTri; ++i) {
+          rateTri[i] = constA + constB * i * time / steps;
+          volTri[i] = constC + constD * Math.sin(i * time / steps);
+          dividendTri[i] = 0.005;
+        }
+        final double rateRef = constA + 0.5 * constB * time;
+        final double volRef = Math.sqrt(constC * constC + 0.5 * constD * constD + 2. * constC * constD / time * (1. - Math.cos(time)) - constD * constD * 0.25 / time * Math.sin(2. * time));
+
+        for (int i = 0; i < lower.length; ++i) {
+          final OptionFunctionProvider1D functionVanilla = new DoubleBarrierOptionFunctionProvider(strike, TIME, steps, isCall, lower[i], upper[i],
+              DoubleBarrierOptionFunctionProvider.BarrierTypes.valueOf("DoubleKnockOut"));
+          final double resPrice = _model.getPrice(functionVanilla, SPOT, vol, rate, dividend);
+          final GreekResultCollection resGreeks = _model.getGreeks(functionVanilla, SPOT, vol, rate, dividend);
+
+          final double resPriceConst = _model.getPrice(lattice1, functionVanilla, SPOT, volRef, rateRef, dividend[0]);
+          final GreekResultCollection resGreeksConst = _model.getGreeks(lattice1, functionVanilla, SPOT, volRef, rateRef, dividend[0]);
+          assertEquals(resPrice, resPriceConst, Math.max(Math.abs(resPriceConst), .1) * 1.e-1);
+          assertEquals(resGreeks.get(Greek.FAIR_PRICE), resGreeksConst.get(Greek.FAIR_PRICE), Math.max(Math.abs(resGreeksConst.get(Greek.FAIR_PRICE)), 0.1) * 0.1);
+          assertEquals(resGreeks.get(Greek.DELTA), resGreeksConst.get(Greek.DELTA), Math.max(Math.abs(resGreeksConst.get(Greek.DELTA)), 0.1) * 0.1);
+          assertEquals(resGreeks.get(Greek.GAMMA), resGreeksConst.get(Greek.GAMMA), Math.max(Math.abs(resGreeksConst.get(Greek.GAMMA)), 0.1) * 0.1);
+          assertEquals(resGreeks.get(Greek.THETA), resGreeksConst.get(Greek.THETA), Math.max(Math.abs(resGreeksConst.get(Greek.THETA)), 0.1));
+
+          final OptionFunctionProvider1D functionTri = new DoubleBarrierOptionFunctionProvider(strike, TIME, stepsTri, isCall, lower[i], upper[i],
+              DoubleBarrierOptionFunctionProvider.BarrierTypes.valueOf("DoubleKnockOut"));
+          final double resPriceTrinomial = _modelTrinomial.getPrice(functionTri, SPOT, volTri, rateTri, dividendTri);
+          assertEquals(resPriceTrinomial, resPriceConst, Math.max(Math.abs(resPriceConst), 1.) * 1.e-1);
+          final GreekResultCollection resGreeksTrinomial = _modelTrinomial.getGreeks(functionTri, SPOT, volTri, rateTri, dividendTri);
+          assertEquals(resGreeksTrinomial.get(Greek.FAIR_PRICE), resGreeksConst.get(Greek.FAIR_PRICE), Math.max(Math.abs(resGreeksConst.get(Greek.FAIR_PRICE)), 1.) * 0.1);
+          assertEquals(resGreeksTrinomial.get(Greek.DELTA), resGreeksConst.get(Greek.DELTA), Math.max(Math.abs(resGreeksConst.get(Greek.DELTA)), 1.) * 0.1);
+          assertEquals(resGreeksTrinomial.get(Greek.GAMMA), resGreeksConst.get(Greek.GAMMA), Math.max(Math.abs(resGreeksConst.get(Greek.GAMMA)), 1.) * 0.1);
+          assertEquals(resGreeksTrinomial.get(Greek.THETA), resGreeksConst.get(Greek.THETA), Math.max(Math.abs(resGreeksConst.get(Greek.THETA)), 1.));
+        }
+      }
+    }
+  }
+
+  /**
    * 
    */
   @Test

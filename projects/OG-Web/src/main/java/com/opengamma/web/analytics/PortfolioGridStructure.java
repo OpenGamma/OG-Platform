@@ -57,7 +57,7 @@ public class PortfolioGridStructure extends MainGridStructure {
                                        GridColumnGroups nonFixedColumns,
                                        AnalyticsNode rootNode,
                                        TargetLookup targetLookup,
-                                       ValueMappings valueMappings,
+                                       UnversionedValueMappings valueMappings,
                                        ViewDefinition viewDef) {
     this(rows, fixedColumns, nonFixedColumns, rootNode, targetLookup, valueMappings, viewDef,
          Collections.<ColumnSpecification, SortedSet<ColumnMeta>>emptyMap());
@@ -68,7 +68,7 @@ public class PortfolioGridStructure extends MainGridStructure {
                                        GridColumnGroups nonFixedColumns,
                                        AnalyticsNode rootNode,
                                        TargetLookup targetLookup,
-                                       ValueMappings valueMappings,
+                                       UnversionedValueMappings valueMappings,
                                        ViewDefinition viewDef,
                                        Map<ColumnSpecification, SortedSet<ColumnMeta>> inlineColumnMeta) {
     super(fixedColumns, nonFixedColumns, targetLookup, rootNode, valueMappings);
@@ -79,7 +79,7 @@ public class PortfolioGridStructure extends MainGridStructure {
     _viewDef = viewDef;
   }
 
-  /* package */ static PortfolioGridStructure create(Portfolio portfolio, ValueMappings valueMappings) {
+  /* package */ static PortfolioGridStructure create(Portfolio portfolio, UnversionedValueMappings valueMappings) {
     ArgumentChecker.notNull(valueMappings, "valueMappings");
     // TODO these can be empty, not used any more
     List<PortfolioGridRow> rows = buildRows(portfolio);
@@ -109,7 +109,7 @@ public class PortfolioGridStructure extends MainGridStructure {
     AnalyticsNode rootNode = AnalyticsNode.portfolioRoot(portfolio);
     List<PortfolioGridRow> rows = buildRows(portfolio);
     GridColumnGroup fixedColumns = buildFixedColumns(rows);
-    ValueMappings valueMappings = new ValueMappings(compiledViewDef);
+    UnversionedValueMappings valueMappings = new UnversionedValueMappings(compiledViewDef);
     TargetLookup targetLookup = new TargetLookup(valueMappings, rows);
     ViewDefinition viewDef = compiledViewDef.getViewDefinition();
     List<GridColumnGroup> analyticsColumns = buildAnalyticsColumns(viewDef, targetLookup);

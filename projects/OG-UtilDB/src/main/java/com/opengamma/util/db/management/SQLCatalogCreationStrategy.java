@@ -50,7 +50,14 @@ public class SQLCatalogCreationStrategy implements CatalogCreationStrategy {
   public boolean catalogExists(String catalog) {
     Connection conn = null;
     try {
-      conn = DriverManager.getConnection(getCatalogToConnectTo(), _user, _password);
+      if (_user != null && !_user.equals("")) {
+        conn = DriverManager.getConnection(getCatalogToConnectTo(), _user, _password);
+      } else {
+        // PLAT-2745, if we do not have a user, then client may be
+        // attempting to login to MSSQL using integratedSecurity
+        // and just the url should be sufficient
+        conn = DriverManager.getConnection(getCatalogToConnectTo());
+      }
       conn.setAutoCommit(true);
   
       Statement statement = conn.createStatement();
@@ -97,8 +104,14 @@ public class SQLCatalogCreationStrategy implements CatalogCreationStrategy {
     
     Connection conn = null;
     try {
-      conn = DriverManager.getConnection(getCatalogToConnectTo(), 
-          _user, _password);
+      if (_user != null && !_user.equals("")) {
+        conn = DriverManager.getConnection(getCatalogToConnectTo(), _user, _password);
+      } else {
+        // PLAT-2745, if we do not have a user, then client may be
+        // attempting to login to MSSQL using integratedSecurity
+        // and just the url should be sufficient
+        conn = DriverManager.getConnection(getCatalogToConnectTo());
+      }
       conn.setAutoCommit(true);
   
       String createCatalogSql = "CREATE DATABASE " + catalog;

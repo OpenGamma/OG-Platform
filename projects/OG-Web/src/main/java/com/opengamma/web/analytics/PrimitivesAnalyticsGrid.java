@@ -11,7 +11,7 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 /**
  * A grid for displaying primitives analytics data.
  */
-/* package */ class PrimitivesAnalyticsGrid extends MainAnalyticsGrid {
+/* package */ class PrimitivesAnalyticsGrid extends MainAnalyticsGrid<MainGridViewport> {
 
   private final PrimitivesGridStructure _gridStructure;
 

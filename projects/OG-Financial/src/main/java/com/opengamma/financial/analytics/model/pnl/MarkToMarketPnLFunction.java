@@ -21,6 +21,7 @@ import com.opengamma.core.security.Security;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.cache.MissingInput;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
@@ -136,7 +137,8 @@ public class MarkToMarketPnLFunction extends AbstractFunction.NonCompiledInvoker
     } else {
       referencePrice = calculateReferencePrice(inputs, target);
       if (referencePrice == null) {
-        throw new NullPointerException("Failed to get reference price");
+        final ComputedValue result = new ComputedValue(valueSpecification, MissingInput.MISSING_MARKET_DATA);
+        return Sets.newHashSet(result);
       }
       Object carryValue = inputs.getValue(_costOfCarryField);
       if (carryValue != null) {

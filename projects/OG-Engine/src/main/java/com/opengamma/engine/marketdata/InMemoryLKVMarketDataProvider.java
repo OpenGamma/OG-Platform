@@ -122,7 +122,7 @@ public class InMemoryLKVMarketDataProvider extends AbstractMarketDataProvider im
   //-------------------------------------------------------------------------
 
   /*package*/Map<ValueSpecification, Object> doSnapshot() {
-    return new HashMap<ValueSpecification, Object>(_lastKnownValues);
+    return new HashMap<>(_lastKnownValues);
   }
 
 }

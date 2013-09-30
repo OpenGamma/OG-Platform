@@ -285,7 +285,7 @@ public class ComputationTargetTypeFudgeBuilder implements FudgeBuilder<Computati
       }
       return result;
     } catch (final Exception e) {
-      throw new OpenGammaRuntimeException("Can't decode message - " + e.getMessage());
+      throw new OpenGammaRuntimeException("Can't decode message", e);
     }
   }
 

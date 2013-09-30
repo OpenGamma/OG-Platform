@@ -48,7 +48,7 @@ public class JPConventions {
   private static final DayCount ACT_360 = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("Actual/365");
   private static final ExternalId JP = ExternalSchemes.financialRegionId("JP");
-  private static final ExternalId JPGB = ExternalSchemes.financialRegionId("US+GB");
+  private static final ExternalId JPGB = ExternalSchemes.financialRegionId("JP+GB");
   /** OIS X-Ccy USD/JPY ON leg convention string **/
   public static final String OIS_USD_JPY_ON_LEG = "JPY Overnight USD/JPY XCcy Leg";
 

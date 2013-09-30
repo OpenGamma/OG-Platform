@@ -21,7 +21,7 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Method to compute present value and present value sensitivity for Ibor compounded coupon.
- * @deprecated Use {@link com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborCompoundedDiscountingMethod}
+ * @deprecated Use {@link com.opengamma.analytics.financial.interestrate.payments.provider.CouponIborCompoundingDiscountingMethod}
  */
 @Deprecated
 public final class CouponIborCompoundedDiscountingMethod implements PricingMethod {

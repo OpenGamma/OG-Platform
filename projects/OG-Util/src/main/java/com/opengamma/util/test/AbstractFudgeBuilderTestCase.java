@@ -124,7 +124,8 @@ public abstract class AbstractFudgeBuilderTestCase {
     getLogger().info("{} bytes", data.length);
     return getFudgeContext().deserialize(data).getMessage();
   }
-  
+
+  @SuppressWarnings("unused")
   private <T> T cycleObjectXml(final Class<T> clazz, final T object) {
     getLogger().debug("cycle object {} of class by xml {}", object, clazz);
 

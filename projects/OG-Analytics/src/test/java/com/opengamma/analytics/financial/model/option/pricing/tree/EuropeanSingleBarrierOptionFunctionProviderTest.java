@@ -381,6 +381,10 @@ public class EuropeanSingleBarrierOptionFunctionProviderTest {
     final double[] vol = new double[steps];
     final double[] rate = new double[steps];
     final double[] dividend = new double[steps];
+    final int stepsTri = 691;
+    final double[] volTri = new double[stepsTri];
+    final double[] rateTri = new double[stepsTri];
+    final double[] dividendTri = new double[stepsTri];
     final double constA = 0.01;
     final double constB = 0.001;
     final double constC = 0.1;
@@ -394,6 +398,11 @@ public class EuropeanSingleBarrierOptionFunctionProviderTest {
             rate[i] = constA + constB * i * time / steps;
             vol[i] = constC + constD * Math.sin(i * time / steps);
             dividend[i] = 0.005;
+          }
+          for (int i = 0; i < stepsTri; ++i) {
+            rateTri[i] = constA + constB * i * time / steps;
+            volTri[i] = constC + constD * Math.sin(i * time / steps);
+            dividendTri[i] = 0.005;
           }
           final double rateRef = constA + 0.5 * constB * time;
           final double volRef = Math.sqrt(constC * constC + 0.5 * constD * constD + 2. * constC * constD / time * (1. - Math.cos(time)) - constD * constD * 0.25 / time * Math.sin(2. * time));
@@ -424,6 +433,27 @@ public class EuropeanSingleBarrierOptionFunctionProviderTest {
             assertEquals(resGreeksBarrierUp.get(Greek.DELTA), resGreeksConstBarrierUp.get(Greek.DELTA), Math.max(Math.abs(resGreeksConstBarrierUp.get(Greek.DELTA)), 0.1) * 0.1);
             assertEquals(resGreeksBarrierUp.get(Greek.GAMMA), resGreeksConstBarrierUp.get(Greek.GAMMA), Math.max(Math.abs(resGreeksConstBarrierUp.get(Greek.GAMMA)), 0.1) * 0.1);
             assertEquals(resGreeksBarrierUp.get(Greek.THETA), resGreeksConstBarrierUp.get(Greek.THETA), Math.max(Math.abs(resGreeksConstBarrierUp.get(Greek.THETA)), 0.1));
+
+            final OptionFunctionProvider1D functionBarrierDownTri = new EuropeanSingleBarrierOptionFunctionProvider(strike, time, stepsTri, isCall, barrier,
+                EuropeanSingleBarrierOptionFunctionProvider.BarrierTypes.DownAndOut);
+            final OptionFunctionProvider1D functionBarrierUpTri = new EuropeanSingleBarrierOptionFunctionProvider(strike, time, stepsTri, isCall, barrier,
+                EuropeanSingleBarrierOptionFunctionProvider.BarrierTypes.UpAndOut);
+
+            final double resPriceBarrierDownTri = _modelTrinomial.getPrice(functionBarrierDownTri, SPOT, volTri, rateTri, dividendTri);
+            final GreekResultCollection resGreeksBarrierDownTri = _modelTrinomial.getGreeks(functionBarrierDownTri, SPOT, volTri, rateTri, dividendTri);
+            assertEquals(resPriceBarrierDownTri, resPriceConstBarrierDown, Math.max(Math.abs(resPriceConstBarrierDown), 1.) * 1.e-1);
+            assertEquals(resGreeksBarrierDownTri.get(Greek.FAIR_PRICE), resGreeksConstBarrierDown.get(Greek.FAIR_PRICE), Math.max(Math.abs(resGreeksConstBarrierDown.get(Greek.FAIR_PRICE)), 1.) * 0.1);
+            assertEquals(resGreeksBarrierDownTri.get(Greek.DELTA), resGreeksConstBarrierDown.get(Greek.DELTA), Math.max(Math.abs(resGreeksConstBarrierDown.get(Greek.DELTA)), 1.) * 0.1);
+            assertEquals(resGreeksBarrierDownTri.get(Greek.GAMMA), resGreeksConstBarrierDown.get(Greek.GAMMA), Math.max(Math.abs(resGreeksConstBarrierDown.get(Greek.GAMMA)), 1.) * 0.1);
+            assertEquals(resGreeksBarrierDownTri.get(Greek.THETA), resGreeksConstBarrierDown.get(Greek.THETA), Math.max(Math.abs(resGreeksConstBarrierDown.get(Greek.THETA)), 1.));
+
+            final double resPriceBarrierUpTri = _modelTrinomial.getPrice(functionBarrierUpTri, SPOT, volTri, rateTri, dividendTri);
+            final GreekResultCollection resGreeksBarrierUpTri = _modelTrinomial.getGreeks(functionBarrierUpTri, SPOT, volTri, rateTri, dividendTri);
+            assertEquals(resPriceBarrierUpTri, resPriceConstBarrierUp, Math.max(Math.abs(resPriceConstBarrierUp), 1.) * 1.e-1);
+            assertEquals(resGreeksBarrierUpTri.get(Greek.FAIR_PRICE), resGreeksConstBarrierUp.get(Greek.FAIR_PRICE), Math.max(Math.abs(resGreeksConstBarrierUp.get(Greek.FAIR_PRICE)), 1.) * 0.1);
+            assertEquals(resGreeksBarrierUpTri.get(Greek.DELTA), resGreeksConstBarrierUp.get(Greek.DELTA), Math.max(Math.abs(resGreeksConstBarrierUp.get(Greek.DELTA)), 1.) * 0.1);
+            assertEquals(resGreeksBarrierUpTri.get(Greek.GAMMA), resGreeksConstBarrierUp.get(Greek.GAMMA), Math.max(Math.abs(resGreeksConstBarrierUp.get(Greek.GAMMA)), 1.) * 0.1);
+            assertEquals(resGreeksBarrierUpTri.get(Greek.THETA), resGreeksConstBarrierUp.get(Greek.THETA), Math.max(Math.abs(resGreeksConstBarrierUp.get(Greek.THETA)), 1.));
           }
 
         }

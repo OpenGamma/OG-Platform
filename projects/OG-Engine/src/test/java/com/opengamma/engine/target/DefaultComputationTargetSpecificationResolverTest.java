@@ -40,6 +40,15 @@ public class DefaultComputationTargetSpecificationResolverTest {
 
   }
 
+  private static class Bar implements UniqueIdentifiable {
+
+    @Override
+    public UniqueId getUniqueId() {
+      throw new IllegalStateException();
+    }
+
+  }
+
   private final VersionCorrection VC = VersionCorrection.of(Instant.now(), Instant.now());
   private final DefaultComputationTargetSpecificationResolver RESOLVER = new DefaultComputationTargetSpecificationResolver();
   private final ComputationTargetSpecification SPECIFICATION_NULL = ComputationTargetSpecification.NULL;
@@ -47,10 +56,21 @@ public class DefaultComputationTargetSpecificationResolverTest {
   private final ComputationTargetSpecification SPECIFICATION_PRIMITIVE_LATEST = ComputationTargetSpecification.of(UniqueId.of("ExternalId-Test", "X"));
   private final ComputationTargetSpecification SPECIFICATION_FOO_VERSIONED = new ComputationTargetSpecification(ComputationTargetType.of(Foo.class), UniqueId.of("Foo", "Bar", "V"));
   private final ComputationTargetSpecification SPECIFICATION_FOO_LATEST = new ComputationTargetSpecification(ComputationTargetType.of(Foo.class), UniqueId.of("Foo", "Bar"));
+  private final ComputationTargetSpecification SPECIFICATION_BAR_LATEST = new ComputationTargetSpecification(ComputationTargetType.of(Bar.class), UniqueId.of("Bar", "Foo"));
   private final ComputationTargetSpecification SPECIFICATION_FOO_BAD = new ComputationTargetSpecification(ComputationTargetType.of(Foo.class), UniqueId.of("Foo", "Cow"));
+  private final ComputationTargetSpecification SPECIFICATION_FOO_OR_BAR = new ComputationTargetSpecification(ComputationTargetType.of(Foo.class).or(ComputationTargetType.of(Bar.class)), UniqueId.of(
+      "Foo", "Bar"));
+  private final ComputationTargetSpecification SPECIFICATION_FOO_OR_BAR_BAD = new ComputationTargetSpecification(ComputationTargetType.of(Foo.class).or(ComputationTargetType.of(Bar.class)),
+      UniqueId.of("Foo", "Cow"));
+  private final ComputationTargetSpecification SPECIFICATION_FOO_OR_BAR_VERSIONED = new ComputationTargetSpecification(ComputationTargetType.of(Foo.class).or(ComputationTargetType.of(Bar.class)),
+      UniqueId.of("Foo", "Bar", "V"));
   private final ComputationTargetRequirement REQUIREMENT_PRIMITIVE = new ComputationTargetRequirement(ComputationTargetType.PRIMITIVE, ExternalIdBundle.of(ExternalId.of("Test", "X")));
   private final ComputationTargetRequirement REQUIREMENT_FOO_VALID = new ComputationTargetRequirement(ComputationTargetType.of(Foo.class), ExternalIdBundle.of(ExternalId.of("Test", "B")));
   private final ComputationTargetRequirement REQUIREMENT_FOO_INVALID = new ComputationTargetRequirement(ComputationTargetType.of(Foo.class), ExternalIdBundle.of(ExternalId.of("Test", "C")));
+  private final ComputationTargetRequirement REQUIREMENT_FOO_OR_BAR = new ComputationTargetRequirement(ComputationTargetType.of(Foo.class).or(ComputationTargetType.of(Bar.class)), ExternalId.of(
+      "Test", "B"));
+  private final ComputationTargetRequirement REQUIREMENT_FOO_OR_BAR_BAD = new ComputationTargetRequirement(ComputationTargetType.of(Foo.class).or(ComputationTargetType.of(Bar.class)), ExternalId.of(
+      "Test", "C"));
 
   public DefaultComputationTargetSpecificationResolverTest() {
     RESOLVER.addResolver(ComputationTargetType.of(Foo.class), new AbstractIdentifierResolver() {
@@ -88,15 +108,29 @@ public class DefaultComputationTargetSpecificationResolverTest {
   }
 
   public void testSpecification_latestNoResolver() {
-    assertEquals(RESOLVER.getTargetSpecification(SPECIFICATION_PRIMITIVE_LATEST, VC), SPECIFICATION_PRIMITIVE_LATEST);
+    assertEquals(RESOLVER.getTargetSpecification(SPECIFICATION_BAR_LATEST, VC), SPECIFICATION_BAR_LATEST);
   }
 
   public void testSpecification_latestResolved() {
     assertEquals(RESOLVER.getTargetSpecification(SPECIFICATION_FOO_LATEST, VC), SPECIFICATION_FOO_VERSIONED);
+    assertEquals(RESOLVER.getTargetSpecification(SPECIFICATION_PRIMITIVE_LATEST, VC), SPECIFICATION_PRIMITIVE_LATEST);
   }
 
   public void testSpecification_latestUnresolved() {
     assertEquals(RESOLVER.getTargetSpecification(SPECIFICATION_FOO_BAD, VC), null);
+  }
+
+  public void testSpecification_unionType() {
+    assertEquals(RESOLVER.getTargetSpecification(SPECIFICATION_FOO_OR_BAR, VC), SPECIFICATION_FOO_VERSIONED);
+  }
+
+  public void testSpecification_unionTypeUnresolved() {
+    assertEquals(RESOLVER.getTargetSpecification(SPECIFICATION_FOO_OR_BAR_BAD, VC), null);
+  }
+
+  public void testSpecification_unionTypeVersioned() {
+    //assertEquals(RESOLVER.getTargetSpecification(SPECIFICATION_FOO_OR_BAR_VERSIONED, VC), SPECIFICATION_FOO_VERSIONED);
+    assertEquals(RESOLVER.getTargetSpecification(SPECIFICATION_FOO_OR_BAR_VERSIONED, VC), SPECIFICATION_FOO_OR_BAR_VERSIONED);
   }
 
   public void testRequirement_noResolver() {
@@ -111,25 +145,46 @@ public class DefaultComputationTargetSpecificationResolverTest {
     assertEquals(RESOLVER.getTargetSpecification(REQUIREMENT_FOO_INVALID, VC), null);
   }
 
+  public void testRequirement_unionType() {
+    assertEquals(RESOLVER.getTargetSpecification(REQUIREMENT_FOO_OR_BAR, VC), SPECIFICATION_FOO_VERSIONED);
+  }
+
+  public void testRequirement_unionTypeUnresolved() {
+    assertEquals(RESOLVER.getTargetSpecification(REQUIREMENT_FOO_OR_BAR_BAD, VC), null);
+  }
+
   public void testAll() {
     final Set<ComputationTargetReference> request = new HashSet<ComputationTargetReference>();
     request.add(SPECIFICATION_NULL);
     request.add(SPECIFICATION_PRIMITIVE_VERSIONED);
     request.add(SPECIFICATION_PRIMITIVE_LATEST);
     request.add(SPECIFICATION_FOO_LATEST);
+    request.add(SPECIFICATION_BAR_LATEST);
     request.add(SPECIFICATION_FOO_BAD);
+    request.add(SPECIFICATION_FOO_OR_BAR);
+    request.add(SPECIFICATION_FOO_OR_BAR_BAD);
+    request.add(SPECIFICATION_FOO_OR_BAR_VERSIONED);
     request.add(REQUIREMENT_PRIMITIVE);
     request.add(REQUIREMENT_FOO_VALID);
     request.add(REQUIREMENT_FOO_INVALID);
+    request.add(REQUIREMENT_FOO_OR_BAR);
+    request.add(REQUIREMENT_FOO_OR_BAR_BAD);
     final Map<ComputationTargetReference, ComputationTargetSpecification> result = RESOLVER.getTargetSpecifications(request, VC);
     assertEquals(result.get(SPECIFICATION_NULL), SPECIFICATION_NULL);
     assertEquals(result.get(SPECIFICATION_PRIMITIVE_VERSIONED), SPECIFICATION_PRIMITIVE_VERSIONED);
     assertEquals(result.get(SPECIFICATION_PRIMITIVE_LATEST), SPECIFICATION_PRIMITIVE_LATEST);
     assertEquals(result.get(SPECIFICATION_FOO_LATEST), SPECIFICATION_FOO_VERSIONED);
+    assertEquals(result.get(SPECIFICATION_BAR_LATEST), SPECIFICATION_BAR_LATEST);
     assertEquals(result.get(SPECIFICATION_FOO_BAD), null);
+    assertEquals(result.get(SPECIFICATION_FOO_OR_BAR), SPECIFICATION_FOO_VERSIONED);
+    assertEquals(result.get(SPECIFICATION_FOO_OR_BAR_BAD), null);
+    //assertEquals(result.get(SPECIFICATION_FOO_OR_BAR_VERSIONED), SPECIFICATION_FOO_VERSIONED);
+    assertEquals(result.get(SPECIFICATION_FOO_OR_BAR_VERSIONED), SPECIFICATION_FOO_OR_BAR_VERSIONED);
     assertEquals(result.get(REQUIREMENT_PRIMITIVE), SPECIFICATION_PRIMITIVE_LATEST);
     assertEquals(result.get(REQUIREMENT_FOO_VALID), SPECIFICATION_FOO_VERSIONED);
     assertEquals(result.get(REQUIREMENT_FOO_INVALID), null);
+    assertEquals(result.get(REQUIREMENT_FOO_OR_BAR), SPECIFICATION_FOO_VERSIONED);
+    assertEquals(result.get(REQUIREMENT_FOO_OR_BAR_BAD), null);
   }
 
 }

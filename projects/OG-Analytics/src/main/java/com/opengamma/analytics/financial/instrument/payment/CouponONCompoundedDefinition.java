@@ -58,6 +58,10 @@ public class CouponONCompoundedDefinition extends CouponDefinition implements In
    * The accrual factors (or year fractions) associated to the fixing periods in the Index day count convention.
    */
   private final double[] _fixingPeriodAccrualFactors;
+  /**
+   * The calendar.
+   */
+  private final Calendar _calendar;
 
   /**
    * Constructor from all the coupon details.
@@ -99,6 +103,7 @@ public class CouponONCompoundedDefinition extends CouponDefinition implements In
     for (int i = 0; i < fixingAccrualFactorList.size(); i++) {
       _fixingPeriodAccrualFactors[i] = fixingAccrualFactorList.get(i);
     }
+    _calendar = calendar;
   }
 
   /**
@@ -179,6 +184,14 @@ public class CouponONCompoundedDefinition extends CouponDefinition implements In
    */
   public IndexON getIndex() {
     return _index;
+  }
+
+  /**
+   * Gets the calendar.
+   * @return The calendar
+   */
+  public Calendar getCalendar() {
+    return _calendar;
   }
 
   /**

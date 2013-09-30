@@ -1116,7 +1116,7 @@ public class FinancialSecurityUtils {
   public static ExternalId getUnderlyingId(final Security security) {
     if (security instanceof FinancialSecurity) {
       final FinancialSecurity finSec = (FinancialSecurity) security;
-      final ExternalId id = finSec.accept(new FinancialSecurityVisitorAdapter<ExternalId>() {
+      return finSec.accept(new FinancialSecurityVisitorSameValueAdapter<ExternalId>(null) {
 
         @Override
         public ExternalId visitFxFutureOptionSecurity(final FxFutureOptionSecurity security) {
@@ -1232,9 +1232,7 @@ public class FinancialSecurityUtils {
         public ExternalId visitCreditDefaultSwapOptionSecurity(final CreditDefaultSwapOptionSecurity security) {
           return security.getUnderlyingId();
         }
-
       });
-      return id;
     }
     return null;
   }
@@ -1260,6 +1258,19 @@ public class FinancialSecurityUtils {
 
         @Override
         public CurrencyAmount visitFXOptionSecurity(final FXOptionSecurity security) {
+          final Currency currency1 = security.getPutCurrency();
+          final double amount1 = security.getPutAmount();
+          final Currency currency2 = security.getCallCurrency();
+          final double amount2 = security.getCallAmount();
+          final CurrencyPair currencyPair = currencyPairs.getCurrencyPair(currency1, currency2);
+          if (currencyPair.getBase().equals(currency1)) {
+            return CurrencyAmount.of(currency1, amount1);
+          }
+          return CurrencyAmount.of(currency2, amount2);
+        }
+
+        @Override
+        public CurrencyAmount visitFXBarrierOptionSecurity(final FXBarrierOptionSecurity security) {
           final Currency currency1 = security.getPutCurrency();
           final double amount1 = security.getPutAmount();
           final Currency currency2 = security.getCallCurrency();
@@ -1348,7 +1359,7 @@ public class FinancialSecurityUtils {
 
         @Override
         public CurrencyAmount visitSwaptionSecurity(final SwaptionSecurity security) {
-          Security underlying = securitySource.getSingle(ExternalIdBundle.of(security.getUnderlyingId()));
+          final Security underlying = securitySource.getSingle(ExternalIdBundle.of(security.getUnderlyingId()));
           Preconditions.checkState(underlying instanceof SwapSecurity, "Failed to resolve underlying SwapSecurity. DB record potentially corrupted. '%s' returned.", underlying);
           return visitSwapSecurity((SwapSecurity) underlying);
         }

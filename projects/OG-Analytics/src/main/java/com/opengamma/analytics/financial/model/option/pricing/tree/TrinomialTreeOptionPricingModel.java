@@ -64,7 +64,66 @@ public class TrinomialTreeOptionPricingModel extends TreeOptionPricingModel {
 
   @Override
   public double getPrice(OptionFunctionProvider1D function, double spot, double[] volatility, double[] interestRate, double[] dividend) {
-    return 0;
+    ArgumentChecker.notNull(function, "function");
+    ArgumentChecker.notNull(volatility, "volatility");
+    ArgumentChecker.notNull(interestRate, "interestRate");
+    ArgumentChecker.notNull(dividend, "dividend");
+
+    ArgumentChecker.isTrue(spot > 0., "Spot should be positive");
+    ArgumentChecker.isTrue(Doubles.isFinite(spot), "Spot should be finite");
+
+    final TimeVaryingLatticeSpecification vLattice = new TimeVaryingLatticeSpecification();
+    final int nSteps = function.getNumberOfSteps();
+    final double timeToExpiry = function.getTimeToExpiry();
+
+    ArgumentChecker.isTrue(nSteps == interestRate.length, "Wrong interestRate length");
+    ArgumentChecker.isTrue(nSteps == volatility.length, "Wrong volatility length");
+    ArgumentChecker.isTrue(nSteps == dividend.length, "Wrong dividend length");
+
+    for (int i = 0; i < nSteps; ++i) {
+      ArgumentChecker.isTrue(volatility[i] > 0., "volatility should be positive");
+      ArgumentChecker.isTrue(Doubles.isFinite(volatility[i]), "volatility should be finite");
+      ArgumentChecker.isTrue(Doubles.isFinite(interestRate[i]), "interestRate should be finite");
+      ArgumentChecker.isTrue(Doubles.isFinite(dividend[i]), "dividend should be finite");
+    }
+
+    if (function instanceof BarrierOptionFunctionProvider) {
+      final BarrierOptionFunctionProvider barrierFunction = (BarrierOptionFunctionProvider) function;
+      if (barrierFunction.getChecker().checkOut(spot) || barrierFunction.getChecker().checkStrikeBehindBarrier()) {
+        return 0.;
+      }
+    }
+
+    final double[] nu = vLattice.getShiftedDrift(volatility, interestRate, dividend);
+    final double dt = timeToExpiry / nSteps;
+    final double spaceStep = vLattice.getSpaceStepTrinomial(volatility, nu, dt);
+    final double downFactor = Math.exp(-spaceStep);
+    final double middleOverDown = Math.exp(spaceStep);
+
+    final double[] upProbability = new double[nSteps];
+    final double[] middleProbability = new double[nSteps];
+    final double[] downProbability = new double[nSteps];
+    final double[] df = new double[nSteps];
+    for (int i = 0; i < nSteps; ++i) {
+      final double[] params = vLattice.getParametersTrinomial(volatility[i], nu[i], dt, spaceStep);
+      upProbability[i] = params[0];
+      middleProbability[i] = params[1];
+      downProbability[i] = params[2];
+      df[i] = Math.exp(-interestRate[i] * dt);
+      ArgumentChecker.isTrue(upProbability[i] > 0., "upProbability should be greater than 0.");
+      ArgumentChecker.isTrue(upProbability[i] < 1., "upProbability should be smaller than 1.");
+      ArgumentChecker.isTrue(middleProbability[i] > 0., "middleProbability should be greater than 0.");
+      ArgumentChecker.isTrue(middleProbability[i] < 1., "middleProbability should be smaller than 1.");
+      ArgumentChecker.isTrue(downProbability[i] > 0., "downProbability should be greater than 0.");
+    }
+
+    final double assetPrice = spot * Math.pow(downFactor, nSteps);
+    double[] values = function.getPayoffAtExpiryTrinomial(assetPrice, middleOverDown);
+    for (int i = nSteps - 1; i > -1; --i) {
+      values = function.getNextOptionValues(df[i], upProbability[i], middleProbability[i], downProbability[i], values, spot, 0., downFactor, middleOverDown, i);
+    }
+
+    return values[0];
   }
 
   @Override
@@ -277,7 +336,88 @@ public class TrinomialTreeOptionPricingModel extends TreeOptionPricingModel {
 
   @Override
   public GreekResultCollection getGreeks(OptionFunctionProvider1D function, double spot, double[] volatility, double[] interestRate, double[] dividend) {
-    return null;
+    ArgumentChecker.notNull(function, "function");
+    ArgumentChecker.notNull(volatility, "volatility");
+    ArgumentChecker.notNull(interestRate, "interestRate");
+    ArgumentChecker.notNull(dividend, "dividend");
+
+    ArgumentChecker.isTrue(spot > 0., "Spot should be positive");
+    ArgumentChecker.isTrue(Doubles.isFinite(spot), "Spot should be finite");
+
+    final GreekResultCollection collection = new GreekResultCollection();
+    final TimeVaryingLatticeSpecification vLattice = new TimeVaryingLatticeSpecification();
+    final int nSteps = function.getNumberOfSteps();
+    final double timeToExpiry = function.getTimeToExpiry();
+
+    ArgumentChecker.isTrue(nSteps == interestRate.length, "Wrong interestRate length");
+    ArgumentChecker.isTrue(nSteps == volatility.length, "Wrong volatility length");
+    ArgumentChecker.isTrue(nSteps == dividend.length, "Wrong dividend length");
+
+    for (int i = 0; i < nSteps; ++i) {
+      ArgumentChecker.isTrue(volatility[i] > 0., "volatility should be positive");
+      ArgumentChecker.isTrue(Doubles.isFinite(volatility[i]), "volatility should be finite");
+      ArgumentChecker.isTrue(Doubles.isFinite(interestRate[i]), "interestRate should be finite");
+      ArgumentChecker.isTrue(Doubles.isFinite(dividend[i]), "dividend should be finite");
+    }
+
+    final double[] nu = vLattice.getShiftedDrift(volatility, interestRate, dividend);
+    final double dt = timeToExpiry / nSteps;
+    final double spaceStep = vLattice.getSpaceStepTrinomial(volatility, nu, dt);
+    final double downFactor = Math.exp(-spaceStep);
+    final double middleOverDown = Math.exp(spaceStep);
+
+    final double[] upProbability = new double[nSteps];
+    final double[] middleProbability = new double[nSteps];
+    final double[] downProbability = new double[nSteps];
+    final double[] df = new double[nSteps];
+    for (int i = 0; i < nSteps; ++i) {
+      final double[] params = vLattice.getParametersTrinomial(volatility[i], nu[i], dt, spaceStep);
+      upProbability[i] = params[0];
+      middleProbability[i] = params[1];
+      downProbability[i] = params[2];
+      df[i] = Math.exp(-interestRate[i] * dt);
+      ArgumentChecker.isTrue(upProbability[i] > 0., "upProbability should be greater than 0.");
+      ArgumentChecker.isTrue(upProbability[i] < 1., "upProbability should be smaller than 1.");
+      ArgumentChecker.isTrue(middleProbability[i] > 0., "middleProbability should be greater than 0.");
+      ArgumentChecker.isTrue(middleProbability[i] < 1., "middleProbability should be smaller than 1.");
+      ArgumentChecker.isTrue(downProbability[i] > 0., "downProbability should be greater than 0.");
+    }
+
+    final double assetPrice = spot * Math.pow(downFactor, nSteps);
+    double[] values = function.getPayoffAtExpiryTrinomial(assetPrice, middleOverDown);
+    final double[] res = new double[4];
+
+    final double[] pForDelta = new double[] {spot * downFactor, spot, spot * middleOverDown };
+    final double[] pForGamma = new double[] {pForDelta[0] * downFactor, pForDelta[0], spot, pForDelta[2], pForDelta[2] * middleOverDown };
+
+    for (int i = nSteps - 1; i > -1; --i) {
+      values = function.getNextOptionValues(df[i], upProbability[i], middleProbability[i], downProbability[i], values, spot, 0., downFactor, middleOverDown, i);
+      if (i == 2) {
+        final double delta1 = (values[4] - values[3]) / (pForGamma[4] - pForGamma[3]);
+        final double delta2 = (values[3] - values[2]) / (pForGamma[3] - pForGamma[2]);
+        final double delta3 = (values[2] - values[1]) / (pForGamma[2] - pForGamma[1]);
+        final double delta4 = (values[1] - values[0]) / (pForGamma[1] - pForGamma[0]);
+        final double gamma1 = 2. * (delta1 - delta2) / (pForGamma[4] - pForGamma[2]);
+        final double gamma2 = 2. * (delta2 - delta3) / (pForGamma[3] - pForGamma[1]);
+        final double gamma3 = 2. * (delta3 - delta4) / (pForGamma[2] - pForGamma[0]);
+        res[2] = (gamma1 + gamma2 + gamma3) / 3.;
+        res[3] = values[2];
+      }
+      if (i == 1) {
+        final double delta1 = (values[1] - values[0]) / (pForDelta[1] - pForDelta[0]);
+        final double delta2 = (values[2] - values[1]) / (pForDelta[2] - pForDelta[1]);
+        res[1] = 0.5 * (delta1 + delta2);
+      }
+    }
+    res[0] = values[0];
+    res[3] = vLattice.getTheta(spot, 0., 0., 0., dt, res);
+
+    collection.put(Greek.FAIR_PRICE, res[0]);
+    collection.put(Greek.DELTA, res[1]);
+    collection.put(Greek.GAMMA, res[2]);
+    collection.put(Greek.THETA, res[3]);
+
+    return collection;
   }
 
   @Override

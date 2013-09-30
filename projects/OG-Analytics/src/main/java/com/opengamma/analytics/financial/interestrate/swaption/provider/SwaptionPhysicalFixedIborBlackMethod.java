@@ -19,6 +19,7 @@ import com.opengamma.analytics.financial.interestrate.swaption.derivative.Swapti
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
+import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParRateCurveSensitivityDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.discounting.ParRateDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.description.interestrate.BlackSwaptionFlatProviderInterface;
@@ -167,6 +168,62 @@ public final class SwaptionPhysicalFixedIborBlackMethod {
     final double[] bsAdjoint = blackFunction.getPriceAdjoint(option, dataBlack);
     MulticurveSensitivity result = pvbpModifiedDr.multipliedBy(bsAdjoint[0]);
     result = result.plus(forwardModifiedDr.multipliedBy(pvbpModified * bsAdjoint[1]));
+    if (!swaption.isLong()) {
+      result = result.multipliedBy(-1);
+    }
+    return MultipleCurrencyMulticurveSensitivity.of(swaption.getCurrency(), result);
+  }
+
+  /**
+   * Computes the 2nd order sensitivity of the present value to rates of a physical delivery European swaption in the SABR model.
+   * @param swaption The swaption.
+   * @param blackMulticurves Black volatility for swaption and multi-curves provider.
+   * @return The present value curve sensitivity.
+   */
+  public MultipleCurrencyMulticurveSensitivity presentValueSecondOrderCurveSensitivity(final SwaptionPhysicalFixedIbor swaption, final BlackSwaptionFlatProviderInterface blackMulticurves) {
+    ArgumentChecker.notNull(swaption, "Swaption");
+    ArgumentChecker.notNull(blackMulticurves, "Black volatility for swaption and multicurve");
+    final GeneratorInstrument<GeneratorAttributeIR> generatorSwap = blackMulticurves.getBlackParameters().getGeneratorSwap();
+    Calendar calendar;
+    DayCount dayCountModification;
+    if (generatorSwap instanceof GeneratorSwapFixedIbor) {
+      final GeneratorSwapFixedIbor fixedIborGenerator = (GeneratorSwapFixedIbor) generatorSwap;
+      calendar = fixedIborGenerator.getCalendar();
+      dayCountModification = fixedIborGenerator.getFixedLegDayCount();
+    } else if (generatorSwap instanceof GeneratorSwapFixedON) {
+      final GeneratorSwapFixedON fixedONGenerator = (GeneratorSwapFixedON) generatorSwap;
+      calendar = fixedONGenerator.getOvernightCalendar();
+      dayCountModification = fixedONGenerator.getFixedLegDayCount();
+    } else if (generatorSwap instanceof GeneratorSwapFixedCompoundedONCompounded) {
+      final GeneratorSwapFixedCompoundedONCompounded fixedCompoundedON = (GeneratorSwapFixedCompoundedONCompounded) generatorSwap;
+      calendar = fixedCompoundedON.getOvernightCalendar();
+      dayCountModification = fixedCompoundedON.getFixedLegDayCount();
+    } else {
+      throw new IllegalArgumentException("Cannot handle swap with underlying generator of type " + generatorSwap.getClass());
+    }
+    final MulticurveProviderInterface multicurves = blackMulticurves.getMulticurveProvider();
+
+    final double pvbpModified = METHOD_SWAP.presentValueBasisPoint(swaption.getUnderlyingSwap(), dayCountModification, calendar, multicurves);
+    final double forwardModified = PRDC.visitFixedCouponSwap(swaption.getUnderlyingSwap(), dayCountModification, multicurves);
+    final double strikeModified = METHOD_SWAP.couponEquivalent(swaption.getUnderlyingSwap(), pvbpModified, multicurves);
+    final double maturity = swaption.getMaturityTime();
+    final MulticurveSensitivity pvbpModifiedDr = METHOD_SWAP.presentValueBasisPointCurveSensitivity(swaption.getUnderlyingSwap(), dayCountModification,
+        calendar, multicurves);
+    final MulticurveSensitivity forwardModifiedDr = PRCSDC.visitFixedCouponSwap(swaption.getUnderlyingSwap(), dayCountModification, multicurves);
+    final MulticurveSensitivity pvbpModifiedDr2 = METHOD_SWAP.presentValueBasisPointSecondOrderCurveSensitivity(swaption.getUnderlyingSwap(), dayCountModification,
+        calendar, multicurves);
+    final MulticurveSensitivity forwardModifiedDr2 = PRCSDC.visitFixedCouponSwapDerivative(swaption.getUnderlyingSwap(), dayCountModification, multicurves);
+
+    final double volatility = blackMulticurves.getBlackParameters().getVolatility(swaption.getTimeToExpiry(), maturity);
+
+    final double price = BlackFormulaRepository.price(forwardModified, strikeModified, volatility, swaption.getTimeToExpiry(), swaption.isCall());
+    final double delta = BlackFormulaRepository.delta(forwardModified, strikeModified, volatility, swaption.getTimeToExpiry(), swaption.isCall());
+    final double gamma = BlackFormulaRepository.gamma(forwardModified, strikeModified, volatility, swaption.getTimeToExpiry());
+
+    MulticurveSensitivity result = pvbpModifiedDr2.multipliedBy(price);
+    result = result.plus(pvbpModifiedDr.productOf(forwardModifiedDr.multipliedBy(2. * pvbpModified * delta)));
+    result = result.plus(forwardModifiedDr2.multipliedBy(pvbpModified * delta));
+    result = result.plus(forwardModifiedDr.productOf(forwardModifiedDr.multipliedBy(pvbpModified * gamma)));
     if (!swaption.isLong()) {
       result = result.multipliedBy(-1);
     }

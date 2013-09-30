@@ -25,11 +25,11 @@ import com.opengamma.util.tuple.Pair;
 /* package */ class TargetLookup {
 
   /** Mappings of requirements to specifications. */
-  private final ValueMappings _valueMappings;
+  private final UnversionedValueMappings _valueMappings;
   /** The grid rows. */
   private final List<? extends MainGridStructure.Row> _rows;
 
-  /* package */ TargetLookup(ValueMappings valueMappings, List<? extends MainGridStructure.Row> rows) {
+  /* package */ TargetLookup(UnversionedValueMappings valueMappings, List<? extends MainGridStructure.Row> rows) {
     ArgumentChecker.notNull(valueMappings, "valueMappings");
     ArgumentChecker.notNull(rows, "rows");
     _valueMappings = valueMappings;

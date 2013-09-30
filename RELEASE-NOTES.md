@@ -1,7 +1,4 @@
+OpenGamma Platform 2.1
+---------------------------------
 
-
-Release notes
--------------
-These are the release notes for the dev/v2.1.x branch.
-
-
+These release notes cover changes from v2.0 to v2.1.

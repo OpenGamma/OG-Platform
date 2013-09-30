@@ -46,6 +46,7 @@ import com.opengamma.util.ArgumentChecker;
  * it to a view process, handling events from the engine and forwarding data to the
  * {@code ViewClient}.
  */
+@SuppressWarnings("deprecation")
 /* package */ class AnalyticsViewClientConnection {
 
   private static final Logger s_logger = LoggerFactory.getLogger(AnalyticsViewClientConnection.class);

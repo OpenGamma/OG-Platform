@@ -20,7 +20,8 @@ import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.PublicAPI;
 
 /**
- * A reference to a particular computation target that will be resolved later to a real target. The reference may be "strict" and refer to a specific object or concept by {@link UniqueId} or "loose"
+ * A reference to a particular computation target that will be resolved later to a real target.
+ * The reference may be "strict" and refer to a specific object or concept by {@link UniqueId} or "loose"
  * and refer to it by a broader identifier bundle that must first be resolved.
  */
 @PublicAPI

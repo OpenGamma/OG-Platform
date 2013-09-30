@@ -83,7 +83,7 @@ public abstract class StandardCDSSecurity extends CreditDefaultSwapSecurity {
     setUpfrontAmount(upfrontAmount);
   }
 
-  protected StandardCDSSecurity(boolean isBuy,
+  protected StandardCDSSecurity(boolean isBuy,  // CSIGNORE: number of parameters is appropriate here
                                 ExternalId protectionSeller,
                                 ExternalId protectionBuyer,
                                 ExternalId referenceEntity,

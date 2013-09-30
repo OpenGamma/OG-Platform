@@ -23,7 +23,6 @@ import org.threeten.bp.format.DateTimeFormatter;
 import org.threeten.bp.format.DateTimeFormatterBuilder;
 import org.threeten.bp.format.SignStyle;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.integration.tool.marketdata.SnapshotUtils.VersionInfo;
 
 /**
@@ -37,7 +36,7 @@ public class MarketDataSnapshotToolUtils {
   private static final String UNIQUE_ID = "UniqueId";
   private static final String NOT_SPECIFIED = "Not Specified";
   /** Snapshot listing option flag */
-  private static final String SNAPSHOT_LIST_OPTION = "l";
+  private static final String SNAPSHOT_LIST_OPTION = "s";
   /** Snapshot query option flag */
   private static final String SNAPSHOT_QUERY_OPTION = "q";
   /** Snapshot version list option flag */
@@ -68,7 +67,7 @@ public class MarketDataSnapshotToolUtils {
       printSnapshotQuery(snapshotUtils, commandLine.getOptionValue(SNAPSHOT_QUERY_OPTION));
       return true;      
     } else if (commandLine.hasOption(SNAPSHOT_VERSION_LIST_OPTION)) {
-      printVersionListQuery(snapshotUtils, commandLine.getOptionValue(SNAPSHOT_QUERY_OPTION));
+      printVersionListQuery(snapshotUtils, commandLine.getOptionValue(SNAPSHOT_VERSION_LIST_OPTION));
       return true;      
     } else {
       return false;
@@ -76,16 +75,16 @@ public class MarketDataSnapshotToolUtils {
   }
 
   private static void printSnapshotQuery(SnapshotUtils snapshotUtils, String query) {
-    List<String> snapshotNamesByGlob = snapshotUtils.snapshotNamesByGlob(query);
-    for (String name : snapshotNamesByGlob) {
-      System.out.println(name);
+    List<String> snapshotsByGlob = snapshotUtils.snapshotByGlob(query);
+    for (String info : snapshotsByGlob) {
+      System.out.println(info);
     }
   }
 
   private static void printSnapshotList(SnapshotUtils snapshotUtils) {
-    List<String> snapshotNamesByGlob = snapshotUtils.allSnapshotNames();
-    for (String name : snapshotNamesByGlob) {
-      System.out.println(name);
+    List<String> allSnapshots = snapshotUtils.allSnapshots();
+    for (String info : allSnapshots) {
+      System.out.println(info);
     }
   }
   
@@ -105,48 +104,44 @@ public class MarketDataSnapshotToolUtils {
       .appendOffsetId()
       .toFormatter();
       
-    
-    try {
-      List<VersionInfo> snapshotVersions = snapshotUtils.snapshotVersionsByName(optionValue);
-      System.out.println(OffsetDateTime.now().toString(dateTimeFormatter));
 
-      int fieldWidth = OffsetDateTime.now().toString(dateTimeFormatter).length(); // Assumes all offset date times have same width
+    List<VersionInfo> snapshotVersions = snapshotUtils.snapshotVersionsByName(optionValue);
+    System.out.println(OffsetDateTime.now().toString(dateTimeFormatter));
 
-      header(fieldWidth);
-      String id = TimeZone.getDefault().getID();  
-      for (VersionInfo versionInfo : snapshotVersions) {
-        OffsetDateTime versionFrom = versionInfo.getVersionFrom() != null ? OffsetDateTime.ofInstant(versionInfo.getVersionFrom(), ZoneId.of(id)) : null;
-        OffsetDateTime versionTo = versionInfo.getVersionTo() != null ? OffsetDateTime.ofInstant(versionInfo.getVersionTo(), ZoneId.of(id)) : null;
-        OffsetDateTime correctionFrom = versionInfo.getCorrectionFrom() != null ? OffsetDateTime.ofInstant(versionInfo.getCorrectionFrom(), ZoneId.of(id)) : null;
-        OffsetDateTime correctionTo = versionInfo.getCorrectionTo() != null ? OffsetDateTime.ofInstant(versionInfo.getCorrectionTo(), ZoneId.of(id)) : null;
-        if (versionFrom != null) {
-          System.out.print(versionFrom.toString(dateTimeFormatter));
-        } else {
-          notSpecified(fieldWidth);
-        }
-        spaces();
-        if (versionTo != null) {
-          System.out.print(versionTo.toString(dateTimeFormatter));
-        } else {
-          notSpecified(fieldWidth);
-        }
-        spaces();
-        if (correctionFrom != null) {
-          System.out.print(correctionFrom.toString(dateTimeFormatter));
-        } else {
-          notSpecified(fieldWidth);
-        }
-        spaces();
-        if (correctionTo != null) {
-          System.out.print(correctionTo.toString(dateTimeFormatter));
-        } else {
-          notSpecified(fieldWidth);
-        }
-        spaces();
-        System.out.println(versionInfo.getUniqueId());
+    int fieldWidth = OffsetDateTime.now().toString(dateTimeFormatter).length(); // Assumes all offset date times have same width
+
+    header(fieldWidth);
+    String id = TimeZone.getDefault().getID();
+    for (VersionInfo versionInfo : snapshotVersions) {
+      OffsetDateTime versionFrom = versionInfo.getVersionFrom() != null ? OffsetDateTime.ofInstant(versionInfo.getVersionFrom(), ZoneId.of(id)) : null;
+      OffsetDateTime versionTo = versionInfo.getVersionTo() != null ? OffsetDateTime.ofInstant(versionInfo.getVersionTo(), ZoneId.of(id)) : null;
+      OffsetDateTime correctionFrom = versionInfo.getCorrectionFrom() != null ? OffsetDateTime.ofInstant(versionInfo.getCorrectionFrom(), ZoneId.of(id)) : null;
+      OffsetDateTime correctionTo = versionInfo.getCorrectionTo() != null ? OffsetDateTime.ofInstant(versionInfo.getCorrectionTo(), ZoneId.of(id)) : null;
+      if (versionFrom != null) {
+        System.out.print(versionFrom.toString(dateTimeFormatter));
+      } else {
+        notSpecified(fieldWidth);
       }
-    } catch (OpenGammaRuntimeException ogre) {
-      System.err.println("Found multiple matches to name");
+      spaces();
+      if (versionTo != null) {
+        System.out.print(versionTo.toString(dateTimeFormatter));
+      } else {
+        notSpecified(fieldWidth);
+      }
+      spaces();
+      if (correctionFrom != null) {
+        System.out.print(correctionFrom.toString(dateTimeFormatter));
+      } else {
+        notSpecified(fieldWidth);
+      }
+      spaces();
+      if (correctionTo != null) {
+        System.out.print(correctionTo.toString(dateTimeFormatter));
+      } else {
+        notSpecified(fieldWidth);
+      }
+      spaces();
+      System.out.println(versionInfo.getUniqueId());
     }
   }
   

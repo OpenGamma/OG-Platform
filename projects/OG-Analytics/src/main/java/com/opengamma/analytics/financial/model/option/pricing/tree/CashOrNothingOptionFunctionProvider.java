@@ -6,7 +6,7 @@
 package com.opengamma.analytics.financial.model.option.pricing.tree;
 
 /**
- * Cash-or-nothing call option pays 0 if S <= K and K if S > K, whereas cash-or-nothing put option pays K if S < K and 0 if S >= K, 
+ * Cash-or-nothing call option pays 0 if S <= K and 1 if S > K, whereas cash-or-nothing put option pays 1 if S < K and 0 if S >= K, 
  * where S is asset price at expiry.
  */
 public class CashOrNothingOptionFunctionProvider extends OptionFunctionProvider1D {
@@ -30,7 +30,7 @@ public class CashOrNothingOptionFunctionProvider extends OptionFunctionProvider1
     final double[] values = new double[nStepsP];
     double priceTmp = assetPrice;
     for (int i = 0; i < nStepsP; ++i) {
-      values[i] = sign * (priceTmp - strike) > 0. ? strike : 0.;
+      values[i] = sign * (priceTmp - strike) > 0. ? 1. : 0.;
       priceTmp *= upOverDown;
     }
     return values;
@@ -45,7 +45,7 @@ public class CashOrNothingOptionFunctionProvider extends OptionFunctionProvider1
     final double[] values = new double[nNodes];
     double priceTmp = assetPrice;
     for (int i = 0; i < nNodes; ++i) {
-      values[i] = sign * (priceTmp - strike) > 0. ? strike : 0.;
+      values[i] = sign * (priceTmp - strike) > 0. ? 1. : 0.;
       priceTmp *= middleOverDown;
     }
     return values;

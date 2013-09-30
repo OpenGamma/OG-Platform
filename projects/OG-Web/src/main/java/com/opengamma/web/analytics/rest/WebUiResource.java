@@ -6,6 +6,7 @@
 package com.opengamma.web.analytics.rest;
 
 import java.net.URI;
+import java.security.Principal;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
@@ -21,6 +22,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
@@ -59,7 +61,6 @@ import com.opengamma.web.analytics.push.ConnectionManager;
 /**
  * REST resource for the analytics grid. This resource class specifies the endpoints of every object in the
  * hierarchy of grids, dependency graphs and viewports in the analytics viewer.
- * TODO this isn't used yet but is intended to replace all the analytics UI resources
  */
 @Path("views")
 public class WebUiResource {
@@ -85,7 +86,8 @@ public class WebUiResource {
   }
 
   @POST
-  public Response createView(@Context UriInfo uriInfo,
+  public Response createView(@Context SecurityContext securityContext,
+                             @Context UriInfo uriInfo,
                              @FormParam("requestId") String requestId,
                              @FormParam("viewDefinitionId") String viewDefinitionId,
                              @FormParam("aggregators") List<String> aggregators,
@@ -116,10 +118,8 @@ public class WebUiResource {
         .path(viewId)
         .path("primitives")
         .build();
-    // TODO this is very obviously wrong - where can I get the user?
-    UserPrincipal user = UserPrincipal.getTestUser();
-    String userName = null;
-    //String userName = user.getUserName();
+    Principal userPrincipal = securityContext.getUserPrincipal();
+    String userName = userPrincipal != null ? userPrincipal.getName() : null;
     ClientConnection connection = _connectionManager.getConnectionByClientId(userName, clientId);
     URI uri = uriInfo.getAbsolutePathBuilder().path(viewId).build();
     ImmutableMap<String, Object> callbackMap =
@@ -128,7 +128,8 @@ public class WebUiResource {
         .path(viewId)
         .path("errors")
         .build();
-    _viewManager.createView(viewRequest, clientId, user, connection, viewId, callbackMap,
+    UserPrincipal ogUserPrincipal = userName != null ? UserPrincipal.getLocalUser(userName) : UserPrincipal.getTestUser();
+    _viewManager.createView(viewRequest, clientId, ogUserPrincipal, connection, viewId, callbackMap,
                             portfolioGridUri.getPath(), primitivesGridUri.getPath(), errorUri.getPath());
     return Response.status(Response.Status.CREATED).build();
   }

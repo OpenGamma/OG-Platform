@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument;
@@ -86,6 +86,7 @@ import com.opengamma.analytics.financial.instrument.payment.CouponFixedCompoundi
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingFlatSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborGearingDefinition;
@@ -103,6 +104,7 @@ import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborSpreadDefi
 import com.opengamma.analytics.financial.instrument.swap.SwapIborIborDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapXCcyIborIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionBermudaFixedIborDefinition;
+import com.opengamma.analytics.financial.instrument.swaption.SwaptionCashFixedCompoundedONCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionCashFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborSpreadDefinition;
@@ -454,6 +456,16 @@ public abstract class InstrumentDefinitionVisitorAdapter<DATA_TYPE, RESULT_TYPE>
 
   @Override
   public RESULT_TYPE visitCouponIborCompoundingSpreadDefinition(final CouponIborCompoundingSpreadDefinition payment) {
+    return getException(payment);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponIborCompoundingFlatSpreadDefinition(final CouponIborCompoundingFlatSpreadDefinition payment, final DATA_TYPE data) {
+    return getException(payment, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponIborCompoundingFlatSpreadDefinition(final CouponIborCompoundingFlatSpreadDefinition payment) {
     return getException(payment);
   }
 
@@ -1129,6 +1141,23 @@ public abstract class InstrumentDefinitionVisitorAdapter<DATA_TYPE, RESULT_TYPE>
     return getException(definition);
   }
 
+  @Override
+  public RESULT_TYPE visitSwaptionCashFixedONCompoundingDefinition(final SwaptionCashFixedCompoundedONCompoundingDefinition swaption) {
+    return getException(swaption);
+  }
+
+  @Override
+  public RESULT_TYPE visitSwaptionCashFixedONCompoundingDefinition(final SwaptionCashFixedCompoundedONCompoundingDefinition swaption, final DATA_TYPE data) {
+    return getException(swaption, data);
+  }
+
+  /**
+   * Default result of calling a visit method, which is to throw an {@link UnsupportedOperationException}
+   * @param definition The definition
+   * @param data The data
+   * @return Throws an exception
+   * @throws UnsupportedOperationException
+   */
   private RESULT_TYPE getException(final InstrumentDefinition<?> definition, final DATA_TYPE data) {
     if (definition != null && data != null) {
       throw new UnsupportedOperationException(getClass().getSimpleName() + " does not support definitions of type " + definition.getClass().getSimpleName() + " with data of type "
@@ -1137,6 +1166,12 @@ public abstract class InstrumentDefinitionVisitorAdapter<DATA_TYPE, RESULT_TYPE>
     throw new UnsupportedOperationException(getClass().getSimpleName() + " does not support this method");
   }
 
+  /**
+   * Default result of calling a visit method, which is to throw an {@link UnsupportedOperationException}
+   * @param definition The definition
+   * @return Throws an exception
+   * @throws UnsupportedOperationException
+   */
   private RESULT_TYPE getException(final InstrumentDefinition<?> definition) {
     if (definition != null) {
       throw new UnsupportedOperationException(getClass().getSimpleName() + " does not support definitions of type " + definition.getClass().getSimpleName());

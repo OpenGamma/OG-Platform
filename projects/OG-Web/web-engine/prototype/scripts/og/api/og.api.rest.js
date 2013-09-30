@@ -19,7 +19,7 @@ $.register_module({
                 timeseries: 'timeseries'},
             has_id_search = { configs: true, exchanges: true, holidays: true, portfolios: true, positions: true,
                 regions: true, securities: true, timeseries: false},
-            time_out_soon = 120000, /* 2m */
+            time_out_soon = 300000, /* 5m */
             time_out_forever = 7200000, /* 2h */
             check = common.check, paginate = common.paginate;
         var cache_get = function (key) {return common.cache_get(api.name + key); };

@@ -284,6 +284,10 @@ public class AmericanVanillaOptionFunctionProviderTest {
     final double[] vol = new double[steps];
     final double[] rate = new double[steps];
     final double[] dividend = new double[steps];
+    final int stepsTri = 761;
+    final double[] volTri = new double[stepsTri];
+    final double[] rateTri = new double[stepsTri];
+    final double[] dividendTri = new double[stepsTri];
     final double constA = 0.01;
     final double constB = 0.001;
     final double constC = 0.1;
@@ -297,6 +301,11 @@ public class AmericanVanillaOptionFunctionProviderTest {
             rate[i] = constA + constB * i * time / steps;
             vol[i] = constC + constD * Math.sin(i * time / steps);
             dividend[i] = 0.005;
+          }
+          for (int i = 0; i < stepsTri; ++i) {
+            rateTri[i] = constA + constB * i * time / steps;
+            volTri[i] = constC + constD * Math.sin(i * time / steps);
+            dividendTri[i] = 0.005;
           }
           final double rateRef = constA + 0.5 * constB * time;
           final double volRef = Math.sqrt(constC * constC + 0.5 * constD * constD + 2. * constC * constD / time * (1. - Math.cos(time)) - constD * constD * 0.25 / time * Math.sin(2. * time));
@@ -312,6 +321,15 @@ public class AmericanVanillaOptionFunctionProviderTest {
           assertEquals(resGreeks.get(Greek.DELTA), resGreeksConst.get(Greek.DELTA), Math.max(Math.abs(resGreeksConst.get(Greek.DELTA)), 0.1) * 0.1);
           assertEquals(resGreeks.get(Greek.GAMMA), resGreeksConst.get(Greek.GAMMA), Math.max(Math.abs(resGreeksConst.get(Greek.GAMMA)), 0.1) * 0.1);
           assertEquals(resGreeks.get(Greek.THETA), resGreeksConst.get(Greek.THETA), Math.max(Math.abs(resGreeksConst.get(Greek.THETA)), 0.1));
+
+          final OptionFunctionProvider1D functionTri = new AmericanVanillaOptionFunctionProvider(strike, time, stepsTri, isCall);
+          final double resPriceTrinomial = _modelTrinomial.getPrice(functionTri, SPOT, volTri, rateTri, dividendTri);
+          assertEquals(resPriceTrinomial, resPriceConst, Math.max(Math.abs(resPriceConst), .1) * 1.e-1);
+          final GreekResultCollection resGreeksTrinomial = _modelTrinomial.getGreeks(functionTri, SPOT, volTri, rateTri, dividendTri);
+          assertEquals(resGreeksTrinomial.get(Greek.FAIR_PRICE), resGreeksConst.get(Greek.FAIR_PRICE), Math.max(Math.abs(resGreeksConst.get(Greek.FAIR_PRICE)), 0.1) * 0.1);
+          assertEquals(resGreeksTrinomial.get(Greek.DELTA), resGreeksConst.get(Greek.DELTA), Math.max(Math.abs(resGreeksConst.get(Greek.DELTA)), 0.1) * 0.1);
+          assertEquals(resGreeksTrinomial.get(Greek.GAMMA), resGreeksConst.get(Greek.GAMMA), Math.max(Math.abs(resGreeksConst.get(Greek.GAMMA)), 0.1) * 0.1);
+          assertEquals(resGreeksTrinomial.get(Greek.THETA), resGreeksConst.get(Greek.THETA), Math.max(Math.abs(resGreeksConst.get(Greek.THETA)), 0.1));
         }
       }
     }

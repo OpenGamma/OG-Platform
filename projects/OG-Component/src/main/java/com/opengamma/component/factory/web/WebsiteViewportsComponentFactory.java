@@ -81,8 +81,10 @@ import com.opengamma.web.analytics.rest.LogResource;
 import com.opengamma.web.analytics.rest.MarketDataSnapshotListResource;
 import com.opengamma.web.analytics.rest.MasterType;
 import com.opengamma.web.analytics.rest.TimeSeriesResolverKeysResource;
+import com.opengamma.web.analytics.rest.UserResource;
 import com.opengamma.web.analytics.rest.ViewDefinitionEntriesResource;
 import com.opengamma.web.analytics.rest.ViewsResource;
+import com.opengamma.web.analytics.rest.WebUiResource;
 import com.opengamma.web.server.AggregatedViewDefinitionManager;
 
 /**
@@ -256,9 +258,10 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     } else {
       throw new OpenGammaRuntimeException("Neither " + marketDataSpecificationRepository().name() + " nor " + liveMarketDataProviderFactory().name() + " were specified");
     }
-    repo.getRestComponents().publishResource(new ViewsResource(analyticsViewManager, connectionMgr));
+    repo.getRestComponents().publishResource(new WebUiResource(analyticsViewManager, connectionMgr));
     repo.getRestComponents().publishResource(new Compressor());
     repo.getRestComponents().publishResource(new LogResource());
+    repo.getRestComponents().publishResource(new UserResource());
     repo.getRestComponents().publishResource(new BlotterResource(getSecurityMaster(), getPortfolioMaster(), getPositionMaster()));
     repo.getRestComponents().publishResource(new TimeSeriesResolverKeysResource(getConfigMaster()));
     repo.getRestComponents().publishHelper(new PrimitivesGridStructureMessageBodyWriter(columnWriter));

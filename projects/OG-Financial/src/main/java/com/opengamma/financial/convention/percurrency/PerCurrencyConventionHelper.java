@@ -47,6 +47,8 @@ public class PerCurrencyConventionHelper {
   public static final String IRS_IBOR_LEG = "IRS Ibor Leg";
   /** Ibor leg convention string **/
   public static final String IBOR_LEG = "Ibor Leg";
+  /** Compounded Ibor leg convention string **/
+  public static final String IBOR_CMP_LEG = "Comp Ibor Leg";
   /** Quarterly Eurodollar futures string */
   public static final String EURODOLLAR_FUTURE = "Quarterly ED, 3M Libor";
   /** Fed fund futures string */
@@ -79,9 +81,9 @@ public class PerCurrencyConventionHelper {
   /** STIR Futures (i.e. futures on Ibor) **/
   public static final String STIR_FUTURES = "STIR Futures ";
   /** Serial (i.e. monthly) futures **/
-  public static final String SERIAL = " Serial";
+  public static final String SERIAL = "Serial";
   /** Quarterly (i.e. March, June, September, December) futures **/
-  public static final String QUARTERLY = " Quarterly";
+  public static final String QUARTERLY = "Quarterly";
   /** Government (Simplified bond description) **/
   public static final String GOVT = "Govt ";
 

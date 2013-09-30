@@ -22,25 +22,25 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * Method to compute present value and present value sensitivity for Ibor compounded coupon.
  */
-public final class CouponIborCompoundedDiscountingMethod {
+public final class CouponIborCompoundingDiscountingMethod {
 
   /**
    * The method unique instance.
    */
-  private static final CouponIborCompoundedDiscountingMethod INSTANCE = new CouponIborCompoundedDiscountingMethod();
+  private static final CouponIborCompoundingDiscountingMethod INSTANCE = new CouponIborCompoundingDiscountingMethod();
 
   /**
    * Return the unique instance of the class.
    * @return The instance.
    */
-  public static CouponIborCompoundedDiscountingMethod getInstance() {
+  public static CouponIborCompoundingDiscountingMethod getInstance() {
     return INSTANCE;
   }
 
   /**
    * Private constructor.
    */
-  private CouponIborCompoundedDiscountingMethod() {
+  private CouponIborCompoundingDiscountingMethod() {
   }
 
   /**
@@ -57,7 +57,6 @@ public final class CouponIborCompoundedDiscountingMethod {
     for (int loopsub = 0; loopsub < nbSubPeriod; loopsub++) {
       final double ratioForward = (1.0 + coupon.getPaymentAccrualFactors()[loopsub]
           * multicurve.getForwardRate(coupon.getIndex(), coupon.getFixingPeriodStartTimes()[loopsub], coupon.getFixingPeriodEndTimes()[loopsub], coupon.getFixingPeriodAccrualFactors()[loopsub]));
-      //forwardCurve.getDiscountFactor(coupon.getFixingPeriodStartTimes()[loopsub]) / forwardCurve.getDiscountFactor(coupon.getFixingPeriodEndTimes()[loopsub]);
       notionalAccrued *= ratioForward;
     }
     final double df = multicurve.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());

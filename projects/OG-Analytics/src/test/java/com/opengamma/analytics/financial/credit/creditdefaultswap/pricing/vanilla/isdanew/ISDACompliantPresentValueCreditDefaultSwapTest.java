@@ -38,7 +38,7 @@ public class ISDACompliantPresentValueCreditDefaultSwapTest {
 
   // points related to the yield curve (note: here we use yield curve points directly rather than fit from IR instruments)
   private static final LocalDate[] YC_DATES = new LocalDate[] {LocalDate.of(2013, 6, 27), LocalDate.of(2013, 8, 27), LocalDate.of(2013, 11, 27), LocalDate.of(2014, 5, 27), LocalDate.of(2015, 5, 27),
-    LocalDate.of(2016, 5, 27), LocalDate.of(2018, 5, 27), LocalDate.of(2020, 5, 27), LocalDate.of(2023, 5, 27), LocalDate.of(2028, 5, 27), LocalDate.of(2033, 5, 27), LocalDate.of(2043, 5, 27) };
+      LocalDate.of(2016, 5, 27), LocalDate.of(2018, 5, 27), LocalDate.of(2020, 5, 27), LocalDate.of(2023, 5, 27), LocalDate.of(2028, 5, 27), LocalDate.of(2033, 5, 27), LocalDate.of(2043, 5, 27) };
 
   private static final double[] DISCOUNT_FACT;
   private static final double[] YC_TIMES;
@@ -156,7 +156,7 @@ public class ISDACompliantPresentValueCreditDefaultSwapTest {
 
         // tests date free vs date-full code
         assertEquals("Premium Leg:", premLeg_clean_ISDA, premLeg_clean_new, 1e-13 * NOTIONAL);
-        assertEquals("Protection Leg:", contLeg_ISDA, protectionLeg_new, 1e-16 * NOTIONAL);
+        assertEquals("Protection Leg:", contLeg_ISDA, protectionLeg_new, 1e-15 * NOTIONAL);
       }
     }
     if (debug) {

@@ -192,6 +192,7 @@ public class LiveResultsServiceBean {
     _liveResultsService = createLiveResultsService();
   }
 
+  @SuppressWarnings("deprecation")
   protected LiveResultsService createLiveResultsService() {
     return new LiveResultsService(getBayeux(), getViewProcessor(), getPositionSource(), getSecuritySource(),
         getUserPortfolioMaster(), getUserPositionMaster(), getUserConfigMaster(), getSnapshotMaster(),

@@ -132,6 +132,7 @@ public class BlackPriceFunction implements OptionPriceFunction<BlackFunctionData
     if (strike < eps || sqrttheta < eps) {
       x = omega * (forward - strike);
       p = (x > 0 ? discountFactor * x : 0.0);
+      volblack = sqrttheta < eps ? 0 : (vol * sqrttheta);
     } else {
       volblack = vol * sqrttheta;
       kappa = Math.log(forward / strike) / volblack - 0.5 * volblack;
@@ -161,7 +162,9 @@ public class BlackPriceFunction implements OptionPriceFunction<BlackFunctionData
     bsD[0] = forwardBar;
     bsD[1] = volatilityBar;
     bsD[2] = strikeBar;
-
+    if (strike < eps || sqrttheta < eps) {
+      return p;
+    }
     // Backward sweep: second derivative
     double d2Bar = -discountFactor * omega * strike;
     double density2 = NORMAL.getPDF(omega * kappa);

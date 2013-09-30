@@ -74,7 +74,7 @@ import com.opengamma.id.ObjectId;
     if (updatedStructure == _gridStructure) {
       return this;
     } else {
-      return new PortfolioAnalyticsGrid(updatedStructure, getCallbackId(), getTargetResolver(), getViewportListener());
+      return new PortfolioAnalyticsGrid(updatedStructure, this, getViewCycle().getCompiledViewDefinition());
     }
   }
 
@@ -82,7 +82,7 @@ import com.opengamma.id.ObjectId;
                                                            Portfolio portfolio,
                                                            ComputationTargetResolver targetResolver,
                                                            ViewportListener viewportListener) {
-    PortfolioGridStructure gridStructure = PortfolioGridStructure.create(portfolio, new ValueMappings());
+    PortfolioGridStructure gridStructure = PortfolioGridStructure.create(portfolio, new UnversionedValueMappings());
     return new PortfolioAnalyticsGrid(gridStructure, gridId, targetResolver, viewportListener);
   }
 

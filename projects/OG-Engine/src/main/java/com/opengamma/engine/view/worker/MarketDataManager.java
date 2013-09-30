@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.view.worker;
 
+import java.lang.management.ManagementFactory;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,7 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 import org.springframework.jmx.export.MBeanExporter;
-import org.springframework.jmx.support.JmxUtils;
 import org.threeten.bp.Duration;
 import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.temporal.ChronoUnit;
@@ -177,8 +177,18 @@ public class MarketDataManager implements MarketDataListener, Lifecycle, Subscri
     _objectName = viewProcessorName != null && viewProcessId != null ?
         createObjectName(viewProcessorName, viewProcessId) :
         null;
-    _jmxServer = JmxUtils.locateMBeanServer();
+
+    _jmxServer = setupJmxServer();
     registerJmx();
+  }
+
+  private MBeanServer setupJmxServer() {
+    try {
+      return ManagementFactory.getPlatformMBeanServer();
+    } catch (SecurityException e) {
+      s_logger.warn("No permissions for platform MBean server - JMX will not be available", e);
+      return null;
+    }
   }
 
   /**
@@ -646,17 +656,29 @@ public class MarketDataManager implements MarketDataListener, Lifecycle, Subscri
     // We need the lock as we'll get confused if the collections change underneath our feet
     _subscriptionsLock.lock();
     try {
-      Map<String, SubscriptionStatus> results = new HashMap<>();
-
-      for (Map.Entry<ValueSpecification, ZonedDateTime> entry : subscriptions.entrySet()) {
-        String ticker = entry.getKey().getTargetSpecification().getUniqueId().getValue();
-        results.put(ticker, new MarketDataManager.SubscriptionStatus(state, entry.getValue()));
-      }
-      return results;
-
+      return createStateMap(null, subscriptions, state);
     } finally {
       _subscriptionsLock.unlock();
     }
+  }
+
+  private Map<String, SubscriptionStatus> createStateMap(String ticker,
+                                                         Map<ValueSpecification, ZonedDateTime> subscriptions,
+                                                         SubscriptionState state) {
+
+    Map<String, SubscriptionStatus> results = new HashMap<>();
+
+    for (Map.Entry<ValueSpecification, ZonedDateTime> entry : subscriptions.entrySet()) {
+
+      // As the ticker could be in the properties or the target spec, just search the whole string
+      String fullSpec = entry.getKey().toString();
+
+      if (ticker == null || ticker.equals("") || fullSpec.contains(ticker)) {
+        results.put(fullSpec, new SubscriptionStatus(state, entry.getValue()));
+      }
+    }
+
+    return results;
   }
 
   @Override
@@ -694,8 +716,6 @@ public class MarketDataManager implements MarketDataListener, Lifecycle, Subscri
     try {
       Map<String, SubscriptionStatus> results = new HashMap<>();
 
-      // Note that the active set also includes pending subs, so we process activ first and
-      // pending list second
       results.putAll(createStateMap(ticker, _activeSubscriptions, SubscriptionState.ACTIVE));
       results.putAll(createStateMap(ticker, _pendingSubscriptions, SubscriptionState.PENDING));
       results.putAll(createStateMap(ticker, _failedSubscriptions, SubscriptionState.FAILED));
@@ -706,24 +726,6 @@ public class MarketDataManager implements MarketDataListener, Lifecycle, Subscri
     } finally {
       _subscriptionsLock.unlock();
     }
-  }
-
-  private Map<String, SubscriptionStatus> createStateMap(String ticker,
-                                                        Map<ValueSpecification, ZonedDateTime> specifications,
-                                                        SubscriptionState subscriptionState) {
-
-    Map<String, SubscriptionStatus> results = new HashMap<>();
-    for (Map.Entry<ValueSpecification, ZonedDateTime> entry : specifications.entrySet()) {
-
-      ValueSpecification specification = entry.getKey();
-      String fullTicker = specification.getTargetSpecification().getUniqueId().getValue();
-
-      if (ticker == null || ticker.equals("") || fullTicker.contains(ticker)) {
-        results.put(fullTicker, new SubscriptionStatus(subscriptionState, entry.getValue()));
-      }
-    }
-
-    return results;
   }
 
   /**

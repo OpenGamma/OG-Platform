@@ -355,6 +355,10 @@ public class CashOrNothingOptionFunctionProviderTest {
     final double[] vol = new double[steps];
     final double[] rate = new double[steps];
     final double[] dividend = new double[steps];
+    final int stepsTri = 661;
+    final double[] volTri = new double[stepsTri];
+    final double[] rateTri = new double[stepsTri];
+    final double[] dividendTri = new double[stepsTri];
     final double constA = 0.01;
     final double constB = 0.001;
     final double constC = 0.1;
@@ -368,6 +372,11 @@ public class CashOrNothingOptionFunctionProviderTest {
             rate[i] = constA + constB * i * time / steps;
             vol[i] = constC + constD * Math.sin(i * time / steps);
             dividend[i] = 0.005;
+          }
+          for (int i = 0; i < stepsTri; ++i) {
+            rateTri[i] = constA + constB * i * time / steps;
+            volTri[i] = constC + constD * Math.sin(i * time / steps);
+            dividendTri[i] = 0.005;
           }
           final double rateRef = constA + 0.5 * constB * time;
           final double volRef = Math.sqrt(constC * constC + 0.5 * constD * constD + 2. * constC * constD / time * (1. - Math.cos(time)) - constD * constD * 0.25 / time * Math.sin(2. * time));
@@ -383,6 +392,15 @@ public class CashOrNothingOptionFunctionProviderTest {
           assertEquals(resGreeks.get(Greek.DELTA), resGreeksConst.get(Greek.DELTA), Math.max(Math.abs(resGreeksConst.get(Greek.DELTA)), 0.1) * 0.1);
           assertEquals(resGreeks.get(Greek.GAMMA), resGreeksConst.get(Greek.GAMMA), Math.max(Math.abs(resGreeksConst.get(Greek.GAMMA)), 0.1) * 0.1);
           assertEquals(resGreeks.get(Greek.THETA), resGreeksConst.get(Greek.THETA), Math.max(Math.abs(resGreeksConst.get(Greek.THETA)), 0.1));
+
+          final OptionFunctionProvider1D functionTri = new CashOrNothingOptionFunctionProvider(strike, time, stepsTri, isCall);
+          final double resPriceTrinomial = _modelTrinomial.getPrice(functionTri, SPOT, volTri, rateTri, dividendTri);
+          assertEquals(resPriceTrinomial, resPriceConst, Math.max(Math.abs(resPriceConst), .5) * 1.e-1);
+          final GreekResultCollection resGreeksTrinomial = _modelTrinomial.getGreeks(functionTri, SPOT, volTri, rateTri, dividendTri);
+          assertEquals(resGreeksTrinomial.get(Greek.FAIR_PRICE), resGreeksConst.get(Greek.FAIR_PRICE), Math.max(Math.abs(resGreeksConst.get(Greek.FAIR_PRICE)), 0.5) * 0.1);
+          assertEquals(resGreeksTrinomial.get(Greek.DELTA), resGreeksConst.get(Greek.DELTA), Math.max(Math.abs(resGreeksConst.get(Greek.DELTA)), 0.5) * 0.1);
+          assertEquals(resGreeksTrinomial.get(Greek.GAMMA), resGreeksConst.get(Greek.GAMMA), Math.max(Math.abs(resGreeksConst.get(Greek.GAMMA)), 0.5) * 0.1);
+          //          assertEquals(resGreeksTrinomial.get(Greek.THETA), resGreeksConst.get(Greek.THETA), Math.max(Math.abs(resGreeksConst.get(Greek.THETA)), 1.));
         }
       }
     }
@@ -410,26 +428,26 @@ public class CashOrNothingOptionFunctionProviderTest {
   private double price(final double spot, final double strike, final double time, final double vol, final double interest, final double cost, final boolean isCall) {
     final double d = (Math.log(spot / strike) + (cost - 0.5 * vol * vol) * time) / vol / Math.sqrt(time);
     final double sign = isCall ? 1. : -1.;
-    return strike * Math.exp((-interest) * time) * NORMAL.getCDF(sign * d);
+    return Math.exp((-interest) * time) * NORMAL.getCDF(sign * d);
   }
 
   private double delta(final double spot, final double strike, final double time, final double vol, final double interest, final double cost, final boolean isCall) {
     final double d = (Math.log(spot / strike) + (cost - 0.5 * vol * vol) * time) / vol / Math.sqrt(time);
     final double sign = isCall ? 1. : -1.;
-    return strike * Math.exp((-interest) * time) * (sign * NORMAL.getPDF(d) / spot / vol / Math.sqrt(time));
+    return Math.exp((-interest) * time) * (sign * NORMAL.getPDF(d) / spot / vol / Math.sqrt(time));
   }
 
   private double gamma(final double spot, final double strike, final double time, final double vol, final double interest, final double cost, final boolean isCall) {
     final double d = (Math.log(spot / strike) + (cost - 0.5 * vol * vol) * time) / vol / Math.sqrt(time);
     final double sign = isCall ? 1. : -1.;
-    return -sign * (Math.exp((-interest) * time) * strike * NORMAL.getPDF(d) * (1. + d / vol / Math.sqrt(time)) / spot / spot / vol / Math.sqrt(time));
+    return -sign * (Math.exp((-interest) * time) * NORMAL.getPDF(d) * (1. + d / vol / Math.sqrt(time)) / spot / spot / vol / Math.sqrt(time));
   }
 
   private double theta(final double spot, final double strike, final double time, final double vol, final double interest, final double cost, final boolean isCall) {
     final double d = (Math.log(spot / strike) + (cost - 0.5 * vol * vol) * time) / vol / Math.sqrt(time);
     final double sign = isCall ? 1. : -1.;
     final double div = 0.5 * (-Math.log(spot / strike) / Math.pow(time, 1.5) + (cost - 0.5 * vol * vol) / Math.pow(time, 0.5)) / vol;
-    return -strike * (-interest) * Math.exp((-interest) * time) * NORMAL.getCDF(sign * d) - sign * strike * Math.exp((-interest) * time) * NORMAL.getPDF(d) * div;
+    return interest * Math.exp((-interest) * time) * NORMAL.getCDF(sign * d) - sign * Math.exp((-interest) * time) * NORMAL.getPDF(d) * div;
   }
 
   /**

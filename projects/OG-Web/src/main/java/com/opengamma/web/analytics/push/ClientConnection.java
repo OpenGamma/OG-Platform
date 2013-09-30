@@ -61,7 +61,7 @@ public class ClientConnection implements ChangeListener, MasterChangeListener, U
   private boolean _connected = true;
 
   /**
-   * @param userId Login ID of the user that owns this connection TODO this isn't used yet
+   * @param userId Login ID of the user that owns this connection, null if not known
    * @param clientId Unique ID of this connection 
    * @param listener Listener that forwards changes over HTTP whenever any updates occur to which this connection subscribes 
    * @param timeoutTask Task that closes this connection if it is idle for too long
@@ -70,7 +70,6 @@ public class ClientConnection implements ChangeListener, MasterChangeListener, U
                                  String clientId,
                                  UpdateListener listener,
                                  ConnectionTimeoutTask timeoutTask) {
-    //ArgumentChecker.notNull(userId, "userId"); // TODO user login not done
     ArgumentChecker.notNull(listener, "listener");
     ArgumentChecker.notNull(clientId, "clientId");
     ArgumentChecker.notNull(timeoutTask, "timeoutTask");

@@ -20,8 +20,8 @@ import com.opengamma.id.UniqueId;
 
 /**
  * A no-op function that relabels an input as any of the desired outputs. This will be selected during graph construction to handle any mismatches between value specifications the market data provider
- * is capable of recognizing and the value specifications corresponding to the requirements of a function. The will typically mean that a target has become re-labelled - for example the market data is
- * keyed of a {@link UniqueId} that is not easily converted to/from the {@link ExternalIdBundle} for the actual target.
+ * is capable of recognizing and the value specifications corresponding to the requirements of a function. The will typically mean that a target has become re-labeled - for example the market data is
+ * keyed off a {@link UniqueId} that is not easily converted to/from the {@link ExternalIdBundle} for the actual target.
  * <p>
  * This should be present in all function repositories with its preferred identifier.
  */
@@ -46,14 +46,11 @@ public final class MarketDataAliasingFunction extends IntrinsicFunction {
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Collection<ComputedValue> values = inputs.getAllValues();
-    final Set<ComputedValue> result = Sets.newHashSetWithExpectedSize(desiredValues.size() * values.size());
-    final ValueRequirement desiredValueReq = Iterables.getOnlyElement(desiredValues);
-    final ValueSpecification desiredValue = new ValueSpecification(desiredValueReq.getValueName(), target.toSpecification(), desiredValueReq.getConstraints());
-    if (values.isEmpty()) {
-      result.add(new ComputedValue(desiredValue, MissingInput.MISSING_MARKET_DATA));
-    } else {
-      ComputedValue value = Iterables.getOnlyElement(values);
-      result.add(new ComputedValue(desiredValue, value.getValue()));
+    final Object value = values.isEmpty() ? MissingInput.MISSING_MARKET_DATA : Iterables.getOnlyElement(values).getValue();
+    final Set<ComputedValue> result = Sets.newHashSetWithExpectedSize(desiredValues.size());
+    for (ValueRequirement desiredValueReq : desiredValues) {
+      final ValueSpecification desiredValue = new ValueSpecification(desiredValueReq.getValueName(), target.toSpecification(), desiredValueReq.getConstraints());
+      result.add(new ComputedValue(desiredValue, value));
     }
     return result;
   }
