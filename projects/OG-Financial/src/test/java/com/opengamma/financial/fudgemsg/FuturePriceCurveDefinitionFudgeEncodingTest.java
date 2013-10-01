@@ -9,6 +9,7 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableList;
 import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveDefinition;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
@@ -21,11 +22,12 @@ public class FuturePriceCurveDefinitionFudgeEncodingTest extends FinancialTestBa
 
   private static final String NAME = "DN";
   private static final Currency UID = Currency.USD;
-  private static final Double[] X = new Double[] {.1, 2., 3., 4., 5., 6., 7., 8.};
+  private static final ImmutableList<Double> X = ImmutableList.of(.1, 2., 3., 4., 5., 6., 7., 8.);
 
   @Test
   public void testCycle() {
-    final FuturePriceCurveDefinition<Double> definition = new FuturePriceCurveDefinition<Double>(NAME, UID, X);
+    final FuturePriceCurveDefinition<Double> definition = FuturePriceCurveDefinition.of(NAME, UID, X);
     assertEquals(definition, cycleObject(FuturePriceCurveDefinition.class, definition));
   }
+
 }

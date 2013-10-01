@@ -29,6 +29,10 @@ Change constructor to of() factory
 Change constructor to of() factory
 Change getTenors() to getTenorsArray()
 
+- FuturePriceCurveDefinition is now immutable
+Change constructor to of() factory
+Handle change of return type from array to list
+
 Analytics compatibility
 - No expected differences
 

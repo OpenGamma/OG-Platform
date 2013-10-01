@@ -39,10 +39,10 @@ public class IRFutureOptionSurfaceConfigPopulator {
     }
     final VolatilitySurfaceDefinition<Integer, Double> usVolSurfaceDefinition = new VolatilitySurfaceDefinition<Integer, Double>("DEFAULT_USD_IR_FUTURE_OPTION",
         Currency.USD, futureOptionNumbers, strikes);
-    final FuturePriceCurveDefinition<Integer> usFuturePriceCurveDefinition = new FuturePriceCurveDefinition<Integer>("DEFAULT_USD_IR_FUTURE_PRICE", Currency.USD, futureOptionNumbers);
+    final FuturePriceCurveDefinition<Integer> usFuturePriceCurveDefinition = FuturePriceCurveDefinition.of("DEFAULT_USD_IR_FUTURE_PRICE", Currency.USD, futureOptionNumbers);
     final VolatilitySurfaceDefinition<Integer, Double> euVolSurfaceDefinition = new VolatilitySurfaceDefinition<Integer, Double>("DEFAULT_EUR_IR_FUTURE_OPTION",
         Currency.EUR, futureOptionNumbers, strikes);
-    final FuturePriceCurveDefinition<Integer> euFuturePriceCurveDefinition = new FuturePriceCurveDefinition<Integer>("DEFAULT_EUR_IR_FUTURE_PRICE", Currency.EUR, futureOptionNumbers);
+    final FuturePriceCurveDefinition<Integer> euFuturePriceCurveDefinition = FuturePriceCurveDefinition.of("DEFAULT_EUR_IR_FUTURE_PRICE", Currency.EUR, futureOptionNumbers);
     ConfigMasterUtils.storeByName(configMaster, makeConfig(usVolSurfaceDefinition));
     ConfigMasterUtils.storeByName(configMaster, makeConfig(usFuturePriceCurveDefinition));
     ConfigMasterUtils.storeByName(configMaster, makeConfig(euVolSurfaceDefinition));
