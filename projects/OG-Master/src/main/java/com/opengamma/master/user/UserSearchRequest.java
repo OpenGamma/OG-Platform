@@ -176,9 +176,9 @@ public class UserSearchRequest extends AbstractSearchRequest {
   public void addExternalIds(ExternalId... externalUserIds) {
     ArgumentChecker.notNull(externalUserIds, "externalUserIds");
     if (getExternalIdSearch() == null) {
-      setExternalIdSearch(new ExternalIdSearch(externalUserIds));
+      setExternalIdSearch(ExternalIdSearch.of(externalUserIds));
     } else {
-      getExternalIdSearch().addExternalIds(externalUserIds);
+      setExternalIdSearch(getExternalIdSearch().withExternalIdsAdded(externalUserIds));
     }
   }
 
@@ -192,9 +192,22 @@ public class UserSearchRequest extends AbstractSearchRequest {
   public void addExternalIds(Iterable<ExternalId> externalUserIds) {
     ArgumentChecker.notNull(externalUserIds, "externalUserIds");
     if (getExternalIdSearch() == null) {
-      setExternalIdSearch(new ExternalIdSearch(externalUserIds));
+      setExternalIdSearch(ExternalIdSearch.of(externalUserIds));
     } else {
-      getExternalIdSearch().addExternalIds(externalUserIds);
+      setExternalIdSearch(getExternalIdSearch().withExternalIdsAdded(externalUserIds));
+    }
+  }
+
+  /**
+   * Sets the search type to use in {@code ExternalIdSearch}.
+   * 
+   * @param type  the type to set, not null
+   */
+  public void setExternalIdSearchType(ExternalIdSearchType type) {
+    if (getExternalIdSearch() == null) {
+      setExternalIdSearch(ExternalIdSearch.of(type));
+    } else {
+      setExternalIdSearch(getExternalIdSearch().withSearchType(type));
     }
   }
 

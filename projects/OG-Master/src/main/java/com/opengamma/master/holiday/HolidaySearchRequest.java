@@ -146,11 +146,11 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
     setType(type);
     switch (type) {
       case BANK:
-        setRegionExternalIdSearch(new ExternalIdSearch(exchangeOrRegionKeys));
+        setRegionExternalIdSearch(ExternalIdSearch.of(exchangeOrRegionKeys));
         break;
       case SETTLEMENT:
       case TRADING:
-        setExchangeExternalIdSearch(new ExternalIdSearch(exchangeOrRegionKeys));
+        setExchangeExternalIdSearch(ExternalIdSearch.of(exchangeOrRegionKeys));
         break;
       case CURRENCY:
       default:
@@ -212,9 +212,9 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
   public void addRegionExternalIds(ExternalId... regionIds) {
     ArgumentChecker.notNull(regionIds, "regionIds");
     if (getRegionExternalIdSearch() == null) {
-      setRegionExternalIdSearch(new ExternalIdSearch(regionIds));
+      setRegionExternalIdSearch(ExternalIdSearch.of(regionIds));
     } else {
-      getRegionExternalIdSearch().addExternalIds(regionIds);
+      setRegionExternalIdSearch(getRegionExternalIdSearch().withExternalIdsAdded(regionIds));
     }
   }
 
@@ -228,9 +228,22 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
   public void addRegionExternalIds(Iterable<ExternalId> regionIds) {
     ArgumentChecker.notNull(regionIds, "regionIds");
     if (getExchangeExternalIdSearch() == null) {
-      setRegionExternalIdSearch(new ExternalIdSearch(regionIds));
+      setRegionExternalIdSearch(ExternalIdSearch.of(regionIds));
     } else {
-      getRegionExternalIdSearch().addExternalIds(regionIds);
+      setRegionExternalIdSearch(getRegionExternalIdSearch().withExternalIdsAdded(regionIds));
+    }
+  }
+
+  /**
+   * Sets the search type to use in {@code ExternalIdSearch} for regions.
+   * 
+   * @param type  the type to set, not null
+   */
+  public void setRegionExternalIdSearchType(ExternalIdSearchType type) {
+    if (getRegionExternalIdSearch() == null) {
+      setRegionExternalIdSearch(ExternalIdSearch.of(type));
+    } else {
+      setRegionExternalIdSearch(getRegionExternalIdSearch().withSearchType(type));
     }
   }
 
@@ -257,9 +270,9 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
   public void addExchangeExternalIds(ExternalId... exchangeIds) {
     ArgumentChecker.notNull(exchangeIds, "exchangeIds");
     if (getExchangeExternalIdSearch() == null) {
-      setExchangeExternalIdSearch(new ExternalIdSearch(exchangeIds));
+      setExchangeExternalIdSearch(ExternalIdSearch.of(exchangeIds));
     } else {
-      getExchangeExternalIdSearch().addExternalIds(exchangeIds);
+      setExchangeExternalIdSearch(getExchangeExternalIdSearch().withExternalIdsAdded(exchangeIds));
     }
   }
 
@@ -273,9 +286,22 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
   public void addExchangeExternalIds(Iterable<ExternalId> exchangeIds) {
     ArgumentChecker.notNull(exchangeIds, "exchangeIds");
     if (getExchangeExternalIdSearch() == null) {
-      setExchangeExternalIdSearch(new ExternalIdSearch(exchangeIds));
+      setExchangeExternalIdSearch(ExternalIdSearch.of(exchangeIds));
     } else {
-      getExchangeExternalIdSearch().addExternalIds(exchangeIds);
+      setExchangeExternalIdSearch(getExchangeExternalIdSearch().withExternalIdsAdded(exchangeIds));
+    }
+  }
+
+  /**
+   * Sets the search type to use in {@code ExternalIdSearch} for exchanges.
+   * 
+   * @param type  the type to set, not null
+   */
+  public void setExchangeExternalIdSearchType(ExternalIdSearchType type) {
+    if (getExchangeExternalIdSearch() == null) {
+      setExchangeExternalIdSearch(ExternalIdSearch.of(type));
+    } else {
+      setExchangeExternalIdSearch(getExchangeExternalIdSearch().withSearchType(type));
     }
   }
 

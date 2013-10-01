@@ -70,7 +70,7 @@ public final class ExternalIdSearchFudgeBuilder extends AbstractFudgeBuilder imp
       ids.add(ExternalIdFudgeBuilder.fromFudgeMsg((FudgeMsg) field.getValue()));
     }
     ExternalIdSearchType type = ExternalIdSearchType.valueOf(searchType);
-    return new ExternalIdSearch(ids, type);
+    return ExternalIdSearch.of(type, ids);
   }
 
 }

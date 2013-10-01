@@ -177,9 +177,9 @@ public class HistoricalTimeSeriesInfoSearchRequest extends AbstractSearchRequest
   public void addExternalIds(ExternalId... externalIds) {
     ArgumentChecker.notNull(externalIds, "externalIds");
     if (getExternalIdSearch() == null) {
-      setExternalIdSearch(new ExternalIdSearch(externalIds));
+      setExternalIdSearch(ExternalIdSearch.of(externalIds));
     } else {
-      getExternalIdSearch().addExternalIds(externalIds);
+      setExternalIdSearch(getExternalIdSearch().withExternalIdsAdded(externalIds));
     }
   }
 
@@ -193,9 +193,22 @@ public class HistoricalTimeSeriesInfoSearchRequest extends AbstractSearchRequest
   public void addExternalIds(Iterable<ExternalId> externalIds) {
     ArgumentChecker.notNull(externalIds, "externalIds");
     if (getExternalIdSearch() == null) {
-      setExternalIdSearch(new ExternalIdSearch(externalIds));
+      setExternalIdSearch(ExternalIdSearch.of(externalIds));
     } else {
-      getExternalIdSearch().addExternalIds(externalIds);
+      setExternalIdSearch(getExternalIdSearch().withExternalIdsAdded(externalIds));
+    }
+  }
+
+  /**
+   * Sets the search type to use in {@code ExternalIdSearch}.
+   * 
+   * @param type  the type to set, not null
+   */
+  public void setExternalIdSearchType(ExternalIdSearchType type) {
+    if (getExternalIdSearch() == null) {
+      setExternalIdSearch(ExternalIdSearch.of(type));
+    } else {
+      setExternalIdSearch(getExternalIdSearch().withSearchType(type));
     }
   }
 

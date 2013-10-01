@@ -174,9 +174,9 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
   public void addExternalIds(ExternalId... securityIds) {
     ArgumentChecker.notNull(securityIds, "securityIds");
     if (getExternalIdSearch() == null) {
-      setExternalIdSearch(new ExternalIdSearch(securityIds));
+      setExternalIdSearch(ExternalIdSearch.of(securityIds));
     } else {
-      getExternalIdSearch().addExternalIds(securityIds);
+      setExternalIdSearch(getExternalIdSearch().withExternalIdsAdded(securityIds));
     }
   }
 
@@ -190,9 +190,22 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
   public void addExternalIds(Iterable<ExternalId> securityIds) {
     ArgumentChecker.notNull(securityIds, "securityIds");
     if (getExternalIdSearch() == null) {
-      setExternalIdSearch(new ExternalIdSearch(securityIds));
+      setExternalIdSearch(ExternalIdSearch.of(securityIds));
     } else {
-      getExternalIdSearch().addExternalIds(securityIds);
+      setExternalIdSearch(getExternalIdSearch().withExternalIdsAdded(securityIds));
+    }
+  }
+
+  /**
+   * Sets the search type to use in {@code ExternalIdSearch}.
+   * 
+   * @param type  the type to set, not null
+   */
+  public void setExternalIdSearchType(ExternalIdSearchType type) {
+    if (getExternalIdSearch() == null) {
+      setExternalIdSearch(ExternalIdSearch.of(type));
+    } else {
+      setExternalIdSearch(getExternalIdSearch().withSearchType(type));
     }
   }
 

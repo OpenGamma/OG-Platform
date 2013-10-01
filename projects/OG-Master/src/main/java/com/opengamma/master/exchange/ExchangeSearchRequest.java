@@ -145,9 +145,9 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
   public void addExternalIds(ExternalId... exchangeIds) {
     ArgumentChecker.notNull(exchangeIds, "exchangeIds");
     if (getExternalIdSearch() == null) {
-      setExternalIdSearch(new ExternalIdSearch(exchangeIds));
+      setExternalIdSearch(ExternalIdSearch.of(exchangeIds));
     } else {
-      getExternalIdSearch().addExternalIds(exchangeIds);
+      setExternalIdSearch(getExternalIdSearch().withExternalIdsAdded(exchangeIds));
     }
   }
 
@@ -161,9 +161,22 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
   public void addExternalIds(Iterable<ExternalId> exchangeIds) {
     ArgumentChecker.notNull(exchangeIds, "exchangeIds");
     if (getExternalIdSearch() == null) {
-      setExternalIdSearch(new ExternalIdSearch(exchangeIds));
+      setExternalIdSearch(ExternalIdSearch.of(exchangeIds));
     } else {
-      getExternalIdSearch().addExternalIds(exchangeIds);
+      setExternalIdSearch(getExternalIdSearch().withExternalIdsAdded(exchangeIds));
+    }
+  }
+
+  /**
+   * Sets the search type to use in {@code ExternalIdSearch}.
+   * 
+   * @param type  the type to set, not null
+   */
+  public void setExternalIdSearchType(ExternalIdSearchType type) {
+    if (getExternalIdSearch() == null) {
+      setExternalIdSearch(ExternalIdSearch.of(type));
+    } else {
+      setExternalIdSearch(getExternalIdSearch().withSearchType(type));
     }
   }
 

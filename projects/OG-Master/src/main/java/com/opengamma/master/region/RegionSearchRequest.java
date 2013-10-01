@@ -167,9 +167,9 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
   public void addExternalIds(ExternalId... regionIds) {
     ArgumentChecker.notNull(regionIds, "regionIds");
     if (getExternalIdSearch() == null) {
-      setExternalIdSearch(new ExternalIdSearch(regionIds));
+      setExternalIdSearch(ExternalIdSearch.of(regionIds));
     } else {
-      getExternalIdSearch().addExternalIds(regionIds);
+      setExternalIdSearch(getExternalIdSearch().withExternalIdsAdded(regionIds));
     }
   }
 
@@ -183,9 +183,22 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
   public void addExternalIds(Iterable<ExternalId> regionIds) {
     ArgumentChecker.notNull(regionIds, "regionIds");
     if (getExternalIdSearch() == null) {
-      setExternalIdSearch(new ExternalIdSearch(regionIds));
+      setExternalIdSearch(ExternalIdSearch.of(regionIds));
     } else {
-      getExternalIdSearch().addExternalIds(regionIds);
+      setExternalIdSearch(getExternalIdSearch().withExternalIdsAdded(regionIds));
+    }
+  }
+
+  /**
+   * Sets the search type to use in {@code ExternalIdSearch}.
+   * 
+   * @param type  the type to set, not null
+   */
+  public void setExternalIdSearchType(ExternalIdSearchType type) {
+    if (getExternalIdSearch() == null) {
+      setExternalIdSearch(ExternalIdSearch.of(type));
+    } else {
+      setExternalIdSearch(getExternalIdSearch().withSearchType(type));
     }
   }
 
