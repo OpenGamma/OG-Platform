@@ -11,9 +11,9 @@ To 2.2.0-M1
 -----------
 
 Configuration compatibility
-- The legacy analytics web UI has been retired. WebsiteAnalyticsComponentFactory, which used to construct its
-  server-side components, has been removed. Any instances of this can be safely deleted from component configuration
-  .ini files.
+- [PLAT-4782] The legacy analytics web UI has been retired. WebsiteAnalyticsComponentFactory, which used to construct
+  its server-side components, has been removed. Any instances of this can be safely deleted from component
+  configuration .ini files.
 
 
 Database compatibility
@@ -21,8 +21,8 @@ Database compatibility
 
 
 API compatibility
-- The legacy analytics web UI has been retired. The dependency on the CometD long-polling library, and the custom
-  RESTful end-points that it used, have been removed.
+- [PLAT-4782] The legacy analytics web UI has been retired. The dependency on the CometD long-polling library, and the
+  custom RESTful end-points that it used, have been removed.
 
 - ExternalIdSearch is now immutable
 Change constructor to of() factory
