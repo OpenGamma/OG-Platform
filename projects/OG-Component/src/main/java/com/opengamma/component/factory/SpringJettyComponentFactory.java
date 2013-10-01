@@ -6,6 +6,7 @@
 package com.opengamma.component.factory;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -16,7 +17,7 @@ import org.eclipse.jetty.plus.jaas.JAASLoginService;
 import org.eclipse.jetty.security.ConstraintMapping;
 import org.eclipse.jetty.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.security.DefaultIdentityService;
-import org.eclipse.jetty.security.authentication.BasicAuthenticator;
+import org.eclipse.jetty.security.authentication.FormAuthenticator;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.util.security.Constraint;
 import org.joda.beans.Bean;
@@ -109,7 +110,6 @@ public class SpringJettyComponentFactory extends AbstractSpringComponentFactory 
       server.getContainer().addEventListener(jettyJmx);
       server.addBean(jettyJmx);
     }
-    
     // basic RESTful helpers
     registerJettyRestBasics(repo);
   }
@@ -122,37 +122,49 @@ public class SpringJettyComponentFactory extends AbstractSpringComponentFactory 
       }
       System.setProperty(AUTH_LOGIN_CONFIG_PROPERTY, loginConfigResource.getFile().getPath());
     }
-    
-    Constraint userConstraint = new Constraint();
-    userConstraint.setRoles(new String[] {"user"});
-    userConstraint.setAuthenticate(true);
-    ConstraintMapping restrictedConstraintMapping = new ConstraintMapping();
-    restrictedConstraintMapping.setConstraint(userConstraint);
-    restrictedConstraintMapping.setPathSpec("/*");
-    
+
+    WebAppContext context = (WebAppContext) server.getHandler();
+    context.setContextPath("/");
+    ConstraintSecurityHandler security = new ConstraintSecurityHandler();
+
+    Constraint constraint = new Constraint();
+    constraint.setName(Constraint.__FORM_AUTH);
+    constraint.setAuthenticate(true);
+    constraint.setRoles(new String[] {"user"});
+
     Constraint noAuthenticationConstraint = new Constraint();
     noAuthenticationConstraint.setAuthenticate(false);
-    ConstraintMapping publicConstraintMapping = new ConstraintMapping();
-    publicConstraintMapping.setConstraint(noAuthenticationConstraint);
-    publicConstraintMapping.setPathSpec("/jax/bundles/fm/prototype/login.ftl");
-    
+
+    ConstraintMapping cm = new ConstraintMapping();
+    cm.setPathSpec("/*");
+    cm.setConstraint(constraint);
+    security.setConstraintMappings(Arrays.asList(new ConstraintMapping[]{cm}));
+
+    ConstraintMapping publicImages = new ConstraintMapping();
+    publicImages.setConstraint(noAuthenticationConstraint);
+    publicImages.setPathSpec("/prototype/images/*");
+    security.addConstraintMapping(publicImages);
+
+    ConstraintMapping publicStyles = new ConstraintMapping();
+    publicStyles.setConstraint(noAuthenticationConstraint);
+    publicStyles.setPathSpec("/prototype/styles/*");
+    security.addConstraintMapping(publicStyles);
+
+    FormAuthenticator authenticator = new FormAuthenticator("/login.html", "/error.html", false);
+    security.setAuthenticator(authenticator);
+
     JAASLoginService loginService = new JAASLoginService("OpenGamma");
     loginService.setLoginModuleName("og");
+
+    security.setIdentityService(new DefaultIdentityService());
+    security.setStrict(false);
+    security.setRealmName("OpenGamma");
+    security.setLoginService(loginService);
     server.addBean(loginService);
 
-    ConstraintSecurityHandler securityHandler = new ConstraintSecurityHandler();
-    securityHandler.addConstraintMapping(restrictedConstraintMapping);
-    securityHandler.addConstraintMapping(publicConstraintMapping);
-    securityHandler.setAuthenticator(new BasicAuthenticator());
-    securityHandler.setLoginService(loginService);
-    securityHandler.setIdentityService(new DefaultIdentityService());
-    securityHandler.setStrict(false);
-    securityHandler.setRealmName("OpenGamma");
-    server.addBean(securityHandler);
+    context.setSecurityHandler(security);
+    server.setHandler(context);
 
-    // Insert the security handler in the chain before the existing handler
-    securityHandler.setHandler(server.getHandler());
-    server.setHandler(securityHandler);
   }
 
   /**
