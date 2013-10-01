@@ -114,14 +114,9 @@ public abstract class SwaptionBlackFunction extends AbstractFunction.NonCompiled
     }
     final String[] fullCurveNames = new String[curveNames.length];
     for (int i = 0; i < curveNames.length; i++) {
-      fullCurveNames[i] = curveNames[i] + "_BRL"; // + currency.getCode();
+      fullCurveNames[i] = curveNames[i] + currency.getCode();
     }
     final YieldCurveBundle curves = YieldCurveFunctionUtils.getYieldCurves(inputs, curveCalculationConfig);
-    final YieldCurveBundle tempBundle = new YieldCurveBundle();
-    for (final String name : curves.getAllNames()) {
-      final String[] temp = name.split("_");
-      tempBundle.setCurve(temp[0] + "_BRL", curves.getCurve(name));
-    }
     final Object volatilitySurfaceObject = inputs.getValue(getVolatilityRequirement(surfaceName, currency));
     if (volatilitySurfaceObject == null) {
       throw new OpenGammaRuntimeException("Could not get volatility surface");
@@ -137,7 +132,7 @@ public abstract class SwaptionBlackFunction extends AbstractFunction.NonCompiled
     final ValueSpecification spec = new ValueSpecification(_valueRequirementName, target.toSpecification(), properties);
     final BlackFlatSwaptionParameters parameters = new BlackFlatSwaptionParameters(volatilitySurface.getSurface(),
         SwaptionUtils.getSwapGenerator(security, definition, securitySource));
-    final YieldCurveWithBlackSwaptionBundle data = new YieldCurveWithBlackSwaptionBundle(parameters, tempBundle);
+    final YieldCurveWithBlackSwaptionBundle data = new YieldCurveWithBlackSwaptionBundle(parameters, curves);
     return getResult(swaption, data, spec);
   }
 
@@ -174,7 +169,7 @@ public abstract class SwaptionBlackFunction extends AbstractFunction.NonCompiled
     final Currency currency = FinancialSecurityUtils.getCurrency(target.getSecurity());
     if (!ComputationTargetSpecification.of(currency).equals(curveCalculationConfig.getTarget())) {
       s_logger.error("Security currency and curve calculation config id were not equal; have {} and {}", currency, curveCalculationConfig.getTarget());
-      //return null;
+      return null;
     }
     final String surfaceName = surfaceNames.iterator().next();
     final Set<ValueRequirement> requirements = new HashSet<>();
