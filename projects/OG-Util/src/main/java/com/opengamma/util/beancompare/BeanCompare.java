@@ -86,8 +86,11 @@ public class BeanCompare {
       Object value1 = property.get(bean1);
       Object value2 = property.get(bean2);
       if (value1 instanceof Bean && value2 instanceof Bean && sameClass(value1, value2)) {
-        List<MetaProperty<?>> newPath = ImmutableList.<MetaProperty<?>>builder().addAll(path).add(property).build();
-        differences.addAll(compare(((Bean) value1), ((Bean) value2), newPath));
+        Comparator<Object> comparator = _propertyComparators.get(property);
+        if (comparator == null || comparator.compare(value1, value2) != 0) {
+          List<MetaProperty<?>> newPath = ImmutableList.<MetaProperty<?>>builder().addAll(path).add(property).build();
+          differences.addAll(compare(((Bean) value1), ((Bean) value2), newPath));
+        }
       } else {
         if (!equal(property, value1, value2)) {
           differences.add(new BeanDifference<Object>(property, value1, value2, path));
@@ -109,6 +112,7 @@ public class BeanCompare {
    *  {@link org.joda.beans.JodaBeanUtils#equal(Object, Object)} if there is no comparator for the property
    */
   private boolean equal(MetaProperty<?> property, Object value1, Object value2) {
+    System.out.println(property);
     Comparator<Object> comparator = _propertyComparators.get(property);
     if (comparator == null) {
       comparator = _typeComparators.get(property.propertyType());
