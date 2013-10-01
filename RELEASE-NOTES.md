@@ -22,6 +22,8 @@ API compatibility
 - The legacy analytics web UI has been retired. The dependency on the CometD long-polling library, and the custom
   RESTful end-points that it used, have been removed.
 
+- ExternalIdSearch is now immutable resulting in source code changes
+
 Analytics compatibility
 - No expected differences
 
