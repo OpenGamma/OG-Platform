@@ -11,6 +11,7 @@
 
   <!-- Handler for web-apps -->
   <bean id="webAppContextHandler" class="org.eclipse.jetty.webapp.WebAppContext">
+    <property name="displayName" value="OpenGamma" />
     <property name="contextPath" value="/" />
     <property name="resourceBase">
       <bean class="com.opengamma.util.spring.ResourcePathFactoryBean">
