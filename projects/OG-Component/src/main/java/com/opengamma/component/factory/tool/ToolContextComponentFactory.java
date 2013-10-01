@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -239,234 +240,6 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
   @Override
   public ToolContextComponentFactory.Meta metaBean() {
     return ToolContextComponentFactory.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        return getClassifier();
-      case -252634564:  // batchMaster
-        return getBatchMaster();
-      case 10395716:  // configMaster
-        return getConfigMaster();
-      case -652001691:  // exchangeMaster
-        return getExchangeMaster();
-      case 246258906:  // holidayMaster
-        return getHolidayMaster();
-      case -1820969354:  // regionMaster
-        return getRegionMaster();
-      case -887218750:  // securityMaster
-        return getSecurityMaster();
-      case -1840419605:  // positionMaster
-        return getPositionMaster();
-      case -772274742:  // portfolioMaster
-        return getPortfolioMaster();
-      case -1158737547:  // organizationMaster
-        return getOrganizationMaster();
-      case 173967376:  // historicalTimeSeriesMaster
-        return getHistoricalTimeSeriesMaster();
-      case 2090650860:  // marketDataSnapshotMaster
-        return getMarketDataSnapshotMaster();
-      case 195157501:  // configSource
-        return getConfigSource();
-      case -467239906:  // exchangeSource
-        return getExchangeSource();
-      case 431020691:  // holidaySource
-        return getHolidaySource();
-      case -1636207569:  // regionSource
-        return getRegionSource();
-      case -702456965:  // securitySource
-        return getSecuritySource();
-      case -1655657820:  // positionSource
-        return getPositionSource();
-      case -973975762:  // organizationSource
-        return getOrganizationSource();
-      case 358729161:  // historicalTimeSeriesSource
-        return getHistoricalTimeSeriesSource();
-      case -2019554651:  // marketDataSnapshotSource
-        return getMarketDataSnapshotSource();
-      case -1281578674:  // conventionBundleSource
-        return getConventionBundleSource();
-      case 225875692:  // conventionSource
-        return getConventionSource();
-      case 809869649:  // securityProvider
-        return getSecurityProvider();
-      case -903470221:  // securityLoader
-        return getSecurityLoader();
-      case -1592479713:  // historicalTimeSeriesProvider
-        return getHistoricalTimeSeriesProvider();
-      case 157715905:  // historicalTimeSeriesLoader
-        return getHistoricalTimeSeriesLoader();
-      case -1697555603:  // viewProcessor
-        return getViewProcessor();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        setClassifier((String) newValue);
-        return;
-      case -252634564:  // batchMaster
-        setBatchMaster((BatchMaster) newValue);
-        return;
-      case 10395716:  // configMaster
-        setConfigMaster((ConfigMaster) newValue);
-        return;
-      case -652001691:  // exchangeMaster
-        setExchangeMaster((ExchangeMaster) newValue);
-        return;
-      case 246258906:  // holidayMaster
-        setHolidayMaster((HolidayMaster) newValue);
-        return;
-      case -1820969354:  // regionMaster
-        setRegionMaster((RegionMaster) newValue);
-        return;
-      case -887218750:  // securityMaster
-        setSecurityMaster((SecurityMaster) newValue);
-        return;
-      case -1840419605:  // positionMaster
-        setPositionMaster((PositionMaster) newValue);
-        return;
-      case -772274742:  // portfolioMaster
-        setPortfolioMaster((PortfolioMaster) newValue);
-        return;
-      case -1158737547:  // organizationMaster
-        setOrganizationMaster((OrganizationMaster) newValue);
-        return;
-      case 173967376:  // historicalTimeSeriesMaster
-        setHistoricalTimeSeriesMaster((HistoricalTimeSeriesMaster) newValue);
-        return;
-      case 2090650860:  // marketDataSnapshotMaster
-        setMarketDataSnapshotMaster((MarketDataSnapshotMaster) newValue);
-        return;
-      case 195157501:  // configSource
-        setConfigSource((ConfigSource) newValue);
-        return;
-      case -467239906:  // exchangeSource
-        setExchangeSource((ExchangeSource) newValue);
-        return;
-      case 431020691:  // holidaySource
-        setHolidaySource((HolidaySource) newValue);
-        return;
-      case -1636207569:  // regionSource
-        setRegionSource((RegionSource) newValue);
-        return;
-      case -702456965:  // securitySource
-        setSecuritySource((SecuritySource) newValue);
-        return;
-      case -1655657820:  // positionSource
-        setPositionSource((PositionSource) newValue);
-        return;
-      case -973975762:  // organizationSource
-        setOrganizationSource((OrganizationSource) newValue);
-        return;
-      case 358729161:  // historicalTimeSeriesSource
-        setHistoricalTimeSeriesSource((HistoricalTimeSeriesSource) newValue);
-        return;
-      case -2019554651:  // marketDataSnapshotSource
-        setMarketDataSnapshotSource((MarketDataSnapshotSource) newValue);
-        return;
-      case -1281578674:  // conventionBundleSource
-        setConventionBundleSource((ConventionBundleSource) newValue);
-        return;
-      case 225875692:  // conventionSource
-        setConventionSource((ConventionSource) newValue);
-        return;
-      case 809869649:  // securityProvider
-        setSecurityProvider((SecurityProvider) newValue);
-        return;
-      case -903470221:  // securityLoader
-        setSecurityLoader((SecurityLoader) newValue);
-        return;
-      case -1592479713:  // historicalTimeSeriesProvider
-        setHistoricalTimeSeriesProvider((HistoricalTimeSeriesProvider) newValue);
-        return;
-      case 157715905:  // historicalTimeSeriesLoader
-        setHistoricalTimeSeriesLoader((HistoricalTimeSeriesLoader) newValue);
-        return;
-      case -1697555603:  // viewProcessor
-        setViewProcessor((ViewProcessor) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      ToolContextComponentFactory other = (ToolContextComponentFactory) obj;
-      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
-          JodaBeanUtils.equal(getBatchMaster(), other.getBatchMaster()) &&
-          JodaBeanUtils.equal(getConfigMaster(), other.getConfigMaster()) &&
-          JodaBeanUtils.equal(getExchangeMaster(), other.getExchangeMaster()) &&
-          JodaBeanUtils.equal(getHolidayMaster(), other.getHolidayMaster()) &&
-          JodaBeanUtils.equal(getRegionMaster(), other.getRegionMaster()) &&
-          JodaBeanUtils.equal(getSecurityMaster(), other.getSecurityMaster()) &&
-          JodaBeanUtils.equal(getPositionMaster(), other.getPositionMaster()) &&
-          JodaBeanUtils.equal(getPortfolioMaster(), other.getPortfolioMaster()) &&
-          JodaBeanUtils.equal(getOrganizationMaster(), other.getOrganizationMaster()) &&
-          JodaBeanUtils.equal(getHistoricalTimeSeriesMaster(), other.getHistoricalTimeSeriesMaster()) &&
-          JodaBeanUtils.equal(getMarketDataSnapshotMaster(), other.getMarketDataSnapshotMaster()) &&
-          JodaBeanUtils.equal(getConfigSource(), other.getConfigSource()) &&
-          JodaBeanUtils.equal(getExchangeSource(), other.getExchangeSource()) &&
-          JodaBeanUtils.equal(getHolidaySource(), other.getHolidaySource()) &&
-          JodaBeanUtils.equal(getRegionSource(), other.getRegionSource()) &&
-          JodaBeanUtils.equal(getSecuritySource(), other.getSecuritySource()) &&
-          JodaBeanUtils.equal(getPositionSource(), other.getPositionSource()) &&
-          JodaBeanUtils.equal(getOrganizationSource(), other.getOrganizationSource()) &&
-          JodaBeanUtils.equal(getHistoricalTimeSeriesSource(), other.getHistoricalTimeSeriesSource()) &&
-          JodaBeanUtils.equal(getMarketDataSnapshotSource(), other.getMarketDataSnapshotSource()) &&
-          JodaBeanUtils.equal(getConventionBundleSource(), other.getConventionBundleSource()) &&
-          JodaBeanUtils.equal(getConventionSource(), other.getConventionSource()) &&
-          JodaBeanUtils.equal(getSecurityProvider(), other.getSecurityProvider()) &&
-          JodaBeanUtils.equal(getSecurityLoader(), other.getSecurityLoader()) &&
-          JodaBeanUtils.equal(getHistoricalTimeSeriesProvider(), other.getHistoricalTimeSeriesProvider()) &&
-          JodaBeanUtils.equal(getHistoricalTimeSeriesLoader(), other.getHistoricalTimeSeriesLoader()) &&
-          JodaBeanUtils.equal(getViewProcessor(), other.getViewProcessor()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBatchMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExchangeMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHolidayMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPositionMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPortfolioMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getOrganizationMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSnapshotMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExchangeSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHolidaySource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecuritySource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPositionSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getOrganizationSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSnapshotSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConventionBundleSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConventionSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityProvider());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityLoader());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesProvider());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesLoader());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getViewProcessor());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -1170,6 +943,132 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public ToolContextComponentFactory clone() {
+    return (ToolContextComponentFactory) super.clone();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ToolContextComponentFactory other = (ToolContextComponentFactory) obj;
+      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
+          JodaBeanUtils.equal(getBatchMaster(), other.getBatchMaster()) &&
+          JodaBeanUtils.equal(getConfigMaster(), other.getConfigMaster()) &&
+          JodaBeanUtils.equal(getExchangeMaster(), other.getExchangeMaster()) &&
+          JodaBeanUtils.equal(getHolidayMaster(), other.getHolidayMaster()) &&
+          JodaBeanUtils.equal(getRegionMaster(), other.getRegionMaster()) &&
+          JodaBeanUtils.equal(getSecurityMaster(), other.getSecurityMaster()) &&
+          JodaBeanUtils.equal(getPositionMaster(), other.getPositionMaster()) &&
+          JodaBeanUtils.equal(getPortfolioMaster(), other.getPortfolioMaster()) &&
+          JodaBeanUtils.equal(getOrganizationMaster(), other.getOrganizationMaster()) &&
+          JodaBeanUtils.equal(getHistoricalTimeSeriesMaster(), other.getHistoricalTimeSeriesMaster()) &&
+          JodaBeanUtils.equal(getMarketDataSnapshotMaster(), other.getMarketDataSnapshotMaster()) &&
+          JodaBeanUtils.equal(getConfigSource(), other.getConfigSource()) &&
+          JodaBeanUtils.equal(getExchangeSource(), other.getExchangeSource()) &&
+          JodaBeanUtils.equal(getHolidaySource(), other.getHolidaySource()) &&
+          JodaBeanUtils.equal(getRegionSource(), other.getRegionSource()) &&
+          JodaBeanUtils.equal(getSecuritySource(), other.getSecuritySource()) &&
+          JodaBeanUtils.equal(getPositionSource(), other.getPositionSource()) &&
+          JodaBeanUtils.equal(getOrganizationSource(), other.getOrganizationSource()) &&
+          JodaBeanUtils.equal(getHistoricalTimeSeriesSource(), other.getHistoricalTimeSeriesSource()) &&
+          JodaBeanUtils.equal(getMarketDataSnapshotSource(), other.getMarketDataSnapshotSource()) &&
+          JodaBeanUtils.equal(getConventionBundleSource(), other.getConventionBundleSource()) &&
+          JodaBeanUtils.equal(getConventionSource(), other.getConventionSource()) &&
+          JodaBeanUtils.equal(getSecurityProvider(), other.getSecurityProvider()) &&
+          JodaBeanUtils.equal(getSecurityLoader(), other.getSecurityLoader()) &&
+          JodaBeanUtils.equal(getHistoricalTimeSeriesProvider(), other.getHistoricalTimeSeriesProvider()) &&
+          JodaBeanUtils.equal(getHistoricalTimeSeriesLoader(), other.getHistoricalTimeSeriesLoader()) &&
+          JodaBeanUtils.equal(getViewProcessor(), other.getViewProcessor()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBatchMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExchangeMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHolidayMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPositionMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPortfolioMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getOrganizationMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSnapshotMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExchangeSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHolidaySource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecuritySource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPositionSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getOrganizationSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSnapshotSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getConventionBundleSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getConventionSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityProvider());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityLoader());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesProvider());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesLoader());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getViewProcessor());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(928);
+    buf.append("ToolContextComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("classifier").append('=').append(getClassifier()).append(',').append(' ');
+    buf.append("batchMaster").append('=').append(getBatchMaster()).append(',').append(' ');
+    buf.append("configMaster").append('=').append(getConfigMaster()).append(',').append(' ');
+    buf.append("exchangeMaster").append('=').append(getExchangeMaster()).append(',').append(' ');
+    buf.append("holidayMaster").append('=').append(getHolidayMaster()).append(',').append(' ');
+    buf.append("regionMaster").append('=').append(getRegionMaster()).append(',').append(' ');
+    buf.append("securityMaster").append('=').append(getSecurityMaster()).append(',').append(' ');
+    buf.append("positionMaster").append('=').append(getPositionMaster()).append(',').append(' ');
+    buf.append("portfolioMaster").append('=').append(getPortfolioMaster()).append(',').append(' ');
+    buf.append("organizationMaster").append('=').append(getOrganizationMaster()).append(',').append(' ');
+    buf.append("historicalTimeSeriesMaster").append('=').append(getHistoricalTimeSeriesMaster()).append(',').append(' ');
+    buf.append("marketDataSnapshotMaster").append('=').append(getMarketDataSnapshotMaster()).append(',').append(' ');
+    buf.append("configSource").append('=').append(getConfigSource()).append(',').append(' ');
+    buf.append("exchangeSource").append('=').append(getExchangeSource()).append(',').append(' ');
+    buf.append("holidaySource").append('=').append(getHolidaySource()).append(',').append(' ');
+    buf.append("regionSource").append('=').append(getRegionSource()).append(',').append(' ');
+    buf.append("securitySource").append('=').append(getSecuritySource()).append(',').append(' ');
+    buf.append("positionSource").append('=').append(getPositionSource()).append(',').append(' ');
+    buf.append("organizationSource").append('=').append(getOrganizationSource()).append(',').append(' ');
+    buf.append("historicalTimeSeriesSource").append('=').append(getHistoricalTimeSeriesSource()).append(',').append(' ');
+    buf.append("marketDataSnapshotSource").append('=').append(getMarketDataSnapshotSource()).append(',').append(' ');
+    buf.append("conventionBundleSource").append('=').append(getConventionBundleSource()).append(',').append(' ');
+    buf.append("conventionSource").append('=').append(getConventionSource()).append(',').append(' ');
+    buf.append("securityProvider").append('=').append(getSecurityProvider()).append(',').append(' ');
+    buf.append("securityLoader").append('=').append(getSecurityLoader()).append(',').append(' ');
+    buf.append("historicalTimeSeriesProvider").append('=').append(getHistoricalTimeSeriesProvider()).append(',').append(' ');
+    buf.append("historicalTimeSeriesLoader").append('=').append(getHistoricalTimeSeriesLoader()).append(',').append(' ');
+    buf.append("viewProcessor").append('=').append(getViewProcessor()).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code ToolContextComponentFactory}.
    */
@@ -1660,6 +1559,161 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<ViewProcessor> viewProcessor() {
       return _viewProcessor;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          return ((ToolContextComponentFactory) bean).getClassifier();
+        case -252634564:  // batchMaster
+          return ((ToolContextComponentFactory) bean).getBatchMaster();
+        case 10395716:  // configMaster
+          return ((ToolContextComponentFactory) bean).getConfigMaster();
+        case -652001691:  // exchangeMaster
+          return ((ToolContextComponentFactory) bean).getExchangeMaster();
+        case 246258906:  // holidayMaster
+          return ((ToolContextComponentFactory) bean).getHolidayMaster();
+        case -1820969354:  // regionMaster
+          return ((ToolContextComponentFactory) bean).getRegionMaster();
+        case -887218750:  // securityMaster
+          return ((ToolContextComponentFactory) bean).getSecurityMaster();
+        case -1840419605:  // positionMaster
+          return ((ToolContextComponentFactory) bean).getPositionMaster();
+        case -772274742:  // portfolioMaster
+          return ((ToolContextComponentFactory) bean).getPortfolioMaster();
+        case -1158737547:  // organizationMaster
+          return ((ToolContextComponentFactory) bean).getOrganizationMaster();
+        case 173967376:  // historicalTimeSeriesMaster
+          return ((ToolContextComponentFactory) bean).getHistoricalTimeSeriesMaster();
+        case 2090650860:  // marketDataSnapshotMaster
+          return ((ToolContextComponentFactory) bean).getMarketDataSnapshotMaster();
+        case 195157501:  // configSource
+          return ((ToolContextComponentFactory) bean).getConfigSource();
+        case -467239906:  // exchangeSource
+          return ((ToolContextComponentFactory) bean).getExchangeSource();
+        case 431020691:  // holidaySource
+          return ((ToolContextComponentFactory) bean).getHolidaySource();
+        case -1636207569:  // regionSource
+          return ((ToolContextComponentFactory) bean).getRegionSource();
+        case -702456965:  // securitySource
+          return ((ToolContextComponentFactory) bean).getSecuritySource();
+        case -1655657820:  // positionSource
+          return ((ToolContextComponentFactory) bean).getPositionSource();
+        case -973975762:  // organizationSource
+          return ((ToolContextComponentFactory) bean).getOrganizationSource();
+        case 358729161:  // historicalTimeSeriesSource
+          return ((ToolContextComponentFactory) bean).getHistoricalTimeSeriesSource();
+        case -2019554651:  // marketDataSnapshotSource
+          return ((ToolContextComponentFactory) bean).getMarketDataSnapshotSource();
+        case -1281578674:  // conventionBundleSource
+          return ((ToolContextComponentFactory) bean).getConventionBundleSource();
+        case 225875692:  // conventionSource
+          return ((ToolContextComponentFactory) bean).getConventionSource();
+        case 809869649:  // securityProvider
+          return ((ToolContextComponentFactory) bean).getSecurityProvider();
+        case -903470221:  // securityLoader
+          return ((ToolContextComponentFactory) bean).getSecurityLoader();
+        case -1592479713:  // historicalTimeSeriesProvider
+          return ((ToolContextComponentFactory) bean).getHistoricalTimeSeriesProvider();
+        case 157715905:  // historicalTimeSeriesLoader
+          return ((ToolContextComponentFactory) bean).getHistoricalTimeSeriesLoader();
+        case -1697555603:  // viewProcessor
+          return ((ToolContextComponentFactory) bean).getViewProcessor();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          ((ToolContextComponentFactory) bean).setClassifier((String) newValue);
+          return;
+        case -252634564:  // batchMaster
+          ((ToolContextComponentFactory) bean).setBatchMaster((BatchMaster) newValue);
+          return;
+        case 10395716:  // configMaster
+          ((ToolContextComponentFactory) bean).setConfigMaster((ConfigMaster) newValue);
+          return;
+        case -652001691:  // exchangeMaster
+          ((ToolContextComponentFactory) bean).setExchangeMaster((ExchangeMaster) newValue);
+          return;
+        case 246258906:  // holidayMaster
+          ((ToolContextComponentFactory) bean).setHolidayMaster((HolidayMaster) newValue);
+          return;
+        case -1820969354:  // regionMaster
+          ((ToolContextComponentFactory) bean).setRegionMaster((RegionMaster) newValue);
+          return;
+        case -887218750:  // securityMaster
+          ((ToolContextComponentFactory) bean).setSecurityMaster((SecurityMaster) newValue);
+          return;
+        case -1840419605:  // positionMaster
+          ((ToolContextComponentFactory) bean).setPositionMaster((PositionMaster) newValue);
+          return;
+        case -772274742:  // portfolioMaster
+          ((ToolContextComponentFactory) bean).setPortfolioMaster((PortfolioMaster) newValue);
+          return;
+        case -1158737547:  // organizationMaster
+          ((ToolContextComponentFactory) bean).setOrganizationMaster((OrganizationMaster) newValue);
+          return;
+        case 173967376:  // historicalTimeSeriesMaster
+          ((ToolContextComponentFactory) bean).setHistoricalTimeSeriesMaster((HistoricalTimeSeriesMaster) newValue);
+          return;
+        case 2090650860:  // marketDataSnapshotMaster
+          ((ToolContextComponentFactory) bean).setMarketDataSnapshotMaster((MarketDataSnapshotMaster) newValue);
+          return;
+        case 195157501:  // configSource
+          ((ToolContextComponentFactory) bean).setConfigSource((ConfigSource) newValue);
+          return;
+        case -467239906:  // exchangeSource
+          ((ToolContextComponentFactory) bean).setExchangeSource((ExchangeSource) newValue);
+          return;
+        case 431020691:  // holidaySource
+          ((ToolContextComponentFactory) bean).setHolidaySource((HolidaySource) newValue);
+          return;
+        case -1636207569:  // regionSource
+          ((ToolContextComponentFactory) bean).setRegionSource((RegionSource) newValue);
+          return;
+        case -702456965:  // securitySource
+          ((ToolContextComponentFactory) bean).setSecuritySource((SecuritySource) newValue);
+          return;
+        case -1655657820:  // positionSource
+          ((ToolContextComponentFactory) bean).setPositionSource((PositionSource) newValue);
+          return;
+        case -973975762:  // organizationSource
+          ((ToolContextComponentFactory) bean).setOrganizationSource((OrganizationSource) newValue);
+          return;
+        case 358729161:  // historicalTimeSeriesSource
+          ((ToolContextComponentFactory) bean).setHistoricalTimeSeriesSource((HistoricalTimeSeriesSource) newValue);
+          return;
+        case -2019554651:  // marketDataSnapshotSource
+          ((ToolContextComponentFactory) bean).setMarketDataSnapshotSource((MarketDataSnapshotSource) newValue);
+          return;
+        case -1281578674:  // conventionBundleSource
+          ((ToolContextComponentFactory) bean).setConventionBundleSource((ConventionBundleSource) newValue);
+          return;
+        case 225875692:  // conventionSource
+          ((ToolContextComponentFactory) bean).setConventionSource((ConventionSource) newValue);
+          return;
+        case 809869649:  // securityProvider
+          ((ToolContextComponentFactory) bean).setSecurityProvider((SecurityProvider) newValue);
+          return;
+        case -903470221:  // securityLoader
+          ((ToolContextComponentFactory) bean).setSecurityLoader((SecurityLoader) newValue);
+          return;
+        case -1592479713:  // historicalTimeSeriesProvider
+          ((ToolContextComponentFactory) bean).setHistoricalTimeSeriesProvider((HistoricalTimeSeriesProvider) newValue);
+          return;
+        case 157715905:  // historicalTimeSeriesLoader
+          ((ToolContextComponentFactory) bean).setHistoricalTimeSeriesLoader((HistoricalTimeSeriesLoader) newValue);
+          return;
+        case -1697555603:  // viewProcessor
+          ((ToolContextComponentFactory) bean).setViewProcessor((ViewProcessor) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

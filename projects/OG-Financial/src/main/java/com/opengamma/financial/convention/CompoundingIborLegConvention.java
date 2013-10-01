@@ -7,6 +7,7 @@ package com.opengamma.financial.convention;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -144,119 +145,6 @@ public class CompoundingIborLegConvention extends Convention {
   @Override
   public CompoundingIborLegConvention.Meta metaBean() {
     return CompoundingIborLegConvention.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1542426233:  // iborIndexConvention
-        return getIborIndexConvention();
-      case -507548582:  // paymentTenor
-        return getPaymentTenor();
-      case -1936397775:  // compoundingType
-        return getCompoundingType();
-      case -1679443146:  // compositionTenor
-        return getCompositionTenor();
-      case -1172460845:  // stubTypeCompound
-        return getStubTypeCompound();
-      case 348962765:  // isExchangeNotional
-        return isIsExchangeNotional();
-      case -295948000:  // settlementDays
-        return getSettlementDays();
-      case 100464505:  // isEOM
-        return isIsEOM();
-      case 1272752102:  // stubTypeLeg
-        return getStubTypeLeg();
-      case 1612870060:  // paymentLag
-        return getPaymentLag();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1542426233:  // iborIndexConvention
-        setIborIndexConvention((ExternalId) newValue);
-        return;
-      case -507548582:  // paymentTenor
-        setPaymentTenor((Tenor) newValue);
-        return;
-      case -1936397775:  // compoundingType
-        setCompoundingType((CompoundingType) newValue);
-        return;
-      case -1679443146:  // compositionTenor
-        setCompositionTenor((Tenor) newValue);
-        return;
-      case -1172460845:  // stubTypeCompound
-        setStubTypeCompound((StubType) newValue);
-        return;
-      case 348962765:  // isExchangeNotional
-        setIsExchangeNotional((Boolean) newValue);
-        return;
-      case -295948000:  // settlementDays
-        setSettlementDays((Integer) newValue);
-        return;
-      case 100464505:  // isEOM
-        setIsEOM((Boolean) newValue);
-        return;
-      case 1272752102:  // stubTypeLeg
-        setStubTypeLeg((StubType) newValue);
-        return;
-      case 1612870060:  // paymentLag
-        setPaymentLag((Integer) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_iborIndexConvention, "iborIndexConvention");
-    JodaBeanUtils.notNull(_paymentTenor, "paymentTenor");
-    JodaBeanUtils.notNull(_compoundingType, "compoundingType");
-    JodaBeanUtils.notNull(_compositionTenor, "compositionTenor");
-    JodaBeanUtils.notNull(_stubTypeCompound, "stubTypeCompound");
-    JodaBeanUtils.notNull(_stubTypeLeg, "stubTypeLeg");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      CompoundingIborLegConvention other = (CompoundingIborLegConvention) obj;
-      return JodaBeanUtils.equal(getIborIndexConvention(), other.getIborIndexConvention()) &&
-          JodaBeanUtils.equal(getPaymentTenor(), other.getPaymentTenor()) &&
-          JodaBeanUtils.equal(getCompoundingType(), other.getCompoundingType()) &&
-          JodaBeanUtils.equal(getCompositionTenor(), other.getCompositionTenor()) &&
-          JodaBeanUtils.equal(getStubTypeCompound(), other.getStubTypeCompound()) &&
-          JodaBeanUtils.equal(isIsExchangeNotional(), other.isIsExchangeNotional()) &&
-          JodaBeanUtils.equal(getSettlementDays(), other.getSettlementDays()) &&
-          JodaBeanUtils.equal(isIsEOM(), other.isIsEOM()) &&
-          JodaBeanUtils.equal(getStubTypeLeg(), other.getStubTypeLeg()) &&
-          JodaBeanUtils.equal(getPaymentLag(), other.getPaymentLag()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIborIndexConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentTenor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCompoundingType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCompositionTenor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStubTypeCompound());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isIsExchangeNotional());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementDays());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isIsEOM());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStubTypeLeg());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentLag());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -516,6 +404,78 @@ public class CompoundingIborLegConvention extends Convention {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public CompoundingIborLegConvention clone() {
+    return (CompoundingIborLegConvention) super.clone();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      CompoundingIborLegConvention other = (CompoundingIborLegConvention) obj;
+      return JodaBeanUtils.equal(getIborIndexConvention(), other.getIborIndexConvention()) &&
+          JodaBeanUtils.equal(getPaymentTenor(), other.getPaymentTenor()) &&
+          JodaBeanUtils.equal(getCompoundingType(), other.getCompoundingType()) &&
+          JodaBeanUtils.equal(getCompositionTenor(), other.getCompositionTenor()) &&
+          JodaBeanUtils.equal(getStubTypeCompound(), other.getStubTypeCompound()) &&
+          (isIsExchangeNotional() == other.isIsExchangeNotional()) &&
+          (getSettlementDays() == other.getSettlementDays()) &&
+          (isIsEOM() == other.isIsEOM()) &&
+          JodaBeanUtils.equal(getStubTypeLeg(), other.getStubTypeLeg()) &&
+          (getPaymentLag() == other.getPaymentLag()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getIborIndexConvention());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentTenor());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCompoundingType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCompositionTenor());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getStubTypeCompound());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isIsExchangeNotional());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementDays());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isIsEOM());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getStubTypeLeg());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentLag());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(352);
+    buf.append("CompoundingIborLegConvention{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("iborIndexConvention").append('=').append(getIborIndexConvention()).append(',').append(' ');
+    buf.append("paymentTenor").append('=').append(getPaymentTenor()).append(',').append(' ');
+    buf.append("compoundingType").append('=').append(getCompoundingType()).append(',').append(' ');
+    buf.append("compositionTenor").append('=').append(getCompositionTenor()).append(',').append(' ');
+    buf.append("stubTypeCompound").append('=').append(getStubTypeCompound()).append(',').append(' ');
+    buf.append("isExchangeNotional").append('=').append(isIsExchangeNotional()).append(',').append(' ');
+    buf.append("settlementDays").append('=').append(getSettlementDays()).append(',').append(' ');
+    buf.append("isEOM").append('=').append(isIsEOM()).append(',').append(' ');
+    buf.append("stubTypeLeg").append('=').append(getStubTypeLeg()).append(',').append(' ');
+    buf.append("paymentLag").append('=').append(getPaymentLag()).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code CompoundingIborLegConvention}.
    */
@@ -718,6 +678,82 @@ public class CompoundingIborLegConvention extends Convention {
      */
     public final MetaProperty<Integer> paymentLag() {
       return _paymentLag;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1542426233:  // iborIndexConvention
+          return ((CompoundingIborLegConvention) bean).getIborIndexConvention();
+        case -507548582:  // paymentTenor
+          return ((CompoundingIborLegConvention) bean).getPaymentTenor();
+        case -1936397775:  // compoundingType
+          return ((CompoundingIborLegConvention) bean).getCompoundingType();
+        case -1679443146:  // compositionTenor
+          return ((CompoundingIborLegConvention) bean).getCompositionTenor();
+        case -1172460845:  // stubTypeCompound
+          return ((CompoundingIborLegConvention) bean).getStubTypeCompound();
+        case 348962765:  // isExchangeNotional
+          return ((CompoundingIborLegConvention) bean).isIsExchangeNotional();
+        case -295948000:  // settlementDays
+          return ((CompoundingIborLegConvention) bean).getSettlementDays();
+        case 100464505:  // isEOM
+          return ((CompoundingIborLegConvention) bean).isIsEOM();
+        case 1272752102:  // stubTypeLeg
+          return ((CompoundingIborLegConvention) bean).getStubTypeLeg();
+        case 1612870060:  // paymentLag
+          return ((CompoundingIborLegConvention) bean).getPaymentLag();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1542426233:  // iborIndexConvention
+          ((CompoundingIborLegConvention) bean).setIborIndexConvention((ExternalId) newValue);
+          return;
+        case -507548582:  // paymentTenor
+          ((CompoundingIborLegConvention) bean).setPaymentTenor((Tenor) newValue);
+          return;
+        case -1936397775:  // compoundingType
+          ((CompoundingIborLegConvention) bean).setCompoundingType((CompoundingType) newValue);
+          return;
+        case -1679443146:  // compositionTenor
+          ((CompoundingIborLegConvention) bean).setCompositionTenor((Tenor) newValue);
+          return;
+        case -1172460845:  // stubTypeCompound
+          ((CompoundingIborLegConvention) bean).setStubTypeCompound((StubType) newValue);
+          return;
+        case 348962765:  // isExchangeNotional
+          ((CompoundingIborLegConvention) bean).setIsExchangeNotional((Boolean) newValue);
+          return;
+        case -295948000:  // settlementDays
+          ((CompoundingIborLegConvention) bean).setSettlementDays((Integer) newValue);
+          return;
+        case 100464505:  // isEOM
+          ((CompoundingIborLegConvention) bean).setIsEOM((Boolean) newValue);
+          return;
+        case 1272752102:  // stubTypeLeg
+          ((CompoundingIborLegConvention) bean).setStubTypeLeg((StubType) newValue);
+          return;
+        case 1612870060:  // paymentLag
+          ((CompoundingIborLegConvention) bean).setPaymentLag((Integer) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((CompoundingIborLegConvention) bean)._iborIndexConvention, "iborIndexConvention");
+      JodaBeanUtils.notNull(((CompoundingIborLegConvention) bean)._paymentTenor, "paymentTenor");
+      JodaBeanUtils.notNull(((CompoundingIborLegConvention) bean)._compoundingType, "compoundingType");
+      JodaBeanUtils.notNull(((CompoundingIborLegConvention) bean)._compositionTenor, "compositionTenor");
+      JodaBeanUtils.notNull(((CompoundingIborLegConvention) bean)._stubTypeCompound, "stubTypeCompound");
+      JodaBeanUtils.notNull(((CompoundingIborLegConvention) bean)._stubTypeLeg, "stubTypeLeg");
+      super.validate(bean);
     }
 
   }

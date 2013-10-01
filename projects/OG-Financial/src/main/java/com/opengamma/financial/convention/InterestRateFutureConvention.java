@@ -7,6 +7,7 @@ package com.opengamma.financial.convention;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -74,51 +75,6 @@ public class InterestRateFutureConvention extends ExchangeTradedFutureAndOptionC
     return InterestRateFutureConvention.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -668532253:  // indexConvention
-        return getIndexConvention();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -668532253:  // indexConvention
-        setIndexConvention((ExternalId) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_indexConvention, "indexConvention");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      InterestRateFutureConvention other = (InterestRateFutureConvention) obj;
-      return JodaBeanUtils.equal(getIndexConvention(), other.getIndexConvention()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIndexConvention());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the index convention.
@@ -143,6 +99,51 @@ public class InterestRateFutureConvention extends ExchangeTradedFutureAndOptionC
    */
   public final Property<ExternalId> indexConvention() {
     return metaBean().indexConvention().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public InterestRateFutureConvention clone() {
+    return (InterestRateFutureConvention) super.clone();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      InterestRateFutureConvention other = (InterestRateFutureConvention) obj;
+      return JodaBeanUtils.equal(getIndexConvention(), other.getIndexConvention()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getIndexConvention());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(64);
+    buf.append("InterestRateFutureConvention{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("indexConvention").append('=').append(getIndexConvention()).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -204,6 +205,32 @@ public class InterestRateFutureConvention extends ExchangeTradedFutureAndOptionC
      */
     public final MetaProperty<ExternalId> indexConvention() {
       return _indexConvention;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -668532253:  // indexConvention
+          return ((InterestRateFutureConvention) bean).getIndexConvention();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -668532253:  // indexConvention
+          ((InterestRateFutureConvention) bean).setIndexConvention((ExternalId) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((InterestRateFutureConvention) bean)._indexConvention, "indexConvention");
+      super.validate(bean);
     }
 
   }

@@ -8,6 +8,7 @@ package com.opengamma.core;
 import java.io.Serializable;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -192,57 +193,6 @@ public abstract class AbstractLink<T extends UniqueIdentifiable> extends DirectB
     return AbstractLink.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 90495162:  // objectId
-        return getObjectId();
-      case -1699764666:  // externalId
-        return getExternalId();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 90495162:  // objectId
-        setObjectId((ObjectId) newValue);
-        return;
-      case -1699764666:  // externalId
-        setExternalId((ExternalIdBundle) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_externalId, "externalId");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      AbstractLink<?> other = (AbstractLink<?>) obj;
-      return JodaBeanUtils.equal(getObjectId(), other.getObjectId()) &&
-          JodaBeanUtils.equal(getExternalId(), other.getExternalId());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getObjectId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalId());
-    return hash;
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the object identifier that strongly references the target.
@@ -295,6 +245,62 @@ public abstract class AbstractLink<T extends UniqueIdentifiable> extends DirectB
    */
   public final Property<ExternalIdBundle> externalId() {
     return metaBean().externalId().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  @SuppressWarnings("unchecked")
+  public AbstractLink<T> clone() {
+    BeanBuilder<?> builder = metaBean().builder();
+    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
+      if (mp.style().isBuildable()) {
+        Object value = mp.get(this);
+        if (value instanceof Bean) {
+          value = ((Bean) value).clone();
+        }
+        builder.set(mp.name(), value);
+      }
+    }
+    return (AbstractLink<T>) builder.build();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      AbstractLink<?> other = (AbstractLink<?>) obj;
+      return JodaBeanUtils.equal(getObjectId(), other.getObjectId()) &&
+          JodaBeanUtils.equal(getExternalId(), other.getExternalId());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getObjectId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalId());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(96);
+    buf.append("AbstractLink{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("objectId").append('=').append(getObjectId()).append(',').append(' ');
+    buf.append("externalId").append('=').append(getExternalId()).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -374,6 +380,37 @@ public abstract class AbstractLink<T extends UniqueIdentifiable> extends DirectB
      */
     public final MetaProperty<ExternalIdBundle> externalId() {
       return _externalId;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 90495162:  // objectId
+          return ((AbstractLink<?>) bean).getObjectId();
+        case -1699764666:  // externalId
+          return ((AbstractLink<?>) bean).getExternalId();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 90495162:  // objectId
+          ((AbstractLink<T>) bean).setObjectId((ObjectId) newValue);
+          return;
+        case -1699764666:  // externalId
+          ((AbstractLink<T>) bean).setExternalId((ExternalIdBundle) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((AbstractLink<?>) bean)._externalId, "externalId");
     }
 
   }

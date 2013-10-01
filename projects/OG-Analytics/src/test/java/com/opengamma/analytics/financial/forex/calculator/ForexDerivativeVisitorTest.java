@@ -99,6 +99,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverage;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounding;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingFlatSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
@@ -1225,6 +1226,16 @@ public class ForexDerivativeVisitorTest {
 
     @Override
     public String visitSwaptionPhysicalFixedCompoundedONCompounded(final SwaptionPhysicalFixedCompoundedONCompounded swaption) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponIborCompoundingFlatSpread(CouponIborCompoundingFlatSpread payment) {
+      return null;
+    }
+
+    @Override
+    public String visitCouponIborCompoundingFlatSpread(CouponIborCompoundingFlatSpread payment, T data) {
       return null;
     }
 

@@ -9,6 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -208,171 +209,6 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   @Override
   public WebsiteBasicsComponentFactory.Meta metaBean() {
     return WebsiteBasicsComponentFactory.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 10395716:  // configMaster
-        return getConfigMaster();
-      case -652001691:  // exchangeMaster
-        return getExchangeMaster();
-      case 246258906:  // holidayMaster
-        return getHolidayMaster();
-      case -1820969354:  // regionMaster
-        return getRegionMaster();
-      case -887218750:  // securityMaster
-        return getSecurityMaster();
-      case -702456965:  // securitySource
-        return getSecuritySource();
-      case -903470221:  // securityLoader
-        return getSecurityLoader();
-      case -1840419605:  // positionMaster
-        return getPositionMaster();
-      case -772274742:  // portfolioMaster
-        return getPortfolioMaster();
-      case -252634564:  // batchMaster
-        return getBatchMaster();
-      case 173967376:  // historicalTimeSeriesMaster
-        return getHistoricalTimeSeriesMaster();
-      case 358729161:  // historicalTimeSeriesSource
-        return getHistoricalTimeSeriesSource();
-      case 157715905:  // historicalTimeSeriesLoader
-        return getHistoricalTimeSeriesLoader();
-      case -160710469:  // scheduler
-        return getScheduler();
-      case -2094577304:  // targetTypes
-        return getTargetTypes();
-      case -1158737547:  // organizationMaster
-        return getOrganizationMaster();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 10395716:  // configMaster
-        setConfigMaster((ConfigMaster) newValue);
-        return;
-      case -652001691:  // exchangeMaster
-        setExchangeMaster((ExchangeMaster) newValue);
-        return;
-      case 246258906:  // holidayMaster
-        setHolidayMaster((HolidayMaster) newValue);
-        return;
-      case -1820969354:  // regionMaster
-        setRegionMaster((RegionMaster) newValue);
-        return;
-      case -887218750:  // securityMaster
-        setSecurityMaster((SecurityMaster) newValue);
-        return;
-      case -702456965:  // securitySource
-        setSecuritySource((SecuritySource) newValue);
-        return;
-      case -903470221:  // securityLoader
-        setSecurityLoader((SecurityLoader) newValue);
-        return;
-      case -1840419605:  // positionMaster
-        setPositionMaster((PositionMaster) newValue);
-        return;
-      case -772274742:  // portfolioMaster
-        setPortfolioMaster((PortfolioMaster) newValue);
-        return;
-      case -252634564:  // batchMaster
-        setBatchMaster((BatchMaster) newValue);
-        return;
-      case 173967376:  // historicalTimeSeriesMaster
-        setHistoricalTimeSeriesMaster((HistoricalTimeSeriesMaster) newValue);
-        return;
-      case 358729161:  // historicalTimeSeriesSource
-        setHistoricalTimeSeriesSource((HistoricalTimeSeriesSource) newValue);
-        return;
-      case 157715905:  // historicalTimeSeriesLoader
-        setHistoricalTimeSeriesLoader((HistoricalTimeSeriesLoader) newValue);
-        return;
-      case -160710469:  // scheduler
-        setScheduler((ScheduledExecutorService) newValue);
-        return;
-      case -2094577304:  // targetTypes
-        setTargetTypes((ComputationTargetTypeProvider) newValue);
-        return;
-      case -1158737547:  // organizationMaster
-        setOrganizationMaster((OrganizationMaster) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_configMaster, "configMaster");
-    JodaBeanUtils.notNull(_exchangeMaster, "exchangeMaster");
-    JodaBeanUtils.notNull(_holidayMaster, "holidayMaster");
-    JodaBeanUtils.notNull(_regionMaster, "regionMaster");
-    JodaBeanUtils.notNull(_securityMaster, "securityMaster");
-    JodaBeanUtils.notNull(_securitySource, "securitySource");
-    JodaBeanUtils.notNull(_securityLoader, "securityLoader");
-    JodaBeanUtils.notNull(_positionMaster, "positionMaster");
-    JodaBeanUtils.notNull(_portfolioMaster, "portfolioMaster");
-    JodaBeanUtils.notNull(_batchMaster, "batchMaster");
-    JodaBeanUtils.notNull(_historicalTimeSeriesMaster, "historicalTimeSeriesMaster");
-    JodaBeanUtils.notNull(_historicalTimeSeriesSource, "historicalTimeSeriesSource");
-    JodaBeanUtils.notNull(_historicalTimeSeriesLoader, "historicalTimeSeriesLoader");
-    JodaBeanUtils.notNull(_scheduler, "scheduler");
-    JodaBeanUtils.notNull(_targetTypes, "targetTypes");
-    JodaBeanUtils.notNull(_organizationMaster, "organizationMaster");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      WebsiteBasicsComponentFactory other = (WebsiteBasicsComponentFactory) obj;
-      return JodaBeanUtils.equal(getConfigMaster(), other.getConfigMaster()) &&
-          JodaBeanUtils.equal(getExchangeMaster(), other.getExchangeMaster()) &&
-          JodaBeanUtils.equal(getHolidayMaster(), other.getHolidayMaster()) &&
-          JodaBeanUtils.equal(getRegionMaster(), other.getRegionMaster()) &&
-          JodaBeanUtils.equal(getSecurityMaster(), other.getSecurityMaster()) &&
-          JodaBeanUtils.equal(getSecuritySource(), other.getSecuritySource()) &&
-          JodaBeanUtils.equal(getSecurityLoader(), other.getSecurityLoader()) &&
-          JodaBeanUtils.equal(getPositionMaster(), other.getPositionMaster()) &&
-          JodaBeanUtils.equal(getPortfolioMaster(), other.getPortfolioMaster()) &&
-          JodaBeanUtils.equal(getBatchMaster(), other.getBatchMaster()) &&
-          JodaBeanUtils.equal(getHistoricalTimeSeriesMaster(), other.getHistoricalTimeSeriesMaster()) &&
-          JodaBeanUtils.equal(getHistoricalTimeSeriesSource(), other.getHistoricalTimeSeriesSource()) &&
-          JodaBeanUtils.equal(getHistoricalTimeSeriesLoader(), other.getHistoricalTimeSeriesLoader()) &&
-          JodaBeanUtils.equal(getScheduler(), other.getScheduler()) &&
-          JodaBeanUtils.equal(getTargetTypes(), other.getTargetTypes()) &&
-          JodaBeanUtils.equal(getOrganizationMaster(), other.getOrganizationMaster()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExchangeMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHolidayMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecuritySource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityLoader());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPositionMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPortfolioMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBatchMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesLoader());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getScheduler());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTargetTypes());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getOrganizationMaster());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -792,6 +628,96 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public WebsiteBasicsComponentFactory clone() {
+    return (WebsiteBasicsComponentFactory) super.clone();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      WebsiteBasicsComponentFactory other = (WebsiteBasicsComponentFactory) obj;
+      return JodaBeanUtils.equal(getConfigMaster(), other.getConfigMaster()) &&
+          JodaBeanUtils.equal(getExchangeMaster(), other.getExchangeMaster()) &&
+          JodaBeanUtils.equal(getHolidayMaster(), other.getHolidayMaster()) &&
+          JodaBeanUtils.equal(getRegionMaster(), other.getRegionMaster()) &&
+          JodaBeanUtils.equal(getSecurityMaster(), other.getSecurityMaster()) &&
+          JodaBeanUtils.equal(getSecuritySource(), other.getSecuritySource()) &&
+          JodaBeanUtils.equal(getSecurityLoader(), other.getSecurityLoader()) &&
+          JodaBeanUtils.equal(getPositionMaster(), other.getPositionMaster()) &&
+          JodaBeanUtils.equal(getPortfolioMaster(), other.getPortfolioMaster()) &&
+          JodaBeanUtils.equal(getBatchMaster(), other.getBatchMaster()) &&
+          JodaBeanUtils.equal(getHistoricalTimeSeriesMaster(), other.getHistoricalTimeSeriesMaster()) &&
+          JodaBeanUtils.equal(getHistoricalTimeSeriesSource(), other.getHistoricalTimeSeriesSource()) &&
+          JodaBeanUtils.equal(getHistoricalTimeSeriesLoader(), other.getHistoricalTimeSeriesLoader()) &&
+          JodaBeanUtils.equal(getScheduler(), other.getScheduler()) &&
+          JodaBeanUtils.equal(getTargetTypes(), other.getTargetTypes()) &&
+          JodaBeanUtils.equal(getOrganizationMaster(), other.getOrganizationMaster()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExchangeMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHolidayMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecuritySource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityLoader());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPositionMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPortfolioMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBatchMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesLoader());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getScheduler());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTargetTypes());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getOrganizationMaster());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(544);
+    buf.append("WebsiteBasicsComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("configMaster").append('=').append(getConfigMaster()).append(',').append(' ');
+    buf.append("exchangeMaster").append('=').append(getExchangeMaster()).append(',').append(' ');
+    buf.append("holidayMaster").append('=').append(getHolidayMaster()).append(',').append(' ');
+    buf.append("regionMaster").append('=').append(getRegionMaster()).append(',').append(' ');
+    buf.append("securityMaster").append('=').append(getSecurityMaster()).append(',').append(' ');
+    buf.append("securitySource").append('=').append(getSecuritySource()).append(',').append(' ');
+    buf.append("securityLoader").append('=').append(getSecurityLoader()).append(',').append(' ');
+    buf.append("positionMaster").append('=').append(getPositionMaster()).append(',').append(' ');
+    buf.append("portfolioMaster").append('=').append(getPortfolioMaster()).append(',').append(' ');
+    buf.append("batchMaster").append('=').append(getBatchMaster()).append(',').append(' ');
+    buf.append("historicalTimeSeriesMaster").append('=').append(getHistoricalTimeSeriesMaster()).append(',').append(' ');
+    buf.append("historicalTimeSeriesSource").append('=').append(getHistoricalTimeSeriesSource()).append(',').append(' ');
+    buf.append("historicalTimeSeriesLoader").append('=').append(getHistoricalTimeSeriesLoader()).append(',').append(' ');
+    buf.append("scheduler").append('=').append(getScheduler()).append(',').append(' ');
+    buf.append("targetTypes").append('=').append(getTargetTypes()).append(',').append(' ');
+    buf.append("organizationMaster").append('=').append(getOrganizationMaster()).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code WebsiteBasicsComponentFactory}.
    */
@@ -1090,6 +1016,122 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<OrganizationMaster> organizationMaster() {
       return _organizationMaster;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 10395716:  // configMaster
+          return ((WebsiteBasicsComponentFactory) bean).getConfigMaster();
+        case -652001691:  // exchangeMaster
+          return ((WebsiteBasicsComponentFactory) bean).getExchangeMaster();
+        case 246258906:  // holidayMaster
+          return ((WebsiteBasicsComponentFactory) bean).getHolidayMaster();
+        case -1820969354:  // regionMaster
+          return ((WebsiteBasicsComponentFactory) bean).getRegionMaster();
+        case -887218750:  // securityMaster
+          return ((WebsiteBasicsComponentFactory) bean).getSecurityMaster();
+        case -702456965:  // securitySource
+          return ((WebsiteBasicsComponentFactory) bean).getSecuritySource();
+        case -903470221:  // securityLoader
+          return ((WebsiteBasicsComponentFactory) bean).getSecurityLoader();
+        case -1840419605:  // positionMaster
+          return ((WebsiteBasicsComponentFactory) bean).getPositionMaster();
+        case -772274742:  // portfolioMaster
+          return ((WebsiteBasicsComponentFactory) bean).getPortfolioMaster();
+        case -252634564:  // batchMaster
+          return ((WebsiteBasicsComponentFactory) bean).getBatchMaster();
+        case 173967376:  // historicalTimeSeriesMaster
+          return ((WebsiteBasicsComponentFactory) bean).getHistoricalTimeSeriesMaster();
+        case 358729161:  // historicalTimeSeriesSource
+          return ((WebsiteBasicsComponentFactory) bean).getHistoricalTimeSeriesSource();
+        case 157715905:  // historicalTimeSeriesLoader
+          return ((WebsiteBasicsComponentFactory) bean).getHistoricalTimeSeriesLoader();
+        case -160710469:  // scheduler
+          return ((WebsiteBasicsComponentFactory) bean).getScheduler();
+        case -2094577304:  // targetTypes
+          return ((WebsiteBasicsComponentFactory) bean).getTargetTypes();
+        case -1158737547:  // organizationMaster
+          return ((WebsiteBasicsComponentFactory) bean).getOrganizationMaster();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 10395716:  // configMaster
+          ((WebsiteBasicsComponentFactory) bean).setConfigMaster((ConfigMaster) newValue);
+          return;
+        case -652001691:  // exchangeMaster
+          ((WebsiteBasicsComponentFactory) bean).setExchangeMaster((ExchangeMaster) newValue);
+          return;
+        case 246258906:  // holidayMaster
+          ((WebsiteBasicsComponentFactory) bean).setHolidayMaster((HolidayMaster) newValue);
+          return;
+        case -1820969354:  // regionMaster
+          ((WebsiteBasicsComponentFactory) bean).setRegionMaster((RegionMaster) newValue);
+          return;
+        case -887218750:  // securityMaster
+          ((WebsiteBasicsComponentFactory) bean).setSecurityMaster((SecurityMaster) newValue);
+          return;
+        case -702456965:  // securitySource
+          ((WebsiteBasicsComponentFactory) bean).setSecuritySource((SecuritySource) newValue);
+          return;
+        case -903470221:  // securityLoader
+          ((WebsiteBasicsComponentFactory) bean).setSecurityLoader((SecurityLoader) newValue);
+          return;
+        case -1840419605:  // positionMaster
+          ((WebsiteBasicsComponentFactory) bean).setPositionMaster((PositionMaster) newValue);
+          return;
+        case -772274742:  // portfolioMaster
+          ((WebsiteBasicsComponentFactory) bean).setPortfolioMaster((PortfolioMaster) newValue);
+          return;
+        case -252634564:  // batchMaster
+          ((WebsiteBasicsComponentFactory) bean).setBatchMaster((BatchMaster) newValue);
+          return;
+        case 173967376:  // historicalTimeSeriesMaster
+          ((WebsiteBasicsComponentFactory) bean).setHistoricalTimeSeriesMaster((HistoricalTimeSeriesMaster) newValue);
+          return;
+        case 358729161:  // historicalTimeSeriesSource
+          ((WebsiteBasicsComponentFactory) bean).setHistoricalTimeSeriesSource((HistoricalTimeSeriesSource) newValue);
+          return;
+        case 157715905:  // historicalTimeSeriesLoader
+          ((WebsiteBasicsComponentFactory) bean).setHistoricalTimeSeriesLoader((HistoricalTimeSeriesLoader) newValue);
+          return;
+        case -160710469:  // scheduler
+          ((WebsiteBasicsComponentFactory) bean).setScheduler((ScheduledExecutorService) newValue);
+          return;
+        case -2094577304:  // targetTypes
+          ((WebsiteBasicsComponentFactory) bean).setTargetTypes((ComputationTargetTypeProvider) newValue);
+          return;
+        case -1158737547:  // organizationMaster
+          ((WebsiteBasicsComponentFactory) bean).setOrganizationMaster((OrganizationMaster) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._configMaster, "configMaster");
+      JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._exchangeMaster, "exchangeMaster");
+      JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._holidayMaster, "holidayMaster");
+      JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._regionMaster, "regionMaster");
+      JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._securityMaster, "securityMaster");
+      JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._securitySource, "securitySource");
+      JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._securityLoader, "securityLoader");
+      JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._positionMaster, "positionMaster");
+      JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._portfolioMaster, "portfolioMaster");
+      JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._batchMaster, "batchMaster");
+      JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._historicalTimeSeriesMaster, "historicalTimeSeriesMaster");
+      JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._historicalTimeSeriesSource, "historicalTimeSeriesSource");
+      JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._historicalTimeSeriesLoader, "historicalTimeSeriesLoader");
+      JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._scheduler, "scheduler");
+      JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._targetTypes, "targetTypes");
+      JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._organizationMaster, "organizationMaster");
+      super.validate(bean);
     }
 
   }

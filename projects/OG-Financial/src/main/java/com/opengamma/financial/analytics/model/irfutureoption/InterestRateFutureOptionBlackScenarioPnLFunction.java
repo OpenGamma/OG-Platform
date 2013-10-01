@@ -12,15 +12,11 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.equity.EquityOptionBlackPresentValueCalculator;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.PresentValueBlackCalculator;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
-import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackCubeBundle;
-import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.analytics.math.surface.Surface;
 import com.opengamma.analytics.math.surface.SurfaceShiftFunctionFactory;
 import com.opengamma.engine.ComputationTarget;
@@ -30,9 +26,7 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.value.ValueProperties.Builder;
 import com.opengamma.financial.analytics.model.equity.ScenarioPnLPropertyNamesAndValues;
-import com.opengamma.financial.analytics.model.equity.option.EquityOptionBAWScenarioPnLFunction;
 
 /**
  * Simple scenario Function returns the difference in PresentValue between defined Scenario and current market conditions.

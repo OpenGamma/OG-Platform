@@ -5,6 +5,11 @@
  */
 package com.opengamma.integration.marketdata.manipulator.dsl;
 
+import groovy.lang.Binding;
+import groovy.lang.Closure;
+import groovy.lang.GroovyObjectSupport;
+import groovy.lang.Script;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
@@ -15,11 +20,6 @@ import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
-
-import groovy.lang.Binding;
-import groovy.lang.Closure;
-import groovy.lang.GroovyObjectSupport;
-import groovy.lang.Script;
 
 /**
  * Base class for scripts that create {@link Simulation}s and {@link Scenario}s. The methods in this class are available

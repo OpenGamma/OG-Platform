@@ -7,6 +7,7 @@ package com.opengamma.financial.convention;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -94,74 +95,6 @@ public class FXForwardAndSwapConvention extends Convention {
   @Override
   public FXForwardAndSwapConvention.Meta metaBean() {
     return FXForwardAndSwapConvention.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1912646125:  // spotConvention
-        return getSpotConvention();
-      case -1002835891:  // businessDayConvention
-        return getBusinessDayConvention();
-      case 100464505:  // isEOM
-        return isIsEOM();
-      case -534226563:  // settlementRegion
-        return getSettlementRegion();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1912646125:  // spotConvention
-        setSpotConvention((ExternalId) newValue);
-        return;
-      case -1002835891:  // businessDayConvention
-        setBusinessDayConvention((BusinessDayConvention) newValue);
-        return;
-      case 100464505:  // isEOM
-        setIsEOM((Boolean) newValue);
-        return;
-      case -534226563:  // settlementRegion
-        setSettlementRegion((ExternalId) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_spotConvention, "spotConvention");
-    JodaBeanUtils.notNull(_businessDayConvention, "businessDayConvention");
-    JodaBeanUtils.notNull(_settlementRegion, "settlementRegion");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      FXForwardAndSwapConvention other = (FXForwardAndSwapConvention) obj;
-      return JodaBeanUtils.equal(getSpotConvention(), other.getSpotConvention()) &&
-          JodaBeanUtils.equal(getBusinessDayConvention(), other.getBusinessDayConvention()) &&
-          JodaBeanUtils.equal(isIsEOM(), other.isIsEOM()) &&
-          JodaBeanUtils.equal(getSettlementRegion(), other.getSettlementRegion()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSpotConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBusinessDayConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isIsEOM());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementRegion());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -265,6 +198,60 @@ public class FXForwardAndSwapConvention extends Convention {
    */
   public final Property<ExternalId> settlementRegion() {
     return metaBean().settlementRegion().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public FXForwardAndSwapConvention clone() {
+    return (FXForwardAndSwapConvention) super.clone();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      FXForwardAndSwapConvention other = (FXForwardAndSwapConvention) obj;
+      return JodaBeanUtils.equal(getSpotConvention(), other.getSpotConvention()) &&
+          JodaBeanUtils.equal(getBusinessDayConvention(), other.getBusinessDayConvention()) &&
+          (isIsEOM() == other.isIsEOM()) &&
+          JodaBeanUtils.equal(getSettlementRegion(), other.getSettlementRegion()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSpotConvention());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBusinessDayConvention());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isIsEOM());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementRegion());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(160);
+    buf.append("FXForwardAndSwapConvention{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("spotConvention").append('=').append(getSpotConvention()).append(',').append(' ');
+    buf.append("businessDayConvention").append('=').append(getBusinessDayConvention()).append(',').append(' ');
+    buf.append("isEOM").append('=').append(isIsEOM()).append(',').append(' ');
+    buf.append("settlementRegion").append('=').append(getSettlementRegion()).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -374,6 +361,49 @@ public class FXForwardAndSwapConvention extends Convention {
      */
     public final MetaProperty<ExternalId> settlementRegion() {
       return _settlementRegion;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1912646125:  // spotConvention
+          return ((FXForwardAndSwapConvention) bean).getSpotConvention();
+        case -1002835891:  // businessDayConvention
+          return ((FXForwardAndSwapConvention) bean).getBusinessDayConvention();
+        case 100464505:  // isEOM
+          return ((FXForwardAndSwapConvention) bean).isIsEOM();
+        case -534226563:  // settlementRegion
+          return ((FXForwardAndSwapConvention) bean).getSettlementRegion();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1912646125:  // spotConvention
+          ((FXForwardAndSwapConvention) bean).setSpotConvention((ExternalId) newValue);
+          return;
+        case -1002835891:  // businessDayConvention
+          ((FXForwardAndSwapConvention) bean).setBusinessDayConvention((BusinessDayConvention) newValue);
+          return;
+        case 100464505:  // isEOM
+          ((FXForwardAndSwapConvention) bean).setIsEOM((Boolean) newValue);
+          return;
+        case -534226563:  // settlementRegion
+          ((FXForwardAndSwapConvention) bean).setSettlementRegion((ExternalId) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((FXForwardAndSwapConvention) bean)._spotConvention, "spotConvention");
+      JodaBeanUtils.notNull(((FXForwardAndSwapConvention) bean)._businessDayConvention, "businessDayConvention");
+      JodaBeanUtils.notNull(((FXForwardAndSwapConvention) bean)._settlementRegion, "settlementRegion");
+      super.validate(bean);
     }
 
   }

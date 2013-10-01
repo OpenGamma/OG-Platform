@@ -7,6 +7,7 @@ package com.opengamma.financial.convention;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -95,74 +96,6 @@ public class OvernightIndexConvention extends Convention {
   @Override
   public OvernightIndexConvention.Meta metaBean() {
     return OvernightIndexConvention.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1905311443:  // dayCount
-        return getDayCount();
-      case 740181958:  // publicationLag
-        return getPublicationLag();
-      case 575402001:  // currency
-        return getCurrency();
-      case 1932874322:  // regionCalendar
-        return getRegionCalendar();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1905311443:  // dayCount
-        setDayCount((DayCount) newValue);
-        return;
-      case 740181958:  // publicationLag
-        setPublicationLag((Integer) newValue);
-        return;
-      case 575402001:  // currency
-        setCurrency((Currency) newValue);
-        return;
-      case 1932874322:  // regionCalendar
-        setRegionCalendar((ExternalId) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_dayCount, "dayCount");
-    JodaBeanUtils.notNull(_currency, "currency");
-    JodaBeanUtils.notNull(_regionCalendar, "regionCalendar");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      OvernightIndexConvention other = (OvernightIndexConvention) obj;
-      return JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
-          JodaBeanUtils.equal(getPublicationLag(), other.getPublicationLag()) &&
-          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getRegionCalendar(), other.getRegionCalendar()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDayCount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPublicationLag());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionCalendar());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -266,6 +199,60 @@ public class OvernightIndexConvention extends Convention {
    */
   public final Property<ExternalId> regionCalendar() {
     return metaBean().regionCalendar().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public OvernightIndexConvention clone() {
+    return (OvernightIndexConvention) super.clone();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      OvernightIndexConvention other = (OvernightIndexConvention) obj;
+      return JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
+          (getPublicationLag() == other.getPublicationLag()) &&
+          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
+          JodaBeanUtils.equal(getRegionCalendar(), other.getRegionCalendar()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDayCount());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPublicationLag());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionCalendar());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(160);
+    buf.append("OvernightIndexConvention{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("dayCount").append('=').append(getDayCount()).append(',').append(' ');
+    buf.append("publicationLag").append('=').append(getPublicationLag()).append(',').append(' ');
+    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
+    buf.append("regionCalendar").append('=').append(getRegionCalendar()).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -375,6 +362,49 @@ public class OvernightIndexConvention extends Convention {
      */
     public final MetaProperty<ExternalId> regionCalendar() {
       return _regionCalendar;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1905311443:  // dayCount
+          return ((OvernightIndexConvention) bean).getDayCount();
+        case 740181958:  // publicationLag
+          return ((OvernightIndexConvention) bean).getPublicationLag();
+        case 575402001:  // currency
+          return ((OvernightIndexConvention) bean).getCurrency();
+        case 1932874322:  // regionCalendar
+          return ((OvernightIndexConvention) bean).getRegionCalendar();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1905311443:  // dayCount
+          ((OvernightIndexConvention) bean).setDayCount((DayCount) newValue);
+          return;
+        case 740181958:  // publicationLag
+          ((OvernightIndexConvention) bean).setPublicationLag((Integer) newValue);
+          return;
+        case 575402001:  // currency
+          ((OvernightIndexConvention) bean).setCurrency((Currency) newValue);
+          return;
+        case 1932874322:  // regionCalendar
+          ((OvernightIndexConvention) bean).setRegionCalendar((ExternalId) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((OvernightIndexConvention) bean)._dayCount, "dayCount");
+      JodaBeanUtils.notNull(((OvernightIndexConvention) bean)._currency, "currency");
+      JodaBeanUtils.notNull(((OvernightIndexConvention) bean)._regionCalendar, "regionCalendar");
+      super.validate(bean);
     }
 
   }

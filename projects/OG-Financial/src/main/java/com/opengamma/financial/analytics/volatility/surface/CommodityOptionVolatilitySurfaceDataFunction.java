@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.analytics.volatility.surface;
 
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -42,8 +44,6 @@ import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
-
-import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
 /**
  *

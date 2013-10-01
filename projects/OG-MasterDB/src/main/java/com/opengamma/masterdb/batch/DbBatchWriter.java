@@ -143,6 +143,7 @@ public class DbBatchWriter extends AbstractDbMaster {
    * Creates an instance.
    *
    * @param dbConnector  the database connector, not null
+   * @param computationTargetResolver  the resolver
    */
   public DbBatchWriter(final DbConnector dbConnector, final ComputationTargetResolver computationTargetResolver) {
     super(dbConnector, IDENTIFIER_SCHEME_DEFAULT);
@@ -1207,31 +1208,16 @@ public class DbBatchWriter extends AbstractDbMaster {
     return totalCount;
   }
   
-  /**
-   * Java has support for extended-precision doubles using 80-bits rather than 64-bits. The DOUBLE PRECISION type in
-   * SQL is a 64-bit floating point value. Attempting to write values to the database which can only be represented in
-   * the 80-bit format (e.g. 1E-350) will result in an SQL exception.
-   * <p>
-   * This method works by extracting the 64-bit precision value so that values out of the range of a SQL double will be
-   * rounded to zero. 
-   * 
-   * @param value  the input value, may be null
-   * @return the output, null if input was null, otherwise its 64-bit equivalent
-   */
   private static Double ensureDatabasePrecision(Double value) {
-    // NOTE jonathan 2013-06-12 -- force it through a strictfp method instead?
     if (value == null) {
       return null;
     }
-    final long doubleAsLongBits = Double.doubleToLongBits(value);
-    final double doubleViaLongBits = Double.longBitsToDouble(doubleAsLongBits);
-    if (Double.doubleToLongBits(doubleViaLongBits) != doubleAsLongBits) {
-      // Something went wrong in the conversion
-      s_logger.error("Attempt to restrict result " + value + " to the 64-bit precision supported by the database resulted in unexpected value "
-          + doubleViaLongBits + ". Using original value, but the database write may fail.");
-      return value;
+    // Java's smallest double is 4.9e-324, but most databases would underflow.
+    // Postgres is 1e-307, Oracle is 2.2e-307, SQL Server is 2.2e-308.
+    if (Math.abs(value) < 1e-300) {
+      return 0d;
     }
-    return doubleViaLongBits;
+    return value;
   }
 
   protected StatusEntry.Status getStatus(Map<Pair<Long, Long>, StatusEntry> statusCache, String calcConfName, ComputationTargetSpecification ct) {

@@ -5,6 +5,9 @@
  */
 package com.opengamma.integration.marketdata.manipulator.dsl;
 
+import groovy.lang.GroovyShell;
+import groovy.lang.Script;
+
 import java.io.StringReader;
 import java.util.Map;
 
@@ -17,9 +20,6 @@ import org.fudgemsg.mapping.FudgeSerializer;
 import com.opengamma.core.config.Config;
 import com.opengamma.engine.marketdata.manipulator.ScenarioParameters;
 import com.opengamma.util.ArgumentChecker;
-
-import groovy.lang.GroovyShell;
-import groovy.lang.Script;
 
 /**
  * Config object for storing parameters required to build a scenario. This object stores a Groovy script which is

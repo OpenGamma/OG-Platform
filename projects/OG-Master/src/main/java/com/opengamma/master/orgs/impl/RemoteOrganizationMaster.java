@@ -5,6 +5,9 @@
  */
 package com.opengamma.master.orgs.impl;
 
+import java.net.URI;
+import java.util.List;
+
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
@@ -19,9 +22,6 @@ import com.opengamma.master.orgs.OrganizationSearchRequest;
 import com.opengamma.master.orgs.OrganizationSearchResult;
 import com.opengamma.util.ArgumentChecker;
 import com.sun.jersey.api.client.GenericType;
-
-import java.net.URI;
-import java.util.List;
 
 /**
  * Provides access to a remote {@link com.opengamma.master.orgs.OrganizationMaster}.

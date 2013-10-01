@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.ircurve.strips;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -142,90 +143,6 @@ public class RateFutureNode extends CurveNode {
   @Override
   public RateFutureNode.Meta metaBean() {
     return RateFutureNode.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1052030700:  // futureNumber
-        return getFutureNumber();
-      case -1583746178:  // startTenor
-        return getStartTenor();
-      case -515187011:  // futureTenor
-        return getFutureTenor();
-      case -824175261:  // underlyingTenor
-        return getUnderlyingTenor();
-      case 1736486292:  // futureConvention
-        return getFutureConvention();
-      case -268325202:  // underlyingConvention
-        return getUnderlyingConvention();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1052030700:  // futureNumber
-        setFutureNumber((Integer) newValue);
-        return;
-      case -1583746178:  // startTenor
-        setStartTenor((Tenor) newValue);
-        return;
-      case -515187011:  // futureTenor
-        setFutureTenor((Tenor) newValue);
-        return;
-      case -824175261:  // underlyingTenor
-        setUnderlyingTenor((Tenor) newValue);
-        return;
-      case 1736486292:  // futureConvention
-        setFutureConvention((ExternalId) newValue);
-        return;
-      case -268325202:  // underlyingConvention
-        setUnderlyingConvention((ExternalId) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_startTenor, "startTenor");
-    JodaBeanUtils.notNull(_futureTenor, "futureTenor");
-    JodaBeanUtils.notNull(_underlyingTenor, "underlyingTenor");
-    JodaBeanUtils.notNull(_futureConvention, "futureConvention");
-    JodaBeanUtils.notNull(_underlyingConvention, "underlyingConvention");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      RateFutureNode other = (RateFutureNode) obj;
-      return JodaBeanUtils.equal(getFutureNumber(), other.getFutureNumber()) &&
-          JodaBeanUtils.equal(getStartTenor(), other.getStartTenor()) &&
-          JodaBeanUtils.equal(getFutureTenor(), other.getFutureTenor()) &&
-          JodaBeanUtils.equal(getUnderlyingTenor(), other.getUnderlyingTenor()) &&
-          JodaBeanUtils.equal(getFutureConvention(), other.getFutureConvention()) &&
-          JodaBeanUtils.equal(getUnderlyingConvention(), other.getUnderlyingConvention()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFutureNumber());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStartTenor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFutureTenor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingTenor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFutureConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingConvention());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -384,6 +301,66 @@ public class RateFutureNode extends CurveNode {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public RateFutureNode clone() {
+    return (RateFutureNode) super.clone();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      RateFutureNode other = (RateFutureNode) obj;
+      return (getFutureNumber() == other.getFutureNumber()) &&
+          JodaBeanUtils.equal(getStartTenor(), other.getStartTenor()) &&
+          JodaBeanUtils.equal(getFutureTenor(), other.getFutureTenor()) &&
+          JodaBeanUtils.equal(getUnderlyingTenor(), other.getUnderlyingTenor()) &&
+          JodaBeanUtils.equal(getFutureConvention(), other.getFutureConvention()) &&
+          JodaBeanUtils.equal(getUnderlyingConvention(), other.getUnderlyingConvention()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFutureNumber());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getStartTenor());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFutureTenor());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingTenor());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFutureConvention());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingConvention());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(224);
+    buf.append("RateFutureNode{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("futureNumber").append('=').append(getFutureNumber()).append(',').append(' ');
+    buf.append("startTenor").append('=').append(getStartTenor()).append(',').append(' ');
+    buf.append("futureTenor").append('=').append(getFutureTenor()).append(',').append(' ');
+    buf.append("underlyingTenor").append('=').append(getUnderlyingTenor()).append(',').append(' ');
+    buf.append("futureConvention").append('=').append(getFutureConvention()).append(',').append(' ');
+    buf.append("underlyingConvention").append('=').append(getUnderlyingConvention()).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code RateFutureNode}.
    */
@@ -522,6 +499,61 @@ public class RateFutureNode extends CurveNode {
      */
     public final MetaProperty<ExternalId> underlyingConvention() {
       return _underlyingConvention;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1052030700:  // futureNumber
+          return ((RateFutureNode) bean).getFutureNumber();
+        case -1583746178:  // startTenor
+          return ((RateFutureNode) bean).getStartTenor();
+        case -515187011:  // futureTenor
+          return ((RateFutureNode) bean).getFutureTenor();
+        case -824175261:  // underlyingTenor
+          return ((RateFutureNode) bean).getUnderlyingTenor();
+        case 1736486292:  // futureConvention
+          return ((RateFutureNode) bean).getFutureConvention();
+        case -268325202:  // underlyingConvention
+          return ((RateFutureNode) bean).getUnderlyingConvention();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1052030700:  // futureNumber
+          ((RateFutureNode) bean).setFutureNumber((Integer) newValue);
+          return;
+        case -1583746178:  // startTenor
+          ((RateFutureNode) bean).setStartTenor((Tenor) newValue);
+          return;
+        case -515187011:  // futureTenor
+          ((RateFutureNode) bean).setFutureTenor((Tenor) newValue);
+          return;
+        case -824175261:  // underlyingTenor
+          ((RateFutureNode) bean).setUnderlyingTenor((Tenor) newValue);
+          return;
+        case 1736486292:  // futureConvention
+          ((RateFutureNode) bean).setFutureConvention((ExternalId) newValue);
+          return;
+        case -268325202:  // underlyingConvention
+          ((RateFutureNode) bean).setUnderlyingConvention((ExternalId) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((RateFutureNode) bean)._startTenor, "startTenor");
+      JodaBeanUtils.notNull(((RateFutureNode) bean)._futureTenor, "futureTenor");
+      JodaBeanUtils.notNull(((RateFutureNode) bean)._underlyingTenor, "underlyingTenor");
+      JodaBeanUtils.notNull(((RateFutureNode) bean)._futureConvention, "futureConvention");
+      JodaBeanUtils.notNull(((RateFutureNode) bean)._underlyingConvention, "underlyingConvention");
+      super.validate(bean);
     }
 
   }

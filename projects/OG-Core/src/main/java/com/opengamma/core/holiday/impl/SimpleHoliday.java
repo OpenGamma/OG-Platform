@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -145,80 +146,6 @@ public class SimpleHoliday extends DirectBean
   @Override
   public SimpleHoliday.Meta metaBean() {
     return SimpleHoliday.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        return getUniqueId();
-      case 3575610:  // type
-        return getType();
-      case -62093222:  // regionExternalId
-        return getRegionExternalId();
-      case 323354825:  // exchangeExternalId
-        return getExchangeExternalId();
-      case 575402001:  // currency
-        return getCurrency();
-      case -367347:  // holidayDates
-        return getHolidayDates();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        setUniqueId((UniqueId) newValue);
-        return;
-      case 3575610:  // type
-        setType((HolidayType) newValue);
-        return;
-      case -62093222:  // regionExternalId
-        setRegionExternalId((ExternalId) newValue);
-        return;
-      case 323354825:  // exchangeExternalId
-        setExchangeExternalId((ExternalId) newValue);
-        return;
-      case 575402001:  // currency
-        setCurrency((Currency) newValue);
-        return;
-      case -367347:  // holidayDates
-        setHolidayDates((List<LocalDate>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      SimpleHoliday other = (SimpleHoliday) obj;
-      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
-          JodaBeanUtils.equal(getType(), other.getType()) &&
-          JodaBeanUtils.equal(getRegionExternalId(), other.getRegionExternalId()) &&
-          JodaBeanUtils.equal(getExchangeExternalId(), other.getExchangeExternalId()) &&
-          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getHolidayDates(), other.getHolidayDates());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionExternalId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExchangeExternalId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHolidayDates());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -382,6 +309,73 @@ public class SimpleHoliday extends DirectBean
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public SimpleHoliday clone() {
+    BeanBuilder<? extends SimpleHoliday> builder = metaBean().builder();
+    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
+      if (mp.style().isBuildable()) {
+        Object value = mp.get(this);
+        if (value instanceof Bean) {
+          value = ((Bean) value).clone();
+        }
+        builder.set(mp.name(), value);
+      }
+    }
+    return builder.build();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      SimpleHoliday other = (SimpleHoliday) obj;
+      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+          JodaBeanUtils.equal(getType(), other.getType()) &&
+          JodaBeanUtils.equal(getRegionExternalId(), other.getRegionExternalId()) &&
+          JodaBeanUtils.equal(getExchangeExternalId(), other.getExchangeExternalId()) &&
+          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
+          JodaBeanUtils.equal(getHolidayDates(), other.getHolidayDates());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionExternalId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExchangeExternalId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHolidayDates());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(224);
+    buf.append("SimpleHoliday{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("uniqueId").append('=').append(getUniqueId()).append(',').append(' ');
+    buf.append("type").append('=').append(getType()).append(',').append(' ');
+    buf.append("regionExternalId").append('=').append(getRegionExternalId()).append(',').append(' ');
+    buf.append("exchangeExternalId").append('=').append(getExchangeExternalId()).append(',').append(' ');
+    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
+    buf.append("holidayDates").append('=').append(getHolidayDates()).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code SimpleHoliday}.
    */
@@ -521,6 +515,52 @@ public class SimpleHoliday extends DirectBean
      */
     public final MetaProperty<List<LocalDate>> holidayDates() {
       return _holidayDates;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          return ((SimpleHoliday) bean).getUniqueId();
+        case 3575610:  // type
+          return ((SimpleHoliday) bean).getType();
+        case -62093222:  // regionExternalId
+          return ((SimpleHoliday) bean).getRegionExternalId();
+        case 323354825:  // exchangeExternalId
+          return ((SimpleHoliday) bean).getExchangeExternalId();
+        case 575402001:  // currency
+          return ((SimpleHoliday) bean).getCurrency();
+        case -367347:  // holidayDates
+          return ((SimpleHoliday) bean).getHolidayDates();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          ((SimpleHoliday) bean).setUniqueId((UniqueId) newValue);
+          return;
+        case 3575610:  // type
+          ((SimpleHoliday) bean).setType((HolidayType) newValue);
+          return;
+        case -62093222:  // regionExternalId
+          ((SimpleHoliday) bean).setRegionExternalId((ExternalId) newValue);
+          return;
+        case 323354825:  // exchangeExternalId
+          ((SimpleHoliday) bean).setExchangeExternalId((ExternalId) newValue);
+          return;
+        case 575402001:  // currency
+          ((SimpleHoliday) bean).setCurrency((Currency) newValue);
+          return;
+        case -367347:  // holidayDates
+          ((SimpleHoliday) bean).setHolidayDates((List<LocalDate>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

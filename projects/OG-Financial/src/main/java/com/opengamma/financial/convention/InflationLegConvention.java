@@ -7,6 +7,7 @@ package com.opengamma.financial.convention;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -111,88 +112,6 @@ public class InflationLegConvention extends Convention {
   @Override
   public InflationLegConvention.Meta metaBean() {
     return InflationLegConvention.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1002835891:  // businessDayConvention
-        return getBusinessDayConvention();
-      case 1905311443:  // dayCount
-        return getDayCount();
-      case 100464505:  // isEOM
-        return isIsEOM();
-      case -319031566:  // monthLag
-        return getMonthLag();
-      case -1998751440:  // spotLag
-        return getSpotLag();
-      case 1501179226:  // priceIndexConvention
-        return getPriceIndexConvention();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1002835891:  // businessDayConvention
-        setBusinessDayConvention((BusinessDayConvention) newValue);
-        return;
-      case 1905311443:  // dayCount
-        setDayCount((DayCount) newValue);
-        return;
-      case 100464505:  // isEOM
-        setIsEOM((Boolean) newValue);
-        return;
-      case -319031566:  // monthLag
-        setMonthLag((Integer) newValue);
-        return;
-      case -1998751440:  // spotLag
-        setSpotLag((Integer) newValue);
-        return;
-      case 1501179226:  // priceIndexConvention
-        setPriceIndexConvention((ExternalId) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_businessDayConvention, "businessDayConvention");
-    JodaBeanUtils.notNull(_dayCount, "dayCount");
-    JodaBeanUtils.notNull(_priceIndexConvention, "priceIndexConvention");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      InflationLegConvention other = (InflationLegConvention) obj;
-      return JodaBeanUtils.equal(getBusinessDayConvention(), other.getBusinessDayConvention()) &&
-          JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
-          JodaBeanUtils.equal(isIsEOM(), other.isIsEOM()) &&
-          JodaBeanUtils.equal(getMonthLag(), other.getMonthLag()) &&
-          JodaBeanUtils.equal(getSpotLag(), other.getSpotLag()) &&
-          JodaBeanUtils.equal(getPriceIndexConvention(), other.getPriceIndexConvention()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getBusinessDayConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDayCount());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isIsEOM());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMonthLag());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSpotLag());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPriceIndexConvention());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -349,6 +268,66 @@ public class InflationLegConvention extends Convention {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public InflationLegConvention clone() {
+    return (InflationLegConvention) super.clone();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      InflationLegConvention other = (InflationLegConvention) obj;
+      return JodaBeanUtils.equal(getBusinessDayConvention(), other.getBusinessDayConvention()) &&
+          JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
+          (isIsEOM() == other.isIsEOM()) &&
+          (getMonthLag() == other.getMonthLag()) &&
+          (getSpotLag() == other.getSpotLag()) &&
+          JodaBeanUtils.equal(getPriceIndexConvention(), other.getPriceIndexConvention()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBusinessDayConvention());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDayCount());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isIsEOM());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMonthLag());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSpotLag());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPriceIndexConvention());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(224);
+    buf.append("InflationLegConvention{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("businessDayConvention").append('=').append(getBusinessDayConvention()).append(',').append(' ');
+    buf.append("dayCount").append('=').append(getDayCount()).append(',').append(' ');
+    buf.append("isEOM").append('=').append(isIsEOM()).append(',').append(' ');
+    buf.append("monthLag").append('=').append(getMonthLag()).append(',').append(' ');
+    buf.append("spotLag").append('=').append(getSpotLag()).append(',').append(' ');
+    buf.append("priceIndexConvention").append('=').append(getPriceIndexConvention()).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code InflationLegConvention}.
    */
@@ -487,6 +466,59 @@ public class InflationLegConvention extends Convention {
      */
     public final MetaProperty<ExternalId> priceIndexConvention() {
       return _priceIndexConvention;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1002835891:  // businessDayConvention
+          return ((InflationLegConvention) bean).getBusinessDayConvention();
+        case 1905311443:  // dayCount
+          return ((InflationLegConvention) bean).getDayCount();
+        case 100464505:  // isEOM
+          return ((InflationLegConvention) bean).isIsEOM();
+        case -319031566:  // monthLag
+          return ((InflationLegConvention) bean).getMonthLag();
+        case -1998751440:  // spotLag
+          return ((InflationLegConvention) bean).getSpotLag();
+        case 1501179226:  // priceIndexConvention
+          return ((InflationLegConvention) bean).getPriceIndexConvention();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1002835891:  // businessDayConvention
+          ((InflationLegConvention) bean).setBusinessDayConvention((BusinessDayConvention) newValue);
+          return;
+        case 1905311443:  // dayCount
+          ((InflationLegConvention) bean).setDayCount((DayCount) newValue);
+          return;
+        case 100464505:  // isEOM
+          ((InflationLegConvention) bean).setIsEOM((Boolean) newValue);
+          return;
+        case -319031566:  // monthLag
+          ((InflationLegConvention) bean).setMonthLag((Integer) newValue);
+          return;
+        case -1998751440:  // spotLag
+          ((InflationLegConvention) bean).setSpotLag((Integer) newValue);
+          return;
+        case 1501179226:  // priceIndexConvention
+          ((InflationLegConvention) bean).setPriceIndexConvention((ExternalId) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((InflationLegConvention) bean)._businessDayConvention, "businessDayConvention");
+      JodaBeanUtils.notNull(((InflationLegConvention) bean)._dayCount, "dayCount");
+      JodaBeanUtils.notNull(((InflationLegConvention) bean)._priceIndexConvention, "priceIndexConvention");
+      super.validate(bean);
     }
 
   }

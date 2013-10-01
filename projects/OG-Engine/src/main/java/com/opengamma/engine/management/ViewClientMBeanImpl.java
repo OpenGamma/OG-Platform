@@ -13,7 +13,6 @@ import net.sf.ehcache.CacheException;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.client.ViewClientState;
 import com.opengamma.id.UniqueId;
-import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -68,8 +67,8 @@ public class ViewClientMBeanImpl implements ViewClientMBean {
   }
 
   @Override
-  public UserPrincipal getUser() {
-    return _viewClient.getUser();
+  public String getUser() {
+    return _viewClient.getUser().getUserName();
   }
 
   @Override

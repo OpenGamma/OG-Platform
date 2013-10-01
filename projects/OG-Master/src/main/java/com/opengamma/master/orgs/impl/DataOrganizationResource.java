@@ -5,14 +5,7 @@
  */
 package com.opengamma.master.orgs.impl;
 
-import com.opengamma.id.ObjectId;
-import com.opengamma.master.AbstractDocumentDataResource;
-import com.opengamma.master.orgs.OrganizationDocument;
-import com.opengamma.master.orgs.OrganizationHistoryRequest;
-import com.opengamma.master.orgs.OrganizationHistoryResult;
-import com.opengamma.master.orgs.OrganizationMaster;
-import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.rest.RestUtils;
+import java.util.List;
 
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -24,7 +17,15 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
-import java.util.List;
+
+import com.opengamma.id.ObjectId;
+import com.opengamma.master.AbstractDocumentDataResource;
+import com.opengamma.master.orgs.OrganizationDocument;
+import com.opengamma.master.orgs.OrganizationHistoryRequest;
+import com.opengamma.master.orgs.OrganizationHistoryResult;
+import com.opengamma.master.orgs.OrganizationMaster;
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.rest.RestUtils;
 
 /**
  * RESTful resource for a organization.

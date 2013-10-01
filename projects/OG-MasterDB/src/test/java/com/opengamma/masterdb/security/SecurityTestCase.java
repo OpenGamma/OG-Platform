@@ -23,7 +23,6 @@ import org.joda.beans.BeanBuilder;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
-import org.joda.beans.PropertyReadWrite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
@@ -669,7 +668,7 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
           Object value = parameterValues[j].get(parameterIndex[j]);
           parameterIndex[j] = (parameterIndex[j] + 1) % parameterValues[j].size();
           MetaProperty<?> metaProperty = mps.get(j);
-          if (metaProperty.readWrite() != PropertyReadWrite.READ_ONLY) {
+          if (metaProperty.style().isSerializable()) {
             builder.set(metaProperty.name(), value);
           }
         }

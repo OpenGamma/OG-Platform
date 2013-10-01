@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -218,89 +219,6 @@ public class HistoricalTimeSeriesProviderGetRequest extends DirectBean {
     return HistoricalTimeSeriesProviderGetRequest.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1369745653:  // externalIdBundles
-        return getExternalIdBundles();
-      case 1272470629:  // dataSource
-        return getDataSource();
-      case 339742651:  // dataProvider
-        return getDataProvider();
-      case -386794640:  // dataField
-        return getDataField();
-      case -261425617:  // dateRange
-        return getDateRange();
-      case -667790489:  // maxPoints
-        return getMaxPoints();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1369745653:  // externalIdBundles
-        setExternalIdBundles((Set<ExternalIdBundle>) newValue);
-        return;
-      case 1272470629:  // dataSource
-        setDataSource((String) newValue);
-        return;
-      case 339742651:  // dataProvider
-        setDataProvider((String) newValue);
-        return;
-      case -386794640:  // dataField
-        setDataField((String) newValue);
-        return;
-      case -261425617:  // dateRange
-        setDateRange((LocalDateRange) newValue);
-        return;
-      case -667790489:  // maxPoints
-        setMaxPoints((Integer) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_dataSource, "dataSource");
-    JodaBeanUtils.notNull(_dataProvider, "dataProvider");
-    JodaBeanUtils.notNull(_dataField, "dataField");
-    JodaBeanUtils.notNull(_dateRange, "dateRange");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      HistoricalTimeSeriesProviderGetRequest other = (HistoricalTimeSeriesProviderGetRequest) obj;
-      return JodaBeanUtils.equal(getExternalIdBundles(), other.getExternalIdBundles()) &&
-          JodaBeanUtils.equal(getDataSource(), other.getDataSource()) &&
-          JodaBeanUtils.equal(getDataProvider(), other.getDataProvider()) &&
-          JodaBeanUtils.equal(getDataField(), other.getDataField()) &&
-          JodaBeanUtils.equal(getDateRange(), other.getDateRange()) &&
-          JodaBeanUtils.equal(getMaxPoints(), other.getMaxPoints());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdBundles());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataProvider());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataField());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDateRange());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMaxPoints());
-    return hash;
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the set of time-series external identifiers to get.
@@ -472,6 +390,73 @@ public class HistoricalTimeSeriesProviderGetRequest extends DirectBean {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public HistoricalTimeSeriesProviderGetRequest clone() {
+    BeanBuilder<? extends HistoricalTimeSeriesProviderGetRequest> builder = metaBean().builder();
+    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
+      if (mp.style().isBuildable()) {
+        Object value = mp.get(this);
+        if (value instanceof Bean) {
+          value = ((Bean) value).clone();
+        }
+        builder.set(mp.name(), value);
+      }
+    }
+    return builder.build();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      HistoricalTimeSeriesProviderGetRequest other = (HistoricalTimeSeriesProviderGetRequest) obj;
+      return JodaBeanUtils.equal(getExternalIdBundles(), other.getExternalIdBundles()) &&
+          JodaBeanUtils.equal(getDataSource(), other.getDataSource()) &&
+          JodaBeanUtils.equal(getDataProvider(), other.getDataProvider()) &&
+          JodaBeanUtils.equal(getDataField(), other.getDataField()) &&
+          JodaBeanUtils.equal(getDateRange(), other.getDateRange()) &&
+          JodaBeanUtils.equal(getMaxPoints(), other.getMaxPoints());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdBundles());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDataSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDataProvider());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDataField());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDateRange());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMaxPoints());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(224);
+    buf.append("HistoricalTimeSeriesProviderGetRequest{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("externalIdBundles").append('=').append(getExternalIdBundles()).append(',').append(' ');
+    buf.append("dataSource").append('=').append(getDataSource()).append(',').append(' ');
+    buf.append("dataProvider").append('=').append(getDataProvider()).append(',').append(' ');
+    buf.append("dataField").append('=').append(getDataField()).append(',').append(' ');
+    buf.append("dateRange").append('=').append(getDateRange()).append(',').append(' ');
+    buf.append("maxPoints").append('=').append(getMaxPoints()).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code HistoricalTimeSeriesProviderGetRequest}.
    */
@@ -611,6 +596,60 @@ public class HistoricalTimeSeriesProviderGetRequest extends DirectBean {
      */
     public final MetaProperty<Integer> maxPoints() {
       return _maxPoints;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1369745653:  // externalIdBundles
+          return ((HistoricalTimeSeriesProviderGetRequest) bean).getExternalIdBundles();
+        case 1272470629:  // dataSource
+          return ((HistoricalTimeSeriesProviderGetRequest) bean).getDataSource();
+        case 339742651:  // dataProvider
+          return ((HistoricalTimeSeriesProviderGetRequest) bean).getDataProvider();
+        case -386794640:  // dataField
+          return ((HistoricalTimeSeriesProviderGetRequest) bean).getDataField();
+        case -261425617:  // dateRange
+          return ((HistoricalTimeSeriesProviderGetRequest) bean).getDateRange();
+        case -667790489:  // maxPoints
+          return ((HistoricalTimeSeriesProviderGetRequest) bean).getMaxPoints();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1369745653:  // externalIdBundles
+          ((HistoricalTimeSeriesProviderGetRequest) bean).setExternalIdBundles((Set<ExternalIdBundle>) newValue);
+          return;
+        case 1272470629:  // dataSource
+          ((HistoricalTimeSeriesProviderGetRequest) bean).setDataSource((String) newValue);
+          return;
+        case 339742651:  // dataProvider
+          ((HistoricalTimeSeriesProviderGetRequest) bean).setDataProvider((String) newValue);
+          return;
+        case -386794640:  // dataField
+          ((HistoricalTimeSeriesProviderGetRequest) bean).setDataField((String) newValue);
+          return;
+        case -261425617:  // dateRange
+          ((HistoricalTimeSeriesProviderGetRequest) bean).setDateRange((LocalDateRange) newValue);
+          return;
+        case -667790489:  // maxPoints
+          ((HistoricalTimeSeriesProviderGetRequest) bean).setMaxPoints((Integer) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((HistoricalTimeSeriesProviderGetRequest) bean)._dataSource, "dataSource");
+      JodaBeanUtils.notNull(((HistoricalTimeSeriesProviderGetRequest) bean)._dataProvider, "dataProvider");
+      JodaBeanUtils.notNull(((HistoricalTimeSeriesProviderGetRequest) bean)._dataField, "dataField");
+      JodaBeanUtils.notNull(((HistoricalTimeSeriesProviderGetRequest) bean)._dateRange, "dateRange");
     }
 
   }

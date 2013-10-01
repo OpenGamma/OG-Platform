@@ -9,6 +9,7 @@ import java.util.Map;
 
 import javax.ws.rs.core.UriInfo;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -106,79 +107,6 @@ public class WebExchangeData extends DirectBean {
   @Override
   public WebExchangeData.Meta metaBean() {
     return WebExchangeData.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -652001691:  // exchangeMaster
-        return getExchangeMaster();
-      case -173275078:  // uriInfo
-        return getUriInfo();
-      case 772498730:  // uriExchangeId
-        return getUriExchangeId();
-      case 666567687:  // uriVersionId
-        return getUriVersionId();
-      case 1989774883:  // exchange
-        return getExchange();
-      case -1407102089:  // versioned
-        return getVersioned();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -652001691:  // exchangeMaster
-        setExchangeMaster((ExchangeMaster) newValue);
-        return;
-      case -173275078:  // uriInfo
-        setUriInfo((UriInfo) newValue);
-        return;
-      case 772498730:  // uriExchangeId
-        setUriExchangeId((String) newValue);
-        return;
-      case 666567687:  // uriVersionId
-        setUriVersionId((String) newValue);
-        return;
-      case 1989774883:  // exchange
-        setExchange((ExchangeDocument) newValue);
-        return;
-      case -1407102089:  // versioned
-        setVersioned((ExchangeDocument) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      WebExchangeData other = (WebExchangeData) obj;
-      return JodaBeanUtils.equal(getExchangeMaster(), other.getExchangeMaster()) &&
-          JodaBeanUtils.equal(getUriInfo(), other.getUriInfo()) &&
-          JodaBeanUtils.equal(getUriExchangeId(), other.getUriExchangeId()) &&
-          JodaBeanUtils.equal(getUriVersionId(), other.getUriVersionId()) &&
-          JodaBeanUtils.equal(getExchange(), other.getExchange()) &&
-          JodaBeanUtils.equal(getVersioned(), other.getVersioned());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExchangeMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUriInfo());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUriExchangeId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUriVersionId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExchange());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVersioned());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -332,6 +260,73 @@ public class WebExchangeData extends DirectBean {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public WebExchangeData clone() {
+    BeanBuilder<? extends WebExchangeData> builder = metaBean().builder();
+    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
+      if (mp.style().isBuildable()) {
+        Object value = mp.get(this);
+        if (value instanceof Bean) {
+          value = ((Bean) value).clone();
+        }
+        builder.set(mp.name(), value);
+      }
+    }
+    return builder.build();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      WebExchangeData other = (WebExchangeData) obj;
+      return JodaBeanUtils.equal(getExchangeMaster(), other.getExchangeMaster()) &&
+          JodaBeanUtils.equal(getUriInfo(), other.getUriInfo()) &&
+          JodaBeanUtils.equal(getUriExchangeId(), other.getUriExchangeId()) &&
+          JodaBeanUtils.equal(getUriVersionId(), other.getUriVersionId()) &&
+          JodaBeanUtils.equal(getExchange(), other.getExchange()) &&
+          JodaBeanUtils.equal(getVersioned(), other.getVersioned());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExchangeMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUriInfo());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUriExchangeId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUriVersionId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExchange());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getVersioned());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(224);
+    buf.append("WebExchangeData{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("exchangeMaster").append('=').append(getExchangeMaster()).append(',').append(' ');
+    buf.append("uriInfo").append('=').append(getUriInfo()).append(',').append(' ');
+    buf.append("uriExchangeId").append('=').append(getUriExchangeId()).append(',').append(' ');
+    buf.append("uriVersionId").append('=').append(getUriVersionId()).append(',').append(' ');
+    buf.append("exchange").append('=').append(getExchange()).append(',').append(' ');
+    buf.append("versioned").append('=').append(getVersioned()).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code WebExchangeData}.
    */
@@ -470,6 +465,51 @@ public class WebExchangeData extends DirectBean {
      */
     public final MetaProperty<ExchangeDocument> versioned() {
       return _versioned;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -652001691:  // exchangeMaster
+          return ((WebExchangeData) bean).getExchangeMaster();
+        case -173275078:  // uriInfo
+          return ((WebExchangeData) bean).getUriInfo();
+        case 772498730:  // uriExchangeId
+          return ((WebExchangeData) bean).getUriExchangeId();
+        case 666567687:  // uriVersionId
+          return ((WebExchangeData) bean).getUriVersionId();
+        case 1989774883:  // exchange
+          return ((WebExchangeData) bean).getExchange();
+        case -1407102089:  // versioned
+          return ((WebExchangeData) bean).getVersioned();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -652001691:  // exchangeMaster
+          ((WebExchangeData) bean).setExchangeMaster((ExchangeMaster) newValue);
+          return;
+        case -173275078:  // uriInfo
+          ((WebExchangeData) bean).setUriInfo((UriInfo) newValue);
+          return;
+        case 772498730:  // uriExchangeId
+          ((WebExchangeData) bean).setUriExchangeId((String) newValue);
+          return;
+        case 666567687:  // uriVersionId
+          ((WebExchangeData) bean).setUriVersionId((String) newValue);
+          return;
+        case 1989774883:  // exchange
+          ((WebExchangeData) bean).setExchange((ExchangeDocument) newValue);
+          return;
+        case -1407102089:  // versioned
+          ((WebExchangeData) bean).setVersioned((ExchangeDocument) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

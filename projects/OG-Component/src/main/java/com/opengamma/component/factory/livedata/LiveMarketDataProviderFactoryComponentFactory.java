@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -215,67 +216,6 @@ public class LiveMarketDataProviderFactoryComponentFactory extends AbstractCompo
     return LiveMarketDataProviderFactoryComponentFactory.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        return getClassifier();
-      case -1495762275:  // jmsConnector
-        return getJmsConnector();
-      case 1263631201:  // defaultProviders
-        return getDefaultProviders();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        setClassifier((String) newValue);
-        return;
-      case -1495762275:  // jmsConnector
-        setJmsConnector((JmsConnector) newValue);
-        return;
-      case 1263631201:  // defaultProviders
-        setDefaultProviders((String) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_classifier, "classifier");
-    JodaBeanUtils.notNull(_jmsConnector, "jmsConnector");
-    JodaBeanUtils.notNull(_defaultProviders, "defaultProviders");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      LiveMarketDataProviderFactoryComponentFactory other = (LiveMarketDataProviderFactoryComponentFactory) obj;
-      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
-          JodaBeanUtils.equal(getJmsConnector(), other.getJmsConnector()) &&
-          JodaBeanUtils.equal(getDefaultProviders(), other.getDefaultProviders()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDefaultProviders());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the classifier under which to publish.
@@ -358,6 +298,57 @@ public class LiveMarketDataProviderFactoryComponentFactory extends AbstractCompo
    */
   public final Property<String> defaultProviders() {
     return metaBean().defaultProviders().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public LiveMarketDataProviderFactoryComponentFactory clone() {
+    return (LiveMarketDataProviderFactoryComponentFactory) super.clone();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      LiveMarketDataProviderFactoryComponentFactory other = (LiveMarketDataProviderFactoryComponentFactory) obj;
+      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
+          JodaBeanUtils.equal(getJmsConnector(), other.getJmsConnector()) &&
+          JodaBeanUtils.equal(getDefaultProviders(), other.getDefaultProviders()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDefaultProviders());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(128);
+    buf.append("LiveMarketDataProviderFactoryComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("classifier").append('=').append(getClassifier()).append(',').append(' ');
+    buf.append("jmsConnector").append('=').append(getJmsConnector()).append(',').append(' ');
+    buf.append("defaultProviders").append('=').append(getDefaultProviders()).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -451,6 +442,44 @@ public class LiveMarketDataProviderFactoryComponentFactory extends AbstractCompo
      */
     public final MetaProperty<String> defaultProviders() {
       return _defaultProviders;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          return ((LiveMarketDataProviderFactoryComponentFactory) bean).getClassifier();
+        case -1495762275:  // jmsConnector
+          return ((LiveMarketDataProviderFactoryComponentFactory) bean).getJmsConnector();
+        case 1263631201:  // defaultProviders
+          return ((LiveMarketDataProviderFactoryComponentFactory) bean).getDefaultProviders();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          ((LiveMarketDataProviderFactoryComponentFactory) bean).setClassifier((String) newValue);
+          return;
+        case -1495762275:  // jmsConnector
+          ((LiveMarketDataProviderFactoryComponentFactory) bean).setJmsConnector((JmsConnector) newValue);
+          return;
+        case 1263631201:  // defaultProviders
+          ((LiveMarketDataProviderFactoryComponentFactory) bean).setDefaultProviders((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((LiveMarketDataProviderFactoryComponentFactory) bean)._classifier, "classifier");
+      JodaBeanUtils.notNull(((LiveMarketDataProviderFactoryComponentFactory) bean)._jmsConnector, "jmsConnector");
+      JodaBeanUtils.notNull(((LiveMarketDataProviderFactoryComponentFactory) bean)._defaultProviders, "defaultProviders");
+      super.validate(bean);
     }
 
   }

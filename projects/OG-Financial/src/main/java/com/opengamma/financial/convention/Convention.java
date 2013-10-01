@@ -8,6 +8,7 @@ package com.opengamma.financial.convention;
 import java.io.Serializable;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -85,65 +86,6 @@ public class Convention extends DirectBean implements Serializable, MutableUniqu
     return Convention.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 3373707:  // name
-        return getName();
-      case -294460212:  // uniqueId
-        return getUniqueId();
-      case -736922008:  // externalIdBundle
-        return getExternalIdBundle();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 3373707:  // name
-        setName((String) newValue);
-        return;
-      case -294460212:  // uniqueId
-        setUniqueId((UniqueId) newValue);
-        return;
-      case -736922008:  // externalIdBundle
-        setExternalIdBundle((ExternalIdBundle) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_name, "name");
-    JodaBeanUtils.notNull(_externalIdBundle, "externalIdBundle");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      Convention other = (Convention) obj;
-      return JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
-          JodaBeanUtils.equal(getExternalIdBundle(), other.getExternalIdBundle());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdBundle());
-    return hash;
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the convention name.
@@ -219,6 +161,64 @@ public class Convention extends DirectBean implements Serializable, MutableUniqu
    */
   public final Property<ExternalIdBundle> externalIdBundle() {
     return metaBean().externalIdBundle().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public Convention clone() {
+    BeanBuilder<? extends Convention> builder = metaBean().builder();
+    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
+      if (mp.style().isBuildable()) {
+        Object value = mp.get(this);
+        if (value instanceof Bean) {
+          value = ((Bean) value).clone();
+        }
+        builder.set(mp.name(), value);
+      }
+    }
+    return builder.build();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      Convention other = (Convention) obj;
+      return JodaBeanUtils.equal(getName(), other.getName()) &&
+          JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+          JodaBeanUtils.equal(getExternalIdBundle(), other.getExternalIdBundle());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdBundle());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(128);
+    buf.append("Convention{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("name").append('=').append(getName()).append(',').append(' ');
+    buf.append("uniqueId").append('=').append(getUniqueId()).append(',').append(' ');
+    buf.append("externalIdBundle").append('=').append(getExternalIdBundle()).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -312,6 +312,42 @@ public class Convention extends DirectBean implements Serializable, MutableUniqu
      */
     public final MetaProperty<ExternalIdBundle> externalIdBundle() {
       return _externalIdBundle;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 3373707:  // name
+          return ((Convention) bean).getName();
+        case -294460212:  // uniqueId
+          return ((Convention) bean).getUniqueId();
+        case -736922008:  // externalIdBundle
+          return ((Convention) bean).getExternalIdBundle();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 3373707:  // name
+          ((Convention) bean).setName((String) newValue);
+          return;
+        case -294460212:  // uniqueId
+          ((Convention) bean).setUniqueId((UniqueId) newValue);
+          return;
+        case -736922008:  // externalIdBundle
+          ((Convention) bean).setExternalIdBundle((ExternalIdBundle) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((Convention) bean)._name, "name");
+      JodaBeanUtils.notNull(((Convention) bean)._externalIdBundle, "externalIdBundle");
     }
 
   }

@@ -9,6 +9,7 @@ import java.io.Closeable;
 import java.util.Map;
 import java.util.Set;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -81,73 +82,6 @@ public class DbToolContext extends DirectBean implements Closeable {
   @Override
   public DbToolContext.Meta metaBean() {
     return DbToolContext.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 39794031:  // dbConnector
-        return getDbConnector();
-      case 209279841:  // dbManagement
-        return getDbManagement();
-      case 555704345:  // catalog
-        return getCatalog();
-      case -907987551:  // schema
-        return getSchema();
-      case -1026748889:  // schemaNames
-        return getSchemaNames();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 39794031:  // dbConnector
-        setDbConnector((DbConnector) newValue);
-        return;
-      case 209279841:  // dbManagement
-        setDbManagement((DbManagement) newValue);
-        return;
-      case 555704345:  // catalog
-        setCatalog((String) newValue);
-        return;
-      case -907987551:  // schema
-        setSchema((String) newValue);
-        return;
-      case -1026748889:  // schemaNames
-        setSchemaNames((Set<String>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      DbToolContext other = (DbToolContext) obj;
-      return JodaBeanUtils.equal(getDbConnector(), other.getDbConnector()) &&
-          JodaBeanUtils.equal(getDbManagement(), other.getDbManagement()) &&
-          JodaBeanUtils.equal(getCatalog(), other.getCatalog()) &&
-          JodaBeanUtils.equal(getSchema(), other.getSchema()) &&
-          JodaBeanUtils.equal(getSchemaNames(), other.getSchemaNames());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDbConnector());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDbManagement());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCatalog());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSchema());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSchemaNames());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -276,6 +210,70 @@ public class DbToolContext extends DirectBean implements Closeable {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public DbToolContext clone() {
+    BeanBuilder<? extends DbToolContext> builder = metaBean().builder();
+    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
+      if (mp.style().isBuildable()) {
+        Object value = mp.get(this);
+        if (value instanceof Bean) {
+          value = ((Bean) value).clone();
+        }
+        builder.set(mp.name(), value);
+      }
+    }
+    return builder.build();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      DbToolContext other = (DbToolContext) obj;
+      return JodaBeanUtils.equal(getDbConnector(), other.getDbConnector()) &&
+          JodaBeanUtils.equal(getDbManagement(), other.getDbManagement()) &&
+          JodaBeanUtils.equal(getCatalog(), other.getCatalog()) &&
+          JodaBeanUtils.equal(getSchema(), other.getSchema()) &&
+          JodaBeanUtils.equal(getSchemaNames(), other.getSchemaNames());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDbConnector());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDbManagement());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCatalog());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSchema());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSchemaNames());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(192);
+    buf.append("DbToolContext{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("dbConnector").append('=').append(getDbConnector()).append(',').append(' ');
+    buf.append("dbManagement").append('=').append(getDbManagement()).append(',').append(' ');
+    buf.append("catalog").append('=').append(getCatalog()).append(',').append(' ');
+    buf.append("schema").append('=').append(getSchema()).append(',').append(' ');
+    buf.append("schemaNames").append('=').append(getSchemaNames()).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code DbToolContext}.
    */
@@ -399,6 +397,47 @@ public class DbToolContext extends DirectBean implements Closeable {
      */
     public final MetaProperty<Set<String>> schemaNames() {
       return _schemaNames;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 39794031:  // dbConnector
+          return ((DbToolContext) bean).getDbConnector();
+        case 209279841:  // dbManagement
+          return ((DbToolContext) bean).getDbManagement();
+        case 555704345:  // catalog
+          return ((DbToolContext) bean).getCatalog();
+        case -907987551:  // schema
+          return ((DbToolContext) bean).getSchema();
+        case -1026748889:  // schemaNames
+          return ((DbToolContext) bean).getSchemaNames();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 39794031:  // dbConnector
+          ((DbToolContext) bean).setDbConnector((DbConnector) newValue);
+          return;
+        case 209279841:  // dbManagement
+          ((DbToolContext) bean).setDbManagement((DbManagement) newValue);
+          return;
+        case 555704345:  // catalog
+          ((DbToolContext) bean).setCatalog((String) newValue);
+          return;
+        case -907987551:  // schema
+          ((DbToolContext) bean).setSchema((String) newValue);
+          return;
+        case -1026748889:  // schemaNames
+          ((DbToolContext) bean).setSchemaNames((Set<String>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

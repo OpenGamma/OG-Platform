@@ -8,6 +8,7 @@ package com.opengamma.component.factory.master;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -118,86 +119,6 @@ public class DbExchangeMasterComponentFactory extends AbstractDbMasterComponentF
   @Override
   public DbExchangeMasterComponentFactory.Meta metaBean() {
     return DbExchangeMasterComponentFactory.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        return getClassifier();
-      case -614707837:  // publishRest
-        return isPublishRest();
-      case -1495762275:  // jmsConnector
-        return getJmsConnector();
-      case -758086398:  // jmsChangeManagerTopic
-        return getJmsChangeManagerTopic();
-      case -1737146991:  // uniqueIdScheme
-        return getUniqueIdScheme();
-      case -2022653118:  // maxRetries
-        return getMaxRetries();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        setClassifier((String) newValue);
-        return;
-      case -614707837:  // publishRest
-        setPublishRest((Boolean) newValue);
-        return;
-      case -1495762275:  // jmsConnector
-        setJmsConnector((JmsConnector) newValue);
-        return;
-      case -758086398:  // jmsChangeManagerTopic
-        setJmsChangeManagerTopic((String) newValue);
-        return;
-      case -1737146991:  // uniqueIdScheme
-        setUniqueIdScheme((String) newValue);
-        return;
-      case -2022653118:  // maxRetries
-        setMaxRetries((Integer) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_classifier, "classifier");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      DbExchangeMasterComponentFactory other = (DbExchangeMasterComponentFactory) obj;
-      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
-          JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
-          JodaBeanUtils.equal(getJmsConnector(), other.getJmsConnector()) &&
-          JodaBeanUtils.equal(getJmsChangeManagerTopic(), other.getJmsChangeManagerTopic()) &&
-          JodaBeanUtils.equal(getUniqueIdScheme(), other.getUniqueIdScheme()) &&
-          JodaBeanUtils.equal(getMaxRetries(), other.getMaxRetries()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsChangeManagerTopic());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueIdScheme());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMaxRetries());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -352,6 +273,66 @@ public class DbExchangeMasterComponentFactory extends AbstractDbMasterComponentF
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public DbExchangeMasterComponentFactory clone() {
+    return (DbExchangeMasterComponentFactory) super.clone();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      DbExchangeMasterComponentFactory other = (DbExchangeMasterComponentFactory) obj;
+      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
+          (isPublishRest() == other.isPublishRest()) &&
+          JodaBeanUtils.equal(getJmsConnector(), other.getJmsConnector()) &&
+          JodaBeanUtils.equal(getJmsChangeManagerTopic(), other.getJmsChangeManagerTopic()) &&
+          JodaBeanUtils.equal(getUniqueIdScheme(), other.getUniqueIdScheme()) &&
+          JodaBeanUtils.equal(getMaxRetries(), other.getMaxRetries()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsChangeManagerTopic());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueIdScheme());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMaxRetries());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(224);
+    buf.append("DbExchangeMasterComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("classifier").append('=').append(getClassifier()).append(',').append(' ');
+    buf.append("publishRest").append('=').append(isPublishRest()).append(',').append(' ');
+    buf.append("jmsConnector").append('=').append(getJmsConnector()).append(',').append(' ');
+    buf.append("jmsChangeManagerTopic").append('=').append(getJmsChangeManagerTopic()).append(',').append(' ');
+    buf.append("uniqueIdScheme").append('=').append(getUniqueIdScheme()).append(',').append(' ');
+    buf.append("maxRetries").append('=').append(getMaxRetries()).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code DbExchangeMasterComponentFactory}.
    */
@@ -490,6 +471,57 @@ public class DbExchangeMasterComponentFactory extends AbstractDbMasterComponentF
      */
     public final MetaProperty<Integer> maxRetries() {
       return _maxRetries;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          return ((DbExchangeMasterComponentFactory) bean).getClassifier();
+        case -614707837:  // publishRest
+          return ((DbExchangeMasterComponentFactory) bean).isPublishRest();
+        case -1495762275:  // jmsConnector
+          return ((DbExchangeMasterComponentFactory) bean).getJmsConnector();
+        case -758086398:  // jmsChangeManagerTopic
+          return ((DbExchangeMasterComponentFactory) bean).getJmsChangeManagerTopic();
+        case -1737146991:  // uniqueIdScheme
+          return ((DbExchangeMasterComponentFactory) bean).getUniqueIdScheme();
+        case -2022653118:  // maxRetries
+          return ((DbExchangeMasterComponentFactory) bean).getMaxRetries();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          ((DbExchangeMasterComponentFactory) bean).setClassifier((String) newValue);
+          return;
+        case -614707837:  // publishRest
+          ((DbExchangeMasterComponentFactory) bean).setPublishRest((Boolean) newValue);
+          return;
+        case -1495762275:  // jmsConnector
+          ((DbExchangeMasterComponentFactory) bean).setJmsConnector((JmsConnector) newValue);
+          return;
+        case -758086398:  // jmsChangeManagerTopic
+          ((DbExchangeMasterComponentFactory) bean).setJmsChangeManagerTopic((String) newValue);
+          return;
+        case -1737146991:  // uniqueIdScheme
+          ((DbExchangeMasterComponentFactory) bean).setUniqueIdScheme((String) newValue);
+          return;
+        case -2022653118:  // maxRetries
+          ((DbExchangeMasterComponentFactory) bean).setMaxRetries((Integer) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((DbExchangeMasterComponentFactory) bean)._classifier, "classifier");
+      super.validate(bean);
     }
 
   }

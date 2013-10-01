@@ -11,6 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -145,11 +146,11 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
     setType(type);
     switch (type) {
       case BANK:
-        setRegionExternalIdSearch(new ExternalIdSearch(exchangeOrRegionKeys));
+        setRegionExternalIdSearch(ExternalIdSearch.of(exchangeOrRegionKeys));
         break;
       case SETTLEMENT:
       case TRADING:
-        setExchangeExternalIdSearch(new ExternalIdSearch(exchangeOrRegionKeys));
+        setExchangeExternalIdSearch(ExternalIdSearch.of(exchangeOrRegionKeys));
         break;
       case CURRENCY:
       default:
@@ -211,9 +212,9 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
   public void addRegionExternalIds(ExternalId... regionIds) {
     ArgumentChecker.notNull(regionIds, "regionIds");
     if (getRegionExternalIdSearch() == null) {
-      setRegionExternalIdSearch(new ExternalIdSearch(regionIds));
+      setRegionExternalIdSearch(ExternalIdSearch.of(regionIds));
     } else {
-      getRegionExternalIdSearch().addExternalIds(regionIds);
+      setRegionExternalIdSearch(getRegionExternalIdSearch().withExternalIdsAdded(regionIds));
     }
   }
 
@@ -227,9 +228,22 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
   public void addRegionExternalIds(Iterable<ExternalId> regionIds) {
     ArgumentChecker.notNull(regionIds, "regionIds");
     if (getExchangeExternalIdSearch() == null) {
-      setRegionExternalIdSearch(new ExternalIdSearch(regionIds));
+      setRegionExternalIdSearch(ExternalIdSearch.of(regionIds));
     } else {
-      getRegionExternalIdSearch().addExternalIds(regionIds);
+      setRegionExternalIdSearch(getRegionExternalIdSearch().withExternalIdsAdded(regionIds));
+    }
+  }
+
+  /**
+   * Sets the search type to use in {@code ExternalIdSearch} for regions.
+   * 
+   * @param type  the type to set, not null
+   */
+  public void setRegionExternalIdSearchType(ExternalIdSearchType type) {
+    if (getRegionExternalIdSearch() == null) {
+      setRegionExternalIdSearch(ExternalIdSearch.of(type));
+    } else {
+      setRegionExternalIdSearch(getRegionExternalIdSearch().withSearchType(type));
     }
   }
 
@@ -256,9 +270,9 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
   public void addExchangeExternalIds(ExternalId... exchangeIds) {
     ArgumentChecker.notNull(exchangeIds, "exchangeIds");
     if (getExchangeExternalIdSearch() == null) {
-      setExchangeExternalIdSearch(new ExternalIdSearch(exchangeIds));
+      setExchangeExternalIdSearch(ExternalIdSearch.of(exchangeIds));
     } else {
-      getExchangeExternalIdSearch().addExternalIds(exchangeIds);
+      setExchangeExternalIdSearch(getExchangeExternalIdSearch().withExternalIdsAdded(exchangeIds));
     }
   }
 
@@ -272,9 +286,22 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
   public void addExchangeExternalIds(Iterable<ExternalId> exchangeIds) {
     ArgumentChecker.notNull(exchangeIds, "exchangeIds");
     if (getExchangeExternalIdSearch() == null) {
-      setExchangeExternalIdSearch(new ExternalIdSearch(exchangeIds));
+      setExchangeExternalIdSearch(ExternalIdSearch.of(exchangeIds));
     } else {
-      getExchangeExternalIdSearch().addExternalIds(exchangeIds);
+      setExchangeExternalIdSearch(getExchangeExternalIdSearch().withExternalIdsAdded(exchangeIds));
+    }
+  }
+
+  /**
+   * Sets the search type to use in {@code ExternalIdSearch} for exchanges.
+   * 
+   * @param type  the type to set, not null
+   */
+  public void setExchangeExternalIdSearchType(ExternalIdSearchType type) {
+    if (getExchangeExternalIdSearch() == null) {
+      setExchangeExternalIdSearch(ExternalIdSearch.of(type));
+    } else {
+      setExchangeExternalIdSearch(getExchangeExternalIdSearch().withSearchType(type));
     }
   }
 
@@ -330,108 +357,6 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
   @Override
   public HolidaySearchRequest.Meta metaBean() {
     return HolidaySearchRequest.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1205921407:  // holidayObjectIds
-        return getHolidayObjectIds();
-      case 3373707:  // name
-        return getName();
-      case 3575610:  // type
-        return getType();
-      case 205149932:  // providerId
-        return getProviderId();
-      case 14222271:  // dateToCheck
-        return getDateToCheck();
-      case 575402001:  // currency
-        return getCurrency();
-      case 253144738:  // regionExternalIdSearch
-        return getRegionExternalIdSearch();
-      case 585750481:  // exchangeExternalIdSearch
-        return getExchangeExternalIdSearch();
-      case -26774448:  // sortOrder
-        return getSortOrder();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1205921407:  // holidayObjectIds
-        setHolidayObjectIds((List<ObjectId>) newValue);
-        return;
-      case 3373707:  // name
-        setName((String) newValue);
-        return;
-      case 3575610:  // type
-        setType((HolidayType) newValue);
-        return;
-      case 205149932:  // providerId
-        setProviderId((ExternalId) newValue);
-        return;
-      case 14222271:  // dateToCheck
-        setDateToCheck((LocalDate) newValue);
-        return;
-      case 575402001:  // currency
-        setCurrency((Currency) newValue);
-        return;
-      case 253144738:  // regionExternalIdSearch
-        setRegionExternalIdSearch((ExternalIdSearch) newValue);
-        return;
-      case 585750481:  // exchangeExternalIdSearch
-        setExchangeExternalIdSearch((ExternalIdSearch) newValue);
-        return;
-      case -26774448:  // sortOrder
-        setSortOrder((HolidaySearchSortOrder) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_sortOrder, "sortOrder");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      HolidaySearchRequest other = (HolidaySearchRequest) obj;
-      return JodaBeanUtils.equal(getHolidayObjectIds(), other.getHolidayObjectIds()) &&
-          JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getType(), other.getType()) &&
-          JodaBeanUtils.equal(getProviderId(), other.getProviderId()) &&
-          JodaBeanUtils.equal(getDateToCheck(), other.getDateToCheck()) &&
-          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
-          JodaBeanUtils.equal(getRegionExternalIdSearch(), other.getRegionExternalIdSearch()) &&
-          JodaBeanUtils.equal(getExchangeExternalIdSearch(), other.getExchangeExternalIdSearch()) &&
-          JodaBeanUtils.equal(getSortOrder(), other.getSortOrder()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHolidayObjectIds());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getType());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getProviderId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDateToCheck());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionExternalIdSearch());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExchangeExternalIdSearch());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSortOrder());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -670,6 +595,75 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public HolidaySearchRequest clone() {
+    return (HolidaySearchRequest) super.clone();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      HolidaySearchRequest other = (HolidaySearchRequest) obj;
+      return JodaBeanUtils.equal(getHolidayObjectIds(), other.getHolidayObjectIds()) &&
+          JodaBeanUtils.equal(getName(), other.getName()) &&
+          JodaBeanUtils.equal(getType(), other.getType()) &&
+          JodaBeanUtils.equal(getProviderId(), other.getProviderId()) &&
+          JodaBeanUtils.equal(getDateToCheck(), other.getDateToCheck()) &&
+          JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
+          JodaBeanUtils.equal(getRegionExternalIdSearch(), other.getRegionExternalIdSearch()) &&
+          JodaBeanUtils.equal(getExchangeExternalIdSearch(), other.getExchangeExternalIdSearch()) &&
+          JodaBeanUtils.equal(getSortOrder(), other.getSortOrder()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHolidayObjectIds());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getProviderId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDateToCheck());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionExternalIdSearch());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExchangeExternalIdSearch());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSortOrder());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(320);
+    buf.append("HolidaySearchRequest{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("holidayObjectIds").append('=').append(getHolidayObjectIds()).append(',').append(' ');
+    buf.append("name").append('=').append(getName()).append(',').append(' ');
+    buf.append("type").append('=').append(getType()).append(',').append(' ');
+    buf.append("providerId").append('=').append(getProviderId()).append(',').append(' ');
+    buf.append("dateToCheck").append('=').append(getDateToCheck()).append(',').append(' ');
+    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
+    buf.append("regionExternalIdSearch").append('=').append(getRegionExternalIdSearch()).append(',').append(' ');
+    buf.append("exchangeExternalIdSearch").append('=').append(getExchangeExternalIdSearch()).append(',').append(' ');
+    buf.append("sortOrder").append('=').append(getSortOrder()).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code HolidaySearchRequest}.
    */
@@ -857,6 +851,73 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
      */
     public final MetaProperty<HolidaySearchSortOrder> sortOrder() {
       return _sortOrder;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1205921407:  // holidayObjectIds
+          return ((HolidaySearchRequest) bean).getHolidayObjectIds();
+        case 3373707:  // name
+          return ((HolidaySearchRequest) bean).getName();
+        case 3575610:  // type
+          return ((HolidaySearchRequest) bean).getType();
+        case 205149932:  // providerId
+          return ((HolidaySearchRequest) bean).getProviderId();
+        case 14222271:  // dateToCheck
+          return ((HolidaySearchRequest) bean).getDateToCheck();
+        case 575402001:  // currency
+          return ((HolidaySearchRequest) bean).getCurrency();
+        case 253144738:  // regionExternalIdSearch
+          return ((HolidaySearchRequest) bean).getRegionExternalIdSearch();
+        case 585750481:  // exchangeExternalIdSearch
+          return ((HolidaySearchRequest) bean).getExchangeExternalIdSearch();
+        case -26774448:  // sortOrder
+          return ((HolidaySearchRequest) bean).getSortOrder();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1205921407:  // holidayObjectIds
+          ((HolidaySearchRequest) bean).setHolidayObjectIds((List<ObjectId>) newValue);
+          return;
+        case 3373707:  // name
+          ((HolidaySearchRequest) bean).setName((String) newValue);
+          return;
+        case 3575610:  // type
+          ((HolidaySearchRequest) bean).setType((HolidayType) newValue);
+          return;
+        case 205149932:  // providerId
+          ((HolidaySearchRequest) bean).setProviderId((ExternalId) newValue);
+          return;
+        case 14222271:  // dateToCheck
+          ((HolidaySearchRequest) bean).setDateToCheck((LocalDate) newValue);
+          return;
+        case 575402001:  // currency
+          ((HolidaySearchRequest) bean).setCurrency((Currency) newValue);
+          return;
+        case 253144738:  // regionExternalIdSearch
+          ((HolidaySearchRequest) bean).setRegionExternalIdSearch((ExternalIdSearch) newValue);
+          return;
+        case 585750481:  // exchangeExternalIdSearch
+          ((HolidaySearchRequest) bean).setExchangeExternalIdSearch((ExternalIdSearch) newValue);
+          return;
+        case -26774448:  // sortOrder
+          ((HolidaySearchRequest) bean).setSortOrder((HolidaySearchSortOrder) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((HolidaySearchRequest) bean)._sortOrder, "sortOrder");
+      super.validate(bean);
     }
 
   }

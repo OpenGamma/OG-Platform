@@ -8,6 +8,8 @@ package com.opengamma.master.security.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.sf.ehcache.CacheManager;
+
 import org.joda.beans.Bean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,8 +31,6 @@ import com.opengamma.master.security.SecuritySearchSortOrder;
 import com.opengamma.util.paging.Paging;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.util.tuple.ObjectsPair;
-
-import net.sf.ehcache.CacheManager;
 
 /**
  * A cache decorating a {@code SecurityMaster}, mainly intended to reduce the frequency and repetition of queries to

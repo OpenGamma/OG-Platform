@@ -8,6 +8,7 @@ package com.opengamma.master.user;
 import java.io.Serializable;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -96,52 +97,6 @@ public class UserDocument extends AbstractDocument implements Serializable {
     return UserDocument.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 3599307:  // user
-        return getUser();
-      case -294460212:  // uniqueId
-        return getUniqueId();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 3599307:  // user
-        setUser((ManageableOGUser) newValue);
-        return;
-      case -294460212:  // uniqueId
-        setUniqueId((UniqueId) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      UserDocument other = (UserDocument) obj;
-      return JodaBeanUtils.equal(getUser(), other.getUser()) &&
-          JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUser());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the user object held by the document.
@@ -193,6 +148,54 @@ public class UserDocument extends AbstractDocument implements Serializable {
    */
   public final Property<UniqueId> uniqueId() {
     return metaBean().uniqueId().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public UserDocument clone() {
+    return (UserDocument) super.clone();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      UserDocument other = (UserDocument) obj;
+      return JodaBeanUtils.equal(getUser(), other.getUser()) &&
+          JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUser());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(96);
+    buf.append("UserDocument{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("user").append('=').append(getUser()).append(',').append(' ');
+    buf.append("uniqueId").append('=').append(getUniqueId()).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -270,6 +273,31 @@ public class UserDocument extends AbstractDocument implements Serializable {
      */
     public final MetaProperty<UniqueId> uniqueId() {
       return _uniqueId;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 3599307:  // user
+          return ((UserDocument) bean).getUser();
+        case -294460212:  // uniqueId
+          return ((UserDocument) bean).getUniqueId();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 3599307:  // user
+          ((UserDocument) bean).setUser((ManageableOGUser) newValue);
+          return;
+        case -294460212:  // uniqueId
+          ((UserDocument) bean).setUniqueId((UniqueId) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

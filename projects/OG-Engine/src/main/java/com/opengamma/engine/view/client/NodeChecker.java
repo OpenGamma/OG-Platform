@@ -5,9 +5,8 @@
  */
 package com.opengamma.engine.view.client;
 
-import com.opengamma.engine.view.permission.PortfolioPermission;
-
 import com.opengamma.core.position.PortfolioNode;
+import com.opengamma.engine.view.permission.PortfolioPermission;
 
 /**
  * Responsible for checking whether a portfolio node is accessible or not.

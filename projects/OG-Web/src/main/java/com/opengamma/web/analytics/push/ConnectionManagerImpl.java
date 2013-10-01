@@ -72,12 +72,11 @@ public class ConnectionManagerImpl implements ConnectionManager {
    * Creates a new connection for a client and returns its client ID.  The client ID should be used by the client
    * when subscribing for asynchronous updates.  A connection typically corresponds to a single browser tab or
    * window.  A user can have multiple simultaneous connections.
-   * @param userId The ID of the user creating the connection
+   * @param userId The ID of the user creating the connection, null if not known
    * @return The client ID of the new connection, must be supplied by the client when subscribing for updates
    */
   @Override
   public String clientConnected(String userId) {
-    //ArgumentChecker.notNull(userId, "userId"); // reinstate this when logins are done
     String clientId = Long.toString(_clientConnectionId.getAndIncrement());
     ConnectionTimeoutTask timeoutTask = new ConnectionTimeoutTask(this, userId, clientId, _timeout);
     LongPollingUpdateListener updateListener = _longPollingConnectionManager.handshake(userId, clientId, timeoutTask);
@@ -111,7 +110,7 @@ public class ConnectionManagerImpl implements ConnectionManager {
 
   /**
    * Returns the {@link ClientConnection} corresponding to a client ID.
-   * @param userId The ID of the user who owns the connection
+   * @param userId The ID of the user who owns the connection, null if not known
    * @param clientId The client ID
    * @return The connection
    * @throws DataNotFoundException If there is no connection for the specified ID, the user ID is invalid or if
@@ -121,8 +120,6 @@ public class ConnectionManagerImpl implements ConnectionManager {
    */
   @Override
   public ClientConnection getConnectionByClientId(String userId, String clientId) {
-    // TODO user logins
-    //ArgumentChecker.notEmpty(userId, "userId");
     ArgumentChecker.notEmpty(clientId, "clientId");
     ClientConnection connection = _connectionsByClientId.get(clientId);
     if (connection == null) {

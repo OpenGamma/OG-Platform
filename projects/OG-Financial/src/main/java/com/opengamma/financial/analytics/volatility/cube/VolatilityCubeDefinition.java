@@ -9,6 +9,7 @@ import java.util.AbstractList;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -97,66 +98,6 @@ public class VolatilityCubeDefinition extends DirectBean implements UniqueIdenti
   @Override
   public VolatilityCubeDefinition.Meta metaBean() {
     return VolatilityCubeDefinition.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        return getUniqueId();
-      case -1091346138:  // swapTenors
-        return getSwapTenors();
-      case 146928806:  // optionExpiries
-        return getOptionExpiries();
-      case -1711425899:  // relativeStrikes
-        return getRelativeStrikes();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        setUniqueId((UniqueId) newValue);
-        return;
-      case -1091346138:  // swapTenors
-        setSwapTenors((List<Tenor>) newValue);
-        return;
-      case 146928806:  // optionExpiries
-        setOptionExpiries((List<Tenor>) newValue);
-        return;
-      case -1711425899:  // relativeStrikes
-        setRelativeStrikes((List<Double>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      VolatilityCubeDefinition other = (VolatilityCubeDefinition) obj;
-      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
-          JodaBeanUtils.equal(getSwapTenors(), other.getSwapTenors()) &&
-          JodaBeanUtils.equal(getOptionExpiries(), other.getOptionExpiries()) &&
-          JodaBeanUtils.equal(getRelativeStrikes(), other.getRelativeStrikes());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSwapTenors());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getOptionExpiries());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRelativeStrikes());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -257,6 +198,67 @@ public class VolatilityCubeDefinition extends DirectBean implements UniqueIdenti
    */
   public final Property<List<Double>> relativeStrikes() {
     return metaBean().relativeStrikes().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public VolatilityCubeDefinition clone() {
+    BeanBuilder<? extends VolatilityCubeDefinition> builder = metaBean().builder();
+    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
+      if (mp.style().isBuildable()) {
+        Object value = mp.get(this);
+        if (value instanceof Bean) {
+          value = ((Bean) value).clone();
+        }
+        builder.set(mp.name(), value);
+      }
+    }
+    return builder.build();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      VolatilityCubeDefinition other = (VolatilityCubeDefinition) obj;
+      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+          JodaBeanUtils.equal(getSwapTenors(), other.getSwapTenors()) &&
+          JodaBeanUtils.equal(getOptionExpiries(), other.getOptionExpiries()) &&
+          JodaBeanUtils.equal(getRelativeStrikes(), other.getRelativeStrikes());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSwapTenors());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getOptionExpiries());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRelativeStrikes());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(160);
+    buf.append("VolatilityCubeDefinition{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("uniqueId").append('=').append(getUniqueId()).append(',').append(' ');
+    buf.append("swapTenors").append('=').append(getSwapTenors()).append(',').append(' ');
+    buf.append("optionExpiries").append('=').append(getOptionExpiries()).append(',').append(' ');
+    buf.append("relativeStrikes").append('=').append(getRelativeStrikes()).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -369,6 +371,42 @@ public class VolatilityCubeDefinition extends DirectBean implements UniqueIdenti
      */
     public final MetaProperty<List<Double>> relativeStrikes() {
       return _relativeStrikes;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          return ((VolatilityCubeDefinition) bean).getUniqueId();
+        case -1091346138:  // swapTenors
+          return ((VolatilityCubeDefinition) bean).getSwapTenors();
+        case 146928806:  // optionExpiries
+          return ((VolatilityCubeDefinition) bean).getOptionExpiries();
+        case -1711425899:  // relativeStrikes
+          return ((VolatilityCubeDefinition) bean).getRelativeStrikes();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          ((VolatilityCubeDefinition) bean).setUniqueId((UniqueId) newValue);
+          return;
+        case -1091346138:  // swapTenors
+          ((VolatilityCubeDefinition) bean).setSwapTenors((List<Tenor>) newValue);
+          return;
+        case 146928806:  // optionExpiries
+          ((VolatilityCubeDefinition) bean).setOptionExpiries((List<Tenor>) newValue);
+          return;
+        case -1711425899:  // relativeStrikes
+          ((VolatilityCubeDefinition) bean).setRelativeStrikes((List<Double>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

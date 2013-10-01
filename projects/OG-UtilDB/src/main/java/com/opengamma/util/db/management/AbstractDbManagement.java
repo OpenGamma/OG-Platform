@@ -26,8 +26,8 @@ import org.hibernate.mapping.ForeignKey;
 import org.hibernate.mapping.Table;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.FirstThenSecondPairComparator;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Abstract implementation of database management.

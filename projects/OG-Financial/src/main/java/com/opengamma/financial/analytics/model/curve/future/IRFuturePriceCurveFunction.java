@@ -10,7 +10,6 @@ import org.threeten.bp.LocalDate;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.analytics.model.FutureOptionExpiries;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
-import com.opengamma.financial.analytics.model.irfutureoption.FutureOptionUtils;
 import com.opengamma.financial.convention.calendar.Calendar;
 
 /**

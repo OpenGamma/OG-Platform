@@ -5,8 +5,6 @@
  */
 package com.opengamma.integration.tool.portfolio.xml;
 
-import java.io.File;
-
 import javax.xml.validation.Schema;
 
 /**

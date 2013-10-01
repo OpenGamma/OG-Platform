@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -63,46 +64,6 @@ public class ConfigMetaDataResult extends AbstractMetaDataResult {
     return ConfigMetaDataResult.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 7511639:  // configTypes
-        return getConfigTypes();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 7511639:  // configTypes
-        setConfigTypes((List<Class<?>>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      ConfigMetaDataResult other = (ConfigMetaDataResult) obj;
-      return JodaBeanUtils.equal(getConfigTypes(), other.getConfigTypes()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigTypes());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the list if valid configuration types.
@@ -130,6 +91,51 @@ public class ConfigMetaDataResult extends AbstractMetaDataResult {
    */
   public final Property<List<Class<?>>> configTypes() {
     return metaBean().configTypes().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public ConfigMetaDataResult clone() {
+    return (ConfigMetaDataResult) super.clone();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ConfigMetaDataResult other = (ConfigMetaDataResult) obj;
+      return JodaBeanUtils.equal(getConfigTypes(), other.getConfigTypes()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigTypes());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(64);
+    buf.append("ConfigMetaDataResult{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("configTypes").append('=').append(getConfigTypes()).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -192,6 +198,27 @@ public class ConfigMetaDataResult extends AbstractMetaDataResult {
      */
     public final MetaProperty<List<Class<?>>> configTypes() {
       return _configTypes;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 7511639:  // configTypes
+          return ((ConfigMetaDataResult) bean).getConfigTypes();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 7511639:  // configTypes
+          ((ConfigMetaDataResult) bean).setConfigTypes((List<Class<?>>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

@@ -9,6 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.fudgemsg.FudgeContext;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -140,131 +141,6 @@ public class WebsiteAnalyticsComponentFactory extends AbstractComponentFactory {
   @Override
   public WebsiteAnalyticsComponentFactory.Meta metaBean() {
     return WebsiteAnalyticsComponentFactory.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -702456965:  // securitySource
-        return getSecuritySource();
-      case -1655657820:  // positionSource
-        return getPositionSource();
-      case 1562222174:  // computationTargetResolver
-        return getComputationTargetResolver();
-      case 1808868758:  // userPositionMaster
-        return getUserPositionMaster();
-      case 686514815:  // userPortfolioMaster
-        return getUserPortfolioMaster();
-      case -763459665:  // userConfigMaster
-        return getUserConfigMaster();
-      case -2046916282:  // snapshotMaster
-        return getSnapshotMaster();
-      case -1697555603:  // viewProcessor
-        return getViewProcessor();
-      case 940303425:  // portfolioAggregationFunctions
-        return getPortfolioAggregationFunctions();
-      case 3599307:  // user
-        return getUser();
-      case -917704420:  // fudgeContext
-        return getFudgeContext();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -702456965:  // securitySource
-        setSecuritySource((SecuritySource) newValue);
-        return;
-      case -1655657820:  // positionSource
-        setPositionSource((PositionSource) newValue);
-        return;
-      case 1562222174:  // computationTargetResolver
-        setComputationTargetResolver((ComputationTargetResolver) newValue);
-        return;
-      case 1808868758:  // userPositionMaster
-        setUserPositionMaster((PositionMaster) newValue);
-        return;
-      case 686514815:  // userPortfolioMaster
-        setUserPortfolioMaster((PortfolioMaster) newValue);
-        return;
-      case -763459665:  // userConfigMaster
-        setUserConfigMaster((ConfigMaster) newValue);
-        return;
-      case -2046916282:  // snapshotMaster
-        setSnapshotMaster((MarketDataSnapshotMaster) newValue);
-        return;
-      case -1697555603:  // viewProcessor
-        setViewProcessor((ViewProcessor) newValue);
-        return;
-      case 940303425:  // portfolioAggregationFunctions
-        setPortfolioAggregationFunctions((PortfolioAggregationFunctions) newValue);
-        return;
-      case 3599307:  // user
-        setUser((UserPrincipal) newValue);
-        return;
-      case -917704420:  // fudgeContext
-        setFudgeContext((FudgeContext) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_securitySource, "securitySource");
-    JodaBeanUtils.notNull(_positionSource, "positionSource");
-    JodaBeanUtils.notNull(_computationTargetResolver, "computationTargetResolver");
-    JodaBeanUtils.notNull(_userPositionMaster, "userPositionMaster");
-    JodaBeanUtils.notNull(_userPortfolioMaster, "userPortfolioMaster");
-    JodaBeanUtils.notNull(_userConfigMaster, "userConfigMaster");
-    JodaBeanUtils.notNull(_snapshotMaster, "snapshotMaster");
-    JodaBeanUtils.notNull(_viewProcessor, "viewProcessor");
-    JodaBeanUtils.notNull(_portfolioAggregationFunctions, "portfolioAggregationFunctions");
-    JodaBeanUtils.notNull(_user, "user");
-    JodaBeanUtils.notNull(_fudgeContext, "fudgeContext");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      WebsiteAnalyticsComponentFactory other = (WebsiteAnalyticsComponentFactory) obj;
-      return JodaBeanUtils.equal(getSecuritySource(), other.getSecuritySource()) &&
-          JodaBeanUtils.equal(getPositionSource(), other.getPositionSource()) &&
-          JodaBeanUtils.equal(getComputationTargetResolver(), other.getComputationTargetResolver()) &&
-          JodaBeanUtils.equal(getUserPositionMaster(), other.getUserPositionMaster()) &&
-          JodaBeanUtils.equal(getUserPortfolioMaster(), other.getUserPortfolioMaster()) &&
-          JodaBeanUtils.equal(getUserConfigMaster(), other.getUserConfigMaster()) &&
-          JodaBeanUtils.equal(getSnapshotMaster(), other.getSnapshotMaster()) &&
-          JodaBeanUtils.equal(getViewProcessor(), other.getViewProcessor()) &&
-          JodaBeanUtils.equal(getPortfolioAggregationFunctions(), other.getPortfolioAggregationFunctions()) &&
-          JodaBeanUtils.equal(getUser(), other.getUser()) &&
-          JodaBeanUtils.equal(getFudgeContext(), other.getFudgeContext()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecuritySource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPositionSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getComputationTargetResolver());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUserPositionMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUserPortfolioMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUserConfigMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSnapshotMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getViewProcessor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPortfolioAggregationFunctions());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUser());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFudgeContext());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -554,6 +430,81 @@ public class WebsiteAnalyticsComponentFactory extends AbstractComponentFactory {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public WebsiteAnalyticsComponentFactory clone() {
+    return (WebsiteAnalyticsComponentFactory) super.clone();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      WebsiteAnalyticsComponentFactory other = (WebsiteAnalyticsComponentFactory) obj;
+      return JodaBeanUtils.equal(getSecuritySource(), other.getSecuritySource()) &&
+          JodaBeanUtils.equal(getPositionSource(), other.getPositionSource()) &&
+          JodaBeanUtils.equal(getComputationTargetResolver(), other.getComputationTargetResolver()) &&
+          JodaBeanUtils.equal(getUserPositionMaster(), other.getUserPositionMaster()) &&
+          JodaBeanUtils.equal(getUserPortfolioMaster(), other.getUserPortfolioMaster()) &&
+          JodaBeanUtils.equal(getUserConfigMaster(), other.getUserConfigMaster()) &&
+          JodaBeanUtils.equal(getSnapshotMaster(), other.getSnapshotMaster()) &&
+          JodaBeanUtils.equal(getViewProcessor(), other.getViewProcessor()) &&
+          JodaBeanUtils.equal(getPortfolioAggregationFunctions(), other.getPortfolioAggregationFunctions()) &&
+          JodaBeanUtils.equal(getUser(), other.getUser()) &&
+          JodaBeanUtils.equal(getFudgeContext(), other.getFudgeContext()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecuritySource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPositionSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getComputationTargetResolver());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUserPositionMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUserPortfolioMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUserConfigMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSnapshotMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getViewProcessor());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPortfolioAggregationFunctions());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUser());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFudgeContext());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(384);
+    buf.append("WebsiteAnalyticsComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("securitySource").append('=').append(getSecuritySource()).append(',').append(' ');
+    buf.append("positionSource").append('=').append(getPositionSource()).append(',').append(' ');
+    buf.append("computationTargetResolver").append('=').append(getComputationTargetResolver()).append(',').append(' ');
+    buf.append("userPositionMaster").append('=').append(getUserPositionMaster()).append(',').append(' ');
+    buf.append("userPortfolioMaster").append('=').append(getUserPortfolioMaster()).append(',').append(' ');
+    buf.append("userConfigMaster").append('=').append(getUserConfigMaster()).append(',').append(' ');
+    buf.append("snapshotMaster").append('=').append(getSnapshotMaster()).append(',').append(' ');
+    buf.append("viewProcessor").append('=').append(getViewProcessor()).append(',').append(' ');
+    buf.append("portfolioAggregationFunctions").append('=').append(getPortfolioAggregationFunctions()).append(',').append(' ');
+    buf.append("user").append('=').append(getUser()).append(',').append(' ');
+    buf.append("fudgeContext").append('=').append(getFudgeContext()).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code WebsiteAnalyticsComponentFactory}.
    */
@@ -772,6 +723,92 @@ public class WebsiteAnalyticsComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<FudgeContext> fudgeContext() {
       return _fudgeContext;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -702456965:  // securitySource
+          return ((WebsiteAnalyticsComponentFactory) bean).getSecuritySource();
+        case -1655657820:  // positionSource
+          return ((WebsiteAnalyticsComponentFactory) bean).getPositionSource();
+        case 1562222174:  // computationTargetResolver
+          return ((WebsiteAnalyticsComponentFactory) bean).getComputationTargetResolver();
+        case 1808868758:  // userPositionMaster
+          return ((WebsiteAnalyticsComponentFactory) bean).getUserPositionMaster();
+        case 686514815:  // userPortfolioMaster
+          return ((WebsiteAnalyticsComponentFactory) bean).getUserPortfolioMaster();
+        case -763459665:  // userConfigMaster
+          return ((WebsiteAnalyticsComponentFactory) bean).getUserConfigMaster();
+        case -2046916282:  // snapshotMaster
+          return ((WebsiteAnalyticsComponentFactory) bean).getSnapshotMaster();
+        case -1697555603:  // viewProcessor
+          return ((WebsiteAnalyticsComponentFactory) bean).getViewProcessor();
+        case 940303425:  // portfolioAggregationFunctions
+          return ((WebsiteAnalyticsComponentFactory) bean).getPortfolioAggregationFunctions();
+        case 3599307:  // user
+          return ((WebsiteAnalyticsComponentFactory) bean).getUser();
+        case -917704420:  // fudgeContext
+          return ((WebsiteAnalyticsComponentFactory) bean).getFudgeContext();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -702456965:  // securitySource
+          ((WebsiteAnalyticsComponentFactory) bean).setSecuritySource((SecuritySource) newValue);
+          return;
+        case -1655657820:  // positionSource
+          ((WebsiteAnalyticsComponentFactory) bean).setPositionSource((PositionSource) newValue);
+          return;
+        case 1562222174:  // computationTargetResolver
+          ((WebsiteAnalyticsComponentFactory) bean).setComputationTargetResolver((ComputationTargetResolver) newValue);
+          return;
+        case 1808868758:  // userPositionMaster
+          ((WebsiteAnalyticsComponentFactory) bean).setUserPositionMaster((PositionMaster) newValue);
+          return;
+        case 686514815:  // userPortfolioMaster
+          ((WebsiteAnalyticsComponentFactory) bean).setUserPortfolioMaster((PortfolioMaster) newValue);
+          return;
+        case -763459665:  // userConfigMaster
+          ((WebsiteAnalyticsComponentFactory) bean).setUserConfigMaster((ConfigMaster) newValue);
+          return;
+        case -2046916282:  // snapshotMaster
+          ((WebsiteAnalyticsComponentFactory) bean).setSnapshotMaster((MarketDataSnapshotMaster) newValue);
+          return;
+        case -1697555603:  // viewProcessor
+          ((WebsiteAnalyticsComponentFactory) bean).setViewProcessor((ViewProcessor) newValue);
+          return;
+        case 940303425:  // portfolioAggregationFunctions
+          ((WebsiteAnalyticsComponentFactory) bean).setPortfolioAggregationFunctions((PortfolioAggregationFunctions) newValue);
+          return;
+        case 3599307:  // user
+          ((WebsiteAnalyticsComponentFactory) bean).setUser((UserPrincipal) newValue);
+          return;
+        case -917704420:  // fudgeContext
+          ((WebsiteAnalyticsComponentFactory) bean).setFudgeContext((FudgeContext) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((WebsiteAnalyticsComponentFactory) bean)._securitySource, "securitySource");
+      JodaBeanUtils.notNull(((WebsiteAnalyticsComponentFactory) bean)._positionSource, "positionSource");
+      JodaBeanUtils.notNull(((WebsiteAnalyticsComponentFactory) bean)._computationTargetResolver, "computationTargetResolver");
+      JodaBeanUtils.notNull(((WebsiteAnalyticsComponentFactory) bean)._userPositionMaster, "userPositionMaster");
+      JodaBeanUtils.notNull(((WebsiteAnalyticsComponentFactory) bean)._userPortfolioMaster, "userPortfolioMaster");
+      JodaBeanUtils.notNull(((WebsiteAnalyticsComponentFactory) bean)._userConfigMaster, "userConfigMaster");
+      JodaBeanUtils.notNull(((WebsiteAnalyticsComponentFactory) bean)._snapshotMaster, "snapshotMaster");
+      JodaBeanUtils.notNull(((WebsiteAnalyticsComponentFactory) bean)._viewProcessor, "viewProcessor");
+      JodaBeanUtils.notNull(((WebsiteAnalyticsComponentFactory) bean)._portfolioAggregationFunctions, "portfolioAggregationFunctions");
+      JodaBeanUtils.notNull(((WebsiteAnalyticsComponentFactory) bean)._user, "user");
+      JodaBeanUtils.notNull(((WebsiteAnalyticsComponentFactory) bean)._fudgeContext, "fudgeContext");
+      super.validate(bean);
     }
 
   }

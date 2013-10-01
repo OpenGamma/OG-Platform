@@ -21,6 +21,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import net.sf.ehcache.CacheManager;
+
 import org.fudgemsg.FudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,8 +53,6 @@ import com.opengamma.livedata.server.mxbean.SubscriptionTracer;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PerformanceCounter;
 import com.opengamma.util.PublicAPI;
-
-import net.sf.ehcache.CacheManager;
 
 /**
  * The base class from which most OpenGamma Live Data feed servers should extend. Handles most common cases for distributed contract management.

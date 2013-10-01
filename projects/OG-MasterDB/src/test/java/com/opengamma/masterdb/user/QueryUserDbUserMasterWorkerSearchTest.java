@@ -329,8 +329,8 @@ public class QueryUserDbUserMasterWorkerSearchTest extends AbstractDbUserMasterW
   @Test
   public void test_search_noKeys_Exact_noMatch() {
     UserSearchRequest request = new UserSearchRequest();
-    request.setExternalIdSearch(new ExternalIdSearch());
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.EXACT);
+    request.setExternalIdSearch(ExternalIdSearch.of());
+    request.setExternalIdSearchType(ExternalIdSearchType.EXACT);
     UserSearchResult test = _usrMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -339,8 +339,8 @@ public class QueryUserDbUserMasterWorkerSearchTest extends AbstractDbUserMasterW
   @Test
   public void test_search_noKeys_All_noMatch() {
     UserSearchRequest request = new UserSearchRequest();
-    request.setExternalIdSearch(new ExternalIdSearch());
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.ALL);
+    request.setExternalIdSearch(ExternalIdSearch.of());
+    request.setExternalIdSearchType(ExternalIdSearchType.ALL);
     UserSearchResult test = _usrMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -349,8 +349,8 @@ public class QueryUserDbUserMasterWorkerSearchTest extends AbstractDbUserMasterW
   @Test
   public void test_search_noKeys_Any_noMatch() {
     UserSearchRequest request = new UserSearchRequest();
-    request.setExternalIdSearch(new ExternalIdSearch());
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.ANY);
+    request.setExternalIdSearch(ExternalIdSearch.of());
+    request.setExternalIdSearchType(ExternalIdSearchType.ANY);
     UserSearchResult test = _usrMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -359,8 +359,8 @@ public class QueryUserDbUserMasterWorkerSearchTest extends AbstractDbUserMasterW
   @Test
   public void test_search_noKeys_None_allMatch() {
     UserSearchRequest request = new UserSearchRequest();
-    request.setExternalIdSearch(new ExternalIdSearch());
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.NONE);
+    request.setExternalIdSearch(ExternalIdSearch.of());
+    request.setExternalIdSearchType(ExternalIdSearchType.NONE);
     UserSearchResult test = _usrMaster.search(request);
     
     assertEquals(_totalUsers, test.getDocuments().size());
@@ -459,7 +459,7 @@ public class QueryUserDbUserMasterWorkerSearchTest extends AbstractDbUserMasterW
   public void test_search_oneKey_All_AB() {
     UserSearchRequest request = new UserSearchRequest();
     request.addExternalId(ExternalId.of("A", "B"));
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.ALL);
+    request.setExternalIdSearchType(ExternalIdSearchType.ALL);
     UserSearchResult test = _usrMaster.search(request);
     
     assertEquals(2, test.getDocuments().size());
@@ -471,7 +471,7 @@ public class QueryUserDbUserMasterWorkerSearchTest extends AbstractDbUserMasterW
   public void test_search_oneKey_All_CD() {
     UserSearchRequest request = new UserSearchRequest();
     request.addExternalId(ExternalId.of("C", "D"));
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.ALL);
+    request.setExternalIdSearchType(ExternalIdSearchType.ALL);
     UserSearchResult test = _usrMaster.search(request);
     
     assertEquals(3, test.getDocuments().size());
@@ -484,7 +484,7 @@ public class QueryUserDbUserMasterWorkerSearchTest extends AbstractDbUserMasterW
   public void test_search_oneKey_All_EF() {
     UserSearchRequest request = new UserSearchRequest();
     request.addExternalId(ExternalId.of("E", "F"));
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.ALL);
+    request.setExternalIdSearchType(ExternalIdSearchType.ALL);
     UserSearchResult test = _usrMaster.search(request);
     
     assertEquals(2, test.getDocuments().size());
@@ -496,7 +496,7 @@ public class QueryUserDbUserMasterWorkerSearchTest extends AbstractDbUserMasterW
   public void test_search_oneKey_All_GH() {
     UserSearchRequest request = new UserSearchRequest();
     request.addExternalId(ExternalId.of("G", "H"));
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.ALL);
+    request.setExternalIdSearchType(ExternalIdSearchType.ALL);
     UserSearchResult test = _usrMaster.search(request);
     
     assertEquals(1, test.getDocuments().size());
@@ -507,7 +507,7 @@ public class QueryUserDbUserMasterWorkerSearchTest extends AbstractDbUserMasterW
   public void test_search_oneKey_All_noMatch() {
     UserSearchRequest request = new UserSearchRequest();
     request.addExternalId(ExternalId.of("A", "H"));
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.ALL);
+    request.setExternalIdSearchType(ExternalIdSearchType.ALL);
     UserSearchResult test = _usrMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -518,7 +518,7 @@ public class QueryUserDbUserMasterWorkerSearchTest extends AbstractDbUserMasterW
   public void test_search_twoKeys_All_AB_CD() {
     UserSearchRequest request = new UserSearchRequest();
     request.addExternalIds(ExternalId.of("A", "B"), ExternalId.of("C", "D"));
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.ALL);
+    request.setExternalIdSearchType(ExternalIdSearchType.ALL);
     UserSearchResult test = _usrMaster.search(request);
     
     assertEquals(2, test.getDocuments().size());
@@ -530,7 +530,7 @@ public class QueryUserDbUserMasterWorkerSearchTest extends AbstractDbUserMasterW
   public void test_search_twoKeys_All_CD_EF() {
     UserSearchRequest request = new UserSearchRequest();
     request.addExternalIds(ExternalId.of("C", "D"), ExternalId.of("E", "F"));
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.ALL);
+    request.setExternalIdSearchType(ExternalIdSearchType.ALL);
     UserSearchResult test = _usrMaster.search(request);
     
     assertEquals(2, test.getDocuments().size());
@@ -542,7 +542,7 @@ public class QueryUserDbUserMasterWorkerSearchTest extends AbstractDbUserMasterW
   public void test_search_twoKeys_All_noMatch() {
     UserSearchRequest request = new UserSearchRequest();
     request.addExternalIds(ExternalIdBundle.of(ExternalId.of("C", "D"), ExternalId.of("E", "H")));
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.ALL);
+    request.setExternalIdSearchType(ExternalIdSearchType.ALL);
     UserSearchResult test = _usrMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -553,7 +553,7 @@ public class QueryUserDbUserMasterWorkerSearchTest extends AbstractDbUserMasterW
   public void test_search_threeKeys_All_AB_CD_EF() {
     UserSearchRequest request = new UserSearchRequest();
     request.addExternalIds(ExternalId.of("A", "B"), ExternalId.of("C", "D"), ExternalId.of("E", "F"));
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.ALL);
+    request.setExternalIdSearchType(ExternalIdSearchType.ALL);
     UserSearchResult test = _usrMaster.search(request);
     
     assertEquals(1, test.getDocuments().size());
@@ -564,7 +564,7 @@ public class QueryUserDbUserMasterWorkerSearchTest extends AbstractDbUserMasterW
   public void test_search_threeKeys_All_AB_CD_GH() {
     UserSearchRequest request = new UserSearchRequest();
     request.addExternalIds(ExternalId.of("A", "B"), ExternalId.of("C", "D"), ExternalId.of("G", "H"));
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.ALL);
+    request.setExternalIdSearchType(ExternalIdSearchType.ALL);
     UserSearchResult test = _usrMaster.search(request);
     
     assertEquals(1, test.getDocuments().size());
@@ -575,7 +575,7 @@ public class QueryUserDbUserMasterWorkerSearchTest extends AbstractDbUserMasterW
   public void test_search_threeKeys_All_noMatch() {
     UserSearchRequest request = new UserSearchRequest();
     request.addExternalIds(ExternalIdBundle.of(ExternalId.of("C", "D"), ExternalId.of("E", "F"), ExternalId.of("A", "H")));
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.ALL);
+    request.setExternalIdSearchType(ExternalIdSearchType.ALL);
     UserSearchResult test = _usrMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -586,7 +586,7 @@ public class QueryUserDbUserMasterWorkerSearchTest extends AbstractDbUserMasterW
   public void test_search_oneKey_None_AB() {
     UserSearchRequest request = new UserSearchRequest();
     request.addExternalId(ExternalId.of("A", "B"));
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.NONE);
+    request.setExternalIdSearchType(ExternalIdSearchType.NONE);
     UserSearchResult test = _usrMaster.search(request);
     
     assertEquals(1, test.getDocuments().size());
@@ -597,7 +597,7 @@ public class QueryUserDbUserMasterWorkerSearchTest extends AbstractDbUserMasterW
   public void test_search_oneKey_None_CD_noMatch() {
     UserSearchRequest request = new UserSearchRequest();
     request.addExternalId(ExternalId.of("C", "D"));
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.NONE);
+    request.setExternalIdSearchType(ExternalIdSearchType.NONE);
     UserSearchResult test = _usrMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());
@@ -608,7 +608,7 @@ public class QueryUserDbUserMasterWorkerSearchTest extends AbstractDbUserMasterW
   public void test_search_threeKeys_Exact_AB_CD_EF() {
     UserSearchRequest request = new UserSearchRequest();
     request.addExternalIds(ExternalId.of("A", "B"), ExternalId.of("C", "D"), ExternalId.of("E", "F"));
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.EXACT);
+    request.setExternalIdSearchType(ExternalIdSearchType.EXACT);
     UserSearchResult test = _usrMaster.search(request);
     
     assertEquals(1, test.getDocuments().size());
@@ -619,7 +619,7 @@ public class QueryUserDbUserMasterWorkerSearchTest extends AbstractDbUserMasterW
   public void test_search_threeKeys_Exact_AB_CD_GH() {
     UserSearchRequest request = new UserSearchRequest();
     request.addExternalIds(ExternalId.of("A", "B"), ExternalId.of("C", "D"), ExternalId.of("G", "H"));
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.EXACT);
+    request.setExternalIdSearchType(ExternalIdSearchType.EXACT);
     UserSearchResult test = _usrMaster.search(request);
     
     assertEquals(1, test.getDocuments().size());
@@ -630,7 +630,7 @@ public class QueryUserDbUserMasterWorkerSearchTest extends AbstractDbUserMasterW
   public void test_search_threeKeys_Exact_noMatch() {
     UserSearchRequest request = new UserSearchRequest();
     request.addExternalIds(ExternalId.of("A", "B"), ExternalId.of("C", "D"));
-    request.getExternalIdSearch().setSearchType(ExternalIdSearchType.EXACT);
+    request.setExternalIdSearchType(ExternalIdSearchType.EXACT);
     UserSearchResult test = _usrMaster.search(request);
     
     assertEquals(0, test.getDocuments().size());

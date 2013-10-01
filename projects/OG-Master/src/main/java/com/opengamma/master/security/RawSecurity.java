@@ -8,6 +8,7 @@ package com.opengamma.master.security;
 import java.util.Map;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -107,29 +108,39 @@ public class RawSecurity extends ManageableSecurity {
     return RawSecurity.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 985253874:  // rawData
-        return getRawData();
-    }
-    return super.propertyGet(propertyName, quiet);
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the raw data of the security, simply expressed as a byte array.
+   * The array is not cloned on get or set, so treat with care.
+   * @return the value of the property, not null
+   */
+  public byte[] getRawData() {
+    return (_rawData != null ? _rawData.clone() : null);
   }
 
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 985253874:  // rawData
-        setRawData((byte[]) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
+  /**
+   * Sets the raw data of the security, simply expressed as a byte array.
+   * The array is not cloned on get or set, so treat with care.
+   * @param rawData  the new value of the property, not null
+   */
+  public void setRawData(byte[] rawData) {
+    JodaBeanUtils.notNull(rawData, "rawData");
+    this._rawData = rawData;
   }
 
+  /**
+   * Gets the the {@code rawData} property.
+   * The array is not cloned on get or set, so treat with care.
+   * @return the property, not null
+   */
+  public final Property<byte[]> rawData() {
+    return metaBean().rawData().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
   @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_rawData, "rawData");
-    super.validate();
+  public RawSecurity clone() {
+    return (RawSecurity) super.clone();
   }
 
   @Override
@@ -152,33 +163,23 @@ public class RawSecurity extends ManageableSecurity {
     return hash ^ super.hashCode();
   }
 
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the raw data of the security, simply expressed as a byte array.
-   * The array is not cloned on get or set, so treat with care.
-   * @return the value of the property, not null
-   */
-  public byte[] getRawData() {
-    return _rawData;
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(64);
+    buf.append("RawSecurity{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
   }
 
-  /**
-   * Sets the raw data of the security, simply expressed as a byte array.
-   * The array is not cloned on get or set, so treat with care.
-   * @param rawData  the new value of the property, not null
-   */
-  public void setRawData(byte[] rawData) {
-    JodaBeanUtils.notNull(rawData, "rawData");
-    this._rawData = rawData;
-  }
-
-  /**
-   * Gets the the {@code rawData} property.
-   * The array is not cloned on get or set, so treat with care.
-   * @return the property, not null
-   */
-  public final Property<byte[]> rawData() {
-    return metaBean().rawData().createProperty(this);
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("rawData").append('=').append(getRawData()).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -240,6 +241,32 @@ public class RawSecurity extends ManageableSecurity {
      */
     public final MetaProperty<byte[]> rawData() {
       return _rawData;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 985253874:  // rawData
+          return ((RawSecurity) bean).getRawData();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 985253874:  // rawData
+          ((RawSecurity) bean).setRawData((byte[]) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((RawSecurity) bean)._rawData, "rawData");
+      super.validate(bean);
     }
 
   }

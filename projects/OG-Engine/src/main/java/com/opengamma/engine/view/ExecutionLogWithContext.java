@@ -8,6 +8,7 @@ package com.opengamma.engine.view;
 import java.util.Map;
 
 import org.apache.commons.lang.text.StrBuilder;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -95,66 +96,6 @@ public class ExecutionLogWithContext extends DirectBean {
     return ExecutionLogWithContext.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -211372413:  // functionName
-        return getFunctionName();
-      case -1553345806:  // targetSpecification
-        return getTargetSpecification();
-      case -1217189620:  // executionLog
-        return getExecutionLog();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -211372413:  // functionName
-        setFunctionName((String) newValue);
-        return;
-      case -1553345806:  // targetSpecification
-        setTargetSpecification((ComputationTargetSpecification) newValue);
-        return;
-      case -1217189620:  // executionLog
-        setExecutionLog((ExecutionLog) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_functionName, "functionName");
-    JodaBeanUtils.notNull(_targetSpecification, "targetSpecification");
-    JodaBeanUtils.notNull(_executionLog, "executionLog");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      ExecutionLogWithContext other = (ExecutionLogWithContext) obj;
-      return JodaBeanUtils.equal(getFunctionName(), other.getFunctionName()) &&
-          JodaBeanUtils.equal(getTargetSpecification(), other.getTargetSpecification()) &&
-          JodaBeanUtils.equal(getExecutionLog(), other.getExecutionLog());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFunctionName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTargetSpecification());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExecutionLog());
-    return hash;
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the name of the engine function which produced the result, not null.
@@ -231,6 +172,45 @@ public class ExecutionLogWithContext extends DirectBean {
    */
   public final Property<ExecutionLog> executionLog() {
     return metaBean().executionLog().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public ExecutionLogWithContext clone() {
+    BeanBuilder<? extends ExecutionLogWithContext> builder = metaBean().builder();
+    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
+      if (mp.style().isBuildable()) {
+        Object value = mp.get(this);
+        if (value instanceof Bean) {
+          value = ((Bean) value).clone();
+        }
+        builder.set(mp.name(), value);
+      }
+    }
+    return builder.build();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ExecutionLogWithContext other = (ExecutionLogWithContext) obj;
+      return JodaBeanUtils.equal(getFunctionName(), other.getFunctionName()) &&
+          JodaBeanUtils.equal(getTargetSpecification(), other.getTargetSpecification()) &&
+          JodaBeanUtils.equal(getExecutionLog(), other.getExecutionLog());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFunctionName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTargetSpecification());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExecutionLog());
+    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -324,6 +304,43 @@ public class ExecutionLogWithContext extends DirectBean {
      */
     public final MetaProperty<ExecutionLog> executionLog() {
       return _executionLog;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -211372413:  // functionName
+          return ((ExecutionLogWithContext) bean).getFunctionName();
+        case -1553345806:  // targetSpecification
+          return ((ExecutionLogWithContext) bean).getTargetSpecification();
+        case -1217189620:  // executionLog
+          return ((ExecutionLogWithContext) bean).getExecutionLog();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -211372413:  // functionName
+          ((ExecutionLogWithContext) bean).setFunctionName((String) newValue);
+          return;
+        case -1553345806:  // targetSpecification
+          ((ExecutionLogWithContext) bean).setTargetSpecification((ComputationTargetSpecification) newValue);
+          return;
+        case -1217189620:  // executionLog
+          ((ExecutionLogWithContext) bean).setExecutionLog((ExecutionLog) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((ExecutionLogWithContext) bean)._functionName, "functionName");
+      JodaBeanUtils.notNull(((ExecutionLogWithContext) bean)._targetSpecification, "targetSpecification");
+      JodaBeanUtils.notNull(((ExecutionLogWithContext) bean)._executionLog, "executionLog");
     }
 
   }

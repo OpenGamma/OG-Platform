@@ -7,6 +7,7 @@ package com.opengamma.livedata.cogda.msg;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -49,50 +50,6 @@ public abstract class CogdaCommandMessage extends DirectBean {
     return CogdaCommandMessage.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -764983747:  // correlationId
-        return getCorrelationId();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -764983747:  // correlationId
-        setCorrelationId((Long) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_correlationId, "correlationId");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      CogdaCommandMessage other = (CogdaCommandMessage) obj;
-      return JodaBeanUtils.equal(getCorrelationId(), other.getCorrelationId());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCorrelationId());
-    return hash;
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets a client-generated identifier to correlate request/response pairs.
@@ -117,6 +74,58 @@ public abstract class CogdaCommandMessage extends DirectBean {
    */
   public final Property<Long> correlationId() {
     return metaBean().correlationId().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public CogdaCommandMessage clone() {
+    BeanBuilder<? extends CogdaCommandMessage> builder = metaBean().builder();
+    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
+      if (mp.style().isBuildable()) {
+        Object value = mp.get(this);
+        if (value instanceof Bean) {
+          value = ((Bean) value).clone();
+        }
+        builder.set(mp.name(), value);
+      }
+    }
+    return builder.build();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      CogdaCommandMessage other = (CogdaCommandMessage) obj;
+      return (getCorrelationId() == other.getCorrelationId());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCorrelationId());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(64);
+    buf.append("CogdaCommandMessage{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("correlationId").append('=').append(getCorrelationId()).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -178,6 +187,31 @@ public abstract class CogdaCommandMessage extends DirectBean {
      */
     public final MetaProperty<Long> correlationId() {
       return _correlationId;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -764983747:  // correlationId
+          return ((CogdaCommandMessage) bean).getCorrelationId();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -764983747:  // correlationId
+          ((CogdaCommandMessage) bean).setCorrelationId((Long) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((CogdaCommandMessage) bean)._correlationId, "correlationId");
     }
 
   }

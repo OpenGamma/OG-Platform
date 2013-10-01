@@ -76,7 +76,7 @@ public final class DirectBeanFudgeBuilder<T extends Bean> implements FudgeBuilde
     try {
       MutableFudgeMsg msg = serializer.newMessage();
       for (MetaProperty<?> prop : bean.metaBean().metaPropertyIterable()) {
-        if (prop.readWrite().isReadable()) {
+        if (prop.style().isReadable()) {
           Object obj = prop.get(bean);
           if (obj instanceof List<?>) {
             MutableFudgeMsg subMsg = buildMessageCollection(serializer, prop, bean.getClass(), (List<?>) obj);
@@ -143,7 +143,7 @@ public final class DirectBeanFudgeBuilder<T extends Bean> implements FudgeBuilde
     try {
       BeanBuilder<T> builder = (BeanBuilder<T>) _metaBean.builder();
       for (MetaProperty<?> mp : _metaBean.metaPropertyIterable()) {
-        if (mp.readWrite().isWritable()) {
+        if (mp.style().isBuildable()) {
           final FudgeField field = msg.getByName(mp.name());
           if (field != null) {
             Object value = null;

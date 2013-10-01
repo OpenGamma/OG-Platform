@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -144,59 +145,6 @@ public class SecurityLoaderRequest extends DirectBean {
     return SecurityLoaderRequest.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1369745653:  // externalIdBundles
-        return getExternalIdBundles();
-      case -406875244:  // forceUpdate
-        return isForceUpdate();
-      case -1487031708:  // returnSecurityObjects
-        return isReturnSecurityObjects();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1369745653:  // externalIdBundles
-        setExternalIdBundles((Set<ExternalIdBundle>) newValue);
-        return;
-      case -406875244:  // forceUpdate
-        setForceUpdate((Boolean) newValue);
-        return;
-      case -1487031708:  // returnSecurityObjects
-        setReturnSecurityObjects((Boolean) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      SecurityLoaderRequest other = (SecurityLoaderRequest) obj;
-      return JodaBeanUtils.equal(getExternalIdBundles(), other.getExternalIdBundles()) &&
-          JodaBeanUtils.equal(isForceUpdate(), other.isForceUpdate()) &&
-          JodaBeanUtils.equal(isReturnSecurityObjects(), other.isReturnSecurityObjects());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdBundles());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isForceUpdate());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isReturnSecurityObjects());
-    return hash;
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the set of security external identifiers to load.
@@ -280,6 +228,64 @@ public class SecurityLoaderRequest extends DirectBean {
    */
   public final Property<Boolean> returnSecurityObjects() {
     return metaBean().returnSecurityObjects().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public SecurityLoaderRequest clone() {
+    BeanBuilder<? extends SecurityLoaderRequest> builder = metaBean().builder();
+    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
+      if (mp.style().isBuildable()) {
+        Object value = mp.get(this);
+        if (value instanceof Bean) {
+          value = ((Bean) value).clone();
+        }
+        builder.set(mp.name(), value);
+      }
+    }
+    return builder.build();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      SecurityLoaderRequest other = (SecurityLoaderRequest) obj;
+      return JodaBeanUtils.equal(getExternalIdBundles(), other.getExternalIdBundles()) &&
+          (isForceUpdate() == other.isForceUpdate()) &&
+          (isReturnSecurityObjects() == other.isReturnSecurityObjects());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdBundles());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isForceUpdate());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isReturnSecurityObjects());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(128);
+    buf.append("SecurityLoaderRequest{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("externalIdBundles").append('=').append(getExternalIdBundles()).append(',').append(' ');
+    buf.append("forceUpdate").append('=').append(isForceUpdate()).append(',').append(' ');
+    buf.append("returnSecurityObjects").append('=').append(isReturnSecurityObjects()).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -374,6 +380,37 @@ public class SecurityLoaderRequest extends DirectBean {
      */
     public final MetaProperty<Boolean> returnSecurityObjects() {
       return _returnSecurityObjects;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1369745653:  // externalIdBundles
+          return ((SecurityLoaderRequest) bean).getExternalIdBundles();
+        case -406875244:  // forceUpdate
+          return ((SecurityLoaderRequest) bean).isForceUpdate();
+        case -1487031708:  // returnSecurityObjects
+          return ((SecurityLoaderRequest) bean).isReturnSecurityObjects();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1369745653:  // externalIdBundles
+          ((SecurityLoaderRequest) bean).setExternalIdBundles((Set<ExternalIdBundle>) newValue);
+          return;
+        case -406875244:  // forceUpdate
+          ((SecurityLoaderRequest) bean).setForceUpdate((Boolean) newValue);
+          return;
+        case -1487031708:  // returnSecurityObjects
+          ((SecurityLoaderRequest) bean).setReturnSecurityObjects((Boolean) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

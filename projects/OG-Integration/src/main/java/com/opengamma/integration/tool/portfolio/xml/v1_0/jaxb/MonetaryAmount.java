@@ -12,8 +12,9 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlValue;
 
-import com.opengamma.util.money.Currency;
 import org.joda.beans.JodaBeanUtils;
+
+import com.opengamma.util.money.Currency;
 
 @XmlAccessorType(XmlAccessType.FIELD)
 

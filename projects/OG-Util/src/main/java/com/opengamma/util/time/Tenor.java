@@ -19,6 +19,9 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class Tenor implements Comparable<Tenor>, Serializable {
 
+  /** Serialization version. */
+  private static final long serialVersionUID = -6312355131513714559L;
+
   /**
    * An overnight tenor.
    */

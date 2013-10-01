@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -92,73 +93,6 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
   @Override
   public CurveConstructionConfiguration.Meta metaBean() {
     return CurveConstructionConfiguration.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        return getUniqueId();
-      case 3373707:  // name
-        return getName();
-      case -2135025757:  // curveGroups
-        return getCurveGroups();
-      case -1107510858:  // exogenousConfigurations
-        return getExogenousConfigurations();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        setUniqueId((UniqueId) newValue);
-        return;
-      case 3373707:  // name
-        setName((String) newValue);
-        return;
-      case -2135025757:  // curveGroups
-        setCurveGroups((List<CurveGroupConfiguration>) newValue);
-        return;
-      case -1107510858:  // exogenousConfigurations
-        setExogenousConfigurations((List<String>) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_name, "name");
-    JodaBeanUtils.notNull(_curveGroups, "curveGroups");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      CurveConstructionConfiguration other = (CurveConstructionConfiguration) obj;
-      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
-          JodaBeanUtils.equal(getName(), other.getName()) &&
-          JodaBeanUtils.equal(getCurveGroups(), other.getCurveGroups()) &&
-          JodaBeanUtils.equal(getExogenousConfigurations(), other.getExogenousConfigurations());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCurveGroups());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExogenousConfigurations());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -261,6 +195,67 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
    */
   public final Property<List<String>> exogenousConfigurations() {
     return metaBean().exogenousConfigurations().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public CurveConstructionConfiguration clone() {
+    BeanBuilder<? extends CurveConstructionConfiguration> builder = metaBean().builder();
+    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
+      if (mp.style().isBuildable()) {
+        Object value = mp.get(this);
+        if (value instanceof Bean) {
+          value = ((Bean) value).clone();
+        }
+        builder.set(mp.name(), value);
+      }
+    }
+    return builder.build();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      CurveConstructionConfiguration other = (CurveConstructionConfiguration) obj;
+      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+          JodaBeanUtils.equal(getName(), other.getName()) &&
+          JodaBeanUtils.equal(getCurveGroups(), other.getCurveGroups()) &&
+          JodaBeanUtils.equal(getExogenousConfigurations(), other.getExogenousConfigurations());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCurveGroups());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExogenousConfigurations());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(160);
+    buf.append("CurveConstructionConfiguration{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("uniqueId").append('=').append(getUniqueId()).append(',').append(' ');
+    buf.append("name").append('=').append(getName()).append(',').append(' ');
+    buf.append("curveGroups").append('=').append(getCurveGroups()).append(',').append(' ');
+    buf.append("exogenousConfigurations").append('=').append(getExogenousConfigurations()).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -372,6 +367,48 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
      */
     public final MetaProperty<List<String>> exogenousConfigurations() {
       return _exogenousConfigurations;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          return ((CurveConstructionConfiguration) bean).getUniqueId();
+        case 3373707:  // name
+          return ((CurveConstructionConfiguration) bean).getName();
+        case -2135025757:  // curveGroups
+          return ((CurveConstructionConfiguration) bean).getCurveGroups();
+        case -1107510858:  // exogenousConfigurations
+          return ((CurveConstructionConfiguration) bean).getExogenousConfigurations();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          ((CurveConstructionConfiguration) bean).setUniqueId((UniqueId) newValue);
+          return;
+        case 3373707:  // name
+          ((CurveConstructionConfiguration) bean).setName((String) newValue);
+          return;
+        case -2135025757:  // curveGroups
+          ((CurveConstructionConfiguration) bean).setCurveGroups((List<CurveGroupConfiguration>) newValue);
+          return;
+        case -1107510858:  // exogenousConfigurations
+          ((CurveConstructionConfiguration) bean).setExogenousConfigurations((List<String>) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((CurveConstructionConfiguration) bean)._name, "name");
+      JodaBeanUtils.notNull(((CurveConstructionConfiguration) bean)._curveGroups, "curveGroups");
     }
 
   }

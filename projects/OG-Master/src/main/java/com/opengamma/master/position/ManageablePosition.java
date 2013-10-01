@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.DerivedProperty;
@@ -326,96 +327,6 @@ public class ManageablePosition extends DirectBean
     return ManageablePosition.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        return getUniqueId();
-      case -1285004149:  // quantity
-        return getQuantity();
-      case 807992154:  // securityLink
-        return getSecurityLink();
-      case -865715313:  // trades
-        return getTrades();
-      case 405645655:  // attributes
-        return getAttributes();
-      case 205149932:  // providerId
-        return getProviderId();
-      case 3373707:  // name
-        return getName();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -294460212:  // uniqueId
-        setUniqueId((UniqueId) newValue);
-        return;
-      case -1285004149:  // quantity
-        setQuantity((BigDecimal) newValue);
-        return;
-      case 807992154:  // securityLink
-        setSecurityLink((ManageableSecurityLink) newValue);
-        return;
-      case -865715313:  // trades
-        setTrades((List<ManageableTrade>) newValue);
-        return;
-      case 405645655:  // attributes
-        setAttributes((Map<String, String>) newValue);
-        return;
-      case 205149932:  // providerId
-        setProviderId((ExternalId) newValue);
-        return;
-      case 3373707:  // name
-        if (quiet) {
-          return;
-        }
-        throw new UnsupportedOperationException("Property cannot be written: name");
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_securityLink, "securityLink");
-    JodaBeanUtils.notNull(_attributes, "attributes");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      ManageablePosition other = (ManageablePosition) obj;
-      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
-          JodaBeanUtils.equal(getQuantity(), other.getQuantity()) &&
-          JodaBeanUtils.equal(getSecurityLink(), other.getSecurityLink()) &&
-          JodaBeanUtils.equal(getTrades(), other.getTrades()) &&
-          JodaBeanUtils.equal(getAttributes(), other.getAttributes()) &&
-          JodaBeanUtils.equal(getProviderId(), other.getProviderId()) &&
-          JodaBeanUtils.equal(getName(), other.getName());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getQuantity());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityLink());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTrades());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAttributes());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getProviderId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
-    return hash;
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the unique identifier of the position.
@@ -604,6 +515,76 @@ public class ManageablePosition extends DirectBean
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public ManageablePosition clone() {
+    BeanBuilder<? extends ManageablePosition> builder = metaBean().builder();
+    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
+      if (mp.style().isBuildable()) {
+        Object value = mp.get(this);
+        if (value instanceof Bean) {
+          value = ((Bean) value).clone();
+        }
+        builder.set(mp.name(), value);
+      }
+    }
+    return builder.build();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ManageablePosition other = (ManageablePosition) obj;
+      return JodaBeanUtils.equal(getUniqueId(), other.getUniqueId()) &&
+          JodaBeanUtils.equal(getQuantity(), other.getQuantity()) &&
+          JodaBeanUtils.equal(getSecurityLink(), other.getSecurityLink()) &&
+          JodaBeanUtils.equal(getTrades(), other.getTrades()) &&
+          JodaBeanUtils.equal(getAttributes(), other.getAttributes()) &&
+          JodaBeanUtils.equal(getProviderId(), other.getProviderId()) &&
+          JodaBeanUtils.equal(getName(), other.getName());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getQuantity());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityLink());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTrades());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getAttributes());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getProviderId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getName());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(256);
+    buf.append("ManageablePosition{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("uniqueId").append('=').append(getUniqueId()).append(',').append(' ');
+    buf.append("quantity").append('=').append(getQuantity()).append(',').append(' ');
+    buf.append("securityLink").append('=').append(getSecurityLink()).append(',').append(' ');
+    buf.append("trades").append('=').append(getTrades()).append(',').append(' ');
+    buf.append("attributes").append('=').append(getAttributes()).append(',').append(' ');
+    buf.append("providerId").append('=').append(getProviderId()).append(',').append(' ');
+    buf.append("name").append('=').append(getName()).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code ManageablePosition}.
    */
@@ -648,7 +629,7 @@ public class ManageablePosition extends DirectBean
     /**
      * The meta-property for the {@code name} property.
      */
-    private final MetaProperty<String> _name = DirectMetaProperty.ofReadOnly(
+    private final MetaProperty<String> _name = DirectMetaProperty.ofDerived(
         this, "name", ManageablePosition.class, String.class);
     /**
      * The meta-properties.
@@ -760,6 +741,65 @@ public class ManageablePosition extends DirectBean
      */
     public final MetaProperty<String> name() {
       return _name;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          return ((ManageablePosition) bean).getUniqueId();
+        case -1285004149:  // quantity
+          return ((ManageablePosition) bean).getQuantity();
+        case 807992154:  // securityLink
+          return ((ManageablePosition) bean).getSecurityLink();
+        case -865715313:  // trades
+          return ((ManageablePosition) bean).getTrades();
+        case 405645655:  // attributes
+          return ((ManageablePosition) bean).getAttributes();
+        case 205149932:  // providerId
+          return ((ManageablePosition) bean).getProviderId();
+        case 3373707:  // name
+          return ((ManageablePosition) bean).getName();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -294460212:  // uniqueId
+          ((ManageablePosition) bean).setUniqueId((UniqueId) newValue);
+          return;
+        case -1285004149:  // quantity
+          ((ManageablePosition) bean).setQuantity((BigDecimal) newValue);
+          return;
+        case 807992154:  // securityLink
+          ((ManageablePosition) bean).setSecurityLink((ManageableSecurityLink) newValue);
+          return;
+        case -865715313:  // trades
+          ((ManageablePosition) bean).setTrades((List<ManageableTrade>) newValue);
+          return;
+        case 405645655:  // attributes
+          ((ManageablePosition) bean).setAttributes((Map<String, String>) newValue);
+          return;
+        case 205149932:  // providerId
+          ((ManageablePosition) bean).setProviderId((ExternalId) newValue);
+          return;
+        case 3373707:  // name
+          if (quiet) {
+            return;
+          }
+          throw new UnsupportedOperationException("Property cannot be written: name");
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((ManageablePosition) bean)._securityLink, "securityLink");
+      JodaBeanUtils.notNull(((ManageablePosition) bean)._attributes, "attributes");
     }
 
   }

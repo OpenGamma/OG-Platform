@@ -39,7 +39,6 @@ import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.engine.view.permission.ViewPermissionContext;
-import com.opengamma.engine.view.permission.ViewPermissionProvider;
 import com.opengamma.engine.view.worker.ViewExecutionDataProvider;
 import com.opengamma.engine.view.worker.ViewProcessWorker;
 import com.opengamma.engine.view.worker.ViewProcessWorkerContext;

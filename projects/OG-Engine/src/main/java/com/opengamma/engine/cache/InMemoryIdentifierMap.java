@@ -44,5 +44,12 @@ public class InMemoryIdentifierMap extends AbstractIdentifierMap implements Iden
   public ValueSpecification getValueSpecification(long identifier) {
     return _specifications.get(identifier);
   }
+  
+  public void clear() {
+    _identifiers.clear();
+    _specifications.clear();
+    // N.B. We don't actually reset the _nextIdentifier map just in case, so that we can diagnostically
+    // check whether an ID has accidentally been reused.
+  }
 
 }

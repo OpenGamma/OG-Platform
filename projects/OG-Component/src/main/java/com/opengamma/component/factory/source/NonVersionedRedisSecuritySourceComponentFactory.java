@@ -8,6 +8,7 @@ package com.opengamma.component.factory.source;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -90,74 +91,6 @@ public class NonVersionedRedisSecuritySourceComponentFactory extends AbstractCom
   @Override
   public NonVersionedRedisSecuritySourceComponentFactory.Meta metaBean() {
     return NonVersionedRedisSecuritySourceComponentFactory.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        return getClassifier();
-      case -745461486:  // redisConnector
-        return getRedisConnector();
-      case -2024915987:  // redisPrefix
-        return getRedisPrefix();
-      case -614707837:  // publishRest
-        return isPublishRest();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        setClassifier((String) newValue);
-        return;
-      case -745461486:  // redisConnector
-        setRedisConnector((RedisConnector) newValue);
-        return;
-      case -2024915987:  // redisPrefix
-        setRedisPrefix((String) newValue);
-        return;
-      case -614707837:  // publishRest
-        setPublishRest((Boolean) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_classifier, "classifier");
-    JodaBeanUtils.notNull(_redisConnector, "redisConnector");
-    JodaBeanUtils.notNull(_redisPrefix, "redisPrefix");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      NonVersionedRedisSecuritySourceComponentFactory other = (NonVersionedRedisSecuritySourceComponentFactory) obj;
-      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
-          JodaBeanUtils.equal(getRedisConnector(), other.getRedisConnector()) &&
-          JodaBeanUtils.equal(getRedisPrefix(), other.getRedisPrefix()) &&
-          JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRedisConnector());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRedisPrefix());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -261,6 +194,60 @@ public class NonVersionedRedisSecuritySourceComponentFactory extends AbstractCom
    */
   public final Property<Boolean> publishRest() {
     return metaBean().publishRest().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public NonVersionedRedisSecuritySourceComponentFactory clone() {
+    return (NonVersionedRedisSecuritySourceComponentFactory) super.clone();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      NonVersionedRedisSecuritySourceComponentFactory other = (NonVersionedRedisSecuritySourceComponentFactory) obj;
+      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
+          JodaBeanUtils.equal(getRedisConnector(), other.getRedisConnector()) &&
+          JodaBeanUtils.equal(getRedisPrefix(), other.getRedisPrefix()) &&
+          (isPublishRest() == other.isPublishRest()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRedisConnector());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRedisPrefix());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(160);
+    buf.append("NonVersionedRedisSecuritySourceComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("classifier").append('=').append(getClassifier()).append(',').append(' ');
+    buf.append("redisConnector").append('=').append(getRedisConnector()).append(',').append(' ');
+    buf.append("redisPrefix").append('=').append(getRedisPrefix()).append(',').append(' ');
+    buf.append("publishRest").append('=').append(isPublishRest()).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -370,6 +357,49 @@ public class NonVersionedRedisSecuritySourceComponentFactory extends AbstractCom
      */
     public final MetaProperty<Boolean> publishRest() {
       return _publishRest;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          return ((NonVersionedRedisSecuritySourceComponentFactory) bean).getClassifier();
+        case -745461486:  // redisConnector
+          return ((NonVersionedRedisSecuritySourceComponentFactory) bean).getRedisConnector();
+        case -2024915987:  // redisPrefix
+          return ((NonVersionedRedisSecuritySourceComponentFactory) bean).getRedisPrefix();
+        case -614707837:  // publishRest
+          return ((NonVersionedRedisSecuritySourceComponentFactory) bean).isPublishRest();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          ((NonVersionedRedisSecuritySourceComponentFactory) bean).setClassifier((String) newValue);
+          return;
+        case -745461486:  // redisConnector
+          ((NonVersionedRedisSecuritySourceComponentFactory) bean).setRedisConnector((RedisConnector) newValue);
+          return;
+        case -2024915987:  // redisPrefix
+          ((NonVersionedRedisSecuritySourceComponentFactory) bean).setRedisPrefix((String) newValue);
+          return;
+        case -614707837:  // publishRest
+          ((NonVersionedRedisSecuritySourceComponentFactory) bean).setPublishRest((Boolean) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((NonVersionedRedisSecuritySourceComponentFactory) bean)._classifier, "classifier");
+      JodaBeanUtils.notNull(((NonVersionedRedisSecuritySourceComponentFactory) bean)._redisConnector, "redisConnector");
+      JodaBeanUtils.notNull(((NonVersionedRedisSecuritySourceComponentFactory) bean)._redisPrefix, "redisPrefix");
+      super.validate(bean);
     }
 
   }

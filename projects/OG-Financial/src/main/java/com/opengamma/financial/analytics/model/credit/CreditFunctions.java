@@ -18,9 +18,6 @@ import com.opengamma.analytics.financial.credit.isdayieldcurve.InterestRateBumpT
 import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
-import com.opengamma.financial.analytics.model.credit.isdanew.ISDACompliantCDSFunction;
-import com.opengamma.financial.analytics.model.credit.isdanew.ISDACompliantCreditCurveFunction;
-import com.opengamma.financial.analytics.model.credit.isdanew.ISDACompliantYieldCurveFunction;
 import com.opengamma.financial.analytics.model.credit.isda.ISDADateCurveDefaults;
 import com.opengamma.financial.analytics.model.credit.isda.ISDAHazardRateCurveDefaults;
 import com.opengamma.financial.analytics.model.credit.isda.calibration.ISDACDSHazardRateCurveFunction;
@@ -57,6 +54,9 @@ import com.opengamma.financial.analytics.model.credit.isda.cdx.ISDACDXAsSingleNa
 import com.opengamma.financial.analytics.model.credit.isda.cdx.ISDACDXAsSingleNameParallelIR01Function;
 import com.opengamma.financial.analytics.model.credit.isda.cdx.ISDACDXAsSingleNamePresentValueFunction;
 import com.opengamma.financial.analytics.model.credit.isda.cdx.ISDACDXAsSingleNameRR01Function;
+import com.opengamma.financial.analytics.model.credit.isdanew.ISDACompliantCDSFunction;
+import com.opengamma.financial.analytics.model.credit.isdanew.ISDACompliantCreditCurveFunction;
+import com.opengamma.financial.analytics.model.credit.isdanew.ISDACompliantYieldCurveFunction;
 import com.opengamma.financial.property.DefaultPropertyFunction.PriorityClass;
 import com.opengamma.util.ArgumentChecker;
 

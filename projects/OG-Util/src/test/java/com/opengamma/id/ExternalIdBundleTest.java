@@ -21,7 +21,6 @@ import java.util.Set;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
 import com.opengamma.util.test.TestGroup;
 
@@ -374,17 +373,6 @@ public class ExternalIdBundleTest {
   public void test_contains_null() {
     ExternalIdBundle test = ExternalIdBundle.of(_id11, _id12);
     assertEquals(false, test.contains(null));
-  }
-
-  //-------------------------------------------------------------------------
-  public void test_withCustomIdOrdering() {
-    ExternalIdBundle base = ExternalIdBundle.of(ExternalId.of("A", "X"), ExternalId.of("B", "X"), ExternalId.of("C", "X"));
-    ExternalIdBundle test = base.withCustomIdOrdering(Ordering.<ExternalId>natural().reverse());
-    assertEquals(3, test.size());
-    Iterator<ExternalId> it = test.getExternalIds().iterator();
-    assertEquals(ExternalId.of("C", "X"), it.next());
-    assertEquals(ExternalId.of("B", "X"), it.next());
-    assertEquals(ExternalId.of("A", "X"), it.next());
   }
 
   //-------------------------------------------------------------------------

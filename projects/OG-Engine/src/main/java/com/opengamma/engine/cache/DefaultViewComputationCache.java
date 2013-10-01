@@ -27,9 +27,9 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Lists;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.WriteReplaceHelper;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * An implementation of {@link ViewComputationCache} which backs value storage on a pair of {@link IdentifierMap} and {@link FudgeMessageStore}.

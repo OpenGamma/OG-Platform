@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -98,73 +99,6 @@ public class VolatilityCubeDefinitionSourceComponentFactory extends AbstractComp
   @Override
   public VolatilityCubeDefinitionSourceComponentFactory.Meta metaBean() {
     return VolatilityCubeDefinitionSourceComponentFactory.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        return getClassifier();
-      case -614707837:  // publishRest
-        return isPublishRest();
-      case 195157501:  // configSource
-        return getConfigSource();
-      case 1218257467:  // bloomberg
-        return isBloomberg();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        setClassifier((String) newValue);
-        return;
-      case -614707837:  // publishRest
-        setPublishRest((Boolean) newValue);
-        return;
-      case 195157501:  // configSource
-        setConfigSource((ConfigSource) newValue);
-        return;
-      case 1218257467:  // bloomberg
-        setBloomberg((Boolean) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_classifier, "classifier");
-    JodaBeanUtils.notNull(_configSource, "configSource");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      VolatilityCubeDefinitionSourceComponentFactory other = (VolatilityCubeDefinitionSourceComponentFactory) obj;
-      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
-          JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
-          JodaBeanUtils.equal(getConfigSource(), other.getConfigSource()) &&
-          JodaBeanUtils.equal(isBloomberg(), other.isBloomberg()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(isBloomberg());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -267,6 +201,60 @@ public class VolatilityCubeDefinitionSourceComponentFactory extends AbstractComp
    */
   public final Property<Boolean> bloomberg() {
     return metaBean().bloomberg().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public VolatilityCubeDefinitionSourceComponentFactory clone() {
+    return (VolatilityCubeDefinitionSourceComponentFactory) super.clone();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      VolatilityCubeDefinitionSourceComponentFactory other = (VolatilityCubeDefinitionSourceComponentFactory) obj;
+      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
+          (isPublishRest() == other.isPublishRest()) &&
+          JodaBeanUtils.equal(getConfigSource(), other.getConfigSource()) &&
+          (isBloomberg() == other.isBloomberg()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isBloomberg());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(160);
+    buf.append("VolatilityCubeDefinitionSourceComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("classifier").append('=').append(getClassifier()).append(',').append(' ');
+    buf.append("publishRest").append('=').append(isPublishRest()).append(',').append(' ');
+    buf.append("configSource").append('=').append(getConfigSource()).append(',').append(' ');
+    buf.append("bloomberg").append('=').append(isBloomberg()).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -376,6 +364,48 @@ public class VolatilityCubeDefinitionSourceComponentFactory extends AbstractComp
      */
     public final MetaProperty<Boolean> bloomberg() {
       return _bloomberg;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          return ((VolatilityCubeDefinitionSourceComponentFactory) bean).getClassifier();
+        case -614707837:  // publishRest
+          return ((VolatilityCubeDefinitionSourceComponentFactory) bean).isPublishRest();
+        case 195157501:  // configSource
+          return ((VolatilityCubeDefinitionSourceComponentFactory) bean).getConfigSource();
+        case 1218257467:  // bloomberg
+          return ((VolatilityCubeDefinitionSourceComponentFactory) bean).isBloomberg();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          ((VolatilityCubeDefinitionSourceComponentFactory) bean).setClassifier((String) newValue);
+          return;
+        case -614707837:  // publishRest
+          ((VolatilityCubeDefinitionSourceComponentFactory) bean).setPublishRest((Boolean) newValue);
+          return;
+        case 195157501:  // configSource
+          ((VolatilityCubeDefinitionSourceComponentFactory) bean).setConfigSource((ConfigSource) newValue);
+          return;
+        case 1218257467:  // bloomberg
+          ((VolatilityCubeDefinitionSourceComponentFactory) bean).setBloomberg((Boolean) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((VolatilityCubeDefinitionSourceComponentFactory) bean)._classifier, "classifier");
+      JodaBeanUtils.notNull(((VolatilityCubeDefinitionSourceComponentFactory) bean)._configSource, "configSource");
+      super.validate(bean);
     }
 
   }
