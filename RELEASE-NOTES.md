@@ -11,13 +11,16 @@ To 2.2.0-M1
 -----------
 
 Configuration compatibility
-- No changes required
+- The legacy analytics web UI has been retired. WebsiteAnalyticsComponentFactory, which used to construct its
+  server-side components, has been removed. Any instances of this can be safely deleted from component configuration
+  .ini files.
 
 Database compatibility
 - No upgrade required
 
 API compatibility
-- No significant changes
+- The legacy analytics web UI has been retired. The dependency on the CometD long-polling library, and the custom
+  RESTful end-points that it used, have been removed.
 
 Analytics compatibility
 - No expected differences
