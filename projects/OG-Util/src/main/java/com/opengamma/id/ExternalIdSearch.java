@@ -377,7 +377,6 @@ public final class ExternalIdSearch implements ImmutableBean, Iterable<ExternalI
   }
 
   private ExternalIdSearch(
-      ExternalIdSearch.Builder builder,
       Set<ExternalId> externalIds,
       ExternalIdSearchType searchType) {
     JodaBeanUtils.notNull(externalIds, "externalIds");
@@ -410,14 +409,6 @@ public final class ExternalIdSearch implements ImmutableBean, Iterable<ExternalI
     return _externalIds;
   }
 
-  /**
-   * Gets the the {@code externalIds} property.
-   * @return the property, not null
-   */
-  public Property<ImmutableSet<ExternalId>> externalIds() {
-    return metaBean().externalIds().createProperty(this);
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the search type, default 'ANY'.
@@ -425,14 +416,6 @@ public final class ExternalIdSearch implements ImmutableBean, Iterable<ExternalI
    */
   public ExternalIdSearchType getSearchType() {
     return _searchType;
-  }
-
-  /**
-   * Gets the the {@code searchType} property.
-   * @return the property, not null
-   */
-  public Property<ExternalIdSearchType> searchType() {
-    return metaBean().searchType().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -627,7 +610,6 @@ public final class ExternalIdSearch implements ImmutableBean, Iterable<ExternalI
     @Override
     public ExternalIdSearch build() {
       return new ExternalIdSearch(
-          this,
           _externalIds,
           _searchType);
     }

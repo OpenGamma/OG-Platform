@@ -5,15 +5,9 @@
  */
 package com.opengamma.id;
 
-import static org.testng.AssertJUnit.assertNotNull;
-import static org.testng.AssertJUnit.assertNull;
-
-import org.fudgemsg.mapping.FudgeDeserializer;
-import org.fudgemsg.mapping.FudgeSerializer;
 import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
 
-import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 import com.opengamma.util.test.TestGroup;
 
@@ -34,16 +28,6 @@ public class VersionCorrectionFudgeEncodingTest extends AbstractFudgeBuilderTest
   public void test_latest() {
     VersionCorrection object = VersionCorrection.LATEST;
     assertEncodeDecodeCycle(VersionCorrection.class, object);
-  }
-
-  public void test_toFudgeMsg() {
-    VersionCorrection sample = VersionCorrection.LATEST;
-    assertNull(VersionCorrectionFudgeBuilder.toFudgeMsg(new FudgeSerializer(OpenGammaFudgeContext.getInstance()), null));
-    assertNotNull(VersionCorrectionFudgeBuilder.toFudgeMsg(new FudgeSerializer(OpenGammaFudgeContext.getInstance()), sample));
-  }
-
-  public void test_fromFudgeMsg() {
-    assertNull(VersionCorrectionFudgeBuilder.fromFudgeMsg(new FudgeDeserializer(OpenGammaFudgeContext.getInstance()), null));
   }
 
 }

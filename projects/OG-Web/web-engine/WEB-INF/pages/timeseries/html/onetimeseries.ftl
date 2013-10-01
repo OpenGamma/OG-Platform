@@ -12,7 +12,7 @@
   <p>
     <@rowout label="Reference">${info.uniqueId.value}</@rowout>
    	<#list info.externalIdBundle.externalIds as item>
-    <@rowout label="Identifier">${item}</@rowout>
+    <@rowout label="Identifier">${item.externalId}</@rowout>
    	</#list>
     <@rowout label="Data source">${info.dataSource}</@rowout>
     <@rowout label="Data provider">${info.dataProvider}</@rowout>

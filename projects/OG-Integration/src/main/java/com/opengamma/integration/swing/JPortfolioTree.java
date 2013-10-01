@@ -5,6 +5,9 @@
  */
 package com.opengamma.integration.swing;
 
+import java.util.SortedSet;
+import java.util.TreeSet;
+
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeModel;
 
@@ -14,6 +17,7 @@ import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
+import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 
 /**
@@ -38,9 +42,11 @@ public class JPortfolioTree extends JTree {
         return portfolioNode.getName();
       } else if (value instanceof Position) {
         Position position = (Position) value;
-        ExternalIdBundle bundle = position.getSecurityLink().getExternalId().withCustomIdOrdering(_idBundleComparator);
+        ExternalIdBundle bundle = position.getSecurityLink().getExternalId();
         if (!bundle.isEmpty()) {
-          return bundle.iterator().next() + " (" + position.getQuantity() + ")";
+          SortedSet<ExternalId> sorted = new TreeSet<>(_idBundleComparator);
+          sorted.addAll(bundle.getExternalIds());
+          return sorted.iterator().next() + " (" + position.getQuantity() + ")";
         } else {
           return position.getSecurity().getName() + " (" + position.getQuantity() + ")";
         }
