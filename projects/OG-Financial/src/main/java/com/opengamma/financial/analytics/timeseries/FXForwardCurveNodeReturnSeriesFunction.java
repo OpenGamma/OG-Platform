@@ -178,7 +178,7 @@ public class FXForwardCurveNodeReturnSeriesFunction extends AbstractFunction.Non
     final boolean includeStart = HistoricalTimeSeriesFunctionUtils.parseBoolean(bundleValue.getSpecification().getProperty(HistoricalTimeSeriesFunctionUtils.INCLUDE_START_PROPERTY));
     final FXForwardCurveDefinition fxForwardCurveDefinition = (FXForwardCurveDefinition) inputs.getValue(ValueRequirementNames.FX_FORWARD_CURVE_DEFINITION);
 
-    final Tenor[] tenors = fxForwardCurveDefinition.getTenors();
+    final Tenor[] tenors = fxForwardCurveDefinition.getTenorsArray();
 
     final TenorLabelledLocalDateDoubleTimeSeriesMatrix1D returnSeriesVector = getReturnSeriesVector(bundle, tenors,
         schedule, samplingFunction, returnSeriesStart, includeStart, desiredValue);

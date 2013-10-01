@@ -5,6 +5,7 @@
  */
 package com.opengamma.examples.simulated.curve;
 
+import com.google.common.collect.ImmutableList;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveDefinition;
@@ -26,12 +27,12 @@ public class ExampleFXForwardCurveConfigPopulator {
   /** The instrument type name */
   private static final String INSTRUMENT_TYPE = "FX_FORWARD";
   /** Tenors for non-JPY instruments */
-  private static final Tenor[] TENORS = new Tenor[] {Tenor.ofDays(7), Tenor.ofDays(14), Tenor.ofDays(21), Tenor.ofMonths(1),
+  private static final ImmutableList<Tenor> TENORS = ImmutableList.of(Tenor.ofDays(7), Tenor.ofDays(14), Tenor.ofDays(21), Tenor.ofMonths(1),
     Tenor.ofMonths(3), Tenor.ofMonths(6), Tenor.ofMonths(9), Tenor.ofYears(1),
-    Tenor.ofYears(5), Tenor.ofYears(10)};
+    Tenor.ofYears(5), Tenor.ofYears(10));
   /** Tenors for JPY */
-  private static final Tenor[] JPY_TENORS = new Tenor[] {Tenor.ofDays(7), Tenor.ofDays(14), Tenor.ofDays(21), Tenor.ofMonths(1),
-    Tenor.ofMonths(3), Tenor.ofMonths(6), Tenor.ofMonths(9), Tenor.ofYears(1), Tenor.ofYears(2)};
+  private static final ImmutableList<Tenor> JPY_TENORS = ImmutableList.of(Tenor.ofDays(7), Tenor.ofDays(14), Tenor.ofDays(21), Tenor.ofMonths(1),
+    Tenor.ofMonths(3), Tenor.ofMonths(6), Tenor.ofMonths(9), Tenor.ofYears(1), Tenor.ofYears(2));
 
   /**
    * @param configMaster The configuration master, not null
@@ -71,9 +72,9 @@ public class ExampleFXForwardCurveConfigPopulator {
     final String fullName = name + SEPARATOR + target.toString() + SEPARATOR + INSTRUMENT_TYPE;
     final FXForwardCurveDefinition definition;
     if (target.getFirstCurrency().equals(Currency.JPY) || target.getSecondCurrency().equals(Currency.JPY)) {
-      definition = new FXForwardCurveDefinition(fullName, target, JPY_TENORS);
+      definition = FXForwardCurveDefinition.of(fullName, target, JPY_TENORS);
     } else {
-      definition = new FXForwardCurveDefinition(fullName, target, TENORS);
+      definition = FXForwardCurveDefinition.of(fullName, target, TENORS);
     }
     ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(definition));
   }

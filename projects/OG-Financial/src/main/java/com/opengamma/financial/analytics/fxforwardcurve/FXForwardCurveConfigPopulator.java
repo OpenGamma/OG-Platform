@@ -8,6 +8,7 @@ package com.opengamma.financial.analytics.fxforwardcurve;
 import java.util.Collections;
 import java.util.Map;
 
+import com.google.common.collect.ImmutableList;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.master.config.ConfigMaster;
@@ -27,9 +28,9 @@ public class FXForwardCurveConfigPopulator {
   /** The instrument type name */
   private static final String INSTRUMENT_TYPE = "FX_FORWARD";
   /** Tenors for non-JPY instruments */
-  private static final Tenor[] TENORS = new Tenor[] {Tenor.ofDays(7), Tenor.ofDays(14), Tenor.ofDays(21), Tenor.ofMonths(1),
+  private static final ImmutableList<Tenor> TENORS = ImmutableList.of(Tenor.ofDays(7), Tenor.ofDays(14), Tenor.ofDays(21), Tenor.ofMonths(1),
     Tenor.ofMonths(3), Tenor.ofMonths(6), Tenor.ofMonths(9), Tenor.ofMonths(12),
-    Tenor.ofYears(5), Tenor.ofYears(10)};
+    Tenor.ofYears(5), Tenor.ofYears(10));
 
   /**
    * @param configMaster The configuration master, not null
@@ -67,7 +68,7 @@ public class FXForwardCurveConfigPopulator {
 
   private static void populateCurveDefinitions(final ConfigMaster configMaster, final UnorderedCurrencyPair target, final String name) {
     final String fullName = name + SEPARATOR + target.toString() + SEPARATOR + INSTRUMENT_TYPE;
-    final FXForwardCurveDefinition definition = new FXForwardCurveDefinition(fullName, target, TENORS);
+    final FXForwardCurveDefinition definition = FXForwardCurveDefinition.of(fullName, target, TENORS);
     ConfigMasterUtils.storeByName(configMaster, makeConfig(definition));
   }
 

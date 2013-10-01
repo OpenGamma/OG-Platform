@@ -50,7 +50,7 @@ public class FXForwardPointsMethodFCNSFunction extends FXForwardPointsMethodFunc
       final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final FunctionExecutionContext executionContext,
       final FXForwardCurveDefinition fxForwardCurveDefinition) {
     final double[] sensitivities = CALCULATOR.presentValueForwardPointsSensitivity(fxForward, data, forwardPoints);
-    final Tenor[] tenors = fxForwardCurveDefinition.getTenors();
+    final Tenor[] tenors = fxForwardCurveDefinition.getTenorsArray();
     final int n = sensitivities.length;
     if (tenors.length != n) {
       throw new OpenGammaRuntimeException("Number of sensitivities did not match number of tenors in curve");
