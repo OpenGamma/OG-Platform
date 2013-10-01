@@ -88,9 +88,11 @@ public final class CalculationResults {
         Trade trade = positionSource.getTrade(tradeId);
         String idAttr = trade.getAttributes().get(DatabaseRestore.REGRESSION_ID);
         targetId = ObjectId.parse(idAttr);
+      } else if (targetType.equals(ComputationTargetType.CURRENCY)) {
+        nodeId = null;
+        targetId = targetSpec.getUniqueId().getObjectId();
       } else {
-        // TODO handle specific requirements
-        s_logger.warn("Ignoring value for target type {}", targetType);
+        s_logger.warn("Ignoring target with type {}", targetType);
         continue;
       }
       List<String> path = nodesToPaths.get(nodeId);
