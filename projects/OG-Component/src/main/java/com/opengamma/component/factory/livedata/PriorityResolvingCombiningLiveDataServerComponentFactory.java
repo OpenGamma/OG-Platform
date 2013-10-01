@@ -13,6 +13,7 @@ import java.util.Set;
 import net.sf.ehcache.CacheManager;
 
 import org.apache.commons.lang.text.StrBuilder;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -43,7 +44,6 @@ import com.opengamma.provider.livedata.LiveDataServerTypes;
 import com.opengamma.security.user.HibernateUserManager;
 import com.opengamma.security.user.UserManager;
 import com.opengamma.util.db.DbConnector;
-import org.joda.beans.Bean;
 
 /**
  * Component factory to create a combining live data server.

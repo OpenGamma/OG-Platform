@@ -12,6 +12,7 @@ import java.util.Map;
 
 import net.sf.ehcache.CacheManager;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -37,7 +38,6 @@ import com.opengamma.financial.analytics.ircurve.rest.DataInterpolatedYieldCurve
 import com.opengamma.financial.analytics.ircurve.rest.DataInterpolatedYieldCurveDefinitionSourceResource;
 import com.opengamma.financial.analytics.ircurve.rest.RemoteInterpolatedYieldCurveDefinitionMaster;
 import com.opengamma.financial.analytics.ircurve.rest.RemoteInterpolatedYieldCurveDefinitionSource;
-import org.joda.beans.Bean;
 
 /**
  * Component factory for the yield curve definition source.

@@ -19,6 +19,7 @@ import org.fudgemsg.mapping.BuilderUtil;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.wire.types.FudgeWireType;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -53,7 +54,6 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.jms.JmsConnector;
 import com.opengamma.util.jms.JmsTopicContainer;
 import com.opengamma.util.rest.DataConfigurationResource;
-import org.joda.beans.Bean;
 
 /**
  * Component factory to re-create the old means of accessing the reference data and time-series.

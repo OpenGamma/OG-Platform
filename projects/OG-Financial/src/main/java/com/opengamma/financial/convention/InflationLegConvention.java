@@ -7,6 +7,7 @@ package com.opengamma.financial.convention;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -21,7 +22,6 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import org.joda.beans.Bean;
 
 /**
  * Convention for inflation swap legs.

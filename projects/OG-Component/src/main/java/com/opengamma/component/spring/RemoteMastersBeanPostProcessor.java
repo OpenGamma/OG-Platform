@@ -10,6 +10,7 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -50,7 +51,6 @@ import com.opengamma.master.region.impl.RemoteRegionMaster;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.impl.RemoteSecurityMaster;
 import com.opengamma.util.ReflectionUtils;
-import org.joda.beans.Bean;
 
 /**
  * Spring bean factory post processor to create the remote masters.

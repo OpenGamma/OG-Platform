@@ -5,12 +5,17 @@
  */
 package com.opengamma.component.factory.infrastructure;
 
-import com.opengamma.component.ComponentInfo;
-import com.opengamma.component.ComponentRepository;
-import com.opengamma.component.factory.AbstractComponentFactory;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.MBeanServer;
+
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.management.ManagementService;
+
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -23,11 +28,9 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.springframework.context.Lifecycle;
 import org.springframework.jmx.support.MBeanServerFactoryBean;
 
-import javax.management.InstanceAlreadyExistsException;
-import javax.management.MBeanServer;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import org.joda.beans.Bean;
+import com.opengamma.component.ComponentInfo;
+import com.opengamma.component.ComponentRepository;
+import com.opengamma.component.factory.AbstractComponentFactory;
 
 /**
  * Component Factory for a singleton MBeanServer.

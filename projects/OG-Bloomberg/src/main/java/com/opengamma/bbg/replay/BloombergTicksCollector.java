@@ -28,7 +28,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 import org.threeten.bp.Clock;
 import org.threeten.bp.Instant;
-import org.threeten.bp.ZoneOffset;
 
 import com.bloomberglp.blpapi.CorrelationID;
 import com.bloomberglp.blpapi.Session;

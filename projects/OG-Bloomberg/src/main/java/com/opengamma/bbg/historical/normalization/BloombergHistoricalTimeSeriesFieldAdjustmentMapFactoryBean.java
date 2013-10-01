@@ -9,6 +9,7 @@ import java.util.Map;
 
 import net.sf.ehcache.CacheManager;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -23,7 +24,6 @@ import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.bbg.util.BloombergDataUtils;
 import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesFieldAdjustmentMap;
 import com.opengamma.util.spring.SpringFactoryBean;
-import org.joda.beans.Bean;
 
 /**
  * Spring factory bean for {@link HistoricalTimeSeriesFieldAdjustmentMap}.

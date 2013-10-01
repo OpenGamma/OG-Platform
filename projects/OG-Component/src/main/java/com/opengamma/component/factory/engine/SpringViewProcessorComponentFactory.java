@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.fudgemsg.FudgeContext;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -51,7 +52,6 @@ import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.jms.JmsConnector;
 import com.opengamma.util.metric.OpenGammaMetricRegistry;
-import org.joda.beans.Bean;
 
 /**
  * Component definition for the view processor defined in Spring extended to produce RESTful artifacts.

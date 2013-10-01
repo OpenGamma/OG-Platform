@@ -11,6 +11,7 @@ import java.util.Map;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -28,7 +29,6 @@ import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
-import org.joda.beans.Bean;
 
 /**
  * Reference data specific to a single identifier.

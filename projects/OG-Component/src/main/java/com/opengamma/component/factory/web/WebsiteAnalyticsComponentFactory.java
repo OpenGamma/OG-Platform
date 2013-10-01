@@ -9,6 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.fudgemsg.FudgeContext;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -36,7 +37,6 @@ import com.opengamma.util.ExecutorServiceFactoryBean.Style;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.web.server.LiveResultsServiceBean;
 import com.opengamma.web.server.WebAnalyticsResource;
-import org.joda.beans.Bean;
 
 /**
  * Component factory for the main website.

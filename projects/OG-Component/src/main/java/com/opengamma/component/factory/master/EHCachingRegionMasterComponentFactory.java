@@ -8,6 +8,9 @@ package com.opengamma.component.factory.master;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import net.sf.ehcache.CacheManager;
+
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -26,9 +29,6 @@ import com.opengamma.master.region.RegionMaster;
 import com.opengamma.master.region.impl.DataRegionMasterResource;
 import com.opengamma.master.region.impl.EHCachingRegionMaster;
 import com.opengamma.master.region.impl.RemoteRegionMaster;
-
-import net.sf.ehcache.CacheManager;
-import org.joda.beans.Bean;
 
 /**
  * Component factory for the combined region master.

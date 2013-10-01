@@ -9,6 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -52,7 +53,6 @@ import com.opengamma.web.region.WebRegionsResource;
 import com.opengamma.web.security.WebSecuritiesResource;
 import com.opengamma.web.target.WebComputationTargetTypeResource;
 import com.opengamma.web.valuerequirementname.WebValueRequirementNamesResource;
-import org.joda.beans.Bean;
 
 /**
  * Component factory for the main website.

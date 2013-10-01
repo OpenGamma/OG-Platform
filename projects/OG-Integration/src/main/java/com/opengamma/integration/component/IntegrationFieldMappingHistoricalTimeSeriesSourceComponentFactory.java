@@ -8,6 +8,7 @@ package com.opengamma.integration.component;
 import java.util.Collection;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -28,7 +29,6 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesSelector;
 import com.opengamma.master.historicaltimeseries.impl.DefaultHistoricalTimeSeriesSelector;
 import com.opengamma.master.historicaltimeseries.impl.FieldMappingHistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesFieldAdjustmentMap;
-import org.joda.beans.Bean;
 
 /**
  * Component factory for the historical time-series source resolved using Bloomberg.

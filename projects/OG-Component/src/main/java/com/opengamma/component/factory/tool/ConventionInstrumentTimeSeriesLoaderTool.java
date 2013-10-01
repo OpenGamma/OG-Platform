@@ -8,6 +8,7 @@ package com.opengamma.component.factory.tool;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -24,7 +25,6 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.financial.convention.ConventionInstrumentTimeSeriesLoader;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoader;
-import org.joda.beans.Bean;
 
 // TODO jonathan 2012-02-17 -- come back to this when we have some established way of using the component factory
 // infrastructure to run 'tools'. Currently this is designed to sit at the end of an ini file where the tool will be

@@ -8,6 +8,7 @@ package com.opengamma.engine.view;
 import java.io.Serializable;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -28,7 +29,6 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.lambdava.functions.Function1;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
-import org.joda.beans.Bean;
 
 /**
  * Encapsulates view-level configuration to describe the types of values required in the calculation results.

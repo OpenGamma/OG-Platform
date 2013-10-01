@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.curve;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -19,7 +20,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.time.Tenor;
-import org.joda.beans.Bean;
 
 /**
  * Configuration object for curves that are to be used as an ibor curve.

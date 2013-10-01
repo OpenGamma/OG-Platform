@@ -7,9 +7,6 @@ package com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
-import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.Position;
-import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.PositionRef;
-
 public class PositionRefAdapter extends XmlAdapter<PositionRef, Position> {
 
   @Override

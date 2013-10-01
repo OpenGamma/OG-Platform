@@ -10,6 +10,7 @@ import java.util.Map;
 
 import net.sf.ehcache.CacheManager;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -28,7 +29,6 @@ import com.opengamma.master.orgs.OrganizationMaster;
 import com.opengamma.master.orgs.impl.DataOrganizationMasterResource;
 import com.opengamma.master.orgs.impl.EHCachingOrganizationMaster;
 import com.opengamma.master.orgs.impl.RemoteOrganizationMaster;
-import org.joda.beans.Bean;
 
 /**
  * Component factory for the combined organization master.

@@ -11,6 +11,7 @@ import java.util.Map;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -24,7 +25,6 @@ import org.threeten.bp.LocalDate;
 
 import com.opengamma.integration.tool.portfolio.xml.v1_0.conversion.FraTradeSecurityExtractor;
 import com.opengamma.util.money.Currency;
-import org.joda.beans.Bean;
 
 /**
  * JAXB representation of a Fra trade.

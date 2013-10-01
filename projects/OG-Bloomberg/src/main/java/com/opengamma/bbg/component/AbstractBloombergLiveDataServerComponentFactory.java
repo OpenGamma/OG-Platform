@@ -9,6 +9,7 @@ import java.util.Map;
 
 import net.sf.ehcache.CacheManager;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -44,7 +45,6 @@ import com.opengamma.provider.livedata.LiveDataServerTypes;
 import com.opengamma.transport.ByteArrayFudgeMessageSender;
 import com.opengamma.transport.FudgeMessageSender;
 import com.opengamma.transport.jms.JmsByteArrayMessageSender;
-import org.joda.beans.Bean;
 
 /**
  * Component factory to create a Bloomberg server.

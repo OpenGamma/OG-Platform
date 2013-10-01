@@ -10,6 +10,7 @@ import java.util.Map;
 
 import net.sf.ehcache.CacheManager;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -30,7 +31,6 @@ import com.opengamma.core.region.impl.RemoteRegionSource;
 import com.opengamma.master.region.RegionMaster;
 import com.opengamma.master.region.impl.EHCachingRegionSource;
 import com.opengamma.master.region.impl.MasterRegionSource;
-import org.joda.beans.Bean;
 
 /**
  * Component factory providing the {@code RegionSource}.

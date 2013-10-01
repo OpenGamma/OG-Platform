@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 
 import org.fudgemsg.FudgeContext;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -36,7 +37,6 @@ import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
-import org.joda.beans.Bean;
 
 /**
  * Component factory for the user financial manager.

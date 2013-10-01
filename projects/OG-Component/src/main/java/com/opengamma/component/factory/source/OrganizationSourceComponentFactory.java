@@ -8,6 +8,7 @@ package com.opengamma.component.factory.source;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -27,7 +28,6 @@ import com.opengamma.core.organization.impl.DataOrganizationSourceResource;
 import com.opengamma.core.organization.impl.RemoteOrganizationSource;
 import com.opengamma.master.organization.impl.MasterOrganizationSource;
 import com.opengamma.master.orgs.OrganizationMaster;
-import org.joda.beans.Bean;
 
 /**
  * Component factory providing the {@code OrganizationSource}.

@@ -17,7 +17,6 @@ import org.threeten.bp.ZonedDateTime;
 import com.google.common.collect.Lists;
 import com.opengamma.financial.security.cds.CDSIndexTerms;
 import com.opengamma.financial.security.future.BondFutureDeliverable;
-import com.opengamma.financial.security.option.ExerciseType;
 import com.opengamma.financial.security.swap.CommodityNotional;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.Notional;

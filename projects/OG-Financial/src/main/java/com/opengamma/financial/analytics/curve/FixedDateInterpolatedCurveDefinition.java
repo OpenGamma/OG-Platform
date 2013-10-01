@@ -6,23 +6,23 @@
 package com.opengamma.financial.analytics.curve;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.core.config.Config;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
-import java.util.Map;
-import org.joda.beans.BeanBuilder;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.Property;
-import org.joda.beans.impl.direct.DirectBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-import org.joda.beans.Bean;
 
 /**
  * Definition for interpolated curves where some of the node dates are fixed.

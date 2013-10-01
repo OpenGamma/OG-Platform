@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantCurve;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantYieldCurve;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**

@@ -10,6 +10,7 @@ import java.net.UnknownHostException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -40,7 +41,6 @@ import com.opengamma.transport.jms.JmsByteArrayRequestDispatcher;
 import com.opengamma.util.jms.JmsConnector;
 import com.opengamma.util.jms.JmsQueueContainer;
 import com.opengamma.util.jms.JmsTopicContainer;
-import org.joda.beans.Bean;
 
 /**
  * Component factory to create a standard live data server.

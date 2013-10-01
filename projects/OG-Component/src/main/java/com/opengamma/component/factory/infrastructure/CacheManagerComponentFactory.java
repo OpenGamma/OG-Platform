@@ -5,11 +5,13 @@
  */
 package com.opengamma.component.factory.infrastructure;
 
-import com.opengamma.component.ComponentInfo;
-import com.opengamma.component.ComponentRepository;
-import com.opengamma.component.factory.AbstractComponentFactory;
-import com.opengamma.util.ResourceUtils;
+import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import net.sf.ehcache.CacheManager;
+
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -21,10 +23,10 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.springframework.cache.ehcache.EhCacheManagerFactoryBean;
 
-import java.io.IOException;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import org.joda.beans.Bean;
+import com.opengamma.component.ComponentInfo;
+import com.opengamma.component.ComponentRepository;
+import com.opengamma.component.factory.AbstractComponentFactory;
+import com.opengamma.util.ResourceUtils;
 
 /**
  * Component Factory for an Ehcache CacheManager using the standard OG ehcache config found on the classpath.

@@ -8,6 +8,7 @@ package com.opengamma.component.factory.test;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -38,7 +39,6 @@ import com.opengamma.master.marketdatasnapshot.impl.MasterSnapshotSource;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.impl.DataSecurityMasterResource;
 import com.opengamma.master.security.impl.InMemorySecurityMaster;
-import org.joda.beans.Bean;
 
 /**
  * Component factory for setting up test masters and sources.

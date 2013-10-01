@@ -12,6 +12,7 @@ import java.util.UUID;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.fudgemsg.FudgeContext;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -32,7 +33,6 @@ import com.opengamma.transport.jaxrs.UriEndPointDescriptionProvider;
 import com.opengamma.util.GUIDGenerator;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.rest.DataConfigurationResource;
-import org.joda.beans.Bean;
 
 /**
  * Component factory providing a managed sub set of the server capabilities.

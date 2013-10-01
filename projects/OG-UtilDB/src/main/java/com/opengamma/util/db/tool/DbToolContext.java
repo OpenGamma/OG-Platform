@@ -9,6 +9,7 @@ import java.io.Closeable;
 import java.util.Map;
 import java.util.Set;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -23,7 +24,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.management.DbManagement;
-import org.joda.beans.Bean;
 
 /**
  * A standard context that is used to provide components to database tools.

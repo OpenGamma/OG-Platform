@@ -10,6 +10,7 @@ import java.util.Map;
 
 import net.sf.ehcache.CacheManager;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -28,7 +29,6 @@ import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.position.impl.DataPositionMasterResource;
 import com.opengamma.master.position.impl.EHCachingPositionMaster;
 import com.opengamma.master.position.impl.RemotePositionMaster;
-import org.joda.beans.Bean;
 
 /**
  * Component factory for the combined position master.

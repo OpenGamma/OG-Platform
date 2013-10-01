@@ -8,6 +8,7 @@ package com.opengamma.component.factory.engine;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -53,7 +54,6 @@ import com.opengamma.financial.marketdata.MarketDataELCompiler;
 import com.opengamma.financial.temptarget.TempTargetRepository;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
-import org.joda.beans.Bean;
 
 /**
  * Component factory for the config source.

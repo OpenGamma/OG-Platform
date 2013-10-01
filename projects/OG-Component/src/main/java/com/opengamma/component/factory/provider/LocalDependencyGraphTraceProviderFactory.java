@@ -9,6 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.fudgemsg.FudgeContext;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -34,7 +35,6 @@ import com.opengamma.financial.depgraph.rest.DependencyGraphBuilderResourceConte
 import com.opengamma.financial.depgraph.rest.DependencyGraphTraceBuilder;
 import com.opengamma.financial.depgraph.rest.DependencyGraphTraceProviderResource;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
-import org.joda.beans.Bean;
 
 /**
  * Initializes the {@link LocalDependencyGraphTraceProvider} and its corresponding

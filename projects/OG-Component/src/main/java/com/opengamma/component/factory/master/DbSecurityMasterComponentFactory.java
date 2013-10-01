@@ -10,6 +10,7 @@ import java.util.Map;
 
 import net.sf.ehcache.CacheManager;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -33,7 +34,6 @@ import com.opengamma.masterdb.security.SecurityMasterDetailProvider;
 import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDetailProvider;
 import com.opengamma.util.jms.JmsConnector;
 import com.opengamma.util.metric.OpenGammaMetricRegistry;
-import org.joda.beans.Bean;
 
 /**
  * Component factory for the database security master.

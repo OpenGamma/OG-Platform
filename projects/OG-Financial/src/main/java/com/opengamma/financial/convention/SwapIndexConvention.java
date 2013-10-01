@@ -7,6 +7,7 @@ package com.opengamma.financial.convention;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -20,7 +21,6 @@ import org.threeten.bp.LocalTime;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import org.joda.beans.Bean;
 
 /**
  * Convention for a swap index.

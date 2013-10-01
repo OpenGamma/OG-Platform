@@ -7,6 +7,7 @@ package com.opengamma.financial.sensitivities;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -22,7 +23,6 @@ import org.threeten.bp.LocalDate;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
-import org.joda.beans.Bean;
 
 /**
  * 

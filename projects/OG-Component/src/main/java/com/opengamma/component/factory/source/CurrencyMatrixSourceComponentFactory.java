@@ -8,6 +8,7 @@ package com.opengamma.component.factory.source;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -27,7 +28,6 @@ import com.opengamma.financial.currency.ConfigDBCurrencyMatrixSource;
 import com.opengamma.financial.currency.CurrencyMatrixSource;
 import com.opengamma.financial.currency.rest.DataCurrencyMatrixSourceResource;
 import com.opengamma.financial.currency.rest.RemoteCurrencyMatrixSource;
-import org.joda.beans.Bean;
 
 /**
  * Component factory providing the {@code CurrencyMatrixSource}.

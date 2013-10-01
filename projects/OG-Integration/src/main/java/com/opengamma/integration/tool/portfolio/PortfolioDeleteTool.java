@@ -23,7 +23,6 @@ import com.opengamma.integration.copier.portfolio.writer.PrettyPrintingPortfolio
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.PortfolioSearchResult;
-import com.opengamma.scripts.Scriptable;
 
 /**
  * The portfolio loader tool

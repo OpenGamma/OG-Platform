@@ -8,6 +8,7 @@ package com.opengamma.component.factory.master;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -26,7 +27,6 @@ import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.masterdb.batch.DbBatchMaster;
-import org.joda.beans.Bean;
 
 /**
  * Component factory for the database batch master.

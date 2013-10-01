@@ -67,7 +67,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.bbg.BloombergConstants;
 import com.opengamma.bbg.historical.normalization.BloombergFixedRateHistoricalTimeSeriesNormalizer;
 import com.opengamma.bbg.historical.normalization.BloombergRateHistoricalTimeSeriesNormalizer;

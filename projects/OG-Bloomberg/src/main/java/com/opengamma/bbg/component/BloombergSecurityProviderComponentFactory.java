@@ -7,6 +7,7 @@ package com.opengamma.bbg.component;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -23,7 +24,6 @@ import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.provider.SecurityProviderComponentFactory;
 import com.opengamma.financial.timeseries.exchange.DefaultExchangeDataProvider;
 import com.opengamma.financial.timeseries.exchange.ExchangeDataProvider;
-import org.joda.beans.Bean;
 
 /**
  * Component factory for the Bloomberg security provider.

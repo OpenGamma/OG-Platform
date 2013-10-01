@@ -9,6 +9,7 @@ import java.util.Map;
 
 import net.sf.ehcache.CacheManager;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -24,7 +25,6 @@ import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.master.exchange.impl.EHCachingExchangeSource;
 import com.opengamma.master.exchange.impl.MasterExchangeSource;
 import com.opengamma.util.spring.SpringFactoryBean;
-import org.joda.beans.Bean;
 
 /**
  * Spring factory bean to create the exchange source.

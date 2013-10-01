@@ -8,6 +8,7 @@ package com.opengamma.component.factory.source;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -24,7 +25,6 @@ import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.CurveCalculationConfigSource;
-import org.joda.beans.Bean;
 
 /**
  * Component factory providing the {@code CurveCalculationConfigSource}.

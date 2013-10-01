@@ -17,6 +17,7 @@ import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.wire.FudgeMsgWriter;
 import org.fudgemsg.wire.xml.FudgeXMLStreamWriter;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -38,7 +39,6 @@ import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
-import org.joda.beans.Bean;
 
 /**
  * Class that will save the entire current contents of a configuration store

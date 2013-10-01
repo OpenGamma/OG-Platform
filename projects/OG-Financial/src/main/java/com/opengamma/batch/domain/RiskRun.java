@@ -5,13 +5,14 @@
  */
 package com.opengamma.batch.domain;
 
+import static com.opengamma.lambdava.streams.Lambdava.functional;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import com.opengamma.engine.ComputationTargetResolver;
-import com.opengamma.lambdava.functions.Function1;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -28,14 +29,13 @@ import org.threeten.bp.Instant;
 import com.google.common.collect.Sets;
 import com.opengamma.batch.BatchMaster;
 import com.opengamma.batch.SnapshotMode;
+import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.view.cycle.ViewCycleMetadata;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-
-import static com.opengamma.lambdava.streams.Lambdava.functional;
-import org.joda.beans.Bean;
+import com.opengamma.lambdava.functions.Function1;
 
 /**
  * Bean to hold data about a risk run.

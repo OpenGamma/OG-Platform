@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -27,7 +28,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
-import org.joda.beans.Bean;
 
 /**
  * The complete set of components published in a RESTful way by JAX-RS.

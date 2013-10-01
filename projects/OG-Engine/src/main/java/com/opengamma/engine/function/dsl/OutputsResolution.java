@@ -5,22 +5,22 @@
  */
 package com.opengamma.engine.function.dsl;
 
-import org.joda.beans.BeanDefinition;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.direct.DirectBean;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
+
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-import org.joda.beans.Property;
 import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.Bean;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 @BeanDefinition
 public class OutputsResolution extends DirectBean {

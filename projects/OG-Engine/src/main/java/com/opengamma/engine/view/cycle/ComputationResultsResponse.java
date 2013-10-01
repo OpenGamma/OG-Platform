@@ -7,6 +7,7 @@ package com.opengamma.engine.view.cycle;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -22,7 +23,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.PublicSPI;
-import org.joda.beans.Bean;
 
 /**
  * Encapsulates the response to a query for computation results.

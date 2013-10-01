@@ -8,6 +8,7 @@ package com.opengamma.component.factory.source;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -28,7 +29,6 @@ import com.opengamma.core.marketdatasnapshot.impl.DelegatingSnapshotSource;
 import com.opengamma.core.marketdatasnapshot.impl.RemoteMarketDataSnapshotSource;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.marketdatasnapshot.impl.MasterSnapshotSource;
-import org.joda.beans.Bean;
 
 /**
  * Component factory providing the {@code MarketDataSnapshotSource}.

@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -25,7 +26,6 @@ import com.google.common.collect.Lists;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.PublicSPI;
 import com.opengamma.util.tuple.Pair;
-import org.joda.beans.Bean;
 
 /**
  * Encapsulates the results from a computation cache query.

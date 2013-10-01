@@ -17,7 +17,6 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.util.time.DateUtils;
 
 /**
  *

@@ -10,6 +10,7 @@ import java.util.Map;
 
 import net.sf.ehcache.CacheManager;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -28,7 +29,6 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.historicaltimeseries.impl.DataHistoricalTimeSeriesSourceResource;
 import com.opengamma.core.historicaltimeseries.impl.EHCachingHistoricalTimeSeriesSource;
 import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProvider;
-import org.joda.beans.Bean;
 
 /**
  * Component factory for the Bloomberg time-series source.

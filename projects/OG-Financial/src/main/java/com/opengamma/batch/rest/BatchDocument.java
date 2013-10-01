@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -29,7 +30,6 @@ import com.opengamma.engine.view.ViewResultEntry;
 import com.opengamma.id.ObjectId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.paging.Paging;
-import org.joda.beans.Bean;
 
 /**
  * A document used to pass into and out of the batch master.

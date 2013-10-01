@@ -8,6 +8,7 @@ package com.opengamma.component.factory.master;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -27,7 +28,6 @@ import com.opengamma.master.position.impl.RemotePositionMaster;
 import com.opengamma.masterdb.position.DataDbPositionMasterResource;
 import com.opengamma.masterdb.position.DbPositionMaster;
 import com.opengamma.util.jms.JmsConnector;
-import org.joda.beans.Bean;
 
 /**
  * Component factory for the database position master.

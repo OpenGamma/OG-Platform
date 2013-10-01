@@ -8,6 +8,7 @@ package com.opengamma.component.factory.engine;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -24,7 +25,6 @@ import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.livedata.LiveDataClient;
 import com.opengamma.livedata.client.RemoteLiveDataClientFactoryBean;
 import com.opengamma.util.jms.JmsConnector;
-import org.joda.beans.Bean;
 
 /**
  * Component factory to create a {@code LiveDataClient}.

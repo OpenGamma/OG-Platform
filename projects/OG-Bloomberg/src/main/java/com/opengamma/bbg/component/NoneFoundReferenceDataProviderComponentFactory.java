@@ -8,6 +8,7 @@ package com.opengamma.bbg.component;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -24,7 +25,6 @@ import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.bbg.referencedata.impl.NoneFoundReferenceDataProvider;
 import com.opengamma.component.ComponentFactory;
 import com.opengamma.component.ComponentRepository;
-import org.joda.beans.Bean;
 
 /**
  *

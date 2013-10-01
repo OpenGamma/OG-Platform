@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -25,7 +26,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.batch.domain.MarketData;
 import com.opengamma.util.PublicSPI;
 import com.opengamma.util.paging.Paging;
-import org.joda.beans.Bean;
 
 /**
  * Result from searching for live data values.

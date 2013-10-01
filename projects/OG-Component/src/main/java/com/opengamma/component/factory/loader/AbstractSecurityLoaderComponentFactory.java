@@ -8,6 +8,7 @@ package com.opengamma.component.factory.loader;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -24,7 +25,6 @@ import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.master.security.impl.DataSecurityLoaderResource;
 import com.opengamma.master.security.impl.RemoteSecurityLoader;
-import org.joda.beans.Bean;
 
 /**
  * Component factory providing the {@code SecurityLoader}.

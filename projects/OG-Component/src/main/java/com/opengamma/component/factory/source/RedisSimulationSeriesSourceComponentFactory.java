@@ -8,6 +8,7 @@ package com.opengamma.component.factory.source;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -35,7 +36,6 @@ import com.opengamma.master.historicaltimeseries.impl.RedisSimulationSeriesResol
 import com.opengamma.master.historicaltimeseries.impl.RemoteHistoricalTimeSeriesResolver;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.redis.RedisConnector;
-import org.joda.beans.Bean;
 
 /**
  * A component factory to build {@code RedisSimulationSeriesSource} instances.

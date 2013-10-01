@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -27,7 +28,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-import org.joda.beans.Bean;
 
 /**
  * Class encapsulating information available on cycle initialisation

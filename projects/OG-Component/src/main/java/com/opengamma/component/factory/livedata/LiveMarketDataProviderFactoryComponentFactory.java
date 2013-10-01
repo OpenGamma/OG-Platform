@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -54,7 +55,6 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.jms.JmsConnector;
 import com.opengamma.util.jms.JmsConnectorFactoryBean;
 import com.opengamma.util.metric.OpenGammaMetricRegistry;
-import org.joda.beans.Bean;
 
 /**
  * Component factory for a live market data provider factory.

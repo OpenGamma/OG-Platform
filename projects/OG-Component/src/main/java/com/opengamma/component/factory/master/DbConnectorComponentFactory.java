@@ -15,6 +15,7 @@ import javax.sql.DataSource;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Environment;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -41,7 +42,6 @@ import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.DbDialect;
 import com.opengamma.util.db.HibernateMappingFiles;
-import org.joda.beans.Bean;
 
 /**
  * Component factory for a database connector.

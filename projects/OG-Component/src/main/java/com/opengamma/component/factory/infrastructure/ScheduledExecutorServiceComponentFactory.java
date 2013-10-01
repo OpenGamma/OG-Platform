@@ -5,9 +5,11 @@
  */
 package com.opengamma.component.factory.infrastructure;
 
-import com.opengamma.component.ComponentInfo;
-import com.opengamma.component.ComponentRepository;
-import com.opengamma.component.factory.AbstractComponentFactory;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.concurrent.ScheduledExecutorService;
+
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -19,10 +21,9 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.springframework.scheduling.concurrent.ScheduledExecutorFactoryBean;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.concurrent.ScheduledExecutorService;
-import org.joda.beans.Bean;
+import com.opengamma.component.ComponentInfo;
+import com.opengamma.component.ComponentRepository;
+import com.opengamma.component.factory.AbstractComponentFactory;
 
 /**
  * Component Factory for a shared ScheduledExecutorService.

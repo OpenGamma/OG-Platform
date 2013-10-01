@@ -8,6 +8,7 @@ package com.opengamma.financial.analytics.curve;
 import java.util.Map;
 import java.util.Set;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -20,7 +21,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.core.config.Config;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
-import org.joda.beans.Bean;
 
 /**
  * Definition for interpolated curves. It contains the curve name, nodes and information about the interpolators. The interpolation method

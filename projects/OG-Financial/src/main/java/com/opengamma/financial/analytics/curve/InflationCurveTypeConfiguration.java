@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.curve;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -18,7 +19,6 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.ExternalId;
-import org.joda.beans.Bean;
 
 /**
  *

@@ -8,6 +8,7 @@ package com.opengamma.financial.analytics.ircurve;
 import java.io.Serializable;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -21,7 +22,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.AbstractDocument;
 import com.opengamma.util.ArgumentChecker;
-import org.joda.beans.Bean;
 
 /**
  * A document used to pass into and out of the yield curve definition master.

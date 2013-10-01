@@ -14,6 +14,7 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlSeeAlso;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -25,7 +26,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.util.money.Currency;
-import org.joda.beans.Bean;
 
 @XmlRootElement
 @XmlSeeAlso({FxOptionTrade.class, FxDigitalOptionTrade.class, })

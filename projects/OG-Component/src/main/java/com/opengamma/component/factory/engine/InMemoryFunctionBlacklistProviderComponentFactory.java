@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -33,7 +34,6 @@ import com.opengamma.engine.function.blacklist.RemoteFunctionBlacklistProvider;
 import com.opengamma.engine.function.blacklist.RemoteManageableFunctionBlacklistProvider;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.jms.JmsConnector;
-import org.joda.beans.Bean;
 
 /**
  * Component factory for an in-memory function blacklist provider.

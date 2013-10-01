@@ -5,11 +5,11 @@
  */
 package com.opengamma.security.auditlog;
 
-import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.ehcache.EHCacheUtils;
-
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
+
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.ehcache.EHCacheUtils;
 
 /**
  * A decorator <code>AuditLogger</code> that only sends the message

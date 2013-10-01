@@ -259,6 +259,7 @@ public class OtcTradeBuilderTest {
    * directly update a position that has no trades
    */
   @Test
+  @SuppressWarnings("deprecation")
   public void updatePositionWithNoTrade() {
     ManageableSecurity security = _securityMaster.add(new SecurityDocument(BlotterTestUtils.FX_FORWARD)).getSecurity();
     ManageablePosition position = new ManageablePosition();

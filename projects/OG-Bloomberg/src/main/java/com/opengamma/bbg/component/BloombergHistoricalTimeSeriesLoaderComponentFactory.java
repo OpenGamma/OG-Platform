@@ -7,6 +7,7 @@ package com.opengamma.bbg.component;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -26,7 +27,6 @@ import com.opengamma.master.historicaltimeseries.ExternalIdResolver;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoader;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProvider;
-import org.joda.beans.Bean;
 
 /**
  * Component factory providing the {@code HistoricalTimeSeriesLoader}.

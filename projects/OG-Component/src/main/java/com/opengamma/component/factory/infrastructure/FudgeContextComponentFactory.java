@@ -5,11 +5,11 @@
  */
 package com.opengamma.component.factory.infrastructure;
 
-import com.opengamma.component.ComponentInfo;
-import com.opengamma.component.ComponentRepository;
-import com.opengamma.component.factory.AbstractComponentFactory;
-import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import org.fudgemsg.FudgeContext;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -20,9 +20,10 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import org.joda.beans.Bean;
+import com.opengamma.component.ComponentInfo;
+import com.opengamma.component.ComponentRepository;
+import com.opengamma.component.factory.AbstractComponentFactory;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * Component Factory for a singleton FudgeContext.

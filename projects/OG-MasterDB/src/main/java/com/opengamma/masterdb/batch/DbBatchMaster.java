@@ -85,6 +85,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMasterWriter
    * Creates an instance.
    *
    * @param dbConnector  the database connector, not null
+   * @param computationTargetResolver  the resolver
    */
   public DbBatchMaster(final DbConnector dbConnector, final ComputationTargetResolver computationTargetResolver) {
     super(dbConnector, BATCH_IDENTIFIER_SCHEME);

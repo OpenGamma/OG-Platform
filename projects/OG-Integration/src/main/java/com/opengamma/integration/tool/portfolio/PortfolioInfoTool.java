@@ -10,19 +10,10 @@ import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.tool.AbstractTool;
-import com.opengamma.core.position.PortfolioNode;
-import com.opengamma.core.position.Position;
-import com.opengamma.core.position.impl.PortfolioNodeTraversalCallback;
-import com.opengamma.core.position.impl.PortfolioNodeTraverser;
 import com.opengamma.integration.copier.portfolio.reader.MasterPortfolioReader;
 import com.opengamma.integration.copier.portfolio.reader.PortfolioReader;
 import com.opengamma.integration.tool.IntegrationToolContext;
-import com.opengamma.master.portfolio.ManageablePortfolio;
-import com.opengamma.master.portfolio.PortfolioDocument;
-import com.opengamma.master.portfolio.PortfolioSearchRequest;
-import com.opengamma.master.portfolio.PortfolioSearchResult;
 import com.opengamma.scripts.Scriptable;
 
 /**

@@ -8,6 +8,7 @@ package com.opengamma.integration.analyticservice;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -31,7 +32,6 @@ import com.opengamma.transport.ByteArrayFudgeMessageReceiver;
 import com.opengamma.transport.jms.JmsByteArrayMessageDispatcher;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.jms.JmsConnector;
-import org.joda.beans.Bean;
 
 /**
  * 

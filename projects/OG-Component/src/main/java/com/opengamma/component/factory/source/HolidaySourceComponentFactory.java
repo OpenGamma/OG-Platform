@@ -8,6 +8,7 @@ package com.opengamma.component.factory.source;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -28,7 +29,6 @@ import com.opengamma.core.holiday.impl.DataHolidaySourceResource;
 import com.opengamma.core.holiday.impl.RemoteHolidaySource;
 import com.opengamma.master.holiday.HolidayMaster;
 import com.opengamma.master.holiday.impl.MasterHolidaySource;
-import org.joda.beans.Bean;
 
 /**
  * Component factory providing the {@code HolidaySource}.

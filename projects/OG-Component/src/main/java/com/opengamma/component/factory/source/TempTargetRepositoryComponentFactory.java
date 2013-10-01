@@ -12,6 +12,7 @@ import java.util.Map;
 
 import net.sf.ehcache.CacheManager;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -35,7 +36,6 @@ import com.opengamma.financial.temptarget.rest.DataTempTargetRepositoryResource;
 import com.opengamma.financial.temptarget.rest.DataTempTargetSourceResource;
 import com.opengamma.financial.temptarget.rest.RemoteTempTargetRepository;
 import com.opengamma.financial.temptarget.rest.RemoteTempTargetSource;
-import org.joda.beans.Bean;
 
 /**
  * Component factory providing the {@code TempTargetRepository} and {@code TempTargetSource}.

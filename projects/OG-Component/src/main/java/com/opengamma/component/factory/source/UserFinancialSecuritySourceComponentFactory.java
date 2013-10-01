@@ -11,6 +11,7 @@ import java.util.Map;
 
 import net.sf.ehcache.CacheManager;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -33,7 +34,6 @@ import com.opengamma.financial.security.FinancialSecuritySource;
 import com.opengamma.financial.security.MasterFinancialSecuritySource;
 import com.opengamma.financial.security.RemoteFinancialSecuritySource;
 import com.opengamma.master.security.SecurityMaster;
-import org.joda.beans.Bean;
 
 /**
  * Component factory for the security source.

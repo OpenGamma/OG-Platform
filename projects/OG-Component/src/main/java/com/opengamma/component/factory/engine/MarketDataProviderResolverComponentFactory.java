@@ -8,6 +8,7 @@ package com.opengamma.component.factory.engine;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -39,7 +40,6 @@ import com.opengamma.engine.marketdata.spec.LatestHistoricalMarketDataSpecificat
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
-import org.joda.beans.Bean;
 
 /**
  * Component factory for the market data provider resolver.

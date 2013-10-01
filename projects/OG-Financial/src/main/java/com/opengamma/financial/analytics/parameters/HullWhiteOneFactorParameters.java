@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.SortedMap;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -28,7 +29,6 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
-import org.joda.beans.Bean;
 
 /**
  * Config object that contains parameters for the Hull-White one factor model.

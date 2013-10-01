@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.analytics.model.volatility.local.deprecated;
 
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
+
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.TreeSet;
@@ -43,8 +45,6 @@ import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
-
-import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
 /**
  *

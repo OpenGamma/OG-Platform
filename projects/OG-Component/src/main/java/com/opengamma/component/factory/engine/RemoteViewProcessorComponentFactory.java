@@ -8,6 +8,7 @@ package com.opengamma.component.factory.engine;
 import java.util.Map;
 import java.util.concurrent.Executors;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -23,7 +24,6 @@ import com.opengamma.component.ComponentRepository;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.financial.view.rest.RemoteViewProcessor;
 import com.opengamma.util.jms.JmsConnector;
-import org.joda.beans.Bean;
 
 /**
  * Component factory for accessing remote View processor from the local machine.

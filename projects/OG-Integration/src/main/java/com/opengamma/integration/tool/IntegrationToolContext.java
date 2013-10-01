@@ -7,6 +7,7 @@ package com.opengamma.integration.tool;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -21,7 +22,6 @@ import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.bbg.tool.BloombergToolContext;
 import com.opengamma.financial.depgraph.provider.DependencyGraphTraceProvider;
 import com.opengamma.financial.tool.ToolContext;
-import org.joda.beans.Bean;
 
 /**
  * Extended context that is used to provide components to tools.

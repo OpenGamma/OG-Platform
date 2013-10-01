@@ -15,6 +15,7 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlElements;
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -30,7 +31,6 @@ import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.conversion.SwapTradeSecurityExtractor;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb.SwapLeg.Direction;
-import org.joda.beans.Bean;
 
 @XmlRootElement
 @BeanDefinition

@@ -9,6 +9,7 @@ import java.util.AbstractList;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -27,7 +28,6 @@ import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.time.Tenor;
-import org.joda.beans.Bean;
 
 /**
  * 

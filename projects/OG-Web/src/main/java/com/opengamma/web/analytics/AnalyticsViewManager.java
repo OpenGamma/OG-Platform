@@ -112,7 +112,7 @@ public class AnalyticsViewManager {
    * @param viewCallbackId ID that's passed to the listener when the view's portfolio grid structure changes
    * @param portfolioGridId ID that's passed to the listener when the view's portfolio grid structure changes
    * @param primitivesGridId ID that's passed to the listener when the view's primitives grid structure changes
-   * @param errorId
+   * @param errorId  the error ID
    */
   public void createView(ViewRequest request,
                          String clientId,

@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -30,7 +31,6 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import org.joda.beans.Bean;
 
 /**
  * Definition of a yield curve.

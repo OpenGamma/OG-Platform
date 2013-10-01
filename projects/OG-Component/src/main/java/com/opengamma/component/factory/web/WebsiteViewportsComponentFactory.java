@@ -15,6 +15,7 @@ import java.util.Map;
 import javax.servlet.ServletContext;
 
 import org.fudgemsg.FudgeContext;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -83,10 +84,8 @@ import com.opengamma.web.analytics.rest.MasterType;
 import com.opengamma.web.analytics.rest.TimeSeriesResolverKeysResource;
 import com.opengamma.web.analytics.rest.UserResource;
 import com.opengamma.web.analytics.rest.ViewDefinitionEntriesResource;
-import com.opengamma.web.analytics.rest.ViewsResource;
 import com.opengamma.web.analytics.rest.WebUiResource;
 import com.opengamma.web.server.AggregatedViewDefinitionManager;
-import org.joda.beans.Bean;
 
 /**
  * Component factory for the main website viewports (for analytics).

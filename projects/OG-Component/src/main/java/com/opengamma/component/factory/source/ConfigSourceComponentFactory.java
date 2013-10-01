@@ -10,6 +10,7 @@ import java.util.Map;
 
 import net.sf.ehcache.CacheManager;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -30,7 +31,6 @@ import com.opengamma.core.config.impl.RemoteConfigSource;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.impl.EHCachingMasterConfigSource;
 import com.opengamma.master.config.impl.MasterConfigSource;
-import org.joda.beans.Bean;
 
 /**
  * Component factory providing the {@code ConfigSource}.

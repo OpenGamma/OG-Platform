@@ -7,6 +7,7 @@ package com.opengamma.financial.spring;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -31,7 +32,6 @@ import com.opengamma.financial.analytics.volatility.surface.SwaptionVolatilitySu
 import com.opengamma.financial.currency.CurrencyMatrixConfigPopulator;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.util.ArgumentChecker;
-import org.joda.beans.Bean;
 
 /**
  * Spring factory bean to create the database config master.

@@ -8,6 +8,7 @@ package com.opengamma.component.factory.master;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -24,7 +25,6 @@ import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.util.db.management.DbManagement;
 import com.opengamma.util.db.management.DbManagementUtils;
-import org.joda.beans.Bean;
 
 /**
  * Component factory for a {@link DbManagement} instance.

@@ -25,6 +25,8 @@ import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
+import net.sf.ehcache.CacheException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
@@ -46,8 +48,6 @@ import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.NamedThreadPoolFactory;
 import com.opengamma.util.monitor.OperationTimer;
-
-import net.sf.ehcache.CacheException;
 
 /**
  * Manages market data for a view process, taking care of subscriptions and producing snapshots.

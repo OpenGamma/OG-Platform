@@ -8,6 +8,7 @@ package com.opengamma.component.factory.master;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -28,7 +29,6 @@ import com.opengamma.master.historicaltimeseries.impl.RemoteHistoricalTimeSeries
 import com.opengamma.masterdb.historicaltimeseries.DbHistoricalTimeSeriesMaster;
 import com.opengamma.util.jms.JmsConnector;
 import com.opengamma.util.metric.OpenGammaMetricRegistry;
-import org.joda.beans.Bean;
 
 /**
  * Component factory for the database time-series master.

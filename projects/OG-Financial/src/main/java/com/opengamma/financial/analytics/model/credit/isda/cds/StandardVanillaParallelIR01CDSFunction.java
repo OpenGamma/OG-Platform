@@ -6,11 +6,6 @@
 package com.opengamma.financial.analytics.model.credit.isda.cds;
 
 import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_CDS_PRICE_TYPE;
-import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_SHIFT;
-import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_SHIFT_TYPE;
-import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_YIELD_CURVE;
-import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_YIELD_CURVE_CALCULATION_CONFIG;
-import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_YIELD_CURVE_CALCULATION_METHOD;
 
 import java.util.Collections;
 import java.util.Set;
@@ -18,12 +13,7 @@ import java.util.Set;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Iterables;
-import com.opengamma.analytics.financial.credit.PriceType;
-import com.opengamma.analytics.financial.credit.bumpers.CreditSpreadBumpersNew;
-import com.opengamma.analytics.financial.credit.bumpers.InterestRateBumpers;
-import com.opengamma.analytics.financial.credit.bumpers.RecoveryRateBumpType;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.greeks.vanilla.isda.ISDACreditDefaultSwapParallelIR01Calculator;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSAnalytic;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantCreditCurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantYieldCurve;
@@ -34,14 +24,10 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
-import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues;
-import com.opengamma.financial.analytics.model.credit.CreditSecurityToIdentifierVisitor;
-import com.opengamma.financial.security.FinancialSecurity;
 
 /**
  * 

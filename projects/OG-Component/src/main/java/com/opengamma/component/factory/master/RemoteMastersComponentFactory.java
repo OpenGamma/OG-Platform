@@ -11,6 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.commons.lang.ObjectUtils;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -31,7 +32,6 @@ import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.JmsChangeManager;
 import com.opengamma.util.ReflectionUtils;
 import com.opengamma.util.jms.JmsConnector;
-import org.joda.beans.Bean;
 
 /**
  * Component factory for accessing remote masters from the local machine.

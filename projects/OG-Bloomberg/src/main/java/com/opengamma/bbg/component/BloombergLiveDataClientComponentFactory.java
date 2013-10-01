@@ -10,6 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -42,7 +43,6 @@ import com.opengamma.provider.livedata.LiveDataMetaDataProvider;
 import com.opengamma.provider.livedata.LiveDataServerTypes;
 import com.opengamma.util.jms.JmsConnector;
 import com.opengamma.util.jms.JmsConnectorFactoryBean;
-import org.joda.beans.Bean;
 
 /**
  * Simple component factory for live Bloomberg market data.

@@ -8,6 +8,7 @@ package com.opengamma.component.factory.source;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -28,7 +29,6 @@ import com.opengamma.financial.convention.DefaultConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.convention.rest.DataConventionBundleSourceResource;
 import com.opengamma.financial.convention.rest.RemoteConventionBundleSource;
-import org.joda.beans.Bean;
 
 /**
  * Component factory providing the {@code ConventionBundleSource}.

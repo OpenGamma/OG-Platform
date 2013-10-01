@@ -143,6 +143,7 @@ public class DbBatchWriter extends AbstractDbMaster {
    * Creates an instance.
    *
    * @param dbConnector  the database connector, not null
+   * @param computationTargetResolver  the resolver
    */
   public DbBatchWriter(final DbConnector dbConnector, final ComputationTargetResolver computationTargetResolver) {
     super(dbConnector, IDENTIFIER_SCHEME_DEFAULT);

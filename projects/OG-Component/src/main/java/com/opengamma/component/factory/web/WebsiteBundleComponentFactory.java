@@ -12,6 +12,7 @@ import javax.servlet.ServletContext;
 
 import net.sf.ehcache.CacheManager;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -33,7 +34,6 @@ import com.opengamma.web.bundle.EHCachingBundleCompressor;
 import com.opengamma.web.bundle.WebBundlesResource;
 import com.opengamma.web.bundle.YUIBundleCompressor;
 import com.opengamma.web.bundle.YUICompressorOptions;
-import org.joda.beans.Bean;
 
 /**
  * Component factory for the main website.

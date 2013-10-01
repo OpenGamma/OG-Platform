@@ -10,6 +10,7 @@ import java.util.Map;
 
 import net.sf.ehcache.CacheManager;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -39,7 +40,6 @@ import com.opengamma.master.historicaltimeseries.impl.EHCachingHistoricalTimeSer
 import com.opengamma.master.historicaltimeseries.impl.MasterHistoricalTimeSeriesSource;
 import com.opengamma.master.historicaltimeseries.impl.RemoteHistoricalTimeSeriesResolver;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
-import org.joda.beans.Bean;
 
 /**
  * Component factory providing the {@code HistoricalTimeSeriesSource}.

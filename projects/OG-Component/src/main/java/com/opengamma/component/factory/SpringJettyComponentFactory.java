@@ -18,9 +18,8 @@ import org.eclipse.jetty.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.security.DefaultIdentityService;
 import org.eclipse.jetty.security.authentication.BasicAuthenticator;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jetty.util.security.Constraint;
-import org.eclipse.jetty.webapp.WebAppContext;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -51,7 +50,6 @@ import com.opengamma.util.rest.IllegalArgumentExceptionMapper;
 import com.opengamma.util.rest.ThrowableExceptionMapper;
 import com.opengamma.util.rest.UnsupportedOperationExceptionMapper;
 import com.opengamma.util.rest.WebApplicationExceptionMapper;
-import org.joda.beans.Bean;
 
 /**
  * Component definition for the Jetty server defined in Spring.

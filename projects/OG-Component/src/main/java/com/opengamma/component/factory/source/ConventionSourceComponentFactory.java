@@ -8,6 +8,7 @@ package com.opengamma.component.factory.source;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -30,7 +31,6 @@ import com.opengamma.financial.convention.rest.DataConventionMasterResource;
 import com.opengamma.financial.convention.rest.DataConventionSourceResource;
 import com.opengamma.financial.convention.rest.RemoteConventionMaster;
 import com.opengamma.financial.convention.rest.RemoteConventionSource;
-import org.joda.beans.Bean;
 
 /**
  * Component factory provider the {@link ConventionSource}.

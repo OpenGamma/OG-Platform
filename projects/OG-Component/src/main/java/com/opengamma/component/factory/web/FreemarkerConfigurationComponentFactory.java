@@ -15,6 +15,7 @@ import java.util.Map;
 import javax.servlet.ServletContext;
 
 import org.apache.commons.lang.StringUtils;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -36,7 +37,6 @@ import freemarker.cache.MultiTemplateLoader;
 import freemarker.cache.TemplateLoader;
 import freemarker.cache.WebappTemplateLoader;
 import freemarker.template.Configuration;
-import org.joda.beans.Bean;
 
 /**
  * Component factory for initializing Freemarker.

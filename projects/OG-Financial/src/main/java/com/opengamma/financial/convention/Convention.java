@@ -8,6 +8,7 @@ package com.opengamma.financial.convention;
 import java.io.Serializable;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -23,7 +24,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueId;
-import org.joda.beans.Bean;
 
 /**
  * Base class for market conventions that are used in curve and security construction.

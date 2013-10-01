@@ -8,6 +8,7 @@ package com.opengamma.component.factory.source;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -23,7 +24,6 @@ import com.opengamma.engine.function.config.CombiningFunctionConfigurationSource
 import com.opengamma.engine.function.config.FunctionConfigurationDefinitionAggregator;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.master.config.impl.MasterConfigSource;
-import org.joda.beans.Bean;
 
 /**
  * Component factory providing the {@code FunctionConfigurationSource} read from a {@code ConfigMaster}.

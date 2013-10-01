@@ -13,6 +13,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -43,7 +44,6 @@ import com.opengamma.financial.function.rest.RemoteFunctionConfigurationSource;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.web.spring.BloombergVolatilityCubeFunctions;
 import com.opengamma.web.spring.DemoStandardFunctionConfiguration;
-import org.joda.beans.Bean;
 
 /**
  * Component factory providing the {@code FunctionConfigurationSource}.

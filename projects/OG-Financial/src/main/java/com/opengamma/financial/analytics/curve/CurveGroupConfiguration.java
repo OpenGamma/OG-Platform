@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -22,7 +23,6 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.util.ArgumentChecker;
-import org.joda.beans.Bean;
 
 /**
  * Configuration defining a group on curves, where a group is a set of curves

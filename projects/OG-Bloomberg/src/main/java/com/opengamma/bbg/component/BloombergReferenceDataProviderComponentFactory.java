@@ -10,6 +10,7 @@ import java.util.Map;
 
 import net.sf.ehcache.CacheManager;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -34,7 +35,6 @@ import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.util.mongo.MongoConnector;
-import org.joda.beans.Bean;
 
 /**
  * Component factory for the Bloomberg reference data provider.

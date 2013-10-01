@@ -7,27 +7,26 @@ package com.opengamma.integration.tool.portfolio.xml.v1_0.jaxb;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementRef;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import org.joda.beans.BeanDefinition;
-import org.joda.beans.PropertyDefinition;
-
-import java.util.Map;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
+import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.integration.tool.portfolio.xml.v1_0.conversion.ListedTradeSecurityExtractor;
 import com.opengamma.integration.tool.portfolio.xml.v1_0.conversion.TradeSecurityExtractor;
-import org.joda.beans.Bean;
 
 @XmlRootElement
 @BeanDefinition

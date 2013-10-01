@@ -8,6 +8,7 @@ package com.opengamma.engine.view;
 import java.util.Map;
 
 import org.apache.commons.lang.text.StrBuilder;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -23,7 +24,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.util.PublicAPI;
-import org.joda.beans.Bean;
 
 /**
  * Adds context to an execution log to indicate where the log events occurred.

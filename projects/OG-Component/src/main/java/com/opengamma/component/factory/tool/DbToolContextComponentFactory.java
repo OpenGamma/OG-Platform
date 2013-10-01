@@ -11,6 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -27,7 +28,6 @@ import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.management.DbManagement;
 import com.opengamma.util.db.tool.DbToolContext;
-import org.joda.beans.Bean;
 
 /**
  * Component factory for setting up a database tool context.

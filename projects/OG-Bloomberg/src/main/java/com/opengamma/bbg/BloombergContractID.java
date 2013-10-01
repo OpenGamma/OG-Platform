@@ -9,6 +9,7 @@ package com.opengamma.bbg;
 import java.math.BigDecimal;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -32,7 +33,6 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
-import org.joda.beans.Bean;
 
 /**
  * 

@@ -10,6 +10,7 @@ import java.util.Map;
 
 import javax.sql.DataSource;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -24,7 +25,6 @@ import com.jolbox.bonecp.BoneCPDataSource;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
-import org.joda.beans.Bean;
 
 /**
  * Component factory for a data source. This has some default values designed for the masters. 

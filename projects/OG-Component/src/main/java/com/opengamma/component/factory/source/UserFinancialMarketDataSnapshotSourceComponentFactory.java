@@ -11,6 +11,7 @@ import java.util.Map;
 
 import net.sf.ehcache.CacheManager;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -31,7 +32,6 @@ import com.opengamma.core.marketdatasnapshot.impl.DelegatingSnapshotSource;
 import com.opengamma.core.marketdatasnapshot.impl.RemoteMarketDataSnapshotSource;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.marketdatasnapshot.impl.MasterSnapshotSource;
-import org.joda.beans.Bean;
 
 /**
  * Component factory for the snapshot source.

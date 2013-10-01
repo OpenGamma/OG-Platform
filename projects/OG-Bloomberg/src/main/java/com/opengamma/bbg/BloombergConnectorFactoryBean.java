@@ -7,6 +7,7 @@ package com.opengamma.bbg;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -21,7 +22,6 @@ import com.bloomberglp.blpapi.SessionOptions;
 import com.opengamma.bbg.referencedata.statistics.BloombergReferenceDataStatistics;
 import com.opengamma.bbg.referencedata.statistics.NullBloombergReferenceDataStatistics;
 import com.opengamma.util.spring.SpringFactoryBean;
-import org.joda.beans.Bean;
 
 /**
  * Spring factory bean to create a Bloomberg connector.

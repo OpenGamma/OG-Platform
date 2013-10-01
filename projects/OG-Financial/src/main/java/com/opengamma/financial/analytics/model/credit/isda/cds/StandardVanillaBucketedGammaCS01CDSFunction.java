@@ -6,7 +6,6 @@
 package com.opengamma.financial.analytics.model.credit.isda.cds;
 
 import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_CDS_PRICE_TYPE;
-import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_HAZARD_RATE_CURVE_CALCULATION_METHOD;
 import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_SHIFT;
 import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_SPREAD_CURVE_SHIFT_TYPE;
 import static com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues.PROPERTY_YIELD_CURVE;
@@ -21,7 +20,6 @@ import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.google.common.collect.Iterables;
-import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.bumpers.CreditSpreadBumpersNew;
 import com.opengamma.analytics.financial.credit.bumpers.SpreadBumpType;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;

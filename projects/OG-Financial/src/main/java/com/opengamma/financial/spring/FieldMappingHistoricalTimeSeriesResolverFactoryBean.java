@@ -8,6 +8,7 @@ package com.opengamma.financial.spring;
 import java.util.Collection;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -26,7 +27,6 @@ import com.opengamma.master.historicaltimeseries.impl.DefaultHistoricalTimeSerie
 import com.opengamma.master.historicaltimeseries.impl.FieldMappingHistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesFieldAdjustmentMap;
 import com.opengamma.util.spring.SpringFactoryBean;
-import org.joda.beans.Bean;
 
 /**
  * Spring factory bean for {@link FieldMappingHistoricalTimeSeriesResolver} 

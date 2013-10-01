@@ -12,7 +12,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import com.opengamma.engine.value.ValueProperties;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -27,7 +27,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.joda.beans.Bean;
+
+import com.opengamma.engine.value.ValueProperties;
 
 /**
  * Data model for a set of risk value properties.

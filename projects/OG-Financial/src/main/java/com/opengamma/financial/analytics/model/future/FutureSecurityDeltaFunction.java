@@ -25,7 +25,6 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionBlackValueDeltaFunction;
 import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.util.async.AsynchronousExecution;

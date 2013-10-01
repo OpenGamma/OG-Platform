@@ -8,6 +8,7 @@ package com.opengamma.financial.analytics.curve;
 import java.io.Serializable;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -15,7 +16,6 @@ import org.joda.beans.MetaProperty;
 import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-import org.joda.beans.Bean;
 
 /**
  * Configuration object that contains information about how a curve is to be used (e.g. as a discounting curve,

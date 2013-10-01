@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -27,7 +28,6 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
-import org.joda.beans.Bean;
 
 /**
  * Request to get one or more historical time-series.

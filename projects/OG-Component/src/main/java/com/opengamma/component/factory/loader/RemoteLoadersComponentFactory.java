@@ -10,6 +10,7 @@ import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -27,7 +28,6 @@ import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.component.rest.RemoteComponentServer;
 import com.opengamma.util.ReflectionUtils;
-import org.joda.beans.Bean;
 
 /**
  * Component factory for accessing remote loaders from the local machine.

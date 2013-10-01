@@ -7,6 +7,7 @@ package com.opengamma.engine.calcnode.stats;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -21,7 +22,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.Instant;
 
 import com.opengamma.util.ArgumentChecker;
-import org.joda.beans.Bean;
 
 /**
  * Lightweight storage for function costs.

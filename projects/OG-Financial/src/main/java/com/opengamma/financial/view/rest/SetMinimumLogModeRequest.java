@@ -5,27 +5,26 @@
  */
 package com.opengamma.financial.view.rest;
 
+import java.util.Map;
 import java.util.Set;
 
+import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBean;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaBean;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ExecutionLogMode;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.util.tuple.Pair;
-
-import java.util.Map;
-import org.joda.beans.BeanBuilder;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.Property;
-import org.joda.beans.impl.direct.DirectBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaBean;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-import org.joda.beans.Bean;
 
 /**
  * Encapsulates the arguments of a call to

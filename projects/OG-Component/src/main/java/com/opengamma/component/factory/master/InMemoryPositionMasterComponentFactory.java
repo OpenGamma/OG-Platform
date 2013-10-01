@@ -8,6 +8,7 @@ package com.opengamma.component.factory.master;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -26,7 +27,6 @@ import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.position.impl.DataPositionMasterResource;
 import com.opengamma.master.position.impl.InMemoryPositionMaster;
 import com.opengamma.master.position.impl.RemotePositionMaster;
-import org.joda.beans.Bean;
 
 /**
  * Component factory for an in-memory function blacklist provider.

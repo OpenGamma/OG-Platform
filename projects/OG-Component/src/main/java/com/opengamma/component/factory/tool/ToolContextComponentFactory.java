@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -49,7 +50,6 @@ import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProvider;
 import com.opengamma.provider.security.SecurityProvider;
-import org.joda.beans.Bean;
 
 /**
  * Component factory for setting up a tool context.

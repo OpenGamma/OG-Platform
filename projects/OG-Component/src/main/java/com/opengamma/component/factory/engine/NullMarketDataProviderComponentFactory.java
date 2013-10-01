@@ -10,6 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.fudgemsg.FudgeContext;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -27,7 +28,6 @@ import com.opengamma.engine.marketdata.InMemoryNamedMarketDataSpecificationRepos
 import com.opengamma.engine.marketdata.MarketDataProviderFactory;
 import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
-import org.joda.beans.Bean;
 
 /**
  * A MarketDataProvider that provides no data.

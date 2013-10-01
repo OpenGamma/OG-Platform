@@ -8,6 +8,7 @@ package com.opengamma.component.factory.provider;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -26,7 +27,6 @@ import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProvider;
 import com.opengamma.provider.historicaltimeseries.impl.DataHistoricalTimeSeriesProviderResource;
 import com.opengamma.provider.historicaltimeseries.impl.NoneFoundHistoricalTimeSeriesProvider;
 import com.opengamma.provider.historicaltimeseries.impl.RemoteHistoricalTimeSeriesProvider;
-import org.joda.beans.Bean;
 
 /**
  * Component factory for the time-series provider.

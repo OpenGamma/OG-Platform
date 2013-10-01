@@ -5,9 +5,8 @@
  */
 package com.opengamma.bbg.loader;
 
-import static com.opengamma.bbg.BloombergConstants.BLOOMBERG_EQUITY_INDEX_TYPE;
 import static com.opengamma.bbg.BloombergConstants.BBG_NON_EQUITY_INDEX_TYPE;
-import static com.opengamma.bbg.BloombergConstants.BBG_WEEKLY_INDEX_OPTIONS_TYPE;
+import static com.opengamma.bbg.BloombergConstants.BLOOMBERG_EQUITY_INDEX_TYPE;
 import static com.opengamma.bbg.BloombergConstants.FIELD_CRNCY;
 import static com.opengamma.bbg.BloombergConstants.FIELD_FUTURES_CATEGORY;
 import static com.opengamma.bbg.BloombergConstants.FIELD_FUT_LAST_TRADE_DT;

@@ -8,6 +8,7 @@ package com.opengamma.financial.tool;
 import java.io.Closeable;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -51,7 +52,6 @@ import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProvider;
 import com.opengamma.provider.security.SecurityProvider;
 import com.opengamma.util.ReflectionUtils;
-import org.joda.beans.Bean;
 
 /**
  * A standard context that is used to provide components to tools.

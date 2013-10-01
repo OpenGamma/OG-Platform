@@ -7,6 +7,7 @@ package com.opengamma.batch.rest;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -22,7 +23,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.id.ObjectId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.paging.PagingRequest;
-import org.joda.beans.Bean;
 
 /**
  * Request containing options for getting a single batch data set.

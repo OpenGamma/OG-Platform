@@ -8,6 +8,7 @@ package com.opengamma.component.factory;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -29,7 +30,6 @@ import org.springframework.core.io.Resource;
 import com.opengamma.component.ComponentFactory;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.spring.ComponentRepositoryBeanPostProcessor;
-import org.joda.beans.Bean;
 
 /**
  * Base factory for reading components from a Spring file.

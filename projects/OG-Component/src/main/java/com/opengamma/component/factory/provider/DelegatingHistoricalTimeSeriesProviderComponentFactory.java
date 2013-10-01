@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -33,7 +34,6 @@ import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProvider;
 import com.opengamma.provider.historicaltimeseries.impl.DataHistoricalTimeSeriesProviderResource;
 import com.opengamma.provider.historicaltimeseries.impl.DelegatingHistoricalTimeSeriesProvider;
 import com.opengamma.provider.historicaltimeseries.impl.RemoteHistoricalTimeSeriesProvider;
-import org.joda.beans.Bean;
 
 /**
  * Component factory for combining local time-series providers.
