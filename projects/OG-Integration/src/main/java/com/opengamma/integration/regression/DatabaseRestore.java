@@ -67,6 +67,9 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
  */
 /* package */ class DatabaseRestore {
 
+  /** Attribute name holding a position's original unique ID from the source database. */
+  public static final String REGRESSION_ID = "regression:id";
+
   private static final Logger s_logger = LoggerFactory.getLogger(DatabaseRestore.class);
 
   private final File _dataDir;
@@ -112,9 +115,10 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
   }
 
   public static void main(String[] args) throws IOException {
+    String outputDir = "/Users/chris/tmp/regression";
     try {
       RemoteServer server = RemoteServer.create("http://localhost:8080");
-      DatabaseRestore databaseRestore = new DatabaseRestore(new File("/Users/chris/tmp/regression"),
+      DatabaseRestore databaseRestore = new DatabaseRestore(new File(outputDir),
                                                             server.getSecurityMaster(),
                                                             server.getPositionMaster(),
                                                             server.getPortfolioMaster(),
@@ -168,11 +172,16 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
         }
       }
       for (ManageableTrade trade : position.getTrades()) {
+        trade.addAttribute(REGRESSION_ID, trade.getUniqueId().getObjectId().toString());
         trade.setUniqueId(null);
         trade.setParentPositionId(null);
       }
+      // put the old ID on as an attribute. this allows different instances of a position or trade to be identified
+      // when they're saved in different databases and therefore have different unique IDs
+      position.addAttribute(REGRESSION_ID, oldId.toString());
       PositionDocument doc = _positionMaster.add(new PositionDocument(position));
-      ids.put(oldId, doc.getUniqueId().getObjectId());
+      ObjectId newId = doc.getUniqueId().getObjectId();
+      ids.put(oldId, newId);
     }
     return ids;
   }
