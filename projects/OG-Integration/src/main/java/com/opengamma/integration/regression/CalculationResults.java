@@ -9,12 +9,16 @@ package com.opengamma.integration.regression;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.position.Trade;
@@ -22,6 +26,8 @@ import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValueResult;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewResultEntry;
@@ -36,6 +42,7 @@ import com.opengamma.util.ArgumentChecker;
 public final class CalculationResults {
 
   private static final Logger s_logger = LoggerFactory.getLogger(CalculationResults.class);
+  private static final Pattern FUNCTION_PATTERN = Pattern.compile("\\d+ \\((.*)\\)");
 
   private final Map<CalculationResultKey, Object> _values;
 
@@ -96,14 +103,39 @@ public final class CalculationResults {
         continue;
       }
       List<String> path = nodesToPaths.get(nodeId);
+      ValueProperties properties = cleanFunctionProperties(valueSpec.getProperties());
       CalculationResultKey key = new CalculationResultKey(entry.getCalculationConfiguration(),
                                                           valueSpec.getValueName(),
-                                                          valueSpec.getProperties(),
+                                                          properties,
                                                           path,
                                                           targetId);
       valueMap.put(key, computedValue.getValue());
     }
     return new CalculationResults(valueMap);
+  }
+
+  /**
+   * The Function property contains an arbitrary function ID which is different between runs.
+   * @param properties
+   * @return
+   */
+  private static ValueProperties cleanFunctionProperties(ValueProperties properties) {
+    Set<String> functions = properties.getValues(ValuePropertyNames.FUNCTION);
+    Set<String> cleanFunctions = Sets.newHashSet();
+    for (String function : functions) {
+      cleanFunctions.add(removeFunctionId(function));
+    }
+    return properties.copy().withoutAny(ValuePropertyNames.FUNCTION).with(ValuePropertyNames.FUNCTION,
+                                                                          cleanFunctions).get();
+  }
+
+  private static String removeFunctionId(String functionString) {
+    Matcher matcher = FUNCTION_PATTERN.matcher(functionString);
+    if (matcher.matches()) {
+      return matcher.group(1);
+    } else {
+      return functionString;
+    }
   }
 
   // TODO test case

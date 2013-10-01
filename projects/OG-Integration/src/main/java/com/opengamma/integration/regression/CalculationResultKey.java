@@ -80,4 +80,15 @@ public final class CalculationResultKey {
         Objects.equals(this._path, other._path) &&
         Objects.equals(this._targetId, other._targetId);
   }
+
+  @Override
+  public String toString() {
+    return "CalculationResultKey [" +
+        "_calcConfigName='" + _calcConfigName + "'" +
+        ", _valueName='" + _valueName + "'" +
+        ", _path=" + _path +
+        ", _targetId=" + _targetId +
+        ", _properties=" + _properties +
+        "]";
+  }
 }

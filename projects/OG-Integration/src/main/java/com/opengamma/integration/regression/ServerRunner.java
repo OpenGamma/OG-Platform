@@ -21,6 +21,7 @@ import org.threeten.bp.Instant;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.OpenGammaComponentServer;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
@@ -58,10 +59,13 @@ public final class ServerRunner {
   }
 
   public static void main(String[] args) throws Exception {
-    ServerRunner.run();
+    CalculationResults results1 = ServerRunner.run();
+    CalculationResults results2 = ServerRunner.run();
+    CalculationDifference.Result result = CalculationDifference.compare(results1, results2, 0.01d);
+    System.out.println(result);
   }
 
-  public static void run() throws IOException, InterruptedException {
+  public static CalculationResults run() throws IOException, InterruptedException {
     // TODO is it possible to scan the view defs and run all of them?
     // need to be able to choose the snapshot for each view def. if there's only one for each base view def then
     // it should be possible
@@ -97,8 +101,7 @@ public final class ServerRunner {
     Boolean startupSuccess = startupQueue.take();
 
     if (!startupSuccess) {
-      System.out.println("startup failed, aborting");
-      return;
+      throw new OpenGammaRuntimeException("startup failed, aborting");
     }
     try (RemoteServer server = RemoteServer.create("http://localhost:" + serverHttpPort)) {
       // look up the snapshot by name to get the ID
@@ -130,26 +133,29 @@ public final class ServerRunner {
       ViewProcessor viewProcessor = server.getViewProcessor();
       ViewClient viewClient = viewProcessor.createViewClient(UserPrincipal.getLocalUser());
       CountDownLatch latch = new CountDownLatch(1);
-      viewClient.setResultListener(new Listener(server.getPositionSource(), latch));
+      Listener listener = new Listener(server.getPositionSource(), latch);
+      viewClient.setResultListener(listener);
       viewClient.setResultMode(ViewResultMode.FULL_ONLY);
       System.out.println("attaching to view process");
       viewClient.attachToViewProcess(viewDefId, executionOptions, true);
       System.out.println("waiting for completion");
       viewClient.waitForCompletion();
       System.out.println("view client completed");
-      process.destroy();
       latch.await();
+      process.destroy();
+      return listener.getResults();
     }
-    System.exit(0);
   }
 
   /**
    * Starts a thread which consumes a stream line by line and puts a value onto a queue when it encounters
-   * a particular value. If an exception occurs false it put onto the queue.
+   * a line starting with a particular value. If an exception occurs a value of false it put onto the queue.
+   * Every line read from the stream is written to a {@link PrintStream}.
    * @param stream The stream to consume
    * @param value The trigger value - the stream line must <em>startWith</em> this string
    * @param queue The queue
    * @param signalValue The value to put onto the queue when line is encountered in the stream
+   * @param output Every line read from the stream is written to this print stream
    */
   private static void consumeStream(final InputStream stream,
                                     final String value,
@@ -190,6 +196,8 @@ class Listener extends AbstractViewResultListener {
   private final PositionSource _positionSource;
   private final CountDownLatch _latch;
 
+  private CalculationResults _results;
+
   Listener(PositionSource positionSource, CountDownLatch latch) {
     ArgumentChecker.notNull(positionSource, "");
     ArgumentChecker.notNull(latch, "latch");
@@ -227,10 +235,13 @@ class Listener extends AbstractViewResultListener {
   public void cycleCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
     try {
       System.out.println("cycle completed");
-      CalculationResults results = CalculationResults.create(_viewDef.get(), fullResult, _positionSource);
-      System.out.println(results);
+      _results = CalculationResults.create(_viewDef.get(), fullResult, _positionSource);
     } finally {
       _latch.countDown();
     }
+  }
+
+  public CalculationResults getResults() {
+    return _results;
   }
 }
