@@ -42,7 +42,7 @@ public class YieldAndDiscountCurveUtils {
   }
 
   /**
-   * Computes the forward rate for a given index in a given curve 
+   * Computes the forward rate for a given index in a multicurve provider. The curve used to compute the forward is the curve associated to the index. 
    * @param multicurve The curve provider. Should contain the curve related to the index for which the forward rate is requested.
    * @param curveDate The curve date.
    * @param fixingDate The forward rate fixing date.
