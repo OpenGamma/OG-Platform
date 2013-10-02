@@ -29,3 +29,8 @@ Changes since 2.1.0
 To 2.2.0-M1
 -----------
 http://jira.opengamma.com/issues/?jql=fixVersion%20%3D%20%222.2.0-M1%22
+
+API compatability
+- The sub-classes of ValueProperties are no longer publicly visible. Details
+  for correcting any affected code can be found in the Javadoc for the
+  ValueProperties.isNearInfiniteProperties method.

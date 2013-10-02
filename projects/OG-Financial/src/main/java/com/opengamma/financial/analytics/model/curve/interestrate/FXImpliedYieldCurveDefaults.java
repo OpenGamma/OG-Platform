@@ -8,7 +8,6 @@ package com.opengamma.financial.analytics.model.curve.interestrate;
 import java.util.Collections;
 import java.util.Set;
 
-import com.google.common.collect.Iterables;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.target.ComputationTargetType;
@@ -27,10 +26,10 @@ import com.opengamma.util.ArgumentChecker;
 public class FXImpliedYieldCurveDefaults extends DefaultPropertyFunction {
   /** The value requirement names for which these defaults apply */
   private static final String[] VALUE_REQUIREMENTS = new String[] {
-    ValueRequirementNames.YIELD_CURVE,
-    ValueRequirementNames.YIELD_CURVE_JACOBIAN,
-    ValueRequirementNames.FX_IMPLIED_TRANSITION_MATRIX,
-    ValueRequirementNames.YIELD_CURVE_SERIES
+      ValueRequirementNames.YIELD_CURVE,
+      ValueRequirementNames.YIELD_CURVE_JACOBIAN,
+      ValueRequirementNames.FX_IMPLIED_TRANSITION_MATRIX,
+      ValueRequirementNames.YIELD_CURVE_SERIES
   };
   /** The interpolator name */
   private final String _interpolatorName;
@@ -116,11 +115,10 @@ public class FXImpliedYieldCurveDefaults extends DefaultPropertyFunction {
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties constraints = desiredValue.getConstraints();
-    final Set<String> curveCalculationMethods = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_METHOD);
-    if (curveCalculationMethods == null || curveCalculationMethods.size() != 1) {
+    final String curveCalculationMethod = constraints.getStrictValue(ValuePropertyNames.CURVE_CALCULATION_METHOD);
+    if (curveCalculationMethod == null) {
       return super.getRequirements(context, target, desiredValue);
     }
-    final String curveCalculationMethod = Iterables.getOnlyElement(curveCalculationMethods);
     if (!curveCalculationMethod.equals(FXImpliedYieldCurveFunction.FX_IMPLIED)) {
       return null;
     }

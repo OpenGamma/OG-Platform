@@ -9,7 +9,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.core.config.ConfigSource;
@@ -93,12 +92,12 @@ public class YieldCurveInstrumentConversionHistoricalTimeSeriesFunction extends 
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final Set<String> curveCalculationConfigs = desiredValue.getConstraints().getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
-    if ((curveCalculationConfigs == null) || (curveCalculationConfigs.size() != 1)) {
+    final String curveCalculationConfigName = desiredValue.getConstraints().getStrictValue(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
+    if (curveCalculationConfigName == null) {
       return null;
     }
     final Set<ValueRequirement> requirements = new HashSet<>();
-    final MultiCurveCalculationConfig curveCalculationConfig = getCurveCalculationConfig().getConfig(Iterables.getOnlyElement(curveCalculationConfigs));
+    final MultiCurveCalculationConfig curveCalculationConfig = getCurveCalculationConfig().getConfig(curveCalculationConfigName);
     for (final String curveName : curveCalculationConfig.getYieldCurveNames()) {
       final ValueProperties properties = ValueProperties.with(ValuePropertyNames.CURVE, curveName).get();
       requirements.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, target.toSpecification(), properties));

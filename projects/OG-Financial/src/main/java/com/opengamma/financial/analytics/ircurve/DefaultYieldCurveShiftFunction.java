@@ -17,13 +17,12 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.property.StaticDefaultPropertyFunction;
 
 /**
- * Function to inject default yield curve shifts into the dependency graph.
- * Shifts are taken from the default properties in the following order:
+ * Function to inject default yield curve shifts into the dependency graph. Shifts are taken from the default properties in the following order:
  * <ul>
- *  <li><em>curve name</em>_<em>currency</em>_YIELD_CURVE_SHIFT
- *  <li><em>curve_name</em>_YIELD_CURVE_SHIFT
- *  <li><em>currency</em>_YIELD_CURVE_SHIFT
- *  <li>YIELD_CURVE_SHIFT
+ * <li><em>curve name</em>_<em>currency</em>_YIELD_CURVE_SHIFT
+ * <li><em>curve_name</em>_YIELD_CURVE_SHIFT
+ * <li><em>currency</em>_YIELD_CURVE_SHIFT
+ * <li>YIELD_CURVE_SHIFT
  * </ul>
  * This should allow either specific curves to be adjusted or more global changes.
  */
@@ -42,10 +41,9 @@ public class DefaultYieldCurveShiftFunction extends StaticDefaultPropertyFunctio
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final String currency = target.getUniqueId().getValue();
     final ValueProperties defaults = context.getViewCalculationConfiguration().getDefaultProperties();
-    final Set<String> names = desiredValue.getConstraints().getValues(ValuePropertyNames.CURVE);
+    final String name = desiredValue.getConstraints().getStrictValue(ValuePropertyNames.CURVE);
     Set<String> values;
-    if ((names != null) && (names.size() == 1)) {
-      final String name = names.iterator().next();
+    if (name != null) {
       values = defaults.getValues(name + "_" + currency + "_" + YIELD_CURVE_SHIFT);
       if (values != null) {
         return values;

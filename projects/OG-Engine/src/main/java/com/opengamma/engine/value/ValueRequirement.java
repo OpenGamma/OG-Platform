@@ -7,7 +7,6 @@ package com.opengamma.engine.value;
 
 import java.io.ObjectInputStream;
 import java.io.Serializable;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.text.StrBuilder;
@@ -221,14 +220,13 @@ public final class ValueRequirement implements Serializable {
    * @throws IllegalArgumentException if the constraint is a wild-card definition
    */
   public String getConstraint(final String constraintName) {
-    final Set<String> values = _constraints.getValues(constraintName);
-    if (values == null) {
-      return null;
-    } else if (values.isEmpty()) {
-      throw new IllegalArgumentException("constraint " + constraintName + " contains only wild-card values");
-    } else {
-      return values.iterator().next();
+    final String value = _constraints.getSingleValue(constraintName);
+    if (value == null) {
+      if (_constraints.isDefined(constraintName)) {
+        throw new IllegalArgumentException("constraint " + constraintName + " contains only wild-card values");
+      }
     }
+    return value;
   }
 
   @Override

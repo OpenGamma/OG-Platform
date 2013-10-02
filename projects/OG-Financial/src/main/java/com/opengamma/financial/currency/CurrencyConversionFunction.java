@@ -207,14 +207,14 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
     if (input.getValue().getConstraints().getValues(DEFAULT_CURRENCY_INJECTION) == null) {
       // Resolved output is the input with the currency wild-carded, and the function ID the same
       final ValueSpecification value = input.getKey();
-      final Set<String> currencies = value.getProperties().getValues(ValuePropertyNames.CURRENCY);
-      if (currencies == null || currencies.size() != 1) {
+      final String currency = value.getProperties().getStrictValue(ValuePropertyNames.CURRENCY);
+      if (currency == null) {
         // This will fail at the getAdditionalRequirements
         return null;
       }
       final ValueProperties.Builder properties = value.getProperties().copy();
       properties.withAny(ValuePropertyNames.CURRENCY);
-      properties.withoutAny(ORIGINAL_CURRENCY).with(ORIGINAL_CURRENCY, currencies);
+      properties.withoutAny(ORIGINAL_CURRENCY).with(ORIGINAL_CURRENCY, currency);
       return Collections.singleton(new ValueSpecification(value.getValueName(), value.getTargetSpecification(), properties.get()));
     }
     // The input was requested with the converted currency, so return the same specification to remove this node from the graph
@@ -223,11 +223,7 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
 
   private String getCurrency(final Collection<ValueSpecification> specifications) {
     final ValueSpecification specification = specifications.iterator().next();
-    final Set<String> currencies = specification.getProperties().getValues(ValuePropertyNames.CURRENCY);
-    if ((currencies == null) || (currencies.size() != 1)) {
-      return null;
-    }
-    return currencies.iterator().next();
+    return specification.getProperties().getStrictValue(ValuePropertyNames.CURRENCY);
   }
 
   private ValueRequirement getCurrencyConversion(final String fromCurrency, final String toCurrency) {

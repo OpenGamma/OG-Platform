@@ -19,7 +19,6 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
@@ -46,10 +45,9 @@ import com.opengamma.financial.analytics.model.curve.MultiCurveFunction;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 
 /**
- * Base class for functions that construct yield curves and the Jacobian from {@link YieldCurveDefinition}
- * and {@link MultiCurveCalculationConfig}s using root-finding.
- * @deprecated This function uses configuration objects that have been superseded. Use functions that
- * descend from {@link MultiCurveFunction}
+ * Base class for functions that construct yield curves and the Jacobian from {@link YieldCurveDefinition} and {@link MultiCurveCalculationConfig}s using root-finding.
+ * 
+ * @deprecated This function uses configuration objects that have been superseded. Use functions that descend from {@link MultiCurveFunction}
  */
 @Deprecated
 public abstract class MultiYieldCurveFunction extends AbstractFunction.NonCompiledInvoker {
@@ -78,11 +76,10 @@ public abstract class MultiYieldCurveFunction extends AbstractFunction.NonCompil
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties constraints = desiredValue.getConstraints();
-    final Set<String> curveCalculationConfigNames = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
-    if (curveCalculationConfigNames == null || curveCalculationConfigNames.size() != 1) {
+    final String curveCalculationConfigName = constraints.getStrictValue(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
+    if (curveCalculationConfigName == null) {
       return null;
     }
-    final String curveCalculationConfigName = Iterables.getOnlyElement(curveCalculationConfigNames);
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
     final MultiCurveCalculationConfig curveCalculationConfig = curveCalculationConfigSource.getConfig(curveCalculationConfigName);
@@ -97,31 +94,27 @@ public abstract class MultiYieldCurveFunction extends AbstractFunction.NonCompil
       s_logger.warn("Invalid target for {}, was {} - expected {}", curveCalculationConfigName, target, curveCalculationConfig.getTarget());
       return null;
     }
-    final Set<String> rootFinderAbsoluteTolerance = constraints.getValues(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE);
-    if (rootFinderAbsoluteTolerance == null || rootFinderAbsoluteTolerance.size() != 1) {
+    final String absoluteTolerance = constraints.getStrictValue(PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE);
+    if (absoluteTolerance == null) {
       return null;
     }
-    final Set<String> rootFinderRelativeTolerance = constraints.getValues(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE);
-    if (rootFinderRelativeTolerance == null || rootFinderRelativeTolerance.size() != 1) {
+    final String relativeTolerance = constraints.getStrictValue(PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE);
+    if (relativeTolerance == null) {
       return null;
     }
-    final Set<String> maxIterations = constraints.getValues(PROPERTY_ROOT_FINDER_MAX_ITERATIONS);
-    if (maxIterations == null || maxIterations.size() != 1) {
+    final String maxIteration = constraints.getStrictValue(PROPERTY_ROOT_FINDER_MAX_ITERATIONS);
+    if (maxIteration == null) {
       return null;
     }
-    final Set<String> decomposition = constraints.getValues(PROPERTY_DECOMPOSITION);
-    if (decomposition == null || decomposition.size() != 1) {
+    final String decomposition = constraints.getStrictValue(PROPERTY_DECOMPOSITION);
+    if (decomposition == null) {
       return null;
     }
-    final Set<String> useFiniteDifference = constraints.getValues(PROPERTY_USE_FINITE_DIFFERENCE);
-    if (useFiniteDifference == null || useFiniteDifference.size() != 1) {
+    final String finiteDifference = constraints.getStrictValue(PROPERTY_USE_FINITE_DIFFERENCE);
+    if (finiteDifference == null) {
       return null;
     }
     final String[] curveNames = curveCalculationConfig.getYieldCurveNames();
-    final String absoluteTolerance = Iterables.getOnlyElement(rootFinderAbsoluteTolerance);
-    final String relativeTolerance = Iterables.getOnlyElement(rootFinderRelativeTolerance);
-    final String maxIteration = Iterables.getOnlyElement(maxIterations);
-    final String finiteDifference = Iterables.getOnlyElement(useFiniteDifference);
     final Set<ValueRequirement> requirements = new HashSet<>();
     final ComputationTargetSpecification targetSpec = target.toSpecification();
     for (final String curveName : curveNames) {
@@ -186,26 +179,29 @@ public abstract class MultiYieldCurveFunction extends AbstractFunction.NonCompil
 
   /**
    * Gets the Jacobian properties with no values set.
+   * 
    * @return The properties for the Jacobian
    */
   protected abstract ValueProperties getJacobianProperties();
 
   /**
    * Gets the yield curve properties with no values set.
+   * 
    * @return The properties for the curve
    */
   protected abstract ValueProperties getCurveProperties();
 
   /**
    * Gets the Jacobian properties with the curve calculation configuration name set.
+   * 
    * @param curveCalculationConfigName The curve calculation configuration name
    * @return The properties for the Jacobian
    */
   protected abstract ValueProperties getJacobianProperties(final String curveCalculationConfigName);
 
   /**
-   * Gets properties for a single yield curve with the curve calculation configuration name and curve.
-   * name set.
+   * Gets properties for a single yield curve with the curve calculation configuration name and curve. name set.
+   * 
    * @param curveCalculationConfigName The curve calculation configuration name
    * @param curveName The curve name
    * @return The properties for the curve
@@ -214,6 +210,7 @@ public abstract class MultiYieldCurveFunction extends AbstractFunction.NonCompil
 
   /**
    * Gets the Jacobian properties with all values set.
+   * 
    * @param curveCalculationConfigName The curve calculation configuration name
    * @param absoluteTolerance The absolute tolerance
    * @param relativeTolerance The relative tolerance
@@ -226,8 +223,8 @@ public abstract class MultiYieldCurveFunction extends AbstractFunction.NonCompil
       final String decomposition, final String useFiniteDifference);
 
   /**
-   * Gets properties for a single yield curve all values set.
-   * name set.
+   * Gets properties for a single yield curve all values set. name set.
+   * 
    * @param curveCalculationConfigName The curve calculation configuration name
    * @param curveName The curve name
    * @param absoluteTolerance The absolute tolerance
@@ -242,12 +239,14 @@ public abstract class MultiYieldCurveFunction extends AbstractFunction.NonCompil
 
   /**
    * Gets the curve calculation method.
+   * 
    * @return The curve calculation method
    */
   protected abstract String getCalculationMethod();
 
   /**
    * Gets the snapshot containing the market data from the function inputs.
+   * 
    * @param inputs The inputs
    * @param targetSpec The specification of the market data
    * @param curveName The curve name
@@ -265,6 +264,7 @@ public abstract class MultiYieldCurveFunction extends AbstractFunction.NonCompil
 
   /**
    * Gets the bundle containing historical fixing from the function inputs.
+   * 
    * @param inputs The inputs
    * @param targetSpec The specification of the historical data
    * @param curveCalculationConfigName The curve calculation configuration name
@@ -283,6 +283,7 @@ public abstract class MultiYieldCurveFunction extends AbstractFunction.NonCompil
 
   /**
    * Gets the interpolated yield curve specification from the function inputs
+   * 
    * @param inputs The inputs
    * @param targetSpec The specification of the interpolated yield curve
    * @param curveName The curve name
@@ -300,8 +301,8 @@ public abstract class MultiYieldCurveFunction extends AbstractFunction.NonCompil
   }
 
   /**
-   * Gets any known (i.e. exogenous) curves from the function inputs. These curves are held
-   * fixed during fitting.
+   * Gets any known (i.e. exogenous) curves from the function inputs. These curves are held fixed during fitting.
+   * 
    * @param curveCalculationConfig The curve calculation configuration
    * @param targetSpec The specification of the known curves
    * @param inputs The inputs

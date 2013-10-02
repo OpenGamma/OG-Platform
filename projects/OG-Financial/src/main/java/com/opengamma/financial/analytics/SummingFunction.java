@@ -138,11 +138,11 @@ public class SummingFunction extends MissingInputsFunction {
         if (common == null) {
           common = properties;
           for (int i = 0; i < homogenousProperties.length; i++) {
-            homogenousProperties[i] = properties.getValues(_homogenousProperties[i]) != null;
+            homogenousProperties[i] = properties.isDefined(_homogenousProperties[i]);
           }
         } else {
           for (int i = 0; i < homogenousProperties.length; i++) {
-            if ((properties.getValues(_homogenousProperties[i]) != null) != homogenousProperties[i]) {
+            if (properties.isDefined(_homogenousProperties[i]) != homogenousProperties[i]) {
               // Either defines one of the properties that something else doesn't, or doesn't define
               // one that something else does
               return null;
@@ -157,7 +157,7 @@ public class SummingFunction extends MissingInputsFunction {
       }
       for (int i = 0; i < homogenousProperties.length; i++) {
         if (homogenousProperties[i] == Boolean.TRUE) {
-          if (common.getValues(_homogenousProperties[i]) == null) {
+          if (!common.isDefined(_homogenousProperties[i])) {
             // No common intersection of values for homogenous property
             return null;
           }

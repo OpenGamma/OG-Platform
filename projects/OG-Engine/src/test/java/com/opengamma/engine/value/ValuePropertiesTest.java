@@ -151,21 +151,21 @@ public class ValuePropertiesTest {
     props = offering.compose(requirement);
     assertEquals(requirement.getValues("A"), props.getValues("A"));
     assertEquals(Collections.singleton("2"), props.getValues("B"));
-    assertSame(offering.getValues("C"), props.getValues("C"));
+    assertEquals(offering.getValues("C"), props.getValues("C"));
     assertSame(offering.getValues("D"), props.getValues("D"));
     offering = ValueProperties.withAny("A").withAny("B").withAny("C").get();
     props = offering.compose(requirement);
-    assertSame(requirement.getValues("A"), props.getValues("A"));
-    assertSame(requirement.getValues("B"), props.getValues("B"));
+    assertEquals(requirement.getValues("A"), props.getValues("A"));
+    assertEquals(requirement.getValues("B"), props.getValues("B"));
     assertSame(requirement.getValues("C"), props.getValues("C"));
     assertNull(props.getValues("D"));
     assertNull(props.getValues("E"));
     offering = ValueProperties.withAny("A").withAny("B").withAny("C").with("E", "1").get();
     props = offering.compose(requirement);
-    assertSame(requirement.getValues("A"), props.getValues("A"));
-    assertSame(requirement.getValues("B"), props.getValues("B"));
+    assertEquals(requirement.getValues("A"), props.getValues("A"));
+    assertEquals(requirement.getValues("B"), props.getValues("B"));
     assertSame(requirement.getValues("C"), props.getValues("C"));
-    assertSame(offering.getValues("E"), props.getValues("E"));
+    assertEquals(offering.getValues("E"), props.getValues("E"));
     offering = ValueProperties.with("A", "1").with("B", "2", "3").withOptional("C").withOptional("D").with("E", "1").withOptional("E").get();
     props = offering.compose(requirement);
     assertEquals(requirement, props);
@@ -186,10 +186,10 @@ public class ValuePropertiesTest {
     final ValueProperties ab = ValueProperties.with("A", "1").with("B", "2").with("C", "3", "4").withAny("D").with("E", "1").withOptional("E").get();
     assertEquals(ab, a.intersect(b));
     assertEquals(ab, b.intersect(a));
-    assertEquals(ab, a.intersect(ab));
-    assertEquals(ab, b.intersect(ab));
-    assertSame(ab, ab.intersect(a));
-    assertSame(ab, ab.intersect(b));
+    assertSame(ab, a.intersect(ab));
+    assertSame(ab, b.intersect(ab));
+    assertEquals(ab, ab.intersect(a));
+    assertEquals(ab, ab.intersect(b));
     assertSame(ab, ab.intersect(ab));
     final ValueProperties c = ValueProperties.all().withoutAny("A");
     assertEquals(ValueProperties.with("B", "2", "3").withAny("C").withAny("D").with("E", "1").get(), a.intersect(c));
@@ -253,8 +253,11 @@ public class ValuePropertiesTest {
   }
 
   private static void compare(final ValueProperties lesser, final ValueProperties greater) {
-    assertEquals(-1, lesser.compareTo(greater));
-    assertEquals(1, greater.compareTo(lesser));
+    final int c1 = lesser.compareTo(greater);
+    final int c2 = greater.compareTo(lesser);
+    final String message = ("lesser = " + c1 + ", greater = " + c2);
+    assertTrue(message, lesser.compareTo(greater) < 0);
+    assertTrue(message, greater.compareTo(lesser) > 0);
   }
 
   public void testCompareTo() {
@@ -297,25 +300,19 @@ public class ValuePropertiesTest {
   public void testParseFlexibility() {
     assertEquals(ValueProperties.with("Ccy", "USD").get(), ValueProperties.parse("Ccy=USD"));
     assertEquals(ValueProperties.with("Ccy", "USD", "GBP").get(), ValueProperties.parse("Ccy=[GBP,USD]"));
-
     assertEquals(ValueProperties.withAny("Foo").get(), ValueProperties.parse("Foo"));
-
     ValueProperties twoFooOneBar = ValueProperties.with("Foo", "123", "456").with("Bar", "7").get();
     assertEquals(twoFooOneBar, ValueProperties.parse("Foo=[123,456],Bar=7"));
     assertEquals(twoFooOneBar, ValueProperties.parse("Foo=[123, 456],Bar=7"));
     assertEquals(twoFooOneBar, ValueProperties.parse("Foo=[123,456], Bar=7"));
     assertEquals(twoFooOneBar, ValueProperties.parse("Bar=7, Foo=[123,456]"));
-
     assertEquals(ValueProperties.withOptional("Foo").get(), ValueProperties.parse("Foo=[]?"));
     assertEquals(ValueProperties.with("Foo", "1").withOptional("Foo").get(), ValueProperties.parse("Foo=[1]?"));
-
     ValueProperties oneOptionalFooTwoBar = ValueProperties.with("Foo", "123").withOptional("Foo").with("Bar", "7", "8").get();
     assertEquals(oneOptionalFooTwoBar, ValueProperties.parse("Foo=[123]?,Bar=[7,8]"));
     assertEquals(oneOptionalFooTwoBar, ValueProperties.parse("Bar=[7,8],Foo=[123]?"));
-
     assertEquals(ValueProperties.withAny("ValueName").get(), ValueProperties.parse("ValueName="));
     assertEquals(ValueProperties.withAny("ValueName").get(), ValueProperties.parse("ValueName=[]"));
-
     ValueProperties allButFoo = ValueProperties.all().withoutAny("Foo");
     assertEquals(allButFoo, ValueProperties.parse("INFINITE-{Foo}"));
     assertEquals(allButFoo, ValueProperties.parse("INFINITE-{ Foo }"));
@@ -332,9 +329,7 @@ public class ValuePropertiesTest {
   public void testWithWithoutIsNone() {
     final ValueProperties none = ValueProperties.none();
     final ValueProperties withWithout = ValueProperties.builder().with("A", "B").withoutAny("A").get();
-    assertEquals(none, withWithout);
-    assertEquals(withWithout, none);
-
+    assertSame(none, withWithout);
     final ValueProperties withOptionalWithout = ValueProperties.builder().with("A", "B").withOptional("A").withoutAny("A").get();
     assertEquals(none, withOptionalWithout);
     assertEquals(withOptionalWithout, none);

@@ -147,8 +147,8 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends I
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final Currency currency = FinancialSecurityUtils.getCurrency(security);
     final ValueProperties constraints = desiredValue.getConstraints();
-    final Set<String> curveCalculationConfigNames = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
-    if (curveCalculationConfigNames == null || curveCalculationConfigNames.size() != 1) {
+    final String curveCalculationConfigName = constraints.getStrictValue(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
+    if (curveCalculationConfigName == null) {
       return null;
     }
     final boolean permissive = OpenGammaCompilationContext.isPermissive(context);
@@ -157,7 +157,6 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends I
       s_logger.info("Must specify a single curve name; have {}", requestedCurveNames);
       return null;
     }
-    final String curveCalculationConfigName = curveCalculationConfigNames.iterator().next();
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     final ConfigDBCurveCalculationConfigSource curveCalculationConfigSource = new ConfigDBCurveCalculationConfigSource(configSource);
     final MultiCurveCalculationConfig curveCalculationConfig = curveCalculationConfigSource.getConfig(curveCalculationConfigName);

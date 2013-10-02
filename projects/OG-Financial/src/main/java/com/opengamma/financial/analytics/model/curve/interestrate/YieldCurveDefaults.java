@@ -8,7 +8,6 @@ package com.opengamma.financial.analytics.model.curve.interestrate;
 import java.util.Collections;
 import java.util.Set;
 
-import com.google.common.collect.Iterables;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.target.ComputationTargetType;
@@ -26,11 +25,11 @@ import com.opengamma.util.ArgumentChecker;
 public class YieldCurveDefaults extends DefaultPropertyFunction {
   /** The value requirement names to which these defaults apply */
   private static final String[] VALUE_REQUIREMENTS = new String[] {
-    ValueRequirementNames.YIELD_CURVE,
-    ValueRequirementNames.YIELD_CURVE_JACOBIAN,
-    ValueRequirementNames.FX_IMPLIED_TRANSITION_MATRIX,
-    ValueRequirementNames.YIELD_CURVE_SERIES,
-    ValueRequirementNames.YIELD_CURVE_HISTORICAL_TIME_SERIES
+      ValueRequirementNames.YIELD_CURVE,
+      ValueRequirementNames.YIELD_CURVE_JACOBIAN,
+      ValueRequirementNames.FX_IMPLIED_TRANSITION_MATRIX,
+      ValueRequirementNames.YIELD_CURVE_SERIES,
+      ValueRequirementNames.YIELD_CURVE_HISTORICAL_TIME_SERIES
   };
   /** The absolute tolerance */
   private final String _absoluteTolerance;
@@ -86,13 +85,11 @@ public class YieldCurveDefaults extends DefaultPropertyFunction {
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties constraints = desiredValue.getConstraints();
-    final Set<String> curveCalculationMethods = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_METHOD);
-    if (curveCalculationMethods == null || curveCalculationMethods.size() != 1) {
+    final String curveCalculationMethod = constraints.getStrictValue(ValuePropertyNames.CURVE_CALCULATION_METHOD);
+    if (curveCalculationMethod == null) {
       return super.getRequirements(context, target, desiredValue);
     }
-    final String curveCalculationMethod = Iterables.getOnlyElement(curveCalculationMethods);
-    if (!(curveCalculationMethod.equals(MultiYieldCurvePropertiesAndDefaults.PAR_RATE_STRING) ||
-        (curveCalculationMethod.equals(MultiYieldCurvePropertiesAndDefaults.PRESENT_VALUE_STRING)))) {
+    if (!(curveCalculationMethod.equals(MultiYieldCurvePropertiesAndDefaults.PAR_RATE_STRING) || (curveCalculationMethod.equals(MultiYieldCurvePropertiesAndDefaults.PRESENT_VALUE_STRING)))) {
       return null;
     }
     return super.getRequirements(context, target, desiredValue);

@@ -8,11 +8,13 @@ package com.opengamma.batch.domain;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.opengamma.lambdava.streams.Lambdava.functional;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import com.opengamma.engine.value.ValueProperties;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -27,6 +29,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.opengamma.engine.value.ValueProperties;
 
 /**
  * Data model for a set of risk value properties.
@@ -60,13 +64,14 @@ public class RiskValueProperties extends DirectBean {
   public static String synthesize(ValueProperties requirement) {
     try {
       JSONObject json = new JSONObject();
-
-      if (ValueProperties.InfinitePropertiesImpl.class.isInstance(requirement)) {
+      if (ValueProperties.all() == requirement) {
         json.put("infinity", true).toString();
-      } else if (ValueProperties.NearlyInfinitePropertiesImpl.class.isInstance(requirement)) {
-        ValueProperties.NearlyInfinitePropertiesImpl nearlyInifite = (ValueProperties.NearlyInfinitePropertiesImpl) requirement;
+      } else if (ValueProperties.isNearInfiniteProperties(requirement)) {
+        //ValueProperties.NearlyInfinitePropertiesImpl nearlyInifite = (ValueProperties.NearlyInfinitePropertiesImpl) requirement;
+        final List<String> nearlyInfinite = new ArrayList<String>(ValueProperties.all().getUnsatisfied(requirement));
+        Collections.sort(nearlyInfinite);
         JSONArray without = new JSONArray();
-        for (String value : functional(nearlyInifite.getWithout()).sort()) {
+        for (String value : nearlyInfinite) {
           without.put(escape(ESCAPE_PATTERN, value));
         }
         json.put("without", without);
