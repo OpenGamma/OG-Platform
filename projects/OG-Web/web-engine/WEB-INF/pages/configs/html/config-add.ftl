@@ -10,6 +10,7 @@
     <@rowin label="Name"><input type="text" size="30" maxlength="80" name="name" value="${name}" /></@rowin>
     
     <#if err_typeMissing??><div class="err">The type must be entered</div></#if>
+    <#if err_typeInvalid??><div class="err">The type is invalid</div></#if>
     <@rowin label="Type">
       <select name="type">
         <option value="" <#if type = ''>selected</#if>></option>

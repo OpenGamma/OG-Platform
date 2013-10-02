@@ -115,7 +115,8 @@ public class WebConfigResource extends AbstractWebConfigResource {
       return Response.ok(html).build();
     }
 
-    final URI uri = updateConfig(name, parseXML(xml));
+    Object parsed = parseXML(xml, data().getConfig().getConfig().getType());
+    final URI uri = updateConfig(name, parsed);
     return Response.seeOther(uri).build();
   }
 
@@ -141,7 +142,8 @@ public class WebConfigResource extends AbstractWebConfigResource {
     if (json != null) {
       configValue = parseJSON(json);
     } else if (xml != null) {
-      configValue = parseXML(xml);
+      Object parsed = parseXML(xml, data().getConfig().getConfig().getType());
+      configValue = parsed;
     }
     updateConfig(name, configValue);
     return Response.ok().build();
