@@ -43,24 +43,25 @@ import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
  */
-/* package */ class ViewRunner {
+public class ViewRunner {
 
-
-
+  // TODO convert to a tool
+  /* TODO inputs
+  working directories (and versions) for each of the two servers
+   */
   public static void main(String[] args) throws Exception {
     Instant valuationTime = Instant.now();
     CalculationResults results1 = ViewRunner.run(valuationTime);
     CalculationResults results2 = ViewRunner.run(valuationTime);
-    CalculationDifference.Result result = CalculationDifference.compare(results1, results2, 0.01d);
+    CalculationDifference.Result result = CalculationDifference.compare(results1, results2, 0.001d);
     System.out.println(result);
   }
 
   public static CalculationResults run(Instant valuationTime) {
     int serverHttpPort = 8080;
     // TODO get server details (port. any others? URL?) from the server process
-    try (ServerProcess serverProcess = ServerProcess.start();
+    try (ServerProcess ignored = ServerProcess.start();
          RemoteServer server = RemoteServer.create("http://localhost:" + serverHttpPort)) {
       String viewDefName = "AUD Swaps (3m / 6m basis) (1)";
       String snapshotTime = "2013-09-27T12:17:45.587Z";
@@ -94,8 +95,7 @@ import com.opengamma.util.ArgumentChecker;
 
       ViewProcessor viewProcessor = server.getViewProcessor();
       ViewClient viewClient = viewProcessor.createViewClient(UserPrincipal.getLocalUser());
-      CountDownLatch latch = new CountDownLatch(1);
-      Listener listener = new Listener(server.getPositionSource(), latch);
+      Listener listener = new Listener(server.getPositionSource());
       viewClient.setResultListener(listener);
       viewClient.setResultMode(ViewResultMode.FULL_ONLY);
       System.out.println("attaching to view process");
@@ -103,7 +103,6 @@ import com.opengamma.util.ArgumentChecker;
       System.out.println("waiting for completion");
       viewClient.waitForCompletion();
       System.out.println("view client completed");
-      latch.await();
       return listener.getResults();
     } catch (InterruptedException e) {
       // not going to happen but need this to satisfy the compiler
@@ -116,14 +115,12 @@ class Listener extends AbstractViewResultListener {
 
   private final AtomicReference<CompiledViewDefinition> _viewDef = new AtomicReference<>();
   private final PositionSource _positionSource;
-  private final CountDownLatch _latch;
+  private final CountDownLatch _latch = new CountDownLatch(1);
 
   private CalculationResults _results;
 
-  Listener(PositionSource positionSource, CountDownLatch latch) {
+  Listener(PositionSource positionSource) {
     ArgumentChecker.notNull(positionSource, "");
-    ArgumentChecker.notNull(latch, "latch");
-    _latch = latch;
     _positionSource = positionSource;
   }
 
@@ -164,6 +161,12 @@ class Listener extends AbstractViewResultListener {
   }
 
   public CalculationResults getResults() {
+    try {
+      _latch.await();
+    } catch (InterruptedException e) {
+      // not going to happen
+      throw new OpenGammaRuntimeException("unexpected exception", e);
+    }
     return _results;
   }
 }

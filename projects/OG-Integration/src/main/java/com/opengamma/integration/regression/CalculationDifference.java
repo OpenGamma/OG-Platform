@@ -5,12 +5,16 @@
  */
 package com.opengamma.integration.regression;
 
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.util.ClassMap;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -21,6 +25,17 @@ public final class CalculationDifference {
   // TODO handlers for every structured data type so I can dive in and compare individual values?
 
   private CalculationDifference() {
+  }
+
+  // TODO static method to populate this from the outside
+  private static final Map<Class<?>, EqualsHandler<?>> s_handlers = new ClassMap<>();
+
+  static {
+    s_handlers.put(Double.class, new DoubleHandler());
+    s_handlers.put(double[].class, new PrimitiveDoubleArrayHandler());
+    s_handlers.put(Double[].class, new DoubleArrayHandler());
+    s_handlers.put(List.class, new ListHandler());
+    s_handlers.put(YieldCurve.class, new YieldCurveHandler());
   }
 
   // TODO different deltas for different columns?
@@ -45,10 +60,21 @@ public final class CalculationDifference {
     return new Result(only1, only2, diffs);
   }
 
-  // TODO type-specific comparison for complex types
   private static boolean equals(Object value1, Object value2, double delta) {
-    if ((value1 instanceof Double) && (value2 instanceof Double)) {
-      return Math.abs(((Double) value1) - ((Double) value2)) < delta;
+    if (value1 == null && value2 == null) {
+      return true;
+    }
+    if (value1 == null || value2 == null) {
+      return false;
+    }
+    // TODO deal with subtyping?
+    if (!value1.getClass().equals(value2.getClass())) {
+      return false;
+    }
+    @SuppressWarnings("unchecked")
+    EqualsHandler<Object> equalsHandler = (EqualsHandler<Object>) s_handlers.get(value1.getClass());
+    if (equalsHandler != null) {
+      return equalsHandler.equals(value1, value2, delta);
     } else {
       return Objects.equals(value1, value2);
     }
@@ -64,7 +90,96 @@ public final class CalculationDifference {
     return retMap;
   }
 
-  public static class Result {
+  /**
+   *
+   * @param <T>
+   */
+  public interface EqualsHandler<T> {
+
+    boolean equals(T value1, T value2, double delta);
+  }
+
+  // TODO this is almost certainly inadequate, need handler for subtypes
+  private static final class YieldCurveHandler implements EqualsHandler<YieldCurve> {
+
+    @Override
+    public boolean equals(YieldCurve value1, YieldCurve value2, double delta) {
+      if (!CalculationDifference.equals(value1.getCurve().getXData(), value2.getCurve().getXData(), delta)) {
+        return false;
+      }
+      return CalculationDifference.equals(value1.getCurve().getYData(), value2.getCurve().getYData(), delta);
+    }
+  }
+
+  private static final class DoubleArrayHandler implements EqualsHandler<Double[]> {
+
+    @Override
+    public boolean equals(Double[] value1, Double[] value2, double delta) {
+      if (value1.length != value2.length) {
+        return false;
+      }
+      for (int i = 0; i < value1.length; i++) {
+        double item1 = value1[i];
+        double item2 = value2[i];
+        if (Math.abs(item1 - item2) > delta) {
+          return false;
+        }
+      }
+      return true;
+    }
+  }
+
+  private static final class PrimitiveDoubleArrayHandler implements EqualsHandler<double[]> {
+
+    @Override
+    public boolean equals(double[] value1, double[] value2, double delta) {
+      if (value1.length != value2.length) {
+        return false;
+      }
+      for (int i = 0; i < value1.length; i++) {
+        double item1 = value1[i];
+        double item2 = value2[i];
+        if (Math.abs(item1 - item2) > delta) {
+          return false;
+        }
+      }
+      return true;
+    }
+  }
+
+  /**
+   *
+   */
+  private static final class DoubleHandler implements EqualsHandler<Double> {
+
+    @Override
+    public boolean equals(Double value1, Double value2, double delta) {
+      return Math.abs(value1 - value2) <= delta;
+    }
+  }
+
+  private static final class ListHandler implements EqualsHandler<List<?>> {
+
+    @Override
+    public boolean equals(List<?> value1, List<?> value2, double delta) {
+      if (value1.size() != value2.size()) {
+        return false;
+      }
+      for (Iterator<?> it1 = value1.iterator(), it2 = value2.iterator(); it1.hasNext(); ) {
+        Object item1 = it1.next();
+        Object item2 = it2.next();
+        if (!CalculationDifference.equals(item1, item2, delta)) {
+          return false;
+        }
+      }
+      return true;
+    }
+  }
+
+  /**
+   *
+   */
+  public static final class Result {
 
     private final Map<CalculationResultKey, Object> _only1;
     private final Map<CalculationResultKey, Object> _only2;

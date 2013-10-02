@@ -21,13 +21,13 @@ import com.opengamma.component.OpenGammaComponentServer;
  */
 public final class ServerProcess implements AutoCloseable {
 
+  /** The server process. */
   private final Process _process;
   
   private ServerProcess(Process process) {
     _process = process;
   }
 
-  // TODO catch and throw OGRE?
   public static ServerProcess start() {
     // TODO is it possible to scan the view defs and run all of them?
     // need to be able to choose the snapshot for each view def. if there's only one for each base view def then
