@@ -42,6 +42,9 @@ Any use of set method will require creating new instance
 - HistoricalTimeSeriesRating is now immutable
 Change constructor to of() factory
 
+- HistoricalTimeSeriesRatingRule is now immutable
+Change constructor to of() factory
+
 
 Analytics compatibility
 - No expected differences

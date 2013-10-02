@@ -54,10 +54,10 @@ public class ExampleTimeSeriesRatingLoader extends AbstractTool<IntegrationToolC
   protected void doRun() {
     final ConfigMaster configMaster = getToolContext().getConfigMaster();
     final List<HistoricalTimeSeriesRatingRule> rules = new ArrayList<>();
-    rules.add(new HistoricalTimeSeriesRatingRule(DATA_SOURCE_NAME, "BLOOMBERG", 2));
-    rules.add(new HistoricalTimeSeriesRatingRule(DATA_SOURCE_NAME, BloombergConstants.BLOOMBERG_DATA_SOURCE_NAME, 1));
-    rules.add(new HistoricalTimeSeriesRatingRule(DATA_PROVIDER_NAME, "UNKNOWN", 2));
-    rules.add(new HistoricalTimeSeriesRatingRule(DATA_PROVIDER_NAME, BloombergConstants.BLOOMBERG_DATA_SOURCE_NAME, 1));
+    rules.add(HistoricalTimeSeriesRatingRule.of(DATA_SOURCE_NAME, "BLOOMBERG", 2));
+    rules.add(HistoricalTimeSeriesRatingRule.of(DATA_SOURCE_NAME, BloombergConstants.BLOOMBERG_DATA_SOURCE_NAME, 1));
+    rules.add(HistoricalTimeSeriesRatingRule.of(DATA_PROVIDER_NAME, "UNKNOWN", 2));
+    rules.add(HistoricalTimeSeriesRatingRule.of(DATA_PROVIDER_NAME, BloombergConstants.BLOOMBERG_DATA_SOURCE_NAME, 1));
     final HistoricalTimeSeriesRating ratingConfig = HistoricalTimeSeriesRating.of(rules);
     final ConfigItem<HistoricalTimeSeriesRating> configDoc = ConfigItem.of(ratingConfig, DEFAULT_CONFIG_NAME, HistoricalTimeSeriesRating.class);
     ConfigMasterUtils.storeByName(configMaster, configDoc);
