@@ -39,6 +39,9 @@ Handle change of return type from array to list
 Change constructor to of() factory
 Any use of set method will require creating new instance
 
+- HistoricalTimeSeriesRating is now immutable
+Change constructor to of() factory
+
 
 Analytics compatibility
 - No expected differences

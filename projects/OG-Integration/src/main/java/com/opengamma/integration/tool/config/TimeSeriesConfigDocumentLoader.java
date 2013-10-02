@@ -42,7 +42,7 @@ public class TimeSeriesConfigDocumentLoader {
     rules.add(new HistoricalTimeSeriesRatingRule(DATA_PROVIDER_NAME, "CMPN", 2));
     rules.add(new HistoricalTimeSeriesRatingRule(DATA_PROVIDER_NAME, "CMPT", 1));
     rules.add(new HistoricalTimeSeriesRatingRule(DATA_PROVIDER_NAME, STAR_VALUE, 0));
-    return new HistoricalTimeSeriesRating(rules);
+    return HistoricalTimeSeriesRating.of(rules);
   }
 
   public ConfigMaster getConfigMaster() {
