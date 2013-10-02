@@ -22,6 +22,7 @@ import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.integration.web.RandomizedMarketDataSnapshotListResource;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
+import org.joda.beans.Bean;
 
 /**
  * Component factory for creating and registering a {@link RandomizedMarketDataSnapshotListResource}.
@@ -56,51 +57,6 @@ public class RandomizedSnapshotsComponentFactory extends AbstractComponentFactor
     return RandomizedSnapshotsComponentFactory.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -2046916282:  // snapshotMaster
-        return getSnapshotMaster();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -2046916282:  // snapshotMaster
-        setSnapshotMaster((MarketDataSnapshotMaster) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_snapshotMaster, "snapshotMaster");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      RandomizedSnapshotsComponentFactory other = (RandomizedSnapshotsComponentFactory) obj;
-      return JodaBeanUtils.equal(getSnapshotMaster(), other.getSnapshotMaster()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSnapshotMaster());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the snapshotMaster.
@@ -125,6 +81,51 @@ public class RandomizedSnapshotsComponentFactory extends AbstractComponentFactor
    */
   public final Property<MarketDataSnapshotMaster> snapshotMaster() {
     return metaBean().snapshotMaster().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public RandomizedSnapshotsComponentFactory clone() {
+    return (RandomizedSnapshotsComponentFactory) super.clone();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      RandomizedSnapshotsComponentFactory other = (RandomizedSnapshotsComponentFactory) obj;
+      return JodaBeanUtils.equal(getSnapshotMaster(), other.getSnapshotMaster()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSnapshotMaster());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(64);
+    buf.append("RandomizedSnapshotsComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("snapshotMaster").append('=').append(getSnapshotMaster()).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -186,6 +187,32 @@ public class RandomizedSnapshotsComponentFactory extends AbstractComponentFactor
      */
     public final MetaProperty<MarketDataSnapshotMaster> snapshotMaster() {
       return _snapshotMaster;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -2046916282:  // snapshotMaster
+          return ((RandomizedSnapshotsComponentFactory) bean).getSnapshotMaster();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -2046916282:  // snapshotMaster
+          ((RandomizedSnapshotsComponentFactory) bean).setSnapshotMaster((MarketDataSnapshotMaster) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((RandomizedSnapshotsComponentFactory) bean)._snapshotMaster, "snapshotMaster");
+      super.validate(bean);
     }
 
   }
