@@ -100,7 +100,6 @@ public final class FuturePriceCurveDefinition<X> implements ImmutableBean {
   /**
    * Returns a builder used to create an instance of the bean.
    *
-   * @param <X>  the type
    * @return the builder, not null
    */
   public static <X> FuturePriceCurveDefinition.Builder<X> builder() {
