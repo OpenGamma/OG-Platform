@@ -325,7 +325,7 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
     }
     //return AnnuityCouponIborDefinition.from(startDate, maturityTenor, 1, iborIndex, isPayer, calendar);
     return Pair.of(new FloatingInterestRateLeg(dayCount,
-                                               PeriodFrequency.of(maturityTenor),
+                                               PeriodFrequency.of(convention.getResetTenor().getPeriod()),
                                                indexConvention.getRegionCalendar(),
                                                businessDayConvention,
                                                new InterestRateNotional(currency, _amount),
@@ -376,7 +376,7 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
     }
     //return AnnuityCouponONSimplifiedDefinition.from(startDate, maturityTenor, 1, isPayer, indexON, paymentLag, calendar, businessDayConvention, paymentPeriod, eomLeg);
     return Pair.of(new FloatingInterestRateLeg(dayCount,
-                                               PeriodFrequency.of(maturityTenor),
+                                               PeriodFrequency.of(paymentPeriod),
                                                indexConvention.getRegionCalendar(),
                                                businessDayConvention,
                                                new InterestRateNotional(currency, _amount),
