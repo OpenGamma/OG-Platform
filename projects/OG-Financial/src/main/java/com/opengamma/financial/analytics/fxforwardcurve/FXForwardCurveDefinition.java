@@ -33,7 +33,7 @@ import com.opengamma.util.time.Tenor;
 /**
  * Definition of an FX forward curve.
  */
-@Config
+@Config(description = "FX forward curve definition")
 @BeanDefinition
 public final class FXForwardCurveDefinition implements ImmutableBean {
 

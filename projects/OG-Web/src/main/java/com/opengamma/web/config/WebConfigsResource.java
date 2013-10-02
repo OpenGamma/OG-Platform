@@ -162,6 +162,9 @@ public class WebConfigsResource extends AbstractWebConfigResource {
       if (type == null) {
         out.put("err_typeMissing", true);
       }
+      out.put("name", StringUtils.defaultString(name));
+      out.put("type", StringUtils.defaultString(typeName));
+      out.put("xml", StringUtils.defaultString(xml));
       String html = getFreemarker().build(HTML_DIR + "config-add.ftl", out);
       return Response.ok(html).build();
     }
@@ -293,6 +296,7 @@ public class WebConfigsResource extends AbstractWebConfigResource {
     searchRequest.setType(Object.class);
     out.put("searchRequest", searchRequest);
     out.put("configTypes", getConfigTypesProvider().getConfigTypes());
+    out.put("configDescriptionMap", getConfigTypesProvider().getDescriptionMap());
     out.put("curveSpecs", CurveSpecificationBuilderConfiguration.s_curveSpecNames);
     return out;
   }

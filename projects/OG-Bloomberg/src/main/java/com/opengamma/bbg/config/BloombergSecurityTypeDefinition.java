@@ -35,7 +35,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * The mapping of Bloomberg security types description to OG security types.
  */
-@Config
+@Config(description = "Bloomberg security type definition")
 @BeanDefinition
 public class BloombergSecurityTypeDefinition implements Bean, Serializable, UniqueIdentifiable, MutableUniqueIdentifiable {
 

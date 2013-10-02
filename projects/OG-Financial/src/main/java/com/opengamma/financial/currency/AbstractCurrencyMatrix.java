@@ -22,7 +22,7 @@ import com.opengamma.util.money.Currency;
 /**
  * A simple base class for a {@link CurrencyMatrix}.
  */
-@Config(searchType = CurrencyMatrix.class)
+@Config(searchType = CurrencyMatrix.class, description = "Currency matrix")
 public abstract class AbstractCurrencyMatrix implements CurrencyMatrix, MutableUniqueIdentifiable {
 
   private final ConcurrentHashMap<Currency, ConcurrentHashMap<Currency, CurrencyMatrixValue>> _values = new ConcurrentHashMap<Currency, ConcurrentHashMap<Currency, CurrencyMatrixValue>>();

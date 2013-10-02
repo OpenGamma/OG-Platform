@@ -28,7 +28,7 @@ import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
  * Definition for interpolated curves where some of the node dates are fixed.
  */
 @BeanDefinition
-@Config
+@Config(description = "Fixed date interpolated curve definition")
 public class FixedDateInterpolatedCurveDefinition extends InterpolatedCurveDefinition {
 
   /** Serialization verison. */
@@ -63,6 +63,7 @@ public class FixedDateInterpolatedCurveDefinition extends InterpolatedCurveDefin
    * @param nodes The nodes of the curve, not null
    * @param interpolatorName The interpolator name, not null
    * @param extrapolatorName The name of the left and right extrapolators
+   * @param fixedDates  the fixed set of dates
    */
   public FixedDateInterpolatedCurveDefinition(final String name, final Set<CurveNode> nodes, final String interpolatorName, final String extrapolatorName,
       final List<LocalDate> fixedDates) {
@@ -76,6 +77,7 @@ public class FixedDateInterpolatedCurveDefinition extends InterpolatedCurveDefin
    * @param interpolatorName The interpolator name, not null
    * @param rightExtrapolatorName The right extrapolator name
    * @param leftExtrapolatorName The left extrapolator name
+   * @param fixedDates  the fixed set of dates
    */
   public FixedDateInterpolatedCurveDefinition(final String name, final Set<CurveNode> nodes, final String interpolatorName, final String rightExtrapolatorName,
       final String leftExtrapolatorName, final List<LocalDate> fixedDates) {

@@ -37,7 +37,7 @@ import com.opengamma.util.tuple.Pair;
  * and computed.
  */
 @PublicAPI
-@Config
+@Config(description = "View definition")
 public class ViewDefinition implements Serializable, UniqueIdentifiable, MutableUniqueIdentifiable {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ViewDefinition.class);

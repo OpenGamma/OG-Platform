@@ -32,7 +32,7 @@ import com.opengamma.util.time.Tenor;
  * Contains maps of tenors to curve instrument providers (which generates market data tickers) for {@link CurveNode} types. These
  * maps are then used to generate market data requests in curve construction.
  */
-@Config
+@Config(description = "Cuve node ID mapper")
 public class CurveNodeIdMapper {
   /**
    * The names of the curve instrument providers.

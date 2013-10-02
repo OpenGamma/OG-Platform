@@ -34,7 +34,7 @@ import com.opengamma.util.money.Currency;
  * <p>
  * This class is mutable although once created is normally treated as immutable.
  */
-@Config
+@Config(description = "Currency pairs")
 @BeanDefinition
 public final class CurrencyPairs implements Bean, UniqueIdentifiable, MutableUniqueIdentifiable {
   // TODO: this really should be immutable
