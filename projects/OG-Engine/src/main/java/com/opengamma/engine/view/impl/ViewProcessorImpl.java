@@ -21,6 +21,7 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.apache.log4j.MDC;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -384,6 +385,9 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
       final ViewProcessContext viewProcessContext = createViewProcessContext(viewProcessId, new VersionedUniqueIdSupplier(CYCLE_SCHEME, idValue));
       final ViewProcessImpl viewProcess =
           new ViewProcessImpl(definitionId, executionOptions, viewProcessContext, this, runPersistently);
+
+      MDC.put("requestId", "123456");
+
 
       // If executing in batch mode then attach a special listener to write incoming results into the batch db
       if (executionOptions.getFlags().contains(ViewExecutionFlags.BATCH)) {

@@ -17,7 +17,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
@@ -245,7 +244,7 @@ public abstract class SimpleCalculationNodeInvocationContainer {
 
   /**
    * The queue of runnable jobs. Each are jobs that have been received and are ready to run but have not been started, probably because they are waiting for a node to become available. When nodes are
-   * available they will take partial jobs from the {@link _partialJobs} queue in preference to this queue.
+   * available they will take partial jobs from the {@link #_partialJobs} queue in preference to this queue.
    */
   private final Queue<JobEntry> _runnableJobs = new ConcurrentLinkedQueue<JobEntry>();
   /**
@@ -255,7 +254,7 @@ public abstract class SimpleCalculationNodeInvocationContainer {
    */
   private final Queue<PartialJobEntry> _partialJobs = new ConcurrentLinkedQueue<PartialJobEntry>();
 
-  private final ExecutorService _executorService = Executors.newCachedThreadPool(new NamedThreadPoolFactory("CalcNode", true));
+  private final ExecutorService _executorService = NamedThreadPoolFactory.newCachedThreadPool("CalcNode", true);
 
   protected Queue<SimpleCalculationNode> getNodes() {
     return _nodes;

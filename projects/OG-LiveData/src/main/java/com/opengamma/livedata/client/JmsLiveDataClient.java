@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -244,7 +243,7 @@ public class JmsLiveDataClient extends DistributedLiveDataClient implements Life
     } catch (JMSException e) {
       throw new OpenGammaRuntimeException("Failed to create JMS connection", e);
     }
-    _executor = Executors.newCachedThreadPool(new NamedThreadPoolFactory(toString(), true));
+    _executor = NamedThreadPoolFactory.newCachedThreadPool(toString(), true);
     _running.set(true);
   }
 

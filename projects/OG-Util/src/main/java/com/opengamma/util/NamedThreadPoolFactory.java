@@ -5,6 +5,7 @@
  */
 package com.opengamma.util;
 
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -34,9 +35,17 @@ public class NamedThreadPoolFactory implements ThreadFactory {
    */
   private final boolean _makeDaemon;
 
+  public static ExecutorService newCachedThreadPool(String poolName, boolean makeDaemon) {
+    return new MdcAwareThreadPoolExecutor(new NamedThreadPoolFactory(poolName, makeDaemon));
+  }
+
+  public static ExecutorService newCachedThreadPool(String name) {
+    return newCachedThreadPool(name, true);
+  }
+
   /**
    * Creates a factory with a pool name.
-   * 
+   *
    * @param poolName the pool name, not null
    */
   public NamedThreadPoolFactory(String poolName) {
@@ -45,7 +54,7 @@ public class NamedThreadPoolFactory implements ThreadFactory {
 
   /**
    * Creates a factory with a pool name and daemon flag.
-   * 
+   *
    * @param poolName the pool name, not null
    * @param makeDaemon whether to make the thread a daemon
    */
@@ -58,10 +67,9 @@ public class NamedThreadPoolFactory implements ThreadFactory {
     _namePrefix = _poolName + "-";
   }
 
-  //-------------------------------------------------------------------------
   /**
    * Gets the pool name.
-   * 
+   *
    * @return the poolName the pool name, not null
    */
   public String getPoolName() {
@@ -70,7 +78,7 @@ public class NamedThreadPoolFactory implements ThreadFactory {
 
   /**
    * Gets whether the factory creates daemon threads.
-   * 
+   *
    * @return whether the factory creates daemon threads
    */
   public boolean isDaemon() {
@@ -83,7 +91,7 @@ public class NamedThreadPoolFactory implements ThreadFactory {
 
   /**
    * Creates a new thread using the stored details. This creates a thread using the pool name as a prefix.
-   * 
+   *
    * @param runnable the runnable to use, not null
    * @return the created thread, not null
    */

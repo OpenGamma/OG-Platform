@@ -16,7 +16,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import org.fudgemsg.FudgeContext;
@@ -88,7 +87,7 @@ public class FudgeMessageStoreServer implements FudgeConnectionReceiver, Release
 
   }
 
-  private static final ExecutorService s_executorService = Executors.newCachedThreadPool(new NamedThreadPoolFactory("FudgeMessageStoreBroadcast", true));
+  private static final ExecutorService s_executorService = NamedThreadPoolFactory.newCachedThreadPool("FudgeMessageStoreBroadcast", true);
   private final DefaultViewComputationCacheSource _underlying;
   private final Map<FudgeConnection, Object> _connections = new ConcurrentHashMap<FudgeConnection, Object>();
   private final Map<ViewComputationCacheKey, ValueSearch> _searching = new HashMap<ViewComputationCacheKey, ValueSearch>();

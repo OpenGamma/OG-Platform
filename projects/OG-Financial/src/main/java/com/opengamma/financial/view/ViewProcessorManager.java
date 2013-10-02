@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -54,7 +53,7 @@ public class ViewProcessorManager implements Lifecycle {
   private Map<VersionedSource, Instant> _latchInstants = new HashMap<VersionedSource, Instant>();
   private final ReentrantLock _lifecycleLock = new ReentrantLock();
   private final ReentrantLock _changeLock = new ReentrantLock();
-  private final ExecutorService _executor = Executors.newCachedThreadPool(new NamedThreadPoolFactory("ViewProcessorManager", true));
+  private final ExecutorService _executor = NamedThreadPoolFactory.newCachedThreadPool("ViewProcessorManager", true);
   private final Set<ObjectId> _watchSet = new HashSet<ObjectId>();
   private final Set<WatchSetProvider> _watchSetProviders = new HashSet<WatchSetProvider>();
   private boolean _isRunning;

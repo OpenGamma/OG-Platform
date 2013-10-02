@@ -29,6 +29,7 @@ import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.impl.PortfolioSearchIterator;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.MdcAwareThreadPoolExecutor;
 import com.opengamma.util.NamedThreadPoolFactory;
 
 /**
@@ -54,8 +55,7 @@ public class PortfolioDocumentation extends AbstractDocumentation {
     _positionSource = positionSource;
     _securitySource = securitySource;
     final int threads = 32;
-    final ThreadPoolExecutor executor = new ThreadPoolExecutor(threads, threads, 3, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
-    executor.setThreadFactory(new NamedThreadPoolFactory("doc"));
+    final ThreadPoolExecutor executor = new MdcAwareThreadPoolExecutor(threads, threads, 3, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), new NamedThreadPoolFactory("doc"));
     executor.allowCoreThreadTimeOut(true);
     _executorService = executor;
   }
