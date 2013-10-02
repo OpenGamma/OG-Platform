@@ -7,7 +7,6 @@ package com.opengamma.core.marketdatasnapshot;
 
 import java.io.Serializable;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.fudgemsg.FudgeMsg;
@@ -15,14 +14,13 @@ import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.joda.beans.Bean;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
-import org.joda.beans.ImmutableBean;
-import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
-import org.joda.beans.impl.BasicImmutableBeanBuilder;
+import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
@@ -36,7 +34,7 @@ import com.opengamma.util.PublicSPI;
  */
 @PublicSPI
 @BeanDefinition
-public final class ValueSnapshot implements ImmutableBean, Serializable {
+public final class ValueSnapshot implements Bean, Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -44,13 +42,13 @@ public final class ValueSnapshot implements ImmutableBean, Serializable {
   /**
    * The value sampled from the market.
    */
-  @PropertyDefinition
-  private final Object _marketValue;
+  @PropertyDefinition(set = "manual")
+  private Object _marketValue;
   /**
    * The value entered by the user, null if not overridden.
    */
   @PropertyDefinition
-  private final Object _overrideValue;
+  private Object _overrideValue;
 
   /**
    * Creates an instance with the real value and optional override.
@@ -90,11 +88,26 @@ public final class ValueSnapshot implements ImmutableBean, Serializable {
    * @param marketValue  the real market value
    * @param overrideValue  the override, null if no override
    */
-  @ImmutableConstructor
+  private ValueSnapshot() {
+  }
+
+  /**
+   * Creates an instance with the real value and optional override.
+   * 
+   * @param marketValue  the real market value
+   * @param overrideValue  the override, null if no override
+   */
   private ValueSnapshot(Object marketValue, Object overrideValue) {
-    super();
     _marketValue = marketValue;
     _overrideValue = overrideValue;
+  }
+
+  /**
+   * Sets the value sampled from the market.
+   * @param marketValue  the new value of the property
+   */
+  private void setMarketValue(Object marketValue) {
+    this._marketValue = marketValue;
   }
 
   //-------------------------------------------------------------------------
@@ -150,15 +163,6 @@ public final class ValueSnapshot implements ImmutableBean, Serializable {
     JodaBeanUtils.registerMetaBean(ValueSnapshot.Meta.INSTANCE);
   }
 
-  /**
-   * Returns a builder used to create an instance of the bean.
-   *
-   * @return the builder, not null
-   */
-  public static ValueSnapshot.Builder builder() {
-    return new ValueSnapshot.Builder();
-  }
-
   @Override
   public ValueSnapshot.Meta metaBean() {
     return ValueSnapshot.Meta.INSTANCE;
@@ -183,6 +187,14 @@ public final class ValueSnapshot implements ImmutableBean, Serializable {
     return _marketValue;
   }
 
+  /**
+   * Gets the the {@code marketValue} property.
+   * @return the property, not null
+   */
+  public Property<Object> marketValue() {
+    return metaBean().marketValue().createProperty(this);
+  }
+
   //-----------------------------------------------------------------------
   /**
    * Gets the value entered by the user, null if not overridden.
@@ -192,18 +204,36 @@ public final class ValueSnapshot implements ImmutableBean, Serializable {
     return _overrideValue;
   }
 
-  //-----------------------------------------------------------------------
   /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
+   * Sets the value entered by the user, null if not overridden.
+   * @param overrideValue  the new value of the property
    */
-  public Builder toBuilder() {
-    return new Builder(this);
+  public void setOverrideValue(Object overrideValue) {
+    this._overrideValue = overrideValue;
   }
 
+  /**
+   * Gets the the {@code overrideValue} property.
+   * @return the property, not null
+   */
+  public Property<Object> overrideValue() {
+    return metaBean().overrideValue().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
   @Override
   public ValueSnapshot clone() {
-    return this;
+    BeanBuilder<? extends ValueSnapshot> builder = metaBean().builder();
+    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
+      if (mp.style().isBuildable()) {
+        Object value = mp.get(this);
+        if (value instanceof Bean) {
+          value = ((Bean) value).clone();
+        }
+        builder.set(mp.name(), value);
+      }
+    }
+    return builder.build();
   }
 
   @Override
@@ -250,12 +280,12 @@ public final class ValueSnapshot implements ImmutableBean, Serializable {
     /**
      * The meta-property for the {@code marketValue} property.
      */
-    private final MetaProperty<Object> _marketValue = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<Object> _marketValue = DirectMetaProperty.ofReadWrite(
         this, "marketValue", ValueSnapshot.class, Object.class);
     /**
      * The meta-property for the {@code overrideValue} property.
      */
-    private final MetaProperty<Object> _overrideValue = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<Object> _overrideValue = DirectMetaProperty.ofReadWrite(
         this, "overrideValue", ValueSnapshot.class, Object.class);
     /**
      * The meta-properties.
@@ -283,8 +313,8 @@ public final class ValueSnapshot implements ImmutableBean, Serializable {
     }
 
     @Override
-    public ValueSnapshot.Builder builder() {
-      return new ValueSnapshot.Builder();
+    public BeanBuilder<? extends ValueSnapshot> builder() {
+      return new DirectBeanBuilder<ValueSnapshot>(new ValueSnapshot());
     }
 
     @Override
@@ -328,94 +358,15 @@ public final class ValueSnapshot implements ImmutableBean, Serializable {
 
     @Override
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
-      metaProperty(propertyName);
-      if (quiet) {
-        return;
-      }
-      throw new UnsupportedOperationException("Property cannot be written: " + propertyName);
-    }
-
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * The bean-builder for {@code ValueSnapshot}.
-   */
-  public static final class Builder extends BasicImmutableBeanBuilder<ValueSnapshot> {
-
-    private Object _marketValue;
-    private Object _overrideValue;
-
-    /**
-     * Restricted constructor.
-     */
-    private Builder() {
-      super(ValueSnapshot.Meta.INSTANCE);
-    }
-
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(ValueSnapshot beanToCopy) {
-      super(ValueSnapshot.Meta.INSTANCE);
-      this._marketValue = beanToCopy.getMarketValue();
-      this._overrideValue = beanToCopy.getOverrideValue();
-    }
-
-    //-----------------------------------------------------------------------
-    @Override
-    public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case 276583061:  // marketValue
-          this._marketValue = (Object) newValue;
-          break;
+          ((ValueSnapshot) bean).setMarketValue((Object) newValue);
+          return;
         case 2057831685:  // overrideValue
-          this._overrideValue = (Object) newValue;
-          break;
-        default:
-          throw new NoSuchElementException("Unknown property: " + propertyName);
+          ((ValueSnapshot) bean).setOverrideValue((Object) newValue);
+          return;
       }
-      return this;
-    }
-
-    @Override
-    public ValueSnapshot build() {
-      return new ValueSnapshot(
-          _marketValue,
-          _overrideValue);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the {@code marketValue} property in the builder.
-     * @param marketValue  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder marketValue(Object marketValue) {
-      this._marketValue = marketValue;
-      return this;
-    }
-
-    /**
-     * Sets the {@code overrideValue} property in the builder.
-     * @param overrideValue  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder overrideValue(Object overrideValue) {
-      this._overrideValue = overrideValue;
-      return this;
-    }
-
-    //-----------------------------------------------------------------------
-    @Override
-    public String toString() {
-      StringBuilder buf = new StringBuilder(96);
-      buf.append("ValueSnapshot.Builder{");
-      buf.append("marketValue").append('=').append(_marketValue).append(',').append(' ');
-      buf.append("overrideValue").append('=').append(_overrideValue);
-      buf.append('}');
-      return buf.toString();
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }
