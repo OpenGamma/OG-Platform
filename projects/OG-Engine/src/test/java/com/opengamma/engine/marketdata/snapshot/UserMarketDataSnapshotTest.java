@@ -44,7 +44,7 @@ public class UserMarketDataSnapshotTest {
 
   private UnstructuredMarketDataSnapshot generateUnstructured(final ExternalId testValueId, final Double marketValue) {
     final ManageableUnstructuredMarketDataSnapshot values = new ManageableUnstructuredMarketDataSnapshot();
-    values.putValue(testValueId, MarketDataRequirementNames.MARKET_VALUE, new ValueSnapshot(marketValue));
+    values.putValue(testValueId, MarketDataRequirementNames.MARKET_VALUE, ValueSnapshot.of(marketValue));
     return values;
   }
 

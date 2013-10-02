@@ -130,7 +130,7 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
         if ((nodeProducing != null) && isTerminalUnstructuredOutput(nodeProducing, graph)) {
           ExternalIdBundle identifiers = resolveExternalIdBundle(resolver, computedValue.getSpecification());
           if (identifiers != null) {
-            snapshot.putValue(identifiers, computedValue.getSpecification().getValueName(), new ValueSnapshot(computedValue.getValue()));
+            snapshot.putValue(identifiers, computedValue.getSpecification().getValueName(), ValueSnapshot.of(computedValue.getValue()));
           }
         }
       }

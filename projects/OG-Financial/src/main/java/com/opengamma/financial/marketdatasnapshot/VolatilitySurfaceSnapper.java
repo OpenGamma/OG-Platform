@@ -51,7 +51,7 @@ public class VolatilitySurfaceSnapper extends
       for (Object y : volatilitySurfaceData.getYs()) {
         Double volatility = volatilitySurfaceData.getVolatility(x, y);
         ObjectsPair<Object, Object> volKey = Pair.of(x, y);
-        dict.put(volKey, new ValueSnapshot(volatility));
+        dict.put(volKey, ValueSnapshot.of(volatility));
       }
     }
 

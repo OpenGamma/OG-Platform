@@ -59,16 +59,16 @@ public class VolatilityCubeSnapper extends
     
     Iterable<VolatilityPoint> allPoints = definition.getAllPoints();
     for (VolatilityPoint point : allPoints) {
-      values.put(point, new ValueSnapshot(null));
+      values.put(point, ValueSnapshot.of(null));
     }
     
     for (Entry<VolatilityPoint, Double> ycp : volatilityCubeData.getDataPoints().entrySet()) {
-      values.put(ycp.getKey(), new ValueSnapshot(ycp.getValue()));
+      values.put(ycp.getKey(), ValueSnapshot.of(ycp.getValue()));
     }   
 
     Map<Pair<Tenor, Tenor>, ValueSnapshot> strikes = new HashMap<Pair<Tenor, Tenor>, ValueSnapshot>();
     for (Entry<Pair<Tenor, Tenor>, Double> strike : volatilityCubeData.getATMStrikes().entrySet()) {
-      strikes.put(strike.getKey(), new ValueSnapshot(strike.getValue()));
+      strikes.put(strike.getKey(), ValueSnapshot.of(strike.getValue()));
     }
 
     ret.setOtherValues(otherValues);

@@ -275,7 +275,7 @@ public class FileSnapshotReader implements SnapshotReader {
       }
     }
 
-    return new ValueSnapshot(marketValue, overrideValue);
+    return ValueSnapshot.of(marketValue, overrideValue);
   }
 
   private ExternalIdBundle createExternalIdBundle(Map<String, String> currentRow) {
