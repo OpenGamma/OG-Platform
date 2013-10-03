@@ -256,15 +256,17 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
   private final MarketDataSelectionGraphManipulator _marketDataSelectionGraphManipulator;
 
   /**
-   * The market data selectors and function parameters which have been passed in via the ViewDefinition, which are applicable to a specific dependency graph. There will be an entry for each graph in
-   * the view, even if the only contents are an empty map.
+   * The market data selectors and function parameters which have been passed in via the
+   * ViewDefinition, which are applicable to a specific dependency graph. There will be
+   * an entry for each graph in the view, even if the only contents are an empty map.
    */
   private final Map<String, Map<DistinctMarketDataSelector, FunctionParameters>> _specificMarketDataSelectors;
 
   private final MarketDataManager _marketDataManager;
 
   /**
-   * Keep track of the number of market data managers created as we need to ensure they each have a unique name (for JMX registration).
+   * Keep track of the number of market data managers created as we need to ensure
+   * they each have a unique name (for JMX registration).
    */
   private static final ConcurrentMap<String, AtomicInteger> _mdmCount = new ConcurrentHashMap();
 
@@ -334,7 +336,7 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
     int newCount = currentEntry.incrementAndGet();
     // TODO - the hardcoded main should really be derived from a view process name if one were available
     return new MarketDataManager(this, getProcessContext().getMarketDataProviderResolver(), "main",
-        processId + "-" + newCount);
+                                                   processId + "-" + newCount);
   }
 
   /**
@@ -938,45 +940,38 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
     final Map<UniqueId, Position> positions = new HashMap<>();
     findUnmapped(node, mapped, unmapped, positions);
     for (Map.Entry<UniqueId, Position> position : positions.entrySet()) {
-      if (position.getValue() == null) {
-        if (!unmapped.contains(position.getKey())) {
-          // "marked" during the "findUnmapped" operation and not explicitly unmapped
-          continue;
-        }
-        // Not mapped, but already in the unmap set, so make sure trades are too
-      } else {
+      if (position.getValue() != null) {
         unmapped.add(position.getKey());
-      }
-      for (Trade trade : position.getValue().getTrades()) {
-        unmapped.add(trade.getUniqueId());
+        for (Trade trade : position.getValue().getTrades()) {
+          unmapped.add(trade.getUniqueId());
+        }
       }
     }
   }
 
-  /**
-   * Modifies the set of previous graphs to update nodes that can be mapped by altering their unique identifiers and remote terminal outputs derived from the portfolio by anything that cannot be
-   * immediately mapped.
-   * <p>
-   * The main use of this logic is for handling portfolio structures that are the same shape but have different unique identifiers on the portfolio nodes (the map operation), and to remove terminal
-   * outputs from portfolio nodes, positions or trades that aren't known to be in the new structure.
-   * 
-   * @param previousGraphs the previous graphs to update, not null
-   * @param compiledViewDefinition the previously compiled view definition, not null
-   * @param map the mapping of old unique identifiers to new ones, not null
-   * @param unmap the set of old unique identifiers that might not have portfolio derived terminal outputs, not null
-   */
-  private void mapAndUnmapNodes(final Map<String, Pair<DependencyGraph, Set<ValueRequirement>>> previousGraphs, final CompiledViewDefinitionWithGraphs compiledViewDefinition,
-      final Map<UniqueId, UniqueId> map, final Set<UniqueId> unmap) {
+  private Set<UniqueId> rewritePortfolioNodes(final Map<String, Pair<DependencyGraph, Set<ValueRequirement>>> previousGraphs, final CompiledViewDefinitionWithGraphs compiledViewDefinition,
+      final Portfolio newPortfolio) {
+    // Map any nodes from the old portfolio structure to the new one
+    final Map<UniqueId, UniqueId> mapped;
+    if (newPortfolio != null) {
+      mapped = getNodeEquivalenceMapper().getEquivalentNodes(compiledViewDefinition.getPortfolio().getRootNode(),
+          newPortfolio.getRootNode());
+    } else {
+      mapped = Collections.emptyMap();
+    }
+    // Identify anything not (immediately) mapped to the new portfolio structure
+    final Set<UniqueId> unmapped = new HashSet<>();
+    findUnmapped(compiledViewDefinition.getPortfolio().getRootNode(), mapped, unmapped);
     if (s_logger.isDebugEnabled()) {
-      s_logger.debug("Mapping {} portfolio nodes to new structure, unmapping {} targets", map.size(), unmap.size());
+      s_logger.debug("Mapping {} portfolio nodes to new structure, unmapping {} targets", mapped.size(), unmapped.size());
     }
     // For anything not mapped, remove the terminal outputs from the graph
     for (final ViewCalculationConfiguration calcConfig : compiledViewDefinition.getViewDefinition().getAllCalculationConfigurations()) {
+      final Set<ValueRequirement> specificRequirements = calcConfig.getSpecificRequirements();
       final Pair<DependencyGraph, Set<ValueRequirement>> previousGraphEntry = previousGraphs.get(calcConfig.getName());
       if (previousGraphEntry == null) {
         continue;
       }
-      final Set<ValueRequirement> specificRequirements = calcConfig.getSpecificRequirements();
       final DependencyGraph previousGraph = previousGraphEntry.getFirst();
       final Map<ValueSpecification, Set<ValueRequirement>> terminalOutputs = previousGraph.getTerminalOutputs();
       final ValueSpecification[] removeSpecifications = new ValueSpecification[terminalOutputs.size()];
@@ -984,7 +979,7 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
       final List<ValueRequirement>[] removeRequirements = new List[terminalOutputs.size()];
       int remove = 0;
       for (final Map.Entry<ValueSpecification, Set<ValueRequirement>> entry : terminalOutputs.entrySet()) {
-        if (unmap.contains(entry.getKey().getTargetSpecification().getUniqueId())) {
+        if (unmapped.contains(entry.getKey().getTargetSpecification().getUniqueId())) {
           List<ValueRequirement> removal = null;
           for (final ValueRequirement requirement : entry.getValue()) {
             if (!specificRequirements.contains(requirement)) {
@@ -1004,9 +999,9 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
       for (int i = 0; i < remove; i++) {
         previousGraph.removeTerminalOutputs(removeRequirements[i], removeSpecifications[i]);
       }
-      if (!map.isEmpty()) {
-        final ComputationTargetIdentifierRemapVisitor remapper = new ComputationTargetIdentifierRemapVisitor(map);
-        final Collection<Object> replacements = new ArrayList<>(map.size() * 2);
+      if (!mapped.isEmpty()) {
+        final ComputationTargetIdentifierRemapVisitor remapper = new ComputationTargetIdentifierRemapVisitor(mapped);
+        final Collection<Object> replacements = new ArrayList<>(mapped.size() * 2);
         for (DependencyNode node : previousGraph.getDependencyNodes()) {
           final ComputationTargetSpecification newTarget = remapper.remap(node.getComputationTarget());
           if (newTarget != null) {
@@ -1044,6 +1039,9 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
         }
       }
     }
+    // Remove any PORTFOLIO nodes and any unmapped PORTFOLIO_NODE nodes with the filter
+    filterPreviousGraphs(previousGraphs, new InvalidPortfolioDependencyNodeFilter(unmapped), null);
+    return new HashSet<>(mapped.values());
   }
 
   /**
@@ -1249,69 +1247,35 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
               final Map<UniqueId, ComputationTargetSpecification> invalidIdentifiers = getInvalidIdentifiers(resolvedIdentifiers, versionCorrection);
               if (invalidIdentifiers != null) {
                 previousGraphs = getPreviousGraphs(previousGraphs, compiledViewDefinition);
+                if ((compiledViewDefinition.getPortfolio() != null) && invalidIdentifiers.containsKey(compiledViewDefinition.getPortfolio().getUniqueId())) {
+                  // The portfolio resolution is different, invalidate or rewrite PORTFOLIO and PORTFOLIO_NODE nodes in the graph. Note that incremental
+                  // compilation under this circumstance can be flawed if the functions have made notable use of the overall portfolio structure such that
+                  // a full re-compilation will yield a different dependency graph to just rewriting the previous one.
+                  final ComputationTargetResolver resolver = getProcessContext().getFunctionCompilationService().getFunctionCompilationContext().getRawComputationTargetResolver();
+                  final ComputationTargetSpecification portfolioSpec = resolver.getSpecificationResolver().getTargetSpecification(
+                      new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO, getViewDefinition().getPortfolioId()), versionCorrection);
+                  final ComputationTarget newPortfolio = resolver.resolve(portfolioSpec, versionCorrection);
+                  unchangedNodes = rewritePortfolioNodes(previousGraphs, compiledViewDefinition, (Portfolio) newPortfolio.getValue());
+                }
+                // Invalidate any dependency graph nodes on the invalid targets
+                filterPreviousGraphs(previousGraphs, new InvalidTargetDependencyNodeFilter(invalidIdentifiers.keySet()), unchangedNodes);
                 previousResolutions = new ConcurrentHashMap<>(resolvedIdentifiers.size());
-                final Map<UniqueId, UniqueId> mapped;
-                final Set<UniqueId> unmapped = new HashSet<>();
-                if (compiledViewDefinition.getPortfolio() != null) {
-                  if (invalidIdentifiers.containsKey(compiledViewDefinition.getPortfolio().getUniqueId())) {
-                    // The portfolio resolution is different, invalidate or rewrite PORTFOLIO and PORTFOLIO_NODE nodes in the graph. Note that incremental
-                    // compilation under this circumstance can be flawed if the functions have made notable use of the overall portfolio structure such that
-                    // a full re-compilation will yield a different dependency graph to just rewriting the previous one.
-                    final ComputationTargetResolver resolver = getProcessContext().getFunctionCompilationService().getFunctionCompilationContext().getRawComputationTargetResolver();
-                    final ComputationTargetSpecification portfolioSpec = resolver.getSpecificationResolver().getTargetSpecification(
-                        new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO, getViewDefinition().getPortfolioId()), versionCorrection);
-                    final ComputationTarget newPortfolio = resolver.resolve(portfolioSpec, versionCorrection);
-                    // Map any nodes from the old portfolio structure to the new one
-                    if (newPortfolio != null) {
-                      mapped = getNodeEquivalenceMapper().getEquivalentNodes(compiledViewDefinition.getPortfolio().getRootNode(), ((Portfolio) newPortfolio.getValue()).getRootNode());
-                      unchangedNodes = new HashSet<UniqueId>(mapped.values());
-                    } else {
-                      mapped = Collections.emptyMap();
-                      unchangedNodes = Collections.emptySet();
-                    }
-                    // Build a set of previous resolutions that haven't changed and unmap any modified positions or trades
-                    for (final Map.Entry<ComputationTargetReference, UniqueId> resolvedIdentifier : resolvedIdentifiers.entrySet()) {
-                      if (invalidIdentifiers.containsKey(resolvedIdentifier.getValue())) {
-                        if (resolvedIdentifier.getKey().getType().isTargetType(ComputationTargetType.POSITION_OR_TRADE)) {
-                          unmapped.add(resolvedIdentifier.getValue());
+                for (final Map.Entry<ComputationTargetReference, UniqueId> resolvedIdentifier : resolvedIdentifiers.entrySet()) {
+                  if (invalidIdentifiers.containsKey(resolvedIdentifier.getValue())) {
+                    if ((unchangedNodes == null) && resolvedIdentifier.getKey().getType().isTargetType(ComputationTargetType.POSITION)) {
+                      // At least one position has changed, add all portfolio targets
+                      ComputationTargetSpecification ctspec = invalidIdentifiers.get(resolvedIdentifier.getValue());
+                      if (ctspec != null) {
+                        if (changedPositions == null) {
+                          changedPositions = new HashSet<>();
                         }
-                      } else {
-                        previousResolutions.put(resolvedIdentifier.getKey(), resolvedIdentifier.getValue());
+                        changedPositions.add(ctspec.getUniqueId());
                       }
                     }
                   } else {
-                    mapped = Collections.emptyMap();
-                    // Build a set of previous resolutions and mark any changed positions or trades for unmapping
-                    for (final Map.Entry<ComputationTargetReference, UniqueId> resolvedIdentifier : resolvedIdentifiers.entrySet()) {
-                      if (invalidIdentifiers.containsKey(resolvedIdentifier.getValue())) {
-                        if (resolvedIdentifier.getKey().getType().isTargetType(ComputationTargetType.POSITION)) {
-                          ComputationTargetSpecification ctspec = invalidIdentifiers.get(resolvedIdentifier.getValue());
-                          if (ctspec != null) {
-                            if (changedPositions == null) {
-                              changedPositions = new HashSet<>();
-                            }
-                            changedPositions.add(ctspec.getUniqueId());
-                          }
-                          unmapped.add(resolvedIdentifier.getValue());
-                        } else if (resolvedIdentifier.getKey().getType().isTargetType(ComputationTargetType.TRADE)) {
-                          unmapped.add(resolvedIdentifier.getValue());
-                        }
-                      } else {
-                        previousResolutions.put(resolvedIdentifier.getKey(), resolvedIdentifier.getValue());
-                      }
-                    }
+                    previousResolutions.put(resolvedIdentifier.getKey(), resolvedIdentifier.getValue());
                   }
-                  // Rewrite the graph for the new portfolio structure or to remove old terminal outputs
-                  findUnmapped(compiledViewDefinition.getPortfolio().getRootNode(), mapped, unmapped);
-                } else {
-                  mapped = Collections.emptyMap();
                 }
-                // Remove terminal outputs and rewrite nodes
-                mapAndUnmapNodes(previousGraphs, compiledViewDefinition, mapped, unmapped);
-                // Remove any PORTFOLIO nodes and any unmapped PORTFOLIO_NODE nodes with the filter
-                filterPreviousGraphs(previousGraphs, new InvalidPortfolioDependencyNodeFilter(unmapped), null);
-                // Invalidate any dependency graph nodes on the invalid targets
-                filterPreviousGraphs(previousGraphs, new InvalidTargetDependencyNodeFilter(invalidIdentifiers.keySet()), unchangedNodes);
               } else {
                 compiledViewDefinition = compiledViewDefinition.withResolverVersionCorrection(versionCorrection);
                 cacheCompiledViewDefinition(compiledViewDefinition);

@@ -1004,7 +1004,9 @@ public final class DependencyGraphBuilder implements Cancelable {
     for (final DependencyNode node : getTerminalValuesCallback().getGraphNodes()) {
       graph.addDependencyNode(node);
     }
-    graph.addTerminalOutputs(getTerminalValuesCallback().getTerminalValuesBySpecification());
+    for (final Map.Entry<ValueRequirement, ValueSpecification> terminalOutput : getTerminalValuesCallback().getTerminalValues().entrySet()) {
+      graph.addTerminalOutput(terminalOutput.getKey(), terminalOutput.getValue());
+    }
     //graph.dumpStructureASCII(System.out);
     if (DEBUG_DUMP_DEPENDENCY_GRAPH) {
       final PrintStream ps = openDebugStream("dependencyGraph");
