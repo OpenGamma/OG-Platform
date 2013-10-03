@@ -12,9 +12,12 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.threeten.bp.Instant;
 
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.common.collect.SetMultimap;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
@@ -36,10 +39,13 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.integration.marketdata.manipulator.dsl.RemoteServer;
 import com.opengamma.livedata.UserPrincipal;
+import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
-import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
+import com.opengamma.master.marketdatasnapshot.impl.MarketDataSnapshotSearchIterator;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -48,37 +54,69 @@ public class ViewRunner {
 
   // TODO convert to a tool
   /* TODO inputs
-  working directories (and versions) for each of the two servers
+  working directories (and versions?) for each of the two servers
+  views/snapshots/valuation times
+    is it possible to infer it all? run each view using the snapshots which have it as their basis view?
+    either have a fixed valuation time or use Instant.now() (but only once for all runs)
+    where does the DB dump live? presumably with the test config. separate repo / project? part of integration tests repo?
+    or checked into the main repo?
    */
   public static void main(String[] args) throws Exception {
     Instant valuationTime = Instant.now();
-    CalculationResults results1 = ViewRunner.run(valuationTime);
-    CalculationResults results2 = ViewRunner.run(valuationTime);
-    CalculationDifference.Result result = CalculationDifference.compare(results1, results2, 0.001d);
-    System.out.println(result);
+    //CalculationResults results1 = ViewRunner.run(valuationTime);
+    //CalculationResults results2 = ViewRunner.run(valuationTime);
+    //CalculationDifference.Result result = CalculationDifference.compare(results1, results2, 0.001d);
+    //System.out.println(result);
   }
 
-  public static CalculationResults run(Instant valuationTime) {
+  /**
+   * This is a workaround for PLAT-4793
+   */
+  private SetMultimap<UniqueId, UniqueId> getSnapshotIdsByViewDefId(MarketDataSnapshotMaster snapshotMaster,
+                                                                    ConfigMaster configMaster) {
+    SetMultimap<UniqueId, UniqueId> multiMap = HashMultimap.create();
+    MarketDataSnapshotSearchRequest searchRequest = new MarketDataSnapshotSearchRequest();
+    // TODO horribly inefficient but a workaround for PLAT-4793
+    searchRequest.setIncludeData(true);
+    for (MarketDataSnapshotDocument doc : MarketDataSnapshotSearchIterator.iterable(snapshotMaster, searchRequest)) {
+      ManageableMarketDataSnapshot snapshot = doc.getSnapshot();
+      ConfigSearchRequest<ViewDefinition> configSearchRequest = new ConfigSearchRequest<>(ViewDefinition.class);
+      String basisViewName = snapshot.getBasisViewName();
+      if (basisViewName == null) {
+        continue;
+      }
+      configSearchRequest.setName(basisViewName);
+      ConfigSearchResult<ViewDefinition> configSearchResult = configMaster.search(configSearchRequest);
+      if (configSearchResult.getValues().size() == 1) {
+        UniqueId viewDefId = configSearchResult.getFirstValue().getValue().getUniqueId();
+        multiMap.put(viewDefId, snapshot.getUniqueId());
+      }
+    }
+    return multiMap;
+  }
+
+  /*private static UniqueId getSnapshotId(String viewDefName, MarketDataSnapshotMaster snapshotMaster) {
+    String snapshotTime = "2013-09-27T12:17:45.587Z";
+    String snapshotName = viewDefName + "/" + snapshotTime;
+    MarketDataSnapshotSearchRequest snapshotSearchRequest = new MarketDataSnapshotSearchRequest();
+    snapshotSearchRequest.setName(snapshotName);
+    snapshotSearchRequest.setIncludeData(false);
+    MarketDataSnapshotSearchResult snapshotSearchResult = snapshotMaster.search(snapshotSearchRequest);
+    return snapshotSearchResult.getSingleSnapshot().getUniqueId();
+  }*/
+
+  /*private static UniqueId getViewDefinitionId(String viewDefName, ConfigMaster configMaster) {
+    ConfigSearchRequest<ViewDefinition> configSearchRequest = new ConfigSearchRequest<>(ViewDefinition.class);
+    configSearchRequest.setName(viewDefName);
+    ConfigSearchResult<ViewDefinition> configSearchResult = configMaster.search(configSearchRequest);
+    return configSearchResult.getSingleValue().getValue().getUniqueId();
+  }*/
+
+  public static CalculationResults run(Instant valuationTime, UniqueId viewDefId, UniqueId snapshotId) {
     int serverHttpPort = 8080;
-    // TODO get server details (port. any others? URL?) from the server process
+    // TODO get server details (port. any others? URL?) from the server process?
     try (ServerProcess ignored = ServerProcess.start();
          RemoteServer server = RemoteServer.create("http://localhost:" + serverHttpPort)) {
-      String viewDefName = "AUD Swaps (3m / 6m basis) (1)";
-      String snapshotTime = "2013-09-27T12:17:45.587Z";
-      String snapshotName = viewDefName + "/" + snapshotTime;
-      // look up the snapshot by name to get the ID
-      MarketDataSnapshotSearchRequest snapshotSearchRequest = new MarketDataSnapshotSearchRequest();
-      snapshotSearchRequest.setName(snapshotName);
-      snapshotSearchRequest.setIncludeData(false);
-      MarketDataSnapshotSearchResult snapshotSearchResult = server.getMarketDataSnapshotMaster().search(snapshotSearchRequest);
-      UniqueId snapshotId = snapshotSearchResult.getSingleSnapshot().getUniqueId();
-
-      // look up the view definition by name to get the ID
-      ConfigSearchRequest<ViewDefinition> configSearchRequest = new ConfigSearchRequest<>(ViewDefinition.class);
-      configSearchRequest.setName(viewDefName);
-      ConfigSearchResult<ViewDefinition> configSearchResult = server.getConfigMaster().search(configSearchRequest);
-      UniqueId viewDefId = configSearchResult.getSingleValue().getValue().getUniqueId();
-
       List<MarketDataSpecification> marketDataSpecs =
           Lists.<MarketDataSpecification>newArrayList(new UserMarketDataSpecification(snapshotId));
       ViewCycleExecutionOptions cycleOptions =
@@ -103,6 +141,7 @@ public class ViewRunner {
       System.out.println("waiting for completion");
       viewClient.waitForCompletion();
       System.out.println("view client completed");
+      viewClient.shutdown();
       return listener.getResults();
     } catch (InterruptedException e) {
       // not going to happen but need this to satisfy the compiler
