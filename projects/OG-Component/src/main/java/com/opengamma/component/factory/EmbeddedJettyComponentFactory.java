@@ -5,8 +5,10 @@
  */
 package com.opengamma.component.factory;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.EventListener;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -18,7 +20,9 @@ import org.eclipse.jetty.security.ConstraintMapping;
 import org.eclipse.jetty.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.security.DefaultIdentityService;
 import org.eclipse.jetty.security.authentication.FormAuthenticator;
+import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.eclipse.jetty.util.security.Constraint;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.joda.beans.Bean;
@@ -32,12 +36,13 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.springframework.context.Lifecycle;
-import org.springframework.context.support.GenericApplicationContext;
 import org.springframework.core.io.Resource;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.component.ComponentFactory;
+import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
+import com.opengamma.component.rest.ComponentRepositoryServletContextListener;
+import com.opengamma.component.rest.PlainTextErrorHandler;
 import com.opengamma.component.rest.RestComponents;
 import com.opengamma.transport.jaxrs.FudgeObjectBinaryConsumer;
 import com.opengamma.transport.jaxrs.FudgeObjectBinaryProducer;
@@ -54,12 +59,10 @@ import com.opengamma.util.rest.UnsupportedOperationExceptionMapper;
 import com.opengamma.util.rest.WebApplicationExceptionMapper;
 
 /**
- * Component definition for the Jetty server defined in Spring.
- * <p>
- * This reads a Spring file to start the Jetty server.
+ * Component factory for the embedded Jetty server.
  */
 @BeanDefinition
-public class SpringJettyComponentFactory extends AbstractSpringComponentFactory implements ComponentFactory {
+public class EmbeddedJettyComponentFactory extends AbstractComponentFactory {
 
   private static final String AUTH_LOGIN_CONFIG_PROPERTY = "java.security.auth.login.config";
   private static final String DEFAULT_LOGIN_CONFIG = "classpath:og.login.conf";
@@ -71,6 +74,21 @@ public class SpringJettyComponentFactory extends AbstractSpringComponentFactory 
    */
   @PropertyDefinition
   private boolean _active = true;
+  /**
+   * The port on which Jetty listens for HTTP requests.
+   */
+  @PropertyDefinition
+  private int _port = 8080;
+  /**
+   * The port on which Jetty listens for HTTPS requests.
+   */
+  @PropertyDefinition
+  private int _securePort = 8443;
+  /**
+   * The Jetty resource base.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private Resource _resourceBase;
   /**
    * The flag indicating whether to enable authentication.
    */
@@ -89,20 +107,7 @@ public class SpringJettyComponentFactory extends AbstractSpringComponentFactory 
       return;
     }
     
-    GenericApplicationContext appContext = createApplicationContext(repo);
-    
-    String[] beanNames = appContext.getBeanNamesForType(Server.class);
-    if (beanNames.length != 1) {
-      throw new IllegalStateException("Expected 1 Jetty server, but found " + beanNames.length);
-    }
-    Server server = appContext.getBean(beanNames[0], Server.class);
-    
-    if (isRequireAuthentication()) {
-      configureAuthentication(repo, server);
-    }
-    
-    repo.registerComponent(Server.class, "jetty", server);
-    repo.registerLifecycle(new ServerLifecycle(server));
+    Server server = initJettyServer(repo);
     
     // JMX
     final MBeanServer jmxServer = repo.findInstance(MBeanServer.class);
@@ -115,13 +120,53 @@ public class SpringJettyComponentFactory extends AbstractSpringComponentFactory 
     registerJettyRestBasics(repo);
   }
 
-  private void configureAuthentication(ComponentRepository repo, Server server) throws IOException {
+  private Server initJettyServer(ComponentRepository repo) {
+    SelectChannelConnector connector = new SelectChannelConnector();
+    connector.setPort(getPort());
+    connector.setConfidentialPort(getSecurePort());
+    connector.setRequestHeaderSize(16384);
+    
+    WebAppContext ogWebAppContext = new WebAppContext("OpenGamma", "/");
+    try {
+      ogWebAppContext.setResourceBase(getResourceBase().getFile().getAbsolutePath());
+    } catch (IOException e) {
+      throw new OpenGammaRuntimeException("Unable to find resource base " + getResourceBase(), e);
+    }
+    ogWebAppContext.setErrorHandler(new PlainTextErrorHandler());
+    ogWebAppContext.setEventListeners(new EventListener[] {new ComponentRepositoryServletContextListener(repo)});
+    
+    Server jettyServer = new Server();
+    jettyServer.setConnectors(new Connector[] {connector});
+    jettyServer.setHandler(ogWebAppContext);
+    jettyServer.setStopAtShutdown(true);
+    jettyServer.setGracefulShutdown(2000);
+    jettyServer.setSendDateHeader(true);
+    jettyServer.setSendServerVersion(true);
+    
+    if (isRequireAuthentication()) {
+      configureAuthentication(repo, jettyServer);
+    }
+    
+    ComponentInfo info = new ComponentInfo(Server.class, "jetty");
+    repo.registerComponent(info, jettyServer);
+    repo.registerLifecycle(new ServerLifecycle(jettyServer));
+    return jettyServer;
+  }
+
+  private void configureAuthentication(ComponentRepository repo, Server server) {
     if (System.getProperty(AUTH_LOGIN_CONFIG_PROPERTY) == null) {
       Resource loginConfigResource = ResourceUtils.createResource(getLoginConfig());
-      if (loginConfigResource.getFile() == null) {
+      File file;
+      try {
+        file = loginConfigResource.getFile();
+      } catch (IOException e) {
+        throw new OpenGammaRuntimeException("Error reading login configuration " + getLoginConfig(), e);
+      }
+      if (file == null) {
         throw new IllegalArgumentException("Unable to find login config resource: " + getLoginConfig());
       }
-      System.setProperty(AUTH_LOGIN_CONFIG_PROPERTY, loginConfigResource.getFile().getPath());
+      System.setProperty(AUTH_LOGIN_CONFIG_PROPERTY, file.getPath());
+
     }
 
     WebAppContext context = (WebAppContext) server.getHandler();
@@ -227,20 +272,20 @@ public class SpringJettyComponentFactory extends AbstractSpringComponentFactory 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code SpringJettyComponentFactory}.
+   * The meta-bean for {@code EmbeddedJettyComponentFactory}.
    * @return the meta-bean, not null
    */
-  public static SpringJettyComponentFactory.Meta meta() {
-    return SpringJettyComponentFactory.Meta.INSTANCE;
+  public static EmbeddedJettyComponentFactory.Meta meta() {
+    return EmbeddedJettyComponentFactory.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(SpringJettyComponentFactory.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(EmbeddedJettyComponentFactory.Meta.INSTANCE);
   }
 
   @Override
-  public SpringJettyComponentFactory.Meta metaBean() {
-    return SpringJettyComponentFactory.Meta.INSTANCE;
+  public EmbeddedJettyComponentFactory.Meta metaBean() {
+    return EmbeddedJettyComponentFactory.Meta.INSTANCE;
   }
 
   //-----------------------------------------------------------------------
@@ -272,6 +317,82 @@ public class SpringJettyComponentFactory extends AbstractSpringComponentFactory 
    */
   public final Property<Boolean> active() {
     return metaBean().active().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the port on which Jetty listens for HTTP requests.
+   * @return the value of the property
+   */
+  public int getPort() {
+    return _port;
+  }
+
+  /**
+   * Sets the port on which Jetty listens for HTTP requests.
+   * @param port  the new value of the property
+   */
+  public void setPort(int port) {
+    this._port = port;
+  }
+
+  /**
+   * Gets the the {@code port} property.
+   * @return the property, not null
+   */
+  public final Property<Integer> port() {
+    return metaBean().port().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the port on which Jetty listens for HTTPS requests.
+   * @return the value of the property
+   */
+  public int getSecurePort() {
+    return _securePort;
+  }
+
+  /**
+   * Sets the port on which Jetty listens for HTTPS requests.
+   * @param securePort  the new value of the property
+   */
+  public void setSecurePort(int securePort) {
+    this._securePort = securePort;
+  }
+
+  /**
+   * Gets the the {@code securePort} property.
+   * @return the property, not null
+   */
+  public final Property<Integer> securePort() {
+    return metaBean().securePort().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the Jetty resource base.
+   * @return the value of the property, not null
+   */
+  public Resource getResourceBase() {
+    return _resourceBase;
+  }
+
+  /**
+   * Sets the Jetty resource base.
+   * @param resourceBase  the new value of the property, not null
+   */
+  public void setResourceBase(Resource resourceBase) {
+    JodaBeanUtils.notNull(resourceBase, "resourceBase");
+    this._resourceBase = resourceBase;
+  }
+
+  /**
+   * Gets the the {@code resourceBase} property.
+   * @return the property, not null
+   */
+  public final Property<Resource> resourceBase() {
+    return metaBean().resourceBase().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -326,8 +447,8 @@ public class SpringJettyComponentFactory extends AbstractSpringComponentFactory 
 
   //-----------------------------------------------------------------------
   @Override
-  public SpringJettyComponentFactory clone() {
-    return (SpringJettyComponentFactory) super.clone();
+  public EmbeddedJettyComponentFactory clone() {
+    return (EmbeddedJettyComponentFactory) super.clone();
   }
 
   @Override
@@ -336,8 +457,11 @@ public class SpringJettyComponentFactory extends AbstractSpringComponentFactory 
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      SpringJettyComponentFactory other = (SpringJettyComponentFactory) obj;
+      EmbeddedJettyComponentFactory other = (EmbeddedJettyComponentFactory) obj;
       return (isActive() == other.isActive()) &&
+          (getPort() == other.getPort()) &&
+          (getSecurePort() == other.getSecurePort()) &&
+          JodaBeanUtils.equal(getResourceBase(), other.getResourceBase()) &&
           (isRequireAuthentication() == other.isRequireAuthentication()) &&
           JodaBeanUtils.equal(getLoginConfig(), other.getLoginConfig()) &&
           super.equals(obj);
@@ -349,6 +473,9 @@ public class SpringJettyComponentFactory extends AbstractSpringComponentFactory 
   public int hashCode() {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(isActive());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPort());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurePort());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getResourceBase());
     hash += hash * 31 + JodaBeanUtils.hashCode(isRequireAuthentication());
     hash += hash * 31 + JodaBeanUtils.hashCode(getLoginConfig());
     return hash ^ super.hashCode();
@@ -356,8 +483,8 @@ public class SpringJettyComponentFactory extends AbstractSpringComponentFactory 
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
-    buf.append("SpringJettyComponentFactory{");
+    StringBuilder buf = new StringBuilder(224);
+    buf.append("EmbeddedJettyComponentFactory{");
     int len = buf.length();
     toString(buf);
     if (buf.length() > len) {
@@ -371,15 +498,18 @@ public class SpringJettyComponentFactory extends AbstractSpringComponentFactory 
   protected void toString(StringBuilder buf) {
     super.toString(buf);
     buf.append("active").append('=').append(isActive()).append(',').append(' ');
+    buf.append("port").append('=').append(getPort()).append(',').append(' ');
+    buf.append("securePort").append('=').append(getSecurePort()).append(',').append(' ');
+    buf.append("resourceBase").append('=').append(getResourceBase()).append(',').append(' ');
     buf.append("requireAuthentication").append('=').append(isRequireAuthentication()).append(',').append(' ');
     buf.append("loginConfig").append('=').append(getLoginConfig()).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code SpringJettyComponentFactory}.
+   * The meta-bean for {@code EmbeddedJettyComponentFactory}.
    */
-  public static class Meta extends AbstractSpringComponentFactory.Meta {
+  public static class Meta extends AbstractComponentFactory.Meta {
     /**
      * The singleton instance of the meta-bean.
      */
@@ -389,23 +519,41 @@ public class SpringJettyComponentFactory extends AbstractSpringComponentFactory 
      * The meta-property for the {@code active} property.
      */
     private final MetaProperty<Boolean> _active = DirectMetaProperty.ofReadWrite(
-        this, "active", SpringJettyComponentFactory.class, Boolean.TYPE);
+        this, "active", EmbeddedJettyComponentFactory.class, Boolean.TYPE);
+    /**
+     * The meta-property for the {@code port} property.
+     */
+    private final MetaProperty<Integer> _port = DirectMetaProperty.ofReadWrite(
+        this, "port", EmbeddedJettyComponentFactory.class, Integer.TYPE);
+    /**
+     * The meta-property for the {@code securePort} property.
+     */
+    private final MetaProperty<Integer> _securePort = DirectMetaProperty.ofReadWrite(
+        this, "securePort", EmbeddedJettyComponentFactory.class, Integer.TYPE);
+    /**
+     * The meta-property for the {@code resourceBase} property.
+     */
+    private final MetaProperty<Resource> _resourceBase = DirectMetaProperty.ofReadWrite(
+        this, "resourceBase", EmbeddedJettyComponentFactory.class, Resource.class);
     /**
      * The meta-property for the {@code requireAuthentication} property.
      */
     private final MetaProperty<Boolean> _requireAuthentication = DirectMetaProperty.ofReadWrite(
-        this, "requireAuthentication", SpringJettyComponentFactory.class, Boolean.TYPE);
+        this, "requireAuthentication", EmbeddedJettyComponentFactory.class, Boolean.TYPE);
     /**
      * The meta-property for the {@code loginConfig} property.
      */
     private final MetaProperty<String> _loginConfig = DirectMetaProperty.ofReadWrite(
-        this, "loginConfig", SpringJettyComponentFactory.class, String.class);
+        this, "loginConfig", EmbeddedJettyComponentFactory.class, String.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "active",
+        "port",
+        "securePort",
+        "resourceBase",
         "requireAuthentication",
         "loginConfig");
 
@@ -420,6 +568,12 @@ public class SpringJettyComponentFactory extends AbstractSpringComponentFactory 
       switch (propertyName.hashCode()) {
         case -1422950650:  // active
           return _active;
+        case 3446913:  // port
+          return _port;
+        case 1569248408:  // securePort
+          return _securePort;
+        case -384923649:  // resourceBase
+          return _resourceBase;
         case 2012797757:  // requireAuthentication
           return _requireAuthentication;
         case 852061195:  // loginConfig
@@ -429,13 +583,13 @@ public class SpringJettyComponentFactory extends AbstractSpringComponentFactory 
     }
 
     @Override
-    public BeanBuilder<? extends SpringJettyComponentFactory> builder() {
-      return new DirectBeanBuilder<SpringJettyComponentFactory>(new SpringJettyComponentFactory());
+    public BeanBuilder<? extends EmbeddedJettyComponentFactory> builder() {
+      return new DirectBeanBuilder<EmbeddedJettyComponentFactory>(new EmbeddedJettyComponentFactory());
     }
 
     @Override
-    public Class<? extends SpringJettyComponentFactory> beanType() {
-      return SpringJettyComponentFactory.class;
+    public Class<? extends EmbeddedJettyComponentFactory> beanType() {
+      return EmbeddedJettyComponentFactory.class;
     }
 
     @Override
@@ -450,6 +604,30 @@ public class SpringJettyComponentFactory extends AbstractSpringComponentFactory 
      */
     public final MetaProperty<Boolean> active() {
       return _active;
+    }
+
+    /**
+     * The meta-property for the {@code port} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Integer> port() {
+      return _port;
+    }
+
+    /**
+     * The meta-property for the {@code securePort} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Integer> securePort() {
+      return _securePort;
+    }
+
+    /**
+     * The meta-property for the {@code resourceBase} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Resource> resourceBase() {
+      return _resourceBase;
     }
 
     /**
@@ -473,11 +651,17 @@ public class SpringJettyComponentFactory extends AbstractSpringComponentFactory 
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -1422950650:  // active
-          return ((SpringJettyComponentFactory) bean).isActive();
+          return ((EmbeddedJettyComponentFactory) bean).isActive();
+        case 3446913:  // port
+          return ((EmbeddedJettyComponentFactory) bean).getPort();
+        case 1569248408:  // securePort
+          return ((EmbeddedJettyComponentFactory) bean).getSecurePort();
+        case -384923649:  // resourceBase
+          return ((EmbeddedJettyComponentFactory) bean).getResourceBase();
         case 2012797757:  // requireAuthentication
-          return ((SpringJettyComponentFactory) bean).isRequireAuthentication();
+          return ((EmbeddedJettyComponentFactory) bean).isRequireAuthentication();
         case 852061195:  // loginConfig
-          return ((SpringJettyComponentFactory) bean).getLoginConfig();
+          return ((EmbeddedJettyComponentFactory) bean).getLoginConfig();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -486,16 +670,31 @@ public class SpringJettyComponentFactory extends AbstractSpringComponentFactory 
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -1422950650:  // active
-          ((SpringJettyComponentFactory) bean).setActive((Boolean) newValue);
+          ((EmbeddedJettyComponentFactory) bean).setActive((Boolean) newValue);
+          return;
+        case 3446913:  // port
+          ((EmbeddedJettyComponentFactory) bean).setPort((Integer) newValue);
+          return;
+        case 1569248408:  // securePort
+          ((EmbeddedJettyComponentFactory) bean).setSecurePort((Integer) newValue);
+          return;
+        case -384923649:  // resourceBase
+          ((EmbeddedJettyComponentFactory) bean).setResourceBase((Resource) newValue);
           return;
         case 2012797757:  // requireAuthentication
-          ((SpringJettyComponentFactory) bean).setRequireAuthentication((Boolean) newValue);
+          ((EmbeddedJettyComponentFactory) bean).setRequireAuthentication((Boolean) newValue);
           return;
         case 852061195:  // loginConfig
-          ((SpringJettyComponentFactory) bean).setLoginConfig((String) newValue);
+          ((EmbeddedJettyComponentFactory) bean).setLoginConfig((String) newValue);
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((EmbeddedJettyComponentFactory) bean)._resourceBase, "resourceBase");
+      super.validate(bean);
     }
 
   }

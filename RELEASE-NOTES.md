@@ -14,7 +14,13 @@ Configuration compatibility
 - [PLAT-4782] The legacy analytics web UI has been retired. WebsiteAnalyticsComponentFactory, which used to construct
   its server-side components, has been removed. Any instances of this can be safely deleted from component
   configuration .ini files.
-
+  
+- [PLAT-4804] SpringJettyComponentFactory has been replaced by EmbeddedJettyComponentFactory. Replacement default ini
+  configuration is:
+    [jetty]
+    factory = com.opengamma.component.factory.EmbeddedJettyComponentFactory
+    resourceBase = ${jetty.resourceBase}
+    
 
 Database compatibility
 - No upgrade required
