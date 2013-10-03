@@ -35,12 +35,25 @@ public class NamedThreadPoolFactory implements ThreadFactory {
    */
   private final boolean _makeDaemon;
 
+  /**
+   * Creates an MDC aware, named, cached thread pool.
+   *
+   * @param poolName the name to be given to the threads used by the pool
+   * @param makeDaemon specifies whether to use daemon threads
+   * @return a new executor service
+   */
   public static ExecutorService newCachedThreadPool(String poolName, boolean makeDaemon) {
     return new MdcAwareThreadPoolExecutor(new NamedThreadPoolFactory(poolName, makeDaemon));
   }
 
-  public static ExecutorService newCachedThreadPool(String name) {
-    return newCachedThreadPool(name, true);
+  /**
+   * Creates an MDC aware, named, cached thread pool using daemon threads.
+   *
+   * @param poolName the name to be given to the threads used by the pool
+   * @return a new executor service
+   */
+  public static ExecutorService newCachedThreadPool(String poolName) {
+    return newCachedThreadPool(poolName, true);
   }
 
   /**
