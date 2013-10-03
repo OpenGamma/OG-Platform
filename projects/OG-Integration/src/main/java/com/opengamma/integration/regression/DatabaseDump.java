@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.integration.marketdata.manipulator.dsl.RemoteServer;
 import com.opengamma.master.config.ConfigMaster;
@@ -155,7 +156,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
   }
 
   private void writeTimeSeries() throws IOException {
-    List<Object> objects = Lists.newArrayList();
+    List<TimeSeriesWithInfo> objects = Lists.newArrayList();
     HistoricalTimeSeriesInfoSearchResult infoResult = _timeSeriesMaster.search(new HistoricalTimeSeriesInfoSearchRequest());
     for (ManageableHistoricalTimeSeriesInfo info : infoResult.getInfoList()) {
       ManageableHistoricalTimeSeries timeSeries =
@@ -186,7 +187,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
     writeToDirectory(result.getOrganizations(), "organizations");
   }
 
-  private void writeToDirectory(List<?> objects, String outputSubDirName) throws IOException {
+  private void writeToDirectory(List<? extends UniqueIdentifiable> objects, String outputSubDirName) throws IOException {
     File outputSubDir = new File(_outputDir, outputSubDirName);
     if (!outputSubDir.exists()) {
       boolean success = outputSubDir.mkdir();
@@ -199,9 +200,8 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
     s_logger.info("Writing to {}", outputSubDir.getAbsolutePath());
     FudgeContext ctx = OpenGammaFudgeContext.getInstance();
     FudgeSerializer serializer = new FudgeSerializer(ctx);
-    int count = 0;
-    for (Object object : objects) {
-      try (FileWriter writer = new FileWriter(new File(outputSubDir, ++count + ".xml"))) {
+    for (UniqueIdentifiable object : objects) {
+      try (FileWriter writer = new FileWriter(new File(outputSubDir, object.getUniqueId().getObjectId() + ".xml"))) {
         FudgeXMLStreamWriter streamWriter = new FudgeXMLStreamWriter(ctx, writer);
         FudgeMsgWriter fudgeMsgWriter = new FudgeMsgWriter(streamWriter);
         MutableFudgeMsg msg = serializer.objectToFudgeMsg(object);
