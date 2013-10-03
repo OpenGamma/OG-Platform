@@ -16,117 +16,119 @@ import com.opengamma.master.security.ManageableSecurity;
  */
 public enum SecurityType {
   /**
-   * 
+   * Bond.
    */
   BOND,
   /**
-   * 
+   * Agricultural future.
    */
   AGRICULTURE_FUTURE,
   /**
-   * 
+   * Bond future.
    */
   BOND_FUTURE,
   /**
-   * 
+   * Bill.
    */
   BILL,
   /**
-   * Cash
+   * Cash.
    */
   CASH,
   /**
-   * Credit Default Swap
+   * Credit Default Swap.
    */
   CREDIT_DEFAULT_SWAP,
   /**
-   * 
+   * Energy future.
    */
   ENERGY_FUTURE,
   /**
-   * 
+   * Equity dividend future.
    */
   EQUITY_DIVIDEND_FUTURE,
   /**
-   * 
+   * Equity.
    */
   EQUITY,
-  /** Umbrella for futures on underlying securities or indices in the Equity sector */
+  /**
+   * Umbrella for futures on underlying securities or indices in the Equity sector.
+   */
   EQUITY_FUTURE,
   /**
-   *
+   * Equity index.
    */
   EQUITY_INDEX,
   /**
-   *
+   * Equity index dividend future.
    */
   EQUITY_INDEX_DIVIDEND_FUTURE_OPTION,
   /**
-   *
+   * Equity index future option.
    */
   EQUITY_INDEX_FUTURE_OPTION,
   /**
-  *
-  */
+   * Equity index option.
+   */
   EQUITY_INDEX_OPTION,
   /**
-   * 
+   * Equity option.
    */
   EQUITY_OPTION,
   /**
-   * 
+   * Financial future.
    */
   FINANCIAL_FUTURE,
   /**
-   *
+   * Fra.
    */
   FRA,
   /**
-   *
+   * FX future.
    */
   FX_FUTURE,
   /**
-   * 
+   * Index future.
    */
   INDEX_FUTURE,
   /**
-   * 
+   * Index option.
    */
   INDEX_OPTION,
   /**
-   * 
+   * Interest rate future.
    */
   INTEREST_RATE_FUTURE,
   /**
-   *
+   * IR future option.
    */
   IR_FUTURE_OPTION,
   /**
-   * 
+   * Meta future.
    */
   METAL_FUTURE,
   /**
-   * 
+   * Stock future.
    */
   STOCK_FUTURE,
   /**
-   * Default security type for swaps
+   * Default security type for swaps.
    */
   SWAP,
   /**
-   * Basis Swap
+   * Basis Swap.
    */
   BASIS_SWAP,
   /**
-   * Artificial security type for volatility quotes 
+   * Artificial security type for volatility quotes.
    */
   VOLATILITY_QUOTE,
   /**
-   * Artificial security type for spot rates
+   * Artificial security type for spot rates.
    */
   SPOT_RATE,
   /**
-   * Artificial, default security type for rates
+   * Artificial, default security type for rates.
    */
   RATE,
   /**
@@ -134,27 +136,28 @@ public enum SecurityType {
    */
   FORWARD_CROSS,
   /**
-   * 
+   * FX forward.
    */
   FX_FORWARD,
   /**
-   * Commodity Future Option
+   * Commodity Future Option.
    */
   COMMODITY_FUTURE_OPTION,
   /**
-   * FX Future Option
+   * FX Future Option.
    */
   FX_FUTURE_OPTION,
   /**
-   * Bond Future Option
+   * Bond Future Option.
    */
   BOND_FUTURE_OPTION,
   /**
-   * CD
+   * CD.
    */
   CD,
   /**
-   * Inflation swap
+   * Inflation swap.
    */
   INFLATION_SWAP
+
 }
