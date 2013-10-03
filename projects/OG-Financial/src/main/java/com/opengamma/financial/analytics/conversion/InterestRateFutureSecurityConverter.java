@@ -8,7 +8,6 @@ package com.opengamma.financial.analytics.conversion;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.QUARTERLY;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.SCHEME_NAME;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.STIR_FUTURES;
-import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.TENOR_STR_3M;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.getConventionName;
 
 import org.threeten.bp.Period;
@@ -60,7 +59,7 @@ public class InterestRateFutureSecurityConverter extends FinancialSecurityVisito
     ArgumentChecker.notNull(security, "security");
     final ZonedDateTime lastTradeDate = security.getExpiry().getExpiry();
     final Currency currency = security.getCurrency();
-    final String conventionName = getConventionName(currency, STIR_FUTURES + TENOR_STR_3M + QUARTERLY);
+    final String conventionName = getConventionName(currency, STIR_FUTURES + QUARTERLY);
     final InterestRateFutureConvention convention = _conventionSource.getConvention(InterestRateFutureConvention.class, ExternalId.of(SCHEME_NAME, conventionName)); // PLAT-4532
     if (convention == null) {
       throw new OpenGammaRuntimeException("Could not get interest rate future convention with id " + ExternalId.of(SCHEME_NAME, conventionName));
