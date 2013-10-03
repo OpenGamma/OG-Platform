@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ResourceUtils;
 import com.opengamma.util.db.tool.DbTool;
 
@@ -26,17 +27,17 @@ import com.opengamma.util.db.tool.DbTool;
   private static final Logger s_logger = LoggerFactory.getLogger(EmptyDatabaseCreator.class);
 
   /** Shared database URL. */
-  private static final String KEY_SHARED_URL = "db.standard.url";
+  public static final String KEY_SHARED_URL = "db.standard.url";
   /** Shared database user name. */
-  private static final String KEY_SHARED_USER_NAME = "db.standard.username";
+  public static final String KEY_SHARED_USER_NAME = "db.standard.username";
   /** Shared database password. */
-  private static final String KEY_SHARED_PASSWORD = "db.standard.password";
+  public static final String KEY_SHARED_PASSWORD = "db.standard.password";
   /** Temporary user database URL. */
-  private static final String KEY_USERFINANCIAL_URL = "db.userfinancial.url";
+  public static final String KEY_USERFINANCIAL_URL = "db.userfinancial.url";
   /** Temporary user database user name. */
-  private static final String KEY_USERFINANCIAL_USER_NAME = "db.userfinancial.username";
+  public static final String KEY_USERFINANCIAL_USER_NAME = "db.userfinancial.username";
   /** Temporary user database password. */
-  private static final String KEY_USERFINANCIAL_PASSWORD = "db.userfinancial.password";
+  public static final String KEY_USERFINANCIAL_PASSWORD = "db.userfinancial.password";
   /** Catalog. */
   private static final String CATALOG = "og-financial";
 
@@ -44,10 +45,10 @@ import com.opengamma.util.db.tool.DbTool;
     if (args.length == 0) {
       throw new IllegalArgumentException("Argument required specifying configuration file");
     }
-    new EmptyDatabaseCreator().createDatabases(args[0]);
+    EmptyDatabaseCreator.createDatabases(createProperties(args[0]));
   }
 
-  public void createDatabases(String configFile) throws IOException {
+  private static Properties createProperties(String configFile) {
     Resource res = ResourceUtils.createResource(configFile);
     Properties props = new Properties();
     try (InputStream in = res.getInputStream()) {
@@ -55,7 +56,13 @@ import com.opengamma.util.db.tool.DbTool;
         throw new FileNotFoundException(configFile);
       }
       props.load(in);
+    } catch (IOException e) {
+      throw new OpenGammaRuntimeException("Failed to load config", e);
     }
+    return props;
+  }
+
+  public static void createDatabases(Properties props) {
     // create main database
     s_logger.warn("Creating main database...");
     DbTool dbTool = new DbTool();

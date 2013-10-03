@@ -7,17 +7,17 @@ package com.opengamma.integration.regression;
 
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
 
-import com.google.common.collect.HashMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.google.common.collect.SetMultimap;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
@@ -42,15 +42,35 @@ import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
-import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
-import com.opengamma.master.marketdatasnapshot.impl.MarketDataSnapshotSearchIterator;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  */
-public class ViewRunner {
+/* package */ class ViewRunner {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(ViewRunner.class);
+
+  private final ConfigMaster _configMaster;
+  private final ViewProcessor _viewProcessor;
+  private final PositionSource _positionSource;
+  private final MarketDataSnapshotMaster _snapshotMaster;
+
+  /* package */ ViewRunner(ConfigMaster configMaster,
+                           ViewProcessor viewProcessor,
+                           PositionSource positionSource,
+                           MarketDataSnapshotMaster snapshotMaster) {
+    ArgumentChecker.notNull(configMaster, "configMaster");
+    ArgumentChecker.notNull(viewProcessor, "viewProcessor");
+    ArgumentChecker.notNull(positionSource, "positionSource");
+    ArgumentChecker.notNull(snapshotMaster, "snapshotMaster");
+    _configMaster = configMaster;
+    _viewProcessor = viewProcessor;
+    _positionSource = positionSource;
+    _snapshotMaster = snapshotMaster;
+  }
 
   // TODO convert to a tool
   /* TODO inputs
@@ -60,93 +80,90 @@ public class ViewRunner {
     either have a fixed valuation time or use Instant.now() (but only once for all runs)
     where does the DB dump live? presumably with the test config. separate repo / project? part of integration tests repo?
     or checked into the main repo?
+
+    after 'mvn install' the server is in
+    $PROJECT_DIR/server/target/server-dir
    */
   public static void main(String[] args) throws Exception {
     Instant valuationTime = Instant.now();
-    //CalculationResults results1 = ViewRunner.run(valuationTime);
-    //CalculationResults results2 = ViewRunner.run(valuationTime);
-    //CalculationDifference.Result result = CalculationDifference.compare(results1, results2, 0.001d);
-    //System.out.println(result);
-  }
-
-  /**
-   * This is a workaround for PLAT-4793
-   */
-  private SetMultimap<UniqueId, UniqueId> getSnapshotIdsByViewDefId(MarketDataSnapshotMaster snapshotMaster,
-                                                                    ConfigMaster configMaster) {
-    SetMultimap<UniqueId, UniqueId> multiMap = HashMultimap.create();
-    MarketDataSnapshotSearchRequest searchRequest = new MarketDataSnapshotSearchRequest();
-    // TODO horribly inefficient but a workaround for PLAT-4793
-    searchRequest.setIncludeData(true);
-    for (MarketDataSnapshotDocument doc : MarketDataSnapshotSearchIterator.iterable(snapshotMaster, searchRequest)) {
-      ManageableMarketDataSnapshot snapshot = doc.getSnapshot();
-      ConfigSearchRequest<ViewDefinition> configSearchRequest = new ConfigSearchRequest<>(ViewDefinition.class);
-      String basisViewName = snapshot.getBasisViewName();
-      if (basisViewName == null) {
-        continue;
-      }
-      configSearchRequest.setName(basisViewName);
-      ConfigSearchResult<ViewDefinition> configSearchResult = configMaster.search(configSearchRequest);
-      if (configSearchResult.getValues().size() == 1) {
-        UniqueId viewDefId = configSearchResult.getFirstValue().getValue().getUniqueId();
-        multiMap.put(viewDefId, snapshot.getUniqueId());
-      }
+    int serverHttpPort = 8080;
+    String workingDir = System.getProperty("user.dir");
+    String configFile = "classpath:fullstack/fullstack-examplessimulated-bin.properties";
+    String projectName = "examples-simulated";
+    String version = "2.2.0-SNAPSHOT";
+    String serverJar = projectName + "-" + version + ".jar";
+    String classpath = "config:lib/" + serverJar;
+    String logbackConfig = "-Dlogback.configurationFile=com/opengamma/util/warn-logback.xml";
+    try (ServerProcess ignored = ServerProcess.start(workingDir, classpath, configFile, new Properties(), logbackConfig);
+         RemoteServer server = RemoteServer.create("http://localhost:" + serverHttpPort))  {
+      ViewRunner viewRunner = new ViewRunner(server.getConfigMaster(),
+                                             server.getViewProcessor(),
+                                             server.getPositionSource(),
+                                             server.getMarketDataSnapshotMaster());
+      CalculationResults results1 = viewRunner.run("AUD Swaps (3m / 6m basis) (1)",
+                                                   "AUD Swaps (3m / 6m basis) (1)/2013-09-27T12:17:45.587Z",
+                                                   valuationTime);
+      CalculationResults results2 = viewRunner.run("AUD Swaps (3m / 6m basis) (1)",
+                                                   "AUD Swaps (3m / 6m basis) (1)/2013-09-27T12:17:45.587Z",
+                                                   valuationTime);
+      CalculationDifference.Result result = CalculationDifference.compare(results1, results2, 0.001d);
+      System.out.println(result);
     }
-    return multiMap;
   }
 
-  /*private static UniqueId getSnapshotId(String viewDefName, MarketDataSnapshotMaster snapshotMaster) {
-    String snapshotTime = "2013-09-27T12:17:45.587Z";
-    String snapshotName = viewDefName + "/" + snapshotTime;
+  public CalculationResults run(String viewName, String snapshotName, Instant valuationTime) {
+    ArgumentChecker.notNull(viewName, "viewName");
+    ArgumentChecker.notNull(snapshotName, "snapshotName");
+    UniqueId snapshotId = getSnapshotId(snapshotName);
+    UniqueId viewDefId = getViewDefinitionId(viewName);
+    s_logger.info("Running view {} using snapshot {} at valuation time {}", viewName, snapshotName, valuationTime);
+    List<MarketDataSpecification> marketDataSpecs =
+        Lists.<MarketDataSpecification>newArrayList(new UserMarketDataSpecification(snapshotId));
+    ViewCycleExecutionOptions cycleOptions =
+        ViewCycleExecutionOptions
+            .builder()
+            .setValuationTime(valuationTime)
+            .setMarketDataSpecifications(marketDataSpecs) // TODO multiple snapshots without rebuilding the graph?
+            .setResolverVersionCorrection(VersionCorrection.LATEST)
+            .create();
+    EnumSet<ViewExecutionFlags> flags = ExecutionFlags.triggersEnabled().get();
+    ArbitraryViewCycleExecutionSequence sequence =
+        new ArbitraryViewCycleExecutionSequence(ImmutableList.of(cycleOptions));
+    ViewExecutionOptions executionOptions = ExecutionOptions.of(sequence, cycleOptions, flags);
+
+    ViewProcessor viewProcessor = _viewProcessor;
+    ViewClient viewClient = viewProcessor.createViewClient(UserPrincipal.getLocalUser());
+    Listener listener = new Listener(_positionSource, snapshotName);
+    viewClient.setResultListener(listener);
+    viewClient.setResultMode(ViewResultMode.FULL_ONLY);
+    System.out.println("attaching to view process");
+    viewClient.attachToViewProcess(viewDefId, executionOptions, true);
+    System.out.println("waiting for completion");
+    try {
+      viewClient.waitForCompletion();
+      System.out.println("view client completed");
+    } catch (InterruptedException e) {
+      throw new OpenGammaRuntimeException("Interrupted waiting for view client to complete", e);
+    }
+    viewClient.shutdown();
+    return listener.getResults();
+  }
+
+  private UniqueId getSnapshotId(String snapshotName) {
+    //String snapshotTime = "2013-09-27T12:17:45.587Z";
+    //String snapshotName = snapshotName + "/" + snapshotTime;
     MarketDataSnapshotSearchRequest snapshotSearchRequest = new MarketDataSnapshotSearchRequest();
     snapshotSearchRequest.setName(snapshotName);
     snapshotSearchRequest.setIncludeData(false);
-    MarketDataSnapshotSearchResult snapshotSearchResult = snapshotMaster.search(snapshotSearchRequest);
+    MarketDataSnapshotSearchResult snapshotSearchResult = _snapshotMaster.search(snapshotSearchRequest);
     return snapshotSearchResult.getSingleSnapshot().getUniqueId();
-  }*/
+  }
 
-  /*private static UniqueId getViewDefinitionId(String viewDefName, ConfigMaster configMaster) {
+  private UniqueId getViewDefinitionId(String viewDefName) {
     ConfigSearchRequest<ViewDefinition> configSearchRequest = new ConfigSearchRequest<>(ViewDefinition.class);
     configSearchRequest.setName(viewDefName);
-    ConfigSearchResult<ViewDefinition> configSearchResult = configMaster.search(configSearchRequest);
+    ConfigSearchResult<ViewDefinition> configSearchResult = _configMaster.search(configSearchRequest);
     return configSearchResult.getSingleValue().getValue().getUniqueId();
-  }*/
-
-  public static CalculationResults run(Instant valuationTime, UniqueId viewDefId, UniqueId snapshotId) {
-    int serverHttpPort = 8080;
-    // TODO get server details (port. any others? URL?) from the server process?
-    try (ServerProcess ignored = ServerProcess.start();
-         RemoteServer server = RemoteServer.create("http://localhost:" + serverHttpPort)) {
-      List<MarketDataSpecification> marketDataSpecs =
-          Lists.<MarketDataSpecification>newArrayList(new UserMarketDataSpecification(snapshotId));
-      ViewCycleExecutionOptions cycleOptions =
-          ViewCycleExecutionOptions
-              .builder()
-              .setValuationTime(valuationTime)
-              .setMarketDataSpecifications(marketDataSpecs)
-              .setResolverVersionCorrection(VersionCorrection.LATEST)
-              .create();
-      EnumSet<ViewExecutionFlags> flags = ExecutionFlags.triggersEnabled().get();
-      ArbitraryViewCycleExecutionSequence sequence = new ArbitraryViewCycleExecutionSequence(ImmutableList.of(
-          cycleOptions));
-      ViewExecutionOptions executionOptions = ExecutionOptions.of(sequence, cycleOptions, flags);
-
-      ViewProcessor viewProcessor = server.getViewProcessor();
-      ViewClient viewClient = viewProcessor.createViewClient(UserPrincipal.getLocalUser());
-      Listener listener = new Listener(server.getPositionSource());
-      viewClient.setResultListener(listener);
-      viewClient.setResultMode(ViewResultMode.FULL_ONLY);
-      System.out.println("attaching to view process");
-      viewClient.attachToViewProcess(viewDefId, executionOptions, true);
-      System.out.println("waiting for completion");
-      viewClient.waitForCompletion();
-      System.out.println("view client completed");
-      viewClient.shutdown();
-      return listener.getResults();
-    } catch (InterruptedException e) {
-      // not going to happen but need this to satisfy the compiler
-      throw new OpenGammaRuntimeException("unexpected exception", e);
-    }
   }
 }
 
@@ -155,11 +172,14 @@ class Listener extends AbstractViewResultListener {
   private final AtomicReference<CompiledViewDefinition> _viewDef = new AtomicReference<>();
   private final PositionSource _positionSource;
   private final CountDownLatch _latch = new CountDownLatch(1);
+  private final String _snapshotName;
 
   private CalculationResults _results;
 
-  Listener(PositionSource positionSource) {
-    ArgumentChecker.notNull(positionSource, "");
+  Listener(PositionSource positionSource, String snapshotName) {
+    ArgumentChecker.notNull(positionSource, "positionSource");
+    ArgumentChecker.notEmpty(snapshotName, "snapshotName");
+    _snapshotName = snapshotName;
     _positionSource = positionSource;
   }
 
@@ -193,7 +213,8 @@ class Listener extends AbstractViewResultListener {
   public void cycleCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
     try {
       System.out.println("cycle completed");
-      _results = CalculationResults.create(_viewDef.get(), fullResult, _positionSource);
+      // TODO include view and snapshot metadata in the results
+      _results = CalculationResults.create(_viewDef.get(), _snapshotName, fullResult, _positionSource);
     } finally {
       _latch.countDown();
     }

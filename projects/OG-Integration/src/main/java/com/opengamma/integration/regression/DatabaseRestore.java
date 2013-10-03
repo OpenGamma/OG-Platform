@@ -27,37 +27,29 @@ import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
-import com.opengamma.integration.marketdata.manipulator.dsl.RemoteServer;
 import com.opengamma.master.config.ConfigDocument;
-import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.exchange.ExchangeDocument;
-import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.master.exchange.ManageableExchange;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import com.opengamma.master.holiday.HolidayDocument;
-import com.opengamma.master.holiday.HolidayMaster;
 import com.opengamma.master.holiday.ManageableHoliday;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
-import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.orgs.ManageableOrganization;
 import com.opengamma.master.orgs.OrganizationDocument;
-import com.opengamma.master.orgs.OrganizationMaster;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
-import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
-import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
-import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
@@ -73,61 +65,12 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
   private static final Logger s_logger = LoggerFactory.getLogger(DatabaseRestore.class);
 
   private final File _dataDir;
-  private final SecurityMaster _securityMaster;
-  private final PositionMaster _positionMaster;
-  private final PortfolioMaster _portfolioMaster;
-  private final ConfigMaster _configMaster;
-  private final HistoricalTimeSeriesMaster _timeSeriesMaster;
-  private final HolidayMaster _holidayMaster;
-  private final ExchangeMaster _exchangeMaster;
-  private final MarketDataSnapshotMaster _snapshotMaster;
-  private final OrganizationMaster _organizationMaster;
+  private final ToolContext _toolContext;
 
-  public DatabaseRestore(File dataDir,
-                         SecurityMaster securityMaster,
-                         PositionMaster positionMaster,
-                         PortfolioMaster portfolioMaster,
-                         ConfigMaster configMaster,
-                         HistoricalTimeSeriesMaster timeSeriesMaster,
-                         HolidayMaster holidayMaster,
-                         ExchangeMaster exchangeMaster,
-                         MarketDataSnapshotMaster snapshotMaster,
-                         OrganizationMaster organizationMaster) {
-    _exchangeMaster = exchangeMaster;
-    _snapshotMaster = snapshotMaster;
-    _organizationMaster = organizationMaster;
-    _holidayMaster = holidayMaster;
-    _timeSeriesMaster = timeSeriesMaster;
-    _securityMaster = securityMaster;
-    _positionMaster = positionMaster;
-    _portfolioMaster = portfolioMaster;
-    _configMaster = configMaster;
-    _dataDir = dataDir;
-    ArgumentChecker.notNull(dataDir, "dataDir");
-    ArgumentChecker.notNull(exchangeMaster, "exchangeMaster");
-    ArgumentChecker.notNull(snapshotMaster, "snapshotMaster");
-    ArgumentChecker.notNull(organizationMaster, "organizationMaster");
-    ArgumentChecker.notNull(timeSeriesMaster, "timeSeriesMaster");
-    ArgumentChecker.notNull(securityMaster, "securityMaster");
-    ArgumentChecker.notNull(positionMaster, "positionMaster");
-    ArgumentChecker.notNull(portfolioMaster, "portfolioMaster");
-    ArgumentChecker.notNull(configMaster, "configMaster");
-  }
-
-  public static void main(String[] args) throws IOException {
-    String outputDir = "/Users/chris/tmp/regression";
+  // TODO server connection details. presumably http://localhost, what about port?
+  public static void restoreDatabase(String dataDir, ToolContext toolContext) {
     try {
-      RemoteServer server = RemoteServer.create("http://localhost:8080");
-      DatabaseRestore databaseRestore = new DatabaseRestore(new File(outputDir),
-                                                            server.getSecurityMaster(),
-                                                            server.getPositionMaster(),
-                                                            server.getPortfolioMaster(),
-                                                            server.getConfigMaster(),
-                                                            server.getHistoricalTimeSeriesMaster(),
-                                                            server.getHolidayMaster(),
-                                                            server.getExchangeMaster(),
-                                                            server.getMarketDataSnapshotMaster(),
-                                                            server.getOrganizationMaster());
+      DatabaseRestore databaseRestore = new DatabaseRestore(new File(dataDir), toolContext);
       Map<ObjectId, ObjectId> securityIdMappings = databaseRestore.loadSecurities();
       Map<ObjectId, ObjectId> positionIdMappings = databaseRestore.loadPositions(securityIdMappings);
       Map<ObjectId, ObjectId> portfolioIdMappings = databaseRestore.loadPortfolios(positionIdMappings);
@@ -137,10 +80,17 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
       databaseRestore.loadExchanges();
       databaseRestore.loadSnapshots();
       databaseRestore.loadOrganizations();
-    } catch (Exception e) {
-      s_logger.warn("Failed to read Fudge data", e);
+      s_logger.info("Successfully restored database");
+    } catch (IOException e) {
+      throw new OpenGammaRuntimeException("Failed to restore database", e);
     }
-    System.exit(0);
+  }
+
+  private DatabaseRestore(File dataDir, ToolContext toolContext) {
+    ArgumentChecker.notNull(dataDir, "dataDir");
+    ArgumentChecker.notNull(toolContext, "toolContext");
+    _toolContext = toolContext;
+    _dataDir = dataDir;
   }
 
   private Map<ObjectId, ObjectId> loadSecurities() throws IOException {
@@ -150,7 +100,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
       ManageableSecurity security = (ManageableSecurity) o;
       ObjectId oldId = security.getUniqueId().getObjectId();
       security.setUniqueId(null);
-      SecurityDocument doc = _securityMaster.add(new SecurityDocument(security));
+      SecurityDocument doc = _toolContext.getSecurityMaster().add(new SecurityDocument(security));
       ids.put(oldId, doc.getUniqueId().getObjectId());
     }
     return ids;
@@ -179,7 +129,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
       // put the old ID on as an attribute. this allows different instances of a position or trade to be identified
       // when they're saved in different databases and therefore have different unique IDs
       position.addAttribute(REGRESSION_ID, oldId.toString());
-      PositionDocument doc = _positionMaster.add(new PositionDocument(position));
+      PositionDocument doc = _toolContext.getPositionMaster().add(new PositionDocument(position));
       ObjectId newId = doc.getUniqueId().getObjectId();
       ids.put(oldId, newId);
     }
@@ -194,7 +144,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
       UniqueId oldId = portfolio.getUniqueId();
       portfolio.setUniqueId(null);
       replacePositionIds(portfolio.getRootNode(), positionIdMappings);
-      UniqueId newId = _portfolioMaster.add(new PortfolioDocument(portfolio)).getUniqueId();
+      UniqueId newId = _toolContext.getPortfolioMaster().add(new PortfolioDocument(portfolio)).getUniqueId();
       s_logger.debug("Saved portfolio {} with ID {}, old ID {}", portfolio.getName(), newId, oldId);
       idMappings.put(oldId.getObjectId(), newId.getObjectId());
     }
@@ -214,7 +164,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
       } else {
         UniqueId oldId = config.getUniqueId();
         config.setUniqueId(null);
-        UniqueId newId = _configMaster.add(new ConfigDocument(config)).getUniqueId();
+        UniqueId newId = _toolContext.getConfigMaster().add(new ConfigDocument(config)).getUniqueId();
         s_logger.debug("Saved config of type {} with ID {}", configValue.getClass().getSimpleName(), newId);
         idMappings.put(oldId.getObjectId(), newId.getObjectId());
       }
@@ -238,7 +188,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
         calcConfig.setScenarioId(getNewId(calcConfig.getScenarioId(), idMappings));
         calcConfig.setScenarioParametersId(getNewId(calcConfig.getScenarioParametersId(), idMappings));
       }
-      UniqueId newId = _configMaster.add(new ConfigDocument(ConfigItem.of(newViewDef))).getUniqueId();
+      UniqueId newId = _toolContext.getConfigMaster().add(new ConfigDocument(ConfigItem.of(newViewDef))).getUniqueId();
       s_logger.debug("Saved view definition with ID {}", newId);
     }
   }
@@ -262,8 +212,9 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
       ManageableHistoricalTimeSeriesInfo info = timeSeriesWithInfo.getInfo();
       ManageableHistoricalTimeSeries timeSeries = timeSeriesWithInfo.getTimeSeries();
       info.setUniqueId(null);
-      HistoricalTimeSeriesInfoDocument infoDoc = _timeSeriesMaster.add(new HistoricalTimeSeriesInfoDocument(info));
-      _timeSeriesMaster.updateTimeSeriesDataPoints(infoDoc.getInfo().getTimeSeriesObjectId(), timeSeries.getTimeSeries());
+      HistoricalTimeSeriesMaster timeSeriesMaster = _toolContext.getHistoricalTimeSeriesMaster();
+      HistoricalTimeSeriesInfoDocument infoDoc = timeSeriesMaster.add(new HistoricalTimeSeriesInfoDocument(info));
+      timeSeriesMaster.updateTimeSeriesDataPoints(infoDoc.getInfo().getTimeSeriesObjectId(), timeSeries.getTimeSeries());
     }
   }
 
@@ -272,7 +223,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
     for (Object o : holidays) {
       ManageableHoliday holiday = (ManageableHoliday) o;
       holiday.setUniqueId(null);
-      _holidayMaster.add(new HolidayDocument(holiday));
+      _toolContext.getHolidayMaster().add(new HolidayDocument(holiday));
     }
   }
 
@@ -281,7 +232,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
     for (Object o : exchanges) {
       ManageableExchange exchange = (ManageableExchange) o;
       exchange.setUniqueId(null);
-      _exchangeMaster.add(new ExchangeDocument(exchange));
+      _toolContext.getExchangeMaster().add(new ExchangeDocument(exchange));
     }
   }
 
@@ -290,7 +241,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
     for (Object o : snapshots) {
       ManageableMarketDataSnapshot snapshot = (ManageableMarketDataSnapshot) o;
       snapshot.setUniqueId(null);
-      _snapshotMaster.add(new MarketDataSnapshotDocument(snapshot));
+      _toolContext.getMarketDataSnapshotMaster().add(new MarketDataSnapshotDocument(snapshot));
     }
   }
 
@@ -299,7 +250,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
     for (Object o : organizations) {
       ManageableOrganization organization = (ManageableOrganization) o;
       organization.setUniqueId(null);
-      _organizationMaster.add(new OrganizationDocument(organization));
+      _toolContext.getOrganizationMaster().add(new OrganizationDocument(organization));
     }
   }
 

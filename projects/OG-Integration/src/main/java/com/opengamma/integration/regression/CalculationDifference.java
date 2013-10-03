@@ -39,10 +39,6 @@ public final class CalculationDifference {
   }
 
   // TODO different deltas for different columns?
-  // TODO return type needs 3 fields
-  // in 1 but not 2 - map<key, value>
-  // in 2 but not 1 - map<key, value>
-  // in both but different value - map<key, pair<value, value>>
   public static Result compare(CalculationResults results1, CalculationResults results2, double delta) {
     Set<CalculationResultKey> only1Keys = Sets.difference(results1.getValues().keySet(), results2.getValues().keySet());
     Set<CalculationResultKey> only2Keys = Sets.difference(results2.getValues().keySet(), results1.getValues().keySet());
@@ -67,7 +63,6 @@ public final class CalculationDifference {
     if (value1 == null || value2 == null) {
       return false;
     }
-    // TODO deal with subtyping?
     if (!value1.getClass().equals(value2.getClass())) {
       return false;
     }
@@ -99,7 +94,7 @@ public final class CalculationDifference {
     boolean equals(T value1, T value2, double delta);
   }
 
-  // TODO this is almost certainly inadequate, need handler for subtypes
+  // TODO this is almost certainly inadequate, need handlers for subtypes
   private static final class YieldCurveHandler implements EqualsHandler<YieldCurve> {
 
     @Override
@@ -147,9 +142,6 @@ public final class CalculationDifference {
     }
   }
 
-  /**
-   *
-   */
   private static final class DoubleHandler implements EqualsHandler<Double> {
 
     @Override
@@ -180,6 +172,8 @@ public final class CalculationDifference {
    *
    */
   public static final class Result {
+
+    // TODO view and snapshot metadata
 
     private final Map<CalculationResultKey, Object> _only1;
     private final Map<CalculationResultKey, Object> _only2;

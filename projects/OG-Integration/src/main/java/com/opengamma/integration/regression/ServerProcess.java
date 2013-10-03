@@ -6,13 +6,17 @@
 package com.opengamma.integration.regression;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
+import com.google.common.collect.ImmutableList;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.OpenGammaComponentServer;
 
@@ -28,30 +32,26 @@ public final class ServerProcess implements AutoCloseable {
     _process = process;
   }
 
-  public static ServerProcess start() {
-    // TODO is it possible to scan the view defs and run all of them?
-    // need to be able to choose the snapshot for each view def. if there's only one for each base view def then
-    // it should be possible
-    // TODO how does the web resource figure out the base view for a snapshot?
-    String projectName = "examples-simulated";
-    String version = "2.2.0-SNAPSHOT";
-    String configFile = "classpath:fullstack/fullstack-examplessimulated-bin.properties";
-    String serverJar = projectName + "-" + version + ".jar";
-    String classpath = "config:lib/" + serverJar;
-    String logbackConfig = "-Dlogback.configurationFile=com/opengamma/util/warn-logback.xml";
-
-    // after 'mvn install' the server is in
-    // $PROJECT_DIR/server/target/server-dir
-    // TODO ATM this is running from the same location but that won't be the case forever
-    // do I want to switch the branch underneath the running installation? seems dodgy but probably OK for testing
-    ProcessBuilder processBuilder = new ProcessBuilder("java",
-                                                       logbackConfig, // TODO why isn't this getting picked up?
-                                                       "-cp",
-                                                       classpath,
-                                                       "-Xmx2g",
-                                                       "-XX:MaxPermSize=256M",
-                                                       "com.opengamma.component.OpenGammaComponentServer",
-                                                       configFile);
+  // TODO memory options
+  public static ServerProcess start(String workingDir,
+                                    String classpath,
+                                    String configFile,
+                                    Properties propertyOverrides,
+                                    String logbackConfig) {
+    ImmutableList.Builder<String> commandBuilder = ImmutableList.builder();
+    commandBuilder.add("java",
+                       logbackConfig,
+                       "-cp",
+                       classpath,
+                       "-Xmx2g",
+                       "-XX:MaxPermSize=256M",
+                       "com.opengamma.component.OpenGammaComponentServer",
+                       configFile);
+    // can override properties in the config on the command line with prop1=value1 prop2=value2 ...
+    for (Map.Entry<Object, Object> entry : propertyOverrides.entrySet()) {
+      commandBuilder.add("\"" + entry.getKey() + "=" + entry.getValue() + "\"");
+    }
+    ProcessBuilder processBuilder = new ProcessBuilder(commandBuilder.build()).directory(new File(workingDir));
     Process process;
     try {
       process = processBuilder.start();
@@ -63,6 +63,7 @@ public final class ServerProcess implements AutoCloseable {
     consumeStream(process.getErrorStream(), OpenGammaComponentServer.STARTUP_FAILED_MESSAGE, startupQueue, false, System.err);
     Boolean startupSuccess;
     try {
+      // TODO timeout mechanism in case the server dies and doesn't log correctly. timer task that interrupts this thread?
       startupSuccess = startupQueue.take();
     } catch (InterruptedException e) {
       // not going to happen
