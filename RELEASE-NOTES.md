@@ -35,14 +35,17 @@ Change getTenors() to getTenorsArray()
 Change constructor to of() factory
 Handle change of return type from array to list
 
-- ValueSnapshot is now immutable
+- ValueSnapshot is now a bean
 Change constructor to of() factory
-Any use of set method will require creating new instance
+The set method has been retained for ease of upgrade
 
 - HistoricalTimeSeriesRating is now immutable
 Change constructor to of() factory
 
 - HistoricalTimeSeriesRatingRule is now immutable
+Change constructor to of() factory
+
+- ScenarioDslParameters and ScenarioDslScript are now immutable
 Change constructor to of() factory
 
 
