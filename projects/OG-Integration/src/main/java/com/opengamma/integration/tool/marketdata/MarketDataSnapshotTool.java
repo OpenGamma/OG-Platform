@@ -29,6 +29,7 @@ import org.threeten.bp.format.DateTimeFormatter;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.component.tool.AbstractComponentTool;
+import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
@@ -50,6 +51,7 @@ import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.execution.ViewExecutionFlags;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.ViewResultListener;
+import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.financial.view.rest.RemoteViewProcessor;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.master.config.ConfigDocument;
@@ -64,7 +66,7 @@ import com.opengamma.scripts.Scriptable;
  * The entry point for running OpenGamma batches.
  */
 @Scriptable
-public class MarketDataSnapshotTool extends AbstractComponentTool {
+public class MarketDataSnapshotTool extends AbstractTool {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(MarketDataSnapshotTool.class);
@@ -80,6 +82,8 @@ public class MarketDataSnapshotTool extends AbstractComponentTool {
 
   private static final List<String> DEFAULT_PREFERRED_CLASSIFIERS = Arrays.asList("central", "main", "default", "shared", "combined");
 
+  private static ToolContext s_context;
+
   //-------------------------------------------------------------------------
   /**
    * Main method to run the tool. No arguments are needed.
@@ -87,12 +91,13 @@ public class MarketDataSnapshotTool extends AbstractComponentTool {
    * @param args the arguments, unused
    */
   public static void main(final String[] args) { // CSIGNORE
-    final boolean success = new MarketDataSnapshotTool().initAndRun(args);
+    final boolean success = new MarketDataSnapshotTool().initAndRun(args, ToolContext.class);
     System.exit(success ? 0 : 1);
   }
 
   @Override
   protected void doRun() throws Exception {
+    s_context = getToolContext();
     final String viewDefinitionName = getCommandLine().getOptionValue(VIEW_NAME_OPTION);
 
     final String valuationTimeArg = getCommandLine().getOptionValue(VALUATION_TIME_OPTION);
@@ -108,32 +113,25 @@ public class MarketDataSnapshotTool extends AbstractComponentTool {
     final MarketDataSpecification marketDataSpecification = historicalInput ? new LatestHistoricalMarketDataSpecification() : MarketData.live();
     final ViewExecutionOptions viewExecutionOptions = ExecutionOptions.singleCycle(valuationInstant, marketDataSpecification, EnumSet.of(ViewExecutionFlags.AWAIT_MARKET_DATA));
 
-    final List<RemoteViewProcessor> viewProcessors = getRemoteComponentFactory().getViewProcessors();
-    if (viewProcessors.size() == 0) {
-      s_logger.warn("No view processors found at {}", getRemoteComponentFactory().getBaseUri());
-      return;
-    }
-    final MarketDataSnapshotMaster marketDataSnapshotMaster = getRemoteComponentFactory().getMarketDataSnapshotMaster(DEFAULT_PREFERRED_CLASSIFIERS);
-    if (marketDataSnapshotMaster == null) {
-      s_logger.warn("No market data snapshot masters found at {}", getRemoteComponentFactory().getBaseUri());
-      return;
-    }
-    final Collection<ConfigMaster> configMasters = getRemoteComponentFactory().getConfigMasters().values();
-    if (configMasters.size() == 0) {
-      s_logger.warn("No config masters found at {}", getRemoteComponentFactory().getBaseUri());
-      return;
-    }
 
-    final RemoteViewProcessor viewProcessor = viewProcessors.get(0);
+    final RemoteViewProcessor viewProcessor = (RemoteViewProcessor) s_context.getViewProcessor();
+    if (viewProcessor == null) {
+      s_logger.warn("No view processors found at {}", s_context);
+      return;
+    }
+    final MarketDataSnapshotMaster marketDataSnapshotMaster = s_context.getMarketDataSnapshotMaster();
+    if (marketDataSnapshotMaster == null) {
+      s_logger.warn("No market data snapshot masters found at {}", s_context);
+      return;
+    }
     final MarketDataSnapshotter marketDataSnapshotter = viewProcessor.getMarketDataSnapshotter();
     
     Set<ConfigDocument> viewDefinitions = Sets.newHashSet();
-    
-    for (final ConfigMaster configMaster : configMasters) {
-      final ConfigSearchRequest<ViewDefinition> request = new ConfigSearchRequest<>(ViewDefinition.class);
-      request.setName(viewDefinitionName);
-      Iterables.addAll(viewDefinitions, ConfigSearchIterator.iterable(configMaster, request));
-    }
+
+    ConfigMaster configMaster = s_context.getConfigMaster();
+    final ConfigSearchRequest<ViewDefinition> request = new ConfigSearchRequest<>(ViewDefinition.class);
+    request.setName(viewDefinitionName);
+    Iterables.addAll(viewDefinitions, ConfigSearchIterator.iterable(configMaster, request));
     
     if (viewDefinitions.isEmpty()) {
       endWithError("Unable to resolve any view definitions with name '%s'", viewDefinitionName);
@@ -159,8 +157,8 @@ public class MarketDataSnapshotTool extends AbstractComponentTool {
 
   //-------------------------------------------------------------------------
   @Override
-  protected Options createOptions() {
-    final Options options = super.createOptions();
+  protected Options createOptions(boolean mandatoryConfig) {
+    final Options options = super.createOptions(mandatoryConfig);
     options.addOption(createViewNameOption());
     options.addOption(createValuationTimeOption());
     options.addOption(createHistoricalOption());
