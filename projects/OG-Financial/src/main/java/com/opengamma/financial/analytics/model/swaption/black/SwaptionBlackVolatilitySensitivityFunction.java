@@ -26,8 +26,12 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 @Deprecated
 public class SwaptionBlackVolatilitySensitivityFunction extends SwaptionBlackFunction {
+  /** The value vega calculator */
   private static final PresentValueBlackSwaptionSensitivityBlackCalculator CALCULATOR = PresentValueBlackSwaptionSensitivityBlackCalculator.getInstance();
 
+  /**
+   * Sets the value requirement name to {@link ValueRequirementNames#VALUE_VEGA}
+   */
   public SwaptionBlackVolatilitySensitivityFunction() {
     super(ValueRequirementNames.VALUE_VEGA);
   }
