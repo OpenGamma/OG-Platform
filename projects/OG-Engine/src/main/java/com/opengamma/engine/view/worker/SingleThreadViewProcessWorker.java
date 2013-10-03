@@ -1267,7 +1267,7 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
                       unchangedNodes = new HashSet<UniqueId>(mapped.values());
                     } else {
                       mapped = Collections.emptyMap();
-                      unchangedNodes = Collections.emptySet();
+                      unchangedNodes = new HashSet<UniqueId>();
                     }
                     // Build a set of previous resolutions that haven't changed and unmap any modified positions or trades
                     for (final Map.Entry<ComputationTargetReference, UniqueId> resolvedIdentifier : resolvedIdentifiers.entrySet()) {
