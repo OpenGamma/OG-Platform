@@ -224,7 +224,7 @@ public class WebUiResource {
   }
 
   @Path("{viewId}/{gridType}/viewports/{viewportId}/structure")
-  @PUT
+  @GET
   public GridStructure getViewportGridStructure(@PathParam("viewId") String viewId,
                                                 @PathParam("gridType") String gridType,
                                                 @PathParam("viewportId") int viewportId) {
