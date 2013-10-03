@@ -42,7 +42,7 @@ public final class ValueSnapshot implements Bean, Serializable {
   /**
    * The value sampled from the market.
    */
-  @PropertyDefinition(set = "manual")
+  @PropertyDefinition(set = "private")
   private Object _marketValue;
   /**
    * The value entered by the user, null if not overridden.
@@ -100,14 +100,6 @@ public final class ValueSnapshot implements Bean, Serializable {
   private ValueSnapshot(Object marketValue, Object overrideValue) {
     _marketValue = marketValue;
     _overrideValue = overrideValue;
-  }
-
-  /**
-   * Sets the value sampled from the market.
-   * @param marketValue  the new value of the property
-   */
-  private void setMarketValue(Object marketValue) {
-    this._marketValue = marketValue;
   }
 
   //-------------------------------------------------------------------------
@@ -185,6 +177,14 @@ public final class ValueSnapshot implements Bean, Serializable {
    */
   public Object getMarketValue() {
     return _marketValue;
+  }
+
+  /**
+   * Sets the value sampled from the market.
+   * @param marketValue  the new value of the property
+   */
+  private void setMarketValue(Object marketValue) {
+    this._marketValue = marketValue;
   }
 
   /**
