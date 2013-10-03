@@ -58,7 +58,6 @@ $.register_module({
             };
 
             var add_row_handler = function (obj) {
-                console.log(obj);
                 return new form.Block({
                     module: 'og.analytics.form_datasources_row_tash',
                     extras: {
@@ -72,7 +71,6 @@ $.register_module({
             };
 
             var add_source_dropdown = function (obj) {
-                console.log(obj);
                 var datasource = obj.datasource.split('.').reduce(function (api, key) {return api[key]; }, og.api.rest);
                 return new form.Block({
                     module: 'og.analytics.form_datasources_source_tash',
@@ -332,7 +330,6 @@ $.register_module({
                 if (parent.hasClass(parent.data('type'))) {
                     remove_entry(idx); remove_ext_opts(entry); display_query();
                 }
-                console.log(sources);
                 add_source_dropdown(sources[type_val]).html(function (html) {
                     src_parent.html($(html));
                     menu.opts[entry].data('type', type_val);
