@@ -28,7 +28,7 @@ import com.opengamma.util.time.Tenor;
 /**
  *
  */
-@Config
+@Config(description = "Curve specification builder configuration")
 public class CurveSpecificationBuilderConfiguration {
 
   /**

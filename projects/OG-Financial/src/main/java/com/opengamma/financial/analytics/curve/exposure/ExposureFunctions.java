@@ -32,7 +32,7 @@ import com.opengamma.util.ArgumentChecker;
  *
  */
 @BeanDefinition
-@Config
+@Config(description = "Exposure functions")
 public class ExposureFunctions extends DirectBean implements Serializable, UniqueIdentifiable, MutableUniqueIdentifiable {
 
   /** Serialization version */

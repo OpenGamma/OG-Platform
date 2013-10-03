@@ -30,7 +30,7 @@ import groovy.lang.Script;
  * aMap = [key1: "val1", key2: "val2"]
  * </pre>
  */
-@Config
+@Config(description = "Scenario DSL parameters")
 public class ScenarioDslParameters implements ScenarioParameters {
 
   /** Field name for Fudge message */

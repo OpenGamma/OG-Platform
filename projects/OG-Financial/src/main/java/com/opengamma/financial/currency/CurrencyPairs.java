@@ -21,7 +21,7 @@ import com.opengamma.util.money.Currency;
  * <p>
  * This class is immutable and thread-safe.
  */
-@Config
+@Config(description = "Currency pairs")
 public final class CurrencyPairs implements MutableUniqueIdentifiable, UniqueIdentifiable {
 
   /**

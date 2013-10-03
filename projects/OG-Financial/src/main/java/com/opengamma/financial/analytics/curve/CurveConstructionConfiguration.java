@@ -31,7 +31,7 @@ import com.opengamma.id.UniqueIdentifiable;
  * exogenous curve configurations that are required.
  */
 @BeanDefinition
-@Config
+@Config(description = "Curve construction configuration")
 public class CurveConstructionConfiguration extends DirectBean implements Serializable, UniqueIdentifiable, MutableUniqueIdentifiable {
 
   /** Serialization version */

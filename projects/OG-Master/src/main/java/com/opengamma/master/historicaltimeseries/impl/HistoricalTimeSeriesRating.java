@@ -27,7 +27,7 @@ import com.opengamma.util.ArgumentChecker;
  * <p>
  * This class is immutable and thread-safe.
  */
-@Config
+@Config(description = "Historical time-series rating")
 public class HistoricalTimeSeriesRating {
 
   /**

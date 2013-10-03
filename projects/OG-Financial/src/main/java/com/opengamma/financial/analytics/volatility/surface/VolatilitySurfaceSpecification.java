@@ -16,7 +16,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Specification for a volatility surface - contains all available points on the surface.
  */
-@Config
+@Config(description = "Volatility surface specification")
 public class VolatilitySurfaceSpecification {
   private final SurfaceInstrumentProvider<?, ?> _surfaceInstrumentProvider;
   private final String _name;

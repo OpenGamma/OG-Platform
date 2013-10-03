@@ -28,7 +28,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * The mapping of bloomberg security types description to OG security types.
  */
-@Config
+@Config(description = "Bloomberg security type definition")
 public class BloombergSecurityTypeDefinition implements Serializable, UniqueIdentifiable, MutableUniqueIdentifiable {
   
   private static final long serialVersionUID = 1L;

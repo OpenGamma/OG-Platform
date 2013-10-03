@@ -17,10 +17,20 @@ import com.opengamma.util.time.Tenor;
 /**
  * 
  */
-@Config
+@Config(description = "FX forward curve definition")
 public class FXForwardCurveDefinition {
+
+  /**
+   * The curve name.
+   */
   private final String _name;
+  /**
+   * The target currency pair.
+   */
   private final UnorderedCurrencyPair _target;
+  /**
+   * The tenors.
+   */
   private final Tenor[] _tenors;
 
   public FXForwardCurveDefinition(final String name, final UnorderedCurrencyPair target, final Tenor[] tenors) {
