@@ -37,7 +37,7 @@ $.register_module({
                     random: {
                         type: 'Random',
                         source: '',
-                        datasource: 'randomizedmarketdatasnapshots',
+                        datasource: 'marketdatasnapshots',
                         api_opts: { cache_for: 5000 }
                     },
                     historical: {
@@ -350,7 +350,7 @@ $.register_module({
                 og.api.rest.livedatasources.get({page: '*'}),
                 og.api.rest.timeseriesresolverkeys.get({page: '*'}),
                 og.api.rest.marketdatasnapshots.get({page: '*'}),
-                og.api.rest.randomizedmarketdatasnapshots.get({page: '*'})
+                og.api.rest.marketdatasnapshots.get({page: '*'})
             ).pipe(function (live, historical, snapshot, random) {
                 if (live.data.length) {
                     types.push({type: 'Live', source: live.data[0]});

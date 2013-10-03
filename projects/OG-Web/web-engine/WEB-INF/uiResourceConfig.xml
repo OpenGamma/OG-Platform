@@ -318,7 +318,6 @@
     <fragment>/scripts/og/api/og.api.rest.legalentities.js</fragment>
     <fragment>/scripts/og/api/og.api.rest.livedatasources.js</fragment>
     <fragment>/scripts/og/api/og.api.rest.marketdatasnapshots.js</fragment>
-    <fragment>/scripts/og/api/og.api.rest.randomizedmarketdatasnapshots.js</fragment>
     <fragment>/scripts/og/api/og.api.rest.portfolios.js</fragment>
     <fragment>/scripts/og/api/og.api.rest.positions.js</fragment>
     <fragment>/scripts/og/api/og.api.rest.regions.js</fragment>
