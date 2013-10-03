@@ -19,6 +19,7 @@ import com.opengamma.engine.marketdata.spec.FixedHistoricalMarketDataSpecificati
 import com.opengamma.engine.marketdata.spec.LatestHistoricalMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.engine.marketdata.spec.RandomizingMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
 import com.opengamma.id.UniqueId;
 
@@ -41,6 +42,7 @@ public class MarketDataSpecificationJsonReader {
   private static final String RESOLVER_KEY = "resolverKey";
   private static final String SOURCE = "source";
   private static final String SNAPSHOT = "snapshot";
+  private static final String RANDOM = "random";
   private static final String MARKET_DATA_TYPE = "marketDataType";
   private static final String LIVE = "live";
   private static final String LATEST_HISTORICAL = "latestHistorical";
@@ -52,7 +54,8 @@ public class MarketDataSpecificationJsonReader {
       LIVE, new LiveSpecificationBuilder(),
       LATEST_HISTORICAL, new LatestHistoricalSpecificationBuilder(),
       FIXED_HISTORICAL, new FixedHistoricalSpecificationBuilder(),
-      SNAPSHOT, new SnapshotSpecificationBuilder()
+      SNAPSHOT, new SnapshotSpecificationBuilder(),
+      RANDOM, new RandomSnapshotSpecificationBuilder()
   );
 
   public static MarketDataSpecification buildSpecification(String json) throws JSONException {
@@ -123,6 +126,15 @@ public class MarketDataSpecificationJsonReader {
     @Override
     public MarketDataSpecification build(JSONObject json) throws JSONException {
       return new UserMarketDataSpecification(UniqueId.parse(json.getString(MarketDataSpecificationJsonReader.SNAPSHOT_ID)));
+    }
+  }
+
+  /** Builds instances of {@link UserMarketDataSpecification}. */
+  private static class RandomSnapshotSpecificationBuilder implements SpecificationBuilder {
+
+    @Override
+    public MarketDataSpecification build(JSONObject json) throws JSONException {
+      return new RandomizingMarketDataSpecification(new UserMarketDataSpecification(UniqueId.parse(json.getString(MarketDataSpecificationJsonReader.SNAPSHOT_ID))));
     }
   }
 }

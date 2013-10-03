@@ -8,11 +8,12 @@ $.register_module({
     obj: function () {
         var Block = og.common.util.ui.Block;
         var DatasourcesMenu = function (config) {
-            if (!config) return og.dev.warn('og.analytics.DatasourcesMenu: Missing param [config] to constructor.');
-
-            if (!(config.hasOwnProperty('form')) || !(config.form instanceof og.common.util.ui.Form))
+            if (!config) {
+                return og.dev.warn('og.analytics.DatasourcesMenu: Missing param [config] to constructor.');
+            }
+            if (!(config.hasOwnProperty('form')) || !(config.form instanceof og.common.util.ui.Form)) {
                 return og.dev.warn('og.analytics.DatasourcesMenu: Missing param key [config.form] to constructor.');
-
+            }
             // Private
             var block = this, initialized = false, form = config.form, menu, query = [], $query,
                 default_type_txt = 'select type...', default_sel_txt = 'select data source...',
@@ -33,6 +34,12 @@ $.register_module({
                         datasource: 'marketdatasnapshots',
                         api_opts: { cache_for: 5000 }
                     },
+                    random: {
+                        type: 'Random',
+                        source: '',
+                        datasource: 'randomizedmarketdatasnapshots',
+                        api_opts: { cache_for: 5000 }
+                    },
                     historical: {
                         type: 'Historical',
                         source: '',
@@ -51,6 +58,7 @@ $.register_module({
             };
 
             var add_row_handler = function (obj) {
+                console.log(obj);
                 return new form.Block({
                     module: 'og.analytics.form_datasources_row_tash',
                     extras: {
@@ -64,6 +72,7 @@ $.register_module({
             };
 
             var add_source_dropdown = function (obj) {
+                console.log(obj);
                 var datasource = obj.datasource.split('.').reduce(function (api, key) {return api[key]; }, og.api.rest);
                 return new form.Block({
                     module: 'og.analytics.form_datasources_source_tash',
@@ -77,6 +86,8 @@ $.register_module({
                             }) : obj.type === 'Historical' ? resp.data.map(function (entry) {
                                 return { text: entry, value: entry, selected: obj.source === entry};
                             }) : obj.type === 'Snapshot' ? resp.data[0].snapshots.map(function (entry) {
+                                return { text: entry.name, value: entry.id, selected: obj.source === entry.id };
+                            }) : obj.type === 'Random' ? resp.data[0].snapshots.map(function (entry) {
                                 return { text: entry.name, value: entry.id, selected: obj.source === entry.id };
                             }) : {};
                             if (obj.type === 'Historical') {
@@ -133,8 +144,12 @@ $.register_module({
                 return data.map(function (entry) { // TODO AG: refactor.
                     var obj;
                     switch (entry.marketDataType) {
-                        case 'live': obj = $.extend({}, sources['live'], { source: entry.source }); break;
-                        case 'snapshot': obj = $.extend({}, sources['snapshot'], { source: entry.snapshotId }); break;
+                        case 'live':
+                            obj = $.extend({}, sources['live'], { source: entry.source }); break;
+                        case 'snapshot':
+                            obj = $.extend({}, sources['snapshot'], { source: entry.snapshotId }); break;
+                        case 'random':
+                            obj = $.extend({}, sources['random'], { source: entry.snapshotId }); break;
                         case 'latestHistorical':
                             obj = $.extend({}, sources['historical'], { source: entry.resolverKey }); break;
                         case 'fixedHistorical':
@@ -268,8 +283,12 @@ $.register_module({
                 query.forEach(function (entry) {
                     var obj = {}, val = entry.type.toLowerCase();
                     switch (val) {
-                        case 'live': obj['marketDataType'] = val, obj['source'] = entry.src; break;
-                        case 'snapshot': obj['marketDataType'] = val, obj['snapshotId'] = entry.src; break;
+                        case 'live':
+                            obj['marketDataType'] = val, obj['source'] = entry.src; break;
+                        case 'snapshot':
+                            obj['marketDataType'] = val, obj['snapshotId'] = entry.src; break;
+                        case 'random':
+                            obj['marketDataType'] = val, obj['snapshotId'] = entry.src; break;
                         case 'historical':
                             if (entry.date) {
                                 obj['marketDataType'] = 'fixedHistorical';
@@ -313,6 +332,7 @@ $.register_module({
                 if (parent.hasClass(parent.data('type'))) {
                     remove_entry(idx); remove_ext_opts(entry); display_query();
                 }
+                console.log(sources);
                 add_source_dropdown(sources[type_val]).html(function (html) {
                     src_parent.html($(html));
                     menu.opts[entry].data('type', type_val);
@@ -332,12 +352,21 @@ $.register_module({
             $.when( //TODO AG: Automate this process when an endpoint is available for datasource types
                 og.api.rest.livedatasources.get({page: '*'}),
                 og.api.rest.timeseriesresolverkeys.get({page: '*'}),
-                og.api.rest.marketdatasnapshots.get({page: '*'})
-            ).pipe(function (live, historical, snapshot) {
-                if (live.data.length) types.push({type: 'Live', source: live.data[0]});
-                if (historical.data.length) types.push({type: 'Historical', source: historical[0]});
-                if (snapshot.data.length && snapshot.data[0].snapshots.length)
+                og.api.rest.marketdatasnapshots.get({page: '*'}),
+                og.api.rest.randomizedmarketdatasnapshots.get({page: '*'})
+            ).pipe(function (live, historical, snapshot, random) {
+                if (live.data.length) {
+                    types.push({type: 'Live', source: live.data[0]});
+                }
+                if (historical.data.length) {
+                    types.push({type: 'Historical', source: historical[0]});
+                }
+                if (snapshot.data.length && snapshot.data[0].snapshots.length) {
                     types.push({type: 'Snapshot', source: snapshot.data[0].snapshots[0].id});
+                }
+                if (random.data.length && random.data[0].snapshots.length) {
+                    types.push({type: 'Random', source: random.data[0].snapshots[0].id});
+                }
                 default_source = $.extend({}, sources[types[0].type.toLowerCase()]);
                 default_source.source = types[0].source;
                 datasources = config.source ? deserialize(config.source) : [default_source];
