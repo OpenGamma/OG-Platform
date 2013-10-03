@@ -351,8 +351,23 @@ public final class ViewDefinitionCompiler {
     @Override
     protected void compile(final DependencyGraphBuilder builder) {
       final ViewCalculationConfiguration config = getContext().getViewDefinition().getCalculationConfiguration(builder.getCalculationConfigurationName());
-      addSpecificRequirements(builder, getContext().getViewDefinition().getResultModelDefinition(), config);
-      addPortfolioRequirements(builder, getContext(), config, null, null);
+      Set<ValueRequirement> specificRequirements = config.getSpecificRequirements();
+      if (specificRequirements.isEmpty()) {
+        specificRequirements = null;
+      } else {
+        final ResultModelDefinition resultModelDefinition = getContext().getViewDefinition().getResultModelDefinition();
+        for (final ValueRequirement requirement : specificRequirements) {
+          final ComputationTargetReference targetReference = requirement.getTargetReference();
+          if (resultModelDefinition.getOutputMode(targetReference.getType()) == ResultOutputMode.NONE) {
+            // We're not including this in the results, so no point it being a terminal output. It will be added
+            // automatically if it is needed for some other terminal output.
+            continue;
+          }
+          // Add the specific requirement to the current calc config's dep graph builder
+          builder.addTarget(requirement);
+        }
+      }
+      addPortfolioRequirements(builder, specificRequirements, getContext(), config, null, null);
     }
 
     @Override
@@ -384,6 +399,7 @@ public final class ViewDefinitionCompiler {
     protected void compile(final DependencyGraphBuilder builder) {
       final ViewCalculationConfiguration calcConfig = getContext().getViewDefinition().getCalculationConfiguration(builder.getCalculationConfigurationName());
       final Pair<DependencyGraph, Set<ValueRequirement>> graphPair = _previousGraphs.remove(builder.getCalculationConfigurationName());
+      final Set<ValueRequirement> incrementalRequirements;
       if (graphPair != null) {
         final DependencyGraph graph = graphPair.getFirst();
         if (builder.getCompilationContext().getPortfolio() != null) {
@@ -429,20 +445,22 @@ public final class ViewDefinitionCompiler {
         }
         // Populate the builder with the graph
         builder.setDependencyGraph(graph);
-        final Set<ValueRequirement> requirements = graphPair.getSecond();
-        if (requirements.isEmpty()) {
+        incrementalRequirements = graphPair.getSecond();
+        if (incrementalRequirements.isEmpty()) {
           s_logger.debug("No incremental work for {}", graph);
         } else {
-          s_logger.info("{} incremental resolutions required for {}", requirements.size(), graph);
-          builder.addTarget(requirements);
+          s_logger.info("{} incremental resolutions required for {}", incrementalRequirements.size(), graph);
+          builder.addTarget(incrementalRequirements);
         }
+      } else {
+        incrementalRequirements = null;
       }
       if (_unchangedNodes != null) {
         s_logger.info("Adding portfolio requirements with unchanged node set");
-        addPortfolioRequirements(builder, getContext(), calcConfig, null, _unchangedNodes);
+        addPortfolioRequirements(builder, incrementalRequirements, getContext(), calcConfig, null, _unchangedNodes);
       } else if (_changedPositions != null) {
         s_logger.info("Adding portfolio requirements with changed position set");
-        addPortfolioRequirements(builder, getContext(), calcConfig, _changedPositions, null);
+        addPortfolioRequirements(builder, incrementalRequirements, getContext(), calcConfig, _changedPositions, null);
       } else {
         s_logger.info("No additional portfolio requirements needed");
       }
@@ -510,20 +528,6 @@ public final class ViewDefinitionCompiler {
     }
   }
 
-  private static void addSpecificRequirements(final DependencyGraphBuilder builder, final ResultModelDefinition resultModelDefinition, final ViewCalculationConfiguration calcConfig) {
-    // Scan through the current calc config's specific requirements
-    for (final ValueRequirement requirement : calcConfig.getSpecificRequirements()) {
-      final ComputationTargetReference targetReference = requirement.getTargetReference();
-      if (resultModelDefinition.getOutputMode(targetReference.getType()) == ResultOutputMode.NONE) {
-        // We're not including this in the results, so no point it being a terminal output. It will be added
-        // automatically if it is needed for some other terminal output.
-        continue;
-      }
-      // Add the specific requirement to the current calc config's dep graph builder
-      builder.addTarget(requirement);
-    }
-  }
-
   private static Set<Pair<String, ValueProperties>> getStripes(final Map<String, Set<Pair<String, ValueProperties>>> portfolioRequirementsBySecurityType) {
     final Set<Pair<String, ValueProperties>> stripes = new HashSet<Pair<String, ValueProperties>>();
     for (Set<Pair<String, ValueProperties>> stripe : portfolioRequirementsBySecurityType.values()) {
@@ -557,14 +561,16 @@ public final class ViewDefinitionCompiler {
     s_striped = useStripes;
   }
 
-  private static void addPortfolioRequirements(final DependencyGraphBuilder builder, final ViewCompilationContext context, final ViewCalculationConfiguration calcConfig,
+  private static void addPortfolioRequirements(final DependencyGraphBuilder builder, final Set<ValueRequirement> alreadyAdded, final ViewCompilationContext context,
+      final ViewCalculationConfiguration calcConfig,
       final Set<UniqueId> includeEvents, final Set<UniqueId> excludeEvents) {
     if (calcConfig.getAllPortfolioRequirements().size() == 0) {
       // No portfolio requirements for this calculation configuration - avoid further processing.
       return;
     }
     final Portfolio portfolio = builder.getCompilationContext().getPortfolio();
-    final PortfolioCompilerTraversalCallback traversalCallback = new PortfolioCompilerTraversalCallback(calcConfig, builder, context.getActiveResolutions(), includeEvents, excludeEvents);
+    final PortfolioCompilerTraversalCallback traversalCallback = new PortfolioCompilerTraversalCallback(calcConfig, builder, alreadyAdded, context.getActiveResolutions(), includeEvents,
+        excludeEvents);
     final PortfolioNodeTraverser traverser = PortfolioNodeTraverser.parallel(traversalCallback, context.getServices().getExecutorService());
     if (isStripedPortfolioRequirements()) {
       final Map<String, Set<Pair<String, ValueProperties>>> requirementsBySecurityType = traversalCallback.getPortfolioRequirementsBySecurityType();

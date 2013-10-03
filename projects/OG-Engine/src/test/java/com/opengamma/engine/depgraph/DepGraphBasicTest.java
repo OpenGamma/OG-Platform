@@ -159,7 +159,6 @@ public class DepGraphBasicTest extends AbstractDependencyGraphBuilderTest {
     }
   }
 
-
   public void incrementalBuild() {
     final DepGraphTestHelper helper = helper();
     helper.addFunctionRequiring2Producing1();
