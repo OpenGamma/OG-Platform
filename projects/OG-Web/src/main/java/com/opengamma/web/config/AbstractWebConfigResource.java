@@ -28,7 +28,9 @@ import org.fudgemsg.wire.FudgeMsgReader;
 import org.fudgemsg.wire.FudgeMsgWriter;
 import org.fudgemsg.wire.xml.FudgeXMLStreamReader;
 import org.fudgemsg.wire.xml.FudgeXMLStreamWriter;
+import org.joda.beans.Bean;
 import org.joda.beans.impl.flexi.FlexiBean;
+import org.joda.beans.ser.JodaBeanSer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -176,11 +178,15 @@ public abstract class AbstractWebConfigResource extends AbstractPerRequestWebRes
    * @return the configuration object
    */
   protected <T> T parseXML(String xml, Class<T> type) {
-    final CharArrayReader car = new CharArrayReader(xml.toCharArray());
-    @SuppressWarnings("resource")
-    final FudgeMsgReader fmr = new FudgeMsgReader(new FudgeXMLStreamReader(getFudgeContext(), car));
-    final FudgeMsg message = fmr.nextMessage();
-    return getFudgeContext().fromFudgeMsg(type, message);
+    if (xml.contains("<fudgeEnvelope")) {
+      final CharArrayReader car = new CharArrayReader(xml.toCharArray());
+      @SuppressWarnings("resource")
+      final FudgeMsgReader fmr = new FudgeMsgReader(new FudgeXMLStreamReader(getFudgeContext(), car));
+      final FudgeMsg message = fmr.nextMessage();
+      return getFudgeContext().fromFudgeMsg(type, message);
+    } else {
+      return JodaBeanSer.PRETTY.xmlReader().read(xml, type);
+    }
   }
 
   /**
@@ -198,6 +204,18 @@ public abstract class AbstractWebConfigResource extends AbstractPerRequestWebRes
     
     return new FudgeDeserializer(getFudgeContext()).fudgeMsgToObject(fudgeMsg);
     
+  }
+
+  protected String createBeanXML(ConfigDocument doc) {
+    Object object = doc.getConfig().getValue();
+    if (object instanceof Bean) {
+      try {
+        return JodaBeanSer.PRETTY.xmlWriter().write((Bean) object, false);
+      } catch (RuntimeException ex) {
+        return createXML(doc);
+      }
+    }
+    return createXML(doc);
   }
 
   protected String createXML(ConfigDocument doc) {
