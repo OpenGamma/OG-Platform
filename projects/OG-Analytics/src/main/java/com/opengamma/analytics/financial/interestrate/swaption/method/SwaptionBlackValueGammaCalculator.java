@@ -12,30 +12,32 @@ import com.opengamma.analytics.financial.interestrate.swaption.derivative.Swapti
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackSwaptionBundle;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.CurrencyAmount;
 
 /**
- * @deprecated {@link YieldCurveBundle} is deprecated
+ * Calculates the value gamma of swaptions using the Black model.
+ * @deprecated {@link YieldCurveBundle} is deprecated.
  */
 @Deprecated
-public class SwaptionBlackForwardThetaCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> {
+public class SwaptionBlackValueGammaCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, CurrencyAmount> {
 
   /**
    * The unique instance of the calculator.
    */
-  private static final SwaptionBlackForwardThetaCalculator INSTANCE = new SwaptionBlackForwardThetaCalculator();
+  private static final SwaptionBlackValueGammaCalculator INSTANCE = new SwaptionBlackValueGammaCalculator();
 
   /**
    * Gets the calculator instance.
    * @return The calculator.
    */
-  public static SwaptionBlackForwardThetaCalculator getInstance() {
+  public static SwaptionBlackValueGammaCalculator getInstance() {
     return INSTANCE;
   }
 
   /**
    * Constructor.
    */
-  SwaptionBlackForwardThetaCalculator() {
+  SwaptionBlackValueGammaCalculator() {
   }
 
   /** Physically-settled swaption methods */
@@ -46,36 +48,37 @@ public class SwaptionBlackForwardThetaCalculator extends InstrumentDerivativeVis
   private static final SwaptionPhysicalFixedCompoundedONCompoundedBlackMethod PHYSICAL_COMPOUNDED_SWAPTION = SwaptionPhysicalFixedCompoundedONCompoundedBlackMethod.getInstance();
 
   @Override
-  public Double visitSwaptionCashFixedIbor(final SwaptionCashFixedIbor swaption, final YieldCurveBundle curves) {
+  public CurrencyAmount visitSwaptionCashFixedIbor(final SwaptionCashFixedIbor swaption, final YieldCurveBundle curves) {
     ArgumentChecker.notNull(swaption, "swaption");
     ArgumentChecker.notNull(curves, "curves");
     if (curves instanceof YieldCurveWithBlackSwaptionBundle) {
       final YieldCurveWithBlackSwaptionBundle curvesBlack = (YieldCurveWithBlackSwaptionBundle) curves;
-      return CASH_SWAPTION.forwardThetaTheoretical(swaption, curvesBlack);
+      return CASH_SWAPTION.gamma(swaption, curvesBlack);
     }
-    throw new UnsupportedOperationException("The SwaptionBlackForwardThetaCalculator visitor visitSwaptionCashFixedIbor requires a YieldCurveWithBlackSwaptionBundle as data.");
+    throw new UnsupportedOperationException("The SwaptionBlackValueGammaCalculator visitor visitSwaptionCashFixedIbor requires a YieldCurveWithBlackSwaptionBundle as data.");
   }
 
   @Override
-  public Double visitSwaptionPhysicalFixedIbor(final SwaptionPhysicalFixedIbor swaption, final YieldCurveBundle curves) {
+  public CurrencyAmount visitSwaptionPhysicalFixedIbor(final SwaptionPhysicalFixedIbor swaption, final YieldCurveBundle curves) {
     ArgumentChecker.notNull(swaption, "swaption");
     ArgumentChecker.notNull(curves, "curves");
     if (curves instanceof YieldCurveWithBlackSwaptionBundle) {
       final YieldCurveWithBlackSwaptionBundle curvesBlack = (YieldCurveWithBlackSwaptionBundle) curves;
-      return PHYSICAL_SWAPTION.forwardThetaTheoretical(swaption, curvesBlack);
+      return PHYSICAL_SWAPTION.gamma(swaption, curvesBlack);
     }
-    throw new UnsupportedOperationException("The SwaptionBlackForwardThetaCalculator visitor visitSwaptionPhysicalFixedIbor requires a YieldCurveWithBlackSwaptionBundle as data.");
+    throw new UnsupportedOperationException("The SwaptionBlackValueGammaCalculator visitor visitSwaptionPhysicalFixedIbor requires a YieldCurveWithBlackSwaptionBundle as data.");
   }
 
   @Override
-  public Double visitSwaptionPhysicalFixedCompoundedONCompounded(final SwaptionPhysicalFixedCompoundedONCompounded swaption, final YieldCurveBundle curves) {
+  public CurrencyAmount visitSwaptionPhysicalFixedCompoundedONCompounded(final SwaptionPhysicalFixedCompoundedONCompounded swaption,
+      final YieldCurveBundle curves) {
     ArgumentChecker.notNull(swaption, "swaption");
     ArgumentChecker.notNull(curves, "curves");
     if (curves instanceof YieldCurveWithBlackSwaptionBundle) {
       final YieldCurveWithBlackSwaptionBundle curvesBlack = (YieldCurveWithBlackSwaptionBundle) curves;
-      return PHYSICAL_COMPOUNDED_SWAPTION.driftlessThetaTheoretical(swaption, curvesBlack);
+      return PHYSICAL_COMPOUNDED_SWAPTION.gamma(swaption, curvesBlack);
     }
-    throw new UnsupportedOperationException("The SwaptionBlackForwardThetaCalculator visitor visitSwaptionPhysicalFixedCompoundedONCompounded " +
+    throw new UnsupportedOperationException("The SwaptionBlackValueGammaCalculator visitor visitSwaptionPhysicalFixedCompoundedONCompounded " +
         "requires a YieldCurveWithBlackSwaptionBundle as data.");
   }
 }

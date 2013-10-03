@@ -30,8 +30,10 @@ import com.opengamma.util.tuple.Pair;
  *
  */
 public class SwaptionBlackDefaultPropertiesFunction extends DefaultPropertyFunction {
+  /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(SwaptionBlackDefaultPropertiesFunction.class);
-  private static final String[] s_valueRequirements = new String[] {
+  /** The value requirement names */
+  private static final String[] VALUE_REQUIREMENTS = new String[] {
     ValueRequirementNames.PRESENT_VALUE,
     ValueRequirementNames.VALUE_VEGA,
     ValueRequirementNames.PV01,
@@ -44,10 +46,18 @@ public class SwaptionBlackDefaultPropertiesFunction extends DefaultPropertyFunct
     ValueRequirementNames.THETA,
     ValueRequirementNames.DRIFTLESS_THETA,
     ValueRequirementNames.VEGA,
-    ValueRequirementNames.FORWARD_VEGA
+    ValueRequirementNames.FORWARD_VEGA,
+    ValueRequirementNames.VALUE_DELTA,
+    ValueRequirementNames.VALUE_GAMMA,
+    ValueRequirementNames.VALUE_THETA
   };
+  /** Map from currency to curve calculation configuration and surface names */
   private final Map<String, Pair<String, String>> _currencyCurveConfigAndSurfaceNames;
 
+  /**
+   * A list of (currency, curve calculation configuration name, surface name) triples.
+   * @param currencyCurveConfigAndSurfaceNames The names, not null
+   */
   public SwaptionBlackDefaultPropertiesFunction(final String... currencyCurveConfigAndSurfaceNames) {
     super(FinancialSecurityTypes.SWAPTION_SECURITY, true);
     ArgumentChecker.notNull(currencyCurveConfigAndSurfaceNames, "currency, curve config and surface names");
@@ -69,7 +79,7 @@ public class SwaptionBlackDefaultPropertiesFunction extends DefaultPropertyFunct
 
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
-    for (final String valueRequirement : s_valueRequirements) {
+    for (final String valueRequirement : VALUE_REQUIREMENTS) {
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CURVE_CALCULATION_CONFIG);
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.SURFACE);
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CURVE_CALCULATION_METHOD);

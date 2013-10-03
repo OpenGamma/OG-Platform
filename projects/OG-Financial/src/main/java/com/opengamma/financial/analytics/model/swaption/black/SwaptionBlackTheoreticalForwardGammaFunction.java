@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.swaption.black;
@@ -18,11 +18,16 @@ import com.opengamma.engine.value.ValueSpecification;
 
 /**
  * Calculates gamma of swaptions using the Black method.
+ * @deprecated The parent class of this function is deprecated
  */
 @Deprecated
 public class SwaptionBlackTheoreticalForwardGammaFunction extends SwaptionBlackFunction  {
+  /** The calculator */
   private static final SwaptionBlackForwardGammaCalculator CALCULATOR = SwaptionBlackForwardGammaCalculator.getInstance();
 
+  /**
+   * Sets the value requirement name to {@link ValueRequirementNames#FORWARD_GAMMA}
+   */
   public SwaptionBlackTheoreticalForwardGammaFunction() {
     super(ValueRequirementNames.FORWARD_GAMMA);
   }
