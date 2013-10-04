@@ -146,10 +146,10 @@ import com.opengamma.util.OpenGammaClock;
 
   /**
    * Schedules a new {@link RandomizingTask} to run after a delay of
-   * {@link RandomizingMarketDataSpecification#getAverageCyclePeriod()} +/-50%
+   * {@link RandomizingMarketDataSpecification#getAverageCycleInterval()} +/-50%
    */
   private void scheduleRandomizingTask() {
-    s_timer.schedule(new RandomizingTask(), ((long) (_marketDataSpec.getAverageCyclePeriod() * (0.5 + Math.random()))));
+    s_timer.schedule(new RandomizingTask(), ((long) (_marketDataSpec.getAverageCycleInterval() * (0.5 + Math.random()))));
   }
 
   /**

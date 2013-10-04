@@ -8,6 +8,7 @@ $.register_module({
     obj: function () {
         var Block = og.common.util.ui.Block;
         var DatasourcesMenu = function (config) {
+            console.log(config);
             if (!config) {
                 return og.dev.warn('og.analytics.DatasourcesMenu: Missing param [config] to constructor.');
             }
@@ -34,10 +35,13 @@ $.register_module({
                         datasource: 'marketdatasnapshots',
                         api_opts: { cache_for: 5000 }
                     },
-                    random: {
-                        type: 'Random',
+                    randomizedsnapshot: {
+                        type: 'RandomizedSnapshot',
                         source: '',
                         datasource: 'marketdatasnapshots',
+                        updateProbability: '0.2',
+                        maxPercentageChange: '5',
+                        averageCycleInterval: '1000',
                         api_opts: { cache_for: 5000 }
                     },
                     historical: {
@@ -58,6 +62,7 @@ $.register_module({
             };
 
             var add_row_handler = function (obj) {
+                console.log(obj);
                 return new form.Block({
                     module: 'og.analytics.form_datasources_row_tash',
                     extras: {
@@ -70,6 +75,7 @@ $.register_module({
                 });
             };
 
+            // create the source dropdown block
             var add_source_dropdown = function (obj) {
                 var datasource = obj.datasource.split('.').reduce(function (api, key) {return api[key]; }, og.api.rest);
                 return new form.Block({
@@ -85,7 +91,7 @@ $.register_module({
                                 return { text: entry, value: entry, selected: obj.source === entry};
                             }) : obj.type === 'Snapshot' ? resp.data[0].snapshots.map(function (entry) {
                                 return { text: entry.name, value: entry.id, selected: obj.source === entry.id };
-                            }) : obj.type === 'Random' ? resp.data[0].snapshots.map(function (entry) {
+                            }) : obj.type === 'RandomizedSnapshot' ? resp.data[0].snapshots.map(function (entry) {
                                 return { text: entry.name, value: entry.id, selected: obj.source === entry.id };
                             }) : {};
                             if (obj.type === 'Historical') {
@@ -97,6 +103,14 @@ $.register_module({
                             if (data.historical && data.historical.fixed) {
                                 data.historical.date = obj.date;
                             }
+                            if (obj.type === 'RandomizedSnapshot') {
+                                data.randomizedsnapshot = {
+                                    updateProbability: obj.updateProbability,
+                                    maxPercentageChange: obj.maxPercentageChange,
+                                    averageCycleInterval: obj.averageCycleInterval
+                                };
+                            }
+                            console.log(data);
                             handler(tmpl(data));
                         });
                     }
@@ -139,17 +153,27 @@ $.register_module({
             };
 
             var deserialize = function (data) {
+                console.log(data);
                 return data.map(function (entry) { // TODO AG: refactor.
                     var obj;
                     switch (entry.marketDataType) {
                         case 'live':
-                            obj = $.extend({}, sources['live'], { source: entry.source }); break;
+                            obj = $.extend({}, sources['live'], { source: entry.source });
+                            break;
                         case 'snapshot':
-                            obj = $.extend({}, sources['snapshot'], { source: entry.snapshotId }); break;
-                        case 'random':
-                            obj = $.extend({}, sources['random'], { source: entry.snapshotId }); break;
+                            obj = $.extend({}, sources['snapshot'], { source: entry.snapshotId });
+                            break;
+                        case 'randomizedsnapshot':
+                            obj = $.extend({}, sources['randomizedsnapshot'], {
+                                source: entry.snapshotId,
+                                updateProbability: entry.updateProbability,
+                                maxPercentageChange: entry.maxPercentageChange,
+                                averageCycleInterval: entry.averageCycleInterval
+                            });
+                            break;
                         case 'latestHistorical':
-                            obj = $.extend({}, sources['historical'], { source: entry.resolverKey }); break;
+                            obj = $.extend({}, sources['historical'], { source: entry.resolverKey });
+                            break;
                         case 'fixedHistorical':
                             obj = $.extend({}, sources['historical'], { source: entry.resolverKey, date: entry.date });
                             break;
@@ -188,12 +212,18 @@ $.register_module({
                 } else $query.text(default_sel_txt);
             };
 
+            // enable/disable extra option fields
             var enable_extra_options = function (entry, val, preload) {
-                if (!menu.opts[entry]) return;
+            if (!menu.opts[entry]) return;
                 var inputs = $(extra_opts_s, menu.opts[entry]).find('input');
-                if (!inputs || preload) return;
-                if (val) inputs.removeAttr('disabled').filter(latest_s).addClass(active_s);
-                else inputs.attr('disabled', true).filter('.'+active_s).removeClass(active_s);
+                if (!inputs || preload) {
+                    return;
+                }
+                if (val) {
+                    inputs.removeAttr('disabled').filter(latest_s).addClass(active_s);
+                } else {
+                    inputs.attr('disabled', true).filter('.'+active_s).removeClass(active_s);
+                }
                 inputs.filter(custom_s).removeClass(active_s+ ' ' +date_selected_s).val(custom_val);
             };
 
@@ -205,6 +235,7 @@ $.register_module({
                         menu.$dom.menu
                             .on('click', 'input, button, div.og-icon-delete, a.OG-link-add', menu_handler)
                             .on('change', 'select', menu_handler)
+                            .on('change', '.og-randomized-opts input', menu_handler)
                             .on('keypress', 'select.source', function (event) {
                                 if (event.keyCode === 13) return form.submit();
                             });
@@ -217,6 +248,7 @@ $.register_module({
                 }
             };
 
+            // central event handler
             var menu_handler = function (event) {
                 var entry, elem = $(event.srcElement || event.target), parent = elem.parents(parent_s);
                 if (!parent) return;
@@ -227,36 +259,60 @@ $.register_module({
                 if (elem.is(source_s)) return source_handler(entry);
                 if (elem.is(custom_s)) return display_datepicker(entry);
                 if (elem.is(latest_s)) return remove_date(entry);
+                if (elem.is('.updateProbability')) return set_update_probability(entry, elem);
+                if (elem.is('.maxPercentageChange')) return set_max_percentage_change(entry, elem);
+                if (elem.is('.averageCycleInterval')) return set_average_cycle_interval(entry, elem);
                 if (elem.is('button')) return menu.button_handler(elem.text()), menu.stop(event), false;
+            };
+
+            var set_update_probability = function (entry, elem) {
+                var idx = query.pluck('pos').indexOf(menu.opts[entry].data('pos'));
+                query[idx].updateProbability = elem.val();
+            };
+
+            var set_max_percentage_change = function (entry, elem) {
+                var idx = query.pluck('pos').indexOf(menu.opts[entry].data('pos'));
+                query[idx].maxPercentageChange = elem.val();
+            };
+
+            var set_average_cycle_interval = function (entry, elem) {
+                var idx = query.pluck('pos').indexOf(menu.opts[entry].data('pos'));
+                query[idx].averageCycleInterval = elem.val();
+            };
+
+            var init_randomized_snapshots = function (entry, act) {
+                if (!act) return;
+                set_average_cycle_interval(entry, $('.averageCycleInterval', menu.opts[entry]));
+                set_max_percentage_change(entry, $('.maxPercentageChange', menu.opts[entry]));
+                set_update_probability(entry, $('.updateProbability', menu.opts[entry]));
             };
 
             var remove_date = function (entry) {
                 if (!menu.opts[entry]) return;
                 var custom = $(custom_s, menu.opts[entry]).removeClass(active_s+ ' ' +date_selected_s).val(custom_val);
                 $(latest_s, menu.opts[entry]).addClass(active_s);
-                if (custom.parent().is(versions_s)) delete query[entry].version_date;
-                else if (custom.parent().is(corrections_s)) delete query[entry].correction_date;
-                else delete query[entry].date;
+                if (custom.parent().is(versions_s)) {
+                    delete query[entry].version_date;
+                } else if (custom.parent().is(corrections_s)) {
+                    delete query[entry].correction_date;
+                } else {
+                    delete query[entry].date;
+                }
             };
 
             var remove_entry = function (entry) {
-                if (menu.opts.length === 1 && query.length === 1) return query.length = 0; // fire; resetquery
-                if (~entry) query.splice(entry, 1);
+                if (menu.opts.length === 1 && query.length === 1) {
+                    return query.length = 0;
+                } // fire; resetquery
+                if (~entry) {
+                    query.splice(entry, 1);
+                }
             };
 
             var remove_ext_opts = function (entry) {
                 if (!menu.opts[entry]) return;
                 var parent = menu.opts[entry];
                 return reset_source_select(entry), parent.removeClass(parent.data('type')).find(extra_opts_s).remove();
-            };
-
-            var remove_orphans = function () {
-                for (var i = menu.opts.length-1; i >= 0; i-=1){
-                    if (menu.opts.length === 1) break;
-                    var option = menu.opts[i];
-                    if ($(type_s, option).val() === default_type_txt || $(source_s, option).val() === default_sel_txt)
-                        menu.delete_handler(option);
-                }
             };
 
             var reset_query = function (entry) {
@@ -282,11 +338,20 @@ $.register_module({
                     var obj = {}, val = entry.type.toLowerCase();
                     switch (val) {
                         case 'live':
-                            obj['marketDataType'] = val, obj['source'] = entry.src; break;
+                            obj['marketDataType'] = val;
+                            obj['source'] = entry.src;
+                            break;
                         case 'snapshot':
-                            obj['marketDataType'] = val, obj['snapshotId'] = entry.src; break;
-                        case 'random':
-                            obj['marketDataType'] = val, obj['snapshotId'] = entry.src; break;
+                            obj['marketDataType'] = val;
+                            obj['snapshotId'] = entry.src;
+                            break;
+                        case 'randomizedsnapshot':
+                            obj['marketDataType'] = val;
+                            obj['snapshotId'] = entry.src;
+                            obj['updateProbability'] = entry.updateProbability;
+                            obj['maxPercentageChange'] = entry.maxPercentageChange;
+                            obj['averageCycleInterval'] = entry.averageCycleInterval;
+                            break;
                         case 'historical':
                             if (entry.date) {
                                 obj['marketDataType'] = 'fixedHistorical';
@@ -300,6 +365,7 @@ $.register_module({
                 return arr;
             };
 
+            // dropdown handler for data source for specific data type
             var source_handler = function (entry, preload) {
                 if (!menu.opts[entry]) return;
                 var option, sel_pos = menu.opts[entry].data('pos'),
@@ -312,12 +378,17 @@ $.register_module({
                     date = date !== 'Custom' ? date : null;
                 if (source_val === default_sel_txt) {
                     return remove_entry(idx), display_query(), enable_extra_options(entry, false);
-                } else if (~idx) query[idx] = {pos:sel_pos, type:type_val, src:source_val, txt: source_txt, date: date};
-                else query.splice(sel_pos, 0, {pos:sel_pos, type:type_val, src:source_val, txt: source_txt, date: date});
+                } else if (~idx) {
+                    query[idx] = {pos:sel_pos, type:type_val, src:source_val, txt: source_txt, date: date};
+                } else {
+                    query.splice(sel_pos, 0, {pos:sel_pos, type:type_val, src:source_val, txt: source_txt, date: date});
+                }
+                init_randomized_snapshots(entry, type_val === 'randomizedsnapshot');
                 enable_extra_options(entry, true, preload);
                 display_query();
             };
 
+            // dropdown handler for live, snapshot, randomized snapshot or historical
             var type_handler = function (entry) {
                 if (!menu.opts[entry]) return;
                 var parent = menu.opts[entry], type_select = $(type_s, parent), src_parent = $('.datasource', parent),
@@ -328,7 +399,9 @@ $.register_module({
                         enable_extra_options(entry, false);
                 }
                 if (parent.hasClass(parent.data('type'))) {
-                    remove_entry(idx); remove_ext_opts(entry); display_query();
+                    remove_entry(idx);
+                    remove_ext_opts(entry);
+                    display_query();
                 }
                 add_source_dropdown(sources[type_val]).html(function (html) {
                     src_parent.html($(html));
@@ -349,9 +422,8 @@ $.register_module({
             $.when( //TODO AG: Automate this process when an endpoint is available for datasource types
                 og.api.rest.livedatasources.get({page: '*'}),
                 og.api.rest.timeseriesresolverkeys.get({page: '*'}),
-                og.api.rest.marketdatasnapshots.get({page: '*'}),
                 og.api.rest.marketdatasnapshots.get({page: '*'})
-            ).pipe(function (live, historical, snapshot, random) {
+            ).pipe(function (live, historical, snapshot) {
                 if (live.data.length) {
                     types.push({type: 'Live', source: live.data[0]});
                 }
@@ -360,9 +432,7 @@ $.register_module({
                 }
                 if (snapshot.data.length && snapshot.data[0].snapshots.length) {
                     types.push({type: 'Snapshot', source: snapshot.data[0].snapshots[0].id});
-                }
-                if (random.data.length && random.data[0].snapshots.length) {
-                    types.push({type: 'Random', source: random.data[0].snapshots[0].id});
+                    types.push({type: 'RandomizedSnapshot', source: snapshot.data[0].snapshots[0].id});
                 }
                 default_source = $.extend({}, sources[types[0].type.toLowerCase()]);
                 default_source.source = types[0].source;

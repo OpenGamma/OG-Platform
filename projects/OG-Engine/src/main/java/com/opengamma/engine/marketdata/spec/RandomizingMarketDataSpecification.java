@@ -19,7 +19,7 @@ public class RandomizingMarketDataSpecification extends MarketDataSpecification 
   private final MarketDataSpecification _underlying;
   private final double _updateProbability;
   private final int _maxPercentageChange;
-  private final long _averageCyclePeriod;
+  private final long _averageCycleInterval;
 
   /**
    * @param underlying Specification of the underlying source of market data
@@ -39,7 +39,7 @@ public class RandomizingMarketDataSpecification extends MarketDataSpecification 
     _underlying = underlying;
     _updateProbability = updateProbability;
     _maxPercentageChange = maxPercentageChange;
-    _averageCyclePeriod = averageCycleInterval;
+    _averageCycleInterval = averageCycleInterval;
   }
 
   /**
@@ -72,13 +72,13 @@ public class RandomizingMarketDataSpecification extends MarketDataSpecification 
     return _maxPercentageChange;
   }
 
-  public long getAverageCyclePeriod() {
-    return _averageCyclePeriod;
+  public long getAverageCycleInterval() {
+    return _averageCycleInterval;
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(_underlying, _updateProbability, _maxPercentageChange, _averageCyclePeriod);
+    return Objects.hash(_underlying, _updateProbability, _maxPercentageChange, _averageCycleInterval);
   }
 
   @Override
@@ -96,6 +96,6 @@ public class RandomizingMarketDataSpecification extends MarketDataSpecification 
     return Objects.equals(this._underlying, other._underlying) &&
         Objects.equals(this._updateProbability, other._updateProbability) &&
         Objects.equals(this._maxPercentageChange, other._maxPercentageChange) &&
-        Objects.equals(this._averageCyclePeriod, other._averageCyclePeriod);
+        Objects.equals(this._averageCycleInterval, other._averageCycleInterval);
   }
 }

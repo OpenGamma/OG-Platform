@@ -17,7 +17,7 @@ $.register_module({
                 });
         };
         var action = function (state) {
-            if(!og.analytics.grid) return;//resume is called on form load (og.analytics.form2)
+            if(!og.analytics.grid) return;//resume is called on form load (og.analytics.form)
             if (state === 'pause') markup_pause();
             else markup_resume();
             og.analytics.grid.dataman.pools().forEach(function (val) {

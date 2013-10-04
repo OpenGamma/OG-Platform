@@ -33,6 +33,9 @@ import com.opengamma.id.UniqueId;
  * <code>{"marketDataType": "latestHistorical", "resolverKey": "TSS_CONFIG"}</code>
  * <h4>Snapshot Data</h4>
  * <code>{"marketDataType": "snapshot", "snapshotId": "Snap~1234"}</code>
+ * <h4>Randomized Snapshot Data</h4>
+ * <code>{"marketDataType": "snapshot", "snapshotId": "Snap~1234", "updateProbability": "0.2",
+ * "maxPercentageChange": "5", "averageCycleInterval": "1000"}</code>
  * <p>There are REST endpoints for looking up available values for live data source names, resolver keys and
  * snapshot IDs. See the package documentation for {@link com.opengamma.web.analytics.rest}.</p>
  */
@@ -42,12 +45,15 @@ public class MarketDataSpecificationJsonReader {
   private static final String RESOLVER_KEY = "resolverKey";
   private static final String SOURCE = "source";
   private static final String SNAPSHOT = "snapshot";
-  private static final String RANDOM = "random";
+  private static final String RANDOMIZED_SNAPSHOT = "randomizedsnapshot";
   private static final String MARKET_DATA_TYPE = "marketDataType";
   private static final String LIVE = "live";
   private static final String LATEST_HISTORICAL = "latestHistorical";
   private static final String FIXED_HISTORICAL = "fixedHistorical";
   private static final String DATE = "date";
+  private static final String UPDATE_PROBABILITY = "updateProbability";
+  private static final String MAX_PERCENTAGE_CHANGE = "maxPercentageChange";
+  private static final String AVERAGE_CYCLE_INTERVAL = "averageCycleInterval";
 
   /** Builders keyed by the name of the market data type. */
   private static final Map<String, SpecificationBuilder> s_builders = ImmutableMap.of(
@@ -55,7 +61,7 @@ public class MarketDataSpecificationJsonReader {
       LATEST_HISTORICAL, new LatestHistoricalSpecificationBuilder(),
       FIXED_HISTORICAL, new FixedHistoricalSpecificationBuilder(),
       SNAPSHOT, new SnapshotSpecificationBuilder(),
-      RANDOM, new RandomSnapshotSpecificationBuilder()
+      RANDOMIZED_SNAPSHOT, new RandomSnapshotSpecificationBuilder()
   );
 
   public static MarketDataSpecification buildSpecification(String json) throws JSONException {
@@ -134,7 +140,12 @@ public class MarketDataSpecificationJsonReader {
 
     @Override
     public MarketDataSpecification build(JSONObject json) throws JSONException {
-      return new RandomizingMarketDataSpecification(new UserMarketDataSpecification(UniqueId.parse(json.getString(MarketDataSpecificationJsonReader.SNAPSHOT_ID))));
+      return new RandomizingMarketDataSpecification(
+        new UserMarketDataSpecification(UniqueId.parse(json.getString(MarketDataSpecificationJsonReader.SNAPSHOT_ID))),
+        json.getDouble(MarketDataSpecificationJsonReader.UPDATE_PROBABILITY),
+        json.getInt(MarketDataSpecificationJsonReader.MAX_PERCENTAGE_CHANGE),
+        json.getLong(MarketDataSpecificationJsonReader.AVERAGE_CYCLE_INTERVAL)
+      );
     }
   }
 }
