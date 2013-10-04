@@ -221,10 +221,14 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
    * @param listener the process listener, not null
    * @param viewDefinitionId the id of the view definition, not null
    * @param executionOptions the view execution options, not null
+   * @param viewProcessContextMap contextual information to be added to log statements via MDC
    * @return the permission context to be used for access control, not null
    */
   public ViewPermissionContext attachClientToSharedViewProcess(final UniqueId clientId,
-      final ViewResultListener listener, final UniqueId viewDefinitionId, final ViewExecutionOptions executionOptions) {
+                                                               final ViewResultListener listener,
+                                                               final UniqueId viewDefinitionId,
+                                                               final ViewExecutionOptions executionOptions,
+                                                               final Map<String, String> viewProcessContextMap) {
     ArgumentChecker.notNull(clientId, "clientId");
     ArgumentChecker.notNull(viewDefinitionId, "viewDefinitionId");
     ArgumentChecker.notNull(executionOptions, "executionOptions");
@@ -234,7 +238,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     ViewProcessImpl process = null;
     try {
       process = getOrCreateSharedViewProcess(viewDefinitionId, executionOptions, client.getResultMode(),
-                                             client.getFragmentResultMode(), false);
+                                             client.getFragmentResultMode(), viewProcessContextMap, false);
       return attachClientToViewProcessCore(client, listener, process);
     } catch (final Exception e) {
       // Roll-back
@@ -255,10 +259,14 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
    * @param listener the process listener, not null
    * @param viewDefinitionId the id of the view definition, not null
    * @param executionOptions the view execution options, not null
+   * @param viewProcessContextMap contextual information to be added to log statements via MDC
    * @return the permission provider to be used for access control, not null
    */
   public ViewPermissionContext attachClientToPrivateViewProcess(final UniqueId clientId,
-      final ViewResultListener listener, final UniqueId viewDefinitionId, final ViewExecutionOptions executionOptions) {
+                                                                final ViewResultListener listener,
+                                                                final UniqueId viewDefinitionId,
+                                                                final ViewExecutionOptions executionOptions,
+                                                                final Map<String, String> viewProcessContextMap) {
     ArgumentChecker.notNull(viewDefinitionId, "definitionID");
     ArgumentChecker.notNull(executionOptions, "executionOptions");
     final ViewClientImpl client = getViewClient(clientId);
@@ -269,7 +277,9 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
       process = createViewProcess(viewDefinitionId,
                                   executionOptions,
                                   client.getResultMode(),
-                                  client.getFragmentResultMode(), false);
+                                  client.getFragmentResultMode(),
+                                  viewProcessContextMap,
+                                  false);
       return attachClientToViewProcessCore(client, listener, process);
     } catch (final Exception e) {
       // Roll-back
@@ -352,13 +362,14 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
                                                        ViewExecutionOptions executionOptions,
                                                        ViewResultMode resultMode,
                                                        ViewResultMode fragmentResultMode,
+                                                       Map<String, String> viewProcessContextMap,
                                                        boolean runPersistently) {
     _processLock.lock();
     try {
       final ViewProcessDescription viewDescription = new ViewProcessDescription(viewDefinitionId, executionOptions);
       ViewProcessImpl process = _sharedProcessesByDescription.get(viewDescription);
       if (process == null) {
-        process = createViewProcess(viewDefinitionId, executionOptions, resultMode, fragmentResultMode, runPersistently);
+        process = createViewProcess(viewDefinitionId, executionOptions, resultMode, fragmentResultMode, viewProcessContextMap, runPersistently);
         process.setDescriptionKey(viewDescription); // TEMPORARY - the execution options in the key might not match what the process was created with
         _sharedProcessesByDescription.put(viewDescription, process);
       }
@@ -372,6 +383,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
                                             ViewExecutionOptions viewExecutionOptions,
                                             ViewResultMode resultMode,
                                             ViewResultMode fragmentResultMode,
+                                            Map<String, String> viewProcessContextMap,
                                             boolean runPersistently) {
 
     // TEMPORARY CODE - This method should be removed post credit work and supports Excel (Jim)
@@ -379,14 +391,22 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     // END TEMPORARY CODE
 
     _processLock.lock();
+
     try {
+      // Either set or clear the map to ensure that anything there from a
+      // previous run is removed. This can only happen where we have re-use
+      // of threads e.g. remote clients managed by Jetty
+      if (viewProcessContextMap != null && !viewProcessContextMap.isEmpty()) {
+        MDC.setContextMap(viewProcessContextMap);
+      } else {
+        MDC.clear();
+      }
+
       final String idValue = generateIdValue(_processIdSource);
       final UniqueId viewProcessId = UniqueId.of(PROCESS_SCHEME, idValue);
       final ViewProcessContext viewProcessContext = createViewProcessContext(viewProcessId, new VersionedUniqueIdSupplier(CYCLE_SCHEME, idValue));
       final ViewProcessImpl viewProcess =
           new ViewProcessImpl(definitionId, executionOptions, viewProcessContext, this, runPersistently);
-
-      MDC.put("requestId", "123456");
 
       // If executing in batch mode then attach a special listener to write incoming results into the batch db
       if (executionOptions.getFlags().contains(ViewExecutionFlags.BATCH)) {

@@ -27,7 +27,6 @@ import java.util.concurrent.locks.Lock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
 import org.springframework.util.CollectionUtils;
 import org.threeten.bp.Duration;
 import org.threeten.bp.Instant;
@@ -324,10 +323,6 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
     _deltaCycleTimer = OpenGammaMetricRegistry.getSummaryInstance().timer("SingleThreadViewProcessWorker.cycle.delta");
     _fullCycleTimer = OpenGammaMetricRegistry.getSummaryInstance().timer("SingleThreadViewProcessWorker.cycle.full");
     s_executor.submit(_thread);
-
-    MDC.put("viewName", viewDefinition.getName());
-    System.out.println("VIEWNAME:" + MDC.get("viewName"));
-    s_logger.warn("Outputting via MDC");
   }
 
   private MarketDataManager createMarketDataManager(ViewProcessWorkerContext context) {
