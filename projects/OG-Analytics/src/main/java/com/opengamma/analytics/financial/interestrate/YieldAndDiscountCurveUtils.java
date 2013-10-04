@@ -81,5 +81,18 @@ public class YieldAndDiscountCurveUtils {
     final double rate = -Math.log(df) / timeDc;
     return rate;
   }
+  
+  /**
+   * Compute the zero coupon for a given payment date.
+   * @param curve The curve.
+   * @param curveDate The curve date.
+   * @param payDate The payment date.
+   * @return The rate
+   */
+  public static double discountFactor(final YieldAndDiscountCurve curve, final ZonedDateTime curveDate, final ZonedDateTime payDate) {
+    final double timeCurve = TimeCalculator.getTimeBetween(curveDate, payDate);
+    final double df = curve.getDiscountFactor(timeCurve);
+    return df;
+  }
 
 }
