@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.model.pnl;
 
 import static com.opengamma.engine.value.ValuePropertyNames.CURRENCY;
+import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CURRENCY;
 import static com.opengamma.engine.value.ValueRequirementNames.FX_FORWARD_CURVE_RETURN_SERIES;
 import static com.opengamma.engine.value.ValueRequirementNames.HISTORICAL_FX_TIME_SERIES;
 import static com.opengamma.engine.value.ValueRequirementNames.YIELD_CURVE_RETURN_SERIES;
@@ -189,6 +190,7 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction {
           requirements.add(ConventionBasedFXRateFunction.getHistoricalTimeSeriesRequirement(UnorderedCurrencyPair.of(tradeNonBaseCurrency, tradeBaseCurrency)));
           resultCurrency = tradeNonBaseCurrency.getCode();
         } else {
+          requirements.add(ConventionBasedFXRateFunction.getHistoricalTimeSeriesRequirement(UnorderedCurrencyPair.of(tradeNonBaseCurrency, tradeBaseCurrency)));
           resultCurrency = tradeBaseCurrency.getCode();
         }
       } else {
@@ -257,7 +259,7 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction {
         return null;
       }
       builder.with(ValuePropertyNames.CURRENCY, resultCurrency)
-             .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
+          .with(ValuePropertyNames.PROPERTY_PNL_CONTRIBUTIONS, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
       final ValueProperties properties = builder.get();
       final ComputationTargetSpecification targetSpec = target.toSpecification();
       return ImmutableSet.of(new ValueSpecification(ValueRequirementNames.YIELD_CURVE_PNL_SERIES, targetSpec, properties));
@@ -277,6 +279,8 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction {
       final Currency payCurrency = security.getPayCurrency();
       final Currency receiveCurrency = security.getReceiveCurrency();
       final CurrencyPair currencyPair = _currencyPairs.getCurrencyPair(payCurrency, receiveCurrency);
+      final String curveCurrency = desiredValue.getConstraint(CURVE_CURRENCY);
+
       final Currency baseCurrency = currencyPair.getBase();
       final ValueProperties resultProperties = desiredValues.iterator().next().getConstraints();
       TenorLabelledLocalDateDoubleTimeSeriesMatrix1D returnSeries;
@@ -295,16 +299,13 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction {
         s_logger.warn("No Currency property - returns result in base currency");
         pnlSeriesVector = getPnLVector(returnSeries, sensitivities);
       } else {
-        final Currency resultCurrency = Currency.of(Iterables.getOnlyElement(resultCurrencies));
-        if (resultCurrency.equals(baseCurrency)) {
-          pnlSeriesVector = getPnLVector(returnSeries, sensitivities);
-        } else {
-          final LocalDateDoubleTimeSeries conversionTS = (LocalDateDoubleTimeSeries) inputs.getValue(HISTORICAL_FX_TIME_SERIES);
-          if (conversionTS == null) {
-            throw new OpenGammaRuntimeException("Asked for result in " + resultCurrency + " but could not get " + baseCurrency + "/" + resultCurrency + " conversion series");
-          }
-          pnlSeriesVector = getPnLVector(returnSeries, conversionTS, sensitivities);
+        final String resultCurrency = Iterables.getOnlyElement(resultCurrencies);
+        boolean resultEqualsCurveCurrency = resultCurrency.equals(curveCurrency);
+        final LocalDateDoubleTimeSeries conversionTS = (LocalDateDoubleTimeSeries) inputs.getValue(HISTORICAL_FX_TIME_SERIES);
+        if (conversionTS == null) {
+          throw new OpenGammaRuntimeException("Asked for result in " + resultCurrency + " but could not get " + curveCurrency + "/" + resultCurrency + " conversion series");
         }
+        pnlSeriesVector = getPnLVector(returnSeries, conversionTS, sensitivities, resultEqualsCurveCurrency);
       }
       return ImmutableSet.of(new ComputedValue(new ValueSpecification(ValueRequirementNames.YIELD_CURVE_PNL_SERIES, target.toSpecification(), resultProperties), pnlSeriesVector));
     }
@@ -414,13 +415,18 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction {
      * @return The P&L vector for each curve node tenor converted into the desired currency
      */
     private TenorLabelledLocalDateDoubleTimeSeriesMatrix1D getPnLVector(final TenorLabelledLocalDateDoubleTimeSeriesMatrix1D returnSeries, final LocalDateDoubleTimeSeries conversionSeries,
-        final DoubleLabelledMatrix1D sensitivities) {
+        final DoubleLabelledMatrix1D sensitivities, final boolean resultCurveCurrency) {
       final int size = returnSeries.size();
       final LocalDateDoubleTimeSeries[] nodesPnlSeries = new LocalDateDoubleTimeSeries[size];
       for (int i = 0; i < size; i++) {
-        final LocalDateDoubleTimeSeries convertedSeries = conversionSeries.multiply(sensitivities.getValues()[i]);
-        final LocalDateDoubleTimeSeries nodePnlSeries = returnSeries.getValues()[i].multiply(convertedSeries);
-        nodesPnlSeries[i] = nodePnlSeries;
+        if (resultCurveCurrency) {
+          final LocalDateDoubleTimeSeries nodePnlSeries = returnSeries.getValues()[i].multiply(sensitivities.getValues()[i]);
+          nodesPnlSeries[i] = nodePnlSeries;
+        }  else {
+          final LocalDateDoubleTimeSeries convertedSeries = conversionSeries.reciprocal().multiply(sensitivities.getValues()[i]);
+          final LocalDateDoubleTimeSeries nodePnlSeries = returnSeries.getValues()[i].multiply(convertedSeries);
+          nodesPnlSeries[i] = nodePnlSeries;
+        }
       }
       return new TenorLabelledLocalDateDoubleTimeSeriesMatrix1D(returnSeries.getKeys(), returnSeries.getLabels(), nodesPnlSeries);
     }
