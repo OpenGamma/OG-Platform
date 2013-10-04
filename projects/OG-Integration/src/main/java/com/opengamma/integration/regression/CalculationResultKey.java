@@ -52,8 +52,51 @@ public final class CalculationResultKey implements ImmutableBean {
   @PropertyDefinition
   private final ObjectId _targetId;
 
+  public static CalculationResultKey forPosition(String calcConfigName,
+                                                 String valueName,
+                                                 ValueProperties properties,
+                                                 ObjectId positionId) {
+    ArgumentChecker.notNull(positionId, "positionId");
+    return new CalculationResultKey(calcConfigName, valueName, properties, null, positionId);
+  }
+
+  public static CalculationResultKey forCurrency(String calcConfigName,
+                                                 String valueName,
+                                                 ValueProperties properties,
+                                                 ObjectId currencyId) {
+    ArgumentChecker.notNull(currencyId, "currencyId");
+    return new CalculationResultKey(calcConfigName, valueName, properties, null, currencyId);
+  }
+
+  public static CalculationResultKey forPositionWithParentNode(String calcConfigName,
+                                                               String valueName,
+                                                               ValueProperties properties,
+                                                               List<String> path,
+                                                               ObjectId positionId) {
+    ArgumentChecker.notNull(path, "path");
+    ArgumentChecker.notNull(positionId, "positionId");
+    return new CalculationResultKey(calcConfigName, valueName, properties, path, positionId);
+  }
+
+  public static CalculationResultKey forNode(String calcConfigName,
+                                             String valueName,
+                                             ValueProperties properties,
+                                             List<String> path) {
+    ArgumentChecker.notNull(path, "path");
+    return new CalculationResultKey(calcConfigName, valueName, properties, path, null);
+  }
+
+  public static CalculationResultKey forTrade(String calcConfigName,
+                                              String valueName,
+                                              ValueProperties properties,
+                                              ObjectId tradeId) {
+    ArgumentChecker.notNull(tradeId, "tradeId");
+    return new CalculationResultKey(calcConfigName, valueName, properties, null, tradeId);
+  }
+
+  // TODO can't let this be regenerated because of a joda beans bug handling nullable lists
   @ImmutableConstructor
-  public CalculationResultKey(String calcConfigName,
+  private CalculationResultKey(String calcConfigName,
                               String valueName,
                               ValueProperties properties,
                               List<String> path,

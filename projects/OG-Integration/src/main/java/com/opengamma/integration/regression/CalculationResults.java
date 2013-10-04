@@ -33,6 +33,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.position.Trade;
@@ -84,54 +85,69 @@ public final class CalculationResults implements ImmutableBean {
       ComputedValueResult computedValue = entry.getComputedValue();
       ValueSpecification valueSpec = computedValue.getSpecification();
       ComputationTargetSpecification targetSpec = valueSpec.getTargetSpecification();
-      ComputationTargetType targetType = targetSpec.getType();
-      UniqueId nodeId;
-      ObjectId targetId;
-      if (targetType.equals(ComputationTargetType.POSITION)) {
-        ComputationTargetReference nodeRef = targetSpec.getParent();
-        // position targets can have a parent node but it's not guaranteed
-        if (nodeRef != null) {
-          nodeId = nodeRef.getSpecification().getUniqueId();
-        } else {
-          nodeId = null;
-        }
-        UniqueId positionId = targetSpec.getUniqueId();
-        String idAttr = positionSource.getPosition(positionId).getAttributes().get(DatabaseRestore.REGRESSION_ID);
-        if (idAttr != null) {
-          targetId = ObjectId.parse(idAttr);
-        } else {
-          targetId = null;
-          s_logger.warn("No ID attribute found for " + positionId);
-        }
-      } else if (targetType.equals(ComputationTargetType.PORTFOLIO_NODE)) {
-        nodeId = targetSpec.getUniqueId();
-        targetId = null;
-      } else if (targetType.equals(ComputationTargetType.TRADE)) {
-        // TODO this assumes a trade target spec will never have a parent
-        // this is true at the moment but subject to change. see PLAT-2286
-        // and PortfolioCompilerTraversalCallback.preOrderOperation
-        nodeId = null;
-        UniqueId tradeId = targetSpec.getUniqueId();
-        Trade trade = positionSource.getTrade(tradeId);
-        String idAttr = trade.getAttributes().get(DatabaseRestore.REGRESSION_ID);
-        targetId = ObjectId.parse(idAttr);
-      } else if (targetType.equals(ComputationTargetType.CURRENCY)) {
-        nodeId = null;
-        targetId = targetSpec.getUniqueId().getObjectId();
-      } else {
-        s_logger.warn("Ignoring target with type {}", targetType);
-        continue;
+      CalculationResultKey key = getResultKey(entry, valueSpec, targetSpec, nodesToPaths, positionSource);
+      if (key != null) {
+        valueMap.put(key, computedValue.getValue());
       }
-      List<String> path = nodesToPaths.get(nodeId);
-      ValueProperties properties = removeFunctionIds(valueSpec.getProperties());
-      CalculationResultKey key = new CalculationResultKey(entry.getCalculationConfiguration(),
-                                                          valueSpec.getValueName(),
-                                                          properties,
-                                                          path,
-                                                          targetId);
-      valueMap.put(key, computedValue.getValue());
     }
     return new CalculationResults(valueMap, viewDef.getViewDefinition().getName(), snapshotName);
+  }
+
+  private static CalculationResultKey getResultKey(ViewResultEntry entry,
+                                                   ValueSpecification valueSpec,
+                                                   ComputationTargetSpecification targetSpec,
+                                                   Map<UniqueId, List<String>> nodesToPaths,
+                                                   PositionSource positionSource) {
+    CalculationResultKey key;
+    ValueProperties properties = removeFunctionIds(valueSpec.getProperties());
+    ComputationTargetType targetType = targetSpec.getType();
+    if (targetType.equals(ComputationTargetType.POSITION)) {
+      ComputationTargetReference nodeRef = targetSpec.getParent();
+      UniqueId positionId = targetSpec.getUniqueId();
+      String idAttr = positionSource.getPosition(positionId).getAttributes().get(DatabaseRestore.REGRESSION_ID);
+      if (idAttr == null) {
+        throw new OpenGammaRuntimeException("No ID attribute found for " + positionId);
+      }
+      // position targets can have a parent node but it's not guaranteed
+      if (nodeRef != null) {
+        UniqueId nodeId = nodeRef.getSpecification().getUniqueId();
+        List<String> path = nodesToPaths.get(nodeId);
+        key = CalculationResultKey.forPositionWithParentNode(entry.getCalculationConfiguration(),
+                                                             valueSpec.getValueName(),
+                                                             properties,
+                                                             path,
+                                                             ObjectId.parse(idAttr));
+      } else {
+        key = CalculationResultKey.forPosition(entry.getCalculationConfiguration(),
+                                               valueSpec.getValueName(),
+                                               properties,
+                                               ObjectId.parse(idAttr));
+      }
+    } else if (targetType.equals(ComputationTargetType.PORTFOLIO_NODE)) {
+      UniqueId nodeId = targetSpec.getUniqueId();
+      List<String> path = nodesToPaths.get(nodeId);
+      key = CalculationResultKey.forNode(entry.getCalculationConfiguration(), valueSpec.getValueName(), properties, path);
+    } else if (targetType.equals(ComputationTargetType.TRADE)) {
+      // TODO this assumes a trade target spec will never have a parent
+      // this is true at the moment but subject to change. see PLAT-2286
+      // and PortfolioCompilerTraversalCallback.preOrderOperation
+      UniqueId tradeId = targetSpec.getUniqueId();
+      Trade trade = positionSource.getTrade(tradeId);
+      String idAttr = trade.getAttributes().get(DatabaseRestore.REGRESSION_ID);
+      key = CalculationResultKey.forTrade(entry.getCalculationConfiguration(),
+                                          valueSpec.getValueName(),
+                                          properties,
+                                          ObjectId.parse(idAttr));
+    } else if (targetType.equals(ComputationTargetType.CURRENCY)) {
+      key = CalculationResultKey.forCurrency(entry.getCalculationConfiguration(),
+                                             valueSpec.getValueName(),
+                                             properties,
+                                             targetSpec.getUniqueId().getObjectId());
+    } else {
+      s_logger.warn("Ignoring target with type {}", targetType);
+      key = null;
+    }
+    return key;
   }
 
   /**

@@ -27,7 +27,6 @@ public class ViewRegressionTest {
   private final String _newWorkingDir;
   private final String _configFile;
   private final String _logbackConfig;
-  private final String _databaseUrl; // TODO multiple URLs - standard, user, batch, hts
   private final String _classpath;
 
   public ViewRegressionTest(String databaseDumpDir,
@@ -35,14 +34,12 @@ public class ViewRegressionTest {
                             String newWorkingDir,
                             String configFile,
                             String serverJar,
-                            String logbackConfig,
-                            String databaseUrl) {
+                            String logbackConfig) {
     _databaseDumpDir = databaseDumpDir;
     _baseWorkingDir = baseWorkingDir;
     _newWorkingDir = newWorkingDir;
     _configFile = configFile;
     _logbackConfig = logbackConfig;
-    _databaseUrl = databaseUrl;
     _classpath = "config:lib/" + serverJar;
   }
 
@@ -52,23 +49,27 @@ public class ViewRegressionTest {
     Instant valuationTime = Instant.now();
     // TODO these need the database URLs, user names and passwords. separate DB props file for regression tests?
     // or command line args to the tool?
+    // TODO need a separate DB for each run, don't reuse. need both copies for compiling the report
     Properties dbProps = new Properties();
     Map<Pair<String, String>, CalculationResults> newResults = runViews(_newWorkingDir, valuationTime, dbProps);
     Map<Pair<String, String>, CalculationResults> baseResults = runViews(_baseWorkingDir, valuationTime, dbProps);
     // TODO compare results
     throw new UnsupportedOperationException();
+    // TODO generate report. joda bean and use the new XML format for readability? or freemarker?
   }
 
   private Map<Pair<String, String>, CalculationResults> runViews(String workingDir,
                                                                  Instant valuationTime,
                                                                  Properties dbProps) {
     // don't use the config file to be sure we don't accidentally clobber a real database
+    // TODO this needs to run in the context of each server installation so it picks up the schema files from there
     EmptyDatabaseCreator.createDatabases(dbProps);
     // TODO don't hard-code the port
     int port = 8080;
     String serverUrl = "http://localhost:" + port;
     // run the server, populate the database and stop the server.
     // it needs to be restarted before the tests to pick up function repo changes from the database
+    // TODO can this be done by creating DB masters directly rather than running a server and connecting remotely?
     try (ServerProcess ignored = ServerProcess.start(workingDir, _classpath, _configFile, dbProps, _logbackConfig);
          RemoteServer server = RemoteServer.create(serverUrl)) {
       DatabaseRestore.restoreDatabase(_databaseDumpDir, server);
