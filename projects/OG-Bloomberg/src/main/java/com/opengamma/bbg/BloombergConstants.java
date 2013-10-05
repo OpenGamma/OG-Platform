@@ -239,7 +239,8 @@ public final class BloombergConstants {
    * Rates
    */
   public static final String BLOOMBERG_NON_DELIVERABLE_IRS_SWAP_TYPE = "NON-DELIVERABLE IRS SWAP";
-
+  public static final String BLOOMBERG_IMM_SWAP_TYPE = "IMM SWAP";
+  
   public static final Name RESPONSE_ERROR = new Name("responseError");
   public static final Name SECURITY_DATA = new Name("securityData");
   public static final Name SECURITY = new Name("security");
