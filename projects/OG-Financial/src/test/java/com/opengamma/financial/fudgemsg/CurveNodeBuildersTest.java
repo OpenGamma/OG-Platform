@@ -111,13 +111,13 @@ public class CurveNodeBuildersTest extends AnalyticsTestBase {
 
   @Test
   public void testIMMSwapNodeBuilder() {
-    IMMSwapNode node = new IMMSwapNode(Tenor.ONE_DAY, 4, 40, ExternalId.of("convention", "pay"), ExternalId.of("convention", "receive"), "TEST");
+    IMMSwapNode node = new IMMSwapNode(Tenor.ONE_DAY, 4, 40, ExternalId.of("convention", "swap"), "TEST");
     assertEquals(node, cycleObject(IMMSwapNode.class, node));
-    node = new IMMSwapNode(Tenor.ONE_DAY, 4, 40, ExternalId.of("convention", "pay"), ExternalId.of("convention", "receive"), true, "TEST");
+    node = new IMMSwapNode(Tenor.ONE_DAY, 4, 40, ExternalId.of("convention", "swap"), true, "TEST");
     assertEquals(node, cycleObject(IMMSwapNode.class, node));
-    node = new IMMSwapNode(Tenor.ONE_DAY, 4, 40, ExternalId.of("convention", "pay"), ExternalId.of("convention", "receive"), "TEST", "name");
+    node = new IMMSwapNode(Tenor.ONE_DAY, 4, 40, ExternalId.of("convention", "swap"), "TEST", "name");
     assertEquals(node, cycleObject(IMMSwapNode.class, node));
-    node = new IMMSwapNode(Tenor.ONE_DAY, 4, 40, ExternalId.of("convention", "pay"), ExternalId.of("convention", "receive"), true, "TEST", "name");
+    node = new IMMSwapNode(Tenor.ONE_DAY, 4, 40, ExternalId.of("convention", "swap"), true, "TEST", "name");
     assertEquals(node, cycleObject(IMMSwapNode.class, node));
   }
 

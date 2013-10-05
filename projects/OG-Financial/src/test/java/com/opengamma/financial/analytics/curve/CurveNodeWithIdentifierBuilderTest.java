@@ -115,7 +115,7 @@ public class CurveNodeWithIdentifierBuilderTest {
 
   @Test
   public void testIMMSwap() {
-    final IMMSwapNode immSwap = new IMMSwapNode(Tenor.ONE_YEAR, 4, 40, ExternalId.of("Test1", "Test1"), ExternalId.of("Test2", "Test2"), "Id mapper");
+    final IMMSwapNode immSwap = new IMMSwapNode(Tenor.ONE_YEAR, 4, 40, ExternalId.of("Test1", "Test1"), "Id mapper");
     assertEquals(new CurveNodeWithIdentifier(immSwap, ExternalId.of("Test", "IMM Swap"), "IMM Swap Data", DataFieldType.OUTRIGHT), immSwap.accept(BUILDER));
   }
 

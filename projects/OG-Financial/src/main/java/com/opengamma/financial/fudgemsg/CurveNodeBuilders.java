@@ -375,10 +375,8 @@ import com.opengamma.util.time.Tenor;
     private static final String START_IMM_DATE_NUMBER_FIELD = "startIMMDateNumber";
     /** The end IMM date number field */
     private static final String END_IMM_DATE_NUMBER_FIELD = "endIMMDateNumber";
-    /** The pay leg convention field */
-    private static final String PAY_LEG_CONVENTION_FIELD = "payLegConvention";
-    /** The receive leg convention field */
-    private static final String RECEIVE_LEG_CONVENTION_FIELD = "receiveLegConvention";
+    /** The swap convention field */
+    private static final String SWAP_CONVENTION_FIELD = "payLegConvention";
     /** The use fixings field */
     private static final String USE_FIXINGS_FIELD = "useFixings";
 
@@ -389,8 +387,7 @@ import com.opengamma.util.time.Tenor;
       message.add(START_TENOR_FIELD, object.getStartTenor().getPeriod().toString());
       message.add(START_IMM_DATE_NUMBER_FIELD, object.getImmDateStartNumber());
       message.add(END_IMM_DATE_NUMBER_FIELD, object.getImmDateEndNumber());
-      message.add(PAY_LEG_CONVENTION_FIELD, object.getPayLegConvention());
-      message.add(RECEIVE_LEG_CONVENTION_FIELD, object.getReceiveLegConvention());
+      message.add(SWAP_CONVENTION_FIELD, object.getSwapConvention());
       message.add(CURVE_MAPPER_ID_FIELD, object.getCurveNodeIdMapperName());
       if (object.getName() != null) {
         message.add(NAME_FIELD, object.getName());
@@ -404,22 +401,21 @@ import com.opengamma.util.time.Tenor;
       final Tenor startTenor = Tenor.of(Period.parse(message.getString(START_TENOR_FIELD)));
       final int immDateStartNumber = message.getInt(START_IMM_DATE_NUMBER_FIELD);
       final int immDateEndNumber = message.getInt(END_IMM_DATE_NUMBER_FIELD);
-      final ExternalId payLegConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(PAY_LEG_CONVENTION_FIELD));
-      final ExternalId receiveLegConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(RECEIVE_LEG_CONVENTION_FIELD));
+      final ExternalId swapConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(SWAP_CONVENTION_FIELD));
       final String curveNodeIdMapperName = message.getString(CURVE_MAPPER_ID_FIELD);
       if (message.hasField(NAME_FIELD)) {
         final String name = message.getString(NAME_FIELD);
         if (message.hasField(USE_FIXINGS_FIELD)) {
           final boolean useFixings = message.getBoolean(USE_FIXINGS_FIELD);
-          return new IMMSwapNode(startTenor, immDateStartNumber, immDateEndNumber, payLegConvention, receiveLegConvention, useFixings, curveNodeIdMapperName, name);
+          return new IMMSwapNode(startTenor, immDateStartNumber, immDateEndNumber, swapConvention, useFixings, curveNodeIdMapperName, name);
         }
-        return new IMMSwapNode(startTenor, immDateStartNumber, immDateEndNumber, payLegConvention, receiveLegConvention, curveNodeIdMapperName, name);
+        return new IMMSwapNode(startTenor, immDateStartNumber, immDateEndNumber, swapConvention, curveNodeIdMapperName, name);
       }
       if (message.hasField(USE_FIXINGS_FIELD)) {
         final boolean useFixings = message.getBoolean(USE_FIXINGS_FIELD);
-        return new IMMSwapNode(startTenor, immDateStartNumber, immDateEndNumber, payLegConvention, receiveLegConvention, useFixings, curveNodeIdMapperName);
+        return new IMMSwapNode(startTenor, immDateStartNumber, immDateEndNumber, swapConvention, useFixings, curveNodeIdMapperName);
       }
-      return new IMMSwapNode(startTenor, immDateStartNumber, immDateEndNumber, payLegConvention, receiveLegConvention, curveNodeIdMapperName);
+      return new IMMSwapNode(startTenor, immDateStartNumber, immDateEndNumber, swapConvention, curveNodeIdMapperName);
     }
 
   }
