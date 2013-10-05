@@ -42,6 +42,8 @@ public class CurveNodeIdMapperBuilder implements FudgeBuilder<CurveNodeIdMapper>
   public static final String FRA_NODE_FIELD = "fraIds";
   /** The FX forward node field */
   public static final String FX_FORWARD_NODE_FIELD = "fxForwardIds";
+  /** The IMM swap node field */
+  public static final String IMM_SWAP_NODE_FIELD = "immSwapIds";
   /** The rate future node field */
   public static final String RATE_FUTURE_FIELD = "rateFutureIds";
   /** The swap node field */
@@ -75,6 +77,9 @@ public class CurveNodeIdMapperBuilder implements FudgeBuilder<CurveNodeIdMapper>
     if (object.getFXForwardNodeIds() != null) {
       message.add(FX_FORWARD_NODE_FIELD, getMessageForField(serializer, object.getFXForwardNodeIds()));
     }
+    if (object.getIMMMSwapNodeIds() != null) {
+      message.add(IMM_SWAP_NODE_FIELD, getMessageForField(serializer, object.getIMMMSwapNodeIds()));
+    }
     if (object.getRateFutureNodeIds() != null) {
       message.add(RATE_FUTURE_FIELD, getMessageForField(serializer, object.getRateFutureNodeIds()));
     }
@@ -102,6 +107,7 @@ public class CurveNodeIdMapperBuilder implements FudgeBuilder<CurveNodeIdMapper>
     final Map<Tenor, CurveInstrumentProvider> discountFactorNodeIds = getMapForField(DISCOUNT_FACTOR_NODE_FIELD, deserializer, message);
     final Map<Tenor, CurveInstrumentProvider> fraNodeIds = getMapForField(FRA_NODE_FIELD, deserializer, message);
     final Map<Tenor, CurveInstrumentProvider> fxForwardNodeIds = getMapForField(FX_FORWARD_NODE_FIELD, deserializer, message);
+    final Map<Tenor, CurveInstrumentProvider> immSwapNodeIds = getMapForField(IMM_SWAP_NODE_FIELD, deserializer, message);
     final Map<Tenor, CurveInstrumentProvider> rateFutureNodeIds = getMapForField(RATE_FUTURE_FIELD, deserializer, message);
     final Map<Tenor, CurveInstrumentProvider> swapNodeIds = getMapForField(SWAP_NODE_FIELD, deserializer, message);
     final Map<Tenor, CurveInstrumentProvider> zeroCouponInflationNodeIds = getMapForField(ZERO_COUPON_INFLATION_NODE_FIELD, deserializer, message);
@@ -113,6 +119,7 @@ public class CurveNodeIdMapperBuilder implements FudgeBuilder<CurveNodeIdMapper>
         discountFactorNodeIds(discountFactorNodeIds).
         fraNodeIds(fraNodeIds).
         fxForwardNodeIds(fxForwardNodeIds).
+        immSwapNodeIds(immSwapNodeIds).
         rateFutureNodeIds(rateFutureNodeIds).
         name(name).
         swapNodeIds(swapNodeIds).
