@@ -5,33 +5,17 @@
  */
 package com.opengamma.financial.analytics.curve;
 
-import static com.opengamma.financial.analytics.curve.NodeConverterUtils.getFixedLeg;
-import static com.opengamma.financial.analytics.curve.NodeConverterUtils.getIborCompoundingLeg;
-import static com.opengamma.financial.analytics.curve.NodeConverterUtils.getIborLeg;
-import static com.opengamma.financial.analytics.curve.NodeConverterUtils.getOISLeg;
-
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
-import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
-import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
-import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
-import com.opengamma.financial.analytics.conversion.CalendarUtils;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
-import com.opengamma.financial.convention.CompoundingIborLegConvention;
 import com.opengamma.financial.convention.Convention;
 import com.opengamma.financial.convention.ConventionSource;
-import com.opengamma.financial.convention.IborIndexConvention;
-import com.opengamma.financial.convention.OISLegConvention;
-import com.opengamma.financial.convention.OvernightIndexConvention;
-import com.opengamma.financial.convention.SwapFixedLegConvention;
-import com.opengamma.financial.convention.VanillaIborLegConvention;
-import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 
@@ -91,60 +75,11 @@ public class SwapNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinit
     }
     final Convention receiveLegConvention = _conventionSource.getConvention(swapNode.getReceiveLegConvention());
     if (receiveLegConvention == null) {
-      throw new OpenGammaRuntimeException("Convention with id " + swapNode.getPayLegConvention() + " was null");
+      throw new OpenGammaRuntimeException("Convention with id " + swapNode.getReceiveLegConvention() + " was null");
     }
-    final AnnuityDefinition<? extends PaymentDefinition> payLeg;
-    final AnnuityDefinition<? extends PaymentDefinition> receiveLeg;
-    final boolean isFloatFloat = ((payLegConvention instanceof VanillaIborLegConvention) || (payLegConvention instanceof OISLegConvention) ||
-        (payLegConvention instanceof CompoundingIborLegConvention))
-        &&  ((receiveLegConvention instanceof VanillaIborLegConvention) || (receiveLegConvention instanceof OISLegConvention) ||
-            (receiveLegConvention instanceof CompoundingIborLegConvention));
     final Period startTenor = swapNode.getStartTenor().getPeriod();
     final Period maturityTenor = swapNode.getMaturityTenor().getPeriod();
-    if (payLegConvention instanceof SwapFixedLegConvention) {
-      final SwapFixedLegConvention fixedLegConvention = (SwapFixedLegConvention) payLegConvention;
-      final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, fixedLegConvention.getRegionCalendar());
-      payLeg = getFixedLeg(fixedLegConvention, startTenor, maturityTenor, true, calendar, _marketData, _dataId, _valuationTime);
-    } else if (payLegConvention instanceof VanillaIborLegConvention) {
-      final VanillaIborLegConvention iborLegConvention = (VanillaIborLegConvention) payLegConvention;
-      final IborIndexConvention indexConvention = _conventionSource.getConvention(IborIndexConvention.class, iborLegConvention.getIborIndexConvention());
-      final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, indexConvention.getRegionCalendar());
-      payLeg = getIborLeg(iborLegConvention, indexConvention, startTenor, maturityTenor, true, calendar, false, _marketData, _dataId, _valuationTime);
-    } else if (payLegConvention instanceof OISLegConvention) {
-      final OISLegConvention oisLegConvention = (OISLegConvention) payLegConvention;
-      final OvernightIndexConvention indexConvention = _conventionSource.getConvention(OvernightIndexConvention.class, oisLegConvention.getOvernightIndexConvention());
-      final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, indexConvention.getRegionCalendar());
-      payLeg = getOISLeg(oisLegConvention, indexConvention, startTenor, maturityTenor, true, calendar, false, _marketData, _dataId, _valuationTime);
-    } else if (payLegConvention instanceof CompoundingIborLegConvention) {
-      final CompoundingIborLegConvention iborLegConvention = (CompoundingIborLegConvention) payLegConvention;
-      final IborIndexConvention indexConvention = _conventionSource.getConvention(IborIndexConvention.class, iborLegConvention.getIborIndexConvention());
-      final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, indexConvention.getRegionCalendar());
-      payLeg = getIborCompoundingLeg(iborLegConvention, indexConvention, startTenor, maturityTenor, true, calendar, false, _marketData, _dataId, _valuationTime);
-    } else {
-      throw new OpenGammaRuntimeException("Cannot handle convention type " + payLegConvention.getClass());
-    }
-    if (receiveLegConvention instanceof SwapFixedLegConvention) {
-      final SwapFixedLegConvention fixedLegConvention = (SwapFixedLegConvention) receiveLegConvention;
-      final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, fixedLegConvention.getRegionCalendar());
-      receiveLeg = getFixedLeg(fixedLegConvention, startTenor, maturityTenor, false, calendar, _marketData, _dataId, _valuationTime);
-    } else if (receiveLegConvention instanceof VanillaIborLegConvention) {
-      final VanillaIborLegConvention iborLegConvention = (VanillaIborLegConvention) receiveLegConvention;
-      final IborIndexConvention indexConvention = _conventionSource.getConvention(IborIndexConvention.class, iborLegConvention.getIborIndexConvention());
-      final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, indexConvention.getRegionCalendar());
-      receiveLeg = getIborLeg(iborLegConvention, indexConvention, startTenor, maturityTenor, false, calendar, isFloatFloat, _marketData, _dataId, _valuationTime);
-    } else if (receiveLegConvention instanceof OISLegConvention) {
-      final OISLegConvention oisLegConvention = (OISLegConvention) receiveLegConvention;
-      final OvernightIndexConvention indexConvention = _conventionSource.getConvention(OvernightIndexConvention.class, oisLegConvention.getOvernightIndexConvention());
-      final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, indexConvention.getRegionCalendar());
-      receiveLeg = getOISLeg(oisLegConvention, indexConvention, startTenor, maturityTenor, false, calendar, isFloatFloat, _marketData, _dataId, _valuationTime);
-    } else if (receiveLegConvention instanceof CompoundingIborLegConvention) {
-      final CompoundingIborLegConvention iborLegConvention = (CompoundingIborLegConvention) receiveLegConvention;
-      final IborIndexConvention indexConvention = _conventionSource.getConvention(IborIndexConvention.class, iborLegConvention.getIborIndexConvention());
-      final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, indexConvention.getRegionCalendar());
-      receiveLeg = getIborCompoundingLeg(iborLegConvention, indexConvention, startTenor, maturityTenor, false, calendar, isFloatFloat, _marketData, _dataId, _valuationTime);
-    } else {
-      throw new OpenGammaRuntimeException("Cannot handle convention type " + receiveLegConvention.getClass());
-    }
-    return new SwapDefinition(payLeg, receiveLeg);
+    return NodeConverterUtils.getSwapDefinition(payLegConvention, receiveLegConvention, startTenor, maturityTenor, _regionSource,
+        _holidaySource, _conventionSource, _marketData, _dataId, _valuationTime);
   }
 }
