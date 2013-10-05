@@ -90,6 +90,11 @@ public class SyntheticIdentifierCurveInstrumentProvider implements CurveInstrume
     return ExternalId.of(_scheme, _ccy.getCode() + _idType.name() + "_" + indexType + resetTenor.getPeriod().toString() + "_" + tenor.getPeriod().toString());
   }
 
+  @Override
+  public ExternalId getInstrument(final LocalDate curveDate, final Tenor startTenor, final int startIMMPeriods, final int endIMMPeriods) {
+    return ExternalId.of(_scheme, _ccy.getCode() + _idType.name() + startTenor.getPeriod().toString() + "_" + startIMMPeriods + "_" + endIMMPeriods);
+  }
+
   public Currency getCurrency() {
     return _ccy;
   }

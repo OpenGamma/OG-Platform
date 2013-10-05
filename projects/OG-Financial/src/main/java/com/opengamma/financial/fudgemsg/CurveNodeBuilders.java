@@ -23,6 +23,7 @@ import com.opengamma.financial.analytics.ircurve.strips.DeliverableSwapFutureNod
 import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
+import com.opengamma.financial.analytics.ircurve.strips.IMMSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.InflationNodeType;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
@@ -359,6 +360,66 @@ import com.opengamma.util.time.Tenor;
         return new FXForwardNode(startTenor, maturityTenor, fxForwardConvention, payCurrency, receiveCurrency, curveNodeIdMapperName, name);
       }
       return new FXForwardNode(startTenor, maturityTenor, fxForwardConvention, payCurrency, receiveCurrency, curveNodeIdMapperName);
+    }
+
+  }
+
+  /**
+   * Fudge builder for {@link IMMSwapNode}
+   */
+  @FudgeBuilderFor(IMMSwapNode.class)
+  public static class IMMSwapNodeBuilder implements FudgeBuilder<IMMSwapNode> {
+    /** The start tenor field */
+    private static final String START_TENOR_FIELD = "startTenor";
+    /** The start IMM date number field */
+    private static final String START_IMM_DATE_NUMBER_FIELD = "startIMMDateNumber";
+    /** The end IMM date number field */
+    private static final String END_IMM_DATE_NUMBER_FIELD = "endIMMDateNumber";
+    /** The pay leg convention field */
+    private static final String PAY_LEG_CONVENTION_FIELD = "payLegConvention";
+    /** The receive leg convention field */
+    private static final String RECEIVE_LEG_CONVENTION_FIELD = "receiveLegConvention";
+    /** The use fixings field */
+    private static final String USE_FIXINGS_FIELD = "useFixings";
+
+    @Override
+    public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final IMMSwapNode object) {
+      final MutableFudgeMsg message = serializer.newMessage();
+      message.add(null, 0, object.getClass().getName());
+      message.add(START_TENOR_FIELD, object.getStartTenor().getPeriod().toString());
+      message.add(START_IMM_DATE_NUMBER_FIELD, object.getImmDateStartNumber());
+      message.add(END_IMM_DATE_NUMBER_FIELD, object.getImmDateEndNumber());
+      message.add(PAY_LEG_CONVENTION_FIELD, object.getPayLegConvention());
+      message.add(RECEIVE_LEG_CONVENTION_FIELD, object.getReceiveLegConvention());
+      message.add(CURVE_MAPPER_ID_FIELD, object.getCurveNodeIdMapperName());
+      if (object.getName() != null) {
+        message.add(NAME_FIELD, object.getName());
+      }
+      message.add(USE_FIXINGS_FIELD, object.isUseFixings());
+      return message;
+    }
+
+    @Override
+    public IMMSwapNode buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final Tenor startTenor = Tenor.of(Period.parse(message.getString(START_TENOR_FIELD)));
+      final int immDateStartNumber = message.getInt(START_IMM_DATE_NUMBER_FIELD);
+      final int immDateEndNumber = message.getInt(END_IMM_DATE_NUMBER_FIELD);
+      final ExternalId payLegConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(PAY_LEG_CONVENTION_FIELD));
+      final ExternalId receiveLegConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(RECEIVE_LEG_CONVENTION_FIELD));
+      final String curveNodeIdMapperName = message.getString(CURVE_MAPPER_ID_FIELD);
+      if (message.hasField(NAME_FIELD)) {
+        final String name = message.getString(NAME_FIELD);
+        if (message.hasField(USE_FIXINGS_FIELD)) {
+          final boolean useFixings = message.getBoolean(USE_FIXINGS_FIELD);
+          return new IMMSwapNode(startTenor, immDateStartNumber, immDateEndNumber, payLegConvention, receiveLegConvention, useFixings, curveNodeIdMapperName, name);
+        }
+        return new IMMSwapNode(startTenor, immDateStartNumber, immDateEndNumber, payLegConvention, receiveLegConvention, curveNodeIdMapperName, name);
+      }
+      if (message.hasField(USE_FIXINGS_FIELD)) {
+        final boolean useFixings = message.getBoolean(USE_FIXINGS_FIELD);
+        return new IMMSwapNode(startTenor, immDateStartNumber, immDateEndNumber, payLegConvention, receiveLegConvention, useFixings, curveNodeIdMapperName);
+      }
+      return new IMMSwapNode(startTenor, immDateStartNumber, immDateEndNumber, payLegConvention, receiveLegConvention, curveNodeIdMapperName);
     }
 
   }

@@ -20,6 +20,7 @@ import com.opengamma.financial.analytics.ircurve.strips.DeliverableSwapFutureNod
 import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
+import com.opengamma.financial.analytics.ircurve.strips.IMMSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.ZeroCouponInflationNode;
@@ -114,6 +115,21 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
   }
 
   @Override
+  public Set<Currency> visitIMMSwapNode(final IMMSwapNode node) {
+    final Convention payConvention = _conventionSource.getConvention(node.getPayLegConvention());
+    if (payConvention == null) {
+      throw new OpenGammaRuntimeException("Could not get pay convention with id " + node.getPayLegConvention());
+    }
+    final Convention receiveConvention = _conventionSource.getConvention(node.getReceiveLegConvention());
+    if (receiveConvention == null) {
+      throw new OpenGammaRuntimeException("Could not get receive convention with id " + node.getReceiveLegConvention());
+    }
+    final Set<Currency> currencies = new HashSet<>(getCurrencies(payConvention));
+    currencies.addAll(getCurrencies(receiveConvention));
+    return currencies;
+  }
+
+  @Override
   public Set<Currency> visitRateFutureNode(final RateFutureNode node) {
     final Convention futureConvention = _conventionSource.getConvention(node.getFutureConvention());
     if (futureConvention == null) {
@@ -154,6 +170,11 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
     return getCurrencies(priceIndexConvention);
   }
 
+  /**
+   * Gets all relevant currencies for a convention (including any underlying conventions).
+   * @param convention The convention, not null
+   * @return The set of relevant currencies.
+   */
   protected Set<Currency> getCurrencies(final Convention convention) {
     ArgumentChecker.notNull(convention, "convention");
     if (convention instanceof CMSLegConvention) {

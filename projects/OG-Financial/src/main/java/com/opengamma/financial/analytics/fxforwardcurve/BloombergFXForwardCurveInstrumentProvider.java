@@ -140,6 +140,11 @@ public class BloombergFXForwardCurveInstrumentProvider implements FXForwardCurve
   }
 
   @Override
+  public ExternalId getInstrument(final LocalDate curveDate, final Tenor startTenor, final int startIMMPeriods, final int endIMMPeriods) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public int hashCode() {
     return getPrefix().hashCode() + getPostfix().hashCode() + getDataFieldName().hashCode();
   }

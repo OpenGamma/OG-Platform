@@ -23,10 +23,10 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Tenor;
 
 /**
- *
+ * An IMM swap curve node.
  */
 @BeanDefinition
-public class SwapNode extends CurveNode {
+public class IMMSwapNode extends CurveNode {
 
   /** Serialization version */
   private static final long serialVersionUID = 1L;
@@ -38,10 +38,16 @@ public class SwapNode extends CurveNode {
   private Tenor _startTenor;
 
   /**
-   * The maturity tenor.
+   * The IMM date start number.
    */
   @PropertyDefinition(validate = "notNull")
-  private Tenor _maturityTenor;
+  private int _immDateStartNumber;
+
+  /**
+   * The IMM date end number.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private int _immDateEndNumber;
 
   /**
    * The pay leg convention.
@@ -64,77 +70,97 @@ public class SwapNode extends CurveNode {
   /**
    * For the builder.
    */
-  /* package */SwapNode() {
+  /* package */ IMMSwapNode() {
     super();
   }
 
   /**
+   * Sets the useFixings field to true and the node name to null
    * @param startTenor The start tenor, not null
-   * @param maturityTenor The maturity tenor, not null
+   * @param immDateStartNumber The IMM date start number, not negative or zero
+   * @param immDateEndNumber The IMM date end number, not negative or zero
    * @param payLegConvention The pay leg convention, not null
    * @param receiveLegConvention The receive leg convention, not null
    * @param curveNodeIdMapperName The curve node id mapper name, not null
    */
-  public SwapNode(final Tenor startTenor, final Tenor maturityTenor, final ExternalId payLegConvention, final ExternalId receiveLegConvention,
-      final String curveNodeIdMapperName) {
+  public IMMSwapNode(final Tenor startTenor, final int immDateStartNumber, final int immDateEndNumber, final ExternalId payLegConvention,
+      final ExternalId receiveLegConvention, final String curveNodeIdMapperName) {
     super(curveNodeIdMapperName);
+    ArgumentChecker.notNegativeOrZero(immDateStartNumber, "IMM date start number");
+    ArgumentChecker.notNegativeOrZero(immDateEndNumber, "IMM date end number");
     setStartTenor(startTenor);
-    setMaturityTenor(maturityTenor);
+    setImmDateStartNumber(immDateStartNumber);
+    setImmDateEndNumber(immDateEndNumber);
     setPayLegConvention(payLegConvention);
     setReceiveLegConvention(receiveLegConvention);
     setUseFixings(true);
   }
 
   /**
+   * Sets the node name to null
    * @param startTenor The start tenor, not null
-   * @param maturityTenor The maturity tenor, not null
+   * @param immDateStartNumber The IMM date start number, not negative or zero
+   * @param immDateEndNumber The IMM date end number, not negative or zero
    * @param payLegConvention The pay leg convention, not null
    * @param receiveLegConvention The receive leg convention, not null
-   * @param useFixings True if fixings are to be used in curve construction
-   * @param curveNodeIdMapperName The curve node id mapper name, not null
+   * @param useFixings Use fixings
+   * @param curveNodeIdMapperName The curve node id mapper name
    */
-  public SwapNode(final Tenor startTenor, final Tenor maturityTenor, final ExternalId payLegConvention, final ExternalId receiveLegConvention,
-      final boolean useFixings, final String curveNodeIdMapperName) {
+  public IMMSwapNode(final Tenor startTenor, final int immDateStartNumber, final int immDateEndNumber, final ExternalId payLegConvention,
+      final ExternalId receiveLegConvention, final boolean useFixings, final String curveNodeIdMapperName) {
     super(curveNodeIdMapperName);
+    ArgumentChecker.notNegativeOrZero(immDateStartNumber, "IMM date start number");
+    ArgumentChecker.notNegativeOrZero(immDateEndNumber, "IMM date end number");
     setStartTenor(startTenor);
-    setMaturityTenor(maturityTenor);
+    setImmDateStartNumber(immDateStartNumber);
+    setImmDateEndNumber(immDateEndNumber);
     setPayLegConvention(payLegConvention);
     setReceiveLegConvention(receiveLegConvention);
     setUseFixings(useFixings);
   }
 
   /**
+   * Sets the useFixings field to true and the node name to null
    * @param startTenor The start tenor, not null
-   * @param maturityTenor The maturity tenor, not null
+   * @param immDateStartNumber The IMM date start number, not negative or zero
+   * @param immDateEndNumber The IMM date end number, not negative or zero
    * @param payLegConvention The pay leg convention, not null
    * @param receiveLegConvention The receive leg convention, not null
    * @param curveNodeIdMapperName The curve node id mapper name, not null
-   * @param name The name
+   * @param name The curve node name
    */
-  public SwapNode(final Tenor startTenor, final Tenor maturityTenor, final ExternalId payLegConvention, final ExternalId receiveLegConvention,
-      final String curveNodeIdMapperName, final String name) {
+  public IMMSwapNode(final Tenor startTenor, final int immDateStartNumber, final int immDateEndNumber, final ExternalId payLegConvention,
+      final ExternalId receiveLegConvention, final String curveNodeIdMapperName, final String name) {
     super(curveNodeIdMapperName, name);
+    ArgumentChecker.notNegativeOrZero(immDateStartNumber, "IMM date start number");
+    ArgumentChecker.notNegativeOrZero(immDateEndNumber, "IMM date end number");
     setStartTenor(startTenor);
-    setMaturityTenor(maturityTenor);
+    setImmDateStartNumber(immDateStartNumber);
+    setImmDateEndNumber(immDateEndNumber);
     setPayLegConvention(payLegConvention);
     setReceiveLegConvention(receiveLegConvention);
     setUseFixings(true);
   }
 
   /**
+   * Sets the node name to null
    * @param startTenor The start tenor, not null
-   * @param maturityTenor The maturity tenor, not null
+   * @param immDateStartNumber The IMM date start number, not negative or zero
+   * @param immDateEndNumber The IMM date end number, not negative or zero
    * @param payLegConvention The pay leg convention, not null
    * @param receiveLegConvention The receive leg convention, not null
-   * @param useFixings True if fixings are to be used in curve construction
-   * @param curveNodeIdMapperName The curve node id mapper name, not null
-   * @param name The name
+   * @param useFixings Use fixings
+   * @param curveNodeIdMapperName The curve node id mapper name
+   * @param name The curve node name
    */
-  public SwapNode(final Tenor startTenor, final Tenor maturityTenor, final ExternalId payLegConvention, final ExternalId receiveLegConvention,
-      final boolean useFixings, final String curveNodeIdMapperName, final String name) {
+  public IMMSwapNode(final Tenor startTenor, final int immDateStartNumber, final int immDateEndNumber, final ExternalId payLegConvention,
+      final ExternalId receiveLegConvention, final boolean useFixings, final String curveNodeIdMapperName, final String name) {
     super(curveNodeIdMapperName, name);
+    ArgumentChecker.notNegativeOrZero(immDateStartNumber, "IMM date start number");
+    ArgumentChecker.notNegativeOrZero(immDateEndNumber, "IMM date end number");
     setStartTenor(startTenor);
-    setMaturityTenor(maturityTenor);
+    setImmDateStartNumber(immDateStartNumber);
+    setImmDateEndNumber(immDateEndNumber);
     setPayLegConvention(payLegConvention);
     setReceiveLegConvention(receiveLegConvention);
     setUseFixings(useFixings);
@@ -142,32 +168,32 @@ public class SwapNode extends CurveNode {
 
   @Override
   public Tenor getResolvedMaturity() {
-    return Tenor.of(_startTenor.getPeriod().plus(_maturityTenor.getPeriod()));
+    return Tenor.of(getStartTenor().getPeriod().plusMonths(_immDateEndNumber * 3));
   }
 
   @Override
   public <T> T accept(final CurveNodeVisitor<T> visitor) {
     ArgumentChecker.notNull(visitor, "visitor");
-    return visitor.visitSwapNode(this);
+    return visitor.visitIMMSwapNode(this);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code SwapNode}.
+   * The meta-bean for {@code IMMSwapNode}.
    * @return the meta-bean, not null
    */
-  public static SwapNode.Meta meta() {
-    return SwapNode.Meta.INSTANCE;
+  public static IMMSwapNode.Meta meta() {
+    return IMMSwapNode.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(SwapNode.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(IMMSwapNode.Meta.INSTANCE);
   }
 
   @Override
-  public SwapNode.Meta metaBean() {
-    return SwapNode.Meta.INSTANCE;
+  public IMMSwapNode.Meta metaBean() {
+    return IMMSwapNode.Meta.INSTANCE;
   }
 
   //-----------------------------------------------------------------------
@@ -198,28 +224,54 @@ public class SwapNode extends CurveNode {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the maturity tenor.
+   * Gets the IMM date start number.
    * @return the value of the property, not null
    */
-  public Tenor getMaturityTenor() {
-    return _maturityTenor;
+  public int getImmDateStartNumber() {
+    return _immDateStartNumber;
   }
 
   /**
-   * Sets the maturity tenor.
-   * @param maturityTenor  the new value of the property, not null
+   * Sets the IMM date start number.
+   * @param immDateStartNumber  the new value of the property, not null
    */
-  public void setMaturityTenor(Tenor maturityTenor) {
-    JodaBeanUtils.notNull(maturityTenor, "maturityTenor");
-    this._maturityTenor = maturityTenor;
+  public void setImmDateStartNumber(int immDateStartNumber) {
+    JodaBeanUtils.notNull(immDateStartNumber, "immDateStartNumber");
+    this._immDateStartNumber = immDateStartNumber;
   }
 
   /**
-   * Gets the the {@code maturityTenor} property.
+   * Gets the the {@code immDateStartNumber} property.
    * @return the property, not null
    */
-  public final Property<Tenor> maturityTenor() {
-    return metaBean().maturityTenor().createProperty(this);
+  public final Property<Integer> immDateStartNumber() {
+    return metaBean().immDateStartNumber().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the IMM date end number.
+   * @return the value of the property, not null
+   */
+  public int getImmDateEndNumber() {
+    return _immDateEndNumber;
+  }
+
+  /**
+   * Sets the IMM date end number.
+   * @param immDateEndNumber  the new value of the property, not null
+   */
+  public void setImmDateEndNumber(int immDateEndNumber) {
+    JodaBeanUtils.notNull(immDateEndNumber, "immDateEndNumber");
+    this._immDateEndNumber = immDateEndNumber;
+  }
+
+  /**
+   * Gets the the {@code immDateEndNumber} property.
+   * @return the property, not null
+   */
+  public final Property<Integer> immDateEndNumber() {
+    return metaBean().immDateEndNumber().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -302,8 +354,8 @@ public class SwapNode extends CurveNode {
 
   //-----------------------------------------------------------------------
   @Override
-  public SwapNode clone() {
-    return (SwapNode) super.clone();
+  public IMMSwapNode clone() {
+    return (IMMSwapNode) super.clone();
   }
 
   @Override
@@ -312,9 +364,10 @@ public class SwapNode extends CurveNode {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      SwapNode other = (SwapNode) obj;
+      IMMSwapNode other = (IMMSwapNode) obj;
       return JodaBeanUtils.equal(getStartTenor(), other.getStartTenor()) &&
-          JodaBeanUtils.equal(getMaturityTenor(), other.getMaturityTenor()) &&
+          (getImmDateStartNumber() == other.getImmDateStartNumber()) &&
+          (getImmDateEndNumber() == other.getImmDateEndNumber()) &&
           JodaBeanUtils.equal(getPayLegConvention(), other.getPayLegConvention()) &&
           JodaBeanUtils.equal(getReceiveLegConvention(), other.getReceiveLegConvention()) &&
           (isUseFixings() == other.isUseFixings()) &&
@@ -327,7 +380,8 @@ public class SwapNode extends CurveNode {
   public int hashCode() {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getStartTenor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityTenor());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getImmDateStartNumber());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getImmDateEndNumber());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPayLegConvention());
     hash += hash * 31 + JodaBeanUtils.hashCode(getReceiveLegConvention());
     hash += hash * 31 + JodaBeanUtils.hashCode(isUseFixings());
@@ -336,8 +390,8 @@ public class SwapNode extends CurveNode {
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(192);
-    buf.append("SwapNode{");
+    StringBuilder buf = new StringBuilder(224);
+    buf.append("IMMSwapNode{");
     int len = buf.length();
     toString(buf);
     if (buf.length() > len) {
@@ -351,7 +405,8 @@ public class SwapNode extends CurveNode {
   protected void toString(StringBuilder buf) {
     super.toString(buf);
     buf.append("startTenor").append('=').append(getStartTenor()).append(',').append(' ');
-    buf.append("maturityTenor").append('=').append(getMaturityTenor()).append(',').append(' ');
+    buf.append("immDateStartNumber").append('=').append(getImmDateStartNumber()).append(',').append(' ');
+    buf.append("immDateEndNumber").append('=').append(getImmDateEndNumber()).append(',').append(' ');
     buf.append("payLegConvention").append('=').append(getPayLegConvention()).append(',').append(' ');
     buf.append("receiveLegConvention").append('=').append(getReceiveLegConvention()).append(',').append(' ');
     buf.append("useFixings").append('=').append(isUseFixings()).append(',').append(' ');
@@ -359,7 +414,7 @@ public class SwapNode extends CurveNode {
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code SwapNode}.
+   * The meta-bean for {@code IMMSwapNode}.
    */
   public static class Meta extends CurveNode.Meta {
     /**
@@ -371,34 +426,40 @@ public class SwapNode extends CurveNode {
      * The meta-property for the {@code startTenor} property.
      */
     private final MetaProperty<Tenor> _startTenor = DirectMetaProperty.ofReadWrite(
-        this, "startTenor", SwapNode.class, Tenor.class);
+        this, "startTenor", IMMSwapNode.class, Tenor.class);
     /**
-     * The meta-property for the {@code maturityTenor} property.
+     * The meta-property for the {@code immDateStartNumber} property.
      */
-    private final MetaProperty<Tenor> _maturityTenor = DirectMetaProperty.ofReadWrite(
-        this, "maturityTenor", SwapNode.class, Tenor.class);
+    private final MetaProperty<Integer> _immDateStartNumber = DirectMetaProperty.ofReadWrite(
+        this, "immDateStartNumber", IMMSwapNode.class, Integer.TYPE);
+    /**
+     * The meta-property for the {@code immDateEndNumber} property.
+     */
+    private final MetaProperty<Integer> _immDateEndNumber = DirectMetaProperty.ofReadWrite(
+        this, "immDateEndNumber", IMMSwapNode.class, Integer.TYPE);
     /**
      * The meta-property for the {@code payLegConvention} property.
      */
     private final MetaProperty<ExternalId> _payLegConvention = DirectMetaProperty.ofReadWrite(
-        this, "payLegConvention", SwapNode.class, ExternalId.class);
+        this, "payLegConvention", IMMSwapNode.class, ExternalId.class);
     /**
      * The meta-property for the {@code receiveLegConvention} property.
      */
     private final MetaProperty<ExternalId> _receiveLegConvention = DirectMetaProperty.ofReadWrite(
-        this, "receiveLegConvention", SwapNode.class, ExternalId.class);
+        this, "receiveLegConvention", IMMSwapNode.class, ExternalId.class);
     /**
      * The meta-property for the {@code useFixings} property.
      */
     private final MetaProperty<Boolean> _useFixings = DirectMetaProperty.ofReadWrite(
-        this, "useFixings", SwapNode.class, Boolean.TYPE);
+        this, "useFixings", IMMSwapNode.class, Boolean.TYPE);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "startTenor",
-        "maturityTenor",
+        "immDateStartNumber",
+        "immDateEndNumber",
         "payLegConvention",
         "receiveLegConvention",
         "useFixings");
@@ -414,8 +475,10 @@ public class SwapNode extends CurveNode {
       switch (propertyName.hashCode()) {
         case -1583746178:  // startTenor
           return _startTenor;
-        case 45907375:  // maturityTenor
-          return _maturityTenor;
+        case 2126343860:  // immDateStartNumber
+          return _immDateStartNumber;
+        case -548980051:  // immDateEndNumber
+          return _immDateEndNumber;
         case 774631511:  // payLegConvention
           return _payLegConvention;
         case -560732676:  // receiveLegConvention
@@ -427,13 +490,13 @@ public class SwapNode extends CurveNode {
     }
 
     @Override
-    public BeanBuilder<? extends SwapNode> builder() {
-      return new DirectBeanBuilder<SwapNode>(new SwapNode());
+    public BeanBuilder<? extends IMMSwapNode> builder() {
+      return new DirectBeanBuilder<IMMSwapNode>(new IMMSwapNode());
     }
 
     @Override
-    public Class<? extends SwapNode> beanType() {
-      return SwapNode.class;
+    public Class<? extends IMMSwapNode> beanType() {
+      return IMMSwapNode.class;
     }
 
     @Override
@@ -451,11 +514,19 @@ public class SwapNode extends CurveNode {
     }
 
     /**
-     * The meta-property for the {@code maturityTenor} property.
+     * The meta-property for the {@code immDateStartNumber} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Tenor> maturityTenor() {
-      return _maturityTenor;
+    public final MetaProperty<Integer> immDateStartNumber() {
+      return _immDateStartNumber;
+    }
+
+    /**
+     * The meta-property for the {@code immDateEndNumber} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Integer> immDateEndNumber() {
+      return _immDateEndNumber;
     }
 
     /**
@@ -487,15 +558,17 @@ public class SwapNode extends CurveNode {
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -1583746178:  // startTenor
-          return ((SwapNode) bean).getStartTenor();
-        case 45907375:  // maturityTenor
-          return ((SwapNode) bean).getMaturityTenor();
+          return ((IMMSwapNode) bean).getStartTenor();
+        case 2126343860:  // immDateStartNumber
+          return ((IMMSwapNode) bean).getImmDateStartNumber();
+        case -548980051:  // immDateEndNumber
+          return ((IMMSwapNode) bean).getImmDateEndNumber();
         case 774631511:  // payLegConvention
-          return ((SwapNode) bean).getPayLegConvention();
+          return ((IMMSwapNode) bean).getPayLegConvention();
         case -560732676:  // receiveLegConvention
-          return ((SwapNode) bean).getReceiveLegConvention();
+          return ((IMMSwapNode) bean).getReceiveLegConvention();
         case 1829944031:  // useFixings
-          return ((SwapNode) bean).isUseFixings();
+          return ((IMMSwapNode) bean).isUseFixings();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -504,19 +577,22 @@ public class SwapNode extends CurveNode {
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -1583746178:  // startTenor
-          ((SwapNode) bean).setStartTenor((Tenor) newValue);
+          ((IMMSwapNode) bean).setStartTenor((Tenor) newValue);
           return;
-        case 45907375:  // maturityTenor
-          ((SwapNode) bean).setMaturityTenor((Tenor) newValue);
+        case 2126343860:  // immDateStartNumber
+          ((IMMSwapNode) bean).setImmDateStartNumber((Integer) newValue);
+          return;
+        case -548980051:  // immDateEndNumber
+          ((IMMSwapNode) bean).setImmDateEndNumber((Integer) newValue);
           return;
         case 774631511:  // payLegConvention
-          ((SwapNode) bean).setPayLegConvention((ExternalId) newValue);
+          ((IMMSwapNode) bean).setPayLegConvention((ExternalId) newValue);
           return;
         case -560732676:  // receiveLegConvention
-          ((SwapNode) bean).setReceiveLegConvention((ExternalId) newValue);
+          ((IMMSwapNode) bean).setReceiveLegConvention((ExternalId) newValue);
           return;
         case 1829944031:  // useFixings
-          ((SwapNode) bean).setUseFixings((Boolean) newValue);
+          ((IMMSwapNode) bean).setUseFixings((Boolean) newValue);
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
@@ -524,11 +600,12 @@ public class SwapNode extends CurveNode {
 
     @Override
     protected void validate(Bean bean) {
-      JodaBeanUtils.notNull(((SwapNode) bean)._startTenor, "startTenor");
-      JodaBeanUtils.notNull(((SwapNode) bean)._maturityTenor, "maturityTenor");
-      JodaBeanUtils.notNull(((SwapNode) bean)._payLegConvention, "payLegConvention");
-      JodaBeanUtils.notNull(((SwapNode) bean)._receiveLegConvention, "receiveLegConvention");
-      JodaBeanUtils.notNull(((SwapNode) bean)._useFixings, "useFixings");
+      JodaBeanUtils.notNull(((IMMSwapNode) bean)._startTenor, "startTenor");
+      JodaBeanUtils.notNull(((IMMSwapNode) bean)._immDateStartNumber, "immDateStartNumber");
+      JodaBeanUtils.notNull(((IMMSwapNode) bean)._immDateEndNumber, "immDateEndNumber");
+      JodaBeanUtils.notNull(((IMMSwapNode) bean)._payLegConvention, "payLegConvention");
+      JodaBeanUtils.notNull(((IMMSwapNode) bean)._receiveLegConvention, "receiveLegConvention");
+      JodaBeanUtils.notNull(((IMMSwapNode) bean)._useFixings, "useFixings");
       super.validate(bean);
     }
 

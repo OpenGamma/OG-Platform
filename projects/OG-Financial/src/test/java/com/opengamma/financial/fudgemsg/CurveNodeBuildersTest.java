@@ -20,6 +20,7 @@ import com.opengamma.financial.analytics.ircurve.strips.DeliverableSwapFutureNod
 import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
+import com.opengamma.financial.analytics.ircurve.strips.IMMSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.InflationNodeType;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
@@ -106,6 +107,18 @@ public class CurveNodeBuildersTest extends AnalyticsTestBase {
     assertEquals(node, cycleObject(FXForwardNode.class, node));
     node = new FXForwardNode(Tenor.ONE_DAY, Tenor.TWO_YEARS, ExternalId.of("convention", "name"), Currency.USD, Currency.JPY, "TEST", "Name");
     assertEquals(node, cycleObject(FXForwardNode.class, node));
+  }
+
+  @Test
+  public void testIMMSwapNodeBuilder() {
+    IMMSwapNode node = new IMMSwapNode(Tenor.ONE_DAY, 4, 40, ExternalId.of("convention", "pay"), ExternalId.of("convention", "receive"), "TEST");
+    assertEquals(node, cycleObject(IMMSwapNode.class, node));
+    node = new IMMSwapNode(Tenor.ONE_DAY, 4, 40, ExternalId.of("convention", "pay"), ExternalId.of("convention", "receive"), true, "TEST");
+    assertEquals(node, cycleObject(IMMSwapNode.class, node));
+    node = new IMMSwapNode(Tenor.ONE_DAY, 4, 40, ExternalId.of("convention", "pay"), ExternalId.of("convention", "receive"), "TEST", "name");
+    assertEquals(node, cycleObject(IMMSwapNode.class, node));
+    node = new IMMSwapNode(Tenor.ONE_DAY, 4, 40, ExternalId.of("convention", "pay"), ExternalId.of("convention", "receive"), true, "TEST", "name");
+    assertEquals(node, cycleObject(IMMSwapNode.class, node));
   }
 
   @Test
