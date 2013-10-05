@@ -155,7 +155,7 @@ public class CurveNodeCurrencyVisitorTest {
 
   @Test(expectedExceptions = OpenGammaRuntimeException.class)
   public void testNullRateFutureConvention() {
-    final RateFutureNode node = new RateFutureNode(2, Tenor.ONE_DAY, Tenor.THREE_MONTHS, Tenor.THREE_MONTHS, RATE_FUTURE_3M_ID, LIBOR_3M_ID, SCHEME);
+    final RateFutureNode node = new RateFutureNode(2, Tenor.ONE_DAY, Tenor.THREE_MONTHS, Tenor.THREE_MONTHS, RATE_FUTURE_3M_ID, SCHEME);
     node.accept(EMPTY_CONVENTIONS);
   }
 
@@ -164,7 +164,7 @@ public class CurveNodeCurrencyVisitorTest {
     final Map<ExternalId, Convention> map = new HashMap<>();
     map.put(RATE_FUTURE_3M_ID, RATE_FUTURE_3M);
     final CurveNodeCurrencyVisitor visitor = new CurveNodeCurrencyVisitor(new TestConventionSource(map));
-    final RateFutureNode node = new RateFutureNode(2, Tenor.ONE_DAY, Tenor.THREE_MONTHS, Tenor.THREE_MONTHS, RATE_FUTURE_3M_ID, LIBOR_3M_ID, SCHEME);
+    final RateFutureNode node = new RateFutureNode(2, Tenor.ONE_DAY, Tenor.THREE_MONTHS, Tenor.THREE_MONTHS, RATE_FUTURE_3M_ID, SCHEME);
     node.accept(visitor);
   }
 
@@ -330,7 +330,7 @@ public class CurveNodeCurrencyVisitorTest {
 
   @Test
   public void testRateFutureNode() {
-    final RateFutureNode node = new RateFutureNode(2, Tenor.ONE_DAY, Tenor.THREE_MONTHS, Tenor.THREE_MONTHS, RATE_FUTURE_3M_ID, LIBOR_3M_ID, SCHEME);
+    final RateFutureNode node = new RateFutureNode(2, Tenor.ONE_DAY, Tenor.THREE_MONTHS, Tenor.THREE_MONTHS, RATE_FUTURE_3M_ID, SCHEME);
     final Set<Currency> currencies = node.accept(VISITOR);
     assertEquals(1, currencies.size());
     assertEquals(Currency.USD, currencies.iterator().next());

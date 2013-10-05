@@ -119,12 +119,7 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
     if (futureConvention == null) {
       throw new OpenGammaRuntimeException("Could not get future convention with id " + node.getFutureConvention());
     }
-    final Convention underlyingConvention = _conventionSource.getConvention(node.getUnderlyingConvention());
-    if (underlyingConvention == null) {
-      throw new OpenGammaRuntimeException("Could not get convention with id " + node.getUnderlyingConvention());
-    }
     final Set<Currency> currencies = new HashSet<>(getCurrencies(futureConvention));
-    currencies.addAll(getCurrencies(underlyingConvention));
     return currencies;
   }
 
@@ -183,18 +178,23 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
     }
     if (convention instanceof InterestRateFutureConvention) {
       final Convention underlyingConvention = _conventionSource.getConvention(((InterestRateFutureConvention) convention).getIndexConvention());
+      if (underlyingConvention == null) {
+        throw new OpenGammaRuntimeException("Could not get convention with id " + ((InterestRateFutureConvention) convention).getIndexConvention());
+      }
       return getCurrencies(underlyingConvention);
     }
     if (convention instanceof DeliverablePriceQuotedSwapFutureConvention) {
       final Convention underlyingConvention = _conventionSource.getConvention(((DeliverablePriceQuotedSwapFutureConvention) convention).getSwapConvention());
+      if (underlyingConvention == null) {
+        throw new OpenGammaRuntimeException("Could not get convention with id " + ((InterestRateFutureConvention) convention).getIndexConvention());
+      }
       return getCurrencies(underlyingConvention);
     }
     if (convention instanceof FederalFundsFutureConvention) {
       final Convention underlyingConvention = _conventionSource.getConvention(((FederalFundsFutureConvention) convention).getIndexConvention());
-      return getCurrencies(underlyingConvention);
-    }
-    if (convention instanceof InterestRateFutureConvention) {
-      final Convention underlyingConvention = _conventionSource.getConvention(((InterestRateFutureConvention) convention).getIndexConvention());
+      if (underlyingConvention == null) {
+        throw new OpenGammaRuntimeException("Could not get convention with id " + ((InterestRateFutureConvention) convention).getIndexConvention());
+      }
       return getCurrencies(underlyingConvention);
     }
     if (convention instanceof OISLegConvention) {

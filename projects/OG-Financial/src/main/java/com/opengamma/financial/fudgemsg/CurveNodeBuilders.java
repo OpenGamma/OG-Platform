@@ -40,6 +40,9 @@ import com.opengamma.util.time.Tenor;
   /** The curve name field */
   private static final String NAME_FIELD = "name";
 
+  /**
+   * Private constructor
+   */
   private CurveNodeBuilders() {
   }
 
@@ -375,8 +378,6 @@ import com.opengamma.util.time.Tenor;
     private static final String UNDERLYING_TENOR_FIELD = "underlyingTenor";
     /** The future convention field */
     private static final String FUTURE_CONVENTION_FIELD = "futureConvention";
-    /** The underlying convention field */
-    private static final String UNDERLYING_CONVENTION_FIELD = "underlyingConvention";
 
     @Override
     public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final RateFutureNode object) {
@@ -387,7 +388,6 @@ import com.opengamma.util.time.Tenor;
       message.add(FUTURE_TENOR_FIELD, object.getFutureTenor().getPeriod().toString());
       message.add(UNDERLYING_TENOR_FIELD, object.getUnderlyingTenor().getPeriod().toString());
       message.add(FUTURE_CONVENTION_FIELD, object.getFutureConvention());
-      message.add(UNDERLYING_CONVENTION_FIELD, object.getUnderlyingConvention());
       message.add(CURVE_MAPPER_ID_FIELD, object.getCurveNodeIdMapperName());
       if (object.getName() != null) {
         message.add(NAME_FIELD, object.getName());
@@ -402,13 +402,12 @@ import com.opengamma.util.time.Tenor;
       final Tenor futureTenor = Tenor.of(Period.parse(message.getString(FUTURE_TENOR_FIELD)));
       final Tenor underlyingTenor = Tenor.of(Period.parse(message.getString(UNDERLYING_TENOR_FIELD)));
       final ExternalId futureConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(FUTURE_CONVENTION_FIELD));
-      final ExternalId underlyingConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(UNDERLYING_CONVENTION_FIELD));
       final String curveNodeIdMapperName = message.getString(CURVE_MAPPER_ID_FIELD);
       if (message.hasField(NAME_FIELD)) {
         final String name = message.getString(NAME_FIELD);
-        return new RateFutureNode(futureNumber, startTenor, futureTenor, underlyingTenor, futureConvention, underlyingConvention, curveNodeIdMapperName, name);
+        return new RateFutureNode(futureNumber, startTenor, futureTenor, underlyingTenor, futureConvention, curveNodeIdMapperName, name);
       }
-      return new RateFutureNode(futureNumber, startTenor, futureTenor, underlyingTenor, futureConvention, underlyingConvention, curveNodeIdMapperName);
+      return new RateFutureNode(futureNumber, startTenor, futureTenor, underlyingTenor, futureConvention, curveNodeIdMapperName);
     }
 
   }

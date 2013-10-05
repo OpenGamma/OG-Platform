@@ -103,7 +103,7 @@ public class CurveNodeWithIdentifierBuilderTest {
   @Test
   public void testRateFuture() {
     final RateFutureNode future = new RateFutureNode(1, Tenor.TWO_MONTHS, Tenor.ONE_MONTH, Tenor.ONE_MONTH, ExternalId.of("Test", "Test"),
-        ExternalId.of("Test", "Test"), "Test");
+        "Test");
     assertEquals(new CurveNodeWithIdentifier(future, ExternalId.of("Test", "Future"), "Market_Value", DataFieldType.OUTRIGHT), future.accept(BUILDER));
   }
 
