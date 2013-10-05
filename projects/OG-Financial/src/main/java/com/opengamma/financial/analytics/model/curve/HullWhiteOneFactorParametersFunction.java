@@ -60,6 +60,7 @@ import com.opengamma.util.time.Tenor;
 public class HullWhiteOneFactorParametersFunction extends AbstractFunction {
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(HullWhiteOneFactorParametersFunction.class);
+  /** The default volatility term structure */
   private static final Map<Tenor, Double> VOLATILITY_TERMS = new LinkedHashMap<>();
   static {
     VOLATILITY_TERMS.put(Tenor.THREE_MONTHS, 0.01d);
@@ -69,7 +70,9 @@ public class HullWhiteOneFactorParametersFunction extends AbstractFunction {
     VOLATILITY_TERMS.put(Tenor.FOUR_YEARS, 0.01d);
     VOLATILITY_TERMS.put(Tenor.FIVE_YEARS, 0.01d);
   }
+  /** The default mean reversion */
   private static final Double MEAN_REVERSION_DEFAULT = 0.01d;
+  /** The default initial volatility */
   private static final Double INITIAL_VOLATILITY_DEFAULT = 0.01d;
 
   /** The configuration name */
@@ -119,6 +122,7 @@ public class HullWhiteOneFactorParametersFunction extends AbstractFunction {
     final ZonedDateTime atZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
     return new AbstractInvokingCompiledFunction(atZDT.with(LocalTime.MIDNIGHT), atZDT.plusDays(1).with(LocalTime.MIDNIGHT).minusNanos(1000000)) {
 
+      @SuppressWarnings("synthetic-access")
       @Override
       public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
           final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
@@ -127,18 +131,16 @@ public class HullWhiteOneFactorParametersFunction extends AbstractFunction {
         Object meanReversionObject = inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE,
             ComputationTargetType.PRIMITIVE, parameters.getMeanReversionId()));
         if (meanReversionObject == null) {
-          // Jim - these are hacks that should be removed.
+          // TODO Jim - these are hacks that should be removed.
           meanReversionObject = MEAN_REVERSION_DEFAULT;
           s_logger.warn("Using default mean reversion");
-          //throw new OpenGammaRuntimeException("Could not get mean reversion value");
         }
         Object initialVolatilityObject = inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE,
             ComputationTargetType.PRIMITIVE, parameters.getInitialVolatilityId()));
         if (initialVolatilityObject == null) {
-          // Jim - these are hacks that should be removed.
+          // TODO Jim - these are hacks that should be removed.
           initialVolatilityObject = INITIAL_VOLATILITY_DEFAULT;
           s_logger.warn("Using default initial volatility");
-          //throw new OpenGammaRuntimeException("Could not get initial volatility value");
         }
         final Double meanReversion = (Double) meanReversionObject;
         final Double initialVolatility = (Double) initialVolatilityObject;
@@ -151,7 +153,7 @@ public class HullWhiteOneFactorParametersFunction extends AbstractFunction {
           final ExternalId tenorAppendedId = ExternalId.of(scheme, createId(entry.getKey(), id));
           Object volatilityObject = inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE,
               ComputationTargetType.PRIMITIVE, tenorAppendedId));
-          // Jim - next block is a hack that should be removed.
+          // TODO Jim - next block is a hack that should be removed.
           if (volatilityObject == null) {
             volatilityObject = VOLATILITY_TERMS.get(entry.getKey());
           }
@@ -173,6 +175,7 @@ public class HullWhiteOneFactorParametersFunction extends AbstractFunction {
         return ComputationTargetType.CURRENCY;
       }
 
+      @SuppressWarnings("synthetic-access")
       @Override
       public boolean canApplyTo(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
         return _currency.equals(target.getValue());

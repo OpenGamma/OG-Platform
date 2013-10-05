@@ -134,6 +134,24 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
   }
 
   /**
+   * Gets the calculator.
+   * @return The calculator
+   */
+  protected abstract InstrumentDerivativeVisitor<T, Double> getCalculator();
+
+  /**
+   * Gets the sensitivity calculator.
+   * @return The sensitivity calculator
+   */
+  protected abstract InstrumentDerivativeVisitor<T, W> getSensitivityCalculator();
+
+  /**
+   * Gets the curve type property.
+   * @return The curve type property
+   */
+  protected abstract String getCurveTypeProperty();
+
+  /**
    * Gets the compiled function for this curve construction method.
    * @param earliestInvocation The earliest time this metadata and invoker are valid, null to indicate no lower validity bound
    * @param latestInvocation The latest time this metadata and invoker are valid, null to indicate no upper validity bound
@@ -251,6 +269,7 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
         requirements.add(new ValueRequirement(CURVE_MARKET_DATA, ComputationTargetSpecification.NULL, properties));
         requirements.add(new ValueRequirement(CURVE_SPECIFICATION, ComputationTargetSpecification.NULL, properties));
       }
+      @SuppressWarnings("synthetic-access")
       final ValueProperties properties = ValueProperties.builder()
           .with(CURVE_CONSTRUCTION_CONFIG, _configurationName)
           .get();
@@ -275,24 +294,6 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
     protected String[] getCurveNames() {
       return _curveNames;
     }
-
-    /**
-     * Gets the calculator.
-     * @return The calculator
-     */
-    protected abstract InstrumentDerivativeVisitor<T, Double> getCalculator();
-
-    /**
-     * Gets the sensitivity calculator.
-     * @return The sensitivity calculator
-     */
-    protected abstract InstrumentDerivativeVisitor<T, W> getSensitivityCalculator();
-
-    /**
-     * Gets the curve type property.
-     * @return The curve type property
-     */
-    protected abstract String getCurveTypeProperty();
 
     /**
      * Gets the known data from the function inputs.
@@ -368,6 +369,7 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
      * Gets the maturity calculator.
      * @return The maturity calculator
      */
+    @SuppressWarnings("synthetic-access")
     protected InstrumentDerivativeVisitor<Object, Double> getMaturityCalculator() {
       return MATURITY_CALCULATOR;
     }
@@ -377,6 +379,7 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
      * @param curveName The curve name
      * @return The result properties
      */
+    @SuppressWarnings("synthetic-access")
     protected ValueProperties getCurveProperties(final String curveName) {
       return createValueProperties()
           .with(CURVE, curveName)
@@ -394,6 +397,7 @@ public abstract class MultiCurveFunction<T extends ParameterProviderInterface, U
      * @param curveNames All of the curves produced by this function
      * @return The result properties
      */
+    @SuppressWarnings("synthetic-access")
     protected ValueProperties getBundleProperties(final String[] curveNames) {
       return createValueProperties()
           .with(CURVE_CALCULATION_METHOD, ROOT_FINDING)

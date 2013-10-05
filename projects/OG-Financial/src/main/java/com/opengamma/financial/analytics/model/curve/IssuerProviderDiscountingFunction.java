@@ -104,6 +104,21 @@ public class IssuerProviderDiscountingFunction extends
     return new MyCompiledFunctionDefinition(earliestInvokation, latestInvokation, curveNames, exogenousRequirements, curveConstructionConfiguration);
   }
 
+  @Override
+  protected InstrumentDerivativeVisitor<IssuerProviderInterface, Double> getCalculator() {
+    return PSMQIC;
+  }
+
+  @Override
+  protected InstrumentDerivativeVisitor<IssuerProviderInterface, MulticurveSensitivity> getSensitivityCalculator() {
+    return PSMQCSIC;
+  }
+
+  @Override
+  protected String getCurveTypeProperty() {
+    return DISCOUNTING;
+  }
+
   /**
    * Compiled function implementation.
    */
@@ -224,21 +239,6 @@ public class IssuerProviderDiscountingFunction extends
           (IssuerProviderDiscount) knownData, discountingMap, forwardIborMap, forwardONMap, issuerMap, getCalculator(), getSensitivityCalculator());
       final Pair<IssuerProviderInterface, CurveBuildingBlockBundle> result = Pair.of((IssuerProviderInterface) temp.getFirst(), temp.getSecond());
       return result;
-    }
-
-    @Override
-    protected InstrumentDerivativeVisitor<IssuerProviderInterface, Double> getCalculator() {
-      return PSMQIC;
-    }
-
-    @Override
-    protected InstrumentDerivativeVisitor<IssuerProviderInterface, MulticurveSensitivity> getSensitivityCalculator() {
-      return PSMQCSIC;
-    }
-
-    @Override
-    protected String getCurveTypeProperty() {
-      return DISCOUNTING;
     }
 
     @Override

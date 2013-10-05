@@ -59,7 +59,6 @@ public class HardCodedG2ppParametersFunction extends AbstractFunction.NonCompile
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final ValueProperties constraints = desiredValue.getConstraints();
     return Collections.emptySet();
   }
 

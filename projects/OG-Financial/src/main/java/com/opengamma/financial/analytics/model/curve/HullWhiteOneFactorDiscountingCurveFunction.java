@@ -111,6 +111,21 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
     return new MyCompiledFunctionDefinition(earliestInvokation, latestInvokation, curveNames, exogenousRequirements, curveConstructionConfiguration);
   }
 
+  @Override
+  protected InstrumentDerivativeVisitor<HullWhiteOneFactorProviderInterface, Double> getCalculator() {
+    return PSMQHWC;
+  }
+
+  @Override
+  protected InstrumentDerivativeVisitor<HullWhiteOneFactorProviderInterface, MulticurveSensitivity> getSensitivityCalculator() {
+    return PSMQCSHWC;
+  }
+
+  @Override
+  protected String getCurveTypeProperty() {
+    return HULL_WHITE_DISCOUNTING;
+  }
+
   /**
    * Compiled function implementation.
    */
@@ -133,7 +148,6 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
     }
 
     @Override
-    @SuppressWarnings("synthetic-access")
     protected Pair<HullWhiteOneFactorProviderInterface, CurveBuildingBlockBundle> getCurves(final FunctionInputs inputs, final ZonedDateTime now,
         final HullWhiteProviderDiscountBuildingRepository builder, final HullWhiteOneFactorProviderInterface knownData, final ConventionSource conventionSource,
         final HolidaySource holidaySource, final RegionSource regionSource) {
@@ -268,21 +282,6 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
           .get();
       requirements.add(new ValueRequirement(ValueRequirementNames.HULL_WHITE_ONE_FACTOR_PARAMETERS, ComputationTargetSpecification.of(hwCurrency), hwProperties));
       return requirements;
-    }
-
-    @Override
-    protected InstrumentDerivativeVisitor<HullWhiteOneFactorProviderInterface, Double> getCalculator() {
-      return PSMQHWC;
-    }
-
-    @Override
-    protected InstrumentDerivativeVisitor<HullWhiteOneFactorProviderInterface, MulticurveSensitivity> getSensitivityCalculator() {
-      return PSMQCSHWC;
-    }
-
-    @Override
-    protected String getCurveTypeProperty() {
-      return HULL_WHITE_DISCOUNTING;
     }
 
     @Override

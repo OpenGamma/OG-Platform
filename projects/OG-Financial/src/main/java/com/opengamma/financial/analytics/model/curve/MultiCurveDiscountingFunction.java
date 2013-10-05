@@ -104,6 +104,21 @@ public class MultiCurveDiscountingFunction extends
     return new MyCompiledFunctionDefinition(earliestInvokation, latestInvokation, curveNames, exogenousRequirements, curveConstructionConfiguration);
   }
 
+  @Override
+  protected InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> getCalculator() {
+    return PSMQC;
+  }
+
+  @Override
+  protected InstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> getSensitivityCalculator() {
+    return PSMQCSC;
+  }
+
+  @Override
+  protected String getCurveTypeProperty() {
+    return DISCOUNTING;
+  }
+
   /**
    * Compiled function implementation.
    */
@@ -126,7 +141,6 @@ public class MultiCurveDiscountingFunction extends
     }
 
     @Override
-    @SuppressWarnings("synthetic-access")
     protected Pair<MulticurveProviderInterface, CurveBuildingBlockBundle> getCurves(final FunctionInputs inputs, final ZonedDateTime now,
         final MulticurveDiscountBuildingRepository builder, final MulticurveProviderInterface knownData, final ConventionSource conventionSource,
         final HolidaySource holidaySource, final RegionSource regionSource) {
@@ -221,21 +235,6 @@ public class MultiCurveDiscountingFunction extends
           (MulticurveProviderDiscount) knownData, discountingMap, forwardIborMap, forwardONMap, getCalculator(), getSensitivityCalculator());
       final Pair<MulticurveProviderInterface, CurveBuildingBlockBundle> result = Pair.of((MulticurveProviderInterface) temp.getFirst(), temp.getSecond());
       return result;
-    }
-
-    @Override
-    protected InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> getCalculator() {
-      return PSMQC;
-    }
-
-    @Override
-    protected InstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> getSensitivityCalculator() {
-      return PSMQCSC;
-    }
-
-    @Override
-    protected String getCurveTypeProperty() {
-      return DISCOUNTING;
     }
 
     @Override
