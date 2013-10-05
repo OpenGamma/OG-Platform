@@ -5,12 +5,10 @@
  */
 package com.opengamma.financial.analytics.curve;
 
-import org.threeten.bp.DayOfWeek;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.temporal.ChronoUnit;
 import org.threeten.bp.temporal.TemporalAdjuster;
-import org.threeten.bp.temporal.TemporalAdjusters;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
@@ -21,6 +19,7 @@ import com.opengamma.financial.analytics.ircurve.strips.IMMSwapNode;
 import com.opengamma.financial.convention.Convention;
 import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.convention.IMMSwapConvention;
+import com.opengamma.financial.convention.TemporalAdjusterFactory;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 
@@ -28,8 +27,6 @@ import com.opengamma.util.ArgumentChecker;
  *
  */
 public class IMMSwapNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinition<?>> {
-  /** TODO this should not be hard-coded */
-  private static final TemporalAdjuster THIRD_MONDAY_ADJUSTER = TemporalAdjusters.dayOfWeekInMonth(3, DayOfWeek.MONDAY);
   /** The convention source */
   private final ConventionSource _conventionSource;
   /** The holiday source */
@@ -81,9 +78,9 @@ public class IMMSwapNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefi
     if (receiveLegConvention == null) {
       throw new OpenGammaRuntimeException("Convention with id " + swapConvention.getReceiveLegConvention() + " was null");
     }
-    //TODO should use date adjuster convention from IMMSwapConvention
+    final TemporalAdjuster adjuster = TemporalAdjusterFactory.getAdjuster(swapConvention.getImmDateConvention().getValue());
     final ZonedDateTime unadjustedStartDate = _valuationTime.plus(immSwapNode.getStartTenor().getPeriod());
-    final ZonedDateTime startDate = unadjustedStartDate.plusMonths(3 * immSwapNode.getImmDateStartNumber()).with(THIRD_MONDAY_ADJUSTER);
+    final ZonedDateTime startDate = unadjustedStartDate.plusMonths(3 * immSwapNode.getImmDateStartNumber()).with(adjuster);
     final Period startTenor = Period.ofDays((int) _valuationTime.periodUntil(startDate, ChronoUnit.DAYS));
     final Period maturityTenor = startTenor.plusMonths(3 * immSwapNode.getImmDateEndNumber());
     return NodeConverterUtils.getSwapDefinition(payLegConvention, receiveLegConvention, startTenor, maturityTenor, _regionSource,
