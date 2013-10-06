@@ -5,9 +5,7 @@
  */
 package com.opengamma.financial.analytics.curve;
 
-import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
-import org.threeten.bp.temporal.ChronoUnit;
 import org.threeten.bp.temporal.TemporalAdjuster;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -80,10 +78,9 @@ public class IMMSwapNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefi
     }
     final TemporalAdjuster adjuster = TemporalAdjusterFactory.getAdjuster(swapConvention.getImmDateConvention().getValue());
     final ZonedDateTime unadjustedStartDate = _valuationTime.plus(immSwapNode.getStartTenor().getPeriod());
-    final ZonedDateTime startDate = unadjustedStartDate.plusMonths(3 * immSwapNode.getImmDateStartNumber()).with(adjuster);
-    final Period startTenor = Period.ofDays((int) _valuationTime.periodUntil(startDate, ChronoUnit.DAYS));
-    final Period maturityTenor = startTenor.plusMonths(3 * immSwapNode.getImmDateEndNumber());
-    return NodeConverterUtils.getSwapDefinition(payLegConvention, receiveLegConvention, startTenor, maturityTenor, _regionSource,
+    final ZonedDateTime immStartDate = unadjustedStartDate.plusMonths(3 * immSwapNode.getImmDateStartNumber()).with(adjuster);
+    final ZonedDateTime maturityDate = immStartDate.plusMonths(3 * immSwapNode.getImmDateEndNumber());
+    return NodeConverterUtils.getSwapDefinition(payLegConvention, receiveLegConvention, immStartDate, maturityDate, _regionSource,
         _holidaySource, _conventionSource, _marketData, _dataId, _valuationTime);
   }
 }

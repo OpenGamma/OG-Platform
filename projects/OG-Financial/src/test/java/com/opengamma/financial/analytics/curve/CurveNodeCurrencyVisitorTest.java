@@ -36,7 +36,6 @@ import com.opengamma.financial.convention.CompoundingIborLegConvention;
 import com.opengamma.financial.convention.Convention;
 import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.convention.DepositConvention;
-import com.opengamma.financial.convention.FXSpotConvention;
 import com.opengamma.financial.convention.IMMFutureAndFutureOptionQuarterlyExpiryCalculator;
 import com.opengamma.financial.convention.IMMSwapConvention;
 import com.opengamma.financial.convention.IborIndexConvention;
@@ -318,9 +317,9 @@ public class CurveNodeCurrencyVisitorTest {
     node.accept(visitor);
   }
 
-  @Test(expectedExceptions = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalStateException.class)
   public void testUnhandledConvention() {
-    final FXSpotConvention convention = new FXSpotConvention("Test", ExternalId.of("Test", "Test").toBundle(), 0, US);
+    final Convention convention = new Convention("Test", ExternalId.of("Test", "Test").toBundle());
     final Map<ExternalId, Convention> map = new HashMap<>();
     map.put(FIXED_LEG_ID, FIXED_LEG);
     map.put(ExternalId.of("Test", "Test"), convention);

@@ -286,7 +286,7 @@ public class CurveNodeToDefinitionConverterTest {
     swapNode.accept(converter);
   }
 
-  @Test(expectedExceptions = OpenGammaRuntimeException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testWrongSwapPayFixedLegConvention() {
     final ExternalId marketDataId = ExternalId.of(SCHEME, "Data");
     final SnapshotDataBundle marketValues = new SnapshotDataBundle();
@@ -310,7 +310,7 @@ public class CurveNodeToDefinitionConverterTest {
     swapNode.accept(converter);
   }
 
-  @Test(expectedExceptions = OpenGammaRuntimeException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testWrongSwapReceiveFixedLegConvention() {
     final ExternalId marketDataId = ExternalId.of(SCHEME, "Data");
     final SnapshotDataBundle marketValues = new SnapshotDataBundle();
