@@ -6,14 +6,16 @@
 package com.opengamma.financial.convention;
 
 /**
- * @param <T>
+ * Default implementation of the visitor that throws {@link UnsupportedOperationException}
+ * for all convention types.
  *
+ * @param <T> The return type
  */
 public class ConventionVisitorAdapter<T> implements ConventionVisitor<T> {
 
   @Override
   public T visitCMSLegConvention(final CMSLegConvention convention) {
-    return null;
+    return getErrorMessage(convention);
   }
 
   @Override
@@ -106,6 +108,11 @@ public class ConventionVisitorAdapter<T> implements ConventionVisitor<T> {
     return getErrorMessage(convention);
   }
 
+  /**
+   * @param convention The convention
+   * @return UnsupportedOperationException
+   * @throws UnsupportedOperationException
+   */
   private T getErrorMessage(final Convention convention) {
     throw new UnsupportedOperationException("This visitor does not support conventions of type " + convention.getClass());
   }

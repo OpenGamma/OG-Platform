@@ -51,7 +51,8 @@ import com.opengamma.util.money.Currency;
 
 /**
  * Returns all of the currencies relevant for a {@link CurveNode}. This information is pulled from
- * the convention(s) associated with the node.
+ * the convention(s) associated with the node. Returns null if there are no currencies applicable
+ * to the curve node.
  */
 public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>, ConventionVisitor<Set<Currency>> {
   /** The convention source */
@@ -187,7 +188,7 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
 
   @Override
   public Set<Currency> visitEquityConvention(final EquityConvention convention) {
-    return Collections.emptySet();
+    return null;
   }
 
   @Override
@@ -210,12 +211,12 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
 
   @Override
   public Set<Currency> visitFXForwardAndSwapConvention(final FXForwardAndSwapConvention convention) {
-    return Collections.emptySet();
+    return null;
   }
 
   @Override
   public Set<Currency> visitFXSpotConvention(final FXSpotConvention convention) {
-    return Collections.emptySet();
+    return null;
   }
 
   @Override
