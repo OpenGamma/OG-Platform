@@ -139,6 +139,7 @@ img {
   color: #777;
   display: inline-block;
   width: 240px;
+  float:left;
 }
 
 .dat {
@@ -202,4 +203,9 @@ img {
   border-color: #0D49A8;
   background-color: #C6D8F5;
   color: black;
+}
+
+.hide {
+  padding: 5px 4px 2px 5px;
+  cursor: pointer;
 }
