@@ -18,6 +18,7 @@ import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Maps;
 import com.opengamma.core.config.Config;
+import com.opengamma.util.ClassUtils;
 
 /**
  * Provides all supported configuration types
@@ -68,17 +69,24 @@ public final class ConfigTypesProvider {
         if (configType == Object.class) {
           configType = configClass;
         }
+        
         // extract description
         String description = configValueAnnotation.description();
         if (description.length() == 0) {
           description = configType.getSimpleName();
         }
+        
+        //ensure this class is fully loaded
+        ClassUtils.initClass(configType);
+        
         // store
         Class<?> old = result.put(configType.getSimpleName(), configType);
+        
         if (old != null) {
           s_logger.warn("Two classes exist with the same name: " + configType.getSimpleName());
         }
         descriptions.put(configType.getSimpleName(), description);
+        
       }
     }
     _configTypeMap = ImmutableSortedMap.copyOf(result);
