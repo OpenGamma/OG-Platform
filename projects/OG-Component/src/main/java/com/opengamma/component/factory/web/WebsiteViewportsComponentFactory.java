@@ -305,6 +305,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     providers.put(MasterType.TIME_SERIES, getHistoricalTimeSeriesMaster());
     providers.put(MasterType.CONFIG, getConfigMaster());
     providers.put(MasterType.ORGANIZATION, getOrganizationMaster());
+    providers.put(MasterType.MARKET_DATA_SNAPSHOT, getMarketDataSnapshotMaster());
     return new MasterChangeManager(providers);
   }
 

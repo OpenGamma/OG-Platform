@@ -29,6 +29,8 @@ public enum MasterType {
   /** {@link ConfigMaster} */
   CONFIG,
   /** @link OrganizationMaster} */
-  ORGANIZATION
+  ORGANIZATION,
+  /** @link MarketDataSnapshotMaster} */
+  MARKET_DATA_SNAPSHOT
   // TODO all the other masters
 }
