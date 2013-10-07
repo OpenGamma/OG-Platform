@@ -146,7 +146,7 @@ public class ISDACompliantCurve extends DoublesCurve {
    * a strict copy of the original. This should not be the main constructor used in the general case.
    */
   @Deprecated
-  ISDACompliantCurve(final double[] t, final double[] r, final double[] rt, final double[] df, final double offsetTime, final double offsetRT) {
+  public ISDACompliantCurve(final double[] t, final double[] r, final double[] rt, final double[] df, final double offsetTime, final double offsetRT) {
     _n = t.length;
     _t = t;
     _r = r;
