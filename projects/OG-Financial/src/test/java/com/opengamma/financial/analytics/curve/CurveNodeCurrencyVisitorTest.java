@@ -26,6 +26,7 @@ import com.opengamma.financial.analytics.ircurve.strips.CreditSpreadNode;
 import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
+import com.opengamma.financial.analytics.ircurve.strips.IMMFRANode;
 import com.opengamma.financial.analytics.ircurve.strips.IMMSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.InflationNodeType;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
@@ -36,7 +37,7 @@ import com.opengamma.financial.convention.CompoundingIborLegConvention;
 import com.opengamma.financial.convention.Convention;
 import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.convention.DepositConvention;
-import com.opengamma.financial.convention.IMMFutureAndFutureOptionQuarterlyExpiryCalculator;
+import com.opengamma.financial.convention.IMMFRAConvention;
 import com.opengamma.financial.convention.IMMSwapConvention;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.InflationLegConvention;
@@ -44,6 +45,7 @@ import com.opengamma.financial.convention.InterestRateFutureConvention;
 import com.opengamma.financial.convention.OISLegConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
 import com.opengamma.financial.convention.PriceIndexConvention;
+import com.opengamma.financial.convention.RollDateAdjusterFactory;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.SwapFixedLegConvention;
 import com.opengamma.financial.convention.SwapIndexConvention;
@@ -82,10 +84,11 @@ public class CurveNodeCurrencyVisitorTest {
   private static final ExternalId SWAP_INDEX_ID = ExternalId.of(SCHEME, "3M Swap Index");
   private static final ExternalId CMS_SWAP_ID = ExternalId.of(SCHEME, "USD CMS");
   private static final ExternalId COMPOUNDING_IBOR_ID = ExternalId.of(SCHEME, "USD Compounding Libor");
-  private static final ExternalId IMM_3M_EXPIRY_CONVENTION = ExternalId.of(SCHEME, IMMFutureAndFutureOptionQuarterlyExpiryCalculator.NAME);
+  private static final ExternalId IMM_3M_EXPIRY_CONVENTION = ExternalId.of(SCHEME, RollDateAdjusterFactory.QUARTERLY_IMM_ROLL_STRING);
   private static final ExternalId PRICE_INDEX_ID = ExternalId.of(SCHEME, "USD CPI");
   private static final ExternalId ZERO_COUPON_INFLATION_ID = ExternalId.of(SCHEME, "ZCI");
   private static final ExternalId IMM_SWAP_ID = ExternalId.of(SCHEME, "USD IMM Swap");
+  private static final ExternalId IMM_FRA_ID = ExternalId.of(SCHEME, "USD IMM FRA");
   private static final SwapFixedLegConvention FIXED_LEG = new SwapFixedLegConvention("USD Swap Fixed Leg", ExternalId.of(SCHEME, "USD Swap Fixed Leg").toBundle(),
       Tenor.SIX_MONTHS, ACT_360, MODIFIED_FOLLOWING, Currency.USD, NYLON, 2, false, StubType.NONE, false, 2);
   private static final VanillaIborLegConvention SWAP_3M_LIBOR = new VanillaIborLegConvention("USD 3m Floating Leg", ExternalId.of(SCHEME, "USD 3m Floating Leg").toBundle(),
@@ -114,6 +117,7 @@ public class CurveNodeCurrencyVisitorTest {
       3, 2, PRICE_INDEX_ID);
   private static final CMSLegConvention CMS = new CMSLegConvention("USD CMS", ExternalId.of(SCHEME, "USD CMS").toBundle(), SWAP_INDEX_ID, Tenor.SIX_MONTHS, false);
   private static final IMMSwapConvention IMM_SWAP = new IMMSwapConvention("USD IMM Swap", ExternalId.of(SCHEME, "USD IMM Swap").toBundle(), FIXED_LEG_ID, SWAP_3M_IBOR_ID, IMM_3M_EXPIRY_CONVENTION);
+  private static final IMMFRAConvention IMM_FRA = new IMMFRAConvention("USD IMM FRA", ExternalId.of(SCHEME, "USD IMM FRA").toBundle(), LIBOR_3M_ID, IMM_3M_EXPIRY_CONVENTION);
   private static final Map<ExternalId, Convention> CONVENTIONS = new HashMap<>();
   private static final ConventionSource CONVENTION_SOURCE;
   private static final CurveNodeCurrencyVisitor VISITOR;
@@ -135,6 +139,7 @@ public class CurveNodeCurrencyVisitorTest {
     CONVENTIONS.put(PRICE_INDEX_ID, PRICE_INDEX);
     CONVENTIONS.put(ZERO_COUPON_INFLATION_ID, INFLATION_LEG);
     CONVENTIONS.put(IMM_SWAP_ID, IMM_SWAP);
+    CONVENTIONS.put(IMM_FRA_ID, IMM_FRA);
     CONVENTION_SOURCE = new TestConventionSource(CONVENTIONS);
     VISITOR = new CurveNodeCurrencyVisitor(CONVENTION_SOURCE);
   }
@@ -279,12 +284,30 @@ public class CurveNodeCurrencyVisitorTest {
   }
 
   @Test(expectedExceptions = OpenGammaRuntimeException.class)
+  public void testNullIMMFRAConvention() {
+    final Map<ExternalId, Convention> map = new HashMap<>();
+    map.put(LIBOR_3M_ID, LIBOR_3M);
+    final CurveNodeCurrencyVisitor visitor = new CurveNodeCurrencyVisitor(new TestConventionSource(map));
+    final IMMFRANode node = new IMMFRANode(Tenor.ONE_DAY, Tenor.THREE_MONTHS, 4, 40, IMM_FRA_ID, "Test");
+    node.accept(visitor);
+  }
+
+  @Test(expectedExceptions = OpenGammaRuntimeException.class)
+  public void testWrongTypeIMMFRAConvention() {
+    final Map<ExternalId, Convention> map = new HashMap<>();
+    map.put(IMM_FRA_ID, FIXED_LEG);
+    final CurveNodeCurrencyVisitor visitor = new CurveNodeCurrencyVisitor(new TestConventionSource(map));
+    final IMMSwapNode node = new IMMSwapNode(Tenor.ONE_DAY, Tenor.THREE_MONTHS, 4, 40, IMM_FRA_ID, "Test");
+    node.accept(visitor);
+  }
+
+  @Test(expectedExceptions = OpenGammaRuntimeException.class)
   public void testNullIMMSwapConvention() {
     final Map<ExternalId, Convention> map = new HashMap<>();
     map.put(FIXED_LEG_ID, FIXED_LEG);
     map.put(SWAP_3M_IBOR_ID, SWAP_3M_LIBOR);
     final CurveNodeCurrencyVisitor visitor = new CurveNodeCurrencyVisitor(new TestConventionSource(map));
-    final IMMSwapNode node = new IMMSwapNode(Tenor.ONE_DAY, 4, 40, IMM_SWAP_ID, "Test");
+    final IMMSwapNode node = new IMMSwapNode(Tenor.ONE_DAY, Tenor.THREE_MONTHS, 4, 40, IMM_SWAP_ID, "Test");
     node.accept(visitor);
   }
 
@@ -293,7 +316,7 @@ public class CurveNodeCurrencyVisitorTest {
     final Map<ExternalId, Convention> map = new HashMap<>();
     map.put(IMM_SWAP_ID, FIXED_LEG);
     final CurveNodeCurrencyVisitor visitor = new CurveNodeCurrencyVisitor(new TestConventionSource(map));
-    final IMMSwapNode node = new IMMSwapNode(Tenor.ONE_DAY, 4, 40, IMM_SWAP_ID, "Test");
+    final IMMSwapNode node = new IMMSwapNode(Tenor.ONE_DAY, Tenor.THREE_MONTHS, 4, 40, IMM_SWAP_ID, "Test");
     node.accept(visitor);
   }
 
@@ -303,7 +326,7 @@ public class CurveNodeCurrencyVisitorTest {
     map.put(IMM_SWAP_ID, IMM_SWAP);
     map.put(SWAP_3M_IBOR_ID, SWAP_3M_LIBOR);
     final CurveNodeCurrencyVisitor visitor = new CurveNodeCurrencyVisitor(new TestConventionSource(map));
-    final IMMSwapNode node = new IMMSwapNode(Tenor.ONE_DAY, 4, 40, IMM_SWAP_ID, "Test");
+    final IMMSwapNode node = new IMMSwapNode(Tenor.ONE_DAY, Tenor.THREE_MONTHS, 4, 40, IMM_SWAP_ID, "Test");
     node.accept(visitor);
   }
 
@@ -313,7 +336,7 @@ public class CurveNodeCurrencyVisitorTest {
     map.put(IMM_SWAP_ID, IMM_SWAP);
     map.put(FIXED_LEG_ID, FIXED_LEG);
     final CurveNodeCurrencyVisitor visitor = new CurveNodeCurrencyVisitor(new TestConventionSource(map));
-    final IMMSwapNode node = new IMMSwapNode(Tenor.ONE_DAY, 4, 40, IMM_SWAP_ID, "Test");
+    final IMMSwapNode node = new IMMSwapNode(Tenor.ONE_DAY, Tenor.THREE_MONTHS, 4, 40, IMM_SWAP_ID, "Test");
     node.accept(visitor);
   }
 
@@ -371,8 +394,16 @@ public class CurveNodeCurrencyVisitorTest {
   }
 
   @Test
+  public void testIMMFRANode() {
+    final IMMFRANode node = new IMMFRANode(Tenor.ONE_DAY, Tenor.THREE_MONTHS, 4, 40, IMM_FRA_ID, "Test");
+    final Set<Currency> currencies = node.accept(VISITOR);
+    assertEquals(1, currencies.size());
+    assertEquals(Currency.USD, currencies.iterator().next());
+  }
+
+  @Test
   public void testIMMSwapNode() {
-    final IMMSwapNode node = new IMMSwapNode(Tenor.ONE_DAY, 4, 40, IMM_SWAP_ID, "Test");
+    final IMMSwapNode node = new IMMSwapNode(Tenor.ONE_DAY, Tenor.THREE_MONTHS, 4, 40, IMM_SWAP_ID, "Test");
     final Set<Currency> currencies = node.accept(VISITOR);
     assertEquals(1, currencies.size());
     assertEquals(Currency.USD, currencies.iterator().next());

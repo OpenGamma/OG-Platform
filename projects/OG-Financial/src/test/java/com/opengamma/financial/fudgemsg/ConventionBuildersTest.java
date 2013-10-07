@@ -20,6 +20,7 @@ import com.opengamma.financial.convention.DepositConvention;
 import com.opengamma.financial.convention.FXForwardAndSwapConvention;
 import com.opengamma.financial.convention.FXSpotConvention;
 import com.opengamma.financial.convention.FederalFundsFutureConvention;
+import com.opengamma.financial.convention.IMMFRAConvention;
 import com.opengamma.financial.convention.IMMSwapConvention;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
@@ -120,6 +121,14 @@ public class ConventionBuildersTest extends AnalyticsTestBase {
         ExternalId.of("Test", "3rd Wednesday"), ExternalId.of("Test", "CME"), ExternalId.of("Test", "Swap"), 100000);
     convention.setUniqueId(UniqueId.of("Test", "123456"));
     assertEquals(convention, cycleObject(DeliverablePriceQuotedSwapFutureConvention.class, convention));
+  }
+
+  @Test
+  public void testIMMFRAConvention() {
+    final IMMFRAConvention convention = new IMMFRAConvention("IMM FRA", InMemoryConventionBundleMaster.simpleNameSecurityId("IMM FRA").toBundle(),
+        ExternalId.of("Test", "Ibor"), ExternalId.of("Test", "IMM dates"));
+    convention.setUniqueId(UniqueId.of("Test", "3577"));
+    assertEquals(convention, cycleObject(IMMFRAConvention.class, convention));
   }
 
   @Test

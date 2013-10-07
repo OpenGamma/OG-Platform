@@ -54,6 +54,8 @@ public class CurveNodeIdMapper {
   private final Map<Tenor, CurveInstrumentProvider> _fraNodeIds;
   /** Curve instrument providers for FX forward nodes */
   private final Map<Tenor, CurveInstrumentProvider> _fxForwardNodeIds;
+  /** Curve instrument providers for IMM FRA nodes */
+  private final Map<Tenor, CurveInstrumentProvider> _immFRANodeIds;
   /** Curve instrument providers for IMM swap nodes */
   private final Map<Tenor, CurveInstrumentProvider> _immSwapNodeIds;
   /** Curve instrument providers for rate future nodes */
@@ -84,6 +86,8 @@ public class CurveNodeIdMapper {
     private Map<Tenor, CurveInstrumentProvider> _fraNodeIds;
     /** Curve instrument providers for FX forward nodes */
     private Map<Tenor, CurveInstrumentProvider> _fxForwardNodeIds;
+    /** Curve instrument providers for IMM FRA nodes */
+    private Map<Tenor, CurveInstrumentProvider> _immFRANodeIds;
     /** Curve instrument providers for IMM swap nodes */
     private Map<Tenor, CurveInstrumentProvider> _immSwapNodeIds;
     /** Curve instrument providers for rate future nodes */
@@ -178,6 +182,16 @@ public class CurveNodeIdMapper {
     }
 
     /**
+     * Curve instrument providers for IMM FRA nodes
+     * @param immFRANodeIds The immFRANodeIds
+     * @return this
+     */
+    public Builder immFRANodeIds(final Map<Tenor, CurveInstrumentProvider> immFRANodeIds) {
+      _immFRANodeIds = immFRANodeIds;
+      return this;
+    }
+
+    /**
      * Curve instrument providers for IMM swap nodes
      * @param immSwapNodeIds The immSwapNodeIds
      * @return this
@@ -221,10 +235,19 @@ public class CurveNodeIdMapper {
      * @return a new {@link CurveNodeIdMapper} instance.
      */
     public CurveNodeIdMapper build() {
-      return new CurveNodeIdMapper(_name, _cashNodeIds,
-          _continuouslyCompoundedRateNodeIds, _creditSpreadNodeIds,
-          _deliverableSwapFutureNodeIds, _discountFactorNodeIds, _fraNodeIds, _fxForwardNodeIds,
-          _immSwapNodeIds, _rateFutureNodeIds, _swapNodeIds, _zeroCouponInflationNodeIds);
+      return new CurveNodeIdMapper(_name,
+          _cashNodeIds,
+          _continuouslyCompoundedRateNodeIds,
+          _creditSpreadNodeIds,
+          _deliverableSwapFutureNodeIds,
+          _discountFactorNodeIds,
+          _fraNodeIds,
+          _fxForwardNodeIds,
+          _immFRANodeIds,
+          _immSwapNodeIds,
+          _rateFutureNodeIds,
+          _swapNodeIds,
+          _zeroCouponInflationNodeIds);
     }
 
   }
@@ -245,6 +268,7 @@ public class CurveNodeIdMapper {
    * @param discountFactorNodeIds The discount factor node ids
    * @param fraNodeIds The FRA node ids
    * @param fxForwardNodeIds The FX forward node ids
+   * @param immFRANodeIds The IMM FRA node ids
    * @param immSwapNodeIds The IMM swap node ids
    * @param rateFutureNodeIds The rate future node ids
    * @param swapNodeIds The swap node ids
@@ -258,6 +282,7 @@ public class CurveNodeIdMapper {
       final Map<Tenor, CurveInstrumentProvider> discountFactorNodeIds,
       final Map<Tenor, CurveInstrumentProvider> fraNodeIds,
       final Map<Tenor, CurveInstrumentProvider> fxForwardNodeIds,
+      final Map<Tenor, CurveInstrumentProvider> immFRANodeIds,
       final Map<Tenor, CurveInstrumentProvider> immSwapNodeIds,
       final Map<Tenor, CurveInstrumentProvider> rateFutureNodeIds,
       final Map<Tenor, CurveInstrumentProvider> swapNodeIds,
@@ -270,6 +295,7 @@ public class CurveNodeIdMapper {
     _discountFactorNodeIds = discountFactorNodeIds;
     _fraNodeIds = fraNodeIds;
     _fxForwardNodeIds = fxForwardNodeIds;
+    _immFRANodeIds = immFRANodeIds;
     _immSwapNodeIds = immSwapNodeIds;
     _rateFutureNodeIds = rateFutureNodeIds;
     _swapNodeIds = swapNodeIds;
@@ -382,10 +408,21 @@ public class CurveNodeIdMapper {
   }
 
   /**
+   * Gets the IMM FRA node ids.
+   * @return The IMM FRA node ids
+   */
+  public Map<Tenor, CurveInstrumentProvider> getIMMFRANodeIds() {
+    if (_immFRANodeIds != null) {
+      return Collections.unmodifiableMap(_immFRANodeIds);
+    }
+    return null;
+  }
+
+  /**
    * Gets the IMM swap node ids.
    * @return The IMM swap node ids
    */
-  public Map<Tenor, CurveInstrumentProvider> getIMMMSwapNodeIds() {
+  public Map<Tenor, CurveInstrumentProvider> getIMMSwapNodeIds() {
     if (_immSwapNodeIds != null) {
       return Collections.unmodifiableMap(_immSwapNodeIds);
     }
@@ -713,6 +750,53 @@ public class CurveNodeIdMapper {
   }
 
   /**
+   * Gets the external id of the IMM FRA node at a particular tenor that is valid for that curve date.
+   * @param curveDate The curve date
+   * @param startTenor The start tenor
+   * @param startNumberFromTenor The number of IMM periods from the start tenor to the FRA start
+   * @param endNumberFromTenor The number of IMM periods from the start tenor to the FRA end
+   * @return The external id of the security
+   * @throws OpenGammaRuntimeException if the external id for this tenor and date could not be found.
+   */
+  public ExternalId getIMMFRANodeId(final LocalDate curveDate, final Tenor startTenor, final int startNumberFromTenor, final int endNumberFromTenor) {
+    if (_immFRANodeIds == null) {
+      throw new OpenGammaRuntimeException("Cannot get IMM FRA node id provider for curve node id mapper called " + _name);
+    }
+    final CurveInstrumentProvider mapper = _immFRANodeIds.get(startTenor);
+    if (mapper != null) {
+      return mapper.getInstrument(curveDate, startTenor, startNumberFromTenor, endNumberFromTenor);
+    }
+    throw new OpenGammaRuntimeException("Can't get instrument mapper definition for IMM FRA with time to start " + startTenor +
+        " with start IMM period number " + startNumberFromTenor + " and end IMM period number " + endNumberFromTenor);
+  }
+
+  /**
+   * Gets the market data field of the IMM FRA node at a particular tenor.
+   * @param tenor The tenor
+   * @return The market data field
+   * @throws OpenGammaRuntimeException if the market data field for this tenor could not be found.
+   */
+  public String getIMMFRANodeDataField(final Tenor tenor) {
+    if (_immFRANodeIds == null) {
+      throw new OpenGammaRuntimeException("Cannot get IMM FRA node id provider for curve node id mapper called " + _name);
+    }
+    return getMarketDataField(_immFRANodeIds, tenor);
+  }
+
+  /**
+   * Gets the data field type of the IMM FRA node at a particular tenor.
+   * @param tenor The tenor
+   * @return The data field type
+   * @throws OpenGammaRuntimeException if the data field type for this tenor could not be found.
+   */
+  public DataFieldType getIMMFRANodeDataFieldType(final Tenor tenor) {
+    if (_immFRANodeIds == null) {
+      throw new OpenGammaRuntimeException("Cannot get IMM FRA node id provider for curve node id mapper called " + _name);
+    }
+    return getDataFieldType(_immFRANodeIds, tenor);
+  }
+
+  /**
    * Gets the external id of the IMM swap node at a particular tenor that is valid for that curve date.
    * @param curveDate The curve date
    * @param startTenor The start tenor
@@ -913,6 +997,9 @@ public class CurveNodeIdMapper {
     if (_fxForwardNodeIds != null) {
       allTenors.addAll(_fxForwardNodeIds.keySet());
     }
+    if (_immFRANodeIds != null) {
+      allTenors.addAll(_immFRANodeIds.keySet());
+    }
     if (_immSwapNodeIds != null) {
       allTenors.addAll(_immSwapNodeIds.keySet());
     }
@@ -988,6 +1075,7 @@ public class CurveNodeIdMapper {
         ObjectUtils.equals(_discountFactorNodeIds, other._discountFactorNodeIds) &&
         ObjectUtils.equals(_fraNodeIds, other._fraNodeIds) &&
         ObjectUtils.equals(_fxForwardNodeIds, other._fxForwardNodeIds) &&
+        ObjectUtils.equals(_immFRANodeIds, other._immFRANodeIds) &&
         ObjectUtils.equals(_immSwapNodeIds, other._immSwapNodeIds) &&
         ObjectUtils.equals(_rateFutureNodeIds, other._rateFutureNodeIds) &&
         ObjectUtils.equals(_swapNodeIds, other._swapNodeIds) &&
@@ -1006,6 +1094,7 @@ public class CurveNodeIdMapper {
     result = prime * result + ((_discountFactorNodeIds == null) ? 0 : _discountFactorNodeIds.hashCode());
     result = prime * result + ((_fraNodeIds == null) ? 0 : _fraNodeIds.hashCode());
     result = prime * result + ((_fxForwardNodeIds == null) ? 0 : _fxForwardNodeIds.hashCode());
+    result = prime * result + ((_immFRANodeIds == null) ? 0 : _immFRANodeIds.hashCode());
     result = prime * result + ((_immSwapNodeIds == null) ? 0 : _immSwapNodeIds.hashCode());
     result = prime * result + ((_rateFutureNodeIds == null) ? 0 : _rateFutureNodeIds.hashCode());
     result = prime * result + ((_swapNodeIds == null) ? 0 : _swapNodeIds.hashCode());

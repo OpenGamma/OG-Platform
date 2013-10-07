@@ -130,8 +130,8 @@ public class CurveNodeToDefinitionConverterTest {
   private static final ExternalId OIS_ID = ExternalId.of(SCHEME, "USD OIS Leg");
   private static final ExternalId FX_FORWARD_ID = ExternalId.of(SCHEME, "FX Forward");
   private static final ExternalId FX_SPOT_ID = ExternalId.of(SCHEME, "FX Spot");
-  private static final ExternalId IMM_3M_EXPIRY_CONVENTION = ExternalId.of(SCHEME, IMMFutureAndFutureOptionQuarterlyExpiryCalculator.NAME);
-  private static final ExternalId IMM_1M_EXPIRY_CONVENTION = ExternalId.of(SCHEME, IMMFutureAndFutureOptionMonthlyExpiryCalculator.NAME);
+  private static final ExternalId IMM_3M_FUTURE_EXPIRY_CONVENTION = ExternalId.of(SCHEME, IMMFutureAndFutureOptionQuarterlyExpiryCalculator.NAME);
+  private static final ExternalId IMM_1M_FUTURE_EXPIRY_CONVENTION = ExternalId.of(SCHEME, IMMFutureAndFutureOptionMonthlyExpiryCalculator.NAME);
   private static final ExternalId FIXED_IBOR_3M_SWAP_ID = ExternalId.of(SCHEME, "Swap");
   private static final SwapFixedLegConvention FIXED_LEG = new SwapFixedLegConvention("USD Swap Fixed Leg", ExternalIdBundle.of(ExternalId.of(SCHEME, "USD Swap Fixed Leg")),
       Tenor.SIX_MONTHS, ACT_360, MODIFIED_FOLLOWING, Currency.USD, NYLON, 2, false, StubType.NONE, false, 2);
@@ -155,20 +155,20 @@ public class CurveNodeToDefinitionConverterTest {
   private static final IborIndexConvention LIBOR_6M = new IborIndexConvention("USD 6m Libor", ExternalIdBundle.of(LIBOR_6M_ID),
       ACT_360, MODIFIED_FOLLOWING, 2, false, Currency.USD, LocalTime.of(11, 0), "US", US, US, "Page");
   private static final InterestRateFutureConvention RATE_FUTURE_3M3M = new InterestRateFutureConvention("USD 3m/3m Rate Future", ExternalIdBundle.of(RATE_FUTURE_3M3M_ID),
-      IMM_3M_EXPIRY_CONVENTION, NYLON, LIBOR_3M_ID);
+      IMM_3M_FUTURE_EXPIRY_CONVENTION, NYLON, LIBOR_3M_ID);
   private static final InterestRateFutureConvention RATE_FUTURE_3M1M = new InterestRateFutureConvention("USD 3m/1m Rate Future", ExternalIdBundle.of(RATE_FUTURE_3M1M_ID),
-      IMM_3M_EXPIRY_CONVENTION, NYLON, LIBOR_1M_ID);
+      IMM_3M_FUTURE_EXPIRY_CONVENTION, NYLON, LIBOR_1M_ID);
   private static final InterestRateFutureConvention RATE_FUTURE_1M1M = new InterestRateFutureConvention("USD 1m/1m Rate Future", ExternalIdBundle.of(RATE_FUTURE_1M1M_ID),
-      IMM_1M_EXPIRY_CONVENTION, NYLON, LIBOR_3M_ID);
+      IMM_1M_FUTURE_EXPIRY_CONVENTION, NYLON, LIBOR_3M_ID);
   private static final OvernightIndexConvention OVERNIGHT = new OvernightIndexConvention("USD Overnight", ExternalIdBundle.of(ExternalId.of(SCHEME, "USD Overnight")),
       ACT_360, 1, Currency.USD, NYLON);
   private static final FXSpotConvention FX_SPOT = new FXSpotConvention("FX Spot", ExternalIdBundle.of(ExternalId.of(SCHEME, "FX Spot")), 1, US);
   private static final FXForwardAndSwapConvention FX_FORWARD = new FXForwardAndSwapConvention("FX Forward", ExternalIdBundle.of(ExternalId.of(SCHEME, "FX Forward")), FX_SPOT_ID, MODIFIED_FOLLOWING,
       false, US);
-  private static final FederalFundsFutureConvention FED_FUND = new FederalFundsFutureConvention("FF Future", ExternalIdBundle.of(FED_FUND_FUTURE_ID), IMM_1M_EXPIRY_CONVENTION, US, OVERNIGHT_ID, 5000000);
+  private static final FederalFundsFutureConvention FED_FUND = new FederalFundsFutureConvention("FF Future", ExternalIdBundle.of(FED_FUND_FUTURE_ID), IMM_1M_FUTURE_EXPIRY_CONVENTION, US, OVERNIGHT_ID, 5000000);
   private static final SwapConvention SWAP = new SwapConvention("Swap", ExternalIdBundle.of(FIXED_IBOR_3M_SWAP_ID), FIXED_LEG_ID, SWAP_3M_IBOR_ID);
   private static final DeliverablePriceQuotedSwapFutureConvention SWAP_FUTURE = new DeliverablePriceQuotedSwapFutureConvention("DSF", ExternalIdBundle.of(DELIVERABLE_SWAP_FUTURE_ID),
-      IMM_3M_EXPIRY_CONVENTION, US, FIXED_IBOR_3M_SWAP_ID, 1);
+      IMM_3M_FUTURE_EXPIRY_CONVENTION, US, FIXED_IBOR_3M_SWAP_ID, 1);
   private static final Map<ExternalId, Convention> CONVENTIONS = new HashMap<>();
   private static final ConventionSource CONVENTION_SOURCE;
   private static final HolidaySource HOLIDAY_SOURCE;

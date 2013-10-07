@@ -8,28 +8,24 @@ package com.opengamma.financial.convention;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.threeten.bp.DayOfWeek;
-import org.threeten.bp.temporal.TemporalAdjuster;
-import org.threeten.bp.temporal.TemporalAdjusters;
-
 /**
- * Factory containing instances of {@link TemporalAdjuster}
+ * Factory containing instances of {@link RollDateAdjuster}
  */
-public class TemporalAdjusterFactory {
-  /** The name of the third Wednesday adjuster */
-  private static final String THIRD_WEDNESDAY_STRING = "Third Wednesday";
-  /** The name of the third Monday adjuster */
-  private static final String THIRD_MONDAY_STRING = "Third Monday";
-  /** Adjusts dates to the third Wednesday of a month */
-  private static final TemporalAdjuster THIRD_WEDNESDAY_ADJUSTER = TemporalAdjusters.dayOfWeekInMonth(3, DayOfWeek.WEDNESDAY);
-  /** Adjusts dates to the third Monday of a month */
-  private static final TemporalAdjuster THIRD_MONDAY_ADJUSTER = TemporalAdjusters.dayOfWeekInMonth(3, DayOfWeek.MONDAY);
+public class RollDateAdjusterFactory {
+  /** The name of the next quarterly IMM roll date adjuster */
+  public static final String QUARTERLY_IMM_ROLL_STRING = "Quarterly IMM Roll";
+  /** The name of the next monthly IMM roll date adjuster */
+  public static final String MONTHLY_IMM_ROLL_STRING = "Monthly IMM Roll";
+  /** Adjusts dates to the next quarterly IMM roll date */
+  private static final RollDateAdjuster QUARTERLY_IMM_ROLL_ADJUSTER = QuarterlyIMMRollDateAdjuster.getAdjuster();
+  /** Adjusts dates to the next monthly IMM roll date */
+  private static final RollDateAdjuster MONTHLY_IMM_ROLL_ADJUSTER = MonthlyIMMRollDateAdjuster.getAdjuster();
   /** Map containing the instances */
-  private static final Map<String, TemporalAdjuster> s_instances = new HashMap<>();
+  private static final Map<String, RollDateAdjuster> s_instances = new HashMap<>();
 
   static {
-    s_instances.put(THIRD_WEDNESDAY_STRING, THIRD_WEDNESDAY_ADJUSTER);
-    s_instances.put(THIRD_MONDAY_STRING, THIRD_MONDAY_ADJUSTER);
+    s_instances.put(QUARTERLY_IMM_ROLL_STRING, QUARTERLY_IMM_ROLL_ADJUSTER);
+    s_instances.put(MONTHLY_IMM_ROLL_STRING, MONTHLY_IMM_ROLL_ADJUSTER);
   }
 
   /**
@@ -38,8 +34,8 @@ public class TemporalAdjusterFactory {
    * @return The adjuster
    * @throws IllegalArgumentException if the adjuster was not found in the map
    */
-  public static TemporalAdjuster getAdjuster(final String name) {
-    final TemporalAdjuster adjuster = s_instances.get(name);
+  public static RollDateAdjuster getAdjuster(final String name) {
+    final RollDateAdjuster adjuster = s_instances.get(name);
     if (adjuster != null) {
       return adjuster;
     }

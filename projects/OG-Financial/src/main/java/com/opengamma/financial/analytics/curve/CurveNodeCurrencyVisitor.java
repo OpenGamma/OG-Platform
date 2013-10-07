@@ -20,6 +20,7 @@ import com.opengamma.financial.analytics.ircurve.strips.DeliverableSwapFutureNod
 import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
+import com.opengamma.financial.analytics.ircurve.strips.IMMFRANode;
 import com.opengamma.financial.analytics.ircurve.strips.IMMSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
@@ -35,6 +36,7 @@ import com.opengamma.financial.convention.EquityConvention;
 import com.opengamma.financial.convention.FXForwardAndSwapConvention;
 import com.opengamma.financial.convention.FXSpotConvention;
 import com.opengamma.financial.convention.FederalFundsFutureConvention;
+import com.opengamma.financial.convention.IMMFRAConvention;
 import com.opengamma.financial.convention.IMMSwapConvention;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.InflationLegConvention;
@@ -119,6 +121,15 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
   @Override
   public Set<Currency> visitFXForwardNode(final FXForwardNode node) {
     return Sets.newHashSet(node.getPayCurrency(), node.getReceiveCurrency());
+  }
+
+  @Override
+  public Set<Currency> visitIMMFRANode(final IMMFRANode node) {
+    final IMMFRAConvention convention = _conventionSource.getConvention(IMMFRAConvention.class, node.getConvention());
+    if (convention == null) {
+      throw new OpenGammaRuntimeException("Could not get IMM FRA convention with id " + node.getConvention());
+    }
+    return convention.accept(this);
   }
 
   @Override
@@ -222,6 +233,15 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
   @Override
   public Set<Currency> visitIborIndexConvention(final IborIndexConvention convention) {
     return Collections.singleton(convention.getCurrency());
+  }
+
+  @Override
+  public Set<Currency> visitIMMFRAConvention(final IMMFRAConvention convention) {
+    final Convention underlyingConvention = _conventionSource.getConvention(convention.getIndexConvention());
+    if (underlyingConvention == null) {
+      throw new OpenGammaRuntimeException("Could not get convention with id " + convention.getIndexConvention());
+    }
+    return underlyingConvention.accept(this);
   }
 
   @Override

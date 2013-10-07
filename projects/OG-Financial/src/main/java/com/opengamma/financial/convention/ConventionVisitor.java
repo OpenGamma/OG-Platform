@@ -75,6 +75,13 @@ public interface ConventionVisitor<T> {
   T visitIborIndexConvention(IborIndexConvention convention);
 
   /**
+   * Visits {@link IMMFRAConvention}
+   * @param convention The convention, not null
+   * @return The return value
+   */
+  T visitIMMFRAConvention(IMMFRAConvention convention);
+
+  /**
    * Visits {@link IMMSwapConvention}
    * @param convention The convention, not null
    * @return The return value

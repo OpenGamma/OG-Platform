@@ -6,7 +6,6 @@
 package com.opengamma.financial.analytics.curve;
 
 import org.threeten.bp.ZonedDateTime;
-import org.threeten.bp.temporal.TemporalAdjuster;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
@@ -17,7 +16,8 @@ import com.opengamma.financial.analytics.ircurve.strips.IMMSwapNode;
 import com.opengamma.financial.convention.Convention;
 import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.convention.IMMSwapConvention;
-import com.opengamma.financial.convention.TemporalAdjusterFactory;
+import com.opengamma.financial.convention.RollDateAdjuster;
+import com.opengamma.financial.convention.RollDateAdjusterFactory;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 
@@ -76,10 +76,11 @@ public class IMMSwapNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefi
     if (receiveLegConvention == null) {
       throw new OpenGammaRuntimeException("Convention with id " + swapConvention.getReceiveLegConvention() + " was null");
     }
-    final TemporalAdjuster adjuster = TemporalAdjusterFactory.getAdjuster(swapConvention.getImmDateConvention().getValue());
+    final RollDateAdjuster adjuster = RollDateAdjusterFactory.getAdjuster(swapConvention.getImmDateConvention().getValue());
+    final long monthsToAdjust = adjuster.getMonthsToAdjust();
     final ZonedDateTime unadjustedStartDate = _valuationTime.plus(immSwapNode.getStartTenor().getPeriod());
-    final ZonedDateTime immStartDate = unadjustedStartDate.plusMonths(3 * immSwapNode.getImmDateStartNumber()).with(adjuster);
-    final ZonedDateTime maturityDate = immStartDate.plusMonths(3 * immSwapNode.getImmDateEndNumber());
+    final ZonedDateTime immStartDate = unadjustedStartDate.plusMonths(monthsToAdjust * immSwapNode.getImmDateStartNumber()).with(adjuster);
+    final ZonedDateTime maturityDate = immStartDate.plusMonths(monthsToAdjust * immSwapNode.getImmDateEndNumber());
     return NodeConverterUtils.getSwapDefinition(payLegConvention, receiveLegConvention, immStartDate, maturityDate, _regionSource,
         _holidaySource, _conventionSource, _marketData, _dataId, _valuationTime);
   }

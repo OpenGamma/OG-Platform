@@ -38,6 +38,12 @@ public class IMMSwapNode extends CurveNode {
   private Tenor _startTenor;
 
   /**
+   * The IMM tenor.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private Tenor _immTenor;
+
+  /**
    * The IMM date start number.
    */
   @PropertyDefinition(validate = "notNull")
@@ -71,17 +77,19 @@ public class IMMSwapNode extends CurveNode {
   /**
    * Sets the useFixings field to true and the node name to null
    * @param startTenor The start tenor, not null
+   * @param immTenor The IMM tenor, not null
    * @param immDateStartNumber The IMM date start number, not negative or zero
    * @param immDateEndNumber The IMM date end number, not negative or zero
    * @param swapConvention The swap convention, not null
    * @param curveNodeIdMapperName The curve node id mapper name, not null
    */
-  public IMMSwapNode(final Tenor startTenor, final int immDateStartNumber, final int immDateEndNumber, final ExternalId swapConvention,
+  public IMMSwapNode(final Tenor startTenor, final Tenor immTenor, final int immDateStartNumber, final int immDateEndNumber, final ExternalId swapConvention,
       final String curveNodeIdMapperName) {
     super(curveNodeIdMapperName);
     ArgumentChecker.notNegativeOrZero(immDateStartNumber, "IMM date start number");
     ArgumentChecker.notNegativeOrZero(immDateEndNumber, "IMM date end number");
     setStartTenor(startTenor);
+    setImmTenor(immTenor);
     setImmDateStartNumber(immDateStartNumber);
     setImmDateEndNumber(immDateEndNumber);
     setSwapConvention(swapConvention);
@@ -91,18 +99,20 @@ public class IMMSwapNode extends CurveNode {
   /**
    * Sets the node name to null
    * @param startTenor The start tenor, not null
+   * @param immTenor The IMM tenor, not null
    * @param immDateStartNumber The IMM date start number, not negative or zero
    * @param immDateEndNumber The IMM date end number, not negative or zero
    * @param swapConvention The swap convention, not null
    * @param useFixings Use fixings
    * @param curveNodeIdMapperName The curve node id mapper name
    */
-  public IMMSwapNode(final Tenor startTenor, final int immDateStartNumber, final int immDateEndNumber, final ExternalId swapConvention,
+  public IMMSwapNode(final Tenor startTenor, final Tenor immTenor, final int immDateStartNumber, final int immDateEndNumber, final ExternalId swapConvention,
       final boolean useFixings, final String curveNodeIdMapperName) {
     super(curveNodeIdMapperName);
     ArgumentChecker.notNegativeOrZero(immDateStartNumber, "IMM date start number");
     ArgumentChecker.notNegativeOrZero(immDateEndNumber, "IMM date end number");
     setStartTenor(startTenor);
+    setImmTenor(immTenor);
     setImmDateStartNumber(immDateStartNumber);
     setImmDateEndNumber(immDateEndNumber);
     setSwapConvention(swapConvention);
@@ -112,18 +122,20 @@ public class IMMSwapNode extends CurveNode {
   /**
    * Sets the useFixings field to true and the node name to null
    * @param startTenor The start tenor, not null
+   * @param immTenor The IMM tenor, not null
    * @param immDateStartNumber The IMM date start number, not negative or zero
    * @param immDateEndNumber The IMM date end number, not negative or zero
    * @param swapConvention The swap convention, not null
    * @param curveNodeIdMapperName The curve node id mapper name, not null
    * @param name The curve node name
    */
-  public IMMSwapNode(final Tenor startTenor, final int immDateStartNumber, final int immDateEndNumber, final ExternalId swapConvention,
+  public IMMSwapNode(final Tenor startTenor, final Tenor immTenor, final int immDateStartNumber, final int immDateEndNumber, final ExternalId swapConvention,
       final String curveNodeIdMapperName, final String name) {
     super(curveNodeIdMapperName, name);
     ArgumentChecker.notNegativeOrZero(immDateStartNumber, "IMM date start number");
     ArgumentChecker.notNegativeOrZero(immDateEndNumber, "IMM date end number");
     setStartTenor(startTenor);
+    setImmTenor(immTenor);
     setImmDateStartNumber(immDateStartNumber);
     setImmDateEndNumber(immDateEndNumber);
     setSwapConvention(swapConvention);
@@ -133,6 +145,7 @@ public class IMMSwapNode extends CurveNode {
   /**
    * Sets the node name to null
    * @param startTenor The start tenor, not null
+   * @param immTenor The IMM tenor, not null
    * @param immDateStartNumber The IMM date start number, not negative or zero
    * @param immDateEndNumber The IMM date end number, not negative or zero
    * @param swapConvention The swap convention, not null
@@ -140,12 +153,13 @@ public class IMMSwapNode extends CurveNode {
    * @param curveNodeIdMapperName The curve node id mapper name
    * @param name The curve node name
    */
-  public IMMSwapNode(final Tenor startTenor, final int immDateStartNumber, final int immDateEndNumber, final ExternalId swapConvention,
+  public IMMSwapNode(final Tenor startTenor, final Tenor immTenor, final int immDateStartNumber, final int immDateEndNumber, final ExternalId swapConvention,
       final boolean useFixings, final String curveNodeIdMapperName, final String name) {
     super(curveNodeIdMapperName, name);
     ArgumentChecker.notNegativeOrZero(immDateStartNumber, "IMM date start number");
     ArgumentChecker.notNegativeOrZero(immDateEndNumber, "IMM date end number");
     setStartTenor(startTenor);
+    setImmTenor(immTenor);
     setImmDateStartNumber(immDateStartNumber);
     setImmDateEndNumber(immDateEndNumber);
     setSwapConvention(swapConvention);
@@ -154,7 +168,8 @@ public class IMMSwapNode extends CurveNode {
 
   @Override
   public Tenor getResolvedMaturity() {
-    return Tenor.of(getStartTenor().getPeriod().plusMonths(_immDateEndNumber * 3));
+    final int m = getImmTenor().getPeriod().getMonths();
+    return Tenor.of(getStartTenor().getPeriod().plusMonths(m * getImmDateEndNumber()));
   }
 
   @Override
@@ -206,6 +221,32 @@ public class IMMSwapNode extends CurveNode {
    */
   public final Property<Tenor> startTenor() {
     return metaBean().startTenor().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the IMM tenor.
+   * @return the value of the property, not null
+   */
+  public Tenor getImmTenor() {
+    return _immTenor;
+  }
+
+  /**
+   * Sets the IMM tenor.
+   * @param immTenor  the new value of the property, not null
+   */
+  public void setImmTenor(Tenor immTenor) {
+    JodaBeanUtils.notNull(immTenor, "immTenor");
+    this._immTenor = immTenor;
+  }
+
+  /**
+   * Gets the the {@code immTenor} property.
+   * @return the property, not null
+   */
+  public final Property<Tenor> immTenor() {
+    return metaBean().immTenor().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -326,6 +367,7 @@ public class IMMSwapNode extends CurveNode {
     if (obj != null && obj.getClass() == this.getClass()) {
       IMMSwapNode other = (IMMSwapNode) obj;
       return JodaBeanUtils.equal(getStartTenor(), other.getStartTenor()) &&
+          JodaBeanUtils.equal(getImmTenor(), other.getImmTenor()) &&
           (getImmDateStartNumber() == other.getImmDateStartNumber()) &&
           (getImmDateEndNumber() == other.getImmDateEndNumber()) &&
           JodaBeanUtils.equal(getSwapConvention(), other.getSwapConvention()) &&
@@ -339,6 +381,7 @@ public class IMMSwapNode extends CurveNode {
   public int hashCode() {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getStartTenor());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getImmTenor());
     hash += hash * 31 + JodaBeanUtils.hashCode(getImmDateStartNumber());
     hash += hash * 31 + JodaBeanUtils.hashCode(getImmDateEndNumber());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSwapConvention());
@@ -348,7 +391,7 @@ public class IMMSwapNode extends CurveNode {
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(192);
+    StringBuilder buf = new StringBuilder(224);
     buf.append("IMMSwapNode{");
     int len = buf.length();
     toString(buf);
@@ -363,6 +406,7 @@ public class IMMSwapNode extends CurveNode {
   protected void toString(StringBuilder buf) {
     super.toString(buf);
     buf.append("startTenor").append('=').append(getStartTenor()).append(',').append(' ');
+    buf.append("immTenor").append('=').append(getImmTenor()).append(',').append(' ');
     buf.append("immDateStartNumber").append('=').append(getImmDateStartNumber()).append(',').append(' ');
     buf.append("immDateEndNumber").append('=').append(getImmDateEndNumber()).append(',').append(' ');
     buf.append("swapConvention").append('=').append(getSwapConvention()).append(',').append(' ');
@@ -384,6 +428,11 @@ public class IMMSwapNode extends CurveNode {
      */
     private final MetaProperty<Tenor> _startTenor = DirectMetaProperty.ofReadWrite(
         this, "startTenor", IMMSwapNode.class, Tenor.class);
+    /**
+     * The meta-property for the {@code immTenor} property.
+     */
+    private final MetaProperty<Tenor> _immTenor = DirectMetaProperty.ofReadWrite(
+        this, "immTenor", IMMSwapNode.class, Tenor.class);
     /**
      * The meta-property for the {@code immDateStartNumber} property.
      */
@@ -410,6 +459,7 @@ public class IMMSwapNode extends CurveNode {
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "startTenor",
+        "immTenor",
         "immDateStartNumber",
         "immDateEndNumber",
         "swapConvention",
@@ -426,6 +476,8 @@ public class IMMSwapNode extends CurveNode {
       switch (propertyName.hashCode()) {
         case -1583746178:  // startTenor
           return _startTenor;
+        case -533583753:  // immTenor
+          return _immTenor;
         case 2126343860:  // immDateStartNumber
           return _immDateStartNumber;
         case -548980051:  // immDateEndNumber
@@ -460,6 +512,14 @@ public class IMMSwapNode extends CurveNode {
      */
     public final MetaProperty<Tenor> startTenor() {
       return _startTenor;
+    }
+
+    /**
+     * The meta-property for the {@code immTenor} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Tenor> immTenor() {
+      return _immTenor;
     }
 
     /**
@@ -500,6 +560,8 @@ public class IMMSwapNode extends CurveNode {
       switch (propertyName.hashCode()) {
         case -1583746178:  // startTenor
           return ((IMMSwapNode) bean).getStartTenor();
+        case -533583753:  // immTenor
+          return ((IMMSwapNode) bean).getImmTenor();
         case 2126343860:  // immDateStartNumber
           return ((IMMSwapNode) bean).getImmDateStartNumber();
         case -548980051:  // immDateEndNumber
@@ -517,6 +579,9 @@ public class IMMSwapNode extends CurveNode {
       switch (propertyName.hashCode()) {
         case -1583746178:  // startTenor
           ((IMMSwapNode) bean).setStartTenor((Tenor) newValue);
+          return;
+        case -533583753:  // immTenor
+          ((IMMSwapNode) bean).setImmTenor((Tenor) newValue);
           return;
         case 2126343860:  // immDateStartNumber
           ((IMMSwapNode) bean).setImmDateStartNumber((Integer) newValue);
@@ -537,6 +602,7 @@ public class IMMSwapNode extends CurveNode {
     @Override
     protected void validate(Bean bean) {
       JodaBeanUtils.notNull(((IMMSwapNode) bean)._startTenor, "startTenor");
+      JodaBeanUtils.notNull(((IMMSwapNode) bean)._immTenor, "immTenor");
       JodaBeanUtils.notNull(((IMMSwapNode) bean)._immDateStartNumber, "immDateStartNumber");
       JodaBeanUtils.notNull(((IMMSwapNode) bean)._immDateEndNumber, "immDateEndNumber");
       JodaBeanUtils.notNull(((IMMSwapNode) bean)._swapConvention, "swapConvention");

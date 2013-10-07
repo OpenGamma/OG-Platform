@@ -59,6 +59,11 @@ public class ConventionVisitorAdapter<T> implements ConventionVisitor<T> {
   }
 
   @Override
+  public T visitIMMFRAConvention(final IMMFRAConvention convention) {
+    return getErrorMessage(convention);
+  }
+
+  @Override
   public T visitIMMSwapConvention(final IMMSwapConvention convention) {
     return getErrorMessage(convention);
   }

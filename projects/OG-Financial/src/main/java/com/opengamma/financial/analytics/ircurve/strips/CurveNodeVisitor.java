@@ -61,6 +61,13 @@ public interface CurveNodeVisitor<T> {
   T visitFXForwardNode(FXForwardNode node);
 
   /**
+   * Visits a {@link IMMFRANode}.
+   * @param node An IMM FRA node
+   * @return The return value
+   */
+  T visitIMMFRANode(IMMFRANode node);
+
+  /**
    * Visits a {@link IMMSwapNode}.
    * @param node An IMM swap node
    * @return The return value

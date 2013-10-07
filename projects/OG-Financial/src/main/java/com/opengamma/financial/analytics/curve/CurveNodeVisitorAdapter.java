@@ -14,6 +14,7 @@ import com.opengamma.financial.analytics.ircurve.strips.DeliverableSwapFutureNod
 import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
+import com.opengamma.financial.analytics.ircurve.strips.IMMFRANode;
 import com.opengamma.financial.analytics.ircurve.strips.IMMSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
@@ -84,6 +85,11 @@ public class CurveNodeVisitorAdapter<T> implements CurveNodeVisitor<T> {
   }
 
   @Override
+  public T visitIMMFRANode(final IMMFRANode node) {
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), node));
+  }
+
+  @Override
   public T visitIMMSwapNode(final IMMSwapNode node) {
     throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), node));
   }
@@ -141,6 +147,11 @@ public class CurveNodeVisitorAdapter<T> implements CurveNodeVisitor<T> {
       _visitor = visitor;
     }
 
+    /**
+     * Adds a visitor for {@link CashNode}s
+     * @param visitor The original visitor.
+     * @return A visitor that also handle cash nodes
+     */
     public Builder<T> cashNodeVisitor(final CurveNodeVisitor<T> visitor) {
       _visitor = new CurveNodeVisitorDelegate<T>(_visitor) {
 
@@ -152,6 +163,11 @@ public class CurveNodeVisitorAdapter<T> implements CurveNodeVisitor<T> {
       return this;
     }
 
+    /**
+     * Adds a visitor for {@link ContinuouslyCompoundedRateNode}s
+     * @param visitor The original visitor.
+     * @return A visitor that can also handle continuously compounded rate nodes
+     */
     public Builder<T> continuouslyCompoundedRateNode(final CurveNodeVisitor<T> visitor) {
       _visitor = new CurveNodeVisitorDelegate<T>(_visitor) {
 
@@ -163,6 +179,11 @@ public class CurveNodeVisitorAdapter<T> implements CurveNodeVisitor<T> {
       return this;
     }
 
+    /**
+     * Adds a visitor for {@link CreditSpreadNode}s
+     * @param visitor The original visitor.
+     * @return A visitor that can also handle credit spread nodes
+     */
     public Builder<T> creditSpreadNode(final CurveNodeVisitor<T> visitor) {
       _visitor = new CurveNodeVisitorDelegate<T>(_visitor) {
 
@@ -174,6 +195,11 @@ public class CurveNodeVisitorAdapter<T> implements CurveNodeVisitor<T> {
       return this;
     }
 
+    /**
+     * Adds a visitor for {@link DeliverableSwapFutureNode}s
+     * @param visitor The original visitor.
+     * @return A visitor that can also handle deliverable swap future nodes
+     */
     public Builder<T> deliverableSwapFutureNode(final CurveNodeVisitor<T> visitor) {
       _visitor = new CurveNodeVisitorDelegate<T>(_visitor) {
 
@@ -185,6 +211,11 @@ public class CurveNodeVisitorAdapter<T> implements CurveNodeVisitor<T> {
       return this;
     }
 
+    /**
+     * Adds a visitor for {@link DiscountFactorNode}s
+     * @param visitor The original visitor.
+     * @return A visitor that can also handle discount factor nodes
+     */
     public Builder<T> discountFactorNode(final CurveNodeVisitor<T> visitor) {
       _visitor = new CurveNodeVisitorDelegate<T>(_visitor) {
 
@@ -196,6 +227,11 @@ public class CurveNodeVisitorAdapter<T> implements CurveNodeVisitor<T> {
       return this;
     }
 
+    /**
+     * Adds a visitor for {@link FRANode}s
+     * @param visitor The original visitor.
+     * @return A visitor that can also handle FRA nodes
+     */
     public Builder<T> fraNode(final CurveNodeVisitor<T> visitor) {
       _visitor = new CurveNodeVisitorDelegate<T>(_visitor) {
 
@@ -207,6 +243,11 @@ public class CurveNodeVisitorAdapter<T> implements CurveNodeVisitor<T> {
       return this;
     }
 
+    /**
+     * Adds a visitor for {@link FXForwardNode}s
+     * @param visitor The original visitor.
+     * @return A visitor that can also handle FX forward nodes
+     */
     public Builder<T> fxForwardNode(final CurveNodeVisitor<T> visitor) {
       _visitor = new CurveNodeVisitorDelegate<T>(_visitor) {
 
@@ -218,6 +259,27 @@ public class CurveNodeVisitorAdapter<T> implements CurveNodeVisitor<T> {
       return this;
     }
 
+    /**
+     * Adds a visitor for {@link IMMFRANode}s
+     * @param visitor The original visitor.
+     * @return A visitor that can also handle IMM FRA nodes
+     */
+    public Builder<T> immFRANode(final CurveNodeVisitor<T> visitor) {
+      _visitor = new CurveNodeVisitorDelegate<T>(_visitor) {
+
+        @Override
+        public T visitIMMFRANode(final IMMFRANode node) {
+          return visitor.visitIMMFRANode(node);
+        }
+      };
+      return this;
+    }
+
+    /**
+     * Adds a visitor for {@link IMMSwapNode}s
+     * @param visitor The original visitor.
+     * @return A visitor that can also handle IMM swap nodes
+     */
     public Builder<T> immSwapNode(final CurveNodeVisitor<T> visitor) {
       _visitor = new CurveNodeVisitorDelegate<T>(_visitor) {
 
@@ -229,6 +291,11 @@ public class CurveNodeVisitorAdapter<T> implements CurveNodeVisitor<T> {
       return this;
     }
 
+    /**
+     * Adds a visitor for {@link RateFutureNode}s
+     * @param visitor The original visitor.
+     * @return A visitor that can also handle rate future nodes
+     */
     public Builder<T> rateFutureNode(final CurveNodeVisitor<T> visitor) {
       _visitor = new CurveNodeVisitorDelegate<T>(_visitor) {
 
@@ -240,6 +307,11 @@ public class CurveNodeVisitorAdapter<T> implements CurveNodeVisitor<T> {
       return this;
     }
 
+    /**
+     * Adds a visitor for {@link SwapNode}s
+     * @param visitor The original visitor.
+     * @return A visitor that can also handle swap nodes
+     */
     public Builder<T> swapNode(final CurveNodeVisitor<T> visitor) {
       _visitor = new CurveNodeVisitorDelegate<T>(_visitor) {
 
@@ -251,6 +323,11 @@ public class CurveNodeVisitorAdapter<T> implements CurveNodeVisitor<T> {
       return this;
     }
 
+    /**
+     * Adds a visitor for {@link ZeroCouponInflationNode}s
+     * @param visitor The original visitor.
+     * @return A visitor that can also handle zero-coupon inflation nodes
+     */
     public Builder<T> zeroCouponInflationNode(final CurveNodeVisitor<T> visitor) {
       _visitor = new CurveNodeVisitorDelegate<T>(_visitor) {
 
@@ -262,6 +339,10 @@ public class CurveNodeVisitorAdapter<T> implements CurveNodeVisitor<T> {
       return this;
     }
 
+    /**
+     * Creates the visitor
+     * @return The visitor
+     */
     public CurveNodeVisitor<T> create() {
       return new CurveNodeVisitorDelegate<>(_visitor);
     }
