@@ -50,7 +50,7 @@ public class WebConfigVersionResource extends AbstractWebConfigResource {
   public String getHTML() {
     FlexiBean out = createRootData();
     ConfigDocument doc = data().getVersioned();
-    out.put("configXml", createBeanXML(doc));
+    out.put("configXml", createBeanXML(doc.getConfig().getValue()));
     return getFreemarker().build(HTML_DIR + "configversion.ftl", out);
   }
 
@@ -68,7 +68,7 @@ public class WebConfigVersionResource extends AbstractWebConfigResource {
     if (jsonConfig != null) {
       out.put("configJSON", jsonConfig);
     } else {
-      out.put("configXML", StringEscapeUtils.escapeJavaScript(createBeanXML(doc)));
+      out.put("configXML", StringEscapeUtils.escapeJavaScript(createBeanXML(doc.getConfig().getValue())));
     }
     out.put("type", data().getTypeMap().inverse().get(doc.getType()));
     String json = getFreemarker().build(JSON_DIR + "config.ftl", out);
@@ -102,6 +102,7 @@ public class WebConfigVersionResource extends AbstractWebConfigResource {
     out.put("configDoc", versionedConfig);
     out.put("config", versionedConfig.getConfig().getValue());
     out.put("configDescription", getConfigTypesProvider().getDescription(versionedConfig.getConfig().getType()));
+    out.put("configXml", createXML(versionedConfig.getConfig().getValue()));
     out.put("deleted", !latestDoc.isLatest());
     return out;
   }
