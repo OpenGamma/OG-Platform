@@ -8,7 +8,6 @@ $.register_module({
     obj: function () {
         var Block = og.common.util.ui.Block;
         var DatasourcesMenu = function (config) {
-            console.log(config);
             if (!config) {
                 return og.dev.warn('og.analytics.DatasourcesMenu: Missing param [config] to constructor.');
             }
@@ -62,7 +61,6 @@ $.register_module({
             };
 
             var add_row_handler = function (obj) {
-                console.log(obj);
                 return new form.Block({
                     module: 'og.analytics.form_datasources_row_tash',
                     extras: {
@@ -110,7 +108,6 @@ $.register_module({
                                     averageCycleInterval: obj.averageCycleInterval
                                 };
                             }
-                            console.log(data);
                             handler(tmpl(data));
                         });
                     }
@@ -153,7 +150,6 @@ $.register_module({
             };
 
             var deserialize = function (data) {
-                console.log(data);
                 return data.map(function (entry) { // TODO AG: refactor.
                     var obj;
                     switch (entry.marketDataType) {
