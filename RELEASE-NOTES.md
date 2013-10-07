@@ -11,6 +11,10 @@ To 2.2.0-M1
 -----------
 
 Configuration compatibility
+- [PLAT-4684] To support managing market data snapshot from the UI, WebsiteBasicsComponentFactory entry in the .ini configuration files needs the following properties
+  marketDataSnapshotMaster, marketDataSpecificationRepository, viewProcessor and computationTargetResolver.
+  Example configuration is provided in /examples-simulated/config/fullstack/fullstack-examplessimulated.ini
+
 - [PLAT-4782] The legacy analytics web UI has been retired. WebsiteAnalyticsComponentFactory, which used to construct
   its server-side components, has been removed. Any instances of this can be safely deleted from component
   configuration .ini files.
@@ -20,7 +24,7 @@ Configuration compatibility
     [jetty]
     factory = com.opengamma.component.factory.EmbeddedJettyComponentFactory
     resourceBase = ${jetty.resourceBase}
-    
+
 
 Database compatibility
 - No upgrade required
@@ -52,6 +56,21 @@ Change constructor to of() factory
 Change constructor to of() factory
 
 - ScenarioDslParameters and ScenarioDslScript are now immutable
+Change constructor to of() factory
+
+- CurveKey is now immutable
+Change constructor to of() factory
+
+- VolatilityCubeKey is now immutable
+Change constructor to of() factory
+
+- VolatilitySurfaceKey is now immutable
+Change constructor to of() factory
+
+- YieldCurveKey is now immutable
+Change constructor to of() factory
+
+- ManageableYieldCurveSnapshot is now immutable
 Change constructor to of() factory
 
 
