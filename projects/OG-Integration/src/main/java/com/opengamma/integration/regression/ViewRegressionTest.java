@@ -21,7 +21,15 @@ import org.threeten.bp.Instant;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
+import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.integration.marketdata.manipulator.dsl.RemoteServer;
+import com.opengamma.master.config.ConfigMaster;
+import com.opengamma.master.config.ConfigSearchRequest;
+import com.opengamma.master.config.ConfigSearchResult;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -89,6 +97,7 @@ public class ViewRegressionTest {
     // don't use the config file to be sure we don't accidentally clobber a real database
     // TODO this needs to run in the context of each server installation so it picks up the schema files from there
     createDatabase(dbPropsFile, workingDir, classpath, _logbackConfig);
+    // TODO this won't necessarily be on the classpath of this process, only on the the subprocess classpaths
     Properties dbProps = loadProperties(dbPropsFile);
     restoreDatabase(workingDir, classpath, dbProps);
     return runViews(workingDir, classpath, _valuationTime, dbProps);
@@ -130,7 +139,8 @@ public class ViewRegressionTest {
          // TODO don't hard-code the port
          RemoteServer server = RemoteServer.create(serverUrl)) {
       Map<Pair<String, String>, CalculationResults> allResults = Maps.newHashMap();
-      Collection<Pair<String, String>> viewAndSnapshotNames = getViewAndSnapshotNames(server);
+      Collection<Pair<String, String>> viewAndSnapshotNames = getViewAndSnapshotNames(server.getConfigMaster(),
+                                                                                      server.getMarketDataSnapshotMaster());
       ViewRunner viewRunner = new ViewRunner(server.getConfigMaster(),
                                              server.getViewProcessor(),
                                              server.getPositionSource(),
@@ -145,13 +155,26 @@ public class ViewRegressionTest {
     }
   }
 
-  private static Collection<Pair<String, String>> getViewAndSnapshotNames(RemoteServer server) {
-    Map<String, String> basisViewToSnapshot = Maps.newHashMap();
-    /*
-    load snapshots, create map(basisViewName->snapshotName) (includeData to get the basisViewName)
-    for each combination of view and applicable snapshot, create a pair(viewName, snapshotName)
-    */
+  private static Collection<Pair<String, String>> getViewAndSnapshotNames(ConfigMaster configMaster,
+                                                                          MarketDataSnapshotMaster snapshotMaster) {
     List<Pair<String, String>> viewAndSnapshotNames = Lists.newArrayList();
+    MarketDataSnapshotSearchRequest snapshotRequest = new MarketDataSnapshotSearchRequest();
+    // TODO this isn't great but is necessary because of PLAT-4793
+    snapshotRequest.setIncludeData(true);
+    MarketDataSnapshotSearchResult snapshotResult = snapshotMaster.search(snapshotRequest);
+    for (ManageableMarketDataSnapshot snapshot : snapshotResult.getSnapshots()) {
+      String basisViewName = snapshot.getBasisViewName();
+      if (basisViewName != null) {
+        ConfigSearchRequest<ViewDefinition> configRequest = new ConfigSearchRequest<>(ViewDefinition.class);
+        ConfigSearchResult<ViewDefinition> configResult = configMaster.search(configRequest);
+        if (configResult.getValues().size() > 1) {
+          s_logger.warn("Multiple view definitions found with the same name '{}'", basisViewName);
+          continue;
+        }
+        String viewDefName = configResult.getSingleValue().getName();
+        viewAndSnapshotNames.add(Pair.of(viewDefName, snapshot.getName()));
+      }
+    }
     return viewAndSnapshotNames;
   }
 

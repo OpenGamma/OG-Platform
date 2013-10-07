@@ -8,20 +8,23 @@ package com.opengamma.integration.regression;
 import java.util.Collection;
 
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.PosixParser;
 import org.threeten.bp.Instant;
 
-import com.opengamma.component.tool.AbstractTool;
-import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.scripts.Scriptable;
 
 /**
  *
  */
 @Scriptable
-public class ViewRegressionTestTool extends AbstractTool<ToolContext> {
+public class ViewRegressionTestTool {
 
+  private static final Options OPTIONS = createOptions();
   private static final String PROJECT_NAME = "pn";
   private static final String SERVER_CONFIG = "sc";
   private static final String DB_DUMP_DIR = "dd";
@@ -33,10 +36,36 @@ public class ViewRegressionTestTool extends AbstractTool<ToolContext> {
   private static final String NEW_VERSION = "nv";
   private static final String BASE_PROPS = "bp";
   private static final String NEW_PROPS = "np";
+  private static final String HELP = "h";
 
-  @Override
-  protected void doRun() throws Exception {
-    CommandLine cl = getCommandLine();
+  /**
+   * Main method to run the tool.
+   *
+   * @param args the arguments, unused
+   */
+  public static void main(final String[] args) throws Exception { // CSIGNORE
+    CommandLineParser parser = new PosixParser();
+    CommandLine line;
+    try {
+      line = parser.parse(OPTIONS, args);
+    } catch (final ParseException e) {
+      printUsage();
+      return;
+    }
+    if (line.hasOption(HELP)) {
+      printUsage();
+      return;
+    }
+    ViewRegressionTestTool.run(line);
+  }
+
+  private static void printUsage() {
+    HelpFormatter formatter = new HelpFormatter();
+    formatter.setWidth(120);
+    formatter.printHelp("java " + ViewRegressionTestTool.class.getName(), OPTIONS, true);
+  }
+
+  private static void run(CommandLine cl) throws Exception {
     Instant valuationTime;
     if (cl.hasOption(VALUATION_TIME)) {
       valuationTime = Instant.parse(cl.getOptionValue(VALUATION_TIME));
@@ -59,9 +88,8 @@ public class ViewRegressionTestTool extends AbstractTool<ToolContext> {
     System.out.println(result);
   }
 
-  @Override
-  protected Options createOptions(boolean mandatoryConfigResource) {
-    Options options = super.createOptions(mandatoryConfigResource);
+  private static Options createOptions() {
+    Options options = new Options();
 
     Option projectNameOption = new Option(PROJECT_NAME, "projectname", true, "Project name (as used in the build artifacts)");
     projectNameOption.setRequired(true);
@@ -101,9 +129,12 @@ public class ViewRegressionTestTool extends AbstractTool<ToolContext> {
     basePropsOption.setRequired(true);
     options.addOption(basePropsOption);
 
-    Option Option = new Option(NEW_PROPS, "newprops", true, "The DB properties file for the new server");
-    Option.setRequired(true);
-    options.addOption(Option);
+    Option newPropsOption = new Option(NEW_PROPS, "newprops", true, "The DB properties file for the new server");
+    newPropsOption.setRequired(true);
+    options.addOption(newPropsOption);
+
+    Option helpOption = new Option(HELP, "help", true, "Print usage");
+    options.addOption(helpOption);
 
     return options;
   }
