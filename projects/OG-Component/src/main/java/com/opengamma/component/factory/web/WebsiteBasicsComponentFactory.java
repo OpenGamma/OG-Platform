@@ -26,14 +26,18 @@ import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.component.rest.JerseyRestResourceFactory;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.engine.ComputationTargetResolver;
+import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
 import com.opengamma.engine.target.ComputationTargetTypeProvider;
 import com.opengamma.engine.target.DefaultComputationTargetTypeProvider;
+import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.impl.MasterConfigSource;
 import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoader;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.holiday.HolidayMaster;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.orgs.OrganizationMaster;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
@@ -46,6 +50,7 @@ import com.opengamma.web.config.WebConfigsResource;
 import com.opengamma.web.exchange.WebExchangesResource;
 import com.opengamma.web.historicaltimeseries.WebAllHistoricalTimeSeriesResource;
 import com.opengamma.web.holiday.WebHolidaysResource;
+import com.opengamma.web.marketdatasnapshot.WebMarketDataSnapshotsResource;
 import com.opengamma.web.orgs.WebOrganizationsResource;
 import com.opengamma.web.portfolio.WebPortfoliosResource;
 import com.opengamma.web.position.WebPositionsResource;
@@ -140,6 +145,29 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
    */
   @PropertyDefinition(validate = "notNull")
   private OrganizationMaster _organizationMaster;
+  /**
+   * The market data snapshot master.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private MarketDataSnapshotMaster _marketDataSnapshotMaster;
+  /**
+   * For looking up market data provider specifications by name. Either this or liveMarketDataProviderFactory must be set.
+   * 
+   * @deprecated  use liveMarketDataProviderFactory
+   */
+  @PropertyDefinition(validate = "notNull")
+  @Deprecated
+  private NamedMarketDataSpecificationRepository _marketDataSpecificationRepository;
+  /**
+   * The view processor.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private ViewProcessor _viewProcessor;
+  /**
+   * The computation target resolver.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private ComputationTargetResolver _computationTargetResolver;
 
   //-------------------------------------------------------------------------
   @Override
@@ -170,14 +198,18 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     repo.getRestComponents().publishResource(resource);
     resource = new JerseyRestResourceFactory(WebPortfoliosResource.class, getPortfolioMaster(), getPositionMaster(), getSecuritySource(), getScheduler());
     repo.getRestComponents().publishResource(resource);
-    resource = new JerseyRestResourceFactory(WebAllHistoricalTimeSeriesResource.class, getHistoricalTimeSeriesMaster(), getHistoricalTimeSeriesLoader(), new MasterConfigSource(getConfigMaster()));
+    final MasterConfigSource configSource = new MasterConfigSource(getConfigMaster());
+    resource = new JerseyRestResourceFactory(WebAllHistoricalTimeSeriesResource.class, getHistoricalTimeSeriesMaster(), getHistoricalTimeSeriesLoader(), configSource);
     repo.getRestComponents().publishResource(resource);
     resource = new JerseyRestResourceFactory(WebComputationTargetTypeResource.class, getTargetTypes());
     repo.getRestComponents().publishResource(resource);
     resource = new JerseyRestResourceFactory(WebOrganizationsResource.class, getOrganizationMaster());
     repo.getRestComponents().publishResource(resource);
+    resource = new JerseyRestResourceFactory(WebMarketDataSnapshotsResource.class, getMarketDataSnapshotMaster(), getConfigMaster(), getMarketDataSpecificationRepository(),
+        configSource, getComputationTargetResolver(), getViewProcessor(), getHistoricalTimeSeriesSource());
+    repo.getRestComponents().publishResource(resource);
   }
-
+  
   protected void initValueRequirementNames(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
     String valueRequirementNameClasses = configuration.get(WebValueRequirementNamesResource.VALUE_REQUIREMENT_NAME_CLASSES);
     configuration.remove(WebValueRequirementNamesResource.VALUE_REQUIREMENT_NAME_CLASSES);
@@ -628,6 +660,119 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets the market data snapshot master.
+   * @return the value of the property, not null
+   */
+  public MarketDataSnapshotMaster getMarketDataSnapshotMaster() {
+    return _marketDataSnapshotMaster;
+  }
+
+  /**
+   * Sets the market data snapshot master.
+   * @param marketDataSnapshotMaster  the new value of the property, not null
+   */
+  public void setMarketDataSnapshotMaster(MarketDataSnapshotMaster marketDataSnapshotMaster) {
+    JodaBeanUtils.notNull(marketDataSnapshotMaster, "marketDataSnapshotMaster");
+    this._marketDataSnapshotMaster = marketDataSnapshotMaster;
+  }
+
+  /**
+   * Gets the the {@code marketDataSnapshotMaster} property.
+   * @return the property, not null
+   */
+  public final Property<MarketDataSnapshotMaster> marketDataSnapshotMaster() {
+    return metaBean().marketDataSnapshotMaster().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets for looking up market data provider specifications by name. Either this or liveMarketDataProviderFactory must be set.
+   * 
+   * @deprecated  use liveMarketDataProviderFactory
+   * @return the value of the property, not null
+   */
+  @Deprecated
+  public NamedMarketDataSpecificationRepository getMarketDataSpecificationRepository() {
+    return _marketDataSpecificationRepository;
+  }
+
+  /**
+   * Sets for looking up market data provider specifications by name. Either this or liveMarketDataProviderFactory must be set.
+   * 
+   * @deprecated  use liveMarketDataProviderFactory
+   * @param marketDataSpecificationRepository  the new value of the property, not null
+   */
+  @Deprecated
+  public void setMarketDataSpecificationRepository(NamedMarketDataSpecificationRepository marketDataSpecificationRepository) {
+    JodaBeanUtils.notNull(marketDataSpecificationRepository, "marketDataSpecificationRepository");
+    this._marketDataSpecificationRepository = marketDataSpecificationRepository;
+  }
+
+  /**
+   * Gets the the {@code marketDataSpecificationRepository} property.
+   * 
+   * @deprecated  use liveMarketDataProviderFactory
+   * @return the property, not null
+   */
+  @Deprecated
+  public final Property<NamedMarketDataSpecificationRepository> marketDataSpecificationRepository() {
+    return metaBean().marketDataSpecificationRepository().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the view processor.
+   * @return the value of the property, not null
+   */
+  public ViewProcessor getViewProcessor() {
+    return _viewProcessor;
+  }
+
+  /**
+   * Sets the view processor.
+   * @param viewProcessor  the new value of the property, not null
+   */
+  public void setViewProcessor(ViewProcessor viewProcessor) {
+    JodaBeanUtils.notNull(viewProcessor, "viewProcessor");
+    this._viewProcessor = viewProcessor;
+  }
+
+  /**
+   * Gets the the {@code viewProcessor} property.
+   * @return the property, not null
+   */
+  public final Property<ViewProcessor> viewProcessor() {
+    return metaBean().viewProcessor().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the computation target resolver.
+   * @return the value of the property, not null
+   */
+  public ComputationTargetResolver getComputationTargetResolver() {
+    return _computationTargetResolver;
+  }
+
+  /**
+   * Sets the computation target resolver.
+   * @param computationTargetResolver  the new value of the property, not null
+   */
+  public void setComputationTargetResolver(ComputationTargetResolver computationTargetResolver) {
+    JodaBeanUtils.notNull(computationTargetResolver, "computationTargetResolver");
+    this._computationTargetResolver = computationTargetResolver;
+  }
+
+  /**
+   * Gets the the {@code computationTargetResolver} property.
+   * @return the property, not null
+   */
+  public final Property<ComputationTargetResolver> computationTargetResolver() {
+    return metaBean().computationTargetResolver().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
   @Override
   public WebsiteBasicsComponentFactory clone() {
     return (WebsiteBasicsComponentFactory) super.clone();
@@ -656,6 +801,10 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
           JodaBeanUtils.equal(getScheduler(), other.getScheduler()) &&
           JodaBeanUtils.equal(getTargetTypes(), other.getTargetTypes()) &&
           JodaBeanUtils.equal(getOrganizationMaster(), other.getOrganizationMaster()) &&
+          JodaBeanUtils.equal(getMarketDataSnapshotMaster(), other.getMarketDataSnapshotMaster()) &&
+          JodaBeanUtils.equal(getMarketDataSpecificationRepository(), other.getMarketDataSpecificationRepository()) &&
+          JodaBeanUtils.equal(getViewProcessor(), other.getViewProcessor()) &&
+          JodaBeanUtils.equal(getComputationTargetResolver(), other.getComputationTargetResolver()) &&
           super.equals(obj);
     }
     return false;
@@ -680,12 +829,16 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getScheduler());
     hash += hash * 31 + JodaBeanUtils.hashCode(getTargetTypes());
     hash += hash * 31 + JodaBeanUtils.hashCode(getOrganizationMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSnapshotMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSpecificationRepository());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getViewProcessor());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getComputationTargetResolver());
     return hash ^ super.hashCode();
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(544);
+    StringBuilder buf = new StringBuilder(672);
     buf.append("WebsiteBasicsComponentFactory{");
     int len = buf.length();
     toString(buf);
@@ -715,6 +868,10 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     buf.append("scheduler").append('=').append(getScheduler()).append(',').append(' ');
     buf.append("targetTypes").append('=').append(getTargetTypes()).append(',').append(' ');
     buf.append("organizationMaster").append('=').append(getOrganizationMaster()).append(',').append(' ');
+    buf.append("marketDataSnapshotMaster").append('=').append(getMarketDataSnapshotMaster()).append(',').append(' ');
+    buf.append("marketDataSpecificationRepository").append('=').append(getMarketDataSpecificationRepository()).append(',').append(' ');
+    buf.append("viewProcessor").append('=').append(getViewProcessor()).append(',').append(' ');
+    buf.append("computationTargetResolver").append('=').append(getComputationTargetResolver()).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -808,6 +965,26 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<OrganizationMaster> _organizationMaster = DirectMetaProperty.ofReadWrite(
         this, "organizationMaster", WebsiteBasicsComponentFactory.class, OrganizationMaster.class);
     /**
+     * The meta-property for the {@code marketDataSnapshotMaster} property.
+     */
+    private final MetaProperty<MarketDataSnapshotMaster> _marketDataSnapshotMaster = DirectMetaProperty.ofReadWrite(
+        this, "marketDataSnapshotMaster", WebsiteBasicsComponentFactory.class, MarketDataSnapshotMaster.class);
+    /**
+     * The meta-property for the {@code marketDataSpecificationRepository} property.
+     */
+    private final MetaProperty<NamedMarketDataSpecificationRepository> _marketDataSpecificationRepository = DirectMetaProperty.ofReadWrite(
+        this, "marketDataSpecificationRepository", WebsiteBasicsComponentFactory.class, NamedMarketDataSpecificationRepository.class);
+    /**
+     * The meta-property for the {@code viewProcessor} property.
+     */
+    private final MetaProperty<ViewProcessor> _viewProcessor = DirectMetaProperty.ofReadWrite(
+        this, "viewProcessor", WebsiteBasicsComponentFactory.class, ViewProcessor.class);
+    /**
+     * The meta-property for the {@code computationTargetResolver} property.
+     */
+    private final MetaProperty<ComputationTargetResolver> _computationTargetResolver = DirectMetaProperty.ofReadWrite(
+        this, "computationTargetResolver", WebsiteBasicsComponentFactory.class, ComputationTargetResolver.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -827,7 +1004,11 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
         "historicalTimeSeriesLoader",
         "scheduler",
         "targetTypes",
-        "organizationMaster");
+        "organizationMaster",
+        "marketDataSnapshotMaster",
+        "marketDataSpecificationRepository",
+        "viewProcessor",
+        "computationTargetResolver");
 
     /**
      * Restricted constructor.
@@ -870,6 +1051,14 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
           return _targetTypes;
         case -1158737547:  // organizationMaster
           return _organizationMaster;
+        case 2090650860:  // marketDataSnapshotMaster
+          return _marketDataSnapshotMaster;
+        case 1743800263:  // marketDataSpecificationRepository
+          return _marketDataSpecificationRepository;
+        case -1697555603:  // viewProcessor
+          return _viewProcessor;
+        case 1562222174:  // computationTargetResolver
+          return _computationTargetResolver;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -1018,6 +1207,40 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
       return _organizationMaster;
     }
 
+    /**
+     * The meta-property for the {@code marketDataSnapshotMaster} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<MarketDataSnapshotMaster> marketDataSnapshotMaster() {
+      return _marketDataSnapshotMaster;
+    }
+
+    /**
+     * The meta-property for the {@code marketDataSpecificationRepository} property.
+     * @deprecated  use liveMarketDataProviderFactory
+     * @return the meta-property, not null
+     */
+    @Deprecated
+    public final MetaProperty<NamedMarketDataSpecificationRepository> marketDataSpecificationRepository() {
+      return _marketDataSpecificationRepository;
+    }
+
+    /**
+     * The meta-property for the {@code viewProcessor} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ViewProcessor> viewProcessor() {
+      return _viewProcessor;
+    }
+
+    /**
+     * The meta-property for the {@code computationTargetResolver} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ComputationTargetResolver> computationTargetResolver() {
+      return _computationTargetResolver;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -1054,6 +1277,14 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
           return ((WebsiteBasicsComponentFactory) bean).getTargetTypes();
         case -1158737547:  // organizationMaster
           return ((WebsiteBasicsComponentFactory) bean).getOrganizationMaster();
+        case 2090650860:  // marketDataSnapshotMaster
+          return ((WebsiteBasicsComponentFactory) bean).getMarketDataSnapshotMaster();
+        case 1743800263:  // marketDataSpecificationRepository
+          return ((WebsiteBasicsComponentFactory) bean).getMarketDataSpecificationRepository();
+        case -1697555603:  // viewProcessor
+          return ((WebsiteBasicsComponentFactory) bean).getViewProcessor();
+        case 1562222174:  // computationTargetResolver
+          return ((WebsiteBasicsComponentFactory) bean).getComputationTargetResolver();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -1109,6 +1340,18 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
         case -1158737547:  // organizationMaster
           ((WebsiteBasicsComponentFactory) bean).setOrganizationMaster((OrganizationMaster) newValue);
           return;
+        case 2090650860:  // marketDataSnapshotMaster
+          ((WebsiteBasicsComponentFactory) bean).setMarketDataSnapshotMaster((MarketDataSnapshotMaster) newValue);
+          return;
+        case 1743800263:  // marketDataSpecificationRepository
+          ((WebsiteBasicsComponentFactory) bean).setMarketDataSpecificationRepository((NamedMarketDataSpecificationRepository) newValue);
+          return;
+        case -1697555603:  // viewProcessor
+          ((WebsiteBasicsComponentFactory) bean).setViewProcessor((ViewProcessor) newValue);
+          return;
+        case 1562222174:  // computationTargetResolver
+          ((WebsiteBasicsComponentFactory) bean).setComputationTargetResolver((ComputationTargetResolver) newValue);
+          return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
     }
@@ -1131,6 +1374,10 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
       JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._scheduler, "scheduler");
       JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._targetTypes, "targetTypes");
       JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._organizationMaster, "organizationMaster");
+      JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._marketDataSnapshotMaster, "marketDataSnapshotMaster");
+      JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._marketDataSpecificationRepository, "marketDataSpecificationRepository");
+      JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._viewProcessor, "viewProcessor");
+      JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._computationTargetResolver, "computationTargetResolver");
       super.validate(bean);
     }
 
