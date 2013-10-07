@@ -233,7 +233,7 @@ public class ISDACompliantCurve extends DoublesCurve {
    * @return value
    */
   public double getRT(final double t) {
-    ArgumentChecker.isTrue(t >= 0, "require t >= 0.0");
+    ArgumentChecker.isTrue(t >= 0, "require t >= 0.0, was " + t);
 
     // short-cut doing binary search
     if (t <= _t[0]) {
