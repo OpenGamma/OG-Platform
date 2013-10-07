@@ -29,7 +29,7 @@ public class ViewCycleExecutionOptionsFudgeBuilderTest extends AbstractFudgeBuil
   public void rountTrip() {
     Map<DistinctMarketDataSelector, FunctionParameters> selectors2params = Maps.newHashMap();
     Map<String, String> params = ImmutableMap.of("foo", "bar");
-    DistinctMarketDataSelector selector = YieldCurveSelector.of(new YieldCurveKey(Currency.AUD, "curveKey"));
+    DistinctMarketDataSelector selector = YieldCurveSelector.of(YieldCurveKey.of(Currency.AUD, "curveKey"));
     selectors2params.put(selector, new SimpleFunctionParameters(params));
     ViewCycleExecutionOptions options =
         ViewCycleExecutionOptions

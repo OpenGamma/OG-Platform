@@ -32,7 +32,7 @@ public class VolatilitySurfaceNodeExtractor extends NodeExtractor<VolatilitySurf
     String instrumentType = getOptionalProperty(spec, "InstrumentType");
     String quoteType = getOptionalProperty(spec, SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE);
     String quoteUnits = getOptionalProperty(spec, SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS);
-    VolatilitySurfaceKey key = new VolatilitySurfaceKey(uniqueId, surface, instrumentType, quoteType, quoteUnits);
+    VolatilitySurfaceKey key = VolatilitySurfaceKey.of(uniqueId, surface, instrumentType, quoteType, quoteUnits);
     return StructureIdentifier.of(key);
   }
 

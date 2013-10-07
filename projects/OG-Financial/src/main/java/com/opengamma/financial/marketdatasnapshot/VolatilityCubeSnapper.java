@@ -43,7 +43,7 @@ public class VolatilityCubeSnapper extends
   VolatilityCubeKey getKey(ValueSpecification spec) {
     Currency currency = Currency.parse(spec.getTargetSpecification().getUniqueId().getValue());
     String cube = getSingleProperty(spec, ValuePropertyNames.CUBE);
-    return new VolatilityCubeKey(currency, cube);
+    return VolatilityCubeKey.of(currency, cube);
   }
 
   @Override

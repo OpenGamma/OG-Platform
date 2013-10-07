@@ -109,10 +109,8 @@ public class DbMarketDataSnapshotMasterTest extends AbstractDbTest {
     globalValues.putValue(specA, "Z", ValueSnapshot.of(null, null));
     globalValues.putValue(specB, "X", ValueSnapshot.of(Double.valueOf(12), Double.valueOf(11)));
 
-    final ManageableYieldCurveSnapshot manageableYieldCurveSnapshot = new ManageableYieldCurveSnapshot();
-    manageableYieldCurveSnapshot.setValuationTime(Instant.now());
-    manageableYieldCurveSnapshot.setValues(globalValues);
-    yieldCurves.put(new YieldCurveKey(Currency.GBP, "Default"), manageableYieldCurveSnapshot);
+    final ManageableYieldCurveSnapshot manageableYieldCurveSnapshot = ManageableYieldCurveSnapshot.of(Instant.now(), globalValues);
+    yieldCurves.put(YieldCurveKey.of(Currency.GBP, "Default"), manageableYieldCurveSnapshot);
 
     snapshot1.setYieldCurves(yieldCurves);
 
@@ -128,7 +126,7 @@ public class DbMarketDataSnapshotMasterTest extends AbstractDbTest {
     volCube.setStrikes(strikes);
     volCube.getValues().put(new VolatilityPoint(Tenor.DAY, Tenor.YEAR, -1), ValueSnapshot.of(null, null));
 
-    volCubes.put(new VolatilityCubeKey(Currency.USD, "Default"), volCube);
+    volCubes.put(VolatilityCubeKey.of(Currency.USD, "Default"), volCube);
     snapshot1.setVolatilityCubes(volCubes);
 
     MarketDataSnapshotDocument doc1 = new MarketDataSnapshotDocument(snapshot1);

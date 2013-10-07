@@ -27,7 +27,7 @@ public class VolatilityCubeNodeExtractor extends NodeExtractor<VolatilityCubeKey
   public StructureIdentifier<VolatilityCubeKey> getStructuredIdentifier(ValueSpecification spec) {
     Currency currency = Currency.parse(spec.getTargetSpecification().getUniqueId().getValue());
     String cube = getSingleProperty(spec, ValuePropertyNames.CUBE);
-    VolatilityCubeKey key = new VolatilityCubeKey(currency, cube);
+    VolatilityCubeKey key = VolatilityCubeKey.of(currency, cube);
     return StructureIdentifier.of(key);
   }
 }

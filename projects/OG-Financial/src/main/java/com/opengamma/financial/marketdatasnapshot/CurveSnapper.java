@@ -28,7 +28,7 @@ public class CurveSnapper extends
   @Override
   CurveKey getKey(ValueSpecification spec) {
     final String curve = getSingleProperty(spec, ValuePropertyNames.CURVE);
-    return new CurveKey(curve);
+    return CurveKey.of(curve);
   }
 
   @Override

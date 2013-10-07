@@ -415,7 +415,7 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
       String quoteType = properties.getValues(SURFACE_QUOTE_TYPE_PROPERTY).iterator().next();
       String quoteUnits = properties.getValues(SURFACE_QUOTE_UNITS_PROPERTY).iterator().next();
       if (snapshot.getVolatilitySurfaces() != null) {
-        VolatilitySurfaceKey key = new VolatilitySurfaceKey(target, name, instrumentType, quoteType, quoteUnits);
+        VolatilitySurfaceKey key = VolatilitySurfaceKey.of(target, name, instrumentType, quoteType, quoteUnits);
         VolatilitySurfaceSnapshot data = snapshot.getVolatilitySurfaces().get(key);
         if (data != null) {
           return createVolatilitySurfaceData(data, key);
@@ -464,7 +464,7 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
     protected VolatilityCubeData query(UniqueId target, ValueProperties properties, StructuredMarketDataSnapshot snapshot) {
       String name = properties.getValues(ValuePropertyNames.CUBE).iterator().next();
       if (snapshot.getVolatilityCubes() != null) {
-        VolatilityCubeKey key = new VolatilityCubeKey(Currency.of(target.getValue()), name);
+        VolatilityCubeKey key = VolatilityCubeKey.of(Currency.of(target.getValue()), name);
         VolatilityCubeSnapshot data = snapshot.getVolatilityCubes().get(key);
         if (data != null) {
           return convertVolatilityCubeMarketData(data);
@@ -513,7 +513,7 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
     protected SnapshotDataBundle query(UniqueId target, ValueProperties properties, StructuredMarketDataSnapshot snapshot) {
       String name = properties.getValues(ValuePropertyNames.CURVE).iterator().next();
       if (snapshot.getYieldCurves() != null) {
-        YieldCurveKey key = new YieldCurveKey(Currency.of(target.getValue()), name);
+        YieldCurveKey key = YieldCurveKey.of(Currency.of(target.getValue()), name);
         YieldCurveSnapshot data = snapshot.getYieldCurves().get(key);
         if (data != null) {
           return convertYieldCurveMarketData(data);
@@ -563,7 +563,7 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
     protected SnapshotDataBundle query(UniqueId target, ValueProperties properties, StructuredMarketDataSnapshot snapshot) {
       String name = properties.getValues(ValuePropertyNames.CURVE).iterator().next();
       if (snapshot.getCurves() != null) {
-        CurveKey key = new CurveKey(name);
+        CurveKey key = CurveKey.of(name);
         CurveSnapshot data = snapshot.getCurves().get(key);
         if (data != null) {
           return convertCurveMarketData(data);
