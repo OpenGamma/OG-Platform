@@ -18,6 +18,7 @@ import com.opengamma.financial.analytics.ircurve.strips.IMMFRANode;
 import com.opengamma.financial.analytics.ircurve.strips.IMMSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
+import com.opengamma.financial.analytics.ircurve.strips.ThreeLegBasisSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.ZeroCouponInflationNode;
 import com.opengamma.util.ArgumentChecker;
 
@@ -101,6 +102,11 @@ public class CurveNodeVisitorAdapter<T> implements CurveNodeVisitor<T> {
 
   @Override
   public T visitSwapNode(final SwapNode node) {
+    throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), node));
+  }
+
+  @Override
+  public T visitThreeLegBasisSwapNode(final ThreeLegBasisSwapNode node) {
     throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), node));
   }
 
@@ -318,6 +324,22 @@ public class CurveNodeVisitorAdapter<T> implements CurveNodeVisitor<T> {
         @Override
         public T visitSwapNode(final SwapNode node) {
           return visitor.visitSwapNode(node);
+        }
+      };
+      return this;
+    }
+
+    /**
+     * Adds a visitor for {@link ThreeLegBasisSwapNode}s
+     * @param visitor The original visitor.
+     * @return A visitor that can also handle swap nodes
+     */
+    public Builder<T> threeLegBasisSwapNode(final CurveNodeVisitor<T> visitor) {
+      _visitor = new CurveNodeVisitorDelegate<T>(_visitor) {
+
+        @Override
+        public T visitThreeLegBasisSwapNode(final ThreeLegBasisSwapNode node) {
+          return visitor.visitThreeLegBasisSwapNode(node);
         }
       };
       return this;

@@ -25,6 +25,7 @@ import com.opengamma.financial.analytics.ircurve.strips.IMMSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.InflationNodeType;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
+import com.opengamma.financial.analytics.ircurve.strips.ThreeLegBasisSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.ZeroCouponInflationNode;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
@@ -156,6 +157,28 @@ public class CurveNodeBuildersTest extends AnalyticsTestBase {
     assertEquals(node, cycleObject(SwapNode.class, node));
     node = new SwapNode(Tenor.ONE_DAY, Tenor.TEN_YEARS, ExternalId.of("convention", "pay"), ExternalId.of("convention", "receive"), false, "TEST", "Name");
     assertEquals(node, cycleObject(SwapNode.class, node));
+  }
+
+  @Test
+  public void testThreeLegBasisSwapNodeBuilder() {
+    ThreeLegBasisSwapNode node = new ThreeLegBasisSwapNode(Tenor.ONE_DAY, Tenor.TEN_YEARS, ExternalId.of("convention", "pay"), ExternalId.of("convention", "receive"),
+        ExternalId.of("convention", "spread"), "TEST");
+    assertEquals(node, cycleObject(ThreeLegBasisSwapNode.class, node));
+    node = new ThreeLegBasisSwapNode(Tenor.ONE_DAY, Tenor.TEN_YEARS, ExternalId.of("convention", "pay"), ExternalId.of("convention", "receive"),
+        ExternalId.of("convention", "spread"), "TEST", null);
+    assertEquals(node, cycleObject(ThreeLegBasisSwapNode.class, node));
+    node = new ThreeLegBasisSwapNode(Tenor.ONE_DAY, Tenor.TEN_YEARS, ExternalId.of("convention", "pay"), ExternalId.of("convention", "receive"),
+        ExternalId.of("convention", "spread"), "TEST", "Name");
+    assertEquals(node, cycleObject(ThreeLegBasisSwapNode.class, node));
+    node = new ThreeLegBasisSwapNode(Tenor.ONE_DAY, Tenor.TEN_YEARS, ExternalId.of("convention", "pay"), ExternalId.of("convention", "receive"),
+        ExternalId.of("convention", "spread"), false, "TEST");
+    assertEquals(node, cycleObject(ThreeLegBasisSwapNode.class, node));
+    node = new ThreeLegBasisSwapNode(Tenor.ONE_DAY, Tenor.TEN_YEARS, ExternalId.of("convention", "pay"), ExternalId.of("convention", "receive"),
+        ExternalId.of("convention", "spread"), false, "TEST", null);
+    assertEquals(node, cycleObject(ThreeLegBasisSwapNode.class, node));
+    node = new ThreeLegBasisSwapNode(Tenor.ONE_DAY, Tenor.TEN_YEARS, ExternalId.of("convention", "pay"), ExternalId.of("convention", "receive"),
+        ExternalId.of("convention", "spread"), false, "TEST", "Name");
+    assertEquals(node, cycleObject(ThreeLegBasisSwapNode.class, node));
   }
 
   @Test

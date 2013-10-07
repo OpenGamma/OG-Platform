@@ -26,6 +26,7 @@ import com.opengamma.financial.analytics.ircurve.strips.IMMSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.PointsCurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
+import com.opengamma.financial.analytics.ircurve.strips.ThreeLegBasisSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.ZeroCouponInflationNode;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
@@ -175,6 +176,15 @@ public class CurveNodeWithIdentifierBuilder implements CurveNodeVisitor<CurveNod
     final ExternalId identifier = _nodeIdMapper.getSwapNodeId(_curveDate, tenor);
     final String dataField = _nodeIdMapper.getSwapNodeDataField(tenor);
     final DataFieldType fieldType = _nodeIdMapper.getSwapNodeDataFieldType(tenor);
+    return new CurveNodeWithIdentifier(node, identifier, dataField, fieldType);
+  }
+
+  @Override
+  public CurveNodeWithIdentifier visitThreeLegBasisSwapNode(final ThreeLegBasisSwapNode node) {
+    final Tenor tenor = node.getMaturityTenor();
+    final ExternalId identifier = _nodeIdMapper.getThreeLegBasisSwapNodeId(_curveDate, tenor);
+    final String dataField = _nodeIdMapper.getThreeLegBasisSwapNodeDataField(tenor);
+    final DataFieldType fieldType = _nodeIdMapper.getThreeLegBasisSwapNodeDataFieldType(tenor);
     return new CurveNodeWithIdentifier(node, identifier, dataField, fieldType);
   }
 

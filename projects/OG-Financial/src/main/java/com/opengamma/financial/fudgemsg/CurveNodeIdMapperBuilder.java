@@ -50,6 +50,8 @@ public class CurveNodeIdMapperBuilder implements FudgeBuilder<CurveNodeIdMapper>
   public static final String RATE_FUTURE_FIELD = "rateFutureIds";
   /** The swap node field */
   public static final String SWAP_NODE_FIELD = "swapIds";
+  /** The three-leg basis swap node field */
+  public static final String THREE_LEG_BASIS_SWAP_NODE_FIELD = "threeLegBasisSwapIds";
   /** The zero coupon inflation node field */
   public static final String ZERO_COUPON_INFLATION_NODE_FIELD = "zeroCouponInflationIds";
 
@@ -91,6 +93,9 @@ public class CurveNodeIdMapperBuilder implements FudgeBuilder<CurveNodeIdMapper>
     if (object.getSwapNodeIds() != null) {
       message.add(SWAP_NODE_FIELD, getMessageForField(serializer, object.getSwapNodeIds()));
     }
+    if (object.getThreeLegBasisSwapNodeIds() != null) {
+      message.add(THREE_LEG_BASIS_SWAP_NODE_FIELD, getMessageForField(serializer, object.getThreeLegBasisSwapNodeIds()));
+    }
     if (object.getZeroCouponInflationNodeIds() != null) {
       message.add(ZERO_COUPON_INFLATION_NODE_FIELD, getMessageForField(serializer, object.getZeroCouponInflationNodeIds()));
     }
@@ -116,6 +121,7 @@ public class CurveNodeIdMapperBuilder implements FudgeBuilder<CurveNodeIdMapper>
     final Map<Tenor, CurveInstrumentProvider> immSwapNodeIds = getMapForField(IMM_SWAP_NODE_FIELD, deserializer, message);
     final Map<Tenor, CurveInstrumentProvider> rateFutureNodeIds = getMapForField(RATE_FUTURE_FIELD, deserializer, message);
     final Map<Tenor, CurveInstrumentProvider> swapNodeIds = getMapForField(SWAP_NODE_FIELD, deserializer, message);
+    final Map<Tenor, CurveInstrumentProvider> threeLegBasisSwapNodeIds = getMapForField(THREE_LEG_BASIS_SWAP_NODE_FIELD, deserializer, message);
     final Map<Tenor, CurveInstrumentProvider> zeroCouponInflationNodeIds = getMapForField(ZERO_COUPON_INFLATION_NODE_FIELD, deserializer, message);
     final CurveNodeIdMapper idMapper = CurveNodeIdMapper.builder().
         cashNodeIds(cashNodeIds).
@@ -130,6 +136,7 @@ public class CurveNodeIdMapperBuilder implements FudgeBuilder<CurveNodeIdMapper>
         rateFutureNodeIds(rateFutureNodeIds).
         name(name).
         swapNodeIds(swapNodeIds).
+        threeLegBasisSwapNodeIds(threeLegBasisSwapNodeIds).
         zeroCouponInflationNodeIds(zeroCouponInflationNodeIds).
         build();
     return idMapper;

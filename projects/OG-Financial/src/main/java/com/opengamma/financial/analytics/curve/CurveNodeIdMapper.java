@@ -62,6 +62,8 @@ public class CurveNodeIdMapper {
   private final Map<Tenor, CurveInstrumentProvider> _rateFutureNodeIds;
   /** Curve instrument providers for swap nodes */
   private final Map<Tenor, CurveInstrumentProvider> _swapNodeIds;
+  /** Curve instrument providers for three-leg basis swap nodes */
+  private final Map<Tenor, CurveInstrumentProvider> _threeLegBasisSwapNodeIds;
   /** Curve instrument providers for zero coupon inflation nodes */
   private final Map<Tenor, CurveInstrumentProvider> _zeroCouponInflationNodeIds;
 
@@ -94,6 +96,8 @@ public class CurveNodeIdMapper {
     private Map<Tenor, CurveInstrumentProvider> _rateFutureNodeIds;
     /** Curve instrument providers for swap nodes */
     private Map<Tenor, CurveInstrumentProvider> _swapNodeIds;
+    /** Curve instrument providers for three-leg basis swap nodes */
+    private Map<Tenor, CurveInstrumentProvider> _threeLegBasisSwapNodeIds;
     /** Curve instrument providers for zero coupon inflation nodes */
     private Map<Tenor, CurveInstrumentProvider> _zeroCouponInflationNodeIds;
 
@@ -222,6 +226,16 @@ public class CurveNodeIdMapper {
     }
 
     /**
+     * Curve instrument providers for three-leg basis swap nodes
+     * @param threeLegBasisSwapNodeIds the threeLegBasisSwapNodeIds
+     * @return this
+     */
+    public Builder threeLegBasisSwapNodeIds(final Map<Tenor, CurveInstrumentProvider> threeLegBasisSwapNodeIds) {
+      _threeLegBasisSwapNodeIds = threeLegBasisSwapNodeIds;
+      return this;
+    }
+
+    /**
      * Curve instrument providers for zero coupon inflation nodes
      * @param zeroCouponInflationNodeIds the zeroCouponInflationNodeIds
      * @return this
@@ -247,6 +261,7 @@ public class CurveNodeIdMapper {
           _immSwapNodeIds,
           _rateFutureNodeIds,
           _swapNodeIds,
+          _threeLegBasisSwapNodeIds,
           _zeroCouponInflationNodeIds);
     }
 
@@ -272,6 +287,7 @@ public class CurveNodeIdMapper {
    * @param immSwapNodeIds The IMM swap node ids
    * @param rateFutureNodeIds The rate future node ids
    * @param swapNodeIds The swap node ids
+   * @param threeLegBasisSwapNodeIds The three-leg basis swap node ids
    * @param zeroCouponInflationNodeIds The zero coupon inflation node ids;
    */
   protected CurveNodeIdMapper(final String name,
@@ -286,6 +302,7 @@ public class CurveNodeIdMapper {
       final Map<Tenor, CurveInstrumentProvider> immSwapNodeIds,
       final Map<Tenor, CurveInstrumentProvider> rateFutureNodeIds,
       final Map<Tenor, CurveInstrumentProvider> swapNodeIds,
+      final Map<Tenor, CurveInstrumentProvider> threeLegBasisSwapNodeIds,
       final Map<Tenor, CurveInstrumentProvider> zeroCouponInflationNodeIds) {
     _name = name;
     _cashNodeIds = cashNodeIds;
@@ -299,6 +316,7 @@ public class CurveNodeIdMapper {
     _immSwapNodeIds = immSwapNodeIds;
     _rateFutureNodeIds = rateFutureNodeIds;
     _swapNodeIds = swapNodeIds;
+    _threeLegBasisSwapNodeIds = threeLegBasisSwapNodeIds;
     _zeroCouponInflationNodeIds = zeroCouponInflationNodeIds;
   }
 
@@ -447,6 +465,17 @@ public class CurveNodeIdMapper {
   public Map<Tenor, CurveInstrumentProvider> getSwapNodeIds() {
     if (_swapNodeIds != null) {
       return Collections.unmodifiableMap(_swapNodeIds);
+    }
+    return null;
+  }
+
+  /**
+   * Gets the three-leg basis swap node ids.
+   * @return The three-leg basis swap node ids
+   */
+  public Map<Tenor, CurveInstrumentProvider> getThreeLegBasisSwapNodeIds() {
+    if (_threeLegBasisSwapNodeIds != null) {
+      return Collections.unmodifiableMap(_threeLegBasisSwapNodeIds);
     }
     return null;
   }
@@ -931,6 +960,46 @@ public class CurveNodeIdMapper {
   }
 
   /**
+   * Gets the external id of the three-leg basis swap node at a particular tenor that is valid for that curve date.
+   * @param curveDate The curve date
+   * @param tenor The tenor
+   * @return The external id of the security
+   * @throws OpenGammaRuntimeException if the external id for this tenor and date could not be found.
+   */
+  public ExternalId getThreeLegBasisSwapNodeId(final LocalDate curveDate, final Tenor tenor) {
+    if (_threeLegBasisSwapNodeIds == null) {
+      throw new OpenGammaRuntimeException("Cannot get three-leg basis swap node id provider for curve node id mapper called " + _name);
+    }
+    return getId(_threeLegBasisSwapNodeIds, curveDate, tenor);
+  }
+
+  /**
+   * Gets the market data field of the three-leg basis swap node at a particular tenor.
+   * @param tenor The tenor
+   * @return The market data field
+   * @throws OpenGammaRuntimeException if the market data field for this tenor could not be found.
+   */
+  public String getThreeLegBasisSwapNodeDataField(final Tenor tenor) {
+    if (_threeLegBasisSwapNodeIds == null) {
+      throw new OpenGammaRuntimeException("Cannot get three-leg basis swap node id provider for curve node id mapper called " + _name);
+    }
+    return getMarketDataField(_threeLegBasisSwapNodeIds, tenor);
+  }
+
+  /**
+   * Gets the data field type of the three-leg basis swap node at a particular tenor.
+   * @param tenor The tenor
+   * @return The data field type
+   * @throws OpenGammaRuntimeException if the data field type for this tenor could not be found.
+   */
+  public DataFieldType getThreeLegBasisSwapNodeDataFieldType(final Tenor tenor) {
+    if (_threeLegBasisSwapNodeIds == null) {
+      throw new OpenGammaRuntimeException("Cannot get three-leg basis swap node id provider for curve node id mapper called " + _name);
+    }
+    return getDataFieldType(_threeLegBasisSwapNodeIds, tenor);
+  }
+
+  /**
    * Gets the external id of the zero coupon inflation node at a particular tenor that is valid for that curve date.
    * @param curveDate The curve date
    * @param tenor The tenor
@@ -1009,6 +1078,9 @@ public class CurveNodeIdMapper {
     if (_swapNodeIds != null) {
       allTenors.addAll(_swapNodeIds.keySet());
     }
+    if (_threeLegBasisSwapNodeIds != null) {
+      allTenors.addAll(_threeLegBasisSwapNodeIds.keySet());
+    }
     if (_zeroCouponInflationNodeIds != null) {
       allTenors.addAll(_zeroCouponInflationNodeIds.keySet());
     }
@@ -1079,6 +1151,7 @@ public class CurveNodeIdMapper {
         ObjectUtils.equals(_immSwapNodeIds, other._immSwapNodeIds) &&
         ObjectUtils.equals(_rateFutureNodeIds, other._rateFutureNodeIds) &&
         ObjectUtils.equals(_swapNodeIds, other._swapNodeIds) &&
+        ObjectUtils.equals(_threeLegBasisSwapNodeIds, other._threeLegBasisSwapNodeIds) &&
         ObjectUtils.equals(_zeroCouponInflationNodeIds, other._zeroCouponInflationNodeIds);
   }
 
@@ -1098,6 +1171,7 @@ public class CurveNodeIdMapper {
     result = prime * result + ((_immSwapNodeIds == null) ? 0 : _immSwapNodeIds.hashCode());
     result = prime * result + ((_rateFutureNodeIds == null) ? 0 : _rateFutureNodeIds.hashCode());
     result = prime * result + ((_swapNodeIds == null) ? 0 : _swapNodeIds.hashCode());
+    result = prime * result + ((_threeLegBasisSwapNodeIds == null) ? 0 : _threeLegBasisSwapNodeIds.hashCode());
     result = prime * result + ((_zeroCouponInflationNodeIds == null) ? 0 : _zeroCouponInflationNodeIds.hashCode());
     return result;
   }

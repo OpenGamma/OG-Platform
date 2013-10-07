@@ -89,6 +89,13 @@ public interface CurveNodeVisitor<T> {
   T visitSwapNode(SwapNode node);
 
   /**
+   * Visits a {@link ThreeLegBasisSwapNode}
+   * @param node A three-leg basis swap node
+   * @return The return value
+   */
+  T visitThreeLegBasisSwapNode(ThreeLegBasisSwapNode node);
+
+  /**
    * Visits a {@link ZeroCouponInflationNode}.
    * @param node A zero-coupon inflation node
    * @return The return value

@@ -24,6 +24,7 @@ import com.opengamma.financial.analytics.ircurve.strips.IMMFRANode;
 import com.opengamma.financial.analytics.ircurve.strips.IMMSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
+import com.opengamma.financial.analytics.ircurve.strips.ThreeLegBasisSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.ZeroCouponInflationNode;
 import com.opengamma.financial.convention.CMSLegConvention;
 import com.opengamma.financial.convention.CompoundingIborLegConvention;
@@ -162,6 +163,26 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
     }
     final Set<Currency> currencies = new HashSet<>(payConvention.accept(this));
     currencies.addAll(receiveConvention.accept(this));
+    return currencies;
+  }
+
+  @Override
+  public Set<Currency> visitThreeLegBasisSwapNode(final ThreeLegBasisSwapNode node) {
+    final Convention payConvention = _conventionSource.getConvention(node.getPayLegConvention());
+    if (payConvention == null) {
+      throw new OpenGammaRuntimeException("Could not get pay convention with id " + node.getPayLegConvention());
+    }
+    final Convention receiveConvention = _conventionSource.getConvention(node.getReceiveLegConvention());
+    if (receiveConvention == null) {
+      throw new OpenGammaRuntimeException("Could not get receive convention with id " + node.getReceiveLegConvention());
+    }
+    final Convention spreadConvention = _conventionSource.getConvention(node.getSpreadLegConvention());
+    if (spreadConvention == null) {
+      throw new OpenGammaRuntimeException("Could not get spread convention with id " + node.getSpreadLegConvention());
+    }
+    final Set<Currency> currencies = new HashSet<>(payConvention.accept(this));
+    currencies.addAll(receiveConvention.accept(this));
+    currencies.addAll(spreadConvention.accept(this));
     return currencies;
   }
 

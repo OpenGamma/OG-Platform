@@ -23,16 +23,17 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Tenor;
 
 /**
- *
+ * Class describing a three-leg basis swap (e.g. EUR) curve node, where
+ * there are two floating legs and a spread leg.
  */
 @BeanDefinition
-public class SwapNode extends CurveNode {
+public class ThreeLegBasisSwapNode extends CurveNode {
 
   /** Serialization version */
   private static final long serialVersionUID = 1L;
 
   /**
-   * The start tenor.
+   *  The start tenor.
    */
   @PropertyDefinition(validate = "notNull")
   private Tenor _startTenor;
@@ -56,7 +57,13 @@ public class SwapNode extends CurveNode {
   private ExternalId _receiveLegConvention;
 
   /**
-   * Whether to use fixings when constructing the swap
+   * The spread leg convention.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private ExternalId _spreadLegConvention;
+
+  /**
+   * Whether to use fixings when constructing the swap.
    */
   @PropertyDefinition
   private boolean _useFixings;
@@ -64,7 +71,8 @@ public class SwapNode extends CurveNode {
   /**
    * For the builder.
    */
-  /* package */SwapNode() {
+  /* package */
+  public ThreeLegBasisSwapNode() {
     super();
   }
 
@@ -73,15 +81,17 @@ public class SwapNode extends CurveNode {
    * @param maturityTenor The maturity tenor, not null
    * @param payLegConvention The pay leg convention, not null
    * @param receiveLegConvention The receive leg convention, not null
+   * @param spreadLegConvention The spread leg convention, not null
    * @param curveNodeIdMapperName The curve node id mapper name, not null
    */
-  public SwapNode(final Tenor startTenor, final Tenor maturityTenor, final ExternalId payLegConvention, final ExternalId receiveLegConvention,
-      final String curveNodeIdMapperName) {
+  public ThreeLegBasisSwapNode(final Tenor startTenor, final Tenor maturityTenor, final ExternalId payLegConvention, final ExternalId receiveLegConvention,
+      final ExternalId spreadLegConvention, final String curveNodeIdMapperName) {
     super(curveNodeIdMapperName);
     setStartTenor(startTenor);
     setMaturityTenor(maturityTenor);
     setPayLegConvention(payLegConvention);
     setReceiveLegConvention(receiveLegConvention);
+    setSpreadLegConvention(spreadLegConvention);
     setUseFixings(true);
   }
 
@@ -90,16 +100,18 @@ public class SwapNode extends CurveNode {
    * @param maturityTenor The maturity tenor, not null
    * @param payLegConvention The pay leg convention, not null
    * @param receiveLegConvention The receive leg convention, not null
+   * @param spreadLegConvention The spread leg convention, not null
    * @param useFixings True if fixings are to be used in curve construction
    * @param curveNodeIdMapperName The curve node id mapper name, not null
    */
-  public SwapNode(final Tenor startTenor, final Tenor maturityTenor, final ExternalId payLegConvention, final ExternalId receiveLegConvention,
-      final boolean useFixings, final String curveNodeIdMapperName) {
+  public ThreeLegBasisSwapNode(final Tenor startTenor, final Tenor maturityTenor, final ExternalId payLegConvention, final ExternalId receiveLegConvention,
+      final ExternalId spreadLegConvention, final boolean useFixings, final String curveNodeIdMapperName) {
     super(curveNodeIdMapperName);
     setStartTenor(startTenor);
     setMaturityTenor(maturityTenor);
     setPayLegConvention(payLegConvention);
     setReceiveLegConvention(receiveLegConvention);
+    setSpreadLegConvention(spreadLegConvention);
     setUseFixings(useFixings);
   }
 
@@ -108,16 +120,18 @@ public class SwapNode extends CurveNode {
    * @param maturityTenor The maturity tenor, not null
    * @param payLegConvention The pay leg convention, not null
    * @param receiveLegConvention The receive leg convention, not null
+   * @param spreadLegConvention The spread leg convention, not null
    * @param curveNodeIdMapperName The curve node id mapper name, not null
    * @param name The name
    */
-  public SwapNode(final Tenor startTenor, final Tenor maturityTenor, final ExternalId payLegConvention, final ExternalId receiveLegConvention,
-      final String curveNodeIdMapperName, final String name) {
+  public ThreeLegBasisSwapNode(final Tenor startTenor, final Tenor maturityTenor, final ExternalId payLegConvention, final ExternalId receiveLegConvention,
+      final ExternalId spreadLegConvention, final String curveNodeIdMapperName, final String name) {
     super(curveNodeIdMapperName, name);
     setStartTenor(startTenor);
     setMaturityTenor(maturityTenor);
     setPayLegConvention(payLegConvention);
     setReceiveLegConvention(receiveLegConvention);
+    setSpreadLegConvention(spreadLegConvention);
     setUseFixings(true);
   }
 
@@ -126,17 +140,19 @@ public class SwapNode extends CurveNode {
    * @param maturityTenor The maturity tenor, not null
    * @param payLegConvention The pay leg convention, not null
    * @param receiveLegConvention The receive leg convention, not null
+   * @param spreadLegConvention The spread leg convention, not null
    * @param useFixings True if fixings are to be used in curve construction
    * @param curveNodeIdMapperName The curve node id mapper name, not null
    * @param name The name
    */
-  public SwapNode(final Tenor startTenor, final Tenor maturityTenor, final ExternalId payLegConvention, final ExternalId receiveLegConvention,
-      final boolean useFixings, final String curveNodeIdMapperName, final String name) {
+  public ThreeLegBasisSwapNode(final Tenor startTenor, final Tenor maturityTenor, final ExternalId payLegConvention, final ExternalId receiveLegConvention,
+      final ExternalId spreadLegConvention, final boolean useFixings, final String curveNodeIdMapperName, final String name) {
     super(curveNodeIdMapperName, name);
     setStartTenor(startTenor);
     setMaturityTenor(maturityTenor);
     setPayLegConvention(payLegConvention);
     setReceiveLegConvention(receiveLegConvention);
+    setSpreadLegConvention(spreadLegConvention);
     setUseFixings(useFixings);
   }
 
@@ -148,26 +164,26 @@ public class SwapNode extends CurveNode {
   @Override
   public <T> T accept(final CurveNodeVisitor<T> visitor) {
     ArgumentChecker.notNull(visitor, "visitor");
-    return visitor.visitSwapNode(this);
+    return null; //return visitor.visitThreeLegBasisSwapNode(this);
   }
 
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
-   * The meta-bean for {@code SwapNode}.
+   * The meta-bean for {@code ThreeLegBasisSwapNode}.
    * @return the meta-bean, not null
    */
-  public static SwapNode.Meta meta() {
-    return SwapNode.Meta.INSTANCE;
+  public static ThreeLegBasisSwapNode.Meta meta() {
+    return ThreeLegBasisSwapNode.Meta.INSTANCE;
   }
 
   static {
-    JodaBeanUtils.registerMetaBean(SwapNode.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(ThreeLegBasisSwapNode.Meta.INSTANCE);
   }
 
   @Override
-  public SwapNode.Meta metaBean() {
-    return SwapNode.Meta.INSTANCE;
+  public ThreeLegBasisSwapNode.Meta metaBean() {
+    return ThreeLegBasisSwapNode.Meta.INSTANCE;
   }
 
   //-----------------------------------------------------------------------
@@ -276,7 +292,33 @@ public class SwapNode extends CurveNode {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets whether to use fixings when constructing the swap
+   * Gets the spread leg convention.
+   * @return the value of the property, not null
+   */
+  public ExternalId getSpreadLegConvention() {
+    return _spreadLegConvention;
+  }
+
+  /**
+   * Sets the spread leg convention.
+   * @param spreadLegConvention  the new value of the property, not null
+   */
+  public void setSpreadLegConvention(ExternalId spreadLegConvention) {
+    JodaBeanUtils.notNull(spreadLegConvention, "spreadLegConvention");
+    this._spreadLegConvention = spreadLegConvention;
+  }
+
+  /**
+   * Gets the the {@code spreadLegConvention} property.
+   * @return the property, not null
+   */
+  public final Property<ExternalId> spreadLegConvention() {
+    return metaBean().spreadLegConvention().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets whether to use fixings when constructing the swap.
    * @return the value of the property
    */
   public boolean isUseFixings() {
@@ -284,7 +326,7 @@ public class SwapNode extends CurveNode {
   }
 
   /**
-   * Sets whether to use fixings when constructing the swap
+   * Sets whether to use fixings when constructing the swap.
    * @param useFixings  the new value of the property
    */
   public void setUseFixings(boolean useFixings) {
@@ -301,8 +343,8 @@ public class SwapNode extends CurveNode {
 
   //-----------------------------------------------------------------------
   @Override
-  public SwapNode clone() {
-    return (SwapNode) super.clone();
+  public ThreeLegBasisSwapNode clone() {
+    return (ThreeLegBasisSwapNode) super.clone();
   }
 
   @Override
@@ -311,11 +353,12 @@ public class SwapNode extends CurveNode {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      SwapNode other = (SwapNode) obj;
+      ThreeLegBasisSwapNode other = (ThreeLegBasisSwapNode) obj;
       return JodaBeanUtils.equal(getStartTenor(), other.getStartTenor()) &&
           JodaBeanUtils.equal(getMaturityTenor(), other.getMaturityTenor()) &&
           JodaBeanUtils.equal(getPayLegConvention(), other.getPayLegConvention()) &&
           JodaBeanUtils.equal(getReceiveLegConvention(), other.getReceiveLegConvention()) &&
+          JodaBeanUtils.equal(getSpreadLegConvention(), other.getSpreadLegConvention()) &&
           (isUseFixings() == other.isUseFixings()) &&
           super.equals(obj);
     }
@@ -329,14 +372,15 @@ public class SwapNode extends CurveNode {
     hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityTenor());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPayLegConvention());
     hash += hash * 31 + JodaBeanUtils.hashCode(getReceiveLegConvention());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSpreadLegConvention());
     hash += hash * 31 + JodaBeanUtils.hashCode(isUseFixings());
     return hash ^ super.hashCode();
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(192);
-    buf.append("SwapNode{");
+    StringBuilder buf = new StringBuilder(224);
+    buf.append("ThreeLegBasisSwapNode{");
     int len = buf.length();
     toString(buf);
     if (buf.length() > len) {
@@ -353,12 +397,13 @@ public class SwapNode extends CurveNode {
     buf.append("maturityTenor").append('=').append(getMaturityTenor()).append(',').append(' ');
     buf.append("payLegConvention").append('=').append(getPayLegConvention()).append(',').append(' ');
     buf.append("receiveLegConvention").append('=').append(getReceiveLegConvention()).append(',').append(' ');
+    buf.append("spreadLegConvention").append('=').append(getSpreadLegConvention()).append(',').append(' ');
     buf.append("useFixings").append('=').append(isUseFixings()).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
   /**
-   * The meta-bean for {@code SwapNode}.
+   * The meta-bean for {@code ThreeLegBasisSwapNode}.
    */
   public static class Meta extends CurveNode.Meta {
     /**
@@ -370,27 +415,32 @@ public class SwapNode extends CurveNode {
      * The meta-property for the {@code startTenor} property.
      */
     private final MetaProperty<Tenor> _startTenor = DirectMetaProperty.ofReadWrite(
-        this, "startTenor", SwapNode.class, Tenor.class);
+        this, "startTenor", ThreeLegBasisSwapNode.class, Tenor.class);
     /**
      * The meta-property for the {@code maturityTenor} property.
      */
     private final MetaProperty<Tenor> _maturityTenor = DirectMetaProperty.ofReadWrite(
-        this, "maturityTenor", SwapNode.class, Tenor.class);
+        this, "maturityTenor", ThreeLegBasisSwapNode.class, Tenor.class);
     /**
      * The meta-property for the {@code payLegConvention} property.
      */
     private final MetaProperty<ExternalId> _payLegConvention = DirectMetaProperty.ofReadWrite(
-        this, "payLegConvention", SwapNode.class, ExternalId.class);
+        this, "payLegConvention", ThreeLegBasisSwapNode.class, ExternalId.class);
     /**
      * The meta-property for the {@code receiveLegConvention} property.
      */
     private final MetaProperty<ExternalId> _receiveLegConvention = DirectMetaProperty.ofReadWrite(
-        this, "receiveLegConvention", SwapNode.class, ExternalId.class);
+        this, "receiveLegConvention", ThreeLegBasisSwapNode.class, ExternalId.class);
+    /**
+     * The meta-property for the {@code spreadLegConvention} property.
+     */
+    private final MetaProperty<ExternalId> _spreadLegConvention = DirectMetaProperty.ofReadWrite(
+        this, "spreadLegConvention", ThreeLegBasisSwapNode.class, ExternalId.class);
     /**
      * The meta-property for the {@code useFixings} property.
      */
     private final MetaProperty<Boolean> _useFixings = DirectMetaProperty.ofReadWrite(
-        this, "useFixings", SwapNode.class, Boolean.TYPE);
+        this, "useFixings", ThreeLegBasisSwapNode.class, Boolean.TYPE);
     /**
      * The meta-properties.
      */
@@ -400,6 +450,7 @@ public class SwapNode extends CurveNode {
         "maturityTenor",
         "payLegConvention",
         "receiveLegConvention",
+        "spreadLegConvention",
         "useFixings");
 
     /**
@@ -419,6 +470,8 @@ public class SwapNode extends CurveNode {
           return _payLegConvention;
         case -560732676:  // receiveLegConvention
           return _receiveLegConvention;
+        case 1152881004:  // spreadLegConvention
+          return _spreadLegConvention;
         case 1829944031:  // useFixings
           return _useFixings;
       }
@@ -426,13 +479,13 @@ public class SwapNode extends CurveNode {
     }
 
     @Override
-    public BeanBuilder<? extends SwapNode> builder() {
-      return new DirectBeanBuilder<SwapNode>(new SwapNode());
+    public BeanBuilder<? extends ThreeLegBasisSwapNode> builder() {
+      return new DirectBeanBuilder<ThreeLegBasisSwapNode>(new ThreeLegBasisSwapNode());
     }
 
     @Override
-    public Class<? extends SwapNode> beanType() {
-      return SwapNode.class;
+    public Class<? extends ThreeLegBasisSwapNode> beanType() {
+      return ThreeLegBasisSwapNode.class;
     }
 
     @Override
@@ -474,6 +527,14 @@ public class SwapNode extends CurveNode {
     }
 
     /**
+     * The meta-property for the {@code spreadLegConvention} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ExternalId> spreadLegConvention() {
+      return _spreadLegConvention;
+    }
+
+    /**
      * The meta-property for the {@code useFixings} property.
      * @return the meta-property, not null
      */
@@ -486,15 +547,17 @@ public class SwapNode extends CurveNode {
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -1583746178:  // startTenor
-          return ((SwapNode) bean).getStartTenor();
+          return ((ThreeLegBasisSwapNode) bean).getStartTenor();
         case 45907375:  // maturityTenor
-          return ((SwapNode) bean).getMaturityTenor();
+          return ((ThreeLegBasisSwapNode) bean).getMaturityTenor();
         case 774631511:  // payLegConvention
-          return ((SwapNode) bean).getPayLegConvention();
+          return ((ThreeLegBasisSwapNode) bean).getPayLegConvention();
         case -560732676:  // receiveLegConvention
-          return ((SwapNode) bean).getReceiveLegConvention();
+          return ((ThreeLegBasisSwapNode) bean).getReceiveLegConvention();
+        case 1152881004:  // spreadLegConvention
+          return ((ThreeLegBasisSwapNode) bean).getSpreadLegConvention();
         case 1829944031:  // useFixings
-          return ((SwapNode) bean).isUseFixings();
+          return ((ThreeLegBasisSwapNode) bean).isUseFixings();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -503,19 +566,22 @@ public class SwapNode extends CurveNode {
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
         case -1583746178:  // startTenor
-          ((SwapNode) bean).setStartTenor((Tenor) newValue);
+          ((ThreeLegBasisSwapNode) bean).setStartTenor((Tenor) newValue);
           return;
         case 45907375:  // maturityTenor
-          ((SwapNode) bean).setMaturityTenor((Tenor) newValue);
+          ((ThreeLegBasisSwapNode) bean).setMaturityTenor((Tenor) newValue);
           return;
         case 774631511:  // payLegConvention
-          ((SwapNode) bean).setPayLegConvention((ExternalId) newValue);
+          ((ThreeLegBasisSwapNode) bean).setPayLegConvention((ExternalId) newValue);
           return;
         case -560732676:  // receiveLegConvention
-          ((SwapNode) bean).setReceiveLegConvention((ExternalId) newValue);
+          ((ThreeLegBasisSwapNode) bean).setReceiveLegConvention((ExternalId) newValue);
+          return;
+        case 1152881004:  // spreadLegConvention
+          ((ThreeLegBasisSwapNode) bean).setSpreadLegConvention((ExternalId) newValue);
           return;
         case 1829944031:  // useFixings
-          ((SwapNode) bean).setUseFixings((Boolean) newValue);
+          ((ThreeLegBasisSwapNode) bean).setUseFixings((Boolean) newValue);
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
@@ -523,10 +589,11 @@ public class SwapNode extends CurveNode {
 
     @Override
     protected void validate(Bean bean) {
-      JodaBeanUtils.notNull(((SwapNode) bean)._startTenor, "startTenor");
-      JodaBeanUtils.notNull(((SwapNode) bean)._maturityTenor, "maturityTenor");
-      JodaBeanUtils.notNull(((SwapNode) bean)._payLegConvention, "payLegConvention");
-      JodaBeanUtils.notNull(((SwapNode) bean)._receiveLegConvention, "receiveLegConvention");
+      JodaBeanUtils.notNull(((ThreeLegBasisSwapNode) bean)._startTenor, "startTenor");
+      JodaBeanUtils.notNull(((ThreeLegBasisSwapNode) bean)._maturityTenor, "maturityTenor");
+      JodaBeanUtils.notNull(((ThreeLegBasisSwapNode) bean)._payLegConvention, "payLegConvention");
+      JodaBeanUtils.notNull(((ThreeLegBasisSwapNode) bean)._receiveLegConvention, "receiveLegConvention");
+      JodaBeanUtils.notNull(((ThreeLegBasisSwapNode) bean)._spreadLegConvention, "spreadLegConvention");
       super.validate(bean);
     }
 

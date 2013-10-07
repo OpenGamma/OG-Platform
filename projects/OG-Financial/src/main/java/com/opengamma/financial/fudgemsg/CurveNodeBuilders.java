@@ -27,6 +27,7 @@ import com.opengamma.financial.analytics.ircurve.strips.IMMSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.InflationNodeType;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
+import com.opengamma.financial.analytics.ircurve.strips.ThreeLegBasisSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.ZeroCouponInflationNode;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
@@ -574,6 +575,66 @@ import com.opengamma.util.time.Tenor;
         return new SwapNode(startTenor, maturityTenor, payLegConvention, receiveLegConvention, useFixings, curveNodeIdMapperName);
       }
       return new SwapNode(startTenor, maturityTenor, payLegConvention, receiveLegConvention, curveNodeIdMapperName);
+    }
+
+  }
+
+  /**
+   * Fudge builder for {@link ThreeLegBasisSwapNode}
+   */
+  @FudgeBuilderFor(ThreeLegBasisSwapNode.class)
+  public static final class ThreeLegBasisSwapNodeBuilder implements FudgeBuilder<ThreeLegBasisSwapNode> {
+    /** The start tenor field */
+    private static final String START_TENOR_FIELD = "startTenor";
+    /** The maturity tenor field */
+    private static final String MATURITY_TENOR_FIELD = "maturityTenor";
+    /** The pay leg convention field */
+    private static final String PAY_LEG_CONVENTION_FIELD = "payLegConvention";
+    /** The receive leg convention field */
+    private static final String RECEIVE_LEG_CONVENTION_FIELD = "receiveLegConvention";
+    /** The spread leg convention field */
+    private static final String SPREAD_LEG_CONVENTION_FIELD = "spreadLegConvention";
+    /** The use fixings field */
+    private static final String USE_FIXINGS_FIELD = "useFixings";
+
+    @Override
+    public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final ThreeLegBasisSwapNode object) {
+      final MutableFudgeMsg message = serializer.newMessage();
+      message.add(null, 0, object.getClass().getName());
+      message.add(START_TENOR_FIELD, object.getStartTenor().toFormattedString());
+      message.add(MATURITY_TENOR_FIELD, object.getMaturityTenor().toFormattedString());
+      message.add(PAY_LEG_CONVENTION_FIELD, object.getPayLegConvention());
+      message.add(RECEIVE_LEG_CONVENTION_FIELD, object.getReceiveLegConvention());
+      message.add(SPREAD_LEG_CONVENTION_FIELD, object.getSpreadLegConvention());
+      message.add(CURVE_MAPPER_ID_FIELD, object.getCurveNodeIdMapperName());
+      if (object.getName() != null) {
+        message.add(NAME_FIELD, object.getName());
+      }
+      message.add(USE_FIXINGS_FIELD, object.isUseFixings());
+      return message;
+    }
+
+    @Override
+    public ThreeLegBasisSwapNode buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final Tenor startTenor = Tenor.parse(message.getString(START_TENOR_FIELD));
+      final Tenor maturityTenor = Tenor.parse(message.getString(MATURITY_TENOR_FIELD));
+      final ExternalId payLegConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(PAY_LEG_CONVENTION_FIELD));
+      final ExternalId receiveLegConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(RECEIVE_LEG_CONVENTION_FIELD));
+      final ExternalId spreadLegConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(SPREAD_LEG_CONVENTION_FIELD));
+      final String curveNodeIdMapperName = message.getString(CURVE_MAPPER_ID_FIELD);
+      if (message.hasField(NAME_FIELD)) {
+        final String name = message.getString(NAME_FIELD);
+        if (message.hasField(USE_FIXINGS_FIELD)) {
+          final boolean useFixings = message.getBoolean(USE_FIXINGS_FIELD);
+          return new ThreeLegBasisSwapNode(startTenor, maturityTenor, payLegConvention, receiveLegConvention, spreadLegConvention, useFixings, curveNodeIdMapperName, name);
+        }
+        return new ThreeLegBasisSwapNode(startTenor, maturityTenor, payLegConvention, receiveLegConvention, spreadLegConvention, curveNodeIdMapperName, name);
+      }
+      if (message.hasField(USE_FIXINGS_FIELD)) {
+        final boolean useFixings = message.getBoolean(USE_FIXINGS_FIELD);
+        return new ThreeLegBasisSwapNode(startTenor, maturityTenor, payLegConvention, receiveLegConvention, spreadLegConvention, useFixings, curveNodeIdMapperName);
+      }
+      return new ThreeLegBasisSwapNode(startTenor, maturityTenor, payLegConvention, receiveLegConvention, spreadLegConvention, curveNodeIdMapperName);
     }
 
   }
