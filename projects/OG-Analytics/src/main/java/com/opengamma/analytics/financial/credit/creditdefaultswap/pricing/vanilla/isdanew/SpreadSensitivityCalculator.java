@@ -417,6 +417,11 @@ public class SpreadSensitivityCalculator {
     return bucketedCS01FromCreditCurve(cds, cdsCoupon, bucketCDSs, yieldCurve, creditCurve, fracBumpAmount);
   }
 
+  public double[] bucketedCS01FromPUF(final CDSAnalytic cds, final PointsUpFront puf, final ISDACompliantYieldCurve yieldCurve, final CDSAnalytic[] bucketCDSs, final double fracBumpAmount) {
+    final ISDACompliantCreditCurve cc = _curveBuilder.calibrateCreditCurve(cds, puf, yieldCurve);
+    return bucketedCS01FromCreditCurve(cds, puf.getCoupon(), bucketCDSs, yieldCurve, cc, fracBumpAmount);
+  }
+
   /**
    * The bucked CS01 (or credit DV01) by shifting each  implied par-spread in turn. This takes an extraneous yield curve and a credit
    *  curve and a set of bucket CDSs (CDSs with maturities equal to the bucket points). Par-spreads at the bucket maturities are

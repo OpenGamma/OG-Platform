@@ -10,21 +10,30 @@ import static com.opengamma.analytics.math.utilities.Epsilon.epsilon;
 import static com.opengamma.analytics.math.utilities.Epsilon.epsilonP;
 import static com.opengamma.analytics.math.utilities.Epsilon.epsilonPP;
 
+import java.util.Arrays;
+
+import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSCoupon;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantCreditCurve;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantYieldCurve;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
  */
 public class CDSPremiumPayment {
 
-  private final double _paymentTimes;
-  private final double _accFractions;
-  private final double _accStart;
-  private final double _accEnd;
-  private final double _accRate;
+  private final CDSCoupon _coupon;
+
+  //  private final double _paymentTimes;
+  //  private final double _accFractions;
+  //  private final double _accStart;
+  //  private final double _accEnd;
+  //  private final double _accRate;
+
+  //TODO these shouldn't be part of this class 
   private final boolean _payAccDefault;
   private final boolean _useCorrectAccOnDefaultFormula = true;
+
   private final int _index;
 
   private double[] _knots;
@@ -36,19 +45,17 @@ public class CDSPremiumPayment {
   private double _pv;
   private double _dPVdh;
 
-  public CDSPremiumPayment(final double paymentTime, final double accFrac, final double accStart, final double accEnd, final double accRate, final boolean payAccDefault, final int index) {
-    _paymentTimes = paymentTime;
-    _accFractions = accFrac;
-    _accStart = accStart;
-    _accEnd = accEnd;
-    _accRate = accRate;
+  public CDSPremiumPayment(final CDSCoupon coupon, final boolean payAccDefault, final int index) {
+    ArgumentChecker.notNull(coupon, "coupon");
+    _coupon = coupon;
+
     _payAccDefault = payAccDefault;
     _index = index;
   }
 
   public void initialise(final ISDACompliantYieldCurve yieldCurve, final double[] creditCurveNodes) {
-    _paymentDF = yieldCurve.getDiscountFactor(_paymentTimes);
-    _knots = getIntegrationsPoints(_accStart, _accEnd, yieldCurve.getKnotTimes(), creditCurveNodes);
+    _paymentDF = yieldCurve.getDiscountFactor(_coupon.getPaymentTime());
+    _knots = getIntegrationsPoints(_coupon.getEffStart(), _coupon.getEffEnd(), yieldCurve.getKnotTimes(), creditCurveNodes);
     _n = _knots.length;
     _rt = new double[_n];
     _p = new double[_n];
@@ -59,9 +66,9 @@ public class CDSPremiumPayment {
   }
 
   public void update(final ISDACompliantCreditCurve creditCurve) {
-    final double w = _accFractions * _paymentDF;
-    double pv = w * creditCurve.getDiscountFactor(_accEnd);
-    double pvSense = w * creditCurve.getSingleNodeDiscountFactorSensitivity(_accEnd, _index);
+    final double w = _coupon.getYearFrac() * _paymentDF;
+    double pv = w * creditCurve.getDiscountFactor(_coupon.getEffEnd());
+    double pvSense = w * creditCurve.getSingleNodeDiscountFactorSensitivity(_coupon.getEffEnd(), _index);
     if (_payAccDefault) {
       final double[] temp = accOnDefault(creditCurve);
       pv += temp[0];
@@ -81,7 +88,7 @@ public class CDSPremiumPayment {
     double b0 = p0 * q0; // this is the risky discount factor
     double dqdr0 = creditCurve.getSingleNodeDiscountFactorSensitivity(t, _index);
 
-    double t0 = _useCorrectAccOnDefaultFormula ? 0.0 : t - _accStart + 1 / 730.0; // TODO not entirely clear why ISDA adds half a day
+    double t0 = _useCorrectAccOnDefaultFormula ? 0.0 : t - _coupon.getEffStart() + 1 / 730.0; // TODO not entirely clear why ISDA adds half a day
     double pv = 0.0;
     double pvSense = 0.0;
 
@@ -125,7 +132,7 @@ public class CDSPremiumPayment {
       } else {
         // This is a know bug - a fix is proposed by Markit (and appears commented out in ISDA v.1.8.2)
         // This is the correct term plus dht*t0/dhrt*(b0-b1) which is an error
-        final double t1 = t - _accStart + 1 / 730.0;
+        final double t1 = t - _coupon.getEffStart() + 1 / 730.0;
         if (Math.abs(dhrt) < 1e-5) {
           final double e = epsilon(-dhrt);
           final double eP = epsilonP(-dhrt);
@@ -159,48 +166,49 @@ public class CDSPremiumPayment {
       b0 = b1;
       dqdr0 = dqdr1;
     }
-    return new double[] {_accRate * pv, _accRate * pvSense };
+    return new double[] {_coupon.getYFRatio() * pv, _coupon.getYFRatio() * pvSense };
   }
 
-  /**
-   * Gets the paymentTimes.
-   * @return the paymentTimes
-   */
-  public double getPaymentTimes() {
-    return _paymentTimes;
-  }
-
-  /**
-   * Gets the accFractions.
-   * @return the accFractions
-   */
-  public double getAccFractions() {
-    return _accFractions;
-  }
-
-  /**
-   * Gets the accStart.
-   * @return the accStart
-   */
-  public double getAccStart() {
-    return _accStart;
-  }
-
-  /**
-   * Gets the accEnd.
-   * @return the accEnd
-   */
-  public double getAccEnd() {
-    return _accEnd;
-  }
-
-  /**
-   * Gets the accRate.
-   * @return the accRate
-   */
-  public double getAccRate() {
-    return _accRate;
-  }
+  //
+  //  /**
+  //   * Gets the paymentTimes.
+  //   * @return the paymentTimes
+  //   */
+  //  public double getPaymentTimes() {
+  //    return _paymentTimes;
+  //  }
+  //
+  //  /**
+  //   * Gets the accFractions.
+  //   * @return the accFractions
+  //   */
+  //  public double getAccFractions() {
+  //    return _accFractions;
+  //  }
+  //
+  //  /**
+  //   * Gets the accStart.
+  //   * @return the accStart
+  //   */
+  //  public double getAccStart() {
+  //    return _accStart;
+  //  }
+  //
+  //  /**
+  //   * Gets the accEnd.
+  //   * @return the accEnd
+  //   */
+  //  public double getAccEnd() {
+  //    return _accEnd;
+  //  }
+  //
+  //  /**
+  //   * Gets the accRate.
+  //   * @return the accRate
+  //   */
+  //  public double getAccRate() {
+  //    return _accRate;
+  //  }
 
   public double getPV() {
     return _pv;
@@ -214,17 +222,21 @@ public class CDSPremiumPayment {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
+    result = prime * result + ((_coupon == null) ? 0 : _coupon.hashCode());
     long temp;
-    temp = Double.doubleToLongBits(_accEnd);
+    temp = Double.doubleToLongBits(_dPVdh);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(_accFractions);
+    result = prime * result + _index;
+    result = prime * result + Arrays.hashCode(_knots);
+    result = prime * result + _n;
+    result = prime * result + Arrays.hashCode(_p);
+    result = prime * result + (_payAccDefault ? 1231 : 1237);
+    temp = Double.doubleToLongBits(_paymentDF);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(_accRate);
+    temp = Double.doubleToLongBits(_pv);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(_accStart);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(_paymentTimes);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + Arrays.hashCode(_rt);
+    result = prime * result + (_useCorrectAccOnDefaultFormula ? 1231 : 1237);
     return result;
   }
 
@@ -240,19 +252,41 @@ public class CDSPremiumPayment {
       return false;
     }
     final CDSPremiumPayment other = (CDSPremiumPayment) obj;
-    if (Double.doubleToLongBits(_accEnd) != Double.doubleToLongBits(other._accEnd)) {
+    if (_coupon == null) {
+      if (other._coupon != null) {
+        return false;
+      }
+    } else if (!_coupon.equals(other._coupon)) {
       return false;
     }
-    if (Double.doubleToLongBits(_accFractions) != Double.doubleToLongBits(other._accFractions)) {
+    if (Double.doubleToLongBits(_dPVdh) != Double.doubleToLongBits(other._dPVdh)) {
       return false;
     }
-    if (Double.doubleToLongBits(_accRate) != Double.doubleToLongBits(other._accRate)) {
+    if (_index != other._index) {
       return false;
     }
-    if (Double.doubleToLongBits(_accStart) != Double.doubleToLongBits(other._accStart)) {
+    if (!Arrays.equals(_knots, other._knots)) {
       return false;
     }
-    if (Double.doubleToLongBits(_paymentTimes) != Double.doubleToLongBits(other._paymentTimes)) {
+    if (_n != other._n) {
+      return false;
+    }
+    if (!Arrays.equals(_p, other._p)) {
+      return false;
+    }
+    if (_payAccDefault != other._payAccDefault) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_paymentDF) != Double.doubleToLongBits(other._paymentDF)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_pv) != Double.doubleToLongBits(other._pv)) {
+      return false;
+    }
+    if (!Arrays.equals(_rt, other._rt)) {
+      return false;
+    }
+    if (_useCorrectAccOnDefaultFormula != other._useCorrectAccOnDefaultFormula) {
       return false;
     }
     return true;

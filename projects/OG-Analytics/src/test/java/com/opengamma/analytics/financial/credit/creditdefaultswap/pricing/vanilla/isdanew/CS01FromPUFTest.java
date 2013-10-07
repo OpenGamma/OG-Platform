@@ -6,6 +6,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Month;
+import org.threeten.bp.Period;
 
 public class CS01FromPUFTest extends ISDABaseTest {
 
@@ -14,6 +15,9 @@ public class CS01FromPUFTest extends ISDABaseTest {
   private static final LocalDate EFFECTIVE_DATE = TRADE_DATE.plusDays(1); // AKA stepin date
   private static final LocalDate CASH_SETTLE_DATE = addWorkDays(TRADE_DATE, 3, DEFAULT_CALENDAR); // AKA valuation date
   private static final LocalDate STARTDATE = LocalDate.of(2013, Month.MARCH, 20);//last IMM date before TRADE_DATE;
+
+  private static final Period[] BUCKETS = new Period[] {Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5), Period.ofYears(6),
+    Period.ofYears(7), Period.ofYears(8), Period.ofYears(9), Period.ofYears(10) };
 
   private static final double COUPON = 500;
   private static final double[] PUF = new double[] {0.32, 0.69, 1.32, 1.79, 2.36, 3.01, 3.7, 4.39, 5.02, 5.93, 6.85, 7.76, 8.67, 9.6, 10.53, 11.45, 12.33, 13.29, 14.26, 15.2, 16.11, 16.62, 17.12,
@@ -54,4 +58,33 @@ public class CS01FromPUFTest extends ISDABaseTest {
     }
   }
 
+  @Test(enabled = false)
+  public void bucketedCS01Test() {
+    final double notional = 1e6;
+    final double scale = notional * ONE_BP;
+
+    final CDSAnalyticFactory factory = new CDSAnalyticFactory(RECOVERY_RATE);
+    final int n = MATURITIES.length;
+    final CDSAnalytic[] buckets = factory.makeIMMCDS(TRADE_DATE, BUCKETS);
+    final double[][] cs01 = new double[n][];
+
+    for (int i = 0; i < n; i++) {
+      final CDSAnalytic cds = factory.makeCDS(TRADE_DATE, STARTDATE, MATURITIES[i]);
+      cs01[i] = CS01_CAL.bucketedCS01FromPUF(cds, new PointsUpFront(COUPON * ONE_BP, PUF[i] * ONE_PC), YIELD_CURVE, buckets, ONE_BP);
+    }
+
+    print(cs01, scale);
+  }
+
+  private void print(final double[][] data, final double scale) {
+    final int rows = data.length;
+    for (int i = 0; i < rows; i++) {
+      final int cols = data[i].length;
+      for (int j = 0; j < cols; j++) {
+        System.out.print(scale * data[i][j] + "\t");
+      }
+      System.out.print("\n");
+    }
+
+  }
 }
