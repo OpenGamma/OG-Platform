@@ -70,7 +70,7 @@ import com.opengamma.util.tuple.Pair;
 
 /**
  *  Build of curve in several blocks with relevant Jacobian matrices.
- *  Here we build
+ *  Here we build a discount curve as usual using OIS instruments and simultaneously we are building a governmental discount curve using US Bonds, bills and notes.
  */
 public class MulticurveBuildingDiscountingBillNoteBondUSDTest {
 
