@@ -99,7 +99,6 @@ public class BrentSingleRootFinder extends RealSingleRootFinder {
         x2 += delta;
       } else {
         x2 += Math.copySign(eps, xMid);
-        f2 = function.evaluate(x2);
       }
       f1 = function.evaluate(x1);
       f2 = function.evaluate(x2);

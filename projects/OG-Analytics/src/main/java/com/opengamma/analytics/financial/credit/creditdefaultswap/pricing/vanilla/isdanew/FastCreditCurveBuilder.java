@@ -343,9 +343,9 @@ public class FastCreditCurveBuilder implements ISDACompliantCreditCurveBuilder {
       }
 
       if (cds.isPayAccOnDefault()) {
-        final double offset = cds.isProtectionFromStartOfDay() ? -cds.getCurveOneDay() : 0.0;
-        final double[] integrationSchedule = getIntegrationsPoints(cds.getAccStart(0), cds.getAccEnd(_nPayments - 1), yieldCurve.getKnotTimes(), creditCurveKnots);
-        final double offsetStepin = cds.getStepin() + offset;
+        //      final double offset = cds.isProtectionFromStartOfDay() ? -cds.getCurveOneDay() : 0.0;
+        final double[] integrationSchedule = getIntegrationsPoints(cds.getProtectionStart(), cds.getProtectionEnd(), yieldCurve.getKnotTimes(), creditCurveKnots);
+        //final double offsetStepin = cds.getStepin() + offset;
 
         _accRate = new double[_nPayments];
         _offsetAccStart = new double[_nPayments];
@@ -354,11 +354,11 @@ public class FastCreditCurveBuilder implements ISDACompliantCreditCurveBuilder {
         _rt = new double[_nPayments][];
         _premDt = new double[_nPayments][];
         for (int i = 0; i < _nPayments; i++) {
-          final double offsetAccStart = cds.getAccStart(i) + offset;
-          _offsetAccStart[i] = offsetAccStart;
-          final double offsetAccEnd = cds.getAccEnd(i) + offset;
-          _accRate[i] = cds.getAccrualFraction(i) / (offsetAccEnd - offsetAccStart);
-          final double start = Math.max(offsetAccStart, offsetStepin);
+          //    final double offsetAccStart = cds.getAccStart(i) + offset;
+          _offsetAccStart[i] = cds.getEffectiveAccStart(i);
+          final double offsetAccEnd = cds.getEffectiveAccEnd(i);
+          _accRate[i] = cds.getAccRatio(i);
+          final double start = Math.max(_offsetAccStart[i], cds.getProtectionStart());
           if (start >= offsetAccEnd) {
             continue;
           }
@@ -415,10 +415,10 @@ public class FastCreditCurveBuilder implements ISDACompliantCreditCurveBuilder {
 
     public double rpv01(final ISDACompliantCreditCurve creditCurve, final PriceType cleanOrDirty) {
 
-      final double obsOffset = _cds.isProtectionFromStartOfDay() ? -_cds.getCurveOneDay() : 0.0;
+      //   final double obsOffset = _cds.isProtectionFromStartOfDay() ? -_cds.getCurveOneDay() : 0.0;
       double pv = 0.0;
       for (int i = 0; i < _nPayments; i++) {
-        final double q = creditCurve.getDiscountFactor(_cds.getAccEnd(i) + obsOffset);
+        final double q = creditCurve.getDiscountFactor(_cds.getEffectiveAccEnd(i));
         pv += _cds.getAccrualFraction(i) * _paymentDF[i] * q;
       }
 
