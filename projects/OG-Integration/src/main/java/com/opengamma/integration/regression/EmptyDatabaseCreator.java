@@ -64,7 +64,7 @@ import com.opengamma.util.db.tool.DbTool;
 
   public static void createDatabases(Properties props) {
     // create main database
-    s_logger.warn("Creating main database...");
+    s_logger.info("Creating main database using properties {}", props);
     DbTool dbTool = new DbTool();
     dbTool.setJdbcUrl(Objects.requireNonNull(props.getProperty(KEY_SHARED_URL)));
     dbTool.setUser(props.getProperty(KEY_SHARED_USER_NAME, ""));
@@ -76,7 +76,7 @@ import com.opengamma.util.db.tool.DbTool;
     dbTool.execute();
 
     // create user database
-    s_logger.warn("Creating user database...");
+    s_logger.info("Creating user database using properties {}", props);
     DbTool dbToolUser = new DbTool();
     dbToolUser.setJdbcUrl(Objects.requireNonNull(props.getProperty(KEY_USERFINANCIAL_URL)));
     dbToolUser.setUser(props.getProperty(KEY_USERFINANCIAL_USER_NAME, ""));

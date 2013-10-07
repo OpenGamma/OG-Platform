@@ -5,15 +5,22 @@
  */
 package com.opengamma.integration.regression;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.integration.marketdata.manipulator.dsl.RemoteServer;
 import com.opengamma.util.tuple.Pair;
 
@@ -22,60 +29,104 @@ import com.opengamma.util.tuple.Pair;
  */
 public class ViewRegressionTest {
 
-  private final String _databaseDumpDir;
-  private final String _baseWorkingDir;
-  private final String _newWorkingDir;
-  private final String _configFile;
-  private final String _logbackConfig;
-  private final String _classpath;
+  private static final Logger s_logger = LoggerFactory.getLogger(ViewRegressionTest.class);
+  // TODO arg for this? different deltas for different values and/or object types?
+  private static final double DELTA = 0.001;
 
-  public ViewRegressionTest(String databaseDumpDir,
+  private final String _databaseDumpDir;
+  private final Instant _valuationTime;
+  private final String _baseWorkingDir;
+  private final String _baseDbConfigFile;
+  private final String _newWorkingDir;
+  private final String _serverConfigFile;
+  private final String _newDbConfigFile;
+  private final String _logbackConfig;
+  private final String _baseClasspath;
+  private final String _newClasspath;
+
+  public ViewRegressionTest(String projectName,
+                            String serverConfigFile,
+                            String databaseDumpDir,
+                            String logbackConfigFile,
+                            Instant valuationTime,
                             String baseWorkingDir,
+                            String baseVersion,
+                            String baseDbConfigFile,
                             String newWorkingDir,
-                            String configFile,
-                            String serverJar,
-                            String logbackConfig) {
+                            String newVersion,
+                            String newDbConfigFile) {
     _databaseDumpDir = databaseDumpDir;
     _baseWorkingDir = baseWorkingDir;
+    _baseDbConfigFile = baseDbConfigFile;
     _newWorkingDir = newWorkingDir;
-    _configFile = configFile;
-    _logbackConfig = logbackConfig;
-    _classpath = "config:lib/" + serverJar;
+    _serverConfigFile = serverConfigFile;
+    _newDbConfigFile = newDbConfigFile;
+    _logbackConfig = "-Dlogback.configurationFile=" + logbackConfigFile;
+    _baseClasspath = "config:lib/" + projectName + "-" + baseVersion + ".jar";
+    _newClasspath = "config:lib/" + projectName + "-" + newVersion + ".jar";
+    _valuationTime = valuationTime;
   }
 
   public Collection<CalculationDifference.Result> run() {
     // TODO store the results in memory for now, serialize to disk/cache when it's an actual problem
     // TODO fail if there are any view defs or snapshots with duplicate names
-    Instant valuationTime = Instant.now();
-    // TODO these need the database URLs, user names and passwords. separate DB props file for regression tests?
-    // or command line args to the tool?
-    // TODO need a separate DB for each run, don't reuse. need both copies for compiling the report
-    Properties dbProps = new Properties();
-    Map<Pair<String, String>, CalculationResults> newResults = runViews(_newWorkingDir, valuationTime, dbProps);
-    Map<Pair<String, String>, CalculationResults> baseResults = runViews(_baseWorkingDir, valuationTime, dbProps);
-    // TODO compare results
-    throw new UnsupportedOperationException();
-    // TODO generate report. joda bean and use the new XML format for readability? or freemarker?
+    Map<Pair<String, String>, CalculationResults> newResults = runTest(_newWorkingDir, _newClasspath, _newDbConfigFile);
+    Map<Pair<String, String>, CalculationResults> baseResults = runTest(_baseWorkingDir, _baseClasspath, _baseDbConfigFile);
+    List<CalculationDifference.Result> results = Lists.newArrayList();
+    for (Map.Entry<Pair<String, String>, CalculationResults> entry : newResults.entrySet()) {
+      CalculationResults newViewResult = entry.getValue();
+      CalculationResults baseViewResult = baseResults.get(entry.getKey());
+      if (baseViewResult == null) {
+        s_logger.warn("No base result for {}", entry.getKey());
+        continue;
+      }
+      results.add(CalculationDifference.compare(baseViewResult, newViewResult, DELTA));
+    }
+    return results;
   }
 
-  private Map<Pair<String, String>, CalculationResults> runViews(String workingDir,
-                                                                 Instant valuationTime,
-                                                                 Properties dbProps) {
+  private Map<Pair<String, String>, CalculationResults> runTest(String workingDir, String classpath, String dbPropsFile) {
     // don't use the config file to be sure we don't accidentally clobber a real database
     // TODO this needs to run in the context of each server installation so it picks up the schema files from there
-    EmptyDatabaseCreator.createDatabases(dbProps);
+    createDatabase(dbPropsFile, workingDir, classpath, _logbackConfig);
+    Properties dbProps = loadProperties(dbPropsFile);
+    restoreDatabase(workingDir, classpath, dbProps);
+    return runViews(workingDir, classpath, _valuationTime, dbProps);
+  }
+
+  private static Properties loadProperties(String propsFile) {
+    try {
+      Properties properties = new Properties();
+      properties.load(new BufferedInputStream(new FileInputStream(propsFile)));
+      return properties;
+    } catch (IOException e) {
+      throw new OpenGammaRuntimeException("Failed to load properties", e);
+    }
+  }
+
+  private void restoreDatabase(String workingDir, String classpath, Properties dbProps) {
     // TODO don't hard-code the port
     int port = 8080;
     String serverUrl = "http://localhost:" + port;
     // run the server, populate the database and stop the server.
     // it needs to be restarted before the tests to pick up function repo changes from the database
     // TODO can this be done by creating DB masters directly rather than running a server and connecting remotely?
-    try (ServerProcess ignored = ServerProcess.start(workingDir, _classpath, _configFile, dbProps, _logbackConfig);
+    try (ServerProcess ignored = ServerProcess.start(workingDir, classpath, _serverConfigFile, dbProps, _logbackConfig);
          RemoteServer server = RemoteServer.create(serverUrl)) {
       DatabaseRestore.restoreDatabase(_databaseDumpDir, server);
     }
+  }
+
+  private Map<Pair<String, String>, CalculationResults> runViews(String workingDir,
+                                                                 String classpath,
+                                                                 Instant valuationTime,
+                                                                 Properties dbProps) {
+    // TODO don't hard-code the port
+    int port = 8080;
+    String serverUrl = "http://localhost:" + port;
+
     // start the server again to run the tests
-    try (ServerProcess ignored = ServerProcess.start(workingDir, _classpath, _configFile, dbProps, _logbackConfig);
+    try (ServerProcess ignored = ServerProcess.start(workingDir, classpath, _serverConfigFile, dbProps, _logbackConfig);
          // TODO don't hard-code the port
          RemoteServer server = RemoteServer.create(serverUrl)) {
       Map<Pair<String, String>, CalculationResults> allResults = Maps.newHashMap();
@@ -102,5 +153,37 @@ public class ViewRegressionTest {
     */
     List<Pair<String, String>> viewAndSnapshotNames = Lists.newArrayList();
     return viewAndSnapshotNames;
+  }
+
+  /**
+   * Creates an empty database by running {@link EmptyDatabaseCreator} in an external process.
+   * {@code EmptyDatabaseCreator} relies on {@code DbTool} which scans the classpath to locate the schema files.
+   * This means it has to run with the classpath of the server version being tested so it can find the correct
+   * schema files.
+   */
+  /* package */ static int createDatabase(String configFile,
+                                          String workingDirName,
+                                          String classpath,
+                                          String logbackConfig) {
+    // TODO load the config and check the DB URL is overridden. ensure we NEVER use the URL from the real server config
+    // TODO configurable java command
+    Process process = null;
+    try {
+      String className = EmptyDatabaseCreator.class.getName();
+      File workingDir = new File(workingDirName);
+      process = new ProcessBuilder("java", logbackConfig, "-cp", classpath, className, configFile)
+          .directory(workingDir)
+          .redirectOutput(ProcessBuilder.Redirect.INHERIT)
+          .redirectError(ProcessBuilder.Redirect.INHERIT)
+          .start();
+      process.waitFor();
+      return process.exitValue();
+    } catch (IOException | InterruptedException e) {
+      throw new OpenGammaRuntimeException("Failed to create database", e);
+    } finally {
+      if (process != null) {
+        process.destroy();
+      }
+    }
   }
 }

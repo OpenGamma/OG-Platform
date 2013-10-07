@@ -30,6 +30,7 @@ import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.integration.marketdata.manipulator.dsl.RemoteServer;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ManageableExchange;
@@ -91,6 +92,13 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
     ArgumentChecker.notNull(toolContext, "toolContext");
     _toolContext = toolContext;
     _dataDir = dataDir;
+  }
+
+  public static void main(String[] args) throws IOException {
+    String dataDir = "/Users/chris/tmp/regression";
+    try (RemoteServer server = RemoteServer.create("http://localhost:8080")) {
+      DatabaseRestore.restoreDatabase(dataDir, server);
+    }
   }
 
   private Map<ObjectId, ObjectId> loadSecurities() throws IOException {
