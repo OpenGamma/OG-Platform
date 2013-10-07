@@ -47,6 +47,8 @@ public abstract class SimpleCalculationNodeInvocationContainer {
 
   private static final Logger s_logger = LoggerFactory.getLogger(SimpleCalculationNodeInvocationContainer.class);
 
+  private static final int KILL_THRESHOLD_SECS = 120;
+
   /**
    *
    */
@@ -703,9 +705,14 @@ public abstract class SimpleCalculationNodeInvocationContainer {
       executor.getFirst().interrupt();
       // Need to wait for the execution thread to acknowledge the interrupt, or it may be canceled by us swapping the executor
       // reference back in and the interrupt will affect a subsequent wait causing erroneous behavior
-      while (executor.getFirst().isInterrupted()) {
+      int count = 0;
+      while (executor.getFirst().isInterrupted() && executor.getFirst().isAlive()) {
         s_logger.debug("Waiting for thread {} to accept the interrupt", executor.getFirst().getName());
-        Thread.yield();
+        try {
+          Thread.sleep(100);
+        } catch (InterruptedException ex) {
+          s_logger.debug("cancel interrupted", ex);
+        }
       }
       s_logger.debug("Thread {} interrupted", executor.getFirst().getName());
       executor = jobExec.getAndSetExecutor(executor);
