@@ -125,7 +125,7 @@ public class MultiAnalyticPricerTest extends ISDABaseTest {
 
     //These take different paths, so the match will not be exact 
     for (int i = 0; i < nMat; i++) {
-      assertEquals("pv " + i, pvSC[i], pvMC[i], 1e-16);
+      assertEquals("pv (fixed)" + i, pvSC[i], pvMC[i], 1e-16);
     }
   }
 

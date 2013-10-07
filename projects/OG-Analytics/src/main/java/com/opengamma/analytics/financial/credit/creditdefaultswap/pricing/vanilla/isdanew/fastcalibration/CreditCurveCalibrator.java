@@ -16,8 +16,6 @@ import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanill
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantYieldCurve;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.rootfinding.NewtonRaphsonSingleRootFinder;
-import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -25,9 +23,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class CreditCurveCalibrator {
 
-  //private static final BracketRoot BRACKER = new BracketRoot();
   private static final NewtonRaphsonSingleRootFinder ROOTFINDER = new NewtonRaphsonSingleRootFinder();
-  private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
 
   private final int _n;
   private final Node[] _nodes;
@@ -63,11 +59,6 @@ public class CreditCurveCalibrator {
       premLegs[i] = new CDSPremiumPayment[nPayments];
 
       for (int k = 0; k < nPayments; k++) {
-        //        final double pt = lCDS.getPaymentTime(k);
-        //        final double accFrac = lCDS.getAccrualFraction(k);
-        //        final double accStart = Math.max(lCDS.getProtectionStart(), lCDS.getEffectiveAccStart(k));
-        //        final double accEnd = lCDS.getEffectiveAccEnd(k);
-
         while (c[k].getEffEnd() > _t[nodeIndex]) {
           nodeIndex++;
         }
@@ -88,9 +79,11 @@ public class CreditCurveCalibrator {
       }
     }
 
+    //TODO check all CDSs have same protection start
+    final double proStart = cds[0].getProtectionStart();
     final Iterator<CDSPremiumPayment> iter = coupons.iterator();
     while (iter.hasNext()) {
-      iter.next().initialise(yieldCurve, _t);
+      iter.next().initialise(proStart, yieldCurve, _t);
     }
 
     for (int i = 0; i < _n; i++) {
@@ -107,84 +100,6 @@ public class CreditCurveCalibrator {
     }
 
   }
-
-  //  public CreditCurveCalibrator(final CDSDescription[] cds, final LocalDate tradeDate, final ISDACompliantYieldCurve yieldCurve) {
-  //    _n = cds.length;
-  //    _nodes = new Node[_n];
-  //    _cds = new CDS[_n];
-  //    _t = new double[_n];
-  //    final ProtectionLegElement[] protLeg = new ProtectionLegElement[_n];
-  //
-  //    final List<CDSPremiumPayment> coupons = new ArrayList<>();
-  //    final List<List<CDSPremiumPayment>> nodes = new ArrayList<>(_n);
-  //
-  //    final CDSPremiumPayment[][] premLegs = new CDSPremiumPayment[_n][];
-  //
-  //    //the credit curve knots
-  //    for (int i = 0; i < _n; i++) {
-  //      _t[i] = ACT_365.getDayCountFraction(tradeDate, cds[i].getEndDate());
-  //    }
-  //
-  //    //The protection leg
-  //    double start = ACT_365.getDayCountFraction(tradeDate, cds[0].getEffectiveStartDate());
-  //    for (int i = 0; i < _n; i++) {
-  //      protLeg[i] = new ProtectionLegElement(start, _t[i], yieldCurve, _t, i);
-  //      start = _t[i];
-  //    }
-  //
-  //    for (int i = 0; i < _n; i++) {
-  //      int nodeIndex = 0;
-  //      final ISDAPremiumLegSchedule premLegSch = cds[i].getPremLeg();
-  //      final int nPayments = premLegSch.getNumPayments();
-  //      nodes.add(new ArrayList<CDSPremiumPayment>());
-  //      premLegs[i] = new CDSPremiumPayment[nPayments];
-  //
-  //      for (int k = 0; k < nPayments; k++) {
-  //        final double pt = ACT_365.getDayCountFraction(tradeDate, premLegSch.getPaymentDate(k));
-  //        final double accFrac = cds[i].getAccrualDayCount().getDayCountFraction(premLegSch.getAccStartDate(k), premLegSch.getAccEndDate(k));
-  //        final double accStart = ACT_365.getDayCountFraction(tradeDate, premLegSch.getAccStartDate(k));
-  //        final double accEnd = ACT_365.getDayCountFraction(tradeDate, premLegSch.getAccEndDate(k));
-  //        final double accRate = accFrac / ACT_365.getDayCountFraction(premLegSch.getAccStartDate(k), premLegSch.getAccEndDate(k));
-  //        if (accEnd > _t[nodeIndex]) {
-  //          nodeIndex++;
-  //        }
-  //        CDSPremiumPayment coupon = new CDSPremiumPayment(pt, accFrac, accStart, accEnd, accRate, cds[i].isPayAccOnDefault(), nodeIndex);
-  //
-  //        if (coupons.contains(coupon)) {
-  //          final int index = coupons.indexOf(coupon); //if the coupon already exists, get it from list 
-  //          coupon = coupons.get(index);
-  //        } else {
-  //          coupons.add(coupon);
-  //        }
-  //
-  //        final List<CDSPremiumPayment> node = nodes.get(nodeIndex);
-  //        if (!node.contains(coupon)) {
-  //          node.add(coupon);
-  //        }
-  //
-  //        premLegs[i][k] = coupon;
-  //      }
-  //    }
-  //
-  //    final Iterator<CDSPremiumPayment> iter = coupons.iterator();
-  //    while (iter.hasNext()) {
-  //      iter.next().initialise(yieldCurve, _t);
-  //    }
-  //
-  //    for (int i = 0; i < _n; i++) {
-  //      final ProtectionLegElement[] temp = new ProtectionLegElement[i + 1];
-  //      System.arraycopy(protLeg, 0, temp, 0, i + 1);
-  //      final double valueDF = ACT_365.getDayCountFraction(tradeDate, cds[i].getValueDate());
-  //      final double accrued = cds[i].getAccrualDayCount().getDayCountFraction(cds[i].getStartDate(), cds[i].getEffectiveStartDate());
-  //      _cds[i] = new CDS(new CDSProtectionLeg(valueDF, temp), new CDSPremiumLeg(valueDF, accrued, premLegs[i]));
-  //
-  //      final List<CDSPremiumPayment> temp1 = nodes.get(i);
-  //      final CDSPremiumPayment[] a = new CDSPremiumPayment[temp1.size()];
-  //      temp1.toArray(a);
-  //      _nodes[i] = new Node(i, protLeg[i], a);
-  //    }
-  //
-  //  }
 
   public ISDACompliantCreditCurve calibrate(final CDSMarketInfo[] info) {
     ArgumentChecker.noNulls(info, "info");

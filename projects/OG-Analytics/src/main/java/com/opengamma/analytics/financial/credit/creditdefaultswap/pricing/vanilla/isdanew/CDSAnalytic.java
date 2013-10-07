@@ -22,7 +22,6 @@ import com.opengamma.util.ArgumentChecker;
  * This converts and stores all the date logic as doubles for CDS pricing on a particular date
  */
 public class CDSAnalytic {
-  // private static final Calendar DEFAULT_CALENDAR = new NoHolidayCalendar();
   private static final Calendar DEFAULT_CALENDAR = new MondayToFridayCalendar("Weekend_Only");
   private static final BusinessDayConvention FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   /** Curve daycount generally fixed to Act/365 in ISDA */
@@ -30,14 +29,8 @@ public class CDSAnalytic {
   private static final DayCount ACT_360 = DayCountFactory.INSTANCE.getDayCount("ACT/360");
 
   private final double _lgd;
-  // private final int _nPayments;
+
   private final CDSCoupon[] _coupons;
-  //  private final double[] _paymentTimes;
-  //  private final double[] _accFractions;
-  //  //  private final double[] _stepin;
-  //  private final double[] _effAccStart;
-  //  private final double[] _effAccEnd;
-  //  private final double[] _accRate;
 
   private final double _protectionStart;
   private final double _protectionEnd;
@@ -45,10 +38,7 @@ public class CDSAnalytic {
   private final boolean _payAccOnDefault;
   private final boolean _protectionFromStartOfDay;
   private final double _accrued;
-
   private final int _accruedDays;
-
-  private final double _curveOneDay = 1. / 365; // TODO do not hard code
 
   /**
    * Generates an analytic description of a CDS trade on a particular date. This can then be passed to a analytic CDS pricer.<br>
@@ -174,6 +164,8 @@ public class CDSAnalytic {
       final LocalDate accEnd = protectStart ? paymentSchedule.getAccEndDate(i).minusDays(1) : paymentSchedule.getAccEndDate(i);
       final double yearFrac = accrualDayCount.getDayCountFraction(accStart, accEnd);
       final double ycRatio = yearFrac / curveDayCount.getDayCountFraction(accStart, accEnd);
+
+      //Review would set this to the max of this and _protectionStart, but that would make us not compatible bug in the acc-on-default formula
       final double effStart = accStart.isBefore(tradeDate) ? -curveDayCount.getDayCountFraction(accStart, tradeDate) : curveDayCount.getDayCountFraction(tradeDate, accStart);
       final double effEnd = curveDayCount.getDayCountFraction(tradeDate, accEnd);
       _coupons[i] = new CDSCoupon(paymentTime, effStart, effEnd, yearFrac, ycRatio);
@@ -204,14 +196,6 @@ public class CDSAnalytic {
    */
   public boolean isProtectionFromStartOfDay() {
     return _protectionFromStartOfDay;
-  }
-
-  /**
-   * Gets the year fraction value of one day for the day count used for curves (i.e. discounting)
-   * @return the curveOneDay
-   */
-  public double getCurveOneDay() {
-    return _curveOneDay;
   }
 
   public double getLGD() {

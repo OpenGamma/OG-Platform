@@ -53,9 +53,9 @@ public class CDSPremiumPayment {
     _index = index;
   }
 
-  public void initialise(final ISDACompliantYieldCurve yieldCurve, final double[] creditCurveNodes) {
+  public void initialise(final double protectionStart, final ISDACompliantYieldCurve yieldCurve, final double[] creditCurveNodes) {
     _paymentDF = yieldCurve.getDiscountFactor(_coupon.getPaymentTime());
-    _knots = getIntegrationsPoints(_coupon.getEffStart(), _coupon.getEffEnd(), yieldCurve.getKnotTimes(), creditCurveNodes);
+    _knots = getIntegrationsPoints(Math.max(_coupon.getEffStart(), protectionStart), _coupon.getEffEnd(), yieldCurve.getKnotTimes(), creditCurveNodes);
     _n = _knots.length;
     _rt = new double[_n];
     _p = new double[_n];
