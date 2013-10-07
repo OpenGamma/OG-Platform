@@ -25,6 +25,8 @@ import com.opengamma.web.historicaltimeseries.WebHistoricalTimeSeriesData;
 import com.opengamma.web.historicaltimeseries.WebHistoricalTimeSeriesUris;
 import com.opengamma.web.holiday.WebHolidayData;
 import com.opengamma.web.holiday.WebHolidayUris;
+import com.opengamma.web.marketdatasnapshot.WebMarketDataSnapshotData;
+import com.opengamma.web.marketdatasnapshot.WebMarketDataSnapshotUris;
 import com.opengamma.web.portfolio.WebPortfoliosData;
 import com.opengamma.web.portfolio.WebPortfoliosUris;
 import com.opengamma.web.position.WebPositionsData;
@@ -98,6 +100,10 @@ public class WebHomeResource extends AbstractWebResource {
     WebConfigData configData = new WebConfigData();
     configData.setUriInfo(uriInfo);
     out.put("configUris", new WebConfigUris(configData));
+    
+    WebMarketDataSnapshotData snapshotData = new WebMarketDataSnapshotData();
+    snapshotData.setUriInfo(uriInfo);
+    out.put("snapshotUris", new WebMarketDataSnapshotUris(snapshotData));
     
     return out;
   }
