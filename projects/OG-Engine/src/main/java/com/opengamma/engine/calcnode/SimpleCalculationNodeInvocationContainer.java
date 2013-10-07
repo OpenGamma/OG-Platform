@@ -705,11 +705,10 @@ public abstract class SimpleCalculationNodeInvocationContainer {
       executor.getFirst().interrupt();
       // Need to wait for the execution thread to acknowledge the interrupt, or it may be canceled by us swapping the executor
       // reference back in and the interrupt will affect a subsequent wait causing erroneous behavior
-      int count = 0;
       while (executor.getFirst().isInterrupted() && executor.getFirst().isAlive()) {
         s_logger.debug("Waiting for thread {} to accept the interrupt", executor.getFirst().getName());
         try {
-          Thread.sleep(100);
+          Thread.sleep(20);
         } catch (InterruptedException ex) {
           s_logger.debug("cancel interrupted", ex);
         }
