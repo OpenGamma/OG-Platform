@@ -114,7 +114,7 @@ public abstract class SwaptionBlackFunction extends AbstractFunction.NonCompiled
     }
     final String[] fullCurveNames = new String[curveNames.length];
     for (int i = 0; i < curveNames.length; i++) {
-      fullCurveNames[i] = curveNames[i] + currency.getCode();
+      fullCurveNames[i] = curveNames[i] + "_" + currency.getCode();
     }
     final YieldCurveBundle curves = YieldCurveFunctionUtils.getYieldCurves(inputs, curveCalculationConfig);
     final Object volatilitySurfaceObject = inputs.getValue(getVolatilityRequirement(surfaceName, currency));
