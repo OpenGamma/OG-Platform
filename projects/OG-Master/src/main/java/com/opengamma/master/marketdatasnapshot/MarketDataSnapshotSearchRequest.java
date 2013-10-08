@@ -56,6 +56,11 @@ public class MarketDataSnapshotSearchRequest extends AbstractSearchRequest imple
   @PropertyDefinition
   private String _name;
   /**
+   * The sort order to use.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private MarketDataSnapshotSearchSortOrder _sortOrder = MarketDataSnapshotSearchSortOrder.OBJECT_ID_ASC;
+  /**
    * Whether to include the snapshot data in the search results.
    * Set to true to include the data, or false to omit it. Defaults to true.
    * Note that a master may ignore this value and always return the full data.
@@ -182,6 +187,32 @@ public class MarketDataSnapshotSearchRequest extends AbstractSearchRequest imple
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the sort order to use.
+   * @return the value of the property, not null
+   */
+  public MarketDataSnapshotSearchSortOrder getSortOrder() {
+    return _sortOrder;
+  }
+
+  /**
+   * Sets the sort order to use.
+   * @param sortOrder  the new value of the property, not null
+   */
+  public void setSortOrder(MarketDataSnapshotSearchSortOrder sortOrder) {
+    JodaBeanUtils.notNull(sortOrder, "sortOrder");
+    this._sortOrder = sortOrder;
+  }
+
+  /**
+   * Gets the the {@code sortOrder} property.
+   * @return the property, not null
+   */
+  public final Property<MarketDataSnapshotSearchSortOrder> sortOrder() {
+    return metaBean().sortOrder().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets whether to include the snapshot data in the search results.
    * Set to true to include the data, or false to omit it. Defaults to true.
    * Note that a master may ignore this value and always return the full data.
@@ -226,6 +257,7 @@ public class MarketDataSnapshotSearchRequest extends AbstractSearchRequest imple
       MarketDataSnapshotSearchRequest other = (MarketDataSnapshotSearchRequest) obj;
       return JodaBeanUtils.equal(getSnapshotIds(), other.getSnapshotIds()) &&
           JodaBeanUtils.equal(getName(), other.getName()) &&
+          JodaBeanUtils.equal(getSortOrder(), other.getSortOrder()) &&
           (isIncludeData() == other.isIncludeData()) &&
           super.equals(obj);
     }
@@ -237,13 +269,14 @@ public class MarketDataSnapshotSearchRequest extends AbstractSearchRequest imple
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getSnapshotIds());
     hash += hash * 31 + JodaBeanUtils.hashCode(getName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSortOrder());
     hash += hash * 31 + JodaBeanUtils.hashCode(isIncludeData());
     return hash ^ super.hashCode();
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(160);
     buf.append("MarketDataSnapshotSearchRequest{");
     int len = buf.length();
     toString(buf);
@@ -259,6 +292,7 @@ public class MarketDataSnapshotSearchRequest extends AbstractSearchRequest imple
     super.toString(buf);
     buf.append("snapshotIds").append('=').append(getSnapshotIds()).append(',').append(' ');
     buf.append("name").append('=').append(getName()).append(',').append(' ');
+    buf.append("sortOrder").append('=').append(getSortOrder()).append(',').append(' ');
     buf.append("includeData").append('=').append(isIncludeData()).append(',').append(' ');
   }
 
@@ -284,6 +318,11 @@ public class MarketDataSnapshotSearchRequest extends AbstractSearchRequest imple
     private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(
         this, "name", MarketDataSnapshotSearchRequest.class, String.class);
     /**
+     * The meta-property for the {@code sortOrder} property.
+     */
+    private final MetaProperty<MarketDataSnapshotSearchSortOrder> _sortOrder = DirectMetaProperty.ofReadWrite(
+        this, "sortOrder", MarketDataSnapshotSearchRequest.class, MarketDataSnapshotSearchSortOrder.class);
+    /**
      * The meta-property for the {@code includeData} property.
      */
     private final MetaProperty<Boolean> _includeData = DirectMetaProperty.ofReadWrite(
@@ -295,6 +334,7 @@ public class MarketDataSnapshotSearchRequest extends AbstractSearchRequest imple
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "snapshotIds",
         "name",
+        "sortOrder",
         "includeData");
 
     /**
@@ -310,6 +350,8 @@ public class MarketDataSnapshotSearchRequest extends AbstractSearchRequest imple
           return _snapshotIds;
         case 3373707:  // name
           return _name;
+        case -26774448:  // sortOrder
+          return _sortOrder;
         case 274670706:  // includeData
           return _includeData;
       }
@@ -349,6 +391,14 @@ public class MarketDataSnapshotSearchRequest extends AbstractSearchRequest imple
     }
 
     /**
+     * The meta-property for the {@code sortOrder} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<MarketDataSnapshotSearchSortOrder> sortOrder() {
+      return _sortOrder;
+    }
+
+    /**
      * The meta-property for the {@code includeData} property.
      * @return the meta-property, not null
      */
@@ -364,6 +414,8 @@ public class MarketDataSnapshotSearchRequest extends AbstractSearchRequest imple
           return ((MarketDataSnapshotSearchRequest) bean).getSnapshotIds();
         case 3373707:  // name
           return ((MarketDataSnapshotSearchRequest) bean).getName();
+        case -26774448:  // sortOrder
+          return ((MarketDataSnapshotSearchRequest) bean).getSortOrder();
         case 274670706:  // includeData
           return ((MarketDataSnapshotSearchRequest) bean).isIncludeData();
       }
@@ -380,11 +432,20 @@ public class MarketDataSnapshotSearchRequest extends AbstractSearchRequest imple
         case 3373707:  // name
           ((MarketDataSnapshotSearchRequest) bean).setName((String) newValue);
           return;
+        case -26774448:  // sortOrder
+          ((MarketDataSnapshotSearchRequest) bean).setSortOrder((MarketDataSnapshotSearchSortOrder) newValue);
+          return;
         case 274670706:  // includeData
           ((MarketDataSnapshotSearchRequest) bean).setIncludeData((Boolean) newValue);
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((MarketDataSnapshotSearchRequest) bean)._sortOrder, "sortOrder");
+      super.validate(bean);
     }
 
   }

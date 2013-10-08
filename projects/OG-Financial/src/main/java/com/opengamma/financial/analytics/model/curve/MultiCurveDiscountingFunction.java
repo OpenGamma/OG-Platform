@@ -65,6 +65,8 @@ import com.opengamma.financial.analytics.curve.DiscountingCurveTypeConfiguration
 import com.opengamma.financial.analytics.curve.FRANodeConverter;
 import com.opengamma.financial.analytics.curve.FXForwardNodeConverter;
 import com.opengamma.financial.analytics.curve.FixedDateInterpolatedCurveDefinition;
+import com.opengamma.financial.analytics.curve.IMMFRANodeConverter;
+import com.opengamma.financial.analytics.curve.IMMSwapNodeConverter;
 import com.opengamma.financial.analytics.curve.IborCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.InterpolatedCurveDefinition;
 import com.opengamma.financial.analytics.curve.OvernightCurveTypeConfiguration;
@@ -104,6 +106,21 @@ public class MultiCurveDiscountingFunction extends
     return new MyCompiledFunctionDefinition(earliestInvokation, latestInvokation, curveNames, exogenousRequirements, curveConstructionConfiguration);
   }
 
+  @Override
+  protected InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> getCalculator() {
+    return PSMQC;
+  }
+
+  @Override
+  protected InstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> getSensitivityCalculator() {
+    return PSMQCSC;
+  }
+
+  @Override
+  protected String getCurveTypeProperty() {
+    return DISCOUNTING;
+  }
+
   /**
    * Compiled function implementation.
    */
@@ -126,7 +143,6 @@ public class MultiCurveDiscountingFunction extends
     }
 
     @Override
-    @SuppressWarnings("synthetic-access")
     protected Pair<MulticurveProviderInterface, CurveBuildingBlockBundle> getCurves(final FunctionInputs inputs, final ZonedDateTime now,
         final MulticurveDiscountBuildingRepository builder, final MulticurveProviderInterface knownData, final ConventionSource conventionSource,
         final HolidaySource holidaySource, final RegionSource regionSource) {
@@ -224,21 +240,6 @@ public class MultiCurveDiscountingFunction extends
     }
 
     @Override
-    protected InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> getCalculator() {
-      return PSMQC;
-    }
-
-    @Override
-    protected InstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> getSensitivityCalculator() {
-      return PSMQCSC;
-    }
-
-    @Override
-    protected String getCurveTypeProperty() {
-      return DISCOUNTING;
-    }
-
-    @Override
     protected MulticurveProviderInterface getKnownData(final FunctionInputs inputs) {
       final FXMatrix fxMatrix = (FXMatrix) inputs.getValue(ValueRequirementNames.FX_MATRIX);
       MulticurveProviderDiscount knownData;
@@ -287,6 +288,8 @@ public class MultiCurveDiscountingFunction extends
           .cashNodeVisitor(new CashNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .fraNode(new FRANodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .fxForwardNode(new FXForwardNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
+          .immFRANode(new IMMFRANodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
+          .immSwapNode(new IMMSwapNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .rateFutureNode(new RateFutureNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .swapNode(new SwapNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .create();

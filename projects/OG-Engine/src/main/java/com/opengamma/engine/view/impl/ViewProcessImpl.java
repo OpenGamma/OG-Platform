@@ -679,9 +679,6 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
         break;
       }
     }
-    if (!deltasRequired) {
-      _latestResult.set(null);
-    }
     _mustCalculateDeltas.set(deltasRequired);
   }
 

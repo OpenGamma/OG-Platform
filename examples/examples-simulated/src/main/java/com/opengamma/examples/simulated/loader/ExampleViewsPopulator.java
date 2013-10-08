@@ -644,23 +644,15 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
     viewDefinition.setMinFullCalculationPeriod(500L);
     final ViewCalculationConfiguration defaultCalConfig = new ViewCalculationConfiguration(viewDefinition, DEFAULT_CALC_CONFIG);
     addValueRequirements(defaultCalConfig, EquitySecurity.SECURITY_TYPE, new String[]{
-      POSITION_DELTA,
       VALUE_DELTA,
       DELTA,
-      POSITION_GAMMA,
-      POSITION_THETA,
-      POSITION_RHO,
       GAMMA,
       THETA,
       RHO,
       VEGA
     });
-    defaultCalConfig.addPortfolioRequirement(EquityOptionSecurity.SECURITY_TYPE, POSITION_DELTA, ValueProperties.none());
     defaultCalConfig.addPortfolioRequirement(EquityOptionSecurity.SECURITY_TYPE, VALUE_DELTA, ValueProperties.none());
     defaultCalConfig.addPortfolioRequirement(EquityOptionSecurity.SECURITY_TYPE, DELTA, ValueProperties.none());
-    defaultCalConfig.addPortfolioRequirement(EquityOptionSecurity.SECURITY_TYPE, POSITION_GAMMA, ValueProperties.none());
-    defaultCalConfig.addPortfolioRequirement(EquityOptionSecurity.SECURITY_TYPE, POSITION_THETA, ValueProperties.none());
-    defaultCalConfig.addPortfolioRequirement(EquityOptionSecurity.SECURITY_TYPE, POSITION_RHO, ValueProperties.none());
     defaultCalConfig.addPortfolioRequirement(EquityOptionSecurity.SECURITY_TYPE, GAMMA, ValueProperties.none());
     defaultCalConfig.addPortfolioRequirement(EquityOptionSecurity.SECURITY_TYPE, THETA, ValueProperties.none());
     defaultCalConfig.addPortfolioRequirement(EquityOptionSecurity.SECURITY_TYPE, RHO, ValueProperties.none());

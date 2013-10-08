@@ -75,7 +75,7 @@ public class FileSnapshotReader implements SnapshotReader {
       // When rows are complete create snapshot elements from temporary structures
       if (currentRow == null) {
         for (Map.Entry<String, ManageableCurveSnapshot> entry : curvesBuilder.entrySet()) {
-          _curves.put(new CurveKey(entry.getKey()), entry.getValue());
+          _curves.put(CurveKey.of(entry.getKey()), entry.getValue());
         }
         for (Map.Entry<String, Pair<YieldCurveKey, ManageableYieldCurveSnapshot>> entry : yieldCurveBuilder.entrySet()) {
           _yieldCurve.put(entry.getValue().getFirst(), entry.getValue().getSecond());
@@ -127,7 +127,7 @@ public class FileSnapshotReader implements SnapshotReader {
 
     if (!surfaceBuilder.containsKey(name)) {
       ManageableVolatilitySurfaceSnapshot surface = new ManageableVolatilitySurfaceSnapshot();
-      VolatilitySurfaceKey key = new VolatilitySurfaceKey(UniqueId.parse(currentRow.get(SnapshotColumns.SURFACE_TARGET.get())),
+      VolatilitySurfaceKey key = VolatilitySurfaceKey.of(UniqueId.parse(currentRow.get(SnapshotColumns.SURFACE_TARGET.get())),
                                                           currentRow.get(SnapshotColumns.NAME.get()),
                                                           currentRow.get(SnapshotColumns.SURFACE_INSTRUMENT_TYPE.get()),
                                                           currentRow.get(SnapshotColumns.SURFACE_QUOTE_TYPE.get()),
@@ -150,16 +150,15 @@ public class FileSnapshotReader implements SnapshotReader {
     String name = currentRow.get(SnapshotColumns.NAME.get());
 
     if (!yieldCurveBuilder.containsKey(name)) {
-      ManageableYieldCurveSnapshot curve = new ManageableYieldCurveSnapshot();
+      
       ManageableUnstructuredMarketDataSnapshot snapshot = new ManageableUnstructuredMarketDataSnapshot();
-      YieldCurveKey key = new YieldCurveKey(Currency.of(currentRow.get(SnapshotColumns.YIELD_CURVE_CURRENCY.get())),
+      YieldCurveKey key = YieldCurveKey.of(Currency.of(currentRow.get(SnapshotColumns.YIELD_CURVE_CURRENCY.get())),
                                             currentRow.get(SnapshotColumns.NAME.get()));
 
-      curve.setValuationTime(Instant.parse(currentRow.get(SnapshotColumns.INSTANT.get())));
       snapshot.putValue(createExternalIdBundle(currentRow),
                         currentRow.get(SnapshotColumns.VALUE_NAME.get()),
                         createValueSnapshot(currentRow));
-      curve.setValues(snapshot);
+      ManageableYieldCurveSnapshot curve = ManageableYieldCurveSnapshot.of(Instant.parse(currentRow.get(SnapshotColumns.INSTANT.get())), snapshot);
       yieldCurveBuilder.put(name, Pair.of(key, curve));
     } else {
       yieldCurveBuilder.get(name).getSecond().getValues().putValue(createExternalIdBundle(currentRow),
@@ -275,7 +274,7 @@ public class FileSnapshotReader implements SnapshotReader {
       }
     }
 
-    return new ValueSnapshot(marketValue, overrideValue);
+    return ValueSnapshot.of(marketValue, overrideValue);
   }
 
   private ExternalIdBundle createExternalIdBundle(Map<String, String> currentRow) {

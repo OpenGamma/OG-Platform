@@ -19,7 +19,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-@Config
+@Config(description = "Multi curve calculation config")
 public class MultiCurveCalculationConfig {
   //TODO check inputs for instrument exposures - need some or all of yield curve names in the array of names
   private final String _calculationConfigName;

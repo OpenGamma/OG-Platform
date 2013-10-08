@@ -132,18 +132,39 @@ public class ISDAPremiumLegSchedule {
     return schedule.truncateSchedule(stepin);
   }
 
+  //  /**
+  //   * Remove all payment intervals before the given date 
+  //   * @param stepin a date 
+  //   * @return truncate schedule
+  //   */
+  //  public ISDAPremiumLegSchedule truncateSchedule(final LocalDate stepin) {
+  //    if (!_accEndDates[0].isBefore(stepin)) {
+  //      return this; // nothing to truncate
+  //    }
+  //    if (stepin.isAfter(_accEndDates[_nPayments - 1])) {
+  //      throw new IllegalArgumentException("today is after last payment - i.e. all the payments are in the past");
+  //    }
+  //
+  //    int index = getAccStartDateIndex(stepin);
+  //    if (index < 0) {
+  //      index = -(index + 1) - 1; // keep the one before the insertion point
+  //    }
+  //
+  //    return truncateSchedule(index);
+  //  }
+
   /**
    * Remove all payment intervals before the given date 
    * @param stepin a date 
    * @return truncate schedule
    */
   public ISDAPremiumLegSchedule truncateSchedule(final LocalDate stepin) {
-    if (!_accEndDates[0].isBefore(stepin)) {
+    if (!_accStartDates[0].isBefore(stepin)) {
       return this; // nothing to truncate
     }
-    if (stepin.isAfter(_accEndDates[_nPayments - 1])) {
-      throw new IllegalArgumentException("today is after last payment - i.e. all the payments are in the past");
-    }
+    //    if (stepin.isAfter(_paymentDates[_nPayments - 1])) {
+    //      throw new IllegalArgumentException("today is after last payment - i.e. all the payments are in the past");
+    //    }
 
     int index = getAccStartDateIndex(stepin);
     if (index < 0) {
@@ -206,7 +227,7 @@ public class ISDAPremiumLegSchedule {
     this(getUnadjustedDates(startDate, endDate, step, stubType), businessdayAdjustmentConvention, calandar, protectionStart);
   }
 
-  public ISDAPremiumLegSchedule(final LocalDate[] unadjustedDates, final BusinessDayConvention businessdayAdjustmentConvention, final Calendar calandar, final boolean protectionStart) {
+  public ISDAPremiumLegSchedule(final LocalDate[] unadjustedDates, final BusinessDayConvention businessdayAdjustmentConvention, final Calendar calendar, final boolean protectionStart) {
     _nPayments = unadjustedDates.length - 1;
     _nominalPaymentDates = new LocalDate[_nPayments];
     _paymentDates = new LocalDate[_nPayments];
@@ -217,7 +238,7 @@ public class ISDAPremiumLegSchedule {
     LocalDate dPrevAdj = dPrev; // first date is never adjusted
     for (int i = 0; i < _nPayments; i++) {
       final LocalDate dNext = unadjustedDates[i + 1];
-      final LocalDate dNextAdj = businessDayAdjustDate(dNext, calandar, businessdayAdjustmentConvention);
+      final LocalDate dNextAdj = businessDayAdjustDate(dNext, calendar, businessdayAdjustmentConvention);
       _accStartDates[i] = dPrevAdj;
       _accEndDates[i] = dNextAdj;
       _nominalPaymentDates[i] = dNext;
@@ -277,6 +298,10 @@ public class ISDAPremiumLegSchedule {
    */
   public int getPaymentDateIndex(final LocalDate date) {
     return Arrays.binarySearch(_paymentDates, date, null);
+  }
+
+  public int getNominalPaymentDateIndex(final LocalDate date) {
+    return Arrays.binarySearch(_nominalPaymentDates, date, null);
   }
 
   /**

@@ -34,8 +34,8 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Config object that contains parameters for the G2++ model.
  */
+@Config(description = "G2++ model parameters")
 @BeanDefinition
-@Config
 public class G2ppParameters extends DirectBean implements Serializable, UniqueIdentifiable, MutableUniqueIdentifiable {
 
   /** Serialization version. */

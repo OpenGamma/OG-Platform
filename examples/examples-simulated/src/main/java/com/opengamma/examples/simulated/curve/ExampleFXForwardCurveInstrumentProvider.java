@@ -172,6 +172,11 @@ public class ExampleFXForwardCurveInstrumentProvider implements FXForwardCurveIn
   }
 
   @Override
+  public ExternalId getInstrument(LocalDate curveDate, Tenor startTenor, int startIMMPeriods, int endIMMPeriods) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
   public int hashCode() {
     return getPrefix().hashCode() + getPostfix().hashCode() + getDataFieldName().hashCode();
   }

@@ -10,6 +10,7 @@
 <@section title="Configuration">
   <p>
     <@rowout label="Name">${configDoc.name}</@rowout>
+    <@rowout label="Type">${configDescription}</@rowout>
     <@rowout label="Reference">${configDoc.uniqueId.value}, version ${configDoc.uniqueId.version}, <a href="${uris.configVersions()}">view history</a>
 </@rowout>
   </p>

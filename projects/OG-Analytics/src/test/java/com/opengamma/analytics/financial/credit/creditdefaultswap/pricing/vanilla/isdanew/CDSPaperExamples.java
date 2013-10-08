@@ -43,7 +43,7 @@ public class CDSPaperExamples extends ISDABaseTest {
   private static final LocalDate TODAY = LocalDate.of(2011, Month.JUNE, 13);
   private static final LocalDate NEXT_IMM = getNextIMMDate(TODAY);
 
-  private static final LocalDate TRADE_DATE = LocalDate.of(2011, Month.JUNE, 14);
+  private static final LocalDate TRADE_DATE = LocalDate.of(2011, Month.JUNE, 13);
   private static final LocalDate STEPIN = TRADE_DATE.plusDays(1);
   private static final LocalDate CASH_SETTLE_DATE = addWorkDays(TRADE_DATE, 3, DEFAULT_CALENDAR); // AKA valuation date
   private static final LocalDate STARTDATE = LocalDate.of(2011, Month.MARCH, 20);
@@ -94,6 +94,24 @@ public class CDSPaperExamples extends ISDABaseTest {
     }
     MATURITIES_1Y_STEP = new LocalDate[count];
     System.arraycopy(temp, 0, MATURITIES_1Y_STEP, 0, count);
+  }
+
+  @Test(enabled = false)
+  public void yieldCurveDump() {
+    final int n = YIELD_CURVE.getNumberOfKnots();
+    for (int i = 0; i < n; i++) {
+      System.out.println(YIELD_CURVE.getTimeAtIndex(i) + "\t" + YIELD_CURVE.getZeroRateAtIndex(i));
+    }
+  }
+
+  @Test(enabled = false)
+  public void creditCurveDump() {
+    System.out.println(PILLAR_CDSS[0].getAccuredDays());
+    final int n = PILLAR_DATES.length;
+    for (int i = 0; i < n; i++) {
+      final double t = CREDIT_CURVE.getTimeAtIndex(i);
+      System.out.println(PILLAR_DATES[i].toString(DATE_FORMATT) + "\t" + SPREADS[i] * TEN_THOUSAND + "\t" + t + "\t" + CREDIT_CURVE.getSurvivalProbability(t));
+    }
   }
 
   @Test(enabled = false)

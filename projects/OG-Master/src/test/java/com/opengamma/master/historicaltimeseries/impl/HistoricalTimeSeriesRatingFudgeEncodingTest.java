@@ -33,11 +33,10 @@ public class HistoricalTimeSeriesRatingFudgeEncodingTest {
 
   public void fudgeEncoding() {
     List<HistoricalTimeSeriesRatingRule> rules = new ArrayList<HistoricalTimeSeriesRatingRule>();
-    rules.add(new HistoricalTimeSeriesRatingRule(DATA_SOURCE_NAME, "BLOOMBERG", 2));
-    rules.add(new HistoricalTimeSeriesRatingRule(DATA_SOURCE_NAME, "REUTERS", 1));
-    rules.add(new HistoricalTimeSeriesRatingRule(DATA_PROVIDER_NAME, "CMPL", 3));
-    
-    HistoricalTimeSeriesRating inputConfig = new HistoricalTimeSeriesRating(rules);
+    rules.add(HistoricalTimeSeriesRatingRule.of(DATA_SOURCE_NAME, "BLOOMBERG", 2));
+    rules.add(HistoricalTimeSeriesRatingRule.of(DATA_SOURCE_NAME, "REUTERS", 1));
+    rules.add(HistoricalTimeSeriesRatingRule.of(DATA_PROVIDER_NAME, "CMPL", 3));
+    HistoricalTimeSeriesRating inputConfig = HistoricalTimeSeriesRating.of(rules);
     
     FudgeSerializer serializationContext = new FudgeSerializer(s_fudgeContext);
     MutableFudgeMsg inputMsg = serializationContext.objectToFudgeMsg(inputConfig);

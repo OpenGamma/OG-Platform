@@ -337,7 +337,7 @@ public final class EquityIndexFutureOptionBlackMethod {
    * @param derivative An EquityIndexFutureOption, the OG-Analytics form of the derivative
    * @param marketData A StaticReplicationDataBundle, containing a BlackVolatilitySurface, forward equity and funding curves
    * @return Spot theta, ie the sensitivity of the present value to the time to expiration,
-   *          $\frac{\partial (PV)}{\partial t}$
+   *          $\frac{\partial (PV)}{\partial \tau}$
    */
   public double theta(final EquityIndexFutureOption derivative, final StaticReplicationDataBundle marketData) {
     ArgumentChecker.notNull(derivative, "derivative was null. Expecting EquityIndexFutureOption");
@@ -348,6 +348,6 @@ public final class EquityIndexFutureOptionBlackMethod {
     final double interestRate = marketData.getDiscountCurve().getInterestRate(expiry);
     final double blackVol = marketData.getVolatilitySurface().getVolatility(expiry, strike);
     final double theta = BlackFormulaRepository.theta(forward, strike, expiry, blackVol, derivative.isCall(), interestRate);
-    return theta;
+    return -1 * theta; // *-1 as BlackFormulaRepository gives dV/dt, and we want dV/d(T-t)
   }
 }

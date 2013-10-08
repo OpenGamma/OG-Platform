@@ -166,29 +166,19 @@ public class AnalyticCDSPricer {
     if (cds.getProtectionEnd() <= 0.0) { //short cut already expired CDSs
       return 0.0;
     }
-    final double obsOffset = cds.isProtectionFromStartOfDay() ? -cds.getCurveOneDay() : 0.0;
 
-    final int n = cds.getNumPayments();
     double pv = 0.0;
-    for (int i = 0; i < n; i++) {
-      final double paymentTime = cds.getPaymentTime(i);
-      final double creditObsTime = cds.getAccEnd(i) + obsOffset;
-      final double q = creditCurve.getDiscountFactor(creditObsTime /*cds.getCreditObservationTime(i)*/);
-      final double p = yieldCurve.getDiscountFactor(paymentTime);
-      pv += cds.getAccrualFraction(i) * p * q;
+    for (final CDSCoupon coupon : cds.getCoupons()) {
+      final double q = creditCurve.getDiscountFactor(coupon.getEffEnd());
+      final double p = yieldCurve.getDiscountFactor(coupon.getPaymentTime());
+      pv += coupon.getYearFrac() * p * q;
     }
 
     if (cds.isPayAccOnDefault()) {
-
-      final double[] integrationSchedule = getIntegrationsPoints(cds.getAccStart(0), cds.getAccEnd(n - 1), yieldCurve, creditCurve);
-      final double offsetStepin = cds.getStepin() + obsOffset;
-
+      final double[] integrationSchedule = getIntegrationsPoints(cds.getProtectionStart(), cds.getProtectionEnd(), yieldCurve, creditCurve);
       double accPV = 0.0;
-      for (int i = 0; i < n; i++) {
-        final double offsetAccStart = cds.getAccStart(i) + obsOffset;
-        final double offsetAccEnd = cds.getAccEnd(i) + obsOffset;
-        final double accRate = cds.getAccrualFraction(i) / (offsetAccEnd - offsetAccStart);
-        accPV += calculateSinglePeriodAccrualOnDefault(accRate, offsetStepin, offsetAccStart, offsetAccEnd, integrationSchedule, yieldCurve, creditCurve);
+      for (final CDSCoupon coupon : cds.getCoupons()) {
+        accPV += calculateSinglePeriodAccrualOnDefault(coupon, cds.getProtectionStart(), integrationSchedule, yieldCurve, creditCurve);
       }
       pv += accPV;
     }
@@ -202,21 +192,21 @@ public class AnalyticCDSPricer {
     return pv;
   }
 
-  private double calculateSinglePeriodAccrualOnDefault(final double accRate, final double stepin, final double accStart, final double accEnd, final double[] integrationPoints,
-      final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve) {
+  private double calculateSinglePeriodAccrualOnDefault(final CDSCoupon coupon, final double stepin, final double[] integrationPoints, final ISDACompliantYieldCurve yieldCurve,
+      final ISDACompliantCreditCurve creditCurve) {
 
-    final double start = Math.max(accStart, stepin);
-    if (start >= accEnd) {
-      return 0.0;
+    final double start = Math.max(coupon.getEffStart(), stepin);
+    if (start >= coupon.getEffEnd()) {
+      return 0.0; //this coupon has already expired 
     }
-    final double[] knots = truncateSetInclusive(start, accEnd, integrationPoints);
+    final double[] knots = truncateSetInclusive(start, coupon.getEffEnd(), integrationPoints);
 
     double t = knots[0];
     double ht0 = creditCurve.getRT(t);
     double rt0 = yieldCurve.getRT(t);
     double b0 = Math.exp(-rt0 - ht0); // this is the risky discount factor
 
-    double t0 = _useCorrectAccOnDefaultFormula ? 0.0 : t - accStart + 1 / 730.0; // TODO not entirely clear why ISDA adds half a day
+    double t0 = _useCorrectAccOnDefaultFormula ? 0.0 : t - coupon.getEffStart() + 1 / 730.0; // TODO not entirely clear why ISDA adds half a day
     double pv = 0.0;
     final int nItems = knots.length;
     for (int j = 1; j < nItems; ++j) {
@@ -241,7 +231,7 @@ public class AnalyticCDSPricer {
       } else {
         // This is a know bug - a fix is proposed by Markit (and appears commented out in ISDA v.1.8.2)
         // This is the correct term plus dht*t0/dhrt*(b0-b1) which is an error
-        final double t1 = t - accStart + 1 / 730.0;
+        final double t1 = t - coupon.getEffStart() + 1 / 730.0;
         if (Math.abs(dhrt) < 1e-5) {
           tPV = dht * b0 * (t0 * epsilon(-dhrt) + dt * epsilonP(-dhrt));
         } else {
@@ -255,7 +245,7 @@ public class AnalyticCDSPricer {
       rt0 = rt1;
       b0 = b1;
     }
-    return accRate * pv;
+    return coupon.getYFRatio() * pv;
   }
 
   //****************************************************************************************************************************
@@ -339,13 +329,13 @@ public class AnalyticCDSPricer {
     if (cds.getProtectionEnd() <= 0.0) { //short cut already expired CDSs
       return 0.0;
     }
-    final double obsOffset = cds.isProtectionFromStartOfDay() ? -cds.getCurveOneDay() : 0.0;
+    //   final double obsOffset = cds.isProtectionFromStartOfDay() ? -cds.getCurveOneDay() : 0.0;
 
     final int n = cds.getNumPayments();
     double pvSense = 0.0;
     for (int i = 0; i < n; i++) {
       final double paymentTime = cds.getPaymentTime(i);
-      final double creditObsTime = cds.getAccEnd(i) + obsOffset;
+      final double creditObsTime = cds.getEffectiveAccEnd(i);
       final double dqdh = creditCurve.getSingleNodeDiscountFactorSensitivity(creditObsTime, creditCurveNode);
       if (dqdh == 0) {
         continue;
@@ -355,15 +345,16 @@ public class AnalyticCDSPricer {
     }
 
     if (cds.isPayAccOnDefault()) {
-      final double[] integrationSchedule = getIntegrationsPoints(cds.getAccStart(0), cds.getAccEnd(n - 1), yieldCurve, creditCurve);
-      final double offsetStepin = cds.getStepin() + obsOffset;
+      final double[] integrationSchedule = getIntegrationsPoints(cds.getProtectionStart(), cds.getProtectionEnd(), yieldCurve, creditCurve);
+      //      final double offsetStepin = cds.getStepin() + obsOffset;
 
       double accPVSense = 0.0;
       for (int i = 0; i < n; i++) {
-        final double offsetAccStart = cds.getAccStart(i) + obsOffset;
-        final double offsetAccEnd = cds.getAccEnd(i) + obsOffset;
-        final double accRate = cds.getAccrualFraction(i) / (offsetAccEnd - offsetAccStart);
-        accPVSense += calculateSinglePeriodAccrualOnDefaultCreditSensitivity(accRate, offsetStepin, offsetAccStart, offsetAccEnd, integrationSchedule, yieldCurve, creditCurve, creditCurveNode);
+        //        final double offsetAccStart = cds.getAccStart(i) + obsOffset;
+        //        final double offsetAccEnd = cds.getAccEnd(i) + obsOffset;
+        //        final double accRate = cds.getAccrualFraction(i) / (offsetAccEnd - offsetAccStart);
+        accPVSense += calculateSinglePeriodAccrualOnDefaultCreditSensitivity(cds.getAccRatio(i), cds.getProtectionStart(), cds.getEffectiveAccStart(i), cds.getEffectiveAccEnd(i), integrationSchedule,
+            yieldCurve, creditCurve, creditCurveNode);
       }
       pvSense += accPVSense;
     }
@@ -388,13 +379,13 @@ public class AnalyticCDSPricer {
     if (cds.getProtectionEnd() <= 0.0) { //short cut already expired CDSs
       return 0.0;
     }
-    final double obsOffset = cds.isProtectionFromStartOfDay() ? -cds.getCurveOneDay() : 0.0;
+    //   final double obsOffset = cds.isProtectionFromStartOfDay() ? -cds.getCurveOneDay() : 0.0;
 
     final int n = cds.getNumPayments();
     double pvSense = 0.0;
     for (int i = 0; i < n; i++) {
       final double paymentTime = cds.getPaymentTime(i);
-      final double creditObsTime = cds.getAccEnd(i) + obsOffset;
+      final double creditObsTime = cds.getEffectiveAccEnd(i);
       final double dpdr = yieldCurve.getSingleNodeDiscountFactorSensitivity(paymentTime, yieldCurveNode);
       if (dpdr == 0) {
         continue;
@@ -404,15 +395,16 @@ public class AnalyticCDSPricer {
     }
 
     if (cds.isPayAccOnDefault()) {
-      final double[] integrationSchedule = getIntegrationsPoints(cds.getAccStart(0), cds.getAccEnd(n - 1), yieldCurve, creditCurve);
-      final double offsetStepin = cds.getStepin() + obsOffset;
+      final double[] integrationSchedule = getIntegrationsPoints(cds.getProtectionStart(), cds.getProtectionEnd(), yieldCurve, creditCurve);
+      //  final double offsetStepin = cds.getStepin() + obsOffset;
 
       double accPVSense = 0.0;
       for (int i = 0; i < n; i++) {
-        final double offsetAccStart = cds.getAccStart(i) + obsOffset;
-        final double offsetAccEnd = cds.getAccEnd(i) + obsOffset;
-        final double accRate = cds.getAccrualFraction(i) / (offsetAccEnd - offsetAccStart);
-        accPVSense += calculateSinglePeriodAccrualOnDefaultYieldSensitivity(accRate, offsetStepin, offsetAccStart, offsetAccEnd, integrationSchedule, yieldCurve, creditCurve, yieldCurveNode);
+        //        final double offsetAccStart = cds.getAccStart(i) + obsOffset;
+        //        final double offsetAccEnd = cds.getAccEnd(i) + obsOffset;
+        //        final double accRate = cds.getAccrualFraction(i) / (offsetAccEnd - offsetAccStart);
+        accPVSense += calculateSinglePeriodAccrualOnDefaultYieldSensitivity(cds.getAccRatio(i), cds.getProtectionStart(), cds.getEffectiveAccStart(i), cds.getEffectiveAccEnd(i), integrationSchedule,
+            yieldCurve, creditCurve, yieldCurveNode);
       }
       pvSense += accPVSense;
     }

@@ -52,7 +52,25 @@ public final class ClassUtils {
       }
       loaded.put(className, clazz);
     }
+    
     return clazz;
+  }
+  
+  
+  /**
+   * Simple method to ensure that a class has indeed been fully loaded.
+   * 
+   * The "right" way is cls.getClassLoader().loadClass(cls.getName(), true).
+   * However, this is protected so would need to be called via reflection.
+   * 
+   * @param clazz the class to initialize
+   */
+  public static void initClass(Class<?> clazz) {
+    try {
+      clazz.newInstance();
+    } catch (InstantiationException | IllegalAccessException ex) {
+      //ignore
+    }
   }
 
 }

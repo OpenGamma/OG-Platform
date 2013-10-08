@@ -69,6 +69,8 @@ import com.opengamma.financial.analytics.curve.DeliverableSwapFutureNodeConverte
 import com.opengamma.financial.analytics.curve.DiscountingCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.FRANodeConverter;
 import com.opengamma.financial.analytics.curve.FXForwardNodeConverter;
+import com.opengamma.financial.analytics.curve.IMMFRANodeConverter;
+import com.opengamma.financial.analytics.curve.IMMSwapNodeConverter;
 import com.opengamma.financial.analytics.curve.IborCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.InterpolatedCurveDefinition;
 import com.opengamma.financial.analytics.curve.OvernightCurveTypeConfiguration;
@@ -111,6 +113,21 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
     return new MyCompiledFunctionDefinition(earliestInvokation, latestInvokation, curveNames, exogenousRequirements, curveConstructionConfiguration);
   }
 
+  @Override
+  protected InstrumentDerivativeVisitor<HullWhiteOneFactorProviderInterface, Double> getCalculator() {
+    return PSMQHWC;
+  }
+
+  @Override
+  protected InstrumentDerivativeVisitor<HullWhiteOneFactorProviderInterface, MulticurveSensitivity> getSensitivityCalculator() {
+    return PSMQCSHWC;
+  }
+
+  @Override
+  protected String getCurveTypeProperty() {
+    return HULL_WHITE_DISCOUNTING;
+  }
+
   /**
    * Compiled function implementation.
    */
@@ -133,7 +150,6 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
     }
 
     @Override
-    @SuppressWarnings("synthetic-access")
     protected Pair<HullWhiteOneFactorProviderInterface, CurveBuildingBlockBundle> getCurves(final FunctionInputs inputs, final ZonedDateTime now,
         final HullWhiteProviderDiscountBuildingRepository builder, final HullWhiteOneFactorProviderInterface knownData, final ConventionSource conventionSource,
         final HolidaySource holidaySource, final RegionSource regionSource) {
@@ -271,21 +287,6 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
     }
 
     @Override
-    protected InstrumentDerivativeVisitor<HullWhiteOneFactorProviderInterface, Double> getCalculator() {
-      return PSMQHWC;
-    }
-
-    @Override
-    protected InstrumentDerivativeVisitor<HullWhiteOneFactorProviderInterface, MulticurveSensitivity> getSensitivityCalculator() {
-      return PSMQCSHWC;
-    }
-
-    @Override
-    protected String getCurveTypeProperty() {
-      return HULL_WHITE_DISCOUNTING;
-    }
-
-    @Override
     protected ValueProperties getCurveProperties(final String curveName) {
       return super.getCurveProperties(curveName).copy()
           .withAny(PROPERTY_HULL_WHITE_PARAMETERS)
@@ -357,6 +358,8 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
           .deliverableSwapFutureNode(new DeliverableSwapFutureNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .fraNode(new FRANodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .fxForwardNode(new FXForwardNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
+          .immFRANode(new IMMFRANodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
+          .immSwapNode(new IMMSwapNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .rateFutureNode(new RateFutureNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .swapNode(new SwapNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .create();

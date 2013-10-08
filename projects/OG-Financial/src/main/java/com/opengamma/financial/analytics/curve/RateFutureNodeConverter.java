@@ -112,7 +112,7 @@ public class RateFutureNodeConverter extends CurveNodeVisitorAdapter<InstrumentD
   private InstrumentDefinition<?> getInterestRateFuture(final RateFutureNode rateFuture, final InterestRateFutureConvention futureConvention,
       final Double price) {
     final String expiryCalculatorName = futureConvention.getExpiryConvention().getValue();
-    final IborIndexConvention indexConvention = _conventionSource.getConvention(IborIndexConvention.class, rateFuture.getUnderlyingConvention());
+    final IborIndexConvention indexConvention = _conventionSource.getConvention(IborIndexConvention.class, futureConvention.getIndexConvention());
     if (indexConvention == null) {
       throw new OpenGammaRuntimeException("Underlying convention was null");
     }
@@ -146,7 +146,7 @@ public class RateFutureNodeConverter extends CurveNodeVisitorAdapter<InstrumentD
   private InstrumentDefinition<?> getFederalFundsFuture(final RateFutureNode rateFuture, final FederalFundsFutureConvention futureConvention,
       final Double price) {
     final String expiryCalculatorName = futureConvention.getExpiryConvention().getValue();
-    final OvernightIndexConvention indexConvention = _conventionSource.getConvention(OvernightIndexConvention.class, rateFuture.getUnderlyingConvention());
+    final OvernightIndexConvention indexConvention = _conventionSource.getConvention(OvernightIndexConvention.class, futureConvention.getIndexConvention());
     if (indexConvention == null) {
       throw new OpenGammaRuntimeException("Underlying convention was null");
     }

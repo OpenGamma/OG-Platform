@@ -185,7 +185,7 @@ public class AnnuityDefinitionBuilder {
       coupons[loopcpn] = new CouponIborDefinition(index.getCurrency(), paymentDates[loopcpn], paymentDates[loopcpn - 1], paymentDates[loopcpn],
           dayCount.getDayCountFraction(paymentDates[loopcpn - 1], paymentDates[loopcpn], calendar), sign * notional, fixingDate, index, calendar);
     }
-    return new AnnuityDefinition<CouponIborDefinition>(coupons, calendar);
+    return new AnnuityDefinition<>(coupons, calendar);
   }
 
   /**
@@ -228,7 +228,7 @@ public class AnnuityDefinitionBuilder {
       coupons[loopcpn] = new CouponIborSpreadDefinition(index.getCurrency(), paymentDates[loopcpn], paymentDates[loopcpn - 1], paymentDates[loopcpn],
           dayCount.getDayCountFraction(paymentDates[loopcpn - 1], paymentDates[loopcpn], calendar), sign * notional, fixingDate, index, spread, calendar);
     }
-    return new AnnuityDefinition<CouponIborSpreadDefinition>(coupons, calendar);
+    return new AnnuityDefinition<>(coupons, calendar);
   }
 
   /**
@@ -352,7 +352,7 @@ public class AnnuityDefinitionBuilder {
       coupons[loopcpn] = CouponIborCompoundingDefinition.from(signedNotional, unadjustedDateSchedule[loopcpn - 1], unadjustedDateSchedule[loopcpn], index, stubLeg,
           businessDayConvention, endOfMonth, calendar);
     }
-    return new AnnuityDefinition<CouponIborCompoundingDefinition>(coupons, calendar);
+    return new AnnuityDefinition<>(coupons, calendar);
   }
 
   /**
@@ -390,7 +390,7 @@ public class AnnuityDefinitionBuilder {
       coupons[loopcpn] = CouponIborCompoundingSpreadDefinition.from(signedNotional, unadjustedDateSchedule[loopcpn - 1], unadjustedDateSchedule[loopcpn], index, spread, stubLeg,
           businessDayConvention, endOfMonth, calendar);
     }
-    return new AnnuityDefinition<CouponIborCompoundingSpreadDefinition>(coupons, calendar);
+    return new AnnuityDefinition<>(coupons, calendar);
   }
 
   /**
@@ -428,7 +428,7 @@ public class AnnuityDefinitionBuilder {
       coupons[loopcpn] = CouponIborCompoundingFlatSpreadDefinition.from(signedNotional, unadjustedDateSchedule[loopcpn - 1], unadjustedDateSchedule[loopcpn], index, spread, stubLeg,
           businessDayConvention, endOfMonth, calendar);
     }
-    return new AnnuityDefinition<CouponIborCompoundingFlatSpreadDefinition>(coupons, calendar);
+    return new AnnuityDefinition<>(coupons, calendar);
   }
 
 }

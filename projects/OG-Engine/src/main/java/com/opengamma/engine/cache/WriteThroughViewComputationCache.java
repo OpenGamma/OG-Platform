@@ -89,6 +89,22 @@ public class WriteThroughViewComputationCache implements ViewComputationCache {
       return existing;
     }
   }
+  
+  /**
+   * This method will clear all instances of this class. It should be called after
+   * confirming with OpenGamma support that it is necessary to handle certain
+   * memory situations regarding custom View Processor configurations.
+   */
+  public static void clearAllWriteThroughCaches() {
+    for (WriteThroughViewComputationCache cache : s_instances.values()) {
+      cache.clear();
+    }
+    s_instances.clear();
+  }
+  
+  public void clear() {
+    _readCache.clear();
+  }
 
   protected ViewComputationCache getUnderlying() {
     return _underlying;

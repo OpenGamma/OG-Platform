@@ -44,10 +44,9 @@ public class FXForwardCurveDefinitionFudgeBuilder implements FudgeBuilder<FXForw
     final List<FudgeField> tenorFields = message.getAllByName("tenor");
     final List<Tenor> tenors = new ArrayList<Tenor>();
     for (final FudgeField tenorField : tenorFields) {
-      final Tenor tenor = deserializer.fieldValueToObject(Tenor.class, tenorField);
-      tenors.add(tenor);
+      tenors.add(deserializer.fieldValueToObject(Tenor.class, tenorField));
     }
-    return new FXForwardCurveDefinition(name, target, tenors.toArray(new Tenor[0]));
+    return FXForwardCurveDefinition.of(name, target, tenors);
   }
 
 }

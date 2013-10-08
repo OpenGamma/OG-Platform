@@ -162,7 +162,7 @@ public class MarketDataSelectionGraphManipulatorTest {
   }
 
   private DistinctMarketDataSelector createYieldCurveSelector(Currency currency, String curveType) {
-    return YieldCurveSelector.of(new YieldCurveKey(currency, curveType));
+    return YieldCurveSelector.of(YieldCurveKey.of(currency, curveType));
   }
 
   private void checkNodeHasBeenAddedToGraph(DependencyGraph graph,

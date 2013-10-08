@@ -11,6 +11,7 @@ import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
 import static com.opengamma.lambdava.streams.Lambdava.newArray;
 import static com.opengamma.util.db.HibernateDbUtils.eqOrIsNull;
+import static org.apache.commons.lang.StringUtils.defaultString;
 
 import java.io.Serializable;
 import java.sql.SQLException;
@@ -1322,6 +1323,11 @@ public class DbBatchWriter extends AbstractDbMaster {
     String exceptionClass = rootLog != null ? rootLog.getExecutionLog().getExceptionClass() : null;
     String exceptionMessage = rootLog != null ? rootLog.getExecutionLog().getExceptionMessage() : null;
     String exceptionStackTrace = rootLog != null ? rootLog.getExecutionLog().getExceptionStackTrace() : null;
+    //ensure we don't end up with null going into the ComputeFailureKey for these strings.
+    //this will probably be due to the fact that the rootLog was null.
+    exceptionClass = defaultString(exceptionClass, "No logging information available");
+    exceptionMessage = defaultString(exceptionMessage, "No logging information available");
+    exceptionStackTrace = defaultString(exceptionStackTrace, "No logging information available");
     ComputeFailureKey computeFailureKey = new ComputeFailureKey(item.getComputedValue().getSpecification().getFunctionUniqueId(), exceptionClass, exceptionMessage, exceptionStackTrace);
     return getComputeFailureFromDb(computeFailureCache, computeFailureKey);
   }

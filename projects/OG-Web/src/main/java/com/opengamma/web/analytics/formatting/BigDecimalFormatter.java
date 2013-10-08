@@ -113,6 +113,7 @@ import com.opengamma.web.server.conversion.DoubleValueSizeBasedDecimalPlaceForma
     s_formatters.put(ValueRequirementNames.FORWARD_VANNA, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
     s_formatters.put(ValueRequirementNames.FORWARD_VOMMA, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
     s_formatters.put(ValueRequirementNames.IMPLIED_VOLATILITY, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
+    s_formatters.put(ValueRequirementNames.DRIFTLESS_THETA, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
 
     // Position/value greeks
     addBulkConversion("(POSITION_|VALUE_).*", DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);

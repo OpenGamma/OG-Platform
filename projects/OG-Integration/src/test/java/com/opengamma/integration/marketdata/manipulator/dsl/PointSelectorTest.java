@@ -42,7 +42,7 @@ public class PointSelectorTest {
   public void structureType() {
     PointSelector selector = builder().getSelector(); // will match any ExternalId
     assertNotNull(selector.findMatchingSelector(_structureId, "default", _noOpResolver));
-    StructureIdentifier<YieldCurveKey> structureId = StructureIdentifier.of(new YieldCurveKey(Currency.GBP, "a curve"));
+    StructureIdentifier<YieldCurveKey> structureId = StructureIdentifier.of(YieldCurveKey.of(Currency.GBP, "a curve"));
     assertNull(selector.findMatchingSelector(structureId, "default", _noOpResolver));
   }
 

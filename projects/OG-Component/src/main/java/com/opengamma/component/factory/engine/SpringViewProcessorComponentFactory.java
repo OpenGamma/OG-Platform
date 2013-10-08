@@ -20,6 +20,7 @@ import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.context.support.GenericApplicationContext;
 
 import com.opengamma.component.ComponentInfo;
@@ -188,9 +189,13 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
    * @param appContext the Spring application context, not null
    */
   protected void initCalcNodeSocketConfiguration(final ComponentRepository repo, final GenericApplicationContext appContext) {
-    final CalcNodeSocketConfiguration calcNodeSocketConfig = appContext.getBean(CalcNodeSocketConfiguration.class);
-    final ComponentInfo info = new ComponentInfo(CalcNodeSocketConfiguration.class, getClassifier());
-    repo.registerComponent(info, calcNodeSocketConfig);
+    try {
+      final CalcNodeSocketConfiguration calcNodeSocketConfig = appContext.getBean(CalcNodeSocketConfiguration.class);
+      final ComponentInfo info = new ComponentInfo(CalcNodeSocketConfiguration.class, getClassifier());
+      repo.registerComponent(info, calcNodeSocketConfig);
+    } catch (NoSuchBeanDefinitionException e) {
+      repo.getLogger().logInfo("No CalcNodeSocketConfiguration found; external calc nodes not supported.");
+    }
   }
 
   /**

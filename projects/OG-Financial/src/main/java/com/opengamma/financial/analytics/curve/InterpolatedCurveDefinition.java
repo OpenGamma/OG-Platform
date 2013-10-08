@@ -27,7 +27,7 @@ import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
  * must be provided, but the left and right extrapolation methods are optional.
  */
 @BeanDefinition
-@Config
+@Config(description = "Interpolated curve definition")
 public class InterpolatedCurveDefinition extends CurveDefinition {
 
   /** Serialization version */

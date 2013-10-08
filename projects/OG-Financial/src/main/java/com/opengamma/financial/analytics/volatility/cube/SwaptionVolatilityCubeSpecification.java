@@ -14,7 +14,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-@Config
+@Config(description = "Swaption volatility cube specification")
 public class SwaptionVolatilityCubeSpecification {
   private final CubeInstrumentProvider<?, ?, ?> _cubeInstrumentProvider;
   private final String _name;

@@ -44,7 +44,7 @@ public class UserMarketDataSnapshotTest {
 
   private UnstructuredMarketDataSnapshot generateUnstructured(final ExternalId testValueId, final Double marketValue) {
     final ManageableUnstructuredMarketDataSnapshot values = new ManageableUnstructuredMarketDataSnapshot();
-    values.putValue(testValueId, MarketDataRequirementNames.MARKET_VALUE, new ValueSnapshot(marketValue));
+    values.putValue(testValueId, MarketDataRequirementNames.MARKET_VALUE, ValueSnapshot.of(marketValue));
     return values;
   }
 
@@ -58,7 +58,7 @@ public class UserMarketDataSnapshotTest {
     userSnapshot.init();
     final YieldCurveSnapshot yieldCurveSnapshot = mock(YieldCurveSnapshot.class);
     when(yieldCurveSnapshot.getValues()).thenReturn(generateUnstructured(testValueId, 123d));
-    final Map<YieldCurveKey, YieldCurveSnapshot> yieldCurveMap = ImmutableMap.of(new YieldCurveKey(Currency.USD, "testCurve"), yieldCurveSnapshot);
+    final Map<YieldCurveKey, YieldCurveSnapshot> yieldCurveMap = ImmutableMap.of(YieldCurveKey.of(Currency.USD, "testCurve"), yieldCurveSnapshot);
     when(snapshot.getYieldCurves()).thenReturn(yieldCurveMap);
     return userSnapshot;
   }

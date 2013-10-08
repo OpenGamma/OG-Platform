@@ -45,6 +45,7 @@ import com.opengamma.financial.analytics.ircurve.strips.CurveNodeVisitor;
 import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
+import com.opengamma.financial.view.ConfigDocumentWatchSetProvider;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
@@ -71,6 +72,11 @@ public class FXMatrixFunction extends AbstractFunction {
    */
   public String getConfigurationName() {
     return _configurationName;
+  }
+
+  @Override
+  public void init(final FunctionCompilationContext context) {
+    ConfigDocumentWatchSetProvider.reinitOnChanges(context, this, CurveConstructionConfiguration.class);
   }
 
   @Override

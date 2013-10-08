@@ -51,6 +51,7 @@
     snp_snapshot main
     INNER JOIN cte_docs ON main.id = cte_docs.id
   ORDER BY
+    main.@INCLUDE(:sort_order),
     main.id
 
 
@@ -63,6 +64,7 @@
       snp_snapshot
     @INCLUDE(SearchWhere)
     ORDER BY
+      @INCLUDE(:sort_order),
       snp_snapshot.id
 
 

@@ -32,8 +32,8 @@ import com.opengamma.util.time.Tenor;
 /**
  * 
  */
+@Config(description = "Volatility cube definition")
 @BeanDefinition
-@Config
 public class VolatilityCubeDefinition extends DirectBean implements UniqueIdentifiable, MutableUniqueIdentifiable {
 
   /**

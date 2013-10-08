@@ -62,11 +62,8 @@ public class RateFutureNode extends CurveNode {
   private ExternalId _futureConvention;
 
   /**
-   * The underlying convention.
+   * For the builder.
    */
-  @PropertyDefinition(validate = "notNull")
-  private ExternalId _underlyingConvention;
-
   /* package */ RateFutureNode() {
     super();
   }
@@ -77,11 +74,10 @@ public class RateFutureNode extends CurveNode {
    * @param futureTenor The future tenor, not null
    * @param underlyingTenor The underlying tenor, not null
    * @param futureConvention The future convention, not null
-   * @param underlyingConvention The underlying convention, not null
    * @param curveNodeIdMapperName The curve node id mapper name, not null
    */
   public RateFutureNode(final int futureNumber, final Tenor startTenor, final Tenor futureTenor, final Tenor underlyingTenor, final ExternalId futureConvention,
-      final ExternalId underlyingConvention, final String curveNodeIdMapperName) {
+      final String curveNodeIdMapperName) {
     super(curveNodeIdMapperName);
     ArgumentChecker.notNegativeOrZero(futureNumber, "future number");
     setFutureNumber(futureNumber);
@@ -89,7 +85,6 @@ public class RateFutureNode extends CurveNode {
     setFutureTenor(futureTenor);
     setUnderlyingTenor(underlyingTenor);
     setFutureConvention(futureConvention);
-    setUnderlyingConvention(underlyingConvention);
   }
 
   /**
@@ -98,12 +93,11 @@ public class RateFutureNode extends CurveNode {
    * @param futureTenor The future tenor, not null
    * @param underlyingTenor The underlying tenor, not null
    * @param futureConvention The future convention, not null
-   * @param underlyingConvention The underlying convention, not null
    * @param curveNodeIdMapperName The curve node id mapper name, not null
    * @param name The name
    */
   public RateFutureNode(final int futureNumber, final Tenor startTenor, final Tenor futureTenor, final Tenor underlyingTenor, final ExternalId futureConvention,
-      final ExternalId underlyingConvention, final String curveNodeIdMapperName, final String name) {
+      final String curveNodeIdMapperName, final String name) {
     super(curveNodeIdMapperName, name);
     ArgumentChecker.notNegativeOrZero(futureNumber, "future number");
     setFutureNumber(futureNumber);
@@ -111,7 +105,6 @@ public class RateFutureNode extends CurveNode {
     setFutureTenor(futureTenor);
     setUnderlyingTenor(underlyingTenor);
     setFutureConvention(futureConvention);
-    setUnderlyingConvention(underlyingConvention);
   }
 
   @Override
@@ -275,32 +268,6 @@ public class RateFutureNode extends CurveNode {
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Gets the underlying convention.
-   * @return the value of the property, not null
-   */
-  public ExternalId getUnderlyingConvention() {
-    return _underlyingConvention;
-  }
-
-  /**
-   * Sets the underlying convention.
-   * @param underlyingConvention  the new value of the property, not null
-   */
-  public void setUnderlyingConvention(ExternalId underlyingConvention) {
-    JodaBeanUtils.notNull(underlyingConvention, "underlyingConvention");
-    this._underlyingConvention = underlyingConvention;
-  }
-
-  /**
-   * Gets the the {@code underlyingConvention} property.
-   * @return the property, not null
-   */
-  public final Property<ExternalId> underlyingConvention() {
-    return metaBean().underlyingConvention().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
   @Override
   public RateFutureNode clone() {
     return (RateFutureNode) super.clone();
@@ -318,7 +285,6 @@ public class RateFutureNode extends CurveNode {
           JodaBeanUtils.equal(getFutureTenor(), other.getFutureTenor()) &&
           JodaBeanUtils.equal(getUnderlyingTenor(), other.getUnderlyingTenor()) &&
           JodaBeanUtils.equal(getFutureConvention(), other.getFutureConvention()) &&
-          JodaBeanUtils.equal(getUnderlyingConvention(), other.getUnderlyingConvention()) &&
           super.equals(obj);
     }
     return false;
@@ -332,13 +298,12 @@ public class RateFutureNode extends CurveNode {
     hash += hash * 31 + JodaBeanUtils.hashCode(getFutureTenor());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingTenor());
     hash += hash * 31 + JodaBeanUtils.hashCode(getFutureConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingConvention());
     return hash ^ super.hashCode();
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(224);
+    StringBuilder buf = new StringBuilder(192);
     buf.append("RateFutureNode{");
     int len = buf.length();
     toString(buf);
@@ -357,7 +322,6 @@ public class RateFutureNode extends CurveNode {
     buf.append("futureTenor").append('=').append(getFutureTenor()).append(',').append(' ');
     buf.append("underlyingTenor").append('=').append(getUnderlyingTenor()).append(',').append(' ');
     buf.append("futureConvention").append('=').append(getFutureConvention()).append(',').append(' ');
-    buf.append("underlyingConvention").append('=').append(getUnderlyingConvention()).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -396,11 +360,6 @@ public class RateFutureNode extends CurveNode {
     private final MetaProperty<ExternalId> _futureConvention = DirectMetaProperty.ofReadWrite(
         this, "futureConvention", RateFutureNode.class, ExternalId.class);
     /**
-     * The meta-property for the {@code underlyingConvention} property.
-     */
-    private final MetaProperty<ExternalId> _underlyingConvention = DirectMetaProperty.ofReadWrite(
-        this, "underlyingConvention", RateFutureNode.class, ExternalId.class);
-    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -409,8 +368,7 @@ public class RateFutureNode extends CurveNode {
         "startTenor",
         "futureTenor",
         "underlyingTenor",
-        "futureConvention",
-        "underlyingConvention");
+        "futureConvention");
 
     /**
      * Restricted constructor.
@@ -431,8 +389,6 @@ public class RateFutureNode extends CurveNode {
           return _underlyingTenor;
         case 1736486292:  // futureConvention
           return _futureConvention;
-        case -268325202:  // underlyingConvention
-          return _underlyingConvention;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -493,14 +449,6 @@ public class RateFutureNode extends CurveNode {
       return _futureConvention;
     }
 
-    /**
-     * The meta-property for the {@code underlyingConvention} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<ExternalId> underlyingConvention() {
-      return _underlyingConvention;
-    }
-
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -515,8 +463,6 @@ public class RateFutureNode extends CurveNode {
           return ((RateFutureNode) bean).getUnderlyingTenor();
         case 1736486292:  // futureConvention
           return ((RateFutureNode) bean).getFutureConvention();
-        case -268325202:  // underlyingConvention
-          return ((RateFutureNode) bean).getUnderlyingConvention();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -539,9 +485,6 @@ public class RateFutureNode extends CurveNode {
         case 1736486292:  // futureConvention
           ((RateFutureNode) bean).setFutureConvention((ExternalId) newValue);
           return;
-        case -268325202:  // underlyingConvention
-          ((RateFutureNode) bean).setUnderlyingConvention((ExternalId) newValue);
-          return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
     }
@@ -552,7 +495,6 @@ public class RateFutureNode extends CurveNode {
       JodaBeanUtils.notNull(((RateFutureNode) bean)._futureTenor, "futureTenor");
       JodaBeanUtils.notNull(((RateFutureNode) bean)._underlyingTenor, "underlyingTenor");
       JodaBeanUtils.notNull(((RateFutureNode) bean)._futureConvention, "futureConvention");
-      JodaBeanUtils.notNull(((RateFutureNode) bean)._underlyingConvention, "underlyingConvention");
       super.validate(bean);
     }
 

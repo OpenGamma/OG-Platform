@@ -58,13 +58,11 @@ public class StaticCurveInstrumentProvider implements CurveInstrumentProvider {
   @Override
   public ExternalId getInstrument(final LocalDate curveDate, final Tenor tenor, final int numQuarterlyFuturesFromTenor) {
     return _identifier;
-//    throw new OpenGammaRuntimeException("Futures not supported by this class");
   }
 
   @Override
   public ExternalId getInstrument(final LocalDate curveDate, final Tenor startTenor, final Tenor futureTenor, final int numFutureFromTenor) {
     return _identifier;
-//    throw new OpenGammaRuntimeException("Futures not supported by this class");
   }
 
   @Override
@@ -83,6 +81,11 @@ public class StaticCurveInstrumentProvider implements CurveInstrumentProvider {
 
   @Override
   public ExternalId getInstrument(final LocalDate curveDate, final Tenor tenor, final Tenor resetTenor, final IndexType indexType) {
+    return _identifier;
+  }
+
+  @Override
+  public ExternalId getInstrument(final LocalDate curveDate, final Tenor startTenor, final int startIMMPeriods, final int endIMMPeriods) {
     return _identifier;
   }
 

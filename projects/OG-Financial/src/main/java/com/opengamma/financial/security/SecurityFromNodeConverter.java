@@ -325,7 +325,7 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
     }
     //return AnnuityCouponIborDefinition.from(startDate, maturityTenor, 1, iborIndex, isPayer, calendar);
     return Pair.of(new FloatingInterestRateLeg(dayCount,
-                                               PeriodFrequency.of(maturityTenor),
+                                               PeriodFrequency.of(convention.getResetTenor().getPeriod()),
                                                indexConvention.getRegionCalendar(),
                                                businessDayConvention,
                                                new InterestRateNotional(currency, _amount),
@@ -376,7 +376,7 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
     }
     //return AnnuityCouponONSimplifiedDefinition.from(startDate, maturityTenor, 1, isPayer, indexON, paymentLag, calendar, businessDayConvention, paymentPeriod, eomLeg);
     return Pair.of(new FloatingInterestRateLeg(dayCount,
-                                               PeriodFrequency.of(maturityTenor),
+                                               PeriodFrequency.of(paymentPeriod),
                                                indexConvention.getRegionCalendar(),
                                                businessDayConvention,
                                                new InterestRateNotional(currency, _amount),
@@ -495,7 +495,7 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
   private InterestRateFutureSecurity getInterestRateFuture(final RateFutureNode rateFuture, final InterestRateFutureConvention futureConvention,
                                                            final Double price) {
     final String expiryCalculatorName = futureConvention.getExpiryConvention().getValue();
-    final IborIndexConvention indexConvention = _conventionSource.getConvention(IborIndexConvention.class, rateFuture.getUnderlyingConvention());
+    final IborIndexConvention indexConvention = _conventionSource.getConvention(IborIndexConvention.class, futureConvention.getIndexConvention());
     if (indexConvention == null) {
       throw new OpenGammaRuntimeException("Underlying convention was null");
     }
@@ -534,7 +534,7 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
   private FederalFundsFutureSecurity getFederalFundsFuture(final RateFutureNode rateFuture, final FederalFundsFutureConvention futureConvention,
                                                            final Double price) {
     final String expiryCalculatorName = futureConvention.getExpiryConvention().getValue();
-    final OvernightIndexConvention indexConvention = _conventionSource.getConvention(OvernightIndexConvention.class, rateFuture.getUnderlyingConvention());
+    final OvernightIndexConvention indexConvention = _conventionSource.getConvention(OvernightIndexConvention.class, futureConvention.getIndexConvention());
     if (indexConvention == null) {
       throw new OpenGammaRuntimeException("Underlying convention was null");
     }

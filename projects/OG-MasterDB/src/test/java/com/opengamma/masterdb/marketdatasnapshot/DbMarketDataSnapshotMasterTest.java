@@ -104,20 +104,18 @@ public class DbMarketDataSnapshotMasterTest extends AbstractDbTest {
     final ExternalIdBundle specA = ExternalId.of("XXX", "AAA").toBundle();
     final ExternalIdBundle specB = ExternalIdBundle.of(ExternalId.of("XXX", "B1"), ExternalId.of("XXX", "B2"));
 
-    globalValues.putValue(specA, "X", new ValueSnapshot(Double.valueOf(12), null));
-    globalValues.putValue(specA, "Y", new ValueSnapshot(Double.valueOf(1), null));
-    globalValues.putValue(specA, "Z", new ValueSnapshot(null, null));
-    globalValues.putValue(specB, "X", new ValueSnapshot(Double.valueOf(12), Double.valueOf(11)));
+    globalValues.putValue(specA, "X", ValueSnapshot.of(Double.valueOf(12), null));
+    globalValues.putValue(specA, "Y", ValueSnapshot.of(Double.valueOf(1), null));
+    globalValues.putValue(specA, "Z", ValueSnapshot.of(null, null));
+    globalValues.putValue(specB, "X", ValueSnapshot.of(Double.valueOf(12), Double.valueOf(11)));
 
-    final ManageableYieldCurveSnapshot manageableYieldCurveSnapshot = new ManageableYieldCurveSnapshot();
-    manageableYieldCurveSnapshot.setValuationTime(Instant.now());
-    manageableYieldCurveSnapshot.setValues(globalValues);
-    yieldCurves.put(new YieldCurveKey(Currency.GBP, "Default"), manageableYieldCurveSnapshot);
+    final ManageableYieldCurveSnapshot manageableYieldCurveSnapshot = ManageableYieldCurveSnapshot.of(Instant.now(), globalValues);
+    yieldCurves.put(YieldCurveKey.of(Currency.GBP, "Default"), manageableYieldCurveSnapshot);
 
     snapshot1.setYieldCurves(yieldCurves);
 
     final HashMap<Pair<Tenor, Tenor>, ValueSnapshot> strikes = new HashMap<Pair<Tenor, Tenor>, ValueSnapshot>();
-    strikes.put(Pair.of(Tenor.DAY, Tenor.WORKING_WEEK), new ValueSnapshot(12.0, 12.0));
+    strikes.put(Pair.of(Tenor.DAY, Tenor.WORKING_WEEK), ValueSnapshot.of(12.0, 12.0));
     strikes.put(Pair.of(Tenor.DAY, Tenor.WORKING_WEEK), null);
 
     final HashMap<VolatilityCubeKey, VolatilityCubeSnapshot> volCubes = new HashMap<VolatilityCubeKey, VolatilityCubeSnapshot>();
@@ -126,9 +124,9 @@ public class DbMarketDataSnapshotMasterTest extends AbstractDbTest {
     volCube.setOtherValues(globalValues);
     volCube.setValues(new HashMap<VolatilityPoint, ValueSnapshot>());
     volCube.setStrikes(strikes);
-    volCube.getValues().put(new VolatilityPoint(Tenor.DAY, Tenor.YEAR, -1), new ValueSnapshot(null, null));
+    volCube.getValues().put(new VolatilityPoint(Tenor.DAY, Tenor.YEAR, -1), ValueSnapshot.of(null, null));
 
-    volCubes.put(new VolatilityCubeKey(Currency.USD, "Default"), volCube);
+    volCubes.put(VolatilityCubeKey.of(Currency.USD, "Default"), volCube);
     snapshot1.setVolatilityCubes(volCubes);
 
     MarketDataSnapshotDocument doc1 = new MarketDataSnapshotDocument(snapshot1);

@@ -33,8 +33,8 @@ import com.opengamma.util.time.Tenor;
 /**
  * Config object that contains parameters for the Hull-White one factor model.
  */
+@Config(description = "Hull-White one factor parameters")
 @BeanDefinition
-@Config
 public class HullWhiteOneFactorParameters extends DirectBean implements Serializable, UniqueIdentifiable, MutableUniqueIdentifiable {
 
   /** Serialization version. */

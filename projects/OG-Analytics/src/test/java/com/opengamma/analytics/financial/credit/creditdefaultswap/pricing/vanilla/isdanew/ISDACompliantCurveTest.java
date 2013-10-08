@@ -284,6 +284,25 @@ public class ISDACompliantCurveTest {
         assertEquals("r " + time, r1, r2, 1e-15);
       }
     }
+  }
+
+  @Test
+  public void forwardRateTest() {
+    final double[] t = new double[] {0.1, 0.2, 0.5, 0.7, 1.0, 2.0, 3.0, 7.0, 10.0 };
+    final double[] r = new double[] {0.04, 0.08, 0.07, 0.12, 0.12, 0.13, 0.12, 0.1, 0.09 };
+
+    final ISDACompliantCurve c1 = new ISDACompliantCurve(t, r);
+
+    final double eps = 1e-5;
+    for (int i = 1; i < 241; i++) {
+      final double time = eps + i * 0.05;
+      final double f = c1.getForwardRate(time);
+      final double rtUp = c1.getRT(time + eps);
+      final double rtDown = c1.getRT(time - eps);
+      final double fd = (rtUp - rtDown) / 2 / eps;
+      //  System.out.println(time + "\t" + f + "\t" + fd);
+      assertEquals(fd, f, 1e-10);
+    }
 
   }
 

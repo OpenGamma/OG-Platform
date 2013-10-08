@@ -89,13 +89,14 @@ public abstract class AbstractWebBundleResource extends AbstractPerRequestWebRes
   //-------------------------------------------------------------------------
   /**
    * Creates the output root data.
-   * 
+   * @param userName logged in user name
    * @return the output root data, not null
    */
-  protected FlexiBean createRootData() {
+  protected FlexiBean createRootData(String userName) {
     FlexiBean out = getFreemarker().createRootData();
     out.put("ogStyle", new StyleTag(data()));
     out.put("ogScript", new ScriptTag(data()));
+    out.put("ogUserName", userName);
     HttpHeaders httpHeaders = data().getHttpHeaders();
     String openfin = StringUtils.EMPTY;
     if (httpHeaders != null) {

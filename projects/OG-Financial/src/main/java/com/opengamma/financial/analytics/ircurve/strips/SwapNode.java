@@ -58,7 +58,7 @@ public class SwapNode extends CurveNode {
   /**
    * Whether to use fixings when constructing the swap
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private boolean _useFixings;
 
   /**
@@ -142,7 +142,7 @@ public class SwapNode extends CurveNode {
 
   @Override
   public Tenor getResolvedMaturity() {
-    return Tenor.of(_startTenor.getPeriod().plus(_maturityTenor.getPeriod())); //_maturityTenor;
+    return Tenor.of(_startTenor.getPeriod().plus(_maturityTenor.getPeriod()));
   }
 
   @Override
@@ -277,7 +277,7 @@ public class SwapNode extends CurveNode {
   //-----------------------------------------------------------------------
   /**
    * Gets whether to use fixings when constructing the swap
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public boolean isUseFixings() {
     return _useFixings;
@@ -285,10 +285,9 @@ public class SwapNode extends CurveNode {
 
   /**
    * Sets whether to use fixings when constructing the swap
-   * @param useFixings  the new value of the property, not null
+   * @param useFixings  the new value of the property
    */
   public void setUseFixings(boolean useFixings) {
-    JodaBeanUtils.notNull(useFixings, "useFixings");
     this._useFixings = useFixings;
   }
 
@@ -528,7 +527,6 @@ public class SwapNode extends CurveNode {
       JodaBeanUtils.notNull(((SwapNode) bean)._maturityTenor, "maturityTenor");
       JodaBeanUtils.notNull(((SwapNode) bean)._payLegConvention, "payLegConvention");
       JodaBeanUtils.notNull(((SwapNode) bean)._receiveLegConvention, "receiveLegConvention");
-      JodaBeanUtils.notNull(((SwapNode) bean)._useFixings, "useFixings");
       super.validate(bean);
     }
 

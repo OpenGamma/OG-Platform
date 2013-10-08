@@ -412,7 +412,7 @@
     <fragment>/scripts/og/analytics/og.analytics.form.filtersmenu.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.form.dropmenu.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.status.js</fragment>
-    <fragment>/scripts/og/analytics/og.analytics.form2.js</fragment>
+    <fragment>/scripts/og/analytics/og.analytics.form.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.containers.js</fragment>
   </bundle>
   <bundle id="blotter.js">

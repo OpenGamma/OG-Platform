@@ -7,14 +7,16 @@ package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanil
 
 import java.util.Arrays;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.NotImplementedException;
 
+import com.opengamma.analytics.math.curve.DoublesCurve;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * A yield or hazard curve values between nodes are linearly interpolated from t*r points (where t is time and r is the zero rate)
  */
-public class ISDACompliantCurve {
+public class ISDACompliantCurve extends DoublesCurve {
 
   private final int _n; // number of knots in curve
 
@@ -154,7 +156,7 @@ public class ISDACompliantCurve {
     _offsetRT = offsetRT;
   }
 
-  protected double[] getKnotTimes() {
+  public double[] getKnotTimes() {
     final double[] res = new double[_n];
     System.arraycopy(_t, 0, res, 0, _n);
     return res;
@@ -231,7 +233,7 @@ public class ISDACompliantCurve {
    * @return value
    */
   public double getRT(final double t) {
-    ArgumentChecker.isTrue(t >= 0, "require t >= 0.0");
+    ArgumentChecker.isTrue(t >= 0, "require t >= 0.0, was " + t);
 
     // short-cut doing binary search
     if (t <= _t[0]) {
@@ -262,6 +264,38 @@ public class ISDACompliantCurve {
     final double t2 = _t[insertionPoint];
     final double dt = t2 - t1;
     return ((t2 - t) * _rt[insertionPoint - 1] + (t - t1) * _rt[insertionPoint]) / dt + _offsetRT;
+  }
+
+  public double getForwardRate(final double t) {
+    // short-cut doing binary search
+    if (t <= _t[0]) {
+      return _r[0];
+    }
+    if (t > _t[_n - 1]) {
+      return getForwardRate(_n - 1); //linear extrapolation 
+    }
+
+    final int index = Arrays.binarySearch(_t, t);
+    if (index >= 0) {
+      //Strictly, the forward rate is undefined at the nodes - this defined the value at the node to be that infinitesimally before 
+      return getForwardRate(index);
+    }
+    final int insertionPoint = -(1 + index);
+    return getForwardRate(insertionPoint);
+  }
+
+  //TODO could cache these values
+  private double getForwardRate(final int insertionPoint) {
+    if (insertionPoint == 0) {
+      return _r[0];
+    }
+    if (insertionPoint == _n) {
+      return getForwardRate(insertionPoint - 1);
+    }
+    final double t1 = _t[insertionPoint - 1];
+    final double t2 = _t[insertionPoint];
+    final double dt = t2 - t1;
+    return (_rt[insertionPoint] - _rt[insertionPoint - 1]) / dt; // _offsetRT;    
   }
 
   /**
@@ -434,11 +468,18 @@ public class ISDACompliantCurve {
     System.arraycopy(_r, 0, r, 0, _n);
     System.arraycopy(_rt, 0, rt, 0, _n);
     System.arraycopy(_df, 0, df, 0, _n);
-    r[index] = rate;
 
+    r[index] = rate;
     rt[index] = rate * (t[index] - _offsetTime);
     df[index] = Math.exp(-rt[index] - _offsetRT);
     return new ISDACompliantCurve(t, r, rt, df, _offsetTime, _offsetRT);
+  }
+
+  public void setRate(final double rate, final int index) {
+    ArgumentChecker.isTrue(index >= 0 && index < _n, "index out of range");
+    _r[index] = rate;
+    _rt[index] = rate * (_t[index] - _offsetTime);
+    _df[index] = Math.exp(-_rt[index] - _offsetRT);
   }
 
   /**
@@ -541,5 +582,38 @@ public class ISDACompliantCurve {
     temp = Double.doubleToLongBits(_offsetRT);
     result = 31 * result + (int) (temp ^ (temp >>> 32));
     return result;
+  }
+
+  @Override
+  public Double[] getYValueParameterSensitivity(final Double x) {
+    return ArrayUtils.toObject(getNodeSensitivity(x));
+  }
+
+  @Override
+  public double getDyDx(final double x) {
+    if (x <= _t[0]) {
+      return 0.0;
+    }
+    return (getForwardRate(x) - getZeroRate(x)) / x;
+  }
+
+  @Override
+  public Double[] getXData() {
+    return ArrayUtils.toObject(_t);
+  }
+
+  @Override
+  public Double[] getYData() {
+    return ArrayUtils.toObject(_r);
+  }
+
+  @Override
+  public int size() {
+    return _n;
+  }
+
+  @Override
+  public Double getYValue(final Double x) {
+    return getZeroRate(x);
   }
 }

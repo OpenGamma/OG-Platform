@@ -88,7 +88,7 @@ public class SimulationTool extends AbstractTool<ToolContext> {
     Map<String, Object> paramValues;
     if (getCommandLine().hasOption(PARAMETER_SCRIPT_OPTION)) {
       String paramScript = getCommandLine().getOptionValue(PARAMETER_SCRIPT_OPTION);
-      ScenarioDslParameters params = new ScenarioDslParameters(FileUtils.readFileToString(new File(paramScript)));
+      ScenarioDslParameters params = ScenarioDslParameters.of(FileUtils.readFileToString(new File(paramScript)));
       paramValues = params.getParameters();
     } else {
       paramValues = null;

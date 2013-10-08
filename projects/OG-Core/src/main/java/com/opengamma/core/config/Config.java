@@ -16,11 +16,19 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.TYPE })
 public @interface Config {
-  
+
   /**
    * The class type to use for searching for the configuration item in a {@link ConfigMaster}.
    * <p>
    * Optional search type when it is different from base class
    */
   Class<?> searchType() default Object.class;
+
+  /**
+   * A short description of the configuration to be used in GUIs.
+   * <p>
+   * This is typically an expansion of the class name.
+   */
+  String description() default "";
+
 }

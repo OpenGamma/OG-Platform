@@ -88,7 +88,6 @@ public class ZeroCouponInflationNodeConverter extends CurveNodeVisitorAdapter<In
     _timeSeries = timeSeries;
   }
 
-  @SuppressWarnings({"synthetic-access" })
   @Override
   public InstrumentDefinition<?> visitZeroCouponInflationNode(final ZeroCouponInflationNode inflationNode) {
     final Double rate = _marketData.getDataPoint(_dataId);
