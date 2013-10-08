@@ -79,8 +79,11 @@ public class DataBatchMasterResourceTest extends AbstractFudgeBuilderTestCase {
   public void testSearch() throws Exception {
     BatchRunSearchRequest batchRunSearchRequest = new BatchRunSearchRequest();
     
-    FudgeResponse entity = (FudgeResponse) batchMasterResource.searchBatchRuns(batchRunSearchRequest).getEntity();
-    Pair<List<RiskRun>, Paging> result = (Pair<List<RiskRun>, Paging>) entity.getValue();
+    Object entity = batchMasterResource.searchBatchRuns(batchRunSearchRequest).getEntity();
+    if (entity instanceof FudgeResponse) {
+      entity = ((FudgeResponse) entity).getValue();
+    }
+    Pair<List<RiskRun>, Paging> result = (Pair<List<RiskRun>, Paging>) entity;
     
     assertTrue(result.getFirst().size() > 0);
     RiskRun run = result.getFirst().get(0);
@@ -134,8 +137,11 @@ public class DataBatchMasterResourceTest extends AbstractFudgeBuilderTestCase {
       
     when(batchMaster.getMarketData((PagingRequest) any())).thenReturn(Pair.of(marketDataList, paging));
     
-    FudgeResponse entity = (FudgeResponse) batchMasterResource.searchMarketData(pagingRequest).getEntity();
-    Pair<List<MarketData>, Paging> response = (Pair<List<MarketData>, Paging>) entity.getValue();
+    Object entity = batchMasterResource.searchMarketData(pagingRequest).getEntity();
+    if (entity instanceof FudgeResponse) {
+      entity = ((FudgeResponse) entity).getValue();
+    }
+    Pair<List<MarketData>, Paging> response = (Pair<List<MarketData>, Paging>) entity;
 
     assertEquals(response.getFirst().size(), 1);
     assertEquals(response.getSecond(), paging);
