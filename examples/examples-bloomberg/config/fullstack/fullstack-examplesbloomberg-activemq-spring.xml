@@ -75,21 +75,21 @@
             use before slowing down producers. For more information, see:
             
             http://activemq.apache.org/producer-flow-control.html
+          -->
              
         <systemUsage>
             <systemUsage>
                 <memoryUsage>
-                    <memoryUsage limit="20 mb"/>
+                    <memoryUsage limit="128 mb"/>
                 </memoryUsage>
                 <storeUsage>
                     <storeUsage limit="1 gb"/>
                 </storeUsage>
                 <tempUsage>
-                    <tempUsage limit="100 mb"/>
+                    <tempUsage limit="512 mb"/>
                 </tempUsage>
             </systemUsage>
         </systemUsage>
-    -->
       
         <!-- 
             The transport connectors expose ActiveMQ over a given protocol to
