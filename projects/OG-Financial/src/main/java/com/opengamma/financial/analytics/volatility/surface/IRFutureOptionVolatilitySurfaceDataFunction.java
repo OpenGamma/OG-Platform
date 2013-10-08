@@ -217,7 +217,8 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
     final DoubleArrayList txList = new DoubleArrayList();
     final DoubleArrayList kList = new DoubleArrayList();
     final LocalDate today = now.toLocalDate();
-    for (final Number x : optionPrices.getXs()) { // Loop over option expiries
+    for (final Object xObj : optionPrices.getXs()) { // Loop over option expiries
+      final Number x = (Number) xObj;
       final LocalDate expiry = expiryRule.getExpiryDate(x.intValue(), today, calendar);
       final Double optionTtm = TimeCalculator.getTimeBetween(today, expiry); 
       // Get the corresponding future, which may not share the same expiries as the option itself
@@ -240,7 +241,8 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
       } else {
         final Double forward = futurePrices.getYValue(underlyingExpiry);
         // Loop over strikes
-        for (final Double y : optionPrices.getYs()) {
+        for (final Object yObj : optionPrices.getYs()) {
+          final Double y = (Double) yObj;
           final Double price = optionPrices.getVolatility(x, y);
           if (price != null) {
             try {
