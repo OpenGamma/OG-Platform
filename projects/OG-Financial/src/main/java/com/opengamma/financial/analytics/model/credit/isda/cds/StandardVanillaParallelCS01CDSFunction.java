@@ -16,12 +16,12 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.standard.StandardCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSAnalytic;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSAnalyticFactory;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantCreditCurve;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantYieldCurve;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.QuotedSpread;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.SpreadSensitivityCalculator;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalyticFactory;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.FiniteDifferenceSpreadSensitivityCalculator;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurve;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.QuotedSpread;
 import com.opengamma.analytics.financial.model.BumpType;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionInputs;
@@ -35,7 +35,7 @@ import com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNa
  * 
  */
 public class StandardVanillaParallelCS01CDSFunction extends StandardVanillaCS01CDSFunction {
-  private static final SpreadSensitivityCalculator CALCULATOR = new SpreadSensitivityCalculator();
+  private static final FiniteDifferenceSpreadSensitivityCalculator CALCULATOR = new FiniteDifferenceSpreadSensitivityCalculator();
 
   public StandardVanillaParallelCS01CDSFunction() {
     super(ValueRequirementNames.CS01);

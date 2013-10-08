@@ -20,16 +20,16 @@ import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.StandardCDSQuotingConvention;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.AnalyticCDSPricer;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSAnalytic;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSQuoteConvention;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantCreditCurve;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantYieldCurve;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ParSpread;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.PointsUpFront;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.PointsUpFrontConverter;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.QuotedSpread;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.SpreadSensitivityCalculator;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.AnalyticCDSPricer;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSQuoteConvention;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.FiniteDifferenceSpreadSensitivityCalculator;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurve;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.MarketQuoteConverter;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.ParSpread;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.PointsUpFront;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.QuotedSpread;
 import com.opengamma.analytics.financial.model.BumpType;
 import com.opengamma.analytics.math.curve.NodalTenorDoubleCurve;
 import com.opengamma.core.AbstractSourceWithExternalBundle;
@@ -85,9 +85,9 @@ public class ISDACompliantCDSFunction extends NonCompiledInvoker {
   public static double ONE_BPS = 1e-4; // fractional 1 BPS
   private HolidaySource _holidaySource; //OpenGammaCompilationContext.getHolidaySource(context);
   private RegionSource _regionSource;
-  private static final PointsUpFrontConverter POINTS_UP_FRONT_CONVERTER = new PointsUpFrontConverter();
+  private static final MarketQuoteConverter POINTS_UP_FRONT_CONVERTER = new MarketQuoteConverter();
   protected static final AnalyticCDSPricer PRICER = new AnalyticCDSPricer();
-  public static final SpreadSensitivityCalculator CALCULATOR = new SpreadSensitivityCalculator();
+  public static final FiniteDifferenceSpreadSensitivityCalculator CALCULATOR = new FiniteDifferenceSpreadSensitivityCalculator();
 
   @Override
   public void init(final FunctionCompilationContext context) {

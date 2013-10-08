@@ -24,10 +24,10 @@ import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.leg
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.standard.StandardCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSAnalytic;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSAnalyticFactory;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantCreditCurve;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantYieldCurve;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalyticFactory;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurve;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
 import com.opengamma.analytics.math.curve.NodalObjectsCurve;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.organization.OrganizationSource;

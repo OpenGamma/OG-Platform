@@ -5,7 +5,7 @@ import org.threeten.bp.Period;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.credit.StubType;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSAnalytic;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.financial.analytics.model.credit.IMMDateGenerator;

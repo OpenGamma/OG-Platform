@@ -19,13 +19,13 @@ import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.StandardCDSQuotingConvention;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.standard.PresentValueStandardCreditDefaultSwap;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSAnalytic;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSQuoteConvention;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantYieldCurve;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ParSpread;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.PointsUpFront;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.PointsUpFrontConverter;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.QuotedSpread;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSQuoteConvention;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.MarketQuoteConverter;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.ParSpread;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.PointsUpFront;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.QuotedSpread;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.analytics.math.curve.NodalTenorDoubleCurve;
 import com.opengamma.financial.analytics.model.credit.isdanew.CDSAnalyticConverter;
@@ -43,7 +43,7 @@ public class SpreadCurveFunctions {
   private static final Collection<Tenor> BUCKET_TENORS = new ArrayList<>();
   private static final double s_tenminus4 = 1e-4;
   private static final double s_tenminus2 = 1e-2;
-  private static PointsUpFrontConverter PUF_converter = new PointsUpFrontConverter();
+  private static MarketQuoteConverter PUF_converter = new MarketQuoteConverter();
 
   static {
     BUCKET_TENORS.add(Tenor.SIX_MONTHS);
