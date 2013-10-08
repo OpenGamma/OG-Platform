@@ -56,7 +56,7 @@ public abstract class Pair<A, B> implements Map.Entry<A, B>, Comparable<Pair<A, 
    * @return a pair formed from the two parameters, not null
    */
   public static ObjectsPair<Double, Double> of(Double first, double second) {
-    return ObjectsPair.of(first, second);
+    return ObjectsPair.of(first, (Double) second);
   }
 
   /**
@@ -67,7 +67,7 @@ public abstract class Pair<A, B> implements Map.Entry<A, B>, Comparable<Pair<A, 
    * @return a pair formed from the two parameters, not null
    */
   public static ObjectsPair<Double, Double> of(double first, Double second) {
-    return ObjectsPair.of(first, second);
+    return ObjectsPair.of((Double) first, second);
   }
 
   /**
