@@ -43,20 +43,8 @@ public class ViewRegressionTestTool {
    *
    * @param args the arguments, unused
    */
-  public static void main(final String[] args) throws Exception { // CSIGNORE
-    CommandLineParser parser = new PosixParser();
-    CommandLine line;
-    try {
-      line = parser.parse(OPTIONS, args);
-    } catch (final ParseException e) {
-      printUsage();
-      return;
-    }
-    if (line.hasOption(HELP)) {
-      printUsage();
-      return;
-    }
-    ViewRegressionTestTool.run(line);
+  public static void main(String[] args) throws Exception { // CSIGNORE
+    ViewRegressionTestTool.run(args);
   }
 
   private static void printUsage() {
@@ -65,7 +53,19 @@ public class ViewRegressionTestTool {
     formatter.printHelp("java " + ViewRegressionTestTool.class.getName(), OPTIONS, true);
   }
 
-  private static void run(CommandLine cl) throws Exception {
+  private static void run(String[] args) throws Exception {
+    CommandLineParser parser = new PosixParser();
+    CommandLine cl;
+    try {
+      cl = parser.parse(OPTIONS, args);
+    } catch (final ParseException e) {
+      printUsage();
+      return;
+    }
+    if (cl.hasOption(HELP)) {
+      printUsage();
+      return;
+    }
     Instant valuationTime;
     if (cl.hasOption(VALUATION_TIME)) {
       valuationTime = Instant.parse(cl.getOptionValue(VALUATION_TIME));

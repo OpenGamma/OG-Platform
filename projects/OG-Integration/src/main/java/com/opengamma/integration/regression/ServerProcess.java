@@ -49,7 +49,7 @@ public final class ServerProcess implements AutoCloseable {
                        configFile);
     // can override properties in the config on the command line with prop1=value1 prop2=value2 ...
     for (Map.Entry<Object, Object> entry : propertyOverrides.entrySet()) {
-      commandBuilder.add("\"" + entry.getKey() + "=" + entry.getValue() + "\"");
+      commandBuilder.add(entry.getKey() + "=" + entry.getValue());
     }
     ProcessBuilder processBuilder = new ProcessBuilder(commandBuilder.build()).directory(new File(workingDir));
     Process process;

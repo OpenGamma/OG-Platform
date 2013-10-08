@@ -95,11 +95,9 @@ public class ViewRegressionTest {
 
   private Map<Pair<String, String>, CalculationResults> runTest(String workingDir, String classpath, String dbPropsFile) {
     // don't use the config file to be sure we don't accidentally clobber a real database
-    // TODO this needs to run in the context of each server installation so it picks up the schema files from there
-    createDatabase(dbPropsFile, workingDir, classpath, _logbackConfig);
-    // TODO this won't necessarily be on the classpath of this process, only on the the subprocess classpaths
+    //createDatabase(dbPropsFile, workingDir, classpath, _logbackConfig);
     Properties dbProps = loadProperties(dbPropsFile);
-    restoreDatabase(workingDir, classpath, dbProps);
+    //restoreDatabase(workingDir, classpath, dbProps);
     return runViews(workingDir, classpath, _valuationTime, dbProps);
   }
 
@@ -166,6 +164,7 @@ public class ViewRegressionTest {
       String basisViewName = snapshot.getBasisViewName();
       if (basisViewName != null) {
         ConfigSearchRequest<ViewDefinition> configRequest = new ConfigSearchRequest<>(ViewDefinition.class);
+        configRequest.setName(basisViewName);
         ConfigSearchResult<ViewDefinition> configResult = configMaster.search(configRequest);
         if (configResult.getValues().size() > 1) {
           s_logger.warn("Multiple view definitions found with the same name '{}'", basisViewName);

@@ -93,13 +93,22 @@ public final class CalculationResults implements ImmutableBean {
     return new CalculationResults(valueMap, viewDef.getViewDefinition().getName(), snapshotName);
   }
 
+  // TODO use ValueRequirement for the key?
+  // that should give far fewer false positives because
+  //   a) the functions put things in the properties that cause breaks (e.g. unique IDs)
+  //   b) there is so much ambiguity in graph building
+  // or is it good to flag up the ambiguity?
   private static CalculationResultKey getResultKey(ViewResultEntry entry,
                                                    ValueSpecification valueSpec,
                                                    ComputationTargetSpecification targetSpec,
                                                    Map<UniqueId, List<String>> nodesToPaths,
                                                    PositionSource positionSource) {
     CalculationResultKey key;
+    // TODO should this logic be in CalculationResultKey?
     ValueProperties properties = removeFunctionIds(valueSpec.getProperties());
+    // TODO ugh. see AbstractTradeOrDailyPositionPnLFunction
+    // TODO the set of property names to discard needs to be configurable
+    properties = removeProperties(properties, "CostOfCarryTimeSeries");
     ComputationTargetType targetType = targetSpec.getType();
     if (targetType.equals(ComputationTargetType.POSITION)) {
       ComputationTargetReference nodeRef = targetSpec.getParent();
@@ -154,6 +163,7 @@ public final class CalculationResults implements ImmutableBean {
    * The Function property contains an arbitrary function ID which is different between runs.
    * @param properties Properties to clean up
    * @return The properties with the ID removed from the function name property
+   * TODO option to remove arbitrary properties to stop false positives caused by ambiguities in graph building?
    */
   private static ValueProperties removeFunctionIds(ValueProperties properties) {
     Set<String> functions = properties.getValues(ValuePropertyNames.FUNCTION);
@@ -162,6 +172,14 @@ public final class CalculationResults implements ImmutableBean {
       functionsNoId.add(removeFunctionId(function));
     }
     return properties.copy().withoutAny(ValuePropertyNames.FUNCTION).with(ValuePropertyNames.FUNCTION, functionsNoId).get();
+  }
+
+  private static ValueProperties removeProperties(ValueProperties properties, String... propertyNames) {
+    ValueProperties filteredProps = properties;
+    for (String propertyName : propertyNames) {
+      filteredProps = filteredProps.withoutAny(propertyName);
+    }
+    return filteredProps;
   }
 
   /**

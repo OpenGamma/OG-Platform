@@ -5,15 +5,19 @@
  */
 package com.opengamma.integration.regression;
 
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+import org.apache.commons.lang.builder.CompareToBuilder;
+
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.util.ClassMap;
 import com.opengamma.util.tuple.Pair;
 
@@ -34,8 +38,10 @@ public final class CalculationDifference {
     s_handlers.put(Double.class, new DoubleHandler());
     s_handlers.put(double[].class, new PrimitiveDoubleArrayHandler());
     s_handlers.put(Double[].class, new DoubleArrayHandler());
+    s_handlers.put(Object[].class, new ObjectArrayHandler());
     s_handlers.put(List.class, new ListHandler());
     s_handlers.put(YieldCurve.class, new YieldCurveHandler());
+    s_handlers.put(DoubleLabelledMatrix1D.class, new DoubleLabelledMatrix1DHandler());
   }
 
   // TODO different deltas for different columns?
@@ -53,7 +59,7 @@ public final class CalculationDifference {
     }
     Map<CalculationResultKey, Object> only1 = getValues(only1Keys, results1.getValues());
     Map<CalculationResultKey, Object> only2 = getValues(only2Keys, results2.getValues());
-    return new Result(only1, only2, diffs);
+    return new Result(results1.getViewDefinitionName(), results1.getSnapshotName(), only1, only2, diffs);
   }
 
   private static boolean equals(Object value1, Object value2, double delta) {
@@ -75,14 +81,59 @@ public final class CalculationDifference {
     }
   }
 
-  private static <K, V> Map<K, V> getValues(Set<K> keys, Map<K, V> map) {
-    Map<K, V> retMap = Maps.newHashMap();
-    for (K key : keys) {
+  private static Map<CalculationResultKey, Object> getValues(Set<CalculationResultKey> keys,
+                                                             Map<CalculationResultKey, Object> map) {
+    // TODO this is only an ordered map for easier debugging, possibly convert to hash map
+    Map<CalculationResultKey, Object> retMap = Maps.newTreeMap(new CalculationResultKeyComparator());
+    for (CalculationResultKey key : keys) {
       if (map.containsKey(key)) {
         retMap.put(key, map.get(key));
       }
     }
     return retMap;
+  }
+
+  // TODO this is only for easier debugging, possibly delete when no longer needed
+  private static class CalculationResultKeyComparator implements Comparator<CalculationResultKey> {
+
+    @Override
+    public int compare(CalculationResultKey k1, CalculationResultKey k2) {
+      return new CompareToBuilder()
+          .append(k1.getCalcConfigName(), k2.getCalcConfigName())
+          .append(k1.getTargetId(), k2.getTargetId())
+          .appendSuper(comparePaths(k1.getPath(), k2.getPath()))
+          .append(k1.getValueName(), k2.getValueName())
+          .append(k1.getProperties(), k2.getProperties())
+          .toComparison();
+    }
+
+    private int comparePaths(List<String> path1, List<String> path2) {
+      if (path1 == null && path2 == null) {
+        return 0;
+      }
+      if (path1 == null) {
+        return -1;
+      } else if (path2 == null) {
+        return 1;
+      }
+      if (path1.isEmpty() && path2.isEmpty()) {
+        return 0;
+      }
+      if (path1.isEmpty()) {
+        return -1;
+      } else if (path2.isEmpty()) {
+        return 1;
+      } else {
+        String s1 = path1.get(0);
+        String s2 = path2.get(0);
+        int cmp = s1.compareTo(s2);
+        if (cmp != 0) {
+          return cmp;
+        } else {
+          return comparePaths(path1.subList(1, path1.size()), path2.subList(1, path2.size()));
+        }
+      }
+    }
   }
 
   /**
@@ -117,6 +168,24 @@ public final class CalculationDifference {
         double item1 = value1[i];
         double item2 = value2[i];
         if (Math.abs(item1 - item2) > delta) {
+          return false;
+        }
+      }
+      return true;
+    }
+  }
+
+  private static final class ObjectArrayHandler implements EqualsHandler<Object[]> {
+
+    @Override
+    public boolean equals(Object[] value1, Object[] value2, double delta) {
+      if (value1.length != value2.length) {
+        return false;
+      }
+      for (int i = 0; i < value1.length; i++) {
+        Object item1 = value1[i];
+        Object item2 = value2[i];
+        if (!CalculationDifference.equals(item1, item2, delta)) {
           return false;
         }
       }
@@ -168,20 +237,44 @@ public final class CalculationDifference {
     }
   }
 
+  private static class DoubleLabelledMatrix1DHandler implements EqualsHandler<DoubleLabelledMatrix1D> {
+
+    @Override
+    public boolean equals(DoubleLabelledMatrix1D value1, DoubleLabelledMatrix1D value2, double delta) {
+      if (value1.equals(value2)) {
+        return true;
+      }
+      if (!CalculationDifference.equals(value1.getKeys(), value2.getKeys(), delta)) {
+        return false;
+      }
+      if (!CalculationDifference.equals(value1.getValues(), value2.getValues(), delta)) {
+        return false;
+      }
+      if (!CalculationDifference.equals(value1.getLabels(), value2.getLabels(), delta)) {
+        return false;
+      }
+      return true;
+    }
+  }
+
   /**
    *
    */
   public static final class Result {
 
-    // TODO view and snapshot metadata
-
+    private final String _viewDefinitionName;
+    private final String _snapshotName;
     private final Map<CalculationResultKey, Object> _only1;
     private final Map<CalculationResultKey, Object> _only2;
     private final Map<CalculationResultKey, Pair<Object, Object>> _different;
 
-    private Result(Map<CalculationResultKey, Object> only1,
+    private Result(String viewDefinitionName,
+                   String snapshotName,
+                   Map<CalculationResultKey, Object> only1,
                    Map<CalculationResultKey, Object> only2,
                    Map<CalculationResultKey, Pair<Object, Object>> different) {
+      _viewDefinitionName = viewDefinitionName;
+      _snapshotName = snapshotName;
       _only1 = only1;
       _only2 = only2;
       _different = different;
@@ -197,6 +290,14 @@ public final class CalculationDifference {
 
     public Map<CalculationResultKey, Pair<Object, Object>> getDifferent() {
       return _different;
+    }
+
+    public String getViewDefinitionName() {
+      return _viewDefinitionName;
+    }
+
+    public String getSnapshotName() {
+      return _snapshotName;
     }
   }
 }

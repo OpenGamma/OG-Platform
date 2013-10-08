@@ -47,7 +47,7 @@ public final class CalculationResultKey implements ImmutableBean {
   private final ValueProperties _properties;
 
   @PropertyDefinition
-  private final ImmutableList<String> _path;
+  private final List<String> _path;
 
   @PropertyDefinition
   private final ObjectId _targetId;
@@ -185,7 +185,7 @@ public final class CalculationResultKey implements ImmutableBean {
    * Gets the path.
    * @return the value of the property
    */
-  public ImmutableList<String> getPath() {
+  public List<String> getPath() {
     return _path;
   }
 
@@ -281,8 +281,8 @@ public final class CalculationResultKey implements ImmutableBean {
      * The meta-property for the {@code path} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<ImmutableList<String>> _path = DirectMetaProperty.ofImmutable(
-        this, "path", CalculationResultKey.class, (Class) ImmutableList.class);
+    private final MetaProperty<List<String>> _path = DirectMetaProperty.ofImmutable(
+        this, "path", CalculationResultKey.class, (Class) List.class);
     /**
      * The meta-property for the {@code targetId} property.
      */
@@ -366,7 +366,7 @@ public final class CalculationResultKey implements ImmutableBean {
      * The meta-property for the {@code path} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<ImmutableList<String>> path() {
+    public MetaProperty<List<String>> path() {
       return _path;
     }
 
