@@ -728,7 +728,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
    * Gets for looking up market data provider specifications by name. Either this or liveMarketDataProviderFactory must be set.
    * 
    * @deprecated  use liveMarketDataProviderFactory
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   @Deprecated
   public NamedMarketDataSpecificationRepository getMarketDataSpecificationRepository() {
@@ -739,11 +739,10 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
    * Sets for looking up market data provider specifications by name. Either this or liveMarketDataProviderFactory must be set.
    * 
    * @deprecated  use liveMarketDataProviderFactory
-   * @param marketDataSpecificationRepository  the new value of the property, not null
+   * @param marketDataSpecificationRepository  the new value of the property
    */
   @Deprecated
   public void setMarketDataSpecificationRepository(NamedMarketDataSpecificationRepository marketDataSpecificationRepository) {
-    JodaBeanUtils.notNull(marketDataSpecificationRepository, "marketDataSpecificationRepository");
     this._marketDataSpecificationRepository = marketDataSpecificationRepository;
   }
 
@@ -1437,7 +1436,6 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
       JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._targetTypes, "targetTypes");
       JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._organizationMaster, "organizationMaster");
       JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._marketDataSnapshotMaster, "marketDataSnapshotMaster");
-      JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._marketDataSpecificationRepository, "marketDataSpecificationRepository");
       JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._viewProcessor, "viewProcessor");
       JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._computationTargetResolver, "computationTargetResolver");
       super.validate(bean);
