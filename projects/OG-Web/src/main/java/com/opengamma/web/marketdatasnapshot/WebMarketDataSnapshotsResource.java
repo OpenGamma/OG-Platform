@@ -56,6 +56,7 @@ import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
+import com.opengamma.engine.marketdata.live.LiveMarketDataProviderFactory;
 import com.opengamma.engine.marketdata.snapshot.MarketDataSnapshotter;
 import com.opengamma.engine.marketdata.spec.FixedHistoricalMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.LatestHistoricalMarketDataSpecification;
@@ -122,16 +123,17 @@ public class WebMarketDataSnapshotsResource extends AbstractWebMarketDataSnapsho
    * Creates the resource.
    * @param marketSnapshotMaster  the market data snapshot master, not null
    * @param configMaster  the config master, not null
-   * @param marketDataSpecificationRepository the market data specification repository, not null
+   * @param liveMarketDataProviderFactory the live market data provider factory, Either this or marketDataSpecificationRepository must be set
+   * @param marketDataSpecificationRepository the market data specification repository
    * @param configSource the config source, not null
    * @param targetResolver the computation target resolver, not null
    * @param viewProcessor the view processor, not null
    * @param htsSource the historical timeseries source, not null
    */
   public WebMarketDataSnapshotsResource(final MarketDataSnapshotMaster marketSnapshotMaster, final ConfigMaster configMaster, 
-      final NamedMarketDataSpecificationRepository marketDataSpecificationRepository, final ConfigSource configSource,
+      final LiveMarketDataProviderFactory liveMarketDataProviderFactory, final NamedMarketDataSpecificationRepository marketDataSpecificationRepository, final ConfigSource configSource,
       final ComputationTargetResolver targetResolver, final ViewProcessor viewProcessor, final HistoricalTimeSeriesSource htsSource) {
-    super(marketSnapshotMaster, configMaster, marketDataSpecificationRepository, configSource, targetResolver, viewProcessor, htsSource);
+    super(marketSnapshotMaster, configMaster, liveMarketDataProviderFactory, marketDataSpecificationRepository, configSource, targetResolver, viewProcessor, htsSource);
   }
 
   //-------------------------------------------------------------------------
@@ -231,7 +233,13 @@ public class WebMarketDataSnapshotsResource extends AbstractWebMarketDataSnapsho
   }
 
   private List<String> getLiveDataSources() {
-    return data().getMarketDataSpecificationRepository().getNames();
+    List<String> liveDataSources;
+    if (data().getLiveMarketDataProviderFactory() != null) {
+      liveDataSources = data().getLiveMarketDataProviderFactory().getProviderNames();
+    } else {
+      liveDataSources = data().getMarketDataSpecificationRepository().getNames();
+    }
+    return liveDataSources;
   }
 
   private List<String> getViewNames() {

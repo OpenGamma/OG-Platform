@@ -25,11 +25,13 @@ import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
+import com.opengamma.engine.marketdata.live.LiveMarketDataProviderFactory;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
+
 import org.joda.beans.Bean;
 
 /**
@@ -37,6 +39,11 @@ import org.joda.beans.Bean;
  */
 @BeanDefinition
 public class WebMarketDataSnapshotData extends DirectBean {
+  /**
+   * For obtaining the live market data provider names. Either this or marketDataSpecificationRepository must be set.
+   */
+  @PropertyDefinition
+  private LiveMarketDataProviderFactory _liveMarketDataProviderFactory;
   /**
    * For looking up market data provider specifications by name. Either this or liveMarketDataProviderFactory must be set.
    * 
@@ -145,6 +152,31 @@ public class WebMarketDataSnapshotData extends DirectBean {
   @Override
   public WebMarketDataSnapshotData.Meta metaBean() {
     return WebMarketDataSnapshotData.Meta.INSTANCE;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets for obtaining the live market data provider names. Either this or marketDataSpecificationRepository must be set.
+   * @return the value of the property
+   */
+  public LiveMarketDataProviderFactory getLiveMarketDataProviderFactory() {
+    return _liveMarketDataProviderFactory;
+  }
+
+  /**
+   * Sets for obtaining the live market data provider names. Either this or marketDataSpecificationRepository must be set.
+   * @param liveMarketDataProviderFactory  the new value of the property
+   */
+  public void setLiveMarketDataProviderFactory(LiveMarketDataProviderFactory liveMarketDataProviderFactory) {
+    this._liveMarketDataProviderFactory = liveMarketDataProviderFactory;
+  }
+
+  /**
+   * Gets the the {@code liveMarketDataProviderFactory} property.
+   * @return the property, not null
+   */
+  public final Property<LiveMarketDataProviderFactory> liveMarketDataProviderFactory() {
+    return metaBean().liveMarketDataProviderFactory().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -480,7 +512,8 @@ public class WebMarketDataSnapshotData extends DirectBean {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       WebMarketDataSnapshotData other = (WebMarketDataSnapshotData) obj;
-      return JodaBeanUtils.equal(getMarketDataSpecificationRepository(), other.getMarketDataSpecificationRepository()) &&
+      return JodaBeanUtils.equal(getLiveMarketDataProviderFactory(), other.getLiveMarketDataProviderFactory()) &&
+          JodaBeanUtils.equal(getMarketDataSpecificationRepository(), other.getMarketDataSpecificationRepository()) &&
           JodaBeanUtils.equal(getMarketDataSnapshotMaster(), other.getMarketDataSnapshotMaster()) &&
           JodaBeanUtils.equal(getConfigMaster(), other.getConfigMaster()) &&
           JodaBeanUtils.equal(getViewProcessor(), other.getViewProcessor()) &&
@@ -499,6 +532,7 @@ public class WebMarketDataSnapshotData extends DirectBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getLiveMarketDataProviderFactory());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSpecificationRepository());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSnapshotMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getConfigMaster());
@@ -516,7 +550,7 @@ public class WebMarketDataSnapshotData extends DirectBean {
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(416);
+    StringBuilder buf = new StringBuilder(448);
     buf.append("WebMarketDataSnapshotData{");
     int len = buf.length();
     toString(buf);
@@ -528,6 +562,7 @@ public class WebMarketDataSnapshotData extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
+    buf.append("liveMarketDataProviderFactory").append('=').append(getLiveMarketDataProviderFactory()).append(',').append(' ');
     buf.append("marketDataSpecificationRepository").append('=').append(getMarketDataSpecificationRepository()).append(',').append(' ');
     buf.append("marketDataSnapshotMaster").append('=').append(getMarketDataSnapshotMaster()).append(',').append(' ');
     buf.append("configMaster").append('=').append(getConfigMaster()).append(',').append(' ');
@@ -552,6 +587,11 @@ public class WebMarketDataSnapshotData extends DirectBean {
      */
     static final Meta INSTANCE = new Meta();
 
+    /**
+     * The meta-property for the {@code liveMarketDataProviderFactory} property.
+     */
+    private final MetaProperty<LiveMarketDataProviderFactory> _liveMarketDataProviderFactory = DirectMetaProperty.ofReadWrite(
+        this, "liveMarketDataProviderFactory", WebMarketDataSnapshotData.class, LiveMarketDataProviderFactory.class);
     /**
      * The meta-property for the {@code marketDataSpecificationRepository} property.
      */
@@ -617,6 +657,7 @@ public class WebMarketDataSnapshotData extends DirectBean {
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
+        "liveMarketDataProviderFactory",
         "marketDataSpecificationRepository",
         "marketDataSnapshotMaster",
         "configMaster",
@@ -639,6 +680,8 @@ public class WebMarketDataSnapshotData extends DirectBean {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
+        case -301472921:  // liveMarketDataProviderFactory
+          return _liveMarketDataProviderFactory;
         case 1743800263:  // marketDataSpecificationRepository
           return _marketDataSpecificationRepository;
         case 2090650860:  // marketDataSnapshotMaster
@@ -683,6 +726,14 @@ public class WebMarketDataSnapshotData extends DirectBean {
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code liveMarketDataProviderFactory} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<LiveMarketDataProviderFactory> liveMarketDataProviderFactory() {
+      return _liveMarketDataProviderFactory;
+    }
+
     /**
      * The meta-property for the {@code marketDataSpecificationRepository} property.
      * @deprecated  use liveMarketDataProviderFactory
@@ -785,6 +836,8 @@ public class WebMarketDataSnapshotData extends DirectBean {
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
+        case -301472921:  // liveMarketDataProviderFactory
+          return ((WebMarketDataSnapshotData) bean).getLiveMarketDataProviderFactory();
         case 1743800263:  // marketDataSpecificationRepository
           return ((WebMarketDataSnapshotData) bean).getMarketDataSpecificationRepository();
         case 2090650860:  // marketDataSnapshotMaster
@@ -816,6 +869,9 @@ public class WebMarketDataSnapshotData extends DirectBean {
     @Override
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
+        case -301472921:  // liveMarketDataProviderFactory
+          ((WebMarketDataSnapshotData) bean).setLiveMarketDataProviderFactory((LiveMarketDataProviderFactory) newValue);
+          return;
         case 1743800263:  // marketDataSpecificationRepository
           ((WebMarketDataSnapshotData) bean).setMarketDataSpecificationRepository((NamedMarketDataSpecificationRepository) newValue);
           return;

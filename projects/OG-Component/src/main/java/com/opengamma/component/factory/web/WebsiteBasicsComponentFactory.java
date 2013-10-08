@@ -20,6 +20,7 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.batch.BatchMaster;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
@@ -28,6 +29,7 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
+import com.opengamma.engine.marketdata.live.LiveMarketDataProviderFactory;
 import com.opengamma.engine.target.ComputationTargetTypeProvider;
 import com.opengamma.engine.target.DefaultComputationTargetTypeProvider;
 import com.opengamma.engine.view.ViewProcessor;
@@ -46,6 +48,8 @@ import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.web.WebAboutResource;
 import com.opengamma.web.WebHomeResource;
+import com.opengamma.web.analytics.rest.LiveMarketDataProviderNamesResource;
+import com.opengamma.web.analytics.rest.LiveMarketDataSpecificationNamesResource;
 import com.opengamma.web.config.WebConfigsResource;
 import com.opengamma.web.exchange.WebExchangesResource;
 import com.opengamma.web.historicaltimeseries.WebAllHistoricalTimeSeriesResource;
@@ -151,11 +155,16 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   @PropertyDefinition(validate = "notNull")
   private MarketDataSnapshotMaster _marketDataSnapshotMaster;
   /**
+   * For obtaining the live market data provider names. Either this or marketDataSpecificationRepository must be set.
+   */
+  @PropertyDefinition
+  private LiveMarketDataProviderFactory _liveMarketDataProviderFactory;
+  /**
    * For looking up market data provider specifications by name. Either this or liveMarketDataProviderFactory must be set.
    * 
    * @deprecated  use liveMarketDataProviderFactory
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   @Deprecated
   private NamedMarketDataSpecificationRepository _marketDataSpecificationRepository;
   /**
@@ -183,6 +192,9 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   }
 
   protected void initMasters(ComponentRepository repo) {
+    if (getLiveMarketDataProviderFactory() == null && getMarketDataSpecificationRepository() == null) {
+      throw new OpenGammaRuntimeException("Neither " + marketDataSpecificationRepository().name() + " nor " + liveMarketDataProviderFactory().name() + " were specified");
+    }
     JerseyRestResourceFactory resource;
     resource = new JerseyRestResourceFactory(WebConfigsResource.class, getConfigMaster());
     repo.getRestComponents().publishResource(resource);
@@ -205,7 +217,8 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     repo.getRestComponents().publishResource(resource);
     resource = new JerseyRestResourceFactory(WebOrganizationsResource.class, getOrganizationMaster());
     repo.getRestComponents().publishResource(resource);
-    resource = new JerseyRestResourceFactory(WebMarketDataSnapshotsResource.class, getMarketDataSnapshotMaster(), getConfigMaster(), getMarketDataSpecificationRepository(),
+    resource = new JerseyRestResourceFactory(WebMarketDataSnapshotsResource.class, 
+        getMarketDataSnapshotMaster(), getConfigMaster(), getLiveMarketDataProviderFactory(), getMarketDataSpecificationRepository(),
         configSource, getComputationTargetResolver(), getViewProcessor(), getHistoricalTimeSeriesSource());
     repo.getRestComponents().publishResource(resource);
   }
@@ -687,6 +700,31 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets for obtaining the live market data provider names. Either this or marketDataSpecificationRepository must be set.
+   * @return the value of the property
+   */
+  public LiveMarketDataProviderFactory getLiveMarketDataProviderFactory() {
+    return _liveMarketDataProviderFactory;
+  }
+
+  /**
+   * Sets for obtaining the live market data provider names. Either this or marketDataSpecificationRepository must be set.
+   * @param liveMarketDataProviderFactory  the new value of the property
+   */
+  public void setLiveMarketDataProviderFactory(LiveMarketDataProviderFactory liveMarketDataProviderFactory) {
+    this._liveMarketDataProviderFactory = liveMarketDataProviderFactory;
+  }
+
+  /**
+   * Gets the the {@code liveMarketDataProviderFactory} property.
+   * @return the property, not null
+   */
+  public final Property<LiveMarketDataProviderFactory> liveMarketDataProviderFactory() {
+    return metaBean().liveMarketDataProviderFactory().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets for looking up market data provider specifications by name. Either this or liveMarketDataProviderFactory must be set.
    * 
    * @deprecated  use liveMarketDataProviderFactory
@@ -802,6 +840,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
           JodaBeanUtils.equal(getTargetTypes(), other.getTargetTypes()) &&
           JodaBeanUtils.equal(getOrganizationMaster(), other.getOrganizationMaster()) &&
           JodaBeanUtils.equal(getMarketDataSnapshotMaster(), other.getMarketDataSnapshotMaster()) &&
+          JodaBeanUtils.equal(getLiveMarketDataProviderFactory(), other.getLiveMarketDataProviderFactory()) &&
           JodaBeanUtils.equal(getMarketDataSpecificationRepository(), other.getMarketDataSpecificationRepository()) &&
           JodaBeanUtils.equal(getViewProcessor(), other.getViewProcessor()) &&
           JodaBeanUtils.equal(getComputationTargetResolver(), other.getComputationTargetResolver()) &&
@@ -830,6 +869,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getTargetTypes());
     hash += hash * 31 + JodaBeanUtils.hashCode(getOrganizationMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSnapshotMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getLiveMarketDataProviderFactory());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSpecificationRepository());
     hash += hash * 31 + JodaBeanUtils.hashCode(getViewProcessor());
     hash += hash * 31 + JodaBeanUtils.hashCode(getComputationTargetResolver());
@@ -838,7 +878,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(672);
+    StringBuilder buf = new StringBuilder(704);
     buf.append("WebsiteBasicsComponentFactory{");
     int len = buf.length();
     toString(buf);
@@ -869,6 +909,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     buf.append("targetTypes").append('=').append(getTargetTypes()).append(',').append(' ');
     buf.append("organizationMaster").append('=').append(getOrganizationMaster()).append(',').append(' ');
     buf.append("marketDataSnapshotMaster").append('=').append(getMarketDataSnapshotMaster()).append(',').append(' ');
+    buf.append("liveMarketDataProviderFactory").append('=').append(getLiveMarketDataProviderFactory()).append(',').append(' ');
     buf.append("marketDataSpecificationRepository").append('=').append(getMarketDataSpecificationRepository()).append(',').append(' ');
     buf.append("viewProcessor").append('=').append(getViewProcessor()).append(',').append(' ');
     buf.append("computationTargetResolver").append('=').append(getComputationTargetResolver()).append(',').append(' ');
@@ -970,6 +1011,11 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<MarketDataSnapshotMaster> _marketDataSnapshotMaster = DirectMetaProperty.ofReadWrite(
         this, "marketDataSnapshotMaster", WebsiteBasicsComponentFactory.class, MarketDataSnapshotMaster.class);
     /**
+     * The meta-property for the {@code liveMarketDataProviderFactory} property.
+     */
+    private final MetaProperty<LiveMarketDataProviderFactory> _liveMarketDataProviderFactory = DirectMetaProperty.ofReadWrite(
+        this, "liveMarketDataProviderFactory", WebsiteBasicsComponentFactory.class, LiveMarketDataProviderFactory.class);
+    /**
      * The meta-property for the {@code marketDataSpecificationRepository} property.
      */
     private final MetaProperty<NamedMarketDataSpecificationRepository> _marketDataSpecificationRepository = DirectMetaProperty.ofReadWrite(
@@ -1006,6 +1052,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
         "targetTypes",
         "organizationMaster",
         "marketDataSnapshotMaster",
+        "liveMarketDataProviderFactory",
         "marketDataSpecificationRepository",
         "viewProcessor",
         "computationTargetResolver");
@@ -1053,6 +1100,8 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
           return _organizationMaster;
         case 2090650860:  // marketDataSnapshotMaster
           return _marketDataSnapshotMaster;
+        case -301472921:  // liveMarketDataProviderFactory
+          return _liveMarketDataProviderFactory;
         case 1743800263:  // marketDataSpecificationRepository
           return _marketDataSpecificationRepository;
         case -1697555603:  // viewProcessor
@@ -1216,6 +1265,14 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     }
 
     /**
+     * The meta-property for the {@code liveMarketDataProviderFactory} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<LiveMarketDataProviderFactory> liveMarketDataProviderFactory() {
+      return _liveMarketDataProviderFactory;
+    }
+
+    /**
      * The meta-property for the {@code marketDataSpecificationRepository} property.
      * @deprecated  use liveMarketDataProviderFactory
      * @return the meta-property, not null
@@ -1279,6 +1336,8 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
           return ((WebsiteBasicsComponentFactory) bean).getOrganizationMaster();
         case 2090650860:  // marketDataSnapshotMaster
           return ((WebsiteBasicsComponentFactory) bean).getMarketDataSnapshotMaster();
+        case -301472921:  // liveMarketDataProviderFactory
+          return ((WebsiteBasicsComponentFactory) bean).getLiveMarketDataProviderFactory();
         case 1743800263:  // marketDataSpecificationRepository
           return ((WebsiteBasicsComponentFactory) bean).getMarketDataSpecificationRepository();
         case -1697555603:  // viewProcessor
@@ -1342,6 +1401,9 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
           return;
         case 2090650860:  // marketDataSnapshotMaster
           ((WebsiteBasicsComponentFactory) bean).setMarketDataSnapshotMaster((MarketDataSnapshotMaster) newValue);
+          return;
+        case -301472921:  // liveMarketDataProviderFactory
+          ((WebsiteBasicsComponentFactory) bean).setLiveMarketDataProviderFactory((LiveMarketDataProviderFactory) newValue);
           return;
         case 1743800263:  // marketDataSpecificationRepository
           ((WebsiteBasicsComponentFactory) bean).setMarketDataSpecificationRepository((NamedMarketDataSpecificationRepository) newValue);

@@ -12,7 +12,11 @@ To 2.2.0-M1
 
 Configuration compatibility
 - [PLAT-4684] To support managing market data snapshot from the UI, WebsiteBasicsComponentFactory entry in the .ini configuration files needs the following properties
-  marketDataSnapshotMaster, marketDataSpecificationRepository, viewProcessor and computationTargetResolver.
+  marketDataSnapshotMaster, 
+  (liveMarketDataProviderFactory or marketDataSpecificationRepository), 
+  viewProcessor and 
+  computationTargetResolver.
+  
   Example configuration is provided in /examples-simulated/config/fullstack/fullstack-examplessimulated.ini
 
 - [PLAT-4782] The legacy analytics web UI has been retired. WebsiteAnalyticsComponentFactory, which used to construct
