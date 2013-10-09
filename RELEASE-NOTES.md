@@ -3,16 +3,20 @@ OpenGamma Platform 2.1
 
 These release notes cover changes from v2.0 to v2.1.
 
-What’s New?
+What's New?
 ===========
 
 Integration of pricing with the new multi-curve framework
 
-Our new multi-curve framework is compatible with OIS discounting and collateral approaches, and allows calibration with any instrument (IRS, OIS, futures, FX swaps, cross-currency swaps, etc) as well as calibration of multiple curves simultaneously using a multi-dimensional root finder. 
-It accepts complex curve entanglements and supports interpolated curves, functional curves, and spread curves above another curve.  
+Our new multi-curve framework is compatible with OIS discounting and collateral approaches,
+and allows calibration with any instrument (IRS, OIS, futures, FX swaps, cross-currency swaps, etc)
+as well as calibration of multiple curves simultaneously using a multi-dimensional root finder. 
+It accepts complex curve entanglements and supports interpolated curves, functional curves,
+and spread curves above another curve.  
 
-You can provide exogenous dates as node points in interpolated curves (e.g. central bank meeting) and produce full Jacobian/transition matrices. In addition, algorithmic differentiation has been implemented for the entire curve-building process to achieve reduced computation times. 
-
+You can provide exogenous dates as node points in interpolated curves (e.g. central bank meeting)
+and produce full Jacobian/transition matrices. In addition, algorithmic differentiation has been
+implemented for the entire curve-building process to achieve reduced computation times. 
 You can access the framework via the web GUI or through the Excel interface.
 
 Other key features and enhancements
@@ -43,6 +47,7 @@ Analytics Library updates
 * Improvements to credit derivatives modelling
 
 491 issues were [resolved in JIRA](http://opnga.ma/17MAByc) in this relase.
+
 
 Upgrading from 2.0.0
 --------------------
