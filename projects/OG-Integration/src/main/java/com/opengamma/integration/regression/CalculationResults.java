@@ -12,8 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
@@ -42,10 +40,11 @@ import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueProperties;
-import com.opengamma.engine.value.ValuePropertyNames;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewResultEntry;
+import com.opengamma.engine.view.compilation.CompiledViewCalculationConfiguration;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
@@ -58,11 +57,10 @@ import com.opengamma.util.ArgumentChecker;
 public final class CalculationResults implements ImmutableBean {
 
   private static final Logger s_logger = LoggerFactory.getLogger(CalculationResults.class);
-  private static final Pattern FUNCTION_PATTERN = Pattern.compile("\\d+ \\((.*)\\)");
 
   // TODO store the new UniqueId as well as the original? for generating a report will probably need security/trade names
   @PropertyDefinition(validate = "notNull")
-  private final Map<CalculationResultKey, Object> _values;
+  private final Map<CalculationResultKey, CalculatedValue> _values;
 
   @PropertyDefinition(validate = "notNull")
   private final String _viewDefinitionName;
@@ -78,16 +76,19 @@ public final class CalculationResults implements ImmutableBean {
     ArgumentChecker.notNull(viewDef, "viewDef");
     ArgumentChecker.notNull(results, "results");
     List<ViewResultEntry> allResults = results.getAllResults();
-    Map<CalculationResultKey, Object> valueMap = Maps.newHashMapWithExpectedSize(allResults.size());
+    Map<CalculationResultKey, CalculatedValue> valueMap = Maps.newHashMapWithExpectedSize(allResults.size());
     Map<UniqueId, List<String>> nodesToPaths = nodesToPaths(viewDef.getPortfolio().getRootNode(),
                                                             Collections.<String>emptyList());
     for (ViewResultEntry entry : allResults) {
       ComputedValueResult computedValue = entry.getComputedValue();
       ValueSpecification valueSpec = computedValue.getSpecification();
       ComputationTargetSpecification targetSpec = valueSpec.getTargetSpecification();
-      CalculationResultKey key = getResultKey(entry, valueSpec, targetSpec, nodesToPaths, positionSource);
-      if (key != null) {
-        valueMap.put(key, computedValue.getValue());
+      String calcConfigName = entry.getCalculationConfiguration();
+      CompiledViewCalculationConfiguration calcConfig = viewDef.getCompiledCalculationConfiguration(calcConfigName);
+      Set<ValueRequirement> valueReqs = calcConfig.getTerminalOutputSpecifications().get(valueSpec);
+      Set<CalculationResultKey> keys = getResultKey(entry, targetSpec, nodesToPaths, positionSource, valueReqs);
+      for (CalculationResultKey key : keys) {
+        valueMap.put(key, CalculatedValue.of(computedValue.getValue(), valueSpec.getProperties()));
       }
     }
     return new CalculationResults(valueMap, viewDef.getViewDefinition().getName(), snapshotName);
@@ -98,102 +99,71 @@ public final class CalculationResults implements ImmutableBean {
   //   a) the functions put things in the properties that cause breaks (e.g. unique IDs)
   //   b) there is so much ambiguity in graph building
   // or is it good to flag up the ambiguity?
-  private static CalculationResultKey getResultKey(ViewResultEntry entry,
-                                                   ValueSpecification valueSpec,
-                                                   ComputationTargetSpecification targetSpec,
-                                                   Map<UniqueId, List<String>> nodesToPaths,
-                                                   PositionSource positionSource) {
+  private static Set<CalculationResultKey> getResultKey(ViewResultEntry entry,
+                                                        ComputationTargetSpecification targetSpec,
+                                                        Map<UniqueId, List<String>> nodesToPaths,
+                                                        PositionSource positionSource,
+                                                        Set<ValueRequirement> valueReqs) {
     CalculationResultKey key;
-    // TODO should this logic be in CalculationResultKey?
-    ValueProperties properties = removeFunctionIds(valueSpec.getProperties());
-    // TODO ugh. see AbstractTradeOrDailyPositionPnLFunction
-    // TODO the set of property names to discard needs to be configurable
-    properties = removeProperties(properties, "CostOfCarryTimeSeries");
-    ComputationTargetType targetType = targetSpec.getType();
-    if (targetType.equals(ComputationTargetType.POSITION)) {
-      ComputationTargetReference nodeRef = targetSpec.getParent();
-      UniqueId positionId = targetSpec.getUniqueId();
-      String idAttr = positionSource.getPosition(positionId).getAttributes().get(DatabaseRestore.REGRESSION_ID);
-      if (idAttr == null) {
-        throw new OpenGammaRuntimeException("No ID attribute found for " + positionId);
-      }
-      // position targets can have a parent node but it's not guaranteed
-      if (nodeRef != null) {
-        UniqueId nodeId = nodeRef.getSpecification().getUniqueId();
+    // TODO ugh. see AbstractTradeOrDailyPositionPnLFunction CostOfCarryTimeSeries
+    Set<CalculationResultKey> keys = Sets.newHashSet();
+    for (ValueRequirement valueReq : valueReqs) {
+      String valueName = valueReq.getValueName();
+      ValueProperties properties = valueReq.getConstraints();
+      ComputationTargetType targetType = targetSpec.getType();
+      if (targetType.equals(ComputationTargetType.POSITION)) {
+        ComputationTargetReference nodeRef = targetSpec.getParent();
+        UniqueId positionId = targetSpec.getUniqueId();
+        String idAttr = positionSource.getPosition(positionId).getAttributes().get(DatabaseRestore.REGRESSION_ID);
+        if (idAttr == null) {
+          throw new OpenGammaRuntimeException("No ID attribute found for " + positionId);
+        }
+        // position targets can have a parent node but it's not guaranteed
+        if (nodeRef != null) {
+          UniqueId nodeId = nodeRef.getSpecification().getUniqueId();
+          List<String> path = nodesToPaths.get(nodeId);
+          key = CalculationResultKey.forPositionWithParentNode(entry.getCalculationConfiguration(),
+                                                               valueName,
+                                                               properties,
+                                                               path,
+                                                               ObjectId.parse(idAttr));
+        } else {
+          key = CalculationResultKey.forPosition(entry.getCalculationConfiguration(),
+                                                 valueName,
+                                                 properties,
+                                                 ObjectId.parse(idAttr));
+        }
+      } else if (targetType.equals(ComputationTargetType.PORTFOLIO_NODE)) {
+        UniqueId nodeId = targetSpec.getUniqueId();
         List<String> path = nodesToPaths.get(nodeId);
-        key = CalculationResultKey.forPositionWithParentNode(entry.getCalculationConfiguration(),
-                                                             valueSpec.getValueName(),
-                                                             properties,
-                                                             path,
-                                                             ObjectId.parse(idAttr));
-      } else {
-        key = CalculationResultKey.forPosition(entry.getCalculationConfiguration(),
-                                               valueSpec.getValueName(),
+        key = CalculationResultKey.forNode(entry.getCalculationConfiguration(), valueName, properties, path);
+      } else if (targetType.equals(ComputationTargetType.TRADE)) {
+        // TODO this assumes a trade target spec will never have a parent
+        // this is true at the moment but subject to change. see PLAT-2286
+        // and PortfolioCompilerTraversalCallback.preOrderOperation
+        UniqueId tradeId = targetSpec.getUniqueId();
+        Trade trade = positionSource.getTrade(tradeId);
+        String idAttr = trade.getAttributes().get(DatabaseRestore.REGRESSION_ID);
+        key = CalculationResultKey.forTrade(entry.getCalculationConfiguration(),
+                                            valueName,
+                                            properties,
+                                            ObjectId.parse(idAttr));
+      } else if (targetType.equals(ComputationTargetType.CURRENCY)) {
+        key = CalculationResultKey.forCurrency(entry.getCalculationConfiguration(),
+                                               valueName,
                                                properties,
-                                               ObjectId.parse(idAttr));
+                                               targetSpec.getUniqueId().getObjectId());
+      } else {
+        s_logger.warn("Ignoring target with type {}", targetType);
+        key = null;
       }
-    } else if (targetType.equals(ComputationTargetType.PORTFOLIO_NODE)) {
-      UniqueId nodeId = targetSpec.getUniqueId();
-      List<String> path = nodesToPaths.get(nodeId);
-      key = CalculationResultKey.forNode(entry.getCalculationConfiguration(), valueSpec.getValueName(), properties, path);
-    } else if (targetType.equals(ComputationTargetType.TRADE)) {
-      // TODO this assumes a trade target spec will never have a parent
-      // this is true at the moment but subject to change. see PLAT-2286
-      // and PortfolioCompilerTraversalCallback.preOrderOperation
-      UniqueId tradeId = targetSpec.getUniqueId();
-      Trade trade = positionSource.getTrade(tradeId);
-      String idAttr = trade.getAttributes().get(DatabaseRestore.REGRESSION_ID);
-      key = CalculationResultKey.forTrade(entry.getCalculationConfiguration(),
-                                          valueSpec.getValueName(),
-                                          properties,
-                                          ObjectId.parse(idAttr));
-    } else if (targetType.equals(ComputationTargetType.CURRENCY)) {
-      key = CalculationResultKey.forCurrency(entry.getCalculationConfiguration(),
-                                             valueSpec.getValueName(),
-                                             properties,
-                                             targetSpec.getUniqueId().getObjectId());
-    } else {
-      s_logger.warn("Ignoring target with type {}", targetType);
-      key = null;
+      if (key != null) {
+        keys.add(key);
+      }
     }
-    return key;
+    return keys;
   }
 
-  /**
-   * The Function property contains an arbitrary function ID which is different between runs.
-   * @param properties Properties to clean up
-   * @return The properties with the ID removed from the function name property
-   * TODO option to remove arbitrary properties to stop false positives caused by ambiguities in graph building?
-   */
-  private static ValueProperties removeFunctionIds(ValueProperties properties) {
-    Set<String> functions = properties.getValues(ValuePropertyNames.FUNCTION);
-    Set<String> functionsNoId = Sets.newHashSet();
-    for (String function : functions) {
-      functionsNoId.add(removeFunctionId(function));
-    }
-    return properties.copy().withoutAny(ValuePropertyNames.FUNCTION).with(ValuePropertyNames.FUNCTION, functionsNoId).get();
-  }
-
-  private static ValueProperties removeProperties(ValueProperties properties, String... propertyNames) {
-    ValueProperties filteredProps = properties;
-    for (String propertyName : propertyNames) {
-      filteredProps = filteredProps.withoutAny(propertyName);
-    }
-    return filteredProps;
-  }
-
-  /**
-   * Removes the ID from a function name, e.g. "123 (Function Name)" becomes "Function Name".
-   * @return The function name string with the ID removed
-   */
-  private static String removeFunctionId(String functionString) {
-    Matcher matcher = FUNCTION_PATTERN.matcher(functionString);
-    if (matcher.matches()) {
-      return matcher.group(1);
-    } else {
-      return functionString;
-    }
-  }
 
   // TODO test case
   private static Map<UniqueId, List<String>> nodesToPaths(PortfolioNode node, List<String> parentPath) {
@@ -230,7 +200,7 @@ public final class CalculationResults implements ImmutableBean {
   }
 
   private CalculationResults(
-      Map<CalculationResultKey, Object> values,
+      Map<CalculationResultKey, CalculatedValue> values,
       String viewDefinitionName,
       String snapshotName) {
     JodaBeanUtils.notNull(values, "values");
@@ -261,7 +231,7 @@ public final class CalculationResults implements ImmutableBean {
    * Gets the values.
    * @return the value of the property, not null
    */
-  public Map<CalculationResultKey, Object> getValues() {
+  public Map<CalculationResultKey, CalculatedValue> getValues() {
     return _values;
   }
 
@@ -345,7 +315,7 @@ public final class CalculationResults implements ImmutableBean {
      * The meta-property for the {@code values} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Map<CalculationResultKey, Object>> _values = DirectMetaProperty.ofImmutable(
+    private final MetaProperty<Map<CalculationResultKey, CalculatedValue>> _values = DirectMetaProperty.ofImmutable(
         this, "values", CalculationResults.class, (Class) Map.class);
     /**
      * The meta-property for the {@code viewDefinitionName} property.
@@ -405,7 +375,7 @@ public final class CalculationResults implements ImmutableBean {
      * The meta-property for the {@code values} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Map<CalculationResultKey, Object>> values() {
+    public MetaProperty<Map<CalculationResultKey, CalculatedValue>> values() {
       return _values;
     }
 
@@ -456,7 +426,7 @@ public final class CalculationResults implements ImmutableBean {
    */
   public static final class Builder extends BasicImmutableBeanBuilder<CalculationResults> {
 
-    private Map<CalculationResultKey, Object> _values = new HashMap<CalculationResultKey, Object>();
+    private Map<CalculationResultKey, CalculatedValue> _values = new HashMap<CalculationResultKey, CalculatedValue>();
     private String _viewDefinitionName;
     private String _snapshotName;
 
@@ -473,7 +443,7 @@ public final class CalculationResults implements ImmutableBean {
      */
     private Builder(CalculationResults beanToCopy) {
       super(CalculationResults.Meta.INSTANCE);
-      this._values = new HashMap<CalculationResultKey, Object>(beanToCopy.getValues());
+      this._values = new HashMap<CalculationResultKey, CalculatedValue>(beanToCopy.getValues());
       this._viewDefinitionName = beanToCopy.getViewDefinitionName();
       this._snapshotName = beanToCopy.getSnapshotName();
     }
@@ -484,7 +454,7 @@ public final class CalculationResults implements ImmutableBean {
     public Builder set(String propertyName, Object newValue) {
       switch (propertyName.hashCode()) {
         case -823812830:  // values
-          this._values = (Map<CalculationResultKey, Object>) newValue;
+          this._values = (Map<CalculationResultKey, CalculatedValue>) newValue;
           break;
         case -10926973:  // viewDefinitionName
           this._viewDefinitionName = (String) newValue;
@@ -512,7 +482,7 @@ public final class CalculationResults implements ImmutableBean {
      * @param values  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder values(Map<CalculationResultKey, Object> values) {
+    public Builder values(Map<CalculationResultKey, CalculatedValue> values) {
       JodaBeanUtils.notNull(values, "values");
       this._values = values;
       return this;

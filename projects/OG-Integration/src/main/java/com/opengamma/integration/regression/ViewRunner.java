@@ -106,8 +106,8 @@ import com.opengamma.util.ArgumentChecker;
       CalculationResults results2 = viewRunner.run("AUD Swaps (3m / 6m basis) (1)",
                                                    "AUD Swaps (3m / 6m basis) (1)/2013-09-27T12:17:45.587Z",
                                                    valuationTime);
-      CalculationDifference.Result result = CalculationDifference.compare(results1, results2, 0.001d);
-      System.out.println(result);
+      CalculationDifference difference = CalculationDifference.between(results1, results2, 0.001d);
+      System.out.println(difference);
     }
   }
 

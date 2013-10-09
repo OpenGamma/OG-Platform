@@ -31,11 +31,11 @@ public class ViewRegressionTestTool {
   private static final String LOGBACK_CONFIG = "lc";
   private static final String VALUATION_TIME = "vt";
   private static final String BASE_DIR = "bd";
-  private static final String NEW_DIR = "nd";
+  private static final String TEST_DIR = "td";
   private static final String BASE_VERSION = "bv";
-  private static final String NEW_VERSION = "nv";
+  private static final String TEST_VERSION = "tv";
   private static final String BASE_PROPS = "bp";
-  private static final String NEW_PROPS = "np";
+  private static final String TEST_PROPS = "tp";
   private static final String HELP = "h";
 
   /**
@@ -80,12 +80,12 @@ public class ViewRegressionTestTool {
                                                      cl.getOptionValue(BASE_DIR),
                                                      cl.getOptionValue(BASE_VERSION),
                                                      cl.getOptionValue(BASE_PROPS),
-                                                     cl.getOptionValue(NEW_DIR),
-                                                     cl.getOptionValue(NEW_VERSION),
-                                                     cl.getOptionValue(NEW_PROPS));
-    Collection<CalculationDifference.Result> result = test.run();
+                                                     cl.getOptionValue(TEST_DIR),
+                                                     cl.getOptionValue(TEST_VERSION),
+                                                     cl.getOptionValue(TEST_PROPS));
+    Collection<CalculationDifference> differences = test.run();
     // TODO do something with the results
-    System.out.println(result);
+    System.out.println(differences);
   }
 
   private static Options createOptions() {
@@ -113,7 +113,7 @@ public class ViewRegressionTestTool {
     baseDirOption.setRequired(true);
     options.addOption(baseDirOption);
 
-    Option newDirOption = new Option(NEW_DIR, "newdir", true, "Working directory for the new version of the server");
+    Option newDirOption = new Option(TEST_DIR, "testdir", true, "Working directory for the test version of the server");
     newDirOption.setRequired(true);
     options.addOption(newDirOption);
 
@@ -121,7 +121,7 @@ public class ViewRegressionTestTool {
     baseVersionOption.setRequired(true);
     options.addOption(baseVersionOption);
 
-    Option newVersionOption = new Option(NEW_VERSION, "newversion", true, "Version of the new server");
+    Option newVersionOption = new Option(TEST_VERSION, "testversion", true, "Version of the test server");
     newVersionOption.setRequired(true);
     options.addOption(newVersionOption);
 
@@ -129,7 +129,7 @@ public class ViewRegressionTestTool {
     basePropsOption.setRequired(true);
     options.addOption(basePropsOption);
 
-    Option newPropsOption = new Option(NEW_PROPS, "newprops", true, "The DB properties file for the new server");
+    Option newPropsOption = new Option(TEST_PROPS, "testprops", true, "The DB properties file for the test server");
     newPropsOption.setRequired(true);
     options.addOption(newPropsOption);
 
