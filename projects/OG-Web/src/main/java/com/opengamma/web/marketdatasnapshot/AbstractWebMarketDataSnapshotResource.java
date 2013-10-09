@@ -19,6 +19,7 @@ import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
 import com.opengamma.engine.marketdata.live.LiveMarketDataProviderFactory;
 import com.opengamma.engine.view.ViewProcessor;
+import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.util.ArgumentChecker;
@@ -65,18 +66,20 @@ public abstract class AbstractWebMarketDataSnapshotResource extends AbstractPerR
    * @param targetResolver the computation target resolver, not null
    * @param viewProcessor the view processor, not null
    * @param htsSource the historical timeseries source, not null
+   * @param volatilityCubeDefinitionSource the volatility cube definition source, not null
    */
   protected AbstractWebMarketDataSnapshotResource(final MarketDataSnapshotMaster marketdataSnapshotMaster, final ConfigMaster configMaster, 
       final LiveMarketDataProviderFactory liveMarketDataProviderFactory, final NamedMarketDataSpecificationRepository marketDataSpecificationRepository, final ConfigSource configSource,
-      final ComputationTargetResolver targetResolver, final ViewProcessor viewProcessor, final HistoricalTimeSeriesSource htsSource) {
+      final ComputationTargetResolver targetResolver, final ViewProcessor viewProcessor, final HistoricalTimeSeriesSource htsSource,
+      final VolatilityCubeDefinitionSource volatilityCubeDefinitionSource) {
     ArgumentChecker.notNull(marketdataSnapshotMaster, "marketdataSnapshotMaster");
     ArgumentChecker.notNull(configMaster, "configMaster");
-//    ArgumentChecker.notNull(marketDataSpecificationRepository, "marketDataSpecificationRepository");
     ArgumentChecker.notNull(configSource, "configSource");
     ArgumentChecker.notNull(targetResolver, "targetResolver");
     ArgumentChecker.notNull(viewProcessor, "viewProcessor");
     ArgumentChecker.notNull(htsSource, "htsSource");
     ArgumentChecker.isFalse(liveMarketDataProviderFactory == null && marketDataSpecificationRepository == null, "liveMarketDataProviderFactory or marketDataSpecificationRepository must be set");
+    ArgumentChecker.notNull(volatilityCubeDefinitionSource, "volatilityCubeDefinitionSource");
     
     _data = new WebMarketDataSnapshotData();
     data().setMarketDataSnapshotMaster(marketdataSnapshotMaster);
@@ -88,6 +91,7 @@ public abstract class AbstractWebMarketDataSnapshotResource extends AbstractPerR
     data().setViewProcessor(viewProcessor);
     data().setViewProcessor(viewProcessor);
     data().setHistoricalTimeSeriesSource(htsSource);
+    data().setVolatilityCubeDefinitionSource(volatilityCubeDefinitionSource);
   }
 
   /**

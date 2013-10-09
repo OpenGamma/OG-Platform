@@ -27,6 +27,7 @@ import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
 import com.opengamma.engine.marketdata.live.LiveMarketDataProviderFactory;
 import com.opengamma.engine.view.ViewProcessor;
+import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
@@ -70,7 +71,7 @@ public class WebMarketDataSnapshotData extends DirectBean {
   /**
    * The computation target resolver.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private ComputationTargetResolver _computationTargetResolver;
   /**
    * The hts source, may be null
@@ -102,6 +103,11 @@ public class WebMarketDataSnapshotData extends DirectBean {
    */
   @PropertyDefinition
   private ConfigSource _configSource;
+  /**
+   * The volatility (for market data snapshots).
+   */
+  @PropertyDefinition
+  private VolatilityCubeDefinitionSource _volatilityCubeDefinitionSource;
   /**
    * The versioned market data snapshot.
    */
@@ -291,7 +297,7 @@ public class WebMarketDataSnapshotData extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the computation target resolver.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public ComputationTargetResolver getComputationTargetResolver() {
     return _computationTargetResolver;
@@ -299,10 +305,9 @@ public class WebMarketDataSnapshotData extends DirectBean {
 
   /**
    * Sets the computation target resolver.
-   * @param computationTargetResolver  the new value of the property, not null
+   * @param computationTargetResolver  the new value of the property
    */
   public void setComputationTargetResolver(ComputationTargetResolver computationTargetResolver) {
-    JodaBeanUtils.notNull(computationTargetResolver, "computationTargetResolver");
     this._computationTargetResolver = computationTargetResolver;
   }
 
@@ -466,6 +471,31 @@ public class WebMarketDataSnapshotData extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the volatility (for market data snapshots).
+   * @return the value of the property
+   */
+  public VolatilityCubeDefinitionSource getVolatilityCubeDefinitionSource() {
+    return _volatilityCubeDefinitionSource;
+  }
+
+  /**
+   * Sets the volatility (for market data snapshots).
+   * @param volatilityCubeDefinitionSource  the new value of the property
+   */
+  public void setVolatilityCubeDefinitionSource(VolatilityCubeDefinitionSource volatilityCubeDefinitionSource) {
+    this._volatilityCubeDefinitionSource = volatilityCubeDefinitionSource;
+  }
+
+  /**
+   * Gets the the {@code volatilityCubeDefinitionSource} property.
+   * @return the property, not null
+   */
+  public final Property<VolatilityCubeDefinitionSource> volatilityCubeDefinitionSource() {
+    return metaBean().volatilityCubeDefinitionSource().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the versioned market data snapshot.
    * @return the value of the property
    */
@@ -524,6 +554,7 @@ public class WebMarketDataSnapshotData extends DirectBean {
           JodaBeanUtils.equal(getUriVersionId(), other.getUriVersionId()) &&
           JodaBeanUtils.equal(getSnapshot(), other.getSnapshot()) &&
           JodaBeanUtils.equal(getConfigSource(), other.getConfigSource()) &&
+          JodaBeanUtils.equal(getVolatilityCubeDefinitionSource(), other.getVolatilityCubeDefinitionSource()) &&
           JodaBeanUtils.equal(getVersioned(), other.getVersioned());
     }
     return false;
@@ -544,13 +575,14 @@ public class WebMarketDataSnapshotData extends DirectBean {
     hash += hash * 31 + JodaBeanUtils.hashCode(getUriVersionId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSnapshot());
     hash += hash * 31 + JodaBeanUtils.hashCode(getConfigSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getVolatilityCubeDefinitionSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getVersioned());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(448);
+    StringBuilder buf = new StringBuilder(480);
     buf.append("WebMarketDataSnapshotData{");
     int len = buf.length();
     toString(buf);
@@ -574,6 +606,7 @@ public class WebMarketDataSnapshotData extends DirectBean {
     buf.append("uriVersionId").append('=').append(getUriVersionId()).append(',').append(' ');
     buf.append("snapshot").append('=').append(getSnapshot()).append(',').append(' ');
     buf.append("configSource").append('=').append(getConfigSource()).append(',').append(' ');
+    buf.append("volatilityCubeDefinitionSource").append('=').append(getVolatilityCubeDefinitionSource()).append(',').append(' ');
     buf.append("versioned").append('=').append(getVersioned()).append(',').append(' ');
   }
 
@@ -648,6 +681,11 @@ public class WebMarketDataSnapshotData extends DirectBean {
     private final MetaProperty<ConfigSource> _configSource = DirectMetaProperty.ofReadWrite(
         this, "configSource", WebMarketDataSnapshotData.class, ConfigSource.class);
     /**
+     * The meta-property for the {@code volatilityCubeDefinitionSource} property.
+     */
+    private final MetaProperty<VolatilityCubeDefinitionSource> _volatilityCubeDefinitionSource = DirectMetaProperty.ofReadWrite(
+        this, "volatilityCubeDefinitionSource", WebMarketDataSnapshotData.class, VolatilityCubeDefinitionSource.class);
+    /**
      * The meta-property for the {@code versioned} property.
      */
     private final MetaProperty<MarketDataSnapshotDocument> _versioned = DirectMetaProperty.ofReadWrite(
@@ -669,6 +707,7 @@ public class WebMarketDataSnapshotData extends DirectBean {
         "uriVersionId",
         "snapshot",
         "configSource",
+        "volatilityCubeDefinitionSource",
         "versioned");
 
     /**
@@ -704,6 +743,8 @@ public class WebMarketDataSnapshotData extends DirectBean {
           return _snapshot;
         case 195157501:  // configSource
           return _configSource;
+        case 1540542824:  // volatilityCubeDefinitionSource
+          return _volatilityCubeDefinitionSource;
         case -1407102089:  // versioned
           return _versioned;
       }
@@ -825,6 +866,14 @@ public class WebMarketDataSnapshotData extends DirectBean {
     }
 
     /**
+     * The meta-property for the {@code volatilityCubeDefinitionSource} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<VolatilityCubeDefinitionSource> volatilityCubeDefinitionSource() {
+      return _volatilityCubeDefinitionSource;
+    }
+
+    /**
      * The meta-property for the {@code versioned} property.
      * @return the meta-property, not null
      */
@@ -860,6 +909,8 @@ public class WebMarketDataSnapshotData extends DirectBean {
           return ((WebMarketDataSnapshotData) bean).getSnapshot();
         case 195157501:  // configSource
           return ((WebMarketDataSnapshotData) bean).getConfigSource();
+        case 1540542824:  // volatilityCubeDefinitionSource
+          return ((WebMarketDataSnapshotData) bean).getVolatilityCubeDefinitionSource();
         case -1407102089:  // versioned
           return ((WebMarketDataSnapshotData) bean).getVersioned();
       }
@@ -905,16 +956,14 @@ public class WebMarketDataSnapshotData extends DirectBean {
         case 195157501:  // configSource
           ((WebMarketDataSnapshotData) bean).setConfigSource((ConfigSource) newValue);
           return;
+        case 1540542824:  // volatilityCubeDefinitionSource
+          ((WebMarketDataSnapshotData) bean).setVolatilityCubeDefinitionSource((VolatilityCubeDefinitionSource) newValue);
+          return;
         case -1407102089:  // versioned
           ((WebMarketDataSnapshotData) bean).setVersioned((MarketDataSnapshotDocument) newValue);
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
-    }
-
-    @Override
-    protected void validate(Bean bean) {
-      JodaBeanUtils.notNull(((WebMarketDataSnapshotData) bean)._computationTargetResolver, "computationTargetResolver");
     }
 
   }
