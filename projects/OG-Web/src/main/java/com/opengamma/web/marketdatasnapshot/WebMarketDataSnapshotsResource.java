@@ -318,7 +318,7 @@ public class WebMarketDataSnapshotsResource extends AbstractWebMarketDataSnapsho
     for (String liveDataSource : liveDataSources) {
       liveDataSource = StringUtils.trimToNull(liveDataSource);
       if (liveDataSource != null) {
-        marketDataSpecs.add(new LiveMarketDataSpecification(liveDataSource));
+        marketDataSpecs.add(LiveMarketDataSpecification.of(liveDataSource));
       }
     }
     for (String tsResolverKey : tsResolverKeys) {
@@ -338,7 +338,7 @@ public class WebMarketDataSnapshotsResource extends AbstractWebMarketDataSnapsho
       userSnapshotId = StringUtils.trimToNull(userSnapshotId);
       if (userSnapshotId != null) {
         try {
-          marketDataSpecs.add(new UserMarketDataSpecification(UniqueId.parse(userSnapshotId)));
+          marketDataSpecs.add(UserMarketDataSpecification.of(UniqueId.parse(userSnapshotId)));
         } catch (IllegalArgumentException ex) {
           s_logger.warn("Illegal format in snapshot {}, ignorning... ", userSnapshotId);
         }

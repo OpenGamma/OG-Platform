@@ -101,7 +101,7 @@ public class MarketDataSpecificationJsonReader {
 
     @Override
     public MarketDataSpecification build(JSONObject json) throws JSONException {
-      return new LiveMarketDataSpecification(json.getString(MarketDataSpecificationJsonReader.SOURCE));
+      return LiveMarketDataSpecification.of(json.getString(MarketDataSpecificationJsonReader.SOURCE));
     }
   }
 
@@ -131,7 +131,7 @@ public class MarketDataSpecificationJsonReader {
 
     @Override
     public MarketDataSpecification build(JSONObject json) throws JSONException {
-      return new UserMarketDataSpecification(UniqueId.parse(json.getString(MarketDataSpecificationJsonReader.SNAPSHOT_ID)));
+      return UserMarketDataSpecification.of(UniqueId.parse(json.getString(MarketDataSpecificationJsonReader.SNAPSHOT_ID)));
     }
   }
 
@@ -140,8 +140,8 @@ public class MarketDataSpecificationJsonReader {
 
     @Override
     public MarketDataSpecification build(JSONObject json) throws JSONException {
-      return new RandomizingMarketDataSpecification(
-        new UserMarketDataSpecification(UniqueId.parse(json.getString(MarketDataSpecificationJsonReader.SNAPSHOT_ID))),
+      return RandomizingMarketDataSpecification.of(
+        UserMarketDataSpecification.of(UniqueId.parse(json.getString(MarketDataSpecificationJsonReader.SNAPSHOT_ID))),
         json.getDouble(MarketDataSpecificationJsonReader.UPDATE_PROBABILITY),
         json.getInt(MarketDataSpecificationJsonReader.MAX_PERCENTAGE_CHANGE),
         json.getLong(MarketDataSpecificationJsonReader.AVERAGE_CYCLE_INTERVAL)

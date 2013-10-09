@@ -123,7 +123,7 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
   private NamedMarketDataSpecificationRepository initNamedMarketDataSpecificationRepository(final ComponentRepository repo) {
     final InMemoryNamedMarketDataSpecificationRepository specRepository = new InMemoryNamedMarketDataSpecificationRepository();
 
-    specRepository.addSpecification(SIMULATED_LIVE_SOURCE_NAME, new LiveMarketDataSpecification(SIMULATED_LIVE_SOURCE_NAME));
+    specRepository.addSpecification(SIMULATED_LIVE_SOURCE_NAME, LiveMarketDataSpecification.of(SIMULATED_LIVE_SOURCE_NAME));
     final ComponentInfo info = new ComponentInfo(NamedMarketDataSpecificationRepository.class, getClassifier());
     repo.registerComponent(info, specRepository);
     return specRepository;

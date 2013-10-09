@@ -111,7 +111,7 @@ public class BloombergLiveDataClientComponentFactory extends AbstractComponentFa
     repo.registerLifecycle(availabilityNotificationListener);
 
     final InMemoryNamedMarketDataSpecificationRepository specRepository = new InMemoryNamedMarketDataSpecificationRepository();
-    specRepository.addSpecification(description, new LiveMarketDataSpecification(description));
+    specRepository.addSpecification(description, LiveMarketDataSpecification.of(description));
 
     final ComponentInfo specRepositoryInfo = new ComponentInfo(NamedMarketDataSpecificationRepository.class, getClassifier());
     repo.registerComponent(specRepositoryInfo, specRepository);
