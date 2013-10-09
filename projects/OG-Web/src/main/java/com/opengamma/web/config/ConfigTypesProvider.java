@@ -69,24 +69,19 @@ public final class ConfigTypesProvider {
         if (configType == Object.class) {
           configType = configClass;
         }
-        
+        // ensure this class is fully loaded, to force static initialization
+        ClassUtils.initClass(configType);
         // extract description
         String description = configValueAnnotation.description();
         if (description.length() == 0) {
           description = configType.getSimpleName();
         }
-        
-        //ensure this class is fully loaded
-        ClassUtils.initClass(configType);
-        
         // store
         Class<?> old = result.put(configType.getSimpleName(), configType);
-        
         if (old != null) {
           s_logger.warn("Two classes exist with the same name: " + configType.getSimpleName());
         }
         descriptions.put(configType.getSimpleName(), description);
-        
       }
     }
     _configTypeMap = ImmutableSortedMap.copyOf(result);
