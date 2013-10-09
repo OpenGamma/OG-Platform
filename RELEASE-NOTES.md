@@ -14,8 +14,9 @@ Configuration compatibility
 - [PLAT-4684] To support managing market data snapshot from the UI, WebsiteBasicsComponentFactory entry in the .ini configuration files needs the following properties
   marketDataSnapshotMaster, 
   (liveMarketDataProviderFactory or marketDataSpecificationRepository), 
-  viewProcessor and 
-  computationTargetResolver.
+  viewProcessor,
+  computationTargetResolver and
+  volatilityCubeDefinitionSource
   
   Example configuration is provided in /examples-simulated/config/fullstack/fullstack-examplessimulated.ini
 
