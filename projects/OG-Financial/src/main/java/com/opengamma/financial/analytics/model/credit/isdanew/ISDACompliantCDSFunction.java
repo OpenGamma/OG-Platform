@@ -173,6 +173,9 @@ public class ISDACompliantCDSFunction extends NonCompiledInvoker {
     final CDSAnalyticVisitor visitor = new CDSAnalyticVisitor(now.toLocalDate(), _holidaySource, _regionSource, recoveryRate);
     final CDSAnalytic analytic = security.accept(visitor);
     final BuySellProtection buySellProtection = security.isBuy() ? BuySellProtection.BUY : BuySellProtection.SELL;
+//    final String term = new Tenor(Period.between(security.getStartDate().toLocalDate(), security.getMaturityDate().toLocalDate())).getPeriod().toString();
+//    final Double cdsQuoteDouble = (Double) inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE,
+//        ComputationTargetType.PRIMITIVE, ExternalId.of("Tenor", term)));
     final Double cdsQuoteDouble = (Double) inputs.getValue(MarketDataRequirementNames.MARKET_VALUE);
     if (cdsQuoteDouble == null) {
       throw new OpenGammaRuntimeException("Couldn't get spread for " + security);
@@ -369,6 +372,8 @@ public class ISDACompliantCDSFunction extends NonCompiledInvoker {
     double[] cs01Values;
     if (quote instanceof ParSpread) {
       cs01Values = CALCULATOR.bucketedCS01FromCreditCurve(analytic, quote.getCoupon(), buckets, yieldCurve, creditCurve, ONE_BPS);
+    } else if (quote instanceof PointsUpFront) {
+      cs01Values = CALCULATOR.bucketedCS01FromPUF(analytic, (PointsUpFront) quote, yieldCurve, buckets, ONE_BPS);
     } else {
       cs01Values = CALCULATOR.bucketedCS01FromCreditCurve(analytic, quote.getCoupon()/*coupon * ONE_BPS*/, buckets, yieldCurve, creditCurve, ONE_BPS);
     }
