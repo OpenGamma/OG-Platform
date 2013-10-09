@@ -184,11 +184,12 @@ public class ISDACompliantCDSFunction extends NonCompiledInvoker {
     final CDSQuoteConvention quote = SpreadCurveFunctions.getQuotes(security.getMaturityDate(), new double[] {cdsQuoteDouble}, security.getParSpread(), quoteConvention, true)[0];
 
     boolean isIMM = IMMDateLogic.isIMMDate(security.getMaturityDate().toLocalDate());
+    int buySellPremiumFactor = security.isBuy() ? -1 : 1;
     
     final double notional = security.getNotional().getAmount();
     final double coupon = security.getParSpread() * ONE_BPS;
     final PointsUpFront puf = getPointsUpfront(quote, buySellProtection, yieldCurve, analytic, creditCurve);
-    final double accruedPremium = isIMM ? analytic.getAccruedPremium(coupon) * notional : 0;
+    final double accruedPremium = isIMM ? analytic.getAccruedPremium(coupon) * notional * buySellPremiumFactor : 0;
     final int accruedDays = analytic.getAccuredDays();
     final double quotedSpread = getQuotedSpread(quote, puf, buySellProtection, yieldCurve, analytic).getQuotedSpread();
     final double upfrontAmount = isIMM ? getUpfrontAmount(analytic, puf, notional, buySellProtection) : 0;
