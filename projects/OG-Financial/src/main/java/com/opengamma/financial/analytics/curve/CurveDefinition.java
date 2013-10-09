@@ -34,7 +34,7 @@ import com.opengamma.id.UniqueIdentifiable;
  * but this can be used as a nodal curve definition.
  */
 @BeanDefinition
-@Config
+@Config(description = "Curve definition")
 public class CurveDefinition extends DirectBean implements Serializable, UniqueIdentifiable, MutableUniqueIdentifiable {
 
   /** Serialization version */
@@ -81,6 +81,7 @@ public class CurveDefinition extends DirectBean implements Serializable, UniqueI
   public static CurveDefinition.Meta meta() {
     return CurveDefinition.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(CurveDefinition.Meta.INSTANCE);
   }

@@ -1,12 +1,11 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.index;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
@@ -15,7 +14,6 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -35,10 +33,7 @@ public class GeneratorSwapFixedInflationYearOnYear extends GeneratorInstrument<G
    * The Price index.
    */
   private final IndexPrice _indexPrice;
-  /**
-   * The time series with the relevant price index values.
-   */
-  private final DoubleTimeSeries<ZonedDateTime> _priceIndexTimeSeries;
+
   /**
    * The business day convention associated to fix leg.
    */
@@ -74,7 +69,6 @@ public class GeneratorSwapFixedInflationYearOnYear extends GeneratorInstrument<G
    * @param fixedLegPeriod The fixed leg payment period.
    * @param fixedLegDayCount The day count convention associated to the fixed leg.
    * @param indexPrice The Price index..
-   * @param priceIndexTimeSeries price index time series.
    * @param businessDayConvention The business day convention associated to fix leg.
    * @param calendar  The calendar used to compute the payment date.
    * @param endOfMonth The end-of-month flag.
@@ -83,18 +77,18 @@ public class GeneratorSwapFixedInflationYearOnYear extends GeneratorInstrument<G
    * @param payNotional  The flag indicating if the inflation year on year coupons are paying the notional (TRUE) or not (FALSE).
    * @param isLinear The flag indicating if price index is interpolated linearly (TRUE) or piecewise constant (FALSE).
    */
-  public GeneratorSwapFixedInflationYearOnYear(final String name, final Period fixedLegPeriod, final DayCount fixedLegDayCount, final IndexPrice indexPrice, final DoubleTimeSeries<ZonedDateTime> priceIndexTimeSeries,
-      final BusinessDayConvention businessDayConvention, final Calendar calendar, final boolean endOfMonth, final int monthLag, final int spotLag, final boolean payNotional, final boolean isLinear) {
+  public GeneratorSwapFixedInflationYearOnYear(final String name, final Period fixedLegPeriod, final DayCount fixedLegDayCount, final IndexPrice indexPrice,
+      final BusinessDayConvention businessDayConvention, final Calendar calendar, final boolean endOfMonth,
+      final int monthLag, final int spotLag, final boolean payNotional, final boolean isLinear) {
     super(name);
-    Validate.notNull(fixedLegPeriod, "fixed leg period");
-    Validate.notNull(fixedLegDayCount, "fixed leg day count");
-    Validate.notNull(indexPrice, "index price");
-    Validate.notNull(calendar, "calendar");
-    Validate.notNull(businessDayConvention, "businessDayConvention");
+    ArgumentChecker.notNull(fixedLegPeriod, "fixed leg period");
+    ArgumentChecker.notNull(fixedLegDayCount, "fixed leg day count");
+    ArgumentChecker.notNull(indexPrice, "index price");
+    ArgumentChecker.notNull(calendar, "calendar");
+    ArgumentChecker.notNull(businessDayConvention, "businessDayConvention");
     _fixedLegPeriod = fixedLegPeriod;
     _fixedLegDayCount = fixedLegDayCount;
     _indexPrice = indexPrice;
-    _priceIndexTimeSeries = priceIndexTimeSeries;
     _businessDayConvention = businessDayConvention;
     _calendar = calendar;
     _endOfMonth = endOfMonth;
@@ -126,14 +120,6 @@ public class GeneratorSwapFixedInflationYearOnYear extends GeneratorInstrument<G
    */
   public IndexPrice getIndexPrice() {
     return _indexPrice;
-  }
-
-  /**
-   * Gets the priceIndexTimeSeries.
-   * @return the priceIndexTimeSeries
-   */
-  public DoubleTimeSeries<ZonedDateTime> getPriceIndexTimeSeries() {
-    return _priceIndexTimeSeries;
   }
 
   /**
@@ -192,10 +178,11 @@ public class GeneratorSwapFixedInflationYearOnYear extends GeneratorInstrument<G
     return _isLinear;
   }
 
-  @Override
   /**
+   * {@inheritDoc}
    * The effective date is spot+startTenor. The maturity date is effective date + endTenor
    */
+  @Override
   public SwapFixedInflationYearOnYearDefinition generateInstrument(final ZonedDateTime date, final double rate, final double notional, final GeneratorAttributeIR attribute) {
     ArgumentChecker.notNull(date, "Reference date");
     ArgumentChecker.notNull(attribute, "Attributes");
@@ -225,7 +212,6 @@ public class GeneratorSwapFixedInflationYearOnYear extends GeneratorInstrument<G
     result = prime * result + (_isLinear ? 1231 : 1237);
     result = prime * result + (_payNotional ? 1231 : 1237);
     result = prime * result + _monthLag;
-    result = prime * result + ((_priceIndexTimeSeries == null) ? 0 : _priceIndexTimeSeries.hashCode());
     result = prime * result + _spotLag;
     return result;
   }
@@ -279,13 +265,6 @@ public class GeneratorSwapFixedInflationYearOnYear extends GeneratorInstrument<G
       return false;
     }
     if (_monthLag != other._monthLag) {
-      return false;
-    }
-    if (_priceIndexTimeSeries == null) {
-      if (other._priceIndexTimeSeries != null) {
-        return false;
-      }
-    } else if (!_priceIndexTimeSeries.equals(other._priceIndexTimeSeries)) {
       return false;
     }
     if (_spotLag != other._spotLag) {

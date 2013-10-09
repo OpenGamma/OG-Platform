@@ -5,6 +5,7 @@ import static org.testng.Assert.assertFalse;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
@@ -13,8 +14,10 @@ import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
 import org.threeten.bp.ZonedDateTime;
 
+import com.google.common.collect.Lists;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.marketdata.spec.MarketData;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
 import com.opengamma.engine.target.ComputationTargetRequirement;
 import com.opengamma.engine.target.ComputationTargetType;
@@ -89,14 +92,28 @@ public class DependencyGraphTraceBuilderPropertiesTest {
   @Test
   public void marketData() {
     String snapshotId = "Foo~1";
-    UserMarketDataSpecification marketData = MarketData.user(UniqueId.parse(snapshotId));
+    List<MarketDataSpecification> marketData = Lists.<MarketDataSpecification>newArrayList(MarketData.user(UniqueId.parse(snapshotId)));
 
     final DependencyGraphTraceBuilderProperties builder1 = createBuilder();
-    UserMarketDataSpecification defaultMD = builder1.getMarketData();
+    List<MarketDataSpecification> defaultMD = builder1.getMarketData();
     final DependencyGraphTraceBuilderProperties builder2 = builder1.marketData(marketData);
 
     assertEquals(defaultMD, builder1.getMarketData());
     assertEquals(marketData, builder2.getMarketData());
+
+  }
+
+  @Test
+  public void addMarketData() {
+    String snapshotId = "Foo~1";
+    UserMarketDataSpecification marketData = MarketData.user(UniqueId.parse(snapshotId));
+
+    final DependencyGraphTraceBuilderProperties builder1 = createBuilder();
+    List<MarketDataSpecification> defaultMD = builder1.getMarketData();
+    final DependencyGraphTraceBuilderProperties builder2 = builder1.addMarketData(marketData);
+
+    assertEquals(defaultMD, builder1.getMarketData());
+    assertEquals(Lists.newArrayList(marketData), builder2.getMarketData());
 
   }
 

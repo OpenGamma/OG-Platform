@@ -1,9 +1,11 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.curve.interestrate.generator;
+
+import java.util.Arrays;
 
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -16,6 +18,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Store the details and generate the required curve. The curve is interpolated on the rate (continuously compounded).
  */
+@SuppressWarnings("deprecation")
 public class GeneratorCurveYieldInterpolatedNode extends GeneratorYDCurve {
 
   /**
@@ -33,13 +36,17 @@ public class GeneratorCurveYieldInterpolatedNode extends GeneratorYDCurve {
 
   /**
    * Constructor.
-   * @param nodePoints The node points (X) used to define the interpolated curve. 
+   * @param nodePoints The node points (X) used to define the interpolated curve.
    * @param interpolator The interpolator.
    */
-  public GeneratorCurveYieldInterpolatedNode(double[] nodePoints, Interpolator1D interpolator) {
+  public GeneratorCurveYieldInterpolatedNode(final double[] nodePoints, final Interpolator1D interpolator) {
     ArgumentChecker.notNull(nodePoints, "Node points");
     ArgumentChecker.notNull(interpolator, "Interpolator");
     _nodePoints = nodePoints;
+    // Check that node points are sorted
+    final double[] nodePointsSorted = nodePoints.clone();
+    Arrays.sort(nodePointsSorted);
+    ArgumentChecker.isTrue(Arrays.equals(nodePoints, nodePointsSorted), "Node points not sorted");
     _nbPoints = _nodePoints.length;
     _interpolator = interpolator;
   }
@@ -50,18 +57,23 @@ public class GeneratorCurveYieldInterpolatedNode extends GeneratorYDCurve {
   }
 
   @Override
-  public YieldAndDiscountCurve generateCurve(String name, double[] x) {
+  public YieldAndDiscountCurve generateCurve(final String name, final double[] x) {
     ArgumentChecker.isTrue(x.length == _nbPoints, "Incorrect dimension for the rates");
     return new YieldCurve(name, new InterpolatedDoublesCurve(_nodePoints, x, _interpolator, true, name));
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Curve builders that use and populate {@link YieldCurveBundle}s are deprecated.
+   */
+  @Deprecated
   @Override
-  public YieldAndDiscountCurve generateCurve(String name, YieldCurveBundle bundle, double[] parameters) {
+  public YieldAndDiscountCurve generateCurve(final String name, final YieldCurveBundle bundle, final double[] parameters) {
     return generateCurve(name, parameters);
   }
 
   @Override
-  public YieldAndDiscountCurve generateCurve(String name, MulticurveProviderInterface multicurve, double[] parameters) {
+  public YieldAndDiscountCurve generateCurve(final String name, final MulticurveProviderInterface multicurve, final double[] parameters) {
     return generateCurve(name, parameters);
   }
 

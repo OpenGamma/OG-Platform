@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.equity.option;
@@ -18,7 +18,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ *
  */
 public class EquityIndexFutureOptionDefinition implements InstrumentDefinition<EquityIndexFutureOption> {
   /** The expiry date */
@@ -34,6 +34,8 @@ public class EquityIndexFutureOptionDefinition implements InstrumentDefinition<E
   private final boolean _isCall;
   /** The point value */
   private final double _pointValue;
+  /** The reference price is the transaction price on the transaction date and the last close price afterward */
+  private final double _referencePrice;
 
   /**
    * @param expiryDate The expiry date, not null
@@ -42,9 +44,10 @@ public class EquityIndexFutureOptionDefinition implements InstrumentDefinition<E
    * @param exerciseType The exercise type, not null
    * @param isCall true if call, false if put
    * @param pointValue The point value
+   * @param referencePrice TODO
    */
   public EquityIndexFutureOptionDefinition(final ZonedDateTime expiryDate, final IndexFutureDefinition underlying, final double strike, final ExerciseDecisionType exerciseType,
-      final boolean isCall, final double pointValue) {
+      final boolean isCall, final double pointValue, double referencePrice) {
     ArgumentChecker.notNull(expiryDate, "expiry date");
     ArgumentChecker.notNull(underlying, "underlying");
     ArgumentChecker.notNegativeOrZero(strike, "strike");
@@ -55,6 +58,7 @@ public class EquityIndexFutureOptionDefinition implements InstrumentDefinition<E
     _exerciseType = exerciseType;
     _isCall = isCall;
     _pointValue = pointValue;
+    _referencePrice = referencePrice;
   }
 
   /**
@@ -105,6 +109,14 @@ public class EquityIndexFutureOptionDefinition implements InstrumentDefinition<E
     return _pointValue;
   }
 
+  /**
+   * Gets the referencePrice.
+   * @return the referencePrice
+   */
+  public double getReferencePrice() {
+    return _referencePrice;
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -116,6 +128,8 @@ public class EquityIndexFutureOptionDefinition implements InstrumentDefinition<E
     temp = Double.doubleToLongBits(_strike);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_pointValue);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    temp = Double.doubleToLongBits(_referencePrice);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     result = prime * result + _underlying.hashCode();
     return result;
@@ -139,6 +153,9 @@ public class EquityIndexFutureOptionDefinition implements InstrumentDefinition<E
     if (Double.compare(_strike, other._strike) != 0) {
       return false;
     }
+    if (Double.compare(_referencePrice, other._referencePrice) != 0) {
+      return false;
+    }
     if (Double.compare(_pointValue, other._pointValue) != 0) {
       return false;
     }
@@ -151,8 +168,18 @@ public class EquityIndexFutureOptionDefinition implements InstrumentDefinition<E
     return true;
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names.
+   */
+  @Deprecated
   @Override
   public EquityIndexFutureOption toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+    return toDerivative(date);
+  }
+
+  @Override
+  public EquityIndexFutureOption toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");
     ArgumentChecker.inOrderOrEqual(date.toLocalDate(), _expiryDate.toLocalDate(), "valuation date", "expiry");
     double timeToExpiry = TimeCalculator.getTimeBetween(date, getExpiryDate());
@@ -160,20 +187,20 @@ public class EquityIndexFutureOptionDefinition implements InstrumentDefinition<E
       // REVIEW Stephen and Casey - This essentially assumes an Expiry with accuracy of 1 day.
       // The intended behaviour is that an option is still alive on the expiry date
       timeToExpiry = 0.0015; // Approximately half a day
-    } 
+    }
     double timeToFutureFixing = TimeCalculator.getTimeBetween(date, _underlying.getExpiryDate());
     if (timeToFutureFixing == 0) {
       timeToFutureFixing = 0.0015;
-    } 
+    }
     double timeToFutureDelivery = TimeCalculator.getTimeBetween(date, _underlying.getSettlementDate());
     if (timeToFutureDelivery == 0) {
       timeToFutureDelivery = 0.0015;
-    } 
+    }
     final double futureStrike = _underlying.getStrikePrice();
     final Currency currency = _underlying.getCurrency();
     final double unitValue = _underlying.getUnitAmount();
     final EquityIndexFuture underlying = new EquityIndexFuture(timeToFutureFixing, timeToFutureDelivery, futureStrike, currency, unitValue);
-    return new EquityIndexFutureOption(timeToExpiry, underlying, _strike, _exerciseType, _isCall, _pointValue);
+    return new EquityIndexFutureOption(timeToExpiry, underlying, _strike, _exerciseType, _isCall, _pointValue, _referencePrice);
   }
 
   @Override

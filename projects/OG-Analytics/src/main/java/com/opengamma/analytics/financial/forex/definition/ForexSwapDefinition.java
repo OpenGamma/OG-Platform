@@ -78,10 +78,13 @@ public class ForexSwapDefinition implements InstrumentDefinition<InstrumentDeriv
     return _farLeg;
   }
 
-  @Override
   /**
+   * {@inheritDoc}
    * The first curve is the discounting curve for the first currency and the second curve is the discounting curve for the second currency.
+   * @deprecated Use the method that does not take yield curve names
    */
+  @Deprecated
+  @Override
   public InstrumentDerivative toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.isTrue(!date.isAfter(_farLeg.getExchangeDate()), "date is after payment far date");
     if (date.isAfter(_nearLeg.getExchangeDate())) { // Implementation note: only the far leg left.
@@ -89,6 +92,21 @@ public class ForexSwapDefinition implements InstrumentDefinition<InstrumentDeriv
     }
     final Forex nearLeg = _nearLeg.toDerivative(date, yieldCurveNames);
     final Forex farLeg = _farLeg.toDerivative(date, yieldCurveNames);
+    return new ForexSwap(nearLeg, farLeg);
+  }
+
+  /**
+   * {@inheritDoc}
+   * The first curve is the discounting curve for the first currency and the second curve is the discounting curve for the second currency.
+   */
+  @Override
+  public InstrumentDerivative toDerivative(final ZonedDateTime date) {
+    ArgumentChecker.isTrue(!date.isAfter(_farLeg.getExchangeDate()), "date is after payment far date");
+    if (date.isAfter(_nearLeg.getExchangeDate())) { // Implementation note: only the far leg left.
+      return _farLeg.toDerivative(date);
+    }
+    final Forex nearLeg = _nearLeg.toDerivative(date);
+    final Forex farLeg = _farLeg.toDerivative(date);
     return new ForexSwap(nearLeg, farLeg);
   }
 

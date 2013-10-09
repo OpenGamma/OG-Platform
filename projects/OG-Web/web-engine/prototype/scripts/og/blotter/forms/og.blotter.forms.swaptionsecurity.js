@@ -36,6 +36,8 @@ $.register_module({
                         data.underlying.name = util.create_underlying_name(data);
                         data.security.name = util.create_name(data);
                         data.underlying.tradeDate = data.trade.tradeDate;
+                        data.underlying.exchangeInitialNotional = 'false';
+                        data.underlying.exchangeFinalNotional = 'false';
                         util.cleanup(data);
                     }
                 });

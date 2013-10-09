@@ -20,6 +20,8 @@ import com.opengamma.financial.analytics.model.ModelFunctions;
 import com.opengamma.financial.analytics.model.riskfactor.option.OptionGreekToValueGreekConverterFunction;
 import com.opengamma.financial.analytics.timeseries.TimeSeriesFunctions;
 import com.opengamma.financial.analytics.volatility.VolatilityFunctions;
+import com.opengamma.financial.security.function.DefaultSecurityAttributeFunction;
+import com.opengamma.financial.security.lookup.SecurityAttribute;
 
 /**
  * Function repository configuration source for the functions contained in this package and sub-packages.
@@ -28,7 +30,7 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package and its sub-packages.
-   * 
+   *
    * @return the configuration source exposing functions from this package and its sub-packages
    */
   public static FunctionConfigurationSource instance() {
@@ -37,7 +39,7 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
 
   /**
    * Adds an aggregation function for the given requirement name that produces the sum of the child position values.
-   * 
+   *
    * @param functions the function configuration list to update, not null
    * @param requirementName the requirement name, not null
    */
@@ -54,7 +56,7 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
   /**
    * Adds a unit scaling function to deliver the value from position's underlying security or trade at the position level. This is normally used for positions in OTC instruments that are stored with a
    * quantity of 1 in OpenGamma.
-   * 
+   *
    * @param functions the function configuration list to update, not null
    * @param requirementName the requirement name, not null
    */
@@ -71,7 +73,7 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
   /**
    * Adds a scaling function to deliver the value from a position's underlying security or trade multiplied by the quantity at the position level. This is used for positions in exchange traded
    * instruments.
-   * 
+   *
    * @param functions the function configuration list to update, not null
    * @param requirementName the requirement name, not null
    */
@@ -96,9 +98,21 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(CurrencyPairsFunction.class));
     functions.add(functionConfiguration(DV01Function.class));
     functions.add(functionConfiguration(NotionalFunction.class));
-    functions.add(functionConfiguration(QuantityFunction.class));
     functions.add(functionConfiguration(PortfolioNodeWeightFunction.class));
     functions.add(functionConfiguration(PositionWeightFunction.class));
+
+    //security attribute functions
+    functions.add(functionConfiguration(DefaultSecurityAttributeFunction.class, SecurityAttribute.DIRECTION.name(), ValueRequirementNames.PAY_REC));
+    functions.add(functionConfiguration(DefaultSecurityAttributeFunction.class, SecurityAttribute.FLOAT_FREQUENCY.name(), ValueRequirementNames.FLOAT_FREQUENCY));
+    functions.add(functionConfiguration(DefaultSecurityAttributeFunction.class, SecurityAttribute.FREQUENCY.name(), ValueRequirementNames.FREQUENCY));
+    functions.add(functionConfiguration(DefaultSecurityAttributeFunction.class, SecurityAttribute.INDEX.name(), ValueRequirementNames.INDEX));
+    functions.add(functionConfiguration(DefaultSecurityAttributeFunction.class, SecurityAttribute.MATURITY.name(), ValueRequirementNames.MATURITY));
+    functions.add(functionConfiguration(DefaultSecurityAttributeFunction.class, SecurityAttribute.PRODUCT.name(), ValueRequirementNames.PRODUCT));
+    functions.add(functionConfiguration(DefaultSecurityAttributeFunction.class, SecurityAttribute.QUANTITY.name(), ValueRequirementNames.QUANTITY));
+    functions.add(functionConfiguration(DefaultSecurityAttributeFunction.class, SecurityAttribute.RATE.name(), ValueRequirementNames.RATE));
+    functions.add(functionConfiguration(DefaultSecurityAttributeFunction.class, SecurityAttribute.START.name(), ValueRequirementNames.START));
+    functions.add(functionConfiguration(DefaultSecurityAttributeFunction.class, SecurityAttribute.TYPE.name(), ValueRequirementNames.TYPE));
+
     addUnitScalingFunction(functions, ValueRequirementNames.ATTRIBUTES);
     addUnitScalingFunction(functions, ValueRequirementNames.BLACK_VOLATILITY_GRID_PRICE);
     addScalingAndSummingFunction(functions, ValueRequirementNames.BOND_COUPON_PAYMENT_TIMES);
@@ -107,6 +121,7 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
     addSummingFunction(functions, ValueRequirementNames.CREDIT_SENSITIVITIES);
     addUnitScalingFunction(functions, ValueRequirementNames.CLEAN_PRICE);
     addUnitScalingFunction(functions, ValueRequirementNames.CONVEXITY);
+    addUnitScalingFunction(functions, ValueRequirementNames.CONVEXITY_ADJUSTMENT);
     addLastHistoricalValueFunction(functions, ValueRequirementNames.DAILY_APPLIED_BETA);
     addLastHistoricalValueFunction(functions, ValueRequirementNames.DAILY_MARKET_CAP);
     addLastHistoricalValueFunction(functions, ValueRequirementNames.DAILY_PRICE);
@@ -171,6 +186,7 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
     addUnitScalingFunction(functions, ValueRequirementNames.MARKET_DIRTY_PRICE);
     addSummingFunction(functions, ValueRequirementNames.MTM_PNL);
     addUnitScalingFunction(functions, ValueRequirementNames.MTM_PNL);
+    addUnitScalingFunction(functions, ValueRequirementNames.MARKET_QUOTE);
     addUnitScalingFunction(functions, ValueRequirementNames.MARKET_YTM);
     addUnitScalingFunction(functions, ValueRequirementNames.MODIFIED_DURATION);
     addUnitScalingAndSummingFunction(functions, ValueRequirementNames.NET_BASIS);
@@ -178,6 +194,7 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
     addUnitScalingAndSummingFunction(functions, ValueRequirementNames.NOTIONAL);
     addUnitScalingFunction(functions, ValueRequirementNames.PHI);
     addUnitScalingFunction(functions, ValueRequirementNames.PAR_RATE);
+    addUnitScalingFunction(functions, ValueRequirementNames.PAR_SPREAD);
     addUnitScalingFunction(functions, ValueRequirementNames.PAR_RATE_CURVE_SENSITIVITY);
     addUnitScalingFunction(functions, ValueRequirementNames.PAR_RATE_PARALLEL_CURVE_SHIFT);
     addUnitScalingFunction(functions, ValueRequirementNames.PIECEWISE_SABR_VOL_SURFACE);
@@ -240,6 +257,7 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
     addUnitScalingFunction(functions, ValueRequirementNames.WEIGHTED_VEGA);
     addSummingFunction(functions, ValueRequirementNames.WEIGHTED_VEGA);
     addScalingAndSummingFunction(functions, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
+    addScalingAndSummingFunction(functions, ValueRequirementNames.BLOCK_CURVE_SENSITIVITIES);
     addUnitScalingFunction(functions, ValueRequirementNames.YTM);
     addUnitScalingFunction(functions, ValueRequirementNames.ZETA);
     addUnitScalingFunction(functions, ValueRequirementNames.ZETA_BLEED);
@@ -274,6 +292,7 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
     addUnitScalingFunction(functions, ValueRequirementNames.PRINCIPAL);
     addUnitScalingFunction(functions, ValueRequirementNames.POINTS_UPFRONT);
     addUnitScalingFunction(functions, ValueRequirementNames.UPFRONT_AMOUNT);
+    addUnitScalingFunction(functions, ValueRequirementNames.QUOTED_SPREAD);
   }
 
   protected FunctionConfigurationSource cashFlowFunctionConfiguration() {

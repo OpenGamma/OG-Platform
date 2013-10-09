@@ -13,6 +13,7 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -30,11 +31,11 @@ import org.threeten.bp.Instant;
  */
 public final class ClasspathScanner {
 
-  private final URL[] _urls;
+  private final Set<URL> _urls;
   private final Instant _timestamp;
-  
-  private static volatile URL[] s_classPathElements;
-  
+
+  private static volatile Set<URL> s_classPathElements;
+
   private boolean _scanClassAnnotations = true;
   private boolean _scanMethodAnnotations = true;
   private boolean _scanParameterAnnotations = true;
@@ -45,15 +46,14 @@ public final class ClasspathScanner {
     _timestamp = timestamp(_urls);
   }
 
-  private URL[] getClassPathElements() {
+  private Set<URL> getClassPathElements() {
     if (s_classPathElements == null) {
       s_classPathElements = findClassPathElements();
     }
-    
     return s_classPathElements;
   }
 
-  private URL[] findClassPathElements() {
+  private Set<URL> findClassPathElements() {
     Set<URL> results = new LinkedHashSet<URL>();
     String javaClassPath = System.getProperty("java.class.path");
     String[] paths = javaClassPath.split(Pattern.quote(File.pathSeparator));
@@ -70,10 +70,10 @@ public final class ClasspathScanner {
       }
       results.add(url);
     }
-    return results.toArray(new URL[0]);
+    return results;
   }
 
-  private static Instant timestamp(final URL[] urls) {
+  private static Instant timestamp(final Iterable<URL> urls) {
     long ctime = 0;
     for (URL url : urls) {
       try {
@@ -90,8 +90,7 @@ public final class ClasspathScanner {
   }
 
   /**
-   * Returns the timestamp of the most recently modified Jar (or class) in the
-   * class path.
+   * Returns the timestamp of the most recently modified Jar (or class) in the class path.
    * 
    * @return the timestamp, not null
    */
@@ -101,112 +100,141 @@ public final class ClasspathScanner {
 
   /**
    * Scans the classpath to produce a populated cache.
-   * @param annotationClass 
    * 
+   * @param annotationClass the annotation to search for
    * @return the cache, not null
    */
   @SuppressWarnings("rawtypes")
   public AnnotationCache scan(Class<? extends Annotation> annotationClass) {
-    AnnotationReflector reflector = new AnnotationReflector(null, null,
-        new TypeAnnotationsScanner(), new FieldAnnotationsScanner(), new MethodAnnotationsScanner(), new MethodParameterScanner());
-    Set<String> classNames = reflector.getReflector().getStore().getTypesAnnotatedWith(annotationClass.getName());
-    Set<Field> fields = reflector.getReflector().getFieldsAnnotatedWith(annotationClass);
-    for (Field field : fields) {
-      classNames.add(field.getDeclaringClass().getName());
+    int scanners = 0;
+    if (isScanClassAnnotations()) {
+      scanners++;
     }
-    Set<Method> methods = reflector.getReflector().getMethodsAnnotatedWith(annotationClass);
-    for (Method method : methods) {
-      classNames.add(method.getDeclaringClass().getName());
+    if (isScanFieldAnnotations()) {
+      scanners++;
     }
-    Set<Constructor> constructors = reflector.getReflector().getConstructorsAnnotatedWith(annotationClass);
-    for (Constructor constructor : constructors) {
-      classNames.add(constructor.getDeclaringClass().getName());
+    if (isScanMethodAnnotations()) {
+      scanners++;
     }
-    Set<Method> paramMethods = reflector.getReflector().getMethodsWithAnyParamAnnotated(annotationClass);
-    for (Method method : paramMethods) {
-      classNames.add(method.getDeclaringClass().getName());
+    if (isScanParameterAnnotations()) {
+      scanners++;
+    }
+    final Object[] config = new Object[scanners + 2];
+    scanners = 0;
+    if (isScanClassAnnotations()) {
+      config[scanners++] = new TypeAnnotationsScanner();
+    }
+    if (isScanFieldAnnotations()) {
+      config[scanners++] = new FieldAnnotationsScanner();
+    }
+    if (isScanMethodAnnotations()) {
+      config[scanners++] = new MethodAnnotationsScanner();
+    }
+    if (isScanParameterAnnotations()) {
+      config[scanners++] = new MethodParameterScanner();
+    }
+    config[scanners++] = ClasspathScanner.class.getClassLoader();
+    config[scanners++] = Thread.currentThread().getContextClassLoader();
+    AnnotationReflector reflector = new AnnotationReflector(null, _urls, config);
+    final HashSet<String> classNames = new HashSet<String>();
+    if (isScanClassAnnotations()) {
+      classNames.addAll(reflector.getReflector().getStore().getTypesAnnotatedWith(annotationClass.getName()));
+    }
+    if (isScanFieldAnnotations()) {
+      Set<Field> fields = reflector.getReflector().getFieldsAnnotatedWith(annotationClass);
+      for (Field field : fields) {
+        classNames.add(field.getDeclaringClass().getName());
+      }
+    }
+    if (isScanMethodAnnotations()) {
+      Set<Method> methods = reflector.getReflector().getMethodsAnnotatedWith(annotationClass);
+      for (Method method : methods) {
+        classNames.add(method.getDeclaringClass().getName());
+      }
+      Set<Constructor> constructors = reflector.getReflector().getConstructorsAnnotatedWith(annotationClass);
+      for (Constructor constructor : constructors) {
+        classNames.add(constructor.getDeclaringClass().getName());
+      }
+    }
+    if (isScanParameterAnnotations()) {
+      Set<Method> paramMethods = reflector.getReflector().getMethodsWithAnyParamAnnotated(annotationClass);
+      for (Method method : paramMethods) {
+        classNames.add(method.getDeclaringClass().getName());
+      }
     }
     return AnnotationCache.create(getTimestamp(), annotationClass, classNames);
   }
 
   /**
    * Gets the scanClassAnnotations.
+   * 
    * @return the scanClassAnnotations
-   * @deprecated Unused
    */
-  @Deprecated
   public boolean isScanClassAnnotations() {
     return _scanClassAnnotations;
   }
 
   /**
    * Sets the scanClassAnnotations.
-   * @param scanClassAnnotations  the scanClassAnnotations
-   * @deprecated Unused
+   * 
+   * @param scanClassAnnotations the scanClassAnnotations
    */
-  @Deprecated
   public void setScanClassAnnotations(boolean scanClassAnnotations) {
     _scanClassAnnotations = scanClassAnnotations;
   }
 
   /**
    * Gets the scanMethodAnnotations.
+   * 
    * @return the scanMethodAnnotations
-   * @deprecated Unused
    */
-  @Deprecated
   public boolean isScanMethodAnnotations() {
     return _scanMethodAnnotations;
   }
 
   /**
    * Sets the scanMethodAnnotations.
-   * @param scanMethodAnnotations  the scanMethodAnnotations
-   * @deprecated Unused
+   * 
+   * @param scanMethodAnnotations the scanMethodAnnotations
    */
-  @Deprecated
   public void setScanMethodAnnotations(boolean scanMethodAnnotations) {
     _scanMethodAnnotations = scanMethodAnnotations;
   }
 
   /**
    * Gets the scanParameterAnnotations.
+   * 
    * @return the scanParameterAnnotations
-   * @deprecated Unused
    */
-  @Deprecated
   public boolean isScanParameterAnnotations() {
     return _scanParameterAnnotations;
   }
 
   /**
    * Sets the scanParameterAnnotations.
-   * @param scanParameterAnnotations  the scanParameterAnnotations
-   * @deprecated Unused
+   * 
+   * @param scanParameterAnnotations the scanParameterAnnotations
    */
-  @Deprecated
   public void setScanParameterAnnotations(boolean scanParameterAnnotations) {
     _scanParameterAnnotations = scanParameterAnnotations;
   }
 
   /**
    * Gets the scanFieldAnnotations.
+   * 
    * @return the scanFieldAnnotations
-   * @deprecated Unused
    */
-  @Deprecated
   public boolean isScanFieldAnnotations() {
     return _scanFieldAnnotations;
   }
 
   /**
    * Sets the scanFieldAnnotations.
-   * @param scanFieldAnnotations  the scanFieldAnnotations
-   * @deprecated Unused
+   * 
+   * @param scanFieldAnnotations the scanFieldAnnotations
    */
-  @Deprecated
   public void setScanFieldAnnotations(boolean scanFieldAnnotations) {
     _scanFieldAnnotations = scanFieldAnnotations;
   }
-  
+
 }

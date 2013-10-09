@@ -60,7 +60,7 @@ public class AgricultureFutureDefinition extends CommodityFutureDefinition<Agric
 
   /**
    * Static constructor method for cash settled futures
-   * 
+   *
    * @param expiryDate  the time and the day that a particular delivery month of a forwards contract stops trading, as well as the final settlement price for that contract
    * @param underlying  identifier of the underlying commodity
    * @param unitAmount  size of a unit
@@ -78,7 +78,7 @@ public class AgricultureFutureDefinition extends CommodityFutureDefinition<Agric
 
   /**
    * Static constructor method for physical settlement futures
-   * 
+   *
    * @param expiryDate  the time and the day that a particular delivery month of a forwards contract stops trading, as well as the final settlement price for that contract
    * @param underlying  identifier of the underlying commodity
    * @param unitAmount  size of a unit
@@ -99,15 +99,27 @@ public class AgricultureFutureDefinition extends CommodityFutureDefinition<Agric
   }
 
   /**
-   * Get the derivative at a given fix time from the definition
-   * 
-   * @param date  fixing time
-   * @param referencePrice the reference price
-   * @param yieldCurveNames not used
-   * @return the fixed derivative
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names.
    */
+  @Deprecated
   @Override
   public AgricultureFuture toDerivative(final ZonedDateTime date, final Double referencePrice, final String... yieldCurveNames) {
+    return toDerivative(date, referencePrice);
+  }
+
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names.
+   */
+  @Deprecated
+  @Override
+  public AgricultureFuture toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+    return toDerivative(date);
+  }
+
+  @Override
+  public AgricultureFuture toDerivative(final ZonedDateTime date, final Double referencePrice) {
     ArgumentChecker.inOrderOrEqual(date, this.getExpiryDate(), "date", "expiry date");
     final double timeToFixing = TimeCalculator.getTimeBetween(date, this.getExpiryDate());
     final double timeToSettlement = TimeCalculator.getTimeBetween(date, this.getSettlementDate());
@@ -115,15 +127,8 @@ public class AgricultureFutureDefinition extends CommodityFutureDefinition<Agric
         timeToSettlement, referencePrice, getCurrency());
   }
 
-  /**
-   * Get the derivative at a given fix time from the definition
-   *
-   * @param date  fixing time
-   * @param yieldCurveNames not used
-   * @return the fixed derivative
-   */
   @Override
-  public AgricultureFuture toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+  public AgricultureFuture toDerivative(final ZonedDateTime date) {
     ArgumentChecker.inOrderOrEqual(date, this.getExpiryDate(), "date", "expiry date");
     final double timeToFixing = TimeCalculator.getTimeBetween(date, this.getExpiryDate());
     final double timeToSettlement = TimeCalculator.getTimeBetween(date, this.getSettlementDate());

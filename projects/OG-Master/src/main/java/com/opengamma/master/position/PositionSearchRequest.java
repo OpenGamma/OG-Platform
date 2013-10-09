@@ -6,10 +6,10 @@
 package com.opengamma.master.position;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
@@ -48,14 +48,14 @@ public class PositionSearchRequest extends AbstractSearchRequest {
    * Note that an empty set will return no positions.
    */
   @PropertyDefinition(set = "manual")
-  private List<ObjectId> _positionObjectIds;
+  private Set<ObjectId> _positionObjectIds;
   /**
    * The set of trade object identifiers, null to not limit by trade object identifiers.
    * Each returned position will contain at least one of these trades.
    * Note that an empty list will return no positions.
    */
   @PropertyDefinition(set = "manual")
-  private List<ObjectId> _tradeObjectIds;
+  private Set<ObjectId> _tradeObjectIds;
   /**
    * The security external identifiers to match, null to not match on security identifiers.
    */
@@ -109,7 +109,7 @@ public class PositionSearchRequest extends AbstractSearchRequest {
   public void addPositionObjectId(ObjectIdentifiable positionId) {
     ArgumentChecker.notNull(positionId, "positionId");
     if (_positionObjectIds == null) {
-      _positionObjectIds = new ArrayList<ObjectId>();
+      _positionObjectIds = new LinkedHashSet<>();
     }
     _positionObjectIds.add(positionId.getObjectId());
   }
@@ -124,7 +124,7 @@ public class PositionSearchRequest extends AbstractSearchRequest {
     if (positionIds == null) {
       _positionObjectIds = null;
     } else {
-      _positionObjectIds = new ArrayList<ObjectId>();
+      _positionObjectIds = new LinkedHashSet<>();
       for (ObjectIdentifiable positionId : positionIds) {
         _positionObjectIds.add(positionId.getObjectId());
       }
@@ -139,7 +139,7 @@ public class PositionSearchRequest extends AbstractSearchRequest {
   public void addTradeObjectId(ObjectIdentifiable tradeId) {
     ArgumentChecker.notNull(tradeId, "tradeId");
     if (_tradeObjectIds == null) {
-      _tradeObjectIds = new ArrayList<ObjectId>();
+      _tradeObjectIds = new LinkedHashSet<>();
     }
     _tradeObjectIds.add(tradeId.getObjectId());
   }
@@ -155,7 +155,7 @@ public class PositionSearchRequest extends AbstractSearchRequest {
     if (tradeIds == null) {
       _tradeObjectIds = null;
     } else {
-      _tradeObjectIds = new ArrayList<ObjectId>();
+      _tradeObjectIds = new LinkedHashSet<>();
       for (ObjectIdentifiable tradeId : tradeIds) {
         _tradeObjectIds.add(tradeId.getObjectId());
       }
@@ -248,6 +248,7 @@ public class PositionSearchRequest extends AbstractSearchRequest {
   public static PositionSearchRequest.Meta meta() {
     return PositionSearchRequest.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(PositionSearchRequest.Meta.INSTANCE);
   }
@@ -285,10 +286,10 @@ public class PositionSearchRequest extends AbstractSearchRequest {
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -88800304:  // positionObjectIds
-        setPositionObjectIds((List<ObjectId>) newValue);
+        setPositionObjectIds((Set<ObjectId>) newValue);
         return;
       case 572505589:  // tradeObjectIds
-        setTradeObjectIds((List<ObjectId>) newValue);
+        setTradeObjectIds((Set<ObjectId>) newValue);
         return;
       case 1137408515:  // securityIdSearch
         setSecurityIdSearch((ExternalIdSearch) newValue);
@@ -352,7 +353,7 @@ public class PositionSearchRequest extends AbstractSearchRequest {
    * Note that an empty set will return no positions.
    * @return the value of the property
    */
-  public List<ObjectId> getPositionObjectIds() {
+  public Set<ObjectId> getPositionObjectIds() {
     return _positionObjectIds;
   }
 
@@ -361,7 +362,7 @@ public class PositionSearchRequest extends AbstractSearchRequest {
    * Note that an empty set will return no positions.
    * @return the property, not null
    */
-  public final Property<List<ObjectId>> positionObjectIds() {
+  public final Property<Set<ObjectId>> positionObjectIds() {
     return metaBean().positionObjectIds().createProperty(this);
   }
 
@@ -372,7 +373,7 @@ public class PositionSearchRequest extends AbstractSearchRequest {
    * Note that an empty list will return no positions.
    * @return the value of the property
    */
-  public List<ObjectId> getTradeObjectIds() {
+  public Set<ObjectId> getTradeObjectIds() {
     return _tradeObjectIds;
   }
 
@@ -382,7 +383,7 @@ public class PositionSearchRequest extends AbstractSearchRequest {
    * Note that an empty list will return no positions.
    * @return the property, not null
    */
-  public final Property<List<ObjectId>> tradeObjectIds() {
+  public final Property<Set<ObjectId>> tradeObjectIds() {
     return metaBean().tradeObjectIds().createProperty(this);
   }
 
@@ -571,14 +572,14 @@ public class PositionSearchRequest extends AbstractSearchRequest {
      * The meta-property for the {@code positionObjectIds} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<ObjectId>> _positionObjectIds = DirectMetaProperty.ofReadWrite(
-        this, "positionObjectIds", PositionSearchRequest.class, (Class) List.class);
+    private final MetaProperty<Set<ObjectId>> _positionObjectIds = DirectMetaProperty.ofReadWrite(
+        this, "positionObjectIds", PositionSearchRequest.class, (Class) Set.class);
     /**
      * The meta-property for the {@code tradeObjectIds} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<List<ObjectId>> _tradeObjectIds = DirectMetaProperty.ofReadWrite(
-        this, "tradeObjectIds", PositionSearchRequest.class, (Class) List.class);
+    private final MetaProperty<Set<ObjectId>> _tradeObjectIds = DirectMetaProperty.ofReadWrite(
+        this, "tradeObjectIds", PositionSearchRequest.class, (Class) Set.class);
     /**
      * The meta-property for the {@code securityIdSearch} property.
      */
@@ -672,7 +673,7 @@ public class PositionSearchRequest extends AbstractSearchRequest {
      * The meta-property for the {@code positionObjectIds} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<List<ObjectId>> positionObjectIds() {
+    public final MetaProperty<Set<ObjectId>> positionObjectIds() {
       return _positionObjectIds;
     }
 
@@ -680,7 +681,7 @@ public class PositionSearchRequest extends AbstractSearchRequest {
      * The meta-property for the {@code tradeObjectIds} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<List<ObjectId>> tradeObjectIds() {
+    public final MetaProperty<Set<ObjectId>> tradeObjectIds() {
       return _tradeObjectIds;
     }
 

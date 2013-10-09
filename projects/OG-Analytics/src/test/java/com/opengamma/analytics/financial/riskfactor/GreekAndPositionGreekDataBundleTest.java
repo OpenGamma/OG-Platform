@@ -23,8 +23,8 @@ import com.opengamma.analytics.financial.trade.OptionTradeData;
  */
 public class GreekAndPositionGreekDataBundleTest {
   private static final GreekResultCollection GREEKS = new GreekResultCollection();
-  private static final Map<PositionGreek, Double> RISK_FACTOR = new HashMap<PositionGreek, Double>();
-  private static final Map<UnderlyingType, Double> UNDERLYING = new HashMap<UnderlyingType, Double>();
+  private static final Map<PositionGreek, Double> RISK_FACTOR = new HashMap<>();
+  private static final Map<UnderlyingType, Double> UNDERLYING = new HashMap<>();
   private static final double NUMBER_OF_CONTRACTS = 200;
   private static final double POINT_VALUE = 5;
   private static final OptionTradeData OPTION_TRADE_DATA = new OptionTradeData(NUMBER_OF_CONTRACTS, POINT_VALUE);

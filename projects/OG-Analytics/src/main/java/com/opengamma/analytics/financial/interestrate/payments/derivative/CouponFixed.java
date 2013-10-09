@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.derivative;
@@ -42,7 +42,9 @@ public class CouponFixed extends Coupon {
    * @param paymentYearFraction The year fraction (or accrual factor) for the coupon payment.
    * @param notional Coupon notional.
    * @param rate The coupon fixed rate.
+   * @deprecated Use the constructor that does not take a curve name
    */
+  @Deprecated
   public CouponFixed(final Currency currency, final double paymentTime, final String fundingCurveName, final double paymentYearFraction, final double notional, final double rate) {
     super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional);
     _fixedRate = rate;
@@ -61,7 +63,9 @@ public class CouponFixed extends Coupon {
    * @param rate The coupon fixed rate.
    * @param accrualStartDate The start date of the coupon accrual period.
    * @param accrualEndDate The end date of the coupon accrual period.
+   * @deprecated Use the constructor that does not take a curve name
    */
+  @Deprecated
   public CouponFixed(final Currency currency, final double paymentTime, final String fundingCurveName, final double paymentYearFraction, final double notional, final double rate,
       final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate) {
     super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional);
@@ -78,9 +82,57 @@ public class CouponFixed extends Coupon {
    * @param fundingCurveName Name of the funding curve.
    * @param paymentYearFraction The year fraction (or accrual factor) for the coupon payment.
    * @param rate The coupon fixed rate.
+   * @deprecated Use the constructor that does not take a curve name
    */
+  @Deprecated
   public CouponFixed(final Currency currency, final double paymentTime, final String fundingCurveName, final double paymentYearFraction, final double rate) {
     this(currency, paymentTime, fundingCurveName, paymentYearFraction, 1.0, rate);
+  }
+
+  /**
+   * Constructor from all details but accrual dates.
+   * @param currency The payment currency.
+   * @param paymentTime Time (in years) up to the payment.
+   * @param paymentYearFraction The year fraction (or accrual factor) for the coupon payment.
+   * @param notional Coupon notional.
+   * @param rate The coupon fixed rate.
+   */
+  public CouponFixed(final Currency currency, final double paymentTime, final double paymentYearFraction, final double notional, final double rate) {
+    super(currency, paymentTime, paymentYearFraction, notional);
+    _fixedRate = rate;
+    _accrualStartDate = null;
+    _accrualEndDate = null;
+    _amount = paymentYearFraction * notional * rate;
+  }
+
+  /**
+   * Constructor from all details.
+   * @param currency The payment currency.
+   * @param paymentTime Time (in years) up to the payment.
+   * @param paymentYearFraction The year fraction (or accrual factor) for the coupon payment.
+   * @param notional Coupon notional.
+   * @param rate The coupon fixed rate.
+   * @param accrualStartDate The start date of the coupon accrual period.
+   * @param accrualEndDate The end date of the coupon accrual period.
+   */
+  public CouponFixed(final Currency currency, final double paymentTime, final double paymentYearFraction, final double notional, final double rate,
+      final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate) {
+    super(currency, paymentTime, paymentYearFraction, notional);
+    _fixedRate = rate;
+    _amount = paymentYearFraction * notional * rate;
+    _accrualStartDate = accrualStartDate;
+    _accrualEndDate = accrualEndDate;
+  }
+
+  /**
+   * Constructor from details with notional defaulted to 1.
+   * @param currency The payment currency.
+   * @param paymentTime Time (in years) up to the payment.
+   * @param paymentYearFraction The year fraction (or accrual factor) for the coupon payment.
+   * @param rate The coupon fixed rate.
+   */
+  public CouponFixed(final Currency currency, final double paymentTime, final double paymentYearFraction, final double rate) {
+    this(currency, paymentTime, paymentYearFraction, 1.0, rate);
   }
 
   /**
@@ -119,8 +171,13 @@ public class CouponFixed extends Coupon {
    * Creates a new coupon with the same characteristics, except the rate which is 1.0.
    * @return The new coupon.
    */
+  @SuppressWarnings("deprecation")
   public CouponFixed withUnitCoupon() {
-    return new CouponFixed(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), getNotional(), 1);
+    try {
+      return new CouponFixed(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), getNotional(), 1);
+    } catch (final IllegalStateException e) {
+      return new CouponFixed(getCurrency(), getPaymentTime(), getPaymentYearFraction(), getNotional(), 1);
+    }
   }
 
   /**
@@ -128,8 +185,13 @@ public class CouponFixed extends Coupon {
    * @param rate The new rate.
    * @return The coupon.
    */
+  @SuppressWarnings("deprecation")
   public CouponFixed withRate(final double rate) {
-    return new CouponFixed(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), getNotional(), rate, getAccrualStartDate(), getAccrualEndDate());
+    try {
+      return new CouponFixed(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), getNotional(), rate, getAccrualStartDate(), getAccrualEndDate());
+    } catch (final IllegalStateException e) {
+      return new CouponFixed(getCurrency(), getPaymentTime(), getPaymentYearFraction(), getNotional(), rate, getAccrualStartDate(), getAccrualEndDate());
+    }
   }
 
   /**
@@ -137,21 +199,37 @@ public class CouponFixed extends Coupon {
    * @param spread The rate spread.
    * @return The coupon.
    */
+  @SuppressWarnings("deprecation")
   public CouponFixed withRateShifted(final double spread) {
-    return new CouponFixed(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), getNotional(), getFixedRate() + spread, getAccrualStartDate(), getAccrualEndDate());
+    try {
+      return new CouponFixed(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), getNotional(), getFixedRate() + spread, getAccrualStartDate(), getAccrualEndDate());
+    } catch (final IllegalStateException e) {
+      return new CouponFixed(getCurrency(), getPaymentTime(), getPaymentYearFraction(), getNotional(), getFixedRate() + spread, getAccrualStartDate(), getAccrualEndDate());
+    }
   }
 
+  @SuppressWarnings("deprecation")
   @Override
   public CouponFixed withNotional(final double notional) {
-    return new CouponFixed(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), notional, getFixedRate(), getAccrualStartDate(), getAccrualEndDate());
+    try {
+      return new CouponFixed(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), notional, getFixedRate(), getAccrualStartDate(), getAccrualEndDate());
+    } catch (final IllegalStateException e) {
+      return new CouponFixed(getCurrency(), getPaymentTime(), getPaymentYearFraction(), notional, getFixedRate(), getAccrualStartDate(), getAccrualEndDate());
+
+    }
   }
 
   /**
    * Returns a fixed payment with the same features (currency, payment time, amount) as the fixed coupon.
    * @return A fixed payment.
    */
+  @SuppressWarnings("deprecation")
   public PaymentFixed toPaymentFixed() {
-    return new PaymentFixed(getCurrency(), getPaymentTime(), _amount, getFundingCurveName());
+    try {
+      return new PaymentFixed(getCurrency(), getPaymentTime(), _amount, getFundingCurveName());
+    } catch (final IllegalStateException e) {
+      return new PaymentFixed(getCurrency(), getPaymentTime(), _amount);
+    }
   }
 
   @Override

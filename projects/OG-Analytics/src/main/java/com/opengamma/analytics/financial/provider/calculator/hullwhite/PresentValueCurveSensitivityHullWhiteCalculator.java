@@ -1,19 +1,21 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.calculator.hullwhite;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorDelegate;
-import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesPriceDeliverableTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureTransaction;
-import com.opengamma.analytics.financial.interestrate.future.provider.SwapFuturesPriceDeliverableTransactionHullWhiteMethod;
+import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesPriceDeliverableTransaction;
 import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureOptionMarginTransactionHullWhiteMethod;
 import com.opengamma.analytics.financial.interestrate.future.provider.InterestRateFutureTransactionHullWhiteMethod;
+import com.opengamma.analytics.financial.interestrate.future.provider.SwapFuturesPriceDeliverableTransactionHullWhiteMethod;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFloorIbor;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
 import com.opengamma.analytics.financial.interestrate.payments.provider.CapFloorIborHullWhiteMethod;
+import com.opengamma.analytics.financial.interestrate.payments.provider.CouponCMSHullWhiteApproximationMethod;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.provider.SwaptionCashFixedIborHullWhiteApproximationMethod;
@@ -23,7 +25,7 @@ import com.opengamma.analytics.financial.provider.description.interestrate.HullW
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MultipleCurrencyMulticurveSensitivity;
 
 /**
- * Calculates the present value of an inflation instruments by discounting for a given MarketBundle
+ * Calculates the sensitivity of the present value to curves using the Hull-White one factor model.
  */
 public final class PresentValueCurveSensitivityHullWhiteCalculator extends InstrumentDerivativeVisitorDelegate<HullWhiteOneFactorProviderInterface, MultipleCurrencyMulticurveSensitivity> {
 
@@ -44,7 +46,7 @@ public final class PresentValueCurveSensitivityHullWhiteCalculator extends Instr
    * Constructor.
    */
   private PresentValueCurveSensitivityHullWhiteCalculator() {
-    super(new HullWhiteProviderAdapter<MultipleCurrencyMulticurveSensitivity>(PresentValueCurveSensitivityDiscountingCalculator.getInstance()));
+    super(new HullWhiteProviderAdapter<>(PresentValueCurveSensitivityDiscountingCalculator.getInstance()));
   }
 
   /**
@@ -56,12 +58,18 @@ public final class PresentValueCurveSensitivityHullWhiteCalculator extends Instr
   private static final SwapFuturesPriceDeliverableTransactionHullWhiteMethod METHOD_SWAPFUT = SwapFuturesPriceDeliverableTransactionHullWhiteMethod.getInstance();
   private static final SwaptionPhysicalFixedIborHullWhiteMethod METHOD_SWPT_PHYS = SwaptionPhysicalFixedIborHullWhiteMethod.getInstance();
   private static final SwaptionCashFixedIborHullWhiteApproximationMethod METHOD_SWPT_CASH = SwaptionCashFixedIborHullWhiteApproximationMethod.getInstance();
+  private static final CouponCMSHullWhiteApproximationMethod METHOD_CMS_CPN = CouponCMSHullWhiteApproximationMethod.getInstance();
 
   //     -----     Payment/Coupon     -----
 
   @Override
   public MultipleCurrencyMulticurveSensitivity visitCapFloorIbor(final CapFloorIbor cap, final HullWhiteOneFactorProviderInterface hullWhite) {
     return METHOD_CAPFLOOR_IBOR.presentValueCurveSensitivity(cap, hullWhite);
+  }
+
+  @Override
+  public MultipleCurrencyMulticurveSensitivity visitCouponCMS(final CouponCMS cms, final HullWhiteOneFactorProviderInterface hullWhite) {
+    return METHOD_CMS_CPN.presentValueCurveSensitivity(cms, hullWhite);
   }
 
   //     -----     Futures     -----

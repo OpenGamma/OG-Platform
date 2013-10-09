@@ -110,6 +110,7 @@ public class DbPortfolioMasterComponentFactory extends AbstractDbMasterComponent
   public static DbPortfolioMasterComponentFactory.Meta meta() {
     return DbPortfolioMasterComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(DbPortfolioMasterComponentFactory.Meta.INSTANCE);
   }

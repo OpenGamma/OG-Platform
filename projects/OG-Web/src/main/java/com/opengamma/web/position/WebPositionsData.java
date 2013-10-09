@@ -115,6 +115,7 @@ public class WebPositionsData extends DirectBean {
   public static WebPositionsData.Meta meta() {
     return WebPositionsData.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(WebPositionsData.Meta.INSTANCE);
   }

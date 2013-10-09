@@ -13,6 +13,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Set;
 
 import org.testng.annotations.Test;
 
@@ -37,6 +38,20 @@ public class CurrencyTest {
     assertEquals(Currency.CHF, Currency.of("CHF"));
     assertEquals(Currency.AUD, Currency.of("AUD"));
     assertEquals(Currency.CAD, Currency.of("CAD"));
+  }
+
+  //-----------------------------------------------------------------------
+  // getAvailableCurrencies()
+  //-----------------------------------------------------------------------
+  public void test_getAvailable() {
+    Set<Currency> available = Currency.getAvailableCurrencies();
+    assertTrue(available.contains(Currency.USD));
+    assertTrue(available.contains(Currency.EUR));
+    assertTrue(available.contains(Currency.JPY));
+    assertTrue(available.contains(Currency.GBP));
+    assertTrue(available.contains(Currency.CHF));
+    assertTrue(available.contains(Currency.AUD));
+    assertTrue(available.contains(Currency.CAD));
   }
 
   //-----------------------------------------------------------------------

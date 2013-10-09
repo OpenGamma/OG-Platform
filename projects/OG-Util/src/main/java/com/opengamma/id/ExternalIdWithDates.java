@@ -12,7 +12,6 @@ import org.threeten.bp.LocalDate;
 
 import com.google.common.base.Objects;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * An immutable external identifier with validity dates.
@@ -23,9 +22,6 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
  */
 public final class ExternalIdWithDates
     implements ExternalIdentifiable, Comparable<ExternalIdWithDates>, Serializable {
-  static {
-    OpenGammaFudgeContext.getInstance().getTypeDictionary().registerClassRename("com.opengamma.id.IdentifierWithDates", ExternalIdWithDates.class);
-  }
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -54,7 +50,7 @@ public final class ExternalIdWithDates
   public static ExternalIdWithDates of(ExternalId identifier, LocalDate validFrom, LocalDate validTo) {
     return new ExternalIdWithDates(identifier, validFrom, validTo);
   }
-  
+
   /**
    * Obtains an {@code ExternalIdWithDates} from an {@code ExternalId}.
    * @param identifier the identifier, not empty, not null
@@ -186,8 +182,8 @@ public final class ExternalIdWithDates
     if (obj instanceof ExternalIdWithDates) {
       ExternalIdWithDates other = (ExternalIdWithDates) obj;
       return ObjectUtils.equals(_identifier, other._identifier) &&
-              ObjectUtils.equals(_validFrom, other._validFrom) &&
-              ObjectUtils.equals(_validTo, other._validTo);
+          ObjectUtils.equals(_validFrom, other._validFrom) &&
+          ObjectUtils.equals(_validTo, other._validTo);
     }
     return false;
   }

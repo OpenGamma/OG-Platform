@@ -129,6 +129,7 @@ public class ComponentInfo extends DirectBean {
   public static ComponentInfo.Meta meta() {
     return ComponentInfo.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ComponentInfo.Meta.INSTANCE);
   }

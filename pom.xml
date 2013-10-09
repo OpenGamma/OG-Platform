@@ -8,12 +8,12 @@
   <parent>
     <groupId>com.opengamma</groupId>
     <artifactId>corporate-parent</artifactId>
-    <version>1.1.1</version>
+    <version>1.1.4</version>
     <relativePath></relativePath>
   </parent>  
   <groupId>com.opengamma.platform</groupId>
   <artifactId>og-platform</artifactId>
-  <version>2.0.0</version>
+  <version>2.1.0</version>
   <packaging>pom</packaging>
   <name>OG-Platform</name>
   <description>OpenGamma Platform project</description>
@@ -183,12 +183,9 @@
           <dependency>
             <groupId>com.opengamma.tools</groupId>
             <artifactId>build-tools</artifactId>
-            <version>1.2.1</version>
+            <version>1.2.2</version>
           </dependency>
         </dependencies>
-        <configuration>
-          <failsOnError>true</failsOnError>
-        </configuration>
       </plugin>
       <!-- attach site -->
       <plugin>
@@ -292,7 +289,7 @@
       <dependency>
         <groupId>org.joda</groupId>
         <artifactId>joda-convert</artifactId>
-        <version>1.3.1</version>
+        <version>1.4</version>
       </dependency>
       <dependency>
         <groupId>org.joda</groupId>
@@ -302,7 +299,7 @@
       <dependency>
         <groupId>com.opengamma.tools</groupId>
         <artifactId>scripts</artifactId>
-        <version>1.3.0</version>
+        <version>1.3.1</version>
       </dependency>
       <dependency>
         <groupId>com.opengamma</groupId>
@@ -477,12 +474,12 @@
       <dependency>
         <groupId>com.codahale.metrics</groupId>
         <artifactId>metrics-core</artifactId>
-        <version>3.0.0</version>
+        <version>3.0.1</version>
       </dependency>
       <dependency>
         <groupId>com.codahale.metrics</groupId>
         <artifactId>metrics-logback</artifactId>
-        <version>3.0.0</version>
+        <version>3.0.1</version>
         <exclusions>
           <exclusion>
             <groupId>ch.qos.logback</groupId>
@@ -497,7 +494,7 @@
       <dependency>
         <groupId>com.codahale.metrics</groupId>
         <artifactId>metrics-ganglia</artifactId>
-        <version>3.0.0</version>
+        <version>3.0.1</version>
         <exclusions>
           <exclusion>
             <groupId>ch.qos.logback</groupId>
@@ -712,6 +709,21 @@
         <artifactId>jetty-jsp</artifactId>
         <version>${jetty.version}</version>
       </dependency>
+      <dependency>
+        <groupId>org.eclipse.jetty</groupId>
+        <artifactId>jetty-plus</artifactId>
+        <version>${jetty.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>org.eclipse.jetty.orbit</groupId>
+            <artifactId>javax.servlet</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.eclipse.jetty.orbit</groupId>
+            <artifactId>javax.transaction</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
 
       <!--Jruby and gems -->
       <dependency>
@@ -769,6 +781,10 @@
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging-api</artifactId>
           </exclusion>
+	        <exclusion>
+	          <groupId>org.slf4j</groupId>
+	          <artifactId>slf4j-api</artifactId>
+	        </exclusion>
           <exclusion>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
@@ -779,7 +795,15 @@
           </exclusion>
           <exclusion>
             <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-jta_1.0.1B_spec</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-j2ee-management_1.0_spec</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-j2ee-management_1.1_spec</artifactId>
           </exclusion>
           <exclusion>
             <groupId>org.apache.geronimo.specs</groupId>
@@ -807,6 +831,10 @@
           <exclusion>
             <groupId>org.springframework</groupId>
             <artifactId>spring-beans</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-j2ee-management_1.1_spec</artifactId>
           </exclusion>
           <exclusion>
             <groupId>org.apache.geronimo.specs</groupId>
@@ -1027,7 +1055,7 @@
           <!-- validate Joda-Beans -->
           <plugin>
             <groupId>org.joda</groupId>
-            <artifactId>maven-joda-beans-plugin</artifactId>
+            <artifactId>joda-beans-maven-plugin</artifactId>
             <executions>
               <execution>
                 <phase>validate</phase>
@@ -1040,39 +1068,21 @@
               </execution>
             </executions>
           </plugin>
-        </plugins>
-      </build>
-    </profile>
-    <!-- src zip file, activated with -Ddist -->
-    <profile>
-      <id>dist</id>
-      <activation>
-        <property>
-          <name>dist</name>
-        </property>
-      </activation>
-      <build>
-        <plugins>
+          <!-- validate no checkstyle violations -->
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-assembly-plugin</artifactId>
-            <inherited>false</inherited>
+            <artifactId>maven-checkstyle-plugin</artifactId>
             <executions>
               <execution>
-                <id>src</id>
-                <phase>package</phase>
+                <id>enforce-checkstyle</id>
+                <phase>validate</phase>
                 <goals>
-                  <goal>single</goal>
+                  <goal>check</goal>
                 </goals>
                 <configuration>
-                  <descriptors>
-                    <descriptor>src/main/assembly/assembly-src.xml</descriptor>
-                  </descriptors>
-                  <formats>
-                    <format>zip</format>
-                    <format>tar.bz2</format>
-                  </formats>
-                  <tarLongFileMode>gnu</tarLongFileMode>
+                  <logViolationsToConsole>true</logViolationsToConsole>
+                  <failOnViolation>true</failOnViolation>
+                  <violationSeverity>error</violationSeverity>
                 </configuration>
               </execution>
             </executions>
@@ -1080,18 +1090,108 @@
         </plugins>
       </build>
     </profile>
-    <!-- setup to run all tests, activated with -DallTests -->
+    <!-- src zip file, activated with -Ddist-src -->
+    <profile>
+      <id>dist-src</id>
+      <activation>
+        <property>
+          <name>dist-src</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <inherited>false</inherited>
+            <executions>
+              <execution>
+                <id>src</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+                <configuration>
+                  <target>
+                    <ant antfile="${basedir}/pom-ant.xml" target="dist-src" />
+                  </target>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <!-- setup to run all tests, activated with -Dall-tests -->
     <profile>
       <id>all-tests</id>
       <activation>
         <property>
-          <name>allTests</name>
+          <name>all-tests</name>
         </property>
       </activation>
       <properties>
         <tests.testng.includedgroups>unit,integration,unitdb,unitslow</tests.testng.includedgroups>
         <tests.testng.excludedgroups>none</tests.testng.excludedgroups>
       </properties>
+    </profile>
+    <!-- setup to run tests with code coverage, activated with -Dcoverage -->
+    <profile>
+      <id>coverage</id>
+      <activation>
+        <property>
+          <name>coverage</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <version>${jacoco-maven-plugin.version}</version>
+            <executions>
+              <execution>
+                <id>prepare-agent</id>
+                <phase>process-sources</phase>
+                <goals>
+                  <goal>prepare-agent</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>report</id>
+                <phase>prepare-package</phase>
+                <goals>
+                  <goal>report</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <argLine>-Xmx${tests.testng.maxheap} ${argLine}</argLine>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+      <reporting>
+        <plugins>
+          <plugin>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <version>${jacoco-maven-plugin.version}</version>
+            <reportSets>
+              <reportSet>
+                <id>single</id>
+                <reports>
+                  <report>report</report>
+                </reports>
+              </reportSet>
+            </reportSets>
+          </plugin>
+        </plugins>
+      </reporting>
     </profile>
   </profiles>
 
@@ -1106,6 +1206,10 @@
     <!-- Properties for buildnumber-maven-plugin -->
     <maven.buildNumber.getRevisionOnlyOnce>true</maven.buildNumber.getRevisionOnlyOnce>
     <!-- Version properties -->
+    <joda-beans.version>0.7.1</joda-beans.version>
+    <fudge-java.version>0.3.9.12</fudge-java.version>
+    <fudge-proto.version>0.3.9.7</fudge-proto.version>
+    <jacoco-maven-plugin.version>0.6.3.201306030806</jacoco-maven-plugin.version>
     <og.spring.version>3.2.3.RELEASE</og.spring.version>
     <jetty.version>8.1.11.v20130520</jetty.version>
     <jersey.version>1.17.1</jersey.version>
@@ -1122,7 +1226,8 @@
     <fudge.proto.rebuildAll>true</fudge.proto.rebuildAll>
     <fudge.proto.searchDir>${project.basedir}/src/main/java</fudge.proto.searchDir>
     <fudge.proto.excludes>*Security.proto;*ExerciseType.proto;*OptionType.proto;*PayoffStyle.proto;*SwapLeg.proto;*Notional.proto</fudge.proto.excludes>
-    <fudge.proto.fileHeader>///CLOVER:OFF - CSOFF</fudge.proto.fileHeader>
+    <fudge.proto.autoGeneratedHeaderComment>Automatically created - do not modify - CSOFF</fudge.proto.autoGeneratedHeaderComment>
+    <fudge.proto.fileHeader>///CLOVER:OFF</fudge.proto.fileHeader>
     <fudge.proto.fileFooter>///CLOVER:ON - CSON</fudge.proto.fileFooter>
   </properties>
 

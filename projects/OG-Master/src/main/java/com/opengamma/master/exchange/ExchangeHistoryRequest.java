@@ -95,6 +95,7 @@ public class ExchangeHistoryRequest extends AbstractHistoryRequest {
   public static ExchangeHistoryRequest.Meta meta() {
     return ExchangeHistoryRequest.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ExchangeHistoryRequest.Meta.INSTANCE);
   }

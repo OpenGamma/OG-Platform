@@ -38,6 +38,8 @@ import com.opengamma.util.ArgumentChecker;
  */
 public abstract class AbstractBloombergLiveDataServer extends StandardLiveDataServer {
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractBloombergLiveDataServer.class);
+  private static final String DEFAULT_BBG_SUB_PREFIX = "/buid/";
+  
   private NormalizationRuleResolver _normalizationRules;  
   private IdResolver _idResolver;
   private DistributionSpecificationResolver _defaultDistributionSpecificationResolver;
@@ -71,6 +73,16 @@ public abstract class AbstractBloombergLiveDataServer extends StandardLiveDataSe
     return true;
   }
   
+  /**
+   * 
+   * @return the prefix to use when making the subscription, including slashes.
+   * e.g. "/buid/"
+   */
+  protected String getBloombergSubscriptionPathPrefix() {
+    return DEFAULT_BBG_SUB_PREFIX;
+  }
+  
+  
   @Override
   public Map<String, FudgeMsg> doSnapshot(Collection<String> uniqueIds) {
     ArgumentChecker.notNull(uniqueIds, "Unique IDs");
@@ -80,7 +92,7 @@ public abstract class AbstractBloombergLiveDataServer extends StandardLiveDataSe
     
     Set<String> buids = Sets.newHashSetWithExpectedSize(uniqueIds.size());
     for (String uniqueId : uniqueIds) {
-      String buid = "/buid/" + uniqueId;
+      String buid = getBloombergSubscriptionPathPrefix() + uniqueId;
       buids.add(buid);
     }
     
@@ -95,7 +107,7 @@ public abstract class AbstractBloombergLiveDataServer extends StandardLiveDataSe
         s_logger.error("Could not find result for {} in data snapshot, skipping", buid, e);
         //throw new OpenGammaRuntimeException("Result for " + buid + " was not found");
       } else {
-        String securityUniqueId = buid.substring("/buid/".length());
+        String securityUniqueId = buid.substring(getBloombergSubscriptionPathPrefix().length());
         returnValue.put(securityUniqueId, fieldData);
       }
     }
@@ -104,7 +116,7 @@ public abstract class AbstractBloombergLiveDataServer extends StandardLiveDataSe
 
   public synchronized NormalizationRuleResolver getNormalizationRules() {
     if (_normalizationRules == null) {
-      _normalizationRules = new StandardRuleResolver(BloombergDataUtils.getDefaultNormalizationRules(getReferenceDataProvider(), getCacheManager()));
+      _normalizationRules = new StandardRuleResolver(BloombergDataUtils.getDefaultNormalizationRules(getReferenceDataProvider(), getCacheManager(), getUniqueIdDomain()));
     }
     return _normalizationRules;
   }

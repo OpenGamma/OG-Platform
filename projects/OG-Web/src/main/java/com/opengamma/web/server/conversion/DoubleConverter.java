@@ -173,8 +173,9 @@ public class DoubleConverter implements ResultConverter<Object> {
       final DoubleValueFormatter conversionSettings) {
     final Pattern pattern = Pattern.compile(valueRequirementFieldNamePattern);
     for (final Field field : ValueRequirementNames.class.getFields()) {
-      if ((field.getModifiers() & (Modifier.STATIC | Modifier.PUBLIC)) == (Modifier.STATIC | Modifier.PUBLIC)
-          && String.class.equals(field.getType()) && pattern.matcher(field.getName()).matches()) {
+      if ((field.getModifiers() & (Modifier.STATIC | Modifier.PUBLIC)) == (Modifier.STATIC | Modifier.PUBLIC) &&
+          field.isSynthetic() == false &&
+          String.class.equals(field.getType()) && pattern.matcher(field.getName()).matches()) {
         String fieldValue;
         try {
           fieldValue = (String) field.get(null);

@@ -11,7 +11,9 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 /**
  * A grid for displaying primitives analytics data.
  */
-/* package */ class PrimitivesAnalyticsGrid extends MainAnalyticsGrid {
+/* package */ class PrimitivesAnalyticsGrid extends MainAnalyticsGrid<MainGridViewport> {
+
+  private final PrimitivesGridStructure _gridStructure;
 
   /* package */ PrimitivesAnalyticsGrid(CompiledViewDefinition compiledViewDef,
                                         String gridId,
@@ -20,26 +22,32 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
     this(PrimitivesGridStructure.create(compiledViewDef), gridId, targetResolver, viewportListener);
   }
 
-  /* package */ PrimitivesAnalyticsGrid(MainGridStructure gridStructure,
+  /* package */ PrimitivesAnalyticsGrid(PrimitivesGridStructure gridStructure,
                                         String gridId,
                                         ComputationTargetResolver targetResolver,
                                         ViewportListener viewportListener) {
-    super(AnalyticsView.GridType.PRIMITIVES, gridStructure, gridId, targetResolver, viewportListener);
+    super(AnalyticsView.GridType.PRIMITIVES, gridId, targetResolver, viewportListener);
+    _gridStructure = gridStructure;
   }
 
   /**
-   *
-   *
    * @param viewportDefinition Defines the extent and properties of the viewport
    * @param callbackId ID that will be passed to listeners when the grid's data changes
-   * @param cache
+   * @param structureCallbackId ID that will be passed to listeners when the grid's structure changes
+   * @param cache The current results
    * @return The viewport
    */
   @Override
   protected MainGridViewport createViewport(ViewportDefinition viewportDefinition,
                                             String callbackId,
+                                            String structureCallbackId,
                                             ResultsCache cache) {
-    return new MainGridViewport((MainGridStructure) getGridStructure(), callbackId, viewportDefinition, getViewCycle(), cache);
+    return new PrimitivesGridViewport(getGridStructure(), callbackId, structureCallbackId, viewportDefinition, getViewCycle(), cache);
+  }
+
+  @Override
+  MainGridStructure getGridStructure() {
+    return _gridStructure;
   }
 
   /**

@@ -13,7 +13,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
- * 
+ *
  */
 public class ConstantRecombiningBinomialTreeTest {
 
@@ -21,11 +21,11 @@ public class ConstantRecombiningBinomialTreeTest {
   public void test() {
     final double x = 3;
     final double y = 5;
-    final RecombiningBinomialTree<Double> tree = new ConstantRecombiningBinomialTree<Double>(x);
-    RecombiningBinomialTree<Double> other = new ConstantRecombiningBinomialTree<Double>(x);
+    final RecombiningBinomialTree<Double> tree = new ConstantRecombiningBinomialTree<>(x);
+    RecombiningBinomialTree<Double> other = new ConstantRecombiningBinomialTree<>(x);
     assertEquals(tree, other);
     assertEquals(tree.hashCode(), other.hashCode());
-    other = new ConstantRecombiningBinomialTree<Double>(y);
+    other = new ConstantRecombiningBinomialTree<>(y);
     assertFalse(tree.equals(other));
     assertArrayEquals(tree.getNodes(), new Double[][] {new Double[] {x}});
     for (int i = 0; i < 100; i++) {

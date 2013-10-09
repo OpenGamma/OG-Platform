@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.convention.daycount;
@@ -10,7 +10,7 @@ import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 
 /**
- * 
+ *
  */
 public class TwentyEightThreeSixtyTest extends DayCountTestCase {
   private static final TwentyEightThreeSixty DC = new TwentyEightThreeSixty();
@@ -34,6 +34,7 @@ public class TwentyEightThreeSixtyTest extends DayCountTestCase {
     final LocalDate d8 = LocalDate.of(2012, 7, 31);
     final LocalDate d9 = LocalDate.of(2012, 8, 31);
     final LocalDate d10 = LocalDate.of(2013, 8, 31);
+    final LocalDate d11 = LocalDate.of(2014, 1, 31);
     assertEquals(26. / 360, DC.getDayCountFraction(d1, d2), 0);
     assertEquals(28. / 360, DC.getDayCountFraction(d1, d3), 0);
     assertEquals(54. / 360, DC.getDayCountFraction(d1, d4), 0);
@@ -50,5 +51,6 @@ public class TwentyEightThreeSixtyTest extends DayCountTestCase {
     assertEquals(56. / 360, DC.getDayCountFraction(d7, d9), 0);
     assertEquals(1 + 54. / 360, DC.getDayCountFraction(d1, d10), 0);
     assertEquals(1 + 56. / 360, DC.getDayCountFraction(d7, d10), 0);
+    assertEquals(140. / 360, DC.getDayCountFraction(d10, d11), 0);
   }
 }

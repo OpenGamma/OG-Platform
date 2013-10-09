@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.method;
@@ -16,7 +16,9 @@ import com.opengamma.util.money.CurrencyAmount;
 
 /**
  * Generic pricing method of CMS coupon as a CMS cap with strike 0.
+ * @deprecated {@link PricingMethod} is deprecated
  */
+@Deprecated
 public class CouponCMSGenericMethod implements PricingMethod {
 
   /**
@@ -28,15 +30,15 @@ public class CouponCMSGenericMethod implements PricingMethod {
    * Constructor with the CMS cap/floor method.
    * @param methodCap The method.
    */
-  public CouponCMSGenericMethod(PricingMethod methodCap) {
+  public CouponCMSGenericMethod(final PricingMethod methodCap) {
     _methodCap = methodCap;
   }
 
   @Override
-  public CurrencyAmount presentValue(InstrumentDerivative instrument, YieldCurveBundle curves) {
+  public CurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof CouponCMS, "CMS coupon");
-    CouponCMS coupon = (CouponCMS) instrument;
-    CapFloorCMS cap0 = CapFloorCMS.from(coupon, 0.0, true);
+    final CouponCMS coupon = (CouponCMS) instrument;
+    final CapFloorCMS cap0 = CapFloorCMS.from(coupon, 0.0, true);
     return _methodCap.presentValue(cap0, curves);
   }
 

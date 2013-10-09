@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -24,8 +24,10 @@ import com.opengamma.util.tuple.DoublesPair;
  * For an instrument, calculates the sensitivity of a value (often either the present value (PV) or par rate) to the yield at the knot points of the interpolated yield curves.
  * The return format is a DoubleMatrix1D (i.e. a vector) with length equal to the total number of nodes in all the curves, and ordered as sensitivity to nodes of first curve, second curve etc.
  * The change of a curve due to the movement of a single knot is interpolator-dependent, and can affect the entire curve, so an instrument can have sensitivity to nodes at times (way)
- * beyond its maturity
+ * beyond its maturity.
+ * @deprecated {@link YieldCurveBundle} is deprecated
  */
+@Deprecated
 public abstract class NodeYieldSensitivityCalculator {
 
   /* package */
@@ -86,7 +88,7 @@ public abstract class NodeYieldSensitivityCalculator {
    * @param curve The YieldCurve.
    * @return The node sensitivity.
    */
-  private List<Double> curveToNodeSensitivity(final List<DoublesPair> sensitivityList, final YieldCurve curve) {
+  public List<Double> curveToNodeSensitivity(final List<DoublesPair> sensitivityList, final YieldCurve curve) {
     final List<Double> result = new ArrayList<>();
     if (!(curve.getCurve() instanceof InterpolatedDoublesCurve)) {
       throw new IllegalArgumentException("Can only handle interpolated curves at the moment");
@@ -123,7 +125,7 @@ public abstract class NodeYieldSensitivityCalculator {
    * @param curve The YieldCurve.
    * @return The node sensitivity.
    */
-  private List<Double> curveToNodeSensitivity(final List<DoublesPair> sensitivityList, final DiscountCurve curve) {
+  public List<Double> curveToNodeSensitivity(final List<DoublesPair> sensitivityList, final DiscountCurve curve) {
     final List<Double> result = new ArrayList<>();
     if (!(curve.getCurve() instanceof InterpolatedDoublesCurve)) {
       throw new IllegalArgumentException("Can only handle interpolated curves at the moment");

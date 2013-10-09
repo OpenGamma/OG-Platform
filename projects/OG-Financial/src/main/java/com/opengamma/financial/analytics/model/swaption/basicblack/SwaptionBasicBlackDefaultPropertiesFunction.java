@@ -27,7 +27,9 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Default properties function for swaptions that are to be priced using the basic Black method.
+ * @deprecated The functions for which these default properties apply are deprecated.
  */
+@Deprecated
 public class SwaptionBasicBlackDefaultPropertiesFunction extends DefaultPropertyFunction {
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(SwaptionBasicBlackDefaultPropertiesFunction.class);

@@ -35,7 +35,7 @@ public class ISDACompliantCreditCurveCalibratorTest {
   private static final LocalDate BASE_DATE = TODAY;
 
   private static final LocalDate[] YC_DATES = new LocalDate[] {LocalDate.of(2013, 6, 27), LocalDate.of(2013, 8, 27), LocalDate.of(2013, 11, 27), LocalDate.of(2014, 5, 27), LocalDate.of(2015, 5, 27),
-      LocalDate.of(2016, 5, 27), LocalDate.of(2018, 5, 27), LocalDate.of(2020, 5, 27), LocalDate.of(2023, 5, 27), LocalDate.of(2028, 5, 27), LocalDate.of(2033, 5, 27), LocalDate.of(2043, 5, 27)};
+    LocalDate.of(2016, 5, 27), LocalDate.of(2018, 5, 27), LocalDate.of(2020, 5, 27), LocalDate.of(2023, 5, 27), LocalDate.of(2028, 5, 27), LocalDate.of(2033, 5, 27), LocalDate.of(2043, 5, 27) };
   private static final double[] YC_RATES;
   private static final double[] DISCOUNT_FACT;
   private static final double[] YC_TIMES;
@@ -54,6 +54,7 @@ public class ISDACompliantCreditCurveCalibratorTest {
     YIELD_CURVE = new ISDACompliantDateYieldCurve(BASE_DATE, YC_DATES, YC_RATES);
   }
 
+  @SuppressWarnings({"unused", "deprecation" })
   @Test
   public void test() {
 
@@ -62,9 +63,9 @@ public class ISDACompliantCreditCurveCalibratorTest {
     final LocalDate valueDate = addWorkDays(today, 3, DEFAULT_CALENDAR); // 3 working days on
     final LocalDate startDate = LocalDate.of(2012, 7, 29);
     final LocalDate[] endDates = new LocalDate[] {LocalDate.of(2013, 6, 20), LocalDate.of(2013, 9, 20), LocalDate.of(2014, 3, 20), LocalDate.of(2015, 3, 20), LocalDate.of(2016, 3, 20),
-        LocalDate.of(2018, 3, 20), LocalDate.of(2023, 3, 20)};
+      LocalDate.of(2018, 3, 20), LocalDate.of(2023, 3, 20) };
 
-    final double[] coupons = new double[] {50, 70, 100, 150, 200, 400, 1000};
+    final double[] coupons = new double[] {50, 70, 100, 150, 200, 400, 1000 };
     final int n = coupons.length;
     for (int i = 0; i < n; i++) {
       coupons[i] /= 10000;
@@ -76,8 +77,9 @@ public class ISDACompliantCreditCurveCalibratorTest {
     final boolean protectionStart = true;
     final double recovery = 0.4;
 
-    SimpleCreditCurveBuilder calibrator = new SimpleCreditCurveBuilder();
-    ISDACompliantCreditCurve hc = calibrator.calibrateCreditCurve(today, stepinDate, valueDate, startDate, endDates, coupons, payAccOndefault, tenor, stubType, protectionStart, YIELD_CURVE, recovery);
+    final SimpleCreditCurveBuilder calibrator = new SimpleCreditCurveBuilder();
+    final ISDACompliantCreditCurve hc = calibrator.calibrateCreditCurve(today, stepinDate, valueDate, startDate, endDates, coupons, payAccOndefault, tenor, stubType, protectionStart, YIELD_CURVE,
+        recovery);
 
     // final int m = hc.getNumberOfCurvePoints();
     // double[] t = hc.getTimes();
@@ -89,50 +91,51 @@ public class ISDACompliantCreditCurveCalibratorTest {
     // }
     // System.out.println();
 
-    ISDACompliantDateCreditCurve hcDate = new ISDACompliantDateCreditCurve(today, endDates, hc.getKnotZeroRates());
+    final ISDACompliantDateCreditCurve hcDate = new ISDACompliantDateCreditCurve(today, endDates, hc.getKnotZeroRates());
 
-    CDSAnalytic[] cds = new CDSAnalytic[n];
+    final CDSAnalytic[] cds = new CDSAnalytic[n];
     for (int i = 0; i < n; i++) {
       cds[i] = new CDSAnalytic(today, stepinDate, valueDate, startDate, endDates[i], payAccOndefault, tenor, stubType, protectionStart, recovery);
-      double pv = 1e7 * PRICER.pv(cds[i], YIELD_CURVE, hc, coupons[i]);
+      final double pv = 1e7 * PRICER.pv(cds[i], YIELD_CURVE, hc, coupons[i]);
       assertEquals(0.0, pv, 1e-8); // on a notional of 1e7
 
       // test against 'old' pricer as well
-      double rpv01 = TEST_PRICER.pvPremiumLegPerUnitSpread(today, stepinDate, valueDate, startDate, endDates[i], payAccOndefault, tenor, stubType, YIELD_CURVE, hcDate, protectionStart, PriceType.CLEAN);
-      double proLeg = TEST_PRICER.calculateProtectionLeg(today, stepinDate, valueDate, startDate, endDates[i], YIELD_CURVE, hcDate, recovery, protectionStart);
-      double pv2 = 1e7 * (proLeg - coupons[i] * rpv01);
+      final double rpv01 = TEST_PRICER.pvPremiumLegPerUnitSpread(today, stepinDate, valueDate, startDate, endDates[i], payAccOndefault, tenor, stubType, YIELD_CURVE, hcDate, protectionStart,
+          PriceType.CLEAN);
+      final double proLeg = TEST_PRICER.calculateProtectionLeg(today, stepinDate, valueDate, startDate, endDates[i], YIELD_CURVE, hcDate, recovery, protectionStart);
+      final double pv2 = 1e7 * (proLeg - coupons[i] * rpv01);
       assertEquals(0.0, pv2, 1e-7); // we drop a slight bit of accuracy here
     }
 
-    final int warmup = 200;
-    final int benchmark = 1000;
+    final int warmup = 1;
+    final int benchmark = 0;
 
     for (int k = 0; k < warmup; k++) {
-      ISDACompliantCreditCurve hc2 = calibrator.calibrateCreditCurve(today, stepinDate, valueDate, startDate, endDates, coupons, payAccOndefault, tenor, stubType, protectionStart, YIELD_CURVE,
+      final ISDACompliantCreditCurve hc2 = calibrator.calibrateCreditCurve(today, stepinDate, valueDate, startDate, endDates, coupons, payAccOndefault, tenor, stubType, protectionStart, YIELD_CURVE,
           recovery);
     }
 
     if (benchmark > 0) {
       long t0 = System.nanoTime();
       for (int k = 0; k < benchmark; k++) {
-        ISDACompliantCreditCurve hc2 = calibrator.calibrateCreditCurve(today, stepinDate, valueDate, startDate, endDates, coupons, payAccOndefault, tenor, stubType, protectionStart, YIELD_CURVE,
-            recovery);
+        final ISDACompliantCreditCurve hc2 = calibrator.calibrateCreditCurve(today, stepinDate, valueDate, startDate, endDates, coupons, payAccOndefault, tenor, stubType, protectionStart,
+            YIELD_CURVE, recovery);
       }
       long time = System.nanoTime() - t0;
-      double timePerCalibration = ((double) time) / 1e6 / benchmark;
+      double timePerCalibration = (time) / 1e6 / benchmark;
       System.out.println("time per calibration: " + timePerCalibration + "ms");
 
       for (int k = 0; k < warmup; k++) {
-        ISDACompliantCreditCurve hc2 = calibrator.calibrateCreditCurve(cds, coupons, YIELD_CURVE);
+        final ISDACompliantCreditCurve hc2 = calibrator.calibrateCreditCurve(cds, coupons, YIELD_CURVE);
       }
 
       if (benchmark > 0) {
         t0 = System.nanoTime();
         for (int k = 0; k < benchmark; k++) {
-          ISDACompliantCreditCurve hc2 = calibrator.calibrateCreditCurve(cds, coupons, YIELD_CURVE);
+          final ISDACompliantCreditCurve hc2 = calibrator.calibrateCreditCurve(cds, coupons, YIELD_CURVE);
         }
         time = System.nanoTime() - t0;
-        timePerCalibration = ((double) time) / 1e6 / benchmark;
+        timePerCalibration = (time) / 1e6 / benchmark;
         System.out.println("time per calibration: " + timePerCalibration + "ms");
 
       }

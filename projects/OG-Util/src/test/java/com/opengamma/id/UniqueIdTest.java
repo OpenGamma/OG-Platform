@@ -114,6 +114,36 @@ public class UniqueIdTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_factory_ObjectId_String() {
+    UniqueId test = UniqueId.of(ObjectId.of("Scheme", "value"), "version");
+    assertEquals("Scheme", test.getScheme());
+    assertEquals("value", test.getValue());
+    assertEquals("version", test.getVersion());
+    assertEquals("Scheme~value~version", test.toString());
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_factory_ObjectId_String_nullObjectId() {
+    UniqueId.of((ObjectId) null, "version");
+  }
+
+  public void test_factory_ObjectId_String_nullVersion() {
+    UniqueId test = UniqueId.of(ObjectId.of("Scheme", "value"), null);
+    assertEquals("Scheme", test.getScheme());
+    assertEquals("value", test.getValue());
+    assertEquals(null, test.getVersion());
+    assertEquals("Scheme~value", test.toString());
+  }
+
+  public void test_factory_ObjectId_String_emptyVersion() {
+    UniqueId test = UniqueId.of(ObjectId.of("Scheme", "value"), "");
+    assertEquals("Scheme", test.getScheme());
+    assertEquals("value", test.getValue());
+    assertEquals(null, test.getVersion());
+    assertEquals("Scheme~value", test.toString());
+  }
+
+  //-------------------------------------------------------------------------
   public void test_parse_version() {
     UniqueId test = UniqueId.parse("Scheme~value~version");
     assertEquals("Scheme", test.getScheme());
@@ -142,6 +172,30 @@ public class UniqueIdTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_parse_invalidFormat3() {
     UniqueId.parse("Scheme~value~version~other");
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_withScheme() {
+    UniqueId test = UniqueId.of("id1", "value1", "32");
+    assertEquals(UniqueId.of("scheme", "value1", "32"), test.withScheme("scheme"));
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_withScheme_null() {
+    UniqueId test = UniqueId.of("id1", "value1", "32");
+    test.withScheme(null);
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_withValue() {
+    UniqueId test = UniqueId.of("id1", "value1", "32");
+    assertEquals(UniqueId.of("id1", "newValue", "32"), test.withValue("newValue"));
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_withValue_null() {
+    UniqueId test = UniqueId.of("id1", "value1", "32");
+    test.withValue(null);
   }
 
   //-------------------------------------------------------------------------
@@ -238,6 +292,13 @@ public class UniqueIdTest {
     UniqueId d2 = UniqueId.of("Scheme", "d1", "2");
     
     assertEquals(true, d1.equalObjectId(d2));
+  }
+
+  public void test_equalObjectId_scheme() {
+    UniqueId d1 = UniqueId.of("Scheme", "d1", "1");
+    UniqueId d2 = UniqueId.of("Other", "d1", "2");
+    
+    assertEquals(false, d1.equalObjectId(d2));
   }
 
   public void test_equalObjectId_null() {
@@ -350,6 +411,16 @@ public class UniqueIdTest {
     
     assertEquals(false, d1b.equals("d1"));
     assertEquals(false, d1b.equals(null));
+  }
+
+  public void test_equals_differentScheme() {
+    UniqueId d1 = UniqueId.of("Scheme", "d1", "1");
+    UniqueId d2 = UniqueId.of("Other", "d1", "1");
+    
+    assertEquals(true, d1.equals(d1));
+    assertEquals(false, d1.equals(d2));
+    assertEquals(false, d2.equals(d1));
+    assertEquals(true, d2.equals(d2));
   }
 
   public void test_hashCode_noVersion() {

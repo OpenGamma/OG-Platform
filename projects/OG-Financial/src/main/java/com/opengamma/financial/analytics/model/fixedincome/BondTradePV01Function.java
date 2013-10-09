@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.fixedincome;
@@ -21,8 +21,9 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
- * Computes the PV01 of interest rate instruments.
+ * Computes the PV01 of bond trades.
  */
+@Deprecated
 public class BondTradePV01Function extends BondTradeCurveSpecificFunction {
   private static final PV01Calculator CALCULATOR = PV01Calculator.getInstance();
 

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.calculator.inflation;
@@ -8,8 +8,8 @@ package com.opengamma.analytics.financial.provider.calculator.inflation;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorDelegate;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationZeroCouponInterpolation;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationZeroCouponMonthly;
-import com.opengamma.analytics.financial.interestrate.inflation.method.CapFloorInflationZeroCouponInterpolationBlackSmileMethod;
-import com.opengamma.analytics.financial.interestrate.inflation.method.CapFloorInflationZeroCouponMonthlyBlackSmileMethod;
+import com.opengamma.analytics.financial.interestrate.inflation.provider.CapFloorInflationZeroCouponInterpolationBlackSmileMethod;
+import com.opengamma.analytics.financial.interestrate.inflation.provider.CapFloorInflationZeroCouponMonthlyBlackSmileMethod;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.priceindexmarketmodel.BlackSmileCapInflationZeroCouponProviderAdapter;
 import com.opengamma.analytics.financial.provider.description.inflation.BlackSmileCapInflationZeroCouponProviderInterface;
@@ -29,7 +29,7 @@ public final class PresentValueBlackSmileInflationZeroCouponCalculator extends I
    * Constructor.
    */
   private PresentValueBlackSmileInflationZeroCouponCalculator() {
-    super(new BlackSmileCapInflationZeroCouponProviderAdapter<MultipleCurrencyAmount>(PresentValueDiscountingCalculator.getInstance()));
+    super(new BlackSmileCapInflationZeroCouponProviderAdapter<>(PresentValueDiscountingCalculator.getInstance()));
   }
 
   /**

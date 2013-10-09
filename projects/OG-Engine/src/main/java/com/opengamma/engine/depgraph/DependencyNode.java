@@ -131,7 +131,7 @@ public class DependencyNode {
    * 
    * @param outputValues the output values produced by this node, not null
    */
-  public void addOutputValues(final Set<ValueSpecification> outputValues) {
+  public void addOutputValues(final Iterable<ValueSpecification> outputValues) {
     for (final ValueSpecification outputValue : outputValues) {
       addOutputValue(outputValue);
     }
@@ -339,6 +339,16 @@ public class DependencyNode {
   }
 
   /**
+   * Tests if a give value is a terminal output from this node.
+   * 
+   * @param specification the specification to test, not null
+   * @return true if the output is defined and is terminal, false otherwise
+   */
+  public boolean hasTerminalOutputValue(final ValueSpecification specification) {
+    return _outputValues.get(specification) == Boolean.TRUE;
+  }
+
+  /**
    * Returns the set of input values.
    * 
    * @return the set of input values
@@ -361,16 +371,32 @@ public class DependencyNode {
     return _inputValues.contains(specification);
   }
 
+  public boolean isMarketDataSourcingFunction() {
+    return _function.getFunction() instanceof MarketDataSourcingFunction;
+  }
+
   /**
-   * Returns the market data requirement of this node.
+   * Adds the market data requirements, if any, from this node into the given collection.
    * 
-   * @return the market data requirement, or null if none
+   * @param buffer the buffer to update, not null
    */
-  public ValueSpecification getRequiredMarketData() {
-    if (_function.getFunction() instanceof MarketDataSourcingFunction) {
-      return getOutputValues().iterator().next();
+  /* package */void addMarketDataRequirementsInto(final Collection<ValueSpecification> buffer) {
+    if (isMarketDataSourcingFunction()) {
+      for (Map.Entry<ValueSpecification, ?> output : _outputValues.entrySet()) {
+        buffer.add(output.getKey());
+      }
     }
-    return null;
+  }
+
+  /**
+   * Removes the market data requirements, if any, of this node from the collection.
+   */
+  /* package */void removeMarketDataRequirementsFrom(final Collection<ValueSpecification> buffer) {
+    if (isMarketDataSourcingFunction()) {
+      for (Map.Entry<ValueSpecification, ?> output : _outputValues.entrySet()) {
+        buffer.remove(output.getKey());
+      }
+    }
   }
 
   /**

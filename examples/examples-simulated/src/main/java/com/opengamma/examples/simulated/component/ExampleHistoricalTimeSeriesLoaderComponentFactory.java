@@ -41,6 +41,7 @@ public class ExampleHistoricalTimeSeriesLoaderComponentFactory extends AbstractH
   public static ExampleHistoricalTimeSeriesLoaderComponentFactory.Meta meta() {
     return ExampleHistoricalTimeSeriesLoaderComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ExampleHistoricalTimeSeriesLoaderComponentFactory.Meta.INSTANCE);
   }

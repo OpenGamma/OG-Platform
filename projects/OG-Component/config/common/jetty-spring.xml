@@ -56,40 +56,6 @@
     </property>
   </bean>
 
-  <!-- Create logs directory -->
-  <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-    <property name="targetClass">
-      <value>org.apache.commons.io.FileUtils</value>
-    </property>
-    <property name="targetMethod">
-      <value>forceMkdir</value>
-    </property>
-    <property name="arguments">
-      <list>
-        <bean class="java.io.File">
-          <constructor-arg value="${jetty.log.dir}" />
-        </bean>
-      </list>
-    </property>
-  </bean>
-
-  <!-- Handler for request logging -->
-  <bean id="requestLogHandler" class="org.eclipse.jetty.server.handler.RequestLogHandler">
-    <property name="requestLog">
-      <bean class="org.eclipse.jetty.server.NCSARequestLog">
-        <constructor-arg value="${jetty.log.dir}/${og.server.name}-requests-yyyy_mm_dd.log"/>
-        <property name="extended" value="true"/>
-        <property name="append" value="true"/>
-        <property name="logLatency" value="true"/>
-        <property name="ignorePaths">
-          <list><value>/cometd/*</value></list>
-        </property>
-        <property name="logTimeZone" value="UTC"/>
-        <property name="retainDays" value="7"/>
-      </bean>
-    </property>
-  </bean>
-
   <!-- Main Jetty server -->
   <bean id="server" class="org.eclipse.jetty.server.Server">
     <property name="connectors">
@@ -97,16 +63,7 @@
         <ref bean="connector" />
       </list>
     </property>
-    <property name="handler">
-      <bean id="handlerList" class="org.eclipse.jetty.server.handler.HandlerCollection">
-        <property name="handlers">
-          <list>
-            <ref bean="webAppContextHandler" />
-            <ref bean="requestLogHandler" />
-          </list>
-        </property>
-      </bean>
-    </property>
+    <property name="handler" ref="webAppContextHandler" />
     <property name="stopAtShutdown" value="true" />
     <property name="gracefulShutdown" value="2000" />
     <property name="sendDateHeader" value="true" />

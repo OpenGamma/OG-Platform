@@ -86,6 +86,7 @@ public class EHCachingOrganizationMasterComponentFactory extends AbstractCompone
   public static EHCachingOrganizationMasterComponentFactory.Meta meta() {
     return EHCachingOrganizationMasterComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(EHCachingOrganizationMasterComponentFactory.Meta.INSTANCE);
   }

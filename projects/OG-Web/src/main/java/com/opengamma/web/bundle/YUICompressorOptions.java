@@ -60,6 +60,7 @@ public class YUICompressorOptions extends DirectBean {
   public static YUICompressorOptions.Meta meta() {
     return YUICompressorOptions.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(YUICompressorOptions.Meta.INSTANCE);
   }

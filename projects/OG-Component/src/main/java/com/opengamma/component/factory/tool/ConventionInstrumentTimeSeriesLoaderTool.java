@@ -76,6 +76,7 @@ public class ConventionInstrumentTimeSeriesLoaderTool extends AbstractComponentF
   public static ConventionInstrumentTimeSeriesLoaderTool.Meta meta() {
     return ConventionInstrumentTimeSeriesLoaderTool.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ConventionInstrumentTimeSeriesLoaderTool.Meta.INSTANCE);
   }

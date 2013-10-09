@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.google.common.collect.Lists;
+import com.opengamma.engine.function.config.CombiningFunctionConfigurationSource;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.engine.function.config.ParameterizedFunctionConfiguration;
@@ -61,6 +62,9 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
   public DemoStandardFunctionConfiguration() {
     setMark2MarketField("PX_LAST");
     setCostOfCarryField("COST_OF_CARRY");
+    setAbsoluteTolerance(1.0E-9); // 0.0001
+    setRelativeTolerance(1.0E-9); // 0.0001
+    setMaximumIterations(100); // 1000
   }
 
   @Override
@@ -199,8 +203,8 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
   @Override
   protected CurrencyInfo mxnCurrencyInfo() {
     final CurrencyInfo i = super.mxnCurrencyInfo();
-    i.setCurveConfiguration(null, "DefaultCashCurveMXNConfig");
-    i.setCurveName(null, "Cash");
+    i.setCurveConfiguration(null, "SingleCurveMXNConfig");
+    i.setCurveName(null, "Forward28D");
     return i;
   }
 
@@ -538,4 +542,8 @@ public class DemoStandardFunctionConfiguration extends StandardFunctionConfigura
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityOptionCalculationMethodDefaultFunction.class.getName(), defaults));
   }
 
+  @Override
+  protected FunctionConfigurationSource createObject() {
+    return CombiningFunctionConfigurationSource.of(super.createObject(), curveFunctions());
+  }
 }

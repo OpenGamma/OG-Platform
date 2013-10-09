@@ -95,7 +95,7 @@ public class ExampleCDSLoader extends AbstractTool<ToolContext> {
     SimpleFrequency frequency = SimpleFrequency.ANNUAL;
     DayCount dayCount = DayCountFactory.INSTANCE.getDayCount("Actual/360");
     BusinessDayConvention businessDayConvention = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
-    final CDSSecurity cds1 = new CDSSecurity(1.0, 0.6, 0.0025, Currency.USD, maturity, startDate, 
+    final CDSSecurity cds1 = new CDSSecurity(1.0, 0.6, 0.4, Currency.USD, maturity, startDate,
                                              frequency, 
                                              dayCount, 
                                              businessDayConvention,  

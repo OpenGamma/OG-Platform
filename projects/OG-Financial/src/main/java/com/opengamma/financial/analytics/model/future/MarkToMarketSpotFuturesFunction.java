@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.analytics.model.future;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import com.opengamma.analytics.financial.future.MarkToMarketFuturesCalculator;
@@ -28,13 +27,13 @@ public class MarkToMarketSpotFuturesFunction extends MarkToMarketFuturesFunction
    * @param costOfCarryField The field name of the historical time series for cost of carry e.g. "COST_OF_CARRY". Set in *FunctionConfiguration
    * @param resolutionKey The key defining how the time series resolution is to occur e.g. "DEFAULT_TSS_CONFIG"
    */
-  public MarkToMarketSpotFuturesFunction(String closingPriceField, String costOfCarryField, String resolutionKey) {
+  public MarkToMarketSpotFuturesFunction(final String closingPriceField, final String costOfCarryField, final String resolutionKey) {
     super(ValueRequirementNames.SPOT, MarkToMarketFuturesCalculator.SpotPriceCalculator.getInstance(), closingPriceField, costOfCarryField, resolutionKey);
   }
-  
+
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    Set<ValueRequirement> requirements = super.getRequirements(context, target, desiredValue);
+    final Set<ValueRequirement> requirements = super.getRequirements(context, target, desiredValue);
     final FutureSecurity security = (FutureSecurity)  target.getTrade().getSecurity();
     final ValueRequirement spotAssetRequirement = getSpotAssetRequirement(security);
     if (spotAssetRequirement != null) {
@@ -42,7 +41,7 @@ public class MarkToMarketSpotFuturesFunction extends MarkToMarketFuturesFunction
     }
     return requirements;
   }
-  
+
   @Override
   protected SimpleFutureDataBundle getFutureDataBundle(final FutureSecurity security, final FunctionInputs inputs,
     final HistoricalTimeSeriesBundle timeSeriesBundle, final ValueRequirement desiredValue) {

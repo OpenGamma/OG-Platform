@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.forex.definition;
@@ -20,7 +20,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
 /**
- * 
+ *
  */
 public class ForexOptionSingleBarrierDefinitionTest {
   private static final Currency CCY1 = Currency.AUD;
@@ -38,7 +38,6 @@ public class ForexOptionSingleBarrierDefinitionTest {
   private static final ForexOptionSingleBarrierDefinition OPTION = new ForexOptionSingleBarrierDefinition(UNDERLYING, BARRIER);
   private static final ForexOptionSingleBarrierDefinition OPTION_REBATE = new ForexOptionSingleBarrierDefinition(UNDERLYING, BARRIER, REBATE);
   private static final ZonedDateTime DATE = DateUtils.getUTCDate(2011, 7, 1);
-  private static final String[] NAMES = new String[] {"USD", "EUR"};
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullUnderlying() {
@@ -50,11 +49,18 @@ public class ForexOptionSingleBarrierDefinitionTest {
     new ForexOptionSingleBarrierDefinition(UNDERLYING, null);
   }
 
+  @SuppressWarnings("deprecation")
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullDate() {
-    OPTION.toDerivative(null, NAMES);
+  public void testNullDateDeprecated() {
+    OPTION.toDerivative(null, "A", "B");
   }
 
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullDate() {
+    OPTION.toDerivative(null);
+  }
+
+  @SuppressWarnings("deprecation")
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullNames() {
     OPTION.toDerivative(DATE, (String[]) null);
@@ -72,7 +78,7 @@ public class ForexOptionSingleBarrierDefinitionTest {
     ForexOptionSingleBarrierDefinition other = new ForexOptionSingleBarrierDefinition(UNDERLYING, BARRIER);
     assertEquals(OPTION, other);
     assertEquals(OPTION.hashCode(), other.hashCode());
-    ForexOptionSingleBarrierDefinition otherRebate = new ForexOptionSingleBarrierDefinition(UNDERLYING, BARRIER, REBATE);
+    final ForexOptionSingleBarrierDefinition otherRebate = new ForexOptionSingleBarrierDefinition(UNDERLYING, BARRIER, REBATE);
     assertEquals(OPTION_REBATE, otherRebate);
     assertEquals(OPTION_REBATE.hashCode(), otherRebate.hashCode());
     other = new ForexOptionSingleBarrierDefinition(new ForexOptionVanillaDefinition(FOREX, EXPIRY, !IS_CALL, IS_LONG), BARRIER);
@@ -84,10 +90,19 @@ public class ForexOptionSingleBarrierDefinitionTest {
     assertFalse(OPTION_REBATE.equals(null));
   }
 
+  @SuppressWarnings("deprecation")
   @Test
-  public void testConversion() {
-    final ForexOptionSingleBarrier derivative = OPTION.toDerivative(DATE, NAMES);
-    assertEquals(derivative.getUnderlyingOption(), UNDERLYING.toDerivative(DATE, NAMES));
+  public void testToDerivativeDeprecated() {
+    final String[] names = new String[] {"USD", "EUR"};
+    final ForexOptionSingleBarrier derivative = OPTION.toDerivative(DATE, names);
+    assertEquals(derivative.getUnderlyingOption(), UNDERLYING.toDerivative(DATE, names));
+    assertEquals(derivative.getBarrier(), BARRIER);
+  }
+
+  @Test
+  public void testToDerivative() {
+    final ForexOptionSingleBarrier derivative = OPTION.toDerivative(DATE);
+    assertEquals(derivative.getUnderlyingOption(), UNDERLYING.toDerivative(DATE));
     assertEquals(derivative.getBarrier(), BARRIER);
   }
 }

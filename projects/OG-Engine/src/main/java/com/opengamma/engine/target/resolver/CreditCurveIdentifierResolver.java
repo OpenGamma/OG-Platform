@@ -5,33 +5,25 @@
  */
 package com.opengamma.engine.target.resolver;
 
-import com.opengamma.core.change.ChangeManager;
-import com.opengamma.core.change.DummyChangeManager;
 import com.opengamma.id.UniqueId;
-import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.credit.CreditCurveIdentifier;
 
 /**
  * 
  */
-public class CreditCurveIdentifierResolver implements ObjectResolver<CreditCurveIdentifier> {
+public class CreditCurveIdentifierResolver extends AbstractPrimitiveResolver<CreditCurveIdentifier> {
 
-  @Override
-  public ChangeManager changeManager() {
-    return DummyChangeManager.INSTANCE;
+  // REVIEW: 2013-08-05 Andrew -- Why is this in OG-Engine? It should be in OG-Financial where integration
+  // with credit stuff is based, unless a curve identifier really is a fundamental primitive like ExternalId
+  // or UniqueId.
+
+  public CreditCurveIdentifierResolver() {
+    super(CreditCurveIdentifier.OBJECT_SCHEME);
   }
 
   @Override
-  public CreditCurveIdentifier resolveObject(final UniqueId uniqueId, final VersionCorrection versionCorrection) {
-    if (CreditCurveIdentifier.OBJECT_SCHEME.equals(uniqueId.getScheme())) {
-      return CreditCurveIdentifier.of(uniqueId);
-    }
-    return null;
-  }
-
-  @Override
-  public boolean isDeepResolver() {
-    return false;
+  protected CreditCurveIdentifier resolveObject(final UniqueId identifier) {
+    return CreditCurveIdentifier.of(identifier);
   }
 
 }

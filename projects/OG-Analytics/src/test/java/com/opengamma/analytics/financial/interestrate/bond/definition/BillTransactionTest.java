@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.bond.definition;
@@ -44,11 +44,8 @@ public class BillTransactionTest {
   private final static ZonedDateTime SETTLE_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, 3, CALENDAR);
   private final static double SETTLE_AMOUT = -NOTIONAL * QUANTITY * 99.95;
 
-  private final static String DSC_NAME = "EUR Discounting";
-  private final static String CREDIT_NAME = "EUR BELGIUM GOVT";
-
-  private final static BillSecurity BILL_PURCHASE = BILL_SEC_DEFINITION.toDerivative(REFERENCE_DATE, SETTLE_DATE, DSC_NAME, CREDIT_NAME);
-  private final static BillSecurity BILL_STANDARD = BILL_SEC_DEFINITION.toDerivative(REFERENCE_DATE, DSC_NAME, CREDIT_NAME);
+  private final static BillSecurity BILL_PURCHASE = BILL_SEC_DEFINITION.toDerivative(REFERENCE_DATE, SETTLE_DATE);
+  private final static BillSecurity BILL_STANDARD = BILL_SEC_DEFINITION.toDerivative(REFERENCE_DATE);
   private final static BillTransaction BILL_TRA = new BillTransaction(BILL_PURCHASE, QUANTITY, SETTLE_AMOUT, BILL_STANDARD);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -78,7 +75,7 @@ public class BillTransactionTest {
    */
   public void equalHash() {
     assertEquals("Bill transaction: equal-hash code", BILL_TRA, BILL_TRA);
-    BillTransaction other = new BillTransaction(BILL_PURCHASE, QUANTITY, SETTLE_AMOUT, BILL_STANDARD);
+    final BillTransaction other = new BillTransaction(BILL_PURCHASE, QUANTITY, SETTLE_AMOUT, BILL_STANDARD);
     assertEquals("Bill transaction: equal-hash code", BILL_TRA, other);
     assertEquals("Bill transaction: equal-hash code", BILL_TRA.hashCode(), other.hashCode());
     BillTransaction modified;

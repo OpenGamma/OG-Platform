@@ -72,7 +72,7 @@ public class YieldCurveSelectorTest {
 
   /** match if the curve name matches a regular expression */
   @Test
-  public void nameRegex() {
+  public void nameMatches() {
     String curve3M = "curve3M";
     String curve6M = "curve6M";
     YieldCurveSelector.Builder curve = new YieldCurveSelector.Builder(SCENARIO);
@@ -80,6 +80,25 @@ public class YieldCurveSelectorTest {
     MarketDataSelector selector = curve.getSelector();
     assertEquals(selector, selector.findMatchingSelector(structureId(curve3M), CALC_CONFIG_NAME, _resolver));
     assertNull(selector.findMatchingSelector(structureId(curve6M), CALC_CONFIG_NAME, _resolver));
+  }
+
+  /** match if the curve name matches a glob */
+  @Test
+  public void nameLike() {
+    String curve3M = "curve3M";
+    String curve6M = "curve6M";
+
+    YieldCurveSelector.Builder curve1 = new YieldCurveSelector.Builder(SCENARIO);
+    curve1.nameLike("*3M");
+    MarketDataSelector selector1 = curve1.getSelector();
+    assertEquals(selector1, selector1.findMatchingSelector(structureId(curve3M), CALC_CONFIG_NAME, _resolver));
+    assertNull(selector1.findMatchingSelector(structureId(curve6M), CALC_CONFIG_NAME, _resolver));
+
+    YieldCurveSelector.Builder curve2 = new YieldCurveSelector.Builder(SCENARIO);
+    curve2.nameLike("curve?M");
+    MarketDataSelector selector2 = curve2.getSelector();
+    assertEquals(selector2, selector2.findMatchingSelector(structureId(curve3M), CALC_CONFIG_NAME, _resolver));
+    assertEquals(selector2, selector2.findMatchingSelector(structureId(curve6M), CALC_CONFIG_NAME, _resolver));
   }
 
   /** match if the curve currency is specified */

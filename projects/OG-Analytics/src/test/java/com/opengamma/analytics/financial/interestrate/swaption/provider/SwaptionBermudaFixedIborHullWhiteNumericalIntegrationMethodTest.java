@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.swaption.provider;
@@ -19,8 +19,8 @@ import com.opengamma.analytics.financial.instrument.swaption.SwaptionBermudaFixe
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionBermudaFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
-import com.opengamma.analytics.financial.model.interestrate.TestsDataSetHullWhite;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
+import com.opengamma.analytics.financial.provider.description.HullWhiteDataSets;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.HullWhiteOneFactorProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
@@ -42,8 +42,6 @@ public class SwaptionBermudaFixedIborHullWhiteNumericalIntegrationMethodTest {
   private static final Calendar CALENDAR = MulticurveProviderDiscountDataSets.getEURCalendar();
   private static final Currency CUR = EURIBOR3M.getCurrency();
 
-  private static final String NOT_USED = "Not used";
-  private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
   // General
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 7, 22);
   // Total swap - 5Y semi bond vs quarterly money
@@ -70,13 +68,13 @@ public class SwaptionBermudaFixedIborHullWhiteNumericalIntegrationMethodTest {
   }
   private static final SwaptionBermudaFixedIborDefinition BERMUDA_SWAPTION_DEFINITION = new SwaptionBermudaFixedIborDefinition(EXPIRY_SWAP_DEFINITION, IS_LONG, EXPIRY_DATE);
   // to derivatives
-  private static final HullWhiteOneFactorPiecewiseConstantParameters HW_PARAMETERS = TestsDataSetHullWhite.createHullWhiteParameters();
+  private static final HullWhiteOneFactorPiecewiseConstantParameters HW_PARAMETERS = HullWhiteDataSets.createHullWhiteParameters();
   private static final HullWhiteOneFactorProviderDiscount HW_MULTICURVES = new HullWhiteOneFactorProviderDiscount(MULTICURVES, HW_PARAMETERS, CUR);
 
   private static final SwaptionBermudaFixedIborHullWhiteNumericalIntegrationMethod METHOD_BERMUDA = SwaptionBermudaFixedIborHullWhiteNumericalIntegrationMethod.getInstance();
   private static final SwaptionPhysicalFixedIborHullWhiteMethod METHOD_VANILLA = SwaptionPhysicalFixedIborHullWhiteMethod.getInstance();
 
-  private static final SwaptionBermudaFixedIbor BERMUDA_SWAPTION = BERMUDA_SWAPTION_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
+  private static final SwaptionBermudaFixedIbor BERMUDA_SWAPTION = BERMUDA_SWAPTION_DEFINITION.toDerivative(REFERENCE_DATE);
 
   private static final double TOLERANCE_PV = 1.0E-2;
 
@@ -94,7 +92,7 @@ public class SwaptionBermudaFixedIborHullWhiteNumericalIntegrationMethodTest {
     final MultipleCurrencyAmount[] pvEuropean = new MultipleCurrencyAmount[NB_EXPIRY];
     for (int loopexp = 0; loopexp < NB_EXPIRY; loopexp++) {
       swaptionEuropeanDefinition[loopexp] = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE[loopexp], EXPIRY_SWAP_DEFINITION[loopexp], IS_LONG);
-      swaptionEuropean[loopexp] = swaptionEuropeanDefinition[loopexp].toDerivative(REFERENCE_DATE, NOT_USED_A);
+      swaptionEuropean[loopexp] = swaptionEuropeanDefinition[loopexp].toDerivative(REFERENCE_DATE);
       pvEuropean[loopexp] = METHOD_VANILLA.presentValue(swaptionEuropean[loopexp], HW_MULTICURVES);
       assertTrue("Bermuda swaption vs European", pv.getAmount(CUR) >= pvEuropean[loopexp].getAmount(CUR));
     }
@@ -109,7 +107,7 @@ public class SwaptionBermudaFixedIborHullWhiteNumericalIntegrationMethodTest {
   public void longShortParity() {
     final MultipleCurrencyAmount pvLong = METHOD_BERMUDA.presentValue(BERMUDA_SWAPTION, HW_MULTICURVES);
     final SwaptionBermudaFixedIborDefinition bermudaShortDefinition = new SwaptionBermudaFixedIborDefinition(EXPIRY_SWAP_DEFINITION, !IS_LONG, EXPIRY_DATE);
-    final SwaptionBermudaFixedIbor bermudShort = bermudaShortDefinition.toDerivative(REFERENCE_DATE, NOT_USED_A);
+    final SwaptionBermudaFixedIbor bermudShort = bermudaShortDefinition.toDerivative(REFERENCE_DATE);
     final MultipleCurrencyAmount pvShort = METHOD_BERMUDA.presentValue(bermudShort, HW_MULTICURVES);
     assertEquals("Bermuda swaption pv: short/long parity", pvLong.getAmount(CUR), -pvShort.getAmount(CUR), TOLERANCE_PV);
   }
@@ -132,7 +130,7 @@ public class SwaptionBermudaFixedIborHullWhiteNumericalIntegrationMethodTest {
         swapExpiryDefinition[looptest][loopexp] = swapDefinition[looptest].trimStart(EXPIRY_DATE[loopexp]);
       }
       swaptionBermudaDefinition[looptest] = new SwaptionBermudaFixedIborDefinition(swapExpiryDefinition[looptest], IS_LONG, EXPIRY_DATE);
-      swaptionBermuda[looptest] = swaptionBermudaDefinition[looptest].toDerivative(REFERENCE_DATE, NOT_USED_A);
+      swaptionBermuda[looptest] = swaptionBermudaDefinition[looptest].toDerivative(REFERENCE_DATE);
     }
     // Loop for pricing
     final MultipleCurrencyAmount[] pv = new MultipleCurrencyAmount[nbTest];

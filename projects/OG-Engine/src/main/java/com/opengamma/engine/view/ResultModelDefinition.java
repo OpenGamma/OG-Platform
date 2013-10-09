@@ -340,6 +340,7 @@ public class ResultModelDefinition extends DirectBean implements Serializable {
   public static ResultModelDefinition.Meta meta() {
     return ResultModelDefinition.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ResultModelDefinition.Meta.INSTANCE);
   }

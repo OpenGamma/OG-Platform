@@ -25,6 +25,7 @@ import com.opengamma.web.spring.StandardFunctionConfiguration;
 public class ExampleStandardFunctionConfiguration extends StandardFunctionConfiguration {
   /**
    * Gets an instance of the example function configuration.
+   * 
    * @return Gets the instance
    */
   public static FunctionConfigurationSource instance() {
@@ -37,6 +38,9 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
   public ExampleStandardFunctionConfiguration() {
     setMark2MarketField("CLOSE");
     setCostOfCarryField("COST_OF_CARRY");
+    setAbsoluteTolerance(0.0001);
+    setRelativeTolerance(0.0001);
+    setMaximumIterations(1000);
   }
 
   @Override
@@ -132,6 +136,8 @@ public class ExampleStandardFunctionConfiguration extends StandardFunctionConfig
   @Override
   protected CurrencyPairInfo usdEurCurrencyPairInfo() {
     final CurrencyPairInfo i = super.usdEurCurrencyPairInfo();
+    i.setCurveName("model/volatility/surface/black", "Discounting");
+    i.setSurfaceName("model/volatility/surface/black", "DEFAULT");
     i.setSurfaceName("model/fxoption/black", "DEFAULT");
     i.setForwardCurveName("model/fxforward", "DEFAULT");
     return i;

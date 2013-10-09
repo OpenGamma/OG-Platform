@@ -86,6 +86,7 @@ public class FXForwardAndSwapConvention extends Convention {
   public static FXForwardAndSwapConvention.Meta meta() {
     return FXForwardAndSwapConvention.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(FXForwardAndSwapConvention.Meta.INSTANCE);
   }

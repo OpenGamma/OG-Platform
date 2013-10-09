@@ -122,9 +122,6 @@
       </component>
     </component>
 
-    <property name="recoveryRate" type="double" column="recovery_rate"
-      not-null="true" />
-
     <property name="includeAccruedPremium" column="include_accrued_premium"
       type="boolean" not-null="true" />
 

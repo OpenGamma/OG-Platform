@@ -166,6 +166,7 @@ public class Tutorial1Security extends ManageableSecurity {
   public static Tutorial1Security.Meta meta() {
     return Tutorial1Security.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(Tutorial1Security.Meta.INSTANCE);
   }

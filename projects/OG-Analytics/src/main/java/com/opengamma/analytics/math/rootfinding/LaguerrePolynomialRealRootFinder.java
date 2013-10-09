@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.math.rootfinding;
@@ -23,7 +23,6 @@ import com.opengamma.util.CompareUtils;
  * of Laguerre's method.
  */
 //TODO Have a complex and real root finder
-@SuppressWarnings("deprecation")
 public class LaguerrePolynomialRealRootFinder implements Polynomial1DRootFinder<Double> {
   private static final LaguerreSolver ROOT_FINDER = new LaguerreSolver();
   private static final Double[] EMPTY_ARRAY = new Double[0];

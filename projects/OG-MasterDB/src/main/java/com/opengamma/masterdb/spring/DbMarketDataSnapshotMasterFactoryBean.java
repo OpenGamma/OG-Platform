@@ -57,6 +57,7 @@ public class DbMarketDataSnapshotMasterFactoryBean extends AbstractDbMasterFacto
   public static DbMarketDataSnapshotMasterFactoryBean.Meta meta() {
     return DbMarketDataSnapshotMasterFactoryBean.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(DbMarketDataSnapshotMasterFactoryBean.Meta.INSTANCE);
   }

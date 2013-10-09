@@ -19,6 +19,8 @@ import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.bbg.referencedata.cache.AbstractInvalidFieldCachingReferenceDataProvider;
 import com.opengamma.bbg.referencedata.cache.AbstractValueCachingReferenceDataProvider;
 import com.opengamma.bbg.referencedata.impl.BloombergReferenceDataProvider;
+import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.id.ExternalScheme;
 import com.opengamma.livedata.resolver.DistributionSpecificationResolver;
 import com.opengamma.livedata.server.CombiningLiveDataServer;
 import com.opengamma.livedata.server.StandardLiveDataServer;
@@ -139,7 +141,7 @@ public class BloombergLiveDataServerUtils {
     BloombergLiveDataServer underlying = getTestServer(cachingRefDataProvider);
     
     CacheManager cacheManager = EHCacheUtils.createCacheManager();
-    FakeSubscriptionBloombergLiveDataServer fakeServer = new FakeSubscriptionBloombergLiveDataServer(underlying, cacheManager);
+    FakeSubscriptionBloombergLiveDataServer fakeServer = new FakeSubscriptionBloombergLiveDataServer(underlying, ExternalSchemes.BLOOMBERG_BUID_WEAK, cacheManager);
     fakeServer.start();
     
     CombiningBloombergLiveDataServer combinedServer = new CombiningBloombergLiveDataServer(fakeServer, underlying, subscriptionSelector, cacheManager);

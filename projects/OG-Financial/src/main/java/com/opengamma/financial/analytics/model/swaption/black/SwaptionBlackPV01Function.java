@@ -19,11 +19,14 @@ import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.model.black.BlackDiscountingPV01SwaptionFunction;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 
 /**
- *
+ * Calculates PV01 for swaptions using the Black method.
+ * @deprecated Use {@link BlackDiscountingPV01SwaptionFunction}
  */
+@Deprecated
 public class SwaptionBlackPV01Function extends SwaptionBlackCurveSpecificFunction {
   private static final PV01Calculator CALCULATOR = new PV01Calculator(PresentValueCurveSensitivityBlackCalculator.getInstance());
 

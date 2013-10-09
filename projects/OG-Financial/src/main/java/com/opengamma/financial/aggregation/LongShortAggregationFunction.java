@@ -18,6 +18,7 @@ import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
+import com.opengamma.financial.security.bond.InflationBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
@@ -48,6 +49,7 @@ import com.opengamma.financial.security.future.EnergyFutureSecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
 import com.opengamma.financial.security.future.FXFutureSecurity;
+import com.opengamma.financial.security.future.FederalFundsFutureSecurity;
 import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
@@ -72,6 +74,8 @@ import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.financial.security.swap.YearOnYearInflationSwapSecurity;
+import com.opengamma.financial.security.swap.ZeroCouponInflationSwapSecurity;
 import com.opengamma.util.CompareUtils;
 
 /**
@@ -92,7 +96,7 @@ public class LongShortAggregationFunction implements AggregationFunction<String>
 
   /**
    * Creates an instance that does not use attributes.
-   * 
+   *
    * @param secSource  the security source, not null
    */
   public LongShortAggregationFunction(final SecuritySource secSource) {
@@ -101,7 +105,7 @@ public class LongShortAggregationFunction implements AggregationFunction<String>
 
   /**
    * Creates an instance.
-   * 
+   *
    * @param secSource  the security source, not null
    * @param useAttributes  whether to use attributes
    */
@@ -162,7 +166,7 @@ public class LongShortAggregationFunction implements AggregationFunction<String>
   private final class Visitor implements FinancialSecurityVisitor<String> {
     private final Position _position;
 
-    private Visitor(Position position) {
+    private Visitor(final Position position) {
       _position = position;
     }
 
@@ -178,6 +182,11 @@ public class LongShortAggregationFunction implements AggregationFunction<String>
 
     @Override
     public String visitMunicipalBondSecurity(final MunicipalBondSecurity security) {
+      return _position.getQuantity().longValue() < 0 ? SHORT : LONG;
+    }
+
+    @Override
+    public String visitInflationBondSecurity(final InflationBondSecurity security) {
       return _position.getQuantity().longValue() < 0 ? SHORT : LONG;
     }
 
@@ -369,6 +378,11 @@ public class LongShortAggregationFunction implements AggregationFunction<String>
     }
 
     @Override
+    public String visitFederalFundsFutureSecurity(final FederalFundsFutureSecurity security) {
+      return null;  //TODO implement me !
+    }
+
+    @Override
     public String visitMetalFutureSecurity(final MetalFutureSecurity security) {
       return null;  //TODO implement me !
     }
@@ -446,6 +460,16 @@ public class LongShortAggregationFunction implements AggregationFunction<String>
     @Override
     public String visitCreditDefaultSwapOptionSecurity(final CreditDefaultSwapOptionSecurity security) {
       throw new UnsupportedOperationException(FinancialSecurityVisitorAdapter.getUnsupportedOperationMessage(getClass(), security));
+    }
+
+    @Override
+    public String visitZeroCouponInflationSwapSecurity(final ZeroCouponInflationSwapSecurity security) {
+      return NOT_LONG_SHORT;
+    }
+
+    @Override
+    public String visitYearOnYearInflationSwapSecurity(final YearOnYearInflationSwapSecurity security) {
+      return NOT_LONG_SHORT;
     }
   }
 

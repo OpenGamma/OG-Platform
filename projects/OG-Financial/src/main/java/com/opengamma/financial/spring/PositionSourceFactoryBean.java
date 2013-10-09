@@ -74,6 +74,7 @@ public class PositionSourceFactoryBean extends SpringFactoryBean<PositionSource>
   public static PositionSourceFactoryBean.Meta meta() {
     return PositionSourceFactoryBean.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(PositionSourceFactoryBean.Meta.INSTANCE);
   }

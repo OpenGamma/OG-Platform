@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.marketdata.manipulator;
 
+import java.io.Serializable;
+
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeSerializer;
 
@@ -15,12 +17,12 @@ import com.opengamma.util.ArgumentChecker;
  *
  * @param <K> the type of the identifier of the underlying data
  */
-public abstract class ExactMatchMarketDataSelector<K> implements DistinctMarketDataSelector {
+public abstract class ExactMatchMarketDataSelector<K extends Serializable> implements DistinctMarketDataSelector {
 
   /**
    * The external id of the data point to be selected.
    */
-  protected final StructureIdentifier<K> _structureId;
+  private final StructureIdentifier<K> _structureId;
 
   /**
    * Creates a new seelctor with the specified structure id.
@@ -42,6 +44,10 @@ public abstract class ExactMatchMarketDataSelector<K> implements DistinctMarketD
                                                          String calculationConfigurationName,
                                                          SelectorResolver resolver) {
     return _structureId.equals(structureId) ? this : null;
+  }
+
+  protected StructureIdentifier<K> getStructureId() {
+    return _structureId;
   }
 
   @Override

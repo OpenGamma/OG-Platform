@@ -251,6 +251,7 @@ public class HistoricalTimeSeriesInfoSearchRequest extends AbstractSearchRequest
   public static HistoricalTimeSeriesInfoSearchRequest.Meta meta() {
     return HistoricalTimeSeriesInfoSearchRequest.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(HistoricalTimeSeriesInfoSearchRequest.Meta.INSTANCE);
   }

@@ -30,11 +30,19 @@ public class WebHomeUris {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the URI.
+   * Gets the URI of the home page.
    * @return the URI
    */
   public URI home() {
     return WebHomeResource.uri(_uriInfo);
+  }
+
+  /**
+   * Gets the URI of the about page.
+   * @return the URI
+   */
+  public URI about() {
+    return WebAboutResource.uri(_uriInfo);
   }
 
 }

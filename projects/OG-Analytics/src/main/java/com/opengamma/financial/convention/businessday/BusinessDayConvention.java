@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.convention.businessday;
 
+import org.joda.convert.FromStringFactory;
+import org.joda.convert.ToString;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.temporal.TemporalAdjuster;
@@ -17,6 +19,7 @@ import com.opengamma.financial.convention.calendar.Calendar;
  * This provides a mechanism to handle working and non-working days allowing
  * a date to be adjusted when it falls on a non-working day.
  */
+@FromStringFactory(factory = BusinessDayConventionFactory.class)
 public interface BusinessDayConvention {
 
   /**
@@ -50,6 +53,7 @@ public interface BusinessDayConvention {
    * 
    * @return the name, not null
    */
+  @ToString
   String getConventionName();
 
 }

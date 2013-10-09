@@ -19,7 +19,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.UniqueId;
-import com.opengamma.util.redis.AbstractRedisTestCase;
+import com.opengamma.util.test.AbstractRedisTestCase;
 import com.opengamma.util.test.TestGroup;
 
 /**

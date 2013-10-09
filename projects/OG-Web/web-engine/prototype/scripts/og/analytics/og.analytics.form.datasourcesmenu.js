@@ -22,31 +22,31 @@ $.register_module({
                 corrections_s = '.corrections', types = [], datasources, default_source, events = og.common.events,
                 sources = {
                     live: {
-                        type:'Live',
-                        source:'',
+                        type: 'Live',
+                        source: '',
                         datasource: 'livedatasources',
-                        api_opts:{ cache_for:5000 }
+                        api_opts: { cache_for: 5000 }
                     },
                     snapshot: {
-                        type:'Snapshot',
-                        source:'',
+                        type: 'Snapshot',
+                        source: '',
                         datasource: 'marketdatasnapshots',
-                        api_opts:{ cache_for:5000 }
+                        api_opts: { cache_for: 5000 }
                     },
                     historical: {
-                        type:'Historical',
-                        source:'',
-                        date:'',
+                        type: 'Historical',
+                        source: '',
+                        date: '',
                         datasource: 'timeseriesresolverkeys',
-                        api_opts:{ cache_for:5000 }
+                        api_opts: { cache_for: 5000 }
                     }
                 };
 
             var add_handler = function (obj) {
                 add_row_handler(obj).html(function (html) {
                     menu.add_handler($(html));
-                    menu.opts[menu.opts.length-1].data('type', obj.type.toLowerCase());
-                    source_handler(menu.opts.length-1);
+                    menu.opts[menu.opts.length - 1].data('type', obj.type.toLowerCase());
+                    source_handler(menu.opts.length - 1);
                 });
             };
 
@@ -64,12 +64,14 @@ $.register_module({
             };
 
             var add_source_dropdown = function (obj) {
-                var datasource = obj.datasource.split('.').reduce(function (api, key) {return api[key];}, og.api.rest);
+                var datasource = obj.datasource.split('.').reduce(function (api, key) {return api[key]; }, og.api.rest);
                 return new form.Block({
                     module: 'og.analytics.form_datasources_source_tash',
                     generator: function (handler, tmpl, data) {
                         datasource.get(obj.api_opts).pipe(function (resp) {
-                            if (resp.error) return og.dev.warn('og.analytics.DatasourcesMenu: ' + resp.message);
+                            if (resp.error) {
+                                return og.dev.warn('og.analytics.DatasourcesMenu: ' + resp.message);
+                            }
                             data.source = obj.type === 'Live' ? resp.data.map(function (entry) {
                                 return { text: entry, value: entry, selected: obj.source === entry };
                             }) : obj.type === 'Historical' ? resp.data.map(function (entry) {
@@ -77,31 +79,47 @@ $.register_module({
                             }) : obj.type === 'Snapshot' ? resp.data[0].snapshots.map(function (entry) {
                                 return { text: entry.name, value: entry.id, selected: obj.source === entry.id };
                             }) : {};
-                            if (obj.type === 'Historical') data.historical = {
+                            if (obj.type === 'Historical') {
+                                data.historical = {
                                     fixed: obj.date ? true : false,
                                     latest: !!(obj.date === '')
                                 };
-                            if (data.historical && data.historical.fixed) data.historical.date = obj.date;
+                            }
+                            if (data.historical && data.historical.fixed) {
+                                data.historical.date = obj.date;
+                            }
                             handler(tmpl(data));
                         });
                     }
                 });
             };
 
-            var date_handler = function (entry) { // TODO AG: refocus custom, hide datepicker
-                if (!menu.opts[entry]) return;
+            var date_handler = function (entry) { //TODO AG: refocus custom, hide datepicker
+                if (!menu.opts[entry]) {
+                    return;
+                }
                 var custom = $(custom_s, menu.opts[entry]), latest = $(latest_s, menu.opts[entry]),
                     idx = query.pluck('pos').indexOf(menu.opts[entry].data('pos'));
-                if (custom) custom.addClass(active_s+ ' ' +date_selected_s);
-                if (latest) latest.removeClass(active_s);
-                if (custom.parent().is(versions_s)) query[idx].version_date = custom.datepicker('getDate');
-                else if (custom.parent().is(corrections_s)) query[idx].correction_date = custom.val();
-                else query[idx].date = custom.val();
+                if (custom) {
+                    custom.addClass(active_s + ' ' + date_selected_s);
+                }
+                if (latest) {
+                    latest.removeClass(active_s);
+                }
+                if (custom.parent().is(versions_s)) {
+                    query[idx].version_date = custom.datepicker('getDate');
+                } else if (custom.parent().is(corrections_s)) {
+                    query[idx].correction_date = custom.val();
+                } else {
+                    query[idx].date = custom.val();
+                }
             };
 
             var delete_handler = function (entry) {
                 if (!menu.opts[entry]) return;
-                if (menu.opts.length === 1 && query.length) return remove_ext_opts(entry), reset_query(entry);
+                if (menu.opts.length === 1 && query.length) {
+                    return remove_ext_opts(entry), reset_query(entry);
+                }
                 var idx = query.pluck('pos').indexOf(menu.opts[entry].data('pos')),
                     sel_pos = menu.opts[entry].data('pos');
                 menu.delete_handler(menu.opts[entry]);

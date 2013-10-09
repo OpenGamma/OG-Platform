@@ -78,10 +78,20 @@ public class ForexNonDeliverableOptionDefinition implements InstrumentDefinition
 
   /**
    * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
    */
+  @Deprecated
   @Override
   public ForexNonDeliverableOption toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     return new ForexNonDeliverableOption(_underlyingNDF.toDerivative(date, yieldCurveNames), _isCall, _isLong);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public ForexNonDeliverableOption toDerivative(final ZonedDateTime date) {
+    return new ForexNonDeliverableOption(_underlyingNDF.toDerivative(date), _isCall, _isLong);
   }
 
   /**

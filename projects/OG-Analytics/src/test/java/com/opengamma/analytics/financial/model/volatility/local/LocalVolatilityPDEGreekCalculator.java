@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.volatility.local;
@@ -50,7 +50,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * 
+ *
  */
 public class LocalVolatilityPDEGreekCalculator {
 
@@ -671,7 +671,7 @@ public class LocalVolatilityPDEGreekCalculator {
   }
 
   /**
-   * 
+   *
    * @param spot
    * @param localVolatility
    * @param isCall
@@ -689,7 +689,7 @@ public class LocalVolatilityPDEGreekCalculator {
       final double timeMeshLambda, final double strikeMeshBunching, final double centreMoneyness) {
 
     final PDE1DCoefficientsProvider provider = new PDE1DCoefficientsProvider();
-    ConvectionDiffusionPDE1DCoefficients pde = provider.getForwardLocalVol(localVolatility);
+    final ConvectionDiffusionPDE1DCoefficients pde = provider.getForwardLocalVol(localVolatility);
     final ConvectionDiffusionPDESolver solver = new ThetaMethodFiniteDifference(theta, true);
 
     final double minMoneyness = Math.exp(-maxAbsProxyDelta * Math.sqrt(maxT));
@@ -713,7 +713,7 @@ public class LocalVolatilityPDEGreekCalculator {
     final MeshingFunction spaceMesh = new HyperbolicMeshing(minMoneyness, maxMoneyness, centreMoneyness, nStrikeSteps, strikeMeshBunching);
     final PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
     final Function1D<Double, Double> intCond = (new InitialConditionsProvider()).getForwardCallPut(isCall);
-    final PDEFullResults1D res = (PDEFullResults1D) solver.solve(new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pde, intCond, lower, upper, grid));
+    final PDEFullResults1D res = (PDEFullResults1D) solver.solve(new PDE1DDataBundle<>(pde, intCond, lower, upper, grid));
     return res;
   }
 
@@ -767,7 +767,7 @@ public class LocalVolatilityPDEGreekCalculator {
     //keep the grid the same regardless of spot (useful for finite-difference)
     final MeshingFunction spaceMesh = new HyperbolicMeshing(0.0, maxFwd, fwdNodeCentre, nFwdNodes, spotMeshBunching);
     final PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
-    PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db = new PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients>(pde, payoff, lower, upper, grid);
+    final PDE1DDataBundle<ConvectionDiffusionPDE1DCoefficients> db = new PDE1DDataBundle<>(pde, payoff, lower, upper, grid);
     final PDEResults1D res = solver.solve(db);
     return res;
   }

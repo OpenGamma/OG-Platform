@@ -17,7 +17,7 @@ import com.opengamma.analytics.math.interpolation.data.ArrayInterpolator1DDataBu
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 
 /**
- * 
+ *
  */
 public class RationalFunctionInterpolator1DTest {
   //TODO this test doesn't test answers properly - look at EPS
@@ -27,7 +27,7 @@ public class RationalFunctionInterpolator1DTest {
   private static final double EPS = 1;
 
   static {
-    final TreeMap<Double, Double> data = new TreeMap<Double, Double>();
+    final TreeMap<Double, Double> data = new TreeMap<>();
     double x;
     for (int i = 0; i < 10; i++) {
       x = Double.valueOf(i) / 10.;

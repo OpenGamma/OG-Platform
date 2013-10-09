@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -26,9 +26,10 @@ import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * 
+ * @deprecated This class tests deprecated functionality.
  */
-public class PresentValueNodeSensitivityCalculatorTest extends NodeSensitivityCalculatorTest {
+@Deprecated
+public class PresentValueNodeSensitivityCalculatorTest extends NodeSensitivityCalculatorTestBase {
 
   private static PresentValueCalculator VALUE_CALCULATOR = PresentValueCalculator.getInstance();
   private static PresentValueCurveSensitivityCalculator SENSITIVITY_CALCULATOR = PresentValueCurveSensitivityCalculator.getInstance();

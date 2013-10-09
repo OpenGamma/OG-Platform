@@ -8,6 +8,7 @@ package com.opengamma.engine.value;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.function.TargetSourcingFunction;
+import com.opengamma.core.position.Position;
 
 /**
  * Standard names used to refer to particular computed values.
@@ -89,6 +90,11 @@ public final class ValueRequirementNames {
    */
   public static final String UNDERLYING_MARKET_PRICE = "Underlying Market Price";
   /**
+   * For margined securities, the reference or margin price. This will either be the security's close price or,
+   * on the transaction date itself, the traded price 
+   */
+  public static final String MARGIN_PRICE = "Margin Price";
+  /**
    * The historical time series of a quantity.
    */
   public static final String HISTORICAL_TIME_SERIES = "Historical Time Series";
@@ -152,6 +158,10 @@ public final class ValueRequirementNames {
    */
   public static final String YIELD_CURVE = "YieldCurve";
   /**
+   * Curve containing (time, rate) pairs.
+   */
+  public static final String INSTANTANEOUS_FORWARD_CURVE = "InstantaneousForwardCurve";
+  /**
    * Curve containing (time, price index) pairs.
    */
   public static final String PRICE_INDEX_CURVE = "PriceIndexCurve";
@@ -187,6 +197,14 @@ public final class ValueRequirementNames {
    * The bundle of time series objects needed to convert instruments on a curve to their OG-Analytics derivative form.
    */
   public static final String CURVE_INSTRUMENT_CONVERSION_HISTORICAL_TIME_SERIES = "Curve Instrument Conversion Historical Time Series";
+  /**
+   * The bundle of time series objects needed to convert instruments on a yield curve to their OG-Analytics derivative form.
+   */
+  public static final String YIELD_CURVE_CONVERSION_HISTORICAL_TIME_SERIES = "Yield Curve Conversion Series";
+  /**
+   * A series of yield curves calculated using historical data
+   */
+  public static final String YIELD_CURVE_SERIES = "Yield Curve Series";
   /** 
    * The FX matrix associated with a bundle of curves.
    */
@@ -195,6 +213,10 @@ public final class ValueRequirementNames {
    * A set of parameters for the Hull-White one factor model.
    */
   public static final String HULL_WHITE_ONE_FACTOR_PARAMETERS = "Hull-White One Factor Parameters";
+  /**
+   * A set of parameters for the G2++ model.
+   */
+  public static final String G2PP_PARAMETERS = "G2pp Parameters";
   /**
    * Curve containing (time, rate) pairs that is constructed by directly interpolating between market data points (i.e. no settlement day corrections, 
    * ignoring the type of instrument etc.).
@@ -238,9 +260,17 @@ public final class ValueRequirementNames {
    */
   public static final String YIELD_CURVE_PNL_SERIES = "Yield Curve P&L Series";
   /**
+   * A vector of P&L series for the nodal points of a curve. 
+   */
+  public static final String CURVE_PNL_SERIES = "Curve P&L Series";
+  /**
    * A vector of return series for the nodal points of a yield curve.
    */
   public static final String YIELD_CURVE_RETURN_SERIES = "Yield Curve Return Series";
+  /**
+   * A vector of return series for the nodal points of a curve.
+   */
+  public static final String CURVE_RETURN_SERIES = "Curve Return Series";
   /**
    * A vector of return series for the nodal points of an FX forward curve.
    */
@@ -280,7 +310,15 @@ public final class ValueRequirementNames {
   /**
    * A bundle of curves
    */
-  public static final String CURVE_BUNDLE = "CurveBundle"; 
+  public static final String CURVE_BUNDLE = "Curve Bundle"; 
+  /**
+   * A bundle of Jacobians
+   */
+  public static final String JACOBIAN_BUNDLE = "Jacobian Bundle";
+  /**
+   * The sensitivities to all curves in a bundle
+   */
+  public static final String BLOCK_CURVE_SENSITIVITIES = "Block Curve Sensitivities";
   /**
    * Currency pairs property metadata
    */
@@ -376,6 +414,12 @@ public final class ValueRequirementNames {
    */
   public static final String VOLATILITY_CUBE_FITTED_POINTS = "VolatilityCubeFittedPoints";
 
+  ///// Volatility adjustments
+  /**
+   * The shifts to apply to a log-normal volatility surface
+   */
+  public static final String LOGNORMAL_SURFACE_SHIFTS = "LognormalSurfaceShifts";
+  
   ///// Pricing
 
   /**
@@ -443,6 +487,11 @@ public final class ValueRequirementNames {
   public static final String POINTS_UPFRONT = "Points Upfront";
 
   /**
+   * The spread for a credit default swap.
+   */
+  public static final String QUOTED_SPREAD = "Quoted Spread";
+
+  /**
    * The principal for a credit default swap.
    */
   public static final String PRINCIPAL = "Principal";
@@ -468,6 +517,11 @@ public final class ValueRequirementNames {
   public static final String BUCKETED_SPREADS = "Bucketed Spreads";
 
   /**
+   * The pillar spreads used for pricing a credit default swap.
+   */
+  public static final String PILLAR_SPREADS = "Pillar Spreads";
+
+  /**
    * The dividend yield of an equity or equity index.
    */
   public static final String DIVIDEND_YIELD = "Dividend Yield";
@@ -491,6 +545,10 @@ public final class ValueRequirementNames {
    * The rate that prices a cash-flow based fixed-income instrument to zero.
    */
   public static final String PAR_RATE = "Par Rate";
+  /**
+   * The spread that must be added to the market quote of an instrument to produce a present value of zero
+   */
+  public static final String PAR_SPREAD = "Par Spread";
   /**
    * Sensitivity of par rate to a 1bp shift in the yield curve.
    */
@@ -523,7 +581,18 @@ public final class ValueRequirementNames {
    * Fair value for an option position (used for options - equal to the FAIR_VALUE multiplied by the number of trades and the point value).
    */
   public static final String VALUE_FAIR_VALUE = "ValueFairValue";
-
+  /**
+   * The convexity adjustment - the difference between the price and the par rate of an instrument
+   */
+  public static final String CONVEXITY_ADJUSTMENT = "Convexity Adjustment";
+  /**
+   * The net amount of an inflation coupon at the start of a month with respect to the reference index.
+   */
+  public static final String INFLATION_NET_AMOUNT = "Inflation Net Amount";
+  /**
+   * The market quoted value of an instrument (e.g. 0.99 for a Eurodollar future)
+   */
+  public static final String MARKET_QUOTE = "Market Quote";
   ///// Greeks
 
   /**
@@ -579,7 +648,7 @@ public final class ValueRequirementNames {
    */
   public static final String POSITION_CARRY_RHO = "PositionCarryRho";
   /**
-   * The aggregate delta of an option (first order derivative of price with respect to the spot).
+   * The aggregate delta of an option position (change in the value of the {@link Position} with respect to the underlying).
    */
   public static final String POSITION_DELTA = "PositionDelta";
   /**
@@ -744,7 +813,7 @@ public final class ValueRequirementNames {
   public static final String VALUE_CARRY_RHO = "ValueCarryRho";
   /**
    * ValueDelta represents the cash value of the position or, the value of money one would make if the underlying increased in price by 100%.<p>
-   * {@link Delta} = dV/dS.  ValueDelta is defined as S(t) * dV/dS. <p>
+   * {@link #DELTA} = dV/dS.  ValueDelta is defined as S(t) * dV/dS. <p>
    * Observe: PNL = dV/dS * (change in S) = S(t) * dV/dS * (S(T) - S(t)) / S(t), thus S(t)* dV/dS (ValueDelta) would be the PNL if 1.0 = (S(T) - S(t)) / S(t) => S(T) = 2*S(t), 
    * i.e. if the underlying doubled (increased by 100%). It thus gives a measure of the sensitivity as a relative measure.
    */
@@ -1453,6 +1522,48 @@ public final class ValueRequirementNames {
    */
   public static final String QUANTITY = "Quantity";
 
+  /**
+   * The quantity of a position or trade.
+   */
+  public static final String PAY_REC = "Pay/Receive";
+
+  /**
+   * Frequency of a position or trade.
+   */
+  public static final String FREQUENCY = "Frequency";
+
+  /**
+   * Float frequency of a position or trade.
+   */
+  public static final String FLOAT_FREQUENCY = "Float Frequency";
+
+  /**
+   * Index of a position or trade.
+   */
+  public static final String INDEX = "Index";
+
+  /**
+   * Maturity date of a position or trade
+   */
+  public static final String MATURITY = "Maturity Date";
+
+  /**
+   * Product of a position or trade.
+   */
+  public static final String PRODUCT = "Product";
+  /**
+   * Rate of a position or trade.
+   */
+  public static final String RATE = "Rate";
+  /**
+   * Start date of a position or trade.
+   */
+  public static final String START = "Start Date";
+  /**
+   * Type of a position or trade.
+   */
+  public static final String TYPE = "Type";
+  
   ///// Externally-sourced values
   // Existing value requirement names with a suffix
   // NOTE jonathan 2012-07-13 -- simply to allow clearer column headers. Should be removed once we have a better solution.

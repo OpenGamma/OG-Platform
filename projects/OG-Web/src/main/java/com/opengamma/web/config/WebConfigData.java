@@ -122,6 +122,7 @@ public class WebConfigData extends DirectBean {
   public static WebConfigData.Meta meta() {
     return WebConfigData.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(WebConfigData.Meta.INSTANCE);
   }

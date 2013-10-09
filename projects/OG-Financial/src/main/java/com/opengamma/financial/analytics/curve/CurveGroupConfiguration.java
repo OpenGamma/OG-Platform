@@ -21,10 +21,11 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.id.UniqueId;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * Configuration defining a group on curves, where a group is a set of curves
+ * that are to be calculated at the same time.
  */
 @BeanDefinition
 public class CurveGroupConfiguration extends DirectBean implements Serializable {
@@ -45,16 +46,17 @@ public class CurveGroupConfiguration extends DirectBean implements Serializable 
   private Map<String, List<CurveTypeConfiguration>> _typesForCurves;
 
   /**
-   * For the Fudge builder
+   * For the builder.
    */
   /* package */ CurveGroupConfiguration() {
   }
 
   /**
-   * @param order The order of this configuration
+   * @param order The order of this configuration, not negative
    * @param curveTypes The curve types for a name, not null
    */
   public CurveGroupConfiguration(final int order, final Map<String, List<CurveTypeConfiguration>> curveTypes) {
+    ArgumentChecker.notNegative(order, "order");
     setOrder(order);
     setTypesForCurves(curveTypes);
   }
@@ -68,6 +70,7 @@ public class CurveGroupConfiguration extends DirectBean implements Serializable 
   public static CurveGroupConfiguration.Meta meta() {
     return CurveGroupConfiguration.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(CurveGroupConfiguration.Meta.INSTANCE);
   }

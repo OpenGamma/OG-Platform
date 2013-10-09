@@ -67,7 +67,8 @@ public class ManageableUnstructuredMarketDataSnapshotBuilder implements FudgeBui
       final FudgeMsg innerValue = (FudgeMsg) fudgeField.getValue();
       final ExternalIdBundle identifiers = deserializer.fieldValueToObject(ExternalIdBundle.class, innerValue.getByName(IDENTIFIERS_FIELD_NAME));
       final String valueName = innerValue.getFieldValue(String.class, innerValue.getByName(VALUE_NAME_FIELD_NAME));
-      final ValueSnapshot value = deserializer.fieldValueToObject(ValueSnapshot.class, innerValue.getByName(VALUE_FIELD_NAME));
+      final FudgeField valueField = innerValue.getByName(VALUE_FIELD_NAME);
+      final ValueSnapshot value = valueField == null ? null : deserializer.fieldValueToObject(ValueSnapshot.class, valueField);
       object.putValue(identifiers, valueName, value);
     }
     return object;

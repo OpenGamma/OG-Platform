@@ -64,6 +64,11 @@ import com.opengamma.financial.depgraph.rest.DependencyGraphTraceBuilderProperti
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.integration.swing.JPortfolioTree;
+import com.opengamma.integration.swing.PortfolioTreeModel;
+import com.opengamma.integration.swing.ViewEntry;
+import com.opengamma.integration.swing.ViewListCellRenderer;
+import com.opengamma.integration.swing.ViewListModel;
 import com.opengamma.integration.tool.IntegrationToolContext;
 import com.opengamma.scripts.Scriptable;
 
@@ -90,7 +95,7 @@ public class EngineDebugger extends AbstractTool<IntegrationToolContext> {
   
   private static final Logger s_logger = LoggerFactory.getLogger(EngineDebugger.class);
 
-  private static final String DEFAULT_VALUE_REQUIREMENT = "PresentValue";
+  private static final String DEFAULT_VALUE_REQUIREMENT = "Present Value";
 
   private JFrame _frame;
 
@@ -99,7 +104,7 @@ public class EngineDebugger extends AbstractTool<IntegrationToolContext> {
    */
   public static void main(String[] args) {
     //new EngineDebugger().initialize();
-    new EngineDebugger().initAndRun(args, IntegrationToolContext.class); 
+    new EngineDebugger().initAndRun(args, IntegrationToolContext.class);
   }
 
   /**
@@ -166,7 +171,7 @@ public class EngineDebugger extends AbstractTool<IntegrationToolContext> {
         JTree portfolioTree = (JTree) e.getSource();
         updateTreeTableModel(portfolioTree);
       }
-    });    
+    });
     
     _comboBox.addActionListener(new ActionListener() {
       @Override
@@ -228,7 +233,7 @@ public class EngineDebugger extends AbstractTool<IntegrationToolContext> {
     final int i = valueReq.indexOf('[');
     if ((i > 0) && (valueReq.charAt(valueReq.length() - 1) == ']')) {
       name = valueReq.substring(0, i);
-      constraints = ValueProperties.parse(valueReq.substring(i+1, valueReq.length()-1));
+      constraints = ValueProperties.parse(valueReq.substring(i + 1, valueReq.length() - 1));
     } else {
       name = valueReq;
       constraints = ValueProperties.none();
@@ -288,6 +293,7 @@ public class EngineDebugger extends AbstractTool<IntegrationToolContext> {
   protected void doRun() throws Exception {
     initialize();
     EventQueue.invokeLater(new Runnable() {
+      @Override
       public void run() {
         try {
           _frame.pack();

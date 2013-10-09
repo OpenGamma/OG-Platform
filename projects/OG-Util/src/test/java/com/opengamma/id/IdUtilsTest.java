@@ -9,9 +9,11 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
+import java.util.List;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableList;
 import com.opengamma.util.test.TestGroup;
 
 /**
@@ -31,6 +33,7 @@ public class IdUtilsTest {
     con.newInstance();
   }
 
+  //-------------------------------------------------------------------------
   public void test_set_success() {
     UniqueId uniqueId = UniqueId.of("A", "B");
     MockMutable mock = new MockMutable();
@@ -46,10 +49,50 @@ public class IdUtilsTest {
 
   static class MockMutable implements MutableUniqueIdentifiable {
     UniqueId uniqueId;
+
     @Override
     public void setUniqueId(UniqueId uniqueId) {
       this.uniqueId = uniqueId;
     }
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_toStringList() {
+    Iterable<ObjectIdentifiable> objectIds = ImmutableList.<ObjectIdentifiable>of(ObjectId.of("A", "X"), UniqueId.of("B", "Y", "1"), ObjectId.of("C", "Z"));
+    Iterable<String> expected = ImmutableList.of("A~X", "B~Y~1", "C~Z");
+    List<String> test = IdUtils.toStringList(objectIds);
+    assertEquals(expected, test);
+  }
+
+  public void test_toStringList_null() {
+    List<String> test = IdUtils.toStringList(null);
+    assertEquals(0, test.size());
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_parseObjectIds() {
+    Iterable<String> objectIds = ImmutableList.of("A~X", "B~Y", "C~Z");
+    Iterable<ObjectId> expected = ImmutableList.of(ObjectId.of("A", "X"), ObjectId.of("B", "Y"), ObjectId.of("C", "Z"));
+    List<ObjectId> test = IdUtils.parseObjectIds(objectIds);
+    assertEquals(expected, test);
+  }
+
+  public void test_parseObjectIds_null() {
+    List<ObjectId> test = IdUtils.parseObjectIds(null);
+    assertEquals(0, test.size());
+  }
+
+  //-------------------------------------------------------------------------
+  public void test_parseUniqueIds() {
+    Iterable<String> objectIds = ImmutableList.of("A~X", "B~Y~1", "C~Z");
+    Iterable<UniqueId> expected = ImmutableList.of(UniqueId.of("A", "X"), UniqueId.of("B", "Y", "1"), UniqueId.of("C", "Z"));
+    List<UniqueId> test = IdUtils.parseUniqueIds(objectIds);
+    assertEquals(expected, test);
+  }
+
+  public void test_parseUniqueIds_null() {
+    List<UniqueId> test = IdUtils.parseUniqueIds(null);
+    assertEquals(0, test.size());
   }
 
 }

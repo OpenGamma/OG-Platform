@@ -125,6 +125,7 @@ public class MarketDataSnapshotSearchRequest extends AbstractSearchRequest imple
   public static MarketDataSnapshotSearchRequest.Meta meta() {
     return MarketDataSnapshotSearchRequest.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(MarketDataSnapshotSearchRequest.Meta.INSTANCE);
   }

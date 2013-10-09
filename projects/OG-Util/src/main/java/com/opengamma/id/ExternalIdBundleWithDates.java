@@ -19,7 +19,6 @@ import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.ImmutableSortedSet;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * A bundle of external identifiers with validity dates.
@@ -31,9 +30,6 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
  */
 public final class ExternalIdBundleWithDates
     implements Iterable<ExternalIdWithDates>, Serializable, Comparable<ExternalIdBundleWithDates> {
-  static {
-    OpenGammaFudgeContext.getInstance().getTypeDictionary().registerClassRename("com.opengamma.id.IdentifierBundleWithDates", ExternalIdBundleWithDates.class);
-  }
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -133,7 +129,7 @@ public final class ExternalIdBundleWithDates
       _externalIds = ImmutableSortedSet.copyOf(externalIds);
     }
   }
-  
+
   /**
    * Creates a bundle from a collection of identifiers with a given comparator to specify ordering.
    * Note that the comparator is not preserved over Fudge encoding.
@@ -160,11 +156,6 @@ public final class ExternalIdBundleWithDates
   }
 
   //-------------------------------------------------------------------------
-  
-  public ExternalIdBundleWithDates withCustomIdOrdering(Comparator<ExternalIdWithDates> comparator) {
-    return new ExternalIdBundleWithDates(_externalIds, comparator);
-  }
-  
   /**
    * Returns a new bundle with the specified identifier added.
    * This instance is immutable and unaffected by this method call.
@@ -212,6 +203,17 @@ public final class ExternalIdBundleWithDates
       }
     }
     return create(ids);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Returns a new bundle using a custom comparator for ordering. Primarily useful for display.
+   * 
+   * @param comparator comparator specifying how to order the ExternalIds
+   * @return the new copy of the bundle, ordered by the comparator
+   */
+  public ExternalIdBundleWithDates withCustomIdOrdering(Comparator<ExternalIdWithDates> comparator) {
+    return new ExternalIdBundleWithDates(_externalIds, comparator);
   }
 
   //-------------------------------------------------------------------------

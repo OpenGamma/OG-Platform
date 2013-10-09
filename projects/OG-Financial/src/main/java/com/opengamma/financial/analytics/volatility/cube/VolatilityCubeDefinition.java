@@ -31,8 +31,8 @@ import com.opengamma.util.time.Tenor;
 /**
  * 
  */
+@Config(description = "Volatility cube definition")
 @BeanDefinition
-@Config
 public class VolatilityCubeDefinition extends DirectBean implements UniqueIdentifiable, MutableUniqueIdentifiable {
 
   /**
@@ -89,6 +89,7 @@ public class VolatilityCubeDefinition extends DirectBean implements UniqueIdenti
   public static VolatilityCubeDefinition.Meta meta() {
     return VolatilityCubeDefinition.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(VolatilityCubeDefinition.Meta.INSTANCE);
   }

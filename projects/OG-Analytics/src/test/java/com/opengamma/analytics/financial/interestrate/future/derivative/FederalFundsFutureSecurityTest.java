@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.derivative;
@@ -65,34 +65,33 @@ public class FederalFundsFutureSecurityTest {
   private static final double PAYMENT_ACCURAL_FACTOR = 1.0 / 12.0;
   private static final String NAME = "FFH2";
   private static final double ACCRUED_INTERESTS = 0;
-  private static final String CURVE_NAME = "OIS";
 
   private static final FederalFundsFutureSecurity FUTURE_FEDFUND = new FederalFundsFutureSecurity(INDEX_FEDFUND, ACCRUED_INTERESTS, FIXING_TIME, FIXING_ACCURAL_FACTOR, FIXING_TOTAL_ACCURAL_FACTOR,
-      NOTIONAL, PAYMENT_ACCURAL_FACTOR, NAME, CURVE_NAME);
+      NOTIONAL, PAYMENT_ACCURAL_FACTOR, NAME);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullLastTrading() {
-    new FederalFundsFutureSecurity(null, ACCRUED_INTERESTS, FIXING_TIME, FIXING_ACCURAL_FACTOR, FIXING_TOTAL_ACCURAL_FACTOR, NOTIONAL, PAYMENT_ACCURAL_FACTOR, NAME, CURVE_NAME);
+    new FederalFundsFutureSecurity(null, ACCRUED_INTERESTS, FIXING_TIME, FIXING_ACCURAL_FACTOR, FIXING_TOTAL_ACCURAL_FACTOR, NOTIONAL, PAYMENT_ACCURAL_FACTOR, NAME);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullFixingTime() {
-    new FederalFundsFutureSecurity(INDEX_FEDFUND, ACCRUED_INTERESTS, null, FIXING_ACCURAL_FACTOR, FIXING_TOTAL_ACCURAL_FACTOR, NOTIONAL, PAYMENT_ACCURAL_FACTOR, NAME, CURVE_NAME);
+    new FederalFundsFutureSecurity(INDEX_FEDFUND, ACCRUED_INTERESTS, null, FIXING_ACCURAL_FACTOR, FIXING_TOTAL_ACCURAL_FACTOR, NOTIONAL, PAYMENT_ACCURAL_FACTOR, NAME);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullFixingAccrual() {
-    new FederalFundsFutureSecurity(INDEX_FEDFUND, ACCRUED_INTERESTS, FIXING_TIME, null, FIXING_TOTAL_ACCURAL_FACTOR, NOTIONAL, PAYMENT_ACCURAL_FACTOR, NAME, CURVE_NAME);
+    new FederalFundsFutureSecurity(INDEX_FEDFUND, ACCRUED_INTERESTS, FIXING_TIME, null, FIXING_TOTAL_ACCURAL_FACTOR, NOTIONAL, PAYMENT_ACCURAL_FACTOR, NAME);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullName() {
-    new FederalFundsFutureSecurity(INDEX_FEDFUND, ACCRUED_INTERESTS, FIXING_TIME, FIXING_ACCURAL_FACTOR, FIXING_TOTAL_ACCURAL_FACTOR, NOTIONAL, PAYMENT_ACCURAL_FACTOR, null, CURVE_NAME);
+    new FederalFundsFutureSecurity(INDEX_FEDFUND, ACCRUED_INTERESTS, FIXING_TIME, FIXING_ACCURAL_FACTOR, FIXING_TOTAL_ACCURAL_FACTOR, NOTIONAL, PAYMENT_ACCURAL_FACTOR, null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void fixingLength() {
-    new FederalFundsFutureSecurity(INDEX_FEDFUND, ACCRUED_INTERESTS, new double[3], FIXING_ACCURAL_FACTOR, FIXING_TOTAL_ACCURAL_FACTOR, NOTIONAL, PAYMENT_ACCURAL_FACTOR, NAME, CURVE_NAME);
+    new FederalFundsFutureSecurity(INDEX_FEDFUND, ACCRUED_INTERESTS, new double[3], FIXING_ACCURAL_FACTOR, FIXING_TOTAL_ACCURAL_FACTOR, NOTIONAL, PAYMENT_ACCURAL_FACTOR, NAME);
   }
 
   @Test
@@ -117,23 +116,20 @@ public class FederalFundsFutureSecurityTest {
   public void equalHash() {
     assertTrue(FUTURE_FEDFUND.equals(FUTURE_FEDFUND));
     final FederalFundsFutureSecurity other = new FederalFundsFutureSecurity(INDEX_FEDFUND, ACCRUED_INTERESTS, FIXING_TIME, FIXING_ACCURAL_FACTOR, FIXING_TOTAL_ACCURAL_FACTOR, NOTIONAL,
-        PAYMENT_ACCURAL_FACTOR, NAME, CURVE_NAME);
+        PAYMENT_ACCURAL_FACTOR, NAME);
     assertTrue(FUTURE_FEDFUND.equals(other));
     assertTrue(FUTURE_FEDFUND.hashCode() == other.hashCode());
     FederalFundsFutureSecurity modifiedFuture;
     modifiedFuture = new FederalFundsFutureSecurity(IndexONMaster.getInstance().getIndex("EONIA"), ACCRUED_INTERESTS, FIXING_TIME, FIXING_ACCURAL_FACTOR, FIXING_TOTAL_ACCURAL_FACTOR,
-        NOTIONAL, PAYMENT_ACCURAL_FACTOR, NAME, CURVE_NAME);
+        NOTIONAL, PAYMENT_ACCURAL_FACTOR, NAME);
     assertFalse(FUTURE_FEDFUND.equals(modifiedFuture));
-    modifiedFuture = new FederalFundsFutureSecurity(INDEX_FEDFUND, ACCRUED_INTERESTS + 0.1, FIXING_TIME, FIXING_ACCURAL_FACTOR, FIXING_TOTAL_ACCURAL_FACTOR, NOTIONAL, PAYMENT_ACCURAL_FACTOR, NAME,
-        CURVE_NAME);
+    modifiedFuture = new FederalFundsFutureSecurity(INDEX_FEDFUND, ACCRUED_INTERESTS + 0.1, FIXING_TIME, FIXING_ACCURAL_FACTOR, FIXING_TOTAL_ACCURAL_FACTOR, NOTIONAL, PAYMENT_ACCURAL_FACTOR, NAME);
     assertFalse(FUTURE_FEDFUND.equals(modifiedFuture));
-    modifiedFuture = new FederalFundsFutureSecurity(INDEX_FEDFUND, ACCRUED_INTERESTS, FIXING_TIME, FIXING_ACCURAL_FACTOR, FIXING_TOTAL_ACCURAL_FACTOR, NOTIONAL + 10.0, PAYMENT_ACCURAL_FACTOR, NAME,
-        CURVE_NAME);
+    modifiedFuture = new FederalFundsFutureSecurity(INDEX_FEDFUND, ACCRUED_INTERESTS, FIXING_TIME, FIXING_ACCURAL_FACTOR, FIXING_TOTAL_ACCURAL_FACTOR, NOTIONAL + 10.0, PAYMENT_ACCURAL_FACTOR, NAME);
     assertFalse(FUTURE_FEDFUND.equals(modifiedFuture));
-    modifiedFuture = new FederalFundsFutureSecurity(INDEX_FEDFUND, ACCRUED_INTERESTS, FIXING_TIME, FIXING_ACCURAL_FACTOR, FIXING_TOTAL_ACCURAL_FACTOR, NOTIONAL, 0.25, NAME, CURVE_NAME);
+    modifiedFuture = new FederalFundsFutureSecurity(INDEX_FEDFUND, ACCRUED_INTERESTS, FIXING_TIME, FIXING_ACCURAL_FACTOR, FIXING_TOTAL_ACCURAL_FACTOR, NOTIONAL, 0.25, NAME);
     assertFalse(FUTURE_FEDFUND.equals(modifiedFuture));
-    modifiedFuture = new FederalFundsFutureSecurity(INDEX_FEDFUND, ACCRUED_INTERESTS, FIXING_TIME, FIXING_ACCURAL_FACTOR, FIXING_TOTAL_ACCURAL_FACTOR, NOTIONAL, PAYMENT_ACCURAL_FACTOR, "Wrong",
-        CURVE_NAME);
+    modifiedFuture = new FederalFundsFutureSecurity(INDEX_FEDFUND, ACCRUED_INTERESTS, FIXING_TIME, FIXING_ACCURAL_FACTOR, FIXING_TOTAL_ACCURAL_FACTOR, NOTIONAL, PAYMENT_ACCURAL_FACTOR, "Wrong");
     assertFalse(FUTURE_FEDFUND.equals(modifiedFuture));
     assertFalse(FUTURE_FEDFUND.equals(INDEX_FEDFUND));
     assertFalse(FUTURE_FEDFUND.equals(null));

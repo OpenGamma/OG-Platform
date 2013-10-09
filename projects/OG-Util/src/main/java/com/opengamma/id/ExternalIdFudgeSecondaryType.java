@@ -9,7 +9,6 @@ import org.fudgemsg.types.FudgeSecondaryType;
 import org.fudgemsg.types.SecondaryFieldType;
 import org.fudgemsg.wire.types.FudgeWireType;
 
-
 /**
  * Defines an {@code ExternalId} as a Fudge type using a String.
  * <p>

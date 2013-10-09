@@ -11,10 +11,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.CacheException;
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.Element;
+import net.sf.ehcache.config.CacheConfiguration;
+import net.sf.ehcache.config.CopyStrategyConfiguration;
+import net.sf.ehcache.config.SearchAttribute;
+import net.sf.ehcache.config.Searchable;
+import net.sf.ehcache.constructs.blocking.SelfPopulatingCache;
+import net.sf.ehcache.search.Result;
+import net.sf.ehcache.search.Results;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
-import org.threeten.bp.temporal.TemporalAmount;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.BasicChangeManager;
@@ -28,19 +40,6 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractChangeProvidingMaster;
 import com.opengamma.master.AbstractDocument;
 import com.opengamma.util.ArgumentChecker;
-
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheException;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Element;
-import net.sf.ehcache.config.CacheConfiguration;
-import net.sf.ehcache.config.CopyStrategyConfiguration;
-import net.sf.ehcache.config.SearchAttribute;
-import net.sf.ehcache.config.Searchable;
-import net.sf.ehcache.constructs.blocking.SelfPopulatingCache;
-import net.sf.ehcache.search.Result;
-import net.sf.ehcache.search.Results;
 
 /**
  * A cache decorating a master, mainly intended to reduce the frequency and repetition of queries to the underlying
@@ -175,7 +174,7 @@ public abstract class AbstractEHCachingMaster<D extends AbstractDocument> implem
 
     // Found a matching cached document
     if (results.size() == 1 && results.all().get(0).getValue() != null) {
-
+      @SuppressWarnings("unchecked")
       D result = (D) results.all().get(0).getValue();
 
       // Debug: check result against underlying
@@ -208,6 +207,7 @@ public abstract class AbstractEHCachingMaster<D extends AbstractDocument> implem
     }
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public D get(UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
@@ -229,7 +229,6 @@ public abstract class AbstractEHCachingMaster<D extends AbstractDocument> implem
           s_logger.error(getUidToDocumentCache().getName() + " returned:\n" + ((D) element.getObjectValue()) + "\nbut the underlying master returned:\n"  + check);
         }
       }
-
       return (D) element.getObjectValue();
     } else {
       throw new DataNotFoundException("No document found with the specified UniqueId");

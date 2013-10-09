@@ -11,17 +11,21 @@ import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.analytics.AnalyticsView;
 import com.opengamma.web.analytics.GridCell;
+import com.opengamma.web.analytics.GridStructure;
 import com.opengamma.web.analytics.ViewportDefinition;
 import com.opengamma.web.analytics.ViewportResults;
 import com.opengamma.web.analytics.formatting.TypeFormatter;
 
 /**
  * REST resource superclass for grid viewports. A viewport represents the part of the grid that is visible.
+ * @deprecated in favour of {@link WebUiResource}
  */
+@Deprecated
 public abstract class AbstractViewportResource {
 
   private final AnalyticsView.GridType _gridType;
@@ -86,11 +90,15 @@ public abstract class AbstractViewportResource {
   @GET
   public abstract ViewportResults getData();
 
-  /**
-   * Gets the grid type.
-   * 
-   * @return the grid type, not null
-   */
+  @GET
+  @Path("structure")
+  public abstract GridStructure getGridStructure();
+
+    /**
+     * Gets the grid type.
+     *
+     * @return the grid type, not null
+     */
   protected AnalyticsView.GridType getGridType() {
     return _gridType;
   }

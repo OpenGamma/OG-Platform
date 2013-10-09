@@ -13,7 +13,7 @@ import com.opengamma.id.UniqueIdentifiable;
 /**
  * 
  */
-@Config
+@Config(description = "Future price curve specification")
 public class FuturePriceCurveSpecification {
   private String _name;
   private UniqueIdentifiable _target;

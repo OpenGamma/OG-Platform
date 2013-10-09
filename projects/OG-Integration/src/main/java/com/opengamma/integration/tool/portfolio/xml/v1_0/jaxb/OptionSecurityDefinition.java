@@ -75,6 +75,7 @@ public class OptionSecurityDefinition extends ListedSecurityDefinition {
   public static OptionSecurityDefinition.Meta meta() {
     return OptionSecurityDefinition.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(OptionSecurityDefinition.Meta.INSTANCE);
   }

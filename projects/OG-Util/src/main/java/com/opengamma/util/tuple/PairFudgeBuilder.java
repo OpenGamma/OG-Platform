@@ -19,7 +19,8 @@ import org.fudgemsg.wire.types.FudgeWireType;
  * Fudge builder for {@code DoublesPair}.
  */
 @GenericFudgeBuilderFor(Pair.class)
-@FudgeBuilderFor(DoublesPair.class) //Without this the JavaBeanBuilder is used, which is slow
+//Without this the JavaBeanBuilder is used, which is slow
+@FudgeBuilderFor(DoublesPair.class)
 public final class PairFudgeBuilder implements FudgeBuilder<Pair<?, ?>> {
 
   /** Field name. */

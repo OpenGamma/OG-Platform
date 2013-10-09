@@ -272,6 +272,7 @@ public class OldBloombergRemoteAccessComponentFactory extends AbstractComponentF
   public static OldBloombergRemoteAccessComponentFactory.Meta meta() {
     return OldBloombergRemoteAccessComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(OldBloombergRemoteAccessComponentFactory.Meta.INSTANCE);
   }

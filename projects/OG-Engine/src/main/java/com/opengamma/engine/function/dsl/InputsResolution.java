@@ -27,7 +27,7 @@ public class InputsResolution extends DirectBean {
   @PropertyDefinition(validate = "notNull")
   private Collection<ResolvedInput> _inputs = new ArrayList<ResolvedInput>();
   
-  public void addInput(ResolvedInput input){
+  public void addInput(ResolvedInput input) {
     _inputs.add(input);
   }
   
@@ -40,6 +40,7 @@ public class InputsResolution extends DirectBean {
   public static InputsResolution.Meta meta() {
     return InputsResolution.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(InputsResolution.Meta.INSTANCE);
   }

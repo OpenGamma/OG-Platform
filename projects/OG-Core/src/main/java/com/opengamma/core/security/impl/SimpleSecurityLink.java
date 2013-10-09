@@ -101,7 +101,9 @@ public class SimpleSecurityLink extends AbstractLink<Security>
    * Creates a link from an object identifier.
    * 
    * @param objectId  the object identifier, not null
+   * @deprecated using object ids will limit ability to export links, use ExternalIds or ExternalIdBundles, even if they need to be generated GUIDs
    */
+  @Deprecated
   public SimpleSecurityLink(final ObjectId objectId) {
     super(objectId);
   }
@@ -110,7 +112,9 @@ public class SimpleSecurityLink extends AbstractLink<Security>
    * Creates a link from a unique identifier, only storing the object identifier.
    * 
    * @param uniqueId  the unique identifier, not null
+   * @deprecated using object ids will limit ability to export links, use ExternalIds or ExternalIdBundles, even if they need to be generated GUIDs
    */
+  @Deprecated
   public SimpleSecurityLink(final UniqueId uniqueId) {
     super(uniqueId);
   }
@@ -213,6 +217,7 @@ public class SimpleSecurityLink extends AbstractLink<Security>
   public static SimpleSecurityLink.Meta meta() {
     return SimpleSecurityLink.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(SimpleSecurityLink.Meta.INSTANCE);
   }

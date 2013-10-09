@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -9,8 +9,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 
+ * @deprecated The that are used by this factory are deprecated.
  */
+@Deprecated
 public final class FixedIncomeCalculatorFactory {
   /** Present value */
   public static final String PRESENT_VALUE = "PresentValue";
@@ -41,8 +42,13 @@ public final class FixedIncomeCalculatorFactory {
   /** Par rate parallel sensitivity calculator*/
   public static final ParRateParallelSensitivityCalculator PAR_RATE_PARALLEL_SENSITIVITY_CALCULATOR = ParRateParallelSensitivityCalculator.getInstance();
 
-  private static final Map<String, InstrumentDerivativeVisitor<?, ?>> s_instances = new HashMap<String, InstrumentDerivativeVisitor<?, ?>>();
-  private static final Map<Class<?>, String> s_instanceNames = new HashMap<Class<?>, String>();
+  /** Delta */
+  public static final String DELTA = "Delta";
+  /** Delta calculator */
+  public static final DeltaBlackCalculator DELTA_CALCULATOR = DeltaBlackCalculator.getInstance();
+
+  private static final Map<String, InstrumentDerivativeVisitor<?, ?>> s_instances = new HashMap<>();
+  private static final Map<Class<?>, String> s_instanceNames = new HashMap<>();
 
   static {
     s_instances.put(PAR_RATE, PAR_RATE_CALCULATOR);
@@ -52,6 +58,7 @@ public final class FixedIncomeCalculatorFactory {
     s_instances.put(PRESENT_VALUE_COUPON_SENSITIVITY, PRESENT_VALUE_COUPON_SENSITIVITY_CALCULATOR);
     s_instances.put(PRESENT_VALUE_SENSITIVITY, PRESENT_VALUE_SENSITIVITY_CALCULATOR);
     s_instances.put(PV01, PV01_CALCULATOR);
+    s_instances.put(DELTA, DELTA_CALCULATOR);
     s_instanceNames.put(PAR_RATE_CALCULATOR.getClass(), PAR_RATE);
     s_instanceNames.put(PAR_RATE_CURVE_SENSITIVITY_CALCULATOR.getClass(), PAR_RATE_CURVE_SENSITIVITY);
     s_instanceNames.put(PAR_RATE_PARALLEL_SENSITIVITY_CALCULATOR.getClass(), PAR_RATE_PARALLEL_SENSITIVITY);
@@ -59,6 +66,7 @@ public final class FixedIncomeCalculatorFactory {
     s_instanceNames.put(PRESENT_VALUE_COUPON_SENSITIVITY_CALCULATOR.getClass(), PRESENT_VALUE_COUPON_SENSITIVITY);
     s_instanceNames.put(PRESENT_VALUE_SENSITIVITY_CALCULATOR.getClass(), PRESENT_VALUE_SENSITIVITY);
     s_instanceNames.put(PV01_CALCULATOR.getClass(), PV01);
+    s_instanceNames.put(DELTA_CALCULATOR.getClass(), DELTA);
   }
 
   private FixedIncomeCalculatorFactory() {

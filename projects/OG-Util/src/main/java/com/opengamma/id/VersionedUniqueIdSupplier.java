@@ -16,13 +16,9 @@ import com.opengamma.util.ArgumentChecker;
 public class VersionedUniqueIdSupplier implements Supplier<UniqueId> {
 
   /**
-   * The scheme.
+   * The object identifier.
    */
-  private final String _scheme;
-  /**
-   * The identifier value.
-   */
-  private final String _value;
+  private final ObjectId _objectId;
   /**
    * The last version number issued.
    */
@@ -35,10 +31,7 @@ public class VersionedUniqueIdSupplier implements Supplier<UniqueId> {
    * @param value the value to use, not null or empty
    */
   public VersionedUniqueIdSupplier(final String scheme, final String value) {
-    ArgumentChecker.notEmpty(scheme, "scheme");
-    ArgumentChecker.notEmpty(scheme, "value");
-    _scheme = scheme;
-    _value = value;
+    this(ObjectId.of(scheme, value));
   }
 
   /**
@@ -47,11 +40,11 @@ public class VersionedUniqueIdSupplier implements Supplier<UniqueId> {
    * @param objectId the base object identifier, not null
    */
   public VersionedUniqueIdSupplier(final ObjectId objectId) {
-    this(objectId.getScheme(), objectId.getValue());
+    ArgumentChecker.notNull(objectId, "objectId");
+    _objectId = objectId;
   }
 
-  // Supplier
-
+  //-------------------------------------------------------------------------
   /**
    * Generates the next unique identifier.
    * 
@@ -59,7 +52,7 @@ public class VersionedUniqueIdSupplier implements Supplier<UniqueId> {
    */
   @Override
   public UniqueId get() {
-    return UniqueId.of(_scheme, _value, Long.toString(_version.incrementAndGet()));
+    return _objectId.atVersion(Long.toString(_version.incrementAndGet()));
   }
 
 }

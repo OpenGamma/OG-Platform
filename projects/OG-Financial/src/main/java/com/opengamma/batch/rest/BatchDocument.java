@@ -154,6 +154,7 @@ public class BatchDocument extends DirectBean {
   public static BatchDocument.Meta meta() {
     return BatchDocument.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(BatchDocument.Meta.INSTANCE);
   }

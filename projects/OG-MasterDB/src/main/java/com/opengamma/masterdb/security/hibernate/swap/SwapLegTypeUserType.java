@@ -5,12 +5,14 @@
  */
 package com.opengamma.masterdb.security.hibernate.swap;
 
+import com.opengamma.financial.security.swap.FixedInflationSwapLeg;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FixedVarianceSwapLeg;
 import com.opengamma.financial.security.swap.FloatingGearingIRLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingSpreadIRLeg;
 import com.opengamma.financial.security.swap.FloatingVarianceSwapLeg;
+import com.opengamma.financial.security.swap.InflationIndexSwapLeg;
 import com.opengamma.financial.security.swap.SwapLegVisitor;
 import com.opengamma.masterdb.security.hibernate.EnumUserType;
 
@@ -25,6 +27,8 @@ public class SwapLegTypeUserType extends EnumUserType<SwapLegType> {
   private static final String FLOATING_GEARING_INTEREST = "Floating gearing interest";
   private static final String FIXED_VARIANCE = "Fixed variance";
   private static final String FLOATING_VARIANCE = "Floating variance";
+  private static final String FIXED_INFLATION = "Fixed inflation";
+  private static final String INFLATION_INDEX = "Inflation index";
 
   public SwapLegTypeUserType() {
     super(SwapLegType.class, SwapLegType.values());
@@ -62,6 +66,16 @@ public class SwapLegTypeUserType extends EnumUserType<SwapLegType> {
       @Override
       public String visitFloatingVarianceSwapLeg(FloatingVarianceSwapLeg swapLeg) {
         return FLOATING_VARIANCE;
+      }
+
+      @Override
+      public String visitInflationIndexSwapLeg(InflationIndexSwapLeg swapLeg) {
+        return FIXED_INFLATION;
+      }
+
+      @Override
+      public String visitFixedInflationSwapLeg(FixedInflationSwapLeg swapLeg) {
+        return INFLATION_INDEX;
       }
     });
   }

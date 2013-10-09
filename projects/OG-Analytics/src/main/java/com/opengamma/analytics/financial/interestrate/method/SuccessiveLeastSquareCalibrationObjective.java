@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.method;
@@ -14,7 +14,9 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * A function used as objective function for calibration on successive instrument with a least square process for each of them.
  * The least square is done on the prices.
+ * @deprecated {@link YieldCurveBundle} is deprecated
  */
+@Deprecated
 public abstract class SuccessiveLeastSquareCalibrationObjective extends Function1D<DoubleMatrix1D, DoubleMatrix1D> {
 
   /**
@@ -34,7 +36,7 @@ public abstract class SuccessiveLeastSquareCalibrationObjective extends Function
     * @param instruments The instruments.
     */
 
-  public void setInstruments(InstrumentDerivative[] instruments) {
+  public void setInstruments(final InstrumentDerivative[] instruments) {
     _instruments = instruments;
   }
 
@@ -43,7 +45,7 @@ public abstract class SuccessiveLeastSquareCalibrationObjective extends Function
     * @param prices The prices.
     */
 
-  public void setPrice(double[] prices) {
+  public void setPrice(final double[] prices) {
     ArgumentChecker.isTrue(prices.length == _instruments.length, "Incorrect number of prices.");
     _prices = prices;
   }

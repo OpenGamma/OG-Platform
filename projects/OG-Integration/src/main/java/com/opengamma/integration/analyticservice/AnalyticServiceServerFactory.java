@@ -104,6 +104,7 @@ public class AnalyticServiceServerFactory extends AbstractComponentFactory {
   public static AnalyticServiceServerFactory.Meta meta() {
     return AnalyticServiceServerFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(AnalyticServiceServerFactory.Meta.INSTANCE);
   }

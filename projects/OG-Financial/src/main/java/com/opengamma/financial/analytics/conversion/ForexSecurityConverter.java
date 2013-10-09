@@ -35,7 +35,9 @@ import com.opengamma.util.money.Currency;
 
 /**
  * Converts FX instruments into a form suitable for use by the analytics library.
+ * @deprecated Use the converters that convert one specific type (e.g. {@link FXForwardSecurityConverter}
  */
+@Deprecated
 public class ForexSecurityConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {
   /** The currency pairs */
   private final CurrencyPairs _currencyPairs;
@@ -203,7 +205,7 @@ public class ForexSecurityConverter extends FinancialSecurityVisitorAdapter<Inst
     return new ForexNonDeliverableForwardDefinition(payCurrency, receiveCurrency, receiveAmount, exchangeRate, fixingDate, paymentDate);
   }
 
-  private KnockType getKnockType(final BarrierDirection direction) {
+  private static KnockType getKnockType(final BarrierDirection direction) {
     switch (direction) {
       case KNOCK_IN:
         return KnockType.IN;
@@ -214,7 +216,7 @@ public class ForexSecurityConverter extends FinancialSecurityVisitorAdapter<Inst
     }
   }
 
-  private com.opengamma.analytics.financial.model.option.definition.Barrier.BarrierType getBarrierType(final BarrierType type) {
+  private static com.opengamma.analytics.financial.model.option.definition.Barrier.BarrierType getBarrierType(final BarrierType type) {
     switch (type) {
       case UP:
         return com.opengamma.analytics.financial.model.option.definition.Barrier.BarrierType.UP;
@@ -225,7 +227,7 @@ public class ForexSecurityConverter extends FinancialSecurityVisitorAdapter<Inst
     }
   }
 
-  private ObservationType getObservationType(final MonitoringType type) {
+  private static ObservationType getObservationType(final MonitoringType type) {
     switch (type) {
       case CONTINUOUS:
         return ObservationType.CONTINUOUS;

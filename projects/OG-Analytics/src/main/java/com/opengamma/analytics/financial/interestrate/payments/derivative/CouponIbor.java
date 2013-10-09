@@ -1,12 +1,13 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.derivative;
 
 import org.apache.commons.lang.ObjectUtils;
 
+import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.util.ArgumentChecker;
@@ -51,7 +52,9 @@ public class CouponIbor extends CouponFloating {
    * @param fixingPeriodEndTime The fixing period end time (in years).
    * @param fixingYearFraction The year fraction (or accrual factor) for the fixing period.
    * @param forwardCurveName Name of the forward (or estimation) curve.
+   * @deprecated Use the constructor that does not take yield curve names.
    */
+  @Deprecated
   public CouponIbor(final Currency currency, final double paymentTime, final String fundingCurveName, final double paymentYearFraction, final double notional, final double fixingTime,
       final IborIndex index, final double fixingPeriodStartTime, final double fixingPeriodEndTime, final double fixingYearFraction, final String forwardCurveName) {
     super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional, fixingTime);
@@ -63,6 +66,33 @@ public class CouponIbor extends CouponFloating {
     _fixingAccrualFactor = fixingYearFraction;
     ArgumentChecker.notNull(forwardCurveName, "forward curve name");
     _forwardCurveName = forwardCurveName;
+    ArgumentChecker.notNull(index, "Index");
+    ArgumentChecker.isTrue(currency.equals(index.getCurrency()), "Index currency incompatible with coupon currency");
+    _index = index;
+  }
+
+  /**
+   * Constructor from all details.
+   * @param currency The payment currency.
+   * @param paymentTime Time (in years) up to the payment.
+   * @param paymentYearFraction The year fraction (or accrual factor) for the coupon payment.
+   * @param notional Coupon notional.
+   * @param fixingTime Time (in years) up to fixing.
+   * @param index The Ibor-like index on which the coupon fixes.
+   * @param fixingPeriodStartTime The fixing period start time (in years).
+   * @param fixingPeriodEndTime The fixing period end time (in years).
+   * @param fixingYearFraction The year fraction (or accrual factor) for the fixing period.
+   */
+  public CouponIbor(final Currency currency, final double paymentTime, final double paymentYearFraction, final double notional, final double fixingTime,
+      final IborIndex index, final double fixingPeriodStartTime, final double fixingPeriodEndTime, final double fixingYearFraction) {
+    super(currency, paymentTime, paymentYearFraction, notional, fixingTime);
+    ArgumentChecker.isTrue(fixingPeriodStartTime >= fixingTime, "fixing period start < fixing time");
+    _fixingPeriodStartTime = fixingPeriodStartTime;
+    ArgumentChecker.isTrue(fixingPeriodEndTime >= fixingPeriodStartTime, "fixing period end < fixing period start");
+    _fixingPeriodEndTime = fixingPeriodEndTime;
+    ArgumentChecker.isTrue(fixingYearFraction >= 0, "forward year fraction < 0");
+    _fixingAccrualFactor = fixingYearFraction;
+    _forwardCurveName = null;
     ArgumentChecker.notNull(index, "Index");
     ArgumentChecker.isTrue(currency.equals(index.getCurrency()), "Index currency incompatible with coupon currency");
     _index = index;
@@ -95,8 +125,13 @@ public class CouponIbor extends CouponFloating {
   /**
    * Gets the forward curve name.
    * @return The name.
+   * @deprecated Curve names should no longer be set in {@link InstrumentDefinition}s
    */
+  @Deprecated
   public String getForwardCurveName() {
+    if (_forwardCurveName == null) {
+      throw new IllegalStateException("Forward curve name was not set");
+    }
     return _forwardCurveName;
   }
 
@@ -108,10 +143,16 @@ public class CouponIbor extends CouponFloating {
     return _index;
   }
 
+  @SuppressWarnings("deprecation")
   @Override
   public CouponIbor withNotional(final double notional) {
-    return new CouponIbor(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), notional, getFixingTime(), _index, getFixingPeriodStartTime(), getFixingPeriodEndTime(),
-        getFixingAccrualFactor(), getForwardCurveName());
+    try {
+      return new CouponIbor(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), notional, getFixingTime(), _index, getFixingPeriodStartTime(), getFixingPeriodEndTime(),
+          getFixingAccrualFactor(), getForwardCurveName());
+    } catch (final IllegalStateException e) {
+      return new CouponIbor(getCurrency(), getPaymentTime(), getPaymentYearFraction(), notional, getFixingTime(), _index, getFixingPeriodStartTime(), getFixingPeriodEndTime(),
+          getFixingAccrualFactor());
+    }
   }
 
   @Override
@@ -130,7 +171,7 @@ public class CouponIbor extends CouponFloating {
     result = prime * result + (int) (temp ^ temp >>> 32);
     temp = Double.doubleToLongBits(_fixingAccrualFactor);
     result = prime * result + (int) (temp ^ temp >>> 32);
-    result = prime * result + _forwardCurveName.hashCode();
+    result = prime * result + (_forwardCurveName == null ? 0 : _forwardCurveName.hashCode());
     return result;
   }
 
@@ -161,8 +202,13 @@ public class CouponIbor extends CouponFloating {
     return true;
   }
 
+  @SuppressWarnings("deprecation")
   public CouponFixed withUnitCoupon() {
-    return new CouponFixed(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), getNotional(), 1.0);
+    try {
+      return new CouponFixed(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), getNotional(), 1.0);
+    } catch (final IllegalStateException e) {
+      return new CouponFixed(getCurrency(), getPaymentTime(), getPaymentYearFraction(), getNotional(), 1.0);
+    }
   }
 
   @Override

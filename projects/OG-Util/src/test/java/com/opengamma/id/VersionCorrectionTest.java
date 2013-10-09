@@ -95,27 +95,34 @@ public class VersionCorrectionTest {
   }
 
   //-------------------------------------------------------------------------
-  public void test_parse() {
-    VersionCorrection test = VersionCorrection.parse("V1970-01-01T00:00:01Z.C1970-01-01T00:00:02Z");
-    VersionCorrection expected = VersionCorrection.of(INSTANT1, INSTANT2);
+  @DataProvider(name = "parseValid")
+  Object[][] data_parseValid() {
+    return new Object[][] {
+        {"1970-01-01T00:00:01Z", "1970-01-01T00:00:02Z", VersionCorrection.of(INSTANT1, INSTANT2)},
+        {"LATEST", "1970-01-01T00:00:02Z", VersionCorrection.of(null, INSTANT2)},
+        {"1970-01-01T00:00:01Z", "LATEST", VersionCorrection.of(INSTANT1, null)},
+        {"LATEST", "LATEST", VersionCorrection.of(null, null)},
+    };
+  }
+
+  @Test(dataProvider = "parseValid")
+  public void test_parse_String(String first, String second, VersionCorrection expected) {
+    VersionCorrection test = VersionCorrection.parse("V" + first + ".C" + second);
     assertEquals(expected, test);
   }
 
-  public void test_parse_latestVersion() {
-    VersionCorrection test = VersionCorrection.parse("VLATEST.C1970-01-01T00:00:02Z");
-    VersionCorrection expected = VersionCorrection.of(null, INSTANT2);
+  @Test(dataProvider = "parseValid")
+  public void test_parse_StringString(String first, String second, VersionCorrection expected) {
+    VersionCorrection test = VersionCorrection.parse(first, second);
     assertEquals(expected, test);
   }
 
-  public void test_parse_latestCorrection() {
-    VersionCorrection test = VersionCorrection.parse("V1970-01-01T00:00:01Z.CLATEST");
-    VersionCorrection expected = VersionCorrection.of(INSTANT1, null);
+  @Test(dataProvider = "parseValid")
+  public void test_parse_StringString_nullsAllowed(String first, String second, VersionCorrection expected) {
+    first = (first.equals("LATEST") ? null : first);
+    second = (second.equals("LATEST") ? null : second);
+    VersionCorrection test = VersionCorrection.parse(first, second);
     assertEquals(expected, test);
-  }
-
-  public void test_parse_latests() {
-    VersionCorrection test = VersionCorrection.parse("VLATEST.CLATEST");
-    assertSame(VersionCorrection.LATEST, test);
   }
 
   @DataProvider(name = "parseInvalid")
@@ -132,8 +139,13 @@ public class VersionCorrectionTest {
   }
 
   @Test(dataProvider = "parseInvalid", expectedExceptions = IllegalArgumentException.class)
-  public void test_parse_invalidNoV(String input) {
+  public void test_parse_String_invalid(String input) {
     VersionCorrection.parse(input);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_parse_StringString_invalid() {
+    VersionCorrection.parse("LATS", "LATS");
   }
 
   //-------------------------------------------------------------------------

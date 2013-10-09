@@ -110,6 +110,7 @@ public class PortfolioSearchResult extends AbstractSearchResult<PortfolioDocumen
   public static PortfolioSearchResult.Meta meta() {
     return PortfolioSearchResult.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(PortfolioSearchResult.Meta.INSTANCE);
   }

@@ -81,17 +81,21 @@ import com.opengamma.analytics.financial.instrument.payment.CouponArithmeticAver
 import com.opengamma.analytics.financial.instrument.payment.CouponArithmeticAverageONSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponArithmeticAverageONSpreadSimplifiedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponCMSDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponFixedAccruedCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborAverageDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingFlatSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborCompoundingSpreadDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborGearingDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborRatchetDefinition;
 import com.opengamma.analytics.financial.instrument.payment.CouponIborSpreadDefinition;
-import com.opengamma.analytics.financial.instrument.payment.CouponOISDefinition;
-import com.opengamma.analytics.financial.instrument.payment.CouponOISSimplifiedDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponONCompoundedDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponONDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponONSimplifiedDefinition;
+import com.opengamma.analytics.financial.instrument.payment.CouponONSpreadSimplifiedDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
@@ -100,6 +104,7 @@ import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborSpreadDefi
 import com.opengamma.analytics.financial.instrument.swap.SwapIborIborDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapXCcyIborIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionBermudaFixedIborDefinition;
+import com.opengamma.analytics.financial.instrument.swaption.SwaptionCashFixedCompoundedONCompoundingDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionCashFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
 import com.opengamma.analytics.financial.instrument.swaption.SwaptionPhysicalFixedIborSpreadDefinition;
@@ -416,6 +421,16 @@ public class InstrumentDefinitionVisitorDelegate<DATA_TYPE, RESULT_TYPE> impleme
   }
 
   @Override
+  public RESULT_TYPE visitCouponFixedAccruedCompoundingDefinition(final CouponFixedAccruedCompoundingDefinition payment, final DATA_TYPE data) {
+    return _delegate.visitCouponFixedAccruedCompoundingDefinition(payment, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponFixedAccruedCompoundingDefinition(final CouponFixedAccruedCompoundingDefinition payment) {
+    return _delegate.visitCouponFixedAccruedCompoundingDefinition(payment);
+  }
+
+  @Override
   public RESULT_TYPE visitCouponIborDefinition(final CouponIborDefinition payment, final DATA_TYPE data) {
     return _delegate.visitCouponIborDefinition(payment, data);
   }
@@ -476,6 +491,16 @@ public class InstrumentDefinitionVisitorDelegate<DATA_TYPE, RESULT_TYPE> impleme
   }
 
   @Override
+  public RESULT_TYPE visitCouponIborCompoundingFlatSpreadDefinition(final CouponIborCompoundingFlatSpreadDefinition payment, final DATA_TYPE data) {
+    return _delegate.visitCouponIborCompoundingFlatSpreadDefinition(payment, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponIborCompoundingFlatSpreadDefinition(final CouponIborCompoundingFlatSpreadDefinition payment) {
+    return _delegate.visitCouponIborCompoundingFlatSpreadDefinition(payment);
+  }
+
+  @Override
   public RESULT_TYPE visitCouponIborRatchetDefinition(final CouponIborRatchetDefinition payment, final DATA_TYPE data) {
     return _delegate.visitCouponIborRatchetDefinition(payment, data);
   }
@@ -496,23 +521,43 @@ public class InstrumentDefinitionVisitorDelegate<DATA_TYPE, RESULT_TYPE> impleme
   }
 
   @Override
-  public RESULT_TYPE visitCouponOISSimplifiedDefinition(final CouponOISSimplifiedDefinition payment, final DATA_TYPE data) {
+  public RESULT_TYPE visitCouponOISSimplifiedDefinition(final CouponONSimplifiedDefinition payment, final DATA_TYPE data) {
     return _delegate.visitCouponOISSimplifiedDefinition(payment, data);
   }
 
   @Override
-  public RESULT_TYPE visitCouponOISSimplifiedDefinition(final CouponOISSimplifiedDefinition payment) {
+  public RESULT_TYPE visitCouponOISSimplifiedDefinition(final CouponONSimplifiedDefinition payment) {
     return _delegate.visitCouponOISSimplifiedDefinition(payment);
   }
 
   @Override
-  public RESULT_TYPE visitCouponOISDefinition(final CouponOISDefinition payment, final DATA_TYPE data) {
+  public RESULT_TYPE visitCouponONSpreadSimplifiedDefinition(final CouponONSpreadSimplifiedDefinition payment, final DATA_TYPE data) {
+    return _delegate.visitCouponONSpreadSimplifiedDefinition(payment, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponONSpreadSimplifiedDefinition(final CouponONSpreadSimplifiedDefinition payment) {
+    return _delegate.visitCouponONSpreadSimplifiedDefinition(payment);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponOISDefinition(final CouponONDefinition payment, final DATA_TYPE data) {
     return _delegate.visitCouponOISDefinition(payment, data);
   }
 
   @Override
-  public RESULT_TYPE visitCouponOISDefinition(final CouponOISDefinition payment) {
+  public RESULT_TYPE visitCouponOISDefinition(final CouponONDefinition payment) {
     return _delegate.visitCouponOISDefinition(payment);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponONCompoundedDefinition(final CouponONCompoundedDefinition payment, final DATA_TYPE data) {
+    return _delegate.visitCouponONCompoundedDefinition(payment, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitCouponONCompoundedDefinition(final CouponONCompoundedDefinition payment) {
+    return _delegate.visitCouponONCompoundedDefinition(payment);
   }
 
   @Override
@@ -675,6 +720,16 @@ public class InstrumentDefinitionVisitorDelegate<DATA_TYPE, RESULT_TYPE> impleme
   @Override
   public RESULT_TYPE visitSwaptionBermudaFixedIborDefinition(final SwaptionBermudaFixedIborDefinition swaption) {
     return _delegate.visitSwaptionBermudaFixedIborDefinition(swaption);
+  }
+
+  @Override
+  public RESULT_TYPE visitSwaptionCashFixedONCompoundingDefinition(final SwaptionCashFixedCompoundedONCompoundingDefinition swaption, final DATA_TYPE data) {
+    return _delegate.visitSwaptionCashFixedONCompoundingDefinition(swaption, data);
+  }
+
+  @Override
+  public RESULT_TYPE visitSwaptionCashFixedONCompoundingDefinition(final SwaptionCashFixedCompoundedONCompoundingDefinition swaption) {
+    return _delegate.visitSwaptionCashFixedONCompoundingDefinition(swaption);
   }
 
   @Override
@@ -1078,32 +1133,32 @@ public class InstrumentDefinitionVisitorDelegate<DATA_TYPE, RESULT_TYPE> impleme
   }
 
   @Override
-  public RESULT_TYPE visitIndexFutureDefinition(IndexFutureDefinition future, DATA_TYPE data) {
+  public RESULT_TYPE visitIndexFutureDefinition(final IndexFutureDefinition future, final DATA_TYPE data) {
     return _delegate.visitIndexFutureDefinition(future, data);
   }
 
   @Override
-  public RESULT_TYPE visitIndexFutureDefinition(IndexFutureDefinition future) {
+  public RESULT_TYPE visitIndexFutureDefinition(final IndexFutureDefinition future) {
     return _delegate.visitIndexFutureDefinition(future);
   }
 
   @Override
-  public RESULT_TYPE visitEquityIndexFutureDefinition(EquityIndexFutureDefinition future, DATA_TYPE data) {
+  public RESULT_TYPE visitEquityIndexFutureDefinition(final EquityIndexFutureDefinition future, final DATA_TYPE data) {
     return _delegate.visitEquityIndexFutureDefinition(future, data);
   }
 
   @Override
-  public RESULT_TYPE visitEquityIndexFutureDefinition(EquityIndexFutureDefinition future) {
+  public RESULT_TYPE visitEquityIndexFutureDefinition(final EquityIndexFutureDefinition future) {
     return _delegate.visitEquityIndexFutureDefinition(future);
   }
 
   @Override
-  public RESULT_TYPE visitVolatilityIndexFutureDefinition(VolatilityIndexFutureDefinition future, DATA_TYPE data) {
+  public RESULT_TYPE visitVolatilityIndexFutureDefinition(final VolatilityIndexFutureDefinition future, final DATA_TYPE data) {
     return _delegate.visitVolatilityIndexFutureDefinition(future, data);
   }
 
   @Override
-  public RESULT_TYPE visitVolatilityIndexFutureDefinition(VolatilityIndexFutureDefinition future) {
+  public RESULT_TYPE visitVolatilityIndexFutureDefinition(final VolatilityIndexFutureDefinition future) {
     return _delegate.visitVolatilityIndexFutureDefinition(future);
   }
 

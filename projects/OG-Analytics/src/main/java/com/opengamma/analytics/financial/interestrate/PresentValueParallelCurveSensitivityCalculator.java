@@ -17,9 +17,10 @@ import com.opengamma.analytics.util.amount.StringAmount;
 
 /**
  * Calculates the present value sensitivity to parallel curve movements.
+ * @deprecated {@link YieldCurveBundle} is deprecated.
  */
+@Deprecated
 public final class PresentValueParallelCurveSensitivityCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, StringAmount> {
-  // TODO: This calculator is similar (equivalent?) to the PV01Calculator. Should they be merged?
 
   /**
    * The unique instance of the SABR sensitivity calculator.

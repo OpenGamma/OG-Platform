@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument;
@@ -27,8 +27,9 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
- * 
+ * @deprecated {@link YieldCurveBundle} is deprecated
  */
+@Deprecated
 public final class NettedProjectedCashFlowFromDateCalculator {
   private static final NettedProjectedCashFlowFromDateCalculator INSTANCE = new NettedProjectedCashFlowFromDateCalculator();
   private static final PaymentsVisitor PAY_DATES = new PaymentsVisitor(true);
@@ -41,15 +42,24 @@ public final class NettedProjectedCashFlowFromDateCalculator {
   private NettedProjectedCashFlowFromDateCalculator() {
   }
 
-  public Map<LocalDate, MultipleCurrencyAmount> getCashFlows(final InstrumentDefinition<?> instrument, final String[] yieldCurveNames, final ZonedDateTime date, final YieldCurveBundle data) {
+  /**
+   * Gets the netted projected cash-flows as of a particular date.
+   * @param instrument The instrument, not null
+   * @param yieldCurveNames The yield curve names, not null
+   * @param date The date, not null
+   * @param data The yield curves, not null
+   * @return The projected netted cash flows as of a particular date
+   */
+  public Map<LocalDate, MultipleCurrencyAmount> getCashFlows(final InstrumentDefinition<?> instrument, final String[] yieldCurveNames,
+      final ZonedDateTime date, final YieldCurveBundle data) {
     ArgumentChecker.notNull(instrument, "instrument");
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
     ArgumentChecker.notNull(date, "date");
     ArgumentChecker.notNull(data, "data");
     final List<ZonedDateTime> payDates = instrument.accept(PAY_DATES, date);
     final List<ZonedDateTime> receiveDates = instrument.accept(RECEIVE_DATES, date);
-    final List<MultipleCurrencyAmount> payCashFlows = new ArrayList<MultipleCurrencyAmount>();
-    final List<MultipleCurrencyAmount> receiveCashFlows = new ArrayList<MultipleCurrencyAmount>();
+    final List<MultipleCurrencyAmount> payCashFlows = new ArrayList<>();
+    final List<MultipleCurrencyAmount> receiveCashFlows = new ArrayList<>();
     final InstrumentDerivative derivative = instrument.toDerivative(date, yieldCurveNames);
     if (payDates != null) {
       payCashFlows.addAll(derivative.accept(ProjectedPayCashFlowVisitor.getInstance(), data));
@@ -66,9 +76,40 @@ public final class NettedProjectedCashFlowFromDateCalculator {
     return add(payCashFlows, payDates, receiveCashFlows, receiveDates);
   }
 
-  private Map<LocalDate, MultipleCurrencyAmount> add(final List<MultipleCurrencyAmount> payAmounts, final List<ZonedDateTime> payDates, final List<MultipleCurrencyAmount> receiveAmounts,
-      final List<ZonedDateTime> receiveDates) {
-    final TreeMap<LocalDate, MultipleCurrencyAmount> result = new TreeMap<LocalDate, MultipleCurrencyAmount>();
+  /**
+   * Gets the netted projected cash-flows as of a particular date.
+   * @param instrument The instrument, not null
+   * @param date The date, not null
+   * @param data The yield curves, not null
+   * @return The projected netted cash flows as of a particular date
+   */
+  public Map<LocalDate, MultipleCurrencyAmount> getCashFlows(final InstrumentDefinition<?> instrument, final ZonedDateTime date, final YieldCurveBundle data) {
+    ArgumentChecker.notNull(instrument, "instrument");
+    ArgumentChecker.notNull(date, "date");
+    ArgumentChecker.notNull(data, "data");
+    final List<ZonedDateTime> payDates = instrument.accept(PAY_DATES, date);
+    final List<ZonedDateTime> receiveDates = instrument.accept(RECEIVE_DATES, date);
+    final List<MultipleCurrencyAmount> payCashFlows = new ArrayList<>();
+    final List<MultipleCurrencyAmount> receiveCashFlows = new ArrayList<>();
+    final InstrumentDerivative derivative = instrument.toDerivative(date);
+    if (payDates != null) {
+      payCashFlows.addAll(derivative.accept(ProjectedPayCashFlowVisitor.getInstance(), data));
+      if (payCashFlows.size() != payDates.size()) {
+        throw new IllegalStateException("Did not have same number of payments as dates");
+      }
+    }
+    if (receiveDates != null) {
+      receiveCashFlows.addAll(derivative.accept(ProjectedReceiveCashFlowVisitor.getInstance(), data));
+      if (receiveCashFlows.size() != receiveDates.size()) {
+        throw new IllegalStateException("Did not have same number of receive payments as dates");
+      }
+    }
+    return add(payCashFlows, payDates, receiveCashFlows, receiveDates);
+  }
+
+  private static Map<LocalDate, MultipleCurrencyAmount> add(final List<MultipleCurrencyAmount> payAmounts, final List<ZonedDateTime> payDates,
+      final List<MultipleCurrencyAmount> receiveAmounts, final List<ZonedDateTime> receiveDates) {
+    final TreeMap<LocalDate, MultipleCurrencyAmount> result = new TreeMap<>();
     for (int i = 0; i < payAmounts.size(); i++) {
       result.put(payDates.get(i).toLocalDate(), payAmounts.get(i).multipliedBy(-1));
     }
@@ -102,7 +143,7 @@ public final class NettedProjectedCashFlowFromDateCalculator {
     public List<ZonedDateTime> visitSwapFixedIborDefinition(final SwapFixedIborDefinition swap, final ZonedDateTime date) {
       if (_isPay && swap.getIborLeg().isPayer() || !_isPay && !swap.getIborLeg().isPayer()) {
         final CouponIborDefinition[] coupons = swap.getIborLeg().getPayments();
-        final List<ZonedDateTime> payments = new ArrayList<ZonedDateTime>();
+        final List<ZonedDateTime> payments = new ArrayList<>();
         for (final CouponIborDefinition coupon : coupons) {
           if (!date.isBefore(coupon.getPaymentDate())) {
             payments.add(coupon.getPaymentDate());
@@ -116,7 +157,7 @@ public final class NettedProjectedCashFlowFromDateCalculator {
     public List<ZonedDateTime> visitSwapFixedIborSpreadDefinition(final SwapFixedIborSpreadDefinition swap, final ZonedDateTime date) {
       if (_isPay && swap.getIborLeg().isPayer() || !_isPay && !swap.getIborLeg().isPayer()) {
         final PaymentDefinition[] coupons = swap.getIborLeg().getPayments();
-        final List<ZonedDateTime> payments = new ArrayList<ZonedDateTime>();
+        final List<ZonedDateTime> payments = new ArrayList<>();
         for (final PaymentDefinition coupon : coupons) {
           if (!date.isBefore(coupon.getPaymentDate())) {
             payments.add(coupon.getPaymentDate());
@@ -135,7 +176,7 @@ public final class NettedProjectedCashFlowFromDateCalculator {
       } else {
         payLeg = swap.getFirstLeg().isPayer() ? swap.getSecondLeg() : swap.getFirstLeg();
       }
-      final List<ZonedDateTime> payments = new ArrayList<ZonedDateTime>();
+      final List<ZonedDateTime> payments = new ArrayList<>();
       for (final PaymentDefinition coupon : payLeg.getPayments()) {
         if (!date.isBefore(coupon.getPaymentDate())) {
           payments.add(coupon.getPaymentDate());

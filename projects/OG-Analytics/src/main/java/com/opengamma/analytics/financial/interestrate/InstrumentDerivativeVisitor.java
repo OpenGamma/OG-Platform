@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -86,45 +86,94 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponArithmeticAverageONSpreadSimplified;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedAccruedCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborAverage;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounding;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingFlatSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborGearing;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponOIS;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponON;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONCompounded;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCompoundingCoupon;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionBermudaFixedIbor;
+import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedCompoundedONCompounded;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
+import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedCompoundedONCompounded;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.analytics.financial.varianceswap.VarianceSwap;
 
 /**
- * 
+ *
  * @param <DATA_TYPE> The type of the data
  * @param <RESULT_TYPE> The return type of the calculation
  */
+@SuppressWarnings("deprecation")
 public interface InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
 
   // Two arguments
 
+  /**
+   * Fixed-coupon bond security method that takes data.
+   * @param bond A fixed-coupon bond security
+   * @param data The data
+   * @return The result
+   */
   RESULT_TYPE visitBondFixedSecurity(BondFixedSecurity bond, DATA_TYPE data);
 
+  /**
+   * Fixed-coupon bond transaction method that takes data.
+   * @param bond A fixed-coupon bond transaction
+   * @param data The data
+   * @return The result
+   */
   RESULT_TYPE visitBondFixedTransaction(BondFixedTransaction bond, DATA_TYPE data);
 
+  /**
+   * Ibor bond security method that takes data.
+   * @param bond An ibor bond security
+   * @param data The data
+   * @return The result
+   */
   RESULT_TYPE visitBondIborSecurity(BondIborSecurity bond, DATA_TYPE data);
 
+  /**
+   * Ibor bond transaction method that takes data.
+   * @param bond An ibor bond transaction
+   * @param data The data
+   * @return The result
+   */
   RESULT_TYPE visitBondIborTransaction(BondIborTransaction bond, DATA_TYPE data);
 
+  /**
+   * Bill security method that takes data.
+   * @param bill A bill security
+   * @param data The data
+   * @return The result
+   */
   RESULT_TYPE visitBillSecurity(BillSecurity bill, DATA_TYPE data);
 
+  /**
+   * Bill transaction method that takes data.
+   * @param bill A bill transaction
+   * @param data The data
+   * @return The result
+   */
   RESULT_TYPE visitBillTransaction(BillTransaction bill, DATA_TYPE data);
 
+  /**
+   * Generic annuity method that takes data.
+   * @param genericAnnuity A generic annuity
+   * @param data The data
+   * @return The result
+   */
   RESULT_TYPE visitGenericAnnuity(Annuity<? extends Payment> genericAnnuity, DATA_TYPE data);
 
   RESULT_TYPE visitFixedCouponAnnuity(AnnuityCouponFixed fixedCouponAnnuity, DATA_TYPE data);
@@ -140,6 +189,10 @@ public interface InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
   RESULT_TYPE visitSwaptionPhysicalFixedIbor(SwaptionPhysicalFixedIbor swaption, DATA_TYPE data);
 
   RESULT_TYPE visitSwaptionBermudaFixedIbor(SwaptionBermudaFixedIbor swaption, DATA_TYPE data);
+
+  RESULT_TYPE visitSwaptionCashFixedCompoundedONCompounded(SwaptionCashFixedCompoundedONCompounded swaption, DATA_TYPE data);
+
+  RESULT_TYPE visitSwaptionPhysicalFixedCompoundedONCompounded(SwaptionPhysicalFixedCompoundedONCompounded swaption, DATA_TYPE data);
 
   RESULT_TYPE visitForexForward(ForexForward fx, DATA_TYPE data);
 
@@ -193,6 +246,10 @@ public interface InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
 
   RESULT_TYPE visitSwaptionPhysicalFixedIbor(SwaptionPhysicalFixedIbor swaption);
 
+  RESULT_TYPE visitSwaptionCashFixedCompoundedONCompounded(SwaptionCashFixedCompoundedONCompounded swaption);
+
+  RESULT_TYPE visitSwaptionPhysicalFixedCompoundedONCompounded(SwaptionPhysicalFixedCompoundedONCompounded swaption);
+
   RESULT_TYPE visitSwaptionBermudaFixedIbor(SwaptionBermudaFixedIbor swaption);
 
   RESULT_TYPE visitForexForward(ForexForward fx);
@@ -233,6 +290,10 @@ public interface InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
 
   RESULT_TYPE visitCouponFixedCompounding(CouponFixedCompounding payment);
 
+  RESULT_TYPE visitCouponFixedAccruedCompounding(CouponFixedAccruedCompounding payment, DATA_TYPE data);
+
+  RESULT_TYPE visitCouponFixedAccruedCompounding(CouponFixedAccruedCompounding payment);
+
   RESULT_TYPE visitCouponIbor(CouponIbor payment, DATA_TYPE data);
 
   RESULT_TYPE visitCouponIbor(CouponIbor payment);
@@ -257,9 +318,21 @@ public interface InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
 
   RESULT_TYPE visitCouponIborCompoundingSpread(CouponIborCompoundingSpread payment, DATA_TYPE data);
 
-  RESULT_TYPE visitCouponOIS(CouponOIS payment, DATA_TYPE data);
+  RESULT_TYPE visitCouponIborCompoundingFlatSpread(CouponIborCompoundingFlatSpread payment);
 
-  RESULT_TYPE visitCouponOIS(CouponOIS payment);
+  RESULT_TYPE visitCouponIborCompoundingFlatSpread(CouponIborCompoundingFlatSpread payment, DATA_TYPE data);
+
+  RESULT_TYPE visitCouponOIS(CouponON payment, DATA_TYPE data);
+
+  RESULT_TYPE visitCouponOIS(CouponON payment);
+
+  RESULT_TYPE visitCouponONCompounded(CouponONCompounded payment, DATA_TYPE data);
+
+  RESULT_TYPE visitCouponONCompounded(CouponONCompounded payment);
+
+  RESULT_TYPE visitCouponONSpread(CouponONSpread payment, DATA_TYPE data);
+
+  RESULT_TYPE visitCouponONSpread(CouponONSpread payment);
 
   RESULT_TYPE visitCouponArithmeticAverageON(CouponArithmeticAverageON payment, DATA_TYPE data);
 
@@ -515,12 +588,34 @@ public interface InstrumentDerivativeVisitor<DATA_TYPE, RESULT_TYPE> {
 
   //  -----     Variance swaps     -----
 
+  /**
+   * Variance swap method.
+   * @param varianceSwap A variance swap
+   * @return The result
+   */
   RESULT_TYPE visitVarianceSwap(VarianceSwap varianceSwap);
 
+  /**
+   * Variance swap method that takes data.
+   * @param varianceSwap A variance swap
+   * @param data The data
+   * @return The result
+   */
   RESULT_TYPE visitVarianceSwap(VarianceSwap varianceSwap, DATA_TYPE data);
 
+  /**
+   * Variance swap method.
+   * @param varianceSwap A variance swap
+   * @return The result
+   */
   RESULT_TYPE visitEquityVarianceSwap(EquityVarianceSwap varianceSwap);
 
+  /**
+   * Variance swap method that takes data.
+   * @param varianceSwap A variance swap
+   * @param data The data
+   * @return The result
+   */
   RESULT_TYPE visitEquityVarianceSwap(EquityVarianceSwap varianceSwap, DATA_TYPE data);
 
   //  -----     Deprecated     -----

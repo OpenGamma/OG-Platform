@@ -118,6 +118,7 @@ public class HolidayDocument extends AbstractDocument implements Serializable {
   public static HolidayDocument.Meta meta() {
     return HolidayDocument.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(HolidayDocument.Meta.INSTANCE);
   }

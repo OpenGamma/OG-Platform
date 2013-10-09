@@ -52,7 +52,8 @@ public class FXOptionBlackDefaults extends DefaultPropertyFunction {
     ValueRequirementNames.VALUE_RHO,
     ValueRequirementNames.VALUE_PHI,
     ValueRequirementNames.VALUE_VOMMA,
-    ValueRequirementNames.VALUE_VANNA
+    ValueRequirementNames.VALUE_VANNA,
+    ValueRequirementNames.THETA
   };
   private final PriorityClass _priority;
   private final String _interpolatorName;

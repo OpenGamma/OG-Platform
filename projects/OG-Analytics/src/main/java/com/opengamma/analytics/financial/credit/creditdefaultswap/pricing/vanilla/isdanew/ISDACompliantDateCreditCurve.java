@@ -8,10 +8,8 @@ package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanil
 import static com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantDateCurve.checkAndGetTimes;
 
 import org.threeten.bp.LocalDate;
-import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
-import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.ArgumentChecker;

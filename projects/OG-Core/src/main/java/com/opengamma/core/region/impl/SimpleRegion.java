@@ -182,6 +182,7 @@ public class SimpleRegion extends DirectBean
   public static SimpleRegion.Meta meta() {
     return SimpleRegion.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(SimpleRegion.Meta.INSTANCE);
   }

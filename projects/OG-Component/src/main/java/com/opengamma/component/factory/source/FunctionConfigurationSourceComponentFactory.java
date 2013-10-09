@@ -37,6 +37,7 @@ import com.opengamma.financial.FinancialFunctions;
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveFunctions;
 import com.opengamma.financial.analytics.ircurve.IRCurveFunctions;
 import com.opengamma.financial.analytics.model.curve.CurveFunctions;
+import com.opengamma.financial.analytics.timeseries.TimeSeriesFunctions;
 import com.opengamma.financial.function.rest.DataRepositoryConfigurationSourceResource;
 import com.opengamma.financial.function.rest.RemoteFunctionConfigurationSource;
 import com.opengamma.master.config.ConfigMaster;
@@ -180,6 +181,14 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
   protected FunctionConfigurationSource curveConfigurations() {
     return CurveFunctions.providers(getConfigMaster());
   }
+  
+  protected FunctionConfigurationSource curveParameterConfigurations() {
+    return CurveFunctions.parameterProviders(getConfigMaster());
+  }
+  
+  protected FunctionConfigurationSource timeSeriesConfigurations() {
+    return TimeSeriesFunctions.providers(getConfigMaster());
+  }
 
   /**
    * Initializes the list of sources to be combined.
@@ -187,13 +196,26 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
    * @return the list of base sources to be combined, not null
    */
   protected List<FunctionConfigurationSource> initSources() {
-    final List<FunctionConfigurationSource> sources = new LinkedList<FunctionConfigurationSource>();
+    final List<FunctionConfigurationSource> sources = new LinkedList<>();
     sources.add(financialFunctions());
     sources.add(standardConfiguration());
+    sources.add(cubeConfigurations());
+    sources.addAll(curveAndSurfaceSources());
+    return sources;
+  }
+  
+  /**
+   * Gets the list of curve and surface function configuration sources.
+   * 
+   * @return the curve and surface function configuration sources, not null
+   */
+  protected List<FunctionConfigurationSource> curveAndSurfaceSources() {
+    final List<FunctionConfigurationSource> sources = new LinkedList<>();    
     sources.add(yieldCurveConfigurations());
     sources.add(curveConfigurations());
+    sources.add(curveParameterConfigurations());
     sources.add(fxForwardCurveConfigurations());
-    sources.add(cubeConfigurations());
+    sources.add(timeSeriesConfigurations());
     return sources;
   }
 
@@ -206,6 +228,7 @@ public class FunctionConfigurationSourceComponentFactory extends AbstractCompone
   public static FunctionConfigurationSourceComponentFactory.Meta meta() {
     return FunctionConfigurationSourceComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(FunctionConfigurationSourceComponentFactory.Meta.INSTANCE);
   }

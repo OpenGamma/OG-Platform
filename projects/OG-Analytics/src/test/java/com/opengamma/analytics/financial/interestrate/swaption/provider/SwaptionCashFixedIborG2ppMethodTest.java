@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.swaption.provider;
@@ -44,9 +44,6 @@ public class SwaptionCashFixedIborG2ppMethodTest {
   private static final G2ppPiecewiseConstantParameters PARAMETERS_G2PP = TestsDataSetG2pp.createG2ppParameters1();
   private static final G2ppProviderDiscount G2PP_MULTICURVES = new G2ppProviderDiscount(MULTICURVES, PARAMETERS_G2PP, EUR);
 
-  private static final String NOT_USED = "Not used";
-  private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
-
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 7, 7);
   private static final GeneratorSwapFixedIborMaster GENERATOR_SWAP_MASTER = GeneratorSwapFixedIborMaster.getInstance();
   private static final int SPOT_LAG = EURIBOR3M.getSpotLag();
@@ -71,13 +68,11 @@ public class SwaptionCashFixedIborG2ppMethodTest {
   private static final SwaptionPhysicalFixedIborDefinition SWAPTION_PHYS_PAYER_LONG_DEFINITION = SwaptionPhysicalFixedIborDefinition.from(EXPIRY_DATE, SWAP_PAYER_DEFINITION, IS_LONG);
   //to derivatives
 
-  //  private static final SwapFixedCoupon<Coupon> SWAP_PAYER = SWAP_PAYER_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
-  //  private static final SwapFixedCoupon<Coupon> SWAP_RECEIVER = SWAP_RECEIVER_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
-  private static final SwaptionCashFixedIbor SWAPTION_LONG_PAYER = SWAPTION_PAYER_LONG_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
-  private static final SwaptionCashFixedIbor SWAPTION_LONG_RECEIVER = SWAPTION_RECEIVER_LONG_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
-  private static final SwaptionCashFixedIbor SWAPTION_SHORT_PAYER = SWAPTION_PAYER_SHORT_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
-  private static final SwaptionCashFixedIbor SWAPTION_SHORT_RECEIVER = SWAPTION_RECEIVER_SHORT_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
-  private static final SwaptionPhysicalFixedIbor SWAPTION_PHYS_PAYER_LONG = SWAPTION_PHYS_PAYER_LONG_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
+  private static final SwaptionCashFixedIbor SWAPTION_LONG_PAYER = SWAPTION_PAYER_LONG_DEFINITION.toDerivative(REFERENCE_DATE);
+  private static final SwaptionCashFixedIbor SWAPTION_LONG_RECEIVER = SWAPTION_RECEIVER_LONG_DEFINITION.toDerivative(REFERENCE_DATE);
+  private static final SwaptionCashFixedIbor SWAPTION_SHORT_PAYER = SWAPTION_PAYER_SHORT_DEFINITION.toDerivative(REFERENCE_DATE);
+  private static final SwaptionCashFixedIbor SWAPTION_SHORT_RECEIVER = SWAPTION_RECEIVER_SHORT_DEFINITION.toDerivative(REFERENCE_DATE);
+  private static final SwaptionPhysicalFixedIbor SWAPTION_PHYS_PAYER_LONG = SWAPTION_PHYS_PAYER_LONG_DEFINITION.toDerivative(REFERENCE_DATE);
 
   private static final SwaptionPhysicalFixedIborG2ppApproximationMethod METHOD_G2PP_PHYS_APPROXIMATION = SwaptionPhysicalFixedIborG2ppApproximationMethod.getInstance();
   private static final SwaptionCashFixedIborG2ppNumericalIntegrationMethod METHOD_G2PP_NI = new SwaptionCashFixedIborG2ppNumericalIntegrationMethod();

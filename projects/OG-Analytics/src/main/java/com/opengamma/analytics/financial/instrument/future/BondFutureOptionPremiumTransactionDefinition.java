@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.future;
@@ -52,9 +52,9 @@ public class BondFutureOptionPremiumTransactionDefinition implements InstrumentD
     ArgumentChecker.notNull(underlyingOption, "underlying option");
     ArgumentChecker.notNull(premiumDate, "premium date");
     ArgumentChecker.isTrue(premiumAmount * quantity <= 0, "Premium amount should have the opposite sign as quantity.");
-    this._underlyingOption = underlyingOption;
-    this._quantity = quantity;
-    this._tradePrice = premiumAmount / (underlyingOption.getUnderlyingFuture().getNotional() * quantity);
+    _underlyingOption = underlyingOption;
+    _quantity = quantity;
+    _tradePrice = premiumAmount / (underlyingOption.getUnderlyingFuture().getNotional() * quantity);
     _premium = new PaymentFixedDefinition(underlyingOption.getCurrency(), premiumDate, premiumAmount);
   }
 
@@ -113,6 +113,11 @@ public class BondFutureOptionPremiumTransactionDefinition implements InstrumentD
     return _underlyingOption.getCurrency();
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public BondFutureOptionPremiumTransaction toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "Reference date");
@@ -124,6 +129,17 @@ public class BondFutureOptionPremiumTransactionDefinition implements InstrumentD
       return new BondFutureOptionPremiumTransaction(option, _quantity, new PaymentFixed(getCurrency(), 0, 0, yieldCurveNames[1]));
     }
     return new BondFutureOptionPremiumTransaction(option, _quantity, _premium.toDerivative(date, yieldCurveNames[1]));
+  }
+
+  @Override
+  public BondFutureOptionPremiumTransaction toDerivative(final ZonedDateTime date) {
+    ArgumentChecker.notNull(date, "Reference date");
+    final BondFutureOptionPremiumSecurity option = _underlyingOption.toDerivative(date);
+    final double premiumTime = TimeCalculator.getTimeBetween(date, _premium.getPaymentDate());
+    if (premiumTime < 0) { // Premium payment in the past: it is represented by a 0 payment today.
+      return new BondFutureOptionPremiumTransaction(option, _quantity, new PaymentFixed(getCurrency(), 0, 0));
+    }
+    return new BondFutureOptionPremiumTransaction(option, _quantity, _premium.toDerivative(date));
   }
 
   @Override

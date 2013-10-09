@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.bond.definition;
@@ -21,11 +21,23 @@ public class BondIborSecurity extends BondSecurity<PaymentFixed, Coupon> {
    * Ibor floating bond constructor from the nominal and the coupons.
    * @param nominal The notional payments. For bullet bond, it is restricted to a single payment.
    * @param coupon The bond Ibor coupons. Can be Ibor coupons or fixed coupons (if the fixing is already known). The coupons notional should be in line with the bond nominal.
-   * @param settlementTime The time (in years) to settlement date. 
+   * @param settlementTime The time (in years) to settlement date.
    * @param discountCurveName The name of the curve used for settlement amount discounting.
+   * @deprecated Use the constructor that does not that a curve name
    */
+  @Deprecated
   public BondIborSecurity(final AnnuityPaymentFixed nominal, final Annuity<Coupon> coupon, final double settlementTime, final String discountCurveName) {
     super(nominal, coupon, settlementTime, discountCurveName, "");
+  }
+
+  /**
+   * Ibor floating bond constructor from the nominal and the coupons.
+   * @param nominal The notional payments. For bullet bond, it is restricted to a single payment.
+   * @param coupon The bond Ibor coupons. Can be Ibor coupons or fixed coupons (if the fixing is already known). The coupons notional should be in line with the bond nominal.
+   * @param settlementTime The time (in years) to settlement date.
+   */
+  public BondIborSecurity(final AnnuityPaymentFixed nominal, final Annuity<Coupon> coupon, final double settlementTime) {
+    super(nominal, coupon, settlementTime, "");
   }
 
   @Override

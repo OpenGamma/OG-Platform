@@ -41,6 +41,18 @@ public class ExponentialExtrapolator1D extends Interpolator1D {
   }
 
   @Override
+  public double firstDerivative(final Interpolator1DDataBundle data, final Double value) {
+    Validate.notNull(data, "data");
+    Validate.notNull(value, "value");
+    if (value < data.firstKey()) {
+      return leftExtrapolateDerivative(data, value);
+    } else if (value > data.lastKey()) {
+      return rightExtrapolateDerivative(data, value);
+    }
+    throw new IllegalArgumentException("Value " + value + " was within data range");
+  }
+
+  @Override
   public double[] getNodeSensitivitiesForValue(final Interpolator1DDataBundle data, final Double value) {
     Validate.notNull(data, "data");
     if (value < data.firstKey()) {
@@ -67,6 +79,24 @@ public class ExponentialExtrapolator1D extends Interpolator1D {
     final double y = data.lastValue();
     final double m = Math.log(y) / x;
     return Math.exp(m * value);
+  }
+
+  private Double leftExtrapolateDerivative(final Interpolator1DDataBundle data, final Double value) {
+    Validate.notNull(data, "data");
+    Validate.notNull(value, "value");
+    final double x = data.firstKey();
+    final double y = data.firstValue();
+    final double m = Math.log(y) / x;
+    return m * Math.exp(m * value);
+  }
+
+  private Double rightExtrapolateDerivative(final Interpolator1DDataBundle data, final Double value) {
+    Validate.notNull(data, "data");
+    Validate.notNull(value, "value");
+    final double x = data.lastKey();
+    final double y = data.lastValue();
+    final double m = Math.log(y) / x;
+    return m * Math.exp(m * value);
   }
 
   private double[] getLeftSensitivities(final Interpolator1DDataBundle data, final double value) {

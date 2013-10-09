@@ -26,13 +26,16 @@ public class PointSelectorFudgeBuilderTest extends AbstractFudgeBuilderTestCase 
     PointSelector selector = new PointSelector(calcConfigNames,
                                                ImmutableSet.of(ExternalId.of("s", "v1"), ExternalId.of("s", "v2")),
                                                ExternalScheme.of("anotherScheme"),
-                                               Pattern.compile("\\d*"), securityTypes);
+                                               Pattern.compile("\\d*"),
+                                               ExternalScheme.of("anotherScheme2"),
+                                               Pattern.compile("\\w*"),
+                                               securityTypes);
     assertEncodeDecodeCycle(PointSelector.class, selector);
   }
 
   @Test
   public void roundTripWithNulls() {
-    PointSelector selector = new PointSelector(null, null, null, null, null);
+    PointSelector selector = new PointSelector(null, null, null, null, null, null, null);
     assertEncodeDecodeCycle(PointSelector.class, selector);
   }
 }

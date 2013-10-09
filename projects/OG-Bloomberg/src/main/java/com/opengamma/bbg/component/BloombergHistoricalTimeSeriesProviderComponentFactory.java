@@ -70,6 +70,7 @@ public class BloombergHistoricalTimeSeriesProviderComponentFactory extends Histo
   public static BloombergHistoricalTimeSeriesProviderComponentFactory.Meta meta() {
     return BloombergHistoricalTimeSeriesProviderComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(BloombergHistoricalTimeSeriesProviderComponentFactory.Meta.INSTANCE);
   }

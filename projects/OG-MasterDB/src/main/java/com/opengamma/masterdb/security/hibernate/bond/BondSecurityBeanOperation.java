@@ -19,6 +19,7 @@ import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
+import com.opengamma.financial.security.bond.InflationBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.masterdb.security.hibernate.AbstractSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.Converters;
@@ -79,6 +80,23 @@ public final class BondSecurityBeanOperation extends AbstractSecurityBeanOperati
       @Override
       public BondSecurity visitMunicipalBondSecurity(MunicipalBondSecurity bond) {
         BondSecurity bondSecurity = new MunicipalBondSecurity(bean.getIssuerName(), bean.getIssuerType().getName(), bean.getIssuerDomicile(),
+          bean.getMarket().getName(), currencyBeanToCurrency(bean.getCurrency()),
+          yieldConventionBeanToYieldConvention(bean.getYieldConvention()), expiryBeanToExpiry(bean.getLastTradeDate()),
+          bean.getCouponType().getName(), bean.getCouponRate(), frequencyBeanToFrequency(bean.getCouponFrequency()),
+          dayCountBeanToDayCount(bean.getDayCountConvention()), zonedDateTimeBeanToDateTimeWithZone(bean.getInterestAccrualDate()),
+          zonedDateTimeBeanToDateTimeWithZone(bean.getSettlementDate()),
+          zonedDateTimeBeanToDateTimeWithZone(bean.getFirstCouponDate()),
+          bean.getIssuancePrice(), bean.getTotalAmountIssued(), bean.getMinimumAmount(), bean.getMinimumIncrement(),
+          bean.getParAmount(), bean.getRedemptionValue());
+        bondSecurity.setBusinessDayConvention(businessDayConventionBeanToBusinessDayConvention(bean.getBusinessDayConvention()));
+        bondSecurity.setAnnouncementDate(zonedDateTimeBeanToDateTimeWithZone(bean.getAnnouncementDate()));
+        bondSecurity.setGuaranteeType(bean.getGuaranteeType() != null ? bean.getGuaranteeType().getName() : null);
+        return bondSecurity;
+      }
+      
+      @Override
+      public BondSecurity visitInflationBondSecurity(InflationBondSecurity bond) {
+        BondSecurity bondSecurity = new InflationBondSecurity(bean.getIssuerName(), bean.getIssuerType().getName(), bean.getIssuerDomicile(),
           bean.getMarket().getName(), currencyBeanToCurrency(bean.getCurrency()),
           yieldConventionBeanToYieldConvention(bean.getYieldConvention()), expiryBeanToExpiry(bean.getLastTradeDate()),
           bean.getCouponType().getName(), bean.getCouponRate(), frequencyBeanToFrequency(bean.getCouponFrequency()),

@@ -98,6 +98,7 @@ public class OrganizationHistoryResult extends AbstractHistoryResult<Organizatio
   public static OrganizationHistoryResult.Meta meta() {
     return OrganizationHistoryResult.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(OrganizationHistoryResult.Meta.INSTANCE);
   }

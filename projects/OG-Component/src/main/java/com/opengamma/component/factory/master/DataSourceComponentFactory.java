@@ -116,6 +116,7 @@ public class DataSourceComponentFactory extends AbstractComponentFactory {
   public static DataSourceComponentFactory.Meta meta() {
     return DataSourceComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(DataSourceComponentFactory.Meta.INSTANCE);
   }

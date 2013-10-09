@@ -5,6 +5,7 @@
  */
 package com.opengamma.core.marketdatasnapshot;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
@@ -57,10 +58,6 @@ public class VolatilitySurfaceKey extends StructuredMarketDataKey implements Com
    */
   public VolatilitySurfaceKey(final UniqueIdentifiable target, final String name, final String instrumentType, final String quoteType, final String quoteUnits) {
     ArgumentChecker.notNull(target, "target");
-    ArgumentChecker.notNull(name, "name");
-    ArgumentChecker.notNull(instrumentType, "instrumentType");
-    ArgumentChecker.notNull(quoteType, "quoteType");
-    ArgumentChecker.notNull(quoteUnits, "quoteUnits");
     _target = target.getUniqueId();
     _name = name;
     _instrumentType = instrumentType;
@@ -120,57 +117,64 @@ public class VolatilitySurfaceKey extends StructuredMarketDataKey implements Com
    */
   @Override
   public int compareTo(VolatilitySurfaceKey other) {
+    if (other == null) {
+      throw new NullPointerException();
+    }
     int i = _target.compareTo(other.getTarget());
     if (i != 0) {
       return i;
     }
-    i = _name.compareTo(other.getName());
+    i = ObjectUtils.compare(_name, other._name);
     if (i != 0) {
       return i;
     }
-    i = _instrumentType.compareTo(other._instrumentType);
+    i = ObjectUtils.compare(_instrumentType, other._instrumentType);
     if (i != 0) {
       return i;
     }
-    i = _quoteType.compareTo(other._quoteType);
+    i = ObjectUtils.compare(_quoteType, other._quoteType);
     if (i != 0) {
       return i;
     }
-    return _quoteUnits.compareTo(other._quoteUnits);
+    return ObjectUtils.compare(_quoteUnits, other._quoteUnits);
   }
 
-  /**
-   * Checks if this key equals another.
-   * <p>
-   * This checks the currency and name.
-   * 
-   * @param object  the object to compare to, null returns false
-   * @return true if equal
-   */
   @Override
-  public boolean equals(Object object) {
-    if (object == this) {
+  public boolean equals(Object o) {
+    if (this == o) {
       return true;
     }
-    if (object instanceof VolatilitySurfaceKey) {
-      final VolatilitySurfaceKey other = (VolatilitySurfaceKey) object;
-      return _target.equals(other._target)
-          && _name.equals(other._name)
-          && _instrumentType.equals(other._instrumentType)
-          && _quoteType.equals(other._quoteType)
-          && _quoteUnits.equals(other._quoteUnits);
+    if (o == null || getClass() != o.getClass()) {
+      return false;
     }
-    return false;
+    VolatilitySurfaceKey that = (VolatilitySurfaceKey) o;
+
+    if (_instrumentType != null ? !_instrumentType.equals(that._instrumentType) : that._instrumentType != null) {
+      return false;
+    }
+    if (_name != null ? !_name.equals(that._name) : that._name != null) {
+      return false;
+    }
+    if (_quoteType != null ? !_quoteType.equals(that._quoteType) : that._quoteType != null) {
+      return false;
+    }
+    if (_quoteUnits != null ? !_quoteUnits.equals(that._quoteUnits) : that._quoteUnits != null) {
+      return false;
+    }
+    if (!_target.equals(that._target)) {
+      return false;
+    }
+    return true;
   }
 
-  /**
-   * Returns a suitable hash code.
-   * 
-   * @return the hash code
-   */
   @Override
   public int hashCode() {
-    return _target.hashCode() ^ _name.hashCode() ^ _instrumentType.hashCode() ^ _quoteType.hashCode();
+    int result = _target.hashCode();
+    result = 31 * result + (_name != null ? _name.hashCode() : 0);
+    result = 31 * result + (_instrumentType != null ? _instrumentType.hashCode() : 0);
+    result = 31 * result + (_quoteType != null ? _quoteType.hashCode() : 0);
+    result = 31 * result + (_quoteUnits != null ? _quoteUnits.hashCode() : 0);
+    return result;
   }
 
   @Override

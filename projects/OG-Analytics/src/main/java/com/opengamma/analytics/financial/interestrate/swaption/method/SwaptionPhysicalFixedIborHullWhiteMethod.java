@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.swaption.method;
@@ -9,8 +9,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.CashFlowEquivalentCalculator;
 import com.opengamma.analytics.financial.interestrate.CashFlowEquivalentCurveSensitivityCalculator;
@@ -25,14 +23,17 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscou
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Method to computes the present value and sensitivities of physical delivery European swaptions with the Hull-White one factor model.
- * Reference: Henrard, M. (2003). Explicit bond option and swaption formula in Heath-Jarrow-Morton one-factor model. 
+ * Reference: Henrard, M. (2003). Explicit bond option and swaption formula in Heath-Jarrow-Morton one-factor model.
  * International Journal of Theoretical and Applied Finance, 6(1):57--72.
+ * @deprecated Use {@link com.opengamma.analytics.financial.interestrate.swaption.provider.SwaptionPhysicalFixedIborHullWhiteMethod}
  */
+@Deprecated
 public class SwaptionPhysicalFixedIborHullWhiteMethod implements PricingMethod {
 
   /**
@@ -59,7 +60,7 @@ public class SwaptionPhysicalFixedIborHullWhiteMethod implements PricingMethod {
    * @return The present value.
    */
   public CurrencyAmount presentValue(final SwaptionPhysicalFixedIbor swaption, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData) {
-    Validate.notNull(swaption);
+    ArgumentChecker.notNull(swaption, "swaption");
     final AnnuityPaymentFixed cfe = swaption.getUnderlyingSwap().accept(CFEC, hwData);
     return presentValue(swaption, cfe, hwData);
   }
@@ -72,8 +73,8 @@ public class SwaptionPhysicalFixedIborHullWhiteMethod implements PricingMethod {
    * @return The present value.
    */
   public CurrencyAmount presentValue(final SwaptionPhysicalFixedIbor swaption, final AnnuityPaymentFixed cfe, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData) {
-    Validate.notNull(swaption);
-    Validate.notNull(hwData);
+    ArgumentChecker.notNull(swaption, "swaption");
+    ArgumentChecker.notNull(hwData, "Hull-White data");
     final double expiryTime = swaption.getTimeToExpiry();
     final double[] alpha = new double[cfe.getNumberOfPayments()];
     final double[] df = new double[cfe.getNumberOfPayments()];
@@ -94,8 +95,8 @@ public class SwaptionPhysicalFixedIborHullWhiteMethod implements PricingMethod {
 
   @Override
   public CurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
-    Validate.isTrue(instrument instanceof SwaptionPhysicalFixedIbor, "Physical delivery swaption");
-    Validate.isTrue(curves instanceof HullWhiteOneFactorPiecewiseConstantDataBundle, "Bundle should contain Hull-White data");
+    ArgumentChecker.isTrue(instrument instanceof SwaptionPhysicalFixedIbor, "Physical delivery swaption");
+    ArgumentChecker.isTrue(curves instanceof HullWhiteOneFactorPiecewiseConstantDataBundle, "Bundle should contain Hull-White data");
     return presentValue((SwaptionPhysicalFixedIbor) instrument, (HullWhiteOneFactorPiecewiseConstantDataBundle) curves);
   }
 
@@ -106,8 +107,8 @@ public class SwaptionPhysicalFixedIborHullWhiteMethod implements PricingMethod {
    * @return The present value Hull-White parameters sensitivity.
    */
   public double[] presentValueHullWhiteSensitivity(final SwaptionPhysicalFixedIbor swaption, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData) {
-    Validate.notNull(swaption);
-    Validate.notNull(hwData);
+    ArgumentChecker.notNull(swaption, "swaption");
+    ArgumentChecker.notNull(hwData, "Hull-White data");
     final int nbSigma = hwData.getHullWhiteParameter().getVolatility().length;
     final double[] sigmaBar = new double[nbSigma];
     final AnnuityPaymentFixed cfe = swaption.getUnderlyingSwap().accept(CFEC, hwData);
@@ -146,8 +147,8 @@ public class SwaptionPhysicalFixedIborHullWhiteMethod implements PricingMethod {
    * @return The present value curve sensitivity.
    */
   public InterestRateCurveSensitivity presentValueCurveSensitivity(final SwaptionPhysicalFixedIbor swaption, final HullWhiteOneFactorPiecewiseConstantDataBundle hwData) {
-    Validate.notNull(swaption);
-    Validate.notNull(hwData);
+    ArgumentChecker.notNull(swaption, "swaption");
+    ArgumentChecker.notNull(hwData, "Hull-White data");
     final int nbSigma = hwData.getHullWhiteParameter().getVolatility().length;
     final AnnuityPaymentFixed cfe = swaption.getUnderlyingSwap().accept(CFEC, hwData);
     //Forward sweep
@@ -172,7 +173,7 @@ public class SwaptionPhysicalFixedIborHullWhiteMethod implements PricingMethod {
     final double[] discountedCashFlowBar = new double[cfe.getNumberOfPayments()];
     final double[] dfBar = new double[cfe.getNumberOfPayments()];
     final double[] cfeAmountBar = new double[cfe.getNumberOfPayments()];
-    final List<DoublesPair> listDfSensi = new ArrayList<DoublesPair>();
+    final List<DoublesPair> listDfSensi = new ArrayList<>();
     for (int loopcf = 0; loopcf < cfe.getNumberOfPayments(); loopcf++) {
       discountedCashFlowBar[loopcf] = ncdf[loopcf] * pvBar;
       dfBar[loopcf] = cfe.getNthPayment(loopcf).getAmount() * discountedCashFlowBar[loopcf];
@@ -180,7 +181,7 @@ public class SwaptionPhysicalFixedIborHullWhiteMethod implements PricingMethod {
       final DoublesPair dfSensi = new DoublesPair(cfe.getNthPayment(loopcf).getPaymentTime(), -cfe.getNthPayment(loopcf).getPaymentTime() * df[loopcf] * dfBar[loopcf]);
       listDfSensi.add(dfSensi);
     }
-    final Map<String, List<DoublesPair>> pvsDF = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> pvsDF = new HashMap<>();
     pvsDF.put(cfe.getDiscountCurve(), listDfSensi);
     InterestRateCurveSensitivity sensitivity = new InterestRateCurveSensitivity(pvsDF);
     final Map<Double, InterestRateCurveSensitivity> cfeCurveSensi = swaption.getUnderlyingSwap().accept(CFECSC, hwData);

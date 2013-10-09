@@ -63,6 +63,7 @@ public class SchedulerComponentFactory extends AbstractComponentFactory {
   public static SchedulerComponentFactory.Meta meta() {
     return SchedulerComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(SchedulerComponentFactory.Meta.INSTANCE);
   }

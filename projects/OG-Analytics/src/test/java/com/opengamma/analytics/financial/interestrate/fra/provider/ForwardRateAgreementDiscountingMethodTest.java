@@ -61,8 +61,7 @@ public class ForwardRateAgreementDiscountingMethodTest {
   // To derivatives
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 10, 9);
 
-  private static final String[] NOT_USED = new String[] {"Not used 1", "not used 2"};
-  private static final ForwardRateAgreement FRA = (ForwardRateAgreement) FRA_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED);
+  private static final ForwardRateAgreement FRA = (ForwardRateAgreement) FRA_DEFINITION.toDerivative(REFERENCE_DATE);
   private static final ForwardRateAgreementDiscountingProviderMethod FRA_METHOD = ForwardRateAgreementDiscountingProviderMethod.getInstance();
   private static final PresentValueDiscountingCalculator PVDC = PresentValueDiscountingCalculator.getInstance();
   private static final PresentValueCurveSensitivityDiscountingCalculator PVCSDC = PresentValueCurveSensitivityDiscountingCalculator.getInstance();
@@ -106,7 +105,7 @@ public class ForwardRateAgreementDiscountingMethodTest {
   public void presentValueBuySellParity() {
     final ForwardRateAgreementDefinition fraDefinitionSell = new ForwardRateAgreementDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR_PAYMENT, -NOTIONAL,
         FIXING_DATE, INDEX, FRA_RATE, CALENDAR);
-    final ForwardRateAgreement fraSell = (ForwardRateAgreement) fraDefinitionSell.toDerivative(REFERENCE_DATE, NOT_USED);
+    final ForwardRateAgreement fraSell = (ForwardRateAgreement) fraDefinitionSell.toDerivative(REFERENCE_DATE);
     final MultipleCurrencyAmount pvBuy = FRA_METHOD.presentValue(FRA, PROVIDER);
     final MultipleCurrencyAmount pvSell = FRA_METHOD.presentValue(fraSell, PROVIDER);
     assertEquals("FRA discounting: present value - buy/sell parity", pvSell.getAmount(CUR), -pvBuy.getAmount(CUR), 1.0E-2);
@@ -134,7 +133,7 @@ public class ForwardRateAgreementDiscountingMethodTest {
     final double parSpread = FRA_METHOD.parSpread(FRA, PROVIDER);
     final ForwardRateAgreementDefinition fra0Definition = new ForwardRateAgreementDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR_PAYMENT, NOTIONAL, FIXING_DATE,
         INDEX, FRA_RATE + parSpread, CALENDAR);
-    final ForwardRateAgreement fra0 = (ForwardRateAgreement) fra0Definition.toDerivative(REFERENCE_DATE, NOT_USED);
+    final ForwardRateAgreement fra0 = (ForwardRateAgreement) fra0Definition.toDerivative(REFERENCE_DATE);
     final MultipleCurrencyAmount pv0 = fra0.accept(PVDC, PROVIDER);
     assertEquals("FRA discounting: par spread", pv0.getAmount(CUR), 0, TOLERANCE_PV);
   }

@@ -41,7 +41,7 @@ public class RecordingValueProperties {
   public RecordingValueProperties with(String propertyName, String... propertyValue) {
     for (int i = 0; i < propertyValue.length; i++) {
       String s = propertyValue[i];
-      if(s == null){
+      if (s == null) {
         throw new IllegalArgumentException("propertyValues cannot contain null");
       }
     }
@@ -52,7 +52,7 @@ public class RecordingValueProperties {
   public RecordingValueProperties withReplacement(String propertyName, String... propertyValue) {
     for (int i = 0; i < propertyValue.length; i++) {
       String s = propertyValue[i];
-      if(s == null){
+      if (s == null) {
         throw new IllegalArgumentException("propertyValues cannot contain null");
       }
     }
@@ -69,4 +69,5 @@ public class RecordingValueProperties {
     _recordedValueProperties = _recordedValueProperties.cons(new WithOptional(propertyName));
     return this;
   }
+
 }

@@ -98,6 +98,7 @@ public class PortfolioHistoryResult extends AbstractHistoryResult<PortfolioDocum
   public static PortfolioHistoryResult.Meta meta() {
     return PortfolioHistoryResult.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(PortfolioHistoryResult.Meta.INSTANCE);
   }

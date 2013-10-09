@@ -5,6 +5,9 @@
  */
 package com.opengamma.component.factory.web;
 
+import static com.opengamma.web.analytics.formatting.ResultsFormatter.CurrencyDisplay.DISPLAY_CURRENCY;
+import static com.opengamma.web.analytics.formatting.ResultsFormatter.CurrencyDisplay.SUPPRESS_CURRENCY;
+
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +28,7 @@ import org.springframework.web.context.ServletContextAware;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.core.change.AggregatingChangeManager;
@@ -35,12 +39,15 @@ import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
+import com.opengamma.engine.marketdata.live.LiveMarketDataProviderFactory;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.execution.ExecutionFlags;
 import com.opengamma.financial.aggregation.PortfolioAggregationFunctions;
 import com.opengamma.financial.currency.ConfigDBCurrencyPairsSource;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.currency.CurrencyPairsSource;
+import com.opengamma.financial.security.lookup.DefaultSecurityAttributeMappings;
+import com.opengamma.financial.security.lookup.SecurityAttributeMapper;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.impl.MasterConfigSource;
@@ -54,12 +61,11 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.web.analytics.AnalyticsViewManager;
 import com.opengamma.web.analytics.GridColumnsJsonWriter;
 import com.opengamma.web.analytics.ViewportResultsJsonCsvWriter;
-import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
 import com.opengamma.web.analytics.blotter.BlotterResource;
-import com.opengamma.web.analytics.blotter.DefaultBlotterColumnMappings;
 import com.opengamma.web.analytics.formatting.ResultsFormatter;
 import com.opengamma.web.analytics.json.Compressor;
 import com.opengamma.web.analytics.json.DependencyGraphGridStructureMessageBodyWriter;
+import com.opengamma.web.analytics.json.ErrorInfoMessageBodyWriter;
 import com.opengamma.web.analytics.json.GridColumnGroupsMessageBodyWriter;
 import com.opengamma.web.analytics.json.PortfolioGridStructureMessageBodyWriter;
 import com.opengamma.web.analytics.json.PrimitivesGridStructureMessageBodyWriter;
@@ -69,13 +75,16 @@ import com.opengamma.web.analytics.push.LongPollingConnectionManager;
 import com.opengamma.web.analytics.push.MasterChangeManager;
 import com.opengamma.web.analytics.push.WebPushServletContextUtils;
 import com.opengamma.web.analytics.rest.AggregatorNamesResource;
-import com.opengamma.web.analytics.rest.LiveDataSourcesResource;
+import com.opengamma.web.analytics.rest.LiveMarketDataProviderNamesResource;
+import com.opengamma.web.analytics.rest.LiveMarketDataSpecificationNamesResource;
 import com.opengamma.web.analytics.rest.LogResource;
 import com.opengamma.web.analytics.rest.MarketDataSnapshotListResource;
 import com.opengamma.web.analytics.rest.MasterType;
 import com.opengamma.web.analytics.rest.TimeSeriesResolverKeysResource;
+import com.opengamma.web.analytics.rest.UserResource;
 import com.opengamma.web.analytics.rest.ViewDefinitionEntriesResource;
 import com.opengamma.web.analytics.rest.ViewsResource;
+import com.opengamma.web.analytics.rest.WebUiResource;
 import com.opengamma.web.server.AggregatedViewDefinitionManager;
 
 /**
@@ -180,10 +189,27 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   @PropertyDefinition(validate = "notNull")
   private FudgeContext _fudgeContext = OpenGammaFudgeContext.getInstance();
   /**
-   * For looking up market data provider specifications by name
+   * For obtaining the live market data provider names. Either this or marketDataSpecificationRepository must be set.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
+  private LiveMarketDataProviderFactory _liveMarketDataProviderFactory;
+  /**
+   * For looking up market data provider specifications by name. Either this or liveMarketDataProviderFactory must be set.
+   * 
+   * @deprecated  use liveMarketDataProviderFactory
+   */
+  @PropertyDefinition
+  @Deprecated
   private NamedMarketDataSpecificationRepository _marketDataSpecificationRepository;
+  /**
+   * Indicates if currency amounts should be displayed in the UI without the currency code. Note that this will
+   * affect all views and should only be used where all results for all views will always be in a single,
+   * well-known currency.
+   *
+   * Default value is false, indicating that currencies will be displayed by default.
+   */
+  @PropertyDefinition
+  private boolean _suppressCurrencyDisplay;
 
   //-------------------------------------------------------------------------
   @Override
@@ -207,7 +233,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     CurrencyPairsSource currencyPairsSource = new ConfigDBCurrencyPairsSource(configSource);
     // TODO should be able to configure the currency pairs
     CurrencyPairs currencyPairs = currencyPairsSource.getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
-    BlotterColumnMapper blotterColumnMapper = DefaultBlotterColumnMappings.create(currencyPairs);
+    SecurityAttributeMapper blotterColumnMapper = DefaultSecurityAttributeMappings.create(currencyPairs);
     AnalyticsViewManager analyticsViewManager = new AnalyticsViewManager(getViewProcessor(),
                                                                          getParallelViewRecompilation(),
                                                                          aggregatedViewDefManager,
@@ -219,16 +245,23 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
                                                                          getSecuritySource(),
                                                                          getSecurityMaster(),
                                                                          getPositionMaster());
-    ResultsFormatter resultsFormatter = new ResultsFormatter();
+    ResultsFormatter resultsFormatter = new ResultsFormatter(_suppressCurrencyDisplay ? SUPPRESS_CURRENCY : DISPLAY_CURRENCY);
     GridColumnsJsonWriter columnWriter = new GridColumnsJsonWriter(resultsFormatter);
     ViewportResultsJsonCsvWriter viewportResultsWriter = new ViewportResultsJsonCsvWriter(resultsFormatter);
 
     repo.getRestComponents().publishResource(aggregatorsResource);
     repo.getRestComponents().publishResource(snapshotResource);
-    repo.getRestComponents().publishResource(new LiveDataSourcesResource(getMarketDataSpecificationRepository()));
-    repo.getRestComponents().publishResource(new ViewsResource(analyticsViewManager, connectionMgr));
+    if (getLiveMarketDataProviderFactory() != null) {
+      repo.getRestComponents().publishResource(new LiveMarketDataProviderNamesResource(getLiveMarketDataProviderFactory()));
+    } else if (getMarketDataSpecificationRepository() != null) {
+      repo.getRestComponents().publishResource(new LiveMarketDataSpecificationNamesResource(getMarketDataSpecificationRepository()));
+    } else {
+      throw new OpenGammaRuntimeException("Neither " + marketDataSpecificationRepository().name() + " nor " + liveMarketDataProviderFactory().name() + " were specified");
+    }
+    repo.getRestComponents().publishResource(new WebUiResource(analyticsViewManager, connectionMgr));
     repo.getRestComponents().publishResource(new Compressor());
     repo.getRestComponents().publishResource(new LogResource());
+    repo.getRestComponents().publishResource(new UserResource());
     repo.getRestComponents().publishResource(new BlotterResource(getSecurityMaster(), getPortfolioMaster(), getPositionMaster()));
     repo.getRestComponents().publishResource(new TimeSeriesResolverKeysResource(getConfigMaster()));
     repo.getRestComponents().publishHelper(new PrimitivesGridStructureMessageBodyWriter(columnWriter));
@@ -237,6 +270,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     repo.getRestComponents().publishHelper(new GridColumnGroupsMessageBodyWriter(columnWriter));
     repo.getRestComponents().publishHelper(new ViewportResultsMessageBodyWriter(viewportResultsWriter));
     repo.getRestComponents().publishHelper(new ViewDefinitionEntriesResource(configSource));
+    repo.getRestComponents().publishHelper(new ErrorInfoMessageBodyWriter());
 
     // these items need to be available to the servlet, but aren't important enough to be published components
     repo.registerServletContextAware(new ServletContextAware() {
@@ -283,6 +317,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   public static WebsiteViewportsComponentFactory.Meta meta() {
     return WebsiteViewportsComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(WebsiteViewportsComponentFactory.Meta.INSTANCE);
   }
@@ -333,8 +368,12 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
         return getUser();
       case -917704420:  // fudgeContext
         return getFudgeContext();
+      case -301472921:  // liveMarketDataProviderFactory
+        return getLiveMarketDataProviderFactory();
       case 1743800263:  // marketDataSpecificationRepository
         return getMarketDataSpecificationRepository();
+      case -1406342148:  // suppressCurrencyDisplay
+        return isSuppressCurrencyDisplay();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -399,8 +438,14 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
       case -917704420:  // fudgeContext
         setFudgeContext((FudgeContext) newValue);
         return;
+      case -301472921:  // liveMarketDataProviderFactory
+        setLiveMarketDataProviderFactory((LiveMarketDataProviderFactory) newValue);
+        return;
       case 1743800263:  // marketDataSpecificationRepository
         setMarketDataSpecificationRepository((NamedMarketDataSpecificationRepository) newValue);
+        return;
+      case -1406342148:  // suppressCurrencyDisplay
+        setSuppressCurrencyDisplay((Boolean) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -426,7 +471,6 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     JodaBeanUtils.notNull(_marketDataSnapshotMaster, "marketDataSnapshotMaster");
     JodaBeanUtils.notNull(_user, "user");
     JodaBeanUtils.notNull(_fudgeContext, "fudgeContext");
-    JodaBeanUtils.notNull(_marketDataSpecificationRepository, "marketDataSpecificationRepository");
     super.validate();
   }
 
@@ -456,7 +500,9 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
           JodaBeanUtils.equal(getMarketDataSnapshotMaster(), other.getMarketDataSnapshotMaster()) &&
           JodaBeanUtils.equal(getUser(), other.getUser()) &&
           JodaBeanUtils.equal(getFudgeContext(), other.getFudgeContext()) &&
+          JodaBeanUtils.equal(getLiveMarketDataProviderFactory(), other.getLiveMarketDataProviderFactory()) &&
           JodaBeanUtils.equal(getMarketDataSpecificationRepository(), other.getMarketDataSpecificationRepository()) &&
+          JodaBeanUtils.equal(isSuppressCurrencyDisplay(), other.isSuppressCurrencyDisplay()) &&
           super.equals(obj);
     }
     return false;
@@ -484,7 +530,9 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSnapshotMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUser());
     hash += hash * 31 + JodaBeanUtils.hashCode(getFudgeContext());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getLiveMarketDataProviderFactory());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSpecificationRepository());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isSuppressCurrencyDisplay());
     return hash ^ super.hashCode();
   }
 
@@ -983,28 +1031,98 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets for looking up market data provider specifications by name
-   * @return the value of the property, not null
+   * Gets for obtaining the live market data provider names. Either this or marketDataSpecificationRepository must be set.
+   * @return the value of the property
    */
+  public LiveMarketDataProviderFactory getLiveMarketDataProviderFactory() {
+    return _liveMarketDataProviderFactory;
+  }
+
+  /**
+   * Sets for obtaining the live market data provider names. Either this or marketDataSpecificationRepository must be set.
+   * @param liveMarketDataProviderFactory  the new value of the property
+   */
+  public void setLiveMarketDataProviderFactory(LiveMarketDataProviderFactory liveMarketDataProviderFactory) {
+    this._liveMarketDataProviderFactory = liveMarketDataProviderFactory;
+  }
+
+  /**
+   * Gets the the {@code liveMarketDataProviderFactory} property.
+   * @return the property, not null
+   */
+  public final Property<LiveMarketDataProviderFactory> liveMarketDataProviderFactory() {
+    return metaBean().liveMarketDataProviderFactory().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets for looking up market data provider specifications by name. Either this or liveMarketDataProviderFactory must be set.
+   * 
+   * @deprecated  use liveMarketDataProviderFactory
+   * @return the value of the property
+   */
+  @Deprecated
   public NamedMarketDataSpecificationRepository getMarketDataSpecificationRepository() {
     return _marketDataSpecificationRepository;
   }
 
   /**
-   * Sets for looking up market data provider specifications by name
-   * @param marketDataSpecificationRepository  the new value of the property, not null
+   * Sets for looking up market data provider specifications by name. Either this or liveMarketDataProviderFactory must be set.
+   * 
+   * @deprecated  use liveMarketDataProviderFactory
+   * @param marketDataSpecificationRepository  the new value of the property
    */
+  @Deprecated
   public void setMarketDataSpecificationRepository(NamedMarketDataSpecificationRepository marketDataSpecificationRepository) {
-    JodaBeanUtils.notNull(marketDataSpecificationRepository, "marketDataSpecificationRepository");
     this._marketDataSpecificationRepository = marketDataSpecificationRepository;
   }
 
   /**
    * Gets the the {@code marketDataSpecificationRepository} property.
+   * 
+   * @deprecated  use liveMarketDataProviderFactory
    * @return the property, not null
    */
+  @Deprecated
   public final Property<NamedMarketDataSpecificationRepository> marketDataSpecificationRepository() {
     return metaBean().marketDataSpecificationRepository().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets indicates if currency amounts should be displayed in the UI without the currency code. Note that this will
+   * affect all views and should only be used where all results for all views will always be in a single,
+   * well-known currency.
+   * 
+   * Default value is false, indicating that currencies will be displayed by default.
+   * @return the value of the property
+   */
+  public boolean isSuppressCurrencyDisplay() {
+    return _suppressCurrencyDisplay;
+  }
+
+  /**
+   * Sets indicates if currency amounts should be displayed in the UI without the currency code. Note that this will
+   * affect all views and should only be used where all results for all views will always be in a single,
+   * well-known currency.
+   * 
+   * Default value is false, indicating that currencies will be displayed by default.
+   * @param suppressCurrencyDisplay  the new value of the property
+   */
+  public void setSuppressCurrencyDisplay(boolean suppressCurrencyDisplay) {
+    this._suppressCurrencyDisplay = suppressCurrencyDisplay;
+  }
+
+  /**
+   * Gets the the {@code suppressCurrencyDisplay} property.
+   * affect all views and should only be used where all results for all views will always be in a single,
+   * well-known currency.
+   * 
+   * Default value is false, indicating that currencies will be displayed by default.
+   * @return the property, not null
+   */
+  public final Property<Boolean> suppressCurrencyDisplay() {
+    return metaBean().suppressCurrencyDisplay().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -1113,10 +1231,20 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<FudgeContext> _fudgeContext = DirectMetaProperty.ofReadWrite(
         this, "fudgeContext", WebsiteViewportsComponentFactory.class, FudgeContext.class);
     /**
+     * The meta-property for the {@code liveMarketDataProviderFactory} property.
+     */
+    private final MetaProperty<LiveMarketDataProviderFactory> _liveMarketDataProviderFactory = DirectMetaProperty.ofReadWrite(
+        this, "liveMarketDataProviderFactory", WebsiteViewportsComponentFactory.class, LiveMarketDataProviderFactory.class);
+    /**
      * The meta-property for the {@code marketDataSpecificationRepository} property.
      */
     private final MetaProperty<NamedMarketDataSpecificationRepository> _marketDataSpecificationRepository = DirectMetaProperty.ofReadWrite(
         this, "marketDataSpecificationRepository", WebsiteViewportsComponentFactory.class, NamedMarketDataSpecificationRepository.class);
+    /**
+     * The meta-property for the {@code suppressCurrencyDisplay} property.
+     */
+    private final MetaProperty<Boolean> _suppressCurrencyDisplay = DirectMetaProperty.ofReadWrite(
+        this, "suppressCurrencyDisplay", WebsiteViewportsComponentFactory.class, Boolean.TYPE);
     /**
      * The meta-properties.
      */
@@ -1141,7 +1269,9 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
         "marketDataSnapshotMaster",
         "user",
         "fudgeContext",
-        "marketDataSpecificationRepository");
+        "liveMarketDataProviderFactory",
+        "marketDataSpecificationRepository",
+        "suppressCurrencyDisplay");
 
     /**
      * Restricted constructor.
@@ -1190,8 +1320,12 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
           return _user;
         case -917704420:  // fudgeContext
           return _fudgeContext;
+        case -301472921:  // liveMarketDataProviderFactory
+          return _liveMarketDataProviderFactory;
         case 1743800263:  // marketDataSpecificationRepository
           return _marketDataSpecificationRepository;
+        case -1406342148:  // suppressCurrencyDisplay
+          return _suppressCurrencyDisplay;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -1365,11 +1499,28 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     }
 
     /**
+     * The meta-property for the {@code liveMarketDataProviderFactory} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<LiveMarketDataProviderFactory> liveMarketDataProviderFactory() {
+      return _liveMarketDataProviderFactory;
+    }
+
+    /**
      * The meta-property for the {@code marketDataSpecificationRepository} property.
      * @return the meta-property, not null
      */
+    @Deprecated
     public final MetaProperty<NamedMarketDataSpecificationRepository> marketDataSpecificationRepository() {
       return _marketDataSpecificationRepository;
+    }
+
+    /**
+     * The meta-property for the {@code suppressCurrencyDisplay} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> suppressCurrencyDisplay() {
+      return _suppressCurrencyDisplay;
     }
 
   }

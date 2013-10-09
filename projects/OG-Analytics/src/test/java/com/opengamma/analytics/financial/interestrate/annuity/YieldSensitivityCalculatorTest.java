@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.annuity;
@@ -14,7 +14,7 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ *
  */
 public class YieldSensitivityCalculatorTest {
   private static YieldSensitivityCalculator YSC = YieldSensitivityCalculator.getInstance();
@@ -42,7 +42,7 @@ public class YieldSensitivityCalculatorTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeOrder() {
-    YSC.calculateNthOrderSensitivity(new AnnuityCouponFixed(new CouponFixed[] {new CouponFixed(CUR, 2, "A", 2, 0.4)}), 1, -1);
+    YSC.calculateNthOrderSensitivity(new AnnuityCouponFixed(new CouponFixed[] {new CouponFixed(CUR, 2, 2, 0.4)}), 1, -1);
   }
 
   @Test
@@ -53,9 +53,9 @@ public class YieldSensitivityCalculatorTest {
     //    final PaymentFixed[] payments = new PaymentFixed[n];
     final double tau = 0.5;
     for (int i = 0; i < n - 1; i++) {
-      payments[i] = new CouponFixed(CUR, (i + 1) * tau, "", tau, 0.0);
+      payments[i] = new CouponFixed(CUR, (i + 1) * tau, tau, 0.0);
     }
-    payments[n - 1] = new CouponFixed(CUR, n * tau, "", tau, 2.0);
+    payments[n - 1] = new CouponFixed(CUR, n * tau, tau, 2.0);
 
     final AnnuityCouponFixed annuity = new AnnuityCouponFixed(payments);
     final double yield = YieldSensitivityCalculator.getInstance().calculateYield(annuity, pv);
@@ -69,9 +69,9 @@ public class YieldSensitivityCalculatorTest {
     final CouponFixed[] payments = new CouponFixed[n];
     final double tau = 0.5;
     for (int i = 0; i < n - 1; i++) {
-      payments[i] = new CouponFixed(CUR, (i + 1) * tau, "", tau, 0.0);
+      payments[i] = new CouponFixed(CUR, (i + 1) * tau, tau, 0.0);
     }
-    payments[n - 1] = new CouponFixed(CUR, n * tau, "", tau, 2.0);
+    payments[n - 1] = new CouponFixed(CUR, n * tau, tau, 2.0);
 
     final AnnuityCouponFixed annuity = new AnnuityCouponFixed(payments);
 
@@ -88,9 +88,9 @@ public class YieldSensitivityCalculatorTest {
     final CouponFixed[] payments = new CouponFixed[n];
     final double tau = 0.5;
     for (int i = 0; i < n - 1; i++) {
-      payments[i] = new CouponFixed(CUR, (i + 1) * tau, "", tau, 0.0);
+      payments[i] = new CouponFixed(CUR, (i + 1) * tau, tau, 0.0);
     }
-    payments[n - 1] = new CouponFixed(CUR, n * tau, "", tau, 2.0);
+    payments[n - 1] = new CouponFixed(CUR, n * tau, tau, 2.0);
 
     final AnnuityCouponFixed annuity = new AnnuityCouponFixed(payments);
 

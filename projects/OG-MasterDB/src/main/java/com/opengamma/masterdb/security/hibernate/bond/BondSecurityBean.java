@@ -90,6 +90,7 @@ public class BondSecurityBean extends SecurityBean {
   public static BondSecurityBean.Meta meta() {
     return BondSecurityBean.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(BondSecurityBean.Meta.INSTANCE);
   }

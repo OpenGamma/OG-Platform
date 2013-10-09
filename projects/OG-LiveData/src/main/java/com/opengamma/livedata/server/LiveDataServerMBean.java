@@ -216,13 +216,8 @@ public class LiveDataServerMBean {
   @ManagedOperationParameters({
        @ManagedOperationParameter(name = "securityUniqueId", description = "Security unique ID. Server type dependent.)") })
   public String getSnapshot(String securityUniqueId) {
-    try {
-      MarketDataDistributor marketDataDistributor = getServer().getMarketDataDistributor(securityUniqueId);
-      return marketDataDistributor.getSnapshot().toString();
-    } catch (RuntimeException e) {
-      s_logger.error("getSnapshot() failed", e);
-      throw new RuntimeException(e.getMessage());
-    }
+    MarketDataDistributor marketDataDistributor = getServer().getMarketDataDistributor(securityUniqueId);
+    return marketDataDistributor != null && marketDataDistributor.getSnapshot() != null ? marketDataDistributor.getSnapshot().toString() : "Unknown";
   }
 
   @ManagedOperation(description = "Gets the current snapshot of all active securities. Will not cause any underlying snapshots.")

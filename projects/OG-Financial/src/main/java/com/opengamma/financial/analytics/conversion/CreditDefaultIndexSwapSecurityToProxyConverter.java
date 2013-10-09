@@ -55,7 +55,6 @@ public class CreditDefaultIndexSwapSecurityToProxyConverter extends FinancialSec
     final boolean adjustEffectiveDate = false;
     final boolean adjustMaturityDate = false;
     final InterestRateNotional notional = security.getNotional();
-    final double recoveryRate = 0.4;
     final boolean includeAccruedPremium = false;
     final boolean protectionStart = false;
     final double parSpread = security.getIndexCoupon();
@@ -78,7 +77,6 @@ public class CreditDefaultIndexSwapSecurityToProxyConverter extends FinancialSec
         adjustEffectiveDate,
         adjustMaturityDate,
         notional,
-        recoveryRate,
         includeAccruedPremium,
         protectionStart,
         parSpread);

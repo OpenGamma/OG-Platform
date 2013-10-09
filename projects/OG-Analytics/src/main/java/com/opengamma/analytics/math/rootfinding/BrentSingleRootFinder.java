@@ -33,9 +33,12 @@ public class BrentSingleRootFinder extends RealSingleRootFinder {
   @Override
   public Double getRoot(final Function1D<Double, Double> function, final Double xLower, final Double xUpper) {
     checkInputs(function, xLower, xUpper);
+    if (xLower == xUpper) {
+      return xLower;
+    }
     double x1 = xLower;
     double x2 = xUpper;
-    double x3 = xUpper; 
+    double x3 = xUpper;
     double delta = 0;
     double oldDelta = 0;
     double f1 = function.evaluate(x1);

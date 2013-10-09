@@ -96,14 +96,18 @@ public class MetalForwardDefinition extends CommodityForwardDefinition<MetalForw
     return new MetalForwardDefinition(expiryDate, underlying, unitAmount, firstDeliveryDate, lastDeliveryDate, amount, unitName, SettlementType.PHYSICAL, referencePrice, currency, settlementDate);
   }
 
-  /**
-   * Get the derivative at a given fix time from the definition
-   * @param date fixing time
-   * @param yieldCurveNames not used
-   * @return the fixed derivative
-   */
   @Override
   public MetalForward toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+    return toDerivative(date);
+  }
+
+  @Override
+  public MetalForward toDerivative(final ZonedDateTime date, final Double referencePrice, final String... yieldCurveNames) {
+    return toDerivative(date, referencePrice);
+  }
+
+  @Override
+  public MetalForward toDerivative(final ZonedDateTime date) {
     ArgumentChecker.inOrderOrEqual(date, this.getExpiryDate(), "date", "expiry date");
     final double timeToFixing = TimeCalculator.getTimeBetween(date, this.getExpiryDate());
     final double timeToSettlement = TimeCalculator.getTimeBetween(date, this.getSettlementDate());
@@ -111,16 +115,8 @@ public class MetalForwardDefinition extends CommodityForwardDefinition<MetalForw
         timeToSettlement, getReferencePrice(), getCurrency());
   }
 
-  /**
-   * Get the derivative at a given fix time from the definition
-   *
-   * @param date  fixing time
-   * @param referencePrice reference price
-   * @param yieldCurveNames not used
-   * @return the fixed derivative
-   */
   @Override
-  public MetalForward toDerivative(final ZonedDateTime date, final Double referencePrice, final String... yieldCurveNames) {
+  public MetalForward toDerivative(final ZonedDateTime date, final Double referencePrice) {
     ArgumentChecker.inOrderOrEqual(date, this.getExpiryDate(), "date", "expiry date");
     final double timeToFixing = TimeCalculator.getTimeBetween(date, this.getExpiryDate());
     final double timeToSettlement = TimeCalculator.getTimeBetween(date, this.getSettlementDate());

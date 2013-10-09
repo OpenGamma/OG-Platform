@@ -47,17 +47,9 @@ public abstract class MarketDataProviderHistoricalTimeSeriesSource implements Hi
    */
   private final HistoricalTimeSeriesProvider _provider;
   /**
-   * Exception to be thrown if operation cannot be performed due to config.
+   * The name of the provider.
    */
-  private final UnsupportedOperationException _configException;
-  /**
-   * Exception to be thrown if operation cannot be performed due to unique id.
-   */
-  private final UnsupportedOperationException _uniqueIdException;
-  /**
-   * Exception to be thrown if operation cannot be performed due to validity date.
-   */
-  private final UnsupportedOperationException _validityDateException;
+  private final String _providerName;
 
   /**
    * Constructor for the class taking the provider to be used for all requests.
@@ -73,15 +65,34 @@ public abstract class MarketDataProviderHistoricalTimeSeriesSource implements Hi
     ArgumentChecker.notNull(providerName, "providerName");
     ArgumentChecker.notNull(uniqueIdSupplier, "uniqueIdSupplier");
     ArgumentChecker.notNull(provider, "provider");
-
+    _providerName = providerName;
     _uniqueIdSupplier = uniqueIdSupplier;
     _provider = provider;
-    _configException = new UnsupportedOperationException(
-        "Unable to retrieve historical time-series from " + providerName + " using config");
-    _uniqueIdException = new UnsupportedOperationException(
-        "Unable to retrieve historical time-series from " + providerName + " using unique identifier");
-    _validityDateException = new UnsupportedOperationException(
-        "Unable to retrieve historical time-series from " + providerName + " using identifier validity date");
+
+  }
+
+  /**
+   * Exception to be thrown if operation cannot be performed due to unique id.
+   */
+  private UnsupportedOperationException createUniqueIdException() {
+    return new UnsupportedOperationException(
+        "Unable to retrieve historical time-series from " + _providerName + " using unique identifier");
+  }
+
+  /**
+   * Exception to be thrown if operation cannot be performed due to config.
+   */
+  private UnsupportedOperationException createConfigException() {
+    return new UnsupportedOperationException(
+        "Unable to retrieve historical time-series from " + _providerName + " using config");
+  }
+
+  /**
+   * Exception to be thrown if operation cannot be performed due to validity date.
+   */
+  private UnsupportedOperationException createValidityDateException() {
+    return new UnsupportedOperationException(
+        "Unable to retrieve historical time-series from " + _providerName + " using identifier validity date");
   }
 
   //-------------------------------------------------------------------------
@@ -110,27 +121,29 @@ public abstract class MarketDataProviderHistoricalTimeSeriesSource implements Hi
   //-------------------------------------------------------------------------
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(UniqueId uniqueId) {
-    throw _uniqueIdException;
+    throw createUniqueIdException();
   }
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(UniqueId uniqueId, LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
-    throw _uniqueIdException;
+
+
+    throw createUniqueIdException();
   }
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(UniqueId uniqueId, LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd, int maxPoints) {
-    throw _uniqueIdException;
+    throw createUniqueIdException();
   }
 
   @Override
   public Pair<LocalDate, Double> getLatestDataPoint(UniqueId uniqueId) {
-    throw _uniqueIdException;
+    throw createUniqueIdException();
   }
 
   @Override
   public Pair<LocalDate, Double> getLatestDataPoint(UniqueId uniqueId, LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
-    throw _uniqueIdException;
+    throw createUniqueIdException();
   }
 
   //-------------------------------------------------------------------------
@@ -166,103 +179,103 @@ public abstract class MarketDataProviderHistoricalTimeSeriesSource implements Hi
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
       ExternalIdBundle identifiers, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField) {
-    throw _validityDateException;
+    throw createValidityDateException();
   }
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(ExternalIdBundle identifiers,
       LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField, LocalDate start,
       boolean includeStart, LocalDate end, boolean includeEnd) {
-    throw _validityDateException;
+    throw createValidityDateException();
   }
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField, LocalDate start,
       boolean includeStart, LocalDate end, boolean includeEnd, int maxPoints) {
-    throw _validityDateException;
+    throw createValidityDateException();
   }
 
   @Override
   public Pair<LocalDate, Double> getLatestDataPoint(ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField) {
-    throw _validityDateException;
+    throw createValidityDateException();
   }
 
   @Override
   public Pair<LocalDate, Double> getLatestDataPoint(ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField, LocalDate start,
       boolean includeStart, LocalDate end, boolean includeEnd) {
-    throw _validityDateException;
+    throw createValidityDateException();
   }
 
   @Override
   public Pair<LocalDate, Double> getLatestDataPoint(ExternalIdBundle identifierBundle, String dataSource, String dataProvider, String dataField) {
-    throw _validityDateException;
+    throw createValidityDateException();
   }
 
   @Override
   public Pair<LocalDate, Double> getLatestDataPoint(ExternalIdBundle identifierBundle, String dataSource, String dataProvider, String dataField, LocalDate start, boolean includeStart, LocalDate end,
       boolean includeEnd) {
-    throw _validityDateException;
+    throw createValidityDateException();
   }
 
   //-------------------------------------------------------------------------
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
       String dataField, ExternalIdBundle identifiers, String resolutionKey) {
-    throw _configException;
+    throw createConfigException();
   }
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
       String dataField, ExternalIdBundle identifiers, String resolutionKey,
       LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
-    throw _configException;
+    throw createConfigException();
   }
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
       String dataField, ExternalIdBundle identifiers, LocalDate identifierValidityDate, String resolutionKey) {
-    throw _configException;
+    throw createConfigException();
   }
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
       String dataField, ExternalIdBundle identifiers, LocalDate identifierValidityDate, String resolutionKey,
       LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
-    throw _configException;
+    throw createConfigException();
   }
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(String dataField, ExternalIdBundle identifierBundle, String resolutionKey, LocalDate start, boolean includeStart, LocalDate end,
       boolean includeEnd, int maxPoints) {
-    throw _configException;
+    throw createConfigException();
   }
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(String dataField, ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey, LocalDate start,
       boolean includeStart, LocalDate end, boolean includeEnd, int maxPoints) {
-    throw _configException;
+    throw createConfigException();
   }
 
   @Override
   public Pair<LocalDate, Double> getLatestDataPoint(String dataField, ExternalIdBundle identifierBundle, String resolutionKey) {
-    throw _configException;
+    throw createConfigException();
   }
 
   @Override
   public Pair<LocalDate, Double> getLatestDataPoint(
       String dataField, ExternalIdBundle identifierBundle, String resolutionKey, LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
-    throw _configException;
+    throw createConfigException();
   }
 
   @Override
   public Pair<LocalDate, Double> getLatestDataPoint(String dataField, ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey) {
-    throw _configException;
+    throw createConfigException();
   }
 
   @Override
   public Pair<LocalDate, Double> getLatestDataPoint(String dataField, ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey, LocalDate start, boolean includeStart,
       LocalDate end, boolean includeEnd) {
-    throw _configException;
+    throw createConfigException();
   }
 
   //-------------------------------------------------------------------------
@@ -291,6 +304,6 @@ public abstract class MarketDataProviderHistoricalTimeSeriesSource implements Hi
 
   @Override
   public ExternalIdBundle getExternalIdBundle(UniqueId uniqueId) {
-    throw _configException;
+    throw createConfigException();
   }
 }

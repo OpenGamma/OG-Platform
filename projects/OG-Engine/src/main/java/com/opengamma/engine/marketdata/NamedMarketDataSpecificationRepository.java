@@ -12,8 +12,11 @@ import com.opengamma.util.PublicAPI;
 
 /**
  * A repository of named, pre-built market data specifications.
+ * 
+ * @deprecated  This is only required for the legacy analytics UI.
  */
 @PublicAPI
+@Deprecated
 public interface NamedMarketDataSpecificationRepository {
 
   /**

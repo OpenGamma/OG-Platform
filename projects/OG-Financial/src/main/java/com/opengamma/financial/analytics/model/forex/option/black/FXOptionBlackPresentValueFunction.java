@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.forex.option.black;
@@ -22,12 +22,15 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.model.black.BlackDiscountingPVFXOptionFunction;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
- * 
+ * Calculates the present value for FX options using the Black method
+ * @deprecated Use {@link BlackDiscountingPVFXOptionFunction}
  */
+@Deprecated
 public class FXOptionBlackPresentValueFunction extends FXOptionBlackSingleValuedFunction {
   private static final PresentValueBlackTermStructureForexCalculator FLAT_CALCULATOR = PresentValueBlackTermStructureForexCalculator.getInstance();
   private static final PresentValueBlackSmileForexCalculator SMILE_CALCULATOR = PresentValueBlackSmileForexCalculator.getInstance();

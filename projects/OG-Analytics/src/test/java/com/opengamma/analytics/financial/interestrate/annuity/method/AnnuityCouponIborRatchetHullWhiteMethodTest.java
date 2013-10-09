@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.annuity.method;
@@ -58,7 +58,9 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Tests the Hull-White one factor method for Annuity on Ibor Ratchet.
+ * @deprecated This class tests deprecated functionality
  */
+@Deprecated
 public class AnnuityCouponIborRatchetHullWhiteMethodTest {
 
   private static final Calendar TARGET = new MondayToFridayCalendar("A");
@@ -70,7 +72,7 @@ public class AnnuityCouponIborRatchetHullWhiteMethodTest {
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
-  private static final IborIndex IBOR_INDEX = new IborIndex(CUR, INDEX_TENOR, SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, IS_EOM);
+  private static final IborIndex IBOR_INDEX = new IborIndex(CUR, INDEX_TENOR, SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, IS_EOM, "Ibor");
   //Annuity description
   private static final ZonedDateTime SETTLEMENT_DATE = DateUtils.getUTCDate(2011, 9, 7);
   private static final int ANNUITY_TENOR_YEAR = 2;

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -14,7 +14,9 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Present value curve sensitivity calculator for interest rate instruments using Hull-White (extended Vasicek) one factor model.
+ * @deprecated {@link YieldCurveBundle} is deprecated
  */
+@Deprecated
 public final class PresentValueCurveSensitivityHullWhiteCalculator extends PresentValueCurveSensitivityCalculator {
 
   /**

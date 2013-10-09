@@ -7,7 +7,9 @@ package com.opengamma.web.analytics;
 
 import java.util.List;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.core.position.Portfolio;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.cycle.ViewCycle;
@@ -34,7 +36,7 @@ public interface AnalyticsView {
     /**
      * Portfolio grid.
      */
-    PORTFORLIO,
+    PORTFOLIO,
     /**
      * Primitives grid.
      */
@@ -42,13 +44,21 @@ public interface AnalyticsView {
   }
 
   /**
-   * Updates the grid structures when the view definition compliles and its struture is available.
+   * Updates the grid structures when the view definition compiles and its structure is available.
    * 
    * @param compiledViewDefinition  the compiled view definition whose data will be displayed in the grids
    * @param resolvedPortfolio  the view's portfolio with all securities resolved
    * @return the callback IDs of grids that were updated
    */
   List<String> updateStructure(CompiledViewDefinition compiledViewDefinition, Portfolio resolvedPortfolio);
+
+  /**
+   * Invoked if the view can't be built and started.
+   *
+   * @param t Exception that triggered the failure, possibly null
+   * @return Callback ID of the error
+   */
+  String viewCompilationFailed(Throwable t);
 
   /**
    * Updates the data in the grids when a cycle completes in the calculation engine.
@@ -65,9 +75,18 @@ public interface AnalyticsView {
    * Returns the row and column structure of one of the top level grids.
    * 
    * @param gridType  the required grid structure, not null
+   * @param viewportId  the ID of the viewport
    * @return the row and column structure of the specified grid
    */
-  GridStructure getGridStructure(GridType gridType);
+  GridStructure getGridStructure(GridType gridType, int viewportId);
+
+  /**
+   * Returns the initial row and column structure of one of the top level grids.
+   *
+   * @param gridType  the required grid structure, not null
+   * @return the row and column structure of the specified grid
+   */
+  GridStructure getInitialGridStructure(GridType gridType);
 
   /**
    * Creates a viewport for one of the top level grids. A viewport represents the visible portion of the grid. Any
@@ -82,11 +101,14 @@ public interface AnalyticsView {
    * @param callbackId  the value that is sent to the client with notification that new data is available for the
    *  viewport. The server makes no assumptions about its format other than the fact that it must be unique for each
    *  viewport in a view.
+   * @param structureCallbackId  the value that is sent to the client with notification that new structure is available
+   *  for the viewport. The server makes no assumptions about its format other than the fact that it must be unique for each
+   *  viewport in a view.
    * @param viewportDefinition  defines the rows and columns in the viewport and whether the viewport's data should be
    *  expanded or a summary for data types which can't fit in a cell, e.g. vectors, matrices, curves.
    * @return true if there is data available for the new viewport
    */
-  boolean createViewport(int requestId, GridType gridType, int viewportId, String callbackId, ViewportDefinition viewportDefinition);
+  boolean createViewport(int requestId, GridType gridType, int viewportId, String callbackId, String structureCallbackId, ViewportDefinition viewportDefinition);
 
   /**
    * Updates a viewport. A viewport will be updated when the user scrolls the grid.
@@ -127,7 +149,28 @@ public interface AnalyticsView {
   // structure and perform that logic on the server?
 
   /**
+   * Returns the grid structure for a dependency graph grid.
+   *
+   * @param gridType  the grid that the dependency graph grid belongs to
+   * @param graphId  the ID of the dependency graph
+   * @param viewportId  the ID of the viewport
+   * @return the row and column structure of the grid
+   */
+  GridStructure getGridStructure(GridType gridType, int graphId, int viewportId);
+
+  /**
+   * Returns the initial grid structure for a dependency graph grid.
+   *
+   * @param gridType  the grid that the dependency graph grid belongs to
+   * @param graphId  the ID of the dependency graph
+   * @return the row and column structure of the grid
+   */
+  GridStructure getInitialGridStructure(GridType gridType, int graphId);
+
+
+  /**
    * Opens a grid showing the dependency graph of calculations for a cell in one of the main grids.
+   * TODO should include the structure version otherwise there's a minor race condition
    * 
    * @param requestId  the ID of the request
    * @param gridType Specifies which of the main grids
@@ -140,21 +183,31 @@ public interface AnalyticsView {
   void openDependencyGraph(int requestId, GridType gridType, int graphId, String callbackId, int row, int col);
 
   /**
+   * Opens a grid showing the dependency graph of calculations for a cell in one of the main grids. This is used by
+   * the client to reconnect after a server restart when the server has lost all the view state.
+   *
+   * @param requestId  the ID of the request
+   * @param gridType Specifies which of the main grids
+   * @param graphId A unique ID for the dependency graph grid
+   * @param callbackId A value that is sent to the client with notification that the structure has changed.
+   * The server makes no assumptions about its format other than the fact that it must be unique for each grid in a view.
+   * @param calcConfigName Name of the calculation configuration containing the value we're interested in
+   * @param valueRequirement Requirement which requests the value we're interested in
+   */
+  void openDependencyGraph(int requestId,
+                           GridType gridType,
+                           int graphId,
+                           String callbackId,
+                           String calcConfigName,
+                           ValueRequirement valueRequirement);
+
+  /**
    * Closes a dependency graph.
    * 
    * @param gridType  the grid that the dependency graph grid belongs to
    * @param graphId  the ID of the dependency graph
    */
   void closeDependencyGraph(GridType gridType, int graphId);
-
-  /**
-   * Returns the grid structure for a dependency graph grid.
-   * 
-   * @param gridType  the grid that the dependency graph grid belongs to
-   * @param graphId  the ID of the dependency graph
-   * @return the row and column structure of the grid
-   */
-  GridStructure getGridStructure(GridType gridType, int graphId);
 
   /**
    * Creates a viewport for a dependency graph grid. A viewport represents the visible portion of the grid. Any
@@ -170,11 +223,14 @@ public interface AnalyticsView {
    * @param callbackId  the value that is sent to the client with notification that new data is available for the
    *  viewport. The server makes no assumptions about its format other than the fact that it must be unique for each
    *  viewport in a view.
+   * @param structureCallbackId  the value that is sent to the client with notification that new structure is available
+   *  for the viewport. The server makes no assumptions about its format other than the fact that it must be unique for
+   *  each viewport in a view.
    * @param viewportDefinition  defines the rows and columns in the viewport and whether the viewport's data should be
    *  expanded or a summary for data types which can't fit in a cell, e.g. vectors, matrices, curves.
    * @return true if there is data available for the new viewport
    */
-  boolean createViewport(int requestId, GridType gridType, int graphId, int viewportId, String callbackId, ViewportDefinition viewportDefinition);
+  boolean createViewport(int requestId, GridType gridType, int graphId, int viewportId, String callbackId, String structureCallbackId, ViewportDefinition viewportDefinition);
 
   /**
    * Updates a viewport of a dependency graph grid. A viewport will be updated when the user scrolls the grid.
@@ -227,4 +283,18 @@ public interface AnalyticsView {
    */
   UniqueId getViewDefinitionId();
 
+  /**
+   * Returns information about an error that occurred in the server
+   * @return The error, not null
+   * @throws DataNotFoundException If the ID is unknown
+   */
+  List<ErrorInfo> getErrors();
+
+  /**
+   * Deletes an error that a client is no longer interested in
+   *
+   * @param id The error ID. This is pushed to the client as a notification
+   * @throws DataNotFoundException If the ID is unknown
+   */
+  void deleteError(long id);
 }

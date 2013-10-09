@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.var;
@@ -15,7 +15,7 @@ import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 
 /**
- * 
+ *
  */
 public class StudentTLinearVaRCalculatorTest {
   private static final double HORIZON = 10;
@@ -41,24 +41,24 @@ public class StudentTLinearVaRCalculatorTest {
     }
 
   };
-  private static final NormalLinearVaRCalculator<Double> NORMAL_VAR = new NormalLinearVaRCalculator<Double>(MEAN, STD);
-  private static final StudentTLinearVaRCalculator<Double> STUDENT_T_VAR = new StudentTLinearVaRCalculator<Double>(MEAN, STD);
+  private static final NormalLinearVaRCalculator<Double> NORMAL_VAR = new NormalLinearVaRCalculator<>(MEAN, STD);
+  private static final StudentTLinearVaRCalculator<Double> STUDENT_T_VAR = new StudentTLinearVaRCalculator<>(MEAN, STD);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCalculator1() {
-    new StudentTLinearVaRCalculator<Double>(null, STD);
+    new StudentTLinearVaRCalculator<>(null, STD);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCalculator2() {
-    new StudentTLinearVaRCalculator<Double>(MEAN, null);
+    new StudentTLinearVaRCalculator<>(MEAN, null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullParameters() {
     STUDENT_T_VAR.evaluate(null, 0.);
   }
-  
+
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
     STUDENT_T_VAR.evaluate(STUDENT_T_PARAMETERS, (Double[]) null);
@@ -75,12 +75,12 @@ public class StudentTLinearVaRCalculatorTest {
   public void testEqualsAndHashCode() {
     assertEquals(STUDENT_T_VAR.getMeanCalculator(), MEAN);
     assertEquals(STUDENT_T_VAR.getStandardDeviationCalculator(), STD);
-    StudentTLinearVaRCalculator<Double> other = new StudentTLinearVaRCalculator<Double>(MEAN, STD);
+    StudentTLinearVaRCalculator<Double> other = new StudentTLinearVaRCalculator<>(MEAN, STD);
     assertEquals(other, STUDENT_T_VAR);
     assertEquals(other.hashCode(), STUDENT_T_VAR.hashCode());
-    other = new StudentTLinearVaRCalculator<Double>(STD, STD);
+    other = new StudentTLinearVaRCalculator<>(STD, STD);
     assertFalse(other.equals(STUDENT_T_VAR));
-    other = new StudentTLinearVaRCalculator<Double>(MEAN, MEAN);
+    other = new StudentTLinearVaRCalculator<>(MEAN, MEAN);
     assertFalse(other.equals(STUDENT_T_VAR));
   }
 }

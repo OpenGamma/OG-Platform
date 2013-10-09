@@ -201,6 +201,7 @@ public class ManageableRegion extends DirectBean implements Region, Serializable
   public static ManageableRegion.Meta meta() {
     return ManageableRegion.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ManageableRegion.Meta.INSTANCE);
   }

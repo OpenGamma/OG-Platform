@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.bond.calculator;
@@ -13,8 +13,10 @@ import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedS
 import com.opengamma.analytics.financial.interestrate.bond.method.BondSecurityDiscountingMethod;
 
 /**
- * Calculate dirty price for bonds.
+ * Calculate clean price for bonds.
+ * @deprecated Use {@link com.opengamma.analytics.financial.provider.calculator.issuer.CleanPriceFromCurvesCalculator}
  */
+@Deprecated
 public final class CleanPriceFromCurvesCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> {
 
   /**

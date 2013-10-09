@@ -59,6 +59,7 @@ public class EquityConvention extends Convention {
   public static EquityConvention.Meta meta() {
     return EquityConvention.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(EquityConvention.Meta.INSTANCE);
   }

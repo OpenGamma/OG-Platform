@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -29,13 +29,14 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.CapFlo
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponOIS;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponON;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.analytics.financial.interestrate.payments.method.CouponIborDiscountingMethod;
-import com.opengamma.analytics.financial.interestrate.payments.method.CouponOISDiscountingMethod;
+import com.opengamma.analytics.financial.interestrate.payments.method.CouponONDiscountingMethod;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 import com.opengamma.analytics.financial.interestrate.swap.method.SwapFixedCouponDiscountingMethod;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.util.CompareUtils;
 import com.opengamma.util.tuple.DoublesPair;
@@ -45,7 +46,9 @@ import com.opengamma.util.tuple.DoublesPair;
  * curve(s) (i.e. dPar/dR at every point the instrument has sensitivity). The return format is a map with curve names (String) as keys and List of DoublesPair as the values; each list holds
  * set of time (corresponding to point of the yield curve) and sensitivity pairs (i.e. dPar/dR at that time).
  * <b>Note:</b> The length of the list is instrument dependent and may have repeated times (with the understanding the sensitivities should be summed).
+ * @deprecated Use the calculators that reference {@link ParameterProviderInterface}
  */
+@Deprecated
 public final class ParRateCurveSensitivityCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Map<String, List<DoublesPair>>> {
 
   /**
@@ -74,7 +77,7 @@ public final class ParRateCurveSensitivityCalculator extends InstrumentDerivativ
   private static final ParRateCalculator PRC_CALCULATOR = ParRateCalculator.getInstance();
   private static final PresentValueCurveSensitivityCalculator PV_SENSITIVITY_CALCULATOR = PresentValueCurveSensitivityCalculator.getInstance();
   private static final RateReplacingInterestRateDerivativeVisitor REPLACE_RATE = RateReplacingInterestRateDerivativeVisitor.getInstance();
-  private static final CouponOISDiscountingMethod METHOD_OIS = CouponOISDiscountingMethod.getInstance();
+  private static final CouponONDiscountingMethod METHOD_OIS = CouponONDiscountingMethod.getInstance();
   private static final CouponIborDiscountingMethod METHOD_IBOR = CouponIborDiscountingMethod.getInstance();
   private static final DepositZeroDiscountingMethod METHOD_DEPOSIT_ZERO = DepositZeroDiscountingMethod.getInstance();
   private static final InterestRateFutureSecurityDiscountingMethod METHOD_IRFUT_SECURITY = InterestRateFutureSecurityDiscountingMethod.getInstance();
@@ -87,8 +90,8 @@ public final class ParRateCurveSensitivityCalculator extends InstrumentDerivativ
     final double ta = cash.getStartTime();
     final double tb = cash.getEndTime();
     final double yearFrac = cash.getAccrualFactor();
-    final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
-    final List<DoublesPair> temp = new ArrayList<DoublesPair>();
+    final Map<String, List<DoublesPair>> result = new HashMap<>();
+    final List<DoublesPair> temp = new ArrayList<>();
     if (yearFrac == 0.0) {
       if (!CompareUtils.closeEquals(ta, tb, 1e-16)) {
         throw new IllegalArgumentException("year fraction is zero, but payment time not equal the trade time");
@@ -123,10 +126,10 @@ public final class ParRateCurveSensitivityCalculator extends InstrumentDerivativ
     final double ratio = curve.getDiscountFactor(ta) / curve.getDiscountFactor(tb) / future.getFixingPeriodAccrualFactor();
     final DoublesPair s1 = new DoublesPair(ta, -ta * ratio);
     final DoublesPair s2 = new DoublesPair(tb, tb * ratio);
-    final List<DoublesPair> temp = new ArrayList<DoublesPair>();
+    final List<DoublesPair> temp = new ArrayList<>();
     temp.add(s1);
     temp.add(s2);
-    final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> result = new HashMap<>();
     result.put(curveName, temp);
     return result;
   }
@@ -172,13 +175,13 @@ public final class ParRateCurveSensitivityCalculator extends InstrumentDerivativ
 
     final double fwdFX = fx.accept(PRC_CALCULATOR, curves);
     final double t = fx.getPaymentTime();
-    List<DoublesPair> temp = new ArrayList<DoublesPair>();
+    List<DoublesPair> temp = new ArrayList<>();
     temp.add(new DoublesPair(t, t * fwdFX));
-    final Map<String, List<DoublesPair>> senseD = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> senseD = new HashMap<>();
     senseD.put(fx.getPaymentCurrency1().getFundingCurveName(), temp);
-    temp = new ArrayList<DoublesPair>();
+    temp = new ArrayList<>();
     temp.add(new DoublesPair(t, -t * fwdFX));
-    final Map<String, List<DoublesPair>> senseF = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> senseF = new HashMap<>();
     senseF.put(fx.getPaymentCurrency2().getFundingCurveName(), temp);
 
     return addSensitivity(senseD, senseF);
@@ -200,16 +203,16 @@ public final class ParRateCurveSensitivityCalculator extends InstrumentDerivativ
     final double ratio = curve.getDiscountFactor(ta) / curve.getDiscountFactor(tb) / delta;
     final DoublesPair s1 = new DoublesPair(ta, -ta * ratio);
     final DoublesPair s2 = new DoublesPair(tb, tb * ratio);
-    final List<DoublesPair> temp = new ArrayList<DoublesPair>();
+    final List<DoublesPair> temp = new ArrayList<>();
     temp.add(s1);
     temp.add(s2);
-    final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> result = new HashMap<>();
     result.put(curveName, temp);
     return result;
   }
 
   @Override
-  public Map<String, List<DoublesPair>> visitCouponOIS(final CouponOIS payment, final YieldCurveBundle data) {
+  public Map<String, List<DoublesPair>> visitCouponOIS(final CouponON payment, final YieldCurveBundle data) {
     return METHOD_OIS.parRateCurveSensitivity(payment, data).getSensitivities();
   }
 
@@ -226,16 +229,16 @@ public final class ParRateCurveSensitivityCalculator extends InstrumentDerivativ
     for (int i = 0; i < n; i++) {
       unitCoupons[i] = coupons.getNthPayment(i).withUnitCoupon();
     }
-    final Annuity<CouponFixed> unitCouponAnnuity = new Annuity<CouponFixed>(unitCoupons);
+    final Annuity<CouponFixed> unitCouponAnnuity = new Annuity<>(unitCoupons);
     final double a = unitCouponAnnuity.accept(PV_CALCULATOR, curves);
     final Map<String, List<DoublesPair>> senseA = unitCouponAnnuity.accept(PV_SENSITIVITY_CALCULATOR, curves);
-    final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> result = new HashMap<>();
     final PaymentFixed principlePayment = bond.getNominal().getNthPayment(0);
     final double df = principlePayment.accept(PV_CALCULATOR, curves);
     final double factor = -(1 - df) / a / a;
     for (final String name : curves.getAllNames()) {
       if (senseA.containsKey(name)) {
-        final List<DoublesPair> temp = new ArrayList<DoublesPair>();
+        final List<DoublesPair> temp = new ArrayList<>();
         final List<DoublesPair> list = senseA.get(name);
         final int m = list.size();
         for (int i = 0; i < (m - 1); i++) {

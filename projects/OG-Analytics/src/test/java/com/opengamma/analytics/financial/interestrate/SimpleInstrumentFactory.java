@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -21,24 +21,24 @@ import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.util.money.Currency;
 
 /**
- * A set of methods to generate simply interest rate derivatives for testing purposes
+ * A set of methods to generate simple interest rate derivatives for testing purposes
  */
 public abstract class SimpleInstrumentFactory {
 
   /** Random number generator */
   protected static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);
   /** Replaces rates */
-  protected static final RateReplacingInterestRateDerivativeVisitor REPLACE_RATE = RateReplacingInterestRateDerivativeVisitor.getInstance();
+  protected static final RateReplacingVisitor REPLACE_RATE = RateReplacingVisitor.getInstance();
   private static final Currency DUMMY_CUR = Currency.EUR;
   private static final IborIndex DUMMY_INDEX = new IborIndex(DUMMY_CUR, Period.ofMonths(1), 2, DayCountFactory.INSTANCE.getDayCount("Actual/365"),
-      BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), true);
+      BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), true, "Ibor");
 
-  public static InstrumentDerivative makeCash(final double time, final String fundCurveName, final double rate, final double notional) {
-    return new Cash(DUMMY_CUR, 0, time, notional, rate, time, fundCurveName);
+  public static InstrumentDerivative makeCash(final double time, final double rate, final double notional) {
+    return new Cash(DUMMY_CUR, 0, time, notional, rate, time);
   }
 
-  public static InstrumentDerivative makeLibor(final double time, final String indexCurveName, final double rate, final double notional) {
-    return new Cash(DUMMY_CUR, 0, time, notional, rate, time, indexCurveName);
+  public static InstrumentDerivative makeLibor(final double time, final double rate, final double notional) {
+    return new Cash(DUMMY_CUR, 0, time, notional, rate, time);
   }
 
   /**
@@ -52,14 +52,14 @@ public abstract class SimpleInstrumentFactory {
    * @param notional the notional amount
    * @return A FRA
    */
-  public static InstrumentDerivative makeFRA(final double time, final SimpleFrequency paymentFreq, final String fundCurveName, final String indexCurveName, final double rate, final double notional) {
+  public static InstrumentDerivative makeFRA(final double time, final SimpleFrequency paymentFreq, final double rate, final double notional) {
     final double tau = 1. / paymentFreq.getPeriodsPerYear();
-    return new ForwardRateAgreement(DUMMY_CUR, time - tau, fundCurveName, tau, notional, DUMMY_INDEX, time - tau, time - tau, time, tau, rate, indexCurveName);
+    return new ForwardRateAgreement(DUMMY_CUR, time - tau, tau, notional, DUMMY_INDEX, time - tau, time - tau, time, tau, rate);
   }
 
-  public static InstrumentDerivative makeFuture(final double time, final SimpleFrequency paymentFreq, final String fundCurveName, final String indexCurveName) {
+  public static InstrumentDerivative makeFuture(final double time, final SimpleFrequency paymentFreq) {
     final double tau = 1. / paymentFreq.getPeriodsPerYear();
-    return new InterestRateFutureTransaction(time, DUMMY_INDEX, time, time + tau, tau, 0, 1, tau, 1, "N", fundCurveName, indexCurveName);
+    return new InterestRateFutureTransaction(time, DUMMY_INDEX, time, time + tau, tau, 0, 1, tau, 1, "N");
   }
 
 }

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.swaption;
@@ -97,6 +97,11 @@ public class SwaptionBermudaFixedIborDefinition implements InstrumentDefinition<
     return _expiryDate;
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public SwaptionBermudaFixedIbor toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");
@@ -109,6 +114,22 @@ public class SwaptionBermudaFixedIborDefinition implements InstrumentDefinition<
     for (int loopexp = 0; loopexp < nbExpiry; loopexp++) {
       expiryTime[loopexp] = TimeCalculator.getTimeBetween(date, _expiryDate[loopexp]);
       expirySwap[loopexp] = _underlyingSwap[loopexp].toDerivative(date, yieldCurveNames);
+      settleTime[loopexp] = TimeCalculator.getTimeBetween(date, _underlyingSwap[loopexp].getFixedLeg().getNthPayment(0).getAccrualStartDate());
+    }
+    return new SwaptionBermudaFixedIbor(expirySwap, _isLong, expiryTime, settleTime);
+  }
+
+  @Override
+  public SwaptionBermudaFixedIbor toDerivative(final ZonedDateTime date) {
+    ArgumentChecker.notNull(date, "date");
+    final int nbExpiry = _expiryDate.length;
+    final double[] expiryTime = new double[nbExpiry];
+    final double[] settleTime = new double[nbExpiry];
+    @SuppressWarnings("unchecked")
+    final SwapFixedCoupon<Coupon>[] expirySwap = new SwapFixedCoupon[nbExpiry];
+    for (int loopexp = 0; loopexp < nbExpiry; loopexp++) {
+      expiryTime[loopexp] = TimeCalculator.getTimeBetween(date, _expiryDate[loopexp]);
+      expirySwap[loopexp] = _underlyingSwap[loopexp].toDerivative(date);
       settleTime[loopexp] = TimeCalculator.getTimeBetween(date, _underlyingSwap[loopexp].getFixedLeg().getNthPayment(0).getAccrualStartDate());
     }
     return new SwaptionBermudaFixedIbor(expirySwap, _isLong, expiryTime, settleTime);

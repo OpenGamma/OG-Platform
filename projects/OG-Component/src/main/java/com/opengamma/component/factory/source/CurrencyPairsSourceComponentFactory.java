@@ -25,6 +25,7 @@ import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.financial.currency.ConfigDBCurrencyPairsSource;
 import com.opengamma.financial.currency.CurrencyPairsSource;
+import com.opengamma.financial.currency.VersionedCurrencyPairsSource;
 import com.opengamma.financial.currency.rest.DataCurrencyPairsSourceResource;
 import com.opengamma.financial.currency.rest.RemoteCurrencyPairsSource;
 
@@ -61,13 +62,20 @@ public class CurrencyPairsSourceComponentFactory extends AbstractComponentFactor
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
     CurrencyPairsSource source = createCurrencyPairsSource(repo);
-    
     ComponentInfo info = new ComponentInfo(CurrencyPairsSource.class, getClassifier());
     info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
     info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteCurrencyPairsSource.class);
+
+    // This is here so that the dependency graph resolver can pick up a versioned currency pairs source
+    ComponentInfo infoVersioned = new ComponentInfo(VersionedCurrencyPairsSource.class, getClassifier());
+    infoVersioned.addAttribute(ComponentInfoAttributes.LEVEL, 1);
+    infoVersioned.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemoteCurrencyPairsSource.class);
+
     repo.registerComponent(info, source);
+    repo.registerComponent(infoVersioned, source);
     if (isPublishRest()) {
       repo.getRestComponents().publish(info, new DataCurrencyPairsSourceResource(source));
+      repo.getRestComponents().publish(infoVersioned, new DataCurrencyPairsSourceResource(source));
     }
   }
 
@@ -90,6 +98,7 @@ public class CurrencyPairsSourceComponentFactory extends AbstractComponentFactor
   public static CurrencyPairsSourceComponentFactory.Meta meta() {
     return CurrencyPairsSourceComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(CurrencyPairsSourceComponentFactory.Meta.INSTANCE);
   }

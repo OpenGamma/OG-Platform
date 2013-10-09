@@ -65,6 +65,7 @@ public class AdditionalCashflow extends DirectBean {
   public static AdditionalCashflow.Meta meta() {
     return AdditionalCashflow.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(AdditionalCashflow.Meta.INSTANCE);
   }

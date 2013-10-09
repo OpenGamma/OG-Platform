@@ -57,6 +57,7 @@ public class CDSIndexComponentBean extends DirectBean {
   public static CDSIndexComponentBean.Meta meta() {
     return CDSIndexComponentBean.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(CDSIndexComponentBean.Meta.INSTANCE);
   }

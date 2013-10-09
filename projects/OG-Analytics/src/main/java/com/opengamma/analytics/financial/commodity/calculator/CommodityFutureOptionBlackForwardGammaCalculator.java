@@ -28,6 +28,9 @@ public final class CommodityFutureOptionBlackForwardGammaCalculator extends Inst
     return s_instance;
   }
 
+  /**
+   * Private constructor.
+   */
   private CommodityFutureOptionBlackForwardGammaCalculator() {
   }
 

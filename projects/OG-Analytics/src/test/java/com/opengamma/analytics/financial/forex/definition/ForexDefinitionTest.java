@@ -115,11 +115,12 @@ public class ForexDefinitionTest {
     assertEquals(FX, fxPayment);
   }
 
+  @SuppressWarnings("deprecation")
   @Test
   /**
    * Tests the conversion to derivative.
    */
-  public void toDerivative() {
+  public void toDerivativeDeprecated() {
     final String discountingEUR = "Discounting EUR";
     final String discountingUSD = "Discounting USD";
     final String[] curves = new String[] {discountingEUR, discountingUSD};
@@ -127,6 +128,19 @@ public class ForexDefinitionTest {
     final Forex fxConverted = FX.toDerivative(referenceDate, curves);
     final PaymentFixed pay1 = PAY_1.toDerivative(referenceDate, discountingEUR);
     final PaymentFixed pay2 = PAY_2.toDerivative(referenceDate, discountingUSD);
+    final Forex fxComparison = new Forex(pay1, pay2);
+    assertEquals(fxComparison, fxConverted);
+  }
+
+  @Test
+  /**
+   * Tests the conversion to derivative.
+   */
+  public void toDerivative() {
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 5, 20);
+    final Forex fxConverted = FX.toDerivative(referenceDate);
+    final PaymentFixed pay1 = PAY_1.toDerivative(referenceDate);
+    final PaymentFixed pay2 = PAY_2.toDerivative(referenceDate);
     final Forex fxComparison = new Forex(pay1, pay2);
     assertEquals(fxComparison, fxConverted);
   }

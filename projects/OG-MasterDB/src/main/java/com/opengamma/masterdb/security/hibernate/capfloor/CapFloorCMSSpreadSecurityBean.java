@@ -106,6 +106,7 @@ public class CapFloorCMSSpreadSecurityBean extends SecurityBean {
   public static CapFloorCMSSpreadSecurityBean.Meta meta() {
     return CapFloorCMSSpreadSecurityBean.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(CapFloorCMSSpreadSecurityBean.Meta.INSTANCE);
   }

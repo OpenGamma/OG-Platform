@@ -79,6 +79,7 @@ public class FudgeObjectJSONProducer extends FudgeBase implements MessageBodyWri
     }
     
     OutputStreamWriter entityWriter = new OutputStreamWriter(entityStream, Charsets.UTF_8);
+    @SuppressWarnings("resource")
     final FudgeMsgWriter writer = new FudgeMsgWriter(new FudgeJSONStreamWriter(getFudgeContext(), entityWriter));
     writer.writeMessageEnvelope(msg, getFudgeTaxonomyId());
     writer.flush();

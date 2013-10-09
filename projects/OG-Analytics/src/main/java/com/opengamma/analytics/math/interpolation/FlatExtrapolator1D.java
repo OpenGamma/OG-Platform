@@ -37,6 +37,17 @@ public class FlatExtrapolator1D extends Interpolator1D {
     throw new IllegalArgumentException("Value " + value + " was within data range");
   }
 
+  @Override
+  public double firstDerivative(final Interpolator1DDataBundle data, final Double value) {
+    Validate.notNull(data, "data");
+    Validate.notNull(value, "value");
+    if (value < data.firstKey()) {
+      return 0.;
+    } else if (value > data.lastKey()) {
+      return 0.;
+    }
+    throw new IllegalArgumentException("Value " + value + " was within data range");
+  }
 
   @Override
   public double[] getNodeSensitivitiesForValue(final Interpolator1DDataBundle data, final Double value) {

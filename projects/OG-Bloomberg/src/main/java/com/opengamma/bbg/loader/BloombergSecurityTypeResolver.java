@@ -62,6 +62,7 @@ public class BloombergSecurityTypeResolver implements SecurityTypeResolver {
   static {
     addValidTypes(s_swapTypes, NonLoadedSecurityTypes.VALID_SWAP_SECURITY_TYPES, SecurityType.SWAP);
     addValidTypes(s_swapTypes, NonLoadedSecurityTypes.VALID_BASIS_SWAP_SECURITY_TYPES, SecurityType.BASIS_SWAP);
+    addValidTypes(s_swapTypes, NonLoadedSecurityTypes.VALID_INFLATION_SWAP_TYPES, SecurityType.INFLATION_SWAP);
   }
   
   private static final Map<String, SecurityType> s_miscTypes = Maps.newConcurrentMap();
@@ -138,7 +139,7 @@ public class BloombergSecurityTypeResolver implements SecurityTypeResolver {
           if (securityType != null) {
             result.put(identifierBundle, securityType);
           } else {
-            s_logger.warn("Jim2:unknown security type of {} for {}", bbgSecurityType, identifierBundle);
+            s_logger.warn("Unknown security type of {} for {}", bbgSecurityType, identifierBundle);
           }
         }
       }

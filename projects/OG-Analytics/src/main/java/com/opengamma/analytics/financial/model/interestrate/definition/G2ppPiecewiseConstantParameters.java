@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.interestrate.definition;
@@ -10,7 +10,8 @@ import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 import java.util.Arrays;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
+
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Parameters related to the G2++ model (equivalent to Hull-White two factors) with piecewise constant volatility.
@@ -28,7 +29,7 @@ public class G2ppPiecewiseConstantParameters {
    */
   private final DoubleArrayList[] _volatility = new DoubleArrayList[2];
   /**
-   * The times separating the constant volatility periods. The time should be sorted by increasing order. The first time is 0 and the last time is 1000 (represents infinity). 
+   * The times separating the constant volatility periods. The time should be sorted by increasing order. The first time is 0 and the last time is 1000 (represents infinity).
    * The extra time are added in the constructor.
    */
   private final DoubleArrayList _volatilityTime;
@@ -49,17 +50,17 @@ public class G2ppPiecewiseConstantParameters {
    * @param correlation The model correlation.
    */
   public G2ppPiecewiseConstantParameters(final double[] meanReversion, final double[][] volatility, final double[] volatilityTime, final double correlation) {
-    Validate.notNull(meanReversion, "mean reversion");
-    Validate.notNull(volatility, "volatility");
-    Validate.notNull(volatilityTime, "volatility time");
-    Validate.isTrue(meanReversion.length == 2, "Two mean reversions required");
-    Validate.isTrue(volatility.length == 2, "Two volatility arrays required");
-    Validate.isTrue(volatility[0].length == volatility[1].length, "Volatility length");
-    Validate.isTrue(volatility[0].length == volatilityTime.length + 1, "Volatility length");
+    ArgumentChecker.notNull(meanReversion, "mean reversion");
+    ArgumentChecker.notNull(volatility, "volatility");
+    ArgumentChecker.notNull(volatilityTime, "volatility time");
+    ArgumentChecker.isTrue(meanReversion.length == 2, "Two mean reversions required");
+    ArgumentChecker.isTrue(volatility.length == 2, "Two volatility arrays required");
+    ArgumentChecker.isTrue(volatility[0].length == volatility[1].length, "Volatility length");
+    ArgumentChecker.isTrue(volatility[0].length == volatilityTime.length + 1, "Number of times incorrect; had {}, need {}", volatilityTime.length + 1, volatility[0].length);
     _meanReversion = meanReversion;
     _volatility[0] = new DoubleArrayList(volatility[0]);
     _volatility[1] = new DoubleArrayList(volatility[1]);
-    double[] volatilityTimeArray = new double[volatilityTime.length + 2];
+    final double[] volatilityTimeArray = new double[volatilityTime.length + 2];
     volatilityTimeArray[0] = 0.0;
     volatilityTimeArray[volatilityTime.length + 1] = VOLATILITY_TIME_INFINITY;
     System.arraycopy(volatilityTime, 0, volatilityTimeArray, 1, volatilityTime.length);
@@ -77,21 +78,21 @@ public class G2ppPiecewiseConstantParameters {
   }
 
   /**
-   * Gets the volatility parameters. 
-   * @return The volatility parameters. 
+   * Gets the volatility parameters.
+   * @return The volatility parameters.
    */
   public DoubleArrayList[] getVolatility() {
     return _volatility;
   }
 
   /**
-   * Sets the volatility parameters. 
-   * @param volatility The volatility parameters. 
+   * Sets the volatility parameters.
+   * @param volatility The volatility parameters.
    */
   public void setVolatility(final double[][] volatility) {
-    Validate.isTrue(volatility.length == 2, "Two volatility arrays required");
-    Validate.isTrue(volatility[0].length == volatility[1].length, "Volatility length");
-    Validate.isTrue(volatility[0].length == _volatilityTime.size() - 1, "Volatility length");
+    ArgumentChecker.isTrue(volatility.length == 2, "Two volatility arrays required");
+    ArgumentChecker.isTrue(volatility[0].length == volatility[1].length, "Volatility length");
+    ArgumentChecker.isTrue(volatility[0].length == _volatilityTime.size() - 1, "Volatility length");
     _volatility[0] = new DoubleArrayList(volatility[0]);
     _volatility[1] = new DoubleArrayList(volatility[1]);
   }
@@ -124,8 +125,8 @@ public class G2ppPiecewiseConstantParameters {
    * Sets the last volatilities of the volatility lists.
    * @param volatility The replacing volatility.
    */
-  public void setLastVolatilities(double[] volatility) {
-    Validate.isTrue(volatility.length == 2, "Two volatilities required");
+  public void setLastVolatilities(final double[] volatility) {
+    ArgumentChecker.isTrue(volatility.length == 2, "Two volatilities required");
     _volatility[0].set(_volatility[0].size() - 1, volatility[0]);
     _volatility[1].set(_volatility[1].size() - 1, volatility[1]);
   }
@@ -135,9 +136,9 @@ public class G2ppPiecewiseConstantParameters {
    * @param volatility The volatilities. Array of dimension 2.
    * @param volatilityTime The times separating the constant volatility periods. Must be larger than the previous one.
    */
-  public void addVolatility(double[] volatility, double volatilityTime) {
-    Validate.isTrue(volatility.length == 2, "Two volatilities required");
-    Validate.isTrue(volatilityTime > _volatilityTime.get(_volatilityTime.size() - 2), "Volatility times should be increasing");
+  public void addVolatility(final double[] volatility, final double volatilityTime) {
+    ArgumentChecker.isTrue(volatility.length == 2, "Two volatilities required");
+    ArgumentChecker.isTrue(volatilityTime > _volatilityTime.get(_volatilityTime.size() - 2), "Volatility times should be increasing");
     _volatility[0].add(volatility[0]);
     _volatility[1].add(volatility[1]);
     _volatilityTime.set(_volatilityTime.size() - 1, volatilityTime);
@@ -158,7 +159,7 @@ public class G2ppPiecewiseConstantParameters {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -168,7 +169,7 @@ public class G2ppPiecewiseConstantParameters {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    G2ppPiecewiseConstantParameters other = (G2ppPiecewiseConstantParameters) obj;
+    final G2ppPiecewiseConstantParameters other = (G2ppPiecewiseConstantParameters) obj;
     if (Double.doubleToLongBits(_correlation) != Double.doubleToLongBits(other._correlation)) {
       return false;
     }

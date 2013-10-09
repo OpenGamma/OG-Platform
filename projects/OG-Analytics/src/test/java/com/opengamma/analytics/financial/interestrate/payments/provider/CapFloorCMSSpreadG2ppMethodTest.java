@@ -37,9 +37,6 @@ public class CapFloorCMSSpreadG2ppMethodTest {
   private static final G2ppPiecewiseConstantParameters PARAMETERS_G2PP = TestsDataSetG2pp.createG2ppParameters1();
   private static final G2ppProviderDiscount G2PP_MULTICURVES = new G2ppProviderDiscount(MULTICURVES, PARAMETERS_G2PP, EUR);
 
-  private static final String NOT_USED = "Not used";
-  private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
-
   private static final GeneratorSwapFixedIbor EUR1YEURIBOR6M = GeneratorSwapFixedIborMaster.getInstance().getGenerator("EUR1YEURIBOR6M", CALENDAR);
   private static final GeneratorDeposit GEN_EUR_DEPOSIT = new EURDeposit(CALENDAR);
   private static final IndexSwap SWAP_EUR10Y = new IndexSwap(EUR1YEURIBOR6M, Period.ofYears(10));
@@ -62,12 +59,10 @@ public class CapFloorCMSSpreadG2ppMethodTest {
       SWAP_EUR10Y, SWAP_EUR2Y, STRIKE, IS_CAP, CALENDAR, CALENDAR);
 
   // Derivatives
-  private static final CapFloorCMSSpread CMS_SPREAD = (CapFloorCMSSpread) CMS_SPREAD_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
+  private static final CapFloorCMSSpread CMS_SPREAD = (CapFloorCMSSpread) CMS_SPREAD_DEFINITION.toDerivative(REFERENCE_DATE);
 
   // Method and calculators
   private static final CapFloorCMSSpreadG2ppNumericalIntegrationMethod METHOD_NI = CapFloorCMSSpreadG2ppNumericalIntegrationMethod.getInstance();
-  //  private static final CapFloorCMSSpreadG2ppApproximationMethod METHOD_APPROX = new CapFloorCMSSpreadG2ppApproximationMethod();
-  //  private static final ParRateCalculator PRC = ParRateCalculator.getInstance();
 
   private static final double TOLERANCE_PV = 1.0E-2; // 0.01 currency unit for 100m notional.
 

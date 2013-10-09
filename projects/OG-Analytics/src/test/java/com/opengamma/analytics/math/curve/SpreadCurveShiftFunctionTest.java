@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.math.curve;
@@ -13,9 +13,8 @@ import org.testng.annotations.Test;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 
 /**
- * 
+ *
  */
-@SuppressWarnings("unchecked")
 public class SpreadCurveShiftFunctionTest {
   private static final int N = 10;
   private static final double[] X = new double[N];

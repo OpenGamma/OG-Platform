@@ -28,7 +28,8 @@ public class YieldCurveSelectorFudgeBuilder implements FudgeBuilder<YieldCurveSe
   private static final String CALC_CONFIGS = "calculationConfigurationNames";
   private static final String NAMES = "names";
   private static final String CURRENCIES = "currencies";
-  private static final String NAME_PATTERN = "namePattern";
+  private static final String NAME_MATCH_PATTERN = "nameMatchPattern";
+  private static final String NAME_LIKE_PATTERN = "nameLikePattern";
 
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, YieldCurveSelector selector) {
@@ -55,8 +56,11 @@ public class YieldCurveSelectorFudgeBuilder implements FudgeBuilder<YieldCurveSe
       }
       serializer.addToMessage(msg, CURRENCIES, null, currenciesMsg);
     }
-    if (selector.getNamePattern() != null) {
-      serializer.addToMessage(msg, NAME_PATTERN, null, selector.getNamePattern().toString());
+    if (selector.getNameMatchPattern() != null) {
+      serializer.addToMessage(msg, NAME_MATCH_PATTERN, null, selector.getNameMatchPattern().pattern());
+    }
+    if (selector.getNameLikePattern() != null) {
+      serializer.addToMessage(msg, NAME_LIKE_PATTERN, null, selector.getNameLikePattern().pattern());
     }
     return msg;
   }
@@ -97,14 +101,23 @@ public class YieldCurveSelectorFudgeBuilder implements FudgeBuilder<YieldCurveSe
       currencies = null;
     }
 
-    Pattern namePattern;
-    FudgeField namePatternField = msg.getByName(NAME_PATTERN);
+    Pattern nameMatchPattern;
+    FudgeField namePatternField = msg.getByName(NAME_MATCH_PATTERN);
     if (namePatternField != null) {
       String regex = deserializer.fieldValueToObject(String.class, namePatternField);
-      namePattern = Pattern.compile(regex);
+      nameMatchPattern = Pattern.compile(regex);
     } else {
-      namePattern = null;
+      nameMatchPattern = null;
     }
-    return new YieldCurveSelector(calcConfigNames, names, currencies, namePattern);
+
+    Pattern nameLikePattern;
+    FudgeField nameLikeField = msg.getByName(NAME_LIKE_PATTERN);
+    if (nameLikeField != null) {
+      String regex = deserializer.fieldValueToObject(String.class, nameLikeField);
+      nameLikePattern = Pattern.compile(regex);
+    } else {
+      nameLikePattern = null;
+    }
+    return new YieldCurveSelector(calcConfigNames, names, currencies, nameMatchPattern, nameLikePattern);
   }
 }

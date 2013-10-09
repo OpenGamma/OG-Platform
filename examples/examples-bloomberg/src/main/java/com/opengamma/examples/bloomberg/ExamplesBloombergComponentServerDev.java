@@ -40,7 +40,9 @@ public class ExamplesBloombergComponentServerDev extends OpenGammaComponentServe
       // the second argument defines the start of a chain of properties files providing the configuration
       args = new String[] {"-v", "classpath:/fullstack/fullstack-examplesbloomberg-dev.properties"};
     }
-    new ExamplesBloombergComponentServerDev().run(args);
+    if (!new ExamplesBloombergComponentServerDev().run(args)) {
+      System.exit(-1);
+    }
   }
 
 }

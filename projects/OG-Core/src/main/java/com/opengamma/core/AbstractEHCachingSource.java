@@ -279,6 +279,12 @@ public abstract class AbstractEHCachingSource<V extends UniqueIdentifiable, S ex
       cacheItem(item);
     }
   }
+  
+  protected void flush() {
+    _uidCache.flush();
+    _frontCacheByUID.clear();
+    _oidCache.flush();
+  }
 
   //-------------------------------------------------------------------------
   @Override

@@ -45,6 +45,7 @@ public class RemoveValueRequest extends DirectBean {
   public static RemoveValueRequest.Meta meta() {
     return RemoveValueRequest.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(RemoveValueRequest.Meta.INSTANCE);
   }

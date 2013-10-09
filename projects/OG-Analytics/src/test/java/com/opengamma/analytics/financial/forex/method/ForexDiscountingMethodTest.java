@@ -35,7 +35,9 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Test related to the method for Forex transaction by discounting on each payment.
+ * @deprecated This tests deprecated code
  */
+@Deprecated
 public class ForexDiscountingMethodTest {
 
   private static final Currency CUR_1 = Currency.EUR;

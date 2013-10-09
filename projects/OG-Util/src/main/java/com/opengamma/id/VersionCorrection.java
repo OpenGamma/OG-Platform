@@ -14,22 +14,26 @@ import org.threeten.bp.DateTimeException;
 import org.threeten.bp.Instant;
 
 import com.google.common.base.Objects;
+import com.google.common.collect.Ordering;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.CompareUtils;
-import com.opengamma.util.NormalizingWeakInstanceCache;
 import com.opengamma.util.PublicAPI;
-import com.opengamma.util.WeakInstanceCache;
 
 /**
  * An immutable version-correction combination.
  * <p>
- * History can be stored in two dimensions and the version-correction provides the key. The first historic dimension is the classic series of versions. Each new version is stored in such a manor that
- * previous versions can be accessed. The second historic dimension is corrections. A correction occurs when it is realized that the original data stored was incorrect.
+ * History can be stored in two dimensions and the version-correction provides the key.
+ * The first historic dimension is the classic series of versions.
+ * Each new version is stored in such a manor that previous versions can be accessed.
+ * The second historic dimension is corrections.
+ * A correction occurs when it is realized that the original data stored was incorrect.
  * <p>
- * A fully versioned object in an OpenGamma installation will have a single state for any combination of version and correction. This state is assigned a version string which is used as the third
- * component in a {@link UniqueId}, where all versions share the same {@link ObjectId}.
+ * A fully versioned object in an OpenGamma installation will have a single state for
+ * any combination of version and correction. This state is assigned a version string
+ * which is used as the third component in a {@link UniqueId}, where all versions
+ * share the same {@link ObjectId}.
  * <p>
- * This class represents a single version-correction combination suitable for identifying a single state. It is typically used to obtain an object, while the version string is used in the response.
+ * This class represents a single version-correction combination suitable for identifying a single state.
+ * It is typically used to obtain an object, while the version string is used in the response.
  * <p>
  * This class is immutable and thread-safe.
  */
@@ -43,21 +47,6 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
    * Version-correction instance representing the latest version and correction.
    */
   public static final VersionCorrection LATEST = new VersionCorrection(null, null);
-
-  /**
-   * A weak instance cache for creating singleton forms; this may be used by caching strategies. If the singleton form of a version-correction is used for the duration of operations requiring that
-   * version-correction then temporary data may be cached using the version-correction instance as a weak key.
-   * 
-   * @return a new instance of a weak instance cache, not null
-   */
-  public static WeakInstanceCache<VersionCorrection> weakInstances() {
-    return new NormalizingWeakInstanceCache<VersionCorrection>() {
-      @Override
-      protected VersionCorrection normalize(final VersionCorrection value) {
-        return new VersionCorrection(value.getVersionAsOf(), value.getCorrectedTo());
-      }
-    };
-  }
 
   /**
    * The version instant.
@@ -115,8 +104,10 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
   /**
    * Parses a {@code VersionCorrection} from the standard string format.
    * <p>
-   * This parses the version-correction from the form produced by {@code toString()}. It consists of 'V' followed by the version, a dot, then 'C' followed by the correction, such as
-   * {@code V2011-02-01T12:30:40Z.C2011-02-01T12:30:40Z}. The text 'LATEST' is used in place of the instant for a latest version or correction.
+   * This parses the version-correction from the form produced by {@code toString()}.
+   * It consists of 'V' followed by the version, a dot, then 'C' followed by the correction,
+   * such as {@code V2011-02-01T12:30:40Z.C2011-02-01T12:30:40Z}.
+   * The text 'LATEST' is used in place of the instant for a latest version or correction.
    * 
    * @param str the identifier to parse, not null
    * @return the version-correction combination, not null
@@ -137,9 +128,11 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
   }
 
   /**
-   * Parses a {@code VersionCorrection} from standard string representations of the version and correction.
+   * Parses a {@code VersionCorrection} from standard string representations
+   * of the version and correction.
    * <p>
-   * This parses the version-correction from the forms produced by {@link #getVersionAsOfString()} and {@link #getCorrectedToString()}.
+   * This parses the version-correction from the forms produced by
+   * {@link #getVersionAsOfString()} and {@link #getCorrectedToString()}.
    * 
    * @param versionAsOfString the version as of string, null treated as latest
    * @param correctedToString the corrected to string, null treated as latest
@@ -155,7 +148,8 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
   /**
    * Parses a version-correction {@code Instant} from a standard string representation.
    * <p>
-   * The string representation must be either {@code LATEST} for null, or the ISO-8601 representation of the desired {@code Instant}.
+   * The string representation must be either {@code LATEST} for null,
+   * or the ISO-8601 representation of the desired {@code Instant}.
    * 
    * @param instantStr the instant string, null treated as latest
    * @return the instant, not null
@@ -258,7 +252,8 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
   public VersionCorrection withLatestFixed(Instant now) {
     ArgumentChecker.notNull(now, "Now must not be null");
     if (containsLatest()) {
-      return new VersionCorrection((_versionAsOf != null) ? _versionAsOf : now, (_correctedTo != null) ? _correctedTo : now);
+      return new VersionCorrection(
+          (_versionAsOf != null) ? _versionAsOf : now, (_correctedTo != null) ? _correctedTo : now);
     }
     return this;
   }
@@ -267,7 +262,8 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
   /**
    * Gets a string representation of the version as of instant.
    * <p>
-   * This is either the ISO-8601 representation of the version as of instant, such as {@code 2011-02-01T12:30:40Z}, or {@code LATEST} for null.
+   * This is either the ISO-8601 representation of the version as of instant,
+   * such as {@code 2011-02-01T12:30:40Z}, or {@code LATEST} for null.
    * 
    * @return the string version as of, not null
    */
@@ -278,7 +274,8 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
   /**
    * Gets a string representation of the corrected to instant.
    * <p>
-   * This is either the ISO-8601 representation of the corrected to instant, such as {@code 2011-02-01T12:30:40Z}, or {@code LATEST} for null.
+   * This is either the ISO-8601 representation of the corrected to instant,
+   * such as {@code 2011-02-01T12:30:40Z}, or {@code LATEST} for null.
    * 
    * @return the string corrected to, not null
    */
@@ -295,11 +292,11 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
    */
   @Override
   public int compareTo(VersionCorrection other) {
-    int cmp = CompareUtils.compareWithNullHigh(_versionAsOf, other._versionAsOf);
+    int cmp = Ordering.natural().nullsLast().compare(_versionAsOf, other._versionAsOf);
     if (cmp != 0) {
       return cmp;
     }
-    return CompareUtils.compareWithNullHigh(_correctedTo, other._correctedTo);
+    return Ordering.natural().nullsLast().compare(_correctedTo, other._correctedTo);
   }
 
   @Override
@@ -323,7 +320,9 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
   /**
    * Returns the version-correction instants.
    * <p>
-   * This is a standard format that can be parsed. It consists of 'V' followed by the version, a dot, then 'C' followed by the correction, such as {@code V2011-02-01T12:30:40Z.C2011-02-01T12:30:40Z}.
+   * This is a standard format that can be parsed.
+   * It consists of 'V' followed by the version, a dot, then 'C' followed by the correction,
+   * such as {@code V2011-02-01T12:30:40Z.C2011-02-01T12:30:40Z}.
    * The text 'LATEST' is used in place of the instant for a latest version or correction.
    * 
    * @return the string version-correction, not null

@@ -29,6 +29,16 @@ public interface GridStructure {
   GridColumnGroups getColumnStructure();
 
   /**
+   * @return Meta data for the grid's fixed columns
+   */
+  GridColumnGroup getFixedColumns();
+
+  /**
+   * @return Meta data for the grid's non fixed columns
+   */
+  GridColumnGroups getNonFixedColumns();
+
+  /**
    * @param row The row index
    * @param col The column index
    * @return Pair of value spec and calculation config name

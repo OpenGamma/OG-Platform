@@ -157,6 +157,7 @@ public class ManageableExchange extends DirectBean implements Exchange, Serializ
   public static ManageableExchange.Meta meta() {
     return ManageableExchange.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ManageableExchange.Meta.INSTANCE);
   }

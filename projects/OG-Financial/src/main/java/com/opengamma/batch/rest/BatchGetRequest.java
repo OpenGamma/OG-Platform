@@ -81,6 +81,7 @@ public class BatchGetRequest extends DirectBean {
   public static BatchGetRequest.Meta meta() {
     return BatchGetRequest.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(BatchGetRequest.Meta.INSTANCE);
   }

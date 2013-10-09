@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.forex.method;
@@ -35,7 +35,9 @@ import com.opengamma.util.money.Currency;
 
 /**
  * Sets of market data used in Forex tests.
+ * @deprecated This class produces deprecated objects
  */
+@Deprecated
 public class TestsDataSetsForex {
   private static final Currency KRW = Currency.of("KRW");
   private static final String DISCOUNTING_EUR = "Discounting EUR";
@@ -93,7 +95,7 @@ public class TestsDataSetsForex {
     final String disc = "Discounting ";
     final String disc1 = disc + ccy1.toString();
     final String disc2 = disc + ccy2.toString();
-    final Map<String, Currency> map = new HashMap<String, Currency>();
+    final Map<String, Currency> map = new HashMap<>();
     map.put(disc1, ccy1);
     map.put(disc2, ccy2);
     final YieldAndDiscountCurve CURVE_1 = YieldCurve.from(ConstantDoublesCurve.from(0.0100));
@@ -129,7 +131,7 @@ public class TestsDataSetsForex {
   }
 
   public static Map<String, Currency> curveCurrency() {
-    final Map<String, Currency> map = new HashMap<String, Currency>();
+    final Map<String, Currency> map = new HashMap<>();
     map.put(DISCOUNTING_EUR, EUR);
     map.put(DISCOUNTING_USD, USD);
     map.put(DISCOUNTING_GBP, Currency.GBP);
@@ -214,7 +216,7 @@ public class TestsDataSetsForex {
       expiryDate[loopexp] = ScheduleCalculator.getAdjustedDate(referenceDate, EXPIRY_PERIOD[loopexp], BUSINESS_DAY, CALENDAR, true);
       timeToExpiry[loopexp] = TimeCalculator.getTimeBetween(referenceDate, expiryDate[loopexp]);
     }
-    double[] atmFlat = new double[ATM.length];
+    final double[] atmFlat = new double[ATM.length];
     Arrays.fill(atmFlat, volatility);
     return new SmileDeltaTermStructureParametersStrikeInterpolation(timeToExpiry, DELTA_2, atmFlat, RISK_REVERSAL_FLAT, STRANGLE_FLAT);
   }

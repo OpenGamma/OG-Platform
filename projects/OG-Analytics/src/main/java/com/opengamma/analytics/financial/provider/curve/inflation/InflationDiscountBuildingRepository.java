@@ -20,6 +20,8 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlock;
 import com.opengamma.analytics.financial.provider.curve.CurveBuildingBlockBundle;
+import com.opengamma.analytics.financial.provider.curve.MultiCurveBundle;
+import com.opengamma.analytics.financial.provider.curve.SingleCurveBundle;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.inflation.InflationProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.inflation.InflationSensitivity;
@@ -94,8 +96,8 @@ public class InflationDiscountBuildingRepository {
    */
   private Pair<InflationProviderDiscount, Double[]> makeUnit(final InstrumentDerivative[] instruments, final double[] initGuess, final InflationProviderDiscount knownData,
       final LinkedHashMap<String, IndexPrice[]> inflationMap, final LinkedHashMap<String, GeneratorPriceIndexCurve> generatorsMap,
-      final InstrumentDerivativeVisitor<InflationProviderInterface, Double> calculator, final InstrumentDerivativeVisitor<InflationProviderInterface, InflationSensitivity> sensitivityCalculator)
-  {
+      final InstrumentDerivativeVisitor<InflationProviderInterface, Double> calculator,
+      final InstrumentDerivativeVisitor<InflationProviderInterface, InflationSensitivity> sensitivityCalculator) {
     final GeneratorInflationProviderDiscount generator = new GeneratorInflationProviderDiscount(knownData, inflationMap, generatorsMap);
     final InflationDiscountBuildingData data = new InflationDiscountBuildingData(instruments, generator);
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveCalculator = new InflationDiscountFinderFunction(calculator, data);
@@ -217,29 +219,23 @@ public class InflationDiscountBuildingRepository {
 
   /**
    * Build a block of curves without the discount curve.
-   * @param instruments The instruments used for the block calibration.
-   * @param curveGenerators The curve generators (final version). As an array of arrays, representing the units and the curves within the units.
-   * @param curveNames The names of the different curves. As an array of arrays, representing the units and the curves within the units.
-   * @param parametersGuess The initial guess for the parameters. As an array of arrays, representing the units and the parameters for one unit (all the curves of the unit concatenated).
+   * @param curveBundles The curve bundles, not null
    * @param knownData The known data (fx rates, other curves, model parameters, ...)
    * @param inflationMap The inflation curves names map.
    * @param calculator The calculator of the value on which the calibration is done (usually ParSpreadInflationMarketQuoteDiscountingCalculator (recommended) or converted present value).
    * @param sensitivityCalculator The parameter sensitivity calculator.
    * @return A pair with the calibrated yield curve bundle (including the known data) and the CurveBuildingBlckBundle with the relevant inverse Jacobian Matrix.
    */
-  public Pair<InflationProviderDiscount, CurveBuildingBlockBundle> makeCurvesFromDerivatives(final InstrumentDerivative[][][] instruments, final GeneratorPriceIndexCurve[][] curveGenerators,
-      final String[][] curveNames, final double[][] parametersGuess, final InflationProviderDiscount knownData, final LinkedHashMap<String, IndexPrice[]> inflationMap,
+  public Pair<InflationProviderDiscount, CurveBuildingBlockBundle> makeCurvesFromDerivatives(final MultiCurveBundle<GeneratorPriceIndexCurve>[] curveBundles,
+      final InflationProviderDiscount knownData, final LinkedHashMap<String, IndexPrice[]> inflationMap,
       final InstrumentDerivativeVisitor<InflationProviderInterface, Double> calculator,
       final InstrumentDerivativeVisitor<InflationProviderInterface, InflationSensitivity> sensitivityCalculator) {
-    ArgumentChecker.notNull(instruments, "instruments");
-    ArgumentChecker.notNull(curveGenerators, "curve generators");
-    ArgumentChecker.notNull(curveNames, "curve names");
-    ArgumentChecker.notNull(parametersGuess, "parameters guess");
+    ArgumentChecker.notNull(curveBundles, "curve bundles");
     ArgumentChecker.notNull(knownData, "known data");
     ArgumentChecker.notNull(inflationMap, "inflation map");
     ArgumentChecker.notNull(calculator, "calculator");
     ArgumentChecker.notNull(sensitivityCalculator, "sensitivity calculator");
-    final int nbUnits = curveGenerators.length;
+    final int nbUnits = curveBundles.length;
     final InflationProviderDiscount knownSoFarData = knownData.copy();
     final List<InstrumentDerivative> instrumentsSoFar = new ArrayList<>();
     final LinkedHashMap<String, GeneratorPriceIndexCurve> generatorsSoFar = new LinkedHashMap<>();
@@ -248,38 +244,44 @@ public class InflationDiscountBuildingRepository {
     final LinkedHashMap<String, Pair<Integer, Integer>> unitMap = new LinkedHashMap<>();
     int startUnit = 0;
 
-    for (int loopunit = 0; loopunit < nbUnits; loopunit++) {
-      final int nbCurve = curveGenerators[loopunit].length;
+    for (int iUnits = 0; iUnits < nbUnits; iUnits++) {
+      final MultiCurveBundle<GeneratorPriceIndexCurve> curveBundle = curveBundles[iUnits];
+      final int nbCurve = curveBundle.size();
       final int[] startCurve = new int[nbCurve]; // First parameter index of the curve in the unit.
-      final LinkedHashMap<String, GeneratorPriceIndexCurve> gen = new LinkedHashMap<>();
-      final int[] nbIns = new int[curveGenerators[loopunit].length];
+      final LinkedHashMap<String, GeneratorPriceIndexCurve> generators = new LinkedHashMap<>();
+      final int[] nbIns = new int[curveBundle.getNumberOfInstruments()];
       int nbInsUnit = 0; // Number of instruments in the unit.
-      for (int loopcurve = 0; loopcurve < nbCurve; loopcurve++) {
-        startCurve[loopcurve] = nbInsUnit;
-        nbIns[loopcurve] = instruments[loopunit][loopcurve].length;
-        nbInsUnit += nbIns[loopcurve];
-        instrumentsSoFar.addAll(Arrays.asList(instruments[loopunit][loopcurve]));
+      for (int iCurve = 0; iCurve < nbCurve; iCurve++) {
+        final SingleCurveBundle<GeneratorPriceIndexCurve> singleCurve = curveBundle.getCurveBundle(iCurve);
+        startCurve[iCurve] = nbInsUnit;
+        nbIns[iCurve] = singleCurve.size();
+        nbInsUnit += nbIns[iCurve];
+        instrumentsSoFar.addAll(Arrays.asList(singleCurve.getDerivatives()));
       }
       final InstrumentDerivative[] instrumentsUnit = new InstrumentDerivative[nbInsUnit];
+      final double[] parametersGuess = new double[nbInsUnit];
       final InstrumentDerivative[] instrumentsSoFarArray = instrumentsSoFar.toArray(new InstrumentDerivative[instrumentsSoFar.size()]);
-      for (int loopcurve = 0; loopcurve < nbCurve; loopcurve++) {
-        System.arraycopy(instruments[loopunit][loopcurve], 0, instrumentsUnit, startCurve[loopcurve], nbIns[loopcurve]);
+      for (int iCurve = 0; iCurve < nbCurve; iCurve++) {
+        final SingleCurveBundle<GeneratorPriceIndexCurve> singleCurve = curveBundle.getCurveBundle(iCurve);
+        final InstrumentDerivative[] derivatives = singleCurve.getDerivatives();
+        System.arraycopy(derivatives, 0, instrumentsUnit, startCurve[iCurve], nbIns[iCurve]);
+        System.arraycopy(singleCurve.getStartingPoint(), 0, parametersGuess, startCurve[iCurve], nbIns[iCurve]);
+        final GeneratorPriceIndexCurve tmp = singleCurve.getCurveGenerator().finalGenerator(derivatives);
+        final String curveName = singleCurve.getCurveName();
+        generators.put(curveName, tmp);
+        generatorsSoFar.put(curveName, tmp);
+        unitMap.put(curveName, new ObjectsPair<>(startUnit + startCurve[iCurve], nbIns[iCurve]));
       }
-      for (int loopcurve = 0; loopcurve < nbCurve; loopcurve++) {
-        final GeneratorPriceIndexCurve tmp = curveGenerators[loopunit][loopcurve].finalGenerator(instruments[loopunit][loopcurve]);
-        gen.put(curveNames[loopunit][loopcurve], tmp);
-        generatorsSoFar.put(curveNames[loopunit][loopcurve], tmp);
-        unitMap.put(curveNames[loopunit][loopcurve], new ObjectsPair<>(startUnit + startCurve[loopcurve], nbIns[loopcurve]));
-      }
-      final Pair<InflationProviderDiscount, Double[]> unitCal = makeUnit(instrumentsUnit, parametersGuess[loopunit], knownSoFarData, inflationMap, gen, calculator,
+      final Pair<InflationProviderDiscount, Double[]> unitCal = makeUnit(instrumentsUnit, parametersGuess, knownSoFarData, inflationMap, generators, calculator,
           sensitivityCalculator);
 
       parametersSoFar.addAll(Arrays.asList(unitCal.getSecond()));
-      final DoubleMatrix2D[] mat = makeCurveMatrix(instrumentsSoFarArray, startUnit, nbIns, parametersSoFar.toArray(new Double[parametersSoFar.size()]), knownData, inflationMap, generatorsSoFar,
-          sensitivityCalculator);
+      final DoubleMatrix2D[] mat = makeCurveMatrix(instrumentsSoFarArray, startUnit, nbIns, parametersSoFar.toArray(new Double[parametersSoFar.size()]),
+          knownData, inflationMap, generatorsSoFar, sensitivityCalculator);
 
-      for (int loopcurve = 0; loopcurve < curveGenerators[loopunit].length; loopcurve++) {
-        unitBundleSoFar.put(curveNames[loopunit][loopcurve], new ObjectsPair<>(new CurveBuildingBlock(unitMap), mat[loopcurve]));
+      for (int iCurve = 0; iCurve < nbCurve; iCurve++) {
+        final SingleCurveBundle<GeneratorPriceIndexCurve> singleCurve = curveBundle.getCurveBundle(iCurve);
+        unitBundleSoFar.put(singleCurve.getCurveName(), new ObjectsPair<>(new CurveBuildingBlock(unitMap), mat[iCurve]));
       }
       knownSoFarData.setAll(unitCal.getFirst());
       startUnit = startUnit + nbInsUnit;
@@ -290,10 +292,7 @@ public class InflationDiscountBuildingRepository {
 
   /**
    * Build a block of curves with the discount curve.
-   * @param instruments The instruments used for the block calibration.
-   * @param curveGenerators The  curve generators (final version). As an array of arrays, representing the units and the curves within the units.
-   * @param curveNames The names of the different curves. As an array of arrays, representing the units and the curves within the units.
-   * @param parametersGuess The initial guess for the parameters. As an array of arrays, representing the units and the parameters for one unit (all the curves of the unit concatenated).
+   * @param curveBundles The curve bundles, notn ull
    * @param knownData The known data (fx rates, other curves, model parameters, ...)
    * @param discountingMap The discount curves names map.
    * @param forwardONMap The ON curves names map.
@@ -302,61 +301,62 @@ public class InflationDiscountBuildingRepository {
    * @param sensitivityCalculator The parameter sensitivity calculator.
    * @return A pair with the calibrated yield curve bundle (including the known data) and the CurveBuildingBlckBundle with the relevant inverse Jacobian Matrix.
    */
-  public Pair<InflationProviderDiscount, CurveBuildingBlockBundle> makeCurvesFromDerivatives(final InstrumentDerivative[][][] instruments, final GeneratorCurve[][] curveGenerators,
-      final String[][] curveNames, final double[][] parametersGuess, final InflationProviderDiscount knownData, final LinkedHashMap<String, Currency> discountingMap,
-      final LinkedHashMap<String, IndexON[]> forwardONMap, final LinkedHashMap<String, IndexPrice[]> inflationMap, final InstrumentDerivativeVisitor<InflationProviderInterface, Double> calculator,
+  public Pair<InflationProviderDiscount, CurveBuildingBlockBundle> makeCurvesFromDerivatives(final MultiCurveBundle<GeneratorCurve>[] curveBundles,
+      final InflationProviderDiscount knownData, final LinkedHashMap<String, Currency> discountingMap,
+      final LinkedHashMap<String, IndexON[]> forwardONMap, final LinkedHashMap<String, IndexPrice[]> inflationMap,
+      final InstrumentDerivativeVisitor<InflationProviderInterface, Double> calculator,
       final InstrumentDerivativeVisitor<InflationProviderInterface, InflationSensitivity> sensitivityCalculator) {
-    final int nbUnits = curveGenerators.length;
-
+    ArgumentChecker.notNull(curveBundles, "curve bundles");
+    ArgumentChecker.notNull(knownData, "known data");
+    ArgumentChecker.notNull(discountingMap, "discounting map");
+    ArgumentChecker.notNull(forwardONMap, "forward overnight map");
+    ArgumentChecker.notNull(calculator, "calculator");
+    ArgumentChecker.notNull(sensitivityCalculator, "sensitivity calculator");
+    final int nbUnits = curveBundles.length;
     final InflationProviderDiscount knownSoFarData = knownData.copy();
-
     final List<InstrumentDerivative> instrumentsSoFar = new ArrayList<>();
-
     final LinkedHashMap<String, GeneratorCurve> generatorsSoFar = new LinkedHashMap<>();
-
     final LinkedHashMap<String, Pair<CurveBuildingBlock, DoubleMatrix2D>> unitBundleSoFar = new LinkedHashMap<>();
-
     final List<Double> parametersSoFar = new ArrayList<>();
-
     final LinkedHashMap<String, Pair<Integer, Integer>> unitMap = new LinkedHashMap<>();
-
     int startUnit = 0;
-    for (int loopunit = 0; loopunit < nbUnits; loopunit++) {
-      final int nbCurve = curveGenerators[loopunit].length;
+    for (int iUnits = 0; iUnits < nbUnits; iUnits++) {
+      final MultiCurveBundle<GeneratorCurve> curveBundle = curveBundles[iUnits];
+      final int nbCurve = curveBundle.size();
       final int[] startCurve = new int[nbCurve]; // First parameter index of the curve in the unit.
-
       final LinkedHashMap<String, GeneratorCurve> generators = new LinkedHashMap<>();
-
-      final int[] nbIns = new int[curveGenerators[loopunit].length];
+      final int[] nbIns = new int[curveBundle.getNumberOfInstruments()];
       int nbInsUnit = 0; // Number of instruments in the unit.
-      for (int loopcurve = 0; loopcurve < nbCurve; loopcurve++) {
-        startCurve[loopcurve] = nbInsUnit;
-        nbIns[loopcurve] = instruments[loopunit][loopcurve].length;
-        nbInsUnit += nbIns[loopcurve];
-        instrumentsSoFar.addAll(Arrays.asList(instruments[loopunit][loopcurve]));
+      for (int iCurve = 0; iCurve < nbCurve; iCurve++) {
+        final SingleCurveBundle<GeneratorCurve> singleCurve = curveBundle.getCurveBundle(iCurve);
+        startCurve[iCurve] = nbInsUnit;
+        nbIns[iCurve] = singleCurve.size();
+        nbInsUnit += nbIns[iCurve];
+        instrumentsSoFar.addAll(Arrays.asList(singleCurve.getDerivatives()));
       }
       final InstrumentDerivative[] instrumentsUnit = new InstrumentDerivative[nbInsUnit];
+      final double[] parametersGuess = new double[nbInsUnit];
       final InstrumentDerivative[] instrumentsSoFarArray = instrumentsSoFar.toArray(new InstrumentDerivative[instrumentsSoFar.size()]);
-      for (int loopcurve = 0; loopcurve < nbCurve; loopcurve++) {
-        System.arraycopy(instruments[loopunit][loopcurve], 0, instrumentsUnit, startCurve[loopcurve], nbIns[loopcurve]);
+      for (int iCurve = 0; iCurve < nbCurve; iCurve++) {
+        final SingleCurveBundle<GeneratorCurve> singleCurve = curveBundle.getCurveBundle(iCurve);
+        final InstrumentDerivative[] derivatives = singleCurve.getDerivatives();
+        System.arraycopy(derivatives, 0, instrumentsUnit, startCurve[iCurve], nbIns[iCurve]);
+        System.arraycopy(singleCurve.getStartingPoint(), 0, parametersGuess, startCurve[iCurve], nbIns[iCurve]);
+        final GeneratorCurve tmp = singleCurve.getCurveGenerator().finalGenerator(derivatives);
+        final String curveName = singleCurve.getCurveName();
+        generators.put(curveName, tmp);
+        generatorsSoFar.put(curveName, tmp);
+        unitMap.put(curveName, new ObjectsPair<>(startUnit + startCurve[iCurve], nbIns[iCurve]));
       }
-      for (int loopcurve = 0; loopcurve < nbCurve; loopcurve++) {
-        final GeneratorCurve tmp = curveGenerators[loopunit][loopcurve].finalGenerator(instruments[loopunit][loopcurve]);
-        generators.put(curveNames[loopunit][loopcurve], tmp);
-        generatorsSoFar.put(curveNames[loopunit][loopcurve], tmp);
-        unitMap.put(curveNames[loopunit][loopcurve], new ObjectsPair<>(startUnit + startCurve[loopcurve], nbIns[loopcurve]));
-      }
-
-      final Pair<InflationProviderDiscount, Double[]> unitCal = makeUnit(instrumentsUnit, parametersGuess[loopunit], knownSoFarData, discountingMap, forwardONMap, inflationMap, generators,
-          calculator,
-          sensitivityCalculator);
-
+      final Pair<InflationProviderDiscount, Double[]> unitCal = makeUnit(instrumentsUnit, parametersGuess, knownSoFarData, discountingMap, forwardONMap, inflationMap, generators,
+          calculator, sensitivityCalculator);
       parametersSoFar.addAll(Arrays.asList(unitCal.getSecond()));
       final DoubleMatrix2D[] mat = makeCurveMatrix(instrumentsSoFarArray, startUnit, nbIns, parametersSoFar.toArray(new Double[parametersSoFar.size()]), knownData,
           discountingMap, forwardONMap, inflationMap, generatorsSoFar, sensitivityCalculator);
 
-      for (int loopcurve = 0; loopcurve < curveGenerators[loopunit].length; loopcurve++) {
-        unitBundleSoFar.put(curveNames[loopunit][loopcurve], new ObjectsPair<>(new CurveBuildingBlock(unitMap), mat[loopcurve]));
+      for (int iCurve = 0; iCurve < nbCurve; iCurve++) {
+        final SingleCurveBundle<GeneratorCurve> singleCurve = curveBundle.getCurveBundle(iCurve);
+        unitBundleSoFar.put(singleCurve.getCurveName(), new ObjectsPair<>(new CurveBuildingBlock(unitMap), mat[iCurve]));
       }
       knownSoFarData.setAll(unitCal.getFirst());
       startUnit = startUnit + nbInsUnit;

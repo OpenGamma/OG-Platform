@@ -256,6 +256,7 @@ public class SimplePosition extends DirectBean
   public static SimplePosition.Meta meta() {
     return SimplePosition.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(SimplePosition.Meta.INSTANCE);
   }

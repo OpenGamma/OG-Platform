@@ -78,6 +78,17 @@ public class FXForwardCurveHistoricalTimeSeriesFunction extends AbstractFunction
         s_logger.warn("Couldn't get time series for {}", id);
       }
     }
+    final ExternalIdBundle id = ExternalIdBundle.of(curveInstrumentProvider.getSpotInstrument());
+    final HistoricalTimeSeries timeSeries = timeSeriesSource.getHistoricalTimeSeries(dataField, id, resolutionKey, startDate, includeStart, endDate, includeEnd);
+    if (timeSeries != null) {
+      if (timeSeries.getTimeSeries().isEmpty()) {
+        s_logger.warn("Time series for {} is empty", id);
+      } else {
+        bundle.add(dataField, id, timeSeries);
+      }
+    } else {
+      s_logger.warn("Couldn't get time series for {}", id);
+    }
     return Collections.singleton(new ComputedValue(new ValueSpecification(ValueRequirementNames.FX_FORWARD_CURVE_HISTORICAL_TIME_SERIES, target.toSpecification(),
         desiredValue.getConstraints()), bundle));
   }
@@ -150,7 +161,7 @@ public class FXForwardCurveHistoricalTimeSeriesFunction extends AbstractFunction
       constraints.with(HistoricalTimeSeriesFunctionUtils.INCLUDE_END_PROPERTY, HistoricalTimeSeriesFunctionUtils.YES_VALUE);
     }
     if (constraints == null) {
-      // We can satisfy the desired value as-is, just ask for the yield curve specification to drive our behavior
+      // We can satisfy the desired value as-is, just ask for the FX forward curve definition and specification to drive our behavior
       final ValueProperties curveConstraints;
       values = desiredValue.getConstraints().getValues(ValuePropertyNames.CURVE);
       if (values != null) {

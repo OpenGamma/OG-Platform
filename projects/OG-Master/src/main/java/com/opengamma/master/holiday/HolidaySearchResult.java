@@ -107,6 +107,7 @@ public class HolidaySearchResult extends AbstractSearchResult<HolidayDocument> {
   public static HolidaySearchResult.Meta meta() {
     return HolidaySearchResult.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(HolidaySearchResult.Meta.INSTANCE);
   }

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.swaption.method;
@@ -20,12 +20,15 @@ import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.B
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.analytics.math.function.Function1D;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**
  * Method to computes the present value of physical delivery European swaptions with the G2++ model through efficient approximation.
  * Reference: Henrard, M. Swaptions in Libor Market Model with local volatility. Wilmott Journal, 2010, 2, 135-154. Preprint available at http://ssrn.com/abstract=1098420
+ * @deprecated Use {@link com.opengamma.analytics.financial.interestrate.swaption.provider.SwaptionPhysicalFixedIborG2ppApproximationMethod}
  */
+@Deprecated
 public class SwaptionPhysicalFixedIborG2ppApproximationMethod implements PricingMethod {
 
   /**
@@ -44,6 +47,8 @@ public class SwaptionPhysicalFixedIborG2ppApproximationMethod implements Pricing
    * @return The present value.
    */
   public CurrencyAmount presentValue(final SwaptionPhysicalFixedIbor swaption, final G2ppPiecewiseConstantDataBundle g2Data) {
+    ArgumentChecker.notNull(swaption, "Swaption");
+    ArgumentChecker.notNull(g2Data, "G2++ data");
     final AnnuityPaymentFixed cfe = swaption.getUnderlyingSwap().accept(CFEC, g2Data);
     return presentValue(swaption, cfe, g2Data);
   }
@@ -51,11 +56,14 @@ public class SwaptionPhysicalFixedIborG2ppApproximationMethod implements Pricing
   /**
    * Computes the present value of the Physical delivery swaption through approximation..
    * @param swaption The swaption.
-   * @param cfe The swaption cash flow equiovalent.
+   * @param cfe The swaption cash flow equivalent.
    * @param g2Data The G2++ parameters and the curves.
    * @return The present value.
    */
   public CurrencyAmount presentValue(final SwaptionPhysicalFixedIbor swaption, final AnnuityPaymentFixed cfe, final G2ppPiecewiseConstantDataBundle g2Data) {
+    ArgumentChecker.notNull(swaption, "Swaption");
+    ArgumentChecker.notNull(cfe, "cash-flow equivalent");
+    ArgumentChecker.notNull(g2Data, "G2++ data");
     final YieldAndDiscountCurve dsc = g2Data.getCurve(swaption.getUnderlyingSwap().getFixedLeg().getDiscountCurve());
     final int nbCf = cfe.getNumberOfPayments();
     final double[] cfa = new double[nbCf];

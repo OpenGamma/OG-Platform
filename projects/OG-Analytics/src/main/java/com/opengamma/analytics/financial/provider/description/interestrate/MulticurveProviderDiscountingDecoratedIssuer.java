@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.description.interestrate;
@@ -19,7 +19,7 @@ import com.opengamma.util.tuple.Pair;
 
 /**
  * Class describing a multi-curves provider created from a issuer provider where the discounting curve
- * for one issuer replace (decorate) the discounting curve for one currency. 
+ * for one issuer replace (decorate) the discounting curve for one currency.
  */
 public class MulticurveProviderDiscountingDecoratedIssuer implements MulticurveProviderInterface {
 
@@ -46,11 +46,11 @@ public class MulticurveProviderDiscountingDecoratedIssuer implements MulticurveP
    * @param decoratedCurrency The currency for which the discounting curve will be replaced (decorated).
    * @param decoratingIssuer The issuer for which the associated discounting curve will replace the currency discounting curve.
    */
-  public MulticurveProviderDiscountingDecoratedIssuer(IssuerProviderInterface issuerProvider, Currency decoratedCurrency, String decoratingIssuer) {
+  public MulticurveProviderDiscountingDecoratedIssuer(final IssuerProviderInterface issuerProvider, final Currency decoratedCurrency, final String decoratingIssuer) {
     _issuerProvider = issuerProvider;
     _decoratedCurrency = decoratedCurrency;
     _decoratingIssuer = decoratingIssuer;
-    _decoratingIssuerCcy = new ObjectsPair<String, Currency>(_decoratingIssuer, _decoratedCurrency);
+    _decoratingIssuerCcy = new ObjectsPair<>(_decoratingIssuer, _decoratedCurrency);
   }
 
   @Override
@@ -64,7 +64,7 @@ public class MulticurveProviderDiscountingDecoratedIssuer implements MulticurveP
   }
 
   @Override
-  public double getDiscountFactor(Currency ccy, Double time) {
+  public double getDiscountFactor(final Currency ccy, final Double time) {
     if (ccy.equals(_decoratedCurrency)) {
       return _issuerProvider.getDiscountFactor(_decoratingIssuerCcy, time);
     }
@@ -72,42 +72,42 @@ public class MulticurveProviderDiscountingDecoratedIssuer implements MulticurveP
   }
 
   @Override
-  public double getForwardRate(IborIndex index, double startTime, double endTime, double accrualFactor) {
+  public double getForwardRate(final IborIndex index, final double startTime, final double endTime, final double accrualFactor) {
     return _issuerProvider.getMulticurveProvider().getForwardRate(index, startTime, endTime, accrualFactor);
   }
 
   @Override
-  public double getForwardRate(IndexON index, double startTime, double endTime, double accrualFactor) {
+  public double getForwardRate(final IndexON index, final double startTime, final double endTime, final double accrualFactor) {
     return _issuerProvider.getMulticurveProvider().getForwardRate(index, startTime, endTime, accrualFactor);
   }
 
   @Override
-  public double getFxRate(Currency ccy1, Currency ccy2) {
+  public double getFxRate(final Currency ccy1, final Currency ccy2) {
     return _issuerProvider.getMulticurveProvider().getFxRate(ccy1, ccy2);
   }
 
   @Override
-  public double[] parameterSensitivity(String name, List<DoublesPair> pointSensitivity) {
+  public double[] parameterSensitivity(final String name, final List<DoublesPair> pointSensitivity) {
     return _issuerProvider.parameterSensitivity(name, pointSensitivity);
   }
 
   @Override
-  public double[] parameterForwardSensitivity(String name, List<ForwardSensitivity> pointSensitivity) {
+  public double[] parameterForwardSensitivity(final String name, final List<ForwardSensitivity> pointSensitivity) {
     return _issuerProvider.parameterForwardSensitivity(name, pointSensitivity);
   }
 
   @Override
-  public Integer getNumberOfParameters(String name) {
+  public Integer getNumberOfParameters(final String name) {
     return _issuerProvider.getNumberOfParameters(name);
   }
 
   @Override
-  public List<String> getUnderlyingCurvesNames(String name) {
+  public List<String> getUnderlyingCurvesNames(final String name) {
     return _issuerProvider.getUnderlyingCurvesNames(name);
   }
 
   @Override
-  public String getName(Currency ccy) {
+  public String getName(final Currency ccy) {
     if (ccy.equals(_decoratedCurrency)) {
       return _issuerProvider.getName(_decoratingIssuerCcy);
     }
@@ -120,7 +120,7 @@ public class MulticurveProviderDiscountingDecoratedIssuer implements MulticurveP
   }
 
   @Override
-  public String getName(IborIndex index) {
+  public String getName(final IborIndex index) {
     return _issuerProvider.getMulticurveProvider().getName(index);
   }
 
@@ -130,7 +130,7 @@ public class MulticurveProviderDiscountingDecoratedIssuer implements MulticurveP
   }
 
   @Override
-  public String getName(IndexON index) {
+  public String getName(final IndexON index) {
     return _issuerProvider.getMulticurveProvider().getName(index);
   }
 

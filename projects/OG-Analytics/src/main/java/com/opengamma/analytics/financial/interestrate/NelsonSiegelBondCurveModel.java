@@ -9,6 +9,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.math.function.ParameterizedFunction;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
+import com.opengamma.analytics.math.utilities.Epsilon;
 import com.opengamma.analytics.util.serialization.InvokedSerializedForm;
 
 /**
@@ -29,7 +30,7 @@ public class NelsonSiegelBondCurveModel {
         final double beta2 = parameters.getEntry(2);
         final double lambda = parameters.getEntry(3);
         final double x1 = t / lambda;
-        final double x2 = (1 - Math.exp(-x1)) / x1;
+        final double x2 = Epsilon.epsilon(-x1);
         return beta0 + beta1 * x2 + beta2 * (x2 - Math.exp(-x1));
       }
 

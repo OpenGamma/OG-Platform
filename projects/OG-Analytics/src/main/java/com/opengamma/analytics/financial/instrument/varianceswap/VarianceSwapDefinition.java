@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.varianceswap;
@@ -43,7 +43,7 @@ public class VarianceSwapDefinition implements InstrumentDefinitionWithData<Vari
 
   /**
    * Constructor based upon vega (volatility) parameterisation - strike and notional.
-   * 
+   *
    * @param obsStartDate Date of first observation, not null
    * @param obsEndDate Date of final observation, not null
    * @param settlementDate Date of cash settlement, not null
@@ -143,7 +143,13 @@ public class VarianceSwapDefinition implements InstrumentDefinitionWithData<Vari
     return toDerivative(date, ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES, yieldCurveNames);
   }
 
+  @Override
+  public VarianceSwap toDerivative(final ZonedDateTime date) {
+    return toDerivative(date, ImmutableLocalDateDoubleTimeSeries.EMPTY_SERIES);
+  }
+
   /**
+   * {@inheritDoc}
    * The definition is responsible for constructing a view of the variance swap as of a particular date.
    * In particular,  it resolves calendars. The VarianceSwap needs an array of observations, as well as its *expected* length.
    * The actual number of observations may be less than that expected at trade inception because of a market disruption event.
@@ -152,9 +158,26 @@ public class VarianceSwapDefinition implements InstrumentDefinitionWithData<Vari
    * @param underlyingTimeSeries Time series of underlying observations, not null
    * @param yieldCurveNames Not used
    * @return VarianceSwap derivative as of date
+   * @deprecated Use the method that does not take yield curve names
    */
+  @Deprecated
   @Override
   public VarianceSwap toDerivative(final ZonedDateTime valueDate, final DoubleTimeSeries<LocalDate> underlyingTimeSeries, final String... yieldCurveNames) {
+    return toDerivative(valueDate, underlyingTimeSeries);
+  }
+
+  /**
+   * {@inheritDoc}
+   * The definition is responsible for constructing a view of the variance swap as of a particular date.
+   * In particular,  it resolves calendars. The VarianceSwap needs an array of observations, as well as its *expected* length.
+   * The actual number of observations may be less than that expected at trade inception because of a market disruption event.
+   * ( For an example of a market disruption event, see http://cfe.cboe.com/Products/Spec_VT.aspx )
+   * @param valueDate Date at which valuation will occur, not null
+   * @param underlyingTimeSeries Time series of underlying observations, not null
+   * @return VarianceSwap derivative as of date
+   */
+  @Override
+  public VarianceSwap toDerivative(final ZonedDateTime valueDate, final DoubleTimeSeries<LocalDate> underlyingTimeSeries) {
     ArgumentChecker.notNull(valueDate, "date");
     ArgumentChecker.notNull(underlyingTimeSeries, "A TimeSeries of observations must be provided. If observations have not begun, please pass an empty series.");
     final double timeToObsStart = TimeCalculator.getTimeBetween(valueDate, _obsStartDate);

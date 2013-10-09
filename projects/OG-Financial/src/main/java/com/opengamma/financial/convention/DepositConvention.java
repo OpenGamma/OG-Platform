@@ -45,10 +45,10 @@ public class DepositConvention extends Convention {
   private BusinessDayConvention _businessDayConvention;
 
   /**
-   * The number of days to settle.
+   * The number of settlement days.
    */
   @PropertyDefinition
-  private int _daysToSettle;
+  private int _settlementDays;
 
   /**
    * Should dates follow the end-of-month rule.
@@ -80,17 +80,17 @@ public class DepositConvention extends Convention {
    * @param externalIdBundle The external identifiers for this convention, not null
    * @param dayCount The day-count, not null
    * @param businessDayConvention The businessDayConvention, not null
-   * @param daysToSettle The number of days to settle
+   * @param settlementDays The number of settlement days
    * @param isEOM True if the dates follow the end-of-month rule
    * @param currency The currency, not null
    * @param regionCalendar The identifier for the region calendar, not null
    */
   public DepositConvention(final String name, final ExternalIdBundle externalIdBundle, final DayCount dayCount, final BusinessDayConvention businessDayConvention,
-      final int daysToSettle, final boolean isEOM, final Currency currency, final ExternalId regionCalendar) {
+      final int settlementDays, final boolean isEOM, final Currency currency, final ExternalId regionCalendar) {
     super(name, externalIdBundle);
     setDayCount(dayCount);
     setBusinessDayConvention(businessDayConvention);
-    setDaysToSettle(daysToSettle);
+    setSettlementDays(settlementDays);
     setIsEOM(isEOM);
     setCurrency(currency);
     setRegionCalendar(regionCalendar);
@@ -105,6 +105,7 @@ public class DepositConvention extends Convention {
   public static DepositConvention.Meta meta() {
     return DepositConvention.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(DepositConvention.Meta.INSTANCE);
   }
@@ -121,8 +122,8 @@ public class DepositConvention extends Convention {
         return getDayCount();
       case -1002835891:  // businessDayConvention
         return getBusinessDayConvention();
-      case 379523357:  // daysToSettle
-        return getDaysToSettle();
+      case -295948000:  // settlementDays
+        return getSettlementDays();
       case 100464505:  // isEOM
         return isIsEOM();
       case 575402001:  // currency
@@ -142,8 +143,8 @@ public class DepositConvention extends Convention {
       case -1002835891:  // businessDayConvention
         setBusinessDayConvention((BusinessDayConvention) newValue);
         return;
-      case 379523357:  // daysToSettle
-        setDaysToSettle((Integer) newValue);
+      case -295948000:  // settlementDays
+        setSettlementDays((Integer) newValue);
         return;
       case 100464505:  // isEOM
         setIsEOM((Boolean) newValue);
@@ -176,7 +177,7 @@ public class DepositConvention extends Convention {
       DepositConvention other = (DepositConvention) obj;
       return JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
           JodaBeanUtils.equal(getBusinessDayConvention(), other.getBusinessDayConvention()) &&
-          JodaBeanUtils.equal(getDaysToSettle(), other.getDaysToSettle()) &&
+          JodaBeanUtils.equal(getSettlementDays(), other.getSettlementDays()) &&
           JodaBeanUtils.equal(isIsEOM(), other.isIsEOM()) &&
           JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
           JodaBeanUtils.equal(getRegionCalendar(), other.getRegionCalendar()) &&
@@ -190,7 +191,7 @@ public class DepositConvention extends Convention {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getDayCount());
     hash += hash * 31 + JodaBeanUtils.hashCode(getBusinessDayConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDaysToSettle());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementDays());
     hash += hash * 31 + JodaBeanUtils.hashCode(isIsEOM());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
     hash += hash * 31 + JodaBeanUtils.hashCode(getRegionCalendar());
@@ -251,27 +252,27 @@ public class DepositConvention extends Convention {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the number of days to settle.
+   * Gets the number of settlement days.
    * @return the value of the property
    */
-  public int getDaysToSettle() {
-    return _daysToSettle;
+  public int getSettlementDays() {
+    return _settlementDays;
   }
 
   /**
-   * Sets the number of days to settle.
-   * @param daysToSettle  the new value of the property
+   * Sets the number of settlement days.
+   * @param settlementDays  the new value of the property
    */
-  public void setDaysToSettle(int daysToSettle) {
-    this._daysToSettle = daysToSettle;
+  public void setSettlementDays(int settlementDays) {
+    this._settlementDays = settlementDays;
   }
 
   /**
-   * Gets the the {@code daysToSettle} property.
+   * Gets the the {@code settlementDays} property.
    * @return the property, not null
    */
-  public final Property<Integer> daysToSettle() {
-    return metaBean().daysToSettle().createProperty(this);
+  public final Property<Integer> settlementDays() {
+    return metaBean().settlementDays().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -372,10 +373,10 @@ public class DepositConvention extends Convention {
     private final MetaProperty<BusinessDayConvention> _businessDayConvention = DirectMetaProperty.ofReadWrite(
         this, "businessDayConvention", DepositConvention.class, BusinessDayConvention.class);
     /**
-     * The meta-property for the {@code daysToSettle} property.
+     * The meta-property for the {@code settlementDays} property.
      */
-    private final MetaProperty<Integer> _daysToSettle = DirectMetaProperty.ofReadWrite(
-        this, "daysToSettle", DepositConvention.class, Integer.TYPE);
+    private final MetaProperty<Integer> _settlementDays = DirectMetaProperty.ofReadWrite(
+        this, "settlementDays", DepositConvention.class, Integer.TYPE);
     /**
      * The meta-property for the {@code isEOM} property.
      */
@@ -398,7 +399,7 @@ public class DepositConvention extends Convention {
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "dayCount",
         "businessDayConvention",
-        "daysToSettle",
+        "settlementDays",
         "isEOM",
         "currency",
         "regionCalendar");
@@ -416,8 +417,8 @@ public class DepositConvention extends Convention {
           return _dayCount;
         case -1002835891:  // businessDayConvention
           return _businessDayConvention;
-        case 379523357:  // daysToSettle
-          return _daysToSettle;
+        case -295948000:  // settlementDays
+          return _settlementDays;
         case 100464505:  // isEOM
           return _isEOM;
         case 575402001:  // currency
@@ -461,11 +462,11 @@ public class DepositConvention extends Convention {
     }
 
     /**
-     * The meta-property for the {@code daysToSettle} property.
+     * The meta-property for the {@code settlementDays} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Integer> daysToSettle() {
-      return _daysToSettle;
+    public final MetaProperty<Integer> settlementDays() {
+      return _settlementDays;
     }
 
     /**

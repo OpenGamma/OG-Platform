@@ -205,6 +205,7 @@ public class SimplePortfolio extends DirectBean
   public static SimplePortfolio.Meta meta() {
     return SimplePortfolio.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(SimplePortfolio.Meta.INSTANCE);
   }

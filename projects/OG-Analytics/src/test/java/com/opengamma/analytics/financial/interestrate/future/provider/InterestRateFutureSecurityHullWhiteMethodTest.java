@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.provider;
@@ -15,6 +15,7 @@ import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
 import com.opengamma.analytics.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
 import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
+import com.opengamma.analytics.financial.provider.calculator.hullwhite.ConvexityAdjustmentHullWhiteCalculator;
 import com.opengamma.analytics.financial.provider.calculator.hullwhite.MarketQuoteCurveSensitivityHullWhiteCalculator;
 import com.opengamma.analytics.financial.provider.calculator.hullwhite.MarketQuoteHullWhiteCalculator;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
@@ -47,17 +48,14 @@ public class InterestRateFutureSecurityHullWhiteMethodTest {
   private static final double FUTURE_FACTOR = 0.25;
   private static final String NAME = "ERU2";
 
-  private static final String NOT_USED = "Not used";
-  private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
-
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 5, 12);
   private static final InterestRateFutureSecurityDefinition ERU2_DEFINITION = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, EURIBOR3M, NOTIONAL, FUTURE_FACTOR, NAME, CALENDAR);
 
-  private static final InterestRateFutureSecurity ERU2 = ERU2_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
+  private static final InterestRateFutureSecurity ERU2 = ERU2_DEFINITION.toDerivative(REFERENCE_DATE);
 
   private static final double MEAN_REVERSION = 0.01;
-  private static final double[] VOLATILITY = new double[] {0.01, 0.011, 0.012, 0.013, 0.014};
-  private static final double[] VOLATILITY_TIME = new double[] {0.5, 1.0, 2.0, 5.0};
+  private static final double[] VOLATILITY = new double[] {0.01, 0.011, 0.012, 0.013, 0.014 };
+  private static final double[] VOLATILITY_TIME = new double[] {0.5, 1.0, 2.0, 5.0 };
   private static final HullWhiteOneFactorPiecewiseConstantParameters MODEL_PARAMETERS = new HullWhiteOneFactorPiecewiseConstantParameters(MEAN_REVERSION, VOLATILITY, VOLATILITY_TIME);
 
   private static final HullWhiteOneFactorProviderDiscount HW_MULTICURVES = new HullWhiteOneFactorProviderDiscount(MULTICURVES, MODEL_PARAMETERS, EUR);
@@ -67,6 +65,7 @@ public class InterestRateFutureSecurityHullWhiteMethodTest {
 
   private static final MarketQuoteHullWhiteCalculator MQHWC = MarketQuoteHullWhiteCalculator.getInstance();
   private static final MarketQuoteCurveSensitivityHullWhiteCalculator MQCSHWC = MarketQuoteCurveSensitivityHullWhiteCalculator.getInstance();
+  private static final ConvexityAdjustmentHullWhiteCalculator CAHWC = ConvexityAdjustmentHullWhiteCalculator.getInstance();
 
   private static final double SHIFT_FD = 1.0E-6;
   private static final SimpleParameterSensitivityParameterCalculator<HullWhiteOneFactorProviderInterface> SPSHWC = new SimpleParameterSensitivityParameterCalculator<>(
@@ -90,6 +89,29 @@ public class InterestRateFutureSecurityHullWhiteMethodTest {
 
   @Test
   /**
+   * Test the price as "MarketQuote"
+   */
+  public void marketQuote() {
+    final double priceMethod = METHOD_IRFUT_HW.price(ERU2, HW_MULTICURVES);
+    final double marketQuote = ERU2.accept(MQHWC, HW_MULTICURVES);
+    assertEquals("InterestRateFutureSecurityHullWhiteProviderMethod: price", priceMethod, marketQuote, TOLERANCE_PRICE);
+  }
+
+  @Test
+  /**
+   * Test the convexity adjustment
+   */
+  public void convexityAdjustment() {
+    final double price = METHOD_IRFUT_HW.price(ERU2, HW_MULTICURVES);
+    final double forward = MULTICURVES.getForwardRate(EURIBOR3M, ERU2.getFixingPeriodStartTime(), ERU2.getFixingPeriodEndTime(), ERU2.getFixingPeriodAccrualFactor());
+    final double convexityAdjustment = METHOD_IRFUT_HW.convexityAdjustment(ERU2, HW_MULTICURVES);
+    assertEquals("InterestRateFutureSecurityHullWhiteProviderMethod: convexity adjustment", price - (1.0d - forward), convexityAdjustment, TOLERANCE_PRICE);
+    final double caCalculator = ERU2.accept(CAHWC, HW_MULTICURVES);
+    assertEquals("DeliverableSwapFuturesSecurityDefinition: convexity adjustment", caCalculator, convexityAdjustment, TOLERANCE_PRICE);
+  }
+
+  @Test
+  /**
    * Test the price curve sensitivity versus a finite difference computation.
    */
   public void priceCurveSensitivity() {
@@ -97,16 +119,5 @@ public class InterestRateFutureSecurityHullWhiteMethodTest {
     final SimpleParameterSensitivity pcsFD = SPSHWC_FD.calculateSensitivity(ERU2, HW_MULTICURVES);
     AssertSensivityObjects.assertEquals("DeliverableSwapFuturesSecurityHullWhiteMethod: priceCurveSensitivity", pcsExact, pcsFD, TOLERANCE_PRICE_DELTA);
   }
-
-  //  @Test
-  //  /**
-  //   * Compare the price with a price without convexity adjustment.
-  //   */
-  //  public void comparisonDiscounting() {
-  //    final InterestRateFutureDiscountingMethod methodDiscounting = InterestRateFutureDiscountingMethod.getInstance();
-  //    final double priceDiscounting = methodDiscounting.price(ERU2, BUNDLE_HW);
-  //    final double priceHullWhite = METHOD.price(ERU2, BUNDLE_HW);
-  //    assertTrue("Future price comparison with no convexity adjustment", priceDiscounting > priceHullWhite);
-  //  }
 
 }

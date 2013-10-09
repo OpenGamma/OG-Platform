@@ -93,7 +93,7 @@ public class DoubleMatrix2D implements Matrix<Double> {
     }
   }
 
-  private DoubleMatrix2D(final double[][] data, final boolean copy) {
+  private DoubleMatrix2D(final double[][] data, @SuppressWarnings("unused") final boolean copy) {
     _rows = data.length;
     _columns = data[0].length;
     _elements = _rows * _columns;
@@ -228,11 +228,12 @@ public class DoubleMatrix2D implements Matrix<Double> {
   public String toString() {
     final StringBuffer sb = new StringBuffer();
     for (final double[] d : _data) {
-      sb.append("(");
+      //  sb.append("(");
       for (int i = 0; i < d.length - 1; i++) {
         sb.append(d[i] + "\t");
       }
-      sb.append(d[d.length - 1] + ")\n");
+      sb.append(d[d.length - 1] + "\n");
+      //  sb.append(d[d.length - 1] + ")\n");
     }
     return sb.toString();
   }

@@ -22,7 +22,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.OpenGammaFunctionExclusions;
 import com.opengamma.financial.analytics.conversion.SwapSecurityUtils;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
-import com.opengamma.financial.analytics.model.volatility.SmileFittingProperties;
+import com.opengamma.financial.analytics.model.volatility.SmileFittingPropertyNamesAndValues;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
@@ -31,8 +31,10 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
 
 /**
- *
+ * Default properties for SABR functions.
+ * @deprecated The functions to which these defaults apply are deprecated.
  */
+@Deprecated
 public class SABRNoExtrapolationDefaults extends DefaultPropertyFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(SABRNoExtrapolationDefaults.class);
   private static final String[] VALUE_REQUIREMENTS = new String[] {
@@ -55,7 +57,7 @@ public class SABRNoExtrapolationDefaults extends DefaultPropertyFunction {
     _fittingMethod = fittingMethod;
     final int nPairs = currencyCurveConfigAndCubeNames.length;
     ArgumentChecker.isTrue(nPairs % 3 == 0, "Must have one curve config and surface name per currency");
-    _currencyCurveConfigAndCubeNames = new HashMap<String, Pair<String, String>>();
+    _currencyCurveConfigAndCubeNames = new HashMap<>();
     for (int i = 0; i < currencyCurveConfigAndCubeNames.length; i += 3) {
       final Pair<String, String> pair = Pair.of(currencyCurveConfigAndCubeNames[i + 1], currencyCurveConfigAndCubeNames[i + 2]);
       _currencyCurveConfigAndCubeNames.put(currencyCurveConfigAndCubeNames[i], pair);
@@ -66,6 +68,9 @@ public class SABRNoExtrapolationDefaults extends DefaultPropertyFunction {
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     final Security security = target.getSecurity();
     if (security instanceof SwapSecurity) {
+      if (!InterestRateInstrumentType.isFixedIncomeInstrumentType((SwapSecurity) security)) {
+        return false;
+      }
       final InterestRateInstrumentType type = SwapSecurityUtils.getSwapType((SwapSecurity) security);
       if ((type != InterestRateInstrumentType.SWAP_FIXED_CMS) && (type != InterestRateInstrumentType.SWAP_CMS_CMS) && (type != InterestRateInstrumentType.SWAP_IBOR_CMS)) {
         return false;
@@ -80,13 +85,13 @@ public class SABRNoExtrapolationDefaults extends DefaultPropertyFunction {
     for (final String valueRequirement : VALUE_REQUIREMENTS) {
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CURVE_CALCULATION_CONFIG);
       defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CUBE);
-      defaults.addValuePropertyName(valueRequirement, SmileFittingProperties.PROPERTY_FITTING_METHOD);
+      defaults.addValuePropertyName(valueRequirement, SmileFittingPropertyNamesAndValues.PROPERTY_FITTING_METHOD);
     }
   }
 
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
-    if (SmileFittingProperties.PROPERTY_FITTING_METHOD.equals(propertyName)) {
+    if (SmileFittingPropertyNamesAndValues.PROPERTY_FITTING_METHOD.equals(propertyName)) {
       return Collections.singleton(_fittingMethod);
     }
     final String currencyName = FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode();

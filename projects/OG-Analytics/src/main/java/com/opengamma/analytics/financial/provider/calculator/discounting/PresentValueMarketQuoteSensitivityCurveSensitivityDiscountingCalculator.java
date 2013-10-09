@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.calculator.discounting;
@@ -27,7 +27,6 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Computes the sensitivity to the curves (in the Market description of curve bundle) of the market quote sensitivity.
- * @author marc
  */
 public final class PresentValueMarketQuoteSensitivityCurveSensitivityDiscountingCalculator extends InstrumentDerivativeVisitorAdapter<MulticurveProviderInterface, MulticurveSensitivity> {
 
@@ -64,8 +63,8 @@ public final class PresentValueMarketQuoteSensitivityCurveSensitivityDiscounting
     // Backward sweep
     final double mqsBar = 1.0;
     final double dfBar = coupon.getPaymentYearFraction() * coupon.getNotional() * mqsBar;
-    final Map<String, List<DoublesPair>> resultMapDsc = new HashMap<String, List<DoublesPair>>();
-    final List<DoublesPair> listDiscounting = new ArrayList<DoublesPair>();
+    final Map<String, List<DoublesPair>> resultMapDsc = new HashMap<>();
+    final List<DoublesPair> listDiscounting = new ArrayList<>();
     listDiscounting.add(new DoublesPair(coupon.getPaymentTime(), -coupon.getPaymentTime() * df * dfBar));
     //    resultMapDsc.put(coupon.getFundingCurveName(), listDiscounting);
     resultMapDsc.put(multicurve.getName(coupon.getCurrency()), listDiscounting);

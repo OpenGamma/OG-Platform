@@ -15,8 +15,10 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
 
 /**
- * 
+ * @deprecated This calculator uses {@link InstrumentDerivative}s that refer to curve names.
+ * Use {@link RateReplacingVisitor}.
  */
+@Deprecated
 public final class RateReplacingInterestRateDerivativeVisitor extends InstrumentDerivativeVisitorAdapter<Double, InstrumentDerivative> {
   private static final RateReplacingInterestRateDerivativeVisitor INSTANCE = new RateReplacingInterestRateDerivativeVisitor();
 
@@ -55,10 +57,9 @@ public final class RateReplacingInterestRateDerivativeVisitor extends Instrument
         fra.getFixingPeriodStartTime(), fra.getFixingPeriodEndTime(), fra.getFixingYearFraction(), rate, fra.getForwardCurveName());
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked"})
   @Override
   public SwapFixedCoupon<?> visitFixedCouponSwap(final SwapFixedCoupon<?> swap, final Double rate) {
-    return new SwapFixedCoupon(visitFixedCouponAnnuity(swap.getFixedLeg(), rate), swap.getSecondLeg());
+    return new SwapFixedCoupon<>(visitFixedCouponAnnuity(swap.getFixedLeg(), rate), swap.getSecondLeg());
   }
 
   @Override

@@ -20,27 +20,26 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
  * @param <T> the config document parameter type
  */
 public abstract class AbstractJSONBuilder<T> implements JSONBuilder<T> {
-  
+
   private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
-  
+
   protected <E> E fromJSON(Class<E> clazz, String json) {
     FudgeMsg fudgeMsg = toFudgeMsg(json);
     return new FudgeDeserializer(s_fudgeContext).fudgeMsgToObject(clazz, fudgeMsg);
   }
-  
+
   private FudgeMsg toFudgeMsg(final String json) {
     FudgeMsgJSONReader fudgeJSONReader = new FudgeMsgJSONReader(s_fudgeContext, new StringReader(json));
     return fudgeJSONReader.readMessage();
   }
 
   public static String fudgeToJson(final Object configObj) {
-    FudgeMsg fudgeMsg = s_fudgeContext.toFudgeMsg(configObj).getMessage();   
-        
+    FudgeMsg fudgeMsg = s_fudgeContext.toFudgeMsg(configObj).getMessage();
     StringWriter sw = new StringWriter();
-    FudgeMsgJSONWriter fudgeJSONWriter = new FudgeMsgJSONWriter(s_fudgeContext, sw);
-    fudgeJSONWriter.writeMessage(fudgeMsg);
-    
-    return sw.toString();
+    try (FudgeMsgJSONWriter fudgeJSONWriter = new FudgeMsgJSONWriter(s_fudgeContext, sw)) {
+      fudgeJSONWriter.writeMessage(fudgeMsg);
+      return sw.toString();
+    }
   }
 
 }

@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="org.testng.eclipse.launchconfig">
 <listAttribute key="com.mountainminds.eclemma.core.SCOPE_IDS">
-<listEntry value="=OG-Analytics/src\/test\/java"/>
-<listEntry value="=OG-Analytics/src\/main\/java"/>
+<listEntry value="=og-analytics/src\/main\/java"/>
 </listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.CLASSPATH_PROVIDER" value="org.eclipse.m2e.launchconfig.classpathProvider"/>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.testng.remote.RemoteTestNG"/>
@@ -85,23 +84,31 @@
 <listEntry value="com.opengamma.analytics.financial.interestrate.annuity"/>
 <listEntry value="com.opengamma.analytics.financial.interestrate.annuity.definition"/>
 <listEntry value="com.opengamma.analytics.financial.interestrate.annuity.method"/>
+<listEntry value="com.opengamma.analytics.financial.interestrate.annuity.provider"/>
 <listEntry value="com.opengamma.analytics.financial.interestrate.bond.definition"/>
 <listEntry value="com.opengamma.analytics.financial.interestrate.bond.method"/>
+<listEntry value="com.opengamma.analytics.financial.interestrate.bond.provider"/>
 <listEntry value="com.opengamma.analytics.financial.interestrate.capletstripping"/>
 <listEntry value="com.opengamma.analytics.financial.interestrate.cash.derivative"/>
 <listEntry value="com.opengamma.analytics.financial.interestrate.cash.method"/>
+<listEntry value="com.opengamma.analytics.financial.interestrate.cash.provider"/>
 <listEntry value="com.opengamma.analytics.financial.interestrate.curve"/>
 <listEntry value="com.opengamma.analytics.financial.interestrate.fra"/>
+<listEntry value="com.opengamma.analytics.financial.interestrate.fra.derivative"/>
 <listEntry value="com.opengamma.analytics.financial.interestrate.fra.method"/>
+<listEntry value="com.opengamma.analytics.financial.interestrate.fra.provider"/>
 <listEntry value="com.opengamma.analytics.financial.interestrate.future.derivative"/>
 <listEntry value="com.opengamma.analytics.financial.interestrate.future.method"/>
+<listEntry value="com.opengamma.analytics.financial.interestrate.future.provider"/>
 <listEntry value="com.opengamma.analytics.financial.interestrate.inflation.derivatives"/>
 <listEntry value="com.opengamma.analytics.financial.interestrate.inflation.method"/>
+<listEntry value="com.opengamma.analytics.financial.interestrate.inflation.provider"/>
 <listEntry value="com.opengamma.analytics.financial.interestrate.market"/>
 <listEntry value="com.opengamma.analytics.financial.interestrate.method"/>
 <listEntry value="com.opengamma.analytics.financial.interestrate.payments"/>
 <listEntry value="com.opengamma.analytics.financial.interestrate.payments.derivative"/>
 <listEntry value="com.opengamma.analytics.financial.interestrate.payments.method"/>
+<listEntry value="com.opengamma.analytics.financial.interestrate.payments.provider"/>
 <listEntry value="com.opengamma.analytics.financial.interestrate.swap"/>
 <listEntry value="com.opengamma.analytics.financial.interestrate.swap.definition"/>
 <listEntry value="com.opengamma.analytics.financial.interestrate.swap.method"/>
@@ -138,6 +145,7 @@
 <listEntry value="com.opengamma.analytics.financial.provider.calculator.blackstirfutures"/>
 <listEntry value="com.opengamma.analytics.financial.provider.calculator.blackswaption"/>
 <listEntry value="com.opengamma.analytics.financial.provider.calculator.g2pp"/>
+<listEntry value="com.opengamma.analytics.financial.provider.calculator.generic"/>
 <listEntry value="com.opengamma.analytics.financial.provider.calculator.hullwhite"/>
 <listEntry value="com.opengamma.analytics.financial.provider.calculator.issuer"/>
 <listEntry value="com.opengamma.analytics.financial.provider.calculator.libormarket"/>

@@ -66,6 +66,7 @@ public class CreditDefaultSwapOptionSecurityBean extends SecurityBean {
   public static CreditDefaultSwapOptionSecurityBean.Meta meta() {
     return CreditDefaultSwapOptionSecurityBean.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(CreditDefaultSwapOptionSecurityBean.Meta.INSTANCE);
   }

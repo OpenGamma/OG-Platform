@@ -78,6 +78,7 @@ public class DiscountFactorNode extends CurveNode {
   public static DiscountFactorNode.Meta meta() {
     return DiscountFactorNode.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(DiscountFactorNode.Meta.INSTANCE);
   }

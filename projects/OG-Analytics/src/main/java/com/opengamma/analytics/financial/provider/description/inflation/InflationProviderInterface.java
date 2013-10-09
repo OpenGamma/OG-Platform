@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.description.inflation;
@@ -59,6 +59,12 @@ public interface InflationProviderInterface extends ParameterInflationProviderIn
    */
   Set<String> getAllNames();
 
+  /**
+   * Gets the sensitivity to the inflation parameters.
+   * @param name The name of the curve
+   * @param pointSensitivity The nodal point sensitivities
+   * @return The sensitivity to the inflation parameters
+   */
   double[] parameterInflationSensitivity(String name, List<DoublesPair> pointSensitivity);
 
   /**
@@ -68,6 +74,12 @@ public interface InflationProviderInterface extends ParameterInflationProviderIn
    */
   Integer getNumberOfParameters(String name);
 
+  /**
+   * Gets the underlying name(s) (i.e. {@link YieldAndDiscountCurve#getName()} for a curve name;
+   * this can be multi-valued in the case of spread curves.
+   * @param name The curve name
+   * @return The name(s) of the underlying curves.
+   */
   List<String> getUnderlyingCurvesNames(String name);
 
   /**
@@ -165,10 +177,28 @@ public interface InflationProviderInterface extends ParameterInflationProviderIn
 
   //     =====     Convenience methods     =====
 
+  /**
+   * Returns a new provider with the discounting curve for a particular currency replaced.
+   * @param ccy The currency, not null
+   * @param replacement The replacement discounting curve, not null
+   * @return A new provider with the discounting curve for the currency replaced by the input curve.
+   */
   InflationProviderInterface withDiscountFactor(Currency ccy, YieldAndDiscountCurve replacement);
 
+  /**
+   * Returns a new provider with the curve for a particular ibor index replaced.
+   * @param index The ibor index, not null
+   * @param replacement The replacement ibor index curve, not null
+   * @return A new provider with the ibor index curve replaced by the input curve.
+   */
   InflationProviderInterface withForward(IborIndex index, YieldAndDiscountCurve replacement);
 
+  /**
+   * Returns a new provider with the curve for a particular overnight index replaced.
+   * @param index The overnight index, not null
+   * @param replacement The replacement overnight index curve, not null
+   * @return A new provider with the overnight index curve replaced by the input curve.
+   */
   InflationProviderInterface withForward(IndexON index, YieldAndDiscountCurve replacement);
 
 }

@@ -116,6 +116,7 @@ public class EquityBarrierOptionSecurityBean extends SecurityBean {
   public static EquityBarrierOptionSecurityBean.Meta meta() {
     return EquityBarrierOptionSecurityBean.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(EquityBarrierOptionSecurityBean.Meta.INSTANCE);
   }

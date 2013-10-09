@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.method;
@@ -57,7 +57,9 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  *  Test class for the replication method for CMS caplet/floorlet using a SABR smile with extrapolation.
+ *  @deprecated This class tests deprecated functionality.
  */
+@Deprecated
 public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
   //Swap 5Y
   private static final Currency CUR = Currency.EUR;

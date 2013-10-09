@@ -68,6 +68,7 @@ public class ExchangeSourceFactoryBean extends SpringFactoryBean<ExchangeSource>
   public static ExchangeSourceFactoryBean.Meta meta() {
     return ExchangeSourceFactoryBean.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ExchangeSourceFactoryBean.Meta.INSTANCE);
   }

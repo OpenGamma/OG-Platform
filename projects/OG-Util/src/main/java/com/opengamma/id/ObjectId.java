@@ -14,7 +14,6 @@ import org.joda.convert.ToString;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicAPI;
-import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * An immutable object identifier for an item within the OpenGamma instance.
@@ -42,9 +41,6 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 @PublicAPI
 public final class ObjectId
     implements Comparable<ObjectId>, ObjectIdentifiable, Serializable {
-  static {
-    OpenGammaFudgeContext.getInstance().getTypeDictionary().registerClassRename("com.opengamma.id.ObjectIdentifier", ObjectId.class);
-  }
 
   /**
    * Identification scheme for the object identifier.
@@ -219,7 +215,7 @@ public final class ObjectId
     if (obj instanceof ObjectId) {
       ObjectId other = (ObjectId) obj;
       return _scheme.equals(other._scheme) &&
-              _value.equals(other._value);
+          _value.equals(other._value);
     }
     return false;
   }

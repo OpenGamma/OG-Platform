@@ -19,8 +19,9 @@ import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResultsWit
 import com.opengamma.analytics.math.statistics.leastsquare.NonLinearLeastSquare;
 
 /**
- * 
+ * @deprecated This class tests deprecated functionality
  */
+@Deprecated
 public class SVINonLinearLeastSquareFitterTest extends LeastSquareSmileFitterTestCase {
   private static final BlackFunctionData[] SMILE_DATA;
   private static final SVIVolatilityFunction SVI_VOL_FUNCTION = new SVIVolatilityFunction();

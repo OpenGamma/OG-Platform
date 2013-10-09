@@ -24,8 +24,6 @@ public class PortfolioLoaderTool extends AbstractTool<ToolContext> {
   private static final String PORTFOLIO_NAME_OPT = "n";
   /** Write option flag */
   private static final String WRITE_OPT = "w";
-  /** Overwrite option flag */
-  private static final String OVERWRITE_OPT = "o";
   /** Verbose option flag */
   private static final String VERBOSE_OPT = "v";
   /** Asset class flag */
@@ -59,14 +57,9 @@ public class PortfolioLoaderTool extends AbstractTool<ToolContext> {
 
     String portfolioName = getCommandLine().getOptionValue(PORTFOLIO_NAME_OPT);
     boolean write = getCommandLine().hasOption(WRITE_OPT);
-    boolean overwrite = getCommandLine().hasOption(OVERWRITE_OPT);
 
     if (write) {
-      if (overwrite) {
-        System.out.println("Write and overwrite options specified, will persist to portfolio '" + portfolioName + "'");
-      } else {
-        System.out.println("Write option specified, will persist to portfolio '" + portfolioName + "'");
-      }
+      System.out.println("Write option specified, will persist to portfolio '" + portfolioName + "'");
     } else {
       System.out.println("Write option not specified, not persisting to OpenGamma masters");
     }
@@ -74,7 +67,7 @@ public class PortfolioLoaderTool extends AbstractTool<ToolContext> {
     new PortfolioLoader(getToolContext(), portfolioName,
                         getCommandLine().getOptionValue(SECURITY_TYPE_OPT),
                         getCommandLine().getOptionValue(FILE_NAME_OPT),
-                        write, overwrite,
+                        write,
                         getCommandLine().hasOption(VERBOSE_OPT),
                         getCommandLine().hasOption(MERGE_POSITIONS_OPT),
                         getCommandLine().hasOption(KEEP_CURRENT_POSITIONS_OPT),
@@ -90,7 +83,7 @@ public class PortfolioLoaderTool extends AbstractTool<ToolContext> {
     Options options = super.createOptions(contextProvided);
     
     Option filenameOption = new Option(
-        FILE_NAME_OPT, "filename", true, "The path to the file containing data to import (CSV, XLS or ZIP)");
+        FILE_NAME_OPT, "filename", true, "The path to the file containing data to import (CSV, XLS, XML or ZIP)");
     filenameOption.setRequired(true);
     options.addOption(filenameOption);
     
@@ -107,11 +100,6 @@ public class PortfolioLoaderTool extends AbstractTool<ToolContext> {
         SECURITY_TYPE_OPT, "security", true, 
         "The security type expected in the input CSV/XLS file (ignored if ZIP file is specified)");
     options.addOption(assetClassOption);
-    
-    Option overwriteOption = new Option(
-        OVERWRITE_OPT, "overwrite", false, 
-        "Deletes any existing matching securities, positions and portfolios and recreates them from input data");
-    options.addOption(overwriteOption);
 
     Option mergePositionsOption = new Option(MERGE_POSITIONS_OPT, "merge", false,
         "Try to merge positions in the same security type within a portfolio node, adding trades from all");

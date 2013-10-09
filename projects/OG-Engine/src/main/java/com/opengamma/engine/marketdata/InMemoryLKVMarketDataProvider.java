@@ -84,7 +84,9 @@ public class InMemoryLKVMarketDataProvider extends AbstractMarketDataProvider im
 
   @Override
   public void addValue(final ValueSpecification specification, final Object value) {
-    _lastKnownValues.put(specification, value);
+    if (value != null) {
+      _lastKnownValues.put(specification, value);
+    }
     _availability.addAvailableData(specification);
     valueChanged(specification);
   }
@@ -120,7 +122,7 @@ public class InMemoryLKVMarketDataProvider extends AbstractMarketDataProvider im
   //-------------------------------------------------------------------------
 
   /*package*/Map<ValueSpecification, Object> doSnapshot() {
-    return new HashMap<ValueSpecification, Object>(_lastKnownValues);
+    return new HashMap<>(_lastKnownValues);
   }
 
 }

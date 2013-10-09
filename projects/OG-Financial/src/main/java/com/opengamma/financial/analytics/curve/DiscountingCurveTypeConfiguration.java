@@ -32,6 +32,9 @@ public class DiscountingCurveTypeConfiguration extends CurveTypeConfiguration {
   @PropertyDefinition(validate = "notNull")
   private String _reference;
 
+  /**
+   * For the builder.
+   */
   /* package */ DiscountingCurveTypeConfiguration() {
     super();
   }
@@ -53,6 +56,7 @@ public class DiscountingCurveTypeConfiguration extends CurveTypeConfiguration {
   public static DiscountingCurveTypeConfiguration.Meta meta() {
     return DiscountingCurveTypeConfiguration.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(DiscountingCurveTypeConfiguration.Meta.INSTANCE);
   }

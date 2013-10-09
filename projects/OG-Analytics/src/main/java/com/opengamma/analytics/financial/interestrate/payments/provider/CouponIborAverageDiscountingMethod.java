@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.provider;
@@ -80,13 +80,13 @@ public final class CouponIborAverageDiscountingMethod {
     final double dfBar = coupon.getNotional() * coupon.getPaymentYearFraction() * forward * pvBar;
     final double forward1Bar = coupon.getWeight1() * forwardBar;
     final double forward2Bar = coupon.getWeight2() * forwardBar;
-    final Map<String, List<DoublesPair>> mapDsc = new HashMap<String, List<DoublesPair>>();
-    final List<DoublesPair> listDiscounting = new ArrayList<DoublesPair>();
+    final Map<String, List<DoublesPair>> mapDsc = new HashMap<>();
+    final List<DoublesPair> listDiscounting = new ArrayList<>();
     listDiscounting.add(new DoublesPair(coupon.getPaymentTime(), -coupon.getPaymentTime() * df * dfBar));
     mapDsc.put(multicurve.getName(coupon.getCurrency()), listDiscounting);
-    final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<String, List<ForwardSensitivity>>();
-    final List<ForwardSensitivity> listForward1 = new ArrayList<ForwardSensitivity>();
-    final List<ForwardSensitivity> listForward2 = new ArrayList<ForwardSensitivity>();
+    final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<>();
+    final List<ForwardSensitivity> listForward1 = new ArrayList<>();
+    final List<ForwardSensitivity> listForward2 = new ArrayList<>();
     listForward1.add(new ForwardSensitivity(coupon.getFixingPeriodStartTime1(), coupon.getFixingPeriodEndTime1(), coupon.getFixingAccrualFactor1(), forward1Bar));
     mapFwd.put(multicurve.getName(coupon.getIndex1()), listForward1);
     listForward2.add(new ForwardSensitivity(coupon.getFixingPeriodStartTime2(), coupon.getFixingPeriodEndTime2(), coupon.getFixingAccrualFactor2(), forward2Bar));

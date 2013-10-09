@@ -27,12 +27,13 @@ public class ScenarioParametersTest extends AbstractFudgeBuilderTestCase {
 
   @Test
   public void setParametersFromScript() throws IOException {
-    String scriptFile = "src/test/resources/scenarios/ScenarioParametersTest.groovy";
+    String scriptFile = "src/test/groovy/ScenarioParametersTest.groovy";
     String script = IOUtils.toString(new BufferedReader(new FileReader(scriptFile)));
     ScenarioParameters scenarioParameters = new ScenarioDslParameters(script);
     Map<String,Object> parameters = scenarioParameters.getParameters();
     assertEquals("foo", parameters.get("aString"));
     assertEquals(Lists.newArrayList(1, 2, 3), parameters.get("aList"));
+    assertEquals(1.234, ((Number) parameters.get("aDouble")).doubleValue());
     assertEquals(ImmutableMap.of("key1", "value1", "key2", "value2"), parameters.get("aMap"));
     assertEquals(LocalDate.of(2011, 3, 8), parameters.get("aLocalDate"));
   }

@@ -42,13 +42,14 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
-import com.opengamma.financial.analytics.conversion.SwapSecurityConverter;
-import com.opengamma.financial.analytics.conversion.SwaptionSecurityConverter;
+import com.opengamma.financial.analytics.conversion.SwapSecurityConverterDeprecated;
+import com.opengamma.financial.analytics.conversion.SwaptionSecurityConverterDeprecated;
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
+import com.opengamma.financial.analytics.model.black.BlackDiscountingSwaptionFunction;
 import com.opengamma.financial.analytics.model.swaption.SwaptionUtils;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.FinancialSecurityTypes;
@@ -58,12 +59,15 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- *
+ * Base class for curve-specific risks of swaptions priced with the Black method.
+ * 
+ * @deprecated Use descendants of {@link BlackDiscountingSwaptionFunction}
  */
+@Deprecated
 public abstract class SwaptionBlackCurveSpecificFunction extends AbstractFunction.NonCompiledInvoker {
   private static final Logger s_logger = LoggerFactory.getLogger(SwaptionBlackCurveSpecificFunction.class);
   private final String _valueRequirementName;
-  private SwaptionSecurityConverter _visitor;
+  private SwaptionSecurityConverterDeprecated _visitor;
 
   public SwaptionBlackCurveSpecificFunction(final String valueRequirementName) {
     ArgumentChecker.notNull(valueRequirementName, "value requirement name");
@@ -76,8 +80,9 @@ public abstract class SwaptionBlackCurveSpecificFunction extends AbstractFunctio
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
-    final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource, regionSource, false);
-    _visitor = new SwaptionSecurityConverter(securitySource, swapConverter);
+    final SwapSecurityConverterDeprecated swapConverter = new SwapSecurityConverterDeprecated(holidaySource, conventionSource, regionSource, false);
+    _visitor = new SwaptionSecurityConverterDeprecated(securitySource, swapConverter);
+    ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
   }
 
   @Override
@@ -181,7 +186,7 @@ public abstract class SwaptionBlackCurveSpecificFunction extends AbstractFunctio
       final ValueSpecification spec, final String curveCalculationConfigName, final String curveCalculationMethod, final FunctionInputs inputs,
       final ComputationTarget target);
 
-  protected SwaptionSecurityConverter getVisitor() {
+  protected SwaptionSecurityConverterDeprecated getVisitor() {
     return _visitor;
   }
 
@@ -205,7 +210,7 @@ public abstract class SwaptionBlackCurveSpecificFunction extends AbstractFunctio
         .with(ValuePropertyNames.CURVE, curveName).get();
   }
 
-  private ValueRequirement getVolatilityRequirement(final String surface, final Currency currency) {
+  private static ValueRequirement getVolatilityRequirement(final String surface, final Currency currency) {
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.SURFACE, surface)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.SWAPTION_ATM).get();

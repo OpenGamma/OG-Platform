@@ -25,5 +25,10 @@ public class ThetaPropertyNamesAndValues {
   public static final String THETA_FORWARD_SLIDE_YIELD_CURVES = "ForwardSlideYieldCurves";
   /** Volatility surface forward slide value */
   public static final String THETA_FORWARD_SLIDE_VOLATILITY_SURFACE = "ForwardSlideVolatilitySurface";
+  /** Value indicating a theoretical theta value (i.e. the number calculated by differentiating the
+   * pricing equation once with respect to time */
+  public static final String OPTION_THETA = "OptionTheta";
+  /** The default number of days in a year */
+  public static final double DEFAULT_DAYS_PER_YEAR = 365.25;
 
 }

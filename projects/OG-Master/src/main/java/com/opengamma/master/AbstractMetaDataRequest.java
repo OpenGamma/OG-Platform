@@ -43,6 +43,7 @@ public abstract class AbstractMetaDataRequest extends DirectBean {
   public static AbstractMetaDataRequest.Meta meta() {
     return AbstractMetaDataRequest.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(AbstractMetaDataRequest.Meta.INSTANCE);
   }

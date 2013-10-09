@@ -98,6 +98,7 @@ public class SecurityHistoryResult extends AbstractHistoryResult<SecurityDocumen
   public static SecurityHistoryResult.Meta meta() {
     return SecurityHistoryResult.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(SecurityHistoryResult.Meta.INSTANCE);
   }

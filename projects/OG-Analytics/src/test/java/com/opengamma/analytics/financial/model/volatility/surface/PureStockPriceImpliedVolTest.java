@@ -106,8 +106,8 @@ public class PureStockPriceImpliedVolTest {
         final boolean isCall = k > f;
         final double x = (k - d) / (f - d);
 
-        final double price = BlackFormulaRepository.price(1.0, x, t, PURE_STOCK_VOL, isCall) * (f - d);
-        return price;
+        final double result = BlackFormulaRepository.price(1.0, x, t, PURE_STOCK_VOL, isCall) * (f - d);
+        return result;
       }
     };
 

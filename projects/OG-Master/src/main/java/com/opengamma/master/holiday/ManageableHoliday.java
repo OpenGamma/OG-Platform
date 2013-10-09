@@ -27,6 +27,7 @@ import org.threeten.bp.LocalDate;
 import com.opengamma.core.holiday.Holiday;
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
@@ -39,7 +40,7 @@ import com.opengamma.util.money.Currency;
  */
 @PublicSPI
 @BeanDefinition
-public class ManageableHoliday extends DirectBean implements Holiday, Serializable {
+public class ManageableHoliday extends DirectBean implements Holiday, Serializable, MutableUniqueIdentifiable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -157,6 +158,7 @@ public class ManageableHoliday extends DirectBean implements Holiday, Serializab
   public static ManageableHoliday.Meta meta() {
     return ManageableHoliday.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ManageableHoliday.Meta.INSTANCE);
   }

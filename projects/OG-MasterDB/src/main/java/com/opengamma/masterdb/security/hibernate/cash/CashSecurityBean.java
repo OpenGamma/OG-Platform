@@ -85,6 +85,7 @@ public class CashSecurityBean extends SecurityBean {
   public static CashSecurityBean.Meta meta() {
     return CashSecurityBean.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(CashSecurityBean.Meta.INSTANCE);
   }

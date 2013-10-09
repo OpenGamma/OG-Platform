@@ -7,10 +7,20 @@ package com.opengamma.component;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import javax.management.AttributeNotFoundException;
+import javax.management.InstanceNotFoundException;
+import javax.management.MBeanException;
+import javax.management.MBeanServer;
+import javax.management.MXBean;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.management.ReflectionException;
+import javax.management.openmbean.CompositeData;
 import javax.servlet.ServletContext;
 
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.Lifecycle;
+import org.springframework.jmx.support.MBeanServerFactoryBean;
 import org.springframework.mock.web.MockServletContext;
 import org.springframework.web.context.ServletContextAware;
 import org.testng.annotations.Test;
@@ -127,6 +137,112 @@ public class ComponentRepositoryTest {
     repo.registerComponent(info, new MockSimple());
     repo.start();
     repo.registerComponent(info, new MockSimple());
+  }
+
+  /**
+   * Test that we can register MBeans on the server and access their attributes.
+   *
+   * @throws MalformedObjectNameException
+   * @throws AttributeNotFoundException
+   * @throws MBeanException
+   * @throws ReflectionException
+   * @throws InstanceNotFoundException
+   */
+  @Test
+  public void test_registerMBean() throws MalformedObjectNameException, AttributeNotFoundException, MBeanException, ReflectionException, InstanceNotFoundException {
+
+    MBeanServer server = createMBeanServer();
+
+    ComponentRepository repo = createComponentRepository(server);
+
+    ObjectName registrationName = new ObjectName("test:name=MBean");
+    repo.registerMBean(new TestMBean(), registrationName);
+    repo.start();
+
+    assertEquals(true, server.isRegistered(registrationName));
+    assertEquals(server.getAttribute(registrationName, "Answer"), 42);
+  }
+
+  /**
+   * Test that we can register MX Beans on the server and access their
+   * attributes. MX Bean attributes should be converted to composite data types.
+   *
+   * @throws MalformedObjectNameException
+   * @throws AttributeNotFoundException
+   * @throws MBeanException
+   * @throws ReflectionException
+   * @throws InstanceNotFoundException
+   */
+  @Test
+  public void test_registerMXBean() throws MalformedObjectNameException, AttributeNotFoundException, MBeanException, ReflectionException, InstanceNotFoundException {
+
+    MBeanServer server = createMBeanServer();
+
+    ComponentRepository repo = createComponentRepository(server);
+
+    ObjectName registrationName = new ObjectName("test:name=MXBean");
+    repo.registerMBean(new TestMXBean(), registrationName);
+    repo.start();
+
+    assertEquals(true, server.isRegistered(registrationName));
+
+    // Real test is whether we can access "remotely" - we should get type of
+    // CompositeData rather than ComplexAttribute
+    CompositeData data = (CompositeData) server.getAttribute(registrationName, "Answer");
+
+    assertEquals(42, data.get("inty"));
+    assertEquals("forty-two", data.get("stringy"));
+  }
+
+  private ComponentRepository createComponentRepository(MBeanServer server) {
+    ComponentRepository repo = new ComponentRepository(LOGGER);
+    // Register the MBean server
+    repo.registerComponent(MBeanServer.class, "", server);
+    return repo;
+  }
+
+  private MBeanServer createMBeanServer() {
+    MBeanServerFactoryBean factoryBean = new MBeanServerFactoryBean();
+    factoryBean.setLocateExistingServerIfPossible(true);
+
+    // Ensure the server is created
+    factoryBean.afterPropertiesSet();
+    return factoryBean.getObject();
+  }
+
+  public static class TestMBean {
+
+    private int answer = 42;
+
+    public int getAnswer() {
+      return answer;
+    }
+  }
+
+  public static class TestMXBean implements TestMXInterface {
+
+    private ComplexAttribute answer = new ComplexAttribute();
+
+    public ComplexAttribute getAnswer() {
+      return answer;
+    }
+  }
+
+  @MXBean
+  public interface TestMXInterface {
+    public ComplexAttribute getAnswer();
+  }
+
+  // Standard MBean can't handle this without having the defintion on the
+  // client side as well. MX Beans should be able to handle
+  public static class ComplexAttribute {
+
+    public String getStringy() {
+      return "forty-two";
+    }
+    public int getInty() {
+      return 42;
+    }
   }
 
   //-------------------------------------------------------------------------

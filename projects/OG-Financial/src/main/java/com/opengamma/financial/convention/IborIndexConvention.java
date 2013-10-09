@@ -46,10 +46,10 @@ public class IborIndexConvention extends Convention {
   private BusinessDayConvention _businessDayConvention;
 
   /**
-   * The number of days to settle.
+   * The number of settlement days.
    */
   @PropertyDefinition
-  private int _daysToSettle;
+  private int _settlementDays;
 
   /**
    * Should dates follow the end-of-month rule.
@@ -68,6 +68,12 @@ public class IborIndexConvention extends Convention {
    */
   @PropertyDefinition(validate = "notNull")
   private LocalTime _fixingTime;
+
+  /**
+   * The fixing time zone.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private String _fixingTimeZone;
 
   /**
    * The fixing calendar.
@@ -99,24 +105,26 @@ public class IborIndexConvention extends Convention {
    * @param externalIdBundle The external identifiers for this convention, not null
    * @param dayCount The day-count, not null
    * @param businessDayConvention The business-day convention, not null
-   * @param daysToSettle The number of days to settle, not null
+   * @param settlementDays The settlement days
    * @param isEOM True if dates follow the end-of-month rule
    * @param currency The currency, not null
    * @param fixingTime The fixing time, not null
+   * @param fixingTimeZone The fixing time zone, not null
    * @param fixingCalendar The fixing calendar, not null
    * @param regionCalendar The region calendar, not null
    * @param fixingPage The fixing page name, not null
    */
   public IborIndexConvention(final String name, final ExternalIdBundle externalIdBundle, final DayCount dayCount, final BusinessDayConvention businessDayConvention,
-      final int daysToSettle, final boolean isEOM, final Currency currency, final LocalTime fixingTime, final ExternalId fixingCalendar,
+      final int settlementDays, final boolean isEOM, final Currency currency, final LocalTime fixingTime, final String fixingTimeZone, final ExternalId fixingCalendar,
       final ExternalId regionCalendar, final String fixingPage) {
     super(name, externalIdBundle);
     setDayCount(dayCount);
     setBusinessDayConvention(businessDayConvention);
-    setDaysToSettle(daysToSettle);
+    setSettlementDays(settlementDays);
     setIsEOM(isEOM);
     setCurrency(currency);
     setFixingTime(fixingTime);
+    setFixingTimeZone(fixingTimeZone);
     setFixingCalendar(fixingCalendar);
     setRegionCalendar(regionCalendar);
     setFixingPage(fixingPage);
@@ -131,6 +139,7 @@ public class IborIndexConvention extends Convention {
   public static IborIndexConvention.Meta meta() {
     return IborIndexConvention.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(IborIndexConvention.Meta.INSTANCE);
   }
@@ -147,14 +156,16 @@ public class IborIndexConvention extends Convention {
         return getDayCount();
       case -1002835891:  // businessDayConvention
         return getBusinessDayConvention();
-      case 379523357:  // daysToSettle
-        return getDaysToSettle();
+      case -295948000:  // settlementDays
+        return getSettlementDays();
       case 100464505:  // isEOM
         return isIsEOM();
       case 575402001:  // currency
         return getCurrency();
       case 1255686170:  // fixingTime
         return getFixingTime();
+      case -1504625946:  // fixingTimeZone
+        return getFixingTimeZone();
       case 394230283:  // fixingCalendar
         return getFixingCalendar();
       case 1932874322:  // regionCalendar
@@ -174,8 +185,8 @@ public class IborIndexConvention extends Convention {
       case -1002835891:  // businessDayConvention
         setBusinessDayConvention((BusinessDayConvention) newValue);
         return;
-      case 379523357:  // daysToSettle
-        setDaysToSettle((Integer) newValue);
+      case -295948000:  // settlementDays
+        setSettlementDays((Integer) newValue);
         return;
       case 100464505:  // isEOM
         setIsEOM((Boolean) newValue);
@@ -185,6 +196,9 @@ public class IborIndexConvention extends Convention {
         return;
       case 1255686170:  // fixingTime
         setFixingTime((LocalTime) newValue);
+        return;
+      case -1504625946:  // fixingTimeZone
+        setFixingTimeZone((String) newValue);
         return;
       case 394230283:  // fixingCalendar
         setFixingCalendar((ExternalId) newValue);
@@ -205,6 +219,7 @@ public class IborIndexConvention extends Convention {
     JodaBeanUtils.notNull(_businessDayConvention, "businessDayConvention");
     JodaBeanUtils.notNull(_currency, "currency");
     JodaBeanUtils.notNull(_fixingTime, "fixingTime");
+    JodaBeanUtils.notNull(_fixingTimeZone, "fixingTimeZone");
     JodaBeanUtils.notNull(_fixingCalendar, "fixingCalendar");
     JodaBeanUtils.notNull(_regionCalendar, "regionCalendar");
     JodaBeanUtils.notNull(_fixingPage, "fixingPage");
@@ -220,10 +235,11 @@ public class IborIndexConvention extends Convention {
       IborIndexConvention other = (IborIndexConvention) obj;
       return JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
           JodaBeanUtils.equal(getBusinessDayConvention(), other.getBusinessDayConvention()) &&
-          JodaBeanUtils.equal(getDaysToSettle(), other.getDaysToSettle()) &&
+          JodaBeanUtils.equal(getSettlementDays(), other.getSettlementDays()) &&
           JodaBeanUtils.equal(isIsEOM(), other.isIsEOM()) &&
           JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
           JodaBeanUtils.equal(getFixingTime(), other.getFixingTime()) &&
+          JodaBeanUtils.equal(getFixingTimeZone(), other.getFixingTimeZone()) &&
           JodaBeanUtils.equal(getFixingCalendar(), other.getFixingCalendar()) &&
           JodaBeanUtils.equal(getRegionCalendar(), other.getRegionCalendar()) &&
           JodaBeanUtils.equal(getFixingPage(), other.getFixingPage()) &&
@@ -237,10 +253,11 @@ public class IborIndexConvention extends Convention {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getDayCount());
     hash += hash * 31 + JodaBeanUtils.hashCode(getBusinessDayConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDaysToSettle());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSettlementDays());
     hash += hash * 31 + JodaBeanUtils.hashCode(isIsEOM());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
     hash += hash * 31 + JodaBeanUtils.hashCode(getFixingTime());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFixingTimeZone());
     hash += hash * 31 + JodaBeanUtils.hashCode(getFixingCalendar());
     hash += hash * 31 + JodaBeanUtils.hashCode(getRegionCalendar());
     hash += hash * 31 + JodaBeanUtils.hashCode(getFixingPage());
@@ -301,27 +318,27 @@ public class IborIndexConvention extends Convention {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the number of days to settle.
+   * Gets the number of settlement days.
    * @return the value of the property
    */
-  public int getDaysToSettle() {
-    return _daysToSettle;
+  public int getSettlementDays() {
+    return _settlementDays;
   }
 
   /**
-   * Sets the number of days to settle.
-   * @param daysToSettle  the new value of the property
+   * Sets the number of settlement days.
+   * @param settlementDays  the new value of the property
    */
-  public void setDaysToSettle(int daysToSettle) {
-    this._daysToSettle = daysToSettle;
+  public void setSettlementDays(int settlementDays) {
+    this._settlementDays = settlementDays;
   }
 
   /**
-   * Gets the the {@code daysToSettle} property.
+   * Gets the the {@code settlementDays} property.
    * @return the property, not null
    */
-  public final Property<Integer> daysToSettle() {
-    return metaBean().daysToSettle().createProperty(this);
+  public final Property<Integer> settlementDays() {
+    return metaBean().settlementDays().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -399,6 +416,32 @@ public class IborIndexConvention extends Convention {
    */
   public final Property<LocalTime> fixingTime() {
     return metaBean().fixingTime().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the fixing time zone.
+   * @return the value of the property, not null
+   */
+  public String getFixingTimeZone() {
+    return _fixingTimeZone;
+  }
+
+  /**
+   * Sets the fixing time zone.
+   * @param fixingTimeZone  the new value of the property, not null
+   */
+  public void setFixingTimeZone(String fixingTimeZone) {
+    JodaBeanUtils.notNull(fixingTimeZone, "fixingTimeZone");
+    this._fixingTimeZone = fixingTimeZone;
+  }
+
+  /**
+   * Gets the the {@code fixingTimeZone} property.
+   * @return the property, not null
+   */
+  public final Property<String> fixingTimeZone() {
+    return metaBean().fixingTimeZone().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -500,10 +543,10 @@ public class IborIndexConvention extends Convention {
     private final MetaProperty<BusinessDayConvention> _businessDayConvention = DirectMetaProperty.ofReadWrite(
         this, "businessDayConvention", IborIndexConvention.class, BusinessDayConvention.class);
     /**
-     * The meta-property for the {@code daysToSettle} property.
+     * The meta-property for the {@code settlementDays} property.
      */
-    private final MetaProperty<Integer> _daysToSettle = DirectMetaProperty.ofReadWrite(
-        this, "daysToSettle", IborIndexConvention.class, Integer.TYPE);
+    private final MetaProperty<Integer> _settlementDays = DirectMetaProperty.ofReadWrite(
+        this, "settlementDays", IborIndexConvention.class, Integer.TYPE);
     /**
      * The meta-property for the {@code isEOM} property.
      */
@@ -519,6 +562,11 @@ public class IborIndexConvention extends Convention {
      */
     private final MetaProperty<LocalTime> _fixingTime = DirectMetaProperty.ofReadWrite(
         this, "fixingTime", IborIndexConvention.class, LocalTime.class);
+    /**
+     * The meta-property for the {@code fixingTimeZone} property.
+     */
+    private final MetaProperty<String> _fixingTimeZone = DirectMetaProperty.ofReadWrite(
+        this, "fixingTimeZone", IborIndexConvention.class, String.class);
     /**
      * The meta-property for the {@code fixingCalendar} property.
      */
@@ -541,10 +589,11 @@ public class IborIndexConvention extends Convention {
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "dayCount",
         "businessDayConvention",
-        "daysToSettle",
+        "settlementDays",
         "isEOM",
         "currency",
         "fixingTime",
+        "fixingTimeZone",
         "fixingCalendar",
         "regionCalendar",
         "fixingPage");
@@ -562,14 +611,16 @@ public class IborIndexConvention extends Convention {
           return _dayCount;
         case -1002835891:  // businessDayConvention
           return _businessDayConvention;
-        case 379523357:  // daysToSettle
-          return _daysToSettle;
+        case -295948000:  // settlementDays
+          return _settlementDays;
         case 100464505:  // isEOM
           return _isEOM;
         case 575402001:  // currency
           return _currency;
         case 1255686170:  // fixingTime
           return _fixingTime;
+        case -1504625946:  // fixingTimeZone
+          return _fixingTimeZone;
         case 394230283:  // fixingCalendar
           return _fixingCalendar;
         case 1932874322:  // regionCalendar
@@ -613,11 +664,11 @@ public class IborIndexConvention extends Convention {
     }
 
     /**
-     * The meta-property for the {@code daysToSettle} property.
+     * The meta-property for the {@code settlementDays} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Integer> daysToSettle() {
-      return _daysToSettle;
+    public final MetaProperty<Integer> settlementDays() {
+      return _settlementDays;
     }
 
     /**
@@ -642,6 +693,14 @@ public class IborIndexConvention extends Convention {
      */
     public final MetaProperty<LocalTime> fixingTime() {
       return _fixingTime;
+    }
+
+    /**
+     * The meta-property for the {@code fixingTimeZone} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> fixingTimeZone() {
+      return _fixingTimeZone;
     }
 
     /**

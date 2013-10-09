@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.covariance;
@@ -11,20 +11,22 @@ import static com.opengamma.analytics.financial.timeseries.util.TimeSeriesDataTe
 
 import java.util.Iterator;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.TimeSeriesException;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CalculationMode;
 
 /**
- * Base class for historical volatility calculators. 
+ * Base class for historical volatility calculators.
  */
 public abstract class HistoricalVolatilityCalculator implements VolatilityCalculator {
+  /** The default calculation mode */
   private static final CalculationMode DEFAULT_CALCULATION_MODE = CalculationMode.STRICT;
+  /** The default percentage of bad data points allowed */
   private static final double DEFAULT_PERCENT_BAD_DATA_POINTS = 0.0;
+  /** The calculation mode */
   private final CalculationMode _mode;
+  /** The percentage of bad data points allowed */
   private final double _percentBadDataPoints;
 
   /**
@@ -43,20 +45,23 @@ public abstract class HistoricalVolatilityCalculator implements VolatilityCalcul
   }
 
   /**
-   * 
-   * @param mode The calculation mode
-   * @param percentBadDataPoints The acceptable percentage of bad data points
-   * @throws IllegalArgumentException If the percentage of bad data points $p$ does not satisfy $0 \leq p \leq 1$
+   * @param mode The calculation mode, not null
+   * @param percentBadDataPoints The acceptable percentage of bad data points, must be >= 0 and <= 1
    */
   public HistoricalVolatilityCalculator(final CalculationMode mode, final double percentBadDataPoints) {
+    ArgumentChecker.notNull(mode, "mode");
     ArgumentChecker.isInRangeInclusive(0, 1, percentBadDataPoints);
     _mode = mode;
     _percentBadDataPoints = percentBadDataPoints;
   }
 
+  /**
+   * Checks that the time series array is not null, empty and that the first entry is not null
+   * @param tsArray The time series array, not null or empty
+   * @param minLength The minimum of entries in the time series
+   */
   protected void testTimeSeries(final DoubleTimeSeries<?>[] tsArray, final int minLength) {
-    Validate.notNull(tsArray, "array of time series");
-    Validate.notEmpty(tsArray, "array of time series");
+    ArgumentChecker.notEmpty(tsArray, "array of time series");
     testNotNullOrEmpty(tsArray[0]);
     final DoubleTimeSeries<?> ts = tsArray[0];
     testTimeSeriesSize(ts, minLength);
@@ -70,7 +75,7 @@ public abstract class HistoricalVolatilityCalculator implements VolatilityCalcul
    * Tests that the high price for a date is greater than the low value for the same date.
    * @param high The period high price time series
    * @param low The period low price time series
-   * @throws IllegalArgumentException Strict calculation mode: if the low value for a date is greater than the high value. Lenient calculation mode: if the percentage of times 
+   * @throws IllegalArgumentException Strict calculation mode: if the low value for a date is greater than the high value. Lenient calculation mode: if the percentage of times
    * that the low value for a date is greater than the high value is greater than the maximum allowed
    */
   protected void testHighLow(final DoubleTimeSeries<?> high, final DoubleTimeSeries<?> low) {
@@ -130,7 +135,7 @@ public abstract class HistoricalVolatilityCalculator implements VolatilityCalcul
   }
 
   /**
-   * 
+   *
    * @return The default calculation mode
    */
   protected static CalculationMode getDefaultCalculationMode() {
@@ -138,7 +143,7 @@ public abstract class HistoricalVolatilityCalculator implements VolatilityCalcul
   }
 
   /**
-   * 
+   *
    * @return The default percentage of bad data points
    */
   protected static double getDefaultBadDataPoints() {

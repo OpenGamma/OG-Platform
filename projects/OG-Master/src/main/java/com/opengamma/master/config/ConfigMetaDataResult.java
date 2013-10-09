@@ -53,6 +53,7 @@ public class ConfigMetaDataResult extends AbstractMetaDataResult {
   public static ConfigMetaDataResult.Meta meta() {
     return ConfigMetaDataResult.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ConfigMetaDataResult.Meta.INSTANCE);
   }

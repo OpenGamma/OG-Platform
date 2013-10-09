@@ -99,6 +99,7 @@ public class SecurityLoaderResult extends DirectBean {
   public static SecurityLoaderResult.Meta meta() {
     return SecurityLoaderResult.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(SecurityLoaderResult.Meta.INSTANCE);
   }

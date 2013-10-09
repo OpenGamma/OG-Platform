@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.annuity.derivative;
@@ -35,6 +35,9 @@ public class Annuity<P extends Payment> implements InstrumentDerivative {
    */
   private final boolean _isPayer;
 
+  /**
+   * @param payments The payments, not null or empty
+   */
   public Annuity(final P[] payments) {
     ArgumentChecker.noNulls(payments, "payments");
     ArgumentChecker.isTrue(payments.length > 0, "Have no payments in annuity");
@@ -48,6 +51,11 @@ public class Annuity<P extends Payment> implements InstrumentDerivative {
     _isPayer = (amount < 0);
   }
 
+  /**
+   * @param payments The payments, not null or empty
+   * @param pType The type of the payments, not null
+   * @param isPayer True if the annuity is to be paid
+   */
   public Annuity(final List<? extends P> payments, final Class<P> pType, final boolean isPayer) {
     ArgumentChecker.noNulls(payments, "payments");
     ArgumentChecker.notNull(pType, "type");
@@ -56,10 +64,19 @@ public class Annuity<P extends Payment> implements InstrumentDerivative {
     _isPayer = isPayer;
   }
 
+  /**
+   * Gets the number of payments in the annuity.
+   * @return The number of payments
+   */
   public int getNumberOfPayments() {
     return _payments.length;
   }
 
+  /**
+   * Gets the nth payment in an annuity. <b>Note that n = 0 will give the first payment</b>.
+   * @param n The number of the payment
+   * @return The nth payment
+   */
   public P getNthPayment(final int n) {
     return _payments[n];
   }
@@ -103,7 +120,9 @@ public class Annuity<P extends Payment> implements InstrumentDerivative {
   /**
    * Return the discounting (or funding) curve name. Deduced from the first payment.
    * @return The name.
+   * @deprecated Curve names should not be set in {@link InstrumentDerivative}s
    */
+  @Deprecated
   public String getDiscountCurve() {
     return getNthPayment(0).getFundingCurveName();
   }

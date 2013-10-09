@@ -25,8 +25,9 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * 
+ * @deprecated This class tests deprecated functionality
  */
+@Deprecated
 public class ZSpreadCalculatorTest {
   private static final ZSpreadCalculator CALCULATOR = ZSpreadCalculator.getInstance();
   private static final Annuity<CouponFixed> PAYMENTS;
@@ -42,7 +43,7 @@ public class ZSpreadCalculatorTest {
     for (int i = 0; i < n; i++) {
       rateAtYield[i] = new CouponFixed(CUR, 0.5 * (i + 1), CURVE_NAME, 0.5, YIELD);
     }
-    PAYMENTS = new Annuity<CouponFixed>(rateAtYield);
+    PAYMENTS = new Annuity<>(rateAtYield);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -113,6 +114,7 @@ public class ZSpreadCalculatorTest {
     final double dPdZ = CALCULATOR.calculatePriceSensitivityToZSpread(PAYMENTS, CURVES, zSpread);
     final Map<String, List<DoublesPair>> dZdC = CALCULATOR.calculateZSpreadSensitivityToCurve(PAYMENTS, CURVES, zSpread);
     Map<String, List<DoublesPair>> dPdC = CALCULATOR.calculatePriceSensitivityToCurve(PAYMENTS, CURVES, zSpread);
+    assertEquals(dZdC.size(), dPdC.size());
     Iterator<Entry<String, List<DoublesPair>>> iter1 = dZdC.entrySet().iterator();
     Iterator<Entry<String, List<DoublesPair>>> iter2 = dPdC.entrySet().iterator();
     while (iter1.hasNext()) {
@@ -133,6 +135,7 @@ public class ZSpreadCalculatorTest {
     zSpread = 0.0;
     dPdC = CALCULATOR.calculatePriceSensitivityToCurve(PAYMENTS, CURVES, zSpread);
     final Map<String, List<DoublesPair>> pvSensitivity = PAYMENTS.accept(PresentValueCurveSensitivityCalculator.getInstance(), CURVES);
+    assertEquals(pvSensitivity.size(), dPdC.size());
     iter1 = dPdC.entrySet().iterator();
     iter2 = pvSensitivity.entrySet().iterator();
     while (iter1.hasNext()) {

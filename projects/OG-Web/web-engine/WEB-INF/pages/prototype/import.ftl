@@ -20,7 +20,7 @@ ${ogStyle.print('og_all.css', 'all',false)}
         <td>
           <div>
             <label>
-              CSV Upload:<br />
+              CSV/XLS Upload:<br />
               <input type="file" name="file"><br />
             </label>
             <small><a href="/prototype/data/example-portfolio.csv">Example CSV Format</a></small>

@@ -19,7 +19,10 @@ import com.opengamma.util.money.Currency;
 public class HullWhiteOneFactorProviderDiscount extends HullWhiteOneFactorProvider {
 
   /**
-   * Constructor from exiting multicurveProvider and Hull-White parameters. The given provider and parameters are used for the new provider (the same maps are used, not copied).
+   *
+   */
+  /**
+   * Constructor from existing multicurveProvider and Hull-White parameters. The given provider and parameters are used for the new provider (the same maps are used, not copied).
    * @param multicurves The multi-curves provider.
    * @param parameters The Hull-White one factor parameters.
    * @param ccyHW The currency for which the Hull-White parameters are valid (Hull-White on the discounting curve).

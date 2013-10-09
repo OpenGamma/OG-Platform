@@ -22,6 +22,9 @@ import com.google.common.base.Objects;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.Security;
 import com.opengamma.financial.security.bond.BondSecuritySearchRequest;
+import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.financial.security.swap.YearOnYearInflationSwapSecurity;
+import com.opengamma.financial.security.swap.ZeroCouponInflationSwapSecurity;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.masterdb.security.DbSecurityMaster;
@@ -108,6 +111,29 @@ public class HibernateSecurityMasterDetailProvider implements SecurityMasterDeta
     BEAN_OPERATIONS_BY_TYPE.put(beanOperation.getSecurityType(), beanOperation);  
   }
 
+
+  /**
+   * Provides a way to add a bean operation to the hibernate configuration.
+   *
+   * Ideally this method should not be public but a way is needed of allowing this class to
+   * be extended (or composed with) such that other projecvts can add their own security types.
+   * Exposing this method is the simplest way to achieve this at the moment. Longer term we would
+   * expect hibernate to be removed in which case it will all become simpler.
+   *
+   * @param beanOperation the bean operation to be stored
+   */
+  public void addBeanOperation(final SecurityBeanOperation<?, ?> beanOperation) {
+    if (BEAN_OPERATIONS_BY_SECURITY.containsKey(beanOperation.getSecurityClass()) ||
+        BEAN_OPERATIONS_BY_BEAN.containsKey(beanOperation.getBeanClass()) ||
+        BEAN_OPERATIONS_BY_TYPE.containsKey(beanOperation.getSecurityType())) {
+
+      s_logger.warn(beanOperation.getBeanClass() + " is already registered");
+
+    } else {
+      loadBeanOperation(beanOperation);
+    }
+  }
+
   private static SecurityBeanOperation<?, ?> getBeanOperation(final ConcurrentMap<Class<?>, SecurityBeanOperation<?, ?>> map, final Class<?> clazz) {
     SecurityBeanOperation<?, ?> beanOperation = map.get(clazz);
     if (beanOperation != null) {
@@ -150,6 +176,9 @@ public class HibernateSecurityMasterDetailProvider implements SecurityMasterDeta
       }
       if (type.equals("SWAPTION")) { // SWAPTION used to be SWAP_OPTION, in which case the above code handled it.
         beanOperation = BEAN_OPERATIONS_BY_TYPE.get("OPTION");
+      }
+      if (ZeroCouponInflationSwapSecurity.SECURITY_TYPE.equals(type) || YearOnYearInflationSwapSecurity.SECURITY_TYPE.equals(type)) {
+        beanOperation = BEAN_OPERATIONS_BY_TYPE.get(SwapSecurity.SECURITY_TYPE);
       }
       if (beanOperation == null) {
         throw new OpenGammaRuntimeException("can't find BeanOperation for " + type);

@@ -18,14 +18,16 @@ import org.threeten.bp.LocalDate;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.id.UniqueId;
+import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleEntryIterator;
+import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeriesBuilder;
 import com.opengamma.util.monitor.OperationTimer;
-import com.opengamma.util.redis.AbstractRedisTestCase;
+import com.opengamma.util.test.AbstractRedisTestCase;
 
 /**
  * 
  */
-@Test(enabled=false)
+@Test(enabled=true)
 public class RedisSimulationSeriesSourceTest extends AbstractRedisTestCase {
   private static final Logger s_logger = LoggerFactory.getLogger(RedisSimulationSeriesSourceTest.class);
   
@@ -39,9 +41,11 @@ public class RedisSimulationSeriesSourceTest extends AbstractRedisTestCase {
     hts = simulationSource.getHistoricalTimeSeries(id, null, false, null, false);
     assertNull(hts);
     
+    LocalDateDoubleTimeSeriesBuilder timeSeriesBuilder = ImmutableLocalDateDoubleTimeSeries.builder();
     for (int i = 1; i < 30; i++) {
-      simulationSource.setTimeSeriesPoint(id, simulationSeriesDate, LocalDate.of(2013,4,i), i);
+      timeSeriesBuilder.put(LocalDate.of(2013,4,i), i);
     }
+    simulationSource.updateTimeSeries(id, simulationSeriesDate, timeSeriesBuilder.build());
     
     hts = simulationSource.getHistoricalTimeSeries(id, null, false, null, false);
     assertNotNull(hts);
@@ -130,10 +134,12 @@ public class RedisSimulationSeriesSourceTest extends AbstractRedisTestCase {
   
   private static void performanceWriteOneSeries(RedisSimulationSeriesSource source, UniqueId id, LocalDate simulationSeriesDate) {
     LocalDate valueDate = LocalDate.now();
+    LocalDateDoubleTimeSeriesBuilder seriesBuilder = ImmutableLocalDateDoubleTimeSeries.builder();
     for (int i = 1; i <= 1260; i++) {
-      source.setTimeSeriesPoint(id, simulationSeriesDate, valueDate, i);
+      seriesBuilder.put(valueDate, i);
       valueDate = valueDate.minusDays(1);
     }
+    source.updateTimeSeries(id, simulationSeriesDate, seriesBuilder.build());
   }
 
 }

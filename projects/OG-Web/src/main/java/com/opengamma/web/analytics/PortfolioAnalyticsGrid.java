@@ -10,14 +10,15 @@ import java.util.List;
 import com.google.common.collect.Lists;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.engine.ComputationTargetResolver;
+import com.opengamma.engine.management.ValueMappings;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
+import com.opengamma.financial.security.lookup.SecurityAttributeMapper;
 import com.opengamma.id.ObjectId;
-import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
 
 /**
  * A grid for displaying portfolio analytics data.
  */
-/* package */ class PortfolioAnalyticsGrid extends MainAnalyticsGrid {
+/* package */ class PortfolioAnalyticsGrid extends MainAnalyticsGrid<PortfolioGridViewport> {
 
   private final PortfolioGridStructure _gridStructure;
 
@@ -25,7 +26,19 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
                                        String gridId,
                                        ComputationTargetResolver targetResolver,
                                        ViewportListener viewportListener) {
-    super(AnalyticsView.GridType.PORTFORLIO, gridStructure, gridId, targetResolver, viewportListener);
+    super(AnalyticsView.GridType.PORTFOLIO, gridId, targetResolver, viewportListener);
+    _gridStructure = gridStructure;
+  }
+
+  /**
+   * Creates a new grid when the structure is updated using an existing grid as the basis
+   * @param gridStructure The updated grid structure
+   * @param previousGrid The old grid whose state is the basis for the new grid
+   */
+  /* package */ PortfolioAnalyticsGrid(PortfolioGridStructure gridStructure,
+                                       PortfolioAnalyticsGrid previousGrid,
+                                       CompiledViewDefinition compiledViewDef) {
+    super(AnalyticsView.GridType.PORTFOLIO, previousGrid, compiledViewDef, gridStructure.getValueMappings());
     _gridStructure = gridStructure;
   }
 
@@ -34,19 +47,34 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
     return new PortfolioAnalyticsGrid(updatedStructure, getCallbackId(), getTargetResolver(), getViewportListener());
   }
 
-  /* package */ PortfolioAnalyticsGrid withUpdatedStructure(CompiledViewDefinition compiledViewDef, Portfolio portfolio) {
+  /**
+   * Updates with changed structure when the view recompiles
+   * @param portfolio  the portfolio of positions
+   * @param compiledViewDef  the basic state required for computation of a view
+   * @return new PortfolioAnalyticsGrid
+   */
+  /* package */ PortfolioAnalyticsGrid withUpdatedStructure(CompiledViewDefinition compiledViewDef,
+                                                            Portfolio portfolio) {
     PortfolioGridStructure updatedStructure = _gridStructure.withUpdatedStructure(compiledViewDef, portfolio);
-    return new PortfolioAnalyticsGrid(updatedStructure, getCallbackId(), getTargetResolver(), getViewportListener());
+    for (PortfolioGridViewport viewport : getViewports().values()) {
+      viewport.updateResultsAndStructure(updatedStructure);
+    }
+    return new PortfolioAnalyticsGrid(updatedStructure, this, compiledViewDef);
   }
 
-  /* package */ PortfolioAnalyticsGrid withUpdatedStructure(ResultsCache cache) {
+  /**
+   * Updates on for each tick, returns this if structure remains the same
+   * @param cache  the result cache
+   * @return PortfolioAnalyticsGrid
+   */
+  /* package */ PortfolioAnalyticsGrid withUpdatedTickAndPossiblyStructure(ResultsCache cache) {
     PortfolioGridStructure updatedStructure = _gridStructure.withUpdatedStructure(cache);
     // TODO this smells bad but avoids throwing away any viewports, depgraphs etc
     // TODO implement equals()?
     if (updatedStructure == _gridStructure) {
       return this;
     } else {
-      return new PortfolioAnalyticsGrid(updatedStructure, getCallbackId(), getTargetResolver(), getViewportListener());
+      return new PortfolioAnalyticsGrid(updatedStructure, this, getViewCycle().getCompiledViewDefinition());
     }
   }
 
@@ -54,7 +82,7 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
                                                            Portfolio portfolio,
                                                            ComputationTargetResolver targetResolver,
                                                            ViewportListener viewportListener) {
-    PortfolioGridStructure gridStructure = PortfolioGridStructure.create(portfolio, new ValueMappings());
+    PortfolioGridStructure gridStructure = PortfolioGridStructure.create(portfolio, new UnversionedValueMappings());
     return new PortfolioAnalyticsGrid(gridStructure, gridId, targetResolver, viewportListener);
   }
 
@@ -62,7 +90,7 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
                                                          Portfolio portfolio,
                                                          ComputationTargetResolver targetResolver,
                                                          ViewportListener viewportListener,
-                                                         BlotterColumnMapper blotterColumnMapper) {
+                                                         SecurityAttributeMapper blotterColumnMapper) {
     PortfolioGridStructure gridStructure = BlotterGridStructure.create(portfolio, blotterColumnMapper);
     return new PortfolioAnalyticsGrid(gridStructure, gridId, targetResolver, viewportListener);
   }
@@ -74,5 +102,15 @@ import com.opengamma.web.analytics.blotter.BlotterColumnMapper;
       ids.add(viewport.getCallbackId());
     }
     return ids;
+  }
+
+  @Override
+  PortfolioGridViewport createViewport(ViewportDefinition viewportDefinition, String callbackId, String structureCallbackId, ResultsCache cache) {
+    return new PortfolioGridViewport(_gridStructure, callbackId, structureCallbackId, viewportDefinition, getViewCycle(), cache);
+  }
+
+  @Override
+  MainGridStructure getGridStructure() {
+    return _gridStructure;
   }
 }

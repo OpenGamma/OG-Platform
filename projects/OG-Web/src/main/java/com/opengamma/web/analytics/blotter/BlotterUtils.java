@@ -30,10 +30,6 @@ import com.google.common.collect.Sets;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.financial.convention.StubType;
-import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.frequency.Frequency;
-import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.conversion.JodaBeanConverters;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.LongShort;
@@ -55,21 +51,25 @@ import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.option.BarrierDirection;
 import com.opengamma.financial.security.option.BarrierType;
 import com.opengamma.financial.security.option.CreditDefaultSwapOptionSecurity;
-import com.opengamma.financial.security.option.ExerciseType;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
+import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.MonitoringType;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.financial.security.option.SamplingFrequency;
 import com.opengamma.financial.security.option.SwaptionSecurity;
+import com.opengamma.financial.security.swap.FixedInflationSwapLeg;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingGearingIRLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingSpreadIRLeg;
+import com.opengamma.financial.security.swap.InflationIndexSwapLeg;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.financial.security.swap.YearOnYearInflationSwapSecurity;
+import com.opengamma.financial.security.swap.ZeroCouponInflationSwapSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.security.ManageableSecurity;
@@ -94,10 +94,13 @@ import com.opengamma.util.time.Expiry;
       CapFloorSecurity.meta(),
       EquityVarianceSwapSecurity.meta(),
       FXBarrierOptionSecurity.meta(),
+      FXDigitalOptionSecurity.meta(),
       FixedInterestRateLeg.meta(),
       FloatingInterestRateLeg.meta(),
       FloatingSpreadIRLeg.meta(),
       FloatingGearingIRLeg.meta(),
+      FixedInflationSwapLeg.meta(),
+      InflationIndexSwapLeg.meta(),
       InterestRateNotional.meta(),
       LegacyVanillaCDSSecurity.meta(),
       LegacyRecoveryLockCDSSecurity.meta(),
@@ -106,7 +109,9 @@ import com.opengamma.util.time.Expiry;
       StandardRecoveryLockCDSSecurity.meta(),
       StandardFixedRecoveryCDSSecurity.meta(),
       CreditDefaultSwapIndexSecurity.meta(),
-      CreditDefaultSwapOptionSecurity.meta());
+      CreditDefaultSwapOptionSecurity.meta(),
+      YearOnYearInflationSwapSecurity.meta(),
+      ZeroCouponInflationSwapSecurity.meta());
 
   /** Meta bean factory for looking up meta beans by type name. */
   private static final MetaBeanFactory s_metaBeanFactory = new MapMetaBeanFactory(s_metaBeans);
@@ -167,13 +172,8 @@ import com.opengamma.util.time.Expiry;
     s_stringConvert.register(BigDecimal.class, new BigDecimalConverter());
     s_stringConvert.register(Double.class, new DoubleConverter());
     s_stringConvert.register(Double.TYPE, new DoubleConverter());
-    s_stringConvert.register(Frequency.class, new JodaBeanConverters.FrequencyConverter());
-    s_stringConvert.register(DayCount.class, new JodaBeanConverters.DayCountConverter());
     s_stringConvert.register(ExternalIdBundle.class, new JodaBeanConverters.ExternalIdBundleConverter());
     s_stringConvert.register(Expiry.class, new ExpiryConverter());
-    s_stringConvert.register(ExerciseType.class, new JodaBeanConverters.ExerciseTypeConverter());
-    s_stringConvert.register(BusinessDayConvention.class, new JodaBeanConverters.BusinessDayConventionConverter());
-    s_stringConvert.register(YieldConvention.class, new JodaBeanConverters.YieldConventionConverter());
     s_stringConvert.register(MonitoringType.class, new EnumConverter<MonitoringType>());
     s_stringConvert.register(BarrierType.class, new EnumConverter<BarrierType>());
     s_stringConvert.register(BarrierDirection.class, new EnumConverter<BarrierDirection>());

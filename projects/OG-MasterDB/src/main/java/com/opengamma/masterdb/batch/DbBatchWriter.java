@@ -11,6 +11,7 @@ import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
 import static com.opengamma.lambdava.streams.Lambdava.newArray;
 import static com.opengamma.util.db.HibernateDbUtils.eqOrIsNull;
+import static org.apache.commons.lang.StringUtils.defaultString;
 
 import java.io.Serializable;
 import java.sql.SQLException;
@@ -31,6 +32,8 @@ import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
+import org.joda.beans.Bean;
+import org.joda.beans.Property;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -66,6 +69,8 @@ import com.opengamma.batch.domain.RiskValueSpecification;
 import com.opengamma.batch.domain.StatusEntry;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.elsql.ElSqlBundle;
+import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.calcnode.InvocationResult;
 import com.opengamma.engine.calcnode.MissingValue;
@@ -128,6 +133,7 @@ public class DbBatchWriter extends AbstractDbMaster {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbBatchWriter.class);
+  private final ComputationTargetResolver _computationTargetResolver;
 
   /**
    * The Result converter cache.
@@ -139,9 +145,10 @@ public class DbBatchWriter extends AbstractDbMaster {
    *
    * @param dbConnector  the database connector, not null
    */
-  public DbBatchWriter(final DbConnector dbConnector) {
+  public DbBatchWriter(final DbConnector dbConnector, final ComputationTargetResolver computationTargetResolver) {
     super(dbConnector, IDENTIFIER_SCHEME_DEFAULT);
     _resultConverterCache = new ResultConverterCache();
+    _computationTargetResolver = computationTargetResolver;
     setElSqlBundle(ElSqlBundle.of(dbConnector.getDialect().getElSqlConfig(), DbBatchWriter.class));
   }
 
@@ -698,7 +705,7 @@ public class DbBatchWriter extends AbstractDbMaster {
     return riskRun;
   }
 
-  public RiskRun startBatchInTransaction(ViewCycleMetadata cycleMetadata, Map<String, String> batchParameters, RunCreationMode runCreationMode, SnapshotMode snapshotMode) {
+  public synchronized RiskRun startBatchInTransaction(ViewCycleMetadata cycleMetadata, Map<String, String> batchParameters, RunCreationMode runCreationMode, SnapshotMode snapshotMode) {
     s_logger.info("Starting batch ... {}", cycleMetadata);
 
     RiskRun run;
@@ -879,7 +886,7 @@ public class DbBatchWriter extends AbstractDbMaster {
 
   //-------------------------------------------------------------------------
   @SuppressWarnings("unchecked")
-  public void addJobResultsInTransaction(TransactionStatus transactionStatus, ObjectId runId, ViewComputationResultModel resultModel) {
+  public synchronized void addJobResultsInTransaction(TransactionStatus transactionStatus, ObjectId runId, ViewComputationResultModel resultModel) {
     ArgumentChecker.notNull(runId, "runId");
     ArgumentChecker.notNull(resultModel, "resultModel");
     
@@ -902,6 +909,7 @@ public class DbBatchWriter extends AbstractDbMaster {
       final Set<ComputationTargetSpecification> successfulTargets = newHashSet();
       final Set<ComputationTargetSpecification> failedTargets = newHashSet();
 
+      List<SqlParameterSource> targetProperties = newArrayList();
       List<SqlParameterSource> successes = newArrayList();
       List<SqlParameterSource> failures = newArrayList();
       List<SqlParameterSource> failureReasons = newArrayList();
@@ -911,6 +919,7 @@ public class DbBatchWriter extends AbstractDbMaster {
       long calcConfId = _calculationConfigurations.get(calcConfigName);
 
       for (final ComputationTargetSpecification targetSpec : viewCalculationResultModel.getAllTargets()) {
+        final long computationTargetId = _computationTargets.get(targetSpec);
         boolean specFailures = false;
         for (final ComputedValueResult computedValue : viewCalculationResultModel.getAllValues(targetSpec)) {
           ResultConverter<Object> resultConverter  = null;
@@ -921,8 +930,7 @@ public class DbBatchWriter extends AbstractDbMaster {
               s_logger.info("No converter for value of type " + computedValue.getValue().getClass() + " for " + computedValue.getSpecification());
             }            
           }
-          
-          final long computationTargetId = _computationTargets.get(targetSpec);
+
           final ValueSpecification specification = computedValue.getSpecification();
           if (!_riskValueSpecifications.containsKey(specification)) {
             s_logger.error("Unexpected result specification " + specification + ". Result cannot be written. Result value was " + computedValue.getValue());
@@ -933,6 +941,7 @@ public class DbBatchWriter extends AbstractDbMaster {
           final long computeNodeId = getOrCreateComputeNode(computedValue.getComputeNodeId()).getId();
           
           if (resultConverter != null && computedValue.getInvocationResult() == InvocationResult.SUCCESS) {
+            s_logger.debug("Writing value {} for value spec {}", computedValue.getValue(), specification);
             Map<String, Double> valueAsDoublesMap = resultConverter.convert(computedValue.getSpecification().getValueName(), computedValue.getValue());
             for (Map.Entry<String, Double> valueEntry : valueAsDoublesMap.entrySet()) {
               final String valueName = valueEntry.getKey();
@@ -964,6 +973,18 @@ public class DbBatchWriter extends AbstractDbMaster {
           failedTargets.add(targetSpec);
         } else {
           successfulTargets.add(targetSpec);
+        }
+
+        // storing target data
+        ComputationTarget computationTarget = _computationTargetResolver.resolve(targetSpec, VersionCorrection.LATEST);
+        Object targetValue = computationTarget.getValue();
+        if (targetValue instanceof Bean) {
+          Bean bean = (Bean) targetValue;
+          for (String propertyName : bean.propertyNames()) {
+            Property<Object> property = bean.property(propertyName);
+            final long targetPropertyId = nextId(RSK_SEQUENCE_NAME);
+            targetProperties.add(getTargetPropertyArgs(targetPropertyId, computationTargetId, propertyName, property.get() == null ? "NULL" : property.get().toString()));
+          }
         }
       }
 
@@ -1002,7 +1023,15 @@ public class DbBatchWriter extends AbstractDbMaster {
           failedTargets.addAll(successfulTargets);
           successes.clear();
           successfulTargets.clear();
+          targetProperties.clear();
         }
+      }
+      Object preTargetPropertiesFailureSavepoint = transactionStatus.createSavepoint();
+      try {
+        getJdbcTemplate().batchUpdate(getElSqlBundle().getSql("InsertTargetProperties"), targetProperties.toArray(new DbMapSqlParameterSource[targetProperties.size()]));
+      } catch (Exception e) {
+        s_logger.error("Failed to write target properties to batch database", e);
+        transactionStatus.rollbackToSavepoint(preTargetPropertiesFailureSavepoint);
       }
       Object preFailureSavepoint = transactionStatus.createSavepoint();
       try {
@@ -1013,8 +1042,8 @@ public class DbBatchWriter extends AbstractDbMaster {
         transactionStatus.rollbackToSavepoint(preFailureSavepoint);
       }
 
-      updateStatusEntries(statusCache, calcConfigName, StatusEntry.Status.SUCCESS, successfulTargets);
-      updateStatusEntries(statusCache, calcConfigName, StatusEntry.Status.FAILURE, failedTargets);
+      updateStatusEntries(riskRunId, statusCache, calcConfigName, StatusEntry.Status.SUCCESS, successfulTargets);
+      updateStatusEntries(riskRunId, statusCache, calcConfigName, StatusEntry.Status.FAILURE, failedTargets);
     }
   }
 
@@ -1047,6 +1076,15 @@ public class DbBatchWriter extends AbstractDbMaster {
     args.addValue("value", doubleValue);
     args.addTimestamp("eval_instant", evalInstant);
     args.addValue("compute_node_id", computeNodeId);
+    return args;
+  }
+
+  private SqlParameterSource getTargetPropertyArgs(long targetPropertyId, long computationTargetId, String propertyKey, String propertyValue) {
+    DbMapSqlParameterSource args = new DbMapSqlParameterSource();
+    args.addValue("id", targetPropertyId);
+    args.addValue("target_id", computationTargetId);
+    args.addValue("property_key", propertyKey);
+    args.addValue("property_value", propertyValue);
     return args;
   }
 
@@ -1096,11 +1134,11 @@ public class DbBatchWriter extends AbstractDbMaster {
   }
 
   @SuppressWarnings("unchecked")
-  protected void updateStatusEntries(
-    Map<Pair<Long, Long>, StatusEntry> statusCache,
-    String calcConfName,
-    StatusEntry.Status status,
-    Collection<ComputationTargetSpecification> targets) {
+  protected void updateStatusEntries(long runId,
+                                     Map<Pair<Long, Long>, StatusEntry> statusCache,
+                                     String calcConfName,
+                                     StatusEntry.Status status,
+                                     Collection<ComputationTargetSpecification> targets) {
 
     Long calcConfId = _calculationConfigurations.get(calcConfName);
 
@@ -1119,6 +1157,7 @@ public class DbBatchWriter extends AbstractDbMaster {
       if (statusEntry != null) {
         statusEntry.setStatus(status);
         params.addValue("id", statusEntry.getId());
+        params.addValue("run_id", runId);
         params.addValue("status", statusEntry.getStatus().ordinal());
         updates.add(params);
       } else {
@@ -1128,12 +1167,14 @@ public class DbBatchWriter extends AbstractDbMaster {
         insertArgs.addValue("ID", statusId);
         statusEntry = new StatusEntry();
         statusEntry.setId(statusId);
+        statusEntry.setRunId(runId);
         statusEntry.setStatus(status);
         statusEntry.setCalculationConfigurationId(calcConfId);
         statusEntry.setComputationTargetId(computationTargetId);
         statusCache.put(key, statusEntry);
 
         params.addValue("id", statusId);
+        params.addValue("run_id", runId);
         params.addValue("calculation_configuration_id", calcConfId);
         params.addValue("computation_target_id", computationTargetId);
         params.addValue("status", statusEntry.getStatus().ordinal());
@@ -1167,31 +1208,16 @@ public class DbBatchWriter extends AbstractDbMaster {
     return totalCount;
   }
   
-  /**
-   * Java has support for extended-precision doubles using 80-bits rather than 64-bits. The DOUBLE PRECISION type in
-   * SQL is a 64-bit floating point value. Attempting to write values to the database which can only be represented in
-   * the 80-bit format (e.g. 1E-350) will result in an SQL exception.
-   * <p>
-   * This method works by extracting the 64-bit precision value so that values out of the range of a SQL double will be
-   * rounded to zero. 
-   * 
-   * @param value  the input value, may be null
-   * @return the output, null if input was null, otherwise its 64-bit equivalent
-   */
   private static Double ensureDatabasePrecision(Double value) {
-    // NOTE jonathan 2013-06-12 -- force it through a strictfp method instead?
     if (value == null) {
       return null;
     }
-    final long doubleAsLongBits = Double.doubleToLongBits(value);
-    final double doubleViaLongBits = Double.longBitsToDouble(doubleAsLongBits);
-    if (Double.doubleToLongBits(doubleViaLongBits) != doubleAsLongBits) {
-      // Something went wrong in the conversion
-      s_logger.error("Attempt to restrict result " + value + " to the 64-bit precision supported by the database resulted in unexpected value "
-          + doubleViaLongBits + ". Using original value, but the database write may fail.");
-      return value;
+    // Java's smallest double is 4.9e-324, but most databases would underflow.
+    // Postgres is 1e-307, Oracle is 2.2e-307, SQL Server is 2.2e-308.
+    if (Math.abs(value) < 1e-300) {
+      return 0d;
     }
-    return doubleViaLongBits;
+    return value;
   }
 
   protected StatusEntry.Status getStatus(Map<Pair<Long, Long>, StatusEntry> statusCache, String calcConfName, ComputationTargetSpecification ct) {
@@ -1221,7 +1247,7 @@ public class DbBatchWriter extends AbstractDbMaster {
       StatusEntry statusEntry = getJdbcTemplate().queryForObject(
         getElSqlBundle().getSql("SelectStatusEntry"),
         args,
-        StatusEntry.ROW_MAPPER);
+        DbBatchUtils.ROW_MAPPER);
 
       // status entry in db found.
       statusCache.put(key, statusEntry);
@@ -1296,6 +1322,11 @@ public class DbBatchWriter extends AbstractDbMaster {
     String exceptionClass = rootLog != null ? rootLog.getExecutionLog().getExceptionClass() : null;
     String exceptionMessage = rootLog != null ? rootLog.getExecutionLog().getExceptionMessage() : null;
     String exceptionStackTrace = rootLog != null ? rootLog.getExecutionLog().getExceptionStackTrace() : null;
+    //ensure we don't end up with null going into the ComputeFailureKey for these strings.
+    //this will probably be due to the fact that the rootLog was null.
+    exceptionClass = defaultString(exceptionClass, "No logging information available");
+    exceptionMessage = defaultString(exceptionMessage, "No logging information available");
+    exceptionStackTrace = defaultString(exceptionStackTrace, "No logging information available");
     ComputeFailureKey computeFailureKey = new ComputeFailureKey(item.getComputedValue().getSpecification().getFunctionUniqueId(), exceptionClass, exceptionMessage, exceptionStackTrace);
     return getComputeFailureFromDb(computeFailureCache, computeFailureKey);
   }
@@ -1306,7 +1337,7 @@ public class DbBatchWriter extends AbstractDbMaster {
       return computeFailure;
     }
     try {
-      int id = getJdbcTemplate().queryForObject(getElSqlBundle().getSql("SelectComputeFailureId"), computeFailureKey.toSqlParameterSource(), Integer.class);
+      int id = getJdbcTemplate().queryForObject(getElSqlBundle().getSql("SelectComputeFailureId"), DbBatchUtils.toSqlParameterSource(computeFailureKey), Integer.class);
       computeFailure = new ComputeFailure();
       computeFailure.setId(id);
       computeFailure.setFunctionId(computeFailureKey.getFunctionId());
@@ -1337,7 +1368,7 @@ public class DbBatchWriter extends AbstractDbMaster {
     computeFailure.setExceptionMsg(computeFailureKey.getExceptionMsg());
     computeFailure.setStackTrace(computeFailureKey.getStackTrace());
 
-    int rowCount = getJdbcTemplate().update(getElSqlBundle().getSql("InsertComputeFailure"), computeFailure.toSqlParameterSource());
+    int rowCount = getJdbcTemplate().update(getElSqlBundle().getSql("InsertComputeFailure"), DbBatchUtils.toSqlParameterSource(computeFailure));
     if (rowCount == 1) {
       computeFailureCache.put(computeFailureKey, computeFailure);
       return computeFailure;

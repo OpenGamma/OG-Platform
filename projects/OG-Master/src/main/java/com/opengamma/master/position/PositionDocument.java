@@ -76,6 +76,7 @@ public class PositionDocument extends AbstractDocument implements Serializable {
   public static PositionDocument.Meta meta() {
     return PositionDocument.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(PositionDocument.Meta.INSTANCE);
   }

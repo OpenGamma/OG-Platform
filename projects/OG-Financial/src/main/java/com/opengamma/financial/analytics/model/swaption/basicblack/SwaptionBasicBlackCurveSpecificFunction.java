@@ -43,12 +43,13 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
-import com.opengamma.financial.analytics.conversion.SwapSecurityConverter;
-import com.opengamma.financial.analytics.conversion.SwaptionSecurityConverter;
+import com.opengamma.financial.analytics.conversion.SwapSecurityConverterDeprecated;
+import com.opengamma.financial.analytics.conversion.SwaptionSecurityConverterDeprecated;
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
 import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.YieldCurveFunctionUtils;
+import com.opengamma.financial.analytics.model.black.ConstantBlackDiscountingSwaptionFunction;
 import com.opengamma.financial.analytics.model.swaption.SwaptionUtils;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.FinancialSecurityTypes;
@@ -58,16 +59,18 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * Base class for functions that return curve-specific values for swaptions using the basic Black model
- * (i.e. using a security-specific volatility and not interpolating volatilities).
+ * Base class for functions that return curve-specific values for swaptions using the basic Black model (i.e. using a security-specific volatility and not interpolating volatilities).
+ * 
+ * @deprecated Use descendants of {@link ConstantBlackDiscountingSwaptionFunction}
  */
+@Deprecated
 public abstract class SwaptionBasicBlackCurveSpecificFunction extends AbstractFunction.NonCompiledInvoker {
   /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(SwaptionBasicBlackCurveSpecificFunction.class);
   /** The value requirement that can be produced */
   private final String _valueRequirementName;
   /** Converter from {@link SwaptionSecurity} to an analytics object */
-  private SwaptionSecurityConverter _visitor;
+  private SwaptionSecurityConverterDeprecated _visitor;
 
   /**
    * @param valueRequirementName The value requirement name, not null
@@ -83,8 +86,9 @@ public abstract class SwaptionBasicBlackCurveSpecificFunction extends AbstractFu
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
-    final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource, regionSource, false);
-    _visitor = new SwaptionSecurityConverter(securitySource, swapConverter);
+    final SwapSecurityConverterDeprecated swapConverter = new SwapSecurityConverterDeprecated(holidaySource, conventionSource, regionSource, false);
+    _visitor = new SwaptionSecurityConverterDeprecated(securitySource, swapConverter);
+    ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
   }
 
   @Override
@@ -178,6 +182,7 @@ public abstract class SwaptionBasicBlackCurveSpecificFunction extends AbstractFu
 
   /**
    * Calculates the results.
+   * 
    * @param swaption The swaption
    * @param data The market data bundle
    * @param curveName The name of the curve
@@ -194,14 +199,16 @@ public abstract class SwaptionBasicBlackCurveSpecificFunction extends AbstractFu
 
   /**
    * Returns the converter.
+   * 
    * @return The converter
    */
-  protected SwaptionSecurityConverter getVisitor() {
+  protected SwaptionSecurityConverterDeprecated getVisitor() {
     return _visitor;
   }
 
   /**
    * Gets general result properties.
+   * 
    * @param currency The currency
    * @return The result properties
    */
@@ -216,6 +223,7 @@ public abstract class SwaptionBasicBlackCurveSpecificFunction extends AbstractFu
 
   /**
    * Gets specfic result properties.
+   * 
    * @param currency The currency
    * @param curveCalculationConfig The curve calculation configuration name
    * @param curveName The curve name
@@ -230,7 +238,7 @@ public abstract class SwaptionBasicBlackCurveSpecificFunction extends AbstractFu
         .with(ValuePropertyNames.CURVE, curveName).get();
   }
 
-  private ValueRequirement getVolatilityRequirement(final ComputationTargetSpecification target) {
+  private static ValueRequirement getVolatilityRequirement(final ComputationTargetSpecification target) {
     return new ValueRequirement(MarketDataRequirementNames.IMPLIED_VOLATILITY, target, ValueProperties.builder().get());
   }
 }

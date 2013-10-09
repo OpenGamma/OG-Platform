@@ -5,6 +5,11 @@
  */
 package com.opengamma.util;
 
+import static org.testng.AssertJUnit.assertEquals;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Modifier;
+
 import org.testng.annotations.Test;
 
 import com.opengamma.util.test.TestGroup;
@@ -15,6 +20,18 @@ import com.opengamma.util.test.TestGroup;
 @Test(groups = TestGroup.UNIT)
 public class SealableUtilsTest {
 
+  @SuppressWarnings("unchecked")
+  public void test_constructor() throws Exception {
+    Constructor<?>[] cons = SealableUtils.class.getDeclaredConstructors();
+    assertEquals(1, cons.length);
+    assertEquals(0, cons[0].getParameterTypes().length);
+    assertEquals(true, Modifier.isPrivate(cons[0].getModifiers()));
+    Constructor<SealableUtils> con = (Constructor<SealableUtils>) cons[0];
+    con.setAccessible(true);
+    con.newInstance();
+  }
+
+  //-------------------------------------------------------------------------
   private static class MockSealed implements Sealable {
     public void seal() {
     }

@@ -1,18 +1,16 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.equity;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Sets;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
@@ -43,25 +41,25 @@ public class UnderlyingMarketPriceFunction extends AbstractFunction.NonCompiledI
 
   private static MarketSecurityVisitor s_judgeOfMarketSecurities = new MarketSecurityVisitor();
   private static final Logger s_logger = LoggerFactory.getLogger(UnderlyingMarketPriceFunction.class);
-  
+
   @Override
   public ComputationTargetType getTargetType() {
     return ComputationTargetType.POSITION_OR_TRADE;
   }
-  
+
   @Override
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
     final double marketValue = (Double) inputs.getValue(MarketDataRequirementNames.MARKET_VALUE);
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     return Collections.singleton(new ComputedValue(new ValueSpecification(ValueRequirementNames.UNDERLYING_MARKET_PRICE, target.toSpecification(), desiredValue.getConstraints()), marketValue));
   }
-  
+
   /**
    * Currently set to apply to any market-traded security in {@link MarketSecurityVisitor}.<p>
    * TODO Constrain this further to those {@link FinancialSecurity}'s that have underlyings..
    * @param context The compilation context with view-specific parameters and configurations.
    * @param target the Target for which capability is to be tested
-   * @return true if FinancialSecurity underlying the Position or Trade is a market-traded Security, else false 
+   * @return true if FinancialSecurity underlying the Position or Trade is a market-traded Security, else false
    */
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
@@ -69,7 +67,11 @@ public class UnderlyingMarketPriceFunction extends AbstractFunction.NonCompiledI
       return false;
     }
     final FinancialSecurity security = (FinancialSecurity) target.getPositionOrTrade().getSecurity();
-    return security.accept(s_judgeOfMarketSecurities);
+    try {
+      return security.accept(s_judgeOfMarketSecurities);
+    } catch (Exception e) {
+      return false;
+    }
   }
 
   @Override
@@ -87,10 +89,10 @@ public class UnderlyingMarketPriceFunction extends AbstractFunction.NonCompiledI
   @Override
   public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
     final Security security = target.getPositionOrTrade().getSecurity();
-    try {
-      final ExternalId underlyingId = FinancialSecurityUtils.getUnderlyingId(security);
+    final ExternalId underlyingId = FinancialSecurityUtils.getUnderlyingId(security);
+    if (underlyingId != null) {
       return Collections.singleton(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, underlyingId));
-    } catch (Exception e) {
+    } else {
       s_logger.info("No underlying found for {}. The security itself will be used as its own underlying", security.getName());
       return Collections.singleton(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, security.getUniqueId()));
     }

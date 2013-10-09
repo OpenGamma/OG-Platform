@@ -32,6 +32,7 @@ import com.opengamma.util.tuple.Pair;
  * @param <M> the type of the master
  */
 @PublicSPI
+@SuppressWarnings("deprecation")
 public abstract class AbstractMasterSource<V extends UniqueIdentifiable, D extends AbstractDocument, M extends AbstractChangeProvidingMaster<? extends D>>
     extends AbstractSource<V> implements Source<V>, VersionedSource, ObjectChangeListenerManager {
 

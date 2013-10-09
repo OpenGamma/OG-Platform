@@ -13,14 +13,12 @@ import com.opengamma.analytics.financial.commodity.definition.SettlementType;
 import com.opengamma.analytics.financial.equity.future.derivative.IndexFuture;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
-import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 /**
  * Generic index future definition. An IndexFuture is always cash-settled.
- * @author casey
  */
 public class IndexFutureDefinition implements InstrumentDefinitionWithData<IndexFuture, Double> {
   /** ZonedDateTime on which settlement value of index is fixed */
@@ -185,11 +183,21 @@ public class IndexFutureDefinition implements InstrumentDefinitionWithData<Index
 
   @Override
   public IndexFuture toDerivative(ZonedDateTime date, String... yieldCurveNames) {
-    return toDerivative(date, getReferencePrice(), yieldCurveNames);
+    return toDerivative(date, getReferencePrice());
   }
 
   @Override
   public IndexFuture toDerivative(ZonedDateTime date, Double referencePrice, String... yieldCurveNames) {
+    return toDerivative(date, referencePrice);
+  }
+
+  @Override
+  public IndexFuture toDerivative(ZonedDateTime date) {
+    return toDerivative(date, getReferencePrice());
+  }
+
+  @Override
+  public IndexFuture toDerivative(ZonedDateTime date, Double referencePrice) {
     ArgumentChecker.notNull(date, "date");
     final double timeToFixing = TimeCalculator.getTimeBetween(date, getExpiryDate());
     final double timeToDelivery = TimeCalculator.getTimeBetween(date, getSettlementDate());

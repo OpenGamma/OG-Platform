@@ -37,6 +37,11 @@ import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculatio
 public class MultiCurveCalculationConfigFunction extends AbstractFunction {
 
   @Override
+  public void init(final FunctionCompilationContext context) {
+    ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
+  }
+
+  @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
     final ZonedDateTime atZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
     return new AbstractInvokingCompiledFunction(atZDT.with(LocalTime.MIDNIGHT), atZDT.plusDays(1).with(LocalTime.MIDNIGHT).minusNanos(1000000)) {
@@ -47,7 +52,7 @@ public class MultiCurveCalculationConfigFunction extends AbstractFunction {
       }
 
       @Override
-      public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+      public Set<ValueSpecification> getResults(final FunctionCompilationContext compilationContext, final ComputationTarget target) {
         final ValueProperties properties = createValueProperties()
             .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG).get();
         final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.CURVE_CALCULATION_CONFIG, target.toSpecification(), properties);
@@ -55,7 +60,7 @@ public class MultiCurveCalculationConfigFunction extends AbstractFunction {
       }
 
       @Override
-      public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+      public Set<ValueRequirement> getRequirements(final FunctionCompilationContext compilationContext, final ComputationTarget target, final ValueRequirement desiredValue) {
         return Collections.emptySet();
       }
 
@@ -70,6 +75,7 @@ public class MultiCurveCalculationConfigFunction extends AbstractFunction {
             .with(ValuePropertyNames.CURVE_CALCULATION_CONFIG, curveConfigName).get();
         return Collections.singleton(new ComputedValue(new ValueSpecification(ValueRequirementNames.CURVE_CALCULATION_CONFIG, target.toSpecification(), properties), config));
       }
+
     };
   }
 

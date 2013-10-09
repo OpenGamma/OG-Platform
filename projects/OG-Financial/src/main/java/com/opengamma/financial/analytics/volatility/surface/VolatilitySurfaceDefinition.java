@@ -20,7 +20,7 @@ import com.opengamma.util.money.Currency;
  * @param <X> Type of the x-data
  * @param <Y> Type of the y-data
  */
-@Config
+@Config(description = "Volatility surface definition")
 public class VolatilitySurfaceDefinition<X, Y> {
   private final String _name;
   private final UniqueIdentifiable _target;

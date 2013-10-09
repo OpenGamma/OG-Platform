@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isda;
@@ -23,7 +23,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 
 /**
- * 
+ *
  */
 public class ISDACompliantScheduleGeneratorTest {
   private static final DayCount ACT = DayCountFactory.INSTANCE.getDayCount("ACT/365");
@@ -37,7 +37,7 @@ public class ISDACompliantScheduleGeneratorTest {
       LocalDate.of(2015, 4, 30) };
 
   /**
-   * 
+   *
    */
   @Test
   public void getIntegrationNodesAsDatesTest() {
@@ -78,7 +78,7 @@ public class ISDACompliantScheduleGeneratorTest {
   }
 
   /**
-   * 
+   *
    */
   @Test
   public void toZonedDateTimeMatchTest() {
@@ -99,7 +99,7 @@ public class ISDACompliantScheduleGeneratorTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void toZoneDateTimeNullTest() {
@@ -108,7 +108,7 @@ public class ISDACompliantScheduleGeneratorTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void toZoneDateTimeNullArrayTest() {
@@ -117,7 +117,7 @@ public class ISDACompliantScheduleGeneratorTest {
   }
 
   /**
-   * 
+   *
    */
   @Test
   public void toLocalDateMatchTest() {
@@ -135,7 +135,7 @@ public class ISDACompliantScheduleGeneratorTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void toLocalDateNullArrayTest() {
@@ -144,7 +144,7 @@ public class ISDACompliantScheduleGeneratorTest {
   }
 
   /**
-   * 
+   *
    */
   @Test
   void nodesAsTimesTest() {
@@ -166,7 +166,7 @@ public class ISDACompliantScheduleGeneratorTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nodesAsTimesNullTodayTest() {
@@ -175,7 +175,7 @@ public class ISDACompliantScheduleGeneratorTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nodesAsTimesNullStartTest() {
@@ -185,7 +185,7 @@ public class ISDACompliantScheduleGeneratorTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nodesAsTimeTodayAfterStartTest() {
@@ -194,9 +194,8 @@ public class ISDACompliantScheduleGeneratorTest {
   }
 
   /**
-   * 
+   *
    */
-  @SuppressWarnings("deprecation")
   @Test
   void nodesAsTimesDeprecatedTest() {
     final ZonedDateTime today = ZonedDateTime.of(2013, 1, 23, 12, 0, 0, 0, ZoneId.of("Z"));
@@ -228,9 +227,8 @@ public class ISDACompliantScheduleGeneratorTest {
   }
 
   /**
-   * 
+   *
    */
-  @SuppressWarnings("deprecation")
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nodesAsTimesNullDiscountCurveDeprecatedTest() {
     final ZonedDateTime today = ZonedDateTime.of(2013, 1, 23, 12, 0, 0, 0, ZoneId.of("Z"));
@@ -245,9 +243,8 @@ public class ISDACompliantScheduleGeneratorTest {
   }
 
   /**
-   * 
+   *
    */
-  @SuppressWarnings("deprecation")
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nodesAsTimesNullSpreadCurveDeprecatedTest() {
     final ZonedDateTime today = ZonedDateTime.of(2013, 1, 23, 12, 0, 0, 0, ZoneId.of("Z"));
@@ -261,7 +258,7 @@ public class ISDACompliantScheduleGeneratorTest {
   }
 
   /**
-   * 
+   *
    */
   @Test
   public void truncateListTest() {
@@ -288,7 +285,7 @@ public class ISDACompliantScheduleGeneratorTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void truncateListNullStartTest() {
@@ -299,7 +296,7 @@ public class ISDACompliantScheduleGeneratorTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void truncateListNullEndTest() {
@@ -310,7 +307,7 @@ public class ISDACompliantScheduleGeneratorTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void truncateListNullListTest() {
@@ -321,7 +318,7 @@ public class ISDACompliantScheduleGeneratorTest {
   }
 
   /**
-   * 
+   *
    */
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void truncateListStartAfterEndTest() {
@@ -334,7 +331,6 @@ public class ISDACompliantScheduleGeneratorTest {
   /**
    * Deprecated methods in {@link GenerateCreditDefaultSwapIntegrationSchedule}
    */
-  @SuppressWarnings("deprecation")
   @Test
   public void regressionTest() {
     final GenerateCreditDefaultSwapIntegrationSchedule calculator = new GenerateCreditDefaultSwapIntegrationSchedule();
@@ -353,7 +349,7 @@ public class ISDACompliantScheduleGeneratorTest {
     final double[] ycRates = new double[] {0.005, 0.006, 0.008, 0.009, 0.01, 0.012, 0.018, 0.02, 0.03 };
     final double offset = 1. / 365;
     final ISDADateCurve yieldCurve;
-    int n = hazDates.length;
+    final int n = hazDates.length;
     hazTimes = new double[n];
     for (int i = 0; i < n; i++) {
       hazTimes[i] = ACT.getDayCountFraction(baseDate, hazDates[i]);
@@ -364,7 +360,7 @@ public class ISDACompliantScheduleGeneratorTest {
     for (int j = 5; j < 21; j += 3) {
       final CreditDefaultSwapDefinition cds1 = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaDefinition().withMaturityDate(valDate.plusYears(j));
 
-      LocalDate[] res1Deprecated = ISDACompliantScheduleGenerator.toLocalDate(calculator.constructCreditDefaultSwapAccruedLegIntegrationSchedule(valDate, cds1, yieldCurve, hazardRateCurve, true));
+      final LocalDate[] res1Deprecated = ISDACompliantScheduleGenerator.toLocalDate(calculator.constructCreditDefaultSwapAccruedLegIntegrationSchedule(valDate, cds1, yieldCurve, hazardRateCurve, true));
       final int nRes1Deprecated = res1Deprecated.length;
 
       final LocalDate startDateLocal = ISDACompliantScheduleGenerator.toLocalDate(new ZonedDateTime[] {cds1.getStartDate() })[0];
@@ -376,7 +372,7 @@ public class ISDACompliantScheduleGeneratorTest {
       final LocalDate[] hazDatesLocal = ISDACompliantScheduleGenerator.toLocalDate(hazDates);
       final LocalDate[] ycDatesLocal = ISDACompliantScheduleGenerator.toLocalDate(ycDates);
 
-      LocalDate[] res1 = ISDACompliantScheduleGenerator.getIntegrationNodesAsDates(startDateLocal, endDateLocal, ycDatesLocal, hazDatesLocal);
+      final LocalDate[] res1 = ISDACompliantScheduleGenerator.getIntegrationNodesAsDates(startDateLocal, endDateLocal, ycDatesLocal, hazDatesLocal);
       final int nRes1 = res1.length;
       //      for (int i = 0; i < nRes1Deprecated; ++i) {
       //        System.out.println(res1Deprecated[i]);
@@ -396,7 +392,7 @@ public class ISDACompliantScheduleGeneratorTest {
        * Note that valuation date is used only for start date and end date
        * Other date points are computed with the base date contained in yield curve and hazard rate curve
        */
-      double[] res2Deprecated = calculator.constructCreditDefaultSwapContingentLegIntegrationSchedule(baseDate, cds1.getStartDate(), cds1.getMaturityDate().plusDays(1),
+      final double[] res2Deprecated = calculator.constructCreditDefaultSwapContingentLegIntegrationSchedule(baseDate, cds1.getStartDate(), cds1.getMaturityDate().plusDays(1),
           cds1, yieldCurve, hazardRateCurve);
       final int nRes2Deprecated = res2Deprecated.length;
 
@@ -412,7 +408,7 @@ public class ISDACompliantScheduleGeneratorTest {
       for (int i = 0; i < n; ++i) {
         hazDatesLocalOffset[i] = hazDatesLocal[i].plusDays(1);
       }
-      double[] res2 = ISDACompliantScheduleGenerator.getIntegrationNodesAsTimes(baseDateLocal, startDateLocal, endDateLocal, ycDatesLocalOffset, hazDatesLocalOffset);
+      final double[] res2 = ISDACompliantScheduleGenerator.getIntegrationNodesAsTimes(baseDateLocal, startDateLocal, endDateLocal, ycDatesLocalOffset, hazDatesLocalOffset);
       final int nRes2 = res2.length;
 
       //    for (int i = 0; i < nRes2Deprecated; ++i) {

@@ -108,7 +108,7 @@ public abstract class AbstractDataResource {
    * @param value  the value to check
    * @throws WebApplicationException if the value is null
    */
-  protected void responseNullTo404(final Object value) {
+  protected void responseNullTo404(final Object value) throws WebApplicationException {
     if (value == null) {
       throw new WebApplicationException(Response.Status.NOT_FOUND);
     }

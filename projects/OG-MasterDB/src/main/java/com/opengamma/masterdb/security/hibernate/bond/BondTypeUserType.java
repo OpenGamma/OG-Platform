@@ -8,6 +8,7 @@ package com.opengamma.masterdb.security.hibernate.bond;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
+import com.opengamma.financial.security.bond.InflationBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.masterdb.security.hibernate.EnumUserType;
 
@@ -19,6 +20,7 @@ public class BondTypeUserType extends EnumUserType<BondType> {
   private static final String CORPORATE_BOND_TYPE = "Corporate";
   private static final String GOVERNMENT_BOND_TYPE = "Government";
   private static final String MUNICIPAL_BOND_TYPE = "Municipal";
+  private static final String INFLATION_BOND_TYPE = "Inflation";
 
   public BondTypeUserType() {
     super(BondType.class, BondType.values());
@@ -41,6 +43,11 @@ public class BondTypeUserType extends EnumUserType<BondType> {
       @Override
       public String visitMunicipalBondSecurity(MunicipalBondSecurity bond) {
         return MUNICIPAL_BOND_TYPE;
+      }
+      
+      @Override
+      public String visitInflationBondSecurity(InflationBondSecurity bond) {
+        return INFLATION_BOND_TYPE;
       }
     });
   }

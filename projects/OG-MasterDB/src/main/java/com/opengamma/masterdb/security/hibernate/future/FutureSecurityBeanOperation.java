@@ -28,6 +28,7 @@ import com.opengamma.financial.security.future.EnergyFutureSecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
 import com.opengamma.financial.security.future.FXFutureSecurity;
+import com.opengamma.financial.security.future.FederalFundsFutureSecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
@@ -232,6 +233,18 @@ public final class FutureSecurityBeanOperation
           return security;
         }
 
+        @Override
+        public FutureSecurity visitFederalFundsFutureType(FederalFundsFutureBean bean) {
+          final FederalFundsFutureSecurity security = new FederalFundsFutureSecurity(
+              expiryBeanToExpiry(bean.getExpiry()),
+              bean.getTradingExchange().getName(),
+              bean.getSettlementExchange().getName(),
+              currencyBeanToCurrency(bean.getCurrency()),
+              bean.getUnitAmount(),
+              externalIdBeanToExternalId(bean.getUnderlying()),
+              bean.getCategory().getName());
+          return security;
+        }
       });
     return sec;
   }
@@ -295,6 +308,10 @@ public final class FutureSecurityBeanOperation
           return bean;
         }
 
+        @Override
+        public FutureSecurityBean visitFederalFundsFutureType(FederalFundsFutureBean bean) {
+          return bean;
+        }
       });
   }
 
@@ -369,6 +386,12 @@ public final class FutureSecurityBeanOperation
 
       @Override
       public Object visitStockFutureType(StockFutureBean bean) {
+        postPersistFuture();
+        return null;
+      }
+      
+      @Override
+      public Object visitFederalFundsFutureType(FederalFundsFutureBean bean) {
         postPersistFuture();
         return null;
       }
@@ -526,6 +549,14 @@ public final class FutureSecurityBeanOperation
         final EquityIndexDividendFutureBean bean = createFutureBean(new EquityIndexDividendFutureBean(), security);
         bean.setUnderlying(externalIdToExternalIdBean(security
           .getUnderlyingId()));
+        return bean;
+      }
+      
+      @Override
+      public FutureSecurityBean visitFederalFundsFutureSecurity(FederalFundsFutureSecurity security) {
+        final FederalFundsFutureBean bean = createFutureBean(new FederalFundsFutureBean(), security);
+        bean.setUnderlying(externalIdToExternalIdBean(security
+            .getUnderlyingId()));
         return bean;
       }
     });

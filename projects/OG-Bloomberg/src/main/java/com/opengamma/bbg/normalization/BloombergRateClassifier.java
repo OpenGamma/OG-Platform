@@ -20,8 +20,8 @@ import com.opengamma.bbg.loader.BloombergSecurityTypeResolver;
 import com.opengamma.bbg.loader.SecurityType;
 import com.opengamma.bbg.loader.SecurityTypeResolver;
 import com.opengamma.bbg.referencedata.ReferenceDataProvider;
-import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ExternalScheme;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
 
@@ -38,20 +38,24 @@ public class BloombergRateClassifier {
   private final SecurityTypeResolver _securityTypeResolver;
   private final BloombergFXForwardScaleResolver _fwdScaleResolver;
   private final Cache _cache;
+  private final ExternalScheme _bbgScheme;
   
   /**
    * Constructs an instance.
    * 
    * @param referenceDataProvider  the underlying reference data provider, not null
    * @param cacheManager  the cache manager, not null
+   * @param bbgScheme the scheme that should be used to subscribe, not null
    */
-  public BloombergRateClassifier(ReferenceDataProvider referenceDataProvider, CacheManager cacheManager) {
+  public BloombergRateClassifier(ReferenceDataProvider referenceDataProvider, CacheManager cacheManager, ExternalScheme bbgScheme) {
     ArgumentChecker.notNull(referenceDataProvider, "referenceDataProvider");
     ArgumentChecker.notNull(cacheManager, "cacheManager");
+    ArgumentChecker.notNull(bbgScheme, "bbgScheme");
     _securityTypeResolver = new BloombergSecurityTypeResolver(referenceDataProvider);
-    _fwdScaleResolver = new BloombergFXForwardScaleResolver(referenceDataProvider);
+    _fwdScaleResolver = new BloombergFXForwardScaleResolver(referenceDataProvider, bbgScheme);
     EHCacheUtils.addCache(cacheManager, CACHE_KEY);
     _cache = EHCacheUtils.getCacheFromManager(cacheManager, CACHE_KEY);
+    _bbgScheme = bbgScheme;
   }
   
   /**
@@ -82,7 +86,7 @@ public class BloombergRateClassifier {
   }
 
   private Integer getNormalizationFactorCore(String buid) {
-    ExternalIdBundle buidBundle = ExternalIdBundle.of(ExternalSchemes.BLOOMBERG_BUID, buid);
+    ExternalIdBundle buidBundle = ExternalIdBundle.of(_bbgScheme, buid);
     SecurityType securityType = _securityTypeResolver.getSecurityType(Collections.singleton(buidBundle)).get(buidBundle);
     if (securityType == null) {
       s_logger.warn("Unable to determine security type for BUID " + buid);
@@ -108,6 +112,7 @@ public class BloombergRateClassifier {
       case SWAP:
       case VOLATILITY_QUOTE:
       case CD:
+      case INFLATION_SWAP:
         return 100;
       case EQUITY_FUTURE:
         return 1;

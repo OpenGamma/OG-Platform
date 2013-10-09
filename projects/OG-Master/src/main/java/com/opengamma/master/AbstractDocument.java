@@ -133,6 +133,7 @@ public abstract class AbstractDocument extends DirectBean
   public static AbstractDocument.Meta meta() {
     return AbstractDocument.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(AbstractDocument.Meta.INSTANCE);
   }

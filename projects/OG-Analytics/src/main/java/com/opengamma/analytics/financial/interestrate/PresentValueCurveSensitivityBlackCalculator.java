@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -16,16 +16,21 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.Interest
 import com.opengamma.analytics.financial.interestrate.future.method.BondFutureOptionPremiumTransactionBlackSurfaceMethod;
 import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureOptionMarginTransactionBlackSurfaceMethod;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
+import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedCompoundedONCompounded;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.method.SwaptionCashFixedIborBlackMethod;
+import com.opengamma.analytics.financial.interestrate.swaption.method.SwaptionPhysicalFixedCompoundedONCompoundedBlackMethod;
 import com.opengamma.analytics.financial.interestrate.swaption.method.SwaptionPhysicalFixedIborBlackMethod;
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackSwaptionBundle;
+import com.opengamma.analytics.financial.provider.calculator.blackstirfutures.PresentValueCurveSensitivityBlackSTIRFutureOptionCalculator;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Present value curve sensitivity calculator for interest rate instruments using the Black formula.
+ * @deprecated Use {@link PresentValueCurveSensitivityBlackSTIRFutureOptionCalculator}
  */
+@Deprecated
 public final class PresentValueCurveSensitivityBlackCalculator extends PresentValueCurveSensitivityCalculator {
 
   /**
@@ -52,8 +57,9 @@ public final class PresentValueCurveSensitivityBlackCalculator extends PresentVa
    */
   private static final SwaptionPhysicalFixedIborBlackMethod PHYSICAL_SWAPTION = SwaptionPhysicalFixedIborBlackMethod.getInstance();
   private static final SwaptionCashFixedIborBlackMethod CASH_SWAPTION = SwaptionCashFixedIborBlackMethod.getInstance();
-  private static final InterestRateFutureOptionMarginTransactionBlackSurfaceMethod MARGINNED_IR_FUTURE_OPTION = InterestRateFutureOptionMarginTransactionBlackSurfaceMethod.getInstance();
+  private static final InterestRateFutureOptionMarginTransactionBlackSurfaceMethod MARGINED_IR_FUTURE_OPTION = InterestRateFutureOptionMarginTransactionBlackSurfaceMethod.getInstance();
   private static final BondFutureOptionPremiumTransactionBlackSurfaceMethod PREMIUM_BOND_FUTURE_OPTION = BondFutureOptionPremiumTransactionBlackSurfaceMethod.getInstance();
+  private static final SwaptionPhysicalFixedCompoundedONCompoundedBlackMethod METHOD_SWAPTION_PHYSICAL_COMPOUNDED = SwaptionPhysicalFixedCompoundedONCompoundedBlackMethod.getInstance();
 
   @Override
   public Map<String, List<DoublesPair>> visitSwaptionCashFixedIbor(final SwaptionCashFixedIbor swaption, final YieldCurveBundle curves) {
@@ -78,10 +84,22 @@ public final class PresentValueCurveSensitivityBlackCalculator extends PresentVa
   }
 
   @Override
+  public Map<String, List<DoublesPair>> visitSwaptionPhysicalFixedCompoundedONCompounded(final SwaptionPhysicalFixedCompoundedONCompounded swaption, final YieldCurveBundle curves) {
+    ArgumentChecker.notNull(swaption, "swaption");
+    ArgumentChecker.notNull(curves, "curves");
+    if (curves instanceof YieldCurveWithBlackSwaptionBundle) {
+      final YieldCurveWithBlackSwaptionBundle curveBlack = (YieldCurveWithBlackSwaptionBundle) curves;
+      return METHOD_SWAPTION_PHYSICAL_COMPOUNDED.presentValueCurveSensitivity(swaption, curveBlack).getSensitivities();
+    }
+    throw new UnsupportedOperationException(
+        "The PresentValueBlackSwaptionSensitivityBlackSwaptionCalculator visitor visitSwaptionPhysicalFixedCompoundedONCompounded requires a YieldCurveWithBlackSwaptionBundle as data.");
+  }
+
+  @Override
   public Map<String, List<DoublesPair>> visitInterestRateFutureOptionMarginTransaction(final InterestRateFutureOptionMarginTransaction transaction, final YieldCurveBundle curves) {
     ArgumentChecker.notNull(transaction, "transaction");
     ArgumentChecker.notNull(curves, "curves");
-    return MARGINNED_IR_FUTURE_OPTION.presentValueCurveSensitivity(transaction, curves).getSensitivities();
+    return MARGINED_IR_FUTURE_OPTION.presentValueCurveSensitivity(transaction, curves).getSensitivities();
   }
 
   //TODO check this
@@ -93,7 +111,7 @@ public final class PresentValueCurveSensitivityBlackCalculator extends PresentVa
     final InterestRateFutureOptionMarginSecurity underlyingOption = new InterestRateFutureOptionMarginSecurity(premiumUnderlying.getUnderlyingFuture(),
         premiumUnderlying.getExpirationTime(), premiumUnderlying.getStrike(), premiumUnderlying.isCall());
     final InterestRateFutureOptionMarginTransaction marginTransaction = new InterestRateFutureOptionMarginTransaction(underlyingOption, transaction.getQuantity(), transaction.getTradePrice());
-    return MARGINNED_IR_FUTURE_OPTION.presentValueCurveSensitivity(marginTransaction, curves).getSensitivities();
+    return MARGINED_IR_FUTURE_OPTION.presentValueCurveSensitivity(marginTransaction, curves).getSensitivities();
   }
 
   //TODO check this

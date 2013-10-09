@@ -17,10 +17,20 @@ import com.opengamma.id.UniqueIdentifiable;
  * Holds the range of X for a future price curve (to be used with volatility surfaces).
  * @param <X> Type of the x-data 
  */
-@Config
+@Config(description = "Future price curve definition")
 public class FuturePriceCurveDefinition<X> {
+
+  /**
+   * The definition name.
+   */
   private String _name;
+  /**
+   * The target.
+   */
   private UniqueIdentifiable _target;
+  /**
+   * The definition values.
+   */
   private X[] _xs;
 
   public FuturePriceCurveDefinition(final String name, final UniqueIdentifiable target, final X[] xs) {

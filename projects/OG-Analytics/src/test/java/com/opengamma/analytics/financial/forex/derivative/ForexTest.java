@@ -28,8 +28,8 @@ public class ForexTest {
   private static final String DISCOUNTING_CURVE_NAME_CUR_1 = "Discounting EUR";
   private static final String DISCOUNTING_CURVE_NAME_CUR_2 = "Discounting USD";
 
-  private static final PaymentFixed PAY_1 = new PaymentFixed(CUR_1, PAYMENT_TIME, NOMINAL_1, DISCOUNTING_CURVE_NAME_CUR_1);
-  private static final PaymentFixed PAY_2 = new PaymentFixed(CUR_2, PAYMENT_TIME, -NOMINAL_1 * FX_RATE, DISCOUNTING_CURVE_NAME_CUR_2);
+  private static final PaymentFixed PAY_1 = new PaymentFixed(CUR_1, PAYMENT_TIME, NOMINAL_1);
+  private static final PaymentFixed PAY_2 = new PaymentFixed(CUR_2, PAYMENT_TIME, -NOMINAL_1 * FX_RATE);
 
   private static final Forex FX = new Forex(PAY_1, PAY_2);
 
@@ -52,18 +52,19 @@ public class ForexTest {
     assertEquals(PAY_2, FX.getPaymentCurrency2());
   }
 
+  @SuppressWarnings("deprecation")
   @Test
   /**
    * Tests the class equal and hashCode
    */
-  public void equalHash() {
+  public void equalHashDeprecated() {
     assertTrue(FX.equals(FX));
-    Forex newFx = new Forex(PAY_1, PAY_2);
+    final Forex newFx = new Forex(PAY_1, PAY_2);
     assertTrue(FX.equals(newFx));
     assertTrue(FX.hashCode() == newFx.hashCode());
     Forex modifiedFx;
-    PaymentFixed payModified1 = new PaymentFixed(CUR_1, PAYMENT_TIME, NOMINAL_1 * 10.0, DISCOUNTING_CURVE_NAME_CUR_1);
-    PaymentFixed payModified2 = new PaymentFixed(CUR_2, PAYMENT_TIME, -NOMINAL_1 * 10.0, DISCOUNTING_CURVE_NAME_CUR_2);
+    final PaymentFixed payModified1 = new PaymentFixed(CUR_1, PAYMENT_TIME, NOMINAL_1 * 10.0, DISCOUNTING_CURVE_NAME_CUR_1);
+    final PaymentFixed payModified2 = new PaymentFixed(CUR_2, PAYMENT_TIME, -NOMINAL_1 * 10.0, DISCOUNTING_CURVE_NAME_CUR_2);
     modifiedFx = new Forex(payModified1, PAY_2);
     assertFalse(FX.equals(modifiedFx));
     modifiedFx = new Forex(PAY_1, payModified2);
@@ -72,4 +73,23 @@ public class ForexTest {
     assertFalse(FX.equals(null));
   }
 
+  @Test
+  /**
+   * Tests the class equal and hashCode
+   */
+  public void equalHash() {
+    assertTrue(FX.equals(FX));
+    final Forex newFx = new Forex(PAY_1, PAY_2);
+    assertTrue(FX.equals(newFx));
+    assertTrue(FX.hashCode() == newFx.hashCode());
+    Forex modifiedFx;
+    final PaymentFixed payModified1 = new PaymentFixed(CUR_1, PAYMENT_TIME, NOMINAL_1 * 10.0);
+    final PaymentFixed payModified2 = new PaymentFixed(CUR_2, PAYMENT_TIME, -NOMINAL_1 * 10.0);
+    modifiedFx = new Forex(payModified1, PAY_2);
+    assertFalse(FX.equals(modifiedFx));
+    modifiedFx = new Forex(PAY_1, payModified2);
+    assertFalse(FX.equals(modifiedFx));
+    assertFalse(FX.equals(CUR_1));
+    assertFalse(FX.equals(null));
+  }
 }

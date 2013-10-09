@@ -8,6 +8,8 @@ package com.opengamma.util;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertSame;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,6 +24,18 @@ import com.opengamma.util.test.TestGroup;
 @Test(groups = TestGroup.UNIT)
 public class MapUtilsTest {
 
+  @SuppressWarnings("unchecked")
+  public void test_constructor() throws Exception {
+    Constructor<?>[] cons = MapUtils.class.getDeclaredConstructors();
+    assertEquals(1, cons.length);
+    assertEquals(0, cons[0].getParameterTypes().length);
+    assertEquals(true, Modifier.isPrivate(cons[0].getModifiers()));
+    Constructor<MapUtils> con = (Constructor<MapUtils>) cons[0];
+    con.setAccessible(true);
+    con.newInstance();
+  }
+
+  //-------------------------------------------------------------------------
   public void test_putIfAbsentGet() {
     Map<String, Map<Integer, String>> map = Maps.newHashMap();
     assertEquals(0, map.size());

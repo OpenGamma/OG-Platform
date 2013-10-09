@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.interestrate.definition;
@@ -9,10 +9,13 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.analytics.financial.provider.description.interestrate.LiborMarketModelDisplacedDiffusionProviderDiscount;
 
 /**
  * Class describing the data required to price interest rate derivatives with LMM displaced diffusion (curves and parameters).
+ * @deprecated Use {@link LiborMarketModelDisplacedDiffusionProviderDiscount}
  */
+@Deprecated
 public class LiborMarketModelDisplacedDiffusionDataBundle extends YieldCurveBundle {
 
   /**

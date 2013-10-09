@@ -145,7 +145,7 @@ abstract class CubicSplineSolver {
       final double[][] commonVecSensitivity) {
     final int nDataPts = xValues.length;
 
-    final DoubleMatrix1D[] soln = combinedMatrixEqnSolver(toBeInv, commonVector, commonVecSensitivity);
+    final DoubleMatrix1D[] soln = this.combinedMatrixEqnSolver(toBeInv, commonVector, commonVecSensitivity);
     final DoubleMatrix2D[] res = new DoubleMatrix2D[nDataPts];
 
     res[0] = getCommonSplineCoeffs(xValues, yValues, intervals, soln[0].getData());

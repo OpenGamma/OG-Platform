@@ -12,6 +12,10 @@ import com.opengamma.util.ArgumentChecker;
 
 import net.sf.ehcache.constructs.blocking.CacheEntryFactory;
 
+/**
+ * Cache factory.
+ * @param <D>  the document type
+ */
 public class UidToDocumentCacheEntryFactory<D extends AbstractDocument> implements CacheEntryFactory {
 
   /** The underlying master. */

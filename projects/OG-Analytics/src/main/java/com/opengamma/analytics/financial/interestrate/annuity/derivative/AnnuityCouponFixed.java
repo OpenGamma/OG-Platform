@@ -1,14 +1,12 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.annuity.derivative;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
@@ -28,12 +26,52 @@ public class AnnuityCouponFixed extends Annuity<CouponFixed> {
     super(payments);
   }
 
+  /**
+   * @param currency The currency, not null
+   * @param paymentTimes The payment times, not null
+   * @param couponRate The coupon rate
+   * @param yieldCurveName The yield curve name
+   * @param isPayer True if the annuity is paid
+   * @deprecated Use the constructor that does not take a yield curve name
+   */
+  @Deprecated
   public AnnuityCouponFixed(final Currency currency, final double[] paymentTimes, final double couponRate, final String yieldCurveName, final boolean isPayer) {
     this(currency, paymentTimes, 1.0, couponRate, yieldCurveName, isPayer);
   }
 
+  /**
+   * @param currency The currency, not null
+   * @param paymentTimes The payment times, not null
+   * @param couponRate The coupon rate
+   * @param isPayer True if the annuity is paid
+   */
+  public AnnuityCouponFixed(final Currency currency, final double[] paymentTimes, final double couponRate, final boolean isPayer) {
+    this(currency, paymentTimes, 1.0, couponRate, isPayer);
+  }
+
+  /**
+   * @param currency The currency, not null
+   * @param paymentTimes The payment times, not null
+   * @param notional The notional
+   * @param couponRate The coupon rate
+   * @param yieldCurveName The yield curve name
+   * @param isPayer True if the annuity is paid
+   * @deprecated Use the constructor that does not take a yield curve name
+   */
+  @Deprecated
   public AnnuityCouponFixed(final Currency currency, final double[] paymentTimes, final double notional, final double couponRate, final String yieldCurveName, final boolean isPayer) {
     this(currency, paymentTimes, notional, couponRate, initBasisYearFraction(paymentTimes), yieldCurveName, isPayer);
+  }
+
+  /**
+   * @param currency The currency, not null
+   * @param paymentTimes The payment times, not null
+   * @param notional The notional
+   * @param couponRate The coupon rate
+   * @param isPayer True if the annuity is paid
+   */
+  public AnnuityCouponFixed(final Currency currency, final double[] paymentTimes, final double notional, final double couponRate, final boolean isPayer) {
+    this(currency, paymentTimes, notional, couponRate, initBasisYearFraction(paymentTimes), isPayer);
   }
 
   /**
@@ -45,10 +83,26 @@ public class AnnuityCouponFixed extends Annuity<CouponFixed> {
    * @param yearFractions The year fraction of each payment.
    * @param yieldCurveName The discounting curve name.
    * @param isPayer Payer flag.
+   * @deprecated Use the constructor that does not take a yield curve name
    */
+  @Deprecated
   public AnnuityCouponFixed(final Currency currency, final double[] paymentTimes, final double notional, final double couponRate, final double[] yearFractions,
       final String yieldCurveName, final boolean isPayer) {
     super(init(currency, paymentTimes, notional * (isPayer ? -1.0 : 1.0), couponRate, yearFractions, yieldCurveName));
+  }
+
+  /**
+   * Constructor from payment times and year fractions and unique notional and rate.
+   * @param currency The payment currency.
+   * @param paymentTimes The times (in year) of payment.
+   * @param notional The common notional.
+   * @param couponRate The common coupon rate.
+   * @param yearFractions The year fraction of each payment.
+   * @param isPayer Payer flag.
+   */
+  public AnnuityCouponFixed(final Currency currency, final double[] paymentTimes, final double notional, final double couponRate, final double[] yearFractions,
+      final boolean isPayer) {
+    super(init(currency, paymentTimes, notional * (isPayer ? -1.0 : 1.0), couponRate, yearFractions));
   }
 
   /**
@@ -151,15 +205,17 @@ public class AnnuityCouponFixed extends Annuity<CouponFixed> {
    * @param yearFractions The year fraction of each payment.
    * @param yieldCurveName The discounting curve name.
    * @return The array of fixed coupons.
+   * @deprecated Use the method that does not take yield curve names
    */
+  @Deprecated
   private static CouponFixed[] init(final Currency currency, final double[] paymentTimes, final double notional, final double couponRate, final double[] yearFractions, final String yieldCurveName) {
-    Validate.notNull(paymentTimes);
-    Validate.isTrue(paymentTimes.length > 0, "payment times array is empty");
-    Validate.notNull(yearFractions);
-    Validate.isTrue(yearFractions.length > 0, "year fraction array is empty");
-    Validate.notNull(yieldCurveName);
+    ArgumentChecker.notNull(paymentTimes, "payment times");
+    ArgumentChecker.isTrue(paymentTimes.length > 0, "payment times array is empty");
+    ArgumentChecker.notNull(yearFractions, "year fractions");
+    ArgumentChecker.isTrue(yearFractions.length > 0, "year fraction array is empty");
+    ArgumentChecker.notNull(yieldCurveName, "yield curve name");
     final int n = paymentTimes.length;
-    Validate.isTrue(yearFractions.length == n);
+    ArgumentChecker.isTrue(yearFractions.length == n, "Number of year fractions must equal the number of payments");
     final CouponFixed[] temp = new CouponFixed[n];
     for (int i = 0; i < n; i++) {
       temp[i] = new CouponFixed(currency, paymentTimes[i], yieldCurveName, yearFractions[i], notional, couponRate);
@@ -167,9 +223,32 @@ public class AnnuityCouponFixed extends Annuity<CouponFixed> {
     return temp;
   }
 
+  /**
+   * A list of fixed coupon from payment times and year fractions and unique notional and rate.
+   * @param currency The payment currency.
+   * @param paymentTimes The times (in year) of payment.
+   * @param notional The common notional.
+   * @param couponRate The common coupon rate.
+   * @param yearFractions The year fraction of each payment.
+   * @return The array of fixed coupons.
+   */
+  private static CouponFixed[] init(final Currency currency, final double[] paymentTimes, final double notional, final double couponRate, final double[] yearFractions) {
+    ArgumentChecker.notNull(paymentTimes, "payment times");
+    ArgumentChecker.isTrue(paymentTimes.length > 0, "payment times array is empty");
+    ArgumentChecker.notNull(yearFractions, "year fractions");
+    ArgumentChecker.isTrue(yearFractions.length > 0, "year fraction array is empty");
+    final int n = paymentTimes.length;
+    ArgumentChecker.isTrue(yearFractions.length == n, "Number of year fractions must equal the number of payments");
+    final CouponFixed[] temp = new CouponFixed[n];
+    for (int i = 0; i < n; i++) {
+      temp[i] = new CouponFixed(currency, paymentTimes[i], yearFractions[i], notional, couponRate);
+    }
+    return temp;
+  }
+
   private static double[] initBasisYearFraction(final double[] paymentTimes) {
-    Validate.notNull(paymentTimes);
-    Validate.isTrue(paymentTimes.length > 0, "payment times array is empty");
+    ArgumentChecker.notNull(paymentTimes, "payment times");
+    ArgumentChecker.isTrue(paymentTimes.length > 0, "payment times array is empty");
     final int n = paymentTimes.length;
     final double[] res = new double[n];
     for (int i = 0; i < n; i++) {

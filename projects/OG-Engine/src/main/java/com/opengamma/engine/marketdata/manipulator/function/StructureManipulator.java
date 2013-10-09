@@ -5,13 +5,15 @@
  */
 package com.opengamma.engine.marketdata.manipulator.function;
 
+import java.io.Serializable;
+
 /**
  * Interface defining the manipulation of a structured object (yield curve, vol surface etc) to be
  * undertaken.
  *
  * @param <T> the type of structure (yield curve, vol surface etc)
  */
-public interface StructureManipulator<T> {
+public interface StructureManipulator<T> extends Serializable {
 
   /**
    * Transforms a structured object into another structured object of the same type but with the

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.credit.calibratehazardratecurve;
@@ -558,10 +558,10 @@ public class CalibrateHazardRateCurveTest {
     // -------------------------------------------------------------------------------------
 
     // Create a calibration CDS (will be a modified version of the baseline CDS)
-    LegacyVanillaCreditDefaultSwapDefinition calibrationCDS = cds;
+    final LegacyVanillaCreditDefaultSwapDefinition calibrationCDS = cds;
 
     /*
-    
+
     // Set the recovery rate of the calibration CDS used for the curve calibration (this appears in the calculation of the contingent leg)
     calibrationCDS = calibrationCDS.withRecoveryRate(calibrationRecoveryRate);
 
@@ -578,7 +578,7 @@ public class CalibrateHazardRateCurveTest {
         System.out.println(calibratedHazardRateCurve[i]);
       }
     }
-    
+
     */
 
     // -------------------------------------------------------------------------------------
@@ -601,26 +601,25 @@ public class CalibrateHazardRateCurveTest {
     // -----------------------------------------------------------------------------------------------
   }
 
-  @SuppressWarnings("deprecation")
   @Test
   public void testCalibrateHazardRateCurveData() {
 
-    ZonedDateTime valuationDate = DateUtils.getUTCDate(2008, 6, 19);
-    ZonedDateTime startDate = DateUtils.getUTCDate(2008, 6, 25); // TODO: meaningful dates
-    ZonedDateTime effectiveDate = DateUtils.getUTCDate(2008, 6, 27);
-    ZonedDateTime maturityDate = DateUtils.getUTCDate(2014, 6, 27);
+    final ZonedDateTime valuationDate = DateUtils.getUTCDate(2008, 6, 19);
+    final ZonedDateTime startDate = DateUtils.getUTCDate(2008, 6, 25); // TODO: meaningful dates
+    final ZonedDateTime effectiveDate = DateUtils.getUTCDate(2008, 6, 27);
+    final ZonedDateTime maturityDate = DateUtils.getUTCDate(2014, 6, 27);
 
     final LegacyVanillaCreditDefaultSwapDefinition cds = new LegacyVanillaCreditDefaultSwapDefinition(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority,
         restructuringClause, calendar, startDate, effectiveDate, maturityDate, stubType, couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate,
         adjustEffectiveDate, adjustMaturityDate, notional, recoveryRate, includeAccruedPremium, protectionStart, parSpread);
 
-    PresentValueCreditDefaultSwap pvcds = new PresentValueCreditDefaultSwap();
+    final PresentValueCreditDefaultSwap pvcds = new PresentValueCreditDefaultSwap();
 
-    ISDADateCurve curveISDADate = new ISDADateCurve("Test", BASE_DATE, CURVE_DATES, RATES, 0.0);
+    final ISDADateCurve curveISDADate = new ISDADateCurve("Test", BASE_DATE, CURVE_DATES, RATES, 0.0);
 
     // Set the tenors at which we have market observed par CDS spread quotes
     final int nbTenors = 10;
-    ZonedDateTime[] tenors = new ZonedDateTime[nbTenors];
+    final ZonedDateTime[] tenors = new ZonedDateTime[nbTenors];
     tenors[0] = DateUtils.getUTCDate(2008, 12, 20);
     tenors[1] = DateUtils.getUTCDate(2009, 6, 20);
     tenors[2] = DateUtils.getUTCDate(2010, 6, 20);
@@ -633,10 +632,10 @@ public class CalibrateHazardRateCurveTest {
     tenors[9] = DateUtils.getUTCDate(2040, 6, 20);
 
     //Note: The input are in bps. Should we change it to relative number to be coherent with the rest of the library? The scale is hard-coded (/10000.0 in the code).
-    double[] flat = {0.0, 1.0, 50.0, 100.0, 200.0, 1000.0 };    // Flat (tight, distressed, blown)
+    final double[] flat = {0.0, 1.0, 50.0, 100.0, 200.0, 1000.0 };    // Flat (tight, distressed, blown)
     // Note: Flat with 100000.0 fails to calibrate.
     final int nbFlat = flat.length;
-    double[][] zigzag = { {50.0, 60.0 }, {500.0, 550.0 } };
+    final double[][] zigzag = { {50.0, 60.0 }, {500.0, 550.0 } };
     // Note: Zig-zag with {500.0, 600.0 } fails to calibrate
     final int nbZigzag = zigzag.length;
     final double[][] upward = { {100.0, 20.0 }, {100.0, 40.0 } }; // Start, step
@@ -766,7 +765,7 @@ public class CalibrateHazardRateCurveTest {
   }
 
   //-------------------------------------------------------------------------
-  private static ZonedDateTime zdt(int y, int m, int d, int hr, int min, int sec, int nanos, ZoneId zone) {
+  private static ZonedDateTime zdt(final int y, final int m, final int d, final int hr, final int min, final int sec, final int nanos, final ZoneId zone) {
     return LocalDateTime.of(y, m, d, hr, min, sec, nanos).atZone(zone);
   }
 

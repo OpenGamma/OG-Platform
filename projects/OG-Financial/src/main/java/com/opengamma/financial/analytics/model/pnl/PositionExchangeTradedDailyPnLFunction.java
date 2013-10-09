@@ -49,7 +49,11 @@ public class PositionExchangeTradedDailyPnLFunction extends AbstractTradeOrDaily
     if (security instanceof FXForwardSecurity || security instanceof FXOptionSecurity || security instanceof FXBarrierOptionSecurity || security instanceof FXDigitalOptionSecurity) {
       return false;
     }
-    return FinancialSecurityUtils.isExchangeTraded(security) || (security instanceof BondSecurity);
+    try {
+      return FinancialSecurityUtils.isExchangeTraded(security) || (security instanceof BondSecurity);
+    } catch (Exception e) {
+      return false;
+    }
   }
 
   @Override

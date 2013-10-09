@@ -132,6 +132,7 @@ public class SecurityProviderRequest extends DirectBean {
   public static SecurityProviderRequest.Meta meta() {
     return SecurityProviderRequest.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(SecurityProviderRequest.Meta.INSTANCE);
   }

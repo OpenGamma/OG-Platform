@@ -108,7 +108,7 @@ public class RedisSimulationSeriesLoaderTool extends AbstractTool<ToolContext> {
           while (iterator.hasNext()) {
             final Map.Entry<LocalDate, Double> entry = iterator.next();
             final UniqueId id = UniqueId.of(htsId.getScheme().getName(), htsId.getValue());
-            source.setTimeSeriesPoint(id, source.getCurrentSimulationExecutionDate(), entry.getKey(), entry.getValue());
+            source.updateTimeSeriesPoint(id, source.getCurrentSimulationExecutionDate(), entry.getKey(), entry.getValue());
           }
           return series;
         }

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.method;
@@ -16,7 +16,9 @@ import com.opengamma.analytics.financial.model.interestrate.definition.HullWhite
 
 /**
  * Specific objective function for Hull-White model calibration with cap/floor.
+ * @deprecated {@link HullWhiteOneFactorPiecewiseConstantDataBundle} is deprecated
  */
+@Deprecated
 public class CapFloorHullWhiteCalibrationObjective extends SuccessiveRootFinderCalibrationObjective {
 
   /**
@@ -33,7 +35,7 @@ public class CapFloorHullWhiteCalibrationObjective extends SuccessiveRootFinderC
   private HullWhiteOneFactorPiecewiseConstantDataBundle _hwBundle;
 
   /**
-   * Constructor of the objective function with the Hull-White parameters. The parameters range and accuracy are set at some default value 
+   * Constructor of the objective function with the Hull-White parameters. The parameters range and accuracy are set at some default value
    * (minimum: 1.0E-6; maximum: 1.0, function value accuracy: 1.0E-4; parameter absolute accuracy: 1.0E-9).
    * @param parameters The Hull-White parameters.
    */
@@ -50,7 +52,7 @@ public class CapFloorHullWhiteCalibrationObjective extends SuccessiveRootFinderC
    * @param curves The curves.
    */
   @Override
-  public void setCurves(YieldCurveBundle curves) {
+  public void setCurves(final YieldCurveBundle curves) {
     _hwBundle = new HullWhiteOneFactorPiecewiseConstantDataBundle(_hwParameters, curves);
   }
 
@@ -74,18 +76,18 @@ public class CapFloorHullWhiteCalibrationObjective extends SuccessiveRootFinderC
    * Sets the calibration time for the next calibration.
    * @param calibrationTime The calibration time.
    */
-  public void setNextCalibrationTime(double calibrationTime) {
+  public void setNextCalibrationTime(final double calibrationTime) {
     _hwParameters.addVolatility(_hwParameters.getLastVolatility(), calibrationTime);
   }
 
   @Override
-  public void setInstrument(InstrumentDerivative instrument) {
+  public void setInstrument(final InstrumentDerivative instrument) {
     super.setInstrument(instrument);
     Validate.isTrue(instrument instanceof CapFloorIbor, "Instrument should be a cap/floor");
   }
 
   @Override
-  public Double evaluate(Double x) {
+  public Double evaluate(final Double x) {
     _hwBundle.getHullWhiteParameter().setLastVolatility(x);
     return METHOD_HW_CAP.presentValue(getInstrument(), _hwBundle).getAmount() - getPrice();
   }

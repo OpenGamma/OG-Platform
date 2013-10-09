@@ -38,6 +38,7 @@ public class CogdaLiveDataSnapshotResponseMessage extends CogdaLiveDataCommandRe
   public static CogdaLiveDataSnapshotResponseMessage.Meta meta() {
     return CogdaLiveDataSnapshotResponseMessage.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(CogdaLiveDataSnapshotResponseMessage.Meta.INSTANCE);
   }

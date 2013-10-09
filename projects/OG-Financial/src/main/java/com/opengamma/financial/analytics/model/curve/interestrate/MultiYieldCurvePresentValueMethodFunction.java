@@ -74,8 +74,10 @@ import com.opengamma.financial.analytics.conversion.InterestRateInstrumentTradeO
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithSecurity;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
+import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
+import com.opengamma.financial.analytics.model.curve.MultiCurveFunction;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
@@ -83,18 +85,30 @@ import com.opengamma.util.CompareUtils;
 import com.opengamma.util.money.Currency;
 
 /**
- *
+ * Constructs yield curves and the Jacobian from {@link YieldCurveDefinition}s. Multiple curves can
+ * be constructed simultaneously using root-finding. The configuration object that control the construction is
+ * {@link MultiCurveCalculationConfig}. The root-finder uses present value = 0 as its target.
+ * @deprecated This function uses configuration objects that have been superseded. Use functions
+ * that descend from {@link MultiCurveFunction}.
  */
+@Deprecated
 public class MultiYieldCurvePresentValueMethodFunction extends MultiYieldCurveFunction {
+  /** Calculates the present value of instruments on the curve */
   private static final PresentValueCalculator PV_CALCULATOR = PresentValueCalculator.getInstance();
+  /** Calculates the sensitivity of the present value of the instruments to the curve */
   private static final PresentValueCurveSensitivityCalculator PV_SENSITIVITY_CALCULATOR = PresentValueCurveSensitivityCalculator.getInstance();
+  /** Calculates the sensitivity of the present value to the coupons of the instruments */
   private static final PresentValueCouponSensitivityCalculator PV_COUPON_SENSITIVITY_CALCULATOR = PresentValueCouponSensitivityCalculator.getInstance();
+  /** Calculates the maturity time of the instruments on the curve */
   private static final LastTimeCalculator LAST_TIME_CALCULATOR = LastTimeCalculator.getInstance();
+  /** Converts securities to instrument definitions */
   private InterestRateInstrumentTradeOrSecurityConverter _securityConverter;
+  /** Converts definitions to derivatives */
   private FixedIncomeConverterDataProvider _definitionConverter;
 
   @Override
   public void init(final FunctionCompilationContext context) {
+    super.init(context);
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
@@ -120,17 +134,17 @@ public class MultiYieldCurvePresentValueMethodFunction extends MultiYieldCurveFu
     if (curveCalculationConfig == null) {
       throw new OpenGammaRuntimeException("Could not find curve calculation configuration named " + curveCalculationConfigName);
     }
-    final List<InstrumentDerivative> derivatives = new ArrayList<InstrumentDerivative>();
+    final List<InstrumentDerivative> derivatives = new ArrayList<>();
     final DoubleArrayList marketValues = new DoubleArrayList();
     final DoubleArrayList initialRatesGuess = new DoubleArrayList();
     final LinkedHashSet<String> curveNames = new LinkedHashSet<>();
     for (final String curveName : curveCalculationConfig.getYieldCurveNames()) {
       curveNames.add(curveName);
     }
-    final LinkedHashMap<String, double[]> curveNodes = new LinkedHashMap<String, double[]>();
-    final LinkedHashMap<String, Interpolator1D> interpolators = new LinkedHashMap<String, Interpolator1D>();
+    final LinkedHashMap<String, double[]> curveNodes = new LinkedHashMap<>();
+    final LinkedHashMap<String, Interpolator1D> interpolators = new LinkedHashMap<>();
     final ComputationTargetSpecification targetSpec = target.toSpecification();
-    final Map<String, Integer> nodesPerCurve = new HashMap<String, Integer>();
+    final Map<String, Integer> nodesPerCurve = new HashMap<>();
     final HistoricalTimeSeriesBundle timeSeries = getTimeSeriesBundle(inputs, targetSpec, curveCalculationConfigName);
     for (final String curveName : curveNames) {
       final InterpolatedYieldCurveSpecificationWithSecurities spec = getYieldCurveSpecification(inputs, targetSpec, curveName);
@@ -189,7 +203,7 @@ public class MultiYieldCurvePresentValueMethodFunction extends MultiYieldCurveFu
     final int iterations = Integer.parseInt(iterationsName);
     final boolean useFiniteDifference = Boolean.parseBoolean(useFiniteDifferenceName);
     final Decomposition<?> decomposition = DecompositionFactory.getDecomposition(decompositionName);
-    final Set<ComputedValue> results = new HashSet<ComputedValue>();
+    final Set<ComputedValue> results = new HashSet<>();
     final Currency currency = Currency.of(targetSpec.getUniqueId().getValue());
     final MultipleYieldCurveFinderDataBundle data = new MultipleYieldCurveFinderDataBundle(derivatives, marketValues.toDoubleArray(), knownCurves, curveNodes, interpolators, useFiniteDifference,
         new FXMatrix(currency));
@@ -228,7 +242,7 @@ public class MultiYieldCurvePresentValueMethodFunction extends MultiYieldCurveFu
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
+    final Set<ValueSpecification> results = new HashSet<>();
     results.addAll(super.getResults(context, target));
     final ValueProperties properties = getJacobianProperties();
     final ValueSpecification couponSensitivities = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_COUPON_SENSITIVITY, target.toSpecification(), properties);
@@ -238,7 +252,7 @@ public class MultiYieldCurvePresentValueMethodFunction extends MultiYieldCurveFu
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
-    final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
+    final Set<ValueSpecification> results = new HashSet<>();
     final ComputationTargetSpecification targetSpec = target.toSpecification();
     String curveCalculationConfigName = null;
     for (final Map.Entry<ValueSpecification, ValueRequirement> entry : inputs.entrySet()) {

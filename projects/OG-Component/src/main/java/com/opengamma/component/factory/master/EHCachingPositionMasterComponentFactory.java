@@ -86,6 +86,7 @@ public class EHCachingPositionMasterComponentFactory extends AbstractComponentFa
   public static EHCachingPositionMasterComponentFactory.Meta meta() {
     return EHCachingPositionMasterComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(EHCachingPositionMasterComponentFactory.Meta.INSTANCE);
   }

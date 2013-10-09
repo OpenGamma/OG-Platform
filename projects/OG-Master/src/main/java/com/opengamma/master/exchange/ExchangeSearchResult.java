@@ -107,6 +107,7 @@ public class ExchangeSearchResult extends AbstractSearchResult<ExchangeDocument>
   public static ExchangeSearchResult.Meta meta() {
     return ExchangeSearchResult.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ExchangeSearchResult.Meta.INSTANCE);
   }

@@ -1,16 +1,17 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.fra.derivative;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFloating;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -57,20 +58,50 @@ public class ForwardRateAgreement extends CouponFloating {
    * @param fixingYearFraction The year fraction (or accrual factor) for the fixing period.
    * @param rate The FRA rate.
    * @param forwardCurveName Name of the forward (or estimation) curve.
+   * @deprecated Use the constructor that does not take yield curve names
    */
+  @Deprecated
   public ForwardRateAgreement(final Currency currency, final double paymentTime, final String fundingCurveName, final double paymentYearFraction, final double notional, final IborIndex index,
       final double fixingTime, final double fixingPeriodStartTime, final double fixingPeriodEndTime, final double fixingYearFraction, final double rate, final String forwardCurveName) {
     super(currency, paymentTime, fundingCurveName, paymentYearFraction, notional, fixingTime);
-    Validate.notNull(forwardCurveName);
-    Validate.notNull(index);
-    Validate.isTrue(fixingPeriodStartTime >= fixingTime, "fixing period start < fixing time");
-    Validate.isTrue(fixingPeriodEndTime >= fixingPeriodStartTime, "fixing period end < fixing period start");
-    Validate.isTrue(fixingYearFraction >= 0, "forward year fraction < 0");
+    ArgumentChecker.notNull(forwardCurveName, "forward curve name");
+    ArgumentChecker.notNull(index, "index");
+    ArgumentChecker.isTrue(fixingPeriodStartTime >= fixingTime, "fixing period start < fixing time");
+    ArgumentChecker.isTrue(fixingPeriodEndTime >= fixingPeriodStartTime, "fixing period end < fixing period start");
+    ArgumentChecker.isTrue(fixingYearFraction >= 0, "forward year fraction < 0");
     _index = index;
     _fixingPeriodStartTime = fixingPeriodStartTime;
     _fixingPeriodEndTime = fixingPeriodEndTime;
     _fixingYearFraction = fixingYearFraction;
     _forwardCurveName = forwardCurveName;
+    _rate = rate;
+  }
+
+  /**
+   * Constructor from all details.
+   * @param currency The payment currency.
+   * @param paymentTime Time (in years) up to the payment.
+   * @param paymentYearFraction The year fraction (or accrual factor) for the coupon payment.
+   * @param notional Coupon notional.
+   * @param index The Ibor index.
+   * @param fixingTime Time (in years) up to fixing.
+   * @param fixingPeriodStartTime Time (in years) up to the start of the fixing period.
+   * @param fixingPeriodEndTime Time (in years) up to the end of the fixing period.
+   * @param fixingYearFraction The year fraction (or accrual factor) for the fixing period.
+   * @param rate The FRA rate.
+   */
+  public ForwardRateAgreement(final Currency currency, final double paymentTime, final double paymentYearFraction, final double notional, final IborIndex index,
+      final double fixingTime, final double fixingPeriodStartTime, final double fixingPeriodEndTime, final double fixingYearFraction, final double rate) {
+    super(currency, paymentTime, paymentYearFraction, notional, fixingTime);
+    ArgumentChecker.notNull(index, "index");
+    ArgumentChecker.isTrue(fixingPeriodStartTime >= fixingTime, "fixing period start < fixing time");
+    ArgumentChecker.isTrue(fixingPeriodEndTime >= fixingPeriodStartTime, "fixing period end < fixing period start");
+    ArgumentChecker.isTrue(fixingYearFraction >= 0, "forward year fraction < 0");
+    _index = index;
+    _fixingPeriodStartTime = fixingPeriodStartTime;
+    _fixingPeriodEndTime = fixingPeriodEndTime;
+    _fixingYearFraction = fixingYearFraction;
+    _forwardCurveName = null;
     _rate = rate;
   }
 
@@ -116,14 +147,24 @@ public class ForwardRateAgreement extends CouponFloating {
 
   /**
    * Gets the forward curve name.
-   * @return The forward curve name.
+   * @return The name.
+   * @deprecated Curve names should no longer be set in {@link InstrumentDefinition}s
    */
+  @Deprecated
   public String getForwardCurveName() {
+    if (_forwardCurveName == null) {
+      throw new IllegalStateException("Forward curve name was not set");
+    }
     return _forwardCurveName;
   }
 
+  @SuppressWarnings("deprecation")
   @Override
-  public ForwardRateAgreement withNotional(double notional) {
+  public ForwardRateAgreement withNotional(final double notional) {
+    if (_forwardCurveName == null) {
+      return new ForwardRateAgreement(getCurrency(), getPaymentTime(), getPaymentYearFraction(), notional, _index, getFixingTime(), _fixingPeriodStartTime, _fixingPeriodEndTime,
+          _fixingYearFraction, _rate);
+    }
     return new ForwardRateAgreement(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), notional, _index, getFixingTime(), _fixingPeriodStartTime, _fixingPeriodEndTime,
         _fixingYearFraction, _rate, _forwardCurveName);
   }
@@ -139,7 +180,7 @@ public class ForwardRateAgreement extends CouponFloating {
     result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_fixingYearFraction);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + _forwardCurveName.hashCode();
+    result = prime * result + (_forwardCurveName == null ? 0 : _forwardCurveName.hashCode());
     result = prime * result + _index.hashCode();
     temp = Double.doubleToLongBits(_rate);
     result = prime * result + (int) (temp ^ (temp >>> 32));

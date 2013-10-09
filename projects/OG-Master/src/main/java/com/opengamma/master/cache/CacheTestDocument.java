@@ -25,7 +25,7 @@ import com.opengamma.master.AbstractDocument;
 class CacheTestDocument extends AbstractDocument {
 
   @PropertyDefinition
-  UniqueId _uniqueId;
+  private UniqueId _uniqueId;
 
   CacheTestDocument() {
   }
@@ -48,6 +48,7 @@ class CacheTestDocument extends AbstractDocument {
   public static CacheTestDocument.Meta meta() {
     return CacheTestDocument.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(CacheTestDocument.Meta.INSTANCE);
   }

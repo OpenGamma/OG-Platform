@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.method;
@@ -24,19 +24,25 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
  * Specific calibration engine for the Hull-White one factor model with cap/floor.
  * @param <DATA_TYPE>  The type of the data for the base calculator.
  */
-public class SuccessiveRootFinderG2ppCalibrationEngine<DATA_TYPE extends ParameterProviderInterface> extends SuccessiveRootFinderCalibrationEngine<DATA_TYPE> {
+public class SuccessiveRootFinderG2ppCalibrationEngine<DATA_TYPE extends ParameterProviderInterface> extends CalibrationEngineWithCalculators<DATA_TYPE> {
 
   /**
    * The list of calibration times.
    */
-  private final List<Double> _calibrationTimes = new ArrayList<Double>();
+  private final List<Double> _calibrationTimes = new ArrayList<>();
+
+  /**
+   * The calibration objective.
+   */
+  private final SuccessiveRootFinderCalibrationObjectiveWithMultiCurves _calibrationObjective;
 
   /**
    * Constructor of the calibration engine.
    * @param calibrationObjective The calibration objective.
    */
-  public SuccessiveRootFinderG2ppCalibrationEngine(SuccessiveRootFinderCalibrationObjective calibrationObjective) {
-    super(calibrationObjective);
+  public SuccessiveRootFinderG2ppCalibrationEngine(final SuccessiveRootFinderCalibrationObjectiveWithMultiCurves calibrationObjective) {
+    super(calibrationObjective.getFXMatrix(), calibrationObjective.getCcy());
+    _calibrationObjective = calibrationObjective;
   }
 
   /**
@@ -49,7 +55,7 @@ public class SuccessiveRootFinderG2ppCalibrationEngine<DATA_TYPE extends Paramet
     ArgumentChecker.isTrue((instrument instanceof CapFloorIbor) || (instrument instanceof SwaptionPhysicalFixedIbor), "Instrument should be cap or swaption.");
     getBasket().add(instrument);
     getMethod().add(calculator);
-    getCalibrationPrice().add(0.0);
+    getCalibrationPrices().add(0.0);
     if (instrument instanceof CapFloorIbor) {
       _calibrationTimes.add(((CapFloorIbor) instrument).getFixingTime());
     }
@@ -66,30 +72,30 @@ public class SuccessiveRootFinderG2ppCalibrationEngine<DATA_TYPE extends Paramet
    */
   @Override
   public void addInstrument(final InstrumentDerivative[] instrument, final InstrumentDerivativeVisitor<DATA_TYPE, MultipleCurrencyAmount> calculator) {
-    for (int loopinstrument = 0; loopinstrument < instrument.length; loopinstrument++) {
-      Validate.isTrue(instrument[loopinstrument] instanceof CapFloorIbor, "Calibration instruments should be cap/floor");
-      getBasket().add(instrument[loopinstrument]);
+    for (final InstrumentDerivative element : instrument) {
+      Validate.isTrue(element instanceof CapFloorIbor, "Calibration instruments should be cap/floor");
+      getBasket().add(element);
       getMethod().add(calculator);
-      getCalibrationPrice().add(0.0);
-      _calibrationTimes.add(((CapFloorIbor) instrument[loopinstrument]).getFixingTime());
+      getCalibrationPrices().add(0.0);
+      _calibrationTimes.add(((CapFloorIbor) element).getFixingTime());
     }
   }
 
   @Override
-  public void calibrate(DATA_TYPE data) {
+  public void calibrate(final DATA_TYPE data) {
     computeCalibrationPrice(data);
-    getCalibrationObjective().setMulticurves(data.getMulticurveProvider());
-    int nbInstruments = getBasket().size();
-    final RidderSingleRootFinder rootFinder = new RidderSingleRootFinder(getCalibrationObjective().getFunctionValueAccuracy(), getCalibrationObjective().getVariableAbsoluteAccuracy());
+    _calibrationObjective.setMulticurves(data.getMulticurveProvider());
+    final int nbInstruments = getBasket().size();
+    final RidderSingleRootFinder rootFinder = new RidderSingleRootFinder(_calibrationObjective.getFunctionValueAccuracy(), _calibrationObjective.getVariableAbsoluteAccuracy());
     final BracketRoot bracketer = new BracketRoot();
     for (int loopins = 0; loopins < nbInstruments; loopins++) {
-      InstrumentDerivative instrument = getBasket().get(loopins);
-      getCalibrationObjective().setInstrument(instrument);
-      getCalibrationObjective().setPrice(getCalibrationPrice().get(loopins));
-      final double[] range = bracketer.getBracketedPoints(getCalibrationObjective(), getCalibrationObjective().getMinimumParameter(), getCalibrationObjective().getMaximumParameter());
-      rootFinder.getRoot(getCalibrationObjective(), range[0], range[1]);
+      final InstrumentDerivative instrument = getBasket().get(loopins);
+      _calibrationObjective.setInstrument(instrument);
+      _calibrationObjective.setPrice(getCalibrationPrices().get(loopins));
+      final double[] range = bracketer.getBracketedPoints(_calibrationObjective, _calibrationObjective.getMinimumParameter(), _calibrationObjective.getMaximumParameter());
+      rootFinder.getRoot(_calibrationObjective, range[0], range[1]);
       if (loopins < nbInstruments - 1) {
-        ((SuccessiveRootFinderG2ppCalibrationObjective) getCalibrationObjective()).setNextCalibrationTime(_calibrationTimes.get(loopins));
+        ((SuccessiveRootFinderG2ppCalibrationObjective) _calibrationObjective).setNextCalibrationTime(_calibrationTimes.get(loopins));
       }
     }
   }

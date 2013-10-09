@@ -121,6 +121,7 @@ class UnLocodeRegionFileReader {
     Set<ManageableRegion> regions = new HashSet<ManageableRegion>(1024, 0.75f);
     String name = null;
     try {
+      @SuppressWarnings("resource")
       CSVReader reader = new CSVReader(in);
       final int typeIdx = 0;
       final int countryIsoIdx = 1;

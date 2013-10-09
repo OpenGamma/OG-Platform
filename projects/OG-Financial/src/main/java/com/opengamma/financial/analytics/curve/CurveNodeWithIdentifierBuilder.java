@@ -17,6 +17,7 @@ import com.opengamma.financial.analytics.ircurve.strips.CreditSpreadNode;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeVisitor;
 import com.opengamma.financial.analytics.ircurve.strips.CurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.DataFieldType;
+import com.opengamma.financial.analytics.ircurve.strips.DeliverableSwapFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
@@ -49,6 +50,22 @@ public class CurveNodeWithIdentifierBuilder implements CurveNodeVisitor<CurveNod
     _nodeIdMapper = nodeIdMapper;
   }
 
+  /**
+   * Gets the curve date.
+   * @return The curve date
+   */
+  public LocalDate getCurveDate() {
+    return _curveDate;
+  }
+
+  /**
+   * Gets the curve node id mapper.
+   * @return The curve node id mapper
+   */
+  public CurveNodeIdMapper getCurveNodeIdMapper() {
+    return _nodeIdMapper;
+  }
+
   @Override
   public CurveNodeWithIdentifier visitCashNode(final CashNode node) {
     final Tenor tenor = node.getMaturityTenor();
@@ -73,6 +90,16 @@ public class CurveNodeWithIdentifierBuilder implements CurveNodeVisitor<CurveNod
     final ExternalId identifier = _nodeIdMapper.getCreditSpreadNodeId(_curveDate, tenor);
     final String dataField = _nodeIdMapper.getCreditSpreadNodeDataField(tenor);
     final DataFieldType fieldType = _nodeIdMapper.getCreditSpreadNodeDataFieldType(tenor);
+    return new CurveNodeWithIdentifier(node, identifier, dataField, fieldType);
+  }
+
+  @Override
+  public CurveNodeWithIdentifier visitDeliverableSwapFutureNode(final DeliverableSwapFutureNode node) {
+    final Tenor startTenor = node.getStartTenor();
+    final ExternalId identifier = _nodeIdMapper.getDeliverableSwapFutureNodeId(_curveDate, startTenor,
+        node.getFutureTenor(), node.getFutureNumber());
+    final String dataField = _nodeIdMapper.getDeliverableSwapFutureNodeDataField(startTenor);
+    final DataFieldType fieldType = _nodeIdMapper.getDeliverableSwapFutureNodeDataFieldType(startTenor);
     return new CurveNodeWithIdentifier(node, identifier, dataField, fieldType);
   }
 

@@ -23,13 +23,20 @@ import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.model.discounting.DiscountingPV01Function;
 
 /**
  * Computes the PV01 of interest rate instruments.
+ * @deprecated Use {@link DiscountingPV01Function}
  */
+@Deprecated
 public class InterestRateInstrumentPV01Function extends InterestRateInstrumentCurveSpecificFunction {
+  /** The calculator */
   private static final PV01Calculator CALCULATOR = PV01Calculator.getInstance();
 
+  /**
+   * Sets the value requirement name to {@link ValueRequirementNames#PV01}
+   */
   public InterestRateInstrumentPV01Function() {
     super(ValueRequirementNames.PV01);
   }

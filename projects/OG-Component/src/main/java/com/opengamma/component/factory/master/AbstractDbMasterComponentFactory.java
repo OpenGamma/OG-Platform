@@ -161,6 +161,7 @@ public abstract class AbstractDbMasterComponentFactory extends AbstractComponent
   public static AbstractDbMasterComponentFactory.Meta meta() {
     return AbstractDbMasterComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(AbstractDbMasterComponentFactory.Meta.INSTANCE);
   }

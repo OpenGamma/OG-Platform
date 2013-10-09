@@ -73,6 +73,7 @@ public abstract class AbstractSearchResult<D extends AbstractDocument> extends A
   public static AbstractSearchResult.Meta meta() {
     return AbstractSearchResult.Meta.INSTANCE;
   }
+
   /**
    * The meta-bean for {@code AbstractSearchResult}.
    * @param <R>  the bean's generic type
@@ -83,6 +84,7 @@ public abstract class AbstractSearchResult<D extends AbstractDocument> extends A
   public static <R extends AbstractDocument> AbstractSearchResult.Meta<R> metaAbstractSearchResult(Class<R> cls) {
     return AbstractSearchResult.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(AbstractSearchResult.Meta.INSTANCE);
   }

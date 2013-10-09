@@ -116,6 +116,7 @@ public class LocalDependencyGraphTraceProviderFactory extends AbstractComponentF
   public static LocalDependencyGraphTraceProviderFactory.Meta meta() {
     return LocalDependencyGraphTraceProviderFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(LocalDependencyGraphTraceProviderFactory.Meta.INSTANCE);
   }

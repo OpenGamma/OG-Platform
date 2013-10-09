@@ -21,7 +21,7 @@ public class ForexFunctions extends AbstractFunctionConfigurationBean {
 
   /**
    * Default instance of a repository configuration source exposing the functions from this package and its sub-packages.
-   * 
+   *
    * @return the configuration source exposing functions from this package and its sub-packages
    */
   public static FunctionConfigurationSource instance() {
@@ -34,6 +34,12 @@ public class ForexFunctions extends AbstractFunctionConfigurationBean {
     functions.add(functionConfiguration(SecurityFXHistoricalTimeSeriesFunction.class));
   }
 
+  /**
+   * Adds deprecated FX forward functions to the repository
+   * @return The configuration source populated with FX forward functions.
+   * @deprecated The functions that are added are deprecated
+   */
+  @Deprecated
   protected FunctionConfigurationSource forwardFunctionConfiguration() {
     return ForwardFunctions.instance();
   }

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.equity.future.definition;
@@ -16,7 +16,6 @@ import com.opengamma.util.money.Currency;
 
 /**
  * Equity index future definition. An IndexFuture is always cash-settled.
- * @author casey
  */
 public class EquityIndexFutureDefinition extends IndexFutureDefinition {
 
@@ -35,15 +34,18 @@ public class EquityIndexFutureDefinition extends IndexFutureDefinition {
     super(expiryDate, settlementDate, strikePrice, currency, unitAmount, underlying);
   }
 
-  /**
-   * In this form, the reference (strike) price must already be set in the constructor of the Definition.
-   * The strike will be the traded price on the trade date itself. After that, the previous day's closing price.
-   * @param date time of valuation
-   * @param yieldCurveNames not used
-   * @return derivative form
-   */
   @Override
   public EquityIndexFuture toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+    return toDerivative(date);
+  }
+
+  @Override
+  public EquityIndexFuture toDerivative(final ZonedDateTime date, final Double referencePrice, final String... yieldCurveNames) {
+    return toDerivative(date, referencePrice);
+  }
+
+  @Override
+  public EquityIndexFuture toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");
     final double timeToFixing = TimeCalculator.getTimeBetween(date, getExpiryDate());
     final double timeToDelivery = TimeCalculator.getTimeBetween(date, getSettlementDate());
@@ -51,18 +53,11 @@ public class EquityIndexFutureDefinition extends IndexFutureDefinition {
     return newDeriv;
   }
 
-  /**
-   * In this form, the reference (strike) price must be provided.
-   * @param date time of valuation
-   * @param referencePrice The strike will be the traded price on the trade date itself. After that, the previous day's closing price.
-   * @param yieldCurveNames Not used
-   * @return derivative form
-   */
   @Override
-  public EquityIndexFuture toDerivative(final ZonedDateTime date, final Double referencePrice, final String... yieldCurveNames) {
+  public EquityIndexFuture toDerivative(final ZonedDateTime date, final Double referencePrice) {
     ArgumentChecker.notNull(date, "date");
     if (referencePrice == null) {
-      return toDerivative(date);
+      return toDerivative(date, referencePrice);
     }
     final double timeToFixing = TimeCalculator.getTimeBetween(date, getExpiryDate());
     final double timeToDelivery = TimeCalculator.getTimeBetween(date, getSettlementDate());

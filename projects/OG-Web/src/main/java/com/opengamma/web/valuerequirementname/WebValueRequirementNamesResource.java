@@ -75,7 +75,7 @@ public class WebValueRequirementNamesResource extends AbstractWebResource {
     for (String className : valueRequirementNameClasses) {
       try {
         for (Field field : Class.forName(className.trim()).getDeclaredFields()) {
-          if (Modifier.isPublic(field.getModifiers())) {
+          if (Modifier.isPublic(field.getModifiers()) && field.isSynthetic() == false) {
             list.add((String) field.get(null));
           }
         }

@@ -95,6 +95,7 @@ public class FudgeMapWrapper extends DirectBean {
   public static FudgeMapWrapper.Meta meta() {
     return FudgeMapWrapper.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(FudgeMapWrapper.Meta.INSTANCE);
   }

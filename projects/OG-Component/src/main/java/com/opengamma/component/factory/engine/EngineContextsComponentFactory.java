@@ -148,7 +148,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
   @PropertyDefinition(validate = "notNull")
   private HistoricalTimeSeriesResolver _historicalTimeSeriesResolver;
   /**
-   * The convention source. 
+   * The convention source.
    */
   @PropertyDefinition(validate = "notNull")
   private ConventionSource _conventionSource;
@@ -182,7 +182,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
    * The PnL requirements gatherer.
    */
   @PropertyDefinition
-  private PnLRequirementsGatherer _pnlRequirementsGatherer = new DefaultPnLRequirementsGatherer();
+  private PnLRequirementsGatherer _pnlRequirementsGatherer;
   /**
    * The risk factors requirements gatherer.
    */
@@ -192,10 +192,43 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
   //-------------------------------------------------------------------------
   @Override
   public void init(final ComponentRepository repo, final LinkedHashMap<String, String> configuration) {
+    initPnlRequirementsGatherer();
     initFunctionCompilationContext(repo, configuration);
     final OverrideOperationCompiler ooc = initOverrideOperationCompiler(repo, configuration);
     initFunctionExecutionContext(repo, configuration, ooc);
   }
+
+  protected void initPnlRequirementsGatherer() {
+    _pnlRequirementsGatherer = new DefaultPnLRequirementsGatherer() {
+      {
+        addCurveCalculationConfig("USD", "DefaultTwoCurveUSDConfig");
+        addFXCurveCalculationConfig("USD", "DefaultTwoCurveUSDConfig");
+        addIRFuturesCurveCalculationConfig("USD", "DefaultTwoCurveUSDConfig");
+        addFXDiscountingCurveName("USD", "Forward3M");
+        addCurveCalculationConfig("EUR", "DefaultTwoCurveEURConfig");
+        addFXCurveCalculationConfig("EUR", "DefaultTwoCurveEURConfig");
+        addIRFuturesCurveCalculationConfig("EUR", "DefaultTwoCurveEURConfig");
+        addFXDiscountingCurveName("EUR", "Forward6M");
+        addCurveCalculationConfig("CAD", "DefaultTwoCurveCADConfig");
+        addFXCurveCalculationConfig("CAD", "DefaultTwoCurveCADConfig");
+        addIRFuturesCurveCalculationConfig("CAD", "DefaultTwoCurveCADConfig");
+        addFXDiscountingCurveName("CAD", "Forward3M");
+        addCurveCalculationConfig("AUD", "DefaultThreeCurveAUDConfig");
+        addFXCurveCalculationConfig("AUD", "DefaultThreeCurveAUDConfig");
+        addIRFuturesCurveCalculationConfig("AUD", "DefaultThreeCurveAUDConfig");
+        addFXDiscountingCurveName("AUD", "ForwardBasis3M");
+        addCurveCalculationConfig("CHF", "DefaultTwoCurveCHFConfig");
+        addFXCurveCalculationConfig("CHF", "DefaultTwoCurveCHFConfig");
+        addIRFuturesCurveCalculationConfig("CHF", "DefaultTwoCurveCHFConfig");
+        addFXDiscountingCurveName("CHF", "Forward6M");
+        addCurveCalculationConfig("GBP", "DefaultTwoCurveGBPConfig");
+        addFXCurveCalculationConfig("GBP", "DefaultTwoCurveGBPConfig");
+        addIRFuturesCurveCalculationConfig("GBP", "DefaultTwoCurveGBPConfig");
+        addFXDiscountingCurveName("USD", "Forward3M");
+      }
+    };
+  }
+
 
   protected void initFunctionCompilationContext(final ComponentRepository repo, final LinkedHashMap<String, String> configuration) {
     final FunctionCompilationContext context = new FunctionCompilationContext();
@@ -277,6 +310,7 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
   public static EngineContextsComponentFactory.Meta meta() {
     return EngineContextsComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(EngineContextsComponentFactory.Meta.INSTANCE);
   }

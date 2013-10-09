@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -14,12 +14,15 @@ import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.analytics.financial.forex.method.FXMatrix;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
  * A bundle of curves and forex exchange rates used for pricing. The curves are stored as a map <String, YieldAndDiscountCurve>.
+ * @deprecated Use {@link MulticurveProviderDiscount}
  */
+@Deprecated
 public class YieldCurveBundle {
 
   /**
@@ -39,8 +42,8 @@ public class YieldCurveBundle {
    * Constructor. An empty map is created for the curves and an empty FXMatrix.
    */
   public YieldCurveBundle() {
-    _curves = new LinkedHashMap<String, YieldAndDiscountCurve>();
-    _curveCurrency = new HashMap<String, Currency>();
+    _curves = new LinkedHashMap<>();
+    _curveCurrency = new HashMap<>();
     _fxMatrix = new FXMatrix();
   }
 
@@ -53,13 +56,13 @@ public class YieldCurveBundle {
   public YieldCurveBundle(final FXMatrix fxMatrix, final Map<String, Currency> curveCurrency, final Map<String, ? extends YieldAndDiscountCurve> curvesMap) {
     ArgumentChecker.notNull(fxMatrix, "FX matrix");
     ArgumentChecker.notNull(curveCurrency, "curve currency");
-    _curves = new LinkedHashMap<String, YieldAndDiscountCurve>();
+    _curves = new LinkedHashMap<>();
     if (curvesMap != null) {
       ArgumentChecker.noNulls(curvesMap.keySet(), "curve map key set");
       ArgumentChecker.noNulls(curvesMap.values(), "curve map entry set");
       _curves.putAll(curvesMap);
     }
-    _curveCurrency = new HashMap<String, Currency>(curveCurrency);
+    _curveCurrency = new HashMap<>(curveCurrency);
     _fxMatrix = new FXMatrix(fxMatrix);
   }
 
@@ -69,8 +72,8 @@ public class YieldCurveBundle {
    * @param curveCurrency The map of currency names to currency
    */
   public YieldCurveBundle(final FXMatrix fxMatrix, final Map<String, Currency> curveCurrency) {
-    _curves = new LinkedHashMap<String, YieldAndDiscountCurve>();
-    _curveCurrency = new HashMap<String, Currency>(curveCurrency);
+    _curves = new LinkedHashMap<>();
+    _curveCurrency = new HashMap<>(curveCurrency);
     _fxMatrix = new FXMatrix(fxMatrix);
   }
 
@@ -79,8 +82,8 @@ public class YieldCurveBundle {
    * @param curvesMap The map.
    */
   public YieldCurveBundle(final Map<String, ? extends YieldAndDiscountCurve> curvesMap) {
-    _curves = new LinkedHashMap<String, YieldAndDiscountCurve>();
-    _curveCurrency = new HashMap<String, Currency>();
+    _curves = new LinkedHashMap<>();
+    _curveCurrency = new HashMap<>();
     _fxMatrix = new FXMatrix();
     if (curvesMap != null) {
       ArgumentChecker.noNulls(curvesMap.keySet(), "curves map key set");
@@ -101,8 +104,8 @@ public class YieldCurveBundle {
     ArgumentChecker.isTrue(names.length == curves.length, "Different number of names ({}) and curves ({})", names.length, curves.length);
     ArgumentChecker.noNulls(names, "names");
     ArgumentChecker.noNulls(curves, "curves");
-    _curves = new LinkedHashMap<String, YieldAndDiscountCurve>();
-    _curveCurrency = new HashMap<String, Currency>();
+    _curves = new LinkedHashMap<>();
+    _curveCurrency = new HashMap<>();
     _fxMatrix = new FXMatrix();
     final int n = names.length;
     for (int i = 0; i < n; i++) {
@@ -116,8 +119,8 @@ public class YieldCurveBundle {
     ArgumentChecker.isTrue(names.length == curves.length, "Different number of names ({}) and curves ({})", names.length, curves.length);
     ArgumentChecker.noNulls(names, "names");
     ArgumentChecker.noNulls(curves, "curves");
-    _curves = new LinkedHashMap<String, YieldAndDiscountCurve>();
-    _curveCurrency = new HashMap<String, Currency>();
+    _curves = new LinkedHashMap<>();
+    _curveCurrency = new HashMap<>();
     final int n = names.length;
     for (int i = 0; i < n; i++) {
       _curves.put(names[i], curves[i]);
@@ -135,8 +138,8 @@ public class YieldCurveBundle {
     ArgumentChecker.notNull(curvesMap, "curves map");
     ArgumentChecker.notNull(fxMatrix, "FX matrix");
     ArgumentChecker.notNull(curveCurrency, "curve currency");
-    _curves = new LinkedHashMap<String, YieldAndDiscountCurve>(curvesMap);
-    _curveCurrency = new HashMap<String, Currency>(curveCurrency);
+    _curves = new LinkedHashMap<>(curvesMap);
+    _curveCurrency = new HashMap<>(curveCurrency);
     _fxMatrix = new FXMatrix(fxMatrix);
   }
 
@@ -154,8 +157,8 @@ public class YieldCurveBundle {
     ArgumentChecker.isTrue(names.length == currencies.length, "Different number of names ({}) and currencies ({})", names.length, currencies.length);
     ArgumentChecker.noNulls(names, "names");
     ArgumentChecker.noNulls(curves, "curves");
-    _curves = new LinkedHashMap<String, YieldAndDiscountCurve>();
-    _curveCurrency = new HashMap<String, Currency>();
+    _curves = new LinkedHashMap<>();
+    _curveCurrency = new HashMap<>();
     _fxMatrix = new FXMatrix();
     final int n = names.length;
     for (int i = 0; i < n; i++) {
@@ -170,8 +173,8 @@ public class YieldCurveBundle {
    */
   public YieldCurveBundle(final YieldCurveBundle bundle) {
     ArgumentChecker.notNull(bundle, "bundle");
-    _curves = new LinkedHashMap<String, YieldAndDiscountCurve>(bundle._curves);
-    _curveCurrency = new HashMap<String, Currency>(bundle._curveCurrency);
+    _curves = new LinkedHashMap<>(bundle._curves);
+    _curveCurrency = new HashMap<>(bundle._curveCurrency);
     _fxMatrix = new FXMatrix(bundle._fxMatrix);
   }
 
@@ -180,8 +183,8 @@ public class YieldCurveBundle {
    * @return The bundle.
    */
   public YieldCurveBundle copy() {
-    final LinkedHashMap<String, YieldAndDiscountCurve> curves = new LinkedHashMap<String, YieldAndDiscountCurve>(_curves);
-    final Map<String, Currency> curveCurrency = new HashMap<String, Currency>(_curveCurrency);
+    final LinkedHashMap<String, YieldAndDiscountCurve> curves = new LinkedHashMap<>(_curves);
+    final Map<String, Currency> curveCurrency = new HashMap<>(_curveCurrency);
     final FXMatrix fxMatrix = new FXMatrix(_fxMatrix);
     return new YieldCurveBundle(fxMatrix, curveCurrency, curves);
   }

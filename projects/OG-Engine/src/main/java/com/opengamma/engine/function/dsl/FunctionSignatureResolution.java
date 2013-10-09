@@ -36,6 +36,7 @@ public class FunctionSignatureResolution extends DirectBean {
   public static FunctionSignatureResolution.Meta meta() {
     return FunctionSignatureResolution.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(FunctionSignatureResolution.Meta.INSTANCE);
   }

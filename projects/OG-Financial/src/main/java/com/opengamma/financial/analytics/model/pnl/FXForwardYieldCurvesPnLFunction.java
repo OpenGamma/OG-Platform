@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.analytics.model.pnl;
 
+import static com.opengamma.engine.value.ValuePropertyNames.CURRENCY;
+
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -12,6 +14,7 @@ import java.util.Set;
 import org.threeten.bp.Instant;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.Position;
@@ -31,7 +34,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.analytics.model.forex.ConventionBasedFXRateFunction;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
@@ -80,34 +82,39 @@ public class FXForwardYieldCurvesPnLFunction extends AbstractFunction {
 
     @Override
     public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-      return Sets.newHashSet(new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), ValueProperties.all()));
+      return Sets.newHashSet(new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), ValueProperties.all().withoutAny(ValuePropertyNames.CURVE_CURRENCY)));
     }
 
     @Override
     public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-      final FXForwardSecurity security = (FXForwardSecurity) target.getPosition().getSecurity();      
+      final FXForwardSecurity security = (FXForwardSecurity) target.getPosition().getSecurity();
+      final ValueProperties constraints = desiredValue.getConstraints();
+      final Set<String> resultCurrencies = constraints.getValues(CURRENCY);
       final Currency payCurrency = security.accept(ForexVisitors.getPayCurrencyVisitor());
       final Currency receiveCurrency = security.accept(ForexVisitors.getReceiveCurrencyVisitor());
-      final ValueRequirement fxSpotRequirement = ConventionBasedFXRateFunction.getHistoricalTimeSeriesRequirement(payCurrency, receiveCurrency);
-      
-      final ValueProperties baseConstraints = desiredValue.getConstraints().copy()
-          .withoutAny(ValuePropertyNames.CURRENCY)
-          .get();
+      String resultCurrency;
+      if (resultCurrencies == null || resultCurrencies.size() != 1) {
+        final CurrencyPair baseQuotePair = _currencyPairs.getCurrencyPair(payCurrency, receiveCurrency);
+        final Currency baseCurrency = baseQuotePair.getBase();
+        resultCurrency = baseCurrency.getCode();
+      } else {
+        resultCurrency = Iterables.getOnlyElement(resultCurrencies);
+      }
       final ComputationTargetSpecification targetSpec = target.toSpecification();
-      final ValueRequirement payPnLSeriesRequirement = getPnLSeriesRequirement(payCurrency, targetSpec, baseConstraints);
-      final ValueRequirement receivePnLSeriesRequirement = getPnLSeriesRequirement(receiveCurrency, targetSpec, baseConstraints);      
-      return ImmutableSet.of(fxSpotRequirement, payPnLSeriesRequirement, receivePnLSeriesRequirement);
+      final ValueRequirement payPnLSeriesRequirement = getPnLSeriesRequirement(payCurrency, targetSpec, constraints);
+      final ValueRequirement receivePnLSeriesRequirement = getPnLSeriesRequirement(receiveCurrency, targetSpec, constraints);
+      return ImmutableSet.of(payPnLSeriesRequirement, receivePnLSeriesRequirement);
     }
 
     @Override
-    public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target, Map<ValueSpecification, ValueRequirement> inputs) {
-      ValueProperties.Builder builder = createValueProperties();
-      for (ValueSpecification inputSpec : inputs.keySet()) {
-        for (String propertyName : inputSpec.getProperties().getProperties()) {
+    public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
+      final ValueProperties.Builder builder = createValueProperties();
+      for (final ValueSpecification inputSpec : inputs.keySet()) {
+        for (final String propertyName : inputSpec.getProperties().getProperties()) {
           if (ValuePropertyNames.FUNCTION.equals(propertyName)) {
             continue;
           }
-          Set<String> values = inputSpec.getProperties().getValues(propertyName);
+          final Set<String> values = inputSpec.getProperties().getValues(propertyName);
           if (values == null || values.isEmpty()) {
             builder.withAny(propertyName);
           } else {
@@ -115,17 +122,6 @@ public class FXForwardYieldCurvesPnLFunction extends AbstractFunction {
           }
         }
       }
-
-      final Position position = target.getPosition();
-      final FinancialSecurity security = (FinancialSecurity) position.getSecurity();
-      final Currency payCurrency = security.accept(ForexVisitors.getPayCurrencyVisitor());
-      final Currency receiveCurrency = security.accept(ForexVisitors.getReceiveCurrencyVisitor());
-      final CurrencyPair currencyPair = _currencyPairs.getCurrencyPair(payCurrency, receiveCurrency);
-      final Currency currencyBase = currencyPair.getBase();
-      builder.withoutAny(ValuePropertyNames.CURVE_CURRENCY)
-          .withoutAny(ValuePropertyNames.CURRENCY)
-          .with(ValuePropertyNames.CURRENCY, currencyBase.getCode())
-          .get();
       return ImmutableSet.of(new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), builder.get()));
     }
 
@@ -141,12 +137,12 @@ public class FXForwardYieldCurvesPnLFunction extends AbstractFunction {
       final Currency currencyBase = currencyPair.getBase();
       LocalDateDoubleTimeSeries payPnLSeries = null;
       LocalDateDoubleTimeSeries receivePnLSeries = null;
-      for (ComputedValue input : inputs.getAllValues()) {
+      for (final ComputedValue input : inputs.getAllValues()) {
         if (!ValueRequirementNames.PNL_SERIES.equals(input.getSpecification().getValueName())) {
           continue;
         }
-        LocalDateDoubleTimeSeries pnlSeries = (LocalDateDoubleTimeSeries) input.getValue();
-        Currency pnlSeriesCurveCurrency = Currency.of(input.getSpecification().getProperty(ValuePropertyNames.CURVE_CURRENCY));
+        final LocalDateDoubleTimeSeries pnlSeries = (LocalDateDoubleTimeSeries) input.getValue();
+        final Currency pnlSeriesCurveCurrency = Currency.of(input.getSpecification().getProperty(ValuePropertyNames.CURVE_CURRENCY));
         if (pnlSeriesCurveCurrency.equals(payCurrency)) {
           payPnLSeries = pnlSeries;
         } else if (pnlSeriesCurveCurrency.equals(receiveCurrency)) {
@@ -156,28 +152,18 @@ public class FXForwardYieldCurvesPnLFunction extends AbstractFunction {
       if (payPnLSeries == null || receivePnLSeries == null) {
         throw new OpenGammaRuntimeException("Unable to find both pay and receive curve P&L series in inputs");
       }
-      final DoubleTimeSeries<?> fxSpotTS = (DoubleTimeSeries<?>) inputs.getValue(ValueRequirementNames.HISTORICAL_FX_TIME_SERIES);
-      DoubleTimeSeries<?> result;
-      if (payCurrency.equals(currencyBase)) {
-        result = payPnLSeries;
-        result = result.add(receivePnLSeries.multiply(fxSpotTS));
-      } else {
-        result = receivePnLSeries;
-        result = result.add(payPnLSeries.multiply(fxSpotTS));
-      }
+      final DoubleTimeSeries<?> result = payPnLSeries.add(receivePnLSeries);
       final ValueRequirement desiredValue = desiredValues.iterator().next();
       final ValueSpecification resultSpec = new ValueSpecification(ValueRequirementNames.PNL_SERIES, target.toSpecification(), desiredValue.getConstraints());
       return Collections.singleton(new ComputedValue(resultSpec, result));
     }
-    
-    private ValueRequirement getPnLSeriesRequirement(Currency currency, ComputationTargetSpecification targetSpec, ValueProperties baseConstraints) {
-      ValueProperties constraints = baseConstraints.copy()
-          .with(ValuePropertyNames.CURRENCY, currency.getCode())
+
+    private ValueRequirement getPnLSeriesRequirement(final Currency currency, final ComputationTargetSpecification targetSpec, final ValueProperties constraints) {
+      final ValueProperties newConstraints = constraints.copy()
           .with(ValuePropertyNames.CURVE_CURRENCY, currency.getCode())
           .get();
-      return new ValueRequirement(ValueRequirementNames.PNL_SERIES, targetSpec, constraints);
+      return new ValueRequirement(ValueRequirementNames.PNL_SERIES, targetSpec, newConstraints);
     }
-
   }
 
 }

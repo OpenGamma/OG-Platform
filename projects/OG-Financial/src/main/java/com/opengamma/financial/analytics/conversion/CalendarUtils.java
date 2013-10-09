@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.conversion;
@@ -36,12 +36,12 @@ public class CalendarUtils {
       final ExternalId regionId) {
     if (regionId.isScheme(ExternalSchemes.FINANCIAL) && regionId.getValue().contains("+")) {
       final String[] regions = regionId.getValue().split("\\+");
-      final Set<Region> resultRegions = new HashSet<Region>();
+      final Set<Region> resultRegions = new HashSet<>();
       for (final String region : regions) {
         resultRegions.add(regionSource.getHighestLevelRegion(ExternalSchemes.financialRegionId(region)));
       }
       return new HolidaySourceCalendarAdapter(holidaySource, resultRegions.toArray(new Region[] {}));
-    } 
+    }
     final Region region = regionSource.getHighestLevelRegion(regionId); // we've checked that they are the same.
     return new HolidaySourceCalendarAdapter(holidaySource, region);
   }

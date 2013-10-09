@@ -5,7 +5,6 @@
  */
 package com.opengamma.integration.marketdata.manipulator.dsl;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 import com.opengamma.integration.marketdata.manipulator.dsl.volsurface.VolatilitySurfaceConstantMultiplicativeShift;
@@ -33,50 +32,40 @@ import com.opengamma.util.ArgumentChecker;
     _selector = selector;
   }
 
-  public VolatilitySurfaceManipulatorBuilder parallelShift(double shift) {
-    _scenario.add(_selector, new VolatilitySurfaceParallelShift(shift));
+  public VolatilitySurfaceManipulatorBuilder parallelShift(Number shift) {
+    _scenario.add(_selector, new VolatilitySurfaceParallelShift(shift.doubleValue()));
     return this;
   }
 
-  public VolatilitySurfaceManipulatorBuilder singleAdditiveShift(double x, double y, double shift) {
-    _scenario.add(_selector, new VolatilitySurfaceSingleAdditiveShift(x, y, shift));
+  public VolatilitySurfaceManipulatorBuilder singleAdditiveShift(Number x, Number y, Number shift) {
+    _scenario.add(_selector, new VolatilitySurfaceSingleAdditiveShift(x.doubleValue(), y.doubleValue(), shift.doubleValue()));
     return this;
   }
 
-  public VolatilitySurfaceManipulatorBuilder multipleAdditiveShifts(double[] x, double[] y, double[] shifts) {
-    _scenario.add(_selector, new VolatilitySurfaceMultipleAdditiveShifts(x, y, shifts));
-    return this;
-  }
-
-  public VolatilitySurfaceManipulatorBuilder multipleAdditiveShifts(List<BigDecimal> x, List<BigDecimal> y, List<BigDecimal> shifts) {
+  public VolatilitySurfaceManipulatorBuilder multipleAdditiveShifts(List<Number> x, List<Number> y, List<Number> shifts) {
     _scenario.add(_selector, new VolatilitySurfaceMultipleAdditiveShifts(array(x), array(y), array(shifts)));
     return this;
   }
 
-  public VolatilitySurfaceManipulatorBuilder constantMultiplicativeShift(double shift) {
-    _scenario.add(_selector, new VolatilitySurfaceConstantMultiplicativeShift(shift));
+  public VolatilitySurfaceManipulatorBuilder constantMultiplicativeShift(Number shift) {
+    _scenario.add(_selector, new VolatilitySurfaceConstantMultiplicativeShift(shift.doubleValue()));
     return this;
   }
 
-  public VolatilitySurfaceManipulatorBuilder singleMultiplicativeShift(double x, double y, double shift) {
-    _scenario.add(_selector, new VolatilitySurfaceSingleMultiplicativeShift(x, y, shift));
+  public VolatilitySurfaceManipulatorBuilder singleMultiplicativeShift(Number x, Number y, Number shift) {
+    _scenario.add(_selector, new VolatilitySurfaceSingleMultiplicativeShift(x.doubleValue(), y.doubleValue(), shift.doubleValue()));
     return this;
   }
 
-  public VolatilitySurfaceManipulatorBuilder multipleMultiplicativeShifts(double[] x, double[] y, double[] shifts) {
-    _scenario.add(_selector, new VolatilitySurfaceMultipleMultiplicativeShifts(x, y, shifts));
-    return this;
-  }
-
-  public VolatilitySurfaceManipulatorBuilder multipleMultiplicativeShifts(List<BigDecimal> x, List<BigDecimal> y, List<BigDecimal> shifts) {
+  public VolatilitySurfaceManipulatorBuilder multipleMultiplicativeShifts(List<Number> x, List<Number> y, List<Number> shifts) {
     _scenario.add(_selector, new VolatilitySurfaceMultipleMultiplicativeShifts(array(x), array(y), array(shifts)));
     return this;
   }
 
-  private static double[] array(List<BigDecimal> list) {
+  private static double[] array(List<Number> list) {
     double[] array = new double[list.size()];
     int index = 0;
-    for (BigDecimal value : list) {
+    for (Number value : list) {
       array[index++] = value.doubleValue();
     }
     return array;

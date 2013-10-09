@@ -51,7 +51,7 @@ import com.opengamma.livedata.UserPrincipal;
 
       // define the simulation -----------------------------------------------------------------------------------------
 
-      Simulation simulation = new Simulation();
+      Simulation simulation = new Simulation("Example simulation");
       for (Double scalingFactor : SCALING_FACTORS) {
         // add a scenario (a single calculation cycle and set of results) for each scale factor
         Scenario scenario = simulation.scenario(Double.toString(scalingFactor));

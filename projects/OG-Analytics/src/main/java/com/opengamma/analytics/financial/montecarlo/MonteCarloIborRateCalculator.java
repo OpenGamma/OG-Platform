@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.montecarlo;
@@ -20,7 +20,9 @@ import com.opengamma.analytics.financial.interestrate.swaption.derivative.Swapti
 /**
  * Computes the total instrument price over different paths (the sum of prices over the different paths, not its average).
  * The data bundle contains the different Ibor rates paths and the instrument reference amounts. The numeraire is the last time in the LMM description.
+ * @deprecated Use {@link com.opengamma.analytics.financial.montecarlo.provider.MonteCarloIborRateCalculator}
  */
+@Deprecated
 public class MonteCarloIborRateCalculator extends InstrumentDerivativeVisitorAdapter<MonteCarloIborRateDataBundle, Double> {
 
   /**

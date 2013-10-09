@@ -42,6 +42,7 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.CurrencyPairsFunction;
 import com.opengamma.financial.analytics.conversion.ForexSecurityConverter;
 import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
+import com.opengamma.financial.analytics.model.black.BlackDiscountingFXOptionFunction;
 import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.currency.CurrencyMatrixSpotSourcingFunction;
 import com.opengamma.financial.currency.CurrencyPair;
@@ -54,9 +55,12 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- *
+ * Base class for FX option calculations that use the Black model.
+ * @deprecated Use classes that extends from {@link BlackDiscountingFXOptionFunction}
  */
+@Deprecated
 public abstract class FXOptionBlackFunction extends AbstractFunction.NonCompiledInvoker {
+  /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(FXOptionBlackFunction.class);
   /** Property name for the put curve */
   public static final String PUT_CURVE = "PutCurve";
@@ -177,6 +181,7 @@ public abstract class FXOptionBlackFunction extends AbstractFunction.NonCompiled
     if (rightExtrapolatorNames == null || rightExtrapolatorNames.size() != 1) {
       return null;
     }
+    final ValueProperties otherProperties = ValueProperties.builder().get();
     final String putCurveName = Iterables.getOnlyElement(putCurveNames);
     final String callCurveName = Iterables.getOnlyElement(callCurveNames);
     final String putCurveCalculationConfig = Iterables.getOnlyElement(putCurveCalculationConfigs);
@@ -188,9 +193,9 @@ public abstract class FXOptionBlackFunction extends AbstractFunction.NonCompiled
     final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
     final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
     final ValueRequirement putFundingCurve = getCurveRequirementForFXOption(ComputationTargetSpecification.of(putCurrency), putCurveName, putCurveCalculationConfig, true,
-        ValueProperties.builder().get());
+        otherProperties);
     final ValueRequirement callFundingCurve = getCurveRequirementForFXOption(ComputationTargetSpecification.of(callCurrency), callCurveName, callCurveCalculationConfig, false,
-        ValueProperties.builder().get());
+        otherProperties);
     final ValueRequirement fxVolatilitySurface = getSurfaceRequirement(surfaceName, putCurrency, callCurrency, interpolatorName, leftExtrapolatorName, rightExtrapolatorName);
     final ValueRequirement spotRequirements = CurrencyMatrixSpotSourcingFunction.getConversionRequirement(callCurrency, putCurrency);
     final ValueRequirement pairQuoteRequirement = new ValueRequirement(ValueRequirementNames.CURRENCY_PAIRS, ComputationTargetSpecification.NULL);

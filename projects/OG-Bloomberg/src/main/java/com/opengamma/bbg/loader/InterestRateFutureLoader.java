@@ -35,6 +35,7 @@ import com.google.common.collect.Sets;
 import com.opengamma.bbg.referencedata.ReferenceDataProvider;
 import com.opengamma.bbg.util.BloombergDataUtils;
 import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.financial.security.future.FederalFundsFutureSecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.id.ExternalId;
@@ -86,6 +87,7 @@ public class InterestRateFutureLoader extends SecurityLoader {
     BBGCODE_UNDERLYING.put("IR", "BBSW3M Index");
     BBGCODE_UNDERLYING.put("BA", "CDOR03 Index");
     BBGCODE_UNDERLYING.put("EY", "TI0003M Index");
+    BBGCODE_UNDERLYING.put("FF", "FEDL01 Index");
   }
   
   /**
@@ -167,7 +169,12 @@ public class InterestRateFutureLoader extends SecurityLoader {
     }
     ExternalId underlyingIdentifier = ExternalId.of(ExternalSchemes.BLOOMBERG_TICKER, id);
     
-    InterestRateFutureSecurity security = new InterestRateFutureSecurity(expiry, micExchangeCode, micExchangeCode, currency, unitAmount, underlyingIdentifier, category);
+    ManageableSecurity security;
+    if ("FEDL01 Index".equals(id)) {
+      security = new FederalFundsFutureSecurity(expiry, micExchangeCode, micExchangeCode, currency, unitAmount, underlyingIdentifier, category);
+    } else {
+      security = new InterestRateFutureSecurity(expiry, micExchangeCode, micExchangeCode, currency, unitAmount, underlyingIdentifier, category);
+    }
     security.setName(name);
     // set identifiers
     parseIdentifiers(fieldData, security);

@@ -24,6 +24,7 @@ import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.Lifecycle;
 import org.springframework.jmx.export.MBeanExporter;
+import org.springframework.jmx.support.JmxUtils;
 import org.springframework.web.context.ServletContextAware;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -87,13 +88,6 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * The status.
    */
   private final AtomicReference<Status> _status = new AtomicReference<Status>(Status.CREATING);
-
-//  /**
-//   * Creates an instance with no logging.
-//   */
-//  public ComponentRepository() {
-//    this(null);
-//  }
 
   /**
    * Creates an instance.
@@ -488,6 +482,10 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
       typeInfo.getInfoMap().put(info.getClassifier(), info);
       registeredComponent(info, instance);
 
+      // If the component being registered is also an MBean, then register it as such
+      if (JmxUtils.isMBean(instance.getClass())) {
+        registerMBean(instance);
+      }
     } catch (final RuntimeException ex) {
       _status.set(Status.FAILED);
       throw new RuntimeException("Failed during registration: " + key, ex);

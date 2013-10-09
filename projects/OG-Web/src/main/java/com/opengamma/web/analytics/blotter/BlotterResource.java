@@ -59,6 +59,7 @@ import com.opengamma.financial.security.option.MonitoringType;
 import com.opengamma.financial.security.option.SamplingFrequency;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.FloatingRateType;
+import com.opengamma.financial.security.swap.InterpolationMethod;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
@@ -114,6 +115,7 @@ public class BlotterResource {
     s_endpoints.put(DebtSeniority.class, "debtseniority");
     s_endpoints.put(RestructuringClause.class, "restructuringclause");
     s_endpoints.put(StubType.class, "stubtype");
+    s_endpoints.put(InterpolationMethod.class, "interpolationmethods");
 
     for (MetaBean metaBean : BlotterUtils.getMetaBeans()) {
       Class<? extends Bean> beanType = metaBean.beanType();

@@ -98,6 +98,7 @@ public class UserHistoryResult extends AbstractHistoryResult<UserDocument> {
   public static UserHistoryResult.Meta meta() {
     return UserHistoryResult.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(UserHistoryResult.Meta.INSTANCE);
   }

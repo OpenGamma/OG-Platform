@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.calculator;
@@ -16,7 +16,9 @@ import com.opengamma.analytics.financial.interestrate.future.method.InterestRate
 
 /**
  * Calculate security prices for futures (bond and interest rate).
+ * @deprecated {@link YieldCurveBundle} is deprecated
  */
+@Deprecated
 public final class PriceFromCurvesDiscountingCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> {
 
   /**

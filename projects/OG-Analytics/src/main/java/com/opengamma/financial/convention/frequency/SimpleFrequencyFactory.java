@@ -13,6 +13,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.joda.convert.FromString;
+
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
@@ -29,17 +31,36 @@ public final class SimpleFrequencyFactory {
   /**
    * Map of convention name to convention.
    */
-  private final Map<String, SimpleFrequency> _conventionMap = new HashMap<String, SimpleFrequency>();
+  private final Map<String, SimpleFrequency> _conventionMap = new HashMap<>();
   /**
    * Map of periods per year to convention, only contains frequencies with an integer number of periods per year
    * (plus {@link SimpleFrequency#TWENTY_EIGHT_DAYS} with a key of 13 periods).
    */
-  private final Map<Integer, SimpleFrequency> _periodsMap = new HashMap<Integer, SimpleFrequency>();
+  private final Map<Integer, SimpleFrequency> _periodsMap = new HashMap<>();
   /**
    * All the frequencies.
    */
   private final List<SimpleFrequency> _frequencies = Lists.newArrayList();
 
+  //-------------------------------------------------------------------------
+  /**
+   * Gets a convention by name.
+   * Matching is case insensitive.
+   *
+   * @param name  the name, not null
+   * @return the convention, not null
+   * @throws IllegalArgumentException if not found
+   */
+  @FromString
+  public static SimpleFrequency of(final String name) {
+    final SimpleFrequency result = SimpleFrequencyFactory.INSTANCE.getFrequency(name);
+    if (result == null) {
+      throw new IllegalArgumentException("Unknown SimpleFrequency: " + name);
+    }
+    return result;
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Creates the factory.
    */
@@ -85,7 +106,7 @@ public final class SimpleFrequencyFactory {
     _frequencies.add(convention);
     Collections.sort(_frequencies, new Comparator<SimpleFrequency>() {
       @Override
-      public int compare(SimpleFrequency o1, SimpleFrequency o2) {
+      public int compare(final SimpleFrequency o1, final SimpleFrequency o2) {
         return (int) Math.signum(o2.getPeriodsPerYear() - o1.getPeriodsPerYear());
       }
     });
@@ -97,13 +118,13 @@ public final class SimpleFrequencyFactory {
    * period counts round to the same integer.
    * @param frequencies The frequencies to keyed on their (integer) period count.
    */
-  private void storeByPeriodCount(SimpleFrequency... frequencies) {
-    for (SimpleFrequency frequency : frequencies) {
-      int periodsPerYear = (int) frequency.getPeriodsPerYear();
+  private void storeByPeriodCount(final SimpleFrequency... frequencies) {
+    for (final SimpleFrequency frequency : frequencies) {
+      final int periodsPerYear = (int) frequency.getPeriodsPerYear();
       // this check is to prevent a repeat of a bug where frequencies were overwritten by another frequency whose
       // non-integer period count rounded to the same integer
       if (_periodsMap.containsKey(periodsPerYear)) {
-        SimpleFrequency existingFrequency = _periodsMap.get(periodsPerYear);
+        final SimpleFrequency existingFrequency = _periodsMap.get(periodsPerYear);
         throw new OpenGammaRuntimeException("Cannot overwrite " + existingFrequency.getConventionName() +
                                                 " with " + frequency.getConventionName());
       }
@@ -115,7 +136,7 @@ public final class SimpleFrequencyFactory {
   /**
    * Gets a convention by name.
    * Matching is case insensitive.
-   * 
+   *
    * @param name  the name, not null
    * @return the convention, null if not found
    */
@@ -127,7 +148,7 @@ public final class SimpleFrequencyFactory {
    * Gets a convention by the number of periods per year.
    * <p>
    * Some underlying data systems use this representation for frequency.
-   * 
+   *
    * @param periods  the number of periods per year, zero means once at end
    * @return the convention, null if not found
    */
@@ -138,7 +159,7 @@ public final class SimpleFrequencyFactory {
   /**
    * Iterates over the available frequencies. No particular ordering is specified and conventions may
    * exist in the system not provided by this factory that aren't included as part of this enumeration.
-   * 
+   *
    * @return the available conventions, not null
    */
   public Iterator<SimpleFrequency> enumerateAvailableFrequencies() {

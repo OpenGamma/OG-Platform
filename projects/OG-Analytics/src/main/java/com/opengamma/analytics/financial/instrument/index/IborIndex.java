@@ -47,7 +47,9 @@ public class IborIndex extends IndexDeposit {
    * @param dayCount The day count convention associated to the index.
    * @param businessDayConvention The business day convention associated to the index.
    * @param endOfMonth The end-of-month flag.
+   * @deprecated Use the constructor that takes an index name.
    */
+  @Deprecated
   public IborIndex(final Currency currency, final Period tenor, final int spotLag, final DayCount dayCount, final BusinessDayConvention businessDayConvention, final boolean endOfMonth) {
     this(currency, tenor, spotLag, dayCount, businessDayConvention, endOfMonth, "Ibor");
   }

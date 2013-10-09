@@ -22,7 +22,7 @@ import com.opengamma.util.ArgumentChecker;
  * Configuration object containing a script to define a scenario. The script is written in the Groovy-based
  * scenario DSL.
  */
-@Config
+@Config(description = "Scenario DSL script")
 public class ScenarioDslScript implements ScenarioDefinitionFactory {
 
   /** Field name for Fudge message */

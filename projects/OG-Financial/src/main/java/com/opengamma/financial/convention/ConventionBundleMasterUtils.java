@@ -7,6 +7,7 @@ package com.opengamma.financial.convention;
 
 import org.threeten.bp.Period;
 
+import com.opengamma.analytics.financial.interestrate.InterestRate;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
@@ -64,10 +65,28 @@ public class ConventionBundleMasterUtils {
 
   public synchronized UniqueId addConventionBundle(final ExternalIdBundle bundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention,
       final int settlementDays, final boolean isEOMConvention) {
-    final ConventionBundleImpl convention = new ConventionBundleImpl(bundle, name, dayCount, businessDayConvention, settlementDays);
+    final ConventionBundleImpl convention = new ConventionBundleImpl(bundle, name, dayCount, businessDayConvention, settlementDays, isEOMConvention);
     return add(bundle, convention);
   }
 
+  /**
+   * Adds a convention for fixed /floating swaps. The payment and compounding frequencies of both legs
+   * are assumed to be the same and the compounding type is assumed to be continuous.
+   * @param bundle The id bundle of this convention
+   * @param name The convention name
+   * @param swapFixedLegDayCount The fixed leg day count
+   * @param swapFixedLegBusinessDayConvention The fixed leg business day convention
+   * @param swapFixedLegFrequency The fixed leg payment and compounding frequency
+   * @param swapFixedLegSettlementDays The fixed leg settlement days
+   * @param swapFixedLegRegion The fixed leg region
+   * @param swapFloatingLegDayCount The floating leg day count
+   * @param swapFloatingLegBusinessDayConvention The floating leg business day convention
+   * @param swapFloatingLegFrequency The floating leg payment and compounding frequency
+   * @param swapFloatingLegSettlementDays The floating leg settlement days
+   * @param swapFloatingLegInitialRate The floating leg initial rate
+   * @param swapFloatingLegRegion The floating leg region
+   * @return The unique id of the convention
+   */
   public synchronized UniqueId addConventionBundle(final ExternalIdBundle bundle, final String name, final DayCount swapFixedLegDayCount,
       final BusinessDayConvention swapFixedLegBusinessDayConvention, final Frequency swapFixedLegFrequency, final Integer swapFixedLegSettlementDays, final ExternalId swapFixedLegRegion,
       final DayCount swapFloatingLegDayCount, final BusinessDayConvention swapFloatingLegBusinessDayConvention, final Frequency swapFloatingLegFrequency, final Integer swapFloatingLegSettlementDays,
@@ -77,7 +96,25 @@ public class ConventionBundleMasterUtils {
     return add(bundle, convention);
   }
 
-  // IRswap and FRA
+  /**
+   * Adds a convention for fixed / floating swaps. The payment and compounding frequencies of both legs
+   * are assumed to be the same and the compounding type is assumed to be continuous.
+   * @param bundle The id bundle of this convention
+   * @param name The convention name
+   * @param swapFixedLegDayCount The fixed leg day count
+   * @param swapFixedLegBusinessDayConvention The fixed leg business day convention
+   * @param swapFixedLegFrequency The fixed leg payment and compounding frequency
+   * @param swapFixedLegSettlementDays The fixed leg settlement days
+   * @param swapFixedLegRegion The fixed leg region
+   * @param swapFloatingLegDayCount The floating leg day count
+   * @param swapFloatingLegBusinessDayConvention The floating leg business day convention
+   * @param swapFloatingLegFrequency The floating leg payment and compounding frequency
+   * @param swapFloatingLegSettlementDays The floating leg settlement days
+   * @param swapFloatingLegInitialRate The floating leg initial rate
+   * @param swapFloatingLegRegion The floating leg region
+   * @param isEOM True if the date schedules follow the EOM convention
+   * @return The unique id of the convention
+   */
   public synchronized UniqueId addConventionBundle(final ExternalIdBundle bundle, final String name, final DayCount swapFixedLegDayCount,
       final BusinessDayConvention swapFixedLegBusinessDayConvention, final Frequency swapFixedLegFrequency, final Integer swapFixedLegSettlementDays, final ExternalId swapFixedLegRegion,
       final DayCount swapFloatingLegDayCount, final BusinessDayConvention swapFloatingLegBusinessDayConvention, final Frequency swapFloatingLegFrequency, final Integer swapFloatingLegSettlementDays,
@@ -85,6 +122,42 @@ public class ConventionBundleMasterUtils {
     final ConventionBundleImpl convention = new ConventionBundleImpl(bundle, name, swapFixedLegDayCount, swapFixedLegBusinessDayConvention, swapFixedLegFrequency, swapFixedLegSettlementDays,
         swapFixedLegRegion, swapFloatingLegDayCount, swapFloatingLegBusinessDayConvention, swapFloatingLegFrequency, swapFloatingLegSettlementDays, swapFloatingLegInitialRate, swapFloatingLegRegion,
         isEOM);
+    return add(bundle, convention);
+  }
+
+  /**
+   * Adds a convention for fixed / floating swaps.
+   * @param bundle The id bundle of this convention
+   * @param name The convention name
+   * @param swapFixedLegDayCount The fixed leg day count
+   * @param swapFixedLegBusinessDayConvention The fixed leg business day convention
+   * @param swapFixedLegPaymentFrequency The fixed leg payment frequency
+   * @param swapFixedLegSettlementDays The fixed leg settlement days
+   * @param swapFixedLegRegion The fixed leg region
+   * @param swapFixedLegCompoundingFrequency The fixed leg compounding frequency
+   * @param swapFixedLegCompoundingType The fixed leg compounding type
+   * @param swapFloatingLegDayCount The floating leg day count
+   * @param swapFloatingLegBusinessDayConvention The floating leg business day convention
+   * @param swapFloatingLegPaymentFrequency The floating leg payment frequency
+   * @param swapFloatingLegSettlementDays The floating leg settlement days
+   * @param swapFloatingLegInitialRate The floating leg initial rate
+   * @param swapFloatingLegRegion The floating leg region
+   * @param swapFloatingLegCompoundingFrequency The floating leg compounding frequency
+   * @param swapFloatingLegCompoundingType The floating leg compounding type
+   * @param isEOM True if the date schedules follow the EOM convention
+   * @return The unique id of the convention
+   */
+  public synchronized UniqueId addConventionBundle(final ExternalIdBundle bundle, final String name, final DayCount swapFixedLegDayCount,
+      final BusinessDayConvention swapFixedLegBusinessDayConvention, final Frequency swapFixedLegPaymentFrequency,
+      final Integer swapFixedLegSettlementDays, final ExternalId swapFixedLegRegion, final Frequency swapFixedLegCompoundingFrequency,
+      final InterestRate.Type swapFixedLegCompoundingType, final DayCount swapFloatingLegDayCount,
+      final BusinessDayConvention swapFloatingLegBusinessDayConvention, final Frequency swapFloatingLegPaymentFrequency,
+      final Integer swapFloatingLegSettlementDays, final Frequency swapFloatingLegCompoundingFrequency, final InterestRate.Type swapFloatingLegCompoundingType,
+      final ExternalId swapFloatingLegInitialRate, final ExternalId swapFloatingLegRegion, final Boolean isEOM) {
+    final ConventionBundleImpl convention = new ConventionBundleImpl(bundle, name, swapFixedLegDayCount, swapFixedLegBusinessDayConvention,
+        swapFixedLegPaymentFrequency, swapFixedLegSettlementDays, swapFixedLegRegion, swapFixedLegCompoundingFrequency, swapFixedLegCompoundingType, swapFloatingLegDayCount,
+        swapFloatingLegBusinessDayConvention, swapFloatingLegPaymentFrequency, swapFloatingLegSettlementDays, swapFloatingLegInitialRate, swapFloatingLegRegion,
+        swapFloatingLegCompoundingFrequency, swapFloatingLegCompoundingType, isEOM);
     return add(bundle, convention);
   }
 

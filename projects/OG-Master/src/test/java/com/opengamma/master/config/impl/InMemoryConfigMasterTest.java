@@ -6,6 +6,7 @@
 package com.opengamma.master.config.impl;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertSame;
@@ -59,7 +60,7 @@ public class InMemoryConfigMasterTest {
     _testEmpty = new InMemoryConfigMaster(new ObjectIdSupplier("Test"));
     _testPopulated = new InMemoryConfigMaster(new ObjectIdSupplier("Test"));
     _item1 = ConfigItem.of(VAL1);
-    _item1.setName("ONE");    
+    _item1.setName("ONE");
     _item1 = (ConfigItem<ExternalId>) _testPopulated.add(new ConfigDocument(_item1)).getConfig();
     _item2 = ConfigItem.of(VAL2);
     _item2.setName("TWO");
@@ -68,7 +69,7 @@ public class InMemoryConfigMasterTest {
     _item3.setName("THREE");
     _item3 = (ConfigItem<ExternalIdBundle>) _testPopulated.add(new ConfigDocument(_item3)).getConfig();
     _item4 = ConfigItem.of(VAL4);
-    _item4.setName("FOUR");   
+    _item4.setName("FOUR");
     _item4 = (ConfigItem<ExternalIdBundle>) _testPopulated.add(new ConfigDocument(_item4)).getConfig();
   }
 
@@ -224,7 +225,9 @@ public class InMemoryConfigMasterTest {
     ConfigItem<ExternalId> item = ConfigItem.of(VAL1);
     item.setUniqueId(_item1.getUniqueId());
     ConfigDocument updated = _testPopulated.update(new ConfigDocument(item));
-    assertEquals(_item1.getUniqueId(), updated.getUniqueId());
+    assertTrue(_item1.getUniqueId().getScheme().equals(updated.getUniqueId().getScheme()));
+    assertTrue(_item1.getUniqueId().getValue().equals(updated.getUniqueId().getValue()));
+    assertFalse(_item1.getUniqueId().getVersion().equals(updated.getUniqueId().getVersion()));
     assertNotNull(updated.getVersionFromInstant());
     assertNotNull(updated.getVersionFromInstant());
   }

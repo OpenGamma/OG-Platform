@@ -99,6 +99,7 @@ public class WebOrganizationsData extends DirectBean {
   public static WebOrganizationsData.Meta meta() {
     return WebOrganizationsData.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(WebOrganizationsData.Meta.INSTANCE);
   }

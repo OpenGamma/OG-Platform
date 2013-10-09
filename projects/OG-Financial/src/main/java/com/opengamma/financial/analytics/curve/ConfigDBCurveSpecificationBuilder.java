@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.curve;
@@ -23,7 +23,8 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * Builds a curve specification from a curve definition and curve node id mapper
+ * stored in a configuration source.
  */
 public class ConfigDBCurveSpecificationBuilder implements CurveSpecificationBuilder {
   /** The config source */
@@ -49,9 +50,9 @@ public class ConfigDBCurveSpecificationBuilder implements CurveSpecificationBuil
     final String curveName = curveDefinition.getName();
     for (final CurveNode node : curveDefinition.getNodes()) {
       final String curveSpecificationName = node.getCurveNodeIdMapperName();
-      final CurveNodeIdMapper builderConfig = getBuilderConfig(valuationTime, cache, curveSpecificationName);
+      final CurveNodeIdMapper builderConfig = getCurveNodeIdMapper(valuationTime, cache, curveSpecificationName);
       if (builderConfig == null) {
-        throw new OpenGammaRuntimeException("Could not get curve node id mapper for curve named " + curveName);
+        throw new OpenGammaRuntimeException("Could not get curve node id mapper " + curveSpecificationName + " for curve named " + curveName);
       }
       final CurveNodeWithIdentifierBuilder identifierBuilder = new CurveNodeWithIdentifierBuilder(curveDate, builderConfig);
       identifiers.add(node.accept(identifierBuilder));
@@ -65,7 +66,7 @@ public class ConfigDBCurveSpecificationBuilder implements CurveSpecificationBuil
     final String curveName = curveDefinition.getName();
     for (final CurveNode node : curveDefinition.getNodes()) {
       final String curveSpecificationName = node.getCurveNodeIdMapperName();
-      final CurveNodeIdMapper builderConfig = getBuilderConfig(valuationTime, cache, curveSpecificationName);
+      final CurveNodeIdMapper builderConfig = getCurveNodeIdMapper(valuationTime, cache, curveSpecificationName);
       if (builderConfig == null) {
         throw new OpenGammaRuntimeException("Could not get curve node id mapper for curve named " + curveName);
       }
@@ -78,7 +79,7 @@ public class ConfigDBCurveSpecificationBuilder implements CurveSpecificationBuil
     return new InterpolatedCurveSpecification(curveDate, curveName, identifiers, interpolatorName, rightExtrapolatorName, leftExtrapolatorName);
   }
 
-  private CurveNodeIdMapper getBuilderConfig(final Instant valuationTime, final Map<String, CurveNodeIdMapper> cache, final String curveSpecificationName) {
+  private CurveNodeIdMapper getCurveNodeIdMapper(final Instant valuationTime, final Map<String, CurveNodeIdMapper> cache, final String curveSpecificationName) {
     final Instant versionTime = valuationTime.plus(1, ChronoUnit.HOURS).truncatedTo(ChronoUnit.HOURS);
     CurveNodeIdMapper builderSpecDoc = cache.get(curveSpecificationName);
     if (builderSpecDoc != null) {

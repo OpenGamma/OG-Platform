@@ -18,6 +18,7 @@ import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
+import com.opengamma.financial.security.bond.InflationBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
@@ -48,6 +49,7 @@ import com.opengamma.financial.security.future.EnergyFutureSecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
 import com.opengamma.financial.security.future.FXFutureSecurity;
+import com.opengamma.financial.security.future.FederalFundsFutureSecurity;
 import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
@@ -72,6 +74,8 @@ import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.financial.security.swap.YearOnYearInflationSwapSecurity;
+import com.opengamma.financial.security.swap.ZeroCouponInflationSwapSecurity;
 import com.opengamma.financial.sensitivities.SecurityEntryData;
 import com.opengamma.master.security.RawSecurity;
 
@@ -116,6 +120,7 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
   /* package */static final String DELIVERABLE_SWAP_FUTURES = "Deliverable Swap Futures";
   /* package */static final String CDX = "CDS Indices";
   /* package */static final String CREDIT_DEFAULT_SWAP_OPTIONS = "CDS Options";
+  /* package */static final String INFLATION_SWAPS = "Inflation Swaps";
 
   private final Comparator<Position> _comparator = new SimplePositionComparator();
 
@@ -123,7 +128,7 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
       NONDELIVERABLE_FX_DIGITAL_OPTIONS, FX_FORWARDS, NONDELIVERABLE_FX_FORWARDS, BONDS, CASH, EQUITIES,
       FRAS, FUTURES, EQUITY_INDEX_OPTIONS, EQUITY_OPTIONS, EQUITY_BARRIER_OPTIONS,
       EQUITY_VARIANCE_SWAPS, SWAPTIONS, IRFUTURE_OPTIONS, EQUITY_INDEX_DIVIDEND_FUTURE_OPTIONS,
-      SWAPS, CAP_FLOOR, CAP_FLOOR_CMS_SPREAD, EQUITY_INDEX_FUTURE_OPTIONS,
+      SWAPS, CAP_FLOOR, CAP_FLOOR_CMS_SPREAD, EQUITY_INDEX_FUTURE_OPTIONS, INFLATION_SWAPS,
       UNKNOWN);
 
   private final boolean _includeEmptyCategories;
@@ -134,6 +139,22 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
 
   public AssetClassAggregationFunction(final boolean includeEmptyCategories) {
     _includeEmptyCategories = includeEmptyCategories;
+  }
+
+  /**
+   * Gets all of the asset class categories in this aggregation function.
+   * @return A list of the categories
+   */
+  protected static List<String> getAllCategories() {
+    return ALL_CATEGORIES;
+  }
+
+  /**
+   * Gets the include empty categories field.
+   * @return The include empty categories field
+   */
+  protected boolean includeEmptyCategories() {
+    return _includeEmptyCategories;
   }
 
   @Override
@@ -155,6 +176,11 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
 
         @Override
         public String visitMunicipalBondSecurity(final MunicipalBondSecurity security) {
+          return BONDS;
+        }
+
+        @Override
+        public String visitInflationBondSecurity(final InflationBondSecurity security) {
           return BONDS;
         }
 
@@ -345,6 +371,11 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
         }
 
         @Override
+        public String visitFederalFundsFutureSecurity(final FederalFundsFutureSecurity security) {
+          return FUTURES;
+        }
+
+        @Override
         public String visitMetalFutureSecurity(final MetalFutureSecurity security) {
           return FUTURES;
         }
@@ -422,6 +453,16 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
         @Override
         public String visitCreditDefaultSwapOptionSecurity(final CreditDefaultSwapOptionSecurity security) {
           return CREDIT_DEFAULT_SWAP_OPTIONS;
+        }
+
+        @Override
+        public String visitZeroCouponInflationSwapSecurity(final ZeroCouponInflationSwapSecurity security) {
+          return INFLATION_SWAPS;
+        }
+
+        @Override
+        public String visitYearOnYearInflationSwapSecurity(final YearOnYearInflationSwapSecurity security) {
+          return INFLATION_SWAPS;
         }
       });
     } else {

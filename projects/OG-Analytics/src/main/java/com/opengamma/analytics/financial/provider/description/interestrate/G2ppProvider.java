@@ -1,11 +1,12 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.description.interestrate;
 
 import com.opengamma.analytics.financial.model.interestrate.definition.G2ppPiecewiseConstantParameters;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -32,7 +33,10 @@ public class G2ppProvider implements G2ppProviderInterface {
    * @param parameters The G2++ parameters.
    * @param ccyG2pp The currency for which the G2++ parameters are valid (G2++ on the discounting curve).
    */
-  public G2ppProvider(final MulticurveProviderInterface multicurves, G2ppPiecewiseConstantParameters parameters, Currency ccyG2pp) {
+  public G2ppProvider(final MulticurveProviderInterface multicurves, final G2ppPiecewiseConstantParameters parameters, final Currency ccyG2pp) {
+    ArgumentChecker.notNull(multicurves, "multi-curve provider");
+    ArgumentChecker.notNull(parameters, "parameters");
+    ArgumentChecker.notNull(ccyG2pp, "currency");
     _multicurveProvider = multicurves;
     _parameters = parameters;
     _ccyG2pp = ccyG2pp;
@@ -40,7 +44,7 @@ public class G2ppProvider implements G2ppProviderInterface {
 
   @Override
   public G2ppProvider copy() {
-    MulticurveProviderInterface multicurveProvider = _multicurveProvider.copy();
+    final MulticurveProviderInterface multicurveProvider = _multicurveProvider.copy();
     return new G2ppProvider(multicurveProvider, _parameters, _ccyG2pp);
   }
 

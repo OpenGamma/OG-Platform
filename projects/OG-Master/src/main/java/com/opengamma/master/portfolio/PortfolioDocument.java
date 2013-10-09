@@ -86,6 +86,7 @@ public class PortfolioDocument extends AbstractDocument implements Serializable 
   public static PortfolioDocument.Meta meta() {
     return PortfolioDocument.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(PortfolioDocument.Meta.INSTANCE);
   }

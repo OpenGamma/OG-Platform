@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.math.interpolation;
@@ -20,12 +20,12 @@ public class HermiteCoefficientsProvider {
    * @param intervals (xValues_{i+1} - xValues_{i})
    * @param slopes (yValues_{i+1} - yValues_{i})/(xValues_{i+1} - xValues_{i})
    * @param first First derivatives at xValues_i
-   * @return Coefficient matrix whose i-th row vector is { a_n, a_{n-1}, ...} for the i-th interval, 
+   * @return Coefficient matrix whose i-th row vector is { a_n, a_{n-1}, ...} for the i-th interval,
    * where a_n, a_{n-1},... are coefficients of f(x) = a_n (x-x_i)^n + a_{n-1} (x-x_i)^{n-1} + .... with n=3
    */
   public double[][] solve(final double[] values, final double[] intervals, final double[] slopes, final double[] first) {
     final int nInt = intervals.length;
-    double[][] res = new double[nInt][4];
+    final double[][] res = new double[nInt][4];
     for (int i = 0; i < nInt; ++i) {
       Arrays.fill(res[i], 0.);
     }
@@ -51,9 +51,9 @@ public class HermiteCoefficientsProvider {
   public DoubleMatrix2D[] solveWithSensitivity(final double[] values, final double[] intervals, final double[] slopes, final double[][] slopeSensitivity, final DoubleMatrix1D[] firstWithSensitivity) {
     final int nData = values.length;
     final double[] first = firstWithSensitivity[0].getData();
-    DoubleMatrix2D[] res = new DoubleMatrix2D[nData];
+    final DoubleMatrix2D[] res = new DoubleMatrix2D[nData];
 
-    double[][] coef = solve(values, intervals, slopes, first);
+    final double[][] coef = solve(values, intervals, slopes, first);
     res[0] = new DoubleMatrix2D(coef);
 
     for (int i = 0; i < nData - 1; ++i) {
@@ -77,12 +77,12 @@ public class HermiteCoefficientsProvider {
    * @param slopes (yValues_{i+1} - yValues_{i})/(xValues_{i+1} - xValues_{i})
    * @param first First derivatives at xValues_i
    * @param second Second derivatives at xValues_i
-   * @return Coefficient matrix whose i-th row vector is { a_n, a_{n-1}, ...} for the i-th interval, 
+   * @return Coefficient matrix whose i-th row vector is { a_n, a_{n-1}, ...} for the i-th interval,
    * where a_n, a_{n-1},... are coefficients of f(x) = a_n (x-x_i)^n + a_{n-1} (x-x_i)^{n-1} + .... with n=5
    */
   public double[][] solve(final double[] values, final double[] intervals, final double[] slopes, final double[] first, final double[] second) {
     final int nInt = intervals.length;
-    double[][] res = new double[nInt][6];
+    final double[][] res = new double[nInt][6];
     for (int i = 0; i < nInt; ++i) {
       Arrays.fill(res[i], 0.);
     }
@@ -101,7 +101,7 @@ public class HermiteCoefficientsProvider {
   }
 
   /**
-   * 
+   *
    * @param values (yValues_i)
    * @param intervals (xValues_{i+1} - xValues_{i})
    * @param slopes (yValues_{i+1} - yValues_{i})/(xValues_{i+1} - xValues_{i})
@@ -115,13 +115,14 @@ public class HermiteCoefficientsProvider {
     final int nData = values.length;
     final double[] first = firstWithSensitivity[0].getData();
     final double[] second = secondWithSensitivity[0].getData();
-    DoubleMatrix2D[] res = new DoubleMatrix2D[nData];
+    final DoubleMatrix2D[] res = new DoubleMatrix2D[nData];
 
-    double[][] coef = solve(values, intervals, slopes, first, second);
+    final double[][] coef = solve(values, intervals, slopes, first, second);
     res[0] = new DoubleMatrix2D(coef);
 
     for (int i = 0; i < nData - 1; ++i) {
       final double[][] coefSense = new double[6][nData];
+      Arrays.fill(coefSense[5], 0.);
       coefSense[5][i] = 1.;
       for (int k = 0; k < nData; ++k) {
         coefSense[0][k] = 0.5 * (secondWithSensitivity[i + 2].getData()[k] - secondWithSensitivity[i + 1].getData()[k]) / intervals[i] / intervals[i] / intervals[i] + 3. *
@@ -140,13 +141,13 @@ public class HermiteCoefficientsProvider {
   }
 
   /**
-   * @param xValues 
+   * @param xValues The x values
    * @return Intervals of xValues, ( xValues_{i+1} - xValues_i )
    */
   public double[] intervalsCalculator(final double[] xValues) {
 
     final int nDataPts = xValues.length;
-    double[] intervals = new double[nDataPts - 1];
+    final double[] intervals = new double[nDataPts - 1];
 
     for (int i = 0; i < nDataPts - 1; ++i) {
       intervals[i] = xValues[i + 1] - xValues[i];
@@ -163,7 +164,7 @@ public class HermiteCoefficientsProvider {
   public double[] slopesCalculator(final double[] yValues, final double[] intervals) {
 
     final int nDataPts = yValues.length;
-    double[] slopes = new double[nDataPts - 1];
+    final double[] slopes = new double[nDataPts - 1];
 
     for (int i = 0; i < nDataPts - 1; ++i) {
       slopes[i] = (yValues[i + 1] - yValues[i]) / intervals[i];
@@ -179,7 +180,7 @@ public class HermiteCoefficientsProvider {
    */
   public double[][] slopeSensitivityCalculator(final double[] intervals) {
     final int nDataPts = intervals.length + 1;
-    double[][] res = new double[nDataPts - 1][nDataPts];
+    final double[][] res = new double[nDataPts - 1][nDataPts];
 
     for (int i = 0; i < nDataPts - 1; ++i) {
       Arrays.fill(res[i], 0.);
@@ -189,11 +190,11 @@ public class HermiteCoefficientsProvider {
     return res;
   }
 
-  /** 
-   * @param ints1  
-   * @param ints2 
-   * @param slope1 
-   * @param slope2 
+  /**
+   * @param ints1 The first interval
+   * @param ints2 The second interval
+   * @param slope1 The first gradient
+   * @param slope2 The second gradient
    * @return Value of derivative at each endpoint
    */
   public double endpointDerivatives(final double ints1, final double ints2, final double slope1, final double slope2) {
@@ -201,10 +202,9 @@ public class HermiteCoefficientsProvider {
 
     if (Math.signum(val) != Math.signum(slope1)) {
       return 0.;
-    } else {
-      if (Math.signum(slope1) != Math.signum(slope2) && Math.abs(val) > 3. * Math.abs(slope1)) {
-        return 3. * slope1;
-      }
+    }
+    if (Math.signum(slope1) != Math.signum(slope2) && Math.abs(val) > 3. * Math.abs(slope1)) {
+      return 3. * slope1;
     }
     return val;
   }

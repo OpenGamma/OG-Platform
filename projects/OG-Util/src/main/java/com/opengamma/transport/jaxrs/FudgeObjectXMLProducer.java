@@ -79,6 +79,7 @@ public class FudgeObjectXMLProducer extends FudgeBase implements MessageBodyWrit
     }
     
     OutputStreamWriter entityWriter = new OutputStreamWriter(entityStream, Charsets.UTF_8);
+    @SuppressWarnings("resource")
     final FudgeMsgWriter writer = new FudgeMsgWriter(new FudgeXMLStreamWriter(getFudgeContext(), entityWriter));
     writer.writeMessageEnvelope(msg, getFudgeTaxonomyId());
     writer.flush();

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.montecarlo.provider;
@@ -10,7 +10,6 @@ import java.util.Arrays;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.model.interestrate.definition.LiborMarketModelDisplacedDiffusionParameters;
 import com.opengamma.analytics.financial.montecarlo.DecisionSchedule;
-import com.opengamma.analytics.financial.montecarlo.MonteCarloIborRateCalculator;
 import com.opengamma.analytics.financial.montecarlo.MonteCarloIborRateDataBundle;
 import com.opengamma.analytics.financial.provider.description.interestrate.LiborMarketModelDisplacedDiffusionProvider;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
@@ -70,8 +69,8 @@ public class LiborMarketModelMonteCarloMethod extends MonteCarloMethod {
   }
 
   public MultipleCurrencyAmount presentValue(final InstrumentDerivative instrument, final Currency ccy, final LiborMarketModelDisplacedDiffusionProvider lmmData) {
-    MulticurveProviderInterface multicurves = lmmData.getMulticurveProvider();
-    LiborMarketModelDisplacedDiffusionParameters parameters = lmmData.getLMMParameters();
+    final MulticurveProviderInterface multicurves = lmmData.getMulticurveProvider();
+    final LiborMarketModelDisplacedDiffusionParameters parameters = lmmData.getLMMParameters();
     // The numeraire is the last time in the LMM description.
     final DecisionSchedule decision = instrument.accept(DC, multicurves);
     final int[][] impactIndex = index(decision.getImpactTime(), parameters);
@@ -214,7 +213,7 @@ public class LiborMarketModelMonteCarloMethod extends MonteCarloMethod {
   }
 
   /**
-   * 
+   *
    * @param jumpTime The time of the mandatory jumps.
    * @param initIbor The Ibor rates at the start. nbPeriodLMM x nbPath
    * @param lmm The LMM parameters.

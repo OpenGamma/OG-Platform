@@ -8,7 +8,7 @@
   <parent>
     <groupId>com.opengamma.platform</groupId>
     <artifactId>og-platform-public</artifactId>
-    <version>2.0.0</version>
+    <version>2.1.0</version>
     <relativePath>..</relativePath>
   </parent>
   <artifactId>og-util</artifactId>
@@ -63,6 +63,10 @@
     <dependency>
       <groupId>org.fudgemsg</groupId>
       <artifactId>fudge-java</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.fudgemsg</groupId>
+      <artifactId>fudge-proto</artifactId>
     </dependency>
     <dependency>
       <groupId>org.threeten</groupId>
@@ -219,16 +223,20 @@
       <groupId>net.sf.ehcache</groupId>
       <artifactId>ehcache-core</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.mongodb</groupId>
+      <artifactId>mongo-java-driver</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>redis.clients</groupId>
+      <artifactId>jedis</artifactId>
+    </dependency>
 
     <dependency>
       <groupId>org.testng</groupId>
       <artifactId>testng</artifactId>
       <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>redis.clients</groupId>
-      <artifactId>jedis</artifactId>
     </dependency>
   </dependencies>
 

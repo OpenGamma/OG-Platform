@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.curve;
@@ -26,7 +26,7 @@ import com.opengamma.financial.analytics.ircurve.strips.CurveNode;
  * must be provided, but the left and right extrapolation methods are optional.
  */
 @BeanDefinition
-@Config
+@Config(description = "Interpolated curve definition")
 public class InterpolatedCurveDefinition extends CurveDefinition {
 
   /** Serialization version */
@@ -50,6 +50,9 @@ public class InterpolatedCurveDefinition extends CurveDefinition {
   @PropertyDefinition
   private String _leftExtrapolatorName;
 
+  /**
+   * For the builder.
+   */
   /* package*/InterpolatedCurveDefinition() {
   }
 
@@ -99,6 +102,7 @@ public class InterpolatedCurveDefinition extends CurveDefinition {
   public static InterpolatedCurveDefinition.Meta meta() {
     return InterpolatedCurveDefinition.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(InterpolatedCurveDefinition.Meta.INSTANCE);
   }

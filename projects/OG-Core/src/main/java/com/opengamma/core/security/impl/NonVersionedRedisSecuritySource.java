@@ -29,6 +29,7 @@ import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
@@ -168,6 +169,10 @@ public class NonVersionedRedisSecuritySource implements SecuritySource, MetricPr
     }
     if (uniqueId.getVersion() != null) {
       uniqueId = UniqueId.of(uniqueId.getObjectId(), null);
+    }
+    if (security instanceof MutableUniqueIdentifiable) {
+      MutableUniqueIdentifiable mutableSecurity = (MutableUniqueIdentifiable) security;
+      mutableSecurity.setUniqueId(uniqueId);
     }
     
     try (Timer.Context context = _putTimer.time()) {

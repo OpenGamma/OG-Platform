@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument;
@@ -10,8 +10,6 @@ import java.util.Map;
 
 import org.threeten.bp.LocalDate;
 
-import com.opengamma.analytics.financial.equity.future.definition.EquityIndexFutureDefinition;
-import com.opengamma.analytics.financial.equity.future.definition.VolatilityIndexFutureDefinition;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
@@ -52,9 +50,9 @@ public final class NettedFixedCashFlowVisitor extends InstrumentDefinitionVisito
     return add(payCashFlows, receiveCashFlows);
   }
 
-  private Map<LocalDate, MultipleCurrencyAmount> add(final Map<LocalDate, MultipleCurrencyAmount> payCashFlows,
+  private static Map<LocalDate, MultipleCurrencyAmount> add(final Map<LocalDate, MultipleCurrencyAmount> payCashFlows,
       final Map<LocalDate, MultipleCurrencyAmount> receiveCashFlows) {
-    final Map<LocalDate, MultipleCurrencyAmount> result = new HashMap<LocalDate, MultipleCurrencyAmount>(receiveCashFlows);
+    final Map<LocalDate, MultipleCurrencyAmount> result = new HashMap<>(receiveCashFlows);
     for (final Map.Entry<LocalDate, MultipleCurrencyAmount> entry : payCashFlows.entrySet()) {
       final MultipleCurrencyAmount mca = entry.getValue().multipliedBy(-1);
       final LocalDate date = entry.getKey();

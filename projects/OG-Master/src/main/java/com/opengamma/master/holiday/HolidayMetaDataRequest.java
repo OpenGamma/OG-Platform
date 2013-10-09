@@ -50,6 +50,7 @@ public class HolidayMetaDataRequest extends AbstractMetaDataRequest {
   public static HolidayMetaDataRequest.Meta meta() {
     return HolidayMetaDataRequest.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(HolidayMetaDataRequest.Meta.INSTANCE);
   }

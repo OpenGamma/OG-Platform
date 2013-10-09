@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.provider;
@@ -23,9 +23,9 @@ import com.opengamma.util.tuple.DoublesPair;
  * Class describing the pricing of Fed Fund swap-like floating coupon (arithmetic average on overnight rates) by estimation and discounting (no convexity adjustment is computed).
  * The estimation is done by estimating each ON forward rate and averaging them.
  * <p>Reference: Overnight Indexes Related Products. OpenGamma Documentation n. 20, Version 1.0, February 2013.
- * FIXME: Class under construction, don't use yet.
  */
 public final class CouponArithmeticAverageONDiscountingMethod {
+  // FIXME: Class under construction, don't use yet.
 
   /**
    * The method unique instance.
@@ -47,7 +47,7 @@ public final class CouponArithmeticAverageONDiscountingMethod {
   }
 
   /**
-   * Computes the present value. 
+   * Computes the present value.
    * @param coupon The coupon.
    * @param multicurve The multi-curve provider.
    * @return The present value.
@@ -55,17 +55,17 @@ public final class CouponArithmeticAverageONDiscountingMethod {
   public MultipleCurrencyAmount presentValue(final CouponArithmeticAverageON coupon, final MulticurveProviderInterface multicurve) {
     ArgumentChecker.notNull(coupon, "Coupon");
     ArgumentChecker.notNull(multicurve, "Multi-curve provider");
-    double[] delta = coupon.getFixingPeriodAccrualFactors();
-    double[] times = coupon.getFixingPeriodTimes();
-    int nbFwd = delta.length;
-    double[] forwardON = new double[nbFwd];
+    final double[] delta = coupon.getFixingPeriodAccrualFactors();
+    final double[] times = coupon.getFixingPeriodTimes();
+    final int nbFwd = delta.length;
+    final double[] forwardON = new double[nbFwd];
     double rateAccrued = coupon.getRateAccrued();
     for (int loopfwd = 0; loopfwd < nbFwd; loopfwd++) {
       forwardON[loopfwd] = multicurve.getForwardRate(coupon.getIndex(), times[loopfwd], times[loopfwd + 1], delta[loopfwd]);
       rateAccrued += forwardON[loopfwd] * delta[loopfwd];
     }
-    double df = multicurve.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
-    double pv = df * rateAccrued * coupon.getNotional(); // Does not use the payment accrual factor.
+    final double df = multicurve.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
+    final double pv = df * rateAccrued * coupon.getNotional(); // Does not use the payment accrual factor.
     return MultipleCurrencyAmount.of(coupon.getCurrency(), pv);
   }
 
@@ -79,30 +79,30 @@ public final class CouponArithmeticAverageONDiscountingMethod {
     ArgumentChecker.notNull(coupon, "Coupon");
     ArgumentChecker.notNull(multicurve, "Multi-curve provider");
     // Forward sweep
-    double[] delta = coupon.getFixingPeriodAccrualFactors();
-    double[] times = coupon.getFixingPeriodTimes();
-    int nbFwd = delta.length;
-    double[] forwardON = new double[nbFwd];
+    final double[] delta = coupon.getFixingPeriodAccrualFactors();
+    final double[] times = coupon.getFixingPeriodTimes();
+    final int nbFwd = delta.length;
+    final double[] forwardON = new double[nbFwd];
     double rateAccrued = coupon.getRateAccrued();
     for (int loopfwd = 0; loopfwd < nbFwd; loopfwd++) {
       forwardON[loopfwd] = multicurve.getForwardRate(coupon.getIndex(), times[loopfwd], times[loopfwd + 1], delta[loopfwd]);
       rateAccrued += forwardON[loopfwd] * delta[loopfwd];
     }
-    double df = multicurve.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
+    final double df = multicurve.getDiscountFactor(coupon.getCurrency(), coupon.getPaymentTime());
     // Backward sweep
-    double pvBar = 1.0;
-    double dfBar = rateAccrued * coupon.getNotional() * pvBar;
-    double rateAccruedBar = df * coupon.getNotional() * pvBar;
-    double[] forwardONBar = new double[nbFwd];
+    final double pvBar = 1.0;
+    final double dfBar = rateAccrued * coupon.getNotional() * pvBar;
+    final double rateAccruedBar = df * coupon.getNotional() * pvBar;
+    final double[] forwardONBar = new double[nbFwd];
     for (int loopfwd = 0; loopfwd < nbFwd; loopfwd++) {
       forwardONBar[loopfwd] = delta[loopfwd] * rateAccruedBar;
     }
-    final Map<String, List<DoublesPair>> mapDsc = new HashMap<String, List<DoublesPair>>();
-    final List<DoublesPair> listDiscounting = new ArrayList<DoublesPair>();
+    final Map<String, List<DoublesPair>> mapDsc = new HashMap<>();
+    final List<DoublesPair> listDiscounting = new ArrayList<>();
     listDiscounting.add(new DoublesPair(coupon.getPaymentTime(), -coupon.getPaymentTime() * df * dfBar));
     mapDsc.put(multicurve.getName(coupon.getCurrency()), listDiscounting);
-    final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<String, List<ForwardSensitivity>>();
-    final List<ForwardSensitivity> listForward = new ArrayList<ForwardSensitivity>();
+    final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<>();
+    final List<ForwardSensitivity> listForward = new ArrayList<>();
     for (int loopfwd = 0; loopfwd < nbFwd; loopfwd++) {
       listForward.add(new ForwardSensitivity(times[loopfwd], times[loopfwd + 1], delta[loopfwd], forwardONBar[loopfwd]));
     }

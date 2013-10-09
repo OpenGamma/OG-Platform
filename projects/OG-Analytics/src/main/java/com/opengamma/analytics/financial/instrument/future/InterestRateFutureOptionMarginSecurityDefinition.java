@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.future;
@@ -48,9 +48,9 @@ public class InterestRateFutureOptionMarginSecurityDefinition implements Instrum
   public InterestRateFutureOptionMarginSecurityDefinition(final InterestRateFutureSecurityDefinition underlyingFuture, final ZonedDateTime expirationDate, final double strike, final boolean isCall) {
     ArgumentChecker.notNull(underlyingFuture, "underlying future");
     ArgumentChecker.notNull(expirationDate, "expiration");
-    this._underlyingFuture = underlyingFuture;
-    this._expirationDate = expirationDate;
-    this._strike = strike;
+    _underlyingFuture = underlyingFuture;
+    _expirationDate = expirationDate;
+    _strike = strike;
     _isCall = isCall;
   }
 
@@ -86,13 +86,26 @@ public class InterestRateFutureOptionMarginSecurityDefinition implements Instrum
     return _strike;
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public InterestRateFutureOptionMarginSecurity toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.notNull(date, "date");
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
-//    ArgumentChecker.isTrue(yieldCurveNames.length > 1, "at least two curves required");
     final double expirationTime = TimeCalculator.getTimeBetween(date, _expirationDate);
     final InterestRateFutureSecurity underlyingFuture = _underlyingFuture.toDerivative(date, yieldCurveNames);
+    final InterestRateFutureOptionMarginSecurity option = new InterestRateFutureOptionMarginSecurity(underlyingFuture, expirationTime, _strike, _isCall);
+    return option;
+  }
+
+  @Override
+  public InterestRateFutureOptionMarginSecurity toDerivative(final ZonedDateTime date) {
+    ArgumentChecker.notNull(date, "date");
+    final double expirationTime = TimeCalculator.getTimeBetween(date, _expirationDate);
+    final InterestRateFutureSecurity underlyingFuture = _underlyingFuture.toDerivative(date);
     final InterestRateFutureOptionMarginSecurity option = new InterestRateFutureOptionMarginSecurity(underlyingFuture, expirationTime, _strike, _isCall);
     return option;
   }

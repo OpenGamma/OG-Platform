@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.sensitivity;
@@ -86,7 +86,7 @@ public class MultipleCurrencyParameterSensitivityTest {
 
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testAddToUnmodifiableMap() {
-    final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> map = new LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D>();
+    final LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> map = new LinkedHashMap<>();
     map.put(NAME_1_EUR, SENSITIVITY_1_1);
     final MultipleCurrencyParameterSensitivity sensitivities = MultipleCurrencyParameterSensitivity.of(map);
     final Map<Pair<String, Currency>, DoubleMatrix1D> unmodifiable = sensitivities.getSensitivities();
@@ -105,7 +105,7 @@ public class MultipleCurrencyParameterSensitivityTest {
 
   @Test
   public void testObject() {
-    LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> map = new LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D>();
+    LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D> map = new LinkedHashMap<>();
     map.put(NAME_1_EUR, SENSITIVITY_1_1);
     final MultipleCurrencyParameterSensitivity sensitivity = new MultipleCurrencyParameterSensitivity(map);
     assertFalse(sensitivity.getSensitivities() == map);
@@ -116,7 +116,7 @@ public class MultipleCurrencyParameterSensitivityTest {
     MultipleCurrencyParameterSensitivity other = new MultipleCurrencyParameterSensitivity(map);
     assertEquals(sensitivity, other);
     assertEquals(sensitivity.hashCode(), other.hashCode());
-    map = new LinkedHashMap<Pair<String, Currency>, DoubleMatrix1D>();
+    map = new LinkedHashMap<>();
     assertFalse(sensitivity.getSensitivities().equals(map));
     map.put(NAME_1_EUR, SENSITIVITY_1_1);
     other = new MultipleCurrencyParameterSensitivity(map);

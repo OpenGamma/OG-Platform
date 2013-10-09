@@ -39,7 +39,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 @XmlRootElement
 // Ensure we look at subclasses when unmarshalling
 @XmlSeeAlso({ AbstractFxOptionTrade.class, SwapTrade.class, EquityVarianceSwapTrade.class, FxForwardTrade.class,
-                SwaptionTrade.class, OtcEquityIndexOptionTrade.class, ListedSecurityTrade.class, FraTrade.class})
+                SwaptionTrade.class, OtcEquityIndexOptionTrade.class, ListedSecurityTrade.class, FraTrade.class })
 @XmlAccessorType(XmlAccessType.FIELD)
 @BeanDefinition
 public abstract class Trade extends DirectBean {
@@ -89,7 +89,7 @@ public abstract class Trade extends DirectBean {
 
   public abstract boolean canBePositionAggregated();
 
-  public abstract TradeSecurityExtractor getSecurityExtractor() ;
+  public abstract TradeSecurityExtractor getSecurityExtractor();
 
   /*
 
@@ -112,6 +112,7 @@ public abstract class Trade extends DirectBean {
   public static Trade.Meta meta() {
     return Trade.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(Trade.Meta.INSTANCE);
   }

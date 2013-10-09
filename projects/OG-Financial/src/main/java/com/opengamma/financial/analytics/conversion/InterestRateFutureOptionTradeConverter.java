@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.conversion;
 
+import org.threeten.bp.LocalTime;
 import org.threeten.bp.ZoneOffset;
 import org.threeten.bp.ZonedDateTime;
 
@@ -40,16 +41,11 @@ public class InterestRateFutureOptionTradeConverter {
     ArgumentChecker.notNull(trade, "trade");
     ArgumentChecker.isTrue(trade.getSecurity() instanceof IRFutureOptionSecurity, "Can only handle trades with security type IRFutureOptionSecurity");
     final InstrumentDefinition<?> securityDefinition = ((IRFutureOptionSecurity) trade.getSecurity()).accept(_securityConverter);
-    final int quantity = 1; // trade.getQuantity().intValue(); TODO: correct when position/trade dilemma is solved.
-    //TODO trade time or premium time?
-    //    final ZonedDateTime tradeDate = ZonedDateTime.of(trade.getPremiumDate().atTime(trade.getPremiumTime()),
-    //        ZoneOffset.UTC); //TODO get the real time zone
-    final ZonedDateTime tradeDate = trade.getTradeDate().atTime(trade.getTradeTime().toLocalTime()).atZone(ZoneOffset.UTC); //TODO get the real time zone
-
+    final int quantity = trade.getQuantity().intValue();
+    final LocalTime tradeTime = trade.getTradeTime() == null ? LocalTime.of(0, 0) : trade.getTradeTime().toLocalTime();
+    final ZonedDateTime tradeDate = trade.getTradeDate().atTime(tradeTime).atZone(ZoneOffset.UTC); //TODO get the real time zone
     final Double tradePrice = trade.getPremium();
     ArgumentChecker.notNull(tradePrice, "IRFutureOption trade must have a premium set. The interpretation of premium is the market price, without unit, i.e. not %");
-    // TODO: The premium is not the right place to store the trade price...
-
     if (securityDefinition instanceof InterestRateFutureOptionMarginSecurityDefinition) {
       final InterestRateFutureOptionMarginSecurityDefinition underlyingOption = (InterestRateFutureOptionMarginSecurityDefinition) securityDefinition;
       return new InterestRateFutureOptionMarginTransactionDefinition(underlyingOption, quantity, tradeDate, tradePrice);

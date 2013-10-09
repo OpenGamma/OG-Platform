@@ -5,13 +5,13 @@
  */
 package com.opengamma.id;
 
-import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -75,7 +75,7 @@ public class UniqueIdSchemeDelegator<T> {
    * @return the registered delegates, unmodifiable, not null
    */
   public Map<String, T> getDelegates() {
-    return Collections.unmodifiableMap(_schemeToDelegateMap);
+    return ImmutableMap.copyOf(_schemeToDelegateMap);
   }
 
   //-------------------------------------------------------------------------

@@ -102,6 +102,7 @@ public class ConfigSourceComponentFactory extends AbstractComponentFactory {
   public static ConfigSourceComponentFactory.Meta meta() {
     return ConfigSourceComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ConfigSourceComponentFactory.Meta.INSTANCE);
   }

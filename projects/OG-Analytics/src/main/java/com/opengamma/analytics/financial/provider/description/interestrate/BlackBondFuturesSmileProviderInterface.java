@@ -1,12 +1,12 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.description.interestrate;
 
 /**
- * Provider of Black smile for options on bond futures. The volatility is time to expiration/strike dependent. 
+ * Provider of Black smile for options on bond futures. The volatility is time to expiration/strike dependent.
  */
 public interface BlackBondFuturesSmileProviderInterface extends ParameterIssuerProviderInterface {
 
@@ -14,6 +14,7 @@ public interface BlackBondFuturesSmileProviderInterface extends ParameterIssuerP
    * Create a new copy of the provider
    * @return The bundle
    */
+  @Override
   BlackBondFuturesSmileProviderInterface copy();
 
   /**

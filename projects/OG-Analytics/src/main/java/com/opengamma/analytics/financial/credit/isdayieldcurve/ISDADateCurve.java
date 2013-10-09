@@ -173,7 +173,7 @@ public class ISDADateCurve extends YieldAndDiscountCurve {
   public ZonedDateTime[] getCurveDates() {
     return _curveDates;
   }
-  
+
   public ZonedDateTime getBaseDate() {
     return _baseDates;
   }
@@ -328,6 +328,11 @@ public class ISDADateCurve extends YieldAndDiscountCurve {
 
   @Override
   public List<String> getUnderlyingCurvesNames() {
+    throw new NotImplementedException();
+  }
+
+  @Override
+  public double getForwardRate(final double t) {
     throw new NotImplementedException();
   }
 

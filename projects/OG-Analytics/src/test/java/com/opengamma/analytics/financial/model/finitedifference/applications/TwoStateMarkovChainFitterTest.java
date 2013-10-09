@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.finitedifference.applications;
@@ -34,11 +34,11 @@ import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * 
+ *
  */
 public class TwoStateMarkovChainFitterTest {
   //TODO just put this in to stop failures
-  private static final Interpolator1D INTERPOLATOR_1D = 
+  private static final Interpolator1D INTERPOLATOR_1D =
       CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.FLAT_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
   private static final GridInterpolator2D GRID_INTERPOLATOR2D = new GridInterpolator2D(INTERPOLATOR_1D, INTERPOLATOR_1D);
 
@@ -46,7 +46,7 @@ public class TwoStateMarkovChainFitterTest {
 
   private static final double SPOT = 1.0;
   private static final double RATE = 0.0;
-  private static final List<double[]> EXPIRY_AND_STRIKES = new ArrayList<double[]>();
+  private static final List<double[]> EXPIRY_AND_STRIKES = new ArrayList<>();
   private static final double VOL1 = 0.15;
   private static final double DELTA_VOL = 0.55;
   private static final double LAMBDA12 = 0.2;
@@ -94,22 +94,22 @@ public class TwoStateMarkovChainFitterTest {
     FORWARD_CURVE = new ForwardCurve(SPOT, RATE);
     MARKOV_CHAIN_DATA = new TwoStateMarkovChainDataBundle(VOL1, VOL1 + DELTA_VOL, LAMBDA12, LAMBDA21, P0, BETA, BETA);
 
-    TwoStateMarkovChainPricer mc = new TwoStateMarkovChainPricer(FORWARD_CURVE, MARKOV_CHAIN_DATA);
+    final TwoStateMarkovChainPricer mc = new TwoStateMarkovChainPricer(FORWARD_CURVE, MARKOV_CHAIN_DATA);
 
-    int tNodes = 20;
-    int xNodes = 100;
-    MeshingFunction timeMesh = new ExponentialMeshing(0, 5, tNodes, 5.0);
-    MeshingFunction spaceMesh = new HyperbolicMeshing(0, 10 * SPOT, SPOT, xNodes, 0.01);
-    PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
+    final int tNodes = 20;
+    final int xNodes = 100;
+    final MeshingFunction timeMesh = new ExponentialMeshing(0, 5, tNodes, 5.0);
+    final MeshingFunction spaceMesh = new HyperbolicMeshing(0, 10 * SPOT, SPOT, xNodes, 0.01);
+    final PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
     PDE_RESULTS = mc.solve(grid, THETA);
 
     DATA = PDEUtilityTools.priceToImpliedVol(FORWARD_CURVE, PDE_RESULTS, 0.01, 5.0, SPOT / 10, 6 * SPOT, true);
     DATABUNDLE = GRID_INTERPOLATOR2D.getDataBundle(DATA);
 
-    MARKET_VOLS = new ArrayList<Pair<double[], Double>>(EXPIRY_AND_STRIKES.size());
+    MARKET_VOLS = new ArrayList<>(EXPIRY_AND_STRIKES.size());
     for (int i = 0; i < EXPIRY_AND_STRIKES.size(); i++) {
-      double[] tk = EXPIRY_AND_STRIKES.get(i);
-      Pair<double[], Double> pair = new ObjectsPair<double[], Double>(tk, GRID_INTERPOLATOR2D.interpolate(DATABUNDLE, new DoublesPair(tk[0],
+      final double[] tk = EXPIRY_AND_STRIKES.get(i);
+      final Pair<double[], Double> pair = new ObjectsPair<>(tk, GRID_INTERPOLATOR2D.interpolate(DATABUNDLE, new DoublesPair(tk[0],
           tk[1])));
       MARKET_VOLS.add(pair);
     }
@@ -117,17 +117,17 @@ public class TwoStateMarkovChainFitterTest {
 
   @Test(enabled = false)
   public void timeTest() {
-    int warmups = 3;
-    int benchmarkCycles = 10;
+    final int warmups = 3;
+    final int benchmarkCycles = 10;
     final Logger logger = LoggerFactory.getLogger(TwoStateMarkovChainFitterTest.class);
 
-    TwoStateMarkovChainPricer mc = new TwoStateMarkovChainPricer(FORWARD_CURVE, MARKOV_CHAIN_DATA);
+    final TwoStateMarkovChainPricer mc = new TwoStateMarkovChainPricer(FORWARD_CURVE, MARKOV_CHAIN_DATA);
 
-    int tNodes = 20;
-    int xNodes = 100;
-    MeshingFunction timeMesh = new ExponentialMeshing(0, 5, tNodes, 5.0);
-    MeshingFunction spaceMesh = new HyperbolicMeshing(0, 6 * SPOT, SPOT, xNodes, 0.01);
-    PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
+    final int tNodes = 20;
+    final int xNodes = 100;
+    final MeshingFunction timeMesh = new ExponentialMeshing(0, 5, tNodes, 5.0);
+    final MeshingFunction spaceMesh = new HyperbolicMeshing(0, 6 * SPOT, SPOT, xNodes, 0.01);
+    final PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
 
     for (int i = 0; i < warmups; i++) {
       mc.solve(grid, 0.5);
@@ -154,9 +154,9 @@ public class TwoStateMarkovChainFitterTest {
 
   @Test(enabled = false)
   public void test() {
-    DoubleMatrix1D initalGuess = new DoubleMatrix1D(new double[] {0.2, 0.8, 0.3, 2.0, 0.9, 0.9 });
-    TwoStateMarkovChainFitter fitter = new TwoStateMarkovChainFitter(THETA);
-    LeastSquareResultsWithTransform res = fitter.fit(FORWARD_CURVE, MARKET_VOLS, initalGuess);
+    final DoubleMatrix1D initalGuess = new DoubleMatrix1D(new double[] {0.2, 0.8, 0.3, 2.0, 0.9, 0.9 });
+    final TwoStateMarkovChainFitter fitter = new TwoStateMarkovChainFitter(THETA);
+    final LeastSquareResultsWithTransform res = fitter.fit(FORWARD_CURVE, MARKET_VOLS, initalGuess);
     //System.out.println("chi^2:" + res.getChiSq() + "\n params: " + res.getParameters().toString());
     final double[] modelParms = res.getModelParameters().getData();
 

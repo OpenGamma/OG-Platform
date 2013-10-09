@@ -56,6 +56,7 @@ public class BloombergSecurityProviderComponentFactory extends SecurityProviderC
   public static BloombergSecurityProviderComponentFactory.Meta meta() {
     return BloombergSecurityProviderComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(BloombergSecurityProviderComponentFactory.Meta.INSTANCE);
   }

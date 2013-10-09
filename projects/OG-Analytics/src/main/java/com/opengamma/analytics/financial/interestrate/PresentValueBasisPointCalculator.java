@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -33,8 +33,9 @@ import com.opengamma.util.ArgumentChecker;
  * For PaymentFixed, it is 0 (there is no rate).
  * For annuities, it is the sum of pvbp of all payments.
  * For swaps it is the pvbp of the first leg.
+ * @deprecated {@link YieldCurveBundle} is deprecated
  */
-// TODO: Maybe changing the name to "PresentValueMarketQuoteSensitivityCalculator" may be a good idea.
+@Deprecated
 public final class PresentValueBasisPointCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> {
 
   /**

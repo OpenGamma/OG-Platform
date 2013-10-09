@@ -6,7 +6,6 @@
 package com.opengamma.analytics.financial.forex.derivative;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
@@ -14,7 +13,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * Class describing a digital foreign exchange European option. 
+ * Class describing a digital foreign exchange European option.
  * The implied strike is the absolute value of ratio of the domestic currency (currency 2) amount and the foreign currency amount (currency1).
  * When the option is a call, it pays the absolute value of the payment currency amount when the spot rate is above the strike and nothing otherwise.
  * When the option is a put, it pays the absolute value of the payment currency amount when the spot rate is below the strike and nothing otherwise.
@@ -51,8 +50,8 @@ public class ForexOptionDigital implements InstrumentDerivative {
    * @param payDomestic The flag indicating which currency is paid. If true, the domestic currency amount is paid, if false, the foreign currency amount is paid.
    */
   public ForexOptionDigital(final Forex underlyingForex, final double expirationTime, final boolean isCall, final boolean isLong, final boolean payDomestic) {
-    Validate.notNull(underlyingForex, "Option FX underlying");
-    Validate.isTrue(expirationTime <= underlyingForex.getPaymentTime(), "Expiration should be before payment.");
+    ArgumentChecker.notNull(underlyingForex, "Option FX underlying");
+    ArgumentChecker.isTrue(expirationTime <= underlyingForex.getPaymentTime(), "Expiration should be before payment.");
     _underlyingForex = underlyingForex;
     _expirationTime = expirationTime;
     _isCall = isCall;

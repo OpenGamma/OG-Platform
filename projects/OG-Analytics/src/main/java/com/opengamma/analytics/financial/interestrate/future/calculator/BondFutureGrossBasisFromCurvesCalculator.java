@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.calculator;
@@ -13,8 +13,9 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutu
 import com.opengamma.analytics.financial.interestrate.future.method.BondFutureDiscountingMethod;
 
 /**
- * 
+ * @deprecated {@link YieldCurveBundle} is deprecated
  */
+@Deprecated
 public final class BondFutureGrossBasisFromCurvesCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, double[]> {
   private static final BondFutureGrossBasisFromCurvesCalculator INSTANCE = new BondFutureGrossBasisFromCurvesCalculator();
   private static final BondFutureDiscountingMethod CALCULATOR = BondFutureDiscountingMethod.getInstance();

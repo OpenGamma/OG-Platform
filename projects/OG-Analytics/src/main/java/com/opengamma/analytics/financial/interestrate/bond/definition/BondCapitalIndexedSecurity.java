@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.bond.definition;
@@ -42,7 +42,7 @@ public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C
    */
   private final double _factorToNextCoupon;
   /**
-   * The description of the bond settlement. It is used only for the dates and inflation calculation. 
+   * The description of the bond settlement. It is used only for the dates and inflation calculation.
    * The notional is 0 if the settlement is in the past and 1 if not.
    */
   private final CouponInflation _settlement;
@@ -66,7 +66,7 @@ public class BondCapitalIndexedSecurity<C extends Coupon> extends BondSecurity<C
    */
   public BondCapitalIndexedSecurity(final Annuity<C> nominal, final Annuity<C> coupon, final double settlementTime, final double accruedInterest, final double factorToNextCoupon,
       final YieldConvention yieldConvention, final int couponPerYear, final CouponInflation settlement, final double indexStartValue, final String issuer) {
-    super(nominal, coupon, settlementTime, "Not used", issuer);
+    super(nominal, coupon, settlementTime, issuer);
     Validate.notNull(yieldConvention, "Yield convention");
     Validate.notNull(settlement, "Settlement");
     _yieldConvention = yieldConvention;

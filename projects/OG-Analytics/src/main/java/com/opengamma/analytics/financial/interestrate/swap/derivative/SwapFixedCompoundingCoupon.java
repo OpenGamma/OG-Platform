@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.swap.derivative;
@@ -13,8 +13,8 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.util.ArgumentChecker;
 
 /**
-* A generalization of a vanilla fixed for floating interest rate swap - here you must have a leg of FixedCouponPayment, but the other leg can be any payment 
-* @param <R> The type of the payments on the receive leg 
+* A generalization of a vanilla fixed for floating interest rate swap - here you must have a leg of FixedCouponPayment, but the other leg can be any payment
+* @param <R> The type of the payments on the receive leg
 */
 public class SwapFixedCompoundingCoupon<R extends Coupon> extends Swap<CouponFixed, R> {
 
@@ -37,7 +37,7 @@ public class SwapFixedCompoundingCoupon<R extends Coupon> extends Swap<CouponFix
 
   /**
    * Check if the payments of of the other leg is of the type CouponFixed or CouponIbor. Used to check that payment are of vanilla type.
-   * @return True if IborCoupon or FixedCoupon 
+   * @return True if IborCoupon or FixedCoupon
    */
   public boolean isIborOrFixed() {
     return getSecondLeg().isIborOrFixed();
@@ -55,7 +55,7 @@ public class SwapFixedCompoundingCoupon<R extends Coupon> extends Swap<CouponFix
     for (int loopcpn = 0; loopcpn < getSecondLeg().getNumberOfPayments(); loopcpn++) {
       cpn[loopcpn] = getSecondLeg().getNthPayment(loopcpn).withNotional(notional * Math.signum(getSecondLeg().getNthPayment(loopcpn).getNotional()));
     }
-    return new SwapFixedCoupon<R>(legFixedNotional, new Annuity<R>((R[]) cpn));
+    return new SwapFixedCoupon<>(legFixedNotional, new Annuity<>((R[]) cpn));
   }
 
   /**
@@ -65,7 +65,7 @@ public class SwapFixedCompoundingCoupon<R extends Coupon> extends Swap<CouponFix
    */
   public SwapFixedCoupon<R> withRate(final double rate) {
     final AnnuityCouponFixed legFixedNotional = getFixedLeg().withRate(rate);
-    return new SwapFixedCoupon<R>(legFixedNotional, getSecondLeg());
+    return new SwapFixedCoupon<>(legFixedNotional, getSecondLeg());
   }
 
   /**
@@ -75,7 +75,7 @@ public class SwapFixedCompoundingCoupon<R extends Coupon> extends Swap<CouponFix
    */
   public SwapFixedCompoundingCoupon<R> withRateShifted(final double spread) {
     final AnnuityCouponFixed legFixedNotional = getFixedLeg().withRateShifted(spread);
-    return new SwapFixedCompoundingCoupon<R>(legFixedNotional, getSecondLeg());
+    return new SwapFixedCompoundingCoupon<>(legFixedNotional, getSecondLeg());
   }
 
   /**
@@ -85,7 +85,7 @@ public class SwapFixedCompoundingCoupon<R extends Coupon> extends Swap<CouponFix
    */
   @Override
   public SwapFixedCompoundingCoupon<R> trimAfter(final double trimTime) {
-    return new SwapFixedCompoundingCoupon<R>(getFixedLeg().trimAfter(trimTime), getSecondLeg().trimAfter(trimTime));
+    return new SwapFixedCompoundingCoupon<>(getFixedLeg().trimAfter(trimTime), getSecondLeg().trimAfter(trimTime));
   }
 
   @Override

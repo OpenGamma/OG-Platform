@@ -29,6 +29,7 @@ import org.threeten.bp.Instant;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.DataNotFoundException;
@@ -41,7 +42,11 @@ import com.opengamma.batch.domain.MarketDataValue;
 import com.opengamma.batch.domain.RiskRun;
 import com.opengamma.batch.domain.RiskValueSpecification;
 import com.opengamma.core.security.impl.SimpleSecurity;
+import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.DefaultComputationTargetResolver;
+import com.opengamma.engine.MapComputationTargetResolver;
 import com.opengamma.engine.calcnode.InvocationResult;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValueResult;
@@ -51,11 +56,14 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.AggregatedExecutionLog;
 import com.opengamma.engine.view.ViewComputationResultModel;
+import com.opengamma.engine.view.ViewResultEntry;
 import com.opengamma.engine.view.cycle.ViewCycleMetadata;
 import com.opengamma.engine.view.impl.InMemoryViewComputationResultModel;
+import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
@@ -81,13 +89,18 @@ public class DbBatchWriterTest extends AbstractDbBatchTest {
   //-------------------------------------------------------------------------
   @Override
   protected void doSetUp() {
-    _batchMaster = new DbBatchMaster(getDbConnector());
-    _batchWriter = new DbBatchWriter(_batchMaster.getDbConnector());
+    MapComputationTargetResolver computationTargetResolver = new MapComputationTargetResolver();
+    _batchMaster = new DbBatchMaster(getDbConnector(), computationTargetResolver);
+    _batchWriter = new DbBatchWriter(_batchMaster.getDbConnector(), computationTargetResolver);
 
     final String calculationConfigName = "config_1";
 
-    _compTargetSpec = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueId.of("Sec", "APPL"));
+    EquitySecurity aapl = new EquitySecurity("EXCH", "EXCH_CODE", "APPLE", Currency.USD);
+    aapl.setUniqueId(UniqueId.of("Sec", "APPL"));
+    ComputationTarget target = new ComputationTarget(ComputationTargetType.SECURITY, aapl);
+    computationTargetResolver.addTarget(target);
 
+    _compTargetSpec = target.getLeafSpecification();
     _requirement = new ValueRequirement("FAIR_VALUE", _compTargetSpec);
     _specification = new ValueSpecification("FAIR_VALUE", _compTargetSpec, ValueProperties.with(ValuePropertyNames.FUNCTION, "IDENTITY_FUNCTION").get());
 
@@ -532,4 +545,21 @@ public class DbBatchWriterTest extends AbstractDbBatchTest {
     result.addValue("config_1", cvr);
     _batchMaster.addJobResults(run.getObjectId(), result);
   }
+  
+  @Test
+  public void truncateSmallValueToZero() {
+    final UniqueId marketDataUid = _cycleMetadataStub.getMarketDataSnapshotId();
+    _batchMaster.createMarketData(marketDataUid);
+    final RiskRun run = _batchMaster.startRiskRun(_cycleMetadataStub, Maps.<String, String>newHashMap(), RunCreationMode.AUTO, SnapshotMode.PREPARED);
+    final InMemoryViewComputationResultModel result = new InMemoryViewComputationResultModel();
+    final ComputedValueResult cvr = new ComputedValueResult(_specification, 1e-323, AggregatedExecutionLog.EMPTY, "someComputeNode", null, InvocationResult.SUCCESS);
+    //cvr.setRequirements(newHashSet(_requirement));
+    result.addValue("config_1", cvr);
+    _batchMaster.addJobResults(run.getObjectId(), result);
+    
+    List<ViewResultEntry> resultEntries = _batchMaster.getBatchValues(run.getObjectId(), PagingRequest.ALL).getFirst();
+    ViewResultEntry resultEntry = Iterables.getOnlyElement(resultEntries);
+    assertEquals(0d, resultEntry.getComputedValue().getValue());
+  }
+  
 }

@@ -20,10 +20,14 @@ import com.opengamma.engine.MemoryUtils;
 import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.target.ComputationTargetReferenceVisitor;
 import com.opengamma.engine.target.ComputationTargetRequirement;
+import com.opengamma.engine.target.ComputationTargetResolverUtils;
 import com.opengamma.engine.target.ComputationTargetSpecificationResolver;
 import com.opengamma.engine.target.ComputationTargetSpecificationResolver.AtVersionCorrection;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.target.ComputationTargetTypeVisitor;
+import com.opengamma.engine.target.logger.ResolutionLogger;
+import com.opengamma.engine.target.resolver.DeepResolver;
+import com.opengamma.engine.target.resolver.ObjectResolver;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.VersionCorrection;
@@ -36,14 +40,18 @@ import com.opengamma.id.VersionCorrection;
 
   private static final Logger s_logger = LoggerFactory.getLogger(TargetResolutionLogger.class);
 
-  private static final class LoggingSpecificationResolver implements ComputationTargetSpecificationResolver.AtVersionCorrection, ComputationTargetReferenceVisitor<ComputationTargetReference> {
+  private static final class LoggingSpecificationResolver implements ComputationTargetSpecificationResolver.AtVersionCorrection, ComputationTargetReferenceVisitor<ComputationTargetReference>,
+      ResolutionLogger {
 
     private final ComputationTargetSpecificationResolver.AtVersionCorrection _underlying;
     private final ConcurrentMap<ComputationTargetReference, UniqueId> _resolutions;
+    private final Set<UniqueId> _expiredResolutions;
 
-    private LoggingSpecificationResolver(final ComputationTargetSpecificationResolver.AtVersionCorrection underlying, final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions) {
+    private LoggingSpecificationResolver(final ComputationTargetSpecificationResolver.AtVersionCorrection underlying, final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions,
+        final Set<UniqueId> expiredResolutions) {
       _underlying = underlying;
       _resolutions = resolutions;
+      _expiredResolutions = expiredResolutions;
     }
 
     private static final ComputationTargetTypeVisitor<Void, ComputationTargetType> s_getLeafType = new ComputationTargetTypeVisitor<Void, ComputationTargetType>() {
@@ -98,19 +106,16 @@ import com.opengamma.id.VersionCorrection;
       return type.accept(s_getLeafType, null);
     }
 
-    private void storeResolution(final ComputationTargetReference reference, final ComputationTargetSpecification resolved) {
+    private void log(final ComputationTargetReference reference, final ComputationTargetSpecification resolved) {
       final ComputationTargetReference key = reference.accept(this);
       if (key != null) {
         final UniqueId resolvedId = resolved.getUniqueId();
-        final UniqueId previousId = _resolutions.put(key, resolvedId);
-        if ((previousId != null) && !resolvedId.equals(previousId)) {
-          // Note than when following LATEST/LATEST, there may be new resolutions at the v/c we're using but we haven't received
-          // the change manager notifications yet so aren't expecting them. The resulting graph will be inconsistent at this point.
-          // Options are:
-          //   1) Abort this build, invalidate the whole graph and retry
-          //   2) Abort this build, invalidate more of the graph and retry
-          //   3) Ignore it
-          s_logger.error("Unexpected resolution of {} to {} instead of {}", new Object[] {key, resolvedId, previousId });
+        if (resolvedId != null) {
+          final UniqueId previousId = _resolutions.put(key, resolvedId);
+          if ((previousId != null) && !resolvedId.equals(previousId)) {
+            s_logger.info("Direct resolution of {} to {} has expired", key, previousId);
+            _expiredResolutions.add(previousId);
+          }
         }
       }
     }
@@ -121,7 +126,7 @@ import com.opengamma.id.VersionCorrection;
     public ComputationTargetSpecification getTargetSpecification(final ComputationTargetReference reference) {
       final ComputationTargetSpecification resolved = _underlying.getTargetSpecification(reference);
       if (resolved != null) {
-        storeResolution(reference, resolved);
+        log(reference, resolved);
       }
       return resolved;
     }
@@ -130,7 +135,7 @@ import com.opengamma.id.VersionCorrection;
     public Map<ComputationTargetReference, ComputationTargetSpecification> getTargetSpecifications(final Set<ComputationTargetReference> references) {
       final Map<ComputationTargetReference, ComputationTargetSpecification> resolveds = _underlying.getTargetSpecifications(references);
       for (final Map.Entry<ComputationTargetReference, ComputationTargetSpecification> resolved : resolveds.entrySet()) {
-        storeResolution(resolved.getKey(), resolved.getValue());
+        log(resolved.getKey(), resolved.getValue());
       }
       return resolveds;
     }
@@ -161,23 +166,54 @@ import com.opengamma.id.VersionCorrection;
       }
     }
 
+    // ResolutionLogger
+
+    @Override
+    public void log(final ComputationTargetReference reference, final UniqueId resolvedId) {
+      final ComputationTargetReference key = reference.accept(this);
+      if (key != null) {
+        final UniqueId previousId = _resolutions.put(key, resolvedId);
+        if ((previousId != null) && !resolvedId.equals(previousId)) {
+          s_logger.info("Transitive resolution of {} to {} has expired", previousId);
+          _expiredResolutions.add(previousId);
+        }
+      }
+    }
+
   }
 
   private final ComputationTargetResolver.AtVersionCorrection _underlying;
-  private final ComputationTargetSpecificationResolver.AtVersionCorrection _specificationResolver;
+  private final LoggingSpecificationResolver _specificationResolver;
 
-  public static TargetResolutionLogger of(final ComputationTargetResolver.AtVersionCorrection underlying, final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions) {
-    return new TargetResolutionLogger(underlying, new LoggingSpecificationResolver(underlying.getSpecificationResolver(), resolutions));
+  public static TargetResolutionLogger of(final ComputationTargetResolver.AtVersionCorrection underlying, final ConcurrentMap<ComputationTargetReference, UniqueId> resolutions,
+      final Set<UniqueId> expiredResolutions) {
+    return new TargetResolutionLogger(underlying, new LoggingSpecificationResolver(underlying.getSpecificationResolver(), resolutions, expiredResolutions));
   }
 
-  private TargetResolutionLogger(final ComputationTargetResolver.AtVersionCorrection underlying, final ComputationTargetSpecificationResolver.AtVersionCorrection specificationResolver) {
+  private TargetResolutionLogger(final ComputationTargetResolver.AtVersionCorrection underlying, final LoggingSpecificationResolver specificationResolver) {
     _underlying = underlying;
     _specificationResolver = specificationResolver;
   }
 
   @Override
   public ComputationTarget resolve(final ComputationTargetSpecification specification) {
-    return _underlying.resolve(specification);
+    ComputationTarget target = _underlying.resolve(specification);
+    if (target != null) {
+      final ObjectResolver<?> resolver = getResolver(specification);
+      final DeepResolver deep = resolver.deepResolver();
+      if (deep != null) {
+        final UniqueIdentifiable logged = deep.withLogger(target.getValue(), _specificationResolver);
+        if (logged != null) {
+          target = ComputationTargetResolverUtils.createResolvedTarget(specification, logged);
+        }
+      }
+    }
+    return target;
+  }
+
+  @Override
+  public ObjectResolver<?> getResolver(final ComputationTargetSpecification specification) {
+    return _underlying.getResolver(specification);
   }
 
   @Override

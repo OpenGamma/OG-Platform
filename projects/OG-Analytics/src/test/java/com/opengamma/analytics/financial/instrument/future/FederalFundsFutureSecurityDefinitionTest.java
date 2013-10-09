@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.future;
@@ -43,7 +43,7 @@ public class FederalFundsFutureSecurityDefinitionTest {
   private static final ZonedDateTime LAST_TRADING_DATE = BUSINESS_DAY_PRECEDING.adjustDate(NYC, APRIL_1);
   private static final ZonedDateTime PERIOD_FIRST_DATE = BUSINESS_DAY_FOLLOWING.adjustDate(NYC, MARCH_1);
   private static final ZonedDateTime PERIOD_LAST_DATE = BUSINESS_DAY_FOLLOWING.adjustDate(NYC, APRIL_1.minusDays(1));
-  private static final List<ZonedDateTime> FIXING_LIST = new ArrayList<ZonedDateTime>();
+  private static final List<ZonedDateTime> FIXING_LIST = new ArrayList<>();
   private static final ZonedDateTime[] FIXING_DATE;
   static {
     ZonedDateTime date = PERIOD_FIRST_DATE;
@@ -162,7 +162,8 @@ public class FederalFundsFutureSecurityDefinitionTest {
   /**
    * Tests the toDerivative method before the first fixing date.
    */
-  public void toDerivativeNoFixing() {
+  @SuppressWarnings("deprecation")
+  public void toDerivativeNoFixingDeprecated() {
     final double[] fixingPeriodTime = new double[FIXING_DATE.length];
     for (int loopfix = 0; loopfix < FIXING_DATE.length; loopfix++) {
       fixingPeriodTime[loopfix] = TimeCalculator.getTimeBetween(REFERENCE_DATE, FIXING_DATE[loopfix]);
@@ -174,7 +175,8 @@ public class FederalFundsFutureSecurityDefinitionTest {
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void toDerivativeAfterStartFixing() {
+  @SuppressWarnings("deprecation")
+  public void toDerivativeAfterStartFixingDeprecated() {
     FUTURE_FEDFUND_DEFINITION.toDerivative(ScheduleCalculator.getAdjustedDate(FIXING_DATE[0], 2, NYC), CURVE_NAME);
   }
 
@@ -182,7 +184,8 @@ public class FederalFundsFutureSecurityDefinitionTest {
   /**
    * Tests the toDerivative method.
    */
-  public void toDerivativeFirstDaymonth() {
+  @SuppressWarnings("deprecation")
+  public void toDerivativeFirstDaymonthDeprecated() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 3, 1);
     final DoubleTimeSeries<ZonedDateTime> fixingTS = ImmutableZonedDateTimeDoubleTimeSeries.of(DateUtils.getUTCDate(2012, 3, 1), 0.0010);
     final FederalFundsFutureSecurity futureFedFundExpected = FUTURE_FEDFUND_DEFINITION.toDerivative(referenceDate, CURVE_NAME);
@@ -194,7 +197,8 @@ public class FederalFundsFutureSecurityDefinitionTest {
   /**
    * Tests the toDerivative method.
    */
-  public void toDerivativeSecondDayMonthNoFixing() {
+  @SuppressWarnings("deprecation")
+  public void toDerivativeSecondDayMonthNoFixingDeprecated() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 3, 2);
     final DoubleTimeSeries<ZonedDateTime> fixingTS = ImmutableZonedDateTimeDoubleTimeSeries.of(DateUtils.getUTCDate(2012, 3, 1), 0.0010);
     final FederalFundsFutureSecurity futureFedFundExpected = FUTURE_FEDFUND_DEFINITION.toDerivative(referenceDate, CURVE_NAME);
@@ -206,7 +210,8 @@ public class FederalFundsFutureSecurityDefinitionTest {
   /**
    * Tests the toDerivative method.
    */
-  public void toDerivativeSecondDayMonthFixing() {
+  @SuppressWarnings("deprecation")
+  public void toDerivativeSecondDayMonthFixingDeprecated() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 3, 2);
     final double[] rateFixing = new double[] {0.0010, 0.0011};
     final DoubleTimeSeries<ZonedDateTime> fixingTS = ImmutableZonedDateTimeDoubleTimeSeries.of(
@@ -228,7 +233,8 @@ public class FederalFundsFutureSecurityDefinitionTest {
   /**
    * Tests the toDerivative method.
    */
-  public void toDerivativeMiddleMonthNoFixing() {
+  @SuppressWarnings("deprecation")
+  public void toDerivativeMiddleMonthNoFixingDeprecated() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 3, 7);
     final ZonedDateTime[] dateFixing = new ZonedDateTime[] {DateUtils.getUTCDate(2012, 3, 1), DateUtils.getUTCDate(2012, 3, 2), DateUtils.getUTCDate(2012, 3, 5), DateUtils.getUTCDate(2012, 3, 6)};
     final double[] rateFixing = new double[] {0.0010, 0.0011, 0.0012, 0.0013};
@@ -250,7 +256,8 @@ public class FederalFundsFutureSecurityDefinitionTest {
   /**
    * Tests the toDerivative method.
    */
-  public void toDerivativeMiddleMonthFixing() {
+  @SuppressWarnings("deprecation")
+  public void toDerivativeMiddleMonthFixingDeprecated() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 3, 7);
     final ZonedDateTime[] dateFixing = new ZonedDateTime[] {DateUtils.getUTCDate(2012, 3, 1), DateUtils.getUTCDate(2012, 3, 2), DateUtils.getUTCDate(2012, 3, 5), DateUtils.getUTCDate(2012, 3, 6),
         DateUtils.getUTCDate(2012, 3, 7)};
@@ -269,11 +276,12 @@ public class FederalFundsFutureSecurityDefinitionTest {
     assertEquals("Fed fund future security definition: toDerivative", futureFedFundExpected, futureFedFundConverted);
   }
 
-  @Test
   /**
    * Tests the toDerivative method.
    */
-  public void toDerivativeEndPeriodNoFixing() {
+  @Test
+  @SuppressWarnings("deprecation")
+  public void toDerivativeEndPeriodNoFixingDeprecated() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 4, 2);
     final ZonedDateTime[] dateFixing = new ZonedDateTime[FIXING_DATE.length - 1];
     System.arraycopy(FIXING_DATE, 0, dateFixing, 0, dateFixing.length);
@@ -299,6 +307,168 @@ public class FederalFundsFutureSecurityDefinitionTest {
   /**
    * Tests the toDerivative method.
    */
+  public void toDerivativeEndPeriodFixingDeprecated() {
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 4, 2);
+    final ZonedDateTime[] dateFixing = new ZonedDateTime[FIXING_DATE.length];
+    System.arraycopy(FIXING_DATE, 0, dateFixing, 0, dateFixing.length);
+    final double[] rateFixing = new double[dateFixing.length];
+    for (int loopfix = 0; loopfix < dateFixing.length; loopfix++) {
+      rateFixing[loopfix] = 0.0010 + loopfix * 0.0001;
+    }
+    double accruedInterest = 0.0;
+    for (int loopfix = 0; loopfix < dateFixing.length - 1; loopfix++) {
+      accruedInterest += FIXING_ACCURAL_FACTOR[loopfix] * rateFixing[loopfix + 1];
+    }
+    final DoubleTimeSeries<ZonedDateTime> fixingTS = ImmutableZonedDateTimeDoubleTimeSeries.of(dateFixing, rateFixing, ZoneOffset.UTC);
+    final double[] fixingPeriodAccrualFactor = new double[0];
+    final double[] fixingPeriodTime = new double[] {TimeCalculator.getTimeBetween(referenceDate, FIXING_DATE[FIXING_DATE.length - 1])};
+    final FederalFundsFutureSecurity futureFedFundExpected = new FederalFundsFutureSecurity(INDEX_FEDFUND, accruedInterest, fixingPeriodTime, fixingPeriodAccrualFactor,
+        FUTURE_FEDFUND_DEFINITION.getFixingTotalAccrualFactor(), NOTIONAL, PAYMENT_ACCURAL_FACTOR, NAME);
+    final FederalFundsFutureSecurity futureFedFundConverted = FUTURE_FEDFUND_DEFINITION.toDerivative(referenceDate, fixingTS);
+    assertEquals("Fed fund future security definition: toDerivative", futureFedFundExpected, futureFedFundConverted);
+  }
+
+  @Test
+  /**
+   * Tests the toDerivative method before the first fixing date.
+   */
+  public void toDerivativeNoFixing() {
+    final double[] fixingPeriodTime = new double[FIXING_DATE.length];
+    for (int loopfix = 0; loopfix < FIXING_DATE.length; loopfix++) {
+      fixingPeriodTime[loopfix] = TimeCalculator.getTimeBetween(REFERENCE_DATE, FIXING_DATE[loopfix]);
+    }
+    final FederalFundsFutureSecurity futureFedFundExpected = new FederalFundsFutureSecurity(INDEX_FEDFUND, 0.0, fixingPeriodTime, FIXING_ACCURAL_FACTOR,
+        FUTURE_FEDFUND_DEFINITION.getFixingTotalAccrualFactor(), NOTIONAL, PAYMENT_ACCURAL_FACTOR, NAME);
+    final FederalFundsFutureSecurity futureFedFundConverted = FUTURE_FEDFUND_DEFINITION.toDerivative(REFERENCE_DATE);
+    assertEquals("Fed fund future security definition: toDerivative", futureFedFundExpected, futureFedFundConverted);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void toDerivativeAfterStartFixing() {
+    FUTURE_FEDFUND_DEFINITION.toDerivative(ScheduleCalculator.getAdjustedDate(FIXING_DATE[0], 2, NYC));
+  }
+
+  @Test
+  /**
+   * Tests the toDerivative method.
+   */
+  public void toDerivativeFirstDaymonth() {
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 3, 1);
+    final DoubleTimeSeries<ZonedDateTime> fixingTS = ImmutableZonedDateTimeDoubleTimeSeries.of(DateUtils.getUTCDate(2012, 3, 1), 0.0010);
+    final FederalFundsFutureSecurity futureFedFundExpected = FUTURE_FEDFUND_DEFINITION.toDerivative(referenceDate);
+    final FederalFundsFutureSecurity futureFedFundConverted = FUTURE_FEDFUND_DEFINITION.toDerivative(referenceDate, fixingTS);
+    assertEquals("Fed fund future security definition: toDerivative", futureFedFundExpected, futureFedFundConverted);
+  }
+
+  @Test
+  /**
+   * Tests the toDerivative method.
+   */
+  public void toDerivativeSecondDayMonthNoFixing() {
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 3, 2);
+    final DoubleTimeSeries<ZonedDateTime> fixingTS = ImmutableZonedDateTimeDoubleTimeSeries.of(DateUtils.getUTCDate(2012, 3, 1), 0.0010);
+    final FederalFundsFutureSecurity futureFedFundExpected = FUTURE_FEDFUND_DEFINITION.toDerivative(referenceDate);
+    final FederalFundsFutureSecurity futureFedFundConverted = FUTURE_FEDFUND_DEFINITION.toDerivative(referenceDate, fixingTS);
+    assertEquals("Fed fund future security definition: toDerivative", futureFedFundExpected, futureFedFundConverted);
+  }
+
+  @Test
+  /**
+   * Tests the toDerivative method.
+   */
+  public void toDerivativeSecondDayMonthFixing() {
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 3, 2);
+    final double[] rateFixing = new double[] {0.0010, 0.0011};
+    final DoubleTimeSeries<ZonedDateTime> fixingTS = ImmutableZonedDateTimeDoubleTimeSeries.of(
+        new ZonedDateTime[] {DateUtils.getUTCDate(2012, 3, 1), DateUtils.getUTCDate(2012, 3, 2)}, rateFixing, ZoneOffset.UTC);
+    final double accruedInterest = FIXING_ACCURAL_FACTOR[0] * rateFixing[1];
+    final double[] fixingPeriodAccrualFactor = new double[FIXING_ACCURAL_FACTOR.length - 1];
+    System.arraycopy(FIXING_ACCURAL_FACTOR, 1, fixingPeriodAccrualFactor, 0, fixingPeriodAccrualFactor.length);
+    final double[] fixingPeriodTime = new double[FIXING_DATE.length - 1];
+    for (int loopfix = 0; loopfix < FIXING_DATE.length - 1; loopfix++) {
+      fixingPeriodTime[loopfix] = TimeCalculator.getTimeBetween(referenceDate, FIXING_DATE[loopfix + 1]);
+    }
+    final FederalFundsFutureSecurity futureFedFundExpected = new FederalFundsFutureSecurity(INDEX_FEDFUND, accruedInterest, fixingPeriodTime, fixingPeriodAccrualFactor,
+        FUTURE_FEDFUND_DEFINITION.getFixingTotalAccrualFactor(), NOTIONAL, PAYMENT_ACCURAL_FACTOR, NAME);
+    final FederalFundsFutureSecurity futureFedFundConverted = FUTURE_FEDFUND_DEFINITION.toDerivative(referenceDate, fixingTS);
+    assertEquals("Fed fund future security definition: toDerivative", futureFedFundExpected, futureFedFundConverted);
+  }
+
+  @Test
+  /**
+   * Tests the toDerivative method.
+   */
+  public void toDerivativeMiddleMonthNoFixing() {
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 3, 7);
+    final ZonedDateTime[] dateFixing = new ZonedDateTime[] {DateUtils.getUTCDate(2012, 3, 1), DateUtils.getUTCDate(2012, 3, 2), DateUtils.getUTCDate(2012, 3, 5), DateUtils.getUTCDate(2012, 3, 6)};
+    final double[] rateFixing = new double[] {0.0010, 0.0011, 0.0012, 0.0013};
+    final DoubleTimeSeries<ZonedDateTime> fixingTS = ImmutableZonedDateTimeDoubleTimeSeries.of(dateFixing, rateFixing, ZoneOffset.UTC);
+    final double accruedInterest = FIXING_ACCURAL_FACTOR[0] * rateFixing[1] + FIXING_ACCURAL_FACTOR[1] * rateFixing[2] + FIXING_ACCURAL_FACTOR[2] * rateFixing[3];
+    final double[] fixingPeriodAccrualFactor = new double[FIXING_ACCURAL_FACTOR.length - 3];
+    System.arraycopy(FIXING_ACCURAL_FACTOR, 3, fixingPeriodAccrualFactor, 0, fixingPeriodAccrualFactor.length);
+    final double[] fixingPeriodTime = new double[FIXING_DATE.length - 3];
+    for (int loopfix = 0; loopfix < FIXING_DATE.length - 3; loopfix++) {
+      fixingPeriodTime[loopfix] = TimeCalculator.getTimeBetween(referenceDate, FIXING_DATE[loopfix + 3]);
+    }
+    final FederalFundsFutureSecurity futureFedFundExpected = new FederalFundsFutureSecurity(INDEX_FEDFUND, accruedInterest, fixingPeriodTime, fixingPeriodAccrualFactor,
+        FUTURE_FEDFUND_DEFINITION.getFixingTotalAccrualFactor(), NOTIONAL, PAYMENT_ACCURAL_FACTOR, NAME);
+    final FederalFundsFutureSecurity futureFedFundConverted = FUTURE_FEDFUND_DEFINITION.toDerivative(referenceDate, fixingTS);
+    assertEquals("Fed fund future security definition: toDerivative", futureFedFundExpected, futureFedFundConverted);
+  }
+
+  @Test
+  /**
+   * Tests the toDerivative method.
+   */
+  public void toDerivativeMiddleMonthFixing() {
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 3, 7);
+    final ZonedDateTime[] dateFixing = new ZonedDateTime[] {DateUtils.getUTCDate(2012, 3, 1), DateUtils.getUTCDate(2012, 3, 2), DateUtils.getUTCDate(2012, 3, 5), DateUtils.getUTCDate(2012, 3, 6),
+        DateUtils.getUTCDate(2012, 3, 7)};
+    final double[] rateFixing = new double[] {0.0010, 0.0011, 0.0012, 0.0013, 0.0014};
+    final DoubleTimeSeries<ZonedDateTime> fixingTS = ImmutableZonedDateTimeDoubleTimeSeries.of(dateFixing, rateFixing, ZoneOffset.UTC);
+    final double accruedInterest = FIXING_ACCURAL_FACTOR[0] * rateFixing[1] + FIXING_ACCURAL_FACTOR[1] * rateFixing[2] + FIXING_ACCURAL_FACTOR[2] * rateFixing[3] + FIXING_ACCURAL_FACTOR[3] * rateFixing[4];
+    final double[] fixingPeriodAccrualFactor = new double[FIXING_ACCURAL_FACTOR.length - 4];
+    System.arraycopy(FIXING_ACCURAL_FACTOR, 4, fixingPeriodAccrualFactor, 0, fixingPeriodAccrualFactor.length);
+    final double[] fixingPeriodTime = new double[FIXING_DATE.length - 4];
+    for (int loopfix = 0; loopfix < FIXING_DATE.length - 4; loopfix++) {
+      fixingPeriodTime[loopfix] = TimeCalculator.getTimeBetween(referenceDate, FIXING_DATE[loopfix + 4]);
+    }
+    final FederalFundsFutureSecurity futureFedFundExpected = new FederalFundsFutureSecurity(INDEX_FEDFUND, accruedInterest, fixingPeriodTime, fixingPeriodAccrualFactor,
+        FUTURE_FEDFUND_DEFINITION.getFixingTotalAccrualFactor(), NOTIONAL, PAYMENT_ACCURAL_FACTOR, NAME);
+    final FederalFundsFutureSecurity futureFedFundConverted = FUTURE_FEDFUND_DEFINITION.toDerivative(referenceDate, fixingTS);
+    assertEquals("Fed fund future security definition: toDerivative", futureFedFundExpected, futureFedFundConverted);
+  }
+
+  @Test
+  /**
+   * Tests the toDerivative method.
+   */
+  public void toDerivativeEndPeriodNoFixing() {
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 4, 2);
+    final ZonedDateTime[] dateFixing = new ZonedDateTime[FIXING_DATE.length - 1];
+    System.arraycopy(FIXING_DATE, 0, dateFixing, 0, dateFixing.length);
+    final double[] rateFixing = new double[dateFixing.length];
+    for (int loopfix = 0; loopfix < dateFixing.length; loopfix++) {
+      rateFixing[loopfix] = 0.0010 + loopfix * 0.0001;
+    }
+    double accruedInterest = 0.0;
+    for (int loopfix = 0; loopfix < dateFixing.length - 1; loopfix++) {
+      accruedInterest += FIXING_ACCURAL_FACTOR[loopfix] * rateFixing[loopfix + 1];
+    }
+    final DoubleTimeSeries<ZonedDateTime> fixingTS = ImmutableZonedDateTimeDoubleTimeSeries.of(dateFixing, rateFixing, ZoneOffset.UTC);
+    final double[] fixingPeriodAccrualFactor = new double[] {FIXING_ACCURAL_FACTOR[FIXING_ACCURAL_FACTOR.length - 1]};
+    final double[] fixingPeriodTime = new double[] {TimeCalculator.getTimeBetween(referenceDate, FIXING_DATE[FIXING_DATE.length - 2]),
+        TimeCalculator.getTimeBetween(referenceDate, FIXING_DATE[FIXING_DATE.length - 1])};
+    final FederalFundsFutureSecurity futureFedFundExpected = new FederalFundsFutureSecurity(INDEX_FEDFUND, accruedInterest, fixingPeriodTime, fixingPeriodAccrualFactor,
+        FUTURE_FEDFUND_DEFINITION.getFixingTotalAccrualFactor(), NOTIONAL, PAYMENT_ACCURAL_FACTOR, NAME);
+    final FederalFundsFutureSecurity futureFedFundConverted = FUTURE_FEDFUND_DEFINITION.toDerivative(referenceDate, fixingTS);
+    assertEquals("Fed fund future security definition: toDerivative", futureFedFundExpected, futureFedFundConverted);
+  }
+
+  @Test
+  /**
+   * Tests the toDerivative method.
+   */
   public void toDerivativeEndPeriodFixing() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 4, 2);
     final ZonedDateTime[] dateFixing = new ZonedDateTime[FIXING_DATE.length];
@@ -315,9 +485,8 @@ public class FederalFundsFutureSecurityDefinitionTest {
     final double[] fixingPeriodAccrualFactor = new double[0];
     final double[] fixingPeriodTime = new double[] {TimeCalculator.getTimeBetween(referenceDate, FIXING_DATE[FIXING_DATE.length - 1])};
     final FederalFundsFutureSecurity futureFedFundExpected = new FederalFundsFutureSecurity(INDEX_FEDFUND, accruedInterest, fixingPeriodTime, fixingPeriodAccrualFactor,
-        FUTURE_FEDFUND_DEFINITION.getFixingTotalAccrualFactor(), NOTIONAL, PAYMENT_ACCURAL_FACTOR, NAME, CURVE_NAME);
-    final FederalFundsFutureSecurity futureFedFundConverted = FUTURE_FEDFUND_DEFINITION.toDerivative(referenceDate, fixingTS, CURVE_NAME);
+        FUTURE_FEDFUND_DEFINITION.getFixingTotalAccrualFactor(), NOTIONAL, PAYMENT_ACCURAL_FACTOR, NAME);
+    final FederalFundsFutureSecurity futureFedFundConverted = FUTURE_FEDFUND_DEFINITION.toDerivative(referenceDate, fixingTS);
     assertEquals("Fed fund future security definition: toDerivative", futureFedFundExpected, futureFedFundConverted);
   }
-
 }

@@ -42,7 +42,7 @@ public abstract class CurveNode extends DirectBean implements Serializable, Comp
   @PropertyDefinition
   private String _name;
 
-  /* package */CurveNode() {
+  protected CurveNode() {
     super();
   }
 
@@ -94,6 +94,7 @@ public abstract class CurveNode extends DirectBean implements Serializable, Comp
   public static CurveNode.Meta meta() {
     return CurveNode.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(CurveNode.Meta.INSTANCE);
   }

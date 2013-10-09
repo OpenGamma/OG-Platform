@@ -49,7 +49,7 @@ import com.opengamma.util.paging.PagingRequest;
  */
 @PublicSPI
 @BeanDefinition
-public abstract class AbstractHistoryRequest extends DirectBean {
+public abstract class AbstractHistoryRequest extends DirectBean implements PagedRequest {
 
   /**
    * The request for paging.
@@ -136,6 +136,7 @@ public abstract class AbstractHistoryRequest extends DirectBean {
   public static AbstractHistoryRequest.Meta meta() {
     return AbstractHistoryRequest.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(AbstractHistoryRequest.Meta.INSTANCE);
   }

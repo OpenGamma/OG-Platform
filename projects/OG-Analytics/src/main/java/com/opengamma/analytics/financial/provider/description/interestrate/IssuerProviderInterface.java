@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.description.interestrate;
@@ -14,9 +14,9 @@ import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Interface for issuer specific 
+ * Interface for issuer specific
  */
-public interface IssuerProviderInterface extends ParameterIssuerProviderInterface, ParameterProviderInterface {
+public interface IssuerProviderInterface extends ParameterIssuerProviderInterface {
   // TODO: Can probably be merged with MulticurveProvider if the Currency is replaced by a UniqueIdentifiable.
 
   @Override

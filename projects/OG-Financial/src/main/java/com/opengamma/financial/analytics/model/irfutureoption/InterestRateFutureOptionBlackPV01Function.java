@@ -18,11 +18,14 @@ import com.opengamma.core.security.Security;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.model.black.BlackDiscountingPV01IRFutureOptionFunction;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 
 /**
- *
+ * Calculates the PV01 for interest rate future options.
+ * @deprecated Use {@link BlackDiscountingPV01IRFutureOptionFunction}
  */
+@Deprecated
 public class InterestRateFutureOptionBlackPV01Function extends InterestRateFutureOptionBlackCurveSpecificFunction {
   private static final PV01Calculator CALCULATOR = new PV01Calculator(PresentValueCurveSensitivityBlackCalculator.getInstance());
 
@@ -36,7 +39,7 @@ public class InterestRateFutureOptionBlackPV01Function extends InterestRateFutur
     final Map<String, Double> pv01 = CALCULATOR.visit(irFutureOption, data);
     final String fullCurveName = curveName + "_" + FinancialSecurityUtils.getCurrency(security).getCode();
     if (!pv01.containsKey(fullCurveName)) {
-      throw new OpenGammaRuntimeException("Could not get PV01 for " + curveName);
+      throw new OpenGammaRuntimeException("Could not get sensitivity for " + curveName);
     }
     return Collections.singleton(new ComputedValue(spec, pv01.get(fullCurveName)));
   }

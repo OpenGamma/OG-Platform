@@ -45,13 +45,15 @@ public interface ViewProcessor {
    */
   ConfigSource getConfigSource();
   
-  
   /** 
    * Gets this view processor's market data provider repository containing named, pre-built market data specifications
    * which are available for use by clients.
-   * 
+   * @deprecated only provided for the old analytics viewer
    * @return the view definition repository, not null
+   * 
+   * @deprecated this is only required for the legacy analytics UI
    */
+  @Deprecated
   NamedMarketDataSpecificationRepository getNamedMarketDataSpecificationRepository();
 
   //------------------------------------------------------------------------- 

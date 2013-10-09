@@ -28,6 +28,9 @@ public final class CommodityFutureOptionBlackVegaCalculator extends InstrumentDe
     return s_instance;
   }
 
+  /**
+   * Private constructor.
+   */
   private CommodityFutureOptionBlackVegaCalculator() {
   }
 

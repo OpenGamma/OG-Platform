@@ -49,12 +49,12 @@ public class SimpleTrade extends DirectBean
   /**
    * The unique identifier of the trade.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private UniqueId _uniqueId;
   /**
    * The number of units in the trade.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private BigDecimal _quantity;
   /**
    * The link referencing the security, not null.
@@ -235,6 +235,7 @@ public class SimpleTrade extends DirectBean
   public static SimpleTrade.Meta meta() {
     return SimpleTrade.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(SimpleTrade.Meta.INSTANCE);
   }
@@ -316,8 +317,6 @@ public class SimpleTrade extends DirectBean
 
   @Override
   protected void validate() {
-    JodaBeanUtils.notNull(_uniqueId, "uniqueId");
-    JodaBeanUtils.notNull(_quantity, "quantity");
     JodaBeanUtils.notNull(_securityLink, "securityLink");
     JodaBeanUtils.notNull(_attributes, "attributes");
     super.validate();
@@ -365,7 +364,7 @@ public class SimpleTrade extends DirectBean
   //-----------------------------------------------------------------------
   /**
    * Gets the unique identifier of the trade.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public UniqueId getUniqueId() {
     return _uniqueId;
@@ -373,10 +372,9 @@ public class SimpleTrade extends DirectBean
 
   /**
    * Sets the unique identifier of the trade.
-   * @param uniqueId  the new value of the property, not null
+   * @param uniqueId  the new value of the property
    */
   public void setUniqueId(UniqueId uniqueId) {
-    JodaBeanUtils.notNull(uniqueId, "uniqueId");
     this._uniqueId = uniqueId;
   }
 
@@ -391,7 +389,7 @@ public class SimpleTrade extends DirectBean
   //-----------------------------------------------------------------------
   /**
    * Gets the number of units in the trade.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public BigDecimal getQuantity() {
     return _quantity;
@@ -399,10 +397,9 @@ public class SimpleTrade extends DirectBean
 
   /**
    * Sets the number of units in the trade.
-   * @param quantity  the new value of the property, not null
+   * @param quantity  the new value of the property
    */
   public void setQuantity(BigDecimal quantity) {
-    JodaBeanUtils.notNull(quantity, "quantity");
     this._quantity = quantity;
   }
 

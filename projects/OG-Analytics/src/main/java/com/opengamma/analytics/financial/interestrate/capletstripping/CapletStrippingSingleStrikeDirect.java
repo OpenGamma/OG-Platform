@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.capletstripping;
@@ -11,7 +11,6 @@ import java.util.List;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.volatility.VolatilityTermStructure;
 import com.opengamma.analytics.financial.model.volatility.curve.VolatilityCurve;
-import com.opengamma.analytics.math.FunctionUtils;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
@@ -24,15 +23,12 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.matrix.MatrixAlgebra;
 import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResults;
 import com.opengamma.analytics.math.statistics.leastsquare.NonLinearLeastSquareWithPenalty;
-import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * @deprecated {@link YieldCurveBundle} is deprecated
  */
+@Deprecated
 public class CapletStrippingSingleStrikeDirect extends CapletStrippingAbsoluteStrike {
-
-  // This is needed because our Non-linear least square optimizer is not fit for purpose
-  // private final CapletStrippingAbsoluteStrike _altCapletStripper;
 
   private static final MatrixAlgebra MA = new ColtMatrixAlgebra();
   private static final Interpolator1D DEFAULT_INTERPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
@@ -43,30 +39,30 @@ public class CapletStrippingSingleStrikeDirect extends CapletStrippingAbsoluteSt
   private final Interpolator1D _interpolator;
   private final DoubleMatrix2D _penalty;
 
-  public CapletStrippingSingleStrikeDirect(List<CapFloor> caps, YieldCurveBundle yieldCurves) {
+  public CapletStrippingSingleStrikeDirect(final List<CapFloor> caps, final YieldCurveBundle yieldCurves) {
     super(caps, yieldCurves);
 
-    PSplineFitter psf = new PSplineFitter();
+    final PSplineFitter psf = new PSplineFitter();
     _penalty = (DoubleMatrix2D) MA.scale(psf.getPenaltyMatrix(getnCaplets(), DIFFERENCE_ORDER), LAMBDA);
     _interpolator = DEFAULT_INTERPOLATOR;
     // _altCapletStripper = new CapletStrippingAbsoluteStrikeInterpolation(caps, yieldCurves);
   }
 
   @Override
-  public CapletStrippingSingleStrikeResult solveForPrices(double[] capPrices) {
+  public CapletStrippingSingleStrikeResult solveForPrices(final double[] capPrices) {
     checkPrices(capPrices);
 
-    MultiCapFloorPricer pricer = getPricer();
-    double[] capVols = pricer.impliedVols(capPrices);
-    double[] vega = pricer.vega(capVols);
-    double[] start = new double[getnCaplets()];
+    final MultiCapFloorPricer pricer = getPricer();
+    final double[] capVols = pricer.impliedVols(capPrices);
+    final double[] vega = pricer.vega(capVols);
+    final double[] start = new double[getnCaplets()];
     Arrays.fill(start, capVols[capVols.length - 1]);
 
-    LeastSquareResults lsRes = solveForPrice(new DoubleMatrix1D(capPrices), new DoubleMatrix1D(vega), new DoubleMatrix1D(start));
+    final LeastSquareResults lsRes = solveForPrice(new DoubleMatrix1D(capPrices), new DoubleMatrix1D(vega), new DoubleMatrix1D(start));
 
-    double[] mPrices = pricer.priceFromCapletVols(lsRes.getFitParameters().getData());
-    double chiSqr = chiSqr(capPrices, mPrices);
-    VolatilityTermStructure vc = getVolCurve(lsRes.getFitParameters().getData());
+    final double[] mPrices = pricer.priceFromCapletVols(lsRes.getFitParameters().getData());
+    final double chiSqr = chiSqr(capPrices, mPrices);
+    final VolatilityTermStructure vc = getVolCurve(lsRes.getFitParameters().getData());
     return new CapletStrippingSingleStrikeResult(chiSqr, lsRes.getFitParameters(), vc, new DoubleMatrix1D(mPrices));
   }
 
@@ -75,12 +71,12 @@ public class CapletStrippingSingleStrikeDirect extends CapletStrippingAbsoluteSt
   }
 
   @Override
-  public CapletStrippingSingleStrikeResult solveForPrices(double[] capPrices, double[] errors, boolean scaleByVega) {
+  public CapletStrippingSingleStrikeResult solveForPrices(final double[] capPrices, final double[] errors, final boolean scaleByVega) {
     checkPrices(capPrices);
     checkErrors(errors);
 
-    MultiCapFloorPricer pricer = getPricer();
-    double[] capVols = pricer.impliedVols(capPrices);
+    final MultiCapFloorPricer pricer = getPricer();
+    final double[] capVols = pricer.impliedVols(capPrices);
 
     DoubleMatrix1D sigma = null;
     if (scaleByVega) {
@@ -94,13 +90,13 @@ public class CapletStrippingSingleStrikeDirect extends CapletStrippingAbsoluteSt
       sigma = new DoubleMatrix1D(errors);
     }
 
-    double[] start = new double[getnCaplets()];
+    final double[] start = new double[getnCaplets()];
     Arrays.fill(start, capVols[capVols.length - 1]);
-    LeastSquareResults lsRes = solveForPrice(new DoubleMatrix1D(capPrices), sigma, new DoubleMatrix1D(start));
+    final LeastSquareResults lsRes = solveForPrice(new DoubleMatrix1D(capPrices), sigma, new DoubleMatrix1D(start));
 
-    double[] mPrices = pricer.priceFromCapletVols(lsRes.getFitParameters().getData());
-    double chiSqr = chiSqr(capPrices, mPrices, errors);
-    VolatilityTermStructure vc = getVolCurve(lsRes.getFitParameters().getData());
+    final double[] mPrices = pricer.priceFromCapletVols(lsRes.getFitParameters().getData());
+    final double chiSqr = chiSqr(capPrices, mPrices, errors);
+    final VolatilityTermStructure vc = getVolCurve(lsRes.getFitParameters().getData());
     return new CapletStrippingSingleStrikeResult(chiSqr, lsRes.getFitParameters(), vc, new DoubleMatrix1D(mPrices));
   }
 
@@ -113,13 +109,13 @@ public class CapletStrippingSingleStrikeDirect extends CapletStrippingAbsoluteSt
   }
 
   @Override
-  public CapletStrippingSingleStrikeResult solveForVol(final double[] capVols, double[] errors, boolean solveByPrice) {
+  public CapletStrippingSingleStrikeResult solveForVol(final double[] capVols, final double[] errors, final boolean solveByPrice) {
     checkVols(capVols);
     checkErrors(errors);
 
-    MultiCapFloorPricer pricer = getPricer();
+    final MultiCapFloorPricer pricer = getPricer();
 
-    double[] start = new double[getnCaplets()];
+    final double[] start = new double[getnCaplets()];
     Arrays.fill(start, capVols[capVols.length - 1]);
 
     // we are using CapletStrippingAbsoluteStrikeInterpolation to give use a starting position
@@ -134,29 +130,29 @@ public class CapletStrippingSingleStrikeDirect extends CapletStrippingAbsoluteSt
     final int n = getnCaps();
     LeastSquareResults lsRes;
     if (solveByPrice) {
-      double[] capPrices = pricer.price(capVols);
+      final double[] capPrices = pricer.price(capVols);
       final double[] capVega = pricer.vega(capVols);
       for (int i = 0; i < n; i++) {
         capVega[i] *= errors[i];
       }
-      DoubleMatrix1D sigma = new DoubleMatrix1D(capVega);
+      final DoubleMatrix1D sigma = new DoubleMatrix1D(capVega);
       lsRes = solveForPrice(new DoubleMatrix1D(capPrices), sigma, new DoubleMatrix1D(start));
     } else {
       lsRes = solveForVol(new DoubleMatrix1D(capVols), new DoubleMatrix1D(errors), new DoubleMatrix1D(start));
     }
 
-    double[] mVols = pricer.impliedVols(pricer.priceFromCapletVols(lsRes.getFitParameters().getData()));
-    double chiSqr = chiSqr(capVols, mVols, errors);
-    VolatilityTermStructure vc = getVolCurve(lsRes.getFitParameters().getData());
+    final double[] mVols = pricer.impliedVols(pricer.priceFromCapletVols(lsRes.getFitParameters().getData()));
+    final double chiSqr = chiSqr(capVols, mVols, errors);
+    final VolatilityTermStructure vc = getVolCurve(lsRes.getFitParameters().getData());
     return new CapletStrippingSingleStrikeResult(chiSqr, lsRes.getFitParameters(), vc, new DoubleMatrix1D(mVols));
   }
 
-  private LeastSquareResults solveForPrice(final DoubleMatrix1D capPrices, final DoubleMatrix1D sigma, DoubleMatrix1D start) {
+  private LeastSquareResults solveForPrice(final DoubleMatrix1D capPrices, final DoubleMatrix1D sigma, final DoubleMatrix1D start) {
 
     final Function1D<DoubleMatrix1D, Boolean> allowed = new Function1D<DoubleMatrix1D, Boolean>() {
       @Override
-      public Boolean evaluate(DoubleMatrix1D x) {
-        double[] temp = x.getData();
+      public Boolean evaluate(final DoubleMatrix1D x) {
+        final double[] temp = x.getData();
         final int n = temp.length;
         for (int i = 0; i < n; i++) {
           if (temp[i] < 0) {
@@ -170,14 +166,14 @@ public class CapletStrippingSingleStrikeDirect extends CapletStrippingAbsoluteSt
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> modelPriceFunc = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
       @Override
       public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
-        double[] modelPrices = getPricer().priceFromCapletVols(x.getData());
+        final double[] modelPrices = getPricer().priceFromCapletVols(x.getData());
         return new DoubleMatrix1D(modelPrices);
       }
     };
 
     final Function1D<DoubleMatrix1D, DoubleMatrix2D> modelPriceJac = new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
       @Override
-      public DoubleMatrix2D evaluate(DoubleMatrix1D x) {
+      public DoubleMatrix2D evaluate(final DoubleMatrix1D x) {
         return getPricer().vegaFromCapletVols(x.getData());
       }
     };
@@ -185,7 +181,7 @@ public class CapletStrippingSingleStrikeDirect extends CapletStrippingAbsoluteSt
     return NLLSWP.solve(capPrices, sigma, modelPriceFunc, modelPriceJac, start, _penalty, allowed);
   }
 
-  private LeastSquareResults solveForVol(final DoubleMatrix1D capVols, final DoubleMatrix1D sigma, DoubleMatrix1D start) {
+  private LeastSquareResults solveForVol(final DoubleMatrix1D capVols, final DoubleMatrix1D sigma, final DoubleMatrix1D start) {
     final int n = getnCaps();
     final int m = getnCaplets();
     final MultiCapFloorPricer pricer = getPricer();
@@ -193,25 +189,25 @@ public class CapletStrippingSingleStrikeDirect extends CapletStrippingAbsoluteSt
     final Function1D<DoubleMatrix1D, DoubleMatrix1D> modelVolFunc = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
       @Override
       public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
-        double[] modelPrices = pricer.priceFromCapletVols(x.getData());
-        double[] modelVols = pricer.impliedVols(modelPrices);
+        final double[] modelPrices = pricer.priceFromCapletVols(x.getData());
+        final double[] modelVols = pricer.impliedVols(modelPrices);
         return new DoubleMatrix1D(modelVols);
       }
     };
 
     final Function1D<DoubleMatrix1D, DoubleMatrix2D> modelVolJac = new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
       @Override
-      public DoubleMatrix2D evaluate(DoubleMatrix1D x) {
-        double[] modelPrices = pricer.priceFromCapletVols(x.getData());
-        double[] modelVols = pricer.impliedVols(modelPrices);
-        double[] vega = pricer.vega(modelVols);
+      public DoubleMatrix2D evaluate(final DoubleMatrix1D x) {
+        final double[] modelPrices = pricer.priceFromCapletVols(x.getData());
+        final double[] modelVols = pricer.impliedVols(modelPrices);
+        final double[] vega = pricer.vega(modelVols);
 
-        DoubleMatrix2D vegaMatrix = pricer.vegaFromCapletVols(x.getData());
+        final DoubleMatrix2D vegaMatrix = pricer.vegaFromCapletVols(x.getData());
         // scale by inverse of cap vega
         for (int i = 0; i < n; i++) {
           for (int j = 0; j < m; j++) {
             if (vegaMatrix.getData()[i][j] != 0.0) {
-              vegaMatrix.getData()[i][j] /= vega[i];
+              vegaMatrix.getData()[i][j] /= vega[i]; //CSIGNORE
             }
           }
         }

@@ -20,10 +20,13 @@ import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.option.CreditDefaultSwapOptionSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
+import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.financial.security.swap.YearOnYearInflationSwapSecurity;
+import com.opengamma.financial.security.swap.ZeroCouponInflationSwapSecurity;
 
 /**
  * Visits a security and returns true if it's an OTC security type.
@@ -83,6 +86,11 @@ public class OtcSecurityVisitor extends FinancialSecurityVisitorSameValueAdapter
   }
 
   @Override
+  public Boolean visitFXDigitalOptionSecurity(FXDigitalOptionSecurity security) {
+    return true;
+  }
+
+  @Override
   public Boolean visitFXForwardSecurity(FXForwardSecurity security) {
     return true;
   }
@@ -127,5 +135,13 @@ public class OtcSecurityVisitor extends FinancialSecurityVisitorSameValueAdapter
     return true;
   }
 
+  @Override
+  public Boolean visitZeroCouponInflationSwapSecurity(ZeroCouponInflationSwapSecurity security) {
+    return true;
+  }
 
+  @Override
+  public Boolean visitYearOnYearInflationSwapSecurity(YearOnYearInflationSwapSecurity security) {
+    return true;
+  }
 }

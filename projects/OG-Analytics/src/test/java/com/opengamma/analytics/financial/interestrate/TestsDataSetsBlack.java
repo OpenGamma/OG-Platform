@@ -1,10 +1,12 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
 
+import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedCompoundedONCompounded;
+import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedCompoundedONCompoundedMaster;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIborMaster;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -23,7 +25,9 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 
 /**
  * Sets of market data used in tests.
+ * @deprecated {@link YieldCurveBundle} is deprecated, as are the calculators that use it.
  */
+@Deprecated
 public class TestsDataSetsBlack {
 
   private static final Interpolator1D LINEAR_FLAT = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
@@ -34,6 +38,10 @@ public class TestsDataSetsBlack {
   private static final GeneratorSwapFixedIborMaster GENERATOR_SWAP_MASTER = GeneratorSwapFixedIborMaster.getInstance();
   private static final GeneratorSwapFixedIbor EUR1YEURIBOR6M = GENERATOR_SWAP_MASTER.getGenerator("EUR1YEURIBOR6M", CALENDAR);
   private static final GeneratorSwapFixedIbor EUR1YEURIBOR3M = GENERATOR_SWAP_MASTER.getGenerator("EUR1YEURIBOR3M", CALENDAR);
+  private static final GeneratorSwapFixedCompoundedONCompounded BRLCDI =
+      GeneratorSwapFixedCompoundedONCompoundedMaster.getInstance().getGenerator("BRLCDI", CALENDAR);
+
+  private static final String DISCOUNTING_BRL = "BRL Discounting";
 
   private static final InterpolatedDoublesSurface BLACK_SURFACE_EXP_TEN = InterpolatedDoublesSurface.from(
       new double[] {0.5, 1.0, 5.0, 0.5, 1.0, 5.0 },
@@ -45,8 +53,10 @@ public class TestsDataSetsBlack {
       new double[] {0.01, 0.01, 0.01, 0.02, 0.02, 0.02, 0.03, 0.03, 0.03 },
       new double[] {0.35, 0.34, 0.25, 0.30, 0.25, 0.20, 0.28, 0.23, 0.18 },
       INTERPOLATOR_LINEAR_2D);
+
   private static final BlackFlatSwaptionParameters BLACK_SWAPTION_EUR6 = new BlackFlatSwaptionParameters(BLACK_SURFACE_EXP_TEN, EUR1YEURIBOR6M);
   private static final BlackFlatSwaptionParameters BLACK_SWAPTION_EUR3 = new BlackFlatSwaptionParameters(BLACK_SURFACE_EXP_TEN, EUR1YEURIBOR3M);
+  private static final BlackFlatSwaptionParameters BLACK_SWAPTION_BRL = new BlackFlatSwaptionParameters(BLACK_SURFACE_EXP_TEN, BRLCDI);
 
   public static InterpolatedDoublesSurface createBlackSurfaceExpiryTenor() {
     return BLACK_SURFACE_EXP_TEN;
@@ -58,21 +68,26 @@ public class TestsDataSetsBlack {
 
   public static InterpolatedDoublesSurface createBlackSurfaceExpiryTenorShift(final double shift) {
     return InterpolatedDoublesSurface.from(new double[] {0.5, 1.0, 5.0, 0.5, 1.0, 5.0 }, new double[] {2, 2, 2, 10, 10, 10 }, new double[] {0.35 + shift, 0.34 + shift, 0.25 + shift, 0.30 + shift,
-        0.25 + shift, 0.20 + shift }, INTERPOLATOR_LINEAR_2D);
+      0.25 + shift, 0.20 + shift }, INTERPOLATOR_LINEAR_2D);
   }
-  
+
   public static InterpolatedDoublesSurface createBlackSurfaceExpiryStrikeShift(final double shift) {
     return InterpolatedDoublesSurface.from(new double[] {0.5, 1.0, 5.0, 0.5, 1.0, 5.0, 0.5, 1.0, 5.0 },
         new double[] {0.01, 0.01, 0.01, 0.02, 0.02, 0.02, 0.03, 0.03, 0.03 },
-        new double[] {0.35 + shift, 0.34 + shift, 0.25 + shift, 0.30 + shift, 0.25 + shift, 0.20 + shift, 0.28 + shift, 0.23 + shift, 0.18 + shift},
+        new double[] {0.35 + shift, 0.34 + shift, 0.25 + shift, 0.30 + shift, 0.25 + shift, 0.20 + shift, 0.28 + shift, 0.23 + shift, 0.18 + shift },
         INTERPOLATOR_LINEAR_2D);
   }
+
   public static BlackFlatSwaptionParameters createBlackSwaptionEUR6() {
     return BLACK_SWAPTION_EUR6;
   }
 
   public static BlackFlatSwaptionParameters createBlackSwaptionEUR3() {
     return BLACK_SWAPTION_EUR3;
+  }
+
+  public static BlackFlatSwaptionParameters createBlackSwaptionBRL() {
+    return BLACK_SWAPTION_BRL;
   }
 
   /**
@@ -83,6 +98,16 @@ public class TestsDataSetsBlack {
   public static BlackFlatSwaptionParameters createBlackSwaptionEUR6Shift(final double shift) {
     final InterpolatedDoublesSurface surfaceShift = createBlackSurfaceExpiryTenorShift(shift);
     return new BlackFlatSwaptionParameters(surfaceShift, EUR1YEURIBOR6M);
+  }
+
+  /**
+   * Create the same surface as createBlackSwaptionEUR6() but with a given parallel shift.
+   * @param shift The shift.
+   * @return The surface.
+   */
+  public static BlackFlatSwaptionParameters createBlackSwaptionBRLShift(final double shift) {
+    final InterpolatedDoublesSurface surfaceShift = createBlackSurfaceExpiryTenorShift(shift);
+    return new BlackFlatSwaptionParameters(surfaceShift, BRLCDI);
   }
 
   /**
@@ -139,8 +164,20 @@ public class TestsDataSetsBlack {
     return curves;
   }
 
+  public static YieldCurveBundle createCurvesBRL() {
+    final InterpolatedDoublesCurve dscC = new InterpolatedDoublesCurve(new double[] {0.05, 1.0, 2.0, 5.0, 10.0, 20.0 }, new double[] {0.0050, 0.0100, 0.0150, 0.0200, 0.0200, 0.0300 },
+        CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.LINEAR_EXTRAPOLATOR), true, DISCOUNTING_BRL);
+    final YieldCurveBundle curves = new YieldCurveBundle();
+    curves.setCurve(DISCOUNTING_BRL, YieldCurve.from(dscC));
+    return curves;
+  }
+
+  public static String[] curvesBRLNames() {
+    return new String[] {DISCOUNTING_BRL };
+  }
+
   /**
-   * Create a yield curve bundle with three curves. One called "Credit" with a constant rate of 5%, one called "Discounting" with a constant rate of 4%, 
+   * Create a yield curve bundle with three curves. One called "Credit" with a constant rate of 5%, one called "Discounting" with a constant rate of 4%,
    * and one called "Forward" with a constant rate of 4.5%.
    * @return The yield curve bundle.
    */

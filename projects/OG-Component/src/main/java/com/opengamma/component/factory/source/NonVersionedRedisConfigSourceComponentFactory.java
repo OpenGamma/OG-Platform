@@ -54,6 +54,7 @@ public class NonVersionedRedisConfigSourceComponentFactory extends AbstractNonVe
   public static NonVersionedRedisConfigSourceComponentFactory.Meta meta() {
     return NonVersionedRedisConfigSourceComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(NonVersionedRedisConfigSourceComponentFactory.Meta.INSTANCE);
   }

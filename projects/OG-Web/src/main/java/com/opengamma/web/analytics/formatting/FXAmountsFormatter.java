@@ -6,8 +6,8 @@
 package com.opengamma.web.analytics.formatting;
 
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.security.lookup.FXAmounts;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.web.analytics.blotter.FXAmounts;
 
 /**
  *

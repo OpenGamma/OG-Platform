@@ -11,4 +11,5 @@ public enum BuySell {
   @XmlEnumValue(value = "Buy")
   BUY,
   @XmlEnumValue(value = "Sell")
-  SELL}
+  SELL
+}

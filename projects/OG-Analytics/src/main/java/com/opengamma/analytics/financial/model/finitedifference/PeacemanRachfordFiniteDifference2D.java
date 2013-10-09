@@ -11,8 +11,9 @@ import com.opengamma.analytics.math.cube.Cube;
 
 /**
  * Peaceman-Rachford splitting
- * <b>Note</b> this is for testing purposes and is not recommended for actual use 
+ * <b>Note</b> this is for testing purposes and is not recommended for actual use
  */
+@SuppressWarnings("deprecation")
 public class PeacemanRachfordFiniteDifference2D implements ConvectionDiffusionPDESolver2D {
 
   //private static final Decomposition<?> DCOMP = new LUDecompositionCommons();

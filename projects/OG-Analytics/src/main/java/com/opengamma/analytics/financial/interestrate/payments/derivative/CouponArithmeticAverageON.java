@@ -54,9 +54,10 @@ public final class CouponArithmeticAverageON extends Coupon {
    * @param rateAccrued The interest accrued over the periods already fixed.
    * @param fixingPeriodRemainingAccrualFactor ??
    */
-  private CouponArithmeticAverageON(Currency currency, double paymentTime, double paymentYearFraction, double notional, IndexON index, double[] fixingPeriodTimes, double[] fixingPeriodAccrualFactors,
-      double rateAccrued, double fixingPeriodRemainingAccrualFactor) {
-    super(currency, paymentTime, "NOT USED", paymentYearFraction, notional);
+  private CouponArithmeticAverageON(final Currency currency, final double paymentTime, final double paymentYearFraction, final double notional, final IndexON index, final double[] fixingPeriodTimes,
+      final double[] fixingPeriodAccrualFactors,
+      final double rateAccrued, final double fixingPeriodRemainingAccrualFactor) {
+    super(currency, paymentTime, paymentYearFraction, notional);
     _index = index;
     _fixingPeriodTimes = fixingPeriodTimes;
     _fixingPeriodAccrualFactors = fixingPeriodAccrualFactors;
@@ -75,14 +76,15 @@ public final class CouponArithmeticAverageON extends Coupon {
    * @param rateAccrued The interest accrued over the periods already fixed.
    * @return The coupon.
    */
-  public static CouponArithmeticAverageON from(double paymentTime, double paymentAccrualFactor, double notional, IndexON index, double[] fixingPeriodTimes, double[] fixingPeriodAccrualFactors,
-      double rateAccrued) {
+  public static CouponArithmeticAverageON from(final double paymentTime, final double paymentAccrualFactor, final double notional, final IndexON index, final double[] fixingPeriodTimes,
+      final double[] fixingPeriodAccrualFactors,
+      final double rateAccrued) {
     ArgumentChecker.notNull(index, "Index");
     ArgumentChecker.notNull(fixingPeriodTimes, "Fixing Times");
     ArgumentChecker.notNull(fixingPeriodAccrualFactors, "Accrual Factors");
     double fixingPeriodRemainingAccrualFactor = 0.0;
-    for (int loopp = 0; loopp < fixingPeriodAccrualFactors.length; loopp++) {
-      fixingPeriodRemainingAccrualFactor += fixingPeriodAccrualFactors[loopp];
+    for (final double fixingPeriodAccrualFactor : fixingPeriodAccrualFactors) {
+      fixingPeriodRemainingAccrualFactor += fixingPeriodAccrualFactor;
     }
     return new CouponArithmeticAverageON(index.getCurrency(), paymentTime, paymentAccrualFactor, notional, index, fixingPeriodTimes, fixingPeriodAccrualFactors, rateAccrued,
         fixingPeriodRemainingAccrualFactor);
@@ -129,18 +131,18 @@ public final class CouponArithmeticAverageON extends Coupon {
   }
 
   @Override
-  public Coupon withNotional(double notional) {
+  public Coupon withNotional(final double notional) {
     return null; // TODO
   }
 
   @Override
-  public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
     ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitCouponArithmeticAverageON(this, data);
   }
 
   @Override
-  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
     ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitCouponArithmeticAverageON(this);
   }
@@ -161,7 +163,7 @@ public final class CouponArithmeticAverageON extends Coupon {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -171,7 +173,7 @@ public final class CouponArithmeticAverageON extends Coupon {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    CouponArithmeticAverageON other = (CouponArithmeticAverageON) obj;
+    final CouponArithmeticAverageON other = (CouponArithmeticAverageON) obj;
     if (!Arrays.equals(_fixingPeriodAccrualFactors, other._fixingPeriodAccrualFactors)) {
       return false;
     }

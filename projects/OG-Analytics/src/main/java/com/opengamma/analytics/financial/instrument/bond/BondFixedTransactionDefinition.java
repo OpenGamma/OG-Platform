@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.bond;
@@ -31,10 +31,10 @@ public class BondFixedTransactionDefinition extends BondTransactionDefinition<Pa
    * @param underlyingBond The fixed coupon bond underlying the transaction.
    * @param quantity The number of bonds purchased (can be negative or positive).
    * @param settlementDate Transaction settlement date.
-   * @param price The (dirty) price of the transaction in relative term (i.e. 0.90 if the dirty price is 90% of nominal).
+   * @param dirtyPrice The (dirty) price of the transaction in relative term (i.e. 0.90 if the dirty price is 90% of nominal).
    */
-  public BondFixedTransactionDefinition(final BondFixedSecurityDefinition underlyingBond, final double quantity, final ZonedDateTime settlementDate, final double price) {
-    super(underlyingBond, quantity, settlementDate, price);
+  public BondFixedTransactionDefinition(final BondFixedSecurityDefinition underlyingBond, final double quantity, final ZonedDateTime settlementDate, final double dirtyPrice) {
+    super(underlyingBond, quantity, settlementDate, dirtyPrice);
     _accruedInterestAtSettlement = 0;
     final int nbCoupon = underlyingBond.getCoupons().getNumberOfPayments();
     final double accruedInterest = AccruedInterestCalculator.getAccruedInterest(getUnderlyingBond().getDayCount(), getCouponIndex(), nbCoupon, getPreviousAccrualDate(),
@@ -64,6 +64,11 @@ public class BondFixedTransactionDefinition extends BondTransactionDefinition<Pa
     return (BondFixedSecurityDefinition) super.getUnderlyingBond();
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public BondFixedTransaction toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     // Implementation note: First yield curve used for coupon and notional (credit), the second for risk free settlement.
@@ -73,6 +78,31 @@ public class BondFixedTransactionDefinition extends BondTransactionDefinition<Pa
     final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getUnderlyingBond().getSettlementDays(), getUnderlyingBond().getCalendar());
     final BondFixedSecurity bondPurchase = getUnderlyingBond().toDerivative(date, getSettlementDate(), yieldCurveNames);
     final BondFixedSecurity bondStandard = getUnderlyingBond().toDerivative(date, yieldCurveNames);
+    final int nbCoupon = getUnderlyingBond().getCoupons().getNumberOfPayments();
+    int couponIndex = 0; // The index of the coupon of the spot date.
+    for (int loopcpn = 0; loopcpn < nbCoupon; loopcpn++) {
+      if (getUnderlyingBond().getCoupons().getNthPayment(loopcpn).getAccrualEndDate().isAfter(spot)) {
+        couponIndex = loopcpn;
+        break;
+      }
+    }
+    final double notionalStandard = getUnderlyingBond().getCoupons().getNthPayment(couponIndex).getNotional();
+    double price;
+    if (getSettlementDate().isBefore(date)) { // If settlement already took place, the price is set to 0.
+      price = 0.0;
+    } else {
+      price = getPrice();
+    }
+    final BondFixedTransaction result = new BondFixedTransaction(bondPurchase, getQuantity(), price, bondStandard, notionalStandard);
+    return result;
+  }
+
+  @Override
+  public BondFixedTransaction toDerivative(final ZonedDateTime date) {
+    ArgumentChecker.notNull(date, "date");
+    final ZonedDateTime spot = ScheduleCalculator.getAdjustedDate(date, getUnderlyingBond().getSettlementDays(), getUnderlyingBond().getCalendar());
+    final BondFixedSecurity bondPurchase = getUnderlyingBond().toDerivative(date, getSettlementDate());
+    final BondFixedSecurity bondStandard = getUnderlyingBond().toDerivative(date);
     final int nbCoupon = getUnderlyingBond().getCoupons().getNumberOfPayments();
     int couponIndex = 0; // The index of the coupon of the spot date.
     for (int loopcpn = 0; loopcpn < nbCoupon; loopcpn++) {

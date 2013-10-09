@@ -39,6 +39,7 @@ public class InterestRateFutureConvention extends ExchangeTradedFutureAndOptionC
    * For the builder.
    */
   /* package */ InterestRateFutureConvention() {
+    super();
   }
 
   /**
@@ -63,6 +64,7 @@ public class InterestRateFutureConvention extends ExchangeTradedFutureAndOptionC
   public static InterestRateFutureConvention.Meta meta() {
     return InterestRateFutureConvention.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(InterestRateFutureConvention.Meta.INSTANCE);
   }

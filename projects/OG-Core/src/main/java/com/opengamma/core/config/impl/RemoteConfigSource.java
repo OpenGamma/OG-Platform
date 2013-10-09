@@ -13,6 +13,7 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 
 import com.google.common.collect.Lists;
+import com.opengamma.DataNotFoundException;
 import com.opengamma.core.AbstractRemoteSource;
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
@@ -22,6 +23,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.rest.UniformInterfaceException404NotFound;
 
 /**
  * Provides remote access to a {@link ConfigSource}.
@@ -114,8 +116,14 @@ public class RemoteConfigSource extends AbstractRemoteSource<ConfigItem<?>> impl
     ArgumentChecker.notNull(clazz, "clazz");
     ArgumentChecker.notNull(configName, "configName");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
-    final URI uri = DataConfigSourceResource.uriSearchSingle(getBaseUri(), configName, versionCorrection, clazz);
-    return accessRemote(uri).get(clazz);
+    try {
+      final URI uri = DataConfigSourceResource.uriSearchSingle(getBaseUri(), configName, versionCorrection, clazz);
+      return accessRemote(uri).get(clazz);
+    } catch (DataNotFoundException ex) {
+      return null;
+    } catch (UniformInterfaceException404NotFound ex) {
+      return null;
+    }
   }
 
   @Override

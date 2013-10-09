@@ -60,11 +60,11 @@ public final class GeneratorSwapFixedInflationMaster {
     final boolean piecewiseconstant = false;
     _generatorSwap = new HashMap<>();
     _generatorSwap.put("EURHICP",
-        new GeneratorSwapFixedInflationZeroCoupon("EUR HICP", priceIndexMaster.getIndex("EURHICP"), eurPriceIndexTimeSerie, modFol, baseCalendar, endOfMonth, monthLag, spotLag, piecewiseconstant));
+        new GeneratorSwapFixedInflationZeroCoupon("EUR HICP", priceIndexMaster.getIndex("EURHICP"), modFol, baseCalendar, endOfMonth, monthLag, spotLag, piecewiseconstant));
     _generatorSwap.put("UKRPI",
-        new GeneratorSwapFixedInflationZeroCoupon("UK RPI", priceIndexMaster.getIndex("UKRPI"), ukPriceIndexTimeSerie, modFol, baseCalendar, endOfMonth, monthLag, spotLag, piecewiseconstant));
+        new GeneratorSwapFixedInflationZeroCoupon("UK RPI", priceIndexMaster.getIndex("UKRPI"), modFol, baseCalendar, endOfMonth, monthLag, spotLag, piecewiseconstant));
     _generatorSwap.put("USCPI",
-        new GeneratorSwapFixedInflationZeroCoupon("US CPI", priceIndexMaster.getIndex("USCPI"), usPriceIndexTimeSerie, modFol, baseCalendar, endOfMonth, monthLag, spotLag, linear));
+        new GeneratorSwapFixedInflationZeroCoupon("US CPI", priceIndexMaster.getIndex("USCPI"), modFol, baseCalendar, endOfMonth, monthLag, spotLag, linear));
   }
 
   public GeneratorSwapFixedInflationZeroCoupon getGenerator(final String name) {
@@ -72,8 +72,8 @@ public final class GeneratorSwapFixedInflationMaster {
     if (generatorNoCalendar == null) {
       throw new OpenGammaRuntimeException("Could not get price index index for " + name);
     }
-    return new GeneratorSwapFixedInflationZeroCoupon(generatorNoCalendar.getName(), generatorNoCalendar.getIndexPrice(), generatorNoCalendar.getPriceIndexTimeSeries(),
-        generatorNoCalendar.getBusinessDayConvention(), generatorNoCalendar.getCalendar(), generatorNoCalendar.isEndOfMonth(), generatorNoCalendar.getMonthLag(),
-        generatorNoCalendar.getSpotLag(), generatorNoCalendar.isLinear());
+    return new GeneratorSwapFixedInflationZeroCoupon(generatorNoCalendar.getName(), generatorNoCalendar.getIndexPrice(), generatorNoCalendar.getBusinessDayConvention(),
+        generatorNoCalendar.getCalendar(), generatorNoCalendar.isEndOfMonth(), generatorNoCalendar.getMonthLag(), generatorNoCalendar.getSpotLag(),
+        generatorNoCalendar.isLinear());
   }
 }

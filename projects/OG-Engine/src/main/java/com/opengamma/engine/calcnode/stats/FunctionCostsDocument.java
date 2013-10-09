@@ -103,6 +103,7 @@ public class FunctionCostsDocument extends DirectBean {
   public static FunctionCostsDocument.Meta meta() {
     return FunctionCostsDocument.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(FunctionCostsDocument.Meta.INSTANCE);
   }

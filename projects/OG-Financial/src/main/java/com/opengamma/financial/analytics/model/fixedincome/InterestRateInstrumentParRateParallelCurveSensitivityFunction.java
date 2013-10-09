@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.fixedincome;
@@ -20,8 +20,10 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
- * 
+ * Function that calculates the sensitivity of the par rate to a parallel curve shift.
+ * @deprecated The parent function is deprecated
  */
+@Deprecated
 public class InterestRateInstrumentParRateParallelCurveSensitivityFunction extends InterestRateInstrumentCurveSpecificFunction {
   private static final ParRateParallelSensitivityCalculator CALCULATOR = ParRateParallelSensitivityCalculator.getInstance();
 

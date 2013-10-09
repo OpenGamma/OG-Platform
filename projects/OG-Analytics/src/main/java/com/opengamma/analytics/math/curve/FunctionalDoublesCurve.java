@@ -8,21 +8,35 @@ package com.opengamma.analytics.math.curve;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.analytics.math.function.Function;
+import com.opengamma.analytics.math.differentiation.ScalarFirstOrderDifferentiator;
+import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * A curve that is defined by a function (i.e. <i>y = f(x)</i>, where <i>f(x)</i> is supplied)
  */
 public class FunctionalDoublesCurve extends DoublesCurve {
 
+  private static final ScalarFirstOrderDifferentiator DIFF = new ScalarFirstOrderDifferentiator();
+
   /**
    * 
    * @param function The function that defines the curve, not null
    * @return A functional curve with an automatically-generated name
    */
-  public static FunctionalDoublesCurve from(final Function<Double, Double> function) {
+  public static FunctionalDoublesCurve from(final Function1D<Double, Double> function) {
     return new FunctionalDoublesCurve(function);
+  }
+
+  /**
+   * 
+   * @param function The function that defines the curve, not null
+   * @param derivative The first derivative for the function, not null
+   * @return A functional curve with an automatically-generated name
+   */
+  public static FunctionalDoublesCurve from(final Function1D<Double, Double> function, final Function1D<Double, Double> derivative) {
+    return new FunctionalDoublesCurve(function, derivative);
   }
 
   /**
@@ -31,20 +45,46 @@ public class FunctionalDoublesCurve extends DoublesCurve {
    * @param name Name of the curve 
    * @return A functional curve
    */
-  public static FunctionalDoublesCurve from(final Function<Double, Double> function, final String name) {
+  public static FunctionalDoublesCurve from(final Function1D<Double, Double> function, final String name) {
     return new FunctionalDoublesCurve(function, name);
   }
 
-  private final Function<Double, Double> _function;
+  /**
+   * 
+   * @param function The function that defines the curve, not null
+   * @param derivative The first derivative for the function, not null
+   * @param name Name of the curve 
+   * @return A functional curve
+   */
+  public static FunctionalDoublesCurve from(final Function1D<Double, Double> function, final Function1D<Double, Double> derivative, final String name) {
+    return new FunctionalDoublesCurve(function, derivative, name);
+  }
+
+  private final Function1D<Double, Double> _function;
+  private final Function1D<Double, Double> _derivative;
 
   /**
    * 
    * @param function The function that defines the curve, not null
    */
-  public FunctionalDoublesCurve(final Function<Double, Double> function) {
+  public FunctionalDoublesCurve(final Function1D<Double, Double> function) {
     super();
     Validate.notNull(function, "function");
     _function = function;
+    _derivative = DIFF.differentiate(_function);
+  }
+
+  /**
+   * 
+   * @param function The function that defines the curve, not null
+   * @param derivative The first derivative for the function, not null
+   */
+  private FunctionalDoublesCurve(final Function1D<Double, Double> function, final Function1D<Double, Double> derivative) {
+    super();
+    ArgumentChecker.notNull(function, "function");
+    ArgumentChecker.notNull(derivative, "derivative");
+    _function = function;
+    _derivative = derivative;
   }
 
   /**
@@ -52,10 +92,25 @@ public class FunctionalDoublesCurve extends DoublesCurve {
    * @param function The function that defines the curve, not null
    * @param name The name of the curve
    */
-  public FunctionalDoublesCurve(final Function<Double, Double> function, final String name) {
+  public FunctionalDoublesCurve(final Function1D<Double, Double> function, final String name) {
     super(name);
     Validate.notNull(function, "function");
     _function = function;
+    _derivative = DIFF.differentiate(_function);
+  }
+
+  /**
+   * 
+   * @param function The function that defines the curve, not null
+   *   * @param derivative The first derivative for the function, not null
+   * @param name The name of the curve
+   */
+  private FunctionalDoublesCurve(final Function1D<Double, Double> function, final Function1D<Double, Double> derivative, final String name) {
+    super(name);
+    ArgumentChecker.notNull(function, "function");
+    ArgumentChecker.notNull(derivative, "derivative");
+    _function = function;
+    _derivative = derivative;
   }
 
   /**
@@ -83,7 +138,12 @@ public class FunctionalDoublesCurve extends DoublesCurve {
   }
 
   @Override
-  public Double[] getYValueParameterSensitivity(Double x) {
+  public double getDyDx(final double x) {
+    return _derivative.evaluate(x);
+  }
+
+  @Override
+  public Double[] getYValueParameterSensitivity(final Double x) {
     throw new UnsupportedOperationException("Parameter sensitivity not supported yet for FunctionalDoublesCurve");
   }
 
@@ -117,8 +177,16 @@ public class FunctionalDoublesCurve extends DoublesCurve {
    * 
    * @return The function
    */
-  public Function<Double, Double> getFunction() {
+  public Function1D<Double, Double> getFunction() {
     return _function;
+  }
+
+  /**
+   * 
+   * @return The function
+   */
+  public Function1D<Double, Double> getFirstDerivativeFunction() {
+    return _derivative;
   }
 
   @Override

@@ -636,12 +636,12 @@ public class RemoteComponentFactory {
   }
 
   //-------------------------------------------------------------------------
-  // Repository Configurations
+  // Function Configurations
   /**
    * @param name the classifier name of the object you want to retrieve
    * @return the interface requested, or null if not present
    */
-  public FunctionConfigurationSource getRepositoryConfigurationSource(final String name) {
+  public FunctionConfigurationSource getFunctionConfigurationSource(final String name) {
     URI uri = getComponentServer().getComponentInfo(FunctionConfigurationSource.class, name).getUri();
     return new RemoteFunctionConfigurationSource(uri);
   }
@@ -650,7 +650,7 @@ public class RemoteComponentFactory {
    * @param preferredClassifiers a list of names of classifiers in order of preference (most preferred first), or null
    * @return the best matching interface available
    */
-  public FunctionConfigurationSource getRepositoryConfigurationSource(final List<String> preferredClassifiers) {
+  public FunctionConfigurationSource getFunctionConfigurationSource(final List<String> preferredClassifiers) {
     URI uri = getTopLevelComponent(preferredClassifiers, FunctionConfigurationSource.class).getUri();
     return new RemoteFunctionConfigurationSource(uri);
   }
@@ -658,7 +658,7 @@ public class RemoteComponentFactory {
   /**
    * @return a map of classifier names to requested interface type
    */
-  public Map<String, FunctionConfigurationSource> getRepositoryConfigurationSources() {
+  public Map<String, FunctionConfigurationSource> getFunctionConfigurationSources() {
     Map<String, FunctionConfigurationSource> result = new LinkedHashMap<String, FunctionConfigurationSource>();
     for (ComponentInfo info : getComponentServer().getComponentInfos(FunctionConfigurationSource.class)) {
       result.put(info.getClassifier(), new RemoteFunctionConfigurationSource(info.getUri()));

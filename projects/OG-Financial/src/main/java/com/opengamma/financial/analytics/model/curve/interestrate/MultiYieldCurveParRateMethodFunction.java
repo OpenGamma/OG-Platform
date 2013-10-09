@@ -73,8 +73,10 @@ import com.opengamma.financial.analytics.conversion.InterestRateInstrumentTradeO
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithSecurity;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
+import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.financial.analytics.ircurve.calcconfig.ConfigDBCurveCalculationConfigSource;
 import com.opengamma.financial.analytics.ircurve.calcconfig.MultiCurveCalculationConfig;
+import com.opengamma.financial.analytics.model.curve.MultiCurveFunction;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
@@ -82,18 +84,29 @@ import com.opengamma.util.CompareUtils;
 import com.opengamma.util.money.Currency;
 
 /**
- *
+ * Constructs yield curves and the Jacobian from {@link YieldCurveDefinition}s. Multiple curves can
+ * be constructed simultaneously using root-finding. The configuration object that control the construction is
+ * {@link MultiCurveCalculationConfig}. The root-finder uses present value = 0 as its target, where an appropriate spread
+ * is added to the fixed rate or yield of an instrument.
+ * @deprecated This function uses configuration objects that have been superseded. Use functions
+ * that descend from {@link MultiCurveFunction}.
  */
+@Deprecated
 public class MultiYieldCurveParRateMethodFunction extends MultiYieldCurveFunction {
-
+  /** Calculates the spread to the par rate of instruments on the curve */
   private static final ParSpreadRateCalculator PAR_SPREAD_RATE_CALCULATOR = ParSpreadRateCalculator.getInstance();
+  /** Calculates the sensitivity of the par rate spread to the curve */
   private static final ParSpreadRateCurveSensitivityCalculator PAR_SPREAD_RATE_SENSITIVITY_CALCULATOR = ParSpreadRateCurveSensitivityCalculator.getInstance();
+  /** Calculates the maturity time of the instruments on the curve */
   private static final LastTimeCalculator LAST_TIME_CALCULATOR = LastTimeCalculator.getInstance();
+  /** Converts securities to instrument definitions */
   private InterestRateInstrumentTradeOrSecurityConverter _securityConverter;
+  /** Converts instrument definitions to derivatives */
   private FixedIncomeConverterDataProvider _definitionConverter;
 
   @Override
   public void init(final FunctionCompilationContext context) {
+    super.init(context);
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);

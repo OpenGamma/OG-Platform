@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.equity.option;
@@ -22,43 +22,43 @@ import com.opengamma.util.money.Currency;
  * The definition is responsible for constructing the 'Derivative' for pricing visitors.
  */
 public class EquityIndexOptionDefinition implements InstrumentDefinition<EquityIndexOption> {
-  /** 
-   * Call if true, Put if false 
+  /**
+   * Call if true, Put if false
    */
   private final boolean _isCall;
-  /** 
-   * Strike, with same scaling as index has. 
-   * For example, DJX is 1/100 DOW JONES INDUSTRIAL AVERAGE 
+  /**
+   * Strike, with same scaling as index has.
+   * For example, DJX is 1/100 DOW JONES INDUSTRIAL AVERAGE
    */
   private final double _strike;
-  /** 
-   * Currency 
+  /**
+   * Currency
    */
   private final Currency _currency;
-  /** 
-   * Exercise type, European or American 
+  /**
+   * Exercise type, European or American
    */
   private final ExerciseDecisionType _exerciseType;
-  /** 
+  /**
    * Expiry, date and time of last, or only, exercise decision
    */
   private final ZonedDateTime _expiryDT;
-  /** 
-   * Cash settlement occurs on this LocalDate 
+  /**
+   * Cash settlement occurs on this LocalDate
    */
   private final LocalDate _settlementDate;
-  /** 
-   * Point value, scaling of standard contract. 
-   * Unit notional. A unit move in price is multiplied by this to give P&L of a single contract 
+  /**
+   * Point value, scaling of standard contract.
+   * Unit notional. A unit move in price is multiplied by this to give P&L of a single contract
    */
   private final double _pointValue;
-  /** 
-   * The settlement type of the option - cash or physical 
+  /**
+   * The settlement type of the option - cash or physical
    */
   private final SettlementType _settlementType;
 
   /**
-   * @param isCall Call if true, Put if false 
+   * @param isCall Call if true, Put if false
    * @param strike Strike, with same scaling as index has. Not negative or zero.
    * @param currency Currency of settlement, not null
    * @param exerciseType Exercise type, European or American, not null
@@ -152,13 +152,17 @@ public class EquityIndexOptionDefinition implements InstrumentDefinition<EquityI
   }
 
   /**
-   * Creates an {@link EquityIndexOption}, as of an exact date, ready for pricing
-   * @param date Date at which valuation will occur, not null
-   * @param yieldCurveNames not used
-   * @return EquityIndexOption derivative as of date
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names.
    */
+  @Deprecated
   @Override
   public EquityIndexOption toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
+    return toDerivative(date);
+  }
+
+  @Override
+  public EquityIndexOption toDerivative(final ZonedDateTime date) {
     ArgumentChecker.notNull(date, "date");
     ArgumentChecker.inOrderOrEqual(date.toLocalDate(), getExpiryDate().toLocalDate(), "valuation date", "expiry");
     double timeToExpiry = TimeCalculator.getTimeBetween(date, getExpiryDate());
@@ -166,11 +170,11 @@ public class EquityIndexOptionDefinition implements InstrumentDefinition<EquityI
       // REVIEW Stephen and Casey - This essentially assumes an Expiry with accuracy of 1 day.
       // The intended behaviour is that an option is still alive on the expiry date
       timeToExpiry = 0.0015; // Approximately half a day
-    } 
+    }
     double timeToSettlement = TimeCalculator.getTimeBetween(date, _settlementDate);
     if (timeToSettlement == 0) {
       timeToSettlement = 0.0015;
-    } 
+    }
     return new EquityIndexOption(timeToExpiry, timeToSettlement, _strike, _isCall, _currency, _pointValue, _exerciseType, _settlementType);
   }
 

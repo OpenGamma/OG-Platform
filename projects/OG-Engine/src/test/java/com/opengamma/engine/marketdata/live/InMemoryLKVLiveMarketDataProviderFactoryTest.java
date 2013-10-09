@@ -32,7 +32,7 @@ public class InMemoryLKVLiveMarketDataProviderFactoryTest {
     LiveDataFactory defaultFactory = mock(LiveDataFactory.class);
     LiveDataFactory factory1 = mock(LiveDataFactory.class);
     LiveDataFactory factory2 = mock(LiveDataFactory.class);
-    _factory = new InMemoryLKVLiveMarketDataProviderFactory(defaultFactory, ImmutableMap.of("1", factory1, "2", factory2));
+    _factory = new InMemoryLKVLiveMarketDataProviderFactory(defaultFactory, ImmutableMap.of("1", factory1, "2", factory2, "default", defaultFactory));
     _defaultProvider = mock(LiveMarketDataProvider.class);
     stub(defaultFactory.create(_user)).toReturn(_defaultProvider);
     _provider1 = mock(LiveMarketDataProvider.class);

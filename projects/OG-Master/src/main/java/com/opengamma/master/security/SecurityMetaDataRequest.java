@@ -56,6 +56,7 @@ public class SecurityMetaDataRequest extends AbstractMetaDataRequest {
   public static SecurityMetaDataRequest.Meta meta() {
     return SecurityMetaDataRequest.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(SecurityMetaDataRequest.Meta.INSTANCE);
   }

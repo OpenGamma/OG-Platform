@@ -90,6 +90,7 @@ public class VolatilityCubeDefinitionSourceComponentFactory extends AbstractComp
   public static VolatilityCubeDefinitionSourceComponentFactory.Meta meta() {
     return VolatilityCubeDefinitionSourceComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(VolatilityCubeDefinitionSourceComponentFactory.Meta.INSTANCE);
   }

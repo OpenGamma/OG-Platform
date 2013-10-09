@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.provider;
@@ -12,6 +12,7 @@ import java.util.Map;
 
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderInterface;
+import com.opengamma.analytics.financial.provider.description.interestrate.ParameterProviderInterface;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.MulticurveSensitivity;
 import com.opengamma.util.ArgumentChecker;
@@ -20,7 +21,7 @@ import com.opengamma.util.ArgumentChecker;
  * Method to compute the price for an interest rate future with discounting (like a forward).
  * No convexity adjustment is done.
  */
-public final class InterestRateFutureSecurityDiscountingMethod { //extends InterestRateFutureSecurityMethod {
+public final class InterestRateFutureSecurityDiscountingMethod extends InterestRateFutureSecurityMethod {
 
   /**
    * The unique instance of the calculator.
@@ -42,15 +43,17 @@ public final class InterestRateFutureSecurityDiscountingMethod { //extends Inter
   }
 
   /**
-   * Computes the price of a future from the curves using an estimation of the future rate without convexity adjustment.
+   * Computes the price of a future from the curves using an estimation of the futures rate without convexity adjustment.
    * @param futures The futures.
    * @param multicurves The multi-curve provider.
    * @return The price.
    */
-  public double price(final InterestRateFutureSecurity futures, final MulticurveProviderInterface multicurves) {
+  @Override
+  public double price(final InterestRateFutureSecurity futures, final ParameterProviderInterface multicurves) {
     ArgumentChecker.notNull(futures, "Futures");
     ArgumentChecker.notNull(multicurves, "Multi-curves provider");
-    final double forward = multicurves.getForwardRate(futures.getIborIndex(), futures.getFixingPeriodStartTime(), futures.getFixingPeriodEndTime(), futures.getFixingPeriodAccrualFactor());
+    final double forward = multicurves.getMulticurveProvider().getForwardRate(futures.getIborIndex(), futures.getFixingPeriodStartTime(), futures.getFixingPeriodEndTime(),
+        futures.getFixingPeriodAccrualFactor());
     final double price = 1.0 - forward;
     return price;
   }
@@ -73,16 +76,17 @@ public final class InterestRateFutureSecurityDiscountingMethod { //extends Inter
    * @param multicurves The multi-curve provider.
    * @return The price rate sensitivity.
    */
-  public MulticurveSensitivity priceCurveSensitivity(final InterestRateFutureSecurity futures, final MulticurveProviderInterface multicurves) {
+  @Override
+  public MulticurveSensitivity priceCurveSensitivity(final InterestRateFutureSecurity futures, final ParameterProviderInterface multicurves) {
     ArgumentChecker.notNull(futures, "Futures");
     ArgumentChecker.notNull(multicurves, "Multi-curves provider");
     // Partials - XBar => d(price)/dX
     final double priceBar = 1.0;
     final double forwardBar = -priceBar;
-    final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<String, List<ForwardSensitivity>>();
-    final List<ForwardSensitivity> listForward = new ArrayList<ForwardSensitivity>();
+    final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<>();
+    final List<ForwardSensitivity> listForward = new ArrayList<>();
     listForward.add(new ForwardSensitivity(futures.getFixingPeriodStartTime(), futures.getFixingPeriodEndTime(), futures.getFixingPeriodAccrualFactor(), forwardBar));
-    mapFwd.put(multicurves.getName(futures.getIborIndex()), listForward);
+    mapFwd.put(multicurves.getMulticurveProvider().getName(futures.getIborIndex()), listForward);
     return MulticurveSensitivity.ofForward(mapFwd);
   }
 

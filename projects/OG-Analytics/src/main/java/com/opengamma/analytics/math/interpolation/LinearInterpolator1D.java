@@ -37,6 +37,21 @@ public class LinearInterpolator1D extends Interpolator1D {
   }
 
   @Override
+  public double firstDerivative(final Interpolator1DDataBundle model, final Double value) {
+    Validate.notNull(value, "Value to be interpolated must not be null");
+    Validate.notNull(model, "Data bundle must not be null");
+    final InterpolationBoundedValues boundedValues = model.getBoundedValues(value);
+    final double x1 = boundedValues.getLowerBoundKey();
+    final double y1 = boundedValues.getLowerBoundValue();
+    if (model.getLowerBoundIndex(value) == model.size() - 1) {
+      return 0.;
+    }
+    final double x2 = boundedValues.getHigherBoundKey();
+    final double y2 = boundedValues.getHigherBoundValue();
+    return (y2 - y1) / (x2 - x1);
+  }
+
+  @Override
   public double[] getNodeSensitivitiesForValue(final Interpolator1DDataBundle data, final Double value) {
     Validate.notNull(data, "data");
     final int n = data.size();

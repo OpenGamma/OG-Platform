@@ -161,19 +161,23 @@ import com.opengamma.util.time.Tenor;
   public static class InflationCurveTypeConfigurationBuilder implements FudgeBuilder<InflationCurveTypeConfiguration> {
     /** The reference field */
     private static final String REFERENCE_FIELD = "reference";
+    /** The price index field */
+    private static final String PRICE_INDEX_FIELD = "priceIndex";
 
     @Override
     public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final InflationCurveTypeConfiguration object) {
       final MutableFudgeMsg message = serializer.newMessage();
       message.add(null, 0, object.getClass().getName());
-      serializer.addToMessage(message, REFERENCE_FIELD, null, object.getReference());
+      message.add(REFERENCE_FIELD, object.getReference());
+      serializer.addToMessage(message, PRICE_INDEX_FIELD, null, object.getPriceIndex());
       return message;
     }
 
     @Override
     public InflationCurveTypeConfiguration buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final String reference = message.getString(REFERENCE_FIELD);
-      final InflationCurveTypeConfiguration configuration = new InflationCurveTypeConfiguration(reference);
+      final ExternalId priceIndex = deserializer.fieldValueToObject(ExternalId.class, message.getByName(PRICE_INDEX_FIELD));
+      final InflationCurveTypeConfiguration configuration = new InflationCurveTypeConfiguration(reference, priceIndex);
       return configuration;
     }
 

@@ -18,6 +18,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import net.sf.ehcache.CacheManager;
@@ -39,7 +40,6 @@ import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.livedata.server.StandardLiveDataServer;
 import com.opengamma.livedata.server.Subscription;
-import com.opengamma.livedata.server.SubscriptionListener;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.NamedThreadPoolFactory;
 import com.opengamma.util.TerminatableJob;
@@ -58,14 +58,14 @@ public class ExampleLiveDataServer extends StandardLiveDataServer {
   private static final FudgeContext s_fudgeConext = OpenGammaFudgeContext.getInstance();
   private static final int NUM_FIELDS = 3;
   private static final double SCALING_FACTOR = 0.005; // i.e. 0.5% * 1SD
-  private static final int MAX_MILLIS_BETWEEN_TICKS = 50;
+  private static final int MAX_MILLIS_BETWEEN_TICKS = 500;
 
   private final Map<String, FudgeMsg> _marketValues = Maps.newConcurrentMap();
   private final Map<String, FudgeMsg> _baseValues = Maps.newConcurrentMap();
   private volatile double _scalingFactor;
   private volatile int _maxMillisBetweenTicks;
   private final TerminatableJob _marketDataSimulatorJob = new SimulatedMarketDataJob();
-  private ExecutorService _executorService;
+  private final ExecutorService _executorService = Executors.newCachedThreadPool(new NamedThreadPoolFactory("ExampleLiveDataServer"));
 
   public ExampleLiveDataServer(final CacheManager cacheManager, final Resource initialValuesFile) {
     this(cacheManager, initialValuesFile, SCALING_FACTOR, MAX_MILLIS_BETWEEN_TICKS);
@@ -181,6 +181,8 @@ public class ExampleLiveDataServer extends StandardLiveDataServer {
   @Override
   protected Map<String, Object> doSubscribe(final Collection<String> uniqueIds) {
     ArgumentChecker.notNull(uniqueIds, "Subscriptions");
+    s_logger.debug("doSubscribe on {}", uniqueIds);
+    
     final Map<String, Object> result = Maps.newHashMap();
     final List<String> missingSubscriptions = Lists.newArrayList();
     for (final String uniqueId : uniqueIds) {
@@ -197,12 +199,14 @@ public class ExampleLiveDataServer extends StandardLiveDataServer {
 
   @Override
   protected void doUnsubscribe(final Collection<Object> subscriptionHandles) {
+    s_logger.debug("doUnsubscribe on {}", subscriptionHandles);
     // No-op; don't maintain or forward any subscription state
   }
 
   @Override
   protected Map<String, FudgeMsg> doSnapshot(final Collection<String> uniqueIds) {
     ArgumentChecker.notNull(uniqueIds, "Unique IDs");
+    s_logger.debug("doSnapshot on {}", uniqueIds);
     if (uniqueIds.isEmpty()) {
       return Collections.emptyMap();
     }
@@ -221,91 +225,53 @@ public class ExampleLiveDataServer extends StandardLiveDataServer {
 
   @Override
   protected void doConnect() {
-    addSubscriptionListener(new SubscriptionListener() {
-
-      @Override
-      public void unsubscribed(final Subscription subscription) {
-        final Set<String> activeSubscriptionIds = getActiveSubscriptionIds();
-        if (activeSubscriptionIds.isEmpty()) {
-          _marketDataSimulatorJob.terminate();
-          if (_executorService != null) {
-            _executorService.shutdown();
-          }
-        }
-      }
-
-      @Override
-      public void subscribed(final Subscription subscription) {
-        if (!_marketDataSimulatorJob.isStarted()) {
-          _executorService = Executors.newCachedThreadPool(new NamedThreadPoolFactory("ExampleLiveDataServer"));
-          _executorService.submit(_marketDataSimulatorJob);
-        }
-      }
-    });
-
+    s_logger.info("ExampleLiveDataServer connecting..");
+    _executorService.submit(_marketDataSimulatorJob);
   }
 
   @Override
   protected void doDisconnect() {
     if (_executorService != null) {
-      _executorService.shutdown();
+      _executorService.shutdownNow();
+      try {
+        _executorService.awaitTermination(1, TimeUnit.SECONDS);
+      } catch (InterruptedException ex) {
+        Thread.interrupted();
+      }
     }
-    _marketValues.clear();
   }
 
   @Override
   protected boolean snapshotOnSubscriptionStartRequired(final Subscription subscription) {
-    return false;
+    return true;
   }
 
   private class SimulatedMarketDataJob extends TerminatableJob {
 
     private final Random _random = new Random();
-    private final List<String> _doneSnapShots = Lists.newArrayList();
-
-    private void doSnapShotOnStart(final String[] subscriptions) {
-      for (final String identifier : subscriptions) {
-        if (!_doneSnapShots.contains(identifier)) {
-          final FudgeMsg lastestValue = _marketValues.get(identifier);
-          liveDataReceived(identifier, lastestValue);
-          _doneSnapShots.add(identifier);
-        }
-      }
-    }
-
-    private String[] getAvailableMarketDataSubscriptions() {
-      final List<String> result = Lists.newArrayList();
-      final Set<Subscription> subscriptions = getSubscriptions();
-      for (final Subscription subscription : subscriptions) {
-        final String securityUniqueId = subscription.getSecurityUniqueId();
-        if (_marketValues.containsKey(securityUniqueId)) {
-          result.add(securityUniqueId);
-        }
-      }
-      return result.toArray(new String[0]);
-    }
-
+   
     private double wiggleValue(final double value, final double centre) {
       return (9 * value + centre) / 10 + (_random.nextGaussian() * (value * _scalingFactor));
     }
 
     @Override
     protected void runOneCycle() {
-      final String[] subscriptions = getAvailableMarketDataSubscriptions();
-      if (subscriptions.length > 0) {
-        doSnapShotOnStart(subscriptions);
-        final String identifier = subscriptions[_random.nextInt(subscriptions.length)];
-        final FudgeMsg lastValues = _marketValues.get(identifier);
-        final FudgeMsg baseValues = _baseValues.get(identifier);
-        final MutableFudgeMsg nextValues = s_fudgeConext.newMessage();
-        for (final FudgeField field : lastValues) {
-          final double lastValue = (Double) field.getValue();
-          final double baseValue = baseValues.getDouble(field.getName());
-          final double value = wiggleValue(lastValue, baseValue);
-          nextValues.add(field.getName(), value);
+      Set<String> activeSubscriptionIds = getActiveSubscriptionIds();
+      if (!activeSubscriptionIds.isEmpty()) {
+        for (String identifier : activeSubscriptionIds) {
+          final FudgeMsg lastValues = _marketValues.get(identifier);
+          final FudgeMsg baseValues = _baseValues.get(identifier);
+          final MutableFudgeMsg nextValues = s_fudgeConext.newMessage();
+          for (final FudgeField field : lastValues) {
+            final double lastValue = (Double) field.getValue();
+            final double baseValue = baseValues.getDouble(field.getName());
+            final double value = wiggleValue(lastValue, baseValue);
+            nextValues.add(field.getName(), value);
+          }
+          _marketValues.put(identifier, nextValues);
+          liveDataReceived(identifier, nextValues);
+          s_logger.debug("{} lastValues: {} nextValues: {}", identifier, lastValues, nextValues);
         }
-        _marketValues.put(identifier, nextValues);
-        liveDataReceived(identifier, nextValues);
         try {
           Thread.sleep(_random.nextInt(_maxMillisBetweenTicks));
         } catch (final InterruptedException e) {

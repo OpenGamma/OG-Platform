@@ -28,6 +28,7 @@ import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositZer
 import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumSecurity;
@@ -43,10 +44,15 @@ import com.opengamma.analytics.financial.interestrate.inflation.derivative.Coupo
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CouponInflationZeroCouponMonthlyGearing;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponCMS;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedAccruedCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixedCompounding;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIbor;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompounding;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborCompoundingSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponIborSpread;
-import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponOIS;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponON;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONCompounded;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponONSpread;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.PaymentFixed;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.Swap;
@@ -56,7 +62,7 @@ import com.opengamma.analytics.financial.interestrate.swaption.derivative.Swapti
 /**
  * Get the last time (in years from now) referenced in the instrument description.
  */
-public final class LastTimeCalculator extends InstrumentDerivativeVisitorAdapter<Object, Double> {
+public class LastTimeCalculator extends InstrumentDerivativeVisitorAdapter<Object, Double> {
   /** Static instance of this class */
   private static final LastTimeCalculator CALCULATOR = new LastTimeCalculator();
 
@@ -67,7 +73,7 @@ public final class LastTimeCalculator extends InstrumentDerivativeVisitorAdapter
     return CALCULATOR;
   }
 
-  private LastTimeCalculator() {
+  protected LastTimeCalculator() {
   }
 
   @Override
@@ -101,6 +107,12 @@ public final class LastTimeCalculator extends InstrumentDerivativeVisitorAdapter
   }
 
   @Override
+  public Double visitFederalFundsFutureTransaction(final FederalFundsFutureTransaction future) {
+    final double[] fixingPeriods = future.getUnderlyingFuture().getFixingPeriodTime();
+    return fixingPeriods[fixingPeriods.length - 1];
+  }
+
+  @Override
   public Double visitInterestRateFutureSecurity(final InterestRateFutureSecurity future) {
     return future.getFixingPeriodEndTime();
   }
@@ -123,6 +135,16 @@ public final class LastTimeCalculator extends InstrumentDerivativeVisitorAdapter
   @Override
   public Double visitCouponIborSpread(final CouponIborSpread payment) {
     return Math.max(payment.getFixingPeriodEndTime(), payment.getPaymentTime());
+  }
+
+  @Override
+  public Double visitCouponIborCompounding(final CouponIborCompounding payment) {
+    return Math.max(payment.getFixingPeriodEndTimes()[payment.getFixingPeriodEndTimes().length - 1], payment.getPaymentTime());
+  }
+
+  @Override
+  public Double visitCouponIborCompoundingSpread(final CouponIborCompoundingSpread payment) {
+    return Math.max(payment.getFixingPeriodEndTimes()[payment.getFixingPeriodEndTimes().length - 1], payment.getPaymentTime());
   }
 
   @Override
@@ -153,6 +175,16 @@ public final class LastTimeCalculator extends InstrumentDerivativeVisitorAdapter
   }
 
   @Override
+  public Double visitCouponFixedAccruedCompounding(final CouponFixedAccruedCompounding payment) {
+    return payment.getPaymentTime();
+  }
+
+  @Override
+  public Double visitCouponONCompounded(final CouponONCompounded payment) {
+    return payment.getPaymentTime();
+  }
+
+  @Override
   public Double visitSwaptionCashFixedIbor(final SwaptionCashFixedIbor swaption) {
     return visitSwap(swaption.getUnderlyingSwap());
   }
@@ -165,7 +197,12 @@ public final class LastTimeCalculator extends InstrumentDerivativeVisitorAdapter
   }
 
   @Override
-  public Double visitCouponOIS(final CouponOIS payment) {
+  public Double visitCouponOIS(final CouponON payment) {
+    return payment.getPaymentTime();
+  }
+
+  @Override
+  public Double visitCouponONSpread(final CouponONSpread payment) {
     return payment.getPaymentTime();
   }
 

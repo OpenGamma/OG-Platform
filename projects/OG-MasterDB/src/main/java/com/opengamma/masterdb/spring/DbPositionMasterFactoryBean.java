@@ -57,6 +57,7 @@ public class DbPositionMasterFactoryBean extends AbstractDbMasterFactoryBean<DbP
   public static DbPositionMasterFactoryBean.Meta meta() {
     return DbPositionMasterFactoryBean.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(DbPositionMasterFactoryBean.Meta.INSTANCE);
   }

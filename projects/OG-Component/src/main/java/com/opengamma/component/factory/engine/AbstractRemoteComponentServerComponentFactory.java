@@ -68,6 +68,7 @@ public abstract class AbstractRemoteComponentServerComponentFactory extends Abst
   public static AbstractRemoteComponentServerComponentFactory.Meta meta() {
     return AbstractRemoteComponentServerComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(AbstractRemoteComponentServerComponentFactory.Meta.INSTANCE);
   }

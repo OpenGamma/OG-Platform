@@ -39,7 +39,6 @@ public final class CreditDefaultSwapBeanOperation {
     bean.setProtectionBuyer(externalIdToExternalIdBean(security.getProtectionBuyer()));
     bean.setProtectionSeller(externalIdToExternalIdBean(security.getProtectionSeller()));
     bean.setProtectionStart(security.isProtectionStart());
-    bean.setRecoveryRate(security.getRecoveryRate());
     bean.setReferenceEntity(externalIdToExternalIdBean(security.getReferenceEntity()));
     bean.setRegionId(externalIdToExternalIdBean(security.getRegionId()));
     bean.setRestructuringClause(

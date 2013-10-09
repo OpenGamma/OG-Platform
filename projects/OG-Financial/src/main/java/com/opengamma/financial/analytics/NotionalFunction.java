@@ -5,10 +5,14 @@
  */
 package com.opengamma.financial.analytics;
 
+import static com.opengamma.engine.value.ValueRequirementNames.CURRENCY_PAIRS;
+
 import java.util.Collections;
 import java.util.Set;
 
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
@@ -19,7 +23,6 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
@@ -27,20 +30,27 @@ import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.CurrencyAmount;
 
 /**
- *
+ * Function that returns the notional for a security. If the
  */
 public class NotionalFunction extends AbstractFunction.NonCompiledInvoker {
+  /** Property indicating whether this security has been bought or sold. */
+  public static final String PROPERTY_BUY = "Buy";
+  /** Indicates whether the notional should be negated */
+  public static final String NEGATIVE = "Negative";
+  /** Indicates whether the notional is of the correct sign */
+  public static final String POSITIVE = "Positive";
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
     final ValueRequirement desiredValue = desiredValues.iterator().next();
-    final CurrencyPairs currencyPairs = OpenGammaExecutionContext.getCurrencyPairsSource(executionContext).getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
-    CurrencyAmount ca = FinancialSecurityUtils.getNotional(target.getSecurity(), currencyPairs);
-    if (desiredValue.getConstraint("Buy").equals("Negative")) {
-      ca = CurrencyAmount.of(ca.getCurrency(), -ca.getAmount());
+    final CurrencyPairs currencyPairs = (CurrencyPairs) inputs.getValue(CURRENCY_PAIRS);
+    SecuritySource securitySource = executionContext.getSecuritySource();
+    final CurrencyAmount ca = FinancialSecurityUtils.getNotional(target.getSecurity(), currencyPairs, securitySource);
+    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.NOTIONAL, target.toSpecification(), desiredValue.getConstraints().copy().get());
+    if (desiredValue.getConstraint(PROPERTY_BUY).equals(NEGATIVE)) {
+      return Collections.singleton(new ComputedValue(spec, ca.multipliedBy(-1)));
     }
-    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.NOTIONAL, target.toSpecification(), desiredValue.getConstraints());
     return Collections.singleton(new ComputedValue(spec, ca));
   }
 
@@ -48,17 +58,21 @@ public class NotionalFunction extends AbstractFunction.NonCompiledInvoker {
   public ComputationTargetType getTargetType() {
     return FinancialSecurityTypes.FINANCIAL_SECURITY;
   }
-  
+
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    Set<String> buy = context.getViewCalculationConfiguration().getDefaultProperties().getValues("Buy");
-    String buyProperty = ((buy == null) || !buy.contains("Negative")) ? "Positive" : "Negative";
-    return Collections.singleton(new ValueSpecification(ValueRequirementNames.NOTIONAL, target.toSpecification(), createValueProperties().with("Buy", buyProperty).get()));
+    final Set<String> buy = context.getViewCalculationConfiguration().getDefaultProperties().getValues(PROPERTY_BUY);
+    final String buyProperty = ((buy == null) || !buy.contains(NEGATIVE)) ? POSITIVE : NEGATIVE;
+    final ValueProperties properties = createValueProperties().with(PROPERTY_BUY, buyProperty).get();
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.NOTIONAL, target.toSpecification(), properties));
   }
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    return Collections.emptySet();
+    final ValueProperties properties = ValueProperties.builder()
+        .with(CurrencyPairsFunction.CURRENCY_PAIRS_NAME, CurrencyPairs.DEFAULT_CURRENCY_PAIRS)
+        .get();
+    return Collections.singleton(new ValueRequirement(CURRENCY_PAIRS, ComputationTargetSpecification.NULL, properties));
   }
 
 }

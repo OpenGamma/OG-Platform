@@ -18,13 +18,15 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.holiday.impl.CachedHolidaySource;
 import com.opengamma.master.holiday.HolidayMaster;
-import com.opengamma.master.holiday.impl.ConcurrentMapCachingMasterHolidaySource;
+import com.opengamma.master.holiday.impl.MasterHolidaySource;
 import com.opengamma.util.spring.SpringFactoryBean;
 
 /**
  * Spring factory bean to create the holiday source.
  */
+@Deprecated
 @BeanDefinition
 public class HolidaySourceFactoryBean extends SpringFactoryBean<HolidaySource> {
 
@@ -37,14 +39,16 @@ public class HolidaySourceFactoryBean extends SpringFactoryBean<HolidaySource> {
   /**
    * Creates an instance.
    */
+  @Deprecated
   public HolidaySourceFactoryBean() {
     super(HolidaySource.class);
   }
 
   //-------------------------------------------------------------------------
+  @Deprecated
   @Override
   protected HolidaySource createObject() {
-    HolidaySource source = new ConcurrentMapCachingMasterHolidaySource(getHolidayMaster());
+    HolidaySource source = new CachedHolidaySource(new MasterHolidaySource(getHolidayMaster()));
     return source;
   }
 
@@ -57,6 +61,7 @@ public class HolidaySourceFactoryBean extends SpringFactoryBean<HolidaySource> {
   public static HolidaySourceFactoryBean.Meta meta() {
     return HolidaySourceFactoryBean.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(HolidaySourceFactoryBean.Meta.INSTANCE);
   }

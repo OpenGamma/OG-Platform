@@ -24,7 +24,8 @@ public class HistoricalTimeSeriesSnapshotter extends OpenGammaComponentServer {
       // the second argument defines the start of a chain of properties files providing the configuration
       args = new String[] {"-v", "classpath:/htssnapshot/hts-snapshot.properties"};
     }
-    new HistoricalTimeSeriesSnapshotter().run(args);
+    if (!new HistoricalTimeSeriesSnapshotter().run(args)) {
+      System.exit(-1);
+    }
   }
-
 }

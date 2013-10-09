@@ -28,16 +28,19 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+/**
+ * Data model for a set of risk value properties.
+ */
 @BeanDefinition
 public class RiskValueProperties extends DirectBean {
+
+  private static final Pattern ESCAPE_PATTERN = Pattern.compile("[=\\?\\[\\],\\\\]");
 
   @PropertyDefinition
   private int _id;
 
   @PropertyDefinition
   private String _syntheticForm;
-
-  private static Pattern escapePattern = Pattern.compile("[=\\?\\[\\],\\\\]");
 
   public RiskValueProperties() {
   }
@@ -64,7 +67,7 @@ public class RiskValueProperties extends DirectBean {
         ValueProperties.NearlyInfinitePropertiesImpl nearlyInifite = (ValueProperties.NearlyInfinitePropertiesImpl) requirement;
         JSONArray without = new JSONArray();
         for (String value : functional(nearlyInifite.getWithout()).sort()) {
-          without.put(escape(escapePattern, value));
+          without.put(escape(ESCAPE_PATTERN, value));
         }
         json.put("without", without);
       } else {
@@ -80,7 +83,7 @@ public class RiskValueProperties extends DirectBean {
 
             JSONArray values = new JSONArray();
             for (String value : functional(requirement.getValues(property)).sort()) {
-              values.put(escape(escapePattern, value));
+              values.put(escape(ESCAPE_PATTERN, value));
             }
             propertyJson.put("values", values);
             properties.put(propertyJson);
@@ -181,6 +184,7 @@ public class RiskValueProperties extends DirectBean {
   public static RiskValueProperties.Meta meta() {
     return RiskValueProperties.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(RiskValueProperties.Meta.INSTANCE);
   }

@@ -24,12 +24,15 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 
+/**
+ * Data model for market data.
+ */
 @BeanDefinition
 public class MarketData extends DirectBean implements ObjectIdentifiable {
 
   @PropertyDefinition
   private long _id;
-  
+
   @PropertyDefinition
   private String _baseUidScheme;
 
@@ -38,7 +41,6 @@ public class MarketData extends DirectBean implements ObjectIdentifiable {
 
   @PropertyDefinition
   private String _baseUidVersion;
-
 
   /**
    * Gets the unique id of the base market data.
@@ -57,7 +59,7 @@ public class MarketData extends DirectBean implements ObjectIdentifiable {
     setBaseUidValue(baseUid.getValue());
     setBaseUidVersion(baseUid.getVersion());
   }
-  
+
   @Override
   public ObjectId getObjectId() {
     return ObjectId.of(BatchMaster.BATCH_IDENTIFIER_SCHEME, Long.toString(getId()));
@@ -79,6 +81,7 @@ public class MarketData extends DirectBean implements ObjectIdentifiable {
   public static MarketData.Meta meta() {
     return MarketData.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(MarketData.Meta.INSTANCE);
   }

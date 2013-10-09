@@ -146,6 +146,7 @@ import com.opengamma.util.tuple.Pair;
           fullResultModel.addValue(calculationConfiguration, computedValueResult);
         }
       }
+      _terminalOutputs.clear();
     }
   }
 

@@ -19,7 +19,7 @@ import com.opengamma.id.UniqueIdentifiable;
 
   private final ComputationTargetResolver.AtVersionCorrection _resolver;
   private final ComputationTargetSpecification _spec;
-  private volatile ComputationTarget _resolved;
+  private volatile ComputationTarget _target;
 
   public LazyTargetResolverObject(final ComputationTargetResolver.AtVersionCorrection resolver, final ComputationTargetSpecification spec) {
     _resolver = resolver;
@@ -31,26 +31,38 @@ import com.opengamma.id.UniqueIdentifiable;
   }
 
   protected ComputationTargetSpecification getTargetSpecification() {
+    ComputationTarget target = _target;
+    if (target != null) {
+      return target.toSpecification();
+    }
     return _spec;
   }
 
   protected ComputationTarget getResolvedTarget() {
-    if (_resolved == null) {
+    if (_target == null) {
       synchronized (this) {
-        if (_resolved == null) {
-          _resolved = getTargetResolver().resolve(getTargetSpecification());
-          if (_resolved == null) {
+        if (_target == null) {
+          _target = getTargetResolver().resolve(getTargetSpecification());
+          if (_target == null) {
             throw new OpenGammaRuntimeException("Unable to resolve target " + getTargetSpecification());
           }
         }
       }
     }
-    return _resolved;
+    return _target;
   }
 
   @Override
   public UniqueId getUniqueId() {
-    return getTargetSpecification().getUniqueId();
+    ComputationTarget target = _target;
+    if (target != null) {
+      return target.getUniqueId();
+    }
+    UniqueId uid = _spec.getUniqueId();
+    if (uid.isVersioned()) {
+      return uid;
+    }
+    return getResolvedTarget().getUniqueId();
   }
 
 }

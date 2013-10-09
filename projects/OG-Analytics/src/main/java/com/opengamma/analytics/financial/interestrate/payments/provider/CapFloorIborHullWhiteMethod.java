@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.provider;
@@ -79,21 +79,21 @@ public final class CapFloorIborHullWhiteMethod {
   public MultipleCurrencyAmount presentValue(final CapFloorIbor cap, final HullWhiteOneFactorProviderInterface hullWhite) {
     ArgumentChecker.notNull(cap, "The cap/floor shoud not be null");
     ArgumentChecker.notNull(hullWhite, "The Hull-White data shoud not be null");
-    Currency ccy = cap.getCurrency();
-    HullWhiteOneFactorPiecewiseConstantParameters parameters = hullWhite.getHullWhiteParameters();
-    MulticurveProviderInterface multicurves = hullWhite.getMulticurveProvider();
-    double tp = cap.getPaymentTime();
-    double t0 = cap.getFixingPeriodStartTime();
-    double t1 = cap.getFixingPeriodEndTime();
-    double deltaF = cap.getFixingAccrualFactor();
-    double deltaP = cap.getPaymentYearFraction();
-    double k = cap.getStrike();
-    double dfPay = multicurves.getDiscountFactor(ccy, tp);
-    double forward = multicurves.getForwardRate(cap.getIndex(), t0, t1, deltaF);
-    double alpha0 = _model.alpha(parameters, 0.0, cap.getFixingTime(), tp, t0);
-    double alpha1 = _model.alpha(parameters, 0.0, cap.getFixingTime(), tp, t1);
-    double kappa = (Math.log((1 + deltaF * k) / (1.0 + deltaF * forward)) - (alpha1 * alpha1 - alpha0 * alpha0) / 2.0) / (alpha1 - alpha0);
-    double omega = (cap.isCap() ? 1.0 : -1.0);
+    final Currency ccy = cap.getCurrency();
+    final HullWhiteOneFactorPiecewiseConstantParameters parameters = hullWhite.getHullWhiteParameters();
+    final MulticurveProviderInterface multicurves = hullWhite.getMulticurveProvider();
+    final double tp = cap.getPaymentTime();
+    final double t0 = cap.getFixingPeriodStartTime();
+    final double t1 = cap.getFixingPeriodEndTime();
+    final double deltaF = cap.getFixingAccrualFactor();
+    final double deltaP = cap.getPaymentYearFraction();
+    final double k = cap.getStrike();
+    final double dfPay = multicurves.getDiscountFactor(ccy, tp);
+    final double forward = multicurves.getForwardRate(cap.getIndex(), t0, t1, deltaF);
+    final double alpha0 = _model.alpha(parameters, 0.0, cap.getFixingTime(), tp, t0);
+    final double alpha1 = _model.alpha(parameters, 0.0, cap.getFixingTime(), tp, t1);
+    final double kappa = (Math.log((1 + deltaF * k) / (1.0 + deltaF * forward)) - (alpha1 * alpha1 - alpha0 * alpha0) / 2.0) / (alpha1 - alpha0);
+    final double omega = (cap.isCap() ? 1.0 : -1.0);
     double pv = deltaP / deltaF * dfPay * omega * ((1.0 + deltaF * forward) * NORMAL.getCDF(omega * (-kappa - alpha0)) - (1.0 + deltaF * k) * NORMAL.getCDF(omega * (-kappa - alpha1)));
     pv *= cap.getNotional();
     return MultipleCurrencyAmount.of(cap.getCurrency(), pv);
@@ -108,38 +108,38 @@ public final class CapFloorIborHullWhiteMethod {
   public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final CapFloorIbor cap, final HullWhiteOneFactorProviderInterface hullWhite) {
     ArgumentChecker.notNull(cap, "The cap/floor shoud not be null");
     ArgumentChecker.notNull(hullWhite, "The Hull-White data shoud not be null");
-    Currency ccy = cap.getCurrency();
-    HullWhiteOneFactorPiecewiseConstantParameters parameters = hullWhite.getHullWhiteParameters();
-    MulticurveProviderInterface multicurves = hullWhite.getMulticurveProvider();
-    double tp = cap.getPaymentTime();
-    double t0 = cap.getFixingPeriodStartTime();
-    double t1 = cap.getFixingPeriodEndTime();
-    double deltaF = cap.getFixingAccrualFactor();
-    double deltaP = cap.getPaymentYearFraction();
-    double k = cap.getStrike();
-    double omega = (cap.isCap() ? 1.0 : -1.0);
+    final Currency ccy = cap.getCurrency();
+    final HullWhiteOneFactorPiecewiseConstantParameters parameters = hullWhite.getHullWhiteParameters();
+    final MulticurveProviderInterface multicurves = hullWhite.getMulticurveProvider();
+    final double tp = cap.getPaymentTime();
+    final double t0 = cap.getFixingPeriodStartTime();
+    final double t1 = cap.getFixingPeriodEndTime();
+    final double deltaF = cap.getFixingAccrualFactor();
+    final double deltaP = cap.getPaymentYearFraction();
+    final double k = cap.getStrike();
+    final double omega = (cap.isCap() ? 1.0 : -1.0);
     // Forward sweep
-    double dfPay = multicurves.getDiscountFactor(ccy, tp);
-    double forward = multicurves.getForwardRate(cap.getIndex(), t0, t1, deltaF);
-    double alpha0 = _model.alpha(parameters, 0.0, cap.getFixingTime(), tp, t0);
-    double alpha1 = _model.alpha(parameters, 0.0, cap.getFixingTime(), tp, t1);
-    double kappa = (Math.log((1 + deltaF * k) / (1.0 + deltaF * forward)) - (alpha1 * alpha1 - alpha0 * alpha0) / 2.0) / (alpha1 - alpha0);
-    double n0 = NORMAL.getCDF(omega * (-kappa - alpha0));
-    double n1 = NORMAL.getCDF(omega * (-kappa - alpha1));
+    final double dfPay = multicurves.getDiscountFactor(ccy, tp);
+    final double forward = multicurves.getForwardRate(cap.getIndex(), t0, t1, deltaF);
+    final double alpha0 = _model.alpha(parameters, 0.0, cap.getFixingTime(), tp, t0);
+    final double alpha1 = _model.alpha(parameters, 0.0, cap.getFixingTime(), tp, t1);
+    final double kappa = (Math.log((1 + deltaF * k) / (1.0 + deltaF * forward)) - (alpha1 * alpha1 - alpha0 * alpha0) / 2.0) / (alpha1 - alpha0);
+    final double n0 = NORMAL.getCDF(omega * (-kappa - alpha0));
+    final double n1 = NORMAL.getCDF(omega * (-kappa - alpha1));
     //    double pv = deltaP / deltaF * dfPay * omega * ((1.0 + deltaF * forward) * n0 - (1.0 + deltaF * k) * n1) * cap.getNotional();
     // Backward sweep
-    double pvBar = 1.0;
+    final double pvBar = 1.0;
     //    double kappaBar = 0.0; // kappa is the optimal exercise boundary
-    double forwardBar = deltaP / deltaF * dfPay * omega * deltaF * n0 * cap.getNotional() * pvBar;
-    double dfPayBar = deltaP / deltaF * omega * ((1.0 + deltaF * forward) * n0 - (1.0 + deltaF * k) * n1) * cap.getNotional() * pvBar;
+    final double forwardBar = deltaP / deltaF * dfPay * omega * deltaF * n0 * cap.getNotional() * pvBar;
+    final double dfPayBar = deltaP / deltaF * omega * ((1.0 + deltaF * forward) * n0 - (1.0 + deltaF * k) * n1) * cap.getNotional() * pvBar;
 
-    final Map<String, List<DoublesPair>> mapDsc = new HashMap<String, List<DoublesPair>>();
-    final List<DoublesPair> listDiscounting = new ArrayList<DoublesPair>();
+    final Map<String, List<DoublesPair>> mapDsc = new HashMap<>();
+    final List<DoublesPair> listDiscounting = new ArrayList<>();
     listDiscounting.add(new DoublesPair(cap.getPaymentTime(), -cap.getPaymentTime() * dfPay * dfPayBar));
     mapDsc.put(multicurves.getName(ccy), listDiscounting);
 
-    final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<String, List<ForwardSensitivity>>();
-    final List<ForwardSensitivity> listForward = new ArrayList<ForwardSensitivity>();
+    final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<>();
+    final List<ForwardSensitivity> listForward = new ArrayList<>();
     listForward.add(new ForwardSensitivity(cap.getFixingPeriodStartTime(), cap.getFixingPeriodEndTime(), cap.getFixingAccrualFactor(), forwardBar));
     mapFwd.put(multicurves.getName(cap.getIndex()), listForward);
 
@@ -155,42 +155,41 @@ public final class CapFloorIborHullWhiteMethod {
   public double[] presentValueHullWhiteSensitivity(final CapFloorIbor cap, final HullWhiteOneFactorProviderInterface hullWhite) {
     ArgumentChecker.notNull(cap, "The cap/floor shoud not be null");
     ArgumentChecker.notNull(hullWhite, "The Hull-White data shoud not be null");
-    Currency ccy = cap.getCurrency();
-    HullWhiteOneFactorPiecewiseConstantParameters parameters = hullWhite.getHullWhiteParameters();
-    MulticurveProviderInterface multicurves = hullWhite.getMulticurveProvider();
-    double tp = cap.getPaymentTime();
-    double[] t = new double[2];
+    final Currency ccy = cap.getCurrency();
+    final HullWhiteOneFactorPiecewiseConstantParameters parameters = hullWhite.getHullWhiteParameters();
+    final MulticurveProviderInterface multicurves = hullWhite.getMulticurveProvider();
+    final double tp = cap.getPaymentTime();
+    final double[] t = new double[2];
     t[0] = cap.getFixingPeriodStartTime();
     t[1] = cap.getFixingPeriodEndTime();
-    double deltaF = cap.getFixingAccrualFactor();
-    double deltaP = cap.getPaymentYearFraction();
-    double k = cap.getStrike();
-    double omega = (cap.isCap() ? 1.0 : -1.0);
+    final double deltaF = cap.getFixingAccrualFactor();
+    final double deltaP = cap.getPaymentYearFraction();
+    final double k = cap.getStrike();
+    final double omega = (cap.isCap() ? 1.0 : -1.0);
     // Forward sweep
-    double dfPay = multicurves.getDiscountFactor(ccy, tp);
-    double forward = multicurves.getForwardRate(cap.getIndex(), t[0], t[1], deltaF);
-    int nbSigma = parameters.getVolatility().length;
-    double[] alpha = new double[2];
-    double[][] alphaDerivatives = new double[2][nbSigma];
+    final double dfPay = multicurves.getDiscountFactor(ccy, tp);
+    final double forward = multicurves.getForwardRate(cap.getIndex(), t[0], t[1], deltaF);
+    final int nbSigma = parameters.getVolatility().length;
+    final double[] alpha = new double[2];
+    final double[][] alphaDerivatives = new double[2][nbSigma];
     for (int loopcf = 0; loopcf < 2; loopcf++) {
       alpha[loopcf] = _model.alpha(parameters, 0.0, cap.getFixingTime(), tp, t[loopcf], alphaDerivatives[loopcf]);
     }
-    double kappa = (Math.log((1 + deltaF * k) / (1.0 + deltaF * forward)) - (alpha[1] * alpha[1] - alpha[0] * alpha[0]) / 2.0) / (alpha[1] - alpha[0]);
-    double[] n = new double[2];
+    final double kappa = (Math.log((1 + deltaF * k) / (1.0 + deltaF * forward)) - (alpha[1] * alpha[1] - alpha[0] * alpha[0]) / 2.0) / (alpha[1] - alpha[0]);
+    final double[] n = new double[2];
     for (int loopcf = 0; loopcf < 2; loopcf++) {
       n[loopcf] = NORMAL.getCDF(omega * (-kappa - alpha[loopcf]));
     }
-    //    double pv = deltaP / deltaF * dfPay * omega * ((1.0 + deltaF * forward) * n0 - (1.0 + deltaF * k) * n1) * cap.getNotional();
     // Backward sweep
-    double pvBar = 1.0;
-    double[] nBar = new double[2];
+    final double pvBar = 1.0;
+    final double[] nBar = new double[2];
     nBar[1] = deltaP / deltaF * dfPay * omega * (1.0 + deltaF * k) * cap.getNotional() * pvBar;
     nBar[0] = deltaP / deltaF * dfPay * omega * (1.0 + deltaF * forward) * cap.getNotional();
-    double[] alphaBar = new double[2];
+    final double[] alphaBar = new double[2];
     for (int loopcf = 0; loopcf < 2; loopcf++) {
       alphaBar[loopcf] = NORMAL.getPDF(omega * (-kappa - alpha[loopcf])) * -omega * nBar[loopcf];
     }
-    double[] sigmaBar = new double[nbSigma];
+    final double[] sigmaBar = new double[nbSigma];
     for (int loopcf = 0; loopcf < 2; loopcf++) {
       for (int loopsigma = 0; loopsigma < nbSigma; loopsigma++) {
         sigmaBar[loopsigma] += alphaDerivatives[loopcf][loopsigma] * alphaBar[loopcf];

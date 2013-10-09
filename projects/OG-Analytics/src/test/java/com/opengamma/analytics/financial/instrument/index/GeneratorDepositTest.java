@@ -7,7 +7,6 @@ package com.opengamma.analytics.financial.instrument.index;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
-import static org.threeten.bp.temporal.ChronoUnit.MONTHS;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
@@ -72,7 +71,7 @@ public class GeneratorDepositTest {
 
   @Test
   public void usdDeposit() {
-    GeneratorDeposit preDefined = new USDDeposit(CALENDAR);
+    final GeneratorDeposit preDefined = new USDDeposit(CALENDAR);
     assertEquals("Generator Deposit: getter", CUR, preDefined.getCurrency());
     assertEquals("Generator Deposit: getter", CALENDAR, preDefined.getCalendar());
     assertEquals("Generator Deposit: getter", SETTLEMENT_DAYS, preDefined.getSpotLag());
@@ -84,7 +83,7 @@ public class GeneratorDepositTest {
   @Test
   public void equalHash() {
     assertEquals(GENERATOR_DEPOSIT_USD, GENERATOR_DEPOSIT_USD);
-    GeneratorDeposit duplicate = new GeneratorDeposit(NAME, CUR, CALENDAR, SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, IS_EOM);
+    final GeneratorDeposit duplicate = new GeneratorDeposit(NAME, CUR, CALENDAR, SETTLEMENT_DAYS, DAY_COUNT, BUSINESS_DAY, IS_EOM);
     assertEquals("Generator Deposit: equal-hash", GENERATOR_DEPOSIT_USD, duplicate);
     assertEquals("Generator Deposit: equal-hash", GENERATOR_DEPOSIT_USD.hashCode(), duplicate.hashCode());
     GeneratorDeposit other;
@@ -104,16 +103,16 @@ public class GeneratorDepositTest {
 
   @Test
   public void generateInstrument() {
-    ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 7, 17);
-    Period tenor = Period.ofMonths(6);
-    double rate = 0.01;
-    double notional = 12345;
-    GeneratorAttributeIR attribute = new GeneratorAttributeIR(tenor);
-    CashDefinition insGenerated = GENERATOR_DEPOSIT_USD.generateInstrument(referenceDate, rate, notional, attribute);
-    ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(referenceDate, SETTLEMENT_DAYS, CALENDAR);
-    ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, tenor, BUSINESS_DAY, CALENDAR, IS_EOM);
-    double accrualFactor = DAY_COUNT.getDayCountFraction(startDate, endDate);
-    CashDefinition insExpected = new CashDefinition(CUR, startDate, endDate, notional, rate, accrualFactor);
+    final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 7, 17);
+    final Period tenor = Period.ofMonths(6);
+    final double rate = 0.01;
+    final double notional = 12345;
+    final GeneratorAttributeIR attribute = new GeneratorAttributeIR(tenor);
+    final CashDefinition insGenerated = GENERATOR_DEPOSIT_USD.generateInstrument(referenceDate, rate, notional, attribute);
+    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(referenceDate, SETTLEMENT_DAYS, CALENDAR);
+    final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, tenor, BUSINESS_DAY, CALENDAR, IS_EOM);
+    final double accrualFactor = DAY_COUNT.getDayCountFraction(startDate, endDate);
+    final CashDefinition insExpected = new CashDefinition(CUR, startDate, endDate, notional, rate, accrualFactor);
     assertEquals("Generator Deposit: generate instrument", insExpected, insGenerated);
   }
 

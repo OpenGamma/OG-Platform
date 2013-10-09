@@ -89,6 +89,12 @@ public class OptionFunctions extends AbstractFunctionConfigurationBean {
         FXDigitalCallSpreadBlackFunction.CALL_SPREAD_BLACK_METHOD));
   }
 
+  /**
+   * Adds Black functions for FX options to the repository
+   * @return A function configuration source populated with FX option Black functions
+   * @deprecated The functions that are added are deprecated
+   */
+  @Deprecated
   protected FunctionConfigurationSource blackFunctionConfiguration() {
     return BlackFunctions.instance();
   }

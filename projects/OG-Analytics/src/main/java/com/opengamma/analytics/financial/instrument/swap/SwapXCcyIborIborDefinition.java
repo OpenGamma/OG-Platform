@@ -97,6 +97,11 @@ public class SwapXCcyIborIborDefinition extends SwapDefinition {
     return visitor.visitSwapXCcyIborIborDefinition(this);
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public Swap<Payment, Payment> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.isTrue(yieldCurveNames.length >= 4, "Should have at least 4 curve names");
@@ -107,6 +112,11 @@ public class SwapXCcyIborIborDefinition extends SwapDefinition {
     return new Swap<>(firstLeg, secondLeg);
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public Swap<Payment, Payment> toDerivative(final ZonedDateTime date, final ZonedDateTimeDoubleTimeSeries[] indexDataTS, final String... yieldCurveNames) {
     ArgumentChecker.notNull(indexDataTS, "index data time series array");
@@ -116,6 +126,22 @@ public class SwapXCcyIborIborDefinition extends SwapDefinition {
     final String[] secondLegCurveNames = new String[] {yieldCurveNames[2], yieldCurveNames[3] };
     final Annuity<Payment> firstLeg = (Annuity<Payment>) getFirstLeg().toDerivative(date, indexDataTS[0], firstLegCurveNames);
     final Annuity<Payment> secondLeg = (Annuity<Payment>) getSecondLeg().toDerivative(date, indexDataTS[1], secondLegCurveNames);
+    return new Swap<>(firstLeg, secondLeg);
+  }
+
+  @Override
+  public Swap<Payment, Payment> toDerivative(final ZonedDateTime date) {
+    final Annuity<Payment> firstLeg = (Annuity<Payment>) getFirstLeg().toDerivative(date);
+    final Annuity<Payment> secondLeg = (Annuity<Payment>) getSecondLeg().toDerivative(date);
+    return new Swap<>(firstLeg, secondLeg);
+  }
+
+  @Override
+  public Swap<Payment, Payment> toDerivative(final ZonedDateTime date, final ZonedDateTimeDoubleTimeSeries[] indexDataTS) {
+    ArgumentChecker.notNull(indexDataTS, "index data time series array");
+    ArgumentChecker.isTrue(indexDataTS.length > 1, "index data time series must contain at least two elements");
+    final Annuity<Payment> firstLeg = (Annuity<Payment>) getFirstLeg().toDerivative(date, indexDataTS[0]);
+    final Annuity<Payment> secondLeg = (Annuity<Payment>) getSecondLeg().toDerivative(date, indexDataTS[1]);
     return new Swap<>(firstLeg, secondLeg);
   }
 }

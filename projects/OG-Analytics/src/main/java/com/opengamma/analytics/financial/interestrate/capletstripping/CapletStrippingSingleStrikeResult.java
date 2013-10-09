@@ -1,12 +1,11 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.capletstripping;
 
 import com.opengamma.analytics.financial.model.volatility.VolatilityTermStructure;
-import com.opengamma.analytics.financial.model.volatility.curve.VolatilityCurve;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.ArgumentChecker;
 
@@ -21,13 +20,13 @@ public class CapletStrippingSingleStrikeResult {
   private final DoubleMatrix1D _modelPrices;
 
   /**
-   * 
-   * @param chiSq The chi-square of the fit. This will be zero (to the stopping tolerance) for root finding based strippers 
+   *
+   * @param chiSq The chi-square of the fit. This will be zero (to the stopping tolerance) for root finding based strippers
    * @param fitParms The fit parameters from running the stripping routine. The model prices and volatility curve are derived from the fitted parameters via the
    * model used in the stripping routine.
-   * @param volCurve The volatility curve for the caplets that <i>best</i> reproduces the model cap prices  
-   * @param modelPrices The cap prices produced by the stripping - these will be identical (to within tolerance) to the market prices for root finding based 
-  * routines, but could differ for least-squares 
+   * @param volCurve The volatility curve for the caplets that <i>best</i> reproduces the model cap prices
+   * @param modelPrices The cap prices produced by the stripping - these will be identical (to within tolerance) to the market prices for root finding based
+  * routines, but could differ for least-squares
    */
   public CapletStrippingSingleStrikeResult(final double chiSq, final DoubleMatrix1D fitParms, final VolatilityTermStructure volCurve, final DoubleMatrix1D modelPrices) {
     ArgumentChecker.isTrue(chiSq >= 0, "Negative chiSq");

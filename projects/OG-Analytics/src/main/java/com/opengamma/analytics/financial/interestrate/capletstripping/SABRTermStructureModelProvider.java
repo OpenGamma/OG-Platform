@@ -1,15 +1,12 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.capletstripping;
 
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-
-import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.model.volatility.SABRTermStructureParameters;
 import com.opengamma.analytics.financial.model.volatility.VolatilityModel1D;
@@ -20,6 +17,7 @@ import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.TransformedInterpolator1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.minimization.ParameterLimitsTransform;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Gives the (Black) volatility for a given forward, strike and time-to-expiry based on a SABR term structure model - i.e., alpha, beta, nu
@@ -39,28 +37,28 @@ public class SABRTermStructureModelProvider extends VolatilityModelProvider {
 
   /**
    * General set up for a SABRTermStructureModelProvider
-   * @param knotPoints Map between parameter curve names ("alpha", "beta", "rho" and "nu") and the positions of the knot points on each of those curves 
-   * @param interpolators  Map between parameter curve names ("alpha", "beta", "rho" and "nu") and the interpolator used to describe that curve 
+   * @param knotPoints Map between parameter curve names ("alpha", "beta", "rho" and "nu") and the positions of the knot points on each of those curves
+   * @param interpolators  Map between parameter curve names ("alpha", "beta", "rho" and "nu") and the interpolator used to describe that curve
    * @param parameterTransforms  Map between parameter curve names ("alpha", "beta", "rho" and "nu") and the parameter transform used for that curve
    * @param knownParameterTermSturctures  Map between known curve names (could be "alpha", "beta", "rho" and "nu") and the known curve(s)
    */
-  public SABRTermStructureModelProvider(LinkedHashMap<String, double[]> knotPoints, final LinkedHashMap<String, Interpolator1D> interpolators,
+  public SABRTermStructureModelProvider(final LinkedHashMap<String, double[]> knotPoints, final LinkedHashMap<String, Interpolator1D> interpolators,
       final LinkedHashMap<String, ParameterLimitsTransform> parameterTransforms, final LinkedHashMap<String, InterpolatedDoublesCurve> knownParameterTermSturctures) {
 
-    Validate.notNull(knotPoints, "null node points");
-    Validate.notNull(interpolators, "null interpolators");
-    Validate.isTrue(knotPoints.size() == interpolators.size(), "size mismatch between nodes and interpolators");
+    ArgumentChecker.notNull(knotPoints, "null node points");
+    ArgumentChecker.notNull(interpolators, "null interpolators");
+    ArgumentChecker.isTrue(knotPoints.size() == interpolators.size(), "size mismatch between nodes and interpolators");
 
     if (knownParameterTermSturctures == null) {
-      Validate.isTrue(knotPoints.containsKey(ALPHA) && interpolators.containsKey(ALPHA), "alpha curve not found");
-      Validate.isTrue(knotPoints.containsKey(BETA) && interpolators.containsKey(BETA), "beta curve not found");
-      Validate.isTrue(knotPoints.containsKey(NU) && interpolators.containsKey(NU), "nu curve not found");
-      Validate.isTrue(knotPoints.containsKey(RHO) && interpolators.containsKey(RHO), "rho curve not found");
+      ArgumentChecker.isTrue(knotPoints.containsKey(ALPHA) && interpolators.containsKey(ALPHA), "alpha curve not found");
+      ArgumentChecker.isTrue(knotPoints.containsKey(BETA) && interpolators.containsKey(BETA), "beta curve not found");
+      ArgumentChecker.isTrue(knotPoints.containsKey(NU) && interpolators.containsKey(NU), "nu curve not found");
+      ArgumentChecker.isTrue(knotPoints.containsKey(RHO) && interpolators.containsKey(RHO), "rho curve not found");
     } else {
-      Validate.isTrue((knotPoints.containsKey(ALPHA) && interpolators.containsKey(ALPHA)) ^ knownParameterTermSturctures.containsKey(ALPHA), "alpha curve not found");
-      Validate.isTrue((knotPoints.containsKey(BETA) && interpolators.containsKey(BETA)) ^ knownParameterTermSturctures.containsKey(BETA), "beta curve not found");
-      Validate.isTrue((knotPoints.containsKey(NU) && interpolators.containsKey(NU)) ^ knownParameterTermSturctures.containsKey(NU), "nu curve not found");
-      Validate.isTrue((knotPoints.containsKey(RHO) && interpolators.containsKey(RHO)) ^ knownParameterTermSturctures.containsKey(RHO), "rho curve not found");
+      ArgumentChecker.isTrue((knotPoints.containsKey(ALPHA) && interpolators.containsKey(ALPHA)) ^ knownParameterTermSturctures.containsKey(ALPHA), "alpha curve not found");
+      ArgumentChecker.isTrue((knotPoints.containsKey(BETA) && interpolators.containsKey(BETA)) ^ knownParameterTermSturctures.containsKey(BETA), "beta curve not found");
+      ArgumentChecker.isTrue((knotPoints.containsKey(NU) && interpolators.containsKey(NU)) ^ knownParameterTermSturctures.containsKey(NU), "nu curve not found");
+      ArgumentChecker.isTrue((knotPoints.containsKey(RHO) && interpolators.containsKey(RHO)) ^ knownParameterTermSturctures.containsKey(RHO), "rho curve not found");
     }
 
     final LinkedHashMap<String, Interpolator1D> transInterpolators = new LinkedHashMap<>();
@@ -78,7 +76,7 @@ public class SABRTermStructureModelProvider extends VolatilityModelProvider {
   }
 
   /**
-   * @param x The concatenated nodes that form the interpolated SABR parameter curves 
+   * @param x The concatenated nodes that form the interpolated SABR parameter curves
    * @return a VolatilityModel1D (SABRTermStructureParameters)
    */
   @Override

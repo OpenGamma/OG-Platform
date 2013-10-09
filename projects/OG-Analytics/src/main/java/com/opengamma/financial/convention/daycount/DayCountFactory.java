@@ -13,6 +13,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 
+import org.joda.convert.FromString;
+
 import com.google.common.collect.Iterators;
 import com.opengamma.OpenGammaRuntimeException;
 
@@ -38,6 +40,25 @@ public final class DayCountFactory {
    */
   private final Collection<DayCount> _conventions;
 
+  //-------------------------------------------------------------------------
+  /**
+   * Gets a convention by name.
+   * Matching is case insensitive.
+   * 
+   * @param name  the name, not null
+   * @return the convention, not null
+   * @throws IllegalArgumentException if not found
+   */
+  @FromString
+  public static DayCount of(final String name) {
+    DayCount result = DayCountFactory.INSTANCE.getDayCount(name);
+    if (result == null) {
+      throw new IllegalArgumentException("Unknown DayCount: " + name);
+    }
+    return result;
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Creates the factory
    */
@@ -68,6 +89,7 @@ public final class DayCountFactory {
   /**
    * Gets a convention by name.
    * Matching is case insensitive.
+   * 
    * @param name  the name, not null
    * @return the convention, null if not found
    */

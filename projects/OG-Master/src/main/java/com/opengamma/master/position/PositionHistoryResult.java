@@ -98,6 +98,7 @@ public class PositionHistoryResult extends AbstractHistoryResult<PositionDocumen
   public static PositionHistoryResult.Meta meta() {
     return PositionHistoryResult.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(PositionHistoryResult.Meta.INSTANCE);
   }

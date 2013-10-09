@@ -46,6 +46,7 @@ import com.opengamma.util.ArgumentChecker;
  * it to a view process, handling events from the engine and forwarding data to the
  * {@code ViewClient}.
  */
+@SuppressWarnings("deprecation")
 /* package */ class AnalyticsViewClientConnection {
 
   private static final Logger s_logger = LoggerFactory.getLogger(AnalyticsViewClientConnection.class);
@@ -126,6 +127,9 @@ import com.opengamma.util.ArgumentChecker;
    * @return The specs needed to look up the sources the user requested
    */
   private List<MarketDataSpecification> fixMarketDataSpecs(List<MarketDataSpecification> requestedMarketDataSpecs) {
+    if (_marketDataSpecRepo == null) {
+      return requestedMarketDataSpecs;
+    }
     List<MarketDataSpecification> specs = Lists.newArrayListWithCapacity(requestedMarketDataSpecs.size());
     for (MarketDataSpecification spec : requestedMarketDataSpecs) {
       if (spec instanceof LiveMarketDataSpecification) {
@@ -159,7 +163,7 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   /**
-   * Disconects from the engine and releases all resources. This should only be called once.
+   * Disconnects from the engine and releases all resources. This should only be called once.
    */
   /* package */ void close() {
     try {
@@ -245,6 +249,8 @@ import com.opengamma.util.ArgumentChecker;
     @Override
     public void viewDefinitionCompilationFailed(Instant valuationTime, Exception exception) {
       s_logger.warn("Compilation of the view definition failed", exception);
+      // the underlying cause is more interesting when a view fails to compile
+      _view.viewCompilationFailed(exception.getCause());
     }
   }
 

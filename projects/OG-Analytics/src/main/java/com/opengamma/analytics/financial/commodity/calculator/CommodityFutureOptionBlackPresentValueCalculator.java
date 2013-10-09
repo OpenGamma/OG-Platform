@@ -28,6 +28,9 @@ public final class CommodityFutureOptionBlackPresentValueCalculator extends Inst
     return s_instance;
   }
 
+  /**
+   * Private constructor.
+   */
   private CommodityFutureOptionBlackPresentValueCalculator() {
   }
 

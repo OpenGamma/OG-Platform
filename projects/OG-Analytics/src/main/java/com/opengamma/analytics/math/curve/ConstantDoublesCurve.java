@@ -69,7 +69,7 @@ public class ConstantDoublesCurve extends DoublesCurve {
    */
   @Override
   public Double[] getYData() {
-    return new Double[] {_y};
+    return new Double[] {_y };
   }
 
   /**
@@ -82,8 +82,8 @@ public class ConstantDoublesCurve extends DoublesCurve {
   }
 
   @Override
-  public Double[] getYValueParameterSensitivity(Double x) {
-    return new Double[] {1.0d};
+  public Double[] getYValueParameterSensitivity(final Double x) {
+    return new Double[] {1.0d };
   }
 
   /**
@@ -136,5 +136,13 @@ public class ConstantDoublesCurve extends DoublesCurve {
   @Override
   public String toString() {
     return "ConstantDoublesCurve[name=" + getName() + ", y=" + _y + "]";
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public double getDyDx(final double x) {
+    return 0;
   }
 }

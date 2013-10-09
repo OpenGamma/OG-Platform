@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.provider;
@@ -40,7 +40,6 @@ public class InterestRateFutureSecurityDiscountingMethodTest {
   private static final IborIndex[] IBOR_INDEXES = MulticurveProviderDiscountDataSets.getIndexesIborMulticurveEurUsd();
   private static final IborIndex EURIBOR3M = IBOR_INDEXES[0];
 
-  private static final String NOT_USED = "Not used";
   //EURIBOR 3M Index
   private static final Period TENOR = Period.ofMonths(3);
   private static final int SETTLEMENT_DAYS = 2;
@@ -63,7 +62,7 @@ public class InterestRateFutureSecurityDiscountingMethodTest {
   private static final double FIXING_END_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE_ZONED, FIXING_END_DATE);
   private static final double FIXING_ACCRUAL = DAY_COUNT_INDEX.getDayCountFraction(SPOT_LAST_TRADING_DATE, FIXING_END_DATE);
   private static final InterestRateFutureSecurity ERU2 = new InterestRateFutureSecurity(LAST_TRADING_TIME, EURIBOR3M, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, NOTIONAL, FUTURE_FACTOR,
-      NAME, NOT_USED, NOT_USED);
+      NAME);
 
   private static final InterestRateFutureSecurityDiscountingMethod METHOD_IRFUT_SEC_DSC = InterestRateFutureSecurityDiscountingMethod.getInstance();
 

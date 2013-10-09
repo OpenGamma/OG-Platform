@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.swaption.method;
@@ -10,10 +10,13 @@ import com.opengamma.analytics.financial.interestrate.method.SuccessiveRootFinde
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.analytics.financial.model.interestrate.definition.LiborMarketModelDisplacedDiffusionDataBundle;
 import com.opengamma.analytics.financial.model.interestrate.definition.LiborMarketModelDisplacedDiffusionParameters;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Specific objective function for LMM calibration with swaptions.
+ * @deprecated {@link YieldCurveBundle} is deprecated
  */
+@Deprecated
 public class SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationObjective extends SuccessiveRootFinderCalibrationObjective {
 
   /**
@@ -42,11 +45,12 @@ public class SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationObjective exten
   private final double[][] _volatilityInit;
 
   /**
-   * Constructor of the objective function with the LMM parameters. The parameters range and accuracy are set at some default value 
+   * Constructor of the objective function with the LMM parameters. The parameters range and accuracy are set at some default value
    * (minimum: 1.0E-1; maximum: 1.0E+1, function value accuracy: 1.0E-4; parameter absolute accuracy: 1.0E-9).
    * @param parameters The Hull-White parameters.
    */
   public SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationObjective(final LiborMarketModelDisplacedDiffusionParameters parameters) {
+    ArgumentChecker.notNull(parameters, "parameters");
     _lmmParameters = parameters;
     setMinimumParameter(1.0E-1);
     setMaximumParameter(1.0E+1);
@@ -77,7 +81,7 @@ public class SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationObjective exten
   }
 
   @Override
-  public void setCurves(YieldCurveBundle curves) {
+  public void setCurves(final YieldCurveBundle curves) {
     _lmmBundle = new LiborMarketModelDisplacedDiffusionDataBundle(_lmmParameters, curves);
   }
 
@@ -93,7 +97,7 @@ public class SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationObjective exten
    * Sets the start index.
    * @param startIndex The start index.
    */
-  public void setStartIndex(int startIndex) {
+  public void setStartIndex(final int startIndex) {
     _startIndex = startIndex;
   }
 
@@ -109,7 +113,7 @@ public class SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationObjective exten
    * Sets the end index.
    * @param endIndex The end index.
    */
-  public void setEndIndex(int endIndex) {
+  public void setEndIndex(final int endIndex) {
     _endIndex = endIndex;
   }
 
@@ -122,9 +126,9 @@ public class SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationObjective exten
   }
 
   @Override
-  public Double evaluate(Double x) {
-    int nbVol = _endIndex - _startIndex + 1;
-    double[][] volChanged = new double[nbVol][_lmmParameters.getNbFactor()];
+  public Double evaluate(final Double x) {
+    final int nbVol = _endIndex - _startIndex + 1;
+    final double[][] volChanged = new double[nbVol][_lmmParameters.getNbFactor()];
     for (int loopperiod = 0; loopperiod < nbVol; loopperiod++) {
       for (int loopfact = 0; loopfact < _lmmParameters.getNbFactor(); loopfact++) {
         volChanged[loopperiod][loopfact] = _volatilityInit[loopperiod + _startIndex][loopfact] * x;

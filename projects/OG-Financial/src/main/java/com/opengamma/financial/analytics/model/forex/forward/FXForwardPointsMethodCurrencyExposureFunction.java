@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.forex.forward;
@@ -24,12 +24,14 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveDefinition;
 import com.opengamma.financial.analytics.model.CalculationPropertyNamesAndValues;
-import com.opengamma.financial.security.fx.FXUtils;
+import com.opengamma.financial.analytics.model.fx.FXForwardPointsCurrencyExposureFunction;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
- * 
+ * Calculates the currency exposure of an FX forward using FX forward rates directly.
+ * @deprecated Use {@link FXForwardPointsCurrencyExposureFunction}
  */
+@Deprecated
 public class FXForwardPointsMethodCurrencyExposureFunction extends FXForwardPointsMethodFunction {
   private static final ForexForwardPointsMethod CALCULATOR = ForexForwardPointsMethod.getInstance();
 
@@ -44,7 +46,7 @@ public class FXForwardPointsMethodCurrencyExposureFunction extends FXForwardPoin
     final MultipleCurrencyAmount mca = CALCULATOR.currencyExposure(fxForward, data, forwardPoints);
     final ValueProperties properties = getResultProperties(Iterables.getOnlyElement(desiredValues), target).get();
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.FX_CURRENCY_EXPOSURE, target.toSpecification(), properties);
-    return Collections.singleton(new ComputedValue(spec, FXUtils.getMultipleCurrencyAmountAsMatrix(mca)));
+    return Collections.singleton(new ComputedValue(spec, mca));
   }
 
   @Override

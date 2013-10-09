@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.curve.exposure;
@@ -11,6 +11,7 @@ import java.util.List;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.security.bond.CorporateBondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
+import com.opengamma.financial.security.bond.InflationBondSecurity;
 import com.opengamma.financial.security.bond.MunicipalBondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
@@ -42,6 +43,7 @@ import com.opengamma.financial.security.future.EnergyFutureSecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
 import com.opengamma.financial.security.future.FXFutureSecurity;
+import com.opengamma.financial.security.future.FederalFundsFutureSecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
@@ -67,11 +69,13 @@ import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.financial.security.swap.YearOnYearInflationSwapSecurity;
+import com.opengamma.financial.security.swap.ZeroCouponInflationSwapSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 
 /**
- * 
+ *
  */
 public class ContractCategoryExposureFunction implements ExposureFunction {
   private final SecuritySource _securitySource;
@@ -80,11 +84,16 @@ public class ContractCategoryExposureFunction implements ExposureFunction {
     _securitySource = securitySource;
   }
 
-  private List<ExternalId> getContractType(final FutureSecurity security) {
+  @Override
+  public String getName() {
+    return "Contract Category";
+  }
+
+  private static List<ExternalId> getContractType(final FutureSecurity security) {
     return Arrays.asList(ExternalId.of(CONTRACT_IDENTIFIER, security.getContractCategory()));
   }
 
-  private List<ExternalId> getContractType(final CommodityForwardSecurity security) {
+  private static List<ExternalId> getContractType(final CommodityForwardSecurity security) {
     return Arrays.asList(ExternalId.of(CONTRACT_IDENTIFIER, security.getContractCategory()));
   }
 
@@ -130,6 +139,11 @@ public class ContractCategoryExposureFunction implements ExposureFunction {
 
   @Override
   public List<ExternalId> visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
+    return getContractType(security);
+  }
+
+  @Override
+  public List<ExternalId> visitFederalFundsFutureSecurity(final FederalFundsFutureSecurity security) {
     return getContractType(security);
   }
 
@@ -270,6 +284,11 @@ public class ContractCategoryExposureFunction implements ExposureFunction {
   }
 
   @Override
+  public List<ExternalId> visitInflationBondSecurity(final InflationBondSecurity security) {
+    return null;
+  }
+
+  @Override
   public List<ExternalId> visitNonDeliverableFXDigitalOptionSecurity(final NonDeliverableFXDigitalOptionSecurity security) {
     return null;
   }
@@ -371,6 +390,16 @@ public class ContractCategoryExposureFunction implements ExposureFunction {
 
   @Override
   public List<ExternalId> visitCreditDefaultSwapOptionSecurity(final CreditDefaultSwapOptionSecurity security) {
+    return null;
+  }
+
+  @Override
+  public List<ExternalId> visitZeroCouponInflationSwapSecurity(final ZeroCouponInflationSwapSecurity security) {
+    return null;
+  }
+
+  @Override
+  public List<ExternalId> visitYearOnYearInflationSwapSecurity(final YearOnYearInflationSwapSecurity security) {
     return null;
   }
 

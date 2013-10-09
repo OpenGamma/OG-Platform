@@ -13,11 +13,12 @@
 'CAPM Regression Beta' java.lang.Double
 'Clean Price' java.lang.Double
 'CreditSpreadCurve' com.opengamma.analytics.math.curve.NodalObjectsCurve
+'Curve P&L Series' com.opengamma.financial.analytics.TenorLabelledLocalDateDoubleTimeSeriesMatrix1D
 'Dirty Price' java.lang.Double
 'FX Present Value' com.opengamma.financial.analytics.CurrencyLabelledMatrix1D
 'Forward' java.lang.Double
 'ForwardCurve' com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve
-'HazardRateCurve' com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve
+'HazardRateCurve' com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantCurve
 'HistoricalVaR Standard Deviation' java.lang.Double
 'HistoricalVaR' java.lang.Double
 'Implied Volatility' java.lang.Double
@@ -43,7 +44,6 @@
 'Security Market Price' java.lang.Double
 'Sharpe Ratio' java.lang.Double
 'Spot' java.lang.Double
-'StandardVolatilitySurfaceData' com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData
 'Total Risk Alpha' java.lang.Double
 'Treynor Ratio' java.lang.Double
 'Underlying Market Price' java.lang.Double

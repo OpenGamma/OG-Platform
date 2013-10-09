@@ -35,7 +35,7 @@ public class OvernightCurveTypeConfiguration extends CurveTypeConfiguration {
   private ExternalId _convention;
 
   /**
-   * For the fudge builder
+   * For the builder.
    */
   /* package */ OvernightCurveTypeConfiguration() {
     super();
@@ -58,6 +58,7 @@ public class OvernightCurveTypeConfiguration extends CurveTypeConfiguration {
   public static OvernightCurveTypeConfiguration.Meta meta() {
     return OvernightCurveTypeConfiguration.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(OvernightCurveTypeConfiguration.Meta.INSTANCE);
   }

@@ -1,11 +1,12 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.derivative;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertFalse;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
@@ -38,7 +39,7 @@ public class CapFloorIborTest {
   private static final DayCount DAY_COUNT_INDEX = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
-  private static final IborIndex INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM);
+  private static final IborIndex INDEX = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, DAY_COUNT_INDEX, BUSINESS_DAY, IS_EOM, "Ibor");
 
   private static final double NOTIONAL = 1000000;
   private static final double STRIKE = 0.04;
@@ -61,12 +62,9 @@ public class CapFloorIborTest {
   private static final double FIXING_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_ZONED, FIXING_DATE);
   private static final double FIXING_START_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_ZONED, FIXING_START_DATE);
   private static final double FIXING_END_TIME = ACT_ACT.getDayCountFraction(REFERENCE_DATE_ZONED, FIXING_END_DATE);
-  // Curves
-  private static final String FUNDING_CURVE_NAME = "Funding";
-  private static final String FORWARD_CURVE_NAME = "Forward";
 
-  private static final CapFloorIbor CAP = new CapFloorIbor(CUR, PAYMENT_TIME, FUNDING_CURVE_NAME, PAYMENT_YEAR_FRACTION, NOTIONAL, FIXING_TIME, INDEX, FIXING_START_TIME, FIXING_END_TIME,
-      FIXING_YEAR_FRACTION, FORWARD_CURVE_NAME, STRIKE, IS_CAP);
+  private static final CapFloorIbor CAP = new CapFloorIbor(CUR, PAYMENT_TIME, PAYMENT_YEAR_FRACTION, NOTIONAL, FIXING_TIME, INDEX, FIXING_START_TIME, FIXING_END_TIME,
+      FIXING_YEAR_FRACTION, STRIKE, IS_CAP);
 
   @Test
   public void testGetters() {
@@ -79,12 +77,67 @@ public class CapFloorIborTest {
   @Test
   public void withStrike() {
     final double otherStrike = STRIKE + 0.01;
-    final CapFloorIbor otherCap = new CapFloorIbor(CUR, PAYMENT_TIME, FUNDING_CURVE_NAME, PAYMENT_YEAR_FRACTION, NOTIONAL, FIXING_TIME, INDEX, FIXING_START_TIME, FIXING_END_TIME,
-        FIXING_YEAR_FRACTION,
-        FORWARD_CURVE_NAME, otherStrike, IS_CAP);
+    final CapFloorIbor otherCap = new CapFloorIbor(CUR, PAYMENT_TIME, PAYMENT_YEAR_FRACTION, NOTIONAL, FIXING_TIME, INDEX, FIXING_START_TIME, FIXING_END_TIME,
+        FIXING_YEAR_FRACTION, otherStrike, IS_CAP);
     final CapFloorIbor otherCapWith = CAP.withStrike(otherStrike);
     assertEquals("Strike", otherStrike, otherCapWith.getStrike());
     assertEquals("Pay-off", otherCap, otherCapWith);
   }
 
+  @Test
+  public void withNotional() {
+    final double notional = NOTIONAL + 10000;
+    final CapFloorIbor cap = new CapFloorIbor(CUR, PAYMENT_TIME, PAYMENT_YEAR_FRACTION, notional, FIXING_TIME, INDEX, FIXING_START_TIME, FIXING_END_TIME,
+        FIXING_YEAR_FRACTION, STRIKE, IS_CAP);
+    assertEquals(cap, CAP.withNotional(notional));
+  }
+
+  @Test
+  public void testToCoupon() {
+
+  }
+
+  @Test
+  public void testHashCodeEquals() {
+    final CapFloorIbor cap = new CapFloorIbor(CUR, PAYMENT_TIME, PAYMENT_YEAR_FRACTION, NOTIONAL, FIXING_TIME, INDEX, FIXING_START_TIME, FIXING_END_TIME,
+        FIXING_YEAR_FRACTION, STRIKE, IS_CAP);
+    CapFloorIbor other = new CapFloorIbor(CUR, PAYMENT_TIME, PAYMENT_YEAR_FRACTION, NOTIONAL, FIXING_TIME, INDEX, FIXING_START_TIME, FIXING_END_TIME,
+        FIXING_YEAR_FRACTION, STRIKE, IS_CAP);
+    assertEquals(cap, other);
+    assertEquals(cap.hashCode(), other.hashCode());
+    other = new CapFloorIbor(Currency.AUD, PAYMENT_TIME, PAYMENT_YEAR_FRACTION, NOTIONAL, FIXING_TIME, INDEX, FIXING_START_TIME, FIXING_END_TIME,
+        FIXING_YEAR_FRACTION, STRIKE, IS_CAP);
+    assertFalse(other.equals(cap));
+    other = new CapFloorIbor(CUR, PAYMENT_TIME + 1, PAYMENT_YEAR_FRACTION, NOTIONAL, FIXING_TIME, INDEX, FIXING_START_TIME, FIXING_END_TIME,
+        FIXING_YEAR_FRACTION, STRIKE, IS_CAP);
+    assertFalse(other.equals(cap));
+    other = new CapFloorIbor(CUR, PAYMENT_TIME, PAYMENT_YEAR_FRACTION + 1, NOTIONAL, FIXING_TIME, INDEX, FIXING_START_TIME, FIXING_END_TIME,
+        FIXING_YEAR_FRACTION, STRIKE, IS_CAP);
+    assertFalse(other.equals(cap));
+    other = new CapFloorIbor(CUR, PAYMENT_TIME, PAYMENT_YEAR_FRACTION, NOTIONAL + 1, FIXING_TIME, INDEX, FIXING_START_TIME, FIXING_END_TIME,
+        FIXING_YEAR_FRACTION, STRIKE, IS_CAP);
+    assertFalse(other.equals(cap));
+    other = new CapFloorIbor(CUR, PAYMENT_TIME, PAYMENT_YEAR_FRACTION, NOTIONAL, FIXING_TIME - 1e-8, INDEX, FIXING_START_TIME, FIXING_END_TIME,
+        FIXING_YEAR_FRACTION, STRIKE, IS_CAP);
+    assertFalse(other.equals(cap));
+    final IborIndex index = new IborIndex(CUR, TENOR, SETTLEMENT_DAYS, DAY_COUNT_INDEX, BUSINESS_DAY, !IS_EOM, "Ibor");
+    other = new CapFloorIbor(CUR, PAYMENT_TIME, PAYMENT_YEAR_FRACTION, NOTIONAL, FIXING_TIME, index, FIXING_START_TIME, FIXING_END_TIME,
+        FIXING_YEAR_FRACTION, STRIKE, IS_CAP);
+    assertFalse(other.equals(cap));
+    other = new CapFloorIbor(CUR, PAYMENT_TIME, PAYMENT_YEAR_FRACTION, NOTIONAL, FIXING_TIME, INDEX, FIXING_START_TIME - 1e-8, FIXING_END_TIME,
+        FIXING_YEAR_FRACTION, STRIKE, IS_CAP);
+    assertFalse(other.equals(cap));
+    other = new CapFloorIbor(CUR, PAYMENT_TIME, PAYMENT_YEAR_FRACTION, NOTIONAL, FIXING_TIME, INDEX, FIXING_START_TIME, FIXING_END_TIME + 1,
+        FIXING_YEAR_FRACTION, STRIKE, IS_CAP);
+    assertFalse(other.equals(cap));
+    other = new CapFloorIbor(CUR, PAYMENT_TIME, PAYMENT_YEAR_FRACTION, NOTIONAL, FIXING_TIME, INDEX, FIXING_START_TIME, FIXING_END_TIME,
+        FIXING_YEAR_FRACTION + 1, STRIKE, IS_CAP);
+    assertFalse(other.equals(cap));
+    other = new CapFloorIbor(CUR, PAYMENT_TIME, PAYMENT_YEAR_FRACTION, NOTIONAL, FIXING_TIME, INDEX, FIXING_START_TIME, FIXING_END_TIME,
+        FIXING_YEAR_FRACTION, STRIKE + 1, IS_CAP);
+    assertFalse(other.equals(cap));
+    other = new CapFloorIbor(CUR, PAYMENT_TIME, PAYMENT_YEAR_FRACTION, NOTIONAL, FIXING_TIME, INDEX, FIXING_START_TIME, FIXING_END_TIME,
+        FIXING_YEAR_FRACTION, STRIKE, !IS_CAP);
+    assertFalse(other.equals(cap));
+  }
 }

@@ -147,4 +147,25 @@ public final class SnapshotDataBundle {
     return Collections.unmodifiableSet(_dataPoints.entrySet());
   }
 
+  @Override
+  public boolean equals(Object o) {
+    // only check one id collection, assume both in sync
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    SnapshotDataBundle that = (SnapshotDataBundle) o;
+    if (_dataPoints.size() != that._dataPoints.size()) {
+      return false;
+    }
+    return _dataPoints.entrySet().containsAll(that._dataPoints.entrySet());
+  }
+
+  @Override
+  public int hashCode() {
+    return _dataPoints.hashCode();
+  }
+
 }

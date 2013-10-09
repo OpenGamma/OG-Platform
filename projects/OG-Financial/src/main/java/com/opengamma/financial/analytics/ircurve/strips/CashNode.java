@@ -82,7 +82,7 @@ public class CashNode extends CurveNode {
 
   @Override
   public Tenor getResolvedMaturity() {
-    return _maturityTenor;
+    return Tenor.of(_startTenor.getPeriod().plus(_maturityTenor.getPeriod())); // _maturityTenor;
   }
 
   @Override
@@ -100,6 +100,7 @@ public class CashNode extends CurveNode {
   public static CashNode.Meta meta() {
     return CashNode.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(CashNode.Meta.INSTANCE);
   }

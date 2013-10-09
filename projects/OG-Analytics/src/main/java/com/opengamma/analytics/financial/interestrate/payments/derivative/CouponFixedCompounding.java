@@ -55,9 +55,9 @@ public class CouponFixedCompounding extends Coupon {
    * @param paymentAccrualFactors The accrual factors (or year fraction) associated to the sub-periods not yet fixed.
    * @param rate the fixed rate. 
    */
-  public CouponFixedCompounding(Currency currency, double paymentTime, double paymentYearFraction, double notional,
-      double[] paymentAccrualFactors, double rate) {
-    super(currency, paymentTime, "", paymentYearFraction, notional);
+  public CouponFixedCompounding(final Currency currency, final double paymentTime, final double paymentYearFraction, final double notional,
+      final double[] paymentAccrualFactors, final double rate) {
+    super(currency, paymentTime, paymentYearFraction, notional);
     _paymentAccrualFactors = paymentAccrualFactors;
     _rate = rate;
     final int nbSubPeriod = paymentAccrualFactors.length;
@@ -82,18 +82,18 @@ public class CouponFixedCompounding extends Coupon {
   }
 
   @Override
-  public Coupon withNotional(double notional) {
+  public Coupon withNotional(final double notional) {
     return new CouponFixedCompounding(getCurrency(), getPaymentTime(), getPaymentYearFraction(), notional, _paymentAccrualFactors, _rate);
   }
 
   @Override
-  public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
     ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitCouponFixedCompounding(this, data);
   }
 
   @Override
-  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
     ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitCouponFixedCompounding(this);
   }
@@ -110,7 +110,7 @@ public class CouponFixedCompounding extends Coupon {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -120,7 +120,7 @@ public class CouponFixedCompounding extends Coupon {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    CouponFixedCompounding other = (CouponFixedCompounding) obj;
+    final CouponFixedCompounding other = (CouponFixedCompounding) obj;
     if (!Arrays.equals(_paymentAccrualFactors, other._paymentAccrualFactors)) {
       return false;
     }

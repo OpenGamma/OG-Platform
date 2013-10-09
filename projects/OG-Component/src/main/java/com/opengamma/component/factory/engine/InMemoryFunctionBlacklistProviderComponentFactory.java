@@ -88,6 +88,7 @@ public class InMemoryFunctionBlacklistProviderComponentFactory extends AbstractC
   public static InMemoryFunctionBlacklistProviderComponentFactory.Meta meta() {
     return InMemoryFunctionBlacklistProviderComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(InMemoryFunctionBlacklistProviderComponentFactory.Meta.INSTANCE);
   }

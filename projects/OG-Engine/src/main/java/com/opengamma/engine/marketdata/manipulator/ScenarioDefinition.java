@@ -15,7 +15,6 @@ import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import com.opengamma.core.config.Config;
 import com.opengamma.engine.function.FunctionParameters;
 import com.opengamma.util.ArgumentChecker;
 
@@ -27,7 +26,7 @@ import com.opengamma.util.ArgumentChecker;
  * ScenarioDefinitions can be stored in the config master and used in the
  * setup of ViewDefinitions.
  */
-public class ScenarioDefinition implements ScenarioDefinitionFactory{
+public class ScenarioDefinition implements ScenarioDefinitionFactory {
 
   private static final String NAME = "name";
   private static final String SELECTOR = "selector";

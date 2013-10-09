@@ -14,6 +14,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.management.ValueMappings;
 import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.target.ComputationTargetReferenceVisitor;
 import com.opengamma.engine.target.ComputationTargetRequirement;
@@ -59,17 +60,19 @@ public final class PrimitivesGridStructure extends MainGridStructure {
 
   private PrimitivesGridStructure(GridColumnGroup fixedColumns,
                                   GridColumnGroups nonFixedColumns,
-                                  TargetLookup targetLookup) {
-    super(fixedColumns, nonFixedColumns, targetLookup);
+                                  TargetLookup targetLookup,
+                                  UnversionedValueMappings valueMappings) {
+    super(fixedColumns, nonFixedColumns, targetLookup, valueMappings);
   }
 
   /* package */ static PrimitivesGridStructure create(CompiledViewDefinition compiledViewDef) {
     List<MainGridStructure.Row> rows = rows(compiledViewDef);
     GridColumn labelColumn = new GridColumn("Name", "", String.class, new PrimitivesLabelRenderer(rows));
     GridColumnGroup fixedColumns = new GridColumnGroup("fixed", ImmutableList.of(labelColumn), false);
-    TargetLookup targetLookup = new TargetLookup(new ValueMappings(compiledViewDef), rows);
+    UnversionedValueMappings valueMappings = new UnversionedValueMappings(compiledViewDef);
+    TargetLookup targetLookup = new TargetLookup(valueMappings, rows);
     List<GridColumnGroup> analyticsColumns = buildAnalyticsColumns(compiledViewDef.getViewDefinition(), targetLookup);
-    return new PrimitivesGridStructure(fixedColumns, new GridColumnGroups(analyticsColumns), targetLookup);
+    return new PrimitivesGridStructure(fixedColumns, new GridColumnGroups(analyticsColumns), targetLookup, valueMappings);
   }
 
   private static List<GridColumnGroup> buildAnalyticsColumns(ViewDefinition viewDef, TargetLookup targetLookup) {

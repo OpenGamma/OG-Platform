@@ -5,7 +5,6 @@
  */
 package com.opengamma.component.factory.engine;
 
-import java.net.URI;
 import java.util.Map;
 import java.util.concurrent.Executors;
 
@@ -58,6 +57,7 @@ public class RemoteViewProcessorComponentFactory extends AbstractRemoteComponent
   public static RemoteViewProcessorComponentFactory.Meta meta() {
     return RemoteViewProcessorComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(RemoteViewProcessorComponentFactory.Meta.INSTANCE);
   }

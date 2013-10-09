@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.convention;
@@ -36,7 +36,7 @@ public class DefaultConventionSource implements ConventionSource {
       case 0:
         return null;
       case 1:
-        return Iterables.getOnlyElement(result.getResults()).getValue();
+        return Iterables.getOnlyElement(result.getResults()).getConvention();
       default:
         throw new OpenGammaRuntimeException("Multiple matches (" + size + ") to " + identifier + "; expecting one");
     }
@@ -50,7 +50,7 @@ public class DefaultConventionSource implements ConventionSource {
       case 0:
         return null;
       case 1:
-        return Iterables.getOnlyElement(result.getResults()).getValue();
+        return Iterables.getOnlyElement(result.getResults()).getConvention();
       default:
         throw new OpenGammaRuntimeException("Multiple matches (" + size + ") to " + identifiers + "; expecting one");
     }
@@ -60,8 +60,47 @@ public class DefaultConventionSource implements ConventionSource {
   public Convention getConvention(final UniqueId identifier) {
     final ConventionDocument doc = _conventionMaster.getConvention(identifier);
     if (doc != null) {
-      return doc.getValue();
+      return doc.getConvention();
     }
     return null;
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T extends Convention> T getConvention(final Class<T> clazz, final ExternalId identifier) {
+    final Convention convention = getConvention(identifier);
+    if (convention == null) {
+      return null;
+    }
+    if (clazz.isAssignableFrom(convention.getClass())) {
+      return (T) convention;
+    }
+    throw new OpenGammaRuntimeException("Convention for " + identifier + " was not of expected type " + clazz);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T extends Convention> T getConvention(final Class<T> clazz, final ExternalIdBundle identifiers) {
+    final Convention convention = getConvention(identifiers);
+    if (convention == null) {
+      return null;
+    }
+    if (clazz.isAssignableFrom(convention.getClass())) {
+      return (T) convention;
+    }
+    throw new OpenGammaRuntimeException("Convention for " + identifiers + " was not of expected type " + clazz);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public <T extends Convention> T getConvention(final Class<T> clazz, final UniqueId identifier) {
+    final Convention convention = getConvention(identifier);
+    if (convention == null) {
+      return null;
+    }
+    if (clazz.isAssignableFrom(convention.getClass())) {
+      return (T) convention;
+    }
+    throw new OpenGammaRuntimeException("Convention for " + identifier + " was not of expected type " + clazz);
   }
 }

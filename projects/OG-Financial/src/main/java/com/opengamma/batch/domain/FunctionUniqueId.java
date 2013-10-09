@@ -22,12 +22,15 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+/**
+ * Data model for a function unique id.
+ */
 @BeanDefinition
 public class FunctionUniqueId extends DirectBean {
-  
+
   @PropertyDefinition
   private long _id;
-  
+
   @PropertyDefinition
   private String _uniqueId;
 
@@ -40,7 +43,7 @@ public class FunctionUniqueId extends DirectBean {
   public boolean equals(Object obj) {
     return EqualsBuilder.reflectionEquals(this, obj);
   }
-  
+
   @Override
   public String toString() {
     return ToStringBuilder.reflectionToString(this);
@@ -55,6 +58,7 @@ public class FunctionUniqueId extends DirectBean {
   public static FunctionUniqueId.Meta meta() {
     return FunctionUniqueId.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(FunctionUniqueId.Meta.INSTANCE);
   }

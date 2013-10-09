@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew;
@@ -15,19 +15,15 @@ import org.threeten.bp.Period;
 import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
-import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
 
 /**
- * 
+ *
  */
 public class CreditCurveCalibrationTest {
-  private static final DayCount ACT365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
 
   private static final FastCreditCurveBuilder BUILDER_NEW = new FastCreditCurveBuilder();
   @SuppressWarnings("deprecation")
   private static final SimpleCreditCurveBuilder BUILDER_OLD = new SimpleCreditCurveBuilder();
-  private static final AnalyticCDSPricer PRICER = new AnalyticCDSPricer();
   private static final Calendar DEFAULT_CALENDAR = new MondayToFridayCalendar("Weekend_Only");
 
   // common data
@@ -35,7 +31,6 @@ public class CreditCurveCalibrationTest {
   private static final LocalDate EFFECTIVE_DATE = TODAY.plusDays(1); // AKA stepin date
   private static final LocalDate CASH_SETTLE_DATE = addWorkDays(TODAY, 3, DEFAULT_CALENDAR); // AKA valuation date
   private static final double RECOVERY_RATE = 0.4;
-  private static final double NOTIONAL = 1e7;
 
   // valuation CDS
   private static final LocalDate PROTECTION_STATE_DATE = LocalDate.of(2013, 2, 3); // Seasoned CDS
@@ -45,8 +40,8 @@ public class CreditCurveCalibrationTest {
 
   // market CDSs
   private static final LocalDate[] PAR_SPD_DATES = new LocalDate[] {LocalDate.of(2013, 6, 20), LocalDate.of(2013, 9, 20), LocalDate.of(2014, 3, 20), LocalDate.of(2015, 3, 20),
-      LocalDate.of(2016, 3, 20), LocalDate.of(2018, 3, 20), LocalDate.of(2023, 3, 20)};
-  private static final double[] PAR_SPREADS = new double[] {50, 70, 80, 95, 100, 95, 80};
+    LocalDate.of(2016, 3, 20), LocalDate.of(2018, 3, 20), LocalDate.of(2023, 3, 20) };
+  private static final double[] PAR_SPREADS = new double[] {50, 70, 80, 95, 100, 95, 80 };
   private static final int NUM_MARKET_CDS = PAR_SPD_DATES.length;
   private static final CDSAnalytic[] MARKET_CDS = new CDSAnalytic[NUM_MARKET_CDS];
 
@@ -54,20 +49,20 @@ public class CreditCurveCalibrationTest {
   protected static ISDACompliantYieldCurve YIELD_CURVE;
 
   // results from ISDA Excel
-  private static final double[] CREDIT_CURVE_KNOTS = new double[] {0.164383561643836, 0.416438356164384, 0.912328767123288, 1.91232876712329, 2.91506849315068, 4.91506849315068, 9.91780821917808};
+  protected static final double[] CREDIT_CURVE_KNOTS = new double[] {0.164383561643836, 0.416438356164384, 0.912328767123288, 1.91232876712329, 2.91506849315068, 4.91506849315068, 9.91780821917808 };
   private static final double[] ZERO_HAZARD_RATES = new double[] {0.00841340552675563, 0.0117803449136365, 0.013468629793501, 0.016047855558532, 0.0169115966481877, 0.0159338068105945,
-      0.0129657754955384};
+    0.0129657754955384 };
   protected static ISDACompliantCreditCurve CREDIT_CURVE = new ISDACompliantCreditCurve(CREDIT_CURVE_KNOTS, ZERO_HAZARD_RATES);
 
   static {
-    double flatrate = 0.05;
-    double t = 20.0;
-    YIELD_CURVE = new ISDACompliantYieldCurve(new double[] {t}, new double[] {flatrate});
+    final double flatrate = 0.05;
+    final double t = 20.0;
+    YIELD_CURVE = new ISDACompliantYieldCurve(new double[] {t }, new double[] {flatrate });
 
-    boolean payAccOndefault = true;
-    Period tenor = Period.ofMonths(3);
-    StubType stubType = StubType.FRONTSHORT;
-    boolean protectionStart = true;
+    final boolean payAccOndefault = true;
+    final Period tenor = Period.ofMonths(3);
+    final StubType stubType = StubType.FRONTSHORT;
+    final boolean protectionStart = true;
 
     CDS = new CDSAnalytic(TODAY, EFFECTIVE_DATE, CASH_SETTLE_DATE, PROTECTION_STATE_DATE, PROTECTION_END_DATE, payAccOndefault, tenor, stubType, protectionStart, RECOVERY_RATE);
 
@@ -87,7 +82,6 @@ public class CreditCurveCalibrationTest {
   @Test
   // (enabled = false)
   public void fastCreditCurveCalibrationTest() {
-    @SuppressWarnings("deprecation")
     final FastCreditCurveBuilder builder = BUILDER_NEW;
     creditCurveTest(builder);
   }
@@ -98,7 +92,7 @@ public class CreditCurveCalibrationTest {
       mrkSpreads[i] = PAR_SPREADS[i] / 10000.;
     }
 
-    ISDACompliantCreditCurve creditCurve = builder.calibrateCreditCurve(MARKET_CDS, mrkSpreads, YIELD_CURVE);
+    final ISDACompliantCreditCurve creditCurve = builder.calibrateCreditCurve(MARKET_CDS, mrkSpreads, YIELD_CURVE);
 
     final int n = creditCurve.getNumberOfKnots();
     assertEquals(CREDIT_CURVE_KNOTS.length, n);

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.future;
@@ -56,11 +56,11 @@ public class BondFutureOptionPremiumSecurityDefinitionTest {
    */
   public void equalHash() {
     assertTrue(FVU1_C100_DEFINITION.equals(FVU1_C100_DEFINITION));
-    BondFutureOptionPremiumSecurityDefinition other = new BondFutureOptionPremiumSecurityDefinition(FVU1_DEFINITION, EXPIRATION_DATE, STRIKE, IS_CALL);
+    final BondFutureOptionPremiumSecurityDefinition other = new BondFutureOptionPremiumSecurityDefinition(FVU1_DEFINITION, EXPIRATION_DATE, STRIKE, IS_CALL);
     assertTrue(FVU1_C100_DEFINITION.equals(other));
     assertTrue(FVU1_C100_DEFINITION.hashCode() == other.hashCode());
     BondFutureOptionPremiumSecurityDefinition modified;
-    BondFutureDefinition modifiedFuture = new BondFutureDefinition(FVU1_DEFINITION.getTradingLastDate().plusDays(1), FVU1_DEFINITION.getNoticeFirstDate(), FVU1_DEFINITION.getNoticeLastDate(),
+    final BondFutureDefinition modifiedFuture = new BondFutureDefinition(FVU1_DEFINITION.getTradingLastDate().plusDays(1), FVU1_DEFINITION.getNoticeFirstDate(), FVU1_DEFINITION.getNoticeLastDate(),
         FVU1_DEFINITION.getNotional(), FVU1_DEFINITION.getDeliveryBasket(), FVU1_DEFINITION.getConversionFactor());
     modified = new BondFutureOptionPremiumSecurityDefinition(modifiedFuture, EXPIRATION_DATE, STRIKE, IS_CALL);
     assertFalse(FVU1_C100_DEFINITION.equals(modified));
@@ -74,16 +74,27 @@ public class BondFutureOptionPremiumSecurityDefinitionTest {
     assertFalse(FVU1_C100_DEFINITION.equals(null));
   }
 
-  @Test
   /**
    * Tests the toDerivative method.
    */
-  public void toDerivative() {
-    String[] curveNames = FutureInstrumentsDescriptionDataSet.curveNames();
-    BondFutureOptionPremiumSecurity optionConverted = FVU1_C100_DEFINITION.toDerivative(REFERENCE_DATE, curveNames);
-    BondFutureOptionPremiumSecurity optionExpected = new BondFutureOptionPremiumSecurity(FVU1_DEFINITION.toDerivative(REFERENCE_DATE, 0.0, curveNames), TimeCalculator.getTimeBetween(REFERENCE_DATE,
+  @SuppressWarnings("deprecation")
+  @Test
+  public void toDerivativeDeprecated() {
+    final String[] curveNames = new String[] {"A", "B"};
+    final BondFutureOptionPremiumSecurity optionConverted = FVU1_C100_DEFINITION.toDerivative(REFERENCE_DATE, curveNames);
+    final BondFutureOptionPremiumSecurity optionExpected = new BondFutureOptionPremiumSecurity(FVU1_DEFINITION.toDerivative(REFERENCE_DATE, 0.0, curveNames), TimeCalculator.getTimeBetween(REFERENCE_DATE,
         EXPIRATION_DATE), STRIKE, IS_CALL);
     assertEquals("Bond future option premium security definition: toDerivative", optionExpected, optionConverted);
   }
 
+  /**
+   * Tests the toDerivative method.
+   */
+  @Test
+  public void toDerivative() {
+    final BondFutureOptionPremiumSecurity optionConverted = FVU1_C100_DEFINITION.toDerivative(REFERENCE_DATE);
+    final BondFutureOptionPremiumSecurity optionExpected = new BondFutureOptionPremiumSecurity(FVU1_DEFINITION.toDerivative(REFERENCE_DATE, 0.0), TimeCalculator.getTimeBetween(REFERENCE_DATE,
+        EXPIRATION_DATE), STRIKE, IS_CALL);
+    assertEquals("Bond future option premium security definition: toDerivative", optionExpected, optionConverted);
+  }
 }

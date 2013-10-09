@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.threeten.bp.Duration;
 import org.threeten.bp.Instant;
 
+import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.cache.MissingInput;
@@ -42,7 +43,6 @@ import com.opengamma.engine.exec.DependencyNodeJobExecutionResult;
 import com.opengamma.engine.exec.DependencyNodeJobExecutionResultCache;
 import com.opengamma.engine.function.EmptyFunctionParameters;
 import com.opengamma.engine.function.FunctionParameters;
-import com.opengamma.engine.function.MarketDataSourcingFunction;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.function.blacklist.FunctionBlacklistQuery;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
@@ -358,7 +358,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
 
       // Get function params configured through the view definition
       Map<DistinctMarketDataSelector, FunctionParameters> functionParameters =
-          calculationConfiguration.getMarketDataSelectionFunctionParameters();
+          Maps.newHashMap(calculationConfiguration.getMarketDataSelectionFunctionParameters());
       s_logger.info("Added in function parameters from view definition - now have {} entries", functionParameters.size());
 
       // Add the function params passed through the execution options which will
@@ -376,10 +376,12 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
         Set<ValueSpecification> matchingSpecifications = entry.getValue();
 
         for (ValueSpecification valueSpecification : matchingSpecifications) {
-
-          FunctionParameters parameters = functionParameters.containsKey(selector) ?
-              functionParameters.get(selector) : new EmptyFunctionParameters();
-
+          FunctionParameters parameters;
+          if (functionParameters.containsKey(selector)) {
+            parameters = functionParameters.get(selector);
+          } else {
+            parameters = new EmptyFunctionParameters();
+          }
           DependencyNode node = graph.getNodeProducing(valueSpecification);
           node.setFunction(new ParameterizedFunction(node.getFunction().getFunction(), parameters));
           nodeCount++;
@@ -585,7 +587,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       final Collection<ValueSpecification> specsToCopy = new LinkedList<>();
       final Collection<ComputedValue> errors = new LinkedList<>();
       for (final DependencyNode unchangedNode : deltaCalculator.getUnchangedNodes()) {
-        if (isMarketDataNode(unchangedNode)) {
+        if (unchangedNode.isMarketDataSourcingFunction()) {
           // Market data is already in the cache, so don't need to copy it across again
           continue;
         }
@@ -662,10 +664,6 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     return getCompiledViewDefinition().getDependencyGraphExplorer(calcConfName).getWholeGraph();
   }
 
-  private boolean isMarketDataNode(final DependencyNode node) {
-    return node.getFunction().getFunction() instanceof MarketDataSourcingFunction;
-  }
-
   /**
    * Creates a subset of the dependency graph for execution. This will only include nodes that do are not dummy ones to source market data, have been considered executed by a delta from the previous
    * cycle, or are being suppressed by the execution blacklist. Note that this will update the cache with synthetic output values from suppressed nodes and alter the execution state of any nodes not
@@ -680,7 +678,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       @Override
       public boolean accept(final DependencyNode node) {
         // Market data functions must not be executed
-        if (isMarketDataNode(node)) {
+        if (node.isMarketDataSourcingFunction()) {
           markExecuted(node);
           return false;
         }

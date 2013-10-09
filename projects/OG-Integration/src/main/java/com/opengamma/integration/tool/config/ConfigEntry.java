@@ -41,6 +41,7 @@ public class ConfigEntry extends DirectBean {
   public static ConfigEntry.Meta meta() {
     return ConfigEntry.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ConfigEntry.Meta.INSTANCE);
   }

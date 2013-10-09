@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.forex.option.black;
@@ -21,8 +21,9 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
- * 
+ * @deprecated The parent class is deprecated
  */
+@Deprecated
 public class FXOptionBlackTermStructureCurrencyExposureFunction extends FXOptionBlackTermStructureMultiValuedFunction {
   private static final CurrencyExposureBlackTermStructureForexCalculator CALCULATOR = CurrencyExposureBlackTermStructureForexCalculator.getInstance();
 

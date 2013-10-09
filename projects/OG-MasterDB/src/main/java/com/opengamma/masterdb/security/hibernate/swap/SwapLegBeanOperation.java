@@ -13,12 +13,14 @@ import static com.opengamma.masterdb.security.hibernate.Converters.externalIdToE
 import static com.opengamma.masterdb.security.hibernate.Converters.frequencyBeanToFrequency;
 
 import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.financial.security.swap.FixedInflationSwapLeg;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FixedVarianceSwapLeg;
 import com.opengamma.financial.security.swap.FloatingGearingIRLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingSpreadIRLeg;
 import com.opengamma.financial.security.swap.FloatingVarianceSwapLeg;
+import com.opengamma.financial.security.swap.InflationIndexSwapLeg;
 import com.opengamma.financial.security.swap.InterestRateLeg;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapLegVisitor;
@@ -121,6 +123,23 @@ public final class SwapLegBeanOperation {
         bean.setAnnualizationFactor(swapLeg.getAnnualizationFactor());
         return bean;
       }
+
+      @Override
+      public SwapLegBean visitFixedInflationSwapLeg(FixedInflationSwapLeg swapLeg) {
+        SwapLegBean bean = createSwapLegBean(swapLeg);
+        bean.setRate(swapLeg.getRate());
+        return bean;
+      }
+
+      @Override
+      public SwapLegBean visitInflationIndexSwapLeg(InflationIndexSwapLeg swapLeg) {
+        SwapLegBean bean = createSwapLegBean(swapLeg);
+        bean.setRateIdentifier(externalIdToExternalIdBean(swapLeg.getIndexId()));
+        bean.setActualIndexationLag(swapLeg.getQuotationIndexationLag());
+        bean.setConventionalIndexationLag(swapLeg.getConventionalIndexationLag());
+        bean.setIndexInterpolationMethod(swapLeg.getInterpolationMethod());
+        return bean;
+      }
     });
   }
   
@@ -214,6 +233,33 @@ public final class SwapLegBeanOperation {
             externalIdBeanToExternalId(bean.getUnderlyingId()),
             frequencyBeanToFrequency(bean.getMonitoringFrequency()),
             bean.getAnnualizationFactor());
+      }
+
+      @Override
+      public SwapLeg visitFixedInflationSwapLeg(FixedInflationSwapLeg swapLeg) {
+        return new FixedInflationSwapLeg(
+            dayCountBeanToDayCount(bean.getDayCount()),
+            frequencyBeanToFrequency(bean.getFrequency()),
+            externalIdBeanToExternalId(bean.getRegion()),
+            businessDayConventionBeanToBusinessDayConvention(bean.getBusinessDayConvention()),
+            NotionalBeanOperation.createNotional(bean.getNotional()),
+            bean.isEom(),
+            bean.getRate());
+      }
+
+      @Override
+      public SwapLeg visitInflationIndexSwapLeg(InflationIndexSwapLeg swapLeg) {
+        return new InflationIndexSwapLeg(
+            dayCountBeanToDayCount(bean.getDayCount()),
+            frequencyBeanToFrequency(bean.getFrequency()),
+            externalIdBeanToExternalId(bean.getRegion()),
+            businessDayConventionBeanToBusinessDayConvention(bean.getBusinessDayConvention()),
+            NotionalBeanOperation.createNotional(bean.getNotional()),
+            bean.isEom(),
+            externalIdBeanToExternalId(bean.getRateIdentifier()),
+            bean.getActualIndexationLag(),
+            bean.getConventionalIndexationLag(),
+            bean.getIndexInterpolationMethod());
       }
     });
   }

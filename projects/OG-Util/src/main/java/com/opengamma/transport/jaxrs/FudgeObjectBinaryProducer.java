@@ -75,6 +75,7 @@ public class FudgeObjectBinaryProducer extends FudgeBase implements MessageBodyW
       msg = getFudgeContext().toFudgeMsg(obj);
     }
     
+    @SuppressWarnings("resource")
     final FudgeMsgWriter writer = new FudgeMsgWriter(new FudgeDataOutputStreamWriter(getFudgeContext(), entityStream));
     writer.writeMessageEnvelope(msg, getFudgeTaxonomyId());
     writer.flush();

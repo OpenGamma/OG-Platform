@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.forex.derivative;
@@ -18,7 +18,7 @@ import com.opengamma.analytics.financial.model.option.definition.Barrier.Observa
 import com.opengamma.util.money.Currency;
 
 /**
- * 
+ *
  */
 public class ForexOptionSingleBarrierTest {
   private static final Currency CCY1 = Currency.AUD;
@@ -26,7 +26,7 @@ public class ForexOptionSingleBarrierTest {
   private static final double PAYMENT_TIME = 0.5;
   private static final double AMOUNT1 = 1000;
   private static final double AMOUNT2 = -1500;
-  private static final Forex FOREX = new Forex(new PaymentFixed(CCY1, PAYMENT_TIME, AMOUNT1, "USD"), new PaymentFixed(CCY2, PAYMENT_TIME, AMOUNT2, "EUR"));
+  private static final Forex FOREX = new Forex(new PaymentFixed(CCY1, PAYMENT_TIME, AMOUNT1), new PaymentFixed(CCY2, PAYMENT_TIME, AMOUNT2));
   private static final double EXPIRY_TIME = 0.49;
   private static final boolean IS_CALL = true;
   private static final boolean IS_LONG = true;
@@ -56,7 +56,7 @@ public class ForexOptionSingleBarrierTest {
     ForexOptionSingleBarrier other = new ForexOptionSingleBarrier(UNDERLYING, BARRIER);
     assertEquals(OPTION, other);
     assertEquals(OPTION.hashCode(), other.hashCode());
-    ForexOptionSingleBarrier otherRebate = new ForexOptionSingleBarrier(UNDERLYING, BARRIER, REBATE);
+    final ForexOptionSingleBarrier otherRebate = new ForexOptionSingleBarrier(UNDERLYING, BARRIER, REBATE);
     assertEquals(OPTION_REBATE, otherRebate);
     assertEquals(OPTION_REBATE.hashCode(), otherRebate.hashCode());
     other = new ForexOptionSingleBarrier(new ForexOptionVanilla(FOREX, EXPIRY_TIME, !IS_CALL, IS_LONG), BARRIER);

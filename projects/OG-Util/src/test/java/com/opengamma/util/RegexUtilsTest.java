@@ -7,6 +7,8 @@ package com.opengamma.util;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Modifier;
 import java.util.regex.Pattern;
 
 import org.testng.annotations.Test;
@@ -19,6 +21,18 @@ import com.opengamma.util.test.TestGroup;
 @Test(groups = TestGroup.UNIT)
 public class RegexUtilsTest {
 
+  @SuppressWarnings("unchecked")
+  public void test_constructor() throws Exception {
+    Constructor<?>[] cons = RegexUtils.class.getDeclaredConstructors();
+    assertEquals(1, cons.length);
+    assertEquals(0, cons[0].getParameterTypes().length);
+    assertEquals(true, Modifier.isPrivate(cons[0].getModifiers()));
+    Constructor<RegexUtils> con = (Constructor<RegexUtils>) cons[0];
+    con.setAccessible(true);
+    con.newInstance();
+  }
+
+  //-------------------------------------------------------------------------
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_null() {
     assertEquals(null, RegexUtils.wildcardsToPattern(null));

@@ -73,6 +73,7 @@ public class SimpleCounterparty extends DirectBean
   public static SimpleCounterparty.Meta meta() {
     return SimpleCounterparty.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(SimpleCounterparty.Meta.INSTANCE);
   }

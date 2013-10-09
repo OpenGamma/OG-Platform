@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.math.curve;
@@ -24,7 +24,7 @@ import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.FirstThenSecondDoublesPairComparator;
 
 /**
- * 
+ *
  */
 public class DoublesCurveTestCase {
   static final String NAME1 = "a";
@@ -149,7 +149,7 @@ public class DoublesCurveTestCase {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull6() {
-    final Map<Double, Double> m = new HashMap<Double, Double>();
+    final Map<Double, Double> m = new HashMap<>();
     m.put(null, 3.);
     m.put(1., 2.);
     new DummyCurve(m, true);
@@ -157,7 +157,7 @@ public class DoublesCurveTestCase {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull7() {
-    final Map<Double, Double> m = new HashMap<Double, Double>();
+    final Map<Double, Double> m = new HashMap<>();
     m.put(3., null);
     m.put(1., 2.);
     new DummyCurve(m, true);
@@ -236,7 +236,7 @@ public class DoublesCurveTestCase {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull21() {
-    final Map<Double, Double> m = new HashMap<Double, Double>();
+    final Map<Double, Double> m = new HashMap<>();
     m.put(null, 3.);
     m.put(1., 2.);
     new DummyCurve(m, true, NAME1);
@@ -244,7 +244,7 @@ public class DoublesCurveTestCase {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull22() {
-    final Map<Double, Double> m = new HashMap<Double, Double>();
+    final Map<Double, Double> m = new HashMap<>();
     m.put(3., null);
     m.put(1., 2.);
     new DummyCurve(m, true, NAME1);
@@ -362,6 +362,11 @@ public class DoublesCurveTestCase {
     @Override
     public Double[] getYValueParameterSensitivity(final Double x) {
       return null;
+    }
+
+    @Override
+    public double getDyDx(final double x) {
+      return 0;
     }
 
   }

@@ -12,6 +12,7 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Describes a transaction on an interest indexed bond (inflation bond) issue.
+ * @param <N> Type of PaymentFixed.
  * @param <C> Type of inflation coupon.
  */
 public class BondInterestIndexedTransaction<N extends PaymentFixed, C extends Coupon> extends BondTransaction<BondInterestIndexedSecurity<N, C>> {

@@ -135,6 +135,7 @@ public class DbSecurityMasterComponentFactory extends AbstractDbMasterComponentF
   public static DbSecurityMasterComponentFactory.Meta meta() {
     return DbSecurityMasterComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(DbSecurityMasterComponentFactory.Meta.INSTANCE);
   }

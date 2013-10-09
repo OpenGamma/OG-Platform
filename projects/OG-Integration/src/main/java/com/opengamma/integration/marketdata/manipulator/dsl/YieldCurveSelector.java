@@ -13,15 +13,22 @@ import com.opengamma.engine.marketdata.manipulator.StructureType;
 import com.opengamma.util.money.Currency;
 
 /**
- *
+ * Selects yield curves for manipulation.
  */
 public class YieldCurveSelector extends Selector<YieldCurveKey> {
 
   /* package */ YieldCurveSelector(Set<String> calcConfigNames,
                                    Set<String> names,
                                    Set<Currency> currencies,
-                                   Pattern namePattern) {
-    super(calcConfigNames, names, currencies, namePattern, YieldCurveKey.class, StructureType.YIELD_CURVE);
+                                   Pattern nameMatchPattern,
+                                   Pattern nameLikePattern) {
+    super(calcConfigNames,
+          names,
+          currencies,
+          nameMatchPattern,
+          nameLikePattern,
+          YieldCurveKey.class,
+          StructureType.YIELD_CURVE);
   }
 
   @Override
@@ -29,7 +36,9 @@ public class YieldCurveSelector extends Selector<YieldCurveKey> {
     return matches(key.getName(), key.getCurrency());
   }
 
-
+  /**
+   * Mutable builder for creating {@link YieldCurveSelector} instances.
+   */
   public static class Builder extends Selector.Builder {
 
     /* package */ Builder(Scenario scenario) {
@@ -63,7 +72,11 @@ public class YieldCurveSelector extends Selector<YieldCurveKey> {
      * @return A selector built from this builder's data
      */
     /* package */ YieldCurveSelector getSelector() {
-      return new YieldCurveSelector(getScenario().getCalcConfigNames(), getNames(), getCurrencies(), getNamePattern());
+      return new YieldCurveSelector(getScenario().getCalcConfigNames(),
+                                    getNames(),
+                                    getCurrencies(),
+                                    getNameMatchPattern(),
+                                    getNameLikePattern());
     }
   }
 }

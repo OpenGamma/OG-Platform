@@ -36,7 +36,8 @@ public class FXForwardForwardPointsDefaults extends DefaultPropertyFunction {
     ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
     ValueRequirementNames.VALUE_THETA,
     ValueRequirementNames.PRESENT_VALUE,
-    ValueRequirementNames.FX_FORWARD_POINTS_NODE_SENSITIVITIES
+    ValueRequirementNames.FX_FORWARD_POINTS_NODE_SENSITIVITIES,
+    ValueRequirementNames.PNL_SERIES
   };
   private final Map<UnorderedCurrencyPair, String> _currencyPairToForwardCurveNames;
 

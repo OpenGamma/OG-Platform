@@ -6,6 +6,7 @@
 package com.opengamma.integration.marketdata.manipulator.dsl;
 
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -35,21 +36,32 @@ public class PointSelector implements DistinctMarketDataSelector {
   /** External ID scheme used when pattern matching ID value. */
   private final ExternalScheme _idMatchScheme;
   /** Regex pattern for matching ID value. */
-  private final Pattern _idValuePattern;
+  private final PatternWrapper _idMatchPattern;
+  /** External ID scheme used when glob matching ID value. */
+  private final ExternalScheme _idLikeScheme;
+  /** Regex pattern for glob matching ID value. */
+  private final PatternWrapper _idLikePattern;
   /** Security type names - matches if the ID identifies a security of the specified type. */
   private final Set<String> _securityTypes;
 
   /* package */ PointSelector(Set<String> calcConfigNames,
                               Set<ExternalId> ids,
                               ExternalScheme idMatchScheme,
-                              Pattern idValuePattern,
+                              Pattern idMatchPattern,
+                              ExternalScheme idLikeScheme,
+                              Pattern idLikePattern,
                               Set<String> securityTypes) {
-    if (idMatchScheme == null && idValuePattern != null || idMatchScheme != null && idValuePattern == null) {
+    if (idMatchScheme == null && idMatchPattern != null || idMatchScheme != null && idMatchPattern == null) {
       throw new IllegalArgumentException("Scheme and pattern must both be specified to pattern match on ID");
     }
+    if (idLikeScheme == null && idLikePattern != null || idLikeScheme != null && idLikePattern == null) {
+      throw new IllegalArgumentException("Scheme and pattern must both be specified to glob match on ID");
+    }
+    _idLikeScheme = idLikeScheme;
+    _idLikePattern = PatternWrapper.wrap(idLikePattern);
     _securityTypes = securityTypes;
     _idMatchScheme = idMatchScheme;
-    _idValuePattern = idValuePattern;
+    _idMatchPattern = PatternWrapper.wrap(idMatchPattern);
     _calcConfigNames = calcConfigNames;
     _ids = ids;
   }
@@ -74,11 +86,19 @@ public class PointSelector implements DistinctMarketDataSelector {
     if (_ids != null && !_ids.contains(value)) {
       return null;
     }
-    if (_idMatchScheme != null && _idValuePattern != null) {
+    if (_idMatchScheme != null && _idMatchPattern != null) {
       if (!_idMatchScheme.equals(id.getScheme())) {
         return null;
       }
-      if (!_idValuePattern.matcher(id.getValue()).matches()) {
+      if (!_idMatchPattern.getPattern().matcher(id.getValue()).matches()) {
+        return null;
+      }
+    }
+    if (_idLikeScheme != null && _idLikePattern != null) {
+      if (!_idLikeScheme.equals(id.getScheme())) {
+        return null;
+      }
+      if (!_idLikePattern.getPattern().matcher(id.getValue()).matches()) {
         return null;
       }
     }
@@ -108,68 +128,55 @@ public class PointSelector implements DistinctMarketDataSelector {
     return _idMatchScheme;
   }
 
-  /* package */ Pattern getIdValuePattern() {
-    return _idValuePattern;
+  /* package */ Pattern getIdMatchPattern() {
+    return _idMatchPattern == null ? null : _idMatchPattern.getPattern();
   }
 
   /* package */ Set<String> getSecurityTypes() {
     return _securityTypes;
   }
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
+  /* package */ ExternalScheme getIdLikeScheme() {
+    return _idLikeScheme;
+  }
 
-    PointSelector that = (PointSelector) o;
-
-    if (_calcConfigNames != null ? !_calcConfigNames.equals(that._calcConfigNames) : that._calcConfigNames != null) {
-      return false;
-    }
-    if (_idMatchScheme != null ? !_idMatchScheme.equals(that._idMatchScheme) : that._idMatchScheme != null) {
-      return false;
-    }
-    String thisPattern = _idValuePattern == null ? null : _idValuePattern.pattern();
-    String thatPattern = that._idValuePattern == null ? null : that._idValuePattern.pattern();
-    if (thisPattern != null) {
-      if (!thisPattern.equals(thatPattern)) {
-        return false;
-      }
-    } else {
-      if (thatPattern != null) {
-        return false;
-      }
-    }
-    if (_ids != null ? !_ids.equals(that._ids) : that._ids != null) {
-      return false;
-    }
-    if (_securityTypes != null ? !_securityTypes.equals(that._securityTypes) : that._securityTypes != null) {
-      return false;
-    }
-    return true;
+  /* package */ Pattern getIdLikePattern() {
+    return _idLikePattern == null ? null : _idLikePattern.getPattern();
   }
 
   @Override
   public int hashCode() {
-    int result = _ids != null ? _ids.hashCode() : 0;
-    result = 31 * result + (_calcConfigNames != null ? _calcConfigNames.hashCode() : 0);
-    result = 31 * result + (_idMatchScheme != null ? _idMatchScheme.hashCode() : 0);
-    result = 31 * result + (_idValuePattern != null ? _idValuePattern.pattern().hashCode() : 0);
-    result = 31 * result + (_securityTypes != null ? _securityTypes.hashCode() : 0);
-    return result;
+    return Objects.hash(_calcConfigNames, _ids, _idMatchScheme, _idMatchPattern, _idLikeScheme, _idLikePattern, _securityTypes);
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
+    final PointSelector other = (PointSelector) obj;
+    return Objects.equals(this._calcConfigNames, other._calcConfigNames) &&
+        Objects.equals(this._ids, other._ids) &&
+        Objects.equals(this._idMatchScheme, other._idMatchScheme) &&
+        Objects.equals(this._idMatchPattern, other._idMatchPattern) &&
+        Objects.equals(this._idLikeScheme, other._idLikeScheme) &&
+        Objects.equals(this._idLikePattern, other._idLikePattern) &&
+        Objects.equals(this._securityTypes, other._securityTypes);
   }
 
   @Override
   public String toString() {
     return "PointSelector [" +
-        "_ids=" + _ids +
-        ", _calcConfigName='" + _calcConfigNames + "'" +
+        "_calcConfigNames=" + _calcConfigNames +
+        ", _ids=" + _ids +
         ", _idMatchScheme=" + _idMatchScheme +
-        ", _idValuePattern=" + _idValuePattern +
+        ", _idMatchPattern=" + _idMatchPattern +
+        ", _idLikeScheme=" + _idLikeScheme +
+        ", _idLikePattern=" + _idLikePattern +
+        ", _securityTypes=" + _securityTypes +
         "]";
   }
 
@@ -185,7 +192,11 @@ public class PointSelector implements DistinctMarketDataSelector {
     /** External ID scheme used when pattern matching ID value. */
     private ExternalScheme _idMatchScheme;
     /** Regex pattern for matching ID value. */
-    private Pattern _idValuePattern;
+    private Pattern _idMatchPattern;
+    /** External ID scheme used when glob matching ID value. */
+    private ExternalScheme _idLikeScheme;
+    /** Regex pattern for glob matching ID value. */
+    private Pattern _idLikePattern;
     /** Security type names - matches if the ID identifies a security of the specified type. */
     private Set<String> _securityTypes;
 
@@ -201,7 +212,13 @@ public class PointSelector implements DistinctMarketDataSelector {
     }
 
     /* package */ PointSelector getSelector() {
-      return new PointSelector(_scenario.getCalcConfigNames(), _ids, _idMatchScheme, _idValuePattern, _securityTypes);
+      return new PointSelector(_scenario.getCalcConfigNames(),
+                               _ids,
+                               _idMatchScheme,
+                               _idMatchPattern,
+                               _idLikeScheme,
+                               _idLikePattern,
+                               _securityTypes);
     }
 
     /**
@@ -266,7 +283,24 @@ public class PointSelector implements DistinctMarketDataSelector {
         throw new IllegalStateException("idMatches can only be called once");
       }
       _idMatchScheme = ExternalScheme.of(scheme);
-      _idValuePattern = Pattern.compile(valueRegex);
+      _idMatchPattern = Pattern.compile(valueRegex);
+      return this;
+    }
+
+    /**
+     * Adds a test for the market data ID value to match a regular expression.
+     * @param scheme External ID scheme that must match the market data's ID scheme
+     * @param valueGlob Glob for matching the ID value
+     * @return This builder
+     */
+    public Builder idLike(String scheme, String valueGlob) {
+      ArgumentChecker.notEmpty(scheme, "scheme");
+      ArgumentChecker.notEmpty(valueGlob, "valueGlob");
+      if (_idLikeScheme != null) {
+        throw new IllegalStateException("idLike can only be called once");
+      }
+      _idLikeScheme = ExternalScheme.of(scheme);
+      _idLikePattern = SimulationUtils.patternForGlob(valueGlob);
       return this;
     }
 

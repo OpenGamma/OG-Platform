@@ -48,6 +48,7 @@ public class AddValueRequest extends DirectBean {
   public static AddValueRequest.Meta meta() {
     return AddValueRequest.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(AddValueRequest.Meta.INSTANCE);
   }

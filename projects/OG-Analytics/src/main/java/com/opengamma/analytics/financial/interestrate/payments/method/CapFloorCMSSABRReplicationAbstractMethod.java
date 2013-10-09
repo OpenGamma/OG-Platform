@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.method;
@@ -14,7 +14,9 @@ import com.opengamma.util.money.CurrencyAmount;
 
 /**
  *  Class used to compute the price of a CMS cap/floor by swaption replication in (extended) SABR framework.
+ *  @deprecated {@link PricingMethod} is deprecated
  */
+@Deprecated
 public abstract class CapFloorCMSSABRReplicationAbstractMethod implements PricingMethod {
 
   /**
@@ -28,7 +30,7 @@ public abstract class CapFloorCMSSABRReplicationAbstractMethod implements Pricin
   private final int _nbIteration = 10;
 
   /**
-   * Constructor of the CMS cap/floor replication method with the integration range. 
+   * Constructor of the CMS cap/floor replication method with the integration range.
    * @param integrationInterval Integration range.
    */
   public CapFloorCMSSABRReplicationAbstractMethod(final double integrationInterval) {

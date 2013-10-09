@@ -18,8 +18,11 @@ import com.opengamma.financial.analytics.model.InterpolatedDataProperties;
 import com.opengamma.financial.currency.CurrencyPair;
 
 /**
- *
+ * Base class for FX option functions that use the Black method. The results do
+ * not set the {@link ValuePropertyNames#CURRENCY} property.
+ * @deprecated The parent class is deprecated
  */
+@Deprecated
 public abstract class FXOptionBlackTermStructureMultiValuedFunction extends FXOptionBlackTermStructureFunction {
 
   public FXOptionBlackTermStructureMultiValuedFunction(final String valueRequirementName) {

@@ -62,7 +62,9 @@ public final class ClassNameAnnotationScannerUtils {
   public static Set<String> scan(URL[] classpathUrls, String annotationClassName) {
     ArgumentChecker.notNull(annotationClassName, "annotationClassName");
     Set<URL> urls = new HashSet<>(Arrays.asList(classpathUrls));
-    AnnotationReflector reflector = new AnnotationReflector(null, urls, new TypeAnnotationsScanner());
+    AnnotationReflector reflector = new AnnotationReflector(
+        null, urls, new TypeAnnotationsScanner(),
+        ClassNameAnnotationScannerUtils.class.getClassLoader(), Thread.currentThread().getContextClassLoader());
     Set<String> classNames = reflector.getReflector().getStore().getTypesAnnotatedWith(annotationClassName);
     if (classNames == null) {
       return Collections.emptySet();

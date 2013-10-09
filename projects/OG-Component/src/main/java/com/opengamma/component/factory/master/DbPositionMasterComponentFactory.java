@@ -110,6 +110,7 @@ public class DbPositionMasterComponentFactory extends AbstractDbMasterComponentF
   public static DbPositionMasterComponentFactory.Meta meta() {
     return DbPositionMasterComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(DbPositionMasterComponentFactory.Meta.INSTANCE);
   }

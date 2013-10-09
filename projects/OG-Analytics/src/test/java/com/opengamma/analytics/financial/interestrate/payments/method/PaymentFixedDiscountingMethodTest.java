@@ -28,7 +28,9 @@ import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests the methods related to fixed coupons.
+ * @deprecated This class tests deprecated functionality.
  */
+@Deprecated
 public class PaymentFixedDiscountingMethodTest {
 
   private static final Calendar EUR_CALENDAR = new MondayToFridayCalendar("TARGET");

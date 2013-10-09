@@ -7,6 +7,8 @@ package com.opengamma.bbg.component;
 
 import java.util.Map;
 
+import net.sf.ehcache.CacheManager;
+
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -42,8 +44,6 @@ import com.opengamma.provider.livedata.LiveDataServerTypes;
 import com.opengamma.transport.ByteArrayFudgeMessageSender;
 import com.opengamma.transport.FudgeMessageSender;
 import com.opengamma.transport.jms.JmsByteArrayMessageSender;
-
-import net.sf.ehcache.CacheManager;
 
 /**
  * Component factory to create a Bloomberg server.
@@ -84,10 +84,10 @@ public abstract class AbstractBloombergLiveDataServerComponentFactory extends Ab
     JmsByteArrayMessageSender jmsSender = new JmsByteArrayMessageSender(getJmsMarketDataAvailabilityTopic(),
                                                                         getJmsConnector().getJmsTemplateTopic());
     FudgeMessageSender availabilityNotificationSender = new ByteArrayFudgeMessageSender(jmsSender);
-    BloombergLiveDataServer realServer = new BloombergLiveDataServer(getBloombergConnector(),
-                                                                     getReferenceDataProvider(),
-                                                                     getCacheManager(),
-                                                                     availabilityNotificationSender);
+    BloombergConnector bloombergConnector = getBloombergConnector();
+    ReferenceDataProvider referenceDataProvider = getReferenceDataProvider();
+    CacheManager cacheManager = getCacheManager();
+    BloombergLiveDataServer realServer = createBloombergLiveDataServer(bloombergConnector, referenceDataProvider, cacheManager, availabilityNotificationSender);
     if (getSubscriptionTickerLimit() != null) {
       realServer.setSubscriptionLimit(getSubscriptionTickerLimit());
     }
@@ -104,8 +104,7 @@ public abstract class AbstractBloombergLiveDataServerComponentFactory extends Ab
     repo.registerMBean(new BloombergLiveDataServerMBean(realServer));
 
     // fake server
-    FakeSubscriptionBloombergLiveDataServer fakeServer = new FakeSubscriptionBloombergLiveDataServer(realServer,
-                                                                                                     getCacheManager());
+    FakeSubscriptionBloombergLiveDataServer fakeServer = createFakeBloombergLiveDataServer(realServer);
     repo.registerLifecycle(fakeServer);
     repo.registerMBean(new LiveDataServerMBean(fakeServer));
 
@@ -126,6 +125,32 @@ public abstract class AbstractBloombergLiveDataServerComponentFactory extends Ab
     combinedServer.setMarketDataSenderFactory(senderFactory);
     repo.registerMBean(new LiveDataServerMBean(combinedServer));
     return combinedServer;
+  }
+
+  /**
+   * Creates the {@link BloombergLiveDataServer} instance to use.
+   * @param bloombergConnector the connector
+   * @param referenceDataProvider the reference data provider
+   * @param cacheManager the cache manager
+   * @param availabilityNotificationSender the availability notification sender
+   * @return the Bloomberg live data server, not null
+   */
+  protected BloombergLiveDataServer createBloombergLiveDataServer(BloombergConnector bloombergConnector, ReferenceDataProvider referenceDataProvider, CacheManager cacheManager,
+      FudgeMessageSender availabilityNotificationSender) {
+    return new BloombergLiveDataServer(bloombergConnector,
+                                       referenceDataProvider,
+                                       cacheManager,
+                                       availabilityNotificationSender);
+  }
+  
+  /**
+   * Creates the {@link FakeSubscriptionBloombergLiveDataServer} instance to use.
+   * 
+   * @param realServer  the {@link BloombergLiveDataServer} instance, not null
+   * @return the fake Bloomberg live data server, not null
+   */
+  protected FakeSubscriptionBloombergLiveDataServer createFakeBloombergLiveDataServer(BloombergLiveDataServer realServer) {
+    return new FakeSubscriptionBloombergLiveDataServer(realServer, ExternalSchemes.BLOOMBERG_BUID_WEAK, getCacheManager());
   }
 
   /**
@@ -152,6 +177,7 @@ public abstract class AbstractBloombergLiveDataServerComponentFactory extends Ab
   public static AbstractBloombergLiveDataServerComponentFactory.Meta meta() {
     return AbstractBloombergLiveDataServerComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(AbstractBloombergLiveDataServerComponentFactory.Meta.INSTANCE);
   }

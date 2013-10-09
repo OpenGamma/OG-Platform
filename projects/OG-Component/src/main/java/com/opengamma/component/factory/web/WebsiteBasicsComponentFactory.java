@@ -39,6 +39,7 @@ import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.region.RegionMaster;
 import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.web.WebAboutResource;
 import com.opengamma.web.WebHomeResource;
 import com.opengamma.web.config.WebConfigsResource;
 import com.opengamma.web.exchange.WebExchangesResource;
@@ -149,6 +150,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
 
   protected void initBasics(ComponentRepository repo) {
     repo.getRestComponents().publishResource(new WebHomeResource());
+    repo.getRestComponents().publishResource(new WebAboutResource());
   }
 
   protected void initMasters(ComponentRepository repo) {
@@ -198,6 +200,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   public static WebsiteBasicsComponentFactory.Meta meta() {
     return WebsiteBasicsComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(WebsiteBasicsComponentFactory.Meta.INSTANCE);
   }

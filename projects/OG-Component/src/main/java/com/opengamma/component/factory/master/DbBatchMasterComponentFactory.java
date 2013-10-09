@@ -24,6 +24,7 @@ import com.opengamma.batch.rest.RemoteBatchMaster;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.ComponentInfoAttributes;
+import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.masterdb.batch.DbBatchMaster;
 
 /**
@@ -48,13 +49,16 @@ public class DbBatchMasterComponentFactory extends AbstractDbMasterComponentFact
   @PropertyDefinition
   private String _uniqueIdScheme;
 
+  @PropertyDefinition(validate = "notNull")
+  private ComputationTargetResolver _computationTargetResolver;
+
   //-------------------------------------------------------------------------
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
     ComponentInfo info = new ComponentInfo(BatchMaster.class, getClassifier());
     
     // master
-    DbBatchMaster master = new DbBatchMaster(getDbConnector());
+    DbBatchMaster master = new DbBatchMaster(getDbConnector(), getComputationTargetResolver());
     if (getUniqueIdScheme() != null) {
       master.setUniqueIdScheme(getUniqueIdScheme());
     }
@@ -81,6 +85,7 @@ public class DbBatchMasterComponentFactory extends AbstractDbMasterComponentFact
   public static DbBatchMasterComponentFactory.Meta meta() {
     return DbBatchMasterComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(DbBatchMasterComponentFactory.Meta.INSTANCE);
   }
@@ -99,6 +104,8 @@ public class DbBatchMasterComponentFactory extends AbstractDbMasterComponentFact
         return isPublishRest();
       case -1737146991:  // uniqueIdScheme
         return getUniqueIdScheme();
+      case 1562222174:  // computationTargetResolver
+        return getComputationTargetResolver();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -115,6 +122,9 @@ public class DbBatchMasterComponentFactory extends AbstractDbMasterComponentFact
       case -1737146991:  // uniqueIdScheme
         setUniqueIdScheme((String) newValue);
         return;
+      case 1562222174:  // computationTargetResolver
+        setComputationTargetResolver((ComputationTargetResolver) newValue);
+        return;
     }
     super.propertySet(propertyName, newValue, quiet);
   }
@@ -122,6 +132,7 @@ public class DbBatchMasterComponentFactory extends AbstractDbMasterComponentFact
   @Override
   protected void validate() {
     JodaBeanUtils.notNull(_classifier, "classifier");
+    JodaBeanUtils.notNull(_computationTargetResolver, "computationTargetResolver");
     super.validate();
   }
 
@@ -135,6 +146,7 @@ public class DbBatchMasterComponentFactory extends AbstractDbMasterComponentFact
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
           JodaBeanUtils.equal(getUniqueIdScheme(), other.getUniqueIdScheme()) &&
+          JodaBeanUtils.equal(getComputationTargetResolver(), other.getComputationTargetResolver()) &&
           super.equals(obj);
     }
     return false;
@@ -146,6 +158,7 @@ public class DbBatchMasterComponentFactory extends AbstractDbMasterComponentFact
     hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
     hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueIdScheme());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getComputationTargetResolver());
     return hash ^ super.hashCode();
   }
 
@@ -227,6 +240,32 @@ public class DbBatchMasterComponentFactory extends AbstractDbMasterComponentFact
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the computationTargetResolver.
+   * @return the value of the property, not null
+   */
+  public ComputationTargetResolver getComputationTargetResolver() {
+    return _computationTargetResolver;
+  }
+
+  /**
+   * Sets the computationTargetResolver.
+   * @param computationTargetResolver  the new value of the property, not null
+   */
+  public void setComputationTargetResolver(ComputationTargetResolver computationTargetResolver) {
+    JodaBeanUtils.notNull(computationTargetResolver, "computationTargetResolver");
+    this._computationTargetResolver = computationTargetResolver;
+  }
+
+  /**
+   * Gets the the {@code computationTargetResolver} property.
+   * @return the property, not null
+   */
+  public final Property<ComputationTargetResolver> computationTargetResolver() {
+    return metaBean().computationTargetResolver().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code DbBatchMasterComponentFactory}.
    */
   public static class Meta extends AbstractDbMasterComponentFactory.Meta {
@@ -251,13 +290,19 @@ public class DbBatchMasterComponentFactory extends AbstractDbMasterComponentFact
     private final MetaProperty<String> _uniqueIdScheme = DirectMetaProperty.ofReadWrite(
         this, "uniqueIdScheme", DbBatchMasterComponentFactory.class, String.class);
     /**
+     * The meta-property for the {@code computationTargetResolver} property.
+     */
+    private final MetaProperty<ComputationTargetResolver> _computationTargetResolver = DirectMetaProperty.ofReadWrite(
+        this, "computationTargetResolver", DbBatchMasterComponentFactory.class, ComputationTargetResolver.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
         "publishRest",
-        "uniqueIdScheme");
+        "uniqueIdScheme",
+        "computationTargetResolver");
 
     /**
      * Restricted constructor.
@@ -274,6 +319,8 @@ public class DbBatchMasterComponentFactory extends AbstractDbMasterComponentFact
           return _publishRest;
         case -1737146991:  // uniqueIdScheme
           return _uniqueIdScheme;
+        case 1562222174:  // computationTargetResolver
+          return _computationTargetResolver;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -316,6 +363,14 @@ public class DbBatchMasterComponentFactory extends AbstractDbMasterComponentFact
      */
     public final MetaProperty<String> uniqueIdScheme() {
       return _uniqueIdScheme;
+    }
+
+    /**
+     * The meta-property for the {@code computationTargetResolver} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ComputationTargetResolver> computationTargetResolver() {
+      return _computationTargetResolver;
     }
 
   }

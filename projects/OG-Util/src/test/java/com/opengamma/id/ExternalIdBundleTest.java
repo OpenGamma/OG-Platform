@@ -21,6 +21,7 @@ import java.util.Set;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Ordering;
 import com.google.common.collect.Sets;
 import com.opengamma.util.test.TestGroup;
 
@@ -176,6 +177,12 @@ public class ExternalIdBundleTest {
   public void singleVersusMultipleId() {
     assertFalse(ExternalIdBundle.of(_id11).equals(ExternalIdBundle.of(_id11, _id12)));
     assertFalse(ExternalIdBundle.of(_id11, _id12).equals(ExternalIdBundle.of(_id11)));
+  }
+
+  //-------------------------------------------------------------------------
+  public void getExternalIdBundle() {
+    ExternalIdBundle input = ExternalIdBundle.of(_id11, _id22);
+    assertEquals(input, input.getExternalIdBundle());
   }
 
   //-------------------------------------------------------------------------
@@ -370,6 +377,17 @@ public class ExternalIdBundleTest {
   }
 
   //-------------------------------------------------------------------------
+  public void test_withCustomIdOrdering() {
+    ExternalIdBundle base = ExternalIdBundle.of(ExternalId.of("A", "X"), ExternalId.of("B", "X"), ExternalId.of("C", "X"));
+    ExternalIdBundle test = base.withCustomIdOrdering(Ordering.<ExternalId>natural().reverse());
+    assertEquals(3, test.size());
+    Iterator<ExternalId> it = test.getExternalIds().iterator();
+    assertEquals(ExternalId.of("C", "X"), it.next());
+    assertEquals(ExternalId.of("B", "X"), it.next());
+    assertEquals(ExternalId.of("A", "X"), it.next());
+  }
+
+  //-------------------------------------------------------------------------
   public void test_toStringList() {
     ExternalIdBundle test = ExternalIdBundle.of(_id11, _id12);
     assertEquals(Arrays.asList(_id11.toString(), _id12.toString()), test.toStringList());
@@ -440,6 +458,7 @@ public class ExternalIdBundleTest {
     ExternalIdBundle b = ExternalIdBundle.of(_id11, _id12);
     
     assertEquals(a.hashCode(), b.hashCode());
+    assertEquals(a.hashCode(), a.hashCode());
   }
 
   public void test_toString_empty() {

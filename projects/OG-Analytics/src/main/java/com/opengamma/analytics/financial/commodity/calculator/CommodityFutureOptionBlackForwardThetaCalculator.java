@@ -28,6 +28,9 @@ public final class CommodityFutureOptionBlackForwardThetaCalculator extends Inst
     return s_instance;
   }
 
+  /**
+   * Private constructor.
+   */
   private CommodityFutureOptionBlackForwardThetaCalculator() {
   }
 

@@ -13,12 +13,14 @@ import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.EuropeanExerciseType;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.CommodityNotional;
+import com.opengamma.financial.security.swap.FixedInflationSwapLeg;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FixedVarianceSwapLeg;
 import com.opengamma.financial.security.swap.FloatingGearingIRLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingSpreadIRLeg;
 import com.opengamma.financial.security.swap.FloatingVarianceSwapLeg;
+import com.opengamma.financial.security.swap.InflationIndexSwapLeg;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.NotionalVisitor;
 import com.opengamma.financial.security.swap.SecurityNotional;
@@ -111,6 +113,16 @@ public class SwaptionSecurityGenerator extends SecurityGenerator<SwaptionSecurit
 
       @Override
       public Double visitFloatingVarianceSwapLeg(final FloatingVarianceSwapLeg swapLeg) {
+        return null;
+      }
+
+      @Override
+      public Double visitFixedInflationSwapLeg(final FixedInflationSwapLeg swapLeg) {
+        return swapLeg.getRate();
+      }
+
+      @Override
+      public Double visitInflationIndexSwapLeg(final InflationIndexSwapLeg swapLeg) {
         return null;
       }
 

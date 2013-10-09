@@ -36,7 +36,7 @@ public class DependencyGraphStructureExtractor {
   private final DependencyGraph _graph;
 
 
-  private final Map<String, NodeExtractor> _nodeExtractors;
+  private final Map<String, NodeExtractor<?>> _nodeExtractors;
 
   /**
    * Create an extractor which will extract all structures matching the passed name in the graph.
@@ -54,12 +54,16 @@ public class DependencyGraphStructureExtractor {
     _nodeExtractors = buildExtractors(requiredStructureTypes);
   }
 
-  private Map<String, NodeExtractor> buildExtractors(Set<StructureType> requiredStructureTypes) {
+  private Map<String, NodeExtractor<?>> buildExtractors(Set<StructureType> requiredStructureTypes) {
 
-    Map<String, NodeExtractor> extractors = new HashMap<>();
+    Map<String, NodeExtractor<?>> extractors = new HashMap<>();
     for (StructureType structureType : requiredStructureTypes) {
-      NodeExtractor nodeExtractor = structureType.getNodeExtractor();
-      extractors.put(nodeExtractor.getSpecificationName(), nodeExtractor);
+      NodeExtractor<?> nodeExtractor = structureType.getNodeExtractor();
+      if (nodeExtractor == null) {
+        s_logger.warn("No extractor is currently available for structure type: {} - unable to perform manipulation", structureType);
+      } else {
+        extractors.put(nodeExtractor.getSpecificationName(), nodeExtractor);
+      }
     }
     return Collections.unmodifiableMap(extractors);
   }

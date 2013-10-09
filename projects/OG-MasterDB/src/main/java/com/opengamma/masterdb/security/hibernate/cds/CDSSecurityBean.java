@@ -87,6 +87,7 @@ public class CDSSecurityBean extends SecurityBean {
   public static CDSSecurityBean.Meta meta() {
     return CDSSecurityBean.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(CDSSecurityBean.Meta.INSTANCE);
   }

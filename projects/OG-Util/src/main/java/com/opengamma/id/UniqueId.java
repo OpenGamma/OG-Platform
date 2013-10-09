@@ -20,7 +20,6 @@ import org.joda.convert.ToString;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CompareUtils;
 import com.opengamma.util.PublicAPI;
-import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * An immutable unique identifier for an item within the OpenGamma installation.
@@ -51,9 +50,6 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 @PublicAPI
 public final class UniqueId
     implements Comparable<UniqueId>, UniqueIdentifiable, ObjectIdentifiable, Serializable {
-  static {
-    OpenGammaFudgeContext.getInstance().getTypeDictionary().registerClassRename("com.opengamma.id.UniqueIdentifier", UniqueId.class);
-  }
 
   /**
    * Identification scheme for the unique identifier.
@@ -109,6 +105,7 @@ public final class UniqueId
    * @return the unique identifier, not null
    */
   public static UniqueId of(ObjectId objectId, String version) {
+    ArgumentChecker.notNull(objectId, "objectId");
     return new UniqueId(objectId.getScheme(), objectId.getValue(), version);
   }
 
@@ -328,7 +325,7 @@ public final class UniqueId
     }
     ObjectId objectId = other.getObjectId();
     return _scheme.equals(objectId.getScheme()) &&
-            _value.equals(objectId.getValue());
+        _value.equals(objectId.getValue());
   }
 
   //-------------------------------------------------------------------------
@@ -359,8 +356,8 @@ public final class UniqueId
     if (obj instanceof UniqueId) {
       UniqueId other = (UniqueId) obj;
       return _scheme.equals(other._scheme) &&
-              _value.equals(other._value) &&
-              ObjectUtils.equals(_version, other._version);
+          _value.equals(other._value) &&
+          ObjectUtils.equals(_version, other._version);
     }
     return false;
   }

@@ -49,9 +49,12 @@ import com.opengamma.web.analytics.blotter.UnderlyingSecurityVisitor;
     Security security = position.getSecurityLink().getTarget();
     entities.add(security);
     if (security instanceof FinancialSecurity) {
-      ManageableSecurity underlying = ((FinancialSecurity) security).accept(_underlyingVisitor);
-      if (underlying != null) {
-        entities.add(underlying);
+      try {
+        ManageableSecurity underlying = ((FinancialSecurity) security).accept(_underlyingVisitor);
+        if (underlying != null) {
+          entities.add(underlying);
+        } 
+      } catch (IllegalArgumentException e) {
       }
     }
     for (Trade trade : position.getTrades()) {

@@ -56,6 +56,7 @@ import com.opengamma.util.metric.OpenGammaMetricRegistry;
  * Component definition for the view processor defined in Spring extended to produce RESTful artifacts.
  */
 @BeanDefinition
+@SuppressWarnings("deprecation")
 public class SpringViewProcessorComponentFactory extends AbstractSpringComponentFactory {
 
   /**
@@ -76,7 +77,7 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
   /**
    * The JMS connector.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private JmsConnector _jmsConnector;
   /**
    * The JMS broker URI.
@@ -115,7 +116,7 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
   /**
    * JMS topic for notifications that the connection Bloomberg has come up.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private String _jmsMarketDataAvailabilityTopic;
 
   @Override
@@ -152,7 +153,7 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
           getVolatilityCubeDefinitionSource(), getJmsConnector(), getFudgeContext(), getScheduler(), getHistoricalTimeSeriesSource());
       repo.getRestComponents().publish(info, vpResource);
     }
-    if (viewProcessor instanceof ViewProcessorInternal) {
+    if (getJmsConnector() != null && viewProcessor instanceof ViewProcessorInternal) {
       ViewProcessAvailabilityNotificationListener listener =
           new ViewProcessAvailabilityNotificationListener(getJmsMarketDataAvailabilityTopic(),
                                                           getJmsConnector(),
@@ -254,6 +255,7 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
   public static SpringViewProcessorComponentFactory.Meta meta() {
     return SpringViewProcessorComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(SpringViewProcessorComponentFactory.Meta.INSTANCE);
   }
@@ -336,9 +338,7 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
   protected void validate() {
     JodaBeanUtils.notNull(_classifier, "classifier");
     JodaBeanUtils.notNull(_fudgeContext, "fudgeContext");
-    JodaBeanUtils.notNull(_jmsConnector, "jmsConnector");
     JodaBeanUtils.notNull(_scheduler, "scheduler");
-    JodaBeanUtils.notNull(_jmsMarketDataAvailabilityTopic, "jmsMarketDataAvailabilityTopic");
     super.validate();
   }
 
@@ -462,7 +462,7 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
   //-----------------------------------------------------------------------
   /**
    * Gets the JMS connector.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public JmsConnector getJmsConnector() {
     return _jmsConnector;
@@ -470,10 +470,9 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
 
   /**
    * Sets the JMS connector.
-   * @param jmsConnector  the new value of the property, not null
+   * @param jmsConnector  the new value of the property
    */
   public void setJmsConnector(JmsConnector jmsConnector) {
-    JodaBeanUtils.notNull(jmsConnector, "jmsConnector");
     this._jmsConnector = jmsConnector;
   }
 
@@ -639,7 +638,7 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
   //-----------------------------------------------------------------------
   /**
    * Gets jMS topic for notifications that the connection Bloomberg has come up.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public String getJmsMarketDataAvailabilityTopic() {
     return _jmsMarketDataAvailabilityTopic;
@@ -647,10 +646,9 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
 
   /**
    * Sets jMS topic for notifications that the connection Bloomberg has come up.
-   * @param jmsMarketDataAvailabilityTopic  the new value of the property, not null
+   * @param jmsMarketDataAvailabilityTopic  the new value of the property
    */
   public void setJmsMarketDataAvailabilityTopic(String jmsMarketDataAvailabilityTopic) {
-    JodaBeanUtils.notNull(jmsMarketDataAvailabilityTopic, "jmsMarketDataAvailabilityTopic");
     this._jmsMarketDataAvailabilityTopic = jmsMarketDataAvailabilityTopic;
   }
 

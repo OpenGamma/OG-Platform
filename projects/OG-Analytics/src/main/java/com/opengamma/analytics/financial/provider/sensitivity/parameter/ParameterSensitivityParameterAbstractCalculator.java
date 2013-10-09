@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.sensitivity.parameter;
@@ -48,8 +48,7 @@ public abstract class ParameterSensitivityParameterAbstractCalculator<DATA_TYPE 
     ArgumentChecker.notNull(instrument, "derivative");
     ArgumentChecker.notNull(parameterMulticurves, "Black data");
     ArgumentChecker.notNull(curvesSet, "curves");
-    MultipleCurrencyMulticurveSensitivity sensitivity = instrument.accept(_curveSensitivityCalculator, parameterMulticurves);
-    // sensitivity = sensitivity.cleaned(); // TODO: for testing purposes mainly. Could be removed after the tests.
+    final MultipleCurrencyMulticurveSensitivity sensitivity = instrument.accept(_curveSensitivityCalculator, parameterMulticurves);
     return pointToParameterSensitivity(sensitivity, parameterMulticurves, curvesSet);
   }
 

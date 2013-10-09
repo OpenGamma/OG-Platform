@@ -60,6 +60,7 @@ public class LiveDataMetaDataProviderResult extends DirectBean {
   public static LiveDataMetaDataProviderResult.Meta meta() {
     return LiveDataMetaDataProviderResult.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(LiveDataMetaDataProviderResult.Meta.INSTANCE);
   }

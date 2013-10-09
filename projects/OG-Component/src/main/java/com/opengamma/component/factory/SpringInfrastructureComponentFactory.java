@@ -125,6 +125,7 @@ public class SpringInfrastructureComponentFactory extends AbstractSpringComponen
   public static SpringInfrastructureComponentFactory.Meta meta() {
     return SpringInfrastructureComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(SpringInfrastructureComponentFactory.Meta.INSTANCE);
   }

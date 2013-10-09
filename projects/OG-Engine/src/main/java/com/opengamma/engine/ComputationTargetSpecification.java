@@ -122,8 +122,8 @@ public final class ComputationTargetSpecification extends ComputationTargetRefer
   }
 
   /**
-   * Creates a specification that describes a credit curve identifier. A credit curve identifier may be used as an arbitrary parameter to a function,
-   * for example one that provides spread curve definitions or other meta data that is keyed by id.
+   * Creates a specification that describes a credit curve identifier. A credit curve identifier may be used as an arbitrary parameter to a function, for example one that provides spread curve
+   * definitions or other meta data that is keyed by id.
    * 
    * @param creditCurveIdentifier the credit curve identifier described, not null
    * @return the target specification, not null
@@ -145,7 +145,7 @@ public final class ComputationTargetSpecification extends ComputationTargetRefer
   /**
    * Gets the unique identifier, if one exists.
    * 
-   * @return the unique identifier, may be null
+   * @return the unique identifier, may be null if the target type is {@link ComputationTargetType#NULL}
    */
   public UniqueId getUniqueId() {
     return _uniqueId;
@@ -162,7 +162,7 @@ public final class ComputationTargetSpecification extends ComputationTargetRefer
       return false;
     }
     // TODO: should be checking the parent as well
-    return getUniqueId().equals(other.getUniqueId());
+    return ObjectUtils.equals(getUniqueId(), other.getUniqueId());
   }
 
   @Override
@@ -195,12 +195,12 @@ public final class ComputationTargetSpecification extends ComputationTargetRefer
   @Override
   public String toString() {
     return new StrBuilder()
-      .append("CTSpec[")
-      .append(getType())
-      .append(", ")
-      .append(getUniqueId())
-      .append(']')
-      .toString();
+        .append("CTSpec[")
+        .append(getType())
+        .append(", ")
+        .append(getUniqueId())
+        .append(']')
+        .toString();
   }
 
   private Object readResolve() throws ObjectStreamException {

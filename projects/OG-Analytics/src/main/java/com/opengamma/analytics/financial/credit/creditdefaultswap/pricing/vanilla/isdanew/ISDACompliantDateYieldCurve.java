@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew;
@@ -16,7 +16,7 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ *
  */
 public class ISDACompliantDateYieldCurve extends ISDACompliantYieldCurve implements ISDACompliantCurveWithDates {
 
@@ -28,7 +28,7 @@ public class ISDACompliantDateYieldCurve extends ISDACompliantYieldCurve impleme
 
   /**
    * Builds a yield curve from a baseDate with a set of <b>continually compounded</b> zero rates at given knot dates. The times (year-fractions)
-   * between the baseDate and the knot dates is calculated using ACT/365  
+   * between the baseDate and the knot dates is calculated using ACT/365
    * @param baseDate The base date for the curve (i.e. this is time zero)
    * @param dates Knot dates on the curve. These must be ascending with the first date after the baseDate
    * @param rates Continually compounded zero rates at given knot dates
@@ -39,7 +39,7 @@ public class ISDACompliantDateYieldCurve extends ISDACompliantYieldCurve impleme
 
   /**
    * Builds a yield curve from a baseDate with a set of <b>continually compounded</b> zero rates at given knot dates. The times (year-fractions)
-   * between the baseDate and the knot dates is calculated using the specified day-count-convention   
+   * between the baseDate and the knot dates is calculated using the specified day-count-convention
    * @param baseDate The base date for the curve (i.e. this is time zero)
    * @param dates Knot dates on the curve. These must be ascending with the first date after the baseDate
    * @param rates Continually compounded zero rates at given knot dates
@@ -51,24 +51,24 @@ public class ISDACompliantDateYieldCurve extends ISDACompliantYieldCurve impleme
     _dates = dates;
     _dayCount = dayCount;
   }
-  
+
   private ISDACompliantDateYieldCurve(final LocalDate baseDate, final LocalDate[] dates, final DayCount dayCount, final ISDACompliantYieldCurve baseCurve) {
     super(baseCurve);
     _baseDate = baseDate;
     _dates = dates;
     _dayCount = dayCount;
   }
-  
+
   /**
    * Converter from the old ISDADateCurve to ISDACompliantYieldCurve. Not this only works if offset = 0.0 and and baseDate is set.
-   * @param yieldCurve a ISDADateCurve yieldCurve 
+   * @param yieldCurve a ISDADateCurve yieldCurve
    * @return A ISDACompliantYieldCurve
    */
   public static ISDACompliantDateYieldCurve fromISDADateCurve(final ISDADateCurve yieldCurve) {
 
     ArgumentChecker.isTrue(yieldCurve.getOffset() == 0, "offset not zero - cannot convert");
     final ZonedDateTime bDate = yieldCurve.getBaseDate();
-    ArgumentChecker.isTrue(bDate != null, "baseDate null - cannot convert");
+    ArgumentChecker.notNull(bDate, "base date");
     final LocalDate baseDate = bDate.toLocalDate();
 
     final ZonedDateTime[] curveDates = yieldCurve.getCurveDates();
@@ -89,27 +89,27 @@ public class ISDACompliantDateYieldCurve extends ISDACompliantYieldCurve impleme
   }
 
   @Override
-  public LocalDate getCurveDate(int index) {
+  public LocalDate getCurveDate(final int index) {
     return _dates[index];
   }
 
   @Override
   public LocalDate[] getCurveDates() {
-    LocalDate[] res = new LocalDate[getNumberOfKnots()];
+    final LocalDate[] res = new LocalDate[getNumberOfKnots()];
     // TODO since this is only copying references anyway, do we need it
     System.arraycopy(_dates, 0, res, 0, getNumberOfKnots());
     return res;
   }
-  
-  @Override
-  public ISDACompliantDateYieldCurve withRate(final double rate, final int index) {
-    ISDACompliantYieldCurve temp = super.withRate(rate, index);
-    return new ISDACompliantDateYieldCurve(_baseDate, _dates, _dayCount, temp);
-  }
- 
 
   @Override
-  public double getZeroRate(LocalDate date) {
+  public ISDACompliantDateYieldCurve withRate(final double rate, final int index) {
+    final ISDACompliantYieldCurve temp = super.withRate(rate, index);
+    return new ISDACompliantDateYieldCurve(_baseDate, _dates, _dayCount, temp);
+  }
+
+
+  @Override
+  public double getZeroRate(final LocalDate date) {
     final double t = _dayCount.getDayCountFraction(_baseDate, date);
     return getZeroRate(t);
   }

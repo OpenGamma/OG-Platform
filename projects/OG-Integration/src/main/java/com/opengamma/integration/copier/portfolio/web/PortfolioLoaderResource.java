@@ -110,7 +110,7 @@ public class PortfolioLoaderResource {
     FormDataBodyPart fileBodyPart = getBodyPart(formData, "file");
     FormDataBodyPart filexmlBodyPart = getBodyPart(formData, "filexml");
 
-    if(filexmlBodyPart.getFormDataContentDisposition().getFileName().toLowerCase().endsWith("xml")) {
+    if (filexmlBodyPart.getFormDataContentDisposition().getFileName().toLowerCase().endsWith("xml")) {
       // xml can contain multiple portfolios
       Object filexmlEntity = filexmlBodyPart.getEntity();
       InputStream filexmlStream = new WorkaroundInputStream(((BodyPartEntity) filexmlEntity).getInputStream());
@@ -139,8 +139,8 @@ public class PortfolioLoaderResource {
                                                                            _referenceDataProvider,
                                                                            dataProvider,
                                                                            dataFields);
-      final PortfolioWriter portfolioWriter = new MasterPortfolioWriter(portfolioName, _portfolioMaster, _positionMaster,
-                                                                        _securityMaster, false, false, false, true);
+      final PortfolioWriter portfolioWriter =
+          new MasterPortfolioWriter(portfolioName, _portfolioMaster, _positionMaster, _securityMaster, false, false, true);
       SheetFormat format = getFormatForFileName(fileName);
       RowParser rowParser = new ExchangeTradedRowParser(_securityProvider);
       final PortfolioReader portfolioReader = new SingleSheetSimplePortfolioReader(format, fileStream, rowParser);
@@ -161,7 +161,7 @@ public class PortfolioLoaderResource {
     SimplePortfolioCopier copier = new SimplePortfolioCopier(null);
     final PortfolioWriter portfolioWriter = new MasterPortfolioWriter(portfolioReader.getPortfolioName(),
                                                                       _portfolioMaster, _positionMaster,
-                                                                      _securityMaster, false, false, false, true);
+                                                                      _securityMaster, false, false, true);
     // Call the portfolio loader with the supplied arguments
     copier.copy(portfolioReader, portfolioWriter);
     // close stuff
@@ -198,11 +198,9 @@ public class PortfolioLoaderResource {
       return SheetFormat.CSV;
     } else if (fileName.toLowerCase().endsWith("xls")) {
       return SheetFormat.XLS;
-    } else if (fileName.toLowerCase().endsWith("xlsx")) {
-      return SheetFormat.XLSX;
   }
 
-    Response response = Response.status(Response.Status.BAD_REQUEST).entity("Portfolio upload only supports CSV " +
+    Response response = Response.status(Response.Status.BAD_REQUEST).entity("Portfolio upload only supports CSV/XLS" +
                                                                                 "files and Excel worksheets").build();
     throw new WebApplicationException(response);
   }

@@ -95,6 +95,7 @@ public class PortfolioHistoryRequest extends AbstractHistoryRequest {
   public static PortfolioHistoryRequest.Meta meta() {
     return PortfolioHistoryRequest.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(PortfolioHistoryRequest.Meta.INSTANCE);
   }

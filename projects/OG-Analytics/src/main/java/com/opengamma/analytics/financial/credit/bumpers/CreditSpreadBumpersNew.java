@@ -27,11 +27,15 @@ public class CreditSpreadBumpersNew {
 
     switch(spreadBumpType) {
       case ADDITIVE_PARALLEL:
+      case ADDITIVE:
+      case ADDITIVE_BUCKETED:
         for (int m = 0; m < n; m++) {
           bumpedCreditSpreads[m] = marketSpreads[m] + spreadBump;
         }
         return bumpedCreditSpreads;
       case MULTIPLICATIVE_PARALLEL:
+      case MULTIPLICATIVE:
+      case MULTIPLICATIVE_BUCKETED:
         for (int m = 0; m < n; m++) {
           bumpedCreditSpreads[m] = marketSpreads[m] * (1 + spreadBump);
         }
@@ -59,6 +63,19 @@ public class CreditSpreadBumpersNew {
       case MULTIPLICATIVE:
         bumpedCreditSpreads[spreadTenorToBump] *= (1 + spreadBump);
         return bumpedCreditSpreads;
+      default:
+        throw new IllegalArgumentException("Cannot handle bump type " + spreadBumpType);
+    }
+  }
+
+  public double getBumpedCreditSpread(final double marketSpread, final double spreadBump, final SpreadBumpType spreadBumpType) {
+    switch(spreadBumpType) {
+      case ADDITIVE_BUCKETED:
+      case ADDITIVE:
+        return marketSpread + spreadBump;
+      case MULTIPLICATIVE_BUCKETED:
+      case MULTIPLICATIVE:
+        return marketSpread * (1 + spreadBump);
       default:
         throw new IllegalArgumentException("Cannot handle bump type " + spreadBumpType);
     }

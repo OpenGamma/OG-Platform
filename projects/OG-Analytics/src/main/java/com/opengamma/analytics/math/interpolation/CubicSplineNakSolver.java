@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.math.interpolation;
@@ -36,7 +36,7 @@ public class CubicSplineNakSolver extends CubicSplineSolver {
   @Override
   public DoubleMatrix2D[] solveMultiDim(final double[] xValues, final DoubleMatrix2D yValuesMatrix) {
     final int dim = yValuesMatrix.getNumberOfRows();
-    DoubleMatrix2D[] coefMatrix = new DoubleMatrix2D[dim];
+    final DoubleMatrix2D[] coefMatrix = new DoubleMatrix2D[dim];
 
     for (int i = 0; i < dim; ++i) {
       coefMatrix[i] = solve(xValues, yValuesMatrix.getRowVector(i).getData());
@@ -53,10 +53,8 @@ public class CubicSplineNakSolver extends CubicSplineSolver {
     }
     if (nData == 3) {
       return new DoubleMatrix1D(new double[] {xValues[0], xValues[nData - 1] });
-    } else {
-      return new DoubleMatrix1D(xValues);
     }
-
+    return new DoubleMatrix1D(xValues);
   }
 
   /**
@@ -77,9 +75,8 @@ public class CubicSplineNakSolver extends CubicSplineSolver {
     if (nData == 3) {
       final double[][] res = new double[][] {{solnVector[0] / 2., yValues[1] / intervals[0] - yValues[0] / intervals[0] - intervals[0] * solnVector[0] / 2., yValues[0] } };
       return new DoubleMatrix2D(res);
-    } else {
-      return getCommonSplineCoeffs(xValues, yValues, intervals, solnVector);
     }
+    return getCommonSplineCoeffs(xValues, yValues, intervals, solnVector);
   }
 
   private DoubleMatrix2D[] getSplineCoeffsWithSensitivity(final double[] xValues, final double[] yValues, final double[] intervals, final double[][] toBeInv, final double[] vector,
@@ -109,20 +106,19 @@ public class CubicSplineNakSolver extends CubicSplineSolver {
       coefSense[2] = new double[] {1., 0., 0. };
       res[1] = new DoubleMatrix2D(coefSense);
       return res;
-    } else {
-      final DoubleMatrix2D[] res = new DoubleMatrix2D[nData];
-      final DoubleMatrix1D[] soln = combinedMatrixEqnSolver(toBeInv, vector, vecSensitivity);
-      res[0] = getCommonSplineCoeffs(xValues, yValues, intervals, soln[0].getData());
-      final double[][] solnMatrix = new double[nData][nData];
-      for (int i = 0; i < nData; ++i) {
-        for (int j = 0; j < nData; ++j) {
-          solnMatrix[i][j] = soln[j + 1].getData()[i];
-        }
-      }
-      final DoubleMatrix2D[] tmp = getCommonSensitivityCoeffs(intervals, solnMatrix);
-      System.arraycopy(tmp, 0, res, 1, nData - 1);
-      return res;
     }
+    final DoubleMatrix2D[] res = new DoubleMatrix2D[nData];
+    final DoubleMatrix1D[] soln = combinedMatrixEqnSolver(toBeInv, vector, vecSensitivity);
+    res[0] = getCommonSplineCoeffs(xValues, yValues, intervals, soln[0].getData());
+    final double[][] solnMatrix = new double[nData][nData];
+    for (int i = 0; i < nData; ++i) {
+      for (int j = 0; j < nData; ++j) {
+        solnMatrix[i][j] = soln[j + 1].getData()[i];
+      }
+    }
+    final DoubleMatrix2D[] tmp = getCommonSensitivityCoeffs(intervals, solnMatrix);
+    System.arraycopy(tmp, 0, res, 1, nData - 1);
+    return res;
   }
 
   /**
@@ -181,24 +177,21 @@ public class CubicSplineNakSolver extends CubicSplineSolver {
       res[0][1] = intervals[0];
       res[1][0] = intervals[0];
       return res;
-    } else {
-      if (nData == 3) {
-        res[0][0] = intervals[1];
-        res[1][1] = intervals[1];
-        res[2][2] = intervals[1];
-        return res;
-      } else {
-        res = getCommonMatrixElements(intervals);
-        res[0][0] = -intervals[1];
-        res[0][1] = intervals[0] + intervals[1];
-        res[0][2] = -intervals[0];
-        res[nData - 1][nData - 3] = -intervals[nData - 2];
-        res[nData - 1][nData - 2] = intervals[nData - 3] + intervals[nData - 2];
-        res[nData - 1][nData - 1] = -intervals[nData - 3];
-        return res;
-      }
     }
-
+    if (nData == 3) {
+      res[0][0] = intervals[1];
+      res[1][1] = intervals[1];
+      res[2][2] = intervals[1];
+      return res;
+    }
+    res = getCommonMatrixElements(intervals);
+    res[0][0] = -intervals[1];
+    res[0][1] = intervals[0] + intervals[1];
+    res[0][2] = -intervals[0];
+    res[nData - 1][nData - 3] = -intervals[nData - 2];
+    res[nData - 1][nData - 2] = intervals[nData - 3] + intervals[nData - 2];
+    res[nData - 1][nData - 1] = -intervals[nData - 3];
+    return res;
   }
 
 }

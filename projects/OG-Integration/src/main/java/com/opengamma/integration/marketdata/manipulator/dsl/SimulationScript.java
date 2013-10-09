@@ -5,10 +5,15 @@
  */
 package com.opengamma.integration.marketdata.manipulator.dsl;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
+
+import org.apache.commons.io.IOUtils;
 
 import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
 
 import groovy.lang.Binding;
@@ -27,21 +32,40 @@ public abstract class SimulationScript extends Script {
   /** The currently building scenario. */
   private Scenario _scenario;
 
+  public SimulationScript() {
+    initialize();
+  }
+
+  public SimulationScript(Binding binding) {
+    super(binding);
+    initialize();
+  }
+
+  // TODO is there a nicer way to do this?
+  private void initialize() {
+    InputStream scriptStream = SimulationScript.class.getResourceAsStream("InitializeScript.groovy");
+    try {
+      evaluate(IOUtils.toString(scriptStream));
+    } catch (IOException e) {
+      throw new OpenGammaRuntimeException("Failed to initialize DSL script", e);
+    }
+  }
+
   /**
    * Defines a method in the DSL taking a block to define the script parameters and their types. It checks the
    * parameters are available in the script's binding and that they have the expected type.
    * <pre>
    * parameters {
    *   foo String
-   *   bar Double
+   *   bar Number
    * }
    * </pre>
    * @param body The block that defines the script's parameters
-   * TODO param values as strings - this method uses the type info to convert from string and push into the binding
    */
   public void parameters(Closure body) {
     ParametersDelegate parametersDelegate = new ParametersDelegate();
     body.setDelegate(parametersDelegate);
+    body.setResolveStrategy(Closure.DELEGATE_FIRST);
     body.call();
     // check the parameters are all in the binding and have the expected types
     Binding binding = getBinding();
@@ -92,11 +116,14 @@ public abstract class SimulationScript extends Script {
 
   /**
    * Defines a method in the DSL that takes a closure defining a simulation.
-   * @param body The block that defines the scenario
+   * @param name The simulation name
+   * @param body The block that defines the simulation
+   * @return The simulation
    */
-  public Simulation simulation(Closure body) {
-    _simulation = new Simulation();
+  public Simulation simulation(String name, Closure body) {
+    _simulation = new Simulation(name);
     body.setDelegate(_simulation);
+    body.setResolveStrategy(Closure.DELEGATE_FIRST);
     body.call();
     return _simulation;
   }
@@ -105,6 +132,7 @@ public abstract class SimulationScript extends Script {
    * Defines a method in the DSL that takes a closure defining a scenario.
    * @param name The scenario name, not empty
    * @param body The block that defines the scenario
+   * @return The scenario
    */
   public Scenario scenario(String name, Closure body) {
     // scenarios can be defined as part of a simulation or stand-alone
@@ -114,6 +142,7 @@ public abstract class SimulationScript extends Script {
       _scenario = new Scenario(name);
     }
     body.setDelegate(_scenario);
+    body.setResolveStrategy(Closure.DELEGATE_FIRST);
     body.call();
     return _scenario;
   }
@@ -125,6 +154,7 @@ public abstract class SimulationScript extends Script {
   public void curve(Closure body) {
     CurveBuilder selector = new CurveBuilder(_scenario);
     body.setDelegate(selector);
+    body.setResolveStrategy(Closure.DELEGATE_FIRST);
     body.call();
   }
 
@@ -135,6 +165,7 @@ public abstract class SimulationScript extends Script {
   public void marketData(Closure body) {
     PointBuilder selector = new PointBuilder(_scenario);
     body.setDelegate(selector);
+    body.setResolveStrategy(Closure.DELEGATE_FIRST);
     body.call();
   }
 
@@ -145,13 +176,14 @@ public abstract class SimulationScript extends Script {
   public void surface(Closure body) {
     SurfaceBuilder selector = new SurfaceBuilder(_scenario);
     body.setDelegate(selector);
+    body.setResolveStrategy(Closure.DELEGATE_FIRST);
     body.call();
   }
 
   /**
    * Delegate class for closures that define a surface transformation in the DSL.
    */
-  private static class SurfaceBuilder extends VolatilitySurfaceSelector.Builder {
+  private static final class SurfaceBuilder extends VolatilitySurfaceSelector.Builder {
 
     private SurfaceBuilder(Scenario scenario) {
       super(scenario);
@@ -160,6 +192,7 @@ public abstract class SimulationScript extends Script {
     public void apply(Closure body) {
       VolatilitySurfaceManipulatorBuilder builder = new VolatilitySurfaceManipulatorBuilder(getScenario(), getSelector());
       body.setDelegate(builder);
+      body.setResolveStrategy(Closure.DELEGATE_FIRST);
       body.call();
     }
   }
@@ -167,7 +200,7 @@ public abstract class SimulationScript extends Script {
   /**
    * Delegate class for blocks that define a market data point transformation in the DSL.
    */
-  private static class PointBuilder extends PointSelector.Builder {
+  private static final class PointBuilder extends PointSelector.Builder {
 
     private PointBuilder(Scenario scenario) {
       super(scenario);
@@ -176,6 +209,7 @@ public abstract class SimulationScript extends Script {
     public void apply(Closure body) {
       PointManipulatorBuilder builder = new PointManipulatorBuilder(getScenario(), getSelector());
       body.setDelegate(builder);
+      body.setResolveStrategy(Closure.DELEGATE_FIRST);
       body.call();
     }
   }
@@ -183,7 +217,7 @@ public abstract class SimulationScript extends Script {
   /**
    * Delegate class for closures that define a curve transformation in the DSL.
    */
-  private static class CurveBuilder extends YieldCurveSelector.Builder {
+  private static final class CurveBuilder extends YieldCurveSelector.Builder {
 
     private CurveBuilder(Scenario scenario) {
       super(scenario);
@@ -192,6 +226,7 @@ public abstract class SimulationScript extends Script {
     public void apply(Closure body) {
       YieldCurveManipulatorBuilder builder = new YieldCurveManipulatorBuilder(getSelector(), getScenario());
       body.setDelegate(builder);
+      body.setResolveStrategy(Closure.DELEGATE_FIRST);
       body.call();
     }
   }

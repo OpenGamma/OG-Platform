@@ -184,6 +184,7 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
   public static PortfolioSearchRequest.Meta meta() {
     return PortfolioSearchRequest.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(PortfolioSearchRequest.Meta.INSTANCE);
   }

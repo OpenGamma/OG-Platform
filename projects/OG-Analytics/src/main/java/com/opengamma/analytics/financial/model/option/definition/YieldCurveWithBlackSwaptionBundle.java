@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.option.definition;
@@ -10,10 +10,13 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.model.option.parameters.BlackFlatSwaptionParameters;
+import com.opengamma.analytics.financial.provider.description.interestrate.BlackSwaptionFlatProviderDiscount;
 
 /**
  * Class describing the data required to price swaptions with Black (curves and volatility).
+ * @deprecated Use {@link BlackSwaptionFlatProviderDiscount}
  */
+@Deprecated
 public class YieldCurveWithBlackSwaptionBundle extends YieldCurveBundle {
 
   /**
@@ -58,7 +61,7 @@ public class YieldCurveWithBlackSwaptionBundle extends YieldCurveBundle {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -68,7 +71,7 @@ public class YieldCurveWithBlackSwaptionBundle extends YieldCurveBundle {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    YieldCurveWithBlackSwaptionBundle other = (YieldCurveWithBlackSwaptionBundle) obj;
+    final YieldCurveWithBlackSwaptionBundle other = (YieldCurveWithBlackSwaptionBundle) obj;
     if (!ObjectUtils.equals(_parameters, other._parameters)) {
       return false;
     }

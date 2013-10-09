@@ -129,12 +129,7 @@ public class ResolvingPortfolioLoaderTool extends AbstractTool<IntegrationToolCo
         throw new OpenGammaRuntimeException("Portfolio name omitted, cannot persist to OpenGamma masters");
       }
       // Create a portfolio writer to persist imported positions, trades and securities to the OG masters
-      return new MasterPortfolioWriter(
-          portfolioName, 
-          portfolioMaster, 
-          positionMaster, 
-          securityMaster,
-          overwrite, false, false, false);
+      return new MasterPortfolioWriter(portfolioName, portfolioMaster, positionMaster, securityMaster, false, false, false);
     } else {
       // Create a dummy portfolio writer to pretty-print instead of persisting
       return new PrettyPrintingPortfolioWriter(true);         

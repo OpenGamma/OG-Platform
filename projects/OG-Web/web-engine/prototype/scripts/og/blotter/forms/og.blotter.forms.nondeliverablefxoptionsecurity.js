@@ -8,9 +8,13 @@ $.register_module({
     obj: function () {
         return function (config) {
             var constructor = this, form, ui = og.common.util.ui, data, validate, util = og.blotter.util;
-            if(config.details) {data = config.details.data; data.id = config.details.data.trade.uniqueId;}
-            else {data = {security: {type: "NonDeliverableFXOptionSecurity", externalIdBundle: "", attributes: {}}, 
-                trade: util.otc_trade};}
+            if (config.details) {
+                data = config.details.data;
+                data.id = config.details.data.trade.uniqueId;
+            } else {
+                data = {security: {type: "NonDeliverableFXOptionSecurity", externalIdBundle: "", attributes: {}},
+                    trade: util.otc_trade};
+            }
             data.nodeId = config.node ? config.node.id : null;
             constructor.load = function () {
                 constructor.title = 'Non-Deliverable FX Option';
@@ -33,10 +37,10 @@ $.register_module({
                         module: 'og.blotter.forms.blocks.fx_option_value_tash',
                         extras: {put: data.security.putAmount, call: data.security.callAmount},
                         children: [
-                            new form.Block({module:'og.views.forms.currency_tash',
-                                extras:{name: 'security.putCurrency'}}),
-                            new form.Block({module:'og.views.forms.currency_tash',
-                                extras:{name: 'security.callCurrency'}})
+                            new form.Block({module: 'og.views.forms.currency_tash',
+                                extras: {name: 'security.putCurrency'}}),
+                            new form.Block({module: 'og.views.forms.currency_tash',
+                                extras: {name: 'security.callCurrency'}})
                         ]
                     }),
                     new form.Block({

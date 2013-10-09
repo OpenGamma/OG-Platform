@@ -38,6 +38,7 @@ public class CogdaLiveDataSubscriptionResponseMessage extends CogdaLiveDataComma
   public static CogdaLiveDataSubscriptionResponseMessage.Meta meta() {
     return CogdaLiveDataSubscriptionResponseMessage.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(CogdaLiveDataSubscriptionResponseMessage.Meta.INSTANCE);
   }

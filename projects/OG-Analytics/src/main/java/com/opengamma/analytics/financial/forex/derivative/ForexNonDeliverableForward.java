@@ -6,8 +6,8 @@
 package com.opengamma.analytics.financial.forex.derivative;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.util.ArgumentChecker;
@@ -62,21 +62,49 @@ public class ForexNonDeliverableForward implements InstrumentDerivative {
    * @param paymentTime The transaction payment or settlement time.
    * @param dsc1 The discounting curve name used for currency1.
    * @param dsc2 The discounting curve name used for currency2.
+   * @deprecated Use the constructor that does not take yield curve names
    */
+  @Deprecated 
   public ForexNonDeliverableForward(final Currency currency1, final Currency currency2, final double notional, final double exchangeRate, final double fixingTime, final double paymentTime,
       final String dsc1, final String dsc2) {
-    Validate.notNull(currency1, "First currency");
-    Validate.notNull(currency2, "Second currency");
-    Validate.isTrue(currency1 != currency2, "Currencies should be different");
-    Validate.isTrue(fixingTime <= paymentTime, "Payment time should be on or after fixing time");
-    this._currency1 = currency1;
-    this._currency2 = currency2;
-    this._notional = notional;
-    this._exchangeRate = exchangeRate;
-    this._fixingTime = fixingTime;
-    this._paymentTime = paymentTime;
+    ArgumentChecker.notNull(currency1, "First currency");
+    ArgumentChecker.notNull(currency2, "Second currency");
+    ArgumentChecker.isTrue(currency1 != currency2, "Currencies should be different");
+    ArgumentChecker.isTrue(fixingTime <= paymentTime, "Payment time should be on or after fixing time");
+    ArgumentChecker.notNull(dsc1, "discounting curve name 1");
+    ArgumentChecker.notNull(dsc2, "discounting curve name 2");
+    _currency1 = currency1;
+    _currency2 = currency2;
+    _notional = notional;
+    _exchangeRate = exchangeRate;
+    _fixingTime = fixingTime;
+    _paymentTime = paymentTime;
     _discountingCurve1Name = dsc1;
     _discountingCurve2Name = dsc2;
+  }
+  
+  /**
+   * Constructor for non-deliverable forward Forex transaction.
+   * @param currency1 First currency of the transaction.
+   * @param currency2 Second currency of the transaction. The cash settlement is done in this currency.
+   * @param notional Notional of the transaction (in currency2).
+   * @param exchangeRate The reference exchange rate for the settlement (1 currency2 = _rate currency1).
+   * @param fixingTime The exchange rate fixing time.
+   * @param paymentTime The transaction payment or settlement time.
+   */
+  public ForexNonDeliverableForward(final Currency currency1, final Currency currency2, final double notional, final double exchangeRate, final double fixingTime, final double paymentTime) {
+    ArgumentChecker.notNull(currency1, "First currency");
+    ArgumentChecker.notNull(currency2, "Second currency");
+    ArgumentChecker.isTrue(currency1 != currency2, "Currencies should be different");
+    ArgumentChecker.isTrue(fixingTime <= paymentTime, "Payment time should be on or after fixing time");
+    _currency1 = currency1;
+    _currency2 = currency2;
+    _notional = notional;
+    _exchangeRate = exchangeRate;
+    _fixingTime = fixingTime;
+    _paymentTime = paymentTime;
+    _discountingCurve1Name = null;
+    _discountingCurve2Name = null;
   }
 
   /**
@@ -138,16 +166,26 @@ public class ForexNonDeliverableForward implements InstrumentDerivative {
   /**
    * Gets the discounting curve name used for currency1.
    * @return The name.
+   * @deprecated Curve names should no longer be set in {@link InstrumentDefinition}s
    */
+  @Deprecated
   public String getDiscountingCurve1Name() {
+    if (_discountingCurve1Name == null) {
+      throw new IllegalArgumentException("Discounting curve name 1 was not set"); 
+    }
     return _discountingCurve1Name;
   }
 
   /**
    * Gets the discounting curve name used for currency2.
    * @return The name.
+   * @deprecated Curve names should no longer be set in {@link InstrumentDefinition}s
    */
+  @Deprecated
   public String getDiscountingCurve2Name() {
+    if (_discountingCurve2Name == null) {
+      throw new IllegalArgumentException("Discounting curve name 2 was not set"); 
+    }
     return _discountingCurve2Name;
   }
 

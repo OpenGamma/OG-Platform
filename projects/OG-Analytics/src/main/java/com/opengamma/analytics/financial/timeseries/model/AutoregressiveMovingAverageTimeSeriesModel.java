@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.timeseries.model;
@@ -13,7 +13,7 @@ import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ *
  */
 public class AutoregressiveMovingAverageTimeSeriesModel {
   private final AutoregressiveTimeSeriesModel _arModel;
@@ -51,16 +51,16 @@ public class AutoregressiveMovingAverageTimeSeriesModel {
       theta1[0] = 0.;
       for (int i = 0; i < theta.length; i++) {
         theta1[i + 1] = theta[i];
-      }    
+      }
       if (p == 0) {
         return _maModel.getSeries(theta1, q, dates);
       }
       if (q == 0) {
         return _arModel.getSeries(phi, p, dates);
       }
-      return (LocalDateDoubleTimeSeries) _arModel.getSeries(phi, p, dates).add(_maModel.getSeries(theta1, q, dates));    
+      return _arModel.getSeries(phi, p, dates).add(_maModel.getSeries(theta1, q, dates));
     }
-    return _arModel.getSeries(phi, p, dates);    
+    return _arModel.getSeries(phi, p, dates);
   }
 
 }

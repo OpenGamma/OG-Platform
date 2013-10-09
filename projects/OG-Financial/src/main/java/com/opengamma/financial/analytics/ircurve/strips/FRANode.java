@@ -103,6 +103,7 @@ public class FRANode extends CurveNode {
   public static FRANode.Meta meta() {
     return FRANode.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(FRANode.Meta.INSTANCE);
   }

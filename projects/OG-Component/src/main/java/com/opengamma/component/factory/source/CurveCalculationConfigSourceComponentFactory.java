@@ -79,6 +79,7 @@ public class CurveCalculationConfigSourceComponentFactory extends AbstractCompon
   public static CurveCalculationConfigSourceComponentFactory.Meta meta() {
     return CurveCalculationConfigSourceComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(CurveCalculationConfigSourceComponentFactory.Meta.INSTANCE);
   }

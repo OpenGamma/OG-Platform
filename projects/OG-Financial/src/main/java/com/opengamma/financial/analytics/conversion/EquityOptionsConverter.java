@@ -38,14 +38,14 @@ import com.opengamma.util.money.Currency;
  * Converts equity index options, equity options and equity index future options into something that OG-Analytics can use.
  */
 public class EquityOptionsConverter extends FinancialSecurityVisitorAdapter<InstrumentDefinition<?>> {
-  private final FutureSecurityConverter _futureSecurityConverter;
+  private final FutureSecurityConverterDeprecated _futureSecurityConverter;
   private final SecuritySource _securitySource;
 
   public EquityOptionsConverter() {
     this(null, null);
   }
 
-  public EquityOptionsConverter(final FutureSecurityConverter futureSecurityConverter, final SecuritySource securitySource) {
+  public EquityOptionsConverter(final FutureSecurityConverterDeprecated futureSecurityConverter, final SecuritySource securitySource) {
     _futureSecurityConverter = futureSecurityConverter;
     _securitySource = securitySource;
   }
@@ -59,9 +59,9 @@ public class EquityOptionsConverter extends FinancialSecurityVisitorAdapter<Inst
     final Currency ccy = security.getCurrency();
     final double unitNotional = security.getPointValue();
     final ExerciseDecisionType exerciseType = security.getExerciseType().accept(ExerciseTypeAnalyticsVisitorAdapter.getInstance());
-    // TODO !!! We need to know how long after expiry does settlement occur?
+    // TODO We need to know how long after expiry settlement occurs?
     // IndexOptions are obviously Cash Settled
-    final LocalDate settlementDate = expiryDT.toLocalDate(); // FIXME !!! Needs to come from convention !!!
+    final LocalDate settlementDate = expiryDT.toLocalDate(); // FIXME Needs to come from convention
     //TODO settlement type needs to come from trade or convention
     return new EquityIndexOptionDefinition(isCall, strike, ccy, exerciseType, expiryDT, settlementDate, unitNotional, SettlementType.CASH);
   }
@@ -75,9 +75,9 @@ public class EquityOptionsConverter extends FinancialSecurityVisitorAdapter<Inst
     final Currency ccy = security.getCurrency();
     final double unitNotional = security.getPointValue();
     final ExerciseDecisionType exerciseType = security.getExerciseType().accept(ExerciseTypeAnalyticsVisitorAdapter.getInstance());
-    // TODO !!! We need to know how long after expiry does settlement occur?
+    // TODO We need to know how long after expiry settlement occurs?
     // IndexOptions are obviously Cash Settled
-    final LocalDate settlementDate = expiryDT.toLocalDate(); // FIXME !!! Needs to come from convention !!!
+    final LocalDate settlementDate = expiryDT.toLocalDate(); // FIXME Needs to come from convention
     //TODO settlement type needs to come from trade or convention
     return new EquityOptionDefinition(isCall, strike, ccy, exerciseType, expiryDT, settlementDate, unitNotional, SettlementType.PHYSICAL);
   }
@@ -103,19 +103,18 @@ public class EquityOptionsConverter extends FinancialSecurityVisitorAdapter<Inst
     if (underlyingSecurity instanceof IndexFutureSecurity) {
       final IndexFutureSecurity underlyingFuture = ((IndexFutureSecurity) underlyingSecurity);
       underlying = (IndexFutureDefinition) underlyingFuture.accept(_futureSecurityConverter);
-//      s_logger.warn(security.getName() + " is an IndexFutureSecurity");
     } else if (underlyingSecurity instanceof EquityFutureSecurity) {
       final EquityFutureSecurity underlyingFuture = ((EquityFutureSecurity) underlyingSecurity);
       EquityFutureDefinition eqFut = (EquityFutureDefinition) underlyingFuture.accept(_futureSecurityConverter);
       underlying = new IndexFutureDefinition(eqFut.getExpiryDate(), eqFut.getSettlementDate(), eqFut.getStrikePrice(), eqFut.getCurrency(), eqFut.getUnitAmount(), underlyingFuture.getUnderlyingId());
-//      s_logger.warn(security.getName() + " is an EquityFutureSecurity");
     }
    
     final double strike = security.getStrike();
     final ExerciseDecisionType exerciseType = security.getExerciseType().accept(ExerciseTypeAnalyticsVisitorAdapter.getInstance());
     final boolean isCall = security.getOptionType() == OptionType.CALL;
     final double pointValue = security.getPointValue();
-    return new EquityIndexFutureOptionDefinition(expiryDate, underlying, strike, exerciseType, isCall, pointValue);
+    // FIXME Need the true referencePrice. 0.0 is just a stub as this converter acts upon a FinancialSecurity, not a Trade. 
+    return new EquityIndexFutureOptionDefinition(expiryDate, underlying, strike, exerciseType, isCall, pointValue, 0.0);
 
   }
   

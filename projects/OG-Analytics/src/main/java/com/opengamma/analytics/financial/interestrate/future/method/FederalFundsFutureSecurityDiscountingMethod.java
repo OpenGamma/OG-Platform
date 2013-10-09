@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.method;
@@ -22,7 +22,9 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Methods for the pricing of Federal Funds futures by discounting (using average of forward rates; not convexity adjustment).
+ * @deprecated Use {@link com.opengamma.analytics.financial.interestrate.future.provider.FederalFundsFutureSecurityDiscountingMethod}
  */
+@Deprecated
 public final class FederalFundsFutureSecurityDiscountingMethod extends FederalFundsFutureSecurityMethod {
 
   /**

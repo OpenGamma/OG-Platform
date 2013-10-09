@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.swap.method;
@@ -56,6 +56,10 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
+/**
+ * @deprecated This class tests deprecated methods.
+ */
+@Deprecated
 public class SwapCalculatorTest {
 
   private static final Calendar CALENDAR_USD = new MondayToFridayCalendar("USD Calendar");

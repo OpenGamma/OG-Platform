@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.cash;
@@ -61,7 +61,7 @@ public class DepositCounterpartDefinition extends CashDefinition {
     ArgumentChecker.notNull(generator, "Generator");
     ArgumentChecker.notNull(name, "Name");
     final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, tenor, generator);
-    final double accrualFactor = generator.getDayCount().getDayCountFraction(startDate, endDate);
+    final double accrualFactor = generator.getDayCount().getDayCountFraction(startDate, endDate, generator.getCalendar());
     return new DepositCounterpartDefinition(generator.getCurrency(), startDate, endDate, notional, rate, accrualFactor, name);
   }
 
@@ -79,7 +79,7 @@ public class DepositCounterpartDefinition extends CashDefinition {
     ArgumentChecker.notNull(generator, "Generator");
     ArgumentChecker.notNull(name, "Name");
     final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, 1, generator.getCalendar());
-    final double accrualFactor = generator.getDayCount().getDayCountFraction(startDate, endDate);
+    final double accrualFactor = generator.getDayCount().getDayCountFraction(startDate, endDate, generator.getCalendar());
     return new DepositCounterpartDefinition(generator.getCurrency(), startDate, endDate, notional, rate, accrualFactor, name);
   }
 
@@ -101,7 +101,7 @@ public class DepositCounterpartDefinition extends CashDefinition {
     ArgumentChecker.notNull(name, "Name");
     final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(tradeDate, generator.getSpotLag(), generator.getCalendar());
     final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, tenor, generator);
-    final double accrualFactor = generator.getDayCount().getDayCountFraction(startDate, endDate);
+    final double accrualFactor = generator.getDayCount().getDayCountFraction(startDate, endDate, generator.getCalendar());
     return new DepositCounterpartDefinition(generator.getCurrency(), startDate, endDate, notional, rate, accrualFactor, name);
   }
 
@@ -121,7 +121,7 @@ public class DepositCounterpartDefinition extends CashDefinition {
     ArgumentChecker.notNull(name, "Name");
     final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(tradeDate, start, generator.getCalendar());
     final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, 1, generator.getCalendar());
-    final double accrualFactor = generator.getDayCount().getDayCountFraction(startDate, endDate);
+    final double accrualFactor = generator.getDayCount().getDayCountFraction(startDate, endDate, generator.getCalendar());
     return new DepositCounterpartDefinition(generator.getCurrency(), startDate, endDate, notional, rate, accrualFactor, name);
   }
 
@@ -133,6 +133,11 @@ public class DepositCounterpartDefinition extends CashDefinition {
     return _name;
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public DepositCounterpart toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     ArgumentChecker.isTrue(!date.isAfter(getEndDate()), "date is after end date");
@@ -141,6 +146,16 @@ public class DepositCounterpartDefinition extends CashDefinition {
       return new DepositCounterpart(getCurrency(), 0, TimeCalculator.getTimeBetween(date, getEndDate()), getNotional(), 0, getRate(), getAccrualFactor(), _name, yieldCurveNames[0]);
     }
     return new DepositCounterpart(getCurrency(), startTime, TimeCalculator.getTimeBetween(date, getEndDate()), getNotional(), getNotional(), getRate(), getAccrualFactor(), _name, yieldCurveNames[0]);
+  }
+
+  @Override
+  public DepositCounterpart toDerivative(final ZonedDateTime date) {
+    ArgumentChecker.isTrue(!date.isAfter(getEndDate()), "date is after end date");
+    final double startTime = TimeCalculator.getTimeBetween(date, getStartDate());
+    if (startTime < 0) {
+      return new DepositCounterpart(getCurrency(), 0, TimeCalculator.getTimeBetween(date, getEndDate()), getNotional(), 0, getRate(), getAccrualFactor(), _name);
+    }
+    return new DepositCounterpart(getCurrency(), startTime, TimeCalculator.getTimeBetween(date, getEndDate()), getNotional(), getNotional(), getRate(), getAccrualFactor(), _name);
   }
 
   @Override

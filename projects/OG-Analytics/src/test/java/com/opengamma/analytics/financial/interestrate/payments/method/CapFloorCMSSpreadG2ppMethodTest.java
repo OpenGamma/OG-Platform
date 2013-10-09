@@ -26,6 +26,10 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.time.DateUtils;
 
+/**
+ * @deprecated This class tests deprecated functionality
+ */
+@Deprecated
 public class CapFloorCMSSpreadG2ppMethodTest {
 
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
@@ -36,7 +40,6 @@ public class CapFloorCMSSpreadG2ppMethodTest {
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2008, 8, 18);
   private static final ZonedDateTime FIXING_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofMonths(60), GEN_USD_DEPOSIT);
-  //  private static final ZonedDateTime SETTLEMENT_DATE = ScheduleCalculator.getAdjustedDate(FIXING_DATE, GEN_USD6MLIBOR3M.getSpotLag(), NYC);
 
   // CMS spread coupon
   private static final double NOTIONAL = 100000000;
@@ -61,8 +64,6 @@ public class CapFloorCMSSpreadG2ppMethodTest {
 
   // Method and calculators
   private static final CapFloorCMSSpreadG2ppNumericalIntegrationMethod METHOD_NI = new CapFloorCMSSpreadG2ppNumericalIntegrationMethod();
-  //  private static final CapFloorCMSSpreadG2ppApproximationMethod METHOD_APPROX = new CapFloorCMSSpreadG2ppApproximationMethod();
-  //  private static final ParRateCalculator PRC = ParRateCalculator.getInstance();
 
   private static final double TOLERANCE_PV = 1.0E-2; // 0.01 currency unit for 100m notional.
 

@@ -1,12 +1,11 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.bond;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
@@ -17,9 +16,10 @@ import com.opengamma.analytics.financial.interestrate.bond.definition.BondTransa
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- * Describes a generic single currency bond transaction. 
+ * Describes a generic single currency bond transaction.
  * @param <N> The notional type (usually FixedPayment or CouponInflationZeroCoupon).
  * @param <C> The coupon type.
  */
@@ -68,13 +68,13 @@ public abstract class BondTransactionDefinition<N extends PaymentDefinition, C e
    * @param price The (dirty) price of the transaction in relative term (i.e. 0.90 if the dirty price is 90% of nominal).
    */
   public BondTransactionDefinition(final BondSecurityDefinition<N, C> underlyingBond, final double quantity, final ZonedDateTime settlementDate, final double price) {
-    Validate.notNull(underlyingBond, "Underlying bond");
-    Validate.notNull(settlementDate, "Settlement date");
-    this._underlyingBond = underlyingBond;
-    this._quantity = quantity;
-    this._settlementDate = settlementDate;
+    ArgumentChecker.notNull(underlyingBond, "Underlying bond");
+    ArgumentChecker.notNull(settlementDate, "Settlement date");
+    _underlyingBond = underlyingBond;
+    _quantity = quantity;
+    _settlementDate = settlementDate;
     _settlementExCouponDate = ScheduleCalculator.getAdjustedDate(_settlementDate, _underlyingBond.getExCouponDays(), _underlyingBond.getCalendar());
-    this._price = price;
+    _price = price;
     final int nbCoupon = underlyingBond.getCoupons().getNumberOfPayments();
     for (int loopcpn = 0; loopcpn < nbCoupon; loopcpn++) {
       if (underlyingBond.getCoupons().getNthPayment(loopcpn).getAccrualEndDate().isAfter(_settlementExCouponDate)) {

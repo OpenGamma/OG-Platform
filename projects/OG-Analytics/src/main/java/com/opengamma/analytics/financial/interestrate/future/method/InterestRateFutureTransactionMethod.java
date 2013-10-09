@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.method;
@@ -14,7 +14,9 @@ import com.opengamma.analytics.financial.interestrate.method.PricingMethod;
 
 /**
  * Methods for the pricing of interest rate futures generic to all models.
+ * @deprecated {@link YieldCurveBundle} is deprecated
  */
+@Deprecated
 public abstract class InterestRateFutureTransactionMethod implements PricingMethod {
 
   /**
@@ -24,7 +26,7 @@ public abstract class InterestRateFutureTransactionMethod implements PricingMeth
    * @return The present value.
    */
   public double presentValueFromPrice(final InterestRateFutureTransaction future, final double price) {
-    double pv = (price - future.getReferencePrice()) * future.getPaymentAccrualFactor() * future.getNotional() * future.getQuantity();
+    final double pv = (price - future.getReferencePrice()) * future.getPaymentAccrualFactor() * future.getNotional() * future.getQuantity();
     return pv;
   }
 
@@ -36,7 +38,7 @@ public abstract class InterestRateFutureTransactionMethod implements PricingMeth
    */
   public InterestRateCurveSensitivity presentValueCurveSensitivity(final InterestRateFutureTransaction future, final InterestRateCurveSensitivity priceSensi) {
     Validate.notNull(future, "Future");
-    InterestRateCurveSensitivity result = priceSensi.multipliedBy(future.getPaymentAccrualFactor() * future.getNotional() * future.getQuantity());
+    final InterestRateCurveSensitivity result = priceSensi.multipliedBy(future.getPaymentAccrualFactor() * future.getNotional() * future.getQuantity());
     return result;
   }
 

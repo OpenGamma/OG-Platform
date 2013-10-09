@@ -72,7 +72,7 @@ public class ViewStatusTool extends AbstractTool<ToolContext> {
       s_logger.debug("Writing status report into : {}", outputFile.getPath());
       FileUtils.writeStringToFile(outputFile, statusResult);
     } catch (IOException ex) {
-      throw new OpenGammaRuntimeException("Error writing view-status report file", ex.getCause());
+      throw new OpenGammaRuntimeException("Error writing view-status report to " + option.getOutputFile().toString(), ex);
     }
    
   }
@@ -83,9 +83,9 @@ public class ViewStatusTool extends AbstractTool<ToolContext> {
     final PortfolioSearchResult searchResult = getToolContext().getPortfolioMaster().search(searchRequest);
     UniqueId portfolioId = null;
     if (searchResult.getFirstPortfolio() != null) {
-      portfolioId = searchResult.getFirstPortfolio().getUniqueId();
+      portfolioId = searchResult.getFirstPortfolio().getUniqueId().toLatest();
     }
-    return portfolioId.toLatest();
+    return portfolioId;
   }
 
   private UniqueId createReferencePortfolio() {

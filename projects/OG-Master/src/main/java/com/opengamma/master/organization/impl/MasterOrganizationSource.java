@@ -1,6 +1,5 @@
 /**
- * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma
- group of companies
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
  */
@@ -23,7 +22,11 @@ import com.opengamma.master.orgs.OrganizationDocument;
 import com.opengamma.master.orgs.OrganizationMaster;
 import com.opengamma.master.orgs.OrganizationSearchRequest;
 
-public class MasterOrganizationSource extends AbstractMasterSource<Organization, OrganizationDocument, OrganizationMaster>
+/**
+ * Organization source based on the master.
+ */
+public class MasterOrganizationSource
+    extends AbstractMasterSource<Organization, OrganizationDocument, OrganizationMaster>
     implements OrganizationSource {
 
   /**
@@ -85,11 +88,12 @@ public class MasterOrganizationSource extends AbstractMasterSource<Organization,
 
     Map<UniqueId, OrganizationDocument> documents = getMaster().get(uniqueIds);
     return Maps.transformValues(documents,
-           new Function<OrganizationDocument, Organization>() {
-             @Override
-             public Organization apply(OrganizationDocument organizationDocument) {
-               return organizationDocument.getOrganization();
-             }
-           });
+        new Function<OrganizationDocument, Organization>() {
+          @Override
+          public Organization apply(OrganizationDocument organizationDocument) {
+            return organizationDocument.getOrganization();
+          }
+        });
   }
+
 }

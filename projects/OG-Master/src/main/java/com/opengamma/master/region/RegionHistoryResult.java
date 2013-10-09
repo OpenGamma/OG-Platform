@@ -98,6 +98,7 @@ public class RegionHistoryResult extends AbstractHistoryResult<RegionDocument> {
   public static RegionHistoryResult.Meta meta() {
     return RegionHistoryResult.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(RegionHistoryResult.Meta.INSTANCE);
   }

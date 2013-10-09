@@ -28,7 +28,9 @@ import com.opengamma.util.tuple.Pair;
 
 /**
  * Default properties for FX options priced using the Black functions.
+ * @deprecated These defaults are used by deprecated functions.
  */
+@Deprecated
 public class FXOptionBlackCurveDefaults extends DefaultPropertyFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(FXOptionBlackCurveDefaults.class);
   private static final String[] VALUE_REQUIREMENTS = new String[] {
@@ -55,7 +57,8 @@ public class FXOptionBlackCurveDefaults extends DefaultPropertyFunction {
     ValueRequirementNames.GAMMA,
     ValueRequirementNames.FORWARD_GAMMA,
     ValueRequirementNames.FORWARD_VEGA,
-    ValueRequirementNames.FORWARD_DRIFTLESS_THETA
+    ValueRequirementNames.FORWARD_DRIFTLESS_THETA,
+    ValueRequirementNames.THETA
   };
   private final Map<String, Pair<String, String>> _currencyCurveConfigAndDiscountingCurveNames;
 

@@ -49,6 +49,7 @@ public class IntegrationToolContext extends ToolContext implements BloombergTool
   public static IntegrationToolContext.Meta meta() {
     return IntegrationToolContext.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(IntegrationToolContext.Meta.INSTANCE);
   }

@@ -8,7 +8,6 @@ package com.opengamma.engine.view.worker.cache;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
@@ -38,6 +37,7 @@ import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.engine.view.compilation.CompiledViewCalculationConfiguration;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
 import com.opengamma.id.UniqueId;
@@ -115,8 +115,8 @@ public class EHCacheViewExecutionCache implements ViewExecutionCache {
     private final ComputationTargetSpecification[] _nodeTargets;
     private final FunctionParameters[] _nodeParameters;
     private final String[] _nodeFunctions;
-    private final Set<ValueSpecification>[] _nodeInputs;
-    private final Set<ValueSpecification>[] _nodeOutputs;
+    private final Collection<ValueSpecification>[] _nodeInputs;
+    private final Collection<ValueSpecification>[] _nodeOutputs;
 
     @SuppressWarnings("unchecked")
     public DependencyGraphHolder(final DependencyGraph graph) {
@@ -125,15 +125,15 @@ public class EHCacheViewExecutionCache implements ViewExecutionCache {
       _nodeTargets = new ComputationTargetSpecification[size];
       _nodeParameters = new FunctionParameters[size];
       _nodeFunctions = new String[size];
-      _nodeInputs = new Set[size];
-      _nodeOutputs = new Set[size];
+      _nodeInputs = new Collection[size];
+      _nodeOutputs = new Collection[size];
       int i = 0;
       for (DependencyNode node : graph.getDependencyNodes()) {
         _nodeTargets[i] = node.getComputationTarget();
         _nodeParameters[i] = node.getFunction().getParameters();
         _nodeFunctions[i] = node.getFunction().getFunction().getFunctionDefinition().getUniqueId();
         _nodeInputs[i] = node.getInputValues();
-        _nodeOutputs[i] = new HashSet<ValueSpecification>(node.getOutputValues());
+        _nodeOutputs[i] = new ArrayList<ValueSpecification>(node.getOutputValues());
         i++;
       }
       _terminalOutputs = graph.getTerminalOutputs();
@@ -177,33 +177,35 @@ public class EHCacheViewExecutionCache implements ViewExecutionCache {
     private final Map<ComputationTargetReference, UniqueId> _resolutions;
     private final UniqueId _portfolio;
     private final long _functionInitId;
+    private final Collection<CompiledViewCalculationConfiguration> _calcConfigs;
 
-    public CompiledViewDefinitionWithGraphsReader(final EHCacheViewExecutionCache parent, final CompiledViewDefinitionWithGraphs object) {
+    public CompiledViewDefinitionWithGraphsReader(EHCacheViewExecutionCache parent, CompiledViewDefinitionWithGraphs viewDef) {
       _parent = parent.instance();
-      _versionCorrection = object.getResolverVersionCorrection();
-      _compilationId = object.getCompilationIdentifier();
-      if (object.getValidFrom() == null) {
-        if (object.getValidTo() == null) {
+      _versionCorrection = viewDef.getResolverVersionCorrection();
+      _compilationId = viewDef.getCompilationIdentifier();
+      if (viewDef.getValidFrom() == null) {
+        if (viewDef.getValidTo() == null) {
           _compilationTime = Instant.now();
         } else {
-          _compilationTime = object.getValidTo();
+          _compilationTime = viewDef.getValidTo();
         }
       } else {
-        if (object.getValidTo() == null) {
-          _compilationTime = object.getValidFrom();
+        if (viewDef.getValidTo() == null) {
+          _compilationTime = viewDef.getValidFrom();
         } else {
-          _compilationTime = Instant.ofEpochSecond((object.getValidFrom().getEpochSecond() + object.getValidTo().getEpochSecond()) >> 1);
+          _compilationTime = Instant.ofEpochSecond((viewDef.getValidFrom().getEpochSecond() + viewDef.getValidTo().getEpochSecond()) >> 1);
         }
       }
-      _viewDefinition = object.getViewDefinition().getUniqueId();
-      final Collection<DependencyGraphExplorer> graphs = object.getDependencyGraphExplorers();
-      _graphs = new ArrayList<DependencyGraphHolder>(graphs.size());
+      _viewDefinition = viewDef.getViewDefinition().getUniqueId();
+      final Collection<DependencyGraphExplorer> graphs = viewDef.getDependencyGraphExplorers();
+      _graphs = new ArrayList<>(graphs.size());
       for (DependencyGraphExplorer explorer : graphs) {
         _graphs.add(new DependencyGraphHolder(explorer.getWholeGraph()));
       }
-      _resolutions = object.getResolvedIdentifiers();
-      _portfolio = object.getPortfolio().getUniqueId();
-      _functionInitId = ((CompiledViewDefinitionWithGraphsImpl) object).getFunctionInitId();
+      _resolutions = viewDef.getResolvedIdentifiers();
+      _portfolio = viewDef.getPortfolio().getUniqueId();
+      _functionInitId = ((CompiledViewDefinitionWithGraphsImpl) viewDef).getFunctionInitId();
+      _calcConfigs = viewDef.getCompiledCalculationConfigurations();
     }
 
     private Object readResolve() {
@@ -216,8 +218,10 @@ public class EHCacheViewExecutionCache implements ViewExecutionCache {
       }
       final Portfolio portfolio = (Portfolio) parent.getFunctions().getFunctionCompilationContext().getRawComputationTargetResolver()
           .resolve(new ComputationTargetSpecification(ComputationTargetType.PORTFOLIO, _portfolio), _versionCorrection).getValue();
-      return parent.new CompiledViewDefinitionWithGraphsHolder(new CompiledViewDefinitionWithGraphsImpl(_versionCorrection, _compilationId, viewDefinition, graphs, _resolutions, portfolio,
-          _functionInitId));
+      CompiledViewDefinitionWithGraphsImpl compiledViewDef =
+          new CompiledViewDefinitionWithGraphsImpl(_versionCorrection, _compilationId, viewDefinition, graphs,
+              _resolutions, portfolio, _functionInitId, _calcConfigs);
+      return parent.new CompiledViewDefinitionWithGraphsHolder(compiledViewDef);
     }
   }
 

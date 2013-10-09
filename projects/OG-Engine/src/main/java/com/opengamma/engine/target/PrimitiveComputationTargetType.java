@@ -10,6 +10,7 @@ import java.util.Map;
 
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.engine.ComputationTargetResolver;
+import com.opengamma.engine.target.resolver.DeepResolver;
 import com.opengamma.engine.target.resolver.IdentifierResolver;
 import com.opengamma.engine.target.resolver.ObjectResolver;
 import com.opengamma.id.ExternalIdBundle;
@@ -93,8 +94,8 @@ public class PrimitiveComputationTargetType<T extends UniqueIdentifiable> extend
   }
 
   @Override
-  public boolean isDeepResolver() {
-    return _resolver.isDeepResolver();
+  public DeepResolver deepResolver() {
+    return _resolver.deepResolver();
   }
 
   @Override

@@ -27,7 +27,9 @@ import redis.clients.jedis.JedisPool;
 import com.google.common.base.Charsets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.change.DummyChangeManager;
 import com.opengamma.core.config.ConfigSource;
+import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
@@ -178,6 +180,11 @@ public class NonVersionedRedisConfigSource implements ConfigSource {
     ArgumentChecker.isTrue(clazz.isAssignableFrom(object.getClass()), "Unable to assign " + object.getClass() + " to " + clazz);
     
     UniqueId uniqueId = UniqueId.of(IDENTIFIER_SCHEME_DEFAULT, GUIDGenerator.generate().toString());
+    
+    if (object instanceof MutableUniqueIdentifiable) {
+      MutableUniqueIdentifiable identifiable = (MutableUniqueIdentifiable) object;
+      identifiable.setUniqueId(uniqueId);
+    }
     
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
     FudgeObjectWriter objectWriter = getFudgeContext().createObjectWriter(baos);
@@ -437,13 +444,9 @@ public class NonVersionedRedisConfigSource implements ConfigSource {
     return (R) configItem.getValue();
   }
 
-  // ---------------------------------------------------------------------
-  // UNSUPPORTED OPERATIONS
-  // ---------------------------------------------------------------------
-  
   @Override
   public ChangeManager changeManager() {
-    throw new UnsupportedOperationException("Not implemented in this ConfigSource.");
+    return DummyChangeManager.INSTANCE;
   }
 
 }

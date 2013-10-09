@@ -11,7 +11,9 @@ import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexIborMaster;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.instrument.index.IndexONMaster;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponArithmeticAverageONSpreadSimplified;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
+import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -20,12 +22,13 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 
 public class CouponArithmeticAverageONSpreadSimplifiedDefinitionTest {
-
+  private static final int US_SETTLEMENT_DAYS = 2;
   private static final BusinessDayConvention MOD_FOL = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final Calendar NYC = new MondayToFridayCalendar("NYC");
   private static final IndexON FEDFUND = IndexONMaster.getInstance().getIndex("FED FUND");
   private static final IborIndex USDLIBOR3M = IndexIborMaster.getInstance().getIndex("USDLIBOR3M");
-
+  private static final ZonedDateTime TRADE_DATE = DateUtils.getUTCDate(2011, 5, 23);
+  private static final ZonedDateTime SPOT_DATE = ScheduleCalculator.getAdjustedDate(TRADE_DATE, US_SETTLEMENT_DAYS, NYC);
   private static final ZonedDateTime ACCRUAL_START_DATE = DateUtils.getUTCDate(2011, 5, 23);
   private static final Period TENOR_3M = Period.ofMonths(3);
   private static final double NOTIONAL = 100000000; // 100m
@@ -109,6 +112,17 @@ public class CouponArithmeticAverageONSpreadSimplifiedDefinitionTest {
     assertFalse("CouponArithmeticAverageON: equal-hash", FEDFUND_CPN_3M_DEF.equals(modified));
   }
 
-  //TODO: toDerivatives
-
+  @Test
+  /**
+   * Tests the toDerivative method.
+   */
+  public void toDerivative() {
+    final CouponArithmeticAverageONSpreadSimplified cpnConverted = FEDFUND_CPN_3M_DEF.toDerivative(TRADE_DATE);
+    final double paymentTime = TimeCalculator.getTimeBetween(TRADE_DATE, PAYMENT_DATE);
+    final double fixingStartTime = TimeCalculator.getTimeBetween(TRADE_DATE, ACCRUAL_START_DATE);
+    final double fixingEndTime = TimeCalculator.getTimeBetween(TRADE_DATE, ACCRUAL_END_DATE);
+    final CouponArithmeticAverageONSpreadSimplified cpnExpected = CouponArithmeticAverageONSpreadSimplified
+        .from(paymentTime, ACCURAL_FACTOR, NOTIONAL, FEDFUND, fixingStartTime, fixingEndTime, SPREAD);
+    assertEquals("CouponOISSimplified definition: toDerivative", cpnExpected, cpnConverted);
+  }
 }

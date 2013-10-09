@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.derivative;
@@ -9,6 +9,7 @@ import java.util.Arrays;
 
 import org.apache.commons.lang.ObjectUtils;
 
+import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.util.ArgumentChecker;
@@ -23,7 +24,7 @@ import com.opengamma.util.money.Currency;
  * \end{equation*}
  * $$
  * where the $\delta_i$ are the accrual factors of the sub periods and the $r_i$ the fixing for the same periods.
- * The fixing have their own start dates, end dates and accrual factors. In general they are close to the accrual 
+ * The fixing have their own start dates, end dates and accrual factors. In general they are close to the accrual
  * dates used to compute the coupon accrual factors.
  */
 public class CouponIborCompounding extends Coupon {
@@ -77,9 +78,12 @@ public class CouponIborCompounding extends Coupon {
    * @param fixingPeriodEndTimes The end times of the fixing periods.
    * @param fixingPeriodAccrualFactors The accrual factors (or year fraction) associated with the fixing periods in the Index day count convention.
    * @param forwardCurveName Name of the forward (or estimation) curve.
+   * @deprecated Use the constructor that does not take yield curve names
    */
-  public CouponIborCompounding(Currency currency, double paymentTime, String discountingCurveName, double paymentAccrualFactor, double notional, double notionalAccrued, IborIndex index,
-      double[] paymentAccrualFactors, double[] fixingTimes, double[] fixingPeriodStartTimes, double[] fixingPeriodEndTimes, double[] fixingPeriodAccrualFactors, final String forwardCurveName) {
+  @Deprecated
+  public CouponIborCompounding(final Currency currency, final double paymentTime, final String discountingCurveName, final double paymentAccrualFactor,
+      final double notional, final double notionalAccrued, final IborIndex index, final double[] paymentAccrualFactors, final double[] fixingTimes,
+      final double[] fixingPeriodStartTimes, final double[] fixingPeriodEndTimes, final double[] fixingPeriodAccrualFactors, final String forwardCurveName) {
     super(currency, paymentTime, discountingCurveName, paymentAccrualFactor, notional);
     ArgumentChecker.isTrue(fixingTimes.length == fixingPeriodStartTimes.length, "Fixing times and fixing period should have same length");
     ArgumentChecker.isTrue(fixingTimes.length == fixingPeriodEndTimes.length, "Fixing times and fixing period should have same length");
@@ -95,6 +99,38 @@ public class CouponIborCompounding extends Coupon {
     _fixingPeriodEndTimes = fixingPeriodEndTimes;
     _fixingPeriodAccrualFactors = fixingPeriodAccrualFactors;
     _forwardCurveName = forwardCurveName;
+  }
+
+  /**
+   * Constructor.
+   * @param currency The payment currency.
+   * @param paymentTime Time (in years) up to the payment.
+   * @param paymentAccrualFactor The year fraction (or accrual factor) for the coupon payment.
+   * @param notional The coupon notional.
+   * @param notionalAccrued The notional with the interest already fixed accrued.
+   * @param index The Ibor-like index on which the coupon fixes. The index currency should be the same as the coupon currency.
+   * @param paymentAccrualFactors The accrual factors (or year fraction) associated to the sub-periods not yet fixed.
+   * @param fixingTimes The start times of the fixing periods.
+   * @param fixingPeriodStartTimes The start times of the fixing periods.
+   * @param fixingPeriodEndTimes The end times of the fixing periods.
+   * @param fixingPeriodAccrualFactors The accrual factors (or year fraction) associated with the fixing periods in the Index day count convention.
+   */
+  public CouponIborCompounding(final Currency currency, final double paymentTime, final double paymentAccrualFactor, final double notional, final double notionalAccrued, final IborIndex index,
+      final double[] paymentAccrualFactors, final double[] fixingTimes, final double[] fixingPeriodStartTimes, final double[] fixingPeriodEndTimes, final double[] fixingPeriodAccrualFactors) {
+    super(currency, paymentTime, paymentAccrualFactor, notional);
+    ArgumentChecker.isTrue(fixingTimes.length == fixingPeriodStartTimes.length, "Fixing times and fixing period should have same length");
+    ArgumentChecker.isTrue(fixingTimes.length == fixingPeriodEndTimes.length, "Fixing times and fixing period should have same length");
+    ArgumentChecker.isTrue(fixingTimes.length == fixingPeriodAccrualFactors.length, "Fixing times and fixing period should have same length");
+    ArgumentChecker.isTrue(fixingTimes.length == paymentAccrualFactors.length, "Fixing times and fixing period should have same length");
+    ArgumentChecker.notNull(index, "Ibor index");
+    _notionalAccrued = notionalAccrued;
+    _index = index;
+    _paymentAccrualFactors = paymentAccrualFactors;
+    _fixingTimes = fixingTimes;
+    _fixingPeriodStartTimes = fixingPeriodStartTimes;
+    _fixingPeriodEndTimes = fixingPeriodEndTimes;
+    _fixingPeriodAccrualFactors = fixingPeriodAccrualFactors;
+    _forwardCurveName = null;
   }
 
   /**
@@ -155,25 +191,31 @@ public class CouponIborCompounding extends Coupon {
 
   /**
    * Gets the forward curve name.
-   * @return The name.
+   * @return the _forward curve name
+   * @deprecated Curve names should no longer be set in {@link InstrumentDefinition}s
    */
+  @Deprecated
   public String getForwardCurveName() {
+    if (_forwardCurveName == null) {
+      throw new IllegalStateException("Forward curve name was not set");
+    }
     return _forwardCurveName;
   }
 
+  @SuppressWarnings("deprecation")
   @Override
-  public Coupon withNotional(double notional) {
+  public Coupon withNotional(final double notional) {
     return new CouponIborCompounding(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), notional, _notionalAccrued, _index, _paymentAccrualFactors, _fixingTimes,
         _fixingPeriodStartTimes, _fixingPeriodEndTimes, _fixingPeriodAccrualFactors, _forwardCurveName);
   }
 
   @Override
-  public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
     return visitor.visitCouponIborCompounding(this, data);
   }
 
   @Override
-  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
     return visitor.visitCouponIborCompounding(this);
   }
 
@@ -185,7 +227,7 @@ public class CouponIborCompounding extends Coupon {
     result = prime * result + Arrays.hashCode(_fixingPeriodEndTimes);
     result = prime * result + Arrays.hashCode(_fixingPeriodStartTimes);
     result = prime * result + Arrays.hashCode(_fixingTimes);
-    result = prime * result + _forwardCurveName.hashCode();
+    result = prime * result + (_forwardCurveName == null ? 0 : _forwardCurveName.hashCode());
     result = prime * result + _index.hashCode();
     long temp;
     temp = Double.doubleToLongBits(_notionalAccrued);
@@ -195,7 +237,7 @@ public class CouponIborCompounding extends Coupon {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -205,7 +247,7 @@ public class CouponIborCompounding extends Coupon {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    CouponIborCompounding other = (CouponIborCompounding) obj;
+    final CouponIborCompounding other = (CouponIborCompounding) obj;
     if (!Arrays.equals(_fixingPeriodAccrualFactors, other._fixingPeriodAccrualFactors)) {
       return false;
     }

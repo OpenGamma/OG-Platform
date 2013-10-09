@@ -27,10 +27,11 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 
 /**
- *
+ * Configuration object that contains a list of {@link CurveGroupConfiguration}s and any
+ * exogenous curve configurations that are required.
  */
 @BeanDefinition
-@Config
+@Config(description = "Curve construction configuration")
 public class CurveConstructionConfiguration extends DirectBean implements Serializable, UniqueIdentifiable, MutableUniqueIdentifiable {
 
   /** Serialization version */
@@ -83,6 +84,7 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
   public static CurveConstructionConfiguration.Meta meta() {
     return CurveConstructionConfiguration.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(CurveConstructionConfiguration.Meta.INSTANCE);
   }

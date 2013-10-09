@@ -204,6 +204,12 @@ public final class PagingTest {
     assertEquals(false, test2.equals(test1));
   }
 
+  public void test_equals_other() {
+    Paging test = Paging.of(PagingRequest.ofPage(1, 20), 52);
+    assertEquals(false, test.equals(""));
+    assertEquals(false, test.equals(null));
+  }
+
   //-------------------------------------------------------------------------
   public void test_hashCode_equal() {
     Paging test1 = Paging.of(PagingRequest.ofPage(1, 20), 52);

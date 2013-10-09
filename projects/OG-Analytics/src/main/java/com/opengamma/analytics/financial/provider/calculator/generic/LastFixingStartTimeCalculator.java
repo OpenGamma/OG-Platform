@@ -125,12 +125,12 @@ public final class LastFixingStartTimeCalculator extends InstrumentDerivativeVis
 
   @Override
   public Double visitCouponInflationZeroCouponInterpolation(final CouponInflationZeroCouponInterpolation coupon) {
-    return coupon.getWeight() * coupon.getReferenceEndTime()[0] + (1 - coupon.getWeight()) * coupon.getReferenceEndTime()[1];
+    return coupon.getReferenceEndTime()[0];
   }
 
   @Override
   public Double visitCouponInflationZeroCouponInterpolationGearing(final CouponInflationZeroCouponInterpolationGearing coupon) {
-    return coupon.getWeight() * coupon.getReferenceEndTime()[0] + (1 - coupon.getWeight()) * coupon.getReferenceEndTime()[1];
+    return coupon.getReferenceEndTime()[0];
   }
 
   @Override

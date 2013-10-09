@@ -52,7 +52,7 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
   /**
    * Name to use.
    */
-  private static final String SIMULATED_LIVE_SOURCE_NAME = "Simulated live market data";
+  public static final String SIMULATED_LIVE_SOURCE_NAME = "Simulated live market data";
 
   /**
    * The classifier under which to publish.
@@ -137,6 +137,7 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
   public static ExampleMarketDataComponentFactory.Meta meta() {
     return ExampleMarketDataComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ExampleMarketDataComponentFactory.Meta.INSTANCE);
   }

@@ -10,11 +10,12 @@ import java.util.List;
 import com.opengamma.engine.function.config.AbstractFunctionConfigurationBean;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.FunctionConfigurationSource;
-import com.opengamma.financial.analytics.model.forex.forward.deprecated.DeprecatedFunctions;
 
 /**
  * Function repository configuration source for the functions contained in this package.
+ * @deprecated The functions that are added to the repository are deprecated.
  */
+@Deprecated
 public class ForwardFunctions extends AbstractFunctionConfigurationBean {
 
   /**
@@ -24,10 +25,6 @@ public class ForwardFunctions extends AbstractFunctionConfigurationBean {
    */
   public static FunctionConfigurationSource instance() {
     return new ForwardFunctions().getObjectCreating();
-  }
-
-  public static FunctionConfigurationSource deprecated() {
-    return new DeprecatedFunctions().getObjectCreating();
   }
 
   @Override

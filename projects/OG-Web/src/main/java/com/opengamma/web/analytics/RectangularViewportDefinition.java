@@ -8,8 +8,12 @@ package com.opengamma.web.analytics;
 import java.util.Iterator;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.ImmutableList;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.analytics.formatting.TypeFormatter;
 
 /**
@@ -20,6 +24,8 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
  * have been scrolled.
  */
 public class RectangularViewportDefinition extends ViewportDefinition {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(RectangularViewportDefinition.class);
 
   /** Indices of rows in the viewport, not empty, sorted in ascending order. */
   private final List<Integer> _rows;
@@ -41,8 +47,6 @@ public class RectangularViewportDefinition extends ViewportDefinition {
                                               TypeFormatter.Format format,
                                               Boolean enableLogging) {
     super(version, enableLogging);
-    ArgumentChecker.notEmpty(rows, "rows");
-    ArgumentChecker.notEmpty(columns, "columns");
     ArgumentChecker.notNull(format, "format");
     _format = format;
     // TODO bounds checking
@@ -72,8 +76,68 @@ public class RectangularViewportDefinition extends ViewportDefinition {
     return true;
   }
 
+  // TODO this doesn't work properly
+  // scrolling up triggers a node collapse
+  // scrolling down or expanding the viewport down triggers a node expansion
+  @Override
+  Pair<Integer, Boolean> getChangedNode(ViewportDefinition viewportDefinition) {
+    if (!(viewportDefinition instanceof RectangularViewportDefinition)) {
+      throw new IllegalArgumentException("Unexpected viewport definition type " +
+                                             viewportDefinition.getClass().getSimpleName() + ", expected " +
+                                             RectangularViewportDefinition.class.getSimpleName());
+    }
+    List<Integer> newRows = ((RectangularViewportDefinition) viewportDefinition).getRows();
+
+    //if the first rows aren't equal the user has scrolled, or if there are no rows, return null
+    // TODO this logic doesn't cover these cases:
+    //   * the user expands the viewport downwards by resizing the window
+    //   * the user scrolls the viewport down but the previous top row is still included in the off-screen buffer zone
+    if (_rows.isEmpty() || newRows.isEmpty() || (!_rows.get(0).equals(newRows.get(0)))) {
+      return null;
+    }
+    // if the first rows are equal and the viewport has changed then the user has either expanded or collapsed a node
+    // walk through the current and new list of rows
+    for (int i = 0; i < Math.max(_rows.size(), newRows.size()); i++) {
+      //if final node is expanded/collapsed then index will not be in list
+      if (i >= _rows.size()) {
+        // TODO this gives false positives when expanding the viewport down by resizing the window
+        // top row in both viewports is the same because there's no scrolling but new rows are being added without
+        // any nodes being expanded
+        s_logger.debug("return #1");
+        return Pair.of(_rows.get(i - 1), true);
+      }
+      if (i >= newRows.size()) {
+        // TODO this gives false positives scrolling slowly up to the top into the buffer zone
+        // top row in both viewports is the same because of the extra hidden rows
+        s_logger.debug("return #2");
+        return Pair.of(newRows.get(i - 1), false);
+      }
+      // if this object's row index is greater then the node has collapsed
+      // the the other object's row index is greater then the node has expanded
+      // the expanded / collapsed node is the row before the unequal row
+      int oldRow = _rows.get(i);
+      int newRow = newRows.get(i);
+      if (oldRow == newRow) {
+        continue;
+      }
+      if (newRow < oldRow) {
+        s_logger.debug("return #3");
+        return Pair.of(newRows.get(i - 1), true);
+      } else if (oldRow < newRow) {
+        s_logger.debug("return #4");
+        return Pair.of(_rows.get(i - 1), false);
+      }
+    }
+    // or resized the window - if the window has resized the row lists will be different lengths
+    return null;
+  }
+
   /* package */ List<Integer> getColumns() {
     return _columns;
+  }
+
+  /* package */ List<Integer> getRows() {
+    return _rows;
   }
 
   /* package */ TypeFormatter.Format getFormat() {
@@ -100,7 +164,9 @@ public class RectangularViewportDefinition extends ViewportDefinition {
     }
 
     private void initRow() {
-      _rowIndex = _rowIterator.next();
+      if (_rowIterator.hasNext()) {
+        _rowIndex = _rowIterator.next();
+      }
       _colIterator = _columns.iterator();
     }
 

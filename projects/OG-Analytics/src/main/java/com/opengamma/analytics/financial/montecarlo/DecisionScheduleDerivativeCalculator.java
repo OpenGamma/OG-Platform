@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.montecarlo;
@@ -20,7 +20,9 @@ import com.opengamma.analytics.financial.interestrate.swaption.derivative.Swapti
 
 /**
  * Calculator of decision schedule for different instruments. Used in particular for Monte Carlo pricing.
+ * @deprecated Use {@link com.opengamma.analytics.financial.montecarlo.provider.DecisionScheduleDerivativeCalculator}
  */
+@Deprecated
 public class DecisionScheduleDerivativeCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, DecisionScheduleDerivative> {
 
   /**

@@ -28,6 +28,9 @@ public final class CommodityFutureOptionBlackDeltaCalculator extends InstrumentD
     return s_instance;
   }
 
+  /**
+   * Private constructor.
+   */
   private CommodityFutureOptionBlackDeltaCalculator() {
   }
 

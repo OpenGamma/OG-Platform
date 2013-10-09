@@ -73,6 +73,7 @@ public class DbToolContext extends DirectBean implements Closeable {
   public static DbToolContext.Meta meta() {
     return DbToolContext.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(DbToolContext.Meta.INSTANCE);
   }

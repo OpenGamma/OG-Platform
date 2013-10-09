@@ -1,18 +1,21 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.calculator.inflation;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorDelegate;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationYearOnYearInterpolation;
 import com.opengamma.analytics.financial.interestrate.inflation.derivative.CapFloorInflationYearOnYearMonthly;
-import com.opengamma.analytics.financial.interestrate.inflation.method.CapFloorInflationYearOnYearMonthlyBlackNormalSmileMethod;
-import com.opengamma.analytics.financial.interestrate.inflation.method.CapFloorInflationyearOnYearInterpolationBlackNormalSmileMethod;
+import com.opengamma.analytics.financial.interestrate.inflation.provider.CapFloorInflationYearOnYearInterpolationBlackNormalSmileMethod;
+import com.opengamma.analytics.financial.interestrate.inflation.provider.CapFloorInflationYearOnYearMonthlyBlackNormalSmileMethod;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.analytics.financial.provider.calculator.discounting.PresentValueDiscountingCalculator;
 import com.opengamma.analytics.financial.provider.calculator.priceindexmarketmodel.BlackSmileCapInflationYearOnYearProviderAdapter;
 import com.opengamma.analytics.financial.provider.description.inflation.BlackSmileCapInflationYearOnYearProviderInterface;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
@@ -29,7 +32,7 @@ public final class PresentValueBlackSmileInflationYearOnYearCalculator extends I
    * Constructor.
    */
   private PresentValueBlackSmileInflationYearOnYearCalculator() {
-    super(new BlackSmileCapInflationYearOnYearProviderAdapter<MultipleCurrencyAmount>(PresentValueDiscountingCalculator.getInstance()));
+    super(new BlackSmileCapInflationYearOnYearProviderAdapter<>(PresentValueDiscountingCalculator.getInstance()));
   }
 
   /**
@@ -44,7 +47,7 @@ public final class PresentValueBlackSmileInflationYearOnYearCalculator extends I
    * Pricing methods.
    */
 
-  private static final CapFloorInflationyearOnYearInterpolationBlackNormalSmileMethod METHOD_CAPFLOOR_INTERPOLATION = CapFloorInflationyearOnYearInterpolationBlackNormalSmileMethod.getInstance();
+  private static final CapFloorInflationYearOnYearInterpolationBlackNormalSmileMethod METHOD_CAPFLOOR_INTERPOLATION = CapFloorInflationYearOnYearInterpolationBlackNormalSmileMethod.getInstance();
   private static final CapFloorInflationYearOnYearMonthlyBlackNormalSmileMethod METHOD_CAPFLOOR_YEAR_ON_YEAR_MONTHLY = CapFloorInflationYearOnYearMonthlyBlackNormalSmileMethod.getInstance();
 
   //-----     Caplet/Floorlet year on year     -----
@@ -60,5 +63,15 @@ public final class PresentValueBlackSmileInflationYearOnYearCalculator extends I
   }
 
   //-----     Cap/Floor year on year     -----
-  //  TODO :  implementation of cap/floor
+
+  @Override
+  public MultipleCurrencyAmount visitGenericAnnuity(final Annuity<? extends Payment> annuity, final BlackSmileCapInflationYearOnYearProviderInterface black) {
+    ArgumentChecker.notNull(annuity, "Annuity");
+    ArgumentChecker.notNull(black, "multicurve");
+    MultipleCurrencyAmount pv = annuity.getNthPayment(0).accept(this, black);
+    for (int loopp = 1; loopp < annuity.getNumberOfPayments(); loopp++) {
+      pv = pv.plus(annuity.getNthPayment(loopp).accept(this, black));
+    }
+    return pv;
+  }
 }

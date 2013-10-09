@@ -54,6 +54,15 @@ public class SwapNode extends CurveNode {
   @PropertyDefinition(validate = "notNull")
   private ExternalId _receiveLegConvention;
 
+  /**
+   * Whether to use fixings when constructing the swap
+   */
+  @PropertyDefinition(validate = "notNull")
+  private boolean _useFixings;
+
+  /**
+   * For the builder.
+   */
   /* package */SwapNode() {
     super();
   }
@@ -72,6 +81,25 @@ public class SwapNode extends CurveNode {
     setMaturityTenor(maturityTenor);
     setPayLegConvention(payLegConvention);
     setReceiveLegConvention(receiveLegConvention);
+    setUseFixings(true);
+  }
+
+  /**
+   * @param startTenor The start tenor, not null
+   * @param maturityTenor The maturity tenor, not null
+   * @param payLegConvention The pay leg convention, not null
+   * @param receiveLegConvention The receive leg convention, not null
+   * @param useFixings True if fixings are to be used in curve construction
+   * @param curveNodeIdMapperName The curve node id mapper name, not null
+   */
+  public SwapNode(final Tenor startTenor, final Tenor maturityTenor, final ExternalId payLegConvention, final ExternalId receiveLegConvention,
+      final boolean useFixings, final String curveNodeIdMapperName) {
+    super(curveNodeIdMapperName);
+    setStartTenor(startTenor);
+    setMaturityTenor(maturityTenor);
+    setPayLegConvention(payLegConvention);
+    setReceiveLegConvention(receiveLegConvention);
+    setUseFixings(useFixings);
   }
 
   /**
@@ -89,11 +117,31 @@ public class SwapNode extends CurveNode {
     setMaturityTenor(maturityTenor);
     setPayLegConvention(payLegConvention);
     setReceiveLegConvention(receiveLegConvention);
+    setUseFixings(true);
+  }
+
+  /**
+   * @param startTenor The start tenor, not null
+   * @param maturityTenor The maturity tenor, not null
+   * @param payLegConvention The pay leg convention, not null
+   * @param receiveLegConvention The receive leg convention, not null
+   * @param useFixings True if fixings are to be used in curve construction
+   * @param curveNodeIdMapperName The curve node id mapper name, not null
+   * @param name The name
+   */
+  public SwapNode(final Tenor startTenor, final Tenor maturityTenor, final ExternalId payLegConvention, final ExternalId receiveLegConvention,
+      final boolean useFixings, final String curveNodeIdMapperName, final String name) {
+    super(curveNodeIdMapperName, name);
+    setStartTenor(startTenor);
+    setMaturityTenor(maturityTenor);
+    setPayLegConvention(payLegConvention);
+    setReceiveLegConvention(receiveLegConvention);
+    setUseFixings(useFixings);
   }
 
   @Override
   public Tenor getResolvedMaturity() {
-    return _maturityTenor;
+    return Tenor.of(_startTenor.getPeriod().plus(_maturityTenor.getPeriod())); //_maturityTenor;
   }
 
   @Override
@@ -111,6 +159,7 @@ public class SwapNode extends CurveNode {
   public static SwapNode.Meta meta() {
     return SwapNode.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(SwapNode.Meta.INSTANCE);
   }
@@ -131,6 +180,8 @@ public class SwapNode extends CurveNode {
         return getPayLegConvention();
       case -560732676:  // receiveLegConvention
         return getReceiveLegConvention();
+      case 1829944031:  // useFixings
+        return isUseFixings();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -150,6 +201,9 @@ public class SwapNode extends CurveNode {
       case -560732676:  // receiveLegConvention
         setReceiveLegConvention((ExternalId) newValue);
         return;
+      case 1829944031:  // useFixings
+        setUseFixings((Boolean) newValue);
+        return;
     }
     super.propertySet(propertyName, newValue, quiet);
   }
@@ -160,6 +214,7 @@ public class SwapNode extends CurveNode {
     JodaBeanUtils.notNull(_maturityTenor, "maturityTenor");
     JodaBeanUtils.notNull(_payLegConvention, "payLegConvention");
     JodaBeanUtils.notNull(_receiveLegConvention, "receiveLegConvention");
+    JodaBeanUtils.notNull(_useFixings, "useFixings");
     super.validate();
   }
 
@@ -174,6 +229,7 @@ public class SwapNode extends CurveNode {
           JodaBeanUtils.equal(getMaturityTenor(), other.getMaturityTenor()) &&
           JodaBeanUtils.equal(getPayLegConvention(), other.getPayLegConvention()) &&
           JodaBeanUtils.equal(getReceiveLegConvention(), other.getReceiveLegConvention()) &&
+          JodaBeanUtils.equal(isUseFixings(), other.isUseFixings()) &&
           super.equals(obj);
     }
     return false;
@@ -186,6 +242,7 @@ public class SwapNode extends CurveNode {
     hash += hash * 31 + JodaBeanUtils.hashCode(getMaturityTenor());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPayLegConvention());
     hash += hash * 31 + JodaBeanUtils.hashCode(getReceiveLegConvention());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isUseFixings());
     return hash ^ super.hashCode();
   }
 
@@ -295,6 +352,32 @@ public class SwapNode extends CurveNode {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets whether to use fixings when constructing the swap
+   * @return the value of the property, not null
+   */
+  public boolean isUseFixings() {
+    return _useFixings;
+  }
+
+  /**
+   * Sets whether to use fixings when constructing the swap
+   * @param useFixings  the new value of the property, not null
+   */
+  public void setUseFixings(boolean useFixings) {
+    JodaBeanUtils.notNull(useFixings, "useFixings");
+    this._useFixings = useFixings;
+  }
+
+  /**
+   * Gets the the {@code useFixings} property.
+   * @return the property, not null
+   */
+  public final Property<Boolean> useFixings() {
+    return metaBean().useFixings().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code SwapNode}.
    */
   public static class Meta extends CurveNode.Meta {
@@ -324,6 +407,11 @@ public class SwapNode extends CurveNode {
     private final MetaProperty<ExternalId> _receiveLegConvention = DirectMetaProperty.ofReadWrite(
         this, "receiveLegConvention", SwapNode.class, ExternalId.class);
     /**
+     * The meta-property for the {@code useFixings} property.
+     */
+    private final MetaProperty<Boolean> _useFixings = DirectMetaProperty.ofReadWrite(
+        this, "useFixings", SwapNode.class, Boolean.TYPE);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -331,7 +419,8 @@ public class SwapNode extends CurveNode {
         "startTenor",
         "maturityTenor",
         "payLegConvention",
-        "receiveLegConvention");
+        "receiveLegConvention",
+        "useFixings");
 
     /**
      * Restricted constructor.
@@ -350,6 +439,8 @@ public class SwapNode extends CurveNode {
           return _payLegConvention;
         case -560732676:  // receiveLegConvention
           return _receiveLegConvention;
+        case 1829944031:  // useFixings
+          return _useFixings;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -400,6 +491,14 @@ public class SwapNode extends CurveNode {
      */
     public final MetaProperty<ExternalId> receiveLegConvention() {
       return _receiveLegConvention;
+    }
+
+    /**
+     * The meta-property for the {@code useFixings} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> useFixings() {
+      return _useFixings;
     }
 
   }

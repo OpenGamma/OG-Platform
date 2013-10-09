@@ -57,15 +57,21 @@ public final class OpenGammaCompilationContext {
   public static final String CONVENTION_SOURCE_NAME = "conventionSource";
   /**
    * The name under which an instance of {@link InterpolatedYieldCurveDefinitionSource} should be bound.
+   * @deprecated use a config source to look up the object
    */
+  @Deprecated
   public static final String INTERPOLATED_YIELD_CURVE_DEFINITION_SOURCE_NAME = "interpolatedYieldCurveDefinitionSource";
   /**
    * The name under which an instance of {@link InterpolatedYieldCurveSpecificationBuilder} should be bound.
+   * @deprecated use a config source to look up the object
    */
+  @Deprecated
   public static final String INTERPOLATED_YIELD_CURVE_SPECIFICATION_BUILDER_NAME = "interpolatedYieldCurveSpecificationBuilder";
   /**
    * The name under which an instance of {@link VolatilityCubeDefinitionSource} should be bound.
+   * @deprecated use a config source to look up the object
    */
+  @Deprecated
   public static final String VOLATILITY_CUBE_DEFINITION_SOURCE_NAME = "volatilityCubeDefinitionSource";
   /**
    * The name under which an instance of {@link HolidaySource} should be bound.
@@ -210,11 +216,23 @@ public final class OpenGammaCompilationContext {
     set(compilationContext, CONVENTION_BUNDLE_SOURCE_NAME, conventionBundleSource);
   }
 
+  /**
+   * @deprecated Use config source instead.
+   * @param compilationContext the compilation context
+   * @return the InterpolatedYieldCurveDefinitionSource
+   */
+  @Deprecated
   public static InterpolatedYieldCurveDefinitionSource getInterpolatedYieldCurveDefinitionSource(
       final FunctionCompilationContext compilationContext) {
     return get(compilationContext, INTERPOLATED_YIELD_CURVE_DEFINITION_SOURCE_NAME);
   }
 
+  /**
+   * @deprecated Use config source instead.
+   * @param compilationContext  the compilation context
+   * @param source  the InterpolatedYieldCurveDefinitionSource
+   */
+  @Deprecated
   public static void setInterpolatedYieldCurveDefinitionSource(final FunctionCompilationContext compilationContext,
       final InterpolatedYieldCurveDefinitionSource source) {
     set(compilationContext, INTERPOLATED_YIELD_CURVE_DEFINITION_SOURCE_NAME, source);

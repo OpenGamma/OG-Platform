@@ -81,6 +81,7 @@ public abstract class AbstractSecurityEnhancerComponentFactory extends AbstractC
   public static AbstractSecurityEnhancerComponentFactory.Meta meta() {
     return AbstractSecurityEnhancerComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(AbstractSecurityEnhancerComponentFactory.Meta.INSTANCE);
   }

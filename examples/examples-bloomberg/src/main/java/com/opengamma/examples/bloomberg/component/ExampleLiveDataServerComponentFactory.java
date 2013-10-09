@@ -39,6 +39,7 @@ public class ExampleLiveDataServerComponentFactory extends AbstractBloombergLive
   public static ExampleLiveDataServerComponentFactory.Meta meta() {
     return ExampleLiveDataServerComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ExampleLiveDataServerComponentFactory.Meta.INSTANCE);
   }

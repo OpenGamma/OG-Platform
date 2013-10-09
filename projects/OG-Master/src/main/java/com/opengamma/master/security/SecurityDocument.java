@@ -86,6 +86,7 @@ public class SecurityDocument extends AbstractDocument implements Serializable {
   public static SecurityDocument.Meta meta() {
     return SecurityDocument.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(SecurityDocument.Meta.INSTANCE);
   }

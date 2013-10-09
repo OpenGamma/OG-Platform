@@ -82,6 +82,7 @@ public class FXForwardSecurityBean extends SecurityBean {
   public static FXForwardSecurityBean.Meta meta() {
     return FXForwardSecurityBean.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(FXForwardSecurityBean.Meta.INSTANCE);
   }

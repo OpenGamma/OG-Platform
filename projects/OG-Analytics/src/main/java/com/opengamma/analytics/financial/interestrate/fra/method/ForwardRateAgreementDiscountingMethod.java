@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.fra.method;
@@ -16,6 +16,7 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.fra.derivative.ForwardRateAgreement;
+import com.opengamma.analytics.financial.interestrate.fra.provider.ForwardRateAgreementDiscountingProviderMethod;
 import com.opengamma.analytics.financial.interestrate.method.PricingMethod;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.money.CurrencyAmount;
@@ -38,7 +39,9 @@ import com.opengamma.util.tuple.DoublesPair;
  * <p>
  * Reference: Henrard, M. (2010). The irony in the derivatives discounting part
  * II: the crisis. Wilmott Journal, 2(6):301-316.
+ * @deprecated Use {@link ForwardRateAgreementDiscountingProviderMethod}
  */
+@Deprecated
 public final class ForwardRateAgreementDiscountingMethod implements PricingMethod {
   private static final ForwardRateAgreementDiscountingMethod INSTANCE = new ForwardRateAgreementDiscountingMethod();
 

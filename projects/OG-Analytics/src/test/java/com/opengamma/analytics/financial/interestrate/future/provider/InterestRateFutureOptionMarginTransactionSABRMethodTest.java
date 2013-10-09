@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.provider;
@@ -13,7 +13,6 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.analytics.financial.instrument.future.InterestRateFutureSecurityDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.interestrate.PresentValueSABRSensitivityDataBundle;
-import com.opengamma.analytics.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureSecurity;
@@ -22,6 +21,7 @@ import com.opengamma.analytics.financial.provider.calculator.sabrstrifutures.Pre
 import com.opengamma.analytics.financial.provider.calculator.sabrstrifutures.PresentValueSABRSTIRFuturesCalculator;
 import com.opengamma.analytics.financial.provider.calculator.sabrstrifutures.PresentValueSABRSensitivitySABRSTIRFuturesCalculator;
 import com.opengamma.analytics.financial.provider.description.MulticurveProviderDiscountDataSets;
+import com.opengamma.analytics.financial.provider.description.SABRDataSets;
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.SABRSTIRFuturesProviderDiscount;
 import com.opengamma.analytics.financial.provider.description.interestrate.SABRSTIRFuturesProviderInterface;
@@ -49,11 +49,8 @@ public class InterestRateFutureOptionMarginTransactionSABRMethodTest {
   private static final Currency EUR = EURIBOR3M.getCurrency();
   private static final Calendar TARGET = MulticurveProviderDiscountDataSets.getEURCalendar();
 
-  private static final SABRInterestRateParameters SABR_PARAMETERS = TestsDataSetsSABR.createSABR1();
+  private static final SABRInterestRateParameters SABR_PARAMETERS = SABRDataSets.createSABR1();
   private static final SABRSTIRFuturesProviderDiscount SABR_MULTICURVES = new SABRSTIRFuturesProviderDiscount(MULTICURVES, SABR_PARAMETERS, EURIBOR3M);
-
-  private static final String NOT_USED = "Not used";
-  private static final String[] NOT_USED_A = {NOT_USED, NOT_USED, NOT_USED};
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 8, 18);
   // Future
@@ -64,20 +61,16 @@ public class InterestRateFutureOptionMarginTransactionSABRMethodTest {
   private static final String NAME = "EDU2";
   private static final double STRIKE = 0.9850;
   private static final InterestRateFutureSecurityDefinition EDU2_DEFINITION = new InterestRateFutureSecurityDefinition(LAST_TRADING_DATE, EURIBOR3M, NOTIONAL, FUTURE_FACTOR, NAME, TARGET);
-  private static final InterestRateFutureSecurity EDU2 = EDU2_DEFINITION.toDerivative(REFERENCE_DATE, NOT_USED_A);
+  private static final InterestRateFutureSecurity EDU2 = EDU2_DEFINITION.toDerivative(REFERENCE_DATE);
   // Option
   private static final ZonedDateTime EXPIRATION_DATE = DateUtils.getUTCDate(2011, 9, 16);
   private static final double EXPIRATION_TIME = TimeCalculator.getTimeBetween(REFERENCE_DATE, EXPIRATION_DATE);
   private static final boolean IS_CALL = true;
-  //  private static final InterestRateFutureOptionMarginSecurityDefinition OPTION_EDU2_DEFINITION = new InterestRateFutureOptionMarginSecurityDefinition(EDU2_DEFINITION, EXPIRATION_DATE, STRIKE, IS_CALL);
   private static final InterestRateFutureOptionMarginSecurity OPTION_EDU2 = new InterestRateFutureOptionMarginSecurity(EDU2, EXPIRATION_TIME, STRIKE, IS_CALL);
   // Transaction
   private static final int QUANTITY = -123;
   private static final double TRADE_PRICE = 0.0050;
-  //  private static final ZonedDateTime TRADE_DATE = DateUtils.getUTCDate(2010, 8, 18);
   private static final InterestRateFutureOptionMarginTransaction TRANSACTION = new InterestRateFutureOptionMarginTransaction(OPTION_EDU2, QUANTITY, TRADE_PRICE);
-  //  private static final InterestRateFutureOptionMarginTransactionDefinition TRANSACTION_DEFINITION = new InterestRateFutureOptionMarginTransactionDefinition(OPTION_EDU2_DEFINITION, QUANTITY,
-  //      TRADE_DATE, TRADE_PRICE);
 
   private static final InterestRateFutureOptionMarginTransactionSABRMethod METHOD_SABR_TRA = InterestRateFutureOptionMarginTransactionSABRMethod.getInstance();
   private static final InterestRateFutureOptionMarginSecuritySABRMethod METHOD_SABR_SEC = InterestRateFutureOptionMarginSecuritySABRMethod.getInstance();
@@ -171,7 +164,7 @@ public class InterestRateFutureOptionMarginTransactionSABRMethodTest {
     final double delay = EDU2.getLastTradingTime() - OPTION_EDU2.getExpirationTime();
     final DoublesPair expectedExpiryDelay = new DoublesPair(OPTION_EDU2.getExpirationTime(), delay);
     // Alpha sensitivity vs finite difference computation
-    final SABRInterestRateParameters sabrParameterAlphaBumped = TestsDataSetsSABR.createSABR1AlphaBumped(shift);
+    final SABRInterestRateParameters sabrParameterAlphaBumped = SABRDataSets.createSABR1AlphaBumped(shift);
     final SABRSTIRFuturesProviderDiscount sabrBundleAlphaBumped = new SABRSTIRFuturesProviderDiscount(MULTICURVES, sabrParameterAlphaBumped, EURIBOR3M);
     final double pvAlphaBumped = METHOD_SABR_TRA.presentValue(TRANSACTION, sabrBundleAlphaBumped).getAmount(EUR);
     final double expectedAlphaSensi = (pvAlphaBumped - pv) / shift;
@@ -179,7 +172,7 @@ public class InterestRateFutureOptionMarginTransactionSABRMethodTest {
     assertEquals("Alpha sensitivity expiry/tenor", pvcs.getAlpha().getMap().keySet().contains(expectedExpiryDelay), true);
     assertEquals("Alpha sensitivity value", pvcs.getAlpha().getMap().get(expectedExpiryDelay), expectedAlphaSensi, 1.0E+1);
     // Rho sensitivity vs finite difference computation
-    final SABRInterestRateParameters sabrParameterRhoBumped = TestsDataSetsSABR.createSABR1RhoBumped(shift);
+    final SABRInterestRateParameters sabrParameterRhoBumped = SABRDataSets.createSABR1RhoBumped(shift);
     final SABRSTIRFuturesProviderDiscount sabrBundleRhoBumped = new SABRSTIRFuturesProviderDiscount(MULTICURVES, sabrParameterRhoBumped, EURIBOR3M);
     final double pvRhoBumped = METHOD_SABR_TRA.presentValue(TRANSACTION, sabrBundleRhoBumped).getAmount(EUR);
     final double expectedRhoSensi = (pvRhoBumped - pv) / shift;
@@ -187,7 +180,7 @@ public class InterestRateFutureOptionMarginTransactionSABRMethodTest {
     assertEquals("Rho sensitivity expiry/tenor", pvcs.getRho().getMap().keySet().contains(expectedExpiryDelay), true);
     assertEquals("Rho sensitivity value", pvcs.getRho().getMap().get(expectedExpiryDelay), expectedRhoSensi, 1.0E+0);
     // Alpha sensitivity vs finite difference computation
-    final SABRInterestRateParameters sabrParameterNuBumped = TestsDataSetsSABR.createSABR1NuBumped(shift);
+    final SABRInterestRateParameters sabrParameterNuBumped = SABRDataSets.createSABR1NuBumped(shift);
     final SABRSTIRFuturesProviderDiscount sabrBundleNuBumped = new SABRSTIRFuturesProviderDiscount(MULTICURVES, sabrParameterNuBumped, EURIBOR3M);
     final double pvNuBumped = METHOD_SABR_TRA.presentValue(TRANSACTION, sabrBundleNuBumped).getAmount(EUR);
     final double expectedNuSensi = (pvNuBumped - pv) / shift;

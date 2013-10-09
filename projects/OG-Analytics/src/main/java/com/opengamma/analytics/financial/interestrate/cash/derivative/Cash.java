@@ -6,8 +6,8 @@
 package com.opengamma.analytics.financial.interestrate.cash.derivative;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
 import com.opengamma.util.ArgumentChecker;
@@ -51,6 +51,9 @@ public class Cash implements InstrumentDerivative {
    * The initial amount. Usually is equal to the notional or 0 if the amount has been paid in the past.
    */
   private final double _initialAmount;
+  /**
+   * The discounting curve name.
+   */
   private final String _discountingCurveName;
 
   /**
@@ -62,9 +65,24 @@ public class Cash implements InstrumentDerivative {
    * @param rate The loan rate.
    * @param accrualFactor The time (in years) between the start date and the end date in some day count convention.
    * @param yieldCurveName Name of yield curve used to price loan
+   * @deprecated Use the constructor that does not take yield curve names.
    */
+  @Deprecated
   public Cash(final Currency currency, final double startTime, final double endTime, final double notional, final double rate, final double accrualFactor, final String yieldCurveName) {
     this(currency, startTime, endTime, notional, notional, rate, accrualFactor, yieldCurveName);
+  }
+
+  /**
+   * Constructor of a cash deposit.
+   * @param currency The currency
+   * @param startTime Time when the notional amount is borrowed (could be 0, i.e. now)
+   * @param endTime Time from now (in years) when the loan matures (is repaid)
+   * @param notional The notional of the loan
+   * @param rate The loan rate.
+   * @param accrualFactor The time (in years) between the start date and the end date in some day count convention.
+   */
+  public Cash(final Currency currency, final double startTime, final double endTime, final double notional, final double rate, final double accrualFactor) {
+    this(currency, startTime, endTime, notional, notional, rate, accrualFactor);
   }
 
   /**
@@ -77,15 +95,17 @@ public class Cash implements InstrumentDerivative {
    * @param rate The loan rate.
    * @param accrualFactor The time (in years) between the start date and the end date in some day count convention.
    * @param yieldCurveName Name of yield curve used to price loan
+   * @deprecated Use the constructor that does not take yield curve names.
    */
+  @Deprecated
   public Cash(final Currency currency, final double startTime, final double endTime, final double notional, final double initialAmount, final double rate, final double accrualFactor,
       final String yieldCurveName) {
-    Validate.notNull(yieldCurveName);
-    Validate.notNull(currency, "currency");
-    Validate.isTrue(startTime >= 0, "Start time should be positive or 0.");
-    Validate.isTrue(accrualFactor >= 0, "Accrual factor should be positive");
-    Validate.isTrue(startTime <= endTime, "Start time must be less or equal to the end time"); //REVIEW: Should the time be restricted to startTime < endTime?
-    Validate.isTrue(notional * initialAmount >= 0.0, "Notional and initial amount should have the same sign");
+    ArgumentChecker.notNull(yieldCurveName, "yield curve name");
+    ArgumentChecker.notNull(currency, "currency");
+    ArgumentChecker.isTrue(startTime >= 0, "Start time should be positive or 0.");
+    ArgumentChecker.isTrue(accrualFactor >= 0, "Accrual factor should be positive or zero"); //REVIEW: Should the accrual factor be restricted to >0?
+    ArgumentChecker.isTrue(startTime <= endTime, "Start time must be less or equal to the end time"); //REVIEW: Should the time be restricted to startTime < endTime?
+    ArgumentChecker.isTrue(notional * initialAmount >= 0.0, "Notional and initial amount should have the same sign");
     _currency = currency;
     _endTime = endTime;
     _discountingCurveName = yieldCurveName;
@@ -97,11 +117,46 @@ public class Cash implements InstrumentDerivative {
     _initialAmount = initialAmount;
   }
 
+  /**
+   * A cash loan
+   * @param currency The currency
+   * @param startTime Time when the notional amount is borrowed (could be 0, i.e. now)
+   * @param endTime Time from now (in years) when the loan matures (is repaid)
+   * @param notional The notional of the loan
+   * @param initialAmount The initial amount. Usually is equal to the notional or 0 if the amount has been paid in the past. Should be of the same sign as notional.
+   * @param rate The loan rate.
+   * @param accrualFactor The time (in years) between the start date and the end date in some day count convention.
+   */
+  public Cash(final Currency currency, final double startTime, final double endTime, final double notional, final double initialAmount, final double rate, final double accrualFactor) {
+    ArgumentChecker.notNull(currency, "currency");
+    ArgumentChecker.isTrue(startTime >= 0, "Start time should be positive or 0.");
+    ArgumentChecker.isTrue(accrualFactor >= 0, "Accrual factor should be positive");
+    ArgumentChecker.isTrue(startTime <= endTime, "Start time must be less or equal to the end time"); //REVIEW: Should the time be restricted to startTime < endTime?
+    ArgumentChecker.isTrue(notional * initialAmount >= 0.0, "Notional and initial amount should have the same sign");
+    _currency = currency;
+    _endTime = endTime;
+    _startTime = startTime;
+    _accrualFactor = accrualFactor;
+    _rate = rate;
+    _notional = notional;
+    _interestAmount = _notional * _rate * _accrualFactor;
+    _initialAmount = initialAmount;
+    _discountingCurveName = null;
+  }
+
   public Currency getCurrency() {
     return _currency;
   }
 
+  /**
+   * @return The yield curve name
+   * @deprecated Curve names should no longer be set in {@link InstrumentDefinition}s
+   */
+  @Deprecated
   public String getYieldCurveName() {
+    if (_discountingCurveName == null) {
+      throw new IllegalStateException("Discounting curve name was not set");
+    }
     return _discountingCurveName;
   }
 
@@ -163,7 +218,7 @@ public class Cash implements InstrumentDerivative {
     final int prime = 31;
     int result = 1;
     result = prime * result + _currency.hashCode();
-    result = prime * result + _discountingCurveName.hashCode();
+    result = prime * result + (_discountingCurveName == null ? 0 : _discountingCurveName.hashCode());
     long temp;
     temp = Double.doubleToLongBits(_endTime);
     result = prime * result + (int) (temp ^ (temp >>> 32));

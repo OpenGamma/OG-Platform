@@ -48,6 +48,7 @@ public class SetMinimumLogModeRequest extends DirectBean {
   public static SetMinimumLogModeRequest.Meta meta() {
     return SetMinimumLogModeRequest.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(SetMinimumLogModeRequest.Meta.INSTANCE);
   }

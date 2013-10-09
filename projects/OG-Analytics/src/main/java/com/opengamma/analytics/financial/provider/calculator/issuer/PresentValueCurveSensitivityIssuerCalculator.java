@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.calculator.issuer;
@@ -40,7 +40,7 @@ public final class PresentValueCurveSensitivityIssuerCalculator extends Instrume
    * Constructor.
    */
   private PresentValueCurveSensitivityIssuerCalculator() {
-    super(new IssuerProviderAdapter<MultipleCurrencyMulticurveSensitivity>(PresentValueCurveSensitivityDiscountingCalculator.getInstance()));
+    super(new IssuerProviderAdapter<>(PresentValueCurveSensitivityDiscountingCalculator.getInstance()));
   }
 
   /**

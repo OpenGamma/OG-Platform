@@ -105,20 +105,22 @@ public class MarketDataSnapshotWithOverride extends AbstractMarketDataSnapshot {
   @Override
   public Map<ValueSpecification, Object> query(final Set<ValueSpecification> values) {
     if (getOverride() != null) {
-      final Set<ValueSpecification> unqueried = new HashSet<ValueSpecification>(values);
+      final Set<ValueSpecification> unresolved = new HashSet<ValueSpecification>(values);
       final Map<ValueSpecification, Object> result = Maps.newHashMapWithExpectedSize(values.size());
       final Map<ValueSpecification, OverrideOperation> overrideOperations = Maps.newHashMapWithExpectedSize(values.size());
       for (ValueSpecification value : values) {
-        final Object response = getOverride().query(value);
-        if (response instanceof OverrideOperation) {
+        Object response = getOverride().query(value);
+        if (response == null) {
+          continue;
+        } else if (response instanceof OverrideOperation) {
           overrideOperations.put(value, (OverrideOperation) response);
         } else {
           result.put(value, response);
-          unqueried.remove(value);
+          unresolved.remove(value);
         }
       }
-      if (!unqueried.isEmpty()) {
-        final Map<ValueSpecification, Object> response = getUnderlying().query(unqueried);
+      if (!unresolved.isEmpty()) {
+        final Map<ValueSpecification, Object> response = getUnderlying().query(unresolved);
         if (response != null) {
           for (final Map.Entry<ValueSpecification, Object> underlyingEntry : response.entrySet()) {
             final OverrideOperation overrideOperation = overrideOperations.get(underlyingEntry.getKey());

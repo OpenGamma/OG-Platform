@@ -129,7 +129,7 @@ import com.opengamma.util.tuple.Pair;
    * Optional listener to process failures.
    */
   private ResolutionFailureListener _failureListener;
-  
+
   /**
    * Optional logic to collapse nodes on mutually compatible targets into a single node.
    */
@@ -165,7 +165,7 @@ import com.opengamma.util.tuple.Pair;
   public void setFailureListener(ResolutionFailureListener failureListener) {
     _failureListener = failureListener;
   }
-  
+
   public void setComputationTargetCollapser(final ComputationTargetCollapser collapser) {
     _computationTargetCollapser = collapser;
   }
@@ -183,11 +183,13 @@ import com.opengamma.util.tuple.Pair;
     if (node == null) {
       return null;
     }
-    // Can only use the specification if it is consumed by another node; i.e. it has been fully resolved
-    // and is not just an advisory used to merge tentative results to give a single node producing multiple
-    // outputs.
+    // Can only use the specification if it is consumed by another node (or is a terminal output); i.e. it has been fully resolved
+    // and is not just an advisory used to merge tentative results to give a single node producing multiple outputs.
     _readLock.lock();
     try {
+      if (node.hasTerminalOutputValue(specification)) {
+        return new ResolvedValue(specification, node.getFunction(), node.getInputValuesCopy(), node.getOutputValuesCopy());
+      }
       for (final DependencyNode dependent : node.getDependentNodes()) {
         if (dependent.hasInputValue(specification)) {
           return new ResolvedValue(specification, node.getFunction(), node.getInputValuesCopy(), node.getOutputValuesCopy());
@@ -629,7 +631,6 @@ import com.opengamma.util.tuple.Pair;
       }
       final String aName = a.getValueName();
       final ValueProperties aProperties = a.getProperties();
-      boolean mismatch = false;
       for (final ValueSpecification b : bs) {
         if (aName == b.getValueName()) {
           // Match the name; check the constraints
@@ -637,12 +638,9 @@ import com.opengamma.util.tuple.Pair;
             continue nextA;
           } else {
             // Mismatch found
-            mismatch = true;
+            return true;
           }
         }
-      }
-      if (mismatch) {
-        return true;
       }
     }
     return false;
@@ -663,17 +661,13 @@ import com.opengamma.util.tuple.Pair;
   private DependencyNode findExistingNode(final Set<DependencyNode> nodes, final ResolvedValue resolvedValue) {
     for (final DependencyNode node : nodes) {
       final Set<ValueSpecification> outputValues = node.getOutputValues();
-      if (mismatchUnion(outputValues, resolvedValue.getFunctionOutputs())) {
-        s_logger.debug("Can't reuse {} for {}", node, resolvedValue);
-      } else {
+      if (!mismatchUnion(outputValues, resolvedValue.getFunctionOutputs())) {
         s_logger.debug("Considering {} for {}", node, resolvedValue);
         // Update the output values for the node with the union. The input values will be dealt with by the caller.
         Map<ValueSpecification, ValueSpecification> replacements = null;
-        boolean matched = false;
-        for (final ValueSpecification output : resolvedValue.getFunctionOutputs()) {
+        resolvedOutput: for (final ValueSpecification output : resolvedValue.getFunctionOutputs()) { //CSIGNORE
           if (outputValues.contains(output)) {
             // Exact match found
-            matched = true;
             continue;
           }
           final String outputName = output.getValueName();
@@ -681,28 +675,35 @@ import com.opengamma.util.tuple.Pair;
           for (final ValueSpecification outputValue : outputValues) {
             if (outputName == outputValue.getValueName()) {
               if ((replacements != null) && replacements.containsKey(outputValue)) {
+                // The candidate output has already been re-written to match another of the resolved outputs
                 continue;
               }
               if (outputValue.getProperties().isSatisfiedBy(outputProperties)) {
-                // Found match
-                matched = true;
+                // Found suitable match; check whether it needs rewriting
                 final ValueProperties composedProperties = outputValue.getProperties().compose(outputProperties);
                 if (!composedProperties.equals(outputValue.getProperties())) {
                   final ValueSpecification newOutputValue = MemoryUtils
                       .instance(new ValueSpecification(outputValue.getValueName(), outputValue.getTargetSpecification(), composedProperties));
-                  s_logger.debug("Replacing {} with {} in reused node", outputValue, newOutputValue);
                   if (replacements == null) {
                     replacements = Maps.newHashMapWithExpectedSize(outputValues.size());
                   }
                   replacements.put(outputValue, newOutputValue);
                 }
-                break;
+                continue resolvedOutput;
               }
             }
           }
-        }
-        if (!matched) {
-          continue;
+          // This output was not matched. The "mismatchUnion" test means it is in addition to what the node was previously producing
+          // and should be able to produce once its got any extra inputs it needs.
+          if (_spec2Node.containsKey(output)) {
+            // Another node already produces this
+            s_logger.debug("Discarding output {} - already produced elsewhere in the graph", output);
+            // TODO: Would it be better to do this check at the start of the loop?
+          } else {
+            s_logger.debug("Adding additional output {} to {}", output, node);
+            node.addOutputValue(output);
+            _spec2Node.put(output, node);
+          }
         }
         if (replacements != null) {
           for (Map.Entry<ValueSpecification, ValueSpecification> replacement : replacements.entrySet()) {
@@ -806,6 +807,7 @@ import com.opengamma.util.tuple.Pair;
               outputValue = MemoryUtils.instance(new ValueSpecification(outputValue.getValueName(), node.getComputationTarget(), outputValue.getProperties()));
             }
             assert node.getOutputValues().contains(outputValue);
+            node.addTerminalOutputValue(outputValue);
             Collection<ValueRequirement> requirements = _resolvedValues.get(outputValue);
             if (requirements == null) {
               requirements = new ArrayList<ValueRequirement>();

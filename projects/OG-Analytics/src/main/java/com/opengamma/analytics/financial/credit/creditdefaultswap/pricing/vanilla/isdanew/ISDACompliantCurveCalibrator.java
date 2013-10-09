@@ -1,19 +1,15 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew;
-
-import static com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantScheduleGenerator.toZoneDateTime;
 
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 
 import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.StubType;
-import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
-import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.rootfinding.BracketRoot;
 import com.opengamma.analytics.math.rootfinding.BrentSingleRootFinder;
@@ -22,12 +18,11 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.ArgumentChecker;
 
-
 /**
  * This should be viewed as "proof of concept" code, since it used the code that has date logic mixed with the analytics (this was to
  * mimic the structure of the ISDA c code). This should <b>not</b> be used for production credit (hazard) curve calibration/bootstrapping,
  * ISDACompliantCreditCurveCalibrator should be used.
- *   
+ *
  */
 public class ISDACompliantCurveCalibrator {
 
@@ -38,7 +33,7 @@ public class ISDACompliantCurveCalibrator {
   private static final ISDACompliantPresentValueCreditDefaultSwap PRICER = new ISDACompliantPresentValueCreditDefaultSwap();
 
   public ISDACompliantDateCreditCurve calibrateHazardCurve(final LocalDate today, final LocalDate stepinDate, final LocalDate valueDate, final LocalDate startDate, final LocalDate[] endDates,
-      final double[] couponRates, final boolean payAccOnDefault, final Period tenor, StubType stubType, final boolean protectStart, final ISDACompliantDateYieldCurve yieldCurve,
+      final double[] couponRates, final boolean payAccOnDefault, final Period tenor, final StubType stubType, final boolean protectStart, final ISDACompliantDateYieldCurve yieldCurve,
       final double recoveryRate) {
 
     ArgumentChecker.notNull(today, "null today");
@@ -58,8 +53,8 @@ public class ISDACompliantCurveCalibrator {
     ArgumentChecker.isTrue(n == couponRates.length, "length of couponRates does not match endDates");
 
     // use continuous premiums as initial guess
-    double[] guess = new double[n];
-    double[] t = new double[n];
+    final double[] guess = new double[n];
+    final double[] t = new double[n];
     final double lgd = 1 - recoveryRate;
     for (int i = 0; i < n; i++) {
       guess[i] = couponRates[i] / lgd;
@@ -69,9 +64,10 @@ public class ISDACompliantCurveCalibrator {
     // HazardRateCurve hazardCurve = new HazardRateCurve(toZoneDateTime(endDates), t, guess, 0.0);
     ISDACompliantDateCreditCurve hazardCurve = new ISDACompliantDateCreditCurve(today, endDates, guess);
     for (int i = 0; i < n; i++) {
-      CDSPricer func = new CDSPricer(i, today, stepinDate, valueDate, startDate, endDates[i], couponRates[i], protectStart, payAccOnDefault, tenor, stubType, recoveryRate, yieldCurve, hazardCurve);
-      double[] bracket = BRACKER.getBracketedPoints(func, 0.9 * guess[i], 1.1 * guess[i], 0.0, Double.POSITIVE_INFINITY);
-      double zeroRate = ROOTFINDER.getRoot(func, bracket[0], bracket[1]);
+      final CDSPricer func = new CDSPricer(i, today, stepinDate, valueDate, startDate, endDates[i], couponRates[i], protectStart, payAccOnDefault,
+          tenor, stubType, recoveryRate, yieldCurve, hazardCurve);
+      final double[] bracket = BRACKER.getBracketedPoints(func, 0.9 * guess[i], 1.1 * guess[i], 0.0, Double.POSITIVE_INFINITY);
+      final double zeroRate = ROOTFINDER.getRoot(func, bracket[0], bracket[1]);
       hazardCurve = hazardCurve.withRate(zeroRate, i);
     }
 
@@ -119,10 +115,11 @@ public class ISDACompliantCurveCalibrator {
     }
 
     @Override
-    public Double evaluate(Double x) {
+    public Double evaluate(final Double x) {
       // TODO this direct access is unpleasant
-      ISDACompliantDateCreditCurve hazardCurve = (ISDACompliantDateCreditCurve) _hazardCurve.withRate(x, _index);
-      final double rpv01 = PRICER.pvPremiumLegPerUnitSpread(_today, _stepinDate, _valueDate, _startDate, _endDate, _payAccOnDefault, _tenor, _stubType, _yieldCurve, hazardCurve, _protectStart, PriceType.CLEAN);
+      final ISDACompliantDateCreditCurve hazardCurve = _hazardCurve.withRate(x, _index);
+      final double rpv01 = PRICER.pvPremiumLegPerUnitSpread(_today, _stepinDate, _valueDate, _startDate, _endDate, _payAccOnDefault, _tenor, _stubType, _yieldCurve, hazardCurve, _protectStart,
+          PriceType.CLEAN);
       final double protectLeg = PRICER.calculateProtectionLeg(_today, _stepinDate, _valueDate, _startDate, _endDate, _yieldCurve, hazardCurve, _rr, _protectStart);
       final double pv = protectLeg - _couponRate * rpv01;
       return pv;

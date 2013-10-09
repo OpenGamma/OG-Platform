@@ -6,8 +6,10 @@
 package com.opengamma.analytics.financial.provider.calculator.g2pp;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitorAdapter;
+import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
 import com.opengamma.analytics.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
-import com.opengamma.analytics.financial.interestrate.swaption.provider.SwaptionPhysicalFixedIborG2ppApproximationMethod;
+import com.opengamma.analytics.financial.interestrate.swaption.provider.SwaptionCashFixedIborG2ppNumericalIntegrationMethod;
+import com.opengamma.analytics.financial.interestrate.swaption.provider.SwaptionPhysicalFixedIborG2ppNumericalIntegrationMethod;
 import com.opengamma.analytics.financial.provider.description.interestrate.G2ppProviderInterface;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
@@ -35,16 +37,21 @@ public final class PresentValueG2ppCalculator extends InstrumentDerivativeVisito
   private PresentValueG2ppCalculator() {
   }
 
-  /**
-   * Pricing methods.
-   */
-  private static final SwaptionPhysicalFixedIborG2ppApproximationMethod METHOD_SWT_PHYS = SwaptionPhysicalFixedIborG2ppApproximationMethod.getInstance();
+  /** Physically-delivered swap */
+  private static final SwaptionPhysicalFixedIborG2ppNumericalIntegrationMethod METHOD_SWT_PHYS = new SwaptionPhysicalFixedIborG2ppNumericalIntegrationMethod();
+  /** Cash-settled swap */
+  private static final SwaptionCashFixedIborG2ppNumericalIntegrationMethod METHOD_SWT_CASH = new SwaptionCashFixedIborG2ppNumericalIntegrationMethod();
 
   // -----     Swaption     ------
 
   @Override
   public MultipleCurrencyAmount visitSwaptionPhysicalFixedIbor(final SwaptionPhysicalFixedIbor swaption, final G2ppProviderInterface g2) {
     return METHOD_SWT_PHYS.presentValue(swaption, g2);
+  }
+
+  @Override
+  public MultipleCurrencyAmount visitSwaptionCashFixedIbor(final SwaptionCashFixedIbor swaption, final G2ppProviderInterface g2) {
+    return METHOD_SWT_CASH.presentValue(swaption, g2);
   }
 
 }

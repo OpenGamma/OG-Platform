@@ -13,5 +13,5 @@ package com.opengamma.analytics.math.interpolation;
 public interface Interpolator<S, T> {
 
   Double interpolate(S data, T value);
-  
+
 }

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.future;
@@ -9,8 +9,8 @@ import org.apache.commons.lang.ObjectUtils;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
-import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
+import com.opengamma.analytics.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.analytics.financial.instrument.index.GeneratorSwapFixedIbor;
 import com.opengamma.analytics.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.analytics.financial.interestrate.future.derivative.SwapFuturesPriceDeliverableSecurity;
@@ -23,7 +23,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Description of Deliverable Interest Rate Swap Futures as traded on CME.
  */
-public class SwapFuturesPriceDeliverableSecurityDefinition implements InstrumentDefinition<SwapFuturesPriceDeliverableSecurity> {
+public class SwapFuturesPriceDeliverableSecurityDefinition implements InstrumentDefinitionWithData<SwapFuturesPriceDeliverableSecurity, Double> {
 
   /**
    * The futures last trading date. The date for which the delivery date is the spot date.
@@ -67,7 +67,8 @@ public class SwapFuturesPriceDeliverableSecurityDefinition implements Instrument
    * @param rate The underlying swap rate.
    * @return The futures.
    */
-  public static SwapFuturesPriceDeliverableSecurityDefinition from(final ZonedDateTime effectiveDate, final GeneratorSwapFixedIbor generator, final Period tenor, final double notional, final double rate) {
+  public static SwapFuturesPriceDeliverableSecurityDefinition from(final ZonedDateTime effectiveDate, final GeneratorSwapFixedIbor generator, final Period tenor,
+      final double notional, final double rate) {
     ArgumentChecker.notNull(effectiveDate, "Effective date");
     ArgumentChecker.notNull(generator, "Generator");
     final ZonedDateTime lastTradingDate = ScheduleCalculator.getAdjustedDate(effectiveDate, -generator.getSpotLag(), generator.getCalendar());
@@ -107,12 +108,40 @@ public class SwapFuturesPriceDeliverableSecurityDefinition implements Instrument
     return _notional;
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public SwapFuturesPriceDeliverableSecurity toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     final double lastTradingTime = TimeCalculator.getTimeBetween(date, _lastTradingDate);
     final double deliveryTime = TimeCalculator.getTimeBetween(date, _deliveryDate);
     final SwapFixedCoupon<? extends Coupon> underlyingSwap = _underlyingSwap.toDerivative(date, yieldCurveNames);
     return new SwapFuturesPriceDeliverableSecurity(lastTradingTime, deliveryTime, underlyingSwap, _notional);
+  }
+
+  @Override
+  public SwapFuturesPriceDeliverableSecurity toDerivative(final ZonedDateTime date) {
+    final double lastTradingTime = TimeCalculator.getTimeBetween(date, _lastTradingDate);
+    final double deliveryTime = TimeCalculator.getTimeBetween(date, _deliveryDate);
+    final SwapFixedCoupon<? extends Coupon> underlyingSwap = _underlyingSwap.toDerivative(date);
+    return new SwapFuturesPriceDeliverableSecurity(lastTradingTime, deliveryTime, underlyingSwap, _notional);
+  }
+
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
+  @Override
+  public SwapFuturesPriceDeliverableSecurity toDerivative(final ZonedDateTime date, final Double data, final String... yieldCurveNames) {
+    return toDerivative(date, data);
+  }
+
+  @Override
+  public SwapFuturesPriceDeliverableSecurity toDerivative(final ZonedDateTime date, final Double data) {
+    return toDerivative(date);
   }
 
   @Override
@@ -125,6 +154,14 @@ public class SwapFuturesPriceDeliverableSecurityDefinition implements Instrument
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
     ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitDeliverableSwapFuturesSecurityDefinition(this);
+  }
+
+  @Override
+  public String toString() {
+    String result = "Swap : \n";
+    result += "First leg: \n" + _underlyingSwap.getFirstLeg().toString();
+    result += "\nSecond leg: \n" + _underlyingSwap.getSecondLeg().toString();
+    return result;
   }
 
   @Override

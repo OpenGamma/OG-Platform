@@ -118,6 +118,7 @@ public class BloombergReferenceDataProviderComponentFactory extends AbstractComp
   public static BloombergReferenceDataProviderComponentFactory.Meta meta() {
     return BloombergReferenceDataProviderComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(BloombergReferenceDataProviderComponentFactory.Meta.INSTANCE);
   }

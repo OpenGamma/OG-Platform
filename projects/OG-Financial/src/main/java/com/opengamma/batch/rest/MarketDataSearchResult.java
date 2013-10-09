@@ -61,6 +61,7 @@ public class MarketDataSearchResult extends DirectBean {
   public static MarketDataSearchResult.Meta meta() {
     return MarketDataSearchResult.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(MarketDataSearchResult.Meta.INSTANCE);
   }

@@ -8,6 +8,7 @@ package com.opengamma.engine.target.resolver;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.PassthroughChangeManager;
 import com.opengamma.engine.target.ComputationTargetTypeMap;
+import com.opengamma.engine.target.logger.ResolutionLogger;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.VersionCorrection;
@@ -20,14 +21,47 @@ import com.opengamma.lambdava.functions.Function2;
  */
 public class ChainedResolver<T extends UniqueIdentifiable> implements ObjectResolver<T> {
 
+  private static final class ChainedDeepResolver implements DeepResolver {
+
+    private final DeepResolver _first;
+    private final DeepResolver _second;
+
+    public ChainedDeepResolver(final DeepResolver first, final DeepResolver second) {
+      _first = first;
+      _second = second;
+    }
+
+    // DeepResolver
+
+    @Override
+    public UniqueIdentifiable withLogger(final UniqueIdentifiable underlying, final ResolutionLogger logger) {
+      UniqueIdentifiable result = _first.withLogger(underlying, logger);
+      if (result == null) {
+        result = _second.withLogger(underlying, logger);
+      }
+      return result;
+    }
+
+  }
+
   private final ObjectResolver<? extends T> _first;
   private final ObjectResolver<? extends T> _second;
-  private final boolean _deep;
+  private final DeepResolver _deep;
 
   public ChainedResolver(final ObjectResolver<? extends T> first, final ObjectResolver<? extends T> second) {
     _first = first;
     _second = second;
-    _deep = first.isDeepResolver() || second.isDeepResolver();
+    DeepResolver firstDeep = first.deepResolver();
+    DeepResolver secondDeep = second.deepResolver();
+    if (firstDeep != null) {
+      if (secondDeep != null) {
+        _deep = new ChainedDeepResolver(firstDeep, secondDeep);
+      } else {
+        _deep = firstDeep;
+      }
+    } else {
+      _deep = secondDeep;
+    }
   }
 
   protected ObjectResolver<? extends T> getFirst() {
@@ -53,7 +87,7 @@ public class ChainedResolver<T extends UniqueIdentifiable> implements ObjectReso
   }
 
   @Override
-  public boolean isDeepResolver() {
+  public DeepResolver deepResolver() {
     return _deep;
   }
 

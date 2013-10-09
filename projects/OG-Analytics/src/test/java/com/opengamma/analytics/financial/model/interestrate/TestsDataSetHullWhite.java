@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.interestrate;
@@ -16,7 +16,9 @@ import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 
 /**
  * Data used for tests on the Hull-White one factor model.
+ * @deprecated This class produces deprecated types.
  */
+@Deprecated
 public class TestsDataSetHullWhite {
 
   private static final double MEAN_REVERSION = 0.01;
@@ -53,7 +55,7 @@ public class TestsDataSetHullWhite {
    * @param fwd The forward curve level.
    * @return
    */
-  public static YieldCurveBundle curves1(double dsc, double fwd) {
+  public static YieldCurveBundle curves1(final double dsc, final double fwd) {
     final YieldCurveBundle curves = new YieldCurveBundle();
     curves.setCurve(DSC_CURVE_NAME, YieldCurve.from(ConstantDoublesCurve.from(dsc)));
     curves.setCurve(FWD_CURVE_NAME, YieldCurve.from(ConstantDoublesCurve.from(fwd)));
@@ -64,9 +66,9 @@ public class TestsDataSetHullWhite {
     return new String[] {DSC_CURVE_NAME, FWD_CURVE_NAME};
   }
 
-  public static YieldCurveBundle curves2(double dsc, double fwd) {
-    double[] dscArray = new double[RATES_TIME.length];
-    double[] fwdArray = new double[RATES_TIME.length];
+  public static YieldCurveBundle curves2(final double dsc, final double fwd) {
+    final double[] dscArray = new double[RATES_TIME.length];
+    final double[] fwdArray = new double[RATES_TIME.length];
     for (int loopt = 0; loopt < RATES_TIME.length; loopt++) {
       dscArray[loopt] = dsc;
       fwdArray[loopt] = fwd;

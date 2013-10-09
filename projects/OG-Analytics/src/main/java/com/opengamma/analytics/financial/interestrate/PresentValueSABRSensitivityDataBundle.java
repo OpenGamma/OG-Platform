@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate;
@@ -18,7 +18,6 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public class PresentValueSABRSensitivityDataBundle {
 
-  //TODO: Should the currency/instrument (swaption, cap) be included in the map description?
   /**
    * The object containing the alpha sensitivity.
    */
@@ -49,6 +48,7 @@ public class PresentValueSABRSensitivityDataBundle {
   /**
    * Constructor from parameter sensitivities.
    * @param alpha The alpha sensitivity.
+   * @param beta The beta sensitivity.
    * @param rho The rho sensitivity.
    * @param nu The nu sensitivity.
    */
@@ -66,6 +66,7 @@ public class PresentValueSABRSensitivityDataBundle {
   /**
    * Constructor from existing SurfaceValue for alpha, rho and nu. The SurfaceValue are not copied but used directly.
    * @param alpha The alpha sensitivities.
+   * @param beta The beta sensitivities.
    * @param rho The rho sensitivities.
    * @param nu The nu sensitivities.
    */
@@ -119,7 +120,7 @@ public class PresentValueSABRSensitivityDataBundle {
   }
 
   /**
-   * Create a new sensitivity object with all the sensitivities multiplied by a common factor. 
+   * Create a new sensitivity object with all the sensitivities multiplied by a common factor.
    * @param factor The multiplicative factor.
    * @return The multiplied sensitivity.
    */
@@ -129,7 +130,7 @@ public class PresentValueSABRSensitivityDataBundle {
   }
 
   /**
-   * Return the sum of to sensitivities in a new one. The original sensitivities are unchanged. 
+   * Return the sum of to sensitivities in a new one. The original sensitivities are unchanged.
    * @param other The other SABR sensitivity.
    * @return The sum sensitivity.
    */

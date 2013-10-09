@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument.future;
@@ -48,10 +48,10 @@ public class InterestRateFutureOptionMarginTransactionDefinition implements Inst
       final double tradePrice) {
     ArgumentChecker.notNull(underlyingOption, "underlying option");
     ArgumentChecker.notNull(tradeDate, "trade date");
-    this._underlyingOption = underlyingOption;
-    this._quantity = quantity;
-    this._tradeDate = tradeDate;
-    this._tradePrice = tradePrice;
+    _underlyingOption = underlyingOption;
+    _quantity = quantity;
+    _tradeDate = tradeDate;
+    _tradePrice = tradePrice;
   }
 
   /**
@@ -86,15 +86,23 @@ public class InterestRateFutureOptionMarginTransactionDefinition implements Inst
     return _tradePrice;
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
+   */
+  @Deprecated
   @Override
   public InterestRateFutureOptionMarginTransaction toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     throw new UnsupportedOperationException("The method toDerivative of InterestRateTransactionDefinition does not support the two argument method (without margin price data).");
   }
 
-  @Override
   /**
    * The lastMarginPrice is the last closing price used for margining. It is usually the official closing price of the previous business day.
+   * {@inheritDoc}
+   * @deprecated Use the method that does not take yield curve names
    */
+  @Deprecated
+  @Override
   public InterestRateFutureOptionMarginTransaction toDerivative(final ZonedDateTime dateTime, final Double lastMarginPrice, final String... yieldCurveNames) {
     ArgumentChecker.notNull(dateTime, "date");
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
@@ -103,6 +111,33 @@ public class InterestRateFutureOptionMarginTransactionDefinition implements Inst
     final LocalDate tradeDateLocal = _tradeDate.toLocalDate();
     ArgumentChecker.isTrue(!date.isBefore(tradeDateLocal), "Valuation date {} is before the trade date {} ", date, tradeDateLocal);
     final InterestRateFutureOptionMarginSecurity underlyingOption = _underlyingOption.toDerivative(dateTime, yieldCurveNames);
+    double referencePrice;
+    if (tradeDateLocal.isBefore(dateTime.toLocalDate())) { // Transaction was before last margining.
+      referencePrice = lastMarginPrice;
+    } else { // Transaction is today
+      referencePrice = _tradePrice;
+    }
+    final InterestRateFutureOptionMarginTransaction optionTransaction = new InterestRateFutureOptionMarginTransaction(underlyingOption, _quantity, referencePrice);
+    return optionTransaction;
+  }
+
+  @Override
+  public InterestRateFutureOptionMarginTransaction toDerivative(final ZonedDateTime date) {
+    throw new UnsupportedOperationException("The method toDerivative of InterestRateTransactionDefinition does not support the two argument method (without margin price data).");
+  }
+
+  /**
+   * {@inheritDoc}
+   * The lastMarginPrice is the last closing price used for margining. It is usually the official closing price of the previous business day.
+   */
+  @Override
+  public InterestRateFutureOptionMarginTransaction toDerivative(final ZonedDateTime dateTime, final Double lastMarginPrice) {
+    ArgumentChecker.notNull(dateTime, "date");
+    final LocalDate date = dateTime.toLocalDate();
+    ArgumentChecker.isTrue(!date.isAfter(_underlyingOption.getUnderlyingFuture().getFixingPeriodStartDate().toLocalDate()), "Date is after last margin date");
+    final LocalDate tradeDateLocal = _tradeDate.toLocalDate();
+    ArgumentChecker.isTrue(!date.isBefore(tradeDateLocal), "Valuation date {} is before the trade date {} ", date, tradeDateLocal);
+    final InterestRateFutureOptionMarginSecurity underlyingOption = _underlyingOption.toDerivative(dateTime);
     double referencePrice;
     if (tradeDateLocal.isBefore(dateTime.toLocalDate())) { // Transaction was before last margining.
       referencePrice = lastMarginPrice;

@@ -68,6 +68,7 @@ public class InMemoryHolidayMasterComponentFactory extends AbstractComponentFact
   public static InMemoryHolidayMasterComponentFactory.Meta meta() {
     return InMemoryHolidayMasterComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(InMemoryHolidayMasterComponentFactory.Meta.INSTANCE);
   }

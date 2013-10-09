@@ -6,10 +6,10 @@
 package com.opengamma.analytics.financial.instrument.index;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Generic class for instrument generators (deposit, ois, irs, ...).
@@ -27,7 +27,7 @@ public abstract class GeneratorInstrument<ATTRIBUTE_TYPE extends GeneratorAttrib
    * @param name The generator name.
    */
   public GeneratorInstrument(final String name) {
-    Validate.notNull(name, "Name");
+    ArgumentChecker.notNull(name, "Name");
     _name = name;
   }
 
@@ -44,10 +44,10 @@ public abstract class GeneratorInstrument<ATTRIBUTE_TYPE extends GeneratorAttrib
    * @param date The reference date. In general it is "today" or the trade date.
    * @param marketQuote The instrument market quote.
    * @param notional The instrument notional.
-   * @param attribute The instrument attributes, as given by a GenratorAttribute.
+   * @param attribute The instrument attributes, as given by a GeneratorAttribute.
    * @return The instrument.
    */
-  public abstract InstrumentDefinition<?> generateInstrument(final ZonedDateTime date, final double marketQuote, final double notional, final ATTRIBUTE_TYPE attribute);
+  public abstract InstrumentDefinition<?> generateInstrument(ZonedDateTime date, double marketQuote, double notional, ATTRIBUTE_TYPE attribute);
 
   @Override
   public int hashCode() {

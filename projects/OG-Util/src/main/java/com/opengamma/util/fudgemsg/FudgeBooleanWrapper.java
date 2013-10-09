@@ -68,6 +68,7 @@ public class FudgeBooleanWrapper extends DirectBean {
   public static FudgeBooleanWrapper.Meta meta() {
     return FudgeBooleanWrapper.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(FudgeBooleanWrapper.Meta.INSTANCE);
   }

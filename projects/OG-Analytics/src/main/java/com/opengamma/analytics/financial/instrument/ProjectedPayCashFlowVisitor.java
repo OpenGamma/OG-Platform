@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.instrument;
@@ -25,7 +25,9 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
  * Returns all of the projected pay floating cash-flows of an instrument.
+ * @deprecated {@link YieldCurveBundle} is deprecated
  */
+@Deprecated
 public final class ProjectedPayCashFlowVisitor extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, List<MultipleCurrencyAmount>> {
   private static final ProjectedPayCashFlowVisitor INSTANCE = new ProjectedPayCashFlowVisitor();
 
@@ -151,7 +153,7 @@ public final class ProjectedPayCashFlowVisitor extends InstrumentDerivativeVisit
   }
 
   private List<MultipleCurrencyAmount> getDatesFromAnnuity(final Annuity<? extends Payment> annuity, final YieldCurveBundle data) {
-    final List<MultipleCurrencyAmount> result = new ArrayList<MultipleCurrencyAmount>();
+    final List<MultipleCurrencyAmount> result = new ArrayList<>();
     for (final Payment payment : annuity.getPayments()) {
       final List<MultipleCurrencyAmount> payments = payment.accept(this, data);
       for (final MultipleCurrencyAmount mca : payments) {

@@ -47,10 +47,20 @@ import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
- *
+ * Contains utility methods for pricing FX options.
  */
 public class FXOptionFunctionUtils {
 
+  /**
+   * Builds the market data bundle for FX options.
+   * @param now The valuation time
+   * @param inputs The function inputs
+   * @param target The computation target
+   * @param desiredValues The desired values
+   * @return The FX option market data bundle
+   * @deprecated The data bundle is deprecated
+   */
+  @Deprecated
   public static ForexOptionDataBundle<?> buildMarketBundle(final ZonedDateTime now, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());

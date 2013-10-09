@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.math.interpolation;
@@ -19,7 +19,7 @@ import com.opengamma.analytics.math.interpolation.data.ArrayInterpolator1DDataBu
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 
 /**
- * 
+ *
  */
 public class PolynomialInterpolator1DTest {
   private static final Interpolator1D INTERPOLATOR_NO_OFFSET = new PolynomialInterpolator1D(3);
@@ -102,8 +102,8 @@ public class PolynomialInterpolator1DTest {
   public void testInterpolation() {
     final Function1D<Double, Double> quadratic = new RealPolynomialFunction1D(new double[] {-4., 3., 1.});
     final Function1D<Double, Double> quartic = new RealPolynomialFunction1D(new double[] {-4., 3., 1., 1., 1.});
-    final TreeMap<Double, Double> quadraticMap = new TreeMap<Double, Double>();
-    final TreeMap<Double, Double> quarticMap = new TreeMap<Double, Double>();
+    final TreeMap<Double, Double> quadraticMap = new TreeMap<>();
+    final TreeMap<Double, Double> quarticMap = new TreeMap<>();
     double x;
     for (int i = 0; i < 10; i++) {
       x = i / 10.;

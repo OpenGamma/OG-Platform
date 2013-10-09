@@ -1,17 +1,18 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.bond.definition;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
@@ -50,16 +51,36 @@ public abstract class BondSecurity<N extends Payment, C extends Coupon> implemen
    * @param settlementTime The time (in years) to settlement date.
    * @param discountingCurveName The name of the curve used for settlement amount discounting.
    * @param issuer The bond issuer name.
+   * @deprecated Use the constructor that does not take a curve name
    */
+  @Deprecated
   public BondSecurity(final Annuity<N> nominal, final Annuity<C> coupon, final double settlementTime, final String discountingCurveName, final String issuer) {
-    Validate.notNull(nominal, "Nominal");
-    Validate.notNull(coupon, "Coupon");
-    Validate.notNull(discountingCurveName, "Repo curve name");
-    Validate.notNull(issuer, "Issuer");
+    ArgumentChecker.notNull(nominal, "Nominal");
+    ArgumentChecker.notNull(coupon, "Coupon");
+    ArgumentChecker.notNull(discountingCurveName, "Repo curve name");
+    ArgumentChecker.notNull(issuer, "Issuer");
     _nominal = nominal;
     _coupon = coupon;
     _settlementTime = settlementTime;
     _discountingCurveName = discountingCurveName;
+    _issuer = issuer;
+  }
+
+  /**
+   * Bond constructor from the bond nominal and coupon.
+   * @param nominal The notional payments.
+   * @param coupon The bond coupons.
+   * @param settlementTime The time (in years) to settlement date.
+   * @param issuer The bond issuer name.
+   */
+  public BondSecurity(final Annuity<N> nominal, final Annuity<C> coupon, final double settlementTime, final String issuer) {
+    ArgumentChecker.notNull(nominal, "Nominal");
+    ArgumentChecker.notNull(coupon, "Coupon");
+    ArgumentChecker.notNull(issuer, "Issuer");
+    _nominal = nominal;
+    _coupon = coupon;
+    _settlementTime = settlementTime;
+    _discountingCurveName = null;
     _issuer = issuer;
   }
 
@@ -98,8 +119,13 @@ public abstract class BondSecurity<N extends Payment, C extends Coupon> implemen
   /**
    * Gets the name of the curve used for settlement amount discounting.
    * @return The curve name.
+   * @deprecated Curve names should no longer be set in {@link InstrumentDefinition}s
    */
+  @Deprecated
   public String getRepoCurveName() {
+    if (_discountingCurveName == null) {
+      throw new IllegalStateException("Repo curve name was not set");
+    }
     return _discountingCurveName;
   }
 
@@ -122,7 +148,9 @@ public abstract class BondSecurity<N extends Payment, C extends Coupon> implemen
   /**
    * Gets the name of the curve used for discounting.
    * @return The curve name.
+   * @deprecated Curve names should no longer be set in {@link InstrumentDefinition}s
    */
+  @Deprecated
   public String getDiscountingCurveName() {
     return getNominal().getDiscountCurve();
   }
@@ -135,6 +163,7 @@ public abstract class BondSecurity<N extends Payment, C extends Coupon> implemen
     return result;
   }
 
+  //REVIEW emcleod 17-08-2013 why is the settlement time and issuer not used?
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -144,6 +173,7 @@ public abstract class BondSecurity<N extends Payment, C extends Coupon> implemen
     return result;
   }
 
+  //REVIEW emcleod 17-08-2013 why is the settlement time and issuer not used?
   @Override
   public boolean equals(final Object obj) {
     if (this == obj) {

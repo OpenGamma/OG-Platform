@@ -67,7 +67,7 @@ public final class InnerClassFudgeBuilder<T extends AutoFudgable<K>, K> implemen
             // only want the compiler synthesized fields which corresponds to ctor parameters
             for (Iterator<Field> it = fs.iterator(); it.hasNext(); ) {
               Field field = it.next();
-              if (field.getType().isAssignableFrom(inner.getClass().getEnclosingClass())) {
+              if (field.getType().isAssignableFrom(inner.getClass().getEnclosingClass()) || "$jacocoData".equals(field.getName())) {
                 it.remove();
               }
             }

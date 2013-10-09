@@ -30,9 +30,11 @@ import com.opengamma.core.organization.OrganizationSource;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.engine.function.config.FunctionConfigurationSource;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.helper.AvailableOutputsProvider;
 import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.convention.ConventionMaster;
 import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.exchange.ExchangeMaster;
@@ -121,6 +123,12 @@ public class ToolContext extends DirectBean implements Closeable {
   private MarketDataSnapshotMaster _marketDataSnapshotMaster;
 
   /**
+   * The convention master.
+   */
+  @PropertyDefinition
+  private ConventionMaster _conventionMaster;
+
+  /**
    * The config source.
    */
   @PropertyDefinition
@@ -207,6 +215,12 @@ public class ToolContext extends DirectBean implements Closeable {
    */
   @PropertyDefinition
   private AvailableOutputsProvider _avaliableOutputsProvider;
+  
+  /**
+   * The function configuration source
+   */
+  @PropertyDefinition
+  private FunctionConfigurationSource _functionConfigSource;
 
   /**
    * Creates an instance.
@@ -248,6 +262,7 @@ public class ToolContext extends DirectBean implements Closeable {
   public static ToolContext.Meta meta() {
     return ToolContext.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ToolContext.Meta.INSTANCE);
   }
@@ -284,6 +299,8 @@ public class ToolContext extends DirectBean implements Closeable {
         return getHistoricalTimeSeriesMaster();
       case 2090650860:  // marketDataSnapshotMaster
         return getMarketDataSnapshotMaster();
+      case 41113907:  // conventionMaster
+        return getConventionMaster();
       case 195157501:  // configSource
         return getConfigSource();
       case -467239906:  // exchangeSource
@@ -318,6 +335,8 @@ public class ToolContext extends DirectBean implements Closeable {
         return getViewProcessor();
       case -1252442368:  // avaliableOutputsProvider
         return getAvaliableOutputsProvider();
+      case -2085248523:  // functionConfigSource
+        return getFunctionConfigSource();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -360,6 +379,9 @@ public class ToolContext extends DirectBean implements Closeable {
         return;
       case 2090650860:  // marketDataSnapshotMaster
         setMarketDataSnapshotMaster((MarketDataSnapshotMaster) newValue);
+        return;
+      case 41113907:  // conventionMaster
+        setConventionMaster((ConventionMaster) newValue);
         return;
       case 195157501:  // configSource
         setConfigSource((ConfigSource) newValue);
@@ -412,6 +434,9 @@ public class ToolContext extends DirectBean implements Closeable {
       case -1252442368:  // avaliableOutputsProvider
         setAvaliableOutputsProvider((AvailableOutputsProvider) newValue);
         return;
+      case -2085248523:  // functionConfigSource
+        setFunctionConfigSource((FunctionConfigurationSource) newValue);
+        return;
     }
     super.propertySet(propertyName, newValue, quiet);
   }
@@ -435,6 +460,7 @@ public class ToolContext extends DirectBean implements Closeable {
           JodaBeanUtils.equal(getOrganizationMaster(), other.getOrganizationMaster()) &&
           JodaBeanUtils.equal(getHistoricalTimeSeriesMaster(), other.getHistoricalTimeSeriesMaster()) &&
           JodaBeanUtils.equal(getMarketDataSnapshotMaster(), other.getMarketDataSnapshotMaster()) &&
+          JodaBeanUtils.equal(getConventionMaster(), other.getConventionMaster()) &&
           JodaBeanUtils.equal(getConfigSource(), other.getConfigSource()) &&
           JodaBeanUtils.equal(getExchangeSource(), other.getExchangeSource()) &&
           JodaBeanUtils.equal(getHolidaySource(), other.getHolidaySource()) &&
@@ -451,7 +477,8 @@ public class ToolContext extends DirectBean implements Closeable {
           JodaBeanUtils.equal(getHistoricalTimeSeriesProvider(), other.getHistoricalTimeSeriesProvider()) &&
           JodaBeanUtils.equal(getHistoricalTimeSeriesLoader(), other.getHistoricalTimeSeriesLoader()) &&
           JodaBeanUtils.equal(getViewProcessor(), other.getViewProcessor()) &&
-          JodaBeanUtils.equal(getAvaliableOutputsProvider(), other.getAvaliableOutputsProvider());
+          JodaBeanUtils.equal(getAvaliableOutputsProvider(), other.getAvaliableOutputsProvider()) &&
+          JodaBeanUtils.equal(getFunctionConfigSource(), other.getFunctionConfigSource());
     }
     return false;
   }
@@ -471,6 +498,7 @@ public class ToolContext extends DirectBean implements Closeable {
     hash += hash * 31 + JodaBeanUtils.hashCode(getOrganizationMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSnapshotMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getConventionMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getConfigSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getExchangeSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHolidaySource());
@@ -488,6 +516,7 @@ public class ToolContext extends DirectBean implements Closeable {
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesLoader());
     hash += hash * 31 + JodaBeanUtils.hashCode(getViewProcessor());
     hash += hash * 31 + JodaBeanUtils.hashCode(getAvaliableOutputsProvider());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFunctionConfigSource());
     return hash;
   }
 
@@ -781,6 +810,31 @@ public class ToolContext extends DirectBean implements Closeable {
    */
   public final Property<MarketDataSnapshotMaster> marketDataSnapshotMaster() {
     return metaBean().marketDataSnapshotMaster().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the convention master.
+   * @return the value of the property
+   */
+  public ConventionMaster getConventionMaster() {
+    return _conventionMaster;
+  }
+
+  /**
+   * Sets the convention master.
+   * @param conventionMaster  the new value of the property
+   */
+  public void setConventionMaster(ConventionMaster conventionMaster) {
+    this._conventionMaster = conventionMaster;
+  }
+
+  /**
+   * Gets the the {@code conventionMaster} property.
+   * @return the property, not null
+   */
+  public final Property<ConventionMaster> conventionMaster() {
+    return metaBean().conventionMaster().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -1210,6 +1264,31 @@ public class ToolContext extends DirectBean implements Closeable {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the function configuration source
+   * @return the value of the property
+   */
+  public FunctionConfigurationSource getFunctionConfigSource() {
+    return _functionConfigSource;
+  }
+
+  /**
+   * Sets the function configuration source
+   * @param functionConfigSource  the new value of the property
+   */
+  public void setFunctionConfigSource(FunctionConfigurationSource functionConfigSource) {
+    this._functionConfigSource = functionConfigSource;
+  }
+
+  /**
+   * Gets the the {@code functionConfigSource} property.
+   * @return the property, not null
+   */
+  public final Property<FunctionConfigurationSource> functionConfigSource() {
+    return metaBean().functionConfigSource().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code ToolContext}.
    */
   public static class Meta extends DirectMetaBean {
@@ -1278,6 +1357,11 @@ public class ToolContext extends DirectBean implements Closeable {
      */
     private final MetaProperty<MarketDataSnapshotMaster> _marketDataSnapshotMaster = DirectMetaProperty.ofReadWrite(
         this, "marketDataSnapshotMaster", ToolContext.class, MarketDataSnapshotMaster.class);
+    /**
+     * The meta-property for the {@code conventionMaster} property.
+     */
+    private final MetaProperty<ConventionMaster> _conventionMaster = DirectMetaProperty.ofReadWrite(
+        this, "conventionMaster", ToolContext.class, ConventionMaster.class);
     /**
      * The meta-property for the {@code configSource} property.
      */
@@ -1364,6 +1448,11 @@ public class ToolContext extends DirectBean implements Closeable {
     private final MetaProperty<AvailableOutputsProvider> _avaliableOutputsProvider = DirectMetaProperty.ofReadWrite(
         this, "avaliableOutputsProvider", ToolContext.class, AvailableOutputsProvider.class);
     /**
+     * The meta-property for the {@code functionConfigSource} property.
+     */
+    private final MetaProperty<FunctionConfigurationSource> _functionConfigSource = DirectMetaProperty.ofReadWrite(
+        this, "functionConfigSource", ToolContext.class, FunctionConfigurationSource.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -1380,6 +1469,7 @@ public class ToolContext extends DirectBean implements Closeable {
         "organizationMaster",
         "historicalTimeSeriesMaster",
         "marketDataSnapshotMaster",
+        "conventionMaster",
         "configSource",
         "exchangeSource",
         "holidaySource",
@@ -1396,7 +1486,8 @@ public class ToolContext extends DirectBean implements Closeable {
         "historicalTimeSeriesProvider",
         "historicalTimeSeriesLoader",
         "viewProcessor",
-        "avaliableOutputsProvider");
+        "avaliableOutputsProvider",
+        "functionConfigSource");
 
     /**
      * Restricted constructor.
@@ -1431,6 +1522,8 @@ public class ToolContext extends DirectBean implements Closeable {
           return _historicalTimeSeriesMaster;
         case 2090650860:  // marketDataSnapshotMaster
           return _marketDataSnapshotMaster;
+        case 41113907:  // conventionMaster
+          return _conventionMaster;
         case 195157501:  // configSource
           return _configSource;
         case -467239906:  // exchangeSource
@@ -1465,6 +1558,8 @@ public class ToolContext extends DirectBean implements Closeable {
           return _viewProcessor;
         case -1252442368:  // avaliableOutputsProvider
           return _avaliableOutputsProvider;
+        case -2085248523:  // functionConfigSource
+          return _functionConfigSource;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -1579,6 +1674,14 @@ public class ToolContext extends DirectBean implements Closeable {
      */
     public final MetaProperty<MarketDataSnapshotMaster> marketDataSnapshotMaster() {
       return _marketDataSnapshotMaster;
+    }
+
+    /**
+     * The meta-property for the {@code conventionMaster} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ConventionMaster> conventionMaster() {
+      return _conventionMaster;
     }
 
     /**
@@ -1715,6 +1818,14 @@ public class ToolContext extends DirectBean implements Closeable {
      */
     public final MetaProperty<AvailableOutputsProvider> avaliableOutputsProvider() {
       return _avaliableOutputsProvider;
+    }
+
+    /**
+     * The meta-property for the {@code functionConfigSource} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<FunctionConfigurationSource> functionConfigSource() {
+      return _functionConfigSource;
     }
 
   }

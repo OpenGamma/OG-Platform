@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.forex.method;
@@ -21,7 +21,9 @@ import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * Pricing method for Forex swap transactions by discounting each payment.
+ * @deprecated Use {@link com.opengamma.analytics.financial.forex.provider.ForexSwapDiscountingMethod}
  */
+@Deprecated
 public final class ForexSwapDiscountingMethod implements ForexPricingMethod {
 
   /**

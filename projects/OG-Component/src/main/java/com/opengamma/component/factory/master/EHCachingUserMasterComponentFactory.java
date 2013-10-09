@@ -84,6 +84,7 @@ public class EHCachingUserMasterComponentFactory extends AbstractComponentFactor
   public static EHCachingUserMasterComponentFactory.Meta meta() {
     return EHCachingUserMasterComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(EHCachingUserMasterComponentFactory.Meta.INSTANCE);
   }

@@ -78,7 +78,7 @@ public abstract class PortfolioConversion {
   /**
    * Converts the portfolio.
    * 
-   * @param file  the file to read, not null
+   * @param inputStream  the inputStream to read, not null
    * @return the converted file, not null
    */
   public Iterable<VersionedPortfolioHandler> convertPortfolio(InputStream inputStream) {

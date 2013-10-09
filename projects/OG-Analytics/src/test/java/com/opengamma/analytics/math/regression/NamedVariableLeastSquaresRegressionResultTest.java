@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.math.regression;
@@ -91,7 +91,7 @@ public class NamedVariableLeastSquaresRegressionResultTest {
     }
     assertEquals(result1.getPredictedValue(Collections.<String, Double> emptyMap()), 0., 1e-16);
     try {
-      final Map<String, Double> map = new HashMap<String, Double>();
+      final Map<String, Double> map = new HashMap<>();
       map.put("1", 0.);
       result1.getPredictedValue(map);
       Assert.fail();
@@ -99,7 +99,7 @@ public class NamedVariableLeastSquaresRegressionResultTest {
       // Expected
     }
     double x1, x2, x3;
-    final Map<String, Double> var = new HashMap<String, Double>();
+    final Map<String, Double> var = new HashMap<>();
     for (int i = 0; i < 10; i++) {
       x1 = RANDOM.nextDouble();
       x2 = RANDOM.nextDouble();

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.credit.hazardratecurve;
@@ -65,7 +65,6 @@ public class HazardRateCurveTest {
     new HazardRateCurve(null, TIMES_1, RATES_1, OFFSET);
   }
 
-  @SuppressWarnings("deprecation")
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDates2() {
     new HazardRateCurve(DATES_1, TIMES_1, RATES_1, OFFSET).bootstrapHelperHazardRateCurve(null, TIMES_1, RATES_1);
@@ -76,7 +75,6 @@ public class HazardRateCurveTest {
     new HazardRateCurve(DATES_1, null, RATES_1, OFFSET);
   }
 
-  @SuppressWarnings("deprecation")
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullTimes2() {
     new HazardRateCurve(DATES_1, TIMES_1, RATES_1, OFFSET).bootstrapHelperHazardRateCurve(DATES_1, null, RATES_1);
@@ -87,7 +85,6 @@ public class HazardRateCurveTest {
     new HazardRateCurve(DATES_1, TIMES_1, null, OFFSET);
   }
 
-  @SuppressWarnings("deprecation")
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullRates2() {
     new HazardRateCurve(DATES_1, TIMES_1, RATES_1, OFFSET).bootstrapHelperHazardRateCurve(DATES_1, TIMES_1, null);
@@ -196,11 +193,11 @@ public class HazardRateCurveTest {
 
   @Test
   public void survivalProbabilityUnchanged() {
-    HazardRateCurve curveNoOffset = new HazardRateCurve(DATES_1, TIMES_1, RATES_1, 0);
-    double[] timesTest = {0.1, 2.0, 5.15, 12.345, 20.0, 100.0 };
-    int nbTests = timesTest.length;
-    double[] probaExpected = {0.9980019986673331, 0.9417645335842487, 0.8593707921722691, 0.7997110576273061, 0.7407776290146131, 0.33285284468634746 };
-    double[] probaComputed = new double[nbTests];
+    final HazardRateCurve curveNoOffset = new HazardRateCurve(DATES_1, TIMES_1, RATES_1, 0);
+    final double[] timesTest = {0.1, 2.0, 5.15, 12.345, 20.0, 100.0 };
+    final int nbTests = timesTest.length;
+    final double[] probaExpected = {0.9980019986673331, 0.9417645335842487, 0.8593707921722691, 0.7997110576273061, 0.7407776290146131, 0.33285284468634746 };
+    final double[] probaComputed = new double[nbTests];
     for (int looptest = 0; looptest < nbTests; looptest++) {
       probaComputed[looptest] = curveNoOffset.getSurvivalProbability(timesTest[looptest]);
       assertEquals("HazardRateCurve - getSurvivalProbability - harcoded values", probaExpected[looptest], probaComputed[looptest], TOLERANCE_PROBA);
@@ -209,11 +206,11 @@ public class HazardRateCurveTest {
 
   @Test
   public void survivalProbabilityOffsetUnchanged() {
-    HazardRateCurve curveNoOffset = new HazardRateCurve(DATES_1, TIMES_1, RATES_1, OFFSET);
-    double[] timesTest = {0.1, 2.0, 5.15, 12.345, 20.0, 100.0 };
-    int nbTests = timesTest.length;
-    double[] probaExpected = {0.9980293415624031, 0.9417387321696511, 0.8593707921722691, 0.7997110576273063, 0.7407776290146131, 0.33285284468634746 };
-    double[] probaComputed = new double[nbTests];
+    final HazardRateCurve curveNoOffset = new HazardRateCurve(DATES_1, TIMES_1, RATES_1, OFFSET);
+    final double[] timesTest = {0.1, 2.0, 5.15, 12.345, 20.0, 100.0 };
+    final int nbTests = timesTest.length;
+    final double[] probaExpected = {0.9980293415624031, 0.9417387321696511, 0.8593707921722691, 0.7997110576273063, 0.7407776290146131, 0.33285284468634746 };
+    final double[] probaComputed = new double[nbTests];
     for (int looptest = 0; looptest < nbTests; looptest++) {
       probaComputed[looptest] = curveNoOffset.getSurvivalProbability(timesTest[looptest]);
       assertEquals("HazardRateCurve - getSurvivalProbability - harcoded values", probaExpected[looptest], probaComputed[looptest], TOLERANCE_PROBA);

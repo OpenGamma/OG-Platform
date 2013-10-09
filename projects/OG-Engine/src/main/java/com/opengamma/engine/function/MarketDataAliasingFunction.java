@@ -8,8 +8,10 @@ package com.opengamma.engine.function;
 import java.util.Collection;
 import java.util.Set;
 
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.cache.MissingInput;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -18,8 +20,8 @@ import com.opengamma.id.UniqueId;
 
 /**
  * A no-op function that relabels an input as any of the desired outputs. This will be selected during graph construction to handle any mismatches between value specifications the market data provider
- * is capable of recognizing and the value specifications corresponding to the requirements of a function. The will typically mean that a target has become re-labelled - for example the market data is
- * keyed of a {@link UniqueId} that is not easily converted to/from the {@link ExternalIdBundle} for the actual target.
+ * is capable of recognizing and the value specifications corresponding to the requirements of a function. The will typically mean that a target has become re-labeled - for example the market data is
+ * keyed off a {@link UniqueId} that is not easily converted to/from the {@link ExternalIdBundle} for the actual target.
  * <p>
  * This should be present in all function repositories with its preferred identifier.
  */
@@ -44,12 +46,11 @@ public final class MarketDataAliasingFunction extends IntrinsicFunction {
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Collection<ComputedValue> values = inputs.getAllValues();
-    final Set<ComputedValue> result = Sets.newHashSetWithExpectedSize(desiredValues.size() * values.size());
-    for (final ValueRequirement desiredValueReq : desiredValues) {
+    final Object value = values.isEmpty() ? MissingInput.MISSING_MARKET_DATA : Iterables.getOnlyElement(values).getValue();
+    final Set<ComputedValue> result = Sets.newHashSetWithExpectedSize(desiredValues.size());
+    for (ValueRequirement desiredValueReq : desiredValues) {
       final ValueSpecification desiredValue = new ValueSpecification(desiredValueReq.getValueName(), target.toSpecification(), desiredValueReq.getConstraints());
-      for (final ComputedValue value : values) {
-        result.add(new ComputedValue(desiredValue, value.getValue()));
-      }
+      result.add(new ComputedValue(desiredValue, value));
     }
     return result;
   }

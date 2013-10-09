@@ -26,6 +26,7 @@ public class AddCurveSpreadFunction implements CurveSpreadFunction {
    * @param curves An array of curves, not null or empty
    * @return A function that will find the value of each curve at the given input <i>x</i> and return the sum of these values
    */
+  @SuppressWarnings("unchecked")
   @Override
   public Function<Double, Double> evaluate(final Curve<Double, Double>... curves) {
     ArgumentChecker.notNull(curves, "x");

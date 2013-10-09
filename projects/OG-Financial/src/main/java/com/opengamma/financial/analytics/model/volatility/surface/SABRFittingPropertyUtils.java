@@ -38,7 +38,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
-import com.opengamma.financial.analytics.model.volatility.SmileFittingProperties;
+import com.opengamma.financial.analytics.model.volatility.SmileFittingPropertyNamesAndValues;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -135,18 +135,18 @@ public class SABRFittingPropertyUtils {
   public static ValueRequirement getSurfaceRequirement(final ValueRequirement desiredValue, final String surfaceName, final Currency currency,
       final String instrumentType) {
     final ValueProperties constraints = desiredValue.getConstraints();
-    final String fittingMethod = desiredValue.getConstraint(SmileFittingProperties.PROPERTY_FITTING_METHOD);
+    final String fittingMethod = desiredValue.getConstraint(SmileFittingPropertyNamesAndValues.PROPERTY_FITTING_METHOD);
     if (fittingMethod == null) {
       s_logger.error("No value set for SABR fitting method");
       return null;
     }
-    if (fittingMethod.equals(SmileFittingProperties.NON_LINEAR_LEAST_SQUARES)) {
+    if (fittingMethod.equals(SmileFittingPropertyNamesAndValues.NON_LINEAR_LEAST_SQUARES)) {
       final ValueProperties.Builder allProperties = addNLSSFittingProperties(ValueProperties.builder())
           .with(ValuePropertyNames.CURRENCY, currency.getCode())
           .with(ValuePropertyNames.SURFACE, surfaceName)
           .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, instrumentType)
-          .with(SmileFittingProperties.PROPERTY_VOLATILITY_MODEL, SmileFittingProperties.SABR)
-          .with(SmileFittingProperties.PROPERTY_FITTING_METHOD, SmileFittingProperties.NON_LINEAR_LEAST_SQUARES);
+          .with(SmileFittingPropertyNamesAndValues.PROPERTY_VOLATILITY_MODEL, SmileFittingPropertyNamesAndValues.SABR)
+          .with(SmileFittingPropertyNamesAndValues.PROPERTY_FITTING_METHOD, SmileFittingPropertyNamesAndValues.NON_LINEAR_LEAST_SQUARES);
       for (final String constraint : constraints.getProperties()) {
         if (!constraints.getValues(constraint).isEmpty() && allProperties.get().getProperties().contains(constraint)) {
           allProperties

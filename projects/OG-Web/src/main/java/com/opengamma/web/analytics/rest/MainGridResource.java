@@ -29,9 +29,11 @@ import com.opengamma.web.analytics.ViewportResults;
 import com.opengamma.web.analytics.formatting.TypeFormatter.Format;
 
 /**
- *
+ * The @Path at this point is "views/{viewId}/{gridType}/"
+ * for example "/jax/views/2/primitives"
+ * @deprecated in favour of {@link WebUiResource}
  */
-@Path("views/{viewId}/{gridType}/")
+@Deprecated
 public class MainGridResource extends AbstractGridResource implements DependencyGraphOwnerResource {
   
   private static final DateTimeFormatter CSV_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm_ss");
@@ -40,14 +42,18 @@ public class MainGridResource extends AbstractGridResource implements Dependency
     super(gridType, view);
   }
 
+  /**
+   * @return The initial row and column structure of the grid
+   * subsequent requests will need to be made to the viewport
+   */
   @Override
-  public GridStructure getGridStructure() {
-    return getView().getGridStructure(getGridType());
+  public GridStructure getInitialGridStructure() {
+    return getView().getInitialGridStructure(getGridType());
   }
 
   @Override
-  /* package */ void createViewport(int requestId, int viewportId, String callbackId, ViewportDefinition viewportDefinition) {
-    getView().createViewport(requestId, getGridType(), viewportId, callbackId, viewportDefinition);
+  /* package */ void createViewport(int requestId, int viewportId, String callbackId, String structureCallbackId, ViewportDefinition viewportDefinition) {
+    getView().createViewport(requestId, getGridType(), viewportId, callbackId, structureCallbackId, viewportDefinition);
   }
 
   @Override

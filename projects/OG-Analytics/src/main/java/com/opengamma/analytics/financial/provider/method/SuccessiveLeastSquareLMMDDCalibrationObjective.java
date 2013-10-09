@@ -16,7 +16,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Specific objective function for LMM calibration with swaptions. The calibration is done on the volatilities and the displacements (skews).
  */
-public class SuccessiveLeastSquareLMMDDCalibrationObjective extends SuccessiveLeastSquareCalibrationObjective {
+public class SuccessiveLeastSquareLMMDDCalibrationObjective extends SuccessiveLeastSquareCalibrationObjectiveWithMultiCurves {
 
   /**
    * The pricing method used to price the swaptions.

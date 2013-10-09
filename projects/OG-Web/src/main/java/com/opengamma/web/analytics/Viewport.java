@@ -16,6 +16,8 @@ import com.opengamma.engine.view.cycle.ViewCycle;
  */
 /* package */ interface Viewport {
 
+  GridStructure getGridStructure();
+
   /**
    * The state of a viewport's data
    */
@@ -51,8 +53,21 @@ import com.opengamma.engine.view.cycle.ViewCycle;
    */
   String getCallbackId();
 
+  String getStructureCallbackId();
+
   /**
    * @return The viewport's state
    */
   State getState();
+
+  /**
+   * Updates the grid structure in the viewport.
+   * @param gridStructure The latest structure of the grid
+   */
+  //void updateGridStructure(MainGridStructure gridStructure);
+
+
+
 }
+
+

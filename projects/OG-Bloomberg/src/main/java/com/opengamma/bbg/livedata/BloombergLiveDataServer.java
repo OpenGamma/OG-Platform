@@ -155,7 +155,7 @@ public class BloombergLiveDataServer extends AbstractBloombergLiveDataServer {
     
     SubscriptionList sl = new SubscriptionList();
     for (String bbgUniqueId : bbgUniqueIds) {
-      String securityDes = "/buid/" + bbgUniqueId;
+      String securityDes = getBloombergSubscriptionPathPrefix() + bbgUniqueId;
       Subscription subscription = new Subscription(securityDes, BloombergDataUtils.STANDARD_FIELDS_LIST);
       sl.add(subscription);
       returnValue.put(bbgUniqueId, subscription);

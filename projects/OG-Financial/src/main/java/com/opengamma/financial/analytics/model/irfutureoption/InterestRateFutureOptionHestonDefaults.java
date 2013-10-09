@@ -31,7 +31,7 @@ import com.opengamma.util.tuple.Pair;
 public class InterestRateFutureOptionHestonDefaults extends DefaultPropertyFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(InterestRateFutureOptionBlackDefaults.class);
   private static final String[] s_valueRequirements = new String[] {
-      ValueRequirementNames.PRESENT_VALUE,
+    ValueRequirementNames.PRESENT_VALUE,
   };
   private final HashMap<String, Pair<String, String>> _currencyCurveConfigAndSurfaceNames;
 
@@ -40,7 +40,7 @@ public class InterestRateFutureOptionHestonDefaults extends DefaultPropertyFunct
     ArgumentChecker.notNull(currencyCurveConfigAndSurfaceNames, "currency, curve config and surface names");
     final int nPairs = currencyCurveConfigAndSurfaceNames.length;
     ArgumentChecker.isTrue(nPairs % 3 == 0, "Must have a curve config and surface name per currency");
-    _currencyCurveConfigAndSurfaceNames = new HashMap<String, Pair<String, String>>();
+    _currencyCurveConfigAndSurfaceNames = new HashMap<>();
     for (int i = 0; i < currencyCurveConfigAndSurfaceNames.length; i += 3) {
       final Pair<String, String> pair = Pair.of(currencyCurveConfigAndSurfaceNames[i + 1], currencyCurveConfigAndSurfaceNames[i + 2]);
       _currencyCurveConfigAndSurfaceNames.put(currencyCurveConfigAndSurfaceNames[i], pair);

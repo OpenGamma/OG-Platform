@@ -81,11 +81,11 @@ public class DelegatingPositionMaster extends UniqueIdSchemeDelegator<PositionMa
   @Override
   public PositionSearchResult search(PositionSearchRequest request) {
     ArgumentChecker.notNull(request, "request");
-    List<ObjectId> ids = request.getPositionObjectIds();
+    Collection<ObjectId> ids = request.getPositionObjectIds();
     if (ids == null || ids.isEmpty()) {
       return getDefaultDelegate().search(request);
     }
-    return chooseDelegate(ids.get(0).getScheme()).search(request);
+    return chooseDelegate(ids.iterator().next().getScheme()).search(request);
   }
 
   @Override

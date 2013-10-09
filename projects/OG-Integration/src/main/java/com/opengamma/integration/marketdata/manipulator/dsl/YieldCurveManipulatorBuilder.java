@@ -30,8 +30,8 @@ public class YieldCurveManipulatorBuilder {
    * @param shift The size of the shift
    * @return This builder
    */
-  public YieldCurveManipulatorBuilder parallelShift(double shift) {
-    _scenario.add(_selector, new YieldCurveParallelShift(shift));
+  public YieldCurveManipulatorBuilder parallelShift(Number shift) {
+    _scenario.add(_selector, new YieldCurveParallelShift(shift.doubleValue()));
     return this;
   }
 
@@ -41,8 +41,8 @@ public class YieldCurveManipulatorBuilder {
    * @param shift The shift amount.
    * @return This builder
    */
-  public YieldCurveManipulatorBuilder singleShift(final double t, final double shift) {
-    _scenario.add(_selector, new YieldCurveSingleShift(t, shift));
+  public YieldCurveManipulatorBuilder singleShift(Number t, Number shift) {
+    _scenario.add(_selector, new YieldCurveSingleShift(t.doubleValue(), shift.doubleValue()));
     return this;
   }
 

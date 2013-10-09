@@ -29,7 +29,7 @@ public class MSTestToJUnit extends AbstractJUnitResults {
     try {
       final Reader reader = new FileReader(getInputFile());
       // Read past the funny character prefix and <?...> bit which upset the parser
-      while (reader.read() != '>') {  // CSIGNORE
+      while (reader.read() != '>') { // CSIGNORE
       }
       return factory.createXMLStreamReader(reader);
     } catch (IOException e) {
@@ -75,11 +75,8 @@ public class MSTestToJUnit extends AbstractJUnitResults {
                 }
               } else {
                 if ("TestMethod".equals(element.getLocalPart())) {
-                  final String[] codeBase = reader.getAttributeValue(null, "codeBase").split("/");
                   final String[] className = reader.getAttributeValue(null, "className").split(", ");
-                  final String suite = codeBase[codeBase.length - 2] + "." + codeBase[codeBase.length - 1] + "."
-                      + className[0];
-                  storeTest(suite, currentUnitTest);
+                  storeTest(className[0], currentUnitTest);
                 }
               }
               break;
@@ -125,4 +122,3 @@ public class MSTestToJUnit extends AbstractJUnitResults {
   }
 
 }
-

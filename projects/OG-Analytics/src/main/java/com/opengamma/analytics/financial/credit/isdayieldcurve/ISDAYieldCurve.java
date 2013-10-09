@@ -1050,12 +1050,14 @@ public class ISDAYieldCurve {
     double intervalYears = 0.0;
 
     // Need to fix this - bit of a hack
-    /*if (swapFixedLegCouponFrequency == PeriodFrequency.SEMI_ANNUAL)*/{
+    /*if (swapFixedLegCouponFrequency == PeriodFrequency.SEMI_ANNUAL)*/
+    {
       intervalYears = 0.5;
       multiplier = 6;
     }
 
-    /*if (swapFixedLegCouponFrequency == PeriodFrequency.QUARTERLY)*/{
+    /*if (swapFixedLegCouponFrequency == PeriodFrequency.QUARTERLY)*/
+    {
       intervalYears = 0.25;
       multiplier = 3;
     }

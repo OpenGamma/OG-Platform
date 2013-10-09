@@ -207,7 +207,7 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
     Map<String, MetaProperty<?>> mapTarget = new HashMap<String, MetaProperty<?>>(context.metaBean().metaPropertyMap());
     mapTarget.keySet().retainAll(this.metaBean().metaPropertyMap().keySet());
     for (MetaProperty<?> mp : mapTarget.values()) {
-      mp.set(context, property(mp.name()).get());
+      mp.set(context, mp.get(this));
     }
     context.setContextManager(repo);
     repo.registerComponent(ToolContext.class, getClassifier(), context);
@@ -231,6 +231,7 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
   public static ToolContextComponentFactory.Meta meta() {
     return ToolContextComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ToolContextComponentFactory.Meta.INSTANCE);
   }

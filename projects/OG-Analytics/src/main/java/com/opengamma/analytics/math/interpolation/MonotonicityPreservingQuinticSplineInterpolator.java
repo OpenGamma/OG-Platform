@@ -7,8 +7,7 @@ package com.opengamma.analytics.math.interpolation;
 
 import java.util.Arrays;
 
-import org.apache.commons.lang.NotImplementedException;
-
+import com.google.common.primitives.Doubles;
 import com.opengamma.analytics.math.function.PiecewisePolynomialFunction1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
@@ -26,6 +25,8 @@ import com.opengamma.util.ParallelArrayBinarySort;
 public class MonotonicityPreservingQuinticSplineInterpolator extends PiecewisePolynomialInterpolator {
 
   private static final double ERROR = 1.e-12;
+  private static final double EPS = 1.e-6;
+  private static final double SMALL = 1.e-14;
 
   private final HermiteCoefficientsProvider _solver = new HermiteCoefficientsProvider();
   private final PiecewisePolynomialFunction1D _function = new PiecewisePolynomialFunction1D();
@@ -41,7 +42,6 @@ public class MonotonicityPreservingQuinticSplineInterpolator extends PiecewisePo
 
   @Override
   public PiecewisePolynomialResult interpolate(final double[] xValues, final double[] yValues) {
-
     ArgumentChecker.notNull(xValues, "xValues");
     ArgumentChecker.notNull(yValues, "yValues");
 
@@ -227,8 +227,167 @@ public class MonotonicityPreservingQuinticSplineInterpolator extends PiecewisePo
 
   @Override
   public PiecewisePolynomialResultsWithSensitivity interpolateWithSensitivity(final double[] xValues, final double[] yValues) {
-    throw new NotImplementedException();
-    //TODO Implement sensitivity calculator
+
+    ArgumentChecker.notNull(xValues, "xValues");
+    ArgumentChecker.notNull(yValues, "yValues");
+
+    ArgumentChecker.isTrue(xValues.length == yValues.length | xValues.length + 2 == yValues.length, "(xValues length = yValues length) or (xValues length + 2 = yValues length)");
+    ArgumentChecker.isTrue(xValues.length > 2, "Data points should be more than 2");
+
+    final int nDataPts = xValues.length;
+    final int yValuesLen = yValues.length;
+
+    for (int i = 0; i < nDataPts; ++i) {
+      ArgumentChecker.isFalse(Double.isNaN(xValues[i]), "xValues containing NaN");
+      ArgumentChecker.isFalse(Double.isInfinite(xValues[i]), "xValues containing Infinity");
+    }
+    for (int i = 0; i < yValuesLen; ++i) {
+      ArgumentChecker.isFalse(Double.isNaN(yValues[i]), "yValues containing NaN");
+      ArgumentChecker.isFalse(Double.isInfinite(yValues[i]), "yValues containing Infinity");
+    }
+
+    for (int i = 0; i < nDataPts - 1; ++i) {
+      for (int j = i + 1; j < nDataPts; ++j) {
+        ArgumentChecker.isFalse(xValues[i] == xValues[j], "xValues should be distinct");
+      }
+    }
+
+    double[] yValuesSrt = new double[nDataPts];
+    if (nDataPts == yValuesLen) {
+      yValuesSrt = Arrays.copyOf(yValues, nDataPts);
+    } else {
+      yValuesSrt = Arrays.copyOfRange(yValues, 1, nDataPts + 1);
+    }
+
+    final double[] intervals = _solver.intervalsCalculator(xValues);
+    final double[] slopes = _solver.slopesCalculator(yValuesSrt, intervals);
+    double[][] slopesSensitivity = _solver.slopeSensitivityCalculator(intervals);
+    final DoubleMatrix1D[] firstWithSensitivity = new DoubleMatrix1D[nDataPts + 1];
+    final DoubleMatrix1D[] secondWithSensitivity = new DoubleMatrix1D[nDataPts + 1];
+    final PiecewisePolynomialResult result = _method.interpolate(xValues, yValues);
+
+    ArgumentChecker.isTrue(result.getOrder() >= 3, "Primary interpolant should be degree >= 2");
+
+    final double[] initialFirst = _function.differentiate(result, xValues).getData()[0];
+    final double[] initialSecond = _function.differentiateTwice(result, xValues).getData()[0];
+    double[] first = firstDerivativeCalculator(yValuesSrt, intervals, slopes, initialFirst);
+    boolean modFirst = false;
+    int k;
+    double[] aValues = aValuesCalculator(slopes, first);
+    double[] bValues = bValuesCalculator(slopes, first);
+    double[][] intervalsA = getIntervalsA(intervals, slopes, first, bValues);
+    double[][] intervalsB = getIntervalsB(intervals, slopes, first, aValues);
+    while (modFirst == false) {
+      k = 0;
+      for (int i = 0; i < nDataPts - 2; ++i) {
+        if (first[i + 1] > 0.) {
+          if (intervalsA[i + 1][1] + Math.abs(intervalsA[i + 1][1]) * ERROR < intervalsB[i][0] - Math.abs(intervalsB[i][0]) * ERROR |
+              intervalsA[i + 1][0] - Math.abs(intervalsA[i + 1][0]) * ERROR > intervalsB[i][1] + Math.abs(intervalsB[i][1]) * ERROR) {
+            ++k;
+            first[i + 1] = firstDerivativesRecalculator(intervals, slopes, aValues, bValues, i + 1);
+          }
+        }
+      }
+      if (k == 0) {
+        modFirst = true;
+      }
+      aValues = aValuesCalculator(slopes, first);
+      bValues = bValuesCalculator(slopes, first);
+      intervalsA = getIntervalsA(intervals, slopes, first, bValues);
+      intervalsB = getIntervalsB(intervals, slopes, first, aValues);
+    }
+    final double[] second = secondDerivativeCalculator(initialSecond, intervalsA, intervalsB);
+    firstWithSensitivity[0] = new DoubleMatrix1D(first);
+    secondWithSensitivity[0] = new DoubleMatrix1D(second);
+
+    /*
+     * Centered finite difference method is used for computing node sensitivity
+     */
+    int nExtra = (nDataPts == yValuesLen) ? 0 : 1;
+    final double[] yValuesUp = Arrays.copyOf(yValues, nDataPts + 2 * nExtra);
+    final double[] yValuesDw = Arrays.copyOf(yValues, nDataPts + 2 * nExtra);
+    final double[][] tmpFirst = new double[nDataPts][nDataPts];
+    final double[][] tmpSecond = new double[nDataPts][nDataPts];
+    for (int l = nExtra; l < nDataPts + nExtra; ++l) {
+      final double den = Math.abs(yValues[l]) < SMALL ? EPS : yValues[l] * EPS;
+      yValuesUp[l] = Math.abs(yValues[l]) < SMALL ? EPS : yValues[l] * (1. + EPS);
+      yValuesDw[l] = Math.abs(yValues[l]) < SMALL ? -EPS : yValues[l] * (1. - EPS);
+      final double[] yValuesSrtUp = Arrays.copyOfRange(yValuesUp, nExtra, nDataPts + nExtra);
+      final double[] yValuesSrtDw = Arrays.copyOfRange(yValuesDw, nExtra, nDataPts + nExtra);
+
+      final DoubleMatrix1D[] yValuesUpDw = new DoubleMatrix1D[] {new DoubleMatrix1D(yValuesUp), new DoubleMatrix1D(yValuesDw) };
+      final DoubleMatrix1D[] yValuesSrtUpDw = new DoubleMatrix1D[] {new DoubleMatrix1D(yValuesSrtUp), new DoubleMatrix1D(yValuesSrtDw) };
+      final DoubleMatrix1D[] firstSecondUpDw = new DoubleMatrix1D[4];
+      for (int ii = 0; ii < 2; ++ii) {
+        final double[] slopesUpDw = _solver.slopesCalculator(yValuesSrtUpDw[ii].getData(), intervals);
+        final PiecewisePolynomialResult resultUpDw = _method.interpolate(xValues, yValuesUpDw[ii].getData());
+        final double[] initialFirstUpDw = _function.differentiate(resultUpDw, xValues).getData()[0];
+        final double[] initialSecondUpDw = _function.differentiateTwice(resultUpDw, xValues).getData()[0];
+        double[] firstUpDw = firstDerivativeCalculator(yValuesSrtUpDw[ii].getData(), intervals, slopesUpDw, initialFirstUpDw);
+        boolean modFirstUpDw = false;
+        double[] aValuesUpDw = aValuesCalculator(slopesUpDw, firstUpDw);
+        double[] bValuesUpDw = bValuesCalculator(slopesUpDw, firstUpDw);
+        double[][] intervalsAUpDw = getIntervalsA(intervals, slopesUpDw, firstUpDw, bValuesUpDw);
+        double[][] intervalsBUpDw = getIntervalsB(intervals, slopesUpDw, firstUpDw, aValuesUpDw);
+        while (modFirstUpDw == false) {
+          k = 0;
+          for (int i = 0; i < nDataPts - 2; ++i) {
+            if (firstUpDw[i + 1] > 0.) {
+              if (intervalsAUpDw[i + 1][1] + Math.abs(intervalsAUpDw[i + 1][1]) * ERROR < intervalsBUpDw[i][0] - Math.abs(intervalsBUpDw[i][0]) * ERROR |
+                  intervalsAUpDw[i + 1][0] - Math.abs(intervalsAUpDw[i + 1][0]) * ERROR > intervalsBUpDw[i][1] + Math.abs(intervalsBUpDw[i][1]) * ERROR) {
+                ++k;
+                firstUpDw[i + 1] = firstDerivativesRecalculator(intervals, slopesUpDw, aValuesUpDw, bValuesUpDw, i + 1);
+              }
+            }
+          }
+          if (k == 0) {
+            modFirstUpDw = true;
+          }
+          aValuesUpDw = aValuesCalculator(slopesUpDw, firstUpDw);
+          bValuesUpDw = bValuesCalculator(slopesUpDw, firstUpDw);
+          intervalsAUpDw = getIntervalsA(intervals, slopesUpDw, firstUpDw, bValuesUpDw);
+          intervalsBUpDw = getIntervalsB(intervals, slopesUpDw, firstUpDw, aValuesUpDw);
+        }
+        final double[] secondUpDw = secondDerivativeCalculator(initialSecondUpDw, intervalsAUpDw, intervalsBUpDw);
+        firstSecondUpDw[ii] = new DoubleMatrix1D(firstUpDw);
+        firstSecondUpDw[2 + ii] = new DoubleMatrix1D(secondUpDw);
+      }
+      for (int j = 0; j < nDataPts; ++j) {
+        tmpFirst[j][l - nExtra] = 0.5 * (firstSecondUpDw[0].getData()[j] - firstSecondUpDw[1].getData()[j]) / den;
+        tmpSecond[j][l - nExtra] = 0.5 * (firstSecondUpDw[2].getData()[j] - firstSecondUpDw[3].getData()[j]) / den;
+      }
+      yValuesUp[l] = yValues[l];
+      yValuesDw[l] = yValues[l];
+    }
+    for (int i = 0; i < nDataPts; ++i) {
+      firstWithSensitivity[i + 1] = new DoubleMatrix1D(tmpFirst[i]);
+      secondWithSensitivity[i + 1] = new DoubleMatrix1D(tmpSecond[i]);
+    }
+
+    final DoubleMatrix2D[] resMatrix = _solver.solveWithSensitivity(yValuesSrt, intervals, slopes, slopesSensitivity, firstWithSensitivity, secondWithSensitivity);
+
+    for (int l = 0; l < nDataPts; ++l) {
+      DoubleMatrix2D m = resMatrix[l];
+      final int rows = m.getNumberOfRows();
+      final int cols = m.getNumberOfColumns();
+      for (int i = 0; i < rows; ++i) {
+        for (int j = 0; j < cols; ++j) {
+          ArgumentChecker.isTrue(Doubles.isFinite(m.getEntry(i, j)), "Matrix contains a NaN or infinite");
+        }
+      }
+    }
+
+    final DoubleMatrix2D coefMatrix = resMatrix[0];
+    final DoubleMatrix2D[] coefSenseMatrix = new DoubleMatrix2D[nDataPts - 1];
+    System.arraycopy(resMatrix, 1, coefSenseMatrix, 0, nDataPts - 1);
+    final int nCoefs = coefMatrix.getNumberOfColumns();
+
+    return new PiecewisePolynomialResultsWithSensitivity(new DoubleMatrix1D(xValues), coefMatrix, nCoefs, 1, coefSenseMatrix);
+  }
+
+  @Override
+  public PiecewisePolynomialInterpolator getPrimaryMethod() {
+    return _method;
   }
 
   /**

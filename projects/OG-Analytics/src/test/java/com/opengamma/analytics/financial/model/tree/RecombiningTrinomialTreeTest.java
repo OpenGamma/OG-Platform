@@ -10,15 +10,15 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 /**
- * 
+ *
  */
 public class RecombiningTrinomialTreeTest {
   private static final Double[][] DATA = new Double[][] {new Double[] {1.}, new Double[] {2., 3., 4.}, new Double[] {5., 6., 7., 8., 9.}, new Double[] {10., 11., 12., 13., 14., 15., 16.}};
-  private static final RecombiningTrinomialTree<Double> TREE = new RecombiningTrinomialTree<Double>(DATA);
+  private static final RecombiningTrinomialTree<Double> TREE = new RecombiningTrinomialTree<>(DATA);
 
   @Test
   public void test() {
-    final RecombiningTrinomialTree<Double> other = new RecombiningTrinomialTree<Double>(DATA);
+    final RecombiningTrinomialTree<Double> other = new RecombiningTrinomialTree<>(DATA);
     assertEquals(TREE, other);
     for (int i = 0; i < DATA.length; i++) {
       assertEquals(DATA[i].length, TREE.getMaxNodesForStep(i));

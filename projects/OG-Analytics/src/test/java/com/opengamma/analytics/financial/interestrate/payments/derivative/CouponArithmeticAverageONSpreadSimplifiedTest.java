@@ -1,12 +1,13 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.derivative;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
+import static org.testng.AssertJUnit.assertNull;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.Period;
@@ -54,6 +55,11 @@ public class CouponArithmeticAverageONSpreadSimplifiedTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullIndex() {
     CouponArithmeticAverageONSpreadSimplified.from(PAYMENT_TIME, FEDFUND_CPN_3M_2_DEF.getPaymentYearFraction(), NOTIONAL, null, ACCRUAL_START_TIME, ACCRUAL_END_TIME, SPREAD);
+  }
+
+  @Test
+  public void testWithNotional() {
+    assertNull(CPN_AA_ON.withNotional(NOTIONAL));
   }
 
   @Test

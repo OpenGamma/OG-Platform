@@ -107,6 +107,7 @@ public class SecuritySearchResult extends AbstractSearchResult<SecurityDocument>
   public static SecuritySearchResult.Meta meta() {
     return SecuritySearchResult.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(SecuritySearchResult.Meta.INSTANCE);
   }

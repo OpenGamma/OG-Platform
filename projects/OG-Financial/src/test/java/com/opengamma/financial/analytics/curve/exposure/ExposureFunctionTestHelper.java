@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.curve.exposure;
@@ -57,6 +57,7 @@ import com.opengamma.financial.security.future.EnergyFutureSecurity;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
 import com.opengamma.financial.security.future.FXFutureSecurity;
+import com.opengamma.financial.security.future.FederalFundsFutureSecurity;
 import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
@@ -86,13 +87,18 @@ import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.financial.security.option.SamplingFrequency;
 import com.opengamma.financial.security.option.SwaptionSecurity;
+import com.opengamma.financial.security.swap.FixedInflationSwapLeg;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingRateType;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
+import com.opengamma.financial.security.swap.InflationIndexSwapLeg;
 import com.opengamma.financial.security.swap.InterestRateNotional;
+import com.opengamma.financial.security.swap.InterpolationMethod;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.financial.security.swap.YearOnYearInflationSwapSecurity;
+import com.opengamma.financial.security.swap.ZeroCouponInflationSwapSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
@@ -104,7 +110,7 @@ import com.opengamma.util.time.Expiry;
 import com.opengamma.util.time.Tenor;
 
 /**
- * 
+ *
  */
 public class ExposureFunctionTestHelper {
   private static final Currency USD = Currency.USD;
@@ -446,10 +452,17 @@ public class ExposureFunctionTestHelper {
     return security;
   }
 
+  public static FederalFundsFutureSecurity getFederalFundsFutureSecurity() {
+    final FederalFundsFutureSecurity security = new FederalFundsFutureSecurity(new Expiry(DateUtils.getUTCDate(2013, 9, 1)), TRADING, SETTLEMENT, USD, 12500,
+        ExternalSchemes.syntheticSecurityId("Fed Funds"), "Financial");
+    security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "867"));
+    return security;
+  }
+
   public static LegacyFixedRecoveryCDSSecurity getLegacyFixedRecoveryCDSSecurity() {
     final LegacyFixedRecoveryCDSSecurity security = new LegacyFixedRecoveryCDSSecurity(false, ExternalId.of("Test", "A"), ExternalId.of("Test", "B"), ExternalId.of("Test", "C"), DebtSeniority.JRSUBUT2,
         RestructuringClause.CR, DE, DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2023, 1, 1), StubType.LONG_END, PeriodFrequency.SEMI_ANNUAL, DC, BDC,
-        false, false, false, new InterestRateNotional(EUR, 1000), 0, true, false, 0.01);
+        false, false, false, new InterestRateNotional(EUR, 1000), 0.4, true, false, 0.01);
     security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "1216"));
     return security;
   }
@@ -457,7 +470,7 @@ public class ExposureFunctionTestHelper {
   public static LegacyRecoveryLockCDSSecurity getLegacyRecoveryLockCDSSecurity() {
     final LegacyRecoveryLockCDSSecurity security = new LegacyRecoveryLockCDSSecurity(false, ExternalId.of("Test", "A"), ExternalId.of("Test", "B"), ExternalId.of("Test", "C"), DebtSeniority.JRSUBUT2,
         RestructuringClause.CR, DE, DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2023, 1, 1), StubType.LONG_END, PeriodFrequency.SEMI_ANNUAL, DC, BDC,
-        false, false, false, new InterestRateNotional(EUR, 1000), 0, true, false, 0.01);
+        false, false, false, new InterestRateNotional(EUR, 1000), 0.4, true, false, 0.01);
     security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "1216"));
     return security;
   }
@@ -465,7 +478,7 @@ public class ExposureFunctionTestHelper {
   public static LegacyVanillaCDSSecurity getLegacyVanillaCDSSecurity() {
     final LegacyVanillaCDSSecurity security = new LegacyVanillaCDSSecurity(false, ExternalId.of("Test", "A"), ExternalId.of("Test", "B"), ExternalId.of("Test", "C"), DebtSeniority.JRSUBUT2,
         RestructuringClause.CR, DE, DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2023, 1, 1), StubType.LONG_END, PeriodFrequency.SEMI_ANNUAL, DC, BDC,
-        false, false, false, new InterestRateNotional(EUR, 1000), 0, true, false, 0.01);
+        false, false, false, new InterestRateNotional(EUR, 1000), true, false, 0.01);
     security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "1216"));
     return security;
   }
@@ -524,7 +537,7 @@ public class ExposureFunctionTestHelper {
   public static StandardFixedRecoveryCDSSecurity getStandardFixedRecoveryCDSSecurity() {
     final StandardFixedRecoveryCDSSecurity security = new StandardFixedRecoveryCDSSecurity(false, ExternalId.of("Test", "A"), ExternalId.of("Test", "B"), ExternalId.of("Test", "C"), DebtSeniority.JRSUBUT2,
         RestructuringClause.CR, DE, DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2023, 1, 1), StubType.LONG_END, PeriodFrequency.SEMI_ANNUAL, DC, BDC,
-        false, false, false, new InterestRateNotional(EUR, 1000), 0, true, false, 0.01, new InterestRateNotional(EUR, 1));
+        false, false, false, new InterestRateNotional(EUR, 1000), 0.4, true, false, 0.01, new InterestRateNotional(EUR, 1));
     security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "1216"));
     return security;
   }
@@ -532,7 +545,7 @@ public class ExposureFunctionTestHelper {
   public static StandardRecoveryLockCDSSecurity getStandardRecoveryLockCDSSecurity() {
     final StandardRecoveryLockCDSSecurity security = new StandardRecoveryLockCDSSecurity(false, ExternalId.of("Test", "A"), ExternalId.of("Test", "B"), ExternalId.of("Test", "C"), DebtSeniority.JRSUBUT2,
         RestructuringClause.CR, DE, DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2023, 1, 1), StubType.LONG_END, PeriodFrequency.SEMI_ANNUAL, DC, BDC,
-        false, false, false, new InterestRateNotional(EUR, 1000), 0, true, false, 0.01, new InterestRateNotional(EUR, 1));
+        false, false, false, new InterestRateNotional(EUR, 1000), 0.4, true, false, 0.01, new InterestRateNotional(EUR, 1));
     security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "1216"));
     return security;
   }
@@ -540,7 +553,7 @@ public class ExposureFunctionTestHelper {
   public static StandardVanillaCDSSecurity getStandardVanillaCDSSecurity() {
     final StandardVanillaCDSSecurity security = new StandardVanillaCDSSecurity(false, ExternalId.of("Test", "A"), ExternalId.of("Test", "B"), ExternalId.of("Test", "C"), DebtSeniority.JRSUBUT2,
         RestructuringClause.CR, DE, DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2023, 1, 1), StubType.LONG_END, PeriodFrequency.SEMI_ANNUAL, DC, BDC,
-        false, false, false, new InterestRateNotional(EUR, 1000), 0, true, false, 0.01, new InterestRateNotional(EUR, 1), 0.02, DateUtils.getUTCDate(2013, 1, 1), false);
+        false, false, false, new InterestRateNotional(EUR, 1000), true, false, 0.01, new InterestRateNotional(EUR, 1), 0.02, DateUtils.getUTCDate(2013, 1, 1), false);
     security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "1216"));
     return security;
   }
@@ -571,6 +584,42 @@ public class ExposureFunctionTestHelper {
     final SwapSecurity security = new SwapSecurity(DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2023, 1, 1), "OG",
         payLeg, receiveLeg);
     security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "311"));
+    return security;
+  }
+
+  public static YearOnYearInflationSwapSecurity getPayYoYInflationSwapSecurity() {
+    final FixedInflationSwapLeg fixedLeg = new FixedInflationSwapLeg(DC, PeriodFrequency.QUARTERLY, US, BDC, new InterestRateNotional(USD, 100000), false, 0.02);
+    final InflationIndexSwapLeg indexLeg = new InflationIndexSwapLeg(DC, PeriodFrequency.QUARTERLY, US, BDC, new InterestRateNotional(USD, 100000), true, ExternalSchemes.syntheticSecurityId("CPI"), 2, 3, InterpolationMethod.MONTH_START_LINEAR);
+    final YearOnYearInflationSwapSecurity security = new YearOnYearInflationSwapSecurity(DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2023, 1, 1), "OG",
+        fixedLeg, indexLeg, true, true, Tenor.TEN_YEARS);
+    security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "36"));
+    return security;
+  }
+
+  public static YearOnYearInflationSwapSecurity getReceiveYoYInflationSwapSecurity() {
+    final FixedInflationSwapLeg fixedLeg = new FixedInflationSwapLeg(DC, PeriodFrequency.QUARTERLY, US, BDC, new InterestRateNotional(USD, 100000), false, 0.02);
+    final InflationIndexSwapLeg indexLeg = new InflationIndexSwapLeg(DC, PeriodFrequency.QUARTERLY, US, BDC, new InterestRateNotional(USD, 100000), false, ExternalSchemes.syntheticSecurityId("CPI"), 2, 3, InterpolationMethod.MONTH_START_LINEAR);
+    final YearOnYearInflationSwapSecurity security = new YearOnYearInflationSwapSecurity(DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2023, 1, 1), "OG",
+        indexLeg, fixedLeg, true, true, Tenor.TEN_YEARS);
+    security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "4562"));
+    return security;
+  }
+
+  public static ZeroCouponInflationSwapSecurity getPayZeroCouponInflationSwapSecurity() {
+    final FixedInflationSwapLeg fixedLeg = new FixedInflationSwapLeg(DC, PeriodFrequency.QUARTERLY, US, BDC, new InterestRateNotional(USD, 100000), false, 0.02);
+    final InflationIndexSwapLeg indexLeg = new InflationIndexSwapLeg(DC, PeriodFrequency.QUARTERLY, US, BDC, new InterestRateNotional(USD, 100000), true, ExternalSchemes.syntheticSecurityId("CPI"), 2, 3, InterpolationMethod.MONTH_START_LINEAR);
+    final ZeroCouponInflationSwapSecurity security = new ZeroCouponInflationSwapSecurity(DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2023, 1, 1), "OG",
+        fixedLeg, indexLeg);
+    security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "684"));
+    return security;
+  }
+
+  public static ZeroCouponInflationSwapSecurity getReceiveZeroCouponInflationSwapSecurity() {
+    final FixedInflationSwapLeg fixedLeg = new FixedInflationSwapLeg(DC, PeriodFrequency.QUARTERLY, US, BDC, new InterestRateNotional(USD, 100000), false, 0.02);
+    final InflationIndexSwapLeg indexLeg = new InflationIndexSwapLeg(DC, PeriodFrequency.QUARTERLY, US, BDC, new InterestRateNotional(USD, 100000), false, ExternalSchemes.syntheticSecurityId("CPI"), 2, 3, InterpolationMethod.MONTH_START_LINEAR);
+    final ZeroCouponInflationSwapSecurity security = new ZeroCouponInflationSwapSecurity(DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2013, 1, 1), DateUtils.getUTCDate(2023, 1, 1), "OG",
+        fixedLeg, indexLeg);
+    security.setUniqueId(UniqueId.of(UniqueId.EXTERNAL_SCHEME.getName(), "3216"));
     return security;
   }
 

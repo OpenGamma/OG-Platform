@@ -15,6 +15,8 @@ import org.fudgemsg.mapping.GenericFudgeBuilderFor;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.analytics.financial.interestrate.InterestRate;
+import com.opengamma.analytics.financial.interestrate.InterestRate.Type;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleImpl;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -50,12 +52,16 @@ public class ConventionBundleFudgeBuilder implements FudgeBuilder<ConventionBund
     private Double _futureYearFraction;
     private DayCount _swapFixedLegDayCount;
     private BusinessDayConvention _swapFixedLegBusinessDayConvention;
-    private Frequency _swapFixedLegFrequency;
+    private Frequency _swapFixedLegPaymentFrequency;
+    private Frequency _swapFixedLegCompoundingFrequency;
+    private InterestRate.Type _swapFixedLegCompoundingType;
     private Integer _swapFixedLegSettlementDays;
     private ExternalId _swapFixedLegRegion;
     private DayCount _swapFloatingLegDayCount;
     private BusinessDayConvention _swapFloatingLegBusinessDayConvention;
-    private Frequency _swapFloatingLegFrequency;
+    private Frequency _swapFloatingLegPaymentFrequency;
+    private Frequency _swapFloatingLegCompoundingFrequency;
+    private InterestRate.Type _swapFloatingLegCompoundingType;
     private Integer _swapFloatingLegSettlementDays;
     private ExternalId _swapFloatingLegInitialRate;
     private ExternalId _swapFloatingLegRegion;
@@ -163,7 +169,7 @@ public class ConventionBundleFudgeBuilder implements FudgeBuilder<ConventionBund
 
     @Override
     public Frequency getSwapFixedLegFrequency() {
-      return _swapFixedLegFrequency;
+      return _swapFixedLegPaymentFrequency;
     }
 
     @Override
@@ -188,7 +194,7 @@ public class ConventionBundleFudgeBuilder implements FudgeBuilder<ConventionBund
 
     @Override
     public Frequency getSwapFloatingLegFrequency() {
-      return _swapFloatingLegFrequency;
+      return _swapFloatingLegPaymentFrequency;
     }
 
     @Override
@@ -321,6 +327,26 @@ public class ConventionBundleFudgeBuilder implements FudgeBuilder<ConventionBund
       return _optionExpiryCalculator;
     }
 
+    @Override
+    public Frequency getSwapFixedLegCompoundingFrequency() {
+      return _swapFixedLegCompoundingFrequency;
+    }
+
+    @Override
+    public Frequency getSwapFloatingLegCompoundingFrequency() {
+      return _swapFloatingLegCompoundingFrequency;
+    }
+
+    @Override
+    public Type getSwapFixedLegCompoundingType() {
+      return _swapFixedLegCompoundingType;
+    }
+
+    @Override
+    public Type getSwapFloatingLegCompoundingType() {
+      return _swapFloatingLegCompoundingType;
+    }
+
   }
 
   private void addToMessage(final FudgeSerializer serializer, final MutableFudgeMsg msg, final ConventionBundleImpl obj) {
@@ -358,11 +384,19 @@ public class ConventionBundleFudgeBuilder implements FudgeBuilder<ConventionBund
     serializer.addToMessageWithClassHeaders(msg, "swapFixedLegDayCount", null, obj.getSwapFixedLegDayCount(), DayCount.class);
     serializer.addToMessageWithClassHeaders(msg, "swapFixedLegBusinessDayConvention", null, obj.getSwapFixedLegBusinessDayConvention(), BusinessDayConvention.class);
     serializer.addToMessageWithClassHeaders(msg, "swapFixedLegFrequency", null, obj.getSwapFixedLegFrequency(), Frequency.class);
+    serializer.addToMessageWithClassHeaders(msg, "swapFixedLegCompoundingFrequency", null, obj.getSwapFixedLegCompoundingFrequency(), Frequency.class);
+    if (obj.getSwapFixedLegCompoundingType() != null) {
+      msg.add("swapFixedLegCompoundingType", obj.getSwapFixedLegCompoundingType().name());
+    }
     serializer.addToMessage(msg, "swapFixedLegSettlementDays", null, obj.getSwapFixedLegSettlementDays());
     serializer.addToMessage(msg, "swapFixedLegRegion", null, obj.getSwapFixedLegRegion());
     serializer.addToMessageWithClassHeaders(msg, "swapFloatingLegDayCount", null, obj.getSwapFloatingLegDayCount(), DayCount.class);
     serializer.addToMessageWithClassHeaders(msg, "swapFloatingLegBusinessDayConvention", null, obj.getSwapFloatingLegBusinessDayConvention(), BusinessDayConvention.class);
     serializer.addToMessageWithClassHeaders(msg, "swapFloatingLegFrequency", null, obj.getSwapFloatingLegFrequency(), Frequency.class);
+    serializer.addToMessageWithClassHeaders(msg, "swapFloatingLegCompoundingFrequency", null, obj.getSwapFloatingLegCompoundingFrequency(), Frequency.class);
+    if (obj.getSwapFloatingLegCompoundingType() != null) {
+      msg.add("swapFloatingLegCompoundingType", obj.getSwapFloatingLegCompoundingType().name());
+    }
     serializer.addToMessage(msg, "swapFloatingLegSettlementDays", null, obj.getSwapFloatingLegSettlementDays());
     serializer.addToMessage(msg, "swapFloatingLegInitialRate", null, obj.getSwapFloatingLegInitialRate());
     serializer.addToMessage(msg, "swapFloatingLegRegion", null, obj.getSwapFloatingLegRegion());
@@ -397,98 +431,156 @@ public class ConventionBundleFudgeBuilder implements FudgeBuilder<ConventionBund
     final SimpleConventionBundle obj = new SimpleConventionBundle();
     FudgeField field;
     //CSOFF
-    if ((field = msg.getByName("uniqueId")) != null)
+    if ((field = msg.getByName("uniqueId")) != null) {
       obj._uniqueId = deserializer.fieldValueToObject(UniqueId.class, field);
-    if ((field = msg.getByName("identifiers")) != null)
+    }
+    if ((field = msg.getByName("identifiers")) != null) {
       obj._identifiers = deserializer.fieldValueToObject(ExternalIdBundle.class, field);
-    if ((field = msg.getByName("name")) != null)
+    }
+    if ((field = msg.getByName("name")) != null) {
       obj._name = deserializer.fieldValueToObject(String.class, field);
-    if ((field = msg.getByName("dayCount")) != null)
+    }
+    if ((field = msg.getByName("dayCount")) != null) {
       obj._dayCount = deserializer.fieldValueToObject(DayCount.class, field);
-    if ((field = msg.getByName("businessDayConvention")) != null)
+    }
+    if ((field = msg.getByName("businessDayConvention")) != null) {
       obj._businessDayConvention = deserializer.fieldValueToObject(BusinessDayConvention.class, field);
-    if ((field = msg.getByName("region")) != null)
+    }
+    if ((field = msg.getByName("region")) != null) {
       obj._region = deserializer.fieldValueToObject(ExternalId.class, field);
-    if ((field = msg.getByName("frequency")) != null)
+    }
+    if ((field = msg.getByName("frequency")) != null) {
       obj._frequency = deserializer.fieldValueToObject(Frequency.class, field);
-    if ((field = msg.getByName("settlementDays")) != null)
+    }
+    if ((field = msg.getByName("settlementDays")) != null) {
       obj._settlementDays = deserializer.fieldValueToObject(Integer.class, field);
-    if ((field = msg.getByName("cutoffTenor")) != null)
+    }
+    if ((field = msg.getByName("cutoffTenor")) != null) {
       obj._cutoffTenor = deserializer.fieldValueToObject(Tenor.class, field);
-    if ((field = msg.getByName("shortSettlementDays")) != null)
+    }
+    if ((field = msg.getByName("shortSettlementDays")) != null) {
       obj._shortSettlementDays = deserializer.fieldValueToObject(Integer.class, field);
-    if ((field = msg.getByName("longSettlementDays")) != null)
+    }
+    if ((field = msg.getByName("longSettlementDays")) != null) {
       obj._longSettlementDays = deserializer.fieldValueToObject(Integer.class, field);
-    if ((field = msg.getByName("futureYearFraction")) != null)
+    }
+    if ((field = msg.getByName("futureYearFraction")) != null) {
       obj._futureYearFraction = deserializer.fieldValueToObject(Double.class, field);
-    if ((field = msg.getByName("swapFixedLegDayCount")) != null)
+    }
+    if ((field = msg.getByName("swapFixedLegDayCount")) != null) {
       obj._swapFixedLegDayCount = deserializer.fieldValueToObject(DayCount.class, field);
-    if ((field = msg.getByName("swapFixedLegBusinessDayConvention")) != null)
+    }
+    if ((field = msg.getByName("swapFixedLegBusinessDayConvention")) != null) {
       obj._swapFixedLegBusinessDayConvention = deserializer.fieldValueToObject(BusinessDayConvention.class, field);
-    if ((field = msg.getByName("swapFixedLegFrequency")) != null)
-      obj._swapFixedLegFrequency = deserializer.fieldValueToObject(Frequency.class, field);
-    if ((field = msg.getByName("swapFixedLegSettlementDays")) != null)
+    }
+    if ((field = msg.getByName("swapFixedLegFrequency")) != null) {
+      obj._swapFixedLegPaymentFrequency = deserializer.fieldValueToObject(Frequency.class, field);
+    }
+    if ((field = msg.getByName("swapFixedLegCompoundingFrequency")) != null) {
+      obj._swapFixedLegCompoundingFrequency = deserializer.fieldValueToObject(Frequency.class, field);
+    }
+    if ((field = msg.getByName("swapFixedLegCompoundingType")) != null) {
+      obj._swapFixedLegCompoundingType = InterestRate.Type.valueOf((String) field.getValue());
+    }
+    if ((field = msg.getByName("swapFixedLegSettlementDays")) != null) {
       obj._swapFixedLegSettlementDays = deserializer.fieldValueToObject(Integer.class, field);
-    if ((field = msg.getByName("swapFixedLegRegion")) != null)
+    }
+    if ((field = msg.getByName("swapFixedLegRegion")) != null) {
       obj._swapFixedLegRegion = deserializer.fieldValueToObject(ExternalId.class, field);
-    if ((field = msg.getByName("swapFloatingLegDayCount")) != null)
+    }
+    if ((field = msg.getByName("swapFloatingLegDayCount")) != null) {
       obj._swapFloatingLegDayCount = deserializer.fieldValueToObject(DayCount.class, field);
-    if ((field = msg.getByName("swapFloatingLegBusinessDayConvention")) != null)
+    }
+    if ((field = msg.getByName("swapFloatingLegBusinessDayConvention")) != null) {
       obj._swapFloatingLegBusinessDayConvention = deserializer.fieldValueToObject(BusinessDayConvention.class, field);
-    if ((field = msg.getByName("swapFloatingLegFrequency")) != null)
-      obj._swapFloatingLegFrequency = deserializer.fieldValueToObject(Frequency.class, field);
-    if ((field = msg.getByName("swapFloatingLegSettlementDays")) != null)
+    }
+    if ((field = msg.getByName("swapFloatingLegFrequency")) != null) {
+      obj._swapFloatingLegPaymentFrequency = deserializer.fieldValueToObject(Frequency.class, field);
+    }
+    if ((field = msg.getByName("swapFloatingLegCompoundingFrequency")) != null) {
+      obj._swapFloatingLegCompoundingFrequency = deserializer.fieldValueToObject(Frequency.class, field);
+    }
+    if ((field = msg.getByName("swapFloatingLegCompoundingType")) != null) {
+      obj._swapFloatingLegCompoundingType = InterestRate.Type.valueOf((String) field.getValue());
+    }
+    if ((field = msg.getByName("swapFloatingLegSettlementDays")) != null) {
       obj._swapFloatingLegSettlementDays = deserializer.fieldValueToObject(Integer.class, field);
-    if ((field = msg.getByName("swapFloatingLegInitialRate")) != null)
+    }
+    if ((field = msg.getByName("swapFloatingLegInitialRate")) != null) {
       obj._swapFloatingLegInitialRate = deserializer.fieldValueToObject(ExternalId.class, field);
-    if ((field = msg.getByName("swapFloatingLegRegion")) != null)
+    }
+    if ((field = msg.getByName("swapFloatingLegRegion")) != null) {
       obj._swapFloatingLegRegion = deserializer.fieldValueToObject(ExternalId.class, field);
-    if ((field = msg.getByName("capmRiskFreeRate")) != null)
+    }
+    if ((field = msg.getByName("capmRiskFreeRate")) != null) {
       obj._capmRiskFreeRate = deserializer.fieldValueToObject(ExternalIdBundle.class, field);
-    if ((field = msg.getByName("capmMarket")) != null)
+    }
+    if ((field = msg.getByName("capmMarket")) != null) {
       obj._capmMarket = deserializer.fieldValueToObject(ExternalIdBundle.class, field);
-    if ((field = msg.getByName("basisSwapPayFloatingLegDayCount")) != null)
+    }
+    if ((field = msg.getByName("basisSwapPayFloatingLegDayCount")) != null) {
       obj._basisSwapPayFloatingLegDayCount = deserializer.fieldValueToObject(DayCount.class, field);
-    if ((field = msg.getByName("basisSwapPayFloatingLegBusinessDayConvention")) != null)
+    }
+    if ((field = msg.getByName("basisSwapPayFloatingLegBusinessDayConvention")) != null) {
       obj._basisSwapPayFloatingLegBusinessDayConvention = deserializer.fieldValueToObject(BusinessDayConvention.class, field);
-    if ((field = msg.getByName("basisSwapPayFloatingLegFrequency")) != null)
+    }
+    if ((field = msg.getByName("basisSwapPayFloatingLegFrequency")) != null) {
       obj._basisSwapPayFloatingLegFrequency = deserializer.fieldValueToObject(Frequency.class, field);
-    if ((field = msg.getByName("basisSwapPayFloatingLegSettlementDays")) != null)
+    }
+    if ((field = msg.getByName("basisSwapPayFloatingLegSettlementDays")) != null) {
       obj._basisSwapPayFloatingLegSettlementDays = deserializer.fieldValueToObject(Integer.class, field);
-    if ((field = msg.getByName("basisSwapPayFloatingLegInitialRate")) != null)
+    }
+    if ((field = msg.getByName("basisSwapPayFloatingLegInitialRate")) != null) {
       obj._basisSwapPayFloatingLegInitialRate = deserializer.fieldValueToObject(ExternalId.class, field);
-    if ((field = msg.getByName("basisSwapPayFloatingLegRegion")) != null)
+    }
+    if ((field = msg.getByName("basisSwapPayFloatingLegRegion")) != null) {
       obj._basisSwapPayFloatingLegRegion = deserializer.fieldValueToObject(ExternalId.class, field);
-    if ((field = msg.getByName("basisSwapReceiveFloatingLegDayCount")) != null)
+    }
+    if ((field = msg.getByName("basisSwapReceiveFloatingLegDayCount")) != null) {
       obj._basisSwapReceiveFloatingLegDayCount = deserializer.fieldValueToObject(DayCount.class, field);
-    if ((field = msg.getByName("basisSwapReceiveFloatingLegBusinessDayConvention")) != null)
+    }
+    if ((field = msg.getByName("basisSwapReceiveFloatingLegBusinessDayConvention")) != null) {
       obj._basisSwapReceiveFloatingLegBusinessDayConvention = deserializer.fieldValueToObject(BusinessDayConvention.class, field);
-    if ((field = msg.getByName("basisSwapReceiveFloatingLegFrequency")) != null)
+    }
+    if ((field = msg.getByName("basisSwapReceiveFloatingLegFrequency")) != null) {
       obj._basisSwapReceiveFloatingLegFrequency = deserializer.fieldValueToObject(Frequency.class, field);
-    if ((field = msg.getByName("basisSwapReceiveFloatingLegSettlementDays")) != null)
+    }
+    if ((field = msg.getByName("basisSwapReceiveFloatingLegSettlementDays")) != null) {
       obj._basisSwapReceiveFloatingLegSettlementDays = deserializer.fieldValueToObject(Integer.class, field);
-    if ((field = msg.getByName("basisSwapReceiveFloatingLegInitialRate")) != null)
+    }
+    if ((field = msg.getByName("basisSwapReceiveFloatingLegInitialRate")) != null) {
       obj._basisSwapReceiveFloatingLegInitialRate = deserializer.fieldValueToObject(ExternalId.class, field);
-    if ((field = msg.getByName("basisSwapReceiveFloatingLegRegion")) != null)
+    }
+    if ((field = msg.getByName("basisSwapReceiveFloatingLegRegion")) != null) {
       obj._basisSwapReceiveFloatingLegRegion = deserializer.fieldValueToObject(ExternalId.class, field);
-    if ((field = msg.getByName("overnightIndexSwapPublicationLag")) != null)
+    }
+    if ((field = msg.getByName("overnightIndexSwapPublicationLag")) != null) {
       obj._overnightIndexSwapPublicationLag = deserializer.fieldValueToObject(Integer.class, field);
-    if ((field = msg.getByName("eomConvention")) != null)
+    }
+    if ((field = msg.getByName("eomConvention")) != null) {
       obj._eomConvention = deserializer.fieldValueToObject(Boolean.class, field);
-    if ((field = msg.getByName("calculateScheduleFromMaturity")) != null)
+    }
+    if ((field = msg.getByName("calculateScheduleFromMaturity")) != null) {
       obj._calculateScheduleFromMaturity = deserializer.fieldValueToObject(Boolean.class, field);
-    if ((field = msg.getByName("exDividendDays")) != null)
+    }
+    if ((field = msg.getByName("exDividendDays")) != null) {
       obj._exDividendDays = deserializer.fieldValueToObject(Integer.class, field);
-    if ((field = msg.getByName("yieldConvention")) != null)
+    }
+    if ((field = msg.getByName("yieldConvention")) != null) {
       obj._yieldConvention = deserializer.fieldValueToObject(YieldConvention.class, field);
-    if ((field = msg.getByName("rollToSettlement")) != null)
+    }
+    if ((field = msg.getByName("rollToSettlement")) != null) {
       obj._rollToSettlement = deserializer.fieldValueToObject(Boolean.class, field);
-    if ((field = msg.getByName("period")) != null)
+    }
+    if ((field = msg.getByName("period")) != null) {
       obj._period = deserializer.fieldValueToObject(Period.class, field);
-    if ((field = msg.getByName("cashSettled")) != null)
+    }
+    if ((field = msg.getByName("cashSettled")) != null) {
       obj._cashSettled = deserializer.fieldValueToObject(Boolean.class, field);
-    if ((field = msg.getByName("optionExpiryCalculator")) != null)
+    }
+    if ((field = msg.getByName("optionExpiryCalculator")) != null) {
       obj._optionExpiryCalculator = deserializer.fieldValueToObject(String.class, field);
+    }
     return obj;
   }
 }

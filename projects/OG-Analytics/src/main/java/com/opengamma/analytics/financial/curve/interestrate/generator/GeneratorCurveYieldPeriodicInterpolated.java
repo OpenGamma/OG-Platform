@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.curve.interestrate.generator;
@@ -14,9 +14,10 @@ import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Store the details and generate the required curve. The curve is interpolated on the rate (continuously compounded).
+ * Store the details and generate the required curve. The curve is interpolated on the rate (periodally compounded).
  * Only the lastTimeCalculator is stored. The node are computed from the instruments.
  */
+@SuppressWarnings("deprecation")
 public class GeneratorCurveYieldPeriodicInterpolated extends GeneratorYDCurve {
 
   /**
@@ -54,6 +55,11 @@ public class GeneratorCurveYieldPeriodicInterpolated extends GeneratorYDCurve {
     throw new UnsupportedOperationException("Cannot generate curves for a GeneratorCurveYieldInterpolated");
   }
 
+  /**
+   * {@inheritDoc}
+   * @deprecated Curve builders that use and populate {@link YieldCurveBundle}s are deprecated.
+   */
+  @Deprecated
   @Override
   public YieldAndDiscountCurve generateCurve(final String name, final YieldCurveBundle bundle, final double[] parameters) {
     throw new UnsupportedOperationException("Cannot generate curves for a GeneratorCurveYieldInterpolated");

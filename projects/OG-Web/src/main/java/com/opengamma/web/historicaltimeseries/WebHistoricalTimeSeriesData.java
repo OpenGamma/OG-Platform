@@ -91,6 +91,7 @@ public class WebHistoricalTimeSeriesData extends DirectBean {
   public static WebHistoricalTimeSeriesData.Meta meta() {
     return WebHistoricalTimeSeriesData.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(WebHistoricalTimeSeriesData.Meta.INSTANCE);
   }

@@ -6,6 +6,7 @@
 package com.opengamma.web.analytics.rest;
 
 import java.net.URI;
+import java.security.Principal;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -15,6 +16,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriInfo;
 
 import org.threeten.bp.Instant;
@@ -33,8 +35,10 @@ import com.opengamma.web.analytics.push.ConnectionManager;
 
 /**
  * RESTful resource for creating and looking up views that calculate analytics data for a portfolio.
+ * @deprecated in favour of {@link WebUiResource}
  */
 @Path("views")
+@Deprecated
 public class ViewsResource {
 
   /** For generating IDs for the views. */
@@ -64,6 +68,7 @@ public class ViewsResource {
 
   @POST
   public Response createView(@Context UriInfo uriInfo,
+                             @Context SecurityContext securityContext,
                              @FormParam("requestId") String requestId,
                              @FormParam("viewDefinitionId") String viewDefinitionId,
                              @FormParam("aggregators") List<String> aggregators,
@@ -93,15 +98,18 @@ public class ViewsResource {
         .path(viewId)
         .path(ViewResource.class, "getPrimitivesGrid")
         .build();
-    // TODO this is very obviously wrong - where can I get the user?
-    UserPrincipal user = UserPrincipal.getTestUser();
-    String userName = null;
-    //String userName = user.getUserName();
+    Principal userPrincipal = securityContext.getUserPrincipal();
+    String userName = userPrincipal != null ? userPrincipal.getName() : null;
     ClientConnection connection = _connectionManager.getConnectionByClientId(userName, clientId);
     URI uri = uriInfo.getAbsolutePathBuilder().path(viewId).build();
     ImmutableMap<String, Object> callbackMap = ImmutableMap.<String, Object>of("id", requestId, "message", uri.getPath());
-    _viewManager.createView(viewRequest, clientId, user, connection, viewId, callbackMap,
-                            portfolioGridUri.getPath(), primitivesGridUri.getPath());
+    URI errorUri = uriInfo.getAbsolutePathBuilder()
+        .path(viewId)
+        .path(ViewResource.class, "getErrors")
+        .build();
+    UserPrincipal ogUserPrincipal = userName != null ? UserPrincipal.getLocalUser(userName) : UserPrincipal.getTestUser();
+    _viewManager.createView(viewRequest, clientId, ogUserPrincipal, connection, viewId, callbackMap,
+                            portfolioGridUri.getPath(), primitivesGridUri.getPath(), errorUri.getPath());
     return Response.status(Response.Status.CREATED).build();
   }
 

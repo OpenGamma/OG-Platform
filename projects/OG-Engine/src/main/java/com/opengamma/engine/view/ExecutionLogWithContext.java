@@ -85,6 +85,7 @@ public class ExecutionLogWithContext extends DirectBean {
   public static ExecutionLogWithContext.Meta meta() {
     return ExecutionLogWithContext.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(ExecutionLogWithContext.Meta.INSTANCE);
   }

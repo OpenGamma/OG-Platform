@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.inflation.derivative;
@@ -30,8 +30,8 @@ public abstract class CouponInflation extends Coupon {
    * @param notional Coupon notional.
    * @param priceIndex The price index associated to the coupon.
    */
-  public CouponInflation(Currency currency, double paymentTime, double paymentYearFraction, double notional, IndexPrice priceIndex) {
-    super(currency, paymentTime, "Not used", paymentYearFraction, notional);
+  public CouponInflation(final Currency currency, final double paymentTime, final double paymentYearFraction, final double notional, final IndexPrice priceIndex) {
+    super(currency, paymentTime, paymentYearFraction, notional);
     Validate.notNull(priceIndex, "Price index");
     _priceIndex = priceIndex;
   }
@@ -58,7 +58,7 @@ public abstract class CouponInflation extends Coupon {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -68,7 +68,7 @@ public abstract class CouponInflation extends Coupon {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    CouponInflation other = (CouponInflation) obj;
+    final CouponInflation other = (CouponInflation) obj;
     if (!ObjectUtils.equals(_priceIndex, other._priceIndex)) {
       return false;
     }

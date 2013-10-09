@@ -15,7 +15,9 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
  * A present value calculator that convert a multi-currency present value into a given currency.
+ * @deprecated {@link YieldCurveBundle} is deprecated
  */
+@Deprecated
 public class PresentValueConvertedCalculator extends InstrumentDerivativeVisitorSameMethodAdapter<YieldCurveBundle, Double> {
 
   /**

@@ -166,20 +166,23 @@ public abstract class AbstractWebConfigResource extends AbstractPerRequestWebRes
   protected WebConfigData data() {
     return _data;
   }
-  
+
   /**
-   * Utility method to convert XML to configuration object
-   * @param xml the configuration xml
+   * Utility method to convert XML to configuration object.
+   * 
+   * @param <T> the type to parse to
+   * @param xml  the configuration xml, not null
+   * @param type  the type to parse to, not null
    * @return the configuration object
    */
-  protected Object parseXML(String xml) {
+  protected <T> T parseXML(String xml, Class<T> type) {
     final CharArrayReader car = new CharArrayReader(xml.toCharArray());
     @SuppressWarnings("resource")
     final FudgeMsgReader fmr = new FudgeMsgReader(new FudgeXMLStreamReader(getFudgeContext(), car));
     final FudgeMsg message = fmr.nextMessage();
-    return getFudgeContext().fromFudgeMsg(message);
+    return getFudgeContext().fromFudgeMsg(type, message);
   }
-    
+
   /**
    * Converts JSON to configuration object
    * 

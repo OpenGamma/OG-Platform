@@ -67,6 +67,7 @@ public class RestComponent extends DirectBean {
   public static RestComponent.Meta meta() {
     return RestComponent.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(RestComponent.Meta.INSTANCE);
   }

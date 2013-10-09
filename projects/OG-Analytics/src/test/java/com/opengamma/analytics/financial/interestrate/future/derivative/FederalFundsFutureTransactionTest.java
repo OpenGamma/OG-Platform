@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.future.derivative;
@@ -36,10 +36,8 @@ public class FederalFundsFutureTransactionTest {
   private static final double TRADE_PRICE = 0.99900;
   private static final int QUANTITY = 12;
 
-  private static final String CURVE_NAME = "OIS";
-
   private static final FederalFundsFutureSecurityDefinition FUTURE_SECURITY_DEFINITION = FederalFundsFutureSecurityDefinition.from(MARCH_1, INDEX_FEDFUND, NOTIONAL, PAYMENT_ACCURAL_FACTOR, NAME, NYC);
-  private static final FederalFundsFutureSecurity FUTURE_SECURITY_BEFOREFIXING = FUTURE_SECURITY_DEFINITION.toDerivative(REFERENCE_DATE, CURVE_NAME);
+  private static final FederalFundsFutureSecurity FUTURE_SECURITY_BEFOREFIXING = FUTURE_SECURITY_DEFINITION.toDerivative(REFERENCE_DATE);
 
   private static final FederalFundsFutureTransaction FUTURE_TRANSACTION = new FederalFundsFutureTransaction(FUTURE_SECURITY_BEFOREFIXING, QUANTITY, TRADE_PRICE);
 
@@ -68,7 +66,7 @@ public class FederalFundsFutureTransactionTest {
     assertTrue(FUTURE_TRANSACTION.equals(other));
     assertTrue(FUTURE_TRANSACTION.hashCode() == other.hashCode());
     FederalFundsFutureTransaction modifiedFuture;
-    final FederalFundsFutureSecurity otherSecurity = FUTURE_SECURITY_DEFINITION.toDerivative(REFERENCE_DATE.minusDays(1), CURVE_NAME);
+    final FederalFundsFutureSecurity otherSecurity = FUTURE_SECURITY_DEFINITION.toDerivative(REFERENCE_DATE.minusDays(1));
     modifiedFuture = new FederalFundsFutureTransaction(otherSecurity, QUANTITY, TRADE_PRICE);
     assertFalse(FUTURE_TRANSACTION.equals(modifiedFuture));
     modifiedFuture = new FederalFundsFutureTransaction(FUTURE_SECURITY_BEFOREFIXING, QUANTITY + 1, TRADE_PRICE);

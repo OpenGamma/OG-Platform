@@ -14,7 +14,7 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- *
+ * Computes the expiration dates for IMM futures with two days spot lag.
  */
 public final class IMMFutureAndFutureOptionQuarterlyExpiryCalculator implements ExchangeTradedInstrumentExpiryCalculator {
   /** Name of the calculator */
@@ -39,11 +39,15 @@ public final class IMMFutureAndFutureOptionQuarterlyExpiryCalculator implements 
     ArgumentChecker.notNull(holidayCalendar, "holiday calendar");
     final LocalDate nextExpiryMonth = today.with(MONTH_ADJUSTER);
     LocalDate result;
-    final LocalDate thirdWednesday = today.with(THIRD_WEDNESDAY_ADJUSTER);
-    if (today.isAfter(adjustForSettlement(thirdWednesday, holidayCalendar))) {
-      result = nextExpiryMonth.plusMonths(3 * n).with(THIRD_WEDNESDAY_ADJUSTER);
-    } else {
+    if (!today.getMonth().equals(nextExpiryMonth.getMonth())) { // In a quarterly month
       result = nextExpiryMonth.plusMonths(3 * (n - 1)).with(THIRD_WEDNESDAY_ADJUSTER);
+    } else {
+      final LocalDate thirdWednesday = today.with(THIRD_WEDNESDAY_ADJUSTER);
+      if (today.isAfter(adjustForSettlement(thirdWednesday, holidayCalendar))) {
+        result = nextExpiryMonth.plusMonths(3 * n).with(THIRD_WEDNESDAY_ADJUSTER);
+      } else {
+        result = nextExpiryMonth.plusMonths(3 * (n - 1)).with(THIRD_WEDNESDAY_ADJUSTER);
+      }
     }
     return adjustForSettlement(result, holidayCalendar);
   }
@@ -64,7 +68,7 @@ public final class IMMFutureAndFutureOptionQuarterlyExpiryCalculator implements 
     return NAME;
   }
 
-  private LocalDate adjustForSettlement(final LocalDate date, final Calendar holidayCalendar) {
+  private LocalDate adjustForSettlement(final LocalDate date, final Calendar holidayCalendar) { // Use ScheduleCalculator
     int days = 0;
     LocalDate result = date;
     while (days < WORKING_DAYS_TO_SETTLE) {

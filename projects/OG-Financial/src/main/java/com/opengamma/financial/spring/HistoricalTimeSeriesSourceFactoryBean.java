@@ -74,6 +74,7 @@ public class HistoricalTimeSeriesSourceFactoryBean extends SpringFactoryBean<His
   public static HistoricalTimeSeriesSourceFactoryBean.Meta meta() {
     return HistoricalTimeSeriesSourceFactoryBean.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(HistoricalTimeSeriesSourceFactoryBean.Meta.INSTANCE);
   }

@@ -79,6 +79,8 @@ import com.opengamma.util.time.Expiry;
         "tradeDate", tradeDateStr,
         "effectiveDate", effectiveDateStr,
         "maturityDate", maturityDateStr,
+        "exchangeInitialNotional", "false",
+        "exchangeFinalNotional", "false",
         "payLeg", beanData(
           "type", "FixedInterestRateLeg",
           "rate", "1.234",

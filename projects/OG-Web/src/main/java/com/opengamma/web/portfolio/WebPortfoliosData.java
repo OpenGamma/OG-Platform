@@ -137,6 +137,7 @@ public class WebPortfoliosData extends DirectBean {
   public static WebPortfoliosData.Meta meta() {
     return WebPortfoliosData.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(WebPortfoliosData.Meta.INSTANCE);
   }

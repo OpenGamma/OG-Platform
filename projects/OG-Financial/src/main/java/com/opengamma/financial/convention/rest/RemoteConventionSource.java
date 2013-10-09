@@ -56,4 +56,30 @@ public class RemoteConventionSource extends AbstractRemoteClient implements Conv
     }
   }
 
+  @Override
+  public <T extends Convention> T getConvention(final Class<T> clazz, final ExternalId identifier) {
+    try {
+      return accessRemote(DataConventionSourceResource.uriGetByIdentifier(getBaseUri(), identifier)).get(clazz);
+    } catch (final UniformInterfaceException404NotFound e) {
+      return null;
+    }
+  }
+
+  @Override
+  public <T extends Convention> T getConvention(final Class<T> clazz, final ExternalIdBundle identifiers) {
+    try {
+      return accessRemote(DataConventionSourceResource.uriGetByBundle(getBaseUri(), identifiers)).get(clazz);
+    } catch (final UniformInterfaceException404NotFound e) {
+      return null;
+    }
+  }
+
+  @Override
+  public <T extends Convention> T getConvention(final Class<T> clazz, final UniqueId identifier) {
+    try {
+      return accessRemote(DataConventionSourceResource.uriGetByUniqueId(getBaseUri(), identifier)).get(clazz);
+    } catch (final UniformInterfaceException404NotFound e) {
+      return null;
+    }
+  }
 }

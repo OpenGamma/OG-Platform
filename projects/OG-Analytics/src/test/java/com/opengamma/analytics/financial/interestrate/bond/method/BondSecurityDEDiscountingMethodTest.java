@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.bond.method;
@@ -32,7 +32,9 @@ import com.opengamma.util.time.DateUtils;
 
 /**
  * Tests related to the discounting method for bond security.
+ * @deprecated This class tests deprecated functionality
  */
+@Deprecated
 public class BondSecurityDEDiscountingMethodTest {
 
   // Calculators
@@ -71,7 +73,7 @@ public class BondSecurityDEDiscountingMethodTest {
   @Test
   public void presentValueFixedMiddle() {
     final AnnuityPaymentFixed nominal = (AnnuityPaymentFixed) BOND_DE_SECURITY_DEFINITION.getNominal().toDerivative(REFERENCE_DATE_DE_1, CURVES_NAME);
-    AnnuityCouponFixed coupon = BOND_DE_SECURITY_DEFINITION.getCoupons().trimBefore(SPOT_DATE_DE_1).toDerivative(REFERENCE_DATE_DE_1, CURVES_NAME);
+    final AnnuityCouponFixed coupon = BOND_DE_SECURITY_DEFINITION.getCoupons().trimBefore(SPOT_DATE_DE_1).toDerivative(REFERENCE_DATE_DE_1, CURVES_NAME);
     final double pvNominal = nominal.accept(PVC, CURVES);
     final double pvCoupon = coupon.accept(PVC, CURVES);
     final double pv = METHOD.presentValue(BOND_DE_SECURITY_1, CURVES);

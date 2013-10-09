@@ -122,16 +122,6 @@ public class BucketedSpreadCurveFunction extends AbstractFunction {
         return requirements;
       }
 
-      @Override
-      public boolean canHandleMissingRequirements() {
-        // time series may not be available
-        return true;
-      }
-
-      @Override
-      public boolean canHandleMissingInputs() {
-        return true;
-      }
     };
   }
 

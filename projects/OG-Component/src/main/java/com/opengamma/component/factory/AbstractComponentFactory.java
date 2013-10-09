@@ -32,6 +32,7 @@ public abstract class AbstractComponentFactory extends DirectBean implements Com
   public static AbstractComponentFactory.Meta meta() {
     return AbstractComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(AbstractComponentFactory.Meta.INSTANCE);
   }

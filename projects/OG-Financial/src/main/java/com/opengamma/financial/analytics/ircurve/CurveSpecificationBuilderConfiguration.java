@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.ircurve;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -27,7 +28,7 @@ import com.opengamma.util.time.Tenor;
 /**
  *
  */
-@Config
+@Config(description = "Curve specification builder configuration")
 public class CurveSpecificationBuilderConfiguration {
 
   /**
@@ -45,6 +46,7 @@ public class CurveSpecificationBuilderConfiguration {
   private final Map<Tenor, CurveInstrumentProvider> _swap12MInstrumentProviders;
   private final Map<Tenor, CurveInstrumentProvider> _swap6MInstrumentProviders;
   private final Map<Tenor, CurveInstrumentProvider> _swap3MInstrumentProviders;
+  private final Map<Tenor, CurveInstrumentProvider> _swap28DInstrumentProviders;
   private final Map<Tenor, CurveInstrumentProvider> _basisSwapInstrumentProviders;
   private final Map<Tenor, CurveInstrumentProvider> _tenorSwapInstrumentProviders;
   private final Map<Tenor, CurveInstrumentProvider> _oisSwapInstrumentProviders;
@@ -73,7 +75,8 @@ public class CurveSpecificationBuilderConfiguration {
    * @param simpleZeroDepositInstrumentProviders a map of tenor to simple zero deposit instruments
    * @param periodicZeroDepositInstrumentProviders a map of tenor to periodic zero deposit instruments
    * @param continuousZeroDepositInstrumentProviders a map of tenor to continuous zero deposit instruments
-   * @param swap12MInstrumentProviders a map of tenor to instrument providers for 6M swap curve instruments where 6M is the floating tenor
+   * @param swap12MInstrumentProviders a map of tenor to instrument providers for 12M swap curve instruments where 12M is the floating tenor
+   * @param swap28DInstrumentProviders a map of tenor to instrument providers for 28D swap curve instruments where 28D is the floating tenor
    */
   public CurveSpecificationBuilderConfiguration(final Map<Tenor, CurveInstrumentProvider> cashInstrumentProviders, final Map<Tenor, CurveInstrumentProvider> fra3MInstrumentProviders,
       final Map<Tenor, CurveInstrumentProvider> fra6MInstrumentProviders, final Map<Tenor, CurveInstrumentProvider> liborInstrumentProviders,
@@ -83,7 +86,8 @@ public class CurveSpecificationBuilderConfiguration {
       final Map<Tenor, CurveInstrumentProvider> swap3MInstrumentProviders, final Map<Tenor, CurveInstrumentProvider> basisSwapInstrumentProviders,
       final Map<Tenor, CurveInstrumentProvider> tenorSwapInstrumentProviders, final Map<Tenor, CurveInstrumentProvider> oisSwapInstrumentProviders,
       final Map<Tenor, CurveInstrumentProvider> simpleZeroDepositInstrumentProviders, final Map<Tenor, CurveInstrumentProvider> periodicZeroDepositInstrumentProviders,
-      final Map<Tenor, CurveInstrumentProvider> continuousZeroDepositInstrumentProviders, final Map<Tenor, CurveInstrumentProvider> swap12MInstrumentProviders) {
+      final Map<Tenor, CurveInstrumentProvider> continuousZeroDepositInstrumentProviders, final Map<Tenor, CurveInstrumentProvider> swap12MInstrumentProviders,
+      final Map<Tenor, CurveInstrumentProvider> swap28DInstrumentProviders) {
     _cashInstrumentProviders = cashInstrumentProviders;
     _fra3MInstrumentProviders = fra3MInstrumentProviders;
     _fra6MInstrumentProviders = fra6MInstrumentProviders;
@@ -102,12 +106,13 @@ public class CurveSpecificationBuilderConfiguration {
     _simpleZeroDepositInstrumentProviders = simpleZeroDepositInstrumentProviders;
     _periodicZeroDepositInstrumentProviders = periodicZeroDepositInstrumentProviders;
     _continuousZeroDepositInstrumentProviders = continuousZeroDepositInstrumentProviders;
+    _swap28DInstrumentProviders = swap28DInstrumentProviders;
   }
 
   private static List<String> getCurveSpecBuilderConfigurationNames() {
-    final List<String> list = new ArrayList<String>();
+    final List<String> list = new ArrayList<>();
     for (final Field field : CurveSpecificationBuilderConfigurationFudgeBuilder.class.getDeclaredFields()) {
-      if (java.lang.reflect.Modifier.isStatic(field.getModifiers())) {
+      if (Modifier.isStatic(field.getModifiers()) && field.isSynthetic() == false) {
         field.setAccessible(true);
         try {
           list.add((String) field.get(null));
@@ -120,7 +125,7 @@ public class CurveSpecificationBuilderConfiguration {
     return ImmutableList.copyOf(list);
   }
 
-  private ExternalId getStaticSecurity(final Map<Tenor, CurveInstrumentProvider> instrumentMappers, final LocalDate curveDate, final Tenor tenor) {
+  private static ExternalId getStaticSecurity(final Map<Tenor, CurveInstrumentProvider> instrumentMappers, final LocalDate curveDate, final Tenor tenor) {
     final CurveInstrumentProvider mapper = instrumentMappers.get(tenor);
     if (mapper != null) {
       return mapper.getInstrument(curveDate, tenor);
@@ -128,7 +133,7 @@ public class CurveSpecificationBuilderConfiguration {
     throw new OpenGammaRuntimeException("can't find instrument mapper definition for " + tenor);
   }
 
-  private ExternalId getStaticSecurity(final Map<Tenor, CurveInstrumentProvider> instrumentMappers, final LocalDate curveDate, final FixedIncomeStrip strip) {
+  private static ExternalId getStaticSecurity(final Map<Tenor, CurveInstrumentProvider> instrumentMappers, final LocalDate curveDate, final FixedIncomeStrip strip) {
     final Tenor tenor = strip.getCurveNodePointTime();
     final Tenor payTenor = strip.getPayTenor();
     final Tenor receiveTenor = strip.getReceiveTenor();
@@ -191,6 +196,19 @@ public class CurveSpecificationBuilderConfiguration {
       throw new OpenGammaRuntimeException("Cannot get 12M swap instrument provider");
     }
     return getStaticSecurity(_swap12MInstrumentProviders, curveDate, tenor);
+  }
+
+  /**
+   * Build a Swap security identifier for a curve node point
+   * @param curveDate the date of the start of the curve
+   * @param tenor the time into the curve for this security
+   * @return the identifier of the security to use
+   */
+  public ExternalId getSwap28DSecurity(final LocalDate curveDate, final Tenor tenor) {
+    if (_swap28DInstrumentProviders == null) {
+      throw new OpenGammaRuntimeException("Cannot get 28D swap instrument provider");
+    }
+    return getStaticSecurity(_swap28DInstrumentProviders, curveDate, tenor);
   }
 
   /**
@@ -466,6 +484,14 @@ public class CurveSpecificationBuilderConfiguration {
   }
 
   /**
+   * Gets the swap28DInstrumentProviders field for serialisation
+   * @return the swap12MInstrumentProviders
+   */
+  public Map<Tenor, CurveInstrumentProvider> getSwap28DInstrumentProviders() {
+    return _swap28DInstrumentProviders;
+  }
+
+  /**
    * Gets the swap6MInstrumentProviders field for serialisation
    * @return the swap6MInstrumentProviders
    */
@@ -590,6 +616,9 @@ public class CurveSpecificationBuilderConfiguration {
     if (getContinuousZeroDepositInstrumentProviders() != null) {
       allTenors.addAll(getContinuousZeroDepositInstrumentProviders().keySet());
     }
+    if (getSwap28DInstrumentProviders() != null) {
+      allTenors.addAll(getSwap28DInstrumentProviders().keySet());
+    }
     return allTenors;
   }
 
@@ -619,16 +648,39 @@ public class CurveSpecificationBuilderConfiguration {
         && ObjectUtils.equals(getOISSwapInstrumentProviders(), other.getOISSwapInstrumentProviders())
         && ObjectUtils.equals(getSimpleZeroDepositInstrumentProviders(), other.getSimpleZeroDepositInstrumentProviders())
         && ObjectUtils.equals(getPeriodicZeroDepositInstrumentProviders(), other.getPeriodicZeroDepositInstrumentProviders())
-        && ObjectUtils.equals(getContinuousZeroDepositInstrumentProviders(), other.getContinuousZeroDepositInstrumentProviders());
-  }
-
-  @Override
-  public int hashCode() {
-    return getCashInstrumentProviders().hashCode(); // bit dodgy really, but should only be used for testing.
+        && ObjectUtils.equals(getContinuousZeroDepositInstrumentProviders(), other.getContinuousZeroDepositInstrumentProviders())
+        && ObjectUtils.equals(getSwap28DInstrumentProviders(), other.getSwap28DInstrumentProviders());
   }
 
   @Override
   public String toString() {
     return ToStringBuilder.reflectionToString(this);
   }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((_basisSwapInstrumentProviders == null) ? 0 : _basisSwapInstrumentProviders.hashCode());
+    result = prime * result + ((_cashInstrumentProviders == null) ? 0 : _cashInstrumentProviders.hashCode());
+    result = prime * result + ((_cdorInstrumentProviders == null) ? 0 : _cdorInstrumentProviders.hashCode());
+    result = prime * result + ((_ciborInstrumentProviders == null) ? 0 : _ciborInstrumentProviders.hashCode());
+    result = prime * result + ((_continuousZeroDepositInstrumentProviders == null) ? 0 : _continuousZeroDepositInstrumentProviders.hashCode());
+    result = prime * result + ((_euriborInstrumentProviders == null) ? 0 : _euriborInstrumentProviders.hashCode());
+    result = prime * result + ((_fra3MInstrumentProviders == null) ? 0 : _fra3MInstrumentProviders.hashCode());
+    result = prime * result + ((_fra6MInstrumentProviders == null) ? 0 : _fra6MInstrumentProviders.hashCode());
+    result = prime * result + ((_futureInstrumentProviders == null) ? 0 : _futureInstrumentProviders.hashCode());
+    result = prime * result + ((_liborInstrumentProviders == null) ? 0 : _liborInstrumentProviders.hashCode());
+    result = prime * result + ((_oisSwapInstrumentProviders == null) ? 0 : _oisSwapInstrumentProviders.hashCode());
+    result = prime * result + ((_periodicZeroDepositInstrumentProviders == null) ? 0 : _periodicZeroDepositInstrumentProviders.hashCode());
+    result = prime * result + ((_simpleZeroDepositInstrumentProviders == null) ? 0 : _simpleZeroDepositInstrumentProviders.hashCode());
+    result = prime * result + ((_stiborInstrumentProviders == null) ? 0 : _stiborInstrumentProviders.hashCode());
+    result = prime * result + ((_swap12MInstrumentProviders == null) ? 0 : _swap12MInstrumentProviders.hashCode());
+    result = prime * result + ((_swap28DInstrumentProviders == null) ? 0 : _swap28DInstrumentProviders.hashCode());
+    result = prime * result + ((_swap3MInstrumentProviders == null) ? 0 : _swap3MInstrumentProviders.hashCode());
+    result = prime * result + ((_swap6MInstrumentProviders == null) ? 0 : _swap6MInstrumentProviders.hashCode());
+    result = prime * result + ((_tenorSwapInstrumentProviders == null) ? 0 : _tenorSwapInstrumentProviders.hashCode());
+    return result;
+  }
+
 }

@@ -38,8 +38,8 @@ import com.opengamma.util.money.Currency;
  * <p>
  * This class is mutable.
  */
+@Config(description = "Yield curve definition")
 @BeanDefinition
-@Config
 public class YieldCurveDefinition extends DirectBean implements Serializable, UniqueIdentifiable,
     MutableUniqueIdentifiable {
 
@@ -167,6 +167,7 @@ public class YieldCurveDefinition extends DirectBean implements Serializable, Un
   public static YieldCurveDefinition.Meta meta() {
     return YieldCurveDefinition.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(YieldCurveDefinition.Meta.INSTANCE);
   }

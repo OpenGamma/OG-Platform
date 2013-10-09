@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jms.support.JmsUtils;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.jms.JmsConnector;
 
 /**
@@ -55,7 +56,7 @@ public abstract class AbstractJmsResultPublisher {
    * Creates an instance.
    * 
    * @param fudgeContext  the Fudge context, not null
-   * @param jmsConnector  the JMS connector, not null
+   * @param jmsConnector  the JMS connector, may be null
    */
   public AbstractJmsResultPublisher(FudgeContext fudgeContext, JmsConnector jmsConnector) {
     _fudgeContext = fudgeContext;
@@ -106,6 +107,9 @@ public abstract class AbstractJmsResultPublisher {
   }
 
   private void startJmsIfRequired(String destination) throws Exception {
+    if (_jmsConnector == null) {
+      throw new OpenGammaRuntimeException("JMS not configured on server");
+    }
     if (_producer == null) {
       try {
         _connection = _jmsConnector.getConnectionFactory().createConnection();

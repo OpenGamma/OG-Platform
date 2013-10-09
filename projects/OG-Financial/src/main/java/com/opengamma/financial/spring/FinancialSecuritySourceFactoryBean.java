@@ -68,6 +68,7 @@ public class FinancialSecuritySourceFactoryBean extends SpringFactoryBean<Financ
   public static FinancialSecuritySourceFactoryBean.Meta meta() {
     return FinancialSecuritySourceFactoryBean.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(FinancialSecuritySourceFactoryBean.Meta.INSTANCE);
   }

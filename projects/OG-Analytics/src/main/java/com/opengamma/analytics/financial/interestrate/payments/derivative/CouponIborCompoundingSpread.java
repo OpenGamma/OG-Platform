@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.interestrate.payments.derivative;
@@ -15,7 +15,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- * Class describing a Ibor-like coupon with compounding and spread. There are three ISDA versions of compounding with spread. 
+ * Class describing a Ibor-like coupon with compounding and spread. There are three ISDA versions of compounding with spread.
  * The one referred in this class is the "compounding" (not "Flat Compounding" and not "Compounding treating spread as simple interest").
  * The Ibor fixing are compounded over several sub-periods.
  * The amount paid is equal to
@@ -80,9 +80,10 @@ public class CouponIborCompoundingSpread extends Coupon {
    * @param fixingPeriodAccrualFactors The accrual factors (or year fraction) associated with the fixing periods in the Index day count convention.
    * @param spread The spread paid above the Ibor rate.
    */
-  public CouponIborCompoundingSpread(Currency currency, double paymentTime, double paymentAccrualFactor, double notional, double notionalAccrued, IborIndex index, double[] paymentAccrualFactors,
-      double[] fixingTimes, double[] fixingPeriodStartTimes, double[] fixingPeriodEndTimes, double[] fixingPeriodAccrualFactors, final double spread) {
-    super(currency, paymentTime, "Not used", paymentAccrualFactor, notional);
+  public CouponIborCompoundingSpread(final Currency currency, final double paymentTime, final double paymentAccrualFactor, final double notional, final double notionalAccrued,
+      final IborIndex index, final double[] paymentAccrualFactors, final double[] fixingTimes, final double[] fixingPeriodStartTimes, final double[] fixingPeriodEndTimes,
+      final double[] fixingPeriodAccrualFactors, final double spread) {
+    super(currency, paymentTime, paymentAccrualFactor, notional);
     ArgumentChecker.isTrue(fixingTimes.length == fixingPeriodStartTimes.length, "Fixing times and fixing period should have same length");
     ArgumentChecker.isTrue(fixingTimes.length == fixingPeriodEndTimes.length, "Fixing times and fixing period should have same length");
     ArgumentChecker.isTrue(fixingTimes.length == fixingPeriodAccrualFactors.length, "Fixing times and fixing period should have same length");
@@ -163,18 +164,18 @@ public class CouponIborCompoundingSpread extends Coupon {
   }
 
   @Override
-  public Coupon withNotional(double notional) {
+  public Coupon withNotional(final double notional) {
     return new CouponIborCompoundingSpread(getCurrency(), getPaymentTime(), getPaymentYearFraction(), notional, _notionalAccrued, _index, _paymentAccrualFactors, _fixingTimes,
         _fixingPeriodStartTimes, _fixingPeriodEndTimes, _fixingPeriodAccrualFactors, _spread);
   }
 
   @Override
-  public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
+  public <S, T> T accept(final InstrumentDerivativeVisitor<S, T> visitor, final S data) {
     return visitor.visitCouponIborCompoundingSpread(this, data);
   }
 
   @Override
-  public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
+  public <T> T accept(final InstrumentDerivativeVisitor<?, T> visitor) {
     return visitor.visitCouponIborCompoundingSpread(this);
   }
 
@@ -197,7 +198,7 @@ public class CouponIborCompoundingSpread extends Coupon {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -207,7 +208,7 @@ public class CouponIborCompoundingSpread extends Coupon {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    CouponIborCompoundingSpread other = (CouponIborCompoundingSpread) obj;
+    final CouponIborCompoundingSpread other = (CouponIborCompoundingSpread) obj;
     if (!Arrays.equals(_fixingPeriodAccrualFactors, other._fixingPeriodAccrualFactors)) {
       return false;
     }

@@ -110,6 +110,7 @@ public class DbOrganizationMasterComponentFactory extends AbstractDbMasterCompon
   public static DbOrganizationMasterComponentFactory.Meta meta() {
     return DbOrganizationMasterComponentFactory.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(DbOrganizationMasterComponentFactory.Meta.INSTANCE);
   }

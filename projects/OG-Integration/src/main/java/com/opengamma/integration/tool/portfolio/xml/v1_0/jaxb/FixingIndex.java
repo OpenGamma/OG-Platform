@@ -9,13 +9,32 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 
+/**
+ * XML access to the fixing index.
+ */
 @XmlAccessorType(XmlAccessType.FIELD)
 public class FixingIndex {
 
-  public enum RateType {OIS, CMS, IBOR}
+  /**
+   * The rate type.
+   */
+  public enum RateType {
+    /**
+     * OIS.
+     */
+    OIS,
+    /**
+     * CMS.
+     */
+    CMS,
+    /**
+     * IBOR.
+     */
+    IBOR,
+  }
 
   @XmlElement(name = "id")
-  private ExtId index;
+  private ExtId index;  // CSIGNORE
 
   @XmlElement(name = "rateType")
   private RateType _rateType;

@@ -42,7 +42,7 @@ public class IborCurveTypeConfiguration extends CurveTypeConfiguration {
   private Tenor _tenor;
 
   /**
-   * For the fudge builder
+   * For the builder.
    */
   /* package */ IborCurveTypeConfiguration() {
     super();
@@ -67,6 +67,7 @@ public class IborCurveTypeConfiguration extends CurveTypeConfiguration {
   public static IborCurveTypeConfiguration.Meta meta() {
     return IborCurveTypeConfiguration.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(IborCurveTypeConfiguration.Meta.INSTANCE);
   }

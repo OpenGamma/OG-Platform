@@ -34,6 +34,10 @@ public interface MarketDataRequirementNames {
    * Last trade value
    */
   String LAST = "Market_Last";
+  /**
+   * The date and time associated with {@link MarketDataRequirementNames#LAST}.
+   */
+  String LAST_DATE_TIME = "Market_LastDateTime";
 
   /**
    * Settlement value. This is used when one wants most recent close available in both Live and Historical 
@@ -51,11 +55,19 @@ public interface MarketDataRequirementNames {
    * Highest bid
    */
   String BID = "Market_Bid";
+  /**
+   * The date and time associated with {@link MarketDataRequirementNames#BID}.
+   */
+  String BID_DATE_TIME = "Market_BidDateTime";
 
   /**
    * Lowest ask
    */
   String ASK = "Market_Ask";
+  /**
+   * The date and time associated with {@link MarketDataRequirementNames#ASK}.
+   */
+  String ASK_DATE_TIME = "Market_AskDateTime";
 
   /**
    * Best estimate of implied volatility, might be same as mid implied vol
@@ -131,4 +143,37 @@ public interface MarketDataRequirementNames {
    * Low value. Sometimes sent as part of a candle or EOD message.
    */
   String LOW = "Market_Low";
+
+  /**
+   * Previous day's closing bid price.
+   */
+  String CLOSING_BID = "Market_ClosingBid";
+  /**
+   * The date associated with {@link MarketDataRequirementNames#CLOSING_BID}.
+   */
+  String CLOSING_BID_DATE = "Market_ClosingBidDate";
+
+  /**
+   * Previous day's closing ask price.
+   */
+  String CLOSING_ASK = "Market_ClosingAsk";
+  /**
+   * The date associated with {@link MarketDataRequirementNames#CLOSING_ASK}.
+   */
+  String CLOSING_ASK_DATE = "Market_ClosingAskDate";
+  
+  /**
+   * Last closing trade price, may be from mulitple days ago
+   */
+  String CLOSE = "Market_Close";
+  /**
+   * The date associated with {@link MarketDataRequirementNames#CLOSE}.
+   */
+  String CLOSE_DATE = "Market_CloseDate";
+  
+  /**
+   * A special name used to request all available market data for an instrument.
+   */
+  String ALL = "Market_All";
+
 }

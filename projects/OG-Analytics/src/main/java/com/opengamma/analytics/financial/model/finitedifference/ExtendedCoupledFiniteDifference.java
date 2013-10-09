@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.model.finitedifference;
@@ -15,15 +15,15 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.surface.Surface;
 
 /**
- * 
+ *
  */
+@SuppressWarnings("deprecation")
 public class ExtendedCoupledFiniteDifference extends CoupledFiniteDifference {
 
   public ExtendedCoupledFiniteDifference(final double theta) {
     super(theta, true);
   }
 
-  @SuppressWarnings("deprecation")
   public PDEFullResults1D[] solve(final ExtendedCoupledPDEDataBundle pdeData1, final ExtendedCoupledPDEDataBundle pdeData2, final PDEGrid1D grid, final BoundaryCondition lowerBoundary1,
       final BoundaryCondition upperBoundary1, final BoundaryCondition lowerBoundary2, final BoundaryCondition upperBoundary2,
       @SuppressWarnings("unused") final Surface<Double, Double, Double> freeBoundary) {

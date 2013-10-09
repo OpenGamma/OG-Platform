@@ -33,7 +33,7 @@ public class UriEndPointDescriptionProviderFactoryBean extends SingletonFactoryB
   private static final boolean s_enableIPv6 = System.getProperty("com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean.enableIPv6") != null;
 
   private final List<String> _uris = new LinkedList<String>();
-  
+
   private String _local;
   private int _port = 80;
   private int _securePort = 443;
@@ -48,7 +48,7 @@ public class UriEndPointDescriptionProviderFactoryBean extends SingletonFactoryB
   public void setAbsolute(final String uri) {
     _uris.add(uri);
   }
-  
+
   /**
    * Sets a local path using the default host and port.
    * 
@@ -66,7 +66,7 @@ public class UriEndPointDescriptionProviderFactoryBean extends SingletonFactoryB
   public void setPort(final int port) {
     _port = port;
   }
-  
+
   public int getPort() {
     return _port;
   }
@@ -74,7 +74,7 @@ public class UriEndPointDescriptionProviderFactoryBean extends SingletonFactoryB
   public void setSecurePort(final int securePort) {
     _securePort = securePort;
   }
-  
+
   public int getSecurePort() {
     return _securePort;
   }
@@ -101,10 +101,9 @@ public class UriEndPointDescriptionProviderFactoryBean extends SingletonFactoryB
         s_logger.debug("Publishing {}", uri);
       }
     }
-    
     return new UriEndPointDescriptionProvider(_uris);
   }
-  
+
   //-------------------------------------------------------------------------
   private Collection<String> getLocalNetworkAddresses() {
     final List<String> addresses = new LinkedList<String>();
@@ -119,7 +118,7 @@ public class UriEndPointDescriptionProviderFactoryBean extends SingletonFactoryB
     }
     return addresses;
   }
-  
+
   private void loadInterfaceAddress(final NetworkInterface iface, final Collection<String> addresses) {
     final Enumeration<NetworkInterface> ni = iface.getSubInterfaces();
     while (ni.hasMoreElements()) {

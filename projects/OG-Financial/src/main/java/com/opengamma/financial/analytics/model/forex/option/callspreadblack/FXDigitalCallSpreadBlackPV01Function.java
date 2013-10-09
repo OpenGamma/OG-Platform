@@ -58,6 +58,11 @@ public class FXDigitalCallSpreadBlackPV01Function extends FXDigitalCallSpreadBla
   }
 
   @Override
+  public void init(final FunctionCompilationContext context) {
+    ConfigDBCurveCalculationConfigSource.reinitOnChanges(context, this);
+  }
+
+  @Override
   protected Set<ComputedValue> getResult(final InstrumentDerivative fxDigital, final ForexOptionDataBundle<?> data, final ComputationTarget target,
       final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final ValueSpecification spec, final FunctionExecutionContext executionContext) {
     final ValueRequirement desiredValue = Iterables.getOnlyElement(desiredValues);
@@ -133,7 +138,6 @@ public class FXDigitalCallSpreadBlackPV01Function extends FXDigitalCallSpreadBla
         interpolatorName, leftExtrapolatorName, rightExtrapolatorName, currency, resultCurrency, target));
     return requirements;
   }
-
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
