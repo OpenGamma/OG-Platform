@@ -49,14 +49,7 @@ public final class DirectBeanFudgeBuilder<T extends Bean> implements FudgeBuilde
    * @return the bean builder, not null
    */
   public static <R extends Bean> DirectBeanFudgeBuilder<R> of(final Class<R> cls) {
-    MetaBean meta;
-    try {
-      meta = (MetaBean) cls.getMethod("meta").invoke(null);
-    } catch (RuntimeException ex) {
-      throw ex;
-    } catch (Exception ex) {
-      throw new RuntimeException(ex);
-    }
+    MetaBean meta = JodaBeanUtils.metaBean(cls);
     return new DirectBeanFudgeBuilder<R>(meta);
   }
 
