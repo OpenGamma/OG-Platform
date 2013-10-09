@@ -19,6 +19,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.PositionSource;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
@@ -56,12 +57,15 @@ import com.opengamma.util.ArgumentChecker;
   private final ConfigMaster _configMaster;
   private final ViewProcessor _viewProcessor;
   private final PositionSource _positionSource;
+  private final SecuritySource _securitySource;
   private final MarketDataSnapshotMaster _snapshotMaster;
 
   /* package */ ViewRunner(ConfigMaster configMaster,
                            ViewProcessor viewProcessor,
                            PositionSource positionSource,
+                           SecuritySource securitySource,
                            MarketDataSnapshotMaster snapshotMaster) {
+    _securitySource = securitySource;
     ArgumentChecker.notNull(configMaster, "configMaster");
     ArgumentChecker.notNull(viewProcessor, "viewProcessor");
     ArgumentChecker.notNull(positionSource, "positionSource");
@@ -99,6 +103,7 @@ import com.opengamma.util.ArgumentChecker;
       ViewRunner viewRunner = new ViewRunner(server.getConfigMaster(),
                                              server.getViewProcessor(),
                                              server.getPositionSource(),
+                                             server.getSecuritySource(),
                                              server.getMarketDataSnapshotMaster());
       CalculationResults results1 = viewRunner.run("AUD Swaps (3m / 6m basis) (1)",
                                                    "AUD Swaps (3m / 6m basis) (1)/2013-09-27T12:17:45.587Z",
@@ -133,7 +138,7 @@ import com.opengamma.util.ArgumentChecker;
 
     ViewProcessor viewProcessor = _viewProcessor;
     ViewClient viewClient = viewProcessor.createViewClient(UserPrincipal.getLocalUser());
-    Listener listener = new Listener(_positionSource, snapshotName);
+    Listener listener = new Listener(_positionSource, _securitySource, snapshotName);
     viewClient.setResultListener(listener);
     viewClient.setResultMode(ViewResultMode.FULL_ONLY);
     System.out.println("attaching to view process");
@@ -171,14 +176,17 @@ class Listener extends AbstractViewResultListener {
 
   private final AtomicReference<CompiledViewDefinition> _viewDef = new AtomicReference<>();
   private final PositionSource _positionSource;
+  private final SecuritySource _securitySource;
   private final CountDownLatch _latch = new CountDownLatch(1);
   private final String _snapshotName;
 
   private CalculationResults _results;
 
-  Listener(PositionSource positionSource, String snapshotName) {
+  Listener(PositionSource positionSource, SecuritySource securitySource, String snapshotName) {
     ArgumentChecker.notNull(positionSource, "positionSource");
+    ArgumentChecker.notNull(securitySource, "securitySource");
     ArgumentChecker.notEmpty(snapshotName, "snapshotName");
+    _securitySource = securitySource;
     _snapshotName = snapshotName;
     _positionSource = positionSource;
   }
@@ -213,8 +221,7 @@ class Listener extends AbstractViewResultListener {
   public void cycleCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
     try {
       System.out.println("cycle completed");
-      // TODO include view and snapshot metadata in the results
-      _results = CalculationResults.create(_viewDef.get(), _snapshotName, fullResult, _positionSource);
+      _results = CalculationResults.create(_viewDef.get(), _snapshotName, fullResult, _positionSource, _securitySource);
     } finally {
       _latch.countDown();
     }

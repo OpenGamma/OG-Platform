@@ -6,6 +6,7 @@
 package com.opengamma.integration.regression;
 
 
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
@@ -33,8 +35,11 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.PortfolioNode;
+import com.opengamma.core.position.Position;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.position.Trade;
+import com.opengamma.core.security.Security;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.target.ComputationTargetType;
@@ -58,7 +63,6 @@ public final class CalculationResults implements ImmutableBean {
 
   private static final Logger s_logger = LoggerFactory.getLogger(CalculationResults.class);
 
-  // TODO store the new UniqueId as well as the original? for generating a report will probably need security/trade names
   @PropertyDefinition(validate = "notNull")
   private final Map<CalculationResultKey, CalculatedValue> _values;
 
@@ -72,7 +76,8 @@ public final class CalculationResults implements ImmutableBean {
   public static CalculationResults create(CompiledViewDefinition viewDef,
                                           String snapshotName,
                                           ViewComputationResultModel results,
-                                          PositionSource positionSource) {
+                                          PositionSource positionSource,
+                                          SecuritySource securitySource) {
     ArgumentChecker.notNull(viewDef, "viewDef");
     ArgumentChecker.notNull(results, "results");
     List<ViewResultEntry> allResults = results.getAllResults();
@@ -87,11 +92,41 @@ public final class CalculationResults implements ImmutableBean {
       CompiledViewCalculationConfiguration calcConfig = viewDef.getCompiledCalculationConfiguration(calcConfigName);
       Set<ValueRequirement> valueReqs = calcConfig.getTerminalOutputSpecifications().get(valueSpec);
       Set<CalculationResultKey> keys = getResultKey(entry, targetSpec, nodesToPaths, positionSource, valueReqs);
+      String targetType = valueSpec.getTargetSpecification().getType().getName();
+      String targetName = getTargetName(valueSpec.getTargetSpecification().getUniqueId(),
+                                        valueSpec.getTargetSpecification().getType(),
+                                        positionSource,
+                                        securitySource,
+                                        nodesToPaths);
       for (CalculationResultKey key : keys) {
-        valueMap.put(key, CalculatedValue.of(computedValue.getValue(), valueSpec.getProperties()));
+        valueMap.put(key, CalculatedValue.of(computedValue.getValue(), valueSpec.getProperties(), targetType, targetName));
       }
     }
     return new CalculationResults(valueMap, viewDef.getViewDefinition().getName(), snapshotName);
+  }
+
+  private static String getTargetName(UniqueId targetId,
+                                      ComputationTargetType targetType,
+                                      PositionSource positionSource,
+                                      SecuritySource securitySource,
+                                      Map<UniqueId, List<String>> nodesToPaths) {
+    Security security;
+    BigDecimal quantity;
+    if (targetType.equals(ComputationTargetType.POSITION)) {
+      Position position = positionSource.getPosition(targetId);
+      security = position.getSecurityLink().resolve(securitySource);
+      quantity = position.getQuantity();
+    } else if (targetType.equals(ComputationTargetType.TRADE)) {
+      Trade trade = positionSource.getTrade(targetId);
+      security = trade.getSecurityLink().resolve(securitySource);
+      quantity = trade.getQuantity();
+    } else if (targetType.equals(ComputationTargetType.PORTFOLIO_NODE)) {
+      List<String> path = nodesToPaths.get(targetId);
+      return StringUtils.join(path, " / ");
+    } else {
+      return targetId.toString();
+    }
+    return quantity + " x " + security.getName();
   }
 
   // TODO use ValueRequirement for the key?

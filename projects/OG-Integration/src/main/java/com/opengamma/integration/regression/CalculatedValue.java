@@ -46,8 +46,14 @@ public final class CalculatedValue implements ImmutableBean {
   @PropertyDefinition(validate = "notNull")
   private final ValueProperties _specificationProperties;
 
-  public static CalculatedValue of(Object value, ValueProperties specificationProperties) {
-    return new CalculatedValue(value, removeFunctionIds(removeProperties(specificationProperties)));
+  @PropertyDefinition(validate = "notNull")
+  private final String _targetType;
+
+  @PropertyDefinition
+  private final String _targetName;
+
+  public static CalculatedValue of(Object value, ValueProperties specProps, String targetType, String targetName) {
+    return new CalculatedValue(value, removeFunctionIds(removeProperties(specProps)), targetType, targetName);
   }
 
   /**
@@ -110,11 +116,16 @@ public final class CalculatedValue implements ImmutableBean {
 
   private CalculatedValue(
       Object value,
-      ValueProperties specificationProperties) {
+      ValueProperties specificationProperties,
+      String targetType,
+      String targetName) {
     JodaBeanUtils.notNull(value, "value");
     JodaBeanUtils.notNull(specificationProperties, "specificationProperties");
+    JodaBeanUtils.notNull(targetType, "targetType");
     this._value = value;
     this._specificationProperties = specificationProperties;
+    this._targetType = targetType;
+    this._targetName = targetName;
   }
 
   @Override
@@ -134,7 +145,7 @@ public final class CalculatedValue implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the value.
+   * Gets the calculated value.
    * @return the value of the property, not null
    */
   public Object getValue() {
@@ -143,11 +154,29 @@ public final class CalculatedValue implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the specificationProperties.
+   * Gets the properties of the value's {@code ValueSpecification}.
    * @return the value of the property, not null
    */
   public ValueProperties getSpecificationProperties() {
     return _specificationProperties;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the targetType.
+   * @return the value of the property, not null
+   */
+  public String getTargetType() {
+    return _targetType;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the targetName.
+   * @return the value of the property
+   */
+  public String getTargetName() {
+    return _targetName;
   }
 
   //-----------------------------------------------------------------------
@@ -172,7 +201,9 @@ public final class CalculatedValue implements ImmutableBean {
     if (obj != null && obj.getClass() == this.getClass()) {
       CalculatedValue other = (CalculatedValue) obj;
       return JodaBeanUtils.equal(getValue(), other.getValue()) &&
-          JodaBeanUtils.equal(getSpecificationProperties(), other.getSpecificationProperties());
+          JodaBeanUtils.equal(getSpecificationProperties(), other.getSpecificationProperties()) &&
+          JodaBeanUtils.equal(getTargetType(), other.getTargetType()) &&
+          JodaBeanUtils.equal(getTargetName(), other.getTargetName());
     }
     return false;
   }
@@ -182,15 +213,19 @@ public final class CalculatedValue implements ImmutableBean {
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getValue());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSpecificationProperties());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTargetType());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTargetName());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(96);
+    StringBuilder buf = new StringBuilder(160);
     buf.append("CalculatedValue{");
     buf.append("value").append('=').append(getValue()).append(',').append(' ');
-    buf.append("specificationProperties").append('=').append(getSpecificationProperties());
+    buf.append("specificationProperties").append('=').append(getSpecificationProperties()).append(',').append(' ');
+    buf.append("targetType").append('=').append(getTargetType()).append(',').append(' ');
+    buf.append("targetName").append('=').append(getTargetName());
     buf.append('}');
     return buf.toString();
   }
@@ -216,12 +251,24 @@ public final class CalculatedValue implements ImmutableBean {
     private final MetaProperty<ValueProperties> _specificationProperties = DirectMetaProperty.ofImmutable(
         this, "specificationProperties", CalculatedValue.class, ValueProperties.class);
     /**
+     * The meta-property for the {@code targetType} property.
+     */
+    private final MetaProperty<String> _targetType = DirectMetaProperty.ofImmutable(
+        this, "targetType", CalculatedValue.class, String.class);
+    /**
+     * The meta-property for the {@code targetName} property.
+     */
+    private final MetaProperty<String> _targetName = DirectMetaProperty.ofImmutable(
+        this, "targetName", CalculatedValue.class, String.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "value",
-        "specificationProperties");
+        "specificationProperties",
+        "targetType",
+        "targetName");
 
     /**
      * Restricted constructor.
@@ -236,6 +283,10 @@ public final class CalculatedValue implements ImmutableBean {
           return _value;
         case -2128969066:  // specificationProperties
           return _specificationProperties;
+        case 486622315:  // targetType
+          return _targetType;
+        case 486420412:  // targetName
+          return _targetName;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -272,6 +323,22 @@ public final class CalculatedValue implements ImmutableBean {
       return _specificationProperties;
     }
 
+    /**
+     * The meta-property for the {@code targetType} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<String> targetType() {
+      return _targetType;
+    }
+
+    /**
+     * The meta-property for the {@code targetName} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<String> targetName() {
+      return _targetName;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -280,6 +347,10 @@ public final class CalculatedValue implements ImmutableBean {
           return ((CalculatedValue) bean).getValue();
         case -2128969066:  // specificationProperties
           return ((CalculatedValue) bean).getSpecificationProperties();
+        case 486622315:  // targetType
+          return ((CalculatedValue) bean).getTargetType();
+        case 486420412:  // targetName
+          return ((CalculatedValue) bean).getTargetName();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -303,6 +374,8 @@ public final class CalculatedValue implements ImmutableBean {
 
     private Object _value;
     private ValueProperties _specificationProperties;
+    private String _targetType;
+    private String _targetName;
 
     /**
      * Restricted constructor.
@@ -319,6 +392,8 @@ public final class CalculatedValue implements ImmutableBean {
       super(CalculatedValue.Meta.INSTANCE);
       this._value = beanToCopy.getValue();
       this._specificationProperties = beanToCopy.getSpecificationProperties();
+      this._targetType = beanToCopy.getTargetType();
+      this._targetName = beanToCopy.getTargetName();
     }
 
     //-----------------------------------------------------------------------
@@ -331,6 +406,12 @@ public final class CalculatedValue implements ImmutableBean {
         case -2128969066:  // specificationProperties
           this._specificationProperties = (ValueProperties) newValue;
           break;
+        case 486622315:  // targetType
+          this._targetType = (String) newValue;
+          break;
+        case 486420412:  // targetName
+          this._targetName = (String) newValue;
+          break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -341,7 +422,9 @@ public final class CalculatedValue implements ImmutableBean {
     public CalculatedValue build() {
       return new CalculatedValue(
           _value,
-          _specificationProperties);
+          _specificationProperties,
+          _targetType,
+          _targetName);
     }
 
     //-----------------------------------------------------------------------
@@ -367,13 +450,36 @@ public final class CalculatedValue implements ImmutableBean {
       return this;
     }
 
+    /**
+     * Sets the {@code targetType} property in the builder.
+     * @param targetType  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder targetType(String targetType) {
+      JodaBeanUtils.notNull(targetType, "targetType");
+      this._targetType = targetType;
+      return this;
+    }
+
+    /**
+     * Sets the {@code targetName} property in the builder.
+     * @param targetName  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder targetName(String targetName) {
+      this._targetName = targetName;
+      return this;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(96);
+      StringBuilder buf = new StringBuilder(160);
       buf.append("CalculatedValue.Builder{");
       buf.append("value").append('=').append(_value).append(',').append(' ');
-      buf.append("specificationProperties").append('=').append(_specificationProperties);
+      buf.append("specificationProperties").append('=').append(_specificationProperties).append(',').append(' ');
+      buf.append("targetType").append('=').append(_targetType).append(',').append(' ');
+      buf.append("targetName").append('=').append(_targetName);
       buf.append('}');
       return buf.toString();
     }

@@ -141,6 +141,7 @@ public class ViewRegressionTest {
       ViewRunner viewRunner = new ViewRunner(server.getConfigMaster(),
                                              server.getViewProcessor(),
                                              server.getPositionSource(),
+                                             server.getSecuritySource(),
                                              server.getMarketDataSnapshotMaster());
       for (Pair<String, String> names : viewAndSnapshotNames) {
         String viewName = names.getFirst();
