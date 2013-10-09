@@ -13,7 +13,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
- *  Class describing a OIS-like floating coupon.
+ *  Class describing a ON compounded floating coupon (Brazilian OverNight like coupon).
  *
  */
 public class CouponONCompounded extends Coupon {

@@ -118,6 +118,7 @@ public class MulticurveProviderDiscountDataSets {
   private static final IborIndex CADCDOR3M = MASTER_IBOR_INDEX.getIndex("CADCDOR3M");
   private static final IndexON EONIA = IndexONMaster.getInstance().getIndex("EONIA");
   private static final IndexON FEDFUND = IndexONMaster.getInstance().getIndex("FED FUND");
+  private static final IndexON BRAZIL_CDI = IndexONMaster.getInstance().getIndex("CDI");
 
   private static final String NAME_EUR_PRICE_INDEX = "Euro HICP x";
   private static final IndexPrice PRICE_INDEX_EUR = new IndexPrice(NAME_EUR_PRICE_INDEX, Currency.EUR);
@@ -430,7 +431,7 @@ public class MulticurveProviderDiscountDataSets {
   }
 
   public static IndexON[] getIndexesON() {
-    return new IndexON[] {FEDFUND, EONIA };
+    return new IndexON[] {FEDFUND, EONIA, BRAZIL_CDI };
   }
 
   public static String[] getIssuerNames() {
