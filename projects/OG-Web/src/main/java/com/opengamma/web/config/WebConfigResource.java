@@ -73,7 +73,7 @@ public class WebConfigResource extends AbstractWebConfigResource {
       out.put("configJSON", jsonConfig);
     }
     out.put("configXML", StringEscapeUtils.escapeJava(createXML(doc)));
-    out.put("type", doc.getType().getName());
+    out.put("type", doc.getType().getSimpleName());
     final String json = getFreemarker().build(JSON_DIR + "config.ftl", out);
     return Response.ok(json).tag(etag).build();
   }
