@@ -83,7 +83,7 @@ public abstract class CombinedMaster<D extends AbstractDocument, M extends Abstr
           setMasterScheme(scheme, master);
           return result;
         } catch (IllegalArgumentException e) {
-          s_logger.info("Illegal argument exception from session master", e);
+          s_logger.debug("Illegal argument exception from master", e);
         }
       }
       throw new IllegalArgumentException("No masters accepted request on scheme " + scheme);
