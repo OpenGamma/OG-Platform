@@ -14,11 +14,6 @@ import org.threeten.bp.Period;
 
 import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.StubType;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.AnalyticCDSPricer;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalyticFactory;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurve;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
 
 /**
  * 
@@ -97,7 +92,7 @@ public class AnalyticCDSPricerTest {
     double p4 = 0;
     for (int i = 0; i < benchmark; i++) {
       final CDSAnalytic cds = new CDSAnalytic(today, stepin, valueDate, startDate, endDate2, true, Period.ofMonths(3), StubType.FRONTSHORT, false, 0.4);
-      p4 += PRICER.pv(cds1, yieldCurve, creditCurve, fracSpred);
+      p4 += PRICER.pv(cds, yieldCurve, creditCurve, fracSpred);
     }
     System.out.println(p3);
     time = (System.nanoTime() - timer) / 1e6;

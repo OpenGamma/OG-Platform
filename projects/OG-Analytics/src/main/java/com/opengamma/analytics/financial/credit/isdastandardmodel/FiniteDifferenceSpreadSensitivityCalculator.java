@@ -440,15 +440,24 @@ public class FiniteDifferenceSpreadSensitivityCalculator {
     final int n = bucketCDSs.length;
 
     final double[] impSpreads = new double[n];
+    final double[] t = new double[n];
     for (int i = 0; i < n; i++) {
       impSpreads[i] = _pricer.parSpread(bucketCDSs[i], yieldCurve, creditCurve);
+      t[i] = bucketCDSs[i].getProtectionEnd();
+      if (i > 0) {
+        ArgumentChecker.isTrue(t[i] > t[i - 1], "buckets must be assending");
+      }
+    }
+    int index = Arrays.binarySearch(t, cds.getProtectionEnd());
+    if (index < 0) {
+      index = -1 - index;
     }
 
     //build a new curve from the implied spreads
     final ISDACompliantCreditCurve baseCurve = _curveBuilder.calibrateCreditCurve(bucketCDSs, impSpreads, yieldCurve);
     final double basePrice = _pricer.pv(cds, yieldCurve, baseCurve, cdsCoupon);
     final double[] res = new double[n];
-    for (int i = 0; i < n; i++) {
+    for (int i = 0; i <= index; i++) { //don't bother calculating where there is no sensitivity 
       final double[] bumpedSpreads = makeBumpedSpreads(impSpreads, fracBumpAmount, BumpType.ADDITIVE, i);
       final ISDACompliantCreditCurve bumpedCurve = _curveBuilder.calibrateCreditCurve(bucketCDSs, bumpedSpreads, yieldCurve);
       final double price = _pricer.pv(cds, yieldCurve, bumpedCurve, cdsCoupon);

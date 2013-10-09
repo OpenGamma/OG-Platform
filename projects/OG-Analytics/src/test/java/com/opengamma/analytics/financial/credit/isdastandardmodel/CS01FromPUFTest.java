@@ -8,11 +8,6 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.Month;
 import org.threeten.bp.Period;
 
-import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalyticFactory;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.PointsUpFront;
-
 public class CS01FromPUFTest extends ISDABaseTest {
 
   protected static final double NOTIONAL = 1e6;
@@ -78,6 +73,33 @@ public class CS01FromPUFTest extends ISDABaseTest {
       cs01[i] = CS01_CAL.bucketedCS01FromPUF(cds, new PointsUpFront(COUPON * ONE_BP, PUF[i] * ONE_PC), YIELD_CURVE, buckets, ONE_BP);
     }
 
+    print(cs01, scale);
+  }
+
+  @Test(enabled = false)
+  public void bucketedCS01Test2() {
+
+    final String[] matString = new String[] {"20/09/2013", "20/12/2013", "20/03/2014", "20/06/2014", "20/09/2014", "20/12/2014", "20/03/2015", "20/06/2015", "20/09/2015", "20/12/2015", "20/03/2016",
+      "20/06/2016", "20/09/2016", "20/12/2016", "20/03/2017", "20/06/2017", "20/09/2017", "20/12/2017", "20/03/2018", "20/06/2018", "20/09/2018", "20/12/2018", "20/03/2019", "20/06/2019",
+      "20/09/2019", "20/12/2019", "20/03/2020", "20/06/2020", "20/09/2020", "20/12/2020", "20/03/2021", "20/06/2021", "20/09/2021", "20/12/2021", "20/03/2022", "20/06/2022", "20/09/2022",
+      "20/12/2022", "20/03/2023", "20/06/2023", "20/09/2023" };
+    final LocalDate[] mats = parseDateStrings(matString);
+    final LocalDate tradeDate = LocalDate.of(2013, Month.SEPTEMBER, 14); //Today 
+    final LocalDate accStart = LocalDate.of(2013, Month.JUNE, 20);
+    final double notional = 1e6;
+    final double scale = notional * ONE_BP;
+    final double[] puf = new double[] {3.53, 6.25, 7.28, 12.28, 15, 18.62, 20.32, 22.52, 26.55, 28.67, 27.26, 30.26, 29.84, 31.56, 30.94, 31.94, 33.6, 33.94, 33.41, 33.65, 35.83, 34.52, 36.58, 34.61,
+      35.06, 36.36, 37.47, 36.97, 37.91, 37.33, 36.88, 37.03, 37.58, 38.96, 38.78, 39.71, 38.87, 38.8, 38.68, 38.17, 38.3 };
+    final double coupon = 0.05;
+    final CDSAnalyticFactory factory = new CDSAnalyticFactory(RECOVERY_RATE);
+
+    final CDSAnalytic[] cds = factory.makeCDS(tradeDate, accStart, mats);
+    final CDSAnalytic[] buckets = factory.makeIMMCDS(tradeDate, BUCKETS);
+    final int n = cds.length;
+    final double[][] cs01 = new double[n][];
+    for (int i = 0; i < n; i++) {
+      cs01[i] = CS01_CAL.bucketedCS01FromPUF(cds[i], new PointsUpFront(coupon, puf[i] * ONE_PC), YIELD_CURVE, buckets, ONE_BP);
+    }
     print(cs01, scale);
   }
 

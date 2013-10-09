@@ -162,7 +162,23 @@ public class SimpleCreditCurveBuilder implements ISDACompliantCreditCurveBuilder
   //TODO
   @Override
   public ISDACompliantCreditCurve calibrateCreditCurve(final CDSAnalytic calibrationCDS, final CDSQuoteConvention marketQuote, final ISDACompliantYieldCurve yieldCurve) {
-    throw new NotImplementedException();
+    double puf;
+    double coupon;
+    if (marketQuote instanceof ParSpread) {
+      puf = 0.0;
+      coupon = marketQuote.getCoupon();
+    } else if (marketQuote instanceof QuotedSpread) {
+      puf = 0.0;
+      coupon = ((QuotedSpread) marketQuote).getQuotedSpread();
+    } else if (marketQuote instanceof PointsUpFront) {
+      final PointsUpFront temp = (PointsUpFront) marketQuote;
+      puf = temp.getPointsUpFront();
+      coupon = temp.getCoupon();
+    } else {
+      throw new IllegalArgumentException("Unknown CDSQuoteConvention type " + marketQuote.getClass());
+    }
+
+    return calibrateCreditCurve(new CDSAnalytic[] {calibrationCDS }, new double[] {coupon }, yieldCurve, new double[] {puf });
   }
 
   @Override
