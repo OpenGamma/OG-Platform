@@ -6,11 +6,10 @@
 package com.opengamma.util;
 
 import java.lang.reflect.Method;
-import java.security.AccessController;
-import java.security.PrivilegedActionException;
-import java.security.PrivilegedExceptionAction;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
+import com.opengamma.OpenGammaRuntimeException;
 
 /**
  * Class utilities
@@ -61,10 +60,9 @@ public final class ClassUtils {
       if (loader == null) {
         clazz = Class.forName(className);
       } else {
-        clazz = loader.loadClass(className);
+        clazz = Class.forName(className, true, loader);
       }
       s_classCache.putIfAbsent(className, clazz);
-      initClass(clazz);
     }
     return clazz;
   }
@@ -81,46 +79,17 @@ public final class ClassUtils {
    * @param clazz  the class to initialize, not null
    * @return the input class, not null
    */
-  @SuppressWarnings("restriction")
   public static <T> Class<T> initClass(Class<T> clazz) {
-    UNSAFE.ensureClassInitialized(clazz);  // CSIGNORE
+    String className = clazz.getName();
+    if (s_classCache.containsKey(className) == false) {
+      try {
+        Class.forName(className, true, clazz.getClassLoader());
+      } catch (ClassNotFoundException ex) {
+        throw new OpenGammaRuntimeException(ex.getMessage(), ex);
+      }
+      s_classCache.putIfAbsent(className, clazz);
+    }
     return clazz;
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * The unsafe object.
-   */
-  @SuppressWarnings("restriction")
-  private static final sun.misc.Unsafe UNSAFE = findUnsafe();
-  /**
-   * Obtains an {@code Unsafe} object.
-   * @return unsafe
-   */
-  @SuppressWarnings("restriction")
-  private static sun.misc.Unsafe findUnsafe() {
-    try {
-      return sun.misc.Unsafe.getUnsafe();
-    } catch (SecurityException ignored) {
-      // ignore
-    }
-    try {
-      return AccessController.doPrivileged(
-          new PrivilegedExceptionAction<sun.misc.Unsafe>() {
-            public sun.misc.Unsafe run() throws Exception {
-              Class<sun.misc.Unsafe> unsafeClass = sun.misc.Unsafe.class;
-              for (java.lang.reflect.Field f : unsafeClass.getDeclaredFields()) {
-                if (unsafeClass.isAssignableFrom(f.getType())) {
-                  f.setAccessible(true);
-                  return unsafeClass.cast(f.get(null));
-                }
-              }
-              throw new NoSuchFieldError("Unable to find Unsafe object");
-            }
-          });
-    } catch (PrivilegedActionException ex) {
-      throw new RuntimeException("Unable to find Unsafe object", ex.getCause());
-    }
   }
 
 }
