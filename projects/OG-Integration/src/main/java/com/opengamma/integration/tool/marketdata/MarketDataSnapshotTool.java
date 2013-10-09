@@ -8,13 +8,9 @@ package com.opengamma.integration.tool.marketdata;
 import static java.lang.String.format;
 import static org.threeten.bp.temporal.ChronoUnit.SECONDS;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.EnumSet;
+import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -26,39 +22,14 @@ import org.threeten.bp.LocalTime;
 import org.threeten.bp.ZonedDateTime;
 import org.threeten.bp.format.DateTimeFormatter;
 
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Sets;
-import com.opengamma.component.tool.AbstractComponentTool;
 import com.opengamma.component.tool.AbstractTool;
-import com.opengamma.core.config.impl.ConfigItem;
-import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
-import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.engine.marketdata.snapshot.MarketDataSnapshotter;
 import com.opengamma.engine.marketdata.spec.LatestHistoricalMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
-import com.opengamma.engine.resource.EngineResourceReference;
-import com.opengamma.engine.view.ViewComputationResultModel;
-import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.engine.view.ViewDeltaResultModel;
-import com.opengamma.engine.view.ViewProcessor;
-import com.opengamma.engine.view.client.ViewClient;
-import com.opengamma.engine.view.compilation.CompiledViewDefinition;
-import com.opengamma.engine.view.cycle.ViewCycle;
-import com.opengamma.engine.view.cycle.ViewCycleMetadata;
-import com.opengamma.engine.view.execution.ExecutionOptions;
-import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
-import com.opengamma.engine.view.execution.ViewExecutionFlags;
-import com.opengamma.engine.view.execution.ViewExecutionOptions;
-import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.financial.tool.ToolContext;
+import com.opengamma.financial.tool.marketdata.MarketDataSnapshotSaver;
 import com.opengamma.financial.view.rest.RemoteViewProcessor;
-import com.opengamma.livedata.UserPrincipal;
-import com.opengamma.master.config.ConfigDocument;
-import com.opengamma.master.config.ConfigMaster;
-import com.opengamma.master.config.ConfigSearchRequest;
-import com.opengamma.master.config.impl.ConfigSearchIterator;
-import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.scripts.Scriptable;
 
@@ -111,9 +82,6 @@ public class MarketDataSnapshotTool extends AbstractTool {
     final boolean historicalInput = getCommandLine().hasOption(HISTORICAL_OPTION);
 
     final MarketDataSpecification marketDataSpecification = historicalInput ? new LatestHistoricalMarketDataSpecification() : MarketData.live();
-    final ViewExecutionOptions viewExecutionOptions = ExecutionOptions.singleCycle(valuationInstant, marketDataSpecification, EnumSet.of(ViewExecutionFlags.AWAIT_MARKET_DATA));
-
-
     final RemoteViewProcessor viewProcessor = (RemoteViewProcessor) s_context.getViewProcessor();
     if (viewProcessor == null) {
       s_logger.warn("No view processors found at {}", s_context);
@@ -126,26 +94,12 @@ public class MarketDataSnapshotTool extends AbstractTool {
     }
     final MarketDataSnapshotter marketDataSnapshotter = viewProcessor.getMarketDataSnapshotter();
     
-    Set<ConfigDocument> viewDefinitions = Sets.newHashSet();
-
-    ConfigMaster configMaster = s_context.getConfigMaster();
-    final ConfigSearchRequest<ViewDefinition> request = new ConfigSearchRequest<>(ViewDefinition.class);
-    request.setName(viewDefinitionName);
-    Iterables.addAll(viewDefinitions, ConfigSearchIterator.iterable(configMaster, request));
-    
-    if (viewDefinitions.isEmpty()) {
-      endWithError("Unable to resolve any view definitions with name '%s'", viewDefinitionName);
+    MarketDataSnapshotSaver snapshotSaver = MarketDataSnapshotSaver.of(marketDataSnapshotter, viewProcessor, s_context.getConfigMaster(), marketDataSnapshotMaster);
+    try {
+      snapshotSaver.createSnapshot(viewDefinitionName + "/" + valuationInstant, viewDefinitionName, valuationInstant, Collections.singletonList(marketDataSpecification));
+    } catch (Exception ex) {
+      endWithError(ex.getMessage());
     }
-    
-    if (viewDefinitions.size() > 1) {
-      endWithError("Multiple view definitions resolved when searching for string '%s': %s", viewDefinitionName, viewDefinitions);
-    }
-    ConfigItem<?> value = Iterables.get(viewDefinitions, 0).getValue();
-    StructuredMarketDataSnapshot snapshot = makeSnapshot(marketDataSnapshotter, viewProcessor, (ViewDefinition) value.getValue(), viewExecutionOptions);
-    
-    final ManageableMarketDataSnapshot manageableMarketDataSnapshot = new ManageableMarketDataSnapshot(snapshot);
-    manageableMarketDataSnapshot.setName(snapshot.getBasisViewName() + "/" + valuationInstant);
-    marketDataSnapshotMaster.add(new MarketDataSnapshotDocument(manageableMarketDataSnapshot));
   }
 
   private void endWithError(String message, Object... messageArgs) {
@@ -180,76 +134,6 @@ public class MarketDataSnapshotTool extends AbstractTool {
 
   private static Option createHistoricalOption() {
     return new Option(null, HISTORICAL_OPTION, false, "if true use data from hts else use live data");
-  }
-
-  //-------------------------------------------------------------------------
-  private static StructuredMarketDataSnapshot makeSnapshot(final MarketDataSnapshotter marketDataSnapshotter,
-      final ViewProcessor viewProcessor, final ViewDefinition viewDefinition, final ViewExecutionOptions viewExecutionOptions) throws InterruptedException {
-    final ViewClient vc = viewProcessor.createViewClient(UserPrincipal.getLocalUser());
-    vc.setResultListener(new ViewResultListener() {
-      @Override
-      public UserPrincipal getUser() {
-        String ipAddress;
-        try {
-          ipAddress = InetAddress.getLocalHost().getHostAddress();
-        } catch (final UnknownHostException e) {
-          ipAddress = "unknown";
-        }
-        return new UserPrincipal("MarketDataSnapshotterTool", ipAddress);
-      }
-
-      @Override
-      public void viewDefinitionCompiled(final CompiledViewDefinition compiledViewDefinition, final boolean hasMarketDataPermissions) {
-      }
-
-      @Override
-      public void viewDefinitionCompilationFailed(final Instant valuationTime, final Exception exception) {
-        s_logger.error(exception.getMessage() + "\n\n" + (exception.getCause() == null ? "" : exception.getCause().getMessage()));
-      }
-
-      @Override
-      public void cycleStarted(final ViewCycleMetadata cycleMetadata) {
-      }
-
-      @Override
-      public void cycleFragmentCompleted(final ViewComputationResultModel fullFragment, final ViewDeltaResultModel deltaFragment) {
-      }
-
-      @Override
-      public void cycleCompleted(final ViewComputationResultModel fullResult, final ViewDeltaResultModel deltaResult) {
-        s_logger.info("cycle completed");
-      }
-
-      @Override
-      public void cycleExecutionFailed(final ViewCycleExecutionOptions executionOptions, final Exception exception) {
-        s_logger.error(exception.getMessage() + "\n\n" + (exception.getCause() == null ? "" : exception.getCause().getMessage()));
-      }
-
-      @Override
-      public void processCompleted() {
-      }
-
-      @Override
-      public void processTerminated(final boolean executionInterrupted) {
-      }
-
-      @Override
-      public void clientShutdown(final Exception e) {
-      }
-    });
-    vc.setViewCycleAccessSupported(true);
-    vc.attachToViewProcess(viewDefinition.getUniqueId(), viewExecutionOptions);
-
-    vc.waitForCompletion();
-    vc.pause();
-    EngineResourceReference<? extends ViewCycle> cycleReference = null;
-    try {
-      cycleReference = vc.createLatestCycleReference();
-      return marketDataSnapshotter.createSnapshot(vc, cycleReference.get());
-    } finally {
-      cycleReference.release();
-      vc.shutdown();
-    }
   }
 
 }

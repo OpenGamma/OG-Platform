@@ -25,11 +25,14 @@ import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
+import com.opengamma.engine.marketdata.live.LiveMarketDataProviderFactory;
 import com.opengamma.engine.view.ViewProcessor;
+import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
+
 import org.joda.beans.Bean;
 
 /**
@@ -37,6 +40,11 @@ import org.joda.beans.Bean;
  */
 @BeanDefinition
 public class WebMarketDataSnapshotData extends DirectBean {
+  /**
+   * For obtaining the live market data provider names. Either this or marketDataSpecificationRepository must be set.
+   */
+  @PropertyDefinition
+  private LiveMarketDataProviderFactory _liveMarketDataProviderFactory;
   /**
    * For looking up market data provider specifications by name. Either this or liveMarketDataProviderFactory must be set.
    * 
@@ -63,7 +71,7 @@ public class WebMarketDataSnapshotData extends DirectBean {
   /**
    * The computation target resolver.
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   private ComputationTargetResolver _computationTargetResolver;
   /**
    * The hts source, may be null
@@ -95,6 +103,11 @@ public class WebMarketDataSnapshotData extends DirectBean {
    */
   @PropertyDefinition
   private ConfigSource _configSource;
+  /**
+   * The volatility (for market data snapshots).
+   */
+  @PropertyDefinition
+  private VolatilityCubeDefinitionSource _volatilityCubeDefinitionSource;
   /**
    * The versioned market data snapshot.
    */
@@ -145,6 +158,31 @@ public class WebMarketDataSnapshotData extends DirectBean {
   @Override
   public WebMarketDataSnapshotData.Meta metaBean() {
     return WebMarketDataSnapshotData.Meta.INSTANCE;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets for obtaining the live market data provider names. Either this or marketDataSpecificationRepository must be set.
+   * @return the value of the property
+   */
+  public LiveMarketDataProviderFactory getLiveMarketDataProviderFactory() {
+    return _liveMarketDataProviderFactory;
+  }
+
+  /**
+   * Sets for obtaining the live market data provider names. Either this or marketDataSpecificationRepository must be set.
+   * @param liveMarketDataProviderFactory  the new value of the property
+   */
+  public void setLiveMarketDataProviderFactory(LiveMarketDataProviderFactory liveMarketDataProviderFactory) {
+    this._liveMarketDataProviderFactory = liveMarketDataProviderFactory;
+  }
+
+  /**
+   * Gets the the {@code liveMarketDataProviderFactory} property.
+   * @return the property, not null
+   */
+  public final Property<LiveMarketDataProviderFactory> liveMarketDataProviderFactory() {
+    return metaBean().liveMarketDataProviderFactory().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -259,7 +297,7 @@ public class WebMarketDataSnapshotData extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the computation target resolver.
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   public ComputationTargetResolver getComputationTargetResolver() {
     return _computationTargetResolver;
@@ -267,10 +305,9 @@ public class WebMarketDataSnapshotData extends DirectBean {
 
   /**
    * Sets the computation target resolver.
-   * @param computationTargetResolver  the new value of the property, not null
+   * @param computationTargetResolver  the new value of the property
    */
   public void setComputationTargetResolver(ComputationTargetResolver computationTargetResolver) {
-    JodaBeanUtils.notNull(computationTargetResolver, "computationTargetResolver");
     this._computationTargetResolver = computationTargetResolver;
   }
 
@@ -434,6 +471,31 @@ public class WebMarketDataSnapshotData extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the volatility (for market data snapshots).
+   * @return the value of the property
+   */
+  public VolatilityCubeDefinitionSource getVolatilityCubeDefinitionSource() {
+    return _volatilityCubeDefinitionSource;
+  }
+
+  /**
+   * Sets the volatility (for market data snapshots).
+   * @param volatilityCubeDefinitionSource  the new value of the property
+   */
+  public void setVolatilityCubeDefinitionSource(VolatilityCubeDefinitionSource volatilityCubeDefinitionSource) {
+    this._volatilityCubeDefinitionSource = volatilityCubeDefinitionSource;
+  }
+
+  /**
+   * Gets the the {@code volatilityCubeDefinitionSource} property.
+   * @return the property, not null
+   */
+  public final Property<VolatilityCubeDefinitionSource> volatilityCubeDefinitionSource() {
+    return metaBean().volatilityCubeDefinitionSource().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the versioned market data snapshot.
    * @return the value of the property
    */
@@ -480,7 +542,8 @@ public class WebMarketDataSnapshotData extends DirectBean {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       WebMarketDataSnapshotData other = (WebMarketDataSnapshotData) obj;
-      return JodaBeanUtils.equal(getMarketDataSpecificationRepository(), other.getMarketDataSpecificationRepository()) &&
+      return JodaBeanUtils.equal(getLiveMarketDataProviderFactory(), other.getLiveMarketDataProviderFactory()) &&
+          JodaBeanUtils.equal(getMarketDataSpecificationRepository(), other.getMarketDataSpecificationRepository()) &&
           JodaBeanUtils.equal(getMarketDataSnapshotMaster(), other.getMarketDataSnapshotMaster()) &&
           JodaBeanUtils.equal(getConfigMaster(), other.getConfigMaster()) &&
           JodaBeanUtils.equal(getViewProcessor(), other.getViewProcessor()) &&
@@ -491,6 +554,7 @@ public class WebMarketDataSnapshotData extends DirectBean {
           JodaBeanUtils.equal(getUriVersionId(), other.getUriVersionId()) &&
           JodaBeanUtils.equal(getSnapshot(), other.getSnapshot()) &&
           JodaBeanUtils.equal(getConfigSource(), other.getConfigSource()) &&
+          JodaBeanUtils.equal(getVolatilityCubeDefinitionSource(), other.getVolatilityCubeDefinitionSource()) &&
           JodaBeanUtils.equal(getVersioned(), other.getVersioned());
     }
     return false;
@@ -499,6 +563,7 @@ public class WebMarketDataSnapshotData extends DirectBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getLiveMarketDataProviderFactory());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSpecificationRepository());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSnapshotMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getConfigMaster());
@@ -510,13 +575,14 @@ public class WebMarketDataSnapshotData extends DirectBean {
     hash += hash * 31 + JodaBeanUtils.hashCode(getUriVersionId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSnapshot());
     hash += hash * 31 + JodaBeanUtils.hashCode(getConfigSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getVolatilityCubeDefinitionSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getVersioned());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(416);
+    StringBuilder buf = new StringBuilder(480);
     buf.append("WebMarketDataSnapshotData{");
     int len = buf.length();
     toString(buf);
@@ -528,6 +594,7 @@ public class WebMarketDataSnapshotData extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
+    buf.append("liveMarketDataProviderFactory").append('=').append(getLiveMarketDataProviderFactory()).append(',').append(' ');
     buf.append("marketDataSpecificationRepository").append('=').append(getMarketDataSpecificationRepository()).append(',').append(' ');
     buf.append("marketDataSnapshotMaster").append('=').append(getMarketDataSnapshotMaster()).append(',').append(' ');
     buf.append("configMaster").append('=').append(getConfigMaster()).append(',').append(' ');
@@ -539,6 +606,7 @@ public class WebMarketDataSnapshotData extends DirectBean {
     buf.append("uriVersionId").append('=').append(getUriVersionId()).append(',').append(' ');
     buf.append("snapshot").append('=').append(getSnapshot()).append(',').append(' ');
     buf.append("configSource").append('=').append(getConfigSource()).append(',').append(' ');
+    buf.append("volatilityCubeDefinitionSource").append('=').append(getVolatilityCubeDefinitionSource()).append(',').append(' ');
     buf.append("versioned").append('=').append(getVersioned()).append(',').append(' ');
   }
 
@@ -552,6 +620,11 @@ public class WebMarketDataSnapshotData extends DirectBean {
      */
     static final Meta INSTANCE = new Meta();
 
+    /**
+     * The meta-property for the {@code liveMarketDataProviderFactory} property.
+     */
+    private final MetaProperty<LiveMarketDataProviderFactory> _liveMarketDataProviderFactory = DirectMetaProperty.ofReadWrite(
+        this, "liveMarketDataProviderFactory", WebMarketDataSnapshotData.class, LiveMarketDataProviderFactory.class);
     /**
      * The meta-property for the {@code marketDataSpecificationRepository} property.
      */
@@ -608,6 +681,11 @@ public class WebMarketDataSnapshotData extends DirectBean {
     private final MetaProperty<ConfigSource> _configSource = DirectMetaProperty.ofReadWrite(
         this, "configSource", WebMarketDataSnapshotData.class, ConfigSource.class);
     /**
+     * The meta-property for the {@code volatilityCubeDefinitionSource} property.
+     */
+    private final MetaProperty<VolatilityCubeDefinitionSource> _volatilityCubeDefinitionSource = DirectMetaProperty.ofReadWrite(
+        this, "volatilityCubeDefinitionSource", WebMarketDataSnapshotData.class, VolatilityCubeDefinitionSource.class);
+    /**
      * The meta-property for the {@code versioned} property.
      */
     private final MetaProperty<MarketDataSnapshotDocument> _versioned = DirectMetaProperty.ofReadWrite(
@@ -617,6 +695,7 @@ public class WebMarketDataSnapshotData extends DirectBean {
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
+        "liveMarketDataProviderFactory",
         "marketDataSpecificationRepository",
         "marketDataSnapshotMaster",
         "configMaster",
@@ -628,6 +707,7 @@ public class WebMarketDataSnapshotData extends DirectBean {
         "uriVersionId",
         "snapshot",
         "configSource",
+        "volatilityCubeDefinitionSource",
         "versioned");
 
     /**
@@ -639,6 +719,8 @@ public class WebMarketDataSnapshotData extends DirectBean {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
+        case -301472921:  // liveMarketDataProviderFactory
+          return _liveMarketDataProviderFactory;
         case 1743800263:  // marketDataSpecificationRepository
           return _marketDataSpecificationRepository;
         case 2090650860:  // marketDataSnapshotMaster
@@ -661,6 +743,8 @@ public class WebMarketDataSnapshotData extends DirectBean {
           return _snapshot;
         case 195157501:  // configSource
           return _configSource;
+        case 1540542824:  // volatilityCubeDefinitionSource
+          return _volatilityCubeDefinitionSource;
         case -1407102089:  // versioned
           return _versioned;
       }
@@ -683,6 +767,14 @@ public class WebMarketDataSnapshotData extends DirectBean {
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code liveMarketDataProviderFactory} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<LiveMarketDataProviderFactory> liveMarketDataProviderFactory() {
+      return _liveMarketDataProviderFactory;
+    }
+
     /**
      * The meta-property for the {@code marketDataSpecificationRepository} property.
      * @deprecated  use liveMarketDataProviderFactory
@@ -774,6 +866,14 @@ public class WebMarketDataSnapshotData extends DirectBean {
     }
 
     /**
+     * The meta-property for the {@code volatilityCubeDefinitionSource} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<VolatilityCubeDefinitionSource> volatilityCubeDefinitionSource() {
+      return _volatilityCubeDefinitionSource;
+    }
+
+    /**
      * The meta-property for the {@code versioned} property.
      * @return the meta-property, not null
      */
@@ -785,6 +885,8 @@ public class WebMarketDataSnapshotData extends DirectBean {
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
+        case -301472921:  // liveMarketDataProviderFactory
+          return ((WebMarketDataSnapshotData) bean).getLiveMarketDataProviderFactory();
         case 1743800263:  // marketDataSpecificationRepository
           return ((WebMarketDataSnapshotData) bean).getMarketDataSpecificationRepository();
         case 2090650860:  // marketDataSnapshotMaster
@@ -807,6 +909,8 @@ public class WebMarketDataSnapshotData extends DirectBean {
           return ((WebMarketDataSnapshotData) bean).getSnapshot();
         case 195157501:  // configSource
           return ((WebMarketDataSnapshotData) bean).getConfigSource();
+        case 1540542824:  // volatilityCubeDefinitionSource
+          return ((WebMarketDataSnapshotData) bean).getVolatilityCubeDefinitionSource();
         case -1407102089:  // versioned
           return ((WebMarketDataSnapshotData) bean).getVersioned();
       }
@@ -816,6 +920,9 @@ public class WebMarketDataSnapshotData extends DirectBean {
     @Override
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
+        case -301472921:  // liveMarketDataProviderFactory
+          ((WebMarketDataSnapshotData) bean).setLiveMarketDataProviderFactory((LiveMarketDataProviderFactory) newValue);
+          return;
         case 1743800263:  // marketDataSpecificationRepository
           ((WebMarketDataSnapshotData) bean).setMarketDataSpecificationRepository((NamedMarketDataSpecificationRepository) newValue);
           return;
@@ -849,16 +956,14 @@ public class WebMarketDataSnapshotData extends DirectBean {
         case 195157501:  // configSource
           ((WebMarketDataSnapshotData) bean).setConfigSource((ConfigSource) newValue);
           return;
+        case 1540542824:  // volatilityCubeDefinitionSource
+          ((WebMarketDataSnapshotData) bean).setVolatilityCubeDefinitionSource((VolatilityCubeDefinitionSource) newValue);
+          return;
         case -1407102089:  // versioned
           ((WebMarketDataSnapshotData) bean).setVersioned((MarketDataSnapshotDocument) newValue);
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
-    }
-
-    @Override
-    protected void validate(Bean bean) {
-      JodaBeanUtils.notNull(((WebMarketDataSnapshotData) bean)._computationTargetResolver, "computationTargetResolver");
     }
 
   }

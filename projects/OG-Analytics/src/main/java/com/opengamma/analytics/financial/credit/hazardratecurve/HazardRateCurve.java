@@ -202,7 +202,7 @@ public class HazardRateCurve {
     ArgumentChecker.notEmpty(rates, "null rates");
     final int n = _curveRates.length - 1;
     ArgumentChecker.isTrue(n == rates.length, "rates length {}, must be {}", rates.length, n);
-    double[] temp = new double[n + 1];
+    final double[] temp = new double[n + 1];
     System.arraycopy(rates, 0, temp, 1, n);
     temp[0] = rates[0];
     return new HazardRateCurve(_curveDates, _curveTimes, temp, _offset);
@@ -210,7 +210,7 @@ public class HazardRateCurve {
 
   public HazardRateCurve withRate(final double rate, final int index) {
     final int n = _curveRates.length;
-    double[] temp = new double[n];
+    final double[] temp = new double[n];
     System.arraycopy(_curveRates, 0, temp, 0, n);
     temp[index] = rate;
     return new HazardRateCurve(_curveDates, _curveTimes, temp, _offset);

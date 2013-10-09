@@ -29,6 +29,7 @@ import com.google.common.collect.Maps;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.MemoryUtils;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.function.IntrinsicFunction;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.target.digest.TargetDigests;
 import com.opengamma.engine.value.ValueProperties;
@@ -661,7 +662,7 @@ import com.opengamma.util.tuple.Pair;
   private DependencyNode findExistingNode(final Set<DependencyNode> nodes, final ResolvedValue resolvedValue) {
     for (final DependencyNode node : nodes) {
       final Set<ValueSpecification> outputValues = node.getOutputValues();
-      if (!mismatchUnion(outputValues, resolvedValue.getFunctionOutputs())) {
+      if (!(node.getFunction().getFunction() instanceof IntrinsicFunction) && !mismatchUnion(outputValues, resolvedValue.getFunctionOutputs())) {
         s_logger.debug("Considering {} for {}", node, resolvedValue);
         // Update the output values for the node with the union. The input values will be dealt with by the caller.
         Map<ValueSpecification, ValueSpecification> replacements = null;

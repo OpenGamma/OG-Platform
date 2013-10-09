@@ -20,6 +20,7 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.batch.BatchMaster;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
@@ -28,9 +29,11 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
+import com.opengamma.engine.marketdata.live.LiveMarketDataProviderFactory;
 import com.opengamma.engine.target.ComputationTargetTypeProvider;
 import com.opengamma.engine.target.DefaultComputationTargetTypeProvider;
 import com.opengamma.engine.view.ViewProcessor;
+import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.impl.MasterConfigSource;
 import com.opengamma.master.exchange.ExchangeMaster;
@@ -151,11 +154,16 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   @PropertyDefinition(validate = "notNull")
   private MarketDataSnapshotMaster _marketDataSnapshotMaster;
   /**
+   * For obtaining the live market data provider names. Either this or marketDataSpecificationRepository must be set.
+   */
+  @PropertyDefinition
+  private LiveMarketDataProviderFactory _liveMarketDataProviderFactory;
+  /**
    * For looking up market data provider specifications by name. Either this or liveMarketDataProviderFactory must be set.
    * 
    * @deprecated  use liveMarketDataProviderFactory
    */
-  @PropertyDefinition(validate = "notNull")
+  @PropertyDefinition
   @Deprecated
   private NamedMarketDataSpecificationRepository _marketDataSpecificationRepository;
   /**
@@ -168,6 +176,11 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
    */
   @PropertyDefinition(validate = "notNull")
   private ComputationTargetResolver _computationTargetResolver;
+  /**
+   * The volatility (for market data snapshots).
+   */
+  @PropertyDefinition(validate = "notNull")
+  private VolatilityCubeDefinitionSource _volatilityCubeDefinitionSource;
 
   //-------------------------------------------------------------------------
   @Override
@@ -183,6 +196,9 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   }
 
   protected void initMasters(ComponentRepository repo) {
+    if (getLiveMarketDataProviderFactory() == null && getMarketDataSpecificationRepository() == null) {
+      throw new OpenGammaRuntimeException("Neither " + marketDataSpecificationRepository().name() + " nor " + liveMarketDataProviderFactory().name() + " were specified");
+    }
     JerseyRestResourceFactory resource;
     resource = new JerseyRestResourceFactory(WebConfigsResource.class, getConfigMaster());
     repo.getRestComponents().publishResource(resource);
@@ -205,8 +221,9 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     repo.getRestComponents().publishResource(resource);
     resource = new JerseyRestResourceFactory(WebOrganizationsResource.class, getOrganizationMaster());
     repo.getRestComponents().publishResource(resource);
-    resource = new JerseyRestResourceFactory(WebMarketDataSnapshotsResource.class, getMarketDataSnapshotMaster(), getConfigMaster(), getMarketDataSpecificationRepository(),
-        configSource, getComputationTargetResolver(), getViewProcessor(), getHistoricalTimeSeriesSource());
+    resource = new JerseyRestResourceFactory(WebMarketDataSnapshotsResource.class, 
+        getMarketDataSnapshotMaster(), getConfigMaster(), getLiveMarketDataProviderFactory(), getMarketDataSpecificationRepository(),
+        configSource, getComputationTargetResolver(), getViewProcessor(), getHistoricalTimeSeriesSource(), getVolatilityCubeDefinitionSource());
     repo.getRestComponents().publishResource(resource);
   }
   
@@ -687,10 +704,35 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets for obtaining the live market data provider names. Either this or marketDataSpecificationRepository must be set.
+   * @return the value of the property
+   */
+  public LiveMarketDataProviderFactory getLiveMarketDataProviderFactory() {
+    return _liveMarketDataProviderFactory;
+  }
+
+  /**
+   * Sets for obtaining the live market data provider names. Either this or marketDataSpecificationRepository must be set.
+   * @param liveMarketDataProviderFactory  the new value of the property
+   */
+  public void setLiveMarketDataProviderFactory(LiveMarketDataProviderFactory liveMarketDataProviderFactory) {
+    this._liveMarketDataProviderFactory = liveMarketDataProviderFactory;
+  }
+
+  /**
+   * Gets the the {@code liveMarketDataProviderFactory} property.
+   * @return the property, not null
+   */
+  public final Property<LiveMarketDataProviderFactory> liveMarketDataProviderFactory() {
+    return metaBean().liveMarketDataProviderFactory().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets for looking up market data provider specifications by name. Either this or liveMarketDataProviderFactory must be set.
    * 
    * @deprecated  use liveMarketDataProviderFactory
-   * @return the value of the property, not null
+   * @return the value of the property
    */
   @Deprecated
   public NamedMarketDataSpecificationRepository getMarketDataSpecificationRepository() {
@@ -701,11 +743,10 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
    * Sets for looking up market data provider specifications by name. Either this or liveMarketDataProviderFactory must be set.
    * 
    * @deprecated  use liveMarketDataProviderFactory
-   * @param marketDataSpecificationRepository  the new value of the property, not null
+   * @param marketDataSpecificationRepository  the new value of the property
    */
   @Deprecated
   public void setMarketDataSpecificationRepository(NamedMarketDataSpecificationRepository marketDataSpecificationRepository) {
-    JodaBeanUtils.notNull(marketDataSpecificationRepository, "marketDataSpecificationRepository");
     this._marketDataSpecificationRepository = marketDataSpecificationRepository;
   }
 
@@ -773,6 +814,32 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets the volatility (for market data snapshots).
+   * @return the value of the property, not null
+   */
+  public VolatilityCubeDefinitionSource getVolatilityCubeDefinitionSource() {
+    return _volatilityCubeDefinitionSource;
+  }
+
+  /**
+   * Sets the volatility (for market data snapshots).
+   * @param volatilityCubeDefinitionSource  the new value of the property, not null
+   */
+  public void setVolatilityCubeDefinitionSource(VolatilityCubeDefinitionSource volatilityCubeDefinitionSource) {
+    JodaBeanUtils.notNull(volatilityCubeDefinitionSource, "volatilityCubeDefinitionSource");
+    this._volatilityCubeDefinitionSource = volatilityCubeDefinitionSource;
+  }
+
+  /**
+   * Gets the the {@code volatilityCubeDefinitionSource} property.
+   * @return the property, not null
+   */
+  public final Property<VolatilityCubeDefinitionSource> volatilityCubeDefinitionSource() {
+    return metaBean().volatilityCubeDefinitionSource().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
   @Override
   public WebsiteBasicsComponentFactory clone() {
     return (WebsiteBasicsComponentFactory) super.clone();
@@ -802,9 +869,11 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
           JodaBeanUtils.equal(getTargetTypes(), other.getTargetTypes()) &&
           JodaBeanUtils.equal(getOrganizationMaster(), other.getOrganizationMaster()) &&
           JodaBeanUtils.equal(getMarketDataSnapshotMaster(), other.getMarketDataSnapshotMaster()) &&
+          JodaBeanUtils.equal(getLiveMarketDataProviderFactory(), other.getLiveMarketDataProviderFactory()) &&
           JodaBeanUtils.equal(getMarketDataSpecificationRepository(), other.getMarketDataSpecificationRepository()) &&
           JodaBeanUtils.equal(getViewProcessor(), other.getViewProcessor()) &&
           JodaBeanUtils.equal(getComputationTargetResolver(), other.getComputationTargetResolver()) &&
+          JodaBeanUtils.equal(getVolatilityCubeDefinitionSource(), other.getVolatilityCubeDefinitionSource()) &&
           super.equals(obj);
     }
     return false;
@@ -830,15 +899,17 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getTargetTypes());
     hash += hash * 31 + JodaBeanUtils.hashCode(getOrganizationMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSnapshotMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getLiveMarketDataProviderFactory());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSpecificationRepository());
     hash += hash * 31 + JodaBeanUtils.hashCode(getViewProcessor());
     hash += hash * 31 + JodaBeanUtils.hashCode(getComputationTargetResolver());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getVolatilityCubeDefinitionSource());
     return hash ^ super.hashCode();
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(672);
+    StringBuilder buf = new StringBuilder(736);
     buf.append("WebsiteBasicsComponentFactory{");
     int len = buf.length();
     toString(buf);
@@ -869,9 +940,11 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     buf.append("targetTypes").append('=').append(getTargetTypes()).append(',').append(' ');
     buf.append("organizationMaster").append('=').append(getOrganizationMaster()).append(',').append(' ');
     buf.append("marketDataSnapshotMaster").append('=').append(getMarketDataSnapshotMaster()).append(',').append(' ');
+    buf.append("liveMarketDataProviderFactory").append('=').append(getLiveMarketDataProviderFactory()).append(',').append(' ');
     buf.append("marketDataSpecificationRepository").append('=').append(getMarketDataSpecificationRepository()).append(',').append(' ');
     buf.append("viewProcessor").append('=').append(getViewProcessor()).append(',').append(' ');
     buf.append("computationTargetResolver").append('=').append(getComputationTargetResolver()).append(',').append(' ');
+    buf.append("volatilityCubeDefinitionSource").append('=').append(getVolatilityCubeDefinitionSource()).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -970,6 +1043,11 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<MarketDataSnapshotMaster> _marketDataSnapshotMaster = DirectMetaProperty.ofReadWrite(
         this, "marketDataSnapshotMaster", WebsiteBasicsComponentFactory.class, MarketDataSnapshotMaster.class);
     /**
+     * The meta-property for the {@code liveMarketDataProviderFactory} property.
+     */
+    private final MetaProperty<LiveMarketDataProviderFactory> _liveMarketDataProviderFactory = DirectMetaProperty.ofReadWrite(
+        this, "liveMarketDataProviderFactory", WebsiteBasicsComponentFactory.class, LiveMarketDataProviderFactory.class);
+    /**
      * The meta-property for the {@code marketDataSpecificationRepository} property.
      */
     private final MetaProperty<NamedMarketDataSpecificationRepository> _marketDataSpecificationRepository = DirectMetaProperty.ofReadWrite(
@@ -984,6 +1062,11 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
      */
     private final MetaProperty<ComputationTargetResolver> _computationTargetResolver = DirectMetaProperty.ofReadWrite(
         this, "computationTargetResolver", WebsiteBasicsComponentFactory.class, ComputationTargetResolver.class);
+    /**
+     * The meta-property for the {@code volatilityCubeDefinitionSource} property.
+     */
+    private final MetaProperty<VolatilityCubeDefinitionSource> _volatilityCubeDefinitionSource = DirectMetaProperty.ofReadWrite(
+        this, "volatilityCubeDefinitionSource", WebsiteBasicsComponentFactory.class, VolatilityCubeDefinitionSource.class);
     /**
      * The meta-properties.
      */
@@ -1006,9 +1089,11 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
         "targetTypes",
         "organizationMaster",
         "marketDataSnapshotMaster",
+        "liveMarketDataProviderFactory",
         "marketDataSpecificationRepository",
         "viewProcessor",
-        "computationTargetResolver");
+        "computationTargetResolver",
+        "volatilityCubeDefinitionSource");
 
     /**
      * Restricted constructor.
@@ -1053,12 +1138,16 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
           return _organizationMaster;
         case 2090650860:  // marketDataSnapshotMaster
           return _marketDataSnapshotMaster;
+        case -301472921:  // liveMarketDataProviderFactory
+          return _liveMarketDataProviderFactory;
         case 1743800263:  // marketDataSpecificationRepository
           return _marketDataSpecificationRepository;
         case -1697555603:  // viewProcessor
           return _viewProcessor;
         case 1562222174:  // computationTargetResolver
           return _computationTargetResolver;
+        case 1540542824:  // volatilityCubeDefinitionSource
+          return _volatilityCubeDefinitionSource;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -1216,6 +1305,14 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     }
 
     /**
+     * The meta-property for the {@code liveMarketDataProviderFactory} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<LiveMarketDataProviderFactory> liveMarketDataProviderFactory() {
+      return _liveMarketDataProviderFactory;
+    }
+
+    /**
      * The meta-property for the {@code marketDataSpecificationRepository} property.
      * @deprecated  use liveMarketDataProviderFactory
      * @return the meta-property, not null
@@ -1239,6 +1336,14 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<ComputationTargetResolver> computationTargetResolver() {
       return _computationTargetResolver;
+    }
+
+    /**
+     * The meta-property for the {@code volatilityCubeDefinitionSource} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<VolatilityCubeDefinitionSource> volatilityCubeDefinitionSource() {
+      return _volatilityCubeDefinitionSource;
     }
 
     //-----------------------------------------------------------------------
@@ -1279,12 +1384,16 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
           return ((WebsiteBasicsComponentFactory) bean).getOrganizationMaster();
         case 2090650860:  // marketDataSnapshotMaster
           return ((WebsiteBasicsComponentFactory) bean).getMarketDataSnapshotMaster();
+        case -301472921:  // liveMarketDataProviderFactory
+          return ((WebsiteBasicsComponentFactory) bean).getLiveMarketDataProviderFactory();
         case 1743800263:  // marketDataSpecificationRepository
           return ((WebsiteBasicsComponentFactory) bean).getMarketDataSpecificationRepository();
         case -1697555603:  // viewProcessor
           return ((WebsiteBasicsComponentFactory) bean).getViewProcessor();
         case 1562222174:  // computationTargetResolver
           return ((WebsiteBasicsComponentFactory) bean).getComputationTargetResolver();
+        case 1540542824:  // volatilityCubeDefinitionSource
+          return ((WebsiteBasicsComponentFactory) bean).getVolatilityCubeDefinitionSource();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -1343,6 +1452,9 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
         case 2090650860:  // marketDataSnapshotMaster
           ((WebsiteBasicsComponentFactory) bean).setMarketDataSnapshotMaster((MarketDataSnapshotMaster) newValue);
           return;
+        case -301472921:  // liveMarketDataProviderFactory
+          ((WebsiteBasicsComponentFactory) bean).setLiveMarketDataProviderFactory((LiveMarketDataProviderFactory) newValue);
+          return;
         case 1743800263:  // marketDataSpecificationRepository
           ((WebsiteBasicsComponentFactory) bean).setMarketDataSpecificationRepository((NamedMarketDataSpecificationRepository) newValue);
           return;
@@ -1351,6 +1463,9 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
           return;
         case 1562222174:  // computationTargetResolver
           ((WebsiteBasicsComponentFactory) bean).setComputationTargetResolver((ComputationTargetResolver) newValue);
+          return;
+        case 1540542824:  // volatilityCubeDefinitionSource
+          ((WebsiteBasicsComponentFactory) bean).setVolatilityCubeDefinitionSource((VolatilityCubeDefinitionSource) newValue);
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
@@ -1375,9 +1490,9 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
       JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._targetTypes, "targetTypes");
       JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._organizationMaster, "organizationMaster");
       JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._marketDataSnapshotMaster, "marketDataSnapshotMaster");
-      JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._marketDataSpecificationRepository, "marketDataSpecificationRepository");
       JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._viewProcessor, "viewProcessor");
       JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._computationTargetResolver, "computationTargetResolver");
+      JodaBeanUtils.notNull(((WebsiteBasicsComponentFactory) bean)._volatilityCubeDefinitionSource, "volatilityCubeDefinitionSource");
       super.validate(bean);
     }
 

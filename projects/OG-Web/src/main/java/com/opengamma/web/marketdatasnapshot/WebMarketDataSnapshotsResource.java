@@ -5,18 +5,12 @@
  */
 package com.opengamma.web.marketdatasnapshot;
 
-import static java.lang.String.format;
 import static org.threeten.bp.temporal.ChronoUnit.SECONDS;
 
-import java.net.InetAddress;
 import java.net.URI;
-import java.net.UnknownHostException;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
@@ -46,44 +40,25 @@ import org.threeten.bp.format.DateTimeFormatter;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
-import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
-import com.opengamma.engine.marketdata.snapshot.MarketDataSnapshotter;
+import com.opengamma.engine.marketdata.live.LiveMarketDataProviderFactory;
 import com.opengamma.engine.marketdata.spec.FixedHistoricalMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.LatestHistoricalMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.UserMarketDataSpecification;
-import com.opengamma.engine.resource.EngineResourceReference;
-import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.ViewProcessor;
-import com.opengamma.engine.view.client.ViewClient;
-import com.opengamma.engine.view.compilation.CompiledViewDefinition;
-import com.opengamma.engine.view.cycle.ViewCycle;
-import com.opengamma.engine.view.cycle.ViewCycleMetadata;
-import com.opengamma.engine.view.execution.ExecutionOptions;
-import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
-import com.opengamma.engine.view.execution.ViewExecutionFlags;
-import com.opengamma.engine.view.execution.ViewExecutionOptions;
-import com.opengamma.engine.view.listener.ViewResultListener;
-import com.opengamma.financial.analytics.volatility.cube.AggregatingVolatilityCubeDefinitionSource;
-import com.opengamma.financial.analytics.volatility.cube.BloombergVolatilityCubeDefinitionSource;
-import com.opengamma.financial.analytics.volatility.cube.ConfigDBVolatilityCubeDefinitionSource;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
-import com.opengamma.financial.marketdatasnapshot.MarketDataSnapshotterImpl;
+import com.opengamma.financial.tool.marketdata.MarketDataSnapshotSaver;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
-import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
@@ -122,16 +97,19 @@ public class WebMarketDataSnapshotsResource extends AbstractWebMarketDataSnapsho
    * Creates the resource.
    * @param marketSnapshotMaster  the market data snapshot master, not null
    * @param configMaster  the config master, not null
-   * @param marketDataSpecificationRepository the market data specification repository, not null
+   * @param liveMarketDataProviderFactory the live market data provider factory, Either this or marketDataSpecificationRepository must be set
+   * @param marketDataSpecificationRepository the market data specification repository
    * @param configSource the config source, not null
    * @param targetResolver the computation target resolver, not null
    * @param viewProcessor the view processor, not null
    * @param htsSource the historical timeseries source, not null
+   * @param volatilityCubeDefinitionSource the volatility cube definition source, not null
    */
   public WebMarketDataSnapshotsResource(final MarketDataSnapshotMaster marketSnapshotMaster, final ConfigMaster configMaster, 
-      final NamedMarketDataSpecificationRepository marketDataSpecificationRepository, final ConfigSource configSource,
-      final ComputationTargetResolver targetResolver, final ViewProcessor viewProcessor, final HistoricalTimeSeriesSource htsSource) {
-    super(marketSnapshotMaster, configMaster, marketDataSpecificationRepository, configSource, targetResolver, viewProcessor, htsSource);
+      final LiveMarketDataProviderFactory liveMarketDataProviderFactory, final NamedMarketDataSpecificationRepository marketDataSpecificationRepository, final ConfigSource configSource,
+      final ComputationTargetResolver targetResolver, final ViewProcessor viewProcessor, final HistoricalTimeSeriesSource htsSource,
+      final VolatilityCubeDefinitionSource volatilityCubeDefinitionSource) {
+    super(marketSnapshotMaster, configMaster, liveMarketDataProviderFactory, marketDataSpecificationRepository, configSource, targetResolver, viewProcessor, htsSource, volatilityCubeDefinitionSource);
   }
 
   //-------------------------------------------------------------------------
@@ -231,7 +209,13 @@ public class WebMarketDataSnapshotsResource extends AbstractWebMarketDataSnapsho
   }
 
   private List<String> getLiveDataSources() {
-    return data().getMarketDataSpecificationRepository().getNames();
+    List<String> liveDataSources;
+    if (data().getLiveMarketDataProviderFactory() != null) {
+      liveDataSources = data().getLiveMarketDataProviderFactory().getProviderNames();
+    } else {
+      liveDataSources = data().getMarketDataSpecificationRepository().getNames();
+    }
+    return liveDataSources;
   }
 
   private List<String> getViewNames() {
@@ -311,7 +295,8 @@ public class WebMarketDataSnapshotsResource extends AbstractWebMarketDataSnapsho
     try {
       snapshot = createSnapshot(name, view, valuationInstant, marketDataSpecs);
     } catch (Exception ex) {
-      endWithError("Unable to create market data snapshot");
+      s_logger.error("Unable to create market data snapshot");
+      throw new OpenGammaRuntimeException("Unable to create market data snapshot");
     }
     URI uri = data().getUriInfo().getAbsolutePathBuilder().path(snapshot.getUniqueId().toLatest().toString()).build();
     return Response.seeOther(uri).build();
@@ -364,38 +349,10 @@ public class WebMarketDataSnapshotsResource extends AbstractWebMarketDataSnapsho
 
   private MarketDataSnapshotDocument createSnapshot(String name, final String viewDefinitionName, final Instant valuationInstant, 
       final List<MarketDataSpecification> marketDataSpecs) throws InterruptedException {
+    MarketDataSnapshotSaver saver = MarketDataSnapshotSaver.of(data().getComputationTargetResolver(), data().getHistoricalTimeSeriesSource(), 
+        data().getViewProcessor(), data().getConfigMaster(), data().getMarketDataSnapshotMaster(), data().getVolatilityCubeDefinitionSource());
     
-//    final MarketDataSpecification marketDataSpecification = historicalInput ? new LatestHistoricalMarketDataSpecification() : MarketData.live();
-    final ViewExecutionOptions viewExecutionOptions = ExecutionOptions.singleCycle(valuationInstant, marketDataSpecs, EnumSet.of(ViewExecutionFlags.AWAIT_MARKET_DATA));
-
-    Set<ConfigDocument> viewDefinitions = Sets.newHashSet();
-    ConfigSearchRequest<ViewDefinition> request = new ConfigSearchRequest<ViewDefinition>(ViewDefinition.class);
-    request.setName(viewDefinitionName);
-    Iterables.addAll(viewDefinitions, ConfigSearchIterator.iterable(data().getConfigMaster(), request));
-    if (viewDefinitions.isEmpty()) {
-      endWithError("Unable to resolve any view definitions with name '%s'", viewDefinitionName);
-    }
-
-    if (viewDefinitions.size() > 1) {
-      endWithError("Multiple view definitions resolved when searching for string '%s': %s", viewDefinitionName, viewDefinitions);
-    }
-    
-    final VolatilityCubeDefinitionSource base = new ConfigDBVolatilityCubeDefinitionSource(data().getConfigSource());
-    final VolatilityCubeDefinitionSource bbg = new BloombergVolatilityCubeDefinitionSource();
-    final VolatilityCubeDefinitionSource combined = new AggregatingVolatilityCubeDefinitionSource(Arrays.asList(bbg, base));
-    
-    final MarketDataSnapshotterImpl snapshotter = new MarketDataSnapshotterImpl(data().getComputationTargetResolver(), combined, data().getHistoricalTimeSeriesSource());
-    
-    ConfigItem<?> value = Iterables.get(viewDefinitions, 0).getValue();
-    StructuredMarketDataSnapshot snapshot = makeSnapshot(snapshotter, data().getViewProcessor(), (ViewDefinition) value.getValue(), viewExecutionOptions);
-
-    final ManageableMarketDataSnapshot manageableMarketDataSnapshot = new ManageableMarketDataSnapshot(snapshot);
-    if (name == null) {
-      name = snapshot.getBasisViewName() + "/" + valuationInstant;
-    }
-    manageableMarketDataSnapshot.setName(name);
-    final MarketDataSnapshotMaster marketDataSnapshotMaster = data().getMarketDataSnapshotMaster();
-    return marketDataSnapshotMaster.add(new MarketDataSnapshotDocument(manageableMarketDataSnapshot));
+    return saver.createSnapshot(name, viewDefinitionName, valuationInstant, marketDataSpecs);
   }
 
   //-------------------------------------------------------------------------
@@ -408,80 +365,5 @@ public class WebMarketDataSnapshotsResource extends AbstractWebMarketDataSnapsho
     UriBuilder builder = data.getUriInfo().getBaseUriBuilder().path(WebMarketDataSnapshotsResource.class);
     return builder.build();
   }
-  
-  private void endWithError(String message, Object... messageArgs) {
-    s_logger.error(message, messageArgs);
-    throw new OpenGammaRuntimeException(format(message, messageArgs));
-  }
-  
-//-------------------------------------------------------------------------
-  private static StructuredMarketDataSnapshot makeSnapshot(final MarketDataSnapshotter marketDataSnapshotter,
-      final ViewProcessor viewProcessor, final ViewDefinition viewDefinition, final ViewExecutionOptions viewExecutionOptions) throws InterruptedException {
-    final ViewClient vc = viewProcessor.createViewClient(UserPrincipal.getLocalUser());
-    vc.setResultListener(new ViewResultListener() {
-      @Override
-      public UserPrincipal getUser() {
-        String ipAddress;
-        try {
-          ipAddress = InetAddress.getLocalHost().getHostAddress();
-        } catch (final UnknownHostException e) {
-          ipAddress = "unknown";
-        }
-        return new UserPrincipal("MarketDataSnapshotterTool", ipAddress);
-      }
-
-      @Override
-      public void viewDefinitionCompiled(final CompiledViewDefinition compiledViewDefinition, final boolean hasMarketDataPermissions) {
-      }
-
-      @Override
-      public void viewDefinitionCompilationFailed(final Instant valuationTime, final Exception exception) {
-        s_logger.error(exception.getMessage() + "\n\n" + (exception.getCause() == null ? "" : exception.getCause().getMessage()));
-      }
-
-      @Override
-      public void cycleStarted(final ViewCycleMetadata cycleMetadata) {
-      }
-
-      @Override
-      public void cycleFragmentCompleted(final ViewComputationResultModel fullFragment, final ViewDeltaResultModel deltaFragment) {
-      }
-
-      @Override
-      public void cycleCompleted(final ViewComputationResultModel fullResult, final ViewDeltaResultModel deltaResult) {
-        s_logger.info("cycle completed");
-      }
-
-      @Override
-      public void cycleExecutionFailed(final ViewCycleExecutionOptions executionOptions, final Exception exception) {
-        s_logger.error(exception.getMessage() + "\n\n" + (exception.getCause() == null ? "" : exception.getCause().getMessage()));
-      }
-
-      @Override
-      public void processCompleted() {
-      }
-
-      @Override
-      public void processTerminated(final boolean executionInterrupted) {
-      }
-
-      @Override
-      public void clientShutdown(final Exception e) {
-      }
-    });
-    vc.setViewCycleAccessSupported(true);
-    vc.attachToViewProcess(viewDefinition.getUniqueId(), viewExecutionOptions);
-
-    vc.waitForCompletion();
-    vc.pause();
-    EngineResourceReference<? extends ViewCycle> cycleReference = null;
-    try {
-      cycleReference = vc.createLatestCycleReference();
-      return marketDataSnapshotter.createSnapshot(vc, cycleReference.get());
-    } finally {
-      cycleReference.release();
-      vc.shutdown();
-    }
-  }
-
+ 
 }

@@ -5,14 +5,23 @@
  */
 package com.opengamma.util;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Throwables;
 
 /**
  * Class utilities
  */
 public final class ClassUtils {
 
+  /** Logger. */
+  private static final Logger s_logger = LoggerFactory.getLogger(ClassUtils.class);
   /**
    * A per-thread cache of loaded classes.
    */
@@ -22,6 +31,18 @@ public final class ClassUtils {
       return new HashMap<String, Class<?>>();
     }
   };
+  /**
+   * Method for resolving a class.
+   */
+  private static final Method RESOLVE_METHOD;
+  static {
+    try {
+      RESOLVE_METHOD = ClassLoader.class.getDeclaredMethod("resolveClass", Class.class);
+      RESOLVE_METHOD.setAccessible(true);
+    } catch (NoSuchMethodException | SecurityException ex) {
+      throw new ExceptionInInitializerError(ex);
+    }
+  }
 
   /**
    * Prevents instantiation.
@@ -35,6 +56,8 @@ public final class ClassUtils {
    * <p>
    * Some class loaders involve quite heavy synchronization overheads which can impact
    * performance on multi-core systems if called heavy (for example as part of decoding a Fudge message).
+   * <p>
+   * The class will be fully initialized (static initializers invoked).
    * 
    * @param className the class name, not null
    * @return the class object, not null
@@ -51,25 +74,29 @@ public final class ClassUtils {
         clazz = loader.loadClass(className);
       }
       loaded.put(className, clazz);
+      initClass(clazz);
     }
-    
     return clazz;
   }
-  
-  
+
   /**
-   * Simple method to ensure that a class has indeed been fully loaded.
+   * Initializes a class to ensure it is fully loaded.
+   * <p>
+   * The JVM has two separate steps in class loading, the initial load
+   * followed by the initialization.
+   * Static initializers are invoked in the second step.
+   * This method forces the second step.
    * 
-   * The "right" way is cls.getClassLoader().loadClass(cls.getName(), true).
-   * However, this is protected so would need to be called via reflection.
-   * 
-   * @param clazz the class to initialize
+   * @param clazz  the class to initialize, not null
    */
   public static void initClass(Class<?> clazz) {
     try {
-      clazz.newInstance();
-    } catch (InstantiationException | IllegalAccessException ex) {
-      //ignore
+      RESOLVE_METHOD.invoke(clazz.getClassLoader(), clazz);
+    } catch (InvocationTargetException ex) {
+      Throwable cause = (ex.getCause() != null ? ex.getCause() : ex);
+      throw Throwables.propagate(cause);
+    } catch (IllegalArgumentException | IllegalAccessException ex) {
+      s_logger.error("Unable to initialize class", ex);
     }
   }
 

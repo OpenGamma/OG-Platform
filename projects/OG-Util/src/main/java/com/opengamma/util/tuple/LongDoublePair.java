@@ -5,6 +5,12 @@
  */
 package com.opengamma.util.tuple;
 
+import org.apache.commons.lang.StringUtils;
+import org.joda.convert.FromString;
+import org.joda.convert.ToString;
+
+import com.opengamma.util.ArgumentChecker;
+
 import it.unimi.dsi.fastutil.longs.Long2DoubleMap;
 
 /**
@@ -26,7 +32,23 @@ public class LongDoublePair extends Pair<Long, Double> implements Long2DoubleMap
   public final double second; // CSIGNORE
 
   /**
-   * Creates a pair from the specified values.
+   * Obtains a {@code LongDoublePair} from a {@code Pair}.
+   * 
+   * @param pair  the pair to convert, not null
+   * @return a pair formed by extracting values from the pair, not null
+   */
+  public static LongDoublePair of(final Pair<Long, Double> pair) {
+    if (pair instanceof LongDoublePair) {
+      return (LongDoublePair) pair;
+    }
+    ArgumentChecker.notNull(pair, "pair");
+    ArgumentChecker.notNull(pair.getFirst(), "pair.first");
+    ArgumentChecker.notNull(pair.getSecond(), "pair.second");
+    return new LongDoublePair(pair.getFirst(), pair.getSecond());
+  }
+
+  /**
+   * Obtains a {@code LongDoublePair} from two values.
    * 
    * @param first  the first element
    * @param second  the second element
@@ -36,12 +58,45 @@ public class LongDoublePair extends Pair<Long, Double> implements Long2DoubleMap
     return new LongDoublePair(first, second);
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Constructor.
+   * Parses an {@code LongDoublePair} from the standard string format.
+   * <p>
+   * The standard format is '[$first, $second]'. Spaces around the values are trimmed.
+   * 
+   * @param pairStr  the text to parse, not null
+   * @return the parsed pair, not null
+   */
+  @FromString
+  public static LongDoublePair parse(final String pairStr) {
+    ArgumentChecker.notNull(pairStr, "pairStr");
+    if (pairStr.length() < 5) {
+      throw new IllegalArgumentException("Invalid pair format, too short: " + pairStr);
+    }
+    if (pairStr.charAt(0) != '[') {
+      throw new IllegalArgumentException("Invalid pair format, must start with [: " + pairStr);
+    }
+    if (pairStr.charAt(pairStr.length() - 1) != ']') {
+      throw new IllegalArgumentException("Invalid pair format, must end with ]: " + pairStr);
+    }
+    String[] split = StringUtils.split(pairStr.substring(1, pairStr.length() - 1), ',');
+    if (split.length != 2) {
+      throw new IllegalArgumentException("Invalid pair format, must have two values: " + pairStr);
+    }
+    long first = Long.parseLong(split[0].trim());
+    double second = Double.parseDouble(split[1].trim());
+    return new LongDoublePair(first, second);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Constructs a pair.
    * 
    * @param first  the first element
    * @param second  the second element
+   * @deprecated Use public factory of(long,double)
    */
+  @Deprecated
   public LongDoublePair(final long first, final double second) {
     this.first = first;
     this.second = second;
@@ -110,6 +165,24 @@ public class LongDoublePair extends Pair<Long, Double> implements Long2DoubleMap
     // see Map.Entry API specification
     final long s = Double.doubleToLongBits(second);
     return ((int) (first ^ (first >>> 32))) ^ ((int) (s ^ (s >>> 32)));
+  }
+
+  /**
+   * Gets the pair using a standard string format.
+   * <p>
+   * The standard format is '[$first, $second]'. Spaces around the values are trimmed.
+   * 
+   * @return the pair as a string, not null
+   */
+  @Override
+  @ToString
+  public String toString() {
+    return new StringBuilder()
+        .append("[")
+        .append(first)
+        .append(", ")
+        .append(second)
+        .append("]").toString();
   }
 
 }
