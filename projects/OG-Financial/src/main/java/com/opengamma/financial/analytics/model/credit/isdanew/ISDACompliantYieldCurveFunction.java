@@ -50,8 +50,10 @@ import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecifica
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.financial.analytics.model.cds.ISDAFunctionConstants;
 import com.opengamma.financial.analytics.timeseries.HistoricalTimeSeriesBundle;
+import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
@@ -136,8 +138,20 @@ public class ISDACompliantYieldCurveFunction extends AbstractFunction {
           values[i] = rate;
           i++;
         }
-
-        final ISDACompliantYieldCurve yieldCurve = ISDACompliantYieldCurveBuild.build(valuationDate.toLocalDate(), spotDate, instruments, tenors, values, MONEY_MARKET_DCC, SWAP_DCC, swapIvl, CURVE_DCC, badDayConv);
+        final Calendar calendar = new HolidaySourceCalendarAdapter(OpenGammaExecutionContext.getHolidaySource(executionContext), curveDefinition.getCurrency());
+        
+        final ISDACompliantYieldCurve yieldCurve =
+            new ISDACompliantYieldCurveBuild(
+                valuationDate.toLocalDate(),
+                spotDate,
+                instruments,
+                tenors,
+                MONEY_MARKET_DCC,
+                SWAP_DCC,
+                swapIvl, 
+                CURVE_DCC,
+                badDayConv,
+                calendar).build(values);
 
         final ValueProperties properties = createValueProperties()
             .with(ValuePropertyNames.CURVE, curveName)
