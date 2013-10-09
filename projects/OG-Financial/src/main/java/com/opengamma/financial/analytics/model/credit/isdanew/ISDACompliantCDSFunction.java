@@ -24,6 +24,7 @@ import com.opengamma.analytics.financial.credit.isdastandardmodel.AnalyticCDSPri
 import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSQuoteConvention;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.FiniteDifferenceSpreadSensitivityCalculator;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.IMMDateLogic;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurve;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.MarketQuoteConverter;
@@ -182,14 +183,17 @@ public class ISDACompliantCDSFunction extends NonCompiledInvoker {
     }
     final CDSQuoteConvention quote = SpreadCurveFunctions.getQuotes(security.getMaturityDate(), new double[] {cdsQuoteDouble}, security.getParSpread(), quoteConvention, true)[0];
 
+    boolean isIMM = IMMDateLogic.isIMMDate(security.getMaturityDate().toLocalDate());
+    
     final double notional = security.getNotional().getAmount();
     final double coupon = security.getParSpread() * ONE_BPS;
     final PointsUpFront puf = getPointsUpfront(quote, buySellProtection, yieldCurve, analytic, creditCurve);
-    final double accruedPremium = analytic.getAccruedPremium(coupon) * notional;
+    final double accruedPremium = isIMM ? analytic.getAccruedPremium(coupon) * notional : 0;
     final int accruedDays = analytic.getAccuredDays();
     final double quotedSpread = getQuotedSpread(quote, puf, buySellProtection, yieldCurve, analytic).getQuotedSpread();
-    final double upfrontAmount = getUpfrontAmount(analytic, puf, notional, buySellProtection);
+    final double upfrontAmount = isIMM ? getUpfrontAmount(analytic, puf, notional, buySellProtection) : 0;
     final double cleanPV = puf.getPointsUpFront() * notional;
+    final double principal = isIMM ? cleanPV : 0;
     final double cleanPrice = getCleanPrice(puf);
     final TenorLabelledMatrix1D bucketedCS01 = getBucketedCS01(analytic, bucketCDSs, spreadObject.getXData(), quote, notional, yieldCurve, creditCurve);
     final double parallelCS01 = getParallelCS01(quote, analytic, yieldCurve, notional, pillarCDSs, ArrayUtils.toPrimitive(pillarObject.getYData()));
@@ -201,7 +205,7 @@ public class ISDACompliantCDSFunction extends NonCompiledInvoker {
     results.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.UPFRONT_AMOUNT, target.toSpecification(), properties), upfrontAmount));
     results.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.DIRTY_PRESENT_VALUE, target.toSpecification(), properties), upfrontAmount));
     results.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.CLEAN_PRESENT_VALUE, target.toSpecification(), properties), cleanPV));
-    results.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.PRINCIPAL, target.toSpecification(), properties), cleanPV));
+    results.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.PRINCIPAL, target.toSpecification(), properties), principal));
     results.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.CLEAN_PRICE, target.toSpecification(), properties), cleanPrice));
     results.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.BUCKETED_CS01, target.toSpecification(), properties), bucketedCS01));
     results.add(new ComputedValue(new ValueSpecification(ValueRequirementNames.PARALLEL_CS01, target.toSpecification(), properties), parallelCS01));
