@@ -127,6 +127,11 @@
           </reportSet>
         </reportSets>
       </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>clirr-maven-plugin</artifactId>
+        <version>${clirr-maven-plugin.version}</version>
+      </plugin>
     </plugins>
   </reporting>
 
@@ -175,6 +180,9 @@
     <!-- Properties for maven-javadoc-plugin -->
     <javadoc.footer.license>Released under the Apache License, Version 2.0</javadoc.footer.license>
     <excludePackageNames>javax.time.i18n;org.jodah.typetools</excludePackageNames>
+    <!-- Properties for clirr-maven-plugin -->
+    <clirr-maven-plugin.version>2.6</clirr-maven-plugin.version>
+    <comparisonVersion>2.1.0</comparisonVersion>
     <!-- Other properties -->
     <fudge.proto.searchDir>..{RELATIVE}../projects/OG-Util/src/main/java;..{RELATIVE}../projects/OG-Engine/src/main/java</fudge.proto.searchDir>
   </properties>
