@@ -1,3 +1,20 @@
+OpenGamma Platform 2.1.1
+---------------------------------
+This is a patch release of version 2.1.0 which contains fixes.
+
+
+Changes since 2.1.0
+===================
+
+To 2.1.1
+--------
+	[PLAT-4799] Add greek functions for BRL swaptions
+	[PLAT-4574] CombinedHistoricalTimeSeriesMaster
+	For payer swaptions, the fixed leg notionals was negative, resulting in negative numeraire.  
+	Now the absolute value of the fixed leg's notional is used, so that the numeraire is positive.
+
+
+
 OpenGamma Platform 2.1
 ---------------------------------
 
@@ -81,3 +98,20 @@ and the appropriate number of settlement days for the currency pair. This may ca
 Source code layout
 - New project: og-engine-db - Database code for OG-Engine
 - New project: og-financial-types - Types to support OG_Financial
+
+To 2.1.1
+-----------
+
+As above, and:
+
+Configuration compatibility
+- No changes required
+
+Database compatibility
+- No upgrade required
+
+API compatibility
+- No significant changes
+
+Analytics compatibility
+- No expected differences
