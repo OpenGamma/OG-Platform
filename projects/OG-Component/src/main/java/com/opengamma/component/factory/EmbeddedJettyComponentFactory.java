@@ -5,8 +5,8 @@
  */
 package com.opengamma.component.factory;
 
-import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.EventListener;
 import java.util.LinkedHashMap;
@@ -125,16 +125,13 @@ public class EmbeddedJettyComponentFactory extends AbstractComponentFactory {
   private Server initJettyServer(ComponentRepository repo) {
     if (System.getProperty(AUTH_LOGIN_CONFIG_PROPERTY) == null && getLoginConfig() != null) {
       Resource loginConfigResource = getLoginConfig();
-      File file;
+      URL url;
       try {
-        file = loginConfigResource.getFile();
+        url = loginConfigResource.getURL();
       } catch (IOException e) {
         throw new OpenGammaRuntimeException("Error reading login configuration " + getLoginConfig(), e);
       }
-      if (file == null) {
-        throw new IllegalArgumentException("Unable to find login config resource: " + getLoginConfig());
-      }
-      System.setProperty(AUTH_LOGIN_CONFIG_PROPERTY, file.getPath());
+      System.setProperty(AUTH_LOGIN_CONFIG_PROPERTY, url.toExternalForm());
     }
     
     SelectChannelConnector connector = new SelectChannelConnector();
