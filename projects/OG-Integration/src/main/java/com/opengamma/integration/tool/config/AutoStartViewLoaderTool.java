@@ -26,6 +26,7 @@ import com.opengamma.engine.view.execution.ViewExecutionFlags;
 import com.opengamma.engine.view.impl.AutoStartViewDefinition;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 
@@ -57,7 +58,7 @@ public class AutoStartViewLoaderTool extends AbstractTool<ToolContext> {
     UniqueId viewDefinitionId = lookupViewDefinition(viewName);
     AutoStartViewDefinition viewDef = new AutoStartViewDefinition(
         viewDefinitionId.toLatest(),
-        ExecutionOptions.infinite(parseMarketDataSpecifications(), parseExecutionFlags()));
+        ExecutionOptions.infinite(parseMarketDataSpecifications(), parseExecutionFlags(), VersionCorrection.LATEST));
 
     ConfigMaster configMaster = getToolContext().getConfigMaster();
     configMaster.add(new ConfigDocument(ConfigItem.of(viewDef, viewName + " Auto Start")));
