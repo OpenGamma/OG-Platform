@@ -190,7 +190,7 @@ public class ISDACompliantCDSFunction extends NonCompiledInvoker {
     final double coupon = security.getParSpread() * ONE_BPS;
     final PointsUpFront puf = getPointsUpfront(quote, buySellProtection, yieldCurve, analytic, creditCurve);
     final double accruedPremium = isIMM ? analytic.getAccruedPremium(coupon) * notional * buySellPremiumFactor : 0;
-    final int accruedDays = analytic.getAccuredDays();
+    final int accruedDays = isIMM ? analytic.getAccuredDays() : 0;
     final double quotedSpread = getQuotedSpread(quote, puf, buySellProtection, yieldCurve, analytic).getQuotedSpread();
     final double upfrontAmount = isIMM ? getUpfrontAmount(analytic, puf, notional, buySellProtection) : 0;
     final double cleanPV = puf.getPointsUpFront() * notional;
