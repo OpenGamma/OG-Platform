@@ -65,7 +65,7 @@ public final class ExternalIdBundleWithDates implements ImmutableBean,
   /**
    * The cached hash code.
    */
-  private transient volatile int _hashCode;
+  private transient int _hashCode;  // safe via racy single check idiom
 
   //-------------------------------------------------------------------------
   /**
@@ -346,10 +346,14 @@ public final class ExternalIdBundleWithDates implements ImmutableBean,
 
   @Override
   public int hashCode() {
-    if (_hashCode == 0) {
-      _hashCode = 31 + _externalIds.hashCode();
+    // racy single check idiom allows non-volatile variable
+    // requires only one read and one write of non-volatile
+    int hashCode = _hashCode;
+    if (hashCode == 0) {
+      hashCode = 31 + _externalIds.hashCode();
+      _hashCode = hashCode;
     }
-    return _hashCode;
+    return hashCode;
   }
 
   /**
