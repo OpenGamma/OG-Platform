@@ -131,6 +131,29 @@
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>clirr-maven-plugin</artifactId>
         <version>${clirr-maven-plugin.version}</version>
+        <configuration>
+          <ignored>
+            <difference>
+              <className>**/*</className>
+              <differenceType>7002</differenceType>
+              <method>java.lang.Object propertyGet(java.lang.String, boolean)</method>
+            </difference>
+            <difference>
+              <className>**/*</className>
+              <differenceType>7002</differenceType>
+              <method>void propertySet(java.lang.String, java.lang.Object, boolean)</method>
+            </difference>
+            <difference>
+              <className>**/*</className>
+              <differenceType>7002</differenceType>
+              <method>void validate()</method>
+            </difference>
+            <difference>
+              <className>**/*</className>
+              <differenceType>3003</differenceType>
+            </difference>
+          </ignored>
+        </configuration>
       </plugin>
     </plugins>
   </reporting>
