@@ -43,6 +43,7 @@ import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.resource.EngineResourceManagerImpl;
 import com.opengamma.engine.resource.EngineResourceManagerInternal;
+import com.opengamma.engine.view.ViewAutoStartManager;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessState;
 import com.opengamma.engine.view.ViewProcessor;
@@ -124,6 +125,12 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
    */
   private final ViewProcessorEventListenerRegistry _viewProcessorEventListenerRegistry = new ViewProcessorEventListenerRegistry();
 
+  /**
+   * Responsible for tracking which views should be automatically started
+   * when the engine starts.
+   */
+  private final ViewAutoStartManager _viewAutoStartManager;
+
   private boolean _isStarted;
   private boolean _isSuspended;
 
@@ -144,7 +151,8 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
       final OverrideOperationCompiler overrideOperationCompiler,
       final ViewResultListenerFactory viewResultListenerFactory,
       final ViewProcessWorkerFactory workerFactory,
-      final ViewExecutionCache executionCache) {
+      final ViewExecutionCache executionCache,
+      final boolean useAutoStartViews) {
     _name = name;
     _configSource = configSource;
     _namedMarketDataSpecificationRepository = namedMarketDataSpecificationRepository;
@@ -162,6 +170,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     _viewResultListenerFactory = viewResultListenerFactory;
     _viewProcessWorkerFactory = workerFactory;
     _executionCache = executionCache;
+    _viewAutoStartManager = useAutoStartViews ? new ListeningViewAutoStartManager(configSource) : new NoOpViewAutoStartManager();
   }
 
   //-------------------------------------------------------------------------
@@ -222,7 +231,8 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     _processLock.lock();
     ViewProcessImpl process = null;
     try {
-      process = getOrCreateSharedViewProcess(viewDefinitionId, executionOptions, client.getResultMode(), client.getFragmentResultMode());
+      process = getOrCreateSharedViewProcess(viewDefinitionId, executionOptions, client.getResultMode(),
+                                             client.getFragmentResultMode(), false);
       return attachClientToViewProcessCore(client, listener, process);
     } catch (final Exception e) {
       // Roll-back
@@ -254,7 +264,10 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     ViewProcessImpl process = null;
     _processLock.lock();
     try {
-      process = createViewProcess(viewDefinitionId, executionOptions, client.getResultMode(), client.getFragmentResultMode());
+      process = createViewProcess(viewDefinitionId,
+                                  executionOptions,
+                                  client.getResultMode(),
+                                  client.getFragmentResultMode(), false);
       return attachClientToViewProcessCore(client, listener, process);
     } catch (final Exception e) {
       // Roll-back
@@ -333,14 +346,17 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     }
   }
 
-  private ViewProcessImpl getOrCreateSharedViewProcess(UniqueId viewDefinitionId, ViewExecutionOptions executionOptions,
-      ViewResultMode resultMode, ViewResultMode fragmentResultMode) {
+  private ViewProcessImpl getOrCreateSharedViewProcess(UniqueId viewDefinitionId,
+                                                       ViewExecutionOptions executionOptions,
+                                                       ViewResultMode resultMode,
+                                                       ViewResultMode fragmentResultMode,
+                                                       boolean runPersistently) {
     _processLock.lock();
     try {
       final ViewProcessDescription viewDescription = new ViewProcessDescription(viewDefinitionId, executionOptions);
       ViewProcessImpl process = _sharedProcessesByDescription.get(viewDescription);
       if (process == null) {
-        process = createViewProcess(viewDefinitionId, executionOptions, resultMode, fragmentResultMode);
+        process = createViewProcess(viewDefinitionId, executionOptions, resultMode, fragmentResultMode, runPersistently);
         process.setDescriptionKey(viewDescription); // TEMPORARY - the execution options in the key might not match what the process was created with
         _sharedProcessesByDescription.put(viewDescription, process);
       }
@@ -350,8 +366,11 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     }
   }
 
-  private ViewProcessImpl createViewProcess(UniqueId definitionId, ViewExecutionOptions viewExecutionOptions,
-      ViewResultMode resultMode, ViewResultMode fragmentResultMode) {
+  private ViewProcessImpl createViewProcess(UniqueId definitionId,
+                                            ViewExecutionOptions viewExecutionOptions,
+                                            ViewResultMode resultMode,
+                                            ViewResultMode fragmentResultMode,
+                                            boolean runPersistently) {
 
     // TEMPORARY CODE - This method should be removed post credit work and supports Excel (Jim)
     ViewExecutionOptions executionOptions = verifyLiveDataViewExecutionOptions(viewExecutionOptions);
@@ -362,7 +381,8 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
       final String idValue = generateIdValue(_processIdSource);
       final UniqueId viewProcessId = UniqueId.of(PROCESS_SCHEME, idValue);
       final ViewProcessContext viewProcessContext = createViewProcessContext(viewProcessId, new VersionedUniqueIdSupplier(CYCLE_SCHEME, idValue));
-      final ViewProcessImpl viewProcess = new ViewProcessImpl(definitionId, executionOptions, viewProcessContext, this);
+      final ViewProcessImpl viewProcess =
+          new ViewProcessImpl(definitionId, executionOptions, viewProcessContext, this, runPersistently);
 
       // If executing in batch mode then attach a special listener to write incoming results into the batch db
       if (executionOptions.getFlags().contains(ViewExecutionFlags.BATCH)) {
@@ -653,6 +673,24 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
         return;
       }
       s_logger.info("Starting on lifecycle call.");
+
+      _viewAutoStartManager.initialize();
+      for (AutoStartViewDefinition view : _viewAutoStartManager.getAutoStartViews()) {
+
+        UniqueId viewDefinitionId = view.getViewDefinitionId();
+        try {
+          getOrCreateSharedViewProcess(viewDefinitionId,
+                                       view.getExecutionOptions(),
+                                       // These result mode options will be ignored so shouldn't really matter
+                                       // but set to what web client would
+                                       ViewResultMode.FULL_THEN_DELTA,
+                                       ViewResultMode.NONE,
+                                       // Run persistently
+                                       true);
+        } catch (RuntimeException e) {
+          s_logger.error("Unable to auto-start view definition with id: {}", viewDefinitionId);
+        }
+      }
       _isStarted = true;
     } finally {
       _lifecycleLock.unlock();
