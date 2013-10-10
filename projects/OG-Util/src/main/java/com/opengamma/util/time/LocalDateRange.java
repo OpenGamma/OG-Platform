@@ -48,12 +48,12 @@ public final class LocalDateRange implements ImmutableBean, Serializable {
   /**
    * The start date, inclusive.
    */
-  @PropertyDefinition(get = "manual")
+  @PropertyDefinition(get = "manual", validate = "notNull")
   private final LocalDate _startDateInclusive;
   /**
    * The end date, inclusive.
    */
-  @PropertyDefinition(get = "manual")
+  @PropertyDefinition(get = "manual", validate = "notNull")
   private final LocalDate _endDateInclusive;
 
   //-------------------------------------------------------------------------
@@ -438,6 +438,7 @@ public final class LocalDateRange implements ImmutableBean, Serializable {
      * @return this, for chaining, not null
      */
     public Builder startDateInclusive(LocalDate startDateInclusive) {
+      JodaBeanUtils.notNull(startDateInclusive, "startDateInclusive");
       this._startDateInclusive = startDateInclusive;
       return this;
     }
@@ -448,6 +449,7 @@ public final class LocalDateRange implements ImmutableBean, Serializable {
      * @return this, for chaining, not null
      */
     public Builder endDateInclusive(LocalDate endDateInclusive) {
+      JodaBeanUtils.notNull(endDateInclusive, "endDateInclusive");
       this._endDateInclusive = endDateInclusive;
       return this;
     }

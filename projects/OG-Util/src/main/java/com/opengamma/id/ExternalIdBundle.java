@@ -66,7 +66,7 @@ public final class ExternalIdBundle implements ImmutableBean, Iterable<ExternalI
    * The identifiers are sorted in the natural order of {@link ExternalId} to provide
    * greater consistency in applications. The sort order is not suitable for a GUI.
    */
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private final ImmutableSortedSet<ExternalId> _externalIds;
   /**
    * The cached hash code.
@@ -490,7 +490,8 @@ public final class ExternalIdBundle implements ImmutableBean, Iterable<ExternalI
 
   private ExternalIdBundle(
       SortedSet<ExternalId> externalIds) {
-    this._externalIds = ImmutableSortedSet.copyOf(externalIds);
+    JodaBeanUtils.notNull(externalIds, "externalIds");
+    this._externalIds = (externalIds != null ? ImmutableSortedSet.copyOf(externalIds) : null);
   }
 
   @Override
@@ -514,7 +515,7 @@ public final class ExternalIdBundle implements ImmutableBean, Iterable<ExternalI
    * <p>
    * The identifiers are sorted in the natural order of {@link ExternalId} to provide
    * greater consistency in applications. The sort order is not suitable for a GUI.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public ImmutableSortedSet<ExternalId> getExternalIds() {
     return _externalIds;
@@ -668,6 +669,7 @@ public final class ExternalIdBundle implements ImmutableBean, Iterable<ExternalI
      * @return this, for chaining, not null
      */
     public Builder externalIds(SortedSet<ExternalId> externalIds) {
+      JodaBeanUtils.notNull(externalIds, "externalIds");
       this._externalIds = externalIds;
       return this;
     }

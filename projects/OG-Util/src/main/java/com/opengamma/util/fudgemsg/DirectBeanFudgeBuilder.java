@@ -29,7 +29,6 @@ import org.joda.beans.MetaBean;
 import org.joda.beans.MetaProperty;
 
 import com.google.common.collect.Maps;
-import com.opengamma.util.ClassUtils;
 
 /**
  * Builder to convert DirectBean to and from Fudge.
@@ -50,14 +49,7 @@ public final class DirectBeanFudgeBuilder<T extends Bean> implements FudgeBuilde
    * @return the bean builder, not null
    */
   public static <R extends Bean> DirectBeanFudgeBuilder<R> of(final Class<R> cls) {
-    MetaBean meta = null;
-    try {
-      meta = JodaBeanUtils.metaBean(cls);
-    } catch (RuntimeException ex) {
-      // force initialization and try again
-      ClassUtils.initClass(cls);
-      meta = JodaBeanUtils.metaBean(cls);
-    }
+    MetaBean meta = JodaBeanUtils.metaBean(cls);
     return new DirectBeanFudgeBuilder<R>(meta);
   }
 

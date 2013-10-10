@@ -21,7 +21,6 @@ import org.fudgemsg.mapping.FudgeSerializer;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
-import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -33,7 +32,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.core.config.Config;
 import com.opengamma.engine.marketdata.manipulator.ScenarioParameters;
-import com.opengamma.util.ArgumentChecker;
 
 /**
  * Config object for storing parameters required to build a scenario.
@@ -55,7 +53,7 @@ public final class ScenarioDslParameters implements ImmutableBean, ScenarioParam
   /**
    * The script that populates the parameters.
    */
-  @PropertyDefinition(get = "private")
+  @PropertyDefinition(get = "private", validate = "notEmpty")
   private final String _script;
 
   //-------------------------------------------------------------------------
@@ -67,18 +65,6 @@ public final class ScenarioDslParameters implements ImmutableBean, ScenarioParam
    */
   public static ScenarioDslParameters of(String script) {
     return new ScenarioDslParameters(script);
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Creates an instance.
-   * 
-   * @param script  the script, not null
-   */
-  @ImmutableConstructor
-  private ScenarioDslParameters(String script) {
-    ArgumentChecker.notEmpty(script, "script");
-    _script = script;
   }
 
   //-------------------------------------------------------------------------
@@ -133,6 +119,12 @@ public final class ScenarioDslParameters implements ImmutableBean, ScenarioParam
     return new ScenarioDslParameters.Builder();
   }
 
+  private ScenarioDslParameters(
+      String script) {
+    JodaBeanUtils.notEmpty(script, "script");
+    this._script = script;
+  }
+
   @Override
   public ScenarioDslParameters.Meta metaBean() {
     return ScenarioDslParameters.Meta.INSTANCE;
@@ -151,7 +143,7 @@ public final class ScenarioDslParameters implements ImmutableBean, ScenarioParam
   //-----------------------------------------------------------------------
   /**
    * Gets the script that populates the parameters.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   private String getScript() {
     return _script;
@@ -331,6 +323,7 @@ public final class ScenarioDslParameters implements ImmutableBean, ScenarioParam
      * @return this, for chaining, not null
      */
     public Builder script(String script) {
+      JodaBeanUtils.notEmpty(script, "script");
       this._script = script;
       return this;
     }

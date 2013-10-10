@@ -14,7 +14,6 @@ import java.util.Set;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
-import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -26,7 +25,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
 import com.opengamma.core.config.Config;
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.time.Tenor;
 
@@ -40,17 +38,17 @@ public final class FXForwardCurveDefinition implements ImmutableBean {
   /**
    * The curve name.
    */
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private final String _name;
   /**
    * The target currency pair.
    */
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private final UnorderedCurrencyPair _target;
   /**
    * The tenors.
    */
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private final ImmutableList<Tenor> _tenors;
 
   /**
@@ -63,16 +61,6 @@ public final class FXForwardCurveDefinition implements ImmutableBean {
    */
   public static FXForwardCurveDefinition of(final String name, final UnorderedCurrencyPair target, final List<Tenor> tenors) {
     return new FXForwardCurveDefinition(name, target, tenors);
-  }
-
-  @ImmutableConstructor
-  private FXForwardCurveDefinition(final String name, final UnorderedCurrencyPair target, final List<Tenor> tenors) {
-    ArgumentChecker.notNull(name, "name");
-    ArgumentChecker.notNull(target, "target");
-    ArgumentChecker.notNull(tenors, "xs");
-    _name = name;
-    _target = target;
-    _tenors = ImmutableList.copyOf(tenors);
   }
 
   //-------------------------------------------------------------------------
@@ -108,6 +96,18 @@ public final class FXForwardCurveDefinition implements ImmutableBean {
     return new FXForwardCurveDefinition.Builder();
   }
 
+  private FXForwardCurveDefinition(
+      String name,
+      UnorderedCurrencyPair target,
+      List<Tenor> tenors) {
+    JodaBeanUtils.notNull(name, "name");
+    JodaBeanUtils.notNull(target, "target");
+    JodaBeanUtils.notNull(tenors, "tenors");
+    this._name = name;
+    this._target = target;
+    this._tenors = (tenors != null ? ImmutableList.copyOf(tenors) : null);
+  }
+
   @Override
   public FXForwardCurveDefinition.Meta metaBean() {
     return FXForwardCurveDefinition.Meta.INSTANCE;
@@ -126,7 +126,7 @@ public final class FXForwardCurveDefinition implements ImmutableBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the curve name.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public String getName() {
     return _name;
@@ -135,7 +135,7 @@ public final class FXForwardCurveDefinition implements ImmutableBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the target currency pair.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public UnorderedCurrencyPair getTarget() {
     return _target;
@@ -144,7 +144,7 @@ public final class FXForwardCurveDefinition implements ImmutableBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the tenors.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public ImmutableList<Tenor> getTenors() {
     return _tenors;
@@ -380,6 +380,7 @@ public final class FXForwardCurveDefinition implements ImmutableBean {
      * @return this, for chaining, not null
      */
     public Builder name(String name) {
+      JodaBeanUtils.notNull(name, "name");
       this._name = name;
       return this;
     }
@@ -390,6 +391,7 @@ public final class FXForwardCurveDefinition implements ImmutableBean {
      * @return this, for chaining, not null
      */
     public Builder target(UnorderedCurrencyPair target) {
+      JodaBeanUtils.notNull(target, "target");
       this._target = target;
       return this;
     }
@@ -400,6 +402,7 @@ public final class FXForwardCurveDefinition implements ImmutableBean {
      * @return this, for chaining, not null
      */
     public Builder tenors(List<Tenor> tenors) {
+      JodaBeanUtils.notNull(tenors, "tenors");
       this._tenors = tenors;
       return this;
     }

@@ -54,7 +54,7 @@ public final class MultipleCurrencyAmount implements ImmutableBean,
   /**
    * The map of {@code CurrencyAmount} keyed by currency.
    */
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private final ImmutableSortedMap<Currency, CurrencyAmount> _currencyAmountMap;
 
   /**
@@ -372,7 +372,8 @@ public final class MultipleCurrencyAmount implements ImmutableBean,
 
   private MultipleCurrencyAmount(
       SortedMap<Currency, CurrencyAmount> currencyAmountMap) {
-    this._currencyAmountMap = ImmutableSortedMap.copyOf(currencyAmountMap);
+    JodaBeanUtils.notNull(currencyAmountMap, "currencyAmountMap");
+    this._currencyAmountMap = (currencyAmountMap != null ? ImmutableSortedMap.copyOf(currencyAmountMap) : null);
   }
 
   @Override
@@ -393,7 +394,7 @@ public final class MultipleCurrencyAmount implements ImmutableBean,
   //-----------------------------------------------------------------------
   /**
    * Gets the map of {@code CurrencyAmount} keyed by currency.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public ImmutableSortedMap<Currency, CurrencyAmount> getCurrencyAmountMap() {
     return _currencyAmountMap;
@@ -566,6 +567,7 @@ public final class MultipleCurrencyAmount implements ImmutableBean,
      * @return this, for chaining, not null
      */
     public Builder currencyAmountMap(SortedMap<Currency, CurrencyAmount> currencyAmountMap) {
+      JodaBeanUtils.notNull(currencyAmountMap, "currencyAmountMap");
       this._currencyAmountMap = currencyAmountMap;
       return this;
     }

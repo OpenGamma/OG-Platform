@@ -46,7 +46,7 @@ public final class ScenarioDslScript implements ImmutableBean, ScenarioDefinitio
   /**
    * The script text.
    */
-  @PropertyDefinition(get = "private")
+  @PropertyDefinition(get = "private", validate = "notEmpty")
   private final String _script;
 
   //-------------------------------------------------------------------------
@@ -58,18 +58,6 @@ public final class ScenarioDslScript implements ImmutableBean, ScenarioDefinitio
    */
   public static ScenarioDslScript of(String script) {
     return new ScenarioDslScript(script);
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Creates an instance.
-   * 
-   * @param script  the script, not null
-   */
-  @ImmutableConstructor
-  private ScenarioDslScript(String script) {
-    ArgumentChecker.notEmpty(script, "script");
-    _script = script;
   }
 
   //-------------------------------------------------------------------------
@@ -113,6 +101,12 @@ public final class ScenarioDslScript implements ImmutableBean, ScenarioDefinitio
     return new ScenarioDslScript.Builder();
   }
 
+  private ScenarioDslScript(
+      String script) {
+    JodaBeanUtils.notEmpty(script, "script");
+    this._script = script;
+  }
+
   @Override
   public ScenarioDslScript.Meta metaBean() {
     return ScenarioDslScript.Meta.INSTANCE;
@@ -131,7 +125,7 @@ public final class ScenarioDslScript implements ImmutableBean, ScenarioDefinitio
   //-----------------------------------------------------------------------
   /**
    * Gets the script text.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   private String getScript() {
     return _script;
@@ -311,6 +305,7 @@ public final class ScenarioDslScript implements ImmutableBean, ScenarioDefinitio
      * @return this, for chaining, not null
      */
     public Builder script(String script) {
+      JodaBeanUtils.notEmpty(script, "script");
       this._script = script;
       return this;
     }

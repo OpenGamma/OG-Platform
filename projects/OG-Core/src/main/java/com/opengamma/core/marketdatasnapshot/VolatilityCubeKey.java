@@ -19,7 +19,6 @@ import org.fudgemsg.mapping.FudgeSerializer;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
-import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -45,26 +44,15 @@ public final class VolatilityCubeKey implements ImmutableBean, StructuredMarketD
   /**
    * The currency.
    */
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private final Currency _currency;
   /**
    * The curve name.
    */
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private final String _name;
 
-  /**
-   * Creates an instance with a currency and name.
-   * 
-   * @param currency  the currency
-   * @param name  the name
-   */
-  @ImmutableConstructor
-  private VolatilityCubeKey(Currency currency, String name) {
-    _currency = currency;
-    _name = name;
-  }
-  
+  //-------------------------------------------------------------------------
   /**
    * Creates an instance with a currency and name.
    * 
@@ -140,6 +128,15 @@ public final class VolatilityCubeKey implements ImmutableBean, StructuredMarketD
     return new VolatilityCubeKey.Builder();
   }
 
+  private VolatilityCubeKey(
+      Currency currency,
+      String name) {
+    JodaBeanUtils.notNull(currency, "currency");
+    JodaBeanUtils.notNull(name, "name");
+    this._currency = currency;
+    this._name = name;
+  }
+
   @Override
   public VolatilityCubeKey.Meta metaBean() {
     return VolatilityCubeKey.Meta.INSTANCE;
@@ -158,7 +155,7 @@ public final class VolatilityCubeKey implements ImmutableBean, StructuredMarketD
   //-----------------------------------------------------------------------
   /**
    * Gets the currency.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public Currency getCurrency() {
     return _currency;
@@ -167,7 +164,7 @@ public final class VolatilityCubeKey implements ImmutableBean, StructuredMarketD
   //-----------------------------------------------------------------------
   /**
    * Gets the curve name.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public String getName() {
     return _name;
@@ -364,6 +361,7 @@ public final class VolatilityCubeKey implements ImmutableBean, StructuredMarketD
      * @return this, for chaining, not null
      */
     public Builder currency(Currency currency) {
+      JodaBeanUtils.notNull(currency, "currency");
       this._currency = currency;
       return this;
     }
@@ -374,6 +372,7 @@ public final class VolatilityCubeKey implements ImmutableBean, StructuredMarketD
      * @return this, for chaining, not null
      */
     public Builder name(String name) {
+      JodaBeanUtils.notNull(name, "name");
       this._name = name;
       return this;
     }

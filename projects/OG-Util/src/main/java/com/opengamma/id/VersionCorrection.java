@@ -65,13 +65,13 @@ public final class VersionCorrection implements ImmutableBean, Comparable<Versio
   public static final VersionCorrection LATEST = new VersionCorrection(null, null);
 
   /**
-   * The version instant.
+   * The version instant, null means latest.
    * This locates the version that was active at this instant.
    */
   @PropertyDefinition
   private final Instant _versionAsOf;
   /**
-   * The correction instant.
+   * The correction instant, null means latest.
    * This locates the correction that was active at this instant.
    */
   @PropertyDefinition
@@ -353,7 +353,7 @@ public final class VersionCorrection implements ImmutableBean, Comparable<Versio
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the version instant.
+   * Gets the version instant, null means latest.
    * This locates the version that was active at this instant.
    * @return the value of the property
    */
@@ -363,7 +363,7 @@ public final class VersionCorrection implements ImmutableBean, Comparable<Versio
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the correction instant.
+   * Gets the correction instant, null means latest.
    * This locates the correction that was active at this instant.
    * @return the value of the property
    */

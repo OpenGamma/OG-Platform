@@ -381,7 +381,7 @@ public final class ExternalIdSearch implements ImmutableBean, Iterable<ExternalI
       ExternalIdSearchType searchType) {
     JodaBeanUtils.notNull(externalIds, "externalIds");
     JodaBeanUtils.notNull(searchType, "searchType");
-    this._externalIds = ImmutableSet.copyOf(externalIds);
+    this._externalIds = (externalIds != null ? ImmutableSet.copyOf(externalIds) : null);
     this._searchType = searchType;
   }
 

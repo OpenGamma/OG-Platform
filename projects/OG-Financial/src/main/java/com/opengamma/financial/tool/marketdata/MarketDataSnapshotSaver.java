@@ -66,10 +66,12 @@ import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * Saves snapshots.
  */
 @BeanDefinition
 public final class MarketDataSnapshotSaver implements ImmutableBean {
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(MarketDataSnapshotSaver.class);
   /**
    * The view processor.
@@ -91,7 +93,18 @@ public final class MarketDataSnapshotSaver implements ImmutableBean {
    */
   @PropertyDefinition(validate = "notNull")
   private final MarketDataSnapshotter _snapshotter;
-  
+
+  /**
+   * Obtains an instance.
+   * 
+   * @param computationTargetResolver  the resolver, not null
+   * @param historicalTimeSeriesSource  the source, not null
+   * @param viewProcessor  the view processor, not null
+   * @param configMaster  the master, not null
+   * @param marketDataSnapshotMaster  the master, not null
+   * @param volatilityCubeDefinitionSource  the source, not null
+   * @return the saver, not null
+   */
   public static MarketDataSnapshotSaver of(ComputationTargetResolver computationTargetResolver, HistoricalTimeSeriesSource historicalTimeSeriesSource, 
       ViewProcessor viewProcessor, ConfigMaster configMaster, MarketDataSnapshotMaster marketDataSnapshotMaster,
       VolatilityCubeDefinitionSource volatilityCubeDefinitionSource) {
@@ -102,11 +115,20 @@ public final class MarketDataSnapshotSaver implements ImmutableBean {
     final MarketDataSnapshotterImpl snapshotter = new MarketDataSnapshotterImpl(computationTargetResolver, volatilityCubeDefinitionSource, historicalTimeSeriesSource);
     return new MarketDataSnapshotSaver(viewProcessor, configMaster, marketDataSnapshotMaster, snapshotter);
   }
-  
+
+  /**
+   * Obtains an instance.
+   * 
+   * @param snapshotter  the snapshotter, not null
+   * @param viewProcessor  the view processor, not null
+   * @param configMaster  the master, not null
+   * @param marketDataSnapshotMaster  the master, not null
+   * @return the saver, not null
+   */
   public static MarketDataSnapshotSaver of(MarketDataSnapshotter snapshotter, ViewProcessor viewProcessor, ConfigMaster configMaster, MarketDataSnapshotMaster marketDataSnapshotMaster) {
     return new MarketDataSnapshotSaver(viewProcessor, configMaster, marketDataSnapshotMaster, snapshotter);
   }
-  
+
   public MarketDataSnapshotDocument createSnapshot(String name, final String viewDefinitionName, final Instant valuationInstant, 
       final List<MarketDataSpecification> marketDataSpecs) throws InterruptedException {
     
@@ -134,7 +156,7 @@ public final class MarketDataSnapshotSaver implements ImmutableBean {
     manageableMarketDataSnapshot.setName(name);
     return getMarketDataSnapshotMaster().add(new MarketDataSnapshotDocument(manageableMarketDataSnapshot));
   }
-  
+
   //-------------------------------------------------------------------------
   private static StructuredMarketDataSnapshot makeSnapshot(final MarketDataSnapshotter marketDataSnapshotter,
       final ViewProcessor viewProcessor, final ViewDefinition viewDefinition, final ViewExecutionOptions viewExecutionOptions) throws InterruptedException {
