@@ -22,6 +22,8 @@ import org.eclipse.jetty.security.DefaultIdentityService;
 import org.eclipse.jetty.security.authentication.FormAuthenticator;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.ContextHandlerCollection;
+import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.eclipse.jetty.util.security.Constraint;
 import org.eclipse.jetty.webapp.WebAppContext;
@@ -65,7 +67,7 @@ import com.opengamma.util.rest.WebApplicationExceptionMapper;
 public class EmbeddedJettyComponentFactory extends AbstractComponentFactory {
 
   private static final String AUTH_LOGIN_CONFIG_PROPERTY = "java.security.auth.login.config";
-  private static final String DEFAULT_LOGIN_CONFIG = "classpath:og.login.conf";
+  private static final Resource DEFAULT_LOGIN_RESOURCE = ResourceUtils.createResource("classpath:og.login.conf");
   
   /**
    * The flag indicating if the component is active.
@@ -98,7 +100,7 @@ public class EmbeddedJettyComponentFactory extends AbstractComponentFactory {
    * The login configuration file to set.
    */
   @PropertyDefinition
-  private String _loginConfig = DEFAULT_LOGIN_CONFIG;
+  private Resource _loginConfig = DEFAULT_LOGIN_RESOURCE; 
 
   //-------------------------------------------------------------------------
   @Override
@@ -121,41 +123,8 @@ public class EmbeddedJettyComponentFactory extends AbstractComponentFactory {
   }
 
   private Server initJettyServer(ComponentRepository repo) {
-    SelectChannelConnector connector = new SelectChannelConnector();
-    connector.setPort(getPort());
-    connector.setConfidentialPort(getSecurePort());
-    connector.setRequestHeaderSize(16384);
-    
-    WebAppContext ogWebAppContext = new WebAppContext("OpenGamma", "/");
-    try {
-      ogWebAppContext.setResourceBase(getResourceBase().getFile().getAbsolutePath());
-    } catch (IOException e) {
-      throw new OpenGammaRuntimeException("Unable to find resource base " + getResourceBase(), e);
-    }
-    ogWebAppContext.setErrorHandler(new PlainTextErrorHandler());
-    ogWebAppContext.setEventListeners(new EventListener[] {new ComponentRepositoryServletContextListener(repo)});
-    
-    Server jettyServer = new Server();
-    jettyServer.setConnectors(new Connector[] {connector});
-    jettyServer.setHandler(ogWebAppContext);
-    jettyServer.setStopAtShutdown(true);
-    jettyServer.setGracefulShutdown(2000);
-    jettyServer.setSendDateHeader(true);
-    jettyServer.setSendServerVersion(true);
-    
-    if (isRequireAuthentication()) {
-      configureAuthentication(repo, jettyServer);
-    }
-    
-    ComponentInfo info = new ComponentInfo(Server.class, "jetty");
-    repo.registerComponent(info, jettyServer);
-    repo.registerLifecycle(new ServerLifecycle(jettyServer));
-    return jettyServer;
-  }
-
-  private void configureAuthentication(ComponentRepository repo, Server server) {
-    if (System.getProperty(AUTH_LOGIN_CONFIG_PROPERTY) == null) {
-      Resource loginConfigResource = ResourceUtils.createResource(getLoginConfig());
+    if (System.getProperty(AUTH_LOGIN_CONFIG_PROPERTY) == null && getLoginConfig() != null) {
+      Resource loginConfigResource = getLoginConfig();
       File file;
       try {
         file = loginConfigResource.getFile();
@@ -166,11 +135,63 @@ public class EmbeddedJettyComponentFactory extends AbstractComponentFactory {
         throw new IllegalArgumentException("Unable to find login config resource: " + getLoginConfig());
       }
       System.setProperty(AUTH_LOGIN_CONFIG_PROPERTY, file.getPath());
-
     }
+    
+    SelectChannelConnector connector = new SelectChannelConnector();
+    connector.setPort(getPort());
+    connector.setConfidentialPort(getSecurePort());
+    connector.setRequestHeaderSize(16384);
 
-    WebAppContext context = (WebAppContext) server.getHandler();
-    context.setContextPath("/");
+    Server jettyServer = new Server();
+    jettyServer.setConnectors(new Connector[] {connector});
+    
+    ContextHandlerCollection contexts = new ContextHandlerCollection();
+    HandlerCollection handlers = new HandlerCollection();
+    handlers.addHandler(contexts);
+    addHandlers(repo, jettyServer, contexts);
+    
+    jettyServer.setHandler(handlers);
+    jettyServer.setStopAtShutdown(true);
+    jettyServer.setGracefulShutdown(2000);
+    jettyServer.setSendDateHeader(true);
+    jettyServer.setSendServerVersion(true);
+    
+    ComponentInfo info = new ComponentInfo(Server.class, "jetty");
+    repo.registerComponent(info, jettyServer);
+    repo.registerLifecycle(new ServerLifecycle(jettyServer));
+    return jettyServer;
+  }
+
+  protected void addHandlers(ComponentRepository repo, Server jettyServer, ContextHandlerCollection handlers) {
+    WebAppContext ogWebAppContext = createWebAppContext(repo, getResourceBase(), "OpenGamma", "/");
+    if (isRequireAuthentication()) {
+      configureAuthentication(repo, jettyServer, ogWebAppContext);
+    }
+    handlers.addHandler(ogWebAppContext);
+  }
+
+  protected WebAppContext createWebAppContext(ComponentRepository repo, Resource resourceBase, String name, String contextPath) {
+    WebAppContext ogWebAppContext = new WebAppContext(name, contextPath);
+    ogWebAppContext.setParentLoaderPriority(true);
+    try {
+      ogWebAppContext.setResourceBase(resourceBase.getFile().getAbsolutePath());
+      ogWebAppContext.setDisplayName(resourceBase.getFile().getName());
+    } catch (IOException e) {
+      throw new OpenGammaRuntimeException("Unable to find resource base " + getResourceBase(), e);
+    }
+    ogWebAppContext.setErrorHandler(new PlainTextErrorHandler());
+    ogWebAppContext.setEventListeners(new EventListener[] {new ComponentRepositoryServletContextListener(repo)});
+    return ogWebAppContext;
+  }
+
+  /**
+   * Configures authentication on the web application context pointed at the resource base.
+   * 
+   * @param repo  the component repository, not null
+   * @param server  the Jetty server, not null
+   * @param webAppContext  the web application context to protect, not null
+   */
+  private void configureAuthentication(ComponentRepository repo, Server server, WebAppContext webAppContext) {
     ConstraintSecurityHandler security = new ConstraintSecurityHandler();
 
     Constraint constraint = new Constraint();
@@ -185,7 +206,7 @@ public class EmbeddedJettyComponentFactory extends AbstractComponentFactory {
     cm.setPathSpec("/*");
     cm.setConstraint(constraint);
     security.setConstraintMappings(Arrays.asList(new ConstraintMapping[]{cm}));
-
+    
     ConstraintMapping publicImages = new ConstraintMapping();
     publicImages.setConstraint(noAuthenticationConstraint);
     publicImages.setPathSpec("/prototype/images/*");
@@ -208,9 +229,7 @@ public class EmbeddedJettyComponentFactory extends AbstractComponentFactory {
     security.setLoginService(loginService);
     server.addBean(loginService);
 
-    context.setSecurityHandler(security);
-    server.setHandler(context);
-
+    webAppContext.setSecurityHandler(security);
   }
 
   /**
@@ -425,7 +444,7 @@ public class EmbeddedJettyComponentFactory extends AbstractComponentFactory {
    * Gets the login configuration file to set.
    * @return the value of the property
    */
-  public String getLoginConfig() {
+  public Resource getLoginConfig() {
     return _loginConfig;
   }
 
@@ -433,7 +452,7 @@ public class EmbeddedJettyComponentFactory extends AbstractComponentFactory {
    * Sets the login configuration file to set.
    * @param loginConfig  the new value of the property
    */
-  public void setLoginConfig(String loginConfig) {
+  public void setLoginConfig(Resource loginConfig) {
     this._loginConfig = loginConfig;
   }
 
@@ -441,7 +460,7 @@ public class EmbeddedJettyComponentFactory extends AbstractComponentFactory {
    * Gets the the {@code loginConfig} property.
    * @return the property, not null
    */
-  public final Property<String> loginConfig() {
+  public final Property<Resource> loginConfig() {
     return metaBean().loginConfig().createProperty(this);
   }
 
@@ -543,8 +562,8 @@ public class EmbeddedJettyComponentFactory extends AbstractComponentFactory {
     /**
      * The meta-property for the {@code loginConfig} property.
      */
-    private final MetaProperty<String> _loginConfig = DirectMetaProperty.ofReadWrite(
-        this, "loginConfig", EmbeddedJettyComponentFactory.class, String.class);
+    private final MetaProperty<Resource> _loginConfig = DirectMetaProperty.ofReadWrite(
+        this, "loginConfig", EmbeddedJettyComponentFactory.class, Resource.class);
     /**
      * The meta-properties.
      */
@@ -642,7 +661,7 @@ public class EmbeddedJettyComponentFactory extends AbstractComponentFactory {
      * The meta-property for the {@code loginConfig} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<String> loginConfig() {
+    public final MetaProperty<Resource> loginConfig() {
       return _loginConfig;
     }
 
@@ -685,7 +704,7 @@ public class EmbeddedJettyComponentFactory extends AbstractComponentFactory {
           ((EmbeddedJettyComponentFactory) bean).setRequireAuthentication((Boolean) newValue);
           return;
         case 852061195:  // loginConfig
-          ((EmbeddedJettyComponentFactory) bean).setLoginConfig((String) newValue);
+          ((EmbeddedJettyComponentFactory) bean).setLoginConfig((Resource) newValue);
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
