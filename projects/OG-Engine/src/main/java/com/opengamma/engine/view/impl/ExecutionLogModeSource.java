@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.view.impl;
 
+import static com.google.common.collect.Sets.intersection;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -25,7 +27,7 @@ public class ExecutionLogModeSource {
 
   private final ReentrantLock _lock = new ReentrantLock();
   private final Map<Pair<String, ValueSpecification>, Integer> _elevatedLogTargets = new HashMap<Pair<String, ValueSpecification>, Integer>();
-  private final Map<DependencyNode, Integer> _elevatedLogNodes = new ConcurrentHashMap<DependencyNode, Integer>();
+  private final Map<ValueSpecification, Integer> _elevatedLogSpecs = new ConcurrentHashMap<ValueSpecification, Integer>();
   private CompiledViewDefinitionWithGraphs _compiledViewDefinition;
   private Map<String, DependencyGraph> _graphs = new HashMap<String, DependencyGraph>();
 
@@ -75,7 +77,9 @@ public class ExecutionLogModeSource {
    * @return the log mode, not null
    */
   public ExecutionLogMode getLogMode(DependencyNode dependencyNode) {
-    return _elevatedLogNodes.containsKey(dependencyNode) ? ExecutionLogMode.FULL : ExecutionLogMode.INDICATORS;
+    Set<ValueSpecification> elevatedSpecSet = _elevatedLogSpecs.keySet();
+    ExecutionLogMode executionLogMode = !intersection(elevatedSpecSet, dependencyNode.getOutputValues()).isEmpty() ? ExecutionLogMode.FULL : ExecutionLogMode.INDICATORS;
+    return executionLogMode;
   }
 
   //-------------------------------------------------------------------------
@@ -98,7 +102,9 @@ public class ExecutionLogModeSource {
     if (node == null) {
       return;
     }
-    incrementRefCount(node, _elevatedLogNodes);
+    for (ValueSpecification valueSpec : node.getOutputValues()) {
+      incrementRefCount(valueSpec, _elevatedLogSpecs);
+    }
     for (DependencyNode inputNode : node.getInputNodes()) {
       incrementNodeRefCount(inputNode);
     }
@@ -113,7 +119,9 @@ public class ExecutionLogModeSource {
     if (node == null) {
       return;
     }
-    decrementRefCount(node, _elevatedLogNodes);
+    for (ValueSpecification valueSpec : node.getOutputValues()) {
+      decrementRefCount(valueSpec, _elevatedLogSpecs);
+    }
     for (DependencyNode inputNode : node.getInputNodes()) {
       decrementNodeRefCount(inputNode);
     }
@@ -141,7 +149,7 @@ public class ExecutionLogModeSource {
 
   private void rebuildNodeLogModes() {
     // Must be called while holding the lock
-    _elevatedLogNodes.clear();
+    _elevatedLogSpecs.clear();
     for (Pair<String, ValueSpecification> target : _elevatedLogTargets.keySet()) {
       addElevatedNode(target);
     }
