@@ -31,6 +31,7 @@ public final class DoublesPair extends Pair<Double, Double> implements Double2Do
   /** The second element. */
   public final double second; // CSIGNORE
 
+  //-------------------------------------------------------------------------
   /**
    * Obtains a {@code DoublesPair} from a {@code DoublesPair} checking for null.
    * <p>

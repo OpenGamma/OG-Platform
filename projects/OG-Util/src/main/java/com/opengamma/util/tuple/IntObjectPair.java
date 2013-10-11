@@ -29,6 +29,7 @@ public class IntObjectPair<T> extends Pair<Integer, T> implements Int2ObjectMap.
   /** The second element. */
   public final T second; // CSIGNORE
 
+  //-------------------------------------------------------------------------
   /**
    * Creates a pair inferring the types.
    * 
@@ -41,12 +42,15 @@ public class IntObjectPair<T> extends Pair<Integer, T> implements Int2ObjectMap.
     return new IntObjectPair<>(first, second);
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Constructor.
+   * Constructs a pair.
    * 
    * @param first  the first element
    * @param second  the second element
+   * @deprecated Use public factory of(int,Object)
    */
+  @Deprecated
   public IntObjectPair(final int first, final T second) {
     this.first = first;
     this.second = second;
@@ -63,12 +67,13 @@ public class IntObjectPair<T> extends Pair<Integer, T> implements Int2ObjectMap.
     return second;
   }
 
+  /**
+   * Gets the first element as a primitive {@code int}.
+   * 
+   * @return the primitive
+   */
   public int getFirstInt() {
     return first;
-  }
-
-  public T getSecondObject() {
-    return second;
   }
 
   //-------------------------------------------------------------------------

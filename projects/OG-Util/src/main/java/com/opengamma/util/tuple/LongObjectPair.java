@@ -29,6 +29,7 @@ public class LongObjectPair<T> extends Pair<Long, T> implements Long2ObjectMap.E
   /** The second element. */
   public final T second; // CSIGNORE
 
+  //-------------------------------------------------------------------------
   /**
    * Creates a pair inferring the types.
    * 
@@ -41,12 +42,15 @@ public class LongObjectPair<T> extends Pair<Long, T> implements Long2ObjectMap.E
     return new LongObjectPair<>(first, second);
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Constructor.
+   * Constructs a pair.
    * 
    * @param first  the first element
    * @param second  the second element
+   * @deprecated Use public factory of(long,Object)
    */
+  @Deprecated
   public LongObjectPair(final long first, final T second) {
     this.first = first;
     this.second = second;
@@ -63,12 +67,13 @@ public class LongObjectPair<T> extends Pair<Long, T> implements Long2ObjectMap.E
     return second;
   }
 
+  /**
+   * Gets the first element as a primitive {@code long}.
+   * 
+   * @return the primitive
+   */
   public long getFirstLong() {
     return first;
-  }
-
-  public T getSecondObject() {
-    return second;
   }
 
   //-------------------------------------------------------------------------

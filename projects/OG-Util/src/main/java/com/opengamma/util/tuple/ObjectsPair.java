@@ -45,6 +45,7 @@ public final class ObjectsPair<A, B> extends Pair<A, B> implements ImmutableBean
   /** The second element. */
   public final B second; // CSIGNORE
 
+  //-------------------------------------------------------------------------
   /**
    * Creates a pair inferring the types.
    * 
@@ -58,6 +59,7 @@ public final class ObjectsPair<A, B> extends Pair<A, B> implements ImmutableBean
     return new ObjectsPair<>(first, second);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Constructs a pair.
    * 
@@ -134,12 +136,12 @@ public final class ObjectsPair<A, B> extends Pair<A, B> implements ImmutableBean
     /**
      * The meta-property for the {@code first} property.
      */
-    private final MetaProperty<Object> _first = DirectMetaProperty.ofDerived(
+    private final MetaProperty<Object> _first = DirectMetaProperty.ofImmutable(
         this, "first", ObjectsPair.class, Object.class);
     /**
      * The meta-property for the {@code second} property.
      */
-    private final MetaProperty<Object> _second = DirectMetaProperty.ofDerived(
+    private final MetaProperty<Object> _second = DirectMetaProperty.ofImmutable(
         this, "second", ObjectsPair.class, Object.class);
     /**
      * The meta-properties.

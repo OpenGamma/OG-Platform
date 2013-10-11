@@ -31,6 +31,7 @@ public class IntDoublePair extends Pair<Integer, Double> implements Int2DoubleMa
   /** The second element. */
   public final double second; // CSIGNORE
 
+  //-------------------------------------------------------------------------
   /**
    * Obtains an {@code IntDoublePair} from a {@code Pair}.
    * 

@@ -31,6 +31,7 @@ public class LongDoublePair extends Pair<Long, Double> implements Long2DoubleMap
   /** The second element. */
   public final double second; // CSIGNORE
 
+  //-------------------------------------------------------------------------
   /**
    * Obtains a {@code LongDoublePair} from a {@code Pair}.
    * 
