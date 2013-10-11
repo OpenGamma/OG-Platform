@@ -17,6 +17,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Test.
@@ -33,7 +34,7 @@ public class VolatilitySurfaceDataFudgeEncodingTest extends FinancialTestBase {
     final Map<Pair<Tenor, Tenor>, Double> values = new HashMap<Pair<Tenor, Tenor>, Double>();
     for (final Tenor tenorX : oneToTenYears) {
       for (final Tenor tenorY : oneToTenYears) {
-        values.put(Pair.of(tenorX, tenorY), Math.random());
+        values.put(Pairs.of(tenorX, tenorY), Math.random());
       }
     }
     final VolatilitySurfaceData<Tenor, Tenor> data = new VolatilitySurfaceData<Tenor, Tenor>("US", "US", Currency.USD, oneToTenYears, oneToTenYears, values);

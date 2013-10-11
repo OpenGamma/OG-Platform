@@ -34,6 +34,7 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  *
@@ -104,8 +105,8 @@ public class VolatilityCubeFunction extends AbstractFunction {
           final Tenor swapTenor = oldPoint.getSwapTenor();
           final Tenor swaptionExpiry = oldPoint.getOptionExpiry();
           final double relativeStrike = oldPoint.getRelativeStrike();
-          if (atmStrikes.containsKey(Pair.of(swapTenor, swaptionExpiry))) {
-            final Pair<Tenor, Tenor> tenorPair = Pair.of(swapTenor, swaptionExpiry);
+          if (atmStrikes.containsKey(Pairs.of(swapTenor, swaptionExpiry))) {
+            final Pair<Tenor, Tenor> tenorPair = Pairs.of(swapTenor, swaptionExpiry);
             final double absoluteStrike = atmStrikes.get(tenorPair) + relativeStrike / 10000;
             final double vol = entry.getValue();
             final VolatilityPoint newPoint = new VolatilityPoint(swapTenor, swaptionExpiry, absoluteStrike);

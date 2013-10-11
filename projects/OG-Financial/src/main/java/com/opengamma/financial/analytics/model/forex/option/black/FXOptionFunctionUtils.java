@@ -45,6 +45,7 @@ import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecu
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Contains utility methods for pricing FX options.
@@ -117,7 +118,7 @@ public class FXOptionFunctionUtils {
     }
     final FXMatrix fxMatrix = new FXMatrix(ccy1, ccy2, spot);
     final YieldCurveBundle curvesWithFX = new YieldCurveBundle(fxMatrix, curveCurrency, yieldCurves.getCurvesMap());
-    final Pair<Currency, Currency> currencyPair = Pair.of(ccy1, ccy2);
+    final Pair<Currency, Currency> currencyPair = Pairs.of(ccy1, ccy2);
     if (volatilitySurfaceObject instanceof SmileDeltaTermStructureParametersStrikeInterpolation) {
       final SmileDeltaTermStructureParametersStrikeInterpolation smiles = (SmileDeltaTermStructureParametersStrikeInterpolation) volatilitySurfaceObject;
       final SmileDeltaTermStructureDataBundle smileBundle = new SmileDeltaTermStructureDataBundle(curvesWithFX, smiles, currencyPair);

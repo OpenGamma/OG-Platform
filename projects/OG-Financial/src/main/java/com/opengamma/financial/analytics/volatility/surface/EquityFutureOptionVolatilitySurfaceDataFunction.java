@@ -45,6 +45,7 @@ import com.opengamma.financial.analytics.model.curve.forward.ForwardCurveValuePr
 import com.opengamma.financial.analytics.model.equity.EquitySecurityUtils;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  *
@@ -221,7 +222,7 @@ public class EquityFutureOptionVolatilitySurfaceDataFunction extends AbstractFun
           if (vol != null) {
             tList.add(t);
             kList.add(strike);
-            volValues.put(Pair.of(t, strike), vol / 100.);
+            volValues.put(Pairs.of(t, strike), vol / 100.);
           }
         }
       }
@@ -263,7 +264,7 @@ public class EquityFutureOptionVolatilitySurfaceDataFunction extends AbstractFun
               }
               tList.add(t);
               kList.add(strike);
-              volValues.put(Pair.of(t, strike), vol);
+              volValues.put(Pairs.of(t, strike), vol);
             } catch (final Exception e) {
             }
           }

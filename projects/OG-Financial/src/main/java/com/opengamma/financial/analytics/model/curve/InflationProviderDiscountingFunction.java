@@ -86,6 +86,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Produces price index curves using the discounting method.
@@ -239,7 +240,7 @@ public class InflationProviderDiscountingFunction extends
       //TODO this is only in here because the code in analytics doesn't use generics properly
       final Pair<InflationProviderDiscount, CurveBuildingBlockBundle> temp = builder.makeCurvesFromDerivatives(curveBundles,
           (InflationProviderDiscount) knownData, inflationMap, getCalculator(), getSensitivityCalculator());
-      final Pair<InflationProviderInterface, CurveBuildingBlockBundle> result = Pair.of((InflationProviderInterface) temp.getFirst(), temp.getSecond());
+      final Pair<InflationProviderInterface, CurveBuildingBlockBundle> result = Pairs.of((InflationProviderInterface) temp.getFirst(), temp.getSecond());
       return result;
     }
 

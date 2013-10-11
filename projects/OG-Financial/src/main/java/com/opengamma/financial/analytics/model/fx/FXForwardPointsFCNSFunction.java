@@ -39,6 +39,7 @@ import com.opengamma.financial.analytics.model.multicurve.MultiCurveUtils;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  *
@@ -66,9 +67,9 @@ public class FXForwardPointsFCNSFunction extends FXForwardPointsFunction {
         final Currency currency1 = forex.getCurrency1();
         final Currency currency2 = forex.getCurrency2();
         if (currency1.equals(pairs.getCurrencyPair(currency1, currency2).getBase())) {
-          ccyPair = Pair.of(currency1, currency2);
+          ccyPair = Pairs.of(currency1, currency2);
         } else {
-          ccyPair = Pair.of(currency2, currency1);
+          ccyPair = Pairs.of(currency2, currency1);
         }
         final double[] sensitivities = CALCULATOR.presentValueForwardPointsSensitivity(forex, data, forwardPoints, ccyPair);
         final CurveDefinition definition = (CurveDefinition) inputs.getValue(

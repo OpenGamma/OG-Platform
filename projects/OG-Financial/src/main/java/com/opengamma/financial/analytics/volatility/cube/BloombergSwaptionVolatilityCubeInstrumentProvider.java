@@ -26,8 +26,8 @@ import com.opengamma.financial.analytics.volatility.surface.SurfaceInstrumentPro
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Generates Bloomberg instrument codes for volatilities given points.
@@ -48,11 +48,11 @@ public final class BloombergSwaptionVolatilityCubeInstrumentProvider {
 
   private static final String TICKER_FILE = "VolatilityCubeIdentifierLookupTable.csv";
 
-  private final HashMap<ObjectsPair<Currency, VolatilityPoint>, Set<ExternalId>> _idsByPoint;
+  private final HashMap<Pair<Currency, VolatilityPoint>, Set<ExternalId>> _idsByPoint;
 
   private BloombergSwaptionVolatilityCubeInstrumentProvider() {
     //TODO not here
-    _idsByPoint = new HashMap<ObjectsPair<Currency, VolatilityPoint>, Set<ExternalId>>();
+    _idsByPoint = new HashMap<Pair<Currency, VolatilityPoint>, Set<ExternalId>>();
 
     final InputStream is = getClass().getResourceAsStream(TICKER_FILE);
     if (is == null) {
@@ -98,7 +98,7 @@ public final class BloombergSwaptionVolatilityCubeInstrumentProvider {
 
           final ExternalId identifier = getIdentifier(ticker + " Curncy");
 
-          final ObjectsPair<Currency, VolatilityPoint> key = Pair.of(currency, point);
+          final Pair<Currency, VolatilityPoint> key = Pairs.of(currency, point);
           if (_idsByPoint.containsKey(key)) {
             _idsByPoint.get(key).add(identifier);
           } else {
@@ -121,23 +121,23 @@ public final class BloombergSwaptionVolatilityCubeInstrumentProvider {
       final ExternalId instrument = ATM_INSTRUMENT_PROVIDER.getInstrument(point.getSwapTenor(), point.getOptionExpiry());
       return Sets.newHashSet(instrument);
     } else {
-      return _idsByPoint.get(Pair.of(currency, point));
+      return _idsByPoint.get(Pairs.of(currency, point));
     }
   }
 
   public Set<Currency> getAllCurrencies() {
     final HashSet<Currency> ret = new HashSet<Currency>();
-    for (final Entry<ObjectsPair<Currency, VolatilityPoint>, Set<ExternalId>> entry : _idsByPoint.entrySet()) {
-      ret.add(entry.getKey().first);
+    for (final Entry<Pair<Currency, VolatilityPoint>, Set<ExternalId>> entry : _idsByPoint.entrySet()) {
+      ret.add(entry.getKey().getFirst());
     }
     return ret;
   }
 
   public Set<VolatilityPoint> getAllPoints(final Currency currency) {
     final HashSet<VolatilityPoint> ret = new HashSet<VolatilityPoint>();
-    for (final Entry<ObjectsPair<Currency, VolatilityPoint>, Set<ExternalId>> entry : _idsByPoint.entrySet()) {
-      if (entry.getKey().first.equals(currency)) {
-        ret.add(entry.getKey().second);
+    for (final Entry<Pair<Currency, VolatilityPoint>, Set<ExternalId>> entry : _idsByPoint.entrySet()) {
+      if (entry.getKey().getFirst().equals(currency)) {
+        ret.add(entry.getKey().getSecond());
       }
     }
     return ret;

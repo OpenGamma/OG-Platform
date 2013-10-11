@@ -59,6 +59,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 import com.opengamma.util.tuple.Triple;
 
 /**
@@ -261,7 +262,7 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
     final Period paymentPeriod = convention.getPaymentTenor().getPeriod();
     final Period maturityTenor = swapNode.getMaturityTenor().getPeriod();
 
-    return Pair.of(new FixedInterestRateLeg(dayCount,
+    return Pairs.of(new FixedInterestRateLeg(dayCount,
                                             PeriodFrequency.of(paymentPeriod),
                                             convention.getRegionCalendar(),
                                             businessDayConvention,
@@ -312,7 +313,7 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
                                                                        eomLeg);
     if (isFloatFloat) {
       //return AnnuityCouponIborSpreadDefinition.from(startDate, maturityTenor, 1, iborIndex, spread, isPayer, calendar);
-      return Pair.of(new FloatingSpreadIRLeg(dayCount,
+      return Pairs.of(new FloatingSpreadIRLeg(dayCount,
                                              PeriodFrequency.of(convention.getResetTenor().getPeriod()),
                                              indexConvention.getRegionCalendar(),
                                              businessDayConvention,
@@ -324,7 +325,7 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
                      Triple.of(startDate, spotDateLeg, _valuationTime.plus(maturityTenor)));
     }
     //return AnnuityCouponIborDefinition.from(startDate, maturityTenor, 1, iborIndex, isPayer, calendar);
-    return Pair.of(new FloatingInterestRateLeg(dayCount,
+    return Pairs.of(new FloatingInterestRateLeg(dayCount,
                                                PeriodFrequency.of(convention.getResetTenor().getPeriod()),
                                                indexConvention.getRegionCalendar(),
                                                businessDayConvention,
@@ -363,7 +364,7 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
                                                                        eomLeg);
     if (isFloatFloat) {
       //return AnnuityCouponONSpreadSimplifiedDefinition.from(startDate, maturityTenor, 1, spread, isPayer, indexON, paymentLag, calendar, businessDayConvention, paymentPeriod, eomLeg);
-      return Pair.of(new FloatingSpreadIRLeg(dayCount,
+      return Pairs.of(new FloatingSpreadIRLeg(dayCount,
                                              PeriodFrequency.of(paymentPeriod),
                                              indexConvention.getRegionCalendar(),
                                              businessDayConvention,
@@ -375,7 +376,7 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
                      Triple.of(startDate, spotDateLeg, _valuationTime.plus(maturityTenor)));
     }
     //return AnnuityCouponONSimplifiedDefinition.from(startDate, maturityTenor, 1, isPayer, indexON, paymentLag, calendar, businessDayConvention, paymentPeriod, eomLeg);
-    return Pair.of(new FloatingInterestRateLeg(dayCount,
+    return Pairs.of(new FloatingInterestRateLeg(dayCount,
                                                PeriodFrequency.of(paymentPeriod),
                                                indexConvention.getRegionCalendar(),
                                                businessDayConvention,
