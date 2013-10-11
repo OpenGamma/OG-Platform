@@ -8,9 +8,9 @@ package com.opengamma.master.portfolio.impl;
 import java.util.List;
 
 import com.google.common.collect.Lists;
-import com.opengamma.core.change.ChangeManager;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.AbstractDocumentsResult;
+import com.opengamma.master.ChangeProvidingCombinedMaster;
 import com.opengamma.master.CombinedMaster;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
@@ -24,15 +24,10 @@ import com.opengamma.master.portfolio.PortfolioSearchResult;
  * A {@link PortfolioMaster} that combines the behavior of the masters
  * in the session, user and global contexts. 
  */
-public class CombinedPortfolioMaster extends CombinedMaster<PortfolioDocument, PortfolioMaster> implements PortfolioMaster {
+public class CombinedPortfolioMaster extends ChangeProvidingCombinedMaster<PortfolioDocument, PortfolioMaster> implements PortfolioMaster {
 
   public CombinedPortfolioMaster(final List<PortfolioMaster> masterList) {
     super(masterList);
-  }
-
-  @Override
-  public ChangeManager changeManager() {
-    throw new UnsupportedOperationException();
   }
 
   @Override

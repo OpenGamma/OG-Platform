@@ -8,8 +8,8 @@ package com.opengamma.master.marketdatasnapshot.impl;
 import java.util.List;
 
 import com.google.common.collect.Lists;
-import com.opengamma.core.change.ChangeManager;
 import com.opengamma.master.AbstractDocumentsResult;
+import com.opengamma.master.ChangeProvidingCombinedMaster;
 import com.opengamma.master.CombinedMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryRequest;
@@ -22,16 +22,10 @@ import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
  * A {@link MarketDataSnapshotMaster} that combines the behavior of the masters
  * in the session, user and global contexts. 
  */
-public class CombinedMarketDataSnapshotMaster extends CombinedMaster<MarketDataSnapshotDocument, MarketDataSnapshotMaster> implements MarketDataSnapshotMaster {
+public class CombinedMarketDataSnapshotMaster extends ChangeProvidingCombinedMaster<MarketDataSnapshotDocument, MarketDataSnapshotMaster> implements MarketDataSnapshotMaster {
 
   public CombinedMarketDataSnapshotMaster(final List<MarketDataSnapshotMaster> masterList) {
     super(masterList);
-  }
-
-  @Override
-  public ChangeManager changeManager() {
-    // TODO: if needed
-    throw new UnsupportedOperationException();
   }
 
   @Override
