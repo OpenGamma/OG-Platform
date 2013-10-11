@@ -47,6 +47,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Default implementation of {@link ViewProcess}.
@@ -343,7 +344,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
     final MarketDataPermissionProvider permissionProvider = dataProvider.getPermissionProvider();
     lock();
     try {
-      _latestCompiledViewDefinition.set(Pair.of(compiledViewDefinition, permissionProvider));
+      _latestCompiledViewDefinition.set(Pairs.of(compiledViewDefinition, permissionProvider));
       listeners = getListenerArray();
     } finally {
       unlock();

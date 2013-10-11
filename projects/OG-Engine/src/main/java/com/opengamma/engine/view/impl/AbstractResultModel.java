@@ -14,6 +14,7 @@ import java.util.Map;
 import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * A simple implementation of the calculation result model.
@@ -55,7 +56,7 @@ import com.opengamma.util.tuple.Pair;
       _valuesByName.put(key, valuesByName);
     }
     if (value != null) {
-      valuesByName.put(Pair.of(value.getSpecification().getValueName(), value.getSpecification().getProperties()), value);
+      valuesByName.put(Pairs.of(value.getSpecification().getValueName(), value.getSpecification().getProperties()), value);
     }
   }
 

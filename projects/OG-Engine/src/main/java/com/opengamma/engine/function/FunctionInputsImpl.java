@@ -25,6 +25,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * An implementation of {@link FunctionInputs} that stores all inputs in internal maps.
@@ -85,7 +86,7 @@ public class FunctionInputsImpl implements FunctionInputs, Serializable {
     }
     _values.add(value);
     _valuesByRequirementName.put(value.getSpecification().getValueName(), value);
-    final Pair<String, Object> key = Pair.of(value.getSpecification().getValueName(), targetSpecKey(value.getSpecification().getTargetSpecification()));
+    final Pair<String, Object> key = Pairs.of(value.getSpecification().getValueName(), targetSpecKey(value.getSpecification().getTargetSpecification()));
     final ComputedValue[] prev = _valuesByRequirement.get(key);
     if (prev == null) {
       _valuesByRequirement.put(key, new ComputedValue[] {value });
@@ -113,7 +114,7 @@ public class FunctionInputsImpl implements FunctionInputs, Serializable {
 
   @Override
   public ComputedValue getComputedValue(final ValueRequirement requirement) {
-    final Pair<String, Object> key = Pair.of(requirement.getValueName(), targetSpecKey(_resolver.getTargetSpecification(requirement.getTargetReference())));
+    final Pair<String, Object> key = Pairs.of(requirement.getValueName(), targetSpecKey(_resolver.getTargetSpecification(requirement.getTargetReference())));
     final ComputedValue[] values = _valuesByRequirement.get(key);
     if (values != null) {
       for (final ComputedValue value : values) {

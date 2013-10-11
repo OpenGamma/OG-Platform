@@ -31,6 +31,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Default implementation of {@link CompiledViewDefinitionWithGraphs}.
@@ -235,7 +236,7 @@ public class CompiledViewDefinitionWithGraphsImpl extends CompiledViewDefinition
         }
       }
     }
-    return Pair.of(earliest, latest);
+    return Pairs.of(earliest, latest);
   }
 
   private static Collection<CompiledViewCalculationConfiguration> processCompiledCalculationConfigurations(

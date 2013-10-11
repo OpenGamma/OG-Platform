@@ -12,6 +12,7 @@ import java.util.List;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Partial implementation of {@link ViewComputationCache}. A real implementation should handle the multiple value operations more efficiently whenever possible.
@@ -36,7 +37,7 @@ public abstract class AbstractViewComputationCache implements ViewComputationCac
   public static Collection<Pair<ValueSpecification, Object>> getValues(final ViewComputationCache cache, final Collection<ValueSpecification> specifications) {
     final Collection<Pair<ValueSpecification, Object>> values = new ArrayList<Pair<ValueSpecification, Object>>(specifications.size());
     for (ValueSpecification specification : specifications) {
-      values.add(Pair.of(specification, cache.getValue(specification)));
+      values.add(Pairs.of(specification, cache.getValue(specification)));
     }
     return values;
   }

@@ -18,6 +18,7 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * A wrapper around an existing {@link ViewComputationCache} implementation that will attempt to buffer data in memory to speed up writes rapidly followed by a read.
@@ -54,7 +55,7 @@ public class WriteThroughViewComputationCache implements ViewComputationCache {
     }
 
     public Pair<ValueSpecification, Object> waitForPair() {
-      return Pair.of(_specification, waitFor());
+      return Pairs.of(_specification, waitFor());
     }
 
     public synchronized void post(final Object value) {
@@ -197,7 +198,7 @@ public class WriteThroughViewComputationCache implements ViewComputationCache {
       }
       if (value == NULL) {
         //s_logger.debug("Cached NULL for {}", specification);
-        result.add(Pair.of(specification, null));
+        result.add(Pairs.of(specification, null));
       } else if (value == null) {
         //s_logger.debug("Cache miss for {}", specification);
         if (query == null) {
@@ -206,7 +207,7 @@ public class WriteThroughViewComputationCache implements ViewComputationCache {
         query.add(specification);
       } else {
         s_logger.debug("Cache hit for {}", specification);
-        result.add(Pair.of(specification, value));
+        result.add(Pairs.of(specification, value));
       }
     }
     if (query != null) {
@@ -244,7 +245,7 @@ public class WriteThroughViewComputationCache implements ViewComputationCache {
       }
       if (value == NULL) {
         //s_logger.debug("Cached NULL for {}", specification);
-        result.add(Pair.of(specification, null));
+        result.add(Pairs.of(specification, null));
       } else if (value == null) {
         //s_logger.debug("Cache miss for {}", specification);
         if (query == null) {
@@ -253,7 +254,7 @@ public class WriteThroughViewComputationCache implements ViewComputationCache {
         query.add(specification);
       } else {
         s_logger.debug("Cache hit for {}", specification);
-        result.add(Pair.of(specification, value));
+        result.add(Pairs.of(specification, value));
       }
     }
     if (query != null) {

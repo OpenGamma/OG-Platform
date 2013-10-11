@@ -69,6 +69,7 @@ import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.monitor.OperationTimer;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Default implementation of {@link ViewProcessor}.
@@ -308,7 +309,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   private ViewPermissionContext attachClientToViewProcessCore(final ViewClientImpl client,
                                                                final ViewResultListener listener,
                                                                final ViewProcessImpl process) {
-    final Pair<ViewProcessImpl, ViewResultListener> processListenerPair = Pair.of(process, listener);
+    final Pair<ViewProcessImpl, ViewResultListener> processListenerPair = Pairs.of(process, listener);
     _processLock.lock();
     try {
       final Pair<ViewProcessImpl, ViewResultListener> existingAttachment = _clientToProcess.get(client.getUniqueId());

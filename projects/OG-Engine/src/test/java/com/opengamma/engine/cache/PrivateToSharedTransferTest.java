@@ -40,6 +40,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.test.Timeout;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 @Test(groups = {TestGroup.INTEGRATION, "ehcache"})
 public class PrivateToSharedTransferTest {
@@ -150,17 +151,17 @@ public class PrivateToSharedTransferTest {
     missing.clear();
     Collection<Pair<ValueSpecification, Object>> values = cache.getValues(Arrays.asList(specs[2], specs[3]));
     assertEquals(2, values.size());
-    assertTrue(values.contains(Pair.of(specs[2], "Two")));
-    assertTrue(values.contains(Pair.of(specs[3], "Three")));
+    assertTrue(values.contains(Pairs.of(specs[2], "Two")));
+    assertTrue(values.contains(Pairs.of(specs[3], "Three")));
     assertEquals(2, missing.size());
     assertTrue(missing.contains(2));
     assertTrue(missing.contains(3));
     missing.clear();
     values = cache.getValues(Arrays.asList(specs[0], specs[1], specs[2]));
     assertEquals(3, values.size());
-    assertTrue(values.contains(Pair.of(specs[0], "Zero")));
-    assertTrue(values.contains(Pair.of(specs[1], "One")));
-    assertTrue(values.contains(Pair.of(specs[2], "Two")));
+    assertTrue(values.contains(Pairs.of(specs[0], "Zero")));
+    assertTrue(values.contains(Pairs.of(specs[1], "One")));
+    assertTrue(values.contains(Pairs.of(specs[2], "Two")));
     assertEquals(1, missing.size());
     assertTrue(missing.contains(2));
   }
@@ -240,9 +241,9 @@ public class PrivateToSharedTransferTest {
     Collection<Pair<ValueSpecification, Object>> values = serverCache.getValues(Arrays.asList(specs[4], specs[5],
         specs[6]));
     assertEquals(3, values.size());
-    assertTrue(values.contains(Pair.of(specs[4], "Four")));
-    assertTrue(values.contains(Pair.of(specs[5], "Five")));
-    assertTrue(values.contains(Pair.of(specs[6], "Six")));
+    assertTrue(values.contains(Pairs.of(specs[4], "Four")));
+    assertTrue(values.contains(Pairs.of(specs[5], "Five")));
+    assertTrue(values.contains(Pairs.of(specs[6], "Six")));
     // One message sent to each, 1 response (and ack) from client1 and 2
     Thread.sleep(Timeout.standardTimeoutMillis());
     assertEquals(2, conduit1.getAndResetMessages1To2());
@@ -259,7 +260,7 @@ public class PrivateToSharedTransferTest {
     // Query for one existing and one non-existent value
     values = serverCache.getValues(Arrays.asList(specs[7], specs[8]));
     assertEquals(1, values.size());
-    assertTrue(values.contains(Pair.of(specs[7], "Seven")));
+    assertTrue(values.contains(Pairs.of(specs[7], "Seven")));
     assertEquals(2, conduit3.getAndResetMessages1To2());
     assertEquals(1, conduit3.getAndResetMessages2To1());
     // Query for two non-existing values

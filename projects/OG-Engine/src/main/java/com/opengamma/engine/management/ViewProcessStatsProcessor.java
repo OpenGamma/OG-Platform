@@ -36,8 +36,8 @@ import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.id.UniqueId;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Class to analyze view processor result sets and return statistics about available results.
@@ -127,7 +127,7 @@ public class ViewProcessStatsProcessor {
                   incCount(_failureCount, key);
                   _failures.increment();                  
                 } else {
-                  ObjectsPair<String, ValueProperties> valueKey = Pair.of(valueSpec.getValueName(), valueSpec.getProperties());
+                  Pair<String, ValueProperties> valueKey = Pairs.of(valueSpec.getValueName(), valueSpec.getProperties());
                   ComputedValueResult computedValueResult = values != null ? values.get(valueKey) : null;
                   if (computedValueResult != null) {
                     if (computedValueResult.getValue() instanceof MissingValue) {

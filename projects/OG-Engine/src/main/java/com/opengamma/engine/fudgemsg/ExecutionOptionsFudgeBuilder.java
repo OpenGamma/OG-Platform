@@ -23,6 +23,7 @@ import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.execution.ViewCycleExecutionSequence;
 import com.opengamma.engine.view.execution.ViewExecutionFlags;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Fudge message builder for {@link ExecutionOptions}
@@ -45,15 +46,15 @@ public class ExecutionOptionsFudgeBuilder implements FudgeBuilder<ExecutionOptio
   private static final String BATCH_FIELD = "batch";
 
   private static final Collection<Pair<String, ViewExecutionFlags>> s_flags = Arrays.<Pair<String, ViewExecutionFlags>>asList(
-      Pair.of(AWAIT_MARKET_DATA_FIELD, ViewExecutionFlags.AWAIT_MARKET_DATA),
-      Pair.of(TRIGGER_CYCLE_ON_LIVE_DATA_CHANGED_FIELD, ViewExecutionFlags.TRIGGER_CYCLE_ON_MARKET_DATA_CHANGED),
-      Pair.of(TRIGGER_CYCLE_ON_TIME_ELAPSED_FIELD, ViewExecutionFlags.TRIGGER_CYCLE_ON_TIME_ELAPSED),
-      Pair.of(RUN_AS_FAST_AS_POSSIBLE_FIELD, ViewExecutionFlags.RUN_AS_FAST_AS_POSSIBLE),
-      Pair.of(COMPILE_ONLY_FIELD, ViewExecutionFlags.COMPILE_ONLY),
-      Pair.of(FETCH_MARKET_DATA_ONLY_FIELD, ViewExecutionFlags.FETCH_MARKET_DATA_ONLY),
-      Pair.of(SKIP_CYCLE_ON_NO_MARKET_DATA_FIELD, ViewExecutionFlags.SKIP_CYCLE_ON_NO_MARKET_DATA),
-      Pair.of(WAIT_FOR_INITIAL_TRIGGER_FIELD, ViewExecutionFlags.WAIT_FOR_INITIAL_TRIGGER),
-      Pair.of(BATCH_FIELD, ViewExecutionFlags.BATCH));
+      Pairs.of(AWAIT_MARKET_DATA_FIELD, ViewExecutionFlags.AWAIT_MARKET_DATA),
+      Pairs.of(TRIGGER_CYCLE_ON_LIVE_DATA_CHANGED_FIELD, ViewExecutionFlags.TRIGGER_CYCLE_ON_MARKET_DATA_CHANGED),
+      Pairs.of(TRIGGER_CYCLE_ON_TIME_ELAPSED_FIELD, ViewExecutionFlags.TRIGGER_CYCLE_ON_TIME_ELAPSED),
+      Pairs.of(RUN_AS_FAST_AS_POSSIBLE_FIELD, ViewExecutionFlags.RUN_AS_FAST_AS_POSSIBLE),
+      Pairs.of(COMPILE_ONLY_FIELD, ViewExecutionFlags.COMPILE_ONLY),
+      Pairs.of(FETCH_MARKET_DATA_ONLY_FIELD, ViewExecutionFlags.FETCH_MARKET_DATA_ONLY),
+      Pairs.of(SKIP_CYCLE_ON_NO_MARKET_DATA_FIELD, ViewExecutionFlags.SKIP_CYCLE_ON_NO_MARKET_DATA),
+      Pairs.of(WAIT_FOR_INITIAL_TRIGGER_FIELD, ViewExecutionFlags.WAIT_FOR_INITIAL_TRIGGER),
+      Pairs.of(BATCH_FIELD, ViewExecutionFlags.BATCH));
 
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, ExecutionOptions object) {
