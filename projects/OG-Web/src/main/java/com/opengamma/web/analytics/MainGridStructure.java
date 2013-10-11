@@ -14,6 +14,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Column structure of the grid used to display analytics data.
@@ -178,7 +179,7 @@ import com.opengamma.util.tuple.Pair;
                                                           viewportDefinition,
                                                           _columnGroups,
                                                           cache.getLastCalculationDuration(), cache.getValuationTime());
-    return Pair.of(viewportResults, state);
+    return Pairs.of(viewportResults, state);
   }
 
   /**
