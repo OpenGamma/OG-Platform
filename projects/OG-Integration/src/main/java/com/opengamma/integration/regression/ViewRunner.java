@@ -65,11 +65,12 @@ import com.opengamma.util.ArgumentChecker;
                            PositionSource positionSource,
                            SecuritySource securitySource,
                            MarketDataSnapshotMaster snapshotMaster) {
-    _securitySource = securitySource;
     ArgumentChecker.notNull(configMaster, "configMaster");
     ArgumentChecker.notNull(viewProcessor, "viewProcessor");
     ArgumentChecker.notNull(positionSource, "positionSource");
     ArgumentChecker.notNull(snapshotMaster, "snapshotMaster");
+    ArgumentChecker.notNull(securitySource, "securitySource");
+    _securitySource = securitySource;
     _configMaster = configMaster;
     _viewProcessor = viewProcessor;
     _positionSource = positionSource;
@@ -105,18 +106,20 @@ import com.opengamma.util.ArgumentChecker;
                                              server.getPositionSource(),
                                              server.getSecuritySource(),
                                              server.getMarketDataSnapshotMaster());
-      CalculationResults results1 = viewRunner.run("AUD Swaps (3m / 6m basis) (1)",
-                                                   "AUD Swaps (3m / 6m basis) (1)/2013-09-27T12:17:45.587Z",
-                                                   valuationTime);
-      CalculationResults results2 = viewRunner.run("AUD Swaps (3m / 6m basis) (1)",
-                                                   "AUD Swaps (3m / 6m basis) (1)/2013-09-27T12:17:45.587Z",
-                                                   valuationTime);
+      CalculationResults results1 = viewRunner.run(
+          version,
+          "AUD Swaps (3m / 6m basis) (1)",
+          "AUD Swaps (3m / 6m basis) (1)/2013-09-27T12:17:45.587Z", valuationTime);
+      CalculationResults results2 = viewRunner.run(
+          version,
+          "AUD Swaps (3m / 6m basis) (1)",
+          "AUD Swaps (3m / 6m basis) (1)/2013-09-27T12:17:45.587Z", valuationTime);
       CalculationDifference difference = CalculationDifference.between(results1, results2, 0.001d);
       System.out.println(difference);
     }
   }
 
-  public CalculationResults run(String viewName, String snapshotName, Instant valuationTime) {
+  public CalculationResults run(String version, String viewName, String snapshotName, Instant valuationTime) {
     ArgumentChecker.notNull(viewName, "viewName");
     ArgumentChecker.notNull(snapshotName, "snapshotName");
     UniqueId snapshotId = getSnapshotId(snapshotName);
@@ -138,7 +141,7 @@ import com.opengamma.util.ArgumentChecker;
 
     ViewProcessor viewProcessor = _viewProcessor;
     ViewClient viewClient = viewProcessor.createViewClient(UserPrincipal.getLocalUser());
-    Listener listener = new Listener(_positionSource, _securitySource, snapshotName);
+    Listener listener = new Listener(_positionSource, _securitySource, version, snapshotName);
     viewClient.setResultListener(listener);
     viewClient.setResultMode(ViewResultMode.FULL_ONLY);
     System.out.println("attaching to view process");
@@ -178,14 +181,17 @@ class Listener extends AbstractViewResultListener {
   private final PositionSource _positionSource;
   private final SecuritySource _securitySource;
   private final CountDownLatch _latch = new CountDownLatch(1);
+  private final String _version;
   private final String _snapshotName;
 
   private CalculationResults _results;
 
-  Listener(PositionSource positionSource, SecuritySource securitySource, String snapshotName) {
+  Listener(PositionSource positionSource, SecuritySource securitySource, String version, String snapshotName) {
     ArgumentChecker.notNull(positionSource, "positionSource");
     ArgumentChecker.notNull(securitySource, "securitySource");
     ArgumentChecker.notEmpty(snapshotName, "snapshotName");
+    ArgumentChecker.notEmpty(version, "version");
+    _version = version;
     _securitySource = securitySource;
     _snapshotName = snapshotName;
     _positionSource = positionSource;
@@ -221,7 +227,11 @@ class Listener extends AbstractViewResultListener {
   public void cycleCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
     try {
       System.out.println("cycle completed");
-      _results = CalculationResults.create(_viewDef.get(), _snapshotName, fullResult, _positionSource, _securitySource);
+      _results = CalculationResults.create(_viewDef.get(),
+                                           fullResult,
+                                           _version,
+                                           _snapshotName,
+                                           _positionSource, _securitySource);
     } finally {
       _latch.countDown();
     }

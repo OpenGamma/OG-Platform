@@ -43,6 +43,8 @@ public final class CalculationDifference {
   private final int _equalResultCount;
   private final String _viewDefinitionName;
   private final String _snapshotName;
+  private final String _baseVersion;
+  private final String _testVersion;
   private final Map<CalculationResultKey, CalculatedValue> _onlyBase;
   private final Map<CalculationResultKey, CalculatedValue> _onlyTest;
   private final Map<CalculationResultKey, Pair<CalculatedValue, CalculatedValue>> _different;
@@ -51,6 +53,8 @@ public final class CalculationDifference {
   private CalculationDifference(int equalResultCount,
                                 String viewDefinitionName,
                                 String snapshotName,
+                                String baseVersion,
+                                String testVersion,
                                 Map<CalculationResultKey, CalculatedValue> onlyBase,
                                 Map<CalculationResultKey, CalculatedValue> onlyTest,
                                 Map<CalculationResultKey, Pair<CalculatedValue, CalculatedValue>> different,
@@ -58,6 +62,8 @@ public final class CalculationDifference {
     _equalResultCount = equalResultCount;
     _viewDefinitionName = viewDefinitionName;
     _snapshotName = snapshotName;
+    _baseVersion = baseVersion;
+    _testVersion = testVersion;
     _onlyBase = onlyBase;
     _onlyTest = onlyTest;
     _different = different;
@@ -92,6 +98,14 @@ public final class CalculationDifference {
     return _snapshotName;
   }
 
+  public String getBaseVersion() {
+    return _baseVersion;
+  }
+
+  public String getTestVersion() {
+    return _testVersion;
+  }
+
   // TODO different deltas for different columns?
   public static CalculationDifference between(CalculationResults results1, CalculationResults results2, double delta) {
     Set<CalculationResultKey> only1Keys = Sets.difference(results1.getValues().keySet(), results2.getValues().keySet());
@@ -117,7 +131,15 @@ public final class CalculationDifference {
     Map<CalculationResultKey, CalculatedValue> only2 = getValues(only2Keys, results2.getValues());
     String viewDefName = results1.getViewDefinitionName();
     String snapshotName = results1.getSnapshotName();
-    return new CalculationDifference(equalResultCount, viewDefName, snapshotName, only1, only2, diffs, differentProps);
+    return new CalculationDifference(equalResultCount,
+                                     viewDefName,
+                                     snapshotName,
+                                     results1.getVersion(),
+                                     results2.getVersion(),
+                                     only1,
+                                     only2,
+                                     diffs,
+                                     differentProps);
   }
 
   private static boolean equals(Object value1, Object value2, double delta) {

@@ -44,9 +44,11 @@ public class ViewRegressionTest {
   private final String _databaseDumpDir;
   private final Instant _valuationTime;
   private final String _baseWorkingDir;
+  private final String _baseVersion;
   private final String _baseDbConfigFile;
   private final String _testWorkingDir;
   private final String _serverConfigFile;
+  private final String _testVersion;
   private final String _testDbConfigFile;
   private final String _logbackConfig;
   private final String _baseClasspath;
@@ -65,9 +67,11 @@ public class ViewRegressionTest {
                             String testDbConfigFile) {
     _databaseDumpDir = databaseDumpDir;
     _baseWorkingDir = baseWorkingDir;
+    _baseVersion = baseVersion;
     _baseDbConfigFile = baseDbConfigFile;
     _testWorkingDir = testWorkingDir;
     _serverConfigFile = serverConfigFile;
+    _testVersion = testVersion;
     _testDbConfigFile = testDbConfigFile;
     _logbackConfig = "-Dlogback.configurationFile=" + logbackConfigFile;
     _baseClasspath = "config:lib/" + projectName + "-" + baseVersion + ".jar";
@@ -78,8 +82,10 @@ public class ViewRegressionTest {
   public Collection<CalculationDifference> run() {
     // TODO store the results in memory for now, serialize to disk/cache when it's an actual problem
     // TODO fail if there are any view defs or snapshots with duplicate names
-    Map<Pair<String, String>, CalculationResults> testResults = runTest(_testWorkingDir, _testClasspath, _testDbConfigFile);
-    Map<Pair<String, String>, CalculationResults> baseResults = runTest(_baseWorkingDir, _baseClasspath, _baseDbConfigFile);
+    Map<Pair<String, String>, CalculationResults> testResults =
+        runTest(_testWorkingDir, _testClasspath, _testVersion, _testDbConfigFile);
+    Map<Pair<String, String>, CalculationResults> baseResults =
+        runTest(_baseWorkingDir, _baseClasspath, _baseVersion, _baseDbConfigFile);
     List<CalculationDifference> results = Lists.newArrayList();
     for (Map.Entry<Pair<String, String>, CalculationResults> entry : testResults.entrySet()) {
       CalculationResults testViewResult = entry.getValue();
@@ -93,12 +99,15 @@ public class ViewRegressionTest {
     return results;
   }
 
-  private Map<Pair<String, String>, CalculationResults> runTest(String workingDir, String classpath, String dbPropsFile) {
+  private Map<Pair<String, String>, CalculationResults> runTest(String workingDir,
+                                                                String classpath,
+                                                                String version,
+                                                                String dbPropsFile) {
     // don't use the config file to be sure we don't accidentally clobber a real database
     //createDatabase(dbPropsFile, workingDir, classpath, _logbackConfig);
     Properties dbProps = loadProperties(dbPropsFile);
     //restoreDatabase(workingDir, classpath, dbProps);
-    return runViews(workingDir, classpath, _valuationTime, dbProps);
+    return runViews(workingDir, classpath, version, _valuationTime, dbProps);
   }
 
   private static Properties loadProperties(String propsFile) {
@@ -126,6 +135,7 @@ public class ViewRegressionTest {
 
   private Map<Pair<String, String>, CalculationResults> runViews(String workingDir,
                                                                  String classpath,
+                                                                 String version,
                                                                  Instant valuationTime,
                                                                  Properties dbProps) {
     // TODO don't hard-code the port
@@ -146,7 +156,7 @@ public class ViewRegressionTest {
       for (Pair<String, String> names : viewAndSnapshotNames) {
         String viewName = names.getFirst();
         String snapshotName = names.getSecond();
-        CalculationResults results = viewRunner.run(viewName, snapshotName, valuationTime);
+        CalculationResults results = viewRunner.run(version, viewName, snapshotName, valuationTime);
         allResults.put(names, results);
       }
       return allResults;

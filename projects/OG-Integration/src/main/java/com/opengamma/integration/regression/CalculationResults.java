@@ -72,10 +72,14 @@ public final class CalculationResults implements ImmutableBean {
   @PropertyDefinition(validate = "notNull")
   private final String _snapshotName;
 
+  @PropertyDefinition
+  private final String _version;
+
   // TODO test case
   public static CalculationResults create(CompiledViewDefinition viewDef,
-                                          String snapshotName,
                                           ViewComputationResultModel results,
+                                          String version,
+                                          String snapshotName,
                                           PositionSource positionSource,
                                           SecuritySource securitySource) {
     ArgumentChecker.notNull(viewDef, "viewDef");
@@ -102,7 +106,7 @@ public final class CalculationResults implements ImmutableBean {
         valueMap.put(key, CalculatedValue.of(computedValue.getValue(), valueSpec.getProperties(), targetType, targetName));
       }
     }
-    return new CalculationResults(valueMap, viewDef.getViewDefinition().getName(), snapshotName);
+    return new CalculationResults(valueMap, viewDef.getViewDefinition().getName(), snapshotName, version);
   }
 
   private static String getTargetName(UniqueId targetId,
@@ -236,13 +240,15 @@ public final class CalculationResults implements ImmutableBean {
   private CalculationResults(
       Map<CalculationResultKey, CalculatedValue> values,
       String viewDefinitionName,
-      String snapshotName) {
+      String snapshotName,
+      String version) {
     JodaBeanUtils.notNull(values, "values");
     JodaBeanUtils.notNull(viewDefinitionName, "viewDefinitionName");
     JodaBeanUtils.notNull(snapshotName, "snapshotName");
     this._values = ImmutableMap.copyOf(values);
     this._viewDefinitionName = viewDefinitionName;
     this._snapshotName = snapshotName;
+    this._version = version;
   }
 
   @Override
@@ -289,6 +295,15 @@ public final class CalculationResults implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the version.
+   * @return the value of the property
+   */
+  public String getVersion() {
+    return _version;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
    */
@@ -310,7 +325,8 @@ public final class CalculationResults implements ImmutableBean {
       CalculationResults other = (CalculationResults) obj;
       return JodaBeanUtils.equal(getValues(), other.getValues()) &&
           JodaBeanUtils.equal(getViewDefinitionName(), other.getViewDefinitionName()) &&
-          JodaBeanUtils.equal(getSnapshotName(), other.getSnapshotName());
+          JodaBeanUtils.equal(getSnapshotName(), other.getSnapshotName()) &&
+          JodaBeanUtils.equal(getVersion(), other.getVersion());
     }
     return false;
   }
@@ -321,16 +337,18 @@ public final class CalculationResults implements ImmutableBean {
     hash += hash * 31 + JodaBeanUtils.hashCode(getValues());
     hash += hash * 31 + JodaBeanUtils.hashCode(getViewDefinitionName());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSnapshotName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getVersion());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(128);
+    StringBuilder buf = new StringBuilder(160);
     buf.append("CalculationResults{");
     buf.append("values").append('=').append(getValues()).append(',').append(' ');
     buf.append("viewDefinitionName").append('=').append(getViewDefinitionName()).append(',').append(' ');
-    buf.append("snapshotName").append('=').append(getSnapshotName());
+    buf.append("snapshotName").append('=').append(getSnapshotName()).append(',').append(' ');
+    buf.append("version").append('=').append(getVersion());
     buf.append('}');
     return buf.toString();
   }
@@ -362,13 +380,19 @@ public final class CalculationResults implements ImmutableBean {
     private final MetaProperty<String> _snapshotName = DirectMetaProperty.ofImmutable(
         this, "snapshotName", CalculationResults.class, String.class);
     /**
+     * The meta-property for the {@code version} property.
+     */
+    private final MetaProperty<String> _version = DirectMetaProperty.ofImmutable(
+        this, "version", CalculationResults.class, String.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "values",
         "viewDefinitionName",
-        "snapshotName");
+        "snapshotName",
+        "version");
 
     /**
      * Restricted constructor.
@@ -385,6 +409,8 @@ public final class CalculationResults implements ImmutableBean {
           return _viewDefinitionName;
         case -931708305:  // snapshotName
           return _snapshotName;
+        case 351608024:  // version
+          return _version;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -429,6 +455,14 @@ public final class CalculationResults implements ImmutableBean {
       return _snapshotName;
     }
 
+    /**
+     * The meta-property for the {@code version} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<String> version() {
+      return _version;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -439,6 +473,8 @@ public final class CalculationResults implements ImmutableBean {
           return ((CalculationResults) bean).getViewDefinitionName();
         case -931708305:  // snapshotName
           return ((CalculationResults) bean).getSnapshotName();
+        case 351608024:  // version
+          return ((CalculationResults) bean).getVersion();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -463,6 +499,7 @@ public final class CalculationResults implements ImmutableBean {
     private Map<CalculationResultKey, CalculatedValue> _values = new HashMap<CalculationResultKey, CalculatedValue>();
     private String _viewDefinitionName;
     private String _snapshotName;
+    private String _version;
 
     /**
      * Restricted constructor.
@@ -480,6 +517,7 @@ public final class CalculationResults implements ImmutableBean {
       this._values = new HashMap<CalculationResultKey, CalculatedValue>(beanToCopy.getValues());
       this._viewDefinitionName = beanToCopy.getViewDefinitionName();
       this._snapshotName = beanToCopy.getSnapshotName();
+      this._version = beanToCopy.getVersion();
     }
 
     //-----------------------------------------------------------------------
@@ -496,6 +534,9 @@ public final class CalculationResults implements ImmutableBean {
         case -931708305:  // snapshotName
           this._snapshotName = (String) newValue;
           break;
+        case 351608024:  // version
+          this._version = (String) newValue;
+          break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
       }
@@ -507,7 +548,8 @@ public final class CalculationResults implements ImmutableBean {
       return new CalculationResults(
           _values,
           _viewDefinitionName,
-          _snapshotName);
+          _snapshotName,
+          _version);
     }
 
     //-----------------------------------------------------------------------
@@ -544,14 +586,25 @@ public final class CalculationResults implements ImmutableBean {
       return this;
     }
 
+    /**
+     * Sets the {@code version} property in the builder.
+     * @param version  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder version(String version) {
+      this._version = version;
+      return this;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(128);
+      StringBuilder buf = new StringBuilder(160);
       buf.append("CalculationResults.Builder{");
       buf.append("values").append('=').append(_values).append(',').append(' ');
       buf.append("viewDefinitionName").append('=').append(_viewDefinitionName).append(',').append(' ');
-      buf.append("snapshotName").append('=').append(_snapshotName);
+      buf.append("snapshotName").append('=').append(_snapshotName).append(',').append(' ');
+      buf.append("version").append('=').append(_version);
       buf.append('}');
       return buf.toString();
     }
