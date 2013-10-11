@@ -5,6 +5,8 @@
  */
 package com.opengamma.livedata.entitlement;
 
+import static org.testng.AssertJUnit.assertTrue;
+
 import org.testng.annotations.Test;
 
 import com.opengamma.id.ExternalId;
@@ -22,6 +24,8 @@ import com.opengamma.util.test.TestGroup;
 @Test(groups = TestGroup.UNIT)
 public class DistributedEntitlementCheckerTest {
 
+  // TODO reenable test once entitlement checking has been reimplemented correctly
+  @Test(enabled = false)
   public void testRequestResponse() {
     PermissiveLiveDataEntitlementChecker delegate = new PermissiveLiveDataEntitlementChecker();
     EntitlementServer server = new EntitlementServer(delegate); 
@@ -37,8 +41,7 @@ public class DistributedEntitlementCheckerTest {
         ExternalId.of("test1", "test1"));
     UserPrincipal megan = new UserPrincipal("megan", "127.0.0.1");
 
-    // TODO reenable test once entitlement checking has been reimplemented correctly
-    //assertTrue(client.isEntitled(megan, testSpec));
+    assertTrue(client.isEntitled(megan, testSpec));
   }
 
 }

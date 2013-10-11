@@ -83,6 +83,7 @@ public final class BloombergSwaptionVolatilityCubeInstrumentProvider {
           } else if ("RC".equals(payOrReceive)) {
             sign = 1;
           } else {
+            csvReader.close();
             throw new IllegalArgumentException();
           }
 

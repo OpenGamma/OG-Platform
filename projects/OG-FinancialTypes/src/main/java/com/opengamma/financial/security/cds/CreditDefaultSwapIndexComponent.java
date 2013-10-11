@@ -29,6 +29,10 @@ import com.opengamma.util.ArgumentChecker;
  */
 @BeanDefinition
 public class CreditDefaultSwapIndexComponent extends DirectBean implements Comparable<CreditDefaultSwapIndexComponent>, Serializable {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 2138042002689914578L;
+
   /**
    * The obligor red code identifier
    */
