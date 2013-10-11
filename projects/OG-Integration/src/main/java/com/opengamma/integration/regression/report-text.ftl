@@ -3,11 +3,11 @@ Regression Test Report
 
 Base version: ${results.baseVersion}
 Test version: ${results.testVersion}
-Valution time: TODO
 
 <#list results.differences as diff>
 View definition: ${diff.viewDefinitionName}
 Snapshot: ${diff.snapshotName}
+Valution time: ${diff.valuationTime}
 Number of matching results: ${diff.equalResultCount}
 <#if !diff.onlyBase?has_content
   && !diff.onlyTest?has_content

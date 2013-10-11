@@ -57,9 +57,6 @@ public final class CalculationDifference implements ImmutableBean {
     // TODO generic joda bean handler
   }
 
-  // TODO valuationTime
-  // TODO do we need versions? should they be at a higher level?
-
   @PropertyDefinition
   private final int _equalResultCount;
 
