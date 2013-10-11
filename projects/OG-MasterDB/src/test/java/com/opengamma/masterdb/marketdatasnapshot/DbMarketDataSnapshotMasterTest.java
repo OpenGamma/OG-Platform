@@ -35,6 +35,7 @@ import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Test.
@@ -115,8 +116,8 @@ public class DbMarketDataSnapshotMasterTest extends AbstractDbTest {
     snapshot1.setYieldCurves(yieldCurves);
 
     final HashMap<Pair<Tenor, Tenor>, ValueSnapshot> strikes = new HashMap<Pair<Tenor, Tenor>, ValueSnapshot>();
-    strikes.put(Pair.of(Tenor.DAY, Tenor.WORKING_WEEK), ValueSnapshot.of(12.0, 12.0));
-    strikes.put(Pair.of(Tenor.DAY, Tenor.WORKING_WEEK), null);
+    strikes.put(Pairs.of(Tenor.DAY, Tenor.WORKING_WEEK), ValueSnapshot.of(12.0, 12.0));
+    strikes.put(Pairs.of(Tenor.DAY, Tenor.WORKING_WEEK), null);
 
     final HashMap<VolatilityCubeKey, VolatilityCubeSnapshot> volCubes = new HashMap<VolatilityCubeKey, VolatilityCubeSnapshot>();
     final ManageableVolatilityCubeSnapshot volCube = new ManageableVolatilityCubeSnapshot();
