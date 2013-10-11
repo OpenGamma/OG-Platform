@@ -10,9 +10,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.fudgemsg.FudgeMsg;
@@ -20,7 +17,7 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.wire.FudgeMsgReader;
 import org.fudgemsg.wire.xml.FudgeXMLStreamReader;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
@@ -46,19 +43,18 @@ public class ReportGenerator {
     }
   }
 
-  public static String generateReport(Collection<CalculationDifference> results) {
+  public static String generateReport(RegressionTestResults results) {
     StringWriter writer = new StringWriter();
     generateReport(results, Format.TEXT, writer);
     return writer.toString();
   }
 
-  public static void generateReport(Collection<CalculationDifference> results, Format format, Writer writer) {
+  public static void generateReport(RegressionTestResults results, Format format, Writer writer) {
     Configuration cfg = new Configuration();
     try {
       cfg.setClassForTemplateLoading(ReportGenerator.class, "");
       Template template = cfg.getTemplate(format.getTemplateName());
-      Map<String, Object> input = new HashMap<String, Object>();
-      input.put("results", results);
+      Map<String, Object> input = ImmutableMap.<String, Object>of("results", results);
       template.process(input, writer);
       writer.flush();
     } catch (Exception e) {
@@ -67,14 +63,15 @@ public class ReportGenerator {
   }
 
   public static void main(String[] args) throws IOException {
-    CalculationDifference diff;
+    RegressionTestResults results;
     try (BufferedReader reader = new BufferedReader(new FileReader("/Users/chris/tmp/regression/results.xml"))) {
       FudgeDeserializer deserializer = new FudgeDeserializer(OpenGammaFudgeContext.getInstance());
       FudgeXMLStreamReader streamReader = new FudgeXMLStreamReader(OpenGammaFudgeContext.getInstance(), reader);
       FudgeMsgReader fudgeMsgReader = new FudgeMsgReader(streamReader);
       FudgeMsg msg = fudgeMsgReader.nextMessage();
-      diff = deserializer.fudgeMsgToObject(CalculationDifference.class, msg);
+      results = deserializer.fudgeMsgToObject(RegressionTestResults.class, msg);
     }
-    System.out.println(generateReport(Lists.newArrayList(diff)));
+    System.out.println(generateReport(results));
+    System.exit(0);
   }
 }

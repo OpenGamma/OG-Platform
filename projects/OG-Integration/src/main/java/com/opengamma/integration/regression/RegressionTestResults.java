@@ -13,7 +13,10 @@ import org.joda.beans.ImmutableBean;
 import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.PropertyDefinition;
 
+import com.google.common.collect.ImmutableList;
 import com.opengamma.util.ArgumentChecker;
+
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -39,7 +42,7 @@ public final class RegressionTestResults implements ImmutableBean {
   private final String _testVersion;
 
   @PropertyDefinition(validate = "notNull")
-  private final Collection<CalculationDifference> _differences;
+  private final List<CalculationDifference> _differences;
 
   @ImmutableConstructor
   public RegressionTestResults(String baseVersion, String testVersion, Collection<CalculationDifference> differences) {
@@ -48,7 +51,7 @@ public final class RegressionTestResults implements ImmutableBean {
     ArgumentChecker.notEmpty(differences, "results");
     _baseVersion = baseVersion;
     _testVersion = testVersion;
-    _differences = differences;
+    _differences = ImmutableList.copyOf(differences);
     for (CalculationDifference result : differences) {
       if (!baseVersion.equals(result.getBaseVersion()) || !testVersion.equals(result.getTestVersion())) {
         throw new IllegalArgumentException("All results must have the same base and test versions");
@@ -116,7 +119,7 @@ public final class RegressionTestResults implements ImmutableBean {
    * Gets the differences.
    * @return the value of the property, not null
    */
-  public Collection<CalculationDifference> getDifferences() {
+  public List<CalculationDifference> getDifferences() {
     return _differences;
   }
 
@@ -192,8 +195,8 @@ public final class RegressionTestResults implements ImmutableBean {
      * The meta-property for the {@code differences} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Collection<CalculationDifference>> _differences = DirectMetaProperty.ofImmutable(
-        this, "differences", RegressionTestResults.class, (Class) Collection.class);
+    private final MetaProperty<List<CalculationDifference>> _differences = DirectMetaProperty.ofImmutable(
+        this, "differences", RegressionTestResults.class, (Class) List.class);
     /**
      * The meta-properties.
      */
@@ -258,7 +261,7 @@ public final class RegressionTestResults implements ImmutableBean {
      * The meta-property for the {@code differences} property.
      * @return the meta-property, not null
      */
-    public MetaProperty<Collection<CalculationDifference>> differences() {
+    public MetaProperty<List<CalculationDifference>> differences() {
       return _differences;
     }
 
@@ -295,7 +298,7 @@ public final class RegressionTestResults implements ImmutableBean {
 
     private String _baseVersion;
     private String _testVersion;
-    private Collection<CalculationDifference> _differences = new ArrayList<CalculationDifference>();
+    private List<CalculationDifference> _differences = new ArrayList<CalculationDifference>();
 
     /**
      * Restricted constructor.
@@ -327,7 +330,7 @@ public final class RegressionTestResults implements ImmutableBean {
           this._testVersion = (String) newValue;
           break;
         case 2039608022:  // differences
-          this._differences = (Collection<CalculationDifference>) newValue;
+          this._differences = (List<CalculationDifference>) newValue;
           break;
         default:
           throw new NoSuchElementException("Unknown property: " + propertyName);
@@ -371,7 +374,7 @@ public final class RegressionTestResults implements ImmutableBean {
      * @param differences  the new value, not null
      * @return this, for chaining, not null
      */
-    public Builder differences(Collection<CalculationDifference> differences) {
+    public Builder differences(List<CalculationDifference> differences) {
       JodaBeanUtils.notNull(differences, "differences");
       this._differences = differences;
       return this;

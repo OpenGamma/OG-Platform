@@ -131,6 +131,34 @@ public final class CalculationDifference implements ImmutableBean {
                                      differentProps);
   }
 
+  /**
+   * This only exists to workaround the inadequacy of Freemarker.
+   */
+  public CalculatedValue getOnlyBaseValue(CalculationResultKey key) {
+    return _onlyBase.get(key);
+  }
+
+  /**
+   * This only exists to workaround the inadequacy of Freemarker.
+   */
+  public CalculatedValue getOnlyTestValue(CalculationResultKey key) {
+    return _onlyTest.get(key);
+  }
+
+  /**
+   * This only exists to workaround the inadequacy of Freemarker.
+   */
+  public Pair<CalculatedValue, CalculatedValue> getDifferentValue(CalculationResultKey key) {
+    return _different.get(key);
+  }
+
+  /**
+   * This only exists to workaround the inadequacy of Freemarker.
+   */
+  public Pair<CalculatedValue, CalculatedValue> getDifferentPropertiesValue(CalculationResultKey key) {
+    return _differentProperties.get(key);
+  }
+
   private static boolean equals(Object value1, Object value2, double delta) {
     if (value1 == null && value2 == null) {
       return true;
