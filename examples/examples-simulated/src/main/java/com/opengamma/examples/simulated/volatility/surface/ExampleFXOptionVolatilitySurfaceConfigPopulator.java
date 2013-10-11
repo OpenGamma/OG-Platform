@@ -19,6 +19,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Populates the example database with FX option volatility surface definitions and specifications.
@@ -59,11 +60,11 @@ public class ExampleFXOptionVolatilitySurfaceConfigPopulator {
         Tenor.ofYears(5), Tenor.ofYears(10)};
     @SuppressWarnings("unchecked")
     final Pair<Number, FXVolQuoteType>[] deltaAndTypes = new Pair[] {
-      Pair.of(25, FXVolQuoteType.BUTTERFLY),
-      Pair.of(25, FXVolQuoteType.RISK_REVERSAL),
-      Pair.of(15, FXVolQuoteType.BUTTERFLY),
-      Pair.of(15, FXVolQuoteType.RISK_REVERSAL),
-      Pair.of(0, FXVolQuoteType.ATM)};
+      Pairs.of(25, FXVolQuoteType.BUTTERFLY),
+      Pairs.of(25, FXVolQuoteType.RISK_REVERSAL),
+      Pairs.of(15, FXVolQuoteType.BUTTERFLY),
+      Pairs.of(15, FXVolQuoteType.RISK_REVERSAL),
+      Pairs.of(0, FXVolQuoteType.ATM)};
     final String fullName = name + SEPARATOR + target.toString() + SEPARATOR + InstrumentTypeProperties.FOREX;
     final VolatilitySurfaceDefinition<Tenor, Pair<Number, FXVolQuoteType>> volSurfaceDefinition =
         new VolatilitySurfaceDefinition<>(fullName, target, expiryTenors, deltaAndTypes);

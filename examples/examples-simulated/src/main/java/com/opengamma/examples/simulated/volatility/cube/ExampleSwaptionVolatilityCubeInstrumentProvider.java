@@ -27,8 +27,8 @@ import com.opengamma.financial.analytics.volatility.surface.SurfaceInstrumentPro
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Generates Example instrument codes for volatilities given points.
@@ -79,7 +79,7 @@ public final class ExampleSwaptionVolatilityCubeInstrumentProvider {
 //  
 //  private final Set<Double> _relativeStrikes = ImmutableSet.of(20.0, 25.0, 50.0, 70.0, 75.0, 100.0, 200.0, 500.0);
   
-  private final Map<ObjectsPair<Currency, VolatilityPoint>, Set<ExternalId>> _idsByPoint = Maps.newHashMap();
+  private final Map<Pair<Currency, VolatilityPoint>, Set<ExternalId>> _idsByPoint = Maps.newHashMap();
 
   private ExampleSwaptionVolatilityCubeInstrumentProvider() {
 //    for (Currency ccy : _currencies) {
@@ -122,6 +122,7 @@ public final class ExampleSwaptionVolatilityCubeInstrumentProvider {
           } else if ("RC".equals(payOrReceive)) {
             sign = 1;
           } else {
+            csvReader.close();
             throw new IllegalArgumentException();
           }
 
@@ -136,7 +137,7 @@ public final class ExampleSwaptionVolatilityCubeInstrumentProvider {
 
           final ExternalId identifier = getIdentifier(ticker);
 
-          final ObjectsPair<Currency, VolatilityPoint> key = Pair.of(currency, point);
+          final Pair<Currency, VolatilityPoint> key = Pairs.of(currency, point);
           if (_idsByPoint.containsKey(key)) {
             _idsByPoint.get(key).add(identifier);
           } else {
@@ -154,7 +155,7 @@ public final class ExampleSwaptionVolatilityCubeInstrumentProvider {
 //    final VolatilityPoint point = new VolatilityPoint(swapTenor, optionExpiry, relativeStrike);
 //    String ticker = String.format(format, ccy.getCode(), optionExpiry.getPeriod().toString().substring(1), swapTenor.getPeriod().toString().substring(1), Math.abs(relativeStrike));
 //    final ExternalId identifier = ExternalId.of(ExternalSchemes.OG_SYNTHETIC_TICKER, ticker);
-//    final ObjectsPair<Currency, VolatilityPoint> key = Pair.of(ccy, point);
+//    final ObjectsPair<Currency, VolatilityPoint> key = Pairs.of(ccy, point);
 //    _idsByPoint.put(key, Sets.newHashSet(identifier));
 //  }
 
@@ -167,23 +168,23 @@ public final class ExampleSwaptionVolatilityCubeInstrumentProvider {
       final ExternalId instrument = ATM_INSTRUMENT_PROVIDER.getInstrument(point.getSwapTenor(), point.getOptionExpiry());
       return Sets.newHashSet(instrument);
     } else {
-      return _idsByPoint.get(Pair.of(currency, point));
+      return _idsByPoint.get(Pairs.of(currency, point));
     }
   }
 
   public Set<Currency> getAllCurrencies() {
     final HashSet<Currency> ret = new HashSet<Currency>();
-    for (final Entry<ObjectsPair<Currency, VolatilityPoint>, Set<ExternalId>> entry : _idsByPoint.entrySet()) {
-      ret.add(entry.getKey().first);
+    for (final Entry<Pair<Currency, VolatilityPoint>, Set<ExternalId>> entry : _idsByPoint.entrySet()) {
+      ret.add(entry.getKey().getFirst());
     }
     return ret;
   }
 
   public Set<VolatilityPoint> getAllPoints(final Currency currency) {
     final HashSet<VolatilityPoint> ret = new HashSet<VolatilityPoint>();
-    for (final Entry<ObjectsPair<Currency, VolatilityPoint>, Set<ExternalId>> entry : _idsByPoint.entrySet()) {
-      if (entry.getKey().first.equals(currency)) {
-        ret.add(entry.getKey().second);
+    for (final Entry<Pair<Currency, VolatilityPoint>, Set<ExternalId>> entry : _idsByPoint.entrySet()) {
+      if (entry.getKey().getFirst().equals(currency)) {
+        ret.add(entry.getKey().getSecond());
       }
     }
     return ret;
