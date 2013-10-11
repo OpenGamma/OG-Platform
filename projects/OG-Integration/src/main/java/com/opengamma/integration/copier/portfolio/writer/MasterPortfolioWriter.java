@@ -242,21 +242,20 @@ public class MasterPortfolioWriter implements PortfolioWriter {
         _securityIdToPosition.put(writtenSecurities.get(0).getUniqueId().getObjectId(), addedDoc.getPosition());
 
         // Return the updated position
-        return new ObjectsPair<>(addedDoc.getPosition(),
-            securities);
+        return ObjectsPair.of(addedDoc.getPosition(), securities);
       } else {
         // update position map
         _securityIdToPosition.put(writtenSecurities.get(0).getUniqueId().getObjectId(), existingPosition);
 
          // Return the updated position
-        return new ObjectsPair<>(existingPosition, securities);
+        return ObjectsPair.of(existingPosition, securities);
       }
     }
     // Attempt to reuse an existing position from the previous version of the portfolio, and return if an exact match is found
     if (!(_originalNode == null) && !_originalNode.getPositionIds().isEmpty()) {
       ManageablePosition existingPosition = matchExistingPosition(position, writtenSecurities);
       if (existingPosition != null) {
-        return new ObjectsPair<>(existingPosition,
+        return ObjectsPair.of(existingPosition,
             writtenSecurities.toArray(new ManageableSecurity[writtenSecurities.size()]));
       }
     }
@@ -289,7 +288,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
     _securityIdToPosition.put(writtenSecurities.get(0).getUniqueId().getObjectId(), addedDoc.getPosition());
 
     // Return the new position
-    return new ObjectsPair<>(addedDoc.getPosition(),
+    return ObjectsPair.of(addedDoc.getPosition(),
         writtenSecurities.toArray(new ManageableSecurity[writtenSecurities.size()]));
   }
 

@@ -200,7 +200,7 @@ public class SingleSheetMultiParserPortfolioWriter extends SingleSheetPortfolioW
     // Empty the current row buffer
     _currentRow = new HashMap<String, String>();
 
-    return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(position, securities);
+    return ObjectsPair.of(position, securities);
   }
 
   private static Map<String, RowParser> getParsers(String[] securityTypes) {

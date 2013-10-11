@@ -36,6 +36,7 @@ import com.opengamma.integration.copier.snapshot.SnapshotType;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Reads a snapshot from an imported file
@@ -134,10 +135,10 @@ public class FileSnapshotReader implements SnapshotReader {
                                                           currentRow.get(SnapshotColumns.SURFACE_QUOTE_UNITS.get()));
       HashMap values = new HashMap<Pair<Object, Object>, ValueSnapshot>();
 
-      values.put(Pair.of(currentRow.get(SnapshotColumns.SURFACE_X.get()),
+      values.put(Pairs.of(currentRow.get(SnapshotColumns.SURFACE_X.get()),
                          currentRow.get(SnapshotColumns.SURFACE_Y.get())), createValueSnapshot(currentRow));
       surface.setValues(values);
-      surfaceBuilder.put(name, Pair.of(key, surface));
+      surfaceBuilder.put(name, Pairs.of(key, surface));
     } else {
       surfaceBuilder.get(name).getSecond().getValues().put(createOrdinatePair(currentRow),
                                                            createValueSnapshot(currentRow));
@@ -159,7 +160,7 @@ public class FileSnapshotReader implements SnapshotReader {
                         currentRow.get(SnapshotColumns.VALUE_NAME.get()),
                         createValueSnapshot(currentRow));
       ManageableYieldCurveSnapshot curve = ManageableYieldCurveSnapshot.of(Instant.parse(currentRow.get(SnapshotColumns.INSTANT.get())), snapshot);
-      yieldCurveBuilder.put(name, Pair.of(key, curve));
+      yieldCurveBuilder.put(name, Pairs.of(key, curve));
     } else {
       yieldCurveBuilder.get(name).getSecond().getValues().putValue(createExternalIdBundle(currentRow),
                                                    currentRow.get(SnapshotColumns.VALUE_NAME.get()),
@@ -218,7 +219,7 @@ public class FileSnapshotReader implements SnapshotReader {
       }
     }
 
-    return Pair.of(surfaceX, surfaceY);
+    return Pairs.of(surfaceX, surfaceY);
   }
 
   // Bloomberg FX option volatility surface codes given a tenor, quote type (ATM, butterfly, risk reversal) and distance from ATM.
@@ -239,7 +240,7 @@ public class FileSnapshotReader implements SnapshotReader {
         secondElement = BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType.BUTTERFLY;
         break;
     }
-    return Pair.of(firstElement, secondElement);
+    return Pairs.of(firstElement, secondElement);
   }
 
   private ValueSnapshot createValueSnapshot(Map<String, String> currentRow) {
