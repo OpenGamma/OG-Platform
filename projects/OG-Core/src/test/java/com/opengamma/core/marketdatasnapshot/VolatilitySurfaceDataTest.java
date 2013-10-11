@@ -20,6 +20,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * 
@@ -42,7 +43,7 @@ public class VolatilitySurfaceDataTest {
         vols[j][i] = k;
         xs[k] = xValues[i];
         ys[k] = yValues[j];
-        values.put(Pair.of(xValues[i], yValues[j]), vols[j][i]);
+        values.put(Pairs.of(xValues[i], yValues[j]), vols[j][i]);
       }
     }
     final String name = "test";
@@ -82,7 +83,7 @@ public class VolatilitySurfaceDataTest {
     final double[] vols = new double[] {10, 11, 12, 13, 14, 15, 16, 17, 18};    
     final Map<Pair<Double, Double>, Double> values = new HashMap<Pair<Double, Double>, Double>();
     for (int i = 0; i < xs.length; i++) {
-      values.put(Pair.of(xs[i], ys[i]), vols[i]);
+      values.put(Pairs.of(xs[i], ys[i]), vols[i]);
     }
     final String name = "test";
     final UniqueIdentifiable target = Currency.USD;
@@ -90,9 +91,9 @@ public class VolatilitySurfaceDataTest {
     assertArrayEquals(xs, data.getXs());
     assertArrayEquals(ys, data.getYs());
     assertArrayEquals(new Double[]{1., 2., 3., 4.}, data.getUniqueXValues().toArray(new Double[3]));
-    assertEquals(Arrays.asList(Pair.of(4., 10.), Pair.of(5., 11.), Pair.of(6., 12.)), data.getYValuesForX(1.));
-    assertEquals(Arrays.asList(Pair.of(4., 13.), Pair.of(5., 14.)), data.getYValuesForX(2.));
-    assertEquals(Arrays.asList(Pair.of(5., 15.), Pair.of(6., 16.), Pair.of(7., 17.)), data.getYValuesForX(3.));
-    assertEquals(Arrays.asList(Pair.of(8., 18.)), data.getYValuesForX(4.));
+    assertEquals(Arrays.asList(Pairs.of(4., 10.), Pairs.of(5., 11.), Pairs.of(6., 12.)), data.getYValuesForX(1.));
+    assertEquals(Arrays.asList(Pairs.of(4., 13.), Pairs.of(5., 14.)), data.getYValuesForX(2.));
+    assertEquals(Arrays.asList(Pairs.of(5., 15.), Pairs.of(6., 16.), Pairs.of(7., 17.)), data.getYValuesForX(3.));
+    assertEquals(Arrays.asList(Pairs.of(8., 18.)), data.getYValuesForX(4.));
   }
 }
