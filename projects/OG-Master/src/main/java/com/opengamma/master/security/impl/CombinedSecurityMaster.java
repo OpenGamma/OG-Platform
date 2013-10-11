@@ -21,8 +21,9 @@ import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
 
 /**
- * A {@link SecurityMaster} that combines the behavior of the masters
- * in the session, user and global contexts. 
+ * A {@link SecurityMaster} which delegates its calls to a list of underlying {@link SecurityMaster}s.
+ * 
+ * This class extends {@link ChangeProvidingCombinedMaster} to implement methods specific to the {@link SecurityMaster}.
  */
 public class CombinedSecurityMaster extends ChangeProvidingCombinedMaster<SecurityDocument, SecurityMaster> implements SecurityMaster {
 

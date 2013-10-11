@@ -21,8 +21,9 @@ import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.PortfolioSearchResult;
 
 /**
- * A {@link PortfolioMaster} that combines the behavior of the masters
- * in the session, user and global contexts. 
+ * A {@link PortfolioMaster} which delegates its calls to a list of underlying {@link PortfolioMaster}s.
+ * 
+ * This class extends {@link ChangeProvidingCombinedMaster} to implement methods specific to the {@link PortfolioMaster}.
  */
 public class CombinedPortfolioMaster extends ChangeProvidingCombinedMaster<PortfolioDocument, PortfolioMaster> implements PortfolioMaster {
 

@@ -19,8 +19,9 @@ import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
 
 /**
- * A {@link MarketDataSnapshotMaster} that combines the behavior of the masters
- * in the session, user and global contexts. 
+ * A {@link MarketDataSnapshotMaster} which delegates its calls to a list of underlying {@link MarketDataSnapshotMaster}s.
+ * 
+ * This class extends {@link ChangeProvidingCombinedMaster} to implement methods specific to the {@link MarketDataSnapshotMaster}.
  */
 public class CombinedMarketDataSnapshotMaster extends ChangeProvidingCombinedMaster<MarketDataSnapshotDocument, MarketDataSnapshotMaster> implements MarketDataSnapshotMaster {
 

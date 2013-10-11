@@ -13,7 +13,6 @@ import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.ChangeProvidingCombinedMaster;
-import com.opengamma.master.CombinedMaster;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesGetFilter;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoHistoryRequest;
@@ -29,7 +28,7 @@ import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 /**
  * A {@link HistoricalTimeSeriesMaster} which delegates its calls to a list of underlying {@link HistoricalTimeSeriesMaster}s.
  * 
- * This class extends {@link CombinedMaster} to implement methods specific to the {@link HistoricalTimeSeriesMaster}.
+ * This class extends {@link ChangeProvidingCombinedMaster} to implement methods specific to the {@link HistoricalTimeSeriesMaster}.
  */
 public class CombinedHistoricalTimeSeriesMaster extends ChangeProvidingCombinedMaster<HistoricalTimeSeriesInfoDocument, HistoricalTimeSeriesMaster> implements HistoricalTimeSeriesMaster {
   
