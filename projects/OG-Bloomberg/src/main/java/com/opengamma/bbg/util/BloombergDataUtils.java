@@ -112,6 +112,7 @@ import com.opengamma.master.position.impl.PositionSearchIterator;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Utilities for working with data in the Bloomberg schema.
@@ -708,7 +709,7 @@ public final class BloombergDataUtils {
     ArgumentChecker.notNull(ticker, "ticker");
     final int splitIdx = ticker.lastIndexOf(' ');
     if (splitIdx > 0) {
-      return Pair.of(ticker.substring(0, splitIdx), ticker.substring(splitIdx + 1));
+      return Pairs.of(ticker.substring(0, splitIdx), ticker.substring(splitIdx + 1));
     } else {
       return null;
     }
