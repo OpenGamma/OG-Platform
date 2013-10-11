@@ -43,7 +43,9 @@ public abstract class Pair<A, B> implements Map.Entry<A, B>, Comparable<Pair<A, 
    * @param first  the first element, may be null
    * @param second  the second element, may be null
    * @return a pair formed from the two parameters, not null
+   * @deprecated Use {@link Pairs#of(Object, Object)} or {@link ObjectsPair#of(Object, Object)}
    */
+  @Deprecated
   public static <A, B> ObjectsPair<A, B> of(A first, B second) {
     return ObjectsPair.of(first, second);
   }
@@ -54,7 +56,9 @@ public abstract class Pair<A, B> implements Map.Entry<A, B>, Comparable<Pair<A, 
    * @param first  the first element, may be null
    * @param second  the second element, may be null
    * @return a pair formed from the two parameters, not null
+   * @deprecated Use {@link Pairs#of(Double, double)} or {@link ObjectsPair#of(Object, Object)}
    */
+  @Deprecated
   public static ObjectsPair<Double, Double> of(Double first, double second) {
     return ObjectsPair.of(first, (Double) second);
   }
@@ -65,7 +69,9 @@ public abstract class Pair<A, B> implements Map.Entry<A, B>, Comparable<Pair<A, 
    * @param first  the first element, may be null
    * @param second  the second element, may be null
    * @return a pair formed from the two parameters, not null
+   * @deprecated Use {@link Pairs#of(double, Double)} or {@link ObjectsPair#of(Object, Object)}
    */
+  @Deprecated
   public static ObjectsPair<Double, Double> of(double first, Double second) {
     return ObjectsPair.of((Double) first, second);
   }
@@ -76,7 +82,9 @@ public abstract class Pair<A, B> implements Map.Entry<A, B>, Comparable<Pair<A, 
    * @param first  the first element, may be null
    * @param second  the second element, may be null
    * @return a pair formed from the two parameters, not null
+   * @deprecated Use {@link Pairs#of(double, double)} or {@link DoublesPair#of(double, double)}
    */
+  @Deprecated
   public static DoublesPair of(double first, double second) {
     return DoublesPair.of(first, second);
   }
@@ -87,7 +95,9 @@ public abstract class Pair<A, B> implements Map.Entry<A, B>, Comparable<Pair<A, 
    * @param first  the first element, may be null
    * @param second  the second element, may be null
    * @return a pair formed from the two parameters, not null
+   * @deprecated Use {@link Pairs#of(int, double)} or {@link IntDoublePair#of(long, double)}
    */
+  @Deprecated
   public static IntDoublePair of(int first, double second) {
     return IntDoublePair.of(first, second);
   }
@@ -98,7 +108,9 @@ public abstract class Pair<A, B> implements Map.Entry<A, B>, Comparable<Pair<A, 
    * @param first  the first element, may be null
    * @param second  the second element, may be null
    * @return a pair formed from the two parameters, not null
+   * @deprecated Use {@link Pairs#of(long, double)} or {@link LongDoublePair#of(long, double)}
    */
+  @Deprecated
   public static LongDoublePair of(long first, double second) {
     return LongDoublePair.of(first, second);
   }

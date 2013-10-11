@@ -90,14 +90,14 @@ public class DoublesPairTest {
 
   public void testEquals_toObjectVersion() {
     DoublesPair a = DoublesPair.of(1.1d, 1.7d);
-    Pair<Double, Double> b = Pair.of(Double.valueOf(1.1d), Double.valueOf(1.7d));
+    Pair<Double, Double> b = ObjectsPair.of(Double.valueOf(1.1d), Double.valueOf(1.7d));
     assertEquals(true, a.equals(b));
     assertEquals(true, b.equals(a));
   }
 
   public void testEquals_toObjectVersion_null() {
     DoublesPair b = DoublesPair.of(1.1d, 1.7d);
-    Pair<Double, Double> a = Pair.of(null, Double.valueOf(1.9d));
+    Pair<Double, Double> a = ObjectsPair.of(null, Double.valueOf(1.9d));
     assertEquals(true, a.equals(a));
     assertEquals(false, a.equals(b));
     assertEquals(false, b.equals(a));
@@ -106,7 +106,7 @@ public class DoublesPairTest {
 
   public void testHashCode() {
     DoublesPair a = DoublesPair.of(1.1d, 1.7d);
-    Pair<Double, Double> b = Pair.of(Double.valueOf(1.1d), Double.valueOf(1.7d));
+    Pair<Double, Double> b = ObjectsPair.of(Double.valueOf(1.1d), Double.valueOf(1.7d));
     assertEquals(a.hashCode(), b.hashCode());
   }
 

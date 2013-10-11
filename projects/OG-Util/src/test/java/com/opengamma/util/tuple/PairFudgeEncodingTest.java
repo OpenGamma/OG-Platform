@@ -25,17 +25,17 @@ import com.opengamma.util.time.Tenor;
 public class PairFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
 
   public void test_OO_Bundle() {
-    Pair<String, ExternalIdBundle> object = Pair.of("Hello", ExternalIdBundle.of(ExternalId.of("A", "B")));
+    Pair<String, ExternalIdBundle> object = ObjectsPair.of("Hello", ExternalIdBundle.of(ExternalId.of("A", "B")));
     assertEncodeDecodeCycle(Pair.class, object);
   }
 
   public void test_OO_UniqueId() {
-    Pair<String, UniqueId> object = Pair.of("Hello", UniqueId.of("A", "B"));
+    Pair<String, UniqueId> object = ObjectsPair.of("Hello", UniqueId.of("A", "B"));
     assertEncodeDecodeCycle(Pair.class, object);
   }
 
   public void test_OO_null() {
-    Pair<String, UniqueId> object = Pair.of("Hello", null);
+    Pair<String, UniqueId> object = ObjectsPair.of("Hello", null);
     assertEncodeDecodeCycle(Pair.class, object);
   }
 
@@ -65,12 +65,12 @@ public class PairFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
   }
 
   public void test_TypeWithSecondaryTypeAndBuilderEncoding() {
-    Pair<Tenor, Tenor> object = Pair.of(Tenor.DAY, Tenor.TWELVE_MONTHS);
+    Pair<Tenor, Tenor> object = ObjectsPair.of(Tenor.DAY, Tenor.TWELVE_MONTHS);
     assertEncodeDecodeCycle(Pair.class, object);
   }
 
   public void test_staticTypedMethods() {
-    ObjectsPair<Tenor, Tenor> in = Pair.of(Tenor.DAY, Tenor.TEN_YEARS);
+    ObjectsPair<Tenor, Tenor> in = ObjectsPair.of(Tenor.DAY, Tenor.TEN_YEARS);
     FudgeMsg msg = ObjectsPairFudgeBuilder.buildMessage(getFudgeSerializer(), in, Tenor.class, Tenor.class);
     ObjectsPair<Tenor, Tenor> out = ObjectsPairFudgeBuilder.buildObject(getFudgeDeserializer(), msg, Tenor.class, Tenor.class);
     assertEquals(out, in);
@@ -80,17 +80,17 @@ public class PairFudgeEncodingTest extends AbstractFudgeBuilderTestCase {
   }
 
   public void test_TypeWithSecondaryTypeAndReducedNumber() {
-    Pair<LocalDate, Long> object = Pair.of(LocalDate.of(2011, 6, 30), 6L);
+    ObjectsPair<LocalDate, Long> object = ObjectsPair.of(LocalDate.of(2011, 6, 30), 6L);
     assertEncodeDecodeCycle(Pair.class, object);
   }
 
   public void test_nullFirst() {
-    Pair<String, String> object = Pair.of(null, "B");
+    ObjectsPair<String, String> object = ObjectsPair.of(null, "B");
     assertEncodeDecodeCycle(Pair.class, object);
   }
 
   public void test_nullSecond() {
-    Pair<String, String> object = Pair.of("A", null);
+    ObjectsPair<String, String> object = ObjectsPair.of("A", null);
     assertEncodeDecodeCycle(Pair.class, object);
   }
 

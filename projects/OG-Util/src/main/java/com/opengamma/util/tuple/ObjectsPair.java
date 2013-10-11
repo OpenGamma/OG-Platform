@@ -227,7 +227,7 @@ public final class ObjectsPair<A, B> extends Pair<A, B> implements ImmutableBean
   /**
    * The bean-builder for {@code ObjectsPair}.
    */
-  @SuppressWarnings({"unchecked", "rawtypes" })
+  @SuppressWarnings({"rawtypes" })
   private static final class Builder extends BasicImmutableBeanBuilder<ObjectsPair> {
 
     /** The first element. */
@@ -260,7 +260,7 @@ public final class ObjectsPair<A, B> extends Pair<A, B> implements ImmutableBean
 
     @Override
     public ObjectsPair build() {
-      return new ObjectsPair(_first, _second);
+      return ObjectsPair.of(_first, _second);
     }
 
   }
