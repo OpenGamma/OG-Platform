@@ -95,6 +95,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
   }
 
   public static void main(String[] args) throws IOException {
+    // TODO use args
     String dataDir = "/Users/chris/tmp/regression";
     try (RemoteServer server = RemoteServer.create("http://localhost:8080")) {
       DatabaseRestore.restoreDatabase(dataDir, server);

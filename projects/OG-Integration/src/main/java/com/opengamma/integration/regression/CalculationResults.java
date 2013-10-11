@@ -199,7 +199,6 @@ public final class CalculationResults implements ImmutableBean {
     return keys;
   }
 
-
   // TODO test case
   private static Map<UniqueId, List<String>> nodesToPaths(PortfolioNode node, List<String> parentPath) {
     String name = node.getName();

@@ -5,20 +5,19 @@
  */
 package com.opengamma.integration.regression;
 
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import org.apache.commons.lang.builder.CompareToBuilder;
-
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.util.ClassMap;
+import com.opengamma.util.money.CurrencyAmount;
+import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -37,35 +36,44 @@ public final class CalculationDifference {
     s_handlers.put(List.class, new ListHandler());
     s_handlers.put(YieldCurve.class, new YieldCurveHandler());
     s_handlers.put(DoubleLabelledMatrix1D.class, new DoubleLabelledMatrix1DHandler());
+    s_handlers.put(MultipleCurrencyAmount.class, new MultipleCurrencyAmountHandler());
+    // TODO generic joda bean handler
   }
 
+  private final int _equalResultCount;
   private final String _viewDefinitionName;
   private final String _snapshotName;
-  private final Map<CalculationResultKey, CalculatedValue> _only1;
-  private final Map<CalculationResultKey, CalculatedValue> _only2;
+  private final Map<CalculationResultKey, CalculatedValue> _onlyBase;
+  private final Map<CalculationResultKey, CalculatedValue> _onlyTest;
   private final Map<CalculationResultKey, Pair<CalculatedValue, CalculatedValue>> _different;
   private final Map<CalculationResultKey, Pair<CalculatedValue, CalculatedValue>> _differentProperties;
 
-  private CalculationDifference(String viewDefinitionName,
+  private CalculationDifference(int equalResultCount,
+                                String viewDefinitionName,
                                 String snapshotName,
-                                Map<CalculationResultKey, CalculatedValue> only1,
-                                Map<CalculationResultKey, CalculatedValue> only2,
+                                Map<CalculationResultKey, CalculatedValue> onlyBase,
+                                Map<CalculationResultKey, CalculatedValue> onlyTest,
                                 Map<CalculationResultKey, Pair<CalculatedValue, CalculatedValue>> different,
                                 Map<CalculationResultKey, Pair<CalculatedValue, CalculatedValue>> differentProperties) {
+    _equalResultCount = equalResultCount;
     _viewDefinitionName = viewDefinitionName;
     _snapshotName = snapshotName;
-    _only1 = only1;
-    _only2 = only2;
+    _onlyBase = onlyBase;
+    _onlyTest = onlyTest;
     _different = different;
     _differentProperties = differentProperties;
   }
 
-  public Map<CalculationResultKey, CalculatedValue> getOnly1() {
-    return _only1;
+  public int getEqualResultCount() {
+    return _equalResultCount;
   }
 
-  public Map<CalculationResultKey, CalculatedValue> getOnly2() {
-    return _only2;
+  public Map<CalculationResultKey, CalculatedValue> getOnlyBase() {
+    return _onlyBase;
+  }
+
+  public Map<CalculationResultKey, CalculatedValue> getOnlyTest() {
+    return _onlyTest;
   }
 
   public Map<CalculationResultKey, Pair<CalculatedValue, CalculatedValue>> getDifferent() {
@@ -91,15 +99,17 @@ public final class CalculationDifference {
     Map<CalculationResultKey, Pair<CalculatedValue, CalculatedValue>> diffs = Maps.newHashMap();
     Map<CalculationResultKey, Pair<CalculatedValue, CalculatedValue>> differentProps = Maps.newHashMap();
     Set<CalculationResultKey> bothKeys = Sets.intersection(results1.getValues().keySet(), results2.getValues().keySet());
+    int equalResultCount = 0;
     for (CalculationResultKey key : bothKeys) {
       CalculatedValue value1 = results1.getValues().get(key);
       CalculatedValue value2 = results2.getValues().get(key);
       if (!equals(value1.getValue(), value2.getValue(), delta)) {
         diffs.put(key, Pair.of(value1, value2));
       } else {
-        // TODO pre-process properties to fix the function names and filter other rubbish out
         if (!value1.getSpecificationProperties().equals(value2.getSpecificationProperties())) {
           differentProps.put(key, Pair.of(value1, value2));
+        } else {
+          equalResultCount++;
         }
       }
     }
@@ -107,7 +117,7 @@ public final class CalculationDifference {
     Map<CalculationResultKey, CalculatedValue> only2 = getValues(only2Keys, results2.getValues());
     String viewDefName = results1.getViewDefinitionName();
     String snapshotName = results1.getSnapshotName();
-    return new CalculationDifference(viewDefName, snapshotName, only1, only2, diffs, differentProps);
+    return new CalculationDifference(equalResultCount, viewDefName, snapshotName, only1, only2, diffs, differentProps);
   }
 
   private static boolean equals(Object value1, Object value2, double delta) {
@@ -131,57 +141,13 @@ public final class CalculationDifference {
 
   private static Map<CalculationResultKey, CalculatedValue> getValues(Set<CalculationResultKey> keys,
                                                                       Map<CalculationResultKey, CalculatedValue> map) {
-    // TODO this is only an ordered map for easier debugging, possibly convert to hash map
-    Map<CalculationResultKey, CalculatedValue> retMap = Maps.newTreeMap(new CalculationResultKeyComparator());
+    Map<CalculationResultKey, CalculatedValue> retMap = Maps.newTreeMap();
     for (CalculationResultKey key : keys) {
       if (map.containsKey(key)) {
         retMap.put(key, map.get(key));
       }
     }
     return retMap;
-  }
-
-  // TODO this is only for easier debugging, delete when fully (!) debugged?
-  private static class CalculationResultKeyComparator implements Comparator<CalculationResultKey> {
-
-    @Override
-    public int compare(CalculationResultKey k1, CalculationResultKey k2) {
-      return new CompareToBuilder()
-          .append(k1.getCalcConfigName(), k2.getCalcConfigName())
-          .append(k1.getTargetId(), k2.getTargetId())
-          .appendSuper(comparePaths(k1.getPath(), k2.getPath()))
-          .append(k1.getValueName(), k2.getValueName())
-          .append(k1.getProperties(), k2.getProperties())
-          .toComparison();
-    }
-
-    private static int comparePaths(List<String> path1, List<String> path2) {
-      if (path1 == null && path2 == null) {
-        return 0;
-      }
-      if (path1 == null) {
-        return 1;
-      } else if (path2 == null) {
-        return -1;
-      }
-      if (path1.isEmpty() && path2.isEmpty()) {
-        return 0;
-      }
-      if (path1.isEmpty()) {
-        return -1;
-      } else if (path2.isEmpty()) {
-        return 1;
-      } else {
-        String s1 = path1.get(0);
-        String s2 = path2.get(0);
-        int cmp = s1.compareTo(s2);
-        if (cmp != 0) {
-          return cmp;
-        } else {
-          return comparePaths(path1.subList(1, path1.size()), path2.subList(1, path2.size()));
-        }
-      }
-    }
   }
 
   /**
@@ -193,15 +159,11 @@ public final class CalculationDifference {
     boolean equals(T value1, T value2, double delta);
   }
 
-  // TODO this is almost certainly inadequate, need handlers for subtypes
   private static final class YieldCurveHandler implements EqualsHandler<YieldCurve> {
 
     @Override
     public boolean equals(YieldCurve value1, YieldCurve value2, double delta) {
-      if (!CalculationDifference.equals(value1.getCurve().getXData(), value2.getCurve().getXData(), delta)) {
-        return false;
-      }
-      return CalculationDifference.equals(value1.getCurve().getYData(), value2.getCurve().getYData(), delta);
+      return CalculationDifference.equals(value1.getCurve(), value2.getCurve(), delta);
     }
   }
 
@@ -216,6 +178,26 @@ public final class CalculationDifference {
         double item1 = value1[i];
         double item2 = value2[i];
         if (Math.abs(item1 - item2) > delta) {
+          return false;
+        }
+      }
+      return true;
+    }
+  }
+
+  private static final class MultipleCurrencyAmountHandler implements EqualsHandler<MultipleCurrencyAmount> {
+
+    @Override
+    public boolean equals(MultipleCurrencyAmount value1, MultipleCurrencyAmount value2, double delta) {
+      for (CurrencyAmount currencyAmount : value1) {
+        double amount1 = currencyAmount.getAmount();
+        double amount2;
+        try {
+          amount2 = value2.getAmount(currencyAmount.getCurrency());
+        } catch (IllegalArgumentException e) {
+          return false;
+        }
+        if (!CalculationDifference.equals(amount1, amount2, delta)) {
           return false;
         }
       }

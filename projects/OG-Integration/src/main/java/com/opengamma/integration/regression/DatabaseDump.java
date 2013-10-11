@@ -57,7 +57,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * Dumps all the data required to run views from the database into Fudge XML files.
- * TODO split this up to allow a subset of data to be dumped and restored
+ * TODO split this up to allow a subset of data to be dumped and restored?
  */
 /* package */ class DatabaseDump {
 
@@ -107,8 +107,8 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
   }
 
   public static void main(String[] args) throws IOException {
-
     try {
+      // TODO use args
       RemoteServer server = RemoteServer.create("http://localhost:8080");
       DatabaseDump databaseDump = new DatabaseDump(new File("/Users/chris/tmp/regression"),
                                                    server.getSecurityMaster(),
