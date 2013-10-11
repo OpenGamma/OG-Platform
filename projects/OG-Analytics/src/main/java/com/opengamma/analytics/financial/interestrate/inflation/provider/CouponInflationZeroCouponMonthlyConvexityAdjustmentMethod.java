@@ -86,11 +86,11 @@ public class CouponInflationZeroCouponMonthlyConvexityAdjustmentMethod {
     final double estimatedIndexBar = 1.0 / coupon.getIndexStartValue() * convexityAdjustemnt * discountFactor * coupon.getNotional() * pvBar;
     final Map<String, List<DoublesPair>> resultMapDisc = new HashMap<>();
     final List<DoublesPair> listDiscounting = new ArrayList<>();
-    listDiscounting.add(new DoublesPair(coupon.getPaymentTime(), -coupon.getPaymentTime() * discountFactor * discountFactorBar));
+    listDiscounting.add(DoublesPair.of(coupon.getPaymentTime(), -coupon.getPaymentTime() * discountFactor * discountFactorBar));
     resultMapDisc.put(inflation.getInflationProvider().getName(coupon.getCurrency()), listDiscounting);
     final Map<String, List<DoublesPair>> resultMapPrice = new HashMap<>();
     final List<DoublesPair> listPrice = new ArrayList<>();
-    listPrice.add(new DoublesPair(coupon.getReferenceEndTime(), estimatedIndexBar));
+    listPrice.add(DoublesPair.of(coupon.getReferenceEndTime(), estimatedIndexBar));
     resultMapPrice.put(inflation.getInflationProvider().getName(coupon.getPriceIndex()), listPrice);
     final InflationSensitivity inflationSensitivity = InflationSensitivity.ofYieldDiscountingAndPriceIndex(resultMapDisc, resultMapPrice);
     return MultipleCurrencyInflationSensitivity.of(coupon.getCurrency(), inflationSensitivity);

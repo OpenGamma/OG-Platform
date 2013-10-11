@@ -128,7 +128,7 @@ public class SwaptionCashFixedIborLinearTSRMethod {
       _timeToExpiry = swaption.getTimeToExpiry();
       final AnnuityCouponFixed annuityFixed = swaption.getUnderlyingSwap().getFixedLeg();
       _maturity = annuityFixed.getNthPayment(annuityFixed.getNumberOfPayments() - 1).getPaymentTime() - swaption.getSettlementTime();
-      final DoublesPair expiryMaturity = new DoublesPair(_timeToExpiry, _maturity);
+      final DoublesPair expiryMaturity = DoublesPair.of(_timeToExpiry, _maturity);
       final double alpha = sabrParameter.getAlpha(expiryMaturity);
       final double beta = sabrParameter.getBeta(expiryMaturity);
       final double rho = sabrParameter.getRho(expiryMaturity);

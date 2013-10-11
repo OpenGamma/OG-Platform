@@ -164,7 +164,7 @@ public final class InterestRateFutureOptionMarginSecurityBlackSurfaceMethod exte
    */
   public SurfaceValue priceBlackSensitivity(final InterestRateFutureOptionMarginSecurity security, final YieldCurveWithBlackCubeBundle blackData) {
     final double volatilityBar = optionPriceVega(security, blackData);
-    final DoublesPair expiryStrikeDelay = new DoublesPair(security.getExpirationTime(), security.getStrike());
+    final DoublesPair expiryStrikeDelay = DoublesPair.of(security.getExpirationTime(), security.getStrike());
     final SurfaceValue sensi = SurfaceValue.from(expiryStrikeDelay, volatilityBar);
     return sensi;
   }

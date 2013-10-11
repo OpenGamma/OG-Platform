@@ -64,7 +64,7 @@ public final class PaymentFixedDiscountingMethod {
    */
   public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final PaymentFixed payment, final MulticurveProviderInterface multicurves) {
     final double time = payment.getPaymentTime();
-    final DoublesPair s = new DoublesPair(time, -time * payment.getAmount() * multicurves.getDiscountFactor(payment.getCurrency(), time));
+    final DoublesPair s = DoublesPair.of(time, -time * payment.getAmount() * multicurves.getDiscountFactor(payment.getCurrency(), time));
     final List<DoublesPair> list = new ArrayList<>();
     list.add(s);
     final Map<String, List<DoublesPair>> result = new HashMap<>();

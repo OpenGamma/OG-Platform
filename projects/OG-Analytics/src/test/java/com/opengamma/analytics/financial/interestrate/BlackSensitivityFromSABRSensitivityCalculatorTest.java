@@ -148,7 +148,7 @@ public class BlackSensitivityFromSABRSensitivityCalculatorTest {
         }
         final LeastSquareResultsWithTransform fittedResult = new SABRModelFitter(atm, strikeAbs, EXPIRY_TIME[loopexpiry], volBlack[loopexpiry][loopmat], errors, SABR_FUNCTION).solve(
             SABR_INITIAL_VALUES, FIXED);
-        inverseJacobianMap.put(new DoublesPair(EXPIRY_TIME[loopexpiry], MATURITY_TIME[loopmat]), fittedResult.getModelParameterSensitivityToData());
+        inverseJacobianMap.put(DoublesPair.of(EXPIRY_TIME[loopexpiry], MATURITY_TIME[loopmat]), fittedResult.getModelParameterSensitivityToData());
         expiryTimeVector[vect] = EXPIRY_TIME[loopexpiry];
         maturityTimeVector[vect] = MATURITY_TIME[loopmat];
         alphaVector[vect] = fittedResult.getModelParameters().getEntry(0);

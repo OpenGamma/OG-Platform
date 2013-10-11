@@ -78,7 +78,7 @@ public final class DepositIborDiscountingMethod {
     mapFwd.put(multicurves.getName(deposit.getIndex()), listForward);
     final Map<String, List<DoublesPair>> mapDsc = new HashMap<>();
     final List<DoublesPair> listDiscounting = new ArrayList<>();
-    listDiscounting.add(new DoublesPair(deposit.getEndTime(), -deposit.getEndTime() * dfEnd * dfEndBar));
+    listDiscounting.add(DoublesPair.of(deposit.getEndTime(), -deposit.getEndTime() * dfEnd * dfEndBar));
     mapDsc.put(multicurves.getName(deposit.getCurrency()), listDiscounting);
     MultipleCurrencyMulticurveSensitivity result = new MultipleCurrencyMulticurveSensitivity();
     result = result.plus(deposit.getCurrency(), MulticurveSensitivity.of(mapDsc, mapFwd));

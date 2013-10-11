@@ -216,7 +216,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
     final double shiftAlpha = 0.00001;
     final double maturity = CMS_CAP_LONG.getUnderlyingSwap().getFixedLeg().getNthPayment(CMS_CAP_LONG.getUnderlyingSwap().getFixedLeg().getNumberOfPayments() - 1).getPaymentTime()
         - CMS_CAP_LONG.getSettlementTime();
-    final DoublesPair expectedExpiryTenor = new DoublesPair(CMS_CAP_LONG.getFixingTime(), maturity);
+    final DoublesPair expectedExpiryTenor = DoublesPair.of(CMS_CAP_LONG.getFixingTime(), maturity);
     // Alpha sensitivity vs finite difference computation
     final SABRInterestRateParameters sabrParameterAlphaBumped = SABRDataSets.createSABR1AlphaBumped(shiftAlpha);
     final SABRSwaptionProviderDiscount sabrBundleAlphaBumped = new SABRSwaptionProviderDiscount(MULTICURVES, sabrParameterAlphaBumped, EUR1YEURIBOR6M);
@@ -255,7 +255,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
     final double shiftAlpha = 0.00001;
     final double maturity = CMS_COUPON.getUnderlyingSwap().getFixedLeg().getNthPayment(CMS_COUPON.getUnderlyingSwap().getFixedLeg().getNumberOfPayments() - 1).getPaymentTime()
         - CMS_COUPON.getSettlementTime();
-    final DoublesPair expectedExpiryTenor = new DoublesPair(CMS_COUPON.getFixingTime(), maturity);
+    final DoublesPair expectedExpiryTenor = DoublesPair.of(CMS_COUPON.getFixingTime(), maturity);
     // Alpha sensitivity vs finite difference computation
     final SABRInterestRateParameters sabrParameterAlphaBumped = SABRDataSets.createSABR1AlphaBumped(shiftAlpha);
     final SABRSwaptionProviderDiscount sabrBundleAlphaBumped = new SABRSwaptionProviderDiscount(MULTICURVES, sabrParameterAlphaBumped, EUR1YEURIBOR6M);

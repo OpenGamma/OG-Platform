@@ -517,7 +517,7 @@ public class ForexOptionDigitalBlackMethodTest {
     final double shift = 1.0E-6;
     final PresentValueForexBlackVolatilitySensitivity sensi = METHOD_BLACK_DIGITAL.presentValueBlackVolatilitySensitivity(FOREX_DIGITAL_CALL_DOM, SMILE_BUNDLE);
     final Pair<Currency, Currency> currencyPair = Pairs.of(EUR, USD);
-    final DoublesPair point = new DoublesPair(FOREX_DIGITAL_CALL_DOM.getExpirationTime(), STRIKE);
+    final DoublesPair point = DoublesPair.of(FOREX_DIGITAL_CALL_DOM.getExpirationTime(), STRIKE);
     assertEquals("Forex Digital option: vega", currencyPair, sensi.getCurrencyPair());
     assertEquals("Forex Digital option: vega size", 1, sensi.getVega().getMap().entrySet().size());
     assertTrue("Forex Digital option: vega", sensi.getVega().getMap().containsKey(point));

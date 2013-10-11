@@ -106,7 +106,7 @@ public class CouponFixedAccruedCompoundingDiscountingMethodTest {
     final MultipleCurrencyMulticurveSensitivity pvpcsComputed = METHOD.presentValueCurveSensitivity(CPN_PAY, MULTICURVES);
     final double pvpcsExpectedDouble = -CPN_PAY.getPaymentTime() * CPN_PAY.getAmount() * MULTICURVES.getDiscountFactor(CPN_PAY.getCurrency(), CPN_PAY.getPaymentTime());
     final Map<String, List<DoublesPair>> mapDsc = new HashMap<>();
-    final DoublesPair s = new DoublesPair(CPN_PAY.getPaymentTime(), pvpcsExpectedDouble);
+    final DoublesPair s = DoublesPair.of(CPN_PAY.getPaymentTime(), pvpcsExpectedDouble);
     final List<DoublesPair> list = new ArrayList<>();
     list.add(s);
     mapDsc.put(MULTICURVES.getName(CPN_PAY.getCurrency()), list);
@@ -158,7 +158,7 @@ public class CouponFixedAccruedCompoundingDiscountingMethodTest {
     final double pvpcsExpectedDouble = -CPN_PAY_WITH_ACCRUAL_DATES.getPaymentTime() * CPN_PAY_WITH_ACCRUAL_DATES.getAmount() *
         MULTICURVES.getDiscountFactor(CPN_PAY_WITH_ACCRUAL_DATES.getCurrency(), CPN_PAY_WITH_ACCRUAL_DATES.getPaymentTime());
     final Map<String, List<DoublesPair>> mapDsc = new HashMap<>();
-    final DoublesPair s = new DoublesPair(CPN_PAY_WITH_ACCRUAL_DATES.getPaymentTime(), pvpcsExpectedDouble);
+    final DoublesPair s = DoublesPair.of(CPN_PAY_WITH_ACCRUAL_DATES.getPaymentTime(), pvpcsExpectedDouble);
     final List<DoublesPair> list = new ArrayList<>();
     list.add(s);
     mapDsc.put(MULTICURVES.getName(CPN_PAY_WITH_ACCRUAL_DATES.getCurrency()), list);

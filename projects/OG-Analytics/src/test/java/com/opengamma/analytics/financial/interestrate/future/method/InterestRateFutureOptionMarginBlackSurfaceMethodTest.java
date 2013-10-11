@@ -165,7 +165,7 @@ public class InterestRateFutureOptionMarginBlackSurfaceMethodTest {
     final double priceMinus = METHOD_SECURITY_OPTION_BLACK.optionPrice(OPTION_ERU2, blackBundleMinus);
     final double priceSensiExpected = (pricePlus - priceMinus) / (2 * VOL_SHIFT);
     final SurfaceValue priceSensiComputed = METHOD_SECURITY_OPTION_BLACK.priceBlackSensitivity(OPTION_ERU2, BLACK_BUNDLE);
-    final DoublesPair point = new DoublesPair(OPTION_ERU2.getExpirationTime(), STRIKE);
+    final DoublesPair point = DoublesPair.of(OPTION_ERU2.getExpirationTime(), STRIKE);
     assertEquals("Future option with Black volatilities: option security vol sensi", priceSensiExpected, priceSensiComputed.getMap().get(point), TOLERANCE_DELTA);
     assertEquals("Future option with Black volatilities: option security vol sensi", 1, priceSensiComputed.getMap().size());
   }
@@ -177,7 +177,7 @@ public class InterestRateFutureOptionMarginBlackSurfaceMethodTest {
   public void priceVegaVsBlackSensitivity() {
     final SurfaceValue blackSens = METHOD_SECURITY_OPTION_BLACK.priceBlackSensitivity(OPTION_ERU2, BLACK_BUNDLE);
     final double vega = METHOD_SECURITY_OPTION_BLACK.optionPriceVega(OPTION_ERU2, BLACK_BUNDLE);
-    final DoublesPair point = new DoublesPair(OPTION_ERU2.getExpirationTime(), STRIKE);
+    final DoublesPair point = DoublesPair.of(OPTION_ERU2.getExpirationTime(), STRIKE);
     assertEquals("Future option with Black volatilities: option security vol sensi", vega, blackSens.getMap().get(point), TOLERANCE_DELTA);
     final SurfaceValue sensFromVega = SurfaceValue.from(point,vega);
     assertTrue("SurfaceValue produced by priceBlackSensitivity() is not equal to one from optionPriceVega()", sensFromVega.equals(blackSens));

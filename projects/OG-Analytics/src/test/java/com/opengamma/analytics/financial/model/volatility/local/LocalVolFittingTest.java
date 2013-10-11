@@ -400,7 +400,7 @@ public class LocalVolFittingTest {
 
       @Override
       public Double evaluate(final Double... x) {
-        final DoublesPair data = new DoublesPair(x[0], x[1]);
+        final DoublesPair data = DoublesPair.of(x[0].doubleValue(), x[1].doubleValue());
         return INTERPOLATOR.interpolate(idb, data);
       }
     };

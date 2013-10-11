@@ -84,7 +84,7 @@ public final class CouponFixedDiscountingMethod {
     final String curveName = cpn.getFundingCurveName();
     final YieldAndDiscountCurve discountingCurve = curves.getCurve(curveName);
     final double time = cpn.getPaymentTime();
-    final DoublesPair s = new DoublesPair(time, -time * cpn.getAmount() * discountingCurve.getDiscountFactor(time));
+    final DoublesPair s = DoublesPair.of(time, -time * cpn.getAmount() * discountingCurve.getDiscountFactor(time));
     final List<DoublesPair> list = new ArrayList<>();
     list.add(s);
     final Map<String, List<DoublesPair>> result = new HashMap<>();

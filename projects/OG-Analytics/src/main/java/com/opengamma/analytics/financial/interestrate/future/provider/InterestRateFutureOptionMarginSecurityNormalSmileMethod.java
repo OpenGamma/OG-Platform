@@ -131,7 +131,7 @@ public final class InterestRateFutureOptionMarginSecurityNormalSmileMethod exten
     NORMAL_FUNCTION.getPriceAdjoint(option, normalPoint, priceAdjoint);
     final double priceBar = 1.0;
     final double volatilityBar = priceAdjoint[1] * priceBar;
-    final DoublesPair expiryStrikeDelay = new DoublesPair(security.getExpirationTime(), strike);
+    final DoublesPair expiryStrikeDelay = DoublesPair.of(security.getExpirationTime(), strike);
     final SurfaceValue sensi = SurfaceValue.from(expiryStrikeDelay, volatilityBar);
     return sensi;
   }
