@@ -22,9 +22,9 @@ import java.util.TreeSet;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.util.ParallelArrayBinarySort;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
-import com.opengamma.util.ParallelArrayBinarySort;
 
 /**
  * 
@@ -63,7 +63,7 @@ public class NodalObjectObjectCurveTest {
       X_OBJECT[i] = xFloat;
       Y_OBJECT[i] = y;
       MAP.put(xFloat, y);
-      PAIR_SET.add(new ObjectsPair<>(xFloat, y));
+      PAIR_SET.add(ObjectsPair.of(xFloat, (Double) y));
       X_LIST.add(xFloat);
       Y_LIST.add(y);
     }
@@ -74,7 +74,7 @@ public class NodalObjectObjectCurveTest {
       X_OBJECT[i] = xFloat;
       Y_OBJECT[i] = y;
       MAP.put(xFloat, y);
-      PAIR_SET.add(new ObjectsPair<>(xFloat, y));
+      PAIR_SET.add(ObjectsPair.of(xFloat, (Double) y));
       X_LIST.add(xFloat);
       Y_LIST.add(y);
     }

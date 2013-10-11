@@ -13,8 +13,8 @@ import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisito
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Describes a (Treasury) Bill with settlement date.
@@ -183,7 +183,7 @@ public class BillSecurity implements InstrumentDerivative {
    * @return The name/currency.
    */
   public Pair<String, Currency> getIssuerCcy() {
-    return new ObjectsPair<>(_issuer, _currency);
+    return Pairs.of(_issuer, _currency);
   }
 
   /**

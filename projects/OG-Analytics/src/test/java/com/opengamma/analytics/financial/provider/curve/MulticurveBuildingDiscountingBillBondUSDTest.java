@@ -61,8 +61,8 @@ import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeri
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Build of curve in several blocks with relevant Jacobian matrices.
@@ -87,7 +87,7 @@ public class MulticurveBuildingDiscountingBillBondUSDTest {
   private static final IndexON INDEX_ON_USD = GENERATOR_OIS_USD.getIndex();
   private static final GeneratorDepositON GENERATOR_DEPOSIT_ON_USD = new GeneratorDepositON("USD Deposit ON", USD, NYC, INDEX_ON_USD.getDayCount());
   private static final String NAME_COUNTERPART = "US GOVT";
-  private static final Pair<String, Currency> US_USD = new ObjectsPair<>(NAME_COUNTERPART, USD);
+  private static final Pair<String, Currency> US_USD = Pairs.of(NAME_COUNTERPART, USD);
   private static final DayCount DAY_COUNT_ON = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final GeneratorDepositONCounterpart GENERATOR_DEPOSIT_ON_USGOVT = new GeneratorDepositONCounterpart("US GOVT Deposit ON", USD, NYC, DAY_COUNT_ON, NAME_COUNTERPART);
 

@@ -16,8 +16,8 @@ import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.data.InterpolatorNDDataBundle;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  *
@@ -44,17 +44,17 @@ public abstract class InterpolatorNDTestCase {
       x = 10 * random.nextDouble();
       y = 10 * random.nextDouble();
       z = 10 * random.nextDouble();
-      FLAT_DATA.add(new ObjectsPair<>(new double[] {x, y, z}, VALUE));
+      FLAT_DATA.add(Pairs.of(new double[] {x, y, z}, VALUE));
       temp = new double[] {x, y};
-      COS_EXP_DATA.add(new ObjectsPair<>(temp, COS_EXP_FUNCTION.evaluate(temp)));
+      COS_EXP_DATA.add(Pairs.of(temp, COS_EXP_FUNCTION.evaluate(temp)));
     }
 
-    SWAPTION_ATM_VOL_DATA.add(new ObjectsPair<>(new double[] {1, 1}, 0.7332));
-    SWAPTION_ATM_VOL_DATA.add(new ObjectsPair<>(new double[] {1, 5}, 0.36995));
-    SWAPTION_ATM_VOL_DATA.add(new ObjectsPair<>(new double[] {5, 5}, 0.23845));
-    SWAPTION_ATM_VOL_DATA.add(new ObjectsPair<>(new double[] {5, 10}, 0.2177));
-    SWAPTION_ATM_VOL_DATA.add(new ObjectsPair<>(new double[] {10, 20}, 0.1697));
-    SWAPTION_ATM_VOL_DATA.add(new ObjectsPair<>(new double[] {15, 15}, 0.162));
+    SWAPTION_ATM_VOL_DATA.add(Pairs.of(new double[] {1, 1}, 0.7332));
+    SWAPTION_ATM_VOL_DATA.add(Pairs.of(new double[] {1, 5}, 0.36995));
+    SWAPTION_ATM_VOL_DATA.add(Pairs.of(new double[] {5, 5}, 0.23845));
+    SWAPTION_ATM_VOL_DATA.add(Pairs.of(new double[] {5, 10}, 0.2177));
+    SWAPTION_ATM_VOL_DATA.add(Pairs.of(new double[] {10, 20}, 0.1697));
+    SWAPTION_ATM_VOL_DATA.add(Pairs.of(new double[] {15, 15}, 0.162));
   }
 
   protected void assertFlat(final InterpolatorND interpolator, final double tol) {

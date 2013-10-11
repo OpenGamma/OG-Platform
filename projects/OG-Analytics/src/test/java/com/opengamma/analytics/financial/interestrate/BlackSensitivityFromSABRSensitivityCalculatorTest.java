@@ -46,7 +46,7 @@ import com.opengamma.util.monitor.OperationTimer;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.ObjectsPair;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Tests related to the sensitivity of swaptions to the Black volatility when SABR fitting and interpolation is used.
@@ -163,7 +163,7 @@ public class BlackSensitivityFromSABRSensitivityCalculatorTest {
     final InterpolatedDoublesSurface nuSurface = InterpolatedDoublesSurface.from(expiryTimeVector, maturityTimeVector, nuVector, INTERPOLATOR, "SABR nu surface");
     final InterpolatedDoublesSurface rhoSurface = InterpolatedDoublesSurface.from(expiryTimeVector, maturityTimeVector, rhoVector, INTERPOLATOR, "SABR rho surface");
     final SABRInterestRateParameters sabrParameters = new SABRInterestRateParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, USD6MLIBOR3M.getFixedLegDayCount(), SABR_FUNCTION);
-    return Pair.of(sabrParameters, inverseJacobianMap);
+    return ObjectsPair.of(sabrParameters, inverseJacobianMap);
   }
 
   @Test

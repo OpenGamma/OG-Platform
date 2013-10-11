@@ -11,8 +11,8 @@ import static org.testng.AssertJUnit.assertTrue;
 import org.testng.annotations.Test;
 
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 public class ReferenceAmountTest {
 
@@ -22,10 +22,10 @@ public class ReferenceAmountTest {
   private static final String STR2 = "Name 2";
   private static final Currency USD = Currency.USD;
   private static final Currency EUR = Currency.EUR;
-  private static final Pair<String, Currency> STR1_USD = new ObjectsPair<>(STR1, USD);
-  private static final Pair<String, Currency> STR1_EUR = new ObjectsPair<>(STR1, EUR);
-  private static final Pair<String, Currency> STR2_USD = new ObjectsPair<>(STR2, USD);
-  private static final Pair<String, Currency> STR2_EUR = new ObjectsPair<>(STR2, EUR);
+  private static final Pair<String, Currency> STR1_USD = Pairs.of(STR1, USD);
+  private static final Pair<String, Currency> STR1_EUR = Pairs.of(STR1, EUR);
+  private static final Pair<String, Currency> STR2_USD = Pairs.of(STR2, USD);
+  private static final Pair<String, Currency> STR2_EUR = Pairs.of(STR2, EUR);
 
   @Test
   public void constructor() {

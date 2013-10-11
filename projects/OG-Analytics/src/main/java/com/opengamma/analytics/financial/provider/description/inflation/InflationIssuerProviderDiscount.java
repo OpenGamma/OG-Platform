@@ -19,8 +19,8 @@ import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscou
 import com.opengamma.analytics.financial.provider.description.interestrate.MulticurveProviderDiscount;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Class describing a "market" with discounting, forward, price index and credit curves.
@@ -102,7 +102,7 @@ public class InflationIssuerProviderDiscount implements InflationIssuerProviderI
   }
 
   public void setCurve(final String issuer, final Currency ccy, final YieldAndDiscountCurve curve) {
-    setCurve(new ObjectsPair<>(issuer, ccy), curve);
+    setCurve(Pairs.of(issuer, ccy), curve);
   }
 
   @Override

@@ -12,6 +12,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.analytics.math.interpolation.data.InterpolatorNDDataBundle;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  *
@@ -33,7 +34,7 @@ public class InterpolatorNDDataBundleTest {
   public void testEmptyData2() {
     final List<Pair<double[], Double>> data = new ArrayList<>();
     final double[] temp = new double[] {};
-    final Pair<double[], Double> pair = Pair.of(temp, 0.0);
+    final Pair<double[], Double> pair = Pairs.of(temp, 0.0);
     data.add(pair);
     new InterpolatorNDDataBundle(data);
   }

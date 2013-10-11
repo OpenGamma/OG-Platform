@@ -46,6 +46,7 @@ import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 import com.opengamma.util.tuple.Triple;
 
 /**
@@ -87,7 +88,7 @@ public class ForexOptionSingleBarrierBlackMethodTest {
   // Methods and curves
   private static final YieldCurveBundle CURVES = TestsDataSetsForex.createCurvesForex();
   private static final String[] CURVES_NAME = CURVES.getAllNames().toArray(new String[CURVES.size()]);
-  private static final SmileDeltaTermStructureDataBundle SMILE_BUNDLE = new SmileDeltaTermStructureDataBundle(CURVES, SMILE_TERM, Pair.of(EUR, USD));
+  private static final SmileDeltaTermStructureDataBundle SMILE_BUNDLE = new SmileDeltaTermStructureDataBundle(CURVES, SMILE_TERM, Pairs.of(EUR, USD));
   private static final ForexOptionVanillaBlackSmileMethod METHOD_VANILLA = ForexOptionVanillaBlackSmileMethod.getInstance();
   private static final ForexOptionSingleBarrierBlackMethod METHOD_BARRIER = ForexOptionSingleBarrierBlackMethod.getInstance();
   private static final BlackBarrierPriceFunction BLACK_BARRIER_FUNCTION = BlackBarrierPriceFunction.getInstance();
@@ -145,7 +146,7 @@ public class ForexOptionSingleBarrierBlackMethodTest {
    */
   public void persentValueHardCoded() {
     final YieldCurveBundle curves = TestsDataSetsForex.createCurvesForexXXXYYY(USD, JPY, SPOT_USD_JPY);
-    final SmileDeltaTermStructureDataBundle curvesVol = new SmileDeltaTermStructureDataBundle(curves, SMILE_TERM_FLAT_USD_JPY, Pair.of(USD, JPY));
+    final SmileDeltaTermStructureDataBundle curvesVol = new SmileDeltaTermStructureDataBundle(curves, SMILE_TERM_FLAT_USD_JPY, Pairs.of(USD, JPY));
     final MultipleCurrencyAmount pvComputed = METHOD_BARRIER.presentValue(CALL_USD_JPY_BARRIER, curvesVol);
     final CurrencyAmount pvComputedUSD = curves.getFxRates().convert(pvComputed, USD);
     final double pvHardCodedUSD = 12958.820;
@@ -275,7 +276,7 @@ public class ForexOptionSingleBarrierBlackMethodTest {
     final SmileDeltaTermStructureParametersStrikeInterpolation smileTermFlat = new SmileDeltaTermStructureParametersStrikeInterpolation(TIME_TO_EXPIRY, DELTA, atmFlat, rrFlat, sFlat);
     final FXMatrix fxMatrixShift = new FXMatrix(EUR, USD, SPOT + shiftSpotEURUSD);
     final YieldCurveBundle curvesShiftedFX = new YieldCurveBundle(fxMatrixShift, CURVES.getCurrencyMap(), CURVES.getCurvesMap());
-    final SmileDeltaTermStructureDataBundle smileBumpedSpot = new SmileDeltaTermStructureDataBundle(curvesShiftedFX, smileTermFlat, Pair.of(EUR, USD));
+    final SmileDeltaTermStructureDataBundle smileBumpedSpot = new SmileDeltaTermStructureDataBundle(curvesShiftedFX, smileTermFlat, Pairs.of(EUR, USD));
     final MultipleCurrencyAmount pvBumpedSpot = METHOD_BARRIER.presentValue(OPTION_BARRIER, smileBumpedSpot);
     final double ceDomesticFD = (pvBumpedSpot.getAmount(USD) - pv.getAmount(USD));
     assertEquals("Barrier currency exposure: domestic currency", ceDomesticFD, ce.getAmount(EUR) * shiftSpotEURUSD, 2.0E-4);
@@ -384,7 +385,7 @@ public class ForexOptionSingleBarrierBlackMethodTest {
    */
   public void volatilitySensitivity() {
     final PresentValueForexBlackVolatilitySensitivity sensi = METHOD_BARRIER.presentValueBlackVolatilitySensitivity(OPTION_BARRIER, SMILE_BUNDLE);
-    final Pair<Currency, Currency> currencyPair = ObjectsPair.of(EUR, USD);
+    final Pair<Currency, Currency> currencyPair = Pairs.of(EUR, USD);
     final DoublesPair point = new DoublesPair(OPTION_BARRIER.getUnderlyingOption().getTimeToExpiry(), STRIKE);
     assertEquals("Forex vanilla option: vega", currencyPair, sensi.getCurrencyPair());
     assertEquals("Forex vanilla option: vega size", 1, sensi.getVega().getMap().entrySet().size());

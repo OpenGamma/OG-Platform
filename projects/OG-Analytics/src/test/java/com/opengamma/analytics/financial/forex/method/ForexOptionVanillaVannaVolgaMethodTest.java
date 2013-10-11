@@ -41,7 +41,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * @deprecated This class tests deprecated code
@@ -93,9 +93,9 @@ public class ForexOptionVanillaVannaVolgaMethodTest {
   private static final ForexOptionVanillaBlackSmileMethod METHOD_BLACK = ForexOptionVanillaBlackSmileMethod.getInstance();
   private static final ForexDiscountingMethod METHOD_DISC = ForexDiscountingMethod.getInstance();
 
-  private static final SmileDeltaTermStructureDataBundle SMILE_BUNDLE_STRIKE_INT = new SmileDeltaTermStructureDataBundle(CURVES, SMILE_TERM_STRIKE_INT, Pair.of(EUR, USD));
-  private static final SmileDeltaTermStructureDataBundle SMILE_BUNDLE_STRIKE_INT_FLAT = new SmileDeltaTermStructureDataBundle(CURVES, SMILE_TERM_STRIKE_INT_FLAT, Pair.of(EUR, USD));
-  private static final SmileDeltaTermStructureVannaVolgaDataBundle SMILE_BUNDLE = new SmileDeltaTermStructureVannaVolgaDataBundle(CURVES, SMILE_TERM, Pair.of(EUR, USD));
+  private static final SmileDeltaTermStructureDataBundle SMILE_BUNDLE_STRIKE_INT = new SmileDeltaTermStructureDataBundle(CURVES, SMILE_TERM_STRIKE_INT, Pairs.of(EUR, USD));
+  private static final SmileDeltaTermStructureDataBundle SMILE_BUNDLE_STRIKE_INT_FLAT = new SmileDeltaTermStructureDataBundle(CURVES, SMILE_TERM_STRIKE_INT_FLAT, Pairs.of(EUR, USD));
+  private static final SmileDeltaTermStructureVannaVolgaDataBundle SMILE_BUNDLE = new SmileDeltaTermStructureVannaVolgaDataBundle(CURVES, SMILE_TERM, Pairs.of(EUR, USD));
   private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
   private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
   private static final double TOLERANCE_PV = 1.0E-2;

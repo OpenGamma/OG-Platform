@@ -14,8 +14,8 @@ import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Describes a generic single currency bond issue.
@@ -142,7 +142,7 @@ public abstract class BondSecurity<N extends Payment, C extends Coupon> implemen
    * @return The name/currency.
    */
   public Pair<String, Currency> getIssuerCcy() {
-    return new ObjectsPair<>(_issuer, _nominal.getCurrency());
+    return Pairs.of(_issuer, _nominal.getCurrency());
   }
 
   /**

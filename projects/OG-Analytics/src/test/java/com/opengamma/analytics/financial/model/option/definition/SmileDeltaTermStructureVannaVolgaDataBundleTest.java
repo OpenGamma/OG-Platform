@@ -18,6 +18,7 @@ import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * @deprecated This class tests deprecated functionality
@@ -26,7 +27,7 @@ import com.opengamma.util.tuple.Pair;
 public class SmileDeltaTermStructureVannaVolgaDataBundleTest {
 
   private static final YieldCurveBundle CURVES = TestsDataSetsForex.createCurvesForex();
-  private static final Pair<Currency, Currency> CCYS = Pair.of(Currency.EUR, Currency.EUR);
+  private static final Pair<Currency, Currency> CCYS = Pairs.of(Currency.EUR, Currency.EUR);
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 6, 13);
   private static final SmileDeltaTermStructureParametersStrikeInterpolation SMILES = TestsDataSetsForex.smile3points(REFERENCE_DATE, Interpolator1DFactory.LINEAR_INSTANCE);
   private static final SmileDeltaTermStructureVannaVolgaDataBundle FX_DATA = new SmileDeltaTermStructureVannaVolgaDataBundle(CURVES, SMILES, CCYS);
@@ -48,7 +49,7 @@ public class SmileDeltaTermStructureVannaVolgaDataBundleTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testBadCurrencyPair() {
-    new SmileDeltaTermStructureVannaVolgaDataBundle(CURVES, SMILES, Pair.of(Currency.AUD, Currency.SEK));
+    new SmileDeltaTermStructureVannaVolgaDataBundle(CURVES, SMILES, Pairs.of(Currency.AUD, Currency.SEK));
   }
 
   @Test
@@ -64,7 +65,7 @@ public class SmileDeltaTermStructureVannaVolgaDataBundleTest {
     assertFalse(FX_DATA.equals(other));
     other = new SmileDeltaTermStructureVannaVolgaDataBundle(CURVES, TestsDataSetsForex.smile3points(REFERENCE_DATE, Interpolator1DFactory.LOG_LINEAR_INSTANCE), CCYS);
     assertFalse(FX_DATA.equals(other));
-    other = new SmileDeltaTermStructureVannaVolgaDataBundle(CURVES, SMILES, Pair.of(Currency.EUR, Currency.GBP));
+    other = new SmileDeltaTermStructureVannaVolgaDataBundle(CURVES, SMILES, Pairs.of(Currency.EUR, Currency.GBP));
     assertFalse(FX_DATA.equals(other));
   }
 

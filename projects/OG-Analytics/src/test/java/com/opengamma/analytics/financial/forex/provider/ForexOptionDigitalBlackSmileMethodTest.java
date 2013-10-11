@@ -44,8 +44,8 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 import com.opengamma.util.tuple.Triple;
 
 /**
@@ -65,8 +65,8 @@ public class ForexOptionDigitalBlackSmileMethodTest {
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 6, 13);
   private static final SmileDeltaTermStructureParametersStrikeInterpolation SMILE_TERM = ForexSmileProviderDataSets.smile5points(REFERENCE_DATE);
   private static final SmileDeltaTermStructureParametersStrikeInterpolation SMILE_TERM_FLAT = ForexSmileProviderDataSets.smileFlat(REFERENCE_DATE);
-  private static final BlackForexSmileProviderDiscount SMILE_MULTICURVES = new BlackForexSmileProviderDiscount(MULTICURVES, SMILE_TERM, Pair.of(EUR, USD));
-  private static final BlackForexSmileProviderDiscount SMILE_FLAT_MULTICURVES = new BlackForexSmileProviderDiscount(MULTICURVES, SMILE_TERM_FLAT, Pair.of(EUR, USD));
+  private static final BlackForexSmileProviderDiscount SMILE_MULTICURVES = new BlackForexSmileProviderDiscount(MULTICURVES, SMILE_TERM, Pairs.of(EUR, USD));
+  private static final BlackForexSmileProviderDiscount SMILE_FLAT_MULTICURVES = new BlackForexSmileProviderDiscount(MULTICURVES, SMILE_TERM_FLAT, Pairs.of(EUR, USD));
   // Methods and curves
   private static final double SPOT = MULTICURVES.getFxRate(EUR, USD);
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
@@ -120,7 +120,7 @@ public class ForexOptionDigitalBlackSmileMethodTest {
     final double dfDomestic = MULTICURVES.getDiscountFactor(USD, forexOption.getUnderlyingForex().getPaymentTime());
     final double dfForeign = MULTICURVES.getDiscountFactor(EUR, forexOption.getUnderlyingForex().getPaymentTime());
     final double forward = SPOT * dfForeign / dfDomestic;
-    final double volatility = SMILE_TERM.getVolatility(new Triple<>(TimeCalculator.getTimeBetween(REFERENCE_DATE, expiryDate), strike, forward));
+    final double volatility = SMILE_TERM.getVolatility(Triple.of(TimeCalculator.getTimeBetween(REFERENCE_DATE, expiryDate), strike, forward));
     final double sigmaRootT = volatility * Math.sqrt(forexOption.getExpirationTime());
     final double dM = Math.log(forward / strike) / sigmaRootT - 0.5 * sigmaRootT;
     final int omega = isCall ? 1 : -1;
@@ -148,7 +148,7 @@ public class ForexOptionDigitalBlackSmileMethodTest {
     final double dfDomestic = MULTICURVES.getDiscountFactor(USD, forexOption.getUnderlyingForex().getPaymentTime());
     final double dfForeign = MULTICURVES.getDiscountFactor(EUR, forexOption.getUnderlyingForex().getPaymentTime());
     final double forward = SPOT * dfForeign / dfDomestic;
-    final double volatility = SMILE_TERM.getVolatility(new Triple<>(timeToExpiry, strike, forward));
+    final double volatility = SMILE_TERM.getVolatility(Triple.of(timeToExpiry, strike, forward));
     final double sigmaRootT = volatility * Math.sqrt(forexOption.getExpirationTime());
     final double dM = Math.log(forward / strike) / sigmaRootT - 0.5 * sigmaRootT;
     final int omega = isCall ? 1 : -1;
@@ -180,7 +180,7 @@ public class ForexOptionDigitalBlackSmileMethodTest {
       spot[loopspot] = strike - range + 2.0d * range * loopspot / nbSpot;
       final FXMatrix fxMatrix = new FXMatrix(EUR, USD, spot[loopspot]);
       multicurveForex.setForexMatrix(fxMatrix);
-      final BlackForexSmileProviderDiscount smile = new BlackForexSmileProviderDiscount(multicurveForex, SMILE_TERM, Pair.of(EUR, USD));
+      final BlackForexSmileProviderDiscount smile = new BlackForexSmileProviderDiscount(multicurveForex, SMILE_TERM, Pairs.of(EUR, USD));
       pv[loopspot] = METHOD_BLACK_DIGITAL.presentValue(forexOption, smile).getAmount(USD);
     }
   }
@@ -204,7 +204,7 @@ public class ForexOptionDigitalBlackSmileMethodTest {
     final double dfDomestic = MULTICURVES.getDiscountFactor(EUR, forexOption.getUnderlyingForex().getPaymentTime());
     final double dfForeign = MULTICURVES.getDiscountFactor(USD, forexOption.getUnderlyingForex().getPaymentTime());
     final double forward = 1 / SPOT * dfForeign / dfDomestic;
-    final double volatility = SMILE_TERM.getVolatility(new Triple<>(timeToExpiry, strike, 1 / forward));
+    final double volatility = SMILE_TERM.getVolatility(Triple.of(timeToExpiry, strike, 1 / forward));
     final double sigmaRootT = volatility * Math.sqrt(forexOption.getExpirationTime());
     final double dM = Math.log(forward * strike) / sigmaRootT - 0.5 * sigmaRootT;
     final double omega = isCall ? -1.0 : 1.0;
@@ -236,7 +236,7 @@ public class ForexOptionDigitalBlackSmileMethodTest {
       spot[loopspot] = strike - range + 2.0d * range * loopspot / nbSpot;
       final FXMatrix fxMatrix = new FXMatrix(EUR, USD, spot[loopspot]);
       multicurveForex.setForexMatrix(fxMatrix);
-      final BlackForexSmileProviderDiscount smile = new BlackForexSmileProviderDiscount(multicurveForex, SMILE_TERM, Pair.of(EUR, USD));
+      final BlackForexSmileProviderDiscount smile = new BlackForexSmileProviderDiscount(multicurveForex, SMILE_TERM, Pairs.of(EUR, USD));
       pv[loopspot] = METHOD_BLACK_DIGITAL.presentValue(forexOption, smile).getAmount(EUR);
     }
   }
@@ -318,7 +318,7 @@ public class ForexOptionDigitalBlackSmileMethodTest {
     final double dfDomestic = MULTICURVES.getDiscountFactor(USD, TimeCalculator.getTimeBetween(REFERENCE_DATE, payDate)); // USD
     final double dfForeign = MULTICURVES.getDiscountFactor(EUR, TimeCalculator.getTimeBetween(REFERENCE_DATE, payDate)); // EUR
     final double forward = SPOT * dfForeign / dfDomestic;
-    final double volatility = SMILE_TERM.getVolatility(new Triple<>(timeToExpiry, strike, forward));
+    final double volatility = SMILE_TERM.getVolatility(Triple.of(timeToExpiry, strike, forward));
     final double sigmaRootT = volatility * Math.sqrt(forexOptionCall.getExpirationTime());
     final double dM = Math.log(forward / strike) / sigmaRootT - 0.5 * sigmaRootT;
     final double deltaSpotCall = dfDomestic * notional * strike * NORMAL.getPDF(dM) / (sigmaRootT * SPOT);
@@ -344,7 +344,7 @@ public class ForexOptionDigitalBlackSmileMethodTest {
     final MulticurveProviderDiscount multicurveP = MULTICURVES.copy();
     final FXMatrix fxMatrixP = new FXMatrix(EUR, USD, SPOT + shift);
     multicurveP.setForexMatrix(fxMatrixP);
-    final BlackForexSmileProviderDiscount smileP = new BlackForexSmileProviderDiscount(multicurveP, SMILE_TERM_FLAT, Pair.of(EUR, USD));
+    final BlackForexSmileProviderDiscount smileP = new BlackForexSmileProviderDiscount(multicurveP, SMILE_TERM_FLAT, Pairs.of(EUR, USD));
     final MultipleCurrencyAmount ce = METHOD_BLACK_DIGITAL.currencyExposure(FOREX_DIGITAL_CALL_FOR, SMILE_FLAT_MULTICURVES);
     final MultipleCurrencyAmount pv = METHOD_BLACK_DIGITAL.presentValue(FOREX_DIGITAL_CALL_FOR, SMILE_FLAT_MULTICURVES);
     final MultipleCurrencyAmount pvP = METHOD_BLACK_DIGITAL.presentValue(FOREX_DIGITAL_CALL_FOR, smileP);
@@ -446,8 +446,8 @@ public class ForexOptionDigitalBlackSmileMethodTest {
   public void volatilitySensitivity() {
     final double shift = 1.0E-6;
     final PresentValueForexBlackVolatilitySensitivity sensi = METHOD_BLACK_DIGITAL.presentValueBlackVolatilitySensitivity(FOREX_DIGITAL_CALL_DOM, SMILE_MULTICURVES);
-    final Pair<Currency, Currency> currencyPair = ObjectsPair.of(EUR, USD);
-    final DoublesPair point = new DoublesPair(FOREX_DIGITAL_CALL_DOM.getExpirationTime(), STRIKE);
+    final Pair<Currency, Currency> currencyPair = Pairs.of(EUR, USD);
+    final DoublesPair point = DoublesPair.of(FOREX_DIGITAL_CALL_DOM.getExpirationTime(), STRIKE);
     assertEquals("Forex Digital option: vega", currencyPair, sensi.getCurrencyPair());
     assertEquals("Forex Digital option: vega size", 1, sensi.getVega().getMap().entrySet().size());
     assertTrue("Forex Digital option: vega", sensi.getVega().getMap().containsKey(point));
@@ -456,7 +456,7 @@ public class ForexOptionDigitalBlackSmileMethodTest {
     final double dfDomestic = MULTICURVES.getDiscountFactor(USD, FOREX_DIGITAL_CALL_DOM.getUnderlyingForex().getPaymentTime());
     final double dfForeign = MULTICURVES.getDiscountFactor(EUR, FOREX_DIGITAL_CALL_DOM.getUnderlyingForex().getPaymentTime());
     final double forward = SPOT * dfForeign / dfDomestic;
-    final double volatility = SMILE_TERM.getVolatility(new Triple<>(FOREX_DIGITAL_CALL_DOM.getExpirationTime(), strike, forward));
+    final double volatility = SMILE_TERM.getVolatility(Triple.of(FOREX_DIGITAL_CALL_DOM.getExpirationTime(), strike, forward));
     final double sigmaRootTPlus = (volatility + shift) * Math.sqrt(FOREX_DIGITAL_CALL_DOM.getExpirationTime());
     final double dMPlus = Math.log(forward / strike) / sigmaRootTPlus - 0.5 * sigmaRootTPlus;
     final double pvPlus = Math.abs(FOREX_DIGITAL_CALL_DOM.getUnderlyingForex().getPaymentCurrency2().getAmount()) * dfDomestic * NORMAL.getCDF(omega * dMPlus)

@@ -47,8 +47,8 @@ import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 import com.opengamma.util.tuple.Triple;
 
 /**
@@ -64,8 +64,8 @@ public class ForexOptionSingleBarrierBlackMethodTest {
 
   private static final SmileDeltaTermStructureParametersStrikeInterpolation SMILE_TERM = ForexSmileProviderDataSets.smile5points(REFERENCE_DATE);
   private static final SmileDeltaTermStructureParametersStrikeInterpolation SMILE_TERM_FLAT = ForexSmileProviderDataSets.smileFlat(REFERENCE_DATE);
-  private static final BlackForexSmileProviderDiscount SMILE_MULTICURVES = new BlackForexSmileProviderDiscount(MULTICURVES, SMILE_TERM, Pair.of(EUR, USD));
-  private static final BlackForexSmileProviderDiscount SMILE_FLAT_MULTICURVES = new BlackForexSmileProviderDiscount(MULTICURVES, SMILE_TERM_FLAT, Pair.of(EUR, USD));
+  private static final BlackForexSmileProviderDiscount SMILE_MULTICURVES = new BlackForexSmileProviderDiscount(MULTICURVES, SMILE_TERM, Pairs.of(EUR, USD));
+  private static final BlackForexSmileProviderDiscount SMILE_FLAT_MULTICURVES = new BlackForexSmileProviderDiscount(MULTICURVES, SMILE_TERM_FLAT, Pairs.of(EUR, USD));
 
   private static final FXMatrix FX_MATRIX = MULTICURVES.getFxRates();
   private static final double SPOT = FX_MATRIX.getFxRate(EUR, USD);
@@ -219,7 +219,7 @@ public class ForexOptionSingleBarrierBlackMethodTest {
     final FXMatrix fxMatrixShift = new FXMatrix(EUR, USD, SPOT + shiftSpotEURUSD);
     final MulticurveProviderDiscount multicurvesShiftedFX = MULTICURVES.copy();
     multicurvesShiftedFX.setForexMatrix(fxMatrixShift);
-    final BlackForexSmileProviderDiscount smileBumpedSpot = new BlackForexSmileProviderDiscount(multicurvesShiftedFX, SMILE_TERM_FLAT, Pair.of(EUR, USD));
+    final BlackForexSmileProviderDiscount smileBumpedSpot = new BlackForexSmileProviderDiscount(multicurvesShiftedFX, SMILE_TERM_FLAT, Pairs.of(EUR, USD));
     final MultipleCurrencyAmount pvBumpedSpot = METHOD_BARRIER.presentValue(OPTION_BARRIER, smileBumpedSpot);
     final double ceDomesticFD = (pvBumpedSpot.getAmount(USD) - pv.getAmount(USD));
     assertEquals("Barrier currency exposure: domestic currency", ceDomesticFD, ce.getAmount(EUR) * shiftSpotEURUSD, 2.0E-4);
@@ -293,7 +293,7 @@ public class ForexOptionSingleBarrierBlackMethodTest {
    */
   public void volatilitySensitivity() {
     final PresentValueForexBlackVolatilitySensitivity sensi = METHOD_BARRIER.presentValueBlackVolatilitySensitivity(OPTION_BARRIER, SMILE_MULTICURVES);
-    final Pair<Currency, Currency> currencyPair = ObjectsPair.of(EUR, USD);
+    final Pair<Currency, Currency> currencyPair = Pairs.of(EUR, USD);
     final DoublesPair point = new DoublesPair(OPTION_BARRIER.getUnderlyingOption().getTimeToExpiry(), STRIKE);
     assertEquals("Forex vanilla option: vega", currencyPair, sensi.getCurrencyPair());
     assertEquals("Forex vanilla option: vega size", 1, sensi.getVega().getMap().entrySet().size());
@@ -331,7 +331,7 @@ public class ForexOptionSingleBarrierBlackMethodTest {
   //    final PresentValueForexBlackVolatilityNodeSensitivityDataBundle sensi = METHOD_BARRIER.presentValueBlackVolatilityNodeSensitivity(OPTION_BARRIER, SMILE_MULTICURVES);
   //    assertEquals("Forex vanilla option: vega node size", NB_EXP + 1, sensi.getVega().getData().length);
   //    assertEquals("Forex vanilla option: vega node size", NB_STRIKE, sensi.getVega().getData()[0].length);
-  //    final Pair<Currency, Currency> currencyPair = ObjectsPair.of(EUR, USD);
+  //    final Pair<Currency, Currency> currencyPair = Pairs.of(EUR, USD);
   //    assertEquals("Forex vanilla option: vega", currencyPair, sensi.getCurrencyPair());
   //    final PresentValueForexBlackVolatilitySensitivity pointSensitivity = METHOD_BARRIER.presentValueBlackVolatilitySensitivity(OPTION_BARRIER, SMILE_MULTICURVES);
   //    final double df = MULTICURVES.getDiscountFactor(USD, TimeCalculator.getTimeBetween(REFERENCE_DATE, OPTION_PAY_DATE));

@@ -39,8 +39,8 @@ import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeri
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Sets of market data used in tests.
@@ -185,7 +185,7 @@ public class MulticurveProviderDiscountDataSets {
 
   private static final Map<Pair<String, Currency>, YieldAndDiscountCurve> ISSUER_CURVES = new LinkedHashMap<>();
   static {
-    ISSUER_CURVES.put(new ObjectsPair<>(ISSUER_NAME, EURIBOR3M.getCurrency()), EUR_ISSUER);
+    ISSUER_CURVES.put(Pairs.of(ISSUER_NAME, EURIBOR3M.getCurrency()), EUR_ISSUER);
   }
   private static final IssuerProviderDiscount PROVIDER_ISSUER = new IssuerProviderDiscount(MULTICURVES_EUR_USD, ISSUER_CURVES);
 

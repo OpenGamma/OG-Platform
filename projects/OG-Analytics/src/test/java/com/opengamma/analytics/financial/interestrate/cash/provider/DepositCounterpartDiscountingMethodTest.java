@@ -38,6 +38,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Tests related to the pricing of cash deposits by discounting.
@@ -57,7 +58,7 @@ public class DepositCounterpartDiscountingMethodTest {
   private static final Period DEPOSIT_PERIOD = Period.ofMonths(6);
   private static final ZonedDateTime END_DATE = ScheduleCalculator.getAdjustedDate(SPOT_DATE, DEPOSIT_PERIOD, GENERATOR);
   private static final DepositCounterpartDefinition DEPOSIT_CPTY_DEFINITION = DepositCounterpartDefinition.fromStart(SPOT_DATE, DEPOSIT_PERIOD, NOTIONAL, RATE, GENERATOR, ISSUER_NAME);
-  private static final Pair<String, Currency> ISSUER_CCY = Pair.of(ISSUER_NAME, EUR);
+  private static final Pair<String, Currency> ISSUER_CCY = Pairs.of(ISSUER_NAME, EUR);
 
   private static final IssuerProviderDiscount PROVIDER_ISSUER = MulticurveProviderDiscountDataSets.createIssuerProvider();
   private static final DepositCounterpartDiscountingMethod METHOD_DEPOSIT = DepositCounterpartDiscountingMethod.getInstance();
