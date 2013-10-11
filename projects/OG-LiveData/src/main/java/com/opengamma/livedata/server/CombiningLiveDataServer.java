@@ -37,6 +37,7 @@ import com.opengamma.livedata.msg.LiveDataSubscriptionResponseMsg;
 import com.opengamma.livedata.server.distribution.MarketDataDistributor;
 import com.opengamma.util.NamedThreadPoolFactory;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * A {@link StandardLiveDataServer} which delegates all the work to a set of {@link StandardLiveDataServer}
@@ -161,7 +162,7 @@ public abstract class CombiningLiveDataServer extends StandardLiveDataServer {
 
         @Override
         public Collection<T> call() throws Exception {
-          return operation.apply(Pair.of(entry.getKey(), entry.getValue()));
+          return operation.apply(Pairs.of(entry.getKey(), entry.getValue()));
         }
       });
 
