@@ -98,6 +98,13 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
   @PropertyDefinition
   private ExternalIdSearch _exchangeExternalIdSearch;
   /**
+   * The custom external identifiers to match, null to not match on custom identifiers.
+   * This will return holidays where the holiday exchange identifier matches one of the search identifiers.
+   * Note that only the {@link ExternalIdSearchType#ANY any} search type is applicable.
+   */
+  @PropertyDefinition
+  private ExternalIdSearch _customExternalIdSearch;
+  /**
    * The sort order to use.
    */
   @PropertyDefinition(validate = "notNull")
@@ -138,19 +145,22 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
    * The type will be used to determine if the identifiers are regions or exchanges.
    * 
    * @param type  the type of the holiday, not null
-   * @param exchangeOrRegionKeys  the region or exchange identifiers to search for, not null
+   * @param exchangeOrRegionOrCustomKeys  the region, exchange or custom identifiers to search for, not null
    */
-  public HolidaySearchRequest(final HolidayType type, final Iterable<ExternalId> exchangeOrRegionKeys) {
+  public HolidaySearchRequest(final HolidayType type, final Iterable<ExternalId> exchangeOrRegionOrCustomKeys) {
     ArgumentChecker.notNull(type, "type");
-    ArgumentChecker.notNull(exchangeOrRegionKeys, "exchangeOrRegionIds");
+    ArgumentChecker.notNull(exchangeOrRegionOrCustomKeys, "exchangeOrRegionIds");
     setType(type);
     switch (type) {
       case BANK:
-        setRegionExternalIdSearch(ExternalIdSearch.of(exchangeOrRegionKeys));
+        setRegionExternalIdSearch(ExternalIdSearch.of(exchangeOrRegionOrCustomKeys));
         break;
       case SETTLEMENT:
       case TRADING:
-        setExchangeExternalIdSearch(ExternalIdSearch.of(exchangeOrRegionKeys));
+        setExchangeExternalIdSearch(ExternalIdSearch.of(exchangeOrRegionOrCustomKeys));
+        break;
+      case CUSTOM:
+        setCustomExternalIdSearch(ExternalIdSearch.of(exchangeOrRegionOrCustomKeys));
         break;
       case CURRENCY:
       default:
@@ -304,6 +314,64 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
       setExchangeExternalIdSearch(getExchangeExternalIdSearch().withSearchType(type));
     }
   }
+  
+  //-------------------------------------------------------------------------
+  /**
+   * Adds a single custom external identifier to the collection to search for.
+   * Unless customized, the search will match 
+   * {@link ExternalIdSearchType#ANY any} of the identifiers.
+   * 
+   * @param customId  the custom key identifier to add, not null
+   */
+  public void addCustomExternalId(ExternalId customId) {
+    ArgumentChecker.notNull(customId, "customId");
+    addCustomExternalIds(Arrays.asList(customId));
+  }
+
+  /**
+   * Adds a collection of custom external identifiers to the collection to search for.
+   * Unless customized, the search will match 
+   * {@link ExternalIdSearchType#ANY any} of the identifiers.
+   * 
+   * @param customIds  the custom key identifiers to add, not null
+   */
+  public void addCustomExternalIds(ExternalId... customIds) {
+    ArgumentChecker.notNull(customIds, "customIds");
+    if (getCustomExternalIdSearch() == null) {
+      setCustomExternalIdSearch(ExternalIdSearch.of(customIds));
+    } else {
+      setCustomExternalIdSearch(getCustomExternalIdSearch().withExternalIdsAdded(customIds));
+    }
+  }
+
+  /**
+   * Adds a collection of custom external identifiers to the collection to search for.
+   * Unless customized, the search will match 
+   * {@link ExternalIdSearchType#ANY any} of the identifiers.
+   * 
+   * @param customIds  the exchange key identifiers to add, not null
+   */
+  public void addCustomExternalIds(Iterable<ExternalId> customIds) {
+    ArgumentChecker.notNull(customIds, "customIds");
+    if (getCustomExternalIdSearch() == null) {
+      setCustomExternalIdSearch(ExternalIdSearch.of(customIds));
+    } else {
+      setCustomExternalIdSearch(getCustomExternalIdSearch().withExternalIdsAdded(customIds));
+    }
+  }
+
+  /**
+   * Sets the search type to use in {@code ExternalIdSearch} for custom ids.
+   * 
+   * @param type  the type to set, not null
+   */
+  public void setCustomExternalIdSearchType(ExternalIdSearchType type) {
+    if (getCustomExternalIdSearch() == null) {
+      setCustomExternalIdSearch(ExternalIdSearch.of(type));
+    } else {
+      setCustomExternalIdSearch(getCustomExternalIdSearch().withSearchType(type));
+    }
+  }
 
   //-------------------------------------------------------------------------
   @Override
@@ -332,6 +400,9 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
       return false;
     }
     if (getExchangeExternalIdSearch() != null && getExchangeExternalIdSearch().matches(holiday.getExchangeExternalId()) == false) {
+      return false;
+    }
+    if (getCustomExternalIdSearch() != null && getCustomExternalIdSearch().matches(holiday.getCustomExternalId()) == false) {
       return false;
     }
     if (getName() != null && RegexUtils.wildcardMatch(getName(), document.getName()) == false) {
@@ -570,6 +641,37 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the custom external identifiers to match, null to not match on custom identifiers.
+   * This will return holidays where the holiday exchange identifier matches one of the search identifiers.
+   * Note that only the {@link ExternalIdSearchType#ANY any} search type is applicable.
+   * @return the value of the property
+   */
+  public ExternalIdSearch getCustomExternalIdSearch() {
+    return _customExternalIdSearch;
+  }
+
+  /**
+   * Sets the custom external identifiers to match, null to not match on custom identifiers.
+   * This will return holidays where the holiday exchange identifier matches one of the search identifiers.
+   * Note that only the {@link ExternalIdSearchType#ANY any} search type is applicable.
+   * @param customExternalIdSearch  the new value of the property
+   */
+  public void setCustomExternalIdSearch(ExternalIdSearch customExternalIdSearch) {
+    this._customExternalIdSearch = customExternalIdSearch;
+  }
+
+  /**
+   * Gets the the {@code customExternalIdSearch} property.
+   * This will return holidays where the holiday exchange identifier matches one of the search identifiers.
+   * Note that only the {@link ExternalIdSearchType#ANY any} search type is applicable.
+   * @return the property, not null
+   */
+  public final Property<ExternalIdSearch> customExternalIdSearch() {
+    return metaBean().customExternalIdSearch().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the sort order to use.
    * @return the value of the property, not null
    */
@@ -615,6 +717,7 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
           JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
           JodaBeanUtils.equal(getRegionExternalIdSearch(), other.getRegionExternalIdSearch()) &&
           JodaBeanUtils.equal(getExchangeExternalIdSearch(), other.getExchangeExternalIdSearch()) &&
+          JodaBeanUtils.equal(getCustomExternalIdSearch(), other.getCustomExternalIdSearch()) &&
           JodaBeanUtils.equal(getSortOrder(), other.getSortOrder()) &&
           super.equals(obj);
     }
@@ -632,13 +735,14 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
     hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
     hash += hash * 31 + JodaBeanUtils.hashCode(getRegionExternalIdSearch());
     hash += hash * 31 + JodaBeanUtils.hashCode(getExchangeExternalIdSearch());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCustomExternalIdSearch());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSortOrder());
     return hash ^ super.hashCode();
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(320);
+    StringBuilder buf = new StringBuilder(352);
     buf.append("HolidaySearchRequest{");
     int len = buf.length();
     toString(buf);
@@ -660,6 +764,7 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
     buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
     buf.append("regionExternalIdSearch").append('=').append(getRegionExternalIdSearch()).append(',').append(' ');
     buf.append("exchangeExternalIdSearch").append('=').append(getExchangeExternalIdSearch()).append(',').append(' ');
+    buf.append("customExternalIdSearch").append('=').append(getCustomExternalIdSearch()).append(',').append(' ');
     buf.append("sortOrder").append('=').append(getSortOrder()).append(',').append(' ');
   }
 
@@ -715,6 +820,11 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
     private final MetaProperty<ExternalIdSearch> _exchangeExternalIdSearch = DirectMetaProperty.ofReadWrite(
         this, "exchangeExternalIdSearch", HolidaySearchRequest.class, ExternalIdSearch.class);
     /**
+     * The meta-property for the {@code customExternalIdSearch} property.
+     */
+    private final MetaProperty<ExternalIdSearch> _customExternalIdSearch = DirectMetaProperty.ofReadWrite(
+        this, "customExternalIdSearch", HolidaySearchRequest.class, ExternalIdSearch.class);
+    /**
      * The meta-property for the {@code sortOrder} property.
      */
     private final MetaProperty<HolidaySearchSortOrder> _sortOrder = DirectMetaProperty.ofReadWrite(
@@ -732,6 +842,7 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
         "currency",
         "regionExternalIdSearch",
         "exchangeExternalIdSearch",
+        "customExternalIdSearch",
         "sortOrder");
 
     /**
@@ -759,6 +870,8 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
           return _regionExternalIdSearch;
         case 585750481:  // exchangeExternalIdSearch
           return _exchangeExternalIdSearch;
+        case 1477343519:  // customExternalIdSearch
+          return _customExternalIdSearch;
         case -26774448:  // sortOrder
           return _sortOrder;
       }
@@ -846,6 +959,14 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
     }
 
     /**
+     * The meta-property for the {@code customExternalIdSearch} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ExternalIdSearch> customExternalIdSearch() {
+      return _customExternalIdSearch;
+    }
+
+    /**
      * The meta-property for the {@code sortOrder} property.
      * @return the meta-property, not null
      */
@@ -873,6 +994,8 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
           return ((HolidaySearchRequest) bean).getRegionExternalIdSearch();
         case 585750481:  // exchangeExternalIdSearch
           return ((HolidaySearchRequest) bean).getExchangeExternalIdSearch();
+        case 1477343519:  // customExternalIdSearch
+          return ((HolidaySearchRequest) bean).getCustomExternalIdSearch();
         case -26774448:  // sortOrder
           return ((HolidaySearchRequest) bean).getSortOrder();
       }
@@ -906,6 +1029,9 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
           return;
         case 585750481:  // exchangeExternalIdSearch
           ((HolidaySearchRequest) bean).setExchangeExternalIdSearch((ExternalIdSearch) newValue);
+          return;
+        case 1477343519:  // customExternalIdSearch
+          ((HolidaySearchRequest) bean).setCustomExternalIdSearch((ExternalIdSearch) newValue);
           return;
         case -26774448:  // sortOrder
           ((HolidaySearchRequest) bean).setSortOrder((HolidaySearchSortOrder) newValue);
