@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
@@ -33,7 +34,6 @@ import org.threeten.bp.Instant;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
@@ -46,16 +46,15 @@ import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.client.ViewClient;
-import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.cycle.ViewCycle;
-import com.opengamma.engine.view.cycle.ViewCycleMetadata;
 import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.execution.ViewExecutionFlags;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
-import com.opengamma.engine.view.listener.ViewResultListener;
+import com.opengamma.engine.view.listener.AbstractViewResultListener;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
 import com.opengamma.financial.marketdatasnapshot.MarketDataSnapshotterImpl;
+import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
@@ -94,6 +93,7 @@ public final class MarketDataSnapshotSaver implements ImmutableBean {
   @PropertyDefinition(validate = "notNull")
   private final MarketDataSnapshotter _snapshotter;
 
+  //-------------------------------------------------------------------------
   /**
    * Obtains an instance.
    * 
@@ -129,9 +129,9 @@ public final class MarketDataSnapshotSaver implements ImmutableBean {
     return new MarketDataSnapshotSaver(viewProcessor, configMaster, marketDataSnapshotMaster, snapshotter);
   }
 
+  //-------------------------------------------------------------------------
   public MarketDataSnapshotDocument createSnapshot(String name, final String viewDefinitionName, final Instant valuationInstant, 
       final List<MarketDataSpecification> marketDataSpecs) throws InterruptedException {
-    
     final ViewExecutionOptions viewExecutionOptions = ExecutionOptions.singleCycle(valuationInstant, marketDataSpecs, EnumSet.of(ViewExecutionFlags.AWAIT_MARKET_DATA));
 
     Set<ConfigDocument> viewDefinitions = Sets.newHashSet();
@@ -141,95 +141,140 @@ public final class MarketDataSnapshotSaver implements ImmutableBean {
     if (viewDefinitions.isEmpty()) {
       endWithError("Unable to resolve any view definitions with name '%s'", viewDefinitionName);
     }
-
     if (viewDefinitions.size() > 1) {
       endWithError("Multiple view definitions resolved when searching for string '%s': %s", viewDefinitionName, viewDefinitions);
     }
-          
-    ConfigItem<?> value = Iterables.get(viewDefinitions, 0).getValue();
-    StructuredMarketDataSnapshot snapshot = makeSnapshot(getSnapshotter(), getViewProcessor(), (ViewDefinition) value.getValue(), viewExecutionOptions);
-
-    final ManageableMarketDataSnapshot manageableMarketDataSnapshot = new ManageableMarketDataSnapshot(snapshot);
-    if (name == null) {
-      name = snapshot.getBasisViewName() + "/" + valuationInstant;
-    }
-    manageableMarketDataSnapshot.setName(name);
-    return getMarketDataSnapshotMaster().add(new MarketDataSnapshotDocument(manageableMarketDataSnapshot));
+    UniqueId viewDefinitionId = Iterables.getOnlyElement(viewDefinitions).getValue().getUniqueId();
+    ManageableMarketDataSnapshot snapshot = createSnapshotFromNewProcess(getSnapshotter(), name, getViewProcessor(), viewDefinitionId, viewExecutionOptions);
+    return getMarketDataSnapshotMaster().add(new MarketDataSnapshotDocument(snapshot));
+  }
+  
+  public MarketDataSnapshotDocument createSnapshot(String name, UniqueId viewProcessId) throws InterruptedException {
+    ManageableMarketDataSnapshot snapshot = createSnapshotFromExistingProcess(getSnapshotter(), name, getViewProcessor(), viewProcessId);
+    return getMarketDataSnapshotMaster().add(new MarketDataSnapshotDocument(snapshot));
   }
 
   //-------------------------------------------------------------------------
-  private static StructuredMarketDataSnapshot makeSnapshot(final MarketDataSnapshotter marketDataSnapshotter,
-      final ViewProcessor viewProcessor, final ViewDefinition viewDefinition, final ViewExecutionOptions viewExecutionOptions) throws InterruptedException {
-    final ViewClient vc = viewProcessor.createViewClient(UserPrincipal.getLocalUser());
-    vc.setResultListener(new ViewResultListener() {
-      @Override
-      public UserPrincipal getUser() {
-        String ipAddress;
-        try {
-          ipAddress = InetAddress.getLocalHost().getHostAddress();
-        } catch (final UnknownHostException e) {
-          ipAddress = "unknown";
-        }
-        return new UserPrincipal("MarketDataSnapshotterTool", ipAddress);
-      }
+  private static ManageableMarketDataSnapshot createSnapshotFromNewProcess(MarketDataSnapshotter marketDataSnapshotter, String name,
+      ViewProcessor viewProcessor, UniqueId viewDefinitionId, ViewExecutionOptions viewExecutionOptions) throws InterruptedException {
+    final ViewClient viewClient = viewProcessor.createViewClient(UserPrincipal.getLocalUser());
+    SnapshotResultListener resultListener = new SnapshotResultListener();
+    viewClient.setResultListener(resultListener);
+    viewClient.setViewCycleAccessSupported(true);
+    viewClient.attachToViewProcess(viewDefinitionId, viewExecutionOptions);
+    try {
+      return takeSnapshot(marketDataSnapshotter, name, viewClient, resultListener);
+    } finally {
+      viewClient.shutdown();
+    }
+  }
+  
+  private static ManageableMarketDataSnapshot createSnapshotFromExistingProcess(MarketDataSnapshotter marketDataSnapshotter, String name,
+      ViewProcessor viewProcessor, UniqueId viewProcessId) throws InterruptedException {
+    final ViewClient viewClient = viewProcessor.createViewClient(UserPrincipal.getLocalUser());
+    SnapshotResultListener resultListener = new SnapshotResultListener();
+    viewClient.setResultListener(resultListener);
+    viewClient.setViewCycleAccessSupported(true);
+    viewClient.attachToViewProcess(viewProcessId);
+    try {
+      return takeSnapshot(marketDataSnapshotter, name, viewClient, resultListener);
+    } finally {
+      viewClient.shutdown();
+    }
+  }
 
-      @Override
-      public void viewDefinitionCompiled(final CompiledViewDefinition compiledViewDefinition, final boolean hasMarketDataPermissions) {
-      }
-
-      @Override
-      public void viewDefinitionCompilationFailed(final Instant valuationTime, final Exception exception) {
-        s_logger.error(exception.getMessage() + "\n\n" + (exception.getCause() == null ? "" : exception.getCause().getMessage()));
-      }
-
-      @Override
-      public void cycleStarted(final ViewCycleMetadata cycleMetadata) {
-      }
-
-      @Override
-      public void cycleFragmentCompleted(final ViewComputationResultModel fullFragment, final ViewDeltaResultModel deltaFragment) {
-      }
-
-      @Override
-      public void cycleCompleted(final ViewComputationResultModel fullResult, final ViewDeltaResultModel deltaResult) {
-        s_logger.info("cycle completed");
-      }
-
-      @Override
-      public void cycleExecutionFailed(final ViewCycleExecutionOptions executionOptions, final Exception exception) {
-        s_logger.error(exception.getMessage() + "\n\n" + (exception.getCause() == null ? "" : exception.getCause().getMessage()));
-      }
-
-      @Override
-      public void processCompleted() {
-      }
-
-      @Override
-      public void processTerminated(final boolean executionInterrupted) {
-      }
-
-      @Override
-      public void clientShutdown(final Exception e) {
-      }
-    });
-    vc.setViewCycleAccessSupported(true);
-    vc.attachToViewProcess(viewDefinition.getUniqueId(), viewExecutionOptions);
-
-    vc.waitForCompletion();
-    vc.pause();
+  private static ManageableMarketDataSnapshot takeSnapshot(MarketDataSnapshotter marketDataSnapshotter, String name,
+      final ViewClient viewClient, SnapshotResultListener resultListener) throws InterruptedException {
+    resultListener.await();
+    viewClient.setResultListener(null);
+    if (!resultListener.isSuccess()) {
+      throw new OpenGammaRuntimeException("Failed to capture a cycle to snapshot");
+    }
     EngineResourceReference<? extends ViewCycle> cycleReference = null;
     try {
-      cycleReference = vc.createLatestCycleReference();
-      return marketDataSnapshotter.createSnapshot(vc, cycleReference.get());
+      cycleReference = viewClient.createLatestCycleReference();
+      if (cycleReference == null) {
+        throw new OpenGammaRuntimeException("Unable to obtain a view cycle reference to snapshot");
+      }
+      ViewCycle viewCycle = cycleReference.get();
+      return takeSnapshot(marketDataSnapshotter, name, viewClient, viewCycle);
     } finally {
-      cycleReference.release();
-      vc.shutdown();
+      if (cycleReference != null) {
+        cycleReference.release();
+      }
     }
+  }
+
+  private static ManageableMarketDataSnapshot takeSnapshot(MarketDataSnapshotter marketDataSnapshotter, String name, final ViewClient viewClient, ViewCycle viewCycle) {
+    s_logger.debug("Taking snapshot");
+    StructuredMarketDataSnapshot snapshot = marketDataSnapshotter.createSnapshot(viewClient, viewCycle);
+    s_logger.debug("Snapshot complete");
+    ManageableMarketDataSnapshot manageableMarketDataSnapshot = new ManageableMarketDataSnapshot(snapshot);
+    if (name == null) {
+      name = snapshot.getBasisViewName() + "/" + viewCycle.getExecutionOptions().getValuationTime();
+    }
+    manageableMarketDataSnapshot.setName(name);
+    return manageableMarketDataSnapshot;
   }
   
   private void endWithError(String message, Object... messageArgs) {
     s_logger.error(message, messageArgs);
     throw new OpenGammaRuntimeException(format(message, messageArgs));
+  }
+  
+  private static class SnapshotResultListener extends AbstractViewResultListener {
+    
+    private final CountDownLatch _latch = new CountDownLatch(1);
+    private boolean _success;
+    
+    public void await() throws InterruptedException {
+      _latch.await();
+    }
+    
+    public boolean isSuccess() {
+      return _success;
+    }
+    
+    @Override
+    public UserPrincipal getUser() {
+      String ipAddress;
+      try {
+        ipAddress = InetAddress.getLocalHost().getHostAddress();
+      } catch (final UnknownHostException e) {
+        ipAddress = "unknown";
+      }
+      return new UserPrincipal("MarketDataSnapshotterTool", ipAddress);
+    }
+
+    @Override
+    public void viewDefinitionCompilationFailed(final Instant valuationTime, final Exception exception) {
+      s_logger.error(exception.getMessage() + "\n\n" + (exception.getCause() == null ? "" : exception.getCause().getMessage()));
+      _latch.countDown();
+    }
+
+    @Override
+    public void cycleCompleted(final ViewComputationResultModel fullResult, final ViewDeltaResultModel deltaResult) {
+      s_logger.info("cycle completed");
+      _success = true;
+      _latch.countDown();
+    }
+
+    @Override
+    public void cycleExecutionFailed(final ViewCycleExecutionOptions executionOptions, final Exception exception) {
+      s_logger.error(exception.getMessage() + "\n\n" + (exception.getCause() == null ? "" : exception.getCause().getMessage()));
+      _latch.countDown();
+    }
+
+    @Override
+    public void processCompleted() {
+      _latch.countDown();
+    }
+
+    @Override
+    public void processTerminated(final boolean executionInterrupted) {
+      _latch.countDown();
+    }
+
   }
   
   //------------------------- AUTOGENERATED START -------------------------

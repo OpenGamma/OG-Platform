@@ -18,6 +18,7 @@ import com.opengamma.engine.view.cycle.ComputationCycleQuery;
 import com.opengamma.engine.view.cycle.ComputationResultsResponse;
 import com.opengamma.engine.view.cycle.ViewCycle;
 import com.opengamma.engine.view.cycle.ViewCycleState;
+import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.FudgeRestClient;
@@ -57,6 +58,12 @@ public class RemoteViewCycle implements ViewCycle {
   public Duration getDuration() {
     URI uri = UriBuilder.fromUri(_baseUri).path(DataViewCycleResource.PATH_DURATION).build();
     return _client.accessFudge(uri).get(Duration.class);
+  }
+  
+  @Override
+  public ViewCycleExecutionOptions getExecutionOptions() {
+    URI uri = UriBuilder.fromUri(_baseUri).path(DataViewCycleResource.PATH_EXECUTION_OPTIONS).build();
+    return _client.accessFudge(uri).get(ViewCycleExecutionOptions.class);
   }
 
   @Override

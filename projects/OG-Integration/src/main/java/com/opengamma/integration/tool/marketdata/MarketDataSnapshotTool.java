@@ -13,6 +13,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.cli.Option;
+import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -30,6 +31,7 @@ import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.financial.tool.marketdata.MarketDataSnapshotSaver;
 import com.opengamma.financial.view.rest.RemoteViewProcessor;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.scripts.Scriptable;
 
@@ -37,13 +39,15 @@ import com.opengamma.scripts.Scriptable;
  * The entry point for running OpenGamma batches.
  */
 @Scriptable
-public class MarketDataSnapshotTool extends AbstractTool {
+public class MarketDataSnapshotTool extends AbstractTool<ToolContext> {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(MarketDataSnapshotTool.class);
 
-  /** Logging command line option. */
+  /** View name command line option. */
   private static final String VIEW_NAME_OPTION = "v";
+  /** Existing view process unique identifier option. */
+  private static final String VIEW_PROCESS_ID_OPTION = "p";
   /** Valuation time command line option. */
   private static final String VALUATION_TIME_OPTION = "t";
   /** Take data from historical timeseries */
@@ -69,19 +73,7 @@ public class MarketDataSnapshotTool extends AbstractTool {
   @Override
   protected void doRun() throws Exception {
     s_context = getToolContext();
-    final String viewDefinitionName = getCommandLine().getOptionValue(VIEW_NAME_OPTION);
-
-    final String valuationTimeArg = getCommandLine().getOptionValue(VALUATION_TIME_OPTION);
-    Instant valuationInstant;
-    if (!StringUtils.isBlank(valuationTimeArg)) {
-      final LocalTime valuationTime = LocalTime.parse(valuationTimeArg, VALUATION_TIME_FORMATTER);
-      valuationInstant = ZonedDateTime.now().with(valuationTime.truncatedTo(SECONDS)).toInstant();
-    } else {
-      valuationInstant = Instant.now();
-    }
-    final boolean historicalInput = getCommandLine().hasOption(HISTORICAL_OPTION);
-
-    final MarketDataSpecification marketDataSpecification = historicalInput ? new LatestHistoricalMarketDataSpecification() : MarketData.live();
+    
     final RemoteViewProcessor viewProcessor = (RemoteViewProcessor) s_context.getViewProcessor();
     if (viewProcessor == null) {
       s_logger.warn("No view processors found at {}", s_context);
@@ -93,12 +85,36 @@ public class MarketDataSnapshotTool extends AbstractTool {
       return;
     }
     final MarketDataSnapshotter marketDataSnapshotter = viewProcessor.getMarketDataSnapshotter();
-    
-    MarketDataSnapshotSaver snapshotSaver = MarketDataSnapshotSaver.of(marketDataSnapshotter, viewProcessor, s_context.getConfigMaster(), marketDataSnapshotMaster);
-    try {
-      snapshotSaver.createSnapshot(viewDefinitionName + "/" + valuationInstant, viewDefinitionName, valuationInstant, Collections.singletonList(marketDataSpecification));
-    } catch (Exception ex) {
-      endWithError(ex.getMessage());
+    final MarketDataSnapshotSaver snapshotSaver = MarketDataSnapshotSaver.of(marketDataSnapshotter, viewProcessor, s_context.getConfigMaster(), marketDataSnapshotMaster);
+
+    if (getCommandLine().hasOption(VIEW_PROCESS_ID_OPTION)) {
+      final UniqueId viewProcessId = UniqueId.parse(getCommandLine().getOptionValue(VIEW_PROCESS_ID_OPTION));
+      s_logger.info("Creating snapshot from existing view process " + viewProcessId);
+      try {
+        snapshotSaver.createSnapshot(null, viewProcessId);
+      } catch (Exception e) {
+        endWithError(e.getMessage());
+      }
+    } else {
+      final String viewDefinitionName = getCommandLine().getOptionValue(VIEW_NAME_OPTION);
+      final String valuationTimeArg = getCommandLine().getOptionValue(VALUATION_TIME_OPTION);
+      Instant valuationInstant;
+      if (!StringUtils.isBlank(valuationTimeArg)) {
+        final LocalTime valuationTime = LocalTime.parse(valuationTimeArg, VALUATION_TIME_FORMATTER);
+        valuationInstant = ZonedDateTime.now().with(valuationTime.truncatedTo(SECONDS)).toInstant();
+      } else {
+        valuationInstant = Instant.now();
+      }
+      final boolean historicalInput = getCommandLine().hasOption(HISTORICAL_OPTION);
+  
+      s_logger.info("Creating snapshot for view definition " + viewDefinitionName);
+      final MarketDataSpecification marketDataSpecification = historicalInput ? new LatestHistoricalMarketDataSpecification() : MarketData.live();
+      try {
+        String snapshotName = viewDefinitionName + "/" + valuationInstant;
+        snapshotSaver.createSnapshot(snapshotName, viewDefinitionName, valuationInstant, Collections.singletonList(marketDataSpecification));
+      } catch (Exception e) {
+        endWithError(e.getMessage());
+      }
     }
   }
 
@@ -113,16 +129,29 @@ public class MarketDataSnapshotTool extends AbstractTool {
   @Override
   protected Options createOptions(boolean mandatoryConfig) {
     final Options options = super.createOptions(mandatoryConfig);
-    options.addOption(createViewNameOption());
+    options.addOptionGroup(createViewOptionGroup());
     options.addOption(createValuationTimeOption());
     options.addOption(createHistoricalOption());
     return options;
+  }
+  
+  private static OptionGroup createViewOptionGroup() {
+    final OptionGroup optionGroup = new OptionGroup();
+    optionGroup.addOption(createViewNameOption());
+    optionGroup.addOption(createViewProcessIdOption());
+    optionGroup.setRequired(true);
+    return optionGroup;
   }
 
   private static Option createViewNameOption() {
     final Option option = new Option(VIEW_NAME_OPTION, "viewName", true, "the view definition name");
     option.setArgName("view name");
-    option.setRequired(true);
+    return option;
+  }
+  
+  private static Option createViewProcessIdOption() {
+    final Option option = new Option(VIEW_PROCESS_ID_OPTION, "viewProcessId", true, "the unique identifier of an existing view process");
+    option.setArgName("unique identifier");
     return option;
   }
 
