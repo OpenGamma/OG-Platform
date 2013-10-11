@@ -141,7 +141,7 @@ import com.opengamma.util.ArgumentChecker;
 
     ViewProcessor viewProcessor = _viewProcessor;
     ViewClient viewClient = viewProcessor.createViewClient(UserPrincipal.getLocalUser());
-    Listener listener = new Listener(_positionSource, _securitySource, version, snapshotName);
+    Listener listener = new Listener(_positionSource, _securitySource, snapshotName, valuationTime, version);
     viewClient.setResultListener(listener);
     viewClient.setResultMode(ViewResultMode.FULL_ONLY);
     System.out.println("attaching to view process");
@@ -181,16 +181,23 @@ class Listener extends AbstractViewResultListener {
   private final PositionSource _positionSource;
   private final SecuritySource _securitySource;
   private final CountDownLatch _latch = new CountDownLatch(1);
+  private final Instant _valuationTime;
   private final String _version;
   private final String _snapshotName;
 
   private CalculationResults _results;
 
-  Listener(PositionSource positionSource, SecuritySource securitySource, String version, String snapshotName) {
+  Listener(PositionSource positionSource,
+           SecuritySource securitySource,
+           String snapshotName,
+           Instant valuationTime,
+           String version) {
     ArgumentChecker.notNull(positionSource, "positionSource");
     ArgumentChecker.notNull(securitySource, "securitySource");
     ArgumentChecker.notEmpty(snapshotName, "snapshotName");
     ArgumentChecker.notEmpty(version, "version");
+    ArgumentChecker.notNull(valuationTime, "valuationTime");
+    _valuationTime = valuationTime;
     _version = version;
     _securitySource = securitySource;
     _snapshotName = snapshotName;
@@ -227,11 +234,8 @@ class Listener extends AbstractViewResultListener {
   public void cycleCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
     try {
       System.out.println("cycle completed");
-      _results = CalculationResults.create(_viewDef.get(),
-                                           fullResult,
-                                           _version,
-                                           _snapshotName,
-                                           _positionSource, _securitySource);
+      _results = CalculationResults.create(fullResult, _viewDef.get(), _snapshotName, _valuationTime,
+                                           _version, _positionSource, _securitySource);
     } finally {
       _latch.countDown();
     }

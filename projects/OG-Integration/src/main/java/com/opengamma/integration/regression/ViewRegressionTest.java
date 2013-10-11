@@ -79,7 +79,7 @@ public class ViewRegressionTest {
     _valuationTime = valuationTime;
   }
 
-  public Collection<CalculationDifference> run() {
+  public RegressionTestResults run() {
     // TODO store the results in memory for now, serialize to disk/cache when it's an actual problem
     // TODO fail if there are any view defs or snapshots with duplicate names
     Map<Pair<String, String>, CalculationResults> testResults =
@@ -96,7 +96,7 @@ public class ViewRegressionTest {
       }
       results.add(CalculationDifference.between(baseViewResult, testViewResult, DELTA));
     }
-    return results;
+    return new RegressionTestResults(_baseVersion, _testVersion, results);
   }
 
   private Map<Pair<String, String>, CalculationResults> runTest(String workingDir,

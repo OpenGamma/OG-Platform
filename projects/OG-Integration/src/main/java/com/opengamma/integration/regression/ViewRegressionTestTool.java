@@ -5,7 +5,8 @@
  */
 package com.opengamma.integration.regression;
 
-import java.util.Collection;
+import java.io.File;
+import java.io.FileWriter;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -14,9 +15,14 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
+import org.fudgemsg.MutableFudgeMsg;
+import org.fudgemsg.mapping.FudgeSerializer;
+import org.fudgemsg.wire.FudgeMsgWriter;
+import org.fudgemsg.wire.xml.FudgeXMLStreamWriter;
 import org.threeten.bp.Instant;
 
 import com.opengamma.scripts.Scriptable;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  *
@@ -83,9 +89,19 @@ public class ViewRegressionTestTool {
                                                      cl.getOptionValue(TEST_DIR),
                                                      cl.getOptionValue(TEST_VERSION),
                                                      cl.getOptionValue(TEST_PROPS));
-    Collection<CalculationDifference> differences = test.run();
+    RegressionTestResults results = test.run();
     // TODO do something with the results
-    System.out.println(differences);
+    System.out.println(results);
+    FudgeSerializer serializer = new FudgeSerializer(OpenGammaFudgeContext.getInstance());
+    try (FileWriter writer = new FileWriter(new File("/Users/chris/tmp/regression/results.xml"))) {
+      FudgeXMLStreamWriter streamWriter = new FudgeXMLStreamWriter(OpenGammaFudgeContext.getInstance(), writer);
+      FudgeMsgWriter fudgeMsgWriter = new FudgeMsgWriter(streamWriter);
+      MutableFudgeMsg msg = serializer.objectToFudgeMsg(results);
+      FudgeSerializer.addClassHeader(msg, results.getClass());
+      fudgeMsgWriter.writeMessage(msg);
+      writer.append("\n");
+      fudgeMsgWriter.flush();
+    }
   }
 
   private static Options createOptions() {

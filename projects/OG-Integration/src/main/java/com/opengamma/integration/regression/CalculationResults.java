@@ -28,6 +28,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Instant;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -72,14 +73,18 @@ public final class CalculationResults implements ImmutableBean {
   @PropertyDefinition(validate = "notNull")
   private final String _snapshotName;
 
+  @PropertyDefinition(validate = "notNull")
+  private final Instant _valuationTime;
+
   @PropertyDefinition
   private final String _version;
 
   // TODO test case
-  public static CalculationResults create(CompiledViewDefinition viewDef,
-                                          ViewComputationResultModel results,
-                                          String version,
+  public static CalculationResults create(ViewComputationResultModel results,
+                                          CompiledViewDefinition viewDef,
                                           String snapshotName,
+                                          Instant valuationTime,
+                                          String version,
                                           PositionSource positionSource,
                                           SecuritySource securitySource) {
     ArgumentChecker.notNull(viewDef, "viewDef");
@@ -106,7 +111,7 @@ public final class CalculationResults implements ImmutableBean {
         valueMap.put(key, CalculatedValue.of(computedValue.getValue(), valueSpec.getProperties(), targetType, targetName));
       }
     }
-    return new CalculationResults(valueMap, viewDef.getViewDefinition().getName(), snapshotName, version);
+    return new CalculationResults(valueMap, viewDef.getViewDefinition().getName(), snapshotName, valuationTime, version);
   }
 
   private static String getTargetName(UniqueId targetId,
@@ -241,13 +246,16 @@ public final class CalculationResults implements ImmutableBean {
       Map<CalculationResultKey, CalculatedValue> values,
       String viewDefinitionName,
       String snapshotName,
+      Instant valuationTime,
       String version) {
     JodaBeanUtils.notNull(values, "values");
     JodaBeanUtils.notNull(viewDefinitionName, "viewDefinitionName");
     JodaBeanUtils.notNull(snapshotName, "snapshotName");
+    JodaBeanUtils.notNull(valuationTime, "valuationTime");
     this._values = ImmutableMap.copyOf(values);
     this._viewDefinitionName = viewDefinitionName;
     this._snapshotName = snapshotName;
+    this._valuationTime = valuationTime;
     this._version = version;
   }
 
@@ -295,6 +303,15 @@ public final class CalculationResults implements ImmutableBean {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the valuationTime.
+   * @return the value of the property, not null
+   */
+  public Instant getValuationTime() {
+    return _valuationTime;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the version.
    * @return the value of the property
    */
@@ -326,6 +343,7 @@ public final class CalculationResults implements ImmutableBean {
       return JodaBeanUtils.equal(getValues(), other.getValues()) &&
           JodaBeanUtils.equal(getViewDefinitionName(), other.getViewDefinitionName()) &&
           JodaBeanUtils.equal(getSnapshotName(), other.getSnapshotName()) &&
+          JodaBeanUtils.equal(getValuationTime(), other.getValuationTime()) &&
           JodaBeanUtils.equal(getVersion(), other.getVersion());
     }
     return false;
@@ -337,17 +355,19 @@ public final class CalculationResults implements ImmutableBean {
     hash += hash * 31 + JodaBeanUtils.hashCode(getValues());
     hash += hash * 31 + JodaBeanUtils.hashCode(getViewDefinitionName());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSnapshotName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getValuationTime());
     hash += hash * 31 + JodaBeanUtils.hashCode(getVersion());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(160);
+    StringBuilder buf = new StringBuilder(192);
     buf.append("CalculationResults{");
     buf.append("values").append('=').append(getValues()).append(',').append(' ');
     buf.append("viewDefinitionName").append('=').append(getViewDefinitionName()).append(',').append(' ');
     buf.append("snapshotName").append('=').append(getSnapshotName()).append(',').append(' ');
+    buf.append("valuationTime").append('=').append(getValuationTime()).append(',').append(' ');
     buf.append("version").append('=').append(getVersion());
     buf.append('}');
     return buf.toString();
@@ -380,6 +400,11 @@ public final class CalculationResults implements ImmutableBean {
     private final MetaProperty<String> _snapshotName = DirectMetaProperty.ofImmutable(
         this, "snapshotName", CalculationResults.class, String.class);
     /**
+     * The meta-property for the {@code valuationTime} property.
+     */
+    private final MetaProperty<Instant> _valuationTime = DirectMetaProperty.ofImmutable(
+        this, "valuationTime", CalculationResults.class, Instant.class);
+    /**
      * The meta-property for the {@code version} property.
      */
     private final MetaProperty<String> _version = DirectMetaProperty.ofImmutable(
@@ -392,6 +417,7 @@ public final class CalculationResults implements ImmutableBean {
         "values",
         "viewDefinitionName",
         "snapshotName",
+        "valuationTime",
         "version");
 
     /**
@@ -409,6 +435,8 @@ public final class CalculationResults implements ImmutableBean {
           return _viewDefinitionName;
         case -931708305:  // snapshotName
           return _snapshotName;
+        case 113591406:  // valuationTime
+          return _valuationTime;
         case 351608024:  // version
           return _version;
       }
@@ -456,6 +484,14 @@ public final class CalculationResults implements ImmutableBean {
     }
 
     /**
+     * The meta-property for the {@code valuationTime} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Instant> valuationTime() {
+      return _valuationTime;
+    }
+
+    /**
      * The meta-property for the {@code version} property.
      * @return the meta-property, not null
      */
@@ -473,6 +509,8 @@ public final class CalculationResults implements ImmutableBean {
           return ((CalculationResults) bean).getViewDefinitionName();
         case -931708305:  // snapshotName
           return ((CalculationResults) bean).getSnapshotName();
+        case 113591406:  // valuationTime
+          return ((CalculationResults) bean).getValuationTime();
         case 351608024:  // version
           return ((CalculationResults) bean).getVersion();
       }
@@ -499,6 +537,7 @@ public final class CalculationResults implements ImmutableBean {
     private Map<CalculationResultKey, CalculatedValue> _values = new HashMap<CalculationResultKey, CalculatedValue>();
     private String _viewDefinitionName;
     private String _snapshotName;
+    private Instant _valuationTime;
     private String _version;
 
     /**
@@ -517,6 +556,7 @@ public final class CalculationResults implements ImmutableBean {
       this._values = new HashMap<CalculationResultKey, CalculatedValue>(beanToCopy.getValues());
       this._viewDefinitionName = beanToCopy.getViewDefinitionName();
       this._snapshotName = beanToCopy.getSnapshotName();
+      this._valuationTime = beanToCopy.getValuationTime();
       this._version = beanToCopy.getVersion();
     }
 
@@ -534,6 +574,9 @@ public final class CalculationResults implements ImmutableBean {
         case -931708305:  // snapshotName
           this._snapshotName = (String) newValue;
           break;
+        case 113591406:  // valuationTime
+          this._valuationTime = (Instant) newValue;
+          break;
         case 351608024:  // version
           this._version = (String) newValue;
           break;
@@ -549,6 +592,7 @@ public final class CalculationResults implements ImmutableBean {
           _values,
           _viewDefinitionName,
           _snapshotName,
+          _valuationTime,
           _version);
     }
 
@@ -587,6 +631,17 @@ public final class CalculationResults implements ImmutableBean {
     }
 
     /**
+     * Sets the {@code valuationTime} property in the builder.
+     * @param valuationTime  the new value, not null
+     * @return this, for chaining, not null
+     */
+    public Builder valuationTime(Instant valuationTime) {
+      JodaBeanUtils.notNull(valuationTime, "valuationTime");
+      this._valuationTime = valuationTime;
+      return this;
+    }
+
+    /**
      * Sets the {@code version} property in the builder.
      * @param version  the new value, not null
      * @return this, for chaining, not null
@@ -599,11 +654,12 @@ public final class CalculationResults implements ImmutableBean {
     //-----------------------------------------------------------------------
     @Override
     public String toString() {
-      StringBuilder buf = new StringBuilder(160);
+      StringBuilder buf = new StringBuilder(192);
       buf.append("CalculationResults.Builder{");
       buf.append("values").append('=').append(_values).append(',').append(' ');
       buf.append("viewDefinitionName").append('=').append(_viewDefinitionName).append(',').append(' ');
       buf.append("snapshotName").append('=').append(_snapshotName).append(',').append(' ');
+      buf.append("valuationTime").append('=').append(_valuationTime).append(',').append(' ');
       buf.append("version").append('=').append(_version);
       buf.append('}');
       return buf.toString();

@@ -1,0 +1,80 @@
+/**
+ * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+package com.opengamma.integration.regression;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.wire.FudgeMsgReader;
+import org.fudgemsg.wire.xml.FudgeXMLStreamReader;
+
+import com.google.common.collect.Lists;
+import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+
+import freemarker.template.Configuration;
+import freemarker.template.Template;
+
+/**
+ *
+ */
+public class ReportGenerator {
+
+  enum Format {
+    TEXT("report-text.ftl");
+
+    private final String _templateName;
+
+    Format(String templateName) {
+      _templateName = templateName;
+    }
+
+    private String getTemplateName() {
+      return _templateName;
+    }
+  }
+
+  public static String generateReport(Collection<CalculationDifference> results) {
+    StringWriter writer = new StringWriter();
+    generateReport(results, Format.TEXT, writer);
+    return writer.toString();
+  }
+
+  public static void generateReport(Collection<CalculationDifference> results, Format format, Writer writer) {
+    Configuration cfg = new Configuration();
+    try {
+      cfg.setClassForTemplateLoading(ReportGenerator.class, "");
+      Template template = cfg.getTemplate(format.getTemplateName());
+      Map<String, Object> input = new HashMap<String, Object>();
+      input.put("results", results);
+      template.process(input, writer);
+      writer.flush();
+    } catch (Exception e) {
+      throw new OpenGammaRuntimeException("Error generating report", e);
+    }
+  }
+
+  public static void main(String[] args) throws IOException {
+    CalculationDifference diff;
+    try (BufferedReader reader = new BufferedReader(new FileReader("/Users/chris/tmp/regression/results.xml"))) {
+      FudgeDeserializer deserializer = new FudgeDeserializer(OpenGammaFudgeContext.getInstance());
+      FudgeXMLStreamReader streamReader = new FudgeXMLStreamReader(OpenGammaFudgeContext.getInstance(), reader);
+      FudgeMsgReader fudgeMsgReader = new FudgeMsgReader(streamReader);
+      FudgeMsg msg = fudgeMsgReader.nextMessage();
+      diff = deserializer.fudgeMsgToObject(CalculationDifference.class, msg);
+    }
+    System.out.println(generateReport(Lists.newArrayList(diff)));
+  }
+}
