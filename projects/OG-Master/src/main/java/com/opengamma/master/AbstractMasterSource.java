@@ -23,6 +23,7 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * An abstract source built on top of an underlying master.
@@ -165,13 +166,13 @@ public abstract class AbstractMasterSource<V extends UniqueIdentifiable, D exten
         }
       }
     };
-    _registeredListeners.put(Pair.of(oid, listener), changeListener);
+    _registeredListeners.put(Pairs.of(oid, listener), changeListener);
     changeManager().addChangeListener(changeListener);
   }
 
   @Override
   public void removeChangeListener(ObjectId oid, ObjectChangeListener listener) {
-    ChangeListener changeListener = _registeredListeners.remove(Pair.of(oid, listener));
+    ChangeListener changeListener = _registeredListeners.remove(Pairs.of(oid, listener));
     changeManager().removeChangeListener(changeListener);
   }
 
