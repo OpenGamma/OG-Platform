@@ -373,6 +373,7 @@
     <fragment>/scripts/og/common/og.common.timeseries_data.js</fragment>
     <fragment>/scripts/og/common/og.common.timeseries.js</fragment>
     <fragment>/scripts/og/common/og.common.user.js</fragment>
+    <fragment>/scripts/og/common/og.common.error.js</fragment>
   </bundle>
   <bundle id="gadgets.js">
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.manager.js</fragment>
