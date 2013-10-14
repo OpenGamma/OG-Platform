@@ -74,7 +74,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
   private final MarketDataSnapshotMaster _snapshotMaster;
   private final OrganizationMaster _organizationMaster;
 
-  /* package */ DatabaseDump(File outputDir,
+  /* package */ DatabaseDump(String outputDir,
                              SecurityMaster securityMaster,
                              PositionMaster positionMaster,
                              PortfolioMaster portfolioMaster,
@@ -98,19 +98,24 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
     _positionMaster = positionMaster;
     _portfolioMaster = portfolioMaster;
     _configMaster = configMaster;
-    _outputDir = outputDir;
+    _outputDir = new File(outputDir);
     _securityMaster = securityMaster;
-    if (!outputDir.exists() || !outputDir.isDirectory()) {
+    if (!_outputDir.exists() || !_outputDir.isDirectory()) {
       // TODO allow it to be non-existent and create it
       throw new IllegalArgumentException("Output directory " + outputDir + " must be an existing directory");
     }
   }
 
   public static void main(String[] args) throws IOException {
-    try {
-      // TODO use args
-      RemoteServer server = RemoteServer.create("http://localhost:8080");
-      DatabaseDump databaseDump = new DatabaseDump(new File("/Users/chris/tmp/regression"),
+    if (args.length < 2) {
+      System.err.println("arguments: dataDirectory serverUrl");
+      System.exit(1);
+    }
+    String dataDir = args[0];
+    String serverUrl = args[1];
+    int exitCode = 0;
+    try (RemoteServer server = RemoteServer.create(serverUrl)) {
+      DatabaseDump databaseDump = new DatabaseDump(dataDir,
                                                    server.getSecurityMaster(),
                                                    server.getPositionMaster(),
                                                    server.getPortfolioMaster(),
@@ -120,19 +125,24 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
                                                    server.getExchangeMaster(),
                                                    server.getMarketDataSnapshotMaster(),
                                                    server.getOrganizationMaster());
-      databaseDump.writeSecurities();
-      databaseDump.writePositions();
-      databaseDump.writePortfolios();
-      databaseDump.writeConfig();
-      databaseDump.writeTimeSeries();
-      databaseDump.writeHolidays();
-      databaseDump.writeExchanges();
-      databaseDump.writeSnapshots();
-      databaseDump.writeOrganizations();
+      databaseDump.dumpDatabase();
     } catch (Exception e) {
       s_logger.warn("Failed to write data", e);
+      exitCode = 1;
     }
-    System.exit(0);
+    System.exit(exitCode);
+  }
+
+  public void dumpDatabase() throws IOException {
+    writeSecurities();
+    writePositions();
+    writePortfolios();
+    writeConfig();
+    writeTimeSeries();
+    writeHolidays();
+    writeExchanges();
+    writeSnapshots();
+    writeOrganizations();
   }
 
   private void writeSecurities() throws IOException {

@@ -39,7 +39,7 @@ public class ViewRegressionTest {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ViewRegressionTest.class);
   // TODO arg for this? different deltas for different values and/or object types?
-  private static final double DELTA = 0.001;
+  private static final double DELTA = 0.0001;
 
   private final String _databaseDumpDir;
   private final Instant _valuationTime;
@@ -126,10 +126,19 @@ public class ViewRegressionTest {
     String serverUrl = "http://localhost:" + port;
     // run the server, populate the database and stop the server.
     // it needs to be restarted before the tests to pick up function repo changes from the database
-    // TODO can this be done by creating DB masters directly rather than running a server and connecting remotely?
     try (ServerProcess ignored = ServerProcess.start(workingDir, classpath, _serverConfigFile, dbProps, _logbackConfig);
          RemoteServer server = RemoteServer.create(serverUrl)) {
-      DatabaseRestore.restoreDatabase(_databaseDumpDir, server);
+      DatabaseRestore databaseRestore = new DatabaseRestore(_databaseDumpDir,
+                                                            server.getSecurityMaster(),
+                                                            server.getPositionMaster(),
+                                                            server.getPortfolioMaster(),
+                                                            server.getConfigMaster(),
+                                                            server.getHistoricalTimeSeriesMaster(),
+                                                            server.getHolidayMaster(),
+                                                            server.getExchangeMaster(),
+                                                            server.getMarketDataSnapshotMaster(),
+                                                            server.getOrganizationMaster());
+      databaseRestore.restoreDatabase();
     }
   }
 
