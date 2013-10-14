@@ -99,7 +99,7 @@ public class PoolExecutorComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the classifier under which to publish.
-   * @return the value of the property, not null
+   * @return the value of the property, not empty
    */
   public String getClassifier() {
     return _classifier;
@@ -107,7 +107,7 @@ public class PoolExecutorComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the classifier under which to publish.
-   * @param classifier  the new value of the property, not null
+   * @param classifier  the new value of the property, not empty
    */
   public void setClassifier(String classifier) {
     JodaBeanUtils.notEmpty(classifier, "classifier");
@@ -125,7 +125,7 @@ public class PoolExecutorComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the name for the pool (used in logging and thread naming).
-   * @return the value of the property, not null
+   * @return the value of the property, not empty
    */
   public String getPoolName() {
     return _poolName;
@@ -133,7 +133,7 @@ public class PoolExecutorComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the name for the pool (used in logging and thread naming).
-   * @param poolName  the new value of the property, not null
+   * @param poolName  the new value of the property, not empty
    */
   public void setPoolName(String poolName) {
     JodaBeanUtils.notEmpty(poolName, "poolName");
@@ -246,10 +246,10 @@ public class PoolExecutorComponentFactory extends AbstractComponentFactory {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("classifier").append('=').append(getClassifier()).append(',').append(' ');
-    buf.append("poolName").append('=').append(getPoolName()).append(',').append(' ');
-    buf.append("loadFactor").append('=').append(getLoadFactor()).append(',').append(' ');
-    buf.append("maxThreads").append('=').append(getMaxThreads()).append(',').append(' ');
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("poolName").append('=').append(JodaBeanUtils.toString(getPoolName())).append(',').append(' ');
+    buf.append("loadFactor").append('=').append(JodaBeanUtils.toString(getLoadFactor())).append(',').append(' ');
+    buf.append("maxThreads").append('=').append(JodaBeanUtils.toString(getMaxThreads())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
