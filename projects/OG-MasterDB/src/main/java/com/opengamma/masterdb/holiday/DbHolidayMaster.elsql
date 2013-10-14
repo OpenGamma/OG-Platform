@@ -17,6 +17,8 @@
     main.region_value AS region_value,
     main.exchange_scheme AS exchange_scheme,
     main.exchange_value AS exchange_value,
+    main.custom_scheme AS custom_schema,
+    main.custom_value AS custom_value,
     main.currency_iso AS currency_iso,
     d.hol_date AS hol_date
   FROM
@@ -45,6 +47,8 @@
     main.region_value AS region_value,
     main.exchange_scheme AS exchange_scheme,
     main.exchange_value AS exchange_value,
+    main.custom_scheme AS custom_schema,
+    main.custom_value AS custom_value,
     main.currency_iso AS currency_iso,
     d.hol_date AS hol_date
   FROM
@@ -75,6 +79,8 @@
     main.region_value AS region_value,
     main.exchange_scheme AS exchange_scheme,
     main.exchange_value AS exchange_value,
+    main.custom_scheme AS custom_schema,
+    main.custom_value AS custom_value,
     main.currency_iso AS currency_iso,
     d.hol_date AS hol_date
   FROM
@@ -149,6 +155,8 @@
     main.region_value AS region_value,
     main.exchange_scheme AS exchange_scheme,
     main.exchange_value AS exchange_value,
+    main.custom_scheme AS custom_schema,
+    main.custom_value AS custom_value,
     main.currency_iso AS currency_iso,
     d.hol_date AS hol_date
   FROM
@@ -206,10 +214,10 @@
 @NAME(Insert)
   INSERT INTO hol_holiday
     (id, oid, ver_from_instant, ver_to_instant, corr_from_instant, corr_to_instant, name, hol_type,
-    provider_scheme, provider_value, region_scheme, region_value, exchange_scheme, exchange_value, currency_iso)
+    provider_scheme, provider_value, region_scheme, region_value, exchange_scheme, exchange_value, custom_scheme, custom_value, currency_iso)
   VALUES
     (:doc_id, :doc_oid, :ver_from_instant, :ver_to_instant, :corr_from_instant, :corr_to_instant, :name, :hol_type,
-    :provider_scheme, :provider_value, :region_scheme, :region_value, :exchange_scheme, :exchange_value, :currency_iso)
+    :provider_scheme, :provider_value, :region_scheme, :region_value, :exchange_scheme, :exchange_value, :custom_scheme, :custom_value, :currency_iso)
 
 
 -- ==========================================================================
