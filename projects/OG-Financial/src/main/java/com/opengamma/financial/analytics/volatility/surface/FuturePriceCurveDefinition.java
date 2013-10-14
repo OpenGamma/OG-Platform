@@ -104,7 +104,7 @@ public final class FuturePriceCurveDefinition<X> implements ImmutableBean {
     JodaBeanUtils.notNull(xs, "xs");
     this._name = name;
     this._target = target;
-    this._xs = (xs != null ? ImmutableList.copyOf(xs) : null);
+    this._xs = ImmutableList.copyOf(xs);
   }
 
   @SuppressWarnings("unchecked")
@@ -193,7 +193,7 @@ public final class FuturePriceCurveDefinition<X> implements ImmutableBean {
     buf.append("FuturePriceCurveDefinition{");
     buf.append("name").append('=').append(getName()).append(',').append(' ');
     buf.append("target").append('=').append(getTarget()).append(',').append(' ');
-    buf.append("xs").append('=').append(getXs());
+    buf.append("xs").append('=').append(JodaBeanUtils.toString(getXs()));
     buf.append('}');
     return buf.toString();
   }

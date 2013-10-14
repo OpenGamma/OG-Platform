@@ -258,10 +258,10 @@ public class ManageableHistoricalTimeSeries extends DirectBean
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("uniqueId").append('=').append(getUniqueId()).append(',').append(' ');
-    buf.append("versionInstant").append('=').append(getVersionInstant()).append(',').append(' ');
-    buf.append("correctionInstant").append('=').append(getCorrectionInstant()).append(',').append(' ');
-    buf.append("timeSeries").append('=').append(getTimeSeries()).append(',').append(' ');
+    buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(getUniqueId())).append(',').append(' ');
+    buf.append("versionInstant").append('=').append(JodaBeanUtils.toString(getVersionInstant())).append(',').append(' ');
+    buf.append("correctionInstant").append('=').append(JodaBeanUtils.toString(getCorrectionInstant())).append(',').append(' ');
+    buf.append("timeSeries").append('=').append(JodaBeanUtils.toString(getTimeSeries())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

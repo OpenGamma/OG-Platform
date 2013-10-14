@@ -328,13 +328,13 @@ public class Position extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("id").append('=').append(getId()).append(',').append(' ');
-    buf.append("externalSystemId").append('=').append(getExternalSystemId()).append(',').append(' ');
-    buf.append("quantity").append('=').append(getQuantity()).append(',').append(' ');
-    buf.append("trades").append('=').append(getTrades()).append(',').append(' ');
-    buf.append("security").append('=').append(getSecurity()).append(',').append(' ');
-    buf.append("listedSecurityDefinition").append('=').append(getListedSecurityDefinition()).append(',').append(' ');
-    buf.append("additionalAttributes").append('=').append(getAdditionalAttributes()).append(',').append(' ');
+    buf.append("id").append('=').append(JodaBeanUtils.toString(getId())).append(',').append(' ');
+    buf.append("externalSystemId").append('=').append(JodaBeanUtils.toString(getExternalSystemId())).append(',').append(' ');
+    buf.append("quantity").append('=').append(JodaBeanUtils.toString(getQuantity())).append(',').append(' ');
+    buf.append("trades").append('=').append(JodaBeanUtils.toString(getTrades())).append(',').append(' ');
+    buf.append("security").append('=').append(JodaBeanUtils.toString(getSecurity())).append(',').append(' ');
+    buf.append("listedSecurityDefinition").append('=').append(JodaBeanUtils.toString(getListedSecurityDefinition())).append(',').append(' ');
+    buf.append("additionalAttributes").append('=').append(JodaBeanUtils.toString(getAdditionalAttributes())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

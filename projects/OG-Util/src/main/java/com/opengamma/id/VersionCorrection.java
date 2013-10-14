@@ -558,7 +558,7 @@ public final class VersionCorrection implements ImmutableBean, Comparable<Versio
     //-----------------------------------------------------------------------
     /**
      * Sets the {@code versionAsOf} property in the builder.
-     * @param versionAsOf  the new value, not null
+     * @param versionAsOf  the new value
      * @return this, for chaining, not null
      */
     public Builder versionAsOf(Instant versionAsOf) {
@@ -568,7 +568,7 @@ public final class VersionCorrection implements ImmutableBean, Comparable<Versio
 
     /**
      * Sets the {@code correctedTo} property in the builder.
-     * @param correctedTo  the new value, not null
+     * @param correctedTo  the new value
      * @return this, for chaining, not null
      */
     public Builder correctedTo(Instant correctedTo) {

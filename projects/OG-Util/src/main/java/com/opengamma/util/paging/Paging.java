@@ -359,8 +359,6 @@ public final class Paging implements ImmutableBean {
   }
 
   //-----------------------------------------------------------------------
-  //-----------------------------------------------------------------------
-  //-----------------------------------------------------------------------
   /**
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
@@ -558,7 +556,7 @@ public final class Paging implements ImmutableBean {
 
     /**
      * Sets the {@code totalItems} property in the builder.
-     * @param totalItems  the new value, not null
+     * @param totalItems  the new value
      * @return this, for chaining, not null
      */
     public Builder totalItems(int totalItems) {

@@ -122,7 +122,7 @@ public class RiskValueRequirement extends RiskValueProperties {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("specification").append('=').append(getSpecification()).append(',').append(' ');
+    buf.append("specification").append('=').append(JodaBeanUtils.toString(getSpecification())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

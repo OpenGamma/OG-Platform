@@ -232,10 +232,10 @@ public class AdditionalCashflow extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("cashflowType").append('=').append(getCashflowType()).append(',').append(' ');
-    buf.append("counterparty").append('=').append(getCounterparty()).append(',').append(' ');
-    buf.append("monetaryAmount").append('=').append(getMonetaryAmount()).append(',').append(' ');
-    buf.append("cashflowDate").append('=').append(getCashflowDate()).append(',').append(' ');
+    buf.append("cashflowType").append('=').append(JodaBeanUtils.toString(getCashflowType())).append(',').append(' ');
+    buf.append("counterparty").append('=').append(JodaBeanUtils.toString(getCounterparty())).append(',').append(' ');
+    buf.append("monetaryAmount").append('=').append(JodaBeanUtils.toString(getMonetaryAmount())).append(',').append(' ');
+    buf.append("cashflowDate").append('=').append(JodaBeanUtils.toString(getCashflowDate())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

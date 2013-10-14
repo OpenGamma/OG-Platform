@@ -473,15 +473,15 @@ public class YieldCurveDefinition extends DirectBean implements Serializable, Un
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("uniqueId").append('=').append(getUniqueId()).append(',').append(' ');
-    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
-    buf.append("regionId").append('=').append(getRegionId()).append(',').append(' ');
-    buf.append("name").append('=').append(getName()).append(',').append(' ');
-    buf.append("interpolatorName").append('=').append(getInterpolatorName()).append(',').append(' ');
-    buf.append("leftExtrapolatorName").append('=').append(getLeftExtrapolatorName()).append(',').append(' ');
-    buf.append("rightExtrapolatorName").append('=').append(getRightExtrapolatorName()).append(',').append(' ');
-    buf.append("interpolateYields").append('=').append(isInterpolateYields()).append(',').append(' ');
-    buf.append("strips").append('=').append(getStrips()).append(',').append(' ');
+    buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(getUniqueId())).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("regionId").append('=').append(JodaBeanUtils.toString(getRegionId())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
+    buf.append("interpolatorName").append('=').append(JodaBeanUtils.toString(getInterpolatorName())).append(',').append(' ');
+    buf.append("leftExtrapolatorName").append('=').append(JodaBeanUtils.toString(getLeftExtrapolatorName())).append(',').append(' ');
+    buf.append("rightExtrapolatorName").append('=').append(JodaBeanUtils.toString(getRightExtrapolatorName())).append(',').append(' ');
+    buf.append("interpolateYields").append('=').append(JodaBeanUtils.toString(isInterpolateYields())).append(',').append(' ');
+    buf.append("strips").append('=').append(JodaBeanUtils.toString(getStrips())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

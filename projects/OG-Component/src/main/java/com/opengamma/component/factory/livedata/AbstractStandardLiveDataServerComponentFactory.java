@@ -604,16 +604,16 @@ public abstract class AbstractStandardLiveDataServerComponentFactory extends Abs
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("classifier").append('=').append(getClassifier()).append(',').append(' ');
-    buf.append("publishRest").append('=').append(isPublishRest()).append(',').append(' ');
-    buf.append("publishJms").append('=').append(isPublishJms()).append(',').append(' ');
-    buf.append("jmsConnector").append('=').append(getJmsConnector()).append(',').append(' ');
-    buf.append("jmsSubscriptionTopic").append('=').append(getJmsSubscriptionTopic()).append(',').append(' ');
-    buf.append("jmsEntitlementTopic").append('=').append(getJmsEntitlementTopic()).append(',').append(' ');
-    buf.append("jmsHeartbeatTopic").append('=').append(getJmsHeartbeatTopic()).append(',').append(' ');
-    buf.append("jmsSubscriptionQueuePrefix").append('=').append(getJmsSubscriptionQueuePrefix()).append(',').append(' ');
-    buf.append("jmsSubscriptionQueueConcurrentConsumers").append('=').append(getJmsSubscriptionQueueConcurrentConsumers()).append(',').append(' ');
-    buf.append("jmsSubscriptionQueueMaxConcurrentConsumers").append('=').append(getJmsSubscriptionQueueMaxConcurrentConsumers()).append(',').append(' ');
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("publishRest").append('=').append(JodaBeanUtils.toString(isPublishRest())).append(',').append(' ');
+    buf.append("publishJms").append('=').append(JodaBeanUtils.toString(isPublishJms())).append(',').append(' ');
+    buf.append("jmsConnector").append('=').append(JodaBeanUtils.toString(getJmsConnector())).append(',').append(' ');
+    buf.append("jmsSubscriptionTopic").append('=').append(JodaBeanUtils.toString(getJmsSubscriptionTopic())).append(',').append(' ');
+    buf.append("jmsEntitlementTopic").append('=').append(JodaBeanUtils.toString(getJmsEntitlementTopic())).append(',').append(' ');
+    buf.append("jmsHeartbeatTopic").append('=').append(JodaBeanUtils.toString(getJmsHeartbeatTopic())).append(',').append(' ');
+    buf.append("jmsSubscriptionQueuePrefix").append('=').append(JodaBeanUtils.toString(getJmsSubscriptionQueuePrefix())).append(',').append(' ');
+    buf.append("jmsSubscriptionQueueConcurrentConsumers").append('=').append(JodaBeanUtils.toString(getJmsSubscriptionQueueConcurrentConsumers())).append(',').append(' ');
+    buf.append("jmsSubscriptionQueueMaxConcurrentConsumers").append('=').append(JodaBeanUtils.toString(getJmsSubscriptionQueueMaxConcurrentConsumers())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

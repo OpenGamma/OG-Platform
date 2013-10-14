@@ -238,9 +238,9 @@ public class JMSConnectorComponentFactory extends AbstractComponentFactory {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("classifier").append('=').append(getClassifier()).append(',').append(' ');
-    buf.append("clientBrokerUri").append('=').append(getClientBrokerUri()).append(',').append(' ');
-    buf.append("connectionFactory").append('=').append(getConnectionFactory()).append(',').append(' ');
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("clientBrokerUri").append('=').append(JodaBeanUtils.toString(getClientBrokerUri())).append(',').append(' ');
+    buf.append("connectionFactory").append('=').append(JodaBeanUtils.toString(getConnectionFactory())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

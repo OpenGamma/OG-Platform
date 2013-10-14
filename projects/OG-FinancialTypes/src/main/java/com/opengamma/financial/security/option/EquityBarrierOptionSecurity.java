@@ -554,19 +554,19 @@ public class EquityBarrierOptionSecurity extends FinancialSecurity {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("optionType").append('=').append(getOptionType()).append(',').append(' ');
-    buf.append("strike").append('=').append(getStrike()).append(',').append(' ');
-    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
-    buf.append("underlyingId").append('=').append(getUnderlyingId()).append(',').append(' ');
-    buf.append("exerciseType").append('=').append(getExerciseType()).append(',').append(' ');
-    buf.append("expiry").append('=').append(getExpiry()).append(',').append(' ');
-    buf.append("pointValue").append('=').append(getPointValue()).append(',').append(' ');
-    buf.append("exchange").append('=').append(getExchange()).append(',').append(' ');
-    buf.append("barrierType").append('=').append(getBarrierType()).append(',').append(' ');
-    buf.append("barrierDirection").append('=').append(getBarrierDirection()).append(',').append(' ');
-    buf.append("monitoringType").append('=').append(getMonitoringType()).append(',').append(' ');
-    buf.append("samplingFrequency").append('=').append(getSamplingFrequency()).append(',').append(' ');
-    buf.append("barrierLevel").append('=').append(getBarrierLevel()).append(',').append(' ');
+    buf.append("optionType").append('=').append(JodaBeanUtils.toString(getOptionType())).append(',').append(' ');
+    buf.append("strike").append('=').append(JodaBeanUtils.toString(getStrike())).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("underlyingId").append('=').append(JodaBeanUtils.toString(getUnderlyingId())).append(',').append(' ');
+    buf.append("exerciseType").append('=').append(JodaBeanUtils.toString(getExerciseType())).append(',').append(' ');
+    buf.append("expiry").append('=').append(JodaBeanUtils.toString(getExpiry())).append(',').append(' ');
+    buf.append("pointValue").append('=').append(JodaBeanUtils.toString(getPointValue())).append(',').append(' ');
+    buf.append("exchange").append('=').append(JodaBeanUtils.toString(getExchange())).append(',').append(' ');
+    buf.append("barrierType").append('=').append(JodaBeanUtils.toString(getBarrierType())).append(',').append(' ');
+    buf.append("barrierDirection").append('=').append(JodaBeanUtils.toString(getBarrierDirection())).append(',').append(' ');
+    buf.append("monitoringType").append('=').append(JodaBeanUtils.toString(getMonitoringType())).append(',').append(' ');
+    buf.append("samplingFrequency").append('=').append(JodaBeanUtils.toString(getSamplingFrequency())).append(',').append(' ');
+    buf.append("barrierLevel").append('=').append(JodaBeanUtils.toString(getBarrierLevel())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

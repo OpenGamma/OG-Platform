@@ -288,11 +288,11 @@ public class HbComputationTargetSpecification extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("id").append('=').append(getId()).append(',').append(' ');
-    buf.append("type").append('=').append(getType()).append(',').append(' ');
-    buf.append("uidScheme").append('=').append(getUidScheme()).append(',').append(' ');
-    buf.append("uidValue").append('=').append(getUidValue()).append(',').append(' ');
-    buf.append("uidVersion").append('=').append(getUidVersion()).append(',').append(' ');
+    buf.append("id").append('=').append(JodaBeanUtils.toString(getId())).append(',').append(' ');
+    buf.append("type").append('=').append(JodaBeanUtils.toString(getType())).append(',').append(' ');
+    buf.append("uidScheme").append('=').append(JodaBeanUtils.toString(getUidScheme())).append(',').append(' ');
+    buf.append("uidValue").append('=').append(JodaBeanUtils.toString(getUidValue())).append(',').append(' ');
+    buf.append("uidVersion").append('=').append(JodaBeanUtils.toString(getUidVersion())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

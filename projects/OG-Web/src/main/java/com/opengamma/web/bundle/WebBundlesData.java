@@ -393,15 +393,15 @@ public class WebBundlesData extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("bundleManagerFactory").append('=').append(getBundleManagerFactory()).append(',').append(' ');
-    buf.append("bundleManager").append('=').append(getBundleManager()).append(',').append(' ');
-    buf.append("devBundleManager").append('=').append(getDevBundleManager()).append(',').append(' ');
-    buf.append("compressor").append('=').append(getCompressor()).append(',').append(' ');
-    buf.append("mode").append('=').append(getMode()).append(',').append(' ');
-    buf.append("styleTag").append('=').append(getStyleTag()).append(',').append(' ');
-    buf.append("scriptTag").append('=').append(getScriptTag()).append(',').append(' ');
-    buf.append("uriInfo").append('=').append(getUriInfo()).append(',').append(' ');
-    buf.append("httpHeaders").append('=').append(getHttpHeaders()).append(',').append(' ');
+    buf.append("bundleManagerFactory").append('=').append(JodaBeanUtils.toString(getBundleManagerFactory())).append(',').append(' ');
+    buf.append("bundleManager").append('=').append(JodaBeanUtils.toString(getBundleManager())).append(',').append(' ');
+    buf.append("devBundleManager").append('=').append(JodaBeanUtils.toString(getDevBundleManager())).append(',').append(' ');
+    buf.append("compressor").append('=').append(JodaBeanUtils.toString(getCompressor())).append(',').append(' ');
+    buf.append("mode").append('=').append(JodaBeanUtils.toString(getMode())).append(',').append(' ');
+    buf.append("styleTag").append('=').append(JodaBeanUtils.toString(getStyleTag())).append(',').append(' ');
+    buf.append("scriptTag").append('=').append(JodaBeanUtils.toString(getScriptTag())).append(',').append(' ');
+    buf.append("uriInfo").append('=').append(JodaBeanUtils.toString(getUriInfo())).append(',').append(' ');
+    buf.append("httpHeaders").append('=').append(JodaBeanUtils.toString(getHttpHeaders())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

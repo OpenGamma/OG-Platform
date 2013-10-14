@@ -412,7 +412,7 @@ public final class MarketDataSnapshotSaver implements ImmutableBean {
     buf.append("viewProcessor").append('=').append(getViewProcessor()).append(',').append(' ');
     buf.append("configMaster").append('=').append(getConfigMaster()).append(',').append(' ');
     buf.append("marketDataSnapshotMaster").append('=').append(getMarketDataSnapshotMaster()).append(',').append(' ');
-    buf.append("snapshotter").append('=').append(getSnapshotter());
+    buf.append("snapshotter").append('=').append(JodaBeanUtils.toString(getSnapshotter()));
     buf.append('}');
     return buf.toString();
   }

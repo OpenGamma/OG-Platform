@@ -174,8 +174,8 @@ public class CappedPoweredPayoffStyle extends PayoffStyle {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("power").append('=').append(getPower()).append(',').append(' ');
-    buf.append("cap").append('=').append(getCap()).append(',').append(' ');
+    buf.append("power").append('=').append(JodaBeanUtils.toString(getPower())).append(',').append(' ');
+    buf.append("cap").append('=').append(JodaBeanUtils.toString(getCap())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

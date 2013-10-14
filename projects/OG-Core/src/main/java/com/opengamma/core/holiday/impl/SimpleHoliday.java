@@ -403,13 +403,13 @@ public class SimpleHoliday extends DirectBean
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("uniqueId").append('=').append(getUniqueId()).append(',').append(' ');
-    buf.append("type").append('=').append(getType()).append(',').append(' ');
-    buf.append("regionExternalId").append('=').append(getRegionExternalId()).append(',').append(' ');
-    buf.append("exchangeExternalId").append('=').append(getExchangeExternalId()).append(',').append(' ');
-    buf.append("customExternalId").append('=').append(getCustomExternalId()).append(',').append(' ');
-    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
-    buf.append("holidayDates").append('=').append(getHolidayDates()).append(',').append(' ');
+    buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(getUniqueId())).append(',').append(' ');
+    buf.append("type").append('=').append(JodaBeanUtils.toString(getType())).append(',').append(' ');
+    buf.append("regionExternalId").append('=').append(JodaBeanUtils.toString(getRegionExternalId())).append(',').append(' ');
+    buf.append("exchangeExternalId").append('=').append(JodaBeanUtils.toString(getExchangeExternalId())).append(',').append(' ');
+    buf.append("customExternalId").append('=').append(JodaBeanUtils.toString(getCustomExternalId())).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("holidayDates").append('=').append(JodaBeanUtils.toString(getHolidayDates())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

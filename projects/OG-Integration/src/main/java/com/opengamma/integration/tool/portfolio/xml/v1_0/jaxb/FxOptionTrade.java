@@ -252,11 +252,11 @@ public class FxOptionTrade extends AbstractFxOptionTrade {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("notional").append('=').append(getNotional()).append(',').append(' ');
-    buf.append("notionalCurrency").append('=').append(getNotionalCurrency()).append(',').append(' ');
-    buf.append("settlementType").append('=').append(getSettlementType()).append(',').append(' ');
-    buf.append("settlementCurrency").append('=').append(getSettlementCurrency()).append(',').append(' ');
-    buf.append("exerciseType").append('=').append(getExerciseType()).append(',').append(' ');
+    buf.append("notional").append('=').append(JodaBeanUtils.toString(getNotional())).append(',').append(' ');
+    buf.append("notionalCurrency").append('=').append(JodaBeanUtils.toString(getNotionalCurrency())).append(',').append(' ');
+    buf.append("settlementType").append('=').append(JodaBeanUtils.toString(getSettlementType())).append(',').append(' ');
+    buf.append("settlementCurrency").append('=').append(JodaBeanUtils.toString(getSettlementCurrency())).append(',').append(' ');
+    buf.append("exerciseType").append('=').append(JodaBeanUtils.toString(getExerciseType())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

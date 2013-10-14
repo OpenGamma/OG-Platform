@@ -151,7 +151,7 @@ public class EquityConvention extends Convention {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("exDividendPeriod").append('=').append(getExDividendPeriod()).append(',').append(' ');
+    buf.append("exDividendPeriod").append('=').append(JodaBeanUtils.toString(getExDividendPeriod())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

@@ -339,13 +339,13 @@ public abstract class CommodityForwardSecurity extends FinancialSecurity {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("unitNumber").append('=').append(getUnitNumber()).append(',').append(' ');
-    buf.append("unitName").append('=').append(getUnitName()).append(',').append(' ');
-    buf.append("expiry").append('=').append(getExpiry()).append(',').append(' ');
-    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
-    buf.append("unitAmount").append('=').append(getUnitAmount()).append(',').append(' ');
-    buf.append("contractCategory").append('=').append(getContractCategory()).append(',').append(' ');
-    buf.append("underlyingId").append('=').append(getUnderlyingId()).append(',').append(' ');
+    buf.append("unitNumber").append('=').append(JodaBeanUtils.toString(getUnitNumber())).append(',').append(' ');
+    buf.append("unitName").append('=').append(JodaBeanUtils.toString(getUnitName())).append(',').append(' ');
+    buf.append("expiry").append('=').append(JodaBeanUtils.toString(getExpiry())).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("unitAmount").append('=').append(JodaBeanUtils.toString(getUnitAmount())).append(',').append(' ');
+    buf.append("contractCategory").append('=').append(JodaBeanUtils.toString(getContractCategory())).append(',').append(' ');
+    buf.append("underlyingId").append('=').append(JodaBeanUtils.toString(getUnderlyingId())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

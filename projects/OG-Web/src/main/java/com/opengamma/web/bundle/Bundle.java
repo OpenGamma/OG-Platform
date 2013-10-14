@@ -249,9 +249,9 @@ public class Bundle extends DirectBean implements BundleNode {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("id").append('=').append(getId()).append(',').append(' ');
-    buf.append("type").append('=').append(getType()).append(',').append(' ');
-    buf.append("childNodes").append('=').append(getChildNodes()).append(',').append(' ');
+    buf.append("id").append('=').append(JodaBeanUtils.toString(getId())).append(',').append(' ');
+    buf.append("type").append('=').append(JodaBeanUtils.toString(getType())).append(',').append(' ');
+    buf.append("childNodes").append('=').append(JodaBeanUtils.toString(getChildNodes())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

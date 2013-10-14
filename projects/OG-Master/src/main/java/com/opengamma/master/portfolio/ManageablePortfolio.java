@@ -289,10 +289,10 @@ public class ManageablePortfolio extends DirectBean implements MutableUniqueIden
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("uniqueId").append('=').append(getUniqueId()).append(',').append(' ');
-    buf.append("name").append('=').append(getName()).append(',').append(' ');
-    buf.append("rootNode").append('=').append(getRootNode()).append(',').append(' ');
-    buf.append("attributes").append('=').append(getAttributes()).append(',').append(' ');
+    buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(getUniqueId())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
+    buf.append("rootNode").append('=').append(JodaBeanUtils.toString(getRootNode())).append(',').append(' ');
+    buf.append("attributes").append('=').append(JodaBeanUtils.toString(getAttributes())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

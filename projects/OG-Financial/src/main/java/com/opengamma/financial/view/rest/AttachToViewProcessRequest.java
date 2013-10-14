@@ -198,9 +198,9 @@ public class AttachToViewProcessRequest extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("viewDefinitionId").append('=').append(getViewDefinitionId()).append(',').append(' ');
-    buf.append("executionOptions").append('=').append(getExecutionOptions()).append(',').append(' ');
-    buf.append("newBatchProcess").append('=').append(isNewBatchProcess()).append(',').append(' ');
+    buf.append("viewDefinitionId").append('=').append(JodaBeanUtils.toString(getViewDefinitionId())).append(',').append(' ');
+    buf.append("executionOptions").append('=').append(JodaBeanUtils.toString(getExecutionOptions())).append(',').append(' ');
+    buf.append("newBatchProcess").append('=').append(JodaBeanUtils.toString(isNewBatchProcess())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

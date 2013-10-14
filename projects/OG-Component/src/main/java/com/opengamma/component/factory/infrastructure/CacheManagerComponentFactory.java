@@ -213,9 +213,9 @@ public class CacheManagerComponentFactory extends AbstractComponentFactory {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("classifier").append('=').append(getClassifier()).append(',').append(' ');
-    buf.append("shared").append('=').append(isShared()).append(',').append(' ');
-    buf.append("configLocation").append('=').append(getConfigLocation()).append(',').append(' ');
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("shared").append('=').append(JodaBeanUtils.toString(isShared())).append(',').append(' ');
+    buf.append("configLocation").append('=').append(JodaBeanUtils.toString(getConfigLocation())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

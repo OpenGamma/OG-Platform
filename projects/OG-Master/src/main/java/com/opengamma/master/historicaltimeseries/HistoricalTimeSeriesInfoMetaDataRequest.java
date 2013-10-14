@@ -224,10 +224,10 @@ public class HistoricalTimeSeriesInfoMetaDataRequest extends AbstractMetaDataReq
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("dataFields").append('=').append(isDataFields()).append(',').append(' ');
-    buf.append("dataSources").append('=').append(isDataSources()).append(',').append(' ');
-    buf.append("dataProviders").append('=').append(isDataProviders()).append(',').append(' ');
-    buf.append("observationTimes").append('=').append(isObservationTimes()).append(',').append(' ');
+    buf.append("dataFields").append('=').append(JodaBeanUtils.toString(isDataFields())).append(',').append(' ');
+    buf.append("dataSources").append('=').append(JodaBeanUtils.toString(isDataSources())).append(',').append(' ');
+    buf.append("dataProviders").append('=').append(JodaBeanUtils.toString(isDataProviders())).append(',').append(' ');
+    buf.append("observationTimes").append('=').append(JodaBeanUtils.toString(isObservationTimes())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

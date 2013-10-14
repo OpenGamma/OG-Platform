@@ -190,7 +190,7 @@ public class SecurityEnhancerRequest extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("securities").append('=').append(getSecurities()).append(',').append(' ');
+    buf.append("securities").append('=').append(JodaBeanUtils.toString(getSecurities())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

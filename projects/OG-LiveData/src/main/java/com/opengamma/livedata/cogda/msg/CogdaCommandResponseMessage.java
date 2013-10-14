@@ -194,9 +194,9 @@ public abstract class CogdaCommandResponseMessage extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("correlationId").append('=').append(getCorrelationId()).append(',').append(' ');
-    buf.append("genericResult").append('=').append(getGenericResult()).append(',').append(' ');
-    buf.append("userMessage").append('=').append(getUserMessage()).append(',').append(' ');
+    buf.append("correlationId").append('=').append(JodaBeanUtils.toString(getCorrelationId())).append(',').append(' ');
+    buf.append("genericResult").append('=').append(JodaBeanUtils.toString(getGenericResult())).append(',').append(' ');
+    buf.append("userMessage").append('=').append(JodaBeanUtils.toString(getUserMessage())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

@@ -472,7 +472,7 @@ public final class ExternalIdWithDates implements ImmutableBean,
 
     /**
      * Sets the {@code validFrom} property in the builder.
-     * @param validFrom  the new value, not null
+     * @param validFrom  the new value
      * @return this, for chaining, not null
      */
     public Builder validFrom(LocalDate validFrom) {
@@ -482,7 +482,7 @@ public final class ExternalIdWithDates implements ImmutableBean,
 
     /**
      * Sets the {@code validTo} property in the builder.
-     * @param validTo  the new value, not null
+     * @param validTo  the new value
      * @return this, for chaining, not null
      */
     public Builder validTo(LocalDate validTo) {

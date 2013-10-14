@@ -245,8 +245,8 @@ public class SecurityProviderRequest extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("externalIdBundles").append('=').append(getExternalIdBundles()).append(',').append(' ');
-    buf.append("dataSource").append('=').append(getDataSource()).append(',').append(' ');
+    buf.append("externalIdBundles").append('=').append(JodaBeanUtils.toString(getExternalIdBundles())).append(',').append(' ');
+    buf.append("dataSource").append('=').append(JodaBeanUtils.toString(getDataSource())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

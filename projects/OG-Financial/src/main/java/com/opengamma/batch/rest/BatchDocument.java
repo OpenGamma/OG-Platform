@@ -568,19 +568,19 @@ public class BatchDocument extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("batchId").append('=').append(getBatchId()).append(',').append(' ');
-    buf.append("observationDate").append('=').append(getObservationDate()).append(',').append(' ');
-    buf.append("observationTime").append('=').append(getObservationTime()).append(',').append(' ');
-    buf.append("complete").append('=').append(isComplete()).append(',').append(' ');
-    buf.append("masterProcessHost").append('=').append(getMasterProcessHost()).append(',').append(' ');
-    buf.append("creationInstant").append('=').append(getCreationInstant()).append(',').append(' ');
-    buf.append("startInstant").append('=').append(getStartInstant()).append(',').append(' ');
-    buf.append("endInstant").append('=').append(getEndInstant()).append(',').append(' ');
-    buf.append("numRestarts").append('=').append(getNumRestarts()).append(',').append(' ');
-    buf.append("dataPaging").append('=').append(getDataPaging()).append(',').append(' ');
-    buf.append("data").append('=').append(getData()).append(',').append(' ');
-    buf.append("errorsPaging").append('=').append(getErrorsPaging()).append(',').append(' ');
-    buf.append("errors").append('=').append(getErrors()).append(',').append(' ');
+    buf.append("batchId").append('=').append(JodaBeanUtils.toString(getBatchId())).append(',').append(' ');
+    buf.append("observationDate").append('=').append(JodaBeanUtils.toString(getObservationDate())).append(',').append(' ');
+    buf.append("observationTime").append('=').append(JodaBeanUtils.toString(getObservationTime())).append(',').append(' ');
+    buf.append("complete").append('=').append(JodaBeanUtils.toString(isComplete())).append(',').append(' ');
+    buf.append("masterProcessHost").append('=').append(JodaBeanUtils.toString(getMasterProcessHost())).append(',').append(' ');
+    buf.append("creationInstant").append('=').append(JodaBeanUtils.toString(getCreationInstant())).append(',').append(' ');
+    buf.append("startInstant").append('=').append(JodaBeanUtils.toString(getStartInstant())).append(',').append(' ');
+    buf.append("endInstant").append('=').append(JodaBeanUtils.toString(getEndInstant())).append(',').append(' ');
+    buf.append("numRestarts").append('=').append(JodaBeanUtils.toString(getNumRestarts())).append(',').append(' ');
+    buf.append("dataPaging").append('=').append(JodaBeanUtils.toString(getDataPaging())).append(',').append(' ');
+    buf.append("data").append('=').append(JodaBeanUtils.toString(getData())).append(',').append(' ');
+    buf.append("errorsPaging").append('=').append(JodaBeanUtils.toString(getErrorsPaging())).append(',').append(' ');
+    buf.append("errors").append('=').append(JodaBeanUtils.toString(getErrors())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

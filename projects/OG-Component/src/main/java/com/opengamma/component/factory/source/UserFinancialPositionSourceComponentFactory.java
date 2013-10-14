@@ -455,15 +455,15 @@ public class UserFinancialPositionSourceComponentFactory extends AbstractCompone
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("classifier").append('=').append(getClassifier()).append(',').append(' ');
-    buf.append("publishRest").append('=').append(isPublishRest()).append(',').append(' ');
-    buf.append("cacheManager").append('=').append(getCacheManager()).append(',').append(' ');
-    buf.append("underlyingClassifier").append('=').append(getUnderlyingClassifier()).append(',').append(' ');
-    buf.append("underlyingPortfolioMaster").append('=').append(getUnderlyingPortfolioMaster()).append(',').append(' ');
-    buf.append("underlyingPositionMaster").append('=').append(getUnderlyingPositionMaster()).append(',').append(' ');
-    buf.append("userClassifier").append('=').append(getUserClassifier()).append(',').append(' ');
-    buf.append("userPortfolioMaster").append('=').append(getUserPortfolioMaster()).append(',').append(' ');
-    buf.append("userPositionMaster").append('=').append(getUserPositionMaster()).append(',').append(' ');
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("publishRest").append('=').append(JodaBeanUtils.toString(isPublishRest())).append(',').append(' ');
+    buf.append("cacheManager").append('=').append(JodaBeanUtils.toString(getCacheManager())).append(',').append(' ');
+    buf.append("underlyingClassifier").append('=').append(JodaBeanUtils.toString(getUnderlyingClassifier())).append(',').append(' ');
+    buf.append("underlyingPortfolioMaster").append('=').append(JodaBeanUtils.toString(getUnderlyingPortfolioMaster())).append(',').append(' ');
+    buf.append("underlyingPositionMaster").append('=').append(JodaBeanUtils.toString(getUnderlyingPositionMaster())).append(',').append(' ');
+    buf.append("userClassifier").append('=').append(JodaBeanUtils.toString(getUserClassifier())).append(',').append(' ');
+    buf.append("userPortfolioMaster").append('=').append(JodaBeanUtils.toString(getUserPortfolioMaster())).append(',').append(' ');
+    buf.append("userPositionMaster").append('=').append(JodaBeanUtils.toString(getUserPositionMaster())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

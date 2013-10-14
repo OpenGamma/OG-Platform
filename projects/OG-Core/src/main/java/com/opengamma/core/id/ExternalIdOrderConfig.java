@@ -268,7 +268,7 @@ public class ExternalIdOrderConfig extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("rateMap").append('=').append(getRateMap()).append(',').append(' ');
+    buf.append("rateMap").append('=').append(JodaBeanUtils.toString(getRateMap())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

@@ -155,7 +155,7 @@ public class FloatingSpreadIRLeg extends FloatingInterestRateLeg {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("spread").append('=').append(getSpread()).append(',').append(' ');
+    buf.append("spread").append('=').append(JodaBeanUtils.toString(getSpread())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

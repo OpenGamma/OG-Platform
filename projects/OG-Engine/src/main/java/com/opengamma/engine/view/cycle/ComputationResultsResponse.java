@@ -130,7 +130,7 @@ public class ComputationResultsResponse extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("results").append('=').append(getResults()).append(',').append(' ');
+    buf.append("results").append('=').append(JodaBeanUtils.toString(getResults())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

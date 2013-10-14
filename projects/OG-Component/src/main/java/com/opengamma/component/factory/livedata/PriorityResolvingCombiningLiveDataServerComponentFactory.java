@@ -438,14 +438,14 @@ public class PriorityResolvingCombiningLiveDataServerComponentFactory extends Ab
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("dbConnector").append('=').append(getDbConnector()).append(',').append(' ');
-    buf.append("cacheManager").append('=').append(getCacheManager()).append(',').append(' ');
-    buf.append("server1").append('=').append(getServer1()).append(',').append(' ');
-    buf.append("server2").append('=').append(getServer2()).append(',').append(' ');
-    buf.append("server3").append('=').append(getServer3()).append(',').append(' ');
-    buf.append("server4").append('=').append(getServer4()).append(',').append(' ');
-    buf.append("server5").append('=').append(getServer5()).append(',').append(' ');
-    buf.append("server6").append('=').append(getServer6()).append(',').append(' ');
+    buf.append("dbConnector").append('=').append(JodaBeanUtils.toString(getDbConnector())).append(',').append(' ');
+    buf.append("cacheManager").append('=').append(JodaBeanUtils.toString(getCacheManager())).append(',').append(' ');
+    buf.append("server1").append('=').append(JodaBeanUtils.toString(getServer1())).append(',').append(' ');
+    buf.append("server2").append('=').append(JodaBeanUtils.toString(getServer2())).append(',').append(' ');
+    buf.append("server3").append('=').append(JodaBeanUtils.toString(getServer3())).append(',').append(' ');
+    buf.append("server4").append('=').append(JodaBeanUtils.toString(getServer4())).append(',').append(' ');
+    buf.append("server5").append('=').append(JodaBeanUtils.toString(getServer5())).append(',').append(' ');
+    buf.append("server6").append('=').append(JodaBeanUtils.toString(getServer6())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

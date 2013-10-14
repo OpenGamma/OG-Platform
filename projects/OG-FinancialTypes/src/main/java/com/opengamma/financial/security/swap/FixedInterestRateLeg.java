@@ -155,7 +155,7 @@ public class FixedInterestRateLeg extends InterestRateLeg {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("rate").append('=').append(getRate()).append(',').append(' ');
+    buf.append("rate").append('=').append(JodaBeanUtils.toString(getRate())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

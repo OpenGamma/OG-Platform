@@ -289,10 +289,10 @@ public class OrganizationSearchRequest extends AbstractSearchRequest {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("organizationObjectIds").append('=').append(getOrganizationObjectIds()).append(',').append(' ');
-    buf.append("obligorTicker").append('=').append(getObligorTicker()).append(',').append(' ');
-    buf.append("obligorShortName").append('=').append(getObligorShortName()).append(',').append(' ');
-    buf.append("obligorREDCode").append('=').append(getObligorREDCode()).append(',').append(' ');
+    buf.append("organizationObjectIds").append('=').append(JodaBeanUtils.toString(getOrganizationObjectIds())).append(',').append(' ');
+    buf.append("obligorTicker").append('=').append(JodaBeanUtils.toString(getObligorTicker())).append(',').append(' ');
+    buf.append("obligorShortName").append('=').append(JodaBeanUtils.toString(getObligorShortName())).append(',').append(' ');
+    buf.append("obligorREDCode").append('=').append(JodaBeanUtils.toString(getObligorREDCode())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

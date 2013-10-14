@@ -194,8 +194,8 @@ public class UserDocument extends AbstractDocument implements Serializable {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("user").append('=').append(getUser()).append(',').append(' ');
-    buf.append("uniqueId").append('=').append(getUniqueId()).append(',').append(' ');
+    buf.append("user").append('=').append(JodaBeanUtils.toString(getUser())).append(',').append(' ');
+    buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(getUniqueId())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

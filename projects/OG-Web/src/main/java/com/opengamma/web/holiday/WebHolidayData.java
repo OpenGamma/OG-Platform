@@ -318,12 +318,12 @@ public class WebHolidayData extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("holidayMaster").append('=').append(getHolidayMaster()).append(',').append(' ');
-    buf.append("uriInfo").append('=').append(getUriInfo()).append(',').append(' ');
-    buf.append("uriHolidayId").append('=').append(getUriHolidayId()).append(',').append(' ');
-    buf.append("uriVersionId").append('=').append(getUriVersionId()).append(',').append(' ');
-    buf.append("holiday").append('=').append(getHoliday()).append(',').append(' ');
-    buf.append("versioned").append('=').append(getVersioned()).append(',').append(' ');
+    buf.append("holidayMaster").append('=').append(JodaBeanUtils.toString(getHolidayMaster())).append(',').append(' ');
+    buf.append("uriInfo").append('=').append(JodaBeanUtils.toString(getUriInfo())).append(',').append(' ');
+    buf.append("uriHolidayId").append('=').append(JodaBeanUtils.toString(getUriHolidayId())).append(',').append(' ');
+    buf.append("uriVersionId").append('=').append(JodaBeanUtils.toString(getUriVersionId())).append(',').append(' ');
+    buf.append("holiday").append('=').append(JodaBeanUtils.toString(getHoliday())).append(',').append(' ');
+    buf.append("versioned").append('=').append(JodaBeanUtils.toString(getVersioned())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

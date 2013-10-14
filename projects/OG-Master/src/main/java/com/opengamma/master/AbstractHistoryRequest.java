@@ -392,12 +392,12 @@ public abstract class AbstractHistoryRequest extends DirectBean implements Paged
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("pagingRequest").append('=').append(getPagingRequest()).append(',').append(' ');
-    buf.append("objectId").append('=').append(getObjectId()).append(',').append(' ');
-    buf.append("versionsFromInstant").append('=').append(getVersionsFromInstant()).append(',').append(' ');
-    buf.append("versionsToInstant").append('=').append(getVersionsToInstant()).append(',').append(' ');
-    buf.append("correctionsFromInstant").append('=').append(getCorrectionsFromInstant()).append(',').append(' ');
-    buf.append("correctionsToInstant").append('=').append(getCorrectionsToInstant()).append(',').append(' ');
+    buf.append("pagingRequest").append('=').append(JodaBeanUtils.toString(getPagingRequest())).append(',').append(' ');
+    buf.append("objectId").append('=').append(JodaBeanUtils.toString(getObjectId())).append(',').append(' ');
+    buf.append("versionsFromInstant").append('=').append(JodaBeanUtils.toString(getVersionsFromInstant())).append(',').append(' ');
+    buf.append("versionsToInstant").append('=').append(JodaBeanUtils.toString(getVersionsToInstant())).append(',').append(' ');
+    buf.append("correctionsFromInstant").append('=').append(JodaBeanUtils.toString(getCorrectionsFromInstant())).append(',').append(' ');
+    buf.append("correctionsToInstant").append('=').append(JodaBeanUtils.toString(getCorrectionsToInstant())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

@@ -199,7 +199,7 @@ public final class YieldCurveKey implements ImmutableBean, StructuredMarketDataK
     StringBuilder buf = new StringBuilder(96);
     buf.append("YieldCurveKey{");
     buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
-    buf.append("name").append('=').append(getName());
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName()));
     buf.append('}');
     return buf.toString();
   }

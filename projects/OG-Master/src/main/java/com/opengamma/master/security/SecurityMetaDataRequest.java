@@ -161,8 +161,8 @@ public class SecurityMetaDataRequest extends AbstractMetaDataRequest {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("securityTypes").append('=').append(isSecurityTypes()).append(',').append(' ');
-    buf.append("schemaVersion").append('=').append(isSchemaVersion()).append(',').append(' ');
+    buf.append("securityTypes").append('=').append(JodaBeanUtils.toString(isSecurityTypes())).append(',').append(' ');
+    buf.append("schemaVersion").append('=').append(JodaBeanUtils.toString(isSchemaVersion())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

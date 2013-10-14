@@ -183,8 +183,8 @@ public class CurveGroupConfiguration extends DirectBean implements Serializable 
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("order").append('=').append(getOrder()).append(',').append(' ');
-    buf.append("typesForCurves").append('=').append(getTypesForCurves()).append(',').append(' ');
+    buf.append("order").append('=').append(JodaBeanUtils.toString(getOrder())).append(',').append(' ');
+    buf.append("typesForCurves").append('=').append(JodaBeanUtils.toString(getTypesForCurves())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

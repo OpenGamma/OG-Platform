@@ -179,8 +179,8 @@ public class BloombergHistoricalTimeSeriesProviderComponentFactory extends Histo
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("bloombergConnector").append('=').append(getBloombergConnector()).append(',').append(' ');
-    buf.append("cacheManager").append('=').append(getCacheManager()).append(',').append(' ');
+    buf.append("bloombergConnector").append('=').append(JodaBeanUtils.toString(getBloombergConnector())).append(',').append(' ');
+    buf.append("cacheManager").append('=').append(JodaBeanUtils.toString(getCacheManager())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

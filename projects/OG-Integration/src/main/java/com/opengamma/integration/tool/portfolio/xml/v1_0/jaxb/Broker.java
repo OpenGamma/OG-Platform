@@ -165,8 +165,8 @@ public class Broker extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("brokerType").append('=').append(getBrokerType()).append(',').append(' ');
-    buf.append("externalId").append('=').append(getExternalId()).append(',').append(' ');
+    buf.append("brokerType").append('=').append(JodaBeanUtils.toString(getBrokerType())).append(',').append(' ');
+    buf.append("externalId").append('=').append(JodaBeanUtils.toString(getExternalId())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

@@ -431,13 +431,13 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("portfolioObjectIds").append('=').append(getPortfolioObjectIds()).append(',').append(' ');
-    buf.append("nodeObjectIds").append('=').append(getNodeObjectIds()).append(',').append(' ');
-    buf.append("name").append('=').append(getName()).append(',').append(' ');
-    buf.append("sortOrder").append('=').append(getSortOrder()).append(',').append(' ');
-    buf.append("depth").append('=').append(getDepth()).append(',').append(' ');
-    buf.append("includePositions").append('=').append(isIncludePositions()).append(',').append(' ');
-    buf.append("visibility").append('=').append(getVisibility()).append(',').append(' ');
+    buf.append("portfolioObjectIds").append('=').append(JodaBeanUtils.toString(getPortfolioObjectIds())).append(',').append(' ');
+    buf.append("nodeObjectIds").append('=').append(JodaBeanUtils.toString(getNodeObjectIds())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
+    buf.append("sortOrder").append('=').append(JodaBeanUtils.toString(getSortOrder())).append(',').append(' ');
+    buf.append("depth").append('=').append(JodaBeanUtils.toString(getDepth())).append(',').append(' ');
+    buf.append("includePositions").append('=').append(JodaBeanUtils.toString(isIncludePositions())).append(',').append(' ');
+    buf.append("visibility").append('=').append(JodaBeanUtils.toString(getVisibility())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

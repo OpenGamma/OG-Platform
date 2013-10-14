@@ -450,15 +450,15 @@ public class WebsiteBundleComponentFactory extends AbstractComponentFactory {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("configXmlPath").append('=').append(getConfigXmlPath()).append(',').append(' ');
-    buf.append("baseDir").append('=').append(getBaseDir()).append(',').append(' ');
-    buf.append("deployMode").append('=').append(getDeployMode()).append(',').append(' ');
-    buf.append("cacheManager").append('=').append(getCacheManager()).append(',').append(' ');
-    buf.append("compressorLineBreakPosition").append('=').append(getCompressorLineBreakPosition()).append(',').append(' ');
-    buf.append("compressorMunge").append('=').append(isCompressorMunge()).append(',').append(' ');
-    buf.append("compressorPreserveAllSemiColons").append('=').append(isCompressorPreserveAllSemiColons()).append(',').append(' ');
-    buf.append("compressorOptimize").append('=').append(isCompressorOptimize()).append(',').append(' ');
-    buf.append("compressorWarn").append('=').append(isCompressorWarn()).append(',').append(' ');
+    buf.append("configXmlPath").append('=').append(JodaBeanUtils.toString(getConfigXmlPath())).append(',').append(' ');
+    buf.append("baseDir").append('=').append(JodaBeanUtils.toString(getBaseDir())).append(',').append(' ');
+    buf.append("deployMode").append('=').append(JodaBeanUtils.toString(getDeployMode())).append(',').append(' ');
+    buf.append("cacheManager").append('=').append(JodaBeanUtils.toString(getCacheManager())).append(',').append(' ');
+    buf.append("compressorLineBreakPosition").append('=').append(JodaBeanUtils.toString(getCompressorLineBreakPosition())).append(',').append(' ');
+    buf.append("compressorMunge").append('=').append(JodaBeanUtils.toString(isCompressorMunge())).append(',').append(' ');
+    buf.append("compressorPreserveAllSemiColons").append('=').append(JodaBeanUtils.toString(isCompressorPreserveAllSemiColons())).append(',').append(' ');
+    buf.append("compressorOptimize").append('=').append(JodaBeanUtils.toString(isCompressorOptimize())).append(',').append(' ');
+    buf.append("compressorWarn").append('=').append(JodaBeanUtils.toString(isCompressorWarn())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

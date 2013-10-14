@@ -403,14 +403,14 @@ public class DbSecurityMasterComponentFactory extends AbstractDbMasterComponentF
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("classifier").append('=').append(getClassifier()).append(',').append(' ');
-    buf.append("publishRest").append('=').append(isPublishRest()).append(',').append(' ');
-    buf.append("cacheManager").append('=').append(getCacheManager()).append(',').append(' ');
-    buf.append("jmsConnector").append('=').append(getJmsConnector()).append(',').append(' ');
-    buf.append("jmsChangeManagerTopic").append('=').append(getJmsChangeManagerTopic()).append(',').append(' ');
-    buf.append("uniqueIdScheme").append('=').append(getUniqueIdScheme()).append(',').append(' ');
-    buf.append("maxRetries").append('=').append(getMaxRetries()).append(',').append(' ');
-    buf.append("detailProvider").append('=').append(getDetailProvider()).append(',').append(' ');
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("publishRest").append('=').append(JodaBeanUtils.toString(isPublishRest())).append(',').append(' ');
+    buf.append("cacheManager").append('=').append(JodaBeanUtils.toString(getCacheManager())).append(',').append(' ');
+    buf.append("jmsConnector").append('=').append(JodaBeanUtils.toString(getJmsConnector())).append(',').append(' ');
+    buf.append("jmsChangeManagerTopic").append('=').append(JodaBeanUtils.toString(getJmsChangeManagerTopic())).append(',').append(' ');
+    buf.append("uniqueIdScheme").append('=').append(JodaBeanUtils.toString(getUniqueIdScheme())).append(',').append(' ');
+    buf.append("maxRetries").append('=').append(JodaBeanUtils.toString(getMaxRetries())).append(',').append(' ');
+    buf.append("detailProvider").append('=').append(JodaBeanUtils.toString(getDetailProvider())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

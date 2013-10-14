@@ -265,8 +265,8 @@ public class ConfigDocument extends AbstractDocument {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("config").append('=').append(getConfig()).append(',').append(' ');
-    buf.append("uniqueId").append('=').append(getUniqueId()).append(',').append(' ');
+    buf.append("config").append('=').append(JodaBeanUtils.toString(getConfig())).append(',').append(' ');
+    buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(getUniqueId())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

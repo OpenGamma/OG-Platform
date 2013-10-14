@@ -448,12 +448,12 @@ public class HistoricalTimeSeriesProviderGetRequest extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("externalIdBundles").append('=').append(getExternalIdBundles()).append(',').append(' ');
-    buf.append("dataSource").append('=').append(getDataSource()).append(',').append(' ');
-    buf.append("dataProvider").append('=').append(getDataProvider()).append(',').append(' ');
-    buf.append("dataField").append('=').append(getDataField()).append(',').append(' ');
-    buf.append("dateRange").append('=').append(getDateRange()).append(',').append(' ');
-    buf.append("maxPoints").append('=').append(getMaxPoints()).append(',').append(' ');
+    buf.append("externalIdBundles").append('=').append(JodaBeanUtils.toString(getExternalIdBundles())).append(',').append(' ');
+    buf.append("dataSource").append('=').append(JodaBeanUtils.toString(getDataSource())).append(',').append(' ');
+    buf.append("dataProvider").append('=').append(JodaBeanUtils.toString(getDataProvider())).append(',').append(' ');
+    buf.append("dataField").append('=').append(JodaBeanUtils.toString(getDataField())).append(',').append(' ');
+    buf.append("dateRange").append('=').append(JodaBeanUtils.toString(getDateRange())).append(',').append(' ');
+    buf.append("maxPoints").append('=').append(JodaBeanUtils.toString(getMaxPoints())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

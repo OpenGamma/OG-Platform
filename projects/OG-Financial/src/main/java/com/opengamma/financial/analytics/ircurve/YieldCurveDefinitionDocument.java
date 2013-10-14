@@ -197,8 +197,8 @@ public class YieldCurveDefinitionDocument extends AbstractDocument implements Se
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("uniqueId").append('=').append(getUniqueId()).append(',').append(' ');
-    buf.append("yieldCurveDefinition").append('=').append(getYieldCurveDefinition()).append(',').append(' ');
+    buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(getUniqueId())).append(',').append(' ');
+    buf.append("yieldCurveDefinition").append('=').append(JodaBeanUtils.toString(getYieldCurveDefinition())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

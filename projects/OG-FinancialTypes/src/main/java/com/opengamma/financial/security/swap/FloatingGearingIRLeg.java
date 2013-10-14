@@ -155,7 +155,7 @@ public class FloatingGearingIRLeg extends FloatingInterestRateLeg {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("gearing").append('=').append(getGearing()).append(',').append(' ');
+    buf.append("gearing").append('=').append(JodaBeanUtils.toString(getGearing())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

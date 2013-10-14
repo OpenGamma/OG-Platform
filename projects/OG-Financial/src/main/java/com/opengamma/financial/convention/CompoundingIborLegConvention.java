@@ -477,16 +477,16 @@ public class CompoundingIborLegConvention extends Convention {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("iborIndexConvention").append('=').append(getIborIndexConvention()).append(',').append(' ');
-    buf.append("paymentTenor").append('=').append(getPaymentTenor()).append(',').append(' ');
-    buf.append("compoundingType").append('=').append(getCompoundingType()).append(',').append(' ');
-    buf.append("compositionTenor").append('=').append(getCompositionTenor()).append(',').append(' ');
-    buf.append("stubTypeCompound").append('=').append(getStubTypeCompound()).append(',').append(' ');
-    buf.append("isExchangeNotional").append('=').append(isIsExchangeNotional()).append(',').append(' ');
-    buf.append("settlementDays").append('=').append(getSettlementDays()).append(',').append(' ');
-    buf.append("isEOM").append('=').append(isIsEOM()).append(',').append(' ');
-    buf.append("stubTypeLeg").append('=').append(getStubTypeLeg()).append(',').append(' ');
-    buf.append("paymentLag").append('=').append(getPaymentLag()).append(',').append(' ');
+    buf.append("iborIndexConvention").append('=').append(JodaBeanUtils.toString(getIborIndexConvention())).append(',').append(' ');
+    buf.append("paymentTenor").append('=').append(JodaBeanUtils.toString(getPaymentTenor())).append(',').append(' ');
+    buf.append("compoundingType").append('=').append(JodaBeanUtils.toString(getCompoundingType())).append(',').append(' ');
+    buf.append("compositionTenor").append('=').append(JodaBeanUtils.toString(getCompositionTenor())).append(',').append(' ');
+    buf.append("stubTypeCompound").append('=').append(JodaBeanUtils.toString(getStubTypeCompound())).append(',').append(' ');
+    buf.append("isExchangeNotional").append('=').append(JodaBeanUtils.toString(isIsExchangeNotional())).append(',').append(' ');
+    buf.append("settlementDays").append('=').append(JodaBeanUtils.toString(getSettlementDays())).append(',').append(' ');
+    buf.append("isEOM").append('=').append(JodaBeanUtils.toString(isIsEOM())).append(',').append(' ');
+    buf.append("stubTypeLeg").append('=').append(JodaBeanUtils.toString(getStubTypeLeg())).append(',').append(' ');
+    buf.append("paymentLag").append('=').append(JodaBeanUtils.toString(getPaymentLag())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

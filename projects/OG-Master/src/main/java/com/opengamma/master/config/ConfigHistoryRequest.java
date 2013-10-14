@@ -190,7 +190,7 @@ public class ConfigHistoryRequest<T> extends AbstractHistoryRequest {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("type").append('=').append(getType()).append(',').append(' ');
+    buf.append("type").append('=').append(JodaBeanUtils.toString(getType())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

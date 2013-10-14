@@ -569,15 +569,15 @@ public class UserSearchRequest extends AbstractSearchRequest {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("objectIds").append('=').append(getObjectIds()).append(',').append(' ');
-    buf.append("externalIdSearch").append('=').append(getExternalIdSearch()).append(',').append(' ');
-    buf.append("externalIdValue").append('=').append(getExternalIdValue()).append(',').append(' ');
-    buf.append("externalIdScheme").append('=').append(getExternalIdScheme()).append(',').append(' ');
-    buf.append("userId").append('=').append(getUserId()).append(',').append(' ');
-    buf.append("name").append('=').append(getName()).append(',').append(' ');
-    buf.append("timeZone").append('=').append(getTimeZone()).append(',').append(' ');
-    buf.append("emailAddress").append('=').append(getEmailAddress()).append(',').append(' ');
-    buf.append("sortOrder").append('=').append(getSortOrder()).append(',').append(' ');
+    buf.append("objectIds").append('=').append(JodaBeanUtils.toString(getObjectIds())).append(',').append(' ');
+    buf.append("externalIdSearch").append('=').append(JodaBeanUtils.toString(getExternalIdSearch())).append(',').append(' ');
+    buf.append("externalIdValue").append('=').append(JodaBeanUtils.toString(getExternalIdValue())).append(',').append(' ');
+    buf.append("externalIdScheme").append('=').append(JodaBeanUtils.toString(getExternalIdScheme())).append(',').append(' ');
+    buf.append("userId").append('=').append(JodaBeanUtils.toString(getUserId())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
+    buf.append("timeZone").append('=').append(JodaBeanUtils.toString(getTimeZone())).append(',').append(' ');
+    buf.append("emailAddress").append('=').append(JodaBeanUtils.toString(getEmailAddress())).append(',').append(' ');
+    buf.append("sortOrder").append('=').append(JodaBeanUtils.toString(getSortOrder())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

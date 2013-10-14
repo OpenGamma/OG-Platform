@@ -280,10 +280,10 @@ public class BloombergFieldOverrideComponentFactory extends AbstractComponentFac
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("classifier").append('=').append(getClassifier()).append(',').append(' ');
-    buf.append("underlyingReferenceDataProvider").append('=').append(getUnderlyingReferenceDataProvider()).append(',').append(' ');
-    buf.append("configSource").append('=').append(getConfigSource()).append(',').append(' ');
-    buf.append("publishRest").append('=').append(isPublishRest()).append(',').append(' ');
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("underlyingReferenceDataProvider").append('=').append(JodaBeanUtils.toString(getUnderlyingReferenceDataProvider())).append(',').append(' ');
+    buf.append("configSource").append('=').append(JodaBeanUtils.toString(getConfigSource())).append(',').append(' ');
+    buf.append("publishRest").append('=').append(JodaBeanUtils.toString(isPublishRest())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

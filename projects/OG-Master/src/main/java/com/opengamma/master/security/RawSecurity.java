@@ -179,7 +179,7 @@ public class RawSecurity extends ManageableSecurity {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("rawData").append('=').append(getRawData()).append(',').append(' ');
+    buf.append("rawData").append('=').append(JodaBeanUtils.toString(getRawData())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

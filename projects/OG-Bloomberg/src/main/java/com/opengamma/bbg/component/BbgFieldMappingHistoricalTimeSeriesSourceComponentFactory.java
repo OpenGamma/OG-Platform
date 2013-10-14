@@ -140,7 +140,7 @@ public class BbgFieldMappingHistoricalTimeSeriesSourceComponentFactory extends H
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("bbgReferenceData").append('=').append(getBbgReferenceData()).append(',').append(' ');
+    buf.append("bbgReferenceData").append('=').append(JodaBeanUtils.toString(getBbgReferenceData())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

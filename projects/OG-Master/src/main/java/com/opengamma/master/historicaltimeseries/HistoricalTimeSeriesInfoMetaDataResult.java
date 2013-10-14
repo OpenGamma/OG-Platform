@@ -246,10 +246,10 @@ public class HistoricalTimeSeriesInfoMetaDataResult extends AbstractMetaDataResu
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("dataFields").append('=').append(getDataFields()).append(',').append(' ');
-    buf.append("dataSources").append('=').append(getDataSources()).append(',').append(' ');
-    buf.append("dataProviders").append('=').append(getDataProviders()).append(',').append(' ');
-    buf.append("observationTimes").append('=').append(getObservationTimes()).append(',').append(' ');
+    buf.append("dataFields").append('=').append(JodaBeanUtils.toString(getDataFields())).append(',').append(' ');
+    buf.append("dataSources").append('=').append(JodaBeanUtils.toString(getDataSources())).append(',').append(' ');
+    buf.append("dataProviders").append('=').append(JodaBeanUtils.toString(getDataProviders())).append(',').append(' ');
+    buf.append("observationTimes").append('=').append(JodaBeanUtils.toString(getObservationTimes())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

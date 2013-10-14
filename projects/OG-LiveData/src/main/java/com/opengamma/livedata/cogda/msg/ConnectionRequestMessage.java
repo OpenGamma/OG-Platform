@@ -208,9 +208,9 @@ public class ConnectionRequestMessage extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("userName").append('=').append(getUserName()).append(',').append(' ');
-    buf.append("password").append('=').append(getPassword()).append(',').append(' ');
-    buf.append("capabilities").append('=').append(getCapabilities()).append(',').append(' ');
+    buf.append("userName").append('=').append(JodaBeanUtils.toString(getUserName())).append(',').append(' ');
+    buf.append("password").append('=').append(JodaBeanUtils.toString(getPassword())).append(',').append(' ');
+    buf.append("capabilities").append('=').append(JodaBeanUtils.toString(getCapabilities())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

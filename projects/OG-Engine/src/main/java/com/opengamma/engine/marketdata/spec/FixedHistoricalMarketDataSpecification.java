@@ -144,7 +144,7 @@ public class FixedHistoricalMarketDataSpecification extends HistoricalMarketData
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("snapshotDate").append('=').append(getSnapshotDate()).append(',').append(' ');
+    buf.append("snapshotDate").append('=').append(JodaBeanUtils.toString(getSnapshotDate())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

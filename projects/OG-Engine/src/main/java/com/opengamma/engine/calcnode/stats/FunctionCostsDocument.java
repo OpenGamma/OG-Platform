@@ -308,12 +308,12 @@ public class FunctionCostsDocument extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("configurationName").append('=').append(getConfigurationName()).append(',').append(' ');
-    buf.append("functionId").append('=').append(getFunctionId()).append(',').append(' ');
-    buf.append("version").append('=').append(getVersion()).append(',').append(' ');
-    buf.append("invocationCost").append('=').append(getInvocationCost()).append(',').append(' ');
-    buf.append("dataInputCost").append('=').append(getDataInputCost()).append(',').append(' ');
-    buf.append("dataOutputCost").append('=').append(getDataOutputCost()).append(',').append(' ');
+    buf.append("configurationName").append('=').append(JodaBeanUtils.toString(getConfigurationName())).append(',').append(' ');
+    buf.append("functionId").append('=').append(JodaBeanUtils.toString(getFunctionId())).append(',').append(' ');
+    buf.append("version").append('=').append(JodaBeanUtils.toString(getVersion())).append(',').append(' ');
+    buf.append("invocationCost").append('=').append(JodaBeanUtils.toString(getInvocationCost())).append(',').append(' ');
+    buf.append("dataInputCost").append('=').append(JodaBeanUtils.toString(getDataInputCost())).append(',').append(' ');
+    buf.append("dataOutputCost").append('=').append(JodaBeanUtils.toString(getDataOutputCost())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

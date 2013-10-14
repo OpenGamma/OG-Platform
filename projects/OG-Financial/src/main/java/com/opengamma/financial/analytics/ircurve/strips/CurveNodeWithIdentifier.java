@@ -264,10 +264,10 @@ public class CurveNodeWithIdentifier extends DirectBean implements Comparable<Cu
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("curveNode").append('=').append(getCurveNode()).append(',').append(' ');
-    buf.append("identifier").append('=').append(getIdentifier()).append(',').append(' ');
-    buf.append("dataField").append('=').append(getDataField()).append(',').append(' ');
-    buf.append("fieldType").append('=').append(getFieldType()).append(',').append(' ');
+    buf.append("curveNode").append('=').append(JodaBeanUtils.toString(getCurveNode())).append(',').append(' ');
+    buf.append("identifier").append('=').append(JodaBeanUtils.toString(getIdentifier())).append(',').append(' ');
+    buf.append("dataField").append('=').append(JodaBeanUtils.toString(getDataField())).append(',').append(' ');
+    buf.append("fieldType").append('=').append(JodaBeanUtils.toString(getFieldType())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

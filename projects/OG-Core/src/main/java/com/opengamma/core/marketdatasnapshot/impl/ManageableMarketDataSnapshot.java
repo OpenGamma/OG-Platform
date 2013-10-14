@@ -438,14 +438,14 @@ public class ManageableMarketDataSnapshot extends DirectBean implements Structur
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("uniqueId").append('=').append(getUniqueId()).append(',').append(' ');
-    buf.append("name").append('=').append(getName()).append(',').append(' ');
-    buf.append("basisViewName").append('=').append(getBasisViewName()).append(',').append(' ');
-    buf.append("globalValues").append('=').append(getGlobalValues()).append(',').append(' ');
-    buf.append("yieldCurves").append('=').append(getYieldCurves()).append(',').append(' ');
-    buf.append("curves").append('=').append(getCurves()).append(',').append(' ');
-    buf.append("volatilityCubes").append('=').append(getVolatilityCubes()).append(',').append(' ');
-    buf.append("volatilitySurfaces").append('=').append(getVolatilitySurfaces()).append(',').append(' ');
+    buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(getUniqueId())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
+    buf.append("basisViewName").append('=').append(JodaBeanUtils.toString(getBasisViewName())).append(',').append(' ');
+    buf.append("globalValues").append('=').append(JodaBeanUtils.toString(getGlobalValues())).append(',').append(' ');
+    buf.append("yieldCurves").append('=').append(JodaBeanUtils.toString(getYieldCurves())).append(',').append(' ');
+    buf.append("curves").append('=').append(JodaBeanUtils.toString(getCurves())).append(',').append(' ');
+    buf.append("volatilityCubes").append('=').append(JodaBeanUtils.toString(getVolatilityCubes())).append(',').append(' ');
+    buf.append("volatilitySurfaces").append('=').append(JodaBeanUtils.toString(getVolatilitySurfaces())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

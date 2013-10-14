@@ -317,11 +317,11 @@ public class HistoricalTimeSeriesLoaderRequest extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("externalIds").append('=').append(getExternalIds()).append(',').append(' ');
-    buf.append("dataProvider").append('=').append(getDataProvider()).append(',').append(' ');
-    buf.append("dataField").append('=').append(getDataField()).append(',').append(' ');
-    buf.append("startDate").append('=').append(getStartDate()).append(',').append(' ');
-    buf.append("endDate").append('=').append(getEndDate()).append(',').append(' ');
+    buf.append("externalIds").append('=').append(JodaBeanUtils.toString(getExternalIds())).append(',').append(' ');
+    buf.append("dataProvider").append('=').append(JodaBeanUtils.toString(getDataProvider())).append(',').append(' ');
+    buf.append("dataField").append('=').append(JodaBeanUtils.toString(getDataField())).append(',').append(' ');
+    buf.append("startDate").append('=').append(JodaBeanUtils.toString(getStartDate())).append(',').append(' ');
+    buf.append("endDate").append('=').append(JodaBeanUtils.toString(getEndDate())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

@@ -509,18 +509,18 @@ public class RedisHtsSnapshotJobDetailComponentFactory extends AbstractComponent
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("classifier").append('=').append(getClassifier()).append(',').append(' ');
-    buf.append("name").append('=').append(getName()).append(',').append(' ');
-    buf.append("baseDir").append('=').append(getBaseDir()).append(',').append(' ');
-    buf.append("group").append('=').append(getGroup()).append(',').append(' ');
-    buf.append("scheduler").append('=').append(getScheduler()).append(',').append(' ');
-    buf.append("dataSource").append('=').append(getDataSource()).append(',').append(' ');
-    buf.append("normalizationRuleSetId").append('=').append(getNormalizationRuleSetId()).append(',').append(' ');
-    buf.append("globalPrefix").append('=').append(getGlobalPrefix()).append(',').append(' ');
-    buf.append("htsMaster").append('=').append(getHtsMaster()).append(',').append(' ');
-    buf.append("redisConnector").append('=').append(getRedisConnector()).append(',').append(' ');
-    buf.append("schemeBlackList").append('=').append(getSchemeBlackList()).append(',').append(' ');
-    buf.append("dataFieldBlackList").append('=').append(getDataFieldBlackList()).append(',').append(' ');
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
+    buf.append("baseDir").append('=').append(JodaBeanUtils.toString(getBaseDir())).append(',').append(' ');
+    buf.append("group").append('=').append(JodaBeanUtils.toString(getGroup())).append(',').append(' ');
+    buf.append("scheduler").append('=').append(JodaBeanUtils.toString(getScheduler())).append(',').append(' ');
+    buf.append("dataSource").append('=').append(JodaBeanUtils.toString(getDataSource())).append(',').append(' ');
+    buf.append("normalizationRuleSetId").append('=').append(JodaBeanUtils.toString(getNormalizationRuleSetId())).append(',').append(' ');
+    buf.append("globalPrefix").append('=').append(JodaBeanUtils.toString(getGlobalPrefix())).append(',').append(' ');
+    buf.append("htsMaster").append('=').append(JodaBeanUtils.toString(getHtsMaster())).append(',').append(' ');
+    buf.append("redisConnector").append('=').append(JodaBeanUtils.toString(getRedisConnector())).append(',').append(' ');
+    buf.append("schemeBlackList").append('=').append(JodaBeanUtils.toString(getSchemeBlackList())).append(',').append(' ');
+    buf.append("dataFieldBlackList").append('=').append(JodaBeanUtils.toString(getDataFieldBlackList())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

@@ -176,8 +176,8 @@ public class ExtremeSpreadPayoffStyle extends PayoffStyle {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("periodEnd").append('=').append(getPeriodEnd()).append(',').append(' ');
-    buf.append("reverse").append('=').append(isReverse()).append(',').append(' ');
+    buf.append("periodEnd").append('=').append(JodaBeanUtils.toString(getPeriodEnd())).append(',').append(' ');
+    buf.append("reverse").append('=').append(JodaBeanUtils.toString(isReverse())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

@@ -877,29 +877,29 @@ public abstract class BondSecurity extends FinancialSecurity {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("issuerName").append('=').append(getIssuerName()).append(',').append(' ');
-    buf.append("issuerType").append('=').append(getIssuerType()).append(',').append(' ');
-    buf.append("issuerDomicile").append('=').append(getIssuerDomicile()).append(',').append(' ');
-    buf.append("market").append('=').append(getMarket()).append(',').append(' ');
-    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
-    buf.append("yieldConvention").append('=').append(getYieldConvention()).append(',').append(' ');
-    buf.append("guaranteeType").append('=').append(getGuaranteeType()).append(',').append(' ');
-    buf.append("lastTradeDate").append('=').append(getLastTradeDate()).append(',').append(' ');
-    buf.append("couponType").append('=').append(getCouponType()).append(',').append(' ');
-    buf.append("couponRate").append('=').append(getCouponRate()).append(',').append(' ');
-    buf.append("couponFrequency").append('=').append(getCouponFrequency()).append(',').append(' ');
-    buf.append("dayCount").append('=').append(getDayCount()).append(',').append(' ');
-    buf.append("businessDayConvention").append('=').append(getBusinessDayConvention()).append(',').append(' ');
-    buf.append("announcementDate").append('=').append(getAnnouncementDate()).append(',').append(' ');
-    buf.append("interestAccrualDate").append('=').append(getInterestAccrualDate()).append(',').append(' ');
-    buf.append("settlementDate").append('=').append(getSettlementDate()).append(',').append(' ');
-    buf.append("firstCouponDate").append('=').append(getFirstCouponDate()).append(',').append(' ');
-    buf.append("issuancePrice").append('=').append(getIssuancePrice()).append(',').append(' ');
-    buf.append("totalAmountIssued").append('=').append(getTotalAmountIssued()).append(',').append(' ');
-    buf.append("minimumAmount").append('=').append(getMinimumAmount()).append(',').append(' ');
-    buf.append("minimumIncrement").append('=').append(getMinimumIncrement()).append(',').append(' ');
-    buf.append("parAmount").append('=').append(getParAmount()).append(',').append(' ');
-    buf.append("redemptionValue").append('=').append(getRedemptionValue()).append(',').append(' ');
+    buf.append("issuerName").append('=').append(JodaBeanUtils.toString(getIssuerName())).append(',').append(' ');
+    buf.append("issuerType").append('=').append(JodaBeanUtils.toString(getIssuerType())).append(',').append(' ');
+    buf.append("issuerDomicile").append('=').append(JodaBeanUtils.toString(getIssuerDomicile())).append(',').append(' ');
+    buf.append("market").append('=').append(JodaBeanUtils.toString(getMarket())).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("yieldConvention").append('=').append(JodaBeanUtils.toString(getYieldConvention())).append(',').append(' ');
+    buf.append("guaranteeType").append('=').append(JodaBeanUtils.toString(getGuaranteeType())).append(',').append(' ');
+    buf.append("lastTradeDate").append('=').append(JodaBeanUtils.toString(getLastTradeDate())).append(',').append(' ');
+    buf.append("couponType").append('=').append(JodaBeanUtils.toString(getCouponType())).append(',').append(' ');
+    buf.append("couponRate").append('=').append(JodaBeanUtils.toString(getCouponRate())).append(',').append(' ');
+    buf.append("couponFrequency").append('=').append(JodaBeanUtils.toString(getCouponFrequency())).append(',').append(' ');
+    buf.append("dayCount").append('=').append(JodaBeanUtils.toString(getDayCount())).append(',').append(' ');
+    buf.append("businessDayConvention").append('=').append(JodaBeanUtils.toString(getBusinessDayConvention())).append(',').append(' ');
+    buf.append("announcementDate").append('=').append(JodaBeanUtils.toString(getAnnouncementDate())).append(',').append(' ');
+    buf.append("interestAccrualDate").append('=').append(JodaBeanUtils.toString(getInterestAccrualDate())).append(',').append(' ');
+    buf.append("settlementDate").append('=').append(JodaBeanUtils.toString(getSettlementDate())).append(',').append(' ');
+    buf.append("firstCouponDate").append('=').append(JodaBeanUtils.toString(getFirstCouponDate())).append(',').append(' ');
+    buf.append("issuancePrice").append('=').append(JodaBeanUtils.toString(getIssuancePrice())).append(',').append(' ');
+    buf.append("totalAmountIssued").append('=').append(JodaBeanUtils.toString(getTotalAmountIssued())).append(',').append(' ');
+    buf.append("minimumAmount").append('=').append(JodaBeanUtils.toString(getMinimumAmount())).append(',').append(' ');
+    buf.append("minimumIncrement").append('=').append(JodaBeanUtils.toString(getMinimumIncrement())).append(',').append(' ');
+    buf.append("parAmount").append('=').append(JodaBeanUtils.toString(getParAmount())).append(',').append(' ');
+    buf.append("redemptionValue").append('=').append(JodaBeanUtils.toString(getRedemptionValue())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

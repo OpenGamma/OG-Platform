@@ -171,8 +171,8 @@ public class SecurityMetaDataResult extends AbstractMetaDataResult {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("securityTypes").append('=').append(getSecurityTypes()).append(',').append(' ');
-    buf.append("schemaVersion").append('=').append(getSchemaVersion()).append(',').append(' ');
+    buf.append("securityTypes").append('=').append(JodaBeanUtils.toString(getSecurityTypes())).append(',').append(' ');
+    buf.append("schemaVersion").append('=').append(JodaBeanUtils.toString(getSchemaVersion())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

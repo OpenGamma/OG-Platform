@@ -136,7 +136,7 @@ public class NoneFoundReferenceDataProviderComponentFactory extends DirectBean i
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("classifier").append('=').append(getClassifier()).append(',').append(' ');
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

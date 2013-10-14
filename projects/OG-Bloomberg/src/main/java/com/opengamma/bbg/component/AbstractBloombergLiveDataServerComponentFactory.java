@@ -363,11 +363,11 @@ public abstract class AbstractBloombergLiveDataServerComponentFactory extends Ab
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("bloombergConnector").append('=').append(getBloombergConnector()).append(',').append(' ');
-    buf.append("referenceDataProvider").append('=').append(getReferenceDataProvider()).append(',').append(' ');
-    buf.append("cacheManager").append('=').append(getCacheManager()).append(',').append(' ');
-    buf.append("subscriptionTickerLimit").append('=').append(getSubscriptionTickerLimit()).append(',').append(' ');
-    buf.append("jmsMarketDataAvailabilityTopic").append('=').append(getJmsMarketDataAvailabilityTopic()).append(',').append(' ');
+    buf.append("bloombergConnector").append('=').append(JodaBeanUtils.toString(getBloombergConnector())).append(',').append(' ');
+    buf.append("referenceDataProvider").append('=').append(JodaBeanUtils.toString(getReferenceDataProvider())).append(',').append(' ');
+    buf.append("cacheManager").append('=').append(JodaBeanUtils.toString(getCacheManager())).append(',').append(' ');
+    buf.append("subscriptionTickerLimit").append('=').append(JodaBeanUtils.toString(getSubscriptionTickerLimit())).append(',').append(' ');
+    buf.append("jmsMarketDataAvailabilityTopic").append('=').append(JodaBeanUtils.toString(getJmsMarketDataAvailabilityTopic())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

@@ -213,7 +213,7 @@ public final class RandomizingMarketDataSpecification implements ImmutableBean, 
     buf.append("underlying").append('=').append(getUnderlying()).append(',').append(' ');
     buf.append("updateProbability").append('=').append(getUpdateProbability()).append(',').append(' ');
     buf.append("maxPercentageChange").append('=').append(getMaxPercentageChange()).append(',').append(' ');
-    buf.append("averageCycleInterval").append('=').append(getAverageCycleInterval());
+    buf.append("averageCycleInterval").append('=').append(JodaBeanUtils.toString(getAverageCycleInterval()));
     buf.append('}');
     return buf.toString();
   }

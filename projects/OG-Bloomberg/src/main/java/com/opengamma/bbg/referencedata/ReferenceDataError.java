@@ -293,11 +293,11 @@ public class ReferenceDataError extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("field").append('=').append(getField()).append(',').append(' ');
-    buf.append("code").append('=').append(getCode()).append(',').append(' ');
-    buf.append("category").append('=').append(getCategory()).append(',').append(' ');
-    buf.append("subcategory").append('=').append(getSubcategory()).append(',').append(' ');
-    buf.append("message").append('=').append(getMessage()).append(',').append(' ');
+    buf.append("field").append('=').append(JodaBeanUtils.toString(getField())).append(',').append(' ');
+    buf.append("code").append('=').append(JodaBeanUtils.toString(getCode())).append(',').append(' ');
+    buf.append("category").append('=').append(JodaBeanUtils.toString(getCategory())).append(',').append(' ');
+    buf.append("subcategory").append('=').append(JodaBeanUtils.toString(getSubcategory())).append(',').append(' ');
+    buf.append("message").append('=').append(JodaBeanUtils.toString(getMessage())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

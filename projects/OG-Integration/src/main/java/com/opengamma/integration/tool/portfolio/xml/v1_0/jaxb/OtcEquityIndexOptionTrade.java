@@ -423,16 +423,16 @@ public class OtcEquityIndexOptionTrade extends Trade {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("optionType").append('=').append(getOptionType()).append(',').append(' ');
-    buf.append("buySell").append('=').append(getBuySell()).append(',').append(' ');
-    buf.append("underlyingId").append('=').append(getUnderlyingId()).append(',').append(' ');
-    buf.append("notional").append('=').append(getNotional()).append(',').append(' ');
-    buf.append("notionalCurrency").append('=').append(getNotionalCurrency()).append(',').append(' ');
-    buf.append("strike").append('=').append(getStrike()).append(',').append(' ');
-    buf.append("exerciseType").append('=').append(getExerciseType()).append(',').append(' ');
-    buf.append("expiryDate").append('=').append(getExpiryDate()).append(',').append(' ');
-    buf.append("expiryCalendars").append('=').append(getExpiryCalendars()).append(',').append(' ');
-    buf.append("settlementCalendars").append('=').append(getSettlementCalendars()).append(',').append(' ');
+    buf.append("optionType").append('=').append(JodaBeanUtils.toString(getOptionType())).append(',').append(' ');
+    buf.append("buySell").append('=').append(JodaBeanUtils.toString(getBuySell())).append(',').append(' ');
+    buf.append("underlyingId").append('=').append(JodaBeanUtils.toString(getUnderlyingId())).append(',').append(' ');
+    buf.append("notional").append('=').append(JodaBeanUtils.toString(getNotional())).append(',').append(' ');
+    buf.append("notionalCurrency").append('=').append(JodaBeanUtils.toString(getNotionalCurrency())).append(',').append(' ');
+    buf.append("strike").append('=').append(JodaBeanUtils.toString(getStrike())).append(',').append(' ');
+    buf.append("exerciseType").append('=').append(JodaBeanUtils.toString(getExerciseType())).append(',').append(' ');
+    buf.append("expiryDate").append('=').append(JodaBeanUtils.toString(getExpiryDate())).append(',').append(' ');
+    buf.append("expiryCalendars").append('=').append(JodaBeanUtils.toString(getExpiryCalendars())).append(',').append(' ');
+    buf.append("settlementCalendars").append('=').append(JodaBeanUtils.toString(getSettlementCalendars())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

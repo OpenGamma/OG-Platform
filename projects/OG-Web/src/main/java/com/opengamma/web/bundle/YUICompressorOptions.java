@@ -253,11 +253,11 @@ public class YUICompressorOptions extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("lineBreakPosition").append('=').append(getLineBreakPosition()).append(',').append(' ');
-    buf.append("munge").append('=').append(isMunge()).append(',').append(' ');
-    buf.append("preserveAllSemiColons").append('=').append(isPreserveAllSemiColons()).append(',').append(' ');
-    buf.append("optimize").append('=').append(isOptimize()).append(',').append(' ');
-    buf.append("warn").append('=').append(isWarn()).append(',').append(' ');
+    buf.append("lineBreakPosition").append('=').append(JodaBeanUtils.toString(getLineBreakPosition())).append(',').append(' ');
+    buf.append("munge").append('=').append(JodaBeanUtils.toString(isMunge())).append(',').append(' ');
+    buf.append("preserveAllSemiColons").append('=').append(JodaBeanUtils.toString(isPreserveAllSemiColons())).append(',').append(' ');
+    buf.append("optimize").append('=').append(JodaBeanUtils.toString(isOptimize())).append(',').append(' ');
+    buf.append("warn").append('=').append(JodaBeanUtils.toString(isWarn())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

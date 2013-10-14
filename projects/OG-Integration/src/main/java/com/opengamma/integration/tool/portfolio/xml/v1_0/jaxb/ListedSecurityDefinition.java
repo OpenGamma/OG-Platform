@@ -254,11 +254,11 @@ public abstract class ListedSecurityDefinition extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("underlyingId").append('=').append(getUnderlyingId()).append(',').append(' ');
-    buf.append("pointValue").append('=').append(getPointValue()).append(',').append(' ');
-    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
-    buf.append("exchange").append('=').append(getExchange()).append(',').append(' ');
-    buf.append("additionalAttributes").append('=').append(getAdditionalAttributes()).append(',').append(' ');
+    buf.append("underlyingId").append('=').append(JodaBeanUtils.toString(getUnderlyingId())).append(',').append(' ');
+    buf.append("pointValue").append('=').append(JodaBeanUtils.toString(getPointValue())).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("exchange").append('=').append(JodaBeanUtils.toString(getExchange())).append(',').append(' ');
+    buf.append("additionalAttributes").append('=').append(JodaBeanUtils.toString(getAdditionalAttributes())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

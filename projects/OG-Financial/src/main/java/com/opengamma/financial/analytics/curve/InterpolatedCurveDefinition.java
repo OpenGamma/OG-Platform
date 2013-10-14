@@ -235,9 +235,9 @@ public class InterpolatedCurveDefinition extends CurveDefinition {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("interpolatorName").append('=').append(getInterpolatorName()).append(',').append(' ');
-    buf.append("rightExtrapolatorName").append('=').append(getRightExtrapolatorName()).append(',').append(' ');
-    buf.append("leftExtrapolatorName").append('=').append(getLeftExtrapolatorName()).append(',').append(' ');
+    buf.append("interpolatorName").append('=').append(JodaBeanUtils.toString(getInterpolatorName())).append(',').append(' ');
+    buf.append("rightExtrapolatorName").append('=').append(JodaBeanUtils.toString(getRightExtrapolatorName())).append(',').append(' ');
+    buf.append("leftExtrapolatorName").append('=').append(JodaBeanUtils.toString(getLeftExtrapolatorName())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

@@ -174,8 +174,8 @@ public class FadeInPayoffStyle extends PayoffStyle {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("lowerBound").append('=').append(getLowerBound()).append(',').append(' ');
-    buf.append("upperBound").append('=').append(getUpperBound()).append(',').append(' ');
+    buf.append("lowerBound").append('=').append(JodaBeanUtils.toString(getLowerBound())).append(',').append(' ');
+    buf.append("upperBound").append('=').append(JodaBeanUtils.toString(getUpperBound())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

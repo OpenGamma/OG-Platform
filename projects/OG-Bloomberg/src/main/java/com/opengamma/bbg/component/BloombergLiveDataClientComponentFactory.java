@@ -286,10 +286,10 @@ public class BloombergLiveDataClientComponentFactory extends AbstractComponentFa
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("classifier").append('=').append(getClassifier()).append(',').append(' ');
-    buf.append("jmsConnector").append('=').append(getJmsConnector()).append(',').append(' ');
-    buf.append("bloombergMetaDataProvider").append('=').append(getBloombergMetaDataProvider()).append(',').append(' ');
-    buf.append("jmsMarketDataAvailabilityTopic").append('=').append(getJmsMarketDataAvailabilityTopic()).append(',').append(' ');
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("jmsConnector").append('=').append(JodaBeanUtils.toString(getJmsConnector())).append(',').append(' ');
+    buf.append("bloombergMetaDataProvider").append('=').append(JodaBeanUtils.toString(getBloombergMetaDataProvider())).append(',').append(' ');
+    buf.append("jmsMarketDataAvailabilityTopic").append('=').append(JodaBeanUtils.toString(getJmsMarketDataAvailabilityTopic())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

@@ -125,7 +125,7 @@ public final class ScenarioDslScript implements ImmutableBean, ScenarioDefinitio
   //-----------------------------------------------------------------------
   /**
    * Gets the script text.
-   * @return the value of the property, not null
+   * @return the value of the property, not empty
    */
   private String getScript() {
     return _script;
@@ -168,7 +168,7 @@ public final class ScenarioDslScript implements ImmutableBean, ScenarioDefinitio
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append("ScenarioDslScript{");
-    buf.append("script").append('=').append(getScript());
+    buf.append("script").append('=').append(JodaBeanUtils.toString(getScript()));
     buf.append('}');
     return buf.toString();
   }
@@ -301,7 +301,7 @@ public final class ScenarioDslScript implements ImmutableBean, ScenarioDefinitio
     //-----------------------------------------------------------------------
     /**
      * Sets the {@code script} property in the builder.
-     * @param script  the new value, not null
+     * @param script  the new value, not empty
      * @return this, for chaining, not null
      */
     public Builder script(String script) {

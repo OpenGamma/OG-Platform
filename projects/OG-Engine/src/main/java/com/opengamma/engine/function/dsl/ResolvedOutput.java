@@ -151,8 +151,8 @@ public class ResolvedOutput extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("properties").append('=').append(getProperties()).append(',').append(' ');
-    buf.append("name").append('=').append(getName()).append(',').append(' ');
+    buf.append("properties").append('=').append(JodaBeanUtils.toString(getProperties())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

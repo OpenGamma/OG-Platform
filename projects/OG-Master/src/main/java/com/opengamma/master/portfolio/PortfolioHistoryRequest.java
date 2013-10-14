@@ -182,7 +182,7 @@ public class PortfolioHistoryRequest extends AbstractHistoryRequest {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("depth").append('=').append(getDepth()).append(',').append(' ');
+    buf.append("depth").append('=').append(JodaBeanUtils.toString(getDepth())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

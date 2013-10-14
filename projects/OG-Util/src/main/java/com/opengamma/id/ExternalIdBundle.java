@@ -491,7 +491,7 @@ public final class ExternalIdBundle implements ImmutableBean, Iterable<ExternalI
   private ExternalIdBundle(
       SortedSet<ExternalId> externalIds) {
     JodaBeanUtils.notNull(externalIds, "externalIds");
-    this._externalIds = (externalIds != null ? ImmutableSortedSet.copyOf(externalIds) : null);
+    this._externalIds = ImmutableSortedSet.copyOf(externalIds);
   }
 
   @Override

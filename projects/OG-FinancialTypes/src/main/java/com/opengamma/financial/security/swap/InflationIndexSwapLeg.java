@@ -260,10 +260,10 @@ public class InflationIndexSwapLeg extends InflationLeg {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("indexId").append('=').append(getIndexId()).append(',').append(' ');
-    buf.append("quotationIndexationLag").append('=').append(getQuotationIndexationLag()).append(',').append(' ');
-    buf.append("conventionalIndexationLag").append('=').append(getConventionalIndexationLag()).append(',').append(' ');
-    buf.append("interpolationMethod").append('=').append(getInterpolationMethod()).append(',').append(' ');
+    buf.append("indexId").append('=').append(JodaBeanUtils.toString(getIndexId())).append(',').append(' ');
+    buf.append("quotationIndexationLag").append('=').append(JodaBeanUtils.toString(getQuotationIndexationLag())).append(',').append(' ');
+    buf.append("conventionalIndexationLag").append('=').append(JodaBeanUtils.toString(getConventionalIndexationLag())).append(',').append(' ');
+    buf.append("interpolationMethod").append('=').append(JodaBeanUtils.toString(getInterpolationMethod())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

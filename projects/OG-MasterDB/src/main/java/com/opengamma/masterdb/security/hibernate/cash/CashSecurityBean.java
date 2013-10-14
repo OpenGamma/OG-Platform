@@ -293,13 +293,13 @@ public class CashSecurityBean extends SecurityBean {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
-    buf.append("region").append('=').append(getRegion()).append(',').append(' ');
-    buf.append("start").append('=').append(getStart()).append(',').append(' ');
-    buf.append("maturity").append('=').append(getMaturity()).append(',').append(' ');
-    buf.append("dayCount").append('=').append(getDayCount()).append(',').append(' ');
-    buf.append("rate").append('=').append(getRate()).append(',').append(' ');
-    buf.append("amount").append('=').append(getAmount()).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("region").append('=').append(JodaBeanUtils.toString(getRegion())).append(',').append(' ');
+    buf.append("start").append('=').append(JodaBeanUtils.toString(getStart())).append(',').append(' ');
+    buf.append("maturity").append('=').append(JodaBeanUtils.toString(getMaturity())).append(',').append(' ');
+    buf.append("dayCount").append('=').append(JodaBeanUtils.toString(getDayCount())).append(',').append(' ');
+    buf.append("rate").append('=').append(JodaBeanUtils.toString(getRate())).append(',').append(' ');
+    buf.append("amount").append('=').append(JodaBeanUtils.toString(getAmount())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

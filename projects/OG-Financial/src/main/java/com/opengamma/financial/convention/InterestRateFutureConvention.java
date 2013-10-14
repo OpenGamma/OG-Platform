@@ -157,7 +157,7 @@ public class InterestRateFutureConvention extends ExchangeTradedFutureAndOptionC
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("indexConvention").append('=').append(getIndexConvention()).append(',').append(' ');
+    buf.append("indexConvention").append('=').append(JodaBeanUtils.toString(getIndexConvention())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

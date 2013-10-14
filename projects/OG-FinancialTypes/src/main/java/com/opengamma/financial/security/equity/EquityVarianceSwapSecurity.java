@@ -489,17 +489,17 @@ public class EquityVarianceSwapSecurity extends FinancialSecurity {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("spotUnderlyingId").append('=').append(getSpotUnderlyingId()).append(',').append(' ');
-    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
-    buf.append("strike").append('=').append(getStrike()).append(',').append(' ');
-    buf.append("notional").append('=').append(getNotional()).append(',').append(' ');
-    buf.append("parameterizedAsVariance").append('=').append(isParameterizedAsVariance()).append(',').append(' ');
-    buf.append("annualizationFactor").append('=').append(getAnnualizationFactor()).append(',').append(' ');
-    buf.append("firstObservationDate").append('=').append(getFirstObservationDate()).append(',').append(' ');
-    buf.append("lastObservationDate").append('=').append(getLastObservationDate()).append(',').append(' ');
-    buf.append("settlementDate").append('=').append(getSettlementDate()).append(',').append(' ');
-    buf.append("regionId").append('=').append(getRegionId()).append(',').append(' ');
-    buf.append("observationFrequency").append('=').append(getObservationFrequency()).append(',').append(' ');
+    buf.append("spotUnderlyingId").append('=').append(JodaBeanUtils.toString(getSpotUnderlyingId())).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("strike").append('=').append(JodaBeanUtils.toString(getStrike())).append(',').append(' ');
+    buf.append("notional").append('=').append(JodaBeanUtils.toString(getNotional())).append(',').append(' ');
+    buf.append("parameterizedAsVariance").append('=').append(JodaBeanUtils.toString(isParameterizedAsVariance())).append(',').append(' ');
+    buf.append("annualizationFactor").append('=').append(JodaBeanUtils.toString(getAnnualizationFactor())).append(',').append(' ');
+    buf.append("firstObservationDate").append('=').append(JodaBeanUtils.toString(getFirstObservationDate())).append(',').append(' ');
+    buf.append("lastObservationDate").append('=').append(JodaBeanUtils.toString(getLastObservationDate())).append(',').append(' ');
+    buf.append("settlementDate").append('=').append(JodaBeanUtils.toString(getSettlementDate())).append(',').append(' ');
+    buf.append("regionId").append('=').append(JodaBeanUtils.toString(getRegionId())).append(',').append(' ');
+    buf.append("observationFrequency").append('=').append(JodaBeanUtils.toString(getObservationFrequency())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

@@ -414,17 +414,17 @@ public class CapFloorCMSSpreadSecurityBean extends SecurityBean {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
-    buf.append("dayCount").append('=').append(getDayCount()).append(',').append(' ');
-    buf.append("frequency").append('=').append(getFrequency()).append(',').append(' ');
-    buf.append("cap").append('=').append(isCap()).append(',').append(' ');
-    buf.append("payer").append('=').append(isPayer()).append(',').append(' ');
-    buf.append("longIdentifier").append('=').append(getLongIdentifier()).append(',').append(' ');
-    buf.append("maturityDate").append('=').append(getMaturityDate()).append(',').append(' ');
-    buf.append("notional").append('=').append(getNotional()).append(',').append(' ');
-    buf.append("shortIdentifier").append('=').append(getShortIdentifier()).append(',').append(' ');
-    buf.append("startDate").append('=').append(getStartDate()).append(',').append(' ');
-    buf.append("strike").append('=').append(getStrike()).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("dayCount").append('=').append(JodaBeanUtils.toString(getDayCount())).append(',').append(' ');
+    buf.append("frequency").append('=').append(JodaBeanUtils.toString(getFrequency())).append(',').append(' ');
+    buf.append("cap").append('=').append(JodaBeanUtils.toString(isCap())).append(',').append(' ');
+    buf.append("payer").append('=').append(JodaBeanUtils.toString(isPayer())).append(',').append(' ');
+    buf.append("longIdentifier").append('=').append(JodaBeanUtils.toString(getLongIdentifier())).append(',').append(' ');
+    buf.append("maturityDate").append('=').append(JodaBeanUtils.toString(getMaturityDate())).append(',').append(' ');
+    buf.append("notional").append('=').append(JodaBeanUtils.toString(getNotional())).append(',').append(' ');
+    buf.append("shortIdentifier").append('=').append(JodaBeanUtils.toString(getShortIdentifier())).append(',').append(' ');
+    buf.append("startDate").append('=').append(JodaBeanUtils.toString(getStartDate())).append(',').append(' ');
+    buf.append("strike").append('=').append(JodaBeanUtils.toString(getStrike())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

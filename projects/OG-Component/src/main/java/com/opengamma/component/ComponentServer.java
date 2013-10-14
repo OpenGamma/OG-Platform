@@ -261,8 +261,8 @@ public class ComponentServer extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("uri").append('=').append(getUri()).append(',').append(' ');
-    buf.append("componentInfos").append('=').append(getComponentInfos()).append(',').append(' ');
+    buf.append("uri").append('=').append(JodaBeanUtils.toString(getUri())).append(',').append(' ');
+    buf.append("componentInfos").append('=').append(JodaBeanUtils.toString(getComponentInfos())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

@@ -410,14 +410,14 @@ public class G2ppParameters extends DirectBean implements Serializable, UniqueId
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("uniqueId").append('=').append(getUniqueId()).append(',').append(' ');
-    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
-    buf.append("firstMeanReversionId").append('=').append(getFirstMeanReversionId()).append(',').append(' ');
-    buf.append("secondMeanReversionId").append('=').append(getSecondMeanReversionId()).append(',').append(' ');
-    buf.append("firstInitialVolatilityId").append('=').append(getFirstInitialVolatilityId()).append(',').append(' ');
-    buf.append("secondInitialVolatilityId").append('=').append(getSecondInitialVolatilityId()).append(',').append(' ');
-    buf.append("volatilityTermStructure").append('=').append(getVolatilityTermStructure()).append(',').append(' ');
-    buf.append("correlationId").append('=').append(getCorrelationId()).append(',').append(' ');
+    buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(getUniqueId())).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("firstMeanReversionId").append('=').append(JodaBeanUtils.toString(getFirstMeanReversionId())).append(',').append(' ');
+    buf.append("secondMeanReversionId").append('=').append(JodaBeanUtils.toString(getSecondMeanReversionId())).append(',').append(' ');
+    buf.append("firstInitialVolatilityId").append('=').append(JodaBeanUtils.toString(getFirstInitialVolatilityId())).append(',').append(' ');
+    buf.append("secondInitialVolatilityId").append('=').append(JodaBeanUtils.toString(getSecondInitialVolatilityId())).append(',').append(' ');
+    buf.append("volatilityTermStructure").append('=').append(JodaBeanUtils.toString(getVolatilityTermStructure())).append(',').append(' ');
+    buf.append("correlationId").append('=').append(JodaBeanUtils.toString(getCorrelationId())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

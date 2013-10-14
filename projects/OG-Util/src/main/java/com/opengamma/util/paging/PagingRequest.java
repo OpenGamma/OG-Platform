@@ -260,8 +260,6 @@ public final class PagingRequest implements ImmutableBean {
   }
 
   //-----------------------------------------------------------------------
-  //-----------------------------------------------------------------------
-  //-----------------------------------------------------------------------
   /**
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
@@ -448,7 +446,7 @@ public final class PagingRequest implements ImmutableBean {
     //-----------------------------------------------------------------------
     /**
      * Sets the {@code firstItem} property in the builder.
-     * @param firstItem  the new value, not null
+     * @param firstItem  the new value
      * @return this, for chaining, not null
      */
     public Builder firstItem(int firstItem) {
@@ -458,7 +456,7 @@ public final class PagingRequest implements ImmutableBean {
 
     /**
      * Sets the {@code pagingSize} property in the builder.
-     * @param pagingSize  the new value, not null
+     * @param pagingSize  the new value
      * @return this, for chaining, not null
      */
     public Builder pagingSize(int pagingSize) {

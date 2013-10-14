@@ -159,8 +159,8 @@ public class SetMinimumLogModeRequest extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("minimumLogMode").append('=').append(getMinimumLogMode()).append(',').append(' ');
-    buf.append("targets").append('=').append(getTargets()).append(',').append(' ');
+    buf.append("minimumLogMode").append('=').append(JodaBeanUtils.toString(getMinimumLogMode())).append(',').append(' ');
+    buf.append("targets").append('=').append(JodaBeanUtils.toString(getTargets())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

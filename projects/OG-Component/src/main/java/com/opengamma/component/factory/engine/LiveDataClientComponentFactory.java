@@ -271,11 +271,11 @@ public class LiveDataClientComponentFactory extends AbstractComponentFactory {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("classifier").append('=').append(getClassifier()).append(',').append(' ');
-    buf.append("jmsConnector").append('=').append(getJmsConnector()).append(',').append(' ');
-    buf.append("subscriptionTopic").append('=').append(getSubscriptionTopic()).append(',').append(' ');
-    buf.append("entitlementTopic").append('=').append(getEntitlementTopic()).append(',').append(' ');
-    buf.append("heartbeatTopic").append('=').append(getHeartbeatTopic()).append(',').append(' ');
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("jmsConnector").append('=').append(JodaBeanUtils.toString(getJmsConnector())).append(',').append(' ');
+    buf.append("subscriptionTopic").append('=').append(JodaBeanUtils.toString(getSubscriptionTopic())).append(',').append(' ');
+    buf.append("entitlementTopic").append('=').append(JodaBeanUtils.toString(getEntitlementTopic())).append(',').append(' ');
+    buf.append("heartbeatTopic").append('=').append(JodaBeanUtils.toString(getHeartbeatTopic())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

@@ -222,9 +222,9 @@ public class CurveDefinition extends DirectBean implements Serializable, UniqueI
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("uniqueId").append('=').append(getUniqueId()).append(',').append(' ');
-    buf.append("name").append('=').append(getName()).append(',').append(' ');
-    buf.append("nodes").append('=').append(getNodes()).append(',').append(' ');
+    buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(getUniqueId())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
+    buf.append("nodes").append('=').append(JodaBeanUtils.toString(getNodes())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

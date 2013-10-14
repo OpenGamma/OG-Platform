@@ -280,11 +280,11 @@ public class SecurityLoaderComponentFactory extends AbstractSecurityLoaderCompon
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("securityMaster").append('=').append(getSecurityMaster()).append(',').append(' ');
-    buf.append("securityProvider").append('=').append(getSecurityProvider()).append(',').append(' ');
-    buf.append("securityEnhancer1").append('=').append(getSecurityEnhancer1()).append(',').append(' ');
-    buf.append("securityEnhancer2").append('=').append(getSecurityEnhancer2()).append(',').append(' ');
-    buf.append("securityEnhancer3").append('=').append(getSecurityEnhancer3()).append(',').append(' ');
+    buf.append("securityMaster").append('=').append(JodaBeanUtils.toString(getSecurityMaster())).append(',').append(' ');
+    buf.append("securityProvider").append('=').append(JodaBeanUtils.toString(getSecurityProvider())).append(',').append(' ');
+    buf.append("securityEnhancer1").append('=').append(JodaBeanUtils.toString(getSecurityEnhancer1())).append(',').append(' ');
+    buf.append("securityEnhancer2").append('=').append(JodaBeanUtils.toString(getSecurityEnhancer2())).append(',').append(' ');
+    buf.append("securityEnhancer3").append('=').append(JodaBeanUtils.toString(getSecurityEnhancer3())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

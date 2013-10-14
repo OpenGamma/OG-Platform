@@ -206,7 +206,7 @@ public final class HistoricalTimeSeriesRating implements ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append("HistoricalTimeSeriesRating{");
-    buf.append("rules").append('=').append(getRules());
+    buf.append("rules").append('=').append(JodaBeanUtils.toString(getRules()));
     buf.append('}');
     return buf.toString();
   }

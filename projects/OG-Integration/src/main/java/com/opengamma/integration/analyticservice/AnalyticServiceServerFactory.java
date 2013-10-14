@@ -435,16 +435,16 @@ public class AnalyticServiceServerFactory extends AbstractComponentFactory {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("listenJmsConnector").append('=').append(getListenJmsConnector()).append(',').append(' ');
-    buf.append("listenTopicName").append('=').append(getListenTopicName()).append(',').append(' ');
-    buf.append("viewName").append('=').append(getViewName()).append(',').append(' ');
-    buf.append("positionMaster").append('=').append(getPositionMaster()).append(',').append(' ');
-    buf.append("portfolioMaster").append('=').append(getPortfolioMaster()).append(',').append(' ');
-    buf.append("configSource").append('=').append(getConfigSource()).append(',').append(' ');
-    buf.append("viewProcessor").append('=').append(getViewProcessor()).append(',').append(' ');
-    buf.append("providerIdName").append('=').append(getProviderIdName()).append(',').append(' ');
-    buf.append("user").append('=').append(getUser()).append(',').append(' ');
-    buf.append("positionSource").append('=').append(getPositionSource()).append(',').append(' ');
+    buf.append("listenJmsConnector").append('=').append(JodaBeanUtils.toString(getListenJmsConnector())).append(',').append(' ');
+    buf.append("listenTopicName").append('=').append(JodaBeanUtils.toString(getListenTopicName())).append(',').append(' ');
+    buf.append("viewName").append('=').append(JodaBeanUtils.toString(getViewName())).append(',').append(' ');
+    buf.append("positionMaster").append('=').append(JodaBeanUtils.toString(getPositionMaster())).append(',').append(' ');
+    buf.append("portfolioMaster").append('=').append(JodaBeanUtils.toString(getPortfolioMaster())).append(',').append(' ');
+    buf.append("configSource").append('=').append(JodaBeanUtils.toString(getConfigSource())).append(',').append(' ');
+    buf.append("viewProcessor").append('=').append(JodaBeanUtils.toString(getViewProcessor())).append(',').append(' ');
+    buf.append("providerIdName").append('=').append(JodaBeanUtils.toString(getProviderIdName())).append(',').append(' ');
+    buf.append("user").append('=').append(JodaBeanUtils.toString(getUser())).append(',').append(' ');
+    buf.append("positionSource").append('=').append(JodaBeanUtils.toString(getPositionSource())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

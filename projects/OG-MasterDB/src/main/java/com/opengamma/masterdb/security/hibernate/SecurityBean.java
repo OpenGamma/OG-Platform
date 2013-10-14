@@ -156,8 +156,8 @@ public abstract class SecurityBean extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("id").append('=').append(getId()).append(',').append(' ');
-    buf.append("securityId").append('=').append(getSecurityId()).append(',').append(' ');
+    buf.append("id").append('=').append(JodaBeanUtils.toString(getId())).append(',').append(' ');
+    buf.append("securityId").append('=').append(JodaBeanUtils.toString(getSecurityId())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

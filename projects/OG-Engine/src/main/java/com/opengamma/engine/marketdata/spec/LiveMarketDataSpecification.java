@@ -144,7 +144,7 @@ public final class LiveMarketDataSpecification implements ImmutableBean, MarketD
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append("LiveMarketDataSpecification{");
-    buf.append("dataSource").append('=').append(getDataSource());
+    buf.append("dataSource").append('=').append(JodaBeanUtils.toString(getDataSource()));
     buf.append('}');
     return buf.toString();
   }
@@ -277,7 +277,7 @@ public final class LiveMarketDataSpecification implements ImmutableBean, MarketD
     //-----------------------------------------------------------------------
     /**
      * Sets the {@code dataSource} property in the builder.
-     * @param dataSource  the new value, not null
+     * @param dataSource  the new value
      * @return this, for chaining, not null
      */
     public Builder dataSource(String dataSource) {

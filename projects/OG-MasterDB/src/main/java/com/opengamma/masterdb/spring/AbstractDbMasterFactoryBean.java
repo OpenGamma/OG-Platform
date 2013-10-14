@@ -266,11 +266,11 @@ public abstract class AbstractDbMasterFactoryBean<T> extends SpringFactoryBean<T
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("dbConnector").append('=').append(getDbConnector()).append(',').append(' ');
-    buf.append("jmsConnector").append('=').append(getJmsConnector()).append(',').append(' ');
-    buf.append("jmsChangeManagerTopic").append('=').append(getJmsChangeManagerTopic()).append(',').append(' ');
-    buf.append("uniqueIdScheme").append('=').append(getUniqueIdScheme()).append(',').append(' ');
-    buf.append("maxRetries").append('=').append(getMaxRetries()).append(',').append(' ');
+    buf.append("dbConnector").append('=').append(JodaBeanUtils.toString(getDbConnector())).append(',').append(' ');
+    buf.append("jmsConnector").append('=').append(JodaBeanUtils.toString(getJmsConnector())).append(',').append(' ');
+    buf.append("jmsChangeManagerTopic").append('=').append(JodaBeanUtils.toString(getJmsChangeManagerTopic())).append(',').append(' ');
+    buf.append("uniqueIdScheme").append('=').append(JodaBeanUtils.toString(getUniqueIdScheme())).append(',').append(' ');
+    buf.append("maxRetries").append('=').append(JodaBeanUtils.toString(getMaxRetries())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

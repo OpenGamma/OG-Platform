@@ -295,7 +295,7 @@ public class SimpleSecurityLink extends AbstractLink<Security>
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("target").append('=').append(getTarget()).append(',').append(' ');
+    buf.append("target").append('=').append(JodaBeanUtils.toString(getTarget())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

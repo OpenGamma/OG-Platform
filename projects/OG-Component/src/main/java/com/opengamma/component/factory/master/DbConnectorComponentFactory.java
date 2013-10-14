@@ -573,16 +573,16 @@ public class DbConnectorComponentFactory extends AbstractComponentFactory {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("classifier").append('=').append(getClassifier()).append(',').append(' ');
-    buf.append("dataSource").append('=').append(getDataSource()).append(',').append(' ');
-    buf.append("dialect").append('=').append(getDialect()).append(',').append(' ');
-    buf.append("hibernateMappingFiles").append('=').append(getHibernateMappingFiles()).append(',').append(' ');
-    buf.append("hibernateShowSql").append('=').append(isHibernateShowSql()).append(',').append(' ');
-    buf.append("allowHibernateThreadBoundSession").append('=').append(isAllowHibernateThreadBoundSession()).append(',').append(' ');
-    buf.append("transactionIsolationLevel").append('=').append(getTransactionIsolationLevel()).append(',').append(' ');
-    buf.append("transactionPropagationBehavior").append('=').append(getTransactionPropagationBehavior()).append(',').append(' ');
-    buf.append("transactionTimeout").append('=').append(getTransactionTimeout()).append(',').append(' ');
-    buf.append("name").append('=').append(getName()).append(',').append(' ');
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("dataSource").append('=').append(JodaBeanUtils.toString(getDataSource())).append(',').append(' ');
+    buf.append("dialect").append('=').append(JodaBeanUtils.toString(getDialect())).append(',').append(' ');
+    buf.append("hibernateMappingFiles").append('=').append(JodaBeanUtils.toString(getHibernateMappingFiles())).append(',').append(' ');
+    buf.append("hibernateShowSql").append('=').append(JodaBeanUtils.toString(isHibernateShowSql())).append(',').append(' ');
+    buf.append("allowHibernateThreadBoundSession").append('=').append(JodaBeanUtils.toString(isAllowHibernateThreadBoundSession())).append(',').append(' ');
+    buf.append("transactionIsolationLevel").append('=').append(JodaBeanUtils.toString(getTransactionIsolationLevel())).append(',').append(' ');
+    buf.append("transactionPropagationBehavior").append('=').append(JodaBeanUtils.toString(getTransactionPropagationBehavior())).append(',').append(' ');
+    buf.append("transactionTimeout").append('=').append(JodaBeanUtils.toString(getTransactionTimeout())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

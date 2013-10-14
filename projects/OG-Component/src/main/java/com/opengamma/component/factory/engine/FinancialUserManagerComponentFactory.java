@@ -491,17 +491,17 @@ public class FinancialUserManagerComponentFactory extends AbstractComponentFacto
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("classifier").append('=').append(getClassifier()).append(',').append(' ');
-    buf.append("publishRest").append('=').append(isPublishRest()).append(',').append(' ');
-    buf.append("fudgeContext").append('=').append(getFudgeContext()).append(',').append(' ');
-    buf.append("securityMaster").append('=').append(getSecurityMaster()).append(',').append(' ');
-    buf.append("positionMaster").append('=').append(getPositionMaster()).append(',').append(' ');
-    buf.append("portfolioMaster").append('=').append(getPortfolioMaster()).append(',').append(' ');
-    buf.append("snapshotMaster").append('=').append(getSnapshotMaster()).append(',').append(' ');
-    buf.append("configMaster").append('=').append(getConfigMaster()).append(',').append(' ');
-    buf.append("yieldCurveDefinitionMaster").append('=').append(getYieldCurveDefinitionMaster()).append(',').append(' ');
-    buf.append("scheduler").append('=').append(getScheduler()).append(',').append(' ');
-    buf.append("clientTimeOut").append('=').append(getClientTimeOut()).append(',').append(' ');
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("publishRest").append('=').append(JodaBeanUtils.toString(isPublishRest())).append(',').append(' ');
+    buf.append("fudgeContext").append('=').append(JodaBeanUtils.toString(getFudgeContext())).append(',').append(' ');
+    buf.append("securityMaster").append('=').append(JodaBeanUtils.toString(getSecurityMaster())).append(',').append(' ');
+    buf.append("positionMaster").append('=').append(JodaBeanUtils.toString(getPositionMaster())).append(',').append(' ');
+    buf.append("portfolioMaster").append('=').append(JodaBeanUtils.toString(getPortfolioMaster())).append(',').append(' ');
+    buf.append("snapshotMaster").append('=').append(JodaBeanUtils.toString(getSnapshotMaster())).append(',').append(' ');
+    buf.append("configMaster").append('=').append(JodaBeanUtils.toString(getConfigMaster())).append(',').append(' ');
+    buf.append("yieldCurveDefinitionMaster").append('=').append(JodaBeanUtils.toString(getYieldCurveDefinitionMaster())).append(',').append(' ');
+    buf.append("scheduler").append('=').append(JodaBeanUtils.toString(getScheduler())).append(',').append(' ');
+    buf.append("clientTimeOut").append('=').append(JodaBeanUtils.toString(getClientTimeOut())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

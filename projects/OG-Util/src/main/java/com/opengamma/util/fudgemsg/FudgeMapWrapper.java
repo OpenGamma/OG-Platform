@@ -181,7 +181,7 @@ public class FudgeMapWrapper extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("pairs").append('=').append(getPairs()).append(',').append(' ');
+    buf.append("pairs").append('=').append(JodaBeanUtils.toString(getPairs())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

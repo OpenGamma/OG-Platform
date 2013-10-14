@@ -145,8 +145,8 @@ public abstract class CogdaLiveDataCommandMessage extends CogdaCommandMessage {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("subscriptionId").append('=').append(getSubscriptionId()).append(',').append(' ');
-    buf.append("normalizationScheme").append('=').append(getNormalizationScheme()).append(',').append(' ');
+    buf.append("subscriptionId").append('=').append(JodaBeanUtils.toString(getSubscriptionId())).append(',').append(' ');
+    buf.append("normalizationScheme").append('=').append(JodaBeanUtils.toString(getNormalizationScheme())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

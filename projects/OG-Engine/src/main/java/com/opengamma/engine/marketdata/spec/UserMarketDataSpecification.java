@@ -133,7 +133,7 @@ public final class UserMarketDataSpecification implements ImmutableBean, MarketD
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append("UserMarketDataSpecification{");
-    buf.append("userSnapshotId").append('=').append(getUserSnapshotId());
+    buf.append("userSnapshotId").append('=').append(JodaBeanUtils.toString(getUserSnapshotId()));
     buf.append('}');
     return buf.toString();
   }

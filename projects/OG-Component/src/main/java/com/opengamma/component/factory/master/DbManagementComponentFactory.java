@@ -245,10 +245,10 @@ public class DbManagementComponentFactory extends AbstractComponentFactory {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("classifier").append('=').append(getClassifier()).append(',').append(' ');
-    buf.append("jdbcUrl").append('=').append(getJdbcUrl()).append(',').append(' ');
-    buf.append("username").append('=').append(getUsername()).append(',').append(' ');
-    buf.append("password").append('=').append(getPassword()).append(',').append(' ');
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("jdbcUrl").append('=').append(JodaBeanUtils.toString(getJdbcUrl())).append(',').append(' ');
+    buf.append("username").append('=').append(JodaBeanUtils.toString(getUsername())).append(',').append(' ');
+    buf.append("password").append('=').append(JodaBeanUtils.toString(getPassword())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

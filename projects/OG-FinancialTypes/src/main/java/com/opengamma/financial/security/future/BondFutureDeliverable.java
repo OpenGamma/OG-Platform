@@ -184,8 +184,8 @@ public class BondFutureDeliverable extends DirectBean implements Serializable {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("identifiers").append('=').append(getIdentifiers()).append(',').append(' ');
-    buf.append("conversionFactor").append('=').append(getConversionFactor()).append(',').append(' ');
+    buf.append("identifiers").append('=').append(JodaBeanUtils.toString(getIdentifiers())).append(',').append(' ');
+    buf.append("conversionFactor").append('=').append(JodaBeanUtils.toString(getConversionFactor())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

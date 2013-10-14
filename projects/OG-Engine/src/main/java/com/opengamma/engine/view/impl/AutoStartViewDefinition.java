@@ -158,7 +158,7 @@ public final class AutoStartViewDefinition implements ImmutableBean {
     StringBuilder buf = new StringBuilder(96);
     buf.append("AutoStartViewDefinition{");
     buf.append("viewDefinitionId").append('=').append(getViewDefinitionId()).append(',').append(' ');
-    buf.append("executionOptions").append('=').append(getExecutionOptions());
+    buf.append("executionOptions").append('=').append(JodaBeanUtils.toString(getExecutionOptions()));
     buf.append('}');
     return buf.toString();
   }
@@ -315,7 +315,7 @@ public final class AutoStartViewDefinition implements ImmutableBean {
     //-----------------------------------------------------------------------
     /**
      * Sets the {@code viewDefinitionId} property in the builder.
-     * @param viewDefinitionId  the new value, not null
+     * @param viewDefinitionId  the new value
      * @return this, for chaining, not null
      */
     public Builder viewDefinitionId(UniqueId viewDefinitionId) {
@@ -325,7 +325,7 @@ public final class AutoStartViewDefinition implements ImmutableBean {
 
     /**
      * Sets the {@code executionOptions} property in the builder.
-     * @param executionOptions  the new value, not null
+     * @param executionOptions  the new value
      * @return this, for chaining, not null
      */
     public Builder executionOptions(ViewExecutionOptions executionOptions) {

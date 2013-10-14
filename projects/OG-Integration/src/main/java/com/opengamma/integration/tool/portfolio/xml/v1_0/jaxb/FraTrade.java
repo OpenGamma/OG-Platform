@@ -474,18 +474,18 @@ public class FraTrade extends Trade {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("payFixed").append('=').append(isPayFixed()).append(',').append(' ');
-    buf.append("effectiveDate").append('=').append(getEffectiveDate()).append(',').append(' ');
-    buf.append("paymentDate").append('=').append(getPaymentDate()).append(',').append(' ');
-    buf.append("fixingDate").append('=').append(getFixingDate()).append(',').append(' ');
-    buf.append("regionId").append('=').append(getRegionId()).append(',').append(' ');
-    buf.append("terminationDate").append('=').append(getTerminationDate()).append(',').append(' ');
-    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
-    buf.append("notional").append('=').append(getNotional()).append(',').append(' ');
-    buf.append("rate").append('=').append(getRate()).append(',').append(' ');
-    buf.append("businessDayConvention").append('=').append(getBusinessDayConvention()).append(',').append(' ');
-    buf.append("dayCount").append('=').append(getDayCount()).append(',').append(' ');
-    buf.append("fixingIndex").append('=').append(getFixingIndex()).append(',').append(' ');
+    buf.append("payFixed").append('=').append(JodaBeanUtils.toString(isPayFixed())).append(',').append(' ');
+    buf.append("effectiveDate").append('=').append(JodaBeanUtils.toString(getEffectiveDate())).append(',').append(' ');
+    buf.append("paymentDate").append('=').append(JodaBeanUtils.toString(getPaymentDate())).append(',').append(' ');
+    buf.append("fixingDate").append('=').append(JodaBeanUtils.toString(getFixingDate())).append(',').append(' ');
+    buf.append("regionId").append('=').append(JodaBeanUtils.toString(getRegionId())).append(',').append(' ');
+    buf.append("terminationDate").append('=').append(JodaBeanUtils.toString(getTerminationDate())).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("notional").append('=').append(JodaBeanUtils.toString(getNotional())).append(',').append(' ');
+    buf.append("rate").append('=').append(JodaBeanUtils.toString(getRate())).append(',').append(' ');
+    buf.append("businessDayConvention").append('=').append(JodaBeanUtils.toString(getBusinessDayConvention())).append(',').append(' ');
+    buf.append("dayCount").append('=').append(JodaBeanUtils.toString(getDayCount())).append(',').append(' ');
+    buf.append("fixingIndex").append('=').append(JodaBeanUtils.toString(getFixingIndex())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

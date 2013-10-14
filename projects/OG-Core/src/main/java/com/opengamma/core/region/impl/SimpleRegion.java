@@ -442,13 +442,13 @@ public class SimpleRegion extends DirectBean
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("uniqueId").append('=').append(getUniqueId()).append(',').append(' ');
-    buf.append("externalIdBundle").append('=').append(getExternalIdBundle()).append(',').append(' ');
-    buf.append("classification").append('=').append(getClassification()).append(',').append(' ');
-    buf.append("parentRegionIds").append('=').append(getParentRegionIds()).append(',').append(' ');
-    buf.append("name").append('=').append(getName()).append(',').append(' ');
-    buf.append("fullName").append('=').append(getFullName()).append(',').append(' ');
-    buf.append("data").append('=').append(getData()).append(',').append(' ');
+    buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(getUniqueId())).append(',').append(' ');
+    buf.append("externalIdBundle").append('=').append(JodaBeanUtils.toString(getExternalIdBundle())).append(',').append(' ');
+    buf.append("classification").append('=').append(JodaBeanUtils.toString(getClassification())).append(',').append(' ');
+    buf.append("parentRegionIds").append('=').append(JodaBeanUtils.toString(getParentRegionIds())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
+    buf.append("fullName").append('=').append(JodaBeanUtils.toString(getFullName())).append(',').append(' ');
+    buf.append("data").append('=').append(JodaBeanUtils.toString(getData())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

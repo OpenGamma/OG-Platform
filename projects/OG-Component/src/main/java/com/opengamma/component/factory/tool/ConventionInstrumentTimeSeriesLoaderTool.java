@@ -322,13 +322,13 @@ public class ConventionInstrumentTimeSeriesLoaderTool extends AbstractComponentF
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("historicalTimeSeriesSource").append('=').append(getHistoricalTimeSeriesSource()).append(',').append(' ');
-    buf.append("historicalTimeSeriesLoader").append('=').append(getHistoricalTimeSeriesLoader()).append(',').append(' ');
-    buf.append("dataSource").append('=').append(getDataSource()).append(',').append(' ');
-    buf.append("dataProvider").append('=').append(getDataProvider()).append(',').append(' ');
-    buf.append("dataField").append('=').append(getDataField()).append(',').append(' ');
-    buf.append("identifierScheme").append('=').append(getIdentifierScheme()).append(',').append(' ');
-    buf.append("updateExisting").append('=').append(isUpdateExisting()).append(',').append(' ');
+    buf.append("historicalTimeSeriesSource").append('=').append(JodaBeanUtils.toString(getHistoricalTimeSeriesSource())).append(',').append(' ');
+    buf.append("historicalTimeSeriesLoader").append('=').append(JodaBeanUtils.toString(getHistoricalTimeSeriesLoader())).append(',').append(' ');
+    buf.append("dataSource").append('=').append(JodaBeanUtils.toString(getDataSource())).append(',').append(' ');
+    buf.append("dataProvider").append('=').append(JodaBeanUtils.toString(getDataProvider())).append(',').append(' ');
+    buf.append("dataField").append('=').append(JodaBeanUtils.toString(getDataField())).append(',').append(' ');
+    buf.append("identifierScheme").append('=').append(JodaBeanUtils.toString(getIdentifierScheme())).append(',').append(' ');
+    buf.append("updateExisting").append('=').append(JodaBeanUtils.toString(isUpdateExisting())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

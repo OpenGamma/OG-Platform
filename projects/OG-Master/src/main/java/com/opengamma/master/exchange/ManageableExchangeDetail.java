@@ -715,25 +715,25 @@ public class ManageableExchangeDetail extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("productGroup").append('=').append(getProductGroup()).append(',').append(' ');
-    buf.append("productName").append('=').append(getProductName()).append(',').append(' ');
-    buf.append("productType").append('=').append(getProductType()).append(',').append(' ');
-    buf.append("productCode").append('=').append(getProductCode()).append(',').append(' ');
-    buf.append("calendarStart").append('=').append(getCalendarStart()).append(',').append(' ');
-    buf.append("calendarEnd").append('=').append(getCalendarEnd()).append(',').append(' ');
-    buf.append("dayStart").append('=').append(getDayStart()).append(',').append(' ');
-    buf.append("dayRangeType").append('=').append(getDayRangeType()).append(',').append(' ');
-    buf.append("dayEnd").append('=').append(getDayEnd()).append(',').append(' ');
-    buf.append("phaseName").append('=').append(getPhaseName()).append(',').append(' ');
-    buf.append("phaseType").append('=').append(getPhaseType()).append(',').append(' ');
-    buf.append("phaseStart").append('=').append(getPhaseStart()).append(',').append(' ');
-    buf.append("phaseEnd").append('=').append(getPhaseEnd()).append(',').append(' ');
-    buf.append("randomStartMin").append('=').append(getRandomStartMin()).append(',').append(' ');
-    buf.append("randomStartMax").append('=').append(getRandomStartMax()).append(',').append(' ');
-    buf.append("randomEndMin").append('=').append(getRandomEndMin()).append(',').append(' ');
-    buf.append("randomEndMax").append('=').append(getRandomEndMax()).append(',').append(' ');
-    buf.append("lastConfirmed").append('=').append(getLastConfirmed()).append(',').append(' ');
-    buf.append("notes").append('=').append(getNotes()).append(',').append(' ');
+    buf.append("productGroup").append('=').append(JodaBeanUtils.toString(getProductGroup())).append(',').append(' ');
+    buf.append("productName").append('=').append(JodaBeanUtils.toString(getProductName())).append(',').append(' ');
+    buf.append("productType").append('=').append(JodaBeanUtils.toString(getProductType())).append(',').append(' ');
+    buf.append("productCode").append('=').append(JodaBeanUtils.toString(getProductCode())).append(',').append(' ');
+    buf.append("calendarStart").append('=').append(JodaBeanUtils.toString(getCalendarStart())).append(',').append(' ');
+    buf.append("calendarEnd").append('=').append(JodaBeanUtils.toString(getCalendarEnd())).append(',').append(' ');
+    buf.append("dayStart").append('=').append(JodaBeanUtils.toString(getDayStart())).append(',').append(' ');
+    buf.append("dayRangeType").append('=').append(JodaBeanUtils.toString(getDayRangeType())).append(',').append(' ');
+    buf.append("dayEnd").append('=').append(JodaBeanUtils.toString(getDayEnd())).append(',').append(' ');
+    buf.append("phaseName").append('=').append(JodaBeanUtils.toString(getPhaseName())).append(',').append(' ');
+    buf.append("phaseType").append('=').append(JodaBeanUtils.toString(getPhaseType())).append(',').append(' ');
+    buf.append("phaseStart").append('=').append(JodaBeanUtils.toString(getPhaseStart())).append(',').append(' ');
+    buf.append("phaseEnd").append('=').append(JodaBeanUtils.toString(getPhaseEnd())).append(',').append(' ');
+    buf.append("randomStartMin").append('=').append(JodaBeanUtils.toString(getRandomStartMin())).append(',').append(' ');
+    buf.append("randomStartMax").append('=').append(JodaBeanUtils.toString(getRandomStartMax())).append(',').append(' ');
+    buf.append("randomEndMin").append('=').append(JodaBeanUtils.toString(getRandomEndMin())).append(',').append(' ');
+    buf.append("randomEndMax").append('=').append(JodaBeanUtils.toString(getRandomEndMax())).append(',').append(' ');
+    buf.append("lastConfirmed").append('=').append(JodaBeanUtils.toString(getLastConfirmed())).append(',').append(' ');
+    buf.append("notes").append('=').append(JodaBeanUtils.toString(getNotes())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

@@ -338,9 +338,9 @@ public class EngineConfigurationComponentFactory extends AbstractComponentFactor
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("classifier").append('=').append(getClassifier()).append(',').append(' ');
-    buf.append("fudgeContext").append('=').append(getFudgeContext()).append(',').append(' ');
-    buf.append("logicalServerId").append('=').append(getLogicalServerId()).append(',').append(' ');
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("fudgeContext").append('=').append(JodaBeanUtils.toString(getFudgeContext())).append(',').append(' ');
+    buf.append("logicalServerId").append('=').append(JodaBeanUtils.toString(getLogicalServerId())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

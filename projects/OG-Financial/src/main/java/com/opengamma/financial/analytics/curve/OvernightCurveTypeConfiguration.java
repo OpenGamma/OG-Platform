@@ -137,7 +137,7 @@ public class OvernightCurveTypeConfiguration extends CurveTypeConfiguration {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("convention").append('=').append(getConvention()).append(',').append(' ');
+    buf.append("convention").append('=').append(JodaBeanUtils.toString(getConvention())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

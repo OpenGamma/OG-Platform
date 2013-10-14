@@ -178,7 +178,7 @@ public class MarketDataSnapshotHistoryRequest extends AbstractHistoryRequest {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("includeData").append('=').append(isIncludeData()).append(',').append(' ');
+    buf.append("includeData").append('=').append(JodaBeanUtils.toString(isIncludeData())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

@@ -530,12 +530,12 @@ public class ManageablePortfolioNode extends DirectBean implements MutableUnique
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("uniqueId").append('=').append(getUniqueId()).append(',').append(' ');
-    buf.append("parentNodeId").append('=').append(getParentNodeId()).append(',').append(' ');
-    buf.append("portfolioId").append('=').append(getPortfolioId()).append(',').append(' ');
-    buf.append("name").append('=').append(getName()).append(',').append(' ');
-    buf.append("childNodes").append('=').append(getChildNodes()).append(',').append(' ');
-    buf.append("positionIds").append('=').append(getPositionIds()).append(',').append(' ');
+    buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(getUniqueId())).append(',').append(' ');
+    buf.append("parentNodeId").append('=').append(JodaBeanUtils.toString(getParentNodeId())).append(',').append(' ');
+    buf.append("portfolioId").append('=').append(JodaBeanUtils.toString(getPortfolioId())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
+    buf.append("childNodes").append('=').append(JodaBeanUtils.toString(getChildNodes())).append(',').append(' ');
+    buf.append("positionIds").append('=').append(JodaBeanUtils.toString(getPositionIds())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

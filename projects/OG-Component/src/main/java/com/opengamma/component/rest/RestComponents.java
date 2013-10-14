@@ -430,12 +430,12 @@ public class RestComponents extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("baseUri").append('=').append(getBaseUri()).append(',').append(' ');
-    buf.append("localComponents").append('=').append(getLocalComponents()).append(',').append(' ');
-    buf.append("remoteComponents").append('=').append(getRemoteComponents()).append(',').append(' ');
-    buf.append("rootResourceSingletons").append('=').append(getRootResourceSingletons()).append(',').append(' ');
-    buf.append("rootResourceFactories").append('=').append(getRootResourceFactories()).append(',').append(' ');
-    buf.append("helpers").append('=').append(getHelpers()).append(',').append(' ');
+    buf.append("baseUri").append('=').append(JodaBeanUtils.toString(getBaseUri())).append(',').append(' ');
+    buf.append("localComponents").append('=').append(JodaBeanUtils.toString(getLocalComponents())).append(',').append(' ');
+    buf.append("remoteComponents").append('=').append(JodaBeanUtils.toString(getRemoteComponents())).append(',').append(' ');
+    buf.append("rootResourceSingletons").append('=').append(JodaBeanUtils.toString(getRootResourceSingletons())).append(',').append(' ');
+    buf.append("rootResourceFactories").append('=').append(JodaBeanUtils.toString(getRootResourceFactories())).append(',').append(' ');
+    buf.append("helpers").append('=').append(JodaBeanUtils.toString(getHelpers())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

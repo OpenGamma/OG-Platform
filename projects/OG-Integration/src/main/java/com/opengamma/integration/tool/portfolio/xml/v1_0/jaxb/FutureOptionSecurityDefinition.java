@@ -327,13 +327,13 @@ public class FutureOptionSecurityDefinition extends ListedSecurityDefinition {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("listedFutureOptionType").append('=').append(getListedFutureOptionType()).append(',').append(' ');
-    buf.append("optionType").append('=').append(getOptionType()).append(',').append(' ');
-    buf.append("strike").append('=').append(getStrike()).append(',').append(' ');
-    buf.append("futureExpiry").append('=').append(getFutureExpiry()).append(',').append(' ');
-    buf.append("optionExpiry").append('=').append(getOptionExpiry()).append(',').append(' ');
-    buf.append("exerciseType").append('=').append(getExerciseType()).append(',').append(' ');
-    buf.append("isMargined").append('=').append(isIsMargined()).append(',').append(' ');
+    buf.append("listedFutureOptionType").append('=').append(JodaBeanUtils.toString(getListedFutureOptionType())).append(',').append(' ');
+    buf.append("optionType").append('=').append(JodaBeanUtils.toString(getOptionType())).append(',').append(' ');
+    buf.append("strike").append('=').append(JodaBeanUtils.toString(getStrike())).append(',').append(' ');
+    buf.append("futureExpiry").append('=').append(JodaBeanUtils.toString(getFutureExpiry())).append(',').append(' ');
+    buf.append("optionExpiry").append('=').append(JodaBeanUtils.toString(getOptionExpiry())).append(',').append(' ');
+    buf.append("exerciseType").append('=').append(JodaBeanUtils.toString(getExerciseType())).append(',').append(' ');
+    buf.append("isMargined").append('=').append(JodaBeanUtils.toString(isIsMargined())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

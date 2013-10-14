@@ -376,13 +376,13 @@ public class DelegatingHistoricalTimeSeriesProviderComponentFactory extends Abst
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("classifier").append('=').append(getClassifier()).append(',').append(' ');
-    buf.append("publishRest").append('=').append(isPublishRest()).append(',').append(' ');
-    buf.append("provider1").append('=').append(getProvider1()).append(',').append(' ');
-    buf.append("provider2").append('=').append(getProvider2()).append(',').append(' ');
-    buf.append("provider3").append('=').append(getProvider3()).append(',').append(' ');
-    buf.append("provider4").append('=').append(getProvider4()).append(',').append(' ');
-    buf.append("provider5").append('=').append(getProvider5()).append(',').append(' ');
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("publishRest").append('=').append(JodaBeanUtils.toString(isPublishRest())).append(',').append(' ');
+    buf.append("provider1").append('=').append(JodaBeanUtils.toString(getProvider1())).append(',').append(' ');
+    buf.append("provider2").append('=').append(JodaBeanUtils.toString(getProvider2())).append(',').append(' ');
+    buf.append("provider3").append('=').append(JodaBeanUtils.toString(getProvider3())).append(',').append(' ');
+    buf.append("provider4").append('=').append(JodaBeanUtils.toString(getProvider4())).append(',').append(' ');
+    buf.append("provider5").append('=').append(JodaBeanUtils.toString(getProvider5())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

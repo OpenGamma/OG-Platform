@@ -325,12 +325,12 @@ public class RedisSimulationSeriesSourceComponentFactory extends AbstractCompone
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("classifier").append('=').append(getClassifier()).append(',').append(' ');
-    buf.append("redisConnector").append('=').append(getRedisConnector()).append(',').append(' ');
-    buf.append("redisPrefix").append('=').append(getRedisPrefix()).append(',').append(' ');
-    buf.append("database").append('=').append(getDatabase()).append(',').append(' ');
-    buf.append("simulationDate").append('=').append(getSimulationDate()).append(',').append(' ');
-    buf.append("publishRest").append('=').append(isPublishRest()).append(',').append(' ');
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("redisConnector").append('=').append(JodaBeanUtils.toString(getRedisConnector())).append(',').append(' ');
+    buf.append("redisPrefix").append('=').append(JodaBeanUtils.toString(getRedisPrefix())).append(',').append(' ');
+    buf.append("database").append('=').append(JodaBeanUtils.toString(getDatabase())).append(',').append(' ');
+    buf.append("simulationDate").append('=').append(JodaBeanUtils.toString(getSimulationDate())).append(',').append(' ');
+    buf.append("publishRest").append('=').append(JodaBeanUtils.toString(isPublishRest())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

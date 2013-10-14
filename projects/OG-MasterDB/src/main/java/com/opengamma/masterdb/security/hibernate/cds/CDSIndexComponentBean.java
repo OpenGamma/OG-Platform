@@ -223,10 +223,10 @@ public class CDSIndexComponentBean extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("obligor").append('=').append(getObligor()).append(',').append(' ');
-    buf.append("weight").append('=').append(getWeight()).append(',').append(' ');
-    buf.append("bondId").append('=').append(getBondId()).append(',').append(' ');
-    buf.append("name").append('=').append(getName()).append(',').append(' ');
+    buf.append("obligor").append('=').append(JodaBeanUtils.toString(getObligor())).append(',').append(' ');
+    buf.append("weight").append('=').append(JodaBeanUtils.toString(getWeight())).append(',').append(' ');
+    buf.append("bondId").append('=').append(JodaBeanUtils.toString(getBondId())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

@@ -170,7 +170,7 @@ public class ParameterizedFunctionConfiguration extends StaticFunctionConfigurat
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("parameter").append('=').append(getParameter()).append(',').append(' ');
+    buf.append("parameter").append('=').append(JodaBeanUtils.toString(getParameter())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

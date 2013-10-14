@@ -191,8 +191,8 @@ public class SwapIndexConvention extends Convention {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("fixingTime").append('=').append(getFixingTime()).append(',').append(' ');
-    buf.append("swapConvention").append('=').append(getSwapConvention()).append(',').append(' ');
+    buf.append("fixingTime").append('=').append(JodaBeanUtils.toString(getFixingTime())).append(',').append(' ');
+    buf.append("swapConvention").append('=').append(JodaBeanUtils.toString(getSwapConvention())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

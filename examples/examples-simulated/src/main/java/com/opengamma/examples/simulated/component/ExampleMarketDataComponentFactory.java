@@ -272,9 +272,9 @@ public class ExampleMarketDataComponentFactory extends AbstractComponentFactory 
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("classifier").append('=').append(getClassifier()).append(',').append(' ');
-    buf.append("serverMetaDataProvider").append('=').append(getServerMetaDataProvider()).append(',').append(' ');
-    buf.append("jmsConnector").append('=').append(getJmsConnector()).append(',').append(' ');
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("serverMetaDataProvider").append('=').append(JodaBeanUtils.toString(getServerMetaDataProvider())).append(',').append(' ');
+    buf.append("jmsConnector").append('=').append(JodaBeanUtils.toString(getJmsConnector())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

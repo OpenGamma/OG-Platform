@@ -366,11 +366,11 @@ public class TempTargetRepositoryComponentFactory extends AbstractComponentFacto
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("classifier").append('=').append(getClassifier()).append(',').append(' ');
-    buf.append("publishRest").append('=').append(isPublishRest()).append(',').append(' ');
-    buf.append("path").append('=').append(getPath()).append(',').append(' ');
-    buf.append("remote").append('=').append(getRemote()).append(',').append(' ');
-    buf.append("cacheManager").append('=').append(getCacheManager()).append(',').append(' ');
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("publishRest").append('=').append(JodaBeanUtils.toString(isPublishRest())).append(',').append(' ');
+    buf.append("path").append('=').append(JodaBeanUtils.toString(getPath())).append(',').append(' ');
+    buf.append("remote").append('=').append(JodaBeanUtils.toString(getRemote())).append(',').append(' ');
+    buf.append("cacheManager").append('=').append(JodaBeanUtils.toString(getCacheManager())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

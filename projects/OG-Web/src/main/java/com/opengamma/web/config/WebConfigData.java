@@ -431,15 +431,15 @@ public class WebConfigData extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("configMaster").append('=').append(getConfigMaster()).append(',').append(' ');
-    buf.append("uriInfo").append('=').append(getUriInfo()).append(',').append(' ');
-    buf.append("type").append('=').append(getType()).append(',').append(' ');
-    buf.append("uriConfigId").append('=').append(getUriConfigId()).append(',').append(' ');
-    buf.append("uriVersionId").append('=').append(getUriVersionId()).append(',').append(' ');
-    buf.append("config").append('=').append(getConfig()).append(',').append(' ');
-    buf.append("versioned").append('=').append(getVersioned()).append(',').append(' ');
-    buf.append("typeMap").append('=').append(getTypeMap()).append(',').append(' ');
-    buf.append("jsonBuilderMap").append('=').append(getJsonBuilderMap()).append(',').append(' ');
+    buf.append("configMaster").append('=').append(JodaBeanUtils.toString(getConfigMaster())).append(',').append(' ');
+    buf.append("uriInfo").append('=').append(JodaBeanUtils.toString(getUriInfo())).append(',').append(' ');
+    buf.append("type").append('=').append(JodaBeanUtils.toString(getType())).append(',').append(' ');
+    buf.append("uriConfigId").append('=').append(JodaBeanUtils.toString(getUriConfigId())).append(',').append(' ');
+    buf.append("uriVersionId").append('=').append(JodaBeanUtils.toString(getUriVersionId())).append(',').append(' ');
+    buf.append("config").append('=').append(JodaBeanUtils.toString(getConfig())).append(',').append(' ');
+    buf.append("versioned").append('=').append(JodaBeanUtils.toString(getVersioned())).append(',').append(' ');
+    buf.append("typeMap").append('=').append(JodaBeanUtils.toString(getTypeMap())).append(',').append(' ');
+    buf.append("jsonBuilderMap").append('=').append(JodaBeanUtils.toString(getJsonBuilderMap())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

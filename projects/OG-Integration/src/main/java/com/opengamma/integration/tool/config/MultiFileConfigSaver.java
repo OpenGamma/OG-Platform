@@ -222,8 +222,8 @@ public class MultiFileConfigSaver extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("destinationDirectory").append('=').append(getDestinationDirectory()).append(',').append(' ');
-    buf.append("configMaster").append('=').append(getConfigMaster()).append(',').append(' ');
+    buf.append("destinationDirectory").append('=').append(JodaBeanUtils.toString(getDestinationDirectory())).append(',').append(' ');
+    buf.append("configMaster").append('=').append(JodaBeanUtils.toString(getConfigMaster())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

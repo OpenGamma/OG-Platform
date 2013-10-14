@@ -539,14 +539,14 @@ public class PositionSearchRequest extends AbstractSearchRequest {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("positionObjectIds").append('=').append(getPositionObjectIds()).append(',').append(' ');
-    buf.append("tradeObjectIds").append('=').append(getTradeObjectIds()).append(',').append(' ');
-    buf.append("securityIdSearch").append('=').append(getSecurityIdSearch()).append(',').append(' ');
-    buf.append("securityIdValue").append('=').append(getSecurityIdValue()).append(',').append(' ');
-    buf.append("positionProviderId").append('=').append(getPositionProviderId()).append(',').append(' ');
-    buf.append("tradeProviderId").append('=').append(getTradeProviderId()).append(',').append(' ');
-    buf.append("minQuantity").append('=').append(getMinQuantity()).append(',').append(' ');
-    buf.append("maxQuantity").append('=').append(getMaxQuantity()).append(',').append(' ');
+    buf.append("positionObjectIds").append('=').append(JodaBeanUtils.toString(getPositionObjectIds())).append(',').append(' ');
+    buf.append("tradeObjectIds").append('=').append(JodaBeanUtils.toString(getTradeObjectIds())).append(',').append(' ');
+    buf.append("securityIdSearch").append('=').append(JodaBeanUtils.toString(getSecurityIdSearch())).append(',').append(' ');
+    buf.append("securityIdValue").append('=').append(JodaBeanUtils.toString(getSecurityIdValue())).append(',').append(' ');
+    buf.append("positionProviderId").append('=').append(JodaBeanUtils.toString(getPositionProviderId())).append(',').append(' ');
+    buf.append("tradeProviderId").append('=').append(JodaBeanUtils.toString(getTradeProviderId())).append(',').append(' ');
+    buf.append("minQuantity").append('=').append(JodaBeanUtils.toString(getMinQuantity())).append(',').append(' ');
+    buf.append("maxQuantity").append('=').append(JodaBeanUtils.toString(getMaxQuantity())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

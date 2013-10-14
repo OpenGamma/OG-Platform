@@ -238,9 +238,9 @@ public class FRANode extends CurveNode {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("fixingStart").append('=').append(getFixingStart()).append(',').append(' ');
-    buf.append("fixingEnd").append('=').append(getFixingEnd()).append(',').append(' ');
-    buf.append("convention").append('=').append(getConvention()).append(',').append(' ');
+    buf.append("fixingStart").append('=').append(JodaBeanUtils.toString(getFixingStart())).append(',').append(' ');
+    buf.append("fixingEnd").append('=').append(JodaBeanUtils.toString(getFixingEnd())).append(',').append(' ');
+    buf.append("convention").append('=').append(JodaBeanUtils.toString(getConvention())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

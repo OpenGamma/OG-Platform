@@ -150,8 +150,8 @@ public class ForeignExchangeFutureBean extends FutureSecurityBean {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("numerator").append('=').append(getNumerator()).append(',').append(' ');
-    buf.append("denominator").append('=').append(getDenominator()).append(',').append(' ');
+    buf.append("numerator").append('=').append(JodaBeanUtils.toString(getNumerator())).append(',').append(' ');
+    buf.append("denominator").append('=').append(JodaBeanUtils.toString(getDenominator())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

@@ -513,12 +513,12 @@ public class EmbeddedJettyComponentFactory extends AbstractComponentFactory {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("active").append('=').append(isActive()).append(',').append(' ');
-    buf.append("port").append('=').append(getPort()).append(',').append(' ');
-    buf.append("securePort").append('=').append(getSecurePort()).append(',').append(' ');
-    buf.append("resourceBase").append('=').append(getResourceBase()).append(',').append(' ');
-    buf.append("requireAuthentication").append('=').append(isRequireAuthentication()).append(',').append(' ');
-    buf.append("loginConfig").append('=').append(getLoginConfig()).append(',').append(' ');
+    buf.append("active").append('=').append(JodaBeanUtils.toString(isActive())).append(',').append(' ');
+    buf.append("port").append('=').append(JodaBeanUtils.toString(getPort())).append(',').append(' ');
+    buf.append("securePort").append('=').append(JodaBeanUtils.toString(getSecurePort())).append(',').append(' ');
+    buf.append("resourceBase").append('=').append(JodaBeanUtils.toString(getResourceBase())).append(',').append(' ');
+    buf.append("requireAuthentication").append('=').append(JodaBeanUtils.toString(isRequireAuthentication())).append(',').append(' ');
+    buf.append("loginConfig").append('=').append(JodaBeanUtils.toString(getLoginConfig())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

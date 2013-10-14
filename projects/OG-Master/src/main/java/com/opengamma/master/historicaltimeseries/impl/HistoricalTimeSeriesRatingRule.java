@@ -187,7 +187,7 @@ public final class HistoricalTimeSeriesRatingRule implements ImmutableBean {
     buf.append("HistoricalTimeSeriesRatingRule{");
     buf.append("fieldName").append('=').append(getFieldName()).append(',').append(' ');
     buf.append("fieldValue").append('=').append(getFieldValue()).append(',').append(' ');
-    buf.append("rating").append('=').append(getRating());
+    buf.append("rating").append('=').append(JodaBeanUtils.toString(getRating()));
     buf.append('}');
     return buf.toString();
   }
@@ -390,7 +390,7 @@ public final class HistoricalTimeSeriesRatingRule implements ImmutableBean {
 
     /**
      * Sets the {@code rating} property in the builder.
-     * @param rating  the new value, not null
+     * @param rating  the new value
      * @return this, for chaining, not null
      */
     public Builder rating(int rating) {

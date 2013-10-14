@@ -265,12 +265,12 @@ public class FXForwardSecurityBean extends SecurityBean {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("forwardDate").append('=').append(getForwardDate()).append(',').append(' ');
-    buf.append("region").append('=').append(getRegion()).append(',').append(' ');
-    buf.append("payCurrency").append('=').append(getPayCurrency()).append(',').append(' ');
-    buf.append("payAmount").append('=').append(getPayAmount()).append(',').append(' ');
-    buf.append("receiveCurrency").append('=').append(getReceiveCurrency()).append(',').append(' ');
-    buf.append("receiveAmount").append('=').append(getReceiveAmount()).append(',').append(' ');
+    buf.append("forwardDate").append('=').append(JodaBeanUtils.toString(getForwardDate())).append(',').append(' ');
+    buf.append("region").append('=').append(JodaBeanUtils.toString(getRegion())).append(',').append(' ');
+    buf.append("payCurrency").append('=').append(JodaBeanUtils.toString(getPayCurrency())).append(',').append(' ');
+    buf.append("payAmount").append('=').append(JodaBeanUtils.toString(getPayAmount())).append(',').append(' ');
+    buf.append("receiveCurrency").append('=').append(JodaBeanUtils.toString(getReceiveCurrency())).append(',').append(' ');
+    buf.append("receiveAmount").append('=').append(JodaBeanUtils.toString(getReceiveAmount())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

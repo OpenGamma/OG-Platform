@@ -289,7 +289,7 @@ public final class VolatilitySurfaceKey implements ImmutableBean, StructuredMark
     buf.append("name").append('=').append(getName()).append(',').append(' ');
     buf.append("instrumentType").append('=').append(getInstrumentType()).append(',').append(' ');
     buf.append("quoteType").append('=').append(getQuoteType()).append(',').append(' ');
-    buf.append("quoteUnits").append('=').append(getQuoteUnits());
+    buf.append("quoteUnits").append('=').append(JodaBeanUtils.toString(getQuoteUnits()));
     buf.append('}');
     return buf.toString();
   }
@@ -529,7 +529,7 @@ public final class VolatilitySurfaceKey implements ImmutableBean, StructuredMark
 
     /**
      * Sets the {@code name} property in the builder.
-     * @param name  the new value, not null
+     * @param name  the new value
      * @return this, for chaining, not null
      */
     public Builder name(String name) {
@@ -539,7 +539,7 @@ public final class VolatilitySurfaceKey implements ImmutableBean, StructuredMark
 
     /**
      * Sets the {@code instrumentType} property in the builder.
-     * @param instrumentType  the new value, not null
+     * @param instrumentType  the new value
      * @return this, for chaining, not null
      */
     public Builder instrumentType(String instrumentType) {
@@ -549,7 +549,7 @@ public final class VolatilitySurfaceKey implements ImmutableBean, StructuredMark
 
     /**
      * Sets the {@code quoteType} property in the builder.
-     * @param quoteType  the new value, not null
+     * @param quoteType  the new value
      * @return this, for chaining, not null
      */
     public Builder quoteType(String quoteType) {
@@ -559,7 +559,7 @@ public final class VolatilitySurfaceKey implements ImmutableBean, StructuredMark
 
     /**
      * Sets the {@code quoteUnits} property in the builder.
-     * @param quoteUnits  the new value, not null
+     * @param quoteUnits  the new value
      * @return this, for chaining, not null
      */
     public Builder quoteUnits(String quoteUnits) {

@@ -235,9 +235,9 @@ public class CashNode extends CurveNode {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("startTenor").append('=').append(getStartTenor()).append(',').append(' ');
-    buf.append("maturityTenor").append('=').append(getMaturityTenor()).append(',').append(' ');
-    buf.append("convention").append('=').append(getConvention()).append(',').append(' ');
+    buf.append("startTenor").append('=').append(JodaBeanUtils.toString(getStartTenor())).append(',').append(' ');
+    buf.append("maturityTenor").append('=').append(JodaBeanUtils.toString(getMaturityTenor())).append(',').append(' ');
+    buf.append("convention").append('=').append(JodaBeanUtils.toString(getConvention())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

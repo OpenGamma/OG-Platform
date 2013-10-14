@@ -304,10 +304,10 @@ public class ComponentInfo extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("type").append('=').append(getType()).append(',').append(' ');
-    buf.append("classifier").append('=').append(getClassifier()).append(',').append(' ');
-    buf.append("uri").append('=').append(getUri()).append(',').append(' ');
-    buf.append("attributes").append('=').append(getAttributes()).append(',').append(' ');
+    buf.append("type").append('=').append(JodaBeanUtils.toString(getType())).append(',').append(' ');
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("uri").append('=').append(JodaBeanUtils.toString(getUri())).append(',').append(' ');
+    buf.append("attributes").append('=').append(JodaBeanUtils.toString(getAttributes())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

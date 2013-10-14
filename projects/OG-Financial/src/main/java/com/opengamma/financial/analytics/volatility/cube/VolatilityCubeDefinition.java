@@ -255,10 +255,10 @@ public class VolatilityCubeDefinition extends DirectBean implements UniqueIdenti
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("uniqueId").append('=').append(getUniqueId()).append(',').append(' ');
-    buf.append("swapTenors").append('=').append(getSwapTenors()).append(',').append(' ');
-    buf.append("optionExpiries").append('=').append(getOptionExpiries()).append(',').append(' ');
-    buf.append("relativeStrikes").append('=').append(getRelativeStrikes()).append(',').append(' ');
+    buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(getUniqueId())).append(',').append(' ');
+    buf.append("swapTenors").append('=').append(JodaBeanUtils.toString(getSwapTenors())).append(',').append(' ');
+    buf.append("optionExpiries").append('=').append(JodaBeanUtils.toString(getOptionExpiries())).append(',').append(' ');
+    buf.append("relativeStrikes").append('=').append(JodaBeanUtils.toString(getRelativeStrikes())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

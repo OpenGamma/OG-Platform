@@ -246,8 +246,6 @@ public final class LocalDateRange implements ImmutableBean, Serializable {
   }
 
   //-----------------------------------------------------------------------
-  //-----------------------------------------------------------------------
-  //-----------------------------------------------------------------------
   /**
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null

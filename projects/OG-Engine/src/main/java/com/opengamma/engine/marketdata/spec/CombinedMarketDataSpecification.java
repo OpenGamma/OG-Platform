@@ -143,7 +143,7 @@ public final class CombinedMarketDataSpecification implements ImmutableBean, Mar
     StringBuilder buf = new StringBuilder(96);
     buf.append("CombinedMarketDataSpecification{");
     buf.append("preferredSpecification").append('=').append(getPreferredSpecification()).append(',').append(' ');
-    buf.append("fallbackSpecification").append('=').append(getFallbackSpecification());
+    buf.append("fallbackSpecification").append('=').append(JodaBeanUtils.toString(getFallbackSpecification()));
     buf.append('}');
     return buf.toString();
   }

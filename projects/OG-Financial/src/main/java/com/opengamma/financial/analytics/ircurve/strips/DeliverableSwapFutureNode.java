@@ -355,12 +355,12 @@ public class DeliverableSwapFutureNode extends CurveNode {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("futureNumber").append('=').append(getFutureNumber()).append(',').append(' ');
-    buf.append("startTenor").append('=').append(getStartTenor()).append(',').append(' ');
-    buf.append("futureTenor").append('=').append(getFutureTenor()).append(',').append(' ');
-    buf.append("underlyingTenor").append('=').append(getUnderlyingTenor()).append(',').append(' ');
-    buf.append("futureConvention").append('=').append(getFutureConvention()).append(',').append(' ');
-    buf.append("swapConvention").append('=').append(getSwapConvention()).append(',').append(' ');
+    buf.append("futureNumber").append('=').append(JodaBeanUtils.toString(getFutureNumber())).append(',').append(' ');
+    buf.append("startTenor").append('=').append(JodaBeanUtils.toString(getStartTenor())).append(',').append(' ');
+    buf.append("futureTenor").append('=').append(JodaBeanUtils.toString(getFutureTenor())).append(',').append(' ');
+    buf.append("underlyingTenor").append('=').append(JodaBeanUtils.toString(getUnderlyingTenor())).append(',').append(' ');
+    buf.append("futureConvention").append('=').append(JodaBeanUtils.toString(getFutureConvention())).append(',').append(' ');
+    buf.append("swapConvention").append('=').append(JodaBeanUtils.toString(getSwapConvention())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

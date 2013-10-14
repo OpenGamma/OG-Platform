@@ -395,13 +395,13 @@ public class UserFinancialSecuritySourceComponentFactory extends AbstractCompone
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("classifier").append('=').append(getClassifier()).append(',').append(' ');
-    buf.append("publishRest").append('=').append(isPublishRest()).append(',').append(' ');
-    buf.append("cacheManager").append('=').append(getCacheManager()).append(',').append(' ');
-    buf.append("underlyingClassifier").append('=').append(getUnderlyingClassifier()).append(',').append(' ');
-    buf.append("underlyingSecurityMaster").append('=').append(getUnderlyingSecurityMaster()).append(',').append(' ');
-    buf.append("userClassifier").append('=').append(getUserClassifier()).append(',').append(' ');
-    buf.append("userSecurityMaster").append('=').append(getUserSecurityMaster()).append(',').append(' ');
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("publishRest").append('=').append(JodaBeanUtils.toString(isPublishRest())).append(',').append(' ');
+    buf.append("cacheManager").append('=').append(JodaBeanUtils.toString(getCacheManager())).append(',').append(' ');
+    buf.append("underlyingClassifier").append('=').append(JodaBeanUtils.toString(getUnderlyingClassifier())).append(',').append(' ');
+    buf.append("underlyingSecurityMaster").append('=').append(JodaBeanUtils.toString(getUnderlyingSecurityMaster())).append(',').append(' ');
+    buf.append("userClassifier").append('=').append(JodaBeanUtils.toString(getUserClassifier())).append(',').append(' ');
+    buf.append("userSecurityMaster").append('=').append(JodaBeanUtils.toString(getUserSecurityMaster())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

@@ -138,8 +138,8 @@ public abstract class StandardCDSSecurityBean extends CreditDefaultSwapSecurityB
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("quotedSpread").append('=').append(getQuotedSpread()).append(',').append(' ');
-    buf.append("upfrontAmount").append('=').append(getUpfrontAmount()).append(',').append(' ');
+    buf.append("quotedSpread").append('=').append(JodaBeanUtils.toString(getQuotedSpread())).append(',').append(' ');
+    buf.append("upfrontAmount").append('=').append(JodaBeanUtils.toString(getUpfrontAmount())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

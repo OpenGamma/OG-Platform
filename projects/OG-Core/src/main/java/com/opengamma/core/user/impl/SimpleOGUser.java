@@ -394,14 +394,14 @@ public class SimpleOGUser extends DirectBean implements OGUser, MutableUniqueIde
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("uniqueId").append('=').append(getUniqueId()).append(',').append(' ');
-    buf.append("externalIdBundle").append('=').append(getExternalIdBundle()).append(',').append(' ');
-    buf.append("userId").append('=').append(getUserId()).append(',').append(' ');
-    buf.append("passwordHash").append('=').append(getPasswordHash()).append(',').append(' ');
-    buf.append("entitlements").append('=').append(getEntitlements()).append(',').append(' ');
-    buf.append("name").append('=').append(getName()).append(',').append(' ');
-    buf.append("timeZone").append('=').append(getTimeZone()).append(',').append(' ');
-    buf.append("emailAddress").append('=').append(getEmailAddress()).append(',').append(' ');
+    buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(getUniqueId())).append(',').append(' ');
+    buf.append("externalIdBundle").append('=').append(JodaBeanUtils.toString(getExternalIdBundle())).append(',').append(' ');
+    buf.append("userId").append('=').append(JodaBeanUtils.toString(getUserId())).append(',').append(' ');
+    buf.append("passwordHash").append('=').append(JodaBeanUtils.toString(getPasswordHash())).append(',').append(' ');
+    buf.append("entitlements").append('=').append(JodaBeanUtils.toString(getEntitlements())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
+    buf.append("timeZone").append('=').append(JodaBeanUtils.toString(getTimeZone())).append(',').append(' ');
+    buf.append("emailAddress").append('=').append(JodaBeanUtils.toString(getEmailAddress())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

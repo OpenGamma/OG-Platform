@@ -194,7 +194,7 @@ public class ReferenceDataProviderGetResult extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("referenceData").append('=').append(getReferenceData()).append(',').append(' ');
+    buf.append("referenceData").append('=').append(JodaBeanUtils.toString(getReferenceData())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

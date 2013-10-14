@@ -206,9 +206,9 @@ public class FXFutureSecurity extends FutureSecurity {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("numerator").append('=').append(getNumerator()).append(',').append(' ');
-    buf.append("denominator").append('=').append(getDenominator()).append(',').append(' ');
-    buf.append("multiplicationFactor").append('=').append(getMultiplicationFactor()).append(',').append(' ');
+    buf.append("numerator").append('=').append(JodaBeanUtils.toString(getNumerator())).append(',').append(' ');
+    buf.append("denominator").append('=').append(JodaBeanUtils.toString(getDenominator())).append(',').append(' ');
+    buf.append("multiplicationFactor").append('=').append(JodaBeanUtils.toString(getMultiplicationFactor())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

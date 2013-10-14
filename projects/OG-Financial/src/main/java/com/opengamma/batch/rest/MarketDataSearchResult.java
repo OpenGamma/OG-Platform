@@ -174,8 +174,8 @@ public class MarketDataSearchResult extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("paging").append('=').append(getPaging()).append(',').append(' ');
-    buf.append("marketDatas").append('=').append(getMarketDatas()).append(',').append(' ');
+    buf.append("paging").append('=').append(JodaBeanUtils.toString(getPaging())).append(',').append(' ');
+    buf.append("marketDatas").append('=').append(JodaBeanUtils.toString(getMarketDatas())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

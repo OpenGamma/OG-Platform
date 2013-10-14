@@ -151,7 +151,7 @@ public class DbSecurityMasterFactoryBean extends AbstractDbMasterFactoryBean<DbS
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("cacheManager").append('=').append(getCacheManager()).append(',').append(' ');
+    buf.append("cacheManager").append('=').append(JodaBeanUtils.toString(getCacheManager())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

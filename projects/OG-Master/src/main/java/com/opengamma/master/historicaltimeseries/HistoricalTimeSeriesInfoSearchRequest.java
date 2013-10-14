@@ -567,15 +567,15 @@ public class HistoricalTimeSeriesInfoSearchRequest extends AbstractSearchRequest
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("objectIds").append('=').append(getObjectIds()).append(',').append(' ');
-    buf.append("externalIdSearch").append('=').append(getExternalIdSearch()).append(',').append(' ');
-    buf.append("externalIdValue").append('=').append(getExternalIdValue()).append(',').append(' ');
-    buf.append("validityDate").append('=').append(getValidityDate()).append(',').append(' ');
-    buf.append("name").append('=').append(getName()).append(',').append(' ');
-    buf.append("dataSource").append('=').append(getDataSource()).append(',').append(' ');
-    buf.append("dataProvider").append('=').append(getDataProvider()).append(',').append(' ');
-    buf.append("dataField").append('=').append(getDataField()).append(',').append(' ');
-    buf.append("observationTime").append('=').append(getObservationTime()).append(',').append(' ');
+    buf.append("objectIds").append('=').append(JodaBeanUtils.toString(getObjectIds())).append(',').append(' ');
+    buf.append("externalIdSearch").append('=').append(JodaBeanUtils.toString(getExternalIdSearch())).append(',').append(' ');
+    buf.append("externalIdValue").append('=').append(JodaBeanUtils.toString(getExternalIdValue())).append(',').append(' ');
+    buf.append("validityDate").append('=').append(JodaBeanUtils.toString(getValidityDate())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
+    buf.append("dataSource").append('=').append(JodaBeanUtils.toString(getDataSource())).append(',').append(' ');
+    buf.append("dataProvider").append('=').append(JodaBeanUtils.toString(getDataProvider())).append(',').append(' ');
+    buf.append("dataField").append('=').append(JodaBeanUtils.toString(getDataField())).append(',').append(' ');
+    buf.append("observationTime").append('=').append(JodaBeanUtils.toString(getObservationTime())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

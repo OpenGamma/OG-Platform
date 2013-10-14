@@ -152,8 +152,8 @@ public class ComputeHost extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("id").append('=').append(getId()).append(',').append(' ');
-    buf.append("hostName").append('=').append(getHostName()).append(',').append(' ');
+    buf.append("id").append('=').append(JodaBeanUtils.toString(getId())).append(',').append(' ');
+    buf.append("hostName").append('=').append(JodaBeanUtils.toString(getHostName())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

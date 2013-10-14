@@ -159,7 +159,7 @@ public class SimpleCounterparty extends DirectBean
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("externalId").append('=').append(getExternalId()).append(',').append(' ');
+    buf.append("externalId").append('=').append(JodaBeanUtils.toString(getExternalId())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

@@ -373,7 +373,7 @@ public final class MultipleCurrencyAmount implements ImmutableBean,
   private MultipleCurrencyAmount(
       SortedMap<Currency, CurrencyAmount> currencyAmountMap) {
     JodaBeanUtils.notNull(currencyAmountMap, "currencyAmountMap");
-    this._currencyAmountMap = (currencyAmountMap != null ? ImmutableSortedMap.copyOf(currencyAmountMap) : null);
+    this._currencyAmountMap = ImmutableSortedMap.copyOf(currencyAmountMap);
   }
 
   @Override

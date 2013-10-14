@@ -362,10 +362,10 @@ public class ExchangeSearchRequest extends AbstractSearchRequest {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("objectIds").append('=').append(getObjectIds()).append(',').append(' ');
-    buf.append("externalIdSearch").append('=').append(getExternalIdSearch()).append(',').append(' ');
-    buf.append("name").append('=').append(getName()).append(',').append(' ');
-    buf.append("sortOrder").append('=').append(getSortOrder()).append(',').append(' ');
+    buf.append("objectIds").append('=').append(JodaBeanUtils.toString(getObjectIds())).append(',').append(' ');
+    buf.append("externalIdSearch").append('=').append(JodaBeanUtils.toString(getExternalIdSearch())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
+    buf.append("sortOrder").append('=').append(JodaBeanUtils.toString(getSortOrder())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

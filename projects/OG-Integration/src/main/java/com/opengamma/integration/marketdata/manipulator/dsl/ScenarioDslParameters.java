@@ -143,7 +143,7 @@ public final class ScenarioDslParameters implements ImmutableBean, ScenarioParam
   //-----------------------------------------------------------------------
   /**
    * Gets the script that populates the parameters.
-   * @return the value of the property, not null
+   * @return the value of the property, not empty
    */
   private String getScript() {
     return _script;
@@ -186,7 +186,7 @@ public final class ScenarioDslParameters implements ImmutableBean, ScenarioParam
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append("ScenarioDslParameters{");
-    buf.append("script").append('=').append(getScript());
+    buf.append("script").append('=').append(JodaBeanUtils.toString(getScript()));
     buf.append('}');
     return buf.toString();
   }
@@ -319,7 +319,7 @@ public final class ScenarioDslParameters implements ImmutableBean, ScenarioParam
     //-----------------------------------------------------------------------
     /**
      * Sets the {@code script} property in the builder.
-     * @param script  the new value, not null
+     * @param script  the new value, not empty
      * @return this, for chaining, not null
      */
     public Builder script(String script) {

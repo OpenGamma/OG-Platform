@@ -353,13 +353,13 @@ public class EquitySecurity extends FinancialSecurity {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("shortName").append('=').append(getShortName()).append(',').append(' ');
-    buf.append("exchange").append('=').append(getExchange()).append(',').append(' ');
-    buf.append("exchangeCode").append('=').append(getExchangeCode()).append(',').append(' ');
-    buf.append("companyName").append('=').append(getCompanyName()).append(',').append(' ');
-    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
-    buf.append("gicsCode").append('=').append(getGicsCode()).append(',').append(' ');
-    buf.append("preferred").append('=').append(isPreferred()).append(',').append(' ');
+    buf.append("shortName").append('=').append(JodaBeanUtils.toString(getShortName())).append(',').append(' ');
+    buf.append("exchange").append('=').append(JodaBeanUtils.toString(getExchange())).append(',').append(' ');
+    buf.append("exchangeCode").append('=').append(JodaBeanUtils.toString(getExchangeCode())).append(',').append(' ');
+    buf.append("companyName").append('=').append(JodaBeanUtils.toString(getCompanyName())).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("gicsCode").append('=').append(JodaBeanUtils.toString(getGicsCode())).append(',').append(' ');
+    buf.append("preferred").append('=').append(JodaBeanUtils.toString(isPreferred())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

@@ -204,9 +204,9 @@ public class FieldMappingHistoricalTimeSeriesResolverFactoryBean extends SpringF
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("fieldAdjustmentMaps").append('=').append(getFieldAdjustmentMaps()).append(',').append(' ');
-    buf.append("historicalTimeSeriesMaster").append('=').append(getHistoricalTimeSeriesMaster()).append(',').append(' ');
-    buf.append("configSource").append('=').append(getConfigSource()).append(',').append(' ');
+    buf.append("fieldAdjustmentMaps").append('=').append(JodaBeanUtils.toString(getFieldAdjustmentMaps())).append(',').append(' ');
+    buf.append("historicalTimeSeriesMaster").append('=').append(JodaBeanUtils.toString(getHistoricalTimeSeriesMaster())).append(',').append(' ');
+    buf.append("configSource").append('=').append(JodaBeanUtils.toString(getConfigSource())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

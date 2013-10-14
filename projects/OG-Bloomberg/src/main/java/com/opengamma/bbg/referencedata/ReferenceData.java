@@ -311,9 +311,9 @@ public class ReferenceData extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("identifier").append('=').append(getIdentifier()).append(',').append(' ');
-    buf.append("fieldValues").append('=').append(getFieldValues()).append(',').append(' ');
-    buf.append("errors").append('=').append(getErrors()).append(',').append(' ');
+    buf.append("identifier").append('=').append(JodaBeanUtils.toString(getIdentifier())).append(',').append(' ');
+    buf.append("fieldValues").append('=').append(JodaBeanUtils.toString(getFieldValues())).append(',').append(' ');
+    buf.append("errors").append('=').append(JodaBeanUtils.toString(getErrors())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

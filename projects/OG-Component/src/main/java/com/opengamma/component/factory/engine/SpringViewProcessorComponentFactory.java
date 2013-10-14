@@ -620,17 +620,17 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("classifier").append('=').append(getClassifier()).append(',').append(' ');
-    buf.append("publishRest").append('=').append(isPublishRest()).append(',').append(' ');
-    buf.append("fudgeContext").append('=').append(getFudgeContext()).append(',').append(' ');
-    buf.append("jmsConnector").append('=').append(getJmsConnector()).append(',').append(' ');
-    buf.append("jmsBrokerUri").append('=').append(getJmsBrokerUri()).append(',').append(' ');
-    buf.append("scheduler").append('=').append(getScheduler()).append(',').append(' ');
-    buf.append("volatilityCubeDefinitionSource").append('=').append(getVolatilityCubeDefinitionSource()).append(',').append(' ');
-    buf.append("marketDataProviderResolver").append('=').append(getMarketDataProviderResolver()).append(',').append(' ');
-    buf.append("compileViewsWithRequirementStriping").append('=').append(isCompileViewsWithRequirementStriping()).append(',').append(' ');
-    buf.append("historicalTimeSeriesSource").append('=').append(getHistoricalTimeSeriesSource()).append(',').append(' ');
-    buf.append("jmsMarketDataAvailabilityTopic").append('=').append(getJmsMarketDataAvailabilityTopic()).append(',').append(' ');
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("publishRest").append('=').append(JodaBeanUtils.toString(isPublishRest())).append(',').append(' ');
+    buf.append("fudgeContext").append('=').append(JodaBeanUtils.toString(getFudgeContext())).append(',').append(' ');
+    buf.append("jmsConnector").append('=').append(JodaBeanUtils.toString(getJmsConnector())).append(',').append(' ');
+    buf.append("jmsBrokerUri").append('=').append(JodaBeanUtils.toString(getJmsBrokerUri())).append(',').append(' ');
+    buf.append("scheduler").append('=').append(JodaBeanUtils.toString(getScheduler())).append(',').append(' ');
+    buf.append("volatilityCubeDefinitionSource").append('=').append(JodaBeanUtils.toString(getVolatilityCubeDefinitionSource())).append(',').append(' ');
+    buf.append("marketDataProviderResolver").append('=').append(JodaBeanUtils.toString(getMarketDataProviderResolver())).append(',').append(' ');
+    buf.append("compileViewsWithRequirementStriping").append('=').append(JodaBeanUtils.toString(isCompileViewsWithRequirementStriping())).append(',').append(' ');
+    buf.append("historicalTimeSeriesSource").append('=').append(JodaBeanUtils.toString(getHistoricalTimeSeriesSource())).append(',').append(' ');
+    buf.append("jmsMarketDataAvailabilityTopic").append('=').append(JodaBeanUtils.toString(getJmsMarketDataAvailabilityTopic())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

@@ -440,14 +440,14 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory imp
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("classifier").append('=').append(getClassifier()).append(',').append(' ');
-    buf.append("securitySource").append('=').append(getSecuritySource()).append(',').append(' ');
-    buf.append("positionSource").append('=').append(getPositionSource()).append(',').append(' ');
-    buf.append("tempTargets").append('=').append(getTempTargets()).append(',').append(' ');
-    buf.append("cacheManager").append('=').append(getCacheManager()).append(',').append(' ');
-    buf.append("configSource").append('=').append(getConfigSource()).append(',').append(' ');
-    buf.append("currencyMatrixSource").append('=').append(getCurrencyMatrixSource()).append(',').append(' ');
-    buf.append("currencyPairsSource").append('=').append(getCurrencyPairsSource()).append(',').append(' ');
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("securitySource").append('=').append(JodaBeanUtils.toString(getSecuritySource())).append(',').append(' ');
+    buf.append("positionSource").append('=').append(JodaBeanUtils.toString(getPositionSource())).append(',').append(' ');
+    buf.append("tempTargets").append('=').append(JodaBeanUtils.toString(getTempTargets())).append(',').append(' ');
+    buf.append("cacheManager").append('=').append(JodaBeanUtils.toString(getCacheManager())).append(',').append(' ');
+    buf.append("configSource").append('=').append(JodaBeanUtils.toString(getConfigSource())).append(',').append(' ');
+    buf.append("currencyMatrixSource").append('=').append(JodaBeanUtils.toString(getCurrencyMatrixSource())).append(',').append(' ');
+    buf.append("currencyPairsSource").append('=').append(JodaBeanUtils.toString(getCurrencyPairsSource())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

@@ -266,11 +266,11 @@ public class DbToolContext extends DirectBean implements Closeable {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("dbConnector").append('=').append(getDbConnector()).append(',').append(' ');
-    buf.append("dbManagement").append('=').append(getDbManagement()).append(',').append(' ');
-    buf.append("catalog").append('=').append(getCatalog()).append(',').append(' ');
-    buf.append("schema").append('=').append(getSchema()).append(',').append(' ');
-    buf.append("schemaNames").append('=').append(getSchemaNames()).append(',').append(' ');
+    buf.append("dbConnector").append('=').append(JodaBeanUtils.toString(getDbConnector())).append(',').append(' ');
+    buf.append("dbManagement").append('=').append(JodaBeanUtils.toString(getDbManagement())).append(',').append(' ');
+    buf.append("catalog").append('=').append(JodaBeanUtils.toString(getCatalog())).append(',').append(' ');
+    buf.append("schema").append('=').append(JodaBeanUtils.toString(getSchema())).append(',').append(' ');
+    buf.append("schemaNames").append('=').append(JodaBeanUtils.toString(getSchemaNames())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

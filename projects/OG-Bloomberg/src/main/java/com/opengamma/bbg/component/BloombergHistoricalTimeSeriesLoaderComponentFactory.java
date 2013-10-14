@@ -202,9 +202,9 @@ public class BloombergHistoricalTimeSeriesLoaderComponentFactory extends Abstrac
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("referenceDataProvider").append('=').append(getReferenceDataProvider()).append(',').append(' ');
-    buf.append("historicalTimeSeriesMaster").append('=').append(getHistoricalTimeSeriesMaster()).append(',').append(' ');
-    buf.append("historicalTimeSeriesProvider").append('=').append(getHistoricalTimeSeriesProvider()).append(',').append(' ');
+    buf.append("referenceDataProvider").append('=').append(JodaBeanUtils.toString(getReferenceDataProvider())).append(',').append(' ');
+    buf.append("historicalTimeSeriesMaster").append('=').append(JodaBeanUtils.toString(getHistoricalTimeSeriesMaster())).append(',').append(' ');
+    buf.append("historicalTimeSeriesProvider").append('=').append(JodaBeanUtils.toString(getHistoricalTimeSeriesProvider())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

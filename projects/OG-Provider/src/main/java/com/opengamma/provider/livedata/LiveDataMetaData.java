@@ -428,15 +428,15 @@ public class LiveDataMetaData extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("supportedSchemes").append('=').append(getSupportedSchemes()).append(',').append(' ');
-    buf.append("serverType").append('=').append(getServerType()).append(',').append(' ');
-    buf.append("description").append('=').append(getDescription()).append(',').append(' ');
-    buf.append("connectionUri").append('=').append(getConnectionUri()).append(',').append(' ');
-    buf.append("jmsBrokerUri").append('=').append(getJmsBrokerUri()).append(',').append(' ');
-    buf.append("jmsSubscriptionTopic").append('=').append(getJmsSubscriptionTopic()).append(',').append(' ');
-    buf.append("jmsSubscriptionQueue").append('=').append(getJmsSubscriptionQueue()).append(',').append(' ');
-    buf.append("jmsEntitlementTopic").append('=').append(getJmsEntitlementTopic()).append(',').append(' ');
-    buf.append("jmsHeartbeatTopic").append('=').append(getJmsHeartbeatTopic()).append(',').append(' ');
+    buf.append("supportedSchemes").append('=').append(JodaBeanUtils.toString(getSupportedSchemes())).append(',').append(' ');
+    buf.append("serverType").append('=').append(JodaBeanUtils.toString(getServerType())).append(',').append(' ');
+    buf.append("description").append('=').append(JodaBeanUtils.toString(getDescription())).append(',').append(' ');
+    buf.append("connectionUri").append('=').append(JodaBeanUtils.toString(getConnectionUri())).append(',').append(' ');
+    buf.append("jmsBrokerUri").append('=').append(JodaBeanUtils.toString(getJmsBrokerUri())).append(',').append(' ');
+    buf.append("jmsSubscriptionTopic").append('=').append(JodaBeanUtils.toString(getJmsSubscriptionTopic())).append(',').append(' ');
+    buf.append("jmsSubscriptionQueue").append('=').append(JodaBeanUtils.toString(getJmsSubscriptionQueue())).append(',').append(' ');
+    buf.append("jmsEntitlementTopic").append('=').append(JodaBeanUtils.toString(getJmsEntitlementTopic())).append(',').append(' ');
+    buf.append("jmsHeartbeatTopic").append('=').append(JodaBeanUtils.toString(getJmsHeartbeatTopic())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

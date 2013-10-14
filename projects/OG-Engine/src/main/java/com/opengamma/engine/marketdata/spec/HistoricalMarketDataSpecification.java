@@ -152,7 +152,7 @@ public class HistoricalMarketDataSpecification implements Bean, MarketDataSpecif
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("timeSeriesResolverKey").append('=').append(getTimeSeriesResolverKey()).append(',').append(' ');
+    buf.append("timeSeriesResolverKey").append('=').append(JodaBeanUtils.toString(getTimeSeriesResolverKey())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

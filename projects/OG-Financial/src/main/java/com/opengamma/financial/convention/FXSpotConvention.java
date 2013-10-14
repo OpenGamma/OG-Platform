@@ -187,8 +187,8 @@ public class FXSpotConvention extends Convention {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("settlementDays").append('=').append(getSettlementDays()).append(',').append(' ');
-    buf.append("settlementRegion").append('=').append(getSettlementRegion()).append(',').append(' ');
+    buf.append("settlementDays").append('=').append(JodaBeanUtils.toString(getSettlementDays())).append(',').append(' ');
+    buf.append("settlementRegion").append('=').append(JodaBeanUtils.toString(getSettlementRegion())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

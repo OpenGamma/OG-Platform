@@ -182,9 +182,9 @@ public class FailureReason extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("id").append('=').append(getId()).append(',').append(' ');
-    buf.append("riskFailure").append('=').append(getRiskFailure()).append(',').append(' ');
-    buf.append("computeFailureId").append('=').append(getComputeFailureId()).append(',').append(' ');
+    buf.append("id").append('=').append(JodaBeanUtils.toString(getId())).append(',').append(' ');
+    buf.append("riskFailure").append('=').append(JodaBeanUtils.toString(getRiskFailure())).append(',').append(' ');
+    buf.append("computeFailureId").append('=').append(JodaBeanUtils.toString(getComputeFailureId())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

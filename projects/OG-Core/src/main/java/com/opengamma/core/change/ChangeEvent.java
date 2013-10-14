@@ -294,11 +294,11 @@ public class ChangeEvent extends DirectBean implements Serializable {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("type").append('=').append(getType()).append(',').append(' ');
-    buf.append("versionFrom").append('=').append(getVersionFrom()).append(',').append(' ');
-    buf.append("versionTo").append('=').append(getVersionTo()).append(',').append(' ');
-    buf.append("objectId").append('=').append(getObjectId()).append(',').append(' ');
-    buf.append("versionInstant").append('=').append(getVersionInstant()).append(',').append(' ');
+    buf.append("type").append('=').append(JodaBeanUtils.toString(getType())).append(',').append(' ');
+    buf.append("versionFrom").append('=').append(JodaBeanUtils.toString(getVersionFrom())).append(',').append(' ');
+    buf.append("versionTo").append('=').append(JodaBeanUtils.toString(getVersionTo())).append(',').append(' ');
+    buf.append("objectId").append('=').append(JodaBeanUtils.toString(getObjectId())).append(',').append(' ');
+    buf.append("versionInstant").append('=').append(JodaBeanUtils.toString(getVersionInstant())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

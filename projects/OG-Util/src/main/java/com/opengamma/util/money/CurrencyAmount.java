@@ -262,8 +262,6 @@ public final class CurrencyAmount implements ImmutableBean, Serializable {
   }
 
   //-----------------------------------------------------------------------
-  //-----------------------------------------------------------------------
-  //-----------------------------------------------------------------------
   /**
    * Returns a builder that allows this bean to be mutated.
    * @return the mutable builder, not null
@@ -461,7 +459,7 @@ public final class CurrencyAmount implements ImmutableBean, Serializable {
 
     /**
      * Sets the {@code amount} property in the builder.
-     * @param amount  the new value, not null
+     * @param amount  the new value
      * @return this, for chaining, not null
      */
     public Builder amount(double amount) {

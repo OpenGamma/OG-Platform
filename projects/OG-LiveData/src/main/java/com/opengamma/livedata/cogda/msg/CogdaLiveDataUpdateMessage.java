@@ -193,9 +193,9 @@ public class CogdaLiveDataUpdateMessage extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("subscriptionId").append('=').append(getSubscriptionId()).append(',').append(' ');
-    buf.append("normalizationScheme").append('=').append(getNormalizationScheme()).append(',').append(' ');
-    buf.append("values").append('=').append(getValues()).append(',').append(' ');
+    buf.append("subscriptionId").append('=').append(JodaBeanUtils.toString(getSubscriptionId())).append(',').append(' ');
+    buf.append("normalizationScheme").append('=').append(JodaBeanUtils.toString(getNormalizationScheme())).append(',').append(' ');
+    buf.append("values").append('=').append(JodaBeanUtils.toString(getValues())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

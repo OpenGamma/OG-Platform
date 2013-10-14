@@ -212,8 +212,8 @@ public class SwapTrade extends Trade {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("effectiveDate").append('=').append(getEffectiveDate()).append(',').append(' ');
-    buf.append("swapLegs").append('=').append(getSwapLegs()).append(',').append(' ');
+    buf.append("effectiveDate").append('=').append(JodaBeanUtils.toString(getEffectiveDate())).append(',').append(' ');
+    buf.append("swapLegs").append('=').append(JodaBeanUtils.toString(getSwapLegs())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

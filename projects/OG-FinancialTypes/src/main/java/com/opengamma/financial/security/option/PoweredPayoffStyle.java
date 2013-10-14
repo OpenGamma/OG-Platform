@@ -140,7 +140,7 @@ public class PoweredPayoffStyle extends PayoffStyle {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("power").append('=').append(getPower()).append(',').append(' ');
+    buf.append("power").append('=').append(JodaBeanUtils.toString(getPower())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

@@ -543,14 +543,14 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("objectIds").append('=').append(getObjectIds()).append(',').append(' ');
-    buf.append("externalIdSearch").append('=').append(getExternalIdSearch()).append(',').append(' ');
-    buf.append("externalIdValue").append('=').append(getExternalIdValue()).append(',').append(' ');
-    buf.append("externalIdScheme").append('=').append(getExternalIdScheme()).append(',').append(' ');
-    buf.append("name").append('=').append(getName()).append(',').append(' ');
-    buf.append("securityType").append('=').append(getSecurityType()).append(',').append(' ');
-    buf.append("sortOrder").append('=').append(getSortOrder()).append(',').append(' ');
-    buf.append("fullDetail").append('=').append(isFullDetail()).append(',').append(' ');
+    buf.append("objectIds").append('=').append(JodaBeanUtils.toString(getObjectIds())).append(',').append(' ');
+    buf.append("externalIdSearch").append('=').append(JodaBeanUtils.toString(getExternalIdSearch())).append(',').append(' ');
+    buf.append("externalIdValue").append('=').append(JodaBeanUtils.toString(getExternalIdValue())).append(',').append(' ');
+    buf.append("externalIdScheme").append('=').append(JodaBeanUtils.toString(getExternalIdScheme())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
+    buf.append("securityType").append('=').append(JodaBeanUtils.toString(getSecurityType())).append(',').append(' ');
+    buf.append("sortOrder").append('=').append(JodaBeanUtils.toString(getSortOrder())).append(',').append(' ');
+    buf.append("fullDetail").append('=').append(JodaBeanUtils.toString(isFullDetail())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

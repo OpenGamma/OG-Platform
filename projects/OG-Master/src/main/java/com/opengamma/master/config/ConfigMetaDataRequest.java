@@ -128,7 +128,7 @@ public class ConfigMetaDataRequest extends AbstractMetaDataRequest {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("configTypes").append('=').append(isConfigTypes()).append(',').append(' ');
+    buf.append("configTypes").append('=').append(JodaBeanUtils.toString(isConfigTypes())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

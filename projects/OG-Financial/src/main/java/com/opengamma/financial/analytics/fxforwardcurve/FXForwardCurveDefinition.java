@@ -105,7 +105,7 @@ public final class FXForwardCurveDefinition implements ImmutableBean {
     JodaBeanUtils.notNull(tenors, "tenors");
     this._name = name;
     this._target = target;
-    this._tenors = (tenors != null ? ImmutableList.copyOf(tenors) : null);
+    this._tenors = ImmutableList.copyOf(tenors);
   }
 
   @Override
@@ -193,7 +193,7 @@ public final class FXForwardCurveDefinition implements ImmutableBean {
     buf.append("FXForwardCurveDefinition{");
     buf.append("name").append('=').append(getName()).append(',').append(' ');
     buf.append("target").append('=').append(getTarget()).append(',').append(' ');
-    buf.append("tenors").append('=').append(getTenors());
+    buf.append("tenors").append('=').append(JodaBeanUtils.toString(getTenors()));
     buf.append('}');
     return buf.toString();
   }

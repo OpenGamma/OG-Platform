@@ -177,8 +177,8 @@ public class ExchangeTradedFutureAndOptionConvention extends Convention {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("expiryConvention").append('=').append(getExpiryConvention()).append(',').append(' ');
-    buf.append("exchangeCalendar").append('=').append(getExchangeCalendar()).append(',').append(' ');
+    buf.append("expiryConvention").append('=').append(JodaBeanUtils.toString(getExpiryConvention())).append(',').append(' ');
+    buf.append("exchangeCalendar").append('=').append(JodaBeanUtils.toString(getExchangeCalendar())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

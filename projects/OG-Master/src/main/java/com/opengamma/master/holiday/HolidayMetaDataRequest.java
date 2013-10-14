@@ -128,7 +128,7 @@ public class HolidayMetaDataRequest extends AbstractMetaDataRequest {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("holidayTypes").append('=').append(isHolidayTypes()).append(',').append(' ');
+    buf.append("holidayTypes").append('=').append(JodaBeanUtils.toString(isHolidayTypes())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

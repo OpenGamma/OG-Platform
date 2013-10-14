@@ -155,7 +155,7 @@ public class StaticFunctionConfiguration extends DirectBean implements FunctionC
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("definitionClassName").append('=').append(getDefinitionClassName()).append(',').append(' ');
+    buf.append("definitionClassName").append('=').append(JodaBeanUtils.toString(getDefinitionClassName())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

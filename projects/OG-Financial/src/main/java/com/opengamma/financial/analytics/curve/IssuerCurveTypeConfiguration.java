@@ -171,8 +171,8 @@ public class IssuerCurveTypeConfiguration extends CurveTypeConfiguration {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("issuerName").append('=').append(getIssuerName()).append(',').append(' ');
-    buf.append("underlyingReference").append('=').append(getUnderlyingReference()).append(',').append(' ');
+    buf.append("issuerName").append('=').append(JodaBeanUtils.toString(getIssuerName())).append(',').append(' ');
+    buf.append("underlyingReference").append('=').append(JodaBeanUtils.toString(getUnderlyingReference())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

@@ -189,7 +189,7 @@ public final class HistoricalShockMarketDataSpecification implements ImmutableBe
     buf.append("shockType").append('=').append(getShockType()).append(',').append(' ');
     buf.append("historicalSpecification1").append('=').append(getHistoricalSpecification1()).append(',').append(' ');
     buf.append("historicalSpecification2").append('=').append(getHistoricalSpecification2()).append(',').append(' ');
-    buf.append("baseSpecification").append('=').append(getBaseSpecification());
+    buf.append("baseSpecification").append('=').append(JodaBeanUtils.toString(getBaseSpecification()));
     buf.append('}');
     return buf.toString();
   }

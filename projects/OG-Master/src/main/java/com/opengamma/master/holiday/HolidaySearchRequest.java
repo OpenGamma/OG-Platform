@@ -756,16 +756,16 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("holidayObjectIds").append('=').append(getHolidayObjectIds()).append(',').append(' ');
-    buf.append("name").append('=').append(getName()).append(',').append(' ');
-    buf.append("type").append('=').append(getType()).append(',').append(' ');
-    buf.append("providerId").append('=').append(getProviderId()).append(',').append(' ');
-    buf.append("dateToCheck").append('=').append(getDateToCheck()).append(',').append(' ');
-    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
-    buf.append("regionExternalIdSearch").append('=').append(getRegionExternalIdSearch()).append(',').append(' ');
-    buf.append("exchangeExternalIdSearch").append('=').append(getExchangeExternalIdSearch()).append(',').append(' ');
-    buf.append("customExternalIdSearch").append('=').append(getCustomExternalIdSearch()).append(',').append(' ');
-    buf.append("sortOrder").append('=').append(getSortOrder()).append(',').append(' ');
+    buf.append("holidayObjectIds").append('=').append(JodaBeanUtils.toString(getHolidayObjectIds())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
+    buf.append("type").append('=').append(JodaBeanUtils.toString(getType())).append(',').append(' ');
+    buf.append("providerId").append('=').append(JodaBeanUtils.toString(getProviderId())).append(',').append(' ');
+    buf.append("dateToCheck").append('=').append(JodaBeanUtils.toString(getDateToCheck())).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("regionExternalIdSearch").append('=').append(JodaBeanUtils.toString(getRegionExternalIdSearch())).append(',').append(' ');
+    buf.append("exchangeExternalIdSearch").append('=').append(JodaBeanUtils.toString(getExchangeExternalIdSearch())).append(',').append(' ');
+    buf.append("customExternalIdSearch").append('=').append(JodaBeanUtils.toString(getCustomExternalIdSearch())).append(',').append(' ');
+    buf.append("sortOrder").append('=').append(JodaBeanUtils.toString(getSortOrder())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

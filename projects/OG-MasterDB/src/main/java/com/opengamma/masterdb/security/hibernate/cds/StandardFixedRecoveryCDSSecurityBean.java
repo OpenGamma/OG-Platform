@@ -113,7 +113,7 @@ public class StandardFixedRecoveryCDSSecurityBean extends StandardCDSSecurityBea
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("recoveryRate").append('=').append(getRecoveryRate()).append(',').append(' ');
+    buf.append("recoveryRate").append('=').append(JodaBeanUtils.toString(getRecoveryRate())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

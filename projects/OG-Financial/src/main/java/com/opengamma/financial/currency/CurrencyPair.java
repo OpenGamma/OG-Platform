@@ -439,7 +439,7 @@ public final class CurrencyPair implements ImmutableBean, UniqueIdentifiable {
     //-----------------------------------------------------------------------
     /**
      * Sets the {@code base} property in the builder.
-     * @param base  the new value, not null
+     * @param base  the new value
      * @return this, for chaining, not null
      */
     public Builder base(Currency base) {
@@ -449,7 +449,7 @@ public final class CurrencyPair implements ImmutableBean, UniqueIdentifiable {
 
     /**
      * Sets the {@code counter} property in the builder.
-     * @param counter  the new value, not null
+     * @param counter  the new value
      * @return this, for chaining, not null
      */
     public Builder counter(Currency counter) {

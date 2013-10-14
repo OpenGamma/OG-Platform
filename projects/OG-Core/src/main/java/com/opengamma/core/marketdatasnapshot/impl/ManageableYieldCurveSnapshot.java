@@ -191,7 +191,7 @@ public final class ManageableYieldCurveSnapshot implements ImmutableBean, YieldC
     StringBuilder buf = new StringBuilder(96);
     buf.append("ManageableYieldCurveSnapshot{");
     buf.append("valuationTime").append('=').append(getValuationTime()).append(',').append(' ');
-    buf.append("values").append('=').append(getValues());
+    buf.append("values").append('=').append(JodaBeanUtils.toString(getValues()));
     buf.append('}');
     return buf.toString();
   }

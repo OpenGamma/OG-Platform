@@ -117,7 +117,7 @@ public class CogdaLiveDataSnapshotResponseMessage extends CogdaLiveDataCommandRe
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("values").append('=').append(getValues()).append(',').append(' ');
+    buf.append("values").append('=').append(JodaBeanUtils.toString(getValues())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

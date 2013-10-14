@@ -326,14 +326,14 @@ public abstract class CogdaDataDistributorFactory extends AbstractComponentFacto
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("redisServer").append('=').append(getRedisServer()).append(',').append(' ');
-    buf.append("redisPort").append('=').append(getRedisPort()).append(',').append(' ');
-    buf.append("redisPrefix").append('=').append(getRedisPrefix()).append(',').append(' ');
-    buf.append("updateRedis").append('=').append(isUpdateRedis()).append(',').append(' ');
-    buf.append("publishJmsConnector").append('=').append(getPublishJmsConnector()).append(',').append(' ');
-    buf.append("publishTopicName").append('=').append(getPublishTopicName()).append(',').append(' ');
-    buf.append("listenJmsConnector").append('=').append(getListenJmsConnector()).append(',').append(' ');
-    buf.append("listenTopicName").append('=').append(getListenTopicName()).append(',').append(' ');
+    buf.append("redisServer").append('=').append(JodaBeanUtils.toString(getRedisServer())).append(',').append(' ');
+    buf.append("redisPort").append('=').append(JodaBeanUtils.toString(getRedisPort())).append(',').append(' ');
+    buf.append("redisPrefix").append('=').append(JodaBeanUtils.toString(getRedisPrefix())).append(',').append(' ');
+    buf.append("updateRedis").append('=').append(JodaBeanUtils.toString(isUpdateRedis())).append(',').append(' ');
+    buf.append("publishJmsConnector").append('=').append(JodaBeanUtils.toString(getPublishJmsConnector())).append(',').append(' ');
+    buf.append("publishTopicName").append('=').append(JodaBeanUtils.toString(getPublishTopicName())).append(',').append(' ');
+    buf.append("listenJmsConnector").append('=').append(JodaBeanUtils.toString(getListenJmsConnector())).append(',').append(' ');
+    buf.append("listenTopicName").append('=').append(JodaBeanUtils.toString(getListenTopicName())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

@@ -462,16 +462,16 @@ public class ConfigMasterPopulatorsFactoryBean extends DirectBean implements Ini
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("configMaster").append('=').append(getConfigMaster()).append(',').append(' ');
-    buf.append("yieldCurve").append('=').append(isYieldCurve()).append(',').append(' ');
-    buf.append("currencyMatrix").append('=').append(isCurrencyMatrix()).append(',').append(' ');
-    buf.append("swaptionVolatilitySurface").append('=').append(isSwaptionVolatilitySurface()).append(',').append(' ');
-    buf.append("irFutureOptionSurface").append('=').append(isIrFutureOptionSurface()).append(',').append(' ');
-    buf.append("fxOptionVolatilitySurface").append('=').append(isFxOptionVolatilitySurface()).append(',').append(' ');
-    buf.append("equityOptionSurface").append('=').append(isEquityOptionSurface()).append(',').append(' ');
-    buf.append("volatilityCube").append('=').append(isVolatilityCube()).append(',').append(' ');
-    buf.append("fxForwardCurve").append('=').append(isFxForwardCurve()).append(',').append(' ');
-    buf.append("curveCalculationConfiguration").append('=').append(isCurveCalculationConfiguration()).append(',').append(' ');
+    buf.append("configMaster").append('=').append(JodaBeanUtils.toString(getConfigMaster())).append(',').append(' ');
+    buf.append("yieldCurve").append('=').append(JodaBeanUtils.toString(isYieldCurve())).append(',').append(' ');
+    buf.append("currencyMatrix").append('=').append(JodaBeanUtils.toString(isCurrencyMatrix())).append(',').append(' ');
+    buf.append("swaptionVolatilitySurface").append('=').append(JodaBeanUtils.toString(isSwaptionVolatilitySurface())).append(',').append(' ');
+    buf.append("irFutureOptionSurface").append('=').append(JodaBeanUtils.toString(isIrFutureOptionSurface())).append(',').append(' ');
+    buf.append("fxOptionVolatilitySurface").append('=').append(JodaBeanUtils.toString(isFxOptionVolatilitySurface())).append(',').append(' ');
+    buf.append("equityOptionSurface").append('=').append(JodaBeanUtils.toString(isEquityOptionSurface())).append(',').append(' ');
+    buf.append("volatilityCube").append('=').append(JodaBeanUtils.toString(isVolatilityCube())).append(',').append(' ');
+    buf.append("fxForwardCurve").append('=').append(JodaBeanUtils.toString(isFxForwardCurve())).append(',').append(' ');
+    buf.append("curveCalculationConfiguration").append('=').append(JodaBeanUtils.toString(isCurveCalculationConfiguration())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

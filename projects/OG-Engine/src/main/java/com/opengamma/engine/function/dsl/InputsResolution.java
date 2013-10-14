@@ -126,7 +126,7 @@ public class InputsResolution extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("inputs").append('=').append(getInputs()).append(',').append(' ');
+    buf.append("inputs").append('=').append(JodaBeanUtils.toString(getInputs())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

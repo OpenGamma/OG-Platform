@@ -211,9 +211,9 @@ public class VolatilityPoint extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("swapTenor").append('=').append(getSwapTenor()).append(',').append(' ');
-    buf.append("optionExpiry").append('=').append(getOptionExpiry()).append(',').append(' ');
-    buf.append("relativeStrike").append('=').append(getRelativeStrike()).append(',').append(' ');
+    buf.append("swapTenor").append('=').append(JodaBeanUtils.toString(getSwapTenor())).append(',').append(' ');
+    buf.append("optionExpiry").append('=').append(JodaBeanUtils.toString(getOptionExpiry())).append(',').append(' ');
+    buf.append("relativeStrike").append('=').append(JodaBeanUtils.toString(getRelativeStrike())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

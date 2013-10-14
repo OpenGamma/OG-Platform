@@ -149,7 +149,7 @@ public class SecurityProviderResult extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("resultMap").append('=').append(getResultMap()).append(',').append(' ');
+    buf.append("resultMap").append('=').append(JodaBeanUtils.toString(getResultMap())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
