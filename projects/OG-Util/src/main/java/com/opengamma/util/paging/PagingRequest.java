@@ -36,7 +36,7 @@ import com.opengamma.util.PublicAPI;
  * This class is immutable and thread-safe.
  */
 @PublicAPI
-@BeanDefinition
+@BeanDefinition(builderScope = "private")
 public final class PagingRequest implements ImmutableBean {
 
   /**
@@ -235,15 +235,6 @@ public final class PagingRequest implements ImmutableBean {
     JodaBeanUtils.registerMetaBean(PagingRequest.Meta.INSTANCE);
   }
 
-  /**
-   * Returns a builder used to create an instance of the bean.
-   *
-   * @return the builder, not null
-   */
-  public static PagingRequest.Builder builder() {
-    return new PagingRequest.Builder();
-  }
-
   @Override
   public PagingRequest.Meta metaBean() {
     return PagingRequest.Meta.INSTANCE;
@@ -260,14 +251,6 @@ public final class PagingRequest implements ImmutableBean {
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public PagingRequest clone() {
     return this;
@@ -398,7 +381,7 @@ public final class PagingRequest implements ImmutableBean {
   /**
    * The bean-builder for {@code PagingRequest}.
    */
-  public static final class Builder extends BasicImmutableBeanBuilder<PagingRequest> {
+  private static final class Builder extends BasicImmutableBeanBuilder<PagingRequest> {
 
     private int _firstItem;
     private int _pagingSize;
@@ -441,27 +424,6 @@ public final class PagingRequest implements ImmutableBean {
       return new PagingRequest(
           _firstItem,
           _pagingSize);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the {@code firstItem} property in the builder.
-     * @param firstItem  the new value
-     * @return this, for chaining, not null
-     */
-    public Builder firstItem(int firstItem) {
-      this._firstItem = firstItem;
-      return this;
-    }
-
-    /**
-     * Sets the {@code pagingSize} property in the builder.
-     * @param pagingSize  the new value
-     * @return this, for chaining, not null
-     */
-    public Builder pagingSize(int pagingSize) {
-      this._pagingSize = pagingSize;
-      return this;
     }
 
     //-----------------------------------------------------------------------

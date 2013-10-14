@@ -39,7 +39,7 @@ import com.opengamma.util.PublicAPI;
  * This class is mutable and not thread-safe.
  */
 @PublicAPI
-@BeanDefinition
+@BeanDefinition(builderScope = "private")
 public final class ExternalIdSearch implements ImmutableBean, Iterable<ExternalId>, Serializable {
 
   /** Serialization version. */
@@ -367,15 +367,6 @@ public final class ExternalIdSearch implements ImmutableBean, Iterable<ExternalI
     JodaBeanUtils.registerMetaBean(ExternalIdSearch.Meta.INSTANCE);
   }
 
-  /**
-   * Returns a builder used to create an instance of the bean.
-   *
-   * @return the builder, not null
-   */
-  public static ExternalIdSearch.Builder builder() {
-    return new ExternalIdSearch.Builder();
-  }
-
   private ExternalIdSearch(
       Set<ExternalId> externalIds,
       ExternalIdSearchType searchType) {
@@ -419,14 +410,6 @@ public final class ExternalIdSearch implements ImmutableBean, Iterable<ExternalI
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public ExternalIdSearch clone() {
     return this;
@@ -568,7 +551,7 @@ public final class ExternalIdSearch implements ImmutableBean, Iterable<ExternalI
   /**
    * The bean-builder for {@code ExternalIdSearch}.
    */
-  public static final class Builder extends BasicImmutableBeanBuilder<ExternalIdSearch> {
+  private static final class Builder extends BasicImmutableBeanBuilder<ExternalIdSearch> {
 
     private Set<ExternalId> _externalIds = new HashSet<ExternalId>();
     private ExternalIdSearchType _searchType;
@@ -612,29 +595,6 @@ public final class ExternalIdSearch implements ImmutableBean, Iterable<ExternalI
       return new ExternalIdSearch(
           _externalIds,
           _searchType);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the {@code externalIds} property in the builder.
-     * @param externalIds  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder externalIds(Set<ExternalId> externalIds) {
-      JodaBeanUtils.notNull(externalIds, "externalIds");
-      this._externalIds = externalIds;
-      return this;
-    }
-
-    /**
-     * Sets the {@code searchType} property in the builder.
-     * @param searchType  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder searchType(ExternalIdSearchType searchType) {
-      JodaBeanUtils.notNull(searchType, "searchType");
-      this._searchType = searchType;
-      return this;
     }
 
     //-----------------------------------------------------------------------

@@ -48,7 +48,7 @@ import com.opengamma.util.PublicAPI;
  * This class is immutable and thread-safe.
  */
 @PublicAPI
-@BeanDefinition
+@BeanDefinition(builderScope = "private")
 public final class ExternalIdBundle implements ImmutableBean, Iterable<ExternalId>,
     Serializable, Comparable<ExternalIdBundle>, ExternalBundleIdentifiable {
 
@@ -479,15 +479,6 @@ public final class ExternalIdBundle implements ImmutableBean, Iterable<ExternalI
     JodaBeanUtils.registerMetaBean(ExternalIdBundle.Meta.INSTANCE);
   }
 
-  /**
-   * Returns a builder used to create an instance of the bean.
-   *
-   * @return the builder, not null
-   */
-  public static ExternalIdBundle.Builder builder() {
-    return new ExternalIdBundle.Builder();
-  }
-
   private ExternalIdBundle(
       SortedSet<ExternalId> externalIds) {
     JodaBeanUtils.notNull(externalIds, "externalIds");
@@ -522,14 +513,6 @@ public final class ExternalIdBundle implements ImmutableBean, Iterable<ExternalI
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public ExternalIdBundle clone() {
     return this;
@@ -622,7 +605,7 @@ public final class ExternalIdBundle implements ImmutableBean, Iterable<ExternalI
   /**
    * The bean-builder for {@code ExternalIdBundle}.
    */
-  public static final class Builder extends BasicImmutableBeanBuilder<ExternalIdBundle> {
+  private static final class Builder extends BasicImmutableBeanBuilder<ExternalIdBundle> {
 
     private SortedSet<ExternalId> _externalIds = new TreeSet<ExternalId>();
 
@@ -660,18 +643,6 @@ public final class ExternalIdBundle implements ImmutableBean, Iterable<ExternalI
     public ExternalIdBundle build() {
       return new ExternalIdBundle(
           _externalIds);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the {@code externalIds} property in the builder.
-     * @param externalIds  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder externalIds(SortedSet<ExternalId> externalIds) {
-      JodaBeanUtils.notNull(externalIds, "externalIds");
-      this._externalIds = externalIds;
-      return this;
     }
 
     //-----------------------------------------------------------------------

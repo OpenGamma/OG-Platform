@@ -34,7 +34,7 @@ import com.opengamma.util.ArgumentChecker;
  * <p>
  * This class is immutable and thread-safe.
  */
-@BeanDefinition
+@BeanDefinition(builderScope = "private")
 public final class LocalDateRange implements ImmutableBean, Serializable {
 
   /**
@@ -221,15 +221,6 @@ public final class LocalDateRange implements ImmutableBean, Serializable {
     JodaBeanUtils.registerMetaBean(LocalDateRange.Meta.INSTANCE);
   }
 
-  /**
-   * Returns a builder used to create an instance of the bean.
-   *
-   * @return the builder, not null
-   */
-  public static LocalDateRange.Builder builder() {
-    return new LocalDateRange.Builder();
-  }
-
   @Override
   public LocalDateRange.Meta metaBean() {
     return LocalDateRange.Meta.INSTANCE;
@@ -246,14 +237,6 @@ public final class LocalDateRange implements ImmutableBean, Serializable {
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public LocalDateRange clone() {
     return this;
@@ -384,7 +367,7 @@ public final class LocalDateRange implements ImmutableBean, Serializable {
   /**
    * The bean-builder for {@code LocalDateRange}.
    */
-  public static final class Builder extends BasicImmutableBeanBuilder<LocalDateRange> {
+  private static final class Builder extends BasicImmutableBeanBuilder<LocalDateRange> {
 
     private LocalDate _startDateInclusive;
     private LocalDate _endDateInclusive;
@@ -427,29 +410,6 @@ public final class LocalDateRange implements ImmutableBean, Serializable {
       return new LocalDateRange(
           _startDateInclusive,
           _endDateInclusive);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the {@code startDateInclusive} property in the builder.
-     * @param startDateInclusive  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder startDateInclusive(LocalDate startDateInclusive) {
-      JodaBeanUtils.notNull(startDateInclusive, "startDateInclusive");
-      this._startDateInclusive = startDateInclusive;
-      return this;
-    }
-
-    /**
-     * Sets the {@code endDateInclusive} property in the builder.
-     * @param endDateInclusive  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder endDateInclusive(LocalDate endDateInclusive) {
-      JodaBeanUtils.notNull(endDateInclusive, "endDateInclusive");
-      this._endDateInclusive = endDateInclusive;
-      return this;
     }
 
     //-----------------------------------------------------------------------
