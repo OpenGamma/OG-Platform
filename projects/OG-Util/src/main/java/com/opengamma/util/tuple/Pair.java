@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.CompareToBuilder;
+import org.joda.beans.ImmutableBean;
 
 import com.opengamma.util.PublicAPI;
 
@@ -30,7 +31,7 @@ import com.opengamma.util.PublicAPI;
  * @param <B> the second element type
  */
 @PublicAPI
-public abstract class Pair<A, B> implements Map.Entry<A, B>, Comparable<Pair<A, B>>, Serializable {
+public abstract class Pair<A, B> implements ImmutableBean, Map.Entry<A, B>, Comparable<Pair<A, B>>, Serializable {
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -193,6 +194,18 @@ public abstract class Pair<A, B> implements Map.Entry<A, B>, Comparable<Pair<A, 
     list.add(getFirst());
     list.add(getSecond());
     return (List<T>) list;
+  }
+
+  /**
+   * Clones this pair, returning an independent copy.
+   * <p>
+   * Pair subclasses must be immutable, so {@code this} is returned.
+   * 
+   * @return the clone, not null
+   */
+  @Override
+  public Pair<A, B> clone() {
+    return this;
   }
 
   //-------------------------------------------------------------------------

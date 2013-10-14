@@ -1,17 +1,29 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.util.tuple;
 
+import it.unimi.dsi.fastutil.longs.Long2DoubleMap;
+
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
+
 import org.apache.commons.lang.StringUtils;
+import org.joda.beans.Bean;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.impl.BasicImmutableBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaBean;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
 import com.opengamma.util.ArgumentChecker;
-
-import it.unimi.dsi.fastutil.longs.Long2DoubleMap;
 
 /**
  * An immutable pair consisting of an {@code long} and {@code double}.
@@ -149,6 +161,39 @@ public class LongDoublePair extends Pair<Long, Double> implements Long2DoubleMap
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * The meta-bean for {@code LongDoublePair}.
+   * @return the meta-bean, not null
+   */
+  public static LongDoublePair.Meta meta() {
+    return LongDoublePair.Meta.INSTANCE;
+  }
+
+  static {
+    JodaBeanUtils.registerMetaBean(LongDoublePair.Meta.INSTANCE);
+  }
+
+  @Override
+  public LongDoublePair.Meta metaBean() {
+    return LongDoublePair.Meta.INSTANCE;
+  }
+
+  @Override
+  public <R> Property<R> property(String propertyName) {
+    return metaBean().<R>metaProperty(propertyName).createProperty(this);
+  }
+
+  @Override
+  public Set<String> propertyNames() {
+    return metaBean().metaPropertyMap().keySet();
+  }
+
+  @Override
+  public LongDoublePair clone() {
+    return this;
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
@@ -184,6 +229,147 @@ public class LongDoublePair extends Pair<Long, Double> implements Long2DoubleMap
         .append(", ")
         .append(second)
         .append("]").toString();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * The meta-bean for {@code LongDoublePair}.
+   */
+  public static final class Meta extends DirectMetaBean {
+    /**
+     * The singleton instance of the meta-bean.
+     */
+    static final Meta INSTANCE = new Meta();
+
+    /**
+     * The meta-property for the {@code first} property.
+     */
+    private final MetaProperty<Long> _first = DirectMetaProperty.ofImmutable(
+        this, "first", LongDoublePair.class, Long.TYPE);
+    /**
+     * The meta-property for the {@code second} property.
+     */
+    private final MetaProperty<Double> _second = DirectMetaProperty.ofImmutable(
+        this, "second", LongDoublePair.class, Double.TYPE);
+    /**
+     * The meta-properties.
+     */
+    private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
+        this, null,
+        "first",
+        "second");
+
+    /**
+     * Restricted constructor.
+     */
+    Meta() {
+    }
+
+    @Override
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName) {
+        case "first":
+          return _first;
+        case "second":
+          return _second;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public LongDoublePair.Builder builder() {
+      return new LongDoublePair.Builder();
+    }
+
+    @Override
+    public Class<? extends LongDoublePair> beanType() {
+      return LongDoublePair.class;
+    }
+
+    @Override
+    public Map<String, MetaProperty<?>> metaPropertyMap() {
+      return _metaPropertyMap$;
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code first} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Long> first() {
+      return _first;
+    }
+
+    /**
+     * The meta-property for the {@code second} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Double> second() {
+      return _second;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName) {
+        case "first":
+          return ((LongDoublePair) bean).getFirst();
+        case "second":
+          return ((LongDoublePair) bean).getSecond();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      metaProperty(propertyName);
+      if (quiet) {
+        return;
+      }
+      throw new UnsupportedOperationException("Property cannot be written: " + propertyName);
+    }
+
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * The bean-builder for {@code LongDoublePair}.
+   */
+  private static final class Builder extends BasicImmutableBeanBuilder<LongDoublePair> {
+
+    /** The first element. */
+    private long _first;
+    /** The second element. */
+    private double _second;
+
+    /**
+     * Restricted constructor.
+     */
+    private Builder() {
+      super(LongDoublePair.Meta.INSTANCE);
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    public Builder set(String propertyName, Object newValue) {
+      switch (propertyName) {
+        case "first":
+          _first = (Long) newValue;
+          break;
+        case "second":
+          _second = (Double) newValue;
+          break;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+      return this;
+    }
+
+    @Override
+    public LongDoublePair build() {
+      return LongDoublePair.of(_first, _second);
+    }
+
   }
 
 }

@@ -1,15 +1,27 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.util.tuple;
 
+import it.unimi.dsi.fastutil.doubles.Double2DoubleMap;
+
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
+
 import org.apache.commons.lang.StringUtils;
+import org.joda.beans.Bean;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.impl.BasicImmutableBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaBean;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
-
-import it.unimi.dsi.fastutil.doubles.Double2DoubleMap;
 
 import com.opengamma.util.ArgumentChecker;
 
@@ -22,6 +34,7 @@ import com.opengamma.util.ArgumentChecker;
  * This class is immutable and thread-safe.
  */
 public final class DoublesPair extends Pair<Double, Double> implements Double2DoubleMap.Entry {
+  // this ImmutableBean is not auto-generated
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -181,6 +194,39 @@ public final class DoublesPair extends Pair<Double, Double> implements Double2Do
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * The meta-bean for {@code DoublesPair}.
+   * @return the meta-bean, not null
+   */
+  public static DoublesPair.Meta meta() {
+    return DoublesPair.Meta.INSTANCE;
+  }
+
+  static {
+    JodaBeanUtils.registerMetaBean(DoublesPair.Meta.INSTANCE);
+  }
+
+  @Override
+  public DoublesPair.Meta metaBean() {
+    return DoublesPair.Meta.INSTANCE;
+  }
+
+  @Override
+  public <R> Property<R> property(String propertyName) {
+    return metaBean().<R>metaProperty(propertyName).createProperty(this);
+  }
+
+  @Override
+  public Set<String> propertyNames() {
+    return metaBean().metaPropertyMap().keySet();
+  }
+
+  @Override
+  public DoublesPair clone() {
+    return this;
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
@@ -217,6 +263,147 @@ public final class DoublesPair extends Pair<Double, Double> implements Double2Do
         .append(", ")
         .append(second)
         .append("]").toString();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * The meta-bean for {@code DoublesPair}.
+   */
+  public static final class Meta extends DirectMetaBean {
+    /**
+     * The singleton instance of the meta-bean.
+     */
+    static final Meta INSTANCE = new Meta();
+
+    /**
+     * The meta-property for the {@code first} property.
+     */
+    private final MetaProperty<Double> _first = DirectMetaProperty.ofImmutable(
+        this, "first", DoublesPair.class, Double.TYPE);
+    /**
+     * The meta-property for the {@code second} property.
+     */
+    private final MetaProperty<Double> _second = DirectMetaProperty.ofImmutable(
+        this, "second", DoublesPair.class, Double.TYPE);
+    /**
+     * The meta-properties.
+     */
+    private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
+        this, null,
+        "first",
+        "second");
+
+    /**
+     * Restricted constructor.
+     */
+    Meta() {
+    }
+
+    @Override
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName) {
+        case "first":
+          return _first;
+        case "second":
+          return _second;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public DoublesPair.Builder builder() {
+      return new DoublesPair.Builder();
+    }
+
+    @Override
+    public Class<? extends DoublesPair> beanType() {
+      return DoublesPair.class;
+    }
+
+    @Override
+    public Map<String, MetaProperty<?>> metaPropertyMap() {
+      return _metaPropertyMap$;
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code first} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Double> first() {
+      return _first;
+    }
+
+    /**
+     * The meta-property for the {@code second} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Double> second() {
+      return _second;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName) {
+        case "first":
+          return ((DoublesPair) bean).getFirst();
+        case "second":
+          return ((DoublesPair) bean).getSecond();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      metaProperty(propertyName);
+      if (quiet) {
+        return;
+      }
+      throw new UnsupportedOperationException("Property cannot be written: " + propertyName);
+    }
+
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * The bean-builder for {@code DoublesPair}.
+   */
+  private static final class Builder extends BasicImmutableBeanBuilder<DoublesPair> {
+
+    /** The first element. */
+    private double _first;
+    /** The second element. */
+    private double _second;
+
+    /**
+     * Restricted constructor.
+     */
+    private Builder() {
+      super(DoublesPair.Meta.INSTANCE);
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    public Builder set(String propertyName, Object newValue) {
+      switch (propertyName) {
+        case "first":
+          _first = (Double) newValue;
+          break;
+        case "second":
+          _second = (Double) newValue;
+          break;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+      return this;
+    }
+
+    @Override
+    public DoublesPair build() {
+      return DoublesPair.of(_first, _second);
+    }
+
   }
 
 }
