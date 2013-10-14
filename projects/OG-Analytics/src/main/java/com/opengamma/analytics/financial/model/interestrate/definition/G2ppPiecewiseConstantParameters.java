@@ -85,6 +85,16 @@ public class G2ppPiecewiseConstantParameters {
   }
 
   /**
+   * Sets the Mean reversion parameters. 
+   * @param meanReversion The mean reversion parameters. 
+   */
+  public void setMeanReversion(final double[] meanReversion) {
+    Validate.isTrue(meanReversion.length == 2, "Two mean reversion parameters required");
+    _meanReversion[0] =  meanReversion[0];
+    _meanReversion[1] =  meanReversion[1];
+  }
+  
+  /**
    * Sets the volatility parameters. 
    * @param volatility The volatility parameters. 
    */
