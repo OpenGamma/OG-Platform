@@ -257,6 +257,11 @@ public class CompiledFunctionService {
     return _executorService;
   }
 
+  public void setExecutorService(PoolExecutor executor) {
+    ArgumentChecker.notNull(executor, "executor");
+    _executorService = executor;
+  }
+
   @Override
   public CompiledFunctionService clone() {
     return new CompiledFunctionService(getFunctionRepository(), getFunctionRepositoryCompiler(), getFunctionCompilationContext().clone());
