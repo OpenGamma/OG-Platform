@@ -75,7 +75,7 @@ CREATE TABLE exg_schema_version (
     version_key VARCHAR(32) NOT NULL,
     version_value VARCHAR(255) NOT NULL
 );
-INSERT INTO exg_schema_version (version_key, version_value) VALUES ('schema_patch', '45');
+INSERT INTO exg_schema_version (version_key, version_value) VALUES ('schema_patch', '46');
 
 CREATE SEQUENCE exg_exchange_seq AS bigint
     START WITH 1000 INCREMENT BY 1 NO CYCLE;
