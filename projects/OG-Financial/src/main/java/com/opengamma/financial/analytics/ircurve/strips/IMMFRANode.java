@@ -38,28 +38,28 @@ public class IMMFRANode extends CurveNode {
   private Tenor _startTenor;
 
   /**
-   * The IMM tenor.
+   * The index tenor.
    */
   @PropertyDefinition(validate = "notNull")
-  private Tenor _immTenor;
+  private Tenor _indexTenor;
 
   /**
    * The IMM date start number.
    */
   @PropertyDefinition(validate = "notNull")
-  private int _immDateStartNumber;
+  private int _startIMMDateNumber;
 
   /**
    * The IMM date end number.
    */
   @PropertyDefinition(validate = "notNull")
-  private int _immDateEndNumber;
+  private int _endIMMDateNumber;
 
   /**
-   * The convention.
+   * The IMM FRA convention with the underlying convention and the roll date convention.
    */
   @PropertyDefinition(validate = "notNull")
-  private ExternalId _convention;
+  private ExternalId _immFRAConvention;
 
   /**
    * For the builder.
@@ -71,46 +71,46 @@ public class IMMFRANode extends CurveNode {
   /**
    * Sets the useFixings field to true and the node name to null
    * @param startTenor The start tenor, not null
-   * @param immTenor The IMM tenor, not null
+   * @param indexTenor The index tenor, not null
    * @param immDateStartNumber The IMM date start number, not negative or zero
    * @param immDateEndNumber The IMM date end number, not negative or zero
    * @param convention The swap convention, not null
    * @param curveNodeIdMapperName The curve node id mapper name, not null
    */
-  public IMMFRANode(final Tenor startTenor, final Tenor immTenor, final int immDateStartNumber, final int immDateEndNumber, final ExternalId convention,
+  public IMMFRANode(final Tenor startTenor, final Tenor indexTenor, final int immDateStartNumber, final int immDateEndNumber, final ExternalId convention,
       final String curveNodeIdMapperName) {
     super(curveNodeIdMapperName);
     setStartTenor(startTenor);
-    setImmTenor(immTenor);
-    setImmDateStartNumber(immDateStartNumber);
-    setImmDateEndNumber(immDateEndNumber);
-    setConvention(convention);
+    setIndexTenor(indexTenor);
+    setStartIMMDateNumber(immDateStartNumber);
+    setEndIMMDateNumber(immDateEndNumber);
+    setImmFRAConvention(convention);
   }
 
   /**
    * Sets the useFixings field to true and the node name to null
    * @param startTenor The start tenor, not null
-   * @param immTenor The IMM tenor, not null
+   * @param indexTenor The index tenor, not null
    * @param immDateStartNumber The IMM date start number, not negative or zero
    * @param immDateEndNumber The IMM date end number, not negative or zero
-   * @param convention The swap convention, not null
+   * @param convention The IMM FRA convention, not null
    * @param curveNodeIdMapperName The curve node id mapper name, not null
    * @param name The curve node name
    */
-  public IMMFRANode(final Tenor startTenor, final Tenor immTenor, final int immDateStartNumber, final int immDateEndNumber, final ExternalId convention,
+  public IMMFRANode(final Tenor startTenor, final Tenor indexTenor, final int immDateStartNumber, final int immDateEndNumber, final ExternalId convention,
       final String curveNodeIdMapperName, final String name) {
     super(curveNodeIdMapperName, name);
     setStartTenor(startTenor);
-    setImmTenor(immTenor);
-    setImmDateStartNumber(immDateStartNumber);
-    setImmDateEndNumber(immDateEndNumber);
-    setConvention(convention);
+    setIndexTenor(indexTenor);
+    setStartIMMDateNumber(immDateStartNumber);
+    setEndIMMDateNumber(immDateEndNumber);
+    setImmFRAConvention(convention);
   }
 
   @Override
   public Tenor getResolvedMaturity() {
-    final int m = getImmTenor().getPeriod().getMonths();
-    return Tenor.of(getStartTenor().getPeriod().plusMonths(m * getImmDateEndNumber()));
+    final int m = getIndexTenor().getPeriod().getMonths();
+    return Tenor.of(getStartTenor().getPeriod().plusMonths(m * getEndIMMDateNumber()));
   }
 
   @Override
@@ -166,28 +166,28 @@ public class IMMFRANode extends CurveNode {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the IMM tenor.
+   * Gets the index tenor.
    * @return the value of the property, not null
    */
-  public Tenor getImmTenor() {
-    return _immTenor;
+  public Tenor getIndexTenor() {
+    return _indexTenor;
   }
 
   /**
-   * Sets the IMM tenor.
-   * @param immTenor  the new value of the property, not null
+   * Sets the index tenor.
+   * @param indexTenor  the new value of the property, not null
    */
-  public void setImmTenor(Tenor immTenor) {
-    JodaBeanUtils.notNull(immTenor, "immTenor");
-    this._immTenor = immTenor;
+  public void setIndexTenor(Tenor indexTenor) {
+    JodaBeanUtils.notNull(indexTenor, "indexTenor");
+    this._indexTenor = indexTenor;
   }
 
   /**
-   * Gets the the {@code immTenor} property.
+   * Gets the the {@code indexTenor} property.
    * @return the property, not null
    */
-  public final Property<Tenor> immTenor() {
-    return metaBean().immTenor().createProperty(this);
+  public final Property<Tenor> indexTenor() {
+    return metaBean().indexTenor().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -195,25 +195,25 @@ public class IMMFRANode extends CurveNode {
    * Gets the IMM date start number.
    * @return the value of the property, not null
    */
-  public int getImmDateStartNumber() {
-    return _immDateStartNumber;
+  public int getStartIMMDateNumber() {
+    return _startIMMDateNumber;
   }
 
   /**
    * Sets the IMM date start number.
-   * @param immDateStartNumber  the new value of the property, not null
+   * @param startIMMDateNumber  the new value of the property, not null
    */
-  public void setImmDateStartNumber(int immDateStartNumber) {
-    JodaBeanUtils.notNull(immDateStartNumber, "immDateStartNumber");
-    this._immDateStartNumber = immDateStartNumber;
+  public void setStartIMMDateNumber(int startIMMDateNumber) {
+    JodaBeanUtils.notNull(startIMMDateNumber, "startIMMDateNumber");
+    this._startIMMDateNumber = startIMMDateNumber;
   }
 
   /**
-   * Gets the the {@code immDateStartNumber} property.
+   * Gets the the {@code startIMMDateNumber} property.
    * @return the property, not null
    */
-  public final Property<Integer> immDateStartNumber() {
-    return metaBean().immDateStartNumber().createProperty(this);
+  public final Property<Integer> startIMMDateNumber() {
+    return metaBean().startIMMDateNumber().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -221,51 +221,51 @@ public class IMMFRANode extends CurveNode {
    * Gets the IMM date end number.
    * @return the value of the property, not null
    */
-  public int getImmDateEndNumber() {
-    return _immDateEndNumber;
+  public int getEndIMMDateNumber() {
+    return _endIMMDateNumber;
   }
 
   /**
    * Sets the IMM date end number.
-   * @param immDateEndNumber  the new value of the property, not null
+   * @param endIMMDateNumber  the new value of the property, not null
    */
-  public void setImmDateEndNumber(int immDateEndNumber) {
-    JodaBeanUtils.notNull(immDateEndNumber, "immDateEndNumber");
-    this._immDateEndNumber = immDateEndNumber;
+  public void setEndIMMDateNumber(int endIMMDateNumber) {
+    JodaBeanUtils.notNull(endIMMDateNumber, "endIMMDateNumber");
+    this._endIMMDateNumber = endIMMDateNumber;
   }
 
   /**
-   * Gets the the {@code immDateEndNumber} property.
+   * Gets the the {@code endIMMDateNumber} property.
    * @return the property, not null
    */
-  public final Property<Integer> immDateEndNumber() {
-    return metaBean().immDateEndNumber().createProperty(this);
+  public final Property<Integer> endIMMDateNumber() {
+    return metaBean().endIMMDateNumber().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the convention.
+   * Gets the IMM FRA convention with the underlying convention and the roll date convention.
    * @return the value of the property, not null
    */
-  public ExternalId getConvention() {
-    return _convention;
+  public ExternalId getImmFRAConvention() {
+    return _immFRAConvention;
   }
 
   /**
-   * Sets the convention.
-   * @param convention  the new value of the property, not null
+   * Sets the IMM FRA convention with the underlying convention and the roll date convention.
+   * @param immFRAConvention  the new value of the property, not null
    */
-  public void setConvention(ExternalId convention) {
-    JodaBeanUtils.notNull(convention, "convention");
-    this._convention = convention;
+  public void setImmFRAConvention(ExternalId immFRAConvention) {
+    JodaBeanUtils.notNull(immFRAConvention, "immFRAConvention");
+    this._immFRAConvention = immFRAConvention;
   }
 
   /**
-   * Gets the the {@code convention} property.
+   * Gets the the {@code immFRAConvention} property.
    * @return the property, not null
    */
-  public final Property<ExternalId> convention() {
-    return metaBean().convention().createProperty(this);
+  public final Property<ExternalId> immFRAConvention() {
+    return metaBean().immFRAConvention().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -282,10 +282,10 @@ public class IMMFRANode extends CurveNode {
     if (obj != null && obj.getClass() == this.getClass()) {
       IMMFRANode other = (IMMFRANode) obj;
       return JodaBeanUtils.equal(getStartTenor(), other.getStartTenor()) &&
-          JodaBeanUtils.equal(getImmTenor(), other.getImmTenor()) &&
-          (getImmDateStartNumber() == other.getImmDateStartNumber()) &&
-          (getImmDateEndNumber() == other.getImmDateEndNumber()) &&
-          JodaBeanUtils.equal(getConvention(), other.getConvention()) &&
+          JodaBeanUtils.equal(getIndexTenor(), other.getIndexTenor()) &&
+          (getStartIMMDateNumber() == other.getStartIMMDateNumber()) &&
+          (getEndIMMDateNumber() == other.getEndIMMDateNumber()) &&
+          JodaBeanUtils.equal(getImmFRAConvention(), other.getImmFRAConvention()) &&
           super.equals(obj);
     }
     return false;
@@ -295,10 +295,10 @@ public class IMMFRANode extends CurveNode {
   public int hashCode() {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getStartTenor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getImmTenor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getImmDateStartNumber());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getImmDateEndNumber());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConvention());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getIndexTenor());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getStartIMMDateNumber());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getEndIMMDateNumber());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getImmFRAConvention());
     return hash ^ super.hashCode();
   }
 
@@ -318,11 +318,11 @@ public class IMMFRANode extends CurveNode {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("startTenor").append('=').append(JodaBeanUtils.toString(getStartTenor())).append(',').append(' ');
-    buf.append("immTenor").append('=').append(JodaBeanUtils.toString(getImmTenor())).append(',').append(' ');
-    buf.append("immDateStartNumber").append('=').append(JodaBeanUtils.toString(getImmDateStartNumber())).append(',').append(' ');
-    buf.append("immDateEndNumber").append('=').append(JodaBeanUtils.toString(getImmDateEndNumber())).append(',').append(' ');
-    buf.append("convention").append('=').append(JodaBeanUtils.toString(getConvention())).append(',').append(' ');
+    buf.append("startTenor").append('=').append(getStartTenor()).append(',').append(' ');
+    buf.append("indexTenor").append('=').append(getIndexTenor()).append(',').append(' ');
+    buf.append("startIMMDateNumber").append('=').append(getStartIMMDateNumber()).append(',').append(' ');
+    buf.append("endIMMDateNumber").append('=').append(getEndIMMDateNumber()).append(',').append(' ');
+    buf.append("immFRAConvention").append('=').append(getImmFRAConvention()).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -341,35 +341,35 @@ public class IMMFRANode extends CurveNode {
     private final MetaProperty<Tenor> _startTenor = DirectMetaProperty.ofReadWrite(
         this, "startTenor", IMMFRANode.class, Tenor.class);
     /**
-     * The meta-property for the {@code immTenor} property.
+     * The meta-property for the {@code indexTenor} property.
      */
-    private final MetaProperty<Tenor> _immTenor = DirectMetaProperty.ofReadWrite(
-        this, "immTenor", IMMFRANode.class, Tenor.class);
+    private final MetaProperty<Tenor> _indexTenor = DirectMetaProperty.ofReadWrite(
+        this, "indexTenor", IMMFRANode.class, Tenor.class);
     /**
-     * The meta-property for the {@code immDateStartNumber} property.
+     * The meta-property for the {@code startIMMDateNumber} property.
      */
-    private final MetaProperty<Integer> _immDateStartNumber = DirectMetaProperty.ofReadWrite(
-        this, "immDateStartNumber", IMMFRANode.class, Integer.TYPE);
+    private final MetaProperty<Integer> _startIMMDateNumber = DirectMetaProperty.ofReadWrite(
+        this, "startIMMDateNumber", IMMFRANode.class, Integer.TYPE);
     /**
-     * The meta-property for the {@code immDateEndNumber} property.
+     * The meta-property for the {@code endIMMDateNumber} property.
      */
-    private final MetaProperty<Integer> _immDateEndNumber = DirectMetaProperty.ofReadWrite(
-        this, "immDateEndNumber", IMMFRANode.class, Integer.TYPE);
+    private final MetaProperty<Integer> _endIMMDateNumber = DirectMetaProperty.ofReadWrite(
+        this, "endIMMDateNumber", IMMFRANode.class, Integer.TYPE);
     /**
-     * The meta-property for the {@code convention} property.
+     * The meta-property for the {@code immFRAConvention} property.
      */
-    private final MetaProperty<ExternalId> _convention = DirectMetaProperty.ofReadWrite(
-        this, "convention", IMMFRANode.class, ExternalId.class);
+    private final MetaProperty<ExternalId> _immFRAConvention = DirectMetaProperty.ofReadWrite(
+        this, "immFRAConvention", IMMFRANode.class, ExternalId.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "startTenor",
-        "immTenor",
-        "immDateStartNumber",
-        "immDateEndNumber",
-        "convention");
+        "indexTenor",
+        "startIMMDateNumber",
+        "endIMMDateNumber",
+        "immFRAConvention");
 
     /**
      * Restricted constructor.
@@ -382,14 +382,14 @@ public class IMMFRANode extends CurveNode {
       switch (propertyName.hashCode()) {
         case -1583746178:  // startTenor
           return _startTenor;
-        case -533583753:  // immTenor
-          return _immTenor;
-        case 2126343860:  // immDateStartNumber
-          return _immDateStartNumber;
-        case -548980051:  // immDateEndNumber
-          return _immDateEndNumber;
-        case 2039569265:  // convention
-          return _convention;
+        case 736548110:  // indexTenor
+          return _indexTenor;
+        case 1503387646:  // startIMMDateNumber
+          return _startIMMDateNumber;
+        case -2145916891:  // endIMMDateNumber
+          return _endIMMDateNumber;
+        case 1608413469:  // immFRAConvention
+          return _immFRAConvention;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -419,35 +419,35 @@ public class IMMFRANode extends CurveNode {
     }
 
     /**
-     * The meta-property for the {@code immTenor} property.
+     * The meta-property for the {@code indexTenor} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Tenor> immTenor() {
-      return _immTenor;
+    public final MetaProperty<Tenor> indexTenor() {
+      return _indexTenor;
     }
 
     /**
-     * The meta-property for the {@code immDateStartNumber} property.
+     * The meta-property for the {@code startIMMDateNumber} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Integer> immDateStartNumber() {
-      return _immDateStartNumber;
+    public final MetaProperty<Integer> startIMMDateNumber() {
+      return _startIMMDateNumber;
     }
 
     /**
-     * The meta-property for the {@code immDateEndNumber} property.
+     * The meta-property for the {@code endIMMDateNumber} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Integer> immDateEndNumber() {
-      return _immDateEndNumber;
+    public final MetaProperty<Integer> endIMMDateNumber() {
+      return _endIMMDateNumber;
     }
 
     /**
-     * The meta-property for the {@code convention} property.
+     * The meta-property for the {@code immFRAConvention} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ExternalId> convention() {
-      return _convention;
+    public final MetaProperty<ExternalId> immFRAConvention() {
+      return _immFRAConvention;
     }
 
     //-----------------------------------------------------------------------
@@ -456,14 +456,14 @@ public class IMMFRANode extends CurveNode {
       switch (propertyName.hashCode()) {
         case -1583746178:  // startTenor
           return ((IMMFRANode) bean).getStartTenor();
-        case -533583753:  // immTenor
-          return ((IMMFRANode) bean).getImmTenor();
-        case 2126343860:  // immDateStartNumber
-          return ((IMMFRANode) bean).getImmDateStartNumber();
-        case -548980051:  // immDateEndNumber
-          return ((IMMFRANode) bean).getImmDateEndNumber();
-        case 2039569265:  // convention
-          return ((IMMFRANode) bean).getConvention();
+        case 736548110:  // indexTenor
+          return ((IMMFRANode) bean).getIndexTenor();
+        case 1503387646:  // startIMMDateNumber
+          return ((IMMFRANode) bean).getStartIMMDateNumber();
+        case -2145916891:  // endIMMDateNumber
+          return ((IMMFRANode) bean).getEndIMMDateNumber();
+        case 1608413469:  // immFRAConvention
+          return ((IMMFRANode) bean).getImmFRAConvention();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -474,17 +474,17 @@ public class IMMFRANode extends CurveNode {
         case -1583746178:  // startTenor
           ((IMMFRANode) bean).setStartTenor((Tenor) newValue);
           return;
-        case -533583753:  // immTenor
-          ((IMMFRANode) bean).setImmTenor((Tenor) newValue);
+        case 736548110:  // indexTenor
+          ((IMMFRANode) bean).setIndexTenor((Tenor) newValue);
           return;
-        case 2126343860:  // immDateStartNumber
-          ((IMMFRANode) bean).setImmDateStartNumber((Integer) newValue);
+        case 1503387646:  // startIMMDateNumber
+          ((IMMFRANode) bean).setStartIMMDateNumber((Integer) newValue);
           return;
-        case -548980051:  // immDateEndNumber
-          ((IMMFRANode) bean).setImmDateEndNumber((Integer) newValue);
+        case -2145916891:  // endIMMDateNumber
+          ((IMMFRANode) bean).setEndIMMDateNumber((Integer) newValue);
           return;
-        case 2039569265:  // convention
-          ((IMMFRANode) bean).setConvention((ExternalId) newValue);
+        case 1608413469:  // immFRAConvention
+          ((IMMFRANode) bean).setImmFRAConvention((ExternalId) newValue);
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
@@ -493,10 +493,10 @@ public class IMMFRANode extends CurveNode {
     @Override
     protected void validate(Bean bean) {
       JodaBeanUtils.notNull(((IMMFRANode) bean)._startTenor, "startTenor");
-      JodaBeanUtils.notNull(((IMMFRANode) bean)._immTenor, "immTenor");
-      JodaBeanUtils.notNull(((IMMFRANode) bean)._immDateStartNumber, "immDateStartNumber");
-      JodaBeanUtils.notNull(((IMMFRANode) bean)._immDateEndNumber, "immDateEndNumber");
-      JodaBeanUtils.notNull(((IMMFRANode) bean)._convention, "convention");
+      JodaBeanUtils.notNull(((IMMFRANode) bean)._indexTenor, "indexTenor");
+      JodaBeanUtils.notNull(((IMMFRANode) bean)._startIMMDateNumber, "startIMMDateNumber");
+      JodaBeanUtils.notNull(((IMMFRANode) bean)._endIMMDateNumber, "endIMMDateNumber");
+      JodaBeanUtils.notNull(((IMMFRANode) bean)._immFRAConvention, "immFRAConvention");
       super.validate(bean);
     }
 

@@ -504,7 +504,7 @@ public class CouponONDefinitionTest {
 
   @Test
   /**
-   * Tests the toDerivative method.
+   * Tests the toDerivative method. Reference date is after the last fixing date and all the fixing are known.
    */
   public void toDerivativeFixingLast() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 9, 16);
@@ -521,6 +521,8 @@ public class CouponONDefinitionTest {
     final CouponFixed cpnExpected = new CouponFixed(EUR_CUR, paymentTime, EUR_PAYMENT_YEAR_FRACTION, NOTIONAL, (notionalIncreased / NOTIONAL - 1.0) / EUR_PAYMENT_YEAR_FRACTION);
     assertEquals("CouponOISSimplified definition: toDerivative", cpnExpected, cpnConverted);
   }
+
+  // TODO: add a couple of test on the last fixing date, with and without the fixing present.
 
   @Test
   /**

@@ -373,23 +373,23 @@ import com.opengamma.util.time.Tenor;
     /** The start tenor field */
     private static final String START_TENOR_FIELD = "startTenor";
     /** The IMM tenor field */
-    private static final String IMM_TENOR_FIELD = "immTenor";
+    private static final String INDEX_TENOR_FIELD = "indexTenor";
     /** The start IMM date number field */
     private static final String START_IMM_DATE_NUMBER_FIELD = "startIMMDateNumber";
     /** The end IMM date number field */
     private static final String END_IMM_DATE_NUMBER_FIELD = "endIMMDateNumber";
     /** The swap convention field */
-    private static final String SWAP_CONVENTION_FIELD = "payLegConvention";
+    private static final String IMM_FRA_CONVENTION_FIELD = "immFRAConvention";
 
     @Override
     public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final IMMFRANode object) {
       final MutableFudgeMsg message = serializer.newMessage();
       message.add(null, 0, object.getClass().getName());
       message.add(START_TENOR_FIELD, object.getStartTenor().toFormattedString());
-      message.add(IMM_TENOR_FIELD, object.getImmTenor().toFormattedString());
-      message.add(START_IMM_DATE_NUMBER_FIELD, object.getImmDateStartNumber());
-      message.add(END_IMM_DATE_NUMBER_FIELD, object.getImmDateEndNumber());
-      message.add(SWAP_CONVENTION_FIELD, object.getConvention());
+      message.add(INDEX_TENOR_FIELD, object.getIndexTenor().toFormattedString());
+      message.add(START_IMM_DATE_NUMBER_FIELD, object.getStartIMMDateNumber());
+      message.add(END_IMM_DATE_NUMBER_FIELD, object.getEndIMMDateNumber());
+      message.add(IMM_FRA_CONVENTION_FIELD, object.getImmFRAConvention());
       message.add(CURVE_MAPPER_ID_FIELD, object.getCurveNodeIdMapperName());
       if (object.getName() != null) {
         message.add(NAME_FIELD, object.getName());
@@ -400,16 +400,16 @@ import com.opengamma.util.time.Tenor;
     @Override
     public IMMFRANode buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final Tenor startTenor = Tenor.parse(message.getString(START_TENOR_FIELD));
-      final Tenor immTenor = Tenor.parse(message.getString(IMM_TENOR_FIELD));
+      final Tenor immTenor = Tenor.parse(message.getString(INDEX_TENOR_FIELD));
       final int immDateStartNumber = message.getInt(START_IMM_DATE_NUMBER_FIELD);
       final int immDateEndNumber = message.getInt(END_IMM_DATE_NUMBER_FIELD);
-      final ExternalId swapConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(SWAP_CONVENTION_FIELD));
+      final ExternalId indexConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(IMM_FRA_CONVENTION_FIELD));
       final String curveNodeIdMapperName = message.getString(CURVE_MAPPER_ID_FIELD);
       if (message.hasField(NAME_FIELD)) {
         final String name = message.getString(NAME_FIELD);
-        return new IMMFRANode(startTenor, immTenor, immDateStartNumber, immDateEndNumber, swapConvention, curveNodeIdMapperName, name);
+        return new IMMFRANode(startTenor, immTenor, immDateStartNumber, immDateEndNumber, indexConvention, curveNodeIdMapperName, name);
       }
-      return new IMMFRANode(startTenor, immTenor, immDateStartNumber, immDateEndNumber, swapConvention, curveNodeIdMapperName);
+      return new IMMFRANode(startTenor, immTenor, immDateStartNumber, immDateEndNumber, indexConvention, curveNodeIdMapperName);
     }
 
   }
@@ -422,13 +422,13 @@ import com.opengamma.util.time.Tenor;
     /** The start tenor field */
     private static final String START_TENOR_FIELD = "startTenor";
     /** The IMM tenor field */
-    private static final String IMM_TENOR_FIELD = "immTenor";
+    private static final String INDEX_TENOR_FIELD = "indexTenor";
     /** The start IMM date number field */
     private static final String START_IMM_DATE_NUMBER_FIELD = "startIMMDateNumber";
     /** The end IMM date number field */
     private static final String END_IMM_DATE_NUMBER_FIELD = "endIMMDateNumber";
     /** The swap convention field */
-    private static final String SWAP_CONVENTION_FIELD = "convention";
+    private static final String IMM_SWAP_CONVENTION_FIELD = "immSwapConvention";
     /** The use fixings field */
     private static final String USE_FIXINGS_FIELD = "useFixings";
 
@@ -437,10 +437,10 @@ import com.opengamma.util.time.Tenor;
       final MutableFudgeMsg message = serializer.newMessage();
       message.add(null, 0, object.getClass().getName());
       message.add(START_TENOR_FIELD, object.getStartTenor().toFormattedString());
-      message.add(IMM_TENOR_FIELD, object.getImmTenor().toFormattedString());
+      message.add(INDEX_TENOR_FIELD, object.getIndexTenor().toFormattedString());
       message.add(START_IMM_DATE_NUMBER_FIELD, object.getImmDateStartNumber());
       message.add(END_IMM_DATE_NUMBER_FIELD, object.getImmDateEndNumber());
-      message.add(SWAP_CONVENTION_FIELD, object.getSwapConvention());
+      message.add(IMM_SWAP_CONVENTION_FIELD, object.getSwapConvention());
       message.add(CURVE_MAPPER_ID_FIELD, object.getCurveNodeIdMapperName());
       if (object.getName() != null) {
         message.add(NAME_FIELD, object.getName());
@@ -452,10 +452,10 @@ import com.opengamma.util.time.Tenor;
     @Override
     public IMMSwapNode buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final Tenor startTenor = Tenor.parse(message.getString(START_TENOR_FIELD));
-      final Tenor immTenor = Tenor.parse(message.getString(IMM_TENOR_FIELD));
+      final Tenor immTenor = Tenor.parse(message.getString(INDEX_TENOR_FIELD));
       final int immDateStartNumber = message.getInt(START_IMM_DATE_NUMBER_FIELD);
       final int immDateEndNumber = message.getInt(END_IMM_DATE_NUMBER_FIELD);
-      final ExternalId swapConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(SWAP_CONVENTION_FIELD));
+      final ExternalId swapConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(IMM_SWAP_CONVENTION_FIELD));
       final String curveNodeIdMapperName = message.getString(CURVE_MAPPER_ID_FIELD);
       if (message.hasField(NAME_FIELD)) {
         final String name = message.getString(NAME_FIELD);
