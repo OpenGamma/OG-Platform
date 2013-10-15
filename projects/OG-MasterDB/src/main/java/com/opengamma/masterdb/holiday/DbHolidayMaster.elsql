@@ -17,7 +17,7 @@
     main.region_value AS region_value,
     main.exchange_scheme AS exchange_scheme,
     main.exchange_value AS exchange_value,
-    main.custom_scheme AS custom_schema,
+    main.custom_scheme AS custom_scheme,
     main.custom_value AS custom_value,
     main.currency_iso AS currency_iso,
     d.hol_date AS hol_date
@@ -47,7 +47,7 @@
     main.region_value AS region_value,
     main.exchange_scheme AS exchange_scheme,
     main.exchange_value AS exchange_value,
-    main.custom_scheme AS custom_schema,
+    main.custom_scheme AS custom_scheme,
     main.custom_value AS custom_value,
     main.currency_iso AS currency_iso,
     d.hol_date AS hol_date
@@ -79,7 +79,7 @@
     main.region_value AS region_value,
     main.exchange_scheme AS exchange_scheme,
     main.exchange_value AS exchange_value,
-    main.custom_scheme AS custom_schema,
+    main.custom_scheme AS custom_scheme,
     main.custom_value AS custom_value,
     main.currency_iso AS currency_iso,
     d.hol_date AS hol_date
@@ -155,7 +155,7 @@
     main.region_value AS region_value,
     main.exchange_scheme AS exchange_scheme,
     main.exchange_value AS exchange_value,
-    main.custom_scheme AS custom_schema,
+    main.custom_scheme AS custom_scheme,
     main.custom_value AS custom_value,
     main.currency_iso AS currency_iso,
     d.hol_date AS hol_date
