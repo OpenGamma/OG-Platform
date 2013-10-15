@@ -221,7 +221,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
    * @param listener the process listener, not null
    * @param viewDefinitionId the id of the view definition, not null
    * @param executionOptions the view execution options, not null
-   * @param viewProcessContextMap contextual information to be added to log statements via MDC
+   * @param viewProcessContextMap contextual information to be added to log statements via MDC, may be null
    * @return the permission context to be used for access control, not null
    */
   public ViewPermissionContext attachClientToSharedViewProcess(final UniqueId clientId,
@@ -709,6 +709,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
                                        // but set to what web client would
                                        ViewResultMode.FULL_THEN_DELTA,
                                        ViewResultMode.NONE,
+                                       null,
                                        // Run persistently
                                        true);
         } catch (RuntimeException e) {

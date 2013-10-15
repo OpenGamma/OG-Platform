@@ -87,7 +87,7 @@ public class ViewClientImpl implements ViewClient {
    * Holds the context information to be passed to the view process where it will be
    * added to each log statement (using the MDC mechanism).
    */
-  private volatile Map<String, String> _viewProcessContextMap = null;
+  private Map<String, String> _viewProcessContextMap = null;
 
   /**
    * Constructs an instance.
