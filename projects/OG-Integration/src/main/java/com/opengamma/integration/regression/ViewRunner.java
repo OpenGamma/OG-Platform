@@ -144,7 +144,7 @@ import com.opengamma.util.ArgumentChecker;
     Listener listener = new Listener(_positionSource, _securitySource, snapshotName, valuationTime, version);
     viewClient.setResultListener(listener);
     viewClient.setResultMode(ViewResultMode.FULL_ONLY);
-    System.out.println("attaching to view process");
+    System.out.println("attaching to view process for view definition '" + viewName + "' with snapshot '" + snapshotName + "'");
     viewClient.attachToViewProcess(viewDefId, executionOptions, true);
     System.out.println("waiting for completion");
     try {

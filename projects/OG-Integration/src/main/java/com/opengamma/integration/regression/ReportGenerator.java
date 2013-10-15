@@ -29,13 +29,20 @@ import freemarker.template.Template;
  */
 public class ReportGenerator {
 
+  // TODO does this to be extensible?
   enum Format {
-    TEXT("report-text.ftl");
+    TEXT("/regression", "plain-text-report.ftl");
 
+    private final String _templateLocation;
     private final String _templateName;
 
-    Format(String templateName) {
+    Format(String templateLocation, String templateName) {
+      _templateLocation = templateLocation;
       _templateName = templateName;
+    }
+
+    public String getTemplateLocation() {
+      return _templateLocation;
     }
 
     private String getTemplateName() {
@@ -52,7 +59,7 @@ public class ReportGenerator {
   public static void generateReport(RegressionTestResults results, Format format, Writer writer) {
     Configuration cfg = new Configuration();
     try {
-      cfg.setClassForTemplateLoading(ReportGenerator.class, "");
+      cfg.setClassForTemplateLoading(ReportGenerator.class, format.getTemplateLocation());
       Template template = cfg.getTemplate(format.getTemplateName());
       Map<String, Object> input = ImmutableMap.<String, Object>of("results", results);
       template.process(input, writer);

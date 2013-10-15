@@ -13,7 +13,7 @@ Number of matching results: ${diff.equalResultCount}
   && !diff.onlyTest?has_content
   && !diff.different?has_content
   && !diff.differentProperties?has_content>
-No differences.
+No differences
 </#if>
 
 <#if diff.onlyBase?has_content>

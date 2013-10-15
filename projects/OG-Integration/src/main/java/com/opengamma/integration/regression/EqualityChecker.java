@@ -15,6 +15,7 @@ import org.joda.beans.MetaProperty;
 
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.util.serialization.InvokedSerializedForm;
+import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.util.ClassMap;
 import com.opengamma.util.fudgemsg.WriteReplaceHelper;
@@ -27,20 +28,23 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 public final class EqualityChecker {
 
   // TODO static method to populate this from the outside
-  private static final Map<Class<?>, EqualsHandler<?>> s_handlers = new ClassMap<>();
+  private static final Map<Class<?>, TypeHandler<?>> s_handlers = new ClassMap<>();
 
   static {
-    s_handlers.put(Double.class, new EqualityChecker.DoubleHandler());
-    s_handlers.put(double[].class, new EqualityChecker.PrimitiveDoubleArrayHandler());
-    s_handlers.put(Double[].class, new EqualityChecker.DoubleArrayHandler());
-    s_handlers.put(Object[].class, new EqualityChecker.ObjectArrayHandler());
-    s_handlers.put(List.class, new EqualityChecker.ListHandler());
-    s_handlers.put(YieldCurve.class, new EqualityChecker.YieldCurveHandler());
-    s_handlers.put(DoubleLabelledMatrix1D.class, new EqualityChecker.DoubleLabelledMatrix1DHandler());
-    s_handlers.put(MultipleCurrencyAmount.class, new EqualityChecker.MultipleCurrencyAmountHandler());
-    s_handlers.put(Bean.class, new EqualityChecker.BeanEqualsHandler());
-    s_handlers.put(InvokedSerializedForm.class, new InvokedSerializedFormEqualsHandler());
+    s_handlers.put(Double.class, new DoubleHandler());
+    s_handlers.put(double[].class, new PrimitiveDoubleArrayHandler());
+    s_handlers.put(Double[].class, new DoubleArrayHandler());
+    s_handlers.put(Object[].class, new ObjectArrayHandler());
+    s_handlers.put(List.class, new ListHandler());
+    s_handlers.put(YieldCurve.class, new YieldCurveHandler());
+    s_handlers.put(DoubleLabelledMatrix1D.class, new DoubleLabelledMatrix1DHandler());
+    s_handlers.put(MultipleCurrencyAmount.class, new MultipleCurrencyAmountHandler());
+    s_handlers.put(Bean.class, new BeanHandler());
+    s_handlers.put(InvokedSerializedForm.class, new InvokedSerializedFormHandler());
+    s_handlers.put(VolatilitySurfaceData.class, new VolatilitySurfaceDataHandler());
+    s_handlers.put(Map.class, new MapHandler());
   }
+
   private EqualityChecker() {
   }
 
@@ -68,19 +72,19 @@ public final class EqualityChecker {
       return false;
     }
     @SuppressWarnings("unchecked")
-    EqualsHandler<Object> equalsHandler = (EqualsHandler<Object>) s_handlers.get(value1.getClass());
-    if (equalsHandler != null) {
-      return equalsHandler.equals(value1, value2, delta);
+    TypeHandler<Object> handler = (TypeHandler<Object>) s_handlers.get(value1.getClass());
+    if (handler != null) {
+      return handler.equals(value1, value2, delta);
     } else {
       return Objects.equals(value1, value2);
     }
   }
 
   /**
-   * TODO this is a rubbish name
-   * @param <T>
+   * Handles equality checking for a specific type.
+   * @param <T> The type
    */
-  public interface EqualsHandler<T> {
+  public interface TypeHandler<T> {
 
     /**
      * Returns true if the values are close enough to equality to satisfy the regression test.
@@ -92,7 +96,7 @@ public final class EqualityChecker {
     boolean equals(T value1, T value2, double delta);
   }
 
-  static final class YieldCurveHandler implements EqualsHandler<YieldCurve> {
+  private static final class YieldCurveHandler implements TypeHandler<YieldCurve> {
 
     @Override
     public boolean equals(YieldCurve value1, YieldCurve value2, double delta) {
@@ -100,7 +104,7 @@ public final class EqualityChecker {
     }
   }
 
-  static final class DoubleArrayHandler implements EqualsHandler<Double[]> {
+  private static final class DoubleArrayHandler implements TypeHandler<Double[]> {
 
     @Override
     public boolean equals(Double[] value1, Double[] value2, double delta) {
@@ -118,7 +122,7 @@ public final class EqualityChecker {
     }
   }
 
-  static final class MultipleCurrencyAmountHandler implements EqualsHandler<MultipleCurrencyAmount> {
+  private static final class MultipleCurrencyAmountHandler implements TypeHandler<MultipleCurrencyAmount> {
 
     @Override
     public boolean equals(MultipleCurrencyAmount value1, MultipleCurrencyAmount value2, double delta) {
@@ -138,7 +142,7 @@ public final class EqualityChecker {
     }
   }
 
-  static final class ObjectArrayHandler implements EqualsHandler<Object[]> {
+  private static final class ObjectArrayHandler implements TypeHandler<Object[]> {
 
     @Override
     public boolean equals(Object[] value1, Object[] value2, double delta) {
@@ -156,7 +160,7 @@ public final class EqualityChecker {
     }
   }
 
-  static final class PrimitiveDoubleArrayHandler implements EqualsHandler<double[]> {
+  private static final class PrimitiveDoubleArrayHandler implements TypeHandler<double[]> {
 
     @Override
     public boolean equals(double[] value1, double[] value2, double delta) {
@@ -174,7 +178,7 @@ public final class EqualityChecker {
     }
   }
 
-  static final class DoubleHandler implements EqualsHandler<Double> {
+  private static final class DoubleHandler implements TypeHandler<Double> {
 
     @Override
     public boolean equals(Double value1, Double value2, double delta) {
@@ -182,7 +186,7 @@ public final class EqualityChecker {
     }
   }
 
-  static final class ListHandler implements EqualsHandler<List<?>> {
+  private static final class ListHandler implements TypeHandler<List<?>> {
 
     @Override
     public boolean equals(List<?> value1, List<?> value2, double delta) {
@@ -200,7 +204,7 @@ public final class EqualityChecker {
     }
   }
 
-  static class DoubleLabelledMatrix1DHandler implements EqualsHandler<DoubleLabelledMatrix1D> {
+  private static class DoubleLabelledMatrix1DHandler implements TypeHandler<DoubleLabelledMatrix1D> {
 
     @Override
     public boolean equals(DoubleLabelledMatrix1D value1, DoubleLabelledMatrix1D value2, double delta) {
@@ -220,7 +224,7 @@ public final class EqualityChecker {
     }
   }
 
-  /* package */ static class BeanEqualsHandler implements EqualsHandler<Bean> {
+  private static class BeanHandler implements TypeHandler<Bean> {
 
     @Override
     public boolean equals(Bean bean1, Bean bean2, double delta) {
@@ -235,7 +239,7 @@ public final class EqualityChecker {
     }
   }
 
-  private static class InvokedSerializedFormEqualsHandler implements EqualsHandler<InvokedSerializedForm> {
+  private static class InvokedSerializedFormHandler implements TypeHandler<InvokedSerializedForm> {
 
     @Override
     public boolean equals(InvokedSerializedForm value1, InvokedSerializedForm value2, double delta) {
@@ -250,6 +254,50 @@ public final class EqualityChecker {
       }
       if (!EqualityChecker.equals(value1.getParameters(), value2.getParameters(), delta)) {
         return false;
+      }
+      return true;
+    }
+  }
+
+  private static class VolatilitySurfaceDataHandler implements TypeHandler<VolatilitySurfaceData<?, ?>> {
+
+    @Override
+    public boolean equals(VolatilitySurfaceData<?, ?> value1, VolatilitySurfaceData<?, ?> value2, double delta) {
+      if (!Objects.equals(value1.getDefinitionName(), value2.getDefinitionName())) {
+        return false;
+      }
+      if (!Objects.equals(value1.getSpecificationName(), value2.getSpecificationName())) {
+        return false;
+      }
+      if (!Objects.equals(value1.getTarget(), value2.getTarget())) {
+        return false;
+      }
+      if (!Objects.equals(value1.getXLabel(), value2.getXLabel())) {
+        return false;
+      }
+      if (!Objects.equals(value1.getYLabel(), value2.getYLabel())) {
+        return false;
+      }
+      if (!EqualityChecker.equals(value1.asMap(), value2.asMap(), delta)) {
+        return false;
+      }
+      return true;
+    }
+  }
+
+  private static class MapHandler implements TypeHandler<Map<?, ?>> {
+
+    @Override
+    public boolean equals(Map<?, ?> map1, Map<?, ?> map2, double delta) {
+      if (!map1.keySet().equals(map2.keySet())) {
+        return false;
+      }
+      for (Map.Entry<?, ?> entry : map1.entrySet()) {
+        Object value1 = entry.getValue();
+        Object value2 = map2.get(entry.getKey());
+        if (!EqualityChecker.equals(value1, value2, delta)) {
+          return false;
+        }
       }
       return true;
     }

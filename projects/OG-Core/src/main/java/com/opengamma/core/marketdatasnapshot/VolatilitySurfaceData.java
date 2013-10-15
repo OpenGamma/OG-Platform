@@ -173,4 +173,19 @@ public class VolatilitySurfaceData<X, Y> {
     return getDefinitionName().hashCode() * getSpecificationName().hashCode() * getTarget().hashCode();
   }
 
+  @Override
+  public String toString() {
+    return "VolatilitySurfaceData [" +
+        "_definitionName='" + _definitionName + "'" +
+        ", _specificationName='" + _specificationName + "'" +
+        ", _target=" + _target +
+        ", _xLabel='" + _xLabel + "'" +
+        ", _yLabel='" + _yLabel + "'" +
+        ", _xs=" + (_xs == null ? null : Arrays.asList(_xs)) +
+        ", _ys=" + (_ys == null ? null : Arrays.asList(_ys)) +
+        ", _values=" + _values +
+        ", _uniqueXs=" + _uniqueXs +
+        ", _strips=" + _strips +
+        "]";
+  }
 }

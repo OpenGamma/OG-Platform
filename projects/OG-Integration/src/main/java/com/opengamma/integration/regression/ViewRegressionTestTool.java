@@ -5,9 +5,6 @@
  */
 package com.opengamma.integration.regression;
 
-import java.io.File;
-import java.io.FileWriter;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -15,14 +12,9 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
-import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeSerializer;
-import org.fudgemsg.wire.FudgeMsgWriter;
-import org.fudgemsg.wire.xml.FudgeXMLStreamWriter;
 import org.threeten.bp.Instant;
 
 import com.opengamma.scripts.Scriptable;
-import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  *
@@ -51,6 +43,7 @@ public class ViewRegressionTestTool {
    */
   public static void main(String[] args) throws Exception { // CSIGNORE
     ViewRegressionTestTool.run(args);
+    System.exit(0);
   }
 
   private static void printUsage() {
@@ -90,9 +83,8 @@ public class ViewRegressionTestTool {
                                                      cl.getOptionValue(TEST_VERSION),
                                                      cl.getOptionValue(TEST_PROPS));
     RegressionTestResults results = test.run();
-    // TODO this is breaking because it can't find the template - move to resources
-    //System.out.println(ReportGenerator.generateReport(results));
-    FudgeSerializer serializer = new FudgeSerializer(OpenGammaFudgeContext.getInstance());
+    System.out.println(ReportGenerator.generateReport(results));
+    /*FudgeSerializer serializer = new FudgeSerializer(OpenGammaFudgeContext.getInstance());
     try (FileWriter writer = new FileWriter(new File("/Users/chris/tmp/regression/results.xml"))) {
       FudgeXMLStreamWriter streamWriter = new FudgeXMLStreamWriter(OpenGammaFudgeContext.getInstance(), writer);
       FudgeMsgWriter fudgeMsgWriter = new FudgeMsgWriter(streamWriter);
@@ -101,7 +93,7 @@ public class ViewRegressionTestTool {
       fudgeMsgWriter.writeMessage(msg);
       writer.append("\n");
       fudgeMsgWriter.flush();
-    }
+    }*/
   }
 
   private static Options createOptions() {
