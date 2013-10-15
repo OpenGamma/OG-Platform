@@ -21,8 +21,8 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.OpenGammaComponentServer;
 
 /**
- *
- */
+ * Runs {@link OpenGammaComponentServer} in a new process
+. */
 public final class ServerProcess implements AutoCloseable {
 
   /** The server process. */
@@ -33,6 +33,16 @@ public final class ServerProcess implements AutoCloseable {
   }
 
   // TODO memory options
+
+  /**
+   * Creates a new process that runs {@link OpenGammaComponentServer}.
+   * @param workingDir The working directory for the process
+   * @param classpath The classpath argument for the process
+   * @param configFile The location of the server configuration file
+   * @param propertyOverrides Properties to override values in the configuration
+   * @param logbackConfig Property to set the logback configuration
+   * @return The process
+   */
   public static ServerProcess start(String workingDir,
                                     String classpath,
                                     String configFile,

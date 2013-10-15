@@ -197,6 +197,11 @@ public final class CalculationResults implements ImmutableBean {
                                                valueName,
                                                properties,
                                                targetSpec.getUniqueId().getObjectId());
+      } else if (targetType.equals(ComputationTargetType.UNORDERED_CURRENCY_PAIR)) {
+        key = CalculationResultKey.forCurrency(entry.getCalculationConfiguration(),
+                                               valueName,
+                                               properties,
+                                               targetSpec.getUniqueId().getObjectId());
       } else {
         s_logger.warn("Ignoring target with type {}", targetType);
         key = null;
