@@ -289,12 +289,8 @@ public class PortfolioGridStructure extends MainGridStructure {
    * @return true if the security is fungible, false if OTC
    */
   private static boolean isFungible(Security security) {
-    if (security instanceof FinancialSecurity) {      
-      Boolean isOTC = ((FinancialSecurity) security).accept(new OtcSecurityVisitor());
-      if (isOTC == null) {
-        return false;
-      }
-      return !isOTC;
+    if (security instanceof FinancialSecurity) {
+      return !((FinancialSecurity) security).accept(new OtcSecurityVisitor());
     } else {
       return false;
     }
