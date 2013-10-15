@@ -25,6 +25,7 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.rolldate.RollDateAdjuster;
 import com.opengamma.financial.convention.rolldate.RollDateAdjusterFactory;
+import com.opengamma.financial.convention.rolldate.RollDateAdjusterUtils;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -88,16 +89,13 @@ public class IMMFRANodeConverter extends CurveNodeVisitorAdapter<InstrumentDefin
     final RollDateAdjuster adjuster = RollDateAdjusterFactory.getAdjuster(convention.getImmDateConvention().getValue());
     final Tenor indexTenor = immFRANode.getIndexTenor();
     final ZonedDateTime unadjustedStartDate = _valuationTime.plus(immFRANode.getStartTenor().getPeriod());
-    ZonedDateTime immStartDate = unadjustedStartDate.with(adjuster);
-    for (int loopNumber = 1; loopNumber < immFRANode.getStartIMMDateNumber(); loopNumber++) {
-      immStartDate = immStartDate.plusDays(1).with(adjuster);
-    }
-    ZonedDateTime immEndDate = immStartDate.plusDays(1).with(adjuster);
-    for (int loopNumber = 1; loopNumber < immFRANode.getEndIMMDateNumber() - immFRANode.getStartIMMDateNumber(); loopNumber++) {
-      immEndDate = immEndDate.plusDays(1).with(adjuster);
-    }
-    final Currency currency = indexConvention.getCurrency();
+    ZonedDateTime immStartDate = RollDateAdjusterUtils.nthDate(unadjustedStartDate, adjuster, immFRANode.getStartIMMDateNumber());
+    ZonedDateTime immEndDate = RollDateAdjusterUtils.nthDate(immStartDate.plusDays(1), adjuster, immFRANode.getEndIMMDateNumber() - immFRANode.getStartIMMDateNumber());
     final Calendar fixingCalendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, indexConvention.getFixingCalendar());
+    // Date adjustment to following
+    immStartDate = ScheduleCalculator.getAdjustedDate(immStartDate, 0, fixingCalendar);
+    immEndDate = ScheduleCalculator.getAdjustedDate(immEndDate, 0, fixingCalendar);
+    final Currency currency = indexConvention.getCurrency();
     final int spotLag = indexConvention.getSettlementDays();
     final BusinessDayConvention businessDayConvention = indexConvention.getBusinessDayConvention();
     final DayCount dayCount = indexConvention.getDayCount();

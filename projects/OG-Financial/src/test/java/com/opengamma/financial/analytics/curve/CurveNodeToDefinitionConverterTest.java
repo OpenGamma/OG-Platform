@@ -554,7 +554,7 @@ public class CurveNodeToDefinitionConverterTest {
       final double acrualFactor = index.getDayCount().getDayCountFraction(expectedStartDates[loopt],  expectedEndDates[loopt]);
       final ForwardRateAgreementDefinition expectedFRA = new ForwardRateAgreementDefinition(index.getCurrency(), expectedStartDates[loopt], expectedStartDates[loopt], 
           expectedEndDates[loopt], acrualFactor, 1, fixingDate, expectedStartDates[loopt], expectedEndDates[loopt], index, rate, CALENDAR);
-      assertEquals("IMMFRANodeConverter: testIMMFRA - FRA dates", expectedFRA, fra);
+      assertEquals("IMMFRANodeConverter: testIMMFRA - FRA dates " +loopt, expectedFRA, fra);
     }  
   }
 
