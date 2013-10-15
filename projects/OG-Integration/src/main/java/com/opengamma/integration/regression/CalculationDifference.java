@@ -318,6 +318,43 @@ public final class CalculationDifference implements ImmutableBean {
   }
 
   @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      CalculationDifference other = (CalculationDifference) obj;
+      return (getEqualResultCount() == other.getEqualResultCount()) &&
+          JodaBeanUtils.equal(getViewDefinitionName(), other.getViewDefinitionName()) &&
+          JodaBeanUtils.equal(getSnapshotName(), other.getSnapshotName()) &&
+          JodaBeanUtils.equal(getValuationTime(), other.getValuationTime()) &&
+          JodaBeanUtils.equal(getBaseVersion(), other.getBaseVersion()) &&
+          JodaBeanUtils.equal(getTestVersion(), other.getTestVersion()) &&
+          JodaBeanUtils.equal(getOnlyBase(), other.getOnlyBase()) &&
+          JodaBeanUtils.equal(getOnlyTest(), other.getOnlyTest()) &&
+          JodaBeanUtils.equal(getDifferent(), other.getDifferent()) &&
+          JodaBeanUtils.equal(getDifferentProperties(), other.getDifferentProperties());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getEqualResultCount());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getViewDefinitionName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSnapshotName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getValuationTime());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBaseVersion());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTestVersion());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getOnlyBase());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getOnlyTest());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDifferent());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDifferentProperties());
+    return hash;
+  }
+
+  @Override
   public String toString() {
     StringBuilder buf = new StringBuilder(352);
     buf.append("CalculationDifference{");
@@ -330,7 +367,7 @@ public final class CalculationDifference implements ImmutableBean {
     buf.append("onlyBase").append('=').append(getOnlyBase()).append(',').append(' ');
     buf.append("onlyTest").append('=').append(getOnlyTest()).append(',').append(' ');
     buf.append("different").append('=').append(getDifferent()).append(',').append(' ');
-    buf.append("differentProperties").append('=').append(getDifferentProperties());
+    buf.append("differentProperties").append('=').append(JodaBeanUtils.toString(getDifferentProperties()));
     buf.append('}');
     return buf.toString();
   }
@@ -684,7 +721,7 @@ public final class CalculationDifference implements ImmutableBean {
     //-----------------------------------------------------------------------
     /**
      * Sets the {@code equalResultCount} property in the builder.
-     * @param equalResultCount  the new value, not null
+     * @param equalResultCount  the new value
      * @return this, for chaining, not null
      */
     public Builder equalResultCount(int equalResultCount) {

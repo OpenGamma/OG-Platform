@@ -383,7 +383,7 @@ public abstract class ObjectsCurve<T extends Comparable<T>, U> extends Curve<T, 
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, null,
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "n",
         "xData",
         "yData");

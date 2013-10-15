@@ -285,7 +285,7 @@ public class ISDACompliantDateCurve extends ISDACompliantCurve implements ISDACo
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, null,
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "baseDate",
         "dates",
         "dayCount");

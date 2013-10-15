@@ -175,8 +175,8 @@ public class TimeSeriesWithInfo extends DirectBean implements UniqueIdentifiable
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("info").append('=').append(getInfo()).append(',').append(' ');
-    buf.append("timeSeries").append('=').append(getTimeSeries()).append(',').append(' ');
+    buf.append("info").append('=').append(JodaBeanUtils.toString(getInfo())).append(',').append(' ');
+    buf.append("timeSeries").append('=').append(JodaBeanUtils.toString(getTimeSeries())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

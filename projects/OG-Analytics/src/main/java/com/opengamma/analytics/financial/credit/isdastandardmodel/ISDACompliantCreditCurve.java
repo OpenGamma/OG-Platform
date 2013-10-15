@@ -187,7 +187,7 @@ public class ISDACompliantCreditCurve extends ISDACompliantCurve implements Bean
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, null);
+        this, (DirectMetaPropertyMap) super.metaPropertyMap());
 
     /**
      * Restricted constructor.

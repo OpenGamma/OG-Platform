@@ -621,7 +621,7 @@ public abstract class ArraysDoublesCurve extends DoublesCurve implements Bean {
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, null,
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "n",
         "xData",
         "yData",

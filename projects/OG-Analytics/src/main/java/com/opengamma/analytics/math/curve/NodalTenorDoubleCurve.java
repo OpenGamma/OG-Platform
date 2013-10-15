@@ -167,7 +167,7 @@ public class NodalTenorDoubleCurve extends NodalObjectsCurve<Tenor, Double> impl
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, null);
+        this, (DirectMetaPropertyMap) super.metaPropertyMap());
 
     /**
      * Restricted constructor.

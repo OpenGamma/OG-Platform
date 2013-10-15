@@ -225,7 +225,7 @@ public final class CalculatedValue implements ImmutableBean {
     buf.append("value").append('=').append(getValue()).append(',').append(' ');
     buf.append("specificationProperties").append('=').append(getSpecificationProperties()).append(',').append(' ');
     buf.append("targetType").append('=').append(getTargetType()).append(',').append(' ');
-    buf.append("targetName").append('=').append(getTargetName());
+    buf.append("targetName").append('=').append(JodaBeanUtils.toString(getTargetName()));
     buf.append('}');
     return buf.toString();
   }
@@ -463,7 +463,7 @@ public final class CalculatedValue implements ImmutableBean {
 
     /**
      * Sets the {@code targetName} property in the builder.
-     * @param targetName  the new value, not null
+     * @param targetName  the new value
      * @return this, for chaining, not null
      */
     public Builder targetName(String targetName) {

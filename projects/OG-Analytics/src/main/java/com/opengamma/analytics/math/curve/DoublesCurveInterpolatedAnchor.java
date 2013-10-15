@@ -237,7 +237,7 @@ public final class DoublesCurveInterpolatedAnchor extends InterpolatedDoublesCur
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
-        this, null,
+        this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "anchorIndex");
 
     /**

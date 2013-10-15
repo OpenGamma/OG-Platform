@@ -288,7 +288,7 @@ public final class CalculationResultKey implements ImmutableBean, Comparable<Cal
     buf.append("valueName").append('=').append(getValueName()).append(',').append(' ');
     buf.append("properties").append('=').append(getProperties()).append(',').append(' ');
     buf.append("path").append('=').append(getPath()).append(',').append(' ');
-    buf.append("targetId").append('=').append(getTargetId());
+    buf.append("targetId").append('=').append(JodaBeanUtils.toString(getTargetId()));
     buf.append('}');
     return buf.toString();
   }
@@ -457,7 +457,7 @@ public final class CalculationResultKey implements ImmutableBean, Comparable<Cal
     private String _calcConfigName;
     private String _valueName;
     private ValueProperties _properties;
-    private List<String> _path = new ArrayList<String>();
+    private List<String> _path;
     private ObjectId _targetId;
 
     /**
@@ -476,7 +476,7 @@ public final class CalculationResultKey implements ImmutableBean, Comparable<Cal
       this._calcConfigName = beanToCopy.getCalcConfigName();
       this._valueName = beanToCopy.getValueName();
       this._properties = beanToCopy.getProperties();
-      this._path = new ArrayList<String>(beanToCopy.getPath());
+      this._path = (beanToCopy.getPath() != null ? new ArrayList<String>(beanToCopy.getPath()) : null);
       this._targetId = beanToCopy.getTargetId();
     }
 
@@ -552,7 +552,7 @@ public final class CalculationResultKey implements ImmutableBean, Comparable<Cal
 
     /**
      * Sets the {@code path} property in the builder.
-     * @param path  the new value, not null
+     * @param path  the new value
      * @return this, for chaining, not null
      */
     public Builder path(List<String> path) {
@@ -562,7 +562,7 @@ public final class CalculationResultKey implements ImmutableBean, Comparable<Cal
 
     /**
      * Sets the {@code targetId} property in the builder.
-     * @param targetId  the new value, not null
+     * @param targetId  the new value
      * @return this, for chaining, not null
      */
     public Builder targetId(ObjectId targetId) {

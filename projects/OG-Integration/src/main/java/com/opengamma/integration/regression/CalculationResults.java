@@ -373,7 +373,7 @@ public final class CalculationResults implements ImmutableBean {
     buf.append("viewDefinitionName").append('=').append(getViewDefinitionName()).append(',').append(' ');
     buf.append("snapshotName").append('=').append(getSnapshotName()).append(',').append(' ');
     buf.append("valuationTime").append('=').append(getValuationTime()).append(',').append(' ');
-    buf.append("version").append('=').append(getVersion());
+    buf.append("version").append('=').append(JodaBeanUtils.toString(getVersion()));
     buf.append('}');
     return buf.toString();
   }
@@ -648,7 +648,7 @@ public final class CalculationResults implements ImmutableBean {
 
     /**
      * Sets the {@code version} property in the builder.
-     * @param version  the new value, not null
+     * @param version  the new value
      * @return this, for chaining, not null
      */
     public Builder version(String version) {

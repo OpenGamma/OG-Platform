@@ -166,7 +166,7 @@ public final class RegressionTestResults implements ImmutableBean {
     buf.append("RegressionTestResults{");
     buf.append("baseVersion").append('=').append(getBaseVersion()).append(',').append(' ');
     buf.append("testVersion").append('=').append(getTestVersion()).append(',').append(' ');
-    buf.append("differences").append('=').append(getDifferences());
+    buf.append("differences").append('=').append(JodaBeanUtils.toString(getDifferences()));
     buf.append('}');
     return buf.toString();
   }

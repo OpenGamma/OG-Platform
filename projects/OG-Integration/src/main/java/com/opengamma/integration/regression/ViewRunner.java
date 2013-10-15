@@ -126,7 +126,7 @@ import com.opengamma.util.ArgumentChecker;
     UniqueId viewDefId = getViewDefinitionId(viewName);
     s_logger.info("Running view {} using snapshot {} at valuation time {}", viewName, snapshotName, valuationTime);
     List<MarketDataSpecification> marketDataSpecs =
-        Lists.<MarketDataSpecification>newArrayList(new UserMarketDataSpecification(snapshotId));
+        Lists.<MarketDataSpecification>newArrayList(UserMarketDataSpecification.of(snapshotId));
     ViewCycleExecutionOptions cycleOptions =
         ViewCycleExecutionOptions
             .builder()
