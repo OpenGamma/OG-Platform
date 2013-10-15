@@ -23,7 +23,9 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Class for constructing and querying a term structure of (calibrated) hazard rates
  * Partially adopted from the RiskCare implementation of the ISDA model
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class HazardRateCurve {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------

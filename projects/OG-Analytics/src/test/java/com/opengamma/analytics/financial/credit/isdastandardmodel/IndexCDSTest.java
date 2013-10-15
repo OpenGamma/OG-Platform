@@ -20,12 +20,6 @@ import org.threeten.bp.Month;
 import org.threeten.bp.Period;
 
 import com.opengamma.analytics.financial.credit.PriceType;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.FastCreditCurveBuilder;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurve;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.MarketQuoteConverter;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.QuotedSpread;
 import com.opengamma.analytics.financial.model.BumpType;
 
 /**
@@ -116,8 +110,8 @@ public class IndexCDSTest extends ISDABaseTest {
   @Test(enabled = false)
   public void rollingTest() {
 
-    final MarketQuoteConverter pufConverter = new MarketQuoteConverter(false);
-    final FastCreditCurveBuilder builder = new FastCreditCurveBuilder(false);
+    final MarketQuoteConverter pufConverter = new MarketQuoteConverter();
+    final FastCreditCurveBuilder builder = new FastCreditCurveBuilder();
 
     final double notional = 1e12;
     final LocalDate today = LocalDate.of(2011, Month.JUNE, 13);
@@ -168,7 +162,7 @@ public class IndexCDSTest extends ISDABaseTest {
     final double[] flatSpreads = new double[nMat];
     Arrays.fill(flatSpreads, tradeLevel);
     final ISDACompliantCreditCurve creditCurve = builder.calibrateCreditCurve(pillarCDS, flatSpreads, yieldCurve);
-    final double pufTrans = PRICER_CORRECT.pv(pointCDS, yieldCurve, creditCurve, COUPON);
+    final double pufTrans = PRICER_MARKIT_FIX.pv(pointCDS, yieldCurve, creditCurve, COUPON);
     final double cashAmountTrans = notional * pufTrans - accAmt;
     System.out.println(pufTrans + "\t" + cashAmountTrans);
 

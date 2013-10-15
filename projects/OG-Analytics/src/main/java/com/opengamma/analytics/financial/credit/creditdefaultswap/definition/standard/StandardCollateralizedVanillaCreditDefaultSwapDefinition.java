@@ -25,7 +25,9 @@ import com.opengamma.util.money.Currency;
 
 /**
  * 
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class StandardCollateralizedVanillaCreditDefaultSwapDefinition extends StandardVanillaCreditDefaultSwapDefinition {
 
   //----------------------------------------------------------------------------------------------------------------------------------------
@@ -47,68 +49,20 @@ public class StandardCollateralizedVanillaCreditDefaultSwapDefinition extends St
 
   // Ctor for the Standard CDS contract
 
-  public StandardCollateralizedVanillaCreditDefaultSwapDefinition(
-      final BuySellProtection buySellProtection,
-      final Obligor protectionBuyer,
-      final Obligor protectionSeller,
-      final Obligor referenceEntity,
-      final Currency currency,
-      final DebtSeniority debtSeniority,
-      final RestructuringClause restructuringClause,
-      final Calendar calendar,
-      final ZonedDateTime startDate,
-      final ZonedDateTime effectiveDate,
-      final ZonedDateTime maturityDate,
-      final StubType stubType,
-      final PeriodFrequency couponFrequency,
-      final DayCount daycountFractionConvention,
-      final BusinessDayConvention businessdayAdjustmentConvention,
-      final boolean immAdjustMaturityDate,
-      final boolean adjustEffectiveDate,
-      final boolean adjustMaturityDate,
-      final double notional,
-      final double recoveryRate,
-      final boolean includeAccruedPremium,
-      final boolean protectionStart,
-      final double quotedSpread,
-      final StandardCDSCoupon premiumLegCoupon,
-      final double upfrontAmount,
-      final ZonedDateTime cashSettlementDate,
-      final boolean adjustCashSettlementDate,
-      final CreditSupportAnnexDefinition creditSupportAnnex,
-      final CentralCounterpartyDefinition centralCounterparty) {
+  public StandardCollateralizedVanillaCreditDefaultSwapDefinition(final BuySellProtection buySellProtection, final Obligor protectionBuyer, final Obligor protectionSeller,
+      final Obligor referenceEntity, final Currency currency, final DebtSeniority debtSeniority, final RestructuringClause restructuringClause, final Calendar calendar, final ZonedDateTime startDate,
+      final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final StubType stubType, final PeriodFrequency couponFrequency, final DayCount daycountFractionConvention,
+      final BusinessDayConvention businessdayAdjustmentConvention, final boolean immAdjustMaturityDate, final boolean adjustEffectiveDate, final boolean adjustMaturityDate, final double notional,
+      final double recoveryRate, final boolean includeAccruedPremium, final boolean protectionStart, final double quotedSpread, final StandardCDSCoupon premiumLegCoupon, final double upfrontAmount,
+      final ZonedDateTime cashSettlementDate, final boolean adjustCashSettlementDate, final CreditSupportAnnexDefinition creditSupportAnnex, final CentralCounterpartyDefinition centralCounterparty) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Call the ctor for the StandardVanillaCreditDefaultSwapDefinition superclass (corresponding to the CDS characteristics common to all types of CDS)
 
-    super(buySellProtection,
-        protectionBuyer,
-        protectionSeller,
-        referenceEntity,
-        currency,
-        debtSeniority,
-        restructuringClause,
-        calendar,
-        startDate,
-        effectiveDate,
-        maturityDate,
-        stubType,
-        couponFrequency,
-        daycountFractionConvention,
-        businessdayAdjustmentConvention,
-        immAdjustMaturityDate,
-        adjustEffectiveDate,
-        adjustMaturityDate,
-        notional,
-        recoveryRate,
-        includeAccruedPremium,
-        protectionStart,
-        quotedSpread,
-        premiumLegCoupon,
-        upfrontAmount,
-        cashSettlementDate,
-        adjustCashSettlementDate);
+    super(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate, maturityDate, stubType,
+        couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional, recoveryRate, includeAccruedPremium,
+        protectionStart, quotedSpread, premiumLegCoupon, upfrontAmount, cashSettlementDate, adjustCashSettlementDate);
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -136,134 +90,34 @@ public class StandardCollateralizedVanillaCreditDefaultSwapDefinition extends St
 
   @Override
   public StandardCollateralizedVanillaCreditDefaultSwapDefinition withSpread(final double spread) {
-    return new StandardCollateralizedVanillaCreditDefaultSwapDefinition(getBuySellProtection(),
-        getProtectionBuyer(),
-        getProtectionSeller(),
-        getReferenceEntity(),
-        getCurrency(),
-        getDebtSeniority(),
-        getRestructuringClause(),
-        getCalendar(),
-        getStartDate(),
-        getEffectiveDate(),
-        getMaturityDate(),
-        getStubType(),
-        getCouponFrequency(),
-        getDayCountFractionConvention(),
-        getBusinessDayAdjustmentConvention(),
-        getIMMAdjustMaturityDate(),
-        getAdjustEffectiveDate(),
-        getAdjustMaturityDate(),
-        getNotional(),
-        getRecoveryRate(),
-        getIncludeAccruedPremium(),
-        getProtectionStart(),
-        spread,
-        getPremiumLegCoupon(),
-        getUpfrontAmount(),
-        getCashSettlementDate(),
-        getAdjustCashSettlementDate(),
-        _creditSupportAnnex,
-        _centralCounterparty);
+    return new StandardCollateralizedVanillaCreditDefaultSwapDefinition(getBuySellProtection(), getProtectionBuyer(), getProtectionSeller(), getReferenceEntity(), getCurrency(), getDebtSeniority(),
+        getRestructuringClause(), getCalendar(), getStartDate(), getEffectiveDate(), getMaturityDate(), getStubType(), getCouponFrequency(), getDayCountFractionConvention(),
+        getBusinessDayAdjustmentConvention(), getIMMAdjustMaturityDate(), getAdjustEffectiveDate(), getAdjustMaturityDate(), getNotional(), getRecoveryRate(), getIncludeAccruedPremium(),
+        getProtectionStart(), spread, getPremiumLegCoupon(), getUpfrontAmount(), getCashSettlementDate(), getAdjustCashSettlementDate(), _creditSupportAnnex, _centralCounterparty);
   }
 
   @Override
   public StandardCollateralizedVanillaCreditDefaultSwapDefinition withMaturityDate(final ZonedDateTime maturityDate) {
-    return new StandardCollateralizedVanillaCreditDefaultSwapDefinition(getBuySellProtection(),
-        getProtectionBuyer(),
-        getProtectionSeller(),
-        getReferenceEntity(),
-        getCurrency(),
-        getDebtSeniority(),
-        getRestructuringClause(),
-        getCalendar(),
-        getStartDate(),
-        getEffectiveDate(),
-        maturityDate,
-        getStubType(),
-        getCouponFrequency(),
-        getDayCountFractionConvention(),
-        getBusinessDayAdjustmentConvention(),
-        getIMMAdjustMaturityDate(),
-        getAdjustEffectiveDate(),
-        getAdjustMaturityDate(),
-        getNotional(),
-        getRecoveryRate(),
-        getIncludeAccruedPremium(),
-        getProtectionStart(),
-        getQuotedSpread(),
-        getPremiumLegCoupon(),
-        getUpfrontAmount(),
-        getCashSettlementDate(),
-        getAdjustCashSettlementDate(),
-        _creditSupportAnnex,
-        _centralCounterparty);
+    return new StandardCollateralizedVanillaCreditDefaultSwapDefinition(getBuySellProtection(), getProtectionBuyer(), getProtectionSeller(), getReferenceEntity(), getCurrency(), getDebtSeniority(),
+        getRestructuringClause(), getCalendar(), getStartDate(), getEffectiveDate(), maturityDate, getStubType(), getCouponFrequency(), getDayCountFractionConvention(),
+        getBusinessDayAdjustmentConvention(), getIMMAdjustMaturityDate(), getAdjustEffectiveDate(), getAdjustMaturityDate(), getNotional(), getRecoveryRate(), getIncludeAccruedPremium(),
+        getProtectionStart(), getQuotedSpread(), getPremiumLegCoupon(), getUpfrontAmount(), getCashSettlementDate(), getAdjustCashSettlementDate(), _creditSupportAnnex, _centralCounterparty);
   }
 
   @Override
   public StandardCollateralizedVanillaCreditDefaultSwapDefinition withEffectiveDate(final ZonedDateTime effectiveDate) {
-    return new StandardCollateralizedVanillaCreditDefaultSwapDefinition(getBuySellProtection(),
-        getProtectionBuyer(),
-        getProtectionSeller(),
-        getReferenceEntity(),
-        getCurrency(),
-        getDebtSeniority(),
-        getRestructuringClause(),
-        getCalendar(),
-        getStartDate(),
-        effectiveDate,
-        getMaturityDate(),
-        getStubType(),
-        getCouponFrequency(),
-        getDayCountFractionConvention(),
-        getBusinessDayAdjustmentConvention(),
-        getIMMAdjustMaturityDate(),
-        getAdjustEffectiveDate(),
-        getAdjustMaturityDate(),
-        getNotional(),
-        getRecoveryRate(),
-        getIncludeAccruedPremium(),
-        getProtectionStart(),
-        getQuotedSpread(),
-        getPremiumLegCoupon(),
-        getUpfrontAmount(),
-        getCashSettlementDate(),
-        getAdjustCashSettlementDate(),
-        _creditSupportAnnex,
-        _centralCounterparty);
+    return new StandardCollateralizedVanillaCreditDefaultSwapDefinition(getBuySellProtection(), getProtectionBuyer(), getProtectionSeller(), getReferenceEntity(), getCurrency(), getDebtSeniority(),
+        getRestructuringClause(), getCalendar(), getStartDate(), effectiveDate, getMaturityDate(), getStubType(), getCouponFrequency(), getDayCountFractionConvention(),
+        getBusinessDayAdjustmentConvention(), getIMMAdjustMaturityDate(), getAdjustEffectiveDate(), getAdjustMaturityDate(), getNotional(), getRecoveryRate(), getIncludeAccruedPremium(),
+        getProtectionStart(), getQuotedSpread(), getPremiumLegCoupon(), getUpfrontAmount(), getCashSettlementDate(), getAdjustCashSettlementDate(), _creditSupportAnnex, _centralCounterparty);
   }
 
   @Override
   public StandardCollateralizedVanillaCreditDefaultSwapDefinition withRecoveryRate(final double recoveryRate) {
-    return new StandardCollateralizedVanillaCreditDefaultSwapDefinition(getBuySellProtection(),
-        getProtectionBuyer(),
-        getProtectionSeller(),
-        getReferenceEntity(),
-        getCurrency(),
-        getDebtSeniority(),
-        getRestructuringClause(),
-        getCalendar(),
-        getStartDate(),
-        getEffectiveDate(),
-        getMaturityDate(),
-        getStubType(),
-        getCouponFrequency(),
-        getDayCountFractionConvention(),
-        getBusinessDayAdjustmentConvention(),
-        getIMMAdjustMaturityDate(),
-        getAdjustEffectiveDate(),
-        getAdjustMaturityDate(),
-        getNotional(),
-        recoveryRate,
-        getIncludeAccruedPremium(),
-        getProtectionStart(),
-        getQuotedSpread(),
-        getPremiumLegCoupon(),
-        getUpfrontAmount(),
-        getCashSettlementDate(),
-        getAdjustCashSettlementDate(),
-        _creditSupportAnnex,
-        _centralCounterparty);
+    return new StandardCollateralizedVanillaCreditDefaultSwapDefinition(getBuySellProtection(), getProtectionBuyer(), getProtectionSeller(), getReferenceEntity(), getCurrency(), getDebtSeniority(),
+        getRestructuringClause(), getCalendar(), getStartDate(), getEffectiveDate(), getMaturityDate(), getStubType(), getCouponFrequency(), getDayCountFractionConvention(),
+        getBusinessDayAdjustmentConvention(), getIMMAdjustMaturityDate(), getAdjustEffectiveDate(), getAdjustMaturityDate(), getNotional(), recoveryRate, getIncludeAccruedPremium(),
+        getProtectionStart(), getQuotedSpread(), getPremiumLegCoupon(), getUpfrontAmount(), getCashSettlementDate(), getAdjustCashSettlementDate(), _creditSupportAnnex, _centralCounterparty);
   }
 
   @Override

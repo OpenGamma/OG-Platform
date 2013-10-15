@@ -23,7 +23,9 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class ISDACompliantPremiumLegCalculator extends ISDACompliantLegCalculator {
   private static final int SPOT_DAYS = 3;
   private static final boolean ADJUST_CASH_SETTLEMENT_DATE = true;
@@ -42,8 +44,7 @@ public class ISDACompliantPremiumLegCalculator extends ISDACompliantLegCalculato
   // the ISDA model - will replace with a better model in due course
 
   @Override
-  public double calculateLeg(final ZonedDateTime valuationDate, final CreditDefaultSwapDefinition cds, final ISDAYieldCurveAndHazardRateCurveProvider curves,
-      final PriceType priceType) {
+  public double calculateLeg(final ZonedDateTime valuationDate, final CreditDefaultSwapDefinition cds, final ISDAYieldCurveAndHazardRateCurveProvider curves, final PriceType priceType) {
     double presentValuePremiumLeg = 0.0;
     final ZonedDateTime[] premiumLegSchedule = PREMIUM_LEG_SCHEDULE.constructISDACompliantCreditDefaultSwapPremiumLegSchedule(cds);
     final ZonedDateTime[] accruedLegIntegrationSchedule = ACRRUED_INTEGRATION_SCHEDULE.constructCreditDefaultSwapAccruedLegIntegrationSchedule(cds, curves);
@@ -118,10 +119,9 @@ public class ISDACompliantPremiumLegCalculator extends ISDACompliantLegCalculato
             }
             final double s1 = hazardRateCurve.getSurvivalProbability(t);
             final double df1 = yieldCurve.getDiscountFactor(t);
-            final double t0 = (offsetAccStartDate.isBefore(subStartDate) ? ACT_365.getDayCountFraction(offsetAccStartDate, subStartDate)
-                : ACT_365.getDayCountFraction(subStartDate, offsetAccStartDate)) + 0.5 / 365.0;
-            final double t1 = (offsetAccStartDate.isBefore(date) ? ACT_365.getDayCountFraction(offsetAccStartDate, date)
-                : ACT_365.getDayCountFraction(date, offsetAccStartDate)) + 0.5 / 365.0;
+            final double t0 = (offsetAccStartDate.isBefore(subStartDate) ? ACT_365.getDayCountFraction(offsetAccStartDate, subStartDate) : ACT_365
+                .getDayCountFraction(subStartDate, offsetAccStartDate)) + 0.5 / 365.0;
+            final double t1 = (offsetAccStartDate.isBefore(date) ? ACT_365.getDayCountFraction(offsetAccStartDate, date) : ACT_365.getDayCountFraction(date, offsetAccStartDate)) + 0.5 / 365.0;
             t = t1 - t0;
             final double lambda = Math.log(s0 / s1) / t;
             final double fwdRate = Math.log(df0 / df1) / t;

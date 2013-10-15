@@ -11,7 +11,9 @@ package com.opengamma.analytics.financial.credit;
  * Note that not all of these tenors correspond to liquid points observed in the market. However
  * the intention is for the user to choose a subset of these according to their requirements
  * when constructing spread term structures
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public enum CreditSpreadTenors {
 
   /**

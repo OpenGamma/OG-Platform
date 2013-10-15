@@ -21,14 +21,16 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class ISDACreditDefaultSwapBucketedIR01Calculator {
   private static final ISDAHazardRateCurveCalculator HAZARD_RATE_CALCULATOR = new ISDAHazardRateCurveCalculator();
   private static final ISDACreditDefaultSwapPVCalculator PV_CALCULATOR = new ISDACreditDefaultSwapPVCalculator();
   private static final SpreadTermStructureDataChecker DATA_CHECKER = new SpreadTermStructureDataChecker();
 
-  public double[] getIR01BucketedCreditDefaultSwap(final ZonedDateTime valuationDate, final CreditDefaultSwapDefinition cds, final ISDADateCurve yieldCurve,
-      final ZonedDateTime[] marketTenors, final double[] marketSpreads, final double yieldBump, final InterestRateBumpType yieldBumpType, final PriceType priceType) {
+  public double[] getIR01BucketedCreditDefaultSwap(final ZonedDateTime valuationDate, final CreditDefaultSwapDefinition cds, final ISDADateCurve yieldCurve, final ZonedDateTime[] marketTenors,
+      final double[] marketSpreads, final double yieldBump, final InterestRateBumpType yieldBumpType, final PriceType priceType) {
     ArgumentChecker.notNull(valuationDate, "Valuation date");
     ArgumentChecker.notNull(cds, "LegacyCreditDefaultSwapDefinition");
     ArgumentChecker.notNull(yieldCurve, "YieldCurve");
@@ -50,9 +52,8 @@ public class ISDACreditDefaultSwapBucketedIR01Calculator {
       bumpedYields[i] = yields[i];
     }
     final double bumpInBp = yieldBump / 10000;
-    switch(yieldBumpType) {
-      case ADDITIVE:
-      {
+    switch (yieldBumpType) {
+      case ADDITIVE: {
         bumpedYields[0] += bumpInBp;
         ISDADateCurve bumpedYieldCurve = new ISDADateCurve("Bumped", yieldCurve.getCurveDates(), yieldCurve.getTimePoints(), bumpedYields, yieldCurve.getOffset());
         calibrationData = new ISDAYieldCurveAndSpreadsProvider(marketTenors, marketSpreads, bumpedYieldCurve);
@@ -96,6 +97,5 @@ public class ISDACreditDefaultSwapBucketedIR01Calculator {
     }
     return bucketedIR01;
   }
-
 
 }

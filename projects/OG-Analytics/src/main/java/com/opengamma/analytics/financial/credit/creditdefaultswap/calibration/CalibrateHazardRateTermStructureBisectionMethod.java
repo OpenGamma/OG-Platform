@@ -18,7 +18,9 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 /**
  * Class for calculating a term structure of hazard rates calibrated to a 
  * set of SNCDS calibration instruments using a simple bisection root finding methodology
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class CalibrateHazardRateTermStructureBisectionMethod {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -30,12 +32,8 @@ public class CalibrateHazardRateTermStructureBisectionMethod {
   // The original calibration routine based on the bisection method
 
   @Deprecated
-  public HazardRateCurve calibrateHazardRateCurve(
-      final ZonedDateTime valuationDate,
-      final LegacyVanillaCreditDefaultSwapDefinition cds,
-      final ZonedDateTime[] marketTenors,
-      final double[] marketSpreads,
-      final ISDADateCurve yieldCurve) {
+  public HazardRateCurve calibrateHazardRateCurve(final ZonedDateTime valuationDate, final LegacyVanillaCreditDefaultSwapDefinition cds, final ZonedDateTime[] marketTenors,
+      final double[] marketSpreads, final ISDADateCurve yieldCurve) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 

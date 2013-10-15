@@ -21,7 +21,9 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Class containing methods for the computation of IR01 for a vanilla Legacy CDS (parallel and bucketed bumps)
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class IR01CreditDefaultSwap {
   private static final Logger s_logger = LoggerFactory.getLogger(IR01CreditDefaultSwap.class);
 
@@ -49,15 +51,8 @@ public class IR01CreditDefaultSwap {
 
   // Compute the IR01 by a parallel bump of each point on the yield curve
 
-  public double getIR01ParallelShiftCreditDefaultSwap(
-      final ZonedDateTime valuationDate,
-      final LegacyVanillaCreditDefaultSwapDefinition cds,
-      final ISDADateCurve yieldCurve,
-      final ZonedDateTime[] marketTenors,
-      final double[] marketSpreads,
-      final double interestRateBump,
-      final InterestRateBumpType interestRateBumpType,
-      final PriceType priceType) {
+  public double getIR01ParallelShiftCreditDefaultSwap(final ZonedDateTime valuationDate, final LegacyVanillaCreditDefaultSwapDefinition cds, final ISDADateCurve yieldCurve,
+      final ZonedDateTime[] marketTenors, final double[] marketSpreads, final double interestRateBump, final InterestRateBumpType interestRateBumpType, final PriceType priceType) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -122,15 +117,8 @@ public class IR01CreditDefaultSwap {
 
   // Compute the IR01 by bumping each point on the yield curve individually by interestRateBump (bump is same for all tenors)
 
-  public double[] getIR01BucketedCreditDefaultSwap(
-      final ZonedDateTime valuationDate,
-      final LegacyVanillaCreditDefaultSwapDefinition cds,
-      final ISDADateCurve yieldCurve,
-      final ZonedDateTime[] marketTenors,
-      final double[] marketSpreads,
-      final double interestRateBump,
-      final InterestRateBumpType interestRateBumpType,
-      final PriceType priceType) {
+  public double[] getIR01BucketedCreditDefaultSwap(final ZonedDateTime valuationDate, final LegacyVanillaCreditDefaultSwapDefinition cds, final ISDADateCurve yieldCurve,
+      final ZonedDateTime[] marketTenors, final double[] marketSpreads, final double interestRateBump, final InterestRateBumpType interestRateBumpType, final PriceType priceType) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -177,7 +165,7 @@ public class IR01CreditDefaultSwap {
           bumpedInterestRates[m] += bumpInBp;
           try {
             bumpedYieldCurve = new ISDADateCurve("Bumped", marketTenors, yieldCurve.getTimePoints(), bumpedInterestRates, yieldCurve.getOffset());
-          } catch (ArrayIndexOutOfBoundsException aioobe) {
+          } catch (final ArrayIndexOutOfBoundsException aioobe) {
             s_logger.error("AIOOBE", aioobe);
             throw aioobe;
           }

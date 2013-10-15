@@ -21,7 +21,9 @@ import com.opengamma.util.CompareUtils;
 
 /**
  * Class containing utility functions associated with schedule generation for credit instruments
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public final class ScheduleUtils {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -37,10 +39,7 @@ public final class ScheduleUtils {
 
   // Function to compute the next business day that is spotDays after baseDate (takes into account we may have e.g. weekends in between working days)
 
-  public static ZonedDateTime calculateWorkday(
-      final CreditDefaultSwapDefinition cds,
-      final ZonedDateTime baseDate,
-      final int spotDays) {
+  public static ZonedDateTime calculateWorkday(final CreditDefaultSwapDefinition cds, final ZonedDateTime baseDate, final int spotDays) {
 
     ArgumentChecker.notNegative(spotDays, "Cash settlement days");
 
@@ -70,8 +69,7 @@ public final class ScheduleUtils {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  public static ZonedDateTime[] getTruncatedTimeLine(final ZonedDateTime[] allDates, final ZonedDateTime startDate, final ZonedDateTime endDate,
-      final boolean sorted) {
+  public static ZonedDateTime[] getTruncatedTimeLine(final ZonedDateTime[] allDates, final ZonedDateTime startDate, final ZonedDateTime endDate, final boolean sorted) {
     ArgumentChecker.notNull(allDates, "all dates");
     ArgumentChecker.notNull(startDate, "start date");
     ArgumentChecker.notNull(endDate, "end date");
@@ -121,8 +119,7 @@ public final class ScheduleUtils {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  public static double[] getTruncatedTimeLine(final double[] allTimes, final double startTime, final double endTime, final boolean sorted,
-      final double tolerance) {
+  public static double[] getTruncatedTimeLine(final double[] allTimes, final double startTime, final double endTime, final boolean sorted, final double tolerance) {
     ArgumentChecker.notNull(allTimes, "all dates");
     ArgumentChecker.isTrue(startTime < endTime, "Start time {} must be before end time {}", startTime, endTime);
     final int n = allTimes.length;
@@ -167,8 +164,7 @@ public final class ScheduleUtils {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  public static ZonedDateTime[] constructISDACompliantAccruedLegIntegrationSchedule(final ISDAYieldCurveAndHazardRateCurveProvider curves,
-      final ZonedDateTime startDate, final ZonedDateTime endDate) {
+  public static ZonedDateTime[] constructISDACompliantAccruedLegIntegrationSchedule(final ISDAYieldCurveAndHazardRateCurveProvider curves, final ZonedDateTime startDate, final ZonedDateTime endDate) {
     final ZonedDateTime[] yieldCurveDates = curves.getYieldCurve().getCurveDates();
     final ZonedDateTime[] hazardCurveDates = curves.getHazardRateCurve().getCurveTenors();
     final int nYieldCurveDates = yieldCurveDates.length;

@@ -100,7 +100,7 @@ public class StandardVanillaBucketedGammaCS01CDSFunction extends StandardVanilla
     final CDSAnalyticFactory analyticFactory = new CDSAnalyticFactory(definition.getRecoveryRate(), definition.getCouponFrequency().getPeriod())
         .with(definition.getBusinessDayAdjustmentConvention())
         .with(definition.getCalendar()).with(definition.getStubType())
-        .withAccualDCC(definition.getDayCountFractionConvention());
+        .withAccrualDCC(definition.getDayCountFractionConvention());
     Period[] tenors = new Period[times.length];
     for (int i = 0; i < times.length; i++) {
       tenors[i] = Period.between(definition.getStartDate().toLocalDate(), times[i].toLocalDate()).withDays(0);

@@ -15,7 +15,9 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Class containing methods for the valuation of a Legacy forward starting CDS
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class PresentValueLegacyForwardStartingCreditDefaultSwap {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -35,12 +37,8 @@ public class PresentValueLegacyForwardStartingCreditDefaultSwap {
 
   // Public method for computing the PV of a CDS based on an input CDS contract (with a hazard rate curve calibrated to market observed data)
 
-  public double getPresentValueLegacyForwardStartingCreditDefaultSwap(
-      final ZonedDateTime valuationDate,
-      final LegacyForwardStartingCreditDefaultSwapDefinition forwardStartingCDS,
-      final ISDADateCurve yieldCurve,
-      final HazardRateCurve hazardRateCurve,
-      final PriceType priceType) {
+  public double getPresentValueLegacyForwardStartingCreditDefaultSwap(final ZonedDateTime valuationDate, final LegacyForwardStartingCreditDefaultSwapDefinition forwardStartingCDS,
+      final ISDADateCurve yieldCurve, final HazardRateCurve hazardRateCurve, final PriceType priceType) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -66,12 +64,8 @@ public class PresentValueLegacyForwardStartingCreditDefaultSwap {
 
   // Public method to calculate the par spread of a CDS at contract inception (with a hazard rate curve calibrated to market observed data)
 
-  public double getParSpreadLegacyForwardStartingCreditDefaultSwap(
-      final ZonedDateTime valuationDate,
-      final LegacyForwardStartingCreditDefaultSwapDefinition forwardStartingCDS,
-      final ISDADateCurve yieldCurve,
-      final HazardRateCurve hazardRateCurve,
-      final PriceType priceType) {
+  public double getParSpreadLegacyForwardStartingCreditDefaultSwap(final ZonedDateTime valuationDate, final LegacyForwardStartingCreditDefaultSwapDefinition forwardStartingCDS,
+      final ISDADateCurve yieldCurve, final HazardRateCurve hazardRateCurve, final PriceType priceType) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 

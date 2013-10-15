@@ -15,7 +15,9 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class HedgeEquivalentNotionalCreditDefaultSwap {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -26,15 +28,8 @@ public class HedgeEquivalentNotionalCreditDefaultSwap {
 
   // Compute the hedge equivalent notional for the tenor specified in hedgeEquivalentNotionalTenor
 
-  public double getHedgeEquivalentNotionalCreditDefaultSwap(
-      final ZonedDateTime valuationDate,
-      final LegacyVanillaCreditDefaultSwapDefinition cds,
-      final ISDADateCurve yieldCurve,
-      final ZonedDateTime[] marketTenors,
-      final double[] marketSpreads,
-      final ZonedDateTime hedgeEquivalentNotionalTenor,
-      final double spreadBump,
-      final SpreadBumpType spreadBumpType,
+  public double getHedgeEquivalentNotionalCreditDefaultSwap(final ZonedDateTime valuationDate, final LegacyVanillaCreditDefaultSwapDefinition cds, final ISDADateCurve yieldCurve,
+      final ZonedDateTime[] marketTenors, final double[] marketSpreads, final ZonedDateTime hedgeEquivalentNotionalTenor, final double spreadBump, final SpreadBumpType spreadBumpType,
       final PriceType priceType) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -54,7 +49,7 @@ public class HedgeEquivalentNotionalCreditDefaultSwap {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
-    double hedgeEquivalentNotional = 0.0;
+    final double hedgeEquivalentNotional = 0.0;
 
     return hedgeEquivalentNotional;
   }
@@ -63,15 +58,8 @@ public class HedgeEquivalentNotionalCreditDefaultSwap {
 
   // Compute the hedge equivalent notionals for the tenors specified in marketTenors 
 
-  public double[] getBucketedHedgeEquivalentNotionalCreditDefaultSwap(
-      final ZonedDateTime valuationDate,
-      final LegacyVanillaCreditDefaultSwapDefinition cds,
-      final ISDADateCurve yieldCurve,
-      final ZonedDateTime[] marketTenors,
-      final double[] marketSpreads,
-      final double spreadBump,
-      final SpreadBumpType spreadBumpType,
-      final PriceType priceType) {
+  public double[] getBucketedHedgeEquivalentNotionalCreditDefaultSwap(final ZonedDateTime valuationDate, final LegacyVanillaCreditDefaultSwapDefinition cds, final ISDADateCurve yieldCurve,
+      final ZonedDateTime[] marketTenors, final double[] marketSpreads, final double spreadBump, final SpreadBumpType spreadBumpType, final PriceType priceType) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -89,7 +77,7 @@ public class HedgeEquivalentNotionalCreditDefaultSwap {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
-    double[] bucketedHedgeEquivalentNotional = new double[marketSpreads.length];
+    final double[] bucketedHedgeEquivalentNotional = new double[marketSpreads.length];
 
     for (int i = 0; i < bucketedHedgeEquivalentNotional.length; i++) {
       bucketedHedgeEquivalentNotional[i] = 0.0;

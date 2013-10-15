@@ -15,7 +15,9 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Class containing methods for the valuation of a Legacy sovereign CDS
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class PresentValueLegacySovereignCreditDefaultSwap {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -35,12 +37,8 @@ public class PresentValueLegacySovereignCreditDefaultSwap {
 
   // Public method for computing the PV of a CDS based on an input CDS contract (with a hazard rate curve calibrated to market observed data)
 
-  public double getPresentValueLegacySovereignCreditDefaultSwap(
-      final ZonedDateTime valuationDate,
-      final LegacySovereignCreditDefaultSwapDefinition sovereignCDS,
-      final ISDADateCurve yieldCurve,
-      final HazardRateCurve hazardRateCurve,
-      final PriceType priceType) {
+  public double getPresentValueLegacySovereignCreditDefaultSwap(final ZonedDateTime valuationDate, final LegacySovereignCreditDefaultSwapDefinition sovereignCDS, final ISDADateCurve yieldCurve,
+      final HazardRateCurve hazardRateCurve, final PriceType priceType) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -66,12 +64,8 @@ public class PresentValueLegacySovereignCreditDefaultSwap {
 
   // Public method to calculate the par spread of a CDS at contract inception (with a hazard rate curve calibrated to market observed data)
 
-  public double getParSpreadLegacySovereignCreditDefaultSwap(
-      final ZonedDateTime valuationDate,
-      final LegacySovereignCreditDefaultSwapDefinition sovereignCDS,
-      final ISDADateCurve yieldCurve,
-      final HazardRateCurve hazardRateCurve,
-      final PriceType priceType) {
+  public double getParSpreadLegacySovereignCreditDefaultSwap(final ZonedDateTime valuationDate, final LegacySovereignCreditDefaultSwapDefinition sovereignCDS, final ISDADateCurve yieldCurve,
+      final HazardRateCurve hazardRateCurve, final PriceType priceType) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 

@@ -12,7 +12,6 @@ import com.opengamma.analytics.financial.credit.creditdefaultswap.calibration.Ca
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.legacy.PresentValueLegacyCreditDefaultSwap;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isda.ISDACompliantPremiumLegCalculator;
 import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 import com.opengamma.analytics.financial.credit.schedulegeneration.GenerateCreditDefaultSwapIntegrationSchedule;
@@ -25,7 +24,9 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 /**
  * Class containing the methods for valuing a CDS which are common to all types of CDS 
  * e.g. the contingent leg calculation
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class PresentValueCreditDefaultSwap {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -262,7 +263,7 @@ public class PresentValueCreditDefaultSwap {
 
   private double calculatePremiumLegAccrued() {
 
-    double ai = 0.0;
+    final double ai = 0.0;
 
     return ai;
   }
@@ -319,7 +320,7 @@ public class PresentValueCreditDefaultSwap {
   final ISDADateCurve yieldCurve) {
 
     // From the spotDate, determine the next working day spotDays in the future
-    ZonedDateTime bdaCashSettlementDate = ScheduleUtils.calculateWorkday(cds, spotDate, spotDays);
+    final ZonedDateTime bdaCashSettlementDate = ScheduleUtils.calculateWorkday(cds, spotDate, spotDays);
 
     // Compute the time between the spotDate and the business day adjusted cash settlement date
     final double timeToCashSettlement = TimeCalculator.getTimeBetween(spotDate, bdaCashSettlementDate);
@@ -424,8 +425,8 @@ public class PresentValueCreditDefaultSwap {
 
       // Calculate the contribution of the interval deltat to the overall contingent leg integral (if deltat is v.small the log's above can return zero, therefore have to check for this)
       if (Double.compare(hazardRate, 0.0) != 0) {
-        presentValueContingentLeg += lossGivenDefault * (hazardRate / (hazardRate + interestRate)) * (1.0 - Math.exp(-(hazardRate + interestRate) * deltat)) * survivalProbabilityPrevious
-            * discountFactorPrevious;
+        presentValueContingentLeg += lossGivenDefault * (hazardRate / (hazardRate + interestRate)) * (1.0 - Math.exp(-(hazardRate + interestRate) * deltat)) * survivalProbabilityPrevious *
+            discountFactorPrevious;
       }
     }
 

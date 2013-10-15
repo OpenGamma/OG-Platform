@@ -130,7 +130,7 @@ public abstract class StandardVanillaCDSFunction extends AbstractFunction.NonCom
     final CDSAnalyticFactory analyticFactory = new CDSAnalyticFactory(0, definition.getCouponFrequency().getPeriod())
         .with(definition.getBusinessDayAdjustmentConvention())
         .with(definition.getCalendar()).with(definition.getStubType())
-        .withAccualDCC(definition.getDayCountFractionConvention());
+        .withAccrualDCC(definition.getDayCountFractionConvention());
     final CDSAnalytic pricingCDS = analyticFactory.makeCDS(definition.getStartDate().toLocalDate(), definition.getEffectiveDate().toLocalDate(), definition.getMaturityDate().toLocalDate());
     final ValueProperties properties = desiredValues.iterator().next().getConstraints().copy()
         .with(ValuePropertyNames.FUNCTION, getUniqueId())

@@ -14,12 +14,6 @@ import org.threeten.bp.Period;
 import cern.jet.random.engine.MersenneTwister;
 
 import com.opengamma.analytics.financial.credit.StubType;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.FastCreditCurveBuilder;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurve;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCurve;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurveBuild;
 import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDAInstrumentTypes;
 import com.opengamma.analytics.math.FunctionUtils;
 import com.opengamma.analytics.math.MathException;
@@ -31,36 +25,16 @@ import com.opengamma.analytics.math.matrix.MatrixAlgebra;
 import com.opengamma.analytics.math.matrix.OGMatrixAlgebra;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
-import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
-import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
-import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * This tests the time to calibrate the yield and credit curves. By default the tests are disabled.  
  */
-public class CalibrationTimingTest {
+public class CalibrationTimingTest extends ISDABaseTest {
 
   private static ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1, new MersenneTwister(MersenneTwister.DEFAULT_SEED));
-
   private static final MatrixAlgebra MA = new OGMatrixAlgebra();
-
   private static final CholeskyDecompositionCommons CHOLESKY = new CholeskyDecompositionCommons();
-
-  private static final FastCreditCurveBuilder CREDIT_CURVE_BUILDER = new FastCreditCurveBuilder();
-
-  private static final Calendar DEFAULT_CALENDAR = new MondayToFridayCalendar("Weekend_Only");
-
-  private static final DayCount ACT365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
-  private static final DayCount ACT360 = DayCountFactory.INSTANCE.getDayCount("ACT/360");
-  private static final DayCount D30360 = DayCountFactory.INSTANCE.getDayCount("30/360");
-
-  @SuppressWarnings("unused")
-  private static final BusinessDayConvention FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
-  private static final BusinessDayConvention MOD_FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
 
   private static final int NUM_YIELD_CURVE_POINTS = 20;
   private static final Period SWAP_INTERVAL = Period.ofMonths(6);
@@ -110,7 +84,7 @@ public class CalibrationTimingTest {
     final double[] ycMatTimes = new double[NUM_YIELD_CURVE_POINTS];
     for (int i = 0; i < NUM_YIELD_CURVE_POINTS; i++) {
       ycMatDates[i] = SPOTDATE.plus(YC_INST_TENOR[i]);
-      ycMatTimes[i] = ACT365.getDayCountFraction(SPOTDATE, ycMatDates[i]);
+      ycMatTimes[i] = ACT365F.getDayCountFraction(SPOTDATE, ycMatDates[i]);
     }
 
     final double ycDecorrelation = -0.2;
@@ -143,7 +117,7 @@ public class CalibrationTimingTest {
 
     final double[] ccMatTimes = new double[NUM_CREDIT_CURVE_POINTS];
     for (int i = 0; i < NUM_CREDIT_CURVE_POINTS; i++) {
-      ccMatTimes[i] = ACT365.getDayCountFraction(TODAY, CC_DATES[i]);
+      ccMatTimes[i] = ACT365F.getDayCountFraction(TODAY, CC_DATES[i]);
     }
     final double ccDecorrelation = -0.01;
     final double ccVar = 1 / 50.;
@@ -173,7 +147,7 @@ public class CalibrationTimingTest {
     System.out.println("CalibrationTimingTest - set enabled=false before push");
 
     final DoubleMatrix1D base = new DoubleMatrix1D(YC_MARKET_RATES);
-    final int nSims = 50000;
+    final int nSims = 10000;
     final ISDACompliantYieldCurveBuild ycBuilder = new ISDACompliantYieldCurveBuild(SPOTDATE, YC_INST_TYPES, YC_INST_TENOR, ACT360, D30360, SWAP_INTERVAL, MOD_FOLLOWING);
 
     final long startTime = System.nanoTime();
@@ -218,7 +192,7 @@ public class CalibrationTimingTest {
     }
 
     final DoubleMatrix1D base = new DoubleMatrix1D(coupons);
-    final int nSims = 50000;
+    final int nSims = 10000;
 
     final long startTime = System.nanoTime();
     int failed = 0;

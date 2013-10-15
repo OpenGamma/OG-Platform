@@ -18,7 +18,9 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Class containing methods for the computation of Gamma for a CDS Swaption (parallel and bucketed bumps)
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class GammaCreditDefaultSwapOption {
 
   // ------------------------------------------------------------------------------------------------------------------------------------------
@@ -33,15 +35,8 @@ public class GammaCreditDefaultSwapOption {
   // ------------------------------------------------------------------------------------------------------------------------------------------
 
   // Compute the Gamma by a parallel bump of each point on the spread curve
-  public double getGammaParallelShiftCreditDefaultSwapOption(
-      final ZonedDateTime valuationDate,
-      final CreditDefaultSwapOptionDefinition cdsSwaption,
-      final double sigma,
-      final ISDADateCurve yieldCurve,
-      final HazardRateCurve hazardRateCurve,
-      final ZonedDateTime[] marketTenors,
-      final double[] marketSpreads,
-      final double spreadBump,
+  public double getGammaParallelShiftCreditDefaultSwapOption(final ZonedDateTime valuationDate, final CreditDefaultSwapOptionDefinition cdsSwaption, final double sigma,
+      final ISDADateCurve yieldCurve, final HazardRateCurve hazardRateCurve, final ZonedDateTime[] marketTenors, final double[] marketSpreads, final double spreadBump,
       final SpreadBumpType spreadBumpType) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -99,16 +94,8 @@ public class GammaCreditDefaultSwapOption {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  public double getBetaAdjustedGammaParallelShiftCreditDefaultSwapOption(
-      final ZonedDateTime valuationDate,
-      final CreditDefaultSwapOptionDefinition cdsSwaption,
-      final double sigma,
-      final ISDADateCurve yieldCurve,
-      final HazardRateCurve hazardRateCurve,
-      final ZonedDateTime[] marketTenors,
-      final double[] marketSpreads,
-      final double spreadBump,
-      final double beta,
+  public double getBetaAdjustedGammaParallelShiftCreditDefaultSwapOption(final ZonedDateTime valuationDate, final CreditDefaultSwapOptionDefinition cdsSwaption, final double sigma,
+      final ISDADateCurve yieldCurve, final HazardRateCurve hazardRateCurve, final ZonedDateTime[] marketTenors, final double[] marketSpreads, final double spreadBump, final double beta,
       final SpreadBumpType spreadBumpType) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -129,16 +116,8 @@ public class GammaCreditDefaultSwapOption {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  public double[] getGammaBucketedCreditDefaultSwapOption(
-      final ZonedDateTime valuationDate,
-      final CreditDefaultSwapOptionDefinition cdsSwaption,
-      final double sigma,
-      final ISDADateCurve yieldCurve,
-      final HazardRateCurve hazardRateCurve,
-      final ZonedDateTime[] marketTenors,
-      final double[] marketSpreads,
-      final double spreadBump,
-      final SpreadBumpType spreadBumpType) {
+  public double[] getGammaBucketedCreditDefaultSwapOption(final ZonedDateTime valuationDate, final CreditDefaultSwapOptionDefinition cdsSwaption, final double sigma, final ISDADateCurve yieldCurve,
+      final HazardRateCurve hazardRateCurve, final ZonedDateTime[] marketTenors, final double[] marketSpreads, final double spreadBump, final SpreadBumpType spreadBumpType) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -219,16 +198,8 @@ public class GammaCreditDefaultSwapOption {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  public double[] getBetaAdjustedGammaBucketedCreditDefaultSwapOption(
-      final ZonedDateTime valuationDate,
-      final CreditDefaultSwapOptionDefinition cdsSwaption,
-      final double sigma,
-      final ISDADateCurve yieldCurve,
-      final HazardRateCurve hazardRateCurve,
-      final ZonedDateTime[] marketTenors,
-      final double[] marketSpreads,
-      final double spreadBump,
-      final double beta,
+  public double[] getBetaAdjustedGammaBucketedCreditDefaultSwapOption(final ZonedDateTime valuationDate, final CreditDefaultSwapOptionDefinition cdsSwaption, final double sigma,
+      final ISDADateCurve yieldCurve, final HazardRateCurve hazardRateCurve, final ZonedDateTime[] marketTenors, final double[] marketSpreads, final double spreadBump, final double beta,
       final SpreadBumpType spreadBumpType) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------

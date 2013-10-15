@@ -42,7 +42,9 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  *
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class ISDAHazardRateCurveCalculator {
   private static final GenerateCreditDefaultSwapPremiumLegSchedule SCHEDULE_GENERATOR = new GenerateCreditDefaultSwapPremiumLegSchedule();
   private static final ISDACreditDefaultSwapPVCalculator PV_CALCULATOR = new ISDACreditDefaultSwapPVCalculator();
@@ -97,8 +99,8 @@ public class ISDAHazardRateCurveCalculator {
       return new HazardRateCurve(marketDates, times, modifiedHazardRateCurve, 0.0);
     }
 
-    private double[] getCalibratedHazardRateTermStructure(final ZonedDateTime valuationDate, final CreditDefaultSwapDefinition cds, final ZonedDateTime[] marketDates,
-        final double[] marketSpreads, final ISDADateCurve yieldCurve, final PriceType priceType) {
+    private double[] getCalibratedHazardRateTermStructure(final ZonedDateTime valuationDate, final CreditDefaultSwapDefinition cds, final ZonedDateTime[] marketDates, final double[] marketSpreads,
+        final ISDADateCurve yieldCurve, final PriceType priceType) {
       // Check the efficacy of the input market data
       CreditMarketDataUtils.checkSpreadData(valuationDate, marketDates, marketSpreads);
 
@@ -190,8 +192,8 @@ public class ISDAHazardRateCurveCalculator {
     }
 
     // Private member function to compute the PV of a CDS given a particular guess for the hazard rate at tenor m (given calibrated hazard rates for tenors 0, ..., m - 1)
-    private double calculateCDSPV(final CreditDefaultSwapDefinition calibrationCDS, final ZonedDateTime[] tenors,
-        final double[] tenorsAsDoubles, final double[] hazardRates, final double hazardRateMidPoint, final ISDADateCurve yieldCurve, final PriceType priceType) {
+    private double calculateCDSPV(final CreditDefaultSwapDefinition calibrationCDS, final ZonedDateTime[] tenors, final double[] tenorsAsDoubles, final double[] hazardRates,
+        final double hazardRateMidPoint, final ISDADateCurve yieldCurve, final PriceType priceType) {
 
       // How many tenors in the hazard rate term structure have been previously calibrated
       final int numberOfTenors = tenorsAsDoubles.length;

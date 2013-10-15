@@ -31,10 +31,10 @@ public class FiniteDifferenceSpreadSensitivityCalculator {
     _pricer = new AnalyticCDSPricer();
   }
 
-  public FiniteDifferenceSpreadSensitivityCalculator(final boolean useCorrectAccOnDefaultFormula) {
-    _pufConverter = new MarketQuoteConverter(useCorrectAccOnDefaultFormula);
-    _curveBuilder = new FastCreditCurveBuilder(useCorrectAccOnDefaultFormula);
-    _pricer = new AnalyticCDSPricer(useCorrectAccOnDefaultFormula);
+  public FiniteDifferenceSpreadSensitivityCalculator(final AccrualOnDefaultFormulae formula) {
+    _pufConverter = new MarketQuoteConverter(formula);
+    _curveBuilder = new FastCreditCurveBuilder(formula);
+    _pricer = new AnalyticCDSPricer(formula);
   }
 
   //***************************************************************************************************************
@@ -452,6 +452,7 @@ public class FiniteDifferenceSpreadSensitivityCalculator {
     if (index < 0) {
       index = -1 - index;
     }
+    index = Math.min(index, n - 1);
 
     //build a new curve from the implied spreads
     final ISDACompliantCreditCurve baseCurve = _curveBuilder.calibrateCreditCurve(bucketCDSs, impSpreads, yieldCurve);

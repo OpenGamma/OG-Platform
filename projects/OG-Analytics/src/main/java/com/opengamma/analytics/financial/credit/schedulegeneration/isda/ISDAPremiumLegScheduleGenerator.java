@@ -20,7 +20,9 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  *  Class containing methods to generate the premium leg cash-flow schedule for a CDS (following the market conventions for CDS)
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class ISDAPremiumLegScheduleGenerator {
   // TODO : Add a check if the calendar is 'null' to signify no adjustment of business dates? Overloaded method
   // TODO : Fix the code for the back stubs (is there a better way of handling this than just duplicating code?) - front stubs seem to work okay
@@ -41,7 +43,7 @@ public class ISDAPremiumLegScheduleGenerator {
     final StubType stubType = cds.getStubType();
     if (protectStart && endDate.equals(startDate)) {
       //note no adjustment of either date
-      return new ZonedDateTime[] {startDate, startDate.plusDays(1)};
+      return new ZonedDateTime[] {startDate, startDate.plusDays(1) };
     }
     // Is the stub at the front end of the payment schedule
     if (stubType == StubType.FRONTSHORT || stubType == StubType.FRONTLONG) {

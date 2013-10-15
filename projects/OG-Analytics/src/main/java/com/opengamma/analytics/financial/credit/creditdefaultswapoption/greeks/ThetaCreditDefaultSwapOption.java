@@ -7,7 +7,9 @@ package com.opengamma.analytics.financial.credit.creditdefaultswapoption.greeks;
 
 /**
  * 
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class ThetaCreditDefaultSwapOption {
 
 }

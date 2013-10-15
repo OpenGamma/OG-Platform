@@ -28,7 +28,9 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Class containing methods for the valuation of CDS Swaptions
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class PresentValueCreditDefaultSwapOption {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -73,14 +75,8 @@ public class PresentValueCreditDefaultSwapOption {
 
   // Public method for computing the PV of a CDS Swaption based on an input CDS Swaption contract
 
-  public double getPresentValueCreditDefaultSwapOption(
-      final ZonedDateTime valuationDate,
-      final CreditDefaultSwapOptionDefinition cdsSwaption,
-      final double sigma,
-      final ZonedDateTime[] calibrationTenors,
-      final double[] marketSpreads,
-      final ISDADateCurve yieldCurve,
-      final HazardRateCurve hazardRateCurve) {
+  public double getPresentValueCreditDefaultSwapOption(final ZonedDateTime valuationDate, final CreditDefaultSwapOptionDefinition cdsSwaption, final double sigma,
+      final ZonedDateTime[] calibrationTenors, final double[] marketSpreads, final ISDADateCurve yieldCurve, final HazardRateCurve hazardRateCurve) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -152,26 +148,11 @@ public class PresentValueCreditDefaultSwapOption {
       // ... the option still has some value (and the calculation shouldn't fall over)
 
       // Calculate the forward risky dV01 as seen at the valuation date for the period [optionExpiryDate, cdsMaturityDate]
-      final double riskydV01 = calculateForwardRiskydV01(
-          valuationDate,
-          optionExpiryDate,
-          cdsMaturityDate,
-          cdsSwaption,
-          underlyingCDSPremiumLegSchedule,
-          yieldCurve,
-          calibratedHazardRateCurve/*hazardRateCurve*/);
+      final double riskydV01 = calculateForwardRiskydV01(valuationDate, optionExpiryDate, cdsMaturityDate, cdsSwaption, underlyingCDSPremiumLegSchedule, yieldCurve, calibratedHazardRateCurve/*hazardRateCurve*/);
 
       // Calculate the forward spread as seen at the valuation date for the period [optionExpiryDate, cdsMaturityDate]
-      final double forwardSpread = calculateForwardSpread(
-          valuationDate,
-          optionExpiryDate,
-          cdsMaturityDate,
-          cdsSwaption,
-          underlyingCDSPremiumLegSchedule,
-          shortCDSPremiumLegSchedule,
-          spreadCurve,
-          yieldCurve,
-          calibratedHazardRateCurve/*hazardRateCurve*/) / 10000.0;
+      final double forwardSpread = calculateForwardSpread(valuationDate, optionExpiryDate, cdsMaturityDate, cdsSwaption, underlyingCDSPremiumLegSchedule, shortCDSPremiumLegSchedule, spreadCurve,
+          yieldCurve, calibratedHazardRateCurve/*hazardRateCurve*/) / 10000.0;
 
       // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -199,14 +180,8 @@ public class PresentValueCreditDefaultSwapOption {
 
   // Calculate the value of the risky premium leg cashflows for the underlying CDS ( which occur after the option expiry date)
 
-  private double calculateForwardRiskydV01(
-      final ZonedDateTime valuationDate,
-      final ZonedDateTime forwardStartDate,
-      final ZonedDateTime forwardEndDate,
-      final CreditDefaultSwapOptionDefinition cdsSwaption,
-      final ZonedDateTime[] premiumLegSchedule,
-      final ISDADateCurve yieldCurve,
-      final HazardRateCurve hazardRateCurve) {
+  private double calculateForwardRiskydV01(final ZonedDateTime valuationDate, final ZonedDateTime forwardStartDate, final ZonedDateTime forwardEndDate,
+      final CreditDefaultSwapOptionDefinition cdsSwaption, final ZonedDateTime[] premiumLegSchedule, final ISDADateCurve yieldCurve, final HazardRateCurve hazardRateCurve) {
 
     double forwardRiskydV01 = 0.0;
 
@@ -229,16 +204,9 @@ public class PresentValueCreditDefaultSwapOption {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  private double calculateForwardSpread(
-      final ZonedDateTime valuationDate,
-      final ZonedDateTime forwardStartDate,
-      final ZonedDateTime forwardEndDate,
-      final CreditDefaultSwapOptionDefinition cdsSwaption,
-      final ZonedDateTime[] premiumLegSchedule,
-      final ZonedDateTime[] shortCDSPremiumLegSchedule,
-      final DoublesCurve spreadCurve,
-      final ISDADateCurve yieldCurve,
-      final HazardRateCurve hazardRateCurve) {
+  private double calculateForwardSpread(final ZonedDateTime valuationDate, final ZonedDateTime forwardStartDate, final ZonedDateTime forwardEndDate,
+      final CreditDefaultSwapOptionDefinition cdsSwaption, final ZonedDateTime[] premiumLegSchedule, final ZonedDateTime[] shortCDSPremiumLegSchedule, final DoublesCurve spreadCurve,
+      final ISDADateCurve yieldCurve, final HazardRateCurve hazardRateCurve) {
 
     final double dV01ToForwardDate = calculateForwardRiskydV01(valuationDate, valuationDate, forwardStartDate, cdsSwaption, shortCDSPremiumLegSchedule, yieldCurve, hazardRateCurve);
     final double dV01ToMaturitydDate = calculateForwardRiskydV01(valuationDate, valuationDate, forwardEndDate, cdsSwaption, premiumLegSchedule, yieldCurve, hazardRateCurve);
@@ -256,10 +224,7 @@ public class PresentValueCreditDefaultSwapOption {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  private double calculateFrontendProtection(
-      final ZonedDateTime valuationDate,
-      final CreditDefaultSwapOptionDefinition cdsSwaption,
-      final ISDADateCurve yieldCurve,
+  private double calculateFrontendProtection(final ZonedDateTime valuationDate, final CreditDefaultSwapOptionDefinition cdsSwaption, final ISDADateCurve yieldCurve,
       final HazardRateCurve hazardRateCurve) {
 
     // Calculate the remaining time between valuationDate to option expiry time

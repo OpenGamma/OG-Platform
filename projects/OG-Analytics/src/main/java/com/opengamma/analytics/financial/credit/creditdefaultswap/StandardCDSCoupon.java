@@ -7,7 +7,9 @@ package com.opengamma.analytics.financial.credit.creditdefaultswap;
 
 /**
  * Enumerate the coupon rates that can be applied to Standard CDS contracts (European and North American)
+  *@deprecated this will be deleted 
  */
+@Deprecated
 public enum StandardCDSCoupon {
   /**
    * 25bps contract (Europe)

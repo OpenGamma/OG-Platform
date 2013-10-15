@@ -14,7 +14,9 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Class containing methods for the computation of IR01 for an index CDS (parallel and bucketed bumps)
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class IR01IndexCreditDefaultSwap {
 
   // ------------------------------------------------------------------------------------------------------------------------------------------
@@ -25,14 +27,8 @@ public class IR01IndexCreditDefaultSwap {
 
   // Compute the IR01 by a parallel bump of each point on the yield curve - bump is applied simultaneously to all obligors
 
-  public double getIR01ParallelShiftAllObligorsIndexCreditDefaultSwap(
-      final ZonedDateTime valuationDate,
-      final IndexCreditDefaultSwapDefinition indexCDS,
-      final ISDACurve[] yieldCurve,
-      final ZonedDateTime[] marketTenors,
-      final double[][] marketSpreads,
-      final double interestRateBump,
-      final InterestRateBumpType interestRateBumpType) {
+  public double getIR01ParallelShiftAllObligorsIndexCreditDefaultSwap(final ZonedDateTime valuationDate, final IndexCreditDefaultSwapDefinition indexCDS, final ISDACurve[] yieldCurve,
+      final ZonedDateTime[] marketTenors, final double[][] marketSpreads, final double interestRateBump, final InterestRateBumpType interestRateBumpType) {
 
     ArgumentChecker.notNull(valuationDate, "Valuation date");
     ArgumentChecker.notNull(indexCDS, "Index CDS");
@@ -43,7 +39,7 @@ public class IR01IndexCreditDefaultSwap {
 
     ArgumentChecker.notNegative(interestRateBump, "Interest rate bump");
 
-    double parallelIR01 = 0.0;
+    final double parallelIR01 = 0.0;
 
     return parallelIR01;
   }
@@ -52,14 +48,8 @@ public class IR01IndexCreditDefaultSwap {
 
   // Compute the IR01 by bumping each point on the yield curve individually by interestRateBump (bump is same for all tenors) - bump is applied simultaneously to all obligors
 
-  public double[] getIR01BucketedAllObligorsIndexCreditDefaultSwap(
-      final ZonedDateTime valuationDate,
-      final IndexCreditDefaultSwapDefinition indexCDS,
-      final ISDACurve[] yieldCurve,
-      final ZonedDateTime[] marketTenors,
-      final double[][] marketSpreads,
-      final double interestRateBump,
-      final InterestRateBumpType interestRateBumpType) {
+  public double[] getIR01BucketedAllObligorsIndexCreditDefaultSwap(final ZonedDateTime valuationDate, final IndexCreditDefaultSwapDefinition indexCDS, final ISDACurve[] yieldCurve,
+      final ZonedDateTime[] marketTenors, final double[][] marketSpreads, final double interestRateBump, final InterestRateBumpType interestRateBumpType) {
 
     ArgumentChecker.notNull(valuationDate, "Valuation date");
     ArgumentChecker.notNull(indexCDS, "Index CDS");
@@ -70,9 +60,9 @@ public class IR01IndexCreditDefaultSwap {
 
     ArgumentChecker.notNegative(interestRateBump, "Interest rate bump");
 
-    int numberOfYieldCurveTenors = 1; //indexCDS.getUnderlyingPool().getNumberOfCreditSpreadTenors();
+    final int numberOfYieldCurveTenors = 1; //indexCDS.getUnderlyingPool().getNumberOfCreditSpreadTenors();
 
-    double[] bucketedIR01 = new double[numberOfYieldCurveTenors];
+    final double[] bucketedIR01 = new double[numberOfYieldCurveTenors];
 
     for (int m = 0; m < numberOfYieldCurveTenors; m++) {
       bucketedIR01[m] = 0.0;
@@ -85,14 +75,8 @@ public class IR01IndexCreditDefaultSwap {
 
   // Compute the IR01 by a parallel bump of each point on the yield curve - bump is applied individually to all obligors one by one
 
-  public double[] getIR01ParallelShiftIndividualObligorsIndexCreditDefaultSwap(
-      final ZonedDateTime valuationDate,
-      final IndexCreditDefaultSwapDefinition indexCDS,
-      final ISDACurve[] yieldCurve,
-      final ZonedDateTime[] marketTenors,
-      final double[][] marketSpreads,
-      final double interestRateBump,
-      final InterestRateBumpType interestRateBumpType) {
+  public double[] getIR01ParallelShiftIndividualObligorsIndexCreditDefaultSwap(final ZonedDateTime valuationDate, final IndexCreditDefaultSwapDefinition indexCDS, final ISDACurve[] yieldCurve,
+      final ZonedDateTime[] marketTenors, final double[][] marketSpreads, final double interestRateBump, final InterestRateBumpType interestRateBumpType) {
 
     ArgumentChecker.notNull(valuationDate, "Valuation date");
     ArgumentChecker.notNull(indexCDS, "Index CDS");
@@ -103,9 +87,9 @@ public class IR01IndexCreditDefaultSwap {
 
     ArgumentChecker.notNegative(interestRateBump, "Interest rate bump");
 
-    int numberOfObligors = indexCDS.getUnderlyingPool().getNumberOfObligors();
+    final int numberOfObligors = indexCDS.getUnderlyingPool().getNumberOfObligors();
 
-    double[] parallelIR01 = new double[numberOfObligors];
+    final double[] parallelIR01 = new double[numberOfObligors];
 
     for (int i = 0; i < numberOfObligors; i++) {
       parallelIR01[i] = 0.0;
@@ -118,14 +102,8 @@ public class IR01IndexCreditDefaultSwap {
 
   // Compute the IR01 by bumping each point on the yield curve individually by interestRateBump (bump is same for all tenors) - bump is applied individually to all obligors one by one
 
-  public double[][] getIR01BucketedIndividualObligorsIndexCreditDefaultSwap(
-      final ZonedDateTime valuationDate,
-      final IndexCreditDefaultSwapDefinition indexCDS,
-      final ISDACurve[] yieldCurve,
-      final ZonedDateTime[] marketTenors,
-      final double[][] marketSpreads,
-      final double interestRateBump,
-      final InterestRateBumpType interestRateBumpType) {
+  public double[][] getIR01BucketedIndividualObligorsIndexCreditDefaultSwap(final ZonedDateTime valuationDate, final IndexCreditDefaultSwapDefinition indexCDS, final ISDACurve[] yieldCurve,
+      final ZonedDateTime[] marketTenors, final double[][] marketSpreads, final double interestRateBump, final InterestRateBumpType interestRateBumpType) {
 
     ArgumentChecker.notNull(valuationDate, "Valuation date");
     ArgumentChecker.notNull(indexCDS, "Index CDS");
@@ -136,10 +114,10 @@ public class IR01IndexCreditDefaultSwap {
 
     ArgumentChecker.notNegative(interestRateBump, "Interest rate bump");
 
-    int numberOfObligors = indexCDS.getUnderlyingPool().getNumberOfObligors();
-    int numberOfYieldCurveTenors = marketTenors.length;
+    final int numberOfObligors = indexCDS.getUnderlyingPool().getNumberOfObligors();
+    final int numberOfYieldCurveTenors = marketTenors.length;
 
-    double[][] ir01 = new double[numberOfObligors][numberOfYieldCurveTenors];
+    final double[][] ir01 = new double[numberOfObligors][numberOfYieldCurveTenors];
 
     for (int i = 0; i < numberOfObligors; i++) {
       for (int m = 0; m < numberOfYieldCurveTenors; m++) {

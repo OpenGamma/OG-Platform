@@ -22,14 +22,16 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class ISDACreditDefaultSwapValueOnDefaultCalculator {
   private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
   private static final ISDACreditDefaultSwapPVCalculator CALCULATOR = new ISDACreditDefaultSwapPVCalculator();
   private static final ISDAHazardRateCurveCalibrationCalculator HAZARD_RATE_CALCULATOR = new ISDAHazardRateCurveCalibrationCalculator();
 
-  public double getValueOnDefaultCreditDefaultSwap(final ZonedDateTime valuationDate, final CreditDefaultSwapDefinition cds, final ISDADateCurve yieldCurve,
-      final ZonedDateTime[] marketTenors, final double[] marketSpreads, final PriceType priceType) {
+  public double getValueOnDefaultCreditDefaultSwap(final ZonedDateTime valuationDate, final CreditDefaultSwapDefinition cds, final ISDADateCurve yieldCurve, final ZonedDateTime[] marketTenors,
+      final double[] marketSpreads, final PriceType priceType) {
     ArgumentChecker.notNull(valuationDate, "Valuation date");
     ArgumentChecker.notNull(cds, "LegacyCreditDefaultSwapDefinition");
     ArgumentChecker.notNull(yieldCurve, "YieldCurve");
@@ -41,8 +43,7 @@ public class ISDACreditDefaultSwapValueOnDefaultCalculator {
     for (int m = 1; m < marketTenors.length; m++) {
       times[m] = ACT_365.getDayCountFraction(valuationDate, marketTenors[m]);
     }
-    final double[] calibratedHazardRates = HAZARD_RATE_CALCULATOR.getCalibratedHazardRateTermStructure(valuationDate, cds, marketTenors,
-        marketSpreads, yieldCurve, priceType);
+    final double[] calibratedHazardRates = HAZARD_RATE_CALCULATOR.getCalibratedHazardRateTermStructure(valuationDate, cds, marketTenors, marketSpreads, yieldCurve, priceType);
     final HazardRateCurve calibratedHazardRateCurve = new HazardRateCurve(marketTenors, times, calibratedHazardRates, 0.0);
     final ISDAYieldCurveAndHazardRateCurveProvider curves = new ISDAYieldCurveAndHazardRateCurveProvider(yieldCurve, calibratedHazardRateCurve);
     final double presentValue = CALCULATOR.getPresentValue(cds, curves, valuationDate, priceType);

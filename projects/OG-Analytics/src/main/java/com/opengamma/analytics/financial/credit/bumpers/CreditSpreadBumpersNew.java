@@ -5,10 +5,11 @@
  */
 package com.opengamma.analytics.financial.credit.bumpers;
 
-
 /**
  * Class containing utilities for bumping credit spread term structures by user defined methods and amounts
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class CreditSpreadBumpersNew {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -25,7 +26,7 @@ public class CreditSpreadBumpersNew {
     final int n = marketSpreads.length;
     final double[] bumpedCreditSpreads = new double[n];
 
-    switch(spreadBumpType) {
+    switch (spreadBumpType) {
       case ADDITIVE_PARALLEL:
       case ADDITIVE:
       case ADDITIVE_BUCKETED:
@@ -54,7 +55,7 @@ public class CreditSpreadBumpersNew {
     final double[] bumpedCreditSpreads = new double[n];
     System.arraycopy(marketSpreads, 0, bumpedCreditSpreads, 0, n);
 
-    switch(spreadBumpType) {
+    switch (spreadBumpType) {
       case ADDITIVE_BUCKETED:
       case ADDITIVE:
         bumpedCreditSpreads[spreadTenorToBump] += spreadBump;
@@ -69,7 +70,7 @@ public class CreditSpreadBumpersNew {
   }
 
   public double getBumpedCreditSpread(final double marketSpread, final double spreadBump, final SpreadBumpType spreadBumpType) {
-    switch(spreadBumpType) {
+    switch (spreadBumpType) {
       case ADDITIVE_BUCKETED:
       case ADDITIVE:
         return marketSpread + spreadBump;

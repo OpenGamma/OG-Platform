@@ -34,13 +34,14 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class ISDACreditDefaultSwapPVCalculator {
   private static final ISDACompliantLegCalculator PREMIUM_LEG_CALCULATOR = new ISDACompliantPremiumLegCalculator();
   private static final ISDACompliantLegCalculator CONTINGENT_LEG_CALCULATOR = new ISDACompliantContingentLegCalculator();
 
-  public double getPresentValue(final CreditInstrumentDefinition cds, final ISDAYieldCurveAndHazardRateCurveProvider data, final ZonedDateTime valuationDate,
-      final PriceType priceType) {
+  public double getPresentValue(final CreditInstrumentDefinition cds, final ISDAYieldCurveAndHazardRateCurveProvider data, final ZonedDateTime valuationDate, final PriceType priceType) {
     ArgumentChecker.notNull(cds, "cds");
     ArgumentChecker.notNull(data, "data");
     ArgumentChecker.notNull(valuationDate, "valuation date");

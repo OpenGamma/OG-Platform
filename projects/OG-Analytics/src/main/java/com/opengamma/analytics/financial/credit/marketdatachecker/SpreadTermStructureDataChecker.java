@@ -11,7 +11,9 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Class to check the efficacy of user input CDS spread data (e.g. that tenors of calibrating instruments are in ascending order)
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class SpreadTermStructureDataChecker {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -25,10 +27,7 @@ public class SpreadTermStructureDataChecker {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  public void checkSpreadData(
-      final ZonedDateTime valuationDate,
-      final ZonedDateTime[] marketTenors,
-      final double[] marketSpreads) {
+  public void checkSpreadData(final ZonedDateTime valuationDate, final ZonedDateTime[] marketTenors, final double[] marketSpreads) {
 
     // Check that the number of input tenors matches the number of input spreads
     ArgumentChecker.isTrue(marketTenors.length == marketSpreads.length, "Number of tenors and number of spreads should be equal");

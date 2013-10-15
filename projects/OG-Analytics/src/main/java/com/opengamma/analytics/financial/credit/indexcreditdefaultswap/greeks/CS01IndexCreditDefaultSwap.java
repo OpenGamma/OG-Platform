@@ -18,7 +18,9 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Class containing methods for the computation of CS01 for an index CDS (parallel and bucketed bumps)
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class CS01IndexCreditDefaultSwap {
 
   // ------------------------------------------------------------------------------------------------------------------------------------------
@@ -40,14 +42,8 @@ public class CS01IndexCreditDefaultSwap {
 
   // Compute the CS01 by a parallel bump of each point on the spread curve - bump is applied simultaneously to all obligors
 
-  public double getCS01ParallelShiftAllObligorsIndexCreditDefaultSwap(
-      final ZonedDateTime valuationDate,
-      final IndexCreditDefaultSwapDefinition indexCDS,
-      final ISDADateCurve[] yieldCurves,
-      final ZonedDateTime[] marketTenors,
-      final double[][] marketSpreads,
-      final double spreadBump,
-      final SpreadBumpType spreadBumpType) {
+  public double getCS01ParallelShiftAllObligorsIndexCreditDefaultSwap(final ZonedDateTime valuationDate, final IndexCreditDefaultSwapDefinition indexCDS, final ISDADateCurve[] yieldCurves,
+      final ZonedDateTime[] marketTenors, final double[][] marketSpreads, final double spreadBump, final SpreadBumpType spreadBumpType) {
 
     // ------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -66,7 +62,7 @@ public class CS01IndexCreditDefaultSwap {
     final int numberOfTenors = marketTenors.length;
 
     // Get the bumped credit spreads
-    double[][] bumpedMarketSpreads = spreadBumper.getBumpedCreditSpreads(numberOfObligors, numberOfTenors, marketSpreads, spreadBump, spreadBumpType);
+    final double[][] bumpedMarketSpreads = spreadBumper.getBumpedCreditSpreads(numberOfObligors, numberOfTenors, marketSpreads, spreadBump, spreadBumpType);
 
     // Calibrate the hazard rate term structures of each of the obligors in the pool underlying the index to the unbumped credit spreads
     final HazardRateCurve[] hazardRateCurves = calibrateHazardRateCurves.getCalibratedHazardRateCurves(valuationDate, indexCDS, marketTenors, marketSpreads, yieldCurves);
@@ -74,8 +70,8 @@ public class CS01IndexCreditDefaultSwap {
     // Calibrate the hazard rate term structures of each of the obligors in the pool underlying the index to the unbumped credit spreads
     final HazardRateCurve[] bumpedHazardRateCurves = calibrateHazardRateCurves.getCalibratedHazardRateCurves(valuationDate, indexCDS, marketTenors, bumpedMarketSpreads, yieldCurves);
 
-    double[] breakevenSpreads = new double[numberOfObligors];
-    double[] bumpedBreakevenSpreads = new double[numberOfObligors];
+    final double[] breakevenSpreads = new double[numberOfObligors];
+    final double[] bumpedBreakevenSpreads = new double[numberOfObligors];
 
     for (int i = 0; i < numberOfObligors; i++) {
       breakevenSpreads[i] = marketSpreads[i][0];
@@ -89,7 +85,7 @@ public class CS01IndexCreditDefaultSwap {
     final double bumpedPresentValue = indexPresentValue.getIntrinsicPresentValueIndexCreditDefaultSwap(valuationDate, indexCDS, bumpedBreakevenSpreads, yieldCurves, bumpedHazardRateCurves);
 
     // Compute the parallel CS01
-    double parallelCS01 = (bumpedPresentValue - presentValue) / spreadBump;
+    final double parallelCS01 = (bumpedPresentValue - presentValue) / spreadBump;
 
     return parallelCS01;
   }
@@ -98,14 +94,8 @@ public class CS01IndexCreditDefaultSwap {
 
   // Compute the CS01 by bumping each point on the spread curve simultaneously by spreadBump (bump is same for all tenors) - bump is applied one-by-one to each obligor
 
-  public double[] getCS01BucketedByObligorIndexCreditDefaultSwap(
-      final ZonedDateTime valuationDate,
-      final IndexCreditDefaultSwapDefinition indexCDS,
-      final ISDADateCurve[] yieldCurves,
-      final ZonedDateTime[] marketTenors,
-      final double[][] marketSpreads,
-      final double spreadBump,
-      final SpreadBumpType spreadBumpType) {
+  public double[] getCS01BucketedByObligorIndexCreditDefaultSwap(final ZonedDateTime valuationDate, final IndexCreditDefaultSwapDefinition indexCDS, final ISDADateCurve[] yieldCurves,
+      final ZonedDateTime[] marketTenors, final double[][] marketSpreads, final double spreadBump, final SpreadBumpType spreadBumpType) {
 
     // ------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -123,10 +113,10 @@ public class CS01IndexCreditDefaultSwap {
     final int numberOfObligors = indexCDS.getUnderlyingPool().getNumberOfObligors();
     final int numberOfTenors = marketTenors.length;
 
-    double[] bucketedByObligorCS01 = new double[numberOfObligors];
+    final double[] bucketedByObligorCS01 = new double[numberOfObligors];
 
-    double[] breakevenSpreads = new double[numberOfObligors];
-    double[] bumpedBreakevenSpreads = new double[numberOfObligors];
+    final double[] breakevenSpreads = new double[numberOfObligors];
+    final double[] bumpedBreakevenSpreads = new double[numberOfObligors];
 
     for (int j = 0; j < numberOfObligors; j++) {
       breakevenSpreads[j] = marketSpreads[j][0];

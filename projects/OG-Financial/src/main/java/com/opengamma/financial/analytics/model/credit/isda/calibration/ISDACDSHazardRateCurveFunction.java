@@ -111,7 +111,7 @@ public class ISDACDSHazardRateCurveFunction extends ISDAHazardRateCurveFunction 
     final CDSAnalyticFactory analyticFactory = new CDSAnalyticFactory(cds.getRecoveryRate(), cds.getCouponFrequency().getPeriod())
         .with(cds.getBusinessDayAdjustmentConvention())
         .with(calendar).with(cds.getStubType())
-        .withAccualDCC(cds.getDayCountFractionConvention());
+        .withAccrualDCC(cds.getDayCountFractionConvention());
 
     final CDSAnalytic pricingCDS = analyticFactory.makeCDS(valuationTime.toLocalDate(), cds.getEffectiveDate().toLocalDate(), cds.getMaturityDate().toLocalDate());
     double spread = 0;

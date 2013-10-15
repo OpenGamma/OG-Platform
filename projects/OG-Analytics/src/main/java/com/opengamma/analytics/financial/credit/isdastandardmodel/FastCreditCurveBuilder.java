@@ -10,11 +10,7 @@ import static com.opengamma.analytics.financial.credit.isdastandardmodel.Doubles
 import static com.opengamma.analytics.math.utilities.Epsilon.epsilon;
 import static com.opengamma.analytics.math.utilities.Epsilon.epsilonP;
 
-import org.threeten.bp.LocalDate;
-import org.threeten.bp.Period;
-
 import com.opengamma.analytics.financial.credit.PriceType;
-import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.rootfinding.BracketRoot;
 import com.opengamma.analytics.math.rootfinding.BrentSingleRootFinder;
@@ -26,145 +22,49 @@ import com.opengamma.util.ArgumentChecker;
  * the same inputs (up to numerical round-off)
  */
 
-public class FastCreditCurveBuilder implements ISDACompliantCreditCurveBuilder {
-
-  private static final AnalyticCDSPricer PRICER = new AnalyticCDSPricer();
-
-  private static final ArbitrageHandling DEFAULT_ARBITRAGE_HANDLING = ArbitrageHandling.Ignore;
-  private static final boolean DEFAULT_USE_CORRECT_ACC_ON_DEFAULT_FORMULA = false;
-
+public class FastCreditCurveBuilder extends ISDACompliantCreditCurveBuilder {
+  private static final double HALFDAY = 1 / 730.;
   private static final BracketRoot BRACKER = new BracketRoot();
   private static final RealSingleRootFinder ROOTFINDER = new BrentSingleRootFinder();
 
-  private final ArbitrageHandling _arbHandling;
-  private final boolean _useCorrectAccOnDefaultFormula;
+  private final double _omega;
 
   /**
    * For consistency with the ISDA model version 1.8.2 and lower, a bug in the accrual on default calculation
    * has been reproduced.
    */
   public FastCreditCurveBuilder() {
-    _arbHandling = DEFAULT_ARBITRAGE_HANDLING;
-    _useCorrectAccOnDefaultFormula = DEFAULT_USE_CORRECT_ACC_ON_DEFAULT_FORMULA;
+    super();
+    _omega = HALFDAY;
   }
 
   /**
    * For consistency with the ISDA model version 1.8.2 and lower, a bug in the accrual on default calculation
    * has been reproduced.
-   * @param useCorrectAccOnDefaultFormula Set to true to use correct accrual on default formulae.
+   * @param formula The accrual on default formulae.
    */
-  public FastCreditCurveBuilder(final boolean useCorrectAccOnDefaultFormula) {
-    _arbHandling = DEFAULT_ARBITRAGE_HANDLING;
-    _useCorrectAccOnDefaultFormula = useCorrectAccOnDefaultFormula;
+  public FastCreditCurveBuilder(final AccrualOnDefaultFormulae formula) {
+    super(formula);
+    if (formula == AccrualOnDefaultFormulae.OrignalISDA) {
+      _omega = HALFDAY;
+    } else {
+      _omega = 0.0;
+    }
   }
 
   /**
    * For consistency with the ISDA model version 1.8.2 and lower, a bug in the accrual on default calculation
    * has been reproduced.
-   * @param useCorrectAccOnDefaultFormula Set to true to use correct accrual on default formulae.
+  * @param formula The accrual on default formulae.
    * @param arbHandling How should any arbitrage in the input date be handled
    */
-  public FastCreditCurveBuilder(final boolean useCorrectAccOnDefaultFormula, final ArbitrageHandling arbHandling) {
-    ArgumentChecker.notNull(arbHandling, "arbHandling");
-    _arbHandling = arbHandling;
-    _useCorrectAccOnDefaultFormula = useCorrectAccOnDefaultFormula;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public ISDACompliantCreditCurve calibrateCreditCurve(final CDSAnalytic calibrationCDS, final CDSQuoteConvention marketQuote, final ISDACompliantYieldCurve yieldCurve) {
-    double puf;
-    double coupon;
-    if (marketQuote instanceof ParSpread) {
-      puf = 0.0;
-      coupon = marketQuote.getCoupon();
-    } else if (marketQuote instanceof QuotedSpread) {
-      puf = 0.0;
-      coupon = ((QuotedSpread) marketQuote).getQuotedSpread();
-    } else if (marketQuote instanceof PointsUpFront) {
-      final PointsUpFront temp = (PointsUpFront) marketQuote;
-      puf = temp.getPointsUpFront();
-      coupon = temp.getCoupon();
+  public FastCreditCurveBuilder(final AccrualOnDefaultFormulae formula, final ArbitrageHandling arbHandling) {
+    super(formula, arbHandling);
+    if (formula == AccrualOnDefaultFormulae.OrignalISDA) {
+      _omega = HALFDAY;
     } else {
-      throw new IllegalArgumentException("Unknown CDSQuoteConvention type " + marketQuote.getClass());
+      _omega = 0.0;
     }
-
-    return calibrateCreditCurve(new CDSAnalytic[] {calibrationCDS }, new double[] {coupon }, yieldCurve, new double[] {puf });
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public ISDACompliantCreditCurve calibrateCreditCurve(final CDSAnalytic[] calibrationCDSs, final CDSQuoteConvention[] marketQuotes, final ISDACompliantYieldCurve yieldCurve) {
-    ArgumentChecker.noNulls(marketQuotes, "marketQuotes");
-    final int n = marketQuotes.length;
-    final double[] coupons = new double[n];
-    final double[] pufs = new double[n];
-    for (int i = 0; i < n; i++) {
-      final double[] temp = getStandardQuoteForm(calibrationCDSs[i], marketQuotes[i], yieldCurve);
-      coupons[i] = temp[0];
-      pufs[i] = temp[1];
-    }
-
-    return calibrateCreditCurve(calibrationCDSs, coupons, yieldCurve, pufs);
-  }
-
-  /**
-   * Put any CDS market quote into the form needed for the curve builder, namely coupon and points up-front (which can be zero)
-   * @param calibrationCDS
-   * @param marketQuote
-   * @param yieldCurve
-   * @return The market quotes in the form required by the curve builder
-   */
-  private double[] getStandardQuoteForm(final CDSAnalytic calibrationCDS, final CDSQuoteConvention marketQuote, final ISDACompliantYieldCurve yieldCurve) {
-    final double[] res = new double[2];
-    if (marketQuote instanceof ParSpread) {
-      res[0] = marketQuote.getCoupon();
-    } else if (marketQuote instanceof QuotedSpread) {
-      final QuotedSpread temp = (QuotedSpread) marketQuote;
-      final double coupon = temp.getCoupon();
-      final double qSpread = temp.getQuotedSpread();
-      final ISDACompliantCreditCurve cc = calibrateCreditCurve(new CDSAnalytic[] {calibrationCDS }, new double[] {qSpread }, yieldCurve, new double[1]);
-      res[0] = coupon;
-      res[1] = PRICER.pv(calibrationCDS, yieldCurve, cc, coupon, PriceType.CLEAN);
-    } else if (marketQuote instanceof PointsUpFront) {
-      final PointsUpFront temp = (PointsUpFront) marketQuote;
-      res[0] = temp.getCoupon();
-      res[1] = temp.getPointsUpFront();
-    } else {
-      throw new IllegalArgumentException("Unknown CDSQuoteConvention type " + marketQuote.getClass());
-    }
-    return res;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public ISDACompliantCreditCurve calibrateCreditCurve(final CDSAnalytic cds, final double premium, final ISDACompliantYieldCurve yieldCurve, final double pointsUpfront) {
-    return calibrateCreditCurve(new CDSAnalytic[] {cds }, new double[] {premium }, yieldCurve, new double[] {pointsUpfront });
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public ISDACompliantCreditCurve calibrateCreditCurve(final CDSAnalytic cds, final double parSpread, final ISDACompliantYieldCurve yieldCurve) {
-    return calibrateCreditCurve(new CDSAnalytic[] {cds }, new double[] {parSpread }, yieldCurve, new double[1]);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public ISDACompliantCreditCurve calibrateCreditCurve(final CDSAnalytic[] cds, final double[] parSpreads, final ISDACompliantYieldCurve yieldCurve) {
-    ArgumentChecker.notNull(cds, "null CDS");
-    final int n = cds.length;
-    final double[] pointsUpfront = new double[n];
-    return calibrateCreditCurve(cds, parSpreads, yieldCurve, pointsUpfront);
   }
 
   /**
@@ -179,9 +79,9 @@ public class FastCreditCurveBuilder implements ISDACompliantCreditCurveBuilder {
     final int n = cds.length;
     ArgumentChecker.isTrue(n == premiums.length, "Number of CDSs does not match number of spreads");
     ArgumentChecker.isTrue(n == pointsUpfront.length, "Number of CDSs does not match number of pointsUpfront");
-    final double proStart = cds[0].getProtectionStart();
+    final double proStart = cds[0].getEffectiveProtectionStart();
     for (int i = 1; i < n; i++) {
-      ArgumentChecker.isTrue(proStart == cds[i].getProtectionStart(), "all CDSs must has same protection start");
+      ArgumentChecker.isTrue(proStart == cds[i].getEffectiveProtectionStart(), "all CDSs must has same protection start");
       ArgumentChecker.isTrue(cds[i].getProtectionEnd() > cds[i - 1].getProtectionEnd(), "protection end must be ascending");
     }
 
@@ -198,7 +98,7 @@ public class FastCreditCurveBuilder implements ISDACompliantCreditCurveBuilder {
       final Pricer pricer = new Pricer(cds[i], yieldCurve, t, premiums[i], pointsUpfront[i]);
       final Function1D<Double, Double> func = pricer.getPointFunction(i, creditCurve);
 
-      switch (_arbHandling) {
+      switch (getArbHanding()) {
         case Ignore: {
           final double minValue = 0.0;
           final double[] bracket = BRACKER.getBracketedPoints(func, 0.8 * guess[i], 1.25 * guess[i], minValue, Double.POSITIVE_INFINITY);
@@ -237,54 +137,11 @@ public class FastCreditCurveBuilder implements ISDACompliantCreditCurveBuilder {
           break;
         }
         default:
-          throw new IllegalArgumentException("unknow case " + _arbHandling);
+          throw new IllegalArgumentException("unknow case " + getArbHanding());
       }
 
     }
     return creditCurve;
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public ISDACompliantCreditCurve calibrateCreditCurve(final LocalDate today, final LocalDate stepinDate, final LocalDate valueDate, final LocalDate startDate, final LocalDate endDate,
-      final double fractionalParSpread, final boolean payAccOnDefault, final Period tenor, final StubType stubType, final boolean protectStart, final ISDACompliantYieldCurve yieldCurve,
-      final double recoveryRate) {
-    return calibrateCreditCurve(today, stepinDate, valueDate, startDate, new LocalDate[] {endDate }, new double[] {fractionalParSpread }, payAccOnDefault, tenor, stubType, protectStart, yieldCurve,
-        recoveryRate);
-  }
-
-  /**
-   * {@inheritDoc}
-   */
-  @Override
-  public ISDACompliantCreditCurve calibrateCreditCurve(final LocalDate today, final LocalDate stepinDate, final LocalDate valueDate, final LocalDate startDate, final LocalDate[] endDates,
-      final double[] couponRates, final boolean payAccOnDefault, final Period tenor, final StubType stubType, final boolean protectStart, final ISDACompliantYieldCurve yieldCurve,
-      final double recoveryRate) {
-
-    ArgumentChecker.notNull(today, "null today");
-    ArgumentChecker.notNull(stepinDate, "null stepinDate");
-    ArgumentChecker.notNull(valueDate, "null valueDate");
-    ArgumentChecker.notNull(startDate, "null startDate");
-    ArgumentChecker.noNulls(endDates, "null endDates");
-    ArgumentChecker.notEmpty(couponRates, "no or null couponRates");
-    ArgumentChecker.notNull(tenor, "null tenor");
-    ArgumentChecker.notNull(stubType, "null stubType");
-    ArgumentChecker.notNull(yieldCurve, "null yieldCurve");
-    ArgumentChecker.isInRangeExcludingHigh(0, 1.0, recoveryRate);
-    ArgumentChecker.isFalse(valueDate.isBefore(today), "Require valueDate >= today");
-    ArgumentChecker.isFalse(stepinDate.isBefore(today), "Require stepin >= today");
-
-    final int n = endDates.length;
-    ArgumentChecker.isTrue(n == couponRates.length, "length of couponRates does not match endDates");
-
-    final CDSAnalytic[] cds = new CDSAnalytic[n];
-    for (int i = 0; i < n; i++) {
-      cds[i] = new CDSAnalytic(today, stepinDate, valueDate, startDate, endDates[i], payAccOnDefault, tenor, stubType, protectStart, recoveryRate);
-    }
-
-    return calibrateCreditCurve(cds, couponRates, yieldCurve);
   }
 
   /**
@@ -323,7 +180,7 @@ public class FastCreditCurveBuilder implements ISDACompliantCreditCurveBuilder {
       _ccKnotTimes = creditCurveKnots;
 
       // protection leg
-      _proLegIntPoints = getIntegrationsPoints(cds.getProtectionStart(), cds.getProtectionEnd(), yieldCurve.getKnotTimes(), creditCurveKnots);
+      _proLegIntPoints = getIntegrationsPoints(cds.getEffectiveProtectionStart(), cds.getProtectionEnd(), yieldCurve.getKnotTimes(), creditCurveKnots);
       _nProPoints = _proLegIntPoints.length;
       final double lgd = cds.getLGD();
       _valuationDF = yieldCurve.getDiscountFactor(cds.getValuationTime());
@@ -343,9 +200,8 @@ public class FastCreditCurveBuilder implements ISDACompliantCreditCurveBuilder {
       }
 
       if (cds.isPayAccOnDefault()) {
-        //      final double offset = cds.isProtectionFromStartOfDay() ? -cds.getCurveOneDay() : 0.0;
-        final double[] integrationSchedule = getIntegrationsPoints(cds.getProtectionStart(), cds.getProtectionEnd(), yieldCurve.getKnotTimes(), creditCurveKnots);
-        //final double offsetStepin = cds.getStepin() + offset;
+        final double tmp = cds.getNumPayments() == 1 ? cds.getEffectiveProtectionStart() : cds.getStart();
+        final double[] integrationSchedule = getIntegrationsPoints(tmp, cds.getProtectionEnd(), yieldCurve.getKnotTimes(), creditCurveKnots);
 
         _accRate = new double[_nPayments];
         _offsetAccStart = new double[_nPayments];
@@ -354,11 +210,10 @@ public class FastCreditCurveBuilder implements ISDACompliantCreditCurveBuilder {
         _rt = new double[_nPayments][];
         _premDt = new double[_nPayments][];
         for (int i = 0; i < _nPayments; i++) {
-          //    final double offsetAccStart = cds.getAccStart(i) + offset;
           _offsetAccStart[i] = cds.getEffectiveAccStart(i);
           final double offsetAccEnd = cds.getEffectiveAccEnd(i);
           _accRate[i] = cds.getAccRatio(i);
-          final double start = Math.max(_offsetAccStart[i], cds.getProtectionStart());
+          final double start = Math.max(_offsetAccStart[i], cds.getEffectiveProtectionStart());
           if (start >= offsetAccEnd) {
             continue;
           }
@@ -375,7 +230,6 @@ public class FastCreditCurveBuilder implements ISDACompliantCreditCurveBuilder {
           for (int k = 1; k < n; k++) {
             final double dt = _premLegIntPoints[i][k] - _premLegIntPoints[i][k - 1];
             _premDt[i][k - 1] = dt;
-            // _rt[i][k - 1] = Math.log(_premDF[i][k - 1] / _premDF[i][k]) / dt;
           }
 
         }
@@ -455,7 +309,7 @@ public class FastCreditCurveBuilder implements ISDACompliantCreditCurveBuilder {
       double rt0 = rt[0];
       double b0 = df[0] * Math.exp(-ht0);
 
-      double t0 = _useCorrectAccOnDefaultFormula ? 0 : t - accStart + 1 / 730.0; // TODO not entirely clear why ISDA adds half a day
+      double t0 = t - accStart + _omega;
       double pv = 0.0;
       final int nItems = knots.length;
       for (int j = 1; j < nItems; ++j) {
@@ -470,14 +324,14 @@ public class FastCreditCurveBuilder implements ISDACompliantCreditCurveBuilder {
         final double dhrt = dht + drt + 1e-50; // to keep consistent with ISDA c code
 
         double tPV;
-        if (_useCorrectAccOnDefaultFormula) {
+        if (getAccOnDefaultFormula() == AccrualOnDefaultFormulae.MarkitFix) {
           if (Math.abs(dhrt) < 1e-5) {
             tPV = dht * dt * b0 * epsilonP(-dhrt);
           } else {
             tPV = dht * dt / dhrt * ((b0 - b1) / dhrt - b1);
           }
         } else {
-          final double t1 = t - accStart + 1 / 730.0;
+          final double t1 = t - accStart + _omega;
           if (Math.abs(dhrt) < 1e-5) {
             tPV = dht * b0 * (t0 * epsilon(-dhrt) + dt * epsilonP(-dhrt));
           } else {

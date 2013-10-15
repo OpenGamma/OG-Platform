@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.opengamma.analytics.financial.credit.PriceType;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.AccrualOnDefaultFormulae;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSCoupon;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurve;
@@ -30,7 +31,7 @@ public class CreditCurveCalibrator {
   private final double[] _t;
   private final CDS[] _cds;
 
-  public CreditCurveCalibrator(final CDSAnalytic[] cds, final ISDACompliantYieldCurve yieldCurve) {
+  public CreditCurveCalibrator(final CDSAnalytic[] cds, final ISDACompliantYieldCurve yieldCurve, final AccrualOnDefaultFormulae formula) {
     _n = cds.length;
     _nodes = new Node[_n];
     _cds = new CDS[_n];
@@ -42,7 +43,7 @@ public class CreditCurveCalibrator {
     final CDSPremiumPayment[][] premLegs = new CDSPremiumPayment[_n][];
 
     //The protection leg
-    double start = cds[0].getProtectionStart();
+    double start = cds[0].getEffectiveProtectionStart();
     for (int i = 0; i < _n; i++) {
       _t[i] = cds[i].getProtectionEnd();
       protLeg[i] = new ProtectionLegElement(start, _t[i], yieldCurve, _t, i);
@@ -62,7 +63,7 @@ public class CreditCurveCalibrator {
         while (c[k].getEffEnd() > _t[nodeIndex]) {
           nodeIndex++;
         }
-        CDSPremiumPayment coupon = new CDSPremiumPayment(c[k], lCDS.isPayAccOnDefault(), nodeIndex);
+        CDSPremiumPayment coupon = new CDSPremiumPayment(c[k], lCDS.isPayAccOnDefault(), nodeIndex, formula);
         if (coupons.contains(coupon)) {
           final int index = coupons.indexOf(coupon); //if the coupon already exists, get it from list 
           coupon = coupons.get(index);
@@ -80,7 +81,7 @@ public class CreditCurveCalibrator {
     }
 
     //TODO check all CDSs have same protection start
-    final double proStart = cds[0].getProtectionStart();
+    final double proStart = cds[0].getEffectiveProtectionStart();
     final Iterator<CDSPremiumPayment> iter = coupons.iterator();
     while (iter.hasNext()) {
       iter.next().initialise(proStart, yieldCurve, _t);

@@ -8,6 +8,7 @@ package com.opengamma.analytics.financial.credit.isdayieldcurve;
 /**
  * Enumerate the types of interest rate bumps that can be applied to a term structure of interest rates
  */
+@Deprecated
 public enum InterestRateBumpType {
   /**
    * Same as ADDITIVE_BUCKETED

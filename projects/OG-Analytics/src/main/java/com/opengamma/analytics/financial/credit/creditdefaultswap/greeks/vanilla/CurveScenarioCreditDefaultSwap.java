@@ -19,21 +19,16 @@ import com.opengamma.util.ArgumentChecker;
  * Class to enable user to specify a non-homogeneous set of bumps to the credit spread term structure
  * This allows the user to specify a curve scenario (e.g. curve flips from upward to downward sloping)
  * and to then compute the impact on the PV
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class CurveScenarioCreditDefaultSwap {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // The user can bump the market spreads at each tenor by a tenor specific amount (additive and parallel bumps)
-  public double getCurveScenarioCreditDefaultSwap(
-      final ZonedDateTime valuationDate,
-      final LegacyVanillaCreditDefaultSwapDefinition cds,
-      final ISDADateCurve/*ISDACurve*/yieldCurve,
-      final ZonedDateTime[] marketTenors,
-      final double[] marketSpreads,
-      final double[] spreadBumps,
-      final SpreadBumpType spreadBumpType,
-      final PriceType priceType) {
+  public double getCurveScenarioCreditDefaultSwap(final ZonedDateTime valuationDate, final LegacyVanillaCreditDefaultSwapDefinition cds, final ISDADateCurve/*ISDACurve*/yieldCurve,
+      final ZonedDateTime[] marketTenors, final double[] marketSpreads, final double[] spreadBumps, final SpreadBumpType spreadBumpType, final PriceType priceType) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -88,7 +83,7 @@ public class CurveScenarioCreditDefaultSwap {
     // Calculate the bumped CDS PV
     final double bumpedPresentValue = creditDefaultSwap.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, bumpedMarketSpreads, yieldCurve, priceType);
 
-    double curveScenarioPresentValue = (bumpedPresentValue - presentValue);
+    final double curveScenarioPresentValue = (bumpedPresentValue - presentValue);
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -98,15 +93,8 @@ public class CurveScenarioCreditDefaultSwap {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // The user can bump the market spreads at each tenor by a specified amount (additive and parallel bumps)
-  public double getCurveScenarioCreditDefaultSwap(
-      final ZonedDateTime valuationDate,
-      final LegacyVanillaCreditDefaultSwapDefinition cds,
-      final ISDADateCurve/*ISDACurve*/yieldCurve,
-      final ZonedDateTime[] marketTenors,
-      final double[] marketSpreads,
-      final double spreadBump,
-      final SpreadBumpType spreadBumpType,
-      final PriceType priceType) {
+  public double getCurveScenarioCreditDefaultSwap(final ZonedDateTime valuationDate, final LegacyVanillaCreditDefaultSwapDefinition cds, final ISDADateCurve/*ISDACurve*/yieldCurve,
+      final ZonedDateTime[] marketTenors, final double[] marketSpreads, final double spreadBump, final SpreadBumpType spreadBumpType, final PriceType priceType) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -161,7 +149,7 @@ public class CurveScenarioCreditDefaultSwap {
     // Calculate the bumped CDS PV
     final double bumpedPresentValue = creditDefaultSwap.calibrateAndGetPresentValue(valuationDate, cds, marketTenors, bumpedMarketSpreads, yieldCurve, priceType);
 
-    double curveScenarioPresentValue = (bumpedPresentValue - presentValue);
+    final double curveScenarioPresentValue = (bumpedPresentValue - presentValue);
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 

@@ -19,7 +19,9 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Class containing methods for the computation of RecoveryRate01 for an index CDS
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class RecRate01IndexCreditDefaultSwap {
 
   // ------------------------------------------------------------------------------------------------------------------------------------------
@@ -40,14 +42,8 @@ public class RecRate01IndexCreditDefaultSwap {
 
   // Compute the RecRate by a bump to the recovery rates of each of the obligors in the index - bump is applied simultaneously to all obligors
 
-  public double getRecRate01IndexCreditDefaultSwap(
-      final ZonedDateTime valuationDate,
-      final IndexCreditDefaultSwapDefinition indexCDS,
-      final ISDADateCurve[] yieldCurves,
-      final ZonedDateTime[] marketTenors,
-      final double[][] marketSpreads,
-      final double recoveryRateBump,
-      final RecoveryRateBumpType recoveryRateBumpType) {
+  public double getRecRate01IndexCreditDefaultSwap(final ZonedDateTime valuationDate, final IndexCreditDefaultSwapDefinition indexCDS, final ISDADateCurve[] yieldCurves,
+      final ZonedDateTime[] marketTenors, final double[][] marketSpreads, final double recoveryRateBump, final RecoveryRateBumpType recoveryRateBumpType) {
 
     // ------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -60,9 +56,9 @@ public class RecRate01IndexCreditDefaultSwap {
 
     // ------------------------------------------------------------------------------------------------------------------------------------------
 
-    int numberOfObligors = indexCDS.getUnderlyingPool().getNumberOfObligors();
+    final int numberOfObligors = indexCDS.getUnderlyingPool().getNumberOfObligors();
 
-    double[] breakevenSpreads = new double[numberOfObligors];
+    final double[] breakevenSpreads = new double[numberOfObligors];
 
     for (int i = 0; i < numberOfObligors; i++) {
       breakevenSpreads[i] = marketSpreads[i][0];
@@ -77,7 +73,7 @@ public class RecRate01IndexCreditDefaultSwap {
     // Extract out the underlying pool from the index CDS
     UnderlyingPool modifiedPool = indexCDS.getUnderlyingPool();
 
-    double[] recoveryRates = modifiedPool.getRecoveryRates();
+    final double[] recoveryRates = modifiedPool.getRecoveryRates();
 
     //final double recoveryRate = modifiedPool.getRecoveryRates()[i];
 
@@ -107,14 +103,8 @@ public class RecRate01IndexCreditDefaultSwap {
 
   // Compute the RecRate by a bump to the recovery rates of each of the obligors in the index - bump is applied individually to all obligors one by one
 
-  public double[] getRecRate01ByObligorIndexCreditDefaultSwap(
-      final ZonedDateTime valuationDate,
-      final IndexCreditDefaultSwapDefinition indexCDS,
-      final ISDADateCurve[] yieldCurves,
-      final ZonedDateTime[] marketTenors,
-      final double[][] marketSpreads,
-      final double recoveryRateBump,
-      final RecoveryRateBumpType recoveryRateBumpType) {
+  public double[] getRecRate01ByObligorIndexCreditDefaultSwap(final ZonedDateTime valuationDate, final IndexCreditDefaultSwapDefinition indexCDS, final ISDADateCurve[] yieldCurves,
+      final ZonedDateTime[] marketTenors, final double[][] marketSpreads, final double recoveryRateBump, final RecoveryRateBumpType recoveryRateBumpType) {
 
     // ------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -127,11 +117,11 @@ public class RecRate01IndexCreditDefaultSwap {
 
     // ------------------------------------------------------------------------------------------------------------------------------------------
 
-    int numberOfObligors = indexCDS.getUnderlyingPool().getNumberOfObligors();
+    final int numberOfObligors = indexCDS.getUnderlyingPool().getNumberOfObligors();
 
-    double[] recRate01 = new double[numberOfObligors];
+    final double[] recRate01 = new double[numberOfObligors];
 
-    double[] breakevenSpreads = new double[numberOfObligors];
+    final double[] breakevenSpreads = new double[numberOfObligors];
 
     for (int i = 0; i < numberOfObligors; i++) {
       breakevenSpreads[i] = marketSpreads[i][0];
@@ -150,7 +140,7 @@ public class RecRate01IndexCreditDefaultSwap {
       // Extract out the underlying pool from the index CDS
       UnderlyingPool modifiedPool = indexCDS.getUnderlyingPool();
 
-      double[] bumpedRecoveryRates = modifiedPool.getRecoveryRates();
+      final double[] bumpedRecoveryRates = modifiedPool.getRecoveryRates();
 
       final double recoveryRate = modifiedPool.getRecoveryRates()[i];
 

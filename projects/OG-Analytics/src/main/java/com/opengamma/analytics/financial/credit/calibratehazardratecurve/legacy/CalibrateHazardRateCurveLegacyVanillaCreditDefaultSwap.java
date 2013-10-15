@@ -14,19 +14,17 @@ import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
 
 /**
  * 
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class CalibrateHazardRateCurveLegacyVanillaCreditDefaultSwap {
 
   CalibrateHazardRateCurveLegacyCreditDefaultSwap calibrateLegacyCDS = new CalibrateHazardRateCurveLegacyCreditDefaultSwap();
 
-  public double[] getCalibratedHazardRateCurveLegacyVanillaCreditDefaultSwap(
-      final ZonedDateTime valuationDate,
-      final LegacyVanillaCreditDefaultSwapDefinition vanillaCDS,
-      final ISDACurve yieldCurve,
-      final HazardRateCurve hazardRateCurve,
-      final PriceType priceType) {
+  public double[] getCalibratedHazardRateCurveLegacyVanillaCreditDefaultSwap(final ZonedDateTime valuationDate, final LegacyVanillaCreditDefaultSwapDefinition vanillaCDS, final ISDACurve yieldCurve,
+      final HazardRateCurve hazardRateCurve, final PriceType priceType) {
 
-    double[] h = new double[2];
+    final double[] h = new double[2];
 
     return h;
 

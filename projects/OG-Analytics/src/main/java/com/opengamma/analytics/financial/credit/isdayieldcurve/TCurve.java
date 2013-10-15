@@ -12,6 +12,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 /**
  * 
  */
+@Deprecated
 public class TCurve {
   private final double[] _rates;
   private final ZonedDateTime[] _dates;

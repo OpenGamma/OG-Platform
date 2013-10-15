@@ -10,7 +10,9 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Class to define the netting model used to net trades
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class NettingModelDefinition {
 
   //----------------------------------------------------------------------------------------------------------------------------------------

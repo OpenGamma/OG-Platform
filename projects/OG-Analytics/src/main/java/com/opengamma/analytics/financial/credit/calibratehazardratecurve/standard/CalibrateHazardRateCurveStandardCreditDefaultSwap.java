@@ -7,7 +7,9 @@ package com.opengamma.analytics.financial.credit.calibratehazardratecurve.standa
 
 /**
  * 
+  *@deprecated this will be deleted 
  */
+@Deprecated
 public class CalibrateHazardRateCurveStandardCreditDefaultSwap {
 
 }

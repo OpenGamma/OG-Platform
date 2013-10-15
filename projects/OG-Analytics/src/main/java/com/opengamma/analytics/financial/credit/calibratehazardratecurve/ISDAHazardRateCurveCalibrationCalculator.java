@@ -22,7 +22,9 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 
 /**
  * 
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class ISDAHazardRateCurveCalibrationCalculator {
   private static final GenerateCreditDefaultSwapPremiumLegSchedule SCHEDULE_GENERATOR = new GenerateCreditDefaultSwapPremiumLegSchedule();
   private static final ISDACreditDefaultSwapPVCalculator PV_CALCULATOR = new ISDACreditDefaultSwapPVCalculator();
@@ -45,8 +47,8 @@ public class ISDAHazardRateCurveCalibrationCalculator {
     _hazardRateRangeMultiplier = hazardRateRangeMultiplier;
   }
 
-  public double[] getCalibratedHazardRateTermStructure(final ZonedDateTime valuationDate, final CreditDefaultSwapDefinition cds, final ZonedDateTime[] marketDates,
-      final double[] marketSpreads, final ISDADateCurve yieldCurve, final PriceType priceType) {
+  public double[] getCalibratedHazardRateTermStructure(final ZonedDateTime valuationDate, final CreditDefaultSwapDefinition cds, final ZonedDateTime[] marketDates, final double[] marketSpreads,
+      final ISDADateCurve yieldCurve, final PriceType priceType) {
     // Check the efficacy of the input market data
     CreditMarketDataUtils.checkSpreadData(valuationDate, marketDates, marketSpreads);
 
@@ -84,10 +86,9 @@ public class ISDAHazardRateCurveCalibrationCalculator {
     throw new IllegalArgumentException("Cannot handle CDS of type " + cds.getClass());
   }
 
-
   // Private method to do the root search to find the hazard rate for tenor m which gives the CDS a PV of zero
-  private double calibrateHazardRate(final ZonedDateTime valuationDate, final CreditDefaultSwapDefinition calibrationCDS, final ISDADateCurve yieldCurve,
-      final ZonedDateTime[] marketTenors, final double[] runningTenors, final double[] hazardRates, final PriceType priceType, final double parSpread) {
+  private double calibrateHazardRate(final ZonedDateTime valuationDate, final CreditDefaultSwapDefinition calibrationCDS, final ISDADateCurve yieldCurve, final ZonedDateTime[] marketTenors,
+      final double[] runningTenors, final double[] hazardRates, final PriceType priceType, final double parSpread) {
     double deltaHazardRate = 0.0;
     double calibratedHazardRate = 0.0;
     // Calculate the initial guess for the calibrated hazard rate for this tenor
@@ -139,8 +140,8 @@ public class ISDAHazardRateCurveCalibrationCalculator {
   }
 
   // Private member function to compute the PV of a CDS given a particular guess for the hazard rate at tenor m (given calibrated hazard rates for tenors 0, ..., m - 1)
-  private double calculateCDSPV(final ZonedDateTime valuationDate, final CreditDefaultSwapDefinition calibrationCDS, final ZonedDateTime[] tenors,
-      final double[] tenorsAsDoubles, final double[] hazardRates, final double hazardRateMidPoint, final ISDADateCurve yieldCurve, final PriceType priceType) {
+  private double calculateCDSPV(final ZonedDateTime valuationDate, final CreditDefaultSwapDefinition calibrationCDS, final ZonedDateTime[] tenors, final double[] tenorsAsDoubles,
+      final double[] hazardRates, final double hazardRateMidPoint, final ISDADateCurve yieldCurve, final PriceType priceType) {
 
     // How many tenors in the hazard rate term structure have been previously calibrated
     final int numberOfTenors = tenorsAsDoubles.length;

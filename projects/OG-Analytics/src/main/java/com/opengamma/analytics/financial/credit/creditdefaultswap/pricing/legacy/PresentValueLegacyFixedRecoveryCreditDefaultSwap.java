@@ -15,7 +15,9 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Class containing methods for the valuation of a Legacy fixed recovery CDS
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class PresentValueLegacyFixedRecoveryCreditDefaultSwap {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -33,12 +35,8 @@ public class PresentValueLegacyFixedRecoveryCreditDefaultSwap {
 
   // Public method for computing the PV of a CDS based on an input CDS contract (with a hazard rate curve calibrated to market observed data)
 
-  public double getPresentValueLegacyFixedRecoveryCreditDefaultSwap(
-      final ZonedDateTime valuationDate,
-      final LegacyFixedRecoveryCreditDefaultSwapDefinition fixedRecoveryCDS,
-      final ISDADateCurve yieldCurve,
-      final HazardRateCurve hazardRateCurve,
-      final PriceType priceType) {
+  public double getPresentValueLegacyFixedRecoveryCreditDefaultSwap(final ZonedDateTime valuationDate, final LegacyFixedRecoveryCreditDefaultSwapDefinition fixedRecoveryCDS,
+      final ISDADateCurve yieldCurve, final HazardRateCurve hazardRateCurve, final PriceType priceType) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -64,12 +62,8 @@ public class PresentValueLegacyFixedRecoveryCreditDefaultSwap {
 
   // Public method to calculate the par spread of a CDS at contract inception (with a hazard rate curve calibrated to market observed data)
 
-  public double getParSpreadLegacyFixedRecoveryCreditDefaultSwap(
-      final ZonedDateTime valuationDate,
-      final LegacyFixedRecoveryCreditDefaultSwapDefinition fixedRecoveryCDS,
-      final ISDADateCurve yieldCurve,
-      final HazardRateCurve hazardRateCurve,
-      final PriceType priceType) {
+  public double getParSpreadLegacyFixedRecoveryCreditDefaultSwap(final ZonedDateTime valuationDate, final LegacyFixedRecoveryCreditDefaultSwapDefinition fixedRecoveryCDS,
+      final ISDADateCurve yieldCurve, final HazardRateCurve hazardRateCurve, final PriceType priceType) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 

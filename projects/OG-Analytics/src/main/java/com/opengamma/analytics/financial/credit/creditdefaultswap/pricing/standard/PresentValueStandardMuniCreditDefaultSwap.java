@@ -7,7 +7,9 @@ package com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.stand
 
 /**
  * 
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class PresentValueStandardMuniCreditDefaultSwap {
 
 }

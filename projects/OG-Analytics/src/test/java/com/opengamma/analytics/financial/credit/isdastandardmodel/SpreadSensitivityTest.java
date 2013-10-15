@@ -76,7 +76,7 @@ public class SpreadSensitivityTest {
   }
 
   @Test
-  public void parellelCreditDVO1Test() {
+  public void parellelCreditDV01Test() {
     final double fromExcel = 4238.557409;
 
     final double dealSpread = DEAL_SPREAD / 10000;

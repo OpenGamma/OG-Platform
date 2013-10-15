@@ -17,7 +17,9 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Class to generate the contingent integration schedules
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class ISDAContingentLegIntegrationScheduleGenerator {
   private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
 
@@ -30,8 +32,8 @@ public class ISDAContingentLegIntegrationScheduleGenerator {
    * @param curves {@link ISDAYieldCurveAndHazardRateCurveProvider}
    * @return The time nodes
    */
-  public double[] constructCreditDefaultSwapContingentLegIntegrationSchedule(final ZonedDateTime valuationDate, final ZonedDateTime startDate,
-      final ZonedDateTime endDate, final CreditDefaultSwapDefinition cds, final ISDAYieldCurveAndHazardRateCurveProvider curves) {
+  public double[] constructCreditDefaultSwapContingentLegIntegrationSchedule(final ZonedDateTime valuationDate, final ZonedDateTime startDate, final ZonedDateTime endDate,
+      final CreditDefaultSwapDefinition cds, final ISDAYieldCurveAndHazardRateCurveProvider curves) {
     // Check input objects are not null
     ArgumentChecker.notNull(cds, "CDS");
     ArgumentChecker.notNull(curves, "curves");
@@ -45,8 +47,7 @@ public class ISDAContingentLegIntegrationScheduleGenerator {
     return constructISDACompliantIntegrationSchedule(curves, protectionStartTime, protectionEndTime);
   }
 
-  private double[] constructISDACompliantIntegrationSchedule(final ISDAYieldCurveAndHazardRateCurveProvider curves, final double startTime,
-      final double endTime) {
+  private double[] constructISDACompliantIntegrationSchedule(final ISDAYieldCurveAndHazardRateCurveProvider curves, final double startTime, final double endTime) {
     final double[] yieldCurveTimes = curves.getYieldCurve().getTimePoints();
     final double[] hazardRateCurveTimes = curves.getHazardRateCurve().getShiftedTimePoints();
     final int nYieldCurveTimes = yieldCurveTimes.length;

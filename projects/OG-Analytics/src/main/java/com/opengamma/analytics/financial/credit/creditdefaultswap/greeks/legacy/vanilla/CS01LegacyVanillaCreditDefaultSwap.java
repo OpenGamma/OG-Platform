@@ -16,7 +16,9 @@ import com.opengamma.analytics.financial.credit.creditdefaultswap.greeks.vanilla
 
 /**
  * 
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class CS01LegacyVanillaCreditDefaultSwap {
 
   // ------------------------------------------------------------------------------------------------------------------------------------------
@@ -28,17 +30,10 @@ public class CS01LegacyVanillaCreditDefaultSwap {
 
   // ------------------------------------------------------------------------------------------------------------------------------------------
 
-  public double getCS01ParallelShiftLegacyVanillaCreditDefaultSwap(
-      final ZonedDateTime valuationDate,
-      final LegacyVanillaCreditDefaultSwapDefinition cds,
-      final ISDACurve yieldCurve,
-      final ZonedDateTime[] marketTenors,
-      final double[] marketSpreads,
-      final double spreadBump,
-      final SpreadBumpType spreadBumpType,
-      final PriceType priceType) {
+  public double getCS01ParallelShiftLegacyVanillaCreditDefaultSwap(final ZonedDateTime valuationDate, final LegacyVanillaCreditDefaultSwapDefinition cds, final ISDACurve yieldCurve,
+      final ZonedDateTime[] marketTenors, final double[] marketSpreads, final double spreadBump, final SpreadBumpType spreadBumpType, final PriceType priceType) {
 
-    double parallelCS01 = 0.0;
+    final double parallelCS01 = 0.0;
 
     return parallelCS01;
 

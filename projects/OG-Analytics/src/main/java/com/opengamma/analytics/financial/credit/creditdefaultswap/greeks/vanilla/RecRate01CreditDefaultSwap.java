@@ -19,8 +19,9 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Class containing methods for the computation of RecoveryRate01 for a vanilla Legacy CDS
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class RecRate01CreditDefaultSwap {
 
   //------------------------------------------------------------------------------------------------------------------------------------------
@@ -51,15 +52,8 @@ public class RecRate01CreditDefaultSwap {
 
   // Compute the RecoveryRate01
 
-  public double getRecoveryRate01CreditDefaultSwap(
-      final ZonedDateTime valuationDate,
-      final LegacyVanillaCreditDefaultSwapDefinition cds,
-      final ISDADateCurve yieldCurve,
-      final ZonedDateTime[] marketTenors,
-      final double[] marketSpreads,
-      final double recoveryRateBump,
-      final RecoveryRateBumpType recoveryRateBumpType,
-      final PriceType priceType) {
+  public double getRecoveryRate01CreditDefaultSwap(final ZonedDateTime valuationDate, final LegacyVanillaCreditDefaultSwapDefinition cds, final ISDADateCurve yieldCurve,
+      final ZonedDateTime[] marketTenors, final double[] marketSpreads, final double recoveryRateBump, final RecoveryRateBumpType recoveryRateBumpType, final PriceType priceType) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 

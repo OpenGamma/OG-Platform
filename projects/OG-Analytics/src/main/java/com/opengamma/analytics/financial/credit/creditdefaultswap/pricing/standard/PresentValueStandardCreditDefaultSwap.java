@@ -20,7 +20,9 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 
 /**
  * Class containing the methods for valuing a standard CDS which are common to all types of standard CDS 
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class PresentValueStandardCreditDefaultSwap {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -39,13 +41,8 @@ public class PresentValueStandardCreditDefaultSwap {
 
   // Given a points upfront amount, compute the flat par spread implied by this
 
-  public double calculateParSpreadFlat(
-      final ZonedDateTime valuationDate,
-      final LegacyVanillaCreditDefaultSwapDefinition cds,
-      final double upfrontAmount,
-      final ZonedDateTime[] marketTenors,
-      final ISDADateCurve yieldCurve,
-      final PriceType priceType) {
+  public double calculateParSpreadFlat(final ZonedDateTime valuationDate, final LegacyVanillaCreditDefaultSwapDefinition cds, final double upfrontAmount, final ZonedDateTime[] marketTenors,
+      final ISDADateCurve yieldCurve, final PriceType priceType) {
 
     // 1 x 1 vector to hold the flat spread (term structure)
     final double[] marketSpreads = new double[1];
@@ -75,13 +72,8 @@ public class PresentValueStandardCreditDefaultSwap {
 
   // Calculate the upfront amount given a specified spread curve level
 
-  public double calculateUpfrontFlat(
-      final ZonedDateTime valuationDate,
-      final LegacyVanillaCreditDefaultSwapDefinition cds,
-      final ZonedDateTime[] marketTenors,
-      final double[] marketSpreads,
-      final ISDADateCurve yieldCurve,
-      final PriceType priceType) {
+  public double calculateUpfrontFlat(final ZonedDateTime valuationDate, final LegacyVanillaCreditDefaultSwapDefinition cds, final ZonedDateTime[] marketTenors, final double[] marketSpreads,
+      final ISDADateCurve yieldCurve, final PriceType priceType) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 

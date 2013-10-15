@@ -13,7 +13,9 @@ import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.van
 
 /**
  * 
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public abstract class ISDACompliantLegCalculator {
 
   /**
@@ -24,6 +26,5 @@ public abstract class ISDACompliantLegCalculator {
    * @param priceType Clean or dirty 
    * @return The PV of the leg
    */
-  public abstract double calculateLeg(ZonedDateTime valuationDate, CreditDefaultSwapDefinition cds, ISDAYieldCurveAndHazardRateCurveProvider curves,
-      PriceType priceType);
+  public abstract double calculateLeg(ZonedDateTime valuationDate, CreditDefaultSwapDefinition cds, ISDAYieldCurveAndHazardRateCurveProvider curves, PriceType priceType);
 }

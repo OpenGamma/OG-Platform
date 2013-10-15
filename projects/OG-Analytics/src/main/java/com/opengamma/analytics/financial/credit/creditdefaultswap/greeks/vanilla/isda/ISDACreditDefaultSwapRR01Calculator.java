@@ -22,7 +22,9 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class ISDACreditDefaultSwapRR01Calculator {
   private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
   private static final ISDACreditDefaultSwapPVCalculator CALCULATOR = new ISDACreditDefaultSwapPVCalculator();
@@ -50,9 +52,8 @@ public class ISDACreditDefaultSwapRR01Calculator {
 
   // Compute the RecoveryRate01
 
-  public double getRecoveryRate01CreditDefaultSwap(final ZonedDateTime valuationDate, final CreditDefaultSwapDefinition cds, final ISDADateCurve yieldCurve,
-      final ZonedDateTime[] marketTenors, final double[] marketSpreads, final double recoveryRateBump, final RecoveryRateBumpType recoveryRateBumpType,
-      final PriceType priceType) {
+  public double getRecoveryRate01CreditDefaultSwap(final ZonedDateTime valuationDate, final CreditDefaultSwapDefinition cds, final ISDADateCurve yieldCurve, final ZonedDateTime[] marketTenors,
+      final double[] marketSpreads, final double recoveryRateBump, final RecoveryRateBumpType recoveryRateBumpType, final PriceType priceType) {
     ArgumentChecker.notNull(valuationDate, "Valuation date");
     ArgumentChecker.notNull(cds, "LegacyCreditDefaultSwapDefinition");
     ArgumentChecker.notNull(yieldCurve, "YieldCurve");
@@ -65,8 +66,7 @@ public class ISDACreditDefaultSwapRR01Calculator {
     for (int m = 1; m < marketTenors.length; m++) {
       times[m] = ACT_365.getDayCountFraction(valuationDate, marketTenors[m]);
     }
-    final double[] calibratedHazardRates = HAZARD_RATE_CALCULATOR.getCalibratedHazardRateTermStructure(valuationDate, cds, marketTenors,
-        marketSpreads, yieldCurve, priceType);
+    final double[] calibratedHazardRates = HAZARD_RATE_CALCULATOR.getCalibratedHazardRateTermStructure(valuationDate, cds, marketTenors, marketSpreads, yieldCurve, priceType);
     final double bumpedRecoveryRate = getBumpedRecoveryRate(cds, recoveryRateBump, recoveryRateBumpType);
     final HazardRateCurve calibratedHazardRateCurve = new HazardRateCurve(marketTenors, times, calibratedHazardRates, 0.0);
     final CreditDefaultSwapDefinition bumpedCDS = cds.withRecoveryRate(bumpedRecoveryRate);
@@ -77,7 +77,7 @@ public class ISDACreditDefaultSwapRR01Calculator {
   }
 
   private double getBumpedRecoveryRate(final CreditDefaultSwapDefinition cds, final double recoveryRateBump, final RecoveryRateBumpType recoveryRateBumpType) {
-    switch(recoveryRateBumpType) {
+    switch (recoveryRateBumpType) {
       case ADDITIVE:
         return cds.getRecoveryRate() + recoveryRateBump;
       case MULTIPLICATIVE:

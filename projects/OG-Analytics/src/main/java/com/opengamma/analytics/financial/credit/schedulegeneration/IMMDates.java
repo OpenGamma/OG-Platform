@@ -12,7 +12,9 @@ import com.opengamma.util.time.DateUtils;
 /**
  * Class to construct IMM Date objects for the purposes of CDS schedule generation and valuation
  * Note that these are not the 'true' IMM dates in the sense that official IMM dates fall on the 3rd Wednesday of the month 
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class IMMDates {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -40,7 +42,7 @@ public class IMMDates {
 
   // Public IMM Date object constructor
 
-  public IMMDates(int year) {
+  public IMMDates(final int year) {
 
     _immDatePreviousDecember = DateUtils.getUTCDate(year - 1, 12, 20);
     _immDateMarch = DateUtils.getUTCDate(year, 3, 20);

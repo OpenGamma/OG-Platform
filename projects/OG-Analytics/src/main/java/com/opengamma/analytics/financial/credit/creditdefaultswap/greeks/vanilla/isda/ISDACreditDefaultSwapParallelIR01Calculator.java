@@ -21,14 +21,16 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class ISDACreditDefaultSwapParallelIR01Calculator {
   private static final ISDAHazardRateCurveCalculator HAZARD_RATE_CALCULATOR = new ISDAHazardRateCurveCalculator();
   private static final ISDACreditDefaultSwapPVCalculator PV_CALCULATOR = new ISDACreditDefaultSwapPVCalculator();
   private static final SpreadTermStructureDataChecker DATA_CHECKER = new SpreadTermStructureDataChecker();
 
-  public double getIR01ParallelShiftCreditDefaultSwap(final ZonedDateTime valuationDate, final CreditDefaultSwapDefinition cds, final ISDADateCurve yieldCurve,
-      final ZonedDateTime[] marketTenors, final double[] marketSpreads, final double yieldBump, final InterestRateBumpType yieldBumpType, final PriceType priceType) {
+  public double getIR01ParallelShiftCreditDefaultSwap(final ZonedDateTime valuationDate, final CreditDefaultSwapDefinition cds, final ISDADateCurve yieldCurve, final ZonedDateTime[] marketTenors,
+      final double[] marketSpreads, final double yieldBump, final InterestRateBumpType yieldBumpType, final PriceType priceType) {
     ArgumentChecker.notNull(valuationDate, "Valuation date");
     ArgumentChecker.notNull(cds, "CreditDefaultSwapDefinition");
     ArgumentChecker.notNull(yieldCurve, "YieldCurve");

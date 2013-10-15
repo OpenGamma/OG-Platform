@@ -14,7 +14,9 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Class to generate the accrued integration schedules
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class ISDAAccruedLegIntegrationScheduleGenerator {
 
   // TODO : Add check that startTime < endTime in schedule generation routine

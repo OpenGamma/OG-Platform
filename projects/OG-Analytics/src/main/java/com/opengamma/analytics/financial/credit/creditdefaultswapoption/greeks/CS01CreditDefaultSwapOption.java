@@ -18,7 +18,9 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Class containing methods for the computation of CS01 for a CDS Swaption (parallel and bucketed bumps)
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class CS01CreditDefaultSwapOption {
 
   // ------------------------------------------------------------------------------------------------------------------------------------------
@@ -33,16 +35,8 @@ public class CS01CreditDefaultSwapOption {
   // ------------------------------------------------------------------------------------------------------------------------------------------
 
   // Compute the CS01 by a parallel bump of each point on the spread curve
-  public double getCS01ParallelShiftCreditDefaultSwapOption(
-      final ZonedDateTime valuationDate,
-      final CreditDefaultSwapOptionDefinition cdsSwaption,
-      final double sigma,
-      final ISDADateCurve yieldCurve,
-      final HazardRateCurve hazardRateCurve,
-      final ZonedDateTime[] marketTenors,
-      final double[] marketSpreads,
-      final double spreadBump,
-      final SpreadBumpType spreadBumpType) {
+  public double getCS01ParallelShiftCreditDefaultSwapOption(final ZonedDateTime valuationDate, final CreditDefaultSwapOptionDefinition cdsSwaption, final double sigma, final ISDADateCurve yieldCurve,
+      final HazardRateCurve hazardRateCurve, final ZonedDateTime[] marketTenors, final double[] marketSpreads, final double spreadBump, final SpreadBumpType spreadBumpType) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -90,16 +84,8 @@ public class CS01CreditDefaultSwapOption {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  public double getBetaAdjustedCS01ParallelShiftCreditDefaultSwapOption(
-      final ZonedDateTime valuationDate,
-      final CreditDefaultSwapOptionDefinition cdsSwaption,
-      final double sigma,
-      final ISDADateCurve yieldCurve,
-      final HazardRateCurve hazardRateCurve,
-      final ZonedDateTime[] marketTenors,
-      final double[] marketSpreads,
-      final double spreadBump,
-      final double beta,
+  public double getBetaAdjustedCS01ParallelShiftCreditDefaultSwapOption(final ZonedDateTime valuationDate, final CreditDefaultSwapOptionDefinition cdsSwaption, final double sigma,
+      final ISDADateCurve yieldCurve, final HazardRateCurve hazardRateCurve, final ZonedDateTime[] marketTenors, final double[] marketSpreads, final double spreadBump, final double beta,
       final SpreadBumpType spreadBumpType) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -121,16 +107,8 @@ public class CS01CreditDefaultSwapOption {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Compute the CS01 by a parallel bump of each point on the spread curve
-  public double[] getCS01BucketedCreditDefaultSwapOption(
-      final ZonedDateTime valuationDate,
-      final CreditDefaultSwapOptionDefinition cdsSwaption,
-      final double sigma,
-      final ISDADateCurve yieldCurve,
-      final HazardRateCurve hazardRateCurve,
-      final ZonedDateTime[] marketTenors,
-      final double[] marketSpreads,
-      final double spreadBump,
-      final SpreadBumpType spreadBumpType) {
+  public double[] getCS01BucketedCreditDefaultSwapOption(final ZonedDateTime valuationDate, final CreditDefaultSwapOptionDefinition cdsSwaption, final double sigma, final ISDADateCurve yieldCurve,
+      final HazardRateCurve hazardRateCurve, final ZonedDateTime[] marketTenors, final double[] marketSpreads, final double spreadBump, final SpreadBumpType spreadBumpType) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -198,16 +176,8 @@ public class CS01CreditDefaultSwapOption {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Compute the CS01 by a parallel bump of each point on the spread curve
-  public double[] getBetaAdjustedCS01BucketedCreditDefaultSwapOption(
-      final ZonedDateTime valuationDate,
-      final CreditDefaultSwapOptionDefinition cdsSwaption,
-      final double sigma,
-      final ISDADateCurve yieldCurve,
-      final HazardRateCurve hazardRateCurve,
-      final ZonedDateTime[] marketTenors,
-      final double[] marketSpreads,
-      final double spreadBump,
-      final double beta,
+  public double[] getBetaAdjustedCS01BucketedCreditDefaultSwapOption(final ZonedDateTime valuationDate, final CreditDefaultSwapOptionDefinition cdsSwaption, final double sigma,
+      final ISDADateCurve yieldCurve, final HazardRateCurve hazardRateCurve, final ZonedDateTime[] marketTenors, final double[] marketSpreads, final double spreadBump, final double beta,
       final SpreadBumpType spreadBumpType) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------

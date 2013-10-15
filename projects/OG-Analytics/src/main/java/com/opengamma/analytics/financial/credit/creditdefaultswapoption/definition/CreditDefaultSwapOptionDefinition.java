@@ -15,7 +15,9 @@ import com.opengamma.util.money.Currency;
 
 /**
  * Definition of a generic Single Name Credit Default Swap Option contract (the underlying CDS can be of any type e.g. SNAC, Sov etc)
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class CreditDefaultSwapOptionDefinition {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -85,19 +87,9 @@ public class CreditDefaultSwapOptionDefinition {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  public CreditDefaultSwapOptionDefinition(
-      final BuySellProtection buySellProtection,
-      final Obligor protectionBuyer,
-      final Obligor protectionSeller,
-      final Currency currency,
-      final ZonedDateTime startDate,
-      final ZonedDateTime optionExerciseDate,
-      final double notional,
-      final double optionStrike,
-      final boolean isKnockOut,
-      final boolean isPayer,
-      final CDSOptionExerciseType optionExerciseType,
-      final CreditDefaultSwapDefinition underlyingCDS) {
+  public CreditDefaultSwapOptionDefinition(final BuySellProtection buySellProtection, final Obligor protectionBuyer, final Obligor protectionSeller, final Currency currency,
+      final ZonedDateTime startDate, final ZonedDateTime optionExerciseDate, final double notional, final double optionStrike, final boolean isKnockOut, final boolean isPayer,
+      final CDSOptionExerciseType optionExerciseType, final CreditDefaultSwapDefinition underlyingCDS) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -220,19 +212,8 @@ public class CreditDefaultSwapOptionDefinition {
     modifiedCDS = modifiedCDS.withRecoveryRate(recoveryRate);
 
     // Return the modified CDS Swaption contract
-    return new CreditDefaultSwapOptionDefinition(
-        getBuySellProtection(),
-        getProtectionBuyer(),
-        getProtectionSeller(),
-        getCurrency(),
-        getStartDate(),
-        getOptionExerciseDate(),
-        getNotional(),
-        getOptionStrike(),
-        isKnockOut(),
-        isPayer(),
-        getOptionExerciseType(),
-        modifiedCDS);                 // This is the CDS Swaption contract field that has been modified
+    return new CreditDefaultSwapOptionDefinition(getBuySellProtection(), getProtectionBuyer(), getProtectionSeller(), getCurrency(), getStartDate(), getOptionExerciseDate(), getNotional(),
+        getOptionStrike(), isKnockOut(), isPayer(), getOptionExerciseType(), modifiedCDS);                 // This is the CDS Swaption contract field that has been modified
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -242,19 +223,8 @@ public class CreditDefaultSwapOptionDefinition {
   public CreditDefaultSwapOptionDefinition withOptionstrike(final double optionStrike) {
 
     // Return the modified CDS Swaption contract
-    return new CreditDefaultSwapOptionDefinition(
-        getBuySellProtection(),
-        getProtectionBuyer(),
-        getProtectionSeller(),
-        getCurrency(),
-        getStartDate(),
-        getOptionExerciseDate(),
-        getNotional(),
-        optionStrike,
-        isKnockOut(),
-        isPayer(),
-        getOptionExerciseType(),
-        getUnderlyingCDS());                 // This is the CDS Swaption contract field that has been modified
+    return new CreditDefaultSwapOptionDefinition(getBuySellProtection(), getProtectionBuyer(), getProtectionSeller(), getCurrency(), getStartDate(), getOptionExerciseDate(), getNotional(),
+        optionStrike, isKnockOut(), isPayer(), getOptionExerciseType(), getUnderlyingCDS());                 // This is the CDS Swaption contract field that has been modified
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -264,19 +234,8 @@ public class CreditDefaultSwapOptionDefinition {
   public CreditDefaultSwapOptionDefinition withIsPayer(final boolean isPayer) {
 
     // Return the modified CDS Swaption contract
-    return new CreditDefaultSwapOptionDefinition(
-        getBuySellProtection(),
-        getProtectionBuyer(),
-        getProtectionSeller(),
-        getCurrency(),
-        getStartDate(),
-        getOptionExerciseDate(),
-        getNotional(),
-        getOptionStrike(),
-        isKnockOut(),
-        isPayer,
-        getOptionExerciseType(),
-        getUnderlyingCDS());                 // This is the CDS Swaption contract field that has been modified
+    return new CreditDefaultSwapOptionDefinition(getBuySellProtection(), getProtectionBuyer(), getProtectionSeller(), getCurrency(), getStartDate(), getOptionExerciseDate(), getNotional(),
+        getOptionStrike(), isKnockOut(), isPayer, getOptionExerciseType(), getUnderlyingCDS());                 // This is the CDS Swaption contract field that has been modified
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -286,19 +245,8 @@ public class CreditDefaultSwapOptionDefinition {
   public CreditDefaultSwapOptionDefinition withIsKnockout(final boolean isKnockOut) {
 
     // Return the modified CDS Swaption contract
-    return new CreditDefaultSwapOptionDefinition(
-        getBuySellProtection(),
-        getProtectionBuyer(),
-        getProtectionSeller(),
-        getCurrency(),
-        getStartDate(),
-        getOptionExerciseDate(),
-        getNotional(),
-        getOptionStrike(),
-        isKnockOut,
-        isPayer(),
-        getOptionExerciseType(),
-        getUnderlyingCDS());                 // This is the CDS Swaption contract field that has been modified
+    return new CreditDefaultSwapOptionDefinition(getBuySellProtection(), getProtectionBuyer(), getProtectionSeller(), getCurrency(), getStartDate(), getOptionExerciseDate(), getNotional(),
+        getOptionStrike(), isKnockOut, isPayer(), getOptionExerciseType(), getUnderlyingCDS());                 // This is the CDS Swaption contract field that has been modified
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------

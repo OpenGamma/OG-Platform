@@ -22,7 +22,9 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class ISDACompliantContingentLegCalculator extends ISDACompliantLegCalculator {
   private static final ISDAContingentLegIntegrationScheduleGenerator SCHEDULE_CALCULATOR = new ISDAContingentLegIntegrationScheduleGenerator();
   private static final int SPOT_DAYS = 3;
@@ -31,8 +33,7 @@ public class ISDACompliantContingentLegCalculator extends ISDACompliantLegCalcul
   private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
 
   @Override
-  public double calculateLeg(final ZonedDateTime valuationDate, final CreditDefaultSwapDefinition cds, final ISDAYieldCurveAndHazardRateCurveProvider curves,
-      final PriceType priceType) {
+  public double calculateLeg(final ZonedDateTime valuationDate, final CreditDefaultSwapDefinition cds, final ISDAYieldCurveAndHazardRateCurveProvider curves, final PriceType priceType) {
     ArgumentChecker.notNull(valuationDate, "valuation date");
     ArgumentChecker.notNull(cds, "cds");
     ArgumentChecker.notNull(curves, "curves");

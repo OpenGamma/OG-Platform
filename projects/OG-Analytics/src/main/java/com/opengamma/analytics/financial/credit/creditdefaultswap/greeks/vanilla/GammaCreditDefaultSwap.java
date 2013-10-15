@@ -18,7 +18,9 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Class containing methods for the computation of Gamma for a vanilla Legacy CDS (parallel and bucketed bumps)
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class GammaCreditDefaultSwap {
 
   // ------------------------------------------------------------------------------------------------------------------------------------------
@@ -36,15 +38,8 @@ public class GammaCreditDefaultSwap {
 
   // Compute the Gamma by a parallel bump of each point on the spread curve
 
-  public double getGammaParallelShiftCreditDefaultSwap(
-      final ZonedDateTime valuationDate,
-      final LegacyVanillaCreditDefaultSwapDefinition cds,
-      final ISDADateCurve/*ISDACurve*/yieldCurve,
-      final ZonedDateTime[] marketTenors,
-      final double[] marketSpreads,
-      final double spreadBump,
-      final SpreadBumpType spreadBumpType,
-      final PriceType priceType) {
+  public double getGammaParallelShiftCreditDefaultSwap(final ZonedDateTime valuationDate, final LegacyVanillaCreditDefaultSwapDefinition cds, final ISDADateCurve/*ISDACurve*/yieldCurve,
+      final ZonedDateTime[] marketTenors, final double[] marketSpreads, final double spreadBump, final SpreadBumpType spreadBumpType, final PriceType priceType) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -114,15 +109,8 @@ public class GammaCreditDefaultSwap {
 
   // Compute the Gamma by bumping each point on the spread curve individually by spreadBump (bump is same for all tenors)
 
-  public double[] getGammaBucketedCreditDefaultSwap(
-      final ZonedDateTime valuationDate,
-      final LegacyVanillaCreditDefaultSwapDefinition cds,
-      final ISDADateCurve/*ISDACurve*/yieldCurve,
-      final ZonedDateTime[] marketTenors,
-      final double[] marketSpreads,
-      final double spreadBump,
-      final SpreadBumpType spreadBumpType,
-      final PriceType priceType) {
+  public double[] getGammaBucketedCreditDefaultSwap(final ZonedDateTime valuationDate, final LegacyVanillaCreditDefaultSwapDefinition cds, final ISDADateCurve/*ISDACurve*/yieldCurve,
+      final ZonedDateTime[] marketTenors, final double[] marketSpreads, final double spreadBump, final SpreadBumpType spreadBumpType, final PriceType priceType) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 

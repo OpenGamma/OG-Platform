@@ -19,7 +19,9 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Class containing methods for the valuation of an index CDS
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class PresentValueIndexCreditDefaultSwap {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -44,13 +46,9 @@ public class PresentValueIndexCreditDefaultSwap {
 
   // Calculate the present value of an Index CDS position treating the index as a SNCDS
 
-  public double getPresentValueIndexCreditDefaultSwap(
-      final ZonedDateTime valuationDate,
-      final CreditDefaultSwapDefinition cds,
-      final ISDADateCurve yieldCurve,
-      final HazardRateCurve hazardRateCurve) {
+  public double getPresentValueIndexCreditDefaultSwap(final ZonedDateTime valuationDate, final CreditDefaultSwapDefinition cds, final ISDADateCurve yieldCurve, final HazardRateCurve hazardRateCurve) {
 
-    double presentValue = 0.0;
+    final double presentValue = 0.0;
 
     return presentValue;
   }
@@ -59,12 +57,8 @@ public class PresentValueIndexCreditDefaultSwap {
 
   // Calculate the present value of an Index CDS position based on the values of its intrinsic constituents
 
-  public double getIntrinsicPresentValueIndexCreditDefaultSwap(
-      final ZonedDateTime valuationDate,
-      final IndexCreditDefaultSwapDefinition indexCDS,
-      final double[] breakevenSpreads,
-      final ISDADateCurve[] yieldCurves,
-      final HazardRateCurve[] hazardRateCurves) {
+  public double getIntrinsicPresentValueIndexCreditDefaultSwap(final ZonedDateTime valuationDate, final IndexCreditDefaultSwapDefinition indexCDS, final double[] breakevenSpreads,
+      final ISDADateCurve[] yieldCurves, final HazardRateCurve[] hazardRateCurves) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -80,10 +74,10 @@ public class PresentValueIndexCreditDefaultSwap {
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Calculate the value of the premium leg (including accrued if required)
-    double presentValueIndexPremiumLeg = (indexCDS.getIndexCoupon() / 10000.0) * calculateIndexPremiumLeg(valuationDate, indexCDS, yieldCurves, hazardRateCurves);
+    final double presentValueIndexPremiumLeg = (indexCDS.getIndexCoupon() / 10000.0) * calculateIndexPremiumLeg(valuationDate, indexCDS, yieldCurves, hazardRateCurves);
 
     // Calculate the value of the contingent leg
-    double presentValueIndexContingentLeg = calculateIndexContingentLeg(valuationDate, indexCDS, breakevenSpreads, yieldCurves, hazardRateCurves);
+    final double presentValueIndexContingentLeg = calculateIndexContingentLeg(valuationDate, indexCDS, breakevenSpreads, yieldCurves, hazardRateCurves);
 
     // Calculate the PV of the CDS (assumes we are buying protection i.e. paying the premium leg, receiving the contingent leg)
     double presentValue = -presentValueIndexPremiumLeg + presentValueIndexContingentLeg;
@@ -101,13 +95,10 @@ public class PresentValueIndexCreditDefaultSwap {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Calculate the present value of an Index CDS premium leg
-  private double calculateIndexPremiumLeg(
-      final ZonedDateTime valuationDate,
-      final IndexCreditDefaultSwapDefinition indexCDS,
-      final ISDADateCurve[] yieldCurves,
+  private double calculateIndexPremiumLeg(final ZonedDateTime valuationDate, final IndexCreditDefaultSwapDefinition indexCDS, final ISDADateCurve[] yieldCurves,
       final HazardRateCurve[] hazardRateCurves) {
 
-    double[] breakevenSpreads = new double[indexCDS.getUnderlyingPool().getNumberOfObligors()];
+    final double[] breakevenSpreads = new double[indexCDS.getUnderlyingPool().getNumberOfObligors()];
 
     // Build a vector of dummy breakeven spreads
     for (int i = 0; i < breakevenSpreads.length; i++) {
@@ -123,11 +114,7 @@ public class PresentValueIndexCreditDefaultSwap {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Calculate the present value of an Index CDS contingent leg
-  private double calculateIndexContingentLeg(
-      final ZonedDateTime valuationDate,
-      final IndexCreditDefaultSwapDefinition indexCDS,
-      final double[] breakevenSpreads,
-      final ISDADateCurve[] yieldCurves,
+  private double calculateIndexContingentLeg(final ZonedDateTime valuationDate, final IndexCreditDefaultSwapDefinition indexCDS, final double[] breakevenSpreads, final ISDADateCurve[] yieldCurves,
       final HazardRateCurve[] hazardRateCurves) {
 
     // Calculate the intrinsic value of the premium leg
@@ -140,11 +127,7 @@ public class PresentValueIndexCreditDefaultSwap {
 
   // Calculate the risky dV01 for all the index constituents 
 
-  private double calculateIndexRiskydV01(
-      final ZonedDateTime valuationDate,
-      final IndexCreditDefaultSwapDefinition indexCDS,
-      final double[] breakevenSpreads,
-      final ISDADateCurve[] yieldCurves,
+  private double calculateIndexRiskydV01(final ZonedDateTime valuationDate, final IndexCreditDefaultSwapDefinition indexCDS, final double[] breakevenSpreads, final ISDADateCurve[] yieldCurves,
       final HazardRateCurve[] hazardRateCurves) {
 
     double indexRiskydV01 = 0.0;
@@ -154,7 +137,7 @@ public class PresentValueIndexCreditDefaultSwap {
     for (int i = 0; i < numberofObligors; i++) {
 
       // Extract out the CDS associated with obligor i
-      LegacyVanillaCreditDefaultSwapDefinition cds = (LegacyVanillaCreditDefaultSwapDefinition) indexCDS.getUnderlyingCDS()[i];
+      final LegacyVanillaCreditDefaultSwapDefinition cds = (LegacyVanillaCreditDefaultSwapDefinition) indexCDS.getUnderlyingCDS()[i];
 
       // Calculate the risky dV01 for obligor i
       final double riskydV01 = calculateRiskydV01(valuationDate, cds, breakevenSpreads[i], yieldCurves[i], hazardRateCurves[i]);
@@ -170,11 +153,7 @@ public class PresentValueIndexCreditDefaultSwap {
 
   // Calculate the risky dV01 for an individual obligor
 
-  private double calculateRiskydV01(
-      final ZonedDateTime valuationDate,
-      final LegacyVanillaCreditDefaultSwapDefinition cds,
-      final double breakevenSpread,
-      final ISDADateCurve yieldCurve,
+  private double calculateRiskydV01(final ZonedDateTime valuationDate, final LegacyVanillaCreditDefaultSwapDefinition cds, final double breakevenSpread, final ISDADateCurve yieldCurve,
       final HazardRateCurve hazardRateCurve) {
 
     double riskydV01 = 0.0;

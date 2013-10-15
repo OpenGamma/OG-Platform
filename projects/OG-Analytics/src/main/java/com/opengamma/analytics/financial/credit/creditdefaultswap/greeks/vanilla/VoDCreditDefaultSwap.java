@@ -21,7 +21,9 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Class containing methods for the computation of Value-on-Default (VoD or jump-to-default risk) for a vanilla Legacy CDS
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class VoDCreditDefaultSwap {
 
   private static final DayCount ACT_365 = new ActualThreeSixtyFive();
@@ -45,13 +47,8 @@ public class VoDCreditDefaultSwap {
 
   // Compute the VoD
 
-  public double getValueOnDefaultCreditDefaultSwap(
-      final ZonedDateTime valuationDate,
-      final LegacyVanillaCreditDefaultSwapDefinition cds,
-      final ISDADateCurve yieldCurve,
-      final ZonedDateTime[] marketTenors,
-      final double[] marketSpreads,
-      final PriceType priceType) {
+  public double getValueOnDefaultCreditDefaultSwap(final ZonedDateTime valuationDate, final LegacyVanillaCreditDefaultSwapDefinition cds, final ISDADateCurve yieldCurve,
+      final ZonedDateTime[] marketTenors, final double[] marketSpreads, final PriceType priceType) {
 
     ArgumentChecker.notNull(valuationDate, "Valuation date");
     ArgumentChecker.notNull(cds, "CreditDefaultSwapDefinition");

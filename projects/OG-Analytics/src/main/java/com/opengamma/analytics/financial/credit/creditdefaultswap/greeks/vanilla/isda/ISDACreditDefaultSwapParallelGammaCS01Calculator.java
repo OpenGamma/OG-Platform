@@ -22,7 +22,9 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class ISDACreditDefaultSwapParallelGammaCS01Calculator {
   private static final CreditSpreadBumpersNew SPREAD_BUMPER = new CreditSpreadBumpersNew();
   private static final ISDAHazardRateCurveCalculator HAZARD_RATE_CALCULATOR = new ISDAHazardRateCurveCalculator();

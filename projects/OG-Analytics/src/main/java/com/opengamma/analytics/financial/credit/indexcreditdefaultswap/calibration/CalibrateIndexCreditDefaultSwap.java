@@ -16,7 +16,9 @@ import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 
 /**
  * Class to undertake the calibration of the single name CDS's that constitute a CDS index
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class CalibrateIndexCreditDefaultSwap {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -36,18 +38,14 @@ public class CalibrateIndexCreditDefaultSwap {
 
   // Function to calibrate a pool of obligor hazard rate term structures to the input market data
 
-  public HazardRateCurve[] getCalibratedHazardRateCurves(
-      final ZonedDateTime valuationDate,
-      final IndexCreditDefaultSwapDefinition indexCDS,
-      final ZonedDateTime[] calibrationTenors,
-      final double[][] marketSpreads,
-      final ISDADateCurve[] yieldCurves) {
+  public HazardRateCurve[] getCalibratedHazardRateCurves(final ZonedDateTime valuationDate, final IndexCreditDefaultSwapDefinition indexCDS, final ZonedDateTime[] calibrationTenors,
+      final double[][] marketSpreads, final ISDADateCurve[] yieldCurves) {
 
     // Determine how many obligors there are in the underlying pool
     final int numberOfObligors = indexCDS.getUnderlyingPool().getNumberOfObligors();
 
     // Construct a vector of hazard rate curves of this size
-    HazardRateCurve[] hazardRateCurves = new HazardRateCurve[numberOfObligors];
+    final HazardRateCurve[] hazardRateCurves = new HazardRateCurve[numberOfObligors];
 
     // Calibrate each of the underlying obligors
     for (int i = 0; i < numberOfObligors; i++) {

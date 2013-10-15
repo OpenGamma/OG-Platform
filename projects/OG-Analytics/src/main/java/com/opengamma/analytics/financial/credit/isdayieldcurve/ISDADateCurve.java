@@ -35,7 +35,10 @@ import com.opengamma.util.ArgumentChecker;
  *<li>Zero rate (or yield) R(t) = -ln[P(0,t)]/t <==> Zero default rate H(t) = -ln[Q(0,t)]/t</li>
  *</ul>
  *The underlying curve is a linear interpolation of the quantity t*H(t) = -ln[Q(0,t)], which is the ISDA model standard 
+ *@deprecated this with be deleted 
+ *@see ISDACompliantCreditCurve, ISDACompliantDateCreditCurve
  */
+@Deprecated
 public class ISDADateCurve extends YieldAndDiscountCurve {
 
   private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");

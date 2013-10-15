@@ -21,8 +21,8 @@ public class InterestRateSensitivityCalculator {
     _pricer = new AnalyticCDSPricer();
   }
 
-  public InterestRateSensitivityCalculator(final boolean useCorrectAccOnDefaultFormula) {
-    _pricer = new AnalyticCDSPricer(useCorrectAccOnDefaultFormula);
+  public InterestRateSensitivityCalculator(final AccrualOnDefaultFormulae formula) {
+    _pricer = new AnalyticCDSPricer(formula);
   }
 
   /**

@@ -12,7 +12,9 @@ import com.opengamma.analytics.financial.credit.isdayieldcurve.InterestRateBumpT
 
 /**
  * 
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class InterestRateBumpers {
   public double[] getBumpedRates(final double[] marketSpreads, final double spreadBump, final InterestRateBumpType bumpType) {
     final double[] bumpedCreditSpreads = new double[marketSpreads.length];
@@ -23,16 +25,13 @@ public class InterestRateBumpers {
     return bumpedCreditSpreads;
   }
 
-  public static double[] getBumpedRates(double[] marketSpreads, double spreadBump, InterestRateBumpType bumpType, int m) {
+  public static double[] getBumpedRates(final double[] marketSpreads, final double spreadBump, final InterestRateBumpType bumpType, final int m) {
     final double[] bumped = Arrays.copyOf(marketSpreads, marketSpreads.length);
     getBumpedRates(marketSpreads, spreadBump, bumpType, bumped, m);
     return bumped;
   }
 
-  private static void getBumpedRates(double[] marketSpreads,
-                                   double spreadBump,
-                                   InterestRateBumpType bumpType,
-                                   double[] bumpedCreditSpreads, int m) {
+  private static void getBumpedRates(final double[] marketSpreads, final double spreadBump, final InterestRateBumpType bumpType, final double[] bumpedCreditSpreads, final int m) {
     switch (bumpType) {
       case ADDITIVE:
       case ADDITIVE_PARALLEL:

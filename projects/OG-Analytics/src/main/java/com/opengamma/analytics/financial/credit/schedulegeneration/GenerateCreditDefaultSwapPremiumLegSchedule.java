@@ -20,7 +20,9 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  *  Class containing methods to generate the premium leg cashflow schedule for a CDS (following the market conventions for CDS)
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class GenerateCreditDefaultSwapPremiumLegSchedule {
 
   // -------------------------------------------------------------------------------------------
@@ -54,11 +56,11 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
    *  the fourth is the accrual pay date (which is usually the same as the cash flow time), <b>note</b> the first of these is null; 
    *  @deprecated is will be replaced once it is fully tested 
    */
-  @Deprecated 
+  @Deprecated
   public ZonedDateTime[][] constructISDACompliantCreditDefaultSwapPremiumLegSchedule(final CreditDefaultSwapDefinition cds) {
 
-    ArgumentChecker.notNull(cds, "CDS");    
-   
+    ArgumentChecker.notNull(cds, "CDS");
+
     int totalDates = 0;
     // NOTE : We have hacked this to have a maximum number of possible cashflows of 1000 - should sort this out
     //TODO This should be replaced by a container 
@@ -153,7 +155,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
     for (int i = 1; i < tempBDACashflowSchedule.length - 1; i++) {
       tempBDACashflowSchedule[i][0] = businessDayAdjustDate(cashflowSchedule[i], cds.getCalendar(), cds.getBusinessDayAdjustmentConvention());
     }
-   
+
     // Now fill up the acc start/end and pay dates
 
     // This is based on the code in the ISDA model
@@ -164,9 +166,9 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
     // Note the start index
     for (int i = 1; i < cashflowSchedule.length; i++) {
 
-      ZonedDateTime nextDate = cashflowSchedule[i];
+      final ZonedDateTime nextDate = cashflowSchedule[i];
       //R White Review: this is exactly the same adjustment as made above 
-      ZonedDateTime nextDateAdj = businessDayAdjustDate(cashflowSchedule[i], cds.getCalendar(), cds.getBusinessDayAdjustmentConvention());
+      final ZonedDateTime nextDateAdj = businessDayAdjustDate(cashflowSchedule[i], cds.getCalendar(), cds.getBusinessDayAdjustmentConvention());
 
       // accStartDate
       tempBDACashflowSchedule[i][1] = prevDateAdj;
@@ -678,11 +680,7 @@ public class GenerateCreditDefaultSwapPremiumLegSchedule {
   // -------------------------------------------------------------------------------------------
 
   // Method to calculate the number of premium leg cashflows given the adjusted effective and maturity dates and the coupon frequency
-  private int calculateNumberOfPremiumLegCashflows(
-      final ZonedDateTime startDate,
-      final ZonedDateTime endDate,
-      final PeriodFrequency couponFrequency,
-      final StubType stubType) {
+  private int calculateNumberOfPremiumLegCashflows(final ZonedDateTime startDate, final ZonedDateTime endDate, final PeriodFrequency couponFrequency, final StubType stubType) {
 
     // -------------------------------------------------------------------------------
 

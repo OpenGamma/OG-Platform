@@ -14,7 +14,9 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Class containing methods for the computation of Value-on-Default for an index CDS
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class VoDIndexCreditDefaultSwap {
 
   // ------------------------------------------------------------------------------------------------------------------------------------------
@@ -25,11 +27,7 @@ public class VoDIndexCreditDefaultSwap {
 
   // Compute the Value-on-Default for each of the obligors in the index - VoD is calculated individually to all obligors one by one
 
-  public double[] getVoDIndexCreditDefaultSwap(
-      final ZonedDateTime valuationDate,
-      final IndexCreditDefaultSwapDefinition indexCDS,
-      final ISDACurve[] yieldCurve,
-      final ZonedDateTime[] marketTenors,
+  public double[] getVoDIndexCreditDefaultSwap(final ZonedDateTime valuationDate, final IndexCreditDefaultSwapDefinition indexCDS, final ISDACurve[] yieldCurve, final ZonedDateTime[] marketTenors,
       final double[][] marketSpreads) {
 
     ArgumentChecker.notNull(valuationDate, "Valuation date");
@@ -38,9 +36,9 @@ public class VoDIndexCreditDefaultSwap {
     ArgumentChecker.notNull(marketTenors, "Market tenors");
     ArgumentChecker.notNull(marketSpreads, "Market spreads");
 
-    int numberOfObligors = indexCDS.getUnderlyingPool().getNumberOfObligors();
+    final int numberOfObligors = indexCDS.getUnderlyingPool().getNumberOfObligors();
 
-    double[] valueOnDefault = new double[numberOfObligors];
+    final double[] valueOnDefault = new double[numberOfObligors];
 
     for (int i = 0; i < numberOfObligors; i++) {
       valueOnDefault[i] = 0.0;
@@ -53,13 +51,8 @@ public class VoDIndexCreditDefaultSwap {
 
   // Compute the Value-on-Default for a user specified subset of obligors in the index e.g. what is the VoD if all financials defaulted
 
-  public double getVoDIndexScenarioCreditDefaultSwap(
-      final ZonedDateTime valuationDate,
-      final IndexCreditDefaultSwapDefinition indexCDS,
-      final ISDACurve[] yieldCurve,
-      final ZonedDateTime[] marketTenors,
-      final double[][] marketSpreads,
-      final DefaultState[] defaultScenario) {
+  public double getVoDIndexScenarioCreditDefaultSwap(final ZonedDateTime valuationDate, final IndexCreditDefaultSwapDefinition indexCDS, final ISDACurve[] yieldCurve,
+      final ZonedDateTime[] marketTenors, final double[][] marketSpreads, final DefaultState[] defaultScenario) {
 
     ArgumentChecker.notNull(valuationDate, "Valuation date");
     ArgumentChecker.notNull(indexCDS, "Index CDS");
@@ -68,7 +61,7 @@ public class VoDIndexCreditDefaultSwap {
     ArgumentChecker.notNull(marketSpreads, "Market spreads");
     ArgumentChecker.notNull(defaultScenario, "Default scenario");
 
-    int numberOfObligors = indexCDS.getUnderlyingPool().getNumberOfObligors();
+    final int numberOfObligors = indexCDS.getUnderlyingPool().getNumberOfObligors();
 
     double runningVOD = 0.0;
 

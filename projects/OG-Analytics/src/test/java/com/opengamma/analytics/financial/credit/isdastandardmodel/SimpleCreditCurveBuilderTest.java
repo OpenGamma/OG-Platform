@@ -10,10 +10,11 @@ import org.testng.annotations.Test;
 /**
  * 
  */
-public class FastCreditCurveBuilderTest extends CreditCurveCalibrationTest {
+public class SimpleCreditCurveBuilderTest extends CreditCurveCalibrationTest {
 
-  private static final FastCreditCurveBuilder BUILDER_ISDA = new FastCreditCurveBuilder();
-  private static final FastCreditCurveBuilder BUILDER_MARKIT = new FastCreditCurveBuilder(MARKIT_FIX);
+
+  private static ISDACompliantCreditCurveBuilder BUILDER_ISDA = new SimpleCreditCurveBuilder();
+  private static ISDACompliantCreditCurveBuilder BUILDER_MARKIT = new SimpleCreditCurveBuilder(MARKIT_FIX);
 
   @Test
   public void test() {

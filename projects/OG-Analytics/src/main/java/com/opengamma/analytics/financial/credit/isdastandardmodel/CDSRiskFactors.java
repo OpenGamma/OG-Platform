@@ -17,8 +17,8 @@ public class CDSRiskFactors {
     _pricer = new AnalyticCDSPricer();
   }
 
-  public CDSRiskFactors(final boolean useCorrectAccOnDefaultFormula) {
-    _pricer = new AnalyticCDSPricer(useCorrectAccOnDefaultFormula);
+  public CDSRiskFactors(final AccrualOnDefaultFormulae formula) {
+    _pricer = new AnalyticCDSPricer(formula);
   }
 
   /**

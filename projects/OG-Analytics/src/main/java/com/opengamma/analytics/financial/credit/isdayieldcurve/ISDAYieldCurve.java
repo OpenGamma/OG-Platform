@@ -9,6 +9,7 @@ import java.util.ArrayList;
 
 import org.threeten.bp.ZonedDateTime;
 
+import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
 import com.opengamma.analytics.financial.credit.schedulegeneration.GenerateCreditDefaultSwapPremiumLegSchedule;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -21,8 +22,10 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 
 /**
- * 
+ * @deprecated this will be deleted. 
+ * @see ISDACompliantYieldCurve 
  */
+@Deprecated
 public class ISDAYieldCurve {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -109,18 +112,9 @@ public class ISDAYieldCurve {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  public ISDAYieldCurve(
-      final ZonedDateTime valuationDate,
-      final ISDAYieldCurveTenors[] instrumentTenors,
-      final ISDAInstrumentTypes[] instrumentTypes,
-      final double[] instrumentRates,
-      final int spotDays,
-      final DayCount moneyMarketDaycountConvention,
-      final DayCount swapDaycountDaycountConvention,
-      final DayCount floatDaycountConvention,
-      final PeriodFrequency swapInterval,
-      final PeriodFrequency floatInterval,
-      final BusinessDayConvention badDayConvention) {
+  public ISDAYieldCurve(final ZonedDateTime valuationDate, final ISDAYieldCurveTenors[] instrumentTenors, final ISDAInstrumentTypes[] instrumentTypes, final double[] instrumentRates,
+      final int spotDays, final DayCount moneyMarketDaycountConvention, final DayCount swapDaycountDaycountConvention, final DayCount floatDaycountConvention, final PeriodFrequency swapInterval,
+      final PeriodFrequency floatInterval, final BusinessDayConvention badDayConvention) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -269,14 +263,10 @@ public class ISDAYieldCurve {
 
     for (int i = 0; i < _numberOfSwapInstruments; i++) {
 
-      if (swapDatesAdjusted[i].isAfter(lastMMDate/*tempZCDates[_numberOfCashInstruments - 1]*/))
-      {
+      if (swapDatesAdjusted[i].isAfter(lastMMDate/*tempZCDates[_numberOfCashInstruments - 1]*/)) {
 
-        if (oneAlreadyAdded &&
-            swapRates[i - 1] != 0.0 &&
-            swapDatesAdjusted[i - 1].equals(lastMMDate/*tempZCDates[_numberOfCashInstruments - 1]*/) &&
-            swapDatesPrevious[i - 1].equals(swapDatesOriginal[i - 1]) &&
-            swapDatesOnCycle[i]) {
+        if (oneAlreadyAdded && swapRates[i - 1] != 0.0 && swapDatesAdjusted[i - 1].equals(lastMMDate/*tempZCDates[_numberOfCashInstruments - 1]*/) &&
+            swapDatesPrevious[i - 1].equals(swapDatesOriginal[i - 1]) && swapDatesOnCycle[i]) {
 
           // TODO : Add code
 
@@ -691,11 +681,7 @@ public class ISDAYieldCurve {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  private ZonedDateTime[] calculateInstrumentDates(
-      final ZonedDateTime baseDate,
-      final ISDAInstrumentTypes[] instrumentTypes,
-      final ISDAYieldCurveTenors[] yieldCurveTenors,
-      final Calendar calendar) {
+  private ZonedDateTime[] calculateInstrumentDates(final ZonedDateTime baseDate, final ISDAInstrumentTypes[] instrumentTypes, final ISDAYieldCurveTenors[] yieldCurveTenors, final Calendar calendar) {
 
     final ZonedDateTime[] yieldCurveDates = new ZonedDateTime[yieldCurveTenors.length];
     final ZonedDateTime[] bdaYieldCurveDates = new ZonedDateTime[yieldCurveTenors.length];
@@ -861,9 +847,7 @@ public class ISDAYieldCurve {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  private int getNumberOfInstrumentsOfSpecificType(
-      final ISDAInstrumentTypes[] rateTypes,
-      final ISDAInstrumentTypes rateType) {
+  private int getNumberOfInstrumentsOfSpecificType(final ISDAInstrumentTypes[] rateTypes, final ISDAInstrumentTypes rateType) {
 
     int nInstruments = 0;
 
@@ -879,11 +863,7 @@ public class ISDAYieldCurve {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  private ZonedDateTime[] getInstrumentDates(
-      final ZonedDateTime[] instrumentMaturities,
-      final ISDAInstrumentTypes[] rateTypes,
-      final ISDAInstrumentTypes rateType,
-      final int nInstruments) {
+  private ZonedDateTime[] getInstrumentDates(final ZonedDateTime[] instrumentMaturities, final ISDAInstrumentTypes[] rateTypes, final ISDAInstrumentTypes rateType, final int nInstruments) {
 
     int index = 0;
 
@@ -902,11 +882,7 @@ public class ISDAYieldCurve {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  private double[] getInstrumentRates(
-      final double[] instrumentRates,
-      final ISDAInstrumentTypes[] rateTypes,
-      final ISDAInstrumentTypes rateType,
-      final int nInstruments) {
+  private double[] getInstrumentRates(final double[] instrumentRates, final ISDAInstrumentTypes[] rateTypes, final ISDAInstrumentTypes rateType, final int nInstruments) {
 
     int index = 0;
 
@@ -926,10 +902,7 @@ public class ISDAYieldCurve {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  private static int getNumberOfActiveSwaps(
-      final ZonedDateTime lastStubDate,
-      final ZonedDateTime[] swapDates,
-      final int nSwap) {
+  private static int getNumberOfActiveSwaps(final ZonedDateTime lastStubDate, final ZonedDateTime[] swapDates, final int nSwap) {
 
     int offset = 0;
 
@@ -943,10 +916,7 @@ public class ISDAYieldCurve {
     return numSwaps;
   }
 
-  boolean calculateOnCycle(
-      final ZonedDateTime valueDate,
-      final ZonedDateTime unadjustedSwapDate,
-      final PeriodFrequency swapFixedLegCouponFrequency) {
+  boolean calculateOnCycle(final ZonedDateTime valueDate, final ZonedDateTime unadjustedSwapDate, final PeriodFrequency swapFixedLegCouponFrequency) {
 
     boolean onCycle = false;
 
@@ -1006,18 +976,9 @@ public class ISDAYieldCurve {
 
   //Assuming that the inputs are ordered as MM followed by swap instruments
 
-  private void jpmCDSZCSwaps(
-      final ZonedDateTime valueDate,
-      final ZonedDateTime[] cashDates,
-      final ZonedDateTime[] swapDates,
-      final double[] swapRates,
-      final int numSwaps,
-      final double fixedSwapFreq,
-      final double floatSwapFreq,
-      final DayCount swapFixedLegDaycountFractionConvention,
-      final DayCount swapFloatingLegDaycountFractionConvention,
-      final BusinessDayConvention businessdayAdjustmentConvention,
-      final Calendar calendar) {
+  private void jpmCDSZCSwaps(final ZonedDateTime valueDate, final ZonedDateTime[] cashDates, final ZonedDateTime[] swapDates, final double[] swapRates, final int numSwaps, final double fixedSwapFreq,
+      final double floatSwapFreq, final DayCount swapFixedLegDaycountFractionConvention, final DayCount swapFloatingLegDaycountFractionConvention,
+      final BusinessDayConvention businessdayAdjustmentConvention, final Calendar calendar) {
 
     if (numSwaps == 0) {
       return;
@@ -1222,12 +1183,7 @@ public class ISDAYieldCurve {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
-  private double getInterpolatedRate(
-      final double t,
-      final double t1,
-      final double t2,
-      final double z1,
-      final double z2) {
+  private double getInterpolatedRate(final double t, final double t1, final double t2, final double z1, final double z2) {
 
     final double z1t1 = z1 * t1;
     final double z2t2 = z2 * t2;
@@ -1324,8 +1280,7 @@ public class ISDAYieldCurve {
     // ---------------------------------------------
 
     // Interpolation
-    if (!date.isBefore(timePoints[0]) && date.isBefore(timePoints[_numberOfInstruments - 1]))
-    {
+    if (!date.isBefore(timePoints[0]) && date.isBefore(timePoints[_numberOfInstruments - 1])) {
       // ... date is within the window spanned by the input dates
 
       int lo = 0;

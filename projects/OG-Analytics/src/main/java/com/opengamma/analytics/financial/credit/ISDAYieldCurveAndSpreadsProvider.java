@@ -15,7 +15,9 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class ISDAYieldCurveAndSpreadsProvider {
   private final ZonedDateTime[] _marketDates;
   private final double[] _marketSpreads;

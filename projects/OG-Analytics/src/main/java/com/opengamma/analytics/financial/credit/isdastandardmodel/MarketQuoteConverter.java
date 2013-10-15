@@ -25,9 +25,9 @@ public class MarketQuoteConverter {
     _pricer = new AnalyticCDSPricer();
   }
 
-  public MarketQuoteConverter(final boolean useCorrectACCOnDefaultFormula) {
-    _builder = new FastCreditCurveBuilder(useCorrectACCOnDefaultFormula);
-    _pricer = new AnalyticCDSPricer(useCorrectACCOnDefaultFormula);
+  public MarketQuoteConverter(final AccrualOnDefaultFormulae formula) {
+    _builder = new FastCreditCurveBuilder(formula);
+    _pricer = new AnalyticCDSPricer(formula);
   }
 
   //**************************************************************************************************************

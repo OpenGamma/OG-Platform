@@ -16,7 +16,9 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Class containing methods for the computation of recovery rate sensitivity for a CDS Swaption
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class RecRate01CreditDefaultSwapOption {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -27,16 +29,8 @@ public class RecRate01CreditDefaultSwapOption {
 
   // Compute the RecoveryRate01
 
-  public double getRecoveryRate01CreditDefaultSwapOption(
-      final ZonedDateTime valuationDate,
-      final CreditDefaultSwapOptionDefinition cdsSwaption,
-      final double sigma,
-      final ISDADateCurve yieldCurve,
-      final HazardRateCurve hazardRateCurve,
-      final ZonedDateTime[] marketTenors,
-      final double[] marketSpreads,
-      final double recoveryRateBump,
-      final RecoveryRateBumpType recoveryRateBumpType) {
+  public double getRecoveryRate01CreditDefaultSwapOption(final ZonedDateTime valuationDate, final CreditDefaultSwapOptionDefinition cdsSwaption, final double sigma, final ISDADateCurve yieldCurve,
+      final HazardRateCurve hazardRateCurve, final ZonedDateTime[] marketTenors, final double[] marketSpreads, final double recoveryRateBump, final RecoveryRateBumpType recoveryRateBumpType) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 

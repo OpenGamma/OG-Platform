@@ -10,7 +10,9 @@ import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
 
 /**
  * 
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class ISDAYieldCurveAndHazardRateCurveProvider {
   private final ISDADateCurve _yieldCurve;
   private final HazardRateCurve _hazardRateCurve;
@@ -65,6 +67,5 @@ public class ISDAYieldCurveAndHazardRateCurveProvider {
     }
     return true;
   }
-
 
 }

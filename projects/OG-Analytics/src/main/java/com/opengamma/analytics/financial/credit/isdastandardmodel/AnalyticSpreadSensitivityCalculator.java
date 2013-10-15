@@ -27,10 +27,10 @@ public class AnalyticSpreadSensitivityCalculator {
     _pricer = new AnalyticCDSPricer();
   }
 
-  public AnalyticSpreadSensitivityCalculator(final boolean useCorrectAccOnDefaultFormula) {
-    _pufConverter = new MarketQuoteConverter(useCorrectAccOnDefaultFormula);
-    _curveBuilder = new FastCreditCurveBuilder(useCorrectAccOnDefaultFormula);
-    _pricer = new AnalyticCDSPricer(useCorrectAccOnDefaultFormula);
+  public AnalyticSpreadSensitivityCalculator(final AccrualOnDefaultFormulae formula) {
+    _pufConverter = new MarketQuoteConverter(formula);
+    _curveBuilder = new FastCreditCurveBuilder(formula);
+    _pricer = new AnalyticCDSPricer(formula);
   }
 
   //***************************************************************************************************************
@@ -109,6 +109,10 @@ public class AnalyticSpreadSensitivityCalculator {
     return sum;
   }
 
+  //***************************************************************************************************************
+  // bucketed CS01 of a CDS from single market quote of that CDS
+  //***************************************************************************************************************
+
   public double[] bucketedCS01FromSpread(final CDSAnalytic cds, final double coupon, final ISDACompliantYieldCurve yieldCurve, final double marketSpread, final CDSAnalytic[] buckets) {
     final ISDACompliantCreditCurve cc = _curveBuilder.calibrateCreditCurve(cds, marketSpread, yieldCurve);
     return bucketedCS01FromCreditCurve(cds, coupon, buckets, yieldCurve, cc);
@@ -122,6 +126,11 @@ public class AnalyticSpreadSensitivityCalculator {
   public double[][] bucketedCS01(final CDSAnalytic[] cds, final double[] cdsCoupons, final CDSAnalytic[] PillarCDSs, final CDSQuoteConvention[] marketQuotes, final ISDACompliantYieldCurve yieldCurve) {
     final ISDACompliantCreditCurve creditCurve = _curveBuilder.calibrateCreditCurve(PillarCDSs, marketQuotes, yieldCurve);
     return bucketedCS01FromCreditCurve(cds, cdsCoupons, PillarCDSs, yieldCurve, creditCurve);
+  }
+
+  public double[] bucketedCS01FromParSpreads(final CDSAnalytic cds, final double cdsCoupon, final ISDACompliantYieldCurve yieldCurve, final CDSAnalytic[] pillarCDSs, final double[] spreads) {
+    final ISDACompliantCreditCurve creditCurve = _curveBuilder.calibrateCreditCurve(pillarCDSs, spreads, yieldCurve);
+    return bucketedCS01FromCreditCurve(cds, cdsCoupon, pillarCDSs, yieldCurve, creditCurve);
   }
 
   public double[] bucketedCS01FromCreditCurve(final CDSAnalytic cds, final double cdsCoupon, final CDSAnalytic[] bucketCDSs, final ISDACompliantYieldCurve yieldCurve,

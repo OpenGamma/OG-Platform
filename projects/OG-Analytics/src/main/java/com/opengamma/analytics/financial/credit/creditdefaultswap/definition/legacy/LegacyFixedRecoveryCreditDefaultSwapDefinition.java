@@ -23,7 +23,9 @@ import com.opengamma.util.money.Currency;
 
 /**
  * Definition of a Legacy fixed recovery CDS i.e. with the features of CDS contracts prior to the Big Bang in 2009 - WIP
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class LegacyFixedRecoveryCreditDefaultSwapDefinition extends LegacyCreditDefaultSwapDefinition {
 
   //----------------------------------------------------------------------------------------------------------------------------------------
@@ -39,59 +41,19 @@ public class LegacyFixedRecoveryCreditDefaultSwapDefinition extends LegacyCredit
 
   // Ctor for the Legacy fixed recovery CDS
 
-  public LegacyFixedRecoveryCreditDefaultSwapDefinition(
-      final BuySellProtection buySellProtection,
-      final Obligor protectionBuyer,
-      final Obligor protectionSeller,
-      final Obligor referenceEntity,
-      final Currency currency,
-      final DebtSeniority debtSeniority,
-      final RestructuringClause restructuringClause,
-      final Calendar calendar,
-      final ZonedDateTime startDate,
-      final ZonedDateTime effectiveDate,
-      final ZonedDateTime maturityDate,
-      final StubType stubType,
-      final PeriodFrequency couponFrequency,
-      final DayCount daycountFractionConvention,
-      final BusinessDayConvention businessdayAdjustmentConvention,
-      final boolean immAdjustMaturityDate,
-      final boolean adjustEffectiveDate,
-      final boolean adjustMaturityDate,
-      final double notional,
-      final double recoveryRate,
-      final boolean includeAccruedPremium,
-      final boolean protectionStart,
-      final double parSpread,
-      final double fixedRecoveryRate) {
+  public LegacyFixedRecoveryCreditDefaultSwapDefinition(final BuySellProtection buySellProtection, final Obligor protectionBuyer, final Obligor protectionSeller, final Obligor referenceEntity,
+      final Currency currency, final DebtSeniority debtSeniority, final RestructuringClause restructuringClause, final Calendar calendar, final ZonedDateTime startDate,
+      final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final StubType stubType, final PeriodFrequency couponFrequency, final DayCount daycountFractionConvention,
+      final BusinessDayConvention businessdayAdjustmentConvention, final boolean immAdjustMaturityDate, final boolean adjustEffectiveDate, final boolean adjustMaturityDate, final double notional,
+      final double recoveryRate, final boolean includeAccruedPremium, final boolean protectionStart, final double parSpread, final double fixedRecoveryRate) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
     // Call the ctor for the LegacyCreditDefaultSwapDefinition superclass (corresponding to the CDS characteristics common to all types of CDS)
 
-    super(buySellProtection,
-        protectionBuyer,
-        protectionSeller,
-        referenceEntity,
-        currency,
-        debtSeniority,
-        restructuringClause,
-        calendar,
-        startDate,
-        effectiveDate,
-        maturityDate,
-        stubType,
-        couponFrequency,
-        daycountFractionConvention,
-        businessdayAdjustmentConvention,
-        immAdjustMaturityDate,
-        adjustEffectiveDate,
-        adjustMaturityDate,
-        notional,
-        recoveryRate,
-        includeAccruedPremium,
-        protectionStart,
-        parSpread);
+    super(buySellProtection, protectionBuyer, protectionSeller, referenceEntity, currency, debtSeniority, restructuringClause, calendar, startDate, effectiveDate, maturityDate, stubType,
+        couponFrequency, daycountFractionConvention, businessdayAdjustmentConvention, immAdjustMaturityDate, adjustEffectiveDate, adjustMaturityDate, notional, recoveryRate, includeAccruedPremium,
+        protectionStart, parSpread);
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -113,170 +75,50 @@ public class LegacyFixedRecoveryCreditDefaultSwapDefinition extends LegacyCredit
 
   @Override
   public LegacyFixedRecoveryCreditDefaultSwapDefinition withStartDate(final ZonedDateTime startDate) {
-    return new LegacyFixedRecoveryCreditDefaultSwapDefinition(getBuySellProtection(),
-        getProtectionBuyer(),
-        getProtectionSeller(),
-        getReferenceEntity(),
-        getCurrency(),
-        getDebtSeniority(),
-        getRestructuringClause(),
-        getCalendar(),
-        startDate,
-        getEffectiveDate(),
-        getMaturityDate(),
-        getStubType(),
-        getCouponFrequency(),
-        getDayCountFractionConvention(),
-        getBusinessDayAdjustmentConvention(),
-        getIMMAdjustMaturityDate(),
-        getAdjustEffectiveDate(),
-        getAdjustMaturityDate(),
-        getNotional(),
-        getRecoveryRate(),
-        getIncludeAccruedPremium(),
-        getProtectionStart(),
-        getParSpread(),
-        getFixedRecoveryRate());
+    return new LegacyFixedRecoveryCreditDefaultSwapDefinition(getBuySellProtection(), getProtectionBuyer(), getProtectionSeller(), getReferenceEntity(), getCurrency(), getDebtSeniority(),
+        getRestructuringClause(), getCalendar(), startDate, getEffectiveDate(), getMaturityDate(), getStubType(), getCouponFrequency(), getDayCountFractionConvention(),
+        getBusinessDayAdjustmentConvention(), getIMMAdjustMaturityDate(), getAdjustEffectiveDate(), getAdjustMaturityDate(), getNotional(), getRecoveryRate(), getIncludeAccruedPremium(),
+        getProtectionStart(), getParSpread(), getFixedRecoveryRate());
   }
 
   @Override
   public LegacyFixedRecoveryCreditDefaultSwapDefinition withEffectiveDate(final ZonedDateTime effectiveDate) {
-    return new LegacyFixedRecoveryCreditDefaultSwapDefinition(getBuySellProtection(),
-        getProtectionBuyer(),
-        getProtectionSeller(),
-        getReferenceEntity(),
-        getCurrency(),
-        getDebtSeniority(),
-        getRestructuringClause(),
-        getCalendar(),
-        getStartDate(),
-        effectiveDate,
-        getMaturityDate(),
-        getStubType(),
-        getCouponFrequency(),
-        getDayCountFractionConvention(),
-        getBusinessDayAdjustmentConvention(),
-        getIMMAdjustMaturityDate(),
-        getAdjustEffectiveDate(),
-        getAdjustMaturityDate(),
-        getNotional(),
-        getRecoveryRate(),
-        getIncludeAccruedPremium(),
-        getProtectionStart(),
-        getParSpread(),
-        getFixedRecoveryRate());
+    return new LegacyFixedRecoveryCreditDefaultSwapDefinition(getBuySellProtection(), getProtectionBuyer(), getProtectionSeller(), getReferenceEntity(), getCurrency(), getDebtSeniority(),
+        getRestructuringClause(), getCalendar(), getStartDate(), effectiveDate, getMaturityDate(), getStubType(), getCouponFrequency(), getDayCountFractionConvention(),
+        getBusinessDayAdjustmentConvention(), getIMMAdjustMaturityDate(), getAdjustEffectiveDate(), getAdjustMaturityDate(), getNotional(), getRecoveryRate(), getIncludeAccruedPremium(),
+        getProtectionStart(), getParSpread(), getFixedRecoveryRate());
   }
 
   @Override
   public LegacyFixedRecoveryCreditDefaultSwapDefinition withSpread(final double parSpread) {
-    return new LegacyFixedRecoveryCreditDefaultSwapDefinition(getBuySellProtection(),
-        getProtectionBuyer(),
-        getProtectionSeller(),
-        getReferenceEntity(),
-        getCurrency(),
-        getDebtSeniority(),
-        getRestructuringClause(),
-        getCalendar(),
-        getStartDate(),
-        getEffectiveDate(),
-        getMaturityDate(),
-        getStubType(),
-        getCouponFrequency(),
-        getDayCountFractionConvention(),
-        getBusinessDayAdjustmentConvention(),
-        getIMMAdjustMaturityDate(),
-        getAdjustEffectiveDate(),
-        getAdjustMaturityDate(),
-        getNotional(),
-        getRecoveryRate(),
-        getIncludeAccruedPremium(),
-        getProtectionStart(),
-        parSpread,
-        getFixedRecoveryRate());
+    return new LegacyFixedRecoveryCreditDefaultSwapDefinition(getBuySellProtection(), getProtectionBuyer(), getProtectionSeller(), getReferenceEntity(), getCurrency(), getDebtSeniority(),
+        getRestructuringClause(), getCalendar(), getStartDate(), getEffectiveDate(), getMaturityDate(), getStubType(), getCouponFrequency(), getDayCountFractionConvention(),
+        getBusinessDayAdjustmentConvention(), getIMMAdjustMaturityDate(), getAdjustEffectiveDate(), getAdjustMaturityDate(), getNotional(), getRecoveryRate(), getIncludeAccruedPremium(),
+        getProtectionStart(), parSpread, getFixedRecoveryRate());
   }
 
   @Override
   public LegacyFixedRecoveryCreditDefaultSwapDefinition withCouponFrequency(final PeriodFrequency couponFrequency) {
-    return new LegacyFixedRecoveryCreditDefaultSwapDefinition(getBuySellProtection(),
-        getProtectionBuyer(),
-        getProtectionSeller(),
-        getReferenceEntity(),
-        getCurrency(),
-        getDebtSeniority(),
-        getRestructuringClause(),
-        getCalendar(),
-        getStartDate(),
-        getEffectiveDate(),
-        getMaturityDate(),
-        getStubType(),
-        couponFrequency,
-        getDayCountFractionConvention(),
-        getBusinessDayAdjustmentConvention(),
-        getIMMAdjustMaturityDate(),
-        getAdjustEffectiveDate(),
-        getAdjustMaturityDate(),
-        getNotional(),
-        getRecoveryRate(),
-        getIncludeAccruedPremium(),
-        getProtectionStart(),
-        getParSpread(),
-        getFixedRecoveryRate());
+    return new LegacyFixedRecoveryCreditDefaultSwapDefinition(getBuySellProtection(), getProtectionBuyer(), getProtectionSeller(), getReferenceEntity(), getCurrency(), getDebtSeniority(),
+        getRestructuringClause(), getCalendar(), getStartDate(), getEffectiveDate(), getMaturityDate(), getStubType(), couponFrequency, getDayCountFractionConvention(),
+        getBusinessDayAdjustmentConvention(), getIMMAdjustMaturityDate(), getAdjustEffectiveDate(), getAdjustMaturityDate(), getNotional(), getRecoveryRate(), getIncludeAccruedPremium(),
+        getProtectionStart(), getParSpread(), getFixedRecoveryRate());
   }
 
   @Override
   public CreditDefaultSwapDefinition withMaturityDate(final ZonedDateTime maturityDate) {
-    return new LegacyFixedRecoveryCreditDefaultSwapDefinition(getBuySellProtection(),
-        getProtectionBuyer(),
-        getProtectionSeller(),
-        getReferenceEntity(),
-        getCurrency(),
-        getDebtSeniority(),
-        getRestructuringClause(),
-        getCalendar(),
-        getStartDate(),
-        getEffectiveDate(),
-        maturityDate,
-        getStubType(),
-        getCouponFrequency(),
-        getDayCountFractionConvention(),
-        getBusinessDayAdjustmentConvention(),
-        getIMMAdjustMaturityDate(),
-        getAdjustEffectiveDate(),
-        getAdjustMaturityDate(),
-        getNotional(),
-        getRecoveryRate(),
-        getIncludeAccruedPremium(),
-        getProtectionStart(),
-        getParSpread(),
-        getFixedRecoveryRate());
+    return new LegacyFixedRecoveryCreditDefaultSwapDefinition(getBuySellProtection(), getProtectionBuyer(), getProtectionSeller(), getReferenceEntity(), getCurrency(), getDebtSeniority(),
+        getRestructuringClause(), getCalendar(), getStartDate(), getEffectiveDate(), maturityDate, getStubType(), getCouponFrequency(), getDayCountFractionConvention(),
+        getBusinessDayAdjustmentConvention(), getIMMAdjustMaturityDate(), getAdjustEffectiveDate(), getAdjustMaturityDate(), getNotional(), getRecoveryRate(), getIncludeAccruedPremium(),
+        getProtectionStart(), getParSpread(), getFixedRecoveryRate());
   }
 
   @Override
   public CreditDefaultSwapDefinition withRecoveryRate(final double recoveryRate) {
-    return new LegacyFixedRecoveryCreditDefaultSwapDefinition(getBuySellProtection(),
-        getProtectionBuyer(),
-        getProtectionSeller(),
-        getReferenceEntity(),
-        getCurrency(),
-        getDebtSeniority(),
-        getRestructuringClause(),
-        getCalendar(),
-        getStartDate(),
-        getEffectiveDate(),
-        getMaturityDate(),
-        getStubType(),
-        getCouponFrequency(),
-        getDayCountFractionConvention(),
-        getBusinessDayAdjustmentConvention(),
-        getIMMAdjustMaturityDate(),
-        getAdjustEffectiveDate(),
-        getAdjustMaturityDate(),
-        getNotional(),
-        recoveryRate,
-        getIncludeAccruedPremium(),
-        getProtectionStart(),
-        getParSpread(),
-        getFixedRecoveryRate());
+    return new LegacyFixedRecoveryCreditDefaultSwapDefinition(getBuySellProtection(), getProtectionBuyer(), getProtectionSeller(), getReferenceEntity(), getCurrency(), getDebtSeniority(),
+        getRestructuringClause(), getCalendar(), getStartDate(), getEffectiveDate(), getMaturityDate(), getStubType(), getCouponFrequency(), getDayCountFractionConvention(),
+        getBusinessDayAdjustmentConvention(), getIMMAdjustMaturityDate(), getAdjustEffectiveDate(), getAdjustMaturityDate(), getNotional(), recoveryRate, getIncludeAccruedPremium(),
+        getProtectionStart(), getParSpread(), getFixedRecoveryRate());
   }
 
   @Override

@@ -19,7 +19,9 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  *  Class containing methods for the valuation of a vanilla Legacy CDS (this valuation methodology is common to most legacy CDS's)
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class PresentValueLegacyCreditDefaultSwap {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -37,12 +39,8 @@ public class PresentValueLegacyCreditDefaultSwap {
 
   // Public method for computing the PV of a CDS based on an input CDS contract (with a hazard rate curve calibrated to market observed data)
 
-  public double getPresentValueLegacyCreditDefaultSwap(
-      final ZonedDateTime valuationDate,
-      final LegacyCreditDefaultSwapDefinition cds,
-      final ISDADateCurve yieldCurve,
-      final HazardRateCurve hazardRateCurve,
-      final PriceType priceType) {
+  public double getPresentValueLegacyCreditDefaultSwap(final ZonedDateTime valuationDate, final LegacyCreditDefaultSwapDefinition cds, final ISDADateCurve yieldCurve,
+      final HazardRateCurve hazardRateCurve, final PriceType priceType) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -82,12 +80,8 @@ public class PresentValueLegacyCreditDefaultSwap {
 
   // Public method to calculate the par spread of a CDS at contract inception (with a hazard rate curve calibrated to market observed data)
 
-  public double getParSpreadLegacyCreditDefaultSwap(
-      final ZonedDateTime valuationDate,
-      final LegacyCreditDefaultSwapDefinition cds,
-      final ISDADateCurve yieldCurve,
-      final HazardRateCurve hazardRateCurve,
-      final PriceType priceType) {
+  public double getParSpreadLegacyCreditDefaultSwap(final ZonedDateTime valuationDate, final LegacyCreditDefaultSwapDefinition cds, final ISDADateCurve yieldCurve,
+      final HazardRateCurve hazardRateCurve, final PriceType priceType) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 

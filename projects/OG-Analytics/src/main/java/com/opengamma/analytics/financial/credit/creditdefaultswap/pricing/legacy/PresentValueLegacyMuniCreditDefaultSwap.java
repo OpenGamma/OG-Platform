@@ -15,7 +15,9 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * Class containing methods for the valuation of a Legacy Muni CDS
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class PresentValueLegacyMuniCreditDefaultSwap {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -33,12 +35,8 @@ public class PresentValueLegacyMuniCreditDefaultSwap {
 
   // Public method for computing the PV of a CDS based on an input CDS contract (with a hazard rate curve calibrated to market observed data)
 
-  public double getPresentValueLegacyMuniCreditDefaultSwap(
-      final ZonedDateTime valuationDate,
-      final LegacyMuniCreditDefaultSwapDefinition muniCDS,
-      final ISDADateCurve yieldCurve,
-      final HazardRateCurve muniHazardRateCurve,
-      final PriceType priceType) {
+  public double getPresentValueLegacyMuniCreditDefaultSwap(final ZonedDateTime valuationDate, final LegacyMuniCreditDefaultSwapDefinition muniCDS, final ISDADateCurve yieldCurve,
+      final HazardRateCurve muniHazardRateCurve, final PriceType priceType) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -64,12 +62,8 @@ public class PresentValueLegacyMuniCreditDefaultSwap {
 
   // Public method to calculate the par spread of a CDS at contract inception (with a hazard rate curve calibrated to market observed data)
 
-  public double getParSpreadLegacyMuniCreditDefaultSwap(
-      final ZonedDateTime valuationDate,
-      final LegacyMuniCreditDefaultSwapDefinition muniCDS,
-      final ISDADateCurve yieldCurve,
-      final HazardRateCurve muniHazardRateCurve,
-      final PriceType priceType) {
+  public double getParSpreadLegacyMuniCreditDefaultSwap(final ZonedDateTime valuationDate, final LegacyMuniCreditDefaultSwapDefinition muniCDS, final ISDADateCurve yieldCurve,
+      final HazardRateCurve muniHazardRateCurve, final PriceType priceType) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
 
