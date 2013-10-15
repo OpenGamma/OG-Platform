@@ -64,8 +64,7 @@ public class CurveDefinitionFunction extends AbstractFunction {
     final ZonedDateTime atZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     final CurveDefinitionSource curveDefinitionSource = new ConfigDBCurveDefinitionSource(configSource);
-    final Instant versionTime = atZDT.plus(1, ChronoUnit.HOURS).truncatedTo(ChronoUnit.HOURS).toInstant();
-    final CurveDefinition curveDefinition = curveDefinitionSource.getCurveDefinition(_curveName, VersionCorrection.of(versionTime, versionTime));
+    final CurveDefinition curveDefinition = curveDefinitionSource.getCurveDefinition(_curveName, VersionCorrection.LATEST);
     if (curveDefinition == null) {
       throw new OpenGammaRuntimeException("Could not get curve definition called " + _curveName);
     }
