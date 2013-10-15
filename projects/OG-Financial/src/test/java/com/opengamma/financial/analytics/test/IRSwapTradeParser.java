@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.coventgarden;
+package com.opengamma.financial.analytics.test;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.coventgarden;
+package com.opengamma.financial.analytics.test;
 
 import org.fudgemsg.FudgeMsg;
 import org.joda.beans.BeanDefinition;
