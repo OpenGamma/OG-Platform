@@ -16,8 +16,8 @@ import com.opengamma.financial.analytics.ircurve.strips.IMMSwapNode;
 import com.opengamma.financial.convention.Convention;
 import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.convention.IMMSwapConvention;
-import com.opengamma.financial.convention.RollDateAdjuster;
-import com.opengamma.financial.convention.RollDateAdjusterFactory;
+import com.opengamma.financial.convention.rolldate.RollDateAdjuster;
+import com.opengamma.financial.convention.rolldate.RollDateAdjusterFactory;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 
