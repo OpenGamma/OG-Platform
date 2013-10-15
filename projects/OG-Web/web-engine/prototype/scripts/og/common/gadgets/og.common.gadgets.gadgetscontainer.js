@@ -18,28 +18,35 @@ $.register_module({
             var draggable = function ($elm) {
                 window.elm = $elm;
                 $elm.each(function (i) {
-                    $(this).draggable({
-                        cursor: 'move', zIndex: 5, cursorAt: {top: 25, left: 25}, scroll: false,
-                        iframeFix: true, appendTo: 'body', distance: 20,
-                        revert: new_window.partial(i),
-                        start: function () {og.analytics.grid.cellmenu.setdrag(true);},
-                        stop: function () {$(this).draggable('option', 'revert', new_window.partial(i));},
-                        helper: function () {return dropbox_template({label: $(this).text().trim()});}
-
+                    $(this).draggable({cursor: 'move', zIndex: 5, cursorAt: {top: 25, left: 25}, scroll: false,
+                        iframeFix: true, appendTo: 'body', distance: 20, revert: new_window.partial(i),
+                        start: function () {
+                            if (og.analytics.grid) {
+                                og.analytics.grid.cellmenu.setdrag(true);
+                            }
+                        },
+                        stop: function () {
+                            $(this).draggable('option', 'revert', new_window.partial(i));
+                        },
+                        helper: function () {
+                            return dropbox_template({label: $(this).text().trim()});
+                        }
                     }).data({
-                        gadget: function () {return gadgets[i];},
-                        handler: function () {container.del(gadgets[i]);},
+                        gadget: function () {return gadgets[i]; },
+                        handler: function () {container.del(gadgets[i]); },
                         source: pane
                     });
                 });
             };
-            var extract_id = function (str) {return +str.replace(/^og\-tab\-(\d+)\s(?:.*)$/, '$1');};
+            var extract_id = function (str) {return +str.replace(/^og\-tab\-(\d+)\s(?:.*)$/, '$1'); };
             var extract_index = function (id) {
-                return gadgets.reduce(function (acc, val, idx) {return acc + (val.id === id ? idx : 0);}, 0);
+                return gadgets.reduce(function (acc, val, idx) {return acc + (val.id === id ? idx : 0); }, 0);
             };
             var inplace_header = function (id) {
 
-                if (!gadgets[0]) return;
+                if (!gadgets[0]) {
+                    return;
+                }
                 var $header = $(header), val = gadgets[0], config = val.config,
                     depgraph = config.options.source.depgraph,
                     tmpl_data = mapping.available_types(config.data_type, depgraph, config.gadget_type),

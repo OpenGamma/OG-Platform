@@ -99,7 +99,9 @@ $.register_module({
         constructor.prototype.destroy_frozen = function () {
             $('.OG-cell-options.og-frozen').remove();
             $('.og-inplace-resizer').remove();
-            og.analytics.grid.highlight(0, 0, "");
+            if (og.analytics.grid) {
+                og.analytics.grid.highlight(0, 0, "");
+            }
             og.common.gadgets.manager.clean();
         };
         constructor.prototype.create_inplace = function (selector, grid) {
