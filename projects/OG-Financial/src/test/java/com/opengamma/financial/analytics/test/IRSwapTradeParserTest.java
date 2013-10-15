@@ -25,7 +25,7 @@ public class IRSwapTradeParserTest {
   
   public void test() throws Exception {
     IRSwapTradeParser tradeParser = new IRSwapTradeParser();
-    Resource resource = ResourceUtils.createResource("classpath:com/opengamma/financial/analytics/Trades03Oct.csv"); 
+    Resource resource = ResourceUtils.createResource("classpath:com/opengamma/financial/analytics/test/Trades03Oct.csv"); 
     List<IRSwapSecurity> trades = tradeParser.parseCSVFile(resource.getURL());
     s_logger.info("Got {} trades", trades.size());
   }

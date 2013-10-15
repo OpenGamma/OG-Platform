@@ -122,11 +122,11 @@ public class IRSwapTradeParser {
   }
 
   private static Properties getBusinessDayConventionMapping() {
-    return loadPropertiesFromClassPath("classpath:com/opengamma/financial/analytics/coventgarden/businessDayConventionMapping.properties");
+    return loadPropertiesFromClassPath("classpath:com/opengamma/financial/analytics/test/businessDayConventionMapping.properties");
   }
 
   private static Properties getDayCountMapping() {
-    return loadPropertiesFromClassPath("classpath:com/opengamma/financial/analytics/coventgarden/dayCountMapping.properties");
+    return loadPropertiesFromClassPath("classpath:com/opengamma/financial/analytics/test/dayCountMapping.properties");
   }
 
   private static Properties loadPropertiesFromClassPath(String resourceLocation) {
