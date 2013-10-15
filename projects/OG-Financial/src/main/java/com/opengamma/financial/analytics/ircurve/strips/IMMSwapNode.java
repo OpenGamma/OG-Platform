@@ -405,12 +405,12 @@ public class IMMSwapNode extends CurveNode {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("startTenor").append('=').append(getStartTenor()).append(',').append(' ');
-    buf.append("indexTenor").append('=').append(getIndexTenor()).append(',').append(' ');
-    buf.append("immDateStartNumber").append('=').append(getImmDateStartNumber()).append(',').append(' ');
-    buf.append("immDateEndNumber").append('=').append(getImmDateEndNumber()).append(',').append(' ');
-    buf.append("swapConvention").append('=').append(getSwapConvention()).append(',').append(' ');
-    buf.append("useFixings").append('=').append(isUseFixings()).append(',').append(' ');
+    buf.append("startTenor").append('=').append(JodaBeanUtils.toString(getStartTenor())).append(',').append(' ');
+    buf.append("indexTenor").append('=').append(JodaBeanUtils.toString(getIndexTenor())).append(',').append(' ');
+    buf.append("immDateStartNumber").append('=').append(JodaBeanUtils.toString(getImmDateStartNumber())).append(',').append(' ');
+    buf.append("immDateEndNumber").append('=').append(JodaBeanUtils.toString(getImmDateEndNumber())).append(',').append(' ');
+    buf.append("swapConvention").append('=').append(JodaBeanUtils.toString(getSwapConvention())).append(',').append(' ');
+    buf.append("useFixings").append('=').append(JodaBeanUtils.toString(isUseFixings())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

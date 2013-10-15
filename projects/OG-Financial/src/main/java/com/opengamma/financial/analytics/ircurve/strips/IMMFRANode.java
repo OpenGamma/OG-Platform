@@ -318,11 +318,11 @@ public class IMMFRANode extends CurveNode {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("startTenor").append('=').append(getStartTenor()).append(',').append(' ');
-    buf.append("indexTenor").append('=').append(getIndexTenor()).append(',').append(' ');
-    buf.append("startIMMDateNumber").append('=').append(getStartIMMDateNumber()).append(',').append(' ');
-    buf.append("endIMMDateNumber").append('=').append(getEndIMMDateNumber()).append(',').append(' ');
-    buf.append("immFRAConvention").append('=').append(getImmFRAConvention()).append(',').append(' ');
+    buf.append("startTenor").append('=').append(JodaBeanUtils.toString(getStartTenor())).append(',').append(' ');
+    buf.append("indexTenor").append('=').append(JodaBeanUtils.toString(getIndexTenor())).append(',').append(' ');
+    buf.append("startIMMDateNumber").append('=').append(JodaBeanUtils.toString(getStartIMMDateNumber())).append(',').append(' ');
+    buf.append("endIMMDateNumber").append('=').append(JodaBeanUtils.toString(getEndIMMDateNumber())).append(',').append(' ');
+    buf.append("immFRAConvention").append('=').append(JodaBeanUtils.toString(getImmFRAConvention())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
