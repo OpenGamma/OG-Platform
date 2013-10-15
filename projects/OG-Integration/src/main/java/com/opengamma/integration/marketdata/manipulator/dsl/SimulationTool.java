@@ -235,7 +235,7 @@ public class SimulationTool extends AbstractTool<ToolContext> {
       throw new IllegalArgumentException(specStr + " doesn't match 'snapshot:snapshot ID'");
     }
     String id = specStr.substring(1).trim();
-    return new UserMarketDataSpecification(UniqueId.parse(id));
+    return UserMarketDataSpecification.of(UniqueId.parse(id));
   }
 
   private static MarketDataSpecification createLiveSpec(String specStr) {
@@ -246,7 +246,7 @@ public class SimulationTool extends AbstractTool<ToolContext> {
     if (sourceName.isEmpty()) {
       throw new IllegalArgumentException(specStr + " doesn't match 'live:source name'");
     }
-    return new LiveMarketDataSpecification(sourceName);
+    return LiveMarketDataSpecification.of(sourceName);
   }
 
   private static String removePrefix(String specStr, String prefix) {

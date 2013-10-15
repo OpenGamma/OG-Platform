@@ -135,7 +135,7 @@ public final class Triple<A, B, C> implements ImmutableBean, Comparable<Triple<A
    * @return the first and second elements, not null
    */
   public Pair<A, B> toFirstPair() {
-    return Pair.of(getFirst(), getSecond());
+    return Pairs.ofOptimized(getFirst(), getSecond());
   }
 
   /**
@@ -144,7 +144,7 @@ public final class Triple<A, B, C> implements ImmutableBean, Comparable<Triple<A
    * @return the second and third elements, not null
    */
   public Pair<B, C> toSecondPair() {
-    return Pair.of(getSecond(), getThird());
+    return Pairs.ofOptimized(getSecond(), getThird());
   }
 
   //-------------------------------------------------------------------------

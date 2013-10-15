@@ -176,7 +176,7 @@ public class FudgeListWrapper<T> extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("list").append('=').append(getList()).append(',').append(' ');
+    buf.append("list").append('=').append(JodaBeanUtils.toString(getList())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

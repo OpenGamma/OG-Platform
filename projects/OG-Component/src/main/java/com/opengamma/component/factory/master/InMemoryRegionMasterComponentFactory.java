@@ -293,11 +293,11 @@ public class InMemoryRegionMasterComponentFactory extends AbstractComponentFacto
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("classifier").append('=').append(getClassifier()).append(',').append(' ');
-    buf.append("publishRest").append('=').append(isPublishRest()).append(',').append(' ');
-    buf.append("jmsConnector").append('=').append(getJmsConnector()).append(',').append(' ');
-    buf.append("jmsChangeManagerTopic").append('=').append(getJmsChangeManagerTopic()).append(',').append(' ');
-    buf.append("uniqueIdScheme").append('=').append(getUniqueIdScheme()).append(',').append(' ');
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("publishRest").append('=').append(JodaBeanUtils.toString(isPublishRest())).append(',').append(' ');
+    buf.append("jmsConnector").append('=').append(JodaBeanUtils.toString(getJmsConnector())).append(',').append(' ');
+    buf.append("jmsChangeManagerTopic").append('=').append(JodaBeanUtils.toString(getJmsChangeManagerTopic())).append(',').append(' ');
+    buf.append("uniqueIdScheme").append('=').append(JodaBeanUtils.toString(getUniqueIdScheme())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

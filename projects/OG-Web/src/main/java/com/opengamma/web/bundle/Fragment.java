@@ -197,8 +197,8 @@ public class Fragment extends DirectBean implements BundleNode {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("uri").append('=').append(getUri()).append(',').append(' ');
-    buf.append("path").append('=').append(getPath()).append(',').append(' ');
+    buf.append("uri").append('=').append(JodaBeanUtils.toString(getUri())).append(',').append(' ');
+    buf.append("path").append('=').append(JodaBeanUtils.toString(getPath())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

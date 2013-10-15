@@ -189,7 +189,7 @@ public final class BillSecurityDiscountingMethod {
     final double dfEndBar = bill.getNotional() * pvBar;
     final Map<String, List<DoublesPair>> resultMapCredit = new HashMap<>();
     final List<DoublesPair> listDiscounting = new ArrayList<>();
-    listDiscounting.add(new DoublesPair(bill.getEndTime(), -bill.getEndTime() * dfEnd * dfEndBar));
+    listDiscounting.add(DoublesPair.of(bill.getEndTime(), -bill.getEndTime() * dfEnd * dfEndBar));
     resultMapCredit.put(issuer.getName(bill.getIssuerCcy()), listDiscounting);
     final MulticurveSensitivity result = MulticurveSensitivity.ofYieldDiscounting(resultMapCredit);
     return MultipleCurrencyMulticurveSensitivity.of(bill.getCurrency(), result);

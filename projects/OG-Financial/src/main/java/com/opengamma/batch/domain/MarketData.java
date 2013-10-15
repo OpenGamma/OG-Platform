@@ -247,10 +247,10 @@ public class MarketData extends DirectBean implements ObjectIdentifiable {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("id").append('=').append(getId()).append(',').append(' ');
-    buf.append("baseUidScheme").append('=').append(getBaseUidScheme()).append(',').append(' ');
-    buf.append("baseUidValue").append('=').append(getBaseUidValue()).append(',').append(' ');
-    buf.append("baseUidVersion").append('=').append(getBaseUidVersion()).append(',').append(' ');
+    buf.append("id").append('=').append(JodaBeanUtils.toString(getId())).append(',').append(' ');
+    buf.append("baseUidScheme").append('=').append(JodaBeanUtils.toString(getBaseUidScheme())).append(',').append(' ');
+    buf.append("baseUidValue").append('=').append(JodaBeanUtils.toString(getBaseUidValue())).append(',').append(' ');
+    buf.append("baseUidVersion").append('=').append(JodaBeanUtils.toString(getBaseUidVersion())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

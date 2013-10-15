@@ -94,8 +94,8 @@ public final class InterestRateFutureSecurityHullWhiteMethod extends InterestRat
     final double dfForwardStartBar = 1.0 / (future.getFixingPeriodAccrualFactor() * dfForwardEnd) * forwardBar;
     final Map<String, List<DoublesPair>> resultMap = new HashMap<>();
     final List<DoublesPair> listForward = new ArrayList<>();
-    listForward.add(new DoublesPair(future.getFixingPeriodStartTime(), -future.getFixingPeriodStartTime() * dfForwardStart * dfForwardStartBar));
-    listForward.add(new DoublesPair(future.getFixingPeriodEndTime(), -future.getFixingPeriodEndTime() * dfForwardEnd * dfForwardEndBar));
+    listForward.add(DoublesPair.of(future.getFixingPeriodStartTime(), -future.getFixingPeriodStartTime() * dfForwardStart * dfForwardStartBar));
+    listForward.add(DoublesPair.of(future.getFixingPeriodEndTime(), -future.getFixingPeriodEndTime() * dfForwardEnd * dfForwardEndBar));
     resultMap.put(future.getForwardCurveName(), listForward);
     final InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultMap);
     return result;

@@ -73,8 +73,7 @@ public class PortfolioZipFormatExamplesGenerator extends AbstractTool<ToolContex
     PortfolioWriter portfolioWriter = constructPortfolioWriter(
         getCommandLine().getOptionValue(FILE_NAME_OPT),
         getCommandLine().hasOption(WRITE_OPT),
-        getCommandLine().hasOption(INCLUDE_TRADES_OPT)
-        );
+        getCommandLine().hasOption(INCLUDE_TRADES_OPT));
 
     // Construct portfolio copier
     PortfolioCopier portfolioCopier = new SimplePortfolioCopier();
@@ -165,8 +164,7 @@ public class PortfolioZipFormatExamplesGenerator extends AbstractTool<ToolContex
           try {
             underlying = getToolContext().getSecuritySource().getSingle(id.toBundle());
             if (underlying != null) {
-              return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(
-                  position,
+              return ObjectsPair.of(position,
                   new ManageableSecurity[] {(ManageableSecurity) security, (ManageableSecurity) underlying });
             } else {
               s_logger.warn("Could not resolve underlying " + id + " for security " + security.getName());
@@ -176,13 +174,12 @@ public class PortfolioZipFormatExamplesGenerator extends AbstractTool<ToolContex
             s_logger.warn("Error trying to resolve underlying " + id + " for security " + security.getName());
           }
         }
-        return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(
-            position,
+        return ObjectsPair.of(position,
             new ManageableSecurity[] {(ManageableSecurity) security });
 
       } else {
         s_logger.warn("Could not resolve security relating to position " + position.getName());
-        return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(null, null);
+        return ObjectsPair.of(null, null);
       }
     }
 

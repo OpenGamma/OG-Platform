@@ -28,6 +28,7 @@ import org.hibernate.mapping.Table;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.tuple.FirstThenSecondPairComparator;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Abstract implementation of database management.
@@ -374,7 +375,7 @@ public abstract class AbstractDbManagement implements DbManagement {
     if (sql != null) {
       final ResultSet rs = stmt.executeQuery(sql);
       while (rs.next()) {
-        sequences.add(Pair.of(rs.getString("name"), rs.getString("table_name")));
+        sequences.add(Pairs.of(rs.getString("name"), rs.getString("table_name")));
       }
       rs.close();
     }

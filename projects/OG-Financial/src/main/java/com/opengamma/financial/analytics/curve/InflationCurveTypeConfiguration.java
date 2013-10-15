@@ -173,8 +173,8 @@ public class InflationCurveTypeConfiguration extends CurveTypeConfiguration {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("reference").append('=').append(getReference()).append(',').append(' ');
-    buf.append("priceIndex").append('=').append(getPriceIndex()).append(',').append(' ');
+    buf.append("reference").append('=').append(JodaBeanUtils.toString(getReference())).append(',').append(' ');
+    buf.append("priceIndex").append('=').append(JodaBeanUtils.toString(getPriceIndex())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

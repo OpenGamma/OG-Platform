@@ -172,8 +172,8 @@ public class PointsCurveNodeWithIdentifier extends CurveNodeWithIdentifier {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("underlyingIdentifier").append('=').append(getUnderlyingIdentifier()).append(',').append(' ');
-    buf.append("underlyingDataField").append('=').append(getUnderlyingDataField()).append(',').append(' ');
+    buf.append("underlyingIdentifier").append('=').append(JodaBeanUtils.toString(getUnderlyingIdentifier())).append(',').append(' ');
+    buf.append("underlyingDataField").append('=').append(JodaBeanUtils.toString(getUnderlyingDataField())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

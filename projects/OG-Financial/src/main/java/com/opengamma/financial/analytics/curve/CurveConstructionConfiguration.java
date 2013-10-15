@@ -252,10 +252,10 @@ public class CurveConstructionConfiguration extends DirectBean implements Serial
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("uniqueId").append('=').append(getUniqueId()).append(',').append(' ');
-    buf.append("name").append('=').append(getName()).append(',').append(' ');
-    buf.append("curveGroups").append('=').append(getCurveGroups()).append(',').append(' ');
-    buf.append("exogenousConfigurations").append('=').append(getExogenousConfigurations()).append(',').append(' ');
+    buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(getUniqueId())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
+    buf.append("curveGroups").append('=').append(JodaBeanUtils.toString(getCurveGroups())).append(',').append(' ');
+    buf.append("exogenousConfigurations").append('=').append(JodaBeanUtils.toString(getExogenousConfigurations())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

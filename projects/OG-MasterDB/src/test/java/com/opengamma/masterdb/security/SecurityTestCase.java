@@ -139,7 +139,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.time.ExpiryAccuracy;
 import com.opengamma.util.time.Tenor;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Creates random securities.
@@ -431,8 +431,8 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
         values.add(GICSCode.of(Integer.toString(code)));
       }
     });
-    s_dataProviders.put(Pair.of(BondFutureSecurity.class, Collection.class), DefaultCollection.of(ArrayList.class, BondFutureDeliverable.class));
-    s_dataProviders.put(Pair.of(BondFutureSecurity.class, List.class), DefaultList.of(ArrayList.class, BondFutureDeliverable.class));
+    s_dataProviders.put(Pairs.of(BondFutureSecurity.class, Collection.class), DefaultCollection.of(ArrayList.class, BondFutureDeliverable.class));
+    s_dataProviders.put(Pairs.of(BondFutureSecurity.class, List.class), DefaultList.of(ArrayList.class, BondFutureDeliverable.class));
     s_dataProviders.put(ExerciseType.class, new TestDataProvider<ExerciseType>() {
       @Override
       public void getValues(final Collection<ExerciseType> values) {
@@ -566,9 +566,9 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
     } else {
       final Object key;
       if (Collection.class.equals(clazz)) {
-        key = Pair.of(parent, clazz);
+        key = Pairs.of(parent, clazz);
       } else if (List.class.equals(clazz)) {
-        key = Pair.of(parent, clazz);
+        key = Pairs.of(parent, clazz);
       } else {
         key = clazz;
       }

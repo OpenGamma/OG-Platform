@@ -299,8 +299,8 @@ public abstract class AbstractLink<T extends UniqueIdentifiable> extends DirectB
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("objectId").append('=').append(getObjectId()).append(',').append(' ');
-    buf.append("externalId").append('=').append(getExternalId()).append(',').append(' ');
+    buf.append("objectId").append('=').append(JodaBeanUtils.toString(getObjectId())).append(',').append(' ');
+    buf.append("externalId").append('=').append(JodaBeanUtils.toString(getExternalId())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

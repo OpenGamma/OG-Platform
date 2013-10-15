@@ -8,6 +8,7 @@ package com.opengamma.engine.function.blacklist;
 import java.util.Collection;
 
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Partial implementation of {@link FunctionBlacklistRuleListener}. A full set of rules is queried initially and whenever the modification count changes unexpectedly. The listener can only be
@@ -35,7 +36,7 @@ public abstract class AbstractFunctionBlacklistRuleListener extends BaseFunction
     if (mc == modificationCount) {
       return null;
     }
-    return Pair.of((Integer) mc, getBlacklist().getRules());
+    return Pairs.of((Integer) mc, getBlacklist().getRules());
   }
 
 }

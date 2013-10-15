@@ -317,10 +317,10 @@ public abstract class AbstractDocument extends DirectBean
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("versionFromInstant").append('=').append(getVersionFromInstant()).append(',').append(' ');
-    buf.append("versionToInstant").append('=').append(getVersionToInstant()).append(',').append(' ');
-    buf.append("correctionFromInstant").append('=').append(getCorrectionFromInstant()).append(',').append(' ');
-    buf.append("correctionToInstant").append('=').append(getCorrectionToInstant()).append(',').append(' ');
+    buf.append("versionFromInstant").append('=').append(JodaBeanUtils.toString(getVersionFromInstant())).append(',').append(' ');
+    buf.append("versionToInstant").append('=').append(JodaBeanUtils.toString(getVersionToInstant())).append(',').append(' ');
+    buf.append("correctionFromInstant").append('=').append(JodaBeanUtils.toString(getCorrectionFromInstant())).append(',').append(' ');
+    buf.append("correctionToInstant").append('=').append(JodaBeanUtils.toString(getCorrectionToInstant())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

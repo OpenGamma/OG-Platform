@@ -321,9 +321,9 @@ public class HistoricalTimeSeriesGetFilter extends DirectBean implements Seriali
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("earliestDate").append('=').append(getEarliestDate()).append(',').append(' ');
-    buf.append("latestDate").append('=').append(getLatestDate()).append(',').append(' ');
-    buf.append("maxPoints").append('=').append(getMaxPoints()).append(',').append(' ');
+    buf.append("earliestDate").append('=').append(JodaBeanUtils.toString(getEarliestDate())).append(',').append(' ');
+    buf.append("latestDate").append('=').append(JodaBeanUtils.toString(getLatestDate())).append(',').append(' ');
+    buf.append("maxPoints").append('=').append(JodaBeanUtils.toString(getMaxPoints())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

@@ -16,6 +16,7 @@ import com.opengamma.financial.analytics.cashflow.CashFlowFunctions;
 import com.opengamma.financial.analytics.covariance.CovarianceFunctions;
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveFunctions;
 import com.opengamma.financial.analytics.ircurve.IRCurveFunctions;
+import com.opengamma.financial.analytics.model.MarketQuotePositionFunction;
 import com.opengamma.financial.analytics.model.ModelFunctions;
 import com.opengamma.financial.analytics.model.riskfactor.option.OptionGreekToValueGreekConverterFunction;
 import com.opengamma.financial.analytics.timeseries.TimeSeriesFunctions;
@@ -186,7 +187,6 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
     addUnitScalingFunction(functions, ValueRequirementNames.MARKET_DIRTY_PRICE);
     addSummingFunction(functions, ValueRequirementNames.MTM_PNL);
     addUnitScalingFunction(functions, ValueRequirementNames.MTM_PNL);
-    addUnitScalingFunction(functions, ValueRequirementNames.MARKET_QUOTE);
     addUnitScalingFunction(functions, ValueRequirementNames.MARKET_YTM);
     addUnitScalingFunction(functions, ValueRequirementNames.MODIFIED_DURATION);
     addUnitScalingAndSummingFunction(functions, ValueRequirementNames.NET_BASIS);
@@ -293,6 +293,7 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
     addUnitScalingFunction(functions, ValueRequirementNames.POINTS_UPFRONT);
     addUnitScalingFunction(functions, ValueRequirementNames.UPFRONT_AMOUNT);
     addUnitScalingFunction(functions, ValueRequirementNames.QUOTED_SPREAD);
+    functions.add(functionConfiguration(MarketQuotePositionFunction.class));
   }
 
   protected FunctionConfigurationSource cashFlowFunctionConfiguration() {

@@ -99,7 +99,7 @@ public final class ForexForwardPointsMethod {
     // Backward sweep
     final double pvBar = 1.0;
     final double df2Bar = (amount2 + amount1 * (fxRate + fwdPts)) * pvBar;
-    final DoublesPair s = new DoublesPair(payTime, -payTime * df2 * df2Bar);
+    final DoublesPair s = DoublesPair.of(payTime, -payTime * df2 * df2Bar);
     final List<DoublesPair> list = new ArrayList<>();
     list.add(s);
     return MultipleCurrencyInterestRateCurveSensitivity.of(fx.getCurrency2(), InterestRateCurveSensitivity.of(fx.getPaymentCurrency2().getFundingCurveName(), list));

@@ -273,8 +273,8 @@ public class Tutorial1Security extends ManageableSecurity {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
-    buf.append("underlying").append('=').append(getUnderlying()).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("underlying").append('=').append(JodaBeanUtils.toString(getUnderlying())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

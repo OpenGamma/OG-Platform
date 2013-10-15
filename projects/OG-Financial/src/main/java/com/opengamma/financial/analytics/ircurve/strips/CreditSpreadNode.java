@@ -159,7 +159,7 @@ public class CreditSpreadNode extends CurveNode {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("tenor").append('=').append(getTenor()).append(',').append(' ');
+    buf.append("tenor").append('=').append(JodaBeanUtils.toString(getTenor())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

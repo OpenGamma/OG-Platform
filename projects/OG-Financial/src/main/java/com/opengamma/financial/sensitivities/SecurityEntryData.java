@@ -226,10 +226,10 @@ public class SecurityEntryData extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("id").append('=').append(getId()).append(',').append(' ');
-    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
-    buf.append("maturityDate").append('=').append(getMaturityDate()).append(',').append(' ');
-    buf.append("factorSetId").append('=').append(getFactorSetId()).append(',').append(' ');
+    buf.append("id").append('=').append(JodaBeanUtils.toString(getId())).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("maturityDate").append('=').append(JodaBeanUtils.toString(getMaturityDate())).append(',').append(' ');
+    buf.append("factorSetId").append('=').append(JodaBeanUtils.toString(getFactorSetId())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

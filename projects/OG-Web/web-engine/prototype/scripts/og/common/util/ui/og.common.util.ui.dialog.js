@@ -27,7 +27,7 @@ $.register_module({
                     jquery: {
                         resizable: true, 'min-height': 140, modal: true,
                         position: 'center', dialogClass: 'OG-shadow',
-                        width: '400', 'min-height': '200',
+                        width: '460', 'min-height': '200',
                         open: function () {
                             if (obj.type === 'input')
                                 // Set the focus in the first form element

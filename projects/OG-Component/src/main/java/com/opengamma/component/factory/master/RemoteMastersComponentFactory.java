@@ -241,9 +241,9 @@ public class RemoteMastersComponentFactory extends AbstractComponentFactory {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("baseUri").append('=').append(getBaseUri()).append(',').append(' ');
-    buf.append("publishRest").append('=').append(isPublishRest()).append(',').append(' ');
-    buf.append("jmsConnector").append('=').append(getJmsConnector()).append(',').append(' ');
+    buf.append("baseUri").append('=').append(JodaBeanUtils.toString(getBaseUri())).append(',').append(' ');
+    buf.append("publishRest").append('=').append(JodaBeanUtils.toString(isPublishRest())).append(',').append(' ');
+    buf.append("jmsConnector").append('=').append(JodaBeanUtils.toString(getJmsConnector())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

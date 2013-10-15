@@ -134,7 +134,7 @@ public class DbFunctionConfigurationSourceComponentFactory extends FunctionConfi
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("functionDefinitionName").append('=').append(getFunctionDefinitionName()).append(',').append(' ');
+    buf.append("functionDefinitionName").append('=').append(JodaBeanUtils.toString(getFunctionDefinitionName())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

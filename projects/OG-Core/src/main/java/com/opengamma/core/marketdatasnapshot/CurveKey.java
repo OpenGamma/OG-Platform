@@ -176,7 +176,7 @@ public final class CurveKey implements ImmutableBean, StructuredMarketDataKey, C
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append("CurveKey{");
-    buf.append("name").append('=').append(getName());
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName()));
     buf.append('}');
     return buf.toString();
   }
@@ -309,7 +309,7 @@ public final class CurveKey implements ImmutableBean, StructuredMarketDataKey, C
     //-----------------------------------------------------------------------
     /**
      * Sets the {@code name} property in the builder.
-     * @param name  the new value, not null
+     * @param name  the new value
      * @return this, for chaining, not null
      */
     public Builder name(String name) {

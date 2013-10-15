@@ -38,6 +38,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Utility to resolve security links in bulk.
@@ -104,7 +105,7 @@ public final class SecurityLinkResolver {
     for (SecurityLink link : securityLinks) {
       final Security security = link.getTarget();
       if (security == null) {
-        final Pair<ObjectId, ExternalIdBundle> key = Pair.of(link.getObjectId(), link.getExternalId());
+        final Pair<ObjectId, ExternalIdBundle> key = Pairs.of(link.getObjectId(), link.getExternalId());
         if (securityLinkMap.containsKey(key)) {
           final Object sameLinkObject = securityLinkMap.get(key);
           if (sameLinkObject instanceof Collection<?>) {

@@ -293,12 +293,12 @@ public class FutureSecurityDefinition extends ListedSecurityDefinition {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("futureType").append('=').append(getFutureType()).append(',').append(' ');
-    buf.append("price").append('=').append(getPrice()).append(',').append(' ');
-    buf.append("futureExpiry").append('=').append(getFutureExpiry()).append(',').append(' ');
-    buf.append("settlementExchange").append('=').append(getSettlementExchange()).append(',').append(' ');
-    buf.append("settlementDate").append('=').append(getSettlementDate()).append(',').append(' ');
-    buf.append("futureCategory").append('=').append(getFutureCategory()).append(',').append(' ');
+    buf.append("futureType").append('=').append(JodaBeanUtils.toString(getFutureType())).append(',').append(' ');
+    buf.append("price").append('=').append(JodaBeanUtils.toString(getPrice())).append(',').append(' ');
+    buf.append("futureExpiry").append('=').append(JodaBeanUtils.toString(getFutureExpiry())).append(',').append(' ');
+    buf.append("settlementExchange").append('=').append(JodaBeanUtils.toString(getSettlementExchange())).append(',').append(' ');
+    buf.append("settlementDate").append('=').append(JodaBeanUtils.toString(getSettlementDate())).append(',').append(' ');
+    buf.append("futureCategory").append('=').append(JodaBeanUtils.toString(getFutureCategory())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

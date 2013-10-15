@@ -20,7 +20,7 @@ import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.util.test.TestGroup;
-import com.opengamma.util.tuple.ObjectsPair;
+import com.opengamma.util.tuple.IntObjectPair;
 
 @Test(groups = TestGroup.UNIT)
 public class EHCachingSearchCacheTest {
@@ -87,11 +87,11 @@ public class EHCachingSearchCacheTest {
   private EHCachingSearchCache getCleanSearchCache() {
     return new EHCachingSearchCache("Test", getCleanCacheManager(), new EHCachingSearchCache.Searcher() {
       @Override
-      public ObjectsPair<Integer, List<UniqueId>> search(Bean request, PagingRequest pagingRequest) {
+      public IntObjectPair<List<UniqueId>> search(Bean request, PagingRequest pagingRequest) {
 
         List<UniqueId> result = buildResultIDs(pagingRequest);
 
-        return new ObjectsPair<>(TOTAL_SIZE, result);
+        return IntObjectPair.of(TOTAL_SIZE, result);
       }
     });
   }

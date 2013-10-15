@@ -29,6 +29,10 @@ import com.opengamma.util.ArgumentChecker;
  */
 @BeanDefinition
 public class CreditDefaultSwapIndexComponent extends DirectBean implements Comparable<CreditDefaultSwapIndexComponent>, Serializable {
+
+  /** Serialization version. */
+  private static final long serialVersionUID = 2138042002689914578L;
+
   /**
    * The obligor red code identifier
    */
@@ -266,10 +270,10 @@ public class CreditDefaultSwapIndexComponent extends DirectBean implements Compa
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("obligorRedCode").append('=').append(getObligorRedCode()).append(',').append(' ');
-    buf.append("weight").append('=').append(getWeight()).append(',').append(' ');
-    buf.append("bondId").append('=').append(getBondId()).append(',').append(' ');
-    buf.append("name").append('=').append(getName()).append(',').append(' ');
+    buf.append("obligorRedCode").append('=').append(JodaBeanUtils.toString(getObligorRedCode())).append(',').append(' ');
+    buf.append("weight").append('=').append(JodaBeanUtils.toString(getWeight())).append(',').append(' ');
+    buf.append("bondId").append('=').append(JodaBeanUtils.toString(getBondId())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

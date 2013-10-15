@@ -242,10 +242,10 @@ public class ListedSecurityTrade extends Trade {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("buySell").append('=').append(getBuySell()).append(',').append(' ');
-    buf.append("numContracts").append('=').append(getNumContracts()).append(',').append(' ');
-    buf.append("brokers").append('=').append(getBrokers()).append(',').append(' ');
-    buf.append("listedSecurityDefinition").append('=').append(getListedSecurityDefinition()).append(',').append(' ');
+    buf.append("buySell").append('=').append(JodaBeanUtils.toString(getBuySell())).append(',').append(' ');
+    buf.append("numContracts").append('=').append(JodaBeanUtils.toString(getNumContracts())).append(',').append(' ');
+    buf.append("brokers").append('=').append(JodaBeanUtils.toString(getBrokers())).append(',').append(' ');
+    buf.append("listedSecurityDefinition").append('=').append(JodaBeanUtils.toString(getListedSecurityDefinition())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

@@ -52,6 +52,7 @@ import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  *
@@ -142,7 +143,7 @@ public abstract class FloatingCashFlowFunction extends AbstractFunction {
         final MultipleCurrencyAmount mca = entry.getValue();
         final List<Pair<CurrencyAmount, String>> list = Lists.newArrayListWithCapacity(mca.size());
         for (final CurrencyAmount ca : mca) {
-          list.add(Pair.of(ca, label));
+          list.add(Pairs.of(ca, label));
         }
         result.put(entry.getKey(), list);
       }

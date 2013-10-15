@@ -129,7 +129,7 @@ public class MetricRepositoryFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the registryName.
-   * @return the value of the property, not null
+   * @return the value of the property, not empty
    */
   public String getRegistryName() {
     return _registryName;
@@ -137,7 +137,7 @@ public class MetricRepositoryFactory extends AbstractComponentFactory {
 
   /**
    * Sets the registryName.
-   * @param registryName  the new value of the property, not null
+   * @param registryName  the new value of the property, not empty
    */
   public void setRegistryName(String registryName) {
     JodaBeanUtils.notEmpty(registryName, "registryName");
@@ -383,14 +383,14 @@ public class MetricRepositoryFactory extends AbstractComponentFactory {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("registryName").append('=').append(getRegistryName()).append(',').append(' ');
-    buf.append("jmxPublish").append('=').append(isJmxPublish()).append(',').append(' ');
-    buf.append("slf4jPublish").append('=').append(isSlf4jPublish()).append(',').append(' ');
-    buf.append("gangliaPublish").append('=').append(isGangliaPublish()).append(',').append(' ');
-    buf.append("gangliaAddress").append('=').append(getGangliaAddress()).append(',').append(' ');
-    buf.append("gangliaPort").append('=').append(getGangliaPort()).append(',').append(' ');
-    buf.append("gangliaAddressingMode").append('=').append(getGangliaAddressingMode()).append(',').append(' ');
-    buf.append("gangliaTtl").append('=').append(getGangliaTtl()).append(',').append(' ');
+    buf.append("registryName").append('=').append(JodaBeanUtils.toString(getRegistryName())).append(',').append(' ');
+    buf.append("jmxPublish").append('=').append(JodaBeanUtils.toString(isJmxPublish())).append(',').append(' ');
+    buf.append("slf4jPublish").append('=').append(JodaBeanUtils.toString(isSlf4jPublish())).append(',').append(' ');
+    buf.append("gangliaPublish").append('=').append(JodaBeanUtils.toString(isGangliaPublish())).append(',').append(' ');
+    buf.append("gangliaAddress").append('=').append(JodaBeanUtils.toString(getGangliaAddress())).append(',').append(' ');
+    buf.append("gangliaPort").append('=').append(JodaBeanUtils.toString(getGangliaPort())).append(',').append(' ');
+    buf.append("gangliaAddressingMode").append('=').append(JodaBeanUtils.toString(getGangliaAddressingMode())).append(',').append(' ');
+    buf.append("gangliaTtl").append('=').append(JodaBeanUtils.toString(getGangliaTtl())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

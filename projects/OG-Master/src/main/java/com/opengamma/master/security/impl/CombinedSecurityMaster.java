@@ -8,8 +8,8 @@ package com.opengamma.master.security.impl;
 import java.util.List;
 
 import com.google.common.collect.Lists;
-import com.opengamma.core.change.ChangeManager;
 import com.opengamma.master.AbstractDocumentsResult;
+import com.opengamma.master.ChangeProvidingCombinedMaster;
 import com.opengamma.master.CombinedMaster;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityHistoryRequest;
@@ -21,18 +21,14 @@ import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
 
 /**
- * A {@link SecurityMaster} that combines the behavior of the masters
- * in the session, user and global contexts. 
+ * A {@link SecurityMaster} which delegates its calls to a list of underlying {@link SecurityMaster}s.
+ * 
+ * This class extends {@link ChangeProvidingCombinedMaster} to implement methods specific to the {@link SecurityMaster}.
  */
-public class CombinedSecurityMaster extends CombinedMaster<SecurityDocument, SecurityMaster> implements SecurityMaster {
+public class CombinedSecurityMaster extends ChangeProvidingCombinedMaster<SecurityDocument, SecurityMaster> implements SecurityMaster {
 
   public CombinedSecurityMaster(final List<SecurityMaster> masters) {
     super(masters);
-  }
-
-  @Override
-  public ChangeManager changeManager() {
-    throw new UnsupportedOperationException();
   }
 
   @Override

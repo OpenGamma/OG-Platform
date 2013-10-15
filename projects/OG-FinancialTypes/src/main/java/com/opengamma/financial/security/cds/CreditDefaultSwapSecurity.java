@@ -227,9 +227,9 @@ public abstract class CreditDefaultSwapSecurity extends AbstractCreditDefaultSwa
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("debtSeniority").append('=').append(getDebtSeniority()).append(',').append(' ');
-    buf.append("restructuringClause").append('=').append(getRestructuringClause()).append(',').append(' ');
-    buf.append("regionId").append('=').append(getRegionId()).append(',').append(' ');
+    buf.append("debtSeniority").append('=').append(JodaBeanUtils.toString(getDebtSeniority())).append(',').append(' ');
+    buf.append("restructuringClause").append('=').append(JodaBeanUtils.toString(getRestructuringClause())).append(',').append(' ');
+    buf.append("regionId").append('=').append(JodaBeanUtils.toString(getRegionId())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

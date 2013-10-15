@@ -310,9 +310,9 @@ public abstract class AbstractDbMasterComponentFactory extends AbstractComponent
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("dbConnector").append('=').append(getDbConnector()).append(',').append(' ');
-    buf.append("enforceSchemaVersion").append('=').append(isEnforceSchemaVersion()).append(',').append(' ');
-    buf.append("autoSchemaManagement").append('=').append(isAutoSchemaManagement()).append(',').append(' ');
+    buf.append("dbConnector").append('=').append(JodaBeanUtils.toString(getDbConnector())).append(',').append(' ');
+    buf.append("enforceSchemaVersion").append('=').append(JodaBeanUtils.toString(isEnforceSchemaVersion())).append(',').append(' ');
+    buf.append("autoSchemaManagement").append('=').append(JodaBeanUtils.toString(isAutoSchemaManagement())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

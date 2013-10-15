@@ -204,9 +204,9 @@ public class ConnectionResponseMessage extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("result").append('=').append(getResult()).append(',').append(' ');
-    buf.append("availableServers").append('=').append(getAvailableServers()).append(',').append(' ');
-    buf.append("capabilities").append('=').append(getCapabilities()).append(',').append(' ');
+    buf.append("result").append('=').append(JodaBeanUtils.toString(getResult())).append(',').append(' ');
+    buf.append("availableServers").append('=').append(JodaBeanUtils.toString(getAvailableServers())).append(',').append(' ');
+    buf.append("capabilities").append('=').append(JodaBeanUtils.toString(getCapabilities())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

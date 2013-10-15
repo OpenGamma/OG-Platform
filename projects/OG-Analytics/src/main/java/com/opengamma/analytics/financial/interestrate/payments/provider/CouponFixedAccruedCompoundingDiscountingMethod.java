@@ -79,7 +79,7 @@ public final class CouponFixedAccruedCompoundingDiscountingMethod {
   public MultipleCurrencyMulticurveSensitivity presentValueCurveSensitivity(final CouponFixedAccruedCompounding cpn, final MulticurveProviderInterface multicurve) {
     final double time = cpn.getPaymentTime();
     final Map<String, List<DoublesPair>> mapDsc = new HashMap<>();
-    final DoublesPair s = new DoublesPair(time, -time * cpn.getAmount() * multicurve.getDiscountFactor(cpn.getCurrency(), time));
+    final DoublesPair s = DoublesPair.of(time, -time * cpn.getAmount() * multicurve.getDiscountFactor(cpn.getCurrency(), time));
     final List<DoublesPair> list = new ArrayList<>();
     list.add(s);
     mapDsc.put(multicurve.getName(cpn.getCurrency()), list);

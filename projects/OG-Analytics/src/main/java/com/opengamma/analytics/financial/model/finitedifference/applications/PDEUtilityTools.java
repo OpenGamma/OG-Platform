@@ -42,7 +42,7 @@ public class PDEUtilityTools {
 
       for (int j = 0; j < xNodes; j++) {
         final double k = res.getSpaceValue(j);
-        final DoublesPair tk = new DoublesPair(t, k);
+        final DoublesPair tk = DoublesPair.of(t, k);
         out.put(tk, res.getFunctionValue(j, i));
       }
     }
@@ -112,7 +112,7 @@ public class PDEUtilityTools {
             try {
               final double impVol = BlackFormulaRepository.impliedVolatility(price, forward, k, t, isCall);
               if (Math.abs(impVol) > 1e-15) {
-                final DoublesPair pair = new DoublesPair(prices.getTimeValue(i), prices.getSpaceValue(j));
+                final DoublesPair pair = DoublesPair.of(prices.getTimeValue(i), prices.getSpaceValue(j));
                 out.put(pair, impVol);
               }
             } catch (final Exception e) {
@@ -142,7 +142,7 @@ public class PDEUtilityTools {
             try {
               final double impVol = BlackFormulaRepository.impliedVolatility(price, 1.0, m, t, isCall);
               if (Math.abs(impVol) > 1e-15) {
-                final DoublesPair pair = new DoublesPair(prices.getTimeValue(i), prices.getSpaceValue(j));
+                final DoublesPair pair = DoublesPair.of(prices.getTimeValue(i), prices.getSpaceValue(j));
                 out.put(pair, impVol);
               }
             } catch (final Exception e) {
@@ -186,7 +186,7 @@ public class PDEUtilityTools {
             try {
               final double impVol = BlackFormulaRepository.impliedVolatility(forwardPrice, forward, k, t, true);
               if (Math.abs(impVol) > 1e-15) {
-                final DoublesPair pair = new DoublesPair(prices.getTimeValue(i), prices.getSpaceValue(j));
+                final DoublesPair pair = DoublesPair.of(prices.getTimeValue(i), prices.getSpaceValue(j));
                 out.put(pair, impVol);
               }
             } catch (final Exception e) {
@@ -358,7 +358,7 @@ public class PDEUtilityTools {
       System.out.print(t);
       for (int i = 0; i <= ySteps; i++) {
         final double k = kMin + ((kMax - kMin) * i) / ySteps;
-        final DoublesPair tk = new DoublesPair(t, k);
+        final DoublesPair tk = DoublesPair.of(t, k);
 
         System.out.print("\t" + GRID_INTERPOLATOR2D.interpolate(dataBundle, tk));
       }

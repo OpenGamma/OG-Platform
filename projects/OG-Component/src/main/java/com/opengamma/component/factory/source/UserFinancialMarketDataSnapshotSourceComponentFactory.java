@@ -383,13 +383,13 @@ public class UserFinancialMarketDataSnapshotSourceComponentFactory extends Abstr
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("classifier").append('=').append(getClassifier()).append(',').append(' ');
-    buf.append("publishRest").append('=').append(isPublishRest()).append(',').append(' ');
-    buf.append("cacheManager").append('=').append(getCacheManager()).append(',').append(' ');
-    buf.append("underlyingClassifier").append('=').append(getUnderlyingClassifier()).append(',').append(' ');
-    buf.append("underlyingMarketDataSnapshotMaster").append('=').append(getUnderlyingMarketDataSnapshotMaster()).append(',').append(' ');
-    buf.append("userClassifier").append('=').append(getUserClassifier()).append(',').append(' ');
-    buf.append("userMarketDataSnapshotMaster").append('=').append(getUserMarketDataSnapshotMaster()).append(',').append(' ');
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("publishRest").append('=').append(JodaBeanUtils.toString(isPublishRest())).append(',').append(' ');
+    buf.append("cacheManager").append('=').append(JodaBeanUtils.toString(getCacheManager())).append(',').append(' ');
+    buf.append("underlyingClassifier").append('=').append(JodaBeanUtils.toString(getUnderlyingClassifier())).append(',').append(' ');
+    buf.append("underlyingMarketDataSnapshotMaster").append('=').append(JodaBeanUtils.toString(getUnderlyingMarketDataSnapshotMaster())).append(',').append(' ');
+    buf.append("userClassifier").append('=').append(JodaBeanUtils.toString(getUserClassifier())).append(',').append(' ');
+    buf.append("userMarketDataSnapshotMaster").append('=').append(JodaBeanUtils.toString(getUserMarketDataSnapshotMaster())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

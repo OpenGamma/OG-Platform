@@ -1,17 +1,29 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.util.tuple;
 
+import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
+
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
+
 import org.apache.commons.lang.StringUtils;
+import org.joda.beans.Bean;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
+import org.joda.beans.impl.BasicImmutableBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaBean;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.joda.convert.FromString;
 import org.joda.convert.ToString;
 
 import com.opengamma.util.ArgumentChecker;
-
-import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
 
 /**
  * An immutable pair consisting of an {@code int} and {@code double}.
@@ -22,6 +34,7 @@ import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
  * This class is immutable and thread-safe.
  */
 public class IntDoublePair extends Pair<Integer, Double> implements Int2DoubleMap.Entry {
+  // this ImmutableBean is not auto-generated
 
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
@@ -31,6 +44,7 @@ public class IntDoublePair extends Pair<Integer, Double> implements Int2DoubleMa
   /** The second element. */
   public final double second; // CSIGNORE
 
+  //-------------------------------------------------------------------------
   /**
    * Obtains an {@code IntDoublePair} from a {@code Pair}.
    * 
@@ -148,6 +162,39 @@ public class IntDoublePair extends Pair<Integer, Double> implements Int2DoubleMa
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * The meta-bean for {@code IntDoublePair}.
+   * @return the meta-bean, not null
+   */
+  public static IntDoublePair.Meta meta() {
+    return IntDoublePair.Meta.INSTANCE;
+  }
+
+  static {
+    JodaBeanUtils.registerMetaBean(IntDoublePair.Meta.INSTANCE);
+  }
+
+  @Override
+  public IntDoublePair.Meta metaBean() {
+    return IntDoublePair.Meta.INSTANCE;
+  }
+
+  @Override
+  public <R> Property<R> property(String propertyName) {
+    return metaBean().<R>metaProperty(propertyName).createProperty(this);
+  }
+
+  @Override
+  public Set<String> propertyNames() {
+    return metaBean().metaPropertyMap().keySet();
+  }
+
+  @Override
+  public IntDoublePair clone() {
+    return this;
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
@@ -183,6 +230,147 @@ public class IntDoublePair extends Pair<Integer, Double> implements Int2DoubleMa
         .append(", ")
         .append(second)
         .append("]").toString();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * The meta-bean for {@code IntDoublePair}.
+   */
+  public static final class Meta extends DirectMetaBean {
+    /**
+     * The singleton instance of the meta-bean.
+     */
+    static final Meta INSTANCE = new Meta();
+
+    /**
+     * The meta-property for the {@code first} property.
+     */
+    private final MetaProperty<Integer> _first = DirectMetaProperty.ofImmutable(
+        this, "first", IntDoublePair.class, Integer.TYPE);
+    /**
+     * The meta-property for the {@code second} property.
+     */
+    private final MetaProperty<Double> _second = DirectMetaProperty.ofImmutable(
+        this, "second", IntDoublePair.class, Double.TYPE);
+    /**
+     * The meta-properties.
+     */
+    private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
+        this, null,
+        "first",
+        "second");
+
+    /**
+     * Restricted constructor.
+     */
+    Meta() {
+    }
+
+    @Override
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName) {
+        case "first":
+          return _first;
+        case "second":
+          return _second;
+      }
+      return super.metaPropertyGet(propertyName);
+    }
+
+    @Override
+    public IntDoublePair.Builder builder() {
+      return new IntDoublePair.Builder();
+    }
+
+    @Override
+    public Class<? extends IntDoublePair> beanType() {
+      return IntDoublePair.class;
+    }
+
+    @Override
+    public Map<String, MetaProperty<?>> metaPropertyMap() {
+      return _metaPropertyMap$;
+    }
+
+    //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code first} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Integer> first() {
+      return _first;
+    }
+
+    /**
+     * The meta-property for the {@code second} property.
+     * @return the meta-property, not null
+     */
+    public MetaProperty<Double> second() {
+      return _second;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName) {
+        case "first":
+          return ((IntDoublePair) bean).getFirst();
+        case "second":
+          return ((IntDoublePair) bean).getSecond();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      metaProperty(propertyName);
+      if (quiet) {
+        return;
+      }
+      throw new UnsupportedOperationException("Property cannot be written: " + propertyName);
+    }
+
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * The bean-builder for {@code IntDoublePair}.
+   */
+  private static final class Builder extends BasicImmutableBeanBuilder<IntDoublePair> {
+
+    /** The first element. */
+    private int _first;
+    /** The second element. */
+    private double _second;
+
+    /**
+     * Restricted constructor.
+     */
+    private Builder() {
+      super(IntDoublePair.Meta.INSTANCE);
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    public Builder set(String propertyName, Object newValue) {
+      switch (propertyName) {
+        case "first":
+          _first = (Integer) newValue;
+          break;
+        case "second":
+          _second = (Double) newValue;
+          break;
+        default:
+          throw new NoSuchElementException("Unknown property: " + propertyName);
+      }
+      return this;
+    }
+
+    @Override
+    public IntDoublePair build() {
+      return IntDoublePair.of(_first, _second);
+    }
+
   }
 
 }

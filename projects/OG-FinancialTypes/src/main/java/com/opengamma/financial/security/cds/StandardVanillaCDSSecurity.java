@@ -227,9 +227,9 @@ public class StandardVanillaCDSSecurity extends StandardCDSSecurity {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("coupon").append('=').append(getCoupon()).append(',').append(' ');
-    buf.append("cashSettlementDate").append('=').append(getCashSettlementDate()).append(',').append(' ');
-    buf.append("adjustCashSettlementDate").append('=').append(isAdjustCashSettlementDate()).append(',').append(' ');
+    buf.append("coupon").append('=').append(JodaBeanUtils.toString(getCoupon())).append(',').append(' ');
+    buf.append("cashSettlementDate").append('=').append(JodaBeanUtils.toString(getCashSettlementDate())).append(',').append(' ');
+    buf.append("adjustCashSettlementDate").append('=').append(JodaBeanUtils.toString(isAdjustCashSettlementDate())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

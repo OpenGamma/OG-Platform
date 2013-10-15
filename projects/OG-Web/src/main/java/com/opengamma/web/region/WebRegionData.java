@@ -384,14 +384,14 @@ public class WebRegionData extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("regionMaster").append('=').append(getRegionMaster()).append(',').append(' ');
-    buf.append("uriInfo").append('=').append(getUriInfo()).append(',').append(' ');
-    buf.append("uriRegionId").append('=').append(getUriRegionId()).append(',').append(' ');
-    buf.append("uriVersionId").append('=').append(getUriVersionId()).append(',').append(' ');
-    buf.append("region").append('=').append(getRegion()).append(',').append(' ');
-    buf.append("regionParents").append('=').append(getRegionParents()).append(',').append(' ');
-    buf.append("regionChildren").append('=').append(getRegionChildren()).append(',').append(' ');
-    buf.append("versioned").append('=').append(getVersioned()).append(',').append(' ');
+    buf.append("regionMaster").append('=').append(JodaBeanUtils.toString(getRegionMaster())).append(',').append(' ');
+    buf.append("uriInfo").append('=').append(JodaBeanUtils.toString(getUriInfo())).append(',').append(' ');
+    buf.append("uriRegionId").append('=').append(JodaBeanUtils.toString(getUriRegionId())).append(',').append(' ');
+    buf.append("uriVersionId").append('=').append(JodaBeanUtils.toString(getUriVersionId())).append(',').append(' ');
+    buf.append("region").append('=').append(JodaBeanUtils.toString(getRegion())).append(',').append(' ');
+    buf.append("regionParents").append('=').append(JodaBeanUtils.toString(getRegionParents())).append(',').append(' ');
+    buf.append("regionChildren").append('=').append(JodaBeanUtils.toString(getRegionChildren())).append(',').append(' ');
+    buf.append("versioned").append('=').append(JodaBeanUtils.toString(getVersioned())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

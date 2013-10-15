@@ -171,8 +171,8 @@ public class MarketDataSnapshotSourceFactoryBean extends SpringFactoryBean<Marke
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("snapshotMaster").append('=').append(getSnapshotMaster()).append(',').append(' ');
-    buf.append("cacheManager").append('=').append(getCacheManager()).append(',').append(' ');
+    buf.append("snapshotMaster").append('=').append(JodaBeanUtils.toString(getSnapshotMaster())).append(',').append(' ');
+    buf.append("cacheManager").append('=').append(JodaBeanUtils.toString(getCacheManager())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

@@ -131,7 +131,7 @@ public class BloombergLiveDataServerComponentFactory extends AbstractBloombergLi
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("dbConnector").append('=').append(getDbConnector()).append(',').append(' ');
+    buf.append("dbConnector").append('=').append(JodaBeanUtils.toString(getDbConnector())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

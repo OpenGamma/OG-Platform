@@ -140,7 +140,7 @@ public class CashOrNothingPayoffStyle extends PayoffStyle {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("payment").append('=').append(getPayment()).append(',').append(' ');
+    buf.append("payment").append('=').append(JodaBeanUtils.toString(getPayment())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

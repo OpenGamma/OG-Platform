@@ -14,8 +14,8 @@ import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.provider.sensitivity.multicurve.ForwardSensitivity;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Class describing a multi-curves provider created from a issuer provider where the discounting curve
@@ -50,7 +50,7 @@ public class MulticurveProviderDiscountingDecoratedIssuer implements MulticurveP
     _issuerProvider = issuerProvider;
     _decoratedCurrency = decoratedCurrency;
     _decoratingIssuer = decoratingIssuer;
-    _decoratingIssuerCcy = new ObjectsPair<>(_decoratingIssuer, _decoratedCurrency);
+    _decoratingIssuerCcy = Pairs.of(_decoratingIssuer, _decoratedCurrency);
   }
 
   @Override

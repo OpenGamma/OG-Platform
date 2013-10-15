@@ -126,9 +126,9 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
 
   @Override
   public Set<Currency> visitIMMFRANode(final IMMFRANode node) {
-    final IMMFRAConvention convention = _conventionSource.getConvention(IMMFRAConvention.class, node.getConvention());
+    final IMMFRAConvention convention = _conventionSource.getConvention(IMMFRAConvention.class, node.getImmFRAConvention());
     if (convention == null) {
-      throw new OpenGammaRuntimeException("Could not get IMM FRA convention with id " + node.getConvention());
+      throw new OpenGammaRuntimeException("Could not get IMM FRA convention with id " + node.getImmFRAConvention());
     }
     return convention.accept(this);
   }

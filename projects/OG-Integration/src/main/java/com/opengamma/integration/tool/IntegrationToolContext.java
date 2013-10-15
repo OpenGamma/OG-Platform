@@ -154,8 +154,8 @@ public class IntegrationToolContext extends ToolContext implements BloombergTool
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("bloombergReferenceDataProvider").append('=').append(getBloombergReferenceDataProvider()).append(',').append(' ');
-    buf.append("dependencyGraphTraceProvider").append('=').append(getDependencyGraphTraceProvider()).append(',').append(' ');
+    buf.append("bloombergReferenceDataProvider").append('=').append(JodaBeanUtils.toString(getBloombergReferenceDataProvider())).append(',').append(' ');
+    buf.append("dependencyGraphTraceProvider").append('=').append(JodaBeanUtils.toString(getDependencyGraphTraceProvider())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

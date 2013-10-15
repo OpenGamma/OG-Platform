@@ -60,7 +60,7 @@ public class PrettyPrintingPortfolioWriter implements PortfolioWriter {
     if (_prettyPrint) {
       System.out.println("Position: " + position.toString());
     }
-    return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(position, 
+    return ObjectsPair.of(position, 
         writtenSecurities.toArray(new ManageableSecurity[writtenSecurities.size()]));            
   }
 

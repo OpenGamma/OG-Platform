@@ -611,11 +611,11 @@ public class ResultModelDefinition extends DirectBean implements Serializable {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("aggregatePositionOutputMode").append('=').append(getAggregatePositionOutputMode()).append(',').append(' ');
-    buf.append("positionOutputMode").append('=').append(getPositionOutputMode()).append(',').append(' ');
-    buf.append("tradeOutputMode").append('=').append(getTradeOutputMode()).append(',').append(' ');
-    buf.append("securityOutputMode").append('=').append(getSecurityOutputMode()).append(',').append(' ');
-    buf.append("primitiveOutputMode").append('=').append(getPrimitiveOutputMode()).append(',').append(' ');
+    buf.append("aggregatePositionOutputMode").append('=').append(JodaBeanUtils.toString(getAggregatePositionOutputMode())).append(',').append(' ');
+    buf.append("positionOutputMode").append('=').append(JodaBeanUtils.toString(getPositionOutputMode())).append(',').append(' ');
+    buf.append("tradeOutputMode").append('=').append(JodaBeanUtils.toString(getTradeOutputMode())).append(',').append(' ');
+    buf.append("securityOutputMode").append('=').append(JodaBeanUtils.toString(getSecurityOutputMode())).append(',').append(' ');
+    buf.append("primitiveOutputMode").append('=').append(JodaBeanUtils.toString(getPrimitiveOutputMode())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

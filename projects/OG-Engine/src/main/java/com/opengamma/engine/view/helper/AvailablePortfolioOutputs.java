@@ -46,6 +46,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Implementation of {@link AvailableOutputs} that scans a function repository to give possible outputs available on a portfolio.
@@ -177,7 +178,6 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
       return null;
     }
 
-    @SuppressWarnings("unchecked")
     private void setCachedResult(final Set<ValueRequirement> visited, final ValueRequirement requirement, final Set<ValueSpecification> results) {
       s_logger.debug("Caching result for {} on {}", requirement, visited);
       List<Pair<List<ValueRequirement>, Set<ValueSpecification>>> entries = _resolutionCache.get(requirement);
@@ -185,7 +185,8 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
         entries = new LinkedList<Pair<List<ValueRequirement>, Set<ValueSpecification>>>();
         _resolutionCache.put(requirement, entries);
       }
-      entries.add((Pair<List<ValueRequirement>, Set<ValueSpecification>>) (Pair<?, ?>) Pair.of(new ArrayList<ValueRequirement>(visited), (results != null) ? results : Collections.emptySet()));
+      List<ValueRequirement> list = new ArrayList<ValueRequirement>(visited);
+      entries.add(Pairs.of(list, (results != null) ? results : Collections.<ValueSpecification>emptySet()));
     }
 
     private Set<ValueSpecification> satisfyRequirement(final Set<ValueRequirement> visitedRequirements, final Set<FunctionExclusionGroup> visitedFunctions, final ComputationTarget target,

@@ -39,8 +39,8 @@ import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeri
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Sets of market data used in tests.
@@ -118,6 +118,7 @@ public class MulticurveProviderDiscountDataSets {
   private static final IborIndex CADCDOR3M = MASTER_IBOR_INDEX.getIndex("CADCDOR3M");
   private static final IndexON EONIA = IndexONMaster.getInstance().getIndex("EONIA");
   private static final IndexON FEDFUND = IndexONMaster.getInstance().getIndex("FED FUND");
+  private static final IndexON BRAZIL_CDI = IndexONMaster.getInstance().getIndex("CDI");
 
   private static final String NAME_EUR_PRICE_INDEX = "Euro HICP x";
   private static final IndexPrice PRICE_INDEX_EUR = new IndexPrice(NAME_EUR_PRICE_INDEX, Currency.EUR);
@@ -184,7 +185,7 @@ public class MulticurveProviderDiscountDataSets {
 
   private static final Map<Pair<String, Currency>, YieldAndDiscountCurve> ISSUER_CURVES = new LinkedHashMap<>();
   static {
-    ISSUER_CURVES.put(new ObjectsPair<>(ISSUER_NAME, EURIBOR3M.getCurrency()), EUR_ISSUER);
+    ISSUER_CURVES.put(Pairs.of(ISSUER_NAME, EURIBOR3M.getCurrency()), EUR_ISSUER);
   }
   private static final IssuerProviderDiscount PROVIDER_ISSUER = new IssuerProviderDiscount(MULTICURVES_EUR_USD, ISSUER_CURVES);
 
@@ -430,7 +431,7 @@ public class MulticurveProviderDiscountDataSets {
   }
 
   public static IndexON[] getIndexesON() {
-    return new IndexON[] {FEDFUND, EONIA };
+    return new IndexON[] {FEDFUND, EONIA, BRAZIL_CDI };
   }
 
   public static String[] getIssuerNames() {

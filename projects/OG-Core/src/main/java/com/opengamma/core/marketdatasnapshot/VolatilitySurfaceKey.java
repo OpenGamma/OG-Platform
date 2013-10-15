@@ -6,32 +6,31 @@
 package com.opengamma.core.marketdatasnapshot;
 
 import java.io.Serializable;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
-import org.joda.beans.ImmutableConstructor;
+import org.joda.beans.JodaBeanUtils;
+import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
+import org.joda.beans.impl.BasicImmutableBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaBean;
+import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Set;
-import org.joda.beans.Bean;
-import org.joda.beans.JodaBeanUtils;
-import org.joda.beans.MetaProperty;
-import org.joda.beans.Property;
-import org.joda.beans.impl.BasicImmutableBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaBean;
-import org.joda.beans.impl.direct.DirectMetaProperty;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 /**
  * A key used to identify a volatility surface.
@@ -47,7 +46,7 @@ public final class VolatilitySurfaceKey implements ImmutableBean, StructuredMark
   /**
    * The target.
    */
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private final UniqueId _target;
   /**
    * The curve name.
@@ -78,30 +77,11 @@ public final class VolatilitySurfaceKey implements ImmutableBean, StructuredMark
    * @param instrumentType  the instrument type
    * @param quoteType the quote type
    * @param quoteUnits the quote units
-   */
-  @ImmutableConstructor
-  private VolatilitySurfaceKey(final UniqueIdentifiable target, final String name, final String instrumentType, final String quoteType, final String quoteUnits) {
-    ArgumentChecker.notNull(target, "target");
-    _target = target.getUniqueId();
-    _name = name;
-    _instrumentType = instrumentType;
-    _quoteType = quoteType;
-    _quoteUnits = quoteUnits;
-  }
-  
-  /**
-   * Creates an instance.
-   * 
-   * @param target  the target
-   * @param name  the name
-   * @param instrumentType  the instrument type
-   * @param quoteType the quote type
-   * @param quoteUnits the quote units
    * @return the volatility surface key, not null
    */
   public static VolatilitySurfaceKey of(final UniqueIdentifiable target, final String name, final String instrumentType, final String quoteType, final String quoteUnits) {
     ArgumentChecker.notNull(target, "target");
-    return new VolatilitySurfaceKey(target, name, instrumentType, quoteType, quoteUnits);
+    return new VolatilitySurfaceKey(target.getUniqueId(), name, instrumentType, quoteType, quoteUnits);
   }
 
   //-------------------------------------------------------------------------
@@ -186,6 +166,20 @@ public final class VolatilitySurfaceKey implements ImmutableBean, StructuredMark
     return new VolatilitySurfaceKey.Builder();
   }
 
+  private VolatilitySurfaceKey(
+      UniqueId target,
+      String name,
+      String instrumentType,
+      String quoteType,
+      String quoteUnits) {
+    JodaBeanUtils.notNull(target, "target");
+    this._target = target;
+    this._name = name;
+    this._instrumentType = instrumentType;
+    this._quoteType = quoteType;
+    this._quoteUnits = quoteUnits;
+  }
+
   @Override
   public VolatilitySurfaceKey.Meta metaBean() {
     return VolatilitySurfaceKey.Meta.INSTANCE;
@@ -204,7 +198,7 @@ public final class VolatilitySurfaceKey implements ImmutableBean, StructuredMark
   //-----------------------------------------------------------------------
   /**
    * Gets the target.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public UniqueId getTarget() {
     return _target;
@@ -295,7 +289,7 @@ public final class VolatilitySurfaceKey implements ImmutableBean, StructuredMark
     buf.append("name").append('=').append(getName()).append(',').append(' ');
     buf.append("instrumentType").append('=').append(getInstrumentType()).append(',').append(' ');
     buf.append("quoteType").append('=').append(getQuoteType()).append(',').append(' ');
-    buf.append("quoteUnits").append('=').append(getQuoteUnits());
+    buf.append("quoteUnits").append('=').append(JodaBeanUtils.toString(getQuoteUnits()));
     buf.append('}');
     return buf.toString();
   }
@@ -528,13 +522,14 @@ public final class VolatilitySurfaceKey implements ImmutableBean, StructuredMark
      * @return this, for chaining, not null
      */
     public Builder target(UniqueId target) {
+      JodaBeanUtils.notNull(target, "target");
       this._target = target;
       return this;
     }
 
     /**
      * Sets the {@code name} property in the builder.
-     * @param name  the new value, not null
+     * @param name  the new value
      * @return this, for chaining, not null
      */
     public Builder name(String name) {
@@ -544,7 +539,7 @@ public final class VolatilitySurfaceKey implements ImmutableBean, StructuredMark
 
     /**
      * Sets the {@code instrumentType} property in the builder.
-     * @param instrumentType  the new value, not null
+     * @param instrumentType  the new value
      * @return this, for chaining, not null
      */
     public Builder instrumentType(String instrumentType) {
@@ -554,7 +549,7 @@ public final class VolatilitySurfaceKey implements ImmutableBean, StructuredMark
 
     /**
      * Sets the {@code quoteType} property in the builder.
-     * @param quoteType  the new value, not null
+     * @param quoteType  the new value
      * @return this, for chaining, not null
      */
     public Builder quoteType(String quoteType) {
@@ -564,7 +559,7 @@ public final class VolatilitySurfaceKey implements ImmutableBean, StructuredMark
 
     /**
      * Sets the {@code quoteUnits} property in the builder.
-     * @param quoteUnits  the new value, not null
+     * @param quoteUnits  the new value
      * @return this, for chaining, not null
      */
     public Builder quoteUnits(String quoteUnits) {

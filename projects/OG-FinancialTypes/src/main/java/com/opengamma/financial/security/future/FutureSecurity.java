@@ -308,12 +308,12 @@ public abstract class FutureSecurity extends FinancialSecurity {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("expiry").append('=').append(getExpiry()).append(',').append(' ');
-    buf.append("tradingExchange").append('=').append(getTradingExchange()).append(',').append(' ');
-    buf.append("settlementExchange").append('=').append(getSettlementExchange()).append(',').append(' ');
-    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
-    buf.append("unitAmount").append('=').append(getUnitAmount()).append(',').append(' ');
-    buf.append("contractCategory").append('=').append(getContractCategory()).append(',').append(' ');
+    buf.append("expiry").append('=').append(JodaBeanUtils.toString(getExpiry())).append(',').append(' ');
+    buf.append("tradingExchange").append('=').append(JodaBeanUtils.toString(getTradingExchange())).append(',').append(' ');
+    buf.append("settlementExchange").append('=').append(JodaBeanUtils.toString(getSettlementExchange())).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("unitAmount").append('=').append(JodaBeanUtils.toString(getUnitAmount())).append(',').append(' ');
+    buf.append("contractCategory").append('=').append(JodaBeanUtils.toString(getContractCategory())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

@@ -249,8 +249,8 @@ public class BloombergSecurityTypeDefinition implements Bean, Serializable, Uniq
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("securityTypes").append('=').append(getSecurityTypes()).append(',').append(' ');
-    buf.append("uniqueId").append('=').append(getUniqueId()).append(',').append(' ');
+    buf.append("securityTypes").append('=').append(JodaBeanUtils.toString(getSecurityTypes())).append(',').append(' ');
+    buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(getUniqueId())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

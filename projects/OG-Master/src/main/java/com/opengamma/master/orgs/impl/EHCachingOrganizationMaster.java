@@ -28,7 +28,7 @@ import com.opengamma.master.orgs.OrganizationSearchRequest;
 import com.opengamma.master.orgs.OrganizationSearchResult;
 import com.opengamma.util.paging.Paging;
 import com.opengamma.util.paging.PagingRequest;
-import com.opengamma.util.tuple.ObjectsPair;
+import com.opengamma.util.tuple.IntObjectPair;
 
 /**
  * A cache decorating a {@code OrganizationMaster}, mainly intended to reduce the frequency and repetition of queries to
@@ -60,7 +60,7 @@ public class EHCachingOrganizationMaster extends AbstractEHCachingMaster<Organiz
     // Create the document search cache and register a organisation master searcher
     _documentSearchCache = new EHCachingSearchCache(name + "Organization", cacheManager, new EHCachingSearchCache.Searcher() {
       @Override
-      public ObjectsPair<Integer, List<UniqueId>> search(Bean request, PagingRequest pagingRequest) {
+      public IntObjectPair<List<UniqueId>> search(Bean request, PagingRequest pagingRequest) {
         // Fetch search results from underlying master
         OrganizationSearchResult result = ((OrganizationMaster) getUnderlying()).search((OrganizationSearchRequest)
             EHCachingSearchCache.withPagingRequest(request, pagingRequest));
@@ -69,7 +69,7 @@ public class EHCachingOrganizationMaster extends AbstractEHCachingMaster<Organiz
         EHCachingSearchCache.cacheDocuments(result.getDocuments(), getUidToDocumentCache());
 
         // Return the list of result UniqueIds
-        return new ObjectsPair<>(result.getPaging().getTotalItems(),
+        return IntObjectPair.of(result.getPaging().getTotalItems(),
                                  EHCachingSearchCache.extractUniqueIds(result.getDocuments()));
       }
     });
@@ -77,7 +77,7 @@ public class EHCachingOrganizationMaster extends AbstractEHCachingMaster<Organiz
     // Create the history search cache and register a organisation master searcher
     _historySearchCache = new EHCachingSearchCache(name + "OrganizationHistory", cacheManager, new EHCachingSearchCache.Searcher() {
       @Override
-      public ObjectsPair<Integer, List<UniqueId>> search(Bean request, PagingRequest pagingRequest) {
+      public IntObjectPair<List<UniqueId>> search(Bean request, PagingRequest pagingRequest) {
         // Fetch search results from underlying master
         OrganizationHistoryResult result = ((OrganizationMaster) getUnderlying()).history((OrganizationHistoryRequest)
             EHCachingSearchCache.withPagingRequest(request, pagingRequest));
@@ -86,7 +86,7 @@ public class EHCachingOrganizationMaster extends AbstractEHCachingMaster<Organiz
         EHCachingSearchCache.cacheDocuments(result.getDocuments(), getUidToDocumentCache());
 
         // Return the list of result UniqueIds
-        return new ObjectsPair<>(result.getPaging().getTotalItems(),
+        return IntObjectPair.of(result.getPaging().getTotalItems(),
                                  EHCachingSearchCache.extractUniqueIds(result.getDocuments()));
       }
     });
@@ -102,7 +102,7 @@ public class EHCachingOrganizationMaster extends AbstractEHCachingMaster<Organiz
     _documentSearchCache.prefetch(EHCachingSearchCache.withPagingRequest(request, null), request.getPagingRequest());
 
     // Fetch the paged request range; if not entirely cached then fetch and cache it in foreground
-    ObjectsPair<Integer, List<UniqueId>> pair = _documentSearchCache.search(
+    IntObjectPair<List<UniqueId>> pair = _documentSearchCache.search(
         EHCachingSearchCache.withPagingRequest(request, null),
         request.getPagingRequest(), false);
 
@@ -112,7 +112,7 @@ public class EHCachingOrganizationMaster extends AbstractEHCachingMaster<Organiz
     }
 
     OrganizationSearchResult result = new OrganizationSearchResult(documents);
-    result.setPaging(Paging.of(request.getPagingRequest(), pair.getFirst()));
+    result.setPaging(Paging.of(request.getPagingRequest(), pair.getFirstInt()));
 
     final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(Instant.now());
     result.setVersionCorrection(vc);
@@ -151,7 +151,7 @@ public class EHCachingOrganizationMaster extends AbstractEHCachingMaster<Organiz
     _historySearchCache.prefetch(EHCachingSearchCache.withPagingRequest(request, null), request.getPagingRequest());
 
     // Fetch the paged request range; if not entirely cached then fetch and cache it in foreground
-    ObjectsPair<Integer, List<UniqueId>> pair = _historySearchCache.search(
+    IntObjectPair<List<UniqueId>> pair = _historySearchCache.search(
         EHCachingSearchCache.withPagingRequest(request, null),
         request.getPagingRequest(), false); // don't block until cached
 
@@ -161,7 +161,7 @@ public class EHCachingOrganizationMaster extends AbstractEHCachingMaster<Organiz
     }
 
     OrganizationHistoryResult result = new OrganizationHistoryResult(documents);
-    result.setPaging(Paging.of(request.getPagingRequest(), pair.getFirst()));
+    result.setPaging(Paging.of(request.getPagingRequest(), pair.getFirstInt()));
     return result;
   }
 

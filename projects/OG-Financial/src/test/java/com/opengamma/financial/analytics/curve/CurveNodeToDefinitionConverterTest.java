@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.curve;
 
+import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.SCHEME_NAME;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
@@ -63,6 +64,7 @@ import com.opengamma.financial.analytics.ircurve.strips.CurveNodeVisitor;
 import com.opengamma.financial.analytics.ircurve.strips.DeliverableSwapFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
+import com.opengamma.financial.analytics.ircurve.strips.IMMFRANode;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
 import com.opengamma.financial.convention.CompoundingIborLegConvention;
@@ -73,12 +75,14 @@ import com.opengamma.financial.convention.DepositConvention;
 import com.opengamma.financial.convention.FXForwardAndSwapConvention;
 import com.opengamma.financial.convention.FXSpotConvention;
 import com.opengamma.financial.convention.FederalFundsFutureConvention;
+import com.opengamma.financial.convention.IMMFRAConvention;
 import com.opengamma.financial.convention.IMMFutureAndFutureOptionMonthlyExpiryCalculator;
 import com.opengamma.financial.convention.IMMFutureAndFutureOptionQuarterlyExpiryCalculator;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.InterestRateFutureConvention;
 import com.opengamma.financial.convention.OISLegConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
+import com.opengamma.financial.convention.RollDateAdjusterFactory;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.SwapConvention;
 import com.opengamma.financial.convention.SwapFixedLegConvention;
@@ -169,11 +173,19 @@ public class CurveNodeToDefinitionConverterTest {
   private static final SwapConvention SWAP = new SwapConvention("Swap", ExternalIdBundle.of(FIXED_IBOR_3M_SWAP_ID), FIXED_LEG_ID, SWAP_3M_IBOR_ID);
   private static final DeliverablePriceQuotedSwapFutureConvention SWAP_FUTURE = new DeliverablePriceQuotedSwapFutureConvention("DSF", ExternalIdBundle.of(DELIVERABLE_SWAP_FUTURE_ID),
       IMM_3M_FUTURE_EXPIRY_CONVENTION, US, FIXED_IBOR_3M_SWAP_ID, 1);
+  
+  private static final String IMM_FRA_CONVENTION_NAME = "IMMFRA-Quarterly-3M";
+  private static final ExternalId QUARTERLY_IMM_DATES = ExternalId.of(SCHEME_NAME, RollDateAdjusterFactory.QUARTERLY_IMM_ROLL_STRING);
+  private static final ExternalId IMM_FRA_CONVENTION_ID = ExternalId.of(SCHEME, IMM_FRA_CONVENTION_NAME);
+  private static final IMMFRAConvention IMM_FRA_CONVENTION = new IMMFRAConvention(IMM_FRA_CONVENTION_NAME, ExternalIdBundle.of(IMM_FRA_CONVENTION_ID), LIBOR_3M_ID, QUARTERLY_IMM_DATES);
+  
   private static final Map<ExternalId, Convention> CONVENTIONS = new HashMap<>();
   private static final ConventionSource CONVENTION_SOURCE;
   private static final HolidaySource HOLIDAY_SOURCE;
   private static final RegionSource REGION_SOURCE;
   private static final ZonedDateTime NOW = DateUtils.getUTCDate(2013, 5, 1);
+  
+
 
   static {
     CONVENTIONS.put(DEPOSIT_1D_ID, DEPOSIT_1D);
@@ -195,6 +207,7 @@ public class CurveNodeToDefinitionConverterTest {
     CONVENTIONS.put(FED_FUND_FUTURE_ID, FED_FUND);
     CONVENTIONS.put(FIXED_IBOR_3M_SWAP_ID, SWAP);
     CONVENTIONS.put(DELIVERABLE_SWAP_FUTURE_ID, SWAP_FUTURE);
+    CONVENTIONS.put(IMM_FRA_CONVENTION_ID, IMM_FRA_CONVENTION);
     CONVENTION_SOURCE = new TestConventionSource(CONVENTIONS);
     HOLIDAY_SOURCE = new MyHolidaySource(CALENDAR, "US");
     REGION_SOURCE = new MyRegionSource("US");
@@ -507,6 +520,42 @@ public class CurveNodeToDefinitionConverterTest {
     final ForwardRateAgreementDefinition fra = (ForwardRateAgreementDefinition) definition;
     final ForwardRateAgreementDefinition expectedFRA = ForwardRateAgreementDefinition.from(DateUtils.getUTCDate(2013, 9, 5), DateUtils.getUTCDate(2013, 12, 5), 1, index, rate, CALENDAR);
     assertEquals(expectedFRA, fra);
+  }
+  
+  @Test
+  /**
+   * Test the IMM FRA converter roll dates. Creates FRA with increasing IMM dates numbers and test them against hard-coded dates.
+   */
+  public void testIMMFRA() {
+    final IborIndex index = new IborIndex(Currency.USD, Tenor.THREE_MONTHS.getPeriod(), 2, THIRTY_360, MODIFIED_FOLLOWING, false, LIBOR_3M_ID.getValue());
+    final ExternalId marketDataId = ExternalId.of(SCHEME, "IMMFRA1");
+    final double rate = 0.0012345;
+    final SnapshotDataBundle marketValues = new SnapshotDataBundle();
+    marketValues.setDataPoint(marketDataId, rate);
+    final ZonedDateTime now = DateUtils.getUTCDate(2013, 9, 2);    
+    final CurveNodeVisitor<InstrumentDefinition<?>> converter = new IMMFRANodeConverter(CONVENTION_SOURCE, HOLIDAY_SOURCE, REGION_SOURCE, marketValues, marketDataId, now);
+    final int[] startNumbers = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 1};
+    final int[] endNumbers = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 13};
+    final ZonedDateTime[] expectedStartDates = new ZonedDateTime[] {DateUtils.getUTCDate(2013, 9, 18), DateUtils.getUTCDate(2013, 12, 18), DateUtils.getUTCDate(2014, 3, 19), 
+      DateUtils.getUTCDate(2014, 6, 18), DateUtils.getUTCDate(2014, 9, 17), DateUtils.getUTCDate(2014, 12, 17), DateUtils.getUTCDate(2015, 3, 18), 
+      DateUtils.getUTCDate(2015, 6, 17), DateUtils.getUTCDate(2015, 9, 16), DateUtils.getUTCDate(2015, 12, 16), DateUtils.getUTCDate(2016, 3, 16), 
+      DateUtils.getUTCDate(2016, 6, 15), DateUtils.getUTCDate(2013, 9, 18)};
+    final ZonedDateTime[] expectedEndDates = new ZonedDateTime[] {DateUtils.getUTCDate(2013, 12, 18), DateUtils.getUTCDate(2014, 3, 19), 
+      DateUtils.getUTCDate(2014, 6, 18), DateUtils.getUTCDate(2014, 9, 17), DateUtils.getUTCDate(2014, 12, 17), DateUtils.getUTCDate(2015, 3, 18), 
+      DateUtils.getUTCDate(2015, 6, 17), DateUtils.getUTCDate(2015, 9, 16), DateUtils.getUTCDate(2015, 12, 16), DateUtils.getUTCDate(2016, 3, 16), 
+      DateUtils.getUTCDate(2016, 6, 15), DateUtils.getUTCDate(2016, 9, 21), DateUtils.getUTCDate(2016, 9, 21)};
+    int nbTest = startNumbers.length;
+    for(int loopt=0; loopt<nbTest; loopt++) {
+      final IMMFRANode immFraNode = new IMMFRANode(Tenor.ONE_DAY, Tenor.THREE_MONTHS, startNumbers[loopt], endNumbers[loopt], IMM_FRA_CONVENTION_ID, "Mapper", "IMM FRA 3M 1/2");
+      final InstrumentDefinition<?> definition = immFraNode.accept(converter);
+      assertTrue("IMMFRANodeConverter: testIMMFRA - FRA instanceof", definition instanceof ForwardRateAgreementDefinition);
+      final ForwardRateAgreementDefinition fra = (ForwardRateAgreementDefinition) definition;
+      final ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(expectedStartDates[loopt], -index.getSpotLag(), CALENDAR);
+      final double acrualFactor = index.getDayCount().getDayCountFraction(expectedStartDates[loopt],  expectedEndDates[loopt]);
+      final ForwardRateAgreementDefinition expectedFRA = new ForwardRateAgreementDefinition(index.getCurrency(), expectedStartDates[loopt], expectedStartDates[loopt], 
+          expectedEndDates[loopt], acrualFactor, 1, fixingDate, expectedStartDates[loopt], expectedEndDates[loopt], index, rate, CALENDAR);
+      assertEquals("IMMFRANodeConverter: testIMMFRA - FRA dates", expectedFRA, fra);
+    }  
   }
 
   @Test

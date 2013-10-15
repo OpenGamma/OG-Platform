@@ -199,8 +199,8 @@ public class NonVersionedRedisConfigSourceComponentFactory extends AbstractNonVe
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("userClassifier").append('=').append(getUserClassifier()).append(',').append(' ');
-    buf.append("userConfigMaster").append('=').append(getUserConfigMaster()).append(',').append(' ');
+    buf.append("userClassifier").append('=').append(JodaBeanUtils.toString(getUserClassifier())).append(',').append(' ');
+    buf.append("userConfigMaster").append('=').append(JodaBeanUtils.toString(getUserConfigMaster())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

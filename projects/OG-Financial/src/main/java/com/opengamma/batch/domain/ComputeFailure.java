@@ -242,11 +242,11 @@ public class ComputeFailure extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("id").append('=').append(getId()).append(',').append(' ');
-    buf.append("functionId").append('=').append(getFunctionId()).append(',').append(' ');
-    buf.append("exceptionClass").append('=').append(getExceptionClass()).append(',').append(' ');
-    buf.append("exceptionMsg").append('=').append(getExceptionMsg()).append(',').append(' ');
-    buf.append("stackTrace").append('=').append(getStackTrace()).append(',').append(' ');
+    buf.append("id").append('=').append(JodaBeanUtils.toString(getId())).append(',').append(' ');
+    buf.append("functionId").append('=').append(JodaBeanUtils.toString(getFunctionId())).append(',').append(' ');
+    buf.append("exceptionClass").append('=').append(JodaBeanUtils.toString(getExceptionClass())).append(',').append(' ');
+    buf.append("exceptionMsg").append('=').append(JodaBeanUtils.toString(getExceptionMsg())).append(',').append(' ');
+    buf.append("stackTrace").append('=').append(JodaBeanUtils.toString(getStackTrace())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

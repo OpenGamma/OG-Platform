@@ -117,7 +117,7 @@ public class CogdaLiveDataSubscriptionResponseMessage extends CogdaLiveDataComma
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("snapshot").append('=').append(getSnapshot()).append(',').append(' ');
+    buf.append("snapshot").append('=').append(JodaBeanUtils.toString(getSnapshot())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

@@ -47,7 +47,7 @@ import com.opengamma.livedata.UserPrincipal;
       String viewDefinitionName = "AUD Swaps (3m / 6m basis) (1)";
       UniqueId viewDefId = SimulationUtils.latestViewDefinitionId(viewDefinitionName, configSource);
       List<MarketDataSpecification> marketDataSpecs =
-          ImmutableList.<MarketDataSpecification>of(new LiveMarketDataSpecification("Simulated live market data"));
+          ImmutableList.<MarketDataSpecification>of(LiveMarketDataSpecification.of("Simulated live market data"));
 
       // define the simulation -----------------------------------------------------------------------------------------
 

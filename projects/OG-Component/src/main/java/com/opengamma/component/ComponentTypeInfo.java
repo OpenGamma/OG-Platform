@@ -196,8 +196,8 @@ public class ComponentTypeInfo extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("type").append('=').append(getType()).append(',').append(' ');
-    buf.append("infoMap").append('=').append(getInfoMap()).append(',').append(' ');
+    buf.append("type").append('=').append(JodaBeanUtils.toString(getType())).append(',').append(' ');
+    buf.append("infoMap").append('=').append(JodaBeanUtils.toString(getInfoMap())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

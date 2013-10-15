@@ -188,8 +188,8 @@ public class DeliverableSwapFutureSecurity extends FutureSecurity {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("underlyingSwapId").append('=').append(getUnderlyingSwapId()).append(',').append(' ');
-    buf.append("notional").append('=').append(getNotional()).append(',').append(' ');
+    buf.append("underlyingSwapId").append('=').append(JodaBeanUtils.toString(getUnderlyingSwapId())).append(',').append(' ');
+    buf.append("notional").append('=').append(JodaBeanUtils.toString(getNotional())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

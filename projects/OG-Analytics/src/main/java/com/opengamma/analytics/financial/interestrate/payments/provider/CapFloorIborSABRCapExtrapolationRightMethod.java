@@ -79,7 +79,7 @@ public class CapFloorIborSABRCapExtrapolationRightMethod implements CapFloorIbor
       price = func.evaluate(dataBlack) * cap.getNotional() * cap.getPaymentYearFraction();
     } else { // With extrapolation
       SABRExtrapolationRightFunction sabrExtrapolation;
-      final DoublesPair expiryMaturity = new DoublesPair(cap.getFixingTime(), maturity);
+      final DoublesPair expiryMaturity = DoublesPair.of(cap.getFixingTime(), maturity);
       final double alpha = sabr.getSABRParameter().getAlpha(expiryMaturity);
       final double beta = sabr.getSABRParameter().getBeta(expiryMaturity);
       final double rho = sabr.getSABRParameter().getRho(expiryMaturity);
@@ -109,7 +109,7 @@ public class CapFloorIborSABRCapExtrapolationRightMethod implements CapFloorIbor
     final double dfDr = -cap.getPaymentTime() * df;
     final double maturity = cap.getFixingPeriodEndTime() - cap.getFixingPeriodStartTime();
     final List<DoublesPair> list = new ArrayList<>();
-    list.add(new DoublesPair(cap.getPaymentTime(), dfDr));
+    list.add(DoublesPair.of(cap.getPaymentTime(), dfDr));
     final Map<String, List<DoublesPair>> resultMap = new HashMap<>();
     resultMap.put(multicurve.getName(cap.getCurrency()), list);
     MulticurveSensitivity result = MulticurveSensitivity.ofYieldDiscounting(resultMap);
@@ -122,7 +122,7 @@ public class CapFloorIborSABRCapExtrapolationRightMethod implements CapFloorIbor
       bsPrice = bsAdjoint[0];
       bsDforward = df * (bsAdjoint[1] + bsAdjoint[2] * volatilityAdjoint[1]);
     } else { // With extrapolation
-      final DoublesPair expiryMaturity = new DoublesPair(cap.getFixingTime(), maturity);
+      final DoublesPair expiryMaturity = DoublesPair.of(cap.getFixingTime(), maturity);
       final double alpha = sabr.getSABRParameter().getAlpha(expiryMaturity);
       final double beta = sabr.getSABRParameter().getBeta(expiryMaturity);
       final double rho = sabr.getSABRParameter().getRho(expiryMaturity);
@@ -161,7 +161,7 @@ public class CapFloorIborSABRCapExtrapolationRightMethod implements CapFloorIbor
       bsDsabr[2] = bsAdjoint[2] * volatilityAdjoint[5];
       bsDsabr[3] = bsAdjoint[2] * volatilityAdjoint[6];
     } else { // With extrapolation
-      final DoublesPair expiryMaturity = new DoublesPair(cap.getFixingTime(), maturity);
+      final DoublesPair expiryMaturity = DoublesPair.of(cap.getFixingTime(), maturity);
       final double alpha = sabr.getSABRParameter().getAlpha(expiryMaturity);
       final double beta = sabr.getSABRParameter().getBeta(expiryMaturity);
       final double rho = sabr.getSABRParameter().getRho(expiryMaturity);
@@ -171,7 +171,7 @@ public class CapFloorIborSABRCapExtrapolationRightMethod implements CapFloorIbor
       sabrExtrapolation.priceAdjointSABR(option, bsDsabr);
     }
     final PresentValueSABRSensitivityDataBundle sensi = new PresentValueSABRSensitivityDataBundle();
-    final DoublesPair expiryMaturity = new DoublesPair(cap.getFixingTime(), maturity);
+    final DoublesPair expiryMaturity = DoublesPair.of(cap.getFixingTime(), maturity);
     sensi.addAlpha(expiryMaturity, cap.getNotional() * cap.getPaymentYearFraction() * df * bsDsabr[0]);
     sensi.addBeta(expiryMaturity, cap.getNotional() * cap.getPaymentYearFraction() * df * bsDsabr[1]);
     sensi.addRho(expiryMaturity, cap.getNotional() * cap.getPaymentYearFraction() * df * bsDsabr[2]);

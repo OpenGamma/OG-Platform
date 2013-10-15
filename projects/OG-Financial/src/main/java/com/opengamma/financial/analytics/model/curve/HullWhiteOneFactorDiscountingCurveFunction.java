@@ -89,6 +89,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Produces yield curves using the Hull-White one-factor discounting method.
@@ -258,7 +259,7 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
       //TODO this is only in here because the code in analytics doesn't use generics properly
       final Pair<HullWhiteOneFactorProviderDiscount, CurveBuildingBlockBundle> temp = builder.makeCurvesFromDerivatives(curveBundles,
           (HullWhiteOneFactorProviderDiscount) knownData, discountingMap, forwardIborMap, forwardONMap, getCalculator(), getSensitivityCalculator());
-      final Pair<HullWhiteOneFactorProviderInterface, CurveBuildingBlockBundle> result = Pair.of((HullWhiteOneFactorProviderInterface) temp.getFirst(), temp.getSecond());
+      final Pair<HullWhiteOneFactorProviderInterface, CurveBuildingBlockBundle> result = Pairs.of((HullWhiteOneFactorProviderInterface) temp.getFirst(), temp.getSecond());
       return result;
     }
 

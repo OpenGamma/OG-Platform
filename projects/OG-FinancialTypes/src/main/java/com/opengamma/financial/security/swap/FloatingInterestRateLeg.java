@@ -286,11 +286,11 @@ public class FloatingInterestRateLeg extends InterestRateLeg {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("floatingReferenceRateId").append('=').append(getFloatingReferenceRateId()).append(',').append(' ');
-    buf.append("initialFloatingRate").append('=').append(getInitialFloatingRate()).append(',').append(' ');
-    buf.append("floatingRateType").append('=').append(getFloatingRateType()).append(',').append(' ');
-    buf.append("settlementDays").append('=').append(getSettlementDays()).append(',').append(' ');
-    buf.append("offsetFixing").append('=').append(getOffsetFixing()).append(',').append(' ');
+    buf.append("floatingReferenceRateId").append('=').append(JodaBeanUtils.toString(getFloatingReferenceRateId())).append(',').append(' ');
+    buf.append("initialFloatingRate").append('=').append(JodaBeanUtils.toString(getInitialFloatingRate())).append(',').append(' ');
+    buf.append("floatingRateType").append('=').append(JodaBeanUtils.toString(getFloatingRateType())).append(',').append(' ');
+    buf.append("settlementDays").append('=').append(JodaBeanUtils.toString(getSettlementDays())).append(',').append(' ');
+    buf.append("offsetFixing").append('=').append(JodaBeanUtils.toString(getOffsetFixing())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

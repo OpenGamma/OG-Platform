@@ -314,11 +314,11 @@ public class FXForwardNode extends CurveNode {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("startTenor").append('=').append(getStartTenor()).append(',').append(' ');
-    buf.append("maturityTenor").append('=').append(getMaturityTenor()).append(',').append(' ');
-    buf.append("fxForwardConvention").append('=').append(getFxForwardConvention()).append(',').append(' ');
-    buf.append("payCurrency").append('=').append(getPayCurrency()).append(',').append(' ');
-    buf.append("receiveCurrency").append('=').append(getReceiveCurrency()).append(',').append(' ');
+    buf.append("startTenor").append('=').append(JodaBeanUtils.toString(getStartTenor())).append(',').append(' ');
+    buf.append("maturityTenor").append('=').append(JodaBeanUtils.toString(getMaturityTenor())).append(',').append(' ');
+    buf.append("fxForwardConvention").append('=').append(JodaBeanUtils.toString(getFxForwardConvention())).append(',').append(' ');
+    buf.append("payCurrency").append('=').append(JodaBeanUtils.toString(getPayCurrency())).append(',').append(' ');
+    buf.append("receiveCurrency").append('=').append(JodaBeanUtils.toString(getReceiveCurrency())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

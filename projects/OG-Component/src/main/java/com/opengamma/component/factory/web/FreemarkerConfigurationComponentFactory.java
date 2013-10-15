@@ -126,7 +126,7 @@ public class FreemarkerConfigurationComponentFactory extends AbstractComponentFa
   //-----------------------------------------------------------------------
   /**
    * Gets the locations of the templates.
-   * @return the value of the property, not null
+   * @return the value of the property, not empty
    */
   public String getTemplateLocations() {
     return _templateLocations;
@@ -134,7 +134,7 @@ public class FreemarkerConfigurationComponentFactory extends AbstractComponentFa
 
   /**
    * Sets the locations of the templates.
-   * @param templateLocations  the new value of the property, not null
+   * @param templateLocations  the new value of the property, not empty
    */
   public void setTemplateLocations(String templateLocations) {
     JodaBeanUtils.notEmpty(templateLocations, "templateLocations");
@@ -191,7 +191,7 @@ public class FreemarkerConfigurationComponentFactory extends AbstractComponentFa
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("templateLocations").append('=').append(getTemplateLocations()).append(',').append(' ');
+    buf.append("templateLocations").append('=').append(JodaBeanUtils.toString(getTemplateLocations())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

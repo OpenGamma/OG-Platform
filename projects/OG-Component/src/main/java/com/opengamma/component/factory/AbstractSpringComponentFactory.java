@@ -256,8 +256,8 @@ public abstract class AbstractSpringComponentFactory extends DirectBean implemen
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("springFile").append('=').append(getSpringFile()).append(',').append(' ');
-    buf.append("propertiesFile").append('=').append(getPropertiesFile()).append(',').append(' ');
+    buf.append("springFile").append('=').append(JodaBeanUtils.toString(getSpringFile())).append(',').append(' ');
+    buf.append("propertiesFile").append('=').append(JodaBeanUtils.toString(getPropertiesFile())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

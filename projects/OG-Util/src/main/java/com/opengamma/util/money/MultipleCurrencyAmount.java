@@ -44,7 +44,7 @@ import com.opengamma.util.ArgumentChecker;
  * <p>
  * This class is immutable and thread-safe.
  */
-@BeanDefinition
+@BeanDefinition(builderScope = "private")
 public final class MultipleCurrencyAmount implements ImmutableBean,
     Iterable<CurrencyAmount>, Serializable {
 
@@ -54,7 +54,7 @@ public final class MultipleCurrencyAmount implements ImmutableBean,
   /**
    * The map of {@code CurrencyAmount} keyed by currency.
    */
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private final ImmutableSortedMap<Currency, CurrencyAmount> _currencyAmountMap;
 
   /**
@@ -361,17 +361,9 @@ public final class MultipleCurrencyAmount implements ImmutableBean,
     JodaBeanUtils.registerMetaBean(MultipleCurrencyAmount.Meta.INSTANCE);
   }
 
-  /**
-   * Returns a builder used to create an instance of the bean.
-   *
-   * @return the builder, not null
-   */
-  public static MultipleCurrencyAmount.Builder builder() {
-    return new MultipleCurrencyAmount.Builder();
-  }
-
   private MultipleCurrencyAmount(
       SortedMap<Currency, CurrencyAmount> currencyAmountMap) {
+    JodaBeanUtils.notNull(currencyAmountMap, "currencyAmountMap");
     this._currencyAmountMap = ImmutableSortedMap.copyOf(currencyAmountMap);
   }
 
@@ -393,21 +385,13 @@ public final class MultipleCurrencyAmount implements ImmutableBean,
   //-----------------------------------------------------------------------
   /**
    * Gets the map of {@code CurrencyAmount} keyed by currency.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public ImmutableSortedMap<Currency, CurrencyAmount> getCurrencyAmountMap() {
     return _currencyAmountMap;
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public MultipleCurrencyAmount clone() {
     return this;
@@ -519,7 +503,7 @@ public final class MultipleCurrencyAmount implements ImmutableBean,
   /**
    * The bean-builder for {@code MultipleCurrencyAmount}.
    */
-  public static final class Builder extends BasicImmutableBeanBuilder<MultipleCurrencyAmount> {
+  private static final class Builder extends BasicImmutableBeanBuilder<MultipleCurrencyAmount> {
 
     private SortedMap<Currency, CurrencyAmount> _currencyAmountMap = new TreeMap<Currency, CurrencyAmount>();
 
@@ -557,17 +541,6 @@ public final class MultipleCurrencyAmount implements ImmutableBean,
     public MultipleCurrencyAmount build() {
       return new MultipleCurrencyAmount(
           _currencyAmountMap);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the {@code currencyAmountMap} property in the builder.
-     * @param currencyAmountMap  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder currencyAmountMap(SortedMap<Currency, CurrencyAmount> currencyAmountMap) {
-      this._currencyAmountMap = currencyAmountMap;
-      return this;
     }
 
     //-----------------------------------------------------------------------

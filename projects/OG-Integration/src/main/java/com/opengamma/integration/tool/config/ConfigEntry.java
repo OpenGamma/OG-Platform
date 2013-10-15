@@ -183,9 +183,9 @@ public class ConfigEntry extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("name").append('=').append(getName()).append(',').append(' ');
-    buf.append("type").append('=').append(getType()).append(',').append(' ');
-    buf.append("object").append('=').append(getObject()).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
+    buf.append("type").append('=').append(JodaBeanUtils.toString(getType())).append(',').append(' ');
+    buf.append("object").append('=').append(JodaBeanUtils.toString(getObject())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

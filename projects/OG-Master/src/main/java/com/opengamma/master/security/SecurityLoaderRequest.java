@@ -283,9 +283,9 @@ public class SecurityLoaderRequest extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("externalIdBundles").append('=').append(getExternalIdBundles()).append(',').append(' ');
-    buf.append("forceUpdate").append('=').append(isForceUpdate()).append(',').append(' ');
-    buf.append("returnSecurityObjects").append('=').append(isReturnSecurityObjects()).append(',').append(' ');
+    buf.append("externalIdBundles").append('=').append(JodaBeanUtils.toString(getExternalIdBundles())).append(',').append(' ');
+    buf.append("forceUpdate").append('=').append(JodaBeanUtils.toString(isForceUpdate())).append(',').append(' ');
+    buf.append("returnSecurityObjects").append('=').append(JodaBeanUtils.toString(isReturnSecurityObjects())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

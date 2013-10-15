@@ -25,6 +25,7 @@ import com.opengamma.analytics.math.matrix.MatrixAlgebraFactory;
 import com.opengamma.analytics.math.matrix.OGMatrixAlgebra;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Tests related to ParameterSensitivity manipulations.
@@ -37,10 +38,10 @@ public class MultipleCurrencyParameterSensitivityTest {
   private static final DoubleMatrix1D SENSITIVITY_2_1 = new DoubleMatrix1D(5.0, 1.0, 2.0, 5.0, 1.5);
   private static final String NAME_1 = "Name1";
   private static final String NAME_2 = "Name2";
-  private static final Pair<String, Currency> NAME_1_USD = Pair.of(NAME_1, USD);
-  private static final Pair<String, Currency> NAME_1_EUR = Pair.of(NAME_1, EUR);
-  private static final Pair<String, Currency> NAME_2_USD = Pair.of(NAME_2, USD);
-  private static final Pair<String, Currency> NAME_2_EUR = Pair.of(NAME_2, EUR);
+  private static final Pair<String, Currency> NAME_1_USD = Pairs.of(NAME_1, USD);
+  private static final Pair<String, Currency> NAME_1_EUR = Pairs.of(NAME_1, EUR);
+  private static final Pair<String, Currency> NAME_2_USD = Pairs.of(NAME_2, USD);
+  private static final Pair<String, Currency> NAME_2_EUR = Pairs.of(NAME_2, EUR);
 
   private static final double TOLERANCE = 1.0E-5;
 

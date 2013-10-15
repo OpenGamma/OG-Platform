@@ -84,12 +84,12 @@ public final class BillTransactionDiscountingMethod {
     final double dfDscSettleBar = bill.getSettlementAmount() * pvBar;
     final Map<String, List<DoublesPair>> resultMapCredit = new HashMap<>();
     final List<DoublesPair> listCredit = new ArrayList<>();
-    listCredit.add(new DoublesPair(bill.getBillPurchased().getEndTime(), -bill.getBillPurchased().getEndTime() * dfCreditEnd * dfCreditEndBar));
+    listCredit.add(DoublesPair.of(bill.getBillPurchased().getEndTime(), -bill.getBillPurchased().getEndTime() * dfCreditEnd * dfCreditEndBar));
     resultMapCredit.put(issuer.getName(issuerCcy), listCredit);
     final MulticurveSensitivity result = MulticurveSensitivity.ofYieldDiscounting(resultMapCredit);
     final Map<String, List<DoublesPair>> resultMapDsc = new HashMap<>();
     final List<DoublesPair> listDsc = new ArrayList<>();
-    listDsc.add(new DoublesPair(bill.getBillPurchased().getSettlementTime(), -bill.getBillPurchased().getSettlementTime() * dfDscSettle * dfDscSettleBar));
+    listDsc.add(DoublesPair.of(bill.getBillPurchased().getSettlementTime(), -bill.getBillPurchased().getSettlementTime() * dfDscSettle * dfDscSettleBar));
     resultMapDsc.put(issuer.getMulticurveProvider().getName(ccy), listDsc);
     return MultipleCurrencyMulticurveSensitivity.of(ccy, result.plus(MulticurveSensitivity.ofYieldDiscounting(resultMapDsc)));
   }
@@ -132,12 +132,12 @@ public final class BillTransactionDiscountingMethod {
     final double dfCreditEndBar = priceParBar / dfDscSettle;
     final Map<String, List<DoublesPair>> resultMapCredit = new HashMap<>();
     final List<DoublesPair> listCredit = new ArrayList<>();
-    listCredit.add(new DoublesPair(bill.getBillPurchased().getEndTime(), -bill.getBillPurchased().getEndTime() * dfCreditEnd * dfCreditEndBar));
+    listCredit.add(DoublesPair.of(bill.getBillPurchased().getEndTime(), -bill.getBillPurchased().getEndTime() * dfCreditEnd * dfCreditEndBar));
     resultMapCredit.put(issuer.getName(issuerCcy), listCredit);
     final MulticurveSensitivity result = MulticurveSensitivity.ofYieldDiscounting(resultMapCredit);
     final Map<String, List<DoublesPair>> resultMapDsc = new HashMap<>();
     final List<DoublesPair> listDsc = new ArrayList<>();
-    listDsc.add(new DoublesPair(bill.getBillPurchased().getSettlementTime(), -bill.getBillPurchased().getSettlementTime() * dfDscSettle * dfDscSettleBar));
+    listDsc.add(DoublesPair.of(bill.getBillPurchased().getSettlementTime(), -bill.getBillPurchased().getSettlementTime() * dfDscSettle * dfDscSettleBar));
     resultMapDsc.put(issuer.getMulticurveProvider().getName(ccy), listDsc);
     return result.plus(MulticurveSensitivity.ofYieldDiscounting(resultMapDsc));
   }

@@ -41,7 +41,7 @@ public class QuarterlyIMMRollDateAdjusterTest {
   }
 
   @Test
-  public void testThirdQuarter() {
+  public void testThirdQuarterBefore() {
     LocalDate date = LocalDate.of(2013, 6, 20);
     final LocalDate immDate = LocalDate.of(2013, 9, 18);
     while(!date.isAfter(immDate)) {

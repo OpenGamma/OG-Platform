@@ -329,12 +329,12 @@ public class MarketDataValue extends DirectBean implements ObjectIdentifiable {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("id").append('=').append(getId()).append(',').append(' ');
-    buf.append("marketDataId").append('=').append(getMarketDataId()).append(',').append(' ');
-    buf.append("computationTargetSpecification").append('=').append(getComputationTargetSpecification()).append(',').append(' ');
-    buf.append("computationTargetSpecificationId").append('=').append(getComputationTargetSpecificationId()).append(',').append(' ');
-    buf.append("name").append('=').append(getName()).append(',').append(' ');
-    buf.append("value").append('=').append(getValue()).append(',').append(' ');
+    buf.append("id").append('=').append(JodaBeanUtils.toString(getId())).append(',').append(' ');
+    buf.append("marketDataId").append('=').append(JodaBeanUtils.toString(getMarketDataId())).append(',').append(' ');
+    buf.append("computationTargetSpecification").append('=').append(JodaBeanUtils.toString(getComputationTargetSpecification())).append(',').append(' ');
+    buf.append("computationTargetSpecificationId").append('=').append(JodaBeanUtils.toString(getComputationTargetSpecificationId())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
+    buf.append("value").append('=').append(JodaBeanUtils.toString(getValue())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

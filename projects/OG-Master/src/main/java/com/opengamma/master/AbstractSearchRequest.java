@@ -205,8 +205,8 @@ public abstract class AbstractSearchRequest extends DirectBean implements PagedR
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("pagingRequest").append('=').append(getPagingRequest()).append(',').append(' ');
-    buf.append("versionCorrection").append('=').append(getVersionCorrection()).append(',').append(' ');
+    buf.append("pagingRequest").append('=').append(JodaBeanUtils.toString(getPagingRequest())).append(',').append(' ');
+    buf.append("versionCorrection").append('=').append(JodaBeanUtils.toString(getVersionCorrection())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

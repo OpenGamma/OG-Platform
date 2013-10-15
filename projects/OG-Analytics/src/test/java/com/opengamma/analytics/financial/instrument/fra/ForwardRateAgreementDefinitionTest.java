@@ -60,8 +60,10 @@ public class ForwardRateAgreementDefinitionTest {
   // Coupon with specific payment and accrual dates.
   private static final ForwardRateAgreementDefinition FRA_DEFINITION_1 = new ForwardRateAgreementDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR_PAYMENT, NOTIONAL,
       FIXING_DATE, INDEX, FRA_RATE, CALENDAR);
-  private static final ForwardRateAgreementDefinition FRA_DEFINITION_2 = ForwardRateAgreementDefinition.from(FRA_DEFINITION_1, FIXING_DATE, INDEX, FRA_RATE, CALENDAR);
-  private static final ForwardRateAgreementDefinition FRA_DEFINITION_3 = ForwardRateAgreementDefinition.from(ACCRUAL_START_DATE, ACCRUAL_END_DATE, NOTIONAL, INDEX, FRA_RATE, CALENDAR);
+  private static final ForwardRateAgreementDefinition FRA_DEFINITION_2 = new ForwardRateAgreementDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR_PAYMENT, NOTIONAL,
+      FIXING_DATE, FIXING_START_DATE.plusDays(1), FIXING_END_DATE.plusDays(1), INDEX, FRA_RATE, CALENDAR);
+  private static final ForwardRateAgreementDefinition FRA_DEFINITION_3 = ForwardRateAgreementDefinition.from(FRA_DEFINITION_1, FIXING_DATE, INDEX, FRA_RATE, CALENDAR);
+  private static final ForwardRateAgreementDefinition FRA_DEFINITION_4 = ForwardRateAgreementDefinition.from(ACCRUAL_START_DATE, ACCRUAL_END_DATE, NOTIONAL, INDEX, FRA_RATE, CALENDAR);
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 12, 27); //For conversion to derivative
 
@@ -110,25 +112,27 @@ public class ForwardRateAgreementDefinitionTest {
     assertEquals(FRA_DEFINITION_1.getRate(), FRA_RATE);
     assertEquals(FRA_DEFINITION_1.getFixingPeriodStartDate(), FIXING_START_DATE);
     assertEquals(FRA_DEFINITION_1.getFixingPeriodEndDate(), FIXING_END_DATE);
-    assertEquals(FRA_DEFINITION_2.getAccrualStartDate(), ACCRUAL_START_DATE);
-    assertEquals(FRA_DEFINITION_2.getAccrualEndDate(), ACCRUAL_END_DATE);
-    assertEquals(FRA_DEFINITION_2.getIndex(), INDEX);
-    assertEquals(FRA_DEFINITION_2.getPaymentYearFraction(), ACCRUAL_FACTOR_PAYMENT);
-    assertEquals(FRA_DEFINITION_2.getRate(), FRA_RATE);
-    assertEquals(FRA_DEFINITION_2.getFixingPeriodStartDate(), FIXING_START_DATE);
-    assertEquals(FRA_DEFINITION_2.getFixingPeriodEndDate(), FIXING_END_DATE);
-    assertEquals("ForwardRateAgreementDefinition: from", FRA_DEFINITION_3.getAccrualStartDate(), ACCRUAL_START_DATE);
-    assertEquals("ForwardRateAgreementDefinition: from", FRA_DEFINITION_3.getAccrualEndDate(), ACCRUAL_END_DATE);
+    assertEquals(FRA_DEFINITION_2.getFixingPeriodStartDate(), FIXING_START_DATE.plusDays(1));
+    assertEquals(FRA_DEFINITION_2.getFixingPeriodEndDate(), FIXING_END_DATE.plusDays(1));
+    assertEquals(FRA_DEFINITION_3.getAccrualStartDate(), ACCRUAL_START_DATE);
+    assertEquals(FRA_DEFINITION_3.getAccrualEndDate(), ACCRUAL_END_DATE);
+    assertEquals(FRA_DEFINITION_3.getIndex(), INDEX);
+    assertEquals(FRA_DEFINITION_3.getPaymentYearFraction(), ACCRUAL_FACTOR_PAYMENT);
+    assertEquals(FRA_DEFINITION_3.getRate(), FRA_RATE);
+    assertEquals(FRA_DEFINITION_3.getFixingPeriodStartDate(), FIXING_START_DATE);
+    assertEquals(FRA_DEFINITION_3.getFixingPeriodEndDate(), FIXING_END_DATE);
+    assertEquals("ForwardRateAgreementDefinition: from", FRA_DEFINITION_4.getAccrualStartDate(), ACCRUAL_START_DATE);
+    assertEquals("ForwardRateAgreementDefinition: from", FRA_DEFINITION_4.getAccrualEndDate(), ACCRUAL_END_DATE);
     final double accrualFactorPay = DAY_COUNT_INDEX.getDayCountFraction(ACCRUAL_START_DATE, ACCRUAL_END_DATE);
-    assertEquals("ForwardRateAgreementDefinition: from", FRA_DEFINITION_3.getPaymentYearFraction(), accrualFactorPay);
-    assertEquals("ForwardRateAgreementDefinition: from", FRA_DEFINITION_3.getPaymentDate(), ACCRUAL_START_DATE);
+    assertEquals("ForwardRateAgreementDefinition: from", FRA_DEFINITION_4.getPaymentYearFraction(), accrualFactorPay);
+    assertEquals("ForwardRateAgreementDefinition: from", FRA_DEFINITION_4.getPaymentDate(), ACCRUAL_START_DATE);
     final ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(ACCRUAL_START_DATE, -SETTLEMENT_DAYS, CALENDAR);
-    assertEquals("ForwardRateAgreementDefinition: from", FRA_DEFINITION_3.getFixingDate(), fixingDate);
-    assertEquals("ForwardRateAgreementDefinition: from", FRA_DEFINITION_3.getIndex(), INDEX);
-    assertEquals("ForwardRateAgreementDefinition: from", FRA_DEFINITION_3.getRate(), FRA_RATE);
-    assertEquals("ForwardRateAgreementDefinition: from", FRA_DEFINITION_3.getFixingPeriodStartDate(), ACCRUAL_START_DATE);
+    assertEquals("ForwardRateAgreementDefinition: from", FRA_DEFINITION_4.getFixingDate(), fixingDate);
+    assertEquals("ForwardRateAgreementDefinition: from", FRA_DEFINITION_4.getIndex(), INDEX);
+    assertEquals("ForwardRateAgreementDefinition: from", FRA_DEFINITION_4.getRate(), FRA_RATE);
+    assertEquals("ForwardRateAgreementDefinition: from", FRA_DEFINITION_4.getFixingPeriodStartDate(), ACCRUAL_START_DATE);
     final ZonedDateTime fixingPeriodEndDate = ScheduleCalculator.getAdjustedDate(ACCRUAL_START_DATE, INDEX, CALENDAR);
-    assertEquals("ForwardRateAgreementDefinition: from", FRA_DEFINITION_3.getFixingPeriodEndDate(), fixingPeriodEndDate);
+    assertEquals("ForwardRateAgreementDefinition: from", FRA_DEFINITION_4.getFixingPeriodEndDate(), fixingPeriodEndDate);
   }
 
   @Test
@@ -142,7 +146,8 @@ public class ForwardRateAgreementDefinitionTest {
     final ZonedDateTime accrualEndDate = ScheduleCalculator.getAdjustedDate(spotDate, endPeriod, INDEX, CALENDAR);
     final ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(accrualStartDate, -SETTLEMENT_DAYS, CALENDAR);
     final double accrualFactor = DAY_COUNT_INDEX.getDayCountFraction(accrualStartDate, accrualEndDate);
-    final ForwardRateAgreementDefinition fraExpected = new ForwardRateAgreementDefinition(CUR, accrualStartDate, accrualStartDate, accrualEndDate, accrualFactor, NOTIONAL, fixingDate, INDEX, FRA_RATE, CALENDAR);
+    final ForwardRateAgreementDefinition fraExpected = new ForwardRateAgreementDefinition(CUR, accrualStartDate, accrualStartDate, accrualEndDate, accrualFactor, NOTIONAL, fixingDate, INDEX,
+        FRA_RATE, CALENDAR);
     assertEquals("FRA builder", fraExpected, fraFromTrade);
   }
 
@@ -186,7 +191,7 @@ public class ForwardRateAgreementDefinitionTest {
     final double fixingPeriodEndTime = actAct.getDayCountFraction(zonedDate, FRA_DEFINITION_1.getFixingPeriodEndDate());
     final String fundingCurve = "Funding";
     final String forwardCurve = "Forward";
-    final String[] curves = {fundingCurve, forwardCurve};
+    final String[] curves = {fundingCurve, forwardCurve };
     final ForwardRateAgreement fra = new ForwardRateAgreement(CUR, paymentTime, fundingCurve, ACCRUAL_FACTOR_PAYMENT, NOTIONAL, INDEX, fixingTime, fixingPeriodStartTime, fixingPeriodEndTime,
         FRA_DEFINITION_1.getFixingPeriodAccrualFactor(), FRA_RATE, forwardCurve);
     final ForwardRateAgreement convertedFra = (ForwardRateAgreement) FRA_DEFINITION_1.toDerivative(REFERENCE_DATE, curves);
@@ -194,7 +199,7 @@ public class ForwardRateAgreementDefinitionTest {
     assertEquals(fra, convertedFra);
     final double shift = 0.01;
     final DoubleTimeSeries<ZonedDateTime> fixingTS = ImmutableZonedDateTimeDoubleTimeSeries.of(FIXING_DATE, FRA_RATE + shift);
-    final ForwardRateAgreement convertedFra2 = (ForwardRateAgreement) FRA_DEFINITION_2.toDerivative(REFERENCE_DATE, fixingTS, curves);
+    final ForwardRateAgreement convertedFra2 = (ForwardRateAgreement) FRA_DEFINITION_3.toDerivative(REFERENCE_DATE, fixingTS, curves);
     assertEquals(fra, convertedFra2);
   }
 
@@ -211,7 +216,7 @@ public class ForwardRateAgreementDefinitionTest {
     final double paymentTime = actAct.getDayCountFraction(zonedDate, PAYMENT_DATE);
     final String fundingCurve = "Funding";
     final String forwardCurve = "Forward";
-    final String[] curves = {fundingCurve, forwardCurve};
+    final String[] curves = {fundingCurve, forwardCurve };
     final CouponFixed fra = new CouponFixed(CUR, paymentTime, fundingCurve, ACCRUAL_FACTOR_PAYMENT, NOTIONAL, (FRA_RATE + shift) - FRA_RATE);
     final Payment convertedFra = fraFixed.toDerivative(referenceFixed, fixingTS, curves);
     assertEquals(convertedFra.equals(fra), true);
@@ -232,7 +237,7 @@ public class ForwardRateAgreementDefinitionTest {
     assertEquals(fra, convertedFra);
     final double shift = 0.01;
     final DoubleTimeSeries<ZonedDateTime> fixingTS = ImmutableZonedDateTimeDoubleTimeSeries.of(FIXING_DATE, FRA_RATE + shift);
-    final ForwardRateAgreement convertedFra2 = (ForwardRateAgreement) FRA_DEFINITION_2.toDerivative(REFERENCE_DATE, fixingTS);
+    final ForwardRateAgreement convertedFra2 = (ForwardRateAgreement) FRA_DEFINITION_3.toDerivative(REFERENCE_DATE, fixingTS);
     assertEquals(fra, convertedFra2);
   }
 

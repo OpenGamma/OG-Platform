@@ -333,12 +333,12 @@ public abstract class SwapLeg extends DirectBean implements Serializable {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("dayCount").append('=').append(getDayCount()).append(',').append(' ');
-    buf.append("frequency").append('=').append(getFrequency()).append(',').append(' ');
-    buf.append("regionId").append('=').append(getRegionId()).append(',').append(' ');
-    buf.append("businessDayConvention").append('=').append(getBusinessDayConvention()).append(',').append(' ');
-    buf.append("notional").append('=').append(getNotional()).append(',').append(' ');
-    buf.append("eom").append('=').append(isEom()).append(',').append(' ');
+    buf.append("dayCount").append('=').append(JodaBeanUtils.toString(getDayCount())).append(',').append(' ');
+    buf.append("frequency").append('=').append(JodaBeanUtils.toString(getFrequency())).append(',').append(' ');
+    buf.append("regionId").append('=').append(JodaBeanUtils.toString(getRegionId())).append(',').append(' ');
+    buf.append("businessDayConvention").append('=').append(JodaBeanUtils.toString(getBusinessDayConvention())).append(',').append(' ');
+    buf.append("notional").append('=').append(JodaBeanUtils.toString(getNotional())).append(',').append(' ');
+    buf.append("eom").append('=').append(JodaBeanUtils.toString(isEom())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

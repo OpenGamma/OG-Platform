@@ -20,7 +20,6 @@ import cern.jet.random.engine.RandomEngine;
 import com.opengamma.analytics.math.function.Function2D;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.util.tuple.DoublesPair;
-import com.opengamma.util.tuple.Pair;
 
 /**
  *
@@ -69,7 +68,7 @@ public class GridInterpolator2DTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDataBundle() {
-    INTERPOLATOR_2D.interpolate(null, Pair.of(2., 4.));
+    INTERPOLATOR_2D.interpolate(null, DoublesPair.of(2., 4.));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -80,7 +79,7 @@ public class GridInterpolator2DTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullPair() {
     final Map<DoublesPair, Double> map = new HashMap<>();
-    map.put(Pair.of(1., 0.), null);
+    map.put(DoublesPair.of(1., 0.), null);
     INTERPOLATOR_2D.interpolate(INTERPOLATOR_2D.getDataBundle(map), DoublesPair.of(0.5, 0.5));
   }
 
@@ -99,12 +98,12 @@ public class GridInterpolator2DTest {
 
   @Test
   public void test() {
-    assertEquals(INTERPOLATOR_2D.interpolate(FLAT_DATA_BUNDLE, Pair.of(2.5, 5.4)), 0., EPS);
+    assertEquals(INTERPOLATOR_2D.interpolate(FLAT_DATA_BUNDLE, DoublesPair.of(2.5, 5.4)), 0., EPS);
     final Map<DoublesPair, Double> nonTrivial = new HashMap<>();
     for (final DoublesPair pair : FLAT_DATA.keySet()) {
       nonTrivial.put(pair, F.evaluate(pair.getFirst(), pair.getSecond()));
     }
-    final DoublesPair pair = Pair.of(RANDOM.nextDouble() + 2, RANDOM.nextDouble() + 4);
+    final DoublesPair pair = DoublesPair.of(RANDOM.nextDouble() + 2, RANDOM.nextDouble() + 4);
     assertEquals(INTERPOLATOR_2D.interpolate(INTERPOLATOR_2D.getDataBundle(nonTrivial), pair), F.evaluate(pair.getFirst(), pair.getSecond()), EPS);
   }
 }

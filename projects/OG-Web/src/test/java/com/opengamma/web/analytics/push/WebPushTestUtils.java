@@ -33,8 +33,8 @@ import org.springframework.web.context.ContextLoaderListener;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 public class WebPushTestUtils {
 
@@ -170,7 +170,7 @@ public class WebPushTestUtils {
     if (lpcmMap.size() == 1) {
       WebPushServletContextUtils.setLongPollingConnectionManager(servletContext, lpcmMap.values().iterator().next());
     }
-    return new ObjectsPair<Server, WebApplicationContext>(server, springContext);
+    return Pairs.of(server, springContext);
   }
 
   /**

@@ -366,13 +366,13 @@ public class CreditDefaultSwapIndexDefinitionSecurity extends FinancialSecurity 
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("version").append('=').append(getVersion()).append(',').append(' ');
-    buf.append("series").append('=').append(getSeries()).append(',').append(' ');
-    buf.append("family").append('=').append(getFamily()).append(',').append(' ');
-    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
-    buf.append("recoveryRate").append('=').append(getRecoveryRate()).append(',').append(' ');
-    buf.append("terms").append('=').append(getTerms()).append(',').append(' ');
-    buf.append("components").append('=').append(getComponents()).append(',').append(' ');
+    buf.append("version").append('=').append(JodaBeanUtils.toString(getVersion())).append(',').append(' ');
+    buf.append("series").append('=').append(JodaBeanUtils.toString(getSeries())).append(',').append(' ');
+    buf.append("family").append('=').append(JodaBeanUtils.toString(getFamily())).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("recoveryRate").append('=').append(JodaBeanUtils.toString(getRecoveryRate())).append(',').append(' ');
+    buf.append("terms").append('=').append(JodaBeanUtils.toString(getTerms())).append(',').append(' ');
+    buf.append("components").append('=').append(JodaBeanUtils.toString(getComponents())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

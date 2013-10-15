@@ -162,7 +162,7 @@ public abstract class AbstractSearchResult<D extends AbstractDocument> extends A
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("versionCorrection").append('=').append(getVersionCorrection()).append(',').append(' ');
+    buf.append("versionCorrection").append('=').append(JodaBeanUtils.toString(getVersionCorrection())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

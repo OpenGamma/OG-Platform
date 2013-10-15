@@ -229,9 +229,9 @@ public class BatchGetRequest extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("batchId").append('=').append(getBatchId()).append(',').append(' ');
-    buf.append("dataPagingRequest").append('=').append(getDataPagingRequest()).append(',').append(' ');
-    buf.append("errorPagingRequest").append('=').append(getErrorPagingRequest()).append(',').append(' ');
+    buf.append("batchId").append('=').append(JodaBeanUtils.toString(getBatchId())).append(',').append(' ');
+    buf.append("dataPagingRequest").append('=').append(JodaBeanUtils.toString(getDataPagingRequest())).append(',').append(' ');
+    buf.append("errorPagingRequest").append('=').append(JodaBeanUtils.toString(getErrorPagingRequest())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

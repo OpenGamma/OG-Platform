@@ -135,7 +135,7 @@ public class ConfigMetaDataResult extends AbstractMetaDataResult {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("configTypes").append('=').append(getConfigTypes()).append(',').append(' ');
+    buf.append("configTypes").append('=').append(JodaBeanUtils.toString(getConfigTypes())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

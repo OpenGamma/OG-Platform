@@ -43,6 +43,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 
 /**
@@ -180,7 +181,7 @@ public class DbHistoricalTimeSeriesDataPointsWorker extends AbstractDbMaster {
       public Pair<UniqueId, Instant> doInTransaction(final TransactionStatus status) {
         final Instant now = now();
         insertDataPointsCheckMaxDate(uniqueId, series);
-        return Pair.of(insertDataPoints(uniqueId, series, now), now);
+        return Pairs.of(insertDataPoints(uniqueId, series, now), now);
       }
     });
     getMaster().changeManager().entityChanged(ChangeType.CHANGED, objectId.getObjectId(), null, null, result.getSecond());
@@ -256,7 +257,7 @@ public class DbHistoricalTimeSeriesDataPointsWorker extends AbstractDbMaster {
       @Override
       public Pair<UniqueId, Instant> doInTransaction(final TransactionStatus status) {
         final Instant now = now();
-        return Pair.of(correctDataPoints(uniqueId, series, now), now);
+        return Pairs.of(correctDataPoints(uniqueId, series, now), now);
       }
     });
     getMaster().changeManager().entityChanged(ChangeType.CHANGED, objectId.getObjectId(), null, null, result.getSecond());
@@ -306,7 +307,7 @@ public class DbHistoricalTimeSeriesDataPointsWorker extends AbstractDbMaster {
       @Override
       public Pair<UniqueId, Instant> doInTransaction(final TransactionStatus status) {
         final Instant now = now();
-        return Pair.of(removeDataPoints(uniqueId, fromDateInclusive, toDateInclusive, now), now);
+        return Pairs.of(removeDataPoints(uniqueId, fromDateInclusive, toDateInclusive, now), now);
       }
     });
     getMaster().changeManager().entityChanged(ChangeType.CHANGED, objectId.getObjectId(), null, null, result.getSecond());

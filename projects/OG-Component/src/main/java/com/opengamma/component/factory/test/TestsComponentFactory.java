@@ -248,9 +248,9 @@ public class TestsComponentFactory extends AbstractComponentFactory {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("enableSecurities").append('=').append(isEnableSecurities()).append(',').append(' ');
-    buf.append("enableSnapshots").append('=').append(isEnableSnapshots()).append(',').append(' ');
-    buf.append("enableYieldCurves").append('=').append(isEnableYieldCurves()).append(',').append(' ');
+    buf.append("enableSecurities").append('=').append(JodaBeanUtils.toString(isEnableSecurities())).append(',').append(' ');
+    buf.append("enableSnapshots").append('=').append(JodaBeanUtils.toString(isEnableSnapshots())).append(',').append(' ');
+    buf.append("enableYieldCurves").append('=').append(JodaBeanUtils.toString(isEnableYieldCurves())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

@@ -122,7 +122,7 @@ public class OutputsResolution extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("outputs").append('=').append(getOutputs()).append(',').append(' ');
+    buf.append("outputs").append('=').append(JodaBeanUtils.toString(getOutputs())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

@@ -135,7 +135,7 @@ public class BloombergSecurityProviderComponentFactory extends SecurityProviderC
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("referenceDataProvider").append('=').append(getReferenceDataProvider()).append(',').append(' ');
+    buf.append("referenceDataProvider").append('=').append(JodaBeanUtils.toString(getReferenceDataProvider())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

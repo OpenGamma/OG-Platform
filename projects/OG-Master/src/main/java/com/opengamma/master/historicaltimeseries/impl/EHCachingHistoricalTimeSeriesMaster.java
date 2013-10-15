@@ -34,7 +34,7 @@ import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.paging.Paging;
 import com.opengamma.util.paging.PagingRequest;
-import com.opengamma.util.tuple.ObjectsPair;
+import com.opengamma.util.tuple.IntObjectPair;
 
 /**
  * A cache decorating a {@code HistoricalTimeSeriesMaster}, mainly intended to reduce the frequency and repetition of queries to
@@ -66,7 +66,7 @@ public class EHCachingHistoricalTimeSeriesMaster extends AbstractEHCachingMaster
     // Create the document search cache and register a historicalTimeSeries master searcher
     _documentSearchCache = new EHCachingSearchCache(name + "HistoricalTimeSeries", cacheManager, new EHCachingSearchCache.Searcher() {
       @Override
-      public ObjectsPair<Integer, List<UniqueId>> search(Bean request, PagingRequest pagingRequest) {
+      public IntObjectPair<List<UniqueId>> search(Bean request, PagingRequest pagingRequest) {
         // Fetch search results from underlying master
         HistoricalTimeSeriesInfoSearchResult result = ((HistoricalTimeSeriesMaster) getUnderlying()).search((HistoricalTimeSeriesInfoSearchRequest)
             EHCachingSearchCache.withPagingRequest(request, pagingRequest));
@@ -75,7 +75,7 @@ public class EHCachingHistoricalTimeSeriesMaster extends AbstractEHCachingMaster
         EHCachingSearchCache.cacheDocuments(result.getDocuments(), getUidToDocumentCache());
 
         // Return the list of result UniqueIds
-        return new ObjectsPair<>(result.getPaging().getTotalItems(),
+        return IntObjectPair.of(result.getPaging().getTotalItems(),
                                  EHCachingSearchCache.extractUniqueIds(result.getDocuments()));
       }
     });
@@ -83,7 +83,7 @@ public class EHCachingHistoricalTimeSeriesMaster extends AbstractEHCachingMaster
     // Create the history search cache and register a historicalTimeSeries master searcher
     _historySearchCache = new EHCachingSearchCache(name + "HistoricalTimeSeriesHistory", cacheManager, new EHCachingSearchCache.Searcher() {
       @Override
-      public ObjectsPair<Integer, List<UniqueId>> search(Bean request, PagingRequest pagingRequest) {
+      public IntObjectPair<List<UniqueId>> search(Bean request, PagingRequest pagingRequest) {
         // Fetch search results from underlying master
         HistoricalTimeSeriesInfoHistoryResult result = ((HistoricalTimeSeriesMaster) getUnderlying()).history((HistoricalTimeSeriesInfoHistoryRequest)
             EHCachingSearchCache.withPagingRequest(request, pagingRequest));
@@ -92,7 +92,7 @@ public class EHCachingHistoricalTimeSeriesMaster extends AbstractEHCachingMaster
         EHCachingSearchCache.cacheDocuments(result.getDocuments(), getUidToDocumentCache());
 
         // Return the list of result UniqueIds
-        return new ObjectsPair<>(result.getPaging().getTotalItems(),
+        return IntObjectPair.of(result.getPaging().getTotalItems(),
                                  EHCachingSearchCache.extractUniqueIds(result.getDocuments()));
       }
     });
@@ -108,7 +108,7 @@ public class EHCachingHistoricalTimeSeriesMaster extends AbstractEHCachingMaster
     _documentSearchCache.prefetch(EHCachingSearchCache.withPagingRequest(request, null), request.getPagingRequest());
 
     // Fetch the paged request range; if not entirely cached then fetch and cache it in foreground
-    ObjectsPair<Integer, List<UniqueId>> pair = _documentSearchCache.search(
+    IntObjectPair<List<UniqueId>> pair = _documentSearchCache.search(
         EHCachingSearchCache.withPagingRequest(request, null),
         request.getPagingRequest(), false);
 
@@ -118,7 +118,7 @@ public class EHCachingHistoricalTimeSeriesMaster extends AbstractEHCachingMaster
     }
 
     HistoricalTimeSeriesInfoSearchResult result = new HistoricalTimeSeriesInfoSearchResult(documents);
-    result.setPaging(Paging.of(request.getPagingRequest(), pair.getFirst()));
+    result.setPaging(Paging.of(request.getPagingRequest(), pair.getFirstInt()));
 
     final VersionCorrection vc = request.getVersionCorrection().withLatestFixed(Instant.now());
     result.setVersionCorrection(vc);
@@ -197,7 +197,7 @@ public class EHCachingHistoricalTimeSeriesMaster extends AbstractEHCachingMaster
     _historySearchCache.prefetch(EHCachingSearchCache.withPagingRequest(request, null), request.getPagingRequest());
 
     // Fetch the paged request range; if not entirely cached then fetch and cache it in foreground
-    ObjectsPair<Integer, List<UniqueId>> pair = _historySearchCache.search(
+    IntObjectPair<List<UniqueId>> pair = _historySearchCache.search(
         EHCachingSearchCache.withPagingRequest(request, null),
         request.getPagingRequest(), false); // don't block until cached
 
@@ -207,7 +207,7 @@ public class EHCachingHistoricalTimeSeriesMaster extends AbstractEHCachingMaster
     }
 
     HistoricalTimeSeriesInfoHistoryResult result = new HistoricalTimeSeriesInfoHistoryResult(documents);
-    result.setPaging(Paging.of(request.getPagingRequest(), pair.getFirst()));
+    result.setPaging(Paging.of(request.getPagingRequest(), pair.getFirstInt()));
     return result;
   }
 

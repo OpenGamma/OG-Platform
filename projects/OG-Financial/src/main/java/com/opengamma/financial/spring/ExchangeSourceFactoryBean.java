@@ -173,8 +173,8 @@ public class ExchangeSourceFactoryBean extends SpringFactoryBean<ExchangeSource>
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("exchangeMaster").append('=').append(getExchangeMaster()).append(',').append(' ');
-    buf.append("cacheManager").append('=').append(getCacheManager()).append(',').append(' ');
+    buf.append("exchangeMaster").append('=').append(JodaBeanUtils.toString(getExchangeMaster())).append(',').append(' ');
+    buf.append("cacheManager").append('=').append(JodaBeanUtils.toString(getCacheManager())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

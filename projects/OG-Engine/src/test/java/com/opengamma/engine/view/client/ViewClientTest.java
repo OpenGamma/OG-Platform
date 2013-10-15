@@ -72,6 +72,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.test.Timeout;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Tests ViewClient
@@ -588,7 +589,7 @@ public class ViewClientTest {
     assertFalse(log1.getLogLevels().contains(LogLevel.INFO));
     assertNull(log1.getLogs());
 
-    final Pair<String, ValueSpecification> resultSpec = Pair.of(calcConfig.getName(), Iterables.getOnlyElement(client.getLatestCompiledViewDefinition().getTerminalValuesRequirements().keySet()));
+    final Pair<String, ValueSpecification> resultSpec = Pairs.of(calcConfig.getName(), Iterables.getOnlyElement(client.getLatestCompiledViewDefinition().getTerminalValuesRequirements().keySet()));
     client.setMinimumLogMode(ExecutionLogMode.FULL, ImmutableSet.of(resultSpec));
 
     final ViewProcessImpl viewProcess = env.getViewProcess(vp, client.getUniqueId());

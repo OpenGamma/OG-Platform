@@ -248,8 +248,8 @@ public class BloombergContractID extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("contractCode").append('=').append(getContractCode()).append(',').append(' ');
-    buf.append("marketSector").append('=').append(getMarketSector()).append(',').append(' ');
+    buf.append("contractCode").append('=').append(JodaBeanUtils.toString(getContractCode())).append(',').append(' ');
+    buf.append("marketSector").append('=').append(JodaBeanUtils.toString(getMarketSector())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

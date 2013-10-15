@@ -162,7 +162,7 @@ public class YearOnYearInflationSwapSecurity extends SwapSecurity {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("maturityTenor").append('=').append(getMaturityTenor()).append(',').append(' ');
+    buf.append("maturityTenor").append('=').append(JodaBeanUtils.toString(getMaturityTenor())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

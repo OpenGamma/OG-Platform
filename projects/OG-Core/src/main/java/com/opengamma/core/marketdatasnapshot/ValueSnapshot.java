@@ -262,7 +262,7 @@ public final class ValueSnapshot implements Bean, Serializable {
     StringBuilder buf = new StringBuilder(96);
     buf.append("ValueSnapshot{");
     buf.append("marketValue").append('=').append(getMarketValue()).append(',').append(' ');
-    buf.append("overrideValue").append('=').append(getOverrideValue());
+    buf.append("overrideValue").append('=').append(JodaBeanUtils.toString(getOverrideValue()));
     buf.append('}');
     return buf.toString();
   }

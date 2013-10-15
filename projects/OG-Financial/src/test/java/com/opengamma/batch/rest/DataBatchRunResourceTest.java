@@ -37,6 +37,7 @@ import com.opengamma.util.paging.Paging;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
@@ -94,7 +95,7 @@ public class DataBatchRunResourceTest {
     List<ViewResultEntry> viewResultEntries = newArrayList(mockViewResultEntry);
     Paging paging = Paging.of(pagingRequest, viewResultEntries);
     
-    when(_underlying.getBatchValues(_riskRunId, pagingRequest)).thenReturn(Pair.of(viewResultEntries, paging));
+    when(_underlying.getBatchValues(_riskRunId, pagingRequest)).thenReturn(Pairs.of(viewResultEntries, paging));
     Response response = _resource.getBatchValues(pagingRequest);
     
     Object entity = response.getEntity();

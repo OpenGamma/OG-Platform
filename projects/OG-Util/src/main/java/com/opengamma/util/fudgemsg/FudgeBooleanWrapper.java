@@ -153,7 +153,7 @@ public class FudgeBooleanWrapper extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("value").append('=').append(isValue()).append(',').append(' ');
+    buf.append("value").append('=').append(JodaBeanUtils.toString(isValue())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

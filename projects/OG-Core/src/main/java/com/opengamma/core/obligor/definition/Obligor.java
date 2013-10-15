@@ -554,18 +554,18 @@ public class Obligor extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("obligorTicker").append('=').append(getObligorTicker()).append(',').append(' ');
-    buf.append("obligorShortName").append('=').append(getObligorShortName()).append(',').append(' ');
-    buf.append("obligorREDCode").append('=').append(getObligorREDCode()).append(',').append(' ');
-    buf.append("compositeRating").append('=').append(getCompositeRating()).append(',').append(' ');
-    buf.append("impliedRating").append('=').append(getImpliedRating()).append(',').append(' ');
-    buf.append("moodysCreditRating").append('=').append(getMoodysCreditRating()).append(',').append(' ');
-    buf.append("standardAndPoorsCreditRating").append('=').append(getStandardAndPoorsCreditRating()).append(',').append(' ');
-    buf.append("fitchCreditRating").append('=').append(getFitchCreditRating()).append(',').append(' ');
-    buf.append("hasDefaulted").append('=').append(isHasDefaulted()).append(',').append(' ');
-    buf.append("sector").append('=').append(getSector()).append(',').append(' ');
-    buf.append("region").append('=').append(getRegion()).append(',').append(' ');
-    buf.append("country").append('=').append(getCountry()).append(',').append(' ');
+    buf.append("obligorTicker").append('=').append(JodaBeanUtils.toString(getObligorTicker())).append(',').append(' ');
+    buf.append("obligorShortName").append('=').append(JodaBeanUtils.toString(getObligorShortName())).append(',').append(' ');
+    buf.append("obligorREDCode").append('=').append(JodaBeanUtils.toString(getObligorREDCode())).append(',').append(' ');
+    buf.append("compositeRating").append('=').append(JodaBeanUtils.toString(getCompositeRating())).append(',').append(' ');
+    buf.append("impliedRating").append('=').append(JodaBeanUtils.toString(getImpliedRating())).append(',').append(' ');
+    buf.append("moodysCreditRating").append('=').append(JodaBeanUtils.toString(getMoodysCreditRating())).append(',').append(' ');
+    buf.append("standardAndPoorsCreditRating").append('=').append(JodaBeanUtils.toString(getStandardAndPoorsCreditRating())).append(',').append(' ');
+    buf.append("fitchCreditRating").append('=').append(JodaBeanUtils.toString(getFitchCreditRating())).append(',').append(' ');
+    buf.append("hasDefaulted").append('=').append(JodaBeanUtils.toString(isHasDefaulted())).append(',').append(' ');
+    buf.append("sector").append('=').append(JodaBeanUtils.toString(getSector())).append(',').append(' ');
+    buf.append("region").append('=').append(JodaBeanUtils.toString(getRegion())).append(',').append(' ');
+    buf.append("country").append('=').append(JodaBeanUtils.toString(getCountry())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

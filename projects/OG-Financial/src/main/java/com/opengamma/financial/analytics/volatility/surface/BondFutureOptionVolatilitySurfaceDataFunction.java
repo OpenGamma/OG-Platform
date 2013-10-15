@@ -48,6 +48,7 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.CompareUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  *
@@ -183,7 +184,7 @@ public class BondFutureOptionVolatilitySurfaceDataFunction extends AbstractFunct
         if (volatility != null) {
           tList.add(t);
           kList.add(y / 100.);
-          volatilityValues.put(Pair.of(t, y / 100.), volatility / 100); // TODO Normalisation, could this be done elsewhere?
+          volatilityValues.put(Pairs.of(t, y / 100.), volatility / 100); // TODO Normalisation, could this be done elsewhere?
         }
       }
     }
@@ -233,7 +234,7 @@ public class BondFutureOptionVolatilitySurfaceDataFunction extends AbstractFunct
             if (!CompareUtils.closeEquals(volatility, 0.0)) {
               txList.add(optionExpiry);
               kList.add(y / 100.0);
-              volatilityValues.put(Pair.of(optionExpiry, y / 100.), volatility);
+              volatilityValues.put(Pairs.of(optionExpiry, y / 100.), volatility);
             }
           } catch (final MathException e) {
             s_logger.info("Could not imply volatility for ({}, {}); error was {}", new Object[] {x, y, e.getMessage() });

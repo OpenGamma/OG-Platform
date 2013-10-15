@@ -594,20 +594,20 @@ public class WebMarketDataSnapshotData extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("liveMarketDataProviderFactory").append('=').append(getLiveMarketDataProviderFactory()).append(',').append(' ');
-    buf.append("marketDataSpecificationRepository").append('=').append(getMarketDataSpecificationRepository()).append(',').append(' ');
-    buf.append("marketDataSnapshotMaster").append('=').append(getMarketDataSnapshotMaster()).append(',').append(' ');
-    buf.append("configMaster").append('=').append(getConfigMaster()).append(',').append(' ');
-    buf.append("viewProcessor").append('=').append(getViewProcessor()).append(',').append(' ');
-    buf.append("computationTargetResolver").append('=').append(getComputationTargetResolver()).append(',').append(' ');
-    buf.append("historicalTimeSeriesSource").append('=').append(getHistoricalTimeSeriesSource()).append(',').append(' ');
-    buf.append("uriInfo").append('=').append(getUriInfo()).append(',').append(' ');
-    buf.append("uriSnapshotId").append('=').append(getUriSnapshotId()).append(',').append(' ');
-    buf.append("uriVersionId").append('=').append(getUriVersionId()).append(',').append(' ');
-    buf.append("snapshot").append('=').append(getSnapshot()).append(',').append(' ');
-    buf.append("configSource").append('=').append(getConfigSource()).append(',').append(' ');
-    buf.append("volatilityCubeDefinitionSource").append('=').append(getVolatilityCubeDefinitionSource()).append(',').append(' ');
-    buf.append("versioned").append('=').append(getVersioned()).append(',').append(' ');
+    buf.append("liveMarketDataProviderFactory").append('=').append(JodaBeanUtils.toString(getLiveMarketDataProviderFactory())).append(',').append(' ');
+    buf.append("marketDataSpecificationRepository").append('=').append(JodaBeanUtils.toString(getMarketDataSpecificationRepository())).append(',').append(' ');
+    buf.append("marketDataSnapshotMaster").append('=').append(JodaBeanUtils.toString(getMarketDataSnapshotMaster())).append(',').append(' ');
+    buf.append("configMaster").append('=').append(JodaBeanUtils.toString(getConfigMaster())).append(',').append(' ');
+    buf.append("viewProcessor").append('=').append(JodaBeanUtils.toString(getViewProcessor())).append(',').append(' ');
+    buf.append("computationTargetResolver").append('=').append(JodaBeanUtils.toString(getComputationTargetResolver())).append(',').append(' ');
+    buf.append("historicalTimeSeriesSource").append('=').append(JodaBeanUtils.toString(getHistoricalTimeSeriesSource())).append(',').append(' ');
+    buf.append("uriInfo").append('=').append(JodaBeanUtils.toString(getUriInfo())).append(',').append(' ');
+    buf.append("uriSnapshotId").append('=').append(JodaBeanUtils.toString(getUriSnapshotId())).append(',').append(' ');
+    buf.append("uriVersionId").append('=').append(JodaBeanUtils.toString(getUriVersionId())).append(',').append(' ');
+    buf.append("snapshot").append('=').append(JodaBeanUtils.toString(getSnapshot())).append(',').append(' ');
+    buf.append("configSource").append('=').append(JodaBeanUtils.toString(getConfigSource())).append(',').append(' ');
+    buf.append("volatilityCubeDefinitionSource").append('=').append(JodaBeanUtils.toString(getVolatilityCubeDefinitionSource())).append(',').append(' ');
+    buf.append("versioned").append('=').append(JodaBeanUtils.toString(getVersioned())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

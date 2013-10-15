@@ -259,10 +259,10 @@ public class ExposureFunctions extends DirectBean implements Serializable, Uniqu
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("uniqueId").append('=').append(getUniqueId()).append(',').append(' ');
-    buf.append("name").append('=').append(getName()).append(',').append(' ');
-    buf.append("exposureFunctions").append('=').append(getExposureFunctions()).append(',').append(' ');
-    buf.append("idsToNames").append('=').append(getIdsToNames()).append(',').append(' ');
+    buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(getUniqueId())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
+    buf.append("exposureFunctions").append('=').append(JodaBeanUtils.toString(getExposureFunctions())).append(',').append(' ');
+    buf.append("idsToNames").append('=').append(JodaBeanUtils.toString(getIdsToNames())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

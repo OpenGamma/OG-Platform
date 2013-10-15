@@ -82,6 +82,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Produces price index curves using the discounting method.
@@ -219,7 +220,7 @@ public class IssuerProviderDiscountingFunction extends
               final IssuerCurveTypeConfiguration issuer = (IssuerCurveTypeConfiguration) type;
               final String issuerName = issuer.getIssuerName();
               final Currency currency = Currency.of(issuer.getUnderlyingReference());
-              issuerMap.put(curveName, Pair.of(issuerName, currency));
+              issuerMap.put(curveName, Pairs.of(issuerName, currency));
             } else {
               throw new OpenGammaRuntimeException("Cannot handle " + type.getClass());
             }
@@ -239,7 +240,7 @@ public class IssuerProviderDiscountingFunction extends
       //TODO this is only in here because the code in analytics doesn't use generics properly
       final Pair<IssuerProviderDiscount, CurveBuildingBlockBundle> temp = builder.makeCurvesFromDerivatives(curveBundles,
           (IssuerProviderDiscount) knownData, discountingMap, forwardIborMap, forwardONMap, issuerMap, getCalculator(), getSensitivityCalculator());
-      final Pair<IssuerProviderInterface, CurveBuildingBlockBundle> result = Pair.of((IssuerProviderInterface) temp.getFirst(), temp.getSecond());
+      final Pair<IssuerProviderInterface, CurveBuildingBlockBundle> result = Pairs.of((IssuerProviderInterface) temp.getFirst(), temp.getSecond());
       return result;
     }
 

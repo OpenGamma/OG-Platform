@@ -178,7 +178,7 @@ public class SwaptionPhysicalFixedIborHullWhiteMethod implements PricingMethod {
       discountedCashFlowBar[loopcf] = ncdf[loopcf] * pvBar;
       dfBar[loopcf] = cfe.getNthPayment(loopcf).getAmount() * discountedCashFlowBar[loopcf];
       cfeAmountBar[loopcf] = df[loopcf] * discountedCashFlowBar[loopcf];
-      final DoublesPair dfSensi = new DoublesPair(cfe.getNthPayment(loopcf).getPaymentTime(), -cfe.getNthPayment(loopcf).getPaymentTime() * df[loopcf] * dfBar[loopcf]);
+      final DoublesPair dfSensi = DoublesPair.of(cfe.getNthPayment(loopcf).getPaymentTime(), -cfe.getNthPayment(loopcf).getPaymentTime() * df[loopcf] * dfBar[loopcf]);
       listDfSensi.add(dfSensi);
     }
     final Map<String, List<DoublesPair>> pvsDF = new HashMap<>();

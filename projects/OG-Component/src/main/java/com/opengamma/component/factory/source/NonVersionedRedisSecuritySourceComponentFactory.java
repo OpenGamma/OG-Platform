@@ -244,10 +244,10 @@ public class NonVersionedRedisSecuritySourceComponentFactory extends AbstractCom
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("classifier").append('=').append(getClassifier()).append(',').append(' ');
-    buf.append("redisConnector").append('=').append(getRedisConnector()).append(',').append(' ');
-    buf.append("redisPrefix").append('=').append(getRedisPrefix()).append(',').append(' ');
-    buf.append("publishRest").append('=').append(isPublishRest()).append(',').append(' ');
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("redisConnector").append('=').append(JodaBeanUtils.toString(getRedisConnector())).append(',').append(' ');
+    buf.append("redisPrefix").append('=').append(JodaBeanUtils.toString(getRedisPrefix())).append(',').append(' ');
+    buf.append("publishRest").append('=').append(JodaBeanUtils.toString(isPublishRest())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

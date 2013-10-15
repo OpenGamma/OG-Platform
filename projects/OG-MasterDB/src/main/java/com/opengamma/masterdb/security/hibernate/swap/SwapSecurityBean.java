@@ -409,17 +409,17 @@ public class SwapSecurityBean extends SecurityBean {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("swapType").append('=').append(getSwapType()).append(',').append(' ');
-    buf.append("tradeDate").append('=').append(getTradeDate()).append(',').append(' ');
-    buf.append("effectiveDate").append('=').append(getEffectiveDate()).append(',').append(' ');
-    buf.append("maturityDate").append('=').append(getMaturityDate()).append(',').append(' ');
-    buf.append("forwardStartDate").append('=').append(getForwardStartDate()).append(',').append(' ');
-    buf.append("counterparty").append('=').append(getCounterparty()).append(',').append(' ');
-    buf.append("exchangeInitialNotional").append('=').append(isExchangeInitialNotional()).append(',').append(' ');
-    buf.append("exchangeFinalNotional").append('=').append(isExchangeFinalNotional()).append(',').append(' ');
-    buf.append("maturityTenor").append('=').append(getMaturityTenor()).append(',').append(' ');
-    buf.append("payLeg").append('=').append(getPayLeg()).append(',').append(' ');
-    buf.append("receiveLeg").append('=').append(getReceiveLeg()).append(',').append(' ');
+    buf.append("swapType").append('=').append(JodaBeanUtils.toString(getSwapType())).append(',').append(' ');
+    buf.append("tradeDate").append('=').append(JodaBeanUtils.toString(getTradeDate())).append(',').append(' ');
+    buf.append("effectiveDate").append('=').append(JodaBeanUtils.toString(getEffectiveDate())).append(',').append(' ');
+    buf.append("maturityDate").append('=').append(JodaBeanUtils.toString(getMaturityDate())).append(',').append(' ');
+    buf.append("forwardStartDate").append('=').append(JodaBeanUtils.toString(getForwardStartDate())).append(',').append(' ');
+    buf.append("counterparty").append('=').append(JodaBeanUtils.toString(getCounterparty())).append(',').append(' ');
+    buf.append("exchangeInitialNotional").append('=').append(JodaBeanUtils.toString(isExchangeInitialNotional())).append(',').append(' ');
+    buf.append("exchangeFinalNotional").append('=').append(JodaBeanUtils.toString(isExchangeFinalNotional())).append(',').append(' ');
+    buf.append("maturityTenor").append('=').append(JodaBeanUtils.toString(getMaturityTenor())).append(',').append(' ');
+    buf.append("payLeg").append('=').append(JodaBeanUtils.toString(getPayLeg())).append(',').append(' ');
+    buf.append("receiveLeg").append('=').append(JodaBeanUtils.toString(getReceiveLeg())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

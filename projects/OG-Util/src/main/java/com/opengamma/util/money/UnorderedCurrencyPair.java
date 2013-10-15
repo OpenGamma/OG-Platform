@@ -38,7 +38,7 @@ import com.opengamma.util.ArgumentChecker;
  * This acts like a two element {@code Set}, thus
  * {@code UnorderedCurrencyPair(USD, EUR) == UnorderedCurrencyPair(EUR, USD)}.
  */
-@BeanDefinition
+@BeanDefinition(builderScope = "private")
 public final class UnorderedCurrencyPair implements ImmutableBean,
     UniqueIdentifiable, ObjectIdentifiable, Serializable {
 
@@ -250,15 +250,6 @@ public final class UnorderedCurrencyPair implements ImmutableBean,
     JodaBeanUtils.registerMetaBean(UnorderedCurrencyPair.Meta.INSTANCE);
   }
 
-  /**
-   * Returns a builder used to create an instance of the bean.
-   *
-   * @return the builder, not null
-   */
-  public static UnorderedCurrencyPair.Builder builder() {
-    return new UnorderedCurrencyPair.Builder();
-  }
-
   @Override
   public UnorderedCurrencyPair.Meta metaBean() {
     return UnorderedCurrencyPair.Meta.INSTANCE;
@@ -275,16 +266,6 @@ public final class UnorderedCurrencyPair implements ImmutableBean,
   }
 
   //-----------------------------------------------------------------------
-  //-----------------------------------------------------------------------
-  //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public UnorderedCurrencyPair clone() {
     return this;
@@ -394,7 +375,7 @@ public final class UnorderedCurrencyPair implements ImmutableBean,
   /**
    * The bean-builder for {@code UnorderedCurrencyPair}.
    */
-  public static final class Builder extends BasicImmutableBeanBuilder<UnorderedCurrencyPair> {
+  private static final class Builder extends BasicImmutableBeanBuilder<UnorderedCurrencyPair> {
 
     private Currency _firstCurrency;
     private Currency _secondCurrency;
@@ -437,29 +418,6 @@ public final class UnorderedCurrencyPair implements ImmutableBean,
       return new UnorderedCurrencyPair(
           _firstCurrency,
           _secondCurrency);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the {@code firstCurrency} property in the builder.
-     * @param firstCurrency  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder firstCurrency(Currency firstCurrency) {
-      JodaBeanUtils.notNull(firstCurrency, "firstCurrency");
-      this._firstCurrency = firstCurrency;
-      return this;
-    }
-
-    /**
-     * Sets the {@code secondCurrency} property in the builder.
-     * @param secondCurrency  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder secondCurrency(Currency secondCurrency) {
-      JodaBeanUtils.notNull(secondCurrency, "secondCurrency");
-      this._secondCurrency = secondCurrency;
-      return this;
     }
 
     //-----------------------------------------------------------------------

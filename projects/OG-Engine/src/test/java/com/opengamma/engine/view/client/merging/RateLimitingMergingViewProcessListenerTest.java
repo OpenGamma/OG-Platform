@@ -35,6 +35,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.test.Timeout;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Tests RateLimitingMergingUpdateProvider
@@ -138,10 +139,10 @@ public class RateLimitingMergingViewProcessListenerTest {
     assertEquals(2, mergedDelta.getAllResults().size());
     final Set<Pair<String, Integer>> results = new HashSet<Pair<String, Integer>>();
     for (final ViewResultEntry deltaItem : mergedDelta.getAllResults()) {
-      results.add(Pair.of(deltaItem.getComputedValue().getSpecification().getValueName(), (Integer) deltaItem.getComputedValue().getValue()));
+      results.add(Pairs.of(deltaItem.getComputedValue().getSpecification().getValueName(), (Integer) deltaItem.getComputedValue().getValue()));
     }
-    assertTrue(results.contains(Pair.of("value1", 1)));
-    assertTrue(results.contains(Pair.of("value2", 2)));
+    assertTrue(results.contains(Pairs.of("value1", 1)));
+    assertTrue(results.contains(Pairs.of("value2", 2)));
 
     testListener.assertViewDefinitionCompiled(Timeout.standardTimeoutMillis(), postCompilation);
     testListener.assertProcessCompleted();

@@ -190,8 +190,8 @@ public class IMMFRAConvention extends Convention {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("indexConvention").append('=').append(getIndexConvention()).append(',').append(' ');
-    buf.append("immDateConvention").append('=').append(getImmDateConvention()).append(',').append(' ');
+    buf.append("indexConvention").append('=').append(JodaBeanUtils.toString(getIndexConvention())).append(',').append(' ');
+    buf.append("immDateConvention").append('=').append(JodaBeanUtils.toString(getImmDateConvention())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

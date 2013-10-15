@@ -129,7 +129,7 @@ public class TimeOverrideRequest extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("timeOverride").append('=').append(getTimeOverride()).append(',').append(' ');
+    buf.append("timeOverride").append('=').append(JodaBeanUtils.toString(getTimeOverride())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

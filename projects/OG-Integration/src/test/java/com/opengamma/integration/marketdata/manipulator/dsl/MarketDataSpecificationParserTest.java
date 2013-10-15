@@ -29,7 +29,7 @@ public class MarketDataSpecificationParserTest {
   @Test
   public void liveValid() {
     MarketDataSpecification spec = MarketDataSpecificationParser.parse("live:sourceName");
-    assertEquals(new LiveMarketDataSpecification("sourceName"), spec);
+    assertEquals(LiveMarketDataSpecification.of("sourceName"), spec);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -45,7 +45,7 @@ public class MarketDataSpecificationParserTest {
   @Test
   public void snapshotValid() {
     MarketDataSpecification spec = MarketDataSpecificationParser.parse("snapshot:scheme~value~version");
-    assertEquals(new UserMarketDataSpecification(UniqueId.of("scheme", "value", "version")), spec);
+    assertEquals(UserMarketDataSpecification.of(UniqueId.of("scheme", "value", "version")), spec);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

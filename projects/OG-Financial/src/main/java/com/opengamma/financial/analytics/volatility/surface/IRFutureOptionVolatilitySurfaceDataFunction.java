@@ -51,6 +51,7 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.util.CompareUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  *
@@ -190,7 +191,7 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
         if (volatility != null) {
           tList.add(t);
           kList.add(y / 100.);
-          volatilityValues.put(Pair.of(t, y / 100.), volatility / 100); // TODO Normalisation, could this be done elsewhere?
+          volatilityValues.put(Pairs.of(t, y / 100.), volatility / 100); // TODO Normalisation, could this be done elsewhere?
         }
       }
     }
@@ -217,7 +218,8 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
     final DoubleArrayList txList = new DoubleArrayList();
     final DoubleArrayList kList = new DoubleArrayList();
     final LocalDate today = now.toLocalDate();
-    for (final Number x : optionPrices.getXs()) { // Loop over option expiries
+    for (final Object xObj : optionPrices.getXs()) { // Loop over option expiries
+      final Number x = (Number) xObj;
       final LocalDate expiry = expiryRule.getExpiryDate(x.intValue(), today, calendar);
       final Double optionTtm = TimeCalculator.getTimeBetween(today, expiry); 
       // Get the corresponding future, which may not share the same expiries as the option itself
@@ -240,7 +242,8 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
       } else {
         final Double forward = futurePrices.getYValue(underlyingExpiry);
         // Loop over strikes
-        for (final Double y : optionPrices.getYs()) {
+        for (final Object yObj : optionPrices.getYs()) {
+          final Double y = (Double) yObj;
           final Double price = optionPrices.getVolatility(x, y);
           if (price != null) {
             try {
@@ -250,7 +253,7 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
               if (!CompareUtils.closeEquals(volatility, 0.0)) {
                 txList.add(optionTtm);
                 kList.add(y / 100.0);
-                volatilityValues.put(Pair.of(optionTtm, y / 100.), volatility);
+                volatilityValues.put(Pairs.of(optionTtm, y / 100.), volatility);
               }
             } catch (final MathException e) {
               s_logger.info("Could not imply volatility for ({}, {}); error was {}", new Object[] {x, y, e.getMessage() });

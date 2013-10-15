@@ -17,7 +17,7 @@ import com.opengamma.analytics.financial.provider.sensitivity.multicurve.Multipl
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
-import com.opengamma.util.tuple.ObjectsPair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * For an instrument, computes the sensitivity of a value (often the present value) to the parameters used in the curve.
@@ -44,7 +44,7 @@ public class ParameterSensitivityParameterCalculator<DATA_TYPE extends Parameter
       for (final Map.Entry<String, List<DoublesPair>> entry : sensitivityDsc.entrySet()) {
         if (curvesSet.contains(entry.getKey())) {
           result = result
-              .plus(new ObjectsPair<>(entry.getKey(), ccySensi), new DoubleMatrix1D(parameterMulticurves.getMulticurveProvider().parameterSensitivity(entry.getKey(), entry.getValue())));
+              .plus(Pairs.of(entry.getKey(), ccySensi), new DoubleMatrix1D(parameterMulticurves.getMulticurveProvider().parameterSensitivity(entry.getKey(), entry.getValue())));
         }
       }
     }
@@ -53,7 +53,7 @@ public class ParameterSensitivityParameterCalculator<DATA_TYPE extends Parameter
       final Map<String, List<ForwardSensitivity>> sensitivityFwd = sensitivity.getSensitivity(ccySensi).getForwardSensitivities();
       for (final Map.Entry<String, List<ForwardSensitivity>> entry : sensitivityFwd.entrySet()) {
         if (curvesSet.contains(entry.getKey())) {
-          result = result.plus(new ObjectsPair<>(entry.getKey(), ccySensi),
+          result = result.plus(Pairs.of(entry.getKey(), ccySensi),
               new DoubleMatrix1D(parameterMulticurves.getMulticurveProvider().parameterForwardSensitivity(entry.getKey(), entry.getValue())));
         }
       }

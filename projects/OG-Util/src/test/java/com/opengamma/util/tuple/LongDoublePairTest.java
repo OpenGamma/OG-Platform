@@ -110,14 +110,14 @@ public class LongDoublePairTest {
 
   public void testEquals_toObjectVersion() {
     LongDoublePair a = LongDoublePair.of(1L, 1.7d);
-    Pair<Long, Double> b = Pair.of(Long.valueOf(1), Double.valueOf(1.7d));
+    Pair<Long, Double> b = ObjectsPair.of(Long.valueOf(1), Double.valueOf(1.7d));
     assertEquals(true, a.equals(b));
     assertEquals(true, b.equals(a));
   }
 
   public void testEquals_toObjectVersion_null() {
     LongDoublePair b = LongDoublePair.of(1L, 1.7d);
-    Pair<Long, Double> a = Pair.of(null, Double.valueOf(1.9d));
+    Pair<Long, Double> a = ObjectsPair.of(null, Double.valueOf(1.9d));
     assertEquals(true, a.equals(a));
     assertEquals(false, a.equals(b));
     assertEquals(false, b.equals(a));
@@ -126,7 +126,7 @@ public class LongDoublePairTest {
 
   public void testHashCode() {
     LongDoublePair a = LongDoublePair.of(1L, 1.7d);
-    Pair<Long, Double> b = Pair.of(Long.valueOf(1), Double.valueOf(1.7d));
+    Pair<Long, Double> b = ObjectsPair.of(Long.valueOf(1), Double.valueOf(1.7d));
     assertEquals(a.hashCode(), b.hashCode());
   }
 

@@ -482,16 +482,16 @@ public class IborIndexConvention extends Convention {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("dayCount").append('=').append(getDayCount()).append(',').append(' ');
-    buf.append("businessDayConvention").append('=').append(getBusinessDayConvention()).append(',').append(' ');
-    buf.append("settlementDays").append('=').append(getSettlementDays()).append(',').append(' ');
-    buf.append("isEOM").append('=').append(isIsEOM()).append(',').append(' ');
-    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
-    buf.append("fixingTime").append('=').append(getFixingTime()).append(',').append(' ');
-    buf.append("fixingTimeZone").append('=').append(getFixingTimeZone()).append(',').append(' ');
-    buf.append("fixingCalendar").append('=').append(getFixingCalendar()).append(',').append(' ');
-    buf.append("regionCalendar").append('=').append(getRegionCalendar()).append(',').append(' ');
-    buf.append("fixingPage").append('=').append(getFixingPage()).append(',').append(' ');
+    buf.append("dayCount").append('=').append(JodaBeanUtils.toString(getDayCount())).append(',').append(' ');
+    buf.append("businessDayConvention").append('=').append(JodaBeanUtils.toString(getBusinessDayConvention())).append(',').append(' ');
+    buf.append("settlementDays").append('=').append(JodaBeanUtils.toString(getSettlementDays())).append(',').append(' ');
+    buf.append("isEOM").append('=').append(JodaBeanUtils.toString(isIsEOM())).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("fixingTime").append('=').append(JodaBeanUtils.toString(getFixingTime())).append(',').append(' ');
+    buf.append("fixingTimeZone").append('=').append(JodaBeanUtils.toString(getFixingTimeZone())).append(',').append(' ');
+    buf.append("fixingCalendar").append('=').append(JodaBeanUtils.toString(getFixingCalendar())).append(',').append(' ');
+    buf.append("regionCalendar").append('=').append(JodaBeanUtils.toString(getRegionCalendar())).append(',').append(' ');
+    buf.append("fixingPage").append('=').append(JodaBeanUtils.toString(getFixingPage())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

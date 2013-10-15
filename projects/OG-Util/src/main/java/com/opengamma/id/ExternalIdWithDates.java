@@ -35,7 +35,7 @@ import com.opengamma.util.ArgumentChecker;
  * <p>
  * This class is immutable and thread-safe.
  */
-@BeanDefinition
+@BeanDefinition(builderScope = "private")
 public final class ExternalIdWithDates implements ImmutableBean,
     ExternalIdentifiable, Comparable<ExternalIdWithDates>, Serializable {
 
@@ -220,15 +220,6 @@ public final class ExternalIdWithDates implements ImmutableBean,
     JodaBeanUtils.registerMetaBean(ExternalIdWithDates.Meta.INSTANCE);
   }
 
-  /**
-   * Returns a builder used to create an instance of the bean.
-   *
-   * @return the builder, not null
-   */
-  public static ExternalIdWithDates.Builder builder() {
-    return new ExternalIdWithDates.Builder();
-  }
-
   @Override
   public ExternalIdWithDates.Meta metaBean() {
     return ExternalIdWithDates.Meta.INSTANCE;
@@ -272,14 +263,6 @@ public final class ExternalIdWithDates implements ImmutableBean,
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public ExternalIdWithDates clone() {
     return this;
@@ -407,7 +390,7 @@ public final class ExternalIdWithDates implements ImmutableBean,
   /**
    * The bean-builder for {@code ExternalIdWithDates}.
    */
-  public static final class Builder extends BasicImmutableBeanBuilder<ExternalIdWithDates> {
+  private static final class Builder extends BasicImmutableBeanBuilder<ExternalIdWithDates> {
 
     private ExternalId _externalId;
     private LocalDate _validFrom;
@@ -456,38 +439,6 @@ public final class ExternalIdWithDates implements ImmutableBean,
           _externalId,
           _validFrom,
           _validTo);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the {@code externalId} property in the builder.
-     * @param externalId  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder externalId(ExternalId externalId) {
-      JodaBeanUtils.notNull(externalId, "externalId");
-      this._externalId = externalId;
-      return this;
-    }
-
-    /**
-     * Sets the {@code validFrom} property in the builder.
-     * @param validFrom  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder validFrom(LocalDate validFrom) {
-      this._validFrom = validFrom;
-      return this;
-    }
-
-    /**
-     * Sets the {@code validTo} property in the builder.
-     * @param validTo  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder validTo(LocalDate validTo) {
-      this._validTo = validTo;
-      return this;
     }
 
     //-----------------------------------------------------------------------

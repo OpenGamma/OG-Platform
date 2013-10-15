@@ -245,10 +245,10 @@ public class ViewStatusKeyBean extends DirectBean implements ViewStatusKey {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("securityType").append('=').append(getSecurityType()).append(',').append(' ');
-    buf.append("valueRequirementName").append('=').append(getValueRequirementName()).append(',').append(' ');
-    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
-    buf.append("targetType").append('=').append(getTargetType()).append(',').append(' ');
+    buf.append("securityType").append('=').append(JodaBeanUtils.toString(getSecurityType())).append(',').append(' ');
+    buf.append("valueRequirementName").append('=').append(JodaBeanUtils.toString(getValueRequirementName())).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("targetType").append('=').append(JodaBeanUtils.toString(getTargetType())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

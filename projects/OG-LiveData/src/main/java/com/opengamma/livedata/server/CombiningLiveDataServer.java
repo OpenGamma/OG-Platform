@@ -17,10 +17,7 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-
-import net.sf.ehcache.CacheManager;
 
 import org.fudgemsg.FudgeMsg;
 import org.slf4j.Logger;
@@ -37,6 +34,9 @@ import com.opengamma.livedata.msg.LiveDataSubscriptionResponseMsg;
 import com.opengamma.livedata.server.distribution.MarketDataDistributor;
 import com.opengamma.util.NamedThreadPoolFactory;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
+
+import net.sf.ehcache.CacheManager;
 
 /**
  * A {@link StandardLiveDataServer} which delegates all the work to a set of {@link StandardLiveDataServer}
@@ -45,7 +45,7 @@ public abstract class CombiningLiveDataServer extends StandardLiveDataServer {
 
   private static final Logger s_logger = LoggerFactory.getLogger(CombiningLiveDataServer.class);
 
-  private static final ExecutorService s_subscriptionExecutor = Executors.newCachedThreadPool(new NamedThreadPoolFactory("CombiningLiveDataServer", true));
+  private static final ExecutorService s_subscriptionExecutor = NamedThreadPoolFactory.newCachedThreadPool("CombiningLiveDataServer", true);
 
   private final Set<StandardLiveDataServer> _underlyings;
 
@@ -161,7 +161,7 @@ public abstract class CombiningLiveDataServer extends StandardLiveDataServer {
 
         @Override
         public Collection<T> call() throws Exception {
-          return operation.apply(Pair.of(entry.getKey(), entry.getValue()));
+          return operation.apply(Pairs.of(entry.getKey(), entry.getValue()));
         }
       });
 

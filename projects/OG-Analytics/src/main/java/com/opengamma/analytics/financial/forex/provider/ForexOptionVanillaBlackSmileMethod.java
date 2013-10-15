@@ -495,10 +495,10 @@ public final class ForexOptionVanillaBlackSmileMethod {
     final double factor = Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount()) * (optionForex.isLong() ? 1.0 : -1.0);
     final Map<String, List<DoublesPair>> resultMap = new HashMap<>();
     final List<DoublesPair> listForeign = new ArrayList<>();
-    listForeign.add(new DoublesPair(payTime, rForeignBar * factor));
+    listForeign.add(DoublesPair.of(payTime, rForeignBar * factor));
     resultMap.put(multicurves.getName(optionForex.getCurrency1()), listForeign);
     final List<DoublesPair> listDomestic = new ArrayList<>();
-    listDomestic.add(new DoublesPair(payTime, rDomesticBar * factor));
+    listDomestic.add(DoublesPair.of(payTime, rDomesticBar * factor));
     resultMap.put(multicurves.getName(optionForex.getCurrency2()), listDomestic);
     final MulticurveSensitivity result = MulticurveSensitivity.ofYieldDiscounting(resultMap);
     return MultipleCurrencyMulticurveSensitivity.of(optionForex.getUnderlyingForex().getCurrency2(), result);

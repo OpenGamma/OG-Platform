@@ -29,6 +29,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Default implementation of {@link CompiledViewCalculationConfiguration}.
@@ -181,7 +182,7 @@ public class CompiledViewCalculationConfigurationImpl implements CompiledViewCal
   public Set<Pair<String, ValueProperties>> getTerminalOutputValues() {
     final Set<Pair<String, ValueProperties>> valueNames = new HashSet<>();
     for (final ValueSpecification spec : getTerminalOutputSpecifications().keySet()) {
-      valueNames.add(Pair.of(spec.getValueName(), spec.getProperties()));
+      valueNames.add(Pairs.of(spec.getValueName(), spec.getProperties()));
     }
     return valueNames;
   }

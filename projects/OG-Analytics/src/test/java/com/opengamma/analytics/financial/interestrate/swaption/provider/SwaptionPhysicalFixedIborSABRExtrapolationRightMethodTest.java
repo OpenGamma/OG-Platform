@@ -215,7 +215,7 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethodTest {
     assertEquals(pvsLongPayer.getAlpha(), pvsShortPayer.getAlpha());
     // SABR sensitivity vs finite difference
     final MultipleCurrencyAmount pvLongPayer = METHOD_SABR_EXTRAPOLATION.presentValue(SWAPTION_LONG_PAYER_HIGH, SABR_MULTICURVES);
-    final DoublesPair expectedExpiryTenor = new DoublesPair(SWAPTION_LONG_PAYER_HIGH.getTimeToExpiry(), ANNUITY_TENOR_YEAR);
+    final DoublesPair expectedExpiryTenor = DoublesPair.of(SWAPTION_LONG_PAYER_HIGH.getTimeToExpiry(), ANNUITY_TENOR_YEAR);
     final double shift = 0.000005;
     // Alpha sensitivity vs finite difference computation
     final SABRInterestRateParameters sabrParameterAlphaBumped = SABRDataSets.createSABR1AlphaBumped(shift);

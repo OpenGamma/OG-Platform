@@ -362,13 +362,13 @@ public class LocalDependencyGraphTraceProviderFactory extends AbstractComponentF
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("classifier").append('=').append(getClassifier()).append(',').append(' ');
-    buf.append("publishRest").append('=').append(isPublishRest()).append(',').append(' ');
-    buf.append("fudgeContext").append('=').append(getFudgeContext()).append(',').append(' ');
-    buf.append("compiledFunctionService").append('=').append(getCompiledFunctionService()).append(',').append(' ');
-    buf.append("functionResolver").append('=').append(getFunctionResolver()).append(',').append(' ');
-    buf.append("functionExclusionGroups").append('=').append(getFunctionExclusionGroups()).append(',').append(' ');
-    buf.append("marketDataProviderResolver").append('=').append(getMarketDataProviderResolver()).append(',').append(' ');
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("publishRest").append('=').append(JodaBeanUtils.toString(isPublishRest())).append(',').append(' ');
+    buf.append("fudgeContext").append('=').append(JodaBeanUtils.toString(getFudgeContext())).append(',').append(' ');
+    buf.append("compiledFunctionService").append('=').append(JodaBeanUtils.toString(getCompiledFunctionService())).append(',').append(' ');
+    buf.append("functionResolver").append('=').append(JodaBeanUtils.toString(getFunctionResolver())).append(',').append(' ');
+    buf.append("functionExclusionGroups").append('=').append(JodaBeanUtils.toString(getFunctionExclusionGroups())).append(',').append(' ');
+    buf.append("marketDataProviderResolver").append('=').append(JodaBeanUtils.toString(getMarketDataProviderResolver())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

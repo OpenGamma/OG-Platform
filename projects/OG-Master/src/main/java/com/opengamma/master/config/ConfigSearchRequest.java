@@ -303,10 +303,10 @@ public class ConfigSearchRequest<T> extends AbstractSearchRequest {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("configIds").append('=').append(getConfigIds()).append(',').append(' ');
-    buf.append("name").append('=').append(getName()).append(',').append(' ');
-    buf.append("type").append('=').append(getType()).append(',').append(' ');
-    buf.append("sortOrder").append('=').append(getSortOrder()).append(',').append(' ');
+    buf.append("configIds").append('=').append(JodaBeanUtils.toString(getConfigIds())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
+    buf.append("type").append('=').append(JodaBeanUtils.toString(getType())).append(',').append(' ');
+    buf.append("sortOrder").append('=').append(JodaBeanUtils.toString(getSortOrder())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

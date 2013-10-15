@@ -299,10 +299,10 @@ public class CreditDefaultSwapIndexSecurity extends AbstractCreditDefaultSwapSec
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("settlementDate").append('=').append(getSettlementDate()).append(',').append(' ');
-    buf.append("adjustSettlementDate").append('=').append(isAdjustSettlementDate()).append(',').append(' ');
-    buf.append("upfrontPayment").append('=').append(getUpfrontPayment()).append(',').append(' ');
-    buf.append("indexCoupon").append('=').append(getIndexCoupon()).append(',').append(' ');
+    buf.append("settlementDate").append('=').append(JodaBeanUtils.toString(getSettlementDate())).append(',').append(' ');
+    buf.append("adjustSettlementDate").append('=').append(JodaBeanUtils.toString(isAdjustSettlementDate())).append(',').append(' ');
+    buf.append("upfrontPayment").append('=').append(JodaBeanUtils.toString(getUpfrontPayment())).append(',').append(' ');
+    buf.append("indexCoupon").append('=').append(JodaBeanUtils.toString(getIndexCoupon())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

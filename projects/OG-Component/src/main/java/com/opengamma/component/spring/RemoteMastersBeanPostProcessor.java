@@ -195,7 +195,7 @@ public class RemoteMastersBeanPostProcessor extends DirectBean implements BeanFa
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("baseUri").append('=').append(getBaseUri()).append(',').append(' ');
+    buf.append("baseUri").append('=').append(JodaBeanUtils.toString(getBaseUri())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

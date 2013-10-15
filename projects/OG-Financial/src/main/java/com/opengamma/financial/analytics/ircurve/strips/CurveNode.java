@@ -210,8 +210,8 @@ public abstract class CurveNode extends DirectBean implements Serializable, Comp
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("curveNodeIdMapperName").append('=').append(getCurveNodeIdMapperName()).append(',').append(' ');
-    buf.append("name").append('=').append(getName()).append(',').append(' ');
+    buf.append("curveNodeIdMapperName").append('=').append(JodaBeanUtils.toString(getCurveNodeIdMapperName())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

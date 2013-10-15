@@ -418,14 +418,14 @@ public class SwapSecurity extends FinancialSecurity {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("tradeDate").append('=').append(getTradeDate()).append(',').append(' ');
-    buf.append("effectiveDate").append('=').append(getEffectiveDate()).append(',').append(' ');
-    buf.append("maturityDate").append('=').append(getMaturityDate()).append(',').append(' ');
-    buf.append("counterparty").append('=').append(getCounterparty()).append(',').append(' ');
-    buf.append("exchangeInitialNotional").append('=').append(isExchangeInitialNotional()).append(',').append(' ');
-    buf.append("exchangeFinalNotional").append('=').append(isExchangeFinalNotional()).append(',').append(' ');
-    buf.append("payLeg").append('=').append(getPayLeg()).append(',').append(' ');
-    buf.append("receiveLeg").append('=').append(getReceiveLeg()).append(',').append(' ');
+    buf.append("tradeDate").append('=').append(JodaBeanUtils.toString(getTradeDate())).append(',').append(' ');
+    buf.append("effectiveDate").append('=').append(JodaBeanUtils.toString(getEffectiveDate())).append(',').append(' ');
+    buf.append("maturityDate").append('=').append(JodaBeanUtils.toString(getMaturityDate())).append(',').append(' ');
+    buf.append("counterparty").append('=').append(JodaBeanUtils.toString(getCounterparty())).append(',').append(' ');
+    buf.append("exchangeInitialNotional").append('=').append(JodaBeanUtils.toString(isExchangeInitialNotional())).append(',').append(' ');
+    buf.append("exchangeFinalNotional").append('=').append(JodaBeanUtils.toString(isExchangeFinalNotional())).append(',').append(' ');
+    buf.append("payLeg").append('=').append(JodaBeanUtils.toString(getPayLeg())).append(',').append(' ');
+    buf.append("receiveLeg").append('=').append(JodaBeanUtils.toString(getReceiveLeg())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

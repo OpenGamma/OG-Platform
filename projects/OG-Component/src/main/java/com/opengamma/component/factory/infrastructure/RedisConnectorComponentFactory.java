@@ -72,7 +72,7 @@ public class RedisConnectorComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the classifier.
-   * @return the value of the property, not null
+   * @return the value of the property, not empty
    */
   public String getClassifier() {
     return _classifier;
@@ -80,7 +80,7 @@ public class RedisConnectorComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the classifier.
-   * @param classifier  the new value of the property, not null
+   * @param classifier  the new value of the property, not empty
    */
   public void setClassifier(String classifier) {
     JodaBeanUtils.notEmpty(classifier, "classifier");
@@ -98,7 +98,7 @@ public class RedisConnectorComponentFactory extends AbstractComponentFactory {
   //-----------------------------------------------------------------------
   /**
    * Gets the hostName.
-   * @return the value of the property, not null
+   * @return the value of the property, not empty
    */
   public String getHostName() {
     return _hostName;
@@ -106,7 +106,7 @@ public class RedisConnectorComponentFactory extends AbstractComponentFactory {
 
   /**
    * Sets the hostName.
-   * @param hostName  the new value of the property, not null
+   * @param hostName  the new value of the property, not empty
    */
   public void setHostName(String hostName) {
     JodaBeanUtils.notEmpty(hostName, "hostName");
@@ -219,10 +219,10 @@ public class RedisConnectorComponentFactory extends AbstractComponentFactory {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("classifier").append('=').append(getClassifier()).append(',').append(' ');
-    buf.append("hostName").append('=').append(getHostName()).append(',').append(' ');
-    buf.append("redisPort").append('=').append(getRedisPort()).append(',').append(' ');
-    buf.append("password").append('=').append(getPassword()).append(',').append(' ');
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("hostName").append('=').append(JodaBeanUtils.toString(getHostName())).append(',').append(' ');
+    buf.append("redisPort").append('=').append(JodaBeanUtils.toString(getRedisPort())).append(',').append(' ');
+    buf.append("password").append('=').append(JodaBeanUtils.toString(getPassword())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

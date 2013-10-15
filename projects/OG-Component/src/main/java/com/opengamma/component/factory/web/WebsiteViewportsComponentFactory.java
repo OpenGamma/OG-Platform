@@ -1001,28 +1001,28 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("configMaster").append('=').append(getConfigMaster()).append(',').append(' ');
-    buf.append("securityMaster").append('=').append(getSecurityMaster()).append(',').append(' ');
-    buf.append("securitySource").append('=').append(getSecuritySource()).append(',').append(' ');
-    buf.append("positionMaster").append('=').append(getPositionMaster()).append(',').append(' ');
-    buf.append("portfolioMaster").append('=').append(getPortfolioMaster()).append(',').append(' ');
-    buf.append("positionSource").append('=').append(getPositionSource()).append(',').append(' ');
-    buf.append("computationTargetResolver").append('=').append(getComputationTargetResolver()).append(',').append(' ');
-    buf.append("historicalTimeSeriesMaster").append('=').append(getHistoricalTimeSeriesMaster()).append(',').append(' ');
-    buf.append("organizationMaster").append('=').append(getOrganizationMaster()).append(',').append(' ');
-    buf.append("userPositionMaster").append('=').append(getUserPositionMaster()).append(',').append(' ');
-    buf.append("userPortfolioMaster").append('=').append(getUserPortfolioMaster()).append(',').append(' ');
-    buf.append("userConfigMaster").append('=').append(getUserConfigMaster()).append(',').append(' ');
-    buf.append("combinedConfigSource").append('=').append(getCombinedConfigSource()).append(',').append(' ');
-    buf.append("viewProcessor").append('=').append(getViewProcessor()).append(',').append(' ');
-    buf.append("parallelViewRecompilation").append('=').append(getParallelViewRecompilation()).append(',').append(' ');
-    buf.append("portfolioAggregationFunctions").append('=').append(getPortfolioAggregationFunctions()).append(',').append(' ');
-    buf.append("marketDataSnapshotMaster").append('=').append(getMarketDataSnapshotMaster()).append(',').append(' ');
-    buf.append("user").append('=').append(getUser()).append(',').append(' ');
-    buf.append("fudgeContext").append('=').append(getFudgeContext()).append(',').append(' ');
-    buf.append("liveMarketDataProviderFactory").append('=').append(getLiveMarketDataProviderFactory()).append(',').append(' ');
-    buf.append("marketDataSpecificationRepository").append('=').append(getMarketDataSpecificationRepository()).append(',').append(' ');
-    buf.append("suppressCurrencyDisplay").append('=').append(isSuppressCurrencyDisplay()).append(',').append(' ');
+    buf.append("configMaster").append('=').append(JodaBeanUtils.toString(getConfigMaster())).append(',').append(' ');
+    buf.append("securityMaster").append('=').append(JodaBeanUtils.toString(getSecurityMaster())).append(',').append(' ');
+    buf.append("securitySource").append('=').append(JodaBeanUtils.toString(getSecuritySource())).append(',').append(' ');
+    buf.append("positionMaster").append('=').append(JodaBeanUtils.toString(getPositionMaster())).append(',').append(' ');
+    buf.append("portfolioMaster").append('=').append(JodaBeanUtils.toString(getPortfolioMaster())).append(',').append(' ');
+    buf.append("positionSource").append('=').append(JodaBeanUtils.toString(getPositionSource())).append(',').append(' ');
+    buf.append("computationTargetResolver").append('=').append(JodaBeanUtils.toString(getComputationTargetResolver())).append(',').append(' ');
+    buf.append("historicalTimeSeriesMaster").append('=').append(JodaBeanUtils.toString(getHistoricalTimeSeriesMaster())).append(',').append(' ');
+    buf.append("organizationMaster").append('=').append(JodaBeanUtils.toString(getOrganizationMaster())).append(',').append(' ');
+    buf.append("userPositionMaster").append('=').append(JodaBeanUtils.toString(getUserPositionMaster())).append(',').append(' ');
+    buf.append("userPortfolioMaster").append('=').append(JodaBeanUtils.toString(getUserPortfolioMaster())).append(',').append(' ');
+    buf.append("userConfigMaster").append('=').append(JodaBeanUtils.toString(getUserConfigMaster())).append(',').append(' ');
+    buf.append("combinedConfigSource").append('=').append(JodaBeanUtils.toString(getCombinedConfigSource())).append(',').append(' ');
+    buf.append("viewProcessor").append('=').append(JodaBeanUtils.toString(getViewProcessor())).append(',').append(' ');
+    buf.append("parallelViewRecompilation").append('=').append(JodaBeanUtils.toString(getParallelViewRecompilation())).append(',').append(' ');
+    buf.append("portfolioAggregationFunctions").append('=').append(JodaBeanUtils.toString(getPortfolioAggregationFunctions())).append(',').append(' ');
+    buf.append("marketDataSnapshotMaster").append('=').append(JodaBeanUtils.toString(getMarketDataSnapshotMaster())).append(',').append(' ');
+    buf.append("user").append('=').append(JodaBeanUtils.toString(getUser())).append(',').append(' ');
+    buf.append("fudgeContext").append('=').append(JodaBeanUtils.toString(getFudgeContext())).append(',').append(' ');
+    buf.append("liveMarketDataProviderFactory").append('=').append(JodaBeanUtils.toString(getLiveMarketDataProviderFactory())).append(',').append(' ');
+    buf.append("marketDataSpecificationRepository").append('=').append(JodaBeanUtils.toString(getMarketDataSpecificationRepository())).append(',').append(' ');
+    buf.append("suppressCurrencyDisplay").append('=').append(JodaBeanUtils.toString(isSuppressCurrencyDisplay())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

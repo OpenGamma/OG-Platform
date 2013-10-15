@@ -255,10 +255,10 @@ public class FactorExposureData extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("factorSetId").append('=').append(getFactorSetId()).append(',').append(' ');
-    buf.append("factorType").append('=').append(getFactorType()).append(',').append(' ');
-    buf.append("factorName").append('=').append(getFactorName()).append(',').append(' ');
-    buf.append("node").append('=').append(getNode()).append(',').append(' ');
+    buf.append("factorSetId").append('=').append(JodaBeanUtils.toString(getFactorSetId())).append(',').append(' ');
+    buf.append("factorType").append('=').append(JodaBeanUtils.toString(getFactorType())).append(',').append(' ');
+    buf.append("factorName").append('=').append(JodaBeanUtils.toString(getFactorName())).append(',').append(' ');
+    buf.append("node").append('=').append(JodaBeanUtils.toString(getNode())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

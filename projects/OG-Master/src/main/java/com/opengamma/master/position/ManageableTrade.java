@@ -701,20 +701,20 @@ public class ManageableTrade extends DirectBean
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("uniqueId").append('=').append(getUniqueId()).append(',').append(' ');
-    buf.append("parentPositionId").append('=').append(getParentPositionId()).append(',').append(' ');
-    buf.append("quantity").append('=').append(getQuantity()).append(',').append(' ');
-    buf.append("securityLink").append('=').append(getSecurityLink()).append(',').append(' ');
-    buf.append("counterpartyExternalId").append('=').append(getCounterpartyExternalId()).append(',').append(' ');
-    buf.append("tradeDate").append('=').append(getTradeDate()).append(',').append(' ');
-    buf.append("tradeTime").append('=').append(getTradeTime()).append(',').append(' ');
-    buf.append("premium").append('=').append(getPremium()).append(',').append(' ');
-    buf.append("premiumCurrency").append('=').append(getPremiumCurrency()).append(',').append(' ');
-    buf.append("premiumDate").append('=').append(getPremiumDate()).append(',').append(' ');
-    buf.append("premiumTime").append('=').append(getPremiumTime()).append(',').append(' ');
-    buf.append("attributes").append('=').append(getAttributes()).append(',').append(' ');
-    buf.append("deal").append('=').append(getDeal()).append(',').append(' ');
-    buf.append("providerId").append('=').append(getProviderId()).append(',').append(' ');
+    buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(getUniqueId())).append(',').append(' ');
+    buf.append("parentPositionId").append('=').append(JodaBeanUtils.toString(getParentPositionId())).append(',').append(' ');
+    buf.append("quantity").append('=').append(JodaBeanUtils.toString(getQuantity())).append(',').append(' ');
+    buf.append("securityLink").append('=').append(JodaBeanUtils.toString(getSecurityLink())).append(',').append(' ');
+    buf.append("counterpartyExternalId").append('=').append(JodaBeanUtils.toString(getCounterpartyExternalId())).append(',').append(' ');
+    buf.append("tradeDate").append('=').append(JodaBeanUtils.toString(getTradeDate())).append(',').append(' ');
+    buf.append("tradeTime").append('=').append(JodaBeanUtils.toString(getTradeTime())).append(',').append(' ');
+    buf.append("premium").append('=').append(JodaBeanUtils.toString(getPremium())).append(',').append(' ');
+    buf.append("premiumCurrency").append('=').append(JodaBeanUtils.toString(getPremiumCurrency())).append(',').append(' ');
+    buf.append("premiumDate").append('=').append(JodaBeanUtils.toString(getPremiumDate())).append(',').append(' ');
+    buf.append("premiumTime").append('=').append(JodaBeanUtils.toString(getPremiumTime())).append(',').append(' ');
+    buf.append("attributes").append('=').append(JodaBeanUtils.toString(getAttributes())).append(',').append(' ');
+    buf.append("deal").append('=').append(JodaBeanUtils.toString(getDeal())).append(',').append(' ');
+    buf.append("providerId").append('=').append(JodaBeanUtils.toString(getProviderId())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

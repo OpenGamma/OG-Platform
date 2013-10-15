@@ -75,11 +75,11 @@ public class VolatilitySurfaceData<X, Y> {
     _strips = Maps.newHashMap();
     for (Map.Entry<Pair<X, Y>, Double> entries : values.entrySet()) {
       if (_strips.containsKey(entries.getKey().getFirst())) {
-        _strips.get(entries.getKey().getFirst()).add(Pair.of(entries.getKey().getSecond(), entries.getValue()));
+        _strips.get(entries.getKey().getFirst()).add(ObjectsPair.of(entries.getKey().getSecond(), entries.getValue()));
       } else {
         _uniqueXs.add(entries.getKey().getFirst());
         final List<ObjectsPair<Y, Double>> list = Lists.newArrayList();
-        list.add(Pair.of(entries.getKey().getSecond(), entries.getValue()));
+        list.add(ObjectsPair.of(entries.getKey().getSecond(), entries.getValue()));
         _strips.put(entries.getKey().getFirst(), list);
       }
     }
@@ -106,7 +106,7 @@ public class VolatilitySurfaceData<X, Y> {
   }
   
   public Double getVolatility(final X x, final Y y) {
-    return _values.get(Pair.of(x, y));
+    return _values.get(ObjectsPair.of(x, y));
   }
   
   public SortedSet<X> getUniqueXValues() {

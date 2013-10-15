@@ -146,7 +146,7 @@ public class CurveNodeWithIdentifierBuilder implements CurveNodeVisitor<CurveNod
   @Override
   public CurveNodeWithIdentifier visitIMMFRANode(final IMMFRANode node) {
     final Tenor startTenor = node.getStartTenor();
-    final ExternalId identifier = _nodeIdMapper.getIMMFRANodeId(_curveDate, startTenor, node.getImmDateStartNumber(), node.getImmDateEndNumber());
+    final ExternalId identifier = _nodeIdMapper.getIMMFRANodeId(_curveDate, startTenor, node.getStartIMMDateNumber(), node.getEndIMMDateNumber());
     final String dataField = _nodeIdMapper.getIMMFRANodeDataField(startTenor);
     final DataFieldType fieldType = _nodeIdMapper.getIMMFRANodeDataFieldType(startTenor);
     return new CurveNodeWithIdentifier(node, identifier, dataField, fieldType);

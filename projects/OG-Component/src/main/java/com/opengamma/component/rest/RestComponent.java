@@ -184,8 +184,8 @@ public class RestComponent extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("instance").append('=').append(getInstance()).append(',').append(' ');
-    buf.append("info").append('=').append(getInfo()).append(',').append(' ');
+    buf.append("instance").append('=').append(JodaBeanUtils.toString(getInstance())).append(',').append(' ');
+    buf.append("info").append('=').append(JodaBeanUtils.toString(getInfo())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

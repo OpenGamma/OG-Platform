@@ -53,7 +53,7 @@ import com.opengamma.util.PublicAPI;
  * This class is immutable and thread-safe.
  */
 @PublicAPI
-@BeanDefinition
+@BeanDefinition(builderScope = "private")
 public final class VersionCorrection implements ImmutableBean, Comparable<VersionCorrection>, Serializable {
 
   /** Serialization version. */
@@ -65,13 +65,13 @@ public final class VersionCorrection implements ImmutableBean, Comparable<Versio
   public static final VersionCorrection LATEST = new VersionCorrection(null, null);
 
   /**
-   * The version instant.
+   * The version instant, null means latest.
    * This locates the version that was active at this instant.
    */
   @PropertyDefinition
   private final Instant _versionAsOf;
   /**
-   * The correction instant.
+   * The correction instant, null means latest.
    * This locates the correction that was active at this instant.
    */
   @PropertyDefinition
@@ -327,15 +327,6 @@ public final class VersionCorrection implements ImmutableBean, Comparable<Versio
     JodaBeanUtils.registerMetaBean(VersionCorrection.Meta.INSTANCE);
   }
 
-  /**
-   * Returns a builder used to create an instance of the bean.
-   *
-   * @return the builder, not null
-   */
-  public static VersionCorrection.Builder builder() {
-    return new VersionCorrection.Builder();
-  }
-
   @Override
   public VersionCorrection.Meta metaBean() {
     return VersionCorrection.Meta.INSTANCE;
@@ -353,7 +344,7 @@ public final class VersionCorrection implements ImmutableBean, Comparable<Versio
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the version instant.
+   * Gets the version instant, null means latest.
    * This locates the version that was active at this instant.
    * @return the value of the property
    */
@@ -363,7 +354,7 @@ public final class VersionCorrection implements ImmutableBean, Comparable<Versio
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the correction instant.
+   * Gets the correction instant, null means latest.
    * This locates the correction that was active at this instant.
    * @return the value of the property
    */
@@ -372,14 +363,6 @@ public final class VersionCorrection implements ImmutableBean, Comparable<Versio
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public VersionCorrection clone() {
     return this;
@@ -510,7 +493,7 @@ public final class VersionCorrection implements ImmutableBean, Comparable<Versio
   /**
    * The bean-builder for {@code VersionCorrection}.
    */
-  public static final class Builder extends BasicImmutableBeanBuilder<VersionCorrection> {
+  private static final class Builder extends BasicImmutableBeanBuilder<VersionCorrection> {
 
     private Instant _versionAsOf;
     private Instant _correctedTo;
@@ -553,27 +536,6 @@ public final class VersionCorrection implements ImmutableBean, Comparable<Versio
       return new VersionCorrection(
           _versionAsOf,
           _correctedTo);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the {@code versionAsOf} property in the builder.
-     * @param versionAsOf  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder versionAsOf(Instant versionAsOf) {
-      this._versionAsOf = versionAsOf;
-      return this;
-    }
-
-    /**
-     * Sets the {@code correctedTo} property in the builder.
-     * @param correctedTo  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder correctedTo(Instant correctedTo) {
-      this._correctedTo = correctedTo;
-      return this;
     }
 
     //-----------------------------------------------------------------------

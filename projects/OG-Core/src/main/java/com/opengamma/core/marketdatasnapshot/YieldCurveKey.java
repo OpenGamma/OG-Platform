@@ -17,7 +17,6 @@ import org.fudgemsg.mapping.FudgeSerializer;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.ImmutableBean;
-import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -43,14 +42,15 @@ public final class YieldCurveKey implements ImmutableBean, StructuredMarketDataK
   /**
    * The currency.
    */
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private final Currency _currency;
   /**
    * The curve name.
    */
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private final String _name;
 
+  //-------------------------------------------------------------------------
   /**
    * Creates an instance with a currency and name.
    * 
@@ -60,20 +60,6 @@ public final class YieldCurveKey implements ImmutableBean, StructuredMarketDataK
    */
   public static YieldCurveKey of(Currency currency, String name) {
     return new YieldCurveKey(currency, name);
-  }
-  
-  //-------------------------------------------------------------------------
-  /**
-   * Creates an instance with the real value and optional override.
-   * 
-   * @param currency  the currency
-   * @param name  the name
-   */
-  @ImmutableConstructor
-  private YieldCurveKey(Currency currency, String name) {
-    super();
-    _currency = currency;
-    _name = name;
   }
 
   //-------------------------------------------------------------------------
@@ -131,6 +117,15 @@ public final class YieldCurveKey implements ImmutableBean, StructuredMarketDataK
     return new YieldCurveKey.Builder();
   }
 
+  private YieldCurveKey(
+      Currency currency,
+      String name) {
+    JodaBeanUtils.notNull(currency, "currency");
+    JodaBeanUtils.notNull(name, "name");
+    this._currency = currency;
+    this._name = name;
+  }
+
   @Override
   public YieldCurveKey.Meta metaBean() {
     return YieldCurveKey.Meta.INSTANCE;
@@ -149,7 +144,7 @@ public final class YieldCurveKey implements ImmutableBean, StructuredMarketDataK
   //-----------------------------------------------------------------------
   /**
    * Gets the currency.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public Currency getCurrency() {
     return _currency;
@@ -158,7 +153,7 @@ public final class YieldCurveKey implements ImmutableBean, StructuredMarketDataK
   //-----------------------------------------------------------------------
   /**
    * Gets the curve name.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public String getName() {
     return _name;
@@ -204,7 +199,7 @@ public final class YieldCurveKey implements ImmutableBean, StructuredMarketDataK
     StringBuilder buf = new StringBuilder(96);
     buf.append("YieldCurveKey{");
     buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
-    buf.append("name").append('=').append(getName());
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName()));
     buf.append('}');
     return buf.toString();
   }
@@ -365,6 +360,7 @@ public final class YieldCurveKey implements ImmutableBean, StructuredMarketDataK
      * @return this, for chaining, not null
      */
     public Builder currency(Currency currency) {
+      JodaBeanUtils.notNull(currency, "currency");
       this._currency = currency;
       return this;
     }
@@ -375,6 +371,7 @@ public final class YieldCurveKey implements ImmutableBean, StructuredMarketDataK
      * @return this, for chaining, not null
      */
     public Builder name(String name) {
+      JodaBeanUtils.notNull(name, "name");
       this._name = name;
       return this;
     }

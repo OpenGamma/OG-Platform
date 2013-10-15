@@ -368,14 +368,14 @@ public class DefaultViewCycleMetadata extends DirectBean implements ViewCycleMet
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("viewCycleId").append('=').append(getViewCycleId()).append(',').append(' ');
-    buf.append("marketDataSnapshotId").append('=').append(getMarketDataSnapshotId()).append(',').append(' ');
-    buf.append("viewDefinitionId").append('=').append(getViewDefinitionId()).append(',').append(' ');
-    buf.append("versionCorrection").append('=').append(getVersionCorrection()).append(',').append(' ');
-    buf.append("valuationTime").append('=').append(getValuationTime()).append(',').append(' ');
-    buf.append("allCalculationConfigurationNames").append('=').append(getAllCalculationConfigurationNames()).append(',').append(' ');
-    buf.append("computationTargetsByCalcConfig").append('=').append(getComputationTargetsByCalcConfig()).append(',').append(' ');
-    buf.append("terminalOutputsByCalcConfig").append('=').append(getTerminalOutputsByCalcConfig()).append(',').append(' ');
+    buf.append("viewCycleId").append('=').append(JodaBeanUtils.toString(getViewCycleId())).append(',').append(' ');
+    buf.append("marketDataSnapshotId").append('=').append(JodaBeanUtils.toString(getMarketDataSnapshotId())).append(',').append(' ');
+    buf.append("viewDefinitionId").append('=').append(JodaBeanUtils.toString(getViewDefinitionId())).append(',').append(' ');
+    buf.append("versionCorrection").append('=').append(JodaBeanUtils.toString(getVersionCorrection())).append(',').append(' ');
+    buf.append("valuationTime").append('=').append(JodaBeanUtils.toString(getValuationTime())).append(',').append(' ');
+    buf.append("allCalculationConfigurationNames").append('=').append(JodaBeanUtils.toString(getAllCalculationConfigurationNames())).append(',').append(' ');
+    buf.append("computationTargetsByCalcConfig").append('=').append(JodaBeanUtils.toString(getComputationTargetsByCalcConfig())).append(',').append(' ');
+    buf.append("terminalOutputsByCalcConfig").append('=').append(JodaBeanUtils.toString(getTerminalOutputsByCalcConfig())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

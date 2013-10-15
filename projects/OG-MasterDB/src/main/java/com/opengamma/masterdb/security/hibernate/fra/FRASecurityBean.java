@@ -323,14 +323,14 @@ public class FRASecurityBean extends SecurityBean {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
-    buf.append("region").append('=').append(getRegion()).append(',').append(' ');
-    buf.append("startDate").append('=').append(getStartDate()).append(',').append(' ');
-    buf.append("endDate").append('=').append(getEndDate()).append(',').append(' ');
-    buf.append("rate").append('=').append(getRate()).append(',').append(' ');
-    buf.append("amount").append('=').append(getAmount()).append(',').append(' ');
-    buf.append("underlying").append('=').append(getUnderlying()).append(',').append(' ');
-    buf.append("fixingDate").append('=').append(getFixingDate()).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("region").append('=').append(JodaBeanUtils.toString(getRegion())).append(',').append(' ');
+    buf.append("startDate").append('=').append(JodaBeanUtils.toString(getStartDate())).append(',').append(' ');
+    buf.append("endDate").append('=').append(JodaBeanUtils.toString(getEndDate())).append(',').append(' ');
+    buf.append("rate").append('=').append(JodaBeanUtils.toString(getRate())).append(',').append(' ');
+    buf.append("amount").append('=').append(JodaBeanUtils.toString(getAmount())).append(',').append(' ');
+    buf.append("underlying").append('=').append(JodaBeanUtils.toString(getUnderlying())).append(',').append(' ');
+    buf.append("fixingDate").append('=').append(JodaBeanUtils.toString(getFixingDate())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

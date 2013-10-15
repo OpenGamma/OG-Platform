@@ -131,7 +131,7 @@ public class SharedUserComponentFactory extends AbstractComponentFactory {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("userName").append('=').append(getUserName()).append(',').append(' ');
+    buf.append("userName").append('=').append(JodaBeanUtils.toString(getUserName())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

@@ -114,7 +114,7 @@ public final class FederalFundsFutureSecurityDiscountingMethod extends FederalFu
     final Map<String, List<DoublesPair>> resultMap = new HashMap<>();
     final List<DoublesPair> listOIS = new ArrayList<>();
     for (int loopfix = 0; loopfix < nbFixing + 1; loopfix++) {
-      listOIS.add(new DoublesPair(future.getFixingPeriodTime()[loopfix], -future.getFixingPeriodTime()[loopfix] * df[loopfix] * dfBar[loopfix]));
+      listOIS.add(DoublesPair.of(future.getFixingPeriodTime()[loopfix], -future.getFixingPeriodTime()[loopfix] * df[loopfix] * dfBar[loopfix]));
     }
     resultMap.put(future.getOISCurveName(), listOIS);
     final InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultMap);

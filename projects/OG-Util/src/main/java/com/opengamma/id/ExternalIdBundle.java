@@ -48,7 +48,7 @@ import com.opengamma.util.PublicAPI;
  * This class is immutable and thread-safe.
  */
 @PublicAPI
-@BeanDefinition
+@BeanDefinition(builderScope = "private")
 public final class ExternalIdBundle implements ImmutableBean, Iterable<ExternalId>,
     Serializable, Comparable<ExternalIdBundle>, ExternalBundleIdentifiable {
 
@@ -66,12 +66,12 @@ public final class ExternalIdBundle implements ImmutableBean, Iterable<ExternalI
    * The identifiers are sorted in the natural order of {@link ExternalId} to provide
    * greater consistency in applications. The sort order is not suitable for a GUI.
    */
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private final ImmutableSortedSet<ExternalId> _externalIds;
   /**
    * The cached hash code.
    */
-  private transient volatile int _hashCode;
+  private transient int _hashCode;  // safe via racy single check idiom
 
   /**
    * Obtains an {@code ExternalIdBundle} from a single scheme and value. This is most useful for testing, as a bundle normally contains more than one identifier.
@@ -440,10 +440,14 @@ public final class ExternalIdBundle implements ImmutableBean, Iterable<ExternalI
 
   @Override
   public int hashCode() {
-    if (_hashCode == 0) {
-      _hashCode = 31 + _externalIds.hashCode();
+    // racy single check idiom allows non-volatile variable
+    // requires only one read and one write of non-volatile
+    int hashCode = _hashCode;
+    if (hashCode == 0) {
+      hashCode = 31 + _externalIds.hashCode();
+      _hashCode = hashCode;
     }
-    return _hashCode;
+    return hashCode;
   }
 
   /**
@@ -475,17 +479,9 @@ public final class ExternalIdBundle implements ImmutableBean, Iterable<ExternalI
     JodaBeanUtils.registerMetaBean(ExternalIdBundle.Meta.INSTANCE);
   }
 
-  /**
-   * Returns a builder used to create an instance of the bean.
-   *
-   * @return the builder, not null
-   */
-  public static ExternalIdBundle.Builder builder() {
-    return new ExternalIdBundle.Builder();
-  }
-
   private ExternalIdBundle(
       SortedSet<ExternalId> externalIds) {
+    JodaBeanUtils.notNull(externalIds, "externalIds");
     this._externalIds = ImmutableSortedSet.copyOf(externalIds);
   }
 
@@ -510,21 +506,13 @@ public final class ExternalIdBundle implements ImmutableBean, Iterable<ExternalI
    * <p>
    * The identifiers are sorted in the natural order of {@link ExternalId} to provide
    * greater consistency in applications. The sort order is not suitable for a GUI.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public ImmutableSortedSet<ExternalId> getExternalIds() {
     return _externalIds;
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public ExternalIdBundle clone() {
     return this;
@@ -617,7 +605,7 @@ public final class ExternalIdBundle implements ImmutableBean, Iterable<ExternalI
   /**
    * The bean-builder for {@code ExternalIdBundle}.
    */
-  public static final class Builder extends BasicImmutableBeanBuilder<ExternalIdBundle> {
+  private static final class Builder extends BasicImmutableBeanBuilder<ExternalIdBundle> {
 
     private SortedSet<ExternalId> _externalIds = new TreeSet<ExternalId>();
 
@@ -655,17 +643,6 @@ public final class ExternalIdBundle implements ImmutableBean, Iterable<ExternalI
     public ExternalIdBundle build() {
       return new ExternalIdBundle(
           _externalIds);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the {@code externalIds} property in the builder.
-     * @param externalIds  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder externalIds(SortedSet<ExternalId> externalIds) {
-      this._externalIds = externalIds;
-      return this;
     }
 
     //-----------------------------------------------------------------------

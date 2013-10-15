@@ -218,10 +218,10 @@ public class TargetProperty extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("id").append('=').append(getId()).append(',').append(' ');
-    buf.append("targetSpecification").append('=').append(getTargetSpecification()).append(',').append(' ');
-    buf.append("propertyKey").append('=').append(getPropertyKey()).append(',').append(' ');
-    buf.append("propertyValue").append('=').append(getPropertyValue()).append(',').append(' ');
+    buf.append("id").append('=').append(JodaBeanUtils.toString(getId())).append(',').append(' ');
+    buf.append("targetSpecification").append('=').append(JodaBeanUtils.toString(getTargetSpecification())).append(',').append(' ');
+    buf.append("propertyKey").append('=').append(JodaBeanUtils.toString(getPropertyKey())).append(',').append(' ');
+    buf.append("propertyValue").append('=').append(JodaBeanUtils.toString(getPropertyValue())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

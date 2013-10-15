@@ -189,8 +189,8 @@ public abstract class UidsResult extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("paging").append('=').append(getPaging()).append(',').append(' ');
-    buf.append("uids").append('=').append(getUids()).append(',').append(' ');
+    buf.append("paging").append('=').append(JodaBeanUtils.toString(getPaging())).append(',').append(' ');
+    buf.append("uids").append('=').append(JodaBeanUtils.toString(getUids())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

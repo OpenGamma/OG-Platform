@@ -341,13 +341,13 @@ public class IntegrationWebComponentFactory extends AbstractComponentFactory {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("portfolioMaster").append('=').append(getPortfolioMaster()).append(',').append(' ');
-    buf.append("positionMaster").append('=').append(getPositionMaster()).append(',').append(' ');
-    buf.append("securityMaster").append('=').append(getSecurityMaster()).append(',').append(' ');
-    buf.append("historicalTimeSeriesMaster").append('=').append(getHistoricalTimeSeriesMaster()).append(',').append(' ');
-    buf.append("securityProvider").append('=').append(getSecurityProvider()).append(',').append(' ');
-    buf.append("historicalTimeSeriesProvider").append('=').append(getHistoricalTimeSeriesProvider()).append(',').append(' ');
-    buf.append("bloombergReferenceDataProvider").append('=').append(getBloombergReferenceDataProvider()).append(',').append(' ');
+    buf.append("portfolioMaster").append('=').append(JodaBeanUtils.toString(getPortfolioMaster())).append(',').append(' ');
+    buf.append("positionMaster").append('=').append(JodaBeanUtils.toString(getPositionMaster())).append(',').append(' ');
+    buf.append("securityMaster").append('=').append(JodaBeanUtils.toString(getSecurityMaster())).append(',').append(' ');
+    buf.append("historicalTimeSeriesMaster").append('=').append(JodaBeanUtils.toString(getHistoricalTimeSeriesMaster())).append(',').append(' ');
+    buf.append("securityProvider").append('=').append(JodaBeanUtils.toString(getSecurityProvider())).append(',').append(' ');
+    buf.append("historicalTimeSeriesProvider").append('=').append(JodaBeanUtils.toString(getHistoricalTimeSeriesProvider())).append(',').append(' ');
+    buf.append("bloombergReferenceDataProvider").append('=').append(JodaBeanUtils.toString(getBloombergReferenceDataProvider())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

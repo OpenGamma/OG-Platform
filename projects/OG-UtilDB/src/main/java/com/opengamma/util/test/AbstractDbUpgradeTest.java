@@ -143,7 +143,7 @@ public abstract class AbstractDbUpgradeTest implements TableCreationCallback {
     String key = schemaGroupMetadata.getSchemaGroupName() + "_" + version;
     if (versionSchemas.containsKey(key)) {
       // if we've already done the full schema, then we want to test that this upgrade has given us the same (but defer the comparison)
-      _comparisons.add(new Triple<String, String, String>(key, versionSchemas.get(key), _dbTool.describeDatabase(schemaGroupMetadata.getSchemaGroupName())));
+      _comparisons.add(Triple.of(key, versionSchemas.get(key), _dbTool.describeDatabase(schemaGroupMetadata.getSchemaGroupName())));
     } else {
       // tests are run with most recent full schema first, so we can store that as a reference
       versionSchemas.put(key, _dbTool.describeDatabase(schemaGroupMetadata.getSchemaGroupName()));

@@ -135,7 +135,7 @@ public class RemoteViewProcessorComponentFactory extends AbstractRemoteComponent
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("jmsConnector").append('=').append(getJmsConnector()).append(',').append(' ');
+    buf.append("jmsConnector").append('=').append(JodaBeanUtils.toString(getJmsConnector())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

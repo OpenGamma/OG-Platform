@@ -157,7 +157,7 @@ public class IMMSwapConvention extends SwapConvention {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("immDateConvention").append('=').append(getImmDateConvention()).append(',').append(' ');
+    buf.append("immDateConvention").append('=').append(JodaBeanUtils.toString(getImmDateConvention())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

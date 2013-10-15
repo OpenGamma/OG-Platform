@@ -223,8 +223,8 @@ public class ManageableOrganization extends DirectBean implements Organization, 
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("uniqueId").append('=').append(getUniqueId()).append(',').append(' ');
-    buf.append("obligor").append('=').append(getObligor()).append(',').append(' ');
+    buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(getUniqueId())).append(',').append(' ');
+    buf.append("obligor").append('=').append(JodaBeanUtils.toString(getObligor())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

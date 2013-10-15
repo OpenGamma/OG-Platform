@@ -372,14 +372,14 @@ public class ManageableHistoricalTimeSeriesInfo extends DirectBean
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("uniqueId").append('=').append(getUniqueId()).append(',').append(' ');
-    buf.append("externalIdBundle").append('=').append(getExternalIdBundle()).append(',').append(' ');
-    buf.append("name").append('=').append(getName()).append(',').append(' ');
-    buf.append("dataField").append('=').append(getDataField()).append(',').append(' ');
-    buf.append("dataSource").append('=').append(getDataSource()).append(',').append(' ');
-    buf.append("dataProvider").append('=').append(getDataProvider()).append(',').append(' ');
-    buf.append("observationTime").append('=').append(getObservationTime()).append(',').append(' ');
-    buf.append("timeSeriesObjectId").append('=').append(getTimeSeriesObjectId()).append(',').append(' ');
+    buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(getUniqueId())).append(',').append(' ');
+    buf.append("externalIdBundle").append('=').append(JodaBeanUtils.toString(getExternalIdBundle())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
+    buf.append("dataField").append('=').append(JodaBeanUtils.toString(getDataField())).append(',').append(' ');
+    buf.append("dataSource").append('=').append(JodaBeanUtils.toString(getDataSource())).append(',').append(' ');
+    buf.append("dataProvider").append('=').append(JodaBeanUtils.toString(getDataProvider())).append(',').append(' ');
+    buf.append("observationTime").append('=').append(JodaBeanUtils.toString(getObservationTime())).append(',').append(' ');
+    buf.append("timeSeriesObjectId").append('=').append(JodaBeanUtils.toString(getTimeSeriesObjectId())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

@@ -331,10 +331,10 @@ public class ConfigItem<T> extends DirectBean implements UniqueIdentifiable, Obj
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("value").append('=').append(getValue()).append(',').append(' ');
-    buf.append("uniqueId").append('=').append(getUniqueId()).append(',').append(' ');
-    buf.append("name").append('=').append(getName()).append(',').append(' ');
-    buf.append("type").append('=').append(getType()).append(',').append(' ');
+    buf.append("value").append('=').append(JodaBeanUtils.toString(getValue())).append(',').append(' ');
+    buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(getUniqueId())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
+    buf.append("type").append('=').append(JodaBeanUtils.toString(getType())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

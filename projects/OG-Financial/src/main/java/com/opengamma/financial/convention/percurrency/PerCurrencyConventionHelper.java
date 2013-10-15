@@ -84,6 +84,10 @@ public class PerCurrencyConventionHelper {
   public static final String SERIAL = "Serial";
   /** Quarterly (i.e. March, June, September, December) futures **/
   public static final String QUARTERLY = "Quarterly";
+  /** Monthly **/
+  public static final String MONTHLY = "Monthly";
+  /** IMM dates **/
+  public static final String IMM = "IMM";
   /** Government (Simplified bond description) **/
   public static final String GOVT = "Govt ";
 

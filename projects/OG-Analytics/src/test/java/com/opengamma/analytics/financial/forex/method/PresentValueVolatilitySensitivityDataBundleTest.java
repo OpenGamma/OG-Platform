@@ -37,7 +37,7 @@ public class PresentValueVolatilitySensitivityDataBundleTest {
     final double exp = 1.0;
     final double strike = 0.05;
     final double value = 10000;
-    final DoublesPair point = new DoublesPair(exp, strike);
+    final DoublesPair point = DoublesPair.of(exp, strike);
     vega.add(point, value);
     final PresentValueForexBlackVolatilitySensitivity sensi = new PresentValueForexBlackVolatilitySensitivity(CUR_1, CUR_2, SurfaceValue.from(point, value));
     final Pair<Currency, Currency> pair = ObjectsPair.of(CUR_1, CUR_2);
@@ -53,7 +53,7 @@ public class PresentValueVolatilitySensitivityDataBundleTest {
     final double exp = 1.0;
     final double strike = 0.05;
     final double value = 10000;
-    final DoublesPair point = new DoublesPair(exp, strike);
+    final DoublesPair point = DoublesPair.of(exp, strike);
     SurfaceValue vega = new SurfaceValue();
     vega.add(point, value);
     final PresentValueForexBlackVolatilitySensitivity sensitivities = new PresentValueForexBlackVolatilitySensitivity(CUR_1, CUR_2, vega);
@@ -88,7 +88,7 @@ public class PresentValueVolatilitySensitivityDataBundleTest {
     final double exp = 1.0;
     final double strike = 0.05;
     final double value = 10000;
-    final DoublesPair point = new DoublesPair(exp, strike);
+    final DoublesPair point = DoublesPair.of(exp, strike);
     vega.add(point, 2 * value);
     final PresentValueForexBlackVolatilitySensitivity first = new PresentValueForexBlackVolatilitySensitivity(CUR_1, CUR_2, vega);
     vega = new SurfaceValue();

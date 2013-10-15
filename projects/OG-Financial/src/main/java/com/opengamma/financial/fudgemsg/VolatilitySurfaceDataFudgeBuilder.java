@@ -24,6 +24,7 @@ import org.fudgemsg.mapping.FudgeSerializer;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Builder for converting VolatilitySurfaceData instances to/from Fudge messages.
@@ -61,6 +62,7 @@ public class VolatilitySurfaceDataFudgeBuilder implements FudgeBuilder<Volatilit
       }
     }
     for (final Entry<?, Double> entry : object.asMap().entrySet()) {
+      @SuppressWarnings("unchecked")
       final Pair<Object, Object> pair = (Pair<Object, Object>) entry.getKey();
       final MutableFudgeMsg subMessage = serializer.newMessage();
       if (pair.getFirst() != null && pair.getSecond() != null) {
@@ -123,7 +125,7 @@ public class VolatilitySurfaceDataFudgeBuilder implements FudgeBuilder<Volatilit
         final Object x = deserializer.fieldValueToObject(xClazz, subMessage.getByName(X_FIELD));
         final Object y = deserializer.fieldValueToObject(yClazz, subMessage.getByName(Y_FIELD));
         final Double value = subMessage.getDouble(VALUE_FIELD);
-        values.put(Pair.of(x, y), value);
+        values.put(Pairs.of(x, y), value);
       }
       return new VolatilitySurfaceData<Object, Object>(definitionName, specificationName, target, xs.toArray(xsArray), xLabel, ys.toArray(ysArray), yLabel, values);
     }

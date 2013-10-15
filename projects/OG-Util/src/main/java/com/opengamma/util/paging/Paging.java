@@ -33,7 +33,7 @@ import com.opengamma.util.ArgumentChecker;
  * <p>
  * This class is immutable and thread-safe.
  */
-@BeanDefinition
+@BeanDefinition(builderScope = "private")
 public final class Paging implements ImmutableBean {
 
   /**
@@ -334,15 +334,6 @@ public final class Paging implements ImmutableBean {
     JodaBeanUtils.registerMetaBean(Paging.Meta.INSTANCE);
   }
 
-  /**
-   * Returns a builder used to create an instance of the bean.
-   *
-   * @return the builder, not null
-   */
-  public static Paging.Builder builder() {
-    return new Paging.Builder();
-  }
-
   @Override
   public Paging.Meta metaBean() {
     return Paging.Meta.INSTANCE;
@@ -359,16 +350,6 @@ public final class Paging implements ImmutableBean {
   }
 
   //-----------------------------------------------------------------------
-  //-----------------------------------------------------------------------
-  //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public Paging clone() {
     return this;
@@ -499,7 +480,7 @@ public final class Paging implements ImmutableBean {
   /**
    * The bean-builder for {@code Paging}.
    */
-  public static final class Builder extends BasicImmutableBeanBuilder<Paging> {
+  private static final class Builder extends BasicImmutableBeanBuilder<Paging> {
 
     private PagingRequest _request;
     private int _totalItems;
@@ -542,28 +523,6 @@ public final class Paging implements ImmutableBean {
       return new Paging(
           _request,
           _totalItems);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the {@code request} property in the builder.
-     * @param request  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder request(PagingRequest request) {
-      JodaBeanUtils.notNull(request, "request");
-      this._request = request;
-      return this;
-    }
-
-    /**
-     * Sets the {@code totalItems} property in the builder.
-     * @param totalItems  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder totalItems(int totalItems) {
-      this._totalItems = totalItems;
-      return this;
     }
 
     //-----------------------------------------------------------------------

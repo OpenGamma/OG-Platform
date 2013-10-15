@@ -82,6 +82,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Produces yield curves using the discounting method.
@@ -235,7 +236,7 @@ public class MultiCurveDiscountingFunction extends
       //TODO this is only in here because the code in analytics doesn't use generics properly
       final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> temp = builder.makeCurvesFromDerivatives(curveBundles,
           (MulticurveProviderDiscount) knownData, discountingMap, forwardIborMap, forwardONMap, getCalculator(), getSensitivityCalculator());
-      final Pair<MulticurveProviderInterface, CurveBuildingBlockBundle> result = Pair.of((MulticurveProviderInterface) temp.getFirst(), temp.getSecond());
+      final Pair<MulticurveProviderInterface, CurveBuildingBlockBundle> result = Pairs.of((MulticurveProviderInterface) temp.getFirst(), temp.getSecond());
       return result;
     }
 

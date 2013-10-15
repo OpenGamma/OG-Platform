@@ -382,15 +382,15 @@ public class EquityVarianceSwapTrade extends Trade {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("buySell").append('=').append(getBuySell()).append(',').append(' ');
-    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
-    buf.append("strike").append('=').append(getStrike()).append(',').append(' ');
-    buf.append("underlying").append('=').append(getUnderlying()).append(',').append(' ');
-    buf.append("vegaAmount").append('=').append(getVegaAmount()).append(',').append(' ');
-    buf.append("observationStartDate").append('=').append(getObservationStartDate()).append(',').append(' ');
-    buf.append("observationEndDate").append('=').append(getObservationEndDate()).append(',').append(' ');
-    buf.append("observationfrequency").append('=').append(getObservationfrequency()).append(',').append(' ');
-    buf.append("annualizationFactor").append('=').append(getAnnualizationFactor()).append(',').append(' ');
+    buf.append("buySell").append('=').append(JodaBeanUtils.toString(getBuySell())).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("strike").append('=').append(JodaBeanUtils.toString(getStrike())).append(',').append(' ');
+    buf.append("underlying").append('=').append(JodaBeanUtils.toString(getUnderlying())).append(',').append(' ');
+    buf.append("vegaAmount").append('=').append(JodaBeanUtils.toString(getVegaAmount())).append(',').append(' ');
+    buf.append("observationStartDate").append('=').append(JodaBeanUtils.toString(getObservationStartDate())).append(',').append(' ');
+    buf.append("observationEndDate").append('=').append(JodaBeanUtils.toString(getObservationEndDate())).append(',').append(' ');
+    buf.append("observationfrequency").append('=').append(JodaBeanUtils.toString(getObservationfrequency())).append(',').append(' ');
+    buf.append("annualizationFactor").append('=').append(JodaBeanUtils.toString(getAnnualizationFactor())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

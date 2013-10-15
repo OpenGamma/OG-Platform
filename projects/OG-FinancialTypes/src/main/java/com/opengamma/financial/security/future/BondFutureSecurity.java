@@ -213,9 +213,9 @@ public class BondFutureSecurity extends FutureSecurity {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("basket").append('=').append(getBasket()).append(',').append(' ');
-    buf.append("firstDeliveryDate").append('=').append(getFirstDeliveryDate()).append(',').append(' ');
-    buf.append("lastDeliveryDate").append('=').append(getLastDeliveryDate()).append(',').append(' ');
+    buf.append("basket").append('=').append(JodaBeanUtils.toString(getBasket())).append(',').append(' ');
+    buf.append("firstDeliveryDate").append('=').append(JodaBeanUtils.toString(getFirstDeliveryDate())).append(',').append(' ');
+    buf.append("lastDeliveryDate").append('=').append(JodaBeanUtils.toString(getLastDeliveryDate())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

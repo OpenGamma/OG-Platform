@@ -44,6 +44,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 public class ForexOptionVanillaBlackFlatMethodTest {
 
@@ -58,7 +59,7 @@ public class ForexOptionVanillaBlackFlatMethodTest {
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final int SETTLEMENT_DAYS = 2;
   // Vol data
-  private static final Pair<Currency, Currency> CURRENCY_PAIR = Pair.of(EUR, USD);
+  private static final Pair<Currency, Currency> CURRENCY_PAIR = Pairs.of(EUR, USD);
   private static final Period[] EXPIRY_PERIOD = new Period[] {Period.ofMonths(3), Period.ofMonths(6), Period.ofYears(1),
     Period.ofYears(2), Period.ofYears(5)};
   private static final double[] VOL = new double[] {0.20, 0.25, 0.20, 0.15, 0.20};

@@ -206,9 +206,9 @@ public class PositionSourceFactoryBean extends SpringFactoryBean<PositionSource>
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("portfolioMaster").append('=').append(getPortfolioMaster()).append(',').append(' ');
-    buf.append("positionMaster").append('=').append(getPositionMaster()).append(',').append(' ');
-    buf.append("cacheManager").append('=').append(getCacheManager()).append(',').append(' ');
+    buf.append("portfolioMaster").append('=').append(JodaBeanUtils.toString(getPortfolioMaster())).append(',').append(' ');
+    buf.append("positionMaster").append('=').append(JodaBeanUtils.toString(getPositionMaster())).append(',').append(' ');
+    buf.append("cacheManager").append('=').append(JodaBeanUtils.toString(getCacheManager())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

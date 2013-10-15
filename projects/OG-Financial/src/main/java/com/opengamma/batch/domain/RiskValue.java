@@ -393,16 +393,16 @@ public class RiskValue extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("id").append('=').append(getId()).append(',').append(' ');
-    buf.append("calculationConfigurationId").append('=').append(getCalculationConfigurationId()).append(',').append(' ');
-    buf.append("name").append('=').append(getName()).append(',').append(' ');
-    buf.append("valueSpecificationId").append('=').append(getValueSpecificationId()).append(',').append(' ');
-    buf.append("functionUniqueId").append('=').append(getFunctionUniqueId()).append(',').append(' ');
-    buf.append("computationTargetId").append('=').append(getComputationTargetId()).append(',').append(' ');
-    buf.append("runId").append('=').append(getRunId()).append(',').append(' ');
-    buf.append("value").append('=').append(getValue()).append(',').append(' ');
-    buf.append("evalInstant").append('=').append(getEvalInstant()).append(',').append(' ');
-    buf.append("computeNodeId").append('=').append(getComputeNodeId()).append(',').append(' ');
+    buf.append("id").append('=').append(JodaBeanUtils.toString(getId())).append(',').append(' ');
+    buf.append("calculationConfigurationId").append('=').append(JodaBeanUtils.toString(getCalculationConfigurationId())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
+    buf.append("valueSpecificationId").append('=').append(JodaBeanUtils.toString(getValueSpecificationId())).append(',').append(' ');
+    buf.append("functionUniqueId").append('=').append(JodaBeanUtils.toString(getFunctionUniqueId())).append(',').append(' ');
+    buf.append("computationTargetId").append('=').append(JodaBeanUtils.toString(getComputationTargetId())).append(',').append(' ');
+    buf.append("runId").append('=').append(JodaBeanUtils.toString(getRunId())).append(',').append(' ');
+    buf.append("value").append('=').append(JodaBeanUtils.toString(getValue())).append(',').append(' ');
+    buf.append("evalInstant").append('=').append(JodaBeanUtils.toString(getEvalInstant())).append(',').append(' ');
+    buf.append("computeNodeId").append('=').append(JodaBeanUtils.toString(getComputeNodeId())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

@@ -19,6 +19,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * General converter for doubles that applies rounding rules.
@@ -43,6 +44,7 @@ public class DoubleConverter implements ResultConverter<Object> {
     addConversion(ValueRequirementNames.VOLATILITY_SURFACE, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
     addConversion(ValueRequirementNames.VOLATILITY_SURFACE_DATA, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
     addConversion(ValueRequirementNames.COST_OF_CARRY, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
+    addConversion(ValueRequirementNames.MARKET_QUOTE, DoubleValueSignificantFiguresFormatter.NON_CCY_5SF);
 
     // Pricing
     addConversion(ValueRequirementNames.PRESENT_VALUE, DoubleValueSizeBasedDecimalPlaceFormatter.CCY_DEFAULT);
@@ -258,14 +260,14 @@ public class DoubleConverter implements ResultConverter<Object> {
 
   private Pair<Double, BigDecimal> processValue(final Object value) {
     if (value instanceof Double) {
-      return Pair.of((Double) value, null);
+      return Pairs.of((Double) value, (BigDecimal) null);
     }
     if (value instanceof CurrencyAmount) {
       final CurrencyAmount currencyAmount = (CurrencyAmount) value;
-      return Pair.of((Double) currencyAmount.getAmount(), null);
+      return Pairs.of(currencyAmount.getAmount(), (BigDecimal) null);
     }
     if (value instanceof BigDecimal) {
-      return Pair.of(null, ((BigDecimal) value));
+      return Pairs.of((Double) null, ((BigDecimal) value));
     }
     throw new OpenGammaRuntimeException(getClass().getSimpleName() + " is unable to process value of type " + value.getClass());
   }

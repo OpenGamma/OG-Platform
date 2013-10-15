@@ -11,9 +11,6 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 
 import org.joda.beans.Bean;
-import org.joda.beans.DerivedProperty;
-import org.joda.beans.ImmutableBean;
-import org.joda.beans.ImmutableConstructor;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -34,7 +31,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
  * @param <A> the type of the first side of the pair
  * @param <B> the type of the second side of the pair
  */
-public final class ObjectsPair<A, B> extends Pair<A, B> implements ImmutableBean, Serializable {
+public final class ObjectsPair<A, B> extends Pair<A, B> implements Serializable {
   // this ImmutableBean is not auto-generated
 
   /** Serialization version. */
@@ -45,6 +42,7 @@ public final class ObjectsPair<A, B> extends Pair<A, B> implements ImmutableBean
   /** The second element. */
   public final B second; // CSIGNORE
 
+  //-------------------------------------------------------------------------
   /**
    * Creates a pair inferring the types.
    * 
@@ -58,6 +56,7 @@ public final class ObjectsPair<A, B> extends Pair<A, B> implements ImmutableBean
     return new ObjectsPair<>(first, second);
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Constructs a pair.
    * 
@@ -66,7 +65,6 @@ public final class ObjectsPair<A, B> extends Pair<A, B> implements ImmutableBean
    * @deprecated Use of(first, second)
    */
   @Deprecated
-  @ImmutableConstructor
   public ObjectsPair(A first, B second) {
     this.first = first;
     this.second = second;
@@ -74,13 +72,11 @@ public final class ObjectsPair<A, B> extends Pair<A, B> implements ImmutableBean
 
   //-------------------------------------------------------------------------
   @Override
-  @DerivedProperty
   public A getFirst() {
     return first;
   }
 
   @Override
-  @DerivedProperty
   public B getSecond() {
     return second;
   }
@@ -134,12 +130,12 @@ public final class ObjectsPair<A, B> extends Pair<A, B> implements ImmutableBean
     /**
      * The meta-property for the {@code first} property.
      */
-    private final MetaProperty<Object> _first = DirectMetaProperty.ofDerived(
+    private final MetaProperty<Object> _first = DirectMetaProperty.ofImmutable(
         this, "first", ObjectsPair.class, Object.class);
     /**
      * The meta-property for the {@code second} property.
      */
-    private final MetaProperty<Object> _second = DirectMetaProperty.ofDerived(
+    private final MetaProperty<Object> _second = DirectMetaProperty.ofImmutable(
         this, "second", ObjectsPair.class, Object.class);
     /**
      * The meta-properties.
@@ -227,7 +223,7 @@ public final class ObjectsPair<A, B> extends Pair<A, B> implements ImmutableBean
   /**
    * The bean-builder for {@code ObjectsPair}.
    */
-  @SuppressWarnings({"unchecked", "rawtypes" })
+  @SuppressWarnings({"rawtypes" })
   private static final class Builder extends BasicImmutableBeanBuilder<ObjectsPair> {
 
     /** The first element. */
@@ -260,7 +256,7 @@ public final class ObjectsPair<A, B> extends Pair<A, B> implements ImmutableBean
 
     @Override
     public ObjectsPair build() {
-      return new ObjectsPair(_first, _second);
+      return ObjectsPair.of(_first, _second);
     }
 
   }

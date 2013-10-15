@@ -490,12 +490,12 @@ public class OldBloombergRemoteAccessComponentFactory extends AbstractComponentF
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("referenceDataProvider").append('=').append(getReferenceDataProvider()).append(',').append(' ');
-    buf.append("historicalTimeSeriesProvider").append('=').append(getHistoricalTimeSeriesProvider()).append(',').append(' ');
-    buf.append("fudgeContext").append('=').append(getFudgeContext()).append(',').append(' ');
-    buf.append("jettyPort").append('=').append(getJettyPort()).append(',').append(' ');
-    buf.append("jmsConnector").append('=').append(getJmsConnector()).append(',').append(' ');
-    buf.append("jmsReferenceDataTopic").append('=').append(getJmsReferenceDataTopic()).append(',').append(' ');
+    buf.append("referenceDataProvider").append('=').append(JodaBeanUtils.toString(getReferenceDataProvider())).append(',').append(' ');
+    buf.append("historicalTimeSeriesProvider").append('=').append(JodaBeanUtils.toString(getHistoricalTimeSeriesProvider())).append(',').append(' ');
+    buf.append("fudgeContext").append('=').append(JodaBeanUtils.toString(getFudgeContext())).append(',').append(' ');
+    buf.append("jettyPort").append('=').append(JodaBeanUtils.toString(getJettyPort())).append(',').append(' ');
+    buf.append("jmsConnector").append('=').append(JodaBeanUtils.toString(getJmsConnector())).append(',').append(' ');
+    buf.append("jmsReferenceDataTopic").append('=').append(JodaBeanUtils.toString(getJmsReferenceDataTopic())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

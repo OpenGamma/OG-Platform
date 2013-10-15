@@ -178,7 +178,7 @@ public class SecurityEnhancerResult extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("resultList").append('=').append(getResultList()).append(',').append(' ');
+    buf.append("resultList").append('=').append(JodaBeanUtils.toString(getResultList())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

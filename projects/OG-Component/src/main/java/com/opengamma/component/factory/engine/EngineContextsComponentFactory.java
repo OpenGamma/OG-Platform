@@ -1043,30 +1043,30 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("classifier").append('=').append(getClassifier()).append(',').append(' ');
-    buf.append("configSource").append('=').append(getConfigSource()).append(',').append(' ');
-    buf.append("configMaster").append('=').append(getConfigMaster()).append(',').append(' ');
-    buf.append("securitySource").append('=').append(getSecuritySource()).append(',').append(' ');
-    buf.append("positionSource").append('=').append(getPositionSource()).append(',').append(' ');
-    buf.append("targetResolver").append('=').append(getTargetResolver()).append(',').append(' ');
-    buf.append("regionSource").append('=').append(getRegionSource()).append(',').append(' ');
-    buf.append("organizationSource").append('=').append(getOrganizationSource()).append(',').append(' ');
-    buf.append("conventionBundleSource").append('=').append(getConventionBundleSource()).append(',').append(' ');
-    buf.append("interpolatedYieldCurveDefinitionSource").append('=').append(getInterpolatedYieldCurveDefinitionSource()).append(',').append(' ');
-    buf.append("interpolatedYieldCurveSpecificationBuilder").append('=').append(getInterpolatedYieldCurveSpecificationBuilder()).append(',').append(' ');
-    buf.append("volatilityCubeDefinitionSource").append('=').append(getVolatilityCubeDefinitionSource()).append(',').append(' ');
-    buf.append("holidaySource").append('=').append(getHolidaySource()).append(',').append(' ');
-    buf.append("exchangeSource").append('=').append(getExchangeSource()).append(',').append(' ');
-    buf.append("historicalTimeSeriesSource").append('=').append(getHistoricalTimeSeriesSource()).append(',').append(' ');
-    buf.append("historicalTimeSeriesResolver").append('=').append(getHistoricalTimeSeriesResolver()).append(',').append(' ');
-    buf.append("conventionSource").append('=').append(getConventionSource()).append(',').append(' ');
-    buf.append("executionBlacklist").append('=').append(getExecutionBlacklist()).append(',').append(' ');
-    buf.append("compilationBlacklist").append('=').append(getCompilationBlacklist()).append(',').append(' ');
-    buf.append("tempTargetRepository").append('=').append(getTempTargetRepository()).append(',').append(' ');
-    buf.append("viewProcessor").append('=').append(getViewProcessor()).append(',').append(' ');
-    buf.append("permissive").append('=').append(getPermissive()).append(',').append(' ');
-    buf.append("pnlRequirementsGatherer").append('=').append(getPnlRequirementsGatherer()).append(',').append(' ');
-    buf.append("riskFactorsGatherer").append('=').append(getRiskFactorsGatherer()).append(',').append(' ');
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("configSource").append('=').append(JodaBeanUtils.toString(getConfigSource())).append(',').append(' ');
+    buf.append("configMaster").append('=').append(JodaBeanUtils.toString(getConfigMaster())).append(',').append(' ');
+    buf.append("securitySource").append('=').append(JodaBeanUtils.toString(getSecuritySource())).append(',').append(' ');
+    buf.append("positionSource").append('=').append(JodaBeanUtils.toString(getPositionSource())).append(',').append(' ');
+    buf.append("targetResolver").append('=').append(JodaBeanUtils.toString(getTargetResolver())).append(',').append(' ');
+    buf.append("regionSource").append('=').append(JodaBeanUtils.toString(getRegionSource())).append(',').append(' ');
+    buf.append("organizationSource").append('=').append(JodaBeanUtils.toString(getOrganizationSource())).append(',').append(' ');
+    buf.append("conventionBundleSource").append('=').append(JodaBeanUtils.toString(getConventionBundleSource())).append(',').append(' ');
+    buf.append("interpolatedYieldCurveDefinitionSource").append('=').append(JodaBeanUtils.toString(getInterpolatedYieldCurveDefinitionSource())).append(',').append(' ');
+    buf.append("interpolatedYieldCurveSpecificationBuilder").append('=').append(JodaBeanUtils.toString(getInterpolatedYieldCurveSpecificationBuilder())).append(',').append(' ');
+    buf.append("volatilityCubeDefinitionSource").append('=').append(JodaBeanUtils.toString(getVolatilityCubeDefinitionSource())).append(',').append(' ');
+    buf.append("holidaySource").append('=').append(JodaBeanUtils.toString(getHolidaySource())).append(',').append(' ');
+    buf.append("exchangeSource").append('=').append(JodaBeanUtils.toString(getExchangeSource())).append(',').append(' ');
+    buf.append("historicalTimeSeriesSource").append('=').append(JodaBeanUtils.toString(getHistoricalTimeSeriesSource())).append(',').append(' ');
+    buf.append("historicalTimeSeriesResolver").append('=').append(JodaBeanUtils.toString(getHistoricalTimeSeriesResolver())).append(',').append(' ');
+    buf.append("conventionSource").append('=').append(JodaBeanUtils.toString(getConventionSource())).append(',').append(' ');
+    buf.append("executionBlacklist").append('=').append(JodaBeanUtils.toString(getExecutionBlacklist())).append(',').append(' ');
+    buf.append("compilationBlacklist").append('=').append(JodaBeanUtils.toString(getCompilationBlacklist())).append(',').append(' ');
+    buf.append("tempTargetRepository").append('=').append(JodaBeanUtils.toString(getTempTargetRepository())).append(',').append(' ');
+    buf.append("viewProcessor").append('=').append(JodaBeanUtils.toString(getViewProcessor())).append(',').append(' ');
+    buf.append("permissive").append('=').append(JodaBeanUtils.toString(getPermissive())).append(',').append(' ');
+    buf.append("pnlRequirementsGatherer").append('=').append(JodaBeanUtils.toString(getPnlRequirementsGatherer())).append(',').append(' ');
+    buf.append("riskFactorsGatherer").append('=').append(JodaBeanUtils.toString(getRiskFactorsGatherer())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

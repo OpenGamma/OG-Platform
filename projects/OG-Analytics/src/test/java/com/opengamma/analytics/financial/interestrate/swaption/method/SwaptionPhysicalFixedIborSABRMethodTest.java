@@ -334,7 +334,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     // SABR sensitivity vs finite difference
     final double pvLongPayer = METHOD.presentValue(SWAPTION_LONG_PAYER, sabrBundle).getAmount();
     final double shift = 0.000001;
-    final DoublesPair expectedExpiryTenor = new DoublesPair(SWAPTION_LONG_PAYER.getTimeToExpiry(), ANNUITY_TENOR_YEAR);
+    final DoublesPair expectedExpiryTenor = DoublesPair.of(SWAPTION_LONG_PAYER.getTimeToExpiry(), ANNUITY_TENOR_YEAR);
     // Alpha sensitivity vs finite difference computation
     final SABRInterestRateParameters sabrParameterAlphaBumped = TestsDataSetsSABR.createSABR1AlphaBumped(shift);
     final SABRInterestRateDataBundle sabrBundleAlphaBumped = new SABRInterestRateDataBundle(sabrParameterAlphaBumped, curves);

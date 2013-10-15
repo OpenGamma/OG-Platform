@@ -349,11 +349,11 @@ public class SwapNode extends CurveNode {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("startTenor").append('=').append(getStartTenor()).append(',').append(' ');
-    buf.append("maturityTenor").append('=').append(getMaturityTenor()).append(',').append(' ');
-    buf.append("payLegConvention").append('=').append(getPayLegConvention()).append(',').append(' ');
-    buf.append("receiveLegConvention").append('=').append(getReceiveLegConvention()).append(',').append(' ');
-    buf.append("useFixings").append('=').append(isUseFixings()).append(',').append(' ');
+    buf.append("startTenor").append('=').append(JodaBeanUtils.toString(getStartTenor())).append(',').append(' ');
+    buf.append("maturityTenor").append('=').append(JodaBeanUtils.toString(getMaturityTenor())).append(',').append(' ');
+    buf.append("payLegConvention").append('=').append(JodaBeanUtils.toString(getPayLegConvention())).append(',').append(' ');
+    buf.append("receiveLegConvention").append('=').append(JodaBeanUtils.toString(getReceiveLegConvention())).append(',').append(' ');
+    buf.append("useFixings").append('=').append(JodaBeanUtils.toString(isUseFixings())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

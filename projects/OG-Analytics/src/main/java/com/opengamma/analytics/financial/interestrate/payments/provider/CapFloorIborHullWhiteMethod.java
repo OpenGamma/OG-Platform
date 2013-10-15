@@ -135,7 +135,7 @@ public final class CapFloorIborHullWhiteMethod {
 
     final Map<String, List<DoublesPair>> mapDsc = new HashMap<>();
     final List<DoublesPair> listDiscounting = new ArrayList<>();
-    listDiscounting.add(new DoublesPair(cap.getPaymentTime(), -cap.getPaymentTime() * dfPay * dfPayBar));
+    listDiscounting.add(DoublesPair.of(cap.getPaymentTime(), -cap.getPaymentTime() * dfPay * dfPayBar));
     mapDsc.put(multicurves.getName(ccy), listDiscounting);
 
     final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<>();

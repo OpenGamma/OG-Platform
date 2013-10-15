@@ -19,7 +19,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -108,6 +107,7 @@ import com.opengamma.util.PoolExecutor;
 import com.opengamma.util.TerminatableJob;
 import com.opengamma.util.metric.OpenGammaMetricRegistry;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * The job which schedules and executes computation cycles for a view process. See {@link SingleThreadViewProcessWorkerFactory} for a more detailed description.
@@ -116,7 +116,7 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
 
   private static final Logger s_logger = LoggerFactory.getLogger(SingleThreadViewProcessWorker.class);
 
-  private static final ExecutorService s_executor = Executors.newCachedThreadPool(new NamedThreadPoolFactory("Worker"));
+  private static final ExecutorService s_executor = NamedThreadPoolFactory.newCachedThreadPool("Worker");
 
   /**
    * Wrapper that allows a thread to be "borrowed" from an executor service.
@@ -1182,7 +1182,8 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
       previousGraphs = Maps.newHashMapWithExpectedSize(graphExps.size());
       for (DependencyGraphExplorer graphExp : graphExps) {
         final DependencyGraph graph = graphExp.getWholeGraph();
-        previousGraphs.put(graph.getCalculationConfigurationName(), Pair.<DependencyGraph, Set<ValueRequirement>>of(graph, new HashSet<ValueRequirement>()));
+        Set<ValueRequirement> emptySet = Sets.newHashSet();
+        previousGraphs.put(graph.getCalculationConfigurationName(), Pairs.of(graph, emptySet));
       }
     }
     return previousGraphs;
@@ -1236,7 +1237,7 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
                 entry.getKey(),
                 filter);
           }
-          entry.setValue(Pair.of(filtered, entry.getValue().getSecond()));
+          entry.setValue(Pairs.of(filtered, entry.getValue().getSecond()));
         }
       }
     }

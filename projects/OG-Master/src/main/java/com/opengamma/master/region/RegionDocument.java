@@ -234,9 +234,9 @@ public class RegionDocument extends AbstractDocument implements Serializable {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("region").append('=').append(getRegion()).append(',').append(' ');
-    buf.append("uniqueId").append('=').append(getUniqueId()).append(',').append(' ');
-    buf.append("providerId").append('=').append(getProviderId()).append(',').append(' ');
+    buf.append("region").append('=').append(JodaBeanUtils.toString(getRegion())).append(',').append(' ');
+    buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(getUniqueId())).append(',').append(' ');
+    buf.append("providerId").append('=').append(JodaBeanUtils.toString(getProviderId())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

@@ -143,7 +143,7 @@ public class InterestRateFutureSecurity extends FutureSecurity {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("underlyingId").append('=').append(getUnderlyingId()).append(',').append(' ');
+    buf.append("underlyingId").append('=').append(JodaBeanUtils.toString(getUnderlyingId())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

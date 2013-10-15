@@ -29,6 +29,7 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Partial implementation of a cache on top of another source implementation using {@code EHCache}.
@@ -181,7 +182,7 @@ public abstract class AbstractEHCachingSource<V extends UniqueIdentifiable, S ex
     if (versionCorrection.containsLatest()) {
       result = cacheItem(getUnderlying().get(objectId, versionCorrection));
     } else {
-      final Pair<ObjectId, VersionCorrection> key = Pair.of(objectId, versionCorrection);
+      final Pair<ObjectId, VersionCorrection> key = Pairs.of(objectId, versionCorrection);
       final Element e = _oidCache.get(key);
       if (e != null) {
         final UniqueId uid = (UniqueId) e.getObjectValue();
@@ -209,7 +210,7 @@ public abstract class AbstractEHCachingSource<V extends UniqueIdentifiable, S ex
       final Collection<ObjectId> misses = new ArrayList<ObjectId>(objectIds.size());
       final Map<ObjectId, UniqueId> lookups = Maps.newHashMapWithExpectedSize(objectIds.size());
       for (ObjectId objectId : objectIds) {
-        final Pair<ObjectId, VersionCorrection> key = Pair.of(objectId, versionCorrection);
+        final Pair<ObjectId, VersionCorrection> key = Pairs.of(objectId, versionCorrection);
         final Element e = _oidCache.get(key);
         if (e != null) {
           final UniqueId uid = (UniqueId) e.getObjectValue();
@@ -234,7 +235,7 @@ public abstract class AbstractEHCachingSource<V extends UniqueIdentifiable, S ex
           if (result != null) {
             result = cacheItem(result);
             results.put(miss, result);
-            _oidCache.put(new Element(Pair.of(miss, versionCorrection), result.getUniqueId()));
+            _oidCache.put(new Element(Pairs.of(miss, versionCorrection), result.getUniqueId()));
           }
         }
       }

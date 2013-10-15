@@ -146,7 +146,7 @@ public class LiveDataMetaDataProviderResult extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("metaData").append('=').append(getMetaData()).append(',').append(' ');
+    buf.append("metaData").append('=').append(JodaBeanUtils.toString(getMetaData())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

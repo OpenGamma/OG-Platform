@@ -228,9 +228,9 @@ public class PriceIndexConvention extends Convention {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
-    buf.append("region").append('=').append(getRegion()).append(',').append(' ');
-    buf.append("priceIndexId").append('=').append(getPriceIndexId()).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("region").append('=').append(JodaBeanUtils.toString(getRegion())).append(',').append(' ');
+    buf.append("priceIndexId").append('=').append(JodaBeanUtils.toString(getPriceIndexId())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

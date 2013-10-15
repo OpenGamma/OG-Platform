@@ -492,17 +492,17 @@ public class WebPortfoliosData extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("portfolioMaster").append('=').append(getPortfolioMaster()).append(',').append(' ');
-    buf.append("positionMaster").append('=').append(getPositionMaster()).append(',').append(' ');
-    buf.append("uriInfo").append('=').append(getUriInfo()).append(',').append(' ');
-    buf.append("uriPortfolioId").append('=').append(getUriPortfolioId()).append(',').append(' ');
-    buf.append("uriNodeId").append('=').append(getUriNodeId()).append(',').append(' ');
-    buf.append("uriPositionId").append('=').append(getUriPositionId()).append(',').append(' ');
-    buf.append("uriVersionId").append('=').append(getUriVersionId()).append(',').append(' ');
-    buf.append("portfolio").append('=').append(getPortfolio()).append(',').append(' ');
-    buf.append("parentNode").append('=').append(getParentNode()).append(',').append(' ');
-    buf.append("node").append('=').append(getNode()).append(',').append(' ');
-    buf.append("versioned").append('=').append(getVersioned()).append(',').append(' ');
+    buf.append("portfolioMaster").append('=').append(JodaBeanUtils.toString(getPortfolioMaster())).append(',').append(' ');
+    buf.append("positionMaster").append('=').append(JodaBeanUtils.toString(getPositionMaster())).append(',').append(' ');
+    buf.append("uriInfo").append('=').append(JodaBeanUtils.toString(getUriInfo())).append(',').append(' ');
+    buf.append("uriPortfolioId").append('=').append(JodaBeanUtils.toString(getUriPortfolioId())).append(',').append(' ');
+    buf.append("uriNodeId").append('=').append(JodaBeanUtils.toString(getUriNodeId())).append(',').append(' ');
+    buf.append("uriPositionId").append('=').append(JodaBeanUtils.toString(getUriPositionId())).append(',').append(' ');
+    buf.append("uriVersionId").append('=').append(JodaBeanUtils.toString(getUriVersionId())).append(',').append(' ');
+    buf.append("portfolio").append('=').append(JodaBeanUtils.toString(getPortfolio())).append(',').append(' ');
+    buf.append("parentNode").append('=').append(JodaBeanUtils.toString(getParentNode())).append(',').append(' ');
+    buf.append("node").append('=').append(JodaBeanUtils.toString(getNode())).append(',').append(' ');
+    buf.append("versioned").append('=').append(JodaBeanUtils.toString(getVersioned())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

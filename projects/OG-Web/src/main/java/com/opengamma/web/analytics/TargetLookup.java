@@ -15,6 +15,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Allows the {@link ValueSpecification} and calculation configuration name to be looked up for a cell in the main
@@ -45,7 +46,7 @@ import com.opengamma.util.tuple.Pair;
     MainGridStructure.Row row = _rows.get(rowIndex);
     ValueRequirement valueReq = new ValueRequirement(colSpec.getValueName(), row.getTarget(), colSpec.getValueProperties());
     String calcConfigName = colSpec.getCalcConfigName();
-    return Pair.of(calcConfigName, valueReq);
+    return Pairs.of(calcConfigName, valueReq);
   }
 
   // TODO need to specify row using a stable target ID for the row to cope with dynamic aggregation
@@ -65,7 +66,7 @@ import com.opengamma.util.tuple.Pair;
     String calcConfigName = colSpec.getCalcConfigName();
     ValueSpecification valueSpec = _valueMappings.getValueSpecification(calcConfigName, valueReq);
     if (valueSpec != null) {
-      return Pair.of(calcConfigName, valueSpec);
+      return Pairs.of(calcConfigName, valueSpec);
     } else {
       return null;
     }

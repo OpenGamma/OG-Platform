@@ -442,16 +442,16 @@ public class DataSourceComponentFactory extends AbstractComponentFactory {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("classifier").append('=').append(getClassifier()).append(',').append(' ');
-    buf.append("driverClass").append('=').append(getDriverClass()).append(',').append(' ');
-    buf.append("jdbcUrl").append('=').append(getJdbcUrl()).append(',').append(' ');
-    buf.append("username").append('=').append(getUsername()).append(',').append(' ');
-    buf.append("password").append('=').append(getPassword()).append(',').append(' ');
-    buf.append("poolName").append('=').append(getPoolName()).append(',').append(' ');
-    buf.append("partitionCount").append('=').append(getPartitionCount()).append(',').append(' ');
-    buf.append("acquireIncrement").append('=').append(getAcquireIncrement()).append(',').append(' ');
-    buf.append("minConnectionsPerPartition").append('=').append(getMinConnectionsPerPartition()).append(',').append(' ');
-    buf.append("maxConnectionsPerPartition").append('=').append(getMaxConnectionsPerPartition()).append(',').append(' ');
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("driverClass").append('=').append(JodaBeanUtils.toString(getDriverClass())).append(',').append(' ');
+    buf.append("jdbcUrl").append('=').append(JodaBeanUtils.toString(getJdbcUrl())).append(',').append(' ');
+    buf.append("username").append('=').append(JodaBeanUtils.toString(getUsername())).append(',').append(' ');
+    buf.append("password").append('=').append(JodaBeanUtils.toString(getPassword())).append(',').append(' ');
+    buf.append("poolName").append('=').append(JodaBeanUtils.toString(getPoolName())).append(',').append(' ');
+    buf.append("partitionCount").append('=').append(JodaBeanUtils.toString(getPartitionCount())).append(',').append(' ');
+    buf.append("acquireIncrement").append('=').append(JodaBeanUtils.toString(getAcquireIncrement())).append(',').append(' ');
+    buf.append("minConnectionsPerPartition").append('=').append(JodaBeanUtils.toString(getMinConnectionsPerPartition())).append(',').append(' ');
+    buf.append("maxConnectionsPerPartition").append('=').append(JodaBeanUtils.toString(getMaxConnectionsPerPartition())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

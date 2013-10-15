@@ -48,6 +48,7 @@ import com.opengamma.master.position.PositionSearchRequest;
 import com.opengamma.master.position.PositionSearchResult;
 import com.opengamma.master.security.ManageableSecurityLink;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  *  Utility to save a portfolio.
@@ -133,7 +134,7 @@ public class SavePortfolio {
               } else {
                 s_cache.putIfAbsent(positionId, id);
               }
-              return Pair.of(position.getUniqueId(), id);
+              return Pairs.of(position.getUniqueId(), id);
             }
           }));
         } else if (id == MISSING) {

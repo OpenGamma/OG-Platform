@@ -290,10 +290,10 @@ public class MarketDataSnapshotSearchRequest extends AbstractSearchRequest imple
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("snapshotIds").append('=').append(getSnapshotIds()).append(',').append(' ');
-    buf.append("name").append('=').append(getName()).append(',').append(' ');
-    buf.append("sortOrder").append('=').append(getSortOrder()).append(',').append(' ');
-    buf.append("includeData").append('=').append(isIncludeData()).append(',').append(' ');
+    buf.append("snapshotIds").append('=').append(JodaBeanUtils.toString(getSnapshotIds())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
+    buf.append("sortOrder").append('=').append(JodaBeanUtils.toString(getSortOrder())).append(',').append(' ');
+    buf.append("includeData").append('=').append(JodaBeanUtils.toString(isIncludeData())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

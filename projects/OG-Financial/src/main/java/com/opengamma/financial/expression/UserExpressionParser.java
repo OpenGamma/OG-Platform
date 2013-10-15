@@ -20,6 +20,7 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Parses a string representation of a user expression into a {@link UserExpression}
@@ -129,7 +130,7 @@ public abstract class UserExpressionParser {
       synthetics = new HashMap();
       _synthetics.put(object, synthetics);
     }
-    synthetics.put(name, Pair.of(type, method));
+    synthetics.put(name, Pairs.of(type, method));
   }
 
   @SuppressWarnings({"unchecked", "rawtypes" })

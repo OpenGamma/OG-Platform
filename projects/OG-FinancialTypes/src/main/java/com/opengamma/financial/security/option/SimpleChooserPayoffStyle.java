@@ -213,9 +213,9 @@ public class SimpleChooserPayoffStyle extends PayoffStyle {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("chooseDate").append('=').append(getChooseDate()).append(',').append(' ');
-    buf.append("underlyingStrike").append('=').append(getUnderlyingStrike()).append(',').append(' ');
-    buf.append("underlyingExpiry").append('=').append(getUnderlyingExpiry()).append(',').append(' ');
+    buf.append("chooseDate").append('=').append(JodaBeanUtils.toString(getChooseDate())).append(',').append(' ');
+    buf.append("underlyingStrike").append('=').append(JodaBeanUtils.toString(getUnderlyingStrike())).append(',').append(' ');
+    buf.append("underlyingExpiry").append('=').append(JodaBeanUtils.toString(getUnderlyingExpiry())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

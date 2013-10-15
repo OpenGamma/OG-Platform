@@ -33,7 +33,7 @@ import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.time.ExpiryAccuracy;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Source of random, but reasonable, FX security instances.
@@ -88,7 +88,7 @@ public abstract class AbstractFXSecurityGenerator<T extends ManageableSecurity> 
     final double putAmount = putCurrency.equals(Currency.JPY) ? NOTIONAL * 100 : NOTIONAL;
     final ZonedDateTime settlementDate = nextWorkingDay(bundle._tradeDate.plusDays(bundle._daysOffset), bundle._firstCurrency, bundle._secondCurrency);
     final Expiry expiry = new Expiry(settlementDate, ExpiryAccuracy.DAY_MONTH_YEAR);
-    final Double fxRate = getApproxFXRate(settlementDate.toLocalDate(), Pair.of(bundle._firstCurrency, bundle._secondCurrency));
+    final Double fxRate = getApproxFXRate(settlementDate.toLocalDate(), Pairs.of(bundle._firstCurrency, bundle._secondCurrency));
     if (fxRate == null) {
       return null;
     }
@@ -119,7 +119,7 @@ public abstract class AbstractFXSecurityGenerator<T extends ManageableSecurity> 
     final Currency paymentCurrency = bundle._paymentCurrency;
     final double putAmount = putCurrency.equals(Currency.JPY) ? NOTIONAL * 100 : NOTIONAL;
     final ZonedDateTime expiry = nextWorkingDay(bundle._tradeDate.plusDays(bundle._daysOffset), putCurrency, callCurrency);
-    final Double rate = getApproxFXRate(expiry.toLocalDate(), Pair.of(putCurrency, callCurrency));
+    final Double rate = getApproxFXRate(expiry.toLocalDate(), Pairs.of(putCurrency, callCurrency));
     if (rate == null) {
       return null;
     }
@@ -138,7 +138,7 @@ public abstract class AbstractFXSecurityGenerator<T extends ManageableSecurity> 
   protected FXForwardSecurity createFXForwardSecurity(final Bundle bundle) {
     final double putAmount = bundle._firstCurrency.equals(Currency.JPY) ? NOTIONAL * 100 : NOTIONAL;
     final ZonedDateTime forwardDate = nextWorkingDay(bundle._tradeDate.plusDays(bundle._daysOffset), bundle._firstCurrency, bundle._secondCurrency);
-    final Double fxRate = getApproxFXRate(forwardDate.toLocalDate(), Pair.of(bundle._firstCurrency, bundle._secondCurrency));
+    final Double fxRate = getApproxFXRate(forwardDate.toLocalDate(), Pairs.of(bundle._firstCurrency, bundle._secondCurrency));
     if (fxRate == null) {
       return null;
     }
@@ -156,7 +156,7 @@ public abstract class AbstractFXSecurityGenerator<T extends ManageableSecurity> 
   protected NonDeliverableFXForwardSecurity createNDFXForwardSecurity(final Bundle bundle) {
     final double putAmount = bundle._firstCurrency.equals(Currency.JPY) ? NOTIONAL * 100 : NOTIONAL;
     final ZonedDateTime forwardDate = nextWorkingDay(bundle._tradeDate.plusDays(bundle._daysOffset), bundle._firstCurrency, bundle._secondCurrency);
-    final Double fxRate = getApproxFXRate(forwardDate.toLocalDate(), Pair.of(bundle._firstCurrency, bundle._secondCurrency));
+    final Double fxRate = getApproxFXRate(forwardDate.toLocalDate(), Pairs.of(bundle._firstCurrency, bundle._secondCurrency));
     if (fxRate == null) {
       return null;
     }
@@ -178,7 +178,7 @@ public abstract class AbstractFXSecurityGenerator<T extends ManageableSecurity> 
     final Currency callCurrency = bundle._secondCurrency;
     final double putAmount = bundle._firstCurrency.equals(Currency.JPY) ? NOTIONAL * 100 : NOTIONAL;
     final ZonedDateTime settlementDate = bundle._tradeDate.plusDays(bundle._daysOffset);
-    final Double fxRate = getApproxFXRate(settlementDate.toLocalDate(), Pair.of(bundle._firstCurrency, bundle._secondCurrency));
+    final Double fxRate = getApproxFXRate(settlementDate.toLocalDate(), Pairs.of(bundle._firstCurrency, bundle._secondCurrency));
     if (fxRate == null) {
       return null;
     }
@@ -197,7 +197,7 @@ public abstract class AbstractFXSecurityGenerator<T extends ManageableSecurity> 
     final Currency callCurrency = bundle._secondCurrency;
     final double putAmount = bundle._firstCurrency.equals(Currency.JPY) ? NOTIONAL * 100 : NOTIONAL;
     final ZonedDateTime settlementDate = bundle._tradeDate.plusDays(bundle._daysOffset);
-    final Double fxRate = getApproxFXRate(settlementDate.toLocalDate(), Pair.of(bundle._firstCurrency, bundle._secondCurrency));
+    final Double fxRate = getApproxFXRate(settlementDate.toLocalDate(), Pairs.of(bundle._firstCurrency, bundle._secondCurrency));
     if (fxRate == null) {
       return null;
     }

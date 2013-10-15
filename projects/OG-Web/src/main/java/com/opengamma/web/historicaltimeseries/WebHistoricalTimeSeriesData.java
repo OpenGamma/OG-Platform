@@ -338,13 +338,13 @@ public class WebHistoricalTimeSeriesData extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("historicalTimeSeriesMaster").append('=').append(getHistoricalTimeSeriesMaster()).append(',').append(' ');
-    buf.append("historicalTimeSeriesLoader").append('=').append(getHistoricalTimeSeriesLoader()).append(',').append(' ');
-    buf.append("configSource").append('=').append(getConfigSource()).append(',').append(' ');
-    buf.append("uriInfo").append('=').append(getUriInfo()).append(',').append(' ');
-    buf.append("uriHistoricalTimeSeriesId").append('=').append(getUriHistoricalTimeSeriesId()).append(',').append(' ');
-    buf.append("info").append('=').append(getInfo()).append(',').append(' ');
-    buf.append("timeSeries").append('=').append(getTimeSeries()).append(',').append(' ');
+    buf.append("historicalTimeSeriesMaster").append('=').append(JodaBeanUtils.toString(getHistoricalTimeSeriesMaster())).append(',').append(' ');
+    buf.append("historicalTimeSeriesLoader").append('=').append(JodaBeanUtils.toString(getHistoricalTimeSeriesLoader())).append(',').append(' ');
+    buf.append("configSource").append('=').append(JodaBeanUtils.toString(getConfigSource())).append(',').append(' ');
+    buf.append("uriInfo").append('=').append(JodaBeanUtils.toString(getUriInfo())).append(',').append(' ');
+    buf.append("uriHistoricalTimeSeriesId").append('=').append(JodaBeanUtils.toString(getUriHistoricalTimeSeriesId())).append(',').append(' ');
+    buf.append("info").append('=').append(JodaBeanUtils.toString(getInfo())).append(',').append(' ');
+    buf.append("timeSeries").append('=').append(JodaBeanUtils.toString(getTimeSeries())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

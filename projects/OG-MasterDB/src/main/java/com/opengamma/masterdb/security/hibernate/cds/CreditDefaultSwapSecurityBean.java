@@ -674,26 +674,26 @@ public abstract class CreditDefaultSwapSecurityBean extends SecurityBean {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("buy").append('=').append(getBuy()).append(',').append(' ');
-    buf.append("protectionBuyer").append('=').append(getProtectionBuyer()).append(',').append(' ');
-    buf.append("protectionSeller").append('=').append(getProtectionSeller()).append(',').append(' ');
-    buf.append("referenceEntity").append('=').append(getReferenceEntity()).append(',').append(' ');
-    buf.append("debtSeniority").append('=').append(getDebtSeniority()).append(',').append(' ');
-    buf.append("restructuringClause").append('=').append(getRestructuringClause()).append(',').append(' ');
-    buf.append("regionId").append('=').append(getRegionId()).append(',').append(' ');
-    buf.append("startDate").append('=').append(getStartDate()).append(',').append(' ');
-    buf.append("effectiveDate").append('=').append(getEffectiveDate()).append(',').append(' ');
-    buf.append("maturityDate").append('=').append(getMaturityDate()).append(',').append(' ');
-    buf.append("stubType").append('=').append(getStubType()).append(',').append(' ');
-    buf.append("couponFrequency").append('=').append(getCouponFrequency()).append(',').append(' ');
-    buf.append("dayCount").append('=').append(getDayCount()).append(',').append(' ');
-    buf.append("businessDayConvention").append('=').append(getBusinessDayConvention()).append(',').append(' ');
-    buf.append("immAdjustMaturityDate").append('=').append(getImmAdjustMaturityDate()).append(',').append(' ');
-    buf.append("adjustEffectiveDate").append('=').append(getAdjustEffectiveDate()).append(',').append(' ');
-    buf.append("adjustMaturityDate").append('=').append(getAdjustMaturityDate()).append(',').append(' ');
-    buf.append("notional").append('=').append(getNotional()).append(',').append(' ');
-    buf.append("includeAccruedPremium").append('=').append(getIncludeAccruedPremium()).append(',').append(' ');
-    buf.append("protectionStart").append('=').append(getProtectionStart()).append(',').append(' ');
+    buf.append("buy").append('=').append(JodaBeanUtils.toString(getBuy())).append(',').append(' ');
+    buf.append("protectionBuyer").append('=').append(JodaBeanUtils.toString(getProtectionBuyer())).append(',').append(' ');
+    buf.append("protectionSeller").append('=').append(JodaBeanUtils.toString(getProtectionSeller())).append(',').append(' ');
+    buf.append("referenceEntity").append('=').append(JodaBeanUtils.toString(getReferenceEntity())).append(',').append(' ');
+    buf.append("debtSeniority").append('=').append(JodaBeanUtils.toString(getDebtSeniority())).append(',').append(' ');
+    buf.append("restructuringClause").append('=').append(JodaBeanUtils.toString(getRestructuringClause())).append(',').append(' ');
+    buf.append("regionId").append('=').append(JodaBeanUtils.toString(getRegionId())).append(',').append(' ');
+    buf.append("startDate").append('=').append(JodaBeanUtils.toString(getStartDate())).append(',').append(' ');
+    buf.append("effectiveDate").append('=').append(JodaBeanUtils.toString(getEffectiveDate())).append(',').append(' ');
+    buf.append("maturityDate").append('=').append(JodaBeanUtils.toString(getMaturityDate())).append(',').append(' ');
+    buf.append("stubType").append('=').append(JodaBeanUtils.toString(getStubType())).append(',').append(' ');
+    buf.append("couponFrequency").append('=').append(JodaBeanUtils.toString(getCouponFrequency())).append(',').append(' ');
+    buf.append("dayCount").append('=').append(JodaBeanUtils.toString(getDayCount())).append(',').append(' ');
+    buf.append("businessDayConvention").append('=').append(JodaBeanUtils.toString(getBusinessDayConvention())).append(',').append(' ');
+    buf.append("immAdjustMaturityDate").append('=').append(JodaBeanUtils.toString(getImmAdjustMaturityDate())).append(',').append(' ');
+    buf.append("adjustEffectiveDate").append('=').append(JodaBeanUtils.toString(getAdjustEffectiveDate())).append(',').append(' ');
+    buf.append("adjustMaturityDate").append('=').append(JodaBeanUtils.toString(getAdjustMaturityDate())).append(',').append(' ');
+    buf.append("notional").append('=').append(JodaBeanUtils.toString(getNotional())).append(',').append(' ');
+    buf.append("includeAccruedPremium").append('=').append(JodaBeanUtils.toString(getIncludeAccruedPremium())).append(',').append(' ');
+    buf.append("protectionStart").append('=').append(JodaBeanUtils.toString(getProtectionStart())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

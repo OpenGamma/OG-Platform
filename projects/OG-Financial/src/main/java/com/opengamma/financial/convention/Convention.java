@@ -229,9 +229,9 @@ public class Convention extends DirectBean implements Serializable, MutableUniqu
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("name").append('=').append(getName()).append(',').append(' ');
-    buf.append("uniqueId").append('=').append(getUniqueId()).append(',').append(' ');
-    buf.append("externalIdBundle").append('=').append(getExternalIdBundle()).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
+    buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(getUniqueId())).append(',').append(' ');
+    buf.append("externalIdBundle").append('=').append(JodaBeanUtils.toString(getExternalIdBundle())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

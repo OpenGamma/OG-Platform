@@ -125,7 +125,7 @@ public abstract class CogdaCommandMessage extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("correlationId").append('=').append(getCorrelationId()).append(',').append(' ');
+    buf.append("correlationId").append('=').append(JodaBeanUtils.toString(getCorrelationId())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

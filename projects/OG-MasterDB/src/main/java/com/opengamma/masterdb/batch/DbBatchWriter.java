@@ -95,6 +95,7 @@ import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * A batch master implementation using a database for persistence.
@@ -1153,7 +1154,7 @@ public class DbBatchWriter extends AbstractDbMaster {
 
       // this assumes that _searchKey2StatusEntry has already been populated
       // in getStatus()
-      Pair<Long, Long> key = Pair.of(calcConfId, computationTargetId);
+      Pair<Long, Long> key = Pairs.of(calcConfId, computationTargetId);
       StatusEntry statusEntry = statusCache.get(key);
       if (statusEntry != null) {
         statusEntry.setStatus(status);
@@ -1228,7 +1229,7 @@ public class DbBatchWriter extends AbstractDbMaster {
     // first check to see if this status has already been queried for
     // and if the answer could therefore be found in the cache
 
-    Pair<Long, Long> key = Pair.of(calcConfId, computationTargetId);
+    Pair<Long, Long> key = Pairs.of(calcConfId, computationTargetId);
     if (statusCache.containsKey(key)) {
       StatusEntry existingStatusEntryInDb = statusCache.get(key);
       if (existingStatusEntryInDb != null) {

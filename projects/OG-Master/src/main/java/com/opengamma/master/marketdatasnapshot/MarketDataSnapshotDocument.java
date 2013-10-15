@@ -214,8 +214,8 @@ public class MarketDataSnapshotDocument extends AbstractDocument implements Seri
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("snapshot").append('=').append(getSnapshot()).append(',').append(' ');
-    buf.append("uniqueId").append('=').append(getUniqueId()).append(',').append(' ');
+    buf.append("snapshot").append('=').append(JodaBeanUtils.toString(getSnapshot())).append(',').append(' ');
+    buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(getUniqueId())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

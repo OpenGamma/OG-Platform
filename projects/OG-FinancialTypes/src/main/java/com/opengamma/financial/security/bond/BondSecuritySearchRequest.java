@@ -186,8 +186,8 @@ public class BondSecuritySearchRequest extends SecuritySearchRequest {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("issuerName").append('=').append(getIssuerName()).append(',').append(' ');
-    buf.append("issuerType").append('=').append(getIssuerType()).append(',').append(' ');
+    buf.append("issuerName").append('=').append(JodaBeanUtils.toString(getIssuerName())).append(',').append(' ');
+    buf.append("issuerType").append('=').append(JodaBeanUtils.toString(getIssuerType())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

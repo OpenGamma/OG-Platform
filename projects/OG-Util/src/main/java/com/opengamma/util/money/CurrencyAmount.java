@@ -53,7 +53,7 @@ import com.opengamma.util.ArgumentChecker;
  * <p>
  * This class is immutable and thread-safe.
  */
-@BeanDefinition
+@BeanDefinition(builderScope = "private")
 public final class CurrencyAmount implements ImmutableBean, Serializable {
 
   /** Serialization version. */
@@ -237,15 +237,6 @@ public final class CurrencyAmount implements ImmutableBean, Serializable {
     JodaBeanUtils.registerMetaBean(CurrencyAmount.Meta.INSTANCE);
   }
 
-  /**
-   * Returns a builder used to create an instance of the bean.
-   *
-   * @return the builder, not null
-   */
-  public static CurrencyAmount.Builder builder() {
-    return new CurrencyAmount.Builder();
-  }
-
   @Override
   public CurrencyAmount.Meta metaBean() {
     return CurrencyAmount.Meta.INSTANCE;
@@ -262,16 +253,6 @@ public final class CurrencyAmount implements ImmutableBean, Serializable {
   }
 
   //-----------------------------------------------------------------------
-  //-----------------------------------------------------------------------
-  //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public CurrencyAmount clone() {
     return this;
@@ -402,7 +383,7 @@ public final class CurrencyAmount implements ImmutableBean, Serializable {
   /**
    * The bean-builder for {@code CurrencyAmount}.
    */
-  public static final class Builder extends BasicImmutableBeanBuilder<CurrencyAmount> {
+  private static final class Builder extends BasicImmutableBeanBuilder<CurrencyAmount> {
 
     private Currency _currency;
     private double _amount;
@@ -445,28 +426,6 @@ public final class CurrencyAmount implements ImmutableBean, Serializable {
       return new CurrencyAmount(
           _currency,
           _amount);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the {@code currency} property in the builder.
-     * @param currency  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder currency(Currency currency) {
-      JodaBeanUtils.notNull(currency, "currency");
-      this._currency = currency;
-      return this;
-    }
-
-    /**
-     * Sets the {@code amount} property in the builder.
-     * @param amount  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder amount(double amount) {
-      this._amount = amount;
-      return this;
     }
 
     //-----------------------------------------------------------------------

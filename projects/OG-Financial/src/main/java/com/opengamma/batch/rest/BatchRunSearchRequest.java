@@ -276,11 +276,11 @@ public class BatchRunSearchRequest extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("pagingRequest").append('=').append(getPagingRequest()).append(',').append(' ');
-    buf.append("marketDataUid").append('=').append(getMarketDataUid()).append(',').append(' ');
-    buf.append("viewDefinitionUid").append('=').append(getViewDefinitionUid()).append(',').append(' ');
-    buf.append("versionCorrection").append('=').append(getVersionCorrection()).append(',').append(' ');
-    buf.append("valuationTime").append('=').append(getValuationTime()).append(',').append(' ');
+    buf.append("pagingRequest").append('=').append(JodaBeanUtils.toString(getPagingRequest())).append(',').append(' ');
+    buf.append("marketDataUid").append('=').append(JodaBeanUtils.toString(getMarketDataUid())).append(',').append(' ');
+    buf.append("viewDefinitionUid").append('=').append(JodaBeanUtils.toString(getViewDefinitionUid())).append(',').append(' ');
+    buf.append("versionCorrection").append('=').append(JodaBeanUtils.toString(getVersionCorrection())).append(',').append(' ');
+    buf.append("valuationTime").append('=').append(JodaBeanUtils.toString(getValuationTime())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

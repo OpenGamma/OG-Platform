@@ -56,7 +56,7 @@ public class ComputationTarget implements Serializable {
   /**
    * The cached hash code.
    */
-  private transient volatile int _hashCode;
+  private transient int _hashCode;  // safe via racy single check idiom
 
   /**
    * Creates a target for computation. The type is a primitive type that is capable of converting the unique identifier form of the value to its {@link UniqueIdentifiable} form without any resolution
@@ -345,13 +345,16 @@ public class ComputationTarget implements Serializable {
 
   @Override
   public int hashCode() {
-    if (_hashCode == 0) {
-      int hc = 1;
-      hc += (hc << 4) + _specification.hashCode();
-      hc += (hc << 4) + ObjectUtils.hashCode(_value);
-      _hashCode = hc;
+    // racy single check idiom allows non-volatile variable
+    // requires only one read and one write of non-volatile
+    int hashCode = _hashCode;
+    if (hashCode == 0) {
+      int result = 1;
+      result += (result << 4) + _specification.hashCode();
+      result += (result << 4) + ObjectUtils.hashCode(_value);
+      _hashCode = result;
     }
-    return _hashCode;
+    return hashCode;
   }
 
   @Override

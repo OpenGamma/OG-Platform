@@ -32,7 +32,7 @@ import com.opengamma.util.ArgumentChecker;
  * <p>
  * This class is immutable and thread-safe.
  */
-@BeanDefinition
+@BeanDefinition(builderScope = "private")
 public final class Expiry implements ImmutableBean, Serializable {
 
   /** Serialization version. */
@@ -174,15 +174,6 @@ public final class Expiry implements ImmutableBean, Serializable {
     JodaBeanUtils.registerMetaBean(Expiry.Meta.INSTANCE);
   }
 
-  /**
-   * Returns a builder used to create an instance of the bean.
-   *
-   * @return the builder, not null
-   */
-  public static Expiry.Builder builder() {
-    return new Expiry.Builder();
-  }
-
   @Override
   public Expiry.Meta metaBean() {
     return Expiry.Meta.INSTANCE;
@@ -199,16 +190,6 @@ public final class Expiry implements ImmutableBean, Serializable {
   }
 
   //-----------------------------------------------------------------------
-  //-----------------------------------------------------------------------
-  //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public Expiry clone() {
     return this;
@@ -318,7 +299,7 @@ public final class Expiry implements ImmutableBean, Serializable {
   /**
    * The bean-builder for {@code Expiry}.
    */
-  public static final class Builder extends BasicImmutableBeanBuilder<Expiry> {
+  private static final class Builder extends BasicImmutableBeanBuilder<Expiry> {
 
     private ZonedDateTime _expiry;
     private ExpiryAccuracy _accuracy;
@@ -361,29 +342,6 @@ public final class Expiry implements ImmutableBean, Serializable {
       return new Expiry(
           _expiry,
           _accuracy);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the {@code expiry} property in the builder.
-     * @param expiry  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder expiry(ZonedDateTime expiry) {
-      JodaBeanUtils.notNull(expiry, "expiry");
-      this._expiry = expiry;
-      return this;
-    }
-
-    /**
-     * Sets the {@code accuracy} property in the builder.
-     * @param accuracy  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder accuracy(ExpiryAccuracy accuracy) {
-      JodaBeanUtils.notNull(accuracy, "accuracy");
-      this._accuracy = accuracy;
-      return this;
     }
 
     //-----------------------------------------------------------------------

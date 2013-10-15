@@ -278,10 +278,10 @@ public class ZeroCouponInflationNode extends CurveNode {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("tenor").append('=').append(getTenor()).append(',').append(' ');
-    buf.append("inflationLegConvention").append('=').append(getInflationLegConvention()).append(',').append(' ');
-    buf.append("fixedLegConvention").append('=').append(getFixedLegConvention()).append(',').append(' ');
-    buf.append("inflationNodeType").append('=').append(getInflationNodeType()).append(',').append(' ');
+    buf.append("tenor").append('=').append(JodaBeanUtils.toString(getTenor())).append(',').append(' ');
+    buf.append("inflationLegConvention").append('=').append(JodaBeanUtils.toString(getInflationLegConvention())).append(',').append(' ');
+    buf.append("fixedLegConvention").append('=').append(JodaBeanUtils.toString(getFixedLegConvention())).append(',').append(' ');
+    buf.append("inflationNodeType").append('=').append(JodaBeanUtils.toString(getInflationNodeType())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

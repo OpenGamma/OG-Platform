@@ -483,12 +483,12 @@ public class RegionSearchRequest extends AbstractSearchRequest implements Serial
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("objectIds").append('=').append(getObjectIds()).append(',').append(' ');
-    buf.append("externalIdSearch").append('=').append(getExternalIdSearch()).append(',').append(' ');
-    buf.append("name").append('=').append(getName()).append(',').append(' ');
-    buf.append("classification").append('=').append(getClassification()).append(',').append(' ');
-    buf.append("providerId").append('=').append(getProviderId()).append(',').append(' ');
-    buf.append("childrenOfId").append('=').append(getChildrenOfId()).append(',').append(' ');
+    buf.append("objectIds").append('=').append(JodaBeanUtils.toString(getObjectIds())).append(',').append(' ');
+    buf.append("externalIdSearch").append('=').append(JodaBeanUtils.toString(getExternalIdSearch())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
+    buf.append("classification").append('=').append(JodaBeanUtils.toString(getClassification())).append(',').append(' ');
+    buf.append("providerId").append('=').append(JodaBeanUtils.toString(getProviderId())).append(',').append(' ');
+    buf.append("childrenOfId").append('=').append(JodaBeanUtils.toString(getChildrenOfId())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

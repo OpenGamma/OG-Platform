@@ -193,8 +193,8 @@ public class FixedVarianceSwapLeg extends VarianceSwapLeg {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("strike").append('=').append(getStrike()).append(',').append(' ');
-    buf.append("type").append('=').append(getType()).append(',').append(' ');
+    buf.append("strike").append('=').append(JodaBeanUtils.toString(getStrike())).append(',').append(' ');
+    buf.append("type").append('=').append(JodaBeanUtils.toString(getType())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

@@ -672,22 +672,22 @@ public class RiskRun extends DirectBean implements ObjectIdentifiable {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("id").append('=').append(getId()).append(',').append(' ');
-    buf.append("marketData").append('=').append(getMarketData()).append(',').append(' ');
-    buf.append("createInstant").append('=').append(getCreateInstant()).append(',').append(' ');
-    buf.append("startInstant").append('=').append(getStartInstant()).append(',').append(' ');
-    buf.append("endInstant").append('=').append(getEndInstant()).append(',').append(' ');
-    buf.append("valuationTime").append('=').append(getValuationTime()).append(',').append(' ');
-    buf.append("numRestarts").append('=').append(getNumRestarts()).append(',').append(' ');
-    buf.append("calculationConfigurations").append('=').append(getCalculationConfigurations()).append(',').append(' ');
-    buf.append("properties").append('=').append(getProperties()).append(',').append(' ');
-    buf.append("complete").append('=').append(isComplete()).append(',').append(' ');
-    buf.append("versionCorrection").append('=').append(getVersionCorrection()).append(',').append(' ');
-    buf.append("viewDefinitionUidScheme").append('=').append(getViewDefinitionUidScheme()).append(',').append(' ');
-    buf.append("viewDefinitionUidValue").append('=').append(getViewDefinitionUidValue()).append(',').append(' ');
-    buf.append("viewDefinitionUidVersion").append('=').append(getViewDefinitionUidVersion()).append(',').append(' ');
-    buf.append("snapshotMode").append('=').append(getSnapshotMode()).append(',').append(' ');
-    buf.append("computationTargetResolver").append('=').append(getComputationTargetResolver()).append(',').append(' ');
+    buf.append("id").append('=').append(JodaBeanUtils.toString(getId())).append(',').append(' ');
+    buf.append("marketData").append('=').append(JodaBeanUtils.toString(getMarketData())).append(',').append(' ');
+    buf.append("createInstant").append('=').append(JodaBeanUtils.toString(getCreateInstant())).append(',').append(' ');
+    buf.append("startInstant").append('=').append(JodaBeanUtils.toString(getStartInstant())).append(',').append(' ');
+    buf.append("endInstant").append('=').append(JodaBeanUtils.toString(getEndInstant())).append(',').append(' ');
+    buf.append("valuationTime").append('=').append(JodaBeanUtils.toString(getValuationTime())).append(',').append(' ');
+    buf.append("numRestarts").append('=').append(JodaBeanUtils.toString(getNumRestarts())).append(',').append(' ');
+    buf.append("calculationConfigurations").append('=').append(JodaBeanUtils.toString(getCalculationConfigurations())).append(',').append(' ');
+    buf.append("properties").append('=').append(JodaBeanUtils.toString(getProperties())).append(',').append(' ');
+    buf.append("complete").append('=').append(JodaBeanUtils.toString(isComplete())).append(',').append(' ');
+    buf.append("versionCorrection").append('=').append(JodaBeanUtils.toString(getVersionCorrection())).append(',').append(' ');
+    buf.append("viewDefinitionUidScheme").append('=').append(JodaBeanUtils.toString(getViewDefinitionUidScheme())).append(',').append(' ');
+    buf.append("viewDefinitionUidValue").append('=').append(JodaBeanUtils.toString(getViewDefinitionUidValue())).append(',').append(' ');
+    buf.append("viewDefinitionUidVersion").append('=').append(JodaBeanUtils.toString(getViewDefinitionUidVersion())).append(',').append(' ');
+    buf.append("snapshotMode").append('=').append(JodaBeanUtils.toString(getSnapshotMode())).append(',').append(' ');
+    buf.append("computationTargetResolver").append('=').append(JodaBeanUtils.toString(getComputationTargetResolver())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

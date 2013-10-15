@@ -143,7 +143,7 @@ public class SecurityNotional extends Notional {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("notionalId").append('=').append(getNotionalId()).append(',').append(' ');
+    buf.append("notionalId").append('=').append(JodaBeanUtils.toString(getNotionalId())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

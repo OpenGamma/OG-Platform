@@ -7,7 +7,11 @@ $.register_module({
     dependencies: [],
     obj: function () {
         var module = this, has = 'hasOwnProperty', coll = module.name, slice = Array.prototype.slice;
-        var init_type = function (type) {if (!(this[coll] || (this[coll] = {}))[has](type)) this[coll][type] = [];};
+        var init_type = function (type) {
+            if (!(this[coll] || (this[coll] = {}))[has](type)) {
+                this[coll][type] = [];
+            }
+        };
         return {
             fire: function (type) {
                 init_type.call(this, type);

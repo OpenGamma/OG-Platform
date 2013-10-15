@@ -353,12 +353,12 @@ public class DbToolContextComponentFactory extends AbstractComponentFactory {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("classifier").append('=').append(getClassifier()).append(',').append(' ');
-    buf.append("dbConnector").append('=').append(getDbConnector()).append(',').append(' ');
-    buf.append("jdbcUrl").append('=').append(getJdbcUrl()).append(',').append(' ');
-    buf.append("schema").append('=').append(getSchema()).append(',').append(' ');
-    buf.append("dbManagement").append('=').append(getDbManagement()).append(',').append(' ');
-    buf.append("schemaNamesList").append('=').append(getSchemaNamesList()).append(',').append(' ');
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("dbConnector").append('=').append(JodaBeanUtils.toString(getDbConnector())).append(',').append(' ');
+    buf.append("jdbcUrl").append('=').append(JodaBeanUtils.toString(getJdbcUrl())).append(',').append(' ');
+    buf.append("schema").append('=').append(JodaBeanUtils.toString(getSchema())).append(',').append(' ');
+    buf.append("dbManagement").append('=').append(JodaBeanUtils.toString(getDbManagement())).append(',').append(' ');
+    buf.append("schemaNamesList").append('=').append(JodaBeanUtils.toString(getSchemaNamesList())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

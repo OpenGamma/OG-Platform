@@ -106,7 +106,7 @@ public final class SwaptionCashFixedIborSABRMethod implements PricingMethod {
     final double[] bsAdjoint = blackFunction.getPriceAdjoint(swaption, dataBlack);
     final double sensiDF = -swaption.getSettlementTime() * discountFactorSettle * pvbp * bsAdjoint[0];
     final List<DoublesPair> list = new ArrayList<>();
-    list.add(new DoublesPair(swaption.getSettlementTime(), sensiDF));
+    list.add(DoublesPair.of(swaption.getSettlementTime(), sensiDF));
     final Map<String, List<DoublesPair>> resultMap = new HashMap<>();
     resultMap.put(annuityFixed.getNthPayment(0).getFundingCurveName(), list);
     InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultMap);
@@ -131,7 +131,7 @@ public final class SwaptionCashFixedIborSABRMethod implements PricingMethod {
     final double forward = swaption.getUnderlyingSwap().accept(PRC, sabrData);
     final double pvbp = METHOD_SWAP.getAnnuityCash(swaption.getUnderlyingSwap(), forward);
     final double maturity = annuityFixed.getNthPayment(annuityFixed.getNumberOfPayments() - 1).getPaymentTime() - swaption.getSettlementTime();
-    final DoublesPair expiryMaturity = new DoublesPair(swaption.getTimeToExpiry(), maturity);
+    final DoublesPair expiryMaturity = DoublesPair.of(swaption.getTimeToExpiry(), maturity);
     final BlackPriceFunction blackFunction = new BlackPriceFunction();
     final double[] volatilityAdjoint = sabrData.getSABRParameter().getVolatilityAdjoint(swaption.getTimeToExpiry(), maturity, swaption.getStrike(), forward);
     final BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volatilityAdjoint[0]);

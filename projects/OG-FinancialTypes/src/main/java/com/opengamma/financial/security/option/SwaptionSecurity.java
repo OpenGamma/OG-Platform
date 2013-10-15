@@ -456,15 +456,15 @@ public class SwaptionSecurity extends FinancialSecurity {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("payer").append('=').append(isPayer()).append(',').append(' ');
-    buf.append("underlyingId").append('=').append(getUnderlyingId()).append(',').append(' ');
-    buf.append("longShort").append('=').append(getLongShort()).append(',').append(' ');
-    buf.append("expiry").append('=').append(getExpiry()).append(',').append(' ');
-    buf.append("cashSettled").append('=').append(isCashSettled()).append(',').append(' ');
-    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
-    buf.append("notional").append('=').append(getNotional()).append(',').append(' ');
-    buf.append("exerciseType").append('=').append(getExerciseType()).append(',').append(' ');
-    buf.append("settlementDate").append('=').append(getSettlementDate()).append(',').append(' ');
+    buf.append("payer").append('=').append(JodaBeanUtils.toString(isPayer())).append(',').append(' ');
+    buf.append("underlyingId").append('=').append(JodaBeanUtils.toString(getUnderlyingId())).append(',').append(' ');
+    buf.append("longShort").append('=').append(JodaBeanUtils.toString(getLongShort())).append(',').append(' ');
+    buf.append("expiry").append('=').append(JodaBeanUtils.toString(getExpiry())).append(',').append(' ');
+    buf.append("cashSettled").append('=').append(JodaBeanUtils.toString(isCashSettled())).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("notional").append('=').append(JodaBeanUtils.toString(getNotional())).append(',').append(' ');
+    buf.append("exerciseType").append('=').append(JodaBeanUtils.toString(getExerciseType())).append(',').append(' ');
+    buf.append("settlementDate").append('=').append(JodaBeanUtils.toString(getSettlementDate())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

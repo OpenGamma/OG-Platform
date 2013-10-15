@@ -139,7 +139,7 @@ public class HolidaySourceFactoryBean extends SpringFactoryBean<HolidaySource> {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("holidayMaster").append('=').append(getHolidayMaster()).append(',').append(' ');
+    buf.append("holidayMaster").append('=').append(JodaBeanUtils.toString(getHolidayMaster())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

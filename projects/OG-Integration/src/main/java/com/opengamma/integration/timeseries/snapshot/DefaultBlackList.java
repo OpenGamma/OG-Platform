@@ -157,8 +157,8 @@ public class DefaultBlackList extends DirectBean implements BlackList {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("name").append('=').append(getName()).append(',').append(' ');
-    buf.append("blackList").append('=').append(getBlackList()).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
+    buf.append("blackList").append('=').append(JodaBeanUtils.toString(getBlackList())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

@@ -296,11 +296,11 @@ public class HullWhiteOneFactorParameters extends DirectBean implements Serializ
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("uniqueId").append('=').append(getUniqueId()).append(',').append(' ');
-    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
-    buf.append("meanReversionId").append('=').append(getMeanReversionId()).append(',').append(' ');
-    buf.append("initialVolatilityId").append('=').append(getInitialVolatilityId()).append(',').append(' ');
-    buf.append("volatilityTermStructure").append('=').append(getVolatilityTermStructure()).append(',').append(' ');
+    buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(getUniqueId())).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("meanReversionId").append('=').append(JodaBeanUtils.toString(getMeanReversionId())).append(',').append(' ');
+    buf.append("initialVolatilityId").append('=').append(JodaBeanUtils.toString(getInitialVolatilityId())).append(',').append(' ');
+    buf.append("volatilityTermStructure").append('=').append(JodaBeanUtils.toString(getVolatilityTermStructure())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

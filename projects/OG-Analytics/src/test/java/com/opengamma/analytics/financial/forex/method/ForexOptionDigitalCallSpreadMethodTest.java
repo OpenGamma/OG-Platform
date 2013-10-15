@@ -47,8 +47,8 @@ import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Tests related to the pricing method for digital Forex option transactions with Black function and a volatility provider.
@@ -71,8 +71,8 @@ public class ForexOptionDigitalCallSpreadMethodTest {
   // Methods and curves
   private static final YieldCurveBundle CURVES = TestsDataSetsForex.createCurvesForex();
   private static final String[] CURVES_NAME = TestsDataSetsForex.curveNames();
-  private static final SmileDeltaTermStructureDataBundle SMILE_BUNDLE = new SmileDeltaTermStructureDataBundle(CURVES, SMILE_TERM, Pair.of(EUR, USD));
-  private static final SmileDeltaTermStructureDataBundle SMILE_BUNDLE_FLAT = new SmileDeltaTermStructureDataBundle(CURVES, SMILE_TERM_FLAT, Pair.of(EUR, USD));
+  private static final SmileDeltaTermStructureDataBundle SMILE_BUNDLE = new SmileDeltaTermStructureDataBundle(CURVES, SMILE_TERM, Pairs.of(EUR, USD));
+  private static final SmileDeltaTermStructureDataBundle SMILE_BUNDLE_FLAT = new SmileDeltaTermStructureDataBundle(CURVES, SMILE_TERM_FLAT, Pairs.of(EUR, USD));
   private static final ForexOptionVanillaBlackSmileMethod METHOD_VANILLA_BLACK = ForexOptionVanillaBlackSmileMethod.getInstance();
   private static final ForexOptionDigitalBlackMethod METHOD_DIGITAL_BLACK = ForexOptionDigitalBlackMethod.getInstance();
   private static final double STANDARD_SPREAD = 0.0001;
@@ -136,7 +136,7 @@ public class ForexOptionDigitalCallSpreadMethodTest {
     final Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.LINEAR_EXTRAPOLATOR,
         Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
     final SmileDeltaTermStructureParametersStrikeInterpolation smileTerm = TestsDataSetsForex.smile3points(REFERENCE_DATE, interpolator);
-    final SmileDeltaTermStructureDataBundle smileBundle = new SmileDeltaTermStructureDataBundle(CURVES, smileTerm, Pair.of(EUR, USD));
+    final SmileDeltaTermStructureDataBundle smileBundle = new SmileDeltaTermStructureDataBundle(CURVES, smileTerm, Pairs.of(EUR, USD));
     final double strikeM = STRIKE * (1 - STANDARD_SPREAD);
     final double strikeP = STRIKE * (1 + STANDARD_SPREAD);
     final Forex forexM = new Forex(FOREX.getPaymentCurrency1().withAmount(1.0), FOREX.getPaymentCurrency2().withAmount(-strikeM));
@@ -276,8 +276,8 @@ public class ForexOptionDigitalCallSpreadMethodTest {
     final FXMatrix fxMatrixP = new FXMatrix(EUR, USD, SPOT + shift);
     final YieldCurveBundle curves = new YieldCurveBundle(fxMatrix, CURVES.getCurrencyMap(), CURVES.getCurvesMap());
     final YieldCurveBundle curvesP = new YieldCurveBundle(fxMatrixP, CURVES.getCurrencyMap(), CURVES.getCurvesMap());
-    final SmileDeltaTermStructureDataBundle smileBundle = new SmileDeltaTermStructureDataBundle(curves, SMILE_TERM_FLAT, Pair.of(EUR, USD));
-    final SmileDeltaTermStructureDataBundle smileBundleP = new SmileDeltaTermStructureDataBundle(curvesP, SMILE_TERM_FLAT, Pair.of(EUR, USD));
+    final SmileDeltaTermStructureDataBundle smileBundle = new SmileDeltaTermStructureDataBundle(curves, SMILE_TERM_FLAT, Pairs.of(EUR, USD));
+    final SmileDeltaTermStructureDataBundle smileBundleP = new SmileDeltaTermStructureDataBundle(curvesP, SMILE_TERM_FLAT, Pairs.of(EUR, USD));
     final MultipleCurrencyAmount ce = METHOD_DIGITAL_SPREAD.currencyExposure(FOREX_DIGITAL_CALL_FOR, smileBundle);
     final MultipleCurrencyAmount pv = METHOD_DIGITAL_SPREAD.presentValue(FOREX_DIGITAL_CALL_FOR, smileBundle);
     final MultipleCurrencyAmount pvP = METHOD_DIGITAL_SPREAD.presentValue(FOREX_DIGITAL_CALL_FOR, smileBundleP);
@@ -568,7 +568,7 @@ public class ForexOptionDigitalCallSpreadMethodTest {
     final PresentValueForexBlackVolatilityNodeSensitivityDataBundle sensi = METHOD_DIGITAL_SPREAD.presentValueBlackVolatilityNodeSensitivity(FOREX_DIGITAL_CALL_DOM, SMILE_BUNDLE);
     assertEquals("Forex vanilla option: vega node size", SMILE_TERM.getNumberExpiration(), sensi.getVega().getData().length);
     assertEquals("Forex vanilla option: vega node size", SMILE_TERM.getNumberStrike(), sensi.getVega().getData()[0].length);
-    final Pair<Currency, Currency> currencyPair = ObjectsPair.of(EUR, USD);
+    final Pair<Currency, Currency> currencyPair = Pairs.of(EUR, USD);
     assertEquals("Forex vanilla option: vega", currencyPair, sensi.getCurrencyPair());
     final PresentValueForexBlackVolatilitySensitivity pointSensitivity = METHOD_DIGITAL_SPREAD.presentValueBlackVolatilitySensitivity(FOREX_DIGITAL_CALL_DOM, SMILE_BUNDLE);
     final double df = CURVES.getCurve(CURVES_NAME[1]).getDiscountFactor(TimeCalculator.getTimeBetween(REFERENCE_DATE, OPTION_PAY_DATE));
@@ -621,7 +621,7 @@ public class ForexOptionDigitalCallSpreadMethodTest {
     final Interpolator1D interpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.LINEAR_EXTRAPOLATOR,
         Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
     final SmileDeltaTermStructureParametersStrikeInterpolation smileTerm = TestsDataSetsForex.smile5points(REFERENCE_DATE, interpolator);
-    final SmileDeltaTermStructureDataBundle smileBundle = new SmileDeltaTermStructureDataBundle(CURVES, smileTerm, Pair.of(EUR, USD));
+    final SmileDeltaTermStructureDataBundle smileBundle = new SmileDeltaTermStructureDataBundle(CURVES, smileTerm, Pairs.of(EUR, USD));
 
     final int nbStrike = 100;
     final double range = 0.40; // Spot = 1.40

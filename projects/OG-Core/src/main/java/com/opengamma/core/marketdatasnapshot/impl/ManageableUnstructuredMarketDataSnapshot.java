@@ -365,7 +365,7 @@ public class ManageableUnstructuredMarketDataSnapshot implements Bean, Unstructu
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("values").append('=').append(getValues()).append(',').append(' ');
+    buf.append("values").append('=').append(JodaBeanUtils.toString(getValues())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

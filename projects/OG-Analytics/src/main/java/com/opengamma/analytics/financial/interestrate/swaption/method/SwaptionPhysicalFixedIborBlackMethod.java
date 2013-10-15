@@ -179,7 +179,7 @@ public final class SwaptionPhysicalFixedIborBlackMethod implements PricingMethod
     final double maturity = swaption.getMaturityTime();
     final EuropeanVanillaOption option = new EuropeanVanillaOption(strikeModified, swaption.getTimeToExpiry(), swaption.isCall());
     // Implementation note: option required to pass the strike (in case the swap has non-constant coupon).
-    final DoublesPair point = new DoublesPair(swaption.getTimeToExpiry(), maturity);
+    final DoublesPair point = DoublesPair.of(swaption.getTimeToExpiry(), maturity);
     final BlackPriceFunction blackFunction = new BlackPriceFunction();
     final double volatility = curveBlack.getBlackParameters().getVolatility(point);
     final BlackFunctionData dataBlack = new BlackFunctionData(forwardModified, 1.0, volatility);

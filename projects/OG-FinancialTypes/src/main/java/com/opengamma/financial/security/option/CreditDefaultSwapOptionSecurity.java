@@ -532,18 +532,18 @@ public class CreditDefaultSwapOptionSecurity extends FinancialSecurity {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("buy").append('=').append(isBuy()).append(',').append(' ');
-    buf.append("protectionBuyer").append('=').append(getProtectionBuyer()).append(',').append(' ');
-    buf.append("protectionSeller").append('=').append(getProtectionSeller()).append(',').append(' ');
-    buf.append("startDate").append('=').append(getStartDate()).append(',').append(' ');
-    buf.append("maturityDate").append('=').append(getMaturityDate()).append(',').append(' ');
-    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
-    buf.append("notional").append('=').append(getNotional()).append(',').append(' ');
-    buf.append("strike").append('=').append(getStrike()).append(',').append(' ');
-    buf.append("knockOut").append('=').append(isKnockOut()).append(',').append(' ');
-    buf.append("payer").append('=').append(isPayer()).append(',').append(' ');
-    buf.append("exerciseType").append('=').append(getExerciseType()).append(',').append(' ');
-    buf.append("underlyingId").append('=').append(getUnderlyingId()).append(',').append(' ');
+    buf.append("buy").append('=').append(JodaBeanUtils.toString(isBuy())).append(',').append(' ');
+    buf.append("protectionBuyer").append('=').append(JodaBeanUtils.toString(getProtectionBuyer())).append(',').append(' ');
+    buf.append("protectionSeller").append('=').append(JodaBeanUtils.toString(getProtectionSeller())).append(',').append(' ');
+    buf.append("startDate").append('=').append(JodaBeanUtils.toString(getStartDate())).append(',').append(' ');
+    buf.append("maturityDate").append('=').append(JodaBeanUtils.toString(getMaturityDate())).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("notional").append('=').append(JodaBeanUtils.toString(getNotional())).append(',').append(' ');
+    buf.append("strike").append('=').append(JodaBeanUtils.toString(getStrike())).append(',').append(' ');
+    buf.append("knockOut").append('=').append(JodaBeanUtils.toString(isKnockOut())).append(',').append(' ');
+    buf.append("payer").append('=').append(JodaBeanUtils.toString(isPayer())).append(',').append(' ');
+    buf.append("exerciseType").append('=').append(JodaBeanUtils.toString(getExerciseType())).append(',').append(' ');
+    buf.append("underlyingId").append('=').append(JodaBeanUtils.toString(getUnderlyingId())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

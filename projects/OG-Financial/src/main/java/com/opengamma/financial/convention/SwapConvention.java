@@ -190,8 +190,8 @@ public class SwapConvention extends Convention {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("payLegConvention").append('=').append(getPayLegConvention()).append(',').append(' ');
-    buf.append("receiveLegConvention").append('=').append(getReceiveLegConvention()).append(',').append(' ');
+    buf.append("payLegConvention").append('=').append(JodaBeanUtils.toString(getPayLegConvention())).append(',').append(' ');
+    buf.append("receiveLegConvention").append('=').append(JodaBeanUtils.toString(getReceiveLegConvention())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

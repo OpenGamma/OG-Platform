@@ -262,10 +262,10 @@ public class FXForwardAndSwapConvention extends Convention {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("spotConvention").append('=').append(getSpotConvention()).append(',').append(' ');
-    buf.append("businessDayConvention").append('=').append(getBusinessDayConvention()).append(',').append(' ');
-    buf.append("isEOM").append('=').append(isIsEOM()).append(',').append(' ');
-    buf.append("settlementRegion").append('=').append(getSettlementRegion()).append(',').append(' ');
+    buf.append("spotConvention").append('=').append(JodaBeanUtils.toString(getSpotConvention())).append(',').append(' ');
+    buf.append("businessDayConvention").append('=').append(JodaBeanUtils.toString(getBusinessDayConvention())).append(',').append(' ');
+    buf.append("isEOM").append('=').append(JodaBeanUtils.toString(isIsEOM())).append(',').append(' ');
+    buf.append("settlementRegion").append('=').append(JodaBeanUtils.toString(getSettlementRegion())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

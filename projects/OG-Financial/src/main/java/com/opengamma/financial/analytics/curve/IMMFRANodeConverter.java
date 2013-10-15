@@ -11,6 +11,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.analytics.financial.instrument.index.IborIndex;
+import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
@@ -76,20 +77,25 @@ public class IMMFRANodeConverter extends CurveNodeVisitorAdapter<InstrumentDefin
     if (rate == null) {
       throw new OpenGammaRuntimeException("Could not get market data for " + _dataId);
     }
-    final IMMFRAConvention convention = _conventionSource.getConvention(IMMFRAConvention.class, immFRANode.getConvention());
+    final IMMFRAConvention convention = _conventionSource.getConvention(IMMFRAConvention.class, immFRANode.getImmFRAConvention());
     if (convention == null) {
-      throw new OpenGammaRuntimeException("Convention with id " + immFRANode.getConvention() + " was null");
+      throw new OpenGammaRuntimeException("Convention with id " + immFRANode.getImmFRAConvention() + " was null");
     }
     final IborIndexConvention indexConvention = _conventionSource.getConvention(IborIndexConvention.class, convention.getIndexConvention());
     if (indexConvention == null) {
       throw new OpenGammaRuntimeException("Underlying ibor convention with id " + convention.getIndexConvention() + " was null");
     }
     final RollDateAdjuster adjuster = RollDateAdjusterFactory.getAdjuster(convention.getImmDateConvention().getValue());
-    final Tenor indexTenor = immFRANode.getImmTenor();
-    final long monthsToAdjust = adjuster.getMonthsToAdjust();
+    final Tenor indexTenor = immFRANode.getIndexTenor();
     final ZonedDateTime unadjustedStartDate = _valuationTime.plus(immFRANode.getStartTenor().getPeriod());
-    final ZonedDateTime immStartDate = unadjustedStartDate.plusMonths(monthsToAdjust * immFRANode.getImmDateStartNumber()).with(adjuster);
-    final ZonedDateTime maturityDate = immStartDate.plusMonths(monthsToAdjust * immFRANode.getImmDateEndNumber());
+    ZonedDateTime immStartDate = unadjustedStartDate.with(adjuster);
+    for (int loopNumber = 1; loopNumber < immFRANode.getStartIMMDateNumber(); loopNumber++) {
+      immStartDate = immStartDate.plusDays(1).with(adjuster);
+    }
+    ZonedDateTime immEndDate = immStartDate.plusDays(1).with(adjuster);
+    for (int loopNumber = 1; loopNumber < immFRANode.getEndIMMDateNumber() - immFRANode.getStartIMMDateNumber(); loopNumber++) {
+      immEndDate = immEndDate.plusDays(1).with(adjuster);
+    }
     final Currency currency = indexConvention.getCurrency();
     final Calendar fixingCalendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, indexConvention.getFixingCalendar());
     final int spotLag = indexConvention.getSettlementDays();
@@ -97,6 +103,9 @@ public class IMMFRANodeConverter extends CurveNodeVisitorAdapter<InstrumentDefin
     final DayCount dayCount = indexConvention.getDayCount();
     final boolean eom = indexConvention.isIsEOM();
     final IborIndex iborIndex = new IborIndex(currency, indexTenor.getPeriod(), spotLag, dayCount, businessDayConvention, eom, indexConvention.getName());
-    return ForwardRateAgreementDefinition.from(immStartDate, maturityDate, 1, iborIndex, rate, fixingCalendar);
+    final double accrualFactor = dayCount.getDayCountFraction(immStartDate, immEndDate);
+    final ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(immStartDate, -iborIndex.getSpotLag(), fixingCalendar);
+    return new ForwardRateAgreementDefinition(currency, immStartDate, immStartDate, immEndDate, accrualFactor, 1, fixingDate, immStartDate, immEndDate, iborIndex, rate, fixingCalendar);
   }
+  
 }

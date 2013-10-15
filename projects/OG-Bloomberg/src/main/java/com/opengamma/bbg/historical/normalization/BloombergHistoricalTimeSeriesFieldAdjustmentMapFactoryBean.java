@@ -170,8 +170,8 @@ public class BloombergHistoricalTimeSeriesFieldAdjustmentMapFactoryBean extends 
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("referenceDataProvider").append('=').append(getReferenceDataProvider()).append(',').append(' ');
-    buf.append("cacheManager").append('=').append(getCacheManager()).append(',').append(' ');
+    buf.append("referenceDataProvider").append('=').append(JodaBeanUtils.toString(getReferenceDataProvider())).append(',').append(' ');
+    buf.append("cacheManager").append('=').append(JodaBeanUtils.toString(getCacheManager())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

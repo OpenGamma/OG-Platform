@@ -37,8 +37,8 @@ import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.OpenGammaClock;
 import com.opengamma.util.PublicSPI;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * A {@code HistoricalTimeSeriesSource} implemented using an underlying {@code HistoricalTimeSeriesMaster}.
@@ -145,7 +145,7 @@ public class MasterHistoricalTimeSeriesSource
     HistoricalTimeSeries hts = doGetHistoricalTimeSeries(uniqueId, null, null, -1);
     if (hts != null) {
       LocalDateDoubleTimeSeries ldmts = hts.getTimeSeries();
-      return new ObjectsPair<LocalDate, Double>(ldmts.getLatestTime(), ldmts.getLatestValue());
+      return Pairs.of(ldmts.getLatestTime(), ldmts.getLatestValueFast());
     } else {
       return null;
     }
@@ -163,7 +163,7 @@ public class MasterHistoricalTimeSeriesSource
     HistoricalTimeSeries hts = doGetHistoricalTimeSeries(uniqueId, start, end, -1);
     if (hts != null) {
       LocalDateDoubleTimeSeries ldmts = hts.getTimeSeries();
-      return new ObjectsPair<LocalDate, Double>(ldmts.getLatestTime(), ldmts.getLatestValue());
+      return Pairs.of(ldmts.getLatestTime(), ldmts.getLatestValueFast());
     } else {
       return null;
     }
@@ -254,7 +254,7 @@ public class MasterHistoricalTimeSeriesSource
     HistoricalTimeSeries hts = doGetHistoricalTimeSeries(identifierBundle, identifierValidityDate, dataSource, dataProvider, dataField, null, null, -1);
     if (hts != null) {
       LocalDateDoubleTimeSeries ldmts = hts.getTimeSeries();
-      return new ObjectsPair<LocalDate, Double>(ldmts.getLatestTime(), ldmts.getLatestValue());
+      return Pairs.of(ldmts.getLatestTime(), ldmts.getLatestValueFast());
     } else {
       return null;
     }
@@ -273,7 +273,7 @@ public class MasterHistoricalTimeSeriesSource
     HistoricalTimeSeries hts = doGetHistoricalTimeSeries(identifierBundle, identifierValidityDate, dataSource, dataProvider, dataField, start, end, -1);
     if (hts != null) {
       LocalDateDoubleTimeSeries lddts = hts.getTimeSeries();
-      return new ObjectsPair<LocalDate, Double>(lddts.getLatestTime(), lddts.getLatestValue());
+      return Pairs.of(lddts.getLatestTime(), lddts.getLatestValueFast());
     } else {
       return null;
     }
@@ -426,7 +426,7 @@ public class MasterHistoricalTimeSeriesSource
     HistoricalTimeSeries hts = doGetHistoricalTimeSeries(dataField, identifierBundle, identifierValidityDate, dataField, start, end, -1);
     if (hts != null) {
       LocalDateDoubleTimeSeries lddts = hts.getTimeSeries();
-      return new ObjectsPair<LocalDate, Double>(lddts.getLatestTime(), lddts.getLatestValue());
+      return Pairs.of(lddts.getLatestTime(), lddts.getLatestValueFast());
     } else {
       return null;
     }

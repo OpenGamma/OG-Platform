@@ -24,6 +24,7 @@ import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Adds {@link ValuePropertyNames#SURFACE} and {@link ValuePropertyNames#CURVE_CALCULATION_CONFIG} to the available
@@ -72,7 +73,7 @@ public class InterestRateFutureOptionBlackDefaults extends DefaultPropertyFuncti
     ArgumentChecker.isTrue(nPairs % 3 == 0, "Must have one curve config name per currency");
     _currencyCurveConfigAndSurfaceNames = new HashMap<>();
     for (int i = 0; i < currencyCurveConfigAndSurfaceNames.length; i += 3) {
-      final Pair<String, String> pair = Pair.of(currencyCurveConfigAndSurfaceNames[i + 1], currencyCurveConfigAndSurfaceNames[i + 2]);
+      final Pair<String, String> pair = Pairs.of(currencyCurveConfigAndSurfaceNames[i + 1], currencyCurveConfigAndSurfaceNames[i + 2]);
       _currencyCurveConfigAndSurfaceNames.put(currencyCurveConfigAndSurfaceNames[i], pair);
     }
   }

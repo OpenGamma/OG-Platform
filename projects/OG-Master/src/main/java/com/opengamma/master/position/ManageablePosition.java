@@ -575,13 +575,13 @@ public class ManageablePosition extends DirectBean
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("uniqueId").append('=').append(getUniqueId()).append(',').append(' ');
-    buf.append("quantity").append('=').append(getQuantity()).append(',').append(' ');
-    buf.append("securityLink").append('=').append(getSecurityLink()).append(',').append(' ');
-    buf.append("trades").append('=').append(getTrades()).append(',').append(' ');
-    buf.append("attributes").append('=').append(getAttributes()).append(',').append(' ');
-    buf.append("providerId").append('=').append(getProviderId()).append(',').append(' ');
-    buf.append("name").append('=').append(getName()).append(',').append(' ');
+    buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(getUniqueId())).append(',').append(' ');
+    buf.append("quantity").append('=').append(JodaBeanUtils.toString(getQuantity())).append(',').append(' ');
+    buf.append("securityLink").append('=').append(JodaBeanUtils.toString(getSecurityLink())).append(',').append(' ');
+    buf.append("trades").append('=').append(JodaBeanUtils.toString(getTrades())).append(',').append(' ');
+    buf.append("attributes").append('=').append(JodaBeanUtils.toString(getAttributes())).append(',').append(' ');
+    buf.append("providerId").append('=').append(JodaBeanUtils.toString(getProviderId())).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

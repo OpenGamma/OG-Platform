@@ -554,21 +554,21 @@ public class CDSSecurityBean extends SecurityBean {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("notional").append('=').append(getNotional()).append(',').append(' ');
-    buf.append("recoveryRate").append('=').append(getRecoveryRate()).append(',').append(' ');
-    buf.append("spread").append('=').append(getSpread()).append(',').append(' ');
-    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
-    buf.append("maturity").append('=').append(getMaturity()).append(',').append(' ');
-    buf.append("startDate").append('=').append(getStartDate()).append(',').append(' ');
-    buf.append("premiumFrequency").append('=').append(getPremiumFrequency()).append(',').append(' ');
-    buf.append("dayCount").append('=').append(getDayCount()).append(',').append(' ');
-    buf.append("businessDayConvention").append('=').append(getBusinessDayConvention()).append(',').append(' ');
-    buf.append("stubType").append('=').append(getStubType()).append(',').append(' ');
-    buf.append("settlementDays").append('=').append(getSettlementDays()).append(',').append(' ');
-    buf.append("underlyingIssuer").append('=').append(getUnderlyingIssuer()).append(',').append(' ');
-    buf.append("underlyingCurrency").append('=').append(getUnderlyingCurrency()).append(',').append(' ');
-    buf.append("underlyingSeniority").append('=').append(getUnderlyingSeniority()).append(',').append(' ');
-    buf.append("restructuringClause").append('=').append(getRestructuringClause()).append(',').append(' ');
+    buf.append("notional").append('=').append(JodaBeanUtils.toString(getNotional())).append(',').append(' ');
+    buf.append("recoveryRate").append('=').append(JodaBeanUtils.toString(getRecoveryRate())).append(',').append(' ');
+    buf.append("spread").append('=').append(JodaBeanUtils.toString(getSpread())).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("maturity").append('=').append(JodaBeanUtils.toString(getMaturity())).append(',').append(' ');
+    buf.append("startDate").append('=').append(JodaBeanUtils.toString(getStartDate())).append(',').append(' ');
+    buf.append("premiumFrequency").append('=').append(JodaBeanUtils.toString(getPremiumFrequency())).append(',').append(' ');
+    buf.append("dayCount").append('=').append(JodaBeanUtils.toString(getDayCount())).append(',').append(' ');
+    buf.append("businessDayConvention").append('=').append(JodaBeanUtils.toString(getBusinessDayConvention())).append(',').append(' ');
+    buf.append("stubType").append('=').append(JodaBeanUtils.toString(getStubType())).append(',').append(' ');
+    buf.append("settlementDays").append('=').append(JodaBeanUtils.toString(getSettlementDays())).append(',').append(' ');
+    buf.append("underlyingIssuer").append('=').append(JodaBeanUtils.toString(getUnderlyingIssuer())).append(',').append(' ');
+    buf.append("underlyingCurrency").append('=').append(JodaBeanUtils.toString(getUnderlyingCurrency())).append(',').append(' ');
+    buf.append("underlyingSeniority").append('=').append(JodaBeanUtils.toString(getUnderlyingSeniority())).append(',').append(' ');
+    buf.append("restructuringClause").append('=').append(JodaBeanUtils.toString(getRestructuringClause())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

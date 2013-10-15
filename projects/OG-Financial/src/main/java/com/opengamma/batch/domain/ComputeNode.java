@@ -182,9 +182,9 @@ public class ComputeNode extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("id").append('=').append(getId()).append(',').append(' ');
-    buf.append("computeHost").append('=').append(getComputeHost()).append(',').append(' ');
-    buf.append("nodeName").append('=').append(getNodeName()).append(',').append(' ');
+    buf.append("id").append('=').append(JodaBeanUtils.toString(getId())).append(',').append(' ');
+    buf.append("computeHost").append('=').append(JodaBeanUtils.toString(getComputeHost())).append(',').append(' ');
+    buf.append("nodeName").append('=').append(JodaBeanUtils.toString(getNodeName())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

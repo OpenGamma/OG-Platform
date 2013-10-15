@@ -440,15 +440,15 @@ public class VanillaIborLegConvention extends Convention {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("iborIndexConvention").append('=').append(getIborIndexConvention()).append(',').append(' ');
-    buf.append("isAdvanceFixing").append('=').append(isIsAdvanceFixing()).append(',').append(' ');
-    buf.append("interpolationMethod").append('=').append(getInterpolationMethod()).append(',').append(' ');
-    buf.append("resetTenor").append('=').append(getResetTenor()).append(',').append(' ');
-    buf.append("settlementDays").append('=').append(getSettlementDays()).append(',').append(' ');
-    buf.append("isEOM").append('=').append(isIsEOM()).append(',').append(' ');
-    buf.append("stubType").append('=').append(getStubType()).append(',').append(' ');
-    buf.append("isExchangeNotional").append('=').append(isIsExchangeNotional()).append(',').append(' ');
-    buf.append("paymentLag").append('=').append(getPaymentLag()).append(',').append(' ');
+    buf.append("iborIndexConvention").append('=').append(JodaBeanUtils.toString(getIborIndexConvention())).append(',').append(' ');
+    buf.append("isAdvanceFixing").append('=').append(JodaBeanUtils.toString(isIsAdvanceFixing())).append(',').append(' ');
+    buf.append("interpolationMethod").append('=').append(JodaBeanUtils.toString(getInterpolationMethod())).append(',').append(' ');
+    buf.append("resetTenor").append('=').append(JodaBeanUtils.toString(getResetTenor())).append(',').append(' ');
+    buf.append("settlementDays").append('=').append(JodaBeanUtils.toString(getSettlementDays())).append(',').append(' ');
+    buf.append("isEOM").append('=').append(JodaBeanUtils.toString(isIsEOM())).append(',').append(' ');
+    buf.append("stubType").append('=').append(JodaBeanUtils.toString(getStubType())).append(',').append(' ');
+    buf.append("isExchangeNotional").append('=').append(JodaBeanUtils.toString(isIsExchangeNotional())).append(',').append(' ');
+    buf.append("paymentLag").append('=').append(JodaBeanUtils.toString(getPaymentLag())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

@@ -60,6 +60,7 @@ import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecu
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Base function for all FX option pricing and risk functions that use a Black surface
@@ -204,7 +205,7 @@ public abstract class BlackDiscountingFXOptionFunction extends DiscountingFuncti
       final FXOptionSecurity security = (FXOptionSecurity) target.getTrade().getSecurity();
       final MulticurveProviderInterface data = getMergedProviders(inputs, fxMatrix);
       final SmileDeltaTermStructureParametersStrikeInterpolation volatilitySurface = (SmileDeltaTermStructureParametersStrikeInterpolation) inputs.getValue(STANDARD_VOLATILITY_SURFACE_DATA);
-      final Pair<Currency, Currency> currencyPair = Pair.of(security.getPutCurrency(), security.getCallCurrency());
+      final Pair<Currency, Currency> currencyPair = Pairs.of(security.getPutCurrency(), security.getCallCurrency());
       final BlackForexSmileProvider blackData = new BlackForexSmileProvider(data, volatilitySurface, currencyPair);
       return blackData;
     }

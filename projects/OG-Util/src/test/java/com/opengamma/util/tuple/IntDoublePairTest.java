@@ -110,14 +110,14 @@ public class IntDoublePairTest {
 
   public void testEquals_toObjectVersion() {
     IntDoublePair a = IntDoublePair.of(1, 1.7d);
-    Pair<Integer, Double> b = Pair.of(Integer.valueOf(1), Double.valueOf(1.7d));
+    Pair<Integer, Double> b = ObjectsPair.of(Integer.valueOf(1), Double.valueOf(1.7d));
     assertEquals(true, a.equals(b));
     assertEquals(true, b.equals(a));
   }
 
   public void testEquals_toObjectVersion_null() {
     IntDoublePair b = IntDoublePair.of(1, 1.7d);
-    Pair<Integer, Double> a = Pair.of(null, Double.valueOf(1.9d));
+    Pair<Integer, Double> a = ObjectsPair.of(null, Double.valueOf(1.9d));
     assertEquals(true, a.equals(a));
     assertEquals(false, a.equals(b));
     assertEquals(false, b.equals(a));
@@ -126,7 +126,7 @@ public class IntDoublePairTest {
 
   public void testHashCode() {
     IntDoublePair a = IntDoublePair.of(1, 1.7d);
-    Pair<Integer, Double> b = Pair.of(Integer.valueOf(1), Double.valueOf(1.7d));
+    Pair<Integer, Double> b = ObjectsPair.of(Integer.valueOf(1), Double.valueOf(1.7d));
     assertEquals(a.hashCode(), b.hashCode());
   }
 

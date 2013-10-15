@@ -151,8 +151,8 @@ public class FunctionSignatureResolution extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("inputs").append('=').append(getInputs()).append(',').append(' ');
-    buf.append("outputs").append('=').append(getOutputs()).append(',').append(' ');
+    buf.append("inputs").append('=').append(JodaBeanUtils.toString(getInputs())).append(',').append(' ');
+    buf.append("outputs").append('=').append(JodaBeanUtils.toString(getOutputs())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

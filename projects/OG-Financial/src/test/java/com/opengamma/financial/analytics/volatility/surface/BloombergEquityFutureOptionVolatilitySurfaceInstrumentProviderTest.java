@@ -20,6 +20,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Test.
@@ -52,7 +53,7 @@ public class BloombergEquityFutureOptionVolatilitySurfaceInstrumentProviderTest 
     final Tenor quarterly = Tenor.THREE_MONTHS;
     final Tenor[] periods = new Tenor[] {monthly, monthly, monthly, monthly, quarterly, quarterly, quarterly};
     for (int i = 0; i < n.length; i++) {
-      N_OPTION.add(Pair.of(n[i], periods[i]));
+      N_OPTION.add(Pairs.of(n[i], periods[i]));
     }
   }
 

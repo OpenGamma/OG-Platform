@@ -309,11 +309,11 @@ public class BloombergConnectorFactoryBean extends SpringFactoryBean<BloombergCo
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("name").append('=').append(getName()).append(',').append(' ');
-    buf.append("host").append('=').append(getHost()).append(',').append(' ');
-    buf.append("port").append('=').append(getPort()).append(',').append(' ');
-    buf.append("sessionOptions").append('=').append(getSessionOptions()).append(',').append(' ');
-    buf.append("referenceDataStatistics").append('=').append(getReferenceDataStatistics()).append(',').append(' ');
+    buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
+    buf.append("host").append('=').append(JodaBeanUtils.toString(getHost())).append(',').append(' ');
+    buf.append("port").append('=').append(JodaBeanUtils.toString(getPort())).append(',').append(' ');
+    buf.append("sessionOptions").append('=').append(JodaBeanUtils.toString(getSessionOptions())).append(',').append(' ');
+    buf.append("referenceDataStatistics").append('=').append(JodaBeanUtils.toString(getReferenceDataStatistics())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

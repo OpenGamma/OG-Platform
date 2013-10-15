@@ -64,6 +64,7 @@ import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.paging.Paging;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * A position master implementation using a database for persistence.
@@ -265,7 +266,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
             .addValue("key_scheme", id.getScheme().getName())
             .addValue("key_value", id.getValue());
         posAssocList.add(assocArgs);
-        schemeValueSet.add(Pair.of(id.getScheme().getName(), id.getValue()));
+        schemeValueSet.add(Pairs.of(id.getScheme().getName(), id.getValue()));
       }
       
       // the arguments for inserting into the trade table
@@ -322,7 +323,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
               .addValue("key_scheme", id.getScheme().getName())
               .addValue("key_value", id.getValue());
           tradeAssocList.add(assocArgs);
-          schemeValueSet.add(Pair.of(id.getScheme().getName(), id.getValue()));
+          schemeValueSet.add(Pairs.of(id.getScheme().getName(), id.getValue()));
         }
       }
       

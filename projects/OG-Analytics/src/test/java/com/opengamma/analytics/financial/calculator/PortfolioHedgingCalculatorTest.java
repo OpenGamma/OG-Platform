@@ -22,8 +22,8 @@ import com.opengamma.analytics.math.matrix.CommonsMatrixAlgebra;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Tests the portfolio hedging calculator, with simplified examples and then with full scale data.
@@ -34,9 +34,9 @@ public class PortfolioHedgingCalculatorTest {
   private static final Currency USD = Currency.USD;
   private static final String NAME_1 = "Dsc";
   private static final String NAME_2 = "Fwd";
-  private static final Pair<String, Currency> NAME_1_EUR = new ObjectsPair<>(NAME_1, EUR);
-  private static final Pair<String, Currency> NAME_1_USD = new ObjectsPair<>(NAME_1, USD);
-  private static final Pair<String, Currency> NAME_2_EUR = new ObjectsPair<>(NAME_2, EUR);
+  private static final Pair<String, Currency> NAME_1_EUR = Pairs.of(NAME_1, EUR);
+  private static final Pair<String, Currency> NAME_1_USD = Pairs.of(NAME_1, USD);
+  private static final Pair<String, Currency> NAME_2_EUR = Pairs.of(NAME_2, EUR);
   private static final double EUR_USD = 1.25;
   private static final FXMatrix FX_MATRIX = new FXMatrix(EUR, USD, EUR_USD);
 
@@ -47,8 +47,8 @@ public class PortfolioHedgingCalculatorTest {
 
   private static final LinkedHashSet<Pair<String, Integer>> ORDER = new LinkedHashSet<>();
   static {
-    ORDER.add(new ObjectsPair<>(NAME_1, NB_SENSI_1));
-    ORDER.add(new ObjectsPair<>(NAME_2, NB_SENSI_2));
+    ORDER.add(Pairs.of(NAME_1, NB_SENSI_1));
+    ORDER.add(Pairs.of(NAME_2, NB_SENSI_2));
   }
 
   private static final CommonsMatrixAlgebra MATRIX = new CommonsMatrixAlgebra();
@@ -61,7 +61,7 @@ public class PortfolioHedgingCalculatorTest {
    */
   public void exactSolution() {
     final LinkedHashSet<Pair<String, Integer>> order = new LinkedHashSet<>();
-    order.add(new ObjectsPair<>(NAME_1, NB_SENSI_1));
+    order.add(Pairs.of(NAME_1, NB_SENSI_1));
     final double[] sensiOpposite = new double[NB_SENSI_1];
     for (int loopnode = 0; loopnode < NB_SENSI_1; loopnode++) {
       sensiOpposite[loopnode] = -SENSI_1[loopnode];

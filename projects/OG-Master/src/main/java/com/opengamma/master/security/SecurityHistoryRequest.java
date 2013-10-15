@@ -182,7 +182,7 @@ public class SecurityHistoryRequest extends AbstractHistoryRequest {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("fullDetail").append('=').append(isFullDetail()).append(',').append(' ');
+    buf.append("fullDetail").append('=').append(JodaBeanUtils.toString(isFullDetail())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

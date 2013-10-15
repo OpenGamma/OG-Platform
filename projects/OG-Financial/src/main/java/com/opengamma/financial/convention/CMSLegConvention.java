@@ -227,9 +227,9 @@ public class CMSLegConvention extends Convention {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("swapIndexConvention").append('=').append(getSwapIndexConvention()).append(',').append(' ');
-    buf.append("paymentTenor").append('=').append(getPaymentTenor()).append(',').append(' ');
-    buf.append("isAdvanceFixing").append('=').append(isIsAdvanceFixing()).append(',').append(' ');
+    buf.append("swapIndexConvention").append('=').append(JodaBeanUtils.toString(getSwapIndexConvention())).append(',').append(' ');
+    buf.append("paymentTenor").append('=').append(JodaBeanUtils.toString(getPaymentTenor())).append(',').append(' ');
+    buf.append("isAdvanceFixing").append('=').append(JodaBeanUtils.toString(isIsAdvanceFixing())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

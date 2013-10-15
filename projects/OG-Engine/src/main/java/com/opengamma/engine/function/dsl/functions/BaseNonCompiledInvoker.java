@@ -31,6 +31,7 @@ import com.opengamma.lambdava.functions.Function2;
 import com.opengamma.lambdava.streams.Stream;
 import com.opengamma.lambdava.streams.StreamI;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 public abstract class BaseNonCompiledInvoker extends AbstractFunction.NonCompiledInvoker {
 
@@ -69,7 +70,7 @@ public abstract class BaseNonCompiledInvoker extends AbstractFunction.NonCompile
         return acc;
       }
     });
-    return Pair.of(inputsByName, outputsByName);
+    return Pairs.of(inputsByName, outputsByName);
   }
 
   protected abstract FunctionSignature functionSignature();

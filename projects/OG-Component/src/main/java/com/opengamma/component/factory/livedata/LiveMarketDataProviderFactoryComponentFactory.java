@@ -346,9 +346,9 @@ public class LiveMarketDataProviderFactoryComponentFactory extends AbstractCompo
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("classifier").append('=').append(getClassifier()).append(',').append(' ');
-    buf.append("jmsConnector").append('=').append(getJmsConnector()).append(',').append(' ');
-    buf.append("defaultProviders").append('=').append(getDefaultProviders()).append(',').append(' ');
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("jmsConnector").append('=').append(JodaBeanUtils.toString(getJmsConnector())).append(',').append(' ');
+    buf.append("defaultProviders").append('=').append(JodaBeanUtils.toString(getDefaultProviders())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

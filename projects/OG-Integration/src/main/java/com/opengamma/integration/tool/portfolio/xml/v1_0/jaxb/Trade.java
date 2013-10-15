@@ -349,13 +349,13 @@ public abstract class Trade extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("id").append('=').append(getId()).append(',').append(' ');
-    buf.append("externalSystemId").append('=').append(getExternalSystemId()).append(',').append(' ');
-    buf.append("tradeDate").append('=').append(getTradeDate()).append(',').append(' ');
-    buf.append("maturityDate").append('=').append(getMaturityDate()).append(',').append(' ');
-    buf.append("counterparty").append('=').append(getCounterparty()).append(',').append(' ');
-    buf.append("additionalCashflows").append('=').append(getAdditionalCashflows()).append(',').append(' ');
-    buf.append("additionalAttributes").append('=').append(getAdditionalAttributes()).append(',').append(' ');
+    buf.append("id").append('=').append(JodaBeanUtils.toString(getId())).append(',').append(' ');
+    buf.append("externalSystemId").append('=').append(JodaBeanUtils.toString(getExternalSystemId())).append(',').append(' ');
+    buf.append("tradeDate").append('=').append(JodaBeanUtils.toString(getTradeDate())).append(',').append(' ');
+    buf.append("maturityDate").append('=').append(JodaBeanUtils.toString(getMaturityDate())).append(',').append(' ');
+    buf.append("counterparty").append('=').append(JodaBeanUtils.toString(getCounterparty())).append(',').append(' ');
+    buf.append("additionalCashflows").append('=').append(JodaBeanUtils.toString(getAdditionalCashflows())).append(',').append(' ');
+    buf.append("additionalAttributes").append('=').append(JodaBeanUtils.toString(getAdditionalAttributes())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

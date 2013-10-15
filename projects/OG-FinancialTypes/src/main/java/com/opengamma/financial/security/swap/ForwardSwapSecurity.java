@@ -143,7 +143,7 @@ public class ForwardSwapSecurity extends SwapSecurity {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("forwardStartDate").append('=').append(getForwardStartDate()).append(',').append(' ');
+    buf.append("forwardStartDate").append('=').append(JodaBeanUtils.toString(getForwardStartDate())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

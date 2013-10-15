@@ -457,17 +457,17 @@ public class SwaptionTrade extends Trade {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("buySell").append('=').append(getBuySell()).append(',').append(' ');
-    buf.append("paymentCalendars").append('=').append(getPaymentCalendars()).append(',').append(' ');
-    buf.append("exerciseCalendars").append('=').append(getExerciseCalendars()).append(',').append(' ');
-    buf.append("expirationDate").append('=').append(getExpirationDate()).append(',').append(' ');
-    buf.append("exerciseType").append('=').append(getExerciseType()).append(',').append(' ');
-    buf.append("stubPeriodType").append('=').append(getStubPeriodType()).append(',').append(' ');
-    buf.append("settlementType").append('=').append(getSettlementType()).append(',').append(' ');
-    buf.append("cashSettlementCalculationMethod").append('=').append(getCashSettlementCalculationMethod()).append(',').append(' ');
-    buf.append("cashSettlementPaymentDate").append('=').append(getCashSettlementPaymentDate()).append(',').append(' ');
-    buf.append("cashSettlementCurrency").append('=').append(getCashSettlementCurrency()).append(',').append(' ');
-    buf.append("underlyingSwapTrade").append('=').append(getUnderlyingSwapTrade()).append(',').append(' ');
+    buf.append("buySell").append('=').append(JodaBeanUtils.toString(getBuySell())).append(',').append(' ');
+    buf.append("paymentCalendars").append('=').append(JodaBeanUtils.toString(getPaymentCalendars())).append(',').append(' ');
+    buf.append("exerciseCalendars").append('=').append(JodaBeanUtils.toString(getExerciseCalendars())).append(',').append(' ');
+    buf.append("expirationDate").append('=').append(JodaBeanUtils.toString(getExpirationDate())).append(',').append(' ');
+    buf.append("exerciseType").append('=').append(JodaBeanUtils.toString(getExerciseType())).append(',').append(' ');
+    buf.append("stubPeriodType").append('=').append(JodaBeanUtils.toString(getStubPeriodType())).append(',').append(' ');
+    buf.append("settlementType").append('=').append(JodaBeanUtils.toString(getSettlementType())).append(',').append(' ');
+    buf.append("cashSettlementCalculationMethod").append('=').append(JodaBeanUtils.toString(getCashSettlementCalculationMethod())).append(',').append(' ');
+    buf.append("cashSettlementPaymentDate").append('=').append(JodaBeanUtils.toString(getCashSettlementPaymentDate())).append(',').append(' ');
+    buf.append("cashSettlementCurrency").append('=').append(JodaBeanUtils.toString(getCashSettlementCurrency())).append(',').append(' ');
+    buf.append("underlyingSwapTrade").append('=').append(JodaBeanUtils.toString(getUnderlyingSwapTrade())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

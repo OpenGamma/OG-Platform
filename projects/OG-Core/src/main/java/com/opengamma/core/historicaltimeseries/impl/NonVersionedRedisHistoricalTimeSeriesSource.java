@@ -41,6 +41,7 @@ import com.opengamma.timeseries.date.localdate.LocalDateToIntConverter;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.metric.MetricProducer;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * An extremely minimal and lightweight {@code HistoricalTimeSeriesSource} that pulls data
@@ -354,7 +355,7 @@ public class NonVersionedRedisHistoricalTimeSeriesSource implements HistoricalTi
     Pair<LocalDate, Double> latestPoint = null;
     LocalDateDoubleTimeSeries ts = loadTimeSeriesFromRedis(toRedisKey(uniqueId), null, null);
     if (ts != null) {
-      latestPoint = Pair.of(ts.getLatestTime(), ts.getLatestValue());
+      latestPoint = Pairs.of(ts.getLatestTime(), ts.getLatestValue());
     }
     return latestPoint;
   }
@@ -366,7 +367,7 @@ public class NonVersionedRedisHistoricalTimeSeriesSource implements HistoricalTi
     HistoricalTimeSeries hts = getHistoricalTimeSeries(uniqueId, start, includeStart, end, includeEnd);
     Pair<LocalDate, Double> latestPoint = null;
     if (hts != null && hts.getTimeSeries() != null) {
-      latestPoint = Pair.of(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
+      latestPoint = Pairs.of(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
     }
     return latestPoint;
   }

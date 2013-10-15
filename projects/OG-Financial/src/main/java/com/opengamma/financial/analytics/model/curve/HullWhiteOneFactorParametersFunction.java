@@ -133,14 +133,14 @@ public class HullWhiteOneFactorParametersFunction extends AbstractFunction {
         if (meanReversionObject == null) {
           // TODO Jim - these are hacks that should be removed.
           meanReversionObject = MEAN_REVERSION_DEFAULT;
-          s_logger.warn("Using default mean reversion");
+          s_logger.info("Using default mean reversion");
         }
         Object initialVolatilityObject = inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE,
             ComputationTargetType.PRIMITIVE, parameters.getInitialVolatilityId()));
         if (initialVolatilityObject == null) {
           // TODO Jim - these are hacks that should be removed.
           initialVolatilityObject = INITIAL_VOLATILITY_DEFAULT;
-          s_logger.warn("Using default initial volatility");
+          s_logger.info("Using default initial volatility");
         }
         final Double meanReversion = (Double) meanReversionObject;
         final Double initialVolatility = (Double) initialVolatilityObject;

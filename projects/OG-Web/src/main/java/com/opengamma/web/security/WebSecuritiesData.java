@@ -417,15 +417,15 @@ public class WebSecuritiesData extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("securityMaster").append('=').append(getSecurityMaster()).append(',').append(' ');
-    buf.append("securityLoader").append('=').append(getSecurityLoader()).append(',').append(' ');
-    buf.append("historicalTimeSeriesMaster").append('=').append(getHistoricalTimeSeriesMaster()).append(',').append(' ');
-    buf.append("uriInfo").append('=').append(getUriInfo()).append(',').append(' ');
-    buf.append("uriSecurityId").append('=').append(getUriSecurityId()).append(',').append(' ');
-    buf.append("uriVersionId").append('=').append(getUriVersionId()).append(',').append(' ');
-    buf.append("security").append('=').append(getSecurity()).append(',').append(' ');
-    buf.append("versioned").append('=').append(getVersioned()).append(',').append(' ');
-    buf.append("organizationMaster").append('=').append(getOrganizationMaster()).append(',').append(' ');
+    buf.append("securityMaster").append('=').append(JodaBeanUtils.toString(getSecurityMaster())).append(',').append(' ');
+    buf.append("securityLoader").append('=').append(JodaBeanUtils.toString(getSecurityLoader())).append(',').append(' ');
+    buf.append("historicalTimeSeriesMaster").append('=').append(JodaBeanUtils.toString(getHistoricalTimeSeriesMaster())).append(',').append(' ');
+    buf.append("uriInfo").append('=').append(JodaBeanUtils.toString(getUriInfo())).append(',').append(' ');
+    buf.append("uriSecurityId").append('=').append(JodaBeanUtils.toString(getUriSecurityId())).append(',').append(' ');
+    buf.append("uriVersionId").append('=').append(JodaBeanUtils.toString(getUriVersionId())).append(',').append(' ');
+    buf.append("security").append('=').append(JodaBeanUtils.toString(getSecurity())).append(',').append(' ');
+    buf.append("versioned").append('=').append(JodaBeanUtils.toString(getVersioned())).append(',').append(' ');
+    buf.append("organizationMaster").append('=').append(JodaBeanUtils.toString(getOrganizationMaster())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

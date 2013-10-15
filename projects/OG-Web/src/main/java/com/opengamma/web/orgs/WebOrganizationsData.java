@@ -319,12 +319,12 @@ public class WebOrganizationsData extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("organizationMaster").append('=').append(getOrganizationMaster()).append(',').append(' ');
-    buf.append("uriInfo").append('=').append(getUriInfo()).append(',').append(' ');
-    buf.append("uriOrganizationId").append('=').append(getUriOrganizationId()).append(',').append(' ');
-    buf.append("uriVersionId").append('=').append(getUriVersionId()).append(',').append(' ');
-    buf.append("organization").append('=').append(getOrganization()).append(',').append(' ');
-    buf.append("versioned").append('=').append(getVersioned()).append(',').append(' ');
+    buf.append("organizationMaster").append('=').append(JodaBeanUtils.toString(getOrganizationMaster())).append(',').append(' ');
+    buf.append("uriInfo").append('=').append(JodaBeanUtils.toString(getUriInfo())).append(',').append(' ');
+    buf.append("uriOrganizationId").append('=').append(JodaBeanUtils.toString(getUriOrganizationId())).append(',').append(' ');
+    buf.append("uriVersionId").append('=').append(JodaBeanUtils.toString(getUriVersionId())).append(',').append(' ');
+    buf.append("organization").append('=').append(JodaBeanUtils.toString(getOrganization())).append(',').append(' ');
+    buf.append("versioned").append('=').append(JodaBeanUtils.toString(getVersioned())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

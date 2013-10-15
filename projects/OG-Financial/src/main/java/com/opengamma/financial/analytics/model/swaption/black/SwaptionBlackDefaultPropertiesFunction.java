@@ -25,6 +25,7 @@ import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  *
@@ -65,7 +66,7 @@ public class SwaptionBlackDefaultPropertiesFunction extends DefaultPropertyFunct
     ArgumentChecker.isTrue(nPairs % 3 == 0, "Must have one curve config and surface name per currency");
     _currencyCurveConfigAndSurfaceNames = new HashMap<>();
     for (int i = 0; i < currencyCurveConfigAndSurfaceNames.length; i += 3) {
-      final Pair<String, String> pair = Pair.of(currencyCurveConfigAndSurfaceNames[i + 1], currencyCurveConfigAndSurfaceNames[i + 2]);
+      final Pair<String, String> pair = Pairs.of(currencyCurveConfigAndSurfaceNames[i + 1], currencyCurveConfigAndSurfaceNames[i + 2]);
       _currencyCurveConfigAndSurfaceNames.put(currencyCurveConfigAndSurfaceNames[i], pair);
     }
   }

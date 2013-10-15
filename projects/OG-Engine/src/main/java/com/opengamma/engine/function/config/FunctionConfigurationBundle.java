@@ -152,7 +152,7 @@ public class FunctionConfigurationBundle extends DirectBean implements Serializa
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("functions").append('=').append(getFunctions()).append(',').append(' ');
+    buf.append("functions").append('=').append(JodaBeanUtils.toString(getFunctions())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

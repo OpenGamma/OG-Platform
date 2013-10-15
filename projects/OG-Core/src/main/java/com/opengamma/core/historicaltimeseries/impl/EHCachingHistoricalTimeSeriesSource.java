@@ -38,6 +38,7 @@ import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * A cache decorating a {@code HistoricalTimeSeriesSource}.
@@ -232,7 +233,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
     if (hts == null || hts.getTimeSeries() == null || hts.getTimeSeries().isEmpty()) {
       return null;
     } else {
-      return new ObjectsPair<LocalDate, Double>(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
+      return Pairs.of(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
     }
   }
 
@@ -242,14 +243,14 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
     if (hts == null || hts.getTimeSeries() == null || hts.getTimeSeries().isEmpty()) {
       return null;
     } else {
-      return new ObjectsPair<LocalDate, Double>(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
+      return Pairs.of(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
     }
   }
 
   private HistoricalTimeSeries doGetHistoricalTimeSeries(
       UniqueId uniqueId, LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd, Integer maxPoints) {
     SubSeriesKey subseriesKey = new SubSeriesKey(start, end, maxPoints);
-    ObjectsPair<UniqueId, SubSeriesKey> key = Pair.of(uniqueId, subseriesKey);
+    ObjectsPair<UniqueId, SubSeriesKey> key = ObjectsPair.of(uniqueId, subseriesKey);
     Element element = _dataCache.get(key);
     HistoricalTimeSeries hts;
     if (element != null) {
@@ -357,7 +358,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
     if (hts == null || hts.getTimeSeries() == null || hts.getTimeSeries().isEmpty()) {
       return null;
     } else {
-      return new ObjectsPair<LocalDate, Double>(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
+      return Pairs.of(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
     }
   }
 
@@ -369,7 +370,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
     if (hts == null || hts.getTimeSeries() == null || hts.getTimeSeries().isEmpty()) {
       return null;
     } else {
-      return new ObjectsPair<LocalDate, Double>(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
+      return Pairs.of(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
     }
   }
 
@@ -392,7 +393,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
       LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd, Integer maxPoints) {
     HistoricalTimeSeriesKey seriesKey = new HistoricalTimeSeriesKey(null, currentDate, identifiers, dataSource, dataProvider, dataField);
     SubSeriesKey subseriesKey = new SubSeriesKey(start, end, maxPoints);
-    ObjectsPair<HistoricalTimeSeriesKey, SubSeriesKey> key = Pair.of(seriesKey, subseriesKey);
+    ObjectsPair<HistoricalTimeSeriesKey, SubSeriesKey> key = ObjectsPair.of(seriesKey, subseriesKey);
     Element element = _dataCache.get(key);
     HistoricalTimeSeries hts;
     if (element != null) {
@@ -622,7 +623,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
     if (hts == null || hts.getTimeSeries() == null || hts.getTimeSeries().isEmpty()) {
       return null;
     } else {
-      return new ObjectsPair<LocalDate, Double>(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
+      return Pairs.of(hts.getTimeSeries().getLatestTime(), hts.getTimeSeries().getLatestValue());
     }
   }
 
@@ -631,7 +632,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
       LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd, Integer maxPoints) {
     HistoricalTimeSeriesKey seriesKey = new HistoricalTimeSeriesKey(resolutionKey, identifierValidityDate, identifierBundle, null, null, dataField);
     SubSeriesKey subseriesKey = new SubSeriesKey(start, end, maxPoints);
-    ObjectsPair<HistoricalTimeSeriesKey, SubSeriesKey> key = Pair.of(seriesKey, subseriesKey);
+    ObjectsPair<HistoricalTimeSeriesKey, SubSeriesKey> key = ObjectsPair.of(seriesKey, subseriesKey);
     Element element = _dataCache.get(key);
     HistoricalTimeSeries hts;
     if (element != null) {
@@ -658,7 +659,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
         if (hts != null) {
           s_logger.debug("Caching sub time-series {}", hts);
           _dataCache.put(new Element(key, hts));
-          _dataCache.put(new Element(new ObjectsPair<UniqueId, SubSeriesKey>(hts.getUniqueId(), subseriesKey), hts));
+          _dataCache.put(new Element(Pairs.of(hts.getUniqueId(), subseriesKey), hts));
           if (!subseriesKey.isMatch(start, includeStart, end, includeEnd, maxPoints)) {
             // Pick out the sub-series requested
             hts = getSubSeries(hts, start, includeStart, end, includeEnd, maxPoints);

@@ -11,7 +11,6 @@ import java.util.Set;
 
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.util.tuple.ObjectsPair;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Selects a subscription as Fake iff 
@@ -38,6 +37,6 @@ public class UnionFakeSubscriptionSelector implements FakeSubscriptionSelector {
         break;
       }
     }
-    return Pair.of(real, (Collection<LiveDataSpecification>) fakes);
+    return ObjectsPair.of(real, (Collection<LiveDataSpecification>) fakes);
   }
 }

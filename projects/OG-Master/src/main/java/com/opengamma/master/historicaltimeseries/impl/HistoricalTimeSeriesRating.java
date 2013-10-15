@@ -47,7 +47,7 @@ public final class HistoricalTimeSeriesRating implements ImmutableBean {
   /**
    * The set of rules.
    */
-  @PropertyDefinition
+  @PropertyDefinition(validate = "notNull")
   private final ImmutableSet<HistoricalTimeSeriesRatingRule> _rules;
   /**
    * The rules grouped by field type.
@@ -163,7 +163,7 @@ public final class HistoricalTimeSeriesRating implements ImmutableBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the set of rules.
-   * @return the value of the property
+   * @return the value of the property, not null
    */
   public ImmutableSet<HistoricalTimeSeriesRatingRule> getRules() {
     return _rules;
@@ -206,7 +206,7 @@ public final class HistoricalTimeSeriesRating implements ImmutableBean {
   public String toString() {
     StringBuilder buf = new StringBuilder(64);
     buf.append("HistoricalTimeSeriesRating{");
-    buf.append("rules").append('=').append(getRules());
+    buf.append("rules").append('=').append(JodaBeanUtils.toString(getRules()));
     buf.append('}');
     return buf.toString();
   }
@@ -345,6 +345,7 @@ public final class HistoricalTimeSeriesRating implements ImmutableBean {
      * @return this, for chaining, not null
      */
     public Builder rules(Set<HistoricalTimeSeriesRatingRule> rules) {
+      JodaBeanUtils.notNull(rules, "rules");
       this._rules = rules;
       return this;
     }

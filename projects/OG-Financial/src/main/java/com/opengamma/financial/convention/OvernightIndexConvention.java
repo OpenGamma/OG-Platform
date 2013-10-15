@@ -264,10 +264,10 @@ public class OvernightIndexConvention extends Convention {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("dayCount").append('=').append(getDayCount()).append(',').append(' ');
-    buf.append("publicationLag").append('=').append(getPublicationLag()).append(',').append(' ');
-    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
-    buf.append("regionCalendar").append('=').append(getRegionCalendar()).append(',').append(' ');
+    buf.append("dayCount").append('=').append(JodaBeanUtils.toString(getDayCount())).append(',').append(' ');
+    buf.append("publicationLag").append('=').append(JodaBeanUtils.toString(getPublicationLag())).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("regionCalendar").append('=').append(JodaBeanUtils.toString(getRegionCalendar())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

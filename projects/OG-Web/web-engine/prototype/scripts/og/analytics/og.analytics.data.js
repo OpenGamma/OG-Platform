@@ -89,7 +89,7 @@ $.register_module({
                 } else {
                     //put the structure of the viewport, returns the viewport id and set the version as the promise id
                     (promise = viewports.put({view_id: view_id, grid_type: grid_type, graph_id: graph_id,
-                        loading: function () {loading_viewport_id = true;},rows: viewport.rows, cols: viewport.cols,
+                        loading: function () {loading_viewport_id = true;}, rows: viewport.rows, cols: viewport.cols,
                         cells: viewport.cells, format: viewport.format, log: viewport.log})
                     ).pipe(function (result) {
                         loading_viewport_id = false;

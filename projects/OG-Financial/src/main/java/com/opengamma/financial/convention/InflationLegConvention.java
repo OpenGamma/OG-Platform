@@ -334,12 +334,12 @@ public class InflationLegConvention extends Convention {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("businessDayConvention").append('=').append(getBusinessDayConvention()).append(',').append(' ');
-    buf.append("dayCount").append('=').append(getDayCount()).append(',').append(' ');
-    buf.append("isEOM").append('=').append(isIsEOM()).append(',').append(' ');
-    buf.append("monthLag").append('=').append(getMonthLag()).append(',').append(' ');
-    buf.append("spotLag").append('=').append(getSpotLag()).append(',').append(' ');
-    buf.append("priceIndexConvention").append('=').append(getPriceIndexConvention()).append(',').append(' ');
+    buf.append("businessDayConvention").append('=').append(JodaBeanUtils.toString(getBusinessDayConvention())).append(',').append(' ');
+    buf.append("dayCount").append('=').append(JodaBeanUtils.toString(getDayCount())).append(',').append(' ');
+    buf.append("isEOM").append('=').append(JodaBeanUtils.toString(isIsEOM())).append(',').append(' ');
+    buf.append("monthLag").append('=').append(JodaBeanUtils.toString(getMonthLag())).append(',').append(' ');
+    buf.append("spotLag").append('=').append(JodaBeanUtils.toString(getSpotLag())).append(',').append(' ');
+    buf.append("priceIndexConvention").append('=').append(JodaBeanUtils.toString(getPriceIndexConvention())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

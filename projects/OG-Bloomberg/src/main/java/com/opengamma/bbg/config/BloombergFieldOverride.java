@@ -224,10 +224,10 @@ public class BloombergFieldOverride extends DirectBean implements Serializable, 
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("uniqueId").append('=').append(getUniqueId()).append(',').append(' ');
-    buf.append("bloombergId").append('=').append(getBloombergId()).append(',').append(' ');
-    buf.append("fieldName").append('=').append(getFieldName()).append(',').append(' ');
-    buf.append("overrideValue").append('=').append(getOverrideValue()).append(',').append(' ');
+    buf.append("uniqueId").append('=').append(JodaBeanUtils.toString(getUniqueId())).append(',').append(' ');
+    buf.append("bloombergId").append('=').append(JodaBeanUtils.toString(getBloombergId())).append(',').append(' ');
+    buf.append("fieldName").append('=').append(JodaBeanUtils.toString(getFieldName())).append(',').append(' ');
+    buf.append("overrideValue").append('=').append(JodaBeanUtils.toString(getOverrideValue())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

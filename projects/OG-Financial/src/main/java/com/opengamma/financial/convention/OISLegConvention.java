@@ -406,14 +406,14 @@ public class OISLegConvention extends Convention {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("overnightIndexConvention").append('=').append(getOvernightIndexConvention()).append(',').append(' ');
-    buf.append("paymentTenor").append('=').append(getPaymentTenor()).append(',').append(' ');
-    buf.append("paymentLag").append('=').append(getPaymentLag()).append(',').append(' ');
-    buf.append("businessDayConvention").append('=').append(getBusinessDayConvention()).append(',').append(' ');
-    buf.append("settlementDays").append('=').append(getSettlementDays()).append(',').append(' ');
-    buf.append("isEOM").append('=').append(isIsEOM()).append(',').append(' ');
-    buf.append("stubType").append('=').append(getStubType()).append(',').append(' ');
-    buf.append("isExchangeNotional").append('=').append(isIsExchangeNotional()).append(',').append(' ');
+    buf.append("overnightIndexConvention").append('=').append(JodaBeanUtils.toString(getOvernightIndexConvention())).append(',').append(' ');
+    buf.append("paymentTenor").append('=').append(JodaBeanUtils.toString(getPaymentTenor())).append(',').append(' ');
+    buf.append("paymentLag").append('=').append(JodaBeanUtils.toString(getPaymentLag())).append(',').append(' ');
+    buf.append("businessDayConvention").append('=').append(JodaBeanUtils.toString(getBusinessDayConvention())).append(',').append(' ');
+    buf.append("settlementDays").append('=').append(JodaBeanUtils.toString(getSettlementDays())).append(',').append(' ');
+    buf.append("isEOM").append('=').append(JodaBeanUtils.toString(isIsEOM())).append(',').append(' ');
+    buf.append("stubType").append('=').append(JodaBeanUtils.toString(getStubType())).append(',').append(' ');
+    buf.append("isExchangeNotional").append('=').append(JodaBeanUtils.toString(isIsExchangeNotional())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

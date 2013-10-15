@@ -313,12 +313,12 @@ public class CogdaLiveDataServerFactory extends AbstractComponentFactory {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("listenJmsConnector").append('=').append(getListenJmsConnector()).append(',').append(' ');
-    buf.append("listenTopicName").append('=').append(getListenTopicName()).append(',').append(' ');
-    buf.append("dataRedisServer").append('=').append(getDataRedisServer()).append(',').append(' ');
-    buf.append("dataRedisPort").append('=').append(getDataRedisPort()).append(',').append(' ');
-    buf.append("dataRedisPrefix").append('=').append(getDataRedisPrefix()).append(',').append(' ');
-    buf.append("listenPort").append('=').append(getListenPort()).append(',').append(' ');
+    buf.append("listenJmsConnector").append('=').append(JodaBeanUtils.toString(getListenJmsConnector())).append(',').append(' ');
+    buf.append("listenTopicName").append('=').append(JodaBeanUtils.toString(getListenTopicName())).append(',').append(' ');
+    buf.append("dataRedisServer").append('=').append(JodaBeanUtils.toString(getDataRedisServer())).append(',').append(' ');
+    buf.append("dataRedisPort").append('=').append(JodaBeanUtils.toString(getDataRedisPort())).append(',').append(' ');
+    buf.append("dataRedisPrefix").append('=').append(JodaBeanUtils.toString(getDataRedisPrefix())).append(',').append(' ');
+    buf.append("listenPort").append('=').append(JodaBeanUtils.toString(getListenPort())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

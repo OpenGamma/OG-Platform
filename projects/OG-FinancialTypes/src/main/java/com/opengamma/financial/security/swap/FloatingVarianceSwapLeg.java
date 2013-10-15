@@ -228,9 +228,9 @@ public class FloatingVarianceSwapLeg extends VarianceSwapLeg {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("underlyingId").append('=').append(getUnderlyingId()).append(',').append(' ');
-    buf.append("monitoringFrequency").append('=').append(getMonitoringFrequency()).append(',').append(' ');
-    buf.append("annualizationFactor").append('=').append(getAnnualizationFactor()).append(',').append(' ');
+    buf.append("underlyingId").append('=').append(JodaBeanUtils.toString(getUnderlyingId())).append(',').append(' ');
+    buf.append("monitoringFrequency").append('=').append(JodaBeanUtils.toString(getMonitoringFrequency())).append(',').append(' ');
+    buf.append("annualizationFactor").append('=').append(JodaBeanUtils.toString(getAnnualizationFactor())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

@@ -192,8 +192,8 @@ public class DeliverablePriceQuotedSwapFutureConvention extends ExchangeTradedFu
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("swapConvention").append('=').append(getSwapConvention()).append(',').append(' ');
-    buf.append("notional").append('=').append(getNotional()).append(',').append(' ');
+    buf.append("swapConvention").append('=').append(JodaBeanUtils.toString(getSwapConvention())).append(',').append(' ');
+    buf.append("notional").append('=').append(JodaBeanUtils.toString(getNotional())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

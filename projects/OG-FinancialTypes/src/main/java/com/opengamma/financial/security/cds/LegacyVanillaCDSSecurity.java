@@ -155,7 +155,7 @@ public class LegacyVanillaCDSSecurity extends LegacyCDSSecurity {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("parSpread").append('=').append(getParSpread()).append(',').append(' ');
+    buf.append("parSpread").append('=').append(JodaBeanUtils.toString(getParSpread())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

@@ -28,6 +28,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Generates a portfolio of FX forwards.
@@ -43,11 +44,11 @@ public class FxForwardPortfolioGeneratorTool extends AbstractPortfolioGeneratorT
   private static final DecimalFormat RATE_FORMATTER = new DecimalFormat("###.###");
 
   static {
-    SPOT_RATES.add(Pair.of(UnorderedCurrencyPair.of(Currency.USD, Currency.EUR), 1.328));
-    SPOT_RATES.add(Pair.of(UnorderedCurrencyPair.of(Currency.USD, Currency.CHF), 0.84));
-    SPOT_RATES.add(Pair.of(UnorderedCurrencyPair.of(Currency.USD, Currency.AUD), 1.1));
-    SPOT_RATES.add(Pair.of(UnorderedCurrencyPair.of(Currency.USD, Currency.GBP), 1.588));
-    SPOT_RATES.add(Pair.of(UnorderedCurrencyPair.of(Currency.USD, Currency.JPY), 80.));
+    SPOT_RATES.add(Pairs.of(UnorderedCurrencyPair.of(Currency.USD, Currency.EUR), 1.328));
+    SPOT_RATES.add(Pairs.of(UnorderedCurrencyPair.of(Currency.USD, Currency.CHF), 0.84));
+    SPOT_RATES.add(Pairs.of(UnorderedCurrencyPair.of(Currency.USD, Currency.AUD), 1.1));
+    SPOT_RATES.add(Pairs.of(UnorderedCurrencyPair.of(Currency.USD, Currency.GBP), 1.588));
+    SPOT_RATES.add(Pairs.of(UnorderedCurrencyPair.of(Currency.USD, Currency.JPY), 80.));
     final Random rng = new Random(1239);
     final ZonedDateTime date = DateUtils.previousWeekDay().atStartOfDay(ZoneOffset.UTC);
     for (int i = 0; i < 100; i++) {

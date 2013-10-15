@@ -314,13 +314,13 @@ public abstract class AbstractFxOptionTrade extends Trade {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("optionType").append('=').append(getOptionType()).append(',').append(' ');
-    buf.append("buySell").append('=').append(getBuySell()).append(',').append(' ');
-    buf.append("currencyPair").append('=').append(getCurrencyPair()).append(',').append(' ');
-    buf.append("optionCurrency").append('=').append(getOptionCurrency()).append(',').append(' ');
-    buf.append("strike").append('=').append(getStrike()).append(',').append(' ');
-    buf.append("fxExpiry").append('=').append(getFxExpiry()).append(',').append(' ');
-    buf.append("paymentCalendars").append('=').append(getPaymentCalendars()).append(',').append(' ');
+    buf.append("optionType").append('=').append(JodaBeanUtils.toString(getOptionType())).append(',').append(' ');
+    buf.append("buySell").append('=').append(JodaBeanUtils.toString(getBuySell())).append(',').append(' ');
+    buf.append("currencyPair").append('=').append(JodaBeanUtils.toString(getCurrencyPair())).append(',').append(' ');
+    buf.append("optionCurrency").append('=').append(JodaBeanUtils.toString(getOptionCurrency())).append(',').append(' ');
+    buf.append("strike").append('=').append(JodaBeanUtils.toString(getStrike())).append(',').append(' ');
+    buf.append("fxExpiry").append('=').append(JodaBeanUtils.toString(getFxExpiry())).append(',').append(' ');
+    buf.append("paymentCalendars").append('=').append(JodaBeanUtils.toString(getPaymentCalendars())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

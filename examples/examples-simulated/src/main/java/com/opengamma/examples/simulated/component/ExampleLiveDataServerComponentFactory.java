@@ -195,8 +195,8 @@ public class ExampleLiveDataServerComponentFactory extends AbstractStandardLiveD
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("simulatedData").append('=').append(getSimulatedData()).append(',').append(' ');
-    buf.append("cacheManager").append('=').append(getCacheManager()).append(',').append(' ');
+    buf.append("simulatedData").append('=').append(JodaBeanUtils.toString(getSimulatedData())).append(',').append(' ');
+    buf.append("cacheManager").append('=').append(JodaBeanUtils.toString(getCacheManager())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

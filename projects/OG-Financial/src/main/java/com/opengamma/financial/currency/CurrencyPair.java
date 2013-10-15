@@ -36,7 +36,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
  * <p>
  * This class is immutable and thread-safe.
  */
-@BeanDefinition
+@BeanDefinition(builderScope = "private")
 public final class CurrencyPair implements ImmutableBean, UniqueIdentifiable {
 
   /**
@@ -210,15 +210,6 @@ public final class CurrencyPair implements ImmutableBean, UniqueIdentifiable {
     JodaBeanUtils.registerMetaBean(CurrencyPair.Meta.INSTANCE);
   }
 
-  /**
-   * Returns a builder used to create an instance of the bean.
-   *
-   * @return the builder, not null
-   */
-  public static CurrencyPair.Builder builder() {
-    return new CurrencyPair.Builder();
-  }
-
   @Override
   public CurrencyPair.Meta metaBean() {
     return CurrencyPair.Meta.INSTANCE;
@@ -253,14 +244,6 @@ public final class CurrencyPair implements ImmutableBean, UniqueIdentifiable {
   }
 
   //-----------------------------------------------------------------------
-  /**
-   * Returns a builder that allows this bean to be mutated.
-   * @return the mutable builder, not null
-   */
-  public Builder toBuilder() {
-    return new Builder(this);
-  }
-
   @Override
   public CurrencyPair clone() {
     return this;
@@ -391,7 +374,7 @@ public final class CurrencyPair implements ImmutableBean, UniqueIdentifiable {
   /**
    * The bean-builder for {@code CurrencyPair}.
    */
-  public static final class Builder extends BasicImmutableBeanBuilder<CurrencyPair> {
+  private static final class Builder extends BasicImmutableBeanBuilder<CurrencyPair> {
 
     private Currency _base;
     private Currency _counter;
@@ -434,27 +417,6 @@ public final class CurrencyPair implements ImmutableBean, UniqueIdentifiable {
       return new CurrencyPair(
           _base,
           _counter);
-    }
-
-    //-----------------------------------------------------------------------
-    /**
-     * Sets the {@code base} property in the builder.
-     * @param base  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder base(Currency base) {
-      this._base = base;
-      return this;
-    }
-
-    /**
-     * Sets the {@code counter} property in the builder.
-     * @param counter  the new value, not null
-     * @return this, for chaining, not null
-     */
-    public Builder counter(Currency counter) {
-      this._counter = counter;
-      return this;
     }
 
     //-----------------------------------------------------------------------

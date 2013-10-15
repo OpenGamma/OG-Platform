@@ -231,10 +231,10 @@ public class PortfolioDocumentV1_0 extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("schemaVersion").append('=').append(getSchemaVersion()).append(',').append(' ');
-    buf.append("portfolios").append('=').append(getPortfolios()).append(',').append(' ');
-    buf.append("positions").append('=').append(getPositions()).append(',').append(' ');
-    buf.append("trades").append('=').append(getTrades()).append(',').append(' ');
+    buf.append("schemaVersion").append('=').append(JodaBeanUtils.toString(getSchemaVersion())).append(',').append(' ');
+    buf.append("portfolios").append('=').append(JodaBeanUtils.toString(getPortfolios())).append(',').append(' ');
+    buf.append("positions").append('=').append(JodaBeanUtils.toString(getPositions())).append(',').append(' ');
+    buf.append("trades").append('=').append(JodaBeanUtils.toString(getTrades())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

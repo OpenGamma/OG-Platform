@@ -201,9 +201,9 @@ public class ExampleSecurityLoaderComponentFactory extends AbstractComponentFact
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("classifier").append('=').append(getClassifier()).append(',').append(' ');
-    buf.append("securityProvider").append('=').append(getSecurityProvider()).append(',').append(' ');
-    buf.append("securityMaster").append('=').append(getSecurityMaster()).append(',').append(' ');
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("securityProvider").append('=').append(JodaBeanUtils.toString(getSecurityProvider())).append(',').append(' ');
+    buf.append("securityMaster").append('=').append(JodaBeanUtils.toString(getSecurityMaster())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

@@ -29,6 +29,7 @@ import com.opengamma.engine.view.impl.ExecutionLogModeSource;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.monitor.OperationTimer;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Produces an execution plan for a graph that will execute on multiple calculation nodes.
@@ -306,22 +307,22 @@ public class MultipleNodeExecutionPlanner implements GraphExecutionPlanner {
     for (final GraphFragment fragment : allFragments) {
       Pair<List<GraphFragment>, List<GraphFragment>> event = concurrencyEvent.get(fragment.getStartTime());
       if (event == null) {
-        event = Pair.of((List<GraphFragment>) new LinkedList<GraphFragment>(), null);
+        event = Pairs.of((List<GraphFragment>) new LinkedList<GraphFragment>(), (List<GraphFragment>) null);
         concurrencyEvent.put(fragment.getStartTime(), event);
       } else {
         if (event.getFirst() == null) {
-          event = Pair.of((List<GraphFragment>) new LinkedList<GraphFragment>(), event.getSecond());
+          event = Pairs.of((List<GraphFragment>) new LinkedList<GraphFragment>(), event.getSecond());
           concurrencyEvent.put(fragment.getStartTime(), event);
         }
       }
       event.getFirst().add(fragment);
       event = concurrencyEvent.get(fragment.getStartTime() + fragment.getJobCost());
       if (event == null) {
-        event = Pair.of(null, (List<GraphFragment>) new LinkedList<GraphFragment>());
+        event = Pairs.of((List<GraphFragment>) null, (List<GraphFragment>) new LinkedList<GraphFragment>());
         concurrencyEvent.put(fragment.getStartTime() + fragment.getJobCost(), event);
       } else {
         if (event.getSecond() == null) {
-          event = Pair.of(event.getFirst(), (List<GraphFragment>) new LinkedList<GraphFragment>());
+          event = Pairs.of(event.getFirst(), (List<GraphFragment>) new LinkedList<GraphFragment>());
           concurrencyEvent.put(fragment.getStartTime() + fragment.getJobCost(), event);
         }
       }

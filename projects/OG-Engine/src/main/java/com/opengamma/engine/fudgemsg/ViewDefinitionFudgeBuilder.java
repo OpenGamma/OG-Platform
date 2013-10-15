@@ -35,6 +35,7 @@ import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Fudge message builder for {@link ViewDefinition} and {@link ViewCalculationConfiguration}.
@@ -235,7 +236,7 @@ public class ViewDefinitionFudgeBuilder implements FudgeBuilder<ViewDefinition> 
           FudgeMsg reqMsg = (FudgeMsg) requirement.getValue();
           String requiredOutput = reqMsg.getString(PORTFOLIO_REQUIREMENT_REQUIRED_OUTPUT_FIELD);
           ValueProperties constraints = deserializer.fieldValueToObject(ValueProperties.class, reqMsg.getByName(PORTFOLIO_REQUIREMENT_CONSTRAINTS_FIELD));
-          requirements.add(Pair.of(requiredOutput, constraints));
+          requirements.add(Pairs.of(requiredOutput, constraints));
         }
         calcConfig.addPortfolioRequirements(securityType, requirements);
       }

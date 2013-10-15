@@ -172,7 +172,7 @@ public class FixedDateInterpolatedCurveDefinition extends InterpolatedCurveDefin
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("fixedDates").append('=').append(getFixedDates()).append(',').append(' ');
+    buf.append("fixedDates").append('=').append(JodaBeanUtils.toString(getFixedDates())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

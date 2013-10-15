@@ -22,6 +22,7 @@ import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  *
@@ -60,8 +61,8 @@ public class BondSecurityCurveNameDefaults extends DefaultPropertyFunction {
       final String riskFreeConfig = currencyAndCurveConfigNames[i + 2];
       final String creditCurve = currencyAndCurveConfigNames[i + 3];
       final String creditConfig = currencyAndCurveConfigNames[i + 4];
-      _currencyAndRiskFreeCurveNames.put(currency, Pair.of(riskFreeCurve, riskFreeConfig));
-      _currencyAndCreditCurveNames.put(currency, Pair.of(creditCurve, creditConfig));
+      _currencyAndRiskFreeCurveNames.put(currency, Pairs.of(riskFreeCurve, riskFreeConfig));
+      _currencyAndCreditCurveNames.put(currency, Pairs.of(creditCurve, creditConfig));
     }
   }
 

@@ -178,8 +178,8 @@ public class VarianceSwapNotional extends Notional {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("currency").append('=').append(getCurrency()).append(',').append(' ');
-    buf.append("amount").append('=').append(getAmount()).append(',').append(' ');
+    buf.append("currency").append('=').append(JodaBeanUtils.toString(getCurrency())).append(',').append(' ');
+    buf.append("amount").append('=').append(JodaBeanUtils.toString(getAmount())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

@@ -159,8 +159,8 @@ public class FxDigitalOptionTrade extends AbstractFxOptionTrade {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("payout").append('=').append(getPayout()).append(',').append(' ');
-    buf.append("payoutCurrency").append('=').append(getPayoutCurrency()).append(',').append(' ');
+    buf.append("payout").append('=').append(JodaBeanUtils.toString(getPayout())).append(',').append(' ');
+    buf.append("payoutCurrency").append('=').append(JodaBeanUtils.toString(getPayoutCurrency())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

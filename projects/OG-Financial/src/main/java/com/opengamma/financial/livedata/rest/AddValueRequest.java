@@ -187,9 +187,9 @@ public class AddValueRequest extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("valueRequirement").append('=').append(getValueRequirement()).append(',').append(' ');
-    buf.append("valueSpecification").append('=').append(getValueSpecification()).append(',').append(' ');
-    buf.append("value").append('=').append(getValue()).append(',').append(' ');
+    buf.append("valueRequirement").append('=').append(JodaBeanUtils.toString(getValueRequirement())).append(',').append(' ');
+    buf.append("valueSpecification").append('=').append(JodaBeanUtils.toString(getValueSpecification())).append(',').append(' ');
+    buf.append("value").append('=').append(JodaBeanUtils.toString(getValue())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

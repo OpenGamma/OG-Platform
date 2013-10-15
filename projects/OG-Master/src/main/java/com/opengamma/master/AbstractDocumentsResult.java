@@ -204,8 +204,8 @@ public abstract class AbstractDocumentsResult<D extends AbstractDocument> extend
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("paging").append('=').append(getPaging()).append(',').append(' ');
-    buf.append("documents").append('=').append(getDocuments()).append(',').append(' ');
+    buf.append("paging").append('=').append(JodaBeanUtils.toString(getPaging())).append(',').append(' ');
+    buf.append("documents").append('=').append(JodaBeanUtils.toString(getDocuments())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

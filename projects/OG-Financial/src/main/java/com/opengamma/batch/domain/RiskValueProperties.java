@@ -297,8 +297,8 @@ public class RiskValueProperties extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("id").append('=').append(getId()).append(',').append(' ');
-    buf.append("syntheticForm").append('=').append(getSyntheticForm()).append(',').append(' ');
+    buf.append("id").append('=').append(JodaBeanUtils.toString(getId())).append(',').append(' ');
+    buf.append("syntheticForm").append('=').append(JodaBeanUtils.toString(getSyntheticForm())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

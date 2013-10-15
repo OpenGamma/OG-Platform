@@ -143,7 +143,7 @@ public final class SwaptionPhysicalFixedCompoundedONCompoundedBlackMethod implem
     final InterestRateCurveSensitivity forwardModifiedDr = METHOD_SWAP.forwardModifiedCurveSensitivity(swap, curveBlack);
     final double numeraireDr = -cpnFixed.getPaymentTime() * numeraire;
     final List<DoublesPair> list = new ArrayList<>();
-    list.add(new DoublesPair(cpnFixed.getPaymentTime(), numeraireDr * numeraireBar));
+    list.add(DoublesPair.of(cpnFixed.getPaymentTime(), numeraireDr * numeraireBar));
     final Map<String, List<DoublesPair>> numeraireMap = new HashMap<>();
     numeraireMap.put(cpnFixed.getFundingCurveName(), list);
     InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(numeraireMap);
@@ -176,7 +176,7 @@ public final class SwaptionPhysicalFixedCompoundedONCompoundedBlackMethod implem
     final double[] bsAdjoint = blackFunction.getPriceAdjoint(option, dataBlack);
     final double sign = (swaption.isLong() ? 1.0 : -1.0);
     // Backward sweep
-    final DoublesPair point = new DoublesPair(swaption.getTimeToExpiry(), maturity);
+    final DoublesPair point = DoublesPair.of(swaption.getTimeToExpiry(), maturity);
     final Map<DoublesPair, Double> sensitivity = new HashMap<>();
     sensitivity.put(point, bsAdjoint[2] * numeraire * sign);
     return new PresentValueBlackSwaptionSensitivity(sensitivity, curveBlack.getBlackParameters().getGeneratorSwap());

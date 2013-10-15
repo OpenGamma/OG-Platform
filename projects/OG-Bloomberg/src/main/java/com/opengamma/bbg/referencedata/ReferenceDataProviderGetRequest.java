@@ -316,9 +316,9 @@ public class ReferenceDataProviderGetRequest extends DirectBean {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("identifiers").append('=').append(getIdentifiers()).append(',').append(' ');
-    buf.append("fields").append('=').append(getFields()).append(',').append(' ');
-    buf.append("useCache").append('=').append(isUseCache()).append(',').append(' ');
+    buf.append("identifiers").append('=').append(JodaBeanUtils.toString(getIdentifiers())).append(',').append(' ');
+    buf.append("fields").append('=').append(JodaBeanUtils.toString(getFields())).append(',').append(' ');
+    buf.append("useCache").append('=').append(JodaBeanUtils.toString(isUseCache())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

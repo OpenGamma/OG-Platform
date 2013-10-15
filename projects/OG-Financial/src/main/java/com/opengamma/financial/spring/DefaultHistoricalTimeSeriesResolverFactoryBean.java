@@ -169,8 +169,8 @@ public class DefaultHistoricalTimeSeriesResolverFactoryBean extends SpringFactor
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("historicalTimeSeriesMaster").append('=').append(getHistoricalTimeSeriesMaster()).append(',').append(' ');
-    buf.append("configSource").append('=').append(getConfigSource()).append(',').append(' ');
+    buf.append("historicalTimeSeriesMaster").append('=').append(JodaBeanUtils.toString(getHistoricalTimeSeriesMaster())).append(',').append(' ');
+    buf.append("configSource").append('=').append(JodaBeanUtils.toString(getConfigSource())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------

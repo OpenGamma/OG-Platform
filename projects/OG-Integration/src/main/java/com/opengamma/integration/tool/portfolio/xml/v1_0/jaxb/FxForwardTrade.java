@@ -319,13 +319,13 @@ public class FxForwardTrade extends Trade {
   @Override
   protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("payAmount").append('=').append(getPayAmount()).append(',').append(' ');
-    buf.append("payCurrency").append('=').append(getPayCurrency()).append(',').append(' ');
-    buf.append("receiveAmount").append('=').append(getReceiveAmount()).append(',').append(' ');
-    buf.append("receiveCurrency").append('=').append(getReceiveCurrency()).append(',').append(' ');
-    buf.append("settlementCurrency").append('=').append(getSettlementCurrency()).append(',').append(' ');
-    buf.append("fxExpiry").append('=').append(getFxExpiry()).append(',').append(' ');
-    buf.append("paymentCalendars").append('=').append(getPaymentCalendars()).append(',').append(' ');
+    buf.append("payAmount").append('=').append(JodaBeanUtils.toString(getPayAmount())).append(',').append(' ');
+    buf.append("payCurrency").append('=').append(JodaBeanUtils.toString(getPayCurrency())).append(',').append(' ');
+    buf.append("receiveAmount").append('=').append(JodaBeanUtils.toString(getReceiveAmount())).append(',').append(' ');
+    buf.append("receiveCurrency").append('=').append(JodaBeanUtils.toString(getReceiveCurrency())).append(',').append(' ');
+    buf.append("settlementCurrency").append('=').append(JodaBeanUtils.toString(getSettlementCurrency())).append(',').append(' ');
+    buf.append("fxExpiry").append('=').append(JodaBeanUtils.toString(getFxExpiry())).append(',').append(' ');
+    buf.append("paymentCalendars").append('=').append(JodaBeanUtils.toString(getPaymentCalendars())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
