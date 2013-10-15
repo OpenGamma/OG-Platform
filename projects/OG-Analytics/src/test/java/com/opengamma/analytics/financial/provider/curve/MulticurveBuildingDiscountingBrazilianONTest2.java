@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2013 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+ * 
  * Please see distribution for license.
  */
 package com.opengamma.analytics.financial.provider.curve;
@@ -51,9 +51,9 @@ import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Pair;
 
 /**
- *  this example provide an example of curve construction using Brazilian swap.
+ * 
  */
-public class MulticurveBuildingDiscountingBrazilianONTest {
+public class MulticurveBuildingDiscountingBrazilianONTest2 {
 
   private static final Interpolator1D INTERPOLATOR_LINEAR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR,
       Interpolator1DFactory.FLAT_EXTRAPOLATOR);
@@ -72,27 +72,29 @@ public class MulticurveBuildingDiscountingBrazilianONTest {
   private static final IndexON INDEX_ON_BRL = GENERATOR_OIS_BRL.getIndex();
   private static final GeneratorDepositON GENERATOR_DEPOSIT_ON_BRL = new GeneratorDepositON("BRL Deposit ON", BRL, NYC, INDEX_ON_BRL.getDayCount());
 
-  private static final ZonedDateTime NOW = DateUtils.getUTCDate(2011, 9, 28);
+  private static final ZonedDateTime NOW = DateUtils.getUTCDate(2013, 10, 7);
 
   private static final ZonedDateTimeDoubleTimeSeries TS_EMPTY = ImmutableZonedDateTimeDoubleTimeSeries.ofEmptyUTC();
-  private static final ZonedDateTimeDoubleTimeSeries TS_ON_BRL_WITH_TODAY = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27),
-    DateUtils.getUTCDate(2011, 9, 28) }, new double[] {0.07, 0.08 });
-  private static final ZonedDateTimeDoubleTimeSeries TS_ON_BRL_WITHOUT_TODAY = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 27),
-    DateUtils.getUTCDate(2011, 9, 28) }, new double[] {0.07, 0.08 });
+  private static final ZonedDateTimeDoubleTimeSeries TS_ON_BRL_WITH_TODAY = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2013, 8, 10),
+    DateUtils.getUTCDate(2013, 9, 10) }, new double[] {0.0881, 0.0881 });
+  private static final ZonedDateTimeDoubleTimeSeries TS_ON_BRL_WITHOUT_TODAY = ImmutableZonedDateTimeDoubleTimeSeries.ofUTC(new ZonedDateTime[] {DateUtils.getUTCDate(2013, 8, 10),
+    DateUtils.getUTCDate(2013, 9, 10) }, new double[] {0.0881, 0.0881 });
   private static final ZonedDateTimeDoubleTimeSeries[] TS_FIXED_CDI_BRL_WITH_TODAY = new ZonedDateTimeDoubleTimeSeries[] {TS_EMPTY, TS_ON_BRL_WITH_TODAY };
   private static final ZonedDateTimeDoubleTimeSeries[] TS_FIXED_CDI_BRL_WITHOUT_TODAY = new ZonedDateTimeDoubleTimeSeries[] {TS_EMPTY, TS_ON_BRL_WITHOUT_TODAY };
 
   private static final String CURVE_NAME_DSC_BRL = "BRL Dsc";
 
   /** Market values for the dsc BRL curve */
-  private static final double[] DSC_BRL_MARKET_QUOTES = new double[] {0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400, 0.0400 };
+  private static final double[] DSC_BRL_MARKET_QUOTES = new double[] {0.092925, 0.09325, 0.09458, 0.09545, 0.09665, 0.09845, 0.1001, 0.10101, 0.10335, 0.10565, 0.10725, 0.10865, 0.1098, 0.11085,
+    0.1113, 0.11165, 0.11205, 0.1127 };
   /** Generators for the dsc BRL curve */
-  private static final GeneratorInstrument<? extends GeneratorAttribute>[] DSC_BRL_GENERATORS = new GeneratorInstrument<?>[] {GENERATOR_DEPOSIT_ON_BRL, GENERATOR_OIS_BRL, GENERATOR_OIS_BRL,
-    GENERATOR_OIS_BRL, GENERATOR_OIS_BRL, GENERATOR_OIS_BRL, GENERATOR_OIS_BRL, GENERATOR_OIS_BRL, GENERATOR_OIS_BRL, GENERATOR_OIS_BRL, GENERATOR_OIS_BRL, GENERATOR_OIS_BRL };
+  private static final GeneratorInstrument<? extends GeneratorAttribute>[] DSC_BRL_GENERATORS = new GeneratorInstrument<?>[] {GENERATOR_OIS_BRL, GENERATOR_OIS_BRL,
+    GENERATOR_OIS_BRL, GENERATOR_OIS_BRL, GENERATOR_OIS_BRL, GENERATOR_OIS_BRL, GENERATOR_OIS_BRL, GENERATOR_OIS_BRL, GENERATOR_OIS_BRL, GENERATOR_OIS_BRL, GENERATOR_OIS_BRL, GENERATOR_OIS_BRL,
+    GENERATOR_OIS_BRL, GENERATOR_OIS_BRL, GENERATOR_OIS_BRL, GENERATOR_OIS_BRL, GENERATOR_OIS_BRL, GENERATOR_OIS_BRL };
   /** Tenors for the dsc BRL curve */
-  private static final Period[] DSC_BRL_TENOR = new Period[] {Period.ofDays(0), Period.ofMonths(1), Period.ofMonths(2), Period.ofMonths(3),
-    Period.ofMonths(6), Period.ofMonths(9), Period.ofYears(1),
-    Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5), Period.ofYears(10) };
+  private static final Period[] DSC_BRL_TENOR = new Period[] {Period.ofDays(23), Period.ofDays(54), Period.ofDays(85),
+    Period.ofDays(117), Period.ofDays(174), Period.ofDays(267), Period.ofDays(357), Period.ofDays(450), Period.ofDays(539), Period.ofDays(630), Period.ofDays(722), Period.ofDays(817),
+    Period.ofDays(996), Period.ofDays(1090), Period.ofDays(1181), Period.ofDays(1272), Period.ofDays(1363), Period.ofDays(1454) };
   private static final GeneratorAttributeIR[] DSC_BRL_ATTR = new GeneratorAttributeIR[DSC_BRL_TENOR.length];
   static {
     for (int loopins = 0; loopins < DSC_BRL_TENOR.length; loopins++) {
@@ -192,6 +194,37 @@ public class MulticurveBuildingDiscountingBrazilianONTest {
     }
   }
 
+  /*@Test(enabled = false)
+  *//**
+    * Analyzes the shape of the forward curve.
+    */
+  /*
+  public void forwardAnalysis() {
+  final MulticurveProviderInterface marketDsc = CURVES_PAR_SPREAD_MQ_WITHOUT_TODAY_BLOCK.get(0).getFirst();
+  final int jump = 1;
+  final int startIndex = 0;
+  final int nbDate = 2750;
+  ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(NOW, INDEX_ON_BRL.getSpotLag() + startIndex * jump, NYC);
+  final double[] rateDsc = new double[nbDate];
+  final double[] startTime = new double[nbDate];
+  try {
+   final FileWriter writer = new FileWriter("fwd-dsc.csv");
+   for (int loopdate = 0; loopdate < nbDate; loopdate++) {
+     startTime[loopdate] = TimeCalculator.getTimeBetween(NOW, startDate);
+     final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(startDate, INDEX_ON_BRL, NYC);
+     final double endTime = TimeCalculator.getTimeBetween(NOW, endDate);
+     final double accrualFactor = INDEX_ON_BRL.getDayCount().getDayCountFraction(startDate, endDate);
+     rateDsc[loopdate] = marketDsc.getForwardRate(INDEX_ON_BRL, startTime[loopdate], endTime, accrualFactor);
+     startDate = ScheduleCalculator.getAdjustedDate(startDate, jump, NYC);
+     writer.append(0.0 + "," + startTime[loopdate] + "," + rateDsc[loopdate] + "\n");
+   }
+   writer.flush();
+   writer.close();
+  } catch (final IOException e) {
+   e.printStackTrace();
+  }
+  }*/
+
   @SuppressWarnings("unchecked")
   private static Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> makeCurvesFromDefinitions(final InstrumentDefinition<?>[][][] definitions, final GeneratorYDCurve[][] curveGenerators,
       final String[][] curveNames, final MulticurveProviderDiscount knownData, final InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> calculator,
@@ -257,4 +290,5 @@ public class MulticurveBuildingDiscountingBrazilianONTest {
   private static double initialGuess() {
     return 0.01;
   }
+
 }
