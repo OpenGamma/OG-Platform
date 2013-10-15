@@ -207,7 +207,7 @@ public class DataViewClientResource extends AbstractRestfulJmsResultPublisher {
   //-------------------------------------------------------------------------
   @PUT
   @Path(PATH_VIEW_PROCESS_CONTEXT_MAP)
-  public Response setViewProcessContextMap(Map<String,String> viewProcessContextMap) {
+  public Response setViewProcessContextMap(Map<String, String> viewProcessContextMap) {
     updateLastAccessed();
     getViewClient().setViewProcessContextMap(viewProcessContextMap);
     return responseOk();
