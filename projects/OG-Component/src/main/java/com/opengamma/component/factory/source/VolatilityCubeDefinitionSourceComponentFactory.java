@@ -36,6 +36,7 @@ import com.opengamma.financial.analytics.volatility.cube.rest.RemoteVolatilityCu
  * Component factory providing the {@code VolatilityCubeDefinitionSource}.
  */
 @BeanDefinition
+@SuppressWarnings("deprecation")
 public class VolatilityCubeDefinitionSourceComponentFactory extends AbstractComponentFactory {
 
   /**

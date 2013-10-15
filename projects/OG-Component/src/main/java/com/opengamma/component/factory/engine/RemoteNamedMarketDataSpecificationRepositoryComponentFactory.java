@@ -20,9 +20,10 @@ import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
 import com.opengamma.financial.view.rest.RemoteNamedMarketDataSpecificationRepository;
 
 /**
- * 
+ * Factory for remote {@code NamedMarketDataSpecificationRepository}.
  */
 @BeanDefinition
+@SuppressWarnings("deprecation")
 public class RemoteNamedMarketDataSpecificationRepositoryComponentFactory extends AbstractRemoteComponentServerComponentFactory {
 
   @Override

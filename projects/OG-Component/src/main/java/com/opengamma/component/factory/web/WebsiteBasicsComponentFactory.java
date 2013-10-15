@@ -66,6 +66,7 @@ import com.opengamma.web.valuerequirementname.WebValueRequirementNamesResource;
  * Component factory for the main website.
  */
 @BeanDefinition
+@SuppressWarnings("deprecation")
 public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
 
   /**

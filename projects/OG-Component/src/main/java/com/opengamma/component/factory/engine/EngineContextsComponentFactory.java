@@ -59,6 +59,7 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
  * Component factory for the config source.
  */
 @BeanDefinition
+@SuppressWarnings("deprecation")
 public class EngineContextsComponentFactory extends AbstractComponentFactory {
 
   /**

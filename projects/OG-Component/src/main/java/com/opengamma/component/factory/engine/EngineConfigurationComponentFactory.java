@@ -43,19 +43,23 @@ public class EngineConfigurationComponentFactory extends AbstractComponentFactor
   /**
    * The name of the configuration document published.
    * <p>
-   * This is used to support servers which publish multiple configurations, for example if they host multiple view processors, or that act as aggregators for a number of other servers at the
-   * installation site.
+   * This is used to support servers which publish multiple configurations, for example
+   * if they host multiple view processors, or that act as aggregators for a number of
+   * other servers at the installation site.
    * <p>
-   * This default name may be hard-coded in native code and installation scripts. Changes may cause client tools such as Excel to stop working correctly.
+   * This default name may be hard-coded in native code and installation scripts.
+   * Changes may cause client tools such as Excel to stop working correctly.
    */
   private static final String DEFAULT_CONFIGURATION_DOCUMENT_ID = "0";
 
   /**
    * The field name under which the logical server unique identifier is published.
    * <p>
-   * This property may be set explicitly by calling {@link #setLogicalServerId}, or if omitted will be generated randomly.
+   * This property may be set explicitly by calling {@link #setLogicalServerId},
+   * or if omitted will be generated randomly.
    * <p>
-   * This default name is hard-coded in native code. Changes may cause client tools such as Excel to stop working correctly.
+   * This default name is hard-coded in native code. Changes may cause client tools
+   * such as Excel to stop working correctly.
    */
   private static final String LOGICAL_SERVER_UNIQUE_IDENTIFIER = "lsid";
 
@@ -72,20 +76,27 @@ public class EngineConfigurationComponentFactory extends AbstractComponentFactor
   private FudgeContext _fudgeContext = OpenGammaFudgeContext.getInstance();
 
   /**
-   * The logical server unique identifier. This is defined by the data environment. Clustered servers (that is, they appear suitably identical to any connecting clients) should have the same logical
-   * identifier to reflect this. Any server backed by a unique data environment must have a correspondingly unique identifier. If a server has a transient or temporary data environment it must
+   * The logical server unique identifier. This is defined by the data environment.
+   * Clustered servers (that is, they appear suitably identical to any connecting clients)
+   * should have the same logical identifier to reflect this. Any server backed by a
+   * unique data environment must have a correspondingly unique identifier.
+   * If a server has a transient or temporary data environment it must
    * generate a new logical identifier whenever that environment is flushed.
    * <p>
-   * The default behavior, if this is not specified in the configuration file, is to generate a unique identifier at start up. This is suitable for most standard installations which include temporary
+   * The default behavior, if this is not specified in the configuration file,
+   * is to generate a unique identifier at start up. This is suitable for most
+   * standard installations which include temporary
    * (for example, in-memory) masters or other data stores.
    */
   @PropertyDefinition
   private String _logicalServerId;
 
   /**
-   * Creates a random logical server unique identifier. This is used if an explicit identifier is not set in the configuration file.
+   * Creates a random logical server unique identifier.
+   * This is used if an explicit identifier is not set in the configuration file.
    * <p>
-   * This is a 24 character string using base-64 characters, created using the algorithm from {@link GUIDGenerator} for uniqueness.
+   * This is a 24 character string using base-64 characters, created using
+   * the algorithm from {@link GUIDGenerator} for uniqueness.
    * 
    * @return the logical server unique identifier, not null
    */
@@ -254,11 +265,16 @@ public class EngineConfigurationComponentFactory extends AbstractComponentFactor
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the logical server unique identifier. This is defined by the data environment. Clustered servers (that is, they appear suitably identical to any connecting clients) should have the same logical
-   * identifier to reflect this. Any server backed by a unique data environment must have a correspondingly unique identifier. If a server has a transient or temporary data environment it must
+   * Gets the logical server unique identifier. This is defined by the data environment.
+   * Clustered servers (that is, they appear suitably identical to any connecting clients)
+   * should have the same logical identifier to reflect this. Any server backed by a
+   * unique data environment must have a correspondingly unique identifier.
+   * If a server has a transient or temporary data environment it must
    * generate a new logical identifier whenever that environment is flushed.
    * <p>
-   * The default behavior, if this is not specified in the configuration file, is to generate a unique identifier at start up. This is suitable for most standard installations which include temporary
+   * The default behavior, if this is not specified in the configuration file,
+   * is to generate a unique identifier at start up. This is suitable for most
+   * standard installations which include temporary
    * (for example, in-memory) masters or other data stores.
    * @return the value of the property
    */
@@ -267,11 +283,16 @@ public class EngineConfigurationComponentFactory extends AbstractComponentFactor
   }
 
   /**
-   * Sets the logical server unique identifier. This is defined by the data environment. Clustered servers (that is, they appear suitably identical to any connecting clients) should have the same logical
-   * identifier to reflect this. Any server backed by a unique data environment must have a correspondingly unique identifier. If a server has a transient or temporary data environment it must
+   * Sets the logical server unique identifier. This is defined by the data environment.
+   * Clustered servers (that is, they appear suitably identical to any connecting clients)
+   * should have the same logical identifier to reflect this. Any server backed by a
+   * unique data environment must have a correspondingly unique identifier.
+   * If a server has a transient or temporary data environment it must
    * generate a new logical identifier whenever that environment is flushed.
    * <p>
-   * The default behavior, if this is not specified in the configuration file, is to generate a unique identifier at start up. This is suitable for most standard installations which include temporary
+   * The default behavior, if this is not specified in the configuration file,
+   * is to generate a unique identifier at start up. This is suitable for most
+   * standard installations which include temporary
    * (for example, in-memory) masters or other data stores.
    * @param logicalServerId  the new value of the property
    */
@@ -281,10 +302,15 @@ public class EngineConfigurationComponentFactory extends AbstractComponentFactor
 
   /**
    * Gets the the {@code logicalServerId} property.
-   * identifier to reflect this. Any server backed by a unique data environment must have a correspondingly unique identifier. If a server has a transient or temporary data environment it must
+   * Clustered servers (that is, they appear suitably identical to any connecting clients)
+   * should have the same logical identifier to reflect this. Any server backed by a
+   * unique data environment must have a correspondingly unique identifier.
+   * If a server has a transient or temporary data environment it must
    * generate a new logical identifier whenever that environment is flushed.
    * <p>
-   * The default behavior, if this is not specified in the configuration file, is to generate a unique identifier at start up. This is suitable for most standard installations which include temporary
+   * The default behavior, if this is not specified in the configuration file,
+   * is to generate a unique identifier at start up. This is suitable for most
+   * standard installations which include temporary
    * (for example, in-memory) masters or other data stores.
    * @return the property, not null
    */
