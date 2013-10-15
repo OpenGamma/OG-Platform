@@ -216,11 +216,10 @@ $.register_module({
             } else {
                 compile_templates.call(grid, init_data);
             }
-            og.api.rest.on('disconnect', function () {
+            og.api.rest.on('fatal', function () {
                 var elm = $(templates.loading({text: 'error loading view', error: 'OG-loader-error'}));
-                grid.elements.parent.html(elm.html());
+                grid.elements.parent.html(elm);
             });
-
         };
         var init_data = function () {
             var grid = this, config = grid.config;
@@ -246,8 +245,14 @@ $.register_module({
                 .on('types', function (types) {
                     grid.views = {selected: config.source.type || 'portfolio'};
                     grid.views.list = Object.keys(types).filter(function (key) { return !!types[key]; });
-                    if (grid.views.list.length === 1) grid.views.list = [];
-                    if (grid.elements.empty) return; else render_header.call(grid);
+                    if (grid.views.list.length === 1) {
+                        grid.views.list = [];
+                    }
+                    if (grid.elements.empty) {
+                        return;
+                    } else {
+                        render_header.call(grid);
+                    }
                 });
             grid.clipboard = new og.common.grid.Clipboard(grid);
         };
