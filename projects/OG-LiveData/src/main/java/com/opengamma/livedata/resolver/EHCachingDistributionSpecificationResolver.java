@@ -14,7 +14,6 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.server.DistributionSpecification;
 import com.opengamma.util.ArgumentChecker;
@@ -83,8 +82,6 @@ public class EHCachingDistributionSpecificationResolver
   public Map<LiveDataSpecification, DistributionSpecification> resolve(
       Collection<LiveDataSpecification> liveDataSpecificationFromClient) {
 
-    long ts = System.currentTimeMillis();
-
     Map<LiveDataSpecification, DistributionSpecification> returnValue = new HashMap<>();
     
     Collection<LiveDataSpecification> notFound = new ArrayList<>();
@@ -95,10 +92,6 @@ public class EHCachingDistributionSpecificationResolver
         returnValue.put(spec, (DistributionSpecification) cachedDistSpec.getObjectValue());
       } else {
         notFound.add(spec);
-      }
-
-      if (spec.getIdentifier(ExternalSchemes.ACTIVFEED_TICKER).contains("FB.Q")) {
-        s_logger.warn("[{}] Cached response for FB.Q: {}", ts, cachedDistSpec);
       }
     }
 
@@ -116,13 +109,6 @@ public class EHCachingDistributionSpecificationResolver
       for (Map.Entry<LiveDataSpecification, DistributionSpecification> entry : underlyingResult.entrySet()) {
 
         Element cachedDistSpec = new Element(entry.getKey(), entry.getValue());
-
-        if (entry.getKey().getIdentifier(ExternalSchemes.ACTIVFEED_TICKER).contains("FB.Q")) {
-          s_logger.warn("[{}] Putting response for FB.Q into cache: {} with entry: {}", ts, entry.getValue(), cachedDistSpec);
-          s_logger.warn("[{}] Stacktrace for FB.Q: {}", ts, Thread.currentThread().getStackTrace());
-
-        }
-
         _cache.put(cachedDistSpec);
       }
     }
