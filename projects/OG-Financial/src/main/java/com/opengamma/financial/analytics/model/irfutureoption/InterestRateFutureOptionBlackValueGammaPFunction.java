@@ -45,7 +45,7 @@ public class InterestRateFutureOptionBlackValueGammaPFunction extends InterestRa
     final double gamma = TRANSACTION_METHOD.presentValueGamma(transaction, data);
     final double spot = SECURITY_METHOD.underlyingFuturePrice(transaction.getUnderlyingOption(), data);
     final Double valueGamma = gamma * spot;
-    return Collections.singleton(new ComputedValue(spec, valueGamma));
+    return Collections.singleton(new ComputedValue(spec, valueGamma / 2500000.0));
   }
 
 }
