@@ -39,6 +39,11 @@ API compatibility
 - [PLAT-4782] The legacy analytics web UI has been retired. The dependency on the CometD long-polling library, and the
   custom RESTful end-points that it used, have been removed.
 
+- [PLAT-4381] A new setter has been added to ViewClient which allows a Map<String, String> of context values to be
+set and propagated down to the associated view process so that it can be used to trace the progress of a request
+through the system. It use the logback MDC mechanism (http://logback.qos.ch/manual/mdc.html) which means that any
+context values can be output in log statements with a suitable configuration file.
+
 - ExternalIdSearch is now immutable
 Change constructor to of() factory
 
