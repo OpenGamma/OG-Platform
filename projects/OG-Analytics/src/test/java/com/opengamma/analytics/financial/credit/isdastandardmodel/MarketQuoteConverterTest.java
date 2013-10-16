@@ -30,7 +30,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class PointsUpFrontConverterTest {
+public class MarketQuoteConverterTest {
 
   private static final MarketQuoteConverter PUF = new MarketQuoteConverter();
   private static final Calendar DEFAULT_CALENDAR = new MondayToFridayCalendar("Weekend_Only");

@@ -50,6 +50,11 @@ public class ISDABaseTest {
 
   protected static ISDACompliantYieldCurve makeYieldCurve(final LocalDate today, final LocalDate spotDate, final String[] maturities, final String[] type, final double[] rates,
       final DayCount moneyMarketDCC, final DayCount swapDCC, final Period swapInterval) {
+    return makeYieldCurve(today, spotDate, maturities, type, rates, moneyMarketDCC, swapDCC, swapInterval, DEFAULT_CALENDAR);
+  }
+
+  protected static ISDACompliantYieldCurve makeYieldCurve(final LocalDate today, final LocalDate spotDate, final String[] maturities, final String[] type, final double[] rates,
+      final DayCount moneyMarketDCC, final DayCount swapDCC, final Period swapInterval, final Calendar calendar) {
     final DayCount curveDCC = ACT365F;
     final int nInstruments = maturities.length;
     ArgumentChecker.isTrue(nInstruments == type.length, "type length {} does not match maturities length {}", type.length, nInstruments);
@@ -77,8 +82,9 @@ public class ISDABaseTest {
         throw new IllegalArgumentException("cannot parse " + temp);
       }
     }
-    return ISDACompliantYieldCurveBuild.build(today, spotDate, types, tenors, rates, moneyMarketDCC, swapDCC, swapInterval, curveDCC, MOD_FOLLOWING);
-
+    // return ISDACompliantYieldCurveBuild.build(today, spotDate, types, tenors, rates, moneyMarketDCC, swapDCC, swapInterval, curveDCC, MOD_FOLLOWING);
+    final ISDACompliantYieldCurveBuild builder = new ISDACompliantYieldCurveBuild(today, spotDate, types, tenors, moneyMarketDCC, swapDCC, swapInterval, curveDCC, MOD_FOLLOWING, calendar);
+    return builder.build(rates);
   }
 
   protected static ISDACompliantYieldCurve makeYieldCurve(final LocalDate today, final LocalDate spotDate, final String[] maturities, final String[] type, final double[] rates) {
