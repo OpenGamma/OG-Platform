@@ -28,7 +28,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Adds {@link ValuePropertyNames#SURFACE} and {@link ValuePropertyNames#CURVE_CALCULATION_CONFIG} to the available
  * {@link ValueRequirement}'s produced by {@link InterestRateFutureOptionBlackFunction}
- * @deprecated The functions for which these defaults apply are deprecated. See {@link InterestRateFutureOptionBlackFunction}
+ * @deprecated The functions for which these defaults apply are deprecated
  */
 @Deprecated
 public class InterestRateFutureOptionBlackDefaults extends DefaultPropertyFunction {
@@ -55,8 +55,8 @@ public class InterestRateFutureOptionBlackDefaults extends DefaultPropertyFuncti
     ValueRequirementNames.SECURITY_MODEL_PRICE,
     ValueRequirementNames.UNDERLYING_MODEL_PRICE,
     ValueRequirementNames.DAILY_PRICE,
-    ValueRequirementNames.PNL,
-    ValueRequirementNames.FORWARD
+    ValueRequirementNames.FORWARD,
+    ValueRequirementNames.VALUE_GAMMA_P
   };
 
   /**

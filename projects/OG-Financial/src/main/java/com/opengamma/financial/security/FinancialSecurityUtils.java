@@ -1379,6 +1379,15 @@ public class FinancialSecurityUtils {
         }
 
         @Override
+        public CurrencyAmount visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
+          final Currency currency = security.getCurrency();
+          final Security underlying = securitySource.getSingle(security.getUnderlyingId().toBundle());
+          Preconditions.checkState(underlying instanceof InterestRateFutureSecurity, "Failed to resolve underlying InterestRateFutureSecurity. " +
+              "DB record potentially corrupted. '%s' returned.", underlying);
+          return visitInterestRateFutureSecurity((InterestRateFutureSecurity) underlying);
+        }
+
+        @Override
         public CurrencyAmount visitFederalFundsFutureSecurity(final FederalFundsFutureSecurity security) {
           final Currency currency = security.getCurrency();
           final double notional = security.getUnitAmount();
