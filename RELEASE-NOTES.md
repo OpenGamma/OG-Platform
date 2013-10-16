@@ -7,6 +7,15 @@ These release notes cover changes from v2.1 to v2.2.
 Upgrading from 2.1.0
 ====================
 
+To 2.2.0-M2
+-----------
+
+Configuration compatibility
+- [PLAT-4236] Added ability to query functions via green screens.
+  - 'functionConfigurationSource' property should be set on the WebsiteBasicsComponentFactory.
+  - this will affect engine and fullstack type ini files, as well as any other ini where the WebsiteBasicsComponentFactory is used.
+  - example configuration is provided in /examples-simulated/config/fullstack/fullstack-examplessimulated.ini
+
 To 2.2.0-M1
 -----------
 
