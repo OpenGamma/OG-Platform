@@ -13,6 +13,26 @@ To 2.1.1
 	For payer swaptions, the fixed leg notionals was negative, resulting in negative numeraire.  
 	Now the absolute value of the fixed leg's notional is used, so that the numeraire is positive.
 
+To 2.1.2
+--------
+
+    [] Minor scaling for gamma and vega
+    [] Configuration for swaption greeks
+    [] Add daycount convention for the calculation of projected brl di forward
+    [] Change constructor of the premium ir fut option
+    [] Interest rate future option premium black methods
+    [] Clean up display of Gamma PV01 field
+    [] Theta for interest rate future options
+    [] Interest rate future option functions that computes Value GammaP, value Theta and Value Delta
+    [] Fixed Ibor and overnight compounded black swaption methods
+    [] Calculate the par rate of the swaptions underlying swap or the forward value fed to the BlackScholes formula]
+    [] For swaption: compute the change of dv01 for 1bps curve shift on both forward and discounting curves
+    [] IR future option vol surface construction: passing underlying maturity information into the volsurf construction routine
+    [] Compute swap theta
+    [] BRL future curve construction Added calendar and daycount class member so that the curve node calculation takes into accout the 252 convention
+    [PLAT-4880] - Create scripts for rsk database specify wrong version
+    [PLAT-4850] Full log information is no longer available
+
 
 
 OpenGamma Platform 2.1
@@ -100,6 +120,23 @@ Source code layout
 - New project: og-financial-types - Types to support OG_Financial
 
 To 2.1.1
+-----------
+
+As above, and:
+
+Configuration compatibility
+- No changes required
+
+Database compatibility
+- No upgrade required
+
+API compatibility
+- No significant changes
+
+Analytics compatibility
+- No expected differences
+
+To 2.1.2
 -----------
 
 As above, and:
