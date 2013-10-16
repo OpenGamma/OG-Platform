@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit;
+package com.opengamma.analytics.financial.credit.isdastandardmodel;
 
 /**
  * Enumeration of the different methods for creating the stub on the premium leg of a credit default swap

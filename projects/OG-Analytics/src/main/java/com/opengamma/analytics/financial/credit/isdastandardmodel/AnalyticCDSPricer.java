@@ -13,7 +13,6 @@ import static com.opengamma.analytics.math.utilities.Epsilon.epsilonPP;
 
 import org.apache.commons.lang.NotImplementedException;
 
-import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.util.ArgumentChecker;
 
 /**

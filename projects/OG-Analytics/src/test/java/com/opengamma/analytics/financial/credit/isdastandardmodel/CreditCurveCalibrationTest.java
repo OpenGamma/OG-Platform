@@ -12,7 +12,6 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.Month;
 import org.threeten.bp.Period;
 
-import com.opengamma.analytics.financial.credit.StubType;
 
 /**
  *
@@ -101,6 +100,7 @@ public class CreditCurveCalibrationTest extends ISDABaseTest {
 
     final int n = YIELD_CURVES.length;
     final String text = builder.getAccOnDefaultFormula().toString();
+    final AnalyticCDSPricer pricer = new AnalyticCDSPricer(builder.getAccOnDefaultFormula());
     for (int i = 0; i < n; i++) {
       final ISDACompliantCreditCurve creditCurve = builder.calibrateCreditCurve(PILLAR_CDS[i], SPREADS[i], YIELD_CURVES[i]);
       final double[] expected = builder.getAccOnDefaultFormula() == MARKIT_FIX ? SUR_PROB_MARKIT_FIX[i] : SUR_PROB_ISDA[i];
@@ -108,6 +108,14 @@ public class CreditCurveCalibrationTest extends ISDABaseTest {
       for (int k = 0; k < N_OBS; k++) {
         assertEquals("failed test case " + (i + 1) + " (" + text + "), node " + k, expected[k], creditCurve.getSurvivalProbability(OBS_TIMES[k]), tol);
       }
+
+      final CDSAnalytic[] cds = PILLAR_CDS[i];
+      final int m = cds.length;
+      for (int j = 0; j < m; j++) {
+        final double p = pricer.pv(cds[j], YIELD_CURVES[i], creditCurve, SPREADS[i][j]);
+        assertEquals("failed test case " + (i + 1) + " (" + text + "), cds: " + j + 1, 0.0, p, 5e-16);
+      }
+
     }
 
   }

@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit;
+package com.opengamma.analytics.financial.credit.isdastandardmodel;
 
 /**
  * Enumerate the types of PV that can be returned (usually clean or dirty)

@@ -16,7 +16,6 @@ import org.threeten.bp.Period;
 import org.threeten.bp.format.DateTimeFormatter;
 import org.threeten.bp.temporal.JulianFields;
 
-import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDAPremiumLegSchedule;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;

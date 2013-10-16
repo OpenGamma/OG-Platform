@@ -7,7 +7,6 @@ package com.opengamma.analytics.financial.credit.isdastandardmodel;
 
 import java.util.Arrays;
 
-import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.util.ArgumentChecker;
 
 /**

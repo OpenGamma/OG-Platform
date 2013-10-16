@@ -12,7 +12,6 @@ import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 
-import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.model.BumpType;
 
 /**

@@ -5,7 +5,6 @@
  */
 package com.opengamma.analytics.financial.credit.isdastandardmodel;
 
-import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.util.ArgumentChecker;
 
 /**

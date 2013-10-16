@@ -23,8 +23,8 @@ import com.opengamma.analytics.financial.credit.isdastandardmodel.PointsUpFront;
 /**
  * 
  */
-public class CurveCalibrationTest extends ISDABaseTest {
-  private static final MarketQuoteConverter PUF_CONVERTED = new MarketQuoteConverter();
+public class PUFCreditCurveCalibrationTest extends ISDABaseTest {
+  private static final MarketQuoteConverter PUF_CONVERTER = new MarketQuoteConverter();
 
   protected static final double NOTIONAL = 1e7;
   private static final LocalDate TRADE_DATE = LocalDate.of(2013, Month.APRIL, 10); //Today 
@@ -62,7 +62,7 @@ public class CurveCalibrationTest extends ISDABaseTest {
       CURVE_CDS[i] = new CDSAnalytic(TRADE_DATE, EFFECTIVE_DATE, CASH_SETTLE_DATE, STARTDATE, MATURITIES[i], PROCTECTION_START, PAYMENT_INTERVAL, STUB, PAY_ACC_ON_DEFAULT, RECOVERY_RATE);
     }
 
-    PAR_SPREADS = PUF_CONVERTED.pufToParSpreads(CURVE_CDS, COUPON * ONE_BP, YIELD_CURVE, PUF_FRAC);
+    PAR_SPREADS = PUF_CONVERTER.pufToParSpreads(CURVE_CDS, COUPON * ONE_BP, YIELD_CURVE, PUF_FRAC);
   }
 
   @Test

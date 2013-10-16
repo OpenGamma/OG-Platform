@@ -8,7 +8,6 @@ package com.opengamma.analytics.financial.credit.bumpers;
 import java.util.Arrays;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.credit.isdayieldcurve.InterestRateBumpType;
 
 /**
  * 

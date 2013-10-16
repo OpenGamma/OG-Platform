@@ -5,7 +5,7 @@
  */
 package com.opengamma.analytics.financial.credit.isdastandardmodel.fastcalibration;
 
-import com.opengamma.analytics.financial.credit.PriceType;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.PriceType;
 
 /**
  * 

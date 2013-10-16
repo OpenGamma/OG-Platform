@@ -10,9 +10,8 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
-import com.opengamma.analytics.financial.credit.StubType;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.StandardCDSCoupon;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.StubType;
 import com.opengamma.analytics.financial.credit.obligor.definition.Obligor;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -45,7 +44,7 @@ public abstract class StandardCreditDefaultSwapDefinition extends CreditDefaultS
   private final double _quotedSpread;
 
   // The standard coupon to apply to the premium leg (chosen from an enumerated list e.g. 100 or 500bps)
-  private final StandardCDSCoupon _premiumLegCoupon;
+  private final double _premiumLegCoupon;
 
   // The upfront amount to exchange at contract inception (can be positive or negative)
   private final double _upfrontAmount;
@@ -64,7 +63,7 @@ public abstract class StandardCreditDefaultSwapDefinition extends CreditDefaultS
       final Currency currency, final DebtSeniority debtSeniority, final RestructuringClause restructuringClause, final Calendar calendar, final ZonedDateTime startDate,
       final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final StubType stubType, final PeriodFrequency couponFrequency, final DayCount daycountFractionConvention,
       final BusinessDayConvention businessdayAdjustmentConvention, final boolean immAdjustMaturityDate, final boolean adjustEffectiveDate, final boolean adjustMaturityDate, final double notional,
-      final double recoveryRate, final boolean includeAccruedPremium, final boolean protectionStart, final double quotedSpread, final StandardCDSCoupon premiumLegCoupon, final double upfrontAmount,
+      final double recoveryRate, final boolean includeAccruedPremium, final boolean protectionStart, final double quotedSpread, final double premiumLegCoupon, final double upfrontAmount,
       final ZonedDateTime cashSettlementDate, final boolean adjustCashSettlementDate) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -107,7 +106,7 @@ public abstract class StandardCreditDefaultSwapDefinition extends CreditDefaultS
     return _quotedSpread;
   }
 
-  public StandardCDSCoupon getPremiumLegCoupon() {
+  public double getPremiumLegCoupon() {
     return _premiumLegCoupon;
   }
 

@@ -11,8 +11,6 @@ import static com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACom
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 
-import com.opengamma.analytics.financial.credit.PriceType;
-import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.math.MathException;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -227,8 +225,6 @@ public class ISDACompliantPresentValueCreditDefaultSwap {
       // continue;
       // }
 
-      // TODO this is a know bug that is fixed in ISDA v.1.8.2
-
       final double lambda = Math.log(s0 / s1) / t;
       final double fwdRate = Math.log(df0 / df1) / t;
       final double lambdafwdRate = lambda + fwdRate + 1.0e-50;
@@ -368,74 +364,5 @@ public class ISDACompliantPresentValueCreditDefaultSwap {
 
     return pv;
   }
-
-  //  // *****************************************************************************************************
-  //  // Legacy stuff
-  //  // *****************************************************************************************************
-  //
-  //  /**
-  //   * Get the RPV01 of the premium leg  - i.e. the value of the leg per point of spread (expressed as a fraction, so 1bs is 0.0001) <p>
-  //   * This exists to duplicate the function of the same name from PresentValueCreditDefaultSwap. <b>Note</b> this  version agrees
-  //   *  with the ISDA c library.
-  //   * @param valuationDate The valuation date - this is taken to be the same as today
-  //   * @param cds Description of the CDS
-  //   * @param yieldCurve The discount curve
-  //   * @param hazardRateCurve The survival curve
-  //   * @param priceType Clean or dirty
-  //   * @return The RPV01 of the premium leg
-  //   * @deprecated use calculateRPV01
-  //  */
-  //  @Deprecated
-  //  public double calculatePremiumLeg(final ZonedDateTime valuationDate, final CreditDefaultSwapDefinition cds, final ISDADateCurve yieldCurve, final HazardRateCurve hazardRateCurve,
-  //      final PriceType priceType) {
-  //
-  //    ArgumentChecker.notNull(valuationDate, "null valuationDate");
-  //    ArgumentChecker.notNull(cds, "null cds");
-  //    ArgumentChecker.notNull(yieldCurve, "null yieldCurve");
-  //    ArgumentChecker.notNull(hazardRateCurve, "null hazardRateCurve");
-  //    ArgumentChecker.notNull(priceType, "null priceType");
-  //
-  //    final LocalDate valueDate = valuationDate.toLocalDate();
-  //    final LocalDate today = valueDate;
-  //    final LocalDate stepinDate = cds.getEffectiveDate().toLocalDate();
-  //    final LocalDate startDate = cds.getStartDate().toLocalDate();
-  //    final LocalDate endDate = cds.getMaturityDate().toLocalDate();
-  //
-  //    return cds.getNotional() *
-  //        pvPremiumLegPerUnitSpread(today, stepinDate, valueDate, startDate, endDate, cds.getIncludeAccruedPremium(), cds.getCouponFrequency().getPeriod(), cds.getStubType(),
-  //            ISDACompliantDateYieldCurve.fromISDADateCurve(yieldCurve), ISDACompliantDateCreditCurve.fromHazardRateCurve(hazardRateCurve), cds.getProtectionStart(), priceType);
-  //  }
-
-  //  /**
-  //   * Get the value of the contingent (or protection) leg<p>
-  //   * This exists to duplicate the function of the same name from PresentValueCreditDefaultSwap. <b>Note</b> this  version agrees
-  //   *  with the ISDA c library.
-  //   * @param valuationDate The valuation date - this is taken to be the same as today
-  //   * @param cds Description of the CDS
-  //   * @param yieldCurve The discount curve
-  //   * @param hazardRateCurve The survival curve
-  //   * @return Present Value of protection (or contingent) leg
-  //   * @deprecated use calculateProtectionLeg
-  //   */
-  //  @Deprecated
-  //  public double calculateContingentLeg(final ZonedDateTime valuationDate, final CreditDefaultSwapDefinition cds, final ISDADateCurve yieldCurve, final HazardRateCurve hazardRateCurve) {
-  //    ArgumentChecker.notNull(valuationDate, "null valuationDate");
-  //    ArgumentChecker.notNull(cds, "null cds");
-  //    ArgumentChecker.notNull(yieldCurve, "null yieldCurve");
-  //    ArgumentChecker.notNull(hazardRateCurve, "null hazardRateCurve");
-  //
-  //    final LocalDate valueDate = valuationDate.toLocalDate();
-  //    final LocalDate today = valueDate;
-  //    final LocalDate stepinDate = cds.getEffectiveDate().toLocalDate();
-  //    final LocalDate startDate = cds.getStartDate().toLocalDate();
-  //    final LocalDate endDate = cds.getMaturityDate().toLocalDate();
-  //    final double rr = cds.getRecoveryRate();
-  //    final boolean protectionStart = cds.getProtectionStart();
-  //
-  //    return cds.getNotional()
-  //        * calculateProtectionLeg(today, stepinDate, valueDate, startDate, endDate, ISDACompliantDateYieldCurve.fromISDADateCurve(yieldCurve),
-  //            ISDACompliantDateCreditCurve.fromHazardRateCurve(hazardRateCurve), rr, protectionStart);
-  //
-  //  }
 
 }

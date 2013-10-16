@@ -17,7 +17,6 @@ import org.threeten.bp.Month;
 import org.threeten.bp.Period;
 import org.threeten.bp.format.DateTimeFormatter;
 
-import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurveBuilder.ArbitrageHandling;
 import com.opengamma.analytics.financial.model.BumpType;
 import com.opengamma.analytics.math.linearalgebra.LUDecompositionCommons;

@@ -19,7 +19,6 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.Month;
 import org.threeten.bp.Period;
 
-import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.model.BumpType;
 
 /**
@@ -133,11 +132,6 @@ public class IndexCDSTest extends ISDABaseTest {
     final double[] rates = new double[] {0.01262, 0.01344, 0.01469, 0.01739, 0.01947, 0.02145, 0.02114, 0.02308, 0.02511, 0.02695, 0.02857, 0.02989, 0.03104, 0.03204, 0.03292, 0.0345, 0.03619,
       0.03712, 0.03602 };
     final ISDACompliantYieldCurve yieldCurve = makeYieldCurve(tradeDate, spotDate, yieldCurvePoints, yieldCurveInstruments, rates, ACT360, D30360, Period.ofYears(1));
-    //    final String[] yieldCurvePoints = new String[] {"1M", "2M", "3M", "6M", "9M", "1Y", "2Y", "3Y", "4Y", "5Y", "6Y", "7Y", "8Y", "9Y", "10Y", "12Y", "15Y", "20Y", "25Y", "30Y" };
-    //    final String[] yieldCurveInstruments = new String[] {"M", "M", "M", "M", "M", "M", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S" };
-    //    final double[] rates = new double[] {0.001886, 0.002203, 0.002485, 0.003968, 0.005568, 0.007225, 0.005935, 0.00967, 0.013855, 0.017995, 0.021615, 0.024565, 0.02701, 0.029025, 0.03073, 0.03333,
-    //      0.035815, 0.03782, 0.038725, 0.039235 };
-    //    final ISDACompliantYieldCurve yieldCurve = makeYieldCurve(tradeDate, spotDate, yieldCurvePoints, yieldCurveInstruments, rates, ACT360, D30360, Period.ofMonths(6));
 
     final CDSAnalytic pointCDS = new CDSAnalytic(tradeDate, stepinDate, cashSettleDate, startDate, maturity, PAY_ACC_ON_DEFAULT, PAYMENT_INTERVAL, STUB, PROCTECTION_START, RECOVERY_RATE);
     final QuotedSpread qSpread = new QuotedSpread(COUPON, tradeLevel);

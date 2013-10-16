@@ -13,8 +13,6 @@ import org.threeten.bp.Period;
 
 import cern.jet.random.engine.MersenneTwister;
 
-import com.opengamma.analytics.financial.credit.StubType;
-import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDAInstrumentTypes;
 import com.opengamma.analytics.math.FunctionUtils;
 import com.opengamma.analytics.math.MathException;
 import com.opengamma.analytics.math.linearalgebra.CholeskyDecompositionCommons;

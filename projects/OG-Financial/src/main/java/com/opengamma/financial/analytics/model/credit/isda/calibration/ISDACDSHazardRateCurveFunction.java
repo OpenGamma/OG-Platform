@@ -17,7 +17,6 @@ import org.threeten.bp.ZonedDateTime;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.credit.calibratehazardratecurve.ISDAHazardRateCurveCalculator;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalyticFactory;
@@ -70,12 +69,12 @@ import com.opengamma.util.time.Tenor;
  */
 public class ISDACDSHazardRateCurveFunction extends ISDAHazardRateCurveFunction {
   private static final BusinessDayConvention FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
-  private static final ISDAHazardRateCurveCalculator CALCULATOR = new ISDAHazardRateCurveCalculator();
+  //  private static final ISDAHazardRateCurveCalculator CALCULATOR = new ISDAHazardRateCurveCalculator();
   private static final FastCreditCurveBuilder CREDIT_CURVE_BUILDER = new FastCreditCurveBuilder();
 
   @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
-      final Set<ValueRequirement> desiredValues) throws AsynchronousExecution {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues)
+      throws AsynchronousExecution {
     final RegionSource regionSource = OpenGammaExecutionContext.getRegionSource(executionContext);
     final OrganizationSource organizationSource = OpenGammaExecutionContext.getOrganizationSource(executionContext);
     final HolidaySource holidaySource = OpenGammaExecutionContext.getHolidaySource(executionContext);
@@ -108,10 +107,8 @@ public class ISDACDSHazardRateCurveFunction extends ISDAHazardRateCurveFunction 
     ParallelArrayBinarySort.parallelBinarySort(tenors, marketSpreadObjects);
     final int n = tenors.length;
     // assume new style IMM maturities
-    final CDSAnalyticFactory analyticFactory = new CDSAnalyticFactory(cds.getRecoveryRate(), cds.getCouponFrequency().getPeriod())
-        .with(cds.getBusinessDayAdjustmentConvention())
-        .with(calendar).with(cds.getStubType())
-        .withAccrualDCC(cds.getDayCountFractionConvention());
+    final CDSAnalyticFactory analyticFactory = new CDSAnalyticFactory(cds.getRecoveryRate(), cds.getCouponFrequency().getPeriod()).with(cds.getBusinessDayAdjustmentConvention()).with(calendar)
+        .with(cds.getStubType()).withAccrualDCC(cds.getDayCountFractionConvention());
 
     final CDSAnalytic pricingCDS = analyticFactory.makeCDS(valuationTime.toLocalDate(), cds.getEffectiveDate().toLocalDate(), cds.getMaturityDate().toLocalDate());
     double spread = 0;
@@ -126,9 +123,7 @@ public class ISDACDSHazardRateCurveFunction extends ISDAHazardRateCurveFunction 
         spread = marketSpreads[i];
       }
     }
-    final ValueProperties properties = Iterables.getOnlyElement(desiredValues).getConstraints().copy()
-        .with(ValuePropertyNames.FUNCTION, getUniqueId())
-        .get();
+    final ValueProperties properties = Iterables.getOnlyElement(desiredValues).getConstraints().copy().with(ValuePropertyNames.FUNCTION, getUniqueId()).get();
     //final ISDAYieldCurveAndSpreadsProvider data = new ISDAYieldCurveAndSpreadsProvider(times, marketSpreads, yieldCurve);
     //final HazardRateCurve curve = CALCULATOR.calibrateHazardRateCurve(cds, data, valuationTime);
     final ISDACompliantCreditCurve curve;
@@ -175,11 +170,9 @@ public class ISDACDSHazardRateCurveFunction extends ISDAHazardRateCurveFunction 
     final String yieldCurveCalculationMethodName = Iterables.getOnlyElement(yieldCurveCalculationMethodNames);
     final CreditSecurityToIdentifierVisitor identifierVisitor = new CreditSecurityToIdentifierVisitor(OpenGammaCompilationContext.getSecuritySource(context));
     final String spreadCurveName = security.accept(identifierVisitor).getUniqueId().getValue();
-    final ValueRequirement yieldCurveRequirement = YieldCurveFunctionUtils.getCurveRequirement(currencyTarget, yieldCurveName, yieldCurveCalculationConfigName,
-        yieldCurveCalculationMethodName);
+    final ValueRequirement yieldCurveRequirement = YieldCurveFunctionUtils.getCurveRequirement(currencyTarget, yieldCurveName, yieldCurveCalculationConfigName, yieldCurveCalculationMethodName);
 
-    final ValueProperties.Builder spreadCurveProperties = ValueProperties.builder()
-        .with(ValuePropertyNames.CURVE, spreadCurveName);
+    final ValueProperties.Builder spreadCurveProperties = ValueProperties.builder().with(ValuePropertyNames.CURVE, spreadCurveName);
     final Set<String> spreadCurveShift = constraints.getValues(PROPERTY_SPREAD_CURVE_SHIFT);
     if (spreadCurveShift != null && !spreadCurveShift.isEmpty()) {
       final Set<String> creditSpreadCurveShiftTypes = constraints.getValues(PROPERTY_SPREAD_CURVE_SHIFT_TYPE);
@@ -197,8 +190,7 @@ public class ISDACDSHazardRateCurveFunction extends ISDAHazardRateCurveFunction 
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
-    final ValueProperties.Builder propertiesBuilder = createValueProperties()
-        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, ISDAFunctionConstants.ISDA_METHOD_NAME);
+    final ValueProperties.Builder propertiesBuilder = createValueProperties().with(ValuePropertyNames.CURVE_CALCULATION_METHOD, ISDAFunctionConstants.ISDA_METHOD_NAME);
     for (final Map.Entry<ValueSpecification, ValueRequirement> entry : inputs.entrySet()) {
       final ValueSpecification spec = entry.getKey();
       final ValueProperties.Builder inputPropertiesBuilder = spec.getProperties().copy();

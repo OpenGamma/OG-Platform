@@ -23,7 +23,6 @@ import com.google.common.collect.Iterables;
 import com.opengamma.analytics.financial.credit.bumpers.CreditSpreadBumpersNew;
 import com.opengamma.analytics.financial.credit.bumpers.SpreadBumpType;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.greeks.vanilla.isda.ISDACreditDefaultSwapBucketedGammaCS01Calculator;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalyticFactory;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.FastCreditCurveBuilder;
@@ -49,7 +48,7 @@ import com.opengamma.financial.security.FinancialSecurity;
  * 
  */
 public class StandardVanillaBucketedGammaCS01CDSFunction extends StandardVanillaCS01CDSFunction {
-  private static final ISDACreditDefaultSwapBucketedGammaCS01Calculator CALCULATOR = new ISDACreditDefaultSwapBucketedGammaCS01Calculator();
+ // private static final ISDACreditDefaultSwapBucketedGammaCS01Calculator CALCULATOR = new ISDACreditDefaultSwapBucketedGammaCS01Calculator();
   private static final CreditSpreadBumpersNew SPREAD_BUMPER = new CreditSpreadBumpersNew();
   private static ISDACompliantCreditCurveBuilder CURVE_BUILDER = new FastCreditCurveBuilder();
 

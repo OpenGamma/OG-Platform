@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.analytics.financial.credit.isdayieldcurve;
+package com.opengamma.analytics.financial.credit.bumpers;
 
 /**
  * Enumerate the types of interest rate bumps that can be applied to a term structure of interest rates

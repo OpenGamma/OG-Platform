@@ -5,7 +5,6 @@
  */
 package com.opengamma.analytics.financial.credit.isdastandardmodel;
 
-import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.math.linearalgebra.LUDecompositionCommons;
 import com.opengamma.analytics.math.linearalgebra.LUDecompositionResult;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;

@@ -11,9 +11,8 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.DebtSeniority;
 import com.opengamma.analytics.financial.credit.RestructuringClause;
-import com.opengamma.analytics.financial.credit.StubType;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.StandardCDSCoupon;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.StubType;
 import com.opengamma.analytics.financial.credit.obligor.CreditRating;
 import com.opengamma.analytics.financial.credit.obligor.CreditRatingFitch;
 import com.opengamma.analytics.financial.credit.obligor.CreditRatingMoodys;
@@ -118,7 +117,7 @@ public class CreditDefaultSwapSecurityConverterDeprecated extends FinancialSecur
     final boolean includeAccruedPremium = security.isIncludeAccruedPremium();
     final boolean protectionStart = security.isProtectionStart();
     final double quotedSpread = security.getQuotedSpread();
-    final StandardCDSCoupon premiumLegCoupon = getCoupon(security.getCoupon());
+    final double premiumLegCoupon = security.getCoupon();
     final double upFrontAmount = security.getUpfrontAmount().getAmount();
     final StubType stubType = security.getStubType().toAnalyticsType();
     final ZonedDateTime cashSettlementDate = security.getCashSettlementDate();
@@ -171,23 +170,6 @@ public class CreditDefaultSwapSecurityConverterDeprecated extends FinancialSecur
     throw new OpenGammaRuntimeException("Can only handle PeriodFrequency and SimpleFrequency");
   }
 
-  private StandardCDSCoupon getCoupon(final double coupon) {
-    if (Double.compare(coupon, 25) == 0) {
-      return StandardCDSCoupon._25bps;
-    }
-    if (Double.compare(coupon, 100) == 0) {
-      return StandardCDSCoupon._100bps;
-    }
-    if (Double.compare(coupon, 500) == 0) {
-      return StandardCDSCoupon._500bps;
-    }
-    if (Double.compare(coupon, 750) == 0) {
-      return StandardCDSCoupon._750bps;
-    }
-    if (Double.compare(coupon, 1000) == 0) {
-      return StandardCDSCoupon._1000bps;
-    }
-    throw new OpenGammaRuntimeException("Could not identify coupon with value " + coupon);
-  }
+
 
 }

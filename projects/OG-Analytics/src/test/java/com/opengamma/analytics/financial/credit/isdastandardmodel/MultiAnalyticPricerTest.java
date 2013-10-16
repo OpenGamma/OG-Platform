@@ -17,7 +17,6 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.Month;
 import org.threeten.bp.Period;
 
-import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.util.time.Tenor;
 
 /**
