@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.depgraph.DependencyGraph;
+import com.opengamma.engine.depgraph.DependencyGraphExplorer;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.target.ComputationTargetTypeMap;
@@ -90,7 +90,7 @@ public class WebViewDepGraphGrid extends WebViewGrid {
     return _init.get();
   }
 
-  /*package*/boolean init(final DependencyGraph depGraph, final String calcConfigName, final ValueSpecification valueSpecification) {
+  /*package*/boolean init(final DependencyGraphExplorer depGraph, final String calcConfigName, final ValueSpecification valueSpecification) {
     if (!_init.compareAndSet(false, true)) {
       return false;
     }
@@ -128,22 +128,24 @@ public class WebViewDepGraphGrid extends WebViewGrid {
     return _computationTargetResolver;
   }
 
-  private List<Object> generateRowStructure(final DependencyGraph depGraph, final ValueSpecification output, final Map<ValueSpecification, IntSet> rowIdMap) {
+  private List<Object> generateRowStructure(final DependencyGraphExplorer depGraph, final ValueSpecification output, final Map<ValueSpecification, IntSet> rowIdMap) {
     final List<Object> rowStructure = new ArrayList<Object>();
     addRowIdAssociation(0, output, rowIdMap);
     rowStructure.add(getJsonRowStructure(depGraph.getNodeProducing(output), output, -1, 0, 0));
-    addInputRowStructures(depGraph, depGraph.getNodeProducing(output), rowIdMap, rowStructure, 1, 0, 1);
+    addInputRowStructures(depGraph.getNodeProducing(output), rowIdMap, rowStructure, 1, 0, 1);
     return rowStructure;
   }
 
-  private int addInputRowStructures(final DependencyGraph graph, final DependencyNode node, final Map<ValueSpecification, IntSet> rowIdMap, final List<Object> rowStructure, final int indent,
+  private int addInputRowStructures(final DependencyNode node, final Map<ValueSpecification, IntSet> rowIdMap, final List<Object> rowStructure, final int indent,
       final int parentRowId, int nextRowId) {
-    for (final ValueSpecification inputValue : node.getInputValues()) {
-      final DependencyNode inputNode = graph.getNodeProducing(inputValue);
+    final int inputs = node.getInputCount();
+    for (int i = 0; i < inputs; i++) {
+      final ValueSpecification inputValue = node.getInputValue(i);
+      final DependencyNode inputNode = node.getInputNode(i);
       final int rowId = nextRowId++;
       addRowIdAssociation(rowId, inputValue, rowIdMap);
       rowStructure.add(getJsonRowStructure(inputNode, inputValue, parentRowId, rowId, indent));
-      nextRowId = addInputRowStructures(graph, inputNode, rowIdMap, rowStructure, indent + 1, rowId, nextRowId);
+      nextRowId = addInputRowStructures(inputNode, rowIdMap, rowStructure, indent + 1, rowId, nextRowId);
     }
     return nextRowId;
   }
@@ -171,14 +173,21 @@ public class WebViewDepGraphGrid extends WebViewGrid {
     }
   }
 
+  private static final AtomicBoolean s_warning = new AtomicBoolean();
+
   private Object getJsonRowStructure(final DependencyNode node, final ValueSpecification valueSpecification, final long parentRowId, final long rowId, final int indent) {
     ArgumentChecker.notNull(node, "node");
     ArgumentChecker.notNull(valueSpecification, "valueSpecification");
 
     final Map<String, Object> row = new HashMap<String, Object>();
-    final String targetName = getTargetName(node.getComputationTarget());
-    final String targetType = TARGET_TYPE_NAMES.get(node.getComputationTarget().getType());
-    final String functionName = node.getFunction().getFunction().getFunctionDefinition().getShortName();
+    final String targetName = getTargetName(node.getTarget());
+    final String targetType = TARGET_TYPE_NAMES.get(node.getTarget().getType());
+    //final String functionName = node.getFunction().getFunction().getFunctionDefinition().getShortName();
+    final String functionName = node.getFunction().getFunctionId();
+    // TODO: Need a function repository so that we can look up the short name
+    if (!s_warning.getAndSet(true)) {
+      System.err.println("TODO: Need a function repository in WebViewDepGraphGrid to lookup function short names");
+    }
     final String displayProperties = getValuePropertiesForDisplay(valueSpecification.getProperties());
 
     row.put("rowId", rowId);

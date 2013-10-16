@@ -39,6 +39,7 @@ import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.InMemorySecuritySource;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphBuilderFactory;
+import com.opengamma.engine.depgraph.impl.DependencyGraphImpl;
 import com.opengamma.engine.function.CachingFunctionRepositoryCompiler;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -81,7 +82,7 @@ public class ViewDefinitionCompilerTest {
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDependencyGraphs() {
-    new CompiledViewDefinitionWithGraphsImpl(null, null, null, null, null, null, 0);
+    new CompiledViewDefinitionWithGraphsImpl(null, null, null, null, null, null, 0, null, null, null);
   }
 
   public void testEmptyView() {
@@ -201,8 +202,8 @@ public class ViewDefinitionCompilerTest {
     assertEquals(1, compiledViewDefinition.getDependencyGraphExplorers().size());
     final DependencyGraph dg = compiledViewDefinition.getDependencyGraphExplorer("Fibble").getWholeGraph();
     assertNotNull(dg);
-    assertTrue(dg.getAllRequiredMarketData().isEmpty());
-    assertEquals(2, dg.getDependencyNodes().size());
+    assertTrue(DependencyGraphImpl.getMarketData(dg).isEmpty());
+    assertEquals(2, dg.getSize());
     // Expect the node and the security, since we've turned off position-level outputs and not actually provided a
     // function that can produce them
     assertTargets(compiledViewDefinition, sec2.getUniqueId(), pn.getUniqueId());

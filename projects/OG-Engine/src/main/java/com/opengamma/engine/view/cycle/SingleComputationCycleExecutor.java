@@ -27,12 +27,12 @@ import com.opengamma.engine.calcnode.CalculationJobResult;
 import com.opengamma.engine.calcnode.CalculationJobResultItem;
 import com.opengamma.engine.calcnode.MutableExecutionLog;
 import com.opengamma.engine.depgraph.DependencyGraph;
-import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.exec.DefaultAggregatedExecutionLog;
 import com.opengamma.engine.exec.DependencyGraphExecutionFuture;
 import com.opengamma.engine.exec.DependencyGraphExecutor;
 import com.opengamma.engine.exec.DependencyNodeJobExecutionResult;
 import com.opengamma.engine.exec.DependencyNodeJobExecutionResultCache;
+import com.opengamma.engine.function.FunctionParameters;
 import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.AggregatedExecutionLog;
@@ -167,9 +167,11 @@ import com.opengamma.util.tuple.Pair;
     final DependencyGraphExecutor executor = getCycle().getViewProcessContext().getDependencyGraphExecutorFactory().createExecutor(getCycle());
     for (final String calcConfigurationName : getCycle().getAllCalculationConfigurationNames()) {
       s_logger.info("Executing plans for calculation configuration {}", calcConfigurationName);
-      final DependencyGraph depGraph = getCycle().createExecutableDependencyGraph(calcConfigurationName);
+      final DependencyGraph depGraph = getCycle().getDependencyGraph(calcConfigurationName);
+      final Set<ValueSpecification> sharedData = getCycle().getSharedValues(calcConfigurationName);
+      final Map<ValueSpecification, FunctionParameters> parameters = getCycle().createFunctionParameters(calcConfigurationName);
       s_logger.info("Submitting {} for execution by {}", depGraph, executor);
-      final DependencyGraphExecutionFuture future = executor.execute(depGraph);
+      final DependencyGraphExecutionFuture future = executor.execute(depGraph, sharedData, parameters);
       _executing.put(calcConfigurationName, new ExecutingCalculationConfiguration(getCycle(), depGraph, future));
       future.setListener(this);
     }
@@ -240,25 +242,19 @@ import com.opengamma.util.tuple.Pair;
       return;
     }
     final DependencyGraph graph = calcConfig.getDependencyGraph();
+    final Map<ValueSpecification, ?> graphTerminalOutputs = graph.getTerminalOutputs();
     final Iterator<CalculationJobItem> jobItemItr = job.getJobItems().iterator();
     final Iterator<CalculationJobResultItem> jobResultItr = jobResult.getResultItems().iterator();
     final ExecutionLogModeSource logModes = getCycle().getLogModeSource();
     final DependencyNodeJobExecutionResultCache jobExecutionResultCache = calcConfig.getResultCache();
-    final Set<ValueSpecification> terminalOutputs = calcConfig.getTerminalOutputs();
+    final Set<ValueSpecification> executedTerminalOutputs = calcConfig.getTerminalOutputs();
     final String computeNodeId = jobResult.getComputeNodeId();
     while (jobItemItr.hasNext()) {
       assert jobResultItr.hasNext();
       final CalculationJobItem jobItem = jobItemItr.next();
       final CalculationJobResultItem jobResultItem = jobResultItr.next();
-      // Mark the node that corresponds to this item
-      final DependencyNode node = graph.getNodeProducing(jobItem.getOutputs()[0]);
-      if (jobResultItem.isFailed()) {
-        getCycle().markFailed(node);
-      } else {
-        getCycle().markExecuted(node);
-      }
       // Process the streamed result fragment
-      final ExecutionLogMode executionLogMode = logModes.getLogMode(node);
+      final ExecutionLogMode executionLogMode = logModes.getLogMode(calculationConfiguration, jobItem.getOutputs()[0]);
       final AggregatedExecutionLog aggregatedExecutionLog;
       if (executionLogMode == ExecutionLogMode.FULL) {
         final ExecutionLog log = jobResultItem.getExecutionLog();
@@ -266,9 +262,7 @@ import com.opengamma.util.tuple.Pair;
         final Set<AggregatedExecutionLog> inputLogs = new LinkedHashSet<AggregatedExecutionLog>();
         Set<ValueSpecification> missing = jobResultItem.getMissingInputs();
         if (!missing.isEmpty()) {
-          if (logCopy == null) {
-            logCopy = new MutableExecutionLog(log);
-          }
+          logCopy = new MutableExecutionLog(log);
           logCopy.add(new SimpleLogEvent(log.hasException() ? LogLevel.WARN : LogLevel.INFO, toString("Missing input", missing)));
         }
         missing = jobResultItem.getMissingOutputs();
@@ -278,7 +272,7 @@ import com.opengamma.util.tuple.Pair;
           }
           logCopy.add(new SimpleLogEvent(LogLevel.WARN, toString("Failed to produce output", missing)));
         }
-        for (final ValueSpecification inputValueSpec : node.getInputValues()) {
+        for (final ValueSpecification inputValueSpec : jobItem.getInputs()) {
           final DependencyNodeJobExecutionResult nodeResult = jobExecutionResultCache.get(inputValueSpec);
           if (nodeResult == null) {
             // Market data
@@ -286,11 +280,11 @@ import com.opengamma.util.tuple.Pair;
           }
           inputLogs.add(nodeResult.getAggregatedExecutionLog());
         }
-        aggregatedExecutionLog = DefaultAggregatedExecutionLog.fullLogMode(node, (logCopy != null) ? logCopy : log, inputLogs);
+        aggregatedExecutionLog = DefaultAggregatedExecutionLog.fullLogMode(jobItem, (logCopy != null) ? logCopy : log, inputLogs);
       } else {
         EnumSet<LogLevel> logs = jobResultItem.getExecutionLog().getLogLevels();
         boolean copied = false;
-        for (final ValueSpecification inputValueSpec : node.getInputValues()) {
+        for (final ValueSpecification inputValueSpec : jobItem.getInputs()) {
           final DependencyNodeJobExecutionResult nodeResult = jobExecutionResultCache.get(inputValueSpec);
           if (nodeResult == null) {
             // Market data
@@ -308,12 +302,14 @@ import com.opengamma.util.tuple.Pair;
         aggregatedExecutionLog = DefaultAggregatedExecutionLog.indicatorLogMode(logs);
       }
       final DependencyNodeJobExecutionResult jobExecutionResult = new DependencyNodeJobExecutionResult(computeNodeId, jobResultItem, aggregatedExecutionLog);
-      node.gatherTerminalOutputValues(terminalOutputs);
-      for (ValueSpecification output : node.getOutputValues()) {
-        jobExecutionResultCache.put(output, jobExecutionResult);
+      for (final ValueSpecification outputValueSpec : jobItem.getOutputs()) {
+        if (graphTerminalOutputs.containsKey(outputValueSpec)) {
+          executedTerminalOutputs.add(outputValueSpec);
+        }
+        jobExecutionResultCache.put(outputValueSpec, jobExecutionResult);
       }
     }
-    _issueFragmentResults |= !terminalOutputs.isEmpty();
+    _issueFragmentResults |= !executedTerminalOutputs.isEmpty();
   }
 
   /**

@@ -10,6 +10,7 @@ import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -28,6 +29,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.impl.MockPositionSource;
 import com.opengamma.core.position.impl.SimplePortfolio;
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.DefaultComputationTargetResolver;
 import com.opengamma.engine.InMemorySecuritySource;
 import com.opengamma.engine.cache.InMemoryViewComputationCacheSource;
@@ -41,6 +43,9 @@ import com.opengamma.engine.calcnode.stats.FunctionInvocationStatisticsGatherer;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphBuilderFactory;
 import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.depgraph.impl.DependencyGraphImpl;
+import com.opengamma.engine.depgraph.impl.DependencyNodeFunctionImpl;
+import com.opengamma.engine.depgraph.impl.DependencyNodeImpl;
 import com.opengamma.engine.exec.stats.DiscardingGraphStatisticsGathererProvider;
 import com.opengamma.engine.exec.stats.GraphExecutorStatisticsGathererProvider;
 import com.opengamma.engine.function.CachingFunctionRepositoryCompiler;
@@ -48,6 +53,7 @@ import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.function.FunctionParameters;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
 import com.opengamma.engine.function.resolver.FunctionResolver;
@@ -62,10 +68,15 @@ import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.test.MockConfigSource;
 import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.engine.view.compilation.CompiledViewCalculationConfiguration;
+import com.opengamma.engine.view.compilation.CompiledViewCalculationConfigurationImpl;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
 import com.opengamma.engine.view.cycle.SingleComputationCycle;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
@@ -169,27 +180,32 @@ public class CancelExecutionTest {
     final MockConfigSource configSource = new MockConfigSource();
     configSource.put(viewDefinition);
     final ViewProcessContext vpc = new ViewProcessContext(UniqueId.of("Process", "Test"), configSource, viewPermissionProvider,
-                                                          new DefaultViewPortfolioPermissionProvider(),
-                                                          marketDataProviderResolver, compilationService, functionResolver,
+        new DefaultViewPortfolioPermissionProvider(),
+        marketDataProviderResolver, compilationService, functionResolver,
         computationCacheSource, jobDispatcher, new SingleThreadViewProcessWorkerFactory(), new DependencyGraphBuilderFactory(), factory, graphExecutorStatisticsProvider,
         new DummyOverrideOperationCompiler(), new EngineResourceManagerImpl<SingleComputationCycle>(), new VersionedUniqueIdSupplier("Test", "1"), new InMemoryViewExecutionCache());
-    final DependencyGraph graph = new DependencyGraph("Default");
-    DependencyNode previous = null;
+    DependencyNode previousNode = null;
+    ValueSpecification previousValue = null;
     for (int i = 0; i < JOB_SIZE; i++) {
-      final DependencyNode node = new DependencyNode(ComputationTarget.NULL);
-      node.setFunction(mockFunction);
-      if (previous != null) {
-        node.addInputNode(previous);
+      final Map<ValueSpecification, DependencyNode> inputs;
+      if (previousNode != null) {
+        inputs = Collections.singletonMap(previousValue, previousNode);
+      } else {
+        inputs = Collections.emptyMap();
       }
-      graph.addDependencyNode(node);
-      previous = node;
+      previousValue = new ValueSpecification(Integer.toString(i), ComputationTargetSpecification.NULL, ValueProperties.with(ValuePropertyNames.FUNCTION, "Mock").get());
+      mockFunction.addResult(new ComputedValue(previousValue, "Mock"));
+      final DependencyNode node = new DependencyNodeImpl(DependencyNodeFunctionImpl.of(mockFunction), ComputationTargetSpecification.NULL, Collections.singleton(previousValue), inputs);
+      previousNode = node;
     }
+    final DependencyGraph graph = new DependencyGraphImpl("Test", Collections.singleton(previousNode), JOB_SIZE, Collections.<ValueSpecification, Set<ValueRequirement>>emptyMap());
     final CompiledViewDefinitionWithGraphsImpl viewEvaluationModel = new CompiledViewDefinitionWithGraphsImpl(VersionCorrection.LATEST, "", viewDefinition, Collections.singleton(graph),
-        Collections.<ComputationTargetReference, UniqueId>emptyMap(), new SimplePortfolio("Test Portfolio"), 0);
+        Collections.<ComputationTargetReference, UniqueId>emptyMap(), new SimplePortfolio("Test Portfolio"), 0,
+        Collections.<CompiledViewCalculationConfiguration>singleton(CompiledViewCalculationConfigurationImpl.of(graph)), null, null);
     final ViewCycleExecutionOptions cycleOptions = ViewCycleExecutionOptions.builder().setValuationTime(Instant.ofEpochMilli(1)).setMarketDataSpecification(new MarketDataSpecification()).create();
     final SingleComputationCycle cycle = new SingleComputationCycle(UniqueId.of("Test", "Cycle1"), computationCycleResultListener, vpc, viewEvaluationModel,
         cycleOptions, VersionCorrection.of(Instant.ofEpochMilli(1), Instant.ofEpochMilli(1)));
-    return factory.createExecutor(cycle).execute(graph);
+    return factory.createExecutor(cycle).execute(graph, Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification, FunctionParameters>emptyMap());
   }
 
   private boolean jobFinished() {

@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.MemoryUtils;
+import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroup;
@@ -70,6 +71,10 @@ import com.opengamma.util.tuple.Pair;
 
   public FunctionExclusionGroups getFunctionExclusionGroups() {
     return getBuilder().getFunctionExclusionGroups();
+  }
+
+  public CompiledFunctionDefinition getFunctionDefinition(final String functionId) {
+    return getBuilder().getFunctionResolver().getFunction(functionId);
   }
 
   // Operations

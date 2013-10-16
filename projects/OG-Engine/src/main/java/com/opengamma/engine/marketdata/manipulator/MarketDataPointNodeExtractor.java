@@ -23,9 +23,9 @@ public class MarketDataPointNodeExtractor extends NodeExtractor<ExternalId> {
   }
 
   /**
-   * Gets the structured key from the passed value specification. The specification will previously have
-   * been matched against the configured specification name so can be assumed to be of the correct type.
-   *
+   * Gets the structured key from the passed value specification. The specification will previously have been matched against the configured specification name so can be assumed to be of the correct
+   * type.
+   * 
    * @param spec the specification to construct a key for, not null
    * @return a structured key for the structure handled by the value spec.
    */
@@ -40,6 +40,8 @@ public class MarketDataPointNodeExtractor extends NodeExtractor<ExternalId> {
       if (scheme.startsWith("ExternalId-")) {
         scheme = scheme.substring(11);
       }
+      // REVIEW 2013-10-11 Andrew -- The above logic is only correct if the requirement was for a single identifier and not a bundle,
+      // for example data might have been asked for with tickers from a number of alternative data providers
       return StructureIdentifier.of(ExternalId.of(scheme, uniqueId.getValue()));
     }
   }

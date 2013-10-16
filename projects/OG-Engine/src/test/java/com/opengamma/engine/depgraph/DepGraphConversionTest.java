@@ -23,6 +23,8 @@ import org.testng.annotations.Test;
 import com.google.common.collect.Sets;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.MapComputationTargetResolver;
+import com.opengamma.engine.depgraph.impl.DependencyGraphImpl;
+import com.opengamma.engine.depgraph.impl.DependencyNodeImpl;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
@@ -65,12 +67,12 @@ public class DepGraphConversionTest extends AbstractDependencyGraphBuilderTest {
     builder.addTarget(helper.getRequirement2Foo());
     DependencyGraph graph = builder.getDependencyGraph();
     assertNotNull(graph);
-    graph.removeUnnecessaryValues();
+    graph = DependencyGraphImpl.removeUnnecessaryValues(graph);
     assertGraphContains(graph, fn1, fn2);
     builder.addTarget(helper.getRequirement2Bar());
     graph = builder.getDependencyGraph();
     assertNotNull(graph);
-    graph.removeUnnecessaryValues();
+    graph = DependencyGraphImpl.removeUnnecessaryValues(graph);
     assertGraphContains(graph, fn1, fn2, fnConv);
   }
 
@@ -109,7 +111,7 @@ public class DepGraphConversionTest extends AbstractDependencyGraphBuilderTest {
     builder.addTarget(helper.getRequirement2Bar());
     DependencyGraph graph = builder.getDependencyGraph();
     assertNotNull(graph);
-    graph.removeUnnecessaryValues();
+    graph = DependencyGraphImpl.removeUnnecessaryValues(graph);
     assertGraphContains(graph, fn1, fn2, fnConv);
     assertTrue(getResultsCalled.get());
   }
@@ -170,22 +172,22 @@ public class DepGraphConversionTest extends AbstractDependencyGraphBuilderTest {
     builder.addTarget(helper.getRequirement2Foo());
     DependencyGraph graph = builder.getDependencyGraph();
     assertNotNull(graph);
-    graph.removeUnnecessaryValues();
+    graph = DependencyGraphImpl.removeUnnecessaryValues(graph);
     Map<MockFunction, DependencyNode> nodes = assertGraphContains(graph, fn1, fnConv1);
-    s_logger.debug("fnConv1 - inputs = {}", nodes.get(fnConv1).getInputValues());
-    s_logger.debug("fnConv1 - outputs = {}", nodes.get(fnConv1).getOutputValues());
-    assertTrue(nodes.get(fnConv1).getOutputValues().iterator().next().getProperties().getValues("TEST").contains("Foo"));
+    s_logger.debug("fnConv1 - inputs = {}", DependencyNodeImpl.getInputValues(nodes.get(fnConv1)));
+    s_logger.debug("fnConv1 - outputs = {}", DependencyNodeImpl.getOutputValues(nodes.get(fnConv1)));
+    assertTrue(nodes.get(fnConv1).getOutputValue(0).getProperties().getValues("TEST").contains("Foo"));
     builder.addTarget(helper.getRequirement2Bar());
     graph = builder.getDependencyGraph();
     assertNotNull(graph);
-    graph.removeUnnecessaryValues();
+    graph = DependencyGraphImpl.removeUnnecessaryValues(graph);
     nodes = assertGraphContains(graph, fn1, fnConv1, fnConv2);
-    s_logger.debug("fnConv1 - inputs = {}", nodes.get(fnConv1).getInputValues());
-    s_logger.debug("fnConv1 - outputs = {}", nodes.get(fnConv1).getOutputValues());
-    assertTrue(nodes.get(fnConv1).getOutputValues().iterator().next().getProperties().getValues("TEST").contains("Foo"));
-    s_logger.debug("fnConv2 - inputs = {}", nodes.get(fnConv2).getInputValues());
-    s_logger.debug("fnConv2 - outputs = {}", nodes.get(fnConv2).getOutputValues());
-    assertTrue(nodes.get(fnConv2).getOutputValues().iterator().next().getProperties().getValues("TEST").contains("Bar"));
+    s_logger.debug("fnConv1 - inputs = {}", DependencyNodeImpl.getInputValues(nodes.get(fnConv1)));
+    s_logger.debug("fnConv1 - outputs = {}", DependencyNodeImpl.getOutputValues(nodes.get(fnConv1)));
+    assertTrue(nodes.get(fnConv1).getOutputValue(0).getProperties().getValues("TEST").contains("Foo"));
+    s_logger.debug("fnConv2 - inputs = {}", DependencyNodeImpl.getInputValues(nodes.get(fnConv2)));
+    s_logger.debug("fnConv2 - outputs = {}", DependencyNodeImpl.getOutputValues(nodes.get(fnConv2)));
+    assertTrue(nodes.get(fnConv2).getOutputValue(0).getProperties().getValues("TEST").contains("Bar"));
   }
 
   public void functionWithDynamicConversionDouble() {
@@ -216,10 +218,10 @@ public class DepGraphConversionTest extends AbstractDependencyGraphBuilderTest {
     builder.addTarget(helper.getRequirement2Bar());
     DependencyGraph graph = builder.getDependencyGraph();
     assertNotNull(graph);
-    graph.removeUnnecessaryValues();
+    graph = DependencyGraphImpl.removeUnnecessaryValues(graph);
     Map<MockFunction, DependencyNode> nodes = assertGraphContains(graph, fn1, fnConv, fnConv);
-    s_logger.debug("fnConv - inputs = {}", nodes.get(fnConv).getInputValues());
-    s_logger.debug("fnConv - outputs = {}", nodes.get(fnConv).getOutputValues());
+    s_logger.debug("fnConv - inputs = {}", DependencyNodeImpl.getInputValues(nodes.get(fnConv)));
+    s_logger.debug("fnConv - outputs = {}", DependencyNodeImpl.getOutputValues(nodes.get(fnConv)));
     assertEquals(2, getResultsInvoked.get());
   }
 
@@ -420,7 +422,7 @@ public class DepGraphConversionTest extends AbstractDependencyGraphBuilderTest {
     builder.addTarget(new ValueRequirement("B", target2.toSpecification()));
     DependencyGraph graph = builder.getDependencyGraph();
     assertNotNull(graph);
-    graph.removeUnnecessaryValues();
+    graph = DependencyGraphImpl.removeUnnecessaryValues(graph);
     s_logger.debug("After removeUnnecessaryValues");
     //graph.dumpStructureASCII(System.out);
   }

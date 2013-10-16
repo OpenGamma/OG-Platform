@@ -37,6 +37,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.depgraph.ResolvedValueProducer.Chain;
+import com.opengamma.engine.depgraph.impl.DependencyGraphImpl;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.exclusion.FunctionExclusionGroups;
 import com.opengamma.engine.function.resolver.CompiledFunctionResolver;
@@ -999,19 +1000,12 @@ public final class DependencyGraphBuilder implements Cancelable {
   }
 
   protected DependencyGraph createDependencyGraph() {
-    final DependencyGraph graph = new DependencyGraph(getCalculationConfigurationName());
-    s_logger.debug("Converting internal representation to dependency graph");
-    for (final DependencyNode node : getTerminalValuesCallback().getGraphNodes()) {
-      graph.addDependencyNode(node);
-    }
-    for (final Map.Entry<ValueRequirement, ValueSpecification> terminalOutput : getTerminalValuesCallback().getTerminalValues().entrySet()) {
-      graph.addTerminalOutput(terminalOutput.getKey(), terminalOutput.getValue());
-    }
-    //graph.dumpStructureASCII(System.out);
+    final Pair<Collection<DependencyNode>, Integer> nodes = getTerminalValuesCallback().getGraphRootNodes();
+    final DependencyGraphImpl graph = new DependencyGraphImpl(getCalculationConfigurationName(), nodes.getFirst(), nodes.getSecond(), getTerminalValuesCallback().getTerminalValuesBySpecification());
     if (DEBUG_DUMP_DEPENDENCY_GRAPH) {
       final PrintStream ps = openDebugStream("dependencyGraph");
       ps.println("Configuration = " + getCalculationConfigurationName());
-      graph.dumpStructureASCII(ps);
+      DependencyGraphImpl.dumpStructureASCII(graph, ps);
       ps.close();
     }
     s_logger.info("{} built after {} steps", graph, _completedSteps);

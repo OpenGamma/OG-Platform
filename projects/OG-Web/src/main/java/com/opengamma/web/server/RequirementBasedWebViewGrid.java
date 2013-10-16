@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.calcnode.MissingValue;
-import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphExplorer;
 import com.opengamma.engine.resource.EngineResourceReference;
 import com.opengamma.engine.target.ComputationTargetType;
@@ -144,7 +143,7 @@ public abstract class RequirementBasedWebViewGrid extends WebViewGrid {
           String calcConfigName = depGraphGrid.getParentCalcConfigName();
           ValueSpecification valueSpecification = depGraphGrid.getParentValueSpecification();
           DependencyGraphExplorer explorer = cycleReference.get().getCompiledViewDefinition().getDependencyGraphExplorer(calcConfigName);
-          DependencyGraph subgraph = explorer.getSubgraphProducing(valueSpecification);
+          DependencyGraphExplorer subgraph = explorer.getSubgraphProducing(valueSpecification);
           if (subgraph == null) {
             s_logger.warn("No subgraph producing value specification {}", valueSpecification);
             continue;

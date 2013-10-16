@@ -337,7 +337,6 @@ public class WriteBehindViewComputationCacheTest {
       }
     }.start();
     flush(_cache);
-    System.out.println(Timeout.standardTimeoutMillis());
   }
 
   @Test(expectedExceptions = OpenGammaRuntimeException.class)

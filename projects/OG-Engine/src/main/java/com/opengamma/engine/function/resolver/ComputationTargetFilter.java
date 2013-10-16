@@ -6,35 +6,20 @@
 package com.opengamma.engine.function.resolver;
 
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetResolver;
-import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.depgraph.DependencyNode;
-import com.opengamma.engine.depgraph.DependencyNodeFilter;
+import com.opengamma.util.PublicAPI;
 
 /**
- * 
+ * A filtering strategy that can be used to only apply a {@link ResolutionRule} to a sub-set of the targets that the function would naturally apply to.
  */
-public abstract class ComputationTargetFilter implements DependencyNodeFilter {
+@PublicAPI
+public interface ComputationTargetFilter {
 
-  private final ComputationTargetResolver.AtVersionCorrection _computationTargetResolver;
-
-  public ComputationTargetFilter(final ComputationTargetResolver.AtVersionCorrection computationTargetResolver) {
-    _computationTargetResolver = computationTargetResolver;
-  }
-
-  protected ComputationTargetResolver.AtVersionCorrection getComputationTargetResolver() {
-    return _computationTargetResolver;
-  }
-
-  @Override
-  public boolean accept(final DependencyNode node) {
-    return accept(node.getComputationTarget());
-  }
-
-  protected boolean accept(final ComputationTargetSpecification target) {
-    return accept(getComputationTargetResolver().resolve(target));
-  }
-
-  public abstract boolean accept(ComputationTarget target);
+  /**
+   * Tests the target for validity.
+   * 
+   * @param target the target to test, not null
+   * @return true to apply to the target, false to reject
+   */
+  boolean accept(ComputationTarget target);
 
 }

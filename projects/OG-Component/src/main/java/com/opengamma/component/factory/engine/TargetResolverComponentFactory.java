@@ -8,6 +8,8 @@ package com.opengamma.component.factory.engine;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import net.sf.ehcache.CacheManager;
+
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -29,6 +31,8 @@ import com.opengamma.engine.CachingComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.DefaultCachingComputationTargetResolver;
 import com.opengamma.engine.DefaultComputationTargetResolver;
+import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.financial.currency.ConfigDBCurrencyMatrixSource;
 import com.opengamma.financial.currency.ConfigDBCurrencyPairsSource;
 import com.opengamma.financial.currency.CurrencyMatrixResolver;
@@ -37,13 +41,10 @@ import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.currency.CurrencyPairsResolver;
 import com.opengamma.financial.currency.VersionedCurrencyPairsSource;
-import com.opengamma.financial.temptarget.ConfigItemTarget;
-import com.opengamma.financial.temptarget.ConfigItemTargetResolver;
+import com.opengamma.financial.target.ConfigTargetResolver;
 import com.opengamma.financial.temptarget.TempTarget;
 import com.opengamma.financial.temptarget.TempTargetResolver;
 import com.opengamma.financial.temptarget.TempTargetSource;
-
-import net.sf.ehcache.CacheManager;
 
 /**
  * Component factory for the target resolver.
@@ -130,7 +131,9 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory imp
 
   protected void initDefaultResolvers(final DefaultComputationTargetResolver resolver) {
     if (getConfigSource() != null) {
-      resolver.addResolver(ConfigItemTarget.TYPE, new ConfigItemTargetResolver(getConfigSource()));
+      // Resolvers for types which don't have wrappers to abstract their provision away from the config source
+      ConfigTargetResolver.initResolver(resolver, ViewDefinition.class, getConfigSource());
+      ConfigTargetResolver.initResolver(resolver, YieldCurveDefinition.class, getConfigSource());
     }
     if (getOrCreateCurrencyMatrixSource() != null) {
       resolver.addResolver(CurrencyMatrixResolver.TYPE, new CurrencyMatrixResolver(getOrCreateCurrencyMatrixSource()));
@@ -165,6 +168,7 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory imp
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code TargetResolverComponentFactory}.
+   * 
    * @return the meta-bean, not null
    */
   public static TargetResolverComponentFactory.Meta meta() {
@@ -183,21 +187,21 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory imp
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
+      case -281470431: // classifier
         return getClassifier();
-      case -702456965:  // securitySource
+      case -702456965: // securitySource
         return getSecuritySource();
-      case -1655657820:  // positionSource
+      case -1655657820: // positionSource
         return getPositionSource();
-      case 1942609550:  // tempTargets
+      case 1942609550: // tempTargets
         return getTempTargets();
-      case -1452875317:  // cacheManager
+      case -1452875317: // cacheManager
         return getCacheManager();
-      case 195157501:  // configSource
+      case 195157501: // configSource
         return getConfigSource();
-      case 615188973:  // currencyMatrixSource
+      case 615188973: // currencyMatrixSource
         return getCurrencyMatrixSource();
-      case -1615906429:  // currencyPairsSource
+      case -1615906429: // currencyPairsSource
         return getCurrencyPairsSource();
     }
     return super.propertyGet(propertyName, quiet);
@@ -206,28 +210,28 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory imp
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
+      case -281470431: // classifier
         setClassifier((String) newValue);
         return;
-      case -702456965:  // securitySource
+      case -702456965: // securitySource
         setSecuritySource((SecuritySource) newValue);
         return;
-      case -1655657820:  // positionSource
+      case -1655657820: // positionSource
         setPositionSource((PositionSource) newValue);
         return;
-      case 1942609550:  // tempTargets
+      case 1942609550: // tempTargets
         setTempTargets((TempTargetSource) newValue);
         return;
-      case -1452875317:  // cacheManager
+      case -1452875317: // cacheManager
         setCacheManager((CacheManager) newValue);
         return;
-      case 195157501:  // configSource
+      case 195157501: // configSource
         setConfigSource((ConfigSource) newValue);
         return;
-      case 615188973:  // currencyMatrixSource
+      case 615188973: // currencyMatrixSource
         setCurrencyMatrixSource((CurrencyMatrixSource) newValue);
         return;
-      case -1615906429:  // currencyPairsSource
+      case -1615906429: // currencyPairsSource
         setCurrencyPairsSource((VersionedCurrencyPairsSource) newValue);
         return;
     }
@@ -279,6 +283,7 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory imp
   //-----------------------------------------------------------------------
   /**
    * Gets the classifier that the factory should publish under.
+   * 
    * @return the value of the property, not null
    */
   public String getClassifier() {
@@ -287,7 +292,8 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory imp
 
   /**
    * Sets the classifier that the factory should publish under.
-   * @param classifier  the new value of the property, not null
+   * 
+   * @param classifier the new value of the property, not null
    */
   public void setClassifier(String classifier) {
     JodaBeanUtils.notNull(classifier, "classifier");
@@ -296,6 +302,7 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory imp
 
   /**
    * Gets the the {@code classifier} property.
+   * 
    * @return the property, not null
    */
   public final Property<String> classifier() {
@@ -305,6 +312,7 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory imp
   //-----------------------------------------------------------------------
   /**
    * Gets the security source.
+   * 
    * @return the value of the property, not null
    */
   public SecuritySource getSecuritySource() {
@@ -313,7 +321,8 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory imp
 
   /**
    * Sets the security source.
-   * @param securitySource  the new value of the property, not null
+   * 
+   * @param securitySource the new value of the property, not null
    */
   public void setSecuritySource(SecuritySource securitySource) {
     JodaBeanUtils.notNull(securitySource, "securitySource");
@@ -322,6 +331,7 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory imp
 
   /**
    * Gets the the {@code securitySource} property.
+   * 
    * @return the property, not null
    */
   public final Property<SecuritySource> securitySource() {
@@ -331,6 +341,7 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory imp
   //-----------------------------------------------------------------------
   /**
    * Gets the position source.
+   * 
    * @return the value of the property, not null
    */
   public PositionSource getPositionSource() {
@@ -339,7 +350,8 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory imp
 
   /**
    * Sets the position source.
-   * @param positionSource  the new value of the property, not null
+   * 
+   * @param positionSource the new value of the property, not null
    */
   public void setPositionSource(PositionSource positionSource) {
     JodaBeanUtils.notNull(positionSource, "positionSource");
@@ -348,6 +360,7 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory imp
 
   /**
    * Gets the the {@code positionSource} property.
+   * 
    * @return the property, not null
    */
   public final Property<PositionSource> positionSource() {
@@ -357,6 +370,7 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory imp
   //-----------------------------------------------------------------------
   /**
    * Gets the temporary targets.
+   * 
    * @return the value of the property
    */
   public TempTargetSource getTempTargets() {
@@ -365,7 +379,8 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory imp
 
   /**
    * Sets the temporary targets.
-   * @param tempTargets  the new value of the property
+   * 
+   * @param tempTargets the new value of the property
    */
   public void setTempTargets(TempTargetSource tempTargets) {
     this._tempTargets = tempTargets;
@@ -373,6 +388,7 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory imp
 
   /**
    * Gets the the {@code tempTargets} property.
+   * 
    * @return the property, not null
    */
   public final Property<TempTargetSource> tempTargets() {
@@ -382,6 +398,7 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory imp
   //-----------------------------------------------------------------------
   /**
    * Gets the cache manager. If set a caching target resolver will be created, omit to not cache.
+   * 
    * @return the value of the property
    */
   public CacheManager getCacheManager() {
@@ -390,7 +407,8 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory imp
 
   /**
    * Sets the cache manager. If set a caching target resolver will be created, omit to not cache.
-   * @param cacheManager  the new value of the property
+   * 
+   * @param cacheManager the new value of the property
    */
   public void setCacheManager(CacheManager cacheManager) {
     this._cacheManager = cacheManager;
@@ -398,6 +416,7 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory imp
 
   /**
    * Gets the the {@code cacheManager} property.
+   * 
    * @return the property, not null
    */
   public final Property<CacheManager> cacheManager() {
@@ -407,6 +426,7 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory imp
   //-----------------------------------------------------------------------
   /**
    * Gets the configuration source.
+   * 
    * @return the value of the property
    */
   public ConfigSource getConfigSource() {
@@ -415,7 +435,8 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory imp
 
   /**
    * Sets the configuration source.
-   * @param configSource  the new value of the property
+   * 
+   * @param configSource the new value of the property
    */
   public void setConfigSource(ConfigSource configSource) {
     this._configSource = configSource;
@@ -423,6 +444,7 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory imp
 
   /**
    * Gets the the {@code configSource} property.
+   * 
    * @return the property, not null
    */
   public final Property<ConfigSource> configSource() {
@@ -432,6 +454,7 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory imp
   //-----------------------------------------------------------------------
   /**
    * Gets the currency matrix source, if omitted a default will wrap the config source.
+   * 
    * @return the value of the property
    */
   public CurrencyMatrixSource getCurrencyMatrixSource() {
@@ -440,7 +463,8 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory imp
 
   /**
    * Sets the currency matrix source, if omitted a default will wrap the config source.
-   * @param currencyMatrixSource  the new value of the property
+   * 
+   * @param currencyMatrixSource the new value of the property
    */
   public void setCurrencyMatrixSource(CurrencyMatrixSource currencyMatrixSource) {
     this._currencyMatrixSource = currencyMatrixSource;
@@ -448,6 +472,7 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory imp
 
   /**
    * Gets the the {@code currencyMatrixSource} property.
+   * 
    * @return the property, not null
    */
   public final Property<CurrencyMatrixSource> currencyMatrixSource() {
@@ -457,6 +482,7 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory imp
   //-----------------------------------------------------------------------
   /**
    * Gets the currency pairs source, if omitted a default will wrap the config source.
+   * 
    * @return the value of the property
    */
   public VersionedCurrencyPairsSource getCurrencyPairsSource() {
@@ -465,7 +491,8 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory imp
 
   /**
    * Sets the currency pairs source, if omitted a default will wrap the config source.
-   * @param currencyPairsSource  the new value of the property
+   * 
+   * @param currencyPairsSource the new value of the property
    */
   public void setCurrencyPairsSource(VersionedCurrencyPairsSource currencyPairsSource) {
     this._currencyPairsSource = currencyPairsSource;
@@ -473,6 +500,7 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory imp
 
   /**
    * Gets the the {@code currencyPairsSource} property.
+   * 
    * @return the property, not null
    */
   public final Property<VersionedCurrencyPairsSource> currencyPairsSource() {
@@ -552,21 +580,21 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory imp
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -281470431:  // classifier
+        case -281470431: // classifier
           return _classifier;
-        case -702456965:  // securitySource
+        case -702456965: // securitySource
           return _securitySource;
-        case -1655657820:  // positionSource
+        case -1655657820: // positionSource
           return _positionSource;
-        case 1942609550:  // tempTargets
+        case 1942609550: // tempTargets
           return _tempTargets;
-        case -1452875317:  // cacheManager
+        case -1452875317: // cacheManager
           return _cacheManager;
-        case 195157501:  // configSource
+        case 195157501: // configSource
           return _configSource;
-        case 615188973:  // currencyMatrixSource
+        case 615188973: // currencyMatrixSource
           return _currencyMatrixSource;
-        case -1615906429:  // currencyPairsSource
+        case -1615906429: // currencyPairsSource
           return _currencyPairsSource;
       }
       return super.metaPropertyGet(propertyName);
@@ -590,6 +618,7 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory imp
     //-----------------------------------------------------------------------
     /**
      * The meta-property for the {@code classifier} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<String> classifier() {
@@ -598,6 +627,7 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory imp
 
     /**
      * The meta-property for the {@code securitySource} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<SecuritySource> securitySource() {
@@ -606,6 +636,7 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory imp
 
     /**
      * The meta-property for the {@code positionSource} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<PositionSource> positionSource() {
@@ -614,6 +645,7 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory imp
 
     /**
      * The meta-property for the {@code tempTargets} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<TempTargetSource> tempTargets() {
@@ -622,6 +654,7 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory imp
 
     /**
      * The meta-property for the {@code cacheManager} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<CacheManager> cacheManager() {
@@ -630,6 +663,7 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory imp
 
     /**
      * The meta-property for the {@code configSource} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<ConfigSource> configSource() {
@@ -638,6 +672,7 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory imp
 
     /**
      * The meta-property for the {@code currencyMatrixSource} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<CurrencyMatrixSource> currencyMatrixSource() {
@@ -646,6 +681,7 @@ public class TargetResolverComponentFactory extends AbstractComponentFactory imp
 
     /**
      * The meta-property for the {@code currencyPairsSource} property.
+     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<VersionedCurrencyPairsSource> currencyPairsSource() {

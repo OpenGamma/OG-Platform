@@ -7,11 +7,10 @@ package com.opengamma.web.analytics;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.google.common.collect.Lists;
 import com.opengamma.engine.ComputationTargetResolver;
-import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphExplorer;
 import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.value.ValueRequirement;
@@ -21,10 +20,9 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
 import com.opengamma.engine.view.cycle.ViewCycle;
 
 /**
- * Builds the row and column structure of a dependency graph grid given the compiled view definition and the
- * target at the root of the graph.
+ * Builds the row and column structure of a dependency graph grid given the compiled view definition and the target at the root of the graph.
  */
-/* package */ class  DependencyGraphStructureBuilder {
+/* package */class DependencyGraphStructureBuilder {
 
   /** {@link ValueSpecification}s for all rows in the grid in row index order. */
   private final List<ValueSpecification> _valueSpecs = Lists.newArrayList();
@@ -43,12 +41,12 @@ import com.opengamma.engine.view.cycle.ViewCycle;
    * @param targetResolver For looking up calculation targets given their specification
    * @param cycle The most recent view cycle
    */
-  /* package */ DependencyGraphStructureBuilder(CompiledViewDefinition compiledViewDef,
-                                                ValueRequirement requirement,
-                                                ValueSpecification rootSpec,
-                                                String calcConfigName,
-                                                ComputationTargetResolver targetResolver,
-                                                ViewCycle cycle) {
+  /* package */DependencyGraphStructureBuilder(CompiledViewDefinition compiledViewDef,
+      ValueRequirement requirement,
+      ValueSpecification rootSpec,
+      String calcConfigName,
+      ComputationTargetResolver targetResolver,
+      ViewCycle cycle) {
     // TODO see [PLAT-2478] this is a bit nasty
     // with this hack in place the user can open a dependency graph before the first set of results arrives
     // and see the graph structure with no values. without this hack the graph would be completely empty.
@@ -65,31 +63,34 @@ import com.opengamma.engine.view.cycle.ViewCycle;
       viewDef = cycle.getCompiledViewDefinition();
     }
     DependencyGraphExplorer depGraphExplorer = viewDef.getDependencyGraphExplorer(calcConfigName);
-    DependencyGraph depGraph = depGraphExplorer.getSubgraphProducing(rootSpec);
-    AnalyticsNode node = createNode(rootSpec, depGraph, true);
+    DependencyNode rootNode = depGraphExplorer.getNodeProducing(rootSpec);
+    AnalyticsNode node = (rootNode != null) ? createNode(rootSpec, rootNode, true) : null;
     _structure = new DependencyGraphGridStructure(node, calcConfigName, requirement, _valueSpecs, _fnNames, targetResolver);
   }
 
+  private static final AtomicBoolean s_warning = new AtomicBoolean();
+
   /**
-   * Builds the tree structure of the graph starting at a node and working up the dependency graph through all the
-   * nodes it depends on. Recursively builds up the node structure representing whole the dependency graph.
+   * Builds the tree structure of the graph starting at a node and working up the dependency graph through all the nodes it depends on. Recursively builds up the node structure representing whole the
+   * dependency graph.
+   * 
    * @param valueSpec The value specification of the target that is the current root
-   * @param depGraph Dependency graph for the entire view definition, possibly null
+   * @param targetNode The node producing {@code valueSpec}, not null
    * @param rootNode Whether the value specification is for the root node of the dependency graph
    * @return Root node of the grid structure representing the dependency graph for the value
    */
-  private AnalyticsNode createNode(ValueSpecification valueSpec, DependencyGraph depGraph, boolean rootNode) {
-    if (depGraph == null) {
-      return null;
+  private AnalyticsNode createNode(ValueSpecification valueSpec, DependencyNode targetNode, boolean rootNode) {
+    String fnName = targetNode.getFunction().getFunctionId();
+    // TODO: This needs access to a function repository so that the identifier can be resolved to the function's short name
+    if (!s_warning.getAndSet(true)) {
+      System.err.println("TODO: DependencyGraphStructureBuilder needs access to a function repository to display function short names");
     }
-    DependencyNode targetNode = depGraph.getNodeProducing(valueSpec);
-    String fnName = targetNode.getFunction().getFunction().getFunctionDefinition().getShortName();
     _valueSpecs.add(valueSpec);
     _fnNames.add(fnName);
     int nodeStart = _lastRow;
     List<AnalyticsNode> nodes = Lists.newArrayList();
-    Set<ValueSpecification> inputValues = targetNode.getInputValues();
-    if (inputValues.isEmpty()) {
+    final int inputCount = targetNode.getInputCount();
+    if (inputCount == 0) {
       if (rootNode) {
         // the root node should never be null even if it has no children
         return new AnalyticsNode(nodeStart, _lastRow, Collections.<AnalyticsNode>emptyList(), false);
@@ -98,9 +99,9 @@ import com.opengamma.engine.view.cycle.ViewCycle;
         return null;
       }
     } else {
-      for (ValueSpecification input : inputValues) {
+      for (int i = 0; i < inputCount; i++) {
         ++_lastRow;
-        AnalyticsNode newNode = createNode(input, depGraph, false);
+        AnalyticsNode newNode = createNode(targetNode.getInputValue(i), targetNode.getInputNode(i), false);
         if (newNode != null) {
           nodes.add(newNode);
         }
@@ -112,7 +113,7 @@ import com.opengamma.engine.view.cycle.ViewCycle;
   /**
    * @return The grid structure
    */
-  /* package */ DependencyGraphGridStructure getStructure() {
+  /* package */DependencyGraphGridStructure getStructure() {
     return _structure;
   }
 }

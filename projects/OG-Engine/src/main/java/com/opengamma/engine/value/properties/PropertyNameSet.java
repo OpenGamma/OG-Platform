@@ -53,7 +53,7 @@ public final class PropertyNameSet implements Set<String> {
     if ((o == null) || !(o instanceof String)) {
       return false;
     }
-    final int hc = o.hashCode();
+    final int hc = o.hashCode() & 0x7FFFFFFF;
     AbstractValueProperty property = _properties[hc % _properties.length];
     while (property != null) {
       if (property.getKey().equals(o)) {

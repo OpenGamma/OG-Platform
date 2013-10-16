@@ -12,11 +12,12 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.text.StrBuilder;
 
-import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.calcnode.CalculationJobItem;
 import com.opengamma.engine.view.AggregatedExecutionLog;
 import com.opengamma.engine.view.ExecutionLog;
 import com.opengamma.engine.view.ExecutionLogMode;
@@ -41,23 +42,29 @@ public final class DefaultAggregatedExecutionLog implements AggregatedExecutionL
    */
   private final boolean _emptyRoot;
 
+  private static final AtomicBoolean s_warning = new AtomicBoolean();
+
   /**
    * Constructs an instance for a root level with possible logs from its dependencies when the full logging mode is being used.
    * 
-   * @param node the node this log has come from, not null
+   * @param jobItem the job this log item has come from, not null
    * @param rootLog the root log, not null
    * @param dependentLogs the dependent logs, if any, may be null or empty
    * @return the log instance
    */
-  public static DefaultAggregatedExecutionLog fullLogMode(DependencyNode node, ExecutionLog rootLog, Collection<AggregatedExecutionLog> dependentLogs) {
-    ArgumentChecker.notNull(node, "node");
+  public static DefaultAggregatedExecutionLog fullLogMode(CalculationJobItem jobItem, ExecutionLog rootLog, Collection<AggregatedExecutionLog> dependentLogs) {
+    ArgumentChecker.notNull(jobItem, "jobItem");
     ArgumentChecker.notNull(rootLog, "rootLog");
     EnumSet<LogLevel> logLevels = rootLog.getLogLevels();
     boolean logLevelsCopied = false;
     final List<ExecutionLogWithContext> logs = new ArrayList<ExecutionLogWithContext>();
     boolean emptyRoot = rootLog.isEmpty();
     if (!emptyRoot) {
-      logs.add(ExecutionLogWithContext.of(node, rootLog));
+      // TODO: Want to resolve the function ID to a nice short name; or pass that in since it's probably known by the caller
+      if (!s_warning.getAndSet(true)) {
+        System.err.println("TODO: Create ExecutionLogWithContext using the function's short name, NOT its identifier");
+      }
+      logs.add(ExecutionLogWithContext.of(jobItem.getFunctionUniqueIdentifier(), jobItem.getComputationTargetSpecification(), rootLog));
     }
     if (dependentLogs != null) {
       for (AggregatedExecutionLog dependentLog : dependentLogs) {

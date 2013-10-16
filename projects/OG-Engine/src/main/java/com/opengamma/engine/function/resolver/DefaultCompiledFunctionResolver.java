@@ -28,6 +28,7 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.MemoryUtils;
+import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.function.blacklist.FunctionBlacklistQuery;
@@ -291,6 +292,11 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
   private final ConcurrentMap<ComputationTargetSpecification, Pair<ResolutionRule[], Collection<ValueSpecification>[]>> _targetCache = new MapMaker().weakValues().makeMap();
 
   /**
+   * Function definition lookup.
+   */
+  private final Map<String, CompiledFunctionDefinition> _functions = new HashMap<String, CompiledFunctionDefinition>();
+
+  /**
    * Creates a resolver.
    * 
    * @param functionCompilationContext the context, not null
@@ -387,6 +393,7 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
       throw new IllegalStateException("Rules have already been compiled");
     }
     bundle.addRule(resolutionRule);
+    _functions.put(resolutionRule.getParameterizedFunction().getFunctionId(), resolutionRule.getParameterizedFunction().getFunction());
   }
 
   /**
@@ -542,7 +549,7 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
       }
       // TODO: the array of rules is probably getting duplicated for each similar target (e.g. all swaps probably use the same rules)
       cached = (Pair<ResolutionRule[], Collection<ValueSpecification>[]>) (Pair<?, ?>) Pair.of(resolutionRules.toArray(new ResolutionRule[resolutionRules.size()]),
-            resolutionResults.toArray(new Collection[resolutionResults.size()]));
+          resolutionResults.toArray(new Collection[resolutionResults.size()]));
       final Pair<ResolutionRule[], Collection<ValueSpecification>[]> existing = _targetCache.putIfAbsent(targetSpecification, cached);
       if (existing != null) {
         cached = existing;
@@ -619,6 +626,11 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
     public void remove() {
       throw new UnsupportedOperationException();
     }
+  }
+
+  @Override
+  public CompiledFunctionDefinition getFunction(final String uniqueId) {
+    return _functions.get(uniqueId);
   }
 
 }

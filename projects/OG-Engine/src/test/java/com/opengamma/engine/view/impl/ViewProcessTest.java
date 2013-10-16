@@ -12,11 +12,14 @@ import static org.testng.AssertJUnit.assertNotSame;
 import static org.testng.AssertJUnit.assertNull;
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.Instant;
 
+import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.test.TestViewResultListener;
@@ -26,6 +29,8 @@ import com.opengamma.engine.view.ViewProcessState;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.client.ViewClientState;
 import com.opengamma.engine.view.client.ViewResultMode;
+import com.opengamma.engine.view.compilation.CompiledViewCalculationConfiguration;
+import com.opengamma.engine.view.compilation.CompiledViewCalculationConfigurationImpl;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
 import com.opengamma.engine.view.execution.ArbitraryViewCycleExecutionSequence;
@@ -146,9 +151,13 @@ public class ViewProcessTest {
     // TODO: This test doesn't belong here; it is specific to the SingleThreadViewComputationJob.
 
     // Trick the compilation job into thinking it needs to rebuilt after time0 + 20
+    final Collection<DependencyGraph> graphs = CompiledViewDefinitionWithGraphsImpl.getDependencyGraphs(compilationModel1);
+    final Collection<CompiledViewCalculationConfiguration> configs = new ArrayList<CompiledViewCalculationConfiguration>(graphs.size());
+    for (DependencyGraph graph : graphs) {
+      configs.add(CompiledViewCalculationConfigurationImpl.of(graph));
+    }
     final CompiledViewDefinitionWithGraphsImpl compiledViewDefinition = new CompiledViewDefinitionWithGraphsImpl(VersionCorrection.LATEST, "", compilationModel1.getViewDefinition(),
-        CompiledViewDefinitionWithGraphsImpl.getDependencyGraphs(compilationModel1), Collections.<ComputationTargetReference, UniqueId>emptyMap(), compilationModel1.getPortfolio(),
-        compilationModel1.getFunctionInitId()) {
+        graphs, Collections.<ComputationTargetReference, UniqueId>emptyMap(), compilationModel1.getPortfolio(), compilationModel1.getFunctionInitId(), configs, null, null) {
       @Override
       public Instant getValidTo() {
         return time0.plusMillis(20);

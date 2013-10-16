@@ -19,6 +19,7 @@ public class VolatilitySurfaceNodeExtractor extends NodeExtractor<VolatilitySurf
 
   /**
    * Creates a new extractor matching on {@link ValueRequirementNames#VOLATILITY_SURFACE}.
+   * 
    * @param valueName The value name to match
    */
   public VolatilitySurfaceNodeExtractor(String valueName) {
@@ -28,10 +29,10 @@ public class VolatilitySurfaceNodeExtractor extends NodeExtractor<VolatilitySurf
   @Override
   public StructureIdentifier<VolatilitySurfaceKey> getStructuredIdentifier(ValueSpecification spec) {
     UniqueId uniqueId = spec.getTargetSpecification().getUniqueId();
-    String surface = getOptionalProperty(spec, ValuePropertyNames.SURFACE);
-    String instrumentType = getOptionalProperty(spec, "InstrumentType");
-    String quoteType = getOptionalProperty(spec, SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE);
-    String quoteUnits = getOptionalProperty(spec, SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS);
+    String surface = getProperty(spec, ValuePropertyNames.SURFACE);
+    String instrumentType = getProperty(spec, "InstrumentType");
+    String quoteType = getProperty(spec, SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE);
+    String quoteUnits = getProperty(spec, SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS);
     VolatilitySurfaceKey key = new VolatilitySurfaceKey(uniqueId, surface, instrumentType, quoteType, quoteUnits);
     return StructureIdentifier.of(key);
   }

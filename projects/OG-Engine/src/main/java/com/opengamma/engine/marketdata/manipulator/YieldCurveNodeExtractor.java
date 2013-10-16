@@ -16,7 +16,6 @@ import com.opengamma.util.money.Currency;
  */
 public class YieldCurveNodeExtractor extends NodeExtractor<YieldCurveKey> {
 
-
   /**
    * Constructs a yield curve extractor.
    */
@@ -27,7 +26,10 @@ public class YieldCurveNodeExtractor extends NodeExtractor<YieldCurveKey> {
   @Override
   public StructureIdentifier<YieldCurveKey> getStructuredIdentifier(ValueSpecification spec) {
     Currency currency = Currency.of(spec.getTargetSpecification().getUniqueId().getValue());
-    String curve = getSingleProperty(spec, ValuePropertyNames.CURVE);
+    String curve = getProperty(spec, ValuePropertyNames.CURVE);
+    if (curve == null) {
+      return null;
+    }
     return StructureIdentifier.of(new YieldCurveKey(currency, curve));
   }
 }
