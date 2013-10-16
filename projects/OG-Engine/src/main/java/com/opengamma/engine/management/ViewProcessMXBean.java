@@ -150,5 +150,14 @@ public interface ViewProcessMXBean {
    * @return true if 95% of results calculated successfully
    */
   boolean isCleanView95();
- 
+
+  /**
+   * @return when the last cycle was calculated
+   */
+  String getLastCycleTimeStamp();
+
+  /**
+   * @return how long the last cycle took to calculate
+   */
+  Long getLastCycleDuration();
 }

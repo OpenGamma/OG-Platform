@@ -11,6 +11,7 @@ import javax.management.openmbean.TabularData;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.threeten.bp.Duration;
 import org.threeten.bp.Instant;
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZonedDateTime;
@@ -47,17 +48,17 @@ public class ViewProcessMXBeanImpl implements ViewProcessMXBean {
   private final ObjectName _objectName;
 
   private ViewProcessor _viewProcessor;
-  
   private enum PhaseState {
     PENDING, SUCCESSFUL, FAILED;
+
   }
-  
   private enum Outcome {
     PENDING, YES, NO;
+
   }
-  
   private enum CycleState {
     PENDING, STARTED, COMPLETED, FAILED;
+
   }
   private volatile PhaseState _compiled = PhaseState.PENDING;
   private volatile Outcome _hasMarketDataPermissions = Outcome.PENDING;
@@ -67,6 +68,8 @@ public class ViewProcessMXBeanImpl implements ViewProcessMXBean {
   private volatile CompiledViewDefinition _lastCompiledViewDefinition;
   private volatile ViewComputationResultModel _lastViewComputationResultModel;
   private volatile boolean _cacheResults /* = false*/;
+  private volatile Duration _lastCycleDuration;
+  private volatile Instant _lastCycleTimeStamp;
 
   private ViewProcessStatsProcessor _viewProcessStatsProcessor;
   /**
@@ -126,6 +129,8 @@ public class ViewProcessMXBeanImpl implements ViewProcessMXBean {
             }
           }
           _lastCycle = CycleState.COMPLETED;
+          _lastCycleDuration = fullResult.getCalculationDuration();
+          _lastCycleTimeStamp = fullResult.getCalculationTime();
         }
 
         @Override
@@ -207,12 +212,13 @@ public class ViewProcessMXBeanImpl implements ViewProcessMXBean {
 
   @Override
   public String getCompilationFailedValuationTime() {
-    if (_compilationFailedValuationTime != null) {
-      return ZonedDateTime.ofInstant(_compilationFailedValuationTime, ZoneId.systemDefault()).toString();
-    }
-    return null;
+    return convertInstant(_compilationFailedValuationTime);
   }
-  
+
+  private String convertInstant(Instant instant) {
+    return instant != null ? ZonedDateTime.ofInstant(instant, ZoneId.systemDefault()).toString() : null;
+  }
+
   @Override
   public String getCompilationFailedException() {
     return _compilationFailedException.getMessage();
@@ -222,8 +228,17 @@ public class ViewProcessMXBeanImpl implements ViewProcessMXBean {
   public String getLastComputeCycleState() {
     return _lastCycle.name();
   }
-  
-  
+
+  @Override
+  public String getLastCycleTimeStamp() {
+    return convertInstant(_lastCycleTimeStamp);
+  }
+
+  @Override
+  public Long getLastCycleDuration() {
+    return _lastCycleDuration != null ? _lastCycleDuration.toMillis() : null;
+  }
+
   @Override
   public void shutdown() {
     _viewProcess.shutdown();
