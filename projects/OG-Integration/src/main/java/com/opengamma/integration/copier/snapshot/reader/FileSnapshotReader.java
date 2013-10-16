@@ -246,8 +246,14 @@ public class FileSnapshotReader implements SnapshotReader {
   private ValueSnapshot createValueSnapshot(Map<String, String> currentRow) {
     String market = currentRow.get(SnapshotColumns.MARKET_VALUE.get());
     String override = currentRow.get(SnapshotColumns.OVERRIDE_VALUE.get());
+    String valueObject = currentRow.get(SnapshotColumns.VALUE_OBJECT.get());
     Object marketValue = null;
     Object overrideValue = null;
+
+    //preserve null valueSnapshots
+    if (valueObject != null && valueObject.equalsIgnoreCase("null")) {
+      return null;
+    }
 
     // marketValue can only be Double, LocalDate or empty
     if (market != null) {

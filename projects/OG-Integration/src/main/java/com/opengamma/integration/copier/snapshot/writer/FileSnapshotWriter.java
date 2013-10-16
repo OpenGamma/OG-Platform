@@ -75,11 +75,15 @@ public class FileSnapshotWriter implements SnapshotWriter {
 
       tempRow.put(SnapshotColumns.SURFACE_X.get(), surfaceX);
       tempRow.put(SnapshotColumns.SURFACE_Y.get(), surfaceY);
-      if (valueSnapshot.getMarketValue() != null) {
-        tempRow.put(SnapshotColumns.MARKET_VALUE.get(), valueSnapshot.getMarketValue().toString());
-      }
-      if (valueSnapshot.getOverrideValue() != null) {
-        tempRow.put(SnapshotColumns.OVERRIDE_VALUE.get(), valueSnapshot.getOverrideValue().toString());
+      if (valueSnapshot == null) {
+        tempRow.put(SnapshotColumns.MARKET_VALUE.get(), "null");
+      } else {
+        if (valueSnapshot.getMarketValue() != null) {
+          tempRow.put(SnapshotColumns.MARKET_VALUE.get(), valueSnapshot.getMarketValue().toString());
+        }
+        if (valueSnapshot.getOverrideValue() != null) {
+          tempRow.put(SnapshotColumns.OVERRIDE_VALUE.get(), valueSnapshot.getOverrideValue().toString());
+        }
       }
       _sheetWriter.writeNextRow(tempRow);
     }
@@ -89,15 +93,21 @@ public class FileSnapshotWriter implements SnapshotWriter {
   private void writeValueSnapshot(Map<String, String> prefixes, Map<String, ValueSnapshot> valueSnapshots) {
 
     for (Map.Entry<String, ValueSnapshot> entry : valueSnapshots.entrySet()) {
-      Map<String, String> tempRow = new HashMap<>();
       ValueSnapshot valueSnapshot = entry.getValue();
+
+      Map<String, String> tempRow = new HashMap<>();
       tempRow.putAll(prefixes);
       tempRow.put(SnapshotColumns.VALUE_NAME.get(), entry.getKey());
-      if (valueSnapshot.getMarketValue() != null) {
-        tempRow.put(SnapshotColumns.MARKET_VALUE.get(), valueSnapshot.getMarketValue().toString());
-      }
-      if (valueSnapshot.getOverrideValue() != null) {
-        tempRow.put(SnapshotColumns.OVERRIDE_VALUE.get(), valueSnapshot.getOverrideValue().toString());
+      // if valueSnapshot is null preserve this in the output
+      if (valueSnapshot == null) {
+        tempRow.put(SnapshotColumns.VALUE_OBJECT.get(), "null");
+      } else {
+        if (valueSnapshot.getMarketValue() != null) {
+          tempRow.put(SnapshotColumns.MARKET_VALUE.get(), valueSnapshot.getMarketValue().toString());
+        }
+        if (valueSnapshot.getOverrideValue() != null) {
+          tempRow.put(SnapshotColumns.OVERRIDE_VALUE.get(), valueSnapshot.getOverrideValue().toString());
+        }
       }
       _sheetWriter.writeNextRow(tempRow);
     }
