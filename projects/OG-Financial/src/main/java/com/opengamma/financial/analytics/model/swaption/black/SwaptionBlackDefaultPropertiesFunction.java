@@ -49,7 +49,9 @@ public class SwaptionBlackDefaultPropertiesFunction extends DefaultPropertyFunct
     ValueRequirementNames.FORWARD_VEGA,
     ValueRequirementNames.VALUE_DELTA,
     ValueRequirementNames.VALUE_GAMMA,
-    ValueRequirementNames.VALUE_THETA
+    ValueRequirementNames.VALUE_THETA,
+    ValueRequirementNames.GAMMA_PV01,
+    ValueRequirementNames.FORWARD
   };
   /** Map from currency to curve calculation configuration and surface names */
   private final Map<String, Pair<String, String>> _currencyCurveConfigAndSurfaceNames;
