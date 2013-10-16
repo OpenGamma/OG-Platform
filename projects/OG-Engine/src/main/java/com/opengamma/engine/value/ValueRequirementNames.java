@@ -5,10 +5,10 @@
  */
 package com.opengamma.engine.value;
 
+import com.opengamma.core.position.Position;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.function.TargetSourcingFunction;
-import com.opengamma.core.position.Position;
 
 /**
  * Standard names used to refer to particular computed values.
@@ -542,6 +542,14 @@ public final class ValueRequirementNames {
    */
   public static final String PRESENT_VALUE = "Present Value";
   /**
+   * The present value of the pay leg of a swap.
+   */
+  public static final String PAY_LEG_PRESENT_VALUE = "Pay Leg PV";
+  /**
+   * The present value of the receive leg of a swap.
+   */
+  public static final String RECEIVE_LEG_PRESENT_VALUE = "Receive Leg PV";
+  /**
    * The rate that prices a cash-flow based fixed-income instrument to zero.
    */
   public static final String PAR_RATE = "Par Rate";
@@ -561,6 +569,10 @@ public final class ValueRequirementNames {
    * The PV01 of a cash-flow based fixed-income instrument.
    */
   public static final String PV01 = "PV01";
+  /**
+   * The Gamma PV01 of a cash-flow based fixed-income instrument.
+   */
+  public static final String GAMMA_PV01 = "Gamma PV01";
   /**
    * The implied volatility of a security.
    */
@@ -1563,6 +1575,14 @@ public final class ValueRequirementNames {
    * Type of a position or trade.
    */
   public static final String TYPE = "Type";
+  /**
+   * The details of a swap pay leg.
+   */
+  public static final String SWAP_PAY_LEG_DETAILS = "Swap Pay Leg Details";
+  /**
+   * The details of a swap receive leg.
+   */
+  public static final String SWAP_RECEIVE_LEG_DETAILS = "Swap Receive Leg Details";
   
   ///// Externally-sourced values
   // Existing value requirement names with a suffix
