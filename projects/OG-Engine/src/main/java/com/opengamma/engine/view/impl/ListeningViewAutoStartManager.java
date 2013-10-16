@@ -5,11 +5,11 @@
  */
 package com.opengamma.engine.view.impl;
 
-import java.util.Set;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.core.change.ChangeEvent;
 import com.opengamma.core.change.ChangeListener;
 import com.opengamma.core.config.ConfigSource;
@@ -18,6 +18,8 @@ import com.opengamma.engine.view.ViewAutoStartManager;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Manages the set of automatically started views and listens to the
@@ -38,7 +40,7 @@ public class ListeningViewAutoStartManager implements ViewAutoStartManager {
   /**
    * The current set of views which are eligible for auto-starting.
    */
-  private final ConcurrentMap<ObjectId, AutoStartViewDefinition> _autoStartViews = new ConcurrentHashMap<>();
+  private final ConcurrentMap<ObjectId, Pair<String, AutoStartViewDefinition>> _autoStartViews = new ConcurrentHashMap<>();
 
   /**
    * Indicates if the initialization method has been run.
@@ -67,7 +69,8 @@ public class ListeningViewAutoStartManager implements ViewAutoStartManager {
             VersionCorrection versionCorrection = VersionCorrection.ofVersionAsOf(event.getVersionFrom());
             ConfigItem<?> configItem = _configSource.get(configItemId, versionCorrection);
             if (configItem.getType() == AutoStartViewDefinition.class) {
-              _autoStartViews.put(configItemId, (AutoStartViewDefinition) configItem.getValue());
+              _autoStartViews.put(configItemId, Pairs.of(configItem.getName(),
+                                                         (AutoStartViewDefinition) configItem.getValue()));
             }
             break;
           case REMOVED:
@@ -80,18 +83,23 @@ public class ListeningViewAutoStartManager implements ViewAutoStartManager {
 
   @Override
   public void initialize() {
-    for (ConfigItem<AutoStartViewDefinition> view : _configSource.getAll(AutoStartViewDefinition.class, VersionCorrection.LATEST)) {
-      _autoStartViews.put(view.getObjectId(), view.getValue());
+    for (ConfigItem<AutoStartViewDefinition> configItem : _configSource.getAll(AutoStartViewDefinition.class, VersionCorrection.LATEST)) {
+      _autoStartViews.put(configItem.getObjectId(), Pairs.of(configItem.getName(), configItem.getValue()));
     }
     _isInitialized = true;
   }
 
   @Override
-  public Set<AutoStartViewDefinition> getAutoStartViews() {
+  public Map<String, AutoStartViewDefinition> getAutoStartViews() {
 
     if (!_isInitialized) {
       throw new IllegalStateException("Manager has not been initialized, cannot access data");
     }
-    return ImmutableSet.copyOf(_autoStartViews.values());
+
+    ImmutableMap.Builder<String, AutoStartViewDefinition> builder = ImmutableMap.builder();
+    for (Pair<String, AutoStartViewDefinition> pair : _autoStartViews.values()) {
+      builder.put(pair.getFirst(), pair.getSecond());
+    }
+    return builder.build();
   }
 }

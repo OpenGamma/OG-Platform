@@ -25,8 +25,6 @@ import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 
-import net.sf.ehcache.CacheException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
@@ -48,6 +46,8 @@ import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.NamedThreadPoolFactory;
 import com.opengamma.util.monitor.OperationTimer;
+
+import net.sf.ehcache.CacheException;
 
 /**
  * Manages market data for a view process, taking care of subscriptions and producing snapshots.
@@ -175,7 +175,7 @@ public class MarketDataManager implements MarketDataListener, Lifecycle, Subscri
     _marketDataProviderResolver = marketDataProviderResolver;
 
     _objectName = viewProcessorName != null && viewProcessId != null ?
-        createObjectName(viewProcessorName, viewProcessId) :
+        createObjectName(viewProcessId) :
         null;
 
     _jmxServer = setupJmxServer();
@@ -194,9 +194,9 @@ public class MarketDataManager implements MarketDataListener, Lifecycle, Subscri
   /**
    * Creates an object name using the scheme "com.opengamma:type=View,ViewProcessor=<viewProcessorName>,name=<viewProcessId>"
    */
-  private ObjectName createObjectName(String viewProcessorName, String viewProcessId) {
+  private ObjectName createObjectName(String viewProcessId) {
     try {
-      return new ObjectName("com.opengamma:type=ViewProcess,ViewProcessor=ViewProcessor " + viewProcessorName + ",name=ViewProcessMarketData " + viewProcessId);
+      return new ObjectName("com.opengamma:type=ViewProcessor,ViewProcesses=ViewProcesses,name=ViewProcessMarketData " + viewProcessId);
     } catch (MalformedObjectNameException e) {
       throw new CacheException(e);
     }

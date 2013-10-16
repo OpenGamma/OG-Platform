@@ -5,9 +5,9 @@
  */
 package com.opengamma.engine.view.impl;
 
-import java.util.Set;
+import java.util.Map;
 
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.engine.view.ViewAutoStartManager;
 
 /**
@@ -24,7 +24,7 @@ public class NoOpViewAutoStartManager implements ViewAutoStartManager {
   }
 
   @Override
-  public Set<AutoStartViewDefinition> getAutoStartViews() {
-    return ImmutableSet.of();
+  public Map<String, AutoStartViewDefinition> getAutoStartViews() {
+    return ImmutableMap.of();
   }
 }

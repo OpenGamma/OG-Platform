@@ -121,11 +121,10 @@ public class ListeningViewAutoStartManagerTest {
     checkViewIds(manager.getAutoStartViews(), "id1", "id2");
 
     configSource.modifyItemWithTrigger(createConfigItem("id2", "differentId"));
-    Set<AutoStartViewDefinition> views = manager.getAutoStartViews();
-    checkViewIds(views, "id1", "differentId");
+    checkViewIds(manager.getAutoStartViews(), "id1", "differentId");
   }
 
-  private void checkViewIds(Set<AutoStartViewDefinition> views, String... ids) {
+  private void checkViewIds(Map<String, AutoStartViewDefinition> views, String... ids) {
 
     Set<UniqueId> expected = new HashSet<>();
     for (String id : ids) {
@@ -134,7 +133,7 @@ public class ListeningViewAutoStartManagerTest {
 
     Set<UniqueId> checked = new HashSet<>();
     assertThat(views.size(), is(ids.length));
-    for (AutoStartViewDefinition view : views) {
+    for (AutoStartViewDefinition view : views.values()) {
       UniqueId uniqueId = view.getViewDefinitionId();
       assertThat(expected.contains(uniqueId), is(true));
       checked.add(uniqueId);
@@ -176,6 +175,7 @@ public class ListeningViewAutoStartManagerTest {
   private ConfigItem<AutoStartViewDefinition> createConfigItem(String id, String viewId) {
     ConfigItem<AutoStartViewDefinition> configItem = ConfigItem.of(createAutoStartViewDefinition(viewId));
     configItem.setUniqueId(UniqueId.of("CI", id));
+    configItem.setName("Item-" + id);
     return configItem;
   }
 

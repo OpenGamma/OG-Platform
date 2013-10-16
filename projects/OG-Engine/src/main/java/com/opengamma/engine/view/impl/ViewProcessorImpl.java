@@ -699,22 +699,8 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
       s_logger.info("Starting on lifecycle call.");
 
       _viewAutoStartManager.initialize();
-      for (AutoStartViewDefinition view : _viewAutoStartManager.getAutoStartViews()) {
-
-        UniqueId viewDefinitionId = view.getViewDefinitionId();
-        try {
-          getOrCreateSharedViewProcess(viewDefinitionId,
-                                       view.getExecutionOptions(),
-                                       // These result mode options will be ignored so shouldn't really matter
-                                       // but set to what web client would
-                                       ViewResultMode.FULL_THEN_DELTA,
-                                       ViewResultMode.NONE,
-                                       null,
-                                       // Run persistently
-                                       true);
-        } catch (RuntimeException e) {
-          s_logger.error("Unable to auto-start view definition with id: {}", viewDefinitionId);
-        }
+      for (Map.Entry<String, AutoStartViewDefinition> entry : _viewAutoStartManager.getAutoStartViews().entrySet()) {
+        autoStartView(entry.getKey(), entry.getValue());
       }
       _isStarted = true;
     } finally {
@@ -722,6 +708,27 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     }
     timer.finished();
     _viewProcessorEventListenerRegistry.notifyViewProcessorStarted();
+  }
+
+  private void autoStartView(String viewName, AutoStartViewDefinition view) {
+    UniqueId viewDefinitionId = view.getViewDefinitionId();
+    try {
+      ViewProcessImpl process = getOrCreateSharedViewProcess(viewDefinitionId,
+                                                             view.getExecutionOptions(),
+                                                             // These result mode options will be ignored so shouldn't really matter
+                                                             // but set to what web client would
+                                                             ViewResultMode.FULL_THEN_DELTA,
+                                                             ViewResultMode.NONE,
+                                                             null,
+                                                             // Run persistently
+                                                             true);
+
+      s_logger.info("Auto-started view: {}", viewName);
+      _viewProcessorEventListenerRegistry.notifyViewAutomaticallyStarted(process.getUniqueId(), viewName);
+
+    } catch (RuntimeException e) {
+      s_logger.error("Unable to auto-start view definition with id: {}", viewDefinitionId);
+    }
   }
 
   @Override
