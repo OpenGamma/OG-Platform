@@ -30,8 +30,8 @@ public class ViewClientMBeanImpl implements ViewClientMBean {
   /**
    * Creates a management view client
    *
-   * @param viewClient  the underlying view client
-   * @param splitByViewProcessor
+   * @param viewClient the underlying view client
+   * @param splitByViewProcessor should the MBean name differentiate beans by view processor
    */
   public ViewClientMBeanImpl(ViewClient viewClient, boolean splitByViewProcessor) {
     ArgumentChecker.notNull(viewClient, "viewClient");
@@ -51,7 +51,7 @@ public class ViewClientMBeanImpl implements ViewClientMBean {
           "com.opengamma:type=ViewProcessor";
       return new ObjectName(beanNamePrefix + ",ViewClients=ViewClients,name=ViewClient " + viewClientId.getValue());
     } catch (MalformedObjectNameException e) {
-      throw new OpenGammaRuntimeException("Error whilst attempting to register JMX Bean",e);
+      throw new OpenGammaRuntimeException("Error whilst attempting to register JMX Bean", e);
     }
   }
   
