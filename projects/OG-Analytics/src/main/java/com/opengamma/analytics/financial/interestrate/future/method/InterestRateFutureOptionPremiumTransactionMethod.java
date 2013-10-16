@@ -18,6 +18,27 @@ import com.opengamma.analytics.financial.interestrate.method.PricingMethod;
 public abstract class InterestRateFutureOptionPremiumTransactionMethod implements PricingMethod {
 
   /**
+   * The method used to price the underlying security.
+   */
+  private final InterestRateFutureOptionPremiumSecurityMethod _securityMethod;
+
+  /**
+   * Constructor.
+   * @param securityMethod The method to price the underlying security.
+   */
+  public InterestRateFutureOptionPremiumTransactionMethod(final InterestRateFutureOptionPremiumSecurityMethod securityMethod) {
+    _securityMethod = securityMethod;
+  }
+
+  /**
+   * Gets the method to price the underlying security.
+   * @return The method.
+   */
+  public InterestRateFutureOptionPremiumSecurityMethod getSecurityMethod() {
+    return _securityMethod;
+  }
+
+  /**
    * Compute the present value of a future option transaction from a quoted price.
    * @param option The future option.
    * @param curves The yield curves. Should contain the discounting and forward curves associated to the instrument.
