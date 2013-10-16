@@ -162,7 +162,7 @@ create table rsk_run_property (
 
 create table rsk_run_status (
     id bigint not null, 
-    run_id bigint not null,
+    run_id bigint DEFAULT 0 not null,
     calculation_configuration_id bigint not null,
     computation_target_id bigint not null,
     status varchar(255) not null,
