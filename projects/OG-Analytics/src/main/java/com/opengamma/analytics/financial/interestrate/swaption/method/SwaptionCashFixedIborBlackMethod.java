@@ -91,6 +91,18 @@ public final class SwaptionCashFixedIborBlackMethod implements PricingMethod {
     return CurrencyAmount.of(swaption.getCurrency(), price);
   }
 
+  /**
+   * Computes the forward of a cash-settled European swaption in the Black model.
+   * @param swaption The swaption.
+   * @param curveBlack The curves with Black volatility data.
+   * @return The forward.
+   */
+  public double forward(final SwaptionCashFixedIbor swaption, final YieldCurveWithBlackSwaptionBundle curveBlack) {
+    ArgumentChecker.notNull(swaption, "Swaption");
+    ArgumentChecker.notNull(curveBlack, "Curves with Black volatility");
+    return swaption.getUnderlyingSwap().accept(PRC, curveBlack);
+  }
+
   @Override
   public CurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
     ArgumentChecker.isTrue(instrument instanceof SwaptionCashFixedIbor, "Physical delivery swaption");
@@ -123,7 +135,7 @@ public final class SwaptionCashFixedIborBlackMethod implements PricingMethod {
     final double[] bsAdjoint = blackFunction.getPriceAdjoint(swaption, dataBlack);
     final double sensiDF = -swaption.getSettlementTime() * discountFactorSettle * pvbp * bsAdjoint[0];
     final List<DoublesPair> list = new ArrayList<>();
-    list.add(new DoublesPair(swaption.getSettlementTime(), sensiDF));
+    list.add(DoublesPair.of(swaption.getSettlementTime(), sensiDF));
     final Map<String, List<DoublesPair>> resultMap = new HashMap<>();
     resultMap.put(annuityFixed.getNthPayment(0).getFundingCurveName(), list);
     InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultMap);
@@ -147,7 +159,7 @@ public final class SwaptionCashFixedIborBlackMethod implements PricingMethod {
     final double forward = swaption.getUnderlyingSwap().accept(PRC, curveBlack);
     final double pvbp = METHOD_SWAP.getAnnuityCash(swaption.getUnderlyingSwap(), forward);
     final double discountFactorSettle = curveBlack.getCurve(annuityFixed.getNthPayment(0).getFundingCurveName()).getDiscountFactor(swaption.getSettlementTime());
-    final DoublesPair point = new DoublesPair(swaption.getTimeToExpiry(), swaption.getMaturityTime());
+    final DoublesPair point = DoublesPair.of(swaption.getTimeToExpiry(), swaption.getMaturityTime());
     final BlackPriceFunction blackFunction = new BlackPriceFunction();
     final double volatility = curveBlack.getBlackParameters().getVolatility(point);
     final BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volatility);
