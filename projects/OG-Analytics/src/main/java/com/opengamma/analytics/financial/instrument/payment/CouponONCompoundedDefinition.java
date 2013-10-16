@@ -26,6 +26,7 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
@@ -226,9 +227,12 @@ public class CouponONCompoundedDefinition extends CouponDefinition implements In
     final double[] fixingPeriodStartTimes = new double[_fixingPeriodDates.length - 1];
     final double[] fixingPeriodEndTimes = new double[_fixingPeriodDates.length - 1];
     final double[] fixingPeriodAccrualFactorsActAct = new double[_fixingPeriodDates.length - 1];
+//    DayCount dayCount = _index.getDayCount();
     for (int i = 0; i < _fixingPeriodDates.length - 1; i++) {
       fixingPeriodStartTimes[i] = TimeCalculator.getTimeBetween(date, _fixingPeriodDates[i]);
       fixingPeriodEndTimes[i] = TimeCalculator.getTimeBetween(date, _fixingPeriodDates[i + 1]);
+//      fixingPeriodStartTimes[i] = dayCount.getDayCountFraction(date, _fixingPeriodDates[i], _calendar);
+//      fixingPeriodEndTimes[i] = dayCount.getDayCountFraction(date, _fixingPeriodDates[i + 1], _calendar);
       fixingPeriodAccrualFactorsActAct[i] = TimeCalculator.getTimeBetween(_fixingPeriodDates[i], _fixingPeriodDates[i + 1]);
     }
     final CouponONCompounded cpn = new CouponONCompounded(getCurrency(), paymentTime, yieldCurveNames[0], getPaymentYearFraction(), getNotional(), _index, fixingPeriodStartTimes,

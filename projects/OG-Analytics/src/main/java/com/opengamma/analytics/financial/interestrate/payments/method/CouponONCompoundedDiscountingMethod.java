@@ -59,9 +59,14 @@ public final class CouponONCompoundedDiscountingMethod implements PricingMethod 
     final YieldAndDiscountCurve discountingCurve = curves.getCurve(coupon.getFundingCurveName());
     double ratio = 1.0;
     double forwardRatei;
+    final List<Double> tmpRateArr = new ArrayList<>();
     for (int i = 0; i < coupon.getFixingPeriodAccrualFactors().length; i++) {
       forwardRatei = (forwardCurve.getDiscountFactor(coupon.getFixingPeriodStartTimes()[i]) / forwardCurve.getDiscountFactor(coupon.getFixingPeriodEndTimes()[i]) - 1.0d) /
+//    coupon.getFixingPeriodAccrualFactors()[i];
           coupon.getFixingPeriodAccrualFactorsActAct()[i];
+//      forwardRatei = Math.pow(((Math.exp(coupon.getFixingPeriodAccrualFactorsActAct()[i] * forwardRatei) - 1.0) * 1.45 + 1.0), 1.0 / coupon.getFixingPeriodAccrualFactors()[i]) - 1.0;
+      forwardRatei = Math.pow(((Math.exp(1.0 / 365.0 * forwardRatei) - 1.0) * 365.0 / 252.0 + 1.0), 252.0) - 1.0;
+      tmpRateArr.add(forwardRatei);
       ratio *= Math.pow(1 + forwardRatei, coupon.getFixingPeriodAccrualFactors()[i]);
     }
     final double df = discountingCurve.getDiscountFactor(coupon.getPaymentTime());
