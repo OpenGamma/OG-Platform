@@ -370,13 +370,13 @@ public abstract class ObjectsCurve<T extends Comparable<T>, U> extends Curve<T, 
     /**
      * The meta-property for the {@code xData} property.
      */
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<T[]> _xData = (DirectMetaProperty) DirectMetaProperty.ofReadOnly(
         this, "xData", ObjectsCurve.class, Object.class);
     /**
      * The meta-property for the {@code yData} property.
      */
-    @SuppressWarnings({"unchecked", "rawtypes"})
+    @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<U[]> _yData = (DirectMetaProperty) DirectMetaProperty.ofReadOnly(
         this, "yData", ObjectsCurve.class, Object.class);
     /**
