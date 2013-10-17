@@ -136,6 +136,8 @@ public class ViewProcessMXBeanImpl implements ViewProcessMXBean {
         @Override
         public void cycleExecutionFailed(ViewCycleExecutionOptions executionOptions, Exception exception) {
           _lastCycle = CycleState.FAILED;
+          _lastCycleDuration = null;
+          _lastCycleTimeStamp = null;
         }
 
         @Override
@@ -221,7 +223,7 @@ public class ViewProcessMXBeanImpl implements ViewProcessMXBean {
 
   @Override
   public String getCompilationFailedException() {
-    return _compilationFailedException.getMessage();
+    return _compilationFailedException != null ? _compilationFailedException.getMessage() : null;
   }
   
   @Override
