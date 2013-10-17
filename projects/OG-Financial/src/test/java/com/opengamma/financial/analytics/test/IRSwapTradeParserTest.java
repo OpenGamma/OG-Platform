@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.testng.annotations.Test;
 
+import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.util.ResourceUtils;
 import com.opengamma.util.test.TestGroup;
 
@@ -25,8 +26,13 @@ public class IRSwapTradeParserTest {
   
   public void test() throws Exception {
     IRSwapTradeParser tradeParser = new IRSwapTradeParser();
-    Resource resource = ResourceUtils.createResource("classpath:com/opengamma/financial/analytics/test/Trades03Oct.csv"); 
+    Resource resource = ResourceUtils.createResource("classpath:com/opengamma/financial/analytics/test/Trades14OctClean.csv"); 
     List<IRSwapSecurity> trades = tradeParser.parseCSVFile(resource.getURL());
+    for (IRSwapSecurity irSwapSecurity : trades) {
+      SwapSecurity swapSecurity = irSwapSecurity.getSwapSecurity();
+      Double ersPV = irSwapSecurity.getRawInput().getDouble("ERS pv");
+      
+    }
     s_logger.info("Got {} trades", trades.size());
   }
 
