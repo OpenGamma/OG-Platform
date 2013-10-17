@@ -91,6 +91,7 @@ import com.opengamma.web.server.AggregatedViewDefinitionManager;
  * Component factory for the main website viewports (for analytics).
  */
 @BeanDefinition
+@SuppressWarnings("deprecation")
 public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   /**

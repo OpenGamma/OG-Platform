@@ -46,6 +46,7 @@ import com.opengamma.engine.view.impl.ViewProcessorInternal;
 import com.opengamma.financial.aggregation.PortfolioAggregationFunctions;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
 import com.opengamma.financial.function.rest.DataFunctionRepositoryResource;
+import com.opengamma.financial.view.ViewProcessorManager;
 import com.opengamma.financial.view.rest.DataAvailableOutputsProviderResource;
 import com.opengamma.financial.view.rest.DataViewProcessorResource;
 import com.opengamma.financial.view.rest.RemoteAvailableOutputsProvider;
@@ -161,6 +162,9 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
                                                           getJmsConnector(),
                                                           (ViewProcessorInternal) viewProcessor);
       repo.registerLifecycle(listener);
+      
+      final ViewProcessorManager viewProcessorManager = appContext.getBean(ViewProcessorManager.class);
+      repo.registerLifecycle(viewProcessorManager);
     }
   }
 

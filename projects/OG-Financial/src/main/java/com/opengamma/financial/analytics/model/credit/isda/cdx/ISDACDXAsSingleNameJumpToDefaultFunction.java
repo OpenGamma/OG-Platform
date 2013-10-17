@@ -17,7 +17,6 @@ import java.util.Set;
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.greeks.vanilla.isda.ISDACreditDefaultSwapValueOnDefaultCalculator;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurve;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
@@ -40,7 +39,7 @@ import com.opengamma.financial.security.FinancialSecurity;
  * 
  */
 public class ISDACDXAsSingleNameJumpToDefaultFunction extends ISDACDXAsSingleNameFunction {
-  private static final ISDACreditDefaultSwapValueOnDefaultCalculator CALCULATOR = new ISDACreditDefaultSwapValueOnDefaultCalculator();
+//  private static final ISDACreditDefaultSwapValueOnDefaultCalculator CALCULATOR = new ISDACreditDefaultSwapValueOnDefaultCalculator();
 
   public ISDACDXAsSingleNameJumpToDefaultFunction() {
     super(ValueRequirementNames.JUMP_TO_DEFAULT);

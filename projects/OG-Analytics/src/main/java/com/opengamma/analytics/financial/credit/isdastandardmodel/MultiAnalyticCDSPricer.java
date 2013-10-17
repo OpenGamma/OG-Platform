@@ -11,24 +11,26 @@ import static com.opengamma.analytics.math.utilities.Epsilon.epsilon;
 import static com.opengamma.analytics.math.utilities.Epsilon.epsilonP;
 import static com.opengamma.analytics.math.utilities.Epsilon.epsilonPP;
 
-import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  *
  */
 public class MultiAnalyticCDSPricer {
+  private static final double HALFDAY = 1 / 730.;
   /** Default value for determining if results consistent with ISDA model versions 1.8.2 or lower are to be calculated */
-  private static final boolean DEFAULT_USE_CORRECT_ACC_ON_DEFAULT_FORMULA = false;
+  private static final AccrualOnDefaultFormulae DEFAULT_FORMULA = AccrualOnDefaultFormulae.OrignalISDA;
   /** True if results consistent with ISDA model versions 1.8.2 or lower are to be calculated */
-  private final boolean _useCorrectAccOnDefaultFormula;
+  private final AccrualOnDefaultFormulae _formula;
+  private final double _omega;
 
   /**
    * For consistency with the ISDA model version 1.8.2 and lower, a bug in the accrual on default calculation
    * has been reproduced.
    */
   public MultiAnalyticCDSPricer() {
-    _useCorrectAccOnDefaultFormula = DEFAULT_USE_CORRECT_ACC_ON_DEFAULT_FORMULA;
+    _formula = DEFAULT_FORMULA;
+    _omega = HALFDAY;
   }
 
   /**
@@ -36,8 +38,14 @@ public class MultiAnalyticCDSPricer {
    * has been reproduced.
    * @param useCorrectAccOnDefaultFormula Set to true to use correct accrual on default formulae.
    */
-  public MultiAnalyticCDSPricer(final boolean useCorrectAccOnDefaultFormula) {
-    _useCorrectAccOnDefaultFormula = useCorrectAccOnDefaultFormula;
+  public MultiAnalyticCDSPricer(final AccrualOnDefaultFormulae formula) {
+    ArgumentChecker.notNull(formula, "formula");
+    _formula = formula;
+    if (formula == AccrualOnDefaultFormulae.OrignalISDA) {
+      _omega = HALFDAY;
+    } else {
+      _omega = 0.0;
+    }
   }
 
   /**
@@ -261,7 +269,7 @@ public class MultiAnalyticCDSPricer {
     double rt0 = yieldCurve.getRT(t);
     double b0 = Math.exp(-rt0 - ht0); // this is the risky discount factor
 
-    double t0 = _useCorrectAccOnDefaultFormula ? 0.0 : t - coupon.getEffStart() + 1 / 730.0; // TODO not entirely clear why ISDA adds half a day
+    double t0 = t - coupon.getEffStart() + _omega;
     double pv = 0.0;
     final int nItems = knots.length;
     for (int j = 1; j < nItems; ++j) {
@@ -277,16 +285,14 @@ public class MultiAnalyticCDSPricer {
       final double dhrt = dht + drt + 1e-50; // to keep consistent with ISDA c code
 
       double tPV;
-      if (_useCorrectAccOnDefaultFormula) {
+      if (_formula == AccrualOnDefaultFormulae.MarkitFix) {
         if (Math.abs(dhrt) < 1e-5) {
           tPV = dht * dt * b0 * epsilonP(-dhrt);
         } else {
           tPV = dht * dt / dhrt * ((b0 - b1) / dhrt - b1);
         }
       } else {
-        // This is a know bug - a fix is proposed by Markit (and appears commented out in ISDA v.1.8.2)
-        // This is the correct term plus dht*t0/dhrt*(b0-b1) which is an error
-        final double t1 = t - coupon.getEffStart() + 1 / 730.0;
+        final double t1 = t - coupon.getEffStart() + _omega;
         if (Math.abs(dhrt) < 1e-5) {
           tPV = dht * b0 * (t0 * epsilon(-dhrt) + dt * epsilonP(-dhrt));
         } else {
@@ -320,7 +326,7 @@ public class MultiAnalyticCDSPricer {
     double b0 = p0 * q0; // this is the risky discount factor
     double dqdr0 = creditCurve.getSingleNodeDiscountFactorSensitivity(t, creditCurveNode);
 
-    double t0 = _useCorrectAccOnDefaultFormula ? 0.0 : t - accStart + 1 / 730.0; // TODO not entirely clear why ISDA adds half a day
+    double t0 = t - accStart + _omega;
     double pvSense = 0.0;
     final int nItems = knots.length;
     for (int j = 1; j < nItems; ++j) {
@@ -342,7 +348,7 @@ public class MultiAnalyticCDSPricer {
       // TODO once the maths is written up in a white paper, check these formula again, since tests again finite difference
       // could miss some subtle error
 
-      if (_useCorrectAccOnDefaultFormula) {
+      if (_formula == AccrualOnDefaultFormulae.MarkitFix) {
         if (Math.abs(dhrt) < 1e-5) {
           final double eP = epsilonP(-dhrt);
           final double ePP = epsilonPP(-dhrt);
@@ -360,8 +366,7 @@ public class MultiAnalyticCDSPricer {
           tPvSense = dPVdq0 * dqdr0 - dPVdq1 * dqdr1;
         }
       } else {
-        // this is a know bug - a fix is proposed by Markit (and appears commented out in ISDA v.1.8.2)
-        final double t1 = t - accStart + 1 / 730.0;
+        final double t1 = t - accStart + _omega;
         if (Math.abs(dhrt) < 1e-5) {
           final double e = epsilon(-dhrt);
           final double eP = epsilonP(-dhrt);

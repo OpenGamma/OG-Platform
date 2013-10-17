@@ -1,16 +1,12 @@
 package com.opengamma.analytics.financial.credit.isdastandardmodel;
 
 import static com.opengamma.financial.convention.businessday.BusinessDayDateUtils.addWorkDays;
+import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Month;
 
-import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.FastCreditCurveBuilder;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurve;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurveBuilder;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurveBuilder.ArbitrageHandling;
 
 public class CreditBootstrapFailTest extends ISDABaseTest {
@@ -34,9 +30,22 @@ public class CreditBootstrapFailTest extends ISDABaseTest {
 
   private static final double[] PAR_SPREADS = new double[] {0.0181398, 0.0181398, 0.027096, 0.0279819, 0.0357239, 0.0273206 };
 
-  @Test(enabled = false)
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void failTest() {
+    final ISDACompliantCreditCurveBuilder creditCurveBuilder = new FastCreditCurveBuilder(MARKIT_FIX, ArbitrageHandling.Fail);
+    final int m = PILLAR_DATES.length;
+    final CDSAnalytic[] curveCDSs = new CDSAnalytic[m];
+    for (int i = 0; i < m; i++) {
+      curveCDSs[i] = new CDSAnalytic(TRADE_DATE, EFFECTIVE_DATE, CASH_SETTLE_DATE, STARTDATE, PILLAR_DATES[i], PAY_ACC_ON_DEFAULT, PAYMENT_INTERVAL, STUB, PROCTECTION_START, RECOVERY_RATE);
+    }
+    @SuppressWarnings("unused")
+    final ISDACompliantCreditCurve creditCurve = creditCurveBuilder.calibrateCreditCurve(curveCDSs, PAR_SPREADS, YIELD_CURVE);
+  }
+
+  @Test
+  //(enabled = false)
   public void test() {
-    final ISDACompliantCreditCurveBuilder creditCurveBuilder = new FastCreditCurveBuilder(true, ArbitrageHandling.ZeroHazardRate);
+    final ISDACompliantCreditCurveBuilder creditCurveBuilder = new FastCreditCurveBuilder(MARKIT_FIX, ArbitrageHandling.ZeroHazardRate);
 
     final int m = PILLAR_DATES.length;
 
@@ -48,9 +57,8 @@ public class CreditBootstrapFailTest extends ISDABaseTest {
 
     for (int i = 0; i < 200; i++) {
       final double t = 12.0 * i / 200.;
-      final double q = creditCurve.getSurvivalProbability(t);
-      final double ht = creditCurve.getRT(t);
-      System.out.println(t + "\t" + q + "\t" + ht);
+      final double lambda = creditCurve.getForwardRate(t);
+      assertTrue(lambda >= 0);
     }
   }
 }

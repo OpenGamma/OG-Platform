@@ -9,7 +9,6 @@ import org.apache.commons.lang.NotImplementedException;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 
-import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.rootfinding.BracketRoot;
 import com.opengamma.analytics.math.rootfinding.BrentSingleRootFinder;
@@ -23,11 +22,22 @@ import com.opengamma.util.ArgumentChecker;
  * @deprecated Use the faster ISDACompliantCreditCurveBuild
  */
 @Deprecated
-public class SimpleCreditCurveBuilder implements ISDACompliantCreditCurveBuilder {
+public class SimpleCreditCurveBuilder extends ISDACompliantCreditCurveBuilder {
 
   private static final BracketRoot BRACKER = new BracketRoot();
   private static final RealSingleRootFinder ROOTFINDER = new BrentSingleRootFinder();
-  private static final AnalyticCDSPricer PRICER = new AnalyticCDSPricer();
+  // private static final AnalyticCDSPricer PRICER = new AnalyticCDSPricer();
+
+  private final AnalyticCDSPricer _pricer;
+
+  public SimpleCreditCurveBuilder() {
+    _pricer = new AnalyticCDSPricer();
+  }
+
+  public SimpleCreditCurveBuilder(final AccrualOnDefaultFormulae formula) {
+    super(formula);
+    _pricer = new AnalyticCDSPricer(formula);
+  }
 
   /**
    * {@inheritDoc}
@@ -65,9 +75,9 @@ public class SimpleCreditCurveBuilder implements ISDACompliantCreditCurveBuilder
     ArgumentChecker.notNull(yieldCurve, "null yieldCurve");
     final int n = cds.length;
     ArgumentChecker.isTrue(n == premiums.length, "Number of CDSs does not match number of spreads");
-    final double proStart = cds[0].getProtectionStart();
+    final double proStart = cds[0].getEffectiveProtectionStart();
     for (int i = 1; i < n; i++) {
-      ArgumentChecker.isTrue(proStart == cds[i].getProtectionStart(), "all CDSs must has same protection start");
+      ArgumentChecker.isTrue(proStart == cds[i].getEffectiveProtectionStart(), "all CDSs must has same protection start");
       ArgumentChecker.isTrue(cds[i].getProtectionEnd() > cds[i - 1].getProtectionEnd(), "protection end must be ascending");
     }
 
@@ -155,7 +165,7 @@ public class SimpleCreditCurveBuilder implements ISDACompliantCreditCurveBuilder
     @Override
     public Double evaluate(final Double x) {
       final ISDACompliantCreditCurve cc = _creditCurve.withRate(x, _index);
-      return PRICER.pv(_cds, _yieldCurve, cc, _spread) - _pointsUpfront;
+      return _pricer.pv(_cds, _yieldCurve, cc, _spread) - _pointsUpfront;
     }
   }
 

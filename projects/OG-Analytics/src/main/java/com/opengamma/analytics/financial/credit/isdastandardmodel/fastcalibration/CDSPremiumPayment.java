@@ -12,6 +12,7 @@ import static com.opengamma.analytics.math.utilities.Epsilon.epsilonPP;
 
 import java.util.Arrays;
 
+import com.opengamma.analytics.financial.credit.isdastandardmodel.AccrualOnDefaultFormulae;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSCoupon;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurve;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
@@ -32,7 +33,8 @@ public class CDSPremiumPayment {
 
   //TODO these shouldn't be part of this class 
   private final boolean _payAccDefault;
-  private final boolean _useCorrectAccOnDefaultFormula = true;
+  private final AccrualOnDefaultFormulae _formula;
+  private final double _omega;
 
   private final int _index;
 
@@ -45,12 +47,18 @@ public class CDSPremiumPayment {
   private double _pv;
   private double _dPVdh;
 
-  public CDSPremiumPayment(final CDSCoupon coupon, final boolean payAccDefault, final int index) {
+  public CDSPremiumPayment(final CDSCoupon coupon, final boolean payAccDefault, final int index, final AccrualOnDefaultFormulae formula) {
     ArgumentChecker.notNull(coupon, "coupon");
     _coupon = coupon;
 
     _payAccDefault = payAccDefault;
     _index = index;
+    _formula = formula;
+    if (formula == AccrualOnDefaultFormulae.OrignalISDA) {
+      _omega = 1. / 730;
+    } else {
+      _omega = 0.0;
+    }
   }
 
   public void initialise(final double protectionStart, final ISDACompliantYieldCurve yieldCurve, final double[] creditCurveNodes) {
@@ -88,7 +96,7 @@ public class CDSPremiumPayment {
     double b0 = p0 * q0; // this is the risky discount factor
     double dqdr0 = creditCurve.getSingleNodeDiscountFactorSensitivity(t, _index);
 
-    double t0 = _useCorrectAccOnDefaultFormula ? 0.0 : t - _coupon.getEffStart() + 1 / 730.0; // TODO not entirely clear why ISDA adds half a day
+    double t0 = t - _coupon.getEffStart() + _omega;
     double pv = 0.0;
     double pvSense = 0.0;
 
@@ -109,7 +117,7 @@ public class CDSPremiumPayment {
 
       double tPV;
       double tPvSense;
-      if (_useCorrectAccOnDefaultFormula) {
+      if (_formula == AccrualOnDefaultFormulae.MarkitFix) {
         if (Math.abs(dhrt) < 1e-5) {
           final double eP = epsilonP(-dhrt);
           final double ePP = epsilonPP(-dhrt);
@@ -130,9 +138,8 @@ public class CDSPremiumPayment {
 
         }
       } else {
-        // This is a know bug - a fix is proposed by Markit (and appears commented out in ISDA v.1.8.2)
-        // This is the correct term plus dht*t0/dhrt*(b0-b1) which is an error
-        final double t1 = t - _coupon.getEffStart() + 1 / 730.0;
+
+        final double t1 = t - _coupon.getEffStart() + _omega;
         if (Math.abs(dhrt) < 1e-5) {
           final double e = epsilon(-dhrt);
           final double eP = epsilonP(-dhrt);
@@ -226,9 +233,12 @@ public class CDSPremiumPayment {
     long temp;
     temp = Double.doubleToLongBits(_dPVdh);
     result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + ((_formula == null) ? 0 : _formula.hashCode());
     result = prime * result + _index;
     result = prime * result + Arrays.hashCode(_knots);
     result = prime * result + _n;
+    temp = Double.doubleToLongBits(_omega);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
     result = prime * result + Arrays.hashCode(_p);
     result = prime * result + (_payAccDefault ? 1231 : 1237);
     temp = Double.doubleToLongBits(_paymentDF);
@@ -236,7 +246,6 @@ public class CDSPremiumPayment {
     temp = Double.doubleToLongBits(_pv);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     result = prime * result + Arrays.hashCode(_rt);
-    result = prime * result + (_useCorrectAccOnDefaultFormula ? 1231 : 1237);
     return result;
   }
 
@@ -262,6 +271,9 @@ public class CDSPremiumPayment {
     if (Double.doubleToLongBits(_dPVdh) != Double.doubleToLongBits(other._dPVdh)) {
       return false;
     }
+    if (_formula != other._formula) {
+      return false;
+    }
     if (_index != other._index) {
       return false;
     }
@@ -269,6 +281,9 @@ public class CDSPremiumPayment {
       return false;
     }
     if (_n != other._n) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_omega) != Double.doubleToLongBits(other._omega)) {
       return false;
     }
     if (!Arrays.equals(_p, other._p)) {
@@ -284,9 +299,6 @@ public class CDSPremiumPayment {
       return false;
     }
     if (!Arrays.equals(_rt, other._rt)) {
-      return false;
-    }
-    if (_useCorrectAccOnDefaultFormula != other._useCorrectAccOnDefaultFormula) {
       return false;
     }
     return true;

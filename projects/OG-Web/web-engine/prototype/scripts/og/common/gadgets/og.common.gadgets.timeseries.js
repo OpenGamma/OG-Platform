@@ -10,8 +10,9 @@ $.register_module({
             var api = og.api, common = og.common, gadget = this, timeseries, selector = config.selector,
                 alive = common.id('gadget_timeseries'), $selector = $(selector),
                 colors_arr = ['#42669a', '#ff9c00', '#00e13a', '#313b44'];
-            if (!config.rest_options) $(selector).addClass(alive)
-                .css({position: 'absolute', top: 0, left: 0, right: 0, bottom: 0});
+            if (!config.rest_options) {
+                $(selector).addClass(alive).css({position: 'absolute', top: 0, left: 0, right: 0, bottom: 0});
+            }
             var RestDataMan = function (rest_options) {
                 var dataman = this;
                 $.when(og.api.text({module: 'og.views.gadgets.timeseries'})).then(function (tmpl) {
@@ -21,13 +22,14 @@ $.register_module({
                             selector: selector + ' .og-timeseries',
                             data: [result.data],
                             rest_options: rest_options,
-                            datapoints: !!config.datapoints, height: 400
+                            datapoints: !!config.datapoints,
+                            height: 400
                         });
                         timeseries.datapoints = new common.TimeseriesData({
                             selector: selector + ' .og-data',
                             data: [result.data],
                             rest_options: rest_options,
-                            colors: colors_arr,
+                            colors: colors_arr
                         });
                         common.TimeseriesMenu.call(timeseries, result, selector + ' .og-menu', colors_arr);
                     });
@@ -42,25 +44,33 @@ $.register_module({
                         if (!timeseries && gadget.data && (typeof gadget.data === 'object')) {
                             timeseries = new common.Timeseries($.extend(true, {}, config,
                                 {data: [gadget.data]}, {update: update}));
-                        } else {
+                        } else if (timeseries) {
                             timeseries.display_refresh();
                         }
                     })
-                    .on('fatal', function (message) {$selector.html(message);});
+                    .on('fatal', function (message) {$selector.html(message); });
             };
             var update = function () {
                 return gadget.data;
             };
             gadget.alive = function () {
                 var live = !!$('.' + alive).length;
-                if (!live && timeseries) gadget.dataman.kill();
+                if (!live && timeseries) {
+                    gadget.dataman.kill();
+                }
                 return live;
             };
-            gadget.resize = function () {try {timeseries.resize();} catch (error) {}};
+            gadget.resize = function () {
+                try {
+                    timeseries.resize();
+                } catch (error) {/*do nothing*/}
+            };
             gadget.dataman = !!config.rest_options
                 ? RestDataMan(config.rest_options)
                 : CellDataMan(config.row, config.col, config.type, config.source)
-            if (!config.child) common.gadgets.manager.register(gadget);
+            if (!config.child) {
+                common.gadgets.manager.register(gadget);
+            }
         };
     }
 });

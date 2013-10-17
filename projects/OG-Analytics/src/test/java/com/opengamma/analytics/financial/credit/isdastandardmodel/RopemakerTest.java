@@ -18,12 +18,6 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.Month;
 import org.threeten.bp.Period;
 
-import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalyticFactory;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurve;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.MarketQuoteConverter;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.QuotedSpread;
 import com.opengamma.analytics.financial.model.BumpType;
 import com.opengamma.util.ArgumentChecker;
 
@@ -68,7 +62,7 @@ public class RopemakerTest extends ISDABaseTest {
     for (int i = 0; i < 10; i++) {
       final int year = 2014 + i;
       final LocalDate mat = LocalDate.of(year, month, day);
-      final double t = ACT365.getDayCountFraction(tradeDate, mat);
+      final double t = ACT365F.getDayCountFraction(tradeDate, mat);
       final double df = yieldCurve.getDiscountFactor(t);
       System.out.println(mat + "\t" + t + "\t" + df);
     }

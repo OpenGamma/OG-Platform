@@ -13,16 +13,6 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.Month;
 import org.threeten.bp.Period;
 
-import com.opengamma.analytics.financial.credit.PriceType;
-import com.opengamma.analytics.financial.credit.StubType;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.AnalyticCDSPricer;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.FastCreditCurveBuilder;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurve;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurveBuilder;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurveBuild;
-import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDAInstrumentTypes;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -113,7 +103,7 @@ public class UpfrontFlatTest {
     //    System.out.println(clean + "\t" + dirty + "\t" + (clean - dirty));
     //    System.out.println(cds.getAccrued() * coupon + "\t" + cds.getAccuredDays());
 
-    //Numers from Excel
+    //Numbers from Excel
     assertEquals("upfrount", 0.018566047, clean, 1e-9);
     assertEquals("cashSettled", 57882.69024, dirty * NOTIONAL, 1e-9 * NOTIONAL);
 

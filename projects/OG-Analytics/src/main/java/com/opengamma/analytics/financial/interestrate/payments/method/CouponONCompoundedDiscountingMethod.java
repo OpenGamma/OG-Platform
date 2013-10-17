@@ -55,6 +55,7 @@ public final class CouponONCompoundedDiscountingMethod implements PricingMethod 
   public CurrencyAmount presentValue(final CouponONCompounded coupon, final YieldCurveBundle curves) {
     Validate.notNull(coupon, "Coupon");
     Validate.notNull(curves, "Curves");
+
     final YieldAndDiscountCurve forwardCurve = curves.getCurve(coupon.getForwardCurveName());
     final YieldAndDiscountCurve discountingCurve = curves.getCurve(coupon.getFundingCurveName());
     double ratio = 1.0;

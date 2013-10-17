@@ -127,7 +127,7 @@ public abstract class AbstractDbUpgradeTest implements TableCreationCallback {
        */
       int diff = StringUtils.indexOfDifference(comparison.getSecond(), comparison.getThird());
       if (diff >= 0) {
-        System.err.println("Difference at " + diff);
+        System.err.println("Difference at " + diff + "in " + _databaseType + "/" + comparison.getFirst());
         System.err.println("Upgraded --->..." + StringUtils.substring(comparison.getSecond(), diff - 200, diff) +
           "<-!!!->" + StringUtils.substring(comparison.getSecond(), diff, diff + 200) + "...");
         System.err.println(" Created --->..." + StringUtils.substring(comparison.getThird(), diff - 200, diff) +

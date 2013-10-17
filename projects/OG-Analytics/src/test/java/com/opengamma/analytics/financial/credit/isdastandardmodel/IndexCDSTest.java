@@ -19,13 +19,6 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.Month;
 import org.threeten.bp.Period;
 
-import com.opengamma.analytics.financial.credit.PriceType;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.FastCreditCurveBuilder;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurve;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.MarketQuoteConverter;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.QuotedSpread;
 import com.opengamma.analytics.financial.model.BumpType;
 
 /**
@@ -116,8 +109,8 @@ public class IndexCDSTest extends ISDABaseTest {
   @Test(enabled = false)
   public void rollingTest() {
 
-    final MarketQuoteConverter pufConverter = new MarketQuoteConverter(false);
-    final FastCreditCurveBuilder builder = new FastCreditCurveBuilder(false);
+    final MarketQuoteConverter pufConverter = new MarketQuoteConverter();
+    final FastCreditCurveBuilder builder = new FastCreditCurveBuilder();
 
     final double notional = 1e12;
     final LocalDate today = LocalDate.of(2011, Month.JUNE, 13);
@@ -139,11 +132,6 @@ public class IndexCDSTest extends ISDABaseTest {
     final double[] rates = new double[] {0.01262, 0.01344, 0.01469, 0.01739, 0.01947, 0.02145, 0.02114, 0.02308, 0.02511, 0.02695, 0.02857, 0.02989, 0.03104, 0.03204, 0.03292, 0.0345, 0.03619,
       0.03712, 0.03602 };
     final ISDACompliantYieldCurve yieldCurve = makeYieldCurve(tradeDate, spotDate, yieldCurvePoints, yieldCurveInstruments, rates, ACT360, D30360, Period.ofYears(1));
-    //    final String[] yieldCurvePoints = new String[] {"1M", "2M", "3M", "6M", "9M", "1Y", "2Y", "3Y", "4Y", "5Y", "6Y", "7Y", "8Y", "9Y", "10Y", "12Y", "15Y", "20Y", "25Y", "30Y" };
-    //    final String[] yieldCurveInstruments = new String[] {"M", "M", "M", "M", "M", "M", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S", "S" };
-    //    final double[] rates = new double[] {0.001886, 0.002203, 0.002485, 0.003968, 0.005568, 0.007225, 0.005935, 0.00967, 0.013855, 0.017995, 0.021615, 0.024565, 0.02701, 0.029025, 0.03073, 0.03333,
-    //      0.035815, 0.03782, 0.038725, 0.039235 };
-    //    final ISDACompliantYieldCurve yieldCurve = makeYieldCurve(tradeDate, spotDate, yieldCurvePoints, yieldCurveInstruments, rates, ACT360, D30360, Period.ofMonths(6));
 
     final CDSAnalytic pointCDS = new CDSAnalytic(tradeDate, stepinDate, cashSettleDate, startDate, maturity, PAY_ACC_ON_DEFAULT, PAYMENT_INTERVAL, STUB, PROCTECTION_START, RECOVERY_RATE);
     final QuotedSpread qSpread = new QuotedSpread(COUPON, tradeLevel);
@@ -168,7 +156,7 @@ public class IndexCDSTest extends ISDABaseTest {
     final double[] flatSpreads = new double[nMat];
     Arrays.fill(flatSpreads, tradeLevel);
     final ISDACompliantCreditCurve creditCurve = builder.calibrateCreditCurve(pillarCDS, flatSpreads, yieldCurve);
-    final double pufTrans = PRICER_CORRECT.pv(pointCDS, yieldCurve, creditCurve, COUPON);
+    final double pufTrans = PRICER_MARKIT_FIX.pv(pointCDS, yieldCurve, creditCurve, COUPON);
     final double cashAmountTrans = notional * pufTrans - accAmt;
     System.out.println(pufTrans + "\t" + cashAmountTrans);
 

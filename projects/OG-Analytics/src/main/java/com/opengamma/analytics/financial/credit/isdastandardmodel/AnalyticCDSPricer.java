@@ -13,7 +13,6 @@ import static com.opengamma.analytics.math.utilities.Epsilon.epsilonPP;
 
 import org.apache.commons.lang.NotImplementedException;
 
-import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -21,26 +20,36 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class AnalyticCDSPricer {
 
+  private static final double HALFDAY = 1 / 730.;
+
   /** Default value for determining if results consistent with ISDA model versions 1.8.2 or lower are to be calculated */
-  private static final boolean DEFAULT_USE_CORRECT_ACC_ON_DEFAULT_FORMULA = false;
+  private static final AccrualOnDefaultFormulae DEFAULT_FORMULA = AccrualOnDefaultFormulae.OrignalISDA;
   /** True if results consistent with ISDA model versions 1.8.2 or lower are to be calculated */
-  private final boolean _useCorrectAccOnDefaultFormula;
+  private final AccrualOnDefaultFormulae _formula;
+  private final double _omega;
 
   /**
    * For consistency with the ISDA model version 1.8.2 and lower, a bug in the accrual on default calculation
    * has been reproduced.
    */
   public AnalyticCDSPricer() {
-    _useCorrectAccOnDefaultFormula = DEFAULT_USE_CORRECT_ACC_ON_DEFAULT_FORMULA;
+    _formula = DEFAULT_FORMULA;
+    _omega = HALFDAY;
   }
 
   /**
-   *  For consistency with the ISDA model version 1.8.2 and lower, a bug in the accrual on default calculation
-   * has been reproduced.
-   * @param useCorrectAccOnDefaultFormula Set to true to use correct accrual on default formulae.
+   * Which formula to use for the accrued on default calculation.  
+   * @param formula Options are the formula given in the ISDA model (version 1.8.2 and lower); the proposed fix by Markit (given as a comment in  
+   * version 1.8.2, or the mathematically correct formula 
    */
-  public AnalyticCDSPricer(final boolean useCorrectAccOnDefaultFormula) {
-    _useCorrectAccOnDefaultFormula = useCorrectAccOnDefaultFormula;
+  public AnalyticCDSPricer(final AccrualOnDefaultFormulae formula) {
+    ArgumentChecker.notNull(formula, "formula");
+    _formula = formula;
+    if (_formula == AccrualOnDefaultFormulae.OrignalISDA) {
+      _omega = HALFDAY;
+    } else {
+      _omega = 0.0;
+    }
   }
 
   /**
@@ -111,7 +120,7 @@ public class AnalyticCDSPricer {
       return 0.0;
     }
 
-    final double[] integrationSchedule = getIntegrationsPoints(cds.getProtectionStart(), cds.getProtectionEnd(), yieldCurve, creditCurve);
+    final double[] integrationSchedule = getIntegrationsPoints(cds.getEffectiveProtectionStart(), cds.getProtectionEnd(), yieldCurve, creditCurve);
 
     double ht0 = creditCurve.getRT(integrationSchedule[0]);
     double rt0 = yieldCurve.getRT(integrationSchedule[0]);
@@ -178,10 +187,17 @@ public class AnalyticCDSPricer {
     }
 
     if (cds.isPayAccOnDefault()) {
-      final double[] integrationSchedule = getIntegrationsPoints(cds.getProtectionStart(), cds.getProtectionEnd(), yieldCurve, creditCurve);
+      //This is needed so that the code is consistent with ISDA C when the Markit `fix' is used. For forward starting CDS (accStart > trade-date),
+      //and more than one coupon, the C code generates an extra integration point (a node at protection start and one the day before) - normally
+      //the second point could be ignored (since is doesn't correspond to a node of the curves, nor is it the start point), but the Markit fix is 
+      //mathematically incorrect, so this point affects the result.  
+      //    final double start = cds.getNumPayments() == 1 ? cds.getEffectiveProtectionStart() : cds.getProtectionStart();
+      //  final double start = Math.max(0, cds.g)
+      final double start = cds.getNumPayments() == 1 ? cds.getEffectiveProtectionStart() : cds.getStart();
+      final double[] integrationSchedule = getIntegrationsPoints(start, cds.getProtectionEnd(), yieldCurve, creditCurve);
       double accPV = 0.0;
       for (final CDSCoupon coupon : cds.getCoupons()) {
-        accPV += calculateSinglePeriodAccrualOnDefault(coupon, cds.getProtectionStart(), integrationSchedule, yieldCurve, creditCurve);
+        accPV += calculateSinglePeriodAccrualOnDefault(coupon, cds.getEffectiveProtectionStart(), integrationSchedule, yieldCurve, creditCurve);
       }
       pv += accPV;
     }
@@ -195,13 +211,14 @@ public class AnalyticCDSPricer {
     return pv;
   }
 
-  private double calculateSinglePeriodAccrualOnDefault(final CDSCoupon coupon, final double stepin, final double[] integrationPoints, final ISDACompliantYieldCurve yieldCurve,
+  private double calculateSinglePeriodAccrualOnDefault(final CDSCoupon coupon, final double effectiveStart, final double[] integrationPoints, final ISDACompliantYieldCurve yieldCurve,
       final ISDACompliantCreditCurve creditCurve) {
 
-    final double start = Math.max(coupon.getEffStart(), stepin);
+    final double start = Math.max(coupon.getEffStart(), effectiveStart);
     if (start >= coupon.getEffEnd()) {
       return 0.0; //this coupon has already expired 
     }
+
     final double[] knots = truncateSetInclusive(start, coupon.getEffEnd(), integrationPoints);
 
     double t = knots[0];
@@ -209,7 +226,7 @@ public class AnalyticCDSPricer {
     double rt0 = yieldCurve.getRT(t);
     double b0 = Math.exp(-rt0 - ht0); // this is the risky discount factor
 
-    double t0 = _useCorrectAccOnDefaultFormula ? 0.0 : t - coupon.getEffStart() + 1 / 730.0; // TODO not entirely clear why ISDA adds half a day
+    double t0 = t - coupon.getEffStart() + _omega;
     double pv = 0.0;
     final int nItems = knots.length;
     for (int j = 1; j < nItems; ++j) {
@@ -222,19 +239,17 @@ public class AnalyticCDSPricer {
 
       final double dht = ht1 - ht0;
       final double drt = rt1 - rt0;
-      final double dhrt = dht + drt + 1e-50; // to keep consistent with ISDA c code
+      final double dhrt = dht + drt;
 
       double tPV;
-      if (_useCorrectAccOnDefaultFormula) {
+      if (_formula == AccrualOnDefaultFormulae.MarkitFix) {
         if (Math.abs(dhrt) < 1e-5) {
           tPV = dht * dt * b0 * epsilonP(-dhrt);
         } else {
           tPV = dht * dt / dhrt * ((b0 - b1) / dhrt - b1);
         }
       } else {
-        // This is a know bug - a fix is proposed by Markit (and appears commented out in ISDA v.1.8.2)
-        // This is the correct term plus dht*t0/dhrt*(b0-b1) which is an error
-        final double t1 = t - coupon.getEffStart() + 1 / 730.0;
+        final double t1 = t - coupon.getEffStart() + _omega;
         if (Math.abs(dhrt) < 1e-5) {
           tPV = dht * b0 * (t0 * epsilon(-dhrt) + dt * epsilonP(-dhrt));
         } else {
@@ -347,16 +362,13 @@ public class AnalyticCDSPricer {
     }
 
     if (cds.isPayAccOnDefault()) {
-      final double[] integrationSchedule = getIntegrationsPoints(cds.getProtectionStart(), cds.getProtectionEnd(), yieldCurve, creditCurve);
+      final double start = cds.getNumPayments() == 1 ? cds.getEffectiveProtectionStart() : cds.getStart();
+      final double[] integrationSchedule = getIntegrationsPoints(start, cds.getProtectionEnd(), yieldCurve, creditCurve);
       //      final double offsetStepin = cds.getStepin() + obsOffset;
 
       double accPVSense = 0.0;
       for (int i = 0; i < n; i++) {
-        //        final double offsetAccStart = cds.getAccStart(i) + obsOffset;
-        //        final double offsetAccEnd = cds.getAccEnd(i) + obsOffset;
-        //        final double accRate = cds.getAccrualFraction(i) / (offsetAccEnd - offsetAccStart);
-        accPVSense += calculateSinglePeriodAccrualOnDefaultCreditSensitivity(cds.getAccRatio(i), cds.getProtectionStart(), cds.getEffectiveAccStart(i), cds.getEffectiveAccEnd(i), integrationSchedule,
-            yieldCurve, creditCurve, creditCurveNode);
+        accPVSense += calculateSinglePeriodAccrualOnDefaultCreditSensitivity(cds.getCoupon(i), cds.getEffectiveProtectionStart(), integrationSchedule, yieldCurve, creditCurve, creditCurveNode);
       }
       pvSense += accPVSense;
     }
@@ -397,16 +409,14 @@ public class AnalyticCDSPricer {
     }
 
     if (cds.isPayAccOnDefault()) {
-      final double[] integrationSchedule = getIntegrationsPoints(cds.getProtectionStart(), cds.getProtectionEnd(), yieldCurve, creditCurve);
+      final double start = cds.getNumPayments() == 1 ? cds.getEffectiveProtectionStart() : cds.getStart();
+      final double[] integrationSchedule = getIntegrationsPoints(start, cds.getProtectionEnd(), yieldCurve, creditCurve);
       //  final double offsetStepin = cds.getStepin() + obsOffset;
 
       double accPVSense = 0.0;
       for (int i = 0; i < n; i++) {
-        //        final double offsetAccStart = cds.getAccStart(i) + obsOffset;
-        //        final double offsetAccEnd = cds.getAccEnd(i) + obsOffset;
-        //        final double accRate = cds.getAccrualFraction(i) / (offsetAccEnd - offsetAccStart);
-        accPVSense += calculateSinglePeriodAccrualOnDefaultYieldSensitivity(cds.getAccRatio(i), cds.getProtectionStart(), cds.getEffectiveAccStart(i), cds.getEffectiveAccEnd(i), integrationSchedule,
-            yieldCurve, creditCurve, yieldCurveNode);
+
+        accPVSense += calculateSinglePeriodAccrualOnDefaultYieldSensitivity(cds.getCoupon(i), cds.getEffectiveProtectionStart(), integrationSchedule, yieldCurve, creditCurve, yieldCurveNode);
       }
       pvSense += accPVSense;
     }
@@ -424,14 +434,14 @@ public class AnalyticCDSPricer {
     return pvSense;
   }
 
-  private double calculateSinglePeriodAccrualOnDefaultCreditSensitivity(final double accRate, final double stepin, final double accStart, final double accEnd, final double[] integrationPoints,
-      final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final int creditCurveNode) {
+  private double calculateSinglePeriodAccrualOnDefaultCreditSensitivity(final CDSCoupon coupon, final double effStart, final double[] integrationPoints, final ISDACompliantYieldCurve yieldCurve,
+      final ISDACompliantCreditCurve creditCurve, final int creditCurveNode) {
 
-    final double start = Math.max(accStart, stepin);
-    if (start >= accEnd) {
+    final double start = Math.max(coupon.getEffStart(), effStart);
+    if (start >= coupon.getEffEnd()) {
       return 0.0;
     }
-    final double[] knots = truncateSetInclusive(start, accEnd, integrationPoints);
+    final double[] knots = truncateSetInclusive(start, coupon.getEffEnd(), integrationPoints);
 
     double t = knots[0];
     double ht0 = creditCurve.getRT(t);
@@ -441,7 +451,7 @@ public class AnalyticCDSPricer {
     double b0 = p0 * q0; // this is the risky discount factor
     double dqdr0 = creditCurve.getSingleNodeDiscountFactorSensitivity(t, creditCurveNode);
 
-    double t0 = _useCorrectAccOnDefaultFormula ? 0.0 : t - accStart + 1 / 730.0; // TODO not entirely clear why ISDA adds half a day
+    double t0 = t - coupon.getEffStart() + _omega;
     double pvSense = 0.0;
     final int nItems = knots.length;
     for (int j = 1; j < nItems; ++j) {
@@ -463,7 +473,7 @@ public class AnalyticCDSPricer {
       // TODO once the maths is written up in a white paper, check these formula again, since tests again finite difference
       // could miss some subtle error
 
-      if (_useCorrectAccOnDefaultFormula) {
+      if (_formula == AccrualOnDefaultFormulae.MarkitFix) {
         if (Math.abs(dhrt) < 1e-5) {
           final double eP = epsilonP(-dhrt);
           final double ePP = epsilonPP(-dhrt);
@@ -481,15 +491,14 @@ public class AnalyticCDSPricer {
           tPvSense = dPVdq0 * dqdr0 - dPVdq1 * dqdr1;
         }
       } else {
-        // this is a know bug - a fix is proposed by Markit (and appears commented out in ISDA v.1.8.2)
-        final double t1 = t - accStart + 1 / 730.0;
+        final double t1 = t - coupon.getEffStart() + _omega;
         if (Math.abs(dhrt) < 1e-5) {
           final double e = epsilon(-dhrt);
           final double eP = epsilonP(-dhrt);
           final double ePP = epsilonPP(-dhrt);
           final double w1 = t0 * e + dt * eP;
           final double w2 = t0 * eP + dt * ePP;
-          final double dPVdq0 = p0 * ((1 + dhrt) * w1 - dht * w2);
+          final double dPVdq0 = p0 * ((1 + dht) * w1 - dht * w2);
           final double dPVdq1 = b0 / q1 * (-w1 + dht * w2);
           tPvSense = dPVdq0 * dqdr0 + dPVdq1 * dqdr1;
 
@@ -514,20 +523,20 @@ public class AnalyticCDSPricer {
       b0 = b1;
       dqdr0 = dqdr1;
     }
-    return accRate * pvSense;
+    return coupon.getYFRatio() * pvSense;
   }
 
-  private double calculateSinglePeriodAccrualOnDefaultYieldSensitivity(final double accRate, final double stepin, final double accStart, final double accEnd, final double[] integrationPoints,
-      final ISDACompliantYieldCurve yieldCurve, final ISDACompliantCreditCurve creditCurve, final int yieldCurveNode) {
-    final double start = Math.max(accStart, stepin);
-    if (start >= accEnd) {
+  private double calculateSinglePeriodAccrualOnDefaultYieldSensitivity(final CDSCoupon coupon, final double effStart, final double[] integrationPoints, final ISDACompliantYieldCurve yieldCurve,
+      final ISDACompliantCreditCurve creditCurve, final int yieldCurveNode) {
+    final double start = Math.max(coupon.getEffStart(), effStart);
+    if (start >= coupon.getEffEnd()) {
       return 0.0;
     }
-    if (_useCorrectAccOnDefaultFormula == false) {
+    if (_formula != AccrualOnDefaultFormulae.MarkitFix) {
       throw new NotImplementedException();
     }
 
-    final double[] knots = truncateSetInclusive(start, accEnd, integrationPoints);
+    final double[] knots = truncateSetInclusive(start, coupon.getEffEnd(), integrationPoints);
 
     double t = knots[0];
     double ht0 = creditCurve.getRT(t);
@@ -537,7 +546,6 @@ public class AnalyticCDSPricer {
     double b0 = p0 * q0; // this is the risky discount factor
     double dpdr0 = yieldCurve.getSingleNodeDiscountFactorSensitivity(t, yieldCurveNode);
 
-    final double t0 = 0.0;
     double pvSense = 0.0;
     final int nItems = knots.length;
     for (int j = 1; j < nItems; ++j) {
@@ -584,7 +592,7 @@ public class AnalyticCDSPricer {
       b0 = b1;
       dpdr0 = dpdr1;
     }
-    return accRate * pvSense;
+    return coupon.getYFRatio() * pvSense;
   }
 
   /**
@@ -601,14 +609,14 @@ public class AnalyticCDSPricer {
     ArgumentChecker.notNull(creditCurve, "null creditCurve");
     ArgumentChecker.isTrue(creditCurveNode >= 0 && creditCurveNode < creditCurve.getNumberOfKnots(), "creditCurveNode out of range");
     if ((creditCurveNode != 0 && cds.getProtectionEnd() <= creditCurve.getTimeAtIndex(creditCurveNode - 1)) ||
-        (creditCurveNode != creditCurve.getNumberOfKnots() - 1 && cds.getProtectionStart() >= creditCurve.getTimeAtIndex(creditCurveNode + 1))) {
+        (creditCurveNode != creditCurve.getNumberOfKnots() - 1 && cds.getEffectiveProtectionStart() >= creditCurve.getTimeAtIndex(creditCurveNode + 1))) {
       return 0.0; // can't have any sensitivity in this case
     }
     if (cds.getProtectionEnd() <= 0.0) { //short cut already expired CDSs
       return 0.0;
     }
 
-    final double[] integrationSchedule = getIntegrationsPoints(cds.getProtectionStart(), cds.getProtectionEnd(), yieldCurve, creditCurve);
+    final double[] integrationSchedule = getIntegrationsPoints(cds.getEffectiveProtectionStart(), cds.getProtectionEnd(), yieldCurve, creditCurve);
 
     double t = integrationSchedule[0];
     double ht0 = creditCurve.getRT(t);
@@ -685,14 +693,14 @@ public class AnalyticCDSPricer {
     ArgumentChecker.notNull(creditCurve, "null creditCurve");
     ArgumentChecker.isTrue(yieldCurveNode >= 0 && yieldCurveNode < yieldCurve.getNumberOfKnots(), "yieldCurveNode out of range");
     if ((yieldCurveNode != 0 && cds.getProtectionEnd() <= yieldCurve.getTimeAtIndex(yieldCurveNode - 1)) ||
-        (yieldCurveNode != creditCurve.getNumberOfKnots() - 1 && cds.getProtectionStart() >= yieldCurve.getTimeAtIndex(yieldCurveNode + 1))) {
+        (yieldCurveNode != creditCurve.getNumberOfKnots() - 1 && cds.getEffectiveProtectionStart() >= yieldCurve.getTimeAtIndex(yieldCurveNode + 1))) {
       return 0.0; // can't have any sensitivity in this case
     }
     if (cds.getProtectionEnd() <= 0.0) { //short cut already expired CDSs
       return 0.0;
     }
 
-    final double[] integrationSchedule = getIntegrationsPoints(cds.getProtectionStart(), cds.getProtectionEnd(), yieldCurve, creditCurve);
+    final double[] integrationSchedule = getIntegrationsPoints(cds.getEffectiveProtectionStart(), cds.getProtectionEnd(), yieldCurve, creditCurve);
 
     double t = integrationSchedule[0];
     double ht0 = creditCurve.getRT(t);

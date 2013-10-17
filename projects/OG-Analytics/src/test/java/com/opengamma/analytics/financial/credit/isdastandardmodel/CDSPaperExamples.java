@@ -17,7 +17,6 @@ import org.threeten.bp.Month;
 import org.threeten.bp.Period;
 import org.threeten.bp.format.DateTimeFormatter;
 
-import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurveBuilder.ArbitrageHandling;
 import com.opengamma.analytics.financial.model.BumpType;
 import com.opengamma.analytics.math.linearalgebra.LUDecompositionCommons;
@@ -35,10 +34,9 @@ public class CDSPaperExamples extends ISDABaseTest {
   private static final MatrixAlgebra MA = new OGMatrixAlgebra();
   private static final DateTimeFormatter DATE_FORMATT = DateTimeFormatter.ofPattern("dd-MMM-yy");
 
-  private static final MarketQuoteConverter PUF_CONVERTER = new MarketQuoteConverter(true);
-  private static final AnalyticCDSPricer PRICER = new AnalyticCDSPricer(true);
-  private static final FiniteDifferenceSpreadSensitivityCalculator FD_SPREAD_SENSE_CAL = new FiniteDifferenceSpreadSensitivityCalculator(true);
-  private static final AnalyticSpreadSensitivityCalculator ANAL_SPREAD_SENSE_CAL = new AnalyticSpreadSensitivityCalculator(true);
+  private static final MarketQuoteConverter PUF_CONVERTER = new MarketQuoteConverter(MARKIT_FIX);
+  private static final FiniteDifferenceSpreadSensitivityCalculator FD_SPREAD_SENSE_CAL = new FiniteDifferenceSpreadSensitivityCalculator(MARKIT_FIX);
+  private static final AnalyticSpreadSensitivityCalculator ANAL_SPREAD_SENSE_CAL = new AnalyticSpreadSensitivityCalculator(MARKIT_FIX);
   private static final CDSAnalyticFactory CDS_FACTORY = new CDSAnalyticFactory(0.4);
 
   private static final LocalDate TODAY = LocalDate.of(2011, Month.JUNE, 13);
@@ -70,7 +68,7 @@ public class CDSPaperExamples extends ISDABaseTest {
   private static final ISDACompliantCreditCurve CREDIT_CURVE;
 
   static {
-    final ISDACompliantCreditCurveBuilder curveBuilder = new FastCreditCurveBuilder(true, ArbitrageHandling.ZeroHazardRate);
+    final ISDACompliantCreditCurveBuilder curveBuilder = new FastCreditCurveBuilder(MARKIT_FIX, ArbitrageHandling.ZeroHazardRate);
 
     final int nPillars = PILLAR_DATES.length;
     PILLAR_CDSS = new CDSAnalytic[nPillars];
@@ -116,15 +114,29 @@ public class CDSPaperExamples extends ISDABaseTest {
   }
 
   @Test(enabled = false)
-  public void test() {
+  public void threeWayPriceTest() {
+    final double notional = 1e7;
+    final Period[] tenors = new Period[] {Period.ofMonths(3), Period.ofMonths(6), Period.ofYears(1), Period.ofYears(5), Period.ofYears(10) };
+    final CDSAnalytic[] cds = CDS_FACTORY.makeIMMCDS(TRADE_DATE, tenors);
+    final int n = tenors.length;
+    final double[][] res = new double[3][n];
+    for (int i = 0; i < n; i++) {
+      res[0][i] = notional * PRICER_OG_FIX.pv(cds[i], YIELD_CURVE, CREDIT_CURVE, 0.01);
+      res[1][i] = notional * PRICER.pv(cds[i], YIELD_CURVE, CREDIT_CURVE, 0.01);
+      res[2][i] = notional * PRICER_MARKIT_FIX.pv(cds[i], YIELD_CURVE, CREDIT_CURVE, 0.01);
+    }
 
-    final AnalyticCDSPricer pricer = new AnalyticCDSPricer(true);
+    System.out.println(new DoubleMatrix2D(res));
+  }
+
+  @Test(enabled = false)
+  public void test() {
 
     final int nMat = IMM_DATES.length;
     for (int i = 0; i < nMat; i++) {
       final CDSAnalytic cds = new CDSAnalytic(TRADE_DATE, STEPIN, CASH_SETTLE_DATE, STARTDATE, IMM_DATES[i], PAY_ACC_ON_DEFAULT, PAYMENT_INTERVAL, STUB, PROCTECTION_START, RECOVERY_RATE);
-      final double dPV = pricer.pv(cds, YIELD_CURVE, CREDIT_CURVE, COUPON, PriceType.DIRTY);
-      final double proLeg = pricer.protectionLeg(cds, YIELD_CURVE, CREDIT_CURVE);
+      final double dPV = PRICER_MARKIT_FIX.pv(cds, YIELD_CURVE, CREDIT_CURVE, COUPON, PriceType.DIRTY);
+      final double proLeg = PRICER_MARKIT_FIX.protectionLeg(cds, YIELD_CURVE, CREDIT_CURVE);
 
       System.out.println(IMM_DATES[i] + "\t" + dPV + "\t" + proLeg);
       //   assertEquals(MATURITIES[i].toString(), EXPECTED_UPFRONT_CHARGE[i], dPV, 1e-15);
@@ -142,7 +154,7 @@ public class CDSPaperExamples extends ISDABaseTest {
     for (int i = 0; i < 100; i++) {
       final double lambda = 0.8 * i / 100.;
       final ISDACompliantCreditCurve cc = new ISDACompliantCreditCurve(5.0, lambda);
-      final double price = PRICER_CORRECT.pv(cds, YIELD_CURVE, cc, 0.05);
+      final double price = PRICER_MARKIT_FIX.pv(cds, YIELD_CURVE, cc, 0.05);
       System.out.println(lambda + "\t" + price);
     }
   }
@@ -166,7 +178,7 @@ public class CDSPaperExamples extends ISDABaseTest {
   public void parRateSensitivityTest() {
     final DateTimeFormatter formatt = DateTimeFormatter.ofPattern("dd-MMM-yy");
     final StringBuilder out = new StringBuilder();
-    final AnalyticCDSPricer pricer = new AnalyticCDSPricer(true);
+    final AnalyticCDSPricer pricer = new AnalyticCDSPricer(MARKIT_FIX);
     final CDSAnalyticFactory factory = new CDSAnalyticFactory(0.4);
     final int nPillars = PILLAR_DATES.length;
     out.append("\\begin{tabular}{");
@@ -206,7 +218,7 @@ public class CDSPaperExamples extends ISDABaseTest {
     final double coupon = 0.01;
     final DateTimeFormatter formatt = DateTimeFormatter.ofPattern("dd-MMM-yy");
     final StringBuilder out = new StringBuilder();
-    final AnalyticCDSPricer pricer = new AnalyticCDSPricer(true);
+    final AnalyticCDSPricer pricer = new AnalyticCDSPricer(MARKIT_FIX);
     final CDSAnalyticFactory factory = new CDSAnalyticFactory(0.4);
     final int nPillars = PILLAR_DATES.length;
     out.append("\\begin{tabular}{");
@@ -308,7 +320,7 @@ public class CDSPaperExamples extends ISDABaseTest {
   public void hedgingTest2() {
 
     final double coupon = 0.01;
-    final AnalyticCDSPricer pricer = new AnalyticCDSPricer(true);
+    final AnalyticCDSPricer pricer = new AnalyticCDSPricer(MARKIT_FIX);
     final CDSAnalyticFactory factory = new CDSAnalyticFactory(0.4);
     final LocalDate mat = LocalDate.of(2015, Month.JUNE, 20);
     final LocalDate mat1 = LocalDate.of(2014, Month.JUNE, 20);
@@ -432,8 +444,8 @@ public class CDSPaperExamples extends ISDABaseTest {
 
   @Test(enabled = false)
   public void parallelCS01Test() {
-    final MarketQuoteConverter puf_con = new MarketQuoteConverter(true);
-    final ISDACompliantCreditCurveBuilder curveBuilder = new FastCreditCurveBuilder(true, ArbitrageHandling.ZeroHazardRate);
+    final MarketQuoteConverter puf_con = new MarketQuoteConverter(MARKIT_FIX);
+    final ISDACompliantCreditCurveBuilder curveBuilder = new FastCreditCurveBuilder(MARKIT_FIX, ArbitrageHandling.ZeroHazardRate);
     final LocalDate mat = LocalDate.of(2019, Month.JUNE, 20);
     final CDSAnalytic cds = CDS_FACTORY.makeCDS(TRADE_DATE, STARTDATE, mat);
 
@@ -444,8 +456,8 @@ public class CDSPaperExamples extends ISDABaseTest {
     System.out.println(puf.getPointsUpFront());
     final ISDACompliantCreditCurve cc2 = curveBuilder.calibrateCreditCurve(cds, COUPON, YIELD_CURVE, puf.getPointsUpFront());
 
-    final double cs01Anal = PRICER_CORRECT.pvCreditSensitivity(cds, YIELD_CURVE, cc, COUPON, 0) / PRICER_CORRECT.parSpreadCreditSensitivity(cds, YIELD_CURVE, cc, 0);
-    final double cs01Anal2 = PRICER_CORRECT.pvCreditSensitivity(cds, YIELD_CURVE, cc2, COUPON, 0) / PRICER_CORRECT.parSpreadCreditSensitivity(cds, YIELD_CURVE, cc2, 0);
+    final double cs01Anal = PRICER_MARKIT_FIX.pvCreditSensitivity(cds, YIELD_CURVE, cc, COUPON, 0) / PRICER_MARKIT_FIX.parSpreadCreditSensitivity(cds, YIELD_CURVE, cc, 0);
+    final double cs01Anal2 = PRICER_MARKIT_FIX.pvCreditSensitivity(cds, YIELD_CURVE, cc2, COUPON, 0) / PRICER_MARKIT_FIX.parSpreadCreditSensitivity(cds, YIELD_CURVE, cc2, 0);
     System.out.println(cs01FD + "\t" + cs01Anal + "\t" + cs01Anal2);
 
     final double eps = 1e-5;
@@ -461,15 +473,15 @@ public class CDSPaperExamples extends ISDABaseTest {
     final int nMat = IMM_DATES.length;
     final CDSAnalytic[] cds = CDS_FACTORY.makeCDS(TRADE_DATE, STARTDATE, IMM_DATES);
     for (int i = 0; i < nMat; i++) {
-      final double t = ACT365.getDayCountFraction(TRADE_DATE, IMM_DATES[i]);
-      final double s = PRICER_CORRECT.parSpread(cds[i], YIELD_CURVE, flat);
+      final double t = ACT365F.getDayCountFraction(TRADE_DATE, IMM_DATES[i]);
+      final double s = PRICER_OG_FIX.parSpread(cds[i], YIELD_CURVE, flat);
       System.out.println(t + "\t" + s * TEN_THOUSAND);
     }
   }
 
   @Test(enabled = false)
   public void bucketedCS01() {
-    final MarketQuoteConverter puf_con = new MarketQuoteConverter(true);
+    final MarketQuoteConverter puf_con = new MarketQuoteConverter(MARKIT_FIX);
     final int nMat = MATURITIES_1Y_STEP.length;
     final int nPillars = PILLAR_CDSS.length;
     final CDSAnalytic[] cds = CDS_FACTORY.makeCDS(TRADE_DATE, STARTDATE, MATURITIES_1Y_STEP);
@@ -478,7 +490,7 @@ public class CDSPaperExamples extends ISDABaseTest {
     }
     System.out.print("\n");
     for (int i = 0; i < nMat; i++) {
-      final double puf = PRICER_CORRECT.pv(cds[i], YIELD_CURVE, CREDIT_CURVE, COUPON);
+      final double puf = PRICER_MARKIT_FIX.pv(cds[i], YIELD_CURVE, CREDIT_CURVE, COUPON);
       final double qs = puf_con.pufToQuotedSpread(cds[i], COUPON, YIELD_CURVE, puf);
       final double[] spreads = new double[nPillars];
       Arrays.fill(spreads, qs);
@@ -514,7 +526,7 @@ public class CDSPaperExamples extends ISDABaseTest {
     for (int i = 0; i < nMat; i++) {
       System.out.print(MATURITIES_1Y_STEP[i].toString(DATE_FORMATT));
       for (int j = 0; j < nYCPoints; j++) {
-        final double sense = PRICER_CORRECT.pvYieldSensitivity(cds[i], yc, CREDIT_CURVE, COUPON, j);
+        final double sense = PRICER_MARKIT_FIX.pvYieldSensitivity(cds[i], yc, CREDIT_CURVE, COUPON, j);
         System.out.print("\t" + sense);
       }
       System.out.print("\n");

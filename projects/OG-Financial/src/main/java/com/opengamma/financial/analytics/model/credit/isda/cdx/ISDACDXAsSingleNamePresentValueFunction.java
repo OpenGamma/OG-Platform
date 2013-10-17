@@ -28,7 +28,6 @@ import org.threeten.bp.ZonedDateTime;
 import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.credit.BuySellProtection;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.StandardCDSCoupon;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.standard.StandardCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
@@ -66,36 +65,24 @@ public class ISDACDXAsSingleNamePresentValueFunction extends ISDACDXAsSingleName
   }
 
   @Override
-  protected Set<ComputedValue> getComputedValue(final CreditDefaultSwapDefinition definition,
-                                                final ISDACompliantYieldCurve yieldCurve,
-                                                final ZonedDateTime[] times,
-                                                final double[] marketSpreads,
-                                                final ZonedDateTime valuationDate,
-                                                final ComputationTarget target,
-                                                final ValueProperties properties,
-                                                final FunctionInputs inputs,
-                                                ISDACompliantCreditCurve hazardCurve,
-                                                CDSAnalytic analytic) {
+  protected Set<ComputedValue> getComputedValue(final CreditDefaultSwapDefinition definition, final ISDACompliantYieldCurve yieldCurve, final ZonedDateTime[] times, final double[] marketSpreads,
+      final ZonedDateTime valuationDate, final ComputationTarget target, final ValueProperties properties, final FunctionInputs inputs, ISDACompliantCreditCurve hazardCurve, CDSAnalytic analytic) {
     final Object hazardRateCurveObject = inputs.getValue(ValueRequirementNames.HAZARD_RATE_CURVE);
     if (hazardRateCurveObject == null) {
       throw new OpenGammaRuntimeException("Could not get hazard rate curve");
     }
     final ISDACompliantCreditCurve hazardRateCurve = (ISDACompliantCreditCurve) hazardRateCurveObject;
 
-    final CDSAnalyticFactory analyticFactory = new CDSAnalyticFactory(definition.getRecoveryRate(), definition.getCouponFrequency().getPeriod())
-        .with(definition.getBusinessDayAdjustmentConvention())
-        .with(definition.getCalendar()).with(definition.getStubType())
-        .withAccualDCC(definition.getDayCountFractionConvention());
+    final CDSAnalyticFactory analyticFactory = new CDSAnalyticFactory(definition.getRecoveryRate(), definition.getCouponFrequency().getPeriod()).with(definition.getBusinessDayAdjustmentConvention())
+        .with(definition.getCalendar()).with(definition.getStubType()).withAccrualDCC(definition.getDayCountFractionConvention());
 
     double pv;
     final CDSAnalytic pricingCDS = analyticFactory.makeCDS(valuationDate.toLocalDate(), definition.getEffectiveDate().toLocalDate(), definition.getMaturityDate().toLocalDate());
     if (definition instanceof LegacyCreditDefaultSwapDefinition) {
       pv = PRICER.pv(pricingCDS, yieldCurve, hazardRateCurve, ((LegacyCreditDefaultSwapDefinition) definition).getParSpread()) * definition.getNotional();
     } else if (definition instanceof StandardCreditDefaultSwapDefinition) {
-      pv = POINTS_UP_FRONT_CONVERTER.quotedSpreadToPUF(pricingCDS,
-                                                        getCoupon(((StandardCreditDefaultSwapDefinition) definition).getPremiumLegCoupon()),
-                                                        yieldCurve,
-                                                        ((StandardCreditDefaultSwapDefinition) definition).getQuotedSpread()) * definition.getNotional();
+      pv = POINTS_UP_FRONT_CONVERTER.quotedSpreadToPUF(pricingCDS, ((StandardCreditDefaultSwapDefinition) definition).getPremiumLegCoupon(), yieldCurve,
+          ((StandardCreditDefaultSwapDefinition) definition).getQuotedSpread()) * definition.getNotional();
     } else {
       throw new OpenGammaRuntimeException("Unexpected cds type: " + definition.getClass().getSimpleName());
     }
@@ -107,26 +94,26 @@ public class ISDACDXAsSingleNamePresentValueFunction extends ISDACDXAsSingleName
     return Collections.singleton(new ComputedValue(spec, pv));
   }
 
-  private double getCoupon(final StandardCDSCoupon coupon) {
-    switch (coupon) {
-      case _25bps:
-        return 0.0025;
-      case _100bps:
-        return 0.01;
-      case _125bps:
-        return 0.025;
-      case _300bps:
-        return 0.03;
-      case _500bps:
-        return 0.05;
-      case _750bps:
-        return 0.07;
-      case _1000bps:
-        return 0.1;
-      default:
-        throw new OpenGammaRuntimeException("Unknown coupon amount: " + coupon.name());
-    }
-  }
+  //  private double getCoupon(final StandardCDSCoupon coupon) {
+  //    switch (coupon) {
+  //      case _25bps:
+  //        return 0.0025;
+  //      case _100bps:
+  //        return 0.01;
+  //      case _125bps:
+  //        return 0.025;
+  //      case _300bps:
+  //        return 0.03;
+  //      case _500bps:
+  //        return 0.05;
+  //      case _750bps:
+  //        return 0.07;
+  //      case _1000bps:
+  //        return 0.1;
+  //      default:
+  //        throw new OpenGammaRuntimeException("Unknown coupon amount: " + coupon.name());
+  //    }
+  //  }
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
@@ -151,12 +138,9 @@ public class ISDACDXAsSingleNamePresentValueFunction extends ISDACDXAsSingleName
     final String yieldCurveCalculationConfig = desiredValue.getConstraint(PROPERTY_YIELD_CURVE_CALCULATION_CONFIG);
     final String yieldCurveCalculationMethod = desiredValue.getConstraint(PROPERTY_YIELD_CURVE_CALCULATION_METHOD);
     final Set<String> creditSpreadCurveShifts = constraints.getValues(PROPERTY_SPREAD_CURVE_SHIFT);
-    final ValueProperties.Builder hazardRateCurveProperties = ValueProperties.builder()
-        .with(ValuePropertyNames.CURVE, spreadCurveName)
-        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, hazardRateCurveCalculationMethod)
-        .with(PROPERTY_YIELD_CURVE_CALCULATION_CONFIG, yieldCurveCalculationConfig)
-        .with(PROPERTY_YIELD_CURVE_CALCULATION_METHOD, yieldCurveCalculationMethod)
-        .with(PROPERTY_YIELD_CURVE, yieldCurveName);
+    final ValueProperties.Builder hazardRateCurveProperties = ValueProperties.builder().with(ValuePropertyNames.CURVE, spreadCurveName)
+        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, hazardRateCurveCalculationMethod).with(PROPERTY_YIELD_CURVE_CALCULATION_CONFIG, yieldCurveCalculationConfig)
+        .with(PROPERTY_YIELD_CURVE_CALCULATION_METHOD, yieldCurveCalculationMethod).with(PROPERTY_YIELD_CURVE, yieldCurveName);
     if (creditSpreadCurveShifts != null) {
       final Set<String> creditSpreadCurveShiftTypes = constraints.getValues(PROPERTY_SPREAD_CURVE_SHIFT_TYPE);
       hazardRateCurveProperties.with(PROPERTY_SPREAD_CURVE_SHIFT, creditSpreadCurveShifts).with(PROPERTY_SPREAD_CURVE_SHIFT_TYPE, creditSpreadCurveShiftTypes);
@@ -208,11 +192,9 @@ public class ISDACDXAsSingleNamePresentValueFunction extends ISDACDXAsSingleName
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, targetSpec, properties));
   }
 
-
   @Override
   protected ValueProperties.Builder getCommonResultProperties() {
-    return createValueProperties()
-        .withAny(CreditInstrumentPropertyNamesAndValues.PROPERTY_CDS_PRICE_TYPE);
+    return createValueProperties().withAny(CreditInstrumentPropertyNamesAndValues.PROPERTY_CDS_PRICE_TYPE);
   }
 
   @Override

@@ -5,7 +5,7 @@
  */
 package com.opengamma.engine.view;
 
-import java.util.Set;
+import java.util.Map;
 
 import com.opengamma.engine.view.impl.AutoStartViewDefinition;
 
@@ -27,5 +27,5 @@ public interface ViewAutoStartManager {
    *
    * @return views eligible for automatic starting, not null
    */
-  Set<AutoStartViewDefinition> getAutoStartViews();
+  Map<String, AutoStartViewDefinition> getAutoStartViews();
 }

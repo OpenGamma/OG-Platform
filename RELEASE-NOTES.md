@@ -7,6 +7,15 @@ These release notes cover changes from v2.1 to v2.2.
 Upgrading from 2.1.0
 ====================
 
+To 2.2.0-M2
+-----------
+
+Configuration compatibility
+- [PLAT-4236] Added ability to query functions via green screens.
+  - 'functionConfigurationSource' property should be set on the WebsiteBasicsComponentFactory.
+  - this will affect engine and fullstack type ini files, as well as any other ini where the WebsiteBasicsComponentFactory is used.
+  - example configuration is provided in /examples-simulated/config/fullstack/fullstack-examplessimulated.ini
+
 To 2.2.0-M1
 -----------
 
@@ -38,6 +47,11 @@ Database compatibility
 API compatibility
 - [PLAT-4782] The legacy analytics web UI has been retired. The dependency on the CometD long-polling library, and the
   custom RESTful end-points that it used, have been removed.
+
+- [PLAT-4381] A new setter has been added to ViewClient which allows a Map<String, String> of context values to be
+set and propagated down to the associated view process so that it can be used to trace the progress of a request
+through the system. It use the logback MDC mechanism (http://logback.qos.ch/manual/mdc.html) which means that any
+context values can be output in log statements with a suitable configuration file.
 
 - ExternalIdSearch is now immutable
 Change constructor to of() factory

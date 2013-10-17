@@ -141,7 +141,7 @@ public enum FloatingIndex {
   /**
    * The USD-Federal Funds-H.15-OIS_COMPOUND ISDA index.
    */
-  USD_FEDFUND_OIS_COMPOUND(Currency.USD, "FEDFUND", "USD-Federal Funds-H.15-OIS_COMPOUND"),
+  USD_FEDFUND_OIS_COMPOUND(Currency.USD, "FEDFUND", "USD-Federal Funds-H.15-OIS-COMPOUND"),
   /**
    * The ZAR-JIBAR-SAFEX ISDA index.
    */

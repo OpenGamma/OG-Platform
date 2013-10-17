@@ -13,28 +13,34 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.Month;
 import org.threeten.bp.Period;
 
-import com.opengamma.analytics.financial.credit.isdastandardmodel.AnalyticCDSPricer;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalyticFactory;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.FastCreditCurveBuilder;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDABaseTest;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurve;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.fastcalibration.CDSMarketInfo;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.fastcalibration.CreditCurveCalibrator;
 import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
  */
-public class CreditCurveCalibrationTest extends ISDABaseTest {
-  private static final CDSAnalyticFactory CDS_FACTORY = new CDSAnalyticFactory().withPayAccOnDefault(true);
+public class CreditCurveCalibrationTest extends com.opengamma.analytics.financial.credit.isdastandardmodel.CreditCurveCalibrationTest {
+  private static final CDSAnalyticFactory CDS_FACTORY = new CDSAnalyticFactory();
   private static final Period[] PILLARS = new Period[] {Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(3), Period.ofYears(4), Period.ofYears(5), Period.ofYears(7),
     Period.ofYears(10) };
 
-  @SuppressWarnings("unused")
+  private static final SuperFastCreditCurveBuilder BUILDER_ISDA = new SuperFastCreditCurveBuilder(ORIGINAL_ISDA);
+  private static final SuperFastCreditCurveBuilder BUILDER_MARKIT = new SuperFastCreditCurveBuilder(MARKIT_FIX);
+
   @Test
   public void test() {
+    testCalibrationAgainstISDA(BUILDER_ISDA, 1e-14);
+    //TODO adjust the logic to match the incorrect Markit `fix'
+    // testCalibrationAgainstISDA(BUILDER_MARKIT, 1e-14);
+  }
+
+  @SuppressWarnings("unused")
+  @Test
+  public void speedTest() {
     final LocalDate tradeDate = LocalDate.of(2013, Month.SEPTEMBER, 5);
     final LocalDate spotDate = addWorkDays(tradeDate.minusDays(1), 1, DEFAULT_CALENDAR);
     final String[] yieldCurvePoints = new String[] {"1M", "2M", "3M", "6M", "1Y", "2Y", "3Y", "4Y", "5Y", "6Y", "7Y", "8Y", "9Y", "10Y", "12Y", "15Y", "20Y", "25Y", "30Y" };
@@ -53,10 +59,10 @@ public class CreditCurveCalibrationTest extends ISDABaseTest {
       market[i] = new CDSMarketInfo(spreads[i], 0, RECOVERY_RATE);
     }
 
-    final AnalyticCDSPricer pricer = new AnalyticCDSPricer(true);
-    final CreditCurveCalibrator calibrator1 = new CreditCurveCalibrator(cds, yieldCurve);
+    // final AnalyticCDSPricer pricer = new AnalyticCDSPricer(MARKIT_FIX);
+    final CreditCurveCalibrator calibrator1 = new CreditCurveCalibrator(cds, yieldCurve, MARKIT_FIX);
     final ISDACompliantCreditCurve cc1 = calibrator1.calibrate(market);
-    final FastCreditCurveBuilder calibrator2 = new FastCreditCurveBuilder(true);
+    final FastCreditCurveBuilder calibrator2 = new FastCreditCurveBuilder(MARKIT_FIX);
     final ISDACompliantCreditCurve cc2 = calibrator2.calibrateCreditCurve(cds, spreads, yieldCurve);
     for (int i = 0; i < n; i++) {
       //   System.out.println(cc1.getZeroRateAtIndex(i) + "\t" + cc2.getZeroRateAtIndex(i));
@@ -116,10 +122,10 @@ public class CreditCurveCalibrationTest extends ISDABaseTest {
       market[i] = new CDSMarketInfo(spreads[i], 0, RECOVERY_RATE);
     }
 
-    final AnalyticCDSPricer pricer = new AnalyticCDSPricer(true);
-    final CreditCurveCalibrator calibrator1 = new CreditCurveCalibrator(cds, yieldCurve);
+    //  final AnalyticCDSPricer pricer = new AnalyticCDSPricer(true);
+    final CreditCurveCalibrator calibrator1 = new CreditCurveCalibrator(cds, yieldCurve, MARKIT_FIX);
     final ISDACompliantCreditCurve cc1 = calibrator1.calibrate(market);
-    final FastCreditCurveBuilder calibrator2 = new FastCreditCurveBuilder(true);
+    final FastCreditCurveBuilder calibrator2 = new FastCreditCurveBuilder(MARKIT_FIX);
     final ISDACompliantCreditCurve cc2 = calibrator2.calibrateCreditCurve(cds, spreads, yieldCurve);
     for (int i = 0; i < n; i++) {
       System.out.println(cc1.getZeroRateAtIndex(i) + "\t" + cc2.getZeroRateAtIndex(i));

@@ -12,16 +12,11 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.Month;
 import org.threeten.bp.Period;
 
-import com.opengamma.analytics.financial.credit.PriceType;
-import com.opengamma.analytics.financial.credit.StubType;
 
 /**
  * 
  */
-public class AnalyticCDSPricerTest {
-
-  private static final AnalyticCDSPricer PRICER = new AnalyticCDSPricer();
-  private static final AnalyticCDSPricer PRICER_CORRECT = new AnalyticCDSPricer(true);
+public class AnalyticCDSPricerTest extends ISDABaseTest {
 
   @SuppressWarnings("unused")
   @Test(enabled = false)
@@ -125,7 +120,7 @@ public class AnalyticCDSPricerTest {
     final CDSAnalytic cds = new CDSAnalytic(today, stepin, valueDate, startDate, endDate, payAccOnDefault, Period.ofMonths(3), StubType.FRONTSHORT, false, 0.4);
 
     for (int count = 0; count < 2; count++) {
-      final AnalyticCDSPricer pricer = count == 0 ? PRICER : PRICER_CORRECT;
+      final AnalyticCDSPricer pricer = count == 0 ? PRICER : PRICER_MARKIT_FIX;
       creditCurveSenseTest(pricer, cds, yieldCurveLow, creditCurveLow);
       creditCurveSenseTest(pricer, cds, yieldCurveLow, creditCurveNorm);
       creditCurveSenseTest(pricer, cds, yieldCurveNorm, creditCurveLow);
@@ -149,22 +144,22 @@ public class AnalyticCDSPricerTest {
 
     final CDSAnalyticFactory factory = new CDSAnalyticFactory();
     final CDSAnalytic cds = factory.makeIMMCDS(LocalDate.of(2013, Month.SEPTEMBER, 10), Period.ofYears(5));
-    final AnalyticCDSPricer pricer = new AnalyticCDSPricer(true);
+    // final AnalyticCDSPricer pricer = new AnalyticCDSPricer(true);
 
     final int n = ycTimes.length;
     for (int i = 0; i < n; i++) {
-      double fd = fdProtectionLegYieldSense(pricer, cds, yieldCurveNorm, creditCurveNorm, i);
-      double anal = pricer.protectionLegYieldSensitivity(cds, yieldCurveNorm, creditCurveNorm, i);
+      double fd = fdProtectionLegYieldSense(PRICER_MARKIT_FIX, cds, yieldCurveNorm, creditCurveNorm, i);
+      double anal = PRICER_MARKIT_FIX.protectionLegYieldSensitivity(cds, yieldCurveNorm, creditCurveNorm, i);
       // System.out.println(fd + "\t" + anal);
       assertEquals(fd, anal, 1e-10);
 
-      fd = fdPremiumLegYieldSense(pricer, cds, yieldCurveNorm, creditCurveNorm, i);
-      anal = pricer.pvPremiumLegYieldSensitivity(cds, yieldCurveNorm, creditCurveNorm, i);
+      fd = fdPremiumLegYieldSense(PRICER_MARKIT_FIX, cds, yieldCurveNorm, creditCurveNorm, i);
+      anal = PRICER_MARKIT_FIX.pvPremiumLegYieldSensitivity(cds, yieldCurveNorm, creditCurveNorm, i);
       //   System.out.println(fd + "\t" + anal);
       assertEquals(fd, anal, 1e-9);
 
-      fd = fdPVYieldSense(pricer, cds, yieldCurveNorm, creditCurveNorm, coupon, i);
-      anal = pricer.pvYieldSensitivity(cds, yieldCurveNorm, creditCurveNorm, coupon, i);
+      fd = fdPVYieldSense(PRICER_MARKIT_FIX, cds, yieldCurveNorm, creditCurveNorm, coupon, i);
+      anal = PRICER_MARKIT_FIX.pvYieldSensitivity(cds, yieldCurveNorm, creditCurveNorm, coupon, i);
       //  System.out.println(fd + "\t" + anal);
       assertEquals(fd, anal, 1e-10);
     }

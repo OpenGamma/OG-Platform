@@ -14,6 +14,7 @@ $.register_module({
                         var message = 'Fatal error: ' + result.data[0].errorMessage;
                         og.common.util.ui.dialog({type: 'error', message: message });
                         api.fire('disconnect');
+                        api.fire('fatal');
                     }
                 });
 

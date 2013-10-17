@@ -91,6 +91,7 @@ public class SimpleSecurityResolverTest {
 
   //-------------------------------------------------------------------------
   @Test
+  @SuppressWarnings("deprecation")
   public void testResolveLinkWithObjectId() {
     SimpleSecurityResolver resolver = new SimpleSecurityResolver(_securitySource, VersionCorrection.of(_securityV2ValidFrom, _now));
     SecurityLink link = new SimpleSecurityLink(_objectId);
@@ -99,6 +100,7 @@ public class SimpleSecurityResolverTest {
   }
 
   @Test(expectedExceptions = DataNotFoundException.class)
+  @SuppressWarnings("deprecation")
   public void testResolveLinkWithUnknownObjectId() {
     VersionCorrection vc = VersionCorrection.of(Instant.ofEpochMilli(123), Instant.ofEpochMilli(123));
     SimpleSecurityResolver resolver = new SimpleSecurityResolver(_securitySource, vc);

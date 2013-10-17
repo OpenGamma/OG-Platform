@@ -86,7 +86,7 @@ public class StandardVanillaPresentValueCDSFunction extends StandardVanillaCDSFu
       pv = PRICER.pv(analytic, yieldCurve, hazardCurve, ((LegacyCreditDefaultSwapDefinition) definition).getParSpread() * 1e-4) * definition.getNotional();
     } else if (definition instanceof StandardCreditDefaultSwapDefinition) {
       pv = POINTS_UP_FRONT_CONVERTER.quotedSpreadToPUF(analytic,
-                                                       getCoupon(((StandardCreditDefaultSwapDefinition) definition).getPremiumLegCoupon()),
+                                                       ((StandardCreditDefaultSwapDefinition) definition).getPremiumLegCoupon(),
                                                        yieldCurve,
                                                        ((StandardCreditDefaultSwapDefinition) definition).getQuotedSpread() * 1e-4) * definition.getNotional();
     } else {

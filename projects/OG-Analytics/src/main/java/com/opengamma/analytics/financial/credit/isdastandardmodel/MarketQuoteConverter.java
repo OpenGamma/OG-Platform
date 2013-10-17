@@ -7,7 +7,6 @@ package com.opengamma.analytics.financial.credit.isdastandardmodel;
 
 import java.util.Arrays;
 
-import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -25,9 +24,9 @@ public class MarketQuoteConverter {
     _pricer = new AnalyticCDSPricer();
   }
 
-  public MarketQuoteConverter(final boolean useCorrectACCOnDefaultFormula) {
-    _builder = new FastCreditCurveBuilder(useCorrectACCOnDefaultFormula);
-    _pricer = new AnalyticCDSPricer(useCorrectACCOnDefaultFormula);
+  public MarketQuoteConverter(final AccrualOnDefaultFormulae formula) {
+    _builder = new FastCreditCurveBuilder(formula);
+    _pricer = new AnalyticCDSPricer(formula);
   }
 
   //**************************************************************************************************************

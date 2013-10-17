@@ -49,7 +49,7 @@ public class GeneratorSwapFixedCompoundedONCompoundedMaster {
     final BusinessDayConvention modFol = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
     _generatorSwap = new HashMap<>();
     final IndexON cdi = indexONMaster.getIndex("CDI");
-    _generatorSwap.put("BRLCDI", new GeneratorSwapFixedCompoundedONCompounded("BRLCDI", cdi, bus252, modFol, true, 2, 2, baseCalendar));
+    _generatorSwap.put("BRLCDI", new GeneratorSwapFixedCompoundedONCompounded("BRLCDI", cdi, bus252, modFol, true, 0, 0, baseCalendar));
 
   }
 

@@ -78,7 +78,7 @@ public class StandardVanillaBucketedCS01CDSFunction extends StandardVanillaCS01C
     final CDSAnalyticFactory analyticFactory = new CDSAnalyticFactory(definition.getRecoveryRate(), definition.getCouponFrequency().getPeriod())
         .with(definition.getBusinessDayAdjustmentConvention())
         .with(definition.getCalendar()).with(definition.getStubType())
-        .withAccualDCC(definition.getDayCountFractionConvention());
+        .withAccrualDCC(definition.getDayCountFractionConvention());
 
     Period[] tenors = new Period[times.length];
     for (int i = 0; i < times.length; i++) {

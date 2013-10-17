@@ -127,8 +127,8 @@ public class CDSCoupon {
     res[0] = effStart.isBefore(tradeDate) ? -curveDCC.getDayCountFraction(effStart, tradeDate) : curveDCC.getDayCountFraction(tradeDate, effStart);
     res[1] = curveDCC.getDayCountFraction(tradeDate, effEnd);
     res[2] = curveDCC.getDayCountFraction(tradeDate, paymentDate);
-    res[3] = accrualDCC.getDayCountFraction(effStart, effEnd);
-    res[4] = res[3] / curveDCC.getDayCountFraction(effStart, effEnd);
+    res[3] = accrualDCC.getDayCountFraction(accStart, accEnd);
+    res[4] = res[3] / curveDCC.getDayCountFraction(accStart, accEnd);
     return res;
   }
 

@@ -14,7 +14,6 @@ import static com.opengamma.financial.convention.businessday.BusinessDayDateUtil
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 
-import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -311,7 +310,7 @@ public class CDSAnalyticFactory {
    * @param accDCC Day count used for accrual
    * @return A new factory with accDCC set
    */
-  public CDSAnalyticFactory withAccualDCC(final DayCount accDCC) {
+  public CDSAnalyticFactory withAccrualDCC(final DayCount accDCC) {
     return new CDSAnalyticFactory(_stepIn, _cashSettle, _payAccOnDefault, _couponInterval, _stubType, _protectStart, _recoveryRate, _businessdayAdjustmentConvention, _calendar, accDCC, _curveDayCount);
   }
 

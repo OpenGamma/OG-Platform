@@ -53,7 +53,7 @@ CREATE INDEX ix_hol_holiday_region_scheme ON hol_holiday(region_scheme);
 CREATE INDEX ix_hol_holiday_region_value ON hol_holiday(region_value);
 CREATE INDEX ix_hol_holiday_exchange_scheme ON hol_holiday(exchange_scheme);
 CREATE INDEX ix_hol_holiday_exchange_value ON hol_holiday(exchange_value);
-CREATE INDEX ix_hol-holiday_custom_scheme ON hol_holiday(custom_scheme);
+CREATE INDEX ix_hol_holiday_custom_scheme ON hol_holiday(custom_scheme);
 CREATE INDEX ix_hol_holiday_custom_value ON hol_holiday(custom_value);
 CREATE INDEX ix_hol_holiday_currency_iso ON hol_holiday(currency_iso);
 

@@ -3,14 +3,6 @@ package com.opengamma.analytics.financial.credit.isdastandardmodel;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 
-import com.opengamma.analytics.financial.credit.StubType;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.AnalyticCDSPricer;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.FastCreditCurveBuilder;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.FiniteDifferenceSpreadSensitivityCalculator;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurveBuilder;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurveBuild;
-import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDAInstrumentTypes;
 import com.opengamma.analytics.financial.schedule.NoHolidayCalendar;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -21,8 +13,14 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.ArgumentChecker;
 
 public class ISDABaseTest {
+
+  protected static final AccrualOnDefaultFormulae ORIGINAL_ISDA = AccrualOnDefaultFormulae.OrignalISDA;
+  protected static final AccrualOnDefaultFormulae MARKIT_FIX = AccrualOnDefaultFormulae.MarkitFix;
+  protected static final AccrualOnDefaultFormulae OG_FIX = AccrualOnDefaultFormulae.Correct;
+
   protected static final AnalyticCDSPricer PRICER = new AnalyticCDSPricer();
-  protected static final AnalyticCDSPricer PRICER_CORRECT = new AnalyticCDSPricer(true);
+  protected static final AnalyticCDSPricer PRICER_MARKIT_FIX = new AnalyticCDSPricer(MARKIT_FIX);
+  protected static final AnalyticCDSPricer PRICER_OG_FIX = new AnalyticCDSPricer(OG_FIX);
   protected static final ISDACompliantCreditCurveBuilder CREDIT_CURVE_BUILDER = new FastCreditCurveBuilder();
   protected static final FiniteDifferenceSpreadSensitivityCalculator CS01_CAL = new FiniteDifferenceSpreadSensitivityCalculator();
 
@@ -33,7 +31,7 @@ public class ISDABaseTest {
 
   protected static final Calendar DEFAULT_CALENDAR = new MondayToFridayCalendar("Weekend_Only");
   protected static final Calendar NO_HOLIDAY_CALENDAR = new NoHolidayCalendar();
-  protected static final DayCount ACT365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
+  protected static final DayCount ACT365F = DayCountFactory.INSTANCE.getDayCount("ACT/365");
   protected static final DayCount ACT360 = DayCountFactory.INSTANCE.getDayCount("ACT/360");
   protected static final DayCount D30360 = DayCountFactory.INSTANCE.getDayCount("30/360");
   protected static final DayCount ACT_ACT_ISDA = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
@@ -50,7 +48,12 @@ public class ISDABaseTest {
 
   protected static ISDACompliantYieldCurve makeYieldCurve(final LocalDate today, final LocalDate spotDate, final String[] maturities, final String[] type, final double[] rates,
       final DayCount moneyMarketDCC, final DayCount swapDCC, final Period swapInterval) {
-    final DayCount curveDCC = ACT365;
+    return makeYieldCurve(today, spotDate, maturities, type, rates, moneyMarketDCC, swapDCC, swapInterval, DEFAULT_CALENDAR);
+  }
+
+  protected static ISDACompliantYieldCurve makeYieldCurve(final LocalDate today, final LocalDate spotDate, final String[] maturities, final String[] type, final double[] rates,
+      final DayCount moneyMarketDCC, final DayCount swapDCC, final Period swapInterval, final Calendar calendar) {
+    final DayCount curveDCC = ACT365F;
     final int nInstruments = maturities.length;
     ArgumentChecker.isTrue(nInstruments == type.length, "type length {} does not match maturities length {}", type.length, nInstruments);
     ArgumentChecker.isTrue(nInstruments == rates.length, "rates length {} does not match  maturities length {}", rates.length, nInstruments);
@@ -77,8 +80,9 @@ public class ISDABaseTest {
         throw new IllegalArgumentException("cannot parse " + temp);
       }
     }
-    return ISDACompliantYieldCurveBuild.build(today, spotDate, types, tenors, rates, moneyMarketDCC, swapDCC, swapInterval, curveDCC, MOD_FOLLOWING);
-
+    // return ISDACompliantYieldCurveBuild.build(today, spotDate, types, tenors, rates, moneyMarketDCC, swapDCC, swapInterval, curveDCC, MOD_FOLLOWING);
+    final ISDACompliantYieldCurveBuild builder = new ISDACompliantYieldCurveBuild(today, spotDate, types, tenors, moneyMarketDCC, swapDCC, swapInterval, curveDCC, MOD_FOLLOWING, calendar);
+    return builder.build(rates);
   }
 
   protected static ISDACompliantYieldCurve makeYieldCurve(final LocalDate today, final LocalDate spotDate, final String[] maturities, final String[] type, final double[] rates) {

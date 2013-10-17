@@ -54,7 +54,20 @@ public final class ManagementService implements ViewProcessorEventListener {
   /**
    * The config.
    */
-  private final ConcurrentHashMap<UniqueId, Set<String>> _calcConfigByViewProcessId = new ConcurrentHashMap<UniqueId, Set<String>>();
+  private final ConcurrentHashMap<UniqueId, Set<String>> _calcConfigByViewProcessId = new ConcurrentHashMap<>();
+
+  /**
+   * Should beans be categorized by view processor or not. If only one view processor is expected
+   * then setting this to false means the MBean hierarchy is simpler to navigate.
+   */
+  private final boolean _splitByViewProcessor;
+
+  /**
+   * Have the MBeans already been initialized for the view processor. Used to avoid
+   * trying to register on the notifyViewProcessorStarted method if registration
+   * has already happened through the constructor.
+   */
+  private boolean _isInitialized;
 
   //-------------------------------------------------------------------------
   /**
@@ -64,27 +77,36 @@ public final class ManagementService implements ViewProcessorEventListener {
    * @param viewProcessor  the view processor, not null
    * @param statisticsProvider  the statistics provider, not null
    * @param mBeanServer  the MBeanServer to register MBeans to, not null
+   * @deprecated add section containing JmxManagementServiceFactory to ini file instead
    */
+  @Deprecated
   public static void registerMBeans(ViewProcessorImpl viewProcessor, TotallingGraphStatisticsGathererProvider statisticsProvider, MBeanServer mBeanServer) {
-    ManagementService registry = new ManagementService(viewProcessor, statisticsProvider, mBeanServer);
+    ManagementService registry = new ManagementService(viewProcessor, statisticsProvider, mBeanServer, false);
     registry.init();
   }
 
   //-------------------------------------------------------------------------
   /**
    * A constructor for a management service for a range of possible MBeans.
-   * 
+   *
    * @param viewProcessor  the view processor, not null
    * @param statisticsProvider  the statistics provider, not null
    * @param mBeanServer  the MBeanServer to register MBeans to, not null
+   * @param splitByViewProcessor if true, then classify registered beans
+   * by their view processor. Only required if more than one view processor
+   * will be running.
    */
-  private ManagementService(ViewProcessorImpl viewProcessor, TotallingGraphStatisticsGathererProvider statisticsProvider, MBeanServer mBeanServer) {
+  public ManagementService(ViewProcessorImpl viewProcessor,
+                            TotallingGraphStatisticsGathererProvider statisticsProvider,
+                            MBeanServer mBeanServer,
+                            boolean splitByViewProcessor) {
     ArgumentChecker.notNull(viewProcessor, "View Processor");
     ArgumentChecker.notNull(mBeanServer, "MBeanServer");
     ArgumentChecker.notNull(statisticsProvider, "TotallingGraphStatisticsGathererProvider");
     _viewProcessor = viewProcessor;
     _mBeanServer = mBeanServer;
     _statisticsProvider = statisticsProvider;
+    _splitByViewProcessor = splitByViewProcessor;
   }
 
   //-------------------------------------------------------------------------
@@ -109,10 +131,14 @@ public final class ManagementService implements ViewProcessorEventListener {
    * @throws NotCompliantMBeanException
    */
   private void initializeAndRegisterMBeans() throws Exception {
-    initializeViewProcessor();
-    initializeViewProcesses();
-    initializeViewClients();
-    initializeGraphExecutionStatistics();
+
+    if (!_isInitialized) {
+      initializeViewProcessor();
+      initializeViewProcesses();
+      initializeViewClients();
+      initializeGraphExecutionStatistics();
+      _isInitialized = true;
+    }
   }
 
   private void initializeGraphExecutionStatistics() throws Exception {
@@ -128,20 +154,20 @@ public final class ManagementService implements ViewProcessorEventListener {
   }
 
   private void initializeViewProcessor() throws Exception {
-    ViewProcessorMBeanImpl viewProcessor = new ViewProcessorMBeanImpl(_viewProcessor);
+    ViewProcessorMBeanImpl viewProcessor = new ViewProcessorMBeanImpl(_viewProcessor, _splitByViewProcessor);
     registerViewProcessor(viewProcessor);
   }
 
   private void initializeViewProcesses() throws Exception {
     for (ViewProcessInternal viewProcess : _viewProcessor.getViewProcesses()) {
-      ViewProcessMXBeanImpl viewProcessBean = new ViewProcessMXBeanImpl(viewProcess, _viewProcessor);
+      ViewProcessMXBeanImpl viewProcessBean = new ViewProcessMXBeanImpl(viewProcess, _viewProcessor, _splitByViewProcessor);
       registerViewProcess(viewProcessBean);
     }
   }
 
   private void initializeViewClients() throws Exception {
     for (ViewClient viewClient : _viewProcessor.getViewClients()) {
-      ViewClientMBeanImpl viewClientBean = new ViewClientMBeanImpl(viewClient);
+      ViewClientMBeanImpl viewClientBean = new ViewClientMBeanImpl(viewClient, _splitByViewProcessor);
       registerViewClient(viewClientBean);
     }
   }
@@ -168,9 +194,13 @@ public final class ManagementService implements ViewProcessorEventListener {
   }
 
   private void registerViewProcess(ViewProcessMXBeanImpl viewProcessBean) throws Exception {
+    registerViewProcess(viewProcessBean, viewProcessBean.getObjectName());
+  }
+
+  private void registerViewProcess(ViewProcessMXBeanImpl viewProcessBean, ObjectName objectName) throws Exception {
     try {
       StandardMBean mbean = new StandardMBean(viewProcessBean, ViewProcessMXBean.class);
-      _mBeanServer.registerMBean(mbean, viewProcessBean.getObjectName());
+      _mBeanServer.registerMBean(mbean, objectName);
     } catch (InstanceAlreadyExistsException e) {
       _mBeanServer.unregisterMBean(viewProcessBean.getObjectName());
       _mBeanServer.registerMBean(viewProcessBean, viewProcessBean.getObjectName());
@@ -194,7 +224,7 @@ public final class ManagementService implements ViewProcessorEventListener {
     if (view == null) {
       return;
     }
-    ViewProcessMXBeanImpl viewManagement = new ViewProcessMXBeanImpl(view, _viewProcessor);
+    ViewProcessMXBeanImpl viewManagement = new ViewProcessMXBeanImpl(view, _viewProcessor, _splitByViewProcessor);
     try {
       registerViewProcess(viewManagement);
     } catch (Exception e) {
@@ -218,10 +248,28 @@ public final class ManagementService implements ViewProcessorEventListener {
   }
 
   @Override
+  public void notifyViewAutomaticallyStarted(UniqueId viewProcessId, String autoStartName) {
+    ViewProcessInternal view = _viewProcessor.getViewProcess(viewProcessId);
+    if (view == null) {
+      return;
+    }
+    ViewProcessMXBeanImpl viewManagement = new ViewProcessMXBeanImpl(view, _viewProcessor, _splitByViewProcessor);
+    try {
+      String beanNamePrefix = _splitByViewProcessor ?
+          "com.opengamma:type=ViewProcessors,ViewProcessor=ViewProcessor " + _viewProcessor.getName() :
+          "com.opengamma:type=ViewProcessor";
+      String beanName = beanNamePrefix + ",AutoStartViews=AutoStartViews,name=AutoStart [" + autoStartName + "]";
+      registerViewProcess(viewManagement, new ObjectName(beanName));
+    } catch (Exception e) {
+      s_logger.warn("Error registering view for management for " + viewManagement.getObjectName() + " . Error was " + e.getMessage(), e);
+    }
+  }
+
+  @Override
   public void notifyViewProcessRemoved(UniqueId viewProcessId) {
     ObjectName objectName = null;
     try {
-      objectName = ViewProcessMXBeanImpl.createObjectName(_viewProcessor.getName(), viewProcessId);
+      objectName = ViewProcessMXBeanImpl.createObjectName(_viewProcessor.getName(), viewProcessId, _splitByViewProcessor);
       _mBeanServer.unregisterMBean(objectName);
     } catch (Exception e) {
       s_logger.warn("Error unregistering view for management for " + objectName + " . Error was " + e.getMessage(), e);
@@ -244,7 +292,7 @@ public final class ManagementService implements ViewProcessorEventListener {
   @Override
   public void notifyViewClientAdded(UniqueId viewClientId) {
     ViewClient viewClient = _viewProcessor.getViewClient(viewClientId);
-    ViewClientMBeanImpl viewClientBean = new ViewClientMBeanImpl(viewClient);
+    ViewClientMBeanImpl viewClientBean = new ViewClientMBeanImpl(viewClient, _splitByViewProcessor);
     try {
       registerViewClient(viewClientBean);
     } catch (Exception e) {
@@ -256,7 +304,7 @@ public final class ManagementService implements ViewProcessorEventListener {
   public void notifyViewClientRemoved(UniqueId viewClientId) {
     ObjectName objectName = null;
     try {
-      objectName = ViewClientMBeanImpl.createObjectName(_viewProcessor.getName(), viewClientId);
+      objectName = ViewClientMBeanImpl.createObjectName(_viewProcessor.getName(), viewClientId, _splitByViewProcessor);
       _mBeanServer.unregisterMBean(objectName);
     } catch (Exception e) {
       s_logger.warn("Error unregistering view client for management for " + objectName + ". Error was " + e.getMessage(), e);
@@ -277,7 +325,9 @@ public final class ManagementService implements ViewProcessorEventListener {
     Set<ObjectName> registeredObjectNames = null;
     try {
       // ViewProcessor MBean
-      registeredObjectNames = _mBeanServer.queryNames(ViewProcessorMBeanImpl.createObjectName(_viewProcessor), null);
+      registeredObjectNames = _mBeanServer.queryNames(
+          ViewProcessorMBeanImpl.createObjectName(_viewProcessor, _splitByViewProcessor),
+          null);
       // Other MBeans for this ViewProcessor
       registeredObjectNames.addAll(_mBeanServer.queryNames(new ObjectName("com.opengamma:*,ViewProcessor=" + _viewProcessor.toString()), null));
     } catch (MalformedObjectNameException e) {
@@ -292,6 +342,8 @@ public final class ManagementService implements ViewProcessorEventListener {
         s_logger.warn("Error unregistering object instance " + objectName + " . Error was " + e.getMessage(), e);
       }
     }
+
+    _isInitialized = false;
   }
 
 }

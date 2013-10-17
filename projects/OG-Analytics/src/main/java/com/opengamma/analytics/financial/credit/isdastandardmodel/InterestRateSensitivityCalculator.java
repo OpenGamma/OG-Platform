@@ -5,7 +5,6 @@
  */
 package com.opengamma.analytics.financial.credit.isdastandardmodel;
 
-import com.opengamma.analytics.financial.credit.PriceType;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -21,8 +20,8 @@ public class InterestRateSensitivityCalculator {
     _pricer = new AnalyticCDSPricer();
   }
 
-  public InterestRateSensitivityCalculator(final boolean useCorrectAccOnDefaultFormula) {
-    _pricer = new AnalyticCDSPricer(useCorrectAccOnDefaultFormula);
+  public InterestRateSensitivityCalculator(final AccrualOnDefaultFormulae formula) {
+    _pricer = new AnalyticCDSPricer(formula);
   }
 
   /**

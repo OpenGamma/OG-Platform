@@ -65,12 +65,12 @@ public class StandardVanillaParallelCS01CDSFunction extends StandardVanillaCS01C
     double cs01;
     if (definition instanceof StandardCreditDefaultSwapDefinition) {
       StandardCreditDefaultSwapDefinition cds = (StandardCreditDefaultSwapDefinition) definition;
-      cs01 = CALCULATOR.parallelCS01(analytic, new QuotedSpread(cds.getQuotedSpread() * 1e-4, getCoupon(cds.getPremiumLegCoupon())), yieldCurve, fracBump);
+      cs01 = CALCULATOR.parallelCS01(analytic, new QuotedSpread(cds.getQuotedSpread() * 1e-4, cds.getPremiumLegCoupon()), yieldCurve, fracBump);
     } else if (definition instanceof LegacyCreditDefaultSwapDefinition) {
       final CDSAnalyticFactory analyticFactory = new CDSAnalyticFactory(definition.getRecoveryRate(), definition.getCouponFrequency().getPeriod())
           .with(definition.getBusinessDayAdjustmentConvention())
           .with(definition.getCalendar()).with(definition.getStubType())
-          .withAccualDCC(definition.getDayCountFractionConvention());
+          .withAccrualDCC(definition.getDayCountFractionConvention());
       Period[] tenors = new Period[times.length];
       for (int i = 0; i < times.length; i++) {
         tenors[i] = Period.between(definition.getStartDate().toLocalDate(), times[i].toLocalDate()).withDays(0);

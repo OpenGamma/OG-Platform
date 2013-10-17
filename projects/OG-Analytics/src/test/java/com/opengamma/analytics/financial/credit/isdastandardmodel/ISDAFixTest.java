@@ -14,13 +14,6 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.Month;
 import org.threeten.bp.Period;
 
-import com.opengamma.analytics.financial.credit.PriceType;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.AnalyticCDSPricer;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.FastCreditCurveBuilder;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurve;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurveBuilder;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
 import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurveBuilder.ArbitrageHandling;
 
 /**
@@ -58,8 +51,8 @@ public class ISDAFixTest extends ISDABaseTest {
 
   @Test
   public void test() {
-    final ISDACompliantCreditCurveBuilder curveBuilder = new FastCreditCurveBuilder(true, ArbitrageHandling.ZeroHazardRate);
-    final AnalyticCDSPricer pricer = new AnalyticCDSPricer(true);
+    final ISDACompliantCreditCurveBuilder curveBuilder = new FastCreditCurveBuilder(MARKIT_FIX, ArbitrageHandling.ZeroHazardRate);
+    final AnalyticCDSPricer pricer = new AnalyticCDSPricer(MARKIT_FIX);
 
     final int nPillars = PILLAR_DATES.length;
     final CDSAnalytic[] pillarCDSS = new CDSAnalytic[nPillars];

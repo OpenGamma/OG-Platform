@@ -13,12 +13,6 @@ import org.testng.annotations.Test;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.Period;
 
-import com.opengamma.analytics.financial.credit.PriceType;
-import com.opengamma.analytics.financial.credit.StubType;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCurveCalibrator;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantDateCreditCurve;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantDateYieldCurve;
-import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantPresentValueCreditDefaultSwap;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 
@@ -115,46 +109,5 @@ public class ISDACompliantCurveCalibratorTest {
       System.out.println("time per calibration: " + timePerCalibration + "ms");
     }
   }
-
-  //  @Test(enabled=false)
-  //  public void oldTest() {
-  //    System.out.println("old test");
-  //    final ZonedDateTime today = DateUtils.getUTCDate(2013, 2, 2);
-  //
-  //    final ZonedDateTime[] endDates = new ZonedDateTime[] {DateUtils.getUTCDate(2013, 6, 20), DateUtils.getUTCDate(2013, 9, 20), DateUtils.getUTCDate(2014, 3, 20), DateUtils.getUTCDate(2015, 3, 20),
-  //        DateUtils.getUTCDate(2016, 3, 20), DateUtils.getUTCDate(2018, 3, 20), DateUtils.getUTCDate(2023, 3, 20)};
-  //
-  //    final double[] coupons = new double[] {50, 70, 100, 150, 200, 400, 1000};
-  //    LegacyVanillaCreditDefaultSwapDefinition cds = CreditDefaultSwapDefinitionDataSets.getLegacyVanillaDefinition().withEffectiveDate(today).withStartDate(today).withMaturityDate(endDates[0])
-  //        .withRecoveryRate(0.4).withSpread(coupons[0]);
-  //
-  //    final HazardRateCurve hc = HAZARD_CURVE_CALIBRATOR.isdaCalibrateHazardRateCurve(TODAY, (LegacyVanillaCreditDefaultSwapDefinition) cds, endDates, coupons, YIELD_CURVE);
-  //
-  //    final int m = hc.getNumberOfCurvePoints();
-  //    double[] t = hc.getTimes();
-  //    double[] fittedRates = hc.getRates();
-  //    for (int i = 0; i < m; i++) {
-  //      double df = Math.exp(-t[i] * fittedRates[i]);
-  //      double df2 = hc.getSurvivalProbability(t[i]);
-  //      System.out.println(t[i] + "\t" + fittedRates[i] + "\t" + df + "\t" + df2);
-  //    }
-  //    System.out.println();
-  //
-  //    final int warmup = 0;
-  //    final int benchmark = 1;
-  //
-  //    for (int k = 0; k < warmup; k++) {
-  //      final HazardRateCurve hazardCurve_CM = HAZARD_CURVE_CALIBRATOR.isdaCalibrateHazardRateCurve(TODAY, (LegacyVanillaCreditDefaultSwapDefinition) cds, endDates, coupons, YIELD_CURVE);
-  //    }
-  //    if (benchmark > 0) {
-  //      long t0 = System.nanoTime();
-  //      for (int k = 0; k < benchmark; k++) {
-  //        final HazardRateCurve hazardCurve_CM = HAZARD_CURVE_CALIBRATOR.isdaCalibrateHazardRateCurve(TODAY, (LegacyVanillaCreditDefaultSwapDefinition) cds, endDates, coupons, YIELD_CURVE);
-  //      }
-  //      long time = System.nanoTime() - t0;
-  //      double timePerCalibration = ((double) time) / 1e6 / benchmark;
-  //      System.out.println("time per calibration: " + timePerCalibration + "ms");
-  //    }
-  //  }
 
 }

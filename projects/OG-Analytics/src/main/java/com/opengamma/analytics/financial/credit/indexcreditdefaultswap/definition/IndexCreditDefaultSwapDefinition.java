@@ -8,9 +8,9 @@ package com.opengamma.analytics.financial.credit.indexcreditdefaultswap.definiti
 import org.threeten.bp.ZonedDateTime;
 
 import com.opengamma.analytics.financial.credit.BuySellProtection;
-import com.opengamma.analytics.financial.credit.StubType;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.StubType;
 import com.opengamma.analytics.financial.credit.obligor.definition.Obligor;
 import com.opengamma.analytics.financial.credit.underlyingpool.definition.UnderlyingPool;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
@@ -22,7 +22,9 @@ import com.opengamma.util.money.Currency;
 
 /**
  * Definition of a generic Index Credit Default Swap contract
+ *@deprecated this will be deleted 
  */
+@Deprecated
 public class IndexCreditDefaultSwapDefinition {
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -166,33 +168,11 @@ public class IndexCreditDefaultSwapDefinition {
   // ----------------------------------------------------------------------------------------------------------------------------------------
 
   // Constructor for a CDS index swap definition object (all fields are user specified)
-  public IndexCreditDefaultSwapDefinition(
-      final String indexName,
-      final BuySellProtection buySellProtection,
-      final Obligor protectionBuyer,
-      final Obligor protectionSeller,
-      final UnderlyingPool underlyingPool,
-      final CDSIndex cdsIndex,
-      final int series,
-      final String version,
-      final Currency currency,
-      final Calendar calendar,
-      final ZonedDateTime startDate,
-      final ZonedDateTime effectiveDate,
-      final ZonedDateTime settlementDate,
-      final ZonedDateTime maturityDate,
-      final StubType stubType,
-      final PeriodFrequency couponFrequency,
-      final DayCount daycountFractionConvention,
-      final BusinessDayConvention businessdayAdjustmentConvention,
-      final boolean immAdjustMaturityDate,
-      final boolean adjustEffectiveDate,
-      final boolean adjustSettlementDate,
-      final boolean adjustMaturityDate,
-      final boolean includeAccruedPremium,
-      final boolean protectionStart,
-      final double notional,
-      final double upfrontPayment,
+  public IndexCreditDefaultSwapDefinition(final String indexName, final BuySellProtection buySellProtection, final Obligor protectionBuyer, final Obligor protectionSeller,
+      final UnderlyingPool underlyingPool, final CDSIndex cdsIndex, final int series, final String version, final Currency currency, final Calendar calendar, final ZonedDateTime startDate,
+      final ZonedDateTime effectiveDate, final ZonedDateTime settlementDate, final ZonedDateTime maturityDate, final StubType stubType, final PeriodFrequency couponFrequency,
+      final DayCount daycountFractionConvention, final BusinessDayConvention businessdayAdjustmentConvention, final boolean immAdjustMaturityDate, final boolean adjustEffectiveDate,
+      final boolean adjustSettlementDate, final boolean adjustMaturityDate, final boolean includeAccruedPremium, final boolean protectionStart, final double notional, final double upfrontPayment,
       final double indexCoupon) {
 
     // ----------------------------------------------------------------------------------------------------------------------------------------
@@ -291,8 +271,7 @@ public class IndexCreditDefaultSwapDefinition {
     for (int i = 0; i < numberOfObligors; i++) {
 
       // ... build a CDS object for obligor i
-      final LegacyVanillaCreditDefaultSwapDefinition cds = new LegacyVanillaCreditDefaultSwapDefinition(
-          _buySellProtection,                             // Specified in the CDS index contract - applies to all underlying CDS's
+      final LegacyVanillaCreditDefaultSwapDefinition cds = new LegacyVanillaCreditDefaultSwapDefinition(_buySellProtection,                             // Specified in the CDS index contract - applies to all underlying CDS's
           _protectionBuyer,                               // Specified in the CDS index contract
           _protectionSeller,                              // Specified in the CDS index contract
           _underlyingPool.getObligors()[i],               // Part of the information carried in the UnderlyingPool object - in principle can vary from obligor to obligor
@@ -448,34 +427,10 @@ public class IndexCreditDefaultSwapDefinition {
   // Builder method to construct an index CDS position with an underlying pool which has been modified in some way
 
   public IndexCreditDefaultSwapDefinition withUnderlyingPool(final UnderlyingPool underlyingPool) {
-    return new IndexCreditDefaultSwapDefinition(
-        getIndexName(),
-        getBuySellProtection(),
-        getProtectionBuyer(),
-        getProtectionSeller(),
-        underlyingPool,
-        getIndex(),
-        getSeries(),
-        getVersion(),
-        getCurrency(),
-        getCalendar(),
-        getStartDate(),
-        getEffectiveDate(),
-        getSettlementDate(),
-        getMaturityDate(),
-        getStubType(),
-        getCouponFrequency(),
-        getDaycountFractionConvention(),
-        getBusinessdayAdjustmentConvention(),
-        getIMMAdjustMaturityDate(),
-        getAdjustEffectiveDate(),
-        getAdjustSettlementDate(),
-        getAdjustMaturityDate(),
-        getIncludeAccruedPremium(),
-        getProtectionStart(),
-        getNotional(),
-        getUpfrontPayment(),
-        getIndexCoupon());
+    return new IndexCreditDefaultSwapDefinition(getIndexName(), getBuySellProtection(), getProtectionBuyer(), getProtectionSeller(), underlyingPool, getIndex(), getSeries(), getVersion(),
+        getCurrency(), getCalendar(), getStartDate(), getEffectiveDate(), getSettlementDate(), getMaturityDate(), getStubType(), getCouponFrequency(), getDaycountFractionConvention(),
+        getBusinessdayAdjustmentConvention(), getIMMAdjustMaturityDate(), getAdjustEffectiveDate(), getAdjustSettlementDate(), getAdjustMaturityDate(), getIncludeAccruedPremium(),
+        getProtectionStart(), getNotional(), getUpfrontPayment(), getIndexCoupon());
   }
 
   // ----------------------------------------------------------------------------------------------------------------------------------------
