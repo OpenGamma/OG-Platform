@@ -20,6 +20,11 @@ public class DatabaseDumpTool extends AbstractTool<ToolContext> {
 
   public static final String DATA_DIRECTORY = "d";
 
+  public static void main(final String[] args) { // CSIGNORE
+    new DatabaseDumpTool().initAndRun(args, ToolContext.class);
+    System.exit(0);
+  }
+
   @Override
   protected void doRun() throws Exception {
     String dataDir = getCommandLine().getOptionValue(DATA_DIRECTORY);
