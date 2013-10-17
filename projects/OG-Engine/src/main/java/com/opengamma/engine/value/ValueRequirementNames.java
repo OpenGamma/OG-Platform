@@ -542,6 +542,22 @@ public final class ValueRequirementNames {
    */
   public static final String PRESENT_VALUE = "Present Value";
   /**
+   * The present value of the pay leg of a swap.
+   */
+  public static final String PAY_LEG_PRESENT_VALUE = "Swap Pay Leg Present Value";
+  /**
+   * The present value of the receive leg of a swap.
+   */
+  public static final String RECEIVE_LEG_PRESENT_VALUE = "Swap Receive Leg Present Value";
+  /**
+   * The details of a swap pay leg.
+   */
+  public static final String SWAP_PAY_LEG_DETAILS = "Swap Pay Leg Details";
+  /**
+   * The details of a swap receive leg.
+   */
+  public static final String SWAP_RECEIVE_LEG_DETAILS = "Swap Receive Leg Details";
+  /**
    * The rate that prices a cash-flow based fixed-income instrument to zero.
    */
   public static final String PAR_RATE = "Par Rate";

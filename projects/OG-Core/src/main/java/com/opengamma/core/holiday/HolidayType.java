@@ -40,15 +40,8 @@ public enum HolidayType {
    */
   CURRENCY,
   /**
-<<<<<<< HEAD
    * A custom holiday type.
    */
   CUSTOM
 
-=======
-   * A custom holiday.
-   * An example could be one that is loaded from a csv file.
-   */
-  CUSTOM
->>>>>>> [PLAT-4856] Adding a tool that reads calendar dates (e.g. ECB dates) from a csv file
 }
