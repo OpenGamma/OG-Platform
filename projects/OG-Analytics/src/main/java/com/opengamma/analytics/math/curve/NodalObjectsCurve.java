@@ -180,13 +180,19 @@ public class NodalObjectsCurve<T extends Comparable<T>, U> extends ObjectsCurve<
 
   @Override
   public boolean equals(Object obj) {
+    if (obj == null) {
+      return false;
+    }
     if (obj == this) {
       return true;
     }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      return true;
+    if (!super.equals(obj)) {
+      return false;
     }
-    return false;
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    return true;
   }
 
   @Override
