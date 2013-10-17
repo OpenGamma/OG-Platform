@@ -17,27 +17,30 @@ public class CalculationNodeLogEventListener implements LogEventListener {
 
   private final ThreadLocalLogEventListener _threadLocalListener;
   private MutableExecutionLog _log;
-  
+
   public CalculationNodeLogEventListener(ThreadLocalLogEventListener threadLocalListener) {
     ArgumentChecker.notNull(threadLocalListener, "threadLocalListener");
     _threadLocalListener = threadLocalListener;
   }
-  
+
   //-------------------------------------------------------------------------
   /**
    * Attaches an execution log to the calling thread's log output.
    * 
-   * @param log  the execution log, not null
+   * @param log the execution log, not null
    */
   public void attach(MutableExecutionLog log) {
     ArgumentChecker.notNull(log, "log");
     if (_log != null) {
+      // Clear the flag to try and recover if the "detach" never happened. Worst case is
+      // we'll see another exception thrown when the original caller attempts to detach.
+      _log = null;
       throw new IllegalStateException("Another log is already attached to the listener");
     }
     _log = log;
     _threadLocalListener.setThreadLocalListener(this);
   }
-  
+
   /**
    * Detaches the existing execution log from the calling thread's log output.
    */

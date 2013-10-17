@@ -462,10 +462,14 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
       } else {
         getMaxJobItemExecution().jobExecutionStarted(jobItem);
         attachLog(executionLog);
+        boolean logAttached = true;
         try {
           invoke(jobItem, new DeferredInvocationStatistics(getFunctionInvocationStatistics(), getConfiguration(), jobItem.getFunctionUniqueIdentifier()), resultItemBuilder);
         } catch (final AsynchronousExecution e) {
           s_logger.debug("Asynchronous job item invocation at {}", _nodeId);
+          detachLog();
+          getMaxJobItemExecution().jobExecutionStopped();
+          logAttached = false;
           final AsynchronousOperation<Deferred<Void>> async = deferredOperation();
           final ExecuteJobItemsInvoke invoke = new ExecuteJobItemsInvoke(jobItem, executionLog, resultItemBuilder);
           e.setResultListener(new ResultListener<Deferred<Void>>() {
@@ -488,8 +492,10 @@ public class SimpleCalculationNode extends SimpleCalculationNodeState implements
         } catch (final Throwable t) {
           invocationFailure(t, jobItem, resultItemBuilder);
         } finally {
-          detachLog();
-          getMaxJobItemExecution().jobExecutionStopped();
+          if (logAttached) {
+            detachLog();
+            getMaxJobItemExecution().jobExecutionStopped();
+          }
         }
       }
       resultItems.add(resultItemBuilder.toResultItem());

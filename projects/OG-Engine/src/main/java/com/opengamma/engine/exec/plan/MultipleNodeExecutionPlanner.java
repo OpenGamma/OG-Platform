@@ -181,9 +181,9 @@ public class MultipleNodeExecutionPlanner implements GraphExecutionPlanner {
     private final Map<DependencyNode, GraphFragment> _node2Fragment;
     private final Set<GraphFragment> _allFragments;
     private final FunctionCostsPerConfiguration _costs;
-    private final Map<ValueSpecification, Boolean> _sharedValues;
+    private final Set<ValueSpecification> _sharedValues;
 
-    public FragmentGatherer(final int size, final FunctionCostsPerConfiguration costs, final Map<ValueSpecification, Boolean> sharedValues) {
+    public FragmentGatherer(final int size, final FunctionCostsPerConfiguration costs, final Set<ValueSpecification> sharedValues) {
       _node2Fragment = Maps.newHashMapWithExpectedSize(size);
       _allFragments = Sets.newHashSetWithExpectedSize(size);
       _costs = costs;
@@ -197,7 +197,7 @@ public class MultipleNodeExecutionPlanner implements GraphExecutionPlanner {
       final int inputs = root.getInputCount();
       for (int i = 0; i < inputs; i++) {
         final ValueSpecification inputValue = root.getInputValue(i);
-        if (_sharedValues.containsKey(inputValue)) {
+        if (isShared(inputValue)) {
           // The input is in the shared cache, so don't create a fragment for that node
           continue;
         }
@@ -216,13 +216,24 @@ public class MultipleNodeExecutionPlanner implements GraphExecutionPlanner {
       return _allFragments;
     }
 
+    public boolean isShared(final ValueSpecification value) {
+      return _sharedValues.contains(value);
+    }
+
   }
 
   private Set<GraphFragment> createGraphFragments(final DependencyGraph graph, final FragmentGatherer fragments) {
     final int rootCount = graph.getRootCount();
     final Set<GraphFragment> roots = Sets.newHashSetWithExpectedSize(rootCount);
-    for (int i = 0; i < rootCount; i++) {
+    rootLoop: for (int i = 0; i < rootCount; i++) { //CSIGNORE
       final DependencyNode root = graph.getRootNode(i);
+      final int outputs = root.getOutputCount();
+      for (int j = 0; j < outputs; j++) {
+        if (fragments.isShared(root.getOutputValue(j))) {
+          // Don't create a fragment for the root; its output(s) are already in the shared cache
+          continue rootLoop;
+        }
+      }
       roots.add(fragments.createFragments(root));
     }
     return roots;
@@ -432,7 +443,7 @@ public class MultipleNodeExecutionPlanner implements GraphExecutionPlanner {
       final Set<ValueSpecification> sharedValues, final Map<ValueSpecification, FunctionParameters> parameters) {
     final GraphFragmentContext context = new GraphFragmentContext(graph.getCalculationConfigurationName(), logModeSource, functionInitializationId, sharedValues, parameters);
     context.setTerminalOutputs(DependencyGraphImpl.getTerminalOutputSpecifications(graph));
-    FragmentGatherer gatherer = new FragmentGatherer(graph.getSize(), getFunctionCosts().getStatistics(graph.getCalculationConfigurationName()), context.getSharedCacheValues());
+    FragmentGatherer gatherer = new FragmentGatherer(graph.getSize(), getFunctionCosts().getStatistics(graph.getCalculationConfigurationName()), sharedValues);
     final Set<GraphFragment> rootFragments = createGraphFragments(graph, gatherer);
     final Set<GraphFragment> allFragments = gatherer.getAllFragments();
     gatherer = null;
