@@ -257,7 +257,7 @@ public abstract class LabelledMatrix1D<S extends Comparable<? super S>, T> {
     return getMatrix(newKeys, newLabels, newValues);
   }
 
-  protected T getDefaultTolerance() {
+  public T getDefaultTolerance() {
     return _defaultTolerance;
   }
 
