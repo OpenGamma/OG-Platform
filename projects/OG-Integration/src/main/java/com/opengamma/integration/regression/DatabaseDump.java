@@ -22,7 +22,7 @@ import com.google.common.collect.Lists;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.integration.marketdata.manipulator.dsl.RemoteServer;
+import com.opengamma.integration.server.RemoteServer;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
@@ -211,6 +211,8 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
     FudgeContext ctx = OpenGammaFudgeContext.getInstance();
     FudgeSerializer serializer = new FudgeSerializer(ctx);
     for (UniqueIdentifiable object : objects) {
+      // TODO this will change the filename for an object between different versions of the dump
+      // can I reuse the same filename using attributes? need to ensure they're unique
       try (FileWriter writer = new FileWriter(new File(outputSubDir, object.getUniqueId().getObjectId() + ".xml"))) {
         FudgeXMLStreamWriter streamWriter = new FudgeXMLStreamWriter(ctx, writer);
         FudgeMsgWriter fudgeMsgWriter = new FudgeMsgWriter(streamWriter);

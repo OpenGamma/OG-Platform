@@ -23,7 +23,7 @@ import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.integration.marketdata.manipulator.dsl.RemoteServer;
+import com.opengamma.integration.server.RemoteServer;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;

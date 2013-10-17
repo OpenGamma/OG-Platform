@@ -23,6 +23,7 @@ import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.listener.AbstractViewResultListener;
 import com.opengamma.id.UniqueId;
+import com.opengamma.integration.server.RemoteServer;
 import com.opengamma.livedata.UserPrincipal;
 
 /**

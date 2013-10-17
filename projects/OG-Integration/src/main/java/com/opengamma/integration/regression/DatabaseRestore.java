@@ -29,7 +29,7 @@ import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
-import com.opengamma.integration.marketdata.manipulator.dsl.RemoteServer;
+import com.opengamma.integration.server.RemoteServer;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.exchange.ExchangeDocument;
