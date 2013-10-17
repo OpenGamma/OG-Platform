@@ -5,6 +5,7 @@
  */
 package com.opengamma.integration.regression;
 
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -13,10 +14,12 @@ import java.util.Objects;
 import org.joda.beans.Bean;
 import org.joda.beans.MetaProperty;
 
+import com.google.common.collect.Maps;
 import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.math.curve.Curve;
 import com.opengamma.analytics.util.serialization.InvokedSerializedForm;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
-import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
+import com.opengamma.financial.analytics.LabelledMatrix1D;
 import com.opengamma.util.ClassMap;
 import com.opengamma.util.fudgemsg.WriteReplaceHelper;
 import com.opengamma.util.money.CurrencyAmount;
@@ -27,22 +30,26 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
  */
 public final class EqualityChecker {
 
-  // TODO static method to populate this from the outside
+  // TODO static method to populate these from the outside
   private static final Map<Class<?>, TypeHandler<?>> s_handlers = new ClassMap<>();
+  private static final Map<MetaProperty<?>, Comparator<?>> s_propertyComparators = Maps.newHashMap();
+  private static final ObjectArrayHandler s_objectArrayHandler = new ObjectArrayHandler();
 
   static {
     s_handlers.put(Double.class, new DoubleHandler());
     s_handlers.put(double[].class, new PrimitiveDoubleArrayHandler());
     s_handlers.put(Double[].class, new DoubleArrayHandler());
-    s_handlers.put(Object[].class, new ObjectArrayHandler());
+    s_handlers.put(Object[].class, s_objectArrayHandler);
     s_handlers.put(List.class, new ListHandler());
     s_handlers.put(YieldCurve.class, new YieldCurveHandler());
-    s_handlers.put(DoubleLabelledMatrix1D.class, new DoubleLabelledMatrix1DHandler());
+    s_handlers.put(LabelledMatrix1D.class, new LabelledMatrix1DHandler());
     s_handlers.put(MultipleCurrencyAmount.class, new MultipleCurrencyAmountHandler());
     s_handlers.put(Bean.class, new BeanHandler());
     s_handlers.put(InvokedSerializedForm.class, new InvokedSerializedFormHandler());
     s_handlers.put(VolatilitySurfaceData.class, new VolatilitySurfaceDataHandler());
     s_handlers.put(Map.class, new MapHandler());
+
+    s_propertyComparators.put(Curve.meta().name(), new AlwaysEqualComparator());
   }
 
   private EqualityChecker() {
@@ -56,27 +63,32 @@ public final class EqualityChecker {
    * @return true If the values are close enough to be considered equal
    */
   public static boolean equals(Object o1, Object o2, double delta) {
+    if (o1 == null && o2 == null) {
+      return true;
+    }
+    if (o1 == null || o2 == null) {
+      return false;
+    }
+    if (!o1.getClass().equals(o2.getClass())) {
+      return false;
+    }
     // for normal classes this method returns the object itself. for instances of anonymous inner classes produced
     // by a factory method it returns an instance of InvokedSerializedForm which encodes the factory method and
     // arguments needed to recreate the object. comparing anonymous classes is obviously fraught with difficulties,
     // but comparing the serialized form will work
     Object value1 = WriteReplaceHelper.writeReplace(o1);
     Object value2 = WriteReplaceHelper.writeReplace(o2);
-    if (value1 == null && value2 == null) {
-      return true;
-    }
-    if (value1 == null || value2 == null) {
-      return false;
-    }
-    if (!value1.getClass().equals(value2.getClass())) {
-      return false;
-    }
     @SuppressWarnings("unchecked")
     TypeHandler<Object> handler = (TypeHandler<Object>) s_handlers.get(value1.getClass());
     if (handler != null) {
       return handler.equals(value1, value2, delta);
     } else {
-      return Objects.equals(value1, value2);
+      // ClassMap doesn't handle subtyping and arrays, this uses the Object[] handler for non-primitive arrays
+      if (value1.getClass().isArray() && Object[].class.isAssignableFrom(value1.getClass())) {
+        return s_objectArrayHandler.equals((Object[]) value1, (Object[]) value2, delta);
+      } else {
+        return Objects.equals(value1, value2);
+      }
     }
   }
 
@@ -204,26 +216,6 @@ public final class EqualityChecker {
     }
   }
 
-  private static class DoubleLabelledMatrix1DHandler implements TypeHandler<DoubleLabelledMatrix1D> {
-
-    @Override
-    public boolean equals(DoubleLabelledMatrix1D value1, DoubleLabelledMatrix1D value2, double delta) {
-      if (value1.equals(value2)) {
-        return true;
-      }
-      if (!EqualityChecker.equals(value1.getKeys(), value2.getKeys(), delta)) {
-        return false;
-      }
-      if (!EqualityChecker.equals(value1.getValues(), value2.getValues(), delta)) {
-        return false;
-      }
-      if (!EqualityChecker.equals(value1.getLabels(), value2.getLabels(), delta)) {
-        return false;
-      }
-      return true;
-    }
-  }
-
   private static class BeanHandler implements TypeHandler<Bean> {
 
     @Override
@@ -231,8 +223,25 @@ public final class EqualityChecker {
       for (MetaProperty<?> property : bean1.metaBean().metaPropertyIterable()) {
         Object value1 = property.get(bean1);
         Object value2 = property.get(bean2);
-        if (!EqualityChecker.equals(value1, value2, delta)) {
-          return false;
+        @SuppressWarnings("unchecked")
+        Comparator<Object> comparator = (Comparator<Object>) s_propertyComparators.get(property);
+        if (comparator == null) {
+          if (!EqualityChecker.equals(value1, value2, delta)) {
+            return false;
+          }
+        } else {
+          if (value1 == null && value2 == null) {
+            continue;
+          }
+          if (value1 == null || value2 == null) {
+            return false;
+          }
+          if (!value1.getClass().equals(value2.getClass())) {
+            return false;
+          }
+          if (comparator.compare(value1, value2) != 0) {
+            return false;
+          }
         }
       }
       return true;
@@ -300,6 +309,40 @@ public final class EqualityChecker {
         }
       }
       return true;
+    }
+  }
+
+  private static class LabelledMatrix1DHandler implements TypeHandler<LabelledMatrix1D<?, ?>> {
+
+    @Override
+    public boolean equals(LabelledMatrix1D<?, ?> value1, LabelledMatrix1D<?, ?> value2, double delta) {
+      if (!Objects.equals(value1.getLabelsTitle(), value2.getLabelsTitle())) {
+        return false;
+      }
+      if (!Objects.equals(value1.getValuesTitle(), value2.getValuesTitle())) {
+        return false;
+      }
+      if (!EqualityChecker.equals(value1.getKeys(), value2.getKeys(), delta)) {
+        return false;
+      }
+      if (!EqualityChecker.equals(value1.getLabels(), value2.getLabels(), delta)) {
+        return false;
+      }
+      if (!EqualityChecker.equals(value1.getValues(), value2.getValues(), delta)) {
+        return false;
+      }
+      if (!EqualityChecker.equals(value1.getDefaultTolerance(), value2.getDefaultTolerance(), delta)) {
+        return false;
+      }
+      return true;
+    }
+  }
+
+  private static class AlwaysEqualComparator implements Comparator<Object> {
+
+    @Override
+    public int compare(Object o1, Object o2) {
+      return 0;
     }
   }
 }
