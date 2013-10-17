@@ -19,6 +19,8 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import redis.clients.jedis.JedisPoolConfig;
+
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
@@ -44,7 +46,9 @@ public class RedisConnectorComponentFactory extends AbstractComponentFactory {
   
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
-    RedisConnector redisConnector = new RedisConnector(getClassifier(), getHostName(), getRedisPort(), getPassword());
+    JedisPoolConfig poolConfig = new JedisPoolConfig();
+    poolConfig.setMaxActive(Runtime.getRuntime().availableProcessors() + 5);
+    RedisConnector redisConnector = new RedisConnector(getClassifier(), getHostName(), getRedisPort(), getPassword(), poolConfig);
     
     ComponentInfo info = new ComponentInfo(RedisConnector.class, getClassifier());
     repo.registerComponent(info, redisConnector);

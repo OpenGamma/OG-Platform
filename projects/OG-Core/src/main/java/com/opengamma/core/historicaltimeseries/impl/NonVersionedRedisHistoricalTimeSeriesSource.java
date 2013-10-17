@@ -69,6 +69,7 @@ public class NonVersionedRedisHistoricalTimeSeriesSource implements HistoricalTi
   
   private Timer _getSeriesTimer = new Timer();
   private Timer _updateSeriesTimer = new Timer();
+  private Timer _existsSeriesTimer = new Timer();
   
   public NonVersionedRedisHistoricalTimeSeriesSource(JedisPool jedisPool) {
     this(jedisPool, "");
@@ -101,6 +102,7 @@ public class NonVersionedRedisHistoricalTimeSeriesSource implements HistoricalTi
   public void registerMetrics(MetricRegistry summaryRegistry, MetricRegistry detailRegistry, String namePrefix) {
     _getSeriesTimer = summaryRegistry.timer(namePrefix + ".get");
     _updateSeriesTimer = summaryRegistry.timer(namePrefix + ".update");
+    _existsSeriesTimer = summaryRegistry.timer(namePrefix + ".exists");
   }
   
   /**
@@ -234,6 +236,32 @@ public class NonVersionedRedisHistoricalTimeSeriesSource implements HistoricalTi
     ExternalId id = identifierBundle.iterator().next();
     UniqueId uniqueId = UniqueId.of(id.getScheme().getName(), id.getValue());
     return uniqueId;
+  }
+  
+  public boolean exists(UniqueId uniqueId, LocalDate simulationExecutionDate) {
+    try (Timer.Context context = _existsSeriesTimer.time()) {
+      String redisKey = toRedisKey(uniqueId, simulationExecutionDate);
+      String redisHtsDaysKey = toRedisHtsDaysKey(redisKey);
+      boolean exists = false;
+      Jedis jedis = getJedisPool().getResource();
+      try {
+        exists = jedis.exists(redisHtsDaysKey);
+        getJedisPool().returnResource(jedis);
+      } catch (Exception e) {
+        s_logger.error("Unable to check for existance", e);
+        getJedisPool().returnBrokenResource(jedis);
+        throw new OpenGammaRuntimeException("Unable to check for existance", e);
+      }
+      return exists;
+    }
+  }
+  
+  public boolean exists(UniqueId uniqueId) {
+    return exists(uniqueId, null);
+  }
+  
+  public boolean exists(ExternalIdBundle identifierBundle) {
+    return exists(toUniqueId(identifierBundle));
   }
     
   // ------------------------------------------------------------------------
