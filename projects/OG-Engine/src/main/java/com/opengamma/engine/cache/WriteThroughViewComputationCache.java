@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.MapMaker;
+import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueSpecification;
@@ -54,7 +55,12 @@ public class WriteThroughViewComputationCache implements ViewComputationCache {
     }
 
     public Pair<ValueSpecification, Object> waitForPair() {
-      return Pair.of(_specification, waitFor());
+      final Object value = waitFor();
+      if (value == NULL) {
+        return Pair.of(_specification, null);
+      } else {
+        return Pair.of(_specification, value);
+      }
     }
 
     public synchronized void post(final Object value) {
@@ -185,7 +191,7 @@ public class WriteThroughViewComputationCache implements ViewComputationCache {
       } else if (value == null) {
         //s_logger.debug("Cache miss for {}", specification);
         if (query == null) {
-          query = new ArrayList<ValueSpecification>(specifications.size());
+          query = Sets.<ValueSpecification>newHashSetWithExpectedSize(specifications.size());
         }
         query.add(specification);
       } else {
@@ -196,9 +202,16 @@ public class WriteThroughViewComputationCache implements ViewComputationCache {
     if (query != null) {
       final Collection<Pair<ValueSpecification, Object>> values = getUnderlying().getValues(query);
       for (Pair<ValueSpecification, Object> value : values) {
-        post(value.getFirst(), value.getSecond());
+        final ValueSpecification valueSpec = value.getFirst();
+        post(valueSpec, value.getSecond());
+        query.remove(valueSpec);
       }
       result.addAll(values);
+      if (!query.isEmpty()) {
+        for (ValueSpecification value : query) {
+          post(value, null);
+        }
+      }
     }
     if (pending != null) {
       for (Pending handle : pending) {
@@ -232,7 +245,7 @@ public class WriteThroughViewComputationCache implements ViewComputationCache {
       } else if (value == null) {
         //s_logger.debug("Cache miss for {}", specification);
         if (query == null) {
-          query = new ArrayList<ValueSpecification>(specifications.size());
+          query = Sets.<ValueSpecification>newHashSetWithExpectedSize(specifications.size());
         }
         query.add(specification);
       } else {
@@ -243,9 +256,16 @@ public class WriteThroughViewComputationCache implements ViewComputationCache {
     if (query != null) {
       final Collection<Pair<ValueSpecification, Object>> values = getUnderlying().getValues(query, filter);
       for (Pair<ValueSpecification, Object> value : values) {
-        post(value.getFirst(), value.getSecond());
+        final ValueSpecification valueSpec = value.getFirst();
+        post(valueSpec, value.getSecond());
+        query.remove(valueSpec);
       }
       result.addAll(values);
+      if (!query.isEmpty()) {
+        for (ValueSpecification value : query) {
+          post(value, null);
+        }
+      }
     }
     if (pending != null) {
       for (Pending handle : pending) {
