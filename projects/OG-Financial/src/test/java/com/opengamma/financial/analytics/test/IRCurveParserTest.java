@@ -49,9 +49,7 @@ public class IRCurveParserTest {
         "LinearExtrapolator");
    
     DoublesCurve doublesCurve = InterpolatedDoublesCurve.from(x, y, interpolator);
-   
-    double[] testX = { 0.249144422, 0.501026694,0.750171116, 0.999315537, 1.25119781, 1.500342231, 1.749486653};
-    double[] expectedY = { 0.999297948, 0.998546826, 0.997720761, 0.996770227, 0.995642429, 0.994330655, 0.992795137 };
+
     double value0=doublesCurve.getYValue(0.0);
     double value=doublesCurve.getYValue(.31);
     
@@ -74,7 +72,6 @@ public class IRCurveParserTest {
     double value4=yieldcurve.getDiscountFactor(.31);
     
     final DayPeriodPreCalculatedDiscountCurve discountCurve= new DayPeriodPreCalculatedDiscountCurve("",curveForYieldCurve);
-    discountCurve.preCalculateDiscountFactors(2);
     double value5=discountCurve.getDiscountFactor(.31);
   }
   
