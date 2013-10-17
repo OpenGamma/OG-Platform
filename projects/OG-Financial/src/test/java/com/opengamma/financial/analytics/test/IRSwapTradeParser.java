@@ -50,9 +50,10 @@ import com.opengamma.util.ResourceUtils;
 import com.opengamma.util.csv.CSVDocumentReader;
 import com.opengamma.util.money.Currency;
 
-
+/**
+ * 
+ */
 public class IRSwapTradeParser {
-  
   private static final Logger s_logger = LoggerFactory.getLogger(IRSwapTradeParser.class);
   
   private static final String EFFECTIVE_DATE = "Effective Date";
@@ -79,25 +80,63 @@ public class IRSwapTradeParser {
   private static final String RECIEVE_LEG_EOM = "LEG2_ROLL_CONV";
   private static final String RECIEVE_LEG_FIXED_RATE = "LEG2_FIXED_RATE";
   private static final String RECIEVE_LEG_INDEX = "LEG2_INDEX";
+  private static final String CLEARED_TRADE_ID = "Cleared Trade ID";
+  private static final String STATUS = "Status";
+  private static final String ERS_PV = "ERS PV";
+  private static final String PRODUCT_TYPE = "PRODUCT_TYPE";
+  private static final String CME_SWAP_INDICATOR = "CME Swap Indicator";
+  private static final String CLIENT_ID = "Client ID";
  
-  private static final DateTimeFormatter s_dateTimeFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+  private static final DateTimeFormatter s_dateFormatter = DateTimeFormatter.ofPattern("d/M/yyyy");
   private static final Properties s_dayCountMapping = getDayCountMapping();
   private static final Properties s_businessDayConventionMapping = getBusinessDayConventionMapping();
-  private static final Map<String, FloatingIndex> s_floatingIndexMapping = getFloatingIndexMapping();
+  private static final Map<String, com.opengamma.financial.convention.FloatingIndex> s_floatingIndexMapping = getFloatingIndexMapping();
+  private static final List<String> s_unSupportedProductTypes = Lists.newArrayList("FRA", "ZCS");
+  private static final List<String> s_stubTrades = Lists.newArrayList("shortfront", "longfront", "shortback", "longback");
+  private static final List<String> s_compoundTrades = Lists.newArrayList("cmpd", "straightcmpnd", "flatcmpnd");
 
   private final Random _random = new Random();
+
   
-  public List<IRSwapSecurity> parseCSVFile(URL fileUrl) {
-    ArgumentChecker.notNull(fileUrl, "fileUrl");
-    
+  public List<IRSwapSecurity> parseCSVFile(URL tradeFileUrl) {
+    ArgumentChecker.notNull(tradeFileUrl, "tradeFileUrl");
+            
     List<IRSwapSecurity> trades = Lists.newArrayList();
-    CSVDocumentReader csvDocumentReader = new CSVDocumentReader(fileUrl, CSVParser.DEFAULT_SEPARATOR, 
+    CSVDocumentReader csvDocumentReader = new CSVDocumentReader(tradeFileUrl, CSVParser.DEFAULT_SEPARATOR, 
         CSVParser.DEFAULT_QUOTE_CHARACTER, CSVParser.DEFAULT_ESCAPE_CHARACTER, new FudgeContext());
     
     List<FudgeMsg> rowsWithError = Lists.newArrayList();
+    List<FudgeMsg> unsupportedProdTypes = Lists.newArrayList();
+    List<FudgeMsg> stubTrades = Lists.newArrayList();
+    List<FudgeMsg> compoundTrades = Lists.newArrayList();
+    List<FudgeMsg> missingPV = Lists.newArrayList();
+    List<FudgeMsg> terminatedTrades = Lists.newArrayList();
+    
+    int count = 1;
     for (FudgeMsg row : csvDocumentReader) {
+      count++;
       SwapSecurity swapSecurity = null;
       try {
+        if (isUnsupportedProductType(row)) {
+          unsupportedProdTypes.add(row);
+          continue;
+        }
+        if (isStubTrade(row)) {
+          stubTrades.add(row);
+          continue;
+        }
+        if (isCompoundTrade(row)) {
+          compoundTrades.add(row);
+          continue;
+        }
+        if (isErsPVMissing(row)) {
+          missingPV.add(row);
+          continue;
+        }
+        if (isTeminatedTrade(row)) {
+          terminatedTrades.add(row);
+          continue;
+        }
         swapSecurity = createSwapSecurity(row);
         trades.add(IRSwapSecurity.of(swapSecurity, row));
       } catch (Exception ex) {
@@ -106,13 +145,67 @@ public class IRSwapTradeParser {
       }
     }
     
-    s_logger.warn("Total unprocessed rows: {}", rowsWithError.size());
+    logErrors("unsupportedProdTypes", unsupportedProdTypes, count);
+    logErrors("stubTrades", stubTrades, count);
+    logErrors("compoundTrades", compoundTrades, count);
+    logErrors("missingPV", missingPV, count);
+    logErrors("terminatedTrades", terminatedTrades, count);
+        
+    s_logger.warn("Total unprocessed rows: {} out of {}", rowsWithError.size(), count);
     for (FudgeMsg fudgeMsg : rowsWithError) {
       s_logger.warn("{}", fudgeMsg);
     }
     return trades;
   }
- 
+
+  private void logErrors(String type, List<FudgeMsg> unsupportedProdTypes, int totalRows) {
+    s_logger.warn("Total {} rows: {} out of {}", type, unsupportedProdTypes.size(), totalRows);
+    for (FudgeMsg fudgeMsg : unsupportedProdTypes) {
+      s_logger.warn("{}", fudgeMsg);
+    }
+  }
+
+  private boolean isTeminatedTrade(FudgeMsg row) {
+    String status = row.getString(STATUS);
+    return "TERMINATED".equalsIgnoreCase(status);
+  }
+
+  private boolean isErsPVMissing(FudgeMsg row) {
+    return row.getString(ERS_PV) == null;
+  }
+
+  private boolean isCompoundTrade(FudgeMsg row) {
+    String clientId = row.getString(CLIENT_ID);
+    if (clientId != null) {
+      for (String cmpKeyWord : s_compoundTrades) {
+        if (clientId.toLowerCase().contains(cmpKeyWord)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  private boolean isStubTrade(FudgeMsg row) {
+    String clientId = row.getString(CLIENT_ID);
+    if (clientId != null) {
+      for (String stubKeyWord : s_stubTrades) {
+        if (clientId.toLowerCase().contains(stubKeyWord)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  private boolean isUnsupportedProductType(FudgeMsg row) {
+    String productType = row.getString(PRODUCT_TYPE);
+    if (productType == null) {
+      return true;
+    }
+    return s_unSupportedProductTypes.contains(productType.toUpperCase());
+  }
+
   private static Map<String, FloatingIndex> getFloatingIndexMapping() {
     Map<String, FloatingIndex> result = Maps.newHashMap();
     for (FloatingIndex floatingIndex : FloatingIndex.values()) {
@@ -176,11 +269,14 @@ public class IRSwapTradeParser {
     }
    
     InterestRateNotional notional = (InterestRateNotional) fixedLeg.getNotional();
-    String name = "Swap: pay " + (fixedLeg.getRate() * 100.0)
-        + "% fixed vs " + floatingLeg.getFloatingReferenceRateId().getValue() + ", start=" + swap.getEffectiveDate().toLocalDate()
-        + ", maturity=" + swap.getMaturityDate().toLocalDate()
-        + ", notional=" + notional.getCurrency() + " " + notional.getAmount();
-    return name;
+    return String.format("#%s %s : pay %s%% fixed vs %s, start=%s, maturity=%s, notional=%s %s", row.getString(CLEARED_TRADE_ID), 
+        row.getString(CME_SWAP_INDICATOR), 
+        (fixedLeg.getRate() * 100.0), 
+        floatingLeg.getFloatingReferenceRateId().getValue(),
+        swap.getEffectiveDate().toLocalDate(),
+        swap.getMaturityDate().toLocalDate(),
+        notional.getCurrency(),
+        notional.getAmount());
   }
 
   private SwapLeg parseReceiveLeg(FudgeMsg row) {
@@ -306,6 +402,7 @@ public class IRSwapTradeParser {
     if (ccyStr != null) {
       Currency currency = Currency.of(ccyStr);
       String notionalAmount = row.getString(notionalColumn);
+      notionalAmount = notionalAmount.replace(",", "");
       if (notionalAmount != null) {
         notional = new InterestRateNotional(currency, Double.valueOf(notionalAmount));
       } else {
@@ -383,7 +480,7 @@ public class IRSwapTradeParser {
     String dateStr = row.getString(columnName);
     if (dateStr != null) {
       try {
-        result = LocalDate.parse(dateStr, s_dateTimeFormatter);
+        result = LocalDate.parse(dateStr, s_dateFormatter);
       } catch (DateTimeParseException ex) {
         s_logger.error("Invalid dateValue:{} in column:{}, skipping...", dateStr, columnName);
       }

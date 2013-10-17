@@ -26,14 +26,13 @@ public class IRSwapTradeParserTest {
   
   public void test() throws Exception {
     IRSwapTradeParser tradeParser = new IRSwapTradeParser();
-    Resource resource = ResourceUtils.createResource("classpath:com/opengamma/financial/analytics/test/Trades14OctClean.csv"); 
+    Resource resource = ResourceUtils.createResource("classpath:com/opengamma/financial/analytics/test/Trades14Oct.csv"); 
     List<IRSwapSecurity> trades = tradeParser.parseCSVFile(resource.getURL());
     for (IRSwapSecurity irSwapSecurity : trades) {
       SwapSecurity swapSecurity = irSwapSecurity.getSwapSecurity();
-      Double ersPV = irSwapSecurity.getRawInput().getDouble("ERS pv");
-      
+      Double ersPV = irSwapSecurity.getRawInput().getDouble("ERS PV");
     }
-    s_logger.info("Got {} trades", trades.size());
+    s_logger.warn("Got {} trades", trades.size());
   }
 
 }
