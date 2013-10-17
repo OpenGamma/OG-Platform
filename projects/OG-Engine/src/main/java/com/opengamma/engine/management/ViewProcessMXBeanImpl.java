@@ -15,6 +15,7 @@ import org.threeten.bp.Duration;
 import org.threeten.bp.Instant;
 import org.threeten.bp.ZoneId;
 import org.threeten.bp.ZonedDateTime;
+import org.threeten.bp.temporal.ChronoUnit;
 
 import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.engine.view.ViewComputationResultModel;
@@ -48,18 +49,19 @@ public class ViewProcessMXBeanImpl implements ViewProcessMXBean {
   private final ObjectName _objectName;
 
   private ViewProcessor _viewProcessor;
+
   private enum PhaseState {
-    PENDING, SUCCESSFUL, FAILED;
-
+    PENDING, SUCCESSFUL, FAILED
   }
+
   private enum Outcome {
-    PENDING, YES, NO;
-
+    PENDING, YES, NO
   }
+
   private enum CycleState {
-    PENDING, STARTED, COMPLETED, FAILED;
-
+    PENDING, STARTED, COMPLETED, FAILED
   }
+
   private volatile PhaseState _compiled = PhaseState.PENDING;
   private volatile Outcome _hasMarketDataPermissions = Outcome.PENDING;
   private volatile Instant _compilationFailedValuationTime;
@@ -68,8 +70,8 @@ public class ViewProcessMXBeanImpl implements ViewProcessMXBean {
   private volatile CompiledViewDefinition _lastCompiledViewDefinition;
   private volatile ViewComputationResultModel _lastViewComputationResultModel;
   private volatile boolean _cacheResults /* = false*/;
-  private volatile Duration _lastCycleDuration;
-  private volatile Instant _lastCycleTimeStamp;
+  private volatile Duration _lastSuccessfulCycleDuration;
+  private volatile Instant _lastSuccessfulCycleTimeStamp;
 
   private ViewProcessStatsProcessor _viewProcessStatsProcessor;
   /**
@@ -110,6 +112,7 @@ public class ViewProcessMXBeanImpl implements ViewProcessMXBean {
         public void viewDefinitionCompilationFailed(Instant valuationTime, Exception exception) {
           _compiled = PhaseState.FAILED;
           _compilationFailedException = exception;
+          _compilationFailedValuationTime = valuationTime;
         }
 
         @Override
@@ -129,15 +132,13 @@ public class ViewProcessMXBeanImpl implements ViewProcessMXBean {
             }
           }
           _lastCycle = CycleState.COMPLETED;
-          _lastCycleDuration = fullResult.getCalculationDuration();
-          _lastCycleTimeStamp = fullResult.getCalculationTime();
+          _lastSuccessfulCycleDuration = fullResult.getCalculationDuration();
+          _lastSuccessfulCycleTimeStamp = fullResult.getCalculationTime();
         }
 
         @Override
         public void cycleExecutionFailed(ViewCycleExecutionOptions executionOptions, Exception exception) {
           _lastCycle = CycleState.FAILED;
-          _lastCycleDuration = null;
-          _lastCycleTimeStamp = null;
         }
 
         @Override
@@ -232,13 +233,20 @@ public class ViewProcessMXBeanImpl implements ViewProcessMXBean {
   }
 
   @Override
-  public String getLastCycleTimeStamp() {
-    return convertInstant(_lastCycleTimeStamp);
+  public String getLastSuccessfulCycleTimeStamp() {
+    return convertInstant(_lastSuccessfulCycleTimeStamp);
   }
 
   @Override
-  public Long getLastCycleDuration() {
-    return _lastCycleDuration != null ? _lastCycleDuration.toMillis() : null;
+  public Long getTimeSinceLastSuccessfulCycle() {
+    return _lastSuccessfulCycleTimeStamp != null ?
+        _lastSuccessfulCycleTimeStamp.periodUntil(Instant.now(), ChronoUnit.MILLIS) :
+        null;
+  }
+
+  @Override
+  public Long getLastSuccessfulCycleDuration() {
+    return _lastSuccessfulCycleDuration != null ? _lastSuccessfulCycleDuration.toMillis() : null;
   }
 
   @Override

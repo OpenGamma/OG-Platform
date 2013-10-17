@@ -152,12 +152,20 @@ public interface ViewProcessMXBean {
   boolean isCleanView95();
 
   /**
-   * @return when the last cycle was calculated
+   * @return when the last successful cycle was calculated, null if
+   * there has not been a successful cycle
    */
-  String getLastCycleTimeStamp();
+  String getLastSuccessfulCycleTimeStamp();
 
   /**
-   * @return how long the last cycle took to calculate
+   * @return how long the last successful cycle took to calculate, null if
+   * there has not been a successful cycle
    */
-  Long getLastCycleDuration();
+  Long getLastSuccessfulCycleDuration();
+
+  /**
+   * @return how long since the last successful cycle ran, null if
+   * there has not been a successful cycle
+   */
+  Long getTimeSinceLastSuccessfulCycle();
 }
