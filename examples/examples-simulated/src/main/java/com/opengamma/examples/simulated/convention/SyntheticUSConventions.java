@@ -25,7 +25,6 @@ import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
-import com.sun.tools.javac.util.List;
 
 /**
  * Synthetic US Conventions
@@ -103,12 +102,6 @@ public class SyntheticUSConventions {
     // OIS swap
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("USD_OIS_SWAP")), "USD_OIS_SWAP", thirty360, modified, annual, 2, usgb, thirty360,
         modified, annual, 2, simpleNameSecurityId("USD FF EFFECTIVE"), usgb, true, publicationLag);
-
-
-    for (String ticker : List.of("P1M", ".....")) {
-      utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("USD_OIS_SWAP")), "USD_OIS_SWAP", thirty360, modified, annual, 2, usgb, thirty360,
-                                modified, annual, 2, simpleNameSecurityId("USD FF EFFECTIVE"), usgb, true, publicationLag);
-    }
 
 
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("USD_OIS_SWAP")), "USD_OIS_SWAP", thirty360, modified, annual, 2, usgb, thirty360,
