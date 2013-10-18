@@ -59,7 +59,7 @@ public class GBConventions {
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BP00T/N Index"), simpleNameSecurityId("GBP LIBOR T/N")),
         "GBP LIBOR T/N", ACT_365, FOLLOWING, Period.ofDays(1), 1, false, GB);
 
-    for (int i = 1; i < 3; i++) {
+    for (int i = 1; i < 4; i++) {
       final String dayDepositName = "GBP DEPOSIT " + i + "d";
       final ExternalId dayBbgDeposit = bloombergTickerSecurityId("BPDR" + i + "T Curncy");
       final ExternalId daySimpleDeposit = simpleNameSecurityId(dayDepositName);
@@ -123,9 +123,9 @@ public class GBConventions {
         ACT_365, MODIFIED, SEMI_ANNUAL, 0, simpleNameSecurityId("GBP LIBOR 6m"), GB, true);
 
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId(IndexType.Libor + "_P3M")), IndexType.Libor + "_P3M", ACT_365, MODIFIED,
-        null, 0, false, GB);
+        null, 0, false, GB, 0);
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId(IndexType.Libor + "_P6M")), IndexType.Libor + "_P6M", ACT_365, MODIFIED,
-        null, 0, false, GB);
+        null, 0, false, GB, 0);
     // SONIA
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("SONIO/N Index"), simpleNameSecurityId("GBP SONIO/N")), "GBP SONIO/N", ACT_365,
         FOLLOWING, Period.ofDays(1), 0, false, GB, publicationLagON);

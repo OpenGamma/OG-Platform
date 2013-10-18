@@ -204,7 +204,7 @@ public class CalendarSwapNode extends CurveNode {
    * Sets the calendar external id.
    * @param calendarId  the new value of the property, not null
    */
-  public void setCalendarId(final ExternalId calendarId) {
+  public void setCalendarId(ExternalId calendarId) {
     JodaBeanUtils.notNull(calendarId, "calendarId");
     this._calendarId = calendarId;
   }
@@ -230,7 +230,7 @@ public class CalendarSwapNode extends CurveNode {
    * Sets the date from which to start counting.
    * @param initialDate  the new value of the property, not null
    */
-  public void setInitialDate(final LocalDate initialDate) {
+  public void setInitialDate(LocalDate initialDate) {
     JodaBeanUtils.notNull(initialDate, "initialDate");
     this._initialDate = initialDate;
   }
@@ -256,7 +256,7 @@ public class CalendarSwapNode extends CurveNode {
    * Sets the start calendar date number.
    * @param startDateNumber  the new value of the property
    */
-  public void setStartDateNumber(final int startDateNumber) {
+  public void setStartDateNumber(int startDateNumber) {
     this._startDateNumber = startDateNumber;
   }
 
@@ -281,7 +281,7 @@ public class CalendarSwapNode extends CurveNode {
    * Sets the maturity calendar date number.
    * @param maturityDateNumber  the new value of the property
    */
-  public void setMaturityDateNumber(final int maturityDateNumber) {
+  public void setMaturityDateNumber(int maturityDateNumber) {
     this._maturityDateNumber = maturityDateNumber;
   }
 
@@ -306,7 +306,7 @@ public class CalendarSwapNode extends CurveNode {
    * Sets the swap convention.
    * @param swapConvention  the new value of the property, not null
    */
-  public void setSwapConvention(final ExternalId swapConvention) {
+  public void setSwapConvention(ExternalId swapConvention) {
     JodaBeanUtils.notNull(swapConvention, "swapConvention");
     this._swapConvention = swapConvention;
   }
@@ -332,7 +332,7 @@ public class CalendarSwapNode extends CurveNode {
    * Sets whether to use fixings when constructing the swap.
    * @param useFixings  the new value of the property
    */
-  public void setUseFixings(final boolean useFixings) {
+  public void setUseFixings(boolean useFixings) {
     this._useFixings = useFixings;
   }
 
@@ -351,12 +351,12 @@ public class CalendarSwapNode extends CurveNode {
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      final CalendarSwapNode other = (CalendarSwapNode) obj;
+      CalendarSwapNode other = (CalendarSwapNode) obj;
       return JodaBeanUtils.equal(getCalendarId(), other.getCalendarId()) &&
           JodaBeanUtils.equal(getInitialDate(), other.getInitialDate()) &&
           (getStartDateNumber() == other.getStartDateNumber()) &&
@@ -382,9 +382,9 @@ public class CalendarSwapNode extends CurveNode {
 
   @Override
   public String toString() {
-    final StringBuilder buf = new StringBuilder(224);
+    StringBuilder buf = new StringBuilder(224);
     buf.append("CalendarSwapNode{");
-    final int len = buf.length();
+    int len = buf.length();
     toString(buf);
     if (buf.length() > len) {
       buf.setLength(buf.length() - 2);
@@ -394,14 +394,14 @@ public class CalendarSwapNode extends CurveNode {
   }
 
   @Override
-  protected void toString(final StringBuilder buf) {
+  protected void toString(StringBuilder buf) {
     super.toString(buf);
-    buf.append("calendarId").append('=').append(getCalendarId()).append(',').append(' ');
-    buf.append("initialDate").append('=').append(getInitialDate()).append(',').append(' ');
-    buf.append("startDateNumber").append('=').append(getStartDateNumber()).append(',').append(' ');
-    buf.append("maturityDateNumber").append('=').append(getMaturityDateNumber()).append(',').append(' ');
-    buf.append("swapConvention").append('=').append(getSwapConvention()).append(',').append(' ');
-    buf.append("useFixings").append('=').append(isUseFixings()).append(',').append(' ');
+    buf.append("calendarId").append('=').append(JodaBeanUtils.toString(getCalendarId())).append(',').append(' ');
+    buf.append("initialDate").append('=').append(JodaBeanUtils.toString(getInitialDate())).append(',').append(' ');
+    buf.append("startDateNumber").append('=').append(JodaBeanUtils.toString(getStartDateNumber())).append(',').append(' ');
+    buf.append("maturityDateNumber").append('=').append(JodaBeanUtils.toString(getMaturityDateNumber())).append(',').append(' ');
+    buf.append("swapConvention").append('=').append(JodaBeanUtils.toString(getSwapConvention())).append(',').append(' ');
+    buf.append("useFixings").append('=').append(JodaBeanUtils.toString(isUseFixings())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -463,7 +463,7 @@ public class CalendarSwapNode extends CurveNode {
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
         case 428682489:  // calendarId
           return _calendarId;
@@ -547,7 +547,7 @@ public class CalendarSwapNode extends CurveNode {
 
     //-----------------------------------------------------------------------
     @Override
-    protected Object propertyGet(final Bean bean, final String propertyName, final boolean quiet) {
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 428682489:  // calendarId
           return ((CalendarSwapNode) bean).getCalendarId();
@@ -566,7 +566,7 @@ public class CalendarSwapNode extends CurveNode {
     }
 
     @Override
-    protected void propertySet(final Bean bean, final String propertyName, final Object newValue, final boolean quiet) {
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 428682489:  // calendarId
           ((CalendarSwapNode) bean).setCalendarId((ExternalId) newValue);
@@ -591,7 +591,7 @@ public class CalendarSwapNode extends CurveNode {
     }
 
     @Override
-    protected void validate(final Bean bean) {
+    protected void validate(Bean bean) {
       JodaBeanUtils.notNull(((CalendarSwapNode) bean)._calendarId, "calendarId");
       JodaBeanUtils.notNull(((CalendarSwapNode) bean)._initialDate, "initialDate");
       JodaBeanUtils.notNull(((CalendarSwapNode) bean)._swapConvention, "swapConvention");
