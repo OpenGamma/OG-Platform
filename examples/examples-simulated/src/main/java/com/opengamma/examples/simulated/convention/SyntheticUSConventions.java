@@ -5,7 +5,6 @@
  */
 package com.opengamma.examples.simulated.convention;
 
-import static com.opengamma.core.id.ExternalSchemes.bloombergTickerSecurityId;
 import static com.opengamma.core.id.ExternalSchemes.syntheticSecurityId;
 import static com.opengamma.financial.convention.InMemoryConventionBundleMaster.simpleNameSecurityId;
 

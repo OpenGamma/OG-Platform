@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.security;
 
+import static com.opengamma.financial.convention.InMemoryConventionBundleMaster.simpleNameSecurityId;
+
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZoneId;
@@ -344,7 +346,7 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
    final OvernightIndexConvention indexConvention = (OvernightIndexConvention) _conventionSource.getConvention(
         convention.getOvernightIndexConvention());
     final Currency currency = indexConvention.getCurrency();
-    final ExternalId correctFloatingRateReferenceId = ExternalSchemes.syntheticSecurityId(currency.getCode() + "OVERNIGHT");
+    final ExternalId correctFloatingRateReferenceId = simpleNameSecurityId(currency.getCode() + "OVERNIGHT");
     final DayCount dayCount = indexConvention.getDayCount();
     final int publicationLag = indexConvention.getPublicationLag();
     final Calendar calendar = CalendarUtils.getCalendar(_regionSource,
