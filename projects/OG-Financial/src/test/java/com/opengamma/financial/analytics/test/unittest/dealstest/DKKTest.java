@@ -22,7 +22,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
 
 /**
- * Unit tests for DKK cme deals
+ * Unit tests for DKK deals
  */
 @Test(groups = TestGroup.UNIT)
 public class DKKTest {

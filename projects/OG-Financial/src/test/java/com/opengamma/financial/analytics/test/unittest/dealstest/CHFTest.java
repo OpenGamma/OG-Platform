@@ -22,7 +22,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
 
 /**
- * Unit tests for CAD cme deals
+ * Unit tests for CAD deals
  */
 @Test(groups = TestGroup.UNIT)
 public class CHFTest {
@@ -57,7 +57,7 @@ public class CHFTest {
       }
     }
 
-    // Build ther curve bundle
+    // Build the curve bundle
     final HashMap<String, Currency> ccyMap = new HashMap<>();
     ccyMap.put(discountingCurvename, ccy);
     ccyMap.put(forward3MCurveName, ccy);

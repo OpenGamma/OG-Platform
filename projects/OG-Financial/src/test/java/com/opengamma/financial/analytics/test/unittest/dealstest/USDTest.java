@@ -22,7 +22,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.test.TestGroup;
 
 /**
- * Unit tests for USD cme deals
+ * Unit tests for USD deals
  */
 @Test(groups = TestGroup.UNIT)
 public class USDTest {
@@ -87,7 +87,7 @@ public class USDTest {
     }
 
     // Convert the swap security into a swap definition 
-    //TODO
+
     s_logger.warn("Got {} trades", trades.size());
   }
 }
