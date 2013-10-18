@@ -20,14 +20,15 @@ import com.opengamma.util.test.TestGroup;
 /**
  * Test harness which instantiates InMemory sources with sample data.
  */
-public class AbstractMockSourcesTest {
+@Test(groups = TestGroup.UNIT)
+public abstract class AbstractMockSourcesTest {
 
   protected FunctionExecutionContext _executionContext;
   protected RegionSource _regionSource;
   protected HolidaySource _holidaySource;
   protected ConventionBundleSource _conventionBundleSource;
 
-  @BeforeSuite
+  @BeforeSuite(alwaysRun = true)
   protected void initMocks() {
     _executionContext = MockSources.isdaMocks();
     _regionSource = OpenGammaExecutionContext.getRegionSource(_executionContext);
@@ -35,7 +36,7 @@ public class AbstractMockSourcesTest {
     _conventionBundleSource = OpenGammaExecutionContext.getConventionBundleSource(_executionContext);
   }
 
-  @Test(enabled = true, groups = TestGroup.UNIT)
+  @Test(enabled = true)
   public void testSourcesInited() {
     Assert.notNull(_regionSource);
     Assert.notNull(_holidaySource);
