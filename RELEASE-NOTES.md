@@ -33,6 +33,15 @@ To 2.1.2
     [PLAT-4880] - Create scripts for rsk database specify wrong version
     [PLAT-4850] Full log information is no longer available
 
+To 2.1.3
+--------
+
+    [] Theta scaling for BRL swaption.
+    [] Reverted the sign flip for short payer swaption change
+    [PLAT-4910] Added a field to volatility surface specifications and future price curve specifications that allows direct use of the underlying security in calculations
+    [PLAT-4909] Using sign in notional for swaptions and adding back functionality for ir future option greeks
+    [] Changed IR futures price curve nodes maturity calculation, s.t. the delievery dates are take from the future security itself.  Require the security to be in the database
+
 
 
 OpenGamma Platform 2.1
@@ -137,6 +146,23 @@ Analytics compatibility
 - No expected differences
 
 To 2.1.2
+-----------
+
+As above, and:
+
+Configuration compatibility
+- No changes required
+
+Database compatibility
+- No upgrade required
+
+API compatibility
+- No significant changes
+
+Analytics compatibility
+- No expected differences
+
+To 2.1.3
 -----------
 
 As above, and:
