@@ -121,7 +121,9 @@ public class ResultsFormatter {
                   new FrequencyFormatter(),
                   new FXAmountsFormatter(doubleFormatter),
                   new ExpiryFormatter(zonedDateTimeFormatter),
-                  new ValuePropertiesFormatter());
+                  new ValuePropertiesFormatter(),
+                  new FixedPaymentMatrixFormatter(currencyAmountFormatter),
+                  new FloatingPaymentMatrixFormatter(currencyAmountFormatter));
   }
 
   private void addFormatters(TypeFormatter<?>... formatters) {
