@@ -7,8 +7,10 @@ package com.opengamma.analytics.financial.interestrate;
 
 import com.opengamma.analytics.financial.interestrate.future.derivative.BondFutureOptionPremiumSecurity;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumSecurity;
 import com.opengamma.analytics.financial.interestrate.future.method.BondFutureOptionPremiumSecurityBlackSurfaceMethod;
 import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureOptionMarginSecurityBlackSurfaceMethod;
+import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureOptionPremiumSecurityBlackSurfaceMethod;
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackCubeBundle;
 import com.opengamma.util.ArgumentChecker;
 
@@ -22,7 +24,8 @@ import com.opengamma.util.ArgumentChecker;
 public class PresentValueBlackDeltaForSecurityCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> {
   private static final PresentValueBlackDeltaForSecurityCalculator INSTANCE = new PresentValueBlackDeltaForSecurityCalculator();
   private static final BondFutureOptionPremiumSecurityBlackSurfaceMethod PREMIUM_BOND_FUTURE_OPTION = BondFutureOptionPremiumSecurityBlackSurfaceMethod.getInstance();
-  private static final InterestRateFutureOptionMarginSecurityBlackSurfaceMethod IR_FUTURE_OPTION = InterestRateFutureOptionMarginSecurityBlackSurfaceMethod.getInstance();
+  private static final InterestRateFutureOptionMarginSecurityBlackSurfaceMethod MARGINED_IR_FUTURE_OPTION = InterestRateFutureOptionMarginSecurityBlackSurfaceMethod.getInstance();
+  private static final InterestRateFutureOptionPremiumSecurityBlackSurfaceMethod PREMIUM_IR_FUTURE_OPTION = InterestRateFutureOptionPremiumSecurityBlackSurfaceMethod.getInstance();
   public static PresentValueBlackDeltaForSecurityCalculator getInstance() {
     return INSTANCE;
   }
@@ -42,8 +45,16 @@ public class PresentValueBlackDeltaForSecurityCalculator extends InstrumentDeriv
     ArgumentChecker.notNull(security, "security");
     ArgumentChecker.notNull(curves, "curves");
     ArgumentChecker.isTrue(curves instanceof YieldCurveWithBlackCubeBundle, "Yield curve bundle should contain Black cube");
-    final double delta = IR_FUTURE_OPTION.optionPriceDelta(security, (YieldCurveWithBlackCubeBundle) curves);
+    final double delta = MARGINED_IR_FUTURE_OPTION.optionPriceDelta(security, (YieldCurveWithBlackCubeBundle) curves);
     return delta;
   }
 
+  @Override
+  public Double visitInterestRateFutureOptionPremiumSecurity(final InterestRateFutureOptionPremiumSecurity security, final YieldCurveBundle curves) {
+    ArgumentChecker.notNull(security, "security");
+    ArgumentChecker.notNull(curves, "curves");
+    ArgumentChecker.isTrue(curves instanceof YieldCurveWithBlackCubeBundle, "Yield curve bundle should contain Black cube");
+    final double delta = PREMIUM_IR_FUTURE_OPTION.optionPriceDelta(security, (YieldCurveWithBlackCubeBundle) curves);
+    return delta;
+  }
 }

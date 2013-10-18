@@ -34,9 +34,10 @@ public class InterestRateFutureOptionBlackDeltaFunction extends InterestRateFutu
   public InterestRateFutureOptionBlackDeltaFunction() {
     super(ValueRequirementNames.DELTA);
   }
-  
+
   @Override
-  protected Set<ComputedValue> getResult(final InstrumentDerivative irFutureOptionTransaction, final YieldCurveWithBlackCubeBundle curveBundle, final ValueSpecification spec, final Set<ValueRequirement> desiredValues) {
+  protected Set<ComputedValue> getResult(final InstrumentDerivative irFutureOptionTransaction, final YieldCurveWithBlackCubeBundle curveBundle, final ValueSpecification spec,
+      final Set<ValueRequirement> desiredValues) {
     ArgumentChecker.isTrue(irFutureOptionTransaction instanceof InterestRateFutureOptionMarginTransaction,
         "InterestRateFutureOptionMarginTransaction expected. " + irFutureOptionTransaction.getClass().toString() + " found.");
     final InstrumentDerivative irFutureOptionSecurity = ((InterestRateFutureOptionMarginTransaction) irFutureOptionTransaction).getUnderlyingOption();

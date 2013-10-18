@@ -58,7 +58,7 @@ public final class PresentValueBlackCalculator extends PresentValueCalculator {
   /** Cash fixed / ibor swaption calculator */
   private static final SwaptionCashFixedIborBlackMethod CASH_SWAPTION = SwaptionCashFixedIborBlackMethod.getInstance();
   /** Margined interest rate future option calculator */
-  private static final InterestRateFutureOptionMarginTransactionBlackSurfaceMethod MARGINNED_IR_FUTURE_OPTION = InterestRateFutureOptionMarginTransactionBlackSurfaceMethod.getInstance();
+  private static final InterestRateFutureOptionMarginTransactionBlackSurfaceMethod MARGINED_IR_FUTURE_OPTION = InterestRateFutureOptionMarginTransactionBlackSurfaceMethod.getInstance();
   /** Bond future option with premium calculator */
   private static final BondFutureOptionPremiumTransactionBlackSurfaceMethod PREMIUM_BOND_FUTURE_OPTION = BondFutureOptionPremiumTransactionBlackSurfaceMethod.getInstance();
   /** Physical fixed accrued / overnight swaption calculator */
@@ -115,7 +115,7 @@ public final class PresentValueBlackCalculator extends PresentValueCalculator {
     ArgumentChecker.notNull(curves, "curves");
     ArgumentChecker.notNull(option, "option");
     if (curves instanceof YieldCurveWithBlackCubeBundle) {
-      return MARGINNED_IR_FUTURE_OPTION.presentValue(option, curves).getAmount();
+      return MARGINED_IR_FUTURE_OPTION.presentValue(option, curves).getAmount();
     }
     throw new UnsupportedOperationException("The PresentValueBlackCalculator visitor visitSwaptionPhysicalFixedIbor requires a YieldCurveWithBlackSwaptionBundle as data.");
   }
@@ -129,7 +129,7 @@ public final class PresentValueBlackCalculator extends PresentValueCalculator {
       final InterestRateFutureOptionMarginSecurity underlyingMarginedOption = new InterestRateFutureOptionMarginSecurity(underlyingOption.getUnderlyingFuture(), underlyingOption.getExpirationTime(),
           underlyingOption.getStrike(), underlyingOption.isCall());
       final InterestRateFutureOptionMarginTransaction margined = new InterestRateFutureOptionMarginTransaction(underlyingMarginedOption, option.getQuantity(), option.getTradePrice());
-      return MARGINNED_IR_FUTURE_OPTION.presentValue(margined, curves).getAmount();
+      return MARGINED_IR_FUTURE_OPTION.presentValue(margined, curves).getAmount();
     }
     throw new UnsupportedOperationException("The PresentValueBlackCalculator visitor visitInterestRateFutureOptionPremiumTransaction requires a YieldCurveWithBlackCubeBundle as data.");
   }

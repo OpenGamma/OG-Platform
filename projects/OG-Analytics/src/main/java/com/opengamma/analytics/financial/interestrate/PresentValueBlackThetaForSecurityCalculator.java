@@ -6,19 +6,24 @@
 package com.opengamma.analytics.financial.interestrate;
 
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumTransaction;
 import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureOptionMarginSecurityBlackSurfaceMethod;
+import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureOptionPremiumSecurityBlackSurfaceMethod;
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackCubeBundle;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * InstrumentDerivativeVisitor that calculates delta, the first derivative of the price with respect to the price of the underlying future.
+ * InstrumentDerivativeVisitor that calculates theta, the first derivative of the price with respect to time.
  * <p>
  * @deprecated {@link YieldCurveBundle} is deprecated
  */
 @Deprecated
 public class PresentValueBlackThetaForSecurityCalculator extends InstrumentDerivativeVisitorAdapter<YieldCurveBundle, Double> {
   private static final PresentValueBlackThetaForSecurityCalculator INSTANCE = new PresentValueBlackThetaForSecurityCalculator();
-  private static final InterestRateFutureOptionMarginSecurityBlackSurfaceMethod IR_FUTURE_OPTION = InterestRateFutureOptionMarginSecurityBlackSurfaceMethod.getInstance();
+  private static final InterestRateFutureOptionMarginSecurityBlackSurfaceMethod MARGINED_IR_FUTURE_OPTION = InterestRateFutureOptionMarginSecurityBlackSurfaceMethod.getInstance();
+  private static final InterestRateFutureOptionPremiumSecurityBlackSurfaceMethod PREMIUM_IR_FUTURE_OPTION = InterestRateFutureOptionPremiumSecurityBlackSurfaceMethod.getInstance();
 
   public static PresentValueBlackThetaForSecurityCalculator getInstance() {
     return INSTANCE;
@@ -29,8 +34,34 @@ public class PresentValueBlackThetaForSecurityCalculator extends InstrumentDeriv
     ArgumentChecker.notNull(security, "security");
     ArgumentChecker.notNull(curves, "curves");
     ArgumentChecker.isTrue(curves instanceof YieldCurveWithBlackCubeBundle, "Yield curve bundle should contain Black cube");
-    final double delta = IR_FUTURE_OPTION.optionPriceTheta(security, (YieldCurveWithBlackCubeBundle) curves);
-    return delta;
+    final double theta = MARGINED_IR_FUTURE_OPTION.optionPriceTheta(security, (YieldCurveWithBlackCubeBundle) curves);
+    return theta;
   }
 
+  @Override
+  public Double visitInterestRateFutureOptionPremiumSecurity(final InterestRateFutureOptionPremiumSecurity security, final YieldCurveBundle curves) {
+    ArgumentChecker.notNull(security, "security");
+    ArgumentChecker.notNull(curves, "curves");
+    ArgumentChecker.isTrue(curves instanceof YieldCurveWithBlackCubeBundle, "Yield curve bundle should contain Black cube");
+    final double theta = PREMIUM_IR_FUTURE_OPTION.optionPriceTheta(security, (YieldCurveWithBlackCubeBundle) curves);
+    return theta;
+  }
+
+  @Override
+  public Double visitInterestRateFutureOptionMarginTransaction(final InterestRateFutureOptionMarginTransaction security, final YieldCurveBundle curves) {
+    ArgumentChecker.notNull(security, "security");
+    ArgumentChecker.notNull(curves, "curves");
+    ArgumentChecker.isTrue(curves instanceof YieldCurveWithBlackCubeBundle, "Yield curve bundle should contain Black cube");
+    final double theta = MARGINED_IR_FUTURE_OPTION.optionPriceTheta(security.getUnderlyingOption(), (YieldCurveWithBlackCubeBundle) curves);
+    return theta;
+  }
+
+  @Override
+  public Double visitInterestRateFutureOptionPremiumTransaction(final InterestRateFutureOptionPremiumTransaction security, final YieldCurveBundle curves) {
+    ArgumentChecker.notNull(security, "security");
+    ArgumentChecker.notNull(curves, "curves");
+    ArgumentChecker.isTrue(curves instanceof YieldCurveWithBlackCubeBundle, "Yield curve bundle should contain Black cube");
+    final double theta = PREMIUM_IR_FUTURE_OPTION.optionPriceTheta(security.getUnderlyingOption(), (YieldCurveWithBlackCubeBundle) curves);
+    return theta;
+  }
 }

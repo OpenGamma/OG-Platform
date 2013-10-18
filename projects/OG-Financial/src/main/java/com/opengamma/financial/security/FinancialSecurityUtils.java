@@ -1361,7 +1361,11 @@ public class FinancialSecurityUtils {
         public CurrencyAmount visitSwaptionSecurity(final SwaptionSecurity security) {
           final Security underlying = securitySource.getSingle(ExternalIdBundle.of(security.getUnderlyingId()));
           Preconditions.checkState(underlying instanceof SwapSecurity, "Failed to resolve underlying SwapSecurity. DB record potentially corrupted. '%s' returned.", underlying);
-          return visitSwapSecurity((SwapSecurity) underlying);
+          final CurrencyAmount notional = visitSwapSecurity((SwapSecurity) underlying);
+          if (security.isLong()) {
+            return notional;
+          }
+          return notional.multipliedBy(-1);
         }
 
         @Override

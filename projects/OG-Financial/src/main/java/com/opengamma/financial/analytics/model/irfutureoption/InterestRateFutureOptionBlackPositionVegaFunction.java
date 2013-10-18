@@ -34,7 +34,8 @@ public class InterestRateFutureOptionBlackPositionVegaFunction extends InterestR
   }
 
   @Override
-  protected Set<ComputedValue> getResult(final InstrumentDerivative irFutureOption, final YieldCurveWithBlackCubeBundle curveBundle, final ValueSpecification spec, final Set<ValueRequirement> desiredValues) {
+  protected Set<ComputedValue> getResult(final InstrumentDerivative irFutureOption, final YieldCurveWithBlackCubeBundle curveBundle, final ValueSpecification spec,
+      final Set<ValueRequirement> desiredValues) {
     final double vega = irFutureOption.accept(CALCULATOR, curveBundle);
     return Collections.singleton(new ComputedValue(spec, vega));
   }
