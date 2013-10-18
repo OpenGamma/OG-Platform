@@ -175,8 +175,7 @@ public final class ManagementService implements ViewProcessorEventListener {
   //-------------------------------------------------------------------------
   private void registerGraphStatistics(GraphExecutionStatisticsMBeanImpl graphStatistics) throws Exception {
     try {
-      StandardMBean mbean = new StandardMBean(graphStatistics, GraphExecutionStatisticsMBean.class);
-      _mBeanServer.registerMBean(mbean, graphStatistics.getObjectName());
+      _mBeanServer.registerMBean(graphStatistics, graphStatistics.getObjectName());
     } catch (InstanceAlreadyExistsException e) {
       _mBeanServer.unregisterMBean(graphStatistics.getObjectName());
       _mBeanServer.registerMBean(graphStatistics, graphStatistics.getObjectName());
@@ -184,12 +183,13 @@ public final class ManagementService implements ViewProcessorEventListener {
   }
 
   private void registerViewProcessor(ViewProcessorMBeanImpl viewProcessor) throws Exception {
+    ObjectName objectName = viewProcessor.getObjectName();
+    StandardMBean mBean = new StandardMBean(viewProcessor, ViewProcessorMBean.class);
     try {
-      StandardMBean mbean = new StandardMBean(viewProcessor, ViewProcessorMBean.class);
-      _mBeanServer.registerMBean(mbean, viewProcessor.getObjectName());
+      _mBeanServer.registerMBean(mBean, objectName);
     } catch (InstanceAlreadyExistsException e) {
-      _mBeanServer.unregisterMBean(viewProcessor.getObjectName());
-      _mBeanServer.registerMBean(viewProcessor, viewProcessor.getObjectName());
+      _mBeanServer.unregisterMBean(objectName);
+      _mBeanServer.registerMBean(mBean, objectName);
     }
   }
 
@@ -199,18 +199,16 @@ public final class ManagementService implements ViewProcessorEventListener {
 
   private void registerViewProcess(ViewProcessMXBeanImpl viewProcessBean, ObjectName objectName) throws Exception {
     try {
-      StandardMBean mbean = new StandardMBean(viewProcessBean, ViewProcessMXBean.class);
-      _mBeanServer.registerMBean(mbean, objectName);
+      _mBeanServer.registerMBean(viewProcessBean, objectName);
     } catch (InstanceAlreadyExistsException e) {
-      _mBeanServer.unregisterMBean(viewProcessBean.getObjectName());
+      _mBeanServer.unregisterMBean(objectName);
       _mBeanServer.registerMBean(viewProcessBean, viewProcessBean.getObjectName());
     }
   }
 
   private void registerViewClient(ViewClientMBeanImpl viewClient) throws Exception {
     try {
-      StandardMBean mbean = new StandardMBean(viewClient, ViewClientMBean.class);
-      _mBeanServer.registerMBean(mbean, viewClient.getObjectName());
+      _mBeanServer.registerMBean(viewClient, viewClient.getObjectName());
     } catch (InstanceAlreadyExistsException e) {
       _mBeanServer.unregisterMBean(viewClient.getObjectName());
       _mBeanServer.registerMBean(viewClient, viewClient.getObjectName());

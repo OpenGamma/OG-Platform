@@ -6,7 +6,6 @@
 package com.opengamma.engine.management;
 
 import javax.management.MXBean;
-import javax.management.openmbean.TabularData;
 
 /**
  * A management bean for a View
@@ -101,55 +100,10 @@ public interface ViewProcessMXBean {
   String getViewName();
   
   /**
-   * @return a table of successful restults by Security Type then Value Requirement, Properties
+   * method to process last cycles results and distill into tablular results. On demand because it's not that lightweight.
+   * @return the statistics
    */
-  TabularData getResultsBySecurityType();
-
-  /**
-   * @return a table of successful restults by Value Requirement, Properties
-   */
-  TabularData getResultsByColumnRequirement();
-
-  /**
-   * @return overall number of successful calculations
-   */
-  int getSuccesses();
-
-  /**
-   * @return overall number of failed calculations
-   */
-  int getFailures();
-
-  /**
-   * @return total number of calculations expected
-   */
-  int getTotal();
-  
-  /**
-   * method to process last cycles results and distill into tablular and stats results above.  On demand because it's not that lightweight.
-   * @return true if successfully updated results
-   */
-  boolean processResults();
-
-  /**
-   * @return percentage of results that calculated successfully
-   */
-  double getPercentage();
-
-  /**
-   * @return true if 100% of results calculated successfully
-   */
-  boolean isCleanView100();
-
-  /**
-   * @return true if 99% of results calculated successfully
-   */
-  boolean isCleanView99();
-
-  /**
-   * @return true if 95% of results calculated successfully
-   */
-  boolean isCleanView95();
+  ViewProcessStatsProcessor generateResultsModelStatistics();
 
   /**
    * @return when the last successful cycle was calculated, null if
