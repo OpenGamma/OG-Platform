@@ -42,8 +42,9 @@ public enum SnapshotColumns {
   /** ValueSnapshot name */
   VALUE_NAME("value name"),
 
-  /** ValueSnapshot object, needed to preserve null valueSnapshots and deal with objects other
-   *  than doubles and dates  */
+  /** ValueSnapshot object, needed to preserve null valueSnapshots
+   *  and deal with objects other than doubles and dates
+   */
   VALUE_OBJECT("value object"),
 
   /** ValueSnapshot market value */

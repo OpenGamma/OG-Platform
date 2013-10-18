@@ -23,7 +23,7 @@ public enum SnapshotType {
   YIELD_CURVE("yield curve"),
 
   /** The Type snapshot name */
-  GOBAL_VALUES("global values"),
+  GLOBAL_VALUES("global values"),
 
   /** The Type snapshot name */
   VOL_SURFACE("volatility surface");
