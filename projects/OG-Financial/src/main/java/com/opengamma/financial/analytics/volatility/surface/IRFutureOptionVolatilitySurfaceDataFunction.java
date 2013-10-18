@@ -240,7 +240,7 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
       for (final Object yObj : optionPrices.getYs()) {
         final Double y = (Double) yObj;
         try {
-          final Double forward = true ? getForwardFromSecurity(securitySource, today, futurePrices, instrumentProvider, x, y) :
+          final Double forward = specification.isUseUnderlyingSecurityForExpiry() ? getForwardFromSecurity(securitySource, today, futurePrices, instrumentProvider, x, y) :
             getForwardFromFuturesCurve(futurePrices, futureExpiries, optionTtm);
           final Double price = optionPrices.getVolatility(x, y);
           if (price != null) {

@@ -28,6 +28,8 @@ import com.opengamma.util.money.Currency;
  */
 @FudgeBuilderFor(VolatilitySurfaceSpecification.class)
 public class VolatilitySurfaceSpecificationFudgeBuilder implements FudgeBuilder<VolatilitySurfaceSpecification> {
+  /** Field for whether or not to use underlying securities to get expiry */
+  private static final String USE_UNDERLYING_SECURITY_FOR_EXPIRY = "useUnderlyingSecurityForExpiry";
 
   @Override
   public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final VolatilitySurfaceSpecification object) {
@@ -52,6 +54,7 @@ public class VolatilitySurfaceSpecificationFudgeBuilder implements FudgeBuilder<
     if (object.getExerciseType() != null) {
       message.add("exerciseType", object.getExerciseType().getName());
     }
+    message.add(USE_UNDERLYING_SECURITY_FOR_EXPIRY, object.isUseUnderlyingSecurityForExpiry());
     serializer.addToMessageWithClassHeaders(message, "surfaceInstrumentProvider", null, object.getSurfaceInstrumentProvider());
     return message;
   }
@@ -75,11 +78,11 @@ public class VolatilitySurfaceSpecificationFudgeBuilder implements FudgeBuilder<
     final ExerciseType european = new EuropeanExerciseType();
     if (message.hasField("exerciseType") && message.getString("exerciseType") != null) {
       final String exerciseTypeName = message.getString("exerciseType");
-      exerciseType = exerciseTypeName.equalsIgnoreCase(american.getName()) ? american : european; 
+      exerciseType = exerciseTypeName.equalsIgnoreCase(american.getName()) ? american : european;
     } else {
       exerciseType = european;
     }
-    final String quoteUnits; 
+    final String quoteUnits;
     if (message.hasField("quoteUnits") && message.getString("quoteUnits") != null) {
       quoteUnits = message.getString("quoteUnits");
     } else {
@@ -88,7 +91,10 @@ public class VolatilitySurfaceSpecificationFudgeBuilder implements FudgeBuilder<
     final String name = message.getString("name");
     final FudgeField field = message.getByName("surfaceInstrumentProvider");
     final SurfaceInstrumentProvider<?, ?> surfaceInstrumentProvider = (SurfaceInstrumentProvider<?, ?>) deserializer.fieldValueToObject(field);
-
+    if (message.hasField(USE_UNDERLYING_SECURITY_FOR_EXPIRY)) {
+      final boolean useUnderlyingSecurityForExpiry = message.getBoolean(USE_UNDERLYING_SECURITY_FOR_EXPIRY);
+      return new VolatilitySurfaceSpecification(name, target, quoteType, quoteUnits, exerciseType, surfaceInstrumentProvider, useUnderlyingSecurityForExpiry);
+    }
     return new VolatilitySurfaceSpecification(name, target, quoteType, quoteUnits, exerciseType, surfaceInstrumentProvider);
   }
 

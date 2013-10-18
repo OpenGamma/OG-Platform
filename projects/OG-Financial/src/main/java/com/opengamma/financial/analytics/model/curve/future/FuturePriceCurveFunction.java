@@ -90,7 +90,7 @@ public abstract class FuturePriceCurveFunction extends AbstractFunction {
   }
 
   protected abstract Double getTimeToMaturity(int n, LocalDate date, Calendar calendar);
-  
+
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final Instant atInstant) {
     final ZonedDateTime atZDT = ZonedDateTime.ofInstant(atInstant, ZoneOffset.UTC);
@@ -174,7 +174,6 @@ public abstract class FuturePriceCurveFunction extends AbstractFunction {
         final DoubleArrayList xList = new DoubleArrayList();
         final DoubleArrayList prices = new DoubleArrayList();
         final FuturePriceCurveInstrumentProvider<Number> futurePriceCurveProvider = (FuturePriceCurveInstrumentProvider<Number>) priceCurveSpecification.getCurveInstrumentProvider();
-        final ExchangeTradedInstrumentExpiryCalculator expiryCalc = futurePriceCurveProvider.getExpiryRuleCalculator();
         final LocalDate valDate = now.toLocalDate();
         if (inputs.getAllValues().isEmpty()) {
           throw new OpenGammaRuntimeException("Could not get any data for future price curve called " + curveSpecificationName);
@@ -187,19 +186,24 @@ public abstract class FuturePriceCurveFunction extends AbstractFunction {
           if (inputs.getValue(requirement) != null) {
             futurePrice = (Double) inputs.getValue(requirement);
             if (futurePrice != null) {
-              LocalDate expiry = expiryCalc.getExpiryDate(xNum.intValue(), valDate, calendar);
-              // directly getting the expiry of the underliers
-              if (identifier.getScheme().equals(ExternalSchemes.BLOOMBERG_TICKER_WEAK)) {
-                identifier = ExternalSchemes.bloombergTickerSecurityId(identifier.getValue());
-              }
-              final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(executionContext);
-              final Security security = securitySource.getSingle(identifier.toBundle());
-              if (security != null) {
-              // throw new OpenGammaRuntimeException("Could not get security with id " + identifier + " from the security source");
-              
-              // check if the security is IRFutures here
-                final InterestRateFutureSecurity irFuture = (InterestRateFutureSecurity) security;
-                expiry = irFuture.getExpiry().getExpiry().toLocalDate();
+              if (priceCurveSpecification.isUseUnderlyingSecurityForExpiry()) {
+                // directly getting the expiry of the underliers
+                if (identifier.getScheme().equals(ExternalSchemes.BLOOMBERG_TICKER_WEAK)) {
+                  identifier = ExternalSchemes.bloombergTickerSecurityId(identifier.getValue());
+                }
+                final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(executionContext);
+                final Security security = securitySource.getSingle(identifier.toBundle());
+                if (security != null) {
+                  // check if the security is IRFutures here
+                  final InterestRateFutureSecurity irFuture = (InterestRateFutureSecurity) security;
+                  final LocalDate expiry = irFuture.getExpiry().getExpiry().toLocalDate();
+                  final Double ttm = TimeCalculator.getTimeBetween(valDate, expiry);
+                  xList.add(ttm);
+                  prices.add(futurePrice);
+                }
+              } else {
+                final ExchangeTradedInstrumentExpiryCalculator expiryCalc = futurePriceCurveProvider.getExpiryRuleCalculator();
+                final LocalDate expiry = expiryCalc.getExpiryDate(xNum.intValue(), valDate, calendar);
                 final Double ttm = TimeCalculator.getTimeBetween(valDate, expiry);
                 xList.add(ttm);
                 prices.add(futurePrice);
