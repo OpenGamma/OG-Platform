@@ -20,6 +20,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
+import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.financial.sensitivities.FactorExposureData;
@@ -57,34 +58,47 @@ public class USConventions {
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("US00T/N Index"), simpleNameSecurityId("USD LIBOR T/N")),
         "USD LIBOR T/N", act360, following, Period.ofDays(1), 1, false, us);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("US0001W Index"), simpleNameSecurityId("USD LIBOR 1w"),
-        tullettPrebonSecurityId("ASLIBUSD1WL")), "USD LIBOR 1w", act360, following, Period.ofDays(7), 2, false, us);
+        tullettPrebonSecurityId("ASLIBUSD1WL"), FloatingIndex.USD_LIBOR_BBA.toFrequencySpecificExternalId(PeriodFrequency.WEEKLY)),
+                              "USD LIBOR 1w", act360, following, Period.ofDays(7), 2, false, us);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("US0002W Index"), simpleNameSecurityId("USD LIBOR 2w"),
-        tullettPrebonSecurityId("ASLIBUSD2WL")), "USD LIBOR 2w", act360, following, Period.ofDays(14), 2, false, us);
+        tullettPrebonSecurityId("ASLIBUSD2WL"), FloatingIndex.USD_LIBOR_BBA.toFrequencySpecificExternalId(PeriodFrequency.BIWEEKLY)),
+                              "USD LIBOR 2w", act360, following, Period.ofDays(14), 2, false, us);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("US0001M Index"), simpleNameSecurityId("USD LIBOR 1m"),
-        tullettPrebonSecurityId("ASLIBUSD01L")), "USD LIBOR 1m", act360, modified, Period.ofMonths(1), 2, false, us);
+        tullettPrebonSecurityId("ASLIBUSD01L"), FloatingIndex.USD_LIBOR_BBA.toFrequencySpecificExternalId(PeriodFrequency.MONTHLY)),
+                              "USD LIBOR 1m", act360, modified, Period.ofMonths(1), 2, false, us);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("US0002M Index"), simpleNameSecurityId("USD LIBOR 2m"),
-        tullettPrebonSecurityId("ASLIBUSD02L")), "USD LIBOR 2m", act360, modified, Period.ofMonths(2), 2, false, us);
+        tullettPrebonSecurityId("ASLIBUSD02L"), FloatingIndex.USD_LIBOR_BBA.toFrequencySpecificExternalId(PeriodFrequency.BIMONTHLY)),
+                              "USD LIBOR 2m", act360, modified, Period.ofMonths(2), 2, false, us);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("US0003M Index"), simpleNameSecurityId("USD LIBOR 3m"),
-        ExternalSchemes.ricSecurityId("USD3MFSR="), tullettPrebonSecurityId("ASLIBUSD03L")),
+        ExternalSchemes.ricSecurityId("USD3MFSR="), tullettPrebonSecurityId("ASLIBUSD03L"), FloatingIndex.USD_LIBOR_BBA.toFrequencySpecificExternalId(PeriodFrequency.QUARTERLY)),
         "USD LIBOR 3m", act360, modified, Period.ofMonths(3), 2, false, us);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("US0004M Index"), simpleNameSecurityId("USD LIBOR 4m"),
-        tullettPrebonSecurityId("ASLIBUSD04L")), "USD LIBOR 4m", act360, modified, Period.ofMonths(4), 2, false, us);
+        tullettPrebonSecurityId("ASLIBUSD04L"), FloatingIndex.USD_LIBOR_BBA.toFrequencySpecificExternalId(PeriodFrequency.FOUR_MONTHS)),
+                              "USD LIBOR 4m", act360, modified, Period.ofMonths(4), 2, false, us);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("US0005M Index"), simpleNameSecurityId("USD LIBOR 5m"),
-        tullettPrebonSecurityId("ASLIBUSD05L")), "USD LIBOR 5m", act360, modified, Period.ofMonths(5), 2, false, us);
+        tullettPrebonSecurityId("ASLIBUSD05L"), FloatingIndex.USD_LIBOR_BBA.toFrequencySpecificExternalId(PeriodFrequency.FIVE_MONTHS)),
+                              "USD LIBOR 5m", act360, modified, Period.ofMonths(5), 2, false, us);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("US0006M Index"), simpleNameSecurityId("USD LIBOR 6m"),
-        tullettPrebonSecurityId("ASLIBUSD06L")), "USD LIBOR 6m", act360, modified, Period.ofMonths(6), 2, false, us);
+        tullettPrebonSecurityId("ASLIBUSD06L"), FloatingIndex.USD_LIBOR_BBA.toFrequencySpecificExternalId(PeriodFrequency.SEMI_ANNUAL)),
+                              "USD LIBOR 6m", act360, modified, Period.ofMonths(6), 2, false, us);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("US0007M Index"), simpleNameSecurityId("USD LIBOR 7m"),
-        tullettPrebonSecurityId("ASLIBUSD07L")), "USD LIBOR 7m", act360, modified, Period.ofMonths(7), 2, false, us);
+        tullettPrebonSecurityId("ASLIBUSD07L"), FloatingIndex.USD_LIBOR_BBA.toFrequencySpecificExternalId(PeriodFrequency.SEVEN_MONTHS)),
+                              "USD LIBOR 7m", act360, modified, Period.ofMonths(7), 2, false, us);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("US0008M Index"), simpleNameSecurityId("USD LIBOR 8m"),
-        tullettPrebonSecurityId("ASLIBUSD08L")), "USD LIBOR 8m", act360, modified, Period.ofMonths(8), 2, false, us);
+        tullettPrebonSecurityId("ASLIBUSD08L"), FloatingIndex.USD_LIBOR_BBA.toFrequencySpecificExternalId(PeriodFrequency.EIGHT_MONTHS)),
+                              "USD LIBOR 8m", act360, modified, Period.ofMonths(8), 2, false, us);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("US0009M Index"), simpleNameSecurityId("USD LIBOR 9m"),
-        tullettPrebonSecurityId("ASLIBUSD09L")), "USD LIBOR 9m", act360, modified, Period.ofMonths(9), 2, false, us);
+        tullettPrebonSecurityId("ASLIBUSD09L"), FloatingIndex.USD_LIBOR_BBA.toFrequencySpecificExternalId(PeriodFrequency.NINE_MONTHS)),
+                              "USD LIBOR 9m", act360, modified, Period.ofMonths(9), 2, false, us);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("US0010M Index"), simpleNameSecurityId("USD LIBOR 10m"),
-        tullettPrebonSecurityId("ASLIBUSD10L")), "USD LIBOR 10m", act360, modified, Period.ofMonths(10), 2, false, us);
+        tullettPrebonSecurityId("ASLIBUSD10L"), FloatingIndex.USD_LIBOR_BBA.toFrequencySpecificExternalId(PeriodFrequency.TEN_MONTHS)),
+                              "USD LIBOR 10m", act360, modified, Period.ofMonths(10), 2, false, us);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("US0011M Index"), simpleNameSecurityId("USD LIBOR 11m"),
-        tullettPrebonSecurityId("ASLIBUSD11L")), "USD LIBOR 11m", act360, modified, Period.ofMonths(11), 2, false, us);
+        tullettPrebonSecurityId("ASLIBUSD11L"), FloatingIndex.USD_LIBOR_BBA.toFrequencySpecificExternalId(PeriodFrequency.ELEVEN_MONTHS)),
+                              "USD LIBOR 11m", act360, modified, Period.ofMonths(11), 2, false, us);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("US0012M Index"), simpleNameSecurityId("USD LIBOR 12m"),
-        tullettPrebonSecurityId("ASLIBUSD12L")), "USD LIBOR 12m", act360, modified, Period.ofMonths(12), 2, false, us);
+        tullettPrebonSecurityId("ASLIBUSD12L"), FloatingIndex.USD_LIBOR_BBA.toFrequencySpecificExternalId(PeriodFrequency.ANNUAL)),
+                              "USD LIBOR 12m", act360, modified, Period.ofMonths(12), 2, false, us);
 
     //TODO need to check that these are right for deposit rates
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("USDR1T Curncy"), simpleNameSecurityId("USD DEPOSIT 1d")),
@@ -159,6 +173,9 @@ public class USConventions {
     // Fed Fund effective
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("FEDL01 Index"), simpleNameSecurityId("USD FF EFFECTIVE")),
         "USD FF EFFECTIVE", act360, following, Period.ofDays(1), 2, false, us, publicationLag);
+
+    utils.addConventionBundle(ExternalIdBundle.of(FloatingIndex.USD_FEDFUND_OIS_COMPOUND.toFrequencySpecificExternalId(SimpleFrequency.DAILY)),
+                              "USD FF OIS COMPOUND", act360, following, Period.ofDays(1), 2, false, us, publicationLag);
     // OIS swap
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("USD_OIS_SWAP")), "USD_OIS_SWAP", thirty360, modified, annual, 2, usgb, thirty360,
         modified, annual, 2, simpleNameSecurityId("USD FF EFFECTIVE"), usgb, true, publicationLag);
