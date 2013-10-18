@@ -199,7 +199,7 @@ public class QueryExchangeDbExchangeMasterWorkerSearchTest extends AbstractDbExc
   @Test
   public void test_search_noKeys_None_allMatch() {
     ExchangeSearchRequest request = new ExchangeSearchRequest();
-    request.setExternalIdSearchType(ExternalIdSearchType.EXACT);
+    request.setExternalIdSearchType(ExternalIdSearchType.NONE);
     ExchangeSearchResult test = _exgMaster.search(request);
     
     assertEquals(_totalExchanges, test.getDocuments().size());
