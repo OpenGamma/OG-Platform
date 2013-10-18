@@ -173,14 +173,17 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
     final ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(accrualStartDate,
                                                                         -iborIndex.getSpotLag(),
                                                                         fixingCalendar);
-    return new FRASecurity(currency,
-                           indexConvention.getRegionCalendar(),
-                           accrualStartDate,
-                           accrualEndDate,
-                           _rate,
-                           1,
-                           _identifier,
-                           fixingDate);
+    FRASecurity security = new FRASecurity(currency,
+                                           indexConvention.getRegionCalendar(),
+                                           accrualStartDate,
+                                           accrualEndDate,
+                                           _rate,
+                                           1,
+                                           _identifier,
+                                           fixingDate);
+
+    security.setName(fraNode.getName());
+    return security;
   }
 
 
@@ -235,12 +238,15 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
           "Both, pay and receive legs should resolve equal maturity dates, but instead there were: payleg(" + payLeg.getSecond().getThird() + "), " +
               "receiveLeg(" + receiveLeg.getSecond().getThird() + ")");
     }
-    return new SwapSecurity(payLeg.getSecond().getFirst(),
-                            payLeg.getSecond().getSecond(),
-                            payLeg.getSecond().getThird(),
-                            "counterparty",
-                            payLeg.getFirst(),
-                            receiveLeg.getFirst());
+    SwapSecurity security = new SwapSecurity(payLeg.getSecond().getFirst(),
+                                             payLeg.getSecond().getSecond(),
+                                             payLeg.getSecond().getThird(),
+                                             "counterparty",
+                                             payLeg.getFirst(),
+                                             receiveLeg.getFirst());
+
+    security.setName(swapNode.getName());
+    return security;
   }
 
 
@@ -461,13 +467,16 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
                                                 businessDayConvention,
                                                 eom,
                                                 convention.getName());
-      return new CashSecurity(currency,
-                              iborConvention.getRegionCalendar(),
-                              startDate,
-                              endDate,
-                              dayCount,
-                              _rate,
-                              _amount);
+      CashSecurity security = new CashSecurity(currency,
+                                               iborConvention.getRegionCalendar(),
+                                               startDate,
+                                               endDate,
+                                               dayCount,
+                                               _rate,
+                                               _amount);
+
+      security.setName(cashNode.getName());
+      return security;
     } else {
       throw new OpenGammaRuntimeException("Could not handle convention of type " + convention.getClass());
     }
@@ -475,16 +484,20 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
 
   @Override
   public FutureSecurity visitRateFutureNode(final RateFutureNode rateFuture) {
+    final FutureSecurity security;
     final Convention futureConvention = _conventionSource.getConvention(rateFuture.getFutureConvention());
     if (futureConvention == null) {
       throw new OpenGammaRuntimeException("Future convention was null");
     }
     if (futureConvention instanceof InterestRateFutureConvention) {
-      return getInterestRateFuture(rateFuture, (InterestRateFutureConvention) futureConvention, _rate);
+      security = getInterestRateFuture(rateFuture, (InterestRateFutureConvention) futureConvention, _rate);
     } else if (futureConvention instanceof FederalFundsFutureConvention) {
-      return getFederalFundsFuture(rateFuture, (FederalFundsFutureConvention) futureConvention, _rate);
+      security = getFederalFundsFuture(rateFuture, (FederalFundsFutureConvention) futureConvention, _rate);
+    } else {
+      throw new OpenGammaRuntimeException("Could not handle future convention of type " + futureConvention.getClass());
     }
-    throw new OpenGammaRuntimeException("Could not handle future convention of type " + futureConvention.getClass());
+    security.setName(rateFuture.getName());
+    return security;
   }
 
 
