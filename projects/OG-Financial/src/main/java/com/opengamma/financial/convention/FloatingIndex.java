@@ -202,6 +202,9 @@ public enum FloatingIndex {
     ArgumentChecker.notNull(frequency, "frequency");
     String idValue = getIsdaName() + "-";
     switch (frequency.getConventionName()) {
+      case Frequency.DAILY_NAME:
+        idValue += "1D";
+        break;
       case Frequency.WEEKLY_NAME:
         idValue += "1W";
         break;
