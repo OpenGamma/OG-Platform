@@ -147,7 +147,7 @@
         WHERE UPPER(name) @LIKE UPPER(:observation_time)
       )
     @AND(:sql_search_object_ids)
-      oid IN ( @INCLUDE(:sql_search_object_ids) )
+      oid IN ( @VALUE(:sql_search_object_ids) )
     @AND(:external_id_value)
       id IN ( @INCLUDE(SelectKeyValue) )
     @AND(:sql_search_external_ids_type = EXACT)
@@ -257,7 +257,7 @@
   FROM
     hts_idkey
   WHERE
-    @INCLUDE(:sql_search_external_ids)
+    @VALUE(:sql_search_external_ids)
 
 
 -- ==========================================================================
@@ -447,7 +447,7 @@
                 AND corr_instant <= :corrected_to_instant
                 AND point_date = p.point_date
             )
-        ORDER BY point_date @INCLUDE(:order) 
+        ORDER BY point_date @VALUE(:order) 
     ) AS points
   ORDER BY point_date ASC
 

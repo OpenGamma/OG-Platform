@@ -98,7 +98,7 @@
     @AND(:depth)
       n.depth <= :depth
   ORDER BY
-    main.@INCLUDE(:sort_order),
+    main.@VALUE(:sort_order),
     main.id,
     n.tree_left,
     p.key_scheme,
@@ -134,7 +134,7 @@
     @AND(:depth)
       n.depth <= :depth
   ORDER BY
-    main.@INCLUDE(:sort_order),
+    main.@VALUE(:sort_order),
     main.id,
     n.tree_left
 
@@ -148,7 +148,7 @@
       prt_portfolio
     @INCLUDE(SearchWhere)
     ORDER BY
-      @INCLUDE(:sort_order),
+      @VALUE(:sort_order),
       prt_portfolio.id
 
 
@@ -167,11 +167,11 @@
     AND corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant
     AND visibility <= :visibility
     @AND(:sql_search_portfolio_ids)
-      oid IN ( @INCLUDE(:sql_search_portfolio_ids) )
+      oid IN ( @VALUE(:sql_search_portfolio_ids) )
     @AND(:name)
       UPPER(name) @LIKE UPPER(:name)
     @AND(:sql_search_node_ids)
-      oid IN (SELECT DISTINCT portfolio_oid FROM prt_node WHERE oid IN ( @INCLUDE(:sql_search_node_ids) ))
+      oid IN (SELECT DISTINCT portfolio_oid FROM prt_node WHERE oid IN ( @VALUE(:sql_search_node_ids) ))
 
 
 -- ==========================================================================

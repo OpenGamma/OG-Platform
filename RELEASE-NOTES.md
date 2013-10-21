@@ -16,6 +16,14 @@ Configuration compatibility
   - this will affect engine and fullstack type ini files, as well as any other ini where the WebsiteBasicsComponentFactory is used.
   - example configuration is provided in /examples-simulated/config/fullstack/fullstack-examplessimulated.ini
 
+Database compatibility
+- Version of ElSql library updated to v0.8.
+This has a change in meaning for the @INCLUDE(:variable) tag.
+If you have any application-specific .elsql files then they must be changed as follows:
+Search for "@INCLUDE(:" and replace with "@VALUE(:"
+Note that @VALUE does not have a space output after it, whereas @INCLUDE(:variable) did.
+
+
 To 2.2.0-M1
 -----------
 

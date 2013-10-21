@@ -88,7 +88,7 @@
     LEFT JOIN usr_idkey ik ON (ik.id = ui.idkey_id)
     LEFT JOIN usr_entitlement ent on (ent.oguser_id = main.id)
   ORDER BY
-    main.@INCLUDE(:sort_order),
+    main.@VALUE(:sort_order),
     main.id
 
 
@@ -101,7 +101,7 @@
       usr_oguser
     @INCLUDE(SearchWhere)
     ORDER BY
-      @INCLUDE(:sort_order),
+      @VALUE(:sort_order),
       usr_oguser.id
 
 
@@ -119,7 +119,7 @@
   WHERE ver_from_instant <= :version_as_of_instant AND ver_to_instant > :version_as_of_instant
     AND corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant
     @AND(:sql_search_object_ids)
-      oid IN ( @INCLUDE(:sql_search_object_ids) )
+      oid IN ( @VALUE(:sql_search_object_ids) )
     @AND(:userid)
       UPPER(userid) @LIKE UPPER(:userid)
     @AND(:name)
@@ -216,7 +216,7 @@
   FROM
     usr_idkey
   WHERE
-    @INCLUDE(:sql_search_external_ids)
+    @VALUE(:sql_search_external_ids)
 
 
 -- ==========================================================================
