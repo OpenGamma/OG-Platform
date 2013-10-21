@@ -16,11 +16,12 @@ import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PoolExecutor;
+import com.opengamma.util.PoolExecutor.CompletionListener;
 
 /**
  * A traverser that runs in parallel using a number of threads. The ordering is non-deterministic.
  */
-public class ParallelPortfolioNodeTraverser extends PortfolioNodeTraverser {
+public class ParallelPortfolioNodeTraverser extends PortfolioNodeTraverser implements CompletionListener<Object> {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ParallelPortfolioNodeTraverser.class);
 
@@ -39,7 +40,7 @@ public class ParallelPortfolioNodeTraverser extends PortfolioNodeTraverser {
   }
 
   protected PoolExecutor.Service<?> createExecutorService() {
-    return _pool.createService(null);
+    return _pool.createService(this);
   }
 
   private static final class Context {
@@ -144,6 +145,8 @@ public class ParallelPortfolioNodeTraverser extends PortfolioNodeTraverser {
 
   }
 
+  // PortfolioNodeTraverser
+
   /**
    * Traverse the nodes notifying using the callback.
    * 
@@ -157,6 +160,18 @@ public class ParallelPortfolioNodeTraverser extends PortfolioNodeTraverser {
     final Context context = new Context(createExecutorService(), getCallback());
     context.submit(context.new NodeTraverser(portfolioNode, null));
     context.waitForCompletion();
+  }
+
+  // CompletionListener
+
+  @Override
+  public void success(final Object result) {
+    // No-op
+  }
+
+  @Override
+  public void failure(final Throwable error) {
+    s_logger.error("Caught exception during traversal", error);
   }
 
 }
