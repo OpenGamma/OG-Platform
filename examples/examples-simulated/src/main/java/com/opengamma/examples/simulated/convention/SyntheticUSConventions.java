@@ -61,7 +61,7 @@ public class SyntheticUSConventions {
     final Frequency swapFloatPaymentFrequency = quarterly;
     final Frequency annual = PeriodFrequency.ANNUAL;
 
-    final int[] isdaFixTenor = new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30};
+    final int[] isdaFixTenor = new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30 };
     // ISDA fixing 11.00 New-York
     for (final int element : isdaFixTenor) {
       final String tenorString = element + "Y";
@@ -96,20 +96,13 @@ public class SyntheticUSConventions {
 
     final int publicationLag = 1;
     // Fed Fund effective
-    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("USDFF"), simpleNameSecurityId("USD FF EFFECTIVE")),
-        "USD FF EFFECTIVE", act360, following, Period.ofDays(1), 2, false, us, publicationLag);
+    utils.addConventionBundle(ExternalIdBundle.of(syntheticSecurityId("USDFF"), simpleNameSecurityId("USD FF EFFECTIVE")), "USD FF EFFECTIVE", act360, following, Period.ofDays(1), 2, false, us,
+        publicationLag);
     // OIS swap
-    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("USD_OIS_SWAP")), "USD_OIS_SWAP", thirty360, modified, annual, 2, usgb, thirty360,
-        modified, annual, 2, simpleNameSecurityId("USD FF EFFECTIVE"), usgb, true, publicationLag);
-
-
-    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("USD_OIS_SWAP")), "USD_OIS_SWAP", thirty360, modified, annual, 2, usgb, thirty360,
-                              modified, annual, 2, simpleNameSecurityId("USD FF EFFECTIVE"), usgb, true, publicationLag);
-
-    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("USDOVERNIGHT"), simpleNameSecurityId("USD FF EFFECTIVE")),
-                              "USD FF EFFECTIVE", act360, following, Period.ofDays(1), 2, false, us, publicationLag);
-
-
+    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("USD_OIS_SWAP")), "USD_OIS_SWAP", thirty360, modified, annual, 2, usgb, thirty360, modified, annual, 2,
+        simpleNameSecurityId("USD FF EFFECTIVE"), usgb, true, publicationLag);
+    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("USDOVERNIGHT")), "USDOVERNIGHT", act360, following, Period.ofDays(1), 2, false,
+        us, publicationLag);
     // FRA conventions are stored as IRS
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("USD_3M_FRA")), "USD_3M_FRA", thirty360, modified, quarterly, 2, usgb, act360,
         modified, quarterly, 2, simpleNameSecurityId("USD LIBOR 3m"), usgb, true);
@@ -127,6 +120,7 @@ public class SyntheticUSConventions {
 
   /**
    * Adds conventions for US Treasury bonds,
+   * 
    * @param conventionMaster The convention master, not null
    */
   public static void addTreasuryBondConvention(final ConventionBundleMaster conventionMaster) {
