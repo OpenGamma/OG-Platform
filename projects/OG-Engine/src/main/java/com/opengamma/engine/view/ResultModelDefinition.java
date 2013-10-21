@@ -313,7 +313,6 @@ public class ResultModelDefinition extends DirectBean implements Serializable {
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code ResultModelDefinition}.
-   * 
    * @return the meta-bean, not null
    */
   public static ResultModelDefinition.Meta meta() {
@@ -335,7 +334,6 @@ public class ResultModelDefinition extends DirectBean implements Serializable {
    * <p>
    * For example, the referenced portfolio could have a deep structure with many nodes at which aggregate portfolio outputs would be calculated. If these are not required then disabling them could
    * speed up the computation cycle significantly.
-   * 
    * @return the value of the property
    */
   public ResultOutputMode getAggregatePositionOutputMode() {
@@ -347,8 +345,7 @@ public class ResultModelDefinition extends DirectBean implements Serializable {
    * <p>
    * For example, the referenced portfolio could have a deep structure with many nodes at which aggregate portfolio outputs would be calculated. If these are not required then disabling them could
    * speed up the computation cycle significantly.
-   * 
-   * @param aggregatePositionOutputMode the new value of the property
+   * @param aggregatePositionOutputMode  the new value of the property
    */
   public void setAggregatePositionOutputMode(ResultOutputMode aggregatePositionOutputMode) {
     this._aggregatePositionOutputMode = aggregatePositionOutputMode;
@@ -359,7 +356,6 @@ public class ResultModelDefinition extends DirectBean implements Serializable {
    * <p>
    * For example, the referenced portfolio could have a deep structure with many nodes at which aggregate portfolio outputs would be calculated. If these are not required then disabling them could
    * speed up the computation cycle significantly.
-   * 
    * @return the property, not null
    */
   public final Property<ResultOutputMode> aggregatePositionOutputMode() {
@@ -374,7 +370,6 @@ public class ResultModelDefinition extends DirectBean implements Serializable {
    * the computation cycle significantly. This is beneficial for calculations, such as VaR, which can be performed at the aggregate level without requiring the complete result of the same calculation
    * on its children. Aggregate calculations where this is not the case will be unaffected, although disabling the individual position outputs will still hide them from the user even though they will
    * be calculated.
-   * 
    * @return the value of the property
    */
   public ResultOutputMode getPositionOutputMode() {
@@ -388,8 +383,7 @@ public class ResultModelDefinition extends DirectBean implements Serializable {
    * the computation cycle significantly. This is beneficial for calculations, such as VaR, which can be performed at the aggregate level without requiring the complete result of the same calculation
    * on its children. Aggregate calculations where this is not the case will be unaffected, although disabling the individual position outputs will still hide them from the user even though they will
    * be calculated.
-   * 
-   * @param positionOutputMode the new value of the property
+   * @param positionOutputMode  the new value of the property
    */
   public void setPositionOutputMode(ResultOutputMode positionOutputMode) {
     this._positionOutputMode = positionOutputMode;
@@ -402,7 +396,6 @@ public class ResultModelDefinition extends DirectBean implements Serializable {
    * the computation cycle significantly. This is beneficial for calculations, such as VaR, which can be performed at the aggregate level without requiring the complete result of the same calculation
    * on its children. Aggregate calculations where this is not the case will be unaffected, although disabling the individual position outputs will still hide them from the user even though they will
    * be calculated.
-   * 
    * @return the property, not null
    */
   public final Property<ResultOutputMode> positionOutputMode() {
@@ -417,7 +410,6 @@ public class ResultModelDefinition extends DirectBean implements Serializable {
    * computation cycle significantly. This is beneficial for calculations, such as VaR, which can be performed at the aggregate level without requiring the complete result of the same calculation on
    * its children. Aggregate calculations where this is not the case will be unaffected, although disabling the individual trade outputs will still hide them from the user even though they will be
    * calculated.
-   * 
    * @return the value of the property
    */
   public ResultOutputMode getTradeOutputMode() {
@@ -431,8 +423,7 @@ public class ResultModelDefinition extends DirectBean implements Serializable {
    * computation cycle significantly. This is beneficial for calculations, such as VaR, which can be performed at the aggregate level without requiring the complete result of the same calculation on
    * its children. Aggregate calculations where this is not the case will be unaffected, although disabling the individual trade outputs will still hide them from the user even though they will be
    * calculated.
-   * 
-   * @param tradeOutputMode the new value of the property
+   * @param tradeOutputMode  the new value of the property
    */
   public void setTradeOutputMode(ResultOutputMode tradeOutputMode) {
     this._tradeOutputMode = tradeOutputMode;
@@ -445,7 +436,6 @@ public class ResultModelDefinition extends DirectBean implements Serializable {
    * computation cycle significantly. This is beneficial for calculations, such as VaR, which can be performed at the aggregate level without requiring the complete result of the same calculation on
    * its children. Aggregate calculations where this is not the case will be unaffected, although disabling the individual trade outputs will still hide them from the user even though they will be
    * calculated.
-   * 
    * @return the property, not null
    */
   public final Property<ResultOutputMode> tradeOutputMode() {
@@ -457,7 +447,6 @@ public class ResultModelDefinition extends DirectBean implements Serializable {
    * Gets the security output mode.
    * <p>
    * These are values which relate generally to a security and apply to every position in that security. For example, market data on a security would be a security output.
-   * 
    * @return the value of the property
    */
   public ResultOutputMode getSecurityOutputMode() {
@@ -468,8 +457,7 @@ public class ResultModelDefinition extends DirectBean implements Serializable {
    * Sets the security output mode.
    * <p>
    * These are values which relate generally to a security and apply to every position in that security. For example, market data on a security would be a security output.
-   * 
-   * @param securityOutputMode the new value of the property
+   * @param securityOutputMode  the new value of the property
    */
   public void setSecurityOutputMode(ResultOutputMode securityOutputMode) {
     this._securityOutputMode = securityOutputMode;
@@ -479,7 +467,6 @@ public class ResultModelDefinition extends DirectBean implements Serializable {
    * Gets the the {@code securityOutputMode} property.
    * <p>
    * These are values which relate generally to a security and apply to every position in that security. For example, market data on a security would be a security output.
-   * 
    * @return the property, not null
    */
   public final Property<ResultOutputMode> securityOutputMode() {
@@ -491,7 +478,6 @@ public class ResultModelDefinition extends DirectBean implements Serializable {
    * Gets the primitive output mode.
    * <p>
    * These are values which may be used in calculations for many securities. For example, the USD discount curve would be a primitive.
-   * 
    * @return the value of the property
    */
   public ResultOutputMode getPrimitiveOutputMode() {
@@ -502,8 +488,7 @@ public class ResultModelDefinition extends DirectBean implements Serializable {
    * Sets the primitive output mode.
    * <p>
    * These are values which may be used in calculations for many securities. For example, the USD discount curve would be a primitive.
-   * 
-   * @param primitiveOutputMode the new value of the property
+   * @param primitiveOutputMode  the new value of the property
    */
   public void setPrimitiveOutputMode(ResultOutputMode primitiveOutputMode) {
     this._primitiveOutputMode = primitiveOutputMode;
@@ -513,7 +498,6 @@ public class ResultModelDefinition extends DirectBean implements Serializable {
    * Gets the the {@code primitiveOutputMode} property.
    * <p>
    * These are values which may be used in calculations for many securities. For example, the USD discount curve would be a primitive.
-   * 
    * @return the property, not null
    */
   public final Property<ResultOutputMode> primitiveOutputMode() {
@@ -639,15 +623,15 @@ public class ResultModelDefinition extends DirectBean implements Serializable {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 1633131628: // aggregatePositionOutputMode
+        case 1633131628:  // aggregatePositionOutputMode
           return _aggregatePositionOutputMode;
-        case -798411699: // positionOutputMode
+        case -798411699:  // positionOutputMode
           return _positionOutputMode;
-        case -1772765496: // tradeOutputMode
+        case -1772765496:  // tradeOutputMode
           return _tradeOutputMode;
-        case -583556700: // securityOutputMode
+        case -583556700:  // securityOutputMode
           return _securityOutputMode;
-        case 545428107: // primitiveOutputMode
+        case 545428107:  // primitiveOutputMode
           return _primitiveOutputMode;
       }
       return super.metaPropertyGet(propertyName);
@@ -671,7 +655,6 @@ public class ResultModelDefinition extends DirectBean implements Serializable {
     //-----------------------------------------------------------------------
     /**
      * The meta-property for the {@code aggregatePositionOutputMode} property.
-     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<ResultOutputMode> aggregatePositionOutputMode() {
@@ -680,7 +663,6 @@ public class ResultModelDefinition extends DirectBean implements Serializable {
 
     /**
      * The meta-property for the {@code positionOutputMode} property.
-     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<ResultOutputMode> positionOutputMode() {
@@ -689,7 +671,6 @@ public class ResultModelDefinition extends DirectBean implements Serializable {
 
     /**
      * The meta-property for the {@code tradeOutputMode} property.
-     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<ResultOutputMode> tradeOutputMode() {
@@ -698,7 +679,6 @@ public class ResultModelDefinition extends DirectBean implements Serializable {
 
     /**
      * The meta-property for the {@code securityOutputMode} property.
-     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<ResultOutputMode> securityOutputMode() {
@@ -707,7 +687,6 @@ public class ResultModelDefinition extends DirectBean implements Serializable {
 
     /**
      * The meta-property for the {@code primitiveOutputMode} property.
-     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<ResultOutputMode> primitiveOutputMode() {
@@ -718,15 +697,15 @@ public class ResultModelDefinition extends DirectBean implements Serializable {
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 1633131628: // aggregatePositionOutputMode
+        case 1633131628:  // aggregatePositionOutputMode
           return ((ResultModelDefinition) bean).getAggregatePositionOutputMode();
-        case -798411699: // positionOutputMode
+        case -798411699:  // positionOutputMode
           return ((ResultModelDefinition) bean).getPositionOutputMode();
-        case -1772765496: // tradeOutputMode
+        case -1772765496:  // tradeOutputMode
           return ((ResultModelDefinition) bean).getTradeOutputMode();
-        case -583556700: // securityOutputMode
+        case -583556700:  // securityOutputMode
           return ((ResultModelDefinition) bean).getSecurityOutputMode();
-        case 545428107: // primitiveOutputMode
+        case 545428107:  // primitiveOutputMode
           return ((ResultModelDefinition) bean).getPrimitiveOutputMode();
       }
       return super.propertyGet(bean, propertyName, quiet);
@@ -735,19 +714,19 @@ public class ResultModelDefinition extends DirectBean implements Serializable {
     @Override
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 1633131628: // aggregatePositionOutputMode
+        case 1633131628:  // aggregatePositionOutputMode
           ((ResultModelDefinition) bean).setAggregatePositionOutputMode((ResultOutputMode) newValue);
           return;
-        case -798411699: // positionOutputMode
+        case -798411699:  // positionOutputMode
           ((ResultModelDefinition) bean).setPositionOutputMode((ResultOutputMode) newValue);
           return;
-        case -1772765496: // tradeOutputMode
+        case -1772765496:  // tradeOutputMode
           ((ResultModelDefinition) bean).setTradeOutputMode((ResultOutputMode) newValue);
           return;
-        case -583556700: // securityOutputMode
+        case -583556700:  // securityOutputMode
           ((ResultModelDefinition) bean).setSecurityOutputMode((ResultOutputMode) newValue);
           return;
-        case 545428107: // primitiveOutputMode
+        case 545428107:  // primitiveOutputMode
           ((ResultModelDefinition) bean).setPrimitiveOutputMode((ResultOutputMode) newValue);
           return;
       }

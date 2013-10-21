@@ -18,7 +18,7 @@ public final class PropertyNameSet implements Set<String> {
 
   private final AbstractValueProperty[] _properties;
 
-  private volatile int _size;
+  private volatile int _size = -1;
 
   /**
    * Creates a new instance.

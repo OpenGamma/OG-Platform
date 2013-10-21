@@ -24,7 +24,8 @@ API compatibility
   leaf without maintaining additional data structures. This can reduce the memory foot-print of the application by
   allowing node instances to be shared between graphs. Additional methods have been added to DependencyGraphExplorer
   to provide similar functionality to the indices that were previously available for navigation.
-- CompiledFunctionResolver not has a getFunction method.
+- CompiledFunctionResolver, FunctionResolver, and FunctionRepository now have getFunction methods for retrieving
+  metadata on a single function by the unique identifier held in a dependency node.
 - ComputationTargetFilter is now an interface and is no longer extended from a dependency graph node filter.
 
 To 2.2.0-M1

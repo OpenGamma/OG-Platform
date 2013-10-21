@@ -185,7 +185,6 @@ public class RiskValueProperties extends DirectBean {
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code RiskValueProperties}.
-   * 
    * @return the meta-bean, not null
    */
   public static RiskValueProperties.Meta meta() {
@@ -204,7 +203,6 @@ public class RiskValueProperties extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the id.
-   * 
    * @return the value of the property
    */
   public int getId() {
@@ -213,8 +211,7 @@ public class RiskValueProperties extends DirectBean {
 
   /**
    * Sets the id.
-   * 
-   * @param id the new value of the property
+   * @param id  the new value of the property
    */
   public void setId(int id) {
     this._id = id;
@@ -222,7 +219,6 @@ public class RiskValueProperties extends DirectBean {
 
   /**
    * Gets the the {@code id} property.
-   * 
    * @return the property, not null
    */
   public final Property<Integer> id() {
@@ -232,7 +228,6 @@ public class RiskValueProperties extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the syntheticForm.
-   * 
    * @return the value of the property
    */
   public String getSyntheticForm() {
@@ -241,8 +236,7 @@ public class RiskValueProperties extends DirectBean {
 
   /**
    * Sets the syntheticForm.
-   * 
-   * @param syntheticForm the new value of the property
+   * @param syntheticForm  the new value of the property
    */
   public void setSyntheticForm(String syntheticForm) {
     this._syntheticForm = syntheticForm;
@@ -250,7 +244,6 @@ public class RiskValueProperties extends DirectBean {
 
   /**
    * Gets the the {@code syntheticForm} property.
-   * 
    * @return the property, not null
    */
   public final Property<String> syntheticForm() {
@@ -349,9 +342,9 @@ public class RiskValueProperties extends DirectBean {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 3355: // id
+        case 3355:  // id
           return _id;
-        case 1545026985: // syntheticForm
+        case 1545026985:  // syntheticForm
           return _syntheticForm;
       }
       return super.metaPropertyGet(propertyName);
@@ -375,7 +368,6 @@ public class RiskValueProperties extends DirectBean {
     //-----------------------------------------------------------------------
     /**
      * The meta-property for the {@code id} property.
-     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<Integer> id() {
@@ -384,7 +376,6 @@ public class RiskValueProperties extends DirectBean {
 
     /**
      * The meta-property for the {@code syntheticForm} property.
-     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<String> syntheticForm() {
@@ -395,9 +386,9 @@ public class RiskValueProperties extends DirectBean {
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 3355: // id
+        case 3355:  // id
           return ((RiskValueProperties) bean).getId();
-        case 1545026985: // syntheticForm
+        case 1545026985:  // syntheticForm
           return ((RiskValueProperties) bean).getSyntheticForm();
       }
       return super.propertyGet(bean, propertyName, quiet);
@@ -406,10 +397,10 @@ public class RiskValueProperties extends DirectBean {
     @Override
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 3355: // id
+        case 3355:  // id
           ((RiskValueProperties) bean).setId((Integer) newValue);
           return;
-        case 1545026985: // syntheticForm
+        case 1545026985:  // syntheticForm
           ((RiskValueProperties) bean).setSyntheticForm((String) newValue);
           return;
       }

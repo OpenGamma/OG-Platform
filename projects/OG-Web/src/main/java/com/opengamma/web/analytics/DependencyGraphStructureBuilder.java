@@ -7,12 +7,13 @@ package com.opengamma.web.analytics;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.google.common.collect.Lists;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.depgraph.DependencyGraphExplorer;
 import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.function.FunctionDefinition;
+import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
@@ -30,6 +31,7 @@ import com.opengamma.engine.view.cycle.ViewCycle;
   private final List<String> _fnNames = Lists.newArrayList();
   /** The grid structure. */
   private final DependencyGraphGridStructure _structure;
+  private final FunctionRepository _functions;
 
   /** Mutable variable for keeping track of the index of the last row */
   private int _lastRow;
@@ -46,6 +48,7 @@ import com.opengamma.engine.view.cycle.ViewCycle;
       ValueSpecification rootSpec,
       String calcConfigName,
       ComputationTargetResolver targetResolver,
+      FunctionRepository functions,
       ViewCycle cycle) {
     // TODO see [PLAT-2478] this is a bit nasty
     // with this hack in place the user can open a dependency graph before the first set of results arrives
@@ -64,11 +67,19 @@ import com.opengamma.engine.view.cycle.ViewCycle;
     }
     DependencyGraphExplorer depGraphExplorer = viewDef.getDependencyGraphExplorer(calcConfigName);
     DependencyNode rootNode = depGraphExplorer.getNodeProducing(rootSpec);
+    _functions = functions;
     AnalyticsNode node = (rootNode != null) ? createNode(rootSpec, rootNode, true) : null;
     _structure = new DependencyGraphGridStructure(node, calcConfigName, requirement, _valueSpecs, _fnNames, targetResolver);
   }
 
-  private static final AtomicBoolean s_warning = new AtomicBoolean();
+  private String getFunctionName(final String functionId) {
+    final FunctionDefinition function = _functions.getFunction(functionId);
+    if (function != null) {
+      return function.getShortName();
+    } else {
+      return functionId;
+    }
+  }
 
   /**
    * Builds the tree structure of the graph starting at a node and working up the dependency graph through all the nodes it depends on. Recursively builds up the node structure representing whole the
@@ -80,13 +91,8 @@ import com.opengamma.engine.view.cycle.ViewCycle;
    * @return Root node of the grid structure representing the dependency graph for the value
    */
   private AnalyticsNode createNode(ValueSpecification valueSpec, DependencyNode targetNode, boolean rootNode) {
-    String fnName = targetNode.getFunction().getFunctionId();
-    // TODO: This needs access to a function repository so that the identifier can be resolved to the function's short name
-    if (!s_warning.getAndSet(true)) {
-      System.err.println("TODO: DependencyGraphStructureBuilder needs access to a function repository to display function short names");
-    }
     _valueSpecs.add(valueSpec);
-    _fnNames.add(fnName);
+    _fnNames.add(getFunctionName(targetNode.getFunction().getFunctionId()));
     int nodeStart = _lastRow;
     List<AnalyticsNode> nodes = Lists.newArrayList();
     final int inputCount = targetNode.getInputCount();

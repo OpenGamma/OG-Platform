@@ -32,6 +32,7 @@ import com.opengamma.engine.exec.DependencyGraphExecutionFuture;
 import com.opengamma.engine.exec.DependencyGraphExecutor;
 import com.opengamma.engine.exec.DependencyNodeJobExecutionResult;
 import com.opengamma.engine.exec.DependencyNodeJobExecutionResultCache;
+import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.function.FunctionParameters;
 import com.opengamma.engine.value.ComputedValueResult;
 import com.opengamma.engine.value.ValueSpecification;
@@ -280,7 +281,14 @@ import com.opengamma.util.tuple.Pair;
           }
           inputLogs.add(nodeResult.getAggregatedExecutionLog());
         }
-        aggregatedExecutionLog = DefaultAggregatedExecutionLog.fullLogMode(jobItem, (logCopy != null) ? logCopy : log, inputLogs);
+        final String functionName;
+        final FunctionDefinition function = getCycle().getViewProcessContext().getFunctionResolver().getFunction(jobItem.getFunctionUniqueIdentifier());
+        if (function != null) {
+          functionName = function.getShortName();
+        } else {
+          functionName = jobItem.getFunctionUniqueIdentifier();
+        }
+        aggregatedExecutionLog = DefaultAggregatedExecutionLog.fullLogMode(functionName, jobItem.getComputationTargetSpecification(), (logCopy != null) ? logCopy : log, inputLogs);
       } else {
         EnumSet<LogLevel> logs = jobResultItem.getExecutionLog().getLogLevels();
         boolean copied = false;

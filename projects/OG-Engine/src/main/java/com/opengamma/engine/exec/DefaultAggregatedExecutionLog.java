@@ -12,12 +12,11 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.text.StrBuilder;
 
-import com.opengamma.engine.calcnode.CalculationJobItem;
+import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.view.AggregatedExecutionLog;
 import com.opengamma.engine.view.ExecutionLog;
 import com.opengamma.engine.view.ExecutionLogMode;
@@ -42,29 +41,25 @@ public final class DefaultAggregatedExecutionLog implements AggregatedExecutionL
    */
   private final boolean _emptyRoot;
 
-  private static final AtomicBoolean s_warning = new AtomicBoolean();
-
   /**
    * Constructs an instance for a root level with possible logs from its dependencies when the full logging mode is being used.
    * 
-   * @param jobItem the job this log item has come from, not null
+   * @param functionName the name of the function, not null
+   * @param target the computation target specification, not null
    * @param rootLog the root log, not null
    * @param dependentLogs the dependent logs, if any, may be null or empty
    * @return the log instance
    */
-  public static DefaultAggregatedExecutionLog fullLogMode(CalculationJobItem jobItem, ExecutionLog rootLog, Collection<AggregatedExecutionLog> dependentLogs) {
-    ArgumentChecker.notNull(jobItem, "jobItem");
+  public static DefaultAggregatedExecutionLog fullLogMode(String functionName, ComputationTargetSpecification target, ExecutionLog rootLog, Collection<AggregatedExecutionLog> dependentLogs) {
+    ArgumentChecker.notNull(functionName, "functionName");
+    ArgumentChecker.notNull(target, "target");
     ArgumentChecker.notNull(rootLog, "rootLog");
     EnumSet<LogLevel> logLevels = rootLog.getLogLevels();
     boolean logLevelsCopied = false;
     final List<ExecutionLogWithContext> logs = new ArrayList<ExecutionLogWithContext>();
     boolean emptyRoot = rootLog.isEmpty();
     if (!emptyRoot) {
-      // TODO: Want to resolve the function ID to a nice short name; or pass that in since it's probably known by the caller
-      if (!s_warning.getAndSet(true)) {
-        System.err.println("TODO: Create ExecutionLogWithContext using the function's short name, NOT its identifier");
-      }
-      logs.add(ExecutionLogWithContext.of(jobItem.getFunctionUniqueIdentifier(), jobItem.getComputationTargetSpecification(), rootLog));
+      logs.add(ExecutionLogWithContext.of(functionName, target, rootLog));
     }
     if (dependentLogs != null) {
       for (AggregatedExecutionLog dependentLog : dependentLogs) {
@@ -78,7 +73,7 @@ public final class DefaultAggregatedExecutionLog implements AggregatedExecutionL
             logLevelsCopied = true;
           }
         }
-        if (logs != null && dependentLog.getLogs() != null) {
+        if (dependentLog.getLogs() != null) {
           logs.addAll(dependentLog.getLogs());
         }
       }

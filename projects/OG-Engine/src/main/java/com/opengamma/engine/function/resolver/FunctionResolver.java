@@ -7,6 +7,7 @@ package com.opengamma.engine.function.resolver;
 
 import org.threeten.bp.Instant;
 
+import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.util.PublicAPI;
 
 /**
@@ -26,5 +27,13 @@ public interface FunctionResolver {
    * @return the compiled function resolver, not null
    */
   CompiledFunctionResolver compile(Instant atInstant);
+
+  /**
+   * Returns a specific function definition based on an identifier.
+   * 
+   * @param uniqueId the identifier of the function, not null
+   * @return the function definition, or null if the function was not published by a resolution rule used by a compiled form of this resolver
+   */
+  FunctionDefinition getFunction(String uniqueId);
 
 }

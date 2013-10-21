@@ -75,7 +75,6 @@ public class ExecutionLogWithContext extends DirectBean {
   ///CLOVER:OFF
   /**
    * The meta-bean for {@code ExecutionLogWithContext}.
-   * 
    * @return the meta-bean, not null
    */
   public static ExecutionLogWithContext.Meta meta() {
@@ -94,7 +93,6 @@ public class ExecutionLogWithContext extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the name of the engine function which produced the result, not null.
-   * 
    * @return the value of the property, not null
    */
   public String getFunctionName() {
@@ -103,8 +101,7 @@ public class ExecutionLogWithContext extends DirectBean {
 
   /**
    * Sets the name of the engine function which produced the result, not null.
-   * 
-   * @param functionName the new value of the property, not null
+   * @param functionName  the new value of the property, not null
    */
   public void setFunctionName(String functionName) {
     JodaBeanUtils.notNull(functionName, "functionName");
@@ -113,7 +110,6 @@ public class ExecutionLogWithContext extends DirectBean {
 
   /**
    * Gets the the {@code functionName} property.
-   * 
    * @return the property, not null
    */
   public final Property<String> functionName() {
@@ -123,7 +119,6 @@ public class ExecutionLogWithContext extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the specification of the target on which the engine function was operating, not null.
-   * 
    * @return the value of the property, not null
    */
   public ComputationTargetSpecification getTargetSpecification() {
@@ -132,8 +127,7 @@ public class ExecutionLogWithContext extends DirectBean {
 
   /**
    * Sets the specification of the target on which the engine function was operating, not null.
-   * 
-   * @param targetSpecification the new value of the property, not null
+   * @param targetSpecification  the new value of the property, not null
    */
   public void setTargetSpecification(ComputationTargetSpecification targetSpecification) {
     JodaBeanUtils.notNull(targetSpecification, "targetSpecification");
@@ -142,7 +136,6 @@ public class ExecutionLogWithContext extends DirectBean {
 
   /**
    * Gets the the {@code targetSpecification} property.
-   * 
    * @return the property, not null
    */
   public final Property<ComputationTargetSpecification> targetSpecification() {
@@ -152,7 +145,6 @@ public class ExecutionLogWithContext extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the execution log, not null.
-   * 
    * @return the value of the property, not null
    */
   public ExecutionLog getExecutionLog() {
@@ -161,8 +153,7 @@ public class ExecutionLogWithContext extends DirectBean {
 
   /**
    * Sets the execution log, not null.
-   * 
-   * @param executionLog the new value of the property, not null
+   * @param executionLog  the new value of the property, not null
    */
   public void setExecutionLog(ExecutionLog executionLog) {
     JodaBeanUtils.notNull(executionLog, "executionLog");
@@ -171,7 +162,6 @@ public class ExecutionLogWithContext extends DirectBean {
 
   /**
    * Gets the the {@code executionLog} property.
-   * 
    * @return the property, not null
    */
   public final Property<ExecutionLog> executionLog() {
@@ -260,11 +250,11 @@ public class ExecutionLogWithContext extends DirectBean {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -211372413: // functionName
+        case -211372413:  // functionName
           return _functionName;
-        case -1553345806: // targetSpecification
+        case -1553345806:  // targetSpecification
           return _targetSpecification;
-        case -1217189620: // executionLog
+        case -1217189620:  // executionLog
           return _executionLog;
       }
       return super.metaPropertyGet(propertyName);
@@ -288,7 +278,6 @@ public class ExecutionLogWithContext extends DirectBean {
     //-----------------------------------------------------------------------
     /**
      * The meta-property for the {@code functionName} property.
-     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<String> functionName() {
@@ -297,7 +286,6 @@ public class ExecutionLogWithContext extends DirectBean {
 
     /**
      * The meta-property for the {@code targetSpecification} property.
-     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<ComputationTargetSpecification> targetSpecification() {
@@ -306,7 +294,6 @@ public class ExecutionLogWithContext extends DirectBean {
 
     /**
      * The meta-property for the {@code executionLog} property.
-     * 
      * @return the meta-property, not null
      */
     public final MetaProperty<ExecutionLog> executionLog() {
@@ -317,11 +304,11 @@ public class ExecutionLogWithContext extends DirectBean {
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case -211372413: // functionName
+        case -211372413:  // functionName
           return ((ExecutionLogWithContext) bean).getFunctionName();
-        case -1553345806: // targetSpecification
+        case -1553345806:  // targetSpecification
           return ((ExecutionLogWithContext) bean).getTargetSpecification();
-        case -1217189620: // executionLog
+        case -1217189620:  // executionLog
           return ((ExecutionLogWithContext) bean).getExecutionLog();
       }
       return super.propertyGet(bean, propertyName, quiet);
@@ -330,13 +317,13 @@ public class ExecutionLogWithContext extends DirectBean {
     @Override
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case -211372413: // functionName
+        case -211372413:  // functionName
           ((ExecutionLogWithContext) bean).setFunctionName((String) newValue);
           return;
-        case -1553345806: // targetSpecification
+        case -1553345806:  // targetSpecification
           ((ExecutionLogWithContext) bean).setTargetSpecification((ComputationTargetSpecification) newValue);
           return;
-        case -1217189620: // executionLog
+        case -1217189620:  // executionLog
           ((ExecutionLogWithContext) bean).setExecutionLog((ExecutionLog) newValue);
           return;
       }

@@ -39,6 +39,10 @@ import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTargetResolver;
+import com.opengamma.engine.function.FunctionRepository;
+import com.opengamma.engine.function.InMemoryFunctionRepository;
+import com.opengamma.engine.function.config.FunctionConfigurationSource;
+import com.opengamma.engine.function.config.FunctionRepositoryFactory;
 import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
 import com.opengamma.engine.marketdata.live.LiveMarketDataProviderFactory;
 import com.opengamma.engine.view.ViewProcessor;
@@ -130,6 +134,11 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   @PropertyDefinition(validate = "notNull")
   private ComputationTargetResolver _computationTargetResolver;
   /**
+   * The function repository, null to not have additional function metadata available to the UI components.
+   */
+  @PropertyDefinition
+  private FunctionConfigurationSource _functions;
+  /**
    * The time-series master.
    */
   @PropertyDefinition(validate = "notNull")
@@ -197,17 +206,14 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   /**
    * For looking up market data provider specifications by name. Either this or liveMarketDataProviderFactory must be set.
    * 
-   * @deprecated  use liveMarketDataProviderFactory
+   * @deprecated use liveMarketDataProviderFactory
    */
   @PropertyDefinition
   @Deprecated
   private NamedMarketDataSpecificationRepository _marketDataSpecificationRepository;
   /**
-   * Indicates if currency amounts should be displayed in the UI without the currency code. Note that this will
-   * affect all views and should only be used where all results for all views will always be in a single,
-   * well-known currency.
-   *
-   * Default value is false, indicating that currencies will be displayed by default.
+   * Indicates if currency amounts should be displayed in the UI without the currency code. Note that this will affect all views and should only be used where all results for all views will always be
+   * in a single, well-known currency. Default value is false, indicating that currencies will be displayed by default.
    */
   @PropertyDefinition
   private boolean _suppressCurrencyDisplay;
@@ -222,30 +228,15 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     AggregatorNamesResource aggregatorsResource = new AggregatorNamesResource(getPortfolioAggregationFunctions().getMappedFunctions().keySet());
     MarketDataSnapshotListResource snapshotResource = new MarketDataSnapshotListResource(getMarketDataSnapshotMaster());
     MasterConfigSource configSource = new MasterConfigSource(getConfigMaster());
-
-    AggregatedViewDefinitionManager aggregatedViewDefManager =
-        new AggregatedViewDefinitionManager(getPositionSource(),
-                                            getSecuritySource(),
-                                            getCombinedConfigSource(),
-                                            getUserConfigMaster(),
-                                            getUserPortfolioMaster(),
-                                            getUserPositionMaster(),
-                                            getPortfolioAggregationFunctions().getMappedFunctions());
+    AggregatedViewDefinitionManager aggregatedViewDefManager = new AggregatedViewDefinitionManager(getPositionSource(), getSecuritySource(), getCombinedConfigSource(), getUserConfigMaster(),
+        getUserPortfolioMaster(), getUserPositionMaster(), getPortfolioAggregationFunctions().getMappedFunctions());
     CurrencyPairsSource currencyPairsSource = new ConfigDBCurrencyPairsSource(configSource);
     // TODO should be able to configure the currency pairs
     CurrencyPairs currencyPairs = currencyPairsSource.getCurrencyPairs(CurrencyPairs.DEFAULT_CURRENCY_PAIRS);
     SecurityAttributeMapper blotterColumnMapper = DefaultSecurityAttributeMappings.create(currencyPairs);
-    AnalyticsViewManager analyticsViewManager = new AnalyticsViewManager(getViewProcessor(),
-                                                                         getParallelViewRecompilation(),
-                                                                         aggregatedViewDefManager,
-                                                                         getComputationTargetResolver(),
-                                                                         getMarketDataSpecificationRepository(),
-                                                                         blotterColumnMapper,
-                                                                         getPositionSource(),
-                                                                         getCombinedConfigSource(),
-                                                                         getSecuritySource(),
-                                                                         getSecurityMaster(),
-                                                                         getPositionMaster());
+    AnalyticsViewManager analyticsViewManager = new AnalyticsViewManager(getViewProcessor(), getParallelViewRecompilation(), aggregatedViewDefManager, getComputationTargetResolver(),
+        getFunctionRepository(), getMarketDataSpecificationRepository(), blotterColumnMapper, getPositionSource(), getCombinedConfigSource(), getSecuritySource(), getSecurityMaster(),
+        getPositionMaster());
     ResultsFormatter resultsFormatter = new ResultsFormatter(_suppressCurrencyDisplay ? SUPPRESS_CURRENCY : DISPLAY_CURRENCY);
     GridColumnsJsonWriter columnWriter = new GridColumnsJsonWriter(resultsFormatter);
     ViewportResultsJsonCsvWriter viewportResultsWriter = new ViewportResultsJsonCsvWriter(resultsFormatter);
@@ -281,6 +272,17 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
         WebPushServletContextUtils.setLongPollingConnectionManager(servletContext, longPolling);
       }
     });
+  }
+
+  protected FunctionRepository getFunctionRepository() {
+    // TODO: This is slightly wasteful if the view processor is in the same process and has created its own repository. Ideally we
+    // should be able to inject either the constructed repository or a configuration source depending on what's available
+    final FunctionConfigurationSource functions = getFunctions();
+    if (functions == null) {
+      // Supply an empty repo if the configuration is omitted
+      return new InMemoryFunctionRepository();
+    }
+    return FunctionRepositoryFactory.constructRepository(functions.getFunctionConfiguration());
   }
 
   protected LongPollingConnectionManager buildLongPolling() {
@@ -509,6 +511,31 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
    */
   public final Property<ComputationTargetResolver> computationTargetResolver() {
     return metaBean().computationTargetResolver().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the function repository, null to not have additional function metadata available to the UI components.
+   * @return the value of the property
+   */
+  public FunctionConfigurationSource getFunctions() {
+    return _functions;
+  }
+
+  /**
+   * Sets the function repository, null to not have additional function metadata available to the UI components.
+   * @param functions  the new value of the property
+   */
+  public void setFunctions(FunctionConfigurationSource functions) {
+    this._functions = functions;
+  }
+
+  /**
+   * Gets the the {@code functions} property.
+   * @return the property, not null
+   */
+  public final Property<FunctionConfigurationSource> functions() {
+    return metaBean().functions().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -851,7 +878,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   /**
    * Gets for looking up market data provider specifications by name. Either this or liveMarketDataProviderFactory must be set.
    * 
-   * @deprecated  use liveMarketDataProviderFactory
+   * @deprecated use liveMarketDataProviderFactory
    * @return the value of the property
    */
   @Deprecated
@@ -862,7 +889,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   /**
    * Sets for looking up market data provider specifications by name. Either this or liveMarketDataProviderFactory must be set.
    * 
-   * @deprecated  use liveMarketDataProviderFactory
+   * @deprecated use liveMarketDataProviderFactory
    * @param marketDataSpecificationRepository  the new value of the property
    */
   @Deprecated
@@ -873,7 +900,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   /**
    * Gets the the {@code marketDataSpecificationRepository} property.
    * 
-   * @deprecated  use liveMarketDataProviderFactory
+   * @deprecated use liveMarketDataProviderFactory
    * @return the property, not null
    */
   @Deprecated
@@ -883,11 +910,8 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets indicates if currency amounts should be displayed in the UI without the currency code. Note that this will
-   * affect all views and should only be used where all results for all views will always be in a single,
-   * well-known currency.
-   * 
-   * Default value is false, indicating that currencies will be displayed by default.
+   * Gets indicates if currency amounts should be displayed in the UI without the currency code. Note that this will affect all views and should only be used where all results for all views will always be
+   * in a single, well-known currency. Default value is false, indicating that currencies will be displayed by default.
    * @return the value of the property
    */
   public boolean isSuppressCurrencyDisplay() {
@@ -895,11 +919,8 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   }
 
   /**
-   * Sets indicates if currency amounts should be displayed in the UI without the currency code. Note that this will
-   * affect all views and should only be used where all results for all views will always be in a single,
-   * well-known currency.
-   * 
-   * Default value is false, indicating that currencies will be displayed by default.
+   * Sets indicates if currency amounts should be displayed in the UI without the currency code. Note that this will affect all views and should only be used where all results for all views will always be
+   * in a single, well-known currency. Default value is false, indicating that currencies will be displayed by default.
    * @param suppressCurrencyDisplay  the new value of the property
    */
   public void setSuppressCurrencyDisplay(boolean suppressCurrencyDisplay) {
@@ -908,10 +929,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   /**
    * Gets the the {@code suppressCurrencyDisplay} property.
-   * affect all views and should only be used where all results for all views will always be in a single,
-   * well-known currency.
-   * 
-   * Default value is false, indicating that currencies will be displayed by default.
+   * in a single, well-known currency. Default value is false, indicating that currencies will be displayed by default.
    * @return the property, not null
    */
   public final Property<Boolean> suppressCurrencyDisplay() {
@@ -938,6 +956,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
           JodaBeanUtils.equal(getPortfolioMaster(), other.getPortfolioMaster()) &&
           JodaBeanUtils.equal(getPositionSource(), other.getPositionSource()) &&
           JodaBeanUtils.equal(getComputationTargetResolver(), other.getComputationTargetResolver()) &&
+          JodaBeanUtils.equal(getFunctions(), other.getFunctions()) &&
           JodaBeanUtils.equal(getHistoricalTimeSeriesMaster(), other.getHistoricalTimeSeriesMaster()) &&
           JodaBeanUtils.equal(getOrganizationMaster(), other.getOrganizationMaster()) &&
           JodaBeanUtils.equal(getUserPositionMaster(), other.getUserPositionMaster()) &&
@@ -968,6 +987,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getPortfolioMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPositionSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getComputationTargetResolver());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFunctions());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getOrganizationMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUserPositionMaster());
@@ -988,7 +1008,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(736);
+    StringBuilder buf = new StringBuilder(768);
     buf.append("WebsiteViewportsComponentFactory{");
     int len = buf.length();
     toString(buf);
@@ -1009,6 +1029,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     buf.append("portfolioMaster").append('=').append(JodaBeanUtils.toString(getPortfolioMaster())).append(',').append(' ');
     buf.append("positionSource").append('=').append(JodaBeanUtils.toString(getPositionSource())).append(',').append(' ');
     buf.append("computationTargetResolver").append('=').append(JodaBeanUtils.toString(getComputationTargetResolver())).append(',').append(' ');
+    buf.append("functions").append('=').append(JodaBeanUtils.toString(getFunctions())).append(',').append(' ');
     buf.append("historicalTimeSeriesMaster").append('=').append(JodaBeanUtils.toString(getHistoricalTimeSeriesMaster())).append(',').append(' ');
     buf.append("organizationMaster").append('=').append(JodaBeanUtils.toString(getOrganizationMaster())).append(',').append(' ');
     buf.append("userPositionMaster").append('=').append(JodaBeanUtils.toString(getUserPositionMaster())).append(',').append(' ');
@@ -1071,6 +1092,11 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
      */
     private final MetaProperty<ComputationTargetResolver> _computationTargetResolver = DirectMetaProperty.ofReadWrite(
         this, "computationTargetResolver", WebsiteViewportsComponentFactory.class, ComputationTargetResolver.class);
+    /**
+     * The meta-property for the {@code functions} property.
+     */
+    private final MetaProperty<FunctionConfigurationSource> _functions = DirectMetaProperty.ofReadWrite(
+        this, "functions", WebsiteViewportsComponentFactory.class, FunctionConfigurationSource.class);
     /**
      * The meta-property for the {@code historicalTimeSeriesMaster} property.
      */
@@ -1158,6 +1184,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
         "portfolioMaster",
         "positionSource",
         "computationTargetResolver",
+        "functions",
         "historicalTimeSeriesMaster",
         "organizationMaster",
         "userPositionMaster",
@@ -1197,6 +1224,8 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
           return _positionSource;
         case 1562222174:  // computationTargetResolver
           return _computationTargetResolver;
+        case -140572773:  // functions
+          return _functions;
         case 173967376:  // historicalTimeSeriesMaster
           return _historicalTimeSeriesMaster;
         case -1158737547:  // organizationMaster
@@ -1301,6 +1330,14 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<ComputationTargetResolver> computationTargetResolver() {
       return _computationTargetResolver;
+    }
+
+    /**
+     * The meta-property for the {@code functions} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<FunctionConfigurationSource> functions() {
+      return _functions;
     }
 
     /**
@@ -1409,7 +1446,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
     /**
      * The meta-property for the {@code marketDataSpecificationRepository} property.
-     * @deprecated  use liveMarketDataProviderFactory
+     * @deprecated use liveMarketDataProviderFactory
      * @return the meta-property, not null
      */
     @Deprecated
@@ -1443,6 +1480,8 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
           return ((WebsiteViewportsComponentFactory) bean).getPositionSource();
         case 1562222174:  // computationTargetResolver
           return ((WebsiteViewportsComponentFactory) bean).getComputationTargetResolver();
+        case -140572773:  // functions
+          return ((WebsiteViewportsComponentFactory) bean).getFunctions();
         case 173967376:  // historicalTimeSeriesMaster
           return ((WebsiteViewportsComponentFactory) bean).getHistoricalTimeSeriesMaster();
         case -1158737547:  // organizationMaster
@@ -1500,6 +1539,9 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
           return;
         case 1562222174:  // computationTargetResolver
           ((WebsiteViewportsComponentFactory) bean).setComputationTargetResolver((ComputationTargetResolver) newValue);
+          return;
+        case -140572773:  // functions
+          ((WebsiteViewportsComponentFactory) bean).setFunctions((FunctionConfigurationSource) newValue);
           return;
         case 173967376:  // historicalTimeSeriesMaster
           ((WebsiteViewportsComponentFactory) bean).setHistoricalTimeSeriesMaster((HistoricalTimeSeriesMaster) newValue);

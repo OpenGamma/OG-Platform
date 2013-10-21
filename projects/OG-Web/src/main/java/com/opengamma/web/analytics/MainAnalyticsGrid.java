@@ -21,6 +21,7 @@ import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.engine.management.ValueMappings;
 import com.opengamma.engine.target.ComputationTargetSpecificationResolver;
 import com.opengamma.engine.target.ComputationTargetType;
@@ -35,9 +36,7 @@ import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.analytics.formatting.TypeFormatter;
 
 /**
- * Grid for displaying analytics data for a portfolio or for calculated values that aren't associated with the
- * portfolio
- * (primitives). This class isn't thread safe.
+ * Grid for displaying analytics data for a portfolio or for calculated values that aren't associated with the portfolio (primitives). This class isn't thread safe.
  */
 /* package */abstract class MainAnalyticsGrid<T extends MainGridViewport> extends AnalyticsGrid<T> {
 
@@ -49,28 +48,27 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
   private final Map<Integer, DependencyGraphGrid> _depGraphs = Maps.newHashMap();
   /** For looking up calculation targets using their specifications. */
   private final ComputationTargetResolver _targetResolver;
+  /** For lookup up function metadata */
+  private final FunctionRepository _functions;
   /** The calculation cycle used to calculate the most recent set of results. */
   private ViewCycle _cycle = EmptyViewCycle.INSTANCE;
 
-  /* package */MainAnalyticsGrid(AnalyticsView.GridType gridType,
-                                 String gridId,
-                                 ComputationTargetResolver targetResolver,
-                                 ViewportListener viewportListener) {
+  /* package */MainAnalyticsGrid(AnalyticsView.GridType gridType, String gridId, ComputationTargetResolver targetResolver, FunctionRepository functions, ViewportListener viewportListener) {
     super(viewportListener, gridId);
     ArgumentChecker.notNull(gridType, "gridType");
     ArgumentChecker.notNull(targetResolver, "targetResolver");
+    ArgumentChecker.notNull(functions, "functions");
     _gridType = gridType;
     _targetResolver = targetResolver;
+    _functions = functions;
   }
 
-  /* package */ MainAnalyticsGrid(AnalyticsView.GridType gridType,
-                                  MainAnalyticsGrid<T> previousGrid,
-                                  CompiledViewDefinition compiledViewDef,
-                                  ValueMappings valueMappings) {
+  /* package */MainAnalyticsGrid(AnalyticsView.GridType gridType, MainAnalyticsGrid<T> previousGrid, CompiledViewDefinition compiledViewDef, ValueMappings valueMappings) {
     super(previousGrid.getViewportListener(), previousGrid.getCallbackId(), previousGrid.getViewports());
     ArgumentChecker.notNull(gridType, "gridType");
     _gridType = gridType;
     _targetResolver = previousGrid.getTargetResolver();
+    _functions = previousGrid.getFunctionRepository();
     // reopen existing dependency graphs using the value requirements from the depgraph grid structures
     for (Map.Entry<Integer, DependencyGraphGrid> entry : previousGrid._depGraphs.entrySet()) {
       openDependencyGraph(entry.getKey(), entry.getValue(), compiledViewDef, valueMappings);
@@ -79,7 +77,7 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
 
   /**
    * Updates the data in the viewports of the main grid and all dependency graph grids when new results arrive from the calculation engine.
-   *
+   * 
    * @param cache Cache of calculation results
    * @param cycle Calculation cycle that calculated the latest results
    * @return List of IDs specifying the viewports whose data has changed as a result of the new update
@@ -102,23 +100,16 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
   // -------- dependency graph grids --------
 
   /**
-   * Opens a dependency graph grid showing the steps used to calculate a cell's value. This variant is intended for
-   * clients to use when first opening a dependency graph.
-   *
+   * Opens a dependency graph grid showing the steps used to calculate a cell's value. This variant is intended for clients to use when first opening a dependency graph.
+   * 
    * @param graphId Unique ID of the dependency graph
    * @param gridId ID passed to listeners when the grid's row and column structure changes, this can be any unique value
    * @param row Row index of the cell whose dependency graph is required
    * @param col Column index of the cell whose dependency graph is required
    * @param compiledViewDef Compiled view definition containing the full dependency graph
-   * @param viewportListener Receives notification when there are changes to a viewport
-   * TODO should include a version ID for the structure to avoid race condition when the structure is updated
+   * @param viewportListener Receives notification when there are changes to a viewport TODO should include a version ID for the structure to avoid race condition when the structure is updated
    */
-  /* package */ void openDependencyGraph(int graphId,
-                                         String gridId,
-                                         int row,
-                                         int col,
-                                         CompiledViewDefinition compiledViewDef,
-                                         ViewportListener viewportListener) {
+  /* package */void openDependencyGraph(int graphId, String gridId, int row, int col, CompiledViewDefinition compiledViewDef, ViewportListener viewportListener) {
     if (_depGraphs.containsKey(graphId)) {
       throw new IllegalArgumentException("Dependency graph ID " + graphId + " is already in use");
     }
@@ -129,15 +120,13 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
     String calcConfigName = targetForCell.getFirst();
     ValueSpecification valueSpec = targetForCell.getSecond();
     ValueRequirement valueReq = getGridStructure().getRequirementForCell(row, col).getSecond();
-    DependencyGraphGrid grid = DependencyGraphGrid.create(compiledViewDef, valueReq, valueSpec, calcConfigName, _cycle,
-                                                          gridId, _targetResolver, viewportListener);
+    DependencyGraphGrid grid = DependencyGraphGrid.create(compiledViewDef, valueReq, valueSpec, calcConfigName, _cycle, gridId, _targetResolver, getFunctionRepository(), viewportListener);
     _depGraphs.put(graphId, grid);
   }
 
   /**
-   * Opens a dependency graph grid showing the steps used to calculate a cell's value. This variant is intended for
-   * clients to use when reconnecting after a server restart.
-   *
+   * Opens a dependency graph grid showing the steps used to calculate a cell's value. This variant is intended for clients to use when reconnecting after a server restart.
+   * 
    * @param graphId Unique ID of the dependency graph
    * @param gridId ID passed to listeners when the grid's row and column structure changes, this can be any unique value
    * @param calcConfigName Name of the calculation configuration containing the value
@@ -145,48 +134,34 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
    * @param compiledViewDef Compiled view definition containing the full dependency graph
    * @param viewportListener Receives notification when there are changes to a viewport
    */
-  /* package */ void openDependencyGraph(int graphId,
-                                         String gridId,
-                                         String calcConfigName,
-                                         ValueRequirement valueReq,
-                                         CompiledViewDefinition compiledViewDef,
-                                         ViewportListener viewportListener) {
+  /* package */void openDependencyGraph(int graphId, String gridId, String calcConfigName, ValueRequirement valueReq, CompiledViewDefinition compiledViewDef, ViewportListener viewportListener) {
     if (_depGraphs.containsKey(graphId)) {
       throw new IllegalArgumentException("Dependency graph ID " + graphId + " is already in use");
     }
     ValueSpecification valueSpec = getGridStructure().getValueMappings().getValueSpecification(calcConfigName, valueReq);
     DependencyGraphGrid grid = DependencyGraphGrid.create(compiledViewDef, valueReq, valueSpec, calcConfigName, _cycle,
-                                                          gridId, _targetResolver, viewportListener);
+        gridId, _targetResolver, getFunctionRepository(), viewportListener);
     _depGraphs.put(graphId, grid);
   }
 
   /**
-   * TODO specify what this is intended for
-   * Opens a dependency graph grid showing the steps used to calculate a cell's value.
-   *
+   * TODO specify what this is intended for Opens a dependency graph grid showing the steps used to calculate a cell's value.
+   * 
    * @param graphId Unique ID of the dependency graph
    * @param previousGrid Previous version of the same grid, created with the previous version of the view definition
    * @param compiledViewDef Compiled view definition containing the full dependency graph
    */
-  private void openDependencyGraph(int graphId,
-                                   DependencyGraphGrid previousGrid,
-                                   CompiledViewDefinition compiledViewDef,
-                                   ValueMappings valueMappings) {
+  private void openDependencyGraph(int graphId, DependencyGraphGrid previousGrid, CompiledViewDefinition compiledViewDef, ValueMappings valueMappings) {
     s_logger.debug("Creating new version of dependency graph grid {}", previousGrid.getCallbackId());
     DependencyGraphGridStructure structure = previousGrid.getGridStructure();
     String calcConfigName = structure.getCalculationConfigurationName();
     ValueRequirement valueReq = structure.getRootRequirement();
     ValueSpecification valueSpec = valueMappings.getValueSpecification(calcConfigName, valueReq);
-    DependencyGraphGrid grid = DependencyGraphGrid.create(compiledViewDef, valueReq, valueSpec, calcConfigName,
-                                                          _cycle, previousGrid.getCallbackId(), _targetResolver,
-                                                          previousGrid.getViewportListener());
+    DependencyGraphGrid grid = DependencyGraphGrid.create(compiledViewDef, valueReq, valueSpec, calcConfigName, _cycle, previousGrid.getCallbackId(), _targetResolver, getFunctionRepository(),
+        previousGrid.getViewportListener());
     // empty invalid viewport which can never be used to create data
     // the client will update it before it produces data
-    ViewportDefinition viewportDefinition = new RectangularViewportDefinition(-1,
-                                                                              Collections.<Integer>emptyList(),
-                                                                              Collections.<Integer>emptyList(),
-                                                                              TypeFormatter.Format.CELL,
-                                                                              false);
+    ViewportDefinition viewportDefinition = new RectangularViewportDefinition(-1, Collections.<Integer>emptyList(), Collections.<Integer>emptyList(), TypeFormatter.Format.CELL, false);
     // the cache can be empty because we can guarantee the viewport is always empty
     ResultsCache emptyCache = new ResultsCache();
     for (Map.Entry<Integer, DependencyGraphViewport> entry : previousGrid.getViewports().entrySet()) {
@@ -199,7 +174,7 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
 
   /**
    * Returns an existing dependency graph grid.
-   *
+   * 
    * @param graphId ID of the dependency graph
    * @return The dependency graph grid
    * @throws DataNotFoundException If no dependency graph exists with the specified ID
@@ -212,13 +187,13 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
     return grid;
   }
 
-  /* package */ Map<Integer, DependencyGraphGrid> getDependencyGraphs() {
+  /* package */Map<Integer, DependencyGraphGrid> getDependencyGraphs() {
     return _depGraphs;
   }
 
   /**
    * Closes an existing dependency graph grid.
-   *
+   * 
    * @param graphId ID of the dependency graph
    * @throws DataNotFoundException If no dependency graph exists with the specified ID
    */
@@ -231,7 +206,7 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
 
   /**
    * Returns the grid structure for a dependency graph.
-   *
+   * 
    * @param graphId ID of the dependency graph
    * @return The grid structure of the specified dependency graph
    * @throws DataNotFoundException If no dependency graph exists with the specified ID
@@ -242,33 +217,28 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
 
   /**
    * Returns the grid structure for a dependency graph.
-   *
+   * 
    * @param graphId ID of the dependency graph
    * @param viewportId ID of the dependency graph
    * @return The grid structure of the specified dependency graph
    * @throws DataNotFoundException If no dependency graph exists with the specified ID
    */
-  /* package */ DependencyGraphGridStructure getGridStructure(int graphId, int viewportId) {
+  /* package */DependencyGraphGridStructure getGridStructure(int graphId, int viewportId) {
     return (DependencyGraphGridStructure) getDependencyGraph(graphId).getViewport(viewportId).getGridStructure();
   }
 
   /**
    * Creates a viewport on a dependency graph grid.
-   *
-   * @param graphId  the ID of the dependency graph
-   * @param viewportId  the ID of the viewport, can be any unique value
-   * @param callbackId  the ID passed to listeners when the viewport's data changes, can be any unique value
-   * @param structureCallbackId  the ID passed to listeners when the viewport's structure changes, can be any unique value
-   * @param viewportDefinition  the definition of the viewport
-   * @param cache  the cache
+   * 
+   * @param graphId the ID of the dependency graph
+   * @param viewportId the ID of the viewport, can be any unique value
+   * @param callbackId the ID passed to listeners when the viewport's data changes, can be any unique value
+   * @param structureCallbackId the ID passed to listeners when the viewport's structure changes, can be any unique value
+   * @param viewportDefinition the definition of the viewport
+   * @param cache the cache
    * @return true if there is data available for the new viewport
    */
-  /* package */boolean createViewport(int graphId,
-                                      int viewportId,
-                                      String callbackId,
-                                      String structureCallbackId,
-                                      ViewportDefinition viewportDefinition,
-                                      ResultsCache cache) {
+  /* package */boolean createViewport(int graphId, int viewportId, String callbackId, String structureCallbackId, ViewportDefinition viewportDefinition, ResultsCache cache) {
     return getDependencyGraph(graphId).createViewport(viewportId, callbackId, structureCallbackId, viewportDefinition, cache);
   }
 
@@ -277,24 +247,21 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
 
   /**
    * Updates an existing viewport on a dependency graph grid
-   *
-   * @param graphId  the ID of the dependency graph
-   * @param viewportId  the ID of the viewport, can be any unique value
-   * @param viewportDefinition  the definition of the viewport
-   * @param cache  the cache
+   * 
+   * @param graphId the ID of the dependency graph
+   * @param viewportId the ID of the viewport, can be any unique value
+   * @param viewportDefinition the definition of the viewport
+   * @param cache the cache
    * @return the viewport's callback ID if it has data available, null if not
    * @throws DataNotFoundException If no dependency graph exists with the specified ID
    */
-  /* package */String updateViewport(int graphId,
-                                     int viewportId,
-                                     ViewportDefinition viewportDefinition,
-                                     ResultsCache cache) {
+  /* package */String updateViewport(int graphId, int viewportId, ViewportDefinition viewportDefinition, ResultsCache cache) {
     return getDependencyGraph(graphId).updateViewport(viewportId, viewportDefinition, cache);
   }
 
   /**
    * Deletes an existing viewport on a dependency graph grid.
-   *
+   * 
    * @param graphId ID of the dependency graph
    * @param viewportId ID of the viewport, can be any unique value
    * @throws DataNotFoundException If no dependency graph exists with the specified ID
@@ -305,7 +272,7 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
 
   /**
    * Returns the data for a viewport on a dependency graph grid.
-   *
+   * 
    * @param graphId ID of the dependency graph
    * @param viewportId ID of the viewport, can be any unique value
    * @return The current data for the viewport
@@ -342,6 +309,11 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
     return _targetResolver;
   }
 
+  /** For lookup up function metadata based on the function identifier */
+  /* package */FunctionRepository getFunctionRepository() {
+    return _functions;
+  }
+
   /**
    * Resolver that doesn't resolve anything, used for grids that will always be empty.
    */
@@ -349,7 +321,7 @@ import com.opengamma.web.analytics.formatting.TypeFormatter;
 
     @Override
     public ComputationTarget resolve(final ComputationTargetSpecification specification,
-                                     final VersionCorrection versionCorrection) {
+        final VersionCorrection versionCorrection) {
       return null;
     }
 

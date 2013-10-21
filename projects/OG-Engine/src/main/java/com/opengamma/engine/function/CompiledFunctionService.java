@@ -6,8 +6,9 @@
 package com.opengamma.engine.function;
 
 import java.util.Collection;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
@@ -15,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
 
+import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.VersionCorrection;
@@ -68,23 +70,36 @@ public class CompiledFunctionService {
 
   private static final class StaticFunctionRepository implements FunctionRepository {
 
-    private final Set<FunctionDefinition> _functions;
+    private final Map<String, FunctionDefinition> _functions;
 
-    private StaticFunctionRepository(final FunctionRepository functions) {
-      _functions = new HashSet<FunctionDefinition>((functions != null) ? functions.getAllFunctions() : Collections.<FunctionDefinition>emptyList());
+    private StaticFunctionRepository(final FunctionRepository functionRepo) {
+      if (functionRepo != null) {
+        final Collection<FunctionDefinition> functions = functionRepo.getAllFunctions();
+        _functions = Maps.newHashMapWithExpectedSize(functions.size());
+        for (FunctionDefinition function : functions) {
+          _functions.put(function.getUniqueId(), function);
+        }
+      } else {
+        _functions = new HashMap<String, FunctionDefinition>();
+      }
     }
 
     private void remove(final FunctionDefinition function) {
-      _functions.remove(function);
+      _functions.remove(function.getUniqueId());
     }
 
     private void add(final FunctionDefinition function) {
-      _functions.add(function);
+      _functions.put(function.getUniqueId(), function);
     }
 
     @Override
     public Collection<FunctionDefinition> getAllFunctions() {
-      return _functions;
+      return _functions.values();
+    }
+
+    @Override
+    public FunctionDefinition getFunction(final String uniqueId) {
+      return _functions.get(uniqueId);
     }
 
   }
