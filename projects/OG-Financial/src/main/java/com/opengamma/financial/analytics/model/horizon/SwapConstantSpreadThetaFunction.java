@@ -126,7 +126,10 @@ public class SwapConstantSpreadThetaFunction extends AbstractFunction.NonCompile
     final ConstantSpreadHorizonThetaCalculator calculator = ConstantSpreadHorizonThetaCalculator.getInstance();
     if (definition instanceof SwapDefinition) {
       final MultipleCurrencyAmount theta = calculator.getTheta((SwapDefinition) definition, now, curveNamesForSecurity, bundle, fixingSeries, Integer.parseInt(daysForward));
-      return Collections.singleton(new ComputedValue(getResultSpec(target, curveCalculationConfigName, currency.getCode(), daysForward), theta));
+      if (theta.size() != 1) {
+        throw new OpenGammaRuntimeException("Got multi-currency amount for theta " + theta + "; should only use this function for single currency swaps");
+      }
+      return Collections.singleton(new ComputedValue(getResultSpec(target, curveCalculationConfigName, currency.getCode(), daysForward), theta.getAmount(currency)));
     }
     throw new OpenGammaRuntimeException("Can only handle fixed / float ibor and ois swaps; have " + definition.getClass());
   }
@@ -181,8 +184,6 @@ public class SwapConstantSpreadThetaFunction extends AbstractFunction.NonCompile
       return null;
     }
     final Set<ValueRequirement> requirements = YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, curveCalculationConfigSource);
-    final HistoricalTimeSeriesResolver resolver = OpenGammaCompilationContext.getHistoricalTimeSeriesResolver(context);
-    final ConventionBundleSource conventions = OpenGammaCompilationContext.getConventionBundleSource(context);
     try {
       final Set<ValueRequirement> fixingRequirements = getDerivativeTimeSeriesRequirements(security, security.accept(_visitor), _definitionConverter);
       if (fixingRequirements == null) {
@@ -211,7 +212,6 @@ public class SwapConstantSpreadThetaFunction extends AbstractFunction.NonCompile
     String curveCalculationConfig = null;
     String daysForward = null;
     for (final Map.Entry<ValueSpecification, ValueRequirement> input : inputs.entrySet()) {
-      final ValueSpecification specification = input.getKey();
       final ValueRequirement requirement = input.getValue();
       if (requirement.getValueName().equals(HISTORICAL_TIME_SERIES)) {
         curveCalculationConfig = requirement.getConstraint(CURVE_CALCULATION_CONFIG);
