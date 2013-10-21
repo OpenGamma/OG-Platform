@@ -21,7 +21,7 @@ import com.opengamma.analytics.math.curve.FunctionalDoublesCurve;
  * Class describing a monthly seasonal adjustment curve. The curve is piecewise constant on intervals defined by a set of times. 
  * Those times should be calculated using first of month dates and  the act/act day counter (the one used for derivatives file).
  */
-public final class SeasonalCurve extends FunctionalDoublesCurve implements Bean {
+public final class SeasonalCurve extends FunctionalDoublesCurve {
 
   /**
    * Construct a seasonal curve from a reference time and the monthly factors.

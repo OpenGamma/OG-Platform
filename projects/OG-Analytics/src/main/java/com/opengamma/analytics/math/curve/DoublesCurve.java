@@ -18,7 +18,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 /**
  * Parent class for a family of curves that have real <i>x</i> and <i>y</i> values.
  */
-public abstract class DoublesCurve extends Curve<Double, Double> implements Bean {
+public abstract class DoublesCurve extends Curve<Double, Double> {
 
   /**
    * Constructor

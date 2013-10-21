@@ -25,7 +25,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * A curve that is defined by a set of nodal points (i.e. <i>x-y</i> data). Any attempt to find a <i>y</i> value 
  * for which there is no <i>x</i> nodal point will result in failure.
  */
-public class NodalDoublesCurve extends ArraysDoublesCurve implements Bean {
+public class NodalDoublesCurve extends ArraysDoublesCurve {
 
   /**
   * 

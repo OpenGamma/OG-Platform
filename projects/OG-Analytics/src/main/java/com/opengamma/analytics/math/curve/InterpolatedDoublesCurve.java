@@ -29,7 +29,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * A curve that is defined by a set of nodal points (i.e. <i>x-y</i> data) and an interpolator to return values of <i>y</i> for values 
  * of <i>x</i> that do not lie on nodal <i>x</i> values. 
  */
-public class InterpolatedDoublesCurve extends ArraysDoublesCurve implements Bean {
+public class InterpolatedDoublesCurve extends ArraysDoublesCurve {
 
   /**
    * 

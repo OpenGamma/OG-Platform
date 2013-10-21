@@ -26,7 +26,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * A yield or hazard curve values between nodes are linearly interpolated from t*r points (where t is time and r is the zero rate)
  */
-public class ISDACompliantCurve extends DoublesCurve implements Bean {
+public class ISDACompliantCurve extends DoublesCurve {
 
   // number of knots in curve
   @PropertyDefinition(get = "private")

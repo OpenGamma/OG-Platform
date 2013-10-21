@@ -30,7 +30,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * Note that if the constructor is told that unsorted data are sorted then no sorting will take place, which will give unpredictable results.
  * 
  */
-public abstract class ArraysDoublesCurve extends DoublesCurve implements Bean {
+public abstract class ArraysDoublesCurve extends DoublesCurve {
 
   @PropertyDefinition(get = "private")
   private final int _n;

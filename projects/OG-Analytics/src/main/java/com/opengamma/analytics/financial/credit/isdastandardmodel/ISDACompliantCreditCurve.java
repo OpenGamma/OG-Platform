@@ -18,7 +18,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 /**
  *
  */
-public class ISDACompliantCreditCurve extends ISDACompliantCurve implements Bean {
+public class ISDACompliantCreditCurve extends ISDACompliantCurve {
 
   /**
    * Flat credit (hazard) curve at hazard rate h

@@ -30,7 +30,7 @@ import com.opengamma.util.ParallelArrayBinarySort;
  * This is used in particular for spread curves; without anchor points, each curve in the spread could be shifted in opposite directions for the same total result.
  * To anchor is used to remove the translation indetermination.
  */
-public final class DoublesCurveInterpolatedAnchor extends InterpolatedDoublesCurve implements Bean {
+public final class DoublesCurveInterpolatedAnchor extends InterpolatedDoublesCurve {
 
   /**
    * Anchor index. The index in the x value of the anchor.

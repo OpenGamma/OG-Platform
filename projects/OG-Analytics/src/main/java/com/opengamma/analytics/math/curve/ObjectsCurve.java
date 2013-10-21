@@ -34,7 +34,7 @@ import com.opengamma.util.tuple.Pair;
  * @param <U> The type of the y data
  */
 @SuppressWarnings("unchecked")
-public abstract class ObjectsCurve<T extends Comparable<T>, U> extends Curve<T, U> implements Bean {
+public abstract class ObjectsCurve<T extends Comparable<T>, U> extends Curve<T, U> {
 
   @PropertyDefinition
   private final int _n;

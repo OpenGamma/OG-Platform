@@ -25,7 +25,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 /**
  * Specialization of {@code NodalObjectsCurve} with Tenor and Double.
  */
-public class NodalTenorDoubleCurve extends NodalObjectsCurve<Tenor, Double> implements Bean {
+public class NodalTenorDoubleCurve extends NodalObjectsCurve<Tenor, Double> {
 
   public static NodalTenorDoubleCurve from(final Tenor[] xData, final Double[] yData) {
     return new NodalTenorDoubleCurve(xData, yData, false);

@@ -18,7 +18,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 /**
  *
  */
-public class ISDACompliantYieldCurve extends ISDACompliantCurve implements Bean {
+public class ISDACompliantYieldCurve extends ISDACompliantCurve {
 
   /**
    * Flat yield curve at level r

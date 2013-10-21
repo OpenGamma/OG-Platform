@@ -26,7 +26,7 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 /**
  *
  */
-public class ISDACompliantDateCreditCurve extends ISDACompliantCreditCurve implements ISDACompliantCurveWithDates, Bean {
+public class ISDACompliantDateCreditCurve extends ISDACompliantCreditCurve implements ISDACompliantCurveWithDates {
 
   private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
 

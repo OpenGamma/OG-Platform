@@ -24,7 +24,7 @@ import com.opengamma.analytics.math.interpolation.Interpolator1D;
 /**
  * Defines a constant curve (i.e. a curve with <i>y = constant</i>)
  */
-public class ConstantDoublesCurve extends DoublesCurve implements Bean {
+public class ConstantDoublesCurve extends DoublesCurve {
 
   /**
    * @param y Level of the curve

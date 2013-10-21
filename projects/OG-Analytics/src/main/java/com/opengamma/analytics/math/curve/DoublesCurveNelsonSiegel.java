@@ -26,7 +26,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Curve described by the Nelson-Siegle function. The function is one of the most used functional form to describe a bond yield curve.
  */
-public class DoublesCurveNelsonSiegel extends DoublesCurve implements Bean {
+public class DoublesCurveNelsonSiegel extends DoublesCurve {
 
   /**
    * The array with the four parameters used to describe the function. The parameters are beta0, beta1, beta2 and lambda (in that order).

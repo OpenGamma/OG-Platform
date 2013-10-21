@@ -25,7 +25,7 @@ import com.opengamma.util.tuple.Pair;
  * @param <T> Type of the x data
  * @param <U> Type of the y data
  */
-public class NodalObjectsCurve<T extends Comparable<T>, U> extends ObjectsCurve<T, U> implements Bean {
+public class NodalObjectsCurve<T extends Comparable<T>, U> extends ObjectsCurve<T, U> {
 
   public static <T extends Comparable<T>, U> NodalObjectsCurve<T, U> from(final T[] xData, final U[] yData) {
     return new NodalObjectsCurve<>(xData, yData, false);

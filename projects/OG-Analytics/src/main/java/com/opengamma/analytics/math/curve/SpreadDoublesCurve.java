@@ -29,7 +29,7 @@ import com.opengamma.util.ArgumentChecker;
  * For example, a simple spread curve could be <i>C = A - B</i>. As this curve is in the same hierarchy as the other curves, a spread curve can be
  * defined on another spread curve, e.g. <i>E = C * D = D * (A - B)</i>.
  */
-public class SpreadDoublesCurve extends DoublesCurve implements Bean {
+public class SpreadDoublesCurve extends DoublesCurve {
 
   @PropertyDefinition(get = "private")
   private final CurveSpreadFunction _spreadFunction;

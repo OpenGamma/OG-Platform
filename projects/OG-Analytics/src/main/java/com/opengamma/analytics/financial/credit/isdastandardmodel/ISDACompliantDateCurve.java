@@ -25,7 +25,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class ISDACompliantDateCurve extends ISDACompliantCurve implements ISDACompliantCurveWithDates, Bean {
+public class ISDACompliantDateCurve extends ISDACompliantCurve implements ISDACompliantCurveWithDates {
 
   private static final DayCount ACT_365 = DayCountFactory.INSTANCE.getDayCount("ACT/365");
 

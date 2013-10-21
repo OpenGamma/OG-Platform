@@ -28,7 +28,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * A curve that is defined by a function (i.e. <i>y = f(x)</i>, where <i>f(x)</i> is supplied)
  */
-public class FunctionalDoublesCurve extends DoublesCurve implements Bean {
+public class FunctionalDoublesCurve extends DoublesCurve {
 
   private static final ScalarFirstOrderDifferentiator DIFF = new ScalarFirstOrderDifferentiator();
 
