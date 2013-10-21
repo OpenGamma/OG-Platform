@@ -36,6 +36,16 @@
       <artifactId>hsqldb</artifactId>
       <scope>test</scope>
     </dependency>
+    <!--dependency>
+      <groupId>postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <scope>test</scope>
+    </dependency-->
+    <!--dependency>
+      <groupId>com.opengamma.external.microsoft</groupId>
+      <artifactId>sqljdbc</artifactId>
+      <scope>test</scope>
+    </dependency-->
   </dependencies>
 
   <properties>
