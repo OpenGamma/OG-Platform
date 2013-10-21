@@ -21,7 +21,6 @@ import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.analytics.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.analytics.financial.instrument.swap.SwapDefinition;
 import com.opengamma.analytics.financial.interestrate.AnnuityAccrualDatesVisitor;
-import com.opengamma.analytics.financial.interestrate.AnnuityAccrualFractionsVisitor;
 import com.opengamma.analytics.financial.interestrate.AnnuityDiscountFactorsVisitor;
 import com.opengamma.analytics.financial.interestrate.AnnuityFixedRatesVisitor;
 import com.opengamma.analytics.financial.interestrate.AnnuityNotionalsVisitor;
@@ -134,14 +133,13 @@ public class SwapLegDetailFunction extends InterestRateInstrumentFunction {
       legDerivative = payFirstLeg ? derivative.getSecondLeg() : derivative.getFirstLeg();
     }
     if (isFixed) {
-      final Pair<LocalDate[], LocalDate[]> accrualDates = legDefinition.accept(AnnuityAccrualDatesVisitor.getInstance());
-      final double[] accrualFractions = legDerivative.accept(AnnuityAccrualFractionsVisitor.getInstance());
+      final Pair<LocalDate[], LocalDate[]> accrualDates = legDefinition.accept(AnnuityAccrualDatesVisitor.getInstance(), now.toLocalDate());
       final double[] discountFactors = legDerivative.accept(AnnuityDiscountFactorsVisitor.getInstance(), bundle);
       final double[] paymentTimes = legDerivative.accept(AnnuityPaymentTimesVisitor.getInstance());
       final double[] paymentFractions = legDerivative.accept(AnnuityPaymentFractionsVisitor.getInstance());
-      final CurrencyAmount[] notionals = legDefinition.accept(AnnuityNotionalsVisitor.getInstance());
+      final CurrencyAmount[] notionals = legDefinition.accept(AnnuityNotionalsVisitor.getInstance(), now.toLocalDate());
       final double[] fixedRates = legDerivative.accept(AnnuityFixedRatesVisitor.getInstance());
-      final FixedSwapLegDetails details = new FixedSwapLegDetails(accrualDates.getFirst(), accrualDates.getSecond(), accrualFractions, discountFactors, paymentTimes,
+      final FixedSwapLegDetails details = new FixedSwapLegDetails(accrualDates.getFirst(), accrualDates.getSecond(), discountFactors, paymentTimes,
           paymentFractions, notionals, fixedRates);
       final ValueSpecification spec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), desiredValue.getConstraints());
       return Collections.singleton(new ComputedValue(spec, details));

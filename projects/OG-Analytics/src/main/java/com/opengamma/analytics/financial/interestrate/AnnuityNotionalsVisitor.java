@@ -5,6 +5,11 @@
  */
 package com.opengamma.analytics.financial.interestrate;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.threeten.bp.LocalDate;
+
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitorAdapter;
 import com.opengamma.analytics.financial.instrument.annuity.AnnuityDefinition;
@@ -14,11 +19,11 @@ import com.opengamma.util.money.CurrencyAmount;
 /**
  *
  */
-public final class AnnuityNotionalsVisitor extends InstrumentDefinitionVisitorAdapter<Void, CurrencyAmount[]> {
+public final class AnnuityNotionalsVisitor extends InstrumentDefinitionVisitorAdapter<LocalDate, CurrencyAmount[]> {
   private static final InstrumentDefinitionVisitor<Void, CurrencyAmount> COUPON_VISITOR = new CouponNotionalVisitor();
-  private static final InstrumentDefinitionVisitor<Void, CurrencyAmount[]> INSTANCE = new AnnuityNotionalsVisitor();
+  private static final InstrumentDefinitionVisitor<LocalDate, CurrencyAmount[]> INSTANCE = new AnnuityNotionalsVisitor();
 
-  public static InstrumentDefinitionVisitor<Void, CurrencyAmount[]> getInstance() {
+  public static InstrumentDefinitionVisitor<LocalDate, CurrencyAmount[]> getInstance() {
     return INSTANCE;
   }
 
@@ -26,12 +31,14 @@ public final class AnnuityNotionalsVisitor extends InstrumentDefinitionVisitorAd
   }
 
   @Override
-  public CurrencyAmount[] visitAnnuityDefinition(final AnnuityDefinition<? extends PaymentDefinition> annuity) {
+  public CurrencyAmount[] visitAnnuityDefinition(final AnnuityDefinition<? extends PaymentDefinition> annuity, final LocalDate date) {
     final int n = annuity.getNumberOfPayments();
-    final CurrencyAmount[] ca = new CurrencyAmount[n];
+    final List<CurrencyAmount> ca = new ArrayList<>();
     for (int i = 0; i < n; i++) {
-      ca[i] = annuity.getNthPayment(i).accept(COUPON_VISITOR);
+      if (annuity.getNthPayment(i).getPaymentDate().toLocalDate().isAfter(date)) {
+        ca.add(annuity.getNthPayment(i).accept(COUPON_VISITOR));
+      }
     }
-    return ca;
+    return ca.toArray(new CurrencyAmount[ca.size()]);
   }
 }

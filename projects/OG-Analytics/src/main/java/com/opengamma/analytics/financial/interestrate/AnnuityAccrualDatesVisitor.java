@@ -5,6 +5,9 @@
  */
 package com.opengamma.analytics.financial.interestrate;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.threeten.bp.LocalDate;
 
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
@@ -17,11 +20,11 @@ import com.opengamma.util.tuple.Pairs;
 /**
  *
  */
-public final class AnnuityAccrualDatesVisitor extends InstrumentDefinitionVisitorAdapter<Void, Pair<LocalDate[], LocalDate[]>> {
+public final class AnnuityAccrualDatesVisitor extends InstrumentDefinitionVisitorAdapter<LocalDate, Pair<LocalDate[], LocalDate[]>> {
   private static final InstrumentDefinitionVisitor<Void, Pair<LocalDate, LocalDate>> COUPON_VISITOR = new CouponAccrualDatesVisitor();
-  private static final InstrumentDefinitionVisitor<Void, Pair<LocalDate[], LocalDate[]>> INSTANCE = new AnnuityAccrualDatesVisitor();
+  private static final InstrumentDefinitionVisitor<LocalDate, Pair<LocalDate[], LocalDate[]>> INSTANCE = new AnnuityAccrualDatesVisitor();
 
-  public static InstrumentDefinitionVisitor<Void, Pair<LocalDate[], LocalDate[]>> getInstance() {
+  public static InstrumentDefinitionVisitor<LocalDate, Pair<LocalDate[], LocalDate[]>> getInstance() {
     return INSTANCE;
   }
 
@@ -29,15 +32,20 @@ public final class AnnuityAccrualDatesVisitor extends InstrumentDefinitionVisito
   }
 
   @Override
-  public Pair<LocalDate[], LocalDate[]> visitAnnuityDefinition(final AnnuityDefinition<? extends PaymentDefinition> annuity) {
+  public Pair<LocalDate[], LocalDate[]> visitAnnuityDefinition(final AnnuityDefinition<? extends PaymentDefinition> annuity, final LocalDate date) {
     final int n = annuity.getNumberOfPayments();
-    final LocalDate[] startDates = new LocalDate[n];
-    final LocalDate[] endDates = new LocalDate[n];
+    final List<LocalDate> startDates = new ArrayList<>();
+    final List<LocalDate> endDates = new ArrayList<>();
+    int count = 0;
     for (int i = 0; i < n; i++) {
       final Pair<LocalDate, LocalDate> dates = annuity.getNthPayment(i).accept(COUPON_VISITOR);
-      startDates[i] = dates.getFirst();
-      endDates[i] = dates.getSecond();
+      if (annuity.getNthPayment(i).getPaymentDate().toLocalDate().isAfter(date)) {
+        startDates.add(dates.getFirst());
+        endDates.add(dates.getSecond());
+        count++;
+      }
     }
-    return Pairs.of(startDates, endDates);
+    return Pairs.of(startDates.toArray(new LocalDate[count]), endDates.toArray(new LocalDate[count]));
   }
+
 }

@@ -6,6 +6,8 @@
 package com.opengamma.analytics.financial.interestrate;
 
 import com.opengamma.analytics.financial.interestrate.annuity.derivative.Annuity;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponFixed;
+import com.opengamma.analytics.financial.interestrate.annuity.derivative.AnnuityCouponIborRatchet;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Payment;
 
 /**
@@ -32,13 +34,14 @@ public final class AnnuityAccrualFractionsVisitor extends InstrumentDerivativeVi
     return fractions;
   }
 
-//  @Override
-//  public double[] visitAnnuityCouponFixed(final AnnuityCouponFixed annuity) {
-//    final int n = annuity.getNumberOfPayments();
-//    final double[] fractions = new double[n];
-//    for (int i = 0; i < n; i++) {
-//      fractions[i] = annuity.getNthPayment(i).accept(COUPON_VISITOR);
-//    }
-//    return fractions;
-//  }
+  @Override
+  public double[] visitFixedCouponAnnuity(final AnnuityCouponFixed annuity) {
+    return visitGenericAnnuity(annuity);
+  }
+
+  @Override
+  public double[] visitAnnuityCouponIborRatchet(final AnnuityCouponIborRatchet annuity) {
+    return visitGenericAnnuity(annuity);
+  }
+
 }

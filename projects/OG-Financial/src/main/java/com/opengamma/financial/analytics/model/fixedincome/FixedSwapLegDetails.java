@@ -28,8 +28,8 @@ import com.opengamma.util.money.CurrencyAmount;
 /**
  * Container for the relevant details for pricing a fixed swap leg, with the entries
  * <p>
- * <li>Start accrual date</li>
- * <li>End accrual date</li>
+ * <li>Start coupon date</li>
+ * <li>End coupon date</li>
  * <li>Accrual year fraction</li>
  * <li>Payment time</li>
  * <li>Payment year fraction</li>
@@ -42,19 +42,14 @@ import com.opengamma.util.money.CurrencyAmount;
 @BeanDefinition
 public class FixedSwapLegDetails extends DirectBean implements Serializable {
   /**
-   * The start accrual dates label.
+   * The start coupon dates label.
    */
-  public static final String START_ACCRUAL_DATES = "Start Accrual Date";
+  public static final String START_PAYMENT_DATES = "Start Coupon Date";
 
   /**
-   * The end accrual dates label.
+   * The end coupon dates label.
    */
-  public static final String END_ACCRUAL_DATES = "End Accrual Date";
-
-  /**
-   * The accrual fraction label.
-   */
-  public static final String ACCRUAL_FRACTION = "Accrual Year Fraction";
+  public static final String END_PAYMENT_DATES = "End Coupon Date";
 
   /**
    * The payment time label.
@@ -85,22 +80,16 @@ public class FixedSwapLegDetails extends DirectBean implements Serializable {
   private static final long serialVersionUID = 1L;
 
   /**
-   * An array of accrual start dates.
+   * An array of coupon start dates.
    */
   @PropertyDefinition(validate = "notNull")
-  private LocalDate[] _startAccrualDates;
+  private LocalDate[] _startCouponDates;
 
   /**
-   * An array of accrual end dates.
+   * An array of coupon end dates.
    */
   @PropertyDefinition(validate = "notNull")
-  private LocalDate[] _endAccrualDates;
-
-  /**
-   * An array of accrual fractions.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private double[] _accrualFractions;
+  private LocalDate[] _endCouponDates;
 
   /**
    * An array of discount factors for the payments.
@@ -141,35 +130,33 @@ public class FixedSwapLegDetails extends DirectBean implements Serializable {
 
   /**
    * All arrays must be the same length
-   * @param startAccrualDates The start accrual dates, not null
-   * @param endAccrualDates The end accrual dates, not null
-   * @param accrualFractions The accrual fractions, not null
+   * @param startCouponDates The start coupon dates, not null
+   * @param endCouponDates The end coupon dates, not null
    * @param paymentTimes The payment times, not null
    * @param paymentFractions The payment year fractions, not null
    * @param discountFactors The discount factors, not null
    * @param notionals The notionals, not null
    * @param fixedRates The fixed rates, not null
    */
-  public FixedSwapLegDetails(final LocalDate[] startAccrualDates, final LocalDate[] endAccrualDates, final double[] accrualFractions,
+  public FixedSwapLegDetails(final LocalDate[] startCouponDates, final LocalDate[] endCouponDates,
       final double[] discountFactors, final double[] paymentTimes, final double[] paymentFractions, final CurrencyAmount[] notionals,
       final double[] fixedRates) {
-    final int n = startAccrualDates.length;
-    ArgumentChecker.isTrue(n == endAccrualDates.length, "Must have same number of start and end accrual dates");
-    ArgumentChecker.isTrue(n == accrualFractions.length, "Must have same number of start accrual dates and accrual fractions");
-    ArgumentChecker.isTrue(n == discountFactors.length, "Must have same number of start accrual dates and discount factors");
-    ArgumentChecker.isTrue(n == paymentTimes.length, "Must have same number of start accrual dates and payment times");
-    ArgumentChecker.isTrue(n == paymentFractions.length, "Must have same number of start accrual dates and payment year fractions");
-    ArgumentChecker.isTrue(n == notionals.length, "Must have same number of start accrual dates and notionals");
-    ArgumentChecker.isTrue(n == fixedRates.length, "Must have same number of start accrual dates and fixed rates");
-    setStartAccrualDates(startAccrualDates);
-    setEndAccrualDates(endAccrualDates);
-    setAccrualFractions(accrualFractions);
+    final int n = startCouponDates.length;
+    ArgumentChecker.isTrue(n == endCouponDates.length, "Must have same number of start and end coupon dates");
+    ArgumentChecker.isTrue(n == discountFactors.length, "Must have same number of start coupon dates and discount factors");
+    ArgumentChecker.isTrue(n == paymentTimes.length, "Must have same number of start coupon dates and payment times");
+    ArgumentChecker.isTrue(n == paymentFractions.length, "Must have same number of start coupon dates and payment year fractions");
+    ArgumentChecker.isTrue(n == notionals.length, "Must have same number of start coupon dates and notionals");
+    ArgumentChecker.isTrue(n == fixedRates.length, "Must have same number of start coupon dates and fixed rates");
+    setStartCouponDates(startCouponDates);
+    setEndCouponDates(endCouponDates);
     setDiscountFactors(discountFactors);
     setPaymentTimes(paymentTimes);
     setPaymentFractions(paymentFractions);
     setNotionals(notionals);
     setFixedRates(fixedRates);
   }
+
   //------------------------- AUTOGENERATED START -------------------------
   ///CLOVER:OFF
   /**
@@ -191,80 +178,54 @@ public class FixedSwapLegDetails extends DirectBean implements Serializable {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets an array of accrual start dates.
+   * Gets an array of coupon start dates.
    * @return the value of the property, not null
    */
-  public LocalDate[] getStartAccrualDates() {
-    return _startAccrualDates;
+  public LocalDate[] getStartCouponDates() {
+    return _startCouponDates;
   }
 
   /**
-   * Sets an array of accrual start dates.
-   * @param startAccrualDates  the new value of the property, not null
+   * Sets an array of coupon start dates.
+   * @param startCouponDates  the new value of the property, not null
    */
-  public void setStartAccrualDates(LocalDate[] startAccrualDates) {
-    JodaBeanUtils.notNull(startAccrualDates, "startAccrualDates");
-    this._startAccrualDates = startAccrualDates;
+  public void setStartCouponDates(LocalDate[] startCouponDates) {
+    JodaBeanUtils.notNull(startCouponDates, "startCouponDates");
+    this._startCouponDates = startCouponDates;
   }
 
   /**
-   * Gets the the {@code startAccrualDates} property.
+   * Gets the the {@code startCouponDates} property.
    * @return the property, not null
    */
-  public final Property<LocalDate[]> startAccrualDates() {
-    return metaBean().startAccrualDates().createProperty(this);
+  public final Property<LocalDate[]> startCouponDates() {
+    return metaBean().startCouponDates().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets an array of accrual end dates.
+   * Gets an array of coupon end dates.
    * @return the value of the property, not null
    */
-  public LocalDate[] getEndAccrualDates() {
-    return _endAccrualDates;
+  public LocalDate[] getEndCouponDates() {
+    return _endCouponDates;
   }
 
   /**
-   * Sets an array of accrual end dates.
-   * @param endAccrualDates  the new value of the property, not null
+   * Sets an array of coupon end dates.
+   * @param endCouponDates  the new value of the property, not null
    */
-  public void setEndAccrualDates(LocalDate[] endAccrualDates) {
-    JodaBeanUtils.notNull(endAccrualDates, "endAccrualDates");
-    this._endAccrualDates = endAccrualDates;
+  public void setEndCouponDates(LocalDate[] endCouponDates) {
+    JodaBeanUtils.notNull(endCouponDates, "endCouponDates");
+    this._endCouponDates = endCouponDates;
   }
 
   /**
-   * Gets the the {@code endAccrualDates} property.
+   * Gets the the {@code endCouponDates} property.
    * @return the property, not null
    */
-  public final Property<LocalDate[]> endAccrualDates() {
-    return metaBean().endAccrualDates().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets an array of accrual fractions.
-   * @return the value of the property, not null
-   */
-  public double[] getAccrualFractions() {
-    return (_accrualFractions != null ? _accrualFractions.clone() : null);
-  }
-
-  /**
-   * Sets an array of accrual fractions.
-   * @param accrualFractions  the new value of the property, not null
-   */
-  public void setAccrualFractions(double[] accrualFractions) {
-    JodaBeanUtils.notNull(accrualFractions, "accrualFractions");
-    this._accrualFractions = accrualFractions;
-  }
-
-  /**
-   * Gets the the {@code accrualFractions} property.
-   * @return the property, not null
-   */
-  public final Property<double[]> accrualFractions() {
-    return metaBean().accrualFractions().createProperty(this);
+  public final Property<LocalDate[]> endCouponDates() {
+    return metaBean().endCouponDates().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -420,9 +381,8 @@ public class FixedSwapLegDetails extends DirectBean implements Serializable {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       FixedSwapLegDetails other = (FixedSwapLegDetails) obj;
-      return JodaBeanUtils.equal(getStartAccrualDates(), other.getStartAccrualDates()) &&
-          JodaBeanUtils.equal(getEndAccrualDates(), other.getEndAccrualDates()) &&
-          JodaBeanUtils.equal(getAccrualFractions(), other.getAccrualFractions()) &&
+      return JodaBeanUtils.equal(getStartCouponDates(), other.getStartCouponDates()) &&
+          JodaBeanUtils.equal(getEndCouponDates(), other.getEndCouponDates()) &&
           JodaBeanUtils.equal(getDiscountFactors(), other.getDiscountFactors()) &&
           JodaBeanUtils.equal(getPaymentTimes(), other.getPaymentTimes()) &&
           JodaBeanUtils.equal(getPaymentFractions(), other.getPaymentFractions()) &&
@@ -435,9 +395,8 @@ public class FixedSwapLegDetails extends DirectBean implements Serializable {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getStartAccrualDates());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getEndAccrualDates());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAccrualFractions());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getStartCouponDates());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getEndCouponDates());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDiscountFactors());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentTimes());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentFractions());
@@ -448,7 +407,7 @@ public class FixedSwapLegDetails extends DirectBean implements Serializable {
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(288);
+    StringBuilder buf = new StringBuilder(256);
     buf.append("FixedSwapLegDetails{");
     int len = buf.length();
     toString(buf);
@@ -460,9 +419,8 @@ public class FixedSwapLegDetails extends DirectBean implements Serializable {
   }
 
   protected void toString(StringBuilder buf) {
-    buf.append("startAccrualDates").append('=').append(JodaBeanUtils.toString(getStartAccrualDates())).append(',').append(' ');
-    buf.append("endAccrualDates").append('=').append(JodaBeanUtils.toString(getEndAccrualDates())).append(',').append(' ');
-    buf.append("accrualFractions").append('=').append(JodaBeanUtils.toString(getAccrualFractions())).append(',').append(' ');
+    buf.append("startCouponDates").append('=').append(JodaBeanUtils.toString(getStartCouponDates())).append(',').append(' ');
+    buf.append("endCouponDates").append('=').append(JodaBeanUtils.toString(getEndCouponDates())).append(',').append(' ');
     buf.append("discountFactors").append('=').append(JodaBeanUtils.toString(getDiscountFactors())).append(',').append(' ');
     buf.append("paymentTimes").append('=').append(JodaBeanUtils.toString(getPaymentTimes())).append(',').append(' ');
     buf.append("paymentFractions").append('=').append(JodaBeanUtils.toString(getPaymentFractions())).append(',').append(' ');
@@ -481,20 +439,15 @@ public class FixedSwapLegDetails extends DirectBean implements Serializable {
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code startAccrualDates} property.
+     * The meta-property for the {@code startCouponDates} property.
      */
-    private final MetaProperty<LocalDate[]> _startAccrualDates = DirectMetaProperty.ofReadWrite(
-        this, "startAccrualDates", FixedSwapLegDetails.class, LocalDate[].class);
+    private final MetaProperty<LocalDate[]> _startCouponDates = DirectMetaProperty.ofReadWrite(
+        this, "startCouponDates", FixedSwapLegDetails.class, LocalDate[].class);
     /**
-     * The meta-property for the {@code endAccrualDates} property.
+     * The meta-property for the {@code endCouponDates} property.
      */
-    private final MetaProperty<LocalDate[]> _endAccrualDates = DirectMetaProperty.ofReadWrite(
-        this, "endAccrualDates", FixedSwapLegDetails.class, LocalDate[].class);
-    /**
-     * The meta-property for the {@code accrualFractions} property.
-     */
-    private final MetaProperty<double[]> _accrualFractions = DirectMetaProperty.ofReadWrite(
-        this, "accrualFractions", FixedSwapLegDetails.class, double[].class);
+    private final MetaProperty<LocalDate[]> _endCouponDates = DirectMetaProperty.ofReadWrite(
+        this, "endCouponDates", FixedSwapLegDetails.class, LocalDate[].class);
     /**
      * The meta-property for the {@code discountFactors} property.
      */
@@ -525,9 +478,8 @@ public class FixedSwapLegDetails extends DirectBean implements Serializable {
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
-        "startAccrualDates",
-        "endAccrualDates",
-        "accrualFractions",
+        "startCouponDates",
+        "endCouponDates",
         "discountFactors",
         "paymentTimes",
         "paymentFractions",
@@ -543,12 +495,10 @@ public class FixedSwapLegDetails extends DirectBean implements Serializable {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 1870068632:  // startAccrualDates
-          return _startAccrualDates;
-        case -187313519:  // endAccrualDates
-          return _endAccrualDates;
-        case 1288547778:  // accrualFractions
-          return _accrualFractions;
+        case 482744381:  // startCouponDates
+          return _startCouponDates;
+        case 1663303204:  // endCouponDates
+          return _endCouponDates;
         case -91613053:  // discountFactors
           return _discountFactors;
         case -507430688:  // paymentTimes
@@ -580,27 +530,19 @@ public class FixedSwapLegDetails extends DirectBean implements Serializable {
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code startAccrualDates} property.
+     * The meta-property for the {@code startCouponDates} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<LocalDate[]> startAccrualDates() {
-      return _startAccrualDates;
+    public final MetaProperty<LocalDate[]> startCouponDates() {
+      return _startCouponDates;
     }
 
     /**
-     * The meta-property for the {@code endAccrualDates} property.
+     * The meta-property for the {@code endCouponDates} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<LocalDate[]> endAccrualDates() {
-      return _endAccrualDates;
-    }
-
-    /**
-     * The meta-property for the {@code accrualFractions} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<double[]> accrualFractions() {
-      return _accrualFractions;
+    public final MetaProperty<LocalDate[]> endCouponDates() {
+      return _endCouponDates;
     }
 
     /**
@@ -647,12 +589,10 @@ public class FixedSwapLegDetails extends DirectBean implements Serializable {
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 1870068632:  // startAccrualDates
-          return ((FixedSwapLegDetails) bean).getStartAccrualDates();
-        case -187313519:  // endAccrualDates
-          return ((FixedSwapLegDetails) bean).getEndAccrualDates();
-        case 1288547778:  // accrualFractions
-          return ((FixedSwapLegDetails) bean).getAccrualFractions();
+        case 482744381:  // startCouponDates
+          return ((FixedSwapLegDetails) bean).getStartCouponDates();
+        case 1663303204:  // endCouponDates
+          return ((FixedSwapLegDetails) bean).getEndCouponDates();
         case -91613053:  // discountFactors
           return ((FixedSwapLegDetails) bean).getDiscountFactors();
         case -507430688:  // paymentTimes
@@ -670,14 +610,11 @@ public class FixedSwapLegDetails extends DirectBean implements Serializable {
     @Override
     protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
-        case 1870068632:  // startAccrualDates
-          ((FixedSwapLegDetails) bean).setStartAccrualDates((LocalDate[]) newValue);
+        case 482744381:  // startCouponDates
+          ((FixedSwapLegDetails) bean).setStartCouponDates((LocalDate[]) newValue);
           return;
-        case -187313519:  // endAccrualDates
-          ((FixedSwapLegDetails) bean).setEndAccrualDates((LocalDate[]) newValue);
-          return;
-        case 1288547778:  // accrualFractions
-          ((FixedSwapLegDetails) bean).setAccrualFractions((double[]) newValue);
+        case 1663303204:  // endCouponDates
+          ((FixedSwapLegDetails) bean).setEndCouponDates((LocalDate[]) newValue);
           return;
         case -91613053:  // discountFactors
           ((FixedSwapLegDetails) bean).setDiscountFactors((double[]) newValue);
@@ -700,9 +637,8 @@ public class FixedSwapLegDetails extends DirectBean implements Serializable {
 
     @Override
     protected void validate(Bean bean) {
-      JodaBeanUtils.notNull(((FixedSwapLegDetails) bean)._startAccrualDates, "startAccrualDates");
-      JodaBeanUtils.notNull(((FixedSwapLegDetails) bean)._endAccrualDates, "endAccrualDates");
-      JodaBeanUtils.notNull(((FixedSwapLegDetails) bean)._accrualFractions, "accrualFractions");
+      JodaBeanUtils.notNull(((FixedSwapLegDetails) bean)._startCouponDates, "startCouponDates");
+      JodaBeanUtils.notNull(((FixedSwapLegDetails) bean)._endCouponDates, "endCouponDates");
       JodaBeanUtils.notNull(((FixedSwapLegDetails) bean)._discountFactors, "discountFactors");
       JodaBeanUtils.notNull(((FixedSwapLegDetails) bean)._paymentTimes, "paymentTimes");
       JodaBeanUtils.notNull(((FixedSwapLegDetails) bean)._paymentFractions, "paymentFractions");
