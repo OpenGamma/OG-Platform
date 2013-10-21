@@ -50,6 +50,8 @@ public final class Interpolator1DFactory {
   public static final String FLAT_EXTRAPOLATOR = "FlatExtrapolator";
   /** Linear extrapolator */
   public static final String LINEAR_EXTRAPOLATOR = "LinearExtrapolator";
+  /** Log-linear extrapolator */
+  public static final String LOG_LINEAR_EXTRAPOLATOR = "LogLinearExtrapolator";
   /** Linear extrapolator */
   public static final String EXPONENTIAL_EXTRAPOLATOR = "ExponentialExtrapolator";
   /** ISDA interpolator */
@@ -311,6 +313,9 @@ public final class Interpolator1DFactory {
     // Barycentric, Polynomial, and RationalFunction.
     if (interpolator instanceof LinearExtrapolator1D) {
       return LINEAR_EXTRAPOLATOR;
+    }
+    if (interpolator instanceof LogLinearExtrapolator1D) {
+      return LOG_LINEAR_EXTRAPOLATOR;
     }
     return interpolatorName;
   }
