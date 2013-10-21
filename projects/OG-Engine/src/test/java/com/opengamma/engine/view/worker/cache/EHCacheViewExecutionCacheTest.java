@@ -67,7 +67,7 @@ import com.opengamma.util.test.TestGroup;
 /**
  * Tests the {@link EHCacheViewExecutionCache} class.
  */
-@Test(groups = TestGroup.UNIT_DB)
+@Test(groups = TestGroup.UNIT)
 public class EHCacheViewExecutionCacheTest {
 
   private CacheManager _cacheManager;
