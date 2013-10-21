@@ -19,7 +19,6 @@ import com.opengamma.financial.convention.businessday.BusinessDayConventionFacto
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.Frequency;
-import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -86,12 +85,6 @@ public class AUConventions {
         tullettPrebonSecurityId("ASLIBAUD11L")), "AUD LIBOR 11m", act365, following, Period.ofMonths(11), 2, false, au);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("AU0012M Index"), simpleNameSecurityId("AUD LIBOR 12m"),
         tullettPrebonSecurityId("ASLIBAUD12L")), "AUD LIBOR 12m", act365, following, Period.ofMonths(12), 2, false, au);
-
-    // domestic BBSW ibor
-    utils.addConventionBundle(ExternalIdBundle.of(FloatingIndex.AUD_BBR_BBSW.toFrequencySpecificExternalId(
-        SimpleFrequency.QUARTERLY)), "AUD IBOR 3m", act365, following, Period.ofMonths(3), 2, false, au);
-    utils.addConventionBundle(ExternalIdBundle.of(FloatingIndex.AUD_BBR_BBSW.toFrequencySpecificExternalId(
-        SimpleFrequency.SEMI_ANNUAL)), "AUD IBOR 6m", act365, following, Period.ofMonths(6), 2, false, au);
 
     //TODO need to check that these are right for deposit rates
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("ADDR1T Curncy"), simpleNameSecurityId("AUD DEPOSIT 1d")), "AUD DEPOSIT 1d", act365,

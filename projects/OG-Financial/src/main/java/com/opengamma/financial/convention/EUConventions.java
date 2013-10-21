@@ -18,7 +18,6 @@ import com.opengamma.financial.convention.businessday.BusinessDayConventionFacto
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.Frequency;
-import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -96,49 +95,49 @@ public class EUConventions {
         "EUR LIBOR 12m", act360, modified, Period.ofMonths(12), 2, false, eu);
     // EURIBOR
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("EUR001W Index"), simpleNameSecurityId("EURIBOR 1w"),
-        tullettPrebonSecurityId("ASLIBEUR1WL"), FloatingIndex.EUR_EURIBOR_REUTERS.toFrequencySpecificExternalId(PeriodFrequency.WEEKLY)),
+        tullettPrebonSecurityId("ASLIBEUR1WL")),
         "EURIBOR 1w", act360, following, Period.ofDays(7), 2, false, eu);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("EUR002W Index"), simpleNameSecurityId("EURIBOR 2w"),
-        tullettPrebonSecurityId("ASLIBEUR2WL"), FloatingIndex.EUR_EURIBOR_REUTERS.toFrequencySpecificExternalId(PeriodFrequency.BIMONTHLY)),
+        tullettPrebonSecurityId("ASLIBEUR2WL")),
         "EURIBOR 2w", act360, following, Period.ofDays(14), 2, false, eu);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("EUR003W Index"), simpleNameSecurityId("EURIBOR 3w"),
-        tullettPrebonSecurityId("ASLIBEUR3WL"), FloatingIndex.EUR_EURIBOR_REUTERS.toFrequencySpecificExternalId(PeriodFrequency.THREE_WEEKS)),
+        tullettPrebonSecurityId("ASLIBEUR3WL")),
         "EURIBOR 3w", act360, following, Period.ofDays(21), 2, false, eu);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("EUR001M Index"), simpleNameSecurityId("EURIBOR 1m"),
-        tullettPrebonSecurityId("ASLIBEUR01L"), FloatingIndex.EUR_EURIBOR_REUTERS.toFrequencySpecificExternalId(PeriodFrequency.MONTHLY)),
+        tullettPrebonSecurityId("ASLIBEUR01L")),
         "EURIBOR 1m", act360, modified, Period.ofMonths(1), 2, false, eu);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("EUR002M Index"), simpleNameSecurityId("EURIBOR 2m"),
-        tullettPrebonSecurityId("ASLIBEUR02L"), FloatingIndex.EUR_EURIBOR_REUTERS.toFrequencySpecificExternalId(PeriodFrequency.BIMONTHLY)),
+        tullettPrebonSecurityId("ASLIBEUR02L")),
         "EURIBOR 2m", act360, modified, Period.ofMonths(2), 2, false, eu);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("EUR003M Index"), ExternalSchemes.ricSecurityId("EURIBOR3MD="),
-            simpleNameSecurityId("EURIBOR 3m"), tullettPrebonSecurityId("ASLIBEUR03L"), FloatingIndex.EUR_EURIBOR_REUTERS.toFrequencySpecificExternalId(PeriodFrequency.QUARTERLY)),
+            simpleNameSecurityId("EURIBOR 3m"), tullettPrebonSecurityId("ASLIBEUR03L")),
             "EURIBOR 3m", act360, modified, Period.ofMonths(3), 2, false, eu);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("EUR004M Index"), simpleNameSecurityId("EURIBOR 4m"),
-        tullettPrebonSecurityId("ASLIBEUR04L"), FloatingIndex.EUR_EURIBOR_REUTERS.toFrequencySpecificExternalId(PeriodFrequency.FOUR_MONTHS)),
+        tullettPrebonSecurityId("ASLIBEUR04L")),
         "EURIBOR 4m", act360, modified, Period.ofMonths(4), 2, false, eu);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("EUR005M Index"), simpleNameSecurityId("EURIBOR 5m"),
-        tullettPrebonSecurityId("ASLIBEUR05L"), FloatingIndex.EUR_EURIBOR_REUTERS.toFrequencySpecificExternalId(PeriodFrequency.FIVE_MONTHS)),
+        tullettPrebonSecurityId("ASLIBEUR05L")),
         "EURIBOR 5m", act360, modified, Period.ofMonths(5), 2, false, eu);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("EUR006M Index"), ExternalSchemes.ricSecurityId("EURIBOR6MD="),
-            simpleNameSecurityId("EURIBOR 6m"), tullettPrebonSecurityId("ASLIBEUR06L"), FloatingIndex.EUR_EURIBOR_REUTERS.toFrequencySpecificExternalId(PeriodFrequency.SEMI_ANNUAL)),
+            simpleNameSecurityId("EURIBOR 6m"), tullettPrebonSecurityId("ASLIBEUR06L")),
             "EURIBOR 6m", act360, modified, Period.ofMonths(6), 2, false, eu);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("EUR007M Index"), simpleNameSecurityId("EURIBOR 7m"),
-        tullettPrebonSecurityId("ASLIBEUR07L"), FloatingIndex.EUR_EURIBOR_REUTERS.toFrequencySpecificExternalId(PeriodFrequency.SEVEN_MONTHS)),
+        tullettPrebonSecurityId("ASLIBEUR07L")),
         "EURIBOR 7m", act360, modified, Period.ofMonths(7), 2, false, eu);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("EUR008M Index"), simpleNameSecurityId("EURIBOR 8m"),
-        tullettPrebonSecurityId("ASLIBEUR08L"), FloatingIndex.EUR_EURIBOR_REUTERS.toFrequencySpecificExternalId(PeriodFrequency.EIGHT_MONTHS)),
+        tullettPrebonSecurityId("ASLIBEUR08L")),
         "EURIBOR 8m", act360, modified, Period.ofMonths(8), 2, false, eu);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("EUR009M Index"), simpleNameSecurityId("EURIBOR 9m"),
-        tullettPrebonSecurityId("ASLIBEUR09L"), FloatingIndex.EUR_EURIBOR_REUTERS.toFrequencySpecificExternalId(PeriodFrequency.NINE_MONTHS)),
+        tullettPrebonSecurityId("ASLIBEUR09L")),
         "EURIBOR 9m", act360, modified, Period.ofMonths(9), 2, false, eu);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("EUR010M Index"), simpleNameSecurityId("EURIBOR 10m"),
-        tullettPrebonSecurityId("ASLIBEUR10L"), FloatingIndex.EUR_EURIBOR_REUTERS.toFrequencySpecificExternalId(PeriodFrequency.TEN_MONTHS)),
+        tullettPrebonSecurityId("ASLIBEUR10L")),
         "EURIBOR 10m", act360, modified, Period.ofMonths(10), 2, false, eu);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("EUR011M Index"), simpleNameSecurityId("EURIBOR 11m"),
-        tullettPrebonSecurityId("ASLIBEUR11L"), FloatingIndex.EUR_EURIBOR_REUTERS.toFrequencySpecificExternalId(PeriodFrequency.ELEVEN_MONTHS)),
+        tullettPrebonSecurityId("ASLIBEUR11L")),
         "EURIBOR 11m", act360, modified, Period.ofMonths(11), 2, false, eu);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("EUR012M Index"), simpleNameSecurityId("EURIBOR 12m"),
-        tullettPrebonSecurityId("ASLIBEUR12L"), FloatingIndex.EUR_EURIBOR_REUTERS.toFrequencySpecificExternalId(PeriodFrequency.ANNUAL)),
+        tullettPrebonSecurityId("ASLIBEUR12L")),
         "EURIBOR 12m", act360, modified, Period.ofMonths(12), 2, false, eu);
 
     // Deposit
