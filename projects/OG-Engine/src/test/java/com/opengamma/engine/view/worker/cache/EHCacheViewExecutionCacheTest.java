@@ -164,6 +164,7 @@ public class EHCacheViewExecutionCacheTest {
     return new EHCacheViewExecutionCache(_cacheManager, configSource, functions);
   }
 
+  @Test(enabled = false)
   public void testCompiledViewDefinitionWithGraphs_serialization() throws Exception {
     final EHCacheViewExecutionCache cache = createCache();
     final CompiledViewDefinitionWithGraphs object = createCompiledViewDefinitionWithGraphs();
