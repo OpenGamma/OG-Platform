@@ -345,12 +345,12 @@ public final class ForexOptionVanillaBlackTermStructureMethod implements ForexPr
     // Sensitivity object
     final double factor = Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency1().getAmount()) * (optionForex.isLong() ? 1.0 : -1.0);
     final List<DoublesPair> listForeign = new ArrayList<>();
-    listForeign.add(new DoublesPair(payTime, rForeignBar * factor));
+    listForeign.add(DoublesPair.of(payTime, rForeignBar * factor));
     final Map<String, List<DoublesPair>> resultForeignMap = new HashMap<>();
     resultForeignMap.put(foreignCurveName, listForeign);
     InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultForeignMap);
     final List<DoublesPair> listDomestic = new ArrayList<>();
-    listDomestic.add(new DoublesPair(payTime, rDomesticBar * factor));
+    listDomestic.add(DoublesPair.of(payTime, rDomesticBar * factor));
     final Map<String, List<DoublesPair>> resultDomesticMap = new HashMap<>();
     resultDomesticMap.put(domesticCurveName, listDomestic);
     result = result.plus(new InterestRateCurveSensitivity(resultDomesticMap));

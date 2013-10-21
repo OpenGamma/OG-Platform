@@ -211,10 +211,6 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     return _versionCorrection;
   }
 
-  private ViewCycleExecutionOptions getExecutionOptions() {
-    return _executionOptions;
-  }
-
   protected ExecutionLogModeSource getLogModeSource() {
     return _viewProcessContext.getExecutionLogModeSource();
   }
@@ -242,6 +238,11 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       return null;
     }
     return Duration.between(getStartTime(), getEndTime() == null ? Instant.now() : getEndTime());
+  }
+  
+  @Override
+  public ViewCycleExecutionOptions getExecutionOptions() {
+    return _executionOptions;
   }
 
   @Override

@@ -5,6 +5,11 @@
  */
 package com.opengamma.integration.marketdata.manipulator.dsl;
 
+import groovy.lang.Binding;
+import groovy.lang.GroovyShell;
+import groovy.lang.Script;
+import groovy.transform.TimedInterrupt;
+
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -24,11 +29,6 @@ import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-
-import groovy.lang.Binding;
-import groovy.lang.GroovyShell;
-import groovy.lang.Script;
-import groovy.transform.TimedInterrupt;
 
 /**
  * Utilities for creating and running {@link Simulation}s and {@link Scenario}s.

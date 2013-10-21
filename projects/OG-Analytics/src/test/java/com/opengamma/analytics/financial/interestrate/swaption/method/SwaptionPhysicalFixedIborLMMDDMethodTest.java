@@ -407,7 +407,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
 
     // SABR parameters sensitivity (all-in-one)
     for (final SwaptionPhysicalFixedIbor element : swaptionCalibration) {
-      final DoublesPair expiryMaturity = new DoublesPair(element.getTimeToExpiry(), element.getMaturityTime());
+      final DoublesPair expiryMaturity = DoublesPair.of(element.getTimeToExpiry(), element.getMaturityTime());
       assertEquals("Sensitivity swaption pv to alpha", pvss1.getAlpha().getMap().get(expiryMaturity), pvss.getAlpha().getMap().get(expiryMaturity), 1E-2);
       assertEquals("Sensitivity swaption pv to rho", pvss1.getRho().getMap().get(expiryMaturity), pvss.getRho().getMap().get(expiryMaturity), 1E-2);
       assertEquals("Sensitivity swaption pv to nu", pvss1.getNu().getMap().get(expiryMaturity), pvss.getNu().getMap().get(expiryMaturity), 1E-2);
@@ -425,7 +425,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
     double alphaVegaTotalComputed = 0.0;
     assertEquals("Number of alpha sensitivity", pvss.getAlpha().getMap().keySet().size(), swaptionCalibration.length);
     for (final SwaptionPhysicalFixedIbor element : swaptionCalibration) {
-      final DoublesPair expiryMaturity = new DoublesPair(element.getTimeToExpiry(), element.getMaturityTime());
+      final DoublesPair expiryMaturity = DoublesPair.of(element.getTimeToExpiry(), element.getMaturityTime());
       alphaVegaTotalComputed += pvss.getAlpha().getMap().get(expiryMaturity);
     }
     final double shiftAlpha = 0.00001;
@@ -439,7 +439,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
     double rhoVegaTotalComputed = 0.0;
     assertEquals("Number of alpha sensitivity", pvss.getRho().getMap().keySet().size(), swaptionCalibration.length);
     for (final SwaptionPhysicalFixedIbor element : swaptionCalibration) {
-      final DoublesPair expiryMaturity = new DoublesPair(element.getTimeToExpiry(), element.getMaturityTime());
+      final DoublesPair expiryMaturity = DoublesPair.of(element.getTimeToExpiry(), element.getMaturityTime());
       rhoVegaTotalComputed += pvss.getRho().getMap().get(expiryMaturity);
     }
     final double shiftRho = 0.00001;
@@ -453,7 +453,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
     double nuVegaTotalComputed = 0.0;
     assertEquals("Number of alpha sensitivity", pvss.getNu().getMap().keySet().size(), swaptionCalibration.length);
     for (final SwaptionPhysicalFixedIbor element : swaptionCalibration) {
-      final DoublesPair expiryMaturity = new DoublesPair(element.getTimeToExpiry(), element.getMaturityTime());
+      final DoublesPair expiryMaturity = DoublesPair.of(element.getTimeToExpiry(), element.getMaturityTime());
       nuVegaTotalComputed += pvss.getNu().getMap().get(expiryMaturity);
     }
     final double shiftNu = 0.00001;

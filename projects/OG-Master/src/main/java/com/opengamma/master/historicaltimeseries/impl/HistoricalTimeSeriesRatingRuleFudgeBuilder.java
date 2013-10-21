@@ -48,7 +48,7 @@ public class HistoricalTimeSeriesRatingRuleFudgeBuilder implements FudgeBuilder<
     if (rating == null) {
       throw new IllegalArgumentException("Fudge message is not a HistoricalTimeSeriesRatingRule - field 'rating' is not present");
     }
-    return new HistoricalTimeSeriesRatingRule(fieldName, fieldValue, rating);
+    return HistoricalTimeSeriesRatingRule.of(fieldName, fieldValue, rating);
   }
 
 }

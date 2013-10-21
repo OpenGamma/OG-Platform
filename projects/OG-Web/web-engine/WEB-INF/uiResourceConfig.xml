@@ -373,6 +373,7 @@
     <fragment>/scripts/og/common/og.common.timeseries_data.js</fragment>
     <fragment>/scripts/og/common/og.common.timeseries.js</fragment>
     <fragment>/scripts/og/common/og.common.user.js</fragment>
+    <fragment>/scripts/og/common/og.common.error.js</fragment>
   </bundle>
   <bundle id="gadgets.js">
     <fragment>/scripts/og/common/gadgets/og.common.gadgets.manager.js</fragment>
@@ -412,7 +413,7 @@
     <fragment>/scripts/og/analytics/og.analytics.form.filtersmenu.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.form.dropmenu.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.status.js</fragment>
-    <fragment>/scripts/og/analytics/og.analytics.form2.js</fragment>
+    <fragment>/scripts/og/analytics/og.analytics.form.js</fragment>
     <fragment>/scripts/og/analytics/og.analytics.containers.js</fragment>
   </bundle>
   <bundle id="blotter.js">

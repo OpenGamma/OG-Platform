@@ -5,13 +5,11 @@
  */
 package com.opengamma.master.orgs;
 
-import com.opengamma.id.ObjectId;
-import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.master.AbstractDocument;
-import com.opengamma.master.AbstractSearchRequest;
-import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.PublicSPI;
-import com.opengamma.util.RegexUtils;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -22,9 +20,13 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.ObjectIdentifiable;
+import com.opengamma.master.AbstractDocument;
+import com.opengamma.master.AbstractSearchRequest;
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PublicSPI;
+import com.opengamma.util.RegexUtils;
 
 /**
  * Request for searching for organizations.
@@ -145,67 +147,6 @@ public class OrganizationSearchRequest extends AbstractSearchRequest {
     return OrganizationSearchRequest.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1296014086:  // organizationObjectIds
-        return getOrganizationObjectIds();
-      case 896190372:  // obligorTicker
-        return getObligorTicker();
-      case -1066272179:  // obligorShortName
-        return getObligorShortName();
-      case -823370556:  // obligorREDCode
-        return getObligorREDCode();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @SuppressWarnings("unchecked")
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1296014086:  // organizationObjectIds
-        setOrganizationObjectIds((List<ObjectId>) newValue);
-        return;
-      case 896190372:  // obligorTicker
-        setObligorTicker((String) newValue);
-        return;
-      case -1066272179:  // obligorShortName
-        setObligorShortName((String) newValue);
-        return;
-      case -823370556:  // obligorREDCode
-        setObligorREDCode((String) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      OrganizationSearchRequest other = (OrganizationSearchRequest) obj;
-      return JodaBeanUtils.equal(getOrganizationObjectIds(), other.getOrganizationObjectIds()) &&
-          JodaBeanUtils.equal(getObligorTicker(), other.getObligorTicker()) &&
-          JodaBeanUtils.equal(getObligorShortName(), other.getObligorShortName()) &&
-          JodaBeanUtils.equal(getObligorREDCode(), other.getObligorREDCode()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getOrganizationObjectIds());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getObligorTicker());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getObligorShortName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getObligorREDCode());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the set of organization object identifiers, null to not limit by organization object identifiers.
@@ -298,6 +239,60 @@ public class OrganizationSearchRequest extends AbstractSearchRequest {
    */
   public final Property<String> obligorREDCode() {
     return metaBean().obligorREDCode().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public OrganizationSearchRequest clone() {
+    return (OrganizationSearchRequest) super.clone();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      OrganizationSearchRequest other = (OrganizationSearchRequest) obj;
+      return JodaBeanUtils.equal(getOrganizationObjectIds(), other.getOrganizationObjectIds()) &&
+          JodaBeanUtils.equal(getObligorTicker(), other.getObligorTicker()) &&
+          JodaBeanUtils.equal(getObligorShortName(), other.getObligorShortName()) &&
+          JodaBeanUtils.equal(getObligorREDCode(), other.getObligorREDCode()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getOrganizationObjectIds());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getObligorTicker());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getObligorShortName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getObligorREDCode());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(160);
+    buf.append("OrganizationSearchRequest{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("organizationObjectIds").append('=').append(JodaBeanUtils.toString(getOrganizationObjectIds())).append(',').append(' ');
+    buf.append("obligorTicker").append('=').append(JodaBeanUtils.toString(getObligorTicker())).append(',').append(' ');
+    buf.append("obligorShortName").append('=').append(JodaBeanUtils.toString(getObligorShortName())).append(',').append(' ');
+    buf.append("obligorREDCode").append('=').append(JodaBeanUtils.toString(getObligorREDCode())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -408,6 +403,42 @@ public class OrganizationSearchRequest extends AbstractSearchRequest {
      */
     public final MetaProperty<String> obligorREDCode() {
       return _obligorREDCode;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1296014086:  // organizationObjectIds
+          return ((OrganizationSearchRequest) bean).getOrganizationObjectIds();
+        case 896190372:  // obligorTicker
+          return ((OrganizationSearchRequest) bean).getObligorTicker();
+        case -1066272179:  // obligorShortName
+          return ((OrganizationSearchRequest) bean).getObligorShortName();
+        case -823370556:  // obligorREDCode
+          return ((OrganizationSearchRequest) bean).getObligorREDCode();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1296014086:  // organizationObjectIds
+          ((OrganizationSearchRequest) bean).setOrganizationObjectIds((List<ObjectId>) newValue);
+          return;
+        case 896190372:  // obligorTicker
+          ((OrganizationSearchRequest) bean).setObligorTicker((String) newValue);
+          return;
+        case -1066272179:  // obligorShortName
+          ((OrganizationSearchRequest) bean).setObligorShortName((String) newValue);
+          return;
+        case -823370556:  // obligorREDCode
+          ((OrganizationSearchRequest) bean).setObligorREDCode((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

@@ -25,6 +25,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 import com.opengamma.web.analytics.formatting.TypeFormatter;
 
 /**
@@ -133,7 +134,7 @@ public class DependencyGraphGridStructure implements GridStructure {
     } else {
       state = Viewport.State.FRESH_DATA;
     }
-    return Pair.of(newResults, state);
+    return Pairs.of(newResults, state);
   }
 
   /**
@@ -193,7 +194,7 @@ public class DependencyGraphGridStructure implements GridStructure {
       return null;
     }
     ValueSpecification valueSpec = _valueSpecs.get(row);
-    return valueSpec != null ? Pair.of(_calcConfigName, valueSpec) : null;
+    return valueSpec != null ? Pairs.of(_calcConfigName, valueSpec) : null;
   }
 
   /**

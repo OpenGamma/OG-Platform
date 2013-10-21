@@ -5,10 +5,10 @@
  */
 package com.opengamma.engine.value;
 
+import com.opengamma.core.position.Position;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.function.TargetSourcingFunction;
-import com.opengamma.core.position.Position;
 
 /**
  * Standard names used to refer to particular computed values.

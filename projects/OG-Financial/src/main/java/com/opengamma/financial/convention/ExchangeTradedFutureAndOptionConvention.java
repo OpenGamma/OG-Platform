@@ -7,6 +7,7 @@ package com.opengamma.financial.convention;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -80,59 +81,6 @@ public class ExchangeTradedFutureAndOptionConvention extends Convention {
     return ExchangeTradedFutureAndOptionConvention.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 2143523076:  // expiryConvention
-        return getExpiryConvention();
-      case 29366913:  // exchangeCalendar
-        return getExchangeCalendar();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 2143523076:  // expiryConvention
-        setExpiryConvention((ExternalId) newValue);
-        return;
-      case 29366913:  // exchangeCalendar
-        setExchangeCalendar((ExternalId) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_expiryConvention, "expiryConvention");
-    JodaBeanUtils.notNull(_exchangeCalendar, "exchangeCalendar");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      ExchangeTradedFutureAndOptionConvention other = (ExchangeTradedFutureAndOptionConvention) obj;
-      return JodaBeanUtils.equal(getExpiryConvention(), other.getExpiryConvention()) &&
-          JodaBeanUtils.equal(getExchangeCalendar(), other.getExchangeCalendar()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExpiryConvention());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExchangeCalendar());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the expiry convention.
@@ -183,6 +131,54 @@ public class ExchangeTradedFutureAndOptionConvention extends Convention {
    */
   public final Property<ExternalId> exchangeCalendar() {
     return metaBean().exchangeCalendar().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public ExchangeTradedFutureAndOptionConvention clone() {
+    return (ExchangeTradedFutureAndOptionConvention) super.clone();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ExchangeTradedFutureAndOptionConvention other = (ExchangeTradedFutureAndOptionConvention) obj;
+      return JodaBeanUtils.equal(getExpiryConvention(), other.getExpiryConvention()) &&
+          JodaBeanUtils.equal(getExchangeCalendar(), other.getExchangeCalendar()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExpiryConvention());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExchangeCalendar());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(96);
+    buf.append("ExchangeTradedFutureAndOptionConvention{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("expiryConvention").append('=').append(JodaBeanUtils.toString(getExpiryConvention())).append(',').append(' ');
+    buf.append("exchangeCalendar").append('=').append(JodaBeanUtils.toString(getExchangeCalendar())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -260,6 +256,38 @@ public class ExchangeTradedFutureAndOptionConvention extends Convention {
      */
     public final MetaProperty<ExternalId> exchangeCalendar() {
       return _exchangeCalendar;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 2143523076:  // expiryConvention
+          return ((ExchangeTradedFutureAndOptionConvention) bean).getExpiryConvention();
+        case 29366913:  // exchangeCalendar
+          return ((ExchangeTradedFutureAndOptionConvention) bean).getExchangeCalendar();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 2143523076:  // expiryConvention
+          ((ExchangeTradedFutureAndOptionConvention) bean).setExpiryConvention((ExternalId) newValue);
+          return;
+        case 29366913:  // exchangeCalendar
+          ((ExchangeTradedFutureAndOptionConvention) bean).setExchangeCalendar((ExternalId) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((ExchangeTradedFutureAndOptionConvention) bean)._expiryConvention, "expiryConvention");
+      JodaBeanUtils.notNull(((ExchangeTradedFutureAndOptionConvention) bean)._exchangeCalendar, "exchangeCalendar");
+      super.validate(bean);
     }
 
   }

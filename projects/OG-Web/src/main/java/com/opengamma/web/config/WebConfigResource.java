@@ -54,7 +54,7 @@ public class WebConfigResource extends AbstractWebConfigResource {
   public String getHTML() {
     final FlexiBean out = createRootData();
     final ConfigDocument doc = data().getConfig();
-    out.put("configXml", createXML(doc));
+    out.put("configXml", createBeanXML(doc.getConfig().getValue()));
     return getFreemarker().build(HTML_DIR + "config.ftl", out);
   }
 
@@ -72,8 +72,8 @@ public class WebConfigResource extends AbstractWebConfigResource {
     if (jsonConfig != null) {
       out.put("configJSON", jsonConfig);
     }
-    out.put("configXML", StringEscapeUtils.escapeJava(createXML(doc)));
-    out.put("type", doc.getType().getName());
+    out.put("configXML", StringEscapeUtils.escapeJava(createBeanXML(doc.getConfig().getValue())));
+    out.put("type", doc.getType().getSimpleName());
     final String json = getFreemarker().build(JSON_DIR + "config.ftl", out);
     return Response.ok(json).tag(etag).build();
   }
@@ -115,7 +115,8 @@ public class WebConfigResource extends AbstractWebConfigResource {
       return Response.ok(html).build();
     }
 
-    final URI uri = updateConfig(name, parseXML(xml));
+    Object parsed = parseXML(xml, data().getConfig().getConfig().getType());
+    final URI uri = updateConfig(name, parsed);
     return Response.seeOther(uri).build();
   }
 
@@ -141,7 +142,8 @@ public class WebConfigResource extends AbstractWebConfigResource {
     if (json != null) {
       configValue = parseJSON(json);
     } else if (xml != null) {
-      configValue = parseXML(xml);
+      Object parsed = parseXML(xml, data().getConfig().getConfig().getType());
+      configValue = parsed;
     }
     updateConfig(name, configValue);
     return Response.ok().build();
@@ -194,6 +196,7 @@ public class WebConfigResource extends AbstractWebConfigResource {
     final ConfigDocument doc = data().getConfig();
     out.put("configDoc", doc);
     out.put("config", doc.getConfig().getValue());
+    out.put("configDescription", getConfigTypesProvider().getDescription(doc.getConfig().getType()));
     out.put("deleted", !doc.isLatest());
     return out;
   }

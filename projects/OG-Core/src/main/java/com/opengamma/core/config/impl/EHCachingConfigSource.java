@@ -22,6 +22,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 import com.opengamma.util.tuple.Triple;
 
 /**
@@ -103,7 +104,7 @@ public class EHCachingConfigSource extends AbstractEHCachingSource<ConfigItem<?>
       }
     }
     final Collection<ConfigItem<R>> result;
-    final Pair<Class<R>, VersionCorrection> classKey = Pair.of(clazz, versionCorrection);
+    final Pair<Class<R>, VersionCorrection> classKey = Pairs.of(clazz, versionCorrection);
     element = _classCache.get(classKey);
     if (element != null) {
       result = new ArrayList<ConfigItem<R>>();
@@ -126,7 +127,7 @@ public class EHCachingConfigSource extends AbstractEHCachingSource<ConfigItem<?>
       // Not cacheable
       return getUnderlying().getAll(clazz, versionCorrection);
     }
-    final Pair<Class<R>, VersionCorrection> key = Pair.of(clazz, versionCorrection);
+    final Pair<Class<R>, VersionCorrection> key = Pairs.of(clazz, versionCorrection);
     final Element element = _classCache.get(key);
     if (element != null) {
       return (Collection<ConfigItem<R>>) element.getObjectValue();
@@ -168,7 +169,7 @@ public class EHCachingConfigSource extends AbstractEHCachingSource<ConfigItem<?>
     final Triple<Class<R>, String, VersionCorrection> nameKey = Triple.of(clazz, configName, versionCorrection);
     Element element = _nameCache.get(nameKey);
     if (element == null) {
-      final Pair<Class<R>, VersionCorrection> classKey = Pair.of(clazz, versionCorrection);
+      final Pair<Class<R>, VersionCorrection> classKey = Pairs.of(clazz, versionCorrection);
       element = _classCache.get(classKey);
       if (element != null) {
         for (ConfigItem<?> item : (Collection<ConfigItem<?>>) element.getObjectValue()) {

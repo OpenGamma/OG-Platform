@@ -65,7 +65,7 @@ public final class PresentValueBasisPointCurveSensitivityCalculator extends Inst
     final double dfBar = coupon.getPaymentYearFraction() * coupon.getNotional() * pvbpBar;
     final Map<String, List<DoublesPair>> resultMapDsc = new HashMap<>();
     final List<DoublesPair> listDiscounting = new ArrayList<>();
-    listDiscounting.add(new DoublesPair(coupon.getPaymentTime(), -coupon.getPaymentTime() * df * dfBar));
+    listDiscounting.add(DoublesPair.of(coupon.getPaymentTime(), -coupon.getPaymentTime() * df * dfBar));
     resultMapDsc.put(coupon.getFundingCurveName(), listDiscounting);
     return new InterestRateCurveSensitivity(resultMapDsc);
   }

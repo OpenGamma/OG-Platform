@@ -88,6 +88,9 @@ public class ConventionBasedFXRateFunction extends AbstractFunction {
       final ValueProperties.Builder properties = ConventionBasedFXRateFunction.this.createValueProperties();
       properties.with(CONVENTION_NAME_PROPERTY, _convention);
       final UnorderedCurrencyPair unordered = UnorderedCurrencyPair.of(target.getUniqueId());
+      if (unordered.getFirstCurrency().equals(unordered.getSecondCurrency())) {
+        return null;
+      }
       final CurrencyPair ordered = _currencyPairs.getCurrencyPair(unordered.getFirstCurrency(), unordered.getSecondCurrency());
       if (ordered == null) {
         return null;

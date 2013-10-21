@@ -91,7 +91,7 @@ public final class ForwardRateAgreementDiscountingProviderMethod {
     final double dfBar = fra.getPaymentYearFraction() * fra.getNotional() * (forward - fra.getRate()) / (1 + fra.getFixingYearFraction() * forward) * pvBar;
     final Map<String, List<DoublesPair>> mapDsc = new HashMap<>();
     final List<DoublesPair> listDiscounting = new ArrayList<>();
-    listDiscounting.add(new DoublesPair(fra.getPaymentTime(), -fra.getPaymentTime() * df * dfBar));
+    listDiscounting.add(DoublesPair.of(fra.getPaymentTime(), -fra.getPaymentTime() * df * dfBar));
     mapDsc.put(multicurve.getName(fra.getCurrency()), listDiscounting);
     final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<>();
     final List<ForwardSensitivity> listForward = new ArrayList<>();

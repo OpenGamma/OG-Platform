@@ -85,9 +85,9 @@ public class CashFlowEquivalentCurveSensitivityCalculator extends InstrumentDeri
 
     final Map<String, List<DoublesPair>> resultDsc = new HashMap<>();
     final List<DoublesPair> listDisc = new ArrayList<>();
-    final DoublesPair discStart = new DoublesPair(fixingStartTime, beta * fixingStartTime * betaBar);
+    final DoublesPair discStart = DoublesPair.of(fixingStartTime, beta * fixingStartTime * betaBar);
     listDisc.add(discStart);
-    final DoublesPair discPay = new DoublesPair(paymentTime, -paymentTime * beta * betaBar);
+    final DoublesPair discPay = DoublesPair.of(paymentTime, -paymentTime * beta * betaBar);
     listDisc.add(discPay);
     resultDsc.put(multicurves.getName(ccy), listDisc);
 
@@ -117,9 +117,9 @@ public class CashFlowEquivalentCurveSensitivityCalculator extends InstrumentDeri
 
     final Map<String, List<DoublesPair>> resultDsc = new HashMap<>();
     final List<DoublesPair> listDisc = new ArrayList<>();
-    final DoublesPair discStart = new DoublesPair(fixingStartTime, beta * fixingStartTime * betaBar);
+    final DoublesPair discStart = DoublesPair.of(fixingStartTime, beta * fixingStartTime * betaBar);
     listDisc.add(discStart);
-    final DoublesPair discPay = new DoublesPair(paymentTime, -paymentTime * beta * betaBar);
+    final DoublesPair discPay = DoublesPair.of(paymentTime, -paymentTime * beta * betaBar);
     listDisc.add(discPay);
     resultDsc.put(multicurves.getName(ccy), listDisc);
 

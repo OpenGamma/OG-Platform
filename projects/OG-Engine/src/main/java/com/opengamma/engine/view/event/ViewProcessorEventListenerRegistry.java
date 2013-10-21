@@ -30,6 +30,13 @@ public class ViewProcessorEventListenerRegistry implements ViewProcessorEventLis
   }
 
   @Override
+  public void notifyViewAutomaticallyStarted(UniqueId viewProcessId, String autoStartName) {
+    for (ViewProcessorEventListener listener : _listeners) {
+      listener.notifyViewAutomaticallyStarted(viewProcessId, autoStartName);
+    }
+  }
+
+  @Override
   public void notifyViewProcessRemoved(UniqueId viewProcessId) {
     for (ViewProcessorEventListener listener : _listeners) {
       listener.notifyViewProcessRemoved(viewProcessId);

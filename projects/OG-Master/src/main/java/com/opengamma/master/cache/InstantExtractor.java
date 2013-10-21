@@ -5,13 +5,13 @@
  */
 package com.opengamma.master.cache;
 
-import org.threeten.bp.Instant;
-
-import com.opengamma.master.AbstractDocument;
-
 import net.sf.ehcache.Element;
 import net.sf.ehcache.search.attribute.AttributeExtractor;
 import net.sf.ehcache.search.attribute.AttributeExtractorException;
+
+import org.threeten.bp.Instant;
+
+import com.opengamma.master.AbstractDocument;
 
 /**
  * EHCache search attribute extractor.

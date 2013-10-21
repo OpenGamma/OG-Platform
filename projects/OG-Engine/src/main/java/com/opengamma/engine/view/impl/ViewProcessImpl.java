@@ -39,7 +39,6 @@ import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.engine.view.permission.ViewPermissionContext;
-import com.opengamma.engine.view.permission.ViewPermissionProvider;
 import com.opengamma.engine.view.worker.ViewExecutionDataProvider;
 import com.opengamma.engine.view.worker.ViewProcessWorker;
 import com.opengamma.engine.view.worker.ViewProcessWorkerContext;
@@ -48,6 +47,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Default implementation of {@link ViewProcess}.
@@ -73,7 +73,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
    * When there are no listeners remaining that require delta calculations,
    * they will stop being computed to save CPU and heap.
    */
-  private final Map<ViewResultListener, Boolean> _listeners = new HashMap<ViewResultListener, Boolean>();
+  private final Map<ViewResultListener, Boolean> _listeners = new HashMap<>();
   private volatile int _internalListenerCount; // only safe if used within lock
 
   private volatile ViewDefinition _currentViewDefinition;
@@ -83,9 +83,9 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
   private volatile ViewProcessWorker _worker;
 
   private final AtomicReference<Pair<CompiledViewDefinitionWithGraphs, MarketDataPermissionProvider>> _latestCompiledViewDefinition =
-      new AtomicReference<Pair<CompiledViewDefinitionWithGraphs, MarketDataPermissionProvider>>();
+      new AtomicReference<>();
 
-  private final AtomicReference<ViewComputationResultModel> _latestResult = new AtomicReference<ViewComputationResultModel>();
+  private final AtomicReference<ViewComputationResultModel> _latestResult = new AtomicReference<>();
   
   private final AtomicBoolean _mustCalculateDeltas = new AtomicBoolean(false);
 
@@ -94,6 +94,12 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
   // BEGIN TEMPORARY -- See ViewProcessorImpl
 
   private volatile Object _description;
+
+  /**
+   * Indicates if this view process should be run persistently. If true, then even if
+   * all clients detach, the process will be kept running.
+   */
+  private final boolean _isPersistentViewProcess;
 
   public Object getDescriptionKey() {
     return _description;
@@ -106,15 +112,24 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
   // END TEMPORARY CODE
 
   /**
-   * Constructs an instance.
-   * 
+   * Constructs an instance. Note that if runPersistently is true, the
+   * view process will start calculating immediately rather than waiting
+   * for a listener to attach. It will continue running regardless of the
+   * number of attached listeners.
+   *
    * @param viewDefinitionId the name of the view definition, not null
    * @param executionOptions the view execution options, not null
    * @param viewProcessContext the process context, not null
    * @param viewProcessor the parent view processor, not null
+   * @param runPersistently if true, then the process will start running
+   * and continue running, regardless of the number of attached listeners
    */
-  public ViewProcessImpl(final UniqueId viewDefinitionId, final ViewExecutionOptions executionOptions,
-      final ViewProcessContext viewProcessContext, final ViewProcessorImpl viewProcessor) {
+  public ViewProcessImpl(final UniqueId viewDefinitionId,
+                         final ViewExecutionOptions executionOptions,
+                         final ViewProcessContext viewProcessContext,
+                         final ViewProcessorImpl viewProcessor,
+                         boolean runPersistently) {
+
     ArgumentChecker.notNull(viewDefinitionId, "viewDefinitionId");
     ArgumentChecker.notNull(executionOptions, "executionOptions");
     ArgumentChecker.notNull(viewProcessContext, "viewProcessContext");
@@ -123,6 +138,8 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
     _executionOptions = executionOptions;
     _viewProcessContext = viewProcessContext;
     _viewProcessor = viewProcessor;
+    _isPersistentViewProcess = runPersistently;
+
     if (_viewDefinitionId.isVersioned()) {
       _viewDefinitionChangeListener = null;
     } else {
@@ -144,6 +161,12 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
           }
         }
       };
+    }
+
+    // Start up immediately if persistent, otherwise we'll wait for
+    // the first listener to be attached
+    if (runPersistently) {
+      startComputationJobIfRequired();
     }
   }
 
@@ -321,7 +344,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
     final MarketDataPermissionProvider permissionProvider = dataProvider.getPermissionProvider();
     lock();
     try {
-      _latestCompiledViewDefinition.set(Pair.of(compiledViewDefinition, permissionProvider));
+      _latestCompiledViewDefinition.set(Pairs.of(compiledViewDefinition, permissionProvider));
       listeners = getListenerArray();
     } finally {
       unlock();
@@ -680,9 +703,6 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
         break;
       }
     }
-    if (!deltasRequired) {
-      _latestResult.set(null);
-    }
     _mustCalculateDeltas.set(deltasRequired);
   }
 
@@ -749,7 +769,7 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle, ViewProc
    */
   private void stopComputationJobIfRequired() {
     // Caller MUST hold the semaphore
-    if (getLatestViewDefinition().isPersistent()) {
+    if (getLatestViewDefinition().isPersistent() || _isPersistentViewProcess) {
       return;
     }
     s_logger.info("Stopping computation on view process {}...", this);

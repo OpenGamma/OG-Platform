@@ -8,7 +8,7 @@ package com.opengamma.web.analytics.formatting;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantYieldCurve;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**

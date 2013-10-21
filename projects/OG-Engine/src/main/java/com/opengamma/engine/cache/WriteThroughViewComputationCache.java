@@ -19,6 +19,7 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * A wrapper around an existing {@link ViewComputationCache} implementation that will attempt to buffer data in memory to speed up writes rapidly followed by a read.
@@ -57,9 +58,9 @@ public class WriteThroughViewComputationCache implements ViewComputationCache {
     public Pair<ValueSpecification, Object> waitForPair() {
       final Object value = waitFor();
       if (value == NULL) {
-        return Pair.of(_specification, null);
+        return Pairs.of(_specification, null);
       } else {
-        return Pair.of(_specification, value);
+        return Pairs.of(_specification, value);
       }
     }
 
@@ -94,6 +95,21 @@ public class WriteThroughViewComputationCache implements ViewComputationCache {
     } else {
       return existing;
     }
+  }
+
+  /**
+   * This method will clear all instances of this class. It should be called after confirming with OpenGamma support that it is necessary to handle certain memory situations regarding custom View
+   * Processor configurations.
+   */
+  public static void clearAllWriteThroughCaches() {
+    for (WriteThroughViewComputationCache cache : s_instances.values()) {
+      cache.clear();
+    }
+    s_instances.clear();
+  }
+
+  public void clear() {
+    _readCache.clear();
   }
 
   protected ViewComputationCache getUnderlying() {
@@ -187,7 +203,7 @@ public class WriteThroughViewComputationCache implements ViewComputationCache {
       }
       if (value == NULL) {
         //s_logger.debug("Cached NULL for {}", specification);
-        result.add(Pair.of(specification, null));
+        result.add(Pairs.of(specification, null));
       } else if (value == null) {
         //s_logger.debug("Cache miss for {}", specification);
         if (query == null) {
@@ -196,7 +212,7 @@ public class WriteThroughViewComputationCache implements ViewComputationCache {
         query.add(specification);
       } else {
         s_logger.debug("Cache hit for {}", specification);
-        result.add(Pair.of(specification, value));
+        result.add(Pairs.of(specification, value));
       }
     }
     if (query != null) {
@@ -241,7 +257,7 @@ public class WriteThroughViewComputationCache implements ViewComputationCache {
       }
       if (value == NULL) {
         //s_logger.debug("Cached NULL for {}", specification);
-        result.add(Pair.of(specification, null));
+        result.add(Pairs.of(specification, null));
       } else if (value == null) {
         //s_logger.debug("Cache miss for {}", specification);
         if (query == null) {
@@ -250,7 +266,7 @@ public class WriteThroughViewComputationCache implements ViewComputationCache {
         query.add(specification);
       } else {
         s_logger.debug("Cache hit for {}", specification);
-        result.add(Pair.of(specification, value));
+        result.add(Pairs.of(specification, value));
       }
     }
     if (query != null) {

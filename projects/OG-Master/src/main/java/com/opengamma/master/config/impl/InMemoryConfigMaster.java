@@ -341,9 +341,7 @@ public class InMemoryConfigMaster implements ConfigMaster {
                 .filter(new Function1<ConfigDocument, Boolean>() {
                   @Override
                   public Boolean execute(final ConfigDocument configDocument) {
-                    return
-                    (oid == null || (configDocument.getObjectId().equals(oid)))
-                        &&
+                    return (oid == null || (configDocument.getObjectId().equals(oid))) &&
                         (type == null || (type.isAssignableFrom(configDocument.getType())));
                   }
                 })

@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.analytics.curve;
 
+import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.SCHEME_NAME;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
@@ -63,6 +64,7 @@ import com.opengamma.financial.analytics.ircurve.strips.CurveNodeVisitor;
 import com.opengamma.financial.analytics.ircurve.strips.DeliverableSwapFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
+import com.opengamma.financial.analytics.ircurve.strips.IMMFRANode;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
 import com.opengamma.financial.convention.CompoundingIborLegConvention;
@@ -73,6 +75,7 @@ import com.opengamma.financial.convention.DepositConvention;
 import com.opengamma.financial.convention.FXForwardAndSwapConvention;
 import com.opengamma.financial.convention.FXSpotConvention;
 import com.opengamma.financial.convention.FederalFundsFutureConvention;
+import com.opengamma.financial.convention.IMMFRAConvention;
 import com.opengamma.financial.convention.IMMFutureAndFutureOptionMonthlyExpiryCalculator;
 import com.opengamma.financial.convention.IMMFutureAndFutureOptionQuarterlyExpiryCalculator;
 import com.opengamma.financial.convention.IborIndexConvention;
@@ -89,6 +92,7 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.rolldate.RollDateAdjusterFactory;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
@@ -118,8 +122,9 @@ public class CurveNodeToDefinitionConverterTest {
   private static final ExternalId LIBOR_1M_ID = ExternalId.of(SCHEME, "USD 1m Libor");
   private static final ExternalId LIBOR_3M_ID = ExternalId.of(SCHEME, "USD 3m Libor");
   private static final ExternalId LIBOR_6M_ID = ExternalId.of(SCHEME, "USD 6m Libor");
-  private static final ExternalId RATE_FUTURE_3M_ID = ExternalId.of(SCHEME, "USD 3m Rate Future");
-  private static final ExternalId RATE_FUTURE_1M_ID = ExternalId.of(SCHEME, "USD 1m Rate Future");
+  private static final ExternalId RATE_FUTURE_3M3M_ID = ExternalId.of(SCHEME, "USD 3m/3m Rate Future");
+  private static final ExternalId RATE_FUTURE_3M1M_ID = ExternalId.of(SCHEME, "USD 3m/1m Rate Future");
+  private static final ExternalId RATE_FUTURE_1M1M_ID = ExternalId.of(SCHEME, "USD 1m/1m Rate Future");
   private static final ExternalId FED_FUND_FUTURE_ID = ExternalId.of(SCHEME, "FF Future");
   private static final ExternalId DELIVERABLE_SWAP_FUTURE_ID = ExternalId.of(SCHEME, "DSF");
   private static final ExternalId SWAP_3M_IBOR_ID = ExternalId.of(SCHEME, "USD 3m Floating Leg");
@@ -129,8 +134,8 @@ public class CurveNodeToDefinitionConverterTest {
   private static final ExternalId OIS_ID = ExternalId.of(SCHEME, "USD OIS Leg");
   private static final ExternalId FX_FORWARD_ID = ExternalId.of(SCHEME, "FX Forward");
   private static final ExternalId FX_SPOT_ID = ExternalId.of(SCHEME, "FX Spot");
-  private static final ExternalId IMM_3M_EXPIRY_CONVENTION = ExternalId.of(SCHEME, IMMFutureAndFutureOptionQuarterlyExpiryCalculator.NAME);
-  private static final ExternalId IMM_1M_EXPIRY_CONVENTION = ExternalId.of(SCHEME, IMMFutureAndFutureOptionMonthlyExpiryCalculator.NAME);
+  private static final ExternalId IMM_3M_FUTURE_EXPIRY_CONVENTION = ExternalId.of(SCHEME, IMMFutureAndFutureOptionQuarterlyExpiryCalculator.NAME);
+  private static final ExternalId IMM_1M_FUTURE_EXPIRY_CONVENTION = ExternalId.of(SCHEME, IMMFutureAndFutureOptionMonthlyExpiryCalculator.NAME);
   private static final ExternalId FIXED_IBOR_3M_SWAP_ID = ExternalId.of(SCHEME, "Swap");
   private static final SwapFixedLegConvention FIXED_LEG = new SwapFixedLegConvention("USD Swap Fixed Leg", ExternalIdBundle.of(ExternalId.of(SCHEME, "USD Swap Fixed Leg")),
       Tenor.SIX_MONTHS, ACT_360, MODIFIED_FOLLOWING, Currency.USD, NYLON, 2, false, StubType.NONE, false, 2);
@@ -138,8 +143,8 @@ public class CurveNodeToDefinitionConverterTest {
       LIBOR_3M_ID, false, SCHEME, Tenor.THREE_MONTHS, 2, false, StubType.NONE, false, 2);
   private static final VanillaIborLegConvention SWAP_6M_LIBOR = new VanillaIborLegConvention("USD 6m Floating Leg", ExternalIdBundle.of(ExternalId.of(SCHEME, "USD 6m Floating Leg")),
       LIBOR_6M_ID, false, SCHEME, Tenor.SIX_MONTHS, 2, false, StubType.LONG_END, false, 2);
-  private static final CompoundingIborLegConvention LIBOR_1M_CMP_3M_IBOR = new CompoundingIborLegConvention("USD 1M x 3M Ibor Cmp Leg", 
-      ExternalIdBundle.of(ExternalId.of(SCHEME, "USD 1M x 3M Ibor Cmp Leg")), LIBOR_1M_ID, Tenor.THREE_MONTHS, CompoundingType.FLAT_COMPOUNDING, 
+  private static final CompoundingIborLegConvention LIBOR_1M_CMP_3M_IBOR = new CompoundingIborLegConvention("USD 1M x 3M Ibor Cmp Leg",
+      ExternalIdBundle.of(ExternalId.of(SCHEME, "USD 1M x 3M Ibor Cmp Leg")), LIBOR_1M_ID, Tenor.THREE_MONTHS, CompoundingType.FLAT_COMPOUNDING,
       Tenor.ONE_MONTH, StubType.SHORT_START, 2, false, StubType.LONG_START, false, 0);
   private static final OISLegConvention OIS = new OISLegConvention("USD OIS Leg", ExternalIdBundle.of(ExternalId.of(SCHEME, "USD OIS Leg")), OVERNIGHT_ID,
       Tenor.ONE_YEAR, MODIFIED_FOLLOWING, 2, false, StubType.NONE, false, 1);
@@ -153,24 +158,34 @@ public class CurveNodeToDefinitionConverterTest {
       THIRTY_360, MODIFIED_FOLLOWING, 2, false, Currency.USD, LocalTime.of(11, 0), "US", US, US, "Page");
   private static final IborIndexConvention LIBOR_6M = new IborIndexConvention("USD 6m Libor", ExternalIdBundle.of(LIBOR_6M_ID),
       ACT_360, MODIFIED_FOLLOWING, 2, false, Currency.USD, LocalTime.of(11, 0), "US", US, US, "Page");
-  private static final InterestRateFutureConvention RATE_FUTURE_3M = new InterestRateFutureConvention("USD 3m Rate Future", ExternalIdBundle.of(RATE_FUTURE_3M_ID),
-      IMM_3M_EXPIRY_CONVENTION, NYLON, LIBOR_3M_ID);
-  private static final InterestRateFutureConvention RATE_FUTURE_1M = new InterestRateFutureConvention("USD 1m Rate Future", ExternalIdBundle.of(RATE_FUTURE_1M_ID),
-      IMM_1M_EXPIRY_CONVENTION, NYLON, LIBOR_3M_ID);
+  private static final InterestRateFutureConvention RATE_FUTURE_3M3M = new InterestRateFutureConvention("USD 3m/3m Rate Future", ExternalIdBundle.of(RATE_FUTURE_3M3M_ID),
+      IMM_3M_FUTURE_EXPIRY_CONVENTION, NYLON, LIBOR_3M_ID);
+  private static final InterestRateFutureConvention RATE_FUTURE_3M1M = new InterestRateFutureConvention("USD 3m/1m Rate Future", ExternalIdBundle.of(RATE_FUTURE_3M1M_ID),
+      IMM_3M_FUTURE_EXPIRY_CONVENTION, NYLON, LIBOR_1M_ID);
+  private static final InterestRateFutureConvention RATE_FUTURE_1M1M = new InterestRateFutureConvention("USD 1m/1m Rate Future", ExternalIdBundle.of(RATE_FUTURE_1M1M_ID),
+      IMM_1M_FUTURE_EXPIRY_CONVENTION, NYLON, LIBOR_3M_ID);
   private static final OvernightIndexConvention OVERNIGHT = new OvernightIndexConvention("USD Overnight", ExternalIdBundle.of(ExternalId.of(SCHEME, "USD Overnight")),
       ACT_360, 1, Currency.USD, NYLON);
   private static final FXSpotConvention FX_SPOT = new FXSpotConvention("FX Spot", ExternalIdBundle.of(ExternalId.of(SCHEME, "FX Spot")), 1, US);
   private static final FXForwardAndSwapConvention FX_FORWARD = new FXForwardAndSwapConvention("FX Forward", ExternalIdBundle.of(ExternalId.of(SCHEME, "FX Forward")), FX_SPOT_ID, MODIFIED_FOLLOWING,
       false, US);
-  private static final FederalFundsFutureConvention FED_FUND = new FederalFundsFutureConvention("FF Future", ExternalIdBundle.of(FED_FUND_FUTURE_ID), IMM_1M_EXPIRY_CONVENTION, US, OVERNIGHT_ID, 5000000);
+  private static final FederalFundsFutureConvention FED_FUND = new FederalFundsFutureConvention("FF Future", ExternalIdBundle.of(FED_FUND_FUTURE_ID), IMM_1M_FUTURE_EXPIRY_CONVENTION, US, OVERNIGHT_ID, 5000000);
   private static final SwapConvention SWAP = new SwapConvention("Swap", ExternalIdBundle.of(FIXED_IBOR_3M_SWAP_ID), FIXED_LEG_ID, SWAP_3M_IBOR_ID);
   private static final DeliverablePriceQuotedSwapFutureConvention SWAP_FUTURE = new DeliverablePriceQuotedSwapFutureConvention("DSF", ExternalIdBundle.of(DELIVERABLE_SWAP_FUTURE_ID),
-      IMM_3M_EXPIRY_CONVENTION, US, FIXED_IBOR_3M_SWAP_ID, 1);
+      IMM_3M_FUTURE_EXPIRY_CONVENTION, US, FIXED_IBOR_3M_SWAP_ID, 1);
+  
+  private static final String IMM_FRA_CONVENTION_NAME = "IMMFRA-Quarterly-3M";
+  private static final ExternalId QUARTERLY_IMM_DATES = ExternalId.of(SCHEME_NAME, RollDateAdjusterFactory.QUARTERLY_IMM_ROLL_STRING);
+  private static final ExternalId IMM_FRA_CONVENTION_ID = ExternalId.of(SCHEME, IMM_FRA_CONVENTION_NAME);
+  private static final IMMFRAConvention IMM_FRA_CONVENTION = new IMMFRAConvention(IMM_FRA_CONVENTION_NAME, ExternalIdBundle.of(IMM_FRA_CONVENTION_ID), LIBOR_3M_ID, QUARTERLY_IMM_DATES);
+  
   private static final Map<ExternalId, Convention> CONVENTIONS = new HashMap<>();
   private static final ConventionSource CONVENTION_SOURCE;
   private static final HolidaySource HOLIDAY_SOURCE;
   private static final RegionSource REGION_SOURCE;
   private static final ZonedDateTime NOW = DateUtils.getUTCDate(2013, 5, 1);
+  
+
 
   static {
     CONVENTIONS.put(DEPOSIT_1D_ID, DEPOSIT_1D);
@@ -179,8 +194,9 @@ public class CurveNodeToDefinitionConverterTest {
     CONVENTIONS.put(LIBOR_1M_ID, LIBOR_1M);
     CONVENTIONS.put(LIBOR_3M_ID, LIBOR_3M);
     CONVENTIONS.put(LIBOR_6M_ID, LIBOR_6M);
-    CONVENTIONS.put(RATE_FUTURE_3M_ID, RATE_FUTURE_3M);
-    CONVENTIONS.put(RATE_FUTURE_1M_ID, RATE_FUTURE_1M);
+    CONVENTIONS.put(RATE_FUTURE_3M3M_ID, RATE_FUTURE_3M3M);
+    CONVENTIONS.put(RATE_FUTURE_3M1M_ID, RATE_FUTURE_3M1M);
+    CONVENTIONS.put(RATE_FUTURE_1M1M_ID, RATE_FUTURE_1M1M);
     CONVENTIONS.put(SWAP_3M_IBOR_ID, SWAP_3M_LIBOR);
     CONVENTIONS.put(SWAP_6M_IBOR_ID, SWAP_6M_LIBOR);
     CONVENTIONS.put(LIBOR_1M_CMP_3M_ID, LIBOR_1M_CMP_3M_IBOR);
@@ -191,6 +207,7 @@ public class CurveNodeToDefinitionConverterTest {
     CONVENTIONS.put(FED_FUND_FUTURE_ID, FED_FUND);
     CONVENTIONS.put(FIXED_IBOR_3M_SWAP_ID, SWAP);
     CONVENTIONS.put(DELIVERABLE_SWAP_FUTURE_ID, SWAP_FUTURE);
+    CONVENTIONS.put(IMM_FRA_CONVENTION_ID, IMM_FRA_CONVENTION);
     CONVENTION_SOURCE = new TestConventionSource(CONVENTIONS);
     HOLIDAY_SOURCE = new MyHolidaySource(CALENDAR, "US");
     REGION_SOURCE = new MyRegionSource("US");
@@ -251,7 +268,7 @@ public class CurveNodeToDefinitionConverterTest {
     final double rate = 0.98;
     marketValues.setDataPoint(marketDataId, rate);
     final RateFutureNode futureNode = new RateFutureNode(1, Tenor.of(Period.ZERO), Tenor.THREE_MONTHS, Tenor.THREE_MONTHS, ExternalId.of(SCHEME, "Test"),
-        LIBOR_3M_ID, "Mapper");
+        "Mapper");
     final CurveNodeVisitor<InstrumentDefinition<?>> converter = new RateFutureNodeConverter(CONVENTION_SOURCE, HOLIDAY_SOURCE, REGION_SOURCE,
         marketValues, marketDataId, NOW);
     futureNode.accept(converter);
@@ -264,32 +281,7 @@ public class CurveNodeToDefinitionConverterTest {
     final double rate = 0.98;
     marketValues.setDataPoint(marketDataId, rate);
     final RateFutureNode futureNode = new RateFutureNode(1, Tenor.of(Period.ZERO), Tenor.THREE_MONTHS,
-        Tenor.THREE_MONTHS, FIXED_LEG_ID, LIBOR_3M_ID, "Mapper");
-    final CurveNodeVisitor<InstrumentDefinition<?>> converter = new RateFutureNodeConverter(CONVENTION_SOURCE, HOLIDAY_SOURCE, REGION_SOURCE,
-        marketValues, marketDataId, NOW);
-    futureNode.accept(converter);
-  }
-
-  @Test(expectedExceptions = OpenGammaRuntimeException.class)
-  public void testNoUnderlyingConventionForFuture() {
-    final ExternalId marketDataId = ExternalId.of(SCHEME, "Data");
-    final SnapshotDataBundle marketValues = new SnapshotDataBundle();
-    final double rate = 0.98;
-    marketValues.setDataPoint(marketDataId, rate);
-    final RateFutureNode futureNode = new RateFutureNode(1, Tenor.of(Period.ZERO), Tenor.THREE_MONTHS,
-        Tenor.THREE_MONTHS, RATE_FUTURE_3M_ID, ExternalId.of(SCHEME, "Test"), "Mapper");
-    final CurveNodeVisitor<InstrumentDefinition<?>> converter = new RateFutureNodeConverter(CONVENTION_SOURCE, HOLIDAY_SOURCE, REGION_SOURCE,
-        marketValues, marketDataId, NOW);
-    futureNode.accept(converter);
-  }
-
-  @Test(expectedExceptions = OpenGammaRuntimeException.class)
-  public void testWrongUnderlyingConventionForFuture() {
-    final ExternalId marketDataId = ExternalId.of(SCHEME, "Data");
-    final SnapshotDataBundle marketValues = new SnapshotDataBundle();
-    final double rate = 0.98;
-    marketValues.setDataPoint(marketDataId, rate);
-    final RateFutureNode futureNode = new RateFutureNode(1, Tenor.of(Period.ZERO), Tenor.THREE_MONTHS, Tenor.THREE_MONTHS, RATE_FUTURE_3M_ID, FIXED_LEG_ID, "Mapper");
+        Tenor.THREE_MONTHS, FIXED_LEG_ID, "Mapper");
     final CurveNodeVisitor<InstrumentDefinition<?>> converter = new RateFutureNodeConverter(CONVENTION_SOURCE, HOLIDAY_SOURCE, REGION_SOURCE,
         marketValues, marketDataId, NOW);
     futureNode.accept(converter);
@@ -307,7 +299,7 @@ public class CurveNodeToDefinitionConverterTest {
     swapNode.accept(converter);
   }
 
-  @Test(expectedExceptions = OpenGammaRuntimeException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testWrongSwapPayFixedLegConvention() {
     final ExternalId marketDataId = ExternalId.of(SCHEME, "Data");
     final SnapshotDataBundle marketValues = new SnapshotDataBundle();
@@ -331,7 +323,7 @@ public class CurveNodeToDefinitionConverterTest {
     swapNode.accept(converter);
   }
 
-  @Test(expectedExceptions = OpenGammaRuntimeException.class)
+  @Test(expectedExceptions = UnsupportedOperationException.class)
   public void testWrongSwapReceiveFixedLegConvention() {
     final ExternalId marketDataId = ExternalId.of(SCHEME, "Data");
     final SnapshotDataBundle marketValues = new SnapshotDataBundle();
@@ -529,6 +521,42 @@ public class CurveNodeToDefinitionConverterTest {
     final ForwardRateAgreementDefinition expectedFRA = ForwardRateAgreementDefinition.from(DateUtils.getUTCDate(2013, 9, 5), DateUtils.getUTCDate(2013, 12, 5), 1, index, rate, CALENDAR);
     assertEquals(expectedFRA, fra);
   }
+  
+  @Test
+  /**
+   * Test the IMM FRA converter roll dates. Creates FRA with increasing IMM dates numbers and test them against hard-coded dates.
+   */
+  public void testIMMFRA() {
+    final IborIndex index = new IborIndex(Currency.USD, Tenor.THREE_MONTHS.getPeriod(), 2, THIRTY_360, MODIFIED_FOLLOWING, false, LIBOR_3M_ID.getValue());
+    final ExternalId marketDataId = ExternalId.of(SCHEME, "IMMFRA1");
+    final double rate = 0.0012345;
+    final SnapshotDataBundle marketValues = new SnapshotDataBundle();
+    marketValues.setDataPoint(marketDataId, rate);
+    final ZonedDateTime now = DateUtils.getUTCDate(2013, 9, 2);    
+    final CurveNodeVisitor<InstrumentDefinition<?>> converter = new IMMFRANodeConverter(CONVENTION_SOURCE, HOLIDAY_SOURCE, REGION_SOURCE, marketValues, marketDataId, now);
+    final int[] startNumbers = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 1};
+    final int[] endNumbers = {2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 13};
+    final ZonedDateTime[] expectedStartDates = new ZonedDateTime[] {DateUtils.getUTCDate(2013, 9, 18), DateUtils.getUTCDate(2013, 12, 18), DateUtils.getUTCDate(2014, 3, 19), 
+      DateUtils.getUTCDate(2014, 6, 18), DateUtils.getUTCDate(2014, 9, 17), DateUtils.getUTCDate(2014, 12, 17), DateUtils.getUTCDate(2015, 3, 18), 
+      DateUtils.getUTCDate(2015, 6, 17), DateUtils.getUTCDate(2015, 9, 16), DateUtils.getUTCDate(2015, 12, 16), DateUtils.getUTCDate(2016, 3, 16), 
+      DateUtils.getUTCDate(2016, 6, 15), DateUtils.getUTCDate(2013, 9, 18)};
+    final ZonedDateTime[] expectedEndDates = new ZonedDateTime[] {DateUtils.getUTCDate(2013, 12, 18), DateUtils.getUTCDate(2014, 3, 19), 
+      DateUtils.getUTCDate(2014, 6, 18), DateUtils.getUTCDate(2014, 9, 17), DateUtils.getUTCDate(2014, 12, 17), DateUtils.getUTCDate(2015, 3, 18), 
+      DateUtils.getUTCDate(2015, 6, 17), DateUtils.getUTCDate(2015, 9, 16), DateUtils.getUTCDate(2015, 12, 16), DateUtils.getUTCDate(2016, 3, 16), 
+      DateUtils.getUTCDate(2016, 6, 15), DateUtils.getUTCDate(2016, 9, 21), DateUtils.getUTCDate(2016, 9, 21)};
+    int nbTest = startNumbers.length;
+    for(int loopt=0; loopt<nbTest; loopt++) {
+      final IMMFRANode immFraNode = new IMMFRANode(Tenor.ONE_DAY, Tenor.THREE_MONTHS, startNumbers[loopt], endNumbers[loopt], IMM_FRA_CONVENTION_ID, "Mapper", "IMM FRA 3M 1/2");
+      final InstrumentDefinition<?> definition = immFraNode.accept(converter);
+      assertTrue("IMMFRANodeConverter: testIMMFRA - FRA instanceof", definition instanceof ForwardRateAgreementDefinition);
+      final ForwardRateAgreementDefinition fra = (ForwardRateAgreementDefinition) definition;
+      final ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(expectedStartDates[loopt], -index.getSpotLag(), CALENDAR);
+      final double acrualFactor = index.getDayCount().getDayCountFraction(expectedStartDates[loopt],  expectedEndDates[loopt]);
+      final ForwardRateAgreementDefinition expectedFRA = new ForwardRateAgreementDefinition(index.getCurrency(), expectedStartDates[loopt], expectedStartDates[loopt], 
+          expectedEndDates[loopt], acrualFactor, 1, fixingDate, expectedStartDates[loopt], expectedEndDates[loopt], index, rate, CALENDAR);
+      assertEquals("IMMFRANodeConverter: testIMMFRA - FRA dates " +loopt, expectedFRA, fra);
+    }  
+  }
 
   @Test
   public void test3M3MIRFuture() {
@@ -536,7 +564,7 @@ public class CurveNodeToDefinitionConverterTest {
     final double rate = 0.98;
     final SnapshotDataBundle marketValues = new SnapshotDataBundle();
     marketValues.setDataPoint(marketDataId, rate);
-    RateFutureNode futureNode = new RateFutureNode(1, Tenor.of(Period.ZERO), Tenor.THREE_MONTHS, Tenor.THREE_MONTHS, RATE_FUTURE_3M_ID, LIBOR_3M_ID, "Mapper");
+    RateFutureNode futureNode = new RateFutureNode(1, Tenor.of(Period.ZERO), Tenor.THREE_MONTHS, Tenor.THREE_MONTHS, RATE_FUTURE_3M3M_ID, "Mapper");
     final IborIndex index = new IborIndex(Currency.USD, Tenor.THREE_MONTHS.getPeriod(), 2, THIRTY_360, MODIFIED_FOLLOWING, false, "USD 3m Libor");
     final ZonedDateTime now = DateUtils.getUTCDate(2013, 5, 1);
     final CurveNodeVisitor<InstrumentDefinition<?>> converter = new RateFutureNodeConverter(CONVENTION_SOURCE, HOLIDAY_SOURCE, REGION_SOURCE, marketValues, marketDataId, now);
@@ -545,19 +573,19 @@ public class CurveNodeToDefinitionConverterTest {
     InterestRateFutureSecurityDefinition securityDefinition = new InterestRateFutureSecurityDefinition(DateUtils.getUTCDate(2013, 6, 17), index, 1, 0.25, "", CALENDAR);
     InterestRateFutureTransactionDefinition expectedFuture = new InterestRateFutureTransactionDefinition(securityDefinition, now, rate, 1).withNewNotionalAndTransactionPrice(1, rate);
     assertEquals(expectedFuture, future);
-    futureNode = new RateFutureNode(1, Tenor.TWO_MONTHS, Tenor.THREE_MONTHS, Tenor.THREE_MONTHS, RATE_FUTURE_3M_ID, LIBOR_3M_ID, "Mapper");
+    futureNode = new RateFutureNode(1, Tenor.TWO_MONTHS, Tenor.THREE_MONTHS, Tenor.THREE_MONTHS, RATE_FUTURE_3M3M_ID, "Mapper");
     definition = futureNode.accept(converter);
     future = (InterestRateFutureTransactionDefinition) definition;
     securityDefinition = new InterestRateFutureSecurityDefinition(DateUtils.getUTCDate(2013, 9, 16), index, 1, 0.25, "", CALENDAR);
     expectedFuture = new InterestRateFutureTransactionDefinition(securityDefinition, now, rate, 1).withNewNotionalAndTransactionPrice(1, rate);
     assertEquals(expectedFuture, future);
-    futureNode = new RateFutureNode(4, Tenor.of(Period.ZERO), Tenor.THREE_MONTHS, Tenor.THREE_MONTHS, RATE_FUTURE_3M_ID, LIBOR_3M_ID, "Mapper");
+    futureNode = new RateFutureNode(4, Tenor.of(Period.ZERO), Tenor.THREE_MONTHS, Tenor.THREE_MONTHS, RATE_FUTURE_3M3M_ID, "Mapper");
     definition = futureNode.accept(converter);
     future = (InterestRateFutureTransactionDefinition) definition;
     securityDefinition = new InterestRateFutureSecurityDefinition(DateUtils.getUTCDate(2014, 3, 17), index, 1, 0.25, "", CALENDAR);
     expectedFuture = new InterestRateFutureTransactionDefinition(securityDefinition, now, rate, 1).withNewNotionalAndTransactionPrice(1, rate);
     assertEquals(expectedFuture, future);
-    futureNode = new RateFutureNode(5, Tenor.ONE_YEAR, Tenor.THREE_MONTHS, Tenor.THREE_MONTHS, RATE_FUTURE_3M_ID, LIBOR_3M_ID, "Mapper");
+    futureNode = new RateFutureNode(5, Tenor.ONE_YEAR, Tenor.THREE_MONTHS, Tenor.THREE_MONTHS, RATE_FUTURE_3M3M_ID, "Mapper");
     definition = futureNode.accept(converter);
     future = (InterestRateFutureTransactionDefinition) definition;
     securityDefinition = new InterestRateFutureSecurityDefinition(DateUtils.getUTCDate(2015, 6, 15), index, 1, 0.25, "", CALENDAR);
@@ -571,7 +599,7 @@ public class CurveNodeToDefinitionConverterTest {
     final SnapshotDataBundle marketValues = new SnapshotDataBundle();
     final double rate = 0.98;
     marketValues.setDataPoint(marketDataId, rate);
-    RateFutureNode futureNode = new RateFutureNode(1, Tenor.of(Period.ZERO), Tenor.ONE_MONTH, Tenor.THREE_MONTHS, RATE_FUTURE_1M_ID, LIBOR_3M_ID, "Mapper");
+    RateFutureNode futureNode = new RateFutureNode(1, Tenor.of(Period.ZERO), Tenor.ONE_MONTH, Tenor.THREE_MONTHS, RATE_FUTURE_1M1M_ID, "Mapper");
     final IborIndex index = new IborIndex(Currency.USD, Tenor.THREE_MONTHS.getPeriod(), 2, THIRTY_360, MODIFIED_FOLLOWING, false, "USD 3m Libor");
     final ZonedDateTime now = DateUtils.getUTCDate(2013, 5, 1);
     final CurveNodeVisitor<InstrumentDefinition<?>> converter = new RateFutureNodeConverter(CONVENTION_SOURCE, HOLIDAY_SOURCE, REGION_SOURCE, marketValues, marketDataId, now);
@@ -580,19 +608,19 @@ public class CurveNodeToDefinitionConverterTest {
     InterestRateFutureSecurityDefinition securityDefinition = new InterestRateFutureSecurityDefinition(DateUtils.getUTCDate(2013, 5, 13), index, 1, 0.25, "", CALENDAR);
     InterestRateFutureTransactionDefinition expectedFuture = new InterestRateFutureTransactionDefinition(securityDefinition, now, rate, 1).withNewNotionalAndTransactionPrice(1, rate);
     assertEquals(expectedFuture, future);
-    futureNode = new RateFutureNode(1, Tenor.TWO_MONTHS, Tenor.ONE_MONTH, Tenor.THREE_MONTHS, RATE_FUTURE_1M_ID, LIBOR_3M_ID, "Mapper");
+    futureNode = new RateFutureNode(1, Tenor.TWO_MONTHS, Tenor.ONE_MONTH, Tenor.THREE_MONTHS, RATE_FUTURE_1M1M_ID, "Mapper");
     definition = futureNode.accept(converter);
     future = (InterestRateFutureTransactionDefinition) definition;
     securityDefinition = new InterestRateFutureSecurityDefinition(DateUtils.getUTCDate(2013, 7, 15), index, 1, 0.25, "", CALENDAR);
     expectedFuture = new InterestRateFutureTransactionDefinition(securityDefinition, now, rate, 1).withNewNotionalAndTransactionPrice(1, rate);
     assertEquals(expectedFuture, future);
-    futureNode = new RateFutureNode(4, Tenor.of(Period.ZERO), Tenor.ONE_MONTH, Tenor.THREE_MONTHS, RATE_FUTURE_1M_ID, LIBOR_3M_ID, "Mapper");
+    futureNode = new RateFutureNode(4, Tenor.of(Period.ZERO), Tenor.ONE_MONTH, Tenor.THREE_MONTHS, RATE_FUTURE_1M1M_ID, "Mapper");
     definition = futureNode.accept(converter);
     future = (InterestRateFutureTransactionDefinition) definition;
     securityDefinition = new InterestRateFutureSecurityDefinition(DateUtils.getUTCDate(2013, 8, 19), index, 1, 0.25, "", CALENDAR);
     expectedFuture = new InterestRateFutureTransactionDefinition(securityDefinition, now, rate, 1).withNewNotionalAndTransactionPrice(1, rate);
     assertEquals(expectedFuture, future);
-    futureNode = new RateFutureNode(5, Tenor.ONE_YEAR, Tenor.ONE_MONTH, Tenor.THREE_MONTHS, RATE_FUTURE_1M_ID, LIBOR_3M_ID, "Mapper");
+    futureNode = new RateFutureNode(5, Tenor.ONE_YEAR, Tenor.ONE_MONTH, Tenor.THREE_MONTHS, RATE_FUTURE_1M1M_ID, "Mapper");
     definition = futureNode.accept(converter);
     future = (InterestRateFutureTransactionDefinition) definition;
     securityDefinition = new InterestRateFutureSecurityDefinition(DateUtils.getUTCDate(2014, 9, 15), index, 1, 0.25, "", CALENDAR);
@@ -607,7 +635,7 @@ public class CurveNodeToDefinitionConverterTest {
     final double rate = 0.98;
     marketValues.setDataPoint(marketDataId, rate);
     final double accrual = 1. / 12;
-    RateFutureNode futureNode = new RateFutureNode(1, Tenor.of(Period.ZERO), Tenor.THREE_MONTHS, Tenor.ONE_MONTH, RATE_FUTURE_3M_ID, LIBOR_1M_ID, "Mapper");
+    RateFutureNode futureNode = new RateFutureNode(1, Tenor.of(Period.ZERO), Tenor.THREE_MONTHS, Tenor.ONE_MONTH, RATE_FUTURE_3M1M_ID, "Mapper");
     final IborIndex index = new IborIndex(Currency.USD, Tenor.ONE_MONTH.getPeriod(), 2, THIRTY_360, MODIFIED_FOLLOWING, false, "USD 1m Libor");
     final ZonedDateTime now = DateUtils.getUTCDate(2013, 5, 1);
     final CurveNodeVisitor<InstrumentDefinition<?>> converter = new RateFutureNodeConverter(CONVENTION_SOURCE, HOLIDAY_SOURCE, REGION_SOURCE, marketValues, marketDataId, now);
@@ -616,19 +644,19 @@ public class CurveNodeToDefinitionConverterTest {
     InterestRateFutureSecurityDefinition securityDefinition = new InterestRateFutureSecurityDefinition(DateUtils.getUTCDate(2013, 6, 17), index, 1, accrual, "", CALENDAR);
     InterestRateFutureTransactionDefinition expectedFuture = new InterestRateFutureTransactionDefinition(securityDefinition, now, rate, 1).withNewNotionalAndTransactionPrice(1, rate);
     assertEquals(expectedFuture, future);
-    futureNode = new RateFutureNode(1, Tenor.TWO_MONTHS, Tenor.THREE_MONTHS, Tenor.ONE_MONTH, RATE_FUTURE_3M_ID, LIBOR_1M_ID, "Mapper");
+    futureNode = new RateFutureNode(1, Tenor.TWO_MONTHS, Tenor.THREE_MONTHS, Tenor.ONE_MONTH, RATE_FUTURE_3M1M_ID, "Mapper");
     definition = futureNode.accept(converter);
     future = (InterestRateFutureTransactionDefinition) definition;
     securityDefinition = new InterestRateFutureSecurityDefinition(DateUtils.getUTCDate(2013, 9, 16), index, 1, accrual, "", CALENDAR);
     expectedFuture = new InterestRateFutureTransactionDefinition(securityDefinition, now, rate, 1).withNewNotionalAndTransactionPrice(1, rate);
     assertEquals(expectedFuture, future);
-    futureNode = new RateFutureNode(4, Tenor.of(Period.ZERO), Tenor.THREE_MONTHS, Tenor.ONE_MONTH, RATE_FUTURE_3M_ID, LIBOR_1M_ID, "Mapper");
+    futureNode = new RateFutureNode(4, Tenor.of(Period.ZERO), Tenor.THREE_MONTHS, Tenor.ONE_MONTH, RATE_FUTURE_3M1M_ID, "Mapper");
     definition = futureNode.accept(converter);
     future = (InterestRateFutureTransactionDefinition) definition;
     securityDefinition = new InterestRateFutureSecurityDefinition(DateUtils.getUTCDate(2014, 3, 17), index, 1, accrual, "", CALENDAR);
     expectedFuture = new InterestRateFutureTransactionDefinition(securityDefinition, now, rate, 1).withNewNotionalAndTransactionPrice(1, rate);
     assertEquals(expectedFuture, future);
-    futureNode = new RateFutureNode(5, Tenor.ONE_YEAR, Tenor.THREE_MONTHS, Tenor.ONE_MONTH, RATE_FUTURE_3M_ID, LIBOR_1M_ID, "Mapper");
+    futureNode = new RateFutureNode(5, Tenor.ONE_YEAR, Tenor.THREE_MONTHS, Tenor.ONE_MONTH, RATE_FUTURE_3M1M_ID, "Mapper");
     definition = futureNode.accept(converter);
     future = (InterestRateFutureTransactionDefinition) definition;
     securityDefinition = new InterestRateFutureSecurityDefinition(DateUtils.getUTCDate(2015, 6, 15), index, 1, accrual, "", CALENDAR);
@@ -704,18 +732,18 @@ public class CurveNodeToDefinitionConverterTest {
     final double spread = 0.001;
     marketValues.setDataPoint(marketDataId, spread);
     final ZonedDateTime now = DateUtils.getUTCDate(2013, 3, 1);
-    ZonedDateTime settlementDate = DateUtils.getUTCDate(2013, 3, 5);
+    final ZonedDateTime settlementDate = DateUtils.getUTCDate(2013, 3, 5);
     final CurveNodeVisitor<InstrumentDefinition<?>> converter = new SwapNodeConverter(CONVENTION_SOURCE, HOLIDAY_SOURCE, REGION_SOURCE, marketValues, marketDataId, now);
-    Tenor legTenor = Tenor.TEN_YEARS;
-    SwapNode swapNode = new SwapNode(Tenor.of(Period.ZERO), legTenor, SWAP_3M_IBOR_ID, LIBOR_1M_CMP_3M_ID, "Mapper");
-    InstrumentDefinition<?> definition = swapNode.accept(converter);
+    final Tenor legTenor = Tenor.TEN_YEARS;
+    final SwapNode swapNode = new SwapNode(Tenor.of(Period.ZERO), legTenor, SWAP_3M_IBOR_ID, LIBOR_1M_CMP_3M_ID, "Mapper");
+    final InstrumentDefinition<?> definition = swapNode.accept(converter);
     assertTrue(definition instanceof SwapDefinition);
     final Period paymentPeriod = Period.ofMonths(3);
     final Period compositionPeriod = Period.ofMonths(1);
     final IborIndex index3m = new IborIndex(Currency.USD, paymentPeriod, 2, THIRTY_360, MODIFIED_FOLLOWING, false, LIBOR_3M_ID.getValue()); // Not correct conventions. Only for testing.
     final IborIndex index1m = new IborIndex(Currency.USD, compositionPeriod, 2, THIRTY_360, MODIFIED_FOLLOWING, false, LIBOR_1M_ID.getValue());
-    AnnuityCouponIborDefinition payLeg = AnnuityCouponIborDefinition.from(settlementDate, legTenor.getPeriod(), 1, index3m, true, CALENDAR);
-    final AnnuityDefinition<CouponIborCompoundingSpreadDefinition> receiveLeg = AnnuityDefinitionBuilder.annuityIborCompoundingSpreadFrom(settlementDate, settlementDate.plus(legTenor.getPeriod()), paymentPeriod, 1, spread, 
+    final AnnuityCouponIborDefinition payLeg = AnnuityCouponIborDefinition.from(settlementDate, legTenor.getPeriod(), 1, index3m, true, CALENDAR);
+    final AnnuityDefinition<CouponIborCompoundingSpreadDefinition> receiveLeg = AnnuityDefinitionBuilder.annuityIborCompoundingSpreadFrom(settlementDate, settlementDate.plus(legTenor.getPeriod()), paymentPeriod, 1, spread,
         index1m, StubType.SHORT_START, false, MODIFIED_FOLLOWING, true, CALENDAR, StubType.SHORT_START);
     assertEquals("IborIborCompoundingSwap: first leg", payLeg, ((SwapDefinition)definition).getFirstLeg());
     for(int loopcpn=9; loopcpn<receiveLeg.getNumberOfPayments(); loopcpn++) {
@@ -785,7 +813,7 @@ public class CurveNodeToDefinitionConverterTest {
     final double rate = 0.98;
     final SnapshotDataBundle marketValues = new SnapshotDataBundle();
     marketValues.setDataPoint(marketDataId, rate);
-    final RateFutureNode futureNode = new RateFutureNode(1, Tenor.of(Period.ZERO), Tenor.ONE_MONTH, Tenor.ONE_DAY, FED_FUND_FUTURE_ID, OVERNIGHT_ID, "Mapper");
+    final RateFutureNode futureNode = new RateFutureNode(1, Tenor.of(Period.ZERO), Tenor.ONE_MONTH, Tenor.ONE_DAY, FED_FUND_FUTURE_ID, "Mapper");
     final IndexON index = new IndexON(OVERNIGHT_ID.getValue(), Currency.USD, ACT_360, 1);
     final ZonedDateTime now = DateUtils.getUTCDate(2013, 5, 1);
     final CurveNodeVisitor<InstrumentDefinition<?>> converter = new RateFutureNodeConverter(CONVENTION_SOURCE, HOLIDAY_SOURCE, REGION_SOURCE, marketValues, marketDataId, now);

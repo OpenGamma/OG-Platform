@@ -102,6 +102,14 @@ public class SyntheticUSConventions {
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("USD_OIS_SWAP")), "USD_OIS_SWAP", thirty360, modified, annual, 2, usgb, thirty360,
         modified, annual, 2, simpleNameSecurityId("USD FF EFFECTIVE"), usgb, true, publicationLag);
 
+
+    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("USD_OIS_SWAP")), "USD_OIS_SWAP", thirty360, modified, annual, 2, usgb, thirty360,
+                              modified, annual, 2, simpleNameSecurityId("USD FF EFFECTIVE"), usgb, true, publicationLag);
+
+    utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("USDOVERNIGHT"), simpleNameSecurityId("USD FF EFFECTIVE")),
+                              "USD FF EFFECTIVE", act360, following, Period.ofDays(1), 2, false, us, publicationLag);
+
+
     // FRA conventions are stored as IRS
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId("USD_3M_FRA")), "USD_3M_FRA", thirty360, modified, quarterly, 2, usgb, act360,
         modified, quarterly, 2, simpleNameSecurityId("USD LIBOR 3m"), usgb, true);

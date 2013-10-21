@@ -27,6 +27,7 @@ import com.opengamma.financial.security.swap.ZeroCouponInflationSwapSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  *
@@ -39,7 +40,7 @@ public class MultiSwapLegVisitorTest {
     final Frequency quarterly = SimpleFrequency.QUARTERLY;
     final SwapSecurity swap = swap(fixedLeg(annual), floatingLeg(quarterly));
     final Pair<Frequency, Frequency> frequencies = new FrequencyVisitor().visit(swap);
-    final Pair<Frequency, Frequency> expected = Pair.of(annual, quarterly);
+    final Pair<Frequency, Frequency> expected = Pairs.of(annual, quarterly);
     assertEquals(expected, frequencies);
   }
 
@@ -49,7 +50,7 @@ public class MultiSwapLegVisitorTest {
     final Frequency quarterly = SimpleFrequency.QUARTERLY;
     final SwapSecurity swap = swap(floatingLeg(quarterly), fixedLeg(annual));
     final Pair<Frequency, Frequency> frequencies = new FrequencyVisitor().visit(swap);
-    final Pair<Frequency, Frequency> expected = Pair.of(annual, quarterly);
+    final Pair<Frequency, Frequency> expected = Pairs.of(annual, quarterly);
     assertEquals(expected, frequencies);
   }
 
@@ -59,7 +60,7 @@ public class MultiSwapLegVisitorTest {
     final Frequency quarterly = SimpleFrequency.QUARTERLY;
     final SwapSecurity swap = swap(floatingLeg(annual), floatingLeg(quarterly));
     final Pair<Frequency, Frequency> frequencies = new FrequencyVisitor().visit(swap);
-    final Pair<Frequency, Frequency> expected = Pair.of(annual, quarterly);
+    final Pair<Frequency, Frequency> expected = Pairs.of(annual, quarterly);
     assertEquals(expected, frequencies);
   }
 
@@ -69,7 +70,7 @@ public class MultiSwapLegVisitorTest {
     final Frequency quarterly = SimpleFrequency.QUARTERLY;
     final ZeroCouponInflationSwapSecurity swap = zciSwap(fixedInflationLeg(annual), indexInflationLeg(quarterly));
     final Pair<Frequency, Frequency> frequencies = new FrequencyVisitor().visit(swap);
-    final Pair<Frequency, Frequency> expected = Pair.of(annual, quarterly);
+    final Pair<Frequency, Frequency> expected = Pairs.of(annual, quarterly);
     assertEquals(expected, frequencies);
   }
 
@@ -79,7 +80,7 @@ public class MultiSwapLegVisitorTest {
     final Frequency quarterly = SimpleFrequency.QUARTERLY;
     final ZeroCouponInflationSwapSecurity swap = zciSwap(indexInflationLeg(annual), indexInflationLeg(quarterly));
     final Pair<Frequency, Frequency> frequencies = new FrequencyVisitor().visit(swap);
-    final Pair<Frequency, Frequency> expected = Pair.of(annual, quarterly);
+    final Pair<Frequency, Frequency> expected = Pairs.of(annual, quarterly);
     assertEquals(expected, frequencies);
   }
 

@@ -67,7 +67,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.bbg.BloombergConstants;
 import com.opengamma.bbg.historical.normalization.BloombergFixedRateHistoricalTimeSeriesNormalizer;
 import com.opengamma.bbg.historical.normalization.BloombergRateHistoricalTimeSeriesNormalizer;
@@ -113,6 +112,7 @@ import com.opengamma.master.position.impl.PositionSearchIterator;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Utilities for working with data in the Bloomberg schema.
@@ -222,7 +222,7 @@ public final class BloombergDataUtils {
     return bloombergTickerPattern;
   }
 
-  public static Collection<NormalizationRuleSet> getDefaultNormalizationRules(final ReferenceDataProvider referenceDataProvider, final CacheManager cacheManager) {
+  public static Collection<NormalizationRuleSet> getDefaultNormalizationRules(final ReferenceDataProvider referenceDataProvider, final CacheManager cacheManager, ExternalScheme bbgScheme) {
     ArgumentChecker.notNull(cacheManager, "cacheManager");
 
     final Collection<NormalizationRuleSet> returnValue = new ArrayList<NormalizationRuleSet>();
@@ -253,7 +253,7 @@ public final class BloombergDataUtils {
 
     // Normalize the market value
     if (referenceDataProvider != null) {
-      final BloombergRateClassifier rateClassifier = new BloombergRateClassifier(referenceDataProvider, cacheManager);
+      final BloombergRateClassifier rateClassifier = new BloombergRateClassifier(referenceDataProvider, cacheManager, bbgScheme);
       final SecurityRuleProvider quoteRuleProvider = new BloombergRateRuleProvider(rateClassifier);
       openGammaRules.add(new SecurityRuleApplier(quoteRuleProvider));
     }
@@ -288,7 +288,7 @@ public final class BloombergDataUtils {
 
   public static HistoricalTimeSeriesFieldAdjustmentMap createFieldAdjustmentMap(final ReferenceDataProvider referenceDataProvider, final CacheManager cacheManager) {
     final HistoricalTimeSeriesFieldAdjustmentMap fieldAdjustmentMap = new HistoricalTimeSeriesFieldAdjustmentMap(BloombergConstants.BLOOMBERG_DATA_SOURCE_NAME);
-    final BloombergRateClassifier rateClassifier = new BloombergRateClassifier(referenceDataProvider, cacheManager);
+    final BloombergRateClassifier rateClassifier = new BloombergRateClassifier(referenceDataProvider, cacheManager, ExternalSchemes.BLOOMBERG_BUID);
     final HistoricalTimeSeriesAdjuster rateNormalizer = new BloombergRateHistoricalTimeSeriesNormalizer(rateClassifier);
     final BloombergFixedRateHistoricalTimeSeriesNormalizer div100 = new BloombergFixedRateHistoricalTimeSeriesNormalizer(new HistoricalTimeSeriesAdjustment.DivideBy(100.0));
     fieldAdjustmentMap.addFieldAdjustment(MarketDataRequirementNames.SETTLE_PRICE, null, BloombergConstants.BBG_FIELD_SETTLE_PRICE, rateNormalizer);
@@ -709,7 +709,7 @@ public final class BloombergDataUtils {
     ArgumentChecker.notNull(ticker, "ticker");
     final int splitIdx = ticker.lastIndexOf(' ');
     if (splitIdx > 0) {
-      return Pair.of(ticker.substring(0, splitIdx), ticker.substring(splitIdx + 1));
+      return Pairs.of(ticker.substring(0, splitIdx), ticker.substring(splitIdx + 1));
     } else {
       return null;
     }

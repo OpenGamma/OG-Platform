@@ -69,11 +69,18 @@ import com.opengamma.util.money.Currency;
  */
 @Deprecated
 public abstract class SwaptionBlackFunction extends AbstractFunction.NonCompiledInvoker {
+  /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(SwaptionBlackFunction.class);
+  /** The value requirement name handled by the function instance */
   private final String _valueRequirementName;
+  /** Converts {@link SwaptionSecurity} to {@link InstrumentDefinition} */
   private SwaptionSecurityConverterDeprecated _visitor;
+  /** Converter {@link InstrumentDefinition} to {@link InstrumentDerivative} */
   private FixedIncomeConverterDataProvider _definitionConverter;
 
+  /**
+   * @param valueRequirementName The value requirement name, not null
+   */
   public SwaptionBlackFunction(final String valueRequirementName) {
     ArgumentChecker.notNull(valueRequirementName, "value requirement name");
     _valueRequirementName = valueRequirementName;
@@ -114,14 +121,9 @@ public abstract class SwaptionBlackFunction extends AbstractFunction.NonCompiled
     }
     final String[] fullCurveNames = new String[curveNames.length];
     for (int i = 0; i < curveNames.length; i++) {
-      fullCurveNames[i] = curveNames[i] + "_BRL"; // + currency.getCode();
+      fullCurveNames[i] = curveNames[i] + currency.getCode();
     }
     final YieldCurveBundle curves = YieldCurveFunctionUtils.getYieldCurves(inputs, curveCalculationConfig);
-    final YieldCurveBundle tempBundle = new YieldCurveBundle();
-    for (final String name : curves.getAllNames()) {
-      final String[] temp = name.split("_");
-      tempBundle.setCurve(temp[0] + "_BRL", curves.getCurve(name));
-    }
     final Object volatilitySurfaceObject = inputs.getValue(getVolatilityRequirement(surfaceName, currency));
     if (volatilitySurfaceObject == null) {
       throw new OpenGammaRuntimeException("Could not get volatility surface");
@@ -137,7 +139,7 @@ public abstract class SwaptionBlackFunction extends AbstractFunction.NonCompiled
     final ValueSpecification spec = new ValueSpecification(_valueRequirementName, target.toSpecification(), properties);
     final BlackFlatSwaptionParameters parameters = new BlackFlatSwaptionParameters(volatilitySurface.getSurface(),
         SwaptionUtils.getSwapGenerator(security, definition, securitySource));
-    final YieldCurveWithBlackSwaptionBundle data = new YieldCurveWithBlackSwaptionBundle(parameters, tempBundle);
+    final YieldCurveWithBlackSwaptionBundle data = new YieldCurveWithBlackSwaptionBundle(parameters, curves);
     return getResult(swaption, data, spec);
   }
 
@@ -174,7 +176,7 @@ public abstract class SwaptionBlackFunction extends AbstractFunction.NonCompiled
     final Currency currency = FinancialSecurityUtils.getCurrency(target.getSecurity());
     if (!ComputationTargetSpecification.of(currency).equals(curveCalculationConfig.getTarget())) {
       s_logger.error("Security currency and curve calculation config id were not equal; have {} and {}", currency, curveCalculationConfig.getTarget());
-      //return null;
+      return null;
     }
     final String surfaceName = surfaceNames.iterator().next();
     final Set<ValueRequirement> requirements = new HashSet<>();
@@ -194,8 +196,20 @@ public abstract class SwaptionBlackFunction extends AbstractFunction.NonCompiled
     }
   }
 
+  /**
+   * Calculates the desired results.
+   * @param swaption The swaption
+   * @param data The yield curve and surface data
+   * @param spec The result specification
+   * @return A set of the desired results
+   */
   protected abstract Set<ComputedValue> getResult(final InstrumentDerivative swaption, final YieldCurveWithBlackSwaptionBundle data, final ValueSpecification spec);
 
+  /**
+   * Gets the result properties.
+   * @param currency The currency
+   * @return The result properties
+   */
   private ValueProperties getResultProperties(final String currency) {
     return createValueProperties()
         .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
@@ -204,6 +218,13 @@ public abstract class SwaptionBlackFunction extends AbstractFunction.NonCompiled
         .with(ValuePropertyNames.CURRENCY, currency).get();
   }
 
+  /**
+   * Gets the result properties.
+   * @param currency The currency
+   * @param curveCalculationConfigName The curve calculation configuration name
+   * @param surfaceName The surface name
+   * @return The result properties
+   */
   private ValueProperties getResultProperties(final String currency, final String curveCalculationConfigName, final String surfaceName) {
     final ValueProperties properties = createValueProperties()
         .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
@@ -214,10 +235,16 @@ public abstract class SwaptionBlackFunction extends AbstractFunction.NonCompiled
 
   }
 
+  /**
+   * Gets the volatility surface requirement.
+   * @param surface The surface name
+   * @param currency The currency of the surface requirement target
+   * @return The volatility surface requirement
+   */
   private static ValueRequirement getVolatilityRequirement(final String surface, final Currency currency) {
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.SURFACE, surface)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.SWAPTION_ATM).get();
-    return new ValueRequirement(ValueRequirementNames.INTERPOLATED_VOLATILITY_SURFACE, ComputationTargetSpecification.of(Currency.USD), properties);
+    return new ValueRequirement(ValueRequirementNames.INTERPOLATED_VOLATILITY_SURFACE, ComputationTargetSpecification.of(currency), properties);
   }
 }

@@ -170,10 +170,10 @@ public final class ForexNonDeliverableOptionBlackSmileMethod {
     // Sensitivity object
     final Map<String, List<DoublesPair>> resultMap = new HashMap<>();
     final List<DoublesPair> listNonDelivery = new ArrayList<>();
-    listNonDelivery.add(new DoublesPair(paymentTime, rNonDeliveryBar * Math.abs(optionForex.getUnderlyingNDF().getNotionalCurrency1())));
+    listNonDelivery.add(DoublesPair.of(paymentTime, rNonDeliveryBar * Math.abs(optionForex.getUnderlyingNDF().getNotionalCurrency1())));
     resultMap.put(multicurves.getName(optionForex.getCurrency1()), listNonDelivery);
     final List<DoublesPair> listDelivery = new ArrayList<>();
-    listDelivery.add(new DoublesPair(paymentTime, rDeliveryBar * Math.abs(optionForex.getUnderlyingNDF().getNotionalCurrency1())));
+    listDelivery.add(DoublesPair.of(paymentTime, rDeliveryBar * Math.abs(optionForex.getUnderlyingNDF().getNotionalCurrency1())));
     resultMap.put(multicurves.getName(optionForex.getCurrency2()), listDelivery);
     final MulticurveSensitivity result = MulticurveSensitivity.ofYieldDiscounting(resultMap);
     return MultipleCurrencyMulticurveSensitivity.of(optionForex.getCurrency2(), result);

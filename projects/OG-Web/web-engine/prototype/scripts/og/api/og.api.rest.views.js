@@ -51,6 +51,21 @@ $.register_module({
                 method = method.concat(view_id);
                 return api.request(method, {data: {}, meta: meta});
             },
+            error : {
+                root: 'views/{{view_id}}/errors',
+                get: function (config) {
+                    config = config || {};
+                    var root = this.root, method = root.split('/'), data = {}, meta;
+                    meta = check({
+                    bundle: {method: root + '#get', config: config},
+                    required: [{all_of: ['view_id']}]
+                    });
+                    method[1] = config.view_id;
+                    return api.request(method, {data: data, meta: meta});
+                },
+                put: common.not_available_put,
+                del: common.not_available_del
+            },
             status: {
                 root: 'views/{{view_id}}/pauseOrResume',
                 pause_or_resume: function (config) {

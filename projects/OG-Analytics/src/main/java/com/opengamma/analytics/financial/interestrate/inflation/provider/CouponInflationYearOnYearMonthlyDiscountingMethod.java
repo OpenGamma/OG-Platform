@@ -94,12 +94,12 @@ public class CouponInflationYearOnYearMonthlyDiscountingMethod {
     final double estimatedIndexStartBar = -estimatedIndexEnd / (estimatedIndexStart * estimatedIndexStart) * discountFactor * coupon.getNotional() * pvBar;
     final Map<String, List<DoublesPair>> resultMapDisc = new HashMap<>();
     final List<DoublesPair> listDiscounting = new ArrayList<>();
-    listDiscounting.add(new DoublesPair(coupon.getPaymentTime(), -coupon.getPaymentTime() * discountFactor * discountFactorBar));
+    listDiscounting.add(DoublesPair.of(coupon.getPaymentTime(), -coupon.getPaymentTime() * discountFactor * discountFactorBar));
     resultMapDisc.put(inflation.getName(coupon.getCurrency()), listDiscounting);
     final Map<String, List<DoublesPair>> resultMapPrice = new HashMap<>();
     final List<DoublesPair> listPrice = new ArrayList<>();
-    listPrice.add(new DoublesPair(coupon.getReferenceEndTime(), estimatedIndexEndBar));
-    listPrice.add(new DoublesPair(coupon.getReferenceStartTime(), estimatedIndexStartBar));
+    listPrice.add(DoublesPair.of(coupon.getReferenceEndTime(), estimatedIndexEndBar));
+    listPrice.add(DoublesPair.of(coupon.getReferenceStartTime(), estimatedIndexStartBar));
     resultMapPrice.put(inflation.getName(coupon.getPriceIndex()), listPrice);
     final InflationSensitivity inflationSensitivity = InflationSensitivity.ofYieldDiscountingAndPriceIndex(resultMapDisc, resultMapPrice);
     return MultipleCurrencyInflationSensitivity.of(coupon.getCurrency(), inflationSensitivity);

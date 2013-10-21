@@ -23,6 +23,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 import com.google.common.base.Supplier;
 import com.opengamma.DataNotFoundException;
@@ -43,6 +44,7 @@ import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.resource.EngineResourceManagerImpl;
 import com.opengamma.engine.resource.EngineResourceManagerInternal;
+import com.opengamma.engine.view.ViewAutoStartManager;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessState;
 import com.opengamma.engine.view.ViewProcessor;
@@ -68,6 +70,7 @@ import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.monitor.OperationTimer;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Default implementation of {@link ViewProcessor}.
@@ -124,6 +127,12 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
    */
   private final ViewProcessorEventListenerRegistry _viewProcessorEventListenerRegistry = new ViewProcessorEventListenerRegistry();
 
+  /**
+   * Responsible for tracking which views should be automatically started
+   * when the engine starts.
+   */
+  private final ViewAutoStartManager _viewAutoStartManager;
+
   private boolean _isStarted;
   private boolean _isSuspended;
 
@@ -144,7 +153,8 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
       final OverrideOperationCompiler overrideOperationCompiler,
       final ViewResultListenerFactory viewResultListenerFactory,
       final ViewProcessWorkerFactory workerFactory,
-      final ViewExecutionCache executionCache) {
+      final ViewExecutionCache executionCache,
+      final boolean useAutoStartViews) {
     _name = name;
     _configSource = configSource;
     _namedMarketDataSpecificationRepository = namedMarketDataSpecificationRepository;
@@ -162,6 +172,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     _viewResultListenerFactory = viewResultListenerFactory;
     _viewProcessWorkerFactory = workerFactory;
     _executionCache = executionCache;
+    _viewAutoStartManager = useAutoStartViews ? new ListeningViewAutoStartManager(configSource) : new NoOpViewAutoStartManager();
   }
 
   //-------------------------------------------------------------------------
@@ -210,10 +221,14 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
    * @param listener the process listener, not null
    * @param viewDefinitionId the id of the view definition, not null
    * @param executionOptions the view execution options, not null
+   * @param viewProcessContextMap contextual information to be added to log statements via MDC, may be null
    * @return the permission context to be used for access control, not null
    */
   public ViewPermissionContext attachClientToSharedViewProcess(final UniqueId clientId,
-      final ViewResultListener listener, final UniqueId viewDefinitionId, final ViewExecutionOptions executionOptions) {
+                                                               final ViewResultListener listener,
+                                                               final UniqueId viewDefinitionId,
+                                                               final ViewExecutionOptions executionOptions,
+                                                               final Map<String, String> viewProcessContextMap) {
     ArgumentChecker.notNull(clientId, "clientId");
     ArgumentChecker.notNull(viewDefinitionId, "viewDefinitionId");
     ArgumentChecker.notNull(executionOptions, "executionOptions");
@@ -222,7 +237,8 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     _processLock.lock();
     ViewProcessImpl process = null;
     try {
-      process = getOrCreateSharedViewProcess(viewDefinitionId, executionOptions, client.getResultMode(), client.getFragmentResultMode());
+      process = getOrCreateSharedViewProcess(viewDefinitionId, executionOptions, client.getResultMode(),
+                                             client.getFragmentResultMode(), viewProcessContextMap, false);
       return attachClientToViewProcessCore(client, listener, process);
     } catch (final Exception e) {
       // Roll-back
@@ -243,10 +259,14 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
    * @param listener the process listener, not null
    * @param viewDefinitionId the id of the view definition, not null
    * @param executionOptions the view execution options, not null
+   * @param viewProcessContextMap contextual information to be added to log statements via MDC
    * @return the permission provider to be used for access control, not null
    */
   public ViewPermissionContext attachClientToPrivateViewProcess(final UniqueId clientId,
-      final ViewResultListener listener, final UniqueId viewDefinitionId, final ViewExecutionOptions executionOptions) {
+                                                                final ViewResultListener listener,
+                                                                final UniqueId viewDefinitionId,
+                                                                final ViewExecutionOptions executionOptions,
+                                                                final Map<String, String> viewProcessContextMap) {
     ArgumentChecker.notNull(viewDefinitionId, "definitionID");
     ArgumentChecker.notNull(executionOptions, "executionOptions");
     final ViewClientImpl client = getViewClient(clientId);
@@ -254,7 +274,12 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     ViewProcessImpl process = null;
     _processLock.lock();
     try {
-      process = createViewProcess(viewDefinitionId, executionOptions, client.getResultMode(), client.getFragmentResultMode());
+      process = createViewProcess(viewDefinitionId,
+                                  executionOptions,
+                                  client.getResultMode(),
+                                  client.getFragmentResultMode(),
+                                  viewProcessContextMap,
+                                  false);
       return attachClientToViewProcessCore(client, listener, process);
     } catch (final Exception e) {
       // Roll-back
@@ -295,7 +320,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   private ViewPermissionContext attachClientToViewProcessCore(final ViewClientImpl client,
                                                                final ViewResultListener listener,
                                                                final ViewProcessImpl process) {
-    final Pair<ViewProcessImpl, ViewResultListener> processListenerPair = Pair.of(process, listener);
+    final Pair<ViewProcessImpl, ViewResultListener> processListenerPair = Pairs.of(process, listener);
     _processLock.lock();
     try {
       final Pair<ViewProcessImpl, ViewResultListener> existingAttachment = _clientToProcess.get(client.getUniqueId());
@@ -333,14 +358,18 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     }
   }
 
-  private ViewProcessImpl getOrCreateSharedViewProcess(UniqueId viewDefinitionId, ViewExecutionOptions executionOptions,
-      ViewResultMode resultMode, ViewResultMode fragmentResultMode) {
+  private ViewProcessImpl getOrCreateSharedViewProcess(UniqueId viewDefinitionId,
+                                                       ViewExecutionOptions executionOptions,
+                                                       ViewResultMode resultMode,
+                                                       ViewResultMode fragmentResultMode,
+                                                       Map<String, String> viewProcessContextMap,
+                                                       boolean runPersistently) {
     _processLock.lock();
     try {
       final ViewProcessDescription viewDescription = new ViewProcessDescription(viewDefinitionId, executionOptions);
       ViewProcessImpl process = _sharedProcessesByDescription.get(viewDescription);
       if (process == null) {
-        process = createViewProcess(viewDefinitionId, executionOptions, resultMode, fragmentResultMode);
+        process = createViewProcess(viewDefinitionId, executionOptions, resultMode, fragmentResultMode, viewProcessContextMap, runPersistently);
         process.setDescriptionKey(viewDescription); // TEMPORARY - the execution options in the key might not match what the process was created with
         _sharedProcessesByDescription.put(viewDescription, process);
       }
@@ -350,19 +379,34 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     }
   }
 
-  private ViewProcessImpl createViewProcess(UniqueId definitionId, ViewExecutionOptions viewExecutionOptions,
-      ViewResultMode resultMode, ViewResultMode fragmentResultMode) {
+  private ViewProcessImpl createViewProcess(UniqueId definitionId,
+                                            ViewExecutionOptions viewExecutionOptions,
+                                            ViewResultMode resultMode,
+                                            ViewResultMode fragmentResultMode,
+                                            Map<String, String> viewProcessContextMap,
+                                            boolean runPersistently) {
 
     // TEMPORARY CODE - This method should be removed post credit work and supports Excel (Jim)
     ViewExecutionOptions executionOptions = verifyLiveDataViewExecutionOptions(viewExecutionOptions);
     // END TEMPORARY CODE
 
     _processLock.lock();
+
     try {
+      // Either set or clear the map to ensure that anything there from a
+      // previous run is removed. This can only happen where we have re-use
+      // of threads e.g. remote clients managed by Jetty
+      if (viewProcessContextMap != null && !viewProcessContextMap.isEmpty()) {
+        MDC.setContextMap(viewProcessContextMap);
+      } else {
+        MDC.clear();
+      }
+
       final String idValue = generateIdValue(_processIdSource);
       final UniqueId viewProcessId = UniqueId.of(PROCESS_SCHEME, idValue);
       final ViewProcessContext viewProcessContext = createViewProcessContext(viewProcessId, new VersionedUniqueIdSupplier(CYCLE_SCHEME, idValue));
-      final ViewProcessImpl viewProcess = new ViewProcessImpl(definitionId, executionOptions, viewProcessContext, this);
+      final ViewProcessImpl viewProcess =
+          new ViewProcessImpl(definitionId, executionOptions, viewProcessContext, this, runPersistently);
 
       // If executing in batch mode then attach a special listener to write incoming results into the batch db
       if (executionOptions.getFlags().contains(ViewExecutionFlags.BATCH)) {
@@ -653,12 +697,38 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
         return;
       }
       s_logger.info("Starting on lifecycle call.");
+
+      _viewAutoStartManager.initialize();
+      for (Map.Entry<String, AutoStartViewDefinition> entry : _viewAutoStartManager.getAutoStartViews().entrySet()) {
+        autoStartView(entry.getKey(), entry.getValue());
+      }
       _isStarted = true;
     } finally {
       _lifecycleLock.unlock();
     }
     timer.finished();
     _viewProcessorEventListenerRegistry.notifyViewProcessorStarted();
+  }
+
+  private void autoStartView(String viewName, AutoStartViewDefinition view) {
+    UniqueId viewDefinitionId = view.getViewDefinitionId();
+    try {
+      ViewProcessImpl process = getOrCreateSharedViewProcess(viewDefinitionId,
+                                                             view.getExecutionOptions(),
+                                                             // These result mode options will be ignored so shouldn't really matter
+                                                             // but set to what web client would
+                                                             ViewResultMode.FULL_THEN_DELTA,
+                                                             ViewResultMode.NONE,
+                                                             null,
+                                                             // Run persistently
+                                                             true);
+
+      s_logger.info("Auto-started view: {}", viewName);
+      _viewProcessorEventListenerRegistry.notifyViewAutomaticallyStarted(process.getUniqueId(), viewName);
+
+    } catch (RuntimeException e) {
+      s_logger.error("Unable to auto-start view definition with id: {}", viewDefinitionId);
+    }
   }
 
   @Override

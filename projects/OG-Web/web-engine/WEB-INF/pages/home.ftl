@@ -17,7 +17,20 @@
       <li><a href="${regionUris.regions()}">View and Manage regions</a></li>
       <li><a href="${timeseriesUris.allTimeSeries()}">View and Manage time series</a></li>
       <li><a href="${configUris.configs()}">View and Manage configuration</a></li>
+      <li><a href="${snapshotUris.snapshots()}">View and Manage market data snapshots</a></li>
+      <li><a href="${functionUris.functions()}">View and Manage functions</a></li>
     </ul>
+  </p>
+</@section>
+<#-- SECTION Links -->
+<@section title="Links">
+  <p>
+<#if uris.about()??>
+    <a href="${uris.about()}">View information about the system</a><br />
+</#if>
+<#if uris.components()??>
+    <a href="${uris.components()}">View the components</a><br />
+</#if>
   </p>
 </@section>
 <p>

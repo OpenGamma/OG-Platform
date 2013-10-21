@@ -16,7 +16,6 @@ import org.testng.annotations.Test;
 import com.opengamma.engine.depgraph.DepGraphTestHelper;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphBuilder;
-import com.opengamma.engine.depgraph.DependencyNode;
 import com.opengamma.engine.depgraph.impl.DependencyGraphImpl;
 import com.opengamma.engine.view.ResultOutputMode;
 import com.opengamma.util.test.TestGroup;
@@ -34,9 +33,7 @@ public class ResultOutputModeTest {
     builder.addTarget(Collections.singleton(helper.getRequirement1()));
     DependencyGraph graph = builder.getDependencyGraph();
     graph = DependencyGraphImpl.removeUnnecessaryValues(graph);
-
     assertEquals(1, graph.getSize());
-    DependencyNode functionNode = graph.nodeIterator().next();
 
     // Nothing should be included in the output
     assertFalse(ResultOutputMode.NONE.shouldOutputResult(helper.getSpec1(), graph));

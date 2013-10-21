@@ -28,16 +28,14 @@ import org.threeten.bp.ZonedDateTime;
 import com.google.common.collect.Iterables;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.credit.BuySellProtection;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.StandardCDSCoupon;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.standard.StandardCreditDefaultSwapDefinition;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.vanilla.CreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.AnalyticCDSPricer;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSAnalytic;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSAnalyticFactory;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantCreditCurve;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantYieldCurve;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.PointsUpFrontConverter;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.AnalyticCDSPricer;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurve;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.MarketQuoteConverter;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -59,7 +57,7 @@ import com.opengamma.financial.security.FinancialSecurityUtils;
  */
 public class StandardVanillaPresentValueCDSFunction extends StandardVanillaCDSFunction {
   private static final AnalyticCDSPricer PRICER = new AnalyticCDSPricer();
-  private static final PointsUpFrontConverter POINTS_UP_FRONT_CONVERTER = new PointsUpFrontConverter();
+  private static final MarketQuoteConverter POINTS_UP_FRONT_CONVERTER = new MarketQuoteConverter();
 
   public StandardVanillaPresentValueCDSFunction() {
     super(ValueRequirementNames.PRESENT_VALUE);
@@ -88,7 +86,7 @@ public class StandardVanillaPresentValueCDSFunction extends StandardVanillaCDSFu
       pv = PRICER.pv(analytic, yieldCurve, hazardCurve, ((LegacyCreditDefaultSwapDefinition) definition).getParSpread() * 1e-4) * definition.getNotional();
     } else if (definition instanceof StandardCreditDefaultSwapDefinition) {
       pv = POINTS_UP_FRONT_CONVERTER.quotedSpreadToPUF(analytic,
-                                                       getCoupon(((StandardCreditDefaultSwapDefinition) definition).getPremiumLegCoupon()),
+                                                       ((StandardCreditDefaultSwapDefinition) definition).getPremiumLegCoupon(),
                                                        yieldCurve,
                                                        ((StandardCreditDefaultSwapDefinition) definition).getQuotedSpread() * 1e-4) * definition.getNotional();
     } else {

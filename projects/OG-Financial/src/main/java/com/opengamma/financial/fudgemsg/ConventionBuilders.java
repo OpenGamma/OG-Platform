@@ -26,6 +26,8 @@ import com.opengamma.financial.convention.DepositConvention;
 import com.opengamma.financial.convention.FXForwardAndSwapConvention;
 import com.opengamma.financial.convention.FXSpotConvention;
 import com.opengamma.financial.convention.FederalFundsFutureConvention;
+import com.opengamma.financial.convention.IMMFRAConvention;
+import com.opengamma.financial.convention.IMMSwapConvention;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.InflationLegConvention;
 import com.opengamma.financial.convention.InterestRateFutureConvention;
@@ -58,6 +60,9 @@ public final class ConventionBuilders {
   /** The unique id field */
   private static final String UNIQUE_ID_FIELD = "uniqueId";
 
+  /**
+   * Private constructor
+   */
   private ConventionBuilders() {
   }
 
@@ -173,7 +178,7 @@ public final class ConventionBuilders {
       final StubType stubTypeLeg = StubType.valueOf(message.getString(STUB_TYPE_LEG_FIELD));
       final boolean exchangeNotional = message.getBoolean(EXCHANGE_NOTIONAL_FIELD);
       final int paymentLag = message.getInt(PAYMENT_LAG_FIELD);
-      final CompoundingIborLegConvention convention = new CompoundingIborLegConvention(name, externalIdBundle, swapIndexConvention, paymentTenor, 
+      final CompoundingIborLegConvention convention = new CompoundingIborLegConvention(name, externalIdBundle, swapIndexConvention, paymentTenor,
           compoundingType, compositionTenor, stubTypeCompound, settlementDays, isEOM, stubTypeLeg, exchangeNotional, paymentLag);
       final FudgeField uniqueIdMsg = message.getByName(UNIQUE_ID_FIELD);
       if (uniqueIdMsg != null) {
@@ -388,6 +393,84 @@ public final class ConventionBuilders {
       final String fixingPage = message.getString(FIXING_PAGE_FIELD);
       final IborIndexConvention convention = new IborIndexConvention(name, externalIdBundle, dayCount, businessDayConvention, settlementDays, isEOM, currency,
           fixingTime, fixingTimeZone, fixingCalendar, regionCalendar, fixingPage);
+      final FudgeField uniqueIdMsg = message.getByName(UNIQUE_ID_FIELD);
+      if (uniqueIdMsg != null) {
+        convention.setUniqueId(deserializer.fieldValueToObject(UniqueId.class, uniqueIdMsg));
+      }
+      return convention;
+    }
+  }
+
+  /**
+   * Fudge builder for IMM FRA conventions.
+   */
+  @FudgeBuilderFor(IMMFRAConvention.class)
+  public static class IMMFRAConventionBuilder implements FudgeBuilder<IMMFRAConvention> {
+    /** The underlying index field */
+    private static final String UNDERLYING_INDEX_FIELD = "underlyingIndex";
+    /** The IMM date convention field */
+    private static final String IMM_DATE_CONVENTION_FIELD = "immDateConvention";
+
+    @Override
+    public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final IMMFRAConvention object) {
+      final MutableFudgeMsg message = serializer.newMessage();
+      FudgeSerializer.addClassHeader(message, IMMFRAConvention.class);
+      serializer.addToMessage(message, UNDERLYING_INDEX_FIELD, null, object.getIndexConvention());
+      serializer.addToMessage(message, IMM_DATE_CONVENTION_FIELD, null, object.getImmDateConvention());
+      message.add(NAME_FIELD, object.getName());
+      serializer.addToMessage(message, EXTERNAL_ID_BUNDLE_FIELD, null, object.getExternalIdBundle());
+      serializer.addToMessage(message, UNIQUE_ID_FIELD, null, object.getUniqueId());
+      return message;
+    }
+
+    @Override
+    public IMMFRAConvention buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final String name = message.getString(NAME_FIELD);
+      final ExternalIdBundle externalIdBundle = deserializer.fieldValueToObject(ExternalIdBundle.class, message.getByName(EXTERNAL_ID_BUNDLE_FIELD));
+      final ExternalId underlyingIndexConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(UNDERLYING_INDEX_FIELD));
+      final ExternalId immDateConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(IMM_DATE_CONVENTION_FIELD));
+      final IMMFRAConvention convention = new IMMFRAConvention(name, externalIdBundle, underlyingIndexConvention, immDateConvention);
+      final FudgeField uniqueIdMsg = message.getByName(UNIQUE_ID_FIELD);
+      if (uniqueIdMsg != null) {
+        convention.setUniqueId(deserializer.fieldValueToObject(UniqueId.class, uniqueIdMsg));
+      }
+      return convention;
+    }
+  }
+
+  /**
+   * Fudge builder for IMM swap conventions.
+   */
+  @FudgeBuilderFor(IMMSwapConvention.class)
+  public static class IMMSwapConventionBuilder implements FudgeBuilder<IMMSwapConvention> {
+    /** The pay leg field */
+    private static final String PAY_LEG_FIELD = "payLeg";
+    /** The receive leg field */
+    private static final String RECEIVE_LEG_FIELD = "receiveLeg";
+    /** The IMM date convention field */
+    private static final String IMM_DATE_CONVENTION = "immDateConvention";
+
+    @Override
+    public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final IMMSwapConvention object) {
+      final MutableFudgeMsg message = serializer.newMessage();
+      FudgeSerializer.addClassHeader(message, IMMSwapConvention.class);
+      serializer.addToMessage(message, PAY_LEG_FIELD, null, object.getPayLegConvention());
+      serializer.addToMessage(message, RECEIVE_LEG_FIELD, null, object.getReceiveLegConvention());
+      serializer.addToMessage(message, IMM_DATE_CONVENTION, null, object.getImmDateConvention());
+      message.add(NAME_FIELD, object.getName());
+      serializer.addToMessage(message, EXTERNAL_ID_BUNDLE_FIELD, null, object.getExternalIdBundle());
+      serializer.addToMessage(message, UNIQUE_ID_FIELD, null, object.getUniqueId());
+      return message;
+    }
+
+    @Override
+    public IMMSwapConvention buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final String name = message.getString(NAME_FIELD);
+      final ExternalIdBundle externalIdBundle = deserializer.fieldValueToObject(ExternalIdBundle.class, message.getByName(EXTERNAL_ID_BUNDLE_FIELD));
+      final ExternalId payLegConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(PAY_LEG_FIELD));
+      final ExternalId receiveLegConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(RECEIVE_LEG_FIELD));
+      final ExternalId immDateConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(IMM_DATE_CONVENTION));
+      final IMMSwapConvention convention = new IMMSwapConvention(name, externalIdBundle, payLegConvention, receiveLegConvention, immDateConvention);
       final FudgeField uniqueIdMsg = message.getByName(UNIQUE_ID_FIELD);
       if (uniqueIdMsg != null) {
         convention.setUniqueId(deserializer.fieldValueToObject(UniqueId.class, uniqueIdMsg));

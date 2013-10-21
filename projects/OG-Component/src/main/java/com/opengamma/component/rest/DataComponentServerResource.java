@@ -33,6 +33,7 @@ import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
 import com.opengamma.web.FreemarkerOutputter;
+import com.opengamma.web.WebHomeUris;
 
 /**
  * RESTful resource for exposing managed components.
@@ -136,10 +137,11 @@ public class DataComponentServerResource extends AbstractDataResource {
       byType.put(info.getType(), info);
     }
     FreemarkerOutputter freemarker = new FreemarkerOutputter(servletContext);
-    FlexiBean data = freemarker.createRootData();
-    data.put("componentServer", server);
-    data.put("infosByType", byType);
-    return freemarker.build("data/componentserver.ftl", data);
+    FlexiBean out = freemarker.createRootData();
+    out.put("componentServer", server);
+    out.put("infosByType", byType);
+    out.put("uris", new WebHomeUris(uriInfo));
+    return freemarker.build("data/componentserver.ftl", out);
   }
 
   @Path("{type}/{classifier}")

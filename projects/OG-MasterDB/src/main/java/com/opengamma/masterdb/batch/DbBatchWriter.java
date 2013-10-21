@@ -11,6 +11,7 @@ import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
 import static com.opengamma.lambdava.streams.Lambdava.newArray;
 import static com.opengamma.util.db.HibernateDbUtils.eqOrIsNull;
+import static org.apache.commons.lang.StringUtils.defaultString;
 
 import java.io.Serializable;
 import java.sql.SQLException;
@@ -94,6 +95,7 @@ import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * A batch master implementation using a database for persistence.
@@ -143,6 +145,7 @@ public class DbBatchWriter extends AbstractDbMaster {
    * Creates an instance.
    *
    * @param dbConnector  the database connector, not null
+   * @param computationTargetResolver  the resolver
    */
   public DbBatchWriter(final DbConnector dbConnector, final ComputationTargetResolver computationTargetResolver) {
     super(dbConnector, IDENTIFIER_SCHEME_DEFAULT);
@@ -1151,7 +1154,7 @@ public class DbBatchWriter extends AbstractDbMaster {
 
       // this assumes that _searchKey2StatusEntry has already been populated
       // in getStatus()
-      Pair<Long, Long> key = Pair.of(calcConfId, computationTargetId);
+      Pair<Long, Long> key = Pairs.of(calcConfId, computationTargetId);
       StatusEntry statusEntry = statusCache.get(key);
       if (statusEntry != null) {
         statusEntry.setStatus(status);
@@ -1207,31 +1210,16 @@ public class DbBatchWriter extends AbstractDbMaster {
     return totalCount;
   }
   
-  /**
-   * Java has support for extended-precision doubles using 80-bits rather than 64-bits. The DOUBLE PRECISION type in
-   * SQL is a 64-bit floating point value. Attempting to write values to the database which can only be represented in
-   * the 80-bit format (e.g. 1E-350) will result in an SQL exception.
-   * <p>
-   * This method works by extracting the 64-bit precision value so that values out of the range of a SQL double will be
-   * rounded to zero. 
-   * 
-   * @param value  the input value, may be null
-   * @return the output, null if input was null, otherwise its 64-bit equivalent
-   */
   private static Double ensureDatabasePrecision(Double value) {
-    // NOTE jonathan 2013-06-12 -- force it through a strictfp method instead?
     if (value == null) {
       return null;
     }
-    final long doubleAsLongBits = Double.doubleToLongBits(value);
-    final double doubleViaLongBits = Double.longBitsToDouble(doubleAsLongBits);
-    if (Double.doubleToLongBits(doubleViaLongBits) != doubleAsLongBits) {
-      // Something went wrong in the conversion
-      s_logger.error("Attempt to restrict result " + value + " to the 64-bit precision supported by the database resulted in unexpected value "
-          + doubleViaLongBits + ". Using original value, but the database write may fail.");
-      return value;
+    // Java's smallest double is 4.9e-324, but most databases would underflow.
+    // Postgres is 1e-307, Oracle is 2.2e-307, SQL Server is 2.2e-308.
+    if (Math.abs(value) < 1e-300) {
+      return 0d;
     }
-    return doubleViaLongBits;
+    return value;
   }
 
   protected StatusEntry.Status getStatus(Map<Pair<Long, Long>, StatusEntry> statusCache, String calcConfName, ComputationTargetSpecification ct) {
@@ -1241,7 +1229,7 @@ public class DbBatchWriter extends AbstractDbMaster {
     // first check to see if this status has already been queried for
     // and if the answer could therefore be found in the cache
 
-    Pair<Long, Long> key = Pair.of(calcConfId, computationTargetId);
+    Pair<Long, Long> key = Pairs.of(calcConfId, computationTargetId);
     if (statusCache.containsKey(key)) {
       StatusEntry existingStatusEntryInDb = statusCache.get(key);
       if (existingStatusEntryInDb != null) {
@@ -1336,6 +1324,11 @@ public class DbBatchWriter extends AbstractDbMaster {
     String exceptionClass = rootLog != null ? rootLog.getExecutionLog().getExceptionClass() : null;
     String exceptionMessage = rootLog != null ? rootLog.getExecutionLog().getExceptionMessage() : null;
     String exceptionStackTrace = rootLog != null ? rootLog.getExecutionLog().getExceptionStackTrace() : null;
+    //ensure we don't end up with null going into the ComputeFailureKey for these strings.
+    //this will probably be due to the fact that the rootLog was null.
+    exceptionClass = defaultString(exceptionClass, "No logging information available");
+    exceptionMessage = defaultString(exceptionMessage, "No logging information available");
+    exceptionStackTrace = defaultString(exceptionStackTrace, "No logging information available");
     ComputeFailureKey computeFailureKey = new ComputeFailureKey(item.getComputedValue().getSpecification().getFunctionUniqueId(), exceptionClass, exceptionMessage, exceptionStackTrace);
     return getComputeFailureFromDb(computeFailureCache, computeFailureKey);
   }

@@ -49,6 +49,7 @@ import com.opengamma.util.MapUtils;
 import com.opengamma.util.test.AbstractDbTest;
 import com.opengamma.util.time.LocalDateRange;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * 
@@ -183,7 +184,7 @@ public abstract class AbstractHistoricalTimeSeriesDBTest extends AbstractDbTest 
             HistoricalTimeSeries hts = _htsMaster.getTimeSeries(tsUid);
             assertNotNull(hts);
             assertEquals(timeSeries, hts.getTimeSeries());
-            result.add(Pair.of(added, hts));
+            result.add(Pairs.of(added, hts));
           }
         }
       }

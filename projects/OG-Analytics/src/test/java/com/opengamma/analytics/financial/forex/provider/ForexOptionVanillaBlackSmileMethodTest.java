@@ -49,8 +49,8 @@ import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 import com.opengamma.util.tuple.Triple;
 
 /**
@@ -94,8 +94,8 @@ public class ForexOptionVanillaBlackSmileMethodTest {
   private static final SmileDeltaTermStructureParametersStrikeInterpolation SMILE_TERM = new SmileDeltaTermStructureParametersStrikeInterpolation(TIME_TO_EXPIRY, DELTA,
       ATM, RISK_REVERSAL, STRANGLE);
   private static final SmileDeltaTermStructureParametersStrikeInterpolation SMILE_TERM_FLAT = ForexSmileProviderDataSets.smileFlat(REFERENCE_DATE);
-  private static final BlackForexSmileProviderDiscount SMILE_MULTICURVES = new BlackForexSmileProviderDiscount(MULTICURVES, SMILE_TERM, Pair.of(EUR, USD));
-  private static final BlackForexSmileProviderDiscount SMILE_FLAT_MULTICURVES = new BlackForexSmileProviderDiscount(MULTICURVES, SMILE_TERM_FLAT, Pair.of(EUR, USD));
+  private static final BlackForexSmileProviderDiscount SMILE_MULTICURVES = new BlackForexSmileProviderDiscount(MULTICURVES, SMILE_TERM, Pairs.of(EUR, USD));
+  private static final BlackForexSmileProviderDiscount SMILE_FLAT_MULTICURVES = new BlackForexSmileProviderDiscount(MULTICURVES, SMILE_TERM_FLAT, Pairs.of(EUR, USD));
 
   private static final double SHIFT = 1.0E-6;
   private static final FXMatrix FX_MATRIX_M = new FXMatrix(EUR, USD, SPOT - SHIFT);
@@ -106,8 +106,8 @@ public class ForexOptionVanillaBlackSmileMethodTest {
     MULTICURVES_FX_M.setForexMatrix(FX_MATRIX_M);
     MULTICURVES_FX_P.setForexMatrix(FX_MATRIX_P);
   }
-  private static final BlackForexSmileProvider SMILE_M_MULTICURVES = new BlackForexSmileProvider(MULTICURVES_FX_M, SMILE_TERM_FLAT, Pair.of(EUR, USD));
-  private static final BlackForexSmileProvider SMILE_P_MULTICURVES = new BlackForexSmileProvider(MULTICURVES_FX_P, SMILE_TERM_FLAT, Pair.of(EUR, USD));
+  private static final BlackForexSmileProvider SMILE_M_MULTICURVES = new BlackForexSmileProvider(MULTICURVES_FX_M, SMILE_TERM_FLAT, Pairs.of(EUR, USD));
+  private static final BlackForexSmileProvider SMILE_P_MULTICURVES = new BlackForexSmileProvider(MULTICURVES_FX_P, SMILE_TERM_FLAT, Pairs.of(EUR, USD));
 
   private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
 
@@ -677,15 +677,15 @@ public class ForexOptionVanillaBlackSmileMethodTest {
    */
   public void volatilitySensitivity() {
     final PresentValueForexBlackVolatilitySensitivity sensi = METHOD_OPTION.presentValueBlackVolatilitySensitivity(FOREX_CALL_OPTION, SMILE_MULTICURVES);
-    final Pair<Currency, Currency> currencyPair = ObjectsPair.of(EUR, USD);
-    final DoublesPair point = new DoublesPair(FOREX_CALL_OPTION.getTimeToExpiry(), STRIKE);
+    final Pair<Currency, Currency> currencyPair = Pairs.of(EUR, USD);
+    final DoublesPair point = DoublesPair.of(FOREX_CALL_OPTION.getTimeToExpiry(), STRIKE);
     assertEquals("Forex vanilla option: vega", currencyPair, sensi.getCurrencyPair());
     assertEquals("Forex vanilla option: vega size", 1, sensi.getVega().getMap().entrySet().size());
     assertTrue("Forex vanilla option: vega", sensi.getVega().getMap().containsKey(point));
     final double timeToExpiry = TimeCalculator.getTimeBetween(REFERENCE_DATE, OPTION_EXP_DATE);
     final double df = MULTICURVES.getDiscountFactor(USD, TimeCalculator.getTimeBetween(REFERENCE_DATE, OPTION_PAY_DATE));
     final double forward = SPOT * MULTICURVES.getDiscountFactor(EUR, TimeCalculator.getTimeBetween(REFERENCE_DATE, OPTION_PAY_DATE)) / df;
-    final double volatility = SMILE_TERM.getVolatility(new Triple<>(timeToExpiry, STRIKE, forward));
+    final double volatility = SMILE_TERM.getVolatility(Triple.of(timeToExpiry, STRIKE, forward));
     final BlackFunctionData dataBlack = new BlackFunctionData(forward, df, volatility);
     final double[] priceAdjoint = BLACK_FUNCTION.getPriceAdjoint(FOREX_CALL_OPTION, dataBlack);
     assertEquals("Forex vanilla option: vega", priceAdjoint[2] * NOTIONAL, sensi.getVega().getMap().get(point));
@@ -742,7 +742,7 @@ public class ForexOptionVanillaBlackSmileMethodTest {
         .presentValueBlackVolatilityNodeSensitivity(FOREX_CALL_OPTION, SMILE_MULTICURVES);
     assertEquals("Forex vanilla option: vega node size", NB_EXP + 1, sensi.getVega().getData().length);
     assertEquals("Forex vanilla option: vega node size", NB_STRIKE, sensi.getVega().getData()[0].length);
-    final Pair<Currency, Currency> currencyPair = ObjectsPair.of(EUR, USD);
+    final Pair<Currency, Currency> currencyPair = Pairs.of(EUR, USD);
     assertEquals("Forex vanilla option: vega", currencyPair, sensi.getCurrencyPair());
     final PresentValueForexBlackVolatilitySensitivity pointSensitivity = METHOD_OPTION.presentValueBlackVolatilitySensitivity(FOREX_CALL_OPTION, SMILE_MULTICURVES);
     final double df = MULTICURVES.getDiscountFactor(USD, TimeCalculator.getTimeBetween(REFERENCE_DATE, OPTION_PAY_DATE));

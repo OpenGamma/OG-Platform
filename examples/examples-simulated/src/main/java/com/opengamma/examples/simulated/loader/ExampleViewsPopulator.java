@@ -20,10 +20,6 @@ import static com.opengamma.engine.value.ValueRequirementNames.GAMMA;
 import static com.opengamma.engine.value.ValueRequirementNames.MACAULAY_DURATION;
 import static com.opengamma.engine.value.ValueRequirementNames.MODIFIED_DURATION;
 import static com.opengamma.engine.value.ValueRequirementNames.PAR_RATE;
-import static com.opengamma.engine.value.ValueRequirementNames.POSITION_DELTA;
-import static com.opengamma.engine.value.ValueRequirementNames.POSITION_GAMMA;
-import static com.opengamma.engine.value.ValueRequirementNames.POSITION_RHO;
-import static com.opengamma.engine.value.ValueRequirementNames.POSITION_THETA;
 import static com.opengamma.engine.value.ValueRequirementNames.PRESENT_VALUE;
 import static com.opengamma.engine.value.ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_NODE_SENSITIVITY;
 import static com.opengamma.engine.value.ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY;
@@ -109,6 +105,7 @@ import com.opengamma.scripts.Scriptable;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Example code to create a set of example views.
@@ -156,11 +153,11 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
     SWAPTION_SURFACES.put(Currency.EUR, "PROVIDER2");
     SWAPTION_SURFACES.put(Currency.JPY, "PROVIDER3");
     SWAPTION_SURFACES.put(Currency.CHF, "PROVIDER2");
-    SWAPTION_CURVES.put(Currency.USD, Pair.of("Discounting", "Forward3M"));
-    SWAPTION_CURVES.put(Currency.GBP, Pair.of("Discounting", "Forward6M"));
-    SWAPTION_CURVES.put(Currency.EUR, Pair.of("Discounting", "Forward6M"));
-    SWAPTION_CURVES.put(Currency.JPY, Pair.of("Discounting", "Forward6M"));
-    SWAPTION_CURVES.put(Currency.CHF, Pair.of("Discounting", "Forward6M"));
+    SWAPTION_CURVES.put(Currency.USD, Pairs.of("Discounting", "Forward3M"));
+    SWAPTION_CURVES.put(Currency.GBP, Pairs.of("Discounting", "Forward6M"));
+    SWAPTION_CURVES.put(Currency.EUR, Pairs.of("Discounting", "Forward6M"));
+    SWAPTION_CURVES.put(Currency.JPY, Pairs.of("Discounting", "Forward6M"));
+    SWAPTION_CURVES.put(Currency.CHF, Pairs.of("Discounting", "Forward6M"));
   }
 
   //-------------------------------------------------------------------------
@@ -644,23 +641,15 @@ public class ExampleViewsPopulator extends AbstractTool<ToolContext> {
     viewDefinition.setMinFullCalculationPeriod(500L);
     final ViewCalculationConfiguration defaultCalConfig = new ViewCalculationConfiguration(viewDefinition, DEFAULT_CALC_CONFIG);
     addValueRequirements(defaultCalConfig, EquitySecurity.SECURITY_TYPE, new String[]{
-      POSITION_DELTA,
       VALUE_DELTA,
       DELTA,
-      POSITION_GAMMA,
-      POSITION_THETA,
-      POSITION_RHO,
       GAMMA,
       THETA,
       RHO,
       VEGA
     });
-    defaultCalConfig.addPortfolioRequirement(EquityOptionSecurity.SECURITY_TYPE, POSITION_DELTA, ValueProperties.none());
     defaultCalConfig.addPortfolioRequirement(EquityOptionSecurity.SECURITY_TYPE, VALUE_DELTA, ValueProperties.none());
     defaultCalConfig.addPortfolioRequirement(EquityOptionSecurity.SECURITY_TYPE, DELTA, ValueProperties.none());
-    defaultCalConfig.addPortfolioRequirement(EquityOptionSecurity.SECURITY_TYPE, POSITION_GAMMA, ValueProperties.none());
-    defaultCalConfig.addPortfolioRequirement(EquityOptionSecurity.SECURITY_TYPE, POSITION_THETA, ValueProperties.none());
-    defaultCalConfig.addPortfolioRequirement(EquityOptionSecurity.SECURITY_TYPE, POSITION_RHO, ValueProperties.none());
     defaultCalConfig.addPortfolioRequirement(EquityOptionSecurity.SECURITY_TYPE, GAMMA, ValueProperties.none());
     defaultCalConfig.addPortfolioRequirement(EquityOptionSecurity.SECURITY_TYPE, THETA, ValueProperties.none());
     defaultCalConfig.addPortfolioRequirement(EquityOptionSecurity.SECURITY_TYPE, RHO, ValueProperties.none());

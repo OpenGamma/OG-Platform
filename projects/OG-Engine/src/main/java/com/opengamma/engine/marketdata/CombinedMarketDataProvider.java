@@ -30,6 +30,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Implementation of {@link MarketDataProvider} which sources its data from one of two {@link MarketDataProvider}s, choosing based on the availability of data.
@@ -330,7 +331,7 @@ public class CombinedMarketDataProvider extends AbstractMarketDataProvider {
   protected Pair<MarketDataProvider, ValueSpecification> getProvider(final ValueSpecification specification) {
     final ValueProperties.Builder underlyingProperties = specification.getProperties().copy();
     final MarketDataProvider provider = getDataProvider(specification, underlyingProperties);
-    return Pair.of(provider, new ValueSpecification(specification.getValueName(), specification.getTargetSpecification(), underlyingProperties.get()));
+    return Pairs.of(provider, new ValueSpecification(specification.getValueName(), specification.getTargetSpecification(), underlyingProperties.get()));
   }
 
 }

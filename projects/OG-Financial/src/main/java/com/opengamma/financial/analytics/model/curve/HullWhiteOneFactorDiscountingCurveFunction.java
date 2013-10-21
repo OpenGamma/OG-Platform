@@ -69,6 +69,8 @@ import com.opengamma.financial.analytics.curve.DeliverableSwapFutureNodeConverte
 import com.opengamma.financial.analytics.curve.DiscountingCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.FRANodeConverter;
 import com.opengamma.financial.analytics.curve.FXForwardNodeConverter;
+import com.opengamma.financial.analytics.curve.IMMFRANodeConverter;
+import com.opengamma.financial.analytics.curve.IMMSwapNodeConverter;
 import com.opengamma.financial.analytics.curve.IborCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.InterpolatedCurveDefinition;
 import com.opengamma.financial.analytics.curve.OvernightCurveTypeConfiguration;
@@ -87,6 +89,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Produces yield curves using the Hull-White one-factor discounting method.
@@ -111,6 +114,21 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
     return new MyCompiledFunctionDefinition(earliestInvokation, latestInvokation, curveNames, exogenousRequirements, curveConstructionConfiguration);
   }
 
+  @Override
+  protected InstrumentDerivativeVisitor<HullWhiteOneFactorProviderInterface, Double> getCalculator() {
+    return PSMQHWC;
+  }
+
+  @Override
+  protected InstrumentDerivativeVisitor<HullWhiteOneFactorProviderInterface, MulticurveSensitivity> getSensitivityCalculator() {
+    return PSMQCSHWC;
+  }
+
+  @Override
+  protected String getCurveTypeProperty() {
+    return HULL_WHITE_DISCOUNTING;
+  }
+
   /**
    * Compiled function implementation.
    */
@@ -133,7 +151,6 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
     }
 
     @Override
-    @SuppressWarnings("synthetic-access")
     protected Pair<HullWhiteOneFactorProviderInterface, CurveBuildingBlockBundle> getCurves(final FunctionInputs inputs, final ZonedDateTime now,
         final HullWhiteProviderDiscountBuildingRepository builder, final HullWhiteOneFactorProviderInterface knownData, final ConventionSource conventionSource,
         final HolidaySource holidaySource, final RegionSource regionSource) {
@@ -242,7 +259,7 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
       //TODO this is only in here because the code in analytics doesn't use generics properly
       final Pair<HullWhiteOneFactorProviderDiscount, CurveBuildingBlockBundle> temp = builder.makeCurvesFromDerivatives(curveBundles,
           (HullWhiteOneFactorProviderDiscount) knownData, discountingMap, forwardIborMap, forwardONMap, getCalculator(), getSensitivityCalculator());
-      final Pair<HullWhiteOneFactorProviderInterface, CurveBuildingBlockBundle> result = Pair.of((HullWhiteOneFactorProviderInterface) temp.getFirst(), temp.getSecond());
+      final Pair<HullWhiteOneFactorProviderInterface, CurveBuildingBlockBundle> result = Pairs.of((HullWhiteOneFactorProviderInterface) temp.getFirst(), temp.getSecond());
       return result;
     }
 
@@ -268,21 +285,6 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
           .get();
       requirements.add(new ValueRequirement(ValueRequirementNames.HULL_WHITE_ONE_FACTOR_PARAMETERS, ComputationTargetSpecification.of(hwCurrency), hwProperties));
       return requirements;
-    }
-
-    @Override
-    protected InstrumentDerivativeVisitor<HullWhiteOneFactorProviderInterface, Double> getCalculator() {
-      return PSMQHWC;
-    }
-
-    @Override
-    protected InstrumentDerivativeVisitor<HullWhiteOneFactorProviderInterface, MulticurveSensitivity> getSensitivityCalculator() {
-      return PSMQCSHWC;
-    }
-
-    @Override
-    protected String getCurveTypeProperty() {
-      return HULL_WHITE_DISCOUNTING;
     }
 
     @Override
@@ -357,6 +359,8 @@ public class HullWhiteOneFactorDiscountingCurveFunction extends
           .deliverableSwapFutureNode(new DeliverableSwapFutureNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .fraNode(new FRANodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .fxForwardNode(new FXForwardNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
+          .immFRANode(new IMMFRANodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
+          .immSwapNode(new IMMSwapNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .rateFutureNode(new RateFutureNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .swapNode(new SwapNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .create();

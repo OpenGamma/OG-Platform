@@ -86,8 +86,8 @@ public final class DepositZeroDiscountingMethod implements PricingMethod {
     final double dfStartBar = -deposit.getInitialAmount() * pvBar;
     final Map<String, List<DoublesPair>> resultMapDsc = new HashMap<>();
     final List<DoublesPair> listDiscounting = new ArrayList<>();
-    listDiscounting.add(new DoublesPair(deposit.getStartTime(), -deposit.getStartTime() * dfStart * dfStartBar));
-    listDiscounting.add(new DoublesPair(deposit.getEndTime(), -deposit.getEndTime() * dfEnd * dfEndBar));
+    listDiscounting.add(DoublesPair.of(deposit.getStartTime(), -deposit.getStartTime() * dfStart * dfStartBar));
+    listDiscounting.add(DoublesPair.of(deposit.getEndTime(), -deposit.getEndTime() * dfEnd * dfEndBar));
     resultMapDsc.put(deposit.getDiscountingCurveName(), listDiscounting);
     return new InterestRateCurveSensitivity(resultMapDsc);
   }
@@ -126,8 +126,8 @@ public final class DepositZeroDiscountingMethod implements PricingMethod {
     final double dfStartTimeBar = 1.0 / dfStartTime / deposit.getPaymentAccrualFactor() * rccBar;
     final Map<String, List<DoublesPair>> resultMapDsc = new HashMap<>();
     final List<DoublesPair> listDiscounting = new ArrayList<>();
-    listDiscounting.add(new DoublesPair(deposit.getStartTime(), -deposit.getStartTime() * dfStartTime * dfStartTimeBar));
-    listDiscounting.add(new DoublesPair(deposit.getEndTime(), -deposit.getEndTime() * dfEndTime * dfEndTimeBar));
+    listDiscounting.add(DoublesPair.of(deposit.getStartTime(), -deposit.getStartTime() * dfStartTime * dfStartTimeBar));
+    listDiscounting.add(DoublesPair.of(deposit.getEndTime(), -deposit.getEndTime() * dfEndTime * dfEndTimeBar));
     resultMapDsc.put(deposit.getDiscountingCurveName(), listDiscounting);
     return new InterestRateCurveSensitivity(resultMapDsc);
   }
@@ -169,8 +169,8 @@ public final class DepositZeroDiscountingMethod implements PricingMethod {
     final double dfStartBar = 1 / (dfEnd * deposit.getPaymentAccrualFactor()) * ccrsBar;
     final Map<String, List<DoublesPair>> resultMapDsc = new HashMap<>();
     final List<DoublesPair> listDiscounting = new ArrayList<>();
-    listDiscounting.add(new DoublesPair(deposit.getStartTime(), -deposit.getStartTime() * dfStart * dfStartBar));
-    listDiscounting.add(new DoublesPair(deposit.getEndTime(), -deposit.getEndTime() * dfEnd * dfEndBar));
+    listDiscounting.add(DoublesPair.of(deposit.getStartTime(), -deposit.getStartTime() * dfStart * dfStartBar));
+    listDiscounting.add(DoublesPair.of(deposit.getEndTime(), -deposit.getEndTime() * dfEnd * dfEndBar));
     resultMapDsc.put(deposit.getDiscountingCurveName(), listDiscounting);
     return new InterestRateCurveSensitivity(resultMapDsc);
   }

@@ -21,9 +21,12 @@ import com.opengamma.financial.analytics.ircurve.strips.DeliverableSwapFutureNod
 import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
+import com.opengamma.financial.analytics.ircurve.strips.IMMFRANode;
+import com.opengamma.financial.analytics.ircurve.strips.IMMSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.PointsCurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
+import com.opengamma.financial.analytics.ircurve.strips.ThreeLegBasisSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.ZeroCouponInflationNode;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
@@ -141,6 +144,24 @@ public class CurveNodeWithIdentifierBuilder implements CurveNodeVisitor<CurveNod
   }
 
   @Override
+  public CurveNodeWithIdentifier visitIMMFRANode(final IMMFRANode node) {
+    final Tenor startTenor = node.getStartTenor();
+    final ExternalId identifier = _nodeIdMapper.getIMMFRANodeId(_curveDate, startTenor, node.getStartIMMDateNumber(), node.getEndIMMDateNumber());
+    final String dataField = _nodeIdMapper.getIMMFRANodeDataField(startTenor);
+    final DataFieldType fieldType = _nodeIdMapper.getIMMFRANodeDataFieldType(startTenor);
+    return new CurveNodeWithIdentifier(node, identifier, dataField, fieldType);
+  }
+
+  @Override
+  public CurveNodeWithIdentifier visitIMMSwapNode(final IMMSwapNode node) {
+    final Tenor startTenor = node.getStartTenor();
+    final ExternalId identifier = _nodeIdMapper.getIMMSwapNodeId(_curveDate, startTenor, node.getImmDateStartNumber(), node.getImmDateEndNumber());
+    final String dataField = _nodeIdMapper.getIMMSwapNodeDataField(startTenor);
+    final DataFieldType fieldType = _nodeIdMapper.getIMMSwapNodeDataFieldType(startTenor);
+    return new CurveNodeWithIdentifier(node, identifier, dataField, fieldType);
+  }
+
+  @Override
   public CurveNodeWithIdentifier visitRateFutureNode(final RateFutureNode node) {
     final Tenor startTenor = node.getStartTenor();
     final ExternalId identifier = _nodeIdMapper.getRateFutureNodeId(_curveDate, startTenor, node.getFutureTenor(), node.getFutureNumber());
@@ -155,6 +176,15 @@ public class CurveNodeWithIdentifierBuilder implements CurveNodeVisitor<CurveNod
     final ExternalId identifier = _nodeIdMapper.getSwapNodeId(_curveDate, tenor);
     final String dataField = _nodeIdMapper.getSwapNodeDataField(tenor);
     final DataFieldType fieldType = _nodeIdMapper.getSwapNodeDataFieldType(tenor);
+    return new CurveNodeWithIdentifier(node, identifier, dataField, fieldType);
+  }
+
+  @Override
+  public CurveNodeWithIdentifier visitThreeLegBasisSwapNode(final ThreeLegBasisSwapNode node) {
+    final Tenor tenor = node.getMaturityTenor();
+    final ExternalId identifier = _nodeIdMapper.getThreeLegBasisSwapNodeId(_curveDate, tenor);
+    final String dataField = _nodeIdMapper.getThreeLegBasisSwapNodeDataField(tenor);
+    final DataFieldType fieldType = _nodeIdMapper.getThreeLegBasisSwapNodeDataFieldType(tenor);
     return new CurveNodeWithIdentifier(node, identifier, dataField, fieldType);
   }
 

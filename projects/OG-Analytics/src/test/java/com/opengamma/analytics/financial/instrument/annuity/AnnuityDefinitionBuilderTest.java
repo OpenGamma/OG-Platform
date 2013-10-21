@@ -22,6 +22,8 @@ import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.financial.convention.rolldate.RollDateAdjuster;
+import com.opengamma.financial.convention.rolldate.RollDateAdjusterFactory;
 import com.opengamma.util.time.DateUtils;
 
 /**
@@ -36,6 +38,8 @@ public class AnnuityDefinitionBuilderTest {
 
   private static final double NOTIONAL = 10000000; // 10m
   private static final double SPREAD = 0.0010; // 10bps
+
+  private static final RollDateAdjuster QUARTERLY_IMM_ADJUSTER = RollDateAdjusterFactory.getAdjuster(RollDateAdjusterFactory.QUARTERLY_IMM_ROLL_STRING);
 
   @Test
   public void annuityIborFromStandard() {
@@ -76,6 +80,41 @@ public class AnnuityDefinitionBuilderTest {
       assertEquals("AnnuityDefinitionBuilder: Coupon Ibor Spread", leg.getNthPayment(loopcpn).getFixingPeriodEndDate(),
           ScheduleCalculator.getAdjustedDate(leg.getNthPayment(loopcpn).getFixingPeriodStartDate(), USDLIBOR6M, NYC));
       assertEquals("AnnuityDefinitionBuilder: Coupon Ibor Spread", NOTIONAL, -leg.getNthPayment(loopcpn).getNotional()); // Payer
+    }
+  }
+
+  @Test
+  public void annuityIborFromRollDate() {
+    final ZonedDateTime[] expectedDates = new ZonedDateTime[] {DateUtils.getUTCDate(2013, 9, 18), DateUtils.getUTCDate(2013, 12, 18), DateUtils.getUTCDate(2014, 3, 19),
+      DateUtils.getUTCDate(2014, 6, 18), DateUtils.getUTCDate(2014, 9, 17), DateUtils.getUTCDate(2014, 12, 17), DateUtils.getUTCDate(2015, 3, 18),
+      DateUtils.getUTCDate(2015, 6, 17), DateUtils.getUTCDate(2015, 9, 16), DateUtils.getUTCDate(2015, 12, 16), DateUtils.getUTCDate(2016, 3, 16),
+      DateUtils.getUTCDate(2016, 6, 15) };
+    ZonedDateTime referenceDate = DateUtils.getUTCDate(2013, 8, 20);
+    final int startRoll1 = 1;
+    final int endRoll1 = 5; // 1Y swap with 4 quarterly coupons.
+    AnnuityDefinition<CouponIborDefinition> leg1 = AnnuityDefinitionBuilder.annuityIborFromRollDate(referenceDate, startRoll1, endRoll1,
+        QUARTERLY_IMM_ADJUSTER, NOTIONAL, USDLIBOR3M, true, USDLIBOR6M.getDayCount(), NYC);
+    assertEquals("AnnuityDefinitionBuilder: annuityIborFromRollDate", endRoll1 - startRoll1, leg1.getNumberOfPayments()); // Number of coupons
+    for (int loopcpn = 0; loopcpn < leg1.getNumberOfPayments(); loopcpn++) {
+      assertEquals("AnnuityDefinitionBuilder: annuityIborFromRollDate", expectedDates[loopcpn], leg1.getNthPayment(loopcpn).getAccrualStartDate());
+      assertEquals("AnnuityDefinitionBuilder: annuityIborFromRollDate", expectedDates[loopcpn], leg1.getNthPayment(loopcpn).getFixingPeriodStartDate());
+      assertEquals("AnnuityDefinitionBuilder: annuityIborFromRollDate", expectedDates[loopcpn + 1], leg1.getNthPayment(loopcpn).getAccrualEndDate());
+      assertEquals("AnnuityDefinitionBuilder: Coupon Ibor Spread", leg1.getNthPayment(loopcpn).getFixingPeriodEndDate(),
+          ScheduleCalculator.getAdjustedDate(leg1.getNthPayment(loopcpn).getFixingPeriodStartDate(), USDLIBOR3M, NYC));
+      assertEquals("AnnuityDefinitionBuilder: Coupon Ibor Spread", NOTIONAL, -leg1.getNthPayment(loopcpn).getNotional()); // Payer
+    }
+    final int startRoll2 = 3;
+    final int endRoll2 = 11; // 1Y swap with 4 quarterly coupons.
+    AnnuityDefinition<CouponIborDefinition> leg2 = AnnuityDefinitionBuilder.annuityIborFromRollDate(referenceDate, startRoll2, endRoll2,
+        QUARTERLY_IMM_ADJUSTER, NOTIONAL, USDLIBOR3M, false, USDLIBOR6M.getDayCount(), NYC);
+    assertEquals("AnnuityDefinitionBuilder: annuityIborFromRollDate", endRoll2 - startRoll2, leg2.getNumberOfPayments()); // Number of coupons
+    for (int loopcpn = 0; loopcpn < leg2.getNumberOfPayments(); loopcpn++) {
+      assertEquals("AnnuityDefinitionBuilder: annuityIborFromRollDate", expectedDates[loopcpn + 2], leg2.getNthPayment(loopcpn).getAccrualStartDate());
+      assertEquals("AnnuityDefinitionBuilder: annuityIborFromRollDate", expectedDates[loopcpn + 2], leg2.getNthPayment(loopcpn).getFixingPeriodStartDate());
+      assertEquals("AnnuityDefinitionBuilder: annuityIborFromRollDate", expectedDates[loopcpn + 3], leg2.getNthPayment(loopcpn).getAccrualEndDate());
+      assertEquals("AnnuityDefinitionBuilder: Coupon Ibor Spread", leg2.getNthPayment(loopcpn).getFixingPeriodEndDate(),
+          ScheduleCalculator.getAdjustedDate(leg2.getNthPayment(loopcpn).getFixingPeriodStartDate(), USDLIBOR3M, NYC));
+      assertEquals("AnnuityDefinitionBuilder: Coupon Ibor Spread", NOTIONAL, leg2.getNthPayment(loopcpn).getNotional()); // Receiver
     }
   }
 

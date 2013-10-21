@@ -199,7 +199,7 @@ public class InterestRateFutureOptionMarginTransactionSABRMethodTest {
     final double pv = METHOD.presentValue(TRANSACTION, SABR_BUNDLE).getAmount();
     final double shift = 0.000001;
     final double delay = EDU2.getLastTradingTime() - OPTION_EDU2.getExpirationTime();
-    final DoublesPair expectedExpiryDelay = new DoublesPair(OPTION_EDU2.getExpirationTime(), delay);
+    final DoublesPair expectedExpiryDelay = DoublesPair.of(OPTION_EDU2.getExpirationTime(), delay);
     // Alpha sensitivity vs finite difference computation
     final SABRInterestRateParameters sabrParameterAlphaBumped = TestsDataSetsSABR.createSABR1AlphaBumped(shift);
     final SABRInterestRateDataBundle sabrBundleAlphaBumped = new SABRInterestRateDataBundle(sabrParameterAlphaBumped, CURVES_BUNDLE);

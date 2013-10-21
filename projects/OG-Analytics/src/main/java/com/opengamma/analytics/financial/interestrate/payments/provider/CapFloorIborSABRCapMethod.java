@@ -99,7 +99,7 @@ public final class CapFloorIborSABRCapMethod implements CapFloorIborSABRCapMetho
     final BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volatilityAdjoint[0]);
     final double[] bsAdjoint = BLACK_FUNCTION.getPriceAdjoint(option, dataBlack);
     final List<DoublesPair> list = new ArrayList<>();
-    list.add(new DoublesPair(cap.getPaymentTime(), dfDr));
+    list.add(DoublesPair.of(cap.getPaymentTime(), dfDr));
     final Map<String, List<DoublesPair>> resultMap = new HashMap<>();
     resultMap.put(multicurve.getName(cap.getCurrency()), list);
     MulticurveSensitivity result = MulticurveSensitivity.ofYieldDiscounting(resultMap);
@@ -125,7 +125,7 @@ public final class CapFloorIborSABRCapMethod implements CapFloorIborSABRCapMetho
     final double[] volatilityAdjoint = sabr.getSABRParameter().getVolatilityAdjoint(cap.getFixingTime(), maturity, cap.getStrike(), forward);
     final BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volatilityAdjoint[0]);
     final double[] bsAdjoint = BLACK_FUNCTION.getPriceAdjoint(option, dataBlack);
-    final DoublesPair expiryMaturity = new DoublesPair(cap.getFixingTime(), maturity);
+    final DoublesPair expiryMaturity = DoublesPair.of(cap.getFixingTime(), maturity);
     final PresentValueSABRSensitivityDataBundle sensi = new PresentValueSABRSensitivityDataBundle();
     sensi.addAlpha(expiryMaturity, cap.getNotional() * cap.getPaymentYearFraction() * df * bsAdjoint[2] * volatilityAdjoint[3]);
     sensi.addBeta(expiryMaturity, cap.getNotional() * cap.getPaymentYearFraction() * df * bsAdjoint[2] * volatilityAdjoint[4]);

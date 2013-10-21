@@ -31,6 +31,7 @@ import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeriesBuilder;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.test.TestGroup;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Test.
@@ -150,7 +151,7 @@ public class HistoricalTimeSeriesSourceTest {
         }
       }
     }
-    return Pair.of((HistoricalTimeSeriesSource) inMemoryHistoricalSource, map.keySet());
+    return Pairs.of((HistoricalTimeSeriesSource) inMemoryHistoricalSource, map.keySet());
   }
 
   public void testInMemoryProvider() {

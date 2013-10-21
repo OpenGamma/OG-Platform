@@ -11,6 +11,7 @@ import org.threeten.bp.ZonedDateTime;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.analytics.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.analytics.financial.interestrate.InterestRate;
+import com.opengamma.analytics.financial.interestrate.PeriodicInterestRate;
 import com.opengamma.analytics.financial.interestrate.cash.derivative.DepositZero;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -90,6 +91,29 @@ public class DepositZeroDefinition implements InstrumentDefinition<DepositZero> 
       final Calendar calendar) {
     ArgumentChecker.notNull(daycount, "day count");
     return new DepositZeroDefinition(currency, startDate, endDate, 1.0, daycount.getDayCountFraction(startDate, endDate, calendar), rate);
+  }
+
+  /**
+   * Builder. The day count is used to compute the accrual factor. The notional is 1.
+   * @param currency The currency.
+   * @param startDate The start date.
+   * @param endDate The end date.
+   * @param daycount The day count.
+   * @param rate The interest rate and its composition type.
+   * @param calendar The holiday calendar.
+   * @return The deposit.
+   */
+  public static DepositZeroDefinition withAdjustedRate(final Currency currency, final ZonedDateTime startDate, final ZonedDateTime endDate, final DayCount daycount, final InterestRate rate,
+      final Calendar calendar) {
+    ArgumentChecker.notNull(daycount, "day count");
+    double adjustedRate;
+    if (currency.equals(Currency.BRL)) {
+      adjustedRate = rate.getRate() * daycount.getDayCountFraction(startDate, endDate, calendar) / TimeCalculator.getTimeBetween(startDate, endDate);
+    } else {
+      adjustedRate = rate.getRate();
+    }
+    final InterestRate adjustedInterestRate = new PeriodicInterestRate(adjustedRate, 1);
+    return new DepositZeroDefinition(currency, startDate, endDate, 1.0, daycount.getDayCountFraction(startDate, endDate, calendar), adjustedInterestRate);
   }
 
   /**

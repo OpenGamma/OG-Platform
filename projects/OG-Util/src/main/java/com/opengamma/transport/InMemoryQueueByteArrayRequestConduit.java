@@ -14,6 +14,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.springframework.context.Lifecycle;
 
+import com.opengamma.util.MdcAwareThreadPoolExecutor;
 import com.opengamma.util.NamedThreadPoolFactory;
 
 /**
@@ -60,7 +61,7 @@ public class InMemoryQueueByteArrayRequestConduit implements Lifecycle, ByteArra
   public InMemoryQueueByteArrayRequestConduit(int nWorkerThreads, ByteArrayRequestReceiver underlying) {
     _underlying = underlying;
     ThreadFactory tf = new NamedThreadPoolFactory("InMemoryQueueByteArrayRequestConduit", true);
-    ThreadPoolExecutor executor = new ThreadPoolExecutor(
+    ThreadPoolExecutor executor = new MdcAwareThreadPoolExecutor(
         0, nWorkerThreads, 5L, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>(), tf);
     _executor = executor;
     _localExecutor = true;

@@ -5,11 +5,11 @@
  */
 package com.opengamma.component.factory.infrastructure;
 
-import com.opengamma.component.ComponentInfo;
-import com.opengamma.component.ComponentRepository;
-import com.opengamma.component.factory.AbstractComponentFactory;
-import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import org.fudgemsg.FudgeContext;
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -20,8 +20,10 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import com.opengamma.component.ComponentInfo;
+import com.opengamma.component.ComponentRepository;
+import com.opengamma.component.factory.AbstractComponentFactory;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * Component Factory for a singleton FudgeContext.
@@ -65,51 +67,6 @@ public class FudgeContextComponentFactory extends AbstractComponentFactory {
     return FudgeContextComponentFactory.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        return getClassifier();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        setClassifier((String) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_classifier, "classifier");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      FudgeContextComponentFactory other = (FudgeContextComponentFactory) obj;
-      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    return hash ^ super.hashCode();
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the classifier.
@@ -134,6 +91,51 @@ public class FudgeContextComponentFactory extends AbstractComponentFactory {
    */
   public final Property<String> classifier() {
     return metaBean().classifier().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  @Override
+  public FudgeContextComponentFactory clone() {
+    return (FudgeContextComponentFactory) super.clone();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      FudgeContextComponentFactory other = (FudgeContextComponentFactory) obj;
+      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(64);
+    buf.append("FudgeContextComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -195,6 +197,32 @@ public class FudgeContextComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<String> classifier() {
       return _classifier;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          return ((FudgeContextComponentFactory) bean).getClassifier();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          ((FudgeContextComponentFactory) bean).setClassifier((String) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((FudgeContextComponentFactory) bean)._classifier, "classifier");
+      super.validate(bean);
     }
 
   }

@@ -50,6 +50,7 @@ import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceDef
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceSpecification;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * 
@@ -205,7 +206,7 @@ public class ExampleEquityOptionVolatilitySurfaceDataFunction extends AbstractFu
             final ValueRequirement requirement = new ValueRequirement(provider.getDataFieldName(), ComputationTargetType.PRIMITIVE, identifier);
             if (inputs.getValue(requirement) != null) {
               final Double volatility = (Double) inputs.getValue(requirement);
-              volatilityValues.put(Pair.of((Object) expiry, (Object) strike), volatility / 100);
+              volatilityValues.put(Pairs.of((Object) expiry, (Object) strike), volatility / 100);
             }
           }
         }

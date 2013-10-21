@@ -165,9 +165,9 @@ public class HistoricalTimeSeriesMasterUtils {
     ArgumentChecker.notNull(timeSeries, "timeSeries");
     
     HistoricalTimeSeriesInfoSearchRequest htsSearchReq = new HistoricalTimeSeriesInfoSearchRequest();
-    ExternalIdSearch idSearch = new ExternalIdSearch(externalIdBundle);
+    ExternalIdSearch idSearch = ExternalIdSearch.of(externalIdBundle);
     if (externalIdSearchType != null) {
-      idSearch.setSearchType(externalIdSearchType);
+      idSearch = idSearch.withSearchType(externalIdSearchType);
     }
     htsSearchReq.setExternalIdSearch(idSearch);
     htsSearchReq.setDataSource(dataSource);

@@ -27,13 +27,13 @@ public class VolatilitySurfaceNodeExtractor extends NodeExtractor<VolatilitySurf
   }
 
   @Override
-  public StructureIdentifier<VolatilitySurfaceKey> getStructuredIdentifier(ValueSpecification spec) {
-    UniqueId uniqueId = spec.getTargetSpecification().getUniqueId();
-    String surface = getProperty(spec, ValuePropertyNames.SURFACE);
-    String instrumentType = getProperty(spec, "InstrumentType");
-    String quoteType = getProperty(spec, SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE);
-    String quoteUnits = getProperty(spec, SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS);
-    VolatilitySurfaceKey key = new VolatilitySurfaceKey(uniqueId, surface, instrumentType, quoteType, quoteUnits);
+  public StructureIdentifier<VolatilitySurfaceKey> getStructuredIdentifier(final ValueSpecification spec) {
+    final UniqueId uniqueId = spec.getTargetSpecification().getUniqueId();
+    final String surface = getProperty(spec, ValuePropertyNames.SURFACE);
+    final String instrumentType = getProperty(spec, "InstrumentType");
+    final String quoteType = getProperty(spec, SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE);
+    final String quoteUnits = getProperty(spec, SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS);
+    final VolatilitySurfaceKey key = VolatilitySurfaceKey.of(uniqueId, surface, instrumentType, quoteType, quoteUnits);
     return StructureIdentifier.of(key);
   }
 

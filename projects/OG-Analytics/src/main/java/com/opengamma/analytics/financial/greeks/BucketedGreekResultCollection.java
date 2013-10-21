@@ -16,6 +16,7 @@ import java.util.TreeMap;
 import com.opengamma.analytics.financial.pnl.UnderlyingType;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * 
@@ -151,7 +152,7 @@ public class BucketedGreekResultCollection implements Iterable<Pair<Greek, doubl
     @Override
     public Pair<Greek, double[][]> next() {
       final Map.Entry<Greek, double[][]> nextEntry = _backingIterator.next();
-      return Pair.<Greek, double[][]>of(nextEntry.getKey(), nextEntry.getValue());
+      return Pairs.<Greek, double[][]>of(nextEntry.getKey(), nextEntry.getValue());
     }
 
     @Override

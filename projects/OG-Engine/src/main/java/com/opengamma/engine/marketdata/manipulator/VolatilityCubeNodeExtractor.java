@@ -24,13 +24,13 @@ public class VolatilityCubeNodeExtractor extends NodeExtractor<VolatilityCubeKey
   }
 
   @Override
-  public StructureIdentifier<VolatilityCubeKey> getStructuredIdentifier(ValueSpecification spec) {
-    Currency currency = Currency.parse(spec.getTargetSpecification().getUniqueId().getValue());
-    String cube = getProperty(spec, ValuePropertyNames.CUBE);
+  public StructureIdentifier<VolatilityCubeKey> getStructuredIdentifier(final ValueSpecification spec) {
+    final Currency currency = Currency.parse(spec.getTargetSpecification().getUniqueId().getValue());
+    final String cube = getProperty(spec, ValuePropertyNames.CUBE);
     if (cube == null) {
       return null;
     }
-    VolatilityCubeKey key = new VolatilityCubeKey(currency, cube);
+    final VolatilityCubeKey key = VolatilityCubeKey.of(currency, cube);
     return StructureIdentifier.of(key);
   }
 }

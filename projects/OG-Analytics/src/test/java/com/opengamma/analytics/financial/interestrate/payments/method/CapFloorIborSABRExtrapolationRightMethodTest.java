@@ -110,7 +110,7 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
     final double df = CURVES.getCurve(FUNDING_CURVE_NAME).getDiscountFactor(CAP_LONG.getPaymentTime());
     final double forward = CAP_LONG.accept(PRC, CURVES);
     final double maturity = CAP_LONG.getFixingPeriodEndTime() - CAP_LONG.getFixingPeriodStartTime();
-    final DoublesPair expiryMaturity = new DoublesPair(CAP_LONG.getFixingTime(), maturity);
+    final DoublesPair expiryMaturity = DoublesPair.of(CAP_LONG.getFixingTime(), maturity);
     final double alpha = SABR_PARAMETERS.getAlpha(expiryMaturity);
     final double beta = SABR_PARAMETERS.getBeta(expiryMaturity);
     final double rho = SABR_PARAMETERS.getRho(expiryMaturity);
@@ -131,7 +131,7 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
     final double df = CURVES.getCurve(FUNDING_CURVE_NAME).getDiscountFactor(CAP_HIGH_LONG.getPaymentTime());
     final double forward = CAP_HIGH_LONG.accept(PRC, CURVES);
     final double maturity = CAP_HIGH_LONG.getFixingPeriodEndTime() - CAP_LONG.getFixingPeriodStartTime();
-    final DoublesPair expiryMaturity = new DoublesPair(CAP_HIGH_LONG.getFixingTime(), maturity);
+    final DoublesPair expiryMaturity = DoublesPair.of(CAP_HIGH_LONG.getFixingTime(), maturity);
     final double alpha = SABR_PARAMETERS.getAlpha(expiryMaturity);
     final double beta = SABR_PARAMETERS.getBeta(expiryMaturity);
     final double rho = SABR_PARAMETERS.getRho(expiryMaturity);
@@ -319,7 +319,7 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
     // SABR sensitivity vs finite difference
     final double shift = 0.0001;
     final double shiftAlpha = 0.00001;
-    final DoublesPair expectedExpiryTenor = new DoublesPair(CAP_LONG.getFixingTime(), CAP_LONG.getFixingPeriodEndTime() - CAP_LONG.getFixingPeriodStartTime());
+    final DoublesPair expectedExpiryTenor = DoublesPair.of(CAP_LONG.getFixingTime(), CAP_LONG.getFixingPeriodEndTime() - CAP_LONG.getFixingPeriodStartTime());
     // Alpha sensitivity vs finite difference computation
     final SABRInterestRateParameters sabrParameterAlphaBumped = TestsDataSetsSABR.createSABR1AlphaBumped(shiftAlpha);
     final SABRInterestRateDataBundle sabrBundleAlphaBumped = new SABRInterestRateDataBundle(sabrParameterAlphaBumped, curves);
@@ -363,7 +363,7 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
     // SABR sensitivity vs finite difference
     final double shift = 0.0001;
     final double shiftAlpha = 0.00001;
-    final DoublesPair expectedExpiryTenor = new DoublesPair(CAP_HIGH_LONG.getFixingTime(), CAP_HIGH_LONG.getFixingPeriodEndTime() - CAP_HIGH_LONG.getFixingPeriodStartTime());
+    final DoublesPair expectedExpiryTenor = DoublesPair.of(CAP_HIGH_LONG.getFixingTime(), CAP_HIGH_LONG.getFixingPeriodEndTime() - CAP_HIGH_LONG.getFixingPeriodStartTime());
     // Alpha sensitivity vs finite difference computation
     final SABRInterestRateParameters sabrParameterAlphaBumped = TestsDataSetsSABR.createSABR1AlphaBumped(shiftAlpha);
     final SABRInterestRateDataBundle sabrBundleAlphaBumped = new SABRInterestRateDataBundle(sabrParameterAlphaBumped, curves);

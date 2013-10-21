@@ -36,6 +36,7 @@ import com.opengamma.engine.view.cycle.ComputationCycleQuery;
 import com.opengamma.engine.view.cycle.ComputationResultsResponse;
 import com.opengamma.engine.view.cycle.ViewCycle;
 import com.opengamma.engine.view.cycle.ViewCycleState;
+import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.impl.InMemoryViewComputationResultModel;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
@@ -89,6 +90,11 @@ import com.opengamma.util.tuple.Pair;
   @Override
   public Duration getDuration() {
     return Duration.ZERO;
+  }
+  
+  @Override
+  public ViewCycleExecutionOptions getExecutionOptions() {
+    throw new UnsupportedOperationException("getExecutionOptions not supported");
   }
 
   @Override
@@ -253,4 +259,5 @@ import com.opengamma.util.tuple.Pair;
     }
 
   }
+
 }

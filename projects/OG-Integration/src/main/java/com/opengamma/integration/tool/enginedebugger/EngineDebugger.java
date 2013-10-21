@@ -5,44 +5,43 @@
  */
 package com.opengamma.integration.tool.enginedebugger;
 
-import java.awt.EventQueue;
-
-import javax.swing.Action;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.ComboBoxModel;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.ListCellRenderer;
-import javax.swing.ListModel;
-import javax.swing.ListSelectionModel;
-import javax.swing.SpringLayout;
-import javax.swing.SwingUtilities;
-import javax.swing.SwingWorker;
-
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.GridBagLayout;
-
-import javax.swing.JScrollPane;
-
-import java.awt.GridBagConstraints;
-
-import javax.swing.JTree;
-
-import java.awt.Insets;
+import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowStateListener;
-import java.beans.PropertyChangeListener;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.SynchronousQueue;
 
-import javax.swing.JTextPane;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ComboBoxModel;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTextField;
+import javax.swing.JTree;
+import javax.swing.ListCellRenderer;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeModel;
+import javax.swing.tree.TreePath;
+
+import org.jdesktop.swingx.JXTreeTable;
+import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.config.ConfigSource;
@@ -57,11 +56,9 @@ import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.financial.depgraph.rest.DependencyGraphBuildTrace;
 import com.opengamma.financial.depgraph.rest.DependencyGraphTraceBuilderProperties;
-import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.integration.swing.JPortfolioTree;
@@ -71,21 +68,6 @@ import com.opengamma.integration.swing.ViewListCellRenderer;
 import com.opengamma.integration.swing.ViewListModel;
 import com.opengamma.integration.tool.IntegrationToolContext;
 import com.opengamma.scripts.Scriptable;
-
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeModel;
-import javax.swing.tree.TreePath;
-
-import org.jdesktop.swingx.JXTreeTable;
-import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.swing.JSplitPane;
 
 /**
  * Debugging tool for engine functions.

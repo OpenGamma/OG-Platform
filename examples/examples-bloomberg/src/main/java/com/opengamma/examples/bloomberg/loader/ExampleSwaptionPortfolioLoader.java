@@ -62,6 +62,7 @@ import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Example code to load a simple swaption portfolio.
@@ -200,7 +201,7 @@ public class ExampleSwaptionPortfolioLoader extends AbstractTool<IntegrationTool
     final SwaptionSecurity swaption = new SwaptionSecurity(payer, underlyingId, isLong, new Expiry(swaptionExpiry), isCashSettled, ccy);
     swaption.setName(swaptionName);
     swaption.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
-    return Pair.of(swaption, swap);
+    return Pairs.of(swaption, swap);
   }
 
   private LocalDate getTradeDate(final Random random, final Currency ccy) {

@@ -120,7 +120,7 @@ public class CoupledFokkerPlankPDEtest {
           value /= norm;
           value = Math.sqrt(value);
         }
-        localVolData.put(new DoublesPair(t, k), value);
+        localVolData.put(DoublesPair.of(t, k), value);
       }
     }
 
@@ -131,7 +131,7 @@ public class CoupledFokkerPlankPDEtest {
       @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final Double... x) {
-        return GRID_INTERPOLATOR2D.interpolate(dataBundle, new DoublesPair(x[0], x[1]));
+        return GRID_INTERPOLATOR2D.interpolate(dataBundle, DoublesPair.of(x[0].doubleValue(), x[1].doubleValue()));
       }
     };
 

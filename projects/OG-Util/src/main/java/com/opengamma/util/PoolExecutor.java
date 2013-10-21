@@ -13,6 +13,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -351,8 +352,8 @@ public class PoolExecutor implements Executor {
    */
   public PoolExecutor(final int maxThreads, final String name) {
     if (maxThreads > 0) {
-      _underlying = new ThreadPoolExecutor(maxThreads, maxThreads, 60, TimeUnit.SECONDS, _queue);
-      _underlying.setThreadFactory(new ExecutorThreadFactory(_me, name));
+      ThreadFactory factory = new ExecutorThreadFactory(_me, name);
+      _underlying = new MdcAwareThreadPoolExecutor(maxThreads, maxThreads, 60, TimeUnit.SECONDS, _queue, factory);
       _underlying.allowCoreThreadTimeOut(true);
     } else {
       _underlying = null;

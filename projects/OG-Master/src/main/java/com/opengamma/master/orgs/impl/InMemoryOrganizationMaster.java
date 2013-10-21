@@ -5,6 +5,12 @@
  */
 package com.opengamma.master.orgs.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.joda.beans.JodaBeanUtils;
+import org.threeten.bp.Instant;
+
 import com.google.common.base.Supplier;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.BasicChangeManager;
@@ -25,11 +31,6 @@ import com.opengamma.master.orgs.OrganizationSearchRequest;
 import com.opengamma.master.orgs.OrganizationSearchResult;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.paging.Paging;
-import org.joda.beans.JodaBeanUtils;
-import org.threeten.bp.Instant;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * An in-memory implementation of a organization master.

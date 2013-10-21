@@ -121,7 +121,7 @@ public class ManagementServiceTest {
     Set<ObjectName> registeredObjectNames = null;
     try {
       // ViewProcessor MBean
-      registeredObjectNames = _mBeanServer.queryNames(ViewProcessorMBeanImpl.createObjectName(_env.getViewProcessor()), null);
+      registeredObjectNames = _mBeanServer.queryNames(ViewProcessorMBeanImpl.createObjectName(_env.getViewProcessor(), true), null);
       // Other MBeans for this ViewProcessor
       registeredObjectNames.addAll(_mBeanServer.queryNames(new ObjectName("com.opengamma:*,ViewProcessor=" + _env.getViewProcessor().toString()), null));
     } catch (MalformedObjectNameException e) {

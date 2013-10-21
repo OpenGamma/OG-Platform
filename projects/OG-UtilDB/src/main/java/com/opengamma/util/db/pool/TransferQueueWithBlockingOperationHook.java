@@ -9,9 +9,9 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
 
-import com.opengamma.util.async.BlockingOperation;
-
 import jsr166y.TransferQueue;
+
+import com.opengamma.util.async.BlockingOperation;
 
 /**
  * Wrapper around a {@link TransferQueue} instance that will make calls to {@link BlockingOperation#wouldBlock} before any potentially blocking operations.

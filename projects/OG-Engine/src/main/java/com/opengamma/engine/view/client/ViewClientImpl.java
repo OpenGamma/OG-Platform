@@ -6,6 +6,7 @@
 package com.opengamma.engine.view.client;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
 import java.util.concurrent.CountDownLatch;
@@ -83,6 +84,12 @@ public class ViewClientImpl implements ViewClient {
   private final Set<Pair<String, ValueSpecification>> _elevatedLogSpecs = new HashSet<>();
 
   /**
+   * Holds the context information to be passed to the view process where it will be
+   * added to each log statement (using the MDC mechanism).
+   */
+  private Map<String, String> _viewProcessContextMap;
+
+  /**
    * Constructs an instance.
    * 
    * @param id the unique identifier assigned to this view client
@@ -100,7 +107,6 @@ public class ViewClientImpl implements ViewClient {
     _viewProcessor = viewProcessor;
     _user = user;
     _latestCycleRetainer = new EngineResourceRetainer(viewProcessor.getViewCycleManager());
-
 
     ViewResultListener mergedViewProcessListener = new ViewResultListener() {
 
@@ -125,7 +131,6 @@ public class ViewClientImpl implements ViewClient {
         // TODO [PLAT-1144] -- so we know whether or not the user is permissioned for various things, but what do we
         // pass to downstream listeners? Some special perm denied message in place of results on each computation
         // cycle?
-
 
         // Would be better if there was a builder for this!
         CompiledViewDefinition replacementViewDef = new CompiledViewDefinitionImpl(
@@ -285,8 +290,10 @@ public class ViewClientImpl implements ViewClient {
       // resumed, at which point the new permission provider will be in place. 
       ViewProcessorImpl viewProcessor = getViewProcessor();
       ViewPermissionContext context = privateProcess ?
-          viewProcessor.attachClientToPrivateViewProcess(getUniqueId(), _mergingViewProcessListener, viewDefinitionId, executionOptions) :
-          viewProcessor.attachClientToSharedViewProcess(getUniqueId(), _mergingViewProcessListener, viewDefinitionId, executionOptions);
+          viewProcessor.attachClientToPrivateViewProcess(getUniqueId(), _mergingViewProcessListener, viewDefinitionId,
+                                                         executionOptions, _viewProcessContextMap) :
+          viewProcessor.attachClientToSharedViewProcess(getUniqueId(), _mergingViewProcessListener, viewDefinitionId,
+                                                        executionOptions, _viewProcessContextMap);
       attachToViewProcessCore(context);
     } finally {
       _clientLock.unlock();
@@ -467,6 +474,15 @@ public class ViewClientImpl implements ViewClient {
     } finally {
       _clientLock.unlock();
     }
+  }
+
+  @Override
+  public void setViewProcessContextMap(Map<String, String> context) {
+
+    if (isAttached()) {
+      throw new IllegalStateException("Unable to set process context whilst attached to a view process");
+    }
+    _viewProcessContextMap = context;
   }
 
   @Override

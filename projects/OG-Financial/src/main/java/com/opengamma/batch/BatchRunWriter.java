@@ -11,7 +11,6 @@ import java.util.Set;
 import com.opengamma.batch.domain.MarketData;
 import com.opengamma.batch.domain.MarketDataValue;
 import com.opengamma.batch.domain.RiskRun;
-import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.cycle.ViewCycleMetadata;
 import com.opengamma.id.ObjectId;

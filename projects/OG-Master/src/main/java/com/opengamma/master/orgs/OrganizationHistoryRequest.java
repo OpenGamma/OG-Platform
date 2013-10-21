@@ -5,9 +5,8 @@
  */
 package com.opengamma.master.orgs;
 
-import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.master.AbstractHistoryRequest;
-import com.opengamma.util.PublicSPI;
+import java.util.Map;
+
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -16,7 +15,9 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.threeten.bp.Instant;
 
-import java.util.Map;
+import com.opengamma.id.ObjectIdentifiable;
+import com.opengamma.master.AbstractHistoryRequest;
+import com.opengamma.util.PublicSPI;
 
 /**
  * Request for the history of a organization.
@@ -92,14 +93,10 @@ public class OrganizationHistoryRequest extends AbstractHistoryRequest {
     return OrganizationHistoryRequest.Meta.INSTANCE;
   }
 
+  //-----------------------------------------------------------------------
   @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    super.propertySet(propertyName, newValue, quiet);
+  public OrganizationHistoryRequest clone() {
+    return (OrganizationHistoryRequest) super.clone();
   }
 
   @Override
@@ -117,6 +114,24 @@ public class OrganizationHistoryRequest extends AbstractHistoryRequest {
   public int hashCode() {
     int hash = 7;
     return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(32);
+    buf.append("OrganizationHistoryRequest{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
   }
 
   //-----------------------------------------------------------------------

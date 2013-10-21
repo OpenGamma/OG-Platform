@@ -7,6 +7,7 @@ package com.opengamma.engine.calcnode.stats;
 
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -111,79 +112,6 @@ public class FunctionCostsDocument extends DirectBean {
   @Override
   public FunctionCostsDocument.Meta metaBean() {
     return FunctionCostsDocument.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 302577825:  // configurationName
-        return getConfigurationName();
-      case -62789869:  // functionId
-        return getFunctionId();
-      case 351608024:  // version
-        return getVersion();
-      case 1773393021:  // invocationCost
-        return getInvocationCost();
-      case -98847187:  // dataInputCost
-        return getDataInputCost();
-      case -1404333128:  // dataOutputCost
-        return getDataOutputCost();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 302577825:  // configurationName
-        setConfigurationName((String) newValue);
-        return;
-      case -62789869:  // functionId
-        setFunctionId((String) newValue);
-        return;
-      case 351608024:  // version
-        setVersion((Instant) newValue);
-        return;
-      case 1773393021:  // invocationCost
-        setInvocationCost((Double) newValue);
-        return;
-      case -98847187:  // dataInputCost
-        setDataInputCost((Double) newValue);
-        return;
-      case -1404333128:  // dataOutputCost
-        setDataOutputCost((Double) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      FunctionCostsDocument other = (FunctionCostsDocument) obj;
-      return JodaBeanUtils.equal(getConfigurationName(), other.getConfigurationName()) &&
-          JodaBeanUtils.equal(getFunctionId(), other.getFunctionId()) &&
-          JodaBeanUtils.equal(getVersion(), other.getVersion()) &&
-          JodaBeanUtils.equal(getInvocationCost(), other.getInvocationCost()) &&
-          JodaBeanUtils.equal(getDataInputCost(), other.getDataInputCost()) &&
-          JodaBeanUtils.equal(getDataOutputCost(), other.getDataOutputCost());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigurationName());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getFunctionId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVersion());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getInvocationCost());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataInputCost());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getDataOutputCost());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -337,6 +265,58 @@ public class FunctionCostsDocument extends DirectBean {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      FunctionCostsDocument other = (FunctionCostsDocument) obj;
+      return JodaBeanUtils.equal(getConfigurationName(), other.getConfigurationName()) &&
+          JodaBeanUtils.equal(getFunctionId(), other.getFunctionId()) &&
+          JodaBeanUtils.equal(getVersion(), other.getVersion()) &&
+          JodaBeanUtils.equal(getInvocationCost(), other.getInvocationCost()) &&
+          JodaBeanUtils.equal(getDataInputCost(), other.getDataInputCost()) &&
+          JodaBeanUtils.equal(getDataOutputCost(), other.getDataOutputCost());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigurationName());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getFunctionId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getVersion());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getInvocationCost());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDataInputCost());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDataOutputCost());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(224);
+    buf.append("FunctionCostsDocument{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("configurationName").append('=').append(JodaBeanUtils.toString(getConfigurationName())).append(',').append(' ');
+    buf.append("functionId").append('=').append(JodaBeanUtils.toString(getFunctionId())).append(',').append(' ');
+    buf.append("version").append('=').append(JodaBeanUtils.toString(getVersion())).append(',').append(' ');
+    buf.append("invocationCost").append('=').append(JodaBeanUtils.toString(getInvocationCost())).append(',').append(' ');
+    buf.append("dataInputCost").append('=').append(JodaBeanUtils.toString(getDataInputCost())).append(',').append(' ');
+    buf.append("dataOutputCost").append('=').append(JodaBeanUtils.toString(getDataOutputCost())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code FunctionCostsDocument}.
    */
@@ -475,6 +455,51 @@ public class FunctionCostsDocument extends DirectBean {
      */
     public final MetaProperty<Double> dataOutputCost() {
       return _dataOutputCost;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 302577825:  // configurationName
+          return ((FunctionCostsDocument) bean).getConfigurationName();
+        case -62789869:  // functionId
+          return ((FunctionCostsDocument) bean).getFunctionId();
+        case 351608024:  // version
+          return ((FunctionCostsDocument) bean).getVersion();
+        case 1773393021:  // invocationCost
+          return ((FunctionCostsDocument) bean).getInvocationCost();
+        case -98847187:  // dataInputCost
+          return ((FunctionCostsDocument) bean).getDataInputCost();
+        case -1404333128:  // dataOutputCost
+          return ((FunctionCostsDocument) bean).getDataOutputCost();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 302577825:  // configurationName
+          ((FunctionCostsDocument) bean).setConfigurationName((String) newValue);
+          return;
+        case -62789869:  // functionId
+          ((FunctionCostsDocument) bean).setFunctionId((String) newValue);
+          return;
+        case 351608024:  // version
+          ((FunctionCostsDocument) bean).setVersion((Instant) newValue);
+          return;
+        case 1773393021:  // invocationCost
+          ((FunctionCostsDocument) bean).setInvocationCost((Double) newValue);
+          return;
+        case -98847187:  // dataInputCost
+          ((FunctionCostsDocument) bean).setDataInputCost((Double) newValue);
+          return;
+        case -1404333128:  // dataOutputCost
+          ((FunctionCostsDocument) bean).setDataOutputCost((Double) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

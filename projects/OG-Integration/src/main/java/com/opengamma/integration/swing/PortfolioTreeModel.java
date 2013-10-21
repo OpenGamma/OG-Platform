@@ -12,7 +12,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 
 import javax.swing.JOptionPane;
-import javax.swing.JTree;
 import javax.swing.SwingWorker;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
@@ -20,9 +19,6 @@ import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
 import com.google.common.collect.Lists;
-import com.opengamma.core.config.ConfigSource;
-import com.opengamma.core.id.ExternalIdDisplayComparator;
-import com.opengamma.core.id.ExternalIdDisplayComparatorUtils;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;

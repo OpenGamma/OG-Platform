@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.analytics.volatility.surface;
 
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -51,9 +53,9 @@ import com.opengamma.id.ExternalIdentifiable;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pair;
-
-import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  *
@@ -263,7 +265,7 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
           if (vol != null) {
             tList.add(t);
             kList.add(strike);
-            volValues.put(Pair.of(t, strike), vol / 100.);
+            volValues.put(Pairs.of(t, strike), vol / 100.);
           }
         }
       }
@@ -332,7 +334,7 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction.
             }
             tList.add(t);
             kList.add(strike);
-            volValues.put(Pair.of(t, strike), vol);
+            volValues.put(Pairs.of(t, strike), vol);
           } catch (final Exception e) {
             LocalDate expiry = null;
             if (x instanceof Number) {

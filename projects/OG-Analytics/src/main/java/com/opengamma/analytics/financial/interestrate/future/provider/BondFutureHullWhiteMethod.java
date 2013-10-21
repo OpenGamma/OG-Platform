@@ -352,10 +352,10 @@ public final class BondFutureHullWhiteMethod extends BondFutureMethod {
         cfaAdjustedBar[ctd.get(0)][loopcf] = priceBar;
         dfBar[ctd.get(0)][loopcf] = beta[ctd.get(0)][loopcf] / dfdelivery * cf[ctd.get(0)].getNthPayment(loopcf).getAmount() / future.getConversionFactor()[ctd.get(0)]
             * cfaAdjustedBar[ctd.get(0)][loopcf];
-        listCredit.add(new DoublesPair(cfTime[ctd.get(0)][loopcf], -cfTime[ctd.get(0)][loopcf] * df[ctd.get(0)][loopcf] * dfBar[ctd.get(0)][loopcf]));
+        listCredit.add(DoublesPair.of(cfTime[ctd.get(0)][loopcf], -cfTime[ctd.get(0)][loopcf] * df[ctd.get(0)][loopcf] * dfBar[ctd.get(0)][loopcf]));
         dfdeliveryBar += -cfaAdjusted[ctd.get(0)][loopcf] / dfdelivery * cfaAdjustedBar[ctd.get(0)][loopcf];
       }
-      listCredit.add(new DoublesPair(delivery, -delivery * dfdelivery * dfdeliveryBar));
+      listCredit.add(DoublesPair.of(delivery, -delivery * dfdelivery * dfdeliveryBar));
     } else {
       // From -infinity to first cross.
       for (int loopcf = 0; loopcf < cfaAdjusted[ctd.get(0)].length; loopcf++) {
@@ -374,11 +374,11 @@ public final class BondFutureHullWhiteMethod extends BondFutureMethod {
       for (int loopbnd = 0; loopbnd < nbBond; loopbnd++) { // Could be reduced to only the ctd intervals.
         for (int loopcf = 0; loopcf < cfaAdjusted[loopbnd].length; loopcf++) {
           dfBar[loopbnd][loopcf] = beta[loopbnd][loopcf] / dfdelivery * cf[loopbnd].getNthPayment(loopcf).getAmount() / future.getConversionFactor()[loopbnd] * cfaAdjustedBar[loopbnd][loopcf];
-          listCredit.add(new DoublesPair(cfTime[loopbnd][loopcf], -cfTime[loopbnd][loopcf] * df[loopbnd][loopcf] * dfBar[loopbnd][loopcf]));
+          listCredit.add(DoublesPair.of(cfTime[loopbnd][loopcf], -cfTime[loopbnd][loopcf] * df[loopbnd][loopcf] * dfBar[loopbnd][loopcf]));
           dfdeliveryBar += -cfaAdjusted[loopbnd][loopcf] / dfdelivery * cfaAdjustedBar[loopbnd][loopcf];
         }
       }
-      listCredit.add(new DoublesPair(delivery, -delivery * dfdelivery * dfdeliveryBar));
+      listCredit.add(DoublesPair.of(delivery, -delivery * dfdelivery * dfdeliveryBar));
     }
     resultMap.put(multicurvesDecorated.getName(ccy), listCredit);
     return MulticurveSensitivity.ofYieldDiscounting(resultMap);

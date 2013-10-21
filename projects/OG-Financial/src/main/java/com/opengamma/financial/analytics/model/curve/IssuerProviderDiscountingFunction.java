@@ -63,6 +63,8 @@ import com.opengamma.financial.analytics.curve.CurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.DiscountingCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.FRANodeConverter;
 import com.opengamma.financial.analytics.curve.FXForwardNodeConverter;
+import com.opengamma.financial.analytics.curve.IMMFRANodeConverter;
+import com.opengamma.financial.analytics.curve.IMMSwapNodeConverter;
 import com.opengamma.financial.analytics.curve.IborCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.InterpolatedCurveDefinition;
 import com.opengamma.financial.analytics.curve.IssuerCurveTypeConfiguration;
@@ -80,6 +82,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Produces price index curves using the discounting method.
@@ -102,6 +105,21 @@ public class IssuerProviderDiscountingFunction extends
   public CompiledFunctionDefinition getCompiledFunction(final ZonedDateTime earliestInvokation, final ZonedDateTime latestInvokation, final String[] curveNames,
       final Set<ValueRequirement> exogenousRequirements, final CurveConstructionConfiguration curveConstructionConfiguration) {
     return new MyCompiledFunctionDefinition(earliestInvokation, latestInvokation, curveNames, exogenousRequirements, curveConstructionConfiguration);
+  }
+
+  @Override
+  protected InstrumentDerivativeVisitor<IssuerProviderInterface, Double> getCalculator() {
+    return PSMQIC;
+  }
+
+  @Override
+  protected InstrumentDerivativeVisitor<IssuerProviderInterface, MulticurveSensitivity> getSensitivityCalculator() {
+    return PSMQCSIC;
+  }
+
+  @Override
+  protected String getCurveTypeProperty() {
+    return DISCOUNTING;
   }
 
   /**
@@ -202,7 +220,7 @@ public class IssuerProviderDiscountingFunction extends
               final IssuerCurveTypeConfiguration issuer = (IssuerCurveTypeConfiguration) type;
               final String issuerName = issuer.getIssuerName();
               final Currency currency = Currency.of(issuer.getUnderlyingReference());
-              issuerMap.put(curveName, Pair.of(issuerName, currency));
+              issuerMap.put(curveName, Pairs.of(issuerName, currency));
             } else {
               throw new OpenGammaRuntimeException("Cannot handle " + type.getClass());
             }
@@ -222,23 +240,8 @@ public class IssuerProviderDiscountingFunction extends
       //TODO this is only in here because the code in analytics doesn't use generics properly
       final Pair<IssuerProviderDiscount, CurveBuildingBlockBundle> temp = builder.makeCurvesFromDerivatives(curveBundles,
           (IssuerProviderDiscount) knownData, discountingMap, forwardIborMap, forwardONMap, issuerMap, getCalculator(), getSensitivityCalculator());
-      final Pair<IssuerProviderInterface, CurveBuildingBlockBundle> result = Pair.of((IssuerProviderInterface) temp.getFirst(), temp.getSecond());
+      final Pair<IssuerProviderInterface, CurveBuildingBlockBundle> result = Pairs.of((IssuerProviderInterface) temp.getFirst(), temp.getSecond());
       return result;
-    }
-
-    @Override
-    protected InstrumentDerivativeVisitor<IssuerProviderInterface, Double> getCalculator() {
-      return PSMQIC;
-    }
-
-    @Override
-    protected InstrumentDerivativeVisitor<IssuerProviderInterface, MulticurveSensitivity> getSensitivityCalculator() {
-      return PSMQCSIC;
-    }
-
-    @Override
-    protected String getCurveTypeProperty() {
-      return DISCOUNTING;
     }
 
     @Override
@@ -280,6 +283,8 @@ public class IssuerProviderDiscountingFunction extends
           .cashNodeVisitor(new CashNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .fraNode(new FRANodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .fxForwardNode(new FXForwardNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
+          .immFRANode(new IMMFRANodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
+          .immSwapNode(new IMMSwapNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .rateFutureNode(new RateFutureNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .swapNode(new SwapNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .zeroCouponInflationNode(new ZeroCouponInflationNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime, historicalData))

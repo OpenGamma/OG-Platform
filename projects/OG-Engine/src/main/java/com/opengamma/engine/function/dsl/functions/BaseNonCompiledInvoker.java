@@ -5,6 +5,13 @@
  */
 package com.opengamma.engine.function.dsl.functions;
 
+import static com.opengamma.lambdava.streams.Lambdava.functional;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.function.AbstractFunction;
@@ -24,13 +31,7 @@ import com.opengamma.lambdava.functions.Function2;
 import com.opengamma.lambdava.streams.Stream;
 import com.opengamma.lambdava.streams.StreamI;
 import com.opengamma.util.tuple.Pair;
-
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-import static com.opengamma.lambdava.streams.Lambdava.functional;
+import com.opengamma.util.tuple.Pairs;
 
 public abstract class BaseNonCompiledInvoker extends AbstractFunction.NonCompiledInvoker {
 
@@ -69,7 +70,7 @@ public abstract class BaseNonCompiledInvoker extends AbstractFunction.NonCompile
         return acc;
       }
     });
-    return Pair.of(inputsByName, outputsByName);
+    return Pairs.of(inputsByName, outputsByName);
   }
 
   protected abstract FunctionSignature functionSignature();

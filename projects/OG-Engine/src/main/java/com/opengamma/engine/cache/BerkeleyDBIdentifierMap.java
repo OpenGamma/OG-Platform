@@ -31,6 +31,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 
+import com.codahale.metrics.Meter;
+import com.codahale.metrics.Timer;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
@@ -45,6 +47,7 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.metric.OpenGammaMetricRegistry;
 import com.sleepycat.bind.tuple.LongBinding;
 import com.sleepycat.je.DatabaseConfig;
 import com.sleepycat.je.DatabaseEntry;
@@ -66,6 +69,9 @@ public class BerkeleyDBIdentifierMap implements IdentifierMap, Lifecycle {
   private final AbstractBerkeleyDBComponent _valueSpecificationToIdentifier;
   private final AbstractBerkeleyDBComponent _identifierToValueSpecification;
   private final AtomicLong _nextIdentifier = new AtomicLong(1L);
+  private final Meter _newIdentifierMeter;
+  private final Timer _getIdentifierTimer;
+  private Thread _worker;
   private BlockingQueue<AbstractBerkeleyDBWorker.Request> _requests;
 
   private final class Worker extends AbstractBerkeleyDBWorker {
@@ -79,6 +85,7 @@ public class BerkeleyDBIdentifierMap implements IdentifierMap, Lifecycle {
     }
 
     protected long allocateNewIdentifier(final ValueSpecification valueSpec) {
+      _newIdentifierMeter.mark();
       final long identifier = _nextIdentifier.getAndIncrement();
       LongBinding.longToEntry(identifier, _identifier);
       // encode spec to binary using fudge so it can be saved as a value and read back out
@@ -97,17 +104,19 @@ public class BerkeleyDBIdentifierMap implements IdentifierMap, Lifecycle {
     }
 
     public long getIdentifier(final ValueSpecification spec) {
-      final byte[] specAsBytes = ValueSpecificationStringEncoder.encodeAsString(spec).getBytes(Charset.forName("UTF-8"));
-      _valueSpecKey.setData(specAsBytes);
-      OperationStatus status = _valueSpecificationToIdentifier.getDatabase().get(getTransaction(), _valueSpecKey, _identifier, LockMode.READ_COMMITTED);
-      switch (status) {
-        case NOTFOUND:
-          return allocateNewIdentifier(spec);
-        case SUCCESS:
-          return LongBinding.entryToLong(_identifier);
-        default:
-          s_logger.warn("Unexpected operation status on load {}, assuming we have to insert a new record", status);
-          return allocateNewIdentifier(spec);
+      try (Timer.Context context = _getIdentifierTimer.time()) {
+        final byte[] specAsBytes = ValueSpecificationStringEncoder.encodeAsString(spec).getBytes(Charset.forName("UTF-8"));
+        _valueSpecKey.setData(specAsBytes);
+        OperationStatus status = _valueSpecificationToIdentifier.getDatabase().get(getTransaction(), _valueSpecKey, _identifier, LockMode.READ_COMMITTED);
+        switch (status) {
+          case NOTFOUND:
+            return allocateNewIdentifier(spec);
+          case SUCCESS:
+            return LongBinding.entryToLong(_identifier);
+          default:
+            s_logger.warn("Unexpected operation status on load {}, assuming we have to insert a new record", status);
+            return allocateNewIdentifier(spec);
+        }
       }
     }
 
@@ -160,6 +169,8 @@ public class BerkeleyDBIdentifierMap implements IdentifierMap, Lifecycle {
         _nextIdentifier.set(_identifierToValueSpecification.getDatabase().count() + 1);
       }
     };
+    _newIdentifierMeter = OpenGammaMetricRegistry.getDetailedInstance().meter("BerkeleyDBIdentifierMap.newIdentifier");
+    _getIdentifierTimer = OpenGammaMetricRegistry.getDetailedInstance().timer("BerkeleyDBIdentifierMap.getIdentifier");
   }
 
   /**
@@ -331,10 +342,10 @@ public class BerkeleyDBIdentifierMap implements IdentifierMap, Lifecycle {
       _valueSpecificationToIdentifier.start();
       _identifierToValueSpecification.start();
       // TODO: We can have multiple worker threads -- will that be good or bad?
-      final Thread worker = new Thread(new Worker(_requests));
-      worker.setName("BerkeleyDBIdentifierMap-Worker");
-      worker.setDaemon(true);
-      worker.start();
+      _worker = new Thread(new Worker(_requests));
+      _worker.setName("BerkeleyDBIdentifierMap-Worker");
+      _worker.setDaemon(true);
+      _worker.start();
     }
   }
 
@@ -345,6 +356,12 @@ public class BerkeleyDBIdentifierMap implements IdentifierMap, Lifecycle {
       _identifierToValueSpecification.stop();
       _requests.add(new PoisonRequest());
       _requests = null;
+      try {
+        _worker.join(5000L);
+      } catch (InterruptedException ie) {
+        s_logger.warn("Interrupted while waiting for worker to finish.");
+      }
+      _worker = null;
     }
   }
 

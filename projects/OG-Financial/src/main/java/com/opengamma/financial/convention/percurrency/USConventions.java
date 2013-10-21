@@ -10,13 +10,16 @@ import static com.opengamma.financial.convention.percurrency.PerCurrencyConventi
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.DEPOSIT_ON;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.FED_FUNDS_FUTURE;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.FIXED_LEG;
+import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.FRA;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.GOVT;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.IBOR_CMP_LEG;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.IBOR_LEG;
+import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.IMM;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.INFLATION_LEG;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.IRS_FIXED_LEG;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.IRS_IBOR_LEG;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.LIBOR;
+import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.MONTHLY;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.OIS_FIXED_LEG;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.OIS_ON_LEG;
 import static com.opengamma.financial.convention.percurrency.PerCurrencyConventionHelper.ON_CMP_LEG;
@@ -49,6 +52,7 @@ import com.opengamma.financial.convention.DepositConvention;
 import com.opengamma.financial.convention.ExchangeTradedInstrumentExpiryCalculator;
 import com.opengamma.financial.convention.FedFundFutureAndFutureOptionMonthlyExpiryCalculator;
 import com.opengamma.financial.convention.FederalFundsFutureConvention;
+import com.opengamma.financial.convention.IMMFRAConvention;
 import com.opengamma.financial.convention.IMMFutureAndFutureOptionMonthlyExpiryCalculator;
 import com.opengamma.financial.convention.IMMFutureAndFutureOptionQuarterlyExpiryCalculator;
 import com.opengamma.financial.convention.IborIndexConvention;
@@ -67,6 +71,7 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.convention.rolldate.RollDateAdjusterFactory;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.money.Currency;
@@ -174,6 +179,17 @@ public class USConventions {
     final Convention cmsDeliverableSwapFutureConvention = new DeliverablePriceQuotedSwapFutureConvention(cmeDeliverableSwapFutureConventionName,
         ExternalIdBundle.of(SCHEME_NAME, CME_DELIVERABLE_SWAP_FUTURE), ExternalId.of(ExchangeTradedInstrumentExpiryCalculator.SCHEME,
             IMMFutureAndFutureOptionQuarterlyExpiryCalculator.NAME), US, liborConventionId, 100000);
+    
+    // IMM FRA
+    final ExternalId quarterlyIMMDates = ExternalId.of(SCHEME_NAME, RollDateAdjusterFactory.QUARTERLY_IMM_ROLL_STRING);
+    final String fraIMMQuarterlyConventionName = getConventionName(Currency.USD, FRA + " " + IMM + " " + QUARTERLY);
+    final IMMFRAConvention immFRAQuarterlyConvention = new IMMFRAConvention(fraIMMQuarterlyConventionName, ExternalIdBundle.of(ExternalId.of(SCHEME_NAME, fraIMMQuarterlyConventionName)), 
+        liborConventionId, quarterlyIMMDates);
+    final ExternalId monthlyIMMDates = ExternalId.of(SCHEME_NAME, RollDateAdjusterFactory.MONTHLY_IMM_ROLL_STRING);
+    final String fraIMMMonthlyConventionName = getConventionName(Currency.USD, FRA + " " + IMM + " " + MONTHLY);
+    final IMMFRAConvention immFRAMonthlyConvention = new IMMFRAConvention(fraIMMMonthlyConventionName, ExternalIdBundle.of(ExternalId.of(SCHEME_NAME, fraIMMMonthlyConventionName)), 
+        liborConventionId, monthlyIMMDates);
+    
     // Inflation
     final PriceIndexConvention priceIndexConvention = new PriceIndexConvention(priceIndexName, getIds(Currency.USD, PRICE_INDEX), Currency.USD, US,
         ExternalSchemes.bloombergTickerSecurityId("CPURNSA Index"));
@@ -213,6 +229,8 @@ public class USConventions {
     conventionMaster.add(serialSTIRFutureConvention);
     conventionMaster.add(fedFundsConvention);
     conventionMaster.add(cmsDeliverableSwapFutureConvention);
+    conventionMaster.add(immFRAQuarterlyConvention);
+    conventionMaster.add(immFRAMonthlyConvention);
     conventionMaster.add(priceIndexConvention);
     conventionMaster.add(inflationConvention);
     conventionMaster.add(swapConvention);

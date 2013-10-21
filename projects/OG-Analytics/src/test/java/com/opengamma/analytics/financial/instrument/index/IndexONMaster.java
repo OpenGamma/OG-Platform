@@ -50,7 +50,7 @@ public final class IndexONMaster {
     _on.put("RBA ON", new IndexON("RBA ON", Currency.AUD, act365, 0));
     _on.put("DKK TN", new IndexON("DKK TN", Currency.DKK, act360, 1));
     _on.put("TONAR", new IndexON("TONAR", Currency.JPY, act365, 0));
-    _on.put("CDI", new IndexON("CDI", Currency.BRL, Bus252, 0));
+    _on.put("CDI", new IndexON("CDI", Currency.BRL, Bus252, 1));
   }
 
   public IndexON getIndex(final String name) {

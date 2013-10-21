@@ -197,7 +197,7 @@ public class SwaptionPhysicalFixedIborSABRLMMAtBestMethod implements PricingMeth
     // Storage in PresentValueSABRSensitivityDataBundle
     final PresentValueSABRSensitivityDataBundle sensi = new PresentValueSABRSensitivityDataBundle();
     for (int loopp = 0; loopp < nbPeriods; loopp++) {
-      final DoublesPair expiryMaturity = new DoublesPair(swaptionCalibration[loopp * nbStrikes].getTimeToExpiry(), swaptionCalibration[loopp * nbStrikes].getMaturityTime());
+      final DoublesPair expiryMaturity = DoublesPair.of(swaptionCalibration[loopp * nbStrikes].getTimeToExpiry(), swaptionCalibration[loopp * nbStrikes].getMaturityTime());
       sensi.addAlpha(expiryMaturity, dPvdTheta[loopp]);
       sensi.addRho(expiryMaturity, dPvdTheta[nbPeriods + loopp]);
       sensi.addNu(expiryMaturity, dPvdTheta[2 * nbPeriods + loopp]);
@@ -306,7 +306,7 @@ public class SwaptionPhysicalFixedIborSABRLMMAtBestMethod implements PricingMeth
     // Storage in PresentValueSABRSensitivityDataBundle
     final PresentValueSABRSensitivityDataBundle sensiSABR = new PresentValueSABRSensitivityDataBundle();
     for (int loopp = 0; loopp < nbPeriods; loopp++) {
-      final DoublesPair expiryMaturity = new DoublesPair(swaptionCalibration[loopp * nbStrikes].getTimeToExpiry(), swaptionCalibration[loopp * nbStrikes].getMaturityTime());
+      final DoublesPair expiryMaturity = DoublesPair.of(swaptionCalibration[loopp * nbStrikes].getTimeToExpiry(), swaptionCalibration[loopp * nbStrikes].getMaturityTime());
       sensiSABR.addAlpha(expiryMaturity, dPvdTheta[loopp]);
       sensiSABR.addRho(expiryMaturity, dPvdTheta[nbPeriods + loopp]);
       sensiSABR.addNu(expiryMaturity, dPvdTheta[2 * nbPeriods + loopp]);

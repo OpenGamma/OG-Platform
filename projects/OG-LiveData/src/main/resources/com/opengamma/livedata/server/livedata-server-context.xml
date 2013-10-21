@@ -52,6 +52,7 @@
     
   <bean id="jmsConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory">
     <constructor-arg ref="activeMQConnectionFactory"/>          
+    <property name="idleTimeout" value="0" /> <!-- AMQ-4366 -->
   </bean>
 
   <!-- JMS sending -->

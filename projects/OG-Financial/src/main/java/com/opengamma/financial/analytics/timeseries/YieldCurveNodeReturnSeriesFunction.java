@@ -204,7 +204,7 @@ public class YieldCurveNodeReturnSeriesFunction extends AbstractFunction.NonComp
         i++;
       }
     } else if (fxForwardCurveDefinition != null) {
-      tenors = fxForwardCurveDefinition.getTenors();
+      tenors = fxForwardCurveDefinition.getTenorsArray();
       sensitivityToRate = new boolean[tenors.length];
     } else {
       throw new OpenGammaRuntimeException("Yield curve specification and FX forward curve definition both missing. Expected one.");

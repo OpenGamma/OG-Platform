@@ -30,6 +30,7 @@ import com.opengamma.financial.analytics.volatility.surface.BloombergFXOptionVol
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 import com.opengamma.util.tuple.Triple;
 
 /**
@@ -80,7 +81,7 @@ public class BlackVolatilitySurfaceUtils {
       fullStrikes[i] = availableStrikes.toDoubleArray();
       fullValues[i] = availableVols.toDoubleArray();
     }
-    return Pair.of(fullStrikes, fullValues);
+    return Pairs.of(fullStrikes, fullValues);
   }
 
   public static Triple<double[], double[][], double[][]> getStrikesAndValues(final double[] expiries, final double[] strikes, final VolatilitySurfaceData<Object, Object> volatilitySurface,
@@ -108,7 +109,7 @@ public class BlackVolatilitySurfaceUtils {
         fullValues.add(availableVols.toDoubleArray());
       }
     }
-    return new Triple<>(availableExpiries.toDoubleArray(), fullStrikes.toArray(new double[0][]), fullValues.toArray(new double[0][]));
+    return Triple.of(availableExpiries.toDoubleArray(), fullStrikes.toArray(new double[0][]), fullValues.toArray(new double[0][]));
   }
 
   public static Triple<double[], double[][], double[][]> getStrippedStrikesAndValues(final VolatilitySurfaceData<Object, Object> volatilitySurface) {
@@ -131,7 +132,7 @@ public class BlackVolatilitySurfaceUtils {
       strikes[i] = availableStrikes.toDoubleArray();
       values[i] = availableVols.toDoubleArray();
     }
-    return new Triple<>(getArrayOfDoubles(expiries), strikes, values);
+    return Triple.of(getArrayOfDoubles(expiries), strikes, values);
   }
 
   public static SmileSurfaceDataBundle getDataFromStandardQuotes(final ForwardCurve forwardCurve, final VolatilitySurfaceData<Object, Object> volatilitySurface) {
@@ -217,7 +218,7 @@ public class BlackVolatilitySurfaceUtils {
   private static Number[] getDeltaValues(final Object[] quotes) {
     final TreeSet<Object> values = new TreeSet<Object>();
     for (final Object pair : quotes) {
-      values.add(((Pair) pair).getFirst());
+      values.add(((Pair<?, ?>) pair).getFirst());
     }
     return values.toArray((Number[]) Array.newInstance(Number.class, values.size()));
   }

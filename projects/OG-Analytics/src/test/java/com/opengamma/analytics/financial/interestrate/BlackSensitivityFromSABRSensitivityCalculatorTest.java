@@ -46,7 +46,7 @@ import com.opengamma.util.monitor.OperationTimer;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.ObjectsPair;
-import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Tests related to the sensitivity of swaptions to the Black volatility when SABR fitting and interpolation is used.
@@ -148,7 +148,7 @@ public class BlackSensitivityFromSABRSensitivityCalculatorTest {
         }
         final LeastSquareResultsWithTransform fittedResult = new SABRModelFitter(atm, strikeAbs, EXPIRY_TIME[loopexpiry], volBlack[loopexpiry][loopmat], errors, SABR_FUNCTION).solve(
             SABR_INITIAL_VALUES, FIXED);
-        inverseJacobianMap.put(new DoublesPair(EXPIRY_TIME[loopexpiry], MATURITY_TIME[loopmat]), fittedResult.getModelParameterSensitivityToData());
+        inverseJacobianMap.put(DoublesPair.of(EXPIRY_TIME[loopexpiry], MATURITY_TIME[loopmat]), fittedResult.getModelParameterSensitivityToData());
         expiryTimeVector[vect] = EXPIRY_TIME[loopexpiry];
         maturityTimeVector[vect] = MATURITY_TIME[loopmat];
         alphaVector[vect] = fittedResult.getModelParameters().getEntry(0);
@@ -163,7 +163,7 @@ public class BlackSensitivityFromSABRSensitivityCalculatorTest {
     final InterpolatedDoublesSurface nuSurface = InterpolatedDoublesSurface.from(expiryTimeVector, maturityTimeVector, nuVector, INTERPOLATOR, "SABR nu surface");
     final InterpolatedDoublesSurface rhoSurface = InterpolatedDoublesSurface.from(expiryTimeVector, maturityTimeVector, rhoVector, INTERPOLATOR, "SABR rho surface");
     final SABRInterestRateParameters sabrParameters = new SABRInterestRateParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, USD6MLIBOR3M.getFixedLegDayCount(), SABR_FUNCTION);
-    return Pair.of(sabrParameters, inverseJacobianMap);
+    return ObjectsPair.of(sabrParameters, inverseJacobianMap);
   }
 
   @Test

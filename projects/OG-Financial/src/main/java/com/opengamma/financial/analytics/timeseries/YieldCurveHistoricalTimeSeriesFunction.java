@@ -59,6 +59,7 @@ public class YieldCurveHistoricalTimeSeriesFunction extends AbstractFunction.Non
   public YieldCurveHistoricalTimeSeriesFunction(final String[] excludedCurves) {
     ArgumentChecker.notNull(excludedCurves, "excluded curves");
     _excludedCurves = excludedCurves;
+    Arrays.sort(_excludedCurves);
   }
 
   /**

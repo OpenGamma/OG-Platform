@@ -8,6 +8,7 @@ package com.opengamma.engine.view;
 import java.io.Serializable;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -328,72 +329,6 @@ public class ResultModelDefinition extends DirectBean implements Serializable {
     return ResultModelDefinition.Meta.INSTANCE;
   }
 
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1633131628: // aggregatePositionOutputMode
-        return getAggregatePositionOutputMode();
-      case -798411699: // positionOutputMode
-        return getPositionOutputMode();
-      case -1772765496: // tradeOutputMode
-        return getTradeOutputMode();
-      case -583556700: // securityOutputMode
-        return getSecurityOutputMode();
-      case 545428107: // primitiveOutputMode
-        return getPrimitiveOutputMode();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case 1633131628: // aggregatePositionOutputMode
-        setAggregatePositionOutputMode((ResultOutputMode) newValue);
-        return;
-      case -798411699: // positionOutputMode
-        setPositionOutputMode((ResultOutputMode) newValue);
-        return;
-      case -1772765496: // tradeOutputMode
-        setTradeOutputMode((ResultOutputMode) newValue);
-        return;
-      case -583556700: // securityOutputMode
-        setSecurityOutputMode((ResultOutputMode) newValue);
-        return;
-      case 545428107: // primitiveOutputMode
-        setPrimitiveOutputMode((ResultOutputMode) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      ResultModelDefinition other = (ResultModelDefinition) obj;
-      return JodaBeanUtils.equal(getAggregatePositionOutputMode(), other.getAggregatePositionOutputMode()) &&
-          JodaBeanUtils.equal(getPositionOutputMode(), other.getPositionOutputMode()) &&
-          JodaBeanUtils.equal(getTradeOutputMode(), other.getTradeOutputMode()) &&
-          JodaBeanUtils.equal(getSecurityOutputMode(), other.getSecurityOutputMode()) &&
-          JodaBeanUtils.equal(getPrimitiveOutputMode(), other.getPrimitiveOutputMode());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getAggregatePositionOutputMode());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPositionOutputMode());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTradeOutputMode());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityOutputMode());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPrimitiveOutputMode());
-    return hash;
-  }
-
   //-----------------------------------------------------------------------
   /**
    * Gets the aggregate position output mode (portfolio nodes).
@@ -586,6 +521,70 @@ public class ResultModelDefinition extends DirectBean implements Serializable {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public ResultModelDefinition clone() {
+    BeanBuilder<? extends ResultModelDefinition> builder = metaBean().builder();
+    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
+      if (mp.style().isBuildable()) {
+        Object value = mp.get(this);
+        if (value instanceof Bean) {
+          value = ((Bean) value).clone();
+        }
+        builder.set(mp.name(), value);
+      }
+    }
+    return builder.build();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      ResultModelDefinition other = (ResultModelDefinition) obj;
+      return JodaBeanUtils.equal(getAggregatePositionOutputMode(), other.getAggregatePositionOutputMode()) &&
+          JodaBeanUtils.equal(getPositionOutputMode(), other.getPositionOutputMode()) &&
+          JodaBeanUtils.equal(getTradeOutputMode(), other.getTradeOutputMode()) &&
+          JodaBeanUtils.equal(getSecurityOutputMode(), other.getSecurityOutputMode()) &&
+          JodaBeanUtils.equal(getPrimitiveOutputMode(), other.getPrimitiveOutputMode());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getAggregatePositionOutputMode());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPositionOutputMode());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTradeOutputMode());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityOutputMode());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPrimitiveOutputMode());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(192);
+    buf.append("ResultModelDefinition{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("aggregatePositionOutputMode").append('=').append(JodaBeanUtils.toString(getAggregatePositionOutputMode())).append(',').append(' ');
+    buf.append("positionOutputMode").append('=').append(JodaBeanUtils.toString(getPositionOutputMode())).append(',').append(' ');
+    buf.append("tradeOutputMode").append('=').append(JodaBeanUtils.toString(getTradeOutputMode())).append(',').append(' ');
+    buf.append("securityOutputMode").append('=').append(JodaBeanUtils.toString(getSecurityOutputMode())).append(',').append(' ');
+    buf.append("primitiveOutputMode").append('=').append(JodaBeanUtils.toString(getPrimitiveOutputMode())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code ResultModelDefinition}.
    */
@@ -713,6 +712,46 @@ public class ResultModelDefinition extends DirectBean implements Serializable {
      */
     public final MetaProperty<ResultOutputMode> primitiveOutputMode() {
       return _primitiveOutputMode;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1633131628: // aggregatePositionOutputMode
+          return ((ResultModelDefinition) bean).getAggregatePositionOutputMode();
+        case -798411699: // positionOutputMode
+          return ((ResultModelDefinition) bean).getPositionOutputMode();
+        case -1772765496: // tradeOutputMode
+          return ((ResultModelDefinition) bean).getTradeOutputMode();
+        case -583556700: // securityOutputMode
+          return ((ResultModelDefinition) bean).getSecurityOutputMode();
+        case 545428107: // primitiveOutputMode
+          return ((ResultModelDefinition) bean).getPrimitiveOutputMode();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case 1633131628: // aggregatePositionOutputMode
+          ((ResultModelDefinition) bean).setAggregatePositionOutputMode((ResultOutputMode) newValue);
+          return;
+        case -798411699: // positionOutputMode
+          ((ResultModelDefinition) bean).setPositionOutputMode((ResultOutputMode) newValue);
+          return;
+        case -1772765496: // tradeOutputMode
+          ((ResultModelDefinition) bean).setTradeOutputMode((ResultOutputMode) newValue);
+          return;
+        case -583556700: // securityOutputMode
+          ((ResultModelDefinition) bean).setSecurityOutputMode((ResultOutputMode) newValue);
+          return;
+        case 545428107: // primitiveOutputMode
+          ((ResultModelDefinition) bean).setPrimitiveOutputMode((ResultOutputMode) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

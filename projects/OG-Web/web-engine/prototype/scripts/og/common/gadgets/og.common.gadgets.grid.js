@@ -211,7 +211,15 @@ $.register_module({
                     return time ? (last ? ((delta = time - last), (last = time), delta) : ((last = time), 0)) : delta;
                 };
             })(null, 0);
-            if (templates) init_data.call(grid); else compile_templates.call(grid, init_data);
+            if (templates) {
+                init_data.call(grid);
+            } else {
+                compile_templates.call(grid, init_data);
+            }
+            og.api.rest.on('fatal', function () {
+                var elm = $(templates.loading({text: 'error loading view', error: 'OG-loader-error'}));
+                grid.elements.parent.html(elm);
+            });
         };
         var init_data = function () {
             var grid = this, config = grid.config;
@@ -227,14 +235,24 @@ $.register_module({
                     grid.clipboard.clear();
                 })
                 .on('fatal', function (error) {
-                    grid.kill(), grid.elements.parent.html('&nbsp;fatal error: ' + error), grid.fire('fatal');
+                    console.log('In grid fatal');
+                    og.common.util.ui.dialog({type: 'error', message: 'fatal error: ' + error });
+                    grid.kill();
+                    grid.elements.parent.html('');
+                    grid.fire('fatal');
                 })
                 .on('title', function (row_name, col_name, name) {grid.fire('title', row_name, col_name, name);})
                 .on('types', function (types) {
                     grid.views = {selected: config.source.type || 'portfolio'};
                     grid.views.list = Object.keys(types).filter(function (key) { return !!types[key]; });
-                    if (grid.views.list.length === 1) grid.views.list = [];
-                    if (grid.elements.empty) return; else render_header.call(grid);
+                    if (grid.views.list.length === 1) {
+                        grid.views.list = [];
+                    }
+                    if (grid.elements.empty) {
+                        return;
+                    } else {
+                        render_header.call(grid);
+                    }
                 });
             grid.clipboard = new og.common.grid.Clipboard(grid);
         };

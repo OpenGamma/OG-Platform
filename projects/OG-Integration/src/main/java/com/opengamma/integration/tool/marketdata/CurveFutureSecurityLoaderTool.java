@@ -7,7 +7,6 @@ package com.opengamma.integration.tool.marketdata;
 
 
 import static com.google.common.collect.Sets.newHashSet;
-import static com.opengamma.lambdava.streams.Lambdava.functional;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -40,7 +39,6 @@ import com.opengamma.financial.timeseries.exchange.DefaultExchangeDataProvider;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.integration.tool.IntegrationToolContext;
-import com.opengamma.lambdava.functions.Function1;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
@@ -49,7 +47,6 @@ import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.SecurityMasterUtils;
 import com.opengamma.scripts.Scriptable;
-import com.opengamma.util.money.Currency;
 
 
 /**

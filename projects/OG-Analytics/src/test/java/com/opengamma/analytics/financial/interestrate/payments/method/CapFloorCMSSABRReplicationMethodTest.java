@@ -304,7 +304,7 @@ public class CapFloorCMSSABRReplicationMethodTest {
     final double shift = 0.0001;
     final double shiftAlpha = 0.00001;
     final double maturity = CMS_CAP.getUnderlyingSwap().getFixedLeg().getNthPayment(CMS_CAP.getUnderlyingSwap().getFixedLeg().getNumberOfPayments() - 1).getPaymentTime() - CMS_CAP.getSettlementTime();
-    final DoublesPair expectedExpiryTenor = new DoublesPair(CMS_CAP.getFixingTime(), maturity);
+    final DoublesPair expectedExpiryTenor = DoublesPair.of(CMS_CAP.getFixingTime(), maturity);
     // Alpha sensitivity vs finite difference computation
     final SABRInterestRateParameters sabrParameterAlphaBumped = TestsDataSetsSABR.createSABR1AlphaBumped(shiftAlpha);
     final SABRInterestRateDataBundle sabrBundleAlphaBumped = new SABRInterestRateDataBundle(sabrParameterAlphaBumped, CURVES);

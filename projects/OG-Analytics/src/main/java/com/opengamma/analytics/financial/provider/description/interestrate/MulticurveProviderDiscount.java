@@ -6,6 +6,7 @@
 package com.opengamma.analytics.financial.provider.description.interestrate;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,7 +49,19 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
    * Map of all curves used in the provider. The order is ???
    */
   private Map<String, YieldAndDiscountCurve> _allCurves;
-
+  /**
+   * Map of curve names to currencies.
+   */
+  private Map<String, Currency> _namesToCurrency;
+  /**
+   * Map of curve names to ibor indices.
+   */
+  private Map<String, IborIndex> _namesToIborIndex;
+  /**
+   * Map of curve names to overnight indices.
+   */
+  private Map<String, IndexON> _namesToONIndex;
+  
   /**
    * Constructor with empty maps for discounting, forward and price index.
    */
@@ -57,6 +70,9 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
     _discountingCurves = new LinkedHashMap<>();
     _forwardIborCurves = new LinkedHashMap<>();
     _forwardONCurves = new LinkedHashMap<>();
+    _namesToCurrency = new HashMap<>();
+    _namesToIborIndex = new HashMap<>();
+    _namesToONIndex = new HashMap<>();
     _fxMatrix = new FXMatrix();
     setAllCurves();
   }
@@ -70,6 +86,9 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
     _discountingCurves = new LinkedHashMap<>();
     _forwardIborCurves = new LinkedHashMap<>();
     _forwardONCurves = new LinkedHashMap<>();
+    _namesToCurrency = new HashMap<>();
+    _namesToIborIndex = new HashMap<>();
+    _namesToONIndex = new HashMap<>();
     _fxMatrix = fxMatrix;
     setAllCurves();
   }
@@ -103,6 +122,9 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
     _discountingCurves = market._discountingCurves;
     _forwardIborCurves = market._forwardIborCurves;
     _forwardONCurves = market._forwardONCurves;
+    _namesToCurrency = new HashMap<>();
+    _namesToIborIndex = new HashMap<>();
+    _namesToONIndex = new HashMap<>();
     _fxMatrix = market._fxMatrix;
     setAllCurves();
   }
@@ -130,16 +152,28 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
     for (final Currency ccy : ccySet) {
       final String name = _discountingCurves.get(ccy).getName();
       _allCurves.put(name, _discountingCurves.get(ccy));
+      if (_namesToCurrency == null) {
+        _namesToCurrency = new HashMap<>();
+      }
+      _namesToCurrency.put(name,  ccy);
     }
     final Set<IborIndex> indexSet = _forwardIborCurves.keySet();
     for (final IborIndex index : indexSet) {
       final String name = _forwardIborCurves.get(index).getName();
       _allCurves.put(name, _forwardIborCurves.get(index));
+      if (_namesToIborIndex == null) {
+        _namesToIborIndex = new HashMap<>();
+      }
+      _namesToIborIndex.put(name, index);
     }
     final Set<IndexON> indexONSet = _forwardONCurves.keySet();
     for (final IndexON index : indexONSet) {
       final String name = _forwardONCurves.get(index).getName();
       _allCurves.put(name, _forwardONCurves.get(index));
+      if (_namesToONIndex == null) {
+        _namesToONIndex = new HashMap<>();
+      }
+      _namesToONIndex.put(name, index);
     }
   }
 
@@ -205,6 +239,18 @@ public class MulticurveProviderDiscount implements MulticurveProviderInterface {
     return _allCurves.get(name);
   }
 
+  public Currency getCurrencyForName(final String name) {
+    return _namesToCurrency.get(name);
+  }
+  
+  public IborIndex getIborIndexForName(final String name) {
+    return _namesToIborIndex.get(name);
+  }
+  
+  public IndexON getOvernightIndexForName(final String name) {
+    return _namesToONIndex.get(name);
+  }
+  
   @Override
   public double getDiscountFactor(final Currency ccy, final Double time) {
     if (_discountingCurves.containsKey(ccy)) {

@@ -14,13 +14,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.threeten.bp.ZoneId;
-
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
+import org.threeten.bp.ZoneId;
 
 import com.opengamma.elsql.ElSqlBundle;
 import com.opengamma.id.ExternalId;

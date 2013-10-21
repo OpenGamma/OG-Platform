@@ -20,7 +20,6 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.black.BlackDiscountingPV01SwaptionFunction;
-import com.opengamma.financial.security.FinancialSecurityUtils;
 
 /**
  * Calculates PV01 for swaptions using the Black method.
@@ -28,8 +27,12 @@ import com.opengamma.financial.security.FinancialSecurityUtils;
  */
 @Deprecated
 public class SwaptionBlackPV01Function extends SwaptionBlackCurveSpecificFunction {
+  /** The PV01 calculator */
   private static final PV01Calculator CALCULATOR = new PV01Calculator(PresentValueCurveSensitivityBlackCalculator.getInstance());
 
+  /**
+   * Sets the value requirement name to {@link ValueRequirementNames#PV01}
+   */
   public SwaptionBlackPV01Function() {
     super(ValueRequirementNames.PV01);
   }
@@ -38,7 +41,7 @@ public class SwaptionBlackPV01Function extends SwaptionBlackCurveSpecificFunctio
   protected Set<ComputedValue> getResult(final InstrumentDerivative swaption, final YieldCurveWithBlackSwaptionBundle data, final String curveName, final ValueSpecification spec,
       final String curveCalculationConfigName, final String curveCalculationMethod, final FunctionInputs inputs, final ComputationTarget target) {
     final Map<String, Double> pv01 = CALCULATOR.visit(swaption, data);
-    final String fullCurveName = curveName + "_" + FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode();
+    final String fullCurveName = curveName + "_BRL"; // + FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode();
     if (!pv01.containsKey(fullCurveName)) {
       throw new OpenGammaRuntimeException("Could not get PV01 for " + curveName);
     }

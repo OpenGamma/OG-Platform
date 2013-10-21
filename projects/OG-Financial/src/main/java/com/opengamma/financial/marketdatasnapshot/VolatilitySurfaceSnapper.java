@@ -19,8 +19,8 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.id.UniqueId;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * 
@@ -39,7 +39,7 @@ public class VolatilitySurfaceSnapper extends
     String instrumentType = getSingleProperty(spec, "InstrumentType"); //TODO constant
     String quoteType = getSingleProperty(spec, SurfaceAndCubePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE);
     String quoteUnits = getSingleProperty(spec, SurfaceAndCubePropertyNames.PROPERTY_SURFACE_UNITS);
-    return new VolatilitySurfaceKey(uniqueId, surface, instrumentType, quoteType, quoteUnits);
+    return VolatilitySurfaceKey.of(uniqueId, surface, instrumentType, quoteType, quoteUnits);
   }
 
   @SuppressWarnings("unchecked")
@@ -50,8 +50,8 @@ public class VolatilitySurfaceSnapper extends
     for (Object x : volatilitySurfaceData.getXs()) {
       for (Object y : volatilitySurfaceData.getYs()) {
         Double volatility = volatilitySurfaceData.getVolatility(x, y);
-        ObjectsPair<Object, Object> volKey = Pair.of(x, y);
-        dict.put(volKey, new ValueSnapshot(volatility));
+        Pair<Object, Object> volKey = Pairs.of(x, y);
+        dict.put(volKey, ValueSnapshot.of(volatility));
       }
     }
 

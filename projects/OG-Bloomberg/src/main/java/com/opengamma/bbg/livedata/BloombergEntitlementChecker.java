@@ -12,6 +12,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 
+import net.sf.ehcache.Cache;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,8 +37,6 @@ import com.opengamma.livedata.entitlement.LiveDataEntitlementChecker;
 import com.opengamma.livedata.resolver.DistributionSpecificationResolver;
 import com.opengamma.livedata.server.DistributionSpecification;
 import com.opengamma.util.ArgumentChecker;
-
-import net.sf.ehcache.Cache;
 
 /**
  * Checks that the user has entitlement to access Bloomberg.

@@ -9,30 +9,32 @@ $.register_module({
         return function (config) {
             var gadget = this, $selector = $(config.selector), histogram, stripped, buckets, max, min, range,
                 alive = og.common.id('gadget_histogram'), var99, var95, cvar99, cvar95, samples;
-            $(config.selector).addClass(alive).css({
-                position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: '#fff'
-            });
+            $(config.selector).addClass(alive).css({position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+                                                       backgroundColor: '#fff' });
             gadget.alive = function () {
                 var live = !!$('.' + alive).length;
-                if (!live && histogram) gadget.dataman.kill();
+                if (!live && histogram) {
+                    gadget.dataman.kill();
+                }
                 return live;
             };
             gadget.resize = function () {
-                try {histogram.resize();}
-                catch (error) {}
+                try {
+                    histogram.resize();
+                } catch (error) {/*do nothing*/}
             };
             var calc_vars = function () {
-              return false;
-              //if (stripped[stripped.length - 1] > 0) return false;
-              //var ceil = Math.ceil, sample99 = ceil(samples * 0.99) - 1, sample95 = ceil(samples * 0.95) - 1,
-              //  range99 = stripped.slice(sample99), range95 = stripped.slice(sample95);
-              //return {
-              //  var99 : stripped[sample99],
-              //  var95 : stripped[sample95],
-              //  cvar99 : range99.reduce(function(a, b) { return a + b; }, 0) / range99.length,
-              //  cvar95 : range95.reduce(function(a, b) { return a + b; }, 0) / range95.length
-              //}
-            }
+                return false;
+                //if (stripped[stripped.length - 1] > 0) return false;
+                //var ceil = Math.ceil, sample99 = ceil(samples * 0.99) - 1, sample95 = ceil(samples * 0.95) - 1,
+                //  range99 = stripped.slice(sample99), range95 = stripped.slice(sample95);
+                //return {
+                //  var99 : stripped[sample99],
+                //  var95 : stripped[sample95],
+                //  cvar99 : range99.reduce(function(a, b) { return a + b; }, 0) / range99.length,
+                //  cvar95 : range95.reduce(function(a, b) { return a + b; }, 0) / range95.length
+                //}
+            };
             var histogram_data = function () {
                 var max_buckets = 50, min_buckets = 10,
                     bucket_calc = Math.ceil(Math.sqrt(samples));
@@ -103,7 +105,7 @@ $.register_module({
                     gadget.data = typeof value.v !== 'undefined' ? value.v : value;
                     if (!histogram && gadget.data && (typeof gadget.data === 'object')) {
                         histogram = new og.common.gadgets.HistogramPlot(prepare_data(gadget.data));
-                    } else {
+                    } else if (histogram) {
                         histogram.display_refresh();
                     }
                 })

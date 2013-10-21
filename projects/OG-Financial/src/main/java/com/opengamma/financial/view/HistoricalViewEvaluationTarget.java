@@ -210,7 +210,7 @@ public class HistoricalViewEvaluationTarget extends ViewEvaluationTarget {
           }
           FixedHistoricalMarketDataSpecification valuationDateSpec = new FixedHistoricalMarketDataSpecification(valuationDate);
           FixedHistoricalMarketDataSpecification previousHistoricalDateSpec = new FixedHistoricalMarketDataSpecification(previousHistoricalDate);
-          return new HistoricalShockMarketDataSpecification(ShockType.PROPORTIONAL, previousHistoricalDateSpec, historicalDateSpec, valuationDateSpec);
+          return HistoricalShockMarketDataSpecification.of(ShockType.PROPORTIONAL, previousHistoricalDateSpec, historicalDateSpec, valuationDateSpec);
         default:
           throw new OpenGammaRuntimeException("Unsupported market data mode: " + _marketDataMode);
       }

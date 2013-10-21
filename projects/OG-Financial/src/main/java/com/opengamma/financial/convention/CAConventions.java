@@ -17,11 +17,11 @@ import com.opengamma.financial.convention.businessday.BusinessDayConventionFacto
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Tenor;
 
 /**
@@ -95,6 +95,10 @@ public class CAConventions {
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("CD0012M Index"), simpleNameSecurityId("CAD LIBOR 12m"),
         tullettPrebonSecurityId("ASLIBCAD12L")),
         "CAD LIBOR 12m", act360, following, Period.ofMonths(12), 2, false, ca);
+
+    // dometsic CDOR ibor rate
+    utils.addConventionBundle(ExternalIdBundle.of(FloatingIndex.CAD_BA_CDOR.toFrequencySpecificExternalId(SimpleFrequency.QUARTERLY)),
+                              "CAD IBOR 3m", act360, following, Period.ofMonths(3), 2, false, ca);
 
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("CDDR1T Curncy"), simpleNameSecurityId("CAD DEPOSIT 1d"),
         tullettPrebonSecurityId("MNDEPCADTDYTOM")),

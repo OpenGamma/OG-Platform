@@ -27,9 +27,10 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Lists;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.WriteReplaceHelper;
+import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * An implementation of {@link ViewComputationCache} which backs value storage on a pair of {@link IdentifierMap} and {@link FudgeMessageStore}.
@@ -213,7 +214,7 @@ public class DefaultViewComputationCache implements ViewComputationCache,
         if (data != null) {
           final Object value = deserializeValue(deserializer, data);
           cacheValueSize(identifier.getKey(), data, value);
-          returnValues.add(Pair.of(identifier.getKey(), value));
+          returnValues.add(Pairs.of(identifier.getKey(), value));
           identifierIterator.remove();
         }
       }
@@ -230,7 +231,7 @@ public class DefaultViewComputationCache implements ViewComputationCache,
         if (data != null) {
           final Object value = deserializeValue(deserializer, data);
           cacheValueSize(identifier.getKey(), data, value);
-          returnValues.add(Pair.of(identifier.getKey(), value));
+          returnValues.add(Pairs.of(identifier.getKey(), value));
           identifierIterator.remove();
         }
       }
@@ -249,7 +250,7 @@ public class DefaultViewComputationCache implements ViewComputationCache,
           if (data != null) {
             final Object value = deserializeValue(deserializer, data);
             cacheValueSize(identifier.getKey(), data, value);
-            returnValues.add(Pair.of(identifier.getKey(), value));
+            returnValues.add(Pairs.of(identifier.getKey(), value));
             identifierIterator.remove();
           }
         }
@@ -302,9 +303,9 @@ public class DefaultViewComputationCache implements ViewComputationCache,
       if (data != null) {
         final Object value = deserializeValue(deserializer, data);
         cacheValueSize(identifier.getKey(), data, value);
-        returnValues.add(Pair.of(identifier.getKey(), value));
+        returnValues.add(Pairs.of(identifier.getKey(), value));
       } else {
-        returnValues.add(Pair.of(identifier.getKey(), null));
+        returnValues.add(Pairs.of(identifier.getKey(), null));
       }
     }
     return returnValues;

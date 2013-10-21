@@ -124,8 +124,8 @@ public final class CapFloorInflationYearOnYearMonthlyConvexityAdjustmentMethod {
     final double df = black.getMulticurveProvider().getDiscountFactor(cap.getCurrency(), cap.getPaymentTime());
     final Map<String, List<DoublesPair>> resultMapPrice = new HashMap<>();
     final List<DoublesPair> listPrice = new ArrayList<>();
-    listPrice.add(new DoublesPair(cap.getReferenceEndTime(), 1 / priceIndexStart * convexityAdjustment));
-    listPrice.add(new DoublesPair(cap.getReferenceStartTime(), -priceIndexEnd / (priceIndexStart * priceIndexStart) * convexityAdjustment));
+    listPrice.add(DoublesPair.of(cap.getReferenceEndTime(), 1 / priceIndexStart * convexityAdjustment));
+    listPrice.add(DoublesPair.of(cap.getReferenceStartTime(), -priceIndexEnd / (priceIndexStart * priceIndexStart) * convexityAdjustment));
     resultMapPrice.put(inflation.getName(cap.getPriceIndex()), listPrice);
     final InflationSensitivity forwardDi = InflationSensitivity.ofPriceIndex(resultMapPrice);
     final double dfDr = -cap.getPaymentTime() * df;
@@ -134,7 +134,7 @@ public final class CapFloorInflationYearOnYearMonthlyConvexityAdjustmentMethod {
     final double[] priceDerivatives = new double[3];
     final double bsAdjoint = NORMAL_FUNCTION.getPriceAdjoint(option, dataBlack, priceDerivatives);
     final List<DoublesPair> list = new ArrayList<>();
-    list.add(new DoublesPair(cap.getPaymentTime(), dfDr));
+    list.add(DoublesPair.of(cap.getPaymentTime(), dfDr));
     final Map<String, List<DoublesPair>> resultMap = new HashMap<>();
     resultMap.put(inflation.getName(cap.getCurrency()), list);
     InflationSensitivity result = InflationSensitivity.ofYieldDiscounting(resultMap);

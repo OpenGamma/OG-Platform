@@ -17,22 +17,14 @@ import org.threeten.bp.ZonedDateTime;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.analytics.financial.credit.BuySellProtection;
-import com.opengamma.analytics.financial.credit.ISDAYieldCurveAndSpreadsProvider;
-import com.opengamma.analytics.financial.credit.StubType;
-import com.opengamma.analytics.financial.credit.calibratehazardratecurve.ISDAHazardRateCurveCalculator;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSAnalytic;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSAnalyticFactory;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.FastCreditCurveBuilder;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantCreditCurve;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantYieldCurve;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.QuotedSpread;
-import com.opengamma.analytics.financial.credit.hazardratecurve.HazardRateCurve;
-import com.opengamma.analytics.financial.credit.isdayieldcurve.ISDADateCurve;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalyticFactory;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.FastCreditCurveBuilder;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurve;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
 import com.opengamma.analytics.math.curve.NodalObjectsCurve;
 import com.opengamma.core.holiday.HolidaySource;
-import com.opengamma.core.holiday.impl.WeekendHolidaySource;
 import com.opengamma.core.organization.OrganizationSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.engine.ComputationTarget;
@@ -56,7 +48,6 @@ import com.opengamma.financial.analytics.model.credit.CreditFunctionUtils;
 import com.opengamma.financial.analytics.model.credit.CreditInstrumentPropertyNamesAndValues;
 import com.opengamma.financial.analytics.model.credit.CreditSecurityToIdentifierVisitor;
 import com.opengamma.financial.analytics.model.credit.IMMDateGenerator;
-import com.opengamma.financial.analytics.model.credit.isdanew.CDSAnalyticVisitor;
 import com.opengamma.financial.convention.HolidaySourceCalendarAdapter;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -65,7 +56,6 @@ import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.cds.CreditDefaultSwapIndexSecurity;
-import com.opengamma.util.OpenGammaClock;
 import com.opengamma.util.ParallelArrayBinarySort;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.time.Tenor;
@@ -108,7 +98,7 @@ public class ISDACDXAsSingleNameHazardRateCurveFunction extends ISDAHazardRateCu
     final CDSAnalyticFactory analyticFactory = new CDSAnalyticFactory(cds.getRecoveryRate(), cds.getCouponFrequency().getPeriod())
         .with(cds.getBusinessDayAdjustmentConvention())
         .with(calendar).with(cds.getStubType())
-        .withAccualDCC(cds.getDayCountFractionConvention());
+        .withAccrualDCC(cds.getDayCountFractionConvention());
 
     final CDSAnalytic pricingCDS = analyticFactory.makeCDS(valuationTime.toLocalDate(), cds.getEffectiveDate().toLocalDate(), cds.getMaturityDate().toLocalDate());
     double spread = 0;

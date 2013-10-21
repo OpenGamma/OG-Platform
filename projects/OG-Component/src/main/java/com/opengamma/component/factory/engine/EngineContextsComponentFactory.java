@@ -8,6 +8,7 @@ package com.opengamma.component.factory.engine;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -58,6 +59,7 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
  * Component factory for the config source.
  */
 @BeanDefinition
+@SuppressWarnings("deprecation")
 public class EngineContextsComponentFactory extends AbstractComponentFactory {
 
   /**
@@ -318,224 +320,6 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
   @Override
   public EngineContextsComponentFactory.Meta metaBean() {
     return EngineContextsComponentFactory.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        return getClassifier();
-      case 195157501:  // configSource
-        return getConfigSource();
-      case 10395716:  // configMaster
-        return getConfigMaster();
-      case -702456965:  // securitySource
-        return getSecuritySource();
-      case -1655657820:  // positionSource
-        return getPositionSource();
-      case -1933414217:  // targetResolver
-        return getTargetResolver();
-      case -1636207569:  // regionSource
-        return getRegionSource();
-      case -973975762:  // organizationSource
-        return getOrganizationSource();
-      case -1281578674:  // conventionBundleSource
-        return getConventionBundleSource();
-      case -582658381:  // interpolatedYieldCurveDefinitionSource
-        return getInterpolatedYieldCurveDefinitionSource();
-      case -461125123:  // interpolatedYieldCurveSpecificationBuilder
-        return getInterpolatedYieldCurveSpecificationBuilder();
-      case 1540542824:  // volatilityCubeDefinitionSource
-        return getVolatilityCubeDefinitionSource();
-      case 431020691:  // holidaySource
-        return getHolidaySource();
-      case -467239906:  // exchangeSource
-        return getExchangeSource();
-      case 358729161:  // historicalTimeSeriesSource
-        return getHistoricalTimeSeriesSource();
-      case -946313676:  // historicalTimeSeriesResolver
-        return getHistoricalTimeSeriesResolver();
-      case 225875692:  // conventionSource
-        return getConventionSource();
-      case -557041435:  // executionBlacklist
-        return getExecutionBlacklist();
-      case 1210914458:  // compilationBlacklist
-        return getCompilationBlacklist();
-      case 491227055:  // tempTargetRepository
-        return getTempTargetRepository();
-      case -1697555603:  // viewProcessor
-        return getViewProcessor();
-      case -517618017:  // permissive
-        return getPermissive();
-      case -1266263066:  // pnlRequirementsGatherer
-        return getPnlRequirementsGatherer();
-      case 861249085:  // riskFactorsGatherer
-        return getRiskFactorsGatherer();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -281470431:  // classifier
-        setClassifier((String) newValue);
-        return;
-      case 195157501:  // configSource
-        setConfigSource((ConfigSource) newValue);
-        return;
-      case 10395716:  // configMaster
-        setConfigMaster((ConfigMaster) newValue);
-        return;
-      case -702456965:  // securitySource
-        setSecuritySource((SecuritySource) newValue);
-        return;
-      case -1655657820:  // positionSource
-        setPositionSource((PositionSource) newValue);
-        return;
-      case -1933414217:  // targetResolver
-        setTargetResolver((ComputationTargetResolver) newValue);
-        return;
-      case -1636207569:  // regionSource
-        setRegionSource((RegionSource) newValue);
-        return;
-      case -973975762:  // organizationSource
-        setOrganizationSource((OrganizationSource) newValue);
-        return;
-      case -1281578674:  // conventionBundleSource
-        setConventionBundleSource((ConventionBundleSource) newValue);
-        return;
-      case -582658381:  // interpolatedYieldCurveDefinitionSource
-        setInterpolatedYieldCurveDefinitionSource((InterpolatedYieldCurveDefinitionSource) newValue);
-        return;
-      case -461125123:  // interpolatedYieldCurveSpecificationBuilder
-        setInterpolatedYieldCurveSpecificationBuilder((InterpolatedYieldCurveSpecificationBuilder) newValue);
-        return;
-      case 1540542824:  // volatilityCubeDefinitionSource
-        setVolatilityCubeDefinitionSource((VolatilityCubeDefinitionSource) newValue);
-        return;
-      case 431020691:  // holidaySource
-        setHolidaySource((HolidaySource) newValue);
-        return;
-      case -467239906:  // exchangeSource
-        setExchangeSource((ExchangeSource) newValue);
-        return;
-      case 358729161:  // historicalTimeSeriesSource
-        setHistoricalTimeSeriesSource((HistoricalTimeSeriesSource) newValue);
-        return;
-      case -946313676:  // historicalTimeSeriesResolver
-        setHistoricalTimeSeriesResolver((HistoricalTimeSeriesResolver) newValue);
-        return;
-      case 225875692:  // conventionSource
-        setConventionSource((ConventionSource) newValue);
-        return;
-      case -557041435:  // executionBlacklist
-        setExecutionBlacklist((FunctionBlacklist) newValue);
-        return;
-      case 1210914458:  // compilationBlacklist
-        setCompilationBlacklist((FunctionBlacklist) newValue);
-        return;
-      case 491227055:  // tempTargetRepository
-        setTempTargetRepository((TempTargetRepository) newValue);
-        return;
-      case -1697555603:  // viewProcessor
-        setViewProcessor((ViewProcessor) newValue);
-        return;
-      case -517618017:  // permissive
-        setPermissive((Boolean) newValue);
-        return;
-      case -1266263066:  // pnlRequirementsGatherer
-        setPnlRequirementsGatherer((PnLRequirementsGatherer) newValue);
-        return;
-      case 861249085:  // riskFactorsGatherer
-        setRiskFactorsGatherer((RiskFactorsGatherer) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  protected void validate() {
-    JodaBeanUtils.notNull(_classifier, "classifier");
-    JodaBeanUtils.notNull(_configSource, "configSource");
-    JodaBeanUtils.notNull(_securitySource, "securitySource");
-    JodaBeanUtils.notNull(_positionSource, "positionSource");
-    JodaBeanUtils.notNull(_targetResolver, "targetResolver");
-    JodaBeanUtils.notNull(_regionSource, "regionSource");
-    JodaBeanUtils.notNull(_organizationSource, "organizationSource");
-    JodaBeanUtils.notNull(_conventionBundleSource, "conventionBundleSource");
-    JodaBeanUtils.notNull(_holidaySource, "holidaySource");
-    JodaBeanUtils.notNull(_exchangeSource, "exchangeSource");
-    JodaBeanUtils.notNull(_historicalTimeSeriesSource, "historicalTimeSeriesSource");
-    JodaBeanUtils.notNull(_historicalTimeSeriesResolver, "historicalTimeSeriesResolver");
-    JodaBeanUtils.notNull(_conventionSource, "conventionSource");
-    super.validate();
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      EngineContextsComponentFactory other = (EngineContextsComponentFactory) obj;
-      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
-          JodaBeanUtils.equal(getConfigSource(), other.getConfigSource()) &&
-          JodaBeanUtils.equal(getConfigMaster(), other.getConfigMaster()) &&
-          JodaBeanUtils.equal(getSecuritySource(), other.getSecuritySource()) &&
-          JodaBeanUtils.equal(getPositionSource(), other.getPositionSource()) &&
-          JodaBeanUtils.equal(getTargetResolver(), other.getTargetResolver()) &&
-          JodaBeanUtils.equal(getRegionSource(), other.getRegionSource()) &&
-          JodaBeanUtils.equal(getOrganizationSource(), other.getOrganizationSource()) &&
-          JodaBeanUtils.equal(getConventionBundleSource(), other.getConventionBundleSource()) &&
-          JodaBeanUtils.equal(getInterpolatedYieldCurveDefinitionSource(), other.getInterpolatedYieldCurveDefinitionSource()) &&
-          JodaBeanUtils.equal(getInterpolatedYieldCurveSpecificationBuilder(), other.getInterpolatedYieldCurveSpecificationBuilder()) &&
-          JodaBeanUtils.equal(getVolatilityCubeDefinitionSource(), other.getVolatilityCubeDefinitionSource()) &&
-          JodaBeanUtils.equal(getHolidaySource(), other.getHolidaySource()) &&
-          JodaBeanUtils.equal(getExchangeSource(), other.getExchangeSource()) &&
-          JodaBeanUtils.equal(getHistoricalTimeSeriesSource(), other.getHistoricalTimeSeriesSource()) &&
-          JodaBeanUtils.equal(getHistoricalTimeSeriesResolver(), other.getHistoricalTimeSeriesResolver()) &&
-          JodaBeanUtils.equal(getConventionSource(), other.getConventionSource()) &&
-          JodaBeanUtils.equal(getExecutionBlacklist(), other.getExecutionBlacklist()) &&
-          JodaBeanUtils.equal(getCompilationBlacklist(), other.getCompilationBlacklist()) &&
-          JodaBeanUtils.equal(getTempTargetRepository(), other.getTempTargetRepository()) &&
-          JodaBeanUtils.equal(getViewProcessor(), other.getViewProcessor()) &&
-          JodaBeanUtils.equal(getPermissive(), other.getPermissive()) &&
-          JodaBeanUtils.equal(getPnlRequirementsGatherer(), other.getPnlRequirementsGatherer()) &&
-          JodaBeanUtils.equal(getRiskFactorsGatherer(), other.getRiskFactorsGatherer()) &&
-          super.equals(obj);
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getSecuritySource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPositionSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTargetResolver());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getOrganizationSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConventionBundleSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getInterpolatedYieldCurveDefinitionSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getInterpolatedYieldCurveSpecificationBuilder());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVolatilityCubeDefinitionSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHolidaySource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExchangeSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesResolver());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConventionSource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getExecutionBlacklist());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getCompilationBlacklist());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getTempTargetRepository());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getViewProcessor());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPermissive());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPnlRequirementsGatherer());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getRiskFactorsGatherer());
-    return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
@@ -1173,6 +957,120 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public EngineContextsComponentFactory clone() {
+    return (EngineContextsComponentFactory) super.clone();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      EngineContextsComponentFactory other = (EngineContextsComponentFactory) obj;
+      return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
+          JodaBeanUtils.equal(getConfigSource(), other.getConfigSource()) &&
+          JodaBeanUtils.equal(getConfigMaster(), other.getConfigMaster()) &&
+          JodaBeanUtils.equal(getSecuritySource(), other.getSecuritySource()) &&
+          JodaBeanUtils.equal(getPositionSource(), other.getPositionSource()) &&
+          JodaBeanUtils.equal(getTargetResolver(), other.getTargetResolver()) &&
+          JodaBeanUtils.equal(getRegionSource(), other.getRegionSource()) &&
+          JodaBeanUtils.equal(getOrganizationSource(), other.getOrganizationSource()) &&
+          JodaBeanUtils.equal(getConventionBundleSource(), other.getConventionBundleSource()) &&
+          JodaBeanUtils.equal(getInterpolatedYieldCurveDefinitionSource(), other.getInterpolatedYieldCurveDefinitionSource()) &&
+          JodaBeanUtils.equal(getInterpolatedYieldCurveSpecificationBuilder(), other.getInterpolatedYieldCurveSpecificationBuilder()) &&
+          JodaBeanUtils.equal(getVolatilityCubeDefinitionSource(), other.getVolatilityCubeDefinitionSource()) &&
+          JodaBeanUtils.equal(getHolidaySource(), other.getHolidaySource()) &&
+          JodaBeanUtils.equal(getExchangeSource(), other.getExchangeSource()) &&
+          JodaBeanUtils.equal(getHistoricalTimeSeriesSource(), other.getHistoricalTimeSeriesSource()) &&
+          JodaBeanUtils.equal(getHistoricalTimeSeriesResolver(), other.getHistoricalTimeSeriesResolver()) &&
+          JodaBeanUtils.equal(getConventionSource(), other.getConventionSource()) &&
+          JodaBeanUtils.equal(getExecutionBlacklist(), other.getExecutionBlacklist()) &&
+          JodaBeanUtils.equal(getCompilationBlacklist(), other.getCompilationBlacklist()) &&
+          JodaBeanUtils.equal(getTempTargetRepository(), other.getTempTargetRepository()) &&
+          JodaBeanUtils.equal(getViewProcessor(), other.getViewProcessor()) &&
+          JodaBeanUtils.equal(getPermissive(), other.getPermissive()) &&
+          JodaBeanUtils.equal(getPnlRequirementsGatherer(), other.getPnlRequirementsGatherer()) &&
+          JodaBeanUtils.equal(getRiskFactorsGatherer(), other.getRiskFactorsGatherer()) &&
+          super.equals(obj);
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecuritySource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPositionSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTargetResolver());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRegionSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getOrganizationSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getConventionBundleSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getInterpolatedYieldCurveDefinitionSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getInterpolatedYieldCurveSpecificationBuilder());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getVolatilityCubeDefinitionSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHolidaySource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExchangeSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesResolver());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getConventionSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getExecutionBlacklist());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getCompilationBlacklist());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getTempTargetRepository());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getViewProcessor());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPermissive());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPnlRequirementsGatherer());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRiskFactorsGatherer());
+    return hash ^ super.hashCode();
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(800);
+    buf.append("EngineContextsComponentFactory{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  @Override
+  protected void toString(StringBuilder buf) {
+    super.toString(buf);
+    buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
+    buf.append("configSource").append('=').append(JodaBeanUtils.toString(getConfigSource())).append(',').append(' ');
+    buf.append("configMaster").append('=').append(JodaBeanUtils.toString(getConfigMaster())).append(',').append(' ');
+    buf.append("securitySource").append('=').append(JodaBeanUtils.toString(getSecuritySource())).append(',').append(' ');
+    buf.append("positionSource").append('=').append(JodaBeanUtils.toString(getPositionSource())).append(',').append(' ');
+    buf.append("targetResolver").append('=').append(JodaBeanUtils.toString(getTargetResolver())).append(',').append(' ');
+    buf.append("regionSource").append('=').append(JodaBeanUtils.toString(getRegionSource())).append(',').append(' ');
+    buf.append("organizationSource").append('=').append(JodaBeanUtils.toString(getOrganizationSource())).append(',').append(' ');
+    buf.append("conventionBundleSource").append('=').append(JodaBeanUtils.toString(getConventionBundleSource())).append(',').append(' ');
+    buf.append("interpolatedYieldCurveDefinitionSource").append('=').append(JodaBeanUtils.toString(getInterpolatedYieldCurveDefinitionSource())).append(',').append(' ');
+    buf.append("interpolatedYieldCurveSpecificationBuilder").append('=').append(JodaBeanUtils.toString(getInterpolatedYieldCurveSpecificationBuilder())).append(',').append(' ');
+    buf.append("volatilityCubeDefinitionSource").append('=').append(JodaBeanUtils.toString(getVolatilityCubeDefinitionSource())).append(',').append(' ');
+    buf.append("holidaySource").append('=').append(JodaBeanUtils.toString(getHolidaySource())).append(',').append(' ');
+    buf.append("exchangeSource").append('=').append(JodaBeanUtils.toString(getExchangeSource())).append(',').append(' ');
+    buf.append("historicalTimeSeriesSource").append('=').append(JodaBeanUtils.toString(getHistoricalTimeSeriesSource())).append(',').append(' ');
+    buf.append("historicalTimeSeriesResolver").append('=').append(JodaBeanUtils.toString(getHistoricalTimeSeriesResolver())).append(',').append(' ');
+    buf.append("conventionSource").append('=').append(JodaBeanUtils.toString(getConventionSource())).append(',').append(' ');
+    buf.append("executionBlacklist").append('=').append(JodaBeanUtils.toString(getExecutionBlacklist())).append(',').append(' ');
+    buf.append("compilationBlacklist").append('=').append(JodaBeanUtils.toString(getCompilationBlacklist())).append(',').append(' ');
+    buf.append("tempTargetRepository").append('=').append(JodaBeanUtils.toString(getTempTargetRepository())).append(',').append(' ');
+    buf.append("viewProcessor").append('=').append(JodaBeanUtils.toString(getViewProcessor())).append(',').append(' ');
+    buf.append("permissive").append('=').append(JodaBeanUtils.toString(getPermissive())).append(',').append(' ');
+    buf.append("pnlRequirementsGatherer").append('=').append(JodaBeanUtils.toString(getPnlRequirementsGatherer())).append(',').append(' ');
+    buf.append("riskFactorsGatherer").append('=').append(JodaBeanUtils.toString(getRiskFactorsGatherer())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code EngineContextsComponentFactory}.
    */
@@ -1599,6 +1497,159 @@ public class EngineContextsComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<RiskFactorsGatherer> riskFactorsGatherer() {
       return _riskFactorsGatherer;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          return ((EngineContextsComponentFactory) bean).getClassifier();
+        case 195157501:  // configSource
+          return ((EngineContextsComponentFactory) bean).getConfigSource();
+        case 10395716:  // configMaster
+          return ((EngineContextsComponentFactory) bean).getConfigMaster();
+        case -702456965:  // securitySource
+          return ((EngineContextsComponentFactory) bean).getSecuritySource();
+        case -1655657820:  // positionSource
+          return ((EngineContextsComponentFactory) bean).getPositionSource();
+        case -1933414217:  // targetResolver
+          return ((EngineContextsComponentFactory) bean).getTargetResolver();
+        case -1636207569:  // regionSource
+          return ((EngineContextsComponentFactory) bean).getRegionSource();
+        case -973975762:  // organizationSource
+          return ((EngineContextsComponentFactory) bean).getOrganizationSource();
+        case -1281578674:  // conventionBundleSource
+          return ((EngineContextsComponentFactory) bean).getConventionBundleSource();
+        case -582658381:  // interpolatedYieldCurveDefinitionSource
+          return ((EngineContextsComponentFactory) bean).getInterpolatedYieldCurveDefinitionSource();
+        case -461125123:  // interpolatedYieldCurveSpecificationBuilder
+          return ((EngineContextsComponentFactory) bean).getInterpolatedYieldCurveSpecificationBuilder();
+        case 1540542824:  // volatilityCubeDefinitionSource
+          return ((EngineContextsComponentFactory) bean).getVolatilityCubeDefinitionSource();
+        case 431020691:  // holidaySource
+          return ((EngineContextsComponentFactory) bean).getHolidaySource();
+        case -467239906:  // exchangeSource
+          return ((EngineContextsComponentFactory) bean).getExchangeSource();
+        case 358729161:  // historicalTimeSeriesSource
+          return ((EngineContextsComponentFactory) bean).getHistoricalTimeSeriesSource();
+        case -946313676:  // historicalTimeSeriesResolver
+          return ((EngineContextsComponentFactory) bean).getHistoricalTimeSeriesResolver();
+        case 225875692:  // conventionSource
+          return ((EngineContextsComponentFactory) bean).getConventionSource();
+        case -557041435:  // executionBlacklist
+          return ((EngineContextsComponentFactory) bean).getExecutionBlacklist();
+        case 1210914458:  // compilationBlacklist
+          return ((EngineContextsComponentFactory) bean).getCompilationBlacklist();
+        case 491227055:  // tempTargetRepository
+          return ((EngineContextsComponentFactory) bean).getTempTargetRepository();
+        case -1697555603:  // viewProcessor
+          return ((EngineContextsComponentFactory) bean).getViewProcessor();
+        case -517618017:  // permissive
+          return ((EngineContextsComponentFactory) bean).getPermissive();
+        case -1266263066:  // pnlRequirementsGatherer
+          return ((EngineContextsComponentFactory) bean).getPnlRequirementsGatherer();
+        case 861249085:  // riskFactorsGatherer
+          return ((EngineContextsComponentFactory) bean).getRiskFactorsGatherer();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -281470431:  // classifier
+          ((EngineContextsComponentFactory) bean).setClassifier((String) newValue);
+          return;
+        case 195157501:  // configSource
+          ((EngineContextsComponentFactory) bean).setConfigSource((ConfigSource) newValue);
+          return;
+        case 10395716:  // configMaster
+          ((EngineContextsComponentFactory) bean).setConfigMaster((ConfigMaster) newValue);
+          return;
+        case -702456965:  // securitySource
+          ((EngineContextsComponentFactory) bean).setSecuritySource((SecuritySource) newValue);
+          return;
+        case -1655657820:  // positionSource
+          ((EngineContextsComponentFactory) bean).setPositionSource((PositionSource) newValue);
+          return;
+        case -1933414217:  // targetResolver
+          ((EngineContextsComponentFactory) bean).setTargetResolver((ComputationTargetResolver) newValue);
+          return;
+        case -1636207569:  // regionSource
+          ((EngineContextsComponentFactory) bean).setRegionSource((RegionSource) newValue);
+          return;
+        case -973975762:  // organizationSource
+          ((EngineContextsComponentFactory) bean).setOrganizationSource((OrganizationSource) newValue);
+          return;
+        case -1281578674:  // conventionBundleSource
+          ((EngineContextsComponentFactory) bean).setConventionBundleSource((ConventionBundleSource) newValue);
+          return;
+        case -582658381:  // interpolatedYieldCurveDefinitionSource
+          ((EngineContextsComponentFactory) bean).setInterpolatedYieldCurveDefinitionSource((InterpolatedYieldCurveDefinitionSource) newValue);
+          return;
+        case -461125123:  // interpolatedYieldCurveSpecificationBuilder
+          ((EngineContextsComponentFactory) bean).setInterpolatedYieldCurveSpecificationBuilder((InterpolatedYieldCurveSpecificationBuilder) newValue);
+          return;
+        case 1540542824:  // volatilityCubeDefinitionSource
+          ((EngineContextsComponentFactory) bean).setVolatilityCubeDefinitionSource((VolatilityCubeDefinitionSource) newValue);
+          return;
+        case 431020691:  // holidaySource
+          ((EngineContextsComponentFactory) bean).setHolidaySource((HolidaySource) newValue);
+          return;
+        case -467239906:  // exchangeSource
+          ((EngineContextsComponentFactory) bean).setExchangeSource((ExchangeSource) newValue);
+          return;
+        case 358729161:  // historicalTimeSeriesSource
+          ((EngineContextsComponentFactory) bean).setHistoricalTimeSeriesSource((HistoricalTimeSeriesSource) newValue);
+          return;
+        case -946313676:  // historicalTimeSeriesResolver
+          ((EngineContextsComponentFactory) bean).setHistoricalTimeSeriesResolver((HistoricalTimeSeriesResolver) newValue);
+          return;
+        case 225875692:  // conventionSource
+          ((EngineContextsComponentFactory) bean).setConventionSource((ConventionSource) newValue);
+          return;
+        case -557041435:  // executionBlacklist
+          ((EngineContextsComponentFactory) bean).setExecutionBlacklist((FunctionBlacklist) newValue);
+          return;
+        case 1210914458:  // compilationBlacklist
+          ((EngineContextsComponentFactory) bean).setCompilationBlacklist((FunctionBlacklist) newValue);
+          return;
+        case 491227055:  // tempTargetRepository
+          ((EngineContextsComponentFactory) bean).setTempTargetRepository((TempTargetRepository) newValue);
+          return;
+        case -1697555603:  // viewProcessor
+          ((EngineContextsComponentFactory) bean).setViewProcessor((ViewProcessor) newValue);
+          return;
+        case -517618017:  // permissive
+          ((EngineContextsComponentFactory) bean).setPermissive((Boolean) newValue);
+          return;
+        case -1266263066:  // pnlRequirementsGatherer
+          ((EngineContextsComponentFactory) bean).setPnlRequirementsGatherer((PnLRequirementsGatherer) newValue);
+          return;
+        case 861249085:  // riskFactorsGatherer
+          ((EngineContextsComponentFactory) bean).setRiskFactorsGatherer((RiskFactorsGatherer) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
+    }
+
+    @Override
+    protected void validate(Bean bean) {
+      JodaBeanUtils.notNull(((EngineContextsComponentFactory) bean)._classifier, "classifier");
+      JodaBeanUtils.notNull(((EngineContextsComponentFactory) bean)._configSource, "configSource");
+      JodaBeanUtils.notNull(((EngineContextsComponentFactory) bean)._securitySource, "securitySource");
+      JodaBeanUtils.notNull(((EngineContextsComponentFactory) bean)._positionSource, "positionSource");
+      JodaBeanUtils.notNull(((EngineContextsComponentFactory) bean)._targetResolver, "targetResolver");
+      JodaBeanUtils.notNull(((EngineContextsComponentFactory) bean)._regionSource, "regionSource");
+      JodaBeanUtils.notNull(((EngineContextsComponentFactory) bean)._organizationSource, "organizationSource");
+      JodaBeanUtils.notNull(((EngineContextsComponentFactory) bean)._conventionBundleSource, "conventionBundleSource");
+      JodaBeanUtils.notNull(((EngineContextsComponentFactory) bean)._holidaySource, "holidaySource");
+      JodaBeanUtils.notNull(((EngineContextsComponentFactory) bean)._exchangeSource, "exchangeSource");
+      JodaBeanUtils.notNull(((EngineContextsComponentFactory) bean)._historicalTimeSeriesSource, "historicalTimeSeriesSource");
+      JodaBeanUtils.notNull(((EngineContextsComponentFactory) bean)._historicalTimeSeriesResolver, "historicalTimeSeriesResolver");
+      JodaBeanUtils.notNull(((EngineContextsComponentFactory) bean)._conventionSource, "conventionSource");
+      super.validate(bean);
     }
 
   }

@@ -19,8 +19,8 @@ import com.opengamma.analytics.math.matrix.MatrixAlgebra;
 import com.opengamma.analytics.math.matrix.OGMatrixAlgebra;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Calculator of the sensitivity to the market quotes of instruments used to build the curves.
@@ -71,7 +71,7 @@ public final class MarketQuoteSensitivityBlockCalculator<DATA_TYPE extends Param
           final int start = unitPair.getFirst().getStart(name2);
           final double[] sensiName2 = new double[nbParameters];
           System.arraycopy(oneCurveSensiArray, start, sensiName2, 0, nbParameters);
-          oneCurveSensiMap.put(new ObjectsPair<>(name2, nameCcy.getSecond()), new DoubleMatrix1D(sensiName2));
+          oneCurveSensiMap.put(Pairs.of(name2, nameCcy.getSecond()), new DoubleMatrix1D(sensiName2));
         }
         final MultipleCurrencyParameterSensitivity sensiName = new MultipleCurrencyParameterSensitivity(oneCurveSensiMap);
         result = result.plus(sensiName);

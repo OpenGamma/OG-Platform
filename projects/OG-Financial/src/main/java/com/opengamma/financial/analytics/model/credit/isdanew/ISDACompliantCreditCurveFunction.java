@@ -21,16 +21,15 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.credit.BuySellProtection;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.StandardCDSQuotingConvention;
 import com.opengamma.analytics.financial.credit.creditdefaultswap.definition.legacy.LegacyVanillaCreditDefaultSwapDefinition;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSAnalytic;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSAnalyticFactory;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.CDSQuoteConvention;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.FastCreditCurveBuilder;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantCreditCurve;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ISDACompliantYieldCurve;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.ParSpread;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.PointsUpFront;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.PointsUpFrontConverter;
-import com.opengamma.analytics.financial.credit.creditdefaultswap.pricing.vanilla.isdanew.QuotedSpread;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSAnalytic;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.CDSQuoteConvention;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.FastCreditCurveBuilder;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantCreditCurve;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.ISDACompliantYieldCurve;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.MarketQuoteConverter;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.ParSpread;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.PointsUpFront;
+import com.opengamma.analytics.financial.credit.isdastandardmodel.QuotedSpread;
 import com.opengamma.analytics.math.curve.NodalTenorDoubleCurve;
 import com.opengamma.core.AbstractSourceWithExternalBundle;
 import com.opengamma.core.change.ChangeManager;
@@ -79,7 +78,7 @@ public class ISDACompliantCreditCurveFunction extends AbstractFunction.NonCompil
   /** String representation of fixed pillars used for non IMM */
   public static final String NON_IMM_PILLAR_TENORS = "P6M,P1Y,P2Y,P3Y,P4Y,P5Y,P7Y,P10Y";
   private static final FastCreditCurveBuilder CREDIT_CURVE_BUILDER = new FastCreditCurveBuilder();
-  private static final PointsUpFrontConverter POINTS_UP_FRONT_CONVERTER = new PointsUpFrontConverter();
+  private static final MarketQuoteConverter POINTS_UP_FRONT_CONVERTER = new MarketQuoteConverter();
   private HolidaySource _holidaySource;
   private RegionSource _regionSource;
 

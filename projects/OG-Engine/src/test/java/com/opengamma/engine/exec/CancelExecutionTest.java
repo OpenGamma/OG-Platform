@@ -62,7 +62,7 @@ import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
 import com.opengamma.engine.marketdata.SingletonMarketDataProviderFactory;
 import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
 import com.opengamma.engine.marketdata.resolver.SingleMarketDataProviderResolver;
-import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.engine.resource.EngineResourceManagerImpl;
 import com.opengamma.engine.target.ComputationTargetReference;
 import com.opengamma.engine.test.MockConfigSource;
@@ -136,13 +136,6 @@ public class CancelExecutionTest {
     }
   }
 
-  private final ComputationResultListener computationCycleResultListener = new ComputationResultListener() {
-    @Override
-    public void resultAvailable(final ViewComputationResultModel result) {
-      //ignore
-    }
-  };
-
   private DependencyGraphExecutionFuture executeTestJob(final DependencyGraphExecutorFactory factory) {
     final InMemoryLKVMarketDataProvider marketDataProvider = new InMemoryLKVMarketDataProvider();
     final MarketDataProviderResolver marketDataProviderResolver = new SingleMarketDataProviderResolver(new SingletonMarketDataProviderFactory(marketDataProvider));
@@ -202,9 +195,14 @@ public class CancelExecutionTest {
     final CompiledViewDefinitionWithGraphsImpl viewEvaluationModel = new CompiledViewDefinitionWithGraphsImpl(VersionCorrection.LATEST, "", viewDefinition, Collections.singleton(graph),
         Collections.<ComputationTargetReference, UniqueId>emptyMap(), new SimplePortfolio("Test Portfolio"), 0,
         Collections.<CompiledViewCalculationConfiguration>singleton(CompiledViewCalculationConfigurationImpl.of(graph)), null, null);
-    final ViewCycleExecutionOptions cycleOptions = ViewCycleExecutionOptions.builder().setValuationTime(Instant.ofEpochMilli(1)).setMarketDataSpecification(new MarketDataSpecification()).create();
-    final SingleComputationCycle cycle = new SingleComputationCycle(UniqueId.of("Test", "Cycle1"), computationCycleResultListener, vpc, viewEvaluationModel,
-        cycleOptions, VersionCorrection.of(Instant.ofEpochMilli(1), Instant.ofEpochMilli(1)));
+    final ViewCycleExecutionOptions cycleOptions = ViewCycleExecutionOptions.builder().setValuationTime(Instant.ofEpochMilli(1)).setMarketDataSpecification(LiveMarketDataSpecification.LIVE_SPEC)
+        .create();
+    final SingleComputationCycle cycle = new SingleComputationCycle(UniqueId.of("Test", "Cycle1"), new ComputationResultListener() {
+      @Override
+      public void resultAvailable(final ViewComputationResultModel result) {
+        //ignore
+      }
+    }, vpc, viewEvaluationModel, cycleOptions, VersionCorrection.of(Instant.ofEpochMilli(1), Instant.ofEpochMilli(1)));
     return factory.createExecutor(cycle).execute(graph, Collections.<ValueSpecification>emptySet(), Collections.<ValueSpecification, FunctionParameters>emptyMap());
   }
 

@@ -152,7 +152,7 @@ public class MarketDataSnapshotterImpl implements MarketDataSnapshotter {
             if (pathToRoot || terminalOutputs.containsKey(value)) {
               final ExternalIdBundle identifiers = resolveExternalIdBundle(resolver, value);
               if (identifiers != null) {
-                snapshot.putValue(identifiers, value.getValueName(), new ValueSnapshot(resolvedValue.getValue()));
+                snapshot.putValue(identifiers, value.getValueName(), ValueSnapshot.of(resolvedValue.getValue()));
               }
             }
           } else {

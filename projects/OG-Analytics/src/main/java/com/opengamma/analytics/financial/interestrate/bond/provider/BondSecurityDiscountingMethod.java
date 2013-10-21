@@ -209,7 +209,7 @@ public final class BondSecurityDiscountingMethod {
     final double df = multicurves.getDiscountFactor(ccy, bond.getSettlementTime());
     final Map<String, List<DoublesPair>> resultMap = new HashMap<>();
     final List<DoublesPair> listDf = new ArrayList<>();
-    listDf.add(new DoublesPair(bond.getSettlementTime(), bond.getSettlementTime() / df));
+    listDf.add(DoublesPair.of(bond.getSettlementTime(), bond.getSettlementTime() / df));
     resultMap.put(multicurves.getName(ccy), listDf);
     MulticurveSensitivity result = MulticurveSensitivity.ofYieldDiscounting(resultMap);
     result = result.multipliedBy(pv.getAmount(ccy) / notional);

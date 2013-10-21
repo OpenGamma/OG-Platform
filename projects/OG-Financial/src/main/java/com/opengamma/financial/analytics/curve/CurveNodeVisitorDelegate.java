@@ -13,8 +13,11 @@ import com.opengamma.financial.analytics.ircurve.strips.DeliverableSwapFutureNod
 import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
+import com.opengamma.financial.analytics.ircurve.strips.IMMFRANode;
+import com.opengamma.financial.analytics.ircurve.strips.IMMSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
+import com.opengamma.financial.analytics.ircurve.strips.ThreeLegBasisSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.ZeroCouponInflationNode;
 import com.opengamma.util.ArgumentChecker;
 
@@ -71,6 +74,16 @@ public class CurveNodeVisitorDelegate<T> implements CurveNodeVisitor<T> {
   }
 
   @Override
+  public T visitIMMFRANode(final IMMFRANode node) {
+    return _delegate.visitIMMFRANode(node);
+  }
+
+  @Override
+  public T visitIMMSwapNode(final IMMSwapNode node) {
+    return _delegate.visitIMMSwapNode(node);
+  }
+
+  @Override
   public T visitRateFutureNode(final RateFutureNode node) {
     return _delegate.visitRateFutureNode(node);
   }
@@ -78,6 +91,11 @@ public class CurveNodeVisitorDelegate<T> implements CurveNodeVisitor<T> {
   @Override
   public T visitSwapNode(final SwapNode node) {
     return _delegate.visitSwapNode(node);
+  }
+
+  @Override
+  public T visitThreeLegBasisSwapNode(final ThreeLegBasisSwapNode node) {
+    return _delegate.visitThreeLegBasisSwapNode(node);
   }
 
   @Override

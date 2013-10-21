@@ -205,7 +205,7 @@ public final class ViewStatusOption {
   private static MarketDataSpecification getMarketDataSpecification(final CommandLine commandLine, final ToolContext toolContext) {
     String marketDataOption = trimToNull(commandLine.getOptionValue(LIVE_MARKET_DATA_OPT));
     if (marketDataOption != null) {
-      return new LiveMarketDataSpecification(marketDataOption);
+      return LiveMarketDataSpecification.of(marketDataOption);
     }
     String snapshotOption = trimToNull(commandLine.getOptionValue(USER_MARKET_DATA_OPT));
     if (snapshotOption != null) {
@@ -219,7 +219,7 @@ public final class ViewStatusOption {
       if (searchResult.getDocuments().isEmpty()) {
         throw new OpenGammaRuntimeException("No matching snapshot for given name [" + marketDataOption + "]");
       }
-      return new UserMarketDataSpecification(searchResult.getFirstDocument().getUniqueId());
+      return UserMarketDataSpecification.of(searchResult.getFirstDocument().getUniqueId());
     }
     String historicalOption = trimToNull(commandLine.getOptionValue(HISTORICAL_MARKET_DATA_OPT));
     if (historicalOption != null) {

@@ -68,6 +68,18 @@ public class OpenGammaComponentServer {
    * Command line options.
    */
   private static final Options OPTIONS = getOptions();
+  /**
+   * Message logged when startup begins.
+   */
+  public static final String STARTING_MESSAGE = "======== STARTING OPENGAMMA ========";
+  /**
+   * Message logged if startup fails.
+   */
+  public static final String STARTUP_FAILED_MESSAGE = "======== OPENGAMMA STARTUP FAILED ========";
+  /**
+   * Prefix of the message logged when startup completes.
+   */
+  public static final String STARTUP_COMPLETE_MESSAGE = "======== OPENGAMMA STARTED in ";
 
   /**
    * The logger in use.
@@ -130,7 +142,7 @@ public class OpenGammaComponentServer {
     }
     String configFile = args[0];
     // properties
-    Map<String, String> properties = new HashMap<String, String>();
+    Map<String, String> properties = new HashMap<>();
     if (args.length > 1) {
       for (int i = 1; i < args.length; i++) {
         String arg = args[i];
@@ -281,10 +293,10 @@ public class OpenGammaComponentServer {
    */
   protected ComponentRepository run(String configFile, Map<String, String> properties) {
     long start = System.nanoTime();
-    _logger.logInfo("======== STARTING OPENGAMMA ========");
+    _logger.logInfo(STARTING_MESSAGE);
     _logger.logDebug(" Config locator: " + configFile);
     
-    ComponentRepository repo = null;
+    ComponentRepository repo;
     try {
       ComponentManager manager = buildManager(configFile, properties);
       serverStarting(manager);
@@ -292,12 +304,12 @@ public class OpenGammaComponentServer {
       
     } catch (Exception ex) {
       _logger.logError(ex);
-      _logger.logError("======== OPENGAMMA STARTUP FAILED ========");
+      _logger.logError(STARTUP_FAILED_MESSAGE);
       return null;
     }
     
     long end = System.nanoTime();
-    _logger.logInfo("======== OPENGAMMA STARTED in " + ((end - start) / 1000000) + "ms ========");
+    _logger.logInfo(STARTUP_COMPLETE_MESSAGE + ((end - start) / 1000000) + "ms ========");
     return repo;
   }
 

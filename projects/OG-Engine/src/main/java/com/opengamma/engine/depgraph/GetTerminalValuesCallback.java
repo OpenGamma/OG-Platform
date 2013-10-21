@@ -44,6 +44,7 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Handles callback notifications of terminal values to populate a graph set.
@@ -222,7 +223,7 @@ import com.opengamma.util.tuple.Pair;
     ConcurrentMap<String, Pair<?, ?>> info = _targetDigestInfo.get(targetDigest);
     if (info == null) {
       info = new ConcurrentHashMap<String, Pair<?, ?>>();
-      info.put(resolvedValue.getValueName(), Pair.of(resolvedValue.getProperties(), function));
+      info.put(resolvedValue.getValueName(), Pairs.of(resolvedValue.getProperties(), function));
       final ConcurrentMap<String, Pair<?, ?>> existing = _targetDigestInfo.putIfAbsent(targetDigest, info);
       if (existing == null) {
         return;
@@ -234,7 +235,7 @@ import com.opengamma.util.tuple.Pair;
     Pair<?, ?> newValues;
     do {
       if (oldValues == null) {
-        newValues = Pair.of(resolvedProperties, function);
+        newValues = Pairs.of(resolvedProperties, function);
         oldValues = info.putIfAbsent(resolvedValue.getValueName(), newValues);
         if (oldValues == null) {
           return;
@@ -279,7 +280,7 @@ import com.opengamma.util.tuple.Pair;
             System.arraycopy(oldValues.getSecond(), 0, newFunctions, 1, oldProperties.length);
           }
         }
-        if (info.replace(resolvedValue.getValueName(), oldValues, Pair.of(newProperties, newFunctions))) {
+        if (info.replace(resolvedValue.getValueName(), oldValues, Pairs.of(newProperties, newFunctions))) {
           return;
         }
         oldValues = info.get(resolvedValue.getValueName());
@@ -398,12 +399,12 @@ import com.opengamma.util.tuple.Pair;
             if (collapsed.equals(a)) {
               // A and B merged into A
               _b[j--] = _b[--bLength];
-              _nodeInfo._collapse.add(Pair.of(b, a));
+              _nodeInfo._collapse.add(Pairs.of(b, a));
               s_logger.debug("Merging {} into {}", b, a);
             } else if (collapsed.equals(b)) {
               // A and B merged into B
               _a[i--] = _a[--aLength];
-              _nodeInfo._collapse.add(Pair.of(a, b));
+              _nodeInfo._collapse.add(Pairs.of(a, b));
               s_logger.debug("Merging {} into {}", a, b);
               break;
             } else {
@@ -411,8 +412,8 @@ import com.opengamma.util.tuple.Pair;
               _a[i--] = _a[--aLength];
               _b[j] = _b[--bLength];
               // Note the new target will go into its own evaluation group when this is actioned; it will then be compared against the other targets
-              _nodeInfo._collapse.add(Pair.of(a, collapsed));
-              _nodeInfo._collapse.add(Pair.of(b, collapsed));
+              _nodeInfo._collapse.add(Pairs.of(a, collapsed));
+              _nodeInfo._collapse.add(Pairs.of(b, collapsed));
               if (s_logger.isDebugEnabled()) {
                 s_logger.debug("Merging {} and {} into new node {}", new Object[] {a, b, collapsed });
               }
@@ -957,7 +958,7 @@ import com.opengamma.util.tuple.Pair;
     if (pump != null) {
       context.close(pump);
     }
-    _resolvedQueue.add(Pair.of(valueRequirement, resolvedValue));
+    _resolvedQueue.add(Pairs.of(valueRequirement, resolvedValue));
     while (!_resolvedQueue.isEmpty() && _singleton.compareAndSet(null, Thread.currentThread())) {
       _writeLock.lock();
       try {

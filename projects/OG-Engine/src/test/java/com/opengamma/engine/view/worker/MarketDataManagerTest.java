@@ -12,6 +12,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -21,10 +22,12 @@ import org.testng.annotations.Test;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.marketdata.MarketDataProvider;
 import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
+import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
@@ -45,8 +48,11 @@ public class MarketDataManagerTest {
   @BeforeMethod
   public void setUp() throws Exception {
     _manager = new MarketDataManager(createChangeListener(), createResolver(), null, null);
-    _manager.createSnapshotManagerForCycle(new UserPrincipal("bloggs", "127.0.0.1"),
-                                           ImmutableList.of(new MarketDataSpecification()));
+    
+    List<MarketDataSpecification> spec = Lists.newArrayList();
+    spec.add(LiveMarketDataSpecification.LIVE_SPEC);
+    
+    _manager.createSnapshotManagerForCycle(new UserPrincipal("bloggs", "127.0.0.1"), ImmutableList.copyOf(spec));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

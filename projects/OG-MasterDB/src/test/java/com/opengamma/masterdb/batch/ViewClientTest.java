@@ -64,6 +64,7 @@ public class ViewClientTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void testListenerNotifications() throws InterruptedException {
     final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
     final SynchronousInMemoryLKVSnapshotProvider marketDataProvider = new SynchronousInMemoryLKVSnapshotProvider();

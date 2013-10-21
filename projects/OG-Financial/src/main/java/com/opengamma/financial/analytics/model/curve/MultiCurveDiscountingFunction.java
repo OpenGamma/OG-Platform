@@ -65,6 +65,8 @@ import com.opengamma.financial.analytics.curve.DiscountingCurveTypeConfiguration
 import com.opengamma.financial.analytics.curve.FRANodeConverter;
 import com.opengamma.financial.analytics.curve.FXForwardNodeConverter;
 import com.opengamma.financial.analytics.curve.FixedDateInterpolatedCurveDefinition;
+import com.opengamma.financial.analytics.curve.IMMFRANodeConverter;
+import com.opengamma.financial.analytics.curve.IMMSwapNodeConverter;
 import com.opengamma.financial.analytics.curve.IborCurveTypeConfiguration;
 import com.opengamma.financial.analytics.curve.InterpolatedCurveDefinition;
 import com.opengamma.financial.analytics.curve.OvernightCurveTypeConfiguration;
@@ -80,6 +82,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Produces yield curves using the discounting method.
@@ -104,6 +107,21 @@ public class MultiCurveDiscountingFunction extends
     return new MyCompiledFunctionDefinition(earliestInvokation, latestInvokation, curveNames, exogenousRequirements, curveConstructionConfiguration);
   }
 
+  @Override
+  protected InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> getCalculator() {
+    return PSMQC;
+  }
+
+  @Override
+  protected InstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> getSensitivityCalculator() {
+    return PSMQCSC;
+  }
+
+  @Override
+  protected String getCurveTypeProperty() {
+    return DISCOUNTING;
+  }
+
   /**
    * Compiled function implementation.
    */
@@ -126,7 +144,6 @@ public class MultiCurveDiscountingFunction extends
     }
 
     @Override
-    @SuppressWarnings("synthetic-access")
     protected Pair<MulticurveProviderInterface, CurveBuildingBlockBundle> getCurves(final FunctionInputs inputs, final ZonedDateTime now,
         final MulticurveDiscountBuildingRepository builder, final MulticurveProviderInterface knownData, final ConventionSource conventionSource,
         final HolidaySource holidaySource, final RegionSource regionSource) {
@@ -219,23 +236,8 @@ public class MultiCurveDiscountingFunction extends
       //TODO this is only in here because the code in analytics doesn't use generics properly
       final Pair<MulticurveProviderDiscount, CurveBuildingBlockBundle> temp = builder.makeCurvesFromDerivatives(curveBundles,
           (MulticurveProviderDiscount) knownData, discountingMap, forwardIborMap, forwardONMap, getCalculator(), getSensitivityCalculator());
-      final Pair<MulticurveProviderInterface, CurveBuildingBlockBundle> result = Pair.of((MulticurveProviderInterface) temp.getFirst(), temp.getSecond());
+      final Pair<MulticurveProviderInterface, CurveBuildingBlockBundle> result = Pairs.of((MulticurveProviderInterface) temp.getFirst(), temp.getSecond());
       return result;
-    }
-
-    @Override
-    protected InstrumentDerivativeVisitor<MulticurveProviderInterface, Double> getCalculator() {
-      return PSMQC;
-    }
-
-    @Override
-    protected InstrumentDerivativeVisitor<MulticurveProviderInterface, MulticurveSensitivity> getSensitivityCalculator() {
-      return PSMQCSC;
-    }
-
-    @Override
-    protected String getCurveTypeProperty() {
-      return DISCOUNTING;
     }
 
     @Override
@@ -287,6 +289,8 @@ public class MultiCurveDiscountingFunction extends
           .cashNodeVisitor(new CashNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .fraNode(new FRANodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .fxForwardNode(new FXForwardNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
+          .immFRANode(new IMMFRANodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
+          .immSwapNode(new IMMSwapNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .rateFutureNode(new RateFutureNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .swapNode(new SwapNodeConverter(conventionSource, holidaySource, regionSource, marketData, dataId, valuationTime))
           .create();

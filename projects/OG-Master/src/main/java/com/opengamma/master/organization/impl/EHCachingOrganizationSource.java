@@ -44,8 +44,6 @@ public class EHCachingOrganizationSource extends AbstractEHCachingSource<Organiz
    * The Ticker cache.
    */
   private final Cache _tickerCache;
-  
-  private OrganizationSource _underling;
 
   /**
    * Creates an instance.

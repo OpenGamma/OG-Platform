@@ -8,7 +8,6 @@ package com.opengamma.financial.analytics.model.equity;
 import java.util.Collections;
 import java.util.Set;
 
-import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;

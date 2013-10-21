@@ -24,12 +24,12 @@ public class YieldCurveNodeExtractor extends NodeExtractor<YieldCurveKey> {
   }
 
   @Override
-  public StructureIdentifier<YieldCurveKey> getStructuredIdentifier(ValueSpecification spec) {
-    Currency currency = Currency.of(spec.getTargetSpecification().getUniqueId().getValue());
-    String curve = getProperty(spec, ValuePropertyNames.CURVE);
+  public StructureIdentifier<YieldCurveKey> getStructuredIdentifier(final ValueSpecification spec) {
+    final Currency currency = Currency.of(spec.getTargetSpecification().getUniqueId().getValue());
+    final String curve = getProperty(spec, ValuePropertyNames.CURVE);
     if (curve == null) {
       return null;
     }
-    return StructureIdentifier.of(new YieldCurveKey(currency, curve));
+    return StructureIdentifier.of(YieldCurveKey.of(currency, curve));
   }
 }

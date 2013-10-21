@@ -42,6 +42,11 @@ public enum SnapshotColumns {
   /** ValueSnapshot name */
   VALUE_NAME("value name"),
 
+  /** ValueSnapshot object, needed to preserve null valueSnapshots
+   *  and deal with objects other than doubles and dates
+   */
+  VALUE_OBJECT("value object"),
+
   /** ValueSnapshot market value */
   MARKET_VALUE("market value"),
 
@@ -79,7 +84,7 @@ public enum SnapshotColumns {
   /**
    * @return Snapshot columns
    *   {TYPE, NAME, INSTANT, YIELD_CURVE_CURRENCY, SURFACE_TARGET, SURFACE_INSTRUMENT_TYPE, SURFACE_QUOTE_TYPE,
-   *    SURFACE_QUOTE_UNITS, ID_BUNDLE, VALUE_NAME, MARKET_VALUE, OVERRIDE_VALUE, SURFACE_X, SURFACE_Y }
+   *    SURFACE_QUOTE_UNITS, ID_BUNDLE, VALUE_NAME, MARKET_VALUE, VALUE_OBJECT, OVERRIDE_VALUE, SURFACE_X, SURFACE_Y }
    */
 
   public static String[] columns() {

@@ -43,8 +43,8 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * @deprecated The class tests deprecated code
@@ -58,7 +58,7 @@ public class ForexOptionVanillaBlackTermStructureMethodTest {
   // Vol data
   private static final Currency EUR = Currency.EUR;
   private static final Currency USD = Currency.USD;
-  private static final Pair<Currency, Currency> CURRENCY_PAIR = Pair.of(EUR, USD);
+  private static final Pair<Currency, Currency> CURRENCY_PAIR = Pairs.of(EUR, USD);
   private static final double SPOT = 1.40;
   private static final FXMatrix FX_MATRIX = new FXMatrix(EUR, USD, SPOT);
   private static final Period[] EXPIRY_PERIOD = new Period[] {Period.ofMonths(3), Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(5) };
@@ -85,7 +85,7 @@ public class ForexOptionVanillaBlackTermStructureMethodTest {
   private static final Map<String, Currency> CURVE_CURRENCY = TestsDataSetsForex.curveCurrency();
   private static final YieldCurveBundle CURVES_FX = new YieldCurveBundle(CURVES.getCurvesMap(), FX_MATRIX, CURVE_CURRENCY);
   private static final String[] CURVES_NAME = TestsDataSetsForex.curveNames();
-  private static final ObjectsPair<Currency, Currency> CCY = new ObjectsPair<>(EUR, USD);
+  private static final Pair<Currency, Currency> CCY = Pairs.of(EUR, USD);
   private static final BlackForexTermStructureParameters BLACK_TS_VOL = new BlackForexTermStructureParameters(TERM_STRUCTURE_VOL);
   private static final YieldCurveWithBlackForexTermStructureBundle BUNDLE_BLACK_TS = new YieldCurveWithBlackForexTermStructureBundle(CURVES, BLACK_TS_VOL, CURRENCY_PAIR);
   private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();

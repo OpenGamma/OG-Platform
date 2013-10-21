@@ -13,7 +13,7 @@ import com.opengamma.id.UniqueIdentifiable;
 /**
  * 
  */
-@Config
+@Config(description = "Future price curve specification")
 public class FuturePriceCurveSpecification {
   private String _name;
   private UniqueIdentifiable _target;
@@ -48,6 +48,9 @@ public class FuturePriceCurveSpecification {
   @Override
   public boolean equals(final Object o) {
     if (o == this) {
+      return true;
+    }
+    if (o == null) {
       return false;
     }
     if (!(o instanceof FuturePriceCurveSpecification)) {

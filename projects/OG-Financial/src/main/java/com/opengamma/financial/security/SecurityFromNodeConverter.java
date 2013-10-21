@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.security;
 
+import static com.opengamma.financial.convention.InMemoryConventionBundleMaster.simpleNameSecurityId;
+
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZoneId;
@@ -19,6 +21,7 @@ import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.id.ExternalSchemes;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.financial.analytics.conversion.CalendarUtils;
 import com.opengamma.financial.analytics.curve.CurveNodeVisitorAdapter;
@@ -59,6 +62,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 import com.opengamma.util.tuple.Triple;
 
 /**
@@ -199,7 +203,7 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
     } else if (payLegConvention instanceof VanillaIborLegConvention) {
       payLeg = getIborLeg(_identifier, (VanillaIborLegConvention) payLegConvention, swapNode, true, false);
     } else if (payLegConvention instanceof OISLegConvention) {
-      payLeg = getOISLeg(_identifier, (OISLegConvention) payLegConvention, swapNode, true, false);
+      payLeg = getOISLeg((OISLegConvention) payLegConvention, swapNode, true, false);
     } else {
       throw new OpenGammaRuntimeException("Cannot handle convention type " + payLegConvention.getClass());
     }
@@ -212,7 +216,7 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
                               false,
                               isFloatFloat);
     } else if (receiveLegConvention instanceof OISLegConvention) {
-      receiveLeg = getOISLeg(_identifier, (OISLegConvention) receiveLegConvention, swapNode, false, isFloatFloat);
+      receiveLeg = getOISLeg((OISLegConvention) receiveLegConvention, swapNode, false, isFloatFloat);
     } else {
       throw new OpenGammaRuntimeException("Cannot handle convention type " + receiveLegConvention.getClass());
     }
@@ -261,7 +265,7 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
     final Period paymentPeriod = convention.getPaymentTenor().getPeriod();
     final Period maturityTenor = swapNode.getMaturityTenor().getPeriod();
 
-    return Pair.of(new FixedInterestRateLeg(dayCount,
+    return Pairs.of(new FixedInterestRateLeg(dayCount,
                                             PeriodFrequency.of(paymentPeriod),
                                             convention.getRegionCalendar(),
                                             businessDayConvention,
@@ -312,7 +316,7 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
                                                                        eomLeg);
     if (isFloatFloat) {
       //return AnnuityCouponIborSpreadDefinition.from(startDate, maturityTenor, 1, iborIndex, spread, isPayer, calendar);
-      return Pair.of(new FloatingSpreadIRLeg(dayCount,
+      return Pairs.of(new FloatingSpreadIRLeg(dayCount,
                                              PeriodFrequency.of(convention.getResetTenor().getPeriod()),
                                              indexConvention.getRegionCalendar(),
                                              businessDayConvention,
@@ -324,8 +328,8 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
                      Triple.of(startDate, spotDateLeg, _valuationTime.plus(maturityTenor)));
     }
     //return AnnuityCouponIborDefinition.from(startDate, maturityTenor, 1, iborIndex, isPayer, calendar);
-    return Pair.of(new FloatingInterestRateLeg(dayCount,
-                                               PeriodFrequency.of(maturityTenor),
+    return Pairs.of(new FloatingInterestRateLeg(dayCount,
+                                               PeriodFrequency.of(convention.getResetTenor().getPeriod()),
                                                indexConvention.getRegionCalendar(),
                                                businessDayConvention,
                                                new InterestRateNotional(currency, _amount),
@@ -335,14 +339,14 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
 
   }
 
-  private Pair<? extends FloatingInterestRateLeg, Triple<ZonedDateTime, ZonedDateTime, ZonedDateTime>> getOISLeg(final ExternalId floatingReferenceRateId,
-                                                                                                                 final OISLegConvention convention,
+  private Pair<? extends FloatingInterestRateLeg, Triple<ZonedDateTime, ZonedDateTime, ZonedDateTime>> getOISLeg(final OISLegConvention convention,
                                                                                                                  final SwapNode swapNode,
                                                                                                                  final boolean isPayer,
                                                                                                                  final boolean isFloatFloat) {
-    final OvernightIndexConvention indexConvention = (OvernightIndexConvention) _conventionSource.getConvention(
+   final OvernightIndexConvention indexConvention = (OvernightIndexConvention) _conventionSource.getConvention(
         convention.getOvernightIndexConvention());
     final Currency currency = indexConvention.getCurrency();
+    final ExternalId correctFloatingRateReferenceId = simpleNameSecurityId(currency.getCode() + "OVERNIGHT");
     final DayCount dayCount = indexConvention.getDayCount();
     final int publicationLag = indexConvention.getPublicationLag();
     final Calendar calendar = CalendarUtils.getCalendar(_regionSource,
@@ -363,25 +367,25 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
                                                                        eomLeg);
     if (isFloatFloat) {
       //return AnnuityCouponONSpreadSimplifiedDefinition.from(startDate, maturityTenor, 1, spread, isPayer, indexON, paymentLag, calendar, businessDayConvention, paymentPeriod, eomLeg);
-      return Pair.of(new FloatingSpreadIRLeg(dayCount,
+      return Pairs.of(new FloatingSpreadIRLeg(dayCount,
                                              PeriodFrequency.of(paymentPeriod),
                                              indexConvention.getRegionCalendar(),
                                              businessDayConvention,
                                              new InterestRateNotional(currency, _amount),
                                              eomLeg,
-                                             floatingReferenceRateId,
+                                             correctFloatingRateReferenceId,
                                              FloatingRateType.OIS,
                                              _rate),
                      Triple.of(startDate, spotDateLeg, _valuationTime.plus(maturityTenor)));
     }
     //return AnnuityCouponONSimplifiedDefinition.from(startDate, maturityTenor, 1, isPayer, indexON, paymentLag, calendar, businessDayConvention, paymentPeriod, eomLeg);
-    return Pair.of(new FloatingInterestRateLeg(dayCount,
-                                               PeriodFrequency.of(maturityTenor),
+    return Pairs.of(new FloatingInterestRateLeg(dayCount,
+                                               PeriodFrequency.of(paymentPeriod),
                                                indexConvention.getRegionCalendar(),
                                                businessDayConvention,
                                                new InterestRateNotional(currency, _amount),
                                                eomLeg,
-                                               floatingReferenceRateId, FloatingRateType.OIS),
+                                               correctFloatingRateReferenceId, FloatingRateType.OIS),
                    Triple.of(startDate, spotDateLeg, _valuationTime.plus(maturityTenor)));
 
   }
@@ -495,7 +499,7 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
   private InterestRateFutureSecurity getInterestRateFuture(final RateFutureNode rateFuture, final InterestRateFutureConvention futureConvention,
                                                            final Double price) {
     final String expiryCalculatorName = futureConvention.getExpiryConvention().getValue();
-    final IborIndexConvention indexConvention = _conventionSource.getConvention(IborIndexConvention.class, rateFuture.getUnderlyingConvention());
+    final IborIndexConvention indexConvention = _conventionSource.getConvention(IborIndexConvention.class, futureConvention.getIndexConvention());
     if (indexConvention == null) {
       throw new OpenGammaRuntimeException("Underlying convention was null");
     }
@@ -534,7 +538,7 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
   private FederalFundsFutureSecurity getFederalFundsFuture(final RateFutureNode rateFuture, final FederalFundsFutureConvention futureConvention,
                                                            final Double price) {
     final String expiryCalculatorName = futureConvention.getExpiryConvention().getValue();
-    final OvernightIndexConvention indexConvention = _conventionSource.getConvention(OvernightIndexConvention.class, rateFuture.getUnderlyingConvention());
+    final OvernightIndexConvention indexConvention = _conventionSource.getConvention(OvernightIndexConvention.class, futureConvention.getIndexConvention());
     if (indexConvention == null) {
       throw new OpenGammaRuntimeException("Underlying convention was null");
     }

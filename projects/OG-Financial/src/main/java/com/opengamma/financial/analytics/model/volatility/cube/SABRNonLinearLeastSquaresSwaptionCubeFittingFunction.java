@@ -48,6 +48,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  *
@@ -121,7 +122,7 @@ public class SABRNonLinearLeastSquaresSwaptionCubeFittingFunction extends Abstra
           }
         }
         final double[] errors = new double[n];
-        final Pair<Tenor, Tenor> tenorPair = Pair.of(swapMaturityEntry.getKey(), swaptionExpiryEntry.getKey());
+        final Pair<Tenor, Tenor> tenorPair = Pairs.of(swapMaturityEntry.getKey(), swaptionExpiryEntry.getKey());
         if (volatilityCubeData.getATMStrikes() != null && volatilityCubeData.getATMStrikes().containsKey(tenorPair)) {
           final double forward = volatilityCubeData.getATMStrikes().get(tenorPair);
           for (int k = 0; k < n; k++) {
@@ -136,7 +137,7 @@ public class SABRNonLinearLeastSquaresSwaptionCubeFittingFunction extends Abstra
             betaList.add(parameters.getEntry(1));
             rhoList.add(parameters.getEntry(2));
             nuList.add(parameters.getEntry(3));
-            final DoublesPair expiryMaturityPair = new DoublesPair(swaptionExpiry, maturity);
+            final DoublesPair expiryMaturityPair = DoublesPair.of(swaptionExpiry, maturity);
             inverseJacobians.put(expiryMaturityPair, fittedResult.getModelParameterSensitivityToData());
             chiSqList.add(fittedResult.getChiSq());
             fittedSmileIds.put(tenorPair, externalIds);

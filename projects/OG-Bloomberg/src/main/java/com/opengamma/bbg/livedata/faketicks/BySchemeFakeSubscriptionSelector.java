@@ -14,7 +14,6 @@ import com.google.common.collect.Sets;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.util.tuple.ObjectsPair;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Decides based of scheme which subscriptions to fake.
@@ -40,7 +39,7 @@ public class BySchemeFakeSubscriptionSelector implements FakeSubscriptionSelecto
   public ObjectsPair<Collection<LiveDataSpecification>, Collection<LiveDataSpecification>> splitShouldFake(
       FakeSubscriptionBloombergLiveDataServer server, Collection<LiveDataSpecification> specs) {
     if (specs.isEmpty()) {
-      return Pair.of((Collection<LiveDataSpecification>) new ArrayList<LiveDataSpecification>(), (Collection<LiveDataSpecification>) new ArrayList<LiveDataSpecification>());
+      return ObjectsPair.of((Collection<LiveDataSpecification>) new ArrayList<LiveDataSpecification>(), (Collection<LiveDataSpecification>) new ArrayList<LiveDataSpecification>());
     }
     
     Set<LiveDataSpecification> fakes = new HashSet<LiveDataSpecification>();
@@ -55,7 +54,7 @@ public class BySchemeFakeSubscriptionSelector implements FakeSubscriptionSelecto
       }
     }
     
-    return Pair.of((Collection<LiveDataSpecification>) underlyings, (Collection<LiveDataSpecification>) fakes);
+    return ObjectsPair.of((Collection<LiveDataSpecification>) underlyings, (Collection<LiveDataSpecification>) fakes);
   }
 
   private boolean shouldFake(LiveDataSpecification liveDataSpecification) {

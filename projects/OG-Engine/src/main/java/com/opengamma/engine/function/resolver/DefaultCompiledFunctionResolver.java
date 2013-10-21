@@ -42,6 +42,7 @@ import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.lambdava.functions.Function2;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 import com.opengamma.util.tuple.Triple;
 
 /**
@@ -528,7 +529,7 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
             final Iterator<Collection<ValueSpecification>> resultsIterator = resolutionResults.descendingIterator();
             final Pair<ResolutionRule, Collection<ValueSpecification>>[] found = new Pair[rulesFound];
             for (int i = 0; i < rulesFound; i++) {
-              found[i] = Pair.of(rulesIterator.next(), resultsIterator.next());
+              found[i] = Pairs.of(rulesIterator.next(), resultsIterator.next());
               rulesIterator.remove();
               resultsIterator.remove();
             }
@@ -548,7 +549,7 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
         s_logger.warn("No rules for target type {}", target);
       }
       // TODO: the array of rules is probably getting duplicated for each similar target (e.g. all swaps probably use the same rules)
-      cached = (Pair<ResolutionRule[], Collection<ValueSpecification>[]>) (Pair<?, ?>) Pair.of(resolutionRules.toArray(new ResolutionRule[resolutionRules.size()]),
+      cached = (Pair<ResolutionRule[], Collection<ValueSpecification>[]>) (Pair<?, ?>) Pairs.of(resolutionRules.toArray(new ResolutionRule[resolutionRules.size()]),
           resolutionResults.toArray(new Collection[resolutionResults.size()]));
       final Pair<ResolutionRule[], Collection<ValueSpecification>[]> existing = _targetCache.putIfAbsent(targetSpecification, cached);
       if (existing != null) {

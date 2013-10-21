@@ -10,6 +10,7 @@ import com.opengamma.analytics.financial.model.volatility.surface.SmileDeltaTerm
 import com.opengamma.analytics.financial.provider.description.forex.BlackForexSmileProviderDiscount;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Class describing the data required to price instruments with the volatility delta and time dependent.
@@ -36,7 +37,7 @@ public class SmileDeltaTermStructureDataBundle extends ForexOptionDataBundle<Smi
   public SmileDeltaTermStructureDataBundle copy() {
     final YieldCurveBundle curves = getCurvesCopy();
     final SmileDeltaTermStructureParametersStrikeInterpolation smile = getVolatilityModel().copy();
-    final Pair<Currency, Currency> currencyPair = Pair.of(getCurrencyPair().getFirst(), getCurrencyPair().getSecond());
+    final Pair<Currency, Currency> currencyPair = Pairs.of(getCurrencyPair().getFirst(), getCurrencyPair().getSecond());
     return new SmileDeltaTermStructureDataBundle(curves, smile, currencyPair);
   }
 

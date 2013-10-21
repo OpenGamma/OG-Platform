@@ -5,6 +5,9 @@
  */
 package com.opengamma.analytics.financial.instrument.annuity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.threeten.bp.Period;
 import org.threeten.bp.ZonedDateTime;
 
@@ -22,6 +25,8 @@ import com.opengamma.financial.convention.StubType;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.rolldate.RollDateAdjuster;
+import com.opengamma.financial.convention.rolldate.RollDateAdjusterUtils;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -185,7 +190,41 @@ public class AnnuityDefinitionBuilder {
       coupons[loopcpn] = new CouponIborDefinition(index.getCurrency(), paymentDates[loopcpn], paymentDates[loopcpn - 1], paymentDates[loopcpn],
           dayCount.getDayCountFraction(paymentDates[loopcpn - 1], paymentDates[loopcpn], calendar), sign * notional, fixingDate, index, calendar);
     }
-    return new AnnuityDefinition<CouponIborDefinition>(coupons, calendar);
+    return new AnnuityDefinition<>(coupons, calendar);
+  }
+
+  /**
+   * Create an Ibor leg based on a roll date convention. The coupons are in line with the roll dates of the adjuster.
+   * @param startDate The start/reference date of the computation.
+   * @param startNumberRollDate The number of roll dates to the effective date of the swap. 
+   * @param endNumberRollDate The number of roll dates to the maturity of the swap.
+   * @param adjuster The date adjuster, e.g. IMM quarterly dates.
+   * @param notional The swap notional.
+   * @param index The Ibor index. There is no check that the index is coherent with the adjuster. It is possible to use a monthly adjuster with a three month index.
+   * The start and end dates of the fixing period are given by the index, they may be different from the end and start accrual dates of the coupon that are given by the adjuster.
+   * @param isPayer The payer flag.
+   * @param dayCount The coupons day count. Can be different from the one of the index.
+   * @param calendar The holiday calendar for the ibor leg.
+   * @return The Ibor annuity.
+   */
+  public static AnnuityDefinition<CouponIborDefinition> annuityIborFromRollDate(final ZonedDateTime startDate, final int startNumberRollDate, final int endNumberRollDate,
+      final RollDateAdjuster adjuster, final double notional, final IborIndex index, final boolean isPayer, final DayCount dayCount, final Calendar calendar) {
+    final List<ZonedDateTime> legDates = new ArrayList<>();
+    ZonedDateTime currentDate = RollDateAdjusterUtils.nthDate(startDate, adjuster, startNumberRollDate);
+    legDates.add(ScheduleCalculator.getAdjustedDate(currentDate, 0, calendar));
+    for (int looproll = 1; looproll <= endNumberRollDate - startNumberRollDate; looproll++) {
+      currentDate = RollDateAdjusterUtils.nthDate(currentDate.plusDays(1), adjuster, 1);
+      legDates.add(ScheduleCalculator.getAdjustedDate(currentDate, 0, calendar));
+    }
+    final double sign = isPayer ? -1.0 : 1.0;
+    final int nbCpn = legDates.size() - 1;
+    final CouponIborDefinition[] coupons = new CouponIborDefinition[legDates.size() - 1];
+    for (int loopcpn = 0; loopcpn < nbCpn; loopcpn++) {
+      ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(legDates.get(loopcpn), -index.getSpotLag(), calendar);
+      coupons[loopcpn] = new CouponIborDefinition(index.getCurrency(), legDates.get(loopcpn), legDates.get(loopcpn), legDates.get(loopcpn + 1),
+          dayCount.getDayCountFraction(legDates.get(loopcpn), legDates.get(loopcpn + 1), calendar), sign * notional, fixingDate, index, calendar);
+    }
+    return new AnnuityDefinition<>(coupons, calendar);
   }
 
   /**
@@ -228,7 +267,7 @@ public class AnnuityDefinitionBuilder {
       coupons[loopcpn] = new CouponIborSpreadDefinition(index.getCurrency(), paymentDates[loopcpn], paymentDates[loopcpn - 1], paymentDates[loopcpn],
           dayCount.getDayCountFraction(paymentDates[loopcpn - 1], paymentDates[loopcpn], calendar), sign * notional, fixingDate, index, spread, calendar);
     }
-    return new AnnuityDefinition<CouponIborSpreadDefinition>(coupons, calendar);
+    return new AnnuityDefinition<>(coupons, calendar);
   }
 
   /**
@@ -352,7 +391,7 @@ public class AnnuityDefinitionBuilder {
       coupons[loopcpn] = CouponIborCompoundingDefinition.from(signedNotional, unadjustedDateSchedule[loopcpn - 1], unadjustedDateSchedule[loopcpn], index, stubLeg,
           businessDayConvention, endOfMonth, calendar);
     }
-    return new AnnuityDefinition<CouponIborCompoundingDefinition>(coupons, calendar);
+    return new AnnuityDefinition<>(coupons, calendar);
   }
 
   /**
@@ -390,7 +429,7 @@ public class AnnuityDefinitionBuilder {
       coupons[loopcpn] = CouponIborCompoundingSpreadDefinition.from(signedNotional, unadjustedDateSchedule[loopcpn - 1], unadjustedDateSchedule[loopcpn], index, spread, stubLeg,
           businessDayConvention, endOfMonth, calendar);
     }
-    return new AnnuityDefinition<CouponIborCompoundingSpreadDefinition>(coupons, calendar);
+    return new AnnuityDefinition<>(coupons, calendar);
   }
 
   /**
@@ -428,7 +467,7 @@ public class AnnuityDefinitionBuilder {
       coupons[loopcpn] = CouponIborCompoundingFlatSpreadDefinition.from(signedNotional, unadjustedDateSchedule[loopcpn - 1], unadjustedDateSchedule[loopcpn], index, spread, stubLeg,
           businessDayConvention, endOfMonth, calendar);
     }
-    return new AnnuityDefinition<CouponIborCompoundingFlatSpreadDefinition>(coupons, calendar);
+    return new AnnuityDefinition<>(coupons, calendar);
   }
 
 }

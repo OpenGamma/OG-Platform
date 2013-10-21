@@ -22,7 +22,6 @@ import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.curve.NodalDoublesCurve;
 import com.opengamma.analytics.math.curve.NodalObjectsCurve;
 import com.opengamma.analytics.math.curve.NodalTenorDoubleCurve;
-import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.util.time.Tenor;

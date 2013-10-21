@@ -8,6 +8,7 @@ package com.opengamma.financial.analytics.curve;
 import java.io.Serializable;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -51,14 +52,20 @@ public abstract class CurveTypeConfiguration extends DirectBean implements Seria
     return CurveTypeConfiguration.Meta.INSTANCE;
   }
 
+  //-----------------------------------------------------------------------
   @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    super.propertySet(propertyName, newValue, quiet);
+  public CurveTypeConfiguration clone() {
+    BeanBuilder<? extends CurveTypeConfiguration> builder = metaBean().builder();
+    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
+      if (mp.style().isBuildable()) {
+        Object value = mp.get(this);
+        if (value instanceof Bean) {
+          value = ((Bean) value).clone();
+        }
+        builder.set(mp.name(), value);
+      }
+    }
+    return builder.build();
   }
 
   @Override
@@ -76,6 +83,22 @@ public abstract class CurveTypeConfiguration extends DirectBean implements Seria
   public int hashCode() {
     int hash = getClass().hashCode();
     return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(32);
+    buf.append("CurveTypeConfiguration{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
   }
 
   //-----------------------------------------------------------------------

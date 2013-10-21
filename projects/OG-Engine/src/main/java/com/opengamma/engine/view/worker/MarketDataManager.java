@@ -175,7 +175,7 @@ public class MarketDataManager implements MarketDataListener, Lifecycle, Subscri
     _marketDataProviderResolver = marketDataProviderResolver;
 
     _objectName = viewProcessorName != null && viewProcessId != null ?
-        createObjectName(viewProcessorName, viewProcessId) :
+        createObjectName(viewProcessId) :
         null;
 
     _jmxServer = setupJmxServer();
@@ -194,9 +194,9 @@ public class MarketDataManager implements MarketDataListener, Lifecycle, Subscri
   /**
    * Creates an object name using the scheme "com.opengamma:type=View,ViewProcessor=<viewProcessorName>,name=<viewProcessId>"
    */
-  private ObjectName createObjectName(String viewProcessorName, String viewProcessId) {
+  private ObjectName createObjectName(String viewProcessId) {
     try {
-      return new ObjectName("com.opengamma:type=ViewProcess,ViewProcessor=ViewProcessor " + viewProcessorName + ",name=ViewProcessMarketData " + viewProcessId);
+      return new ObjectName("com.opengamma:type=ViewProcessor,ViewProcesses=ViewProcesses,name=ViewProcessMarketData " + viewProcessId);
     } catch (MalformedObjectNameException e) {
       throw new CacheException(e);
     }

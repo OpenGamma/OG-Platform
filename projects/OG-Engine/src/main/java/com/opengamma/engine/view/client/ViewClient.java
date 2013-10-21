@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.view.client;
 
+import java.util.Map;
 import java.util.Set;
 
 import com.opengamma.engine.marketdata.MarketDataInjector;
@@ -288,6 +289,21 @@ public interface ViewClient extends UniqueIdentifiable {
    * @param isViewCycleAccessSupported  true to enable access to view cycles
    */
   void setViewCycleAccessSupported(boolean isViewCycleAccessSupported);
+
+  /**
+   * Sets diagnostic information that will be sent to a view process and will be available in
+   * all logging on the view process via MDC {@see http://logback.qos.ch/manual/mdc.html}.
+   *
+   * If this method is called whilst the client is already attached to a view process, then
+   * an IllegalStateException will be thrown.
+   *
+   * If connecting to an existing view process, then this data is ignored (this avoids
+   * overwriting the context information which is already being written by the process).
+   *
+   * @param context the context information to be logged by the view process, may be null
+   * @throws IllegalStateException if called whilst attached to a view process
+   */
+  void setViewProcessContextMap(Map<String, String> context);
   
   /**
    * Creates a reference to the latest view cycle. This is consistent with any data flow restrictions being applied

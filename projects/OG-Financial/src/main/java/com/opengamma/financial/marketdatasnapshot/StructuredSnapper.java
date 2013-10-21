@@ -155,7 +155,7 @@ public abstract class StructuredSnapper<TKey, TCalculatedValue, TSnapshot> {
     final Set<Entry<ExternalIdBundle, Double>> bundlePoints = bundle.getDataPointSet();
     final ManageableUnstructuredMarketDataSnapshot snapshot = new ManageableUnstructuredMarketDataSnapshot();
     for (final Map.Entry<ExternalIdBundle, Double> bundlePoint : bundlePoints) {
-      snapshot.putValue(bundlePoint.getKey(), MarketDataRequirementNames.MARKET_VALUE, new ValueSnapshot(bundlePoint.getValue()));
+      snapshot.putValue(bundlePoint.getKey(), MarketDataRequirementNames.MARKET_VALUE, ValueSnapshot.of(bundlePoint.getValue()));
     }
     return snapshot;
   }

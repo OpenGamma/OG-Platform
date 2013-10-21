@@ -76,8 +76,6 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.integration.tool.IntegrationToolContext;
-import com.opengamma.scripts.Scriptable;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigMasterUtils;
@@ -88,7 +86,9 @@ import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchSortOrder;
 import com.opengamma.master.security.impl.SecuritySearchIterator;
+import com.opengamma.scripts.Scriptable;
 import com.opengamma.util.OpenGammaClock;
+import com.opengamma.util.tuple.ObjectsPair;
 
 /**
  * Create future price curve based on the instruments in security master.
@@ -401,10 +401,10 @@ public class FuturePriceCurveCreator extends AbstractTool<IntegrationToolContext
       }
     }
 
-    private void createFuturePriceCurveDefinition(final Collection<Double> xAxis, final String name, final UniqueIdentifiable target) {
+    private void createFuturePriceCurveDefinition(final List<Double> xAxis, final String name, final UniqueIdentifiable target) {
       if (!_knownCurveDefNames.contains(name)) {
         s_logger.info("Creating FuturePriceCurveDefinition \"{}\"", name);
-        final FuturePriceCurveDefinition<Double> futureCurveDefinition = new FuturePriceCurveDefinition<>(name, target, xAxis.toArray(new Double[0]));
+        final FuturePriceCurveDefinition<Double> futureCurveDefinition = FuturePriceCurveDefinition.of(name, target, xAxis);
         final ConfigItem<FuturePriceCurveDefinition<Double>> futureCurveDefinitionConfig = ConfigItem.of(futureCurveDefinition, futureCurveDefinition.getName(), FuturePriceCurveDefinition.class);
         if (!_dryRun) {
           ConfigMasterUtils.storeByName(_configMaster, futureCurveDefinitionConfig);

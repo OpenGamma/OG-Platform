@@ -34,8 +34,8 @@ import com.opengamma.analytics.math.matrix.MatrixAlgebra;
 import com.opengamma.analytics.math.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Functions to build curves.
@@ -105,7 +105,7 @@ public class IssuerDiscountBuildingRepository {
     final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new IssuerDiscountFinderJacobian(new ParameterSensitivityIssuerMatrixCalculator(sensitivityCalculator), data);
     final double[] parameters = _rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initGuess)).getData();
     final IssuerProviderDiscount newCurves = data.getGeneratorMarket().evaluate(new DoubleMatrix1D(parameters));
-    return new ObjectsPair<>(newCurves, ArrayUtils.toObject(parameters));
+    return Pairs.of(newCurves, ArrayUtils.toObject(parameters));
   }
 
   /**
@@ -199,7 +199,7 @@ public class IssuerDiscountBuildingRepository {
 //        final GeneratorYDCurve tmp = curveGenerators[loopunit][loopcurve].finalGenerator(instruments[loopunit][loopcurve]);
 //        gen.put(curveNames[loopunit][loopcurve], tmp);
 //        generatorsSoFar.put(curveNames[loopunit][loopcurve], tmp);
-//        unitMap.put(curveNames[loopunit][loopcurve], new ObjectsPair<>(startUnit + startCurve[loopcurve], nbIns[loopcurve]));
+//        unitMap.put(curveNames[loopunit][loopcurve], Pairs.of(startUnit + startCurve[loopcurve], nbIns[loopcurve]));
 //      }
 //      final Pair<IssuerProviderDiscount, Double[]> unitCal = makeUnit(instrumentsUnit, parametersGuess[loopunit], knownSoFarData, discountingMap, forwardIborMap,
 //          forwardONMap, issuerMap, gen, calculator, sensitivityCalculator);
@@ -208,12 +208,12 @@ public class IssuerDiscountBuildingRepository {
 //          discountingMap, forwardIborMap, forwardONMap, issuerMap, generatorsSoFar, sensitivityCalculator);
 //      // TODO: should curve matrix be computed only once at the end? To save time
 //      for (int loopcurve = 0; loopcurve < curveGenerators[loopunit].length; loopcurve++) {
-//        unitBundleSoFar.put(curveNames[loopunit][loopcurve], new ObjectsPair<>(new CurveBuildingBlock(unitMap), mat[loopcurve]));
+//        unitBundleSoFar.put(curveNames[loopunit][loopcurve], Pairs.of(new CurveBuildingBlock(unitMap), mat[loopcurve]));
 //      }
 //      knownSoFarData.setAll(unitCal.getFirst());
 //      startUnit = startUnit + nbInsUnit;
 //    }
-//    return new ObjectsPair<>(knownSoFarData, new CurveBuildingBlockBundle(unitBundleSoFar));
+//    return Pairs.of(knownSoFarData, new CurveBuildingBlockBundle(unitBundleSoFar));
 //  }
 
   /**
@@ -274,7 +274,7 @@ public class IssuerDiscountBuildingRepository {
         final String curveName = singleCurve.getCurveName();
         gen.put(curveName, tmp);
         generatorsSoFar.put(curveName, tmp);
-        unitMap.put(curveName, new ObjectsPair<>(startUnit + startCurve[iCurve], nbIns[iCurve]));
+        unitMap.put(curveName, Pairs.of(startUnit + startCurve[iCurve], nbIns[iCurve]));
       }
       final Pair<IssuerProviderDiscount, Double[]> unitCal = makeUnit(instrumentsUnit, parametersGuess, knownSoFarData,
           discountingMap, forwardIborMap, forwardONMap, issuerMap, gen, calculator, sensitivityCalculator);
@@ -284,11 +284,11 @@ public class IssuerDiscountBuildingRepository {
       // TODO: should curve matrix be computed only once at the end? To save time
       for (int iCurve = 0; iCurve < nbCurve; iCurve++) {
         final SingleCurveBundle<GeneratorYDCurve> singleCurve = curveBundle.getCurveBundle(iCurve);
-        unitBundleSoFar.put(singleCurve.getCurveName(), new ObjectsPair<>(new CurveBuildingBlock(unitMap), mat[iCurve]));
+        unitBundleSoFar.put(singleCurve.getCurveName(), Pairs.of(new CurveBuildingBlock(unitMap), mat[iCurve]));
       }
       knownSoFarData.setAll(unitCal.getFirst());
       startUnit = startUnit + nbInsUnit;
     }
-    return new ObjectsPair<>(knownSoFarData, new CurveBuildingBlockBundle(unitBundleSoFar));
+    return Pairs.of(knownSoFarData, new CurveBuildingBlockBundle(unitBundleSoFar));
   }
 }

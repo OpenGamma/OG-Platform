@@ -42,7 +42,7 @@ public class SABRBlackEquivalentVolatilitySurfaceModelTest {
   private static final SABRBlackEquivalentVolatilitySurfaceModel MODEL = new SABRBlackEquivalentVolatilitySurfaceModel();
   private static final SABRATMVolatilityCalibrationFunction CALIBRATION = new SABRATMVolatilityCalibrationFunction();
   private static final double EPS = 1e-4;
-  private static final DoublesPair PAIR = new DoublesPair(0., 0.);
+  private static final DoublesPair PAIR = DoublesPair.of(0., 0.);
 
   @Test
   public void testBetaApproachesOne() {

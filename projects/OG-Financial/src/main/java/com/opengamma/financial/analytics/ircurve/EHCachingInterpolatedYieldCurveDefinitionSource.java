@@ -14,8 +14,8 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * A cache to optimize the results of {@code InterpolatedYieldCurveDefinitionSource}.
@@ -67,7 +67,7 @@ public class EHCachingInterpolatedYieldCurveDefinitionSource implements Interpol
   //-------------------------------------------------------------------------
   @Override
   public YieldCurveDefinition getDefinition(Currency currency, String name) {
-    ObjectsPair<Currency, String> cacheKey = Pair.of(currency, name);
+    Pair<Currency, String> cacheKey = Pairs.of(currency, name);
     Element e = _latestDefinitionCache.get(cacheKey);
     if (e != null) {
       YieldCurveDefinition doc = (YieldCurveDefinition) e.getObjectValue();

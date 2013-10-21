@@ -8,13 +8,10 @@ package com.opengamma.financial.analytics.ircurve.rest;
 import java.net.URI;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.core.AbstractRemoteSource;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.DummyChangeManager;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionSource;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
-import com.opengamma.id.ObjectId;
-import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;

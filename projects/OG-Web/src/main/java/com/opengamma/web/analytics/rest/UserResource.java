@@ -5,8 +5,10 @@
  */
 package com.opengamma.web.analytics.rest;
 
-import javax.ws.rs.PUT;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 
 /**
@@ -16,14 +18,9 @@ import javax.ws.rs.core.Response;
 public class UserResource {
 
   @Path("logout")
-  @PUT
-  public Response userLogout() {
-    return Response.status(Response.Status.OK).build();
-  }
-
-  @Path("login")
-  @PUT
-  public Response userLogin() {
+  @GET
+  public Response get(@Context HttpServletRequest hsr) {
+    hsr.getSession().invalidate();
     return Response.status(Response.Status.OK).build();
   }
 

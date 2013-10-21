@@ -30,7 +30,7 @@ public class AbsoluteLocalVolatilitySurface extends VolatilitySurface {
    */
   @Override
   public double getVolatility(final double t, final double s) {
-    final DoublesPair temp = new DoublesPair(t, s);
+    final DoublesPair temp = DoublesPair.of(t, s);
     return getVolatility(temp);
   }
 

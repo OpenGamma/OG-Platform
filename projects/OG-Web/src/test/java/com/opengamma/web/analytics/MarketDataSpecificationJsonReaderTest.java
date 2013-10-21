@@ -33,10 +33,10 @@ public class MarketDataSpecificationJsonReaderTest {
   private static final String LATEST_JSON = "{\"marketDataType\": \"latestHistorical\", \"resolverKey\": \"rk\"}";
   private static final String SNAPSHOT_JSON = "{\"marketDataType\": \"snapshot\", \"snapshotId\": \"scheme~value\"}";
 
-  private static final LiveMarketDataSpecification LIVE = new LiveMarketDataSpecification("Bloomberg");
+  private static final LiveMarketDataSpecification LIVE = LiveMarketDataSpecification.of("Bloomberg");
   private static final FixedHistoricalMarketDataSpecification FIXED = new FixedHistoricalMarketDataSpecification("rk", LocalDate.of(2012, 8, 30));
   private static final LatestHistoricalMarketDataSpecification LATEST = new LatestHistoricalMarketDataSpecification("rk");
-  private static final UserMarketDataSpecification SNAPSHOT = new UserMarketDataSpecification(UniqueId.of("scheme", "value"));
+  private static final UserMarketDataSpecification SNAPSHOT = UserMarketDataSpecification.of(UniqueId.of("scheme", "value"));
 
   @Test
   public void live() throws JSONException {

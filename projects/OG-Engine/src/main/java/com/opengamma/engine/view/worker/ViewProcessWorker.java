@@ -6,6 +6,7 @@
 package com.opengamma.engine.view.worker;
 
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.engine.view.ViewProcess;
 
 /**
  * Abstraction of a "job" that will perform work as part of a {@link ViewProcess}. A job implementation may be a dedicated thread that executes the view, a proxy to a pool of threads that share the

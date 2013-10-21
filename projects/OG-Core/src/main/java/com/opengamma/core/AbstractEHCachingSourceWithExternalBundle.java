@@ -23,9 +23,10 @@ import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
+import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * A cache decorating a {@code FinancialSecuritySource}.
@@ -75,7 +76,7 @@ public abstract class AbstractEHCachingSourceWithExternalBundle<V extends Unique
       cacheItems(results);
       return results;
     }
-    final Pair<ExternalIdBundle, VersionCorrection> key = Pair.of(bundle, versionCorrection);
+    final Pair<ExternalIdBundle, VersionCorrection> key = Pairs.of(bundle, versionCorrection);
     final Element e = _eidToUidCache.get(key);
     if (e != null) {
       if (e.getObjectValue() instanceof Collection) {
@@ -115,7 +116,7 @@ public abstract class AbstractEHCachingSourceWithExternalBundle<V extends Unique
     final Map<ExternalIdBundle, Collection<UniqueId>> lookupBundles = Maps.newHashMapWithExpectedSize(bundles.size());
     final Set<UniqueId> lookupIds = Sets.newHashSetWithExpectedSize(bundles.size());
     for (ExternalIdBundle bundle : bundles) {
-      final Pair<ExternalIdBundle, VersionCorrection> key = Pair.of(bundle, versionCorrection);
+      final Pair<ExternalIdBundle, VersionCorrection> key = Pairs.of(bundle, versionCorrection);
       final Element e = _eidToUidCache.get(key);
       if (e != null) {
         if (e.getObjectValue() instanceof Collection) {
@@ -148,7 +149,7 @@ public abstract class AbstractEHCachingSourceWithExternalBundle<V extends Unique
     if (!misses.isEmpty()) {
       final Map<ExternalIdBundle, Collection<V>> underlying = getUnderlying().getAll(misses, versionCorrection);
       for (ExternalIdBundle miss : misses) {
-        final Pair<ExternalIdBundle, VersionCorrection> key = Pair.of(miss, versionCorrection);
+        final Pair<ExternalIdBundle, VersionCorrection> key = Pairs.of(miss, versionCorrection);
         final Collection<V> result = underlying.get(miss);
         if ((result == null) || result.isEmpty()) {
           cacheIdentifiers(Collections.<UniqueId>emptyList(), key);
@@ -184,7 +185,7 @@ public abstract class AbstractEHCachingSourceWithExternalBundle<V extends Unique
     if (versionCorrection.containsLatest()) {
       return getUnderlying().getSingle(bundle, versionCorrection);
     }
-    final Pair<ExternalIdBundle, VersionCorrection> key = Pair.of(bundle, versionCorrection);
+    final Pair<ExternalIdBundle, VersionCorrection> key = Pairs.of(bundle, versionCorrection);
     final Element e = _eidToUidCache.get(key);
     if (e != null) {
       if (e.getObjectValue() instanceof List) {
@@ -223,7 +224,7 @@ public abstract class AbstractEHCachingSourceWithExternalBundle<V extends Unique
     final Map<ExternalIdBundle, Collection<UniqueId>> hits = Maps.newHashMapWithExpectedSize(bundles.size());
     final Set<UniqueId> lookup = Sets.newHashSetWithExpectedSize(bundles.size());
     for (ExternalIdBundle bundle : bundles) {
-      final Pair<ExternalIdBundle, VersionCorrection> key = Pair.of(bundle, versionCorrection);
+      final Pair<ExternalIdBundle, VersionCorrection> key = Pairs.of(bundle, versionCorrection);
       final Element e = _eidToUidCache.get(key);
       if (e != null) {
         if (e.getObjectValue() instanceof List) {
@@ -256,7 +257,7 @@ public abstract class AbstractEHCachingSourceWithExternalBundle<V extends Unique
     if (!misses.isEmpty()) {
       final Map<ExternalIdBundle, ? extends V> underlying = getUnderlying().getSingle(misses, versionCorrection);
       for (ExternalIdBundle miss : misses) {
-        final Pair<ExternalIdBundle, VersionCorrection> key = Pair.of(miss, versionCorrection);
+        final Pair<ExternalIdBundle, VersionCorrection> key = Pairs.of(miss, versionCorrection);
         final V result = underlying.get(miss);
         if (result == null) {
           cacheIdentifiers(Collections.<UniqueId>emptyList(), key);

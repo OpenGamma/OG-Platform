@@ -50,7 +50,7 @@ import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.timeseries.DoubleTimeSeries;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.tuple.ObjectsPair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Tests the present value of Capital inflation indexed bonds.
@@ -392,7 +392,7 @@ public class BondCapitalIndexedSecurityDiscountingMethodTest {
   public void presentValueCurveSensitivity() {
 
     final InflationProviderInterface creditDiscounting = MARKET.withDiscountFactor(BOND_SECURITY_GILT_1.getCurrency(),
-        new ObjectsPair<>(BOND_SECURITY_GILT_1.getIssuer(), BOND_SECURITY_GILT_1.getCurrency()));
+        Pairs.of(BOND_SECURITY_GILT_1.getIssuer(), BOND_SECURITY_GILT_1.getCurrency()));
     final MultipleCurrencyInflationSensitivity sensitivityNominal = BOND_SECURITY_GILT_1.getNominal().accept(PVCSDC, creditDiscounting);
     final MultipleCurrencyInflationSensitivity sensitivityCoupon = BOND_SECURITY_GILT_1.getCoupon().accept(PVCSDC, creditDiscounting);
     final MultipleCurrencyInflationSensitivity pvcisCalculated = sensitivityNominal.plus(sensitivityCoupon);

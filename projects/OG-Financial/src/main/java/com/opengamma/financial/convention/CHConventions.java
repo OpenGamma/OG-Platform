@@ -18,11 +18,11 @@ import com.opengamma.financial.convention.businessday.BusinessDayConventionFacto
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.time.DateUtils;
 
 /**
  * Contains information used to construct standard version of CHF instruments
@@ -75,8 +75,8 @@ public class CHConventions {
         tullettPrebonSecurityId("ASLIBCHF05L")), "CHF LIBOR 5m", act360,
         following, Period.ofMonths(5), 2, false, ch);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("SF0006M Index"), simpleNameSecurityId("CHF LIBOR 6m"),
-        tullettPrebonSecurityId("ASLIBCHF06L")), "CHF LIBOR 6m", act360,
-        following, Period.ofMonths(6), 2, false, ch);
+        tullettPrebonSecurityId("ASLIBCHF06L"), FloatingIndex.CHF_LIBOR_BBA.toFrequencySpecificExternalId(SimpleFrequency.SEMI_ANNUAL)),
+                              "CHF LIBOR 6m", act360, following, Period.ofMonths(6), 2, false, ch);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("SF0007M Index"), simpleNameSecurityId("CHF LIBOR 7m"),
         tullettPrebonSecurityId("ASLIBCHF07L")), "CHF LIBOR 7m", act360,
         following, Period.ofMonths(7), 2, false, ch);

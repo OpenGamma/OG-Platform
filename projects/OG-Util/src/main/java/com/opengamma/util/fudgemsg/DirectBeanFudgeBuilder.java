@@ -49,14 +49,7 @@ public final class DirectBeanFudgeBuilder<T extends Bean> implements FudgeBuilde
    * @return the bean builder, not null
    */
   public static <R extends Bean> DirectBeanFudgeBuilder<R> of(final Class<R> cls) {
-    MetaBean meta;
-    try {
-      meta = (MetaBean) cls.getMethod("meta").invoke(null);
-    } catch (RuntimeException ex) {
-      throw ex;
-    } catch (Exception ex) {
-      throw new RuntimeException(ex);
-    }
+    MetaBean meta = JodaBeanUtils.metaBean(cls);
     return new DirectBeanFudgeBuilder<R>(meta);
   }
 
@@ -76,7 +69,7 @@ public final class DirectBeanFudgeBuilder<T extends Bean> implements FudgeBuilde
     try {
       MutableFudgeMsg msg = serializer.newMessage();
       for (MetaProperty<?> prop : bean.metaBean().metaPropertyIterable()) {
-        if (prop.readWrite().isReadable()) {
+        if (prop.style().isReadable()) {
           Object obj = prop.get(bean);
           if (obj instanceof List<?>) {
             MutableFudgeMsg subMsg = buildMessageCollection(serializer, prop, bean.getClass(), (List<?>) obj);
@@ -143,7 +136,7 @@ public final class DirectBeanFudgeBuilder<T extends Bean> implements FudgeBuilde
     try {
       BeanBuilder<T> builder = (BeanBuilder<T>) _metaBean.builder();
       for (MetaProperty<?> mp : _metaBean.metaPropertyIterable()) {
-        if (mp.readWrite().isWritable()) {
+        if (mp.style().isBuildable()) {
           final FudgeField field = msg.getByName(mp.name());
           if (field != null) {
             Object value = null;

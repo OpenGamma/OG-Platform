@@ -18,12 +18,12 @@ import com.opengamma.financial.convention.businessday.BusinessDayConventionFacto
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.time.DateUtils;
 
 /**
  * Contains information used to construct standard versions of GBP instruments.
@@ -82,6 +82,7 @@ public class GBConventions {
       final ExternalId bbgLibor = bloombergTickerSecurityId("BP00" + (i < 10 ? "0" : "") + i + "M Index");
       final ExternalId tullettLibor = tullettPrebonSecurityId("ASLIBGBP" + (i < 10 ? "0" : "") + i + "L");
       final ExternalId simpleLibor = simpleNameSecurityId(liborName);
+      final ExternalId ISDALibor = FloatingIndex.GBP_LIBOR_BBA.toFrequencySpecificExternalId(PeriodFrequency.of(Period.of(i / 12, i % 12, 0)));
       final String depositName = "GBP DEPOSIT " + i + "m";
       ExternalId bbgDeposit;
       if (i == 12) {
@@ -91,7 +92,7 @@ public class GBConventions {
       }
       final ExternalId tullettDeposit = tullettPrebonSecurityId("MNDEPGBDTDY" + (i < 10 ? "0" : "") + i + "M");
       final ExternalId simpleDeposit = simpleNameSecurityId(depositName);
-      utils.addConventionBundle(ExternalIdBundle.of(bbgLibor, tullettLibor, simpleLibor), liborName, ACT_365, MODIFIED, Period.ofMonths(i), 0, false, GB);
+      utils.addConventionBundle(ExternalIdBundle.of(bbgLibor, tullettLibor, simpleLibor, ISDALibor), liborName, ACT_365, MODIFIED, Period.ofMonths(i), 0, false, GB);
       utils.addConventionBundle(ExternalIdBundle.of(bbgDeposit, tullettDeposit, simpleDeposit), depositName, ACT_365, MODIFIED, Period.ofMonths(i), 0, false, GB);
     }
 

@@ -17,7 +17,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
@@ -29,6 +28,7 @@ import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.async.AsynchronousResult;
 import com.opengamma.util.async.ResultListener;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Base class for objects that manage a set of AbstractCalculationNodes with the intention of invoking job executions on them.
@@ -46,6 +46,8 @@ public abstract class SimpleCalculationNodeInvocationContainer {
   private static final long FAILURE_RETENTION = 5L * 60L * 100000000L; // 5m
 
   private static final Logger s_logger = LoggerFactory.getLogger(SimpleCalculationNodeInvocationContainer.class);
+
+  // private static final int KILL_THRESHOLD_SECS = 120;
 
   /**
    *
@@ -198,7 +200,7 @@ public abstract class SimpleCalculationNodeInvocationContainer {
       if (_status == Status.FAILED) {
         return false;
       }
-      _executor = Pair.of(Thread.currentThread(), job);
+      _executor = Pairs.of(Thread.currentThread(), job);
       return true;
     }
 
@@ -242,7 +244,7 @@ public abstract class SimpleCalculationNodeInvocationContainer {
 
   /**
    * The queue of runnable jobs. Each are jobs that have been received and are ready to run but have not been started, probably because they are waiting for a node to become available. When nodes are
-   * available they will take partial jobs from the {@link _partialJobs} queue in preference to this queue.
+   * available they will take partial jobs from the {@link #_partialJobs} queue in preference to this queue.
    */
   private final Queue<JobEntry> _runnableJobs = new ConcurrentLinkedQueue<JobEntry>();
   /**
@@ -252,7 +254,7 @@ public abstract class SimpleCalculationNodeInvocationContainer {
    */
   private final Queue<PartialJobEntry> _partialJobs = new ConcurrentLinkedQueue<PartialJobEntry>();
 
-  private final ExecutorService _executorService = Executors.newCachedThreadPool(new NamedThreadPoolFactory("CalcNode", true));
+  private final ExecutorService _executorService = NamedThreadPoolFactory.newCachedThreadPool("CalcNode", true);
 
   protected Queue<SimpleCalculationNode> getNodes() {
     return _nodes;
@@ -703,9 +705,13 @@ public abstract class SimpleCalculationNodeInvocationContainer {
       executor.getFirst().interrupt();
       // Need to wait for the execution thread to acknowledge the interrupt, or it may be canceled by us swapping the executor
       // reference back in and the interrupt will affect a subsequent wait causing erroneous behavior
-      while (executor.getFirst().isInterrupted()) {
+      while (executor.getFirst().isInterrupted() && executor.getFirst().isAlive()) {
         s_logger.debug("Waiting for thread {} to accept the interrupt", executor.getFirst().getName());
-        Thread.yield();
+        try {
+          Thread.sleep(20);
+        } catch (InterruptedException ex) {
+          s_logger.debug("cancel interrupted", ex);
+        }
       }
       s_logger.debug("Thread {} interrupted", executor.getFirst().getName());
       executor = jobExec.getAndSetExecutor(executor);

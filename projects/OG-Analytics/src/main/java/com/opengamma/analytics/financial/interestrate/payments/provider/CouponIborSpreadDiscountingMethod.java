@@ -90,7 +90,7 @@ public final class CouponIborSpreadDiscountingMethod {
     final double dfBar = (coupon.getNotional() * coupon.getPaymentYearFraction() * forward + coupon.getSpreadAmount()) * pvBar;
     final Map<String, List<DoublesPair>> mapDsc = new HashMap<>();
     final List<DoublesPair> listDiscounting = new ArrayList<>();
-    listDiscounting.add(new DoublesPair(coupon.getPaymentTime(), -coupon.getPaymentTime() * df * dfBar));
+    listDiscounting.add(DoublesPair.of(coupon.getPaymentTime(), -coupon.getPaymentTime() * df * dfBar));
     mapDsc.put(multicurves.getName(coupon.getCurrency()), listDiscounting);
     final Map<String, List<ForwardSensitivity>> mapFwd = new HashMap<>();
     final List<ForwardSensitivity> listForward = new ArrayList<>();

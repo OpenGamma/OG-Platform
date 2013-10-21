@@ -9,6 +9,7 @@ import java.util.Map;
 
 import javax.ws.rs.core.UriInfo;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -107,79 +108,6 @@ public class WebOrganizationsData extends DirectBean {
   @Override
   public WebOrganizationsData.Meta metaBean() {
     return WebOrganizationsData.Meta.INSTANCE;
-  }
-
-  @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1158737547:  // organizationMaster
-        return getOrganizationMaster();
-      case -173275078:  // uriInfo
-        return getUriInfo();
-      case -1197794758:  // uriOrganizationId
-        return getUriOrganizationId();
-      case 666567687:  // uriVersionId
-        return getUriVersionId();
-      case 1178922291:  // organization
-        return getOrganization();
-      case -1407102089:  // versioned
-        return getVersioned();
-    }
-    return super.propertyGet(propertyName, quiet);
-  }
-
-  @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
-    switch (propertyName.hashCode()) {
-      case -1158737547:  // organizationMaster
-        setOrganizationMaster((OrganizationMaster) newValue);
-        return;
-      case -173275078:  // uriInfo
-        setUriInfo((UriInfo) newValue);
-        return;
-      case -1197794758:  // uriOrganizationId
-        setUriOrganizationId((String) newValue);
-        return;
-      case 666567687:  // uriVersionId
-        setUriVersionId((String) newValue);
-        return;
-      case 1178922291:  // organization
-        setOrganization((OrganizationDocument) newValue);
-        return;
-      case -1407102089:  // versioned
-        setVersioned((OrganizationDocument) newValue);
-        return;
-    }
-    super.propertySet(propertyName, newValue, quiet);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj != null && obj.getClass() == this.getClass()) {
-      WebOrganizationsData other = (WebOrganizationsData) obj;
-      return JodaBeanUtils.equal(getOrganizationMaster(), other.getOrganizationMaster()) &&
-          JodaBeanUtils.equal(getUriInfo(), other.getUriInfo()) &&
-          JodaBeanUtils.equal(getUriOrganizationId(), other.getUriOrganizationId()) &&
-          JodaBeanUtils.equal(getUriVersionId(), other.getUriVersionId()) &&
-          JodaBeanUtils.equal(getOrganization(), other.getOrganization()) &&
-          JodaBeanUtils.equal(getVersioned(), other.getVersioned());
-    }
-    return false;
-  }
-
-  @Override
-  public int hashCode() {
-    int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getOrganizationMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUriInfo());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUriOrganizationId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUriVersionId());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getOrganization());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getVersioned());
-    return hash;
   }
 
   //-----------------------------------------------------------------------
@@ -333,6 +261,73 @@ public class WebOrganizationsData extends DirectBean {
   }
 
   //-----------------------------------------------------------------------
+  @Override
+  public WebOrganizationsData clone() {
+    BeanBuilder<? extends WebOrganizationsData> builder = metaBean().builder();
+    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
+      if (mp.style().isBuildable()) {
+        Object value = mp.get(this);
+        if (value instanceof Bean) {
+          value = ((Bean) value).clone();
+        }
+        builder.set(mp.name(), value);
+      }
+    }
+    return builder.build();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (obj == this) {
+      return true;
+    }
+    if (obj != null && obj.getClass() == this.getClass()) {
+      WebOrganizationsData other = (WebOrganizationsData) obj;
+      return JodaBeanUtils.equal(getOrganizationMaster(), other.getOrganizationMaster()) &&
+          JodaBeanUtils.equal(getUriInfo(), other.getUriInfo()) &&
+          JodaBeanUtils.equal(getUriOrganizationId(), other.getUriOrganizationId()) &&
+          JodaBeanUtils.equal(getUriVersionId(), other.getUriVersionId()) &&
+          JodaBeanUtils.equal(getOrganization(), other.getOrganization()) &&
+          JodaBeanUtils.equal(getVersioned(), other.getVersioned());
+    }
+    return false;
+  }
+
+  @Override
+  public int hashCode() {
+    int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getOrganizationMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUriInfo());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUriOrganizationId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUriVersionId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getOrganization());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getVersioned());
+    return hash;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder buf = new StringBuilder(224);
+    buf.append("WebOrganizationsData{");
+    int len = buf.length();
+    toString(buf);
+    if (buf.length() > len) {
+      buf.setLength(buf.length() - 2);
+    }
+    buf.append('}');
+    return buf.toString();
+  }
+
+  protected void toString(StringBuilder buf) {
+    buf.append("organizationMaster").append('=').append(JodaBeanUtils.toString(getOrganizationMaster())).append(',').append(' ');
+    buf.append("uriInfo").append('=').append(JodaBeanUtils.toString(getUriInfo())).append(',').append(' ');
+    buf.append("uriOrganizationId").append('=').append(JodaBeanUtils.toString(getUriOrganizationId())).append(',').append(' ');
+    buf.append("uriVersionId").append('=').append(JodaBeanUtils.toString(getUriVersionId())).append(',').append(' ');
+    buf.append("organization").append('=').append(JodaBeanUtils.toString(getOrganization())).append(',').append(' ');
+    buf.append("versioned").append('=').append(JodaBeanUtils.toString(getVersioned())).append(',').append(' ');
+  }
+
+  //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code WebOrganizationsData}.
    */
@@ -471,6 +466,51 @@ public class WebOrganizationsData extends DirectBean {
      */
     public final MetaProperty<OrganizationDocument> versioned() {
       return _versioned;
+    }
+
+    //-----------------------------------------------------------------------
+    @Override
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1158737547:  // organizationMaster
+          return ((WebOrganizationsData) bean).getOrganizationMaster();
+        case -173275078:  // uriInfo
+          return ((WebOrganizationsData) bean).getUriInfo();
+        case -1197794758:  // uriOrganizationId
+          return ((WebOrganizationsData) bean).getUriOrganizationId();
+        case 666567687:  // uriVersionId
+          return ((WebOrganizationsData) bean).getUriVersionId();
+        case 1178922291:  // organization
+          return ((WebOrganizationsData) bean).getOrganization();
+        case -1407102089:  // versioned
+          return ((WebOrganizationsData) bean).getVersioned();
+      }
+      return super.propertyGet(bean, propertyName, quiet);
+    }
+
+    @Override
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
+      switch (propertyName.hashCode()) {
+        case -1158737547:  // organizationMaster
+          ((WebOrganizationsData) bean).setOrganizationMaster((OrganizationMaster) newValue);
+          return;
+        case -173275078:  // uriInfo
+          ((WebOrganizationsData) bean).setUriInfo((UriInfo) newValue);
+          return;
+        case -1197794758:  // uriOrganizationId
+          ((WebOrganizationsData) bean).setUriOrganizationId((String) newValue);
+          return;
+        case 666567687:  // uriVersionId
+          ((WebOrganizationsData) bean).setUriVersionId((String) newValue);
+          return;
+        case 1178922291:  // organization
+          ((WebOrganizationsData) bean).setOrganization((OrganizationDocument) newValue);
+          return;
+        case -1407102089:  // versioned
+          ((WebOrganizationsData) bean).setVersioned((OrganizationDocument) newValue);
+          return;
+      }
+      super.propertySet(bean, propertyName, newValue, quiet);
     }
 
   }

@@ -55,8 +55,8 @@ import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
-import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * @deprecated This function uses deprecated functions from the analytics library.
@@ -139,7 +139,7 @@ public abstract class FXOptionBlackTermStructureFunction extends AbstractFunctio
     final ValueProperties.Builder properties = getResultProperties(target, desiredValue, baseQuotePair);
     final ValueSpecification spec = new ValueSpecification(_valueRequirementName, target.toSpecification(), properties.get());
     final YieldCurveBundle curvesWithFX = new YieldCurveBundle(fxMatrix, curveCurrency, yieldCurves.getCurvesMap());
-    final ObjectsPair<Currency, Currency> currencyPair = Pair.of(ccy1, ccy2);
+    final Pair<Currency, Currency> currencyPair = Pairs.of(ccy1, ccy2);
     BlackForexTermStructureParameters termStructure;
     if (volatilitySurfaceObject instanceof SmileDeltaTermStructureParametersStrikeInterpolation) {
       final SmileDeltaTermStructureParametersStrikeInterpolation smiles = (SmileDeltaTermStructureParametersStrikeInterpolation) volatilitySurfaceObject;

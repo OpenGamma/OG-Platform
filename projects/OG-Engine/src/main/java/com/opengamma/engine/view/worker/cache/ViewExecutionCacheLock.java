@@ -18,6 +18,7 @@ import com.opengamma.util.map.HashMap2;
 import com.opengamma.util.map.Map2;
 import com.opengamma.util.map.WeakValueHashMap2;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  * Provides locks that correspond to the view execution cache keys.
@@ -80,7 +81,7 @@ public final class ViewExecutionCacheLock {
         lock = previous;
       }
     }
-    return Pair.of(locks._broad, lock);
+    return Pairs.of(locks._broad, lock);
   }
 
 }

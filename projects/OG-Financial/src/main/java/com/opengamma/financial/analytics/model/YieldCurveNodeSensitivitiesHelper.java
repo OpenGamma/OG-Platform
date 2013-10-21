@@ -164,7 +164,7 @@ public class YieldCurveNodeSensitivitiesHelper {
     final FXForwardCurveSpecification fxForwardCurveSpecification = new ConfigDBFXForwardCurveSpecificationSource(configSource).getSpecification(curveNames[0], currencyPair);
     final FXForwardCurveDefinition fxForwardCurveDefinition = new ConfigDBFXForwardCurveDefinitionSource(configSource).getDefinition(curveNames[0], currencyPair);
     final FXForwardCurveInstrumentProvider curveInstrumentProvider = fxForwardCurveSpecification.getCurveInstrumentProvider();
-    final Tenor[] tenors = fxForwardCurveDefinition.getTenors();
+    final Tenor[] tenors = fxForwardCurveDefinition.getTenorsArray();
     final int length = tenors.length;
     final Double[] keys = new Double[length];
     final Object[] labels = new Object[length];

@@ -116,7 +116,7 @@ public abstract class AbstractBloombergLiveDataServer extends StandardLiveDataSe
 
   public synchronized NormalizationRuleResolver getNormalizationRules() {
     if (_normalizationRules == null) {
-      _normalizationRules = new StandardRuleResolver(BloombergDataUtils.getDefaultNormalizationRules(getReferenceDataProvider(), getCacheManager()));
+      _normalizationRules = new StandardRuleResolver(BloombergDataUtils.getDefaultNormalizationRules(getReferenceDataProvider(), getCacheManager(), getUniqueIdDomain()));
     }
     return _normalizationRules;
   }

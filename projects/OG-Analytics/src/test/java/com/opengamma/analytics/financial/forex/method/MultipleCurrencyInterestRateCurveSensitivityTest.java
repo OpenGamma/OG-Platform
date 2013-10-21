@@ -31,8 +31,8 @@ public class MultipleCurrencyInterestRateCurveSensitivityTest {
   private static final Map<String, List<DoublesPair>> SENSI_MAP = new HashMap<>();
   private static final List<DoublesPair> SENSI_LIST_1 = new ArrayList<>();
   static {
-    SENSI_LIST_1.add(new DoublesPair(1.0, 10000.0));
-    SENSI_LIST_1.add(new DoublesPair(2.0, -20000.0));
+    SENSI_LIST_1.add(DoublesPair.of(1.0, 10000.0));
+    SENSI_LIST_1.add(DoublesPair.of(2.0, -20000.0));
     SENSI_MAP.put(DSC_USD, SENSI_LIST_1);
   }
   private static final InterestRateCurveSensitivity IRCS = new InterestRateCurveSensitivity(SENSI_MAP);
