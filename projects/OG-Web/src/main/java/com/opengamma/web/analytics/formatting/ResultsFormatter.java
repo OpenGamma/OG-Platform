@@ -75,6 +75,7 @@ public class ResultsFormatter {
     CurrencyAmountFormatter currencyAmountFormatter = new CurrencyAmountFormatter(currencyDisplay, bigDecimalFormatter);
     ZonedDateTimeFormatter zonedDateTimeFormatter = new ZonedDateTimeFormatter();
     LocalDateDoubleTimeSeriesFormatter localDateDoubleTimeSeriesFormatter = new LocalDateDoubleTimeSeriesFormatter();
+    RateFormatter rateFormatter = new RateFormatter();
     addFormatters(doubleFormatter,
                   bigDecimalFormatter,
                   currencyAmountFormatter,
@@ -123,7 +124,8 @@ public class ResultsFormatter {
                   new ExpiryFormatter(zonedDateTimeFormatter),
                   new ValuePropertiesFormatter(),
                   new FixedPaymentMatrixFormatter(currencyAmountFormatter),
-                  new FloatingPaymentMatrixFormatter(currencyAmountFormatter));
+                  new FloatingPaymentMatrixFormatter(currencyAmountFormatter),
+                  new FixedSwapLegDetailsFormatter(new CurrencyAmountFormatter(CurrencyDisplay.SUPPRESS_CURRENCY, bigDecimalFormatter), rateFormatter));
   }
 
   private void addFormatters(TypeFormatter<?>... formatters) {

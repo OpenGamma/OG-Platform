@@ -122,10 +122,17 @@ public class FixedSwapLegDetails extends DirectBean implements Serializable {
   private double[] _fixedRates;
 
   /**
+   * The number of cash-flows
+   */
+  @PropertyDefinition
+  private final int _numberOfCashFlows;
+
+  /**
    * For the builder.
    */
   /* package */FixedSwapLegDetails() {
     super();
+    _numberOfCashFlows = 0;
   }
 
   /**
@@ -148,6 +155,7 @@ public class FixedSwapLegDetails extends DirectBean implements Serializable {
     ArgumentChecker.isTrue(n == paymentFractions.length, "Must have same number of start coupon dates and payment year fractions");
     ArgumentChecker.isTrue(n == notionals.length, "Must have same number of start coupon dates and notionals");
     ArgumentChecker.isTrue(n == fixedRates.length, "Must have same number of start coupon dates and fixed rates");
+    _numberOfCashFlows = n;
     setStartCouponDates(startCouponDates);
     setEndCouponDates(endCouponDates);
     setDiscountFactors(discountFactors);
@@ -359,6 +367,23 @@ public class FixedSwapLegDetails extends DirectBean implements Serializable {
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets the number of cash-flows
+   * @return the value of the property
+   */
+  public int getNumberOfCashFlows() {
+    return _numberOfCashFlows;
+  }
+
+  /**
+   * Gets the the {@code numberOfCashFlows} property.
+   * @return the property, not null
+   */
+  public final Property<Integer> numberOfCashFlows() {
+    return metaBean().numberOfCashFlows().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
   @Override
   public FixedSwapLegDetails clone() {
     BeanBuilder<? extends FixedSwapLegDetails> builder = metaBean().builder();
@@ -387,7 +412,8 @@ public class FixedSwapLegDetails extends DirectBean implements Serializable {
           JodaBeanUtils.equal(getPaymentTimes(), other.getPaymentTimes()) &&
           JodaBeanUtils.equal(getPaymentFractions(), other.getPaymentFractions()) &&
           JodaBeanUtils.equal(getNotionals(), other.getNotionals()) &&
-          JodaBeanUtils.equal(getFixedRates(), other.getFixedRates());
+          JodaBeanUtils.equal(getFixedRates(), other.getFixedRates()) &&
+          (getNumberOfCashFlows() == other.getNumberOfCashFlows());
     }
     return false;
   }
@@ -402,12 +428,13 @@ public class FixedSwapLegDetails extends DirectBean implements Serializable {
     hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentFractions());
     hash += hash * 31 + JodaBeanUtils.hashCode(getNotionals());
     hash += hash * 31 + JodaBeanUtils.hashCode(getFixedRates());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getNumberOfCashFlows());
     return hash;
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(256);
+    StringBuilder buf = new StringBuilder(288);
     buf.append("FixedSwapLegDetails{");
     int len = buf.length();
     toString(buf);
@@ -426,6 +453,7 @@ public class FixedSwapLegDetails extends DirectBean implements Serializable {
     buf.append("paymentFractions").append('=').append(JodaBeanUtils.toString(getPaymentFractions())).append(',').append(' ');
     buf.append("notionals").append('=').append(JodaBeanUtils.toString(getNotionals())).append(',').append(' ');
     buf.append("fixedRates").append('=').append(JodaBeanUtils.toString(getFixedRates())).append(',').append(' ');
+    buf.append("numberOfCashFlows").append('=').append(JodaBeanUtils.toString(getNumberOfCashFlows())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -474,6 +502,11 @@ public class FixedSwapLegDetails extends DirectBean implements Serializable {
     private final MetaProperty<double[]> _fixedRates = DirectMetaProperty.ofReadWrite(
         this, "fixedRates", FixedSwapLegDetails.class, double[].class);
     /**
+     * The meta-property for the {@code numberOfCashFlows} property.
+     */
+    private final MetaProperty<Integer> _numberOfCashFlows = DirectMetaProperty.ofReadOnly(
+        this, "numberOfCashFlows", FixedSwapLegDetails.class, Integer.TYPE);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
@@ -484,7 +517,8 @@ public class FixedSwapLegDetails extends DirectBean implements Serializable {
         "paymentTimes",
         "paymentFractions",
         "notionals",
-        "fixedRates");
+        "fixedRates",
+        "numberOfCashFlows");
 
     /**
      * Restricted constructor.
@@ -509,6 +543,8 @@ public class FixedSwapLegDetails extends DirectBean implements Serializable {
           return _notionals;
         case 1695350911:  // fixedRates
           return _fixedRates;
+        case -338982286:  // numberOfCashFlows
+          return _numberOfCashFlows;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -585,6 +621,14 @@ public class FixedSwapLegDetails extends DirectBean implements Serializable {
       return _fixedRates;
     }
 
+    /**
+     * The meta-property for the {@code numberOfCashFlows} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Integer> numberOfCashFlows() {
+      return _numberOfCashFlows;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -603,6 +647,8 @@ public class FixedSwapLegDetails extends DirectBean implements Serializable {
           return ((FixedSwapLegDetails) bean).getNotionals();
         case 1695350911:  // fixedRates
           return ((FixedSwapLegDetails) bean).getFixedRates();
+        case -338982286:  // numberOfCashFlows
+          return ((FixedSwapLegDetails) bean).getNumberOfCashFlows();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -631,6 +677,11 @@ public class FixedSwapLegDetails extends DirectBean implements Serializable {
         case 1695350911:  // fixedRates
           ((FixedSwapLegDetails) bean).setFixedRates((double[]) newValue);
           return;
+        case -338982286:  // numberOfCashFlows
+          if (quiet) {
+            return;
+          }
+          throw new UnsupportedOperationException("Property cannot be written: numberOfCashFlows");
       }
       super.propertySet(bean, propertyName, newValue, quiet);
     }
