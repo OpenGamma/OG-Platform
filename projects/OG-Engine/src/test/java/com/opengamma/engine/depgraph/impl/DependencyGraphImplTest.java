@@ -21,8 +21,12 @@ import com.google.common.collect.ImmutableSet;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.depgraph.DependencyNodeFunction;
 import com.opengamma.engine.depgraph.builder.TestDependencyGraphBuilder;
 import com.opengamma.engine.depgraph.builder.TestDependencyGraphBuilder.NodeBuilder;
+import com.opengamma.engine.function.EmptyFunctionParameters;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.test.TestGroup;
@@ -174,6 +178,24 @@ public class DependencyGraphImplTest {
     assertEquals(graph2.getSize(), 4);
     assertNotSame(graph, graph2);
     assertEquals(DependencyGraphImpl.getAllOutputSpecifications(graph2), ImmutableSet.of(a, b, d, f));
+  }
+
+  public void testRemoveUnnecessaryValues_4() {
+    // [PLAT-4922] No unnecessary values but graph gets corrupted
+    final ValueSpecification[] v = new ValueSpecification[5];
+    final ValueRequirement[] r = new ValueRequirement[5];
+    for (int i = 0; i < v.length; i++) {
+      v[i] = new ValueSpecification(Integer.toString(i), ComputationTargetSpecification.NULL, ValueProperties.with(ValuePropertyNames.FUNCTION, "Test").get());
+      r[i] = new ValueRequirement(Integer.toString(i), ComputationTargetSpecification.NULL);
+    }
+    final DependencyNodeFunction function = DependencyNodeFunctionImpl.of("Test", EmptyFunctionParameters.INSTANCE);
+    final DependencyNode a = DependencyNodeImpl.of(function, ComputationTargetSpecification.NULL, new ValueSpecification[] {v[0], v[1], v[2] }, new ValueSpecification[0], new DependencyNode[0]);
+    final DependencyNode b = DependencyNodeImpl.of(function, ComputationTargetSpecification.NULL, new ValueSpecification[] {v[3] }, new ValueSpecification[] {v[2] }, new DependencyNode[] {a });
+    final DependencyNode c = DependencyNodeImpl.of(function, ComputationTargetSpecification.NULL, new ValueSpecification[] {v[4] }, new ValueSpecification[] {v[1], v[3] },
+        new DependencyNode[] {a, b });
+    final DependencyGraph graphA = new DependencyGraphImpl("Test", Collections.singleton(c), 3, ImmutableMap.of(v[0], Collections.singleton(r[0]), v[4], Collections.singleton(r[4])));
+    final DependencyGraph graphB = DependencyGraphImpl.removeUnnecessaryValues(graphA);
+    assertEquals(graphB, graphA);
   }
 
 }

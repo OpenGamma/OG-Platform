@@ -270,6 +270,16 @@ public class DependencyGraphImpl implements DependencyGraph, Serializable {
       necessary.put(terminal, null);
     }
     final int rootCount = graph.getRootCount();
+    for (int i = 0; i < rootCount; i++) {
+      final DependencyNode root = graph.getRootNode(i);
+      final int outputs = root.getOutputCount();
+      for (int j = 0; j < outputs; j++) {
+        if (necessary.containsKey(root.getOutputValue(j))) {
+          DependencyNodeImpl.markNecessaryValues(root, necessary);
+          break;
+        }
+      }
+    }
     Set<DependencyNode> roots = null;
     Set<DependencyNode> possibleRoots = null;
     for (int i = 0; i < rootCount; i++) {
