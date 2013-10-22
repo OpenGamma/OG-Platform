@@ -357,6 +357,7 @@ public final class DependencyGraphBuilder implements Cancelable {
     ComputationTargetSpecification specification = getCompilationContext().getComputationTargetResolver().getSpecificationResolver().getTargetSpecification(reference);
     if (specification == null) {
       s_logger.warn("Couldn't resolve {}", reference);
+      return null;
     }
     if (specification.getType().accept(s_isUnionType, null) == Boolean.TRUE) {
       final ComputationTarget target = getCompilationContext().getComputationTargetResolver().resolve(specification);
