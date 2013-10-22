@@ -18,7 +18,6 @@ import com.opengamma.financial.convention.businessday.BusinessDayConventionFacto
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.Frequency;
-import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.id.ExternalId;
@@ -60,7 +59,7 @@ public class GBConventions {
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("BP00T/N Index"), simpleNameSecurityId("GBP LIBOR T/N")),
         "GBP LIBOR T/N", ACT_365, FOLLOWING, Period.ofDays(1), 1, false, GB);
 
-    for (int i = 1; i < 3; i++) {
+    for (int i = 1; i < 4; i++) {
       final String dayDepositName = "GBP DEPOSIT " + i + "d";
       final ExternalId dayBbgDeposit = bloombergTickerSecurityId("BPDR" + i + "T Curncy");
       final ExternalId daySimpleDeposit = simpleNameSecurityId(dayDepositName);
@@ -82,7 +81,6 @@ public class GBConventions {
       final ExternalId bbgLibor = bloombergTickerSecurityId("BP00" + (i < 10 ? "0" : "") + i + "M Index");
       final ExternalId tullettLibor = tullettPrebonSecurityId("ASLIBGBP" + (i < 10 ? "0" : "") + i + "L");
       final ExternalId simpleLibor = simpleNameSecurityId(liborName);
-      final ExternalId ISDALibor = FloatingIndex.GBP_LIBOR_BBA.toFrequencySpecificExternalId(PeriodFrequency.of(Period.of(i / 12, i % 12, 0)));
       final String depositName = "GBP DEPOSIT " + i + "m";
       ExternalId bbgDeposit;
       if (i == 12) {
@@ -92,7 +90,7 @@ public class GBConventions {
       }
       final ExternalId tullettDeposit = tullettPrebonSecurityId("MNDEPGBDTDY" + (i < 10 ? "0" : "") + i + "M");
       final ExternalId simpleDeposit = simpleNameSecurityId(depositName);
-      utils.addConventionBundle(ExternalIdBundle.of(bbgLibor, tullettLibor, simpleLibor, ISDALibor), liborName, ACT_365, MODIFIED, Period.ofMonths(i), 0, false, GB);
+      utils.addConventionBundle(ExternalIdBundle.of(bbgLibor, tullettLibor, simpleLibor), liborName, ACT_365, MODIFIED, Period.ofMonths(i), 0, false, GB);
       utils.addConventionBundle(ExternalIdBundle.of(bbgDeposit, tullettDeposit, simpleDeposit), depositName, ACT_365, MODIFIED, Period.ofMonths(i), 0, false, GB);
     }
 
@@ -125,9 +123,9 @@ public class GBConventions {
         ACT_365, MODIFIED, SEMI_ANNUAL, 0, simpleNameSecurityId("GBP LIBOR 6m"), GB, true);
 
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId(IndexType.Libor + "_P3M")), IndexType.Libor + "_P3M", ACT_365, MODIFIED,
-        null, 0, false, GB);
+        null, 0, false, GB, 0);
     utils.addConventionBundle(ExternalIdBundle.of(simpleNameSecurityId(IndexType.Libor + "_P6M")), IndexType.Libor + "_P6M", ACT_365, MODIFIED,
-        null, 0, false, GB);
+        null, 0, false, GB, 0);
     // SONIA
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("SONIO/N Index"), simpleNameSecurityId("GBP SONIO/N")), "GBP SONIO/N", ACT_365,
         FOLLOWING, Period.ofDays(1), 0, false, GB, publicationLagON);

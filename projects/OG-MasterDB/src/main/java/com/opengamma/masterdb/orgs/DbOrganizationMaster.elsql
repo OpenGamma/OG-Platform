@@ -95,7 +95,7 @@
     org_organisation main
     INNER JOIN cte_docs ON main.id = cte_docs.id
   ORDER BY
-    -- main.@INCLUDE(:sort_order),
+    -- main.@VALUE(:sort_order),
     main.id
 
 
@@ -108,7 +108,7 @@
       org_organisation
     @INCLUDE(SearchWhere)
     ORDER BY
-      -- @INCLUDE(:sort_order),
+      -- @VALUE(:sort_order),
       id
 
 
@@ -126,7 +126,7 @@
   WHERE ver_from_instant <= :version_as_of_instant AND ver_to_instant > :version_as_of_instant
     AND corr_from_instant <= :corrected_to_instant AND corr_to_instant > :corrected_to_instant
     @AND(:sql_search_object_ids)
-      oid IN ( @INCLUDE(:sql_search_object_ids) )
+      oid IN ( @VALUE(:sql_search_object_ids) )
 
     @AND(:provider_scheme)
       provider_scheme = :provider_scheme

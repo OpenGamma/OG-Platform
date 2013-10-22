@@ -197,6 +197,7 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
     addUnitScalingFunction(functions, ValueRequirementNames.PAR_SPREAD);
     addUnitScalingFunction(functions, ValueRequirementNames.PAR_RATE_CURVE_SENSITIVITY);
     addUnitScalingFunction(functions, ValueRequirementNames.PAR_RATE_PARALLEL_CURVE_SHIFT);
+    addScalingAndSummingFunction(functions, ValueRequirementNames.PAY_LEG_PRESENT_VALUE);
     addUnitScalingFunction(functions, ValueRequirementNames.PIECEWISE_SABR_VOL_SURFACE);
     addScalingAndSummingFunction(functions, ValueRequirementNames.PNL);
     addSummingFunction(functions, ValueRequirementNames.PNL_SERIES);
@@ -217,7 +218,10 @@ public class AnalyticsFunctions extends AbstractFunctionConfigurationBean {
     addScalingAndSummingFunction(functions, ValueRequirementNames.PRESENT_VALUE_Z_SPREAD_SENSITIVITY);
     addSummingFunction(functions, ValueRequirementNames.PRICE_SERIES);
     addScalingAndSummingFunction(functions, ValueRequirementNames.PV01);
+    addScalingAndSummingFunction(functions, ValueRequirementNames.RECEIVE_LEG_PRESENT_VALUE);
     addUnitScalingFunction(functions, ValueRequirementNames.RHO);
+    addUnitScalingFunction(functions, ValueRequirementNames.SWAP_PAY_LEG_DETAILS);
+    addUnitScalingFunction(functions, ValueRequirementNames.SWAP_RECEIVE_LEG_DETAILS);
     addUnitScalingFunction(functions, ValueRequirementNames.SECURITY_IMPLIED_VOLATILITY);
     addUnitScalingFunction(functions, ValueRequirementNames.SPEED);
     addUnitScalingFunction(functions, ValueRequirementNames.SPEED_P);

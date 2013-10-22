@@ -16,12 +16,11 @@ import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PoolExecutor;
-import com.opengamma.util.PoolExecutor.CompletionListener;
 
 /**
  * A traverser that runs in parallel using a number of threads. The ordering is non-deterministic.
  */
-public class ParallelPortfolioNodeTraverser extends PortfolioNodeTraverser implements CompletionListener<Object> {
+public class ParallelPortfolioNodeTraverser extends PortfolioNodeTraverser {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ParallelPortfolioNodeTraverser.class);
 
@@ -40,7 +39,7 @@ public class ParallelPortfolioNodeTraverser extends PortfolioNodeTraverser imple
   }
 
   protected PoolExecutor.Service<?> createExecutorService() {
-    return _pool.createService(this);
+    return _pool.createService(null);
   }
 
   private static final class Context {
@@ -77,6 +76,8 @@ public class ParallelPortfolioNodeTraverser extends PortfolioNodeTraverser imple
             public void run() {
               try {
                 _callback.preOrderOperation(_node, position);
+              } catch (Exception e) {
+                s_logger.warn("Failed preOrderOperation", e);
               } finally {
                 childDone();
               }
@@ -93,6 +94,8 @@ public class ParallelPortfolioNodeTraverser extends PortfolioNodeTraverser imple
           if (_secondPass) {
             try {
               _callback.postOrderOperation(_node);
+            } catch (Exception e) {
+              s_logger.warn("Failed preOrderOperation", e);
             } finally {
               if (_parent != null) {
                 _parent.childDone();
@@ -145,8 +148,6 @@ public class ParallelPortfolioNodeTraverser extends PortfolioNodeTraverser imple
 
   }
 
-  // PortfolioNodeTraverser
-
   /**
    * Traverse the nodes notifying using the callback.
    * 
@@ -160,18 +161,6 @@ public class ParallelPortfolioNodeTraverser extends PortfolioNodeTraverser imple
     final Context context = new Context(createExecutorService(), getCallback());
     context.submit(context.new NodeTraverser(portfolioNode, null));
     context.waitForCompletion();
-  }
-
-  // CompletionListener
-
-  @Override
-  public void success(final Object result) {
-    // No-op
-  }
-
-  @Override
-  public void failure(final Throwable error) {
-    s_logger.error("Caught exception during traversal", error);
   }
 
 }

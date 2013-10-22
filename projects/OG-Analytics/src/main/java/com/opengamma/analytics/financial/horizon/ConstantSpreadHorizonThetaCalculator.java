@@ -42,9 +42,10 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
  * That is, the market moves in such a way that the discount rates or implied volatility requested
  * for the same maturity DATE will be equal on both dates. <p>
  *
- * Note that the time to maturity will differ by the daysForward provided in the constructor // TODO Rethink daysForward as it is only safely handles 1/-1.
+ * Note that the time to maturity will differ by the daysForward provided in the constructor
  * @deprecated This class tests deprecated functionality
  */
+//TODO Rethink daysForward as it is only safely handles 1/-1.
 @Deprecated
 public final class ConstantSpreadHorizonThetaCalculator {
   private static final ConstantSpreadYieldCurveBundleRolldownFunction CURVE_ROLLDOWN = ConstantSpreadYieldCurveBundleRolldownFunction.getInstance();

@@ -17,7 +17,8 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.threeten.bp.DayOfWeek;
 import org.threeten.bp.LocalDate;
 
@@ -37,7 +38,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
-import com.opengamma.masterdb.historicaltimeseries.DbHistoricalTimeSeriesMaster;
+import com.opengamma.master.historicaltimeseries.impl.InMemoryHistoricalTimeSeriesMaster;
 import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProvider;
 import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProviderGetRequest;
 import com.opengamma.provider.historicaltimeseries.HistoricalTimeSeriesProviderGetResult;
@@ -46,7 +47,6 @@ import com.opengamma.timeseries.date.localdate.ImmutableLocalDateDoubleTimeSerie
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeriesBuilder;
 import com.opengamma.util.MapUtils;
-import com.opengamma.util.test.AbstractDbTest;
 import com.opengamma.util.time.LocalDateRange;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
@@ -54,9 +54,9 @@ import com.opengamma.util.tuple.Pairs;
 /**
  * 
  */
-public abstract class AbstractHistoricalTimeSeriesDBTest extends AbstractDbTest {
+public abstract class AbstractBloombergHTSTest {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(AbstractHistoricalTimeSeriesDBTest.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(AbstractBloombergHTSTest.class);
   
   protected static final String[] DATA_FIELDS = new String[] {"PX_LAST", "VOLUME"};
   protected static final String[] DATA_PROVIDERS = new String[] {"UNKNOWN", "CMPL", "CMPT", "DEFAULT"};
@@ -73,35 +73,23 @@ public abstract class AbstractHistoricalTimeSeriesDBTest extends AbstractDbTest 
   private HistoricalTimeSeriesProvider _historicalTimeSeriesProvider;
 
   /**
-   * Creates an instance specifying the database to run.
-   * @param databaseType  the database type
-   * @param databaseVersion  the database version
+   * Creates an instance.
    */
-  public AbstractHistoricalTimeSeriesDBTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion);
-    s_logger.debug("running test for database = {}", databaseType);
+  public AbstractBloombergHTSTest() {
+    super();
   }
 
   //-------------------------------------------------------------------------
-  @Override
+  @BeforeMethod(alwaysRun = true)
   protected void doSetUp() {
-    DataSourceTransactionManager transactionManager = getTransactionManager();
-
-    _htsMaster = setUpTimeSeriesMaster(transactionManager);
+    _htsMaster = new InMemoryHistoricalTimeSeriesMaster();
     _historicalTimeSeriesProvider = new UnitTestHistoricalTimeSeriesProvider();
-
     BloombergIdentifierProvider idProvider = new BloombergIdentifierProvider(new MockReferenceDataProvider());
-
     _htsMasterUpdater = new BloombergHTSMasterUpdater(_htsMaster, _historicalTimeSeriesProvider, idProvider);
     _loader = new BloombergHistoricalTimeSeriesLoader(_htsMaster, _historicalTimeSeriesProvider, idProvider);
   }
 
-  private HistoricalTimeSeriesMaster setUpTimeSeriesMaster(DataSourceTransactionManager transactionManager) {
-    HistoricalTimeSeriesMaster ts = new DbHistoricalTimeSeriesMaster(getDbConnector());
-    return ts;
-  }
-
-  @Override
+  @AfterMethod(alwaysRun = true)
   protected void doTearDown() {
     _htsMaster = null;
   }

@@ -16,17 +16,30 @@ Configuration compatibility
   - this will affect engine and fullstack type ini files, as well as any other ini where the WebsiteBasicsComponentFactory is used.
   - example configuration is provided in /examples-simulated/config/fullstack/fullstack-examplessimulated.ini
 
+
+Database compatibility
+- Version of ElSql library updated to v0.8.
+This has a change in meaning for the @INCLUDE(:variable) tag.
+If you have any application-specific .elsql files then they must be changed as follows:
+Search for "@INCLUDE(:" and replace with "@VALUE(:"
+Note that @VALUE does not have a space output after it, whereas @INCLUDE(:variable) did.
+
+
 API compatibility
 - The sub-classes of ValueProperties are no longer publicly visible. Details for correcting any affected code can be
   found in the Javadoc for the ValueProperties.isNearInfiniteProperties method.
+
 - The representation of a dependency graph has changed. This affects the DependencyGraph and DependencyNode classes,
   and any uses of them. Graphs (and nodes) are now immutable and it is only possible to navigate a graph from root to
   leaf without maintaining additional data structures. This can reduce the memory foot-print of the application by
   allowing node instances to be shared between graphs. Additional methods have been added to DependencyGraphExplorer
   to provide similar functionality to the indices that were previously available for navigation.
+
 - CompiledFunctionResolver, FunctionResolver, and FunctionRepository now have getFunction methods for retrieving
   metadata on a single function by the unique identifier held in a dependency node.
+
 - ComputationTargetFilter is now an interface and is no longer extended from a dependency graph node filter.
+
 
 To 2.2.0-M1
 -----------

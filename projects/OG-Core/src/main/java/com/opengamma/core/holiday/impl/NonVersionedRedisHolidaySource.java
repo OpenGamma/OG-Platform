@@ -32,7 +32,7 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.timeseries.date.localdate.LocalDateToIntConverter;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.GUIDGenerator;
-import com.opengamma.util.metric.MetricProducer;
+import com.opengamma.util.metric.OpenGammaMetricRegistry;
 import com.opengamma.util.money.Currency;
 
 /*
@@ -65,7 +65,7 @@ import com.opengamma.util.money.Currency;
  * which stores all Holiday documents as individual Redis elements using direct
  * Redis types rather than Fudge encoding.
  */
-public class NonVersionedRedisHolidaySource implements HolidaySource, MetricProducer {
+public class NonVersionedRedisHolidaySource implements HolidaySource {
   private static final Logger s_logger = LoggerFactory.getLogger(NonVersionedRedisHolidaySource.class);
   private static final String EXCHANGE = "EXCHANGE";
   private static final String EXCHANGE_SCHEME = "EXCHANGE_SCHEME";
@@ -99,9 +99,9 @@ public class NonVersionedRedisHolidaySource implements HolidaySource, MetricProd
     
     _jedisPool = jedisPool;
     _redisPrefix = redisPrefix;
+    registerMetrics(OpenGammaMetricRegistry.getSummaryInstance(), OpenGammaMetricRegistry.getDetailedInstance(), "NonVersionedRedisHolidaySource");
   }
   
-  @Override
   public void registerMetrics(MetricRegistry summaryRegistry, MetricRegistry detailRegistry, String namePrefix) {
     _getTimer = summaryRegistry.timer(namePrefix + ".get");
     _putTimer = summaryRegistry.timer(namePrefix + ".put");

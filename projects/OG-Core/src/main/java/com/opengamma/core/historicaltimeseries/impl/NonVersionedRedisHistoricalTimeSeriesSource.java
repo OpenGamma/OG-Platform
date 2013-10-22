@@ -39,7 +39,7 @@ import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.timeseries.date.localdate.LocalDateDoubleTimeSeriesBuilder;
 import com.opengamma.timeseries.date.localdate.LocalDateToIntConverter;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.metric.MetricProducer;
+import com.opengamma.util.metric.OpenGammaMetricRegistry;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
 
@@ -62,7 +62,7 @@ import com.opengamma.util.tuple.Pairs;
  * will be thrown. Where use indicates that this class may be being used incorrectly,
  * a log message will be written at {@code WARN} level.
  */
-public class NonVersionedRedisHistoricalTimeSeriesSource implements HistoricalTimeSeriesSource, MetricProducer {
+public class NonVersionedRedisHistoricalTimeSeriesSource implements HistoricalTimeSeriesSource {
   private static final Logger s_logger = LoggerFactory.getLogger(NonVersionedRedisHistoricalTimeSeriesSource.class);
   private final JedisPool _jedisPool;
   private final String _redisPrefix;
@@ -76,10 +76,16 @@ public class NonVersionedRedisHistoricalTimeSeriesSource implements HistoricalTi
   }
     
   public NonVersionedRedisHistoricalTimeSeriesSource(JedisPool jedisPool, String redisPrefix) {
+    this(jedisPool, redisPrefix, "NonVersionedRedisHistoricalTimeSeriesSource");
+  }
+
+  protected NonVersionedRedisHistoricalTimeSeriesSource(JedisPool jedisPool, String redisPrefix, String metricsName) {
     ArgumentChecker.notNull(jedisPool, "jedisPool");
     ArgumentChecker.notNull(redisPrefix, "redisPrefix");
+    ArgumentChecker.notNull(metricsName, "metricsName");
     _jedisPool = jedisPool;
     _redisPrefix = redisPrefix;
+    registerMetrics(OpenGammaMetricRegistry.getSummaryInstance(), OpenGammaMetricRegistry.getDetailedInstance(), metricsName);
   }
 
   /**
@@ -98,7 +104,6 @@ public class NonVersionedRedisHistoricalTimeSeriesSource implements HistoricalTi
     return _redisPrefix;
   }
   
-  @Override
   public void registerMetrics(MetricRegistry summaryRegistry, MetricRegistry detailRegistry, String namePrefix) {
     _getSeriesTimer = summaryRegistry.timer(namePrefix + ".get");
     _updateSeriesTimer = summaryRegistry.timer(namePrefix + ".update");

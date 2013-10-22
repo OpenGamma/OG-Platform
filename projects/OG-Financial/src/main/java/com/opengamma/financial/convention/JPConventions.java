@@ -17,7 +17,6 @@ import com.opengamma.financial.convention.businessday.BusinessDayConventionFacto
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.Frequency;
-import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -56,20 +55,17 @@ public class JPConventions {
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JY0002W Index"), simpleNameSecurityId("JPY LIBOR 2w"),
         tullettPrebonSecurityId("ASLIBJPY2WL")), "JPY LIBOR 2w", act360, following, Period.ofDays(1), 2, false, jp);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JY0001M Index"), simpleNameSecurityId("JPY LIBOR 1m"),
-        tullettPrebonSecurityId("ASLIBJPY01L"), FloatingIndex.JPY_LIBOR_BBA.toFrequencySpecificExternalId(SimpleFrequency.MONTHLY)),
-                              "JPY LIBOR 1m", act360, following, Period.ofMonths(1), 2, false, jp);
+        tullettPrebonSecurityId("ASLIBJPY01L")), "JPY LIBOR 1m", act360, following, Period.ofMonths(1), 2, false, jp);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JY0002M Index"), simpleNameSecurityId("JPY LIBOR 2m"),
         tullettPrebonSecurityId("ASLIBJPY02L")), "JPY LIBOR 2m", act360, following, Period.ofMonths(2), 2, false, jp);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JY0003M Index"), simpleNameSecurityId("JPY LIBOR 3m"),
-        tullettPrebonSecurityId("ASLIBJPY03L"), FloatingIndex.JPY_LIBOR_BBA.toFrequencySpecificExternalId(SimpleFrequency.QUARTERLY)),
-                              "JPY LIBOR 3m", act360, following, Period.ofMonths(3), 2, false, jp);
+        tullettPrebonSecurityId("ASLIBJPY03L")), "JPY LIBOR 3m", act360, following, Period.ofMonths(3), 2, false, jp);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JY0004M Index"), simpleNameSecurityId("JPY LIBOR 4m"),
         tullettPrebonSecurityId("ASLIBJPY04L")), "JPY LIBOR 4m", act360, following, Period.ofMonths(4), 2, false, jp);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JY0005M Index"), simpleNameSecurityId("JPY LIBOR 5m"),
         tullettPrebonSecurityId("ASLIBJPY05L")), "JPY LIBOR 5m", act360, following, Period.ofMonths(5), 2, false, jp);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JY0006M Index"), simpleNameSecurityId("JPY LIBOR 6m"),
-        tullettPrebonSecurityId("ASLIBJPY06L"), FloatingIndex.JPY_LIBOR_BBA.toFrequencySpecificExternalId(SimpleFrequency.SEMI_ANNUAL)),
-                              "JPY LIBOR 6m", act360, following, Period.ofMonths(6), 2, false, jp);
+        tullettPrebonSecurityId("ASLIBJPY06L")), "JPY LIBOR 6m", act360, following, Period.ofMonths(6), 2, false, jp);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JY0007M Index"), simpleNameSecurityId("JPY LIBOR 7m"),
         tullettPrebonSecurityId("ASLIBJPY07L")), "JPY LIBOR 7m", act360, following, Period.ofMonths(7), 2, false, jp);
     utils.addConventionBundle(ExternalIdBundle.of(bloombergTickerSecurityId("JY0008M Index"), simpleNameSecurityId("JPY LIBOR 8m"),
