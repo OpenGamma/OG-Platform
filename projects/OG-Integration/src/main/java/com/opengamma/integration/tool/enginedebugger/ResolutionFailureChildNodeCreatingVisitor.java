@@ -25,6 +25,9 @@ import com.opengamma.integration.tool.enginedebugger.node.RecursiveRequirementNo
 import com.opengamma.integration.tool.enginedebugger.node.SuccessfulFunctionNode;
 import com.opengamma.integration.tool.enginedebugger.node.UnsatisfiedNode;
 
+/**
+ * 
+ */
 public final class ResolutionFailureChildNodeCreatingVisitor extends ResolutionFailureVisitor<Object> {
     
   private ResolutionFailureImpl _parent;
@@ -98,4 +101,5 @@ public final class ResolutionFailureChildNodeCreatingVisitor extends ResolutionF
       final Map<ValueSpecification, ValueRequirement> requirements) {
     return new BlacklistSuppressedNode(_parent, valueRequirement, function, desiredOutput, requirements);
   }
+
 }

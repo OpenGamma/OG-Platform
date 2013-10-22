@@ -27,6 +27,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  *
@@ -75,10 +76,10 @@ public final class CalculationDifference implements ImmutableBean {
       CalculatedValue value1 = results1.getValues().get(key);
       CalculatedValue value2 = results2.getValues().get(key);
       if (!EqualityChecker.equals(value1.getValue(), value2.getValue(), delta)) {
-        diffs.put(key, Pair.of(value1, value2));
+        diffs.put(key, Pairs.of(value1, value2));
       } else {
         if (!value1.getSpecificationProperties().equals(value2.getSpecificationProperties())) {
-          differentProps.put(key, Pair.of(value1, value2));
+          differentProps.put(key, Pairs.of(value1, value2));
         } else {
           equalResultCount++;
         }
@@ -106,6 +107,8 @@ public final class CalculationDifference implements ImmutableBean {
 
   /**
    * This only exists to workaround the inadequacy of Freemarker.
+   * @param key  the key
+   * @return the value
    */
   public CalculatedValue getOnlyBaseValue(CalculationResultKey key) {
     return _onlyBase.get(key);
@@ -113,6 +116,8 @@ public final class CalculationDifference implements ImmutableBean {
 
   /**
    * This only exists to workaround the inadequacy of Freemarker.
+   * @param key  the key
+   * @return the value
    */
   public CalculatedValue getOnlyTestValue(CalculationResultKey key) {
     return _onlyTest.get(key);
@@ -120,6 +125,8 @@ public final class CalculationDifference implements ImmutableBean {
 
   /**
    * This only exists to workaround the inadequacy of Freemarker.
+   * @param key  the key
+   * @return the value
    */
   public Pair<CalculatedValue, CalculatedValue> getDifferentValue(CalculationResultKey key) {
     return _different.get(key);
@@ -127,6 +134,8 @@ public final class CalculationDifference implements ImmutableBean {
 
   /**
    * This only exists to workaround the inadequacy of Freemarker.
+   * @param key  the key
+   * @return the value
    */
   public Pair<CalculatedValue, CalculatedValue> getDifferentPropertiesValue(CalculationResultKey key) {
     return _differentProperties.get(key);

@@ -14,7 +14,6 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowStateListener;
 import java.util.concurrent.SynchronousQueue;
 
-import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
@@ -22,7 +21,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
-import javax.swing.JTree;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingUtilities;
@@ -35,8 +33,6 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.config.impl.ConfigItem;
-import com.opengamma.core.position.PositionSource;
-import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.integration.swing.ViewEntry;
 import com.opengamma.integration.swing.ViewListCellRenderer;
@@ -60,6 +56,7 @@ public class ViewDefinitionEditor extends AbstractTool<IntegrationToolContext> {
 
   /**
    * Launch the application.
+   * @param args  the main method arguments
    */
   public static void main(String[] args) {
     //new EngineDebugger().initialize();
@@ -87,9 +84,6 @@ public class ViewDefinitionEditor extends AbstractTool<IntegrationToolContext> {
     _viewList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
     final ConfigSource configSource = getToolContext().getConfigSource();
-    final PositionSource positionSource = getToolContext().getPositionSource();
-    final SecuritySource securitySource = getToolContext().getSecuritySource();
-    
     
     JPanel panel = new JPanel();
     mainPanel.add(panel, BorderLayout.CENTER);
@@ -172,9 +166,6 @@ public class ViewDefinitionEditor extends AbstractTool<IntegrationToolContext> {
 
   private JList<ViewEntry> _viewList;
 
-  private JButton _goButton;
-
-  private JTree _portfolioTree;
   @Override
   protected void doRun() throws Exception {
     initialize();

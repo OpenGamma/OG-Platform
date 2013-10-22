@@ -53,7 +53,7 @@ public class MdcAwareThreadPoolExecutor extends ThreadPoolExecutor {
    * be the actual job submitted (e.g. if a Callable is submitted, it
    * gets converted by the executor).
    */
-  private final ConcurrentMap<Runnable, Map> _diagnosticContexts = new ConcurrentHashMap<>();
+  private final ConcurrentMap<Runnable, Map<String, String>> _diagnosticContexts = new ConcurrentHashMap<>();
 
   /**
    * Create a new instance with the specified thread factory. Note that
@@ -96,7 +96,7 @@ public class MdcAwareThreadPoolExecutor extends ThreadPoolExecutor {
     // This method is called by the worker thread before it executes the
     // specified task. Therefore we can insert the MDC information and it will
     // be available as the task is executed
-    Map contextMap = _diagnosticContexts.get(task);
+    Map<String, String> contextMap = _diagnosticContexts.get(task);
     if (contextMap != null) {
       MDC.setContextMap(contextMap);
     }
@@ -138,10 +138,12 @@ public class MdcAwareThreadPoolExecutor extends ThreadPoolExecutor {
     return success;
   }
 
+  @SuppressWarnings("unchecked")
   private void recordDiagnosticContext(Runnable task) {
-    Map contextMap = MDC.getCopyOfContextMap();
+    Map<String, String> contextMap = MDC.getCopyOfContextMap();
     if (contextMap != null) {
       _diagnosticContexts.put(task, contextMap);
     }
   }
+
 }

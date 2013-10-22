@@ -40,8 +40,6 @@ import javax.swing.tree.TreePath;
 
 import org.jdesktop.swingx.JXTreeTable;
 import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.core.config.ConfigSource;
@@ -49,10 +47,8 @@ import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
-import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
-import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.target.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
@@ -75,14 +71,13 @@ import com.opengamma.scripts.Scriptable;
 @Scriptable
 public class EngineDebugger extends AbstractTool<IntegrationToolContext> {
   
-  private static final Logger s_logger = LoggerFactory.getLogger(EngineDebugger.class);
-
   private static final String DEFAULT_VALUE_REQUIREMENT = "Present Value";
 
   private JFrame _frame;
 
   /**
    * Launch the application.
+   * @param args  the main method arguments
    */
   public static void main(String[] args) {
     //new EngineDebugger().initialize();
@@ -126,8 +121,6 @@ public class EngineDebugger extends AbstractTool<IntegrationToolContext> {
     viewSelectionPanel.add(_comboBox);
 
     final ConfigSource configSource = getToolContext().getConfigSource();
-    final PositionSource positionSource = getToolContext().getPositionSource();
-    final SecuritySource securitySource = getToolContext().getSecuritySource();
     
     _failuresTreeTable = new JXTreeTable(new DefaultTreeTableModel());
     _failuresTreeTable.setShowsRootHandles(true);
@@ -158,12 +151,14 @@ public class EngineDebugger extends AbstractTool<IntegrationToolContext> {
     _comboBox.addActionListener(new ActionListener() {
       @Override
       public void actionPerformed(ActionEvent e) {
+        @SuppressWarnings("unchecked")
         JComboBox<ViewEntry> cb = (JComboBox<ViewEntry>) e.getSource();
         final ViewEntry viewEntry = (ViewEntry) cb.getSelectedItem();
         if (viewEntry != null) {
           SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
+              @SuppressWarnings("unchecked")
               ConfigItem<ViewDefinition> configItem = (ConfigItem<ViewDefinition>) configSource.get(viewEntry.getUniqueId());
               if (configItem.getValue() != null) {
                 _portfolioTree.setModel(getPortfolioTreeModel(configItem.getValue().getPortfolioId(), getToolContext()));

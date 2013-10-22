@@ -14,10 +14,8 @@ import org.threeten.bp.LocalDate;
 
 import com.google.common.collect.Maps;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.cashflow.FixedPaymentMatrix;
 import com.opengamma.financial.analytics.cashflow.FloatingPaymentMatrix;
 import com.opengamma.util.money.CurrencyAmount;
-import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -79,4 +77,5 @@ import com.opengamma.util.tuple.Pair;
   public DataType getDataType() {
     return DataType.LABELLED_MATRIX_2D;
   }
+
 }

@@ -14,9 +14,10 @@ import java.io.InputStreamReader;
 import java.util.Map;
 import java.util.ResourceBundle;
 
-import org.springframework.core.io.Resource;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.format.DateTimeFormatter;
+
+import au.com.bytecode.opencsv.CSVReader;
 
 import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
@@ -26,8 +27,6 @@ import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.master.holiday.HolidayMaster;
 import com.opengamma.master.holiday.ManageableHoliday;
 import com.opengamma.util.ResourceUtils;
-
-import au.com.bytecode.opencsv.CSVReader;
 
 /**
  *  Populate a holiday master with holidays - can load from a csv in the classpath.
@@ -86,8 +85,14 @@ public class InMemoryHolidayMasterPopulator {
           LocalDate date = LocalDate.parse(dateInUSFormat, US_FORMATTER);
           holiday.getHolidayDates().add(date);
         }
-      } catch (IOException e) {
-        throw new OpenGammaRuntimeException("IOError: " + e);
+      } catch (IOException ex) {
+        throw new OpenGammaRuntimeException("IOError: " + ex);
+      } finally {
+        try {
+          csvReader.close();
+        } catch (IOException ex) {
+          throw new OpenGammaRuntimeException("IOError on closing: " + ex);
+        }
       }
     }
     return holidays;

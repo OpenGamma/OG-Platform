@@ -8,7 +8,6 @@ package com.opengamma.web.analytics.formatting;
 import java.math.BigDecimal;
 
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.analytics.formatting.ResultsFormatter.CurrencyDisplay;
 
 /**

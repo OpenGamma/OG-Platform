@@ -33,7 +33,7 @@ import com.opengamma.id.VersionCorrection;
 /**
  * Utilities for creating and running {@link Simulation}s and {@link Scenario}s.
  */
-public class SimulationUtils {
+public final class SimulationUtils {
 
   private SimulationUtils() {
   }
@@ -56,7 +56,8 @@ public class SimulationUtils {
 
   /**
    * Runs a Groovy script that defines a {@link Simulation} using the DSL.
-   * @param groovyScript The script location in the filesystem
+   * @param groovyScript  the script location in the filesystem
+   * @param parameters  the parameters
    * @return The simulation defined by the script
    */
   public static Simulation createSimulationFromDsl(String groovyScript, Map<String, Object> parameters) {
@@ -69,7 +70,8 @@ public class SimulationUtils {
 
   /**
    * Runs a Groovy script that defines a {@link Simulation} using the DSL.
-   * @param groovyScript For reading the DSL script
+   * @param groovyScript  for reading the DSL script
+   * @param parameters  the parameters
    * @return The simulation defined by the script
    */
   public static Simulation createSimulationFromDsl(Reader groovyScript, Map<String, Object> parameters) {
@@ -78,7 +80,8 @@ public class SimulationUtils {
 
   /**
    * Runs a Groovy script that defines a {@link Scenario} using the DSL.
-   * @param groovyScript The script location in the filesystem
+   * @param groovyScript  the script location in the filesystem
+   * @param parameters  the parameters
    * @return The scenario defined by the script
    */
   public static Scenario createScenarioFromDsl(String groovyScript, Map<String, Object> parameters) {
@@ -91,7 +94,8 @@ public class SimulationUtils {
 
   /**
    * Runs a Groovy script that defines a {@link Scenario} using the DSL.
-   * @param groovyScript For reading the DSL script
+   * @param groovyScript  for reading the DSL script
+   * @param parameters  the parameters
    * @return The scenario defined by the script
    */
   public static Scenario createScenarioFromDsl(Reader groovyScript, Map<String, Object> parameters) {

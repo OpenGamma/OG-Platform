@@ -10,8 +10,6 @@ import javax.ws.rs.core.UriInfo;
 
 import org.fudgemsg.FudgeContext;
 import org.joda.beans.impl.flexi.FlexiBean;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
@@ -31,6 +29,7 @@ import com.opengamma.web.WebHomeUris;
  * Abstract base class for RESTful market data snapshot resources.
  * 
  */
+@SuppressWarnings("deprecation")
 public abstract class AbstractWebMarketDataSnapshotResource extends AbstractPerRequestWebResource {
     
   /**
@@ -41,11 +40,6 @@ public abstract class AbstractWebMarketDataSnapshotResource extends AbstractPerR
    * JSON ftl directory
    */
   protected static final String JSON_DIR = "marketdatasnapshots/json/";
-  
-  /**
-   * Logger.
-   */
-  private static final Logger s_logger = LoggerFactory.getLogger(AbstractWebMarketDataSnapshotResource.class);
   
   /**
    * The Fudge context.

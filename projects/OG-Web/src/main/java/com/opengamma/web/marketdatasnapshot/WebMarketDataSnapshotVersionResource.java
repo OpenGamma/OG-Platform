@@ -21,7 +21,6 @@ import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.id.UniqueId;
-import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 
 /**

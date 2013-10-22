@@ -141,16 +141,17 @@ public class MdcAwareThreadPoolExecutorTest {
     System.out.println("Threads started - MDC contains: " + MDC.getCopyOfContextMap());
   }
 
-  private Runnable createCheckJob(final Map expectedContext, final AtomicInteger checkCount) {
+  private Runnable createCheckJob(final Map<String, String> expectedContext, final AtomicInteger checkCount) {
 
     System.out.println("Creating check job on thread - " +  Thread.currentThread().getName() + " MDC: " + MDC.getCopyOfContextMap());
     return new Runnable() {
       @Override
       public void run() {
-
-        System.out.println("Running on thread-" + Thread.currentThread().getName() + " => " + MDC.getCopyOfContextMap()) ;
+        @SuppressWarnings("unchecked")
+        Map<String, String> mdc = MDC.getCopyOfContextMap();
+        System.out.println("Running on thread-" + Thread.currentThread().getName() + " => " + mdc) ;
         try {
-          assertThat(MDC.getCopyOfContextMap(), is(expectedContext));
+          assertThat(mdc, is(expectedContext));
           checkCount.incrementAndGet();
         } catch (Throwable e) {
           System.out.println(e);

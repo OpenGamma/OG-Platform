@@ -5,30 +5,16 @@
  */
 package com.opengamma.master.region.impl;
 
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.ResourceBundle;
 
-import org.threeten.bp.LocalDate;
-
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.holiday.HolidayType;
-import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.region.ManageableRegion;
 import com.opengamma.master.region.RegionDocument;
 import com.opengamma.master.region.RegionMaster;
 import com.opengamma.util.money.Currency;
-
-import au.com.bytecode.opencsv.CSVReader;
 
 /**
  *  Populate a holiday master with holidays - can load from a csv in the classpath.

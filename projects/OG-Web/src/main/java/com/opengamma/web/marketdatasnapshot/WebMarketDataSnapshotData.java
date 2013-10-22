@@ -9,6 +9,7 @@ import java.util.Map;
 
 import javax.ws.rs.core.UriInfo;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -33,11 +34,10 @@ import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 
-import org.joda.beans.Bean;
-
 /**
  * Data class for web-based market data snapshot management.
  */
+@SuppressWarnings("deprecation")
 @BeanDefinition
 public class WebMarketDataSnapshotData extends DirectBean {
   /**

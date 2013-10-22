@@ -84,6 +84,7 @@ import com.opengamma.web.analytics.rest.SubscribeMaster;
  * The market data snapshot documents resource represents the whole of a position master.
  * 
  */
+@SuppressWarnings("deprecation")
 @Path("/datasnapshots")
 public class WebMarketDataSnapshotsResource extends AbstractWebMarketDataSnapshotResource {
   
