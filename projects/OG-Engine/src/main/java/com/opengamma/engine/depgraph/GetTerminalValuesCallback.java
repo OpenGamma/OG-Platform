@@ -1050,9 +1050,13 @@ import com.opengamma.util.tuple.Pairs;
       Set<DependencyNode> nonRoots = new HashSet<DependencyNode>();
       for (Map.Entry<ValueSpecification, DependencyNode> node : _spec2Node.entrySet()) {
         if (_spec2Usage.containsKey(node.getKey())) {
-          nonRoots.add(node.getValue());
+          if (nonRoots.add(node.getValue())) {
+            roots.remove(node.getValue());
+          }
         } else {
-          roots.add(node.getValue());
+          if (!nonRoots.contains(node.getValue())) {
+            roots.add(node.getValue());
+          }
         }
       }
       int size = roots.size() + nonRoots.size();
@@ -1062,7 +1066,7 @@ import com.opengamma.util.tuple.Pairs;
       for (DependencyNode root : roots) {
         rootsFixed.add(getFixedNode(fixed, root));
       }
-      return Pair.of(rootsFixed, size);
+      return Pairs.of(rootsFixed, size);
     } finally {
       _readLock.unlock();
     }
