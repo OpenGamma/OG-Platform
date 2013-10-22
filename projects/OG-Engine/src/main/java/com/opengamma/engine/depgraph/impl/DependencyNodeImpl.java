@@ -260,16 +260,6 @@ public class DependencyNodeImpl implements DependencyNode, Serializable {
     return new DependencyNodeImpl(function, target, outputValues, inputValues, inputNodes);
   }
 
-  /* package */static void markNecessaryValues(final DependencyNode node, final Map<ValueSpecification, ?> necessary) {
-    final int count = node.getInputCount();
-    for (int i = 0; i < count; i++) {
-      if (!necessary.containsKey(node.getInputValue(i))) {
-        necessary.put(node.getInputValue(i), null);
-        markNecessaryValues(node.getInputNode(i), necessary);
-      }
-    }
-  }
-
   private DependencyNode removeUnnecessaryValues(final Map<ValueSpecification, DependencyNode> necessary) {
     ValueSpecification[] newOutputs = null;
     int newOutputCount = 0;
@@ -302,7 +292,6 @@ public class DependencyNodeImpl implements DependencyNode, Serializable {
       DependencyNode newInputNode = necessary.get(inputValue);
       if (newInputNode == null) {
         assert necessary.containsKey(inputValue);
-        necessary.put(inputValue, null);
         newInputNode = removeUnnecessaryValues(oldInputNode, necessary);
         assert newInputNode != null;
       }
@@ -395,7 +384,7 @@ public class DependencyNodeImpl implements DependencyNode, Serializable {
         final DependencyNode oldInputNode = oldNode.getInputNode(j);
         DependencyNode newInputNode = necessary.get(inputValue);
         if (newInputNode == null) {
-          necessary.put(inputValue, null);
+          assert necessary.containsKey(inputValue);
           newInputNode = removeUnnecessaryValues(oldInputNode, necessary);
           assert newInputNode != null;
         }

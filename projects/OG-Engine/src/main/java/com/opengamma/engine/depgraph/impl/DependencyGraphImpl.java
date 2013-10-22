@@ -255,6 +255,50 @@ public class DependencyGraphImpl implements DependencyGraph, Serializable {
     return "DependencyGraph[calcConf=" + getCalculationConfigurationName() + ",nodes=" + getSize() + ",terminals=" + getTerminalOutputs().size() + "]";
   }
 
+  private static DependencyNode[] reverseExecution(final DependencyGraph graph) {
+    final Iterator<DependencyNode> forward = new ExecutionOrderNodeIterator(graph);
+    final DependencyNode[] backward = new DependencyNode[graph.getSize()];
+    for (int i = backward.length - 1; i >= 0; i--) {
+      backward[i] = forward.next();
+    }
+    return backward;
+  }
+
+  private static Map<ValueSpecification, DependencyNode> findRoots(final DependencyGraph graph, final Map<ValueSpecification, ?> terminals, final Collection<DependencyNode> roots) {
+    final DependencyNode[] nodes = reverseExecution(graph);
+    final Map<ValueSpecification, DependencyNode> necessary = Maps.newHashMapWithExpectedSize(nodes.length);
+    findNodes: for (DependencyNode node : nodes) { //CSIGNORE
+      int count = node.getOutputCount();
+      boolean isTerminal = false;
+      for (int i = 0; i < count; i++) {
+        final ValueSpecification output = node.getOutputValue(i);
+        if (necessary.containsKey(output)) {
+          // Node produces at least one necessary value; make all of its inputs necessary
+          count = node.getInputCount();
+          for (i = 0; i < count; i++) {
+            necessary.put(node.getInputValue(i), null);
+          }
+          continue findNodes;
+        }
+        if (!isTerminal && terminals.containsKey(output)) {
+          isTerminal = true;
+        }
+      }
+      if (isTerminal) {
+        // Node produces terminal outputs; nothing else is consumed. This is a root with all inputs necessary
+        roots.add(node);
+        count = node.getInputCount();
+        for (int i = 0; i < count; i++) {
+          necessary.put(node.getInputValue(i), null);
+        }
+      }
+    }
+    for (Map.Entry<ValueSpecification, ?> terminal : terminals.entrySet()) {
+      necessary.put(terminal.getKey(), null);
+    }
+    return necessary;
+  }
+
   /**
    * Removes any unnecessary values from a graph, returning the new graph. A necessary output is one that is marked as terminal or is consumed by a node that produces a necessary value.
    * <p>
@@ -265,97 +309,30 @@ public class DependencyGraphImpl implements DependencyGraph, Serializable {
    * @return the new graph object, or the previous graph instance if it only contains necessary values
    */
   public static DependencyGraph removeUnnecessaryValues(final DependencyGraph graph) {
-    final Map<ValueSpecification, DependencyNode> necessary = Maps.newHashMapWithExpectedSize(graph.getSize());
-    final Map<ValueSpecification, ?> terminals = graph.getTerminalOutputs();
     final int rootCount = graph.getRootCount();
-    for (int i = 0; i < rootCount; i++) {
-      final DependencyNode root = graph.getRootNode(i);
-      final int outputs = root.getOutputCount();
-      for (int j = 0; j < outputs; j++) {
-        if (terminals.containsKey(root.getOutputValue(j))) {
-          DependencyNodeImpl.markNecessaryValues(root, necessary);
-          break;
+    final Collection<DependencyNode> roots = new ArrayList<DependencyNode>(rootCount);
+    final Map<ValueSpecification, DependencyNode> necessary = findRoots(graph, graph.getTerminalOutputs(), roots);
+    final DependencyNode[] newRoots = new DependencyNode[roots.size()];
+    // Note: this is tightly coupled to how the ExecutionOrderNodeIterator works
+    int i = newRoots.length;
+    for (DependencyNode root : roots) {
+      final DependencyNode newRoot = DependencyNodeImpl.removeUnnecessaryValues(root, necessary);
+      assert newRoot != null;
+      newRoots[--i] = newRoot;
+    }
+    if (newRoots.length == rootCount) {
+      // Possibly no changes
+      boolean same = true;
+      for (i = 0; i < rootCount; i++) {
+        if (newRoots[i] != graph.getRootNode(i)) {
+          same = false;
         }
       }
-    }
-    for (Map.Entry<ValueSpecification, ?> terminal : terminals.entrySet()) {
-      necessary.put(terminal.getKey(), null);
-    }
-    Set<DependencyNode> roots = null;
-    Set<DependencyNode> possibleRoots = null;
-    for (int i = 0; i < rootCount; i++) {
-      final DependencyNode oldNode = graph.getRootNode(i);
-      final DependencyNode newNode = DependencyNodeImpl.removeUnnecessaryValues(oldNode, necessary);
-      if (newNode == null) {
-        // This is no longer a root node
-        if (possibleRoots == null) {
-          possibleRoots = new HashSet<DependencyNode>();
-        }
-        final int count = oldNode.getInputCount();
-        for (int j = 0; j < count; j++) {
-          possibleRoots.add(oldNode.getInputNode(j));
-        }
-      } else {
-        if (newNode == oldNode) {
-          if (roots != null) {
-            roots.add(newNode);
-          }
-        } else {
-          if (roots == null) {
-            roots = Sets.newHashSetWithExpectedSize(rootCount);
-            for (int j = 0; j < i; j++) {
-              roots.add(graph.getRootNode(j));
-            }
-          }
-          roots.add(newNode);
-        }
-      }
-    }
-    if (roots == null) {
-      if (possibleRoots == null) {
-        // No changes
+      if (same) {
         return graph;
-      } else {
-        roots = new HashSet<DependencyNode>();
-      }
-    } else {
-      if (possibleRoots == null) {
-        // Replacement root nodes found
-        final DependencyNode[] newRoots = roots.toArray(new DependencyNode[roots.size()]);
-        return new DependencyGraphImpl(graph.getCalculationConfigurationName(), newRoots, calculateSize(newRoots), graph.getTerminalOutputs());
       }
     }
-    // Have a set of possible roots to consider promoting
-    do {
-      Set<DependencyNode> newPossibleRoots = null;
-      possibleRoot: for (DependencyNode possibleRoot : possibleRoots) { //CSIGNORE
-        int count = possibleRoot.getOutputCount();
-        for (int i = 0; i < count; i++) {
-          final ValueSpecification output = possibleRoot.getOutputValue(i);
-          if (necessary.containsKey(output)) {
-            if (necessary.get(output) == null) {
-              // Found a node that produces a necessary value which nothing else does; make it a new root
-              final DependencyNode newNode = DependencyNodeImpl.removeUnnecessaryValues(possibleRoot, necessary);
-              roots.add(newNode);
-            }
-            continue possibleRoot;
-          }
-        }
-        // Found a node which doesn't produce any necessary values; its children are possible new roots
-        if (newPossibleRoots == null) {
-          newPossibleRoots = new HashSet<DependencyNode>();
-        }
-        count = possibleRoot.getInputCount();
-        for (int i = 0; i < count; i++) {
-          newPossibleRoots.add(possibleRoot.getInputNode(i));
-        }
-      }
-      if (newPossibleRoots == null) {
-        final DependencyNode[] newRoots = roots.toArray(new DependencyNode[roots.size()]);
-        return new DependencyGraphImpl(graph.getCalculationConfigurationName(), newRoots, calculateSize(newRoots), graph.getTerminalOutputs());
-      }
-      possibleRoots = newPossibleRoots;
-    } while (true);
+    return new DependencyGraphImpl(graph.getCalculationConfigurationName(), newRoots, calculateSize(newRoots), graph.getTerminalOutputs());
   }
 
   private static void dumpNodeASCII(final PrintStream out, String indent, final DependencyNode node, final Map<DependencyNode, Integer> uidMap) {
