@@ -184,9 +184,13 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
     final DoubleArrayList tList = new DoubleArrayList();
     final DoubleArrayList kList = new DoubleArrayList();
     final LocalDate today = now.toLocalDate();
-    for (final Number x : optionVolatilities.getXs()) {
+    final Object[] xs = optionVolatilities.getXs();
+    for (final Object xObj : xs) {
+      final Number x = (Number) xObj;
       final Double t = FutureOptionUtils.getIRFutureOptionTtm(x.intValue(), today, calendar);
-      for (final Double y : optionVolatilities.getYs()) {
+      final Object[] ys = optionVolatilities.getYs();
+      for (final Object yObj : ys) {
+        final Double y = (Double) yObj;
         final Double volatility = optionVolatilities.getVolatility(x, y);
         if (volatility != null) {
           tList.add(t);
