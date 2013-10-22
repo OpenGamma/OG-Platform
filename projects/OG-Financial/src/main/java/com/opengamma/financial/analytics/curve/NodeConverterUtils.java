@@ -161,10 +161,10 @@ public class NodeConverterUtils {
           if (spread == null) {
             throw new OpenGammaRuntimeException("Could not get market data for " + dataId);
           }
-          return AnnuityDefinitionBuilder.annuityIborCompoundingSpreadFrom(adjustedStartDate, maturityDate, paymentTenor, 1, spread, iborIndex, stubComp, isPayer,
+          return AnnuityDefinitionBuilder.couponIborCompoundingSpread(adjustedStartDate, maturityDate, paymentTenor, 1, spread, iborIndex, stubComp, isPayer,
               businessDayConvention, eom, calendar, stubLeg);
         }
-        return AnnuityDefinitionBuilder.annuityIborCompoundingFrom(adjustedStartDate, maturityDate, paymentTenor, 1, iborIndex, stubComp, isPayer,
+        return AnnuityDefinitionBuilder.couponIborCompounding(adjustedStartDate, maturityDate, paymentTenor, 1, iborIndex, stubComp, isPayer,
             businessDayConvention, eom, calendar, stubLeg);
       }
 
@@ -286,10 +286,10 @@ public class NodeConverterUtils {
           if (spread == null) {
             throw new OpenGammaRuntimeException("Could not get market data for " + dataId);
           }
-          return AnnuityDefinitionBuilder.annuityIborCompoundingSpreadFrom(startDate, maturityDate, paymentTenor, 1, spread, iborIndex, stubComp, isPayer,
+          return AnnuityDefinitionBuilder.couponIborCompoundingSpread(startDate, maturityDate, paymentTenor, 1, spread, iborIndex, stubComp, isPayer,
               businessDayConvention, eom, calendar, stubLeg);
         }
-        return AnnuityDefinitionBuilder.annuityIborCompoundingFrom(startDate, maturityDate, paymentTenor, 1, iborIndex, stubComp, isPayer,
+        return AnnuityDefinitionBuilder.couponIborCompounding(startDate, maturityDate, paymentTenor, 1, iborIndex, stubComp, isPayer,
             businessDayConvention, eom, calendar, stubLeg);
       }
 
