@@ -89,8 +89,9 @@ public class ViewRegressionTestTool {
                                                      cl.getOptionValue(TEST_VERSION),
                                                      cl.getOptionValue(TEST_PROPS));
     RegressionTestResults results = test.run();
-    Writer writer = new BufferedWriter(new FileWriter(cl.getOptionValue(REPORT_FILE, DEFAULT_REPORT_FILE)));
-    ReportGenerator.generateReport(results, ReportGenerator.Format.TEXT, writer);
+    try (Writer writer = new BufferedWriter(new FileWriter(cl.getOptionValue(REPORT_FILE, DEFAULT_REPORT_FILE)))) {
+      ReportGenerator.generateReport(results, ReportGenerator.Format.TEXT, writer);
+    }
     /*FudgeSerializer serializer = new FudgeSerializer(OpenGammaFudgeContext.getInstance());
     try (FileWriter writer = new FileWriter(new File("/Users/chris/tmp/regression/results.xml"))) {
       FudgeXMLStreamWriter streamWriter = new FudgeXMLStreamWriter(OpenGammaFudgeContext.getInstance(), writer);
