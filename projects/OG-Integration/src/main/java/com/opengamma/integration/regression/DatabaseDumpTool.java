@@ -18,7 +18,7 @@ import com.opengamma.scripts.Scriptable;
 @Scriptable
 public class DatabaseDumpTool extends AbstractTool<ToolContext> {
 
-  public static final String DATA_DIRECTORY = "d";
+  private static final String DATA_DIRECTORY = "d";
 
   public static void main(final String[] args) { // CSIGNORE
     new DatabaseDumpTool().initAndRun(args, ToolContext.class);

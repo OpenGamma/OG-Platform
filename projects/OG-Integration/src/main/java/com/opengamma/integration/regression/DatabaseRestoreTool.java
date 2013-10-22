@@ -18,7 +18,7 @@ import com.opengamma.scripts.Scriptable;
 @Scriptable
 public class DatabaseRestoreTool extends AbstractTool<ToolContext> {
 
-  public static final String DATA_DIRECTORY = "d";
+  private static final String DATA_DIRECTORY = "d";
 
   public static void main(final String[] args) { // CSIGNORE
     new DatabaseRestoreTool().initAndRun(args, ToolContext.class);

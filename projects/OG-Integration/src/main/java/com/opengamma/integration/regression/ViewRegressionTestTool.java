@@ -39,7 +39,8 @@ public class ViewRegressionTestTool {
   private static final String BASE_PROPS = "bp";
   private static final String TEST_PROPS = "tp";
   private static final String HELP = "h";
-  private static final String REPORT_FILE = "regression-report.txt";
+  private static final String REPORT_FILE = "rf";
+  private static final String DEFAULT_REPORT_FILE = "regression-report.txt";
 
   /**
    * Main method to run the tool.
@@ -78,8 +79,8 @@ public class ViewRegressionTestTool {
     }
     ViewRegressionTest test = new ViewRegressionTest(cl.getOptionValue(PROJECT_NAME),
                                                      cl.getOptionValue(SERVER_CONFIG),
-                                                     cl.getOptionValue(LOGBACK_CONFIG),
                                                      cl.getOptionValue(DB_DUMP_DIR),
+                                                     cl.getOptionValue(LOGBACK_CONFIG),
                                                      valuationTime,
                                                      cl.getOptionValue(BASE_DIR),
                                                      cl.getOptionValue(BASE_VERSION),
@@ -88,7 +89,7 @@ public class ViewRegressionTestTool {
                                                      cl.getOptionValue(TEST_VERSION),
                                                      cl.getOptionValue(TEST_PROPS));
     RegressionTestResults results = test.run();
-    Writer writer = new BufferedWriter(new FileWriter(REPORT_FILE));
+    Writer writer = new BufferedWriter(new FileWriter(cl.getOptionValue(REPORT_FILE, DEFAULT_REPORT_FILE)));
     ReportGenerator.generateReport(results, ReportGenerator.Format.TEXT, writer);
     /*FudgeSerializer serializer = new FudgeSerializer(OpenGammaFudgeContext.getInstance());
     try (FileWriter writer = new FileWriter(new File("/Users/chris/tmp/regression/results.xml"))) {
@@ -149,6 +150,9 @@ public class ViewRegressionTestTool {
 
     Option helpOption = new Option(HELP, "help", true, "Print usage");
     options.addOption(helpOption);
+
+    Option reportFileOption = new Option(REPORT_FILE, "reportfile", true, "File name of the test results report");
+    options.addOption(reportFileOption);
 
     return options;
   }
