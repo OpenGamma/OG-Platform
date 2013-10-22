@@ -57,23 +57,26 @@ public final class ManagementService implements ViewProcessorEventListener {
   private final ConcurrentHashMap<UniqueId, Set<String>> _calcConfigByViewProcessId = new ConcurrentHashMap<>();
 
   /**
-   * Should beans be categorized by view processor or not. If only one view processor is expected then setting this to false means the MBean hierarchy is simpler to navigate.
+   * Should beans be categorized by view processor or not. If only one view processor is expected
+   * then setting this to false means the MBean hierarchy is simpler to navigate.
    */
   private final boolean _splitByViewProcessor;
 
   /**
-   * Have the MBeans already been initialized for the view processor. Used to avoid trying to register on the notifyViewProcessorStarted method if registration has already happened through the
-   * constructor.
+   * Have the MBeans already been initialized for the view processor. Used to avoid
+   * trying to register on the notifyViewProcessorStarted method if registration
+   * has already happened through the constructor.
    */
   private boolean _isInitialized;
 
   //-------------------------------------------------------------------------
   /**
-   * A convenience static method which creates a ManagementService and initializes it with the supplied parameters.
-   * 
-   * @param viewProcessor the view processor, not null
-   * @param statisticsProvider the statistics provider, not null
-   * @param mBeanServer the MBeanServer to register MBeans to, not null
+   * A convenience static method which creates a ManagementService and
+   * initializes it with the supplied parameters.
+   *
+   * @param viewProcessor  the view processor, not null
+   * @param statisticsProvider  the statistics provider, not null
+   * @param mBeanServer  the MBeanServer to register MBeans to, not null
    * @deprecated add section containing JmxManagementServiceFactory to ini file instead
    */
   @Deprecated
@@ -85,16 +88,18 @@ public final class ManagementService implements ViewProcessorEventListener {
   //-------------------------------------------------------------------------
   /**
    * A constructor for a management service for a range of possible MBeans.
-   * 
-   * @param viewProcessor the view processor, not null
-   * @param statisticsProvider the statistics provider, not null
-   * @param mBeanServer the MBeanServer to register MBeans to, not null
-   * @param splitByViewProcessor if true, then classify registered beans by their view processor. Only required if more than one view processor will be running.
+   *
+   * @param viewProcessor  the view processor, not null
+   * @param statisticsProvider  the statistics provider, not null
+   * @param mBeanServer  the MBeanServer to register MBeans to, not null
+   * @param splitByViewProcessor if true, then classify registered beans
+   * by their view processor. Only required if more than one view processor
+   * will be running.
    */
   public ManagementService(ViewProcessorImpl viewProcessor,
-      TotallingGraphStatisticsGathererProvider statisticsProvider,
-      MBeanServer mBeanServer,
-      boolean splitByViewProcessor) {
+                            TotallingGraphStatisticsGathererProvider statisticsProvider,
+                            MBeanServer mBeanServer,
+                            boolean splitByViewProcessor) {
     ArgumentChecker.notNull(viewProcessor, "View Processor");
     ArgumentChecker.notNull(mBeanServer, "MBeanServer");
     ArgumentChecker.notNull(statisticsProvider, "TotallingGraphStatisticsGathererProvider");
@@ -107,7 +112,7 @@ public final class ManagementService implements ViewProcessorEventListener {
   //-------------------------------------------------------------------------
   /**
    * Call to register the mbeans in the mbean server and start and do any other required initialization.
-   * 
+   *
    * @throws net.sf.ehcache.CacheException - all exceptions are wrapped in CacheException
    */
   public void init() {
@@ -168,13 +173,14 @@ public final class ManagementService implements ViewProcessorEventListener {
   }
 
   //-------------------------------------------------------------------------
-  private void registerGraphStatistics(final GraphExecutionStatisticsMBeanImpl graphStatistics) throws Exception {
-    final StandardMBean mBean = new StandardMBean(graphStatistics, GraphExecutionStatisticsMBean.class);
+  private void registerGraphStatistics(GraphExecutionStatisticsMBeanImpl graphStatistics) throws Exception {
+    ObjectName objectName = graphStatistics.getObjectName();
+    StandardMBean mbean = new StandardMBean(graphStatistics, GraphExecutionStatisticsMBean.class);
     try {
-      _mBeanServer.registerMBean(mBean, graphStatistics.getObjectName());
+      _mBeanServer.registerMBean(mbean, objectName);
     } catch (InstanceAlreadyExistsException e) {
-      _mBeanServer.unregisterMBean(graphStatistics.getObjectName());
-      _mBeanServer.registerMBean(mBean, graphStatistics.getObjectName());
+      _mBeanServer.unregisterMBean(objectName);
+      _mBeanServer.registerMBean(mbean, objectName);
     }
   }
 
@@ -202,13 +208,14 @@ public final class ManagementService implements ViewProcessorEventListener {
     }
   }
 
-  private void registerViewClient(final ViewClientMBeanImpl viewClient) throws Exception {
-    final StandardMBean mBean = new StandardMBean(viewClient, ViewClientMBean.class);
+  private void registerViewClient(ViewClientMBeanImpl viewClient) throws Exception {
+    ObjectName objectName = viewClient.getObjectName();
+    StandardMBean mBean = new StandardMBean(viewClient, ViewClientMBean.class);
     try {
-      _mBeanServer.registerMBean(mBean, viewClient.getObjectName());
+      _mBeanServer.registerMBean(mBean, objectName);
     } catch (InstanceAlreadyExistsException e) {
-      _mBeanServer.unregisterMBean(viewClient.getObjectName());
-      _mBeanServer.registerMBean(mBean, viewClient.getObjectName());
+      _mBeanServer.unregisterMBean(objectName);
+      _mBeanServer.registerMBean(mBean, objectName);
     }
   }
 
