@@ -743,7 +743,7 @@ public class CurveNodeToDefinitionConverterTest {
     final IborIndex index3m = new IborIndex(Currency.USD, paymentPeriod, 2, THIRTY_360, MODIFIED_FOLLOWING, false, LIBOR_3M_ID.getValue()); // Not correct conventions. Only for testing.
     final IborIndex index1m = new IborIndex(Currency.USD, compositionPeriod, 2, THIRTY_360, MODIFIED_FOLLOWING, false, LIBOR_1M_ID.getValue());
     final AnnuityCouponIborDefinition payLeg = AnnuityCouponIborDefinition.from(settlementDate, legTenor.getPeriod(), 1, index3m, true, CALENDAR);
-    final AnnuityDefinition<CouponIborCompoundingSpreadDefinition> receiveLeg = AnnuityDefinitionBuilder.annuityIborCompoundingSpreadFrom(settlementDate, settlementDate.plus(legTenor.getPeriod()), paymentPeriod, 1, spread,
+    final AnnuityDefinition<CouponIborCompoundingSpreadDefinition> receiveLeg = AnnuityDefinitionBuilder.couponIborCompoundingSpread(settlementDate, settlementDate.plus(legTenor.getPeriod()), paymentPeriod, 1, spread,
         index1m, StubType.SHORT_START, false, MODIFIED_FOLLOWING, true, CALENDAR, StubType.SHORT_START);
     assertEquals("IborIborCompoundingSwap: first leg", payLeg, ((SwapDefinition)definition).getFirstLeg());
     for(int loopcpn=9; loopcpn<receiveLeg.getNumberOfPayments(); loopcpn++) {
