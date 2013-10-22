@@ -5,8 +5,6 @@
  */
 package com.opengamma.financial.analytics.volatility.surface;
 
-import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -52,6 +50,8 @@ import com.opengamma.util.CompareUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.util.tuple.Pairs;
+
+import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
 /**
  *
@@ -218,7 +218,8 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
     final DoubleArrayList txList = new DoubleArrayList();
     final DoubleArrayList kList = new DoubleArrayList();
     final LocalDate today = now.toLocalDate();
-    for (final Object xObj : optionPrices.getXs()) { // Loop over option expiries
+    Object[] xs = optionPrices.getXs();
+    for (final Object xObj : xs) { // Loop over option expiries
       final Number x = (Number) xObj;
       final LocalDate expiry = expiryRule.getExpiryDate(x.intValue(), today, calendar);
       final Double optionTtm = TimeCalculator.getTimeBetween(today, expiry); 
@@ -242,12 +243,12 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
       } else {
         final Double forward = futurePrices.getYValue(underlyingExpiry);
         // Loop over strikes
-        for (final Object yObj : optionPrices.getYs()) {
+        Object[] ys = optionPrices.getYs();
+        for (final Object yObj : ys) {
           final Double y = (Double) yObj;
           final Double price = optionPrices.getVolatility(x, y);
           if (price != null) {
             try {
-
               // Compute the Black volatility implied from the option price
               final double volatility = getVolatility(surfaceQuoteType, y / 100.0, price, forward, optionTtm, callAboveStrike / 100.);
               if (!CompareUtils.closeEquals(volatility, 0.0)) {

@@ -71,7 +71,7 @@ public class VolatilitySurfaceData<X, Y> {
     _xLabel = xLabel;
     _ys = ys;
     _yLabel = yLabel;
-    _uniqueXs = new TreeSet<X>(); 
+    _uniqueXs = new TreeSet();
     _strips = Maps.newHashMap();
     for (Map.Entry<Pair<X, Y>, Double> entries : values.entrySet()) {
       if (_strips.containsKey(entries.getKey().getFirst())) {
