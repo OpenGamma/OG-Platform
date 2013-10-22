@@ -563,16 +563,6 @@ public final class ExternalIdSearch implements ImmutableBean, Iterable<ExternalI
       super(ExternalIdSearch.Meta.INSTANCE);
     }
 
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(ExternalIdSearch beanToCopy) {
-      super(ExternalIdSearch.Meta.INSTANCE);
-      this._externalIds = new HashSet<ExternalId>(beanToCopy.getExternalIds());
-      this._searchType = beanToCopy.getSearchType();
-    }
-
     //-----------------------------------------------------------------------
     @SuppressWarnings("unchecked")
     @Override

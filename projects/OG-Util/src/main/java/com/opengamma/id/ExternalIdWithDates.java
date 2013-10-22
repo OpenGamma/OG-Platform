@@ -403,17 +403,6 @@ public final class ExternalIdWithDates implements ImmutableBean,
       super(ExternalIdWithDates.Meta.INSTANCE);
     }
 
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(ExternalIdWithDates beanToCopy) {
-      super(ExternalIdWithDates.Meta.INSTANCE);
-      this._externalId = beanToCopy.getExternalId();
-      this._validFrom = beanToCopy.getValidFrom();
-      this._validTo = beanToCopy.getValidTo();
-    }
-
     //-----------------------------------------------------------------------
     @Override
     public Builder set(String propertyName, Object newValue) {

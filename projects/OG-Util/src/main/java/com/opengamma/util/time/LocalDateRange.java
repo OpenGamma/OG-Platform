@@ -379,16 +379,6 @@ public final class LocalDateRange implements ImmutableBean, Serializable {
       super(LocalDateRange.Meta.INSTANCE);
     }
 
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(LocalDateRange beanToCopy) {
-      super(LocalDateRange.Meta.INSTANCE);
-      this._startDateInclusive = beanToCopy.getStartDateInclusive();
-      this._endDateInclusive = beanToCopy.getEndDateInclusive();
-    }
-
     //-----------------------------------------------------------------------
     @Override
     public Builder set(String propertyName, Object newValue) {

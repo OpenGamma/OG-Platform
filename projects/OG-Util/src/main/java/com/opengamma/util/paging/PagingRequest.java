@@ -393,16 +393,6 @@ public final class PagingRequest implements ImmutableBean {
       super(PagingRequest.Meta.INSTANCE);
     }
 
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(PagingRequest beanToCopy) {
-      super(PagingRequest.Meta.INSTANCE);
-      this._firstItem = beanToCopy.getFirstItem();
-      this._pagingSize = beanToCopy.getPagingSize();
-    }
-
     //-----------------------------------------------------------------------
     @Override
     public Builder set(String propertyName, Object newValue) {

@@ -505,16 +505,6 @@ public final class VersionCorrection implements ImmutableBean, Comparable<Versio
       super(VersionCorrection.Meta.INSTANCE);
     }
 
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(VersionCorrection beanToCopy) {
-      super(VersionCorrection.Meta.INSTANCE);
-      this._versionAsOf = beanToCopy.getVersionAsOf();
-      this._correctedTo = beanToCopy.getCorrectedTo();
-    }
-
     //-----------------------------------------------------------------------
     @Override
     public Builder set(String propertyName, Object newValue) {

@@ -311,16 +311,6 @@ public final class Expiry implements ImmutableBean, Serializable {
       super(Expiry.Meta.INSTANCE);
     }
 
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(Expiry beanToCopy) {
-      super(Expiry.Meta.INSTANCE);
-      this._expiry = beanToCopy.getExpiry();
-      this._accuracy = beanToCopy.getAccuracy();
-    }
-
     //-----------------------------------------------------------------------
     @Override
     public Builder set(String propertyName, Object newValue) {

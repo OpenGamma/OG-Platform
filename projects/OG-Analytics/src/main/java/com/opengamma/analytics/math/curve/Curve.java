@@ -129,7 +129,21 @@ public abstract class Curve<T extends Comparable<T>, U> implements Bean {
    * The meta-bean for {@code Curve}.
    * @return the meta-bean, not null
    */
+  @SuppressWarnings("rawtypes")
   public static Curve.Meta meta() {
+    return Curve.Meta.INSTANCE;
+  }
+
+  /**
+   * The meta-bean for {@code Curve}.
+   * @param <R>  the first generic type
+   * @param <S>  the second generic type
+   * @param cls1  the first generic type
+   * @param cls2  the second generic type
+   * @return the meta-bean, not null
+   */
+  @SuppressWarnings("unchecked")
+  public static <R extends Comparable<R>, S> Curve.Meta<R, S> metaCurve(Class<R> cls1, Class<S> cls2) {
     return Curve.Meta.INSTANCE;
   }
 
@@ -137,8 +151,9 @@ public abstract class Curve<T extends Comparable<T>, U> implements Bean {
     JodaBeanUtils.registerMetaBean(Curve.Meta.INSTANCE);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public Curve.Meta metaBean() {
+  public Curve.Meta<T, U> metaBean() {
     return Curve.Meta.INSTANCE;
   }
 
@@ -163,8 +178,9 @@ public abstract class Curve<T extends Comparable<T>, U> implements Bean {
 
   //-----------------------------------------------------------------------
   @Override
-  public Curve clone() {
-    BeanBuilder<? extends Curve> builder = metaBean().builder();
+  @SuppressWarnings("unchecked")
+  public Curve<T, U> clone() {
+    BeanBuilder<?> builder = metaBean().builder();
     for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
       if (mp.style().isBuildable()) {
         Object value = mp.get(this);
@@ -174,7 +190,7 @@ public abstract class Curve<T extends Comparable<T>, U> implements Bean {
         builder.set(mp.name(), value);
       }
     }
-    return builder.build();
+    return (Curve<T, U>) builder.build();
   }
 
   @Override
@@ -198,10 +214,11 @@ public abstract class Curve<T extends Comparable<T>, U> implements Bean {
   /**
    * The meta-bean for {@code Curve}.
    */
-  public static class Meta extends DirectMetaBean {
+  public static class Meta<T extends Comparable<T>, U> extends DirectMetaBean {
     /**
      * The singleton instance of the meta-bean.
      */
+    @SuppressWarnings("rawtypes")
     static final Meta INSTANCE = new Meta();
 
     /**
@@ -232,13 +249,14 @@ public abstract class Curve<T extends Comparable<T>, U> implements Bean {
     }
 
     @Override
-    public BeanBuilder<? extends Curve> builder() {
+    public BeanBuilder<? extends Curve<T, U>> builder() {
       throw new UnsupportedOperationException("Curve is an abstract class");
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes" })
     @Override
-    public Class<? extends Curve> beanType() {
-      return Curve.class;
+    public Class<? extends Curve<T, U>> beanType() {
+      return (Class) Curve.class;
     }
 
     @Override
@@ -260,7 +278,7 @@ public abstract class Curve<T extends Comparable<T>, U> implements Bean {
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 3373707:  // name
-          return ((Curve) bean).getName();
+          return ((Curve<?, ?>) bean).getName();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -279,7 +297,7 @@ public abstract class Curve<T extends Comparable<T>, U> implements Bean {
 
     @Override
     protected void validate(Bean bean) {
-      JodaBeanUtils.notNull(((Curve) bean)._name, "name");
+      JodaBeanUtils.notNull(((Curve<?, ?>) bean)._name, "name");
     }
 
   }

@@ -6,18 +6,17 @@
 package com.opengamma.analytics.math.curve;
 
 import java.util.Map;
-import java.util.Set;
 
-import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
-import org.joda.beans.Property;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 /**
  * Parent class for a family of curves that have real <i>x</i> and <i>y</i> values.
  */
+@BeanDefinition
 public abstract class DoublesCurve extends Curve<Double, Double> {
 
   /**
@@ -68,53 +67,22 @@ public abstract class DoublesCurve extends Curve<Double, Double> {
     return DoublesCurve.Meta.INSTANCE;
   }
 
-  @Override
-  public <R> Property<R> property(String propertyName) {
-    return metaBean().<R>metaProperty(propertyName).createProperty(this);
-  }
-
-  @Override
-  public Set<String> propertyNames() {
-    return metaBean().metaPropertyMap().keySet();
-  }
-
   //-----------------------------------------------------------------------
   @Override
-  public DoublesCurve clone() {
-    BeanBuilder<? extends DoublesCurve> builder = metaBean().builder();
-    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
-      if (mp.style().isBuildable()) {
-        Object value = mp.get(this);
-        if (value instanceof Bean) {
-          value = ((Bean) value).clone();
-        }
-        builder.set(mp.name(), value);
-      }
-    }
-    return builder.build();
-  }
-
-  @Override
   public boolean equals(Object obj) {
-    if (obj == null) {
-      return false;
-    }
     if (obj == this) {
       return true;
     }
-    if (!super.equals(obj)) {
-      return false;
+    if (obj != null && obj.getClass() == this.getClass()) {
+      return super.equals(obj);
     }
-    if (getClass() != obj.getClass()) {
-      return false;
-    }
-    return true;
+    return false;
   }
 
   @Override
   public int hashCode() {
-    int hash = getClass().hashCode();
-    return hash;
+    int hash = 7;
+    return hash ^ super.hashCode();
   }
 
   @Override
@@ -130,14 +98,16 @@ public abstract class DoublesCurve extends Curve<Double, Double> {
     return buf.toString();
   }
 
+  @Override
   protected void toString(StringBuilder buf) {
+    super.toString(buf);
   }
 
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code DoublesCurve}.
    */
-  public static class Meta extends Curve.Meta {
+  public static class Meta extends Curve.Meta<Double, Double> {
     /**
      * The singleton instance of the meta-bean.
      */

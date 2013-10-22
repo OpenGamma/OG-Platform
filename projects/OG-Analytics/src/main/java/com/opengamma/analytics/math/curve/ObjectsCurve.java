@@ -15,6 +15,7 @@ import java.util.Set;
 import org.apache.commons.lang.ArrayUtils;
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
@@ -33,7 +34,7 @@ import com.opengamma.util.tuple.Pair;
  * @param <T> The type of the x data
  * @param <U> The type of the y data
  */
-@SuppressWarnings("unchecked")
+@BeanDefinition
 public abstract class ObjectsCurve<T extends Comparable<T>, U> extends Curve<T, U> {
 
   @PropertyDefinition
@@ -73,6 +74,7 @@ public abstract class ObjectsCurve<T extends Comparable<T>, U> extends Curve<T, 
    * @param data A map of <i>x-y</i> data, not null
    * @param isSorted Is the <i>x</i>-data sorted
    */
+  @SuppressWarnings("unchecked")
   public ObjectsCurve(final Map<T, U> data, final boolean isSorted) {
     super();
     ArgumentChecker.noNulls(data.keySet(), "x values");
@@ -91,6 +93,7 @@ public abstract class ObjectsCurve<T extends Comparable<T>, U> extends Curve<T, 
    * @param data A set of <i>x-y</i> pairs, not null
    * @param isSorted Is the <i>x</i>-data sorted
    */
+  @SuppressWarnings("unchecked")
   public ObjectsCurve(final Set<Pair<T, U>> data, final boolean isSorted) {
     super();
     ArgumentChecker.notNull(data, "data");
@@ -116,6 +119,7 @@ public abstract class ObjectsCurve<T extends Comparable<T>, U> extends Curve<T, 
    * @param yData A list of <i>y</i> data points, not null, contains same number of entries as <i>x</i>
    * @param isSorted Is the <i>x</i>-data sorted
    */
+  @SuppressWarnings("unchecked")
   public ObjectsCurve(final List<T> xData, final List<U> yData, final boolean isSorted) {
     super();
     ArgumentChecker.notNull(xData, "x data");
@@ -155,6 +159,7 @@ public abstract class ObjectsCurve<T extends Comparable<T>, U> extends Curve<T, 
    * @param isSorted Is the <i>x</i>-data sorted
    * @param name The name of the curve
    */
+  @SuppressWarnings("unchecked")
   public ObjectsCurve(final Map<T, U> data, final boolean isSorted, final String name) {
     super(name);
     ArgumentChecker.noNulls(data.keySet(), "x values");
@@ -175,6 +180,7 @@ public abstract class ObjectsCurve<T extends Comparable<T>, U> extends Curve<T, 
    * @param isSorted Is the <i>x</i>-data sorted
    * @param name The name of the curve
    */
+  @SuppressWarnings("unchecked")
   public ObjectsCurve(final Set<Pair<T, U>> data, final boolean isSorted, final String name) {
     super(name);
     ArgumentChecker.notNull(data, "data");
@@ -202,6 +208,7 @@ public abstract class ObjectsCurve<T extends Comparable<T>, U> extends Curve<T, 
    * @param isSorted Is the <i>x</i>-data sorted
    * @param name The name of the curve
    */
+  @SuppressWarnings("unchecked")
   public ObjectsCurve(final List<T> xData, final List<U> yData, final boolean isSorted, final String name) {
     super(name);
     ArgumentChecker.notNull(xData, "x data");
@@ -260,7 +267,21 @@ public abstract class ObjectsCurve<T extends Comparable<T>, U> extends Curve<T, 
    * The meta-bean for {@code ObjectsCurve}.
    * @return the meta-bean, not null
    */
+  @SuppressWarnings("rawtypes")
   public static ObjectsCurve.Meta meta() {
+    return ObjectsCurve.Meta.INSTANCE;
+  }
+
+  /**
+   * The meta-bean for {@code ObjectsCurve}.
+   * @param <R>  the first generic type
+   * @param <S>  the second generic type
+   * @param cls1  the first generic type
+   * @param cls2  the second generic type
+   * @return the meta-bean, not null
+   */
+  @SuppressWarnings("unchecked")
+  public static <R extends Comparable<R>, S> ObjectsCurve.Meta<R, S> metaObjectsCurve(Class<R> cls1, Class<S> cls2) {
     return ObjectsCurve.Meta.INSTANCE;
   }
 
@@ -268,19 +289,10 @@ public abstract class ObjectsCurve<T extends Comparable<T>, U> extends Curve<T, 
     JodaBeanUtils.registerMetaBean(ObjectsCurve.Meta.INSTANCE);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
-  public ObjectsCurve.Meta metaBean() {
+  public ObjectsCurve.Meta<T, U> metaBean() {
     return ObjectsCurve.Meta.INSTANCE;
-  }
-
-  @Override
-  public <R> Property<R> property(String propertyName) {
-    return metaBean().<R>metaProperty(propertyName).createProperty(this);
-  }
-
-  @Override
-  public Set<String> propertyNames() {
-    return metaBean().metaPropertyMap().keySet();
   }
 
   //-----------------------------------------------------------------------
@@ -300,6 +312,7 @@ public abstract class ObjectsCurve<T extends Comparable<T>, U> extends Curve<T, 
     return metaBean().n().createProperty(this);
   }
 
+  //-----------------------------------------------------------------------
   /**
    * Gets the the {@code xData} property.
    * @return the property, not null
@@ -308,7 +321,7 @@ public abstract class ObjectsCurve<T extends Comparable<T>, U> extends Curve<T, 
     return metaBean().xData().createProperty(this);
   }
 
-
+  //-----------------------------------------------------------------------
   /**
    * Gets the the {@code yData} property.
    * @return the property, not null
@@ -318,21 +331,6 @@ public abstract class ObjectsCurve<T extends Comparable<T>, U> extends Curve<T, 
   }
 
   //-----------------------------------------------------------------------
-  @Override
-  public ObjectsCurve clone() {
-    BeanBuilder<? extends ObjectsCurve> builder = metaBean().builder();
-    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
-      if (mp.style().isBuildable()) {
-        Object value = mp.get(this);
-        if (value instanceof Bean) {
-          value = ((Bean) value).clone();
-        }
-        builder.set(mp.name(), value);
-      }
-    }
-    return builder.build();
-  }
-
   @Override
   public String toString() {
     StringBuilder buf = new StringBuilder(128);
@@ -346,20 +344,23 @@ public abstract class ObjectsCurve<T extends Comparable<T>, U> extends Curve<T, 
     return buf.toString();
   }
 
+  @Override
   protected void toString(StringBuilder buf) {
-    buf.append("n").append('=').append(getN()).append(',').append(' ');
-    buf.append("xData").append('=').append(Arrays.deepToString(getXData())).append(',').append(' ');
-    buf.append("yData").append('=').append(Arrays.deepToString(getYData())).append(',').append(' ');
+    super.toString(buf);
+    buf.append("n").append('=').append(JodaBeanUtils.toString(getN())).append(',').append(' ');
+    buf.append("xData").append('=').append(JodaBeanUtils.toString(getXData())).append(',').append(' ');
+    buf.append("yData").append('=').append(JodaBeanUtils.toString(getYData())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
   /**
    * The meta-bean for {@code ObjectsCurve}.
    */
-  public static class Meta<T extends Comparable<T>, U> extends Curve.Meta {
+  public static class Meta<T extends Comparable<T>, U> extends Curve.Meta<T, U> {
     /**
      * The singleton instance of the meta-bean.
      */
+    @SuppressWarnings("rawtypes")
     static final Meta INSTANCE = new Meta();
 
     /**
@@ -372,13 +373,13 @@ public abstract class ObjectsCurve<T extends Comparable<T>, U> extends Curve<T, 
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<T[]> _xData = (DirectMetaProperty) DirectMetaProperty.ofReadOnly(
-        this, "xData", ObjectsCurve.class, Object.class);
+        this, "xData", ObjectsCurve.class, Object[].class);
     /**
      * The meta-property for the {@code yData} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
     private final MetaProperty<U[]> _yData = (DirectMetaProperty) DirectMetaProperty.ofReadOnly(
-        this, "yData", ObjectsCurve.class, Object.class);
+        this, "yData", ObjectsCurve.class, Object[].class);
     /**
      * The meta-properties.
      */
@@ -408,13 +409,14 @@ public abstract class ObjectsCurve<T extends Comparable<T>, U> extends Curve<T, 
     }
 
     @Override
-    public BeanBuilder<? extends ObjectsCurve> builder() {
+    public BeanBuilder<? extends ObjectsCurve<T, U>> builder() {
       throw new UnsupportedOperationException("ObjectsCurve is an abstract class");
     }
 
+    @SuppressWarnings({"unchecked", "rawtypes" })
     @Override
-    public Class<? extends ObjectsCurve> beanType() {
-      return ObjectsCurve.class;
+    public Class<? extends ObjectsCurve<T, U>> beanType() {
+      return (Class) ObjectsCurve.class;
     }
 
     @Override
@@ -452,11 +454,11 @@ public abstract class ObjectsCurve<T extends Comparable<T>, U> extends Curve<T, 
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 110:  // n
-          return ((ObjectsCurve) bean).getN();
+          return ((ObjectsCurve<?, ?>) bean).getN();
         case 112945218:  // xData
-          return ((ObjectsCurve) bean).getXData();
+          return ((ObjectsCurve<?, ?>) bean).getXData();
         case 113868739:  // yData
-          return ((ObjectsCurve) bean).getYData();
+          return ((ObjectsCurve<?, ?>) bean).getYData();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -485,8 +487,9 @@ public abstract class ObjectsCurve<T extends Comparable<T>, U> extends Curve<T, 
 
     @Override
     protected void validate(Bean bean) {
-      JodaBeanUtils.notNull(((ObjectsCurve) bean)._xData, "xData");
-      JodaBeanUtils.notNull(((ObjectsCurve) bean)._yData, "yData");
+      JodaBeanUtils.notNull(((ObjectsCurve<?, ?>) bean)._xData, "xData");
+      JodaBeanUtils.notNull(((ObjectsCurve<?, ?>) bean)._yData, "yData");
+      super.validate(bean);
     }
 
   }

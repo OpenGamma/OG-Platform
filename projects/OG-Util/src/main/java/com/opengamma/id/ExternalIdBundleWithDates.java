@@ -522,15 +522,6 @@ public final class ExternalIdBundleWithDates implements ImmutableBean,
       super(ExternalIdBundleWithDates.Meta.INSTANCE);
     }
 
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(ExternalIdBundleWithDates beanToCopy) {
-      super(ExternalIdBundleWithDates.Meta.INSTANCE);
-      this._externalIds = new TreeSet<ExternalIdWithDates>(beanToCopy.getExternalIds());
-    }
-
     //-----------------------------------------------------------------------
     @SuppressWarnings("unchecked")
     @Override

@@ -514,15 +514,6 @@ public final class MultipleCurrencyAmount implements ImmutableBean,
       super(MultipleCurrencyAmount.Meta.INSTANCE);
     }
 
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(MultipleCurrencyAmount beanToCopy) {
-      super(MultipleCurrencyAmount.Meta.INSTANCE);
-      this._currencyAmountMap = new TreeMap<Currency, CurrencyAmount>(beanToCopy.getCurrencyAmountMap());
-    }
-
     //-----------------------------------------------------------------------
     @SuppressWarnings("unchecked")
     @Override

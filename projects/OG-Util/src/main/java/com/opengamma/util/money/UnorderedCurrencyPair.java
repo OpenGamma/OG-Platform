@@ -387,16 +387,6 @@ public final class UnorderedCurrencyPair implements ImmutableBean,
       super(UnorderedCurrencyPair.Meta.INSTANCE);
     }
 
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(UnorderedCurrencyPair beanToCopy) {
-      super(UnorderedCurrencyPair.Meta.INSTANCE);
-      this._firstCurrency = beanToCopy.getFirstCurrency();
-      this._secondCurrency = beanToCopy.getSecondCurrency();
-    }
-
     //-----------------------------------------------------------------------
     @Override
     public Builder set(String propertyName, Object newValue) {

@@ -395,16 +395,6 @@ public final class CurrencyAmount implements ImmutableBean, Serializable {
       super(CurrencyAmount.Meta.INSTANCE);
     }
 
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(CurrencyAmount beanToCopy) {
-      super(CurrencyAmount.Meta.INSTANCE);
-      this._currency = beanToCopy.getCurrency();
-      this._amount = beanToCopy.getAmount();
-    }
-
     //-----------------------------------------------------------------------
     @Override
     public Builder set(String propertyName, Object newValue) {

@@ -386,16 +386,6 @@ public final class CurrencyPair implements ImmutableBean, UniqueIdentifiable {
       super(CurrencyPair.Meta.INSTANCE);
     }
 
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(CurrencyPair beanToCopy) {
-      super(CurrencyPair.Meta.INSTANCE);
-      this._base = beanToCopy.getBase();
-      this._counter = beanToCopy.getCounter();
-    }
-
     //-----------------------------------------------------------------------
     @Override
     public Builder set(String propertyName, Object newValue) {

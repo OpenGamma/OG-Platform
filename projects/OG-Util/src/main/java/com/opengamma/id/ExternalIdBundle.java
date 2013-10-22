@@ -616,15 +616,6 @@ public final class ExternalIdBundle implements ImmutableBean, Iterable<ExternalI
       super(ExternalIdBundle.Meta.INSTANCE);
     }
 
-    /**
-     * Restricted copy constructor.
-     * @param beanToCopy  the bean to copy from, not null
-     */
-    private Builder(ExternalIdBundle beanToCopy) {
-      super(ExternalIdBundle.Meta.INSTANCE);
-      this._externalIds = new TreeSet<ExternalId>(beanToCopy.getExternalIds());
-    }
-
     //-----------------------------------------------------------------------
     @SuppressWarnings("unchecked")
     @Override
