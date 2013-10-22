@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.model.future;
 
 import com.opengamma.analytics.financial.future.MarkToMarketFuturesCalculator;
+import com.opengamma.core.position.Trade;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -42,5 +43,11 @@ public class MarkToMarketValueDeltaFuturesFunction extends MarkToMarketFuturesFu
       return true;
     }
     return false;
+  }
+  
+  @Override
+  protected Double applyTradeScaling(final Trade trade, Double value) {
+    final double quantity = trade.getQuantity().doubleValue();
+    return value * quantity;
   }
 }

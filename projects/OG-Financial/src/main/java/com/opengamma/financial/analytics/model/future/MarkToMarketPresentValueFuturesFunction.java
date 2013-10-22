@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.model.future;
 
 import com.opengamma.analytics.financial.future.MarkToMarketFuturesCalculator;
+import com.opengamma.core.position.Trade;
 import com.opengamma.engine.value.ValueRequirementNames;
 
 /**
@@ -22,4 +23,9 @@ public class MarkToMarketPresentValueFuturesFunction extends MarkToMarketFutures
     super(ValueRequirementNames.PRESENT_VALUE, MarkToMarketFuturesCalculator.PresentValueCalculator.getInstance(), closingPriceField, costOfCarryField, resolutionKey);
   }
   
+  @Override
+  protected Double applyTradeScaling(final Trade trade, Double value) {
+    final double quantity = trade.getQuantity().doubleValue();
+    return value * quantity;
+  }
 }
