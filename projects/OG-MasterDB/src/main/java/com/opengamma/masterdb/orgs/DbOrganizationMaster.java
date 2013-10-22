@@ -97,7 +97,7 @@ public class DbOrganizationMaster
       return result;
     }
     
-    final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
+    final DbMapSqlParameterSource args = createParameterSource()
         .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
         .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
         .addValueNullIgnored("obligor_short_name", getDialect().sqlWildcardAdjustValue(request.getObligorShortName()))
@@ -175,7 +175,7 @@ public class DbOrganizationMaster
     final ManageableOrganization organization = document.getOrganization();
 
     // the arguments for inserting into the organization table
-    final DbMapSqlParameterSource docArgs = new DbMapSqlParameterSource()
+    final DbMapSqlParameterSource docArgs = createParameterSource()
         .addValue("doc_id", docId)
         .addValue("doc_oid", docOid)
         .addTimestamp("ver_from_instant", document.getVersionFromInstant())

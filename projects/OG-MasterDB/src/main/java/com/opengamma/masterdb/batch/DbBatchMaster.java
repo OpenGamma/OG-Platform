@@ -355,7 +355,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMasterWriter
     s_logger.info("Getting Batch values: ", pagingRequest);
     
     final Long runId = extractOid(batchId);
-    final DbMapSqlParameterSource args = new DbMapSqlParameterSource();
+    final DbMapSqlParameterSource args = createParameterSource();
     args.addValue("run_id", runId);
     if (pagingRequest != null) {
       args.addValue("paging_offset", pagingRequest.getFirstItem());

@@ -152,17 +152,6 @@ public abstract class AbstractDbMaster {
   
   //-------------------------------------------------------------------------
   /**
-   * Gets the next database id.
-   * 
-   * @param sequenceName  the name of the sequence to query, not null
-   * @return the next database id
-   */
-  protected long nextId(String sequenceName) {
-    return getJdbcTemplate().getJdbcOperations().queryForObject(getDialect().sqlNextSequenceValueSelect(sequenceName), Long.class);
-  }
-
-  //-------------------------------------------------------------------------
-  /**
    * Gets the clock that determines the current time.
    * 
    * @return the clock, not null
@@ -196,6 +185,25 @@ public abstract class AbstractDbMaster {
    */
   protected Instant now() {
     return Instant.now(getClock());
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Creates the parameter source.
+   * @return the source, not null
+   */
+  protected DbMapSqlParameterSource createParameterSource() {
+    return new DbMapSqlParameterSource();
+  }
+
+  /**
+   * Gets the next database id.
+   * 
+   * @param sequenceName  the name of the sequence to query, not null
+   * @return the next database id
+   */
+  protected long nextId(String sequenceName) {
+    return getJdbcTemplate().getJdbcOperations().queryForObject(getDialect().sqlNextSequenceValueSelect(sequenceName), Long.class);
   }
 
   //-------------------------------------------------------------------------
@@ -367,7 +375,7 @@ public abstract class AbstractDbMaster {
    */
   public Integer getSchemaVersion() {
     try {
-      final DbMapSqlParameterSource args = new DbMapSqlParameterSource().addValue("version_key", "schema_patch");
+      final DbMapSqlParameterSource args = createParameterSource().addValue("version_key", "schema_patch");
       final String sql = getElSqlBundle().getSql("GetSchemaVersion", args);
       String version = getJdbcTemplate().queryForObject(sql, args, String.class);
       return Integer.parseInt(version);

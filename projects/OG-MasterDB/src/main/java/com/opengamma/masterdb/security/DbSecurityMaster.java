@@ -186,7 +186,7 @@ public class DbSecurityMaster
       return result;
     }
     
-    final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
+    final DbMapSqlParameterSource args = createParameterSource()
       .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
       .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
       .addValueNullIgnored("name", getDialect().sqlWildcardAdjustValue(request.getName()))
@@ -308,7 +308,7 @@ public class DbSecurityMaster
       final long docId = nextId("sec_security_seq");
       final long docOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : docId);
       // the arguments for inserting into the security table
-      final DbMapSqlParameterSource docArgs = new DbMapSqlParameterSource()
+      final DbMapSqlParameterSource docArgs = createParameterSource()
         .addValue("doc_id", docId)
         .addValue("doc_oid", docOid)
         .addTimestamp("ver_from_instant", document.getVersionFromInstant())
@@ -329,7 +329,7 @@ public class DbSecurityMaster
       final List<DbMapSqlParameterSource> idKeyList = new ArrayList<DbMapSqlParameterSource>();
       final String sqlSelectIdKey = getElSqlBundle().getSql("SelectIdKey");
       for (ExternalId id : document.getSecurity().getExternalIdBundle()) {
-        final DbMapSqlParameterSource assocArgs = new DbMapSqlParameterSource()
+        final DbMapSqlParameterSource assocArgs = createParameterSource()
           .addValue("doc_id", docId)
           .addValue("key_scheme", id.getScheme().getName())
           .addValue("key_value", id.getValue());
@@ -337,7 +337,7 @@ public class DbSecurityMaster
         if (getJdbcTemplate().queryForList(sqlSelectIdKey, assocArgs).isEmpty()) {
           // select avoids creating unnecessary id, but id may still not be used
           final long idKeyId = nextId("sec_idkey_seq");
-          final DbMapSqlParameterSource idkeyArgs = new DbMapSqlParameterSource()
+          final DbMapSqlParameterSource idkeyArgs = createParameterSource()
             .addValue("idkey_id", idKeyId)
             .addValue("key_scheme", id.getScheme().getName())
             .addValue("key_value", id.getValue());
@@ -370,7 +370,7 @@ public class DbSecurityMaster
       final List<DbMapSqlParameterSource> securityAttributeList = Lists.newArrayList();
       for (Map.Entry<String, String> entry : attributes.entrySet()) {
         final long securityAttrId = nextId("sec_security_attr_seq");
-        final DbMapSqlParameterSource attributeArgs = new DbMapSqlParameterSource()
+        final DbMapSqlParameterSource attributeArgs = createParameterSource()
                 .addValue("attr_id", securityAttrId)
                 .addValue("security_id", docId)
                 .addValue("security_oid", docOid)
@@ -389,7 +389,7 @@ public class DbSecurityMaster
   }
 
   private void storeRawSecurityDetail(RawSecurity security) {
-    final DbMapSqlParameterSource rawArgs = new DbMapSqlParameterSource()
+    final DbMapSqlParameterSource rawArgs = createParameterSource()
       .addValue("security_id", extractRowId(security.getUniqueId()))
       .addValue("raw_data", new SqlLobValue(security.getRawData(), getDialect().getLobHandler()), Types.BLOB);
     final String sqlRaw = getElSqlBundle().getSql("InsertRaw", rawArgs);

@@ -152,7 +152,7 @@ import com.opengamma.util.paging.PagingRequest;
       byte[] bytes = serializeToFudge(value);
 
       // the arguments for inserting into the config table
-      final DbMapSqlParameterSource docArgs = new DbMapSqlParameterSource()
+      final DbMapSqlParameterSource docArgs = createParameterSource()
           .addValue("doc_id", docId)
           .addValue("doc_oid", docOid)
           .addTimestamp("ver_from_instant", document.getVersionFromInstant())
@@ -220,7 +220,7 @@ import com.opengamma.util.paging.PagingRequest;
         return result;
       }
 
-      final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
+      final DbMapSqlParameterSource args = createParameterSource()
           .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
           .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
           .addValueNullIgnored("name", getDialect().sqlWildcardAdjustValue(request.getName()));

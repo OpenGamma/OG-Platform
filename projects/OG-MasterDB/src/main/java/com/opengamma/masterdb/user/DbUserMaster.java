@@ -114,7 +114,7 @@ public class DbUserMaster
       return result;
     }
     
-    final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
+    final DbMapSqlParameterSource args = createParameterSource()
       .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
       .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
       .addValueNullIgnored("userid", getDialect().sqlWildcardAdjustValue(request.getUserId()))
@@ -207,7 +207,7 @@ public class DbUserMaster
     document.setUniqueId(uniqueId);
     
     // the arguments for inserting into the user table
-    final DbMapSqlParameterSource docArgs = new DbMapSqlParameterSource()
+    final DbMapSqlParameterSource docArgs = createParameterSource()
       .addValue("doc_id", docId)
       .addValue("doc_oid", docOid)
       .addTimestamp("ver_from_instant", document.getVersionFromInstant())
@@ -225,7 +225,7 @@ public class DbUserMaster
     final List<DbMapSqlParameterSource> idKeyList = new ArrayList<DbMapSqlParameterSource>();
     final String sqlSelectIdKey = getElSqlBundle().getSql("SelectIdKey");
     for (ExternalId id : user.getExternalIdBundle()) {
-      final DbMapSqlParameterSource assocArgs = new DbMapSqlParameterSource()
+      final DbMapSqlParameterSource assocArgs = createParameterSource()
         .addValue("doc_id", docId)
         .addValue("key_scheme", id.getScheme().getName())
         .addValue("key_value", id.getValue());
@@ -233,7 +233,7 @@ public class DbUserMaster
       if (getJdbcTemplate().queryForList(sqlSelectIdKey, assocArgs).isEmpty()) {
         // select avoids creating unecessary id, but id may still not be used
         final long idKeyId = nextId("usr_idkey_seq");
-        final DbMapSqlParameterSource idkeyArgs = new DbMapSqlParameterSource()
+        final DbMapSqlParameterSource idkeyArgs = createParameterSource()
           .addValue("idkey_id", idKeyId)
           .addValue("key_scheme", id.getScheme().getName())
           .addValue("key_value", id.getValue());
@@ -244,7 +244,7 @@ public class DbUserMaster
     final List<DbMapSqlParameterSource> entitlementList = new ArrayList<DbMapSqlParameterSource>();
     int iEntitlement = 0;
     for (String entitlement : user.getEntitlements()) {
-      entitlementList.add(new DbMapSqlParameterSource()
+      entitlementList.add(createParameterSource()
         .addValue("oguser_id", docId)
         .addValue("entitlement_index", iEntitlement)
         .addValue("entitlement_pattern", entitlement));

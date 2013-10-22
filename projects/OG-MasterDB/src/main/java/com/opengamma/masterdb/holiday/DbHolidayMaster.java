@@ -143,7 +143,7 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
       return result;
     }
     
-    final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
+    final DbMapSqlParameterSource args = createParameterSource()
       .addTimestamp("version_as_of_instant", vc.getVersionAsOf())
       .addTimestamp("corrected_to_instant", vc.getCorrectedTo())
       .addValueNullIgnored("name", getDialect().sqlWildcardAdjustValue(request.getName()))
@@ -277,7 +277,7 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
       final long docOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : docId);
       // the arguments for inserting into the holiday table
       final ManageableHoliday holiday = document.getHoliday();
-      final DbMapSqlParameterSource docArgs = new DbMapSqlParameterSource()
+      final DbMapSqlParameterSource docArgs = createParameterSource()
         .addValue("doc_id", docId)
         .addValue("doc_oid", docOid)
         .addTimestamp("ver_from_instant", document.getVersionFromInstant())
@@ -316,7 +316,7 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
       // the arguments for inserting into the date table
       final List<DbMapSqlParameterSource> dateList = new ArrayList<DbMapSqlParameterSource>();
       for (LocalDate date : holiday.getHolidayDates()) {
-        final DbMapSqlParameterSource dateArgs = new DbMapSqlParameterSource()
+        final DbMapSqlParameterSource dateArgs = createParameterSource()
           .addValue("doc_id", docId)
           .addDate("hol_date", date);
         dateList.add(dateArgs);

@@ -463,7 +463,7 @@ public class DbBatchWriter extends AbstractDbMaster {
         selectSql = selectComputationTargetSpecificationSql;
       }
 
-      final DbMapSqlParameterSource selectArgs = new DbMapSqlParameterSource();
+      final DbMapSqlParameterSource selectArgs = createParameterSource();
       for (String attribName : attribs.keySet()) {
         selectArgs.addValue(attribName, attribs.get(attribName));
       }
@@ -471,7 +471,7 @@ public class DbBatchWriter extends AbstractDbMaster {
       if (results.isEmpty()) {
         // select avoids creating unecessary id, but id may still not be used
         final long id = nextId(RSK_SEQUENCE_NAME);
-        final DbMapSqlParameterSource insertArgs = new DbMapSqlParameterSource().addValue("id", id);
+        final DbMapSqlParameterSource insertArgs = createParameterSource().addValue("id", id);
         for (String attribName : attribs.keySet()) {
           insertArgs.addValue(attribName, attribs.get(attribName));
         }
@@ -511,7 +511,7 @@ public class DbBatchWriter extends AbstractDbMaster {
     Map<T, Long> cache = newHashMap();
     for (Map.Entry<Map<String, Object>, Collection<T>> attribsToObjects : data.entrySet()) {
       Map<String, Object> attribs = attribsToObjects.getKey();
-      final DbMapSqlParameterSource selectArgs = new DbMapSqlParameterSource();
+      final DbMapSqlParameterSource selectArgs = createParameterSource();
       for (String attribName : attribs.keySet()) {
         selectArgs.addValue(attribName, attribs.get(attribName));
       }
@@ -519,7 +519,7 @@ public class DbBatchWriter extends AbstractDbMaster {
       if (results.isEmpty()) {
         // select avoids creating unecessary id, but id may still not be used
         final long id = nextId(pkSequenceName);
-        final DbMapSqlParameterSource insertArgs = new DbMapSqlParameterSource().addValue("id", id);
+        final DbMapSqlParameterSource insertArgs = createParameterSource().addValue("id", id);
         for (String attribName : attribs.keySet()) {
           insertArgs.addValue(attribName, attribs.get(attribName));
         }
@@ -541,7 +541,7 @@ public class DbBatchWriter extends AbstractDbMaster {
   }
 
   protected Map<String, Object> getAttributes(Map<String, Object> attribs, String selectSql) {
-    final DbMapSqlParameterSource selectArgs = new DbMapSqlParameterSource();
+    final DbMapSqlParameterSource selectArgs = createParameterSource();
     for (String paramName : attribs.keySet()) {
       selectArgs.addValue(paramName, attribs.get(paramName));
     }
@@ -865,7 +865,7 @@ public class DbBatchWriter extends AbstractDbMaster {
       final ComputationTargetSpecification targetSpec = value.getComputationTargetSpecification();
       final long id = nextId(RSK_SEQUENCE_NAME);
       ids.add(id);
-      final DbMapSqlParameterSource insertArgs = new DbMapSqlParameterSource()
+      final DbMapSqlParameterSource insertArgs = createParameterSource()
         .addValue("id", id)
         .addValue("snapshot_id", marketData.getId())
         .addValue("computation_target_id", _computationTargets.get(targetSpec))
@@ -1058,7 +1058,7 @@ public class DbBatchWriter extends AbstractDbMaster {
   }
 
   private DbMapSqlParameterSource getFailureReasonArgs(long failureReasonId, long failureId, long computeFailureId) {
-    final DbMapSqlParameterSource args = new DbMapSqlParameterSource();
+    final DbMapSqlParameterSource args = createParameterSource();
     args.addValue("id", failureReasonId);
     args.addValue("rsk_failure_id", failureId);
     args.addValue("compute_failure_id", computeFailureId);
@@ -1067,7 +1067,7 @@ public class DbBatchWriter extends AbstractDbMaster {
 
   private SqlParameterSource getSuccessArgs(long successId, long riskRunId, Instant evalInstant, long calcConfId,
       long computationTargetId, long valueSpecificationId, long functionUniqueId, long computeNodeId, String valueName, Double doubleValue) {
-    DbMapSqlParameterSource args = new DbMapSqlParameterSource();
+    DbMapSqlParameterSource args = createParameterSource();
     args.addValue("id", successId);
     args.addValue("calculation_configuration_id", calcConfId);
     args.addValue("name", valueName);
@@ -1082,7 +1082,7 @@ public class DbBatchWriter extends AbstractDbMaster {
   }
 
   private SqlParameterSource getTargetPropertyArgs(long targetPropertyId, long computationTargetId, String propertyKey, String propertyValue) {
-    DbMapSqlParameterSource args = new DbMapSqlParameterSource();
+    DbMapSqlParameterSource args = createParameterSource();
     args.addValue("id", targetPropertyId);
     args.addValue("target_id", computationTargetId);
     args.addValue("property_key", propertyKey);
@@ -1092,7 +1092,7 @@ public class DbBatchWriter extends AbstractDbMaster {
 
   private SqlParameterSource getFailureArgs(long failureId, long riskRunId, Instant evalInstant, long calcConfId,
       long computationTargetId, long valueSpecificationId, long functionUniqueId, long computeNodeId, String valueName) {
-    DbMapSqlParameterSource args = new DbMapSqlParameterSource();
+    DbMapSqlParameterSource args = createParameterSource();
     args.addValue("id", failureId);
     args.addValue("calculation_configuration_id", calcConfId);
     args.addValue("name", valueName);
@@ -1150,7 +1150,7 @@ public class DbBatchWriter extends AbstractDbMaster {
     for (ComputationTargetSpecification target : targets) {
       Long computationTargetId = _computationTargets.get(target);
 
-      DbMapSqlParameterSource params = new DbMapSqlParameterSource();
+      DbMapSqlParameterSource params = createParameterSource();
 
       // this assumes that _searchKey2StatusEntry has already been populated
       // in getStatus()
@@ -1165,7 +1165,7 @@ public class DbBatchWriter extends AbstractDbMaster {
       } else {
         final long statusId = nextId(RSK_SEQUENCE_NAME);
 
-        final DbMapSqlParameterSource insertArgs = new DbMapSqlParameterSource();
+        final DbMapSqlParameterSource insertArgs = createParameterSource();
         insertArgs.addValue("ID", statusId);
         statusEntry = new StatusEntry();
         statusEntry.setId(statusId);

@@ -248,7 +248,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
       return result;
     }
     
-    final DbMapSqlParameterSource args = new DbMapSqlParameterSource();
+    final DbMapSqlParameterSource args = createParameterSource();
     args.addTimestamp("version_as_of_instant", vc.getVersionAsOf());
     args.addTimestamp("corrected_to_instant", vc.getCorrectedTo());
     args.addValueNullIgnored("name", getDialect().sqlWildcardAdjustValue(request.getName()));
@@ -381,7 +381,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
       final long docOid = (document.getUniqueId() != null ? extractOid(document.getUniqueId()) : docId);
       // the arguments for inserting into the table
       final ManageableHistoricalTimeSeriesInfo info = document.getInfo();
-      final DbMapSqlParameterSource docArgs = new DbMapSqlParameterSource()
+      final DbMapSqlParameterSource docArgs = createParameterSource()
         .addValue("doc_id", docId)
         .addValue("doc_oid", docOid)
         .addTimestamp("ver_from_instant", document.getVersionFromInstant())
@@ -398,7 +398,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
       final List<DbMapSqlParameterSource> idKeyList = new ArrayList<DbMapSqlParameterSource>();
       final String sqlSelectIdKey = getElSqlBundle().getSql("SelectIdKey");
       for (ExternalIdWithDates id : info.getExternalIdBundle()) {
-        final DbMapSqlParameterSource assocArgs = new DbMapSqlParameterSource()
+        final DbMapSqlParameterSource assocArgs = createParameterSource()
           .addValue("doc_id", docId)
           .addValue("key_scheme", id.getExternalId().getScheme().getName())
           .addValue("key_value", id.getExternalId().getValue())
@@ -408,7 +408,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
         if (getJdbcTemplate().queryForList(sqlSelectIdKey, assocArgs).isEmpty()) {
           // select avoids creating unecessary id, but id may still not be used
           final long idKeyId = nextId("hts_idkey_seq");
-          final DbMapSqlParameterSource idkeyArgs = new DbMapSqlParameterSource()
+          final DbMapSqlParameterSource idkeyArgs = createParameterSource()
             .addValue("idkey_id", idKeyId)
             .addValue("key_scheme", id.getExternalId().getScheme().getName())
             .addValue("key_value", id.getExternalId().getValue());
