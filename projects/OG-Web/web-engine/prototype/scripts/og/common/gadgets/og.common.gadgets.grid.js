@@ -235,7 +235,6 @@ $.register_module({
                     grid.clipboard.clear();
                 })
                 .on('fatal', function (error) {
-                    console.log('In grid fatal');
                     og.common.util.ui.dialog({type: 'error', message: 'fatal error: ' + error });
                     grid.kill();
                     grid.elements.parent.html('');
