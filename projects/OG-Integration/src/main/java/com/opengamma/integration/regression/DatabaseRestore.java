@@ -63,7 +63,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * Loads the data required to run views from Fudge XML files into an empty database.
- * TODO split this up to allow a subset of data to be dumped and restored
+ * TODO split this up to allow a subset of data to be dumped and restored?
  */
 /* package */ class DatabaseRestore {
 
@@ -339,10 +339,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
   private List<?> readFromDirectory(String subDirName) throws IOException {
     File subDir = new File(_dataDir, subDirName);
     if (!subDir.exists()) {
-      boolean success = subDir.mkdir();
-      if (!success) {
-        throw new OpenGammaRuntimeException("Failed to create directory " + subDir);
-      }
+      throw new IllegalArgumentException("Directory " + subDir + " doesn't exist");
     }
     s_logger.info("Reading from {}", subDir.getAbsolutePath());
     FudgeContext ctx = OpenGammaFudgeContext.getInstance();
