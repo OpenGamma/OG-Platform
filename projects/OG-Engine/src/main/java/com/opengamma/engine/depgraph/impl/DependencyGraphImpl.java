@@ -266,19 +266,20 @@ public class DependencyGraphImpl implements DependencyGraph, Serializable {
    */
   public static DependencyGraph removeUnnecessaryValues(final DependencyGraph graph) {
     final Map<ValueSpecification, DependencyNode> necessary = Maps.newHashMapWithExpectedSize(graph.getSize());
-    for (ValueSpecification terminal : getTerminalOutputSpecifications(graph)) {
-      necessary.put(terminal, null);
-    }
+    final Map<ValueSpecification, ?> terminals = graph.getTerminalOutputs();
     final int rootCount = graph.getRootCount();
     for (int i = 0; i < rootCount; i++) {
       final DependencyNode root = graph.getRootNode(i);
       final int outputs = root.getOutputCount();
       for (int j = 0; j < outputs; j++) {
-        if (necessary.containsKey(root.getOutputValue(j))) {
+        if (terminals.containsKey(root.getOutputValue(j))) {
           DependencyNodeImpl.markNecessaryValues(root, necessary);
           break;
         }
       }
+    }
+    for (Map.Entry<ValueSpecification, ?> terminal : terminals.entrySet()) {
+      necessary.put(terminal.getKey(), null);
     }
     Set<DependencyNode> roots = null;
     Set<DependencyNode> possibleRoots = null;
