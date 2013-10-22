@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDate;
+import org.threeten.bp.format.DateTimeParseException;
 
 import com.opengamma.core.marketdatasnapshot.CurveKey;
 import com.opengamma.core.marketdatasnapshot.CurveSnapshot;
@@ -139,7 +140,7 @@ public class FileSnapshotReader implements SnapshotReader {
                           null);
       } else {
         MutableFudgeMsg msg = _fudgeContext.newMessage();
-        msg.add(valueObject, currentRow.get(SnapshotColumns.MARKET_VALUE.get()));
+        msg.add(valueObject, marketAllTypeForFudgeMessage(currentRow));
         snapshot.putValue(createExternalIdBundle(currentRow),
                           currentRow.get(SnapshotColumns.VALUE_NAME.get()),
                           ValueSnapshot.of(msg));
@@ -147,8 +148,44 @@ public class FileSnapshotReader implements SnapshotReader {
 
     } else {
       MutableFudgeMsg msg = (MutableFudgeMsg) valueSnapshot.getMarketValue();
-      msg.add(valueObject, currentRow.get(SnapshotColumns.MARKET_VALUE.get()));
+      msg.add(valueObject, marketAllTypeForFudgeMessage(currentRow));
     }
+  }
+
+  private Object marketAllTypeForFudgeMessage(Map<String, String> currentRow) {
+    Object output = null;
+    String input = currentRow.get(SnapshotColumns.MARKET_VALUE.get());
+
+    if (input != null) {
+      if (NumberUtils.isNumber(input)) {
+        output = NumberUtils.createDouble(input);
+      } else if (isValidInstant(input)) {
+        output = Instant.parse(input);
+      } else if (isValidLocalDate(input)) {
+        output = LocalDate.parse(input);
+      } else {
+        output = input;
+      }
+    }
+    return output;
+  }
+
+  private Boolean isValidInstant(String input) {
+    try {
+      Instant.parse(input);
+    } catch (DateTimeParseException e) {
+      return false;
+    }
+    return true;
+  }
+
+  private Boolean isValidLocalDate(String input) {
+    try {
+      LocalDate.parse(input);
+    } catch (DateTimeParseException e) {
+      return false;
+    }
+    return true;
   }
 
 
@@ -182,8 +219,7 @@ public class FileSnapshotReader implements SnapshotReader {
                                                           currentRow.get(SnapshotColumns.SURFACE_QUOTE_UNITS.get()));
       HashMap values = new HashMap<Pair<Object, Object>, ValueSnapshot>();
 
-      values.put(Pairs.of(currentRow.get(SnapshotColumns.SURFACE_X.get()),
-                         currentRow.get(SnapshotColumns.SURFACE_Y.get())), createValueSnapshot(currentRow));
+      values.put(createOrdinatePair(currentRow), createValueSnapshot(currentRow));
       surface.setValues(values);
       surfaceBuilder.put(name, Pairs.of(key, surface));
     } else {
