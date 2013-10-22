@@ -5,6 +5,10 @@
  */
 package com.opengamma.integration.regression;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.Writer;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -35,6 +39,7 @@ public class ViewRegressionTestTool {
   private static final String BASE_PROPS = "bp";
   private static final String TEST_PROPS = "tp";
   private static final String HELP = "h";
+  private static final String REPORT_FILE = "regression-report.txt";
 
   /**
    * Main method to run the tool.
@@ -73,8 +78,8 @@ public class ViewRegressionTestTool {
     }
     ViewRegressionTest test = new ViewRegressionTest(cl.getOptionValue(PROJECT_NAME),
                                                      cl.getOptionValue(SERVER_CONFIG),
-                                                     cl.getOptionValue(DB_DUMP_DIR),
                                                      cl.getOptionValue(LOGBACK_CONFIG),
+                                                     cl.getOptionValue(DB_DUMP_DIR),
                                                      valuationTime,
                                                      cl.getOptionValue(BASE_DIR),
                                                      cl.getOptionValue(BASE_VERSION),
@@ -83,7 +88,8 @@ public class ViewRegressionTestTool {
                                                      cl.getOptionValue(TEST_VERSION),
                                                      cl.getOptionValue(TEST_PROPS));
     RegressionTestResults results = test.run();
-    System.out.println(ReportGenerator.generateReport(results));
+    Writer writer = new BufferedWriter(new FileWriter(REPORT_FILE));
+    ReportGenerator.generateReport(results, ReportGenerator.Format.TEXT, writer);
     /*FudgeSerializer serializer = new FudgeSerializer(OpenGammaFudgeContext.getInstance());
     try (FileWriter writer = new FileWriter(new File("/Users/chris/tmp/regression/results.xml"))) {
       FudgeXMLStreamWriter streamWriter = new FudgeXMLStreamWriter(OpenGammaFudgeContext.getInstance(), writer);
@@ -107,8 +113,8 @@ public class ViewRegressionTestTool {
     serverConfigOption.setRequired(true);
     options.addOption(serverConfigOption);
 
-    Option dbDumpDirOption = new Option(DB_DUMP_DIR, "dbdumpdir", true, "Directory containing the database dump files");
-    dbDumpDirOption.setRequired(true);
+    Option dbDumpDirOption = new Option(DB_DUMP_DIR, "dbdumpdir", true, "Directory containing the database dump files." +
+        " If this is omitted the database won't be created or populated, the existing database will be used");
     options.addOption(dbDumpDirOption);
 
     Option logbackConfigOption = new Option(LOGBACK_CONFIG, "logbackconfig", true, "Logback config for the servers");

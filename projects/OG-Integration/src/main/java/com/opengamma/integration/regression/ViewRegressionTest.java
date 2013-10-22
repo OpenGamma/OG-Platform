@@ -5,10 +5,6 @@
  */
 package com.opengamma.integration.regression;
 
-import java.io.BufferedInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +16,6 @@ import org.threeten.bp.Instant;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.integration.server.RemoteServer;
@@ -41,7 +36,7 @@ public class ViewRegressionTest {
   // TODO arg for this? different deltas for different values and/or object types?
   private static final double DELTA = 0.0001;
 
-  private final String _databaseDumpDir;
+  private final String _dbDumpDir;
   private final Instant _valuationTime;
   private final String _baseWorkingDir;
   private final String _baseVersion;
@@ -56,7 +51,7 @@ public class ViewRegressionTest {
 
   public ViewRegressionTest(String projectName,
                             String serverConfigFile,
-                            String databaseDumpDir,
+                            String dbDumpDir,
                             String logbackConfigFile,
                             Instant valuationTime,
                             String baseWorkingDir,
@@ -65,7 +60,7 @@ public class ViewRegressionTest {
                             String testWorkingDir,
                             String testVersion,
                             String testDbConfigFile) {
-    _databaseDumpDir = databaseDumpDir;
+    _dbDumpDir = dbDumpDir;
     _baseWorkingDir = baseWorkingDir;
     _baseVersion = baseVersion;
     _baseDbConfigFile = baseDbConfigFile;
@@ -104,42 +99,12 @@ public class ViewRegressionTest {
                                                                 String version,
                                                                 String dbPropsFile) {
     // don't use the config file to be sure we don't accidentally clobber a real database
-    //createDatabase(dbPropsFile, workingDir, classpath, _logbackConfig);
-    Properties dbProps = loadProperties(dbPropsFile);
-    //restoreDatabase(workingDir, classpath, dbProps);
+    Properties dbProps = RegressionUtils.loadProperties(dbPropsFile);
+    if (_dbDumpDir != null) {
+      RegressionUtils.createEmptyDatabase(dbPropsFile, workingDir, classpath, _logbackConfig);
+      RegressionUtils.restoreDatabase(workingDir, classpath, dbProps, _serverConfigFile, _logbackConfig, _dbDumpDir);
+    }
     return runViews(workingDir, classpath, version, _valuationTime, dbProps);
-  }
-
-  private static Properties loadProperties(String propsFile) {
-    try {
-      Properties properties = new Properties();
-      properties.load(new BufferedInputStream(new FileInputStream(propsFile)));
-      return properties;
-    } catch (IOException e) {
-      throw new OpenGammaRuntimeException("Failed to load properties", e);
-    }
-  }
-
-  private void restoreDatabase(String workingDir, String classpath, Properties dbProps) {
-    // TODO don't hard-code the port
-    int port = 8080;
-    String serverUrl = "http://localhost:" + port;
-    // run the server, populate the database and stop the server.
-    // it needs to be restarted before the tests to pick up function repo changes from the database
-    try (ServerProcess ignored = ServerProcess.start(workingDir, classpath, _serverConfigFile, dbProps, _logbackConfig);
-         RemoteServer server = RemoteServer.create(serverUrl)) {
-      DatabaseRestore databaseRestore = new DatabaseRestore(_databaseDumpDir,
-                                                            server.getSecurityMaster(),
-                                                            server.getPositionMaster(),
-                                                            server.getPortfolioMaster(),
-                                                            server.getConfigMaster(),
-                                                            server.getHistoricalTimeSeriesMaster(),
-                                                            server.getHolidayMaster(),
-                                                            server.getExchangeMaster(),
-                                                            server.getMarketDataSnapshotMaster(),
-                                                            server.getOrganizationMaster());
-      databaseRestore.restoreDatabase();
-    }
   }
 
   private Map<Pair<String, String>, CalculationResults> runViews(String workingDir,
@@ -194,37 +159,5 @@ public class ViewRegressionTest {
       }
     }
     return viewAndSnapshotNames;
-  }
-
-  /**
-   * Creates an empty database by running {@link EmptyDatabaseCreator} in an external process.
-   * {@code EmptyDatabaseCreator} relies on {@code DbTool} which scans the classpath to locate the schema files.
-   * This means it has to run with the classpath of the server version being tested so it can find the correct
-   * schema files.
-   */
-  /* package */ static int createDatabase(String configFile,
-                                          String workingDirName,
-                                          String classpath,
-                                          String logbackConfig) {
-    // TODO load the config and check the DB URL is overridden. ensure we NEVER use the URL from the real server config
-    // TODO configurable java command
-    Process process = null;
-    try {
-      String className = EmptyDatabaseCreator.class.getName();
-      File workingDir = new File(workingDirName);
-      process = new ProcessBuilder("java", logbackConfig, "-cp", classpath, className, configFile)
-          .directory(workingDir)
-          .redirectOutput(ProcessBuilder.Redirect.INHERIT)
-          .redirectError(ProcessBuilder.Redirect.INHERIT)
-          .start();
-      process.waitFor();
-      return process.exitValue();
-    } catch (IOException | InterruptedException e) {
-      throw new OpenGammaRuntimeException("Failed to create database", e);
-    } finally {
-      if (process != null) {
-        process.destroy();
-      }
-    }
   }
 }
