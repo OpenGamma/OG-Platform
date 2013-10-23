@@ -75,7 +75,7 @@ public class DbSecurityMasterTest extends AbstractDbSecurityTest {
   }
 
   //-------------------------------------------------------------------------
-  @Test(enabled = false)
+  @Test
   public void test_equity() throws Exception {
     EquitySecurity sec = new EquitySecurity("London", "LON", "OpenGamma Ltd", Currency.GBP);
     sec.setName("OpenGamma");
@@ -89,8 +89,23 @@ public class DbSecurityMasterTest extends AbstractDbSecurityTest {
     assertEquals(added, loaded);
   }
 
+  @Test
+  public void test_equity_withAttribute() throws Exception {
+    EquitySecurity sec = new EquitySecurity("London", "LON", "OpenGamma Ltd", Currency.GBP);
+    sec.setName("OpenGamma");
+    sec.setGicsCode(GICSCode.of("20102010"));
+    sec.setShortName("OG");
+    sec.setExternalIdBundle(ExternalIdBundle.of("Test", "OG"));
+    sec.addAttribute("ATTR_KEY", "ATTR_VALUE");
+    SecurityDocument addDoc = new SecurityDocument(sec);
+    SecurityDocument added = _secMaster.add(addDoc);
+    
+    SecurityDocument loaded = _secMaster.get(added.getUniqueId());
+    assertEquals(added, loaded);
+  }
+
   //-------------------------------------------------------------------------
-  @Test(enabled = false)
+  @Test
   public void test_bond() throws Exception {
     ZonedDateTime zdt = ZonedDateTime.parse("2011-01-31T12:00Z[Europe/London]");
     GovernmentBondSecurity sec = new GovernmentBondSecurity("US TREASURY N/B", "issuerType", "issuerDomicile", "market",
