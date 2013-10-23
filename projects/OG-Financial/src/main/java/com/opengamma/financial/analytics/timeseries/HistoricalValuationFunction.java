@@ -241,9 +241,9 @@ public class HistoricalValuationFunction extends AbstractFunction.NonCompiledInv
     HistoricalViewEvaluationMarketDataMode marketDataMode = marketDataModeConstraint != null ?
         HistoricalViewEvaluationMarketDataMode.parse(marketDataModeConstraint) : HistoricalViewEvaluationMarketDataMode.HISTORICAL;
     Security security = null;
-    if (ComputationTargetType.SECURITY.equals(target.getType())) {
+    if (ComputationTargetType.SECURITY.isCompatible(target.getType())) {
       security = target.getSecurity();
-    } else if (ComputationTargetType.POSITION.equals(target.getType())) {
+    } else if (ComputationTargetType.POSITION.isCompatible(target.getType())) {
       security = target.getPosition().getSecurity();
     }
     Set<Currency> targetCurrencies = security != null ? ImmutableSet.copyOf(FinancialSecurityUtils.getCurrencies(security, context.getSecuritySource())) : null;
