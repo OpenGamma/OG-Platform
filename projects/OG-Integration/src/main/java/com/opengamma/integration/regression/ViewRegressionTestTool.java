@@ -48,8 +48,13 @@ public class ViewRegressionTestTool {
    * @param args the arguments, unused
    */
   public static void main(String[] args) throws Exception { // CSIGNORE
-    ViewRegressionTestTool.run(args);
-    System.exit(0);
+    try {
+      ViewRegressionTestTool.run(args);
+      System.exit(0);
+    } catch (Exception e) {
+      e.printStackTrace();
+      System.exit(1);
+    }
   }
 
   private static void printUsage() {
