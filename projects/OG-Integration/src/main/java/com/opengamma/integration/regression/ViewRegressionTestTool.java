@@ -30,7 +30,7 @@ public class ViewRegressionTestTool {
   private static final String PROJECT_NAME = "pn";
   private static final String SERVER_CONFIG = "sc";
   private static final String DB_DUMP_DIR = "dd";
-  private static final String LOGBACK_CONFIG = "lc";
+  private static final String LOGBACK_CONFIG = "l";
   private static final String VALUATION_TIME = "vt";
   private static final String BASE_DIR = "bd";
   private static final String TEST_DIR = "td";
