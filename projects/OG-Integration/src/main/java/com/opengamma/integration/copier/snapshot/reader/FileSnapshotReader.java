@@ -208,9 +208,9 @@ public class FileSnapshotReader implements SnapshotReader {
 
   private void buildSurface(HashMap<String, Pair<VolatilitySurfaceKey, ManageableVolatilitySurfaceSnapshot>> surfaceBuilder,
                             Map<String, String> currentRow) {
-    String name = currentRow.get(SnapshotColumns.NAME.get());
+    String target = currentRow.get(SnapshotColumns.SURFACE_TARGET.get());
 
-    if (!surfaceBuilder.containsKey(name)) {
+    if (!surfaceBuilder.containsKey(target)) {
       ManageableVolatilitySurfaceSnapshot surface = new ManageableVolatilitySurfaceSnapshot();
       VolatilitySurfaceKey key = VolatilitySurfaceKey.of(UniqueId.parse(currentRow.get(SnapshotColumns.SURFACE_TARGET.get())),
                                                           currentRow.get(SnapshotColumns.NAME.get()),
@@ -221,9 +221,9 @@ public class FileSnapshotReader implements SnapshotReader {
 
       values.put(createOrdinatePair(currentRow), createValueSnapshot(currentRow));
       surface.setValues(values);
-      surfaceBuilder.put(name, Pairs.of(key, surface));
+      surfaceBuilder.put(target, Pairs.of(key, surface));
     } else {
-      surfaceBuilder.get(name).getSecond().getValues().put(createOrdinatePair(currentRow),
+      surfaceBuilder.get(target).getSecond().getValues().put(createOrdinatePair(currentRow),
                                                            createValueSnapshot(currentRow));
     }
 
