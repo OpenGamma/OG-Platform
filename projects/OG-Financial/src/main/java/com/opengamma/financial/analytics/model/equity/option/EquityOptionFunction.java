@@ -69,7 +69,7 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
 
 /**
- *
+ * Abstract base class for Equity and Equity Index Options
  */
 public abstract class EquityOptionFunction extends AbstractFunction.NonCompiledInvoker {
   /** The logger */
