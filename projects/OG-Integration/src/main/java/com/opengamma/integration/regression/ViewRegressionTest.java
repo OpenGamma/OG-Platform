@@ -26,6 +26,7 @@ import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
 import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Pairs;
 
 /**
  *
@@ -155,7 +156,7 @@ public class ViewRegressionTest {
           continue;
         }
         String viewDefName = configResult.getSingleValue().getName();
-        viewAndSnapshotNames.add(Pair.of(viewDefName, snapshot.getName()));
+        viewAndSnapshotNames.add(Pairs.of(viewDefName, snapshot.getName()));
       }
     }
     return viewAndSnapshotNames;
