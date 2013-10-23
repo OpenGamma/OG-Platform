@@ -9,6 +9,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -353,7 +354,8 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
   private List<?> readFromDirectory(String subDirName) throws IOException {
     File subDir = new File(_dataDir, subDirName);
     if (!subDir.exists()) {
-      throw new IllegalArgumentException("Directory " + subDir + " doesn't exist");
+      s_logger.info("Directory {} doesn't exist", subDir);
+      return Collections.emptyList();
     }
     s_logger.info("Reading from {}", subDir.getAbsolutePath());
     List<Object> objects = Lists.newArrayList();
