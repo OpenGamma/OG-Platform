@@ -5,6 +5,9 @@
  */
 package com.opengamma.analytics.financial.horizon;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang.Validate;
 import org.threeten.bp.ZonedDateTime;
 
@@ -230,11 +233,26 @@ public final class ConstantSpreadHorizonThetaCalculator {
         laggedFixingSeries[i] = ImmutableZonedDateTimeDoubleTimeSeries.ofEmpty(tomorrow.getZone());
       } else {
         final ZonedDateTimeDoubleTimeSeries ts = fixingSeries[i].subSeries(fixingSeries[i].getEarliestTime(), tomorrow);
+        if (ts == null || ts.isEmpty()) {
+          laggedFixingSeries[i] = ImmutableZonedDateTimeDoubleTimeSeries.ofEmpty(tomorrow.getZone());
+        } else {
+          final ZonedDateTimeDoubleTimeSeries subSeries = fixingSeries[i].subSeries(fixingSeries[i].getEarliestTime(), tomorrow);
+          final List<ZonedDateTime> times = new ArrayList<>(subSeries.times());
+          final List<Double> values = new ArrayList<>(subSeries.values());
+          times.add(tomorrow);
+          values.add(fixingSeries[i].getLatestValue());
+          laggedFixingSeries[i] = ImmutableZonedDateTimeDoubleTimeSeries.of(times, values, tomorrow.getZone());
+        /**
         final ZonedDateTimeDoubleTimeSeriesBuilder bld = ts.toBuilder();
         bld.put(tomorrow, ts.getLatestValue());
         laggedFixingSeries[i] = bld.build();
+        */
+        }
       }
     }
+    ZonedDateTime tmp = laggedFixingSeries[0].getTimeAtIndex(250);
+    ZonedDateTime tmp1 = laggedFixingSeries[0].getTimeAtIndex(249);
+    ZonedDateTime tmp2 = laggedFixingSeries[0].getTimeAtIndex(248);
     return laggedFixingSeries;
   }
 
