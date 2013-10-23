@@ -12,12 +12,21 @@ import java.io.IOException;
 import java.util.Properties;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.config.impl.ConfigItem;
 import com.opengamma.integration.server.RemoteServer;
+import com.opengamma.master.config.ConfigMaster;
+import com.opengamma.master.config.ConfigSearchRequest;
+import com.opengamma.master.config.ConfigSearchResult;
 
 /**
  *
  */
 /* package */ final class RegressionUtils {
+
+  /** Name of the ID mappings in the config database. */
+  public static final String ID_MAPPINGS = "Regression test ID mappings";
+  /** Name of the ID mappings Fudge XML file. */
+  public static final String ID_MAPPINGS_FILE = "idMappings.xml";
 
   private RegressionUtils() {
   }
@@ -88,6 +97,17 @@ import com.opengamma.integration.server.RemoteServer;
       return properties;
     } catch (IOException e) {
       throw new OpenGammaRuntimeException("Failed to load properties", e);
+    }
+  }
+
+  static ConfigItem<IdMappings> loadIdMappings(ConfigMaster configMaster) {
+    ConfigSearchRequest<IdMappings> request = new ConfigSearchRequest<>(IdMappings.class);
+    request.setName(ID_MAPPINGS);
+    ConfigSearchResult<IdMappings> result = configMaster.search(request);
+    if (result.getValues().size() == 1) {
+      return result.getFirstValue();
+    } else {
+      return null;
     }
   }
 }

@@ -68,7 +68,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 /* package */ class DatabaseRestore {
 
   /** Attribute name holding a position's original unique ID from the source database. */
-  public static final String REGRESSION_ID = "regression:id";
+  public static final String REGRESSION_ID = "regressionId";
 
   private static final Logger s_logger = LoggerFactory.getLogger(DatabaseRestore.class);
 
@@ -82,6 +82,8 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
   private final ExchangeMaster _exchangeMaster;
   private final MarketDataSnapshotMaster _snapshotMaster;
   private final OrganizationMaster _organizationMaster;
+  private final FudgeContext _ctx = new FudgeContext(OpenGammaFudgeContext.getInstance());
+  private final FudgeDeserializer _deserializer = new FudgeDeserializer(OpenGammaFudgeContext.getInstance());
 
   public DatabaseRestore(String dataDir,
                          SecurityMaster securityMaster,
@@ -140,6 +142,15 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
   public void restoreDatabase() {
     try {
+      IdMappings idMappings = (IdMappings) readFromFudge(new File(_dataDir, RegressionUtils.ID_MAPPINGS_FILE));
+      ConfigItem<IdMappings> mappingsItem = RegressionUtils.loadIdMappings(_configMaster);
+      if (mappingsItem == null) {
+        _configMaster.add(new ConfigDocument(ConfigItem.of(idMappings, RegressionUtils.ID_MAPPINGS)));
+      } else {
+        ConfigItem<IdMappings> configItem = ConfigItem.of(idMappings, RegressionUtils.ID_MAPPINGS);
+        configItem.setUniqueId(mappingsItem.getUniqueId());
+        _configMaster.update(new ConfigDocument(configItem));
+      }
       Map<ObjectId, ObjectId> securityIdMappings = loadSecurities();
       Map<ObjectId, ObjectId> positionIdMappings = loadPositions(securityIdMappings);
       Map<ObjectId, ObjectId> portfolioIdMappings = loadPortfolios(positionIdMappings);
@@ -342,24 +353,27 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
       throw new IllegalArgumentException("Directory " + subDir + " doesn't exist");
     }
     s_logger.info("Reading from {}", subDir.getAbsolutePath());
-    FudgeContext ctx = OpenGammaFudgeContext.getInstance();
-    FudgeDeserializer deserializer = new FudgeDeserializer(ctx);
     List<Object> objects = Lists.newArrayList();
     File[] files = subDir.listFiles();
     if (files == null) {
       throw new OpenGammaRuntimeException("No files found in " + subDir);
     }
     for (File file : files) {
-      try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-        FudgeXMLStreamReader streamReader = new FudgeXMLStreamReader(ctx, reader);
-        FudgeMsgReader fudgeMsgReader = new FudgeMsgReader(streamReader);
-        FudgeMsg msg = fudgeMsgReader.nextMessage();
-        Object object = deserializer.fudgeMsgToObject(msg);
-        s_logger.debug("Read object {}", object);
-        objects.add(object);
-      }
+      objects.add(readFromFudge(file));
     }
     s_logger.info("Read {} objects from {}", objects.size(), subDir.getAbsolutePath());
     return objects;
+  }
+
+  private Object readFromFudge(File file) throws IOException {
+    Object object;
+    try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+      FudgeXMLStreamReader streamReader = new FudgeXMLStreamReader(_ctx, reader);
+      FudgeMsgReader fudgeMsgReader = new FudgeMsgReader(streamReader);
+      FudgeMsg msg = fudgeMsgReader.nextMessage();
+      object = _deserializer.fudgeMsgToObject(msg);
+      s_logger.debug("Read object {}", object);
+    }
+    return object;
   }
 }

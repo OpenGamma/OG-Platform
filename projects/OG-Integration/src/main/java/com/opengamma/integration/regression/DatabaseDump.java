@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.MutableFudgeMsg;
@@ -19,7 +20,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.config.impl.ConfigItem;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.integration.server.RemoteServer;
@@ -73,6 +77,11 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
   private final ExchangeMaster _exchangeMaster;
   private final MarketDataSnapshotMaster _snapshotMaster;
   private final OrganizationMaster _organizationMaster;
+  private final IdMappings _idMappings;
+  private final FudgeContext _ctx = new FudgeContext(OpenGammaFudgeContext.getInstance());
+  private final FudgeSerializer _serializer = new FudgeSerializer(OpenGammaFudgeContext.getInstance());
+
+  private int _nextId;
 
   /* package */ DatabaseDump(String outputDir,
                              SecurityMaster securityMaster,
@@ -100,10 +109,21 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
     _configMaster = configMaster;
     _outputDir = new File(outputDir);
     _securityMaster = securityMaster;
-    if (!_outputDir.exists() || !_outputDir.isDirectory()) {
-      // TODO allow it to be non-existent and create it
-      throw new IllegalArgumentException("Output directory " + outputDir + " must be an existing directory");
+    ConfigItem<IdMappings> mappingsConfigItem = RegressionUtils.loadIdMappings(_configMaster);
+    if (mappingsConfigItem != null) {
+      _idMappings = mappingsConfigItem.getValue();
+    } else {
+      _idMappings = new IdMappings();
     }
+    _nextId = _idMappings.getMaxId() + 1;
+    if (!_outputDir.exists()) {
+      boolean success = _outputDir.mkdirs();
+      if (!success) {
+        throw new OpenGammaRuntimeException("Output directory " + outputDir + " couldn't be created");
+      }
+      s_logger.info("Created output directory {}", _outputDir.getAbsolutePath());
+    }
+    s_logger.info("Dumping database to {}", _outputDir.getAbsolutePath());
   }
 
   public static void main(String[] args) throws IOException {
@@ -134,38 +154,47 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
   }
 
   public void dumpDatabase() throws IOException {
-    writeSecurities();
-    writePositions();
-    writePortfolios();
-    writeConfig();
-    writeTimeSeries();
-    writeHolidays();
-    writeExchanges();
-    writeSnapshots();
-    writeOrganizations();
+    Map<ObjectId, Integer> ids = Maps.newHashMap(_idMappings.getIds());
+    ids.putAll(writeSecurities());
+    ids.putAll(writePositions());
+    ids.putAll(writePortfolios());
+    ids.putAll(writeConfig());
+    ids.putAll(writeTimeSeries());
+    ids.putAll(writeHolidays());
+    ids.putAll(writeExchanges());
+    ids.putAll(writeSnapshots());
+    ids.putAll(writeOrganizations());
+    int maxId = _idMappings.getMaxId();
+    for (Integer id : ids.values()) {
+      if (id > maxId) {
+        maxId = id;
+      }
+    }
+    IdMappings idMappings = new IdMappings(ids, maxId);
+    writeToFudge(_outputDir, idMappings, RegressionUtils.ID_MAPPINGS_FILE);
   }
 
-  private void writeSecurities() throws IOException {
+  private Map<ObjectId, Integer> writeSecurities() throws IOException {
     SecuritySearchResult result = _securityMaster.search(new SecuritySearchRequest());
-    writeToDirectory(result.getSecurities(), "securities");
+    return writeToDirectory(result.getSecurities(), "securities", "sec");
   }
 
-  private void writePositions() throws IOException {
+  private Map<ObjectId, Integer> writePositions() throws IOException {
     PositionSearchResult result = _positionMaster.search(new PositionSearchRequest());
-    writeToDirectory(result.getPositions(), "positions");
+    return writeToDirectory(result.getPositions(), "positions", "pos");
   }
 
-  private void writeConfig() throws IOException {
+  private Map<ObjectId, Integer> writeConfig() throws IOException {
     ConfigSearchResult<Object> result = _configMaster.search(new ConfigSearchRequest<>(Object.class));
-    writeToDirectory(result.getValues(), "configs");
+    return writeToDirectory(result.getValues(), "configs", "cfg");
   }
 
-  private void writePortfolios() throws IOException {
+  private Map<ObjectId, Integer> writePortfolios() throws IOException {
     PortfolioSearchResult result = _portfolioMaster.search(new PortfolioSearchRequest());
-    writeToDirectory(result.getPortfolios(), "portfolios");
+    return writeToDirectory(result.getPortfolios(), "portfolios", "prt");
   }
 
-  private void writeTimeSeries() throws IOException {
+  private Map<ObjectId, Integer> writeTimeSeries() throws IOException {
     List<TimeSeriesWithInfo> objects = Lists.newArrayList();
     HistoricalTimeSeriesInfoSearchResult infoResult = _timeSeriesMaster.search(new HistoricalTimeSeriesInfoSearchRequest());
     for (ManageableHistoricalTimeSeriesInfo info : infoResult.getInfoList()) {
@@ -174,56 +203,70 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
       TimeSeriesWithInfo timeSeriesWithInfo = new TimeSeriesWithInfo(info, timeSeries);
       objects.add(timeSeriesWithInfo);
     }
-    writeToDirectory(objects, "timeseries");
+    return writeToDirectory(objects, "timeseries", "hts");
   }
 
-  private void writeHolidays() throws IOException {
+  private Map<ObjectId, Integer> writeHolidays() throws IOException {
     HolidaySearchResult result = _holidayMaster.search(new HolidaySearchRequest());
-    writeToDirectory(result.getHolidays(), "holidays");
+    return writeToDirectory(result.getHolidays(), "holidays", "hol");
   }
 
-  private void writeExchanges() throws IOException {
+  private Map<ObjectId, Integer> writeExchanges() throws IOException {
     ExchangeSearchResult result = _exchangeMaster.search(new ExchangeSearchRequest());
-    writeToDirectory(result.getExchanges(), "exchanges");
+    return writeToDirectory(result.getExchanges(), "exchanges", "exg");
   }
 
-  private void writeSnapshots() throws IOException {
+  private Map<ObjectId, Integer> writeSnapshots() throws IOException {
     MarketDataSnapshotSearchResult result = _snapshotMaster.search(new MarketDataSnapshotSearchRequest());
-    writeToDirectory(result.getSnapshots(), "snapshots");
+    return writeToDirectory(result.getSnapshots(), "snapshots", "snp");
   }
 
-  private void writeOrganizations() throws IOException {
+  private Map<ObjectId, Integer> writeOrganizations() throws IOException {
     OrganizationSearchResult result = _organizationMaster.search(new OrganizationSearchRequest());
-    writeToDirectory(result.getOrganizations(), "organizations");
+    return writeToDirectory(result.getOrganizations(), "organizations", "org");
   }
 
-  private void writeToDirectory(List<? extends UniqueIdentifiable> objects, String outputSubDirName) throws IOException {
-    File outputSubDir = new File(_outputDir, outputSubDirName);
-    if (!outputSubDir.exists()) {
-      boolean success = outputSubDir.mkdir();
+  private Map<ObjectId, Integer> writeToDirectory(List<? extends UniqueIdentifiable> objects,
+                                                  String outputSubDirName,
+                                                  String prefix) throws IOException {
+    File outputDir = new File(_outputDir, outputSubDirName);
+    if (!outputDir.exists()) {
+      boolean success = outputDir.mkdir();
       if (success) {
-        s_logger.debug("Created directory {}", outputSubDir);
+        s_logger.debug("Created directory {}", outputDir);
       } else {
-        throw new OpenGammaRuntimeException("Failed to create directory " + outputSubDir);
+        throw new OpenGammaRuntimeException("Failed to create directory " + outputDir);
       }
     }
-    s_logger.info("Writing to {}", outputSubDir.getAbsolutePath());
-    FudgeContext ctx = OpenGammaFudgeContext.getInstance();
-    FudgeSerializer serializer = new FudgeSerializer(ctx);
+    s_logger.info("Writing to {}", outputDir.getAbsolutePath());
+    Map<ObjectId, Integer> ids = Maps.newHashMap();
     for (UniqueIdentifiable object : objects) {
-      // TODO this will change the filename for an object between different versions of the dump
-      // can I reuse the same filename using attributes? need to ensure they're unique
-      try (FileWriter writer = new FileWriter(new File(outputSubDir, object.getUniqueId().getObjectId() + ".xml"))) {
-        FudgeXMLStreamWriter streamWriter = new FudgeXMLStreamWriter(ctx, writer);
-        FudgeMsgWriter fudgeMsgWriter = new FudgeMsgWriter(streamWriter);
-        MutableFudgeMsg msg = serializer.objectToFudgeMsg(object);
-        FudgeSerializer.addClassHeader(msg, object.getClass());
-        fudgeMsgWriter.writeMessage(msg);
-        writer.append("\n");
-        s_logger.debug("Wrote object {}", object);
-        fudgeMsgWriter.flush();
+      ObjectId objectId = object.getUniqueId().getObjectId();
+      Integer previousId = _idMappings.getId(objectId);
+      int id;
+      if (previousId == null) {
+        id = _nextId++;
+        ids.put(objectId, id);
+      } else {
+        id = previousId;
       }
+      String fileName = prefix + id + ".xml";
+      writeToFudge(outputDir, object, fileName);
     }
-    s_logger.info("Wrote {} objects to {}", objects.size(), outputSubDir.getAbsolutePath());
+    s_logger.info("Wrote {} objects to {}", objects.size(), outputDir.getAbsolutePath());
+    return ids;
+  }
+
+  private void writeToFudge(File outputDir, Object object, String fileName) throws IOException {
+    try (FileWriter writer = new FileWriter(new File(outputDir, fileName))) {
+      FudgeXMLStreamWriter streamWriter = new FudgeXMLStreamWriter(_ctx, writer);
+      FudgeMsgWriter fudgeMsgWriter = new FudgeMsgWriter(streamWriter);
+      MutableFudgeMsg msg = _serializer.objectToFudgeMsg(object);
+      FudgeSerializer.addClassHeader(msg, object.getClass());
+      fudgeMsgWriter.writeMessage(msg);
+      writer.append("\n");
+      s_logger.debug("Wrote object {}", object);
+      fudgeMsgWriter.flush();
+    }
   }
 }
