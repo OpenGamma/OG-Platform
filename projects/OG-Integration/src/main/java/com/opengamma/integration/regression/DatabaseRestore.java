@@ -142,14 +142,17 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
   public void restoreDatabase() {
     try {
-      IdMappings idMappings = (IdMappings) readFromFudge(new File(_dataDir, RegressionUtils.ID_MAPPINGS_FILE));
-      ConfigItem<IdMappings> mappingsItem = RegressionUtils.loadIdMappings(_configMaster);
-      if (mappingsItem == null) {
-        _configMaster.add(new ConfigDocument(ConfigItem.of(idMappings, RegressionUtils.ID_MAPPINGS)));
-      } else {
-        ConfigItem<IdMappings> configItem = ConfigItem.of(idMappings, RegressionUtils.ID_MAPPINGS);
-        configItem.setUniqueId(mappingsItem.getUniqueId());
-        _configMaster.update(new ConfigDocument(configItem));
+      File idMappingsFile = new File(_dataDir, RegressionUtils.ID_MAPPINGS_FILE);
+      if (idMappingsFile.exists()) {
+        IdMappings idMappings = (IdMappings) readFromFudge(idMappingsFile);
+        ConfigItem<IdMappings> mappingsItem = RegressionUtils.loadIdMappings(_configMaster);
+        if (mappingsItem == null) {
+          _configMaster.add(new ConfigDocument(ConfigItem.of(idMappings, RegressionUtils.ID_MAPPINGS)));
+        } else {
+          ConfigItem<IdMappings> configItem = ConfigItem.of(idMappings, RegressionUtils.ID_MAPPINGS);
+          configItem.setUniqueId(mappingsItem.getUniqueId());
+          _configMaster.update(new ConfigDocument(configItem));
+        }
       }
       Map<ObjectId, ObjectId> securityIdMappings = loadSecurities();
       Map<ObjectId, ObjectId> positionIdMappings = loadPositions(securityIdMappings);
