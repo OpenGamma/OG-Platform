@@ -60,11 +60,13 @@ import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityTypes;
 import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.option.EquityIndexFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.async.AsynchronousExecution;
 import com.opengamma.util.time.Expiry;
@@ -343,7 +345,16 @@ public abstract class ListedEquityOptionFunction extends AbstractFunction.NonCom
       return null;
     }
     // Forward curve
-    final ValueRequirement forwardCurveReq = getForwardCurveRequirement(forwardCurveName, forwardCurveCalculationMethod, underlyingId, additionalConstraints);
+    final ValueRequirement forwardCurveReq;
+    if (security instanceof EquityIndexFutureOptionSecurity) {
+      final SecuritySource securitySource = context.getSecuritySource();
+      IndexFutureSecurity future = (IndexFutureSecurity) securitySource.get(ExternalIdBundle.of(underlyingId)).iterator().next();
+      final ExternalId indexId = future.getUnderlyingId();
+      forwardCurveReq = getForwardCurveRequirement(forwardCurveName, forwardCurveCalculationMethod, indexId, additionalConstraints);
+    } else {
+      forwardCurveReq = getForwardCurveRequirement(forwardCurveName, forwardCurveCalculationMethod, underlyingId, additionalConstraints);
+    }
+
     if (forwardCurveReq == null) {
       return null;
     }

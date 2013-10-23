@@ -31,20 +31,20 @@ public class ListedEquityOptionDefaults extends DefaultPropertyFunction {
 
   /** The value requirement names for which these defaults apply */
   private static final String[] s_valueNames = new String[] {
-      ValueRequirementNames.PRESENT_VALUE,
-      ValueRequirementNames.DELTA,
-      ValueRequirementNames.GAMMA,
-      ValueRequirementNames.VEGA,
-      ValueRequirementNames.VOMMA,
-      ValueRequirementNames.VANNA,
-      ValueRequirementNames.RHO,
-      ValueRequirementNames.CARRY_RHO,
-      ValueRequirementNames.THETA,
-      ValueRequirementNames.VALUE_DELTA,
-      ValueRequirementNames.VALUE_GAMMA,
-      ValueRequirementNames.FORWARD,
-      ValueRequirementNames.IMPLIED_VOLATILITY,
-      ValueRequirementNames.PNL // Produced by EquityOption*ScenarioFunction
+    ValueRequirementNames.PRESENT_VALUE,
+    ValueRequirementNames.DELTA,
+    ValueRequirementNames.GAMMA,
+    ValueRequirementNames.VEGA,
+    ValueRequirementNames.VOMMA,
+    ValueRequirementNames.VANNA,
+    ValueRequirementNames.RHO,
+    ValueRequirementNames.CARRY_RHO,
+    ValueRequirementNames.THETA,
+    ValueRequirementNames.VALUE_DELTA,
+    ValueRequirementNames.VALUE_GAMMA,
+    ValueRequirementNames.FORWARD,
+    ValueRequirementNames.IMPLIED_VOLATILITY,
+    ValueRequirementNames.PNL // Produced by EquityOption*ScenarioFunction
   };
 
   /** Map of id name to discounting curve configuration */
