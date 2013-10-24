@@ -23,6 +23,7 @@ import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.Coupon;
 import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponFixed;
 import com.opengamma.analytics.financial.interestrate.swap.derivative.SwapFixedCoupon;
+import com.opengamma.analytics.financial.schedule.NoHolidayCalendar;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
@@ -41,7 +42,7 @@ public class ConstantSpreadHorizonThetaCalculatorSwapTest {
 
   // The Calculator
   private static final ConstantSpreadHorizonThetaCalculator THETAC = ConstantSpreadHorizonThetaCalculator.getInstance();
-
+  private static final Calendar CALENDAR_NONE = new NoHolidayCalendar();
   private static final Calendar CALENDAR_USD = new MondayToFridayCalendar("USD Calendar");
   private static final GeneratorSwapFixedIborMaster GENERATOR_SWAP_MASTER = GeneratorSwapFixedIborMaster.getInstance();
   private static final IndexIborMaster INDEX_IBOR_MASTER = IndexIborMaster.getInstance();
@@ -78,7 +79,7 @@ public class ConstantSpreadHorizonThetaCalculatorSwapTest {
   @Test
   public void thetaFixedIborOverFirstPayment() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 8, 17);
-    final MultipleCurrencyAmount theta = THETAC.getTheta(SWAP_FIXED_IBOR_DEFINITION, referenceDate, CURVE_NAMES, CURVES, FIXING_TS_3_6, 1);
+    final MultipleCurrencyAmount theta = THETAC.getTheta(SWAP_FIXED_IBOR_DEFINITION, referenceDate, CURVE_NAMES, CURVES, FIXING_TS_3_6, 1, CALENDAR_NONE);
     final SwapFixedCoupon<Coupon> swapToday = SWAP_FIXED_IBOR_DEFINITION.toDerivative(referenceDate, FIXING_TS_3_6, CURVE_NAMES);
     final SwapFixedCoupon<Coupon> swapTomorrow = SWAP_FIXED_IBOR_DEFINITION.toDerivative(referenceDate.plusDays(1), FIXING_TS_3_6, CURVE_NAMES);
     final double pvToday = swapToday.accept(PVC, CURVES);
@@ -91,6 +92,6 @@ public class ConstantSpreadHorizonThetaCalculatorSwapTest {
 
   @Test(expectedExceptions = java.lang.IllegalArgumentException.class)
   public void badDaysForward() {
-    THETAC.getTheta(SWAP_FIXED_IBOR_DEFINITION, DateUtils.getUTCDate(2012, 8, 17), CURVE_NAMES, CURVES, FIXING_TS_3_6, 2);
+    THETAC.getTheta(SWAP_FIXED_IBOR_DEFINITION, DateUtils.getUTCDate(2012, 8, 17), CURVE_NAMES, CURVES, FIXING_TS_3_6, 2, CALENDAR_NONE);
   }
 }
