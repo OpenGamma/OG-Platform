@@ -133,6 +133,8 @@
       id IN ( @INCLUDE(SelectKeyValuesAny) )
     @AND(:sql_search_external_ids_type = NONE)
       id NOT IN ( @INCLUDE(SelectKeyValuesAny) )
+    @AND(:sql_search_attributes)
+      id IN ( @INCLUDE(SelectAttributesAll) )
     @AND(:bond_issuer_name)
       UPPER(issuername) @LIKE UPPER(:bond_issuer_name)
     @AND(:bond_issuer_type)
@@ -240,6 +242,19 @@
     sec_idkey
   WHERE
     @VALUE(:sql_search_external_ids)
+
+
+-- ==========================================================================
+@NAME(SelectAttributesAll)
+  SELECT
+    security_id
+  FROM
+    sec_security_attribute
+  WHERE @VALUE(:sql_search_attributes)
+  GROUP BY
+    security_id
+  HAVING
+    COUNT(security_id) >= :attr_search_size
 
 
 -- ==========================================================================

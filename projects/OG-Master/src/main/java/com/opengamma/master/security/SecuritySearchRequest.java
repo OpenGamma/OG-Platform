@@ -21,6 +21,7 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.google.common.collect.Maps;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalIdSearch;
@@ -72,6 +73,12 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
    */
   @PropertyDefinition
   private String _externalIdScheme;
+  /**
+   * Map of attributes to search for.
+   * The returned documents must match all of the specified attributes.
+   */
+  @PropertyDefinition
+  private final Map<String, String> _attributes = Maps.newHashMap();  // BeanMaster only at present
   /**
    * The security name, wildcards allowed, null to not match on name.
    */
@@ -207,6 +214,20 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
     } else {
       setExternalIdSearch(getExternalIdSearch().withSearchType(type));
     }
+  }
+
+  /**
+   * Adds a key-value pair to the set of attributes to search for.
+   * <p>
+   * Attributes are used to tag the object with additional information.
+   * 
+   * @param key  the key to add, not null
+   * @param value  the value to add, not null
+   */
+  public void addAttribute(String key, String value) {
+    ArgumentChecker.notNull(key, "key");
+    ArgumentChecker.notNull(value, "value");
+    _attributes.put(key, value);
   }
 
   //-------------------------------------------------------------------------
@@ -379,6 +400,35 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets map of attributes to search for.
+   * The returned documents must match all of the specified attributes.
+   * @return the value of the property
+   */
+  public Map<String, String> getAttributes() {
+    return _attributes;
+  }
+
+  /**
+   * Sets map of attributes to search for.
+   * The returned documents must match all of the specified attributes.
+   * @param attributes  the new value of the property
+   */
+  public void setAttributes(Map<String, String> attributes) {
+    this._attributes.clear();
+    this._attributes.putAll(attributes);
+  }
+
+  /**
+   * Gets the the {@code attributes} property.
+   * The returned documents must match all of the specified attributes.
+   * @return the property, not null
+   */
+  public final Property<Map<String, String>> attributes() {
+    return metaBean().attributes().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the security name, wildcards allowed, null to not match on name.
    * @return the value of the property
    */
@@ -504,6 +554,7 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
           JodaBeanUtils.equal(getExternalIdSearch(), other.getExternalIdSearch()) &&
           JodaBeanUtils.equal(getExternalIdValue(), other.getExternalIdValue()) &&
           JodaBeanUtils.equal(getExternalIdScheme(), other.getExternalIdScheme()) &&
+          JodaBeanUtils.equal(getAttributes(), other.getAttributes()) &&
           JodaBeanUtils.equal(getName(), other.getName()) &&
           JodaBeanUtils.equal(getSecurityType(), other.getSecurityType()) &&
           JodaBeanUtils.equal(getSortOrder(), other.getSortOrder()) &&
@@ -520,6 +571,7 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
     hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdSearch());
     hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdValue());
     hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdScheme());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getAttributes());
     hash += hash * 31 + JodaBeanUtils.hashCode(getName());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityType());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSortOrder());
@@ -529,7 +581,7 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(288);
+    StringBuilder buf = new StringBuilder(320);
     buf.append("SecuritySearchRequest{");
     int len = buf.length();
     toString(buf);
@@ -547,6 +599,7 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
     buf.append("externalIdSearch").append('=').append(JodaBeanUtils.toString(getExternalIdSearch())).append(',').append(' ');
     buf.append("externalIdValue").append('=').append(JodaBeanUtils.toString(getExternalIdValue())).append(',').append(' ');
     buf.append("externalIdScheme").append('=').append(JodaBeanUtils.toString(getExternalIdScheme())).append(',').append(' ');
+    buf.append("attributes").append('=').append(JodaBeanUtils.toString(getAttributes())).append(',').append(' ');
     buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
     buf.append("securityType").append('=').append(JodaBeanUtils.toString(getSecurityType())).append(',').append(' ');
     buf.append("sortOrder").append('=').append(JodaBeanUtils.toString(getSortOrder())).append(',').append(' ');
@@ -585,6 +638,12 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
     private final MetaProperty<String> _externalIdScheme = DirectMetaProperty.ofReadWrite(
         this, "externalIdScheme", SecuritySearchRequest.class, String.class);
     /**
+     * The meta-property for the {@code attributes} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<Map<String, String>> _attributes = DirectMetaProperty.ofReadWrite(
+        this, "attributes", SecuritySearchRequest.class, (Class) Map.class);
+    /**
      * The meta-property for the {@code name} property.
      */
     private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(
@@ -613,6 +672,7 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
         "externalIdSearch",
         "externalIdValue",
         "externalIdScheme",
+        "attributes",
         "name",
         "securityType",
         "sortOrder",
@@ -635,6 +695,8 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
           return _externalIdValue;
         case -267027573:  // externalIdScheme
           return _externalIdScheme;
+        case 405645655:  // attributes
+          return _attributes;
         case 3373707:  // name
           return _name;
         case 808245914:  // securityType
@@ -696,6 +758,14 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
     }
 
     /**
+     * The meta-property for the {@code attributes} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Map<String, String>> attributes() {
+      return _attributes;
+    }
+
+    /**
      * The meta-property for the {@code name} property.
      * @return the meta-property, not null
      */
@@ -739,6 +809,8 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
           return ((SecuritySearchRequest) bean).getExternalIdValue();
         case -267027573:  // externalIdScheme
           return ((SecuritySearchRequest) bean).getExternalIdScheme();
+        case 405645655:  // attributes
+          return ((SecuritySearchRequest) bean).getAttributes();
         case 3373707:  // name
           return ((SecuritySearchRequest) bean).getName();
         case 808245914:  // securityType
@@ -766,6 +838,9 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
           return;
         case -267027573:  // externalIdScheme
           ((SecuritySearchRequest) bean).setExternalIdScheme((String) newValue);
+          return;
+        case 405645655:  // attributes
+          ((SecuritySearchRequest) bean).setAttributes((Map<String, String>) newValue);
           return;
         case 3373707:  // name
           ((SecuritySearchRequest) bean).setName((String) newValue);

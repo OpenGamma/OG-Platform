@@ -15,6 +15,7 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -179,6 +180,7 @@ public class DbSecurityMaster
     final SecuritySearchResult result = new SecuritySearchResult(vc);
     
     final ExternalIdSearch externalIdSearch = request.getExternalIdSearch();
+    final Map<String, String> attributes = request.getAttributes();
     final List<ObjectId> objectIds = request.getObjectIds();
     if ((objectIds != null && objectIds.size() == 0) ||
         (ExternalIdSearch.canMatch(request.getExternalIdSearch()) == false)) {
@@ -203,6 +205,16 @@ public class DbSecurityMaster
       args.addValue("sql_search_external_ids_type", externalIdSearch.getSearchType());
       args.addValue("sql_search_external_ids", sqlSelectIdKeys(externalIdSearch));
       args.addValue("id_search_size", externalIdSearch.getExternalIds().size());
+    }
+    if (attributes.size() > 0) {
+      int i = 0;
+      for (Entry<String, String> entry : attributes.entrySet()) {
+        args.addValue("attr_key" + i, entry.getKey());
+        args.addValue("attr_value" + i, entry.getValue());
+        i++;
+      }
+      args.addValue("sql_search_attributes", sqlSelectAttibutes(attributes));
+      args.addValue("attr_search_size", attributes.size());
     }
     if (objectIds != null) {
       StringBuilder buf = new StringBuilder(objectIds.size() * 10);
@@ -242,6 +254,22 @@ public class DbSecurityMaster
     List<String> list = new ArrayList<String>();
     for (int i = 0; i < idSearch.size(); i++) {
       list.add("(key_scheme = :key_scheme" + i + " AND key_value = :key_value" + i + ") ");
+    }
+    return StringUtils.join(list, "OR ");
+  }
+
+  /**
+   * Gets the SQL to find matching attributes.
+   * <p>
+   * This is too complex for the elsql mechanism.
+   * 
+   * @param attributes  the attributes, not null
+   * @return the SQL, not null
+   */
+  protected String sqlSelectAttibutes(final Map<String, String> attributes) {
+    List<String> list = new ArrayList<String>();
+    for (int i = 0; i < attributes.size(); i++) {
+      list.add("(attr_key = :attr_key" + i + " AND attr_value = :attr_value" + i + ") ");
     }
     return StringUtils.join(list, "OR ");
   }
