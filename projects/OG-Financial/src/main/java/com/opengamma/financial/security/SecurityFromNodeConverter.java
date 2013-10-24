@@ -182,7 +182,7 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
                                            _identifier,
                                            fixingDate);
 
-    security.setName(fraNode.getName());
+    security.setName(fraNode.getName() + ": " + _identifier);
     return security;
   }
 
@@ -245,7 +245,7 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
                                              payLeg.getFirst(),
                                              receiveLeg.getFirst());
 
-    security.setName(swapNode.getName());
+    security.setName(swapNode.getName() + ": " + _identifier);
     return security;
   }
 
@@ -475,7 +475,7 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
                                                _rate,
                                                _amount);
 
-      security.setName(cashNode.getName());
+      security.setName(cashNode.getName() + ": " + _identifier);
       return security;
     } else {
       throw new OpenGammaRuntimeException("Could not handle convention of type " + convention.getClass());
@@ -496,7 +496,7 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
     } else {
       throw new OpenGammaRuntimeException("Could not handle future convention of type " + futureConvention.getClass());
     }
-    security.setName(rateFuture.getName());
+    security.setName(rateFuture.getName() + ": " + _identifier);
     return security;
   }
 
