@@ -31,7 +31,9 @@ import com.opengamma.analytics.financial.model.option.definition.SmileDeltaTermS
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackCubeBundle;
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackSwaptionBundle;
 import com.opengamma.analytics.financial.provider.calculator.generic.TodayPaymentCalculator;
+import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
+import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeriesBuilder;
@@ -66,14 +68,24 @@ public final class ConstantSpreadHorizonThetaCalculator {
   }
 
   public MultipleCurrencyAmount getTheta(final SwapDefinition definition, final ZonedDateTime date, final String[] yieldCurveNames, final YieldCurveBundle data,
-      final ZonedDateTimeDoubleTimeSeries[] fixingSeries, final int daysForward) {
+    final ZonedDateTimeDoubleTimeSeries[] fixingSeries, final int daysForward, final Calendar calendar) {
     ArgumentChecker.isTrue(daysForward == 1 || daysForward == -1, "daysForward must be either 1 or -1");
-    final InstrumentDerivative instrumentToday = definition.toDerivative(date, fixingSeries, yieldCurveNames);
+    final InstrumentDerivative instrumentToday;
+    final InstrumentDerivative instrumentTomorrow;
     final ZonedDateTime horizonDate = date.plusDays(daysForward);
+    if (calendar.isWorkingDay(date.toLocalDate())) {
+      instrumentToday = definition.toDerivative(date, fixingSeries, yieldCurveNames);
+      final ZonedDateTimeDoubleTimeSeries[] shiftedFixingSeries = getDateShiftedTimeSeries(fixingSeries, horizonDate);
+      instrumentTomorrow = definition.toDerivative(horizonDate, shiftedFixingSeries, yieldCurveNames);
+    } else {
+      final ZonedDateTime nextWorkingDay = ScheduleCalculator.getAdjustedDate(date, 1, calendar);
+      final ZonedDateTime nextHorizonDate = nextWorkingDay.plusDays(daysForward);
+      final ZonedDateTimeDoubleTimeSeries[] shiftedFixingSeries = getDateShiftedTimeSeries(fixingSeries, nextHorizonDate);
+      instrumentToday = definition.toDerivative(nextWorkingDay, fixingSeries, yieldCurveNames);
+      instrumentTomorrow = definition.toDerivative(nextHorizonDate, shiftedFixingSeries, yieldCurveNames);
+    }
     final double shiftTime = TimeCalculator.getTimeBetween(date, horizonDate);
     final TodayPaymentCalculator paymentCalculator = TodayPaymentCalculator.getInstance(shiftTime);
-    final ZonedDateTimeDoubleTimeSeries[] shiftedFixingSeries = getDateShiftedTimeSeries(fixingSeries, horizonDate);
-    final InstrumentDerivative instrumentTomorrow = definition.toDerivative(horizonDate, shiftedFixingSeries, yieldCurveNames);
     final MultipleCurrencyAmount paymentToday = instrumentToday.accept(paymentCalculator);
     if (paymentToday.size() != 1) {
       throw new IllegalStateException("Expecting a single payment in the currency of the swap");
@@ -84,7 +96,7 @@ public final class ConstantSpreadHorizonThetaCalculator {
     final double result = instrumentTomorrow.accept(pvCalculator, tomorrowData) - instrumentToday.accept(pvCalculator, data) + paymentToday.getAmount(currency);
     return MultipleCurrencyAmount.of(CurrencyAmount.of(currency, result));
   }
-
+  
   public MultipleCurrencyAmount getTheta(final SwaptionPhysicalFixedIborDefinition definition, final ZonedDateTime date, final String[] yieldCurveNames,
       final YieldCurveWithBlackSwaptionBundle data, final int daysForward) {
     ArgumentChecker.isTrue(daysForward == 1 || daysForward == -1, "daysForward must be either 1 or -1");
@@ -250,9 +262,6 @@ public final class ConstantSpreadHorizonThetaCalculator {
         }
       }
     }
-    ZonedDateTime tmp = laggedFixingSeries[0].getTimeAtIndex(250);
-    ZonedDateTime tmp1 = laggedFixingSeries[0].getTimeAtIndex(249);
-    ZonedDateTime tmp2 = laggedFixingSeries[0].getTimeAtIndex(248);
     return laggedFixingSeries;
   }
 
