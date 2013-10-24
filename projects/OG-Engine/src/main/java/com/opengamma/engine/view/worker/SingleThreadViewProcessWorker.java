@@ -994,7 +994,7 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
         inputValues[i] = MemoryUtils.instance(new ValueSpecification(inputValues[i].getValueName(), newInput.getTarget(), inputValues[i].getProperties()));
       }
     }
-    final ComputationTargetSpecification newTarget = remapper.remap(node.getTarget());
+    ComputationTargetSpecification newTarget = remapper.remap(node.getTarget());
     final ValueSpecification[] outputValues;
     if (newTarget != null) {
       outputValues = new ValueSpecification[node.getOutputCount()];
@@ -1023,6 +1023,7 @@ public class SingleThreadViewProcessWorker implements ViewProcessWorker, MarketD
         return node;
       }
       outputValues = DependencyNodeImpl.getOutputValueArray(node);
+      newTarget = node.getTarget();
     }
     if (inputValues == null) {
       inputValues = DependencyNodeImpl.getInputValueArray(node);
