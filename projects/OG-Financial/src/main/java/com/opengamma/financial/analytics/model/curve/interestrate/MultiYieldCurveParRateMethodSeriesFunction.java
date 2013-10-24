@@ -83,8 +83,6 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
 import com.opengamma.financial.analytics.conversion.InterestRateInstrumentTradeOrSecurityConverter;
-import com.opengamma.financial.analytics.conversion.YieldCurveFixingSeriesProvider;
-import com.opengamma.financial.analytics.ircurve.FixedIncomeStripIdentifierAndMaturityBuilder;
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithSecurity;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
 import com.opengamma.financial.analytics.ircurve.StripInstrumentType;
@@ -101,9 +99,9 @@ import com.opengamma.util.CompareUtils;
 import com.opengamma.util.money.Currency;
 
 /**
- * Constructs yield curves and the Jacobian from {@link YieldCurveDefinition}s. Multiple curves can be constructed simultaneously using root-finding. The configuration object that control the
+ * Constructs yield curves from {@link YieldCurveDefinition}s. Multiple curves can be constructed simultaneously using root-finding. The configuration object that control the
  * construction is {@link MultiCurveCalculationConfig}. The root-finder uses present value = 0 as its target, where an appropriate spread is added to the fixed rate or yield of an instrument.
- * 
+ *
  * @deprecated This function uses configuration objects that have been superseded. Use functions that descend from {@link MultiCurveFunction}.
  */
 @Deprecated
@@ -141,8 +139,8 @@ public class MultiYieldCurveParRateMethodSeriesFunction extends MultiYieldCurveS
     private final InstrumentDefinition<?> _definition;
     private final InstrumentDerivative _derivative;
 
-    public CurveStripDataBundle(final ZonedDateTime now, final MultiCurveCalculationConfig curveCalculationConfig, final CurveDataBundle curve, final FixedIncomeStripWithSecurity strip,
-        final HistoricalTimeSeriesBundle marketData) {
+    public CurveStripDataBundle(final ZonedDateTime now, final MultiCurveCalculationConfig curveCalculationConfig, final CurveDataBundle curve,
+        final FixedIncomeStripWithSecurity strip, final HistoricalTimeSeriesBundle marketData) {
       _strip = strip;
       _historicalTimeSeries = marketData.get(MarketDataRequirementNames.MARKET_VALUE, strip.getSecurityIdentifier());
       if (_historicalTimeSeries == null) {
@@ -158,19 +156,14 @@ public class MultiYieldCurveParRateMethodSeriesFunction extends MultiYieldCurveS
   }
 
   private class CurveDataBundle {
-
     // inputs
-
     private final String _name;
     private final Interpolator1D _interpolator;
     private final CurveStripDataBundle[] _strips;
     private final HistoricalTimeSeriesBundle _timeSeries;
     private final int _nodes;
-
     // temporary data
-
     private double[] _nodeTimes;
-
     // outputs
 
     private final Map<LocalDate, YieldAndDiscountCurve> _dateCurveMap = new LinkedHashMap<>();
@@ -186,7 +179,7 @@ public class MultiYieldCurveParRateMethodSeriesFunction extends MultiYieldCurveS
       _strips = new CurveStripDataBundle[strips.size()];
       int i = 0;
       int nodes = 0;
-      for (FixedIncomeStripWithSecurity strip : strips) {
+      for (final FixedIncomeStripWithSecurity strip : strips) {
         final CurveStripDataBundle stripData = new CurveStripDataBundle(now, curveCalculationConfig, this, strip, marketDataBundle);
         if (stripData._derivative != null) {
           nodes++;
@@ -195,7 +188,6 @@ public class MultiYieldCurveParRateMethodSeriesFunction extends MultiYieldCurveS
       }
       _nodes = nodes;
     }
-
   }
 
   private CurveDataBundle[] getCurveData(final ZonedDateTime now, final MultiCurveCalculationConfig curveCalculationConfig,
@@ -209,8 +201,8 @@ public class MultiYieldCurveParRateMethodSeriesFunction extends MultiYieldCurveS
   }
 
   private LinkedHashMap<String, Interpolator1D> getInterpolators(final CurveDataBundle[] curves) {
-    final LinkedHashMap<String, Interpolator1D> interpolators = new LinkedHashMap<String, Interpolator1D>(curves.length + (curves.length / 4));
-    for (CurveDataBundle curve : curves) {
+    final LinkedHashMap<String, Interpolator1D> interpolators = new LinkedHashMap<>(curves.length + (curves.length / 4));
+    for (final CurveDataBundle curve : curves) {
       interpolators.put(curve._name, curve._interpolator);
     }
     return interpolators;
@@ -218,7 +210,7 @@ public class MultiYieldCurveParRateMethodSeriesFunction extends MultiYieldCurveS
 
   private int getTotalStrips(final CurveDataBundle[] curves) {
     int totalStrips = 0;
-    for (CurveDataBundle curve : curves) {
+    for (final CurveDataBundle curve : curves) {
       totalStrips += curve._strips.length;
     }
     return totalStrips;
@@ -226,7 +218,7 @@ public class MultiYieldCurveParRateMethodSeriesFunction extends MultiYieldCurveS
 
   private Set<ComputedValue> getResults(final CurveDataBundle[] curves, final ComputationTargetSpecification targetSpec, final ValueProperties.Builder commonProperties) {
     final Set<ComputedValue> results = new HashSet<>();
-    for (CurveDataBundle curve : curves) {
+    for (final CurveDataBundle curve : curves) {
       final ValueProperties curveProperties = commonProperties.withoutAny(CURVE).with(CURVE, curve._name).get();
       final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.YIELD_CURVE_SERIES, targetSpec, curveProperties);
       results.add(new ComputedValue(spec, curve._dateCurveMap));
@@ -250,16 +242,12 @@ public class MultiYieldCurveParRateMethodSeriesFunction extends MultiYieldCurveS
     final ConfigSource configSource = OpenGammaExecutionContext.getConfigSource(executionContext);
     final MultiCurveCalculationConfig curveCalculationConfig = new ConfigDBCurveCalculationConfigSource(configSource).getConfig(curveCalculationConfigName);
     final ComputationTargetSpecification targetSpec = target.toSpecification();
-    final ConventionBundleSource conventionBundleSource = OpenGammaExecutionContext.getConventionBundleSource(executionContext);
-    final YieldCurveFixingSeriesProvider provider = new YieldCurveFixingSeriesProvider(conventionBundleSource);
     final double absoluteTolerance = Double.parseDouble(absoluteToleranceName);
     final double relativeTolerance = Double.parseDouble(relativeToleranceName);
     final int iterations = Integer.parseInt(iterationsName);
     final boolean useFiniteDifference = Boolean.parseBoolean(useFiniteDifferenceName);
     final Decomposition<?> decomposition = DecompositionFactory.getDecomposition(decompositionName);
     final Currency currency = Currency.of(targetSpec.getUniqueId().getValue());
-    final FixedIncomeStripIdentifierAndMaturityBuilder builder = new FixedIncomeStripIdentifierAndMaturityBuilder(OpenGammaExecutionContext.getRegionSource(executionContext),
-        OpenGammaExecutionContext.getConventionBundleSource(executionContext), executionContext.getSecuritySource(), OpenGammaExecutionContext.getHolidaySource(executionContext));
     final CurveDataBundle[] curves = getCurveData(now, curveCalculationConfig, inputs, targetSpec);
     final LinkedHashMap<String, Interpolator1D> interpolators = getInterpolators(curves);
     LocalDate valuationDate = startDate;
@@ -270,11 +258,11 @@ public class MultiYieldCurveParRateMethodSeriesFunction extends MultiYieldCurveS
       final DoubleArrayList marketValues = new DoubleArrayList();
       final DoubleArrayList initialRatesGuess = new DoubleArrayList();
       final LinkedHashMap<String, double[]> curveNodes = new LinkedHashMap<>();
-      for (CurveDataBundle curve : curves) {
+      for (final CurveDataBundle curve : curves) {
         int nInstruments = 0;
         FixedIncomeStripWithSecurity previousStrip = null;
         nodeTimes.clear();
-        for (CurveStripDataBundle strip : curve._strips) {
+        for (final CurveStripDataBundle strip : curve._strips) {
           final LocalDateDoubleTimeSeries ts = strip._historicalTimeSeries.getTimeSeries();
           final Double marketValueObject = ts.getValue(valuationDate);
           if (marketValueObject == null) {
@@ -322,9 +310,8 @@ public class MultiYieldCurveParRateMethodSeriesFunction extends MultiYieldCurveS
         final Function1D<DoubleMatrix1D, DoubleMatrix1D> curveCalculator = new MultipleYieldCurveFinderFunction(data, PAR_SPREAD_RATE_CALCULATOR);
         final Function1D<DoubleMatrix1D, DoubleMatrix2D> jacobianCalculator = new MultipleYieldCurveFinderIRSJacobian(data, PAR_SPREAD_RATE_SENSITIVITY_CALCULATOR);
         final double[] fittedYields = rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initialRatesGuess.toDoubleArray())).getData();
-        final DoubleMatrix2D jacobianMatrix = jacobianCalculator.evaluate(new DoubleMatrix1D(fittedYields));
         int i = 0;
-        for (CurveDataBundle curve : curves) {
+        for (final CurveDataBundle curve : curves) {
           final int offset = curve._nodes;
           final double[] yields = Arrays.copyOfRange(fittedYields, i, i + offset);
           final YieldCurve yieldCurve = YieldCurve.from(InterpolatedDoublesCurve.from(curve._nodeTimes, yields, curve._interpolator));

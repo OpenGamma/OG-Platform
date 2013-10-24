@@ -292,7 +292,7 @@ public class FXForwardYieldCurveNodePnLFunction extends AbstractFunction {
       }
       TenorLabelledLocalDateDoubleTimeSeriesMatrix1D pnlSeriesVector;
       if (resultCurrencies == null || resultCurrencies.size() != 1) {
-        s_logger.warn("No Currency property - returns result in base currency");
+        s_logger.info("No Currency property - returns result in base currency");
         pnlSeriesVector = getPnLVector(returnSeries, sensitivities);
       } else {
         final Currency resultCurrency = Currency.of(Iterables.getOnlyElement(resultCurrencies));
