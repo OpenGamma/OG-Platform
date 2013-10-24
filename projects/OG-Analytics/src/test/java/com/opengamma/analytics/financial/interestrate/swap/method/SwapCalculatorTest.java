@@ -266,7 +266,7 @@ public class SwapCalculatorTest {
   @Test
   public void thetaFixedIborBeforeFirstFixing() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 5, 11);
-    final MultipleCurrencyAmount theta = THETAC.getTheta(SWAP_FIXED_IBOR_DEFINITION, referenceDate, CURVE_NAMES, CURVES, FIXING_TS_3_6, 1, CALENDAR_NONE);
+    final MultipleCurrencyAmount theta = THETAC.getTheta(SWAP_FIXED_IBOR_DEFINITION, referenceDate, CURVE_NAMES, CURVES, FIXING_TS_3_6, 1, CALENDAR_USD);
     final SwapFixedCoupon<Coupon> swapToday = SWAP_FIXED_IBOR_DEFINITION.toDerivative(referenceDate, FIXING_TS_3_6, CURVE_NAMES);
     final SwapFixedCoupon<Coupon> swapTomorrow = SWAP_FIXED_IBOR_DEFINITION.toDerivative(referenceDate.plusDays(1), FIXING_TS_3_6, CURVE_NAMES);
     final double pvToday = swapToday.accept(PVC, CURVES);
@@ -279,7 +279,7 @@ public class SwapCalculatorTest {
   @Test
   public void thetaFixedIborOneDayBeforeFirstFixing() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 5, 14);
-    final MultipleCurrencyAmount theta = THETAC.getTheta(SWAP_FIXED_IBOR_DEFINITION, referenceDate, CURVE_NAMES, CURVES, FIXING_TS_3_6, 1, CALENDAR_NONE);
+    final MultipleCurrencyAmount theta = THETAC.getTheta(SWAP_FIXED_IBOR_DEFINITION, referenceDate, CURVE_NAMES, CURVES, FIXING_TS_3_6, 1, CALENDAR_USD);
     final SwapFixedCoupon<Coupon> swapToday = SWAP_FIXED_IBOR_DEFINITION.toDerivative(referenceDate, FIXING_TS_3_6, CURVE_NAMES);
     final ZonedDateTimeDoubleTimeSeries fixing3extended = ImmutableZonedDateTimeDoubleTimeSeries.of(
         new ZonedDateTime[] {DateUtils.getUTCDate(2012, 5, 14), DateUtils.getUTCDate(2012, 5, 15) },
@@ -296,7 +296,7 @@ public class SwapCalculatorTest {
   @Test
   public void thetaFixedIborOverFirstPayment() {
     final ZonedDateTime referenceDate = DateUtils.getUTCDate(2012, 8, 17);
-    final MultipleCurrencyAmount theta = THETAC.getTheta(SWAP_FIXED_IBOR_DEFINITION, referenceDate, CURVE_NAMES, CURVES, FIXING_TS_3_6, 1, CALENDAR_NONE);
+    final MultipleCurrencyAmount theta = THETAC.getTheta(SWAP_FIXED_IBOR_DEFINITION, referenceDate, CURVE_NAMES, CURVES, FIXING_TS_3_6, 1, CALENDAR_USD);
     final SwapFixedCoupon<Coupon> swapToday = SWAP_FIXED_IBOR_DEFINITION.toDerivative(referenceDate, FIXING_TS_3_6, CURVE_NAMES);
     final SwapFixedCoupon<Coupon> swapTomorrow = SWAP_FIXED_IBOR_DEFINITION.toDerivative(referenceDate.plusDays(1), FIXING_TS_3_6, CURVE_NAMES);
     final double pvToday = swapToday.accept(PVC, CURVES);

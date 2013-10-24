@@ -36,7 +36,6 @@ import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.timeseries.precise.zdt.ImmutableZonedDateTimeDoubleTimeSeries;
 import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeries;
-import com.opengamma.timeseries.precise.zdt.ZonedDateTimeDoubleTimeSeriesBuilder;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
@@ -96,7 +95,7 @@ public final class ConstantSpreadHorizonThetaCalculator {
     final double result = instrumentTomorrow.accept(pvCalculator, tomorrowData) - instrumentToday.accept(pvCalculator, data) + paymentToday.getAmount(currency);
     return MultipleCurrencyAmount.of(CurrencyAmount.of(currency, result));
   }
-  
+
   public MultipleCurrencyAmount getTheta(final SwaptionPhysicalFixedIborDefinition definition, final ZonedDateTime date, final String[] yieldCurveNames,
       final YieldCurveWithBlackSwaptionBundle data, final int daysForward) {
     ArgumentChecker.isTrue(daysForward == 1 || daysForward == -1, "daysForward must be either 1 or -1");
@@ -252,13 +251,8 @@ public final class ConstantSpreadHorizonThetaCalculator {
           final List<ZonedDateTime> times = new ArrayList<>(subSeries.times());
           final List<Double> values = new ArrayList<>(subSeries.values());
           times.add(tomorrow);
-          values.add(fixingSeries[i].getLatestValue());
+          values.add(ts.getLatestValue());
           laggedFixingSeries[i] = ImmutableZonedDateTimeDoubleTimeSeries.of(times, values, tomorrow.getZone());
-        /**
-        final ZonedDateTimeDoubleTimeSeriesBuilder bld = ts.toBuilder();
-        bld.put(tomorrow, ts.getLatestValue());
-        laggedFixingSeries[i] = bld.build();
-        */
         }
       }
     }
