@@ -253,10 +253,9 @@ public class HistoricalValuationFunction extends AbstractFunction.NonCompiledInv
     if (ComputationTargetType.SECURITY.equals(target.getType())) {
       security = target.getSecurity();
     } else if (ComputationTargetType.POSITION.equals(target.getType())) {
-      security = target.getPosition().getSecurityLink().resolve(context.getSecuritySource());
+      security = target.getPosition().getSecurity();
     }
     Set<Currency> targetCurrencies = security != null ? ImmutableSet.copyOf(FinancialSecurityUtils.getCurrencies(security, context.getSecuritySource())) : null;
-    
     ViewDefinition viewDefinition = context.getViewCalculationConfiguration().getViewDefinition();
     final HistoricalViewEvaluationTarget tempTarget = new HistoricalViewEvaluationTarget(viewDefinition.getMarketDataUser(), startDateConstraint, includeStartConstraint, endDateConstraint,
         includeEndConstraint, targetCurrencies, marketDataMode);
