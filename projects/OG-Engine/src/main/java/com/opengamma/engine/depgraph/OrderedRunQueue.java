@@ -31,7 +31,7 @@ import com.opengamma.util.ArgumentChecker;
 
   private final int _maxUnsorted;
   private ContextRunnable[] _buffer;
-  private int _length;
+  private volatile int _length;
   private int _sorted;
   private boolean _sorting;
   private final Object _sortingLock = new Object();
@@ -54,12 +54,12 @@ import com.opengamma.util.ArgumentChecker;
   }
 
   @Override
-  public synchronized boolean isEmpty() {
+  public boolean isEmpty() {
     return _length == 0;
   }
 
   @Override
-  public synchronized int size() {
+  public int size() {
     return _length;
   }
 
@@ -76,7 +76,13 @@ import com.opengamma.util.ArgumentChecker;
 
       @Override
       public ContextRunnable next() {
-        return _buffer[_count++];
+        final ContextRunnable[] buffer = _buffer;
+        final int count = _count++;
+        if (count < buffer.length) {
+          return buffer[count];
+        } else {
+          return null;
+        }
       }
 
       @Override

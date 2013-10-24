@@ -130,10 +130,4 @@ public class ImpliedDepositYieldCurveDefaults extends DefaultPropertyFunction {
   public PriorityClass getPriority() {
     return PriorityClass.ABOVE_NORMAL;
   }
-
-  @Override
-  public String getMutualExclusionGroup() {
-    return YIELD_CURVE_DEFAULTS;
-  }
-
 }
