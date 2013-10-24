@@ -47,21 +47,21 @@ public final class BlackPriceCalculator extends InstrumentDerivativeVisitorAdapt
 
   @Override
   public Double visitInterestRateFutureOptionMarginSecurity(final InterestRateFutureOptionMarginSecurity irFutureOption, final YieldCurveBundle curves) {
-    return MARGINED_IR_FUTURE_OPTION_SECURITY.presentValue(irFutureOption, curves).getAmount();
+    return MARGINED_IR_FUTURE_OPTION_SECURITY.optionPrice(irFutureOption, curves);
   }
 
   @Override
   public Double visitInterestRateFutureOptionPremiumSecurity(final InterestRateFutureOptionPremiumSecurity irFutureOption, final YieldCurveBundle curves) {
-    return PREMIUM_IR_FUTURE_OPTION_SECURITY.presentValue(irFutureOption, curves).getAmount();
+    return PREMIUM_IR_FUTURE_OPTION_SECURITY.optionPrice(irFutureOption, curves);
   }
 
   @Override
   public Double visitInterestRateFutureOptionMarginTransaction(final InterestRateFutureOptionMarginTransaction irFutureOption, final YieldCurveBundle curves) {
-    return MARGINED_IR_FUTURE_OPTION_SECURITY.presentValue(irFutureOption.getUnderlyingOption(), curves).getAmount();
+    return MARGINED_IR_FUTURE_OPTION_SECURITY.optionPrice(irFutureOption.getUnderlyingOption(), curves);
   }
 
   @Override
   public Double visitInterestRateFutureOptionPremiumTransaction(final InterestRateFutureOptionPremiumTransaction irFutureOption, final YieldCurveBundle curves) {
-    return PREMIUM_IR_FUTURE_OPTION_SECURITY.presentValue(irFutureOption.getUnderlyingOption(), curves).getAmount();
+    return PREMIUM_IR_FUTURE_OPTION_SECURITY.optionPrice(irFutureOption.getUnderlyingOption(), curves);
   }
 }

@@ -94,7 +94,7 @@ public final class InterestRateFutureOptionPremiumSecurityBlackSurfaceMethod ext
   @Override
   public double optionPrice(final InterestRateFutureOptionPremiumSecurity security, final YieldCurveBundle curves) {
     ArgumentChecker.isTrue(curves instanceof YieldCurveWithBlackCubeBundle, "Yield curve bundle should contain Black cube");
-    return optionPrice(security, curves);
+    return optionPrice(security, (YieldCurveWithBlackCubeBundle) curves);
   }
 
   /**

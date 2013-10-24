@@ -8,9 +8,11 @@ package com.opengamma.financial.analytics.model.irfutureoption;
 import java.util.Collections;
 import java.util.Set;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.UnderlyingMarketPriceCalculator;
 import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumTransaction;
 import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureSecurityDiscountingMethod;
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackCubeBundle;
 import com.opengamma.engine.value.ComputedValue;
@@ -33,6 +35,9 @@ public class InterestRateFutureOptionBlackForwardFunction extends InterestRateFu
   /** The calculator to compute the delta value */
   private static final UnderlyingMarketPriceCalculator CALCULATOR = UnderlyingMarketPriceCalculator.getInstance();
 
+  /**
+   * Sets the value requirement name to {@link ValueRequirementNames#FORWARD}
+   */
   public InterestRateFutureOptionBlackForwardFunction() {
     super(ValueRequirementNames.FORWARD);
   }
@@ -40,9 +45,16 @@ public class InterestRateFutureOptionBlackForwardFunction extends InterestRateFu
   @Override
   protected Set<ComputedValue> getResult(final InstrumentDerivative irFutureOptionTransaction, final YieldCurveWithBlackCubeBundle curveBundle, final ValueSpecification spec,
       final Set<ValueRequirement> desiredValues) {
-    final InstrumentDerivative irFutureOptionSecurity = ((InterestRateFutureOptionMarginTransaction) irFutureOptionTransaction).getUnderlyingOption();
-    final double forward = irFutureOptionSecurity.accept(CALCULATOR, curveBundle);
-    return Collections.singleton(new ComputedValue(spec, forward));
+    if (irFutureOptionTransaction instanceof InterestRateFutureOptionMarginTransaction) {
+      final InstrumentDerivative irFutureOptionSecurity = ((InterestRateFutureOptionMarginTransaction) irFutureOptionTransaction).getUnderlyingOption();
+      final double forward = irFutureOptionSecurity.accept(CALCULATOR, curveBundle);
+      return Collections.singleton(new ComputedValue(spec, forward));
+    } else if (irFutureOptionTransaction instanceof InterestRateFutureOptionPremiumTransaction) {
+      final InstrumentDerivative irFutureOptionSecurity = ((InterestRateFutureOptionPremiumTransaction) irFutureOptionTransaction).getUnderlyingOption();
+      final double forward = irFutureOptionSecurity.accept(CALCULATOR, curveBundle);
+      return Collections.singleton(new ComputedValue(spec, forward));
+    }
+    throw new OpenGammaRuntimeException("Could not handle instrument of type " + irFutureOptionTransaction.getClass());
   }
 
   @Override
