@@ -22,6 +22,7 @@ import com.opengamma.financial.convention.businessday.BusinessDayConventionFacto
 import com.opengamma.financial.convention.percurrency.EUConventions;
 import com.opengamma.financial.convention.percurrency.JPConventions;
 import com.opengamma.financial.convention.percurrency.USConventions;
+import com.opengamma.financial.convention.percurrency.KRConventions;
 import com.opengamma.financial.convention.percurrency.ZAConventions;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -61,6 +62,7 @@ public class InMemoryConventionMaster implements ConventionMaster {
     JPConventions.addFixedIncomeInstrumentConventions(this);
     USConventions.addFixedIncomeInstrumentConventions(this);
     ZAConventions.addFixedIncomeInstrumentConventions(this);
+    KRConventions.addFixedIncomeInstrumentConventions(this);
   }
 
   private void addFXConventions() {
