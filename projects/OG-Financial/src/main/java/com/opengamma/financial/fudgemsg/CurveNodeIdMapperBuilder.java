@@ -43,9 +43,9 @@ public class CurveNodeIdMapperBuilder implements FudgeBuilder<CurveNodeIdMapper>
   /** The FX forward node field */
   public static final String FX_FORWARD_NODE_FIELD = "fxForwardIds";
   /** The IMM FRA node field */
-  public static final String IMM_FRA_NODE_FIELD = "immFRAIds";
+  public static final String ROLL_DATE_FRA_NODE_FIELD = "rollDateFRAIds";
   /** The IMM swap node field */
-  public static final String IMM_SWAP_NODE_FIELD = "immSwapIds";
+  public static final String ROLL_DATE_SWAP_NODE_FIELD = "rollDateSwapIds";
   /** The rate future node field */
   public static final String RATE_FUTURE_FIELD = "rateFutureIds";
   /** The swap node field */
@@ -82,10 +82,10 @@ public class CurveNodeIdMapperBuilder implements FudgeBuilder<CurveNodeIdMapper>
       message.add(FX_FORWARD_NODE_FIELD, getMessageForField(serializer, object.getFXForwardNodeIds()));
     }
     if (object.getIMMFRANodeIds() != null) {
-      message.add(IMM_FRA_NODE_FIELD, getMessageForField(serializer, object.getIMMFRANodeIds()));
+      message.add(ROLL_DATE_FRA_NODE_FIELD, getMessageForField(serializer, object.getIMMFRANodeIds()));
     }
     if (object.getIMMSwapNodeIds() != null) {
-      message.add(IMM_SWAP_NODE_FIELD, getMessageForField(serializer, object.getIMMSwapNodeIds()));
+      message.add(ROLL_DATE_SWAP_NODE_FIELD, getMessageForField(serializer, object.getIMMSwapNodeIds()));
     }
     if (object.getRateFutureNodeIds() != null) {
       message.add(RATE_FUTURE_FIELD, getMessageForField(serializer, object.getRateFutureNodeIds()));
@@ -117,8 +117,8 @@ public class CurveNodeIdMapperBuilder implements FudgeBuilder<CurveNodeIdMapper>
     final Map<Tenor, CurveInstrumentProvider> discountFactorNodeIds = getMapForField(DISCOUNT_FACTOR_NODE_FIELD, deserializer, message);
     final Map<Tenor, CurveInstrumentProvider> fraNodeIds = getMapForField(FRA_NODE_FIELD, deserializer, message);
     final Map<Tenor, CurveInstrumentProvider> fxForwardNodeIds = getMapForField(FX_FORWARD_NODE_FIELD, deserializer, message);
-    final Map<Tenor, CurveInstrumentProvider> immFRANodeIds = getMapForField(IMM_FRA_NODE_FIELD, deserializer, message);
-    final Map<Tenor, CurveInstrumentProvider> immSwapNodeIds = getMapForField(IMM_SWAP_NODE_FIELD, deserializer, message);
+    final Map<Tenor, CurveInstrumentProvider> immFRANodeIds = getMapForField(ROLL_DATE_FRA_NODE_FIELD, deserializer, message);
+    final Map<Tenor, CurveInstrumentProvider> immSwapNodeIds = getMapForField(ROLL_DATE_SWAP_NODE_FIELD, deserializer, message);
     final Map<Tenor, CurveInstrumentProvider> rateFutureNodeIds = getMapForField(RATE_FUTURE_FIELD, deserializer, message);
     final Map<Tenor, CurveInstrumentProvider> swapNodeIds = getMapForField(SWAP_NODE_FIELD, deserializer, message);
     final Map<Tenor, CurveInstrumentProvider> threeLegBasisSwapNodeIds = getMapForField(THREE_LEG_BASIS_SWAP_NODE_FIELD, deserializer, message);

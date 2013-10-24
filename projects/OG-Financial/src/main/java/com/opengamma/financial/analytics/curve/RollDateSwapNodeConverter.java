@@ -12,10 +12,10 @@ import com.opengamma.analytics.financial.instrument.InstrumentDefinition;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
-import com.opengamma.financial.analytics.ircurve.strips.IMMSwapNode;
+import com.opengamma.financial.analytics.ircurve.strips.RollDateSwapNode;
 import com.opengamma.financial.convention.Convention;
 import com.opengamma.financial.convention.ConventionSource;
-import com.opengamma.financial.convention.IMMSwapConvention;
+import com.opengamma.financial.convention.RollDateSwapConvention;
 import com.opengamma.financial.convention.rolldate.RollDateAdjuster;
 import com.opengamma.financial.convention.rolldate.RollDateAdjusterFactory;
 import com.opengamma.id.ExternalId;
@@ -24,7 +24,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  *
  */
-public class IMMSwapNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinition<?>> {
+public class RollDateSwapNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefinition<?>> {
   /** The convention source */
   private final ConventionSource _conventionSource;
   /** The holiday source */
@@ -46,7 +46,7 @@ public class IMMSwapNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefi
    * @param dataId The id of the market data, not null
    * @param valuationTime The valuation time, not null
    */
-  public IMMSwapNodeConverter(final ConventionSource conventionSource, final HolidaySource holidaySource, final RegionSource regionSource,
+  public RollDateSwapNodeConverter(final ConventionSource conventionSource, final HolidaySource holidaySource, final RegionSource regionSource,
       final SnapshotDataBundle marketData, final ExternalId dataId, final ZonedDateTime valuationTime) {
     ArgumentChecker.notNull(conventionSource, "convention source");
     ArgumentChecker.notNull(holidaySource, "holiday source");
@@ -63,10 +63,10 @@ public class IMMSwapNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefi
   }
 
   @Override
-  public InstrumentDefinition<?> visitIMMSwapNode(final IMMSwapNode immSwapNode) {
-    final IMMSwapConvention swapConvention = _conventionSource.getConvention(IMMSwapConvention.class, immSwapNode.getSwapConvention());
+  public InstrumentDefinition<?> visitRollDateSwapNode(final RollDateSwapNode rollDateSwapNode) {
+    final RollDateSwapConvention swapConvention = _conventionSource.getConvention(RollDateSwapConvention.class, rollDateSwapNode.getRollDateSwapConvention());
     if (swapConvention == null) {
-      throw new OpenGammaRuntimeException("Convention with id " + immSwapNode.getSwapConvention() + " was null");
+      throw new OpenGammaRuntimeException("Convention with id " + rollDateSwapNode.getRollDateSwapConvention() + " was null");
     }
     final Convention payLegConvention = _conventionSource.getConvention(swapConvention.getPayLegConvention());
     if (payLegConvention == null) {
@@ -76,12 +76,10 @@ public class IMMSwapNodeConverter extends CurveNodeVisitorAdapter<InstrumentDefi
     if (receiveLegConvention == null) {
       throw new OpenGammaRuntimeException("Convention with id " + swapConvention.getReceiveLegConvention() + " was null");
     }
-    final RollDateAdjuster adjuster = RollDateAdjusterFactory.getAdjuster(swapConvention.getImmDateConvention().getValue());
-    final long monthsToAdjust = adjuster.getMonthsToAdjust();
-    final ZonedDateTime unadjustedStartDate = _valuationTime.plus(immSwapNode.getStartTenor().getPeriod());
-    final ZonedDateTime immStartDate = unadjustedStartDate.plusMonths(monthsToAdjust * immSwapNode.getImmDateStartNumber()).with(adjuster);
-    final ZonedDateTime maturityDate = immStartDate.plusMonths(monthsToAdjust * immSwapNode.getImmDateEndNumber());
-    return NodeConverterUtils.getSwapDefinition(payLegConvention, receiveLegConvention, immStartDate, maturityDate, _regionSource,
-        _holidaySource, _conventionSource, _marketData, _dataId, _valuationTime);
+    final RollDateAdjuster adjuster = RollDateAdjusterFactory.getAdjuster(swapConvention.getRollDateConvention().getValue());
+    final ZonedDateTime unadjustedStartDate = _valuationTime.plus(rollDateSwapNode.getStartTenor().getPeriod());
+    return NodeConverterUtils.getSwapRollDateDefinition(payLegConvention, receiveLegConvention, unadjustedStartDate, rollDateSwapNode.getRollDateStartNumber(),
+        rollDateSwapNode.getRollDateEndNumber(), adjuster, _regionSource, _holidaySource, _conventionSource, _marketData, _dataId, _valuationTime);
   }
+  
 }

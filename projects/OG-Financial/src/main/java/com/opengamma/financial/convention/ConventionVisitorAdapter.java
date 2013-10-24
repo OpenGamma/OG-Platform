@@ -59,12 +59,12 @@ public class ConventionVisitorAdapter<T> implements ConventionVisitor<T> {
   }
 
   @Override
-  public T visitIMMFRAConvention(final IMMFRAConvention convention) {
+  public T visitIMMFRAConvention(final RollDateFRAConvention convention) {
     return getErrorMessage(convention);
   }
 
   @Override
-  public T visitIMMSwapConvention(final IMMSwapConvention convention) {
+  public T visitIMMSwapConvention(final RollDateSwapConvention convention) {
     return getErrorMessage(convention);
   }
 
@@ -80,6 +80,11 @@ public class ConventionVisitorAdapter<T> implements ConventionVisitor<T> {
 
   @Override
   public T visitOISLegConvention(final OISLegConvention convention) {
+    return getErrorMessage(convention);
+  }
+
+  @Override
+  public T visitONArithmeticAverageLegConvention(final ONArithmeticAverageLegConvention convention) {
     return getErrorMessage(convention);
   }
 
@@ -104,12 +109,22 @@ public class ConventionVisitorAdapter<T> implements ConventionVisitor<T> {
   }
 
   @Override
+  public T visitFixedLegRollDateConvention(final FixedLegRollDateConvention convention) {
+    return getErrorMessage(convention);
+  }
+
+  @Override
   public T visitSwapIndexConvention(final SwapIndexConvention convention) {
     return getErrorMessage(convention);
   }
 
   @Override
   public T visitVanillaIborLegConvention(final VanillaIborLegConvention convention) {
+    return getErrorMessage(convention);
+  }
+
+  @Override
+  public T visitVanillaIborLegRollDateConvention(final VanillaIborLegRollDateConvention convention) {
     return getErrorMessage(convention);
   }
 

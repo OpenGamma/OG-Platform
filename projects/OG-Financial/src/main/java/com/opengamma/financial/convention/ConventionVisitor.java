@@ -75,18 +75,18 @@ public interface ConventionVisitor<T> {
   T visitIborIndexConvention(IborIndexConvention convention);
 
   /**
-   * Visits {@link IMMFRAConvention}
+   * Visits {@link RollDateFRAConvention}
    * @param convention The convention, not null
    * @return The return value
    */
-  T visitIMMFRAConvention(IMMFRAConvention convention);
+  T visitIMMFRAConvention(RollDateFRAConvention convention);
 
   /**
-   * Visits {@link IMMSwapConvention}
+   * Visits {@link RollDateSwapConvention}
    * @param convention The convention, not null
    * @return The return value
    */
-  T visitIMMSwapConvention(IMMSwapConvention convention);
+  T visitIMMSwapConvention(RollDateSwapConvention convention);
 
   /**
    * Visits {@link InflationLegConvention}
@@ -108,6 +108,13 @@ public interface ConventionVisitor<T> {
    * @return The return value
    */
   T visitOISLegConvention(OISLegConvention convention);
+
+  /**
+   * Visits {@link ONArithmeticAverageLegConvention}
+   * @param convention The convention, not null
+   * @return The return value
+   */
+  T visitONArithmeticAverageLegConvention(ONArithmeticAverageLegConvention convention);
 
   /**
    * Visits {@link OvernightIndexConvention}
@@ -138,6 +145,13 @@ public interface ConventionVisitor<T> {
   T visitSwapFixedLegConvention(SwapFixedLegConvention convention);
 
   /**
+   * Visits {@link FixedLegRollDateConvention}
+   * @param convention The convention, not null
+   * @return The return value
+   */
+  T visitFixedLegRollDateConvention(FixedLegRollDateConvention convention);
+
+  /**
    * Visits {@link SwapIndexConvention}
    * @param convention The convention, not null
    * @return The return value
@@ -150,4 +164,11 @@ public interface ConventionVisitor<T> {
    * @return The return value
    */
   T visitVanillaIborLegConvention(VanillaIborLegConvention convention);
+
+  /**
+   * Visits {@link VanillaIborLegRollDateConvention}
+   * @param convention The convention, not null
+   * @return The return value
+   */
+  T visitVanillaIborLegRollDateConvention(VanillaIborLegRollDateConvention convention);
 }

@@ -49,6 +49,8 @@ public class PerCurrencyConventionHelper {
   public static final String IBOR_LEG = "Ibor Leg";
   /** Compounded Ibor leg convention string **/
   public static final String IBOR_CMP_LEG = "Comp Ibor Leg";
+  /** Swap string */
+  public static final String SWAP = "Swap";
   /** Quarterly Eurodollar futures string */
   public static final String EURODOLLAR_FUTURE = "Quarterly ED, 3M Libor";
   /** Fed fund futures string */
