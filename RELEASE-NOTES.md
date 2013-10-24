@@ -42,6 +42,15 @@ To 2.1.3
     [PLAT-4909] Using sign in notional for swaptions and adding back functionality for ir future option greeks
     [] Changed IR futures price curve nodes maturity calculation, s.t. the delievery dates are take from the future security itself.  Require the security to be in the database
 
+To 2.1.4
+--------
+
+    [PLAT-4914] Swap theta functions now return a single-valued result.
+    [] Black calculators now use interest rate future option premia when calculating the present value.
+    [] Valuation date holidays now taken into account when shifting fixing series in swap theta calculations.
+    [] Fix for ArrayIndexOutOfBoundsException when shifting fixing series for swaps.
+    [] Fix for the sign of the numeraire for BRL DI swaptions in greek calculations.
+    [PLAT-4933] Performance improvement in HistoricalValuationFunction during dependency graph building
 
 
 OpenGamma Platform 2.1
@@ -163,6 +172,23 @@ Analytics compatibility
 - No expected differences
 
 To 2.1.3
+-----------
+
+As above, and:
+
+Configuration compatibility
+- No changes required
+
+Database compatibility
+- No upgrade required
+
+API compatibility
+- No significant changes
+
+Analytics compatibility
+- No expected differences
+
+To 2.1.4
 -----------
 
 As above, and:
