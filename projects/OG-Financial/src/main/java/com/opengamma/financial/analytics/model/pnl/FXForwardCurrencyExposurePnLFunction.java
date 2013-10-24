@@ -170,7 +170,6 @@ public class FXForwardCurrencyExposurePnLFunction extends AbstractFunction {
           requirements.add(ConventionBasedFXRateFunction.getHistoricalTimeSeriesRequirement(UnorderedCurrencyPair.of(nonBaseCurrency, baseCurrency)));
           resultCurrency = nonBaseCurrency.getCode();
         } else {
-          requirements.add(ConventionBasedFXRateFunction.getHistoricalTimeSeriesRequirement(UnorderedCurrencyPair.of(baseCurrency, nonBaseCurrency)));
           resultCurrency = baseCurrency.getCode();
         }
       } else {
@@ -264,15 +263,14 @@ public class FXForwardCurrencyExposurePnLFunction extends AbstractFunction {
         return Collections.singleton(new ComputedValue(spec, pnlSeries));
       }
       final Currency resultCurrency = Currency.of(Iterables.getOnlyElement(resultCurrencies));
+      if (resultCurrency.equals(baseCurrency)) {
+        final LocalDateDoubleTimeSeries fxSpotReturnSeries = (LocalDateDoubleTimeSeries) inputs.getValue(ValueRequirementNames.RETURN_SERIES);
+        final LocalDateDoubleTimeSeries pnlSeries = fxSpotReturnSeries.multiply(position.getQuantity().doubleValue() * exposure); // The P/L time series is in the base currency
+        return Collections.singleton(new ComputedValue(spec, pnlSeries));
+      }
       final LocalDateDoubleTimeSeries conversionTS = (LocalDateDoubleTimeSeries) inputs.getValue(HISTORICAL_FX_TIME_SERIES);
       if (conversionTS == null) {
         throw new OpenGammaRuntimeException("Asked for result in " + resultCurrency + " but could not get " + baseCurrency + "/" + resultCurrency + " conversion series");
-      }
-      if (resultCurrency.equals(baseCurrency)) {
-        final LocalDateDoubleTimeSeries fxSpotReturnSeries = (LocalDateDoubleTimeSeries) inputs.getValue(ValueRequirementNames.RETURN_SERIES);
-        final LocalDateDoubleTimeSeries convertedSeries = conversionTS.reciprocal().multiply(position.getQuantity().doubleValue() * exposure); // The P/L time series is in the base currency
-        final LocalDateDoubleTimeSeries pnlSeries = fxSpotReturnSeries.multiply(convertedSeries); // The P/L time series is in the base currency
-        return Collections.singleton(new ComputedValue(spec, pnlSeries));
       }
       final LocalDateDoubleTimeSeries fxSpotReturnSeries = (LocalDateDoubleTimeSeries) inputs.getValue(ValueRequirementNames.RETURN_SERIES);
       final LocalDateDoubleTimeSeries convertedSeries = conversionTS.multiply(position.getQuantity().doubleValue() * exposure); // The P/L time series is in the base currency
