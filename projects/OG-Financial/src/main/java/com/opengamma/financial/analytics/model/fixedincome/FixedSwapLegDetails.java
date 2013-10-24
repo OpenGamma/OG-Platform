@@ -199,7 +199,7 @@ public class FixedSwapLegDetails extends DirectBean implements Serializable {
    * Sets an array of coupon start dates.
    * @param startCouponDates  the new value of the property, not null
    */
-  public void setStartCouponDates(final LocalDate[] startCouponDates) {
+  public void setStartCouponDates(LocalDate[] startCouponDates) {
     JodaBeanUtils.notNull(startCouponDates, "startCouponDates");
     this._startCouponDates = startCouponDates;
   }
@@ -225,7 +225,7 @@ public class FixedSwapLegDetails extends DirectBean implements Serializable {
    * Sets an array of coupon end dates.
    * @param endCouponDates  the new value of the property, not null
    */
-  public void setEndCouponDates(final LocalDate[] endCouponDates) {
+  public void setEndCouponDates(LocalDate[] endCouponDates) {
     JodaBeanUtils.notNull(endCouponDates, "endCouponDates");
     this._endCouponDates = endCouponDates;
   }
@@ -251,7 +251,7 @@ public class FixedSwapLegDetails extends DirectBean implements Serializable {
    * Sets an array of discount factors for the payments.
    * @param discountFactors  the new value of the property, not null
    */
-  public void setDiscountFactors(final double[] discountFactors) {
+  public void setDiscountFactors(double[] discountFactors) {
     JodaBeanUtils.notNull(discountFactors, "discountFactors");
     this._discountFactors = discountFactors;
   }
@@ -277,7 +277,7 @@ public class FixedSwapLegDetails extends DirectBean implements Serializable {
    * Sets an array of payment times.
    * @param paymentTimes  the new value of the property, not null
    */
-  public void setPaymentTimes(final double[] paymentTimes) {
+  public void setPaymentTimes(double[] paymentTimes) {
     JodaBeanUtils.notNull(paymentTimes, "paymentTimes");
     this._paymentTimes = paymentTimes;
   }
@@ -303,7 +303,7 @@ public class FixedSwapLegDetails extends DirectBean implements Serializable {
    * Sets an array of payment year fractions.
    * @param paymentFractions  the new value of the property, not null
    */
-  public void setPaymentFractions(final double[] paymentFractions) {
+  public void setPaymentFractions(double[] paymentFractions) {
     JodaBeanUtils.notNull(paymentFractions, "paymentFractions");
     this._paymentFractions = paymentFractions;
   }
@@ -329,7 +329,7 @@ public class FixedSwapLegDetails extends DirectBean implements Serializable {
    * Sets an array of notionals.
    * @param notionals  the new value of the property, not null
    */
-  public void setNotionals(final CurrencyAmount[] notionals) {
+  public void setNotionals(CurrencyAmount[] notionals) {
     JodaBeanUtils.notNull(notionals, "notionals");
     this._notionals = notionals;
   }
@@ -355,7 +355,7 @@ public class FixedSwapLegDetails extends DirectBean implements Serializable {
    * Sets an array of fixed rates.
    * @param fixedRates  the new value of the property, not null
    */
-  public void setFixedRates(final double[] fixedRates) {
+  public void setFixedRates(double[] fixedRates) {
     JodaBeanUtils.notNull(fixedRates, "fixedRates");
     this._fixedRates = fixedRates;
   }
@@ -380,8 +380,8 @@ public class FixedSwapLegDetails extends DirectBean implements Serializable {
   //-----------------------------------------------------------------------
   @Override
   public FixedSwapLegDetails clone() {
-    final BeanBuilder<? extends FixedSwapLegDetails> builder = metaBean().builder();
-    for (final MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
+    BeanBuilder<? extends FixedSwapLegDetails> builder = metaBean().builder();
+    for (MetaProperty<?> mp : metaBean().metaPropertyIterable()) {
       if (mp.style().isBuildable()) {
         Object value = mp.get(this);
         if (value instanceof Bean) {
@@ -394,12 +394,12 @@ public class FixedSwapLegDetails extends DirectBean implements Serializable {
   }
 
   @Override
-  public boolean equals(final Object obj) {
+  public boolean equals(Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      final FixedSwapLegDetails other = (FixedSwapLegDetails) obj;
+      FixedSwapLegDetails other = (FixedSwapLegDetails) obj;
       return JodaBeanUtils.equal(getStartCouponDates(), other.getStartCouponDates()) &&
           JodaBeanUtils.equal(getEndCouponDates(), other.getEndCouponDates()) &&
           JodaBeanUtils.equal(getDiscountFactors(), other.getDiscountFactors()) &&
@@ -428,9 +428,9 @@ public class FixedSwapLegDetails extends DirectBean implements Serializable {
 
   @Override
   public String toString() {
-    final StringBuilder buf = new StringBuilder(288);
+    StringBuilder buf = new StringBuilder(288);
     buf.append("FixedSwapLegDetails{");
-    final int len = buf.length();
+    int len = buf.length();
     toString(buf);
     if (buf.length() > len) {
       buf.setLength(buf.length() - 2);
@@ -439,7 +439,7 @@ public class FixedSwapLegDetails extends DirectBean implements Serializable {
     return buf.toString();
   }
 
-  protected void toString(final StringBuilder buf) {
+  protected void toString(StringBuilder buf) {
     buf.append("startCouponDates").append('=').append(JodaBeanUtils.toString(getStartCouponDates())).append(',').append(' ');
     buf.append("endCouponDates").append('=').append(JodaBeanUtils.toString(getEndCouponDates())).append(',').append(' ');
     buf.append("discountFactors").append('=').append(JodaBeanUtils.toString(getDiscountFactors())).append(',').append(' ');
@@ -521,7 +521,7 @@ public class FixedSwapLegDetails extends DirectBean implements Serializable {
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
         case 482744381:  // startCouponDates
           return _startCouponDates;
@@ -625,7 +625,7 @@ public class FixedSwapLegDetails extends DirectBean implements Serializable {
 
     //-----------------------------------------------------------------------
     @Override
-    protected Object propertyGet(final Bean bean, final String propertyName, final boolean quiet) {
+    protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 482744381:  // startCouponDates
           return ((FixedSwapLegDetails) bean).getStartCouponDates();
@@ -648,7 +648,7 @@ public class FixedSwapLegDetails extends DirectBean implements Serializable {
     }
 
     @Override
-    protected void propertySet(final Bean bean, final String propertyName, final Object newValue, final boolean quiet) {
+    protected void propertySet(Bean bean, String propertyName, Object newValue, boolean quiet) {
       switch (propertyName.hashCode()) {
         case 482744381:  // startCouponDates
           ((FixedSwapLegDetails) bean).setStartCouponDates((LocalDate[]) newValue);
@@ -681,7 +681,7 @@ public class FixedSwapLegDetails extends DirectBean implements Serializable {
     }
 
     @Override
-    protected void validate(final Bean bean) {
+    protected void validate(Bean bean) {
       JodaBeanUtils.notNull(((FixedSwapLegDetails) bean)._startCouponDates, "startCouponDates");
       JodaBeanUtils.notNull(((FixedSwapLegDetails) bean)._endCouponDates, "endCouponDates");
       JodaBeanUtils.notNull(((FixedSwapLegDetails) bean)._discountFactors, "discountFactors");
