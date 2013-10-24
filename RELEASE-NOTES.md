@@ -51,6 +51,12 @@ To 2.1.4
     [] Fix for ArrayIndexOutOfBoundsException when shifting fixing series for swaps.
     [] Fix for the sign of the numeraire for BRL DI swaptions in greek calculations.
     [PLAT-4933] Performance improvement in HistoricalValuationFunction during dependency graph building
+    
+To 2.1.5
+--------
+
+    [] Fixes for FX forward currency conversion issues in P&L series.
+
 
 
 OpenGamma Platform 2.1
