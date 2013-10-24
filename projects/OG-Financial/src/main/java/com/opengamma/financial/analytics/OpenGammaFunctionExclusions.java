@@ -52,6 +52,7 @@ public interface OpenGammaFunctionExclusions {
   public static final String ISDA_COMPLIANT_CS01 = "ISDA_COMPLIANT_CS01";
   public static final String ISDA_COMPLIANT_RR01 = "ISDA_COMPLIANT_RR01";
   public static final String ISDA_COMPLIANT_PRICE = "ISDA_COMPLIANT_PRICE";
+  public static final String YIELD_CURVE_DEFAULTS = "YIELD_CURVE_DEFAULTS";
 
   //CSON
 

@@ -21,8 +21,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 
 /**
- * Describes a resolution failure. The implementation is intended to provide low-cost construction of failure information, at the
- * cost of a more complex querying/inspection algorithm.  
+ * Describes a resolution failure. The implementation is intended to provide low-cost construction of failure information, at the cost of a more complex querying/inspection algorithm.
  */
 public final class ResolutionFailureImpl extends ResolutionFailure {
 
@@ -115,10 +114,11 @@ public final class ResolutionFailureImpl extends ResolutionFailure {
 
   // Query
 
+  @Override
   public ValueRequirement getValueRequirement() {
     return _valueRequirement;
   }
-  
+
   public List<Object> getEvents() {
     return _events;
   }
@@ -248,8 +248,6 @@ public final class ResolutionFailureImpl extends ResolutionFailure {
   @Override
   protected synchronized void merge(final ResolutionFailure failureRef) {
     final ResolutionFailureImpl failure = (ResolutionFailureImpl) failureRef;
-    assert getValueRequirement().getTargetReference().equals(failure.getValueRequirement().getTargetReference())
-        && getValueRequirement().getValueName().equals(failure.getValueRequirement().getValueName());
     synchronized (failure) {
       final Iterator<Object> itrNew = failure._events.iterator();
       Object eventNew = itrNew.next();
@@ -401,10 +399,9 @@ public final class ResolutionFailureImpl extends ResolutionFailure {
   }
 
   /**
-   * Tests this resolution failure object with another for equality. Note that the caller must ensure that the monitor for
-   * both is held, or a suitable exclusion lock is held at an outer level.
+   * Tests this resolution failure object with another for equality. Note that the caller must ensure that the monitor for both is held, or a suitable exclusion lock is held at an outer level.
    * 
-   * @param obj  object to compare to
+   * @param obj object to compare to
    * @return true if the objects are equal
    */
   @Override

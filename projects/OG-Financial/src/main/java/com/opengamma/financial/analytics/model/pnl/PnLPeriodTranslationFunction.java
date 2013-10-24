@@ -56,7 +56,7 @@ public class PnLPeriodTranslationFunction extends AbstractFunction.NonCompiledIn
       return null;
     }
     String samplingPeriod = Iterables.getOnlyElement(samplingPeriods);
-    DateConstraint start = DateConstraint.parse("-" + samplingPeriod);
+    DateConstraint start = DateConstraint.VALUATION_TIME.minus(samplingPeriod);
     ValueProperties inputConstraints = desiredValue.getConstraints().copy()
         .withOptional(ValuePropertyNames.SAMPLING_PERIOD)
         .with(HistoricalTimeSeriesFunctionUtils.START_DATE_PROPERTY, start.toString())

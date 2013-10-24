@@ -26,6 +26,7 @@ public class ObjectComputationTargetType<T extends UniqueIdentifiable> extends C
   private final Class<T> _clazz;
 
   /* package */ObjectComputationTargetType(final ComputationTargetType type, final Class<T> clazz) {
+    super(type.hashCode());
     _underlying = type;
     _clazz = clazz;
   }
@@ -101,11 +102,6 @@ public class ObjectComputationTargetType<T extends UniqueIdentifiable> extends C
   @Override
   public boolean equals(final Object o) {
     return getUnderlying().equals(o);
-  }
-
-  @Override
-  public int hashCode() {
-    return getUnderlying().hashCode();
   }
 
   @Override

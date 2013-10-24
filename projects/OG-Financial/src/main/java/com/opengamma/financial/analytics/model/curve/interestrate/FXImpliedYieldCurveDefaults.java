@@ -153,4 +153,10 @@ public class FXImpliedYieldCurveDefaults extends DefaultPropertyFunction {
     }
     return null;
   }
+
+  @Override
+  public String getMutualExclusionGroup() {
+    return YIELD_CURVE_DEFAULTS;
+  }
+
 }
