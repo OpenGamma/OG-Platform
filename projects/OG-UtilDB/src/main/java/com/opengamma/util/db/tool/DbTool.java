@@ -164,7 +164,7 @@ public class DbTool {
       ds.setPassword(getPassword());
       ds.setAcquireIncrement(1);
       ds.setPartitionCount(1);
-      ds.setMaxConnectionsPerPartition(1);
+      ds.setMaxConnectionsPerPartition(2);
       ds.setAcquireRetryAttempts(2);
       ds.setAcquireRetryDelayInMs(2000);
       _dataSource = dataSource = ds;  // CSIGNORE
