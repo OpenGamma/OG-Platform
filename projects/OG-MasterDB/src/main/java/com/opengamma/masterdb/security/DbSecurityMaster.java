@@ -210,10 +210,9 @@ public class DbSecurityMaster
       int i = 0;
       for (Entry<String, String> entry : attributes.entrySet()) {
         args.addValue("attr_key" + i, entry.getKey());
-        args.addValue("attr_value" + i, entry.getValue());
+        args.addValue("attr_value" + i, getDialect().sqlWildcardAdjustValue(entry.getValue()));
         i++;
       }
-      args.addValue("sql_search_attributes", sqlSelectAttibutes(attributes));
       args.addValue("attr_search_size", attributes.size());
     }
     if (objectIds != null) {
@@ -254,22 +253,6 @@ public class DbSecurityMaster
     List<String> list = new ArrayList<String>();
     for (int i = 0; i < idSearch.size(); i++) {
       list.add("(key_scheme = :key_scheme" + i + " AND key_value = :key_value" + i + ") ");
-    }
-    return StringUtils.join(list, "OR ");
-  }
-
-  /**
-   * Gets the SQL to find matching attributes.
-   * <p>
-   * This is too complex for the elsql mechanism.
-   * 
-   * @param attributes  the attributes, not null
-   * @return the SQL, not null
-   */
-  protected String sqlSelectAttibutes(final Map<String, String> attributes) {
-    List<String> list = new ArrayList<String>();
-    for (int i = 0; i < attributes.size(); i++) {
-      list.add("(attr_key = :attr_key" + i + " AND attr_value = :attr_value" + i + ") ");
     }
     return StringUtils.join(list, "OR ");
   }
