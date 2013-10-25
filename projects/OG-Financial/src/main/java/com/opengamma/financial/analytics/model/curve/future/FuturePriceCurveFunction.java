@@ -63,6 +63,7 @@ public abstract class FuturePriceCurveFunction extends AbstractFunction {
 
   protected abstract String getInstrumentType();
 
+  @SuppressWarnings("unchecked")
   private FuturePriceCurveDefinition<Object> getCurveDefinition(final ConfigDBFuturePriceCurveDefinitionSource source, final ComputationTarget target,
       final String definitionName, final VersionCorrection versionCorrection) {
     final String fullDefinitionName = definitionName + "_" + target.getUniqueId().getValue();
@@ -75,6 +76,7 @@ public abstract class FuturePriceCurveFunction extends AbstractFunction {
     return source.getSpecification(fullSpecificationName, getInstrumentType(), versionCorrection);
   }
 
+  @SuppressWarnings("unchecked")
   public static Set<ValueRequirement> buildRequirements(final FuturePriceCurveSpecification futurePriceCurveSpecification, final FuturePriceCurveDefinition<Object> futurePriceCurveDefinition,
       final ZonedDateTime atInstant) {
     final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
@@ -149,7 +151,7 @@ public abstract class FuturePriceCurveFunction extends AbstractFunction {
         return true;
       }
 
-      @SuppressWarnings({"synthetic-access" })
+      @SuppressWarnings({"synthetic-access", "unchecked" })
       @Override
       public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
           final Set<ValueRequirement> desiredValues) {
