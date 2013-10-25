@@ -106,24 +106,38 @@ public class DbSecurityBeanMasterTest extends AbstractDbTest {
 
   //-------------------------------------------------------------------------
   @Test
-  public void test_bond() throws Exception {
+  public void test_bond_withSearchByIssuer() throws Exception {
     ZonedDateTime zdt = ZonedDateTime.parse("2011-01-31T12:00Z[Europe/London]");
-    GovernmentBondSecurity sec = new GovernmentBondSecurity("US TREASURY N/B", "issuerType", "issuerDomicile", "market",
+    GovernmentBondSecurity sec1 = new GovernmentBondSecurity("US TREASURY N/B", "issuerType", "issuerDomicile", "market",
         Currency.GBP, SimpleYieldConvention.US_TREASURY_EQUIVALANT, new Expiry(zdt),
         "couponType", 23.5d, SimpleFrequency.ANNUAL, DayCountFactory.INSTANCE.getDayCount("Act/Act"),
         zdt, zdt, zdt, 129d, 1324d, 12d, 1d, 2d, 3d);
-    sec.addExternalId(ExternalId.of("abc", "def"));
-    SecurityDocument addDoc = new SecurityDocument(sec);
-    SecurityDocument added = _secMaster.add(addDoc);
+    sec1.addExternalId(ExternalId.of("abc", "def"));
+    SecurityDocument added1 = _secMaster.add(new SecurityDocument(sec1));
+    GovernmentBondSecurity sec2 = new GovernmentBondSecurity("UK GOVT", "issuerType", "issuerDomicile", "market",
+        Currency.GBP, SimpleYieldConvention.US_TREASURY_EQUIVALANT, new Expiry(zdt),
+        "couponType", 23.5d, SimpleFrequency.ANNUAL, DayCountFactory.INSTANCE.getDayCount("Act/Act"),
+        zdt, zdt, zdt, 129d, 1324d, 12d, 1d, 2d, 3d);
+    sec2.addExternalId(ExternalId.of("abc", "def"));
+    SecurityDocument added2 = _secMaster.add(new SecurityDocument(sec2));
     
-    SecurityDocument loaded = _secMaster.get(added.getUniqueId());
-    assertEquals(added, loaded);
+    SecurityDocument loaded1 = _secMaster.get(added1.getUniqueId());
+    assertEquals(added1, loaded1);
+    
+    SecurityDocument loaded2 = _secMaster.get(added2.getUniqueId());
+    assertEquals(added2, loaded2);
     
     BondSecuritySearchRequest request = new BondSecuritySearchRequest();
     request.setIssuerName("*TREASURY*");
     SecuritySearchResult result = _secMaster.search(request);
     assertEquals(1, result.getDocuments().size());
-    assertEquals(loaded, result.getFirstDocument());
+    assertEquals(loaded1, result.getFirstDocument());
+    
+    BondSecuritySearchRequest request2 = new BondSecuritySearchRequest();
+    request2.setIssuerName("*GOVT*");
+    SecuritySearchResult result2 = _secMaster.search(request2);
+    assertEquals(1, result2.getDocuments().size());
+    assertEquals(loaded2, result2.getFirstDocument());
   }
 
   //-------------------------------------------------------------------------

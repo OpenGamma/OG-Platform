@@ -70,6 +70,13 @@ public class BeanMasterSearchRequest extends AbstractSearchRequest {
   @PropertyDefinition
   private final Map<String, String> _attributes = Maps.newHashMap();
   /**
+   * Map of indexed properties to search for.
+   * The returned documents must match all of the specified properties.
+   * Wildcards are allowed for the values. Nulls are not allowed.
+   */
+  @PropertyDefinition
+  private final Map<String, String> _indexedProperties = Maps.newHashMap();
+  /**
    * The descriptive name, wildcards allowed, null to not match on name.
    */
   @PropertyDefinition
@@ -356,6 +363,38 @@ public class BeanMasterSearchRequest extends AbstractSearchRequest {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets map of indexed properties to search for.
+   * The returned documents must match all of the specified properties.
+   * Wildcards are allowed for the values. Nulls are not allowed.
+   * @return the value of the property
+   */
+  public Map<String, String> getIndexedProperties() {
+    return _indexedProperties;
+  }
+
+  /**
+   * Sets map of indexed properties to search for.
+   * The returned documents must match all of the specified properties.
+   * Wildcards are allowed for the values. Nulls are not allowed.
+   * @param indexedProperties  the new value of the property
+   */
+  public void setIndexedProperties(Map<String, String> indexedProperties) {
+    this._indexedProperties.clear();
+    this._indexedProperties.putAll(indexedProperties);
+  }
+
+  /**
+   * Gets the the {@code indexedProperties} property.
+   * The returned documents must match all of the specified properties.
+   * Wildcards are allowed for the values. Nulls are not allowed.
+   * @return the property, not null
+   */
+  public final Property<Map<String, String>> indexedProperties() {
+    return metaBean().indexedProperties().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the descriptive name, wildcards allowed, null to not match on name.
    * @return the value of the property
    */
@@ -497,6 +536,7 @@ public class BeanMasterSearchRequest extends AbstractSearchRequest {
           JodaBeanUtils.equal(getExternalIdValue(), other.getExternalIdValue()) &&
           JodaBeanUtils.equal(getExternalIdScheme(), other.getExternalIdScheme()) &&
           JodaBeanUtils.equal(getAttributes(), other.getAttributes()) &&
+          JodaBeanUtils.equal(getIndexedProperties(), other.getIndexedProperties()) &&
           JodaBeanUtils.equal(getName(), other.getName()) &&
           JodaBeanUtils.equal(getMainType(), other.getMainType()) &&
           JodaBeanUtils.equal(getSubType(), other.getSubType()) &&
@@ -515,6 +555,7 @@ public class BeanMasterSearchRequest extends AbstractSearchRequest {
     hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdValue());
     hash += hash * 31 + JodaBeanUtils.hashCode(getExternalIdScheme());
     hash += hash * 31 + JodaBeanUtils.hashCode(getAttributes());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getIndexedProperties());
     hash += hash * 31 + JodaBeanUtils.hashCode(getName());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMainType());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSubType());
@@ -525,7 +566,7 @@ public class BeanMasterSearchRequest extends AbstractSearchRequest {
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(352);
+    StringBuilder buf = new StringBuilder(384);
     buf.append("BeanMasterSearchRequest{");
     int len = buf.length();
     toString(buf);
@@ -544,6 +585,7 @@ public class BeanMasterSearchRequest extends AbstractSearchRequest {
     buf.append("externalIdValue").append('=').append(JodaBeanUtils.toString(getExternalIdValue())).append(',').append(' ');
     buf.append("externalIdScheme").append('=').append(JodaBeanUtils.toString(getExternalIdScheme())).append(',').append(' ');
     buf.append("attributes").append('=').append(JodaBeanUtils.toString(getAttributes())).append(',').append(' ');
+    buf.append("indexedProperties").append('=').append(JodaBeanUtils.toString(getIndexedProperties())).append(',').append(' ');
     buf.append("name").append('=').append(JodaBeanUtils.toString(getName())).append(',').append(' ');
     buf.append("mainType").append('=').append(JodaBeanUtils.toString(getMainType())).append(',').append(' ');
     buf.append("subType").append('=').append(JodaBeanUtils.toString(getSubType())).append(',').append(' ');
@@ -589,6 +631,12 @@ public class BeanMasterSearchRequest extends AbstractSearchRequest {
     private final MetaProperty<Map<String, String>> _attributes = DirectMetaProperty.ofReadWrite(
         this, "attributes", BeanMasterSearchRequest.class, (Class) Map.class);
     /**
+     * The meta-property for the {@code indexedProperties} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<Map<String, String>> _indexedProperties = DirectMetaProperty.ofReadWrite(
+        this, "indexedProperties", BeanMasterSearchRequest.class, (Class) Map.class);
+    /**
      * The meta-property for the {@code name} property.
      */
     private final MetaProperty<String> _name = DirectMetaProperty.ofReadWrite(
@@ -623,6 +671,7 @@ public class BeanMasterSearchRequest extends AbstractSearchRequest {
         "externalIdValue",
         "externalIdScheme",
         "attributes",
+        "indexedProperties",
         "name",
         "mainType",
         "subType",
@@ -648,6 +697,8 @@ public class BeanMasterSearchRequest extends AbstractSearchRequest {
           return _externalIdScheme;
         case 405645655:  // attributes
           return _attributes;
+        case 2013657348:  // indexedProperties
+          return _indexedProperties;
         case 3373707:  // name
           return _name;
         case -8420205:  // mainType
@@ -719,6 +770,14 @@ public class BeanMasterSearchRequest extends AbstractSearchRequest {
     }
 
     /**
+     * The meta-property for the {@code indexedProperties} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Map<String, String>> indexedProperties() {
+      return _indexedProperties;
+    }
+
+    /**
      * The meta-property for the {@code name} property.
      * @return the meta-property, not null
      */
@@ -772,6 +831,8 @@ public class BeanMasterSearchRequest extends AbstractSearchRequest {
           return ((BeanMasterSearchRequest) bean).getExternalIdScheme();
         case 405645655:  // attributes
           return ((BeanMasterSearchRequest) bean).getAttributes();
+        case 2013657348:  // indexedProperties
+          return ((BeanMasterSearchRequest) bean).getIndexedProperties();
         case 3373707:  // name
           return ((BeanMasterSearchRequest) bean).getName();
         case -8420205:  // mainType
@@ -804,6 +865,9 @@ public class BeanMasterSearchRequest extends AbstractSearchRequest {
           return;
         case 405645655:  // attributes
           ((BeanMasterSearchRequest) bean).setAttributes((Map<String, String>) newValue);
+          return;
+        case 2013657348:  // indexedProperties
+          ((BeanMasterSearchRequest) bean).setIndexedProperties((Map<String, String>) newValue);
           return;
         case 3373707:  // name
           ((BeanMasterSearchRequest) bean).setName((String) newValue);

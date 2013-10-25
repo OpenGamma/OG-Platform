@@ -72,6 +72,13 @@ public abstract class BeanMasterCallback<D extends AbstractDocument, V extends B
   protected abstract Map<String, String> getAttributes(V value);
 
   /**
+   * Gets the indexed properties.
+   * @param value  the bean to extract from, not null
+   * @return the search properties, not null
+   */
+  protected abstract Map<String, String> getIndexedProperties(V value);
+
+  /**
    * Gets the type character used to identify the main type.
    * @param value  the bean to extract from, not null
    * @return the main type, not null
@@ -94,6 +101,7 @@ public abstract class BeanMasterCallback<D extends AbstractDocument, V extends B
     return value.getClass().getSimpleName();
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Gets the packed data.
    * @param value  the bean to extract from, not null

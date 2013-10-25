@@ -18,6 +18,8 @@ INSERT INTO secb_schema_version (version_key, version_value) VALUES ('schema_pat
 --     START WITH 1000 INCREMENT BY 1 NO CYCLE;
 -- CREATE SEQUENCE secb_attr_seq
 --     START WITH 1000 INCREMENT BY 1 NO CYCLE;
+-- CREATE SEQUENCE secb_prop_seq
+--     START WITH 1000 INCREMENT BY 1 NO CYCLE;
 CREATE TABLE secb_doc_seq (
   SeqID INT identity(1000,1) PRIMARY KEY,
   SeqVal VARCHAR(1)
@@ -27,6 +29,10 @@ CREATE TABLE secb_idkey_seq (
   SeqVal VARCHAR(1)
 )
 CREATE TABLE secb_attr_seq (
+  SeqID INT identity(1000,1) PRIMARY KEY,
+  SeqVal VARCHAR(1)
+)
+CREATE TABLE secb_prop_seq (
   SeqID INT identity(1000,1) PRIMARY KEY,
   SeqVal VARCHAR(1)
 )
@@ -59,6 +65,7 @@ CREATE INDEX ix_secb_doc_corr_instants ON secb_document(corr_from_instant, corr_
 CREATE INDEX ix_secb_doc_name_type ON secb_document(uname, main_type, sub_type, ver_from_instant, corr_from_instant, ver_to_instant, corr_to_instant);
 CREATE INDEX ix_secb_doc_sub_type ON secb_document(usub_type, ver_from_instant, corr_from_instant, ver_to_instant, corr_to_instant);
 
+
 -- Document external ID
 -------------------------
 CREATE TABLE secb_idkey (
@@ -79,6 +86,7 @@ CREATE TABLE secb_doc2idkey (
 CREATE INDEX ix_secb_doc2idkey_idkey ON secb_doc2idkey(idkey_id);
 -- secb_doc2idkey is fully dependent of secb_document
 
+
 -- Document attributes
 ------------------------
 CREATE TABLE secb_attr (
@@ -98,3 +106,24 @@ CREATE TABLE secb_doc2attr (
 );
 CREATE INDEX ix_secb_doc2attr_attr ON secb_doc2attr(attr_id);
 -- secb_doc2attr is fully dependent of secb_document
+
+
+-- Document searchable properties
+---------------------------------
+CREATE TABLE secb_prop (
+    id bigint NOT NULL,
+    prop_key varchar(255) NOT NULL,
+    prop_value varchar(255) NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT secb_chk_prop UNIQUE (prop_key, prop_value)
+);
+
+CREATE TABLE secb_doc2prop (
+    doc_id bigint NOT NULL,
+    prop_id bigint NOT NULL,
+    PRIMARY KEY (doc_id, prop_id),
+    CONSTRAINT secb_fk_docprop2doc FOREIGN KEY (doc_id) REFERENCES secb_document (id),
+    CONSTRAINT secb_fk_docprop2prop FOREIGN KEY (prop_id) REFERENCES secb_prop (id)
+);
+CREATE INDEX ix_secb_doc2prop_prop ON secb_doc2prop(prop_id);
+-- secb_doc2prop is fully dependent of secb_document

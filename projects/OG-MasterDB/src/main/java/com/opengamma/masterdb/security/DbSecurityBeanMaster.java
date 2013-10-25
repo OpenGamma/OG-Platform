@@ -6,9 +6,7 @@
 package com.opengamma.masterdb.security;
 
 import java.util.EnumMap;
-import java.util.Map;
 
-import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityHistoryRequest;
@@ -20,7 +18,6 @@ import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.master.security.SecuritySearchSortOrder;
 import com.opengamma.masterdb.bean.AbstractDelegatingBeanMaster;
-import com.opengamma.masterdb.bean.BeanMasterCallback;
 import com.opengamma.masterdb.bean.BeanMasterSearchRequest;
 import com.opengamma.masterdb.bean.DbBeanMaster;
 import com.opengamma.util.db.DbConnector;
@@ -32,6 +29,8 @@ import com.opengamma.util.db.DbConnector;
  * Data is stored based on the Joda-Beans API.
  * Full details of the API are in {@link SecurityMaster}.
  * <p>
+ * Applications can configure this master using the callback class passed in.
+ * <p>
  * This class is mutable but must be treated as immutable after configuration.
  */
 public class DbSecurityBeanMaster
@@ -42,6 +41,10 @@ public class DbSecurityBeanMaster
    * The default scheme for unique identifiers.
    */
   public static final String IDENTIFIER_SCHEME_DEFAULT = "DbSec";
+  /**
+   * The default callback.
+   */
+  public static final DbSecurityBeanMasterCallback DEFAULT_CALLBACK = new DefaultDbSecurityBeanMasterCallback();
 
   /**
    * SQL order by.
@@ -59,12 +62,38 @@ public class DbSecurityBeanMaster
   }
 
   /**
+   * The callback.
+   */
+  private final DbSecurityBeanMasterCallback _callback;
+
+  /**
    * Creates an instance.
    * 
    * @param dbConnector  the database connector, not null
    */
   public DbSecurityBeanMaster(final DbConnector dbConnector) {
-    super(new DbBeanMaster<>(dbConnector, IDENTIFIER_SCHEME_DEFAULT, new Callback()));
+    this(dbConnector, DEFAULT_CALLBACK);
+  }
+
+  /**
+   * Creates an instance.
+   * 
+   * @param dbConnector  the database connector, not null
+   * @param callback  the callback used to configure the master, not null
+   */
+  public DbSecurityBeanMaster(final DbConnector dbConnector, DbSecurityBeanMasterCallback callback) {
+    super(new DbBeanMaster<>(dbConnector, IDENTIFIER_SCHEME_DEFAULT, callback));
+    _callback = callback;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the callback object.
+   * 
+   * @return the callback object, not null
+   */
+  protected DbSecurityBeanMasterCallback getCallback() {
+    return _callback;
   }
 
   //-------------------------------------------------------------------------
@@ -93,55 +122,13 @@ public class DbSecurityBeanMaster
     delegatedRequest.setName(request.getName());
     delegatedRequest.setSubType(request.getSecurityType());
     delegatedRequest.setSortOrderSql(ORDER_BY_MAP.get(request.getSortOrder()));
+    getCallback().buildIndexedPropertiesSearch(delegatedRequest, request);
     return getDelegate().search(delegatedRequest, new SecuritySearchResult());
   }
 
   @Override
   public SecurityHistoryResult history(SecurityHistoryRequest request) {
     return getDelegate().history(request, new SecurityHistoryResult());
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Callback.
-   */
-  private static final class Callback extends BeanMasterCallback<SecurityDocument, ManageableSecurity> {
-    @Override
-    protected String getSqlTablePrefix() {
-      return "secb";
-    }
-    @Override
-    protected String getMasterName() {
-      return "Security";
-    }
-    @Override
-    protected Class<ManageableSecurity> getRootType() {
-      return ManageableSecurity.class;
-    }
-    @Override
-    protected SecurityDocument createDocument(ManageableSecurity value) {
-      return new SecurityDocument(value);
-    }
-    @Override
-    protected String getName(ManageableSecurity value) {
-      return value.getName();
-    }
-    @Override
-    protected ExternalIdBundle getExternalIdBundle(ManageableSecurity value) {
-      return value.getExternalIdBundle();
-    }
-    @Override
-    protected Map<String, String> getAttributes(ManageableSecurity value) {
-      return value.getAttributes();
-    }
-    @Override
-    protected char getMainType(ManageableSecurity value) {
-      return 'S';
-    }
-    @Override
-    protected String getSubType(ManageableSecurity value) {
-      return value.getSecurityType();
-    }
   }
 
 }

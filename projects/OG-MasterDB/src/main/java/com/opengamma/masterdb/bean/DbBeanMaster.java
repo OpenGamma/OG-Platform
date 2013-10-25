@@ -82,6 +82,10 @@ public class DbBeanMaster<D extends AbstractDocument, V extends Bean>
    * The attribute sequence.
    */
   private String _sequenceAttribute;
+  /**
+   * The properties sequence.
+   */
+  private String _sequenceProperties;
 
   // -----------------------------------------------------------------
   // TIMERS FOR METRICS GATHERING
@@ -114,6 +118,16 @@ public class DbBeanMaster<D extends AbstractDocument, V extends Bean>
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Gets the callback object.
+   * 
+   * @return the callback object, not null
+   */
+  protected BeanMasterCallback<D, V> getCallback() {
+    return _callback;
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public void setElSqlBundle(ElSqlBundle bundle) {
     super.setElSqlBundle(bundle);
@@ -121,6 +135,7 @@ public class DbBeanMaster<D extends AbstractDocument, V extends Bean>
     _sequenceDocument = getElSqlBundle().getSql("SequenceDocument", source).trim();
     _sequenceIdKey = getElSqlBundle().getSql("SequenceIdKey", source).trim();
     _sequenceAttribute = getElSqlBundle().getSql("SequenceAttr", source).trim();
+    _sequenceProperties = getElSqlBundle().getSql("SequenceProp", source).trim();
   }
 
   /**
@@ -129,8 +144,8 @@ public class DbBeanMaster<D extends AbstractDocument, V extends Bean>
    */
   @Override
   protected DbMapSqlParameterSource createParameterSource() {
-    Objects.requireNonNull(_callback.getSqlTablePrefix(), "Table prefix");
-    return new DbMapSqlParameterSource().addValue("table_prefix", _callback.getSqlTablePrefix());
+    Objects.requireNonNull(getCallback().getSqlTablePrefix(), "Table prefix");
+    return new DbMapSqlParameterSource().addValue("table_prefix", getCallback().getSqlTablePrefix());
   }
 
   //-------------------------------------------------------------------------
@@ -166,6 +181,7 @@ public class DbBeanMaster<D extends AbstractDocument, V extends Bean>
     
     final ExternalIdSearch externalIdSearch = request.getExternalIdSearch();
     final Map<String, String> attributes = request.getAttributes();
+    final Map<String, String> indexedProperties = request.getIndexedProperties();
     final List<ObjectId> objectIds = request.getObjectIds();
     if ((objectIds != null && objectIds.size() == 0) ||
         (ExternalIdSearch.canMatch(request.getExternalIdSearch()) == false)) {
@@ -200,9 +216,16 @@ public class DbBeanMaster<D extends AbstractDocument, V extends Bean>
         args.addValue("attr_value" + i, entry.getValue());
         i++;
       }
-      args.addValue("sql_search_attributes", sqlSelectAttibutes(attributes));
       args.addValue("attr_search_size", attributes.size());
-      
+    }
+    if (indexedProperties.size() > 0) {
+      int i = 0;
+      for (Entry<String, String> entry : indexedProperties.entrySet()) {
+        args.addValue("prop_key" + i, entry.getKey());
+        args.addValue("prop_value" + i, getDialect().sqlWildcardAdjustValue(entry.getValue()));
+        i++;
+      }
+      args.addValue("prop_search_size", indexedProperties.size());
     }
     if (objectIds != null) {
       StringBuilder buf = new StringBuilder(objectIds.size() * 10);
@@ -238,32 +261,16 @@ public class DbBeanMaster<D extends AbstractDocument, V extends Bean>
     return StringUtils.join(list, "OR ");
   }
 
-  /**
-   * Gets the SQL to find matching attributes.
-   * <p>
-   * This is too complex for the elsql mechanism.
-   * 
-   * @param attributes  the attributes, not null
-   * @return the SQL, not null
-   */
-  protected String sqlSelectAttibutes(final Map<String, String> attributes) {
-    List<String> list = new ArrayList<String>();
-    for (int i = 0; i < attributes.size(); i++) {
-      list.add("(attr_key = :attr_key" + i + " AND attr_value = :attr_value" + i + ") ");
-    }
-    return StringUtils.join(list, "OR ");
-  }
-
   //-------------------------------------------------------------------------
   @Override
   public D get(final UniqueId uniqueId) {
-    return doGet(uniqueId, new DocumentExtractor(), _callback.getMasterName());
+    return doGet(uniqueId, new DocumentExtractor(), getCallback().getMasterName());
   }
 
   //-------------------------------------------------------------------------
   @Override
   public D get(final ObjectIdentifiable objectId, final VersionCorrection versionCorrection) {
-    return doGetByOidInstants(objectId, versionCorrection, new DocumentExtractor(), _callback.getMasterName());
+    return doGetByOidInstants(objectId, versionCorrection, new DocumentExtractor(), getCallback().getMasterName());
   }
 
   //-------------------------------------------------------------------------
@@ -283,13 +290,14 @@ public class DbBeanMaster<D extends AbstractDocument, V extends Bean>
     V value = (V) document.getValue();
     ArgumentChecker.notNull(value, "document.value");
     
-    String name = _callback.getName(value);
-    ExternalIdBundle externalIdBundle = _callback.getExternalIdBundle(value);
-    Map<String, String> attributes = _callback.getAttributes(value);
-    Character mainType = _callback.getMainType(value);
-    String subType = _callback.getSubType(value);
-    String actualType = _callback.getActualType(value);
-    byte[] packedData = _callback.getPackedData(value);
+    final String name = getCallback().getName(value);
+    final ExternalIdBundle externalIdBundle = getCallback().getExternalIdBundle(value);
+    final Map<String, String> attributes = getCallback().getAttributes(value);
+    final Map<String, String> indexedProperties = getCallback().getIndexedProperties(value);
+    final Character mainType = getCallback().getMainType(value);
+    final String subType = getCallback().getSubType(value);
+    final String actualType = getCallback().getActualType(value);
+    final byte[] packedData = getCallback().getPackedData(value);
     ArgumentChecker.notNull(name, "document.value.name");
     ArgumentChecker.notNull(externalIdBundle, "document.value.externalIdBundle");
     ArgumentChecker.notNull(attributes, "document.value.attributes");
@@ -322,7 +330,10 @@ public class DbBeanMaster<D extends AbstractDocument, V extends Bean>
         insertIdKey(docId, externalIdBundle);
       }
       if (attributes.size() > 0) {
-        insertAttr(docId, attributes);
+        insertMap(docId, attributes, _sequenceAttribute, "Attr");
+      }
+      if (indexedProperties.size() > 0) {
+        insertMap(docId, indexedProperties, _sequenceProperties, "Prop");
       }
       
       // set the uniqueId
@@ -334,6 +345,7 @@ public class DbBeanMaster<D extends AbstractDocument, V extends Bean>
   }
 
   protected void insertIdKey(final long docId, ExternalIdBundle externalIdBundle) {
+    // cannot convert bundle to map as keys are duplicated
     final List<DbMapSqlParameterSource> assocList = new ArrayList<DbMapSqlParameterSource>();
     final List<DbMapSqlParameterSource> dataList = new ArrayList<DbMapSqlParameterSource>();
     final String sqlSelectData = getElSqlBundle().getSql("SelectIdKey", createParameterSource());
@@ -359,10 +371,10 @@ public class DbBeanMaster<D extends AbstractDocument, V extends Bean>
     getJdbcTemplate().batchUpdate(sqlAssoc, assocList.toArray(new DbMapSqlParameterSource[assocList.size()]));
   }
 
-  protected void insertAttr(final long docId, Map<String, String> attributes) {
+  protected void insertMap(final long docId, Map<String, String> attributes, String sequence, String type) {
     final List<DbMapSqlParameterSource> assocList = new ArrayList<DbMapSqlParameterSource>();
     final List<DbMapSqlParameterSource> dataList = new ArrayList<DbMapSqlParameterSource>();
-    final String sqlSelectData = getElSqlBundle().getSql("SelectAttr", createParameterSource());
+    final String sqlSelectData = getElSqlBundle().getSql("Select" + type, createParameterSource());
     for (Map.Entry<String, String> entry : attributes.entrySet()) {
       final DbMapSqlParameterSource assocArgs = createParameterSource()
         .addValue("doc_id", docId)
@@ -371,7 +383,7 @@ public class DbBeanMaster<D extends AbstractDocument, V extends Bean>
       assocList.add(assocArgs);
       if (getJdbcTemplate().queryForList(sqlSelectData, assocArgs).isEmpty()) {
         // select avoids creating unnecessary id, but id may still not be used
-        final long dataId = nextId(_sequenceAttribute);
+        final long dataId = nextId(sequence);
         final DbMapSqlParameterSource idkeyArgs = createParameterSource()
           .addValue("id", dataId)
           .addValue("key", entry.getKey())
@@ -379,8 +391,8 @@ public class DbBeanMaster<D extends AbstractDocument, V extends Bean>
         dataList.add(idkeyArgs);
       }
     }
-    final String sqlData = getElSqlBundle().getSql("InsertAttr", createParameterSource());
-    final String sqlAssoc = getElSqlBundle().getSql("InsertDoc2Attr", createParameterSource());
+    final String sqlData = getElSqlBundle().getSql("Insert" + type, createParameterSource());
+    final String sqlAssoc = getElSqlBundle().getSql("InsertDoc2" + type, createParameterSource());
     getJdbcTemplate().batchUpdate(sqlData, dataList.toArray(new DbMapSqlParameterSource[dataList.size()]));
     getJdbcTemplate().batchUpdate(sqlAssoc, assocList.toArray(new DbMapSqlParameterSource[assocList.size()]));
   }
@@ -415,10 +427,10 @@ public class DbBeanMaster<D extends AbstractDocument, V extends Bean>
       final Timestamp correctionFrom = rs.getTimestamp("CORR_FROM_INSTANT");
       final Timestamp correctionTo = rs.getTimestamp("CORR_TO_INSTANT");
       final byte[] packedData = getDialect().getLobHandler().getBlobAsBytes(rs, "PACKED_DATA");
-      _value = _callback.parsePackedData(packedData);
+      _value = getCallback().parsePackedData(packedData);
       UniqueId uniqueId = createUniqueId(docOid, docId);
       IdUtils.setInto(_value, uniqueId);
-      D doc = DbBeanMaster.this._callback.createDocument(_value);
+      D doc = DbBeanMaster.this.getCallback().createDocument(_value);
       doc.setVersionFromInstant(DbDateUtils.fromSqlTimestamp(versionFrom));
       doc.setVersionToInstant(DbDateUtils.fromSqlTimestampNullFarFuture(versionTo));
       doc.setCorrectionFromInstant(DbDateUtils.fromSqlTimestamp(correctionFrom));

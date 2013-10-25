@@ -96,8 +96,10 @@
       id IN ( @INCLUDE(SelectKeyValuesAny) )
     @AND(:sql_search_external_ids_type = NONE)
       id NOT IN ( @INCLUDE(SelectKeyValuesAny) )
-    @AND(:sql_search_attributes)
-      id IN ( @INCLUDE(SelectAttributesAll) )
+    @AND(:attr_search_size)
+      id IN ( @INCLUDE(SelectAttrAll) )
+    @AND(:prop_search_size)
+      id IN ( @INCLUDE(SelectPropAll) )
 
 
 -- ==========================================================================
@@ -204,12 +206,12 @@
 
 
 -- ==========================================================================
-@NAME(SelectAttributesAll)
+@NAME(SelectAttrAll)
   SELECT
     doc_id
   FROM
     @VALUE(:table_prefix)_doc2attr
-  WHERE attr_id IN ( @INCLUDE(SelectAttributesOr) )
+  WHERE attr_id IN ( @INCLUDE(SelectAttrOr) )
   GROUP BY
     doc_id
   HAVING
@@ -217,15 +219,43 @@
 
 
 -- ==========================================================================
-@NAME(SelectAttributesOr)
+@NAME(SelectAttrOr)
   SELECT
     id
   FROM
     @VALUE(:table_prefix)_attr
   WHERE
-    @VALUE(:sql_search_attributes)
+    @LOOP(:attr_search_size)
+      (attr_key = :attr_key@LOOPINDEX AND attr_value = :attr_value@LOOPINDEX)
+      @LOOPJOIN OR
 
 
+-- ==========================================================================
+@NAME(SelectPropAll)
+  SELECT
+    doc_id
+  FROM
+    @VALUE(:table_prefix)_doc2prop
+  WHERE prop_id IN ( @INCLUDE(SelectPropOr) )
+  GROUP BY
+    doc_id
+  HAVING
+    COUNT(doc_id) >= :prop_search_size
+
+
+-- ==========================================================================
+@NAME(SelectPropOr)
+  SELECT
+    id
+  FROM
+    @VALUE(:table_prefix)_prop
+  WHERE
+    @LOOP(:prop_search_size)
+      (prop_key = :prop_key@LOOPINDEX AND UPPER(prop_value) @LIKE UPPER(:prop_value@LOOPINDEX) @ENDLIKE)
+      @LOOPJOIN OR
+
+
+-- ==========================================================================
 -- ==========================================================================
 @NAME(History)
   WITH cte_docs AS ( @INCLUDE(HistoryInner) )
@@ -287,6 +317,7 @@
 
 
 -- ==========================================================================
+-- ==========================================================================
 @NAME(Insert)
   INSERT INTO @VALUE(:table_prefix)_document
     (id, oid, ver_from_instant, ver_to_instant, corr_from_instant, corr_to_instant, name, main_type, sub_type, actual_type, packed_data)
@@ -347,6 +378,32 @@
 
 
 -- ==========================================================================
+@NAME(InsertDoc2Prop)
+  INSERT INTO @VALUE(:table_prefix)_doc2prop
+    (doc_id, prop_id)
+  VALUES
+    (:doc_id, ( @INCLUDE(SelectProp) ))
+
+
+-- ==========================================================================
+@NAME(SelectProp)
+  SELECT
+    id
+  FROM
+    @VALUE(:table_prefix)_prop
+  WHERE prop_key = :key
+    AND prop_value = :value
+
+
+-- ==========================================================================
+@NAME(InsertProp)
+  INSERT INTO @VALUE(:table_prefix)_prop
+    (id, prop_key, prop_value)
+  VALUES
+    (:id, :key, :value)
+
+
+-- ==========================================================================
 @NAME(UpdateVersionToInstant)
   UPDATE @VALUE(:table_prefix)_document
   SET ver_to_instant = :ver_to_instant
@@ -362,6 +419,7 @@
     AND corr_to_instant >= :max_instant
 
 
+-- ==========================================================================
 -- ==========================================================================
 @NAME(SelectSubTypes)
   SELECT
@@ -386,6 +444,7 @@
 
 
 -- ==========================================================================
+-- ==========================================================================
 @NAME(SequenceDocument)
   @VALUE(:table_prefix)_doc_seq
 
@@ -398,6 +457,11 @@
 -- ==========================================================================
 @NAME(SequenceAttr)
   @VALUE(:table_prefix)_attr_seq
+
+
+-- ==========================================================================
+@NAME(SequenceProp)
+  @VALUE(:table_prefix)_prop_seq
 
 
 -- ==========================================================================
