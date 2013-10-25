@@ -66,6 +66,7 @@ public class BeanMasterSearchRequest extends AbstractSearchRequest {
   /**
    * Map of attributes to search for.
    * The returned documents must match all of the specified attributes.
+   * Wildcards are allowed for the values. Nulls are not allowed.
    */
   @PropertyDefinition
   private final Map<String, String> _attributes = Maps.newHashMap();
@@ -336,6 +337,7 @@ public class BeanMasterSearchRequest extends AbstractSearchRequest {
   /**
    * Gets map of attributes to search for.
    * The returned documents must match all of the specified attributes.
+   * Wildcards are allowed for the values. Nulls are not allowed.
    * @return the value of the property
    */
   public Map<String, String> getAttributes() {
@@ -345,6 +347,7 @@ public class BeanMasterSearchRequest extends AbstractSearchRequest {
   /**
    * Sets map of attributes to search for.
    * The returned documents must match all of the specified attributes.
+   * Wildcards are allowed for the values. Nulls are not allowed.
    * @param attributes  the new value of the property
    */
   public void setAttributes(Map<String, String> attributes) {
@@ -355,6 +358,7 @@ public class BeanMasterSearchRequest extends AbstractSearchRequest {
   /**
    * Gets the the {@code attributes} property.
    * The returned documents must match all of the specified attributes.
+   * Wildcards are allowed for the values. Nulls are not allowed.
    * @return the property, not null
    */
   public final Property<Map<String, String>> attributes() {

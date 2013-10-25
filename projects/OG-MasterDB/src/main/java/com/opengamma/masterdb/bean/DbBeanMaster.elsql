@@ -226,7 +226,7 @@
     @VALUE(:table_prefix)_attr
   WHERE
     @LOOP(:attr_search_size)
-      (attr_key = :attr_key@LOOPINDEX AND attr_value = :attr_value@LOOPINDEX)
+      (attr_key = :attr_key@LOOPINDEX AND UPPER(attr_value) @LIKE UPPER(:attr_value@LOOPINDEX) @ENDLIKE)
       @LOOPJOIN OR
 
 

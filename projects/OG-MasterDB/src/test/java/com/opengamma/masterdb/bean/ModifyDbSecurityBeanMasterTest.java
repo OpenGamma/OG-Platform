@@ -169,7 +169,7 @@ public class ModifyDbSecurityBeanMasterTest extends AbstractDbSecurityBeanMaster
     
     searchRequest = new SecuritySearchRequest();
     searchRequest.addAttribute("city", "London");
-    searchRequest.addAttribute("office", "Southern");
+    searchRequest.addAttribute("office", "*thern");
     searchResult = _secMaster.search(searchRequest);
     assertEquals(1, searchResult.getDocuments().size());
     assertEquals(added, searchResult.getDocuments().get(0));

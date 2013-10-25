@@ -213,7 +213,7 @@ public class DbBeanMaster<D extends AbstractDocument, V extends Bean>
       int i = 0;
       for (Entry<String, String> entry : attributes.entrySet()) {
         args.addValue("attr_key" + i, entry.getKey());
-        args.addValue("attr_value" + i, entry.getValue());
+        args.addValue("attr_value" + i, getDialect().sqlWildcardAdjustValue(entry.getValue()));
         i++;
       }
       args.addValue("attr_search_size", attributes.size());
