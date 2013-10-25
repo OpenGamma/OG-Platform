@@ -13,6 +13,6 @@ BEGIN TRAN;
     INSERT INTO auth_hibernate_sequence (next_val) SELECT next_val FROM hibernate_sequence;
 
   IF EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE' AND TABLE_NAME='hibernate_sequence') 
-    DROP SEQUENCE hibernate_sequence;
+    DROP TABLE hibernate_sequence;
 
 COMMIT;

@@ -4,10 +4,14 @@ BEGIN TRAN;
   UPDATE sec_schema_version SET version_value='67' WHERE version_key='schema_patch';
 
   -- add exchange initial notional column
-  ALTER TABLE sec_swap ADD exchange_initial_notional boolean DEFAULT FALSE NOT NULL ;
+  ALTER TABLE sec_swap ADD exchange_initial_notional bit NULL;
+  UPDATE sec_swap SET exchange_initial_notional = 0;
+  ALTER TABLE sec_swap ALTER COLUMN exchange_initial_notional bit NOT NULL;
 
   -- add exchange final notional column
-  ALTER TABLE sec_swap ADD exchange_final_notional boolean DEFAULT FALSE NOT NULL ;
+  ALTER TABLE sec_swap ADD exchange_final_notional bit NULL;
+  UPDATE sec_swap SET exchange_final_notional = 0;
+  ALTER TABLE sec_swap ALTER COLUMN exchange_final_notional bit NOT NULL;
 
   -- add maturity tenor id column
   ALTER TABLE sec_swap ADD maturity_tenor_id bigint NULL;
