@@ -58,6 +58,15 @@ To 2.1.5
     [] Fixes for FX forward currency conversion issues in P&L series.
 
 
+To 2.1.6
+--------
+
+    [PLAT-4888, PLAT-4891, PLAT-4916, PLAT-4908, PLAT-4932] Fix database scripts and tests
+    NOTE: This changes a number of create and migrate scripts (sec, rsk, org, exg, auth)
+    DBAs may want to check the fixes:
+    https://github.com/OpenGamma/OG-Platform/commit/faf5e208534ce41636dcff4a02839e940e11b36e
+    https://github.com/OpenGamma/OG-Platform/commit/25d224cfcfc8278a52b62bbfb21cf90ffb9f81a0
+
 
 OpenGamma Platform 2.1
 ---------------------------------
