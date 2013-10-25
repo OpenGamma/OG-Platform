@@ -20,8 +20,8 @@
       <property name="zone" type="string" column="forwardstart_zone" />
     </component>
     <property name="counterparty" column="counterparty" type="string" not-null="true" />
-    <property name="exchangeInitialNotional" column="exchange_initial_notional" type="boolean" />
-    <property name="exchangeFinalNotional" column="exchange_final_notional" type="boolean" />
+    <property name="exchangeInitialNotional" column="exchange_initial_notional" type="boolean" not-null="true" />
+    <property name="exchangeFinalNotional" column="exchange_final_notional" type="boolean" not-null="true" />
     <many-to-one name="maturityTenor" class="com.opengamma.masterdb.security.hibernate.TenorBean" column="maturity_tenor_id" />
     <component name="payLeg" class="SwapLegBean">
       <property name="swapLegType" type="com.opengamma.masterdb.security.hibernate.swap.SwapLegTypeUserType" column="pay_legtype" not-null="true" />
