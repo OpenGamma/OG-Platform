@@ -70,8 +70,8 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
   /**
    * The security type.
    */
-  @PropertyDefinition(validate = "notNull", set = "")
-  private final String _securityType;
+  @PropertyDefinition(validate = "notNull", set = "private")
+  private String _securityType;
 
   /**
    * The general purpose trade attributes, which can be used for aggregating in portfolios.
@@ -245,6 +245,15 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
   }
 
   /**
+   * Sets the security type.
+   * @param securityType  the new value of the property, not null
+   */
+  private void setSecurityType(String securityType) {
+    JodaBeanUtils.notNull(securityType, "securityType");
+    this._securityType = securityType;
+  }
+
+  /**
    * Gets the the {@code securityType} property.
    * @return the property, not null
    */
@@ -370,7 +379,7 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
     /**
      * The meta-property for the {@code securityType} property.
      */
-    private final MetaProperty<String> _securityType = DirectMetaProperty.ofReadOnly(
+    private final MetaProperty<String> _securityType = DirectMetaProperty.ofReadWrite(
         this, "securityType", ManageableSecurity.class, String.class);
     /**
      * The meta-property for the {@code attributes} property.
@@ -500,10 +509,8 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
           ((ManageableSecurity) bean).setName((String) newValue);
           return;
         case 808245914:  // securityType
-          if (quiet) {
-            return;
-          }
-          throw new UnsupportedOperationException("Property cannot be written: securityType");
+          ((ManageableSecurity) bean).setSecurityType((String) newValue);
+          return;
         case 405645655:  // attributes
           ((ManageableSecurity) bean).setAttributes((Map<String, String>) newValue);
           return;

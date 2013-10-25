@@ -40,7 +40,7 @@ Data types:
 boolean -> bit
 true -> 1
 false -> 0
-blob -> image
+blob -> varbinary(max)  ...NOTE: 'image' is deprecated
 double -> double precision
 timestamp without time zone -> DATETIME2(6)
 

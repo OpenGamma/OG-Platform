@@ -668,7 +668,7 @@ public abstract class SecurityTestCase extends AbstractSecurityTestCaseAdapter i
           Object value = parameterValues[j].get(parameterIndex[j]);
           parameterIndex[j] = (parameterIndex[j] + 1) % parameterValues[j].size();
           MetaProperty<?> metaProperty = mps.get(j);
-          if (metaProperty.style().isSerializable()) {
+          if (metaProperty.style().isSerializable() && metaProperty.name().equals("securityType") == false) {
             builder.set(metaProperty.name(), value);
           }
         }

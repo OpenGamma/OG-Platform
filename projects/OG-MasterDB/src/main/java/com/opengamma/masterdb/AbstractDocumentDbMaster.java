@@ -57,7 +57,9 @@ import com.opengamma.util.paging.PagingRequest;
  *
  * @param <D>  the type of the document
  */
-public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> extends AbstractDbMaster implements AbstractMaster<D>, MetricProducer {
+public abstract class AbstractDocumentDbMaster<D extends AbstractDocument>
+    extends AbstractDbMaster
+    implements AbstractMaster<D>, MetricProducer {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractDocumentDbMaster.class);
