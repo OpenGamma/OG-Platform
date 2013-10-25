@@ -342,12 +342,12 @@ public final class BloombergDataUtils {
       return valueElement.getValueAsString();
     } else if (datatype == Datatype.BOOL) {
       return valueElement.getValueAsBool();
-    } else if (datatype == Datatype.BYTEARRAY) {
+    } else if (datatype == Datatype.BYTEARRAY) {  // CSIGNORE
       // REVIEW kirk 2009-10-22 -- How do we extract this? Intentionally fall through.
     } else if (datatype == Datatype.CHAR) {
       final char c = valueElement.getValueAsChar();
       return new String("" + c);
-    } else if (datatype == Datatype.CHOICE) {
+    } else if (datatype == Datatype.CHOICE) {  // CSIGNORE
       // REVIEW kirk 2009-10-22 -- How do we extract this? Intentionally fall through.
     } else if (datatype == Datatype.DATE) {
       final Datetime date = valueElement.getValueAsDate();

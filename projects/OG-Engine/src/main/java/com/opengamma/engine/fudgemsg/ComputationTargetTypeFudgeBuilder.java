@@ -73,7 +73,7 @@ public class ComputationTargetTypeFudgeBuilder implements FudgeBuilder<Computati
    */
   private static final String TYPE_FIELD_NAME = "computationTargetType";
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes" })
   public static ComputationTargetType fromString(final String str) {
     final ComputationTargetType common = CommonByName.get(str);
     if (common != null) {

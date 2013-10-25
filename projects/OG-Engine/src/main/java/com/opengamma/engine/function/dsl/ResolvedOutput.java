@@ -20,6 +20,9 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+/**
+ * The resolved output.
+ */
 @BeanDefinition
 public class ResolvedOutput extends DirectBean {
 

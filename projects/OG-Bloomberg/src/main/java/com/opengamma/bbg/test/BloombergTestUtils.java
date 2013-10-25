@@ -31,7 +31,7 @@ import com.opengamma.util.test.TestProperties;
 /**
  * Test utilities for Bloomberg.
  */
-public class BloombergTestUtils {
+public final class BloombergTestUtils {
 
   /**
    * Restricted constructor.
@@ -105,6 +105,7 @@ public class BloombergTestUtils {
   /**
    * Creates a Mongo caching reference data provider for testing.
    * 
+   * @param bbgProvider  the Bloomberg provider to wrap, not null
    * @return the provider, not null
    */
   public static ReferenceDataProvider getMongoCachingReferenceDataProvider(BloombergReferenceDataProvider bbgProvider) {

@@ -20,12 +20,20 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+/**
+ * The set of inputs and outputs.
+ */
 @BeanDefinition
 public class FunctionSignatureResolution extends DirectBean {
 
+  /**
+   * The resolved inputs.
+   */
   @PropertyDefinition(validate = "notNull")
   private InputsResolution _inputs;
-
+  /**
+   * The resolved outputs.
+   */
   @PropertyDefinition(validate = "notNull")
   private OutputsResolution _outputs;
 
@@ -50,7 +58,7 @@ public class FunctionSignatureResolution extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the inputs.
+   * Gets the resolved inputs.
    * @return the value of the property, not null
    */
   public InputsResolution getInputs() {
@@ -58,7 +66,7 @@ public class FunctionSignatureResolution extends DirectBean {
   }
 
   /**
-   * Sets the inputs.
+   * Sets the resolved inputs.
    * @param inputs  the new value of the property, not null
    */
   public void setInputs(InputsResolution inputs) {
@@ -76,7 +84,7 @@ public class FunctionSignatureResolution extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the outputs.
+   * Gets the resolved outputs.
    * @return the value of the property, not null
    */
   public OutputsResolution getOutputs() {
@@ -84,7 +92,7 @@ public class FunctionSignatureResolution extends DirectBean {
   }
 
   /**
-   * Sets the outputs.
+   * Sets the resolved outputs.
    * @param outputs  the new value of the property, not null
    */
   public void setOutputs(OutputsResolution outputs) {

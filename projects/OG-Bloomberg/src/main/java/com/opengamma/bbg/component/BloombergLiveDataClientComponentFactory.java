@@ -48,6 +48,7 @@ import com.opengamma.util.jms.JmsConnectorFactoryBean;
  * Simple component factory for live Bloomberg market data.
  */
 @BeanDefinition
+@SuppressWarnings("deprecation")
 public class BloombergLiveDataClientComponentFactory extends AbstractComponentFactory {
 
   /**

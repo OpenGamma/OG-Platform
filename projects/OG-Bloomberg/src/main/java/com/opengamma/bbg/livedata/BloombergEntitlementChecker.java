@@ -43,6 +43,7 @@ import com.opengamma.util.ArgumentChecker;
  * <p>
  * To understand what's going on this class, read Bloomberg Server API 3.0 Developer Guide, Chapter 7.
  */
+@SuppressWarnings("deprecation")
 public class BloombergEntitlementChecker extends AbstractBloombergStaticDataProvider implements LiveDataEntitlementChecker {
 
   /** Logger. */
