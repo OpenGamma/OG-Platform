@@ -8,6 +8,7 @@ package com.opengamma.component.factory.master;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -43,11 +44,16 @@ public class InMemoryPortfolioMasterComponentFactory extends AbstractComponentFa
    */
   @PropertyDefinition
   private boolean _publishRest = true;
-
+  /**
+   * Whether to clone results in the underlying master. True by default.
+   */
+  @PropertyDefinition
+  private boolean _cloneResults = true;
 
   @Override
   public void init(final ComponentRepository repo, final LinkedHashMap<String, String> configuration) {
-    final PortfolioMaster master = new InMemoryPortfolioMaster();
+    final InMemoryPortfolioMaster master = new InMemoryPortfolioMaster();
+    master.setCloneResults(isCloneResults());
     final ComponentInfo info = new ComponentInfo(PortfolioMaster.class, getClassifier());
     info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
     info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemotePortfolioMaster.class);
@@ -85,6 +91,8 @@ public class InMemoryPortfolioMasterComponentFactory extends AbstractComponentFa
         return getClassifier();
       case -614707837:  // publishRest
         return isPublishRest();
+      case 199795673:  // cloneResults
+        return isCloneResults();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -97,6 +105,9 @@ public class InMemoryPortfolioMasterComponentFactory extends AbstractComponentFa
         return;
       case -614707837:  // publishRest
         setPublishRest((Boolean) newValue);
+        return;
+      case 199795673:  // cloneResults
+        setCloneResults((Boolean) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -117,6 +128,7 @@ public class InMemoryPortfolioMasterComponentFactory extends AbstractComponentFa
       InMemoryPortfolioMasterComponentFactory other = (InMemoryPortfolioMasterComponentFactory) obj;
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
+          JodaBeanUtils.equal(isCloneResults(), other.isCloneResults()) &&
           super.equals(obj);
     }
     return false;
@@ -127,6 +139,7 @@ public class InMemoryPortfolioMasterComponentFactory extends AbstractComponentFa
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
     hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isCloneResults());
     return hash ^ super.hashCode();
   }
 
@@ -183,6 +196,31 @@ public class InMemoryPortfolioMasterComponentFactory extends AbstractComponentFa
 
   //-----------------------------------------------------------------------
   /**
+   * Gets whether to clone results in the underlying master. True by default.
+   * @return the value of the property
+   */
+  public boolean isCloneResults() {
+    return _cloneResults;
+  }
+
+  /**
+   * Sets whether to clone results in the underlying master. True by default.
+   * @param cloneResults  the new value of the property
+   */
+  public void setCloneResults(boolean cloneResults) {
+    this._cloneResults = cloneResults;
+  }
+
+  /**
+   * Gets the the {@code cloneResults} property.
+   * @return the property, not null
+   */
+  public final Property<Boolean> cloneResults() {
+    return metaBean().cloneResults().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code InMemoryPortfolioMasterComponentFactory}.
    */
   public static class Meta extends AbstractComponentFactory.Meta {
@@ -202,12 +240,18 @@ public class InMemoryPortfolioMasterComponentFactory extends AbstractComponentFa
     private final MetaProperty<Boolean> _publishRest = DirectMetaProperty.ofReadWrite(
         this, "publishRest", InMemoryPortfolioMasterComponentFactory.class, Boolean.TYPE);
     /**
+     * The meta-property for the {@code cloneResults} property.
+     */
+    private final MetaProperty<Boolean> _cloneResults = DirectMetaProperty.ofReadWrite(
+        this, "cloneResults", InMemoryPortfolioMasterComponentFactory.class, Boolean.TYPE);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
-        "publishRest");
+        "publishRest",
+        "cloneResults");
 
     /**
      * Restricted constructor.
@@ -222,6 +266,8 @@ public class InMemoryPortfolioMasterComponentFactory extends AbstractComponentFa
           return _classifier;
         case -614707837:  // publishRest
           return _publishRest;
+        case 199795673:  // cloneResults
+          return _cloneResults;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -256,6 +302,14 @@ public class InMemoryPortfolioMasterComponentFactory extends AbstractComponentFa
      */
     public final MetaProperty<Boolean> publishRest() {
       return _publishRest;
+    }
+
+    /**
+     * The meta-property for the {@code cloneResults} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> cloneResults() {
+      return _cloneResults;
     }
 
   }

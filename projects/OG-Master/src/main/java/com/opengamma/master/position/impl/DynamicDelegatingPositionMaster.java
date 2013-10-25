@@ -6,6 +6,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.core.change.AggregatingChangeManager;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.id.ExternalScheme;
@@ -134,12 +136,16 @@ public class DynamicDelegatingPositionMaster implements PositionMaster {
   @Override
   public PositionDocument add(PositionDocument document) {
     ArgumentChecker.notNull(document, "document");
+    Validate.notNull(document.getUniqueId(), "document has no unique id");
+    Validate.notNull(document.getObjectId(), "document has no object id");
     return chooseDelegate(document.getObjectId().getScheme()).add(document);
   }
 
   @Override
   public PositionDocument update(PositionDocument document) {
     ArgumentChecker.notNull(document, "document");
+    Validate.notNull(document.getUniqueId(), "document has no unique id");
+    Validate.notNull(document.getObjectId(), "document has no object id");
     return chooseDelegate(document.getObjectId().getScheme()).update(document);
   }
 

@@ -102,14 +102,22 @@ public class InMemoryOrganizationMaster extends SimpleAbstractInMemoryMaster<Org
   }
 
   private OrganizationDocument cloneOrganizationDocument(OrganizationDocument document) {
-    OrganizationDocument clone = JodaBeanUtils.clone(document);
-    ManageableOrganization organizationClone = JodaBeanUtils.clone(document.getOrganization());
-    clone.setOrganization(organizationClone);
-    return clone;
+    if (isCloneResults()) {
+      OrganizationDocument clone = JodaBeanUtils.clone(document);
+      ManageableOrganization organizationClone = JodaBeanUtils.clone(document.getOrganization());
+      clone.setOrganization(organizationClone);
+      return clone;
+    } else {
+      return document;
+    }
   }
 
   private ManageableOrganization cloneOrganization(ManageableOrganization organization) {
-    return JodaBeanUtils.clone(organization);
+    if (isCloneResults()) {
+      return JodaBeanUtils.clone(organization);
+    } else {
+      return organization;
+    }
   }
 
   @Override
