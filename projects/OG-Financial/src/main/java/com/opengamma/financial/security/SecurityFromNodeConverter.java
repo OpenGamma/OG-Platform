@@ -5,8 +5,6 @@
  */
 package com.opengamma.financial.security;
 
-import static com.opengamma.financial.convention.InMemoryConventionBundleMaster.simpleNameSecurityId;
-
 import org.threeten.bp.LocalTime;
 import org.threeten.bp.Period;
 import org.threeten.bp.ZoneId;
@@ -21,10 +19,11 @@ import com.opengamma.analytics.financial.instrument.index.IborIndex;
 import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.core.holiday.HolidaySource;
-import com.opengamma.core.id.ExternalSchemes;
+import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.financial.analytics.conversion.CalendarUtils;
 import com.opengamma.financial.analytics.curve.CurveNodeVisitorAdapter;
+import com.opengamma.financial.analytics.curve.NodeConverterUtils;
 import com.opengamma.financial.analytics.ircurve.strips.CashNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
@@ -37,38 +36,27 @@ import com.opengamma.financial.convention.ExchangeTradedInstrumentExpiryCalculat
 import com.opengamma.financial.convention.FederalFundsFutureConvention;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.InterestRateFutureConvention;
-import com.opengamma.financial.convention.OISLegConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
-import com.opengamma.financial.convention.SwapFixedLegConvention;
-import com.opengamma.financial.convention.VanillaIborLegConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.FederalFundsFutureSecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
-import com.opengamma.financial.security.swap.FixedInterestRateLeg;
-import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
-import com.opengamma.financial.security.swap.FloatingRateType;
-import com.opengamma.financial.security.swap.FloatingSpreadIRLeg;
-import com.opengamma.financial.security.swap.InterestRateLeg;
-import com.opengamma.financial.security.swap.InterestRateNotional;
+import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
-import com.opengamma.util.tuple.Pair;
-import com.opengamma.util.tuple.Pairs;
 import com.opengamma.util.tuple.Triple;
 
 /**
  * Convert a FRA node into an Instrument definition.
  * The dates of the FRA are computed in the following way:
- * - The spot date is computed from the valuation date adding the "Settlement Days" (i.e. the number of business days)
+ * - The spot date is computed from the trade date time adding the "Settlement Days" (i.e. the number of business days)
  * of the convention.
  * - The accrual start date is computed from the spot date adding the "FixingStart" of the node and using the
  * business-day-convention, calendar and EOM of the convention.
@@ -84,8 +72,8 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
   private final HolidaySource _holidaySource;
   /** The region source */
   private final RegionSource _regionSource;
-  /** The valuation time */
-  private final ZonedDateTime _valuationTime;
+  /** The trade date time */
+  private final ZonedDateTime _tradeDateTime;
 
   /** the rate to fill in */
   private final Double _rate;
@@ -101,23 +89,23 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
    * @param rate The fixed rate
    * @param amount The notional amounts
    * @param identifier The floating rate identifier
-   * @param valuationTime The valuation time, not null
+   * @param tradeDateTime The trade date time, not null
    */
   public SecurityFromNodeConverter(final ConventionSource conventionSource,
                                    final HolidaySource holidaySource,
                                    final RegionSource regionSource,
-                                   final ZonedDateTime valuationTime,
+                                   final ZonedDateTime tradeDateTime,
                                    final Double rate,
                                    final Double amount,
                                    final ExternalId identifier) {
     ArgumentChecker.notNull(conventionSource, "convention source");
     ArgumentChecker.notNull(holidaySource, "holiday source");
     ArgumentChecker.notNull(regionSource, "region source");
-    ArgumentChecker.notNull(valuationTime, "valuation time");
+    ArgumentChecker.notNull(tradeDateTime, "trade date time");
     _conventionSource = conventionSource;
     _holidaySource = holidaySource;
     _regionSource = regionSource;
-    _valuationTime = valuationTime;
+    _tradeDateTime = tradeDateTime;
     _rate = rate;
     _amount = amount;
     _identifier = identifier;
@@ -159,7 +147,7 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
                                               businessDayConvention,
                                               eom,
                                               convention.getName());
-    final ZonedDateTime spotDate = ScheduleCalculator.getAdjustedDate(_valuationTime, spotLag, regionCalendar);
+    final ZonedDateTime spotDate = ScheduleCalculator.getAdjustedDate(_tradeDateTime, spotLag, regionCalendar);
     final ZonedDateTime accrualStartDate = ScheduleCalculator.getAdjustedDate(spotDate,
                                                                               startPeriod,
                                                                               businessDayConvention,
@@ -197,203 +185,47 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
     if (receiveLegConvention == null) {
       throw new OpenGammaRuntimeException("Convention with id " + swapNode.getPayLegConvention() + " was null");
     }
-    final Pair<? extends InterestRateLeg, Triple<ZonedDateTime, ZonedDateTime, ZonedDateTime>> payLeg;
-    final Pair<? extends InterestRateLeg, Triple<ZonedDateTime, ZonedDateTime, ZonedDateTime>> receiveLeg;
-    final boolean isFloatFloat = ((payLegConvention instanceof VanillaIborLegConvention) || (payLegConvention instanceof OISLegConvention))
-        && ((receiveLegConvention instanceof VanillaIborLegConvention) || (receiveLegConvention instanceof OISLegConvention));
-    if (payLegConvention instanceof SwapFixedLegConvention) {
-      payLeg = getFixedLeg((SwapFixedLegConvention) payLegConvention, swapNode, true);
-    } else if (payLegConvention instanceof VanillaIborLegConvention) {
-      payLeg = getIborLeg(_identifier, (VanillaIborLegConvention) payLegConvention, swapNode, true, false);
-    } else if (payLegConvention instanceof OISLegConvention) {
-      payLeg = getOISLeg((OISLegConvention) payLegConvention, swapNode, true, false);
-    } else {
-      throw new OpenGammaRuntimeException("Cannot handle convention type " + payLegConvention.getClass());
-    }
-    if (receiveLegConvention instanceof SwapFixedLegConvention) {
-      receiveLeg = getFixedLeg((SwapFixedLegConvention) receiveLegConvention, swapNode, false);
-    } else if (receiveLegConvention instanceof VanillaIborLegConvention) {
-      receiveLeg = getIborLeg(_identifier,
-                              (VanillaIborLegConvention) receiveLegConvention,
-                              swapNode,
-                              false,
-                              isFloatFloat);
-    } else if (receiveLegConvention instanceof OISLegConvention) {
-      receiveLeg = getOISLeg((OISLegConvention) receiveLegConvention, swapNode, false, isFloatFloat);
-    } else {
-      throw new OpenGammaRuntimeException("Cannot handle convention type " + receiveLegConvention.getClass());
-    }
 
-    if (!payLeg.getSecond().getFirst().equals(receiveLeg.getSecond().getFirst())) {
-      throw new OpenGammaRuntimeException(
-          "Both, pay and receive legs should resolve equal start dates, but instead there were: payleg(" + payLeg.getSecond().getFirst() + "), receiveLeg(" + receiveLeg.getSecond().getFirst() + ")");
-    }
-    if (!payLeg.getSecond().getSecond().equals(receiveLeg.getSecond().getSecond())) {
-      throw new OpenGammaRuntimeException(
-          "Both, pay and receive legs should resolve equal effective dates, but instead there were: payleg(" + payLeg.getSecond().getSecond() + "), " +
-              "receiveLeg(" + receiveLeg.getSecond().getSecond() + ")");
-    }
-    if (!payLeg.getSecond().getThird().equals(receiveLeg.getSecond().getThird())) {
-      throw new OpenGammaRuntimeException(
-          "Both, pay and receive legs should resolve equal maturity dates, but instead there were: payleg(" + payLeg.getSecond().getThird() + "), " +
-              "receiveLeg(" + receiveLeg.getSecond().getThird() + ")");
-    }
-    SwapSecurity security = new SwapSecurity(payLeg.getSecond().getFirst(),
-                                             payLeg.getSecond().getSecond(),
-                                             payLeg.getSecond().getThird(),
+    final boolean isFloatFloat = NodeConverterUtils.isFloatFloat(payLegConvention, receiveLegConvention);
+    final SnapshotDataBundle snapshotDataBundle = new SnapshotDataBundle();
+    snapshotDataBundle.setDataPoint(_identifier, _rate);
+    final Triple<? extends SwapLeg, ZonedDateTime, ZonedDateTime> payLeg = NodeConverterUtils.createSwapLeg(
+        payLegConvention,
+        swapNode.getStartTenor().getPeriod(),
+        swapNode.getMaturityTenor().getPeriod(),
+        _regionSource,
+        _holidaySource,
+        _conventionSource,
+        snapshotDataBundle,
+        _identifier,
+        _tradeDateTime,
+        true,
+        isFloatFloat);
+
+
+    final Triple<? extends SwapLeg, ZonedDateTime, ZonedDateTime> receiveLeg = NodeConverterUtils.createSwapLeg(
+        receiveLegConvention,
+        swapNode.getStartTenor().getPeriod(),
+        swapNode.getMaturityTenor().getPeriod(),
+        _regionSource,
+        _holidaySource,
+        _conventionSource,
+        snapshotDataBundle,
+        _identifier,
+        _tradeDateTime,
+        false,
+        isFloatFloat);
+
+
+    SwapSecurity security = new SwapSecurity(_tradeDateTime,
+                                             payLeg.getSecond(),
+                                             payLeg.getThird(),
                                              "counterparty",
                                              payLeg.getFirst(),
                                              receiveLeg.getFirst());
 
     security.setName(swapNode.getName() + ": " + _identifier);
     return security;
-  }
-
-
-  private Pair<FixedInterestRateLeg, Triple<ZonedDateTime, ZonedDateTime, ZonedDateTime>> getFixedLeg(final SwapFixedLegConvention convention,
-                                                                                                      final SwapNode swapNode,
-                                                                                                      final boolean isPayer) {
-    final Calendar calendar = CalendarUtils.getCalendar(_regionSource,
-                                                        _holidaySource,
-                                                        convention.getRegionCalendar());
-
-    final Currency currency = convention.getCurrency();
-    final DayCount dayCount = convention.getDayCount();
-    final BusinessDayConvention businessDayConvention = convention.getBusinessDayConvention();
-    final boolean eomLeg = convention.isIsEOM();
-    final int spotLagLeg = convention.getSettlementDays();
-    final ZonedDateTime spotDateLeg = ScheduleCalculator.getAdjustedDate(_valuationTime, spotLagLeg, calendar);
-    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spotDateLeg,
-                                                                       swapNode.getStartTenor().getPeriod(),
-                                                                       businessDayConvention,
-                                                                       calendar,
-                                                                       eomLeg);
-    final Period paymentPeriod = convention.getPaymentTenor().getPeriod();
-    final Period maturityTenor = swapNode.getMaturityTenor().getPeriod();
-
-    return Pairs.of(new FixedInterestRateLeg(dayCount,
-                                            PeriodFrequency.of(paymentPeriod),
-                                            convention.getRegionCalendar(),
-                                            businessDayConvention,
-                                            new InterestRateNotional(currency, _amount),
-                                            eomLeg,
-                                            _rate),
-                   Triple.of(startDate, spotDateLeg, _valuationTime.plus(maturityTenor)));
-  }
-
-  //TODO do we actually need the settlement days for the swap, not the index?
-  private Pair<? extends FloatingInterestRateLeg, Triple<ZonedDateTime, ZonedDateTime, ZonedDateTime>> getIborLeg(final ExternalId floatingReferenceRateId,
-                                                                                                                  final VanillaIborLegConvention convention,
-                                                                                                                  final SwapNode swapNode,
-                                                                                                                  final boolean isPayer,
-                                                                                                                  final boolean isFloatFloat) {
-    final Convention underlyingConvention = _conventionSource.getConvention(convention.getIborIndexConvention());
-    if (!(underlyingConvention instanceof IborIndexConvention)) {
-      if (underlyingConvention == null) {
-        throw new OpenGammaRuntimeException("Could not get convention with id " + convention.getIborIndexConvention());
-      }
-      throw new OpenGammaRuntimeException("Convention of the underlying was not an ibor index convention; have " + underlyingConvention.getClass());
-    }
-    final IborIndexConvention indexConvention = (IborIndexConvention) underlyingConvention;
-    final Currency currency = indexConvention.getCurrency();
-    final DayCount dayCount = indexConvention.getDayCount();
-    final BusinessDayConvention businessDayConvention = indexConvention.getBusinessDayConvention();
-    final boolean eomIndex = indexConvention.isIsEOM();
-    final boolean eomLeg = convention.isIsEOM();
-    final Period indexTenor = convention.getResetTenor().getPeriod();
-    final Calendar calendar = CalendarUtils.getCalendar(_regionSource,
-                                                        _holidaySource,
-                                                        indexConvention.getFixingCalendar());
-    final int spotLag = indexConvention.getSettlementDays();
-    final IborIndex iborIndex = new IborIndex(currency,
-                                              indexTenor,
-                                              spotLag,
-                                              dayCount,
-                                              businessDayConvention,
-                                              eomIndex,
-                                              indexConvention.getName());
-    final Period maturityTenor = swapNode.getMaturityTenor().getPeriod();
-    final int spotLagLeg = convention.getSettlementDays();
-    final ZonedDateTime spotDateLeg = ScheduleCalculator.getAdjustedDate(_valuationTime, spotLagLeg, calendar);
-    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spotDateLeg,
-                                                                       swapNode.getStartTenor().getPeriod(),
-                                                                       businessDayConvention,
-                                                                       calendar,
-                                                                       eomLeg);
-    if (isFloatFloat) {
-      //return AnnuityCouponIborSpreadDefinition.from(startDate, maturityTenor, 1, iborIndex, spread, isPayer, calendar);
-      return Pairs.of(new FloatingSpreadIRLeg(dayCount,
-                                             PeriodFrequency.of(convention.getResetTenor().getPeriod()),
-                                             indexConvention.getRegionCalendar(),
-                                             businessDayConvention,
-                                             new InterestRateNotional(currency, _amount),
-                                             eomLeg,
-                                             floatingReferenceRateId,
-                                             FloatingRateType.IBOR,
-                                             _rate),
-                     Triple.of(startDate, spotDateLeg, _valuationTime.plus(maturityTenor)));
-    }
-    //return AnnuityCouponIborDefinition.from(startDate, maturityTenor, 1, iborIndex, isPayer, calendar);
-    return Pairs.of(new FloatingInterestRateLeg(dayCount,
-                                               PeriodFrequency.of(convention.getResetTenor().getPeriod()),
-                                               indexConvention.getRegionCalendar(),
-                                               businessDayConvention,
-                                               new InterestRateNotional(currency, _amount),
-                                               eomLeg,
-                                               floatingReferenceRateId, FloatingRateType.IBOR),
-                   Triple.of(startDate, spotDateLeg, _valuationTime.plus(maturityTenor)));
-
-  }
-
-  private Pair<? extends FloatingInterestRateLeg, Triple<ZonedDateTime, ZonedDateTime, ZonedDateTime>> getOISLeg(final OISLegConvention convention,
-                                                                                                                 final SwapNode swapNode,
-                                                                                                                 final boolean isPayer,
-                                                                                                                 final boolean isFloatFloat) {
-   final OvernightIndexConvention indexConvention = (OvernightIndexConvention) _conventionSource.getConvention(
-        convention.getOvernightIndexConvention());
-    final Currency currency = indexConvention.getCurrency();
-    final ExternalId correctFloatingRateReferenceId = simpleNameSecurityId(currency.getCode() + "OVERNIGHT");
-    final DayCount dayCount = indexConvention.getDayCount();
-    final int publicationLag = indexConvention.getPublicationLag();
-    final Calendar calendar = CalendarUtils.getCalendar(_regionSource,
-                                                        _holidaySource,
-                                                        indexConvention.getRegionCalendar());
-    final int spotLagLeg = convention.getSettlementDays();
-    final ZonedDateTime spotDateLeg = ScheduleCalculator.getAdjustedDate(_valuationTime, spotLagLeg, calendar);
-    final Period maturityTenor = swapNode.getMaturityTenor().getPeriod();
-    final IndexON indexON = new IndexON(indexConvention.getName(), currency, dayCount, publicationLag);
-    final Period paymentPeriod = convention.getPaymentTenor().getPeriod();
-    final boolean eomLeg = convention.isIsEOM();
-    final BusinessDayConvention businessDayConvention = convention.getBusinessDayConvention();
-    final int paymentLag = convention.getPaymentLag();
-    final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spotDateLeg,
-                                                                       swapNode.getStartTenor().getPeriod(),
-                                                                       businessDayConvention,
-                                                                       calendar,
-                                                                       eomLeg);
-    if (isFloatFloat) {
-      //return AnnuityCouponONSpreadSimplifiedDefinition.from(startDate, maturityTenor, 1, spread, isPayer, indexON, paymentLag, calendar, businessDayConvention, paymentPeriod, eomLeg);
-      return Pairs.of(new FloatingSpreadIRLeg(dayCount,
-                                             PeriodFrequency.of(paymentPeriod),
-                                             indexConvention.getRegionCalendar(),
-                                             businessDayConvention,
-                                             new InterestRateNotional(currency, _amount),
-                                             eomLeg,
-                                             correctFloatingRateReferenceId,
-                                             FloatingRateType.OIS,
-                                             _rate),
-                     Triple.of(startDate, spotDateLeg, _valuationTime.plus(maturityTenor)));
-    }
-    //return AnnuityCouponONSimplifiedDefinition.from(startDate, maturityTenor, 1, isPayer, indexON, paymentLag, calendar, businessDayConvention, paymentPeriod, eomLeg);
-    return Pairs.of(new FloatingInterestRateLeg(dayCount,
-                                               PeriodFrequency.of(paymentPeriod),
-                                               indexConvention.getRegionCalendar(),
-                                               businessDayConvention,
-                                               new InterestRateNotional(currency, _amount),
-                                               eomLeg,
-                                               correctFloatingRateReferenceId, FloatingRateType.OIS),
-                   Triple.of(startDate, spotDateLeg, _valuationTime.plus(maturityTenor)));
-
   }
 
 
@@ -415,7 +247,7 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
       final boolean isEOM = depositConvention.isIsEOM();
       final DayCount dayCount = depositConvention.getDayCount();
       final int settlementDays = depositConvention.getSettlementDays();
-      final ZonedDateTime spotDate = ScheduleCalculator.getAdjustedDate(_valuationTime, settlementDays, calendar);
+      final ZonedDateTime spotDate = ScheduleCalculator.getAdjustedDate(_tradeDateTime, settlementDays, calendar);
       final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spotDate,
                                                                          startPeriod,
                                                                          businessDayConvention,
@@ -444,7 +276,7 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
       final boolean isEOM = iborConvention.isIsEOM();
       final DayCount dayCount = iborConvention.getDayCount();
       final int settlementDays = iborConvention.getSettlementDays();
-      final ZonedDateTime spotDate = ScheduleCalculator.getAdjustedDate(_valuationTime, settlementDays, calendar);
+      final ZonedDateTime spotDate = ScheduleCalculator.getAdjustedDate(_tradeDateTime, settlementDays, calendar);
       final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spotDate,
                                                                          startPeriod,
                                                                          businessDayConvention,
@@ -509,34 +341,64 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
    * @param price The price
    * @return The interest rate future
    */
-  private InterestRateFutureSecurity getInterestRateFuture(final RateFutureNode rateFuture, final InterestRateFutureConvention futureConvention,
+  private InterestRateFutureSecurity getInterestRateFuture(final RateFutureNode rateFuture,
+                                                           final InterestRateFutureConvention futureConvention,
                                                            final Double price) {
     final String expiryCalculatorName = futureConvention.getExpiryConvention().getValue();
-    final IborIndexConvention indexConvention = _conventionSource.getConvention(IborIndexConvention.class, futureConvention.getIndexConvention());
+    final IborIndexConvention indexConvention = _conventionSource.getConvention(IborIndexConvention.class,
+                                                                                futureConvention.getIndexConvention());
     if (indexConvention == null) {
       throw new OpenGammaRuntimeException("Underlying convention was null");
     }
     final Period indexTenor = rateFuture.getUnderlyingTenor().getPeriod();
     final double paymentAccrualFactor = indexTenor.toTotalMonths() / 12.; //TODO don't use this method
     final Currency currency = indexConvention.getCurrency();
-    final Calendar fixingCalendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, indexConvention.getFixingCalendar());
-    final Calendar regionCalendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, indexConvention.getRegionCalendar());
+    final Calendar fixingCalendar = CalendarUtils.getCalendar(_regionSource,
+                                                              _holidaySource,
+                                                              indexConvention.getFixingCalendar());
+    final Calendar regionCalendar = CalendarUtils.getCalendar(_regionSource,
+                                                              _holidaySource,
+                                                              indexConvention.getRegionCalendar());
     final BusinessDayConvention businessDayConvention = indexConvention.getBusinessDayConvention();
     final DayCount dayCount = indexConvention.getDayCount();
     final boolean eom = indexConvention.isIsEOM();
     final int spotLag = indexConvention.getSettlementDays();
-    final IborIndex iborIndex = new IborIndex(currency, indexTenor, spotLag, dayCount, businessDayConvention, eom, indexConvention.getName());
-    final ExchangeTradedInstrumentExpiryCalculator expiryCalculator = ExchangeTradedInstrumentExpiryCalculatorFactory.getCalculator(expiryCalculatorName);
-    final ZonedDateTime startDate = _valuationTime.plus(rateFuture.getStartTenor().getPeriod());
+    final IborIndex iborIndex = new IborIndex(currency,
+                                              indexTenor,
+                                              spotLag,
+                                              dayCount,
+                                              businessDayConvention,
+                                              eom,
+                                              indexConvention.getName());
+    final ExchangeTradedInstrumentExpiryCalculator expiryCalculator = ExchangeTradedInstrumentExpiryCalculatorFactory.getCalculator(
+        expiryCalculatorName);
+    final ZonedDateTime startDate = _tradeDateTime.plus(rateFuture.getStartTenor().getPeriod());
     final LocalTime time = startDate.toLocalTime();
     final ZoneId timeZone = startDate.getZone();
-    final ZonedDateTime expiryDate = ZonedDateTime.of(expiryCalculator.getExpiryDate(rateFuture.getFutureNumber(), startDate.toLocalDate(), regionCalendar), time, timeZone);
-    final InterestRateFutureSecurityDefinition securityDefinition = new InterestRateFutureSecurityDefinition(expiryDate, iborIndex, 1, paymentAccrualFactor, "", fixingCalendar);
-    final InterestRateFutureTransactionDefinition transactionDefinition = new InterestRateFutureTransactionDefinition(securityDefinition, _valuationTime, price, 1);
+    final ZonedDateTime expiryDate = ZonedDateTime.of(expiryCalculator.getExpiryDate(rateFuture.getFutureNumber(),
+                                                                                     startDate.toLocalDate(),
+                                                                                     regionCalendar), time, timeZone);
+    final InterestRateFutureSecurityDefinition securityDefinition = new InterestRateFutureSecurityDefinition(expiryDate,
+                                                                                                             iborIndex,
+                                                                                                             1,
+                                                                                                             paymentAccrualFactor,
+                                                                                                             "",
+                                                                                                             fixingCalendar);
+    final InterestRateFutureTransactionDefinition transactionDefinition = new InterestRateFutureTransactionDefinition(
+        securityDefinition,
+        _tradeDateTime,
+        price,
+        1);
     //return transactionDefinition;
 
     final Expiry expiry = new Expiry(expiryDate);
-    return new InterestRateFutureSecurity(expiry, "TRADING_EXCHANGE", "SETTLEMENT_EXCHANGE", currency, _amount, _identifier, "CATEGORY");
+    return new InterestRateFutureSecurity(expiry,
+                                          "TRADING_EXCHANGE",
+                                          "SETTLEMENT_EXCHANGE",
+                                          currency,
+                                          _amount,
+                                          _identifier,
+                                          "CATEGORY");
 
   }
 
@@ -548,10 +410,12 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
    * @param price The price
    * @return The Fed fund future
    */
-  private FederalFundsFutureSecurity getFederalFundsFuture(final RateFutureNode rateFuture, final FederalFundsFutureConvention futureConvention,
+  private FederalFundsFutureSecurity getFederalFundsFuture(final RateFutureNode rateFuture,
+                                                           final FederalFundsFutureConvention futureConvention,
                                                            final Double price) {
     final String expiryCalculatorName = futureConvention.getExpiryConvention().getValue();
-    final OvernightIndexConvention indexConvention = _conventionSource.getConvention(OvernightIndexConvention.class, futureConvention.getIndexConvention());
+    final OvernightIndexConvention indexConvention = _conventionSource.getConvention(OvernightIndexConvention.class,
+                                                                                     futureConvention.getIndexConvention());
     if (indexConvention == null) {
       throw new OpenGammaRuntimeException("Underlying convention was null");
     }
@@ -560,18 +424,37 @@ public class SecurityFromNodeConverter extends CurveNodeVisitorAdapter<Financial
     final int publicationLag = indexConvention.getPublicationLag();
     final IndexON index = new IndexON(indexConvention.getName(), currency, dayCount, publicationLag);
     final double paymentAccrualFactor = 1 / 12.;
-    final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, indexConvention.getRegionCalendar());
-    final ExchangeTradedInstrumentExpiryCalculator expiryCalculator = ExchangeTradedInstrumentExpiryCalculatorFactory.getCalculator(expiryCalculatorName);
-    final ZonedDateTime startDate = _valuationTime.plus(rateFuture.getStartTenor().getPeriod());
+    final Calendar calendar = CalendarUtils.getCalendar(_regionSource,
+                                                        _holidaySource,
+                                                        indexConvention.getRegionCalendar());
+    final ExchangeTradedInstrumentExpiryCalculator expiryCalculator = ExchangeTradedInstrumentExpiryCalculatorFactory.getCalculator(
+        expiryCalculatorName);
+    final ZonedDateTime startDate = _tradeDateTime.plus(rateFuture.getStartTenor().getPeriod());
     final LocalTime time = startDate.toLocalTime();
     final ZoneId timeZone = startDate.getZone();
-    final ZonedDateTime expiryDate = ZonedDateTime.of(expiryCalculator.getExpiryDate(rateFuture.getFutureNumber(), startDate.toLocalDate(), calendar), time, timeZone);
+    final ZonedDateTime expiryDate = ZonedDateTime.of(expiryCalculator.getExpiryDate(rateFuture.getFutureNumber(),
+                                                                                     startDate.toLocalDate(),
+                                                                                     calendar), time, timeZone);
     final FederalFundsFutureSecurityDefinition securityDefinition = FederalFundsFutureSecurityDefinition.from(expiryDate,
-                                                                                                              index, 1, paymentAccrualFactor, "", calendar);
-    final FederalFundsFutureTransactionDefinition transactionDefinition = new FederalFundsFutureTransactionDefinition(securityDefinition, 1, _valuationTime, price);
+                                                                                                              index,
+                                                                                                              1,
+                                                                                                              paymentAccrualFactor,
+                                                                                                              "",
+                                                                                                              calendar);
+    final FederalFundsFutureTransactionDefinition transactionDefinition = new FederalFundsFutureTransactionDefinition(
+        securityDefinition,
+        1,
+        _tradeDateTime,
+        price);
     //return transactionDefinition;
 
     final Expiry expiry = new Expiry(expiryDate);
-    return new FederalFundsFutureSecurity(expiry, "TRADING_EXCHANGE", "SETTLEMENT_EXCHANGE", currency, _amount, _identifier, "CATEGORY");
+    return new FederalFundsFutureSecurity(expiry,
+                                          "TRADING_EXCHANGE",
+                                          "SETTLEMENT_EXCHANGE",
+                                          currency,
+                                          _amount,
+                                          _identifier,
+                                          "CATEGORY");
   }
 }

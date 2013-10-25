@@ -39,9 +39,18 @@ import com.opengamma.financial.convention.VanillaIborLegConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.frequency.PeriodFrequency;
+import com.opengamma.financial.security.swap.FixedInterestRateLeg;
+import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
+import com.opengamma.financial.security.swap.FloatingRateType;
+import com.opengamma.financial.security.swap.FloatingSpreadIRLeg;
+import com.opengamma.financial.security.swap.InterestRateNotional;
+import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.tuple.Pair;
+import com.opengamma.util.tuple.Triple;
 
 /**
  *
@@ -255,10 +264,10 @@ public class NodeConverterUtils {
    * @return An annuity definition
    * @throws UnsupportedOperationException If the convention type has not been implemented
    */
-  private static AnnuityDefinition<? extends PaymentDefinition> getSwapLeg(final Convention legConvention, final Period startTenor,
-      final Period maturityTenor, final RegionSource regionSource, final HolidaySource holidaySource, final ConventionSource conventionSource,
-      final SnapshotDataBundle marketData, final ExternalId dataId, final ZonedDateTime valuationTime, final boolean isPayer,
-      final boolean isMarketDataSpread) {
+  public static AnnuityDefinition<? extends PaymentDefinition> getSwapLeg(final Convention legConvention, final Period startTenor,
+                                                                          final Period maturityTenor, final RegionSource regionSource, final HolidaySource holidaySource, final ConventionSource conventionSource,
+                                                                          final SnapshotDataBundle marketData, final ExternalId dataId, final ZonedDateTime valuationTime, final boolean isPayer,
+                                                                          final boolean isMarketDataSpread) {
     final ConventionVisitor<AnnuityDefinition<? extends PaymentDefinition>> visitor = new ConventionVisitorAdapter<AnnuityDefinition<? extends PaymentDefinition>>() {
 
       @Override
@@ -287,10 +296,10 @@ public class NodeConverterUtils {
             throw new OpenGammaRuntimeException("Could not get market data for " + dataId);
           }
           return AnnuityDefinitionBuilder.couponIborCompoundingSpread(startDate, maturityDate, paymentTenor, 1, spread, iborIndex, stubComp, isPayer,
-              businessDayConvention, eom, calendar, stubLeg);
+                                                                      businessDayConvention, eom, calendar, stubLeg);
         }
         return AnnuityDefinitionBuilder.couponIborCompounding(startDate, maturityDate, paymentTenor, 1, iborIndex, stubComp, isPayer,
-            businessDayConvention, eom, calendar, stubLeg);
+                                                              businessDayConvention, eom, calendar, stubLeg);
       }
 
       @Override
@@ -372,12 +381,192 @@ public class NodeConverterUtils {
   }
 
   /**
+   * Constructs an {@link AnnuityDefinition} from the pay and receive conventions of a swap.
+   * @param legConvention The leg convention
+   * @param startTenor The start tenor of the swap
+   * @param maturityTenor The maturity tenor of the swap
+   * @param regionSource A region source
+   * @param holidaySource A holiday source
+   * @param conventionSource A convention source
+   * @param marketData The market data
+   * @param dataId The market data id
+   * @param valuationTime The valuation time
+   * @param isPayer True if the leg is to be paid
+   * @param isMarketDataSpread True if the market data is a spread paid on a floating leg
+   * @return An annuity definition
+   * @throws UnsupportedOperationException If the convention type has not been implemented
+   */
+  public static Triple<? extends SwapLeg, ZonedDateTime, ZonedDateTime> createSwapLeg(final Convention legConvention, final Period startTenor,
+                                                                          final Period maturityTenor, final RegionSource regionSource, final HolidaySource holidaySource, final ConventionSource conventionSource,
+                                                                          final SnapshotDataBundle marketData, final ExternalId dataId, final ZonedDateTime valuationTime, final boolean isPayer,
+                                                                          final boolean isMarketDataSpread) {
+    final ConventionVisitor<Triple<? extends SwapLeg, ZonedDateTime, ZonedDateTime>> visitor = new ConventionVisitorAdapter<Triple<? extends SwapLeg, ZonedDateTime, ZonedDateTime>>() {
+
+      @Override
+      public Triple<? extends SwapLeg, ZonedDateTime, ZonedDateTime> visitCompoundingIborLegConvention(final CompoundingIborLegConvention convention) {
+        final IborIndexConvention indexConvention = conventionSource.getConvention(IborIndexConvention.class, convention.getIborIndexConvention());
+        final Calendar calendar = CalendarUtils.getCalendar(regionSource, holidaySource, indexConvention.getRegionCalendar());
+        final Currency currency = indexConvention.getCurrency();
+        final DayCount dayCount = indexConvention.getDayCount();
+        final BusinessDayConvention businessDayConvention = indexConvention.getBusinessDayConvention();
+        final boolean eomIndex = indexConvention.isIsEOM();
+        final boolean eomLeg = convention.isIsEOM();
+        final Period indexTenor = convention.getCompositionTenor().getPeriod();
+        final Period paymentTenor = convention.getPaymentTenor().getPeriod();
+        final int spotLag = indexConvention.getSettlementDays();
+        final IborIndex iborIndex = new IborIndex(currency, indexTenor, spotLag, dayCount, businessDayConvention, eomIndex, indexConvention.getName());
+        final int spotLagLeg = convention.getSettlementDays();
+        final ZonedDateTime spotDateLeg = ScheduleCalculator.getAdjustedDate(valuationTime, spotLagLeg, calendar);
+        final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spotDateLeg, startTenor, businessDayConvention, calendar, eomLeg);
+        final StubType stubLeg = convention.getStubTypeLeg();
+        final StubType stubComp = convention.getStubTypeCompound();
+        final boolean eom = convention.isIsEOM();
+        final ZonedDateTime maturityDate = startDate.plus(maturityTenor);
+        final Period paymentPeriod = convention.getPaymentTenor().getPeriod();
+        if (!isPayer && isMarketDataSpread) {
+          final Double spread = marketData.getDataPoint(dataId);
+          if (spread == null) {
+            throw new OpenGammaRuntimeException("Could not get market data for " + dataId);
+          }
+          return Triple.of(new FloatingSpreadIRLeg(dayCount,
+                                         PeriodFrequency.of(paymentPeriod),
+                                         indexConvention.getRegionCalendar(),
+                                         businessDayConvention,
+                                         new InterestRateNotional(currency, 1),
+                                         eomLeg,
+                                         dataId,
+                                         FloatingRateType.IBOR,
+                                         spread), startDate, maturityDate);
+        }
+        return Triple.of(new FloatingInterestRateLeg(dayCount,
+                                           PeriodFrequency.of(paymentPeriod),
+                                           indexConvention.getRegionCalendar(),
+                                           businessDayConvention,
+                                           new InterestRateNotional(currency, 1),
+                                           eomLeg,
+                                           dataId, FloatingRateType.IBOR), startDate, maturityDate);
+      }
+
+      @Override
+      public Triple<? extends SwapLeg, ZonedDateTime, ZonedDateTime> visitOISLegConvention(final OISLegConvention convention) {
+        final OvernightIndexConvention indexConvention = conventionSource.getConvention(OvernightIndexConvention.class, convention.getOvernightIndexConvention());
+        final Calendar calendar = CalendarUtils.getCalendar(regionSource, holidaySource, indexConvention.getRegionCalendar());
+        final Currency currency = indexConvention.getCurrency();
+        final DayCount dayCount = indexConvention.getDayCount();
+        final int publicationLag = indexConvention.getPublicationLag();
+        final int spotLagLeg = convention.getSettlementDays();
+        final ZonedDateTime spotDateLeg = ScheduleCalculator.getAdjustedDate(valuationTime, spotLagLeg, calendar);
+        final IndexON indexON = new IndexON(indexConvention.getName(), currency, dayCount, publicationLag);
+        final Period paymentPeriod = convention.getPaymentTenor().getPeriod();
+        final boolean eomLeg = convention.isIsEOM();
+        final BusinessDayConvention businessDayConvention = convention.getBusinessDayConvention();
+        final int paymentLag = convention.getPaymentLag();
+        final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spotDateLeg, startTenor, businessDayConvention, calendar, eomLeg);
+        final StubType stub = convention.getStubType();
+        final ZonedDateTime maturityDate = startDate.plus(maturityTenor);
+        if (isMarketDataSpread) {
+          final Double spread = marketData.getDataPoint(dataId);
+          if (spread == null) {
+            throw new OpenGammaRuntimeException("Could not get market data for " + dataId);
+          }
+          return Triple.of(new FloatingSpreadIRLeg(dayCount,
+                                         PeriodFrequency.of(paymentPeriod),
+                                         indexConvention.getRegionCalendar(),
+                                         businessDayConvention,
+                                         new InterestRateNotional(currency, 1),
+                                         eomLeg,
+                                         dataId,
+                                         FloatingRateType.OIS,
+                                         spread), startDate, maturityDate);
+        }
+        return Triple.of(new FloatingInterestRateLeg(dayCount,
+                                           PeriodFrequency.of(paymentPeriod),
+                                           indexConvention.getRegionCalendar(),
+                                           businessDayConvention,
+                                           new InterestRateNotional(currency, 1),
+                                           eomLeg,
+                                           dataId, FloatingRateType.OIS), startDate, maturityDate);
+      }
+
+      @Override
+      public Triple<? extends SwapLeg, ZonedDateTime, ZonedDateTime> visitSwapFixedLegConvention(final SwapFixedLegConvention convention) {
+        final Calendar calendar = CalendarUtils.getCalendar(regionSource, holidaySource, convention.getRegionCalendar());
+        final Double rate = marketData.getDataPoint(dataId);
+        if (rate == null) {
+          throw new OpenGammaRuntimeException("Could not get market data for " + dataId);
+        }
+        final Currency currency = convention.getCurrency();
+        final DayCount dayCount = convention.getDayCount();
+        final BusinessDayConvention businessDayConvention = convention.getBusinessDayConvention();
+        final boolean eomLeg = convention.isIsEOM();
+        final int spotLagLeg = convention.getSettlementDays();
+        final ZonedDateTime spotDateLeg = ScheduleCalculator.getAdjustedDate(valuationTime, spotLagLeg, calendar);
+        final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spotDateLeg, startTenor, businessDayConvention, calendar, eomLeg);
+        final StubType stub = convention.getStubType();
+        final ZonedDateTime maturityDate = startDate.plus(maturityTenor);
+        final Period paymentPeriod = convention.getPaymentTenor().getPeriod();
+
+        return Triple.of(new FixedInterestRateLeg(dayCount,
+                                 PeriodFrequency.of(paymentPeriod),
+                                 convention.getRegionCalendar(),
+                                 businessDayConvention,
+                                 new InterestRateNotional(currency, 1),
+                                 eomLeg,
+                                 rate), startDate, maturityDate);
+      }
+
+      @Override
+      public Triple<? extends SwapLeg, ZonedDateTime, ZonedDateTime> visitVanillaIborLegConvention(final VanillaIborLegConvention convention) {
+        final IborIndexConvention indexConvention = conventionSource.getConvention(IborIndexConvention.class, convention.getIborIndexConvention());
+        final Calendar calendar = CalendarUtils.getCalendar(regionSource, holidaySource, indexConvention.getRegionCalendar());
+        final Currency currency = indexConvention.getCurrency();
+        final DayCount dayCount = indexConvention.getDayCount();
+        final BusinessDayConvention businessDayConvention = indexConvention.getBusinessDayConvention();
+        final boolean eomIndex = indexConvention.isIsEOM();
+        final boolean eomLeg = convention.isIsEOM();
+        final Period indexTenor = convention.getResetTenor().getPeriod();
+        final int spotLag = indexConvention.getSettlementDays();
+        final IborIndex iborIndex = new IborIndex(currency, indexTenor, spotLag, dayCount, businessDayConvention, eomIndex, indexConvention.getName());
+        final int spotLagLeg = convention.getSettlementDays();
+        final ZonedDateTime spotDateLeg = ScheduleCalculator.getAdjustedDate(valuationTime, spotLagLeg, calendar);
+        final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spotDateLeg, startTenor, businessDayConvention, calendar, eomLeg);
+        final StubType stub = convention.getStubType();
+        final boolean eom = convention.isIsEOM();
+        final ZonedDateTime maturityDate = startDate.plus(maturityTenor);
+        if (!isPayer && isMarketDataSpread) {
+          final Double spread = marketData.getDataPoint(dataId);
+          if (spread == null) {
+            throw new OpenGammaRuntimeException("Could not get market data for " + dataId);
+          }
+          return Triple.of(new FloatingSpreadIRLeg(dayCount,
+                                         PeriodFrequency.of(convention.getResetTenor().getPeriod()),
+                                         indexConvention.getRegionCalendar(),
+                                         businessDayConvention,
+                                         new InterestRateNotional(currency, 1),
+                                         eomLeg,
+                                         dataId,
+                                         FloatingRateType.IBOR,
+                                         spread), startDate, maturityDate);
+        }
+        return Triple.of(new FloatingInterestRateLeg(dayCount,
+                                           PeriodFrequency.of(convention.getResetTenor().getPeriod()),
+                                           indexConvention.getRegionCalendar(),
+                                           businessDayConvention,
+                                           new InterestRateNotional(currency, 1),
+                                           eomLeg,
+                                           dataId, FloatingRateType.IBOR), startDate, maturityDate);
+      }
+    };
+    return legConvention.accept(visitor);
+  }
+
+  /**
    * Determines if a swap is float / float
    * @param payLegConvention The pay leg convention
    * @param receiveLegConvention The receive leg convention
    * @return True if both legs are floating
    */
-  private static boolean isFloatFloat(final Convention payLegConvention, final Convention receiveLegConvention) {
+  public static boolean isFloatFloat(final Convention payLegConvention, final Convention receiveLegConvention) {
     final boolean isFloatFloat = ((payLegConvention instanceof VanillaIborLegConvention) ||
                                   (payLegConvention instanceof OISLegConvention) ||
                                   (payLegConvention instanceof CompoundingIborLegConvention))
