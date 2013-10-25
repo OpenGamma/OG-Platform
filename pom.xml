@@ -442,7 +442,7 @@
       <dependency>
         <groupId>org.codehaus.groovy</groupId>
         <artifactId>groovy-all</artifactId>
-        <version>2.1.6-SNAPSHOT</version>
+        <version>2.1.5</version>
       </dependency>
 
       <!-- Logging -->
