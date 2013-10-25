@@ -598,7 +598,9 @@ $.register_module({
                 state.col_override = new Array(meta.fixed_length + meta.scroll_length);
                 state.col_reorder = [];
             }
-            if (!Object.equals(meta.structure, state.structure)) unravel_structure.call(grid);
+            if (!Object.equals(meta.structure, state.structure)) {
+                unravel_structure.call(grid);
+            }
         };
         var viewport = function (handler) {
             var grid = this, meta = grid.meta, viewport = meta.viewport, inner = meta.inner, elements = grid.elements,
@@ -771,7 +773,11 @@ $.register_module({
             columns.scan.all = columns.scan.fixed
                 .concat(columns.scan.scroll.map(function (val) {return val + columns.width.fixed;}));
             data_width = columns.scan.all[columns.scan.all.length - 1] + scrollbar;
-            if (collapse) state.nodes.collapse.forEach(function (node) {state.nodes[node] = false;});
+            if (collapse) {
+                state.nodes.collapse.forEach(function (node) {
+                    state.nodes[node] = false;
+                });
+            }
             meta.rows = (state.available = available.call(grid)).length;
             meta.inner = {
                 scroll_height: height - header_height, height: meta.rows * row_height,
@@ -792,8 +798,11 @@ $.register_module({
                 sets: set_css(id, columns.fixed).concat(set_css(id, columns.scroll, columns.fixed.length))
             });
             grid.elements.style.empty();
-            if ((sheet = grid.elements.style[0]).styleSheet) sheet.styleSheet.cssText = css; // IE
-            else sheet.appendChild(document.createTextNode(css));
+            if ((sheet = grid.elements.style[0]).styleSheet) {// IE
+                sheet.styleSheet.cssText = css;
+            } else {
+                sheet.appendChild(document.createTextNode(css));
+            }
             grid.fire('resize');
             return viewport.call(grid, render_header);
         };

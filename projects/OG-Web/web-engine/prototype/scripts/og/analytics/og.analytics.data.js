@@ -52,7 +52,7 @@ $.register_module({
         };
         var Data = function (source, config) {
             var data = this, api = og.api.rest.views, meta, label = config.label ? config.label + '-' : '',
-                viewport = null, viewport_cache, view_id = config.view_id, viewport_version,
+                viewport = null, viewport_cache, data_row_cache, view_id = config.view_id, viewport_version,
                 graph_id = config.graph_id, subscribed = false, ROOT = 'rootNode', SETS = 'columnSets',
                 ROWS = 'rowCount', CALC = 'calculationDuration', grid_type = null, depgraph = !!source.depgraph,
                 loading_viewport_id = false, fixed_set = {portfolio: 'Portfolio', primitives: 'Primitives'},
@@ -81,13 +81,13 @@ $.register_module({
                 }
                 var promise, viewports = (depgraph ? api.grid.depgraphs : api.grid).viewports;
                 subscribed = true;
-                // if we have a viewport id already just get the data
+                // if we have a viewport id already just GET the data
                 if (data.viewport_id) {
                     viewports.get({view_id: view_id, grid_type: grid_type, graph_id: graph_id, update: data_setup,
                         viewport_id: data.viewport_id })
                     .pipe(data_handler);
                 } else {
-                    //put the structure of the viewport, returns the viewport id and set the version as the promise id
+                    // PUT the structure of the viewport, returns the viewport id and set the version as the promise id
                     (promise = viewports.put({view_id: view_id, grid_type: grid_type, graph_id: graph_id,
                         loading: function () {loading_viewport_id = true;}, rows: viewport.rows, cols: viewport.cols,
                         cells: viewport.cells, format: viewport.format, log: viewport.log})
@@ -214,7 +214,7 @@ $.register_module({
                 if (result.error) {
                     return fire('fatal', data.prefix + result.message);
                 }
-                if (depgraph) {
+                if (depgraph) { //TODO unravel this, structure updates are not working for depgraphs
                     if (graph_id) {
                         api.grid.depgraphs.viewports.structure.get({view_id: view_id, grid_type: grid_type,
                             graph_id: graph_id, viewport_id: data.viewport_id})
@@ -339,7 +339,8 @@ $.register_module({
             };
             data.parent = config.parent || ConnectionPool.parent(data);
             data.prefix = module.name + ' (' + label + 'undefined' + '):\n';
-            // user interaction with the grid results in a new grid structure, the viewports is then updated (PUT)
+            // user interaction with the grid or clipboard usage results in a new grid structure,
+            // the viewports is then updated (PUT)
             data.viewport = function (new_viewport) {
                 var promise, viewports = (depgraph ? api.grid.depgraphs : api.grid).viewports;
                 if (new_viewport === null) {
@@ -354,10 +355,12 @@ $.register_module({
                     og.dev.warn(data.prefix + 'nonsensical viewport, ', new_viewport);
                     return data;
                 }
-                if (Object.equals(viewport_cache, new_viewport)) { // duplicate viewport, do nothing
+                // duplicate viewport, row count is needed for last node changes - do nothing
+                if (Object.equals(viewport_cache, new_viewport) && (data.meta.data_rows === data_row_cache)) {
                     return data;
                 }
                 viewport_cache = Object.clone(data.meta.viewport = viewport = new_viewport);
+                data_row_cache = data.meta.data_rows;
                 if (!data.viewport_id) { //if no viewport id get data, unless we are in already loading viewport
                     loading_viewport_id ? data : data_setup();
                     return data;
