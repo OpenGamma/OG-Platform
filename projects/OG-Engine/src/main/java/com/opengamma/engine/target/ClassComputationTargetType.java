@@ -34,6 +34,7 @@ import com.opengamma.id.UniqueIdentifiable;
    * @param name the preferred display name for the type, this must not contain {@code ()/|} characters
    */
   public ClassComputationTargetType(final Class<? extends UniqueIdentifiable> target, final String name, final boolean nameWellKnown) {
+    super(ClassComputationTargetType.class.hashCode() * 31 + target.hashCode());
     _target = target;
     _name = name;
     _nameWellKnown = nameWellKnown;
@@ -189,11 +190,6 @@ import com.opengamma.id.UniqueIdentifiable;
     } else {
       return false;
     }
-  }
-
-  @Override
-  public int hashCode() {
-    return ClassComputationTargetType.class.hashCode() * 31 + getTarget().hashCode();
   }
 
 }

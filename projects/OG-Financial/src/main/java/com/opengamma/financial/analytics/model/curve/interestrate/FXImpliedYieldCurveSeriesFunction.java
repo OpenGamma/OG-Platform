@@ -162,7 +162,6 @@ public class FXImpliedYieldCurveSeriesFunction extends AbstractFunction.NonCompi
     if (foreignCurveObject == null) {
       throw new OpenGammaRuntimeException("Could not get foreign yield curve");
     }
-    final String curveCalculationConfigName = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_CONFIG);
     final String absoluteToleranceName = desiredValue.getConstraint(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_ABSOLUTE_TOLERANCE);
     final double absoluteTolerance = Double.parseDouble(absoluteToleranceName);
     final String relativeToleranceName = desiredValue.getConstraint(MultiYieldCurvePropertiesAndDefaults.PROPERTY_ROOT_FINDER_RELATIVE_TOLERANCE);
@@ -213,6 +212,8 @@ public class FXImpliedYieldCurveSeriesFunction extends AbstractFunction.NonCompi
     final int spotLag = fxSpotConvention.getSettlementDays();
     final boolean isRegular = specification.isMarketQuoteConvention();
     final ExternalId conventionSettlementRegion = fxSpotConvention.getSettlementRegion();
+    final String fullDomesticCurveName = domesticCurveName + "_" + domesticCurrency.getCode();
+    final String fullForeignCurveName = foreignCurveName + "_" + foreignCurrency.getCode();
     for (final Map.Entry<LocalDate, YieldAndDiscountCurve> entry : foreignCurves.entrySet()) {
       final LocalDate valuationDate = entry.getKey();
       final ZonedDateTime valuationDateTime = ZonedDateTime.of(valuationDate, now.toLocalTime(), now.getZone());
@@ -225,8 +226,6 @@ public class FXImpliedYieldCurveSeriesFunction extends AbstractFunction.NonCompi
       final DoubleArrayList marketValues = new DoubleArrayList();
       final DoubleArrayList nodeTimes = new DoubleArrayList();
       final DoubleArrayList initialRatesGuess = new DoubleArrayList();
-      final String fullDomesticCurveName = domesticCurveName + "_" + domesticCurrency.getCode();
-      final String fullForeignCurveName = foreignCurveName + "_" + foreignCurrency.getCode();
       final List<InstrumentDerivative> derivatives = new ArrayList<>();
       int nInstruments = 0;
       ZonedDateTime spotDate;

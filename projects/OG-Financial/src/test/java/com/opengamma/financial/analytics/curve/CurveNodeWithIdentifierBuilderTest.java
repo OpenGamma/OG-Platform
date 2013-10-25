@@ -24,8 +24,8 @@ import com.opengamma.financial.analytics.ircurve.strips.DataFieldType;
 import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
-import com.opengamma.financial.analytics.ircurve.strips.IMMFRANode;
-import com.opengamma.financial.analytics.ircurve.strips.IMMSwapNode;
+import com.opengamma.financial.analytics.ircurve.strips.RollDateFRANode;
+import com.opengamma.financial.analytics.ircurve.strips.RollDateSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.InflationNodeType;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
@@ -119,13 +119,13 @@ public class CurveNodeWithIdentifierBuilderTest {
 
   @Test
   public void testIMMFRA() {
-    final IMMFRANode immFRA = new IMMFRANode(Tenor.ONE_YEAR, Tenor.THREE_MONTHS, 4, 40, ExternalId.of("Test1", "Test1"), "Id mapper");
+    final RollDateFRANode immFRA = new RollDateFRANode(Tenor.ONE_YEAR, Tenor.THREE_MONTHS, 4, 40, ExternalId.of("Test1", "Test1"), "Id mapper");
     assertEquals(new CurveNodeWithIdentifier(immFRA, ExternalId.of("Test", "IMM FRA"), "IMM FRA Data", DataFieldType.OUTRIGHT), immFRA.accept(BUILDER));
   }
 
   @Test
   public void testIMMSwap() {
-    final IMMSwapNode immSwap = new IMMSwapNode(Tenor.ONE_YEAR, Tenor.THREE_MONTHS, 4, 40, ExternalId.of("Test1", "Test1"), "Id mapper");
+    final RollDateSwapNode immSwap = new RollDateSwapNode(Tenor.ONE_YEAR, 4, 40, ExternalId.of("Test1", "Test1"), "Id mapper");
     assertEquals(new CurveNodeWithIdentifier(immSwap, ExternalId.of("Test", "IMM Swap"), "IMM Swap Data", DataFieldType.OUTRIGHT), immSwap.accept(BUILDER));
   }
 

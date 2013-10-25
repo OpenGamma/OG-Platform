@@ -20,8 +20,8 @@ import com.opengamma.financial.analytics.ircurve.strips.DeliverableSwapFutureNod
 import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
-import com.opengamma.financial.analytics.ircurve.strips.IMMFRANode;
-import com.opengamma.financial.analytics.ircurve.strips.IMMSwapNode;
+import com.opengamma.financial.analytics.ircurve.strips.RollDateFRANode;
+import com.opengamma.financial.analytics.ircurve.strips.RollDateSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.InflationNodeType;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
@@ -113,22 +113,22 @@ public class CurveNodeBuildersTest extends AnalyticsTestBase {
 
   @Test
   public void testIMMFRANodeBuilder() {
-    IMMFRANode node = new IMMFRANode(Tenor.ONE_DAY, Tenor.ONE_MONTH, 4, 40, ExternalId.of("convention", "ibor"), "TEST");
-    assertEquals(node, cycleObject(IMMFRANode.class, node));
-    node = new IMMFRANode(Tenor.ONE_DAY, Tenor.ONE_MONTH, 4, 40, ExternalId.of("convention", "ibor"), "TEST", "name");
-    assertEquals(node, cycleObject(IMMFRANode.class, node));
+    RollDateFRANode node = new RollDateFRANode(Tenor.ONE_DAY, Tenor.ONE_MONTH, 4, 40, ExternalId.of("convention", "ibor"), "TEST");
+    assertEquals(node, cycleObject(RollDateFRANode.class, node));
+    node = new RollDateFRANode(Tenor.ONE_DAY, Tenor.ONE_MONTH, 4, 40, ExternalId.of("convention", "ibor"), "TEST", "name");
+    assertEquals(node, cycleObject(RollDateFRANode.class, node));
   }
 
   @Test
   public void testIMMSwapNodeBuilder() {
-    IMMSwapNode node = new IMMSwapNode(Tenor.ONE_DAY, Tenor.THREE_MONTHS, 4, 40, ExternalId.of("convention", "swap"), "TEST");
-    assertEquals(node, cycleObject(IMMSwapNode.class, node));
-    node = new IMMSwapNode(Tenor.ONE_DAY, Tenor.THREE_MONTHS, 4, 40, ExternalId.of("convention", "swap"), true, "TEST");
-    assertEquals(node, cycleObject(IMMSwapNode.class, node));
-    node = new IMMSwapNode(Tenor.ONE_DAY, Tenor.THREE_MONTHS, 4, 40, ExternalId.of("convention", "swap"), "TEST", "name");
-    assertEquals(node, cycleObject(IMMSwapNode.class, node));
-    node = new IMMSwapNode(Tenor.ONE_DAY, Tenor.THREE_MONTHS, 4, 40, ExternalId.of("convention", "swap"), true, "TEST", "name");
-    assertEquals(node, cycleObject(IMMSwapNode.class, node));
+    RollDateSwapNode node = new RollDateSwapNode(Tenor.ONE_DAY, 4, 40, ExternalId.of("convention", "swap"), "TEST");
+    assertEquals(node, cycleObject(RollDateSwapNode.class, node));
+    node = new RollDateSwapNode(Tenor.ONE_DAY, 4, 40, ExternalId.of("convention", "swap"), true, "TEST");
+    assertEquals(node, cycleObject(RollDateSwapNode.class, node));
+    node = new RollDateSwapNode(Tenor.ONE_DAY, 4, 40, ExternalId.of("convention", "swap"), "TEST", "name");
+    assertEquals(node, cycleObject(RollDateSwapNode.class, node));
+    node = new RollDateSwapNode(Tenor.ONE_DAY, 4, 40, ExternalId.of("convention", "swap"), true, "TEST", "name");
+    assertEquals(node, cycleObject(RollDateSwapNode.class, node));
   }
 
   @Test

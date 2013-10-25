@@ -21,10 +21,10 @@ import com.opengamma.financial.analytics.ircurve.strips.DeliverableSwapFutureNod
 import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
-import com.opengamma.financial.analytics.ircurve.strips.IMMFRANode;
-import com.opengamma.financial.analytics.ircurve.strips.IMMSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.PointsCurveNodeWithIdentifier;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
+import com.opengamma.financial.analytics.ircurve.strips.RollDateFRANode;
+import com.opengamma.financial.analytics.ircurve.strips.RollDateSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.ThreeLegBasisSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.ZeroCouponInflationNode;
@@ -144,18 +144,18 @@ public class CurveNodeWithIdentifierBuilder implements CurveNodeVisitor<CurveNod
   }
 
   @Override
-  public CurveNodeWithIdentifier visitIMMFRANode(final IMMFRANode node) {
+  public CurveNodeWithIdentifier visitRollDateFRANode(final RollDateFRANode node) {
     final Tenor startTenor = node.getStartTenor();
-    final ExternalId identifier = _nodeIdMapper.getIMMFRANodeId(_curveDate, startTenor, node.getStartIMMDateNumber(), node.getEndIMMDateNumber());
+    final ExternalId identifier = _nodeIdMapper.getIMMFRANodeId(_curveDate, startTenor, node.getRollDateStartNumber(), node.getRollDateEndNumber());
     final String dataField = _nodeIdMapper.getIMMFRANodeDataField(startTenor);
     final DataFieldType fieldType = _nodeIdMapper.getIMMFRANodeDataFieldType(startTenor);
     return new CurveNodeWithIdentifier(node, identifier, dataField, fieldType);
   }
 
   @Override
-  public CurveNodeWithIdentifier visitIMMSwapNode(final IMMSwapNode node) {
+  public CurveNodeWithIdentifier visitRollDateSwapNode(final RollDateSwapNode node) {
     final Tenor startTenor = node.getStartTenor();
-    final ExternalId identifier = _nodeIdMapper.getIMMSwapNodeId(_curveDate, startTenor, node.getImmDateStartNumber(), node.getImmDateEndNumber());
+    final ExternalId identifier = _nodeIdMapper.getIMMSwapNodeId(_curveDate, startTenor, node.getRollDateStartNumber(), node.getRollDateEndNumber());
     final String dataField = _nodeIdMapper.getIMMSwapNodeDataField(startTenor);
     final DataFieldType fieldType = _nodeIdMapper.getIMMSwapNodeDataFieldType(startTenor);
     return new CurveNodeWithIdentifier(node, identifier, dataField, fieldType);

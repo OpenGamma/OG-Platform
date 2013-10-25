@@ -49,7 +49,6 @@ public class InMemoryPortfolioMaster extends SimpleAbstractInMemoryMaster<Portfo
    * A cache of portfolio nodes by identifier.
    */
   private final ConcurrentMap<ObjectId, ManageablePortfolioNode> _storeNodes = new ConcurrentHashMap<ObjectId, ManageablePortfolioNode>();
-
   
   /**
    * Creates an instance.
@@ -111,21 +110,29 @@ public class InMemoryPortfolioMaster extends SimpleAbstractInMemoryMaster<Portfo
   }
   
   private PortfolioDocument clonePortfolioDocument(PortfolioDocument document) {
-    PortfolioDocument clone = JodaBeanUtils.clone(document);
-    ManageablePortfolio portfolioClone = JodaBeanUtils.clone(document.getPortfolio());
-    portfolioClone.setRootNode(clonePortfolioNode(portfolioClone.getRootNode()));
-    clone.setPortfolio(portfolioClone);
-    return clone;
+    if (isCloneResults()) {
+      PortfolioDocument clone = JodaBeanUtils.clone(document);
+      ManageablePortfolio portfolioClone = JodaBeanUtils.clone(document.getPortfolio());
+      portfolioClone.setRootNode(clonePortfolioNode(portfolioClone.getRootNode()));
+      clone.setPortfolio(portfolioClone);
+      return clone;
+    } else {
+      return document;
+    }
   }
   
   private ManageablePortfolioNode clonePortfolioNode(ManageablePortfolioNode node) {
-    ManageablePortfolioNode clone = JodaBeanUtils.clone(node);
-    List<ManageablePortfolioNode> childNodes = new ArrayList<ManageablePortfolioNode>(node.getChildNodes().size());
-    for (ManageablePortfolioNode child : node.getChildNodes()) {
-      childNodes.add(clonePortfolioNode(child));
+    if (isCloneResults()) {
+      ManageablePortfolioNode clone = JodaBeanUtils.clone(node);
+      List<ManageablePortfolioNode> childNodes = new ArrayList<ManageablePortfolioNode>(node.getChildNodes().size());
+      for (ManageablePortfolioNode child : node.getChildNodes()) {
+        childNodes.add(clonePortfolioNode(child));
+      }
+      clone.setChildNodes(childNodes);
+      return clone;
+    } else {
+      return node;
     }
-    clone.setChildNodes(childNodes);
-    return clone;
   }
 
   @Override

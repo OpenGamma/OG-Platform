@@ -211,10 +211,6 @@ public abstract class MultiYieldCurveSeriesFunction extends AbstractFunction.Non
       return null;
     }
     final String[] curveNames = curveCalculationConfig.getYieldCurveNames();
-    final String absoluteTolerance = Iterables.getOnlyElement(rootFinderAbsoluteTolerance);
-    final String relativeTolerance = Iterables.getOnlyElement(rootFinderRelativeTolerance);
-    final String maxIteration = Iterables.getOnlyElement(maxIterations);
-    final String finiteDifference = Iterables.getOnlyElement(useFiniteDifference);
     final Set<ValueRequirement> requirements = new HashSet<>();
     final ComputationTargetSpecification targetSpec = target.toSpecification();
     for (final String curveName : curveNames) {

@@ -110,9 +110,13 @@ public class InMemoryPositionMaster extends SimpleAbstractInMemoryMaster<Positio
   }
 
   private PositionDocument clonePositionDocument(final PositionDocument document) {
-    final PositionDocument clone = JodaBeanUtils.clone(document);
-    clone.setPosition(new ManageablePosition(document.getPosition()));
-    return clone;
+    if (isCloneResults()) {
+      final PositionDocument clone = JodaBeanUtils.clone(document);
+      clone.setPosition(new ManageablePosition(document.getPosition()));
+      return clone;
+    } else {
+      return document;
+    }
   }
 
   //-------------------------------------------------------------------------

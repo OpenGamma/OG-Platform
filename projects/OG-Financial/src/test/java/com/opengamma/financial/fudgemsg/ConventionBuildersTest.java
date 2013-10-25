@@ -20,8 +20,8 @@ import com.opengamma.financial.convention.DepositConvention;
 import com.opengamma.financial.convention.FXForwardAndSwapConvention;
 import com.opengamma.financial.convention.FXSpotConvention;
 import com.opengamma.financial.convention.FederalFundsFutureConvention;
-import com.opengamma.financial.convention.IMMFRAConvention;
-import com.opengamma.financial.convention.IMMSwapConvention;
+import com.opengamma.financial.convention.RollDateFRAConvention;
+import com.opengamma.financial.convention.RollDateSwapConvention;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.convention.InflationLegConvention;
@@ -125,18 +125,18 @@ public class ConventionBuildersTest extends AnalyticsTestBase {
 
   @Test
   public void testIMMFRAConvention() {
-    final IMMFRAConvention convention = new IMMFRAConvention("IMM FRA", InMemoryConventionBundleMaster.simpleNameSecurityId("IMM FRA").toBundle(),
+    final RollDateFRAConvention convention = new RollDateFRAConvention("IMM FRA", InMemoryConventionBundleMaster.simpleNameSecurityId("IMM FRA").toBundle(),
         ExternalId.of("Test", "Ibor"), ExternalId.of("Test", "IMM dates"));
     convention.setUniqueId(UniqueId.of("Test", "3577"));
-    assertEquals(convention, cycleObject(IMMFRAConvention.class, convention));
+    assertEquals(convention, cycleObject(RollDateFRAConvention.class, convention));
   }
 
   @Test
   public void testIMMSwapConvention() {
-    final IMMSwapConvention convention = new IMMSwapConvention("IMM Swap", InMemoryConventionBundleMaster.simpleNameSecurityId("IMM Swap").toBundle(),
+    final RollDateSwapConvention convention = new RollDateSwapConvention("IMM Swap", InMemoryConventionBundleMaster.simpleNameSecurityId("IMM Swap").toBundle(),
         ExternalId.of("Test", "Pay"), ExternalId.of("Test", "Receive"), ExternalId.of("Test", "IMM dates"));
     convention.setUniqueId(UniqueId.of("Test", "9836"));
-    assertEquals(convention, cycleObject(IMMSwapConvention.class, convention));
+    assertEquals(convention, cycleObject(RollDateSwapConvention.class, convention));
   }
 
   @Test

@@ -22,10 +22,10 @@ import com.opengamma.financial.analytics.ircurve.strips.DeliverableSwapFutureNod
 import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
-import com.opengamma.financial.analytics.ircurve.strips.IMMFRANode;
-import com.opengamma.financial.analytics.ircurve.strips.IMMSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.InflationNodeType;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
+import com.opengamma.financial.analytics.ircurve.strips.RollDateFRANode;
+import com.opengamma.financial.analytics.ircurve.strips.RollDateSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.ThreeLegBasisSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.ZeroCouponInflationNode;
@@ -366,30 +366,30 @@ import com.opengamma.util.time.Tenor;
   }
 
   /**
-   * Fudge builder for {@link IMMFRANode}
+   * Fudge builder for {@link RollDateFRANode}
    */
-  @FudgeBuilderFor(IMMFRANode.class)
-  public static class IMMFRANodeBuilder implements FudgeBuilder<IMMFRANode> {
+  @FudgeBuilderFor(RollDateFRANode.class)
+  public static class RollDateFRANodeBuilder implements FudgeBuilder<RollDateFRANode> {
     /** The start tenor field */
     private static final String START_TENOR_FIELD = "startTenor";
     /** The IMM tenor field */
     private static final String INDEX_TENOR_FIELD = "indexTenor";
     /** The start IMM date number field */
-    private static final String START_IMM_DATE_NUMBER_FIELD = "startIMMDateNumber";
+    private static final String ROLL_DATE_START_NUMBER_FIELD = "rollDateStartNumber";
     /** The end IMM date number field */
-    private static final String END_IMM_DATE_NUMBER_FIELD = "endIMMDateNumber";
+    private static final String ROLL_DATE_END_NUMBER_FIELD = "rollDateEndNumber";
     /** The swap convention field */
-    private static final String IMM_FRA_CONVENTION_FIELD = "immFRAConvention";
+    private static final String ROLL_DATE_FRA_CONVENTION_FIELD = "rollDateFRAConvention";
 
     @Override
-    public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final IMMFRANode object) {
+    public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final RollDateFRANode object) {
       final MutableFudgeMsg message = serializer.newMessage();
       message.add(null, 0, object.getClass().getName());
       message.add(START_TENOR_FIELD, object.getStartTenor().toFormattedString());
       message.add(INDEX_TENOR_FIELD, object.getIndexTenor().toFormattedString());
-      message.add(START_IMM_DATE_NUMBER_FIELD, object.getStartIMMDateNumber());
-      message.add(END_IMM_DATE_NUMBER_FIELD, object.getEndIMMDateNumber());
-      message.add(IMM_FRA_CONVENTION_FIELD, object.getImmFRAConvention());
+      message.add(ROLL_DATE_START_NUMBER_FIELD, object.getRollDateStartNumber());
+      message.add(ROLL_DATE_END_NUMBER_FIELD, object.getRollDateEndNumber());
+      message.add(ROLL_DATE_FRA_CONVENTION_FIELD, object.getRollDateFRAConvention());
       message.add(CURVE_MAPPER_ID_FIELD, object.getCurveNodeIdMapperName());
       if (object.getName() != null) {
         message.add(NAME_FIELD, object.getName());
@@ -398,49 +398,46 @@ import com.opengamma.util.time.Tenor;
     }
 
     @Override
-    public IMMFRANode buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+    public RollDateFRANode buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final Tenor startTenor = Tenor.parse(message.getString(START_TENOR_FIELD));
       final Tenor immTenor = Tenor.parse(message.getString(INDEX_TENOR_FIELD));
-      final int immDateStartNumber = message.getInt(START_IMM_DATE_NUMBER_FIELD);
-      final int immDateEndNumber = message.getInt(END_IMM_DATE_NUMBER_FIELD);
-      final ExternalId indexConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(IMM_FRA_CONVENTION_FIELD));
+      final int immDateStartNumber = message.getInt(ROLL_DATE_START_NUMBER_FIELD);
+      final int immDateEndNumber = message.getInt(ROLL_DATE_END_NUMBER_FIELD);
+      final ExternalId indexConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(ROLL_DATE_FRA_CONVENTION_FIELD));
       final String curveNodeIdMapperName = message.getString(CURVE_MAPPER_ID_FIELD);
       if (message.hasField(NAME_FIELD)) {
         final String name = message.getString(NAME_FIELD);
-        return new IMMFRANode(startTenor, immTenor, immDateStartNumber, immDateEndNumber, indexConvention, curveNodeIdMapperName, name);
+        return new RollDateFRANode(startTenor, immTenor, immDateStartNumber, immDateEndNumber, indexConvention, curveNodeIdMapperName, name);
       }
-      return new IMMFRANode(startTenor, immTenor, immDateStartNumber, immDateEndNumber, indexConvention, curveNodeIdMapperName);
+      return new RollDateFRANode(startTenor, immTenor, immDateStartNumber, immDateEndNumber, indexConvention, curveNodeIdMapperName);
     }
 
   }
 
   /**
-   * Fudge builder for {@link IMMSwapNode}
+   * Fudge builder for {@link RollDateSwapNode}
    */
-  @FudgeBuilderFor(IMMSwapNode.class)
-  public static class IMMSwapNodeBuilder implements FudgeBuilder<IMMSwapNode> {
+  @FudgeBuilderFor(RollDateSwapNode.class)
+  public static class RollDateSwapNodeBuilder implements FudgeBuilder<RollDateSwapNode> {
     /** The start tenor field */
     private static final String START_TENOR_FIELD = "startTenor";
-    /** The IMM tenor field */
-    private static final String INDEX_TENOR_FIELD = "indexTenor";
     /** The start IMM date number field */
-    private static final String START_IMM_DATE_NUMBER_FIELD = "startIMMDateNumber";
+    private static final String START_IMM_DATE_NUMBER_FIELD = "rollDateStartNumber";
     /** The end IMM date number field */
-    private static final String END_IMM_DATE_NUMBER_FIELD = "endIMMDateNumber";
+    private static final String END_IMM_DATE_NUMBER_FIELD = "rollDateEndNumber";
     /** The swap convention field */
-    private static final String IMM_SWAP_CONVENTION_FIELD = "immSwapConvention";
+    private static final String IMM_SWAP_CONVENTION_FIELD = "rollDateSwapConvention";
     /** The use fixings field */
     private static final String USE_FIXINGS_FIELD = "useFixings";
 
     @Override
-    public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final IMMSwapNode object) {
+    public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final RollDateSwapNode object) {
       final MutableFudgeMsg message = serializer.newMessage();
       message.add(null, 0, object.getClass().getName());
       message.add(START_TENOR_FIELD, object.getStartTenor().toFormattedString());
-      message.add(INDEX_TENOR_FIELD, object.getIndexTenor().toFormattedString());
-      message.add(START_IMM_DATE_NUMBER_FIELD, object.getImmDateStartNumber());
-      message.add(END_IMM_DATE_NUMBER_FIELD, object.getImmDateEndNumber());
-      message.add(IMM_SWAP_CONVENTION_FIELD, object.getSwapConvention());
+      message.add(START_IMM_DATE_NUMBER_FIELD, object.getRollDateStartNumber());
+      message.add(END_IMM_DATE_NUMBER_FIELD, object.getRollDateEndNumber());
+      message.add(IMM_SWAP_CONVENTION_FIELD, object.getRollDateSwapConvention());
       message.add(CURVE_MAPPER_ID_FIELD, object.getCurveNodeIdMapperName());
       if (object.getName() != null) {
         message.add(NAME_FIELD, object.getName());
@@ -450,9 +447,8 @@ import com.opengamma.util.time.Tenor;
     }
 
     @Override
-    public IMMSwapNode buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+    public RollDateSwapNode buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final Tenor startTenor = Tenor.parse(message.getString(START_TENOR_FIELD));
-      final Tenor immTenor = Tenor.parse(message.getString(INDEX_TENOR_FIELD));
       final int immDateStartNumber = message.getInt(START_IMM_DATE_NUMBER_FIELD);
       final int immDateEndNumber = message.getInt(END_IMM_DATE_NUMBER_FIELD);
       final ExternalId swapConvention = deserializer.fieldValueToObject(ExternalId.class, message.getByName(IMM_SWAP_CONVENTION_FIELD));
@@ -461,15 +457,15 @@ import com.opengamma.util.time.Tenor;
         final String name = message.getString(NAME_FIELD);
         if (message.hasField(USE_FIXINGS_FIELD)) {
           final boolean useFixings = message.getBoolean(USE_FIXINGS_FIELD);
-          return new IMMSwapNode(startTenor, immTenor, immDateStartNumber, immDateEndNumber, swapConvention, useFixings, curveNodeIdMapperName, name);
+          return new RollDateSwapNode(startTenor, immDateStartNumber, immDateEndNumber, swapConvention, useFixings, curveNodeIdMapperName, name);
         }
-        return new IMMSwapNode(startTenor, immTenor, immDateStartNumber, immDateEndNumber, swapConvention, curveNodeIdMapperName, name);
+        return new RollDateSwapNode(startTenor, immDateStartNumber, immDateEndNumber, swapConvention, curveNodeIdMapperName, name);
       }
       if (message.hasField(USE_FIXINGS_FIELD)) {
         final boolean useFixings = message.getBoolean(USE_FIXINGS_FIELD);
-        return new IMMSwapNode(startTenor, immTenor, immDateStartNumber, immDateEndNumber, swapConvention, useFixings, curveNodeIdMapperName);
+        return new RollDateSwapNode(startTenor, immDateStartNumber, immDateEndNumber, swapConvention, useFixings, curveNodeIdMapperName);
       }
-      return new IMMSwapNode(startTenor, immTenor, immDateStartNumber, immDateEndNumber, swapConvention, curveNodeIdMapperName);
+      return new RollDateSwapNode(startTenor, immDateStartNumber, immDateEndNumber, swapConvention, curveNodeIdMapperName);
     }
 
   }

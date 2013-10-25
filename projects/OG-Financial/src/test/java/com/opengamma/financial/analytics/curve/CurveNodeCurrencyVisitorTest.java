@@ -26,8 +26,8 @@ import com.opengamma.financial.analytics.ircurve.strips.CreditSpreadNode;
 import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
-import com.opengamma.financial.analytics.ircurve.strips.IMMFRANode;
-import com.opengamma.financial.analytics.ircurve.strips.IMMSwapNode;
+import com.opengamma.financial.analytics.ircurve.strips.RollDateFRANode;
+import com.opengamma.financial.analytics.ircurve.strips.RollDateSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.InflationNodeType;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
@@ -37,8 +37,8 @@ import com.opengamma.financial.convention.CompoundingIborLegConvention;
 import com.opengamma.financial.convention.Convention;
 import com.opengamma.financial.convention.ConventionSource;
 import com.opengamma.financial.convention.DepositConvention;
-import com.opengamma.financial.convention.IMMFRAConvention;
-import com.opengamma.financial.convention.IMMSwapConvention;
+import com.opengamma.financial.convention.RollDateFRAConvention;
+import com.opengamma.financial.convention.RollDateSwapConvention;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.InflationLegConvention;
 import com.opengamma.financial.convention.InterestRateFutureConvention;
@@ -116,8 +116,8 @@ public class CurveNodeCurrencyVisitorTest {
   private static final InflationLegConvention INFLATION_LEG = new InflationLegConvention("ZCI", ExternalId.of(SCHEME, "ZCI").toBundle(), MODIFIED_FOLLOWING, ACT_360, false,
       3, 2, PRICE_INDEX_ID);
   private static final CMSLegConvention CMS = new CMSLegConvention("USD CMS", ExternalId.of(SCHEME, "USD CMS").toBundle(), SWAP_INDEX_ID, Tenor.SIX_MONTHS, false);
-  private static final IMMSwapConvention IMM_SWAP = new IMMSwapConvention("USD IMM Swap", ExternalId.of(SCHEME, "USD IMM Swap").toBundle(), FIXED_LEG_ID, SWAP_3M_IBOR_ID, IMM_3M_EXPIRY_CONVENTION);
-  private static final IMMFRAConvention IMM_FRA = new IMMFRAConvention("USD IMM FRA", ExternalId.of(SCHEME, "USD IMM FRA").toBundle(), LIBOR_3M_ID, IMM_3M_EXPIRY_CONVENTION);
+  private static final RollDateSwapConvention IMM_SWAP = new RollDateSwapConvention("USD IMM Swap", ExternalId.of(SCHEME, "USD IMM Swap").toBundle(), FIXED_LEG_ID, SWAP_3M_IBOR_ID, IMM_3M_EXPIRY_CONVENTION);
+  private static final RollDateFRAConvention IMM_FRA = new RollDateFRAConvention("USD IMM FRA", ExternalId.of(SCHEME, "USD IMM FRA").toBundle(), LIBOR_3M_ID, IMM_3M_EXPIRY_CONVENTION);
   private static final Map<ExternalId, Convention> CONVENTIONS = new HashMap<>();
   private static final ConventionSource CONVENTION_SOURCE;
   private static final CurveNodeCurrencyVisitor VISITOR;
@@ -288,7 +288,7 @@ public class CurveNodeCurrencyVisitorTest {
     final Map<ExternalId, Convention> map = new HashMap<>();
     map.put(LIBOR_3M_ID, LIBOR_3M);
     final CurveNodeCurrencyVisitor visitor = new CurveNodeCurrencyVisitor(new TestConventionSource(map));
-    final IMMFRANode node = new IMMFRANode(Tenor.ONE_DAY, Tenor.THREE_MONTHS, 4, 40, IMM_FRA_ID, "Test");
+    final RollDateFRANode node = new RollDateFRANode(Tenor.ONE_DAY, Tenor.THREE_MONTHS, 4, 40, IMM_FRA_ID, "Test");
     node.accept(visitor);
   }
 
@@ -297,7 +297,7 @@ public class CurveNodeCurrencyVisitorTest {
     final Map<ExternalId, Convention> map = new HashMap<>();
     map.put(IMM_FRA_ID, FIXED_LEG);
     final CurveNodeCurrencyVisitor visitor = new CurveNodeCurrencyVisitor(new TestConventionSource(map));
-    final IMMSwapNode node = new IMMSwapNode(Tenor.ONE_DAY, Tenor.THREE_MONTHS, 4, 40, IMM_FRA_ID, "Test");
+    final RollDateSwapNode node = new RollDateSwapNode(Tenor.ONE_DAY, 4, 40, IMM_FRA_ID, "Test");
     node.accept(visitor);
   }
 
@@ -307,7 +307,7 @@ public class CurveNodeCurrencyVisitorTest {
     map.put(FIXED_LEG_ID, FIXED_LEG);
     map.put(SWAP_3M_IBOR_ID, SWAP_3M_LIBOR);
     final CurveNodeCurrencyVisitor visitor = new CurveNodeCurrencyVisitor(new TestConventionSource(map));
-    final IMMSwapNode node = new IMMSwapNode(Tenor.ONE_DAY, Tenor.THREE_MONTHS, 4, 40, IMM_SWAP_ID, "Test");
+    final RollDateSwapNode node = new RollDateSwapNode(Tenor.ONE_DAY, 4, 40, IMM_SWAP_ID, "Test");
     node.accept(visitor);
   }
 
@@ -316,7 +316,7 @@ public class CurveNodeCurrencyVisitorTest {
     final Map<ExternalId, Convention> map = new HashMap<>();
     map.put(IMM_SWAP_ID, FIXED_LEG);
     final CurveNodeCurrencyVisitor visitor = new CurveNodeCurrencyVisitor(new TestConventionSource(map));
-    final IMMSwapNode node = new IMMSwapNode(Tenor.ONE_DAY, Tenor.THREE_MONTHS, 4, 40, IMM_SWAP_ID, "Test");
+    final RollDateSwapNode node = new RollDateSwapNode(Tenor.ONE_DAY, 4, 40, IMM_SWAP_ID, "Test");
     node.accept(visitor);
   }
 
@@ -326,7 +326,7 @@ public class CurveNodeCurrencyVisitorTest {
     map.put(IMM_SWAP_ID, IMM_SWAP);
     map.put(SWAP_3M_IBOR_ID, SWAP_3M_LIBOR);
     final CurveNodeCurrencyVisitor visitor = new CurveNodeCurrencyVisitor(new TestConventionSource(map));
-    final IMMSwapNode node = new IMMSwapNode(Tenor.ONE_DAY, Tenor.THREE_MONTHS, 4, 40, IMM_SWAP_ID, "Test");
+    final RollDateSwapNode node = new RollDateSwapNode(Tenor.ONE_DAY, 4, 40, IMM_SWAP_ID, "Test");
     node.accept(visitor);
   }
 
@@ -336,7 +336,7 @@ public class CurveNodeCurrencyVisitorTest {
     map.put(IMM_SWAP_ID, IMM_SWAP);
     map.put(FIXED_LEG_ID, FIXED_LEG);
     final CurveNodeCurrencyVisitor visitor = new CurveNodeCurrencyVisitor(new TestConventionSource(map));
-    final IMMSwapNode node = new IMMSwapNode(Tenor.ONE_DAY, Tenor.THREE_MONTHS, 4, 40, IMM_SWAP_ID, "Test");
+    final RollDateSwapNode node = new RollDateSwapNode(Tenor.ONE_DAY, 4, 40, IMM_SWAP_ID, "Test");
     node.accept(visitor);
   }
 
@@ -395,7 +395,7 @@ public class CurveNodeCurrencyVisitorTest {
 
   @Test
   public void testIMMFRANode() {
-    final IMMFRANode node = new IMMFRANode(Tenor.ONE_DAY, Tenor.THREE_MONTHS, 4, 40, IMM_FRA_ID, "Test");
+    final RollDateFRANode node = new RollDateFRANode(Tenor.ONE_DAY, Tenor.THREE_MONTHS, 4, 40, IMM_FRA_ID, "Test");
     final Set<Currency> currencies = node.accept(VISITOR);
     assertEquals(1, currencies.size());
     assertEquals(Currency.USD, currencies.iterator().next());
@@ -403,7 +403,7 @@ public class CurveNodeCurrencyVisitorTest {
 
   @Test
   public void testIMMSwapNode() {
-    final IMMSwapNode node = new IMMSwapNode(Tenor.ONE_DAY, Tenor.THREE_MONTHS, 4, 40, IMM_SWAP_ID, "Test");
+    final RollDateSwapNode node = new RollDateSwapNode(Tenor.ONE_DAY, 4, 40, IMM_SWAP_ID, "Test");
     final Set<Currency> currencies = node.accept(VISITOR);
     assertEquals(1, currencies.size());
     assertEquals(Currency.USD, currencies.iterator().next());

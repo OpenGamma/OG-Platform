@@ -20,9 +20,9 @@ import com.opengamma.financial.analytics.ircurve.strips.DeliverableSwapFutureNod
 import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
-import com.opengamma.financial.analytics.ircurve.strips.IMMFRANode;
-import com.opengamma.financial.analytics.ircurve.strips.IMMSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
+import com.opengamma.financial.analytics.ircurve.strips.RollDateFRANode;
+import com.opengamma.financial.analytics.ircurve.strips.RollDateSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.ThreeLegBasisSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.ZeroCouponInflationNode;
@@ -37,18 +37,21 @@ import com.opengamma.financial.convention.EquityConvention;
 import com.opengamma.financial.convention.FXForwardAndSwapConvention;
 import com.opengamma.financial.convention.FXSpotConvention;
 import com.opengamma.financial.convention.FederalFundsFutureConvention;
-import com.opengamma.financial.convention.IMMFRAConvention;
-import com.opengamma.financial.convention.IMMSwapConvention;
+import com.opengamma.financial.convention.FixedLegRollDateConvention;
+import com.opengamma.financial.convention.RollDateFRAConvention;
 import com.opengamma.financial.convention.IborIndexConvention;
 import com.opengamma.financial.convention.InflationLegConvention;
 import com.opengamma.financial.convention.InterestRateFutureConvention;
 import com.opengamma.financial.convention.OISLegConvention;
+import com.opengamma.financial.convention.ONArithmeticAverageLegConvention;
 import com.opengamma.financial.convention.OvernightIndexConvention;
 import com.opengamma.financial.convention.PriceIndexConvention;
+import com.opengamma.financial.convention.RollDateSwapConvention;
 import com.opengamma.financial.convention.SwapConvention;
 import com.opengamma.financial.convention.SwapFixedLegConvention;
 import com.opengamma.financial.convention.SwapIndexConvention;
 import com.opengamma.financial.convention.VanillaIborLegConvention;
+import com.opengamma.financial.convention.VanillaIborLegRollDateConvention;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
@@ -125,19 +128,19 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
   }
 
   @Override
-  public Set<Currency> visitIMMFRANode(final IMMFRANode node) {
-    final IMMFRAConvention convention = _conventionSource.getConvention(IMMFRAConvention.class, node.getImmFRAConvention());
+  public Set<Currency> visitRollDateFRANode(final RollDateFRANode node) {
+    final RollDateFRAConvention convention = _conventionSource.getConvention(RollDateFRAConvention.class, node.getRollDateFRAConvention());
     if (convention == null) {
-      throw new OpenGammaRuntimeException("Could not get IMM FRA convention with id " + node.getImmFRAConvention());
+      throw new OpenGammaRuntimeException("Could not get IMM FRA convention with id " + node.getRollDateFRAConvention());
     }
     return convention.accept(this);
   }
 
   @Override
-  public Set<Currency> visitIMMSwapNode(final IMMSwapNode node) {
-    final IMMSwapConvention convention = _conventionSource.getConvention(IMMSwapConvention.class, node.getSwapConvention());
+  public Set<Currency> visitRollDateSwapNode(final RollDateSwapNode node) {
+    final RollDateSwapConvention convention = _conventionSource.getConvention(RollDateSwapConvention.class, node.getRollDateSwapConvention());
     if (convention == null) {
-      throw new OpenGammaRuntimeException("Could not get swap convention with id " + node.getSwapConvention());
+      throw new OpenGammaRuntimeException("Could not get swap convention with id " + node.getRollDateSwapConvention());
     }
     return convention.accept(this);
   }
@@ -257,7 +260,7 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
   }
 
   @Override
-  public Set<Currency> visitIMMFRAConvention(final IMMFRAConvention convention) {
+  public Set<Currency> visitIMMFRAConvention(final RollDateFRAConvention convention) {
     final Convention underlyingConvention = _conventionSource.getConvention(convention.getIndexConvention());
     if (underlyingConvention == null) {
       throw new OpenGammaRuntimeException("Could not get convention with id " + convention.getIndexConvention());
@@ -266,7 +269,7 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
   }
 
   @Override
-  public Set<Currency> visitIMMSwapConvention(final IMMSwapConvention convention) {
+  public Set<Currency> visitIMMSwapConvention(final RollDateSwapConvention convention) {
     final Convention payConvention = _conventionSource.getConvention(convention.getPayLegConvention());
     if (payConvention == null) {
       throw new OpenGammaRuntimeException("Could not get convention with id " + convention.getPayLegConvention());
@@ -308,6 +311,15 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
   }
 
   @Override
+  public Set<Currency> visitONArithmeticAverageLegConvention(final ONArithmeticAverageLegConvention convention) {
+    final Convention underlyingConvention = _conventionSource.getConvention(convention.getOvernightIndexConvention());
+    if (underlyingConvention == null) {
+      throw new OpenGammaRuntimeException("Could not get convention with id " + convention.getOvernightIndexConvention());
+    }
+    return underlyingConvention.accept(this);
+  }
+
+  @Override
   public Set<Currency> visitOvernightIndexConvention(final OvernightIndexConvention convention) {
     return Collections.singleton(convention.getCurrency());
   }
@@ -338,6 +350,11 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
   }
 
   @Override
+  public Set<Currency> visitFixedLegRollDateConvention(final FixedLegRollDateConvention convention) {
+    return Collections.singleton(convention.getCurrency());
+  }
+
+  @Override
   public Set<Currency> visitSwapIndexConvention(final SwapIndexConvention convention) {
     final Convention underlyingConvention = _conventionSource.getConvention(convention.getSwapConvention());
     if (underlyingConvention == null) {
@@ -348,6 +365,15 @@ public class CurveNodeCurrencyVisitor implements CurveNodeVisitor<Set<Currency>>
 
   @Override
   public Set<Currency> visitVanillaIborLegConvention(final VanillaIborLegConvention convention) {
+    final Convention underlyingConvention = _conventionSource.getConvention(convention.getIborIndexConvention());
+    if (underlyingConvention == null) {
+      throw new OpenGammaRuntimeException("Could not get convention with id " + convention.getIborIndexConvention());
+    }
+    return underlyingConvention.accept(this);
+  }
+
+  @Override
+  public Set<Currency> visitVanillaIborLegRollDateConvention(final VanillaIborLegRollDateConvention convention) {
     final Convention underlyingConvention = _conventionSource.getConvention(convention.getIborIndexConvention());
     if (underlyingConvention == null) {
       throw new OpenGammaRuntimeException("Could not get convention with id " + convention.getIborIndexConvention());

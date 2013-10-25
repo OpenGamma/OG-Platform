@@ -14,8 +14,8 @@ import com.opengamma.financial.analytics.ircurve.strips.DeliverableSwapFutureNod
 import com.opengamma.financial.analytics.ircurve.strips.DiscountFactorNode;
 import com.opengamma.financial.analytics.ircurve.strips.FRANode;
 import com.opengamma.financial.analytics.ircurve.strips.FXForwardNode;
-import com.opengamma.financial.analytics.ircurve.strips.IMMFRANode;
-import com.opengamma.financial.analytics.ircurve.strips.IMMSwapNode;
+import com.opengamma.financial.analytics.ircurve.strips.RollDateFRANode;
+import com.opengamma.financial.analytics.ircurve.strips.RollDateSwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.RateFutureNode;
 import com.opengamma.financial.analytics.ircurve.strips.SwapNode;
 import com.opengamma.financial.analytics.ircurve.strips.ThreeLegBasisSwapNode;
@@ -86,12 +86,12 @@ public class CurveNodeVisitorAdapter<T> implements CurveNodeVisitor<T> {
   }
 
   @Override
-  public T visitIMMFRANode(final IMMFRANode node) {
+  public T visitRollDateFRANode(final RollDateFRANode node) {
     throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), node));
   }
 
   @Override
-  public T visitIMMSwapNode(final IMMSwapNode node) {
+  public T visitRollDateSwapNode(final RollDateSwapNode node) {
     throw new UnsupportedOperationException(getUnsupportedOperationMessage(getClass(), node));
   }
 
@@ -266,7 +266,7 @@ public class CurveNodeVisitorAdapter<T> implements CurveNodeVisitor<T> {
     }
 
     /**
-     * Adds a visitor for {@link IMMFRANode}s
+     * Adds a visitor for {@link RollDateFRANode}s
      * @param visitor The original visitor.
      * @return A visitor that can also handle IMM FRA nodes
      */
@@ -274,15 +274,15 @@ public class CurveNodeVisitorAdapter<T> implements CurveNodeVisitor<T> {
       _visitor = new CurveNodeVisitorDelegate<T>(_visitor) {
 
         @Override
-        public T visitIMMFRANode(final IMMFRANode node) {
-          return visitor.visitIMMFRANode(node);
+        public T visitRollDateFRANode(final RollDateFRANode node) {
+          return visitor.visitRollDateFRANode(node);
         }
       };
       return this;
     }
 
     /**
-     * Adds a visitor for {@link IMMSwapNode}s
+     * Adds a visitor for {@link RollDateSwapNode}s
      * @param visitor The original visitor.
      * @return A visitor that can also handle IMM swap nodes
      */
@@ -290,8 +290,8 @@ public class CurveNodeVisitorAdapter<T> implements CurveNodeVisitor<T> {
       _visitor = new CurveNodeVisitorDelegate<T>(_visitor) {
 
         @Override
-        public T visitIMMSwapNode(final IMMSwapNode node) {
-          return visitor.visitIMMSwapNode(node);
+        public T visitRollDateSwapNode(final RollDateSwapNode node) {
+          return visitor.visitRollDateSwapNode(node);
         }
       };
       return this;

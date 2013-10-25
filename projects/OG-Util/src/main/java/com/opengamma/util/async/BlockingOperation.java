@@ -12,7 +12,7 @@ package com.opengamma.util.async;
  * It is only normally wise to disable blocking operations for tasks that are read-only as an otherwise atomic write task could leave the system in an inconsistent state if the blocking exception is
  * thrown by one of its component tasks.
  */
-public final class BlockingOperation extends RuntimeException {
+public final class BlockingOperation extends Error {
 
   private static final long serialVersionUID = 1L;
 
