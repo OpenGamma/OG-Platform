@@ -99,7 +99,8 @@ public final class SwaptionPhysicalFixedCompoundedONCompoundedBlackMethod implem
     ArgumentChecker.notNull(swaption, "Swaption");
     ArgumentChecker.notNull(curveBlack, "Curves with Black volatility");
     final Swap<CouponFixedAccruedCompounding, CouponONCompounded> swap = swaption.getUnderlyingSwap();
-    return METHOD_SWAP.forwardModified(swap, curveBlack);
+//    return METHOD_SWAP.forwardModified(swap, curveBlack);
+    return METHOD_SWAP.forward(swap, curveBlack);
   }
 
   @Override
