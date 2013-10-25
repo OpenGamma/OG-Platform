@@ -68,6 +68,7 @@ public class JodaBeanRowParser extends RowParser {
    * Security properties to ignore when scanning
    */
   private static final String[] IGNORE_METAPROPERTIES = {
+    "securityType",
     "attributes",
     "uniqueid",
     "objectid",
