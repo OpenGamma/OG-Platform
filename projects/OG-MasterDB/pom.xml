@@ -49,6 +49,7 @@
   </dependencies>
 
   <properties>
+    <tests.testng.threads>1</tests.testng.threads>
   </properties>
 
 </project>
