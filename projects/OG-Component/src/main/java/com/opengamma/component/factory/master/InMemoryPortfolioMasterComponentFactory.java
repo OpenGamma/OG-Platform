@@ -44,11 +44,16 @@ public class InMemoryPortfolioMasterComponentFactory extends AbstractComponentFa
    */
   @PropertyDefinition
   private boolean _publishRest = true;
-
+  /**
+   * Whether to clone results in the underlying master. True by default.
+   */
+  @PropertyDefinition
+  private boolean _cloneResults = true;
 
   @Override
   public void init(final ComponentRepository repo, final LinkedHashMap<String, String> configuration) {
-    final PortfolioMaster master = new InMemoryPortfolioMaster();
+    final InMemoryPortfolioMaster master = new InMemoryPortfolioMaster();
+    master.setCloneResults(isCloneResults());
     final ComponentInfo info = new ComponentInfo(PortfolioMaster.class, getClassifier());
     info.addAttribute(ComponentInfoAttributes.LEVEL, 1);
     info.addAttribute(ComponentInfoAttributes.REMOTE_CLIENT_JAVA, RemotePortfolioMaster.class);
@@ -131,6 +136,31 @@ public class InMemoryPortfolioMasterComponentFactory extends AbstractComponentFa
   }
 
   //-----------------------------------------------------------------------
+  /**
+   * Gets whether to clone results in the underlying master. True by default.
+   * @return the value of the property
+   */
+  public boolean isCloneResults() {
+    return _cloneResults;
+  }
+
+  /**
+   * Sets whether to clone results in the underlying master. True by default.
+   * @param cloneResults  the new value of the property
+   */
+  public void setCloneResults(boolean cloneResults) {
+    this._cloneResults = cloneResults;
+  }
+
+  /**
+   * Gets the the {@code cloneResults} property.
+   * @return the property, not null
+   */
+  public final Property<Boolean> cloneResults() {
+    return metaBean().cloneResults().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
   @Override
   public InMemoryPortfolioMasterComponentFactory clone() {
     return (InMemoryPortfolioMasterComponentFactory) super.clone();
@@ -145,6 +175,7 @@ public class InMemoryPortfolioMasterComponentFactory extends AbstractComponentFa
       InMemoryPortfolioMasterComponentFactory other = (InMemoryPortfolioMasterComponentFactory) obj;
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           (isPublishRest() == other.isPublishRest()) &&
+          (isCloneResults() == other.isCloneResults()) &&
           super.equals(obj);
     }
     return false;
@@ -155,12 +186,13 @@ public class InMemoryPortfolioMasterComponentFactory extends AbstractComponentFa
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
     hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isCloneResults());
     return hash ^ super.hashCode();
   }
 
   @Override
   public String toString() {
-    StringBuilder buf = new StringBuilder(96);
+    StringBuilder buf = new StringBuilder(128);
     buf.append("InMemoryPortfolioMasterComponentFactory{");
     int len = buf.length();
     toString(buf);
@@ -176,6 +208,7 @@ public class InMemoryPortfolioMasterComponentFactory extends AbstractComponentFa
     super.toString(buf);
     buf.append("classifier").append('=').append(JodaBeanUtils.toString(getClassifier())).append(',').append(' ');
     buf.append("publishRest").append('=').append(JodaBeanUtils.toString(isPublishRest())).append(',').append(' ');
+    buf.append("cloneResults").append('=').append(JodaBeanUtils.toString(isCloneResults())).append(',').append(' ');
   }
 
   //-----------------------------------------------------------------------
@@ -199,12 +232,18 @@ public class InMemoryPortfolioMasterComponentFactory extends AbstractComponentFa
     private final MetaProperty<Boolean> _publishRest = DirectMetaProperty.ofReadWrite(
         this, "publishRest", InMemoryPortfolioMasterComponentFactory.class, Boolean.TYPE);
     /**
+     * The meta-property for the {@code cloneResults} property.
+     */
+    private final MetaProperty<Boolean> _cloneResults = DirectMetaProperty.ofReadWrite(
+        this, "cloneResults", InMemoryPortfolioMasterComponentFactory.class, Boolean.TYPE);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
-        "publishRest");
+        "publishRest",
+        "cloneResults");
 
     /**
      * Restricted constructor.
@@ -219,6 +258,8 @@ public class InMemoryPortfolioMasterComponentFactory extends AbstractComponentFa
           return _classifier;
         case -614707837:  // publishRest
           return _publishRest;
+        case 199795673:  // cloneResults
+          return _cloneResults;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -255,6 +296,14 @@ public class InMemoryPortfolioMasterComponentFactory extends AbstractComponentFa
       return _publishRest;
     }
 
+    /**
+     * The meta-property for the {@code cloneResults} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> cloneResults() {
+      return _cloneResults;
+    }
+
     //-----------------------------------------------------------------------
     @Override
     protected Object propertyGet(Bean bean, String propertyName, boolean quiet) {
@@ -263,6 +312,8 @@ public class InMemoryPortfolioMasterComponentFactory extends AbstractComponentFa
           return ((InMemoryPortfolioMasterComponentFactory) bean).getClassifier();
         case -614707837:  // publishRest
           return ((InMemoryPortfolioMasterComponentFactory) bean).isPublishRest();
+        case 199795673:  // cloneResults
+          return ((InMemoryPortfolioMasterComponentFactory) bean).isCloneResults();
       }
       return super.propertyGet(bean, propertyName, quiet);
     }
@@ -275,6 +326,9 @@ public class InMemoryPortfolioMasterComponentFactory extends AbstractComponentFa
           return;
         case -614707837:  // publishRest
           ((InMemoryPortfolioMasterComponentFactory) bean).setPublishRest((Boolean) newValue);
+          return;
+        case 199795673:  // cloneResults
+          ((InMemoryPortfolioMasterComponentFactory) bean).setCloneResults((Boolean) newValue);
           return;
       }
       super.propertySet(bean, propertyName, newValue, quiet);
