@@ -199,7 +199,7 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
     }
     return requirements;
   }
-
+  
   /**
    * Calculates the result
    *

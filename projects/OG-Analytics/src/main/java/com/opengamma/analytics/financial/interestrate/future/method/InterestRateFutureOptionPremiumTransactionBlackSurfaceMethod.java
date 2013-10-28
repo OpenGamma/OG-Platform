@@ -50,7 +50,8 @@ public final class InterestRateFutureOptionPremiumTransactionBlackSurfaceMethod 
   public CurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
     ArgumentChecker.isTrue(instrument instanceof InterestRateFutureOptionPremiumTransaction, "The instrument should be a InterestRateFutureOptionPremiumTransaction");
     final InterestRateFutureOptionPremiumTransaction transaction = (InterestRateFutureOptionPremiumTransaction) instrument;
-    final double pvTransaction = presentValueFromPrice(transaction, curves, transaction.getTradePrice());
+    final double price = SECURITY_METHOD.optionPrice(transaction.getUnderlyingOption(), curves);
+    final double pvTransaction = presentValueFromPrice(transaction, curves, price);
     return CurrencyAmount.of(transaction.getUnderlyingOption().getCurrency(), pvTransaction);
   }
 
