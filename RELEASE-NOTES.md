@@ -67,6 +67,14 @@ To 2.1.6
     https://github.com/OpenGamma/OG-Platform/commit/faf5e208534ce41636dcff4a02839e940e11b36e
     https://github.com/OpenGamma/OG-Platform/commit/25d224cfcfc8278a52b62bbfb21cf90ffb9f81a0
 
+    [PLAT-4959] InterestRateFutureOptionPremiumTransactionBlackSurfaceMethod: change the present value to use computed price.
+    [PLAT-4958] Time series for last margin price no longer required if the trade date is the valuation date
+    [PLAT-4957] Removing today's cashflows from swap theta calculations and adding javadocs
+    [PLAT-4938] Adding conventions for KRW
+    [PLAT-4954] Add support for Black analytic Vega for IR Futures Options
+    [PLAT-4953] Display security level black gamma for ir future options.
+    [PLAT-4952] Changed SwaptionPhysicalFixedCompoundedONCompoundedBlackMethod.forward() so that it returns forward instead forwardModified
+
 
 OpenGamma Platform 2.1
 ---------------------------------
@@ -204,6 +212,40 @@ Analytics compatibility
 - No expected differences
 
 To 2.1.4
+-----------
+
+As above, and:
+
+Configuration compatibility
+- No changes required
+
+Database compatibility
+- No upgrade required
+
+API compatibility
+- No significant changes
+
+Analytics compatibility
+- No expected differences
+
+To 2.1.5
+-----------
+
+As above, and:
+
+Configuration compatibility
+- No changes required
+
+Database compatibility
+- No upgrade required
+
+API compatibility
+- No significant changes
+
+Analytics compatibility
+- No expected differences
+
+To 2.1.6
 -----------
 
 As above, and:
