@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.joda.beans.Bean;
 import org.joda.beans.BeanBuilder;
@@ -261,6 +262,17 @@ public class SecuritySearchRequest extends AbstractSearchRequest {
     if (getExternalIdScheme() != null) {
       for (ExternalId identifier : security.getExternalIdBundle()) {
         if (RegexUtils.wildcardMatch(getExternalIdScheme(), identifier.getScheme().getName()) == false) {
+          return false;
+        }
+      }
+    }
+    if (getAttributes().size() > 0) {
+      for (Entry<String, String> entry : getAttributes().entrySet()) {
+        if (security.getAttributes().containsKey(entry.getKey()) == false) {
+          return false;
+        }
+        String otherValue = security.getAttributes().get(entry.getKey());
+        if (RegexUtils.wildcardMatch(entry.getValue(), otherValue) == false) {
           return false;
         }
       }
