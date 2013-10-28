@@ -179,7 +179,8 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
       s_logger.error("Could not find curve calculation configuration named " + curveCalculationConfigName);
       return null;
     }
-    final Currency currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
+    final Trade trade = target.getTrade();
+    final Currency currency = FinancialSecurityUtils.getCurrency(trade.getSecurity());
     if (!ComputationTargetSpecification.of(currency).equals(curveCalculationConfig.getTarget())) {
       s_logger.error("Security currency and curve calculation config id were not equal; have {} and {}", currency, curveCalculationConfig.getTarget());
       return null;
@@ -188,11 +189,10 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
     requirements.addAll(YieldCurveFunctionUtils.getCurveRequirements(curveCalculationConfig, curveCalculationConfigSource));
     requirements.add(getVolatilityRequirement(surfaceName, currency));
     try {
-      final Set<ValueRequirement> tsRequirements = _dataConverter.getConversionTimeSeriesRequirements(target.getTrade().getSecurity(), _converter.convert(target.getTrade()));
-      if (tsRequirements == null) {
-        return null;
+      final Set<ValueRequirement> tsRequirements = _dataConverter.getConversionTimeSeriesRequirements(trade.getSecurity(), _converter.convert(trade));
+      if (tsRequirements != null) {
+        requirements.addAll(tsRequirements);
       }
-      requirements.addAll(tsRequirements);
     } catch (final Exception e) {
       s_logger.error(e.getMessage());
       return null;
