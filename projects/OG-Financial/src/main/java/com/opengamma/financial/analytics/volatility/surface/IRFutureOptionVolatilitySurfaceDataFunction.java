@@ -111,7 +111,7 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
       throw new OpenGammaRuntimeException("Could not get volatility surface data");
     }
     @SuppressWarnings("unchecked")
-    final VolatilitySurfaceData<Number, Double> surfaceData = (VolatilitySurfaceData<Number, Double>) volatilityDataObject;
+    final VolatilitySurfaceData<Object, Double> surfaceData = (VolatilitySurfaceData<Object, Double>) volatilityDataObject;
     final ValueProperties properties = createValueProperties()
         .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.IR_FUTURE_OPTION).get();
@@ -185,13 +185,14 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
   }
 
   /** Build a volatility surface based on Expiry, T, and Strike, K. T is in measured in our standard OG-Analytic years */
-  private static VolatilitySurfaceData<Double, Double> getSurfaceFromVolatilityQuote(final VolatilitySurfaceData<Number, Double> optionVolatilities, final ZonedDateTime now,
+  private static VolatilitySurfaceData<Double, Double> getSurfaceFromVolatilityQuote(final VolatilitySurfaceData<Object, Double> optionVolatilities, final ZonedDateTime now,
       final Calendar calendar) {
     final Map<Pair<Double, Double>, Double> volatilityValues = new HashMap<>();
     final DoubleArrayList tList = new DoubleArrayList();
     final DoubleArrayList kList = new DoubleArrayList();
     final LocalDate today = now.toLocalDate();
-    for (final Number x : optionVolatilities.getXs()) {
+    for (final Object xObj : optionVolatilities.getXs()) {
+      final Number x = (Number) xObj;
       final Double t = FutureOptionUtils.getIRFutureOptionTtm(x.intValue(), today, calendar);
       for (final Double y : optionVolatilities.getYs()) {
         final Double volatility = optionVolatilities.getVolatility(x, y);
@@ -208,7 +209,7 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
 
   /** Build a volatility surface based on Expiry, T, and Strike, K. T is in measured in our standard OG-Analytic years */
   private static VolatilitySurfaceData<Double, Double> getSurfaceFromPriceQuote(final VolatilitySurfaceSpecification specification,
-      final VolatilitySurfaceData<Number, Double> optionPrices, final NodalDoublesCurve futurePrices, final ZonedDateTime now, final String surfaceQuoteType,
+      final VolatilitySurfaceData<Object, Double> optionPrices, final NodalDoublesCurve futurePrices, final ZonedDateTime now, final String surfaceQuoteType,
       final Calendar calendar, final SecuritySource securitySource) {
     double callAboveStrike = 0;
     final SurfaceInstrumentProvider<Number, Double> instrumentProvider = (SurfaceInstrumentProvider<Number, Double>) specification.getSurfaceInstrumentProvider();
