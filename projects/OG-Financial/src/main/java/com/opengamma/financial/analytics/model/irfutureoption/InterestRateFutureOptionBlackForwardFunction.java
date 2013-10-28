@@ -16,8 +16,6 @@ import com.opengamma.analytics.financial.interestrate.future.derivative.Interest
 import com.opengamma.analytics.financial.interestrate.future.method.InterestRateFutureSecurityDiscountingMethod;
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackCubeBundle;
 import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.value.ValueProperties;
-import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
@@ -39,7 +37,7 @@ public class InterestRateFutureOptionBlackForwardFunction extends InterestRateFu
    * Sets the value requirement name to {@link ValueRequirementNames#FORWARD}
    */
   public InterestRateFutureOptionBlackForwardFunction() {
-    super(ValueRequirementNames.FORWARD);
+    super(ValueRequirementNames.FORWARD, false);
   }
 
   @Override
@@ -55,11 +53,6 @@ public class InterestRateFutureOptionBlackForwardFunction extends InterestRateFu
       return Collections.singleton(new ComputedValue(spec, forward));
     }
     throw new OpenGammaRuntimeException("Could not handle instrument of type " + irFutureOptionTransaction.getClass());
-  }
-
-  @Override
-  protected ValueProperties.Builder getResultProperties(final String currency) {
-    return super.getResultProperties(currency).withoutAny(ValuePropertyNames.CURRENCY);
   }
 
 }

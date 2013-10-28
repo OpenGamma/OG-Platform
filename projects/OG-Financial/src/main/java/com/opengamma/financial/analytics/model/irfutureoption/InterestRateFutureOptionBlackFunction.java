@@ -61,7 +61,7 @@ import com.opengamma.util.money.Currency;
 
 /**
  * Base class for a range of functions computing values on an IRFuturesOption using the Black Model
- * 
+ *
  * @deprecated Use classes that descend from {@link BlackDiscountingIRFutureOptionFunction}
  */
 @Deprecated
@@ -70,6 +70,8 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
   private static final Logger s_logger = LoggerFactory.getLogger(InterestRateFutureOptionBlackFunction.class);
   /** The name of the value that will be calculated */
   private final String _valueRequirementName;
+  /** True if the result properties include {@link ValuePropertyNames#CURRENCY} */
+  private final boolean _setCurrencyProperty;
   /** Converts a {@link Trade} to an {@link InstrumentDefinition} */
   private InterestRateFutureOptionTradeConverterDeprecated _converter;
   /** Converts an {@link InstrumentDefinition} to an {@link InstrumentDerivative} */
@@ -77,10 +79,12 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
 
   /**
    * @param valueRequirementName The value requirement name, not null
+   * @param setCurrencyProperty True if the result properties include {@link ValuePropertyNames#CURRENCY}
    */
-  public InterestRateFutureOptionBlackFunction(final String valueRequirementName) {
+  public InterestRateFutureOptionBlackFunction(final String valueRequirementName, final boolean setCurrencyProperty) {
     ArgumentChecker.notNull(valueRequirementName, "value requirement name");
     _valueRequirementName = valueRequirementName;
+    _setCurrencyProperty = setCurrencyProperty;
   }
 
   @Override
@@ -198,7 +202,7 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
 
   /**
    * Calculates the result
-   * 
+   *
    * @param irFutureOption The IR future option
    * @param data The data used in pricing
    * @param spec The value specification of the result
@@ -208,15 +212,29 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
   protected abstract Set<ComputedValue> getResult(final InstrumentDerivative irFutureOption, final YieldCurveWithBlackCubeBundle data,
       final ValueSpecification spec, Set<ValueRequirement> desiredValues);
 
+  /**
+   * Gets the result properties.
+   * @param currency The currency
+   * @return The result properties
+   */
   protected ValueProperties.Builder getResultProperties(final String currency) {
-    return createValueProperties()
+    final ValueProperties.Builder builder = createValueProperties()
         .with(ValuePropertyNames.CALCULATION_METHOD, CalculationPropertyNamesAndValues.BLACK_METHOD)
         .withAny(ValuePropertyNames.CURVE_CALCULATION_CONFIG)
-        .withAny(ValuePropertyNames.SURFACE)
-        .with(ValuePropertyNames.CURRENCY, currency);
+        .withAny(ValuePropertyNames.SURFACE);
+    if (_setCurrencyProperty) {
+      return builder.with(ValuePropertyNames.CURRENCY, currency);
+    }
+    return builder;
   }
 
-  protected ValueRequirement getVolatilityRequirement(final String surface, final Currency currency) {
+  /**
+   * Gets the volatility surface requirement.
+   * @param surface The surface name
+   * @param currency The currency
+   * @return The volatility surface requirement
+   */
+  private static ValueRequirement getVolatilityRequirement(final String surface, final Currency currency) {
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.SURFACE, surface)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.IR_FUTURE_OPTION).get();

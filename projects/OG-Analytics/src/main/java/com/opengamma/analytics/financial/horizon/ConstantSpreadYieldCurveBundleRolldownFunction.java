@@ -15,13 +15,22 @@ import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
  */
 @Deprecated
 public final class ConstantSpreadYieldCurveBundleRolldownFunction implements RolldownFunction<YieldCurveBundle> {
+  /** Rolls down the yield curves without slide */
   private static final ConstantSpreadYieldCurveRolldownFunction CURVE_ROLLDOWN = ConstantSpreadYieldCurveRolldownFunction.getInstance();
+  /** The singleton instance */
   private static final ConstantSpreadYieldCurveBundleRolldownFunction INSTANCE = new ConstantSpreadYieldCurveBundleRolldownFunction();
 
+  /**
+   * Gets the singleton instance.
+   * @return The instance
+   */
   public static ConstantSpreadYieldCurveBundleRolldownFunction getInstance() {
     return INSTANCE;
   }
 
+  /**
+   * Private constructor
+   */
   private ConstantSpreadYieldCurveBundleRolldownFunction() {
   }
 

@@ -32,7 +32,7 @@ public class InterestRateFutureOptionBlackPriceFunction extends InterestRateFutu
    * Sets the value requirement name to {@link ValueRequirementNames#SECURITY_MODEL_PRICE}
    */
   public InterestRateFutureOptionBlackPriceFunction() {
-    super(ValueRequirementNames.SECURITY_MODEL_PRICE);
+    super(ValueRequirementNames.SECURITY_MODEL_PRICE, false);
   }
 
   @Override

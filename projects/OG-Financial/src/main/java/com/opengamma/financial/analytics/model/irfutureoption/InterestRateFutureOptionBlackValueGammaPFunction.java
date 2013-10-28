@@ -43,7 +43,7 @@ public class InterestRateFutureOptionBlackValueGammaPFunction extends InterestRa
    * Sets the value requirement name to {@link ValueRequirementNames#VALUE_GAMMA_P}
    */
   public InterestRateFutureOptionBlackValueGammaPFunction() {
-    super(ValueRequirementNames.VALUE_GAMMA_P);
+    super(ValueRequirementNames.VALUE_GAMMA_P, true);
   }
 
   @Override

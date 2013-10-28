@@ -29,8 +29,11 @@ public class InterestRateFutureOptionBlackPositionVegaFunction extends InterestR
   /** The calculator to compute the vega value */
   private static final PresentValueBlackVegaCalculator CALCULATOR = PresentValueBlackVegaCalculator.getInstance();
 
+  /**
+   * Sets the value requirement name to {@link ValueRequirementNames#POSITION_VEGA}
+   */
   public InterestRateFutureOptionBlackPositionVegaFunction() {
-    super(ValueRequirementNames.POSITION_VEGA);
+    super(ValueRequirementNames.POSITION_VEGA, true);
   }
 
   @Override

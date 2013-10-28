@@ -33,12 +33,16 @@ import com.opengamma.financial.analytics.model.black.BlackDiscountingPositionDel
  */
 @Deprecated
 public class InterestRateFutureOptionBlackPositionDeltaFunction extends InterestRateFutureOptionBlackFunction {
-
+  /** The logger */
+  private static final Logger s_logger = LoggerFactory.getLogger(InterestRateFutureOptionBlackPositionDeltaFunction.class);
   /** The calculator to compute the delta value */
   private static final PresentValueBlackDeltaForTransactionCalculator CALCULATOR = PresentValueBlackDeltaForTransactionCalculator.getInstance();
 
+  /**
+   * Sets the value requirement name to {@link ValueRequirementNames#POSITION_DELTA}
+   */
   public InterestRateFutureOptionBlackPositionDeltaFunction() {
-    super(ValueRequirementNames.POSITION_DELTA);
+    super(ValueRequirementNames.POSITION_DELTA, true);
   }
 
   @Override
@@ -53,9 +57,9 @@ public class InterestRateFutureOptionBlackPositionDeltaFunction extends Interest
     // Then get typical requirements
     return super.getRequirements(context, target, desiredValue);
   }
-  
+
   @Override
-  protected Set<ComputedValue> getResult(final InstrumentDerivative irFutureOption, final YieldCurveWithBlackCubeBundle curveBundle, 
+  protected Set<ComputedValue> getResult(final InstrumentDerivative irFutureOption, final YieldCurveWithBlackCubeBundle curveBundle,
                                           final ValueSpecification spec, final Set<ValueRequirement> desiredValues) {
     // Compute delta with unit scaling. Remember that future price will be quoted like 0.9965, not 99.65
     final double delta = irFutureOption.accept(CALCULATOR, curveBundle);
@@ -68,9 +72,9 @@ public class InterestRateFutureOptionBlackPositionDeltaFunction extends Interest
       scaleProperty = Iterables.getOnlyElement(scaleValue);
       scaleFactor = Double.parseDouble(scaleProperty);
     }
-    ValueProperties properties = spec.getProperties().copy().withoutAny(ValuePropertyNames.SCALE).with(ValuePropertyNames.SCALE, scaleProperty).get();
-    ValueSpecification specWithScale = new ValueSpecification(spec.getValueName(), spec.getTargetSpecification(), properties);
-    
+    final ValueProperties properties = spec.getProperties().copy().withoutAny(ValuePropertyNames.SCALE).with(ValuePropertyNames.SCALE, scaleProperty).get();
+    final ValueSpecification specWithScale = new ValueSpecification(spec.getValueName(), spec.getTargetSpecification(), properties);
+
     return Collections.singleton(new ComputedValue(specWithScale, delta * scaleFactor));
   }
 
@@ -79,6 +83,5 @@ public class InterestRateFutureOptionBlackPositionDeltaFunction extends Interest
     return super.getResultProperties(currency)
         .withAny(ValuePropertyNames.SCALE);
   }
-  
-  private static final Logger s_logger = LoggerFactory.getLogger(InterestRateFutureOptionBlackPositionDeltaFunction.class);
+
 }

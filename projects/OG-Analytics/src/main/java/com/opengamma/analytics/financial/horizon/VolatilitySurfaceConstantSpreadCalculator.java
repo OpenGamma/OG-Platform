@@ -25,12 +25,20 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
  */
 @Deprecated
 public final class VolatilitySurfaceConstantSpreadCalculator {
+  /** The singleton instance */
   private static final VolatilitySurfaceConstantSpreadCalculator INSTANCE = new VolatilitySurfaceConstantSpreadCalculator();
 
+  /**
+   * Gets the singleton instance.
+   * @return The instance
+   */
   public static VolatilitySurfaceConstantSpreadCalculator getInstance() {
     return INSTANCE;
   }
 
+  /**
+   * Private constructor
+   */
   private VolatilitySurfaceConstantSpreadCalculator() {
   }
 

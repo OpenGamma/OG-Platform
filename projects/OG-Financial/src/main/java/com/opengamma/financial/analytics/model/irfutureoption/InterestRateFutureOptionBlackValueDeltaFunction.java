@@ -36,9 +36,14 @@ import com.opengamma.financial.security.option.IRFutureOptionSecurity;
  */
 @Deprecated
 public class InterestRateFutureOptionBlackValueDeltaFunction extends InterestRateFutureOptionBlackFunction {
+  /** The logger */
+  private static final Logger s_logger = LoggerFactory.getLogger(InterestRateFutureOptionBlackValueDeltaFunction.class);
 
+  /**
+   * Sets the value requirement name to {@link ValueRequirementNames#VALUE_DELTA}
+   */
   public InterestRateFutureOptionBlackValueDeltaFunction() {
-    super(ValueRequirementNames.VALUE_DELTA);
+    super(ValueRequirementNames.VALUE_DELTA, true);
   }
 
   @Override
@@ -98,7 +103,5 @@ public class InterestRateFutureOptionBlackValueDeltaFunction extends InterestRat
     return super.getResultProperties(currency)
         .withAny(ValuePropertyNames.SCALE);
   }
-
-  private static final Logger s_logger = LoggerFactory.getLogger(InterestRateFutureOptionBlackValueDeltaFunction.class);
 
 }

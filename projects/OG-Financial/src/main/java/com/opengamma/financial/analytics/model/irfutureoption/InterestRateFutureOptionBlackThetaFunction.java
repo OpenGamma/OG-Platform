@@ -28,8 +28,11 @@ public class InterestRateFutureOptionBlackThetaFunction extends InterestRateFutu
   /** The calculator to compute the theta value */
   private static final PresentValueBlackThetaForSecurityCalculator CALCULATOR = PresentValueBlackThetaForSecurityCalculator.getInstance();
 
+  /**
+   * Sets the value requirement name to {@link ValueRequirementNames#THETA}
+   */
   public InterestRateFutureOptionBlackThetaFunction() {
-    super(ValueRequirementNames.THETA);
+    super(ValueRequirementNames.THETA, false);
   }
 
   @Override

@@ -23,14 +23,19 @@ import com.opengamma.financial.analytics.model.black.BlackDiscountingPVIRFutureO
  */
 @Deprecated
 public class InterestRateFutureOptionBlackPresentValueFunction extends InterestRateFutureOptionBlackFunction {
+  /** The present value calculator */
   private static final PresentValueBlackCalculator CALCULATOR = PresentValueBlackCalculator.getInstance();
 
+  /**
+   * Sets the value requirement name to {@link ValueRequirementNames#PRESENT_VALUE}
+   */
   public InterestRateFutureOptionBlackPresentValueFunction() {
-    super(ValueRequirementNames.PRESENT_VALUE);
+    super(ValueRequirementNames.PRESENT_VALUE, true);
   }
 
   @Override
-  protected Set<ComputedValue> getResult(final InstrumentDerivative irFutureOption, final YieldCurveWithBlackCubeBundle data, final ValueSpecification spec, Set<ValueRequirement> desiredValues) {
+  protected Set<ComputedValue> getResult(final InstrumentDerivative irFutureOption, final YieldCurveWithBlackCubeBundle data, final ValueSpecification spec,
+      final Set<ValueRequirement> desiredValues) {
     final double pv = irFutureOption.accept(CALCULATOR, data);
     return Collections.singleton(new ComputedValue(spec, pv));
   }

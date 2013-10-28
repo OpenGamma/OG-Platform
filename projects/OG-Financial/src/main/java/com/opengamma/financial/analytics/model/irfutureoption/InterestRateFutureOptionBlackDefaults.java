@@ -12,6 +12,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.core.position.Trade;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.target.ComputationTargetType;
@@ -27,12 +28,15 @@ import com.opengamma.util.tuple.Pair;
 
 /**
  * Adds {@link ValuePropertyNames#SURFACE} and {@link ValuePropertyNames#CURVE_CALCULATION_CONFIG} to the available
- * {@link ValueRequirement}'s produced by {@link InterestRateFutureOptionBlackFunction}
+ * {@link ValueRequirement}'s produced by {@link InterestRateFutureOptionBlackFunction}. The properties apply
+ * for interest rate future option {@link Trade}s.
  * @deprecated The functions for which these defaults apply are deprecated
  */
 @Deprecated
 public class InterestRateFutureOptionBlackDefaults extends DefaultPropertyFunction {
+  /** The logger */
   private static final Logger s_logger = LoggerFactory.getLogger(InterestRateFutureOptionBlackDefaults.class);
+  /** The value requirement names for which these defaults apply */
   private static final String[] s_valueRequirements = new String[] {
     ValueRequirementNames.PRESENT_VALUE,
     ValueRequirementNames.DELTA,
@@ -65,6 +69,11 @@ public class InterestRateFutureOptionBlackDefaults extends DefaultPropertyFuncti
    */
   private HashMap<String, Pair<String, String>> _currencyCurveConfigAndSurfaceNames;
 
+  /**
+   * Requires a list of (currency, curve configuration name, surface name) triples.
+   * @param currencyCurveConfigAndSurfaceNames A list of (currency, curve configuration name, surface name) triples, not null
+   * @throws IllegalArgumentException If each currency does not have a curve configuration name and surface name
+   */
   public InterestRateFutureOptionBlackDefaults(final String... currencyCurveConfigAndSurfaceNames) {
     super(ComputationTargetType.TRADE, true);
     ArgumentChecker.notNull(currencyCurveConfigAndSurfaceNames, "currency, curve config and surface names");
@@ -117,18 +126,35 @@ public class InterestRateFutureOptionBlackDefaults extends DefaultPropertyFuncti
     return OpenGammaFunctionExclusions.FUTURE_OPTION_BLACK;
   }
 
+  /**
+   * Gets the per-currency defaults.
+   * @return The per-currency defaults
+   */
   protected HashMap<String, Pair<String, String>> getCurrencyCurveConfigAndSurfaceNames() {
     return _currencyCurveConfigAndSurfaceNames;
   }
 
+  /**
+   * Sets the per-currency defaults.
+   * @param currencyCurveConfigAndSurfaceNames The default values, not null
+   */
   protected void setCurrencyCurveConfigAndSurfaceNames(final HashMap<String, Pair<String, String>> currencyCurveConfigAndSurfaceNames) {
+    ArgumentChecker.notNull(currencyCurveConfigAndSurfaceNames, "currency, curve config and surface names");
     _currencyCurveConfigAndSurfaceNames = currencyCurveConfigAndSurfaceNames;
   }
 
+  /**
+   * Gets the logger.
+   * @return The logger
+   */
   public static Logger getsLogger() {
     return s_logger;
   }
 
+  /**
+   * Gets the value requirements.
+   * @return The value requirements
+   */
   public static String[] getsValuerequirements() {
     return s_valueRequirements;
   }

@@ -39,14 +39,22 @@ import com.opengamma.financial.analytics.model.black.BlackDiscountingValueGammaI
  */
 @Deprecated
 public class InterestRateFutureOptionBlackValueGammaFunction extends InterestRateFutureOptionBlackFunction {
-  /** The methods  */
+  /** The logger */
+  private static final Logger s_logger = LoggerFactory.getLogger(InterestRateFutureOptionBlackValueGammaFunction.class);
+  /** The margin transaction method */
   private static final InterestRateFutureOptionMarginTransactionBlackSurfaceMethod MARGINED_TRANSANCTION_METHOD = InterestRateFutureOptionMarginTransactionBlackSurfaceMethod.getInstance();
+  /** The margin security method */
   private static final InterestRateFutureOptionMarginSecurityBlackSurfaceMethod MARGINED_SECURITY_METHOD = InterestRateFutureOptionMarginSecurityBlackSurfaceMethod.getInstance();
+  /** The premium transaction method */
   private static final InterestRateFutureOptionPremiumTransactionBlackSurfaceMethod PREMIUM_TRANSANCTION_METHOD = InterestRateFutureOptionPremiumTransactionBlackSurfaceMethod.getInstance();
+  /** The premium security method */
   private static final InterestRateFutureOptionPremiumSecurityBlackSurfaceMethod PREMIUM_SECURITY_METHOD = InterestRateFutureOptionPremiumSecurityBlackSurfaceMethod.getInstance();
 
+  /**
+   * Sets the value requirement name to {@link ValueRequirementNames#VALUE_GAMMA}
+   */
   public InterestRateFutureOptionBlackValueGammaFunction() {
-    super(ValueRequirementNames.VALUE_GAMMA);
+    super(ValueRequirementNames.VALUE_GAMMA, true);
   }
 
   @Override
@@ -101,5 +109,4 @@ public class InterestRateFutureOptionBlackValueGammaFunction extends InterestRat
         .withAny(ValuePropertyNames.SCALE);
   }
 
-  private static final Logger s_logger = LoggerFactory.getLogger(InterestRateFutureOptionBlackValueGammaFunction.class);
 }

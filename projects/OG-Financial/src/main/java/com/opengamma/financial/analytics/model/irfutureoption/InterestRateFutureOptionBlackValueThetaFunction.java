@@ -36,7 +36,7 @@ public class InterestRateFutureOptionBlackValueThetaFunction extends InterestRat
    * Sets the value requirement name to {@link ValueRequirementNames#VALUE_THETA}
    */
   public InterestRateFutureOptionBlackValueThetaFunction() {
-    super(ValueRequirementNames.VALUE_THETA);
+    super(ValueRequirementNames.VALUE_THETA, true);
   }
 
   @Override

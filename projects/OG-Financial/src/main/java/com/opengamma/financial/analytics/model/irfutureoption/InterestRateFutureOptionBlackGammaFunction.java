@@ -10,7 +10,6 @@ import java.util.Set;
 
 import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.financial.interestrate.PresentValueBlackGammaCalculator;
-import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackCubeBundle;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
@@ -31,16 +30,17 @@ public class InterestRateFutureOptionBlackGammaFunction extends InterestRateFutu
    */
   private static final PresentValueBlackGammaCalculator CALCULATOR = PresentValueBlackGammaCalculator.getInstance();
 
+  /**
+   * Sets the value requirement name to {@link ValueRequirementNames#GAMMA}
+   */
   public InterestRateFutureOptionBlackGammaFunction() {
-    super(ValueRequirementNames.GAMMA);
+    super(ValueRequirementNames.GAMMA, false);
   }
 
   @Override
   protected Set<ComputedValue> getResult(final InstrumentDerivative irFutureOptionTransaction, final YieldCurveWithBlackCubeBundle data, final ValueSpecification spec,
       final Set<ValueRequirement> desiredValues) {
-    final InstrumentDerivative irFutureOptionSecurity = ((InterestRateFutureOptionMarginTransaction) irFutureOptionTransaction).getUnderlyingOption();
-    final double gamma = irFutureOptionSecurity.accept(CALCULATOR, data);  
-    //final double gamma = irFutureOptionTransaction.accept(CALCULATOR, data);
-    return Collections.singleton(new ComputedValue(spec, gamma));
+    final double gamma = irFutureOptionTransaction.accept(CALCULATOR, data);
+    return Collections.singleton(new ComputedValue(spec, gamma / 100.));
   }
 }
